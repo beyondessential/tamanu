@@ -1103,6 +1103,28 @@ describe('Encounter', () => {
 
     describe('encounter history', () => {
       describe('single change', () => {
+        it('should record an encounter history when an encounter is created', async () => {
+          const encounter = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient.id,
+          });
+
+          const encounterHistoryRecords = await models.EncounterHistory.findAll({
+            where: {
+              encounterId: encounter.id,
+            },
+          });
+
+          expect(encounterHistoryRecords).toHaveLength(1);
+          expect(encounterHistoryRecords[0]).toMatchObject({
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: encounter.locationId,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+          });
+        });
+
         it('should record an encounter history for a location change', async () => {
           const [oldLocation, newLocation] = await models.Location.findAll({ limit: 2 });
           const submittedTime = getCurrentDateTimeString();
