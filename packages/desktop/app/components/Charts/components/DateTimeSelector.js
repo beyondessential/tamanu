@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { debounce } from 'lodash';
-import { addDays, format, startOfDay } from 'date-fns';
+import { addDays, format, parseISO, startOfDay } from 'date-fns';
 
 import { DateInput as DateInputComponent, SelectInput as SelectInputComponent } from '../../Field';
 import { Y_AXIS_WIDTH } from '../constants';
@@ -23,6 +23,7 @@ const DateInput = styled(DateInputComponent)`
 
 const CUSTOM_DATE = 'Custom Date';
 export const DATE_TIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
+const DATE_FORMAT = 'yyyy-MM-dd';
 
 const options = [
   {
@@ -86,12 +87,17 @@ export const DateTimeSelector = props => {
         <DateInput
           size="small"
           saveDateAsString
-          value={format(new Date(startDateString), 'yyyy-MM-dd')} // display date in yyyy-MM-dd format on text input
+          format={DATE_FORMAT} // set format so we can safely use parseISO
+          value={startDateString}
           onChange={debounce(newValue => {
             const { value: dateString } = newValue.target;
             if (dateString) {
-              formatAndSetStartDate(startOfDay(new Date(dateString)));
-              formatAndSetEndDate(startOfDay(addDays(new Date(dateString), 1)));
+              const selectedDayDate = parseISO(dateString);
+              const startOfDayDate = startOfDay(selectedDayDate);
+              const endOfDayDate = startOfDay(addDays(selectedDayDate, 1));
+
+              formatAndSetStartDate(startOfDayDate);
+              formatAndSetEndDate(endOfDayDate);
             }
           }, 200)}
           arrows
