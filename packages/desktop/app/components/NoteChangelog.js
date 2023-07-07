@@ -14,23 +14,23 @@ const StyledListItemText = styled(ListItemText)`
     width: 100%;
   }
 `;
-const StyledNoteItemSecondaryWrapper = styled.div`
+const StyledNoteChangelogSecondaryWrapper = styled.div`
   font-size: 11px;
   line-height: 18px;
   color: ${Colors.softText};
   margin-top: 5px;
 `;
 
-const NoteItemMain = ({ note }) => <span>{note.content} </span>;
+const NoteChangelogMain = ({ note }) => <span>{note.content} </span>;
 
-const NoteItemSecondary = ({ note }) => (
-  <StyledNoteItemSecondaryWrapper>
+const NoteChangelogSecondary = ({ note }) => (
+  <StyledNoteChangelogSecondaryWrapper>
     <>
       <span>{note.author?.displayName || ''} </span>
       {note.onBehalfOf ? <span>on behalf of {note.onBehalfOf.displayName} </span> : null}
       <DateDisplay date={note.date} showTime />
     </>
-  </StyledNoteItemSecondaryWrapper>
+  </StyledNoteChangelogSecondaryWrapper>
 );
 
 export const NoteChangelog = ({ note }) => (
@@ -38,8 +38,8 @@ export const NoteChangelog = ({ note }) => (
     <StyledListItemText
       primary={
         <>
-          <NoteItemMain note={note} />
-          <NoteItemSecondary note={note} />
+          <NoteChangelogMain note={note} />
+          <NoteChangelogSecondary note={note} />
         </>
       }
     />
