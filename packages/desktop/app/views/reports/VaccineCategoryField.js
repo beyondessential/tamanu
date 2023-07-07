@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { VACCINE_CATEGORIES } from 'shared/constants';
+import { VACCINE_CATEGORIES } from '@tamanu/shared/constants';
 
 import { SelectField, Field } from '../../components';
 

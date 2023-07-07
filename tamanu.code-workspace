@@ -25,8 +25,8 @@
       "path": "packages/scripts"
     },
     {
-      "name": "shared-src",
-      "path": "packages/shared-src"
+      "name": "shared",
+      "path": "packages/shared"
     },
     {
       "name": "sync-server",

@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dateTime';
-import { LAB_REQUEST_STATUSES, LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
 import { useAuth } from '../../contexts/Auth';
 
 import { MultiStepForm, FormStep } from '../MultiStepForm';
@@ -41,8 +41,6 @@ export const LabRequestMultiStepForm = ({
         status: LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
         labTestTypeIds: [],
         notes: '',
-        // LabTest date
-        date: getCurrentDateString(),
         ...editedObject,
       }}
       validationSchema={combinedValidationSchema}

@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 
-import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
-import { CovidVaccineCertificate } from 'shared/utils/patientCertificates';
-import { getCurrentDateString } from 'shared/utils/dateTime';
+import { ICAO_DOCUMENT_TYPES } from '@tamanu/shared/constants';
+import { CovidVaccineCertificate } from '@tamanu/shared/utils/patientCertificates';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 import { Modal } from '../../Modal';
 import { useApi } from '../../../api';

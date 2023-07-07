@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { VITALS_DATA_ELEMENT_IDS } from 'shared/constants/surveys';
+import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/shared/constants/surveys';
 import { useApi, isErrorUnknownAllow404s } from '../index';
 import { useVitalsSurvey } from './useVitalsSurvey';
 import { getConfigObject } from '../../utils';

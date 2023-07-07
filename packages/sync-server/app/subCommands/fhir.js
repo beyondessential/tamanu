@@ -8,10 +8,12 @@ import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 
 import { ApplicationContext } from '../ApplicationContext';
 
-const materialisableResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
-
 async function showStatus() {
   const app = await new ApplicationContext().init();
+  const materialisableResources = resourcesThatCanDo(
+    app.store.models,
+    FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
+  );
 
   for (const Resource of materialisableResources) {
     const count = await Resource.count();
@@ -46,6 +48,10 @@ async function showStatus() {
 
 async function doRefresh(resource, { existing, missing, since }) {
   const app = await new ApplicationContext().init();
+  const materialisableResources = resourcesThatCanDo(
+    app.store.models,
+    FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
+  );
 
   if (resource.toLowerCase() === 'all') {
     for (const Resource of materialisableResources) {

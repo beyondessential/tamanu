@@ -44,7 +44,7 @@ describe('Imaging requests', () => {
       expect(result).toHaveSucceeded();
       expect(result.body.requestedDate).toBeTruthy();
     });
-  
+
     it('should require a valid status', async () => {
       const result = await app.post('/v1/imagingRequest').send({
         encounterId: encounter.id,
@@ -54,7 +54,7 @@ describe('Imaging requests', () => {
       });
       expect(result).toHaveRequestError();
     });
-  
+
     it('should require a valid status', async () => {
       const result = await app.post('/v1/imagingRequest').send({
         encounterId: encounter.id,
@@ -63,9 +63,8 @@ describe('Imaging requests', () => {
         requestedById: app.user.id,
       });
       expect(result).toHaveRequestError();
-    });  
+    });
   });
-
 
   it('should get imaging requests for an encounter', async () => {
     const createdImagingRequest = await models.ImagingRequest.create({
@@ -91,32 +90,32 @@ describe('Imaging requests', () => {
         imagingType: IMAGING_TYPES.CT_SCAN,
         requestedById: app.user.id,
       });
-  
-      await models.NotePage.createForRecord(
+
+      await models.Note.createForRecord(
         createdImagingRequest.id,
         NOTE_RECORD_TYPES.IMAGING_REQUEST,
         NOTE_TYPES.AREA_TO_BE_IMAGED,
         'test-area-note',
         app.user.id,
       );
-  
-      await models.NotePage.createForRecord(
+
+      await models.Note.createForRecord(
         createdImagingRequest.id,
         NOTE_RECORD_TYPES.IMAGING_REQUEST,
         NOTE_TYPES.OTHER,
         'test-note',
         app.user.id,
       );
-  
+
       const result = await app.get(`/v1/imagingRequest/${createdImagingRequest.id}`);
-  
+
       expect(result).toHaveSucceeded();
-  
+
       const { body } = result;
       expect(body).toHaveProperty('note', 'test-note');
       expect(body).toHaveProperty('areaNote', 'test-area-note');
     });
-  
+
     it('should get relevant notes for an imagingRequest under an encounter', async () => {
       // Arrange
       const createdImagingRequest = await models.ImagingRequest.create({
@@ -124,26 +123,26 @@ describe('Imaging requests', () => {
         imagingType: IMAGING_TYPES.CT_SCAN,
         requestedById: app.user.id,
       });
-      const n1 = await models.NotePage.createForRecord(
+      const n1 = await models.Note.createForRecord(
         createdImagingRequest.id,
         NOTE_RECORD_TYPES.IMAGING_REQUEST,
         NOTE_TYPES.AREA_TO_BE_IMAGED,
         'test-area-note',
         app.user.id,
       );
-      const n2 = await models.NotePage.createForRecord(
+      const n2 = await models.Note.createForRecord(
         createdImagingRequest.id,
         NOTE_RECORD_TYPES.IMAGING_REQUEST,
         NOTE_TYPES.OTHER,
         'test-note',
         app.user.id,
       );
-  
+
       // Act
       const result = await app.get(
-        `/v1/encounter/${encounter.id}/imagingRequests?includeNotePages=true`,
+        `/v1/encounter/${encounter.id}/imagingRequests?includeNotes=true`,
       );
-  
+
       // Assert
       expect(result).toHaveSucceeded();
       const { body } = result;
@@ -154,13 +153,13 @@ describe('Imaging requests', () => {
         areaNote: 'test-area-note',
       });
       expect(
-        retrievedImgReq.notePages
-          .map(np => np.id)
+        retrievedImgReq.notes
+          .map(note => note.id)
           .sort()
           .join(','),
       ).toBe([n1.id, n2.id].sort().join(','));
     });
-  
+
     it('should get imaging request reference info when listing imaging requests', async () => {
       await models.ImagingRequest.create({
         encounterId: encounter.id,
@@ -171,7 +170,7 @@ describe('Imaging requests', () => {
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body.count).toBeGreaterThan(0);
-  
+
       const record = body.data[0];
       expect(record).toHaveProperty('requestedBy.displayName');
     });
@@ -404,7 +403,6 @@ describe('Imaging requests', () => {
   });
 
   describe('Listing requests', () => {
-    
     const makeRequestAtFacility = async (facilityId, status, resultCount = 0) => {
       const testLocation = await models.Location.create({
         ...fake(models.Location),
@@ -425,9 +423,11 @@ describe('Imaging requests', () => {
       for (let i = 0; i < resultCount; ++i) {
         // add a result
         // (note that `fake` will automatically assign a completedAt)
-        await models.ImagingResult.create(fake(models.ImagingResult, {
-          imagingRequestId: imagingRequest.id,
-        }));
+        await models.ImagingResult.create(
+          fake(models.ImagingResult, {
+            imagingRequestId: imagingRequest.id,
+          }),
+        );
       }
 
       return imagingRequest;
@@ -435,17 +435,20 @@ describe('Imaging requests', () => {
 
     describe('Filtering by allFacilities', () => {
       const otherFacilityId = 'kerang';
-  
+
       beforeAll(async () => {
         await models.ImagingRequest.truncate({ cascade: true });
         await makeRequestAtFacility(config.serverFacilityId);
         await makeRequestAtFacility(config.serverFacilityId);
-        await makeRequestAtFacility(config.serverFacilityId, IMAGING_REQUEST_STATUS_TYPES.COMPLETED);
+        await makeRequestAtFacility(
+          config.serverFacilityId,
+          IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+        );
         await makeRequestAtFacility(otherFacilityId);
         await makeRequestAtFacility(otherFacilityId);
         await makeRequestAtFacility(otherFacilityId, IMAGING_REQUEST_STATUS_TYPES.COMPLETED);
       });
-  
+
       it('should omit external requests when allFacilities is false', async () => {
         const result = await app.get(`/v1/imagingRequest?allFacilities=false`);
         expect(result).toHaveSucceeded();
@@ -453,22 +456,22 @@ describe('Imaging requests', () => {
           expect(ir.encounter.location.facilityId).toBe(config.serverFacilityId);
         });
       });
-  
+
       it('should include all requests when allFacilities is true', async () => {
         const result = await app.get(`/v1/imagingRequest?allFacilities=true`);
         expect(result).toHaveSucceeded();
-  
+
         const hasConfigFacility = result.body.data.some(
           ir => ir.encounter.location.facilityId === config.serverFacilityId,
         );
         expect(hasConfigFacility).toBe(true);
-  
+
         const hasOtherFacility = result.body.data.some(
           ir => ir.encounter.location.facilityId === otherFacilityId,
         );
         expect(hasOtherFacility).toBe(true);
       });
-  
+
       it('Completed tab should only show completed imaging requests', async () => {
         const result = await app.get(
           `/v1/imagingRequest?status=${IMAGING_REQUEST_STATUS_TYPES.COMPLETED}`,
@@ -481,8 +484,7 @@ describe('Imaging requests', () => {
     });
 
     describe('Pagination', () => {
-
-      // create a bunch of tests, use a number that isn't divisible by 10 to 
+      // create a bunch of tests, use a number that isn't divisible by 10 to
       // stress the pagination a bit harder
       const completedCount = 17;
       const incompleteCount = 9;
@@ -492,8 +494,12 @@ describe('Imaging requests', () => {
         await models.ImagingRequest.truncate({ cascade: true });
 
         for (let i = 0; i < completedCount; ++i) {
-          const resultCount = i % 4;  // get a few different result counts in, including 0
-          await makeRequestAtFacility(config.serverFacilityId, IMAGING_REQUEST_STATUS_TYPES.COMPLETED, resultCount);
+          const resultCount = i % 4; // get a few different result counts in, including 0
+          await makeRequestAtFacility(
+            config.serverFacilityId,
+            IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+            resultCount,
+          );
         }
         for (let i = 0; i < incompleteCount; ++i) {
           await makeRequestAtFacility(config.serverFacilityId);
@@ -507,11 +513,11 @@ describe('Imaging requests', () => {
           return result;
         };
 
-        const result = await getPage(0); 
+        const result = await getPage(0);
         expect(result.body.count).toBe(totalCount); // total requests
         expect(result.body.data).toHaveLength(10); // page
 
-        const result2 = await getPage(1); 
+        const result2 = await getPage(1);
         expect(result2.body.count).toBe(totalCount); // total requests
         expect(result2.body.data).toHaveLength(10); // page
 
@@ -519,79 +525,82 @@ describe('Imaging requests', () => {
           ...result.body.data.map(x => x.id),
           ...result2.body.data.map(x => x.id),
         ]);
-        expect(ids.size).toBe(20);  // ie no duplicates in the two result sets
+        expect(ids.size).toBe(20); // ie no duplicates in the two result sets
       });
 
       it('Should paginate correctly when sorting by completedAt', async () => {
         const getPage = async page => {
-          const result = await app.get(`/v1/imagingRequest?orderBy=completedAt&page=${page}&order=DESC`);
+          const result = await app.get(
+            `/v1/imagingRequest?orderBy=completedAt&page=${page}&order=DESC`,
+          );
           expect(result).toHaveSucceeded();
           return result;
         };
 
-        const result = await getPage(0); 
+        const result = await getPage(0);
         expect(result.body.count).toBe(totalCount); // total requests
         expect(result.body.data).toHaveLength(10); // page
 
-        const result2 = await getPage(1); 
+        const result2 = await getPage(1);
         expect(result2.body.count).toBe(totalCount); // total requests
         expect(result2.body.data).toHaveLength(10); // page
 
-        const result3 = await getPage(2); 
+        const result3 = await getPage(2);
         expect(result3.body.count).toBe(totalCount); // total requests
         expect(result3.body.data).toHaveLength(totalCount % 10); // page
 
-        const allResults = [
-          ...result.body.data, 
-          ...result2.body.data, 
-          ...result3.body.data
-        ];
+        const allResults = [...result.body.data, ...result2.body.data, ...result3.body.data];
 
-        const completed = allResults.filter(x => x.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED);
+        const completed = allResults.filter(
+          x => x.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+        );
         expect(completed).toHaveLength(completedCount);
-      
-        const notCompleted = allResults.filter(x => x.status !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED);
+
+        const notCompleted = allResults.filter(
+          x => x.status !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+        );
         expect(notCompleted).toHaveLength(incompleteCount);
 
         const ids = new Set(allResults.map(x => x.id));
-        expect(ids.size).toBe(totalCount);  // ie no duplicates in the two result sets
+        expect(ids.size).toBe(totalCount); // ie no duplicates in the two result sets
       });
 
       it('Should paginate correctly when sorting by completedAt and filtering by status', async () => {
         const getPage = async page => {
-          const result = await app.get(`/v1/imagingRequest?status=${IMAGING_REQUEST_STATUS_TYPES.COMPLETED}&orderBy=completedAt&page=${page}&order=ASC`);
+          const result = await app.get(
+            `/v1/imagingRequest?status=${IMAGING_REQUEST_STATUS_TYPES.COMPLETED}&orderBy=completedAt&page=${page}&order=ASC`,
+          );
           expect(result).toHaveSucceeded();
           return result;
         };
 
-        const result = await getPage(0); 
+        const result = await getPage(0);
         expect(result.body.count).toBe(completedCount); // total requests
         expect(result.body.data).toHaveLength(10); // page
 
-        const result2 = await getPage(1); 
+        const result2 = await getPage(1);
         expect(result2.body.count).toBe(completedCount); // total requests
         expect(result2.body.data).toHaveLength(completedCount % 10); // page
 
-        const result3 = await getPage(2); 
+        const result3 = await getPage(2);
         expect(result3.body.count).toBe(completedCount); // total requests
         expect(result3.body.data).toHaveLength(0); // page
 
-        const allResults = [
-          ...result.body.data, 
-          ...result2.body.data, 
-          ...result3.body.data
-        ];
+        const allResults = [...result.body.data, ...result2.body.data, ...result3.body.data];
 
-        const completed = allResults.filter(x => x.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED);
+        const completed = allResults.filter(
+          x => x.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+        );
         expect(completed).toHaveLength(completedCount);
-      
-        const notCompleted = allResults.filter(x => x.status !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED);
+
+        const notCompleted = allResults.filter(
+          x => x.status !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+        );
         expect(notCompleted).toHaveLength(0);
 
         const ids = new Set(allResults.map(x => x.id));
-        expect(ids.size).toBe(completedCount);  // ie no duplicates in the two result sets
+        expect(ids.size).toBe(completedCount); // ie no duplicates in the two result sets
       });
     });
-
   });
 });

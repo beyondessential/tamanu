@@ -1,4 +1,4 @@
-import { INVOICE_STATUSES, INVOICE_PAYMENT_STATUSES } from 'shared/constants';
+import { INVOICE_STATUSES, INVOICE_PAYMENT_STATUSES } from '@tamanu/shared/constants';
 
 export const isInvoiceEditable = invoice =>
   ![INVOICE_STATUSES.FINALISED, INVOICE_STATUSES.CANCELLED].includes(invoice.status) &&

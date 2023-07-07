@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
+import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
 import { Colors } from '../../../constants';
 import { MultipleLabRequestsPrintoutModal } from '../../../components/PatientPrinting/modals/MultipleLabRequestsPrintoutModal';
 import {
@@ -132,7 +132,7 @@ export const LabRequestSummaryPane = React.memo(
       site,
     } = labRequests[0];
 
-    const { data: notePages, isLoading: areNotesLoading } = useLabRequestNotes(id);
+    const { data: notes, isLoading: areNotesLoading } = useLabRequestNotes(id);
 
     return (
       <Container>
@@ -181,7 +181,7 @@ export const LabRequestSummaryPane = React.memo(
             encounter={encounter}
             labRequests={selectedRows.map(row => ({
               ...row,
-              notePages,
+              notes,
             }))}
             open={isOpen === MODALS.PRINT}
             onClose={() => setIsOpen(false)}

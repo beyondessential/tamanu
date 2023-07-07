@@ -1,20 +1,25 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { useSuggester } from '../../../api';
-import { AutocompleteInput, ConfirmCancelRow, FormGrid, Modal } from '../../../components';
-import { Colors } from '../../../constants';
+import React from 'react';
+import * as yup from 'yup';
 
-const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
-  border-top: 1px solid ${Colors.outline};
-  padding-top: 26px;
-`;
+import { useSuggester } from '../../../api';
+import {
+  Form,
+  Field,
+  AutocompleteField,
+  FormGrid,
+  Modal,
+  ModalActionRow,
+} from '../../../components';
+
+const validationSchema = yup.object().shape({
+  labTestLaboratoryId: yup.string().required('Laboratory is required'),
+});
 
 export const LabRequestChangeLabModal = React.memo(
   ({ labRequest, updateLabReq, open, onClose }) => {
-    const [labTestLaboratoryId, setLabTestLaboratoryId] = useState(labRequest.laboratory?.id);
     const laboratorySuggester = useSuggester('labTestLaboratory');
 
-    const updateLab = async () => {
+    const updateLab = async ({ labTestLaboratoryId }) => {
       await updateLabReq({
         labTestLaboratoryId,
       });
@@ -22,19 +27,26 @@ export const LabRequestChangeLabModal = React.memo(
     };
 
     return (
-      <Modal open={open} onClose={onClose} title="Change laboratory">
-        <FormGrid columns={1}>
-          <AutocompleteInput
-            label="Laboratory"
-            name="labTestLaboratoryId"
-            suggester={laboratorySuggester}
-            value={labTestLaboratoryId}
-            onChange={({ target: { value } }) => {
-              setLabTestLaboratoryId(value);
-            }}
-          />
-          <StyledConfirmCancelRow onConfirm={updateLab} confirmText="Confirm" onCancel={onClose} />
-        </FormGrid>
+      <Modal open={open} onClose={onClose} title="Change lab request laboratory">
+        <Form
+          onSubmit={updateLab}
+          validationSchema={validationSchema}
+          initialValues={{
+            labTestLaboratoryId: labRequest?.labTestLaboratoryId,
+          }}
+          render={({ submitForm }) => (
+            <FormGrid columns={1}>
+              <Field
+                component={AutocompleteField}
+                label="Laboratory"
+                name="labTestLaboratoryId"
+                suggester={laboratorySuggester}
+                required
+              />
+              <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onClose} />
+            </FormGrid>
+          )}
+        />
       </Modal>
     );
   },

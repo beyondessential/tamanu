@@ -100,7 +100,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('fetches a service request by materialised ID', async () => {
       // arrange
-      const { FhirServiceRequest, ImagingRequest, NoteItem, NotePage } = ctx.store.models;
+      const { FhirServiceRequest, ImagingRequest, Note } = ctx.store.models;
       const ir = await ImagingRequest.create(
         fake(ImagingRequest, {
           requestedById: resources.practitioner.id,
@@ -112,28 +112,22 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           imagingType: 'xRay',
         }),
       );
-      const [np1, np2] = await NotePage.bulkCreate([
-        fake(NotePage, {
+      await Note.bulkCreate([
+        fake(Note, {
           date: '2022-03-05',
           visibilityStatus: VISIBILITY_STATUSES.CURRENT,
           noteType: NOTE_TYPES.OTHER,
           recordType: ImagingRequest.name,
           recordId: ir.id,
+          content: 'Suspected adenoma',
         }),
-        fake(NotePage, {
+        fake(Note, {
           date: '2022-03-06',
           visibilityStatus: VISIBILITY_STATUSES.CURRENT,
           noteType: NOTE_TYPES.OTHER,
           recordType: ImagingRequest.name,
           recordId: ir.id,
-        }),
-      ]);
-      await NoteItem.bulkCreate([
-        fake(NoteItem, { notePageId: np1.id, content: 'Suspected adenoma' }),
-        fake(NoteItem, { notePageId: np1.id, content: 'Patient may need mobility assistance' }),
-        fake(NoteItem, {
-          notePageId: np2.id,
-          content: 'Patient may have shrapnel in leg - need to confirm beforehand',
+          content: 'Patient may need mobility assistance',
         }),
       ]);
 
@@ -157,7 +151,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         resourceType: 'ServiceRequest',
         id: expect.any(String),
         meta: {
-          lastUpdated: formatFhirDate(ir.updatedAt),
+          lastUpdated: formatFhirDate(mat.lastUpdated),
         },
         identifier: [
           {
@@ -222,17 +216,15 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         note: [
           {
             time: formatFhirDate('2022-03-05'),
-            text: `Suspected adenoma
-
-Patient may need mobility assistance`,
+            text: 'Suspected adenoma',
           },
           {
             time: formatFhirDate('2022-03-06'),
-            text: 'Patient may have shrapnel in leg - need to confirm beforehand',
+            text: 'Patient may need mobility assistance',
           },
         ],
       });
-      expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(ir.updatedAt)));
+      expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
       expect(response).toHaveSucceeded();
 
       // regression EPI-403
@@ -317,9 +309,6 @@ Patient may need mobility assistance`,
         resourceType: 'Bundle',
         id: expect.any(String),
         timestamp: expect.any(String),
-        meta: {
-          lastUpdated: formatFhirDate(ir.updatedAt),
-        },
         type: 'searchset',
         total: 1,
         link: [
@@ -334,7 +323,7 @@ Patient may need mobility assistance`,
               resourceType: 'ServiceRequest',
               id: expect.any(String),
               meta: {
-                lastUpdated: formatFhirDate(ir.updatedAt),
+                lastUpdated: expect.any(String),
               },
               identifier: [
                 {
@@ -437,9 +426,6 @@ Patient may need mobility assistance`,
         resourceType: 'Bundle',
         id: expect.any(String),
         timestamp: expect.any(String),
-        meta: {
-          lastUpdated: formatFhirDate(ir.updatedAt),
-        },
         type: 'searchset',
         total: 1,
         link: [
@@ -454,7 +440,7 @@ Patient may need mobility assistance`,
               resourceType: 'ServiceRequest',
               id: expect.any(String),
               meta: {
-                lastUpdated: formatFhirDate(ir.updatedAt),
+                lastUpdated: expect.any(String),
               },
               identifier: [
                 {
@@ -557,9 +543,6 @@ Patient may need mobility assistance`,
         resourceType: 'Bundle',
         id: expect.any(String),
         timestamp: expect.any(String),
-        meta: {
-          lastUpdated: formatFhirDate(ir.updatedAt),
-        },
         type: 'searchset',
         total: 1,
         link: [
@@ -574,7 +557,7 @@ Patient may need mobility assistance`,
               resourceType: 'ServiceRequest',
               id: expect.any(String),
               meta: {
-                lastUpdated: formatFhirDate(ir.updatedAt),
+                lastUpdated: expect.any(String),
               },
               identifier: [
                 {
@@ -681,12 +664,9 @@ Patient may need mobility assistance`,
           );
 
           await ir.setAreas([resources.area1.id]);
-          await ImagingRequest.sequelize.query(
-            `UPDATE imaging_requests SET updated_at = $1 WHERE id = $2`,
-            { bind: [addDays(new Date(), 5), ir.id] },
-          );
           await ir.reload();
-          await FhirServiceRequest.materialiseFromUpstream(ir.id);
+          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+          mat.update({ lastUpdated: addDays(new Date(), 5) });
           return ir;
         })(),
         (async () => {
@@ -702,12 +682,9 @@ Patient may need mobility assistance`,
           );
 
           await ir.setAreas([resources.area2.id]);
-          await ImagingRequest.sequelize.query(
-            `UPDATE imaging_requests SET updated_at = $1 WHERE id = $2`,
-            { bind: [addDays(new Date(), 10), ir.id] },
-          );
           await ir.reload();
-          await FhirServiceRequest.materialiseFromUpstream(ir.id);
+          const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+          mat.update({ lastUpdated: addDays(new Date(), 10) });
           return ir;
         })(),
       ]);

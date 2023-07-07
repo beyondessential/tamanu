@@ -1,7 +1,6 @@
-import Chance from 'chance';
 import { formatRFC7231 } from 'date-fns';
 
-import { fake } from 'shared/test-helpers/fake';
+import { fake, chance } from 'shared/test-helpers';
 import { convertISO9075toRFC3339 } from 'shared/utils/dateTime';
 import { fakeUUID } from 'shared/utils/generateId';
 import { formatFhirDate } from 'shared/utils/fhir/datetime';
@@ -10,7 +9,6 @@ import { createTestContext } from '../../utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
-const chance = new Chance();
 
 async function destroyDatabaseTables(models) {
   const modelNames = [
@@ -155,14 +153,14 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
-      expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(labTest.updatedAt)));
+      expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
       expect(response.body).toMatchObject({
         resourceType: 'DiagnosticReport',
         id: expect.any(String),
         meta: {
           // TODO: uncomment when we support versioning
           // versionId: expect.any(String),
-          lastUpdated: formatFhirDate(labTest.updatedAt),
+          lastUpdated: formatFhirDate(mat.lastUpdated),
         },
         effectiveDateTime: convertISO9075toRFC3339(labRequest.sampleTime),
         issued: convertISO9075toRFC3339(labRequest.requestedDate),
@@ -290,9 +288,6 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
       expect(response.body).toEqual({
         resourceType: 'Bundle',
         id: expect.any(String),
-        meta: {
-          lastUpdated: formatFhirDate(labTest.updatedAt),
-        },
         type: 'searchset',
         timestamp: expect.any(String),
         total: 1,
@@ -314,7 +309,7 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
               meta: {
                 // TODO: uncomment when we support versioning
                 // versionId: expect.any(String),
-                lastUpdated: formatFhirDate(labTest.updatedAt),
+                lastUpdated: formatFhirDate(mat.lastUpdated),
               },
               code: {
                 coding: [

@@ -7,7 +7,7 @@ import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { ListTable } from './reusable/ListTable';
 import { PatientDetailPrintout } from './reusable/PatientDetailPrintout';
-import { NotesPagesSection } from './reusable/NotesPagesSection';
+import { NotesSection } from './reusable/NotesSection';
 import { Divider } from './reusable/Divider';
 import { DateFacilitySection } from './reusable/DateFacilitySection';
 
@@ -59,7 +59,7 @@ const columns = [
 export const MultipleLabRequestsPrintout = React.memo(
   ({ patient, labRequests, encounter, village, additionalData, certificateData }) => {
     const { title, subTitle, logo } = certificateData;
-    const idsAndNotePages = labRequests.map(lr => [lr.displayId, lr.notePages]);
+    const idsAndNotes = labRequests.map(lr => [lr.displayId, lr.notes]);
 
     return (
       <CertificateWrapper>
@@ -72,7 +72,7 @@ export const MultipleLabRequestsPrintout = React.memo(
         <Divider />
         <DateFacilitySection encounter={encounter} />
         <ListTable data={labRequests} columns={columns} />
-        <NotesPagesSection idsAndNotePages={idsAndNotePages} />
+        <NotesSection idsAndNotes={idsAndNotes} />
       </CertificateWrapper>
     );
   },

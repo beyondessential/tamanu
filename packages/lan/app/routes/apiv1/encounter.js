@@ -11,7 +11,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
 } from 'shared/constants';
 import { uploadAttachment } from '../../utils/uploadAttachment';
-import { notePageListHandler } from '../../routeHandlers';
+import { noteListHandler } from '../../routeHandlers';
 
 import {
   simpleGet,
@@ -40,12 +40,21 @@ encounter.put(
     req.checkPermission('write', encounterObject);
 
     await db.transaction(async () => {
+      let systemNote;
+
       if (req.body.discharge) {
         req.checkPermission('write', 'Discharge');
         if (!req.body.discharge.dischargerId) {
           // Only automatic discharges can have a null discharger ID
           throw new InvalidParameterError('A discharge must have a discharger.');
         }
+        const discharger = await models.User.findByPk(req.body.discharge.dischargerId);
+        if (!discharger) {
+          throw new InvalidParameterError(
+            `Discharger with id ${req.body.discharge.dischargerId} not found.`,
+          );
+        }
+        systemNote = `Patient discharged by ${discharger.displayName}.`;
 
         // Update medications that were marked for discharge and ensure
         // only isDischarge, quantity and repeats fields are edited
@@ -63,7 +72,7 @@ encounter.put(
         const referral = await models.Referral.findByPk(referralId);
         await referral.update({ encounterId: id });
       }
-      await encounterObject.update(req.body, user);
+      await encounterObject.update({ ...req.body, systemNote }, user);
     });
 
     res.send(encounterObject);
@@ -81,11 +90,9 @@ encounter.post(
       throw new NotFoundError();
     }
     req.checkPermission('write', owner);
-    const notePage = await owner.createNotePage(body);
-    await notePage.createNoteItem(body);
-    const response = await notePage.getCombinedNoteObject(models);
+    const note = await owner.createNote(body);
 
-    res.send(response);
+    res.send(note);
   }),
 );
 
@@ -148,10 +155,10 @@ encounterRelations.get(
       orderBy = 'createdAt',
       rowsPerPage,
       page,
-      includeNotePages: includeNotePagesStr = 'false',
+      includeNotes: includeNotesStr = 'false',
       status,
     } = query;
-    const includeNotePages = includeNotePagesStr === 'true';
+    const includeNote = includeNotesStr === 'true';
 
     req.checkPermission('list', 'ImagingRequest');
 
@@ -185,7 +192,7 @@ encounterRelations.get(
       objects.map(async ir => {
         return {
           ...ir.forResponse(),
-          ...(includeNotePages ? await ir.extractNotes() : undefined),
+          ...(includeNote ? await ir.extractNotes() : undefined),
           areas: ir.areas.map(a => a.forResponse()),
         };
       }),
@@ -195,14 +202,14 @@ encounterRelations.get(
   }),
 );
 
-encounterRelations.get('/:id/notePages', notePageListHandler(NOTE_RECORD_TYPES.ENCOUNTER));
+encounterRelations.get('/:id/notes', noteListHandler(NOTE_RECORD_TYPES.ENCOUNTER));
 
 encounterRelations.get(
-  '/:id/notePages/noteTypes',
+  '/:id/notes/noteTypes',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const encounterId = params.id;
-    const noteTypeCounts = await models.NotePage.count({
+    const noteTypeCounts = await models.Note.count({
       group: ['noteType'],
       where: { recordId: encounterId, recordType: 'Encounter' },
     });

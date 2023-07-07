@@ -1,10 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
+import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants/labs';
 
-import { LAB_REQUEST_STATUSES } from 'shared/constants/labs';
 import { useSelectableColumn } from '../../Table';
-
 import { ConfirmCancelRow } from '../../ButtonRow';
 import { DateDisplay } from '../../DateDisplay';
 import { useApi } from '../../../api';
@@ -63,7 +62,7 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
     ['labRequests', encounter.id],
     async () => {
       const result = await api.get(`encounter/${encodeURIComponent(encounter.id)}/labRequests`, {
-        includeNotePages: 'true',
+        includeNotes: 'true',
         status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
         order: 'asc',
         orderBy: 'requestedDate',

@@ -36,6 +36,7 @@ const ManualLabResultModal = React.memo(({ labTest, onClose, open, isReadOnly })
       onClose={onClose}
       title={`Enter result – ${labTest && labTest.labTestType.name} | Test ID ${labRequest &&
         labRequest.displayId}`}
+      cornerExitButton={false}
     >
       <ManualLabResultForm
         labTest={labTest}
@@ -60,13 +61,23 @@ const makeRangeStringAccessor = sex => ({ labTestType }) => {
 };
 
 const columns = sex => [
-  { title: 'Test type', key: 'type', accessor: row => row.labTestType.name },
+  { title: 'Test type', key: 'labTestType.name', accessor: row => row.labTestType.name },
   {
     title: 'Result',
     key: 'result',
     accessor: ({ result }) => (result ? capitaliseFirstLetter(result) : ''),
   },
-  { title: 'Clinical range', key: 'reference', accessor: makeRangeStringAccessor(sex) },
+  {
+    title: 'Units',
+    key: 'labTestType.unit',
+    accessor: ({ labTestType }) => labTestType?.unit || '',
+  },
+  {
+    title: 'Reference',
+    key: 'reference',
+    accessor: makeRangeStringAccessor(sex),
+    sortable: false,
+  },
   { title: 'Method', key: 'labTestMethod', accessor: getMethod, sortable: false },
   { title: 'Lab officer', key: 'laboratoryOfficer' },
   { title: 'Verification', key: 'verification' },

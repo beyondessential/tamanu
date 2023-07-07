@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
-import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
+import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
+import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import styled from 'styled-components';
 import { useApi, useSuggester } from '../api';
 import { combineQueries } from '../api/combineQueries';
@@ -46,9 +47,17 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
   });
 
   const handleSubmit = async data => {
-    const response = await api.post(`labRequest`, {
-      ...data,
+    const { notes, ...rest } = data;
+    const response = await api.post('labRequest', {
+      ...rest,
       encounterId: encounter.id,
+      labTest: {
+        date: getCurrentDateString(),
+      },
+      note: {
+        date: getCurrentDateTimeString(),
+        content: notes,
+      },
     });
     setNewLabRequestIds(response.map(request => request.id));
   };

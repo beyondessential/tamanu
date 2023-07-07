@@ -3,8 +3,7 @@ import styled from 'styled-components';
 
 import { useEncounter } from '../../../contexts/Encounter';
 import { NotePageModal } from '../../../components/NotePageModal';
-import { NotePageTableWithPermission } from '../../../components/NotePageTable';
-import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
+import { TableButtonRow } from '../../../components';
 import { TabPane } from '../components';
 import { SelectInput } from '../../../components/Field';
 import { noteTypes } from '../../../constants';
@@ -14,7 +13,7 @@ const StyledSelectInput = styled(SelectInput)`
   width: 200px;
 `;
 
-export const NotesPane = React.memo(({ encounter, readonly }) => {
+export const NotesPane = React.memo(({ encounter }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const { noteType, setNoteType } = useEncounterNotes();
   const { loadEncounter } = useEncounter();
@@ -38,21 +37,21 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
           value={noteType}
           isClearable={false}
         />
-        <ButtonWithPermissionCheck
+        {/* <ButtonWithPermissionCheck
           onClick={() => setModalOpen(true)}
           disabled={readonly}
           verb="create"
           noun="EncounterNote"
         >
           New note
-        </ButtonWithPermissionCheck>
+        </ButtonWithPermissionCheck> */}
       </TableButtonRow>
-      <NotePageTableWithPermission
+      {/* <NotePageTableWithPermission
         noteType={noteType}
         encounterId={encounter.id}
         verb="write"
         noun="EncounterNote"
-      />
+      /> */}
     </TabPane>
   );
 });

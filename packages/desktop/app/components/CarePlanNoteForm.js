@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi, useSuggester } from '../api';
 import { Colors } from '../constants';
 import { Button } from './Button';
@@ -28,7 +28,7 @@ export function CarePlanNoteForm({
   const submitNote = async (patientCarePlanId, body) =>
     api.post(`patientCarePlan/${patientCarePlanId}/notes`, body);
 
-  const updateNote = async updatedNote => api.put(`notePages/${updatedNote.id}`, updatedNote);
+  const updateNote = async updatedNote => api.put(`notes/${updatedNote.id}`, updatedNote);
   return (
     <Form
       onSubmit={async values => {

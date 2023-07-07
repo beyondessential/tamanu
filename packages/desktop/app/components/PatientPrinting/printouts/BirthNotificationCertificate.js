@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import Divider from '@material-ui/core/Divider';
 import { Typography, Box } from '@material-ui/core';
 
-import { ageInYears, getCurrentDateString } from 'shared/utils/dateTime';
+import { ageInYears, getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 import { DateDisplay } from '../../DateDisplay';
 import {

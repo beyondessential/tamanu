@@ -1,15 +1,21 @@
 import React from 'react';
 import styled from 'styled-components';
 import { groupBy } from 'lodash';
-import { APPOINTMENT_STATUSES } from 'shared/constants';
+import { APPOINTMENT_STATUSES } from '@tamanu/shared/constants';
 import { Colors } from '../../constants';
 import { Appointment } from './Appointment';
 
 const Column = ({ header, appointments, onAppointmentUpdated }) => {
   const appointmentsByStartTime = [...appointments].sort((a, b) => a.startTime - b.startTime);
+  // If header's length is larger than 14 characters, split it into two lines. Width expands if needed.
+  const hasSpace = header.includes(' ');
+  const width = header.length > 14 && hasSpace ? `${(header.length * 15) / 2}px` : '100%';
+
   return (
     <>
-      <ColumnHeader className="location">{header}</ColumnHeader>
+      <ColumnHeader className="location" $width={width}>
+        {header}
+      </ColumnHeader>
       <ColumnBody className="appointments">
         {appointmentsByStartTime.map(appt => (
           <Appointment key={appt.id} appointment={appt} onUpdated={onAppointmentUpdated} />
@@ -65,13 +71,11 @@ export const DailySchedule = ({
       };
     });
   return (
-    <>
-      <Container>
-        {columns.map(props => (
-          <Column onAppointmentUpdated={onAppointmentUpdated} {...props} />
-        ))}
-      </Container>
-    </>
+    <Container>
+      {columns.map(props => (
+        <Column onAppointmentUpdated={onAppointmentUpdated} {...props} />
+      ))}
+    </Container>
   );
 };
 
@@ -80,23 +84,30 @@ const Container = styled.div`
   grid-template-rows: max-content 1fr;
   grid-auto-flow: column;
   justify-content: start;
+  position: relative;
+  width: fit-content;
 `;
 
 const ColumnHeader = styled.div`
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  width: ${({ $width }) => $width}};
   border: 1px solid ${Colors.outline};
-  border-bottom: none;
   border-right: none;
   font-weight: bold;
   padding: 0.75em 1.5em;
   text-align: center;
-  background-color: ${Colors.background};
+  background-color: ${Colors.white};
+  position: sticky;
+  top: 0;
+  text-color: ${Colors.darkText};
   :nth-last-of-type(2) {
     border-right: 1px solid ${Colors.outline};
   }
 `;
 
 const ColumnBody = styled.div`
-  background-color: ${Colors.white};
   border: 1px solid ${Colors.outline};
   border-right: none;
   padding: 0;
