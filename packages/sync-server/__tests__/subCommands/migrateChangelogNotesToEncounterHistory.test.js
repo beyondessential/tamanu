@@ -1,4 +1,5 @@
 import { sub } from 'date-fns';
+import { Op } from 'sequelize';
 
 import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patients';
 import { fake } from 'shared/test-helpers/fake';
@@ -13,6 +14,9 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
   let patient;
   let facility1;
   let facility2;
+  let placeholderUser;
+  let placeholderDepartment;
+  let placeholderLocation;
   let locationGroup1;
   let locationGroup2;
 
@@ -47,10 +51,11 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
     );
   };
 
-  const createUser = async clinicianName => {
+  const createUser = async (clinicianName, overrides) => {
     return models.User.create(
       fake(models.User, {
         displayName: clinicianName,
+        ...overrides,
       }),
     );
   };
@@ -58,9 +63,21 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
   const clearTestData = async () => {
     await models.EncounterHistory.truncate({ cascade: true, force: true });
     await models.Encounter.truncate({ cascade: true, force: true });
-    await models.Location.truncate({ cascade: true, force: true });
-    await models.Department.truncate({ cascade: true, force: true });
-    await models.User.truncate({ cascade: true, force: true });
+    await models.Location.destroy({
+      where: { id: { [Op.not]: placeholderLocation.id } },
+      cascade: true,
+      force: true,
+    });
+    await models.Department.destroy({
+      where: { id: { [Op.not]: placeholderDepartment.id } },
+      cascade: true,
+      force: true,
+    });
+    await models.User.destroy({
+      where: { id: { [Op.not]: placeholderUser.id } },
+      cascade: true,
+      force: true,
+    });
     await models.NoteItem.truncate({ cascade: true, force: true });
     await models.NotePage.truncate({ cascade: true, force: true });
   };
@@ -89,6 +106,16 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       code: 'ward-2',
       name: 'Ward 2',
       facilityId: facility1.id,
+    });
+
+    placeholderLocation = await createLocation('Placeholder location', {
+      id: 'location-Placeholder',
+    });
+    placeholderDepartment = await createDepartment('Placeholder department', {
+      id: 'department-Placeholder',
+    });
+    placeholderUser = await createUser('Placeholder user', {
+      id: 'user-Placeholder',
     });
   });
 
@@ -952,7 +979,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       });
     });
 
-    it('skips changelog with duplicated location names in a location group', async () => {
+    it('replaces duplicated location names in a location group with placeholder location', async () => {
       const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
       const location1 = await createLocation('location same name', {
         locationGroupId: locationGroup1.id,
@@ -1001,10 +1028,28 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         order: [['date', 'ASC']],
       });
 
-      expect(encounterHistoryRecords).toHaveLength(1);
+      expect(encounterHistoryRecords).toHaveLength(3);
 
       // Latest encounter
       expect(encounterHistoryRecords[0]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: placeholderLocation.id,
+        examinerId: clinician.id,
+        encounterType,
+      });
+
+      // Latest encounter
+      expect(encounterHistoryRecords[1]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: placeholderLocation.id,
+        examinerId: clinician.id,
+        encounterType,
+      });
+
+      // Latest encounter
+      expect(encounterHistoryRecords[2]).toMatchObject({
         encounterId: encounter.id,
         departmentId: department.id,
         locationId: location3.id,
@@ -1013,7 +1058,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       });
     });
 
-    it('skips changelog with duplicated department names in a facility', async () => {
+    it('replaces duplicated department names in a facility with placeholder deparment', async () => {
       const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
       const department1 = await createDepartment('department same name', {
         facilityId: facility1.id,
@@ -1062,14 +1107,102 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         order: [['date', 'ASC']],
       });
 
-      expect(encounterHistoryRecords).toHaveLength(1);
+      expect(encounterHistoryRecords).toHaveLength(3);
+
+      expect(encounterHistoryRecords[0]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: placeholderDepartment.id,
+        locationId: location.id,
+        examinerId: clinician.id,
+        encounterType,
+      });
+
+      expect(encounterHistoryRecords[1]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: placeholderDepartment.id,
+        locationId: location.id,
+        examinerId: clinician.id,
+        encounterType,
+      });
 
       // Latest encounter
-      expect(encounterHistoryRecords[0]).toMatchObject({
+      expect(encounterHistoryRecords[2]).toMatchObject({
         encounterId: encounter.id,
         departmentId: department3.id,
         locationId: location.id,
         examinerId: clinician.id,
+        encounterType,
+      });
+    });
+
+    it('replaces duplicated clinician names in a facility with placeholder clinician', async () => {
+      const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+      const clinician1 = await createUser('clinician same name');
+      const clinician2 = await createUser('clinician same name');
+      const clinician3 = await createUser('clinician 3');
+      const department = await createDepartment('department');
+      const location = await createLocation('location');
+      const encounterType = 'admission';
+
+      const encounter = await createEncounter(patient, {
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: clinician1.id,
+        encounterType,
+        startDate: toDateTimeString(sub(new Date(), { days: 6 })),
+      });
+
+      // Change clinician 1
+      await encounter.updateClinician(
+        clinician2.id,
+        toDateTimeString(sub(new Date(), { days: 4 })),
+      );
+      encounter.examinerId = clinician2.id;
+      await encounter.save();
+
+      // Change clinician 2
+      await encounter.updateClinician(
+        clinician3.id,
+        toDateTimeString(sub(new Date(), { days: 4 })),
+      );
+      encounter.examinerId = clinician3.id;
+      await encounter.save();
+
+      // Migration
+      await migrateChangelogNotesToEncounterHistory();
+
+      expect(exitSpy).toBeCalledWith(0);
+
+      const encounterHistoryRecords = await models.EncounterHistory.findAll({
+        order: [['date', 'ASC']],
+      });
+
+      expect(encounterHistoryRecords).toHaveLength(3);
+
+      // 1st encounter
+      expect(encounterHistoryRecords[0]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: placeholderUser.id,
+        encounterType,
+      });
+
+      // 2nd encounter
+      expect(encounterHistoryRecords[1]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: placeholderUser.id,
+        encounterType,
+      });
+
+      // Latest encounter
+      expect(encounterHistoryRecords[2]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: clinician3.id,
         encounterType,
       });
     });

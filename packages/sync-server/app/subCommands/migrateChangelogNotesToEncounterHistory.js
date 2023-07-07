@@ -307,9 +307,38 @@ export async function migrateChangelogNotesToEncounterHistory({
             select
                 log.encounter_id as record_id,
                 log.start_datetime as date,
-                d.id as department_id,
-                l.id as location_id,
-                u.id as examiner_id,
+                case when exists (select name 
+                                from unique_department_names uniques
+                                where name = d.name
+                                and d.facility_id = uniques.facility_id)
+                        then 
+                            d.id
+                        else 
+                            'department-Placeholder'
+                    end as department_id,
+                case when (lg.id notnull and 
+                            log.location_group_name <> 'non_determined_location_group_name' and
+                            exists (select uniques.name 
+                                    from unique_location_names_in_location_groups uniques 
+                                    where uniques.name = l.name 
+                                    and lg.id = uniques.location_group_id)) 
+                        or 
+                            exists (select name 
+                                from unique_location_names_in_facility uniques
+                            where name = l.name
+                                and l.facility_id = uniques.facility_id)
+                        then l.id
+                    else
+                        'location-Placeholder'
+                    end as location_id,
+                case when exists (select display_name 
+                                from unique_user_names
+                                where display_name = u.display_name)
+                        then 
+                            u.id
+                        else 
+                            'user-Placeholder'
+                    end as examiner_id,
                 log.encounter_type
             from change_log_historical_complete log
             left join departments d on d.name = log.department_name and
@@ -324,24 +353,13 @@ export async function migrateChangelogNotesToEncounterHistory({
             and l.facility_id = log.encounter_facility_id
             -- This is to filter the case where there are multiple location 
             -- with the same names out of the changelog, same as departments and users
-            and case when lg.id notnull and log.location_group_name <> 'non_determined_location_group_name' then
-                    exists (select name 
-                                from unique_location_names_in_location_groups uniques 
-                            where name = l.name 
-                                and lg.id = uniques.location_group_id)
-                else
-                    exists (select name 
-                                from unique_location_names_in_facility uniques
-                            where name = l.name
-                                and l.facility_id = uniques.facility_id)
-                end
-            and exists (select name 
-                            from unique_department_names uniques
-                        where name = d.name
-                            and d.facility_id = uniques.facility_id)
-            and exists (select display_name 
-                            from unique_user_names
-                        where display_name = u.display_name)
+            group by 
+                record_id,
+                date,
+                department_id,
+                location_id,
+                examiner_id,
+                encounter_type
             order by record_id, date
         ),
         inserted as (
