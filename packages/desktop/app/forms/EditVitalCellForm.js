@@ -15,6 +15,7 @@ import { getValidationSchema } from '../utils';
 import { Colors } from '../constants';
 import { useApi } from '../api';
 import { useEncounter } from '../contexts/Encounter';
+import { DateDisplay } from '../components/DateDisplay';
 
 const Text = styled(Typography)`
   font-size: 14px;
@@ -72,7 +73,7 @@ const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
       </LogText>
       {reasonForChange && <LogText>Reason for change to record: {reasonForChangeLabel}</LogText>}
       <LogTextSmall>
-        {userDisplayName} {date}
+        {userDisplayName} <DateDisplay date={date} showTime shortYear />
       </LogTextSmall>
     </LogContainer>
   );
