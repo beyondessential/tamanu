@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@material-ui/lab';
-import { Box } from '@material-ui/core';
 import styled from 'styled-components';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
 import { Field, OuterLabelFieldWrapper, RadioField } from '../../components';
@@ -27,7 +26,7 @@ const OPTIONS = {
   },
 };
 
-const RadioItemSkeleton = styled(Skeleton)`
+const ItemSkeleton = styled(Skeleton)`
   padding: 16px 14px;
   margin-right: 14px;
   border-radius: 4px;
@@ -35,6 +34,20 @@ const RadioItemSkeleton = styled(Skeleton)`
   width: 247px;
   height: 88px;
 `;
+
+const ItemSkeletonWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 3px;
+`;
+
+const RadioItemSkeleton = ({ itemsLength }) => (
+  <ItemSkeletonWrapper>
+    {Array.from({ length: itemsLength }, (_, i) => (
+      <ItemSkeleton key={`radio-item-skeleton-${i}`} variant="rect" />
+    ))}
+  </ItemSkeletonWrapper>
+);
 
 const useLabRequestFormTypeOptions = () => {
   const api = useApi();
@@ -44,21 +57,21 @@ const useLabRequestFormTypeOptions = () => {
   const { data, isSuccess, isLoading } = useQuery(['suggestions/labTestPanel/all'], () =>
     api.get(`suggestions/labTestPanel/all`),
   );
-  const arePanels = isSuccess && data?.length > 0;
-  const options = [];
-  if (arePanels) {
-    options.push(OPTIONS.PANEL);
-  }
-  if (!onlyAllowLabPanels) {
-    options.push(OPTIONS.INDIVIDUAL);
-  }
+  const possibleOptions = [OPTIONS.PANEL, OPTIONS.INDIVIDUAL];
+  const options =
+    isSuccess &&
+    possibleOptions.filter(option => {
+      if (option.value === LAB_REQUEST_FORM_TYPES.PANEL) return data?.length > 0;
+      if (option.value === LAB_REQUEST_FORM_TYPES.INDIVIDUAL) return !onlyAllowLabPanels;
+      return true;
+    });
+  const defaultOption = options?.[0]?.value;
 
-  const defaultOption = isSuccess && options.length > 0 ? options[0].value : undefined;
-  return { options, defaultOption, isLoading };
+  return { options, possibleOptions, isLoading, defaultOption };
 };
 
 export const LabRequestFormTypeRadioField = ({ value, setFieldValue }) => {
-  const { options, defaultOption, isLoading } = useLabRequestFormTypeOptions();
+  const { options, defaultOption, possibleOptions, isLoading } = useLabRequestFormTypeOptions();
 
   useEffect(() => {
     if (!defaultOption || value) return;
@@ -68,23 +81,19 @@ export const LabRequestFormTypeRadioField = ({ value, setFieldValue }) => {
 
   return (
     <div style={{ gridColumn: '1 / -1' }}>
-      {isLoading ? (
-        <OuterLabelFieldWrapper label="Select your request type" required>
-          <Box display="flex" alignItems="center" marginTop="3px">
-            <RadioItemSkeleton variant="rect" />
-            <RadioItemSkeleton variant="rect" />
-          </Box>
-        </OuterLabelFieldWrapper>
-      ) : (
-        <Field
-          required
-          name="requestFormType"
-          isLoading={isLoading}
-          label="Select your request type"
-          component={RadioField}
-          options={options}
-        />
-      )}
+      <OuterLabelFieldWrapper label="Select your request type" required>
+        {isLoading ? (
+          <RadioItemSkeleton itemsLength={possibleOptions.length} />
+        ) : (
+          <Field
+            required
+            name="requestFormType"
+            isLoading={isLoading}
+            component={RadioField}
+            options={options}
+          />
+        )}
+      </OuterLabelFieldWrapper>
     </div>
   );
 };
