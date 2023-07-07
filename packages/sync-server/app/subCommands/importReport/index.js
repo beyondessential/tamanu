@@ -9,7 +9,7 @@ export async function importReport(options) {
   const name = options.name || versionData.name;
 
   if (!name) {
-    throw new Error("Name must be provided in the JSON file or via the -n parameter");
+    throw new Error('Name must be provided in the JSON file or via the -n parameter');
   }
 
   const store = await initDatabase({ testMode: false });
