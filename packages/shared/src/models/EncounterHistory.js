@@ -50,14 +50,14 @@ export class EncounterHistory extends Model {
     });
   }
 
-  static async createSnapshot(data) {
-    await EncounterHistory.create({
-      encounterId: data.encounterId,
-      encounterType: data.encounterType,
-      locationId: data.locationId,
-      departmentId: data.departmentId,
-      examinerId: data.examinerId,
-      date: data.submittedTime || getCurrentDateTimeString(),
+  static async createSnapshot(encounter, submittedTime) {
+    return EncounterHistory.create({
+      encounterId: encounter.id,
+      encounterType: encounter.encounterType,
+      locationId: encounter.locationId,
+      departmentId: encounter.departmentId,
+      examinerId: encounter.examinerId,
+      date: submittedTime || getCurrentDateTimeString(),
     });
   }
 

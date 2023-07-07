@@ -311,14 +311,7 @@ export class Encounter extends Model {
   static async create(...args) {
     const { EncounterHistory } = this.sequelize.models;
     const encounter = await super.create(...args);
-    await EncounterHistory.createSnapshot({
-      encounterId: encounter.id,
-      encounterType: encounter.encounterType,
-      locationId: encounter.locationId,
-      departmentId: encounter.departmentId,
-      examinerId: encounter.examinerId,
-      date: getCurrentDateTimeString(),
-    });
+    await EncounterHistory.createSnapshot(encounter, getCurrentDateTimeString());
 
     return encounter;
   }
@@ -507,15 +500,15 @@ export class Encounter extends Model {
         isLocationChanged ||
         isClinicianChanged
       ) {
-        await EncounterHistory.createSnapshot({
-          encounterId: this.id,
+        const newEncounter = {
+          id: this.id,
           encounterType: this.encounterType,
           locationId: this.locationId,
           departmentId: this.departmentId,
           examinerId: this.examinerId,
-          date: data.submittedTime || getCurrentDateTimeString(),
           ...data,
-        });
+        };
+        await EncounterHistory.createSnapshot(newEncounter, data.submittedTime);
       }
 
       const { submittedTime, ...encounterData } = data;
