@@ -608,6 +608,10 @@
           "shortLabel": "Discharge disposition",
           "longLabel": "Discharge disposition",
           "hidden": true
+        },
+        "diagnosis": {
+          "shortLabel": "Diagnosis",
+          "longLabel": "Diagnosis"
         }
       },
       "features": {
@@ -813,7 +817,8 @@
       "serviceRequestLabDisplayId": "http://data-dictionary.tamanu-fiji.org/tamanu-mrid-labrequest.html",
       "serviceRequestLabId": "http://data-dictionary.tamanu-fiji.org/tamanu-id-labrequest.html",
       "imagingStudyAccessionId": "http://data-dictionary.tamanu-fiji.org/ris-accession-number.html",
-      "ethnicityId": "http://data-dictionary.tamanu-fiji.org/extensions/ethnic-group-code.html"
+      "ethnicityId": "http://data-dictionary.tamanu-fiji.org/extensions/ethnic-group-code.html",
+      "locationPhysicalType": "http://terminology.hl7.org/CodeSystem/location-physical-type"
     }
   },
   "s3": {},

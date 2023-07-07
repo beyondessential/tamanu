@@ -40,7 +40,6 @@ async function bumpPackageJson(packagePath, newVersion) {
 
 console.log('Bumping package.jsons to', version);
 for (const pkg of topLevelPkg.workspaces.packages) {
-  if (pkg === 'packages/shared') continue;
   await bumpPackageJson(pkg, version);
 }
 await bumpPackageJson('.', version);
