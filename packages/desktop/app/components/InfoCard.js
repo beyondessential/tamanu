@@ -1,22 +1,15 @@
-import React, { createContext, useContext } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Colors } from '../constants';
 
 const GRID_ROW_GAP = 18;
-const inlineContext = createContext(false);
-
-const Card = styled.div`
-  background: white;
-  box-shadow: ${({ $elevated }) => ($elevated ? '2px 2px 25px rgba(0, 0, 0, 0.1)' : 'none')};
-  border-radius: 5px;
-  padding: 32px 30px;
-  border: 1px solid ${Colors.outline};
-`;
 
 const CardHeader = styled.div`
   border-bottom: 1px solid ${Colors.softOutline};
-  padding-bottom: 12px;
+  padding-bottom: 10px;
   margin-bottom: 15px;
+  color: ${props => props.theme.palette.text.tertiary};
+  font-size: 16px;
 `;
 
 const CardBody = styled.div`
@@ -43,28 +36,37 @@ const CardCell = styled.div`
   }
 `;
 
-const CardLabel = styled.span`
-  ${props => (props.$inline ? 'margin-right: 5px' : 'margin-bottom: 8px')};
-`;
+const CardLabel = styled.span``;
 
 const CardValue = styled(CardLabel)`
   font-weight: 500;
   color: ${props => props.theme.palette.text.secondary};
-  display: ${props => (props.$inline ? 'inline' : 'block')};
 `;
 
-const InfoCardEntry = ({ label, value }) => {
-  const inline = useContext(inlineContext);
-  return (
-    <>
-      <CardLabel $inline={inline}>
-        {label}
-        {inline ? ':' : ''}
-      </CardLabel>
-      <CardValue $inline={inline}>{value}</CardValue>
-    </>
-  );
-};
+const Card = styled.div`
+  background: white;
+  box-shadow: ${({ $elevated }) => ($elevated ? '2px 2px 25px rgba(0, 0, 0, 0.1)' : 'none')};
+  border-radius: 5px;
+  padding: 32px 30px;
+  border: 1px solid ${Colors.outline};
+
+  ${CardLabel} {
+    ${({ $inlineValues }) => ($inlineValues ? 'margin-right: 5px' : 'margin-bottom: 8px')};
+    &:first-child:after {
+      content: ${({ $inlineValues }) => ($inlineValues ? "':'" : '')};
+    }
+  }
+  ${CardValue} {
+    display: ${({ $inlineValues }) => ($inlineValues ? 'inline' : 'block')};
+  }
+`;
+
+const InfoCardEntry = ({ label, value }) => (
+  <>
+    <CardLabel>{label}</CardLabel>
+    <CardValue>{value}</CardValue>
+  </>
+);
 
 export const InfoCardHeader = ({ label, value, ...props }) => (
   <CardHeader {...props}>
@@ -78,10 +80,9 @@ export const InfoCardItem = ({ label, value, ...props }) => (
   </CardCell>
 );
 
-export const InfoCard = ({ children, elevated, inlineValues }) => (
-  <inlineContext.Provider value={inlineValues}>
-    <Card $elevated={elevated}>
-      <CardBody>{children}</CardBody>
-    </Card>
-  </inlineContext.Provider>
+export const InfoCard = ({ HeaderComponent = null, children, elevated, inlineValues }) => (
+  <Card $elevated={elevated} $inlineValues={inlineValues}>
+    {HeaderComponent}
+    <CardBody>{children}</CardBody>
+  </Card>
 );
