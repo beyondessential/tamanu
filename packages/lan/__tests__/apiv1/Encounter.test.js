@@ -1,3 +1,6 @@
+import { subWeeks } from 'date-fns';
+import { isEqual } from 'lodash';
+
 import {
   createDummyPatient,
   createDummyEncounter,
@@ -8,8 +11,6 @@ import { LAB_REQUEST_STATUSES, IMAGING_REQUEST_STATUS_TYPES, NOTE_TYPES } from '
 import { setupSurveyFromObject } from 'shared/demoData/surveys';
 import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';
-import { subWeeks } from 'date-fns';
-import { isEqual } from 'lodash';
 
 import { uploadAttachment } from '../../app/utils/uploadAttachment';
 import { createTestContext } from '../utilities';
@@ -136,12 +137,12 @@ describe('Encounter', () => {
       patientId: patient.id,
     });
     await Promise.all([
-      models.NotePage.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 4'),
-      models.NotePage.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 5'),
-      models.NotePage.createForRecord(encounter.id, 'Encounter', 'admission', 'Test 6'),
+      models.Note.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 4'),
+      models.Note.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 5'),
+      models.Note.createForRecord(encounter.id, 'Encounter', 'admission', 'Test 6'),
     ]);
 
-    const result = await app.get(`/v1/encounter/${encounter.id}/notePages?noteType=treatmentPlan`);
+    const result = await app.get(`/v1/encounter/${encounter.id}/notes?noteType=treatmentPlan`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(2);
     expect(result.body.data.every(x => x.noteType === 'treatmentPlan')).toEqual(true);
