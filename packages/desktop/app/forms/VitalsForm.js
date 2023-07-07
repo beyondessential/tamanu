@@ -6,7 +6,7 @@ import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/shared/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { ModalLoader, ConfirmCancelRow, Form } from '../components';
 import { SurveyScreen } from '../components/Surveys';
-import { useVitalsSurvey } from '../api/queries';
+import { useVitalsSurveyQuery } from '../api/queries';
 import { getFormInitialValues, getValidationSchema } from '../utils';
 import { ForbiddenError } from '../components/ForbiddenErrorModal';
 import { Modal } from '../components/Modal';
@@ -25,7 +25,7 @@ const ErrorMessage = ({ error }) => {
 };
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
-  const { data: vitalsSurvey, isLoading, isError, error } = useVitalsSurvey();
+  const { data: vitalsSurvey, isLoading, isError, error } = useVitalsSurveyQuery();
   const validationSchema = useMemo(() => getValidationSchema(vitalsSurvey), [vitalsSurvey]);
   const { ability } = useAuth();
   const canCreateVitals = ability.can('create', 'Vitals');

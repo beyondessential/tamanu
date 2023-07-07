@@ -1,4 +1,4 @@
-export * from './useVitalsSurvey';
+export * from './useVitalsSurveyQuery';
 export * from './useReferenceData';
 export * from './usePatientAdditionalDataQuery';
 export * from './useEncounterData';
