@@ -494,25 +494,19 @@ export class Encounter extends Model {
         await this.updateClinician(data.examinerId, data.submittedTime, user);
       }
 
+      const { submittedTime, ...encounterData } = data;
+      const updatedEncounter = await super.update({ ...encounterData, ...additionalChanges }, user);
+
       if (
         isEncounterTypeChanged ||
         isDepartmentChanged ||
         isLocationChanged ||
         isClinicianChanged
       ) {
-        const newEncounter = {
-          id: this.id,
-          encounterType: this.encounterType,
-          locationId: this.locationId,
-          departmentId: this.departmentId,
-          examinerId: this.examinerId,
-          ...data,
-        };
-        await EncounterHistory.createSnapshot(newEncounter, data.submittedTime);
+        await EncounterHistory.createSnapshot(updatedEncounter, data.submittedTime);
       }
 
-      const { submittedTime, ...encounterData } = data;
-      return super.update({ ...encounterData, ...additionalChanges }, user);
+      return updatedEncounter;
     };
 
     if (this.sequelize.isInsideTransaction()) {
