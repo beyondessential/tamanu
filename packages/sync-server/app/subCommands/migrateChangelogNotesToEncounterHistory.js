@@ -24,13 +24,16 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
       const [[{ maxId }]] = await sequelize.query(
         `
         with
-        -- Get all the changelog notes with content starts by 'Changed%'
+
+        -- For batching by encounters
         batch_encounters as (
             select * from encounters
             where id > :fromId
+            order by id
             limit :limit
         ),
 
+        -- Get all the changelog notes with content starts by 'Changed%'
         all_encounter_notes_system as (
             select
                 np.id,
@@ -292,7 +295,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             order by e.id, date
         ),
         change_log_with_id as (
-            -- Changelog when batch_encounters are first created
+            -- Changelog when encounters are first created
             select
                 record_id,
                 date,
@@ -302,7 +305,8 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                 encounter_type
             from changelog_encounter_created
             union
-            -- Changelog when batch_encounters are changed in between
+        
+            -- Changelog when encounters are changed to the latest
             select
                 record_id,
                 date,
@@ -312,7 +316,8 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                 encounter_type
             from change_log_latest
             union
-            -- Changelog when batch_encounters are changed to the latest
+
+            -- Changelog when encounters are changed in between
             select
                 log.encounter_id as record_id,
                 log.start_datetime as date,
