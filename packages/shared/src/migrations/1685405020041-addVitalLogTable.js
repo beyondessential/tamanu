@@ -66,7 +66,7 @@ export async function up(query) {
   // Insert initial logs from already registered vital surveys
   await query.sequelize.query(`
     INSERT INTO vital_logs (created_at, updated_at, date, new_value, recorded_by_id, answer_id)
-    SELECT now() as created_at, now() as updated_at, COALESCE(sr.end_time, sr.start_time, ${getCurrentDateTimeString()}) as date, sra.body as new_value, sr.user_id as recorded_by_id, sra.id as answer_id
+    SELECT now() as created_at, now() as updated_at, COALESCE(sr.end_time, sr.start_time, '${getCurrentDateTimeString()}') as date, sra.body as new_value, sr.user_id as recorded_by_id, sra.id as answer_id
     FROM
       survey_response_answers sra
     INNER JOIN
