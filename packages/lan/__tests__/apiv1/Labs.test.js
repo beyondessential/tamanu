@@ -346,6 +346,19 @@ describe('Labs', () => {
     });
   });
 
+  it('should only retrieve panels with a visibilityStatus status of current', async () => {
+    await models.LabTestPanel.create({
+      name: 'Historical test panel',
+      code: 'historical-test-panel',
+      visibilityStatus: 'historical',
+    });
+    const result = await app.get('/v1/labTestPanel');
+    expect(result).toHaveSucceeded();
+    const { body } = result;
+
+    expect(body.every(panel => panel.visibilityStatus === 'current')).toBeTruthy();
+  });
+
   describe('Filtering by allFacilities', () => {
     // These are the only statuses returned by the listing endpoint
     // when no specific argument is included.

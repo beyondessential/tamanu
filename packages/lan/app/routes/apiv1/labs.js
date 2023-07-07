@@ -367,6 +367,9 @@ labTestPanel.get('/', async (req, res) => {
         as: 'category',
       },
     ],
+    where: {
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+    },
   });
   res.send(response);
 });
