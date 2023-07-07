@@ -1,6 +1,7 @@
 import React from 'react';
 import Box from '@material-ui/core/Box';
 import styled from 'styled-components';
+
 import { NoteChangelog } from './NoteChangelog';
 
 const StyledBox = styled(Box)`
@@ -18,8 +19,8 @@ export const NoteChangelogs = ({ notes = [] }) => {
     <StyledBox
       sx={{ width: '100%', maxHeight: 300, overflowY: 'auto', bgcolor: 'background.paper' }}
     >
-      {notes.map((note, index) => (
-        <NoteChangelog key={note.id} index={index} note={note} />
+      {notes.map(note => (
+        <NoteChangelog key={note.id} note={note} />
       ))}
     </StyledBox>
   );
