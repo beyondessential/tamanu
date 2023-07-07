@@ -2,7 +2,7 @@ import bodyParser from 'body-parser';
 import compression from 'compression';
 import config from 'config';
 import express from 'express';
-import cors from 'cors'
+import cors from 'cors';
 
 import { getLoggingMiddleware } from 'shared/services/logging';
 import { constructPermission } from 'shared/permissions/middleware';
@@ -40,7 +40,7 @@ export function createApp(ctx) {
 
   app.use(cors({
     origin: 'http://localhost:3001',
-  }))
+  }));
 
   app.use(versionCompatibility);
 
