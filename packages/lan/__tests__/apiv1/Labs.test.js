@@ -355,9 +355,8 @@ describe('Labs', () => {
     const result = await app.get('/v1/labTestPanel');
     expect(result).toHaveSucceeded();
     const { body } = result;
-    body.forEach(labTestPanel => {
-      expect(labTestPanel.visibilityStatus).toBe('current');
-    });
+
+    expect(body.every(panel => panel.visibilityStatus === 'current')).toBeTruthy();
   });
 
   describe('Filtering by allFacilities', () => {
