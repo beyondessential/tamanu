@@ -11,7 +11,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
 } from 'shared/constants';
 import { uploadAttachment } from '../../utils/uploadAttachment';
-import { noteListHandler } from '../../routeHandlers';
+import { noteChangelogHandler, noteListHandler } from '../../routeHandlers';
 
 import {
   simpleGet,
@@ -219,6 +219,11 @@ encounterRelations.get(
     });
     res.send({ data: noteTypeToCount });
   }),
+);
+
+encounterRelations.get(
+  '/:id/notes/:noteId/changelog',
+  noteChangelogHandler(NOTE_RECORD_TYPES.ENCOUNTER),
 );
 
 encounterRelations.get(
