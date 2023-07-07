@@ -80,9 +80,9 @@ export const InfoCardItem = ({ label, value, ...props }) => (
   </CardCell>
 );
 
-export const InfoCard = ({ HeaderComponent = null, children, elevated, inlineValues }) => (
+export const InfoCard = ({ children, elevated, inlineValues, headerContent = null, }) => (
   <Card $elevated={elevated} $inlineValues={inlineValues}>
-    {HeaderComponent}
+    {headerContent}
     <CardBody>{children}</CardBody>
   </Card>
 );

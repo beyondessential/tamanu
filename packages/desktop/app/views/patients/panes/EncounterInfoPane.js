@@ -17,7 +17,7 @@ export const EncounterInfoPane = React.memo(
   ({ encounter, getLocalisation, patientBillingType }) => (
     <InfoCard
       inlineValues
-      HeaderComponent={
+      headerContent={
         encounter.plannedLocation && (
           <InfoCardHeader
             label="Planned move"
