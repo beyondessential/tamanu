@@ -7,7 +7,7 @@ import { useApi } from '../../../api';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
-import { usePatientAdditionalData } from '../../../api/queries';
+import { usePatientAdditionalDataQuery } from '../../../api/queries';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
 
@@ -17,7 +17,7 @@ export const CovidTestCertificateModal = React.memo(({ patient }) => {
   const { getLocalisation } = useLocalisation();
   const api = useApi();
   const { watermark, logo, footerImg, printedBy } = useCertificate();
-  const { data: additionalData } = usePatientAdditionalData(patient.id);
+  const { data: additionalData } = usePatientAdditionalDataQuery(patient.id);
 
   useEffect(() => {
     api

@@ -1,6 +1,6 @@
 export * from './useVitalsSurvey';
 export * from './useReferenceData';
-export * from './usePatientAdditionalData';
+export * from './usePatientAdditionalDataQuery';
 export * from './useEncounterData';
 export * from './useLabRequestNotes';
 export * from './usePatientCurrentEncounter';
