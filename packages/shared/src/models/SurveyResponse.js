@@ -242,7 +242,7 @@ export class SurveyResponse extends Model {
         body,
         responseId: record.id,
       });
-      if (!isVitalSurvey) continue;
+      if (!isVitalSurvey || body === '') continue;
       await models.VitalLog.create({
         date: record.endTime,
         newValue: body,
