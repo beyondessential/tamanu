@@ -11,7 +11,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
 } from 'shared/constants';
 import { uploadAttachment } from '../../utils/uploadAttachment';
-import { noteChangelogHandler, noteListHandler } from '../../routeHandlers';
+import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 
 import {
   simpleGet,
@@ -222,8 +222,8 @@ encounterRelations.get(
 );
 
 encounterRelations.get(
-  '/:id/notes/:noteId/changelog',
-  noteChangelogHandler(NOTE_RECORD_TYPES.ENCOUNTER),
+  '/:id/notes/:noteId/changelogs',
+  noteChangelogsHandler(NOTE_RECORD_TYPES.ENCOUNTER),
 );
 
 encounterRelations.get(

@@ -1,2 +1,2 @@
 export * from './noteListHandler';
-export * from './noteChangelogHandler';
+export * from './noteChangelogsHandler';

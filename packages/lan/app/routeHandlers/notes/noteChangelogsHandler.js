@@ -5,7 +5,7 @@ import { VISIBILITY_STATUSES } from 'shared/constants/importable';
 
 import { checkNotePermission } from '../../utils/checkNotePermission';
 
-export const noteChangelogHandler = recordType =>
+export const noteChangelogsHandler = recordType =>
   asyncHandler(async (req, res) => {
     const { models, params } = req;
 

@@ -196,7 +196,7 @@ describe('Encounter', () => {
       }),
     );
 
-    const result = await app.get(`/v1/encounter/${encounter.id}/notes/${rootNote.id}/changelog`);
+    const result = await app.get(`/v1/encounter/${encounter.id}/notes/${rootNote.id}/changelogs`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(4);
     expect(result.body.data[0]).toMatchObject({
