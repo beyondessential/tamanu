@@ -20,6 +20,16 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
   let locationGroup1;
   let locationGroup2;
 
+  const PLACEHOLDER_LOCATION_ID = 'PLACEHOLDER_LOCATION_ID';
+  const PLACEHOLDER_DEPARTMENT_ID = 'PLACEHOLDER_DEPARTMENT_ID';
+  const PLACEHOLDER_USER_ID = 'PLACEHOLDER_USER_ID';
+
+  const SUB_COMMAND_OPTIONS = {
+    placeholderLocation: PLACEHOLDER_LOCATION_ID,
+    placeholderDepartment: PLACEHOLDER_DEPARTMENT_ID,
+    placeholderUser: PLACEHOLDER_USER_ID,
+  };
+
   const createEncounter = async (encounterPatient, overrides = {}) => {
     const encounter = await models.Encounter.create({
       ...(await createDummyEncounter(models)),
@@ -109,13 +119,13 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
     });
 
     placeholderLocation = await createLocation('Placeholder location', {
-      id: 'location-Placeholder',
+      id: PLACEHOLDER_LOCATION_ID,
     });
     placeholderDepartment = await createDepartment('Placeholder department', {
-      id: 'department-Placeholder',
+      id: PLACEHOLDER_DEPARTMENT_ID,
     });
     placeholderUser = await createUser('Placeholder user', {
-      id: 'user-Placeholder',
+      id: PLACEHOLDER_USER_ID,
     });
   });
 
@@ -146,7 +156,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.locationId = newLocation.id;
       await encounter.save();
 
-      await migrateChangelogNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory(SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -187,7 +197,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.departmentId = newDepartment.id;
       await encounter.save();
 
-      await migrateChangelogNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory(SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -228,7 +238,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.examinerId = newClinician.id;
       await encounter.save();
 
-      await migrateChangelogNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory(SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -268,7 +278,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.encounterType = 'clinic';
       await encounter.save();
 
-      await migrateChangelogNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory(SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -347,7 +357,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.encounterType = newEncounterType;
       await encounter.save();
 
-      await migrateChangelogNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory(SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -446,7 +456,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.locationId = location4.id;
       await encounter.save();
 
-      await migrateChangelogNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory(SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -532,7 +542,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.departmentId = department4.id;
       await encounter.save();
 
-      await migrateChangelogNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory(SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -618,7 +628,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.examinerId = clinician4.id;
       await encounter.save();
 
-      await migrateChangelogNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory(SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -704,7 +714,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.encounterType = encounterType4;
       await encounter.save();
 
-      await migrateChangelogNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory(SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -832,7 +842,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.encounterType = encounterType4;
       await encounter.save();
 
-      await migrateChangelogNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory(SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -950,7 +960,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       await encounter.save();
 
       // Migration
-      await migrateChangelogNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory(SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -1020,7 +1030,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.locationId = location3.id;
       await encounter.save();
 
-      await migrateChangelogNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory(SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -1099,7 +1109,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       await encounter.save();
 
       // Migration
-      await migrateChangelogNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory(SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -1169,7 +1179,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       await encounter.save();
 
       // Migration
-      await migrateChangelogNotesToEncounterHistory();
+      await migrateChangelogNotesToEncounterHistory(SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 

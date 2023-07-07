@@ -5,10 +5,14 @@ import { log } from 'shared/services/logging';
 import { initDatabase } from '../database';
 import { sleepAsync } from '../../../shared/src/utils/sleepAsync';
 
-export async function migrateChangelogNotesToEncounterHistory({
-  limit = Number.MAX_SAFE_INTEGER,
-} = {}) {
-  log.info(`Migrating changelog notes with batch size ${limit} ...`);
+export async function migrateChangelogNotesToEncounterHistory(options = {}) {
+  const {
+    limit = Number.MAX_SAFE_INTEGER,
+    placeholderLocation = 'location-Placeholder',
+    placeholderDepartment = 'department-Placeholder',
+    placeholderUser = 'user-Placeholder-Placeholder',
+  } = options;
+  log.info(`Migrating changelog notes with options:`, options);
 
   const store = await initDatabase({ testMode: false });
   const { sequelize } = store;
@@ -317,7 +321,7 @@ export async function migrateChangelogNotesToEncounterHistory({
                         then 
                             d.id
                         else 
-                            'department-Placeholder'
+                            :placeholderDepartment
                     end as department_id,
                 -- For location_id, when there are duplicated location names in the same location_group,
                 -- it is not possible to work out exactly which one it is from the location name,
@@ -335,7 +339,7 @@ export async function migrateChangelogNotesToEncounterHistory({
                                 and l.facility_id = uniques.facility_id)
                         then l.id
                     else
-                        'location-Placeholder'
+                        :placeholderLocation
                     end as location_id,
                 -- For examiner_id, when there are duplicated user names,
                 -- it is not possible to work out exactly which one it is from the user name,
@@ -346,7 +350,7 @@ export async function migrateChangelogNotesToEncounterHistory({
                         then 
                             u.id
                         else 
-                            'user-Placeholder'
+                            :placeholderUser
                     end as examiner_id,
                 log.encounter_type
             from change_log_historical_complete log
@@ -398,6 +402,9 @@ export async function migrateChangelogNotesToEncounterHistory({
           replacements: {
             fromId,
             limit,
+            placeholderDepartment,
+            placeholderLocation,
+            placeholderUser,
           },
         },
       );
@@ -420,5 +427,18 @@ export const migrateChangelogNotesToEncounterHistoryCommand = new Command(
   'migrateChangelogNotesToEncounterHistory',
 )
   .description('Migrates changelog notes to encounter history')
-  .option('-l, --limit <number>', 'Batching size for migrating changelog notes')
+  .option('-b, --batchSize <number>', 'Batching size for migrating changelog notes')
+  .option(
+    '-u, --placeholderUser <string>',
+    'Placeholder user when cannot work out which user from the changelog',
+  )
+  .option(
+    '-d, --placeholderDepartment <string>',
+    'Placeholder department when cannot work out which department from the changelog',
+  )
+  .option(
+    '-l, --placeholderLocation <string>',
+    'Placeholder location when cannot work out which location from the changelog',
+  )
+
   .action(migrateChangelogNotesToEncounterHistory);
