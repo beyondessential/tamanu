@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { debounce } from 'lodash';
-import { addDays, format, parse, startOfDay } from 'date-fns';
+import { addDays, format, parseISO, startOfDay } from 'date-fns';
 
 import { DateInput as DateInputComponent, SelectInput as SelectInputComponent } from '../../Field';
 import { Y_AXIS_WIDTH } from '../constants';
@@ -87,11 +87,12 @@ export const DateTimeSelector = props => {
         <DateInput
           size="small"
           saveDateAsString
-          value={format(new Date(startDateString), DATE_FORMAT)} // display date in yyyy-MM-dd format on text input
+          format={DATE_FORMAT} // set format so we can safely use parseISO
+          value={startDateString}
           onChange={debounce(newValue => {
             const { value: dateString } = newValue.target;
             if (dateString) {
-              const selectedDayDate = parse(dateString, DATE_FORMAT, new Date());
+              const selectedDayDate = parseISO(dateString);
               const startOfDayDate = startOfDay(selectedDayDate);
               const endOfDayDate = startOfDay(addDays(selectedDayDate, 1));
 
