@@ -25,6 +25,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
   const PLACEHOLDER_USER_ID = 'PLACEHOLDER_USER_ID';
 
   const SUB_COMMAND_OPTIONS = {
+    batchSize: 1,
     placeholderLocation: PLACEHOLDER_LOCATION_ID,
     placeholderDepartment: PLACEHOLDER_DEPARTMENT_ID,
     placeholderUser: PLACEHOLDER_USER_ID,

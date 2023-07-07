@@ -7,7 +7,7 @@ import { sleepAsync } from '../../../shared/src/utils/sleepAsync';
 
 export async function migrateChangelogNotesToEncounterHistory(options = {}) {
   const {
-    limit = Number.MAX_SAFE_INTEGER,
+    batchSize = Number.MAX_SAFE_INTEGER,
     placeholderLocation = 'location-Placeholder',
     placeholderDepartment = 'department-Placeholder',
     placeholderUser = 'user-Placeholder-Placeholder',
@@ -25,6 +25,12 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
         `
         with
         -- Get all the changelog notes with content starts by 'Changed%'
+        batch_encounters as (
+            select * from encounters
+            where id > :fromId
+            limit :limit
+        ),
+
         all_encounter_notes_system as (
             select
                 np.id,
@@ -34,11 +40,10 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                 ni.content
             from note_pages np
             left join note_items ni on ni.note_page_id = np.id
+            join batch_encounters e on np.record_id = e.id
             where note_type = 'system'
             and record_type = 'Encounter'
-            and np.record_id > :fromId
             order by np.record_id, ni.date
-            limit :limit
         ),
 
         encounter_changed_notes_system as (
@@ -141,7 +146,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                 end as examiner_name,
                 n.content
             from encounter_changed_notes_system n
-            left join encounters e on e.id = n.record_id
+            left join batch_encounters e on e.id = n.record_id
             left join locations l on l.id = e.location_id
             left join departments d on d.id = e.department_id
             left join users u on u.id = e.examiner_id
@@ -245,7 +250,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                             u.display_name)
                 end as examiner_name
             from change_log_historical_partial log
-            left join encounters e on e.id = log.encounter_id
+            left join batch_encounters e on e.id = log.encounter_id
             left join locations l on l.id = e.location_id
             left join departments d on d.id = e.department_id
             left join facilities f on f.id = l.facility_id
@@ -263,7 +268,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                 encounter_type,
                 record_id
             from encounter_changed_notes_system notes
-            left join encounters e on notes.record_id = e.id
+            join batch_encounters e on notes.record_id = e.id
             left join locations l on l.id = e.location_id
             left join departments d on d.id = e.department_id
             where l.facility_id = d.facility_id
@@ -279,7 +284,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                 location_id,
                 examiner_id,
                 encounter_type
-            from encounters e
+            from batch_encounters e
             left join all_encounter_notes_system n on e.id = n.record_id
             left join locations l on l.id = e.location_id
             left join departments d on d.id = e.department_id
@@ -287,7 +292,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             order by e.id, date
         ),
         change_log_with_id as (
-            -- Changelog when encounters are first created
+            -- Changelog when batch_encounters are first created
             select
                 record_id,
                 date,
@@ -297,7 +302,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                 encounter_type
             from changelog_encounter_created
             union
-            -- Changelog when encounters are changed in between
+            -- Changelog when batch_encounters are changed in between
             select
                 record_id,
                 date,
@@ -307,7 +312,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                 encounter_type
             from change_log_latest
             union
-            -- Changelog when encounters are changed to the latest
+            -- Changelog when batch_encounters are changed to the latest
             select
                 log.encounter_id as record_id,
                 log.start_datetime as date,
@@ -377,12 +382,12 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
         ),
         inserted as (
             insert into encounter_history(
-            encounter_id,
-            date,
-            department_id,
-            location_id,
-            examiner_id,
-            encounter_type
+                encounter_id,
+                date,
+                department_id,
+                location_id,
+                examiner_id,
+                encounter_type
             )
             select
                 record_id,
@@ -392,7 +397,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                 examiner_id,
                 encounter_type
             from change_log_with_id
-            where record_id not in (select encounter_id from encounter_history)
+            where not exists (select encounter_id from encounter_history where encounter_id = record_id)
             returning encounter_id
         )
         select max(encounter_id) as "maxId"
@@ -401,7 +406,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
         {
           replacements: {
             fromId,
-            limit,
+            limit: batchSize,
             placeholderDepartment,
             placeholderLocation,
             placeholderUser,
@@ -411,7 +416,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
 
       fromId = maxId;
 
-      log.info(`Migrated changelog of ${limit} encounters...`);
+      log.info(`Migrated changelog of ${batchSize} batch_encounters...`);
 
       sleepAsync(50);
     }
