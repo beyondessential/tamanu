@@ -308,9 +308,9 @@ export class Encounter extends Model {
     await dischargeOutpatientEncounters(this.sequelize.models, recordIds);
   }
 
-  static async create(data) {
+  static async create(...args) {
     const { EncounterHistory } = this.sequelize.models;
-    const encounter = await super.create(data);
+    const encounter = await super.create(...args);
     await EncounterHistory.createSnapshot({
       encounterId: encounter.id,
       encounterType: encounter.encounterType,
