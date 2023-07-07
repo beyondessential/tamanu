@@ -1,12 +1,21 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
+
 import { useEncounter } from '../../../contexts/Encounter';
 import { NotePageModal } from '../../../components/NotePageModal';
-// import { NotePageTableWithPermission } from '../../../components/NotePageTable';
-// import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
+import { TableButtonRow } from '../../../components';
 import { TabPane } from '../components';
+import { SelectInput } from '../../../components/Field';
+import { noteTypes } from '../../../constants';
+import { useEncounterNotes } from '../../../contexts/EncounterNotes';
+
+const StyledSelectInput = styled(SelectInput)`
+  width: 200px;
+`;
 
 export const NotesPane = React.memo(({ encounter }) => {
   const [modalOpen, setModalOpen] = useState(false);
+  const { noteType, setNoteType } = useEncounterNotes();
   const { loadEncounter } = useEncounter();
 
   return (
@@ -21,21 +30,28 @@ export const NotesPane = React.memo(({ encounter }) => {
           await loadEncounter(encounter.id);
         }}
       />
-      {
-        // TODO: Commented out old UI components for NotePages
-        // Will be implemented with new components later
-        /* <TableButtonRow variant="small">
-        <ButtonWithPermissionCheck
+      <TableButtonRow variant="small" justifyContent="space-between">
+        <StyledSelectInput
+          options={noteTypes}
+          onChange={e => setNoteType(e.target.value)}
+          value={noteType}
+          isClearable={false}
+        />
+        {/* <ButtonWithPermissionCheck
           onClick={() => setModalOpen(true)}
           disabled={readonly}
           verb="create"
           noun="EncounterNote"
         >
           New note
-        </ButtonWithPermissionCheck>
-      </TableButtonRow> */
-      }
-      {/* <NotePageTableWithPermission encounterId={encounter.id} verb="write" noun="EncounterNote" /> */}
+        </ButtonWithPermissionCheck> */}
+      </TableButtonRow>
+      {/* <NotePageTableWithPermission
+        noteType={noteType}
+        encounterId={encounter.id}
+        verb="write"
+        noun="EncounterNote"
+      /> */}
     </TabPane>
   );
 });

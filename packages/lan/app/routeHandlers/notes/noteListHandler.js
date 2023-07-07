@@ -6,10 +6,20 @@ import { checkNotePermission } from '../../utils/checkNotePermission';
 export const noteListHandler = recordType =>
   asyncHandler(async (req, res) => {
     const { models, params, query } = req;
-    const { order = 'ASC', orderBy } = query;
+    const { order = 'ASC', orderBy, noteType } = query;
 
     const recordId = params.id;
     await checkNotePermission(req, { recordType, recordId }, 'list');
+
+    const where = {
+      recordType,
+      recordId,
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+    };
+
+    if (noteType) {
+      where.noteType = noteType;
+    }
 
     const rows = await models.Note.findAll({
       include: [
@@ -22,7 +32,7 @@ export const noteListHandler = recordType =>
           as: 'onBehalfOf',
         },
       ],
-      where: { recordType, recordId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+      where,
       order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
     });
 

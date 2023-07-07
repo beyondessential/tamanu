@@ -91,7 +91,7 @@ const COLUMNS = [
   { key: 'content', title: 'Content', maxWidth: 300, accessor: getContent, sortable: false },
 ];
 
-const NotePageTable = ({ encounterId, hasPermission }) => {
+const NotePageTable = ({ encounterId, hasPermission, noteType }) => {
   const [isNotePageModalOpen, setNotePageModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
   const [refreshCount, setRefreshCount] = useState(0);
@@ -143,6 +143,7 @@ const NotePageTable = ({ encounterId, hasPermission }) => {
       <DataFetchingTable
         columns={COLUMNS}
         endpoint={`encounter/${encounterId}/notePages`}
+        fetchOptions={{ noteType }}
         onRowClick={handleRowClick}
         customSort={sortNotes}
         refreshCount={refreshCount}

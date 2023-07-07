@@ -130,6 +130,23 @@ describe('Encounter', () => {
     expect(result.body.data.every(x => x.content.match(/^Test \d$/))).toEqual(true);
   });
 
+  it('should get a list of notes filtered by noteType', async () => {
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+    await Promise.all([
+      models.NotePage.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 4'),
+      models.NotePage.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 5'),
+      models.NotePage.createForRecord(encounter.id, 'Encounter', 'admission', 'Test 6'),
+    ]);
+
+    const result = await app.get(`/v1/encounter/${encounter.id}/notePages?noteType=treatmentPlan`);
+    expect(result).toHaveSucceeded();
+    expect(result.body.count).toEqual(2);
+    expect(result.body.data.every(x => x.noteType === 'treatmentPlan')).toEqual(true);
+  });
+
   test.todo('should get a list of procedures');
   test.todo('should get a list of prescriptions');
 
