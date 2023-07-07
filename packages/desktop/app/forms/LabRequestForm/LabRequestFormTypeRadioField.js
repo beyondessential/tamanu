@@ -26,6 +26,8 @@ const OPTIONS = {
   },
 };
 
+const POSSIBLE_OPTIONS_LIST = [OPTIONS.PANEL, OPTIONS.INDIVIDUAL];
+
 const ItemSkeleton = styled(Skeleton)`
   padding: 16px 14px;
   margin-right: 14px;
@@ -57,21 +59,20 @@ const useLabRequestFormTypeOptions = () => {
   const { data, isSuccess, isLoading } = useQuery(['suggestions/labTestPanel/all'], () =>
     api.get(`suggestions/labTestPanel/all`),
   );
-  const possibleOptions = [OPTIONS.PANEL, OPTIONS.INDIVIDUAL];
   const options =
     isSuccess &&
-    possibleOptions.filter(option => {
+    POSSIBLE_OPTIONS_LIST.filter(option => {
       if (option.value === LAB_REQUEST_FORM_TYPES.PANEL) return data?.length > 0;
       if (option.value === LAB_REQUEST_FORM_TYPES.INDIVIDUAL) return !onlyAllowLabPanels;
       return true;
     });
   const defaultOption = options?.[0]?.value;
 
-  return { options, possibleOptions, isLoading, defaultOption };
+  return { options, isLoading, defaultOption };
 };
 
 export const LabRequestFormTypeRadioField = ({ value, setFieldValue }) => {
-  const { options, defaultOption, possibleOptions, isLoading } = useLabRequestFormTypeOptions();
+  const { options, defaultOption, isLoading } = useLabRequestFormTypeOptions();
 
   useEffect(() => {
     if (!defaultOption || value) return;
@@ -83,7 +84,7 @@ export const LabRequestFormTypeRadioField = ({ value, setFieldValue }) => {
     <div style={{ gridColumn: '1 / -1' }}>
       <OuterLabelFieldWrapper label="Select your request type" required>
         {isLoading ? (
-          <RadioItemSkeleton itemsLength={possibleOptions.length} />
+          <RadioItemSkeleton itemsLength={POSSIBLE_OPTIONS_LIST.length} />
         ) : (
           <Field
             required
