@@ -1,8 +1,5 @@
-import Chance from 'chance';
-
+import { chance } from '@tamanu/shared/test-helpers';
 import { labTestTypeToLOINCCode } from '../../app/hl7fhir/loinc';
-
-const chance = new Chance();
 
 describe('HL7 LOINC', () => {
   it('returns "Immunoassay" for a swab', () => {
@@ -29,10 +26,7 @@ describe('HL7 LOINC', () => {
 
   it('returns "Rapid immunoassay" for an RDT', () => {
     const result = labTestTypeToLOINCCode({
-      name: chance.pickone([
-        'AgRDT Negative, no further testing needed',
-        'AgRDT Positive',
-      ]),
+      name: chance.pickone(['AgRDT Negative, no further testing needed', 'AgRDT Positive']),
     });
     expect(result).toEqual({
       text:

@@ -118,5 +118,3 @@ export async function dataGenerator({ models }, parameters) {
   const queryResults = await queryReferralsData(models, parameters);
   return generateReportFromQueryData(queryResults, reportColumnTemplate);
 }
-
-export const permission = 'Referral';

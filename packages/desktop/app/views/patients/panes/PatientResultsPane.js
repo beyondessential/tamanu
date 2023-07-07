@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import { ContentPane } from '../../../components';
@@ -7,8 +7,7 @@ import { ResultsSearchBar } from '../../../components/ResultsSearchBar';
 import { usePatientLabTestResults } from '../../../api/queries/usePatientLabTestResults';
 import { Colors } from '../../../constants';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
-
-const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
+import { usePatientSearchParameters } from '../../../contexts/PatientViewSearchParameters';
 
 const NoResultContainer = styled.div`
   padding: 30px;
@@ -40,13 +39,12 @@ const NoResultsMessage = () => (
 );
 
 export const PatientResultsPane = React.memo(({ patient }) => {
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
-  const [searchParameters, setSearchParameters] = useState({});
+  const {
+    labResultParameters: searchParameters,
+    setLabResultParameters: setSearchParameters,
+  } = usePatientSearchParameters();
 
   const { data, isLoading } = usePatientLabTestResults(patient.id, {
-    page,
-    rowsPerPage,
     ...searchParameters,
   });
 
@@ -72,10 +70,6 @@ export const PatientResultsPane = React.memo(({ patient }) => {
             labTests={data?.data}
             count={data?.count}
             isLoading={isLoading}
-            rowsPerPage={rowsPerPage}
-            setRowsPerPage={setRowsPerPage}
-            page={page}
-            setPage={setPage}
           />
         )}
       </ContentPane>

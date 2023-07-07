@@ -1,11 +1,9 @@
 import { getToken, centralServerLogin } from 'lan/app/middleware/auth';
-import Chance from 'chance';
 import { pick } from 'lodash';
-import { fake } from 'shared/test-helpers/fake';
+import { fake, chance } from 'shared/test-helpers';
 import { CentralServerConnection } from '../../app/sync/CentralServerConnection';
 import { createTestContext } from '../utilities';
 
-const chance = new Chance();
 const createUser = overrides => ({
   email: chance.email(),
   displayName: chance.name(),
@@ -18,7 +16,6 @@ const createUser = overrides => ({
 // If reimplementing the same functionality on the facility or central server, see this file at
 // commit 51f66c9
 describe('User', () => {
-  let adminApp = null;
   let baseApp = null;
   let models = null;
   let centralServer = null;
@@ -30,7 +27,6 @@ describe('User', () => {
     models = ctx.models;
     centralServer = ctx.centralServer;
     CentralServerConnection.mockImplementation(() => centralServer);
-    adminApp = await baseApp.asRole('admin');
   });
   afterAll(() => ctx.close());
 

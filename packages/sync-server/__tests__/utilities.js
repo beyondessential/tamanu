@@ -1,16 +1,14 @@
 import config from 'config';
 import supertest from 'supertest';
-import Chance from 'chance';
 import http from 'http';
 
 import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES } from '@tamanu/shared/constants';
+import { chance } from '@tamanu/shared/test-helpers';
 import { createApp } from 'sync-server/app/createApp';
 import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import { getToken } from 'sync-server/app/auth/utils';
 import { DEFAULT_JWT_SECRET } from 'sync-server/app/auth';
 import { initIntegrations } from 'sync-server/app/integrations';
-
-const chance = new Chance();
 
 class MockApplicationContext {
   closeHooks = [];

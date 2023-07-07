@@ -167,5 +167,3 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
 
   return generateReportFromQueryData(sortedReportData, PRIMARY_SCREENING_REPORT_COLUMN_TEMPLATE);
 };
-
-export const permission = 'SurveyResponse';

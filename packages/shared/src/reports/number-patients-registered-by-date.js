@@ -30,8 +30,6 @@ const parametersToSqlWhere = parameters => {
   return whereClause;
 };
 
-export const permission = 'Patient';
-
 export const dataGenerator = async ({ models }, parameters = {}) => {
   const reportColumnTemplate = [
     { title: 'Date', accessor: data => data.dateCreated },
