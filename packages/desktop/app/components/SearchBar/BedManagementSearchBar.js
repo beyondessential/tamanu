@@ -39,7 +39,7 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
     setHandoverNotesModalShown,
   ]);
 
-  const handoverNotesButtonDisabled = Boolean(!searchParameters?.area);
+  const handoverNotesButtonDisabled = !searchParameters?.area;
 
   return (
     <>
