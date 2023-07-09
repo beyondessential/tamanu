@@ -1174,7 +1174,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       // Change clinician 2
       await encounter.updateClinician(
         clinician3.id,
-        toDateTimeString(sub(new Date(), { days: 4 })),
+        toDateTimeString(sub(new Date(), { days: 2 })),
       );
       encounter.examinerId = clinician3.id;
       await encounter.save();
