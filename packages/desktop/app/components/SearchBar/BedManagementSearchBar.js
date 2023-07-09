@@ -40,6 +40,7 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
   ]);
 
   const handoverNotesButtonDisabled = Boolean(!searchParameters?.area);
+
   return (
     <>
       <CustomisableSearchBar
