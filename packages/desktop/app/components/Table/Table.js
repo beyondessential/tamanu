@@ -414,7 +414,7 @@ TableComponent.propTypes = {
 TableComponent.defaultProps = {
   errorMessage: '',
   noDataMessage: 'No data found',
-  count: 0,
+  count: null,
   isLoading: false,
   onChangePage: null,
   onChangeRowsPerPage: null,
@@ -444,7 +444,7 @@ export const Table = ({ columns: allColumns, data, exportName, ...props }) => {
     <TableComponent
       columns={columns}
       data={data}
-      exportname={exportName}
+      exportName={exportName}
       getLocalisation={getLocalisation}
       {...props}
     />

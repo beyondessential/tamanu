@@ -3,7 +3,12 @@ import styled from 'styled-components';
 import { Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
 import { Colors } from '../constants';
-import { RangeValidatedCell, DateHeadCell, RangeTooltipCell } from './FormattedTableCell';
+import {
+  RangeValidatedCell,
+  DateHeadCell,
+  RangeTooltipCell,
+  ExportableRangeValidatedCell,
+} from './FormattedTableCell';
 import { useVitals } from '../api/queries/useVitals';
 import { formatShortest, formatTimeWithSeconds } from './DateDisplay';
 
@@ -65,6 +70,10 @@ export const VitalsTable = React.memo(() => {
         },
         exportOverrides: {
           title: `${formatShortest(date)} ${formatTimeWithSeconds(date)}`,
+          accessor: cells => {
+            const { value, config } = cells[date];
+            return <ExportableRangeValidatedCell value={value} config={config} />;
+          },
         },
       })),
   ];
@@ -73,9 +82,11 @@ export const VitalsTable = React.memo(() => {
     <StyledTable
       columns={columns}
       data={data}
+      exportName="Vitals"
       elevated={false}
       isLoading={isLoading}
       errorMessage={error?.message}
+      allowExport
     />
   );
 });

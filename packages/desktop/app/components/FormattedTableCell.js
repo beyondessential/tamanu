@@ -1,4 +1,4 @@
-import { capitalize, isNumber } from 'lodash';
+import { isNumber } from 'lodash';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { Colors } from '../constants';
@@ -12,6 +12,7 @@ const CellWrapper = styled.div`
   padding: 8px 14px;
   margin: -8px ${({ severity }) => (severity === 'alert' ? '0px' : '-14px')};
   width: fit-content;
+  text-transform: capitalize;
 `;
 
 const HeadCellWrapper = styled.div`
@@ -30,6 +31,10 @@ function round(float, { rounding } = {}) {
     return float;
   }
   return float.toFixed(rounding);
+}
+
+function getDisplayValue(float, value, fallback) {
+  return isNaN(float) ? value || fallback : float;
 }
 
 function getTooltip(float, config = {}, visibilityCriteria = {}) {
@@ -81,21 +86,28 @@ export const RangeTooltipCell = React.memo(({ value, config, validationCriteria 
   );
 });
 
+export const ExportableRangeValidatedCell = React.memo(({ value, config }) => {
+  const float = round(parseFloat(value), config);
+  return <CellWrapper>{getDisplayValue(float, value)}</CellWrapper>;
+});
+
 export const RangeValidatedCell = React.memo(({ value, config, validationCriteria, ...props }) => {
   const float = round(parseFloat(value), config);
-  const formattedValue = isNaN(float) ? capitalize(value) || '-' : float;
+  const displayValue = getDisplayValue(float, value, '-');
+
   const { tooltip, severity } = useMemo(() => getTooltip(float, config, validationCriteria), [
     float,
     config,
     validationCriteria,
   ]);
+
   return tooltip ? (
     <TableTooltip title={tooltip}>
       <CellWrapper severity={severity} {...props}>
-        {formattedValue}
+        {displayValue}
       </CellWrapper>
     </TableTooltip>
   ) : (
-    <CellWrapper {...props}>{formattedValue}</CellWrapper>
+    <CellWrapper {...props}>{displayValue}</CellWrapper>
   );
 });
