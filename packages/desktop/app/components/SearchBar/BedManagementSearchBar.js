@@ -7,6 +7,7 @@ import { HandoverNotesIcon } from '../../assets/icons/HandoverNotesIcon';
 import { AutocompleteField, LocalisedField, SelectField } from '../Field';
 import { HandoverNotesModal } from '../BedManagement/HandoverNotesModal';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
+import { ThemedTooltip } from '../Tooltip';
 
 const HandoverNotesButton = styled(Button)`
   font-weight: 500;
@@ -38,6 +39,7 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
     setHandoverNotesModalShown,
   ]);
 
+  const handoverNotesButtonDisabled = Boolean(!searchParameters?.area);
   return (
     <>
       <CustomisableSearchBar
@@ -46,14 +48,21 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
         initialValues={searchParameters}
       >
         <HandoverNotesButton
-          disabled={!searchParameters?.area}
+          disabled={handoverNotesButtonDisabled}
           startIcon={
             <HandoverNotesIcon color={searchParameters?.area ? Colors.primary : Colors.softText} />
           }
           onClick={handleHandoverNotesButtonClick}
         >
-          Handover notes
+          {handoverNotesButtonDisabled ? (
+            <ThemedTooltip title="Select an 'Area' to create handover notes">
+              <span>Handover notes</span>
+            </ThemedTooltip>
+          ) : (
+            'Handover notes'
+          )}
         </HandoverNotesButton>
+
         <EmptyGridItem />
         <LocalisedField
           name="area"
