@@ -68,6 +68,8 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
       setNewLabRequestIds([]);
       await loadEncounter(encounter.id);
     }
+
+    setRequestFormType(null);
     onClose();
   };
 
@@ -80,7 +82,7 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
       isSubmitting={isLoading}
       onSubmit={handleSubmit}
       onChangeStep={handleChangeStep}
-      onCancel={onClose}
+      onCancel={handleClose}
       encounter={encounter}
       practitionerSuggester={practitionerSuggester}
       departmentSuggester={departmentSuggester}
