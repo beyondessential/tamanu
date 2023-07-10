@@ -4,16 +4,16 @@ import { initDatabase } from '../../database';
 import * as importUtils from './utils';
 import * as importActions from './actions';
 
-export async function importReport(options) {
-  const versionData = JSON.parse(await fs.readFile(options.file));
-  const name = options.name || versionData.name;
+async function importReport(options) {
+  const { name, ...versionData } = JSON.parse(await fs.readFile(options.file));
+  const overriddenName = options.name || name;
 
-  if (!name) {
+  if (!overriddenName) {
     throw new Error('Name must be provided in the JSON file or via the -n parameter');
   }
 
   const store = await initDatabase({ testMode: false });
-  const definition = await importUtils.findOrCreateDefinition(name, store);
+  const definition = await importUtils.findOrCreateDefinition(overriddenName, store);
   const versions = await definition.getVersions();
   await importActions.createVersion(versionData, definition, versions, store, options.verbose);
   process.exit(0);
@@ -28,13 +28,16 @@ export const importReportCommand = new Command('importReport')
 
 async function listReport(options) {
   const store = await initDatabase({ testMode: false });
-  const definition = await importUtils.findOrCreateDefinition(options.name, store);
+  const { name } = options;
+  const definition = await store.models.ReportDefinition.findOne({
+    where: { name },
+  });
   const versions = await definition.getVersions();
   await importActions.listVersions(definition, versions, store);
   process.exit(0);
 }
 
-export const listReportCommand = new Command('importReport')
+export const listReportCommand = new Command('listReport')
   .description('List the existing versions of a report definition')
   .requiredOption('-n, --name <string>', 'Name of the report')
   .action(listReport);
