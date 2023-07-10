@@ -102,10 +102,9 @@ surveyResponse.post(
       userId: req.user.id,
       ...body,
     };
-    const isVitalsSurvey = noun === 'Vitals';
 
     const responseRecord = await db.transaction(async () => {
-      return models.SurveyResponse.createWithAnswers(updatedBody, isVitalsSurvey);
+      return models.SurveyResponse.createWithAnswers(updatedBody);
     });
     res.send(responseRecord);
   }),

@@ -177,7 +177,7 @@ export class SurveyResponse extends Model {
     });
   }
 
-  static async createWithAnswers(data, isVitalSurvey) {
+  static async createWithAnswers(data) {
     if (!this.sequelize.isInsideTransaction()) {
       throw new Error('SurveyResponse.createWithAnswers must always run inside a transaction!');
     }
@@ -189,6 +189,10 @@ export class SurveyResponse extends Model {
     if (!survey) {
       throw new InvalidOperationError(`Invalid survey ID: ${surveyId}`);
     }
+
+    // figure out if its a vital survey response
+    const vitalsSurvey = await models.Survey.getVitalsSurvey();
+    const isVitalSurvey = surveyId === vitalsSurvey.id;
 
     const questions = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
 
