@@ -61,8 +61,6 @@ const DetailsSection = ({ getLocalisation, data }) => {
 export const PatientLetter = ({ getLocalisation, data, logoSrc }) => {
   const { title: certificateTitle, body, patient = {}, clinician, documentCreatedAt } = data;
 
-  console.log(data, logoSrc);
-
   return (
     <Document>
       <Page size="A4" style={styles.page}>
