@@ -19,7 +19,7 @@
           type: serial
           steps:
             - name: for desktop installer
-              exclude: ^deploy-meta$
+              tag: ^(release-desktop-|ci-)
               command: ./scripts/build_desktop.sh build-only
             - name: for lan
               exclude: ^deploy-meta$
@@ -28,7 +28,7 @@
                 - name: build linux release
                   command: ./scripts/build_package_release.sh lan
                 - name: package windows release
-                  tag: ^(main$|release/|ci-)
+                  tag: ^(release-desktop-|ci-)
                   command: ./scripts/build_server_zip.sh lan ./deploy package-desktop
         - name: for sync release
           exclude: ^deploy-meta$
