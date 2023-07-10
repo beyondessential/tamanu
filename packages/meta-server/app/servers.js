@@ -44,7 +44,7 @@ const servers = [
   { name: 'Test (Fiji)', type: 'demo', host: 'https://central-clone.tamanu-fiji.org' },
   { name: 'Test (Kiribati)', type: 'demo', host: 'https://central-clone.kiribati-dev.tamanu.io' },
   { name: 'Test (Nauru)', type: 'demo', host: 'https://central-clone.tamanu-nauru.org' },
-  { name: 'Test (Palau)', type: 'demo', host: 'https://central-clone.tamanu-palau.org' },
+  { name: 'Test (Palau)', type: 'demo', host: 'https://central-clone.palau-dev.tamanu.io' },
   { name: 'Test (Samoa)', type: 'demo', host: 'https://central-samoa-clone.tamanu.io' },
   { name: 'Test (Tonga)', type: 'demo', host: 'https://clone-central-tonga.tamanu.io' },
   { name: 'Test (Tuvalu)', type: 'demo', host: 'https://central-clone.tuvalu-dev.tamanu.io' },
