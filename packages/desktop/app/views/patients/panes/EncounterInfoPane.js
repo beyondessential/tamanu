@@ -15,15 +15,17 @@ const referralSourcePath = 'fields.referralSourceId';
 
 export const EncounterInfoPane = React.memo(
   ({ encounter, getLocalisation, patientBillingType }) => (
-    <InfoCard inlineValues>
-      {encounter.plannedLocation && (
-        <InfoCardHeader>
-          <InfoCardItem
+    <InfoCard
+      inlineValues
+      headerContent={
+        encounter.plannedLocation && (
+          <InfoCardHeader
             label="Planned move"
             value={getFullLocationName(encounter.plannedLocation)}
           />
-        </InfoCardHeader>
-      )}
+        )
+      }
+    >
       <InfoCardItem label="Department" value={getDepartmentName(encounter)} />
       <InfoCardItem label="Patient type" value={patientBillingType} />
       <InfoCardItem label="Location" value={getFullLocationName(encounter?.location)} />
