@@ -35,7 +35,6 @@ export const ChangePasswordFields = ({
         name="token"
         component={TextField}
         keyboardType="default"
-        label="Reset Code"
       />
       <StyledText
         fontSize={13}
@@ -48,7 +47,6 @@ export const ChangePasswordFields = ({
       <Field
         name="newPassword"
         component={TextField}
-        label="New Password"
         secure
       />
       <Field name="server" component={ServerSelector} label="Select a country" />
