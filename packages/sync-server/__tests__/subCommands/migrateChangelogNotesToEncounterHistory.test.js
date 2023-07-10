@@ -1283,17 +1283,42 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
 
     it('creates encounter_history for encounter that does not have any notes', async () => {
       const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
-      const clinician = await createUser('Clinicians');
-      const department = await createDepartment('department');
-      const location = await createLocation('location');
+      const clinician1 = await createUser('Clinician 1');
+      const clinician2 = await createUser('Clinician 2');
+      const clinician3 = await createUser('Clinician 3');
+
+      const department1 = await createDepartment('department1');
+      const department2 = await createDepartment('department2');
+      const department3 = await createDepartment('department3');
+
+      const location1 = await createLocation('location1');
+      const location2 = await createLocation('location2');
+      const location3 = await createLocation('location3');
+
       const encounterType = 'admission';
 
-      const encounter = await createEncounter(patient, {
-        departmentId: department.id,
-        locationId: location.id,
-        examinerId: clinician.id,
+      const encounter1 = await createEncounter(patient, {
+        departmentId: department1.id,
+        locationId: location1.id,
+        examinerId: clinician1.id,
         encounterType,
         startDate: toDateTimeString(sub(new Date(), { days: 6 })),
+      });
+
+      const encounter2 = await createEncounter(patient, {
+        departmentId: department2.id,
+        locationId: location2.id,
+        examinerId: clinician2.id,
+        encounterType,
+        startDate: toDateTimeString(sub(new Date(), { days: 4 })),
+      });
+
+      const encounter3 = await createEncounter(patient, {
+        departmentId: department3.id,
+        locationId: location3.id,
+        examinerId: clinician3.id,
+        encounterType,
+        startDate: toDateTimeString(sub(new Date(), { days: 2 })),
       });
 
       // Migration
@@ -1305,14 +1330,32 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         order: [['date', 'ASC']],
       });
 
-      expect(encounterHistoryRecords).toHaveLength(1);
+      expect(encounterHistoryRecords).toHaveLength(3);
 
       // 1st encounter
       expect(encounterHistoryRecords[0]).toMatchObject({
-        encounterId: encounter.id,
-        departmentId: department.id,
-        locationId: location.id,
-        examinerId: clinician.id,
+        encounterId: encounter1.id,
+        departmentId: department1.id,
+        locationId: location1.id,
+        examinerId: clinician1.id,
+        encounterType,
+      });
+
+      // 2nd encounter
+      expect(encounterHistoryRecords[1]).toMatchObject({
+        encounterId: encounter2.id,
+        departmentId: department2.id,
+        locationId: location2.id,
+        examinerId: clinician2.id,
+        encounterType,
+      });
+
+      // 3rd encounter
+      expect(encounterHistoryRecords[2]).toMatchObject({
+        encounterId: encounter3.id,
+        departmentId: department3.id,
+        locationId: location3.id,
+        examinerId: clinician3.id,
         encounterType,
       });
     });
