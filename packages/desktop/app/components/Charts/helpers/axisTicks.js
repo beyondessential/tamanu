@@ -1,7 +1,8 @@
 import { getTime } from 'date-fns';
 
-export const getXAxisTicks = (startDate, endDate) => {
+export const getXAxisTicks = dateRange => {
   const ticks = [];
+  const [startDate, endDate] = dateRange;
 
   // Get ticks for every 4 hours
   let nextTickTimestamp = getTime(new Date(startDate));

@@ -53,7 +53,7 @@ const inwardArrowData = data.map(item => ({
   ...item,
   inwardArrowVector: {
     top: item.value,
-    bottom: item.value - (Math.random() * 2).toFixed(2),
+    bottom: item.value - 2,
   },
   config: { unit: 'mmHg' },
 }));
@@ -66,10 +66,13 @@ const visualisationConfig = {
   },
 };
 
+const dateRange = [
+  format(addDays(new Date(), -1), 'yyyy-MM-dd HH:mm:ss'),
+  format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+];
 const chartProps = getVitalChartProps({
   visualisationConfig,
-  startDate: format(addDays(new Date(), -1), 'yyyy-MM-dd HH:mm:ss'),
-  endDate: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+  dateRange,
 });
 
 storiesOf('Vitals', module)

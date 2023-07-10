@@ -7,21 +7,19 @@ import { getVitalChartProps } from '../../components/Charts/helpers/getVitalChar
 
 // Fetching and preparing blood pressure data for vital chart
 export const VitalBloodPressureChart = props => {
-  const { visualisationConfig, startDate, endDate, isInMultiChartsView } = props;
+  const { visualisationConfig, dateRange, isInMultiChartsView } = props;
   const { encounter } = useEncounter();
 
   const { data: sbpChartData, isLoading: isSbpLoading } = useVitalQuery(
     encounter.id,
     VITALS_DATA_ELEMENT_IDS.sbp,
-    startDate,
-    endDate,
+    dateRange,
   );
 
   const { data: dbpChartData, isLoading: isDbpLoading } = useVitalQuery(
     encounter.id,
     VITALS_DATA_ELEMENT_IDS.dbp,
-    startDate,
-    endDate,
+    dateRange,
   );
 
   const chartData = sbpChartData.map(sbpData => {
@@ -38,8 +36,7 @@ export const VitalBloodPressureChart = props => {
 
   const chartProps = getVitalChartProps({
     visualisationConfig,
-    startDate,
-    endDate,
+    dateRange,
     isInMultiChartsView,
   });
 

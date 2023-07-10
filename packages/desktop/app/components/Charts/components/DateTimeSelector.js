@@ -45,20 +45,17 @@ const options = [
 ];
 
 export const DateTimeSelector = props => {
-  const { startDate: startDateString, setStartDate, setEndDate } = props;
+  const { dateRange, setDateRange } = props;
+  const [startDateString] = dateRange;
   const [value, setValue] = useState(options[0].value);
 
-  const formatAndSetStartDate = useCallback(
-    newStartDate => {
-      setStartDate(format(newStartDate, DATE_TIME_FORMAT));
+  const formatAndSetDateRange = useCallback(
+    (newStartDate, newEndDate) => {
+      const newStartDateString = format(newStartDate, DATE_TIME_FORMAT);
+      const newEndDateString = format(newEndDate, DATE_TIME_FORMAT);
+      setDateRange([newStartDateString, newEndDateString]);
     },
-    [setStartDate],
-  );
-  const formatAndSetEndDate = useCallback(
-    newEndDate => {
-      setEndDate(format(newEndDate, DATE_TIME_FORMAT));
-    },
-    [setEndDate],
+    [setDateRange],
   );
 
   useEffect(() => {
@@ -68,9 +65,8 @@ export const DateTimeSelector = props => {
     const newStartDate = getDefaultStartDate ? getDefaultStartDate() : new Date();
     const newEndDate = getDefaultEndDate ? getDefaultEndDate() : new Date();
 
-    formatAndSetStartDate(newStartDate);
-    formatAndSetEndDate(newEndDate);
-  }, [value, formatAndSetStartDate, formatAndSetEndDate]);
+    formatAndSetDateRange(newStartDate, newEndDate);
+  }, [value, formatAndSetDateRange]);
 
   return (
     <Wrapper>
@@ -96,8 +92,7 @@ export const DateTimeSelector = props => {
               const startOfDayDate = startOfDay(selectedDayDate);
               const endOfDayDate = startOfDay(addDays(selectedDayDate, 1));
 
-              formatAndSetStartDate(startOfDayDate);
-              formatAndSetEndDate(endOfDayDate);
+              formatAndSetDateRange(startOfDayDate, endOfDayDate);
             }
           }, 200)}
           arrows

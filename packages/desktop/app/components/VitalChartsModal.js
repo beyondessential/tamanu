@@ -12,9 +12,8 @@ export const VitalChartsModal = React.memo(() => {
     vitalChartModalOpen,
     setVitalChartModalOpen,
     modalTitle,
-    startDate,
-    setStartDate,
-    setEndDate,
+    dateRange,
+    setDateRange,
     isInMultiChartsView,
   } = useVitalChartData();
 
@@ -30,7 +29,7 @@ export const VitalChartsModal = React.memo(() => {
         setVitalChartModalOpen(false);
       }}
     >
-      <DateTimeSelector startDate={startDate} setStartDate={setStartDate} setEndDate={setEndDate} />
+      <DateTimeSelector dateRange={dateRange} setDateRange={setDateRange} />
       <ViewComponent />
     </Modal>
   );
