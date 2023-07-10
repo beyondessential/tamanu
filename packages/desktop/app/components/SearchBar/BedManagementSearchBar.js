@@ -20,6 +20,9 @@ const HandoverNotesButton = styled(Button)`
   &:hover {
     text-decoration: underline;
   }
+  &.Mui-disabled {
+    pointer-events: auto;
+  }
 `;
 
 const EmptyGridItem = styled.div``;
