@@ -86,13 +86,7 @@ export const LabRequestFormTypeRadioField = ({ value, setFieldValue }) => {
         {isLoading ? (
           <RadioItemSkeleton itemsLength={POSSIBLE_OPTIONS_LIST.length} />
         ) : (
-          <Field
-            required
-            name="requestFormType"
-            isLoading={isLoading}
-            component={RadioField}
-            options={options}
-          />
+          <Field required name="requestFormType" component={RadioField} options={options} />
         )}
       </OuterLabelFieldWrapper>
     </div>
