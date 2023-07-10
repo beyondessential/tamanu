@@ -73,12 +73,16 @@ export async function up(query) {
       survey_responses sr ON sr.id = sra.response_id
     INNER JOIN
       surveys s ON s.id = sr.survey_id
+    LEFT JOIN
+      vital_logs vl ON vl.answer_id = sra.id
     WHERE
       sra.body IS NOT NULL
     AND
       sra.body != ''
     AND
-      s.survey_type = '${SURVEY_TYPES.VITALS}';
+      s.survey_type = '${SURVEY_TYPES.VITALS}'
+    AND
+      vl.id IS NULL;
   `);
 }
 
