@@ -59,13 +59,13 @@ const useLabRequestFormTypeOptions = () => {
   const { data, isSuccess, isLoading } = useQuery(['suggestions/labTestPanel/all'], () =>
     api.get(`suggestions/labTestPanel/all`),
   );
-  const options =
-    isSuccess &&
-    POSSIBLE_OPTIONS_LIST.filter(option => {
-      if (option.value === LAB_REQUEST_FORM_TYPES.PANEL) return data?.length > 0;
-      if (option.value === LAB_REQUEST_FORM_TYPES.INDIVIDUAL) return !onlyAllowLabPanels;
-      return true;
-    });
+  const options = isSuccess
+    ? POSSIBLE_OPTIONS_LIST.filter(option => {
+        if (option.value === LAB_REQUEST_FORM_TYPES.PANEL) return data?.length > 0;
+        if (option.value === LAB_REQUEST_FORM_TYPES.INDIVIDUAL) return !onlyAllowLabPanels;
+        return true;
+      })
+    : [];
   const defaultOption = options?.[0]?.value;
 
   return { options, isLoading, defaultOption };
