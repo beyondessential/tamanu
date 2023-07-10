@@ -56,21 +56,18 @@ const useLabRequestFormTypeOptions = () => {
   const { getLocalisation } = useLocalisation();
   const { onlyAllowLabPanels } = getLocalisation('features') || {};
 
-  const { data, isSuccess, isLoading } = useQuery(
+  const { data, isSuccess, isLoading, isFetching } = useQuery(
     ['suggestions/labTestPanel/all'],
     () => api.get(`suggestions/labTestPanel/all`),
-    {
-      // We want up to date information re lab test panels to determine default
-      cacheTime: 0,
-    },
   );
-  const options = isSuccess
-    ? POSSIBLE_OPTIONS_LIST.filter(option => {
-        if (option.value === LAB_REQUEST_FORM_TYPES.PANEL) return data?.length > 0;
-        if (option.value === LAB_REQUEST_FORM_TYPES.INDIVIDUAL) return !onlyAllowLabPanels;
-        return true;
-      })
-    : [];
+  const options =
+    isSuccess && !isFetching
+      ? POSSIBLE_OPTIONS_LIST.filter(option => {
+          if (option.value === LAB_REQUEST_FORM_TYPES.PANEL) return data?.length > 0;
+          if (option.value === LAB_REQUEST_FORM_TYPES.INDIVIDUAL) return !onlyAllowLabPanels;
+          return true;
+        })
+      : [];
   const defaultOption = options?.[0]?.value;
 
   return { options, isLoading, defaultOption };
