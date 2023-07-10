@@ -239,7 +239,7 @@ export class Encounter extends BaseModel implements IEncounter {
     // Usually a patient won't have too many encounters, but if they do, this will be slow.
     return encounters.map(encounter => ({
       ...encounter,
-      notePages: notes.filter(note => note.recordId === encounter.id),
+      notes: notes.filter(note => note.recordId === encounter.id),
     }));
   }
 

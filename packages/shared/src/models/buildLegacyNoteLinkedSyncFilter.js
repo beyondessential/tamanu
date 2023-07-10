@@ -1,3 +1,4 @@
+// TODO: This file is deprecated as it is for LegacyNotePage and LegacyNoteItem.
 import { snake } from 'case';
 import { Utils } from 'sequelize';
 import { NOTE_RECORD_TYPES, NOTE_RECORD_TYPE_VALUES } from '../constants';

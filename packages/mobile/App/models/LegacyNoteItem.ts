@@ -3,7 +3,7 @@ import { Entity, Column, ManyToOne, RelationId, BeforeInsert, BeforeUpdate } fro
 import { DateTimeStringColumn } from './DateColumns';
 import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
 
-import { ID, INoteItem, INotePage, DateTimeString, IUser } from '~/types';
+import { ID, ILegacyNoteItem, ILegacyNotePage, DateTimeString, IUser } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 
 import { BaseModel } from './BaseModel';
@@ -11,7 +11,7 @@ import { User } from './User';
 import { LegacyNotePage } from './LegacyNotePage';
 
 @Entity('noteItem')
-export class LegacyNoteItem extends BaseModel implements INoteItem {
+export class LegacyNoteItem extends BaseModel implements ILegacyNoteItem {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   @DateTimeStringColumn({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
@@ -26,7 +26,7 @@ export class LegacyNoteItem extends BaseModel implements INoteItem {
   revisedById?: string;
 
   @ManyToOne(() => LegacyNotePage, notePage => notePage.noteItems)
-  notePage: INotePage;
+  notePage: ILegacyNotePage;
   @RelationId(({ notePage }) => notePage)
   notePageId: ID;
 

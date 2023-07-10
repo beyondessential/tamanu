@@ -9,6 +9,7 @@ import { SYNC_DIRECTIONS } from './types';
 
 import { BaseModel } from './BaseModel';
 import { User } from './User';
+import { LegacyNotePage } from './LegacyNotePage';
 
 @Entity('note')
 export class Note extends BaseModel implements INote {
@@ -34,12 +35,18 @@ export class Note extends BaseModel implements INote {
   @Column({ type: 'varchar', nullable: true })
   revisedById?: string;
 
-  @ManyToOne(() => User, user => user.authoredNoteItems)
+  @ManyToOne(
+    () => User,
+    user => user.authoredNoteItems,
+  )
   author?: IUser;
   @RelationId(({ author }) => author)
   authorId?: ID;
 
-  @ManyToOne(() => User, user => user.onBehalfOfNoteItems)
+  @ManyToOne(
+    () => User,
+    user => user.onBehalfOfNoteItems,
+  )
   onBehalfOf?: IUser;
   @RelationId(({ onBehalfOf }) => onBehalfOf)
   onBehalfOfId?: ID;
@@ -52,9 +59,7 @@ export class Note extends BaseModel implements INote {
     }
   }
 
-  static async createForRecord(
-    { recordId, recordType, noteType, content, author },
-  ): Promise<Note> {
+  static async createForRecord({ recordId, recordType, noteType, content, author }): Promise<Note> {
     return Note.createAndSaveOne<Note>({
       recordId,
       recordType,
@@ -62,7 +67,6 @@ export class Note extends BaseModel implements INote {
       date: getCurrentDateTimeString(),
       content,
       author,
-
     });
   }
 

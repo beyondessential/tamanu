@@ -31,7 +31,7 @@ const visitsHistoryRows = {
     accessor: (diagnoses: IDiagnosis[]): string => diagnoses.map((d) => `${d.diagnosis?.name} (${d.certainty})`).join('\n\n')
       || DEFAULT_FIELD_VAL,
   },
-  notePages: {
+  notes: {
     name: 'Clinical Note',
     accessor: displayNotes,
   },

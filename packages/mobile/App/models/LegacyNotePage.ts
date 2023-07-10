@@ -4,14 +4,14 @@ import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { DateStringColumn } from './DateColumns';
 import { ISO9075_DATE_SQLITE_DEFAULT } from './columnDefaults';
 
-import { ID, INoteItem, INotePage, NoteRecordType, NoteType, DateString } from '~/types';
+import { ID, ILegacyNoteItem, ILegacyNotePage, NoteRecordType, NoteType, DateString } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 
 import { BaseModel } from './BaseModel';
 import { LegacyNoteItem } from './LegacyNoteItem';
 
 @Entity('notePage')
-export class LegacyNotePage extends BaseModel implements INotePage {
+export class LegacyNotePage extends BaseModel implements ILegacyNotePage {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   @Column({ type: 'varchar', nullable: false })
@@ -29,7 +29,7 @@ export class LegacyNotePage extends BaseModel implements INotePage {
   recordId: ID;
 
   @OneToMany(() => LegacyNoteItem, noteItem => noteItem.notePage)
-  noteItems: INoteItem[];
+  noteItems: ILegacyNoteItem[];
 
   static async createForRecord(
     { recordId, recordType, noteType, content, author },
