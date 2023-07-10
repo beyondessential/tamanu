@@ -8,10 +8,10 @@ import { SYNC_DIRECTIONS } from './types';
 
 import { BaseModel } from './BaseModel';
 import { User } from './User';
-import { NotePage } from './NotePage';
+import { LegacyNotePage } from './LegacyNotePage';
 
 @Entity('noteItem')
-export class NoteItem extends BaseModel implements INoteItem {
+export class LegacyNoteItem extends BaseModel implements INoteItem {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   @DateTimeStringColumn({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
@@ -25,7 +25,7 @@ export class NoteItem extends BaseModel implements INoteItem {
   @Column({ type: 'varchar', nullable: true })
   revisedById?: string;
 
-  @ManyToOne(() => NotePage, notePage => notePage.noteItems)
+  @ManyToOne(() => LegacyNotePage, notePage => notePage.noteItems)
   notePage: INotePage;
   @RelationId(({ notePage }) => notePage)
   notePageId: ID;

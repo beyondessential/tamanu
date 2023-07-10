@@ -15,10 +15,9 @@ import { IDiagnosis } from '~/types';
 
 const DEFAULT_FIELD_VAL = 'N/A';
 
-const displayNotes = (notePages): string => notePages
-  .filter(notePage => notePage.noteType === NOTE_TYPES.CLINICAL_MOBILE)
-  // Note: There should only be one noteItem per notePage in production
-  .map(notePage => notePage.noteItems.map((noteItem) => noteItem.content).join('; '))
+const displayNotes = (notes): string => notes
+  .filter(note => note.noteType === NOTE_TYPES.CLINICAL_MOBILE)
+  .map(note => note.content)
   .join('\n\n')
   || DEFAULT_FIELD_VAL;
 

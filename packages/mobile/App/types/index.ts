@@ -20,8 +20,6 @@ export * from './IAdministeredVaccine';
 export * from './IDiagnosis';
 export * from './IScheduledVaccine';
 export * from './IMedication';
-export * from './INoteItem';
-export * from './INotePage';
 export * from './IReferral';
 export * from './IPatientAdditionalData';
 export * from './IFacility';

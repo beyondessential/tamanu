@@ -22,6 +22,7 @@ import { addSettingTable1678400759000 } from './1678400759000-addSettingTable';
 import { addConsentGivenByToAdministeredVaccine1682923186000 } from './1682923186000-addConsentGivenByToAdministeredVaccine';
 import { addNewColumnsToAdministeredVaccine1683596516000 } from './1683596516000-addNewColumnsToAdministeredVaccine';
 import { changeDateColumnToNullableForAdministeredVaccine1683598923000 } from './1683598923000-changeDateColumnToNullableForAdministeredVaccine';
+import { migrateNotePagesToNotes1688950151000 } from './1688950151000-migrateNotePagesToNotes';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -47,4 +48,5 @@ export const migrationList = [
   addConsentGivenByToAdministeredVaccine1682923186000,
   addNewColumnsToAdministeredVaccine1683596516000,
   changeDateColumnToNullableForAdministeredVaccine1683598923000,
+  migrateNotePagesToNotes1688950151000,
 ];
