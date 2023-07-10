@@ -1,6 +1,6 @@
 import config from 'config';
 import { DataTypes, Sequelize } from 'sequelize';
-import { SURVEY_TYPES } from '../constants';
+import { SURVEY_TYPES, VITALS_DATA_ELEMENT_IDS } from '../constants';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export async function up(query) {
@@ -81,6 +81,8 @@ export async function up(query) {
       sra.body != ''
     AND
       s.survey_type = '${SURVEY_TYPES.VITALS}'
+    AND
+      sra.data_element_id != '${VITALS_DATA_ELEMENT_IDS.dateRecorded}'
     AND
       vl.id IS NULL;
   `);
