@@ -616,7 +616,6 @@
         "userDisplayId": {
           "shortLabel": "Registration number",
           "longLabel": "Registration number",
-          "hidden": false
         }
       },
       "features": {

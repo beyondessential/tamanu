@@ -50,6 +50,7 @@ const UNHIDEABLE_FIELDS = [
   'locationId',
   'locationGroupId',
   'diagnosis',
+  'userDisplayId',
 ];
 
 const HIDEABLE_FIELDS = [
@@ -106,7 +107,6 @@ const HIDEABLE_FIELDS = [
   'prescriberId',
   'facility',
   'dischargeDisposition',
-  'userDisplayId',
 ];
 
 const templatesSchema = yup
