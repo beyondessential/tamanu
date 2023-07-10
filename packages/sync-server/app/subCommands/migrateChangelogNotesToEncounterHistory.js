@@ -288,7 +288,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                 examiner_id,
                 encounter_type
             from batch_encounters e
-            left join all_encounter_notes_system n on e.id = n.record_id
+            left join encounter_changed_notes_system n on e.id = n.record_id
             left join locations l on l.id = e.location_id
             left join departments d on d.id = e.department_id
             where n.id isnull or content not like 'Changed%'

@@ -7,6 +7,7 @@ import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 import { migrateChangelogNotesToEncounterHistory } from '../../app/subCommands';
 import { toDateTimeString, getCurrentDateTimeString } from '../../../shared/src/utils/dateTime';
+import { NOTE_RECORD_TYPES, NOTE_TYPES } from '../../../shared/src/constants';
 
 describe('migrateChangelogNotesToEncounterHistory', () => {
   let ctx;
@@ -84,13 +85,13 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       cascade: true,
       force: true,
     });
+    await models.NoteItem.truncate({ cascade: true, force: true });
+    await models.NotePage.truncate({ cascade: true, force: true });
     await models.User.destroy({
       where: { id: { [Op.not]: placeholderUser.id } },
       cascade: true,
       force: true,
     });
-    await models.NoteItem.truncate({ cascade: true, force: true });
-    await models.NotePage.truncate({ cascade: true, force: true });
   };
 
   beforeAll(async () => {
@@ -1214,6 +1215,104 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         departmentId: department.id,
         locationId: location.id,
         examinerId: clinician3.id,
+        encounterType,
+      });
+    });
+
+    it('creates encounter_history for encounter that does not have changelog', async () => {
+      const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+      const clinician1 = await createUser('Clinician 1');
+      const clinician2 = await createUser('Clinician 2');
+      const department = await createDepartment('department');
+      const location = await createLocation('location');
+      const encounterType = 'admission';
+
+      const encounter = await createEncounter(patient, {
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: clinician1.id,
+        encounterType,
+        startDate: toDateTimeString(sub(new Date(), { days: 6 })),
+      });
+
+      // Change clinician 1
+      await encounter.updateClinician(
+        clinician2.id,
+        toDateTimeString(sub(new Date(), { days: 4 })),
+      );
+      encounter.examinerId = clinician2.id;
+      await encounter.save();
+
+      await models.NotePage.createForRecord(
+        encounter.id,
+        NOTE_RECORD_TYPES.ENCOUNTER,
+        NOTE_TYPES.SYSTEM,
+        'Automatically discharged',
+        clinician1.id,
+      );
+
+      // Migration
+      await migrateChangelogNotesToEncounterHistory(SUB_COMMAND_OPTIONS);
+
+      expect(exitSpy).toBeCalledWith(0);
+
+      const encounterHistoryRecords = await models.EncounterHistory.findAll({
+        order: [['date', 'ASC']],
+      });
+
+      expect(encounterHistoryRecords).toHaveLength(2);
+
+      // 1st encounter
+      expect(encounterHistoryRecords[0]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: clinician1.id,
+        encounterType,
+      });
+
+      // Latest encounter
+      expect(encounterHistoryRecords[1]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: clinician2.id,
+        encounterType,
+      });
+    });
+
+    it('creates encounter_history for encounter that does not have any notes', async () => {
+      const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+      const clinician = await createUser('Clinicians');
+      const department = await createDepartment('department');
+      const location = await createLocation('location');
+      const encounterType = 'admission';
+
+      const encounter = await createEncounter(patient, {
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: clinician.id,
+        encounterType,
+        startDate: toDateTimeString(sub(new Date(), { days: 6 })),
+      });
+
+      // Migration
+      await migrateChangelogNotesToEncounterHistory(SUB_COMMAND_OPTIONS);
+
+      expect(exitSpy).toBeCalledWith(0);
+
+      const encounterHistoryRecords = await models.EncounterHistory.findAll({
+        order: [['date', 'ASC']],
+      });
+
+      expect(encounterHistoryRecords).toHaveLength(1);
+
+      // 1st encounter
+      expect(encounterHistoryRecords[0]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: clinician.id,
         encounterType,
       });
     });
