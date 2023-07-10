@@ -56,8 +56,13 @@ const useLabRequestFormTypeOptions = () => {
   const { getLocalisation } = useLocalisation();
   const { onlyAllowLabPanels } = getLocalisation('features') || {};
 
-  const { data, isSuccess, isLoading } = useQuery(['suggestions/labTestPanel/all'], () =>
-    api.get(`suggestions/labTestPanel/all`),
+  const { data, isSuccess, isLoading } = useQuery(
+    ['suggestions/labTestPanel/all'],
+    () => api.get(`suggestions/labTestPanel/all`),
+    {
+      // We want up to date information re lab test panels to determine default
+      cacheTime: 0,
+    },
   );
   const options = isSuccess
     ? POSSIBLE_OPTIONS_LIST.filter(option => {
