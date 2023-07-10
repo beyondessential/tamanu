@@ -367,6 +367,9 @@ labTestPanel.get('/', async (req, res) => {
         as: 'category',
       },
     ],
+    where: {
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+    },
   });
   res.send(response);
 });
@@ -456,6 +459,7 @@ async function createLabRequest(
       : LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
     labTestTypeIds,
     labTestCategoryId,
+    userId: user.id,
   };
 
   const newLabRequest = await models.LabRequest.createWithTests(labRequestData);
