@@ -76,6 +76,8 @@ export const VitalsTable = React.memo(() => {
       elevated={false}
       isLoading={isLoading}
       errorMessage={error?.message}
+      count={data.length}
+      allowExport
     />
   );
 });
