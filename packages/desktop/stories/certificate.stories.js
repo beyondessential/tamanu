@@ -5,7 +5,7 @@ import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/sh
 import { CovidLabCertificate, VaccineCertificate } from '@tamanu/shared/utils/patientCertificates';
 import { PDFViewer } from '@react-pdf/renderer';
 
-import { PatientLetter } from '@tamanu/shared/utils';
+import { PatientLetter } from '@tamanu/shared/utils/patientLetters/PatientLetter';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { DeathCertificate } from '../app/components/PatientPrinting/printouts/DeathCertificate';
 import SigningImage from './assets/signing-image.png';
@@ -247,12 +247,7 @@ storiesOf('Certificates', module).add('PatientLetter', () => {
 
   return (
     <PDFViewer width={800} height={1000} showToolbar={false}>
-      <PatientLetter
-        logoSrc={Logo}
-        getLocalisation={getLocalisation}
-        patientLetterData={patientLetterData}
-      />
+      <PatientLetter logoSrc={Logo} getLocalisation={getLocalisation} data={patientLetterData} />
     </PDFViewer>
   );
 });
-

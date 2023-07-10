@@ -1,10 +1,10 @@
 import React from 'react';
 import { Document, Page, View } from '@react-pdf/renderer';
 
-import { styles, Col, Row, Signature } from '../patientCertificates/Layout';
+import { styles, Col, Row, Signature, CertificateHeader } from '../patientCertificates/Layout';
 import { H3, P } from '../patientCertificates/Typography';
 import { getDOB } from '../patientCertificates/accessors';
-import { CertificateHeader, LetterheadSection } from '../patientCertificates';
+import { LetterheadSection } from '../patientCertificates/LetterheadSection';
 import { getSex, getName } from '../handoverNotes/accessors';
 import { format as formatDate } from '../dateTime';
 
