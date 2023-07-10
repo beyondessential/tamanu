@@ -6,13 +6,12 @@ import { useVitalQuery } from '../../api/queries/useVitalQuery';
 
 // Fetching and preparing data for vital chart
 export const VitalLineChart = props => {
-  const { chartKey, visualisationConfig, startDate, endDate, isInMultiChartsView } = props;
+  const { chartKey, visualisationConfig, dateRange, isInMultiChartsView } = props;
   const { encounter } = useEncounter();
-  const { data: chartData, isLoading } = useVitalQuery(encounter.id, chartKey, startDate, endDate);
+  const { data: chartData, isLoading } = useVitalQuery(encounter.id, chartKey, dateRange);
   const chartProps = getVitalChartProps({
     visualisationConfig,
-    startDate,
-    endDate,
+    dateRange,
     isInMultiChartsView,
   });
 

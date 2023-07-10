@@ -21,7 +21,7 @@ const TitleContainer = styled.div`
 
 // Fetching and preparing data for vital chart
 export const MultiVitalChartsView = () => {
-  const { visualisationConfigs, chartKeys, startDate, endDate } = useVitalChartData();
+  const { visualisationConfigs, chartKeys, dateRange } = useVitalChartData();
 
   return (
     <>
@@ -37,8 +37,7 @@ export const MultiVitalChartsView = () => {
             </TitleContainer>
             <VitalChartComponent
               chartKey={chartKey}
-              startDate={startDate}
-              endDate={endDate}
+              dateRange={dateRange}
               visualisationConfig={visualisationConfig}
               isInMultiChartsView
             />
