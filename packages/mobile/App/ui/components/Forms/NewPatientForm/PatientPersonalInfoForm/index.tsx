@@ -104,13 +104,13 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
       <Formik
         onSubmit={isEdit ? onEditPatient : onCreateNewPatient}
         validationSchema={Yup.object().shape({
-          firstName: Yup.string().required(),
+          firstName: Yup.string().required('First name is a required field'),
           middleName: Yup.string().nullable(),
-          lastName: Yup.string().required(),
+          lastName: Yup.string().required('Last name is a required field'),
           culturalName: Yup.string().nullable(),
-          dateOfBirth: Yup.date().required(),
+          dateOfBirth: Yup.date().required('Date of birth is a required field'),
           email: Yup.string().nullable(),
-          sex: Yup.string().required(),
+          sex: Yup.string().required('Sex is a required field'),
           village: Yup.string().nullable(),
         })}
         initialValues={getInitialValues(isEdit, selectedPatient)}

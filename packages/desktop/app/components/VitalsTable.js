@@ -8,6 +8,8 @@ import { useVitals } from '../api/queries/useVitals';
 import { formatShortest, formatTimeWithSeconds } from './DateDisplay';
 
 const StyledTable = styled(Table)`
+  overflow-x: auto;
+  overflow-y: hidden;
   table {
     position: relative;
     thead tr th:first-child,
@@ -74,6 +76,8 @@ export const VitalsTable = React.memo(() => {
       elevated={false}
       isLoading={isLoading}
       errorMessage={error?.message}
+      count={data.length}
+      allowExport
     />
   );
 });

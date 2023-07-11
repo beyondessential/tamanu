@@ -81,6 +81,19 @@ export class LabRequest extends BaseModel implements ILabRequest {
   @RelationId(({ labTestPriority }) => labTestPriority)
   labTestPriorityId: string;
 
+  @ManyToOne(
+    () => User,
+    user => user.collectedLabRequests,
+  )
+  collectedBy: User;
+  @RelationId(({ collectedBy }) => collectedBy)
+  collectedById: string;
+
+  @ReferenceDataRelation()
+  specimenType: ReferenceData;
+  @RelationId(({ specimenType }) => specimenType)
+  specimenTypeId: string;
+
   @OneToMany(
     () => LabTest,
     labTest => labTest.labRequest,
@@ -113,12 +126,10 @@ export class LabRequest extends BaseModel implements ILabRequest {
 
     // then create tests
     await Promise.all(
-      labTestTypeIds.map(labTestTypeId =>
-        LabTest.createAndSaveOne({
-          labTestType: labTestTypeId,
-          labRequest: labRequest.id,
-        }),
-      ),
+      labTestTypeIds.map(labTestTypeId => LabTest.createAndSaveOne({
+        labTestType: labTestTypeId,
+        labRequest: labRequest.id,
+      })),
     );
 
     return labRequest;
