@@ -192,7 +192,8 @@ export class SurveyResponse extends Model {
 
     // figure out if its a vital survey response
     const vitalsSurvey = await models.Survey.getVitalsSurvey();
-    const isVitalSurvey = surveyId === vitalsSurvey.id;
+    // use optional chaining because vitals survey might not exist
+    const isVitalSurvey = surveyId === vitalsSurvey?.id;
 
     const questions = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
 
