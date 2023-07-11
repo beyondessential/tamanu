@@ -9,7 +9,6 @@ import { SYNC_DIRECTIONS } from './types';
 
 import { BaseModel } from './BaseModel';
 import { User } from './User';
-import { LegacyNotePage } from './LegacyNotePage';
 
 @Entity('note')
 export class Note extends BaseModel implements INote {
