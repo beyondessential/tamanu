@@ -1,11 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useSelector } from 'react-redux';
 import { Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
 import { Colors } from '../constants';
 import { RangeValidatedCell, DateHeadCell, RangeTooltipCell } from './FormattedTableCell';
 import { useVitals } from '../api/queries/useVitals';
 import { formatShortest, formatTimeWithSeconds } from './DateDisplay';
+import { getNormalRangeByAge } from '../utils';
 
 const StyledTable = styled(Table)`
   table {
@@ -33,6 +35,7 @@ const StyledTable = styled(Table)`
 `;
 
 export const VitalsTable = React.memo(() => {
+  const patient = useSelector(state => state.patient);
   const { encounter } = useEncounter();
   const { data, recordedDates, error, isLoading } = useVitals(encounter.id);
 
@@ -42,7 +45,11 @@ export const VitalsTable = React.memo(() => {
       title: 'Measure',
       sortable: false,
       accessor: ({ value, config, validationCriteria }) => (
-        <RangeTooltipCell value={value} config={config} validationCriteria={validationCriteria} />
+        <RangeTooltipCell
+          value={value}
+          config={config}
+          validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
+        />
       ),
     },
     ...recordedDates
@@ -57,7 +64,7 @@ export const VitalsTable = React.memo(() => {
             <RangeValidatedCell
               value={value}
               config={config}
-              validationCriteria={validationCriteria}
+              validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
             />
           );
         },
