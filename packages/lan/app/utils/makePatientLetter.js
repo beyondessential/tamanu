@@ -22,15 +22,10 @@ export const makePatientLetter = async (req, { id, ...data }) => {
   const fileName = `patient-letter-${id}-${uuid()}.pdf`;
   const filePath = path.join(folder, fileName);
 
-  try {
-    await ReactPDF.render(
-      <PatientLetter getLocalisation={getLocalisationData} data={data} logoSrc={logo?.data} />,
-      filePath,
-    );
-  } catch (error) {
-    log.info('Error creating PDF');
-    throw error;
-  }
+  await ReactPDF.render(
+    <PatientLetter getLocalisation={getLocalisationData} data={data} logoSrc={logo?.data} />,
+    filePath,
+  );
 
   return {
     filePath,
