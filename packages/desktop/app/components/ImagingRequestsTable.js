@@ -101,13 +101,15 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
     [loadEncounter, dispatch, params.patientId, params.category, encounterId],
   );
 
+  const globalImagingRequestsFetchOptions = { ...statusFilter, ...searchParameters };
+
   return (
     <SearchTable
       endpoint={encounterId ? `encounter/${encounterId}/imagingRequests` : 'imagingRequest'}
       columns={encounterId ? encounterColumns : globalColumns}
       noDataMessage="No imaging requests found"
       onRowClick={selectImagingRequest}
-      fetchOptions={{ ...statusFilter, ...searchParameters }}
+      fetchOptions={encounterId ? undefined : globalImagingRequestsFetchOptions}
       elevated={false}
       initialSort={{
         order: 'desc',
