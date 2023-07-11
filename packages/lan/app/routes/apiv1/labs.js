@@ -98,8 +98,9 @@ labRequest.post(
         if (note?.content) {
           await newLabRequest.createNote({
             noteType: NOTE_TYPES.OTHER,
-            content: note,
+            content: note?.content,
             authorId: user.id,
+            date: note?.date,
           });
         }
         return newLabRequest;
