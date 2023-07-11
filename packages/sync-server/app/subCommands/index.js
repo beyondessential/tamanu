@@ -18,3 +18,4 @@ export * from './shell';
 export * from './tasks';
 export * from './user';
 export * from './migrateVitals';
+export * from './migrateChangelogNotesToEncounterHistory';
