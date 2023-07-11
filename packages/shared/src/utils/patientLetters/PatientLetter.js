@@ -3,9 +3,8 @@ import { Document, Page, View } from '@react-pdf/renderer';
 
 import { styles, Col, Row, Signature, CertificateHeader } from '../patientCertificates/Layout';
 import { H3, P } from '../patientCertificates/Typography';
-import { getDOB } from '../patientCertificates/accessors';
 import { LetterheadSection } from '../patientCertificates/LetterheadSection';
-import { getSex, getName } from '../handoverNotes/accessors';
+import { getSex, getName, getDOB } from '../patientAccessors';
 import { format as formatDate } from '../dateTime';
 
 export const getCreatedAtDate = ({ documentCreatedAt }) =>
