@@ -29,5 +29,6 @@ export const makePatientLetter = async (req, { id, ...data }) => {
 
   return {
     filePath,
+    mimeType: 'application/pdf',
   };
 };

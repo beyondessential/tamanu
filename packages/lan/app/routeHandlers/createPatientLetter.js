@@ -25,7 +25,7 @@ export const createPatientLetter = (modelName, idField) =>
     }
 
     // Create attachment
-    const { filePath } = await makePatientLetter(req, {
+    const { filePath, mimeType } = await makePatientLetter(req, {
       id: specifiedObject.id,
       clinician,
       documentCreatedAt,
@@ -40,7 +40,7 @@ export const createPatientLetter = (modelName, idField) =>
 
     const { id: attachmentId } = await models.Attachment.create(
       models.Attachment.sanitizeForDatabase({
-        type: 'application/pdf',
+        type: mimeType,
         size,
         data: fileData,
       }),
@@ -49,7 +49,7 @@ export const createPatientLetter = (modelName, idField) =>
     const documentMetadataObject = await models.DocumentMetadata.create({
       name,
       source: DOCUMENT_SOURCES.PATIENT_LETTER,
-      type: 'application/pdf',
+      type: mimeType,
       documentOwner: clinician.displayName,
       attachmentId,
       documentCreatedAt,
