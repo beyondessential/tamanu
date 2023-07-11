@@ -29,7 +29,9 @@ export const createPatientLetter = (modelName, idField) =>
       id: specifiedObject.id,
       clinician,
       documentCreatedAt,
-      ...patientLetterData,
+      title: patientLetterData.title,
+      body: patientLetterData.body,
+      patient: patientLetterData.patient,
     });
 
     const { size } = fs.statSync(filePath);
