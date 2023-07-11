@@ -1,11 +1,9 @@
 import { LAB_TEST_STATUSES, LAB_REQUEST_STATUSES } from 'shared/constants';
 import config from 'config';
-import Chance from 'chance';
 import { createDummyPatient, createDummyEncounter, randomLabRequest } from 'shared/demoData';
-import { fake } from 'shared/test-helpers/fake';
+import { fake, chance } from 'shared/test-helpers';
 import { createTestContext } from '../utilities';
 
-const chance = new Chance();
 const VALID_LAB_REQUEST_STATUSES = [
   LAB_REQUEST_STATUSES.RECEPTION_PENDING,
   LAB_REQUEST_STATUSES.RESULTS_PENDING,
@@ -48,6 +46,30 @@ describe('Labs', () => {
     });
     expect(createdTests).toHaveLength(labRequest.labTestTypeIds.length);
     expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.RECEPTION_PENDING));
+  });
+
+  it('should record a lab request with a note', async () => {
+    const data = await randomLabRequest(models, {
+      patientId,
+    });
+    const content = chance.string();
+
+    const response = await app.post('/v1/labRequest').send({
+      ...data,
+      note: {
+        date: chance.date(),
+        content,
+      },
+    });
+    expect(response).toHaveSucceeded();
+
+    const labRequest = await models.LabRequest.findByPk(response.body[0].id, {
+      include: 'notes',
+    });
+    expect(labRequest).toBeTruthy();
+
+    expect(labRequest.notes).toHaveLength(1);
+    expect(labRequest.notes[0]).toHaveProperty('content', content);
   });
 
   it('should record a lab request with a Lab Test Panel', async () => {

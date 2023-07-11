@@ -128,7 +128,7 @@ const NoteContent = ({ note, hasPermission, currentUser, handleEditNote }) => {
   );
 };
 
-const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved }) => {
+const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) => {
   const { currentUser } = useAuth();
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
@@ -185,8 +185,7 @@ const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved }) => {
         allowExport={false}
         columns={COLUMNS}
         endpoint={`encounter/${encounterId}/notes`}
-        // onRowClick={handleRowClick}
-        // customSort={sortNotes}
+        fetchOptions={{ noteType }}
         elevated={false}
       />
     </>

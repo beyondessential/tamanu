@@ -101,5 +101,3 @@ export const dataGenerator = async (store, parameters = {}) =>
     SURVEY_DATA_ELEMENT_IDS_LATEST_PER_PATIENT_PER_DATE,
     REPORT_COLUMN_TEMPLATE,
   );
-
-export const permission = 'SurveyResponse';

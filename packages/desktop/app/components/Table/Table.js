@@ -14,7 +14,6 @@ import {
   TableSortLabel,
   TableRow,
   TableFooter,
-  TablePagination,
 } from '@material-ui/core';
 import { ExpandMore } from '@material-ui/icons';
 import { PaperStyles } from '../Paper';
@@ -24,6 +23,7 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
 import { ErrorBoundary } from '../ErrorBoundary';
+import { Paginator } from './Paginator';
 
 const preventInputCallback = e => {
   e.stopPropagation();
@@ -170,6 +170,12 @@ const RowContainer = React.memo(({ children, rowStyle, onClick }) => (
   </StyledTableRow>
 ));
 
+const ErrorTableCell = styled(StyledTableCell)`
+  &.MuiTableCell-body {
+    padding: 60px;
+  }
+`;
+
 const Row = React.memo(
   ({ rowIndex, columns, data, onClick, cellOnChange, rowStyle, refreshTable }) => {
     const cells = columns.map(
@@ -227,9 +233,9 @@ const DisplayValue = React.memo(({ maxWidth, displayValue }) => {
 
 const ErrorRow = React.memo(({ colSpan, children }) => (
   <RowContainer>
-    <StyledTableCell colSpan={colSpan} align="center">
+    <ErrorTableCell colSpan={colSpan} align="center">
       {children}
-    </StyledTableCell>
+    </ErrorTableCell>
   </RowContainer>
 ));
 
@@ -244,7 +250,7 @@ class TableComponent extends React.Component {
 
   handleChangePage = (event, newPage) => {
     const { onChangePage } = this.props;
-    if (onChangePage) onChangePage(newPage);
+    if (onChangePage) onChangePage(newPage - 1);
   };
 
   handleScroll = event => {
@@ -260,9 +266,10 @@ class TableComponent extends React.Component {
   };
 
   handleChangeRowsPerPage = event => {
-    const { onChangeRowsPerPage } = this.props;
+    const { onChangeRowsPerPage, onChangePage } = this.props;
     const newRowsPerPage = parseInt(event.target.value, 10);
     if (onChangeRowsPerPage) onChangeRowsPerPage(newRowsPerPage);
+    if (onChangePage) onChangePage(0);
   };
 
   renderHeaders() {
@@ -372,7 +379,7 @@ class TableComponent extends React.Component {
   renderPaginator() {
     const { columns, page, count, rowsPerPage, rowsPerPageOptions } = this.props;
     return (
-      <TablePagination
+      <Paginator
         rowsPerPageOptions={rowsPerPageOptions}
         colSpan={columns.length}
         page={page}
@@ -385,10 +392,10 @@ class TableComponent extends React.Component {
   }
 
   renderFooter() {
-    const { page, lazyLoading, exportName, columns, data, allowExport } = this.props;
+    const { page, lazyLoading, exportName, columns, data, allowExport, count } = this.props;
 
     // Footer is empty, don't render anything
-    if ((page === null || lazyLoading) && !allowExport) {
+    if (((page === null || lazyLoading) && !allowExport) || count === 0) {
       return null;
     }
 

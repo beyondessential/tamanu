@@ -1,3 +1,6 @@
+import { subWeeks, sub } from 'date-fns';
+import { isEqual } from 'lodash';
+
 import {
   createDummyPatient,
   createDummyEncounter,
@@ -8,11 +11,10 @@ import { LAB_REQUEST_STATUSES, IMAGING_REQUEST_STATUS_TYPES, NOTE_TYPES } from '
 import { setupSurveyFromObject } from 'shared/demoData/surveys';
 import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';
-import { subWeeks } from 'date-fns';
-import { isEqual } from 'lodash';
 
 import { uploadAttachment } from '../../app/utils/uploadAttachment';
 import { createTestContext } from '../utilities';
+import { NOTE_RECORD_TYPES } from '../../../shared/src/constants';
 
 describe('Encounter', () => {
   let patient = null;
@@ -129,6 +131,106 @@ describe('Encounter', () => {
     expect(result.body.count).toEqual(3);
     expect(result.body.data.every(x => x.content.match(/^Test \d$/))).toEqual(true);
     expect(result.body.data[0].toEqual(NOTE_TYPES.TREATMENT_PLAN);
+  });
+
+  it('should get a list of notes filtered by noteType', async () => {
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+    await Promise.all([
+      models.Note.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 4'),
+      models.Note.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 5'),
+      models.Note.createForRecord(encounter.id, 'Encounter', 'admission', 'Test 6'),
+    ]);
+
+    const result = await app.get(`/v1/encounter/${encounter.id}/notes?noteType=treatmentPlan`);
+    expect(result).toHaveSucceeded();
+    expect(result.body.count).toEqual(2);
+    expect(result.body.data.every(x => x.noteType === 'treatmentPlan')).toEqual(true);
+  });
+
+  it('should get a list of changelog notes of a root note ordered ASCENDING', async () => {
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+
+    const rootNote = await models.Note.create(
+      fake(models.Note, {
+        recordId: encounter.id,
+        recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+        content: 'Root note',
+        authorId: app.user.id,
+        date: toDateTimeString(sub(new Date(), { days: 8 })),
+      }),
+    );
+    const changelog1 = await models.Note.create(
+      fake(models.Note, {
+        recordId: encounter.id,
+        recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+        content: 'Changelog1',
+        authorId: app.user.id,
+        date: toDateTimeString(sub(new Date(), { days: 6 })),
+        revisedById: rootNote.id,
+      }),
+    );
+    const changelog2 = await models.Note.create(
+      fake(models.Note, {
+        recordId: encounter.id,
+        recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+        content: 'Changelog2',
+        authorId: app.user.id,
+        date: toDateTimeString(sub(new Date(), { days: 4 })),
+        revisedById: rootNote.id,
+      }),
+    );
+
+    const changelog3 = await models.Note.create(
+      fake(models.Note, {
+        recordId: encounter.id,
+        recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+        content: 'Changelog3',
+        authorId: app.user.id,
+        date: toDateTimeString(sub(new Date(), { days: 2 })),
+        revisedById: rootNote.id,
+      }),
+    );
+
+    const result = await app.get(`/v1/encounter/${encounter.id}/notes/${rootNote.id}/changelogs`);
+    expect(result).toHaveSucceeded();
+    expect(result.body.count).toEqual(4);
+    expect(result.body.data[0]).toMatchObject({
+      recordId: rootNote.recordId,
+      recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+      content: rootNote.content,
+      authorId: rootNote.authorId,
+      date: rootNote.date,
+    });
+    expect(result.body.data[1]).toMatchObject({
+      recordId: changelog1.recordId,
+      recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+      content: changelog1.content,
+      authorId: changelog1.authorId,
+      date: changelog1.date,
+      revisedById: rootNote.id,
+    });
+    expect(result.body.data[2]).toMatchObject({
+      recordId: changelog2.recordId,
+      recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+      content: changelog2.content,
+      authorId: changelog2.authorId,
+      date: changelog2.date,
+      revisedById: rootNote.id,
+    });
+    expect(result.body.data[3]).toMatchObject({
+      recordId: changelog3.recordId,
+      recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+      content: changelog3.content,
+      authorId: changelog3.authorId,
+      date: changelog3.date,
+      revisedById: rootNote.id,
+    });
   });
 
   test.todo('should get a list of procedures');
@@ -769,7 +871,7 @@ describe('Encounter', () => {
 
         const notes = await v.getNotes();
         expect(notes).toHaveLength(1);
-        expect(notes[0].content.includes('Discharged')).toEqual(true);
+        expect(notes[0].content.includes('Patient discharged by')).toEqual(true);
         expect(notes[0].authorId).toEqual(app.user.id);
       });
 

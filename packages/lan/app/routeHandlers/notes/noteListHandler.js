@@ -17,7 +17,7 @@ const getNonTreatmentPlanRowsOffset = (page, rowsPerPage, treatmentPlanNotesCoun
 export const noteListHandler = recordType =>
   asyncHandler(async (req, res) => {
     const { db, models, params, query } = req;
-    const { order = 'ASC', orderBy, rowsPerPage, page } = query;
+    const { order = 'ASC', orderBy, noteType, rowsPerPage, page } = query;
 
     const recordId = params.id;
     await checkNotePermission(req, { recordType, recordId }, 'list');
@@ -74,54 +74,78 @@ export const noteListHandler = recordType =>
     };
 
     const queryOrder = orderBy ? [[orderBy, order.toUpperCase()]] : [['date', 'DESC']];
-    const treatmentPlanRows = await models.Note.findAll({
-      include,
-      where: {
-        ...baseWhere,
-        noteType: NOTE_TYPES.TREATMENT_PLAN,
-      },
-      order: queryOrder,
-      limit: rowsPerPage,
-      offset: page && rowsPerPage ? page * rowsPerPage : undefined,
-    });
 
-    let nonTreatmentPlanRows = [];
-    const remainingLimit = rowsPerPage
-      ? Math.max(rowsPerPage - treatmentPlanRows.length, 0)
-      : undefined;
-    if (!rowsPerPage || remainingLimit) {
-      let treatmentPlanNotesCount;
-      // remainingLimit is a number, rowsPerPage is a string
-      // eslint-disable-next-line eqeqeq
-      if (rowsPerPage && remainingLimit == rowsPerPage) {
-        treatmentPlanNotesCount = await models.Note.count({
-          where: {
-            ...baseWhere,
-            noteType: NOTE_TYPES.TREATMENT_PLAN,
-          },
-        });
-      }
-      nonTreatmentPlanRows = await models.Note.findAll({
+    let rows, totalCount;
+
+    if (noteType) {
+
+      rows = await models.Note.findAll({
         include,
         where: {
           ...baseWhere,
-          noteType: {
-            [Op.ne]: NOTE_TYPES.TREATMENT_PLAN,
-          },
+          noteType,
         },
         order: queryOrder,
-        limit: remainingLimit,
-        offset: getNonTreatmentPlanRowsOffset(page, rowsPerPage, treatmentPlanNotesCount),
+        limit: rowsPerPage,
+        offset: page && rowsPerPage ? page * rowsPerPage : undefined,
       });
+      totalCount = await models.Note.count({
+        where: baseWhere,
+      });
+
+    } else {
+
+      const treatmentPlanRows = await models.Note.findAll({
+        include,
+        where: {
+          ...baseWhere,
+          noteType: NOTE_TYPES.TREATMENT_PLAN,
+        },
+        order: queryOrder,
+        limit: rowsPerPage,
+        offset: page && rowsPerPage ? page * rowsPerPage : undefined,
+      });
+
+      let nonTreatmentPlanRows = [];
+      const remainingLimit = rowsPerPage
+        ? Math.max(rowsPerPage - treatmentPlanRows.length, 0)
+        : undefined;
+      if (!rowsPerPage || remainingLimit) {
+        let treatmentPlanNotesCount;
+        // remainingLimit is a number, rowsPerPage is a string
+        // eslint-disable-next-line eqeqeq
+        if (rowsPerPage && remainingLimit == rowsPerPage) {
+          treatmentPlanNotesCount = await models.Note.count({
+            where: {
+              ...baseWhere,
+              noteType: NOTE_TYPES.TREATMENT_PLAN,
+            },
+          });
+        }
+        nonTreatmentPlanRows = await models.Note.findAll({
+          include,
+          where: {
+            ...baseWhere,
+            noteType: {
+              [Op.ne]: NOTE_TYPES.TREATMENT_PLAN,
+            },
+          },
+          order: queryOrder,
+          limit: remainingLimit,
+          offset: getNonTreatmentPlanRowsOffset(page, rowsPerPage, treatmentPlanNotesCount),
+        });
+      }
+
+      rows = [...(treatmentPlanRows || []), ...(nonTreatmentPlanRows || [])];
+
+      totalCount = await models.Note.count({
+        where: baseWhere,
+      });
+
     }
 
-    const rows = [...(treatmentPlanRows || []), ...(nonTreatmentPlanRows || [])];
-
-    const totalCount = await models.Note.count({
-      where: baseWhere,
-    });
-
     res.send({ data: rows, count: totalCount });
+
   });
 
 export const notesWithSingleItemListHandler = recordType =>

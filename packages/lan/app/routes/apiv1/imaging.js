@@ -303,7 +303,15 @@ globalImagingRequests.get(
         mapFn: caseInsensitiveStartsWithFilter,
       },
       { key: 'imagingType', operator: Op.eq },
-      { key: 'status', operator: Op.eq },
+      {
+        key: 'status',
+        operator: Op.in,
+        mapFn: (fieldName, operator, value) => ({
+          [fieldName]: {
+            [operator]: Array.isArray(value) ? value : [value],
+          },
+        }),
+      },
       { key: 'priority', operator: Op.eq },
       { key: 'locationGroupId', operator: Op.eq },
       {

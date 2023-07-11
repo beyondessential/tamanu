@@ -11,7 +11,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
 } from 'shared/constants';
 import { uploadAttachment } from '../../utils/uploadAttachment';
-import { noteListHandler } from '../../routeHandlers';
+import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 
 import {
   simpleGet,
@@ -40,12 +40,21 @@ encounter.put(
     req.checkPermission('write', encounterObject);
 
     await db.transaction(async () => {
+      let systemNote;
+
       if (req.body.discharge) {
         req.checkPermission('write', 'Discharge');
         if (!req.body.discharge.dischargerId) {
           // Only automatic discharges can have a null discharger ID
           throw new InvalidParameterError('A discharge must have a discharger.');
         }
+        const discharger = await models.User.findByPk(req.body.discharge.dischargerId);
+        if (!discharger) {
+          throw new InvalidParameterError(
+            `Discharger with id ${req.body.discharge.dischargerId} not found.`,
+          );
+        }
+        systemNote = `Patient discharged by ${discharger.displayName}.`;
 
         // Update medications that were marked for discharge and ensure
         // only isDischarge, quantity and repeats fields are edited
@@ -63,7 +72,7 @@ encounter.put(
         const referral = await models.Referral.findByPk(referralId);
         await referral.update({ encounterId: id });
       }
-      await encounterObject.update(req.body, user);
+      await encounterObject.update({ ...req.body, systemNote }, user);
     });
 
     res.send(encounterObject);
@@ -210,6 +219,11 @@ encounterRelations.get(
     });
     res.send({ data: noteTypeToCount });
   }),
+);
+
+encounterRelations.get(
+  '/:id/notes/:noteId/changelogs',
+  noteChangelogsHandler(NOTE_RECORD_TYPES.ENCOUNTER),
 );
 
 encounterRelations.get(

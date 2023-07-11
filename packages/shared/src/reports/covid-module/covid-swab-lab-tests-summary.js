@@ -59,8 +59,6 @@ const parametersToSqlWhere = parameters => {
   return whereClause;
 };
 
-export const permission = 'LabTest';
-
 export const dataGenerator = async ({ models }, parameters = {}) => {
   const reportColumnTemplate = [
     {

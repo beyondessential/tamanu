@@ -1,12 +1,22 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
+
 import { useEncounter } from '../../../contexts/Encounter';
 import { NoteModal } from '../../../components/NoteModal';
 import { NoteTableWithPermission } from '../../../components/NoteTable';
 import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
 import { TabPane } from '../components';
+import { SelectInput } from '../../../components/Field';
+import { noteTypes } from '../../../constants';
+import { useEncounterNotes } from '../../../contexts/EncounterNotes';
+
+const StyledSelectInput = styled(SelectInput)`
+  width: 200px;
+`;
 
 export const NotesPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = useState(false);
+  const { noteType, setNoteType } = useEncounterNotes();
   const { loadEncounter } = useEncounter();
 
   const noteModalOnSaved = async () => {
@@ -24,7 +34,13 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
         onSaved={noteModalOnSaved}
         confirmText="Add note"
       />
-      <TableButtonRow variant="small">
+      <TableButtonRow variant="small" justifyContent="space-between">
+        <StyledSelectInput
+          options={noteTypes}
+          onChange={e => setNoteType(e.target.value)}
+          value={noteType}
+          isClearable={false}
+        />
         <ButtonWithPermissionCheck
           onClick={() => setModalOpen(true)}
           disabled={readonly}

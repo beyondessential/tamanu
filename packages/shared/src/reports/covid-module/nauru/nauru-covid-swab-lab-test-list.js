@@ -85,5 +85,3 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
     dateFilterBy: 'labRequest.sampleTime',
   });
 };
-
-export const permission = 'LabTest';
