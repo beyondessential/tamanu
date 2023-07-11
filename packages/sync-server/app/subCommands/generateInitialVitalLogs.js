@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import { log } from 'shared/services/logging';
 import { VITALS_DATA_ELEMENT_IDS } from 'shared/constants';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { initDatabase } from '../database';
 
 const SURVEY_RESPONSE_BATCH_SIZE = 1000;
@@ -34,7 +35,7 @@ async function generateVitalLogsInBatch(store, vitalsSurveyId, batchSize, offset
       if (vitalLogCount !== 0) continue;
 
       await VitalLog.create({
-        date: response.endTime,
+        date: response.endTime || getCurrentDateTimeString(),
         newValue: answer.body,
         recordedById: response.userId,
         answerId: answer.id,
