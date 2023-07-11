@@ -187,7 +187,8 @@ export function getConfigObject(componentId, config) {
 }
 
 function transformPatientData(patient, additionalData, config) {
-  const { isAdditionalDataField = false, column = 'fullName' } = config;
+  const { writeToPatient = {}, column = 'fullName' } = config;
+  const { isAdditionalDataField = false } = writeToPatient;
   const { dateOfBirth, firstName, lastName } = patient;
 
   const { months, years } = intervalToDuration({
@@ -210,7 +211,7 @@ function transformPatientData(patient, additionalData, config) {
       return joinNames({ firstName, lastName });
     default:
       if (isAdditionalDataField) {
-        return additionalData[column];
+        return additionalData ? additionalData[column] : undefined;
       }
       return patient[column];
   }
