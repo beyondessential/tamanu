@@ -11,6 +11,7 @@ import * as Icons from '../Icons';
 import { InputContainer } from '../TextField/styles';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
+import { RequiredIndicator } from '../RequiredIndicator';
 
 const styles = StyleSheet.create({
   androidPickerStyles: {
@@ -113,7 +114,7 @@ export const DateField = React.memo(
             color={theme.colors.TEXT_SUPER_DARK}
           >
             {label}
-            {required && <StyledText color={theme.colors.ALERT}> *</StyledText>}
+            {required && <RequiredIndicator />}
           </StyledText>
         )}
         <StyledView height={screenPercentageToDP('6.68', Orientation.Height)} width="100%">
