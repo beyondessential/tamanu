@@ -18,6 +18,7 @@ import {
 } from '@material-ui/core';
 import { ExpandMore } from '@material-ui/icons';
 import { PaperStyles } from '../Paper';
+import { LoadingIndicator } from '../LoadingIndicator';
 import { DownloadDataButton } from './DownloadDataButton';
 import { useLocalisation } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
@@ -28,6 +29,8 @@ const preventInputCallback = e => {
   e.stopPropagation();
   e.preventDefault();
 };
+
+const LAZY_LOADING_BOTTOM_SENSITIVITY = 0;
 
 const CellErrorMessage = styled.div`
   display: block;
@@ -49,6 +52,11 @@ const CellError = React.memo(({ error }) => {
 
 const DEFAULT_ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
+const CenteredLoadingIndicatorContainer = styled.div`
+  width: fit-content;
+  margin: 1rem auto 0.5rem;
+`;
+
 const OptionRow = styled.div`
   border-bottom: 1px solid ${Colors.outline};
   display: flex;
@@ -59,8 +67,6 @@ const OptionRow = styled.div`
 `;
 
 const StyledTableRow = styled(TableRow)`
-  margin-top: 1rem;
-
   ${p =>
     p.onClick
       ? `
@@ -72,14 +78,27 @@ const StyledTableRow = styled(TableRow)`
       : ''}
 
   ${p => (p.$rowStyle ? p.$rowStyle : '')}
+
+  &.MuiTableRow-root {
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+  }
 `;
 
 const StyledTableContainer = styled.div`
-  overflow: auto;
   border-radius: 5px;
   background: white;
   border: 1px solid ${Colors.outline};
   ${props => (props.$elevated ? PaperStyles : null)};
+`;
+
+const StyledTableBody = styled(TableBody)`
+  &.MuiTableBody-root {
+    overflow: auto;
+    display: block;
+    ${props => (props.$lazyLoading ? `max-height: 300px;` : '')};
+  }
 `;
 
 const StyledTableCellContent = styled.div`
@@ -118,6 +137,9 @@ const StyledTable = styled(MaterialTable)`
 `;
 
 const StyledTableHead = styled(TableHead)`
+  display: table;
+  table-layout: fixed;
+  width: 100%;
   background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
   white-space: nowrap;
 `;
@@ -225,6 +247,18 @@ class TableComponent extends React.Component {
     if (onChangePage) onChangePage(newPage);
   };
 
+  handleScroll = event => {
+    const { count, lazyLoading, isLoadingMore, onChangePage, page, rowsPerPage } = this.props;
+    if (!lazyLoading || isLoadingMore || !onChangePage) return;
+    const bottom =
+      event.target.scrollHeight -
+        Math.ceil(event.target.scrollTop) -
+        LAZY_LOADING_BOTTOM_SENSITIVITY <=
+      event.target.clientHeight;
+    const isNotLastPage = page + 1 < Math.ceil(count / rowsPerPage);
+    if (bottom && isNotLastPage) onChangePage(page + 1);
+  };
+
   handleChangeRowsPerPage = event => {
     const { onChangeRowsPerPage } = this.props;
     const newRowsPerPage = parseInt(event.target.value, 10);
@@ -284,9 +318,11 @@ class TableComponent extends React.Component {
       onRowClick,
       cellOnChange,
       errorMessage,
+      lazyLoading,
       rowIdKey,
       rowStyle,
       refreshTable,
+      isLoadingMore,
     } = this.props;
 
     const error = this.getErrorMessage();
@@ -297,22 +333,40 @@ class TableComponent extends React.Component {
         </ErrorRow>
       );
     }
-    const sortedData = customSort ? customSort(data) : data;
-    return sortedData.map((rowData, rowIndex) => {
-      const key = rowData[rowIdKey] || rowData[columns[0].key];
-      return (
-        <Row
-          rowIndex={rowIndex}
-          data={rowData}
-          key={key}
-          columns={columns}
-          onClick={onRowClick}
-          cellOnChange={cellOnChange}
-          refreshTable={refreshTable}
-          rowStyle={rowStyle}
-        />
-      );
-    });
+    // Ignore frontend sorting if lazyLoading as it causes a terrible UX
+    const sortedData = customSort && !lazyLoading ? customSort(data) : data;
+    return (
+      <>
+        {sortedData.map((rowData, rowIndex) => {
+          const key = rowData[rowIdKey] || rowData[columns[0].key];
+          return (
+            <Row
+              rowIndex={rowIndex}
+              data={rowData}
+              key={key}
+              columns={columns}
+              onClick={onRowClick}
+              cellOnChange={cellOnChange}
+              refreshTable={refreshTable}
+              rowStyle={rowStyle}
+            />
+          );
+        })}
+        {isLoadingMore && (
+          <StyledTableRow>
+            <CenteredLoadingIndicatorContainer>
+              <LoadingIndicator
+                backgroundColor="transparent"
+                opacity={1}
+                height="24px"
+                width="20px"
+                size="20px"
+              />
+            </CenteredLoadingIndicatorContainer>
+          </StyledTableRow>
+        )}
+      </>
+    );
   }
 
   renderPaginator() {
@@ -331,38 +385,42 @@ class TableComponent extends React.Component {
   }
 
   renderFooter() {
-    const { page, exportName, columns, data, allowExport } = this.props;
+    const { page, lazyLoading, exportName, columns, data, allowExport } = this.props;
 
     // Footer is empty, don't render anything
-    if (page === null && !allowExport) {
+    if ((page === null || lazyLoading) && !allowExport) {
       return null;
     }
 
     return (
       <StyledTableFooter>
-        <TableRow>
+        <StyledTableRow>
           {allowExport ? (
             <TableCell colSpan={page !== null ? 2 : columns.length}>
               <DownloadDataButton exportName={exportName} columns={columns} data={data} />
             </TableCell>
           ) : null}
-          {page !== null && this.renderPaginator()}
-        </TableRow>
+          {page !== null && !lazyLoading && this.renderPaginator()}
+        </StyledTableRow>
       </StyledTableFooter>
     );
   }
 
   render() {
-    const { className, elevated, headerColor, optionRow } = this.props;
+    const { className, elevated, headerColor, hideHeader, lazyLoading, optionRow } = this.props;
 
     return (
       <StyledTableContainer className={className} $elevated={elevated}>
         {optionRow && <OptionRow>{optionRow}</OptionRow>}
         <StyledTable>
-          <StyledTableHead $headerColor={headerColor}>
-            <TableRow>{this.renderHeaders()}</TableRow>
-          </StyledTableHead>
-          <TableBody>{this.renderBodyContent()}</TableBody>
+          {!hideHeader && (
+            <StyledTableHead $headerColor={headerColor}>
+              <StyledTableRow>{this.renderHeaders()}</StyledTableRow>
+            </StyledTableHead>
+          )}
+          <StyledTableBody onScroll={this.handleScroll} $lazyLoading={lazyLoading}>
+            {this.renderBodyContent()}
+          </StyledTableBody>
           {this.renderFooter()}
         </StyledTable>
       </StyledTableContainer>
@@ -381,6 +439,7 @@ TableComponent.propTypes = {
   ).isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   errorMessage: PropTypes.string,
+  hideHeader: PropTypes.bool,
   noDataMessage: PropTypes.string,
   isLoading: PropTypes.bool,
   count: PropTypes.number,
@@ -402,12 +461,15 @@ TableComponent.propTypes = {
   rowStyle: PropTypes.func,
   allowExport: PropTypes.bool,
   elevated: PropTypes.bool,
+  lazyLoading: PropTypes.bool,
+  isLoadingMore: PropTypes.bool,
 };
 
 TableComponent.defaultProps = {
   errorMessage: '',
   noDataMessage: 'No data found',
   count: 0,
+  hideHeader: false,
   isLoading: false,
   onChangePage: null,
   onChangeRowsPerPage: null,
@@ -427,6 +489,8 @@ TableComponent.defaultProps = {
   refreshTable: null,
   rowStyle: null,
   allowExport: true,
+  lazyLoading: false,
+  isLoadingMore: false,
 };
 
 export const Table = ({ columns: allColumns, data, exportName, ...props }) => {

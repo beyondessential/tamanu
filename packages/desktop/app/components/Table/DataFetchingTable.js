@@ -4,7 +4,13 @@ import { useApi } from '../../api';
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
-const DEFAULT_FETCH_STATE = { data: [], count: 0, errorMessage: '', isLoading: true };
+const DEFAULT_FETCH_STATE = {
+  data: [],
+  count: 0,
+  errorMessage: '',
+  isLoading: true,
+  isLoadingMore: false,
+};
 
 export const DataFetchingTable = memo(
   ({
@@ -15,6 +21,7 @@ export const DataFetchingTable = memo(
     refreshCount = 0,
     onDataFetched,
     disablePagination = false,
+    lazyLoading = false,
     ...props
   }) => {
     const [page, setPage] = useState(0);
@@ -46,7 +53,11 @@ export const DataFetchingTable = memo(
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
     useEffect(() => {
-      updateFetchState({ isLoading: true });
+      if (fetchState?.data?.length > 0 && lazyLoading) {
+        updateFetchState({ isLoadingMore: true });
+      } else {
+        updateFetchState({ isLoading: true });
+      }
       (async () => {
         try {
           if (!endpoint) {
@@ -67,9 +78,12 @@ export const DataFetchingTable = memo(
           const transformedData = transformRow ? data.map(transformRow) : data;
           updateFetchState({
             ...DEFAULT_FETCH_STATE,
-            data: transformedData,
+            data: lazyLoading
+              ? [...(fetchState?.data || []), ...(transformedData || [])]
+              : transformedData,
             count,
             isLoading: false,
+            isLoadingMore: false,
           });
           if (onDataFetched) {
             onDataFetched({
@@ -80,7 +94,7 @@ export const DataFetchingTable = memo(
         } catch (error) {
           // eslint-disable-next-line no-console
           console.error(error);
-          updateFetchState({ errorMessage: error.message, isLoading: false });
+          updateFetchState({ errorMessage: error.message, isLoading: false, isLoadingMore: false });
         }
       })();
       // Needed to compare fetchOptions as a string instead of an object
@@ -88,6 +102,7 @@ export const DataFetchingTable = memo(
     }, [
       api,
       endpoint,
+      lazyLoading,
       page,
       rowsPerPage,
       sorting,
@@ -102,11 +117,12 @@ export const DataFetchingTable = memo(
 
     useEffect(() => setPage(0), [fetchOptions]);
 
-    const { data, count, isLoading, errorMessage } = fetchState;
+    const { data, count, isLoading, isLoadingMore, errorMessage } = fetchState;
     const { order, orderBy } = sorting;
     return (
       <Table
         isLoading={isLoading}
+        isLoadingMore={isLoadingMore}
         data={data}
         errorMessage={errorMessage}
         rowsPerPage={rowsPerPage}
@@ -119,6 +135,7 @@ export const DataFetchingTable = memo(
         orderBy={orderBy}
         rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
         refreshTable={refreshTable}
+        lazyLoading={lazyLoading}
         {...props}
       />
     );

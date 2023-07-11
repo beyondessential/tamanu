@@ -27,6 +27,7 @@ noteRoute.post(
       noteType: noteData.noteType,
       authorId: noteData.authorId,
       onBehalfOfId: noteData.onBehalfOfId,
+      revisedById: noteData.revisedById,
       content: noteData.content.trim(),
     });
 

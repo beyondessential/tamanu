@@ -4,7 +4,6 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { isEmpty } from 'lodash';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
 import { NOTE_TYPES } from '@tamanu/shared/constants';
 import { useLocalisation } from '../contexts/Localisation';
@@ -21,7 +20,6 @@ import {
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
-import { NoteItemList } from '../components/NoteItemList';
 import { noteTypes, Colors } from '../constants';
 
 /**
@@ -40,10 +38,6 @@ const getSelectableNoteTypes = noteTypeCountByType =>
         !!noteTypeCountByType[x.value],
     }));
 
-const StyledDivider = styled(Divider)`
-  margin-top: 30px;
-  margin-bottom: 20px;
-`;
 const StyledFormGrid = styled(FormGrid)`
   margin-bottom: 20px;
 `;
@@ -78,53 +72,37 @@ const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
   );
 };
 
-export const NotePageForm = ({
+export const NoteForm = ({
   practitionerSuggester,
   onCancel,
-  notePage,
-  noteItems,
+  note,
   noteTypeCountByType,
   onSubmit,
-  onEditNoteItem,
+  onEditNote,
+  confirmText,
   cancelText = 'Cancel',
-  contentRef,
+  noteContent,
+  setNoteContent,
 }) => {
   const { currentUser } = useAuth();
   const { getLocalisation } = useLocalisation();
 
-  const creatingNewNotePage = isEmpty(notePage);
+  const creatingNewNote = isEmpty(note);
 
-  const lastNoteItemRef = useCallback(node => {
-    if (node !== null) {
-      node.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, []);
+  const handleNoteContentChange = useCallback(e => setNoteContent(e.target.value), [
+    setNoteContent,
+  ]);
 
   const renderForm = ({ submitForm }) => (
     <>
-      {!creatingNewNotePage && (
-        <>
-          <StyledFormGrid columns={1}>
-            <NoteItemList
-              noteItems={noteItems}
-              currentUserId={currentUser.id}
-              onEditNoteItem={onEditNoteItem}
-              lastNoteItemRef={lastNoteItemRef}
-            />
-          </StyledFormGrid>
-
-          <StyledDivider />
-        </>
-      )}
-
       <StyledFormGrid columns={3}>
         <Field
           name="noteType"
           label="Type"
           required
           component={SelectField}
-          options={creatingNewNotePage ? getSelectableNoteTypes(noteTypeCountByType) : noteTypes}
-          disabled={!creatingNewNotePage}
+          options={creatingNewNote ? getSelectableNoteTypes(noteTypeCountByType) : noteTypes}
+          disabled={!creatingNewNote}
           formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
         />
         <Field
@@ -133,29 +111,31 @@ export const NotePageForm = ({
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
+          disabled={!creatingNewNote}
         />
         <Field
           name="date"
           label="Date & time"
           component={DateTimeField}
           required
-          disabled={!getLocalisation('features.enableNoteBackdating')}
+          disabled={!getLocalisation('features.enableNoteBackdating') || !creatingNewNote}
           saveDateAsString
         />
       </StyledFormGrid>
 
       <Field
-        inputRef={contentRef}
         name="content"
-        label="Add note"
+        label={creatingNewNote ? 'Add note' : 'Edit note'}
         required
         component={TextField}
         multiline
+        value={noteContent}
+        onChange={handleNoteContentChange}
         rows={6}
       />
       <ConfirmCancelRow
         onConfirm={submitForm}
-        confirmText="Add note"
+        confirmText={confirmText}
         cancelText={cancelText}
         onCancel={onCancel}
       />
@@ -164,12 +144,12 @@ export const NotePageForm = ({
 
   return (
     <Form
-      onSubmit={onSubmit}
+      onSubmit={creatingNewNote ? onSubmit : onEditNote}
       render={renderForm}
       showInlineErrorsOnly
       initialValues={{
         date: getCurrentDateTimeString(),
-        noteType: notePage?.noteType,
+        noteType: note?.noteType,
         writtenById: currentUser.id,
       }}
       validationSchema={yup.object().shape({
@@ -185,6 +165,7 @@ export const NotePageForm = ({
   );
 };
 
-NotePageForm.propTypes = {
+NoteForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
+  setNoteContent: PropTypes.func.isRequired,
 };
