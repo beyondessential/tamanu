@@ -37,7 +37,7 @@ export const createPatientLetter = (modelName, idField) =>
     fs.unlink(filePath, () => null);
 
     const { id: attachmentId } = await models.Attachment.create(
-      models.Attachment.sanitizeForFacilityServer({
+      models.Attachment.sanitizeForDatabase({
         type: 'application/pdf',
         size,
         data: fileData,
