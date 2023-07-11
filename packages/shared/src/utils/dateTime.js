@@ -114,7 +114,9 @@ export function getCurrentDateString() {
 }
 
 export function convertISO9075toRFC3339(dateString) {
-  return dateFnsFormat(parseISO(dateString), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+  // parseISO does not support null values
+  const parsedDate = dateString === null ? new Date() : parseISO(dateString);
+  return dateFnsFormat(parsedDate, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 }
 
 export function ageInWeeks(dob) {
