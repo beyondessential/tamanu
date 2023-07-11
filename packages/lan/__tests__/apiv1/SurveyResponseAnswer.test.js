@@ -154,7 +154,10 @@ describe('SurveyResponseAnswer', () => {
       });
       expect(result).toHaveSucceeded();
 
-      const log = await models.VitalLog.findOne({ where: { answerId: singleAnswer.id } });
+      const log = await models.VitalLog.findOne({
+        where: { answerId: singleAnswer.id },
+        order: [['createdAt', 'DESC']],
+      });
       expect(log.previousValue).toBe(previousValue);
       expect(log.newValue).toBe(String(newValue));
       expect(log.reasonForChange).toBe(reasonForChange);
@@ -178,7 +181,10 @@ describe('SurveyResponseAnswer', () => {
       });
       expect(result).toHaveSucceeded();
       await calculatedAnswer.reload();
-      const log = await models.VitalLog.findOne({ where: { answerId: calculatedAnswer.id } });
+      const log = await models.VitalLog.findOne({
+        where: { answerId: calculatedAnswer.id },
+        order: [['createdAt', 'DESC']],
+      });
       expect(calculatedAnswer.body).toBe(newCalculatedValue);
       expect(log.previousValue).toBe(previousValue);
       expect(log.newValue).toBe(newCalculatedValue);
