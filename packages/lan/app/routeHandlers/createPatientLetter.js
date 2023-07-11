@@ -9,7 +9,7 @@ export const createPatientLetter = (modelName, idField) =>
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'DocumentMetadata');
     const { models, params } = req;
-    const { patientLetterData, clinicianId, ...documentMetadata } = req.body;
+    const { patientLetterData, clinicianId, name } = req.body;
 
     const documentCreatedAt = getCurrentDateTimeString();
 
@@ -45,7 +45,7 @@ export const createPatientLetter = (modelName, idField) =>
     );
 
     const documentMetadataObject = await models.DocumentMetadata.create({
-      ...documentMetadata,
+      name,
       source: DOCUMENT_SOURCES.PATIENT_LETTER,
       type: 'application/pdf',
       documentOwner: clinician.displayName,
