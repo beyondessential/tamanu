@@ -33,7 +33,6 @@ export const makePatientLetter = async (req, { id, ...data }) => {
   }
 
   return {
-    status: 'success',
     filePath,
   };
 };
