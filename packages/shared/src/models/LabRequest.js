@@ -64,7 +64,7 @@ export class LabRequest extends Model {
         throw new InvalidOperationError('A request must have at least one test');
       }
       const { LabTest, LabTestPanelRequest } = this.sequelize.models;
-      const { date, labTestPanelId, ...requestData } = data;
+      const { labTest, labTestPanelId, ...requestData } = data;
       let newLabRequest;
 
       if (labTestPanelId) {
@@ -83,7 +83,7 @@ export class LabRequest extends Model {
           LabTest.create({
             labTestTypeId: t,
             labRequestId: newLabRequest.id,
-            date,
+            date: labTest?.date,
           }),
         ),
       );
