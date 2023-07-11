@@ -37,7 +37,7 @@ const HeadCellWrapper = styled.div`
   }
 `;
 
-export const formatValue = (value, config) => {
+export const formatValue = (value, config, isEdited) => {
   const { rounding = 0, unit = '' } = config || {};
   const float = parseFloat(value);
 
@@ -45,7 +45,7 @@ export const formatValue = (value, config) => {
     ? capitalize(value) || '-'
     : `${float.toFixed(rounding)}${unit && unit.length <= 2 ? unit : ''}`;
 
-  return formattedValue;
+  return `${formattedValue}${isEdited ? '*' : ''}`;
 };
 
 export const DateHeadCell = React.memo(({ value }) => (
@@ -78,7 +78,7 @@ export const RangeValidatedCell = React.memo(
     const { rounding = 0, unit = '' } = config || {};
     const { normalRange } = validationCriteria || {};
     const float = parseFloat(value);
-    const formattedValue = formatValue(value, config);
+    const formattedValue = formatValue(value, config, isEdited);
 
     if (normalRange) {
       const baseTooltip = `Outside normal range\n`;
@@ -107,7 +107,6 @@ export const RangeValidatedCell = React.memo(
     ) : (
       <CellContainer onClick={onClick} {...props}>
         {formattedValue}
-        {isEdited && '*'}
       </CellContainer>
     );
   },
