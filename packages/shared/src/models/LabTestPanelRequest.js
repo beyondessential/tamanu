@@ -1,5 +1,6 @@
 import { SYNC_DIRECTIONS } from '../constants';
 import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
 export class LabTestPanelRequest extends Model {
   static init({ primaryKey, ...options }) {
@@ -23,5 +24,12 @@ export class LabTestPanelRequest extends Model {
       foreignKey: 'labTestPanelId',
       as: 'labTestPanel',
     });
+  }
+
+  static buildSyncFilter(patientIds) {
+    if (patientIds.length === 0) {
+      return null;
+    }
+    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
   }
 }
