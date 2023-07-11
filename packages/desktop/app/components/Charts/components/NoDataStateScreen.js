@@ -2,7 +2,7 @@ import React from 'react';
 import { Colors } from '../../../constants';
 
 export const NoDataStateScreen = props => {
-  const { height, width, offset } = props;
+  const { height, width, offset, isLoading } = props;
   const { height: offsetHeight, width: offsetWidth, top: offsetTop, left: offsetLeft } = offset; // height and width without Axis
 
   const screenMarginTopAndBottom = 10;
@@ -29,6 +29,8 @@ export const NoDataStateScreen = props => {
   const lineOne = `No recorded vitals to display. To record vitals, please click the`;
   const lineTwo = `'Record vitals' button from the vitals table`;
 
+  const loadingMessage = 'Vitals graph loading...';
+
   return (
     <svg width={width} height={height}>
       <path
@@ -37,10 +39,16 @@ export const NoDataStateScreen = props => {
         stroke={Colors.outline}
         strokeWidth="1"
       />
-      <text {...textProps}>{lineOne}</text>
-      <text {...textProps} dy={lineHeight}>
-        {lineTwo}
-      </text>
+      {isLoading ? (
+        <text {...textProps}>{loadingMessage}</text>
+      ) : (
+        <>
+          <text {...textProps}>{lineOne}</text>
+          <text {...textProps} dy={lineHeight}>
+            {lineTwo}
+          </text>
+        </>
+      )}
     </svg>
   );
 };

@@ -13,8 +13,9 @@ const transformVitalDataToChartData = vitalQuery => {
   return chartData;
 };
 
-export const useVitalQuery = (encounterId, vitalDataElementId, startDate, endDate) => {
+export const useVitalQuery = (encounterId, vitalDataElementId, dateRange) => {
   const api = useApi();
+  const [startDate, endDate] = dateRange;
 
   const vitalQuery = useQuery(
     ['encounterVital', encounterId, vitalDataElementId, startDate, endDate],

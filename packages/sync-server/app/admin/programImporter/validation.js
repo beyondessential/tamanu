@@ -5,14 +5,36 @@ import { ImporterMetadataError, ValidationError } from '../errors';
 
 const visualisationConfigSchema = yup.object().shape({
   yAxis: yup.object().shape({
-    graphRange: yup.object().shape({
-      min: yup.number().required(),
-      max: yup.number().required(),
-    }),
-    normalRange: yup.object().shape({
-      min: yup.number().required(),
-      max: yup.number().required(),
-    }),
+    graphRange: yup
+      .object()
+      .shape({
+        min: yup.number().required(),
+        max: yup.number().required(),
+      })
+      .required(),
+    normalRange: yup
+      .object()
+      .shape({
+        min: yup.number().required(),
+        max: yup.number().required(),
+      })
+      .test({
+        name: 'normalRange',
+        message: 'normalRange must be within graphRange',
+        test: (value, context) => {
+          const { graphRange } = context.parent;
+          if (value) {
+            if (value.min && value.min < graphRange.min) {
+              return false;
+            }
+            if (value.max && value.max > graphRange.max) {
+              return false;
+            }
+          }
+          return true;
+        },
+      })
+      .required(),
     interval: yup.number().required(),
   }),
 });

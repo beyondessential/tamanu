@@ -15,7 +15,9 @@ const getDescription = ({ data, isInsideNormalRange, isOutsideGraphRange, yAxis 
   let description = '';
   if (!isInsideNormalRange) {
     description += `(Outside normal range ${
-      data.value < yAxis.graphRange.min ? `< ${yAxis.graphRange.min}` : `> ${yAxis.graphRange.max}`
+      data.value < yAxis.normalRange.min
+        ? `< ${yAxis.normalRange.min}`
+        : `> ${yAxis.normalRange.max}`
     })`;
   }
   if (isOutsideGraphRange) {
@@ -68,9 +70,6 @@ export const getMeasureData = (rawData, visualisationConfig, useInwardArrowVecto
       };
     })
     .sort((a, b) => {
-      if (a.timestamp === b.timestamp) {
-        throw new Error('Two vital records share the same date and time');
-      }
       return a.timestamp - b.timestamp;
     });
 };

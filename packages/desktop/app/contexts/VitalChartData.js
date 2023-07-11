@@ -12,10 +12,8 @@ export const VitalChartDataContext = React.createContext({
   chartKeys: ['vital-chart'],
   modalTitle: 'Vital Chart',
   setModalTitle: () => {},
-  setStartDate: () => {},
-  setEndDate: () => {},
-  startDate: '',
-  endDate: '',
+  setDateRange: () => {},
+  dateRange: ['', ''],
   isInMultiChartsView: false,
 });
 
@@ -24,8 +22,10 @@ export const useVitalChartData = () => useContext(VitalChartDataContext);
 export const VitalChartDataProvider = ({ children }) => {
   const [chartKeys, setChartKeys] = useState([]);
   const [modalTitle, setModalTitle] = useState(null);
-  const [startDate, setStartDate] = useState(format(addDays(new Date(), -1), DATE_TIME_FORMAT));
-  const [endDate, setEndDate] = useState(format(new Date(), DATE_TIME_FORMAT));
+  const [dateRange, setDateRange] = useState([
+    format(addDays(new Date(), -1), DATE_TIME_FORMAT),
+    format(new Date(), DATE_TIME_FORMAT),
+  ]);
   const [vitalChartModalOpen, setVitalChartModalOpen] = useState(false);
 
   const { visualisationConfigs } = useVitalsSurvey();
@@ -40,10 +40,8 @@ export const VitalChartDataProvider = ({ children }) => {
         setChartKeys,
         modalTitle,
         setModalTitle,
-        setStartDate,
-        setEndDate,
-        startDate,
-        endDate,
+        dateRange,
+        setDateRange,
         isInMultiChartsView: chartKeys.length > 1,
       }}
     >

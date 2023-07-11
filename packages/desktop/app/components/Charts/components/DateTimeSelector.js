@@ -1,6 +1,7 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { addDays, format, startOfDay } from 'date-fns';
+import { debounce } from 'lodash';
+import { addDays, format, parseISO, startOfDay } from 'date-fns';
 
 import { DateInput as DateInputComponent, SelectInput as SelectInputComponent } from '../../Field';
 import { Y_AXIS_WIDTH } from '../constants';
@@ -22,6 +23,7 @@ const DateInput = styled(DateInputComponent)`
 
 const CUSTOM_DATE = 'Custom Date';
 export const DATE_TIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
+const DATE_FORMAT = 'yyyy-MM-dd';
 
 const options = [
   {
@@ -43,20 +45,17 @@ const options = [
 ];
 
 export const DateTimeSelector = props => {
-  const { startDate: startDateString, setStartDate, setEndDate } = props;
+  const { dateRange, setDateRange } = props;
+  const [startDateString] = dateRange;
   const [value, setValue] = useState(options[0].value);
 
-  const formatAndSetStartDate = useCallback(
-    newStartDate => {
-      setStartDate(format(newStartDate, DATE_TIME_FORMAT));
+  const formatAndSetDateRange = useCallback(
+    (newStartDate, newEndDate) => {
+      const newStartDateString = format(newStartDate, DATE_TIME_FORMAT);
+      const newEndDateString = format(newEndDate, DATE_TIME_FORMAT);
+      setDateRange([newStartDateString, newEndDateString]);
     },
-    [setStartDate],
-  );
-  const formatAndSetEndDate = useCallback(
-    newEndDate => {
-      setEndDate(format(newEndDate, DATE_TIME_FORMAT));
-    },
-    [setEndDate],
+    [setDateRange],
   );
 
   useEffect(() => {
@@ -66,9 +65,8 @@ export const DateTimeSelector = props => {
     const newStartDate = getDefaultStartDate ? getDefaultStartDate() : new Date();
     const newEndDate = getDefaultEndDate ? getDefaultEndDate() : new Date();
 
-    formatAndSetStartDate(newStartDate);
-    formatAndSetEndDate(newEndDate);
-  }, [value, formatAndSetStartDate, formatAndSetEndDate]);
+    formatAndSetDateRange(newStartDate, newEndDate);
+  }, [value, formatAndSetDateRange]);
 
   return (
     <Wrapper>
@@ -85,14 +83,18 @@ export const DateTimeSelector = props => {
         <DateInput
           size="small"
           saveDateAsString
-          value={format(new Date(startDateString), 'yyyy-MM-dd')} // display date in yyyy-MM-dd format on text input
-          onChange={newValue => {
+          format={DATE_FORMAT} // set format so we can safely use parseISO
+          value={startDateString}
+          onChange={debounce(newValue => {
             const { value: dateString } = newValue.target;
             if (dateString) {
-              formatAndSetStartDate(startOfDay(new Date(dateString)));
-              formatAndSetEndDate(startOfDay(addDays(new Date(dateString), 1)));
+              const selectedDayDate = parseISO(dateString);
+              const startOfDayDate = startOfDay(selectedDayDate);
+              const endOfDayDate = startOfDay(addDays(selectedDayDate, 1));
+
+              formatAndSetDateRange(startOfDayDate, endOfDayDate);
             }
-          }}
+          }, 200)}
           arrows
         />
       )}
