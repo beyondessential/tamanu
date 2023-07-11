@@ -34,7 +34,7 @@ const servers = [
   { name: 'Demo (Kiribati)', type: 'demo', host: 'https://central-demo.kiribati-dev.tamanu.io' },
   { name: 'Demo (Nauru)', type: 'demo', host: 'https://sync-demo-nauru.tamanu.io' },
   { name: 'Demo (Palau)', type: 'demo', host: 'https://central-demo.palau-dev.tamanu.io' },
-  { name: 'Demo (Samoa)', type: 'demo', host: 'https://sync-samoa-demo.tamanu.io' },
+  { name: 'Demo (Samoa)', type: 'demo', host: 'https://central-demo.samoa-dev.tamanu.io' },
   { name: 'Demo (Solomons)', type: 'demo', host: 'https://sync-demo.tamanu-solomons.org' },
   { name: 'Demo (Tonga)', type: 'demo', host: 'https://central-tonga-demo.tamanu.io' },
   { name: 'Demo (Tuvalu)', type: 'demo', host: 'https://central-demo.tuvalu-dev.tamanu.io' },
