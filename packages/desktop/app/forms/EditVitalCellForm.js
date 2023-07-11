@@ -4,6 +4,7 @@ import { Box, IconButton, Typography } from '@material-ui/core';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { useQueryClient } from '@tanstack/react-query';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/shared/constants';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { SelectField, Form, Field, OuterLabelFieldWrapper } from '../components/Field';
 import { useLocalisation } from '../contexts/Localisation';
@@ -14,6 +15,7 @@ import { getValidationSchema } from '../utils';
 import { Colors } from '../constants';
 import { useApi } from '../api';
 import { useEncounter } from '../contexts/Encounter';
+import { DateDisplay } from '../components/DateDisplay';
 
 const Text = styled(Typography)`
   font-size: 14px;
@@ -61,17 +63,17 @@ const LogTextSmall = styled(Typography)`
 `;
 
 const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
-  const { date, previousValue, reasonForChange, userDisplayName } = logData;
+  const { date, newValue, reasonForChange, userDisplayName } = logData;
   const reasonForChangeOption = vitalEditReasons.find(option => option.value === reasonForChange);
   const reasonForChangeLabel = reasonForChangeOption?.label ?? 'Unknown';
   return (
     <LogContainer>
       <LogText>
-        {vitalLabel}: {previousValue}
+        {vitalLabel}: {newValue === '' ? 'Entry deleted' : newValue}
       </LogText>
-      <LogText>Reason for change to record: {reasonForChangeLabel}</LogText>
+      {reasonForChange && <LogText>Reason for change to record: {reasonForChangeLabel}</LogText>}
       <LogTextSmall>
-        {userDisplayName} {date}
+        {userDisplayName} <DateDisplay date={date} showTime shortYear />
       </LogTextSmall>
     </LogContainer>
   );
@@ -86,7 +88,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
   const vitalEditReasons = getLocalisation('vitalEditReasons') || [];
   const mandatoryVitalEditReason = getLocalisation('mandatoryVitalEditReason');
   const initialValue = dataPoint.value;
-  const showDeleteEntryButton = initialValue !== '';
+  const showDeleteEntryButton = ['', undefined].includes(initialValue) === false;
   const valueName = dataPoint.component.dataElement.id;
   const editVitalData = getEditVitalData(dataPoint.component, mandatoryVitalEditReason);
   const validationSchema = getValidationSchema(editVitalData);
@@ -98,7 +100,9 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
     [valueName],
   );
   const handleSubmit = async data => {
-    const newShapeData = {};
+    const newShapeData = {
+      date: getCurrentDateTimeString(),
+    };
     Object.entries(data).forEach(([key, value]) => {
       if (key === valueName) newShapeData.newValue = value;
       else newShapeData[key] = value;

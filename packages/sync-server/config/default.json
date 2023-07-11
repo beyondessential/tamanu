@@ -792,7 +792,7 @@
       "vitalEditReasons": [
         {
           "value": "incorrect-patient",
-          "label": "Incorrent patient"
+          "label": "Incorrect patient"
         },
         {
           "value": "incorrect-value",

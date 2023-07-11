@@ -110,6 +110,9 @@ export const VitalsTable = React.memo(() => {
   const { data, recordedDates, error, isLoading } = useVitals(encounter.id);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedCell, setSelectedCell] = useState(null);
+  const showFooterLegend = data.some(entry =>
+    recordedDates.some(date => entry[date].historyLogs.length > 1),
+  );
 
   // create a column for each reading
   const columns = [
@@ -142,7 +145,7 @@ export const VitalsTable = React.memo(() => {
               value={value}
               config={config}
               validationCriteria={validationCriteria}
-              isEdited={historyLogs.length !== 0}
+              isEdited={historyLogs.length > 1}
               onClick={isCalculatedQuestion ? null : handleCellClick}
             />
           );
@@ -169,6 +172,11 @@ export const VitalsTable = React.memo(() => {
         isLoading={isLoading}
         errorMessage={error?.message}
       />
+      {showFooterLegend && (
+        <Box textAlign="end" marginTop="8px" fontSize="9px" color={Colors.softText}>
+          *Changed entry
+        </Box>
+      )}
     </>
   );
 });
