@@ -108,6 +108,14 @@ const HIDEABLE_FIELDS = [
   'dischargeDisposition',
 ];
 
+const ageDurationSchema = yup
+  .object({
+    years: yup.number(),
+    months: yup.number(),
+    days: yup.number(),
+  })
+  .noUnknown();
+
 const templatesSchema = yup
   .object({
     plannedMoveTimeoutHours: yup.number().required(),
@@ -452,6 +460,25 @@ const rootLocalisationSchema = yup
       .noUnknown(),
     printMeasures: printMeasuresSchema,
     disabledReports: yup.array(yup.string().required()).defined(),
+    ageDisplayFormat: yup
+      .array(
+        yup.object({
+          as: yup.string().required(),
+          range: yup
+            .object({
+              min: yup.object({
+                duration: ageDurationSchema,
+                exclusive: yup.boolean(),
+              }),
+              max: yup.object({
+                duration: ageDurationSchema,
+                exclusive: yup.boolean(),
+              }),
+            })
+            .required(),
+        }),
+      )
+      .required(),
   })
   .required()
   .noUnknown();
