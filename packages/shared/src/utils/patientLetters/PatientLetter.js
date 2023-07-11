@@ -77,6 +77,7 @@ export const PatientLetter = ({ getLocalisation, data, logoSrc }) => {
         </CertificateHeader>
         <View style={{ margin: '18px' }}>
           <P mb={60} style={{ fontSize: 12 }}>
+            {/* In future, the body should accept markup */}
             {body ?? ''}
           </P>
           <Signature text="Signed" />
