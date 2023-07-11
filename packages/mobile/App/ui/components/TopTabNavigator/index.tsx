@@ -26,9 +26,7 @@ type TabNavigationEventMap = {
   tabPress: { isAlreadyFocused: boolean };
 };
 
-type Props = DefaultNavigatorOptions<TabNavigationOptions> &
-TabRouterOptions &
-TabNavigationConfig;
+type Props = DefaultNavigatorOptions<TabNavigationOptions> & TabRouterOptions & TabNavigationConfig;
 
 function TabNavigator({
   initialRouteName,
@@ -37,10 +35,10 @@ function TabNavigator({
   ...rest
 }: Props): React.ReactElement {
   const { state, navigation, descriptors } = useNavigationBuilder<
-  TabNavigationState,
-  TabRouterOptions,
-  TabNavigationOptions,
-  TabNavigationEventMap
+    TabNavigationState,
+    TabRouterOptions,
+    TabNavigationOptions,
+    TabNavigationEventMap
   >(TabRouter, {
     children,
     screenOptions,
@@ -62,6 +60,7 @@ function TabNavigator({
         },
         labelStyle: {
           fontWeight: '500',
+          textTransform: 'none',
         },
       }}
       state={state}

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
-import { LAB_REQUEST_STATUSES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants';
 import { SearchTable } from '../components';
 import { reloadPatient } from '../store/patient';
 import {
@@ -33,6 +33,7 @@ export const LabRequestsTable = React.memo(
           sortable: false,
         },
         { key: 'requestId', title: 'Test ID', accessor: getRequestId, sortable: false },
+        { key: 'labTestPanelName', title: 'Panel' },
         { key: 'testCategory', title: 'Test category', accessor: getRequestType },
         { key: 'requestedDate', title: 'Requested at time', accessor: getDateWithTimeTooltip },
         publishedStatus

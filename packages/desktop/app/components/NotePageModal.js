@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { isEmpty } from 'lodash';
-import { NOTE_RECORD_TYPES } from 'shared/constants';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { NOTE_RECORD_TYPES } from '@tamanu/shared/constants';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';

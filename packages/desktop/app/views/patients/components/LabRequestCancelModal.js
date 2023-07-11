@@ -1,11 +1,12 @@
 import React from 'react';
-import { LAB_REQUEST_STATUSES, NOTE_TYPES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, NOTE_TYPES } from '@tamanu/shared/constants';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi } from '../../../api';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { CancelModal } from '../../../components/CancelModal';
 import { useAuth } from '../../../contexts/Auth';
 
-export const LabRequestCancelModal = React.memo(({ open, onClose, updateLabReq, labRequestId }) => {
+export const LabRequestCancelModal = React.memo(({ open, onClose, updateLabReq, labRequest }) => {
   const api = useApi();
   const auth = useAuth();
   const { getLocalisation } = useLocalisation();
@@ -26,10 +27,11 @@ export const LabRequestCancelModal = React.memo(({ open, onClose, updateLabReq, 
       status = LAB_REQUEST_STATUSES.CANCELLED;
     }
 
-    await api.post(`labRequest/${labRequestId}/notes`, {
+    await api.post(`labRequest/${labRequest.id}/notes`, {
       content: note,
       authorId: auth.currentUser.id,
       noteType: NOTE_TYPES.OTHER,
+      date: getCurrentDateTimeString(),
     });
 
     await updateLabReq({

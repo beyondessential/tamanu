@@ -1,6 +1,5 @@
 {
   "auth": {
-    "allowDummyToken": true,
     "reportNoUserError": true
   },
   "log": {

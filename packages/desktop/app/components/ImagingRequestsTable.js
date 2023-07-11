@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
-import { IMAGING_REQUEST_STATUS_CONFIG, IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_CONFIG, IMAGING_TABLE_VERSIONS } from '@tamanu/shared/constants';
 import { SearchTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { PatientNameDisplay } from './PatientNameDisplay';
@@ -12,7 +12,8 @@ import { reloadImagingRequest } from '../store';
 import { useLocalisation } from '../contexts/Localisation';
 import { getImagingRequestType } from '../utils/getImagingRequestType';
 import { TableCellTag } from './Tag';
-import { useImagingRequests, IMAGING_REQUEST_SEARCH_KEYS } from '../contexts/ImagingRequests';
+import { useImagingRequests } from '../contexts/ImagingRequests';
+import { capitaliseFirstLetter } from '../utils/capitalise';
 
 const StatusDisplay = React.memo(({ status }) => {
   const { background, color, label } = IMAGING_REQUEST_STATUS_CONFIG[status];
@@ -29,18 +30,18 @@ const getPatientDisplayId = ({ encounter }) => encounter.patient.displayId;
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
 const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} timeOnlyTooltip />;
 const getCompletedDate = ({ completedAt }) => <DateDisplay date={completedAt} timeOnlyTooltip />;
+const getPriority = ({ priority }) => capitaliseFirstLetter(priority);
 
-export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) => {
+export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, statuses = [] }) => {
   const dispatch = useDispatch();
   const params = useParams();
   const { loadEncounter } = useEncounter();
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
-  const completedStatus = status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
-  const { searchParameters } = useImagingRequests(
-    completedStatus ? IMAGING_REQUEST_SEARCH_KEYS.COMPLETED : IMAGING_REQUEST_SEARCH_KEYS.ALL,
-  );
-  const statusFilter = status ? { status } : {};
+  const { searchParameters } = useImagingRequests(memoryKey);
+  const isCompletedTable = memoryKey === IMAGING_TABLE_VERSIONS.COMPLETED.memoryKey;
+
+  const statusFilter = statuses.length > 0 ? { status: statuses } : {};
 
   const encounterColumns = [
     { key: 'displayId', title: 'Request ID', sortable: false },
@@ -51,7 +52,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) =>
     },
     { key: 'requestedDate', title: 'Requested at time', accessor: getDate },
     { key: 'requestedBy.displayName', title: 'Requested by', accessor: getDisplayName },
-    ...(status
+    ...(isCompletedTable
       ? [
           {
             key: 'completedAt',
@@ -59,8 +60,14 @@ export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) =>
             accessor: getCompletedDate,
           },
         ]
-      : []),
-    { key: 'status', title: 'Status', accessor: getStatus, sortable: false },
+      : [
+          {
+            key: 'priority',
+            title: 'Priority',
+            accessor: getPriority,
+          },
+        ]),
+    { key: 'status', title: 'Status', accessor: getStatus },
   ];
 
   const globalColumns = [
@@ -94,19 +101,17 @@ export const ImagingRequestsTable = React.memo(({ encounterId, status = '' }) =>
     [loadEncounter, dispatch, params.patientId, params.category, encounterId],
   );
 
-  const globalImagingRequestsFetchOptions = { ...searchParameters, ...statusFilter };
-
   return (
     <SearchTable
       endpoint={encounterId ? `encounter/${encounterId}/imagingRequests` : 'imagingRequest'}
       columns={encounterId ? encounterColumns : globalColumns}
       noDataMessage="No imaging requests found"
       onRowClick={selectImagingRequest}
-      fetchOptions={encounterId ? undefined : globalImagingRequestsFetchOptions}
+      fetchOptions={{ ...statusFilter, ...searchParameters }}
       elevated={false}
       initialSort={{
         order: 'desc',
-        orderBy: completedStatus ? 'completedAt' : 'requestedDate',
+        orderBy: isCompletedTable ? 'completedAt' : 'requestedDate',
       }}
     />
   );

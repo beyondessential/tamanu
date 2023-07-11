@@ -8,6 +8,8 @@ export * from './IEncounter';
 export * from './ILabRequest';
 export * from './ILabTest';
 export * from './ILabTestType';
+export * from './ILabTestPanel';
+export * from './ILabTestPanelRequest';
 export * from './IUser';
 export * from './IProgram';
 export * from './ISurvey';

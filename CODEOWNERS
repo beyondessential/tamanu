@@ -9,7 +9,7 @@
 # See Slack discussion:
 # https://beyondessential.slack.com/archives/GE9NHB95F/p1649711118757929
 #
-/packages/shared-src/src/sync/                          @edmofro @chris-bes
+/packages/shared/src/sync/                              @edmofro @chris-bes
 /packages/lan/app/sync/                                 @edmofro @chris-bes
 /packages/sync-server/app/sync/                         @edmofro @chris-bes
 /packages/mobile/App/services/sync/                     @edmofro @chris-bes

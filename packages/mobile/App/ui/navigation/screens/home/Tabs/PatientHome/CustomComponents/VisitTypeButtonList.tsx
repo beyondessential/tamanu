@@ -8,9 +8,7 @@ interface VisitTypeButtonsProps {
   list: MenuOptionButtonProps[];
 }
 
-export const VisitTypeButtonList = ({
-  list,
-}: VisitTypeButtonsProps): ReactElement => (
+export const VisitTypeButtonList = ({ list }: VisitTypeButtonsProps): ReactElement => (
   <StyledView width="100%" marginTop={20}>
     <RowView
       width="100%"

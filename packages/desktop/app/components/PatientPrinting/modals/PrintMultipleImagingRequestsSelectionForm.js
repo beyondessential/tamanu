@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
+import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/shared/constants/statuses';
 
-import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants/statuses';
 import { useSelectableColumn } from '../../Table';
 import { ConfirmCancelRow } from '../../ButtonRow';
 import { useApi } from '../../../api';

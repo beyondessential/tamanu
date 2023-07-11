@@ -1,10 +1,11 @@
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
-import { generatePath, matchPath, useLocation } from 'react-router-dom';
+import { generatePath, matchPath, useLocation, useParams } from 'react-router-dom';
 import { PATIENT_PATHS } from '../constants/patientPaths';
 
 export const usePatientNavigation = () => {
   const dispatch = useDispatch();
+  const params = useParams();
   const location = useLocation();
 
   const navigate = url => dispatch(push(url));
@@ -51,16 +52,12 @@ export const usePatientNavigation = () => {
     );
   };
 
-  // @todo: refactor modal that is used in lab request printing
-  const navigateToLabRequest = (labRequestId, modal) => {
-    const existingParams = getParams(PATIENT_PATHS.ENCOUNTER);
-    navigate(
-      generatePath(`${PATIENT_PATHS.LAB_REQUEST}/:modal?`, {
-        ...existingParams,
-        labRequestId,
-        modal,
-      }),
-    );
+  const navigateToLabRequest = (labRequestId, search) => {
+    const labRequestRoute = generatePath(PATIENT_PATHS.LAB_REQUEST, {
+      ...params,
+      labRequestId,
+    });
+    navigate(`${labRequestRoute}${search ? `?${new URLSearchParams(search)}` : ''}`);
   };
 
   // @todo: refactor modal that is used in imaging request printing

@@ -1,26 +1,29 @@
 import React, { useCallback } from 'react';
-import { View } from 'react-native';
 import { StyledView } from '/styled/common';
-import { theme } from '/styled/theme';
 import { BaseInputProps } from '/interfaces/BaseInputProps';
-import { Checkbox } from '../Checkbox';
+import { OvalCheckbox } from '/components/Checkbox/OvalCheckbox';
+import { StyleSheet } from 'react-native';
 
 interface CheckboxProps extends BaseInputProps {
   onChange: Function;
   value: string[];
-  background?: string;
-  color?: string;
   options: { id: string; text: string }[];
 }
 
-export const MultiCheckbox = ({
-  value = [],
-  options,
-  onChange,
-  error,
-  background,
-  color,
-}: CheckboxProps): JSX.Element => {
+const styles = StyleSheet.create({
+  container: {
+    marginTop: -10,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  checkbox: {
+    marginTop: 12,
+    width: '45%',
+  },
+});
+
+export const MultiCheckbox = ({ value = [], options, onChange }: CheckboxProps): JSX.Element => {
   const handleCallback = useCallback(
     (isSelected, optionId) => {
       const selectedValues = isSelected
@@ -32,25 +35,17 @@ export const MultiCheckbox = ({
   );
 
   return (
-    <View>
+    <StyledView style={styles.container}>
       {options.map(({ id, text }) => (
-        <StyledView marginTop={10}>
-          <Checkbox
-            id={id}
-            text={text}
-            value={value.includes(id)}
-            error={error}
-            background={background}
-            color={color}
-            onChange={handleCallback}
-          />
-        </StyledView>
+        <OvalCheckbox
+          id={id}
+          key={id}
+          text={text}
+          value={value.includes(id)}
+          onChange={handleCallback}
+          style={styles.checkbox}
+        />
       ))}
-    </View>
+    </StyledView>
   );
-};
-
-MultiCheckbox.defaultProps = {
-  background: theme.colors.WHITE,
-  color: theme.colors.PRIMARY_MAIN,
 };

@@ -1,18 +1,11 @@
-import { useState, useEffect } from 'react';
-import { useApi } from '../index';
+import { useQuery } from '@tanstack/react-query';
+import { useApi } from '../useApi';
 
 export const useReferenceData = referenceDataId => {
-  const [data, setData] = useState({});
   const api = useApi();
-
-  useEffect(() => {
-    (async () => {
-      if (referenceDataId) {
-        const res = await api.get(`referenceData/${encodeURIComponent(referenceDataId)}`);
-        setData(res);
-      }
-    })();
-  }, [api, referenceDataId]);
-
-  return data;
+  return useQuery(
+    ['referenceData', referenceDataId],
+    () => api.get(`referenceData/${encodeURIComponent(referenceDataId)}`),
+    { enabled: !!referenceDataId },
+  );
 };

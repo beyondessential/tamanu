@@ -16,11 +16,13 @@ import {
   ReferralPane,
   InvoicesPane,
   PatientDetailsPane,
+  PatientResultsPane,
 } from './panes';
 import { Colors } from '../../constants';
 import { PATIENT_TABS } from '../../constants/patientPaths';
 import { NAVIGATION_CONTAINER_HEIGHT } from '../../components/PatientNavigation';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
+import { PatientSearchParametersProvider } from '../../contexts/PatientViewSearchParameters';
 
 const StyledDisplayTabs = styled(TabDisplay)`
   overflow: initial;
@@ -44,6 +46,12 @@ const TABS = [
     key: PATIENT_TABS.DETAILS,
     icon: 'fa fa-info-circle',
     render: props => <PatientDetailsPane {...props} />,
+  },
+  {
+    label: 'Results',
+    key: PATIENT_TABS.RESULTS,
+    icon: 'fa fa-file-alt',
+    render: props => <PatientResultsPane {...props} />,
   },
   {
     label: 'Referrals',
@@ -112,7 +120,7 @@ export const PatientView = () => {
   const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
 
   return (
-    <>
+    <PatientSearchParametersProvider>
       <PatientAlert alerts={patient.alerts} />
       <StyledDisplayTabs
         tabs={visibleTabs}
@@ -123,6 +131,6 @@ export const PatientView = () => {
         birthData={birthData}
         disabled={disabled}
       />
-    </>
+    </PatientSearchParametersProvider>
   );
 };

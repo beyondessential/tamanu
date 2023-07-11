@@ -1,0 +1,36 @@
+{
+  "name": "@tamanu/build-tooling",
+  "version": "1.25.2",
+  "description": "Build tooling for Tamanu packages",
+  "main": "index.mjs",
+  "type": "module",
+  "bin": {
+    "pkg": "./node_modules/.bin/pkg",
+    "swc": "./node_modules/.bin/swc",
+    "webpack": "./node_modules/.bin/webpack"
+  },
+  "dependencies": {
+    "@babel/core": "^7.19.6",
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "@babel/plugin-proposal-export-default-from": "^7.18.10",
+    "@babel/plugin-proposal-logical-assignment-operators": "^7.18.9",
+    "@babel/preset-env": "^7.19.4",
+    "@babel/preset-react": "^7.18.6",
+    "@babel/preset-typescript": "^7.21.5",
+    "@swc/cli": "^0.1.62",
+    "@swc/core": "^1.3.37",
+    "babel-loader": "^9.1.0",
+    "nodemon-webpack-plugin": "^4.8.1",
+    "pkg": "^4.4.8",
+    "swc-loader": "^0.2.3",
+    "terser-webpack-plugin": "^5.3.6",
+    "webpack": "^5.73.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-node-externals": "^3.0.0"
+  },
+  "private": true,
+  "homepage": "https://github.com/beyondessential/tamanu.git#readme",
+  "repository": "git@github.com:beyondessential/tamanu.git",
+  "author": "Beyond Essential Systems Pty. Ltd.",
+  "license": "SEE LICENSE IN ../../license"
+}

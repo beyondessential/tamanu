@@ -5,13 +5,14 @@ import QRCode from 'qrcode';
 import { get } from 'lodash';
 import config from 'config';
 
-import { CovidLabCertificate, CertificateTypes } from 'shared/utils/patientCertificates';
 import {
   tmpdir,
   VaccineCertificate,
   getPatientSurveyResponseAnswer,
   CovidVaccineCertificate,
 } from 'shared/utils';
+import { CovidLabCertificate, CertificateTypes } from 'shared/utils/patientCertificates';
+
 import { getLocalisation } from '../localisation';
 
 async function getCertificateAssets(models) {

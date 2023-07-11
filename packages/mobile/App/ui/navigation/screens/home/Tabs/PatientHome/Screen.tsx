@@ -4,12 +4,7 @@ import { StatusBar } from 'react-native';
 import { FullView, StyledView, StyledSafeAreaView, RowView, StyledText } from '/styled/common';
 import { UserAvatar } from '/components/UserAvatar';
 import { Button } from '/components/Button';
-import {
-  BackButton,
-  SearchButton,
-  VisitTypeButtonList,
-  PatientMenuButtons,
-} from './CustomComponents';
+import { BackButton, VisitTypeButtonList, PatientMenuButtons } from './CustomComponents';
 // Helpers
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
@@ -39,16 +34,15 @@ export const Screen = ({
     <StatusBar barStyle="light-content" />
     <StyledSafeAreaView flex={1}>
       <StyledView
-        height={screenPercentageToDP(27.37, Orientation.Height)}
+        height={screenPercentageToDP(27, Orientation.Height)}
         background={theme.colors.PRIMARY_MAIN}
         width="100%"
       >
         <RowView alignItems="center">
           <BackButton onPress={navigateToSearchPatients} />
-          <SearchButton onPress={navigateToSearchPatients} />
         </RowView>
         <RowView
-          marginTop={screenPercentageToDP(1.5, Orientation.Height)}
+          marginTop={screenPercentageToDP(1, Orientation.Height)}
           paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
         >
           <StyledView marginRight={screenPercentageToDP(3.64, Orientation.Width)}>
@@ -60,7 +54,7 @@ export const Screen = ({
           </StyledView>
           <StyledView>
             <StyledText
-              fontWeight="bold"
+              fontWeight={500}
               color={theme.colors.WHITE}
               fontSize={screenPercentageToDP(3.4, Orientation.Height)}
             >

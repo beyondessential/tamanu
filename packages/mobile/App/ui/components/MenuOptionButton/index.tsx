@@ -10,12 +10,9 @@ export const MenuOptionButton: FC<MenuOptionButtonProps> = ({
   Icon,
   title,
   onPress,
-  fontWeight = 400,
+  fontWeight = 500,
 }: MenuOptionButtonProps): React.ReactElement => (
-  <TouchableHighlight
-    underlayColor={theme.colors.DEFAULT_OFF}
-    onPress={onPress}
-  >
+  <TouchableHighlight underlayColor={theme.colors.DEFAULT_OFF} onPress={onPress}>
     <RowView
       width="100%"
       height={screenPercentageToDP('6.29', Orientation.Height)}
@@ -23,9 +20,7 @@ export const MenuOptionButton: FC<MenuOptionButtonProps> = ({
       alignItems="center"
     >
       {Icon && (
-        <StyledView
-          paddingRight={screenPercentageToDP(4.86, Orientation.Width)}
-        >
+        <StyledView paddingRight={screenPercentageToDP(4.86, Orientation.Width)}>
           <Icon
             size={screenPercentageToDP(2.43, Orientation.Height)}
             fill={theme.colors.TEXT_SOFT}

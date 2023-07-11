@@ -1,11 +1,27 @@
 import React from 'react';
 import MuiTextField from '@material-ui/core/TextField';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 
+const JoinedFieldStyles = css`
+  position: relative;
+
+  .MuiInputBase-root:after {
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    width: 50px;
+    height: 1px;
+    background: ${props => props.theme.palette.grey['400']};
+    content: '';
+  }
+`;
+
 export const StyledTextField = styled(MuiTextField)`
+  ${props => (props.$joined ? JoinedFieldStyles : null)};
+
   .MuiInputBase-root {
     background: ${props => (props.disabled ? 'inherit' : Colors.white)};
   }
@@ -36,7 +52,7 @@ export const StyledTextField = styled(MuiTextField)`
   }
 
   // Hover state
-  .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  .MuiOutlinedInput-root:not(.Mui-disabled):hover .MuiOutlinedInput-notchedOutline {
     border-color: ${props => props.theme.palette.grey['400']};
   }
 

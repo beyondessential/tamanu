@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import Divider from '@material-ui/core/Divider';
 
-import { getCurrentDateString } from 'shared/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 import { DateDisplay } from '../../DateDisplay';
 import { useAuth } from '../../../contexts/Auth';

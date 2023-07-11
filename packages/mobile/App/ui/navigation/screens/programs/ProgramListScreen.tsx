@@ -71,7 +71,6 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
               key={item.id}
               title={item.name}
               onPress={(): void => onNavigateToSurvey(item)}
-              fontWeight={500}
             />
           )}
           ItemSeparatorComponent={Separator}

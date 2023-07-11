@@ -1,13 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import { VACCINE_STATUS } from 'shared/constants/vaccines';
+import { VACCINE_STATUS } from '@tamanu/shared/constants/vaccines';
 import { OutlinedButton } from './Button';
 import { MenuButton } from './MenuButton';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-import { CheckInput } from './Field';
 import { StatusTag } from './Tag';
+import { CheckInput } from './Field';
 import { Colors } from '../constants';
 
 const getSchedule = record => record.scheduledVaccine?.schedule || 'N/A';

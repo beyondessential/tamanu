@@ -36,7 +36,7 @@ export const DiagnosisView = React.memo(({ encounter, isTriage, readonly }) => {
   const { diagnoses, id } = encounter;
   const [diagnosis, editDiagnosis] = React.useState(null);
   const { ability } = useAuth();
-  const canListDiagnoses = ability.can('list', 'EncounterDiagnosis');
+  const canListDiagnoses = ability?.can('list', 'EncounterDiagnosis');
 
   const validDiagnoses = diagnoses.filter(d => !['error', 'disproven'].includes(d.certainty));
 

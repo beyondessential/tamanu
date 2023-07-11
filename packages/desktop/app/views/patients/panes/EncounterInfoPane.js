@@ -1,16 +1,8 @@
 import React from 'react';
-import {
-  Card,
-  CardHeader,
-  CardItem,
-  CardBody,
-  CardDivider,
-  formatShort,
-} from '../../../components';
+import { formatShort } from '../../../components';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
-import { useReferenceData } from '../../../api/queries';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { getFullLocationName } from '../../../utils/location';
+import { InfoCard, InfoCardItem, InfoCardHeader } from '../../../components/InfoCard';
 
 const getDepartmentName = ({ department }) => (department ? department.name : 'Unknown');
 const getReferralSource = ({ referralSource }) =>
@@ -19,35 +11,35 @@ const getReferralSource = ({ referralSource }) =>
 export const getEncounterType = ({ encounterType }) =>
   encounterType ? ENCOUNTER_OPTIONS_BY_VALUE[encounterType]?.label : 'Unknown';
 
-export const EncounterInfoPane = React.memo(({ encounter }) => {
-  const { getLocalisation } = useLocalisation();
-  const patientTypeData = useReferenceData(encounter.patientBillingTypeId);
-  const referralSourcePath = 'fields.referralSourceId';
+const referralSourcePath = 'fields.referralSourceId';
 
-  return (
-    <Card>
-      {encounter.plannedLocation && (
-        <CardHeader>
-          <CardItem label="Planned move" value={getFullLocationName(encounter.plannedLocation)} />
-        </CardHeader>
-      )}
-      <CardBody>
-        <CardDivider />
-        <CardItem label="Department" value={getDepartmentName(encounter)} />
-        <CardItem label="Patient type" value={patientTypeData?.name} />
-        <CardItem label="Location" value={getFullLocationName(encounter?.location)} />
-        {!getLocalisation(`${referralSourcePath}.hidden`) && (
-          <CardItem
-            label={getLocalisation(`${referralSourcePath}.shortLabel`)}
-            value={getReferralSource(encounter)}
+export const EncounterInfoPane = React.memo(
+  ({ encounter, getLocalisation, patientBillingType }) => (
+    <InfoCard
+      inlineValues
+      headerContent={
+        encounter.plannedLocation && (
+          <InfoCardHeader
+            label="Planned move"
+            value={getFullLocationName(encounter.plannedLocation)}
           />
-        )}
-        <CardItem label="Encounter type" value={getEncounterType(encounter)} />
-        {encounter.endDate && (
-          <CardItem label="Discharge date" value={formatShort(encounter.endDate)} />
-        )}
-        <CardItem label="Reason for encounter" value={encounter.reasonForEncounter} />
-      </CardBody>
-    </Card>
-  );
-});
+        )
+      }
+    >
+      <InfoCardItem label="Department" value={getDepartmentName(encounter)} />
+      <InfoCardItem label="Patient type" value={patientBillingType} />
+      <InfoCardItem label="Location" value={getFullLocationName(encounter?.location)} />
+      {!getLocalisation(`${referralSourcePath}.hidden`) && (
+        <InfoCardItem
+          label={getLocalisation(`${referralSourcePath}.shortLabel`)}
+          value={getReferralSource(encounter)}
+        />
+      )}
+      <InfoCardItem label="Encounter type" value={getEncounterType(encounter)} />
+      {encounter.endDate && (
+        <InfoCardItem label="Discharge date" value={formatShort(encounter.endDate)} />
+      )}
+      <InfoCardItem label="Reason for encounter" value={encounter.reasonForEncounter} />
+    </InfoCard>
+  ),
+);

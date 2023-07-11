@@ -1,13 +1,13 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { ENCOUNTER_TYPES } from 'shared/constants';
-import { createDummyPatient } from 'shared/demoData';
+import { ENCOUNTER_TYPES } from '@tamanu/shared/constants';
+import { createDummyPatient } from '@tamanu/shared/demoData';
 import { PatientEncounterSummary } from '../app/views/patients/components/PatientEncounterSummary';
 import { MockedApi } from './utils/mockedApi';
 import {
   getCurrentDateString,
   getCurrentDateTimeString,
-} from 'shared/utils/dateTime';
+} from '@tamanu/shared/utils/dateTime';
 
 const patient = createDummyPatient(null, { id: 'test-patient' });
 

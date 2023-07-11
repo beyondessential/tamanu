@@ -23,25 +23,21 @@ export const ReferralTabs = ({ navigation }: BaseAppProps): ReactElement => {
 
   return (
     <ErrorBoundary>
-      <StackHeader
-        title="Referrals"
-        subtitle={joinNames(selectedPatient)}
-        onGoBack={goBack}
-      />
+      <StackHeader title="Referrals" subtitle={joinNames(selectedPatient)} onGoBack={goBack} />
       <Tabs.Navigator swipeEnabled={false}>
         <Tabs.Screen
           initialParams={{
             selectedPatient,
           }}
           options={{
-            title: 'REFER PATIENT',
+            title: 'Refer patient',
           }}
           name={Routes.HomeStack.ReferralStack.ReferralList.Index}
           component={ReferralFormStack}
         />
         <Tabs.Screen
           options={{
-            title: 'VIEW REFERRALS',
+            title: 'View referrals',
           }}
           name={Routes.HomeStack.ReferralStack.ViewHistory.Index}
           component={ReferralHistoryScreen}

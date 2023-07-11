@@ -5,10 +5,10 @@ const Row = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  margin-bottom: ${props => (props.$variant === 'small' ? '24px' : '36px')};
+  margin-bottom: ${props => (props.$variant === 'small' ? ' 18px' : '36px')};
 
   button {
-    margin-left: 16px;
+    margin-left: ${props => (props.$variant === 'small' ? ' 10px' : '16px')};
   }
 `;
 

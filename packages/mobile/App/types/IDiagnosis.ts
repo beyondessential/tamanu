@@ -14,5 +14,5 @@ export interface IDiagnosis {
   date: string;
   certainty?: Certainty;
   isPrimary?: boolean;
-  diagnosis: IReferenceData;
+  diagnosis: ReferenceData;
 }

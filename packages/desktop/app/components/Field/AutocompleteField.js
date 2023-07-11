@@ -4,13 +4,12 @@ import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 import { debounce } from 'lodash';
 import { MenuItem, Popper, Paper, Typography, InputAdornment, IconButton } from '@material-ui/core';
-
 import { ChevronIcon } from '../Icons/ChevronIcon';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 import { StyledTextField } from './TextField';
-import { Tag } from '../Tag';
+import { FormFieldTag } from '../Tag';
 
 const SuggestionsContainer = styled(Popper)`
   z-index: 9999;
@@ -62,11 +61,11 @@ const Icon = styled(InputAdornment)`
   }
 `;
 
-const OptionTag = styled(Tag)`
+const OptionTag = styled(FormFieldTag)`
   position: relative;
 `;
 
-const SelectTag = styled(Tag)`
+const SelectTag = styled(FormFieldTag)`
   position: relative;
   margin-right: 3px;
 `;
@@ -100,11 +99,11 @@ const StyledClearIcon = styled(ClearIcon)`
   cursor: pointer;
 `;
 
-class BaseAutocomplete extends Component {
+export class AutocompleteInput extends Component {
   constructor() {
     super();
     this.anchorEl = React.createRef();
-    this.debouncedFetchOptions = debounce(this.fetchOptions, 200);
+    this.debouncedFetchOptions = debounce(this.fetchOptions, 100);
 
     this.state = {
       suggestions: [],
@@ -166,11 +165,8 @@ class BaseAutocomplete extends Component {
     return label;
   };
 
-  fetchAllOptions = async (suggester, options) =>
-    suggester ? suggester.fetchSuggestions('') : options;
-
   fetchOptions = async ({ value, reason }) => {
-    const { suggester, options, value: formValue } = this.props;
+    const { suggester, options } = this.props;
 
     if (reason === 'suggestion-selected') {
       this.clearOptions();
@@ -181,19 +177,20 @@ class BaseAutocomplete extends Component {
       ? await suggester.fetchSuggestions(value)
       : options.filter(x => x.label.toLowerCase().includes(value.toLowerCase()));
 
-    if (value === '') {
-      if (await this.attemptAutoFill({ suggestions: searchSuggestions })) return;
-    }
+    const genericSuggestions = suggester ? await suggester.fetchSuggestions('') : options;
 
-    // presence of formValue means the user has selected an option for this field
-    const fieldClickedWithOptionSelected = reason === 'input-focused' && !!formValue;
+    if (value === '') {
+      if (await this.attemptAutoFill({ searchSuggestions })) return;
+    }
 
     // This will show the full suggestions list (or at least the first page) if the user
     // has either just clicked the input or if the input does not match a value from list
     this.setState({
-      suggestions: fieldClickedWithOptionSelected
-        ? await this.fetchAllOptions(suggester, options)
-        : searchSuggestions,
+      suggestions:
+        reason === 'input-focused' &&
+        searchSuggestions.find(x => x.label.toLowerCase() === value.toLowerCase())
+          ? genericSuggestions
+          : searchSuggestions,
     });
   };
 
@@ -354,6 +351,7 @@ class BaseAutocomplete extends Component {
       infoTooltip,
       disabled,
       size,
+      className,
       error,
       helperText,
       placeholder = 'Search...',
@@ -372,6 +370,7 @@ class BaseAutocomplete extends Component {
           renderSuggestion={this.renderSuggestion}
           renderInputComponent={this.renderInputComponent}
           inputProps={{
+            className,
             label,
             required,
             disabled,
@@ -393,7 +392,7 @@ class BaseAutocomplete extends Component {
   }
 }
 
-BaseAutocomplete.propTypes = {
+AutocompleteInput.propTypes = {
   label: PropTypes.string,
   required: PropTypes.bool,
   disabled: PropTypes.bool,
@@ -417,7 +416,7 @@ BaseAutocomplete.propTypes = {
   autofill: PropTypes.bool,
 };
 
-BaseAutocomplete.defaultProps = {
+AutocompleteInput.defaultProps = {
   label: '',
   required: false,
   error: false,
@@ -430,11 +429,6 @@ BaseAutocomplete.defaultProps = {
   suggester: null,
   autofill: false,
 };
-
-export const AutocompleteInput = styled(BaseAutocomplete)`
-  height: 250px;
-  flex-grow: 1;
-`;
 
 export const AutocompleteField = ({ field, ...props }) => (
   <AutocompleteInput

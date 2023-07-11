@@ -6,9 +6,9 @@ import { SelectInput } from './SelectField';
 import { MultiselectInput } from './MultiselectField';
 
 export const SuggesterSelectField = React.memo(
-  ({ field, endpoint, filterByFacility, isMulti = false, ...props }) => {
+  ({ field, endpoint, filterByFacility, isMulti = false, initialOptions = [], ...props }) => {
     const api = useApi();
-    const [options, setOptions] = useState([]);
+    const [options, setOptions] = useState(initialOptions);
 
     // We need this hook to fetch the label of the current value beside the other useEffect hooks to fetch all of the options.
     // This is because the 2nd useEffect hooks will only fetch options available in the current facility,

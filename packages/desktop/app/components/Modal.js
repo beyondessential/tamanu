@@ -132,6 +132,7 @@ export const Modal = memo(
         classes={classes}
         open={open}
         onClose={onDialogClose}
+        transitionDuration={MODAL_TRANSITION_DURATION}
         {...props}
       >
         <ModalTitle>

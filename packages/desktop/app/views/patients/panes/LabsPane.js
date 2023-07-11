@@ -29,6 +29,7 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
           noun="LabRequest"
           variant="outlined"
           color="primary"
+          size="small"
         >
           Print
         </ButtonWithPermissionCheck>
@@ -37,6 +38,7 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
           disabled={readonly}
           verb="create"
           noun="LabRequest"
+          size="small"
         >
           New lab request
         </ButtonWithPermissionCheck>
