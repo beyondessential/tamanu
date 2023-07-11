@@ -101,7 +101,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
     [loadEncounter, dispatch, params.patientId, params.category, encounterId],
   );
 
-  const globalImagingRequestsFetchOptions = { ...searchParameters, ...statusFilter };
+  const globalImagingRequestsFetchOptions = { ...statusFilter, ...searchParameters };
 
   return (
     <SearchTable
