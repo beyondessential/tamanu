@@ -616,6 +616,7 @@
       },
       "features": {
         "editPatientDetailsOnMobile": true,
+        "quickPatientGenerator": false,
         "enableInvoicing": false,
         "registerNewPatient": true,
         "hideOtherSex": true,

@@ -22,6 +22,8 @@ export * from './ContributingDeathCause';
 export * from './DeathRevertLog';
 
 export * from './Encounter';
+export * from './EncounterHistory';
+
 export * from './Discharge';
 export * from './Triage';
 

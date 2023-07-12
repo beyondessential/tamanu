@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
@@ -12,78 +12,51 @@ import {
   Table,
   useSelectableColumn,
   OutlinedButton,
+  Heading3,
 } from '../../../components';
 import { LabRequestPrintLabelModal } from '../../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { useLabRequestNotes } from '../../../api/queries';
+import { InfoCard, InfoCardItem } from '../../../components/InfoCard';
 
 const Container = styled.div`
   padding-top: 20px;
 `;
 
-const Card = styled(Box)`
-  background: white;
-  border-radius: 5px;
-  border: 1px solid ${Colors.outline};
-  padding: 20px 10px;
-  display: flex;
-  align-items: flex-start;
-  margin-top: 10px;
-  margin-left: 40px;
-`;
-
-const CardTable = styled(Table)`
-  margin-top: 10px;
-  margin-left: 40px;
-
-  table tbody tr:last-child td {
-    border: none;
+const StyledInfoCard = styled(InfoCard)`
+  border-radius: 0;
+  padding: 20px;
+  & div > span {
+    font-size: 14px;
   }
 `;
 
-const Column = styled.div`
-  flex: 1;
-  padding-left: 20px;
+const CardTable = styled(Table)`
+  border: none;
+  margin-top: 10px;
+  table {
+    tbody tr:last-child td {
+      border: none;
+    }
+    thead tr th {
+      color: ${props => props.theme.palette.text.tertiary};
+    }
+  }
 `;
 
-const BorderColumn = styled(Column)`
-  border-left: 1px solid ${Colors.outline};
+const Card = styled.div`
+  background: ${Colors.white};
+  border-radius: 5px;
+  padding: 32px 30px;
+  border: 1px solid ${Colors.outline};
 `;
 
 const Actions = styled.div`
   display: flex;
-  margin: 20px 10px 40px 40px;
-
+  margin: 22px 0;
   > button {
     margin-right: 15px;
   }
 `;
-
-const CardCell = styled.div`
-  font-size: 14px;
-  line-height: 18px;
-  color: ${props => props.theme.palette.text.tertiary};
-  margin-bottom: 20px;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-`;
-
-const CardLabel = styled.div`
-  margin-right: 5px;
-`;
-
-const CardValue = styled(CardLabel)`
-  font-weight: 500;
-  color: ${props => props.theme.palette.text.secondary};
-`;
-
-const CardItem = ({ label, value, ...props }) => (
-  <CardCell {...props}>
-    <CardLabel>{label}</CardLabel>
-    <CardValue>{value}</CardValue>
-  </CardCell>
-);
 
 const getColumns = type => [
   {
@@ -107,6 +80,13 @@ const getColumns = type => [
     sortable: false,
     accessor: ({ category }) => category?.name || '',
   },
+  {
+    key: 'sampleDate',
+    title: 'Sample date',
+    sortable: false,
+    accessor: ({ sampleTime }) =>
+      sampleTime ? <DateDisplay showTime date={sampleTime} /> : 'Sample not collected',
+  },
 ];
 
 const MODALS = {
@@ -120,49 +100,44 @@ export const LabRequestSummaryPane = React.memo(
     const { selectedRows, selectableColumn } = useSelectableColumn(labRequests, {
       columnKey: 'selected',
     });
-
+    const noRowSelected = useMemo(() => !selectedRows?.length, [selectedRows]);
     // All the lab requests were made in a batch and have the same details
-    const {
-      id,
-      sampleTime,
-      requestedDate,
-      requestedBy,
-      department,
-      priority,
-      site,
-    } = labRequests[0];
+    const { id, requestedDate, requestedBy, department, priority } = labRequests[0];
 
     const { data: notePages, isLoading: areNotesLoading } = useLabRequestNotes(id);
 
     return (
       <Container>
-        <BodyText fontWeight={500}>Your lab request has been finalised</BodyText>
-        <Card mb={4}>
-          <Column>
-            <CardItem label="Requesting clinician" value={requestedBy?.displayName} />
-            <CardItem label="Department" value={department?.name} />
-            <CardItem label="Sample taken" value={<DateDisplay date={sampleTime} showTime />} />
-          </Column>
-          <BorderColumn>
-            <CardItem
+        <Heading3 mb="12px">Request finalised</Heading3>
+        <BodyText mb="28px" color="textTertiary">
+          Your lab request has been finalised. Please select items from the list below to print
+          requests or sample labels.
+        </BodyText>
+        <Card>
+          <StyledInfoCard gridRowGap={10} elevated={false}>
+            <InfoCardItem label="Requesting clinician" value={requestedBy?.displayName} />
+            <InfoCardItem
               label="Request date & time"
               value={<DateDisplay date={requestedDate} showTime />}
             />
-            <CardItem label="Priority" value={priority?.name} />
-            <CardItem label="Site" value={site?.name} />
-          </BorderColumn>
+            <InfoCardItem label="Department" value={department?.name} />
+            <InfoCardItem label="Priority" value={priority ? priority.name : '-'} />
+          </StyledInfoCard>
+          <CardTable
+            headerColor={Colors.white}
+            columns={[selectableColumn, ...getColumns(requestFormType)]}
+            data={labRequests}
+            elevated={false}
+            noDataMessage="No lab requests found"
+            allowExport={false}
+          />
         </Card>
-        <BodyText fontWeight={500}>Your lab request has been finalised</BodyText>
-        <CardTable
-          headerColor={Colors.white}
-          columns={[selectableColumn, ...getColumns(requestFormType)]}
-          data={labRequests}
-          elevated={false}
-          noDataMessage="No lab requests found"
-          allowExport={false}
-        />
         <Actions>
-          <OutlinedButton size="small" onClick={() => setIsOpen(MODALS.LABEL_PRINT)}>
+          <OutlinedButton
+            size="small"
+            onClick={() => setIsOpen(MODALS.LABEL_PRINT)}
+            disabled={noRowSelected}
+          >
             Print label
           </OutlinedButton>
           <LabRequestPrintLabelModal
@@ -171,7 +146,7 @@ export const LabRequestSummaryPane = React.memo(
             onClose={() => setIsOpen(false)}
           />
           <OutlinedButton
-            disabled={areNotesLoading}
+            disabled={areNotesLoading || noRowSelected}
             size="small"
             onClick={() => setIsOpen(MODALS.PRINT)}
           >

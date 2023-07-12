@@ -37,13 +37,43 @@ const HeadCellWrapper = styled.div`
   }
 `;
 
+function round(float, { rounding } = {}) {
+  if (isNaN(float) || !isNumber(rounding)) {
+    return float;
+  }
+  return float.toFixed(rounding);
+}
+
+function getTooltip(float, config = {}, visibilityCriteria = {}) {
+  const { unit = '' } = config;
+  const { normalRange } = visibilityCriteria;
+  if (normalRange && float < normalRange.min) {
+    return {
+      tooltip: `Outside normal range\n <${normalRange.min}${unit}`,
+      severity: 'alert',
+    };
+  }
+  if (normalRange && float > normalRange.max) {
+    return {
+      tooltip: `Outside normal range\n >${normalRange.max}${unit}`,
+      severity: 'alert',
+    };
+  }
+  if (unit?.length > 2 && !isNaN(float)) {
+    return {
+      tooltip: `${round(float, config)}${unit}`,
+      severity: 'info',
+    };
+  }
+  return {
+    severity: 'info',
+  };
+}
+
 export const formatValue = (value, config, isEdited) => {
   const { rounding = 0, unit = '' } = config || {};
   const float = parseFloat(value);
-
-  const formattedValue = isNaN(float)
-    ? capitalize(value) || '-'
-    : `${float.toFixed(rounding)}${unit && unit.length <= 2 ? unit : ''}`;
+  const formattedValue = isNaN(float) ? capitalize(value) || '-' : float;
 
   return `${formattedValue}${isEdited ? '*' : ''}`;
 };
@@ -71,43 +101,23 @@ export const RangeTooltipCell = React.memo(({ value, config, validationCriteria 
   );
 });
 
-export const RangeValidatedCell = React.memo(
-  ({ value, config, validationCriteria, onClick, isEdited, ...props }) => {
-    let tooltip = '';
-    let severity = INFO;
-    const { rounding = 0, unit = '' } = config || {};
-    const { normalRange } = validationCriteria || {};
-    const float = parseFloat(value);
-    const formattedValue = formatValue(value, config, isEdited);
-
-    if (normalRange) {
-      const baseTooltip = `Outside normal range\n`;
-      if (float < normalRange.min) {
-        tooltip = `${baseTooltip} <${normalRange.min}${unit}`;
-        severity = ALERT;
-      } else if (float > normalRange.max) {
-        tooltip = `${baseTooltip} >${normalRange.max}${unit}`;
-        severity = ALERT;
-      }
-    }
-
-    if (!tooltip && unit && unit.length > 2 && !isNaN(float)) {
-      // Show full unit in tooltip as its not displayed on table
-      tooltip = `${float.toFixed(rounding)}${unit}`;
-    }
-
-    const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
-
-    return tooltip ? (
-      <TableTooltip title={tooltip}>
-        <CellContainer onClick={onClick} $severity={severity} {...props}>
-          {formattedValue}
-        </CellContainer>
-      </TableTooltip>
-    ) : (
-      <CellContainer onClick={onClick} {...props}>
+export const RangeValidatedCell = React.memo(({ value, config, validationCriteria, onClick, isEdited, ...props }) => {
+  const formattedValue = formatValue(value, config, isEdited);
+  const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
+  const float = round(parseFloat(value), config);
+  const formattedValue = formatValue(value, config, isEdited);
+  const { tooltip, severity } = useMemo(() => getTooltip(float, config, validationCriteria), [
+    float,
+    config,
+    validationCriteria,
+  ]);
+  return tooltip ? (
+    <TableTooltip title={tooltip}>
+      <CellContainer onClick={onClick} severity={severity} {...props}>
         {formattedValue}
-      </CellContainer>
-    );
-  },
-);
+      </CellWrapper>
+    </TableTooltip>
+  ) : (
+    <CellContainer onClick={onClick} {...props}>{formattedValue}</CellWrapper>
+  );
+});
