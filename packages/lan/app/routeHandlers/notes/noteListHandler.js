@@ -75,10 +75,10 @@ export const noteListHandler = recordType =>
 
     const queryOrder = orderBy ? [[orderBy, order.toUpperCase()]] : [['date', 'DESC']];
 
-    let rows, totalCount;
+    let rows;
+    let totalCount;
 
     if (noteType) {
-
       rows = await models.Note.findAll({
         include,
         where: {
@@ -92,9 +92,7 @@ export const noteListHandler = recordType =>
       totalCount = await models.Note.count({
         where: baseWhere,
       });
-
     } else {
-
       const treatmentPlanRows = await models.Note.findAll({
         include,
         where: {
@@ -141,11 +139,9 @@ export const noteListHandler = recordType =>
       totalCount = await models.Note.count({
         where: baseWhere,
       });
-
     }
 
     res.send({ data: rows, count: totalCount });
-
   });
 
 export const notesWithSingleItemListHandler = recordType =>

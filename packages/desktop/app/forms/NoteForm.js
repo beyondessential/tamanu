@@ -20,6 +20,7 @@ import {
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
+import { NoteChangeLogs } from '../components/NoteChangeLogs';
 import { noteTypes, Colors } from '../constants';
 
 /**
@@ -77,6 +78,7 @@ export const NoteForm = ({
   onCancel,
   note,
   noteTypeCountByType,
+  viewingChangeLog = false,
   onSubmit,
   onEditNote,
   confirmText,
@@ -123,21 +125,25 @@ export const NoteForm = ({
         />
       </StyledFormGrid>
 
-      <Field
-        name="content"
-        label={creatingNewNote ? 'Add note' : 'Edit note'}
-        required
-        component={TextField}
-        multiline
-        value={noteContent}
-        onChange={handleNoteContentChange}
-        rows={6}
-      />
+      {viewingChangeLog ? (
+        <NoteChangeLogs note={note} />
+      ) : (
+        <Field
+          name="content"
+          label={creatingNewNote ? 'Add note' : 'Edit note'}
+          required
+          component={TextField}
+          multiline
+          value={noteContent}
+          onChange={handleNoteContentChange}
+          rows={6}
+        />
+      )}
       <ConfirmCancelRow
-        onConfirm={submitForm}
+        onConfirm={viewingChangeLog ? onCancel : submitForm}
         confirmText={confirmText}
         cancelText={cancelText}
-        onCancel={onCancel}
+        onCancel={!viewingChangeLog && onCancel}
       />
     </>
   );

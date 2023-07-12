@@ -85,7 +85,13 @@ const NoteFooterTextElement = styled.span`
   margin-right: 3px;
 `;
 
-const NoteContent = ({ note, hasPermission, currentUser, handleEditNote }) => {
+const NoteContent = ({
+  note,
+  hasPermission,
+  currentUser,
+  handleEditNote,
+  handleViewNoteChangeLog,
+}) => {
   const [contentIsClipped, setContentIsClipped] = useState(false);
   const [textIsExpanded, setTextIsExpanded] = useState(false);
   const handleReadMore = useCallback(() => setTextIsExpanded(true), []);
@@ -117,7 +123,7 @@ const NoteContent = ({ note, hasPermission, currentUser, handleEditNote }) => {
         ) : null}
         <DateDisplay date={note?.date} showTime />
         {note.revisedById && (
-          <EditedButtonContainer>
+          <EditedButtonContainer onClick={() => handleViewNoteChangeLog(note)}>
             <span>(</span>
             <EditedButton>edited</EditedButton>
             <span>)</span>
@@ -131,6 +137,7 @@ const NoteContent = ({ note, hasPermission, currentUser, handleEditNote }) => {
 const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) => {
   const { currentUser } = useAuth();
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+  const [modalViewingChangeLog, setModalViewingChangeLog] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
   const [modalCancelText, setModalCancelText] = useState('');
   const [modalNote, setModalNote] = useState(null);
@@ -139,10 +146,21 @@ const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) =
     note => {
       setModalTitle('Edit note');
       setModalCancelText('Cancel');
+      setModalViewingChangeLog(false);
       setIsNoteModalOpen(true);
       setModalNote(note);
     },
-    [setModalTitle, setModalCancelText, setIsNoteModalOpen, setModalNote],
+    [setModalTitle, setModalCancelText, setIsNoteModalOpen, setModalNote, setModalViewingChangeLog],
+  );
+
+  const handleViewNoteChangeLog = useCallback(
+    note => {
+      setModalTitle('Change log');
+      setModalViewingChangeLog(true);
+      setIsNoteModalOpen(true);
+      setModalNote(note);
+    },
+    [setModalTitle, setIsNoteModalOpen, setModalNote, setModalViewingChangeLog],
   );
 
   const COLUMNS = useMemo(
@@ -156,12 +174,13 @@ const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) =
             hasPermission={hasPermission}
             currentUser={currentUser}
             handleEditNote={handleEditNote}
+            handleViewNoteChangeLog={handleViewNoteChangeLog}
           />
         ),
         sortable: false,
       },
     ],
-    [hasPermission, currentUser, handleEditNote],
+    [hasPermission, currentUser, handleEditNote, handleViewNoteChangeLog],
   );
 
   return (
@@ -175,10 +194,10 @@ const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) =
           note={modalNote}
           title={modalTitle}
           cancelText={modalCancelText}
-          confirmText="Save"
+          viewingChangeLog={modalViewingChangeLog}
+          confirmText={modalViewingChangeLog ? 'Close' : 'Save'}
         />
       )}
-
       <DataFetchingTable
         lazyLoading
         hideHeader

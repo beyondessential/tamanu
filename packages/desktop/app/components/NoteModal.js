@@ -17,6 +17,7 @@ export const NoteModal = ({
   onSaved,
   encounterId,
   note,
+  viewingChangeLog,
   confirmText,
   cancelText,
 }) => {
@@ -110,6 +111,7 @@ export const NoteModal = ({
         }}
       >
         <NoteForm
+          viewingChangeLog={viewingChangeLog}
           onSubmit={handleCreateNewNote}
           onEditNote={handleEditNote}
           onCancel={() => {
