@@ -17,6 +17,7 @@ const fieldSchema = yup
     }),
     hidden: yup.boolean().required(),
     required: yup.boolean(),
+    pattern: yup.string(),
   })
   .default({}) // necessary to stop yup throwing hard-to-debug errors
   .required()
@@ -27,6 +28,7 @@ const unhideableFieldSchema = yup
     shortLabel: yup.string().required(),
     longLabel: yup.string().required(),
     required: yup.boolean(),
+    pattern: yup.string(),
   })
   .required()
   .noUnknown();
@@ -47,6 +49,7 @@ const UNHIDEABLE_FIELDS = [
   'emergencyContactNumber',
   'locationId',
   'locationGroupId',
+  'diagnosis',
 ];
 
 const HIDEABLE_FIELDS = [
@@ -421,6 +424,7 @@ const rootLocalisationSchema = yup
     features: yup
       .object({
         editPatientDetailsOnMobile: yup.boolean().required(),
+        quickPatientGenerator: yup.boolean().required(),
         enableInvoicing: yup.boolean().required(),
         hideOtherSex: yup.boolean().required(),
         registerNewPatient: yup.boolean().required(),

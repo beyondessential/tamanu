@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux';
+import { useQueryClient } from '@tanstack/react-query';
 import { logout, idleTimeout } from '../store';
 import { useApi } from '../api';
-import { useQueryClient } from '@tanstack/react-query';
 
 // This is just a redux selector for now.
 // This should become its own proper context once the auth stuff
