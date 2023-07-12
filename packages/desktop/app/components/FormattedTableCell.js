@@ -1,5 +1,5 @@
-import { capitalize } from 'lodash';
-import React from 'react';
+import { capitalize, isNumber } from 'lodash';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { Colors } from '../constants';
 import { formatLong, formatShortest, formatTime } from './DateDisplay';
@@ -50,28 +50,27 @@ function getTooltip(float, config = {}, visibilityCriteria = {}) {
   if (normalRange && float < normalRange.min) {
     return {
       tooltip: `Outside normal range\n <${normalRange.min}${unit}`,
-      severity: 'alert',
+      severity: ALERT,
     };
   }
   if (normalRange && float > normalRange.max) {
     return {
       tooltip: `Outside normal range\n >${normalRange.max}${unit}`,
-      severity: 'alert',
+      severity: ALERT,
     };
   }
   if (unit?.length > 2 && !isNaN(float)) {
     return {
       tooltip: `${round(float, config)}${unit}`,
-      severity: 'info',
+      severity: INFO,
     };
   }
   return {
-    severity: 'info',
+    severity: INFO,
   };
 }
 
 export const formatValue = (value, config, isEdited) => {
-  const { rounding = 0, unit = '' } = config || {};
   const float = parseFloat(value);
   const formattedValue = isNaN(float) ? capitalize(value) || '-' : float;
 
@@ -102,7 +101,6 @@ export const RangeTooltipCell = React.memo(({ value, config, validationCriteria 
 });
 
 export const RangeValidatedCell = React.memo(({ value, config, validationCriteria, onClick, isEdited, ...props }) => {
-  const formattedValue = formatValue(value, config, isEdited);
   const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
   const float = round(parseFloat(value), config);
   const formattedValue = formatValue(value, config, isEdited);
@@ -115,9 +113,9 @@ export const RangeValidatedCell = React.memo(({ value, config, validationCriteri
     <TableTooltip title={tooltip}>
       <CellContainer onClick={onClick} severity={severity} {...props}>
         {formattedValue}
-      </CellWrapper>
+      </CellContainer>
     </TableTooltip>
   ) : (
-    <CellContainer onClick={onClick} {...props}>{formattedValue}</CellWrapper>
+    <CellContainer onClick={onClick} {...props}>{formattedValue}</CellContainer>
   );
 });
