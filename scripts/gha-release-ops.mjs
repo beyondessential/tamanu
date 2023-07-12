@@ -42,7 +42,7 @@ export async function createReleaseBranch({ readFileSync }, github, context, cwd
     default:
       nextVersion = nextVersionSpec;
   }
-  console.log(`Creating draft release for next major (${nextVersion})...`);
+  console.log(`Creating draft release for next ${nextVersionSpec} (${nextVersion})...`);
   await createDraftRelease({ readFileSync }, github, context, cwd, nextVersion);
 
   console.log('Done.');
