@@ -1,6 +1,5 @@
 import 'jest-expect-message';
 import supertest from 'supertest';
-import Chance from 'chance';
 import config from 'config';
 import http from 'http';
 
@@ -11,7 +10,7 @@ import {
   seedLocationGroups,
   seedLabTests,
 } from 'shared/demoData';
-import { fake, showError } from 'shared/test-helpers';
+import { chance, fake, showError } from 'shared/test-helpers';
 import {
   setHardcodedPermissionsUseForTestsOnly,
   unsetUseHardcodedPermissionsUseForTestsOnly,
@@ -39,8 +38,6 @@ export function disableHardcodedPermissionsForSuite() {
 
 jest.mock('../app/sync/CentralServerConnection');
 jest.mock('../app/utils/uploadAttachment');
-
-const chance = new Chance();
 
 const formatError = response => `
 
@@ -140,7 +137,7 @@ export async function createTestContext() {
   await seedLocationGroups(models);
 
   // Create the facility for the current config if it doesn't exist
-  await models.Facility.findOrCreate({
+  const [facility] = await models.Facility.findOrCreate({
     where: {
       id: config.serverFacilityId,
     },
@@ -149,6 +146,9 @@ export async function createTestContext() {
       name: 'Test Facility',
     },
   });
+
+  // ensure there's a corresponding local system fact for it too
+  await models.LocalSystemFact.set('facilityId', facility.id);
 
   const expressApp = createApp(dbResult);
   const appServer = http.createServer(expressApp);

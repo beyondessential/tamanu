@@ -9,11 +9,16 @@ const Column = ({ header, appointments, onAppointmentUpdated }) => {
   const appointmentsByStartTime = [...appointments].sort((a, b) => a.startTime - b.startTime);
   // If header's length is larger than 14 characters, split it into two lines. Width expands if needed.
   const hasSpace = header.includes(' ');
-  const width = header.length > 14 && hasSpace ? `${(header.length * 15) / 2}px` : '100%';
+  let width = '100%';
+  let minWidth = null;
+  if (header.length > 14 && hasSpace) {
+    width = `${(header.length * 15) / 2}px`; // shrink width to make text becomes two lines
+    minWidth = '100%'; // expand width if it is smaller than the appointment content below it
+  }
 
   return (
     <>
-      <ColumnHeader className="location" $width={width}>
+      <ColumnHeader className="location" $width={width} $minWidth={minWidth}>
         {header}
       </ColumnHeader>
       <ColumnBody className="appointments">
@@ -92,7 +97,8 @@ const ColumnHeader = styled.div`
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  width: ${({ $width }) => $width}};
+  width: ${({ $width }) => $width};
+  min-width: ${({ $minWidth }) => $minWidth};
   border: 1px solid ${Colors.outline};
   border-right: none;
   font-weight: bold;
