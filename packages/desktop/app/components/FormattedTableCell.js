@@ -100,22 +100,26 @@ export const RangeTooltipCell = React.memo(({ value, config, validationCriteria 
   );
 });
 
-export const RangeValidatedCell = React.memo(({ value, config, validationCriteria, onClick, isEdited, ...props }) => {
-  const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
-  const float = round(parseFloat(value), config);
-  const formattedValue = formatValue(value, config, isEdited);
-  const { tooltip, severity } = useMemo(() => getTooltip(float, config, validationCriteria), [
-    float,
-    config,
-    validationCriteria,
-  ]);
-  return tooltip ? (
-    <TableTooltip title={tooltip}>
-      <CellContainer onClick={onClick} severity={severity} {...props}>
+export const RangeValidatedCell = React.memo(
+  ({ value, config, validationCriteria, onClick, isEdited, ...props }) => {
+    const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
+    const float = round(parseFloat(value), config);
+    const formattedValue = formatValue(value, config, isEdited);
+    const { tooltip, severity } = useMemo(() => getTooltip(float, config, validationCriteria), [
+      float,
+      config,
+      validationCriteria,
+    ]);
+    return tooltip ? (
+      <TableTooltip title={tooltip}>
+        <CellContainer onClick={onClick} severity={severity} {...props}>
+          {formattedValue}
+        </CellContainer>
+      </TableTooltip>
+    ) : (
+      <CellContainer onClick={onClick} {...props}>
         {formattedValue}
       </CellContainer>
-    </TableTooltip>
-  ) : (
-    <CellContainer onClick={onClick} {...props}>{formattedValue}</CellContainer>
-  );
-});
+    );
+  },
+);
