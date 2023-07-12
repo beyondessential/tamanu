@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-export async function createReleaseBranch({ readFileSync }, github, context, cwd) {
+export async function createReleaseBranch({ readFileSync }, github, context, cwd, nextVersionSpec) {
   console.log('Reading current version...');
   const { version } = JSON.parse(readFileSync(`${cwd}/package.json`, 'utf-8'));
 
@@ -28,8 +28,23 @@ export async function createReleaseBranch({ readFileSync }, github, context, cwd
 
   console.log("It doesn't, creating branch...");
   await github.rest.git.createRef({ owner, repo, ref: `refs/${ref}`, sha });
-  console.log('Creating draft release...');
-  await createDraftRelease({ readFileSync }, github, context, cwd, version);
+
+  let nextVersion;
+  switch (nextVersionSpec) {
+    case 'patch':
+      throw new Error('Patch version bump is not supported');
+    case 'minor':
+      nextVersion = `${major}.${Number(minor) + 1}.0`;
+      break;
+    case 'major':
+      nextVersion = `${Number(major) + 1}.0.0`;
+      break;
+    default:
+      nextVersion = nextVersionSpec;
+  }
+  console.log(`Creating draft release for next major (${nextVersion})...`);
+  await createDraftRelease({ readFileSync }, github, context, cwd, nextVersion);
+
   console.log('Done.');
 }
 
