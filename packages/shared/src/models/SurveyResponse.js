@@ -248,6 +248,7 @@ export class SurveyResponse extends Model {
         responseId: record.id,
       });
       if (!isVitalSurvey || body === '') continue;
+      // Generate initial vital log
       await models.VitalLog.create({
         date: record.endTime || getCurrentDateTimeString(),
         newValue: body,
