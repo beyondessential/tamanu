@@ -150,7 +150,7 @@ export const VitalsTable = React.memo(() => {
               config={config}
               validationCriteria={validationCriteria}
               isEdited={historyLogs.length > 1}
-              onClick={shouldBeClickable ? null : handleCellClick}
+              onClick={shouldBeClickable ? handleCellClick : null}
             />
           );
         },
