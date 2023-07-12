@@ -36,6 +36,7 @@ jobs:
     name: Version
     needs: run
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v2
         with:
