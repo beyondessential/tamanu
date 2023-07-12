@@ -447,6 +447,7 @@ const rootLocalisationSchema = yup
         displayProcedureCodesInDischargeSummary: yup.boolean().required(),
         displayIcd10CodesInDischargeSummary: yup.boolean().required(),
         mandatoryVitalEditReason: yup.boolean().required(),
+        enableVitalEdit: yup.boolean().required(),
       })
       .required()
       .noUnknown(),

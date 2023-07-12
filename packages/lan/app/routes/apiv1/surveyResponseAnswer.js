@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
-import { NotFoundError } from 'shared/errors';
+import { NotFoundError, InvalidOperationError } from 'shared/errors';
 import { SURVEY_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
 import { runCalculations } from 'shared/utils/calculations';
 import { getStringValue } from 'shared/utils/fields';
@@ -11,7 +11,7 @@ export const surveyResponseAnswer = express.Router();
 surveyResponseAnswer.put(
   '/vital/:id',
   asyncHandler(async (req, res) => {
-    const { db, models, user, params } = req;
+    const { db, models, user, params, getLocalisation } = req;
     const {
       SurveyResponseAnswer,
       SurveyResponse,
@@ -21,6 +21,12 @@ surveyResponseAnswer.put(
       SurveyScreenComponent,
     } = models;
     const { id } = params;
+
+    const localisation = await getLocalisation();
+    if (!localisation?.features?.enableVitalEdit) {
+      throw new InvalidOperationError('Editing vitals is disabled.');
+    }
+
     req.checkPermission('write', 'Vitals');
     const answerObject = await SurveyResponseAnswer.findByPk(id, {
       include: [

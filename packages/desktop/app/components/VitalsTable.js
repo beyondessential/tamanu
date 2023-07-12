@@ -12,6 +12,7 @@ import { formatShortest, formatTimeWithSeconds } from './DateDisplay';
 import { EditVitalCellModal } from './EditVitalCellModal';
 import { VitalVectorIcon } from './Icons/VitalVectorIcon';
 import { useVitalChartData } from '../contexts/VitalChartData';
+import { useLocalisation } from '../contexts/Localisation';
 
 const StyledTable = styled(Table)`
   table {
@@ -110,6 +111,8 @@ export const VitalsTable = React.memo(() => {
   const { data, recordedDates, error, isLoading } = useVitals(encounter.id);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedCell, setSelectedCell] = useState(null);
+  const { getLocalisation } = useLocalisation();
+  const isVitalEditEnabled = getLocalisation('features.enableVitalEdit');
   const showFooterLegend = data.some(entry =>
     recordedDates.some(date => entry[date].historyLogs.length > 1),
   );
@@ -140,13 +143,14 @@ export const VitalsTable = React.memo(() => {
             setOpenEditModal(true);
             setSelectedCell(cells[date]);
           };
+          const shouldBeClickable = isVitalEditEnabled && isCalculatedQuestion === false;
           return (
             <RangeValidatedCell
               value={value}
               config={config}
               validationCriteria={validationCriteria}
               isEdited={historyLogs.length > 1}
-              onClick={isCalculatedQuestion ? null : handleCellClick}
+              onClick={shouldBeClickable ? handleCellClick : null}
             />
           );
         },

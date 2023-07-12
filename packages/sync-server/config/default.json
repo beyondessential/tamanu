@@ -636,7 +636,8 @@
         "onlyAllowLabPanels": false,
         "displayProcedureCodesInDischargeSummary": true,
         "displayIcd10CodesInDischargeSummary": true,
-        "mandatoryVitalEditReason": false
+        "mandatoryVitalEditReason": false,
+        "enableVitalEdit": false
       },
       "templates": {
         "letterhead": {
