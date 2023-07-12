@@ -74,7 +74,7 @@ export async function generateInitialVitalLogs() {
       totalCreated += logsCreatedInBatch;
     }
 
-    log.info(`Sucessfully created ${totalCreated} initial vital logs.`);
+    log.info(`Successfully created ${totalCreated} initial vital logs.`);
     process.exit(0);
   } catch (error) {
     log.info(`Command failed: ${error.stack}\n`);
