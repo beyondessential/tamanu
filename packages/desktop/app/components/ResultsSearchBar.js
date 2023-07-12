@@ -37,7 +37,7 @@ const StyledAutoCompleteInput = styled(AutocompleteInput)`
 
 export const ResultsSearchBar = React.memo(
   ({ setSearchParameters, searchParameters, patientId, disabled }) => {
-    const panelSuggester = useSuggester('patientLabTestPanelTypes', {
+    const panelSuggester = useSuggester('patientLabPanelTypes', {
       baseQueryParameters: { patientId },
     });
     const categorySuggester = useSuggester('patientLabTestCategories', {

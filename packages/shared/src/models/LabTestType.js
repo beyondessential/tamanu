@@ -79,12 +79,12 @@ export class LabTestType extends Model {
       foreignKey: 'labTestCategoryId',
       as: 'category',
     });
-    this.hasMany(models.LabTestPanelLabTestTypes, {
+    this.hasMany(models.LabPanelLabTestTypes, {
       foreignKey: 'labTestTypeId',
       as: 'panelRelations',
     });
-    this.belongsToMany(models.LabTestPanel, {
-      through: 'LabTestPanelLabTestTypes',
+    this.belongsToMany(models.LabPanel, {
+      through: 'LabPanelLabTestTypes',
     });
   }
 

@@ -3,7 +3,7 @@ import {
   patientDataLoader,
   patientFieldDefinitionLoader,
   permissionLoader,
-  labTestPanelLoader,
+  labPanelLoader,
 } from './loaders';
 
 // All reference data is imported first, so that can be assumed for ordering.
@@ -44,8 +44,8 @@ export default {
   },
 
   labTestType: {},
-  labTestPanel: {
-    loader: labTestPanelLoader,
+  labPanel: {
+    loader: labPanelLoader,
     needs: ['labTestType'],
   },
   invoicePriceChangeType: {},

@@ -2,7 +2,7 @@ import { SYNC_DIRECTIONS } from '../constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
-export class LabTestPanelRequest extends Model {
+export class LabPanelRequest extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -20,9 +20,9 @@ export class LabTestPanelRequest extends Model {
       foreignKey: 'encounterId',
       as: 'encounter',
     });
-    this.belongsTo(models.LabTestPanel, {
-      foreignKey: 'labTestPanelId',
-      as: 'labTestPanel',
+    this.belongsTo(models.LabPanel, {
+      foreignKey: 'labPanelId',
+      as: 'labPanel',
     });
   }
 

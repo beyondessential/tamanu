@@ -145,7 +145,7 @@ export function fromImagingRequests(models, table, id) {
 }
 
 export function fromLabRequests(models, table, id) {
-  const { LabRequest, LabTest, LabTestType, LabTestPanelRequest, LabTestPanel, User } = models;
+  const { LabRequest, LabTest, LabTestType, LabPanelRequest, LabPanel, User } = models;
 
   switch (table) {
     case LabRequest.tableName:
@@ -179,28 +179,28 @@ export function fromLabRequests(models, table, id) {
           },
         ],
       };
-    case LabTestPanelRequest.tableName:
+    case LabPanelRequest.tableName:
       return {
         include: [
           {
-            model: LabTestPanelRequest,
-            as: 'labTestPanelRequest',
+            model: LabPanelRequest,
+            as: 'labPanelRequest',
             required: true,
             where: { id },
           },
         ],
       };
-    case LabTestPanel.tableName:
+    case LabPanel.tableName:
       return {
         include: [
           {
-            model: LabTestPanelRequest,
-            as: 'labTestPanelRequest',
+            model: LabPanelRequest,
+            as: 'labPanelRequest',
             required: true,
             include: [
               {
-                model: LabTestPanel,
-                as: 'labTestPanel',
+                model: LabPanel,
+                as: 'labPanel',
                 required: true,
                 where: { id },
               },

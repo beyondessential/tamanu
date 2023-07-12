@@ -33,7 +33,7 @@ export const LabRequestsTable = React.memo(
           sortable: false,
         },
         { key: 'requestId', title: 'Test ID', accessor: getRequestId, sortable: false },
-        { key: 'labTestPanelName', title: 'Panel' },
+        { key: 'labPanelName', title: 'Panel' },
         { key: 'testCategory', title: 'Test category', accessor: getRequestType },
         { key: 'requestedDate', title: 'Requested at time', accessor: getDateWithTimeTooltip },
         publishedStatus

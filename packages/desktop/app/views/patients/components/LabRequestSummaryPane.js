@@ -70,7 +70,7 @@ const getColumns = type => [
           key: 'panelId',
           title: 'Panel',
           sortable: false,
-          accessor: ({ labTestPanelRequest }) => labTestPanelRequest?.labTestPanel?.name || 'N/A',
+          accessor: ({ labPanelRequest }) => labPanelRequest?.labPanel?.name || 'N/A',
         },
       ]
     : []),

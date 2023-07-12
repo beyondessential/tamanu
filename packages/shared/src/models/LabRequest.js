@@ -63,16 +63,16 @@ export class LabRequest extends Model {
       if (!labTestTypeIds.length) {
         throw new InvalidOperationError('A request must have at least one test');
       }
-      const { LabTest, LabTestPanelRequest, LabRequestLog } = this.sequelize.models;
-      const { labTest, labTestPanelId, userId, ...requestData } = data;
+      const { LabTest, LabPanelRequest, LabRequestLog } = this.sequelize.models;
+      const { labTest, labPanelId, userId, ...requestData } = data;
       let newLabRequest;
 
-      if (labTestPanelId) {
-        const { id: labTestPanelRequestId } = await LabTestPanelRequest.create({
+      if (labPanelId) {
+        const { id: labPanelRequestId } = await LabPanelRequest.create({
           encounterId: data.encounterId,
-          labTestPanelId,
+          labPanelId,
         });
-        newLabRequest = await this.create({ ...requestData, labTestPanelRequestId });
+        newLabRequest = await this.create({ ...requestData, labPanelRequestId });
       } else {
         newLabRequest = await this.create(requestData);
       }
@@ -144,9 +144,9 @@ export class LabRequest extends Model {
       as: 'specimenType',
     });
 
-    this.belongsTo(models.LabTestPanelRequest, {
-      foreignKey: 'labTestPanelRequestId',
-      as: 'labTestPanelRequest',
+    this.belongsTo(models.LabPanelRequest, {
+      foreignKey: 'labPanelRequestId',
+      as: 'labPanelRequest',
     });
 
     this.hasMany(models.LabTest, {
@@ -177,8 +177,8 @@ export class LabRequest extends Model {
       'priority',
       'laboratory',
       'site',
-      { association: 'labTestPanelRequest', include: ['labTestPanel'] },
-      { association: 'tests', include: ['labTestType'] },
+      { association: 'labPanelRequest', include: ['labPanel'] },
+      { association: 'tests', include: ['labType'] },
     ];
   }
 

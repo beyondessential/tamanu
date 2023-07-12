@@ -141,12 +141,12 @@ export function permissionLoader(item) {
     });
 }
 
-export function labTestPanelLoader(item) {
+export function labPanelLoader(item) {
   const { id, testTypesInPanel, ...otherFields } = item;
   const rows = [];
 
   rows.push({
-    model: 'LabTestPanel',
+    model: 'LabPanel',
     values: {
       id,
       ...otherFields,
@@ -158,10 +158,10 @@ export function labTestPanelLoader(item) {
     .map(t => t.trim())
     .forEach(testType => {
       rows.push({
-        model: 'LabTestPanelLabTestTypes',
+        model: 'LabPanelLabTestTypes',
         values: {
           id: `${id};${testType}`,
-          labTestPanelId: id,
+          labPanelId: id,
           labTestTypeId: testType,
         },
       });

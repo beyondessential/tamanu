@@ -169,9 +169,9 @@ export class Encounter extends Model {
       as: 'triages',
     });
 
-    this.hasMany(models.LabTestPanelRequest, {
+    this.hasMany(models.LabPanelRequest, {
       foreignKey: 'encounterId',
-      as: 'labTestPanelRequests',
+      as: 'labPanelRequests',
     });
 
     this.hasMany(models.DocumentMetadata, {

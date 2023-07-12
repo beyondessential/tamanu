@@ -38,14 +38,14 @@ const mockPanels = {
 };
 
 export const mockTestSelectorEndpoints = {
-  'suggestions/labTestPanel/all': () => [
+  'suggestions/labPanel/all': () => [
     { id: 'fruit', name: 'Fruit' },
     { id: 'vegetables', name: 'Vegetables' },
     { id: 'meat', name: 'Meat' },
     { id: 'baking', name: 'Baking' },
   ],
   'suggestions/labTestCategory/:query': () => Object.values(categories),
-  'labTestPanel/:id/labTestTypes': (_, id) => {
+  'labPanel/:id/labTestTypes': (_, id) => {
     return mockPanels[id] || [];
   },
 };

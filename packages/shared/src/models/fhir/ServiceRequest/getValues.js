@@ -218,9 +218,9 @@ function statusFromLabRequest(upstream) {
 }
 
 function labCode(upstream) {
-  const { labTestPanelRequest } = upstream;
-  if (!labTestPanelRequest) throw new Error('No lab test panel request specified.');
-  const { externalCode, name } = labTestPanelRequest.labTestPanel;
+  const { labPanelRequest } = upstream;
+  if (!labPanelRequest) throw new Error('No lab test panel request specified.');
+  const { externalCode, name } = labPanelRequest.labPanel;
   if (!externalCode) throw new Error('No external code specified for this lab test panel.');
 
   return new FhirCodeableConcept({

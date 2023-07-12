@@ -108,7 +108,7 @@ labRequest.get(
       makeFilter(filterParams.requestedById, 'lab_requests.requested_by_id = :requestedById'),
       makeFilter(filterParams.departmentId, 'lab_requests.department_id = :departmentId'),
       makeFilter(filterParams.locationGroupId, 'location.location_group_id = :locationGroupId'),
-      makeSimpleTextFilter('labTestPanelId', 'lab_test_panel.id'),
+      makeSimpleTextFilter('labPanelId', 'lab_panel.id'),
       makeFilter(
         filterParams.requestedDateFrom,
         'lab_requests.requested_date >= :requestedDateFrom',
@@ -203,7 +203,7 @@ labRequest.get(
       patientName: 'UPPER(patient.last_name)',
       requestId: 'display_id',
       testCategory: 'category.name',
-      labTestPanelName: 'lab_test_panel.id',
+      labPanelName: 'lab_panel.id',
       requestedDate: 'requested_date',
       requestedBy: 'examiner.display_name',
       priority: 'priority.name',
@@ -355,12 +355,12 @@ labTestType.get(
   }),
 );
 
-export const labTestPanel = express.Router();
+export const labPanel = express.Router();
 
-labTestPanel.get('/', async (req, res) => {
-  req.checkPermission('list', 'LabTestPanel');
+labPanel.get('/', async (req, res) => {
+  req.checkPermission('list', 'LabPanel');
   const { models } = req;
-  const response = await models.LabTestPanel.findAll({
+  const response = await models.LabPanel.findAll({
     include: [
       {
         model: models.ReferenceData,
@@ -374,15 +374,15 @@ labTestPanel.get('/', async (req, res) => {
   res.send(response);
 });
 
-labTestPanel.get('/:id', simpleGet('LabTestPanel'));
+labPanel.get('/:id', simpleGet('LabPanel'));
 
-labTestPanel.get(
+labPanel.get(
   '/:id/labTestTypes',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const panelId = params.id;
     req.checkPermission('list', 'LabTest');
-    const panel = await models.LabTestPanel.findByPk(panelId);
+    const panel = await models.LabPanel.findByPk(panelId);
     if (!panel) {
       throw new NotFoundError();
     }
@@ -401,7 +401,7 @@ labTestPanel.get(
 
 async function createPanelLabRequests(models, body, note, user) {
   const { panelIds, sampleDetails = {}, ...labRequestBody } = body;
-  const panels = await models.LabTestPanel.findAll({
+  const panels = await models.LabPanel.findAll({
     where: {
       id: panelIds,
     },
@@ -417,11 +417,11 @@ async function createPanelLabRequests(models, body, note, user) {
   const response = await Promise.all(
     panels.map(async panel => {
       const panelId = panel.id;
-      const testPanelRequest = await models.LabTestPanelRequest.create({
-        labTestPanelId: panelId,
+      const testPanelRequest = await models.LabPanelRequest.create({
+        labPanelId: panelId,
         encounterId: labRequestBody.encounterId,
       });
-      labRequestBody.labTestPanelRequestId = testPanelRequest.id;
+      labRequestBody.labPanelRequestId = testPanelRequest.id;
 
       const requestSampleDetails = sampleDetails[panelId] || {};
       const labTestTypeIds = panel.labTestTypes?.map(testType => testType.id) || [];

@@ -57,8 +57,8 @@ const useLabRequestFormTypeOptions = () => {
   const { onlyAllowLabPanels } = getLocalisation('features') || {};
 
   const { data, isSuccess, isLoading, isFetching } = useQuery(
-    ['suggestions/labTestPanel/all'],
-    () => api.get(`suggestions/labTestPanel/all`),
+    ['suggestions/labPanel/all'],
+    () => api.get(`suggestions/labPanel/all`),
   );
   const options =
     isSuccess && !isFetching

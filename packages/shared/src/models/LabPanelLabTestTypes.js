@@ -1,7 +1,7 @@
 import { SYNC_DIRECTIONS } from '../constants';
 import { Model } from './Model';
 
-export class LabTestPanelLabTestTypes extends Model {
+export class LabPanelLabTestTypes extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -12,9 +12,9 @@ export class LabTestPanelLabTestTypes extends Model {
   }
 
   static initRelations(models) {
-    this.belongsTo(models.LabTestPanel, {
-      foreignKey: 'labTestPanelId',
-      as: 'labTestPanel',
+    this.belongsTo(models.LabPanel, {
+      foreignKey: 'labPanelId',
+      as: 'labPanel',
     });
     this.belongsTo(models.LabTestType, {
       foreignKey: 'labTestTypeId',

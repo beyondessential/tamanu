@@ -13,7 +13,7 @@ import { BodyText } from '../../components/Typography';
 import { SelectableTestItem, TestItem } from './TestItem';
 
 const SELECTABLE_DATA_ENDPOINTS = {
-  [LAB_REQUEST_FORM_TYPES.PANEL]: 'labTestPanel',
+  [LAB_REQUEST_FORM_TYPES.PANEL]: 'labPanel',
   [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: 'labTestType',
 };
 

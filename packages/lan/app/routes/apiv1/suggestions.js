@@ -289,7 +289,7 @@ createSuggester('patientLabTestCategories', 'ReferenceData', (search, query) => 
 });
 
 // Specifically fetches lab panels that have a lab test against a patient
-createSuggester('patientLabTestPanelTypes', 'LabTestPanel', (search, query) => {
+createSuggester('patientLabPanelTypes', 'LabPanel', (search, query) => {
   const baseWhere = DEFAULT_WHERE_BUILDER(search);
   const status = query?.status || 'published';
 
@@ -302,10 +302,10 @@ createSuggester('patientLabTestPanelTypes', 'LabTestPanel', (search, query) => {
     id: {
       [Op.in]: Sequelize.literal(
         `(
-          SELECT DISTINCT(lab_test_panel_id)
-          FROM lab_test_panel_lab_test_types
+          SELECT DISTINCT(lab_panel_id)
+          FROM lab_panel_lab_test_types
           INNER JOIN
-            lab_test_types ON lab_test_types.id = lab_test_panel_lab_test_types.lab_test_type_id
+            lab_test_types ON lab_test_types.id = lab_panel_lab_test_types.lab_test_type_id
           INNER JOIN
             lab_tests ON lab_tests.lab_test_type_id = lab_test_types.id
           INNER JOIN
@@ -321,5 +321,5 @@ createSuggester('patientLabTestPanelTypes', 'LabTestPanel', (search, query) => {
 });
 
 // TODO: Use generic LabTest permissions for this suggester
-createAllRecordsSuggesterRoute('labTestPanel', 'LabTestPanel', VISIBILITY_CRITERIA);
-createNameSuggester('labTestPanel', 'LabTestPanel');
+createAllRecordsSuggesterRoute('labPanel', 'LabPanel', VISIBILITY_CRITERIA);
+createNameSuggester('labPanel', 'LabPanel');

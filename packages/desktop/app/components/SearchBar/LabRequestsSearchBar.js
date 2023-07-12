@@ -109,10 +109,10 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
           size="small"
         />
         <Field
-          name="labTestPanelId"
+          name="labPanelId"
           label="Panel"
           component={SuggesterSelectField}
-          endpoint="labTestPanel"
+          endpoint="labPanel"
           size="small"
         />
         <LocalisedField
