@@ -1,19 +1,17 @@
-import { expect } from 'chai';
-import sinon from 'sinon';
 import { getDisplayAge } from '../../src/utils/date';
 
 describe('date', () => {
   describe('getDisplayAge', () => {
-    let clock;
     const now = new Date('2023-07-11');
 
     beforeAll(() => {
-      // Create a fake timer using Sinon's `useFakeTimers` method
-      clock = sinon.useFakeTimers(now.getTime());
+      jest.resetModules();
+      jest.useFakeTimers();
+      jest.setSystemTime(now);
     });
 
     afterAll(() => {
-      clock.restore();
+      jest.useRealTimers();
     });
 
     const ageDisplayFormat = [
@@ -104,7 +102,7 @@ describe('date', () => {
     testCases.forEach(testCase => {
       it(`should display age '${testCase.expectedDisplayAge}' from date of birth '${testCase.dateOfBirth}'`, () => {
         const displayAge = getDisplayAge(testCase.dateOfBirth, ageDisplayFormat);
-        expect(displayAge).to.equal(testCase.expectedDisplayAge);
+        expect(displayAge).toEqual(testCase.expectedDisplayAge);
       });
     });
   });
