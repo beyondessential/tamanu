@@ -7,6 +7,7 @@ import {
   differenceInMonths,
   differenceInDays,
 } from 'date-fns';
+import { parseDate } from './dateTime';
 
 // NB: If you're trying to format a date as a string:
 // - if you're storing it or communicating with it, you should keep it as a
@@ -46,32 +47,35 @@ function compareDate(leftDate, operator, rightDate, exclusive) {
   return comparatorFn(leftDate, rightDate);
 }
 
-function birthDateIsWithinRange(birthDate, range) {
+function ageIsWithinRange(birthDate, range) {
   const { min = {}, max = {} } = range;
   const { duration: minDuration, exclusive: minExclusive } = min;
   const { duration: maxDuration, exclusive: maxExclusive } = max;
   const minDate = addDuration(birthDate, minDuration);
   const maxDate = addDuration(birthDate, maxDuration);
   const now = new Date();
-
   return (
     compareDate(minDate, '<', now, minExclusive) && compareDate(now, '<', maxDate, maxExclusive)
   );
 }
 
 /**
- * Display age in days, weeks, months or years */
+ * Display age in days, weeks, months or years
+ *
+ * @param {string} dateOfBirth
+ * @param {object} ageDisplayFormat
+ * @returns {string} age
+ * */
 export function getDisplayAge(dateOfBirth, ageDisplayFormat) {
   if (!ageDisplayFormat) {
     return '';
   }
 
   const ageDuration = getAgeDurationFromDate(dateOfBirth);
-  const birthDate = new Date(dateOfBirth);
-
+  const birthDate = parseDate(dateOfBirth);
   for (const displayFormat of ageDisplayFormat) {
     const { as, range } = displayFormat;
-    if (birthDateIsWithinRange(birthDate, range)) {
+    if (ageIsWithinRange(birthDate, range)) {
       const differenceFn = getDifferenceFnByUnit[as];
       const value = differenceFn(new Date(), birthDate);
 
