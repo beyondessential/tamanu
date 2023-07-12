@@ -125,6 +125,14 @@ describe('SurveyResponseAnswer', () => {
 
         return response;
       };
+
+      // Currently we don't have a way of accessing the central server config
+      // from facility server tests. This feature needs to read that config.
+      const mockLocalisation = { features: { enableVitalEdit: true } };
+      await models.UserLocalisationCache.create({
+        userId: app.user.id,
+        localisation: JSON.stringify(mockLocalisation),
+      });
     });
 
     it('should modify a survey response answer', async () => {
@@ -249,6 +257,35 @@ describe('SurveyResponseAnswer', () => {
       });
       expect(result).not.toHaveSucceeded();
       expect(result.status).toBe(404);
+    });
+
+    it('should return error if feature flag is off', async () => {
+      const localisationCache = await models.UserLocalisationCache.findOne({
+        where: {
+          userId: app.user.id,
+        },
+      });
+      await localisationCache.update({
+        localisation: JSON.stringify({ features: { enableVitalEdit: false } }),
+      });
+
+      const result = await app.put(`/v1/surveyResponseAnswer/vital/nonImportantID`).send({
+        reasonForChange: 'test5',
+        newValue: chance.integer({ min: 0, max: 100 }),
+      });
+      expect(result).not.toHaveSucceeded();
+      expect(result.status).toBe(422);
+    });
+
+    it('should return error if feature flag does not exist', async () => {
+      await models.UserLocalisationCache.truncate({ cascade: true });
+
+      const result = await app.put(`/v1/surveyResponseAnswer/vital/nonImportantID`).send({
+        reasonForChange: 'test5',
+        newValue: chance.integer({ min: 0, max: 100 }),
+      });
+      expect(result).not.toHaveSucceeded();
+      expect(result.status).toBe(422);
     });
   });
 });
