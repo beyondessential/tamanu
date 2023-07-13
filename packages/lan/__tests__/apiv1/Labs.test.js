@@ -1,17 +1,17 @@
-import { LAB_TEST_STATUSES, LAB_REQUEST_STATUSES } from 'shared/constants';
+import {
+  LAB_TEST_STATUSES,
+  LAB_REQUEST_STATUSES,
+  LAB_TEST_TYPE_VISIBILITY_STATUSES,
+} from '@tamanu/shared/constants';
 import config from 'config';
-import { createDummyPatient, createDummyEncounter, randomLabRequest } from 'shared/demoData';
+import {
+  createDummyPatient,
+  createDummyEncounter,
+  randomLabRequest,
+} from '@tamanu/shared/demoData';
 import { fake, chance } from 'shared/test-helpers';
+import { createLabTestTypes } from '@tamanu/shared/demoData/labRequests';
 import { createTestContext } from '../utilities';
-
-const VALID_LAB_REQUEST_STATUSES = [
-  LAB_REQUEST_STATUSES.RECEPTION_PENDING,
-  LAB_REQUEST_STATUSES.RESULTS_PENDING,
-  LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
-  LAB_REQUEST_STATUSES.VERIFIED,
-  LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
-  LAB_REQUEST_STATUSES.PUBLISHED,
-];
 
 describe('Labs', () => {
   let patientId = null;
@@ -39,13 +39,93 @@ describe('Labs', () => {
 
     const createdRequest = await models.LabRequest.findByPk(response.body[0].id);
     expect(createdRequest).toBeTruthy();
-    expect(createdRequest.status).toEqual(LAB_REQUEST_STATUSES.RECEPTION_PENDING);
+    expect(createdRequest.status).toEqual(LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
 
     const createdTests = await models.LabTest.findAll({
       where: { labRequestId: createdRequest.id },
     });
     expect(createdTests).toHaveLength(labRequest.labTestTypeIds.length);
-    expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.RECEPTION_PENDING));
+    expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
+
+    const createdLogs = await models.LabRequestLog.findAll({
+      where: { labRequestId: createdRequest.id },
+    });
+    expect(createdLogs).toHaveLength(1);
+    expect(createdLogs[0].status).toBe(LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
+  });
+
+  it('should record two lab requests with one test type each', async () => {
+    const categories = await models.ReferenceData.findAll({
+      where: {
+        type: 'labTestCategory',
+      },
+    });
+    const category1 = categories[0].id;
+    const category2 = categories[1].id;
+    const labRequest = await randomLabRequest(models, {
+      patientId,
+      categoryId: category1,
+    });
+    const labRequest2 = await randomLabRequest(models, {
+      patientId,
+      categoryId: category2,
+    });
+
+    const response = await app.post('/v1/labRequest').send({
+      ...labRequest,
+      labTestTypeIds: [...labRequest.labTestTypeIds, ...labRequest2.labTestTypeIds],
+    });
+    expect(response).toHaveSucceeded();
+
+    const requests = [labRequest, labRequest2];
+    for (let i = 0; i < requests.length; i++) {
+      const createdRequest = await models.LabRequest.findByPk(response.body[i].id);
+      expect(createdRequest).toBeTruthy();
+      expect(createdRequest.status).toEqual(LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
+
+      const createdTests = await models.LabTest.findAll({
+        where: { labRequestId: createdRequest.id },
+      });
+      expect(createdTests).toHaveLength(requests[i].labTestTypeIds.length);
+      expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
+
+      const createdLogs = await models.LabRequestLog.findAll({
+        where: { labRequestId: createdRequest.id },
+      });
+      expect(createdLogs).toHaveLength(1);
+      expect(createdLogs[0].status).toBe(LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
+    }
+  });
+
+  it('it should create one record only when the category is the same', async () => {
+    const categories = await models.ReferenceData.findAll({
+      where: {
+        type: 'labTestCategory',
+      },
+    });
+    const category1 = categories[0].id;
+    const labRequest = await randomLabRequest(models, {
+      patientId,
+      categoryId: category1,
+    });
+    const labRequest2 = await randomLabRequest(models, {
+      patientId,
+      categoryId: category1,
+    });
+    const labTestTypeIds = [...labRequest.labTestTypeIds, ...labRequest2.labTestTypeIds];
+    const response = await app.post('/v1/labRequest').send({
+      ...labRequest,
+      labTestTypeIds,
+    });
+    expect(response).toHaveSucceeded();
+    expect(response.body.length).toEqual(1);
+    const createdRequest = await models.LabRequest.findByPk(response.body[0].id);
+    expect(createdRequest).toBeTruthy();
+    expect(createdRequest.status).toEqual(LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
+    const createdTests = await models.LabTest.findAll({
+      where: { labRequestId: createdRequest.id },
+    });
+    expect(createdTests).toHaveLength(labTestTypeIds.length);
   });
 
   it('should record a lab request with a note', async () => {
@@ -59,12 +139,37 @@ describe('Labs', () => {
       note: {
         date: chance.date(),
         content,
-      }
+      },
     });
     expect(response).toHaveSucceeded();
 
     const labRequest = await models.LabRequest.findByPk(response.body[0].id, {
-      include: 'notePages'
+      include: 'notePages',
+    });
+    expect(labRequest).toBeTruthy();
+
+    expect(labRequest.notePages).toHaveLength(1);
+    const note = await labRequest.notePages[0].getNoteItems();
+    expect(note[0]).toHaveProperty('content', content);
+  });
+
+  it('should record a lab request with a note', async () => {
+    const data = await randomLabRequest(models, {
+      patientId,
+    });
+    const content = chance.string();
+
+    const response = await app.post('/v1/labRequest').send({
+      ...data,
+      note: {
+        date: chance.date(),
+        content,
+      },
+    });
+    expect(response).toHaveSucceeded();
+
+    const labRequest = await models.LabRequest.findByPk(response.body[0].id, {
+      include: 'notePages',
     });
     expect(labRequest).toBeTruthy();
 
@@ -74,22 +179,64 @@ describe('Labs', () => {
   });
 
   it('should record a lab request with a Lab Test Panel', async () => {
-    const LabTestPanel = await models.LabTestPanel.create({
+    const labTestPanel = await models.LabTestPanel.create({
       name: 'Demo test panel',
       code: 'demo-test-panel',
     });
+
+    const labTestTypes = await createTestTypesForPanel(models, labTestPanel);
+
     const encounter = await models.Encounter.create({
       ...(await createDummyEncounter(models)),
       patientId,
     });
 
-    const labRequest = await randomLabRequest(models, {
-      patientId,
-      labTestPanelId: LabTestPanel.id,
-    });
     const response = await app
       .post('/v1/labRequest')
-      .send({ ...labRequest, encounterId: encounter.id });
+      .send({ panelIds: [labTestPanel.id], encounterId: encounter.id });
+
+    expect(response).toHaveSucceeded();
+
+    const createdRequest = await models.LabRequest.findByPk(response.body[0].id);
+    expect(createdRequest).toBeTruthy();
+    expect(createdRequest.status).toEqual(LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
+
+    const createdTests = await models.LabTest.findAll({
+      where: { labRequestId: createdRequest.id },
+    });
+    expect(createdTests).toHaveLength(labTestTypes.length);
+    expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
+
+    const createdLogs = await models.LabRequestLog.findAll({
+      where: { labRequestId: createdRequest.id },
+    });
+    expect(createdLogs).toHaveLength(1);
+    expect(createdLogs[0].status).toBe(LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
+  });
+
+  it('should record samples for panels', async () => {
+    const labTestPanel = await models.LabTestPanel.create({
+      name: 'Demo test panel',
+      code: 'demo-test-panel',
+    });
+    const labTestTypes = await createTestTypesForPanel(models, labTestPanel);
+
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId,
+    });
+
+    const sampleTime = '2023-06-09 00:00:00';
+    const sampleDetails = {
+      [labTestPanel.id]: {
+        sampleTime,
+      },
+    };
+    const response = await app.post('/v1/labRequest').send({
+      panelIds: [labTestPanel.id],
+      encounterId: encounter.id,
+      sampleDetails,
+    });
     expect(response).toHaveSucceeded();
 
     const createdRequest = await models.LabRequest.findByPk(response.body[0].id);
@@ -99,8 +246,18 @@ describe('Labs', () => {
     const createdTests = await models.LabTest.findAll({
       where: { labRequestId: createdRequest.id },
     });
-    expect(createdTests).toHaveLength(labRequest.labTestTypeIds.length);
-    expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.RECEPTION_PENDING));
+    expect(createdTests).toHaveLength(labTestTypes.length);
+    expect(
+      createdTests.every(
+        x => x.status === LAB_REQUEST_STATUSES.RECEPTION_PENDING && x.sampleTime === sampleTime,
+      ),
+    );
+
+    const createdLogs = await models.LabRequestLog.findAll({
+      where: { labRequestId: createdRequest.id },
+    });
+    expect(createdLogs).toHaveLength(1);
+    expect(createdLogs[0].status).toBe(LAB_REQUEST_STATUSES.RECEPTION_PENDING);
   });
 
   it('should not record a lab request with an invalid testTypeId', async () => {
@@ -179,7 +336,61 @@ describe('Labs', () => {
     expect(labRequest).toHaveProperty('status', status);
   });
 
+  it('should not fetch lab test types directly from general labTestType get route when visibilityStatus set to "panelsOnly"', async () => {
+    const makeLabTestType = async visibilityStatus => {
+      const category = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: 'labTestCategory',
+      });
+      const { id } = category;
+
+      await models.LabTestType.create({
+        ...fake(models.LabTestType),
+        visibilityStatus,
+        labTestCategoryId: id,
+      });
+    };
+
+    await models.LabTestType.truncate({ cascade: true });
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
+
+    const result = await app.get('/v1/labTestType');
+    expect(result).toHaveSucceeded();
+    const { body } = result;
+    expect(body.length).toBe(3);
+    body.forEach(labTestType => {
+      expect(labTestType.visibilityStatus).not.toBe('panelsOnly');
+    });
+  });
+
+  it('should only retrieve panels with a visibilityStatus status of current', async () => {
+    await models.LabTestPanel.create({
+      name: 'Historical test panel',
+      code: 'historical-test-panel',
+      visibilityStatus: 'historical',
+    });
+    const result = await app.get('/v1/labTestPanel');
+    expect(result).toHaveSucceeded();
+    const { body } = result;
+
+    expect(body.every(panel => panel.visibilityStatus === 'current')).toBeTruthy();
+  });
+
   describe('Filtering by allFacilities', () => {
+    // These are the only statuses returned by the listing endpoint
+    // when no specific argument is included.
+    const VALID_LISTING_LAB_REQUEST_STATUSES = [
+      LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+      LAB_REQUEST_STATUSES.RESULTS_PENDING,
+      LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
+      LAB_REQUEST_STATUSES.VERIFIED,
+      LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
+    ];
     const otherFacilityId = 'kerang';
     const makeRequestAtFacility = async facilityId => {
       const location = await models.Location.create({
@@ -195,11 +406,14 @@ describe('Labs', () => {
         ...fake(models.LabRequest),
         encounterId: encounter.id,
         requestedById: app.user.id,
-        status: chance.pickone(VALID_LAB_REQUEST_STATUSES),
+        status: chance.pickone(VALID_LISTING_LAB_REQUEST_STATUSES),
       });
     };
 
     beforeAll(async () => {
+      // Because of the high number of lab requests
+      // the endpoint pagination doesn't return the expected results.
+      await models.LabRequest.truncate({ cascade: true, force: true });
       await makeRequestAtFacility(config.serverFacilityId);
       await makeRequestAtFacility(config.serverFacilityId);
       await makeRequestAtFacility(config.serverFacilityId);
@@ -230,3 +444,15 @@ describe('Labs', () => {
     });
   });
 });
+async function createTestTypesForPanel(models, labTestPanel) {
+  const labTestTypes = await createLabTestTypes(models);
+  await Promise.all(
+    labTestTypes.map(ltt =>
+      models.LabTestPanelLabTestTypes.create({
+        labTestPanelId: labTestPanel.id,
+        labTestTypeId: ltt.id,
+      }),
+    ),
+  );
+  return labTestTypes;
+}
