@@ -135,170 +135,180 @@ describe('SurveyResponseAnswer', () => {
       });
     });
 
-    it('should modify a survey response answer', async () => {
-      const response = await createNewVitalsSurveyResponse();
-      const answers = await response.getAnswers();
-      const singleAnswer = answers.find(answer => answer.dataElementId === dataElements[0].id);
-      const newValue = parseInt(singleAnswer.body, 10) + 1;
-      const result = await app.put(`/v1/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
-        reasonForChange: 'test',
-        newValue,
+    describe('write', () => {
+      it('should modify a survey response answer', async () => {
+        const response = await createNewVitalsSurveyResponse();
+        const answers = await response.getAnswers();
+        const singleAnswer = answers.find(answer => answer.dataElementId === dataElements[0].id);
+        const newValue = parseInt(singleAnswer.body, 10) + 1;
+        const result = await app.put(`/v1/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
+          reasonForChange: 'test',
+          newValue,
+        });
+        expect(result).toHaveSucceeded();
+        await singleAnswer.reload();
+        expect(singleAnswer.body).toEqual(String(newValue));
       });
-      expect(result).toHaveSucceeded();
-      await singleAnswer.reload();
-      expect(singleAnswer.body).toEqual(String(newValue));
+
+      it('should create a log on modification', async () => {
+        const response = await createNewVitalsSurveyResponse();
+        const answers = await response.getAnswers();
+        const singleAnswer = answers.find(answer => answer.dataElementId === dataElements[0].id);
+        const previousValue = singleAnswer.body;
+        const newValue = parseInt(previousValue, 10) + 1;
+        const reasonForChange = 'test2';
+        const result = await app.put(`/v1/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
+          reasonForChange,
+          newValue,
+        });
+        expect(result).toHaveSucceeded();
+
+        const log = await models.VitalLog.findOne({
+          where: { answerId: singleAnswer.id },
+          order: [['createdAt', 'DESC']],
+        });
+        expect(log.previousValue).toBe(previousValue);
+        expect(log.newValue).toBe(String(newValue));
+        expect(log.reasonForChange).toBe(reasonForChange);
+      });
+
+      it('should update calculated questions accordingly', async () => {
+        const response = await createNewVitalsSurveyResponse();
+        const answers = await response.getAnswers();
+
+        // This answer is used in a calculated value
+        const usedAnswer = answers.find(answer => answer.dataElementId === dataElements[1].id);
+        const calculatedAnswer = answers.find(
+          answer => answer.dataElementId === dataElements[2].id,
+        );
+        const previousValue = calculatedAnswer.body;
+        const newValue = parseInt(usedAnswer.body, 10) + 1;
+        const newCalculatedValue = (newValue + 1).toFixed(1);
+        const reasonForChange = 'test3';
+
+        const result = await app.put(`/v1/surveyResponseAnswer/vital/${usedAnswer.id}`).send({
+          reasonForChange,
+          newValue,
+        });
+        expect(result).toHaveSucceeded();
+        await calculatedAnswer.reload();
+        const log = await models.VitalLog.findOne({
+          where: { answerId: calculatedAnswer.id },
+          order: [['createdAt', 'DESC']],
+        });
+        expect(calculatedAnswer.body).toBe(newCalculatedValue);
+        expect(log.previousValue).toBe(previousValue);
+        expect(log.newValue).toBe(newCalculatedValue);
+        expect(log.reasonForChange).toBe(reasonForChange);
+      });
+
+      it('should only modify answers from survey vitals', async () => {
+        const {
+          Survey,
+          SurveyResponse,
+          SurveyScreenComponent,
+          ProgramDataElement,
+          Patient,
+          Encounter,
+        } = models;
+        const survey = await Survey.create({
+          ...fake(Survey),
+          surveyType: SURVEY_TYPES.PROGRAMS,
+        });
+        const pde = await ProgramDataElement.create({
+          ...fake(ProgramDataElement),
+          type: PROGRAM_DATA_ELEMENT_TYPES.TEXT,
+        });
+        await SurveyScreenComponent.create({
+          ...fake(SurveyScreenComponent),
+          dataElementId: pde.id,
+          surveyId: survey.id,
+          calculation: '',
+        });
+
+        const randomPatient = await Patient.findOne();
+        const randomEncounter = await Encounter.findOne({ where: { patientId: randomPatient.id } });
+        const data = {
+          patientId: randomPatient.id,
+          encounterId: randomEncounter.id,
+          surveyId: survey.id,
+          answers: {
+            [pde.id]: chance.string(),
+          },
+        };
+        const response = await SurveyResponse.sequelize.transaction(() =>
+          SurveyResponse.createWithAnswers(data),
+        );
+        const answers = await response.getAnswers();
+        const singleAnswer = answers.find(answer => answer.dataElementId === pde.id);
+        const result = await app.put(`/v1/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
+          reasonForChange: 'test4',
+          newValue: chance.string(),
+        });
+        expect(result).not.toHaveSucceeded();
+        expect(result.status).toBe(404);
+      });
+
+      it('should only modify answers that are not calculated questions', async () => {
+        const response = await createNewVitalsSurveyResponse();
+        const answers = await response.getAnswers();
+        const calculatedAnswer = answers.find(
+          answer => answer.dataElementId === dataElements[2].id,
+        );
+
+        const result = await app.put(`/v1/surveyResponseAnswer/vital/${calculatedAnswer.id}`).send({
+          reasonForChange: 'test5',
+          newValue: chance.integer({ min: 0, max: 100 }),
+        });
+        expect(result).not.toHaveSucceeded();
+        expect(result.status).toBe(404);
+      });
+
+      it('should reject editing if new value is the same as previous value', async () => {
+        const response = await createNewVitalsSurveyResponse();
+        const answers = await response.getAnswers();
+        const singleAnswer = answers.find(answer => answer.dataElementId === dataElements[0].id);
+        const newValue = singleAnswer.body;
+        const result = await app.put(`/v1/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
+          reasonForChange: 'test',
+          newValue,
+        });
+        expect(result).not.toHaveSucceeded();
+        expect(result.status).toBe(422);
+      });
+
+      it('should return error if feature flag is off', async () => {
+        const localisationCache = await models.UserLocalisationCache.findOne({
+          where: {
+            userId: app.user.id,
+          },
+        });
+        await localisationCache.update({
+          localisation: JSON.stringify({ features: { enableVitalEdit: false } }),
+        });
+
+        const result = await app.put(`/v1/surveyResponseAnswer/vital/nonImportantID`).send({
+          reasonForChange: 'test5',
+          newValue: chance.integer({ min: 0, max: 100 }),
+        });
+        expect(result).not.toHaveSucceeded();
+        expect(result.status).toBe(422);
+      });
+
+      it('should return error if feature flag does not exist', async () => {
+        await models.UserLocalisationCache.truncate({ cascade: true });
+
+        const result = await app.put(`/v1/surveyResponseAnswer/vital/nonImportantID`).send({
+          reasonForChange: 'test5',
+          newValue: chance.integer({ min: 0, max: 100 }),
+        });
+        expect(result).not.toHaveSucceeded();
+        expect(result.status).toBe(422);
+      });
     });
 
-    it('should create a log on modification', async () => {
-      const response = await createNewVitalsSurveyResponse();
-      const answers = await response.getAnswers();
-      const singleAnswer = answers.find(answer => answer.dataElementId === dataElements[0].id);
-      const previousValue = singleAnswer.body;
-      const newValue = parseInt(previousValue, 10) + 1;
-      const reasonForChange = 'test2';
-      const result = await app.put(`/v1/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
-        reasonForChange,
-        newValue,
-      });
-      expect(result).toHaveSucceeded();
-
-      const log = await models.VitalLog.findOne({
-        where: { answerId: singleAnswer.id },
-        order: [['createdAt', 'DESC']],
-      });
-      expect(log.previousValue).toBe(previousValue);
-      expect(log.newValue).toBe(String(newValue));
-      expect(log.reasonForChange).toBe(reasonForChange);
-    });
-
-    it('should update calculated questions accordingly', async () => {
-      const response = await createNewVitalsSurveyResponse();
-      const answers = await response.getAnswers();
-
-      // This answer is used in a calculated value
-      const usedAnswer = answers.find(answer => answer.dataElementId === dataElements[1].id);
-      const calculatedAnswer = answers.find(answer => answer.dataElementId === dataElements[2].id);
-      const previousValue = calculatedAnswer.body;
-      const newValue = parseInt(usedAnswer.body, 10) + 1;
-      const newCalculatedValue = (newValue + 1).toFixed(1);
-      const reasonForChange = 'test3';
-
-      const result = await app.put(`/v1/surveyResponseAnswer/vital/${usedAnswer.id}`).send({
-        reasonForChange,
-        newValue,
-      });
-      expect(result).toHaveSucceeded();
-      await calculatedAnswer.reload();
-      const log = await models.VitalLog.findOne({
-        where: { answerId: calculatedAnswer.id },
-        order: [['createdAt', 'DESC']],
-      });
-      expect(calculatedAnswer.body).toBe(newCalculatedValue);
-      expect(log.previousValue).toBe(previousValue);
-      expect(log.newValue).toBe(newCalculatedValue);
-      expect(log.reasonForChange).toBe(reasonForChange);
-    });
-
-    it('should only modify answers from survey vitals', async () => {
-      const {
-        Survey,
-        SurveyResponse,
-        SurveyScreenComponent,
-        ProgramDataElement,
-        Patient,
-        Encounter,
-      } = models;
-      const survey = await Survey.create({
-        ...fake(Survey),
-        surveyType: SURVEY_TYPES.PROGRAMS,
-      });
-      const pde = await ProgramDataElement.create({
-        ...fake(ProgramDataElement),
-        type: PROGRAM_DATA_ELEMENT_TYPES.TEXT,
-      });
-      await SurveyScreenComponent.create({
-        ...fake(SurveyScreenComponent),
-        dataElementId: pde.id,
-        surveyId: survey.id,
-        calculation: '',
-      });
-
-      const randomPatient = await Patient.findOne();
-      const randomEncounter = await Encounter.findOne({ where: { patientId: randomPatient.id } });
-      const data = {
-        patientId: randomPatient.id,
-        encounterId: randomEncounter.id,
-        surveyId: survey.id,
-        answers: {
-          [pde.id]: chance.string(),
-        },
-      };
-      const response = await SurveyResponse.sequelize.transaction(() =>
-        SurveyResponse.createWithAnswers(data),
-      );
-      const answers = await response.getAnswers();
-      const singleAnswer = answers.find(answer => answer.dataElementId === pde.id);
-      const result = await app.put(`/v1/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
-        reasonForChange: 'test4',
-        newValue: chance.string(),
-      });
-      expect(result).not.toHaveSucceeded();
-      expect(result.status).toBe(404);
-    });
-
-    it('should only modify answers that are not calculated questions', async () => {
-      const response = await createNewVitalsSurveyResponse();
-      const answers = await response.getAnswers();
-      const calculatedAnswer = answers.find(answer => answer.dataElementId === dataElements[2].id);
-
-      const result = await app.put(`/v1/surveyResponseAnswer/vital/${calculatedAnswer.id}`).send({
-        reasonForChange: 'test5',
-        newValue: chance.integer({ min: 0, max: 100 }),
-      });
-      expect(result).not.toHaveSucceeded();
-      expect(result.status).toBe(404);
-    });
-
-    it('should reject editing if new value is the same as previous value', async () => {
-      const response = await createNewVitalsSurveyResponse();
-      const answers = await response.getAnswers();
-      const singleAnswer = answers.find(answer => answer.dataElementId === dataElements[0].id);
-      const newValue = singleAnswer.body;
-      const result = await app.put(`/v1/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
-        reasonForChange: 'test',
-        newValue,
-      });
-      expect(result).not.toHaveSucceeded();
-      expect(result.status).toBe(422);
-    });
-
-    it('should return error if feature flag is off', async () => {
-      const localisationCache = await models.UserLocalisationCache.findOne({
-        where: {
-          userId: app.user.id,
-        },
-      });
-      await localisationCache.update({
-        localisation: JSON.stringify({ features: { enableVitalEdit: false } }),
-      });
-
-      const result = await app.put(`/v1/surveyResponseAnswer/vital/nonImportantID`).send({
-        reasonForChange: 'test5',
-        newValue: chance.integer({ min: 0, max: 100 }),
-      });
-      expect(result).not.toHaveSucceeded();
-      expect(result.status).toBe(422);
-    });
-
-    it('should return error if feature flag does not exist', async () => {
-      await models.UserLocalisationCache.truncate({ cascade: true });
-
-      const result = await app.put(`/v1/surveyResponseAnswer/vital/nonImportantID`).send({
-        reasonForChange: 'test5',
-        newValue: chance.integer({ min: 0, max: 100 }),
-      });
-      expect(result).not.toHaveSucceeded();
-      expect(result.status).toBe(422);
+    describe('create', () => {
+      test.todo('should create a survey response answer');
     });
   });
 });
