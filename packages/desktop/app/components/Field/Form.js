@@ -3,10 +3,11 @@ import { Formik, useFormikContext } from 'formik';
 import PropTypes from 'prop-types';
 import { ValidationError } from 'yup';
 import { Typography } from '@material-ui/core';
+import styled from 'styled-components';
+
 import { flattenObject } from '../../utils';
 import { Dialog } from '../Dialog';
 import { FORM_STATUSES, FORM_TYPES } from '../../constants';
-import styled from 'styled-components';
 
 const ErrorMessage = ({ error }) => `${JSON.stringify(error)}`;
 

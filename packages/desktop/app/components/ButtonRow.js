@@ -30,10 +30,6 @@ export const ButtonRow = React.memo(({ children, ...props }) => (
   </Row>
 ));
 
-const ConfirmButton = styled(Button)`
-  min-width: 90px;
-`;
-
 export const ConfirmCancelRow = React.memo(
   ({
     onCancel,

@@ -22,7 +22,7 @@ import {
   RadioField,
   formatShort,
 } from '../../components';
-import { DropdownButton, FormSubmitDropdownButton } from '../../components/DropdownButton';
+import { FormSubmitDropdownButton } from '../../components/DropdownButton';
 import { Colors } from '../../constants';
 import { saveExcelFile } from '../../utils/saveExcelFile';
 import { EmailField, parseEmails } from './EmailField';
