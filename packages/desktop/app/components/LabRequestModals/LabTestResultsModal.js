@@ -53,7 +53,12 @@ const getColumns = len => [
     key: 'result',
     title: 'Result',
     accessor: (row, i) => (
-      <AccessorField component={TextField} name="result" id={row.id} tabIndex={i + 1} />
+      <AccessorField
+        component={TextField}
+        name="result"
+        id={row.id}
+        tabIndex={getTableTabIndex(0, i, len)}
+      />
     ),
   },
   {
@@ -65,18 +70,21 @@ const getColumns = len => [
   {
     key: 'method',
     title: 'Method',
-    accessor: (row, i) => (
-      <AccessorField
-        id={row.id}
-        component={SelectField}
-        name="method"
-        tabIndex={getTableTabIndex(1, i, len)}
-        options={[
-          { value: 'manual', label: 'Manual' },
-          { value: 'machine', label: 'Machine' },
-        ]}
-      />
-    ),
+    accessor: (row, i) => {
+      const isFirstRow = i === 0;
+      return (
+        <AccessorField
+          id={row.id}
+          component={SelectField}
+          name="method"
+          tabIndex={getTableTabIndex(1, i, len)}
+          options={[
+            { value: 'manual', label: 'Manual' },
+            { value: 'machine', label: 'Machine' },
+          ]}
+        />
+      );
+    },
   },
   {
     key: 'verification',
@@ -105,7 +113,7 @@ const getColumns = len => [
   },
 ];
 
-export const LabTestResultsForm = ({ labTestResults, onClose }) => {
+export const LabTestResultsForm = ({ labTestResults, onClose, values }) => {
   return (
     <>
       <Box display="flex" justifyContent="space-between">
