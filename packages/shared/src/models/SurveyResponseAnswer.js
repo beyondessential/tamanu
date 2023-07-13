@@ -3,6 +3,9 @@ import { upperFirst } from 'lodash';
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '../constants';
 import { Model } from './Model';
+import { InvalidOperationError } from '../errors';
+import { runCalculations } from '../utils/calculations';
+import { getStringValue } from '../utils/fields';
 
 export class SurveyResponseAnswer extends Model {
   static init({ primaryKey, ...options }) {
@@ -77,4 +80,76 @@ export class SurveyResponseAnswer extends Model {
     }
     return record.id;
   };
+
+  // To be called after creating/updating a vitals survey response answer. Checks if
+  // said answer is used in calculated questions and updates them accordingly.
+  async upsertCalculatedQuestions(data) {
+    if (!this.sequelize.isInsideTransaction()) {
+      throw new Error('upsertCalculatedQuestions must always run inside a transaction!');
+    }
+    const { models } = this.sequelize;
+    const surveyResponse = await this.getSurveyResponse();
+    const vitalsSurvey = await models.Survey.getVitalsSurvey();
+    const isVitalSurvey = surveyResponse.surveyId === vitalsSurvey?.id;
+    if (isVitalSurvey === false) {
+      throw new InvalidOperationError(
+        'upsertCalculatedQuestions must only be called with vitals answers',
+      );
+    }
+
+    const screenComponents = await models.SurveyScreenComponent.getComponentsForSurvey(
+      surveyResponse.surveyId,
+    );
+    const calculatedScreenComponents = screenComponents.filter(c => c.calculation);
+    const updatedAnswerDataElement = await this.getProgramDataElement();
+
+    let answers;
+    let calculatedValues;
+    for (const component of calculatedScreenComponents) {
+      if (component.calculation.includes(updatedAnswerDataElement.code) === false) {
+        continue;
+      }
+
+      // Grab answers only once
+      if (!calculatedValues) {
+        const response = await models.SurveyResponse.findByPk(surveyResponse.id, {
+          include: [
+            {
+              required: true,
+              model: models.SurveyResponseAnswer,
+              as: 'answers',
+            },
+          ],
+        });
+        answers = response.answers;
+        const values = {};
+        answers.forEach(answer => {
+          values[answer.dataElementId] = answer.body;
+        });
+        calculatedValues = runCalculations(screenComponents, values);
+      }
+
+      // Modify survey response answer for calculated value and create log
+      const calculatedAnswer = answers.find(
+        answer => answer.dataElementId === component.dataElement.id,
+      );
+      if (!calculatedAnswer) continue;
+
+      const stringValue = getStringValue(
+        component.dataElement.type,
+        calculatedValues[component.dataElement.id],
+      );
+      const newCalculatedValue = stringValue ?? '';
+      await models.VitalLog.create({
+        date: data.date,
+        reasonForChange: data.reasonForChange,
+        previousValue: calculatedAnswer.body,
+        newValue: newCalculatedValue,
+        recordedById: data.user.id,
+        answerId: calculatedAnswer.id,
+      });
+      await calculatedAnswer.update({ body: newCalculatedValue });
+    }
+    return this;
+  }
 }
