@@ -32,7 +32,7 @@ async function listReport(options) {
   const definition = await store.models.ReportDefinition.findOne({
     where: { name },
   });
-  if (!definition) throw new Error('No definition found by that name');
+  if (!definition) throw new Error(`No definition found with name=${name}`);
   const versions = await definition.getVersions();
   await importActions.listVersions(definition, versions, store);
   process.exit(0);
