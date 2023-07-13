@@ -127,6 +127,7 @@ export class SurveyResponseAnswer extends Model {
       const existingCalculatedAnswer = answers.find(
         answer => answer.dataElementId === component.dataElement.id,
       );
+      const previousCalculatedValue = existingCalculatedAnswer?.body;
       let newCalculatedAnswer;
       if (existingCalculatedAnswer) {
         await existingCalculatedAnswer.update({ body: newCalculatedValue });
@@ -142,7 +143,7 @@ export class SurveyResponseAnswer extends Model {
       await models.VitalLog.create({
         date,
         reasonForChange,
-        previousValue: existingCalculatedAnswer?.body || null,
+        previousValue: previousCalculatedValue || null,
         newValue: newCalculatedValue,
         recordedById: user.id,
         answerId: existingCalculatedAnswer?.id || newCalculatedAnswer.id,
