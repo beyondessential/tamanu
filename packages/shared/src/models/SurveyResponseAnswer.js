@@ -97,6 +97,7 @@ export class SurveyResponseAnswer extends Model {
       );
     }
 
+    // Get necessary info and data shapes for running calculations
     const screenComponents = await models.SurveyScreenComponent.getComponentsForSurvey(
       surveyResponse.surveyId,
     );
@@ -108,6 +109,7 @@ export class SurveyResponseAnswer extends Model {
       values[answer.dataElementId] = answer.body;
     });
     const calculatedValues = runCalculations(screenComponents, values);
+
     for (const component of calculatedScreenComponents) {
       if (component.calculation.includes(updatedAnswerDataElement.code) === false) {
         continue;
@@ -124,12 +126,13 @@ export class SurveyResponseAnswer extends Model {
         calculatedValues[component.dataElement.id],
       );
       const newCalculatedValue = stringValue ?? '';
+      const { date, reasonForChange, user } = data;
       await models.VitalLog.create({
-        date: data.date,
-        reasonForChange: data.reasonForChange,
+        date,
+        reasonForChange,
         previousValue: calculatedAnswer.body,
         newValue: newCalculatedValue,
-        recordedById: data.user.id,
+        recordedById: user.id,
         answerId: calculatedAnswer.id,
       });
       await calculatedAnswer.update({ body: newCalculatedValue });
