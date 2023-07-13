@@ -177,7 +177,7 @@ surveyResponseAnswer.post(
       newAnswer = await models.SurveyResponseAnswer.create({
         dataElementId,
         body: newValue,
-        responseId: responseObject.id,
+        responseId: responseObject[0].id,
       });
       await VitalLog.create({
         date,
