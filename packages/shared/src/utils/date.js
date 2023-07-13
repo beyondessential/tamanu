@@ -7,7 +7,7 @@ import {
   differenceInMonths,
   differenceInDays,
 } from 'date-fns';
-import { parseDate } from './dateTime';
+import { isISOString, parseDate } from './dateTime';
 
 // NB: If you're trying to format a date as a string:
 // - if you're storing it or communicating with it, you should keep it as a
@@ -67,7 +67,7 @@ function ageIsWithinRange(birthDate, range) {
  * @returns {string} age
  * */
 export function getDisplayAge(dateOfBirth, ageDisplayFormat) {
-  if (!ageDisplayFormat) {
+  if (!ageDisplayFormat || !isISOString(dateOfBirth)) {
     return '';
   }
 
