@@ -242,6 +242,7 @@ describe('User', () => {
             await createDummyEncounter(models, {
               patientId: p.id,
               encounterType: 'admission',
+              current: true,
             }),
           );
 
@@ -258,7 +259,6 @@ describe('User', () => {
 
       const result = await app.get('/v1/user/recently-viewed-patients?encounterType=admission');
       expect(result).toHaveSucceeded();
-
       // orders should match
       const resultIds = result.body.data.map(x => x.id);
       const sourceIds = patientsToView.map(x => x.id).reverse();
