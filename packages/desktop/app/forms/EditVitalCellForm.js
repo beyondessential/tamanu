@@ -107,7 +107,13 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
       if (key === valueName) newShapeData.newValue = value;
       else newShapeData[key] = value;
     });
-    await api.put(`surveyResponseAnswer/vital/${dataPoint.answerId}`, newShapeData);
+
+    // The survey response answer might not exist
+    if (dataPoint.answerId) {
+      await api.put(`surveyResponseAnswer/vital/${dataPoint.answerId}`, newShapeData);
+    } else {
+      await api.post(`surveyResponseAnswer/vital/${dataPoint.recordedDate}`, newShapeData);
+    }
     queryClient.invalidateQueries(['encounterVitals', encounter.id]);
     handleClose();
   };
