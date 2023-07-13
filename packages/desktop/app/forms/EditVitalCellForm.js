@@ -112,7 +112,12 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
     if (dataPoint.answerId) {
       await api.put(`surveyResponseAnswer/vital/${dataPoint.answerId}`, newShapeData);
     } else {
-      await api.post(`surveyResponseAnswer/vital/${dataPoint.recordedDate}`, newShapeData);
+      const newVitalData = {
+        ...newShapeData,
+        dataElementId: valueName,
+        encounterId: encounter.id,
+      };
+      await api.post(`surveyResponseAnswer/vital/${dataPoint.recordedDate}`, newVitalData);
     }
     queryClient.invalidateQueries(['encounterVitals', encounter.id]);
     handleClose();
@@ -120,7 +125,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
   const validateFn = values => {
     const errors = {};
     if (values[valueName] === initialValue) {
-      errors[valueName] = 'New value cannot be the same as previous value.';
+      //errors[valueName] = 'New value cannot be the same as previous value.';
     }
     return errors;
   };
