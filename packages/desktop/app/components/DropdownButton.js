@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
-import { useFormikContext } from 'formik';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import {
   Button as MuiButton,
@@ -18,6 +17,7 @@ import { Colors } from '../constants';
 import { Button } from './Button';
 import { withPermissionCheck } from './withPermissionCheck';
 import { withPermissionTooltip } from './withPermissionTooltip';
+import { useFormButtonSubmitting } from '../hooks/useFormButtonSubmitting';
 
 const Container = styled.div`
   position: relative;
@@ -198,7 +198,7 @@ export const DropdownButton = React.memo(
 );
 
 export const FormSubmitDropdownButton = ({ ...props }) => {
-  const { isSubmitting } = useFormikContext();
+  const isSubmitting = useFormButtonSubmitting();
   return <DropdownButton isSubmitting={isSubmitting} {...props} />;
 };
 

@@ -6,6 +6,7 @@ import { Typography } from '@material-ui/core';
 import { flattenObject } from '../../utils';
 import { Dialog } from '../Dialog';
 import { FORM_STATUSES, FORM_TYPES } from '../../constants';
+import styled from 'styled-components';
 
 const ErrorMessage = ({ error }) => `${JSON.stringify(error)}`;
 
@@ -33,6 +34,17 @@ const ScrollToError = () => {
   }, [submitting]);
   return null;
 };
+
+const StyledForm = styled.form`
+  ${props =>
+    props.$fieldPointerEvents
+      ? `
+      .MuiFormControl-root {
+        pointer-events: ${props.$fieldPointerEvents};
+      }
+    `
+      : ''}
+`;
 
 export class Form extends React.PureComponent {
   constructor() {
@@ -176,7 +188,12 @@ export class Form extends React.PureComponent {
 
     return (
       <>
-        <form style={style} onSubmit={submitForm} noValidate>
+        <StyledForm
+          style={style}
+          onSubmit={submitForm}
+          noValidate
+          $fieldPointerEvents={isSubmitting ? 'none' : ''}
+        >
           {render({
             ...formProps,
             setValues,
@@ -185,7 +202,7 @@ export class Form extends React.PureComponent {
             submitForm,
             clearForm: () => formProps.resetForm({}),
           })}
-        </form>
+        </StyledForm>
         <ScrollToError />
       </>
     );

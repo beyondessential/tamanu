@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { red } from '@material-ui/core/colors';
-import { useFormikContext } from 'formik';
 import {
   IconButton,
   Button as MuiButton,
@@ -20,6 +19,7 @@ import {
 import { Colors } from '../constants';
 import { withPermissionCheck } from './withPermissionCheck';
 import { withPermissionTooltip } from './withPermissionTooltip';
+import { useFormButtonSubmitting } from '../hooks/useFormButtonSubmitting';
 
 export const ButtonBase = props => {
   const locationsProps = getLocationProps(props);
@@ -187,9 +187,10 @@ export const FormSubmitButton = ({
   onSubmit,
   ...props
 }) => {
-  const { isSubmitting } = useFormikContext();
+  const isSubmitting = useFormButtonSubmitting();
+
   return (
-    <Button color={color} onClick={onSubmit} isSubmitting {...props}>
+    <Button color={color} onClick={onSubmit} isSubmitting={isSubmitting} {...props}>
       {children || text}
     </Button>
   );
