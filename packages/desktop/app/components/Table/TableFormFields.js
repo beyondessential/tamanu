@@ -40,7 +40,7 @@ const StyledTableDataCell = styled(TableCell)`
 /*
 Component created to display form fields shaped as a table.
 This component borrows heavily from the Table component but
-utilizes a fixed layout, provides a way to specify column widths 
+utilizes a fixed layout, provides a way to specify column widths
 and removes extra functionality (download, sort, etc.).
 
 This component doesn't provide any extra functionality to handle
@@ -50,8 +50,8 @@ In order to properly manage form state and fields you should use
 Formik's Field component and provide a special naming scheme to avoid
 namespace collisions.
 */
-export const TableFormFields = React.memo(({ columns, data }) => (
-  <StyledFixedTable>
+export const TableFormFields = React.memo(({ columns, data, className }) => (
+  <StyledFixedTable className={className}>
     <StyledTableHead>
       <TableRow>
         {columns.map(({ key, title, width }) => (
