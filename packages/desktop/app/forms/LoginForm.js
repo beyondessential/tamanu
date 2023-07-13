@@ -8,13 +8,14 @@ import {
   CheckField,
   Field,
   Form,
+  FormSubmitButton,
   MinusIconButton,
   PlusIconButton,
   TextField,
 } from '../components';
 import { ServerDetectingField } from '../components/Field/ServerDetectingField';
 
-const LoginButton = styled(Button)`
+const LoginButton = styled(FormSubmitButton)`
   font-size: 16px;
   line-height: 18px;
   padding-top: 16px;

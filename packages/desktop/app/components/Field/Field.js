@@ -27,7 +27,7 @@ export const Field = formikConnect(
     const error = submitStatus === FORM_STATUSES.SUBMIT_ATTEMPTED && !!getIn(errors, name);
     const message = error ? getIn(errors, name) : helperText;
 
-    const { setFieldTouched } = useFormikContext();
+    const { setFieldTouched, isSubmitting } = useFormikContext();
     const [field] = useField(name);
 
     const baseOnChange = (...args) => {
@@ -50,6 +50,7 @@ export const Field = formikConnect(
         helperText={message}
         name={name}
         onChange={combinedOnChange}
+        disabled={isSubmitting}
       />
     );
   },

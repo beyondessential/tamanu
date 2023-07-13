@@ -1,9 +1,10 @@
 import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
+import { useFormikContext } from 'formik';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import {
-  Button,
+  Button as MuiButton,
   ButtonGroup,
   ClickAwayListener,
   Paper,
@@ -12,7 +13,9 @@ import {
   MenuList as MuiMenuList,
 } from '@material-ui/core';
 import LockIcon from '@material-ui/icons/Lock';
+
 import { Colors } from '../constants';
+import { Button } from './Button';
 import { withPermissionCheck } from './withPermissionCheck';
 import { withPermissionTooltip } from './withPermissionTooltip';
 
@@ -59,7 +62,7 @@ const MainButton = styled(Button)`
   }
 `;
 
-const MenuButton = styled(Button)`
+const MenuButton = styled(MuiButton)`
   padding: 9px 7px 9px 0;
   border-radius: 3px;
 
@@ -116,7 +119,7 @@ const MenuList = styled(MuiMenuList)`
 `;
 
 export const DropdownButton = React.memo(
-  ({ variant, size, actions, style, className, hasPermission = true }) => {
+  ({ variant, size, actions, style, className, hasPermission = true, isSubmitting }) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const anchorRef = useRef(null);
 
@@ -144,6 +147,7 @@ export const DropdownButton = React.memo(
           disableElevation
           style={{ borderColor: Colors.primary }}
           onClick={event => handleClick(event, 0)}
+          isSubmitting={isSubmitting}
         >
           {!hasPermission && <LockIcon />}
           {mainAction.label}
@@ -161,9 +165,9 @@ export const DropdownButton = React.memo(
           color="primary"
           disableElevation
           style={{ width: '100%' }}
-          disabled={!hasPermission}
+          disabled={!hasPermission || isSubmitting}
         >
-          <MainButton onClick={event => handleClick(event, 0)}>
+          <MainButton onClick={event => handleClick(event, 0)} isSubmitting={isSubmitting}>
             {!hasPermission && <LockIcon />}
             {mainAction.label}
           </MainButton>
@@ -192,6 +196,11 @@ export const DropdownButton = React.memo(
     );
   },
 );
+
+export const FormSubmitDropdownButton = ({ ...props }) => {
+  const { isSubmitting } = useFormikContext();
+  return <DropdownButton isSubmitting={isSubmitting} {...props} />;
+};
 
 DropdownButton.propTypes = {
   actions: PropTypes.arrayOf(

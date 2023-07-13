@@ -6,7 +6,7 @@ import { Button, Box } from '@material-ui/core';
 import { NOTE_TYPES } from '@tamanu/shared/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi } from '../api';
-import { Form, Field, TextField, DateDisplay } from '../components';
+import { Form, Field, TextField, DateDisplay, FormSubmitButton } from '../components';
 
 const Container = styled.div`
   display: flex;
@@ -46,7 +46,7 @@ const NotesInput = styled(Field)`
   }
 `;
 
-const TextButton = styled(Button)`
+const TextButton = styled(FormSubmitButton)`
   font-weight: 500;
   font-size: 12px;
   line-height: 15px;

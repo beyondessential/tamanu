@@ -28,7 +28,7 @@ import { OutlinedButton } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
-import { DropdownButton } from '../components/DropdownButton';
+import { FormSubmitDropdownButton } from '../components/DropdownButton';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type).label;
@@ -71,7 +71,7 @@ const FormSubmitActionDropdown = React.memo(({ requestId, encounter, submitForm 
     { label: 'Finalise & print', onClick: finaliseAndPrint },
   ];
 
-  return <DropdownButton actions={actions} />;
+  return <FormSubmitDropdownButton actions={actions} />;
 });
 
 export const ImagingRequestForm = React.memo(

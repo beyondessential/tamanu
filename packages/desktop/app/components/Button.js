@@ -3,11 +3,12 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { red } from '@material-ui/core/colors';
+import { useFormikContext } from 'formik';
 import {
-  Icon,
   IconButton,
   Button as MuiButton,
   ButtonBase as MuiButtonBase,
+  CircularProgress,
 } from '@material-ui/core';
 import {
   AddBoxOutlined,
@@ -32,6 +33,7 @@ const StyledButton = styled(MuiButton)`
   text-transform: none;
   padding: 11px 18px 12px 18px;
   box-shadow: none;
+  min-width: 100px;
 
   .MuiSvgIcon-root {
     width: 19.5px;
@@ -49,7 +51,18 @@ const StyledButton = styled(MuiButton)`
   }
 `;
 
-export const Button = ({ children, isSubmitting, disabled, hasPermission = true, ...props }) => {
+const StyledCircularProgress = styled(CircularProgress)`
+  margin-right: 5px;
+`;
+
+export const Button = ({
+  children,
+  isSubmitting,
+  disabled,
+  hasPermission = true,
+  loadingColor = Colors.white,
+  ...props
+}) => {
   const locationsProps = getLocationProps(props);
   const displayLock = !isSubmitting && !hasPermission;
   return (
@@ -58,11 +71,9 @@ export const Button = ({ children, isSubmitting, disabled, hasPermission = true,
       {...locationsProps}
       disabled={disabled || isSubmitting || !hasPermission}
     >
-      {isSubmitting && (
-        <Icon className="fa fa-spinner fa-spin" style={{ marginRight: 4, fontSize: 18 }} />
-      )}
+      {isSubmitting && <StyledCircularProgress color={loadingColor} size={25} />}
       {displayLock && <Lock />}
-      {children}
+      {!isSubmitting && children}
     </StyledButton>
   );
 };
@@ -96,21 +107,6 @@ export const GreyOutlinedButton = styled(props => <StyledButton {...props} />)`
   border: 1px solid #dedede;
   color: ${props => props.theme.palette.text.secondary};
 `;
-
-const StyledLargeButton = styled(StyledButton)`
-  font-size: 15px;
-  line-height: 18px;
-  padding: 12px 25px;
-  border: 1px solid ${props => props.theme.palette.primary.main};
-`;
-
-export const LargeButton = props => (
-  <StyledLargeButton variant="contained" color="primary" {...props} />
-);
-
-export const LargeOutlineButton = props => (
-  <StyledLargeButton variant="outlined" color="primary" {...props} />
-);
 
 const StyledDeleteButton = styled(Button)`
   background: ${red[600]};
@@ -182,6 +178,43 @@ export const RefreshIconButton = ({ ...props }) => (
   <IconButton color="primary" {...props}>
     <Refresh fontSize="inherit" />
   </IconButton>
+);
+
+export const FormSubmitButton = ({
+  children,
+  text = 'Confirm',
+  color = 'primary',
+  onSubmit,
+  ...props
+}) => {
+  const { isSubmitting } = useFormikContext();
+  return (
+    <Button color={color} onClick={onSubmit} isSubmitting {...props}>
+      {children || text}
+    </Button>
+  );
+};
+
+export const StyledPrimarySubmitButton = styled(FormSubmitButton)`
+  font-size: 16px;
+  line-height: 18px;
+  padding-top: 16px;
+  padding-bottom: 16px;
+`;
+
+const StyledLargeSubmitButton = styled(FormSubmitButton)`
+  font-size: 15px;
+  line-height: 18px;
+  padding: 12px 25px;
+  border: 1px solid ${props => props.theme.palette.primary.main};
+`;
+
+export const LargeSubmitButton = props => (
+  <StyledLargeSubmitButton variant="contained" color="primary" {...props} />
+);
+
+export const LargeOutlinedSubmitButton = props => (
+  <StyledLargeSubmitButton variant="outlined" color="primary" {...props} />
 );
 
 const getLocationProps = ({ to }) => {

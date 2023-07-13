@@ -3,15 +3,16 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import Collapse from '@material-ui/core/Collapse';
 import { FormGrid } from '../components/FormGrid';
-import { Button, Field, Form, MinusIconButton, PlusIconButton, TextField } from '../components';
+import {
+  Button,
+  Field,
+  Form,
+  MinusIconButton,
+  PlusIconButton,
+  TextField,
+  StyledPrimarySubmitButton,
+} from '../components';
 import { ServerDetectingField, getSavedServer } from '../components/Field/ServerDetectingField';
-
-const PrimaryButton = styled(Button)`
-  font-size: 16px;
-  line-height: 18px;
-  padding-top: 16px;
-  padding-bottom: 16px;
-`;
 
 const AdvancedRow = styled.div`
   display: flex;
@@ -74,7 +75,7 @@ export const ResetPasswordForm = React.memo(
             setFieldValue={setFieldValue}
           />
         </Collapse>
-        <PrimaryButton type="submit">Reset Password</PrimaryButton>
+        <StyledPrimarySubmitButton type="submit">Reset Password</StyledPrimarySubmitButton>
         <Button onClick={onNavToLogin} color="default" variant="text">
           Back
         </Button>
@@ -92,14 +93,14 @@ export const ResetPasswordForm = React.memo(
             <strong>{resetPasswordEmail}</strong>
             . If you do not receive this email within a few minutes please try again.
           </SuccessMessage>
-          <PrimaryButton
+          <StyledPrimarySubmitButton
             fullWidth
             variant="contained"
             color="primary"
             onClick={onNavToChangePassword}
           >
             Continue
-          </PrimaryButton>
+          </StyledPrimarySubmitButton>
           <Button onClick={onRestartFlow}>Resend password reset email</Button>
           <Button onClick={onNavToLogin}>Back</Button>
         </FormGrid>

@@ -9,7 +9,7 @@ import {
   SelectField,
   AutocompleteField,
   TextField,
-  Button,
+  FormSubmitButton,
   FormGrid,
   LocalisedField,
   DateTimeField,
@@ -90,9 +90,9 @@ export const EncounterForm = React.memo(
             style={{ gridColumn: 'span 2' }}
           />
           <div style={{ gridColumn: 2, textAlign: 'right' }}>
-            <Button variant="contained" onClick={submitForm} color="primary">
+            <FormSubmitButton variant="contained" onSubmit={submitForm} color="primary">
               {buttonText}
-            </Button>
+            </FormSubmitButton>
           </div>
         </FormGrid>
       );

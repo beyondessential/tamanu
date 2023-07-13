@@ -9,7 +9,7 @@ import { FileChooserField, FILTER_IMAGES } from '../../components/Field/FileChoo
 import { ContentPane } from '../../components/ContentPane';
 import { FormGrid } from '../../components/FormGrid';
 import { ButtonRow } from '../../components/ButtonRow';
-import { LargeButton } from '../../components/Button';
+import { LargeSubmitButton } from '../../components/Button';
 import { AdminViewContainer } from './components/AdminViewContainer';
 
 const ResultDisplay = ({ result }) => {
@@ -87,7 +87,7 @@ export const AssetUploaderView = memo(() => {
                 required
               />
               <ButtonRow>
-                <LargeButton
+                <LargeSubmitButton
                   disabled={isSubmitting}
                   size="large"
                   onClick={event => {
@@ -95,7 +95,7 @@ export const AssetUploaderView = memo(() => {
                   }}
                 >
                   Import
-                </LargeButton>
+                </LargeSubmitButton>
               </ButtonRow>
               <ResultDisplay result={result} />
             </FormGrid>

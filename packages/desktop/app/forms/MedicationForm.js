@@ -5,7 +5,7 @@ import { Box } from '@material-ui/core';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import { PrintPrescriptionModal } from '../components/PatientPrinting';
-import { DropdownButton } from '../components/DropdownButton';
+import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import {
   FormGrid,
   Button,
@@ -18,6 +18,7 @@ import {
   NumberField,
   DateField,
   DateDisplay,
+  FormSubmitButton,
 } from '../components';
 
 const drugRouteOptions = [
@@ -268,7 +269,7 @@ export const MedicationForm = React.memo(
                     Cancel
                   </Button>
                   {shouldDiscontinue ? (
-                    <Button
+                    <FormSubmitButton
                       color="primary"
                       onClick={data => {
                         setAwaitingPrint(false);
@@ -276,9 +277,9 @@ export const MedicationForm = React.memo(
                       }}
                     >
                       Finalise
-                    </Button>
+                    </FormSubmitButton>
                   ) : (
-                    <DropdownButton
+                    <FormSubmitDropdownButton
                       actions={[
                         {
                           label: 'Finalise',

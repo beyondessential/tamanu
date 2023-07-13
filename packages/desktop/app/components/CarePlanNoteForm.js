@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi, useSuggester } from '../api';
 import { Colors } from '../constants';
-import { Button } from './Button';
+import { Button, FormSubmitButton } from './Button';
 import { ButtonRow } from './ButtonRow';
 import { Form, Field, TextField, DateTimeField, AutocompleteField } from './Field';
 import { FormGrid } from './FormGrid';
@@ -80,9 +80,9 @@ export function CarePlanNoteForm({
             ) : (
               <div />
             )}
-            <Button variant="outlined" color="primary" type="submit">
+            <FormSubmitButton variant="outlined" color="primary" type="submit">
               {note ? 'Save' : 'Add Note'}
-            </Button>
+            </FormSubmitButton>
           </ButtonRow>
         </>
       )}

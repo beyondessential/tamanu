@@ -10,7 +10,7 @@ import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMult
 import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { Table } from '../../../components/Table';
-import { LargeButton, LargeOutlineButton } from '../../../components/Button';
+import { LargeSubmitButton, LargeOutlinedSubmitButton } from '../../../components/Button';
 
 const ColorText = styled.span`
   color: ${props => props.color};
@@ -71,7 +71,7 @@ const ImportForm = ({ isSubmitting, submitForm, dataTypes, dataTypesSelectable }
       />
     )}
     <ButtonRow>
-      <LargeOutlineButton
+      <LargeOutlinedSubmitButton
         disabled={isSubmitting}
         size="large"
         onClick={event => {
@@ -79,8 +79,8 @@ const ImportForm = ({ isSubmitting, submitForm, dataTypes, dataTypesSelectable }
         }}
       >
         Test import
-      </LargeOutlineButton>
-      <LargeButton
+      </LargeOutlinedSubmitButton>
+      <LargeSubmitButton
         disabled={isSubmitting}
         size="large"
         onClick={event => {
@@ -88,7 +88,7 @@ const ImportForm = ({ isSubmitting, submitForm, dataTypes, dataTypesSelectable }
         }}
       >
         Import
-      </LargeButton>
+      </LargeSubmitButton>
     </ButtonRow>
   </FormGrid>
 );

@@ -26,7 +26,7 @@ import { useApi, useSuggester, usePatientSuggester } from '../api';
 import { getPatientDetailsValidation } from '../validations';
 import {
   AutocompleteField,
-  Button,
+  FormSubmitButton,
   ButtonRow,
   DateField,
   DisplayIdField,
@@ -423,9 +423,9 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
             fieldValues={fieldValuesResponse?.data}
           />
           <ButtonRow>
-            <Button variant="contained" color="primary" onClick={submitForm}>
+            <FormSubmitButton variant="contained" color="primary" onClick={submitForm}>
               Save
-            </Button>
+            </FormSubmitButton>
           </ButtonRow>
         </>
       )}

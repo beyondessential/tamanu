@@ -10,7 +10,7 @@ import { isInvoiceEditable } from '../utils';
 
 import { Form, Field, RadioField, DateField, TextField, NumberField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { Button, TextButton } from '../components/Button';
+import { Button, FormSubmitButton, TextButton } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { Modal } from '../components/Modal';
@@ -133,9 +133,9 @@ export const InvoiceDetailForm = ({
                   </Button>
                 </>
               ) : null}
-              <Button variant="contained" onClick={submitForm} color="primary">
+              <FormSubmitButton variant="contained" onClick={submitForm} color="primary">
                 Save
-              </Button>
+              </FormSubmitButton>
             </ButtonRow>
           </FormGrid>
         )}

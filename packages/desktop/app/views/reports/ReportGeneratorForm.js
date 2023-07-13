@@ -22,7 +22,7 @@ import {
   RadioField,
   formatShort,
 } from '../../components';
-import { DropdownButton } from '../../components/DropdownButton';
+import { DropdownButton, FormSubmitDropdownButton } from '../../components/DropdownButton';
 import { Colors } from '../../constants';
 import { saveExcelFile } from '../../utils/saveExcelFile';
 import { EmailField, parseEmails } from './EmailField';
@@ -295,7 +295,7 @@ export const ReportGeneratorForm = () => {
             </Alert>
           )}
           <Box display="flex" justifyContent="flex-end">
-            <DropdownButton
+            <FormSubmitDropdownButton
               size="large"
               actions={[
                 {
