@@ -475,7 +475,21 @@ const rootLocalisationSchema = yup
                 exclusive: yup.boolean(),
               }),
             })
-            .required(),
+            .required()
+            .test({
+              name: 'ageDisplayFormat',
+              test(range, ctx) {
+                if (!range.min && !range.max) {
+                  return ctx.createError({
+                    message: `range in ageDisplayFormat must include either min or max, or both, got ${JSON.stringify(
+                      range,
+                    )}`,
+                  });
+                }
+
+                return true;
+              },
+            }),
         }),
       )
       .required(),
