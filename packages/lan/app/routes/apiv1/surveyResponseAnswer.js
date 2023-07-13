@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
-import { NotFoundError, InvalidOperationError } from 'shared/errors';
+import { NotFoundError, InvalidOperationError, InvalidParameterError } from 'shared/errors';
 import { SURVEY_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
 import { runCalculations } from 'shared/utils/calculations';
 import { getStringValue } from 'shared/utils/fields';
@@ -51,6 +51,9 @@ surveyResponseAnswer.put(
       ],
     });
     if (!answerObject) throw new NotFoundError();
+    if (answerObject.body === req.body.newValue) {
+      throw new InvalidParameterError('New value is the same as previous value.');
+    }
 
     const screenComponents = await SurveyScreenComponent.getComponentsForSurvey(
       answerObject.surveyResponse.survey.id,
