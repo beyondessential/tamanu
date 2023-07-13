@@ -36,6 +36,7 @@ jobs:
     name: Version
     needs: run
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v2
         with:
@@ -45,5 +46,11 @@ jobs:
         with:
           result-encoding: string
           script: return require('./package.json').version;
+
+      # if the workflow fails, we're most likely on a workflow from a deleted
+      # branch from a merged PR, so version info is meaningless.
+      - if: failure()
+        id: fallback
+        run: echo "result=" >> $GITHUB_OUTPUT
     outputs:
-      version: ${{ steps.version.outputs.result }}
+      version: ${{ steps.version.outputs.result || steps.fallback.outputs.result }}

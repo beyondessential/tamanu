@@ -83,6 +83,9 @@ Button.defaultProps = {
 
 const StyledOutlinedButton = styled(StyledButton)`
   border-color: ${props => props.theme.palette.primary.main};
+  :disabled {
+    border-color: ${Colors.softText};
+  }
 `;
 
 export const OutlinedButton = props => (
