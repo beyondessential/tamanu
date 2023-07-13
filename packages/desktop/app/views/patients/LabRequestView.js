@@ -131,7 +131,6 @@ export const LabRequestView = () => {
   const canWriteLabTest = ability?.can('write', 'LabTest');
   const canWriteLabTestResult = ability?.can('write', 'LabTestResult');
 
-
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
   const areLabTestsReadOnly = !canWriteLabTest || isHidden;

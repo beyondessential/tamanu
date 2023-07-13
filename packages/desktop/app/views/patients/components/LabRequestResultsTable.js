@@ -31,20 +31,13 @@ const ManualLabResultModal = React.memo(
       return <LabTestResultModal labTestId={labTest?.id} onClose={onClose} open={open} />;
     }
 
-  return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      title={`Enter result – ${labTest && labTest.labTestType.name} | Test ID ${labRequest &&
-        labRequest.displayId}`}
-      cornerExitButton={false}
-    >
-      <ManualLabResultForm
-        labTest={labTest}
-        onSubmit={onSubmit}
+    return (
+      <Modal
+        open={open}
         onClose={onClose}
         title={`Enter result – ${labTest && labTest.labTestType.name} | Test ID ${labRequest &&
           labRequest.displayId}`}
+        cornerExitButton={false}
       >
         <ManualLabResultForm
           labTest={labTest}
