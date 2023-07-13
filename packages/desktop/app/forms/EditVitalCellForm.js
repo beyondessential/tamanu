@@ -86,7 +86,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
   const { encounter } = useEncounter();
   const { getLocalisation } = useLocalisation();
   const vitalEditReasons = getLocalisation('vitalEditReasons') || [];
-  const mandatoryVitalEditReason = getLocalisation('mandatoryVitalEditReason');
+  const mandatoryVitalEditReason = getLocalisation('features.mandatoryVitalEditReason');
   const initialValue = dataPoint.value;
   const showDeleteEntryButton = ['', undefined].includes(initialValue) === false;
   const valueName = dataPoint.component.dataElement.id;
