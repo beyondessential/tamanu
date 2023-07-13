@@ -137,7 +137,7 @@ export async function createTestContext() {
   await seedLocationGroups(models);
 
   // Create the facility for the current config if it doesn't exist
-  await models.Facility.findOrCreate({
+  const [facility] = await models.Facility.findOrCreate({
     where: {
       id: config.serverFacilityId,
     },
@@ -146,6 +146,9 @@ export async function createTestContext() {
       name: 'Test Facility',
     },
   });
+
+  // ensure there's a corresponding local system fact for it too
+  await models.LocalSystemFact.set('facilityId', facility.id);
 
   const expressApp = createApp(dbResult);
   const appServer = http.createServer(expressApp);
