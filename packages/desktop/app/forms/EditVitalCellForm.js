@@ -111,12 +111,20 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
     queryClient.invalidateQueries(['encounterVitals', encounter.id]);
     handleClose();
   };
+  const validateFn = values => {
+    const errors = {};
+    if (values[valueName] === initialValue) {
+      errors[valueName] = 'New value cannot be the same as previous value.';
+    }
+    return errors;
+  };
 
   return (
     <Form
       onSubmit={handleSubmit}
       validationSchema={validationSchema}
       initialValues={{ [valueName]: initialValue }}
+      validate={validateFn}
       render={({ setFieldValue, submitForm }) => (
         <FormGrid columns={4}>
           <SurveyQuestion component={dataPoint.component} disabled={isDeleted} />
