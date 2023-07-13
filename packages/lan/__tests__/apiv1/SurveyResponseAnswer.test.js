@@ -259,6 +259,19 @@ describe('SurveyResponseAnswer', () => {
       expect(result.status).toBe(404);
     });
 
+    it('should reject editing if new value is the same as previous value', async () => {
+      const response = await createNewVitalsSurveyResponse();
+      const answers = await response.getAnswers();
+      const singleAnswer = answers.find(answer => answer.dataElementId === dataElements[0].id);
+      const newValue = singleAnswer.body;
+      const result = await app.put(`/v1/surveyResponseAnswer/vital/${singleAnswer.id}`).send({
+        reasonForChange: 'test',
+        newValue,
+      });
+      expect(result).not.toHaveSucceeded();
+      expect(result.status).toBe(422);
+    });
+
     it('should return error if feature flag is off', async () => {
       const localisationCache = await models.UserLocalisationCache.findOne({
         where: {
