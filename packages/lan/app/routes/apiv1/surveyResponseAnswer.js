@@ -124,6 +124,7 @@ surveyResponseAnswer.post(
         recordedById: user.id,
         answerId: newAnswer.id,
       });
+      await newAnswer.upsertCalculatedQuestions({ date, reasonForChange, user });
     });
 
     res.send(newAnswer);
