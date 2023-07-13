@@ -17,22 +17,31 @@ const Template = args => (
       'labTestType/:labRequestId/tests': () => {
         return [
           {
+            id: 1,
             testType: {
               name: 'HGB',
               unit: 'g/dL',
             },
           },
           {
+            id: 2,
             testType: {
               name: 'PLT',
               unit: 'x10^3/uL',
+            },
+          },
+          {
+            id: 3,
+            testType: {
+              name: 'MCH',
+              unit: 'pg',
             },
           },
         ];
       },
     }}
   >
-    <LabTestResultsModal {...args} open />;
+    <LabTestResultsModal {...args} open onClose={() => {}} />
   </MockedApi>
 );
 

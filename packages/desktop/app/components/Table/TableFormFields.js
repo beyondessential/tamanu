@@ -65,7 +65,7 @@ export const TableFormFields = React.memo(({ columns, data, className }) => (
       {data.map((rowData, i) => (
         <TableRow key={rowData.id || i}>
           {columns.map(({ key, accessor }) => (
-            <StyledTableDataCell key={key}>{accessor(rowData)}</StyledTableDataCell>
+            <StyledTableDataCell key={key}>{accessor(rowData, i)}</StyledTableDataCell>
           ))}
         </TableRow>
       ))}
