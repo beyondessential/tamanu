@@ -124,14 +124,14 @@ export class SurveyResponseAnswer extends Model {
 
       // Check if the calculated answer was created or not. It might've been missed
       // if no values used in its calculation were registered the first time.
-      const calculatedAnswer = answers.find(
+      const existingCalculatedAnswer = answers.find(
         answer => answer.dataElementId === component.dataElement.id,
       );
-      let calculatedAnswerId;
-      if (calculatedAnswer) {
-        await calculatedAnswer.update({ body: newCalculatedValue });
+      let newCalculatedAnswer;
+      if (existingCalculatedAnswer) {
+        await existingCalculatedAnswer.update({ body: newCalculatedValue });
       } else {
-        calculatedAnswerId = await models.SurveyResponseAnswer.create({
+        newCalculatedAnswer = await models.SurveyResponseAnswer.create({
           dataElementId: component.dataElement.id,
           body: newCalculatedValue,
           responseId: surveyResponse.id,
@@ -142,10 +142,10 @@ export class SurveyResponseAnswer extends Model {
       await models.VitalLog.create({
         date,
         reasonForChange,
-        previousValue: calculatedAnswer?.body || null,
+        previousValue: existingCalculatedAnswer?.body || null,
         newValue: newCalculatedValue,
         recordedById: user.id,
-        answerId: calculatedAnswerId,
+        answerId: newCalculatedAnswer.id,
       });
     }
     return this;
