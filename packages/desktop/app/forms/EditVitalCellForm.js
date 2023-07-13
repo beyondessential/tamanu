@@ -126,7 +126,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
   const validateFn = values => {
     const errors = {};
     if (values[valueName] === initialValue) {
-      //errors[valueName] = 'New value cannot be the same as previous value.';
+      errors[valueName] = 'New value cannot be the same as previous value.';
     }
     return errors;
   };
