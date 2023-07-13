@@ -1,10 +1,7 @@
 import config from 'config';
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData';
-import { findOneOrCreate } from 'shared/test-helpers';
-import Chance from 'chance';
+import { findOneOrCreate, chance } from 'shared/test-helpers';
 import { createTestContext } from '../utilities';
-
-const chance = new Chance();
 
 let baseApp = null;
 let models = null;

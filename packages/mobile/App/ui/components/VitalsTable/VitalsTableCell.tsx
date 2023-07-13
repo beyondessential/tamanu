@@ -3,6 +3,7 @@ import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { ISurveyResponseAnswer, SurveyScreenConfig } from '~/types';
+import { RequiredIndicator } from '../RequiredIndicator';
 
 interface VitalsTableCellProps {
   data?: ISurveyResponseAnswer;
@@ -40,12 +41,9 @@ export const VitalsTableCell = ({
         {cellValue}
       </StyledText>
       {needsAttention && (
-        <StyledText
+        <RequiredIndicator
           marginLeft={screenPercentageToDP(0.4, Orientation.Width)}
-          color={theme.colors.ALERT}
-        >
-          *
-        </StyledText>
+        />
       )}
     </StyledView>
   );

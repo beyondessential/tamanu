@@ -38,6 +38,12 @@ export const practitioner = [
   { verb: 'write', noun: 'LabTest' },
   { verb: 'create', noun: 'LabTest' },
 
+  { verb: 'list', noun: 'LabTestType' },
+  { verb: 'read', noun: 'LabTestType' },
+
+  { verb: 'list', noun: 'LabTestPanel' },
+  { verb: 'read', noun: 'LabTestPanel' },
+
   { verb: 'read', noun: 'Encounter' },
   { verb: 'list', noun: 'Encounter' },
   { verb: 'create', noun: 'Encounter' },
