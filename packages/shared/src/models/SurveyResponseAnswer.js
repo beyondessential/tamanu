@@ -145,7 +145,7 @@ export class SurveyResponseAnswer extends Model {
         previousValue: existingCalculatedAnswer?.body || null,
         newValue: newCalculatedValue,
         recordedById: user.id,
-        answerId: newCalculatedAnswer.id,
+        answerId: existingCalculatedAnswer?.id || newCalculatedAnswer.id,
       });
     }
     return this;
