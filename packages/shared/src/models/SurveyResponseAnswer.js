@@ -102,31 +102,15 @@ export class SurveyResponseAnswer extends Model {
     );
     const calculatedScreenComponents = screenComponents.filter(c => c.calculation);
     const updatedAnswerDataElement = await this.getProgramDataElement();
-
-    let answers;
-    let calculatedValues;
+    const answers = await surveyResponse.getAnswers();
+    const values = {};
+    answers.forEach(answer => {
+      values[answer.dataElementId] = answer.body;
+    });
+    const calculatedValues = runCalculations(screenComponents, values);
     for (const component of calculatedScreenComponents) {
       if (component.calculation.includes(updatedAnswerDataElement.code) === false) {
         continue;
-      }
-
-      // Grab answers only once
-      if (!calculatedValues) {
-        const response = await models.SurveyResponse.findByPk(surveyResponse.id, {
-          include: [
-            {
-              required: true,
-              model: models.SurveyResponseAnswer,
-              as: 'answers',
-            },
-          ],
-        });
-        answers = response.answers;
-        const values = {};
-        answers.forEach(answer => {
-          values[answer.dataElementId] = answer.body;
-        });
-        calculatedValues = runCalculations(screenComponents, values);
       }
 
       // Modify survey response answer for calculated value and create log
