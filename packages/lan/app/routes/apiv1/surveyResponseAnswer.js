@@ -125,3 +125,70 @@ surveyResponseAnswer.put(
     res.send(answerObject);
   }),
 );
+
+surveyResponseAnswer.post(
+  '/vital/:dateRecorded',
+  asyncHandler(async (req, res) => {
+    const { db, models, user, params, getLocalisation } = req;
+    const { SurveyResponseAnswer, SurveyResponse, Survey, VitalLog, ProgramDataElement } = models;
+    const { dateRecorded } = params;
+    req.checkPermission('create', 'Vitals');
+
+    // Even though this wouldn't technically be editing a vital
+    // we will not allow the creation of a single vital answer if its not enabled
+    const localisation = await getLocalisation();
+    if (!localisation?.features?.enableVitalEdit) {
+      throw new InvalidOperationError('Editing vitals is disabled.');
+    }
+
+    // Ensure data element exists and it's not a calculated question
+    const dataElement = await ProgramDataElement.findOne({ where: { id: req.body.dataElementId } });
+    if (!dataElement || dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED) {
+      throw new InvalidOperationError('Invalid data element.');
+    }
+
+    const responseObject = await SurveyResponse.findAll({
+      where: {
+        encounterId: req.body.encounterId,
+      },
+      include: [
+        {
+          required: true,
+          model: Survey,
+          as: 'survey',
+          where: { surveyType: SURVEY_TYPES.VITALS },
+        },
+        {
+          required: true,
+          model: SurveyResponseAnswer,
+          as: 'answers',
+          where: { body: dateRecorded },
+        },
+      ],
+    });
+    // Can't do magic here, it's impossible to tell where
+    // it should be created without guessing.
+    if (responseObject.length !== 1) {
+      throw new InvalidOperationError('Unable to complete action, please contact support.');
+    }
+
+    let newAnswer;
+    await db.transaction(async () => {
+      const { newValue = '', reasonForChange, date, dataElementId } = req.body;
+      newAnswer = await models.SurveyResponseAnswer.create({
+        dataElementId,
+        body: newValue,
+        responseId: responseObject.id,
+      });
+      await VitalLog.create({
+        date,
+        reasonForChange,
+        newValue,
+        recordedById: user.id,
+        answerId: newAnswer.id,
+      });
+    });
+
+    res.send(newAnswer);
+  }),
+);
