@@ -116,8 +116,9 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
         ...newShapeData,
         dataElementId: valueName,
         encounterId: encounter.id,
+        recordedDate: dataPoint.recordedDate,
       };
-      await api.post(`surveyResponseAnswer/vital/${dataPoint.recordedDate}`, newVitalData);
+      await api.post('surveyResponseAnswer/vital', newVitalData);
     }
     queryClient.invalidateQueries(['encounterVitals', encounter.id]);
     handleClose();

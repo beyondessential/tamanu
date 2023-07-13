@@ -127,11 +127,10 @@ surveyResponseAnswer.put(
 );
 
 surveyResponseAnswer.post(
-  '/vital/:dateRecorded',
+  '/vital',
   asyncHandler(async (req, res) => {
-    const { db, models, user, params, getLocalisation } = req;
+    const { db, models, user, getLocalisation } = req;
     const { SurveyResponseAnswer, SurveyResponse, Survey, VitalLog, ProgramDataElement } = models;
-    const { dateRecorded } = params;
     req.checkPermission('create', 'Vitals');
 
     // Even though this wouldn't technically be editing a vital
@@ -162,7 +161,7 @@ surveyResponseAnswer.post(
           required: true,
           model: SurveyResponseAnswer,
           as: 'answers',
-          where: { body: dateRecorded },
+          where: { body: req.body.recordedDate },
         },
       ],
     });
