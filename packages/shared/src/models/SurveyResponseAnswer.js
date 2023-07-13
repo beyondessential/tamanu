@@ -115,27 +115,38 @@ export class SurveyResponseAnswer extends Model {
         continue;
       }
 
-      // Modify survey response answer for calculated value and create log
-      const calculatedAnswer = answers.find(
-        answer => answer.dataElementId === component.dataElement.id,
-      );
-      if (!calculatedAnswer) continue;
-
+      // Sanitize value
       const stringValue = getStringValue(
         component.dataElement.type,
         calculatedValues[component.dataElement.id],
       );
       const newCalculatedValue = stringValue ?? '';
+
+      // Check if the calculated answer was created or not. It might've been missed
+      // if no values used in its calculation were registered the first time.
+      const calculatedAnswer = answers.find(
+        answer => answer.dataElementId === component.dataElement.id,
+      );
+      let calculatedAnswerId;
+      if (calculatedAnswer) {
+        await calculatedAnswer.update({ body: newCalculatedValue });
+      } else {
+        calculatedAnswerId = await models.SurveyResponseAnswer.create({
+          dataElementId: component.dataElement.id,
+          body: newCalculatedValue,
+          responseId: surveyResponse.id,
+        });
+      }
+
       const { date, reasonForChange, user } = data;
       await models.VitalLog.create({
         date,
         reasonForChange,
-        previousValue: calculatedAnswer.body,
+        previousValue: calculatedAnswer?.body || null,
         newValue: newCalculatedValue,
         recordedById: user.id,
-        answerId: calculatedAnswer.id,
+        answerId: calculatedAnswerId,
       });
-      await calculatedAnswer.update({ body: newCalculatedValue });
     }
     return this;
   }
