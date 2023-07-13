@@ -4,7 +4,7 @@ import Collapse from '@material-ui/core/Collapse';
 import Button from '@material-ui/core/Button';
 import { useQuery } from '@tanstack/react-query';
 
-import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from 'shared/constants';
+import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/shared/constants';
 
 import { Form, Field } from '../components/Field';
 import { IdField } from '../components/Field/IdField';
@@ -24,6 +24,7 @@ import { LoadingIndicator } from '../components/LoadingIndicator';
 
 import plusCircle from '../assets/images/plus_circle.svg';
 import minusCircle from '../assets/images/minus_circle.svg';
+import { RandomPatientButton } from '../views/patients/components/RandomPatientButton';
 
 const StyledImageButton = styled(Button)`
   min-width: 30px;
@@ -95,10 +96,11 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
     onSubmit(newData);
   };
 
-  const renderForm = ({ submitForm, values }) => {
+  const renderForm = ({ submitForm, values, setValues }) => {
     return (
       <>
         <IdBannerContainer>
+          <RandomPatientButton setValues={setValues} generateId={generateId} />
           <IdBanner>
             <Field name="displayId" component={IdField} regenerateId={generateId} />
           </IdBanner>

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
 import Box from '@material-ui/core/Box';
 
-import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from 'shared/constants';
+import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/shared/constants';
 
 import { PrintPortal, PrintLetterhead } from '../../components/PatientPrinting';
 import { useApi, isErrorUnknownAllow404s } from '../../api';

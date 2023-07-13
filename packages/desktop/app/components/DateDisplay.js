@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { remote } from 'electron';
 import { format } from 'date-fns';
-import { parseDate } from 'shared/utils/dateTime';
+import { parseDate } from '@tamanu/shared/utils/dateTime';
 import { Typography, Box } from '@material-ui/core';
 import styled from 'styled-components';
 import { ThemedTooltip } from './Tooltip';
@@ -154,16 +154,18 @@ export const getDateDisplay = (
   return parts.join(' ');
 };
 
-export const DateDisplay = React.memo(({ date: dateValue, timeOnlyTooltip = false, ...props }) => {
-  const displayDateString = getDateDisplay(dateValue, { ...props });
-  const dateObj = parseDate(dateValue);
+export const DateDisplay = React.memo(
+  ({ date: dateValue, timeOnlyTooltip = false, color = 'unset', ...props }) => {
+    const displayDateString = getDateDisplay(dateValue, { ...props });
+    const dateObj = parseDate(dateValue);
 
-  return (
-    <DateTooltip date={dateObj} timeOnlyTooltip={timeOnlyTooltip}>
-      <span>{displayDateString}</span>
-    </DateTooltip>
-  );
-});
+    return (
+      <DateTooltip date={dateObj} timeOnlyTooltip={timeOnlyTooltip}>
+        <span style={{ color }}>{displayDateString}</span>
+      </DateTooltip>
+    );
+  },
+);
 
 export const MultilineDatetimeDisplay = React.memo(
   ({ date, showExplicitDate, isTimeSoft = true }) => {

@@ -1,5 +1,6 @@
 import React from 'react';
-import { LAB_REQUEST_STATUSES, NOTE_TYPES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, NOTE_TYPES } from '@tamanu/shared/constants';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi } from '../../../api';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { CancelModal } from '../../../components/CancelModal';
@@ -30,6 +31,7 @@ export const LabRequestCancelModal = React.memo(({ open, onClose, updateLabReq, 
       content: note,
       authorId: auth.currentUser.id,
       noteType: NOTE_TYPES.OTHER,
+      date: getCurrentDateTimeString(),
     });
 
     await updateLabReq({

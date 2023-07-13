@@ -1,7 +1,7 @@
 import React from 'react';
+import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants/labs';
 import * as yup from 'yup';
 
-import { LAB_REQUEST_STATUSES } from 'shared/constants/labs';
 import {
   ConfirmCancelRow,
   DateTimeField,
@@ -21,8 +21,8 @@ const validationSchema = yup.object().shape({
     .oneOf(Object.values(LAB_REQUEST_STATUSES))
     .required(),
   sampleTime: yup.string().when('status', {
-    is: LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
-    then: yup.string().required(),
+    is: LAB_REQUEST_STATUSES.PUBLISHED,
+    then: yup.string().required('Sample date & time is required'),
     otherwise: yup.string().nullable(),
   }),
   labSampleSiteId: yup.string(),

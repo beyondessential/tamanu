@@ -608,6 +608,7 @@ describe('CentralSyncManager', () => {
         let facility;
         let labRequest1;
         let labRequest2;
+        let labTestPanelRequest1;
 
         beforeEach(async () => {
           await models.Facility.truncate({ cascade: true, force: true });
@@ -643,17 +644,27 @@ describe('CentralSyncManager', () => {
             ...(await createDummyEncounter(models)),
             patientId: patient2.id,
           });
-          await models.ReferenceData.create({
+          const category = await models.ReferenceData.create({
             id: 'test1',
             type: 'labTestCategory',
             code: 'test1',
             name: 'Test 1',
+          });
+          const labTestPanel = await models.LabTestPanel.create({
+            ...fake(models.LabTestPanel),
+            categoryId: category.id,
+          });
+          labTestPanelRequest1 = await models.LabTestPanelRequest.create({
+            ...fake(models.LabTestPanelRequest),
+            labTestPanelId: labTestPanel.id,
+            encounterId: encounter1.id,
           });
           labRequest1 = await models.LabRequest.create({
             ...(await randomLabRequest(models, {
               patientId: patient1.id,
               encounterId: encounter1.id,
               status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+              labTestPanelRequestId: labTestPanelRequest1.id, // make one of them part of a panel
             })),
           });
           labRequest2 = await models.LabRequest.create({
@@ -691,7 +702,7 @@ describe('CentralSyncManager', () => {
 
           // Test if the outgoingChanges contain the lab requests
           expect(outgoingChanges.map(r => r.recordId)).toEqual(
-            expect.arrayContaining([labRequest1.id, labRequest2.id]),
+            expect.arrayContaining([labRequest1.id, labRequest2.id, labTestPanelRequest1.id]),
           );
         });
 

@@ -3,7 +3,7 @@ import { createDummyPatient } from 'shared/demoData/patients';
 import { parseDate } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { exporter } from '../../app/admin/exporter';
-import * as excelUtils from '../../app/admin/exporter/excelUtils';
+import { writeExcelFile } from '../../app/admin/exporter/excelUtils';
 import {
   createAdministeredVaccineData,
   createAllergy,
@@ -15,8 +15,17 @@ import {
   createDataForEncounter,
 } from './referenceDataUtils';
 
+jest.mock('../../app/admin/exporter/excelUtils', () => {
+  const originalModule = jest.requireActual('../../app/admin/exporter/excelUtils');
+
+  return {
+    __esModule: true,
+    ...originalModule,
+    writeExcelFile: jest.fn((_sheets, filename) => filename),
+  };
+});
+
 describe('Reference data exporter', () => {
-  const writeExcelFileSpy = jest.spyOn(excelUtils, 'writeExcelFile').mockReturnValue({});
   let ctx;
   let models;
 
@@ -32,6 +41,7 @@ describe('Reference data exporter', () => {
 
     const modelsToDestroy = [
       'AdministeredVaccine',
+      'EncounterHistory',
       'Encounter',
       'ScheduledVaccine',
       'ReferenceData',
@@ -47,12 +57,12 @@ describe('Reference data exporter', () => {
 
   it('Should export empty data if no data type selected', async () => {
     await exporter(models);
-    expect(writeExcelFileSpy).toBeCalledWith([], '');
+    expect(writeExcelFile).toBeCalledWith([], '');
   });
 
   it('Should export a file with no data if there is no reference data for the selected type', async () => {
     await exporter(models, { 1: REFERENCE_TYPES.ICD10, 2: REFERENCE_TYPES.ALLERGY });
-    expect(writeExcelFileSpy).toBeCalledWith(
+    expect(writeExcelFile).toBeCalledWith(
       [
         {
           data: [],
@@ -70,7 +80,7 @@ describe('Reference data exporter', () => {
   it('Should export a tab with name "Patient Field Def Category" for "patientFieldDefinitionCategory"', async () => {
     await createPatientFieldDefCategory(models);
     await exporter(models, { 1: 'patientFieldDefinitionCategory' });
-    expect(writeExcelFileSpy).toBeCalledWith(
+    expect(writeExcelFile).toBeCalledWith(
       [
         {
           data: [
@@ -88,7 +98,7 @@ describe('Reference data exporter', () => {
   it('Should export a tab "Diagnosis" and uses all Reference Data where type equals "icd10"', async () => {
     await createDiagnosis(models);
     await exporter(models, { 1: 'diagnosis' });
-    expect(writeExcelFileSpy).toBeCalledWith(
+    expect(writeExcelFile).toBeCalledWith(
       [
         {
           data: [
@@ -106,7 +116,7 @@ describe('Reference data exporter', () => {
   it('Should not export reference data types that are not included in the whitelist', async () => {
     await createDiagnosis(models);
     await exporter(models, { 1: REFERENCE_TYPES.ALLERGY });
-    expect(writeExcelFileSpy).toBeCalledWith(
+    expect(writeExcelFile).toBeCalledWith(
       [
         {
           data: [],
@@ -121,7 +131,7 @@ describe('Reference data exporter', () => {
     await createDiagnosis(models);
     await createAllergy(models);
     await exporter(models, { 1: REFERENCE_TYPES.ALLERGY });
-    expect(writeExcelFileSpy).toBeCalledWith(
+    expect(writeExcelFile).toBeCalledWith(
       [
         {
           data: [
@@ -140,7 +150,7 @@ describe('Reference data exporter', () => {
     await createDiagnosis(models);
     await createAllergy(models);
     await exporter(models, { 1: REFERENCE_TYPES.ALLERGY, 2: 'diagnosis' });
-    expect(writeExcelFileSpy).toBeCalledWith(
+    expect(writeExcelFile).toBeCalledWith(
       [
         {
           data: [
@@ -165,9 +175,9 @@ describe('Reference data exporter', () => {
 
   it('Should export data from other tables besides Reference data', async () => {
     const patientData = createDummyPatient(models);
-    const patient = await models.Patient.create({ ...patientData, dateOfBirth: new Date() });
+    const patient = await models.Patient.create(patientData);
     await exporter(models, { 1: 'patient' });
-    expect(writeExcelFileSpy).toBeCalledWith(
+    expect(writeExcelFile).toBeCalledWith(
       [
         {
           data: [
@@ -219,7 +229,7 @@ describe('Reference data exporter', () => {
       2: REFERENCE_TYPES.ALLERGY,
       3: 'diagnosis',
     });
-    expect(writeExcelFileSpy).toBeCalledWith(
+    expect(writeExcelFile).toBeCalledWith(
       [
         {
           data: [
@@ -289,7 +299,7 @@ describe('Reference data exporter', () => {
     await exporter(models, {
       1: 'administeredVaccine',
     });
-    expect(writeExcelFileSpy).toBeCalledWith(
+    expect(writeExcelFile).toBeCalledWith(
       [
         {
           data: [
@@ -380,7 +390,6 @@ describe('Reference data exporter', () => {
 });
 
 describe('Permission and Roles exporter', () => {
-  const writeExcelFileSpy = jest.spyOn(excelUtils, 'writeExcelFile').mockReturnValue({});
   let ctx;
   let models;
 
@@ -400,7 +409,7 @@ describe('Permission and Roles exporter', () => {
 
   it('Should export a file with no data if there is no permission and roles', async () => {
     await exporter(models, { 1: 'permission', 2: 'role' });
-    expect(writeExcelFileSpy).toBeCalledWith(
+    expect(writeExcelFile).toBeCalledWith(
       [
         {
           data: [],
@@ -428,7 +437,7 @@ describe('Permission and Roles exporter', () => {
     });
 
     await exporter(models, { 1: 'permission', 2: 'role' });
-    expect(writeExcelFileSpy).toBeCalledWith(
+    expect(writeExcelFile).toBeCalledWith(
       [
         {
           data: [
@@ -470,7 +479,7 @@ describe('Permission and Roles exporter', () => {
     });
 
     await exporter(models, { 1: 'permission', 2: 'role' });
-    expect(writeExcelFileSpy).toBeCalledWith(
+    expect(writeExcelFile).toBeCalledWith(
       [
         {
           data: [
