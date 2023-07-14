@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { addDays, format } from 'date-fns';
 
 import { DATE_TIME_FORMAT } from '../components/Charts/components/DateTimeSelector';
-import { useVitalsSurvey } from '../api/queries/useVitalsSurvey';
+import { useVisualisationConfigs } from '../api/queries/useVisualisationConfigs';
 
 export const VitalChartDataContext = React.createContext({
   visualisationConfigs: [],
@@ -27,8 +27,7 @@ export const VitalChartDataProvider = ({ children }) => {
     format(new Date(), DATE_TIME_FORMAT),
   ]);
   const [vitalChartModalOpen, setVitalChartModalOpen] = useState(false);
-
-  const { visualisationConfigs } = useVitalsSurvey();
+  const visualisationConfigs = useVisualisationConfigs();
 
   return (
     <VitalChartDataContext.Provider
