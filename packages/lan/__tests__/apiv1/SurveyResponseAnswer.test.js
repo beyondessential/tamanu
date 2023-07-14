@@ -1,6 +1,10 @@
 import Chance from 'chance';
 import { fake } from 'shared/test-helpers/fake';
-import { SURVEY_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants/surveys';
+import {
+  SURVEY_TYPES,
+  PROGRAM_DATA_ELEMENT_TYPES,
+  VITALS_DATA_ELEMENT_IDS,
+} from 'shared/constants/surveys';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
@@ -63,6 +67,7 @@ describe('SurveyResponseAnswer', () => {
         }),
         ProgramDataElement.create({
           ...fake(ProgramDataElement),
+          id: VITALS_DATA_ELEMENT_IDS.dateRecorded,
           type: PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME,
           code: 'CodeWithoutMathSymbolsFour',
         }),
