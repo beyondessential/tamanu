@@ -1,3 +1,5 @@
+import { addNormalRangeToVisualisationConfigFromValidationCriteria } from './addNormalRangeToVisualisationConfigFromValidationCriteria';
+
 const STATUSES_TO_DELETE = ['deleted', 'hidden', 'historical'];
 
 export function yesOrNo(value) {
@@ -31,6 +33,7 @@ function makeScreen(questions, componentData) {
       row,
       type,
       visibilityStatus = '',
+      visualisationConfig = '',
       ...elementData
     } = component;
 
@@ -41,6 +44,11 @@ function makeScreen(questions, componentData) {
       ? Date.now()
       : null;
 
+    const newVisualisationConfig = addNormalRangeToVisualisationConfigFromValidationCriteria(
+      visualisationConfig,
+      validationCriteria,
+    );
+
     return [
       {
         model: 'ProgramDataElement',
@@ -49,6 +57,9 @@ function makeScreen(questions, componentData) {
           id: dataElId,
           defaultOptions: '',
           type,
+          visualisationConfig: newVisualisationConfig
+            ? JSON.stringify(newVisualisationConfig)
+            : null,
           ...elementData,
         },
       },

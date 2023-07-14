@@ -2,6 +2,12 @@ import { Op } from 'sequelize';
 import * as yup from 'yup';
 import { VITALS_DATA_ELEMENT_IDS, SURVEY_TYPES } from 'shared/constants';
 import { ImporterMetadataError, ValidationError } from '../errors';
+import { addNormalRangeToVisualisationConfigFromValidationCriteria } from './addNormalRangeToVisualisationConfigFromValidationCriteria';
+
+const normalRangeObjectSchema = yup.object().shape({
+  min: yup.number(),
+  max: yup.number(),
+});
 
 const visualisationConfigSchema = yup.object().shape({
   yAxis: yup.object().shape({
@@ -13,25 +19,40 @@ const visualisationConfigSchema = yup.object().shape({
       })
       .required(),
     normalRange: yup
-      .object()
-      .shape({
-        min: yup.number().required(),
-        max: yup.number().required(),
-      })
+      .mixed()
       .test({
         name: 'normalRange',
-        message: 'normalRange must be within graphRange',
+        message: 'normalRange must be within graphRange or normalRange must be object or array',
         test: (value, context) => {
           const { graphRange } = context.parent;
-          if (value) {
-            if (value.min && value.min < graphRange.min) {
-              return false;
+          if (!value) return false;
+
+          const checkIfWithinGraphRange = normalRange => {
+            if (normalRange.min && normalRange.min < graphRange.min) {
+              throw new yup.ValidationError(
+                `normalRange must be within graphRange, got normalRange.min '${normalRange.min}' < graphRange.min '${graphRange.min}' `,
+              );
             }
-            if (value.max && value.max > graphRange.max) {
-              return false;
+            if (normalRange.max && normalRange.max > graphRange.max) {
+              throw new ValidationError(
+                `normalRange must be within graphRange, got normalRange.max '${normalRange.max}' > graphRange.max '${graphRange.max}' `,
+              );
             }
+            return true;
+          };
+
+          const validateNormalRange = normalRange =>
+            normalRangeObjectSchema.validateSync(normalRange) &&
+            checkIfWithinGraphRange(normalRange);
+
+          if (yup.object().isType(value)) {
+            return validateNormalRange(value);
           }
-          return true;
+          if (yup.array().isType(value)) {
+            return value.every(normalRange => validateNormalRange(normalRange));
+          }
+
+          return false;
         },
       })
       .required(),
@@ -73,9 +94,16 @@ export function validateVisualisationConfigs(surveyInfo, questionRecords) {
 
   questionRecords.forEach(record => {
     const { model, values } = record;
-    const { visualisationConfig: visualisationConfigString } = values;
+    const {
+      visualisationConfig: visualisationConfigString,
+      validationCriteria: validationCriteriaString,
+    } = values;
     if (model === 'ProgramDataElement' && visualisationConfigString) {
-      const visualisationConfig = JSON.parse(visualisationConfigString);
+      const visualisationConfig = addNormalRangeToVisualisationConfigFromValidationCriteria(
+        visualisationConfigString,
+        validationCriteriaString,
+      );
+
       visualisationConfigSchema.validateSync(visualisationConfig);
     }
   });
