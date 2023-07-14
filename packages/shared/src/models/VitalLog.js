@@ -57,9 +57,9 @@ export class VitalLog extends Model {
     // manually construct "joins", as survey_response and survey_response_answer
     // joins use a non-conventional join column names
     const joins = `
-      JOIN survey_response_answers ON vital_logs.answer_id = survey_response_answers.id
-      JOIN survey_responses ON survey_response_answers.response_id = survey_responses.id
-      JOIN encounters ON survey_responses.encounter_id = encounters.id
+      INNER JOIN survey_response_answers ON vital_logs.answer_id = survey_response_answers.id
+      INNER JOIN survey_responses ON survey_response_answers.response_id = survey_responses.id
+      INNER JOIN encounters ON survey_responses.encounter_id = encounters.id
     `;
 
     // remove answers to sensitive surveys from mobile
@@ -68,7 +68,7 @@ export class VitalLog extends Model {
     if (sessionConfig.isMobile) {
       return `
         ${joins}
-        JOIN surveys ON survey_responses.survey_id = surveys.id
+        INNER JOIN surveys ON survey_responses.survey_id = surveys.id
         WHERE
           encounters.patient_id in (:patientIds)
         AND
