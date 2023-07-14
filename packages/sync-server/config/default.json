@@ -617,7 +617,7 @@
       "features": {
         "editPatientDetailsOnMobile": true,
         "quickPatientGenerator": false,
-        "enableInvoicing": false,
+        "enableInvoicing": true,
         "registerNewPatient": true,
         "hideOtherSex": true,
         "enablePatientDeaths": false,

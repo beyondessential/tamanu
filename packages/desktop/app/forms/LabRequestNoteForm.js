@@ -1,12 +1,20 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import NotesIcon from '@material-ui/icons/Notes';
 import { Box } from '@material-ui/core';
 import { NOTE_TYPES } from '@tamanu/shared/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+
 import { useApi } from '../api';
-import { Form, Field, TextField, DateDisplay, FormSubmitButton } from '../components';
+import {
+  Form,
+  Field,
+  TextField,
+  DateDisplay,
+  FormSubmitButton,
+  FormCancelButton,
+} from '../components';
 
 const Container = styled.div`
   display: flex;
@@ -46,7 +54,7 @@ const NotesInput = styled(Field)`
   }
 `;
 
-const TextButton = styled(FormSubmitButton)`
+const buttonStyle = css`
   font-weight: 500;
   font-size: 12px;
   line-height: 15px;
@@ -64,6 +72,14 @@ const TextButton = styled(FormSubmitButton)`
     text-decoration: underline;
     color: ${props => props.theme.palette.primary.main};
   }
+`;
+
+const SaveButton = styled(FormSubmitButton)`
+  ${buttonStyle}
+`;
+
+const CancelButton = styled(FormCancelButton)`
+  ${buttonStyle}
 `;
 
 export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
@@ -118,15 +134,15 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
               return active ? (
                 <Box display="flex" alignItems="center">
                   <NotesInput label="" name="content" component={TextField} autoFocus />
-                  <TextButton onClick={() => setActive(false)}>Cancel</TextButton>
-                  <TextButton type="submit" $underline disabled={formSubmitIsDisabled}>
+                  <CancelButton onClick={() => setActive(false)}>Cancel</CancelButton>
+                  <SaveButton type="submit" $underline disabled={formSubmitIsDisabled}>
                     Save
-                  </TextButton>
+                  </SaveButton>
                 </Box>
               ) : (
-                <TextButton $underline onClick={() => setActive(true)}>
+                <SaveButton $underline onClick={() => setActive(true)}>
                   Add note
-                </TextButton>
+                </SaveButton>
               );
             }}
           />

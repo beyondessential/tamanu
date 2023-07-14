@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { useFormikContext } from 'formik';
 import { Link } from 'react-router-dom';
 import { red } from '@material-ui/core/colors';
 import {
@@ -34,6 +35,7 @@ const StyledButton = styled(MuiButton)`
   padding: 11px 18px 12px 18px;
   box-shadow: none;
   min-width: 100px;
+  ${props => (props.$clickable ? `pointer-events: none;` : '')}
 
   .MuiSvgIcon-root {
     width: 19.5px;
@@ -55,37 +57,39 @@ const StyledCircularProgress = styled(CircularProgress)`
   margin-right: 5px;
 `;
 
-export const Button = ({
+const BaseButton = ({
   children,
   isSubmitting,
   disabled,
   hasPermission = true,
   loadingColor = Colors.white,
+  showLoadingIndicator,
   ...props
 }) => {
   const locationsProps = getLocationProps(props);
   const displayLock = !isSubmitting && !hasPermission;
+  console.log('props', props);
   return (
-    <StyledButton
-      {...props}
-      {...locationsProps}
-      disabled={disabled || isSubmitting || !hasPermission}
-    >
-      {isSubmitting && <StyledCircularProgress color={loadingColor} size={25} />}
+    <StyledButton {...props} {...locationsProps} disabled={disabled || !hasPermission}>
       {displayLock && <Lock />}
-      {!isSubmitting && children}
+      {showLoadingIndicator && <StyledCircularProgress color={loadingColor} size={25} />}
+      {!showLoadingIndicator && children}
     </StyledButton>
   );
 };
 
-Button.propTypes = {
+export const Button = ({ isSubmitting, ...props }) => {
+  return <BaseButton isSubmitting={isSubmitting} showLoadingIndicator={isSubmitting} {...props} />;
+};
+
+BaseButton.propTypes = {
   isSubmitting: PropTypes.bool,
   disabled: PropTypes.bool,
   variant: PropTypes.PropTypes.oneOf(['contained', 'outlined', 'text']),
   color: PropTypes.PropTypes.oneOf(['default', 'primary', 'secondary']),
 };
 
-Button.defaultProps = {
+BaseButton.defaultProps = {
   isSubmitting: false,
   disabled: false,
   variant: 'contained',
@@ -187,13 +191,26 @@ export const FormSubmitButton = ({
   onSubmit,
   ...props
 }) => {
-  const isSubmitting = useFormButtonSubmitting();
+  const { isSubmitting, showLoadingIndicator } = useFormButtonSubmitting();
 
   return (
-    <Button color={color} onClick={onSubmit} isSubmitting={isSubmitting} {...props}>
+    <BaseButton
+      isSubmitting={isSubmitting}
+      showLoadingIndicator={showLoadingIndicator}
+      color={color}
+      onClick={onSubmit}
+      $clickable={!isSubmitting}
+      {...props}
+    >
       {children || text}
-    </Button>
+    </BaseButton>
   );
+};
+
+export const FormCancelButton = ({ ...props }) => {
+  const { isSubmitting } = useFormikContext();
+
+  return <OutlinedButton $clickable={!isSubmitting} {...props} />;
 };
 
 export const StyledPrimarySubmitButton = styled(FormSubmitButton)`

@@ -10,7 +10,7 @@ import { isInvoiceEditable } from '../utils';
 
 import { Form, Field, RadioField, DateField, TextField, NumberField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { Button, FormSubmitButton, TextButton } from '../components/Button';
+import { Button, FormCancelButton, FormSubmitButton, TextButton } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { Modal } from '../components/Modal';
@@ -121,9 +121,7 @@ export const InvoiceDetailForm = ({
             <ButtonRow>
               {isInvoiceEditable(invoice) ? (
                 <>
-                  <Button variant="outlined" onClick={onCancel} color="primary">
-                    Cancel
-                  </Button>
+                  <FormCancelButton onClick={onCancel}>Cancel</FormCancelButton>
                   <Button
                     variant="outlined"
                     onClick={() => setFinaliseInvoiceModalOpen(true)}

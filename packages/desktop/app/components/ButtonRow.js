@@ -1,7 +1,7 @@
 import React, { Children } from 'react';
 import styled from 'styled-components';
 
-import { Button, FormSubmitButton, OutlinedButton } from './Button';
+import { FormCancelButton, FormSubmitButton, OutlinedButton } from './Button';
 
 const FlexSpaceBetween = styled.div`
   display: flex;
@@ -41,7 +41,7 @@ export const ConfirmCancelRow = React.memo(
     ...props
   }) => (
     <ButtonRow {...props}>
-      {onCancel && <OutlinedButton onClick={onCancel}>{cancelText}</OutlinedButton>}
+      {onCancel && <FormCancelButton onClick={onCancel}>{cancelText}</FormCancelButton>}
       {onConfirm && (
         <FormSubmitButton color={confirmColor} onSubmit={onConfirm} disabled={confirmDisabled}>
           {confirmText}

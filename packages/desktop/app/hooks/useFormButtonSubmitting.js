@@ -2,19 +2,20 @@ import { useState, useEffect } from 'react';
 import { useFormikContext } from 'formik';
 
 export const useFormButtonSubmitting = () => {
-  const [isButtonSubmitting, setIsButtonSubmitting] = useState(false);
+  const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const { isSubmitting } = useFormikContext();
+  // const isSubmitting = true;
 
   useEffect(() => {
     let timer;
     if (isSubmitting) {
       timer = setTimeout(() => {
-        setIsButtonSubmitting(true);
+        setShowLoadingIndicator(true);
       }, 1000);
     }
 
     return () => clearTimeout(timer);
   }, [isSubmitting]);
 
-  return isButtonSubmitting;
+  return { isSubmitting, showLoadingIndicator };
 };

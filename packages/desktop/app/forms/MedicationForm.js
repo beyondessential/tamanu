@@ -19,6 +19,7 @@ import {
   DateField,
   DateDisplay,
   FormSubmitButton,
+  FormCancelButton,
 } from '../components';
 
 const drugRouteOptions = [
@@ -265,9 +266,7 @@ export const MedicationForm = React.memo(
               </div>
               {shouldShowSubmitButton && (
                 <ButtonRow>
-                  <Button variant="outlined" color="primary" onClick={onCancel}>
-                    Cancel
-                  </Button>
+                  <FormCancelButton onClick={onCancel}>Cancel</FormCancelButton>
                   {shouldDiscontinue ? (
                     <FormSubmitButton
                       color="primary"

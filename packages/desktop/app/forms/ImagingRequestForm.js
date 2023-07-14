@@ -24,7 +24,7 @@ import {
   SelectField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { OutlinedButton } from '../components/Button';
+import { FormCancelButton } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
@@ -168,7 +168,7 @@ export const ImagingRequestForm = React.memo(
                 rows={3}
               />
               <ButtonRow>
-                <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
+                <FormCancelButton onClick={onCancel}>Cancel</FormCancelButton>
                 <FormSubmitActionDropdown
                   requestId={requestId}
                   encounter={encounter}
