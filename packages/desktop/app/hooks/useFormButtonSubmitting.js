@@ -4,7 +4,6 @@ import { useFormikContext } from 'formik';
 export const useFormButtonSubmitting = () => {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const { isSubmitting } = useFormikContext();
-  // const isSubmitting = true;
 
   useEffect(() => {
     let timer;

@@ -68,7 +68,7 @@ const BaseButton = ({
 }) => {
   const locationsProps = getLocationProps(props);
   const displayLock = !isSubmitting && !hasPermission;
-  console.log('props', props);
+
   return (
     <StyledButton {...props} {...locationsProps} disabled={disabled || !hasPermission}>
       {displayLock && <Lock />}
