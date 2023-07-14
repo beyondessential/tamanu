@@ -2,7 +2,11 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import { NotFoundError, InvalidOperationError, InvalidParameterError } from 'shared/errors';
-import { SURVEY_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
+import {
+  SURVEY_TYPES,
+  PROGRAM_DATA_ELEMENT_TYPES,
+  VITALS_DATA_ELEMENT_IDS,
+} from 'shared/constants';
 
 export const surveyResponseAnswer = express.Router();
 
@@ -99,7 +103,10 @@ surveyResponseAnswer.post(
           required: true,
           model: SurveyResponseAnswer,
           as: 'answers',
-          where: { body: req.body.recordedDate },
+          where: {
+            body: req.body.recordedDate,
+            dataElementId: VITALS_DATA_ELEMENT_IDS.dateRecorded,
+          },
         },
       ],
     });
