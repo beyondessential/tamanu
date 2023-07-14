@@ -10,10 +10,10 @@ const ALERT = 'alert';
 const INFO = 'info';
 
 const CellWrapper = styled.div`
-  background: ${({ $severity }) => ($severity === ALERT ? `${Colors.alert}20` : 'transparent')};
+  background: ${({ severity }) => (severity === ALERT ? `${Colors.alert}20` : 'transparent')};
   border-radius: 10px;
   padding: 8px 14px;
-  margin: -8px ${({ $severity }) => ($severity === ALERT ? '0px' : '-14px')};
+  margin: -8px ${({ severity }) => (severity === ALERT ? '0px' : '-14px')};
   width: fit-content;
 `;
 
@@ -21,8 +21,7 @@ const ClickableCellWrapper = styled(CellWrapper)`
   cursor: pointer;
 
   &:hover {
-    background: ${({ $severity }) =>
-      $severity === ALERT ? `${Colors.alert}40` : Colors.background};
+    background: ${({ severity }) => (severity === ALERT ? `${Colors.alert}40` : Colors.background)};
   }
 `;
 
@@ -117,7 +116,7 @@ export const RangeValidatedCell = React.memo(
         </CellContainer>
       </TableTooltip>
     ) : (
-      <CellContainer onClick={onClick} {...props}>
+      <CellContainer onClick={onClick} severity={severity} {...props}>
         {formattedValue}
       </CellContainer>
     );

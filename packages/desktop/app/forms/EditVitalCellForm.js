@@ -86,7 +86,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
   const { encounter } = useEncounter();
   const { getLocalisation } = useLocalisation();
   const vitalEditReasons = getLocalisation('vitalEditReasons') || [];
-  const mandatoryVitalEditReason = getLocalisation('mandatoryVitalEditReason');
+  const mandatoryVitalEditReason = getLocalisation('features.mandatoryVitalEditReason');
   const initialValue = dataPoint.value;
   const showDeleteEntryButton = ['', undefined].includes(initialValue) === false;
   const valueName = dataPoint.component.dataElement.id;
@@ -107,9 +107,28 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
       if (key === valueName) newShapeData.newValue = value;
       else newShapeData[key] = value;
     });
-    await api.put(`surveyResponseAnswer/vital/${dataPoint.answerId}`, newShapeData);
+
+    // The survey response answer might not exist
+    if (dataPoint.answerId) {
+      await api.put(`surveyResponseAnswer/vital/${dataPoint.answerId}`, newShapeData);
+    } else {
+      const newVitalData = {
+        ...newShapeData,
+        dataElementId: valueName,
+        encounterId: encounter.id,
+        recordedDate: dataPoint.recordedDate,
+      };
+      await api.post('surveyResponseAnswer/vital', newVitalData);
+    }
     queryClient.invalidateQueries(['encounterVitals', encounter.id]);
     handleClose();
+  };
+  const validateFn = values => {
+    const errors = {};
+    if (values[valueName] === initialValue) {
+      errors[valueName] = 'New value cannot be the same as previous value.';
+    }
+    return errors;
   };
 
   return (
@@ -117,6 +136,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
       onSubmit={handleSubmit}
       validationSchema={validationSchema}
       initialValues={{ [valueName]: initialValue }}
+      validate={validateFn}
       render={({ setFieldValue, submitForm }) => (
         <FormGrid columns={4}>
           <SurveyQuestion component={dataPoint.component} disabled={isDeleted} />
