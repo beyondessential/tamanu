@@ -41,7 +41,7 @@ export async function up(query) {
     },
     recorded_by_id: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'users',
         key: 'id',
