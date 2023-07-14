@@ -235,6 +235,13 @@ export const LargeOutlinedSubmitButton = props => (
   <StyledLargeSubmitButton variant="outlined" color="primary" {...props} />
 );
 
+export const DefaultIconButton = styled(({ children, ...props }) => (
+  <IconButton {...props}>{children}</IconButton>
+))`
+  border-radius: 20%;
+  padding: 0px;
+`;
+
 const getLocationProps = ({ to }) => {
   if (to) {
     return { component: Link, to };

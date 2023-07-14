@@ -31,7 +31,7 @@ export async function migrateImagingRequests() {
       }),
     );
 
-    log.info(`Sucessfully migrated ${migrated} records`);
+    log.info(`Successfully migrated ${migrated} records`);
     process.exit(0);
   } catch (error) {
     log.info(`Command failed: ${error.stack}\n`);

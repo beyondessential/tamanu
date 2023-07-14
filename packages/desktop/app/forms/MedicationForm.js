@@ -120,6 +120,8 @@ export const MedicationForm = React.memo(
             }
           }}
           initialValues={{
+            medicationId: medication?.medication?.id,
+            prescriberId: medication?.prescriberId,
             note: medication?.note ?? '',
             route: medication?.route ?? '',
             prescription: medication?.prescription ?? '',
@@ -141,7 +143,6 @@ export const MedicationForm = React.memo(
                   component={AutocompleteField}
                   suggester={drugSuggester}
                   disabled={readOnly}
-                  value={medication?.medication?.id}
                   required={!readOnly}
                 />
               </div>
@@ -183,7 +184,6 @@ export const MedicationForm = React.memo(
                 suggester={practitionerSuggester}
                 required={!readOnly}
                 disabled={readOnly}
-                value={medication?.prescriberId}
               />
               <Field
                 name="note"
