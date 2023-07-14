@@ -144,17 +144,14 @@ const MedicationsList = ({ medications }) => {
     return <span>N/A</span>;
   }
 
-  return medications.map(({ medication, prescription }) => (
-    <li>
-      <span>{medication.name}</span>
-      {prescription && (
-        <span>
-          <br />
-          {prescription}
-        </span>
-      )}
-    </li>
-  ));
+  return medications.map(({ medication, prescription }) => {
+    const prescriptionText = prescription ? `(${prescription})` : '';
+    return (
+      <li>
+        <span>{`${medication.name} ${prescriptionText}`}</span>
+      </li>
+    );
+  });
 };
 
 const SummaryPage = React.memo(({ encounter, discharge }) => {
