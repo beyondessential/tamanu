@@ -167,11 +167,11 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
   const patient = useSelector(state => state.patient);
   const { data: village } = useReferenceData(patient.villageId);
   const { data: patientAdditionalData } = usePatientAdditionalData(patient.id);
-  const { data: patienConditionsData } = usePatientConditions(patient.id);
-  const patientConditions = (patienConditionsData?.data || [])
+  const { data: patientConditionsData } = usePatientConditions(patient.id);
+  const patientConditions = (patientConditionsData?.data || [])
     .filter(p => !p.resolved)
     .map(p => p.condition.name)
-    .sort((a, b) => a > b);
+    .sort((a, b) => a.localeCompare(b));
 
   const { streetVillage, cityTown, country } = patientAdditionalData;
   let address = 'N/A';
