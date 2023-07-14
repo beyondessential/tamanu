@@ -6,6 +6,7 @@ import {
   intervalToDuration,
   differenceInMonths,
   differenceInDays,
+  startOfDay,
 } from 'date-fns';
 import { isISOString, parseDate } from './dateTime';
 
@@ -53,7 +54,7 @@ function ageIsWithinRange(birthDate, range) {
   const { duration: maxDuration, exclusive: maxExclusive } = max;
   const minDate = addDuration(birthDate, minDuration);
   const maxDate = addDuration(birthDate, maxDuration);
-  const now = new Date();
+  const now = startOfDay(new Date());
   return (
     compareDate(minDate, '<', now, minExclusive) && compareDate(now, '<', maxDate, maxExclusive)
   );
