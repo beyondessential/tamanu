@@ -29,6 +29,7 @@ export * from './Triage';
 
 export * from './ReferenceData';
 
+export * from './VitalLog';
 export * from './Vitals';
 export * from './Procedure';
 export * from './EncounterDiagnosis';

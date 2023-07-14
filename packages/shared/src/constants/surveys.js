@@ -45,15 +45,40 @@ export const SURVEY_TYPES = {
   VITALS: 'vitals',
 };
 
+const PDE_DATE_RECORDED = 'pde-PatientVitalsDate';
+const PDE_TEMPERATURE = 'pde-PatientVitalsTemperature';
+const PDE_WEIGHT = 'pde-PatientVitalsWeight';
+const PDE_HEIGHT = 'pde-PatientVitalsHeight';
+const PDE_SBP = 'pde-PatientVitalsSBP';
+const PDE_DBP = 'pde-PatientVitalsDBP';
+const PDE_HEART_RATE = 'pde-PatientVitalsHeartRate';
+const PDE_RESPIRATORY_RATE = 'pde-PatientVitalsRespiratoryRate';
+const PDE_SPO2 = 'pde-PatientVitalsSPO2';
+const PDE_AVPU = 'pde-PatientVitalsAVPU';
+
 export const VITALS_DATA_ELEMENT_IDS = {
-  dateRecorded: 'pde-PatientVitalsDate',
-  temperature: 'pde-PatientVitalsTemperature',
-  weight: 'pde-PatientVitalsWeight',
-  height: 'pde-PatientVitalsHeight',
-  sbp: 'pde-PatientVitalsSBP',
-  dbp: 'pde-PatientVitalsDBP',
-  heartRate: 'pde-PatientVitalsHeartRate',
-  respiratoryRate: 'pde-PatientVitalsRespiratoryRate',
-  spo2: 'pde-PatientVitalsSPO2',
-  avpu: 'pde-PatientVitalsAVPU',
+  dateRecorded: PDE_DATE_RECORDED,
+  temperature: PDE_TEMPERATURE,
+  weight: PDE_WEIGHT,
+  height: PDE_HEIGHT,
+  sbp: PDE_SBP,
+  dbp: PDE_DBP,
+  heartRate: PDE_HEART_RATE,
+  respiratoryRate: PDE_RESPIRATORY_RATE,
+  spo2: PDE_SPO2,
+  avpu: PDE_AVPU,
+};
+
+export const BLOOD_PRESSURE = 'BLOOD_PRESSURE';
+export const LINE = 'LINE';
+export const VITAL_CHARTS = {
+  [PDE_TEMPERATURE]: LINE,
+  [PDE_WEIGHT]: LINE,
+  [PDE_HEIGHT]: LINE,
+  [PDE_SBP]: BLOOD_PRESSURE,
+  [PDE_DBP]: BLOOD_PRESSURE,
+  [PDE_HEART_RATE]: LINE,
+  [PDE_RESPIRATORY_RATE]: LINE,
+  [PDE_SPO2]: LINE,
+  [PDE_AVPU]: LINE,
 };
