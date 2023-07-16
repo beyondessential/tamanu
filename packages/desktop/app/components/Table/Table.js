@@ -170,9 +170,10 @@ const RowContainer = React.memo(({ children, rowStyle, onClick }) => (
   </StyledTableRow>
 ));
 
-const ErrorTableCell = styled(StyledTableCell)`
+const StatusTableCell = styled(StyledTableCell)`
   &.MuiTableCell-body {
     padding: 60px;
+    ${props => (props.$color ? `color: ${props.$color};` : '')}
   }
 `;
 
@@ -231,16 +232,16 @@ const DisplayValue = React.memo(({ maxWidth, displayValue }) => {
   );
 });
 
-const ErrorRow = React.memo(({ colSpan, children }) => (
+const StatusRow = React.memo(({ colSpan, children, textColor }) => (
   <RowContainer>
-    <ErrorTableCell colSpan={colSpan} align="center">
+    <StatusTableCell $color={textColor} colSpan={colSpan} align="center">
       {children}
-    </ErrorTableCell>
+    </StatusTableCell>
   </RowContainer>
 ));
 
 class TableComponent extends React.Component {
-  getErrorMessage() {
+  getStatusMessage() {
     const { isLoading, errorMessage, data, noDataMessage } = this.props;
     if (isLoading) return 'Loading...';
     if (errorMessage) return errorMessage;
@@ -330,14 +331,15 @@ class TableComponent extends React.Component {
       rowStyle,
       refreshTable,
       isLoadingMore,
+      statusMessageColor,
     } = this.props;
 
-    const error = this.getErrorMessage();
-    if (error) {
+    const status = this.getStatusMessage();
+    if (status) {
       return (
-        <ErrorRow colSpan={columns.length}>
-          {errorMessage ? <ErrorSpan>{error}</ErrorSpan> : error}
-        </ErrorRow>
+        <StatusRow textColor={statusMessageColor} colSpan={columns.length}>
+          {errorMessage ? <ErrorSpan>{status}</ErrorSpan> : status}
+        </StatusRow>
       );
     }
     // Ignore frontend sorting if lazyLoading as it causes a terrible UX

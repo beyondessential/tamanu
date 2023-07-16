@@ -10,6 +10,8 @@ import { NoteForm } from '../forms/NoteForm';
 import { ConfirmModal } from './ConfirmModal';
 import { useAuth } from '../contexts/Auth';
 
+export { NOTE_FORM_MODES } from '../forms/NoteForm';
+
 export const NoteModal = ({
   title = 'Note',
   open,
@@ -17,7 +19,7 @@ export const NoteModal = ({
   onSaved,
   encounterId,
   note,
-  viewingChangeLog,
+  noteFormMode,
   confirmText,
   cancelText,
 }) => {
@@ -27,7 +29,7 @@ export const NoteModal = ({
   const [openNoteCancelConfirmModal, setOpenNoteCancelConfirmModal] = useState(false);
   const [noteContent, setNoteContent] = useState(note?.content);
 
-  const noteContentHasChanged = noteContent !== (note?.content || '');
+  const noteContentHasChanged = (noteContent || '') !== (note?.content || '');
 
   const practitionerSuggester = new Suggester(api, 'practitioner');
 
@@ -111,7 +113,7 @@ export const NoteModal = ({
         }}
       >
         <NoteForm
-          viewingChangeLog={viewingChangeLog}
+          noteFormMode={noteFormMode}
           onSubmit={handleCreateNewNote}
           onEditNote={handleEditNote}
           onCancel={() => {

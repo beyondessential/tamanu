@@ -18,9 +18,9 @@ export const NoteChangeLogs = ({ note = {} }) => {
   const api = useApi();
 
   const { data: { data: changeLogNotes } = {} } = useQuery(
-    ['noteChangeLogs', note?.recordId, note?.revisedById],
+    ['noteChangeLogs', note.recordId, note.revisedById],
     () => api.get(`encounter/${note.recordId}/notes/${note.revisedById}/changelogs`),
-    { enabled: !!(note?.recordId && note?.revisedById) },
+    { enabled: !!(note.recordId && note.revisedById) },
   );
 
   if (isEmpty(note) || !changeLogNotes?.length) {
@@ -28,16 +28,14 @@ export const NoteChangeLogs = ({ note = {} }) => {
   }
 
   return (
-    <>
-      <OuterLabelFieldWrapper label="Change log">
-        <StyledBox
-          sx={{ width: '100%', maxHeight: 300, overflowY: 'auto', bgcolor: 'background.paper' }}
-        >
-          {changeLogNotes.map(changeLogNote => (
-            <NoteChangeLog key={changeLogNote.id} note={changeLogNote} />
-          ))}
-        </StyledBox>
-      </OuterLabelFieldWrapper>
-    </>
+    <OuterLabelFieldWrapper label="Change log">
+      <StyledBox
+        sx={{ width: '100%', maxHeight: 300, overflowY: 'auto', bgcolor: 'background.paper' }}
+      >
+        {changeLogNotes.map(changeLogNote => (
+          <NoteChangeLog key={changeLogNote.id} note={changeLogNote} />
+        ))}
+      </StyledBox>
+    </OuterLabelFieldWrapper>
   );
 };

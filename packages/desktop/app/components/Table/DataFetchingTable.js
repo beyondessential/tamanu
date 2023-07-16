@@ -76,11 +76,13 @@ export const DataFetchingTable = memo(
             },
           );
           const transformedData = transformRow ? data.map(transformRow) : data;
+          const updatedData = lazyLoading
+            ? [...(fetchState?.data || []), ...(transformedData || [])]
+            : transformedData;
+
           updateFetchState({
             ...DEFAULT_FETCH_STATE,
-            data: lazyLoading
-              ? [...(fetchState?.data || []), ...(transformedData || [])]
-              : transformedData,
+            data: updatedData,
             count,
             isLoading: false,
             isLoadingMore: false,

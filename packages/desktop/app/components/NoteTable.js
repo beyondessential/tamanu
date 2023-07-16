@@ -7,7 +7,7 @@ import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
-import { NoteModal } from './NoteModal';
+import { NOTE_FORM_MODES, NoteModal } from './NoteModal';
 import { withPermissionCheck } from './withPermissionCheck';
 
 const StyledEditIcon = styled(EditIcon)`
@@ -115,13 +115,23 @@ const NoteContent = ({
           )}
       </NoteBodyContainer>
       <NoteFooterContainer>
+        {note.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
+          <NoteFooterTextElement>Last updated:</NoteFooterTextElement>
+        ) : (
+          <NoteFooterTextElement>Created:</NoteFooterTextElement>
+        )}
         {note.author?.displayName ? (
           <NoteFooterTextElement>{note.author.displayName}</NoteFooterTextElement>
         ) : null}
         {note.onBehalfOf?.displayName ? (
           <NoteFooterTextElement>on behalf of {note.onBehalfOf.displayName}</NoteFooterTextElement>
         ) : null}
-        <DateDisplay date={note?.date} showTime />
+        <DateDisplay
+          date={
+            (note.noteType !== NOTE_TYPES.TREATMENT_PLAN && note?.revisedBy?.date) || note?.date
+          }
+          showTime
+        />
         {note.revisedById && (
           <EditedButtonContainer onClick={() => handleViewNoteChangeLog(note)}>
             <span>(</span>
@@ -137,7 +147,7 @@ const NoteContent = ({
 const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) => {
   const { currentUser } = useAuth();
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
-  const [modalViewingChangeLog, setModalViewingChangeLog] = useState(false);
+  const [modalNoteFormMode, setModalNoteFormMode] = useState(NOTE_FORM_MODES.EDIT_NOTE);
   const [modalTitle, setModalTitle] = useState('');
   const [modalCancelText, setModalCancelText] = useState('');
   const [modalNote, setModalNote] = useState(null);
@@ -146,21 +156,21 @@ const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) =
     note => {
       setModalTitle('Edit note');
       setModalCancelText('Cancel');
-      setModalViewingChangeLog(false);
+      setModalNoteFormMode(NOTE_FORM_MODES.EDIT_NOTE);
       setIsNoteModalOpen(true);
       setModalNote(note);
     },
-    [setModalTitle, setModalCancelText, setIsNoteModalOpen, setModalNote, setModalViewingChangeLog],
+    [setModalTitle, setModalCancelText, setIsNoteModalOpen, setModalNote, setModalNoteFormMode],
   );
 
   const handleViewNoteChangeLog = useCallback(
     note => {
       setModalTitle('Change log');
-      setModalViewingChangeLog(true);
+      setModalNoteFormMode(NOTE_FORM_MODES.VIEW_NOTE);
       setIsNoteModalOpen(true);
       setModalNote(note);
     },
-    [setModalTitle, setIsNoteModalOpen, setModalNote, setModalViewingChangeLog],
+    [setModalTitle, setIsNoteModalOpen, setModalNote, setModalNoteFormMode],
   );
 
   const COLUMNS = useMemo(
@@ -194,8 +204,8 @@ const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) =
           note={modalNote}
           title={modalTitle}
           cancelText={modalCancelText}
-          viewingChangeLog={modalViewingChangeLog}
-          confirmText={modalViewingChangeLog ? 'Close' : 'Save'}
+          noteFormMode={modalNoteFormMode}
+          confirmText={modalNoteFormMode === NOTE_FORM_MODES.VIEW_NOTE ? 'Close' : 'Save'}
         />
       )}
       <DataFetchingTable
@@ -206,6 +216,8 @@ const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) =
         endpoint={`encounter/${encounterId}/notes`}
         fetchOptions={{ noteType }}
         elevated={false}
+        noDataMessage="This patient has no notes to display. Click ‘New note’ to add a note."
+        statusMessageColor={Colors.primary}
       />
     </>
   );

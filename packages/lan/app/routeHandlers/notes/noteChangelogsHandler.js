@@ -28,7 +28,7 @@ export const noteChangelogsHandler = recordType =>
         [Op.or]: [{ revisedById: rootNoteId }, { id: rootNoteId }],
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
-      order: [['date', 'ASC']],
+      order: [['date', 'DESC']],
     });
 
     res.send({ data: notes, count: notes.length });

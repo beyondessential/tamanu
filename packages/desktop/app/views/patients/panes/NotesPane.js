@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { useEncounter } from '../../../contexts/Encounter';
-import { NoteModal } from '../../../components/NoteModal';
+import { NOTE_FORM_MODES, NoteModal } from '../../../components/NoteModal';
 import { NoteTableWithPermission } from '../../../components/NoteTable';
 import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
 import { TabPane } from '../components';
@@ -33,10 +33,11 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
         onClose={() => setModalOpen(false)}
         onSaved={noteModalOnSaved}
         confirmText="Add note"
+        noteFormMode={NOTE_FORM_MODES.CREATE_NOTE}
       />
       <TableButtonRow variant="small" justifyContent="space-between">
         <StyledSelectInput
-          options={noteTypes}
+          options={[{ value: null, label: 'All' }, ...noteTypes]}
           onChange={e => setNoteType(e.target.value)}
           value={noteType}
           isClearable={false}

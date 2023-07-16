@@ -31,6 +31,12 @@ export const noteListHandler = recordType =>
         model: models.User,
         as: 'onBehalfOf',
       },
+      {
+        model: models.Note,
+        as: 'revisedBy',
+        required: false,
+        attributes: ['date'],
+      },
     ];
 
     const baseWhere = {
@@ -79,18 +85,19 @@ export const noteListHandler = recordType =>
     let totalCount;
 
     if (noteType) {
+      const noteTypeFilteredWhere = {
+        ...baseWhere,
+        noteType,
+      };
       rows = await models.Note.findAll({
         include,
-        where: {
-          ...baseWhere,
-          noteType,
-        },
+        where: noteTypeFilteredWhere,
         order: queryOrder,
         limit: rowsPerPage,
         offset: page && rowsPerPage ? page * rowsPerPage : undefined,
       });
       totalCount = await models.Note.count({
-        where: baseWhere,
+        where: noteTypeFilteredWhere,
       });
     } else {
       const treatmentPlanRows = await models.Note.findAll({

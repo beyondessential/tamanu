@@ -2,7 +2,6 @@ import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { isEmpty } from 'lodash';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import Tooltip from '@material-ui/core/Tooltip';
 import { NOTE_TYPES } from '@tamanu/shared/constants';
@@ -22,6 +21,12 @@ import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { NoteChangeLogs } from '../components/NoteChangeLogs';
 import { noteTypes, Colors } from '../constants';
+
+export const NOTE_FORM_MODES = {
+  CREATE_NOTE: 'createNote',
+  EDIT_NOTE: 'editNote',
+  VIEW_NOTE: 'viewNote',
+};
 
 /**
  * If there's already a treatment plan note, don't allow users to add another one
@@ -78,7 +83,7 @@ export const NoteForm = ({
   onCancel,
   note,
   noteTypeCountByType,
-  viewingChangeLog = false,
+  noteFormMode = NOTE_FORM_MODES.CREATE_NOTE,
   onSubmit,
   onEditNote,
   confirmText,
@@ -88,8 +93,6 @@ export const NoteForm = ({
 }) => {
   const { currentUser } = useAuth();
   const { getLocalisation } = useLocalisation();
-
-  const creatingNewNote = isEmpty(note);
 
   const handleNoteContentChange = useCallback(e => setNoteContent(e.target.value), [
     setNoteContent,
@@ -103,8 +106,12 @@ export const NoteForm = ({
           label="Type"
           required
           component={SelectField}
-          options={creatingNewNote ? getSelectableNoteTypes(noteTypeCountByType) : noteTypes}
-          disabled={!creatingNewNote}
+          options={
+            noteFormMode === NOTE_FORM_MODES.CREATE_NOTE
+              ? getSelectableNoteTypes(noteTypeCountByType)
+              : noteTypes
+          }
+          disabled={noteFormMode !== NOTE_FORM_MODES.CREATE_NOTE}
           formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
         />
         <Field
@@ -113,24 +120,27 @@ export const NoteForm = ({
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
-          disabled={!creatingNewNote}
+          disabled={noteFormMode !== NOTE_FORM_MODES.CREATE_NOTE}
         />
         <Field
           name="date"
           label="Date & time"
           component={DateTimeField}
           required
-          disabled={!getLocalisation('features.enableNoteBackdating') || !creatingNewNote}
+          disabled={
+            !getLocalisation('features.enableNoteBackdating') ||
+            noteFormMode !== NOTE_FORM_MODES.CREATE_NOTE
+          }
           saveDateAsString
         />
       </StyledFormGrid>
 
-      {viewingChangeLog ? (
+      {noteFormMode === NOTE_FORM_MODES.VIEW_NOTE ? (
         <NoteChangeLogs note={note} />
       ) : (
         <Field
           name="content"
-          label={creatingNewNote ? 'Add note' : 'Edit note'}
+          label={noteFormMode === NOTE_FORM_MODES.CREATE_NOTE ? 'Add note' : 'Edit note'}
           required
           component={TextField}
           multiline
@@ -140,17 +150,17 @@ export const NoteForm = ({
         />
       )}
       <ConfirmCancelRow
-        onConfirm={viewingChangeLog ? onCancel : submitForm}
+        onConfirm={noteFormMode === NOTE_FORM_MODES.VIEW_NOTE ? onCancel : submitForm}
         confirmText={confirmText}
         cancelText={cancelText}
-        onCancel={!viewingChangeLog && onCancel}
+        onCancel={noteFormMode !== NOTE_FORM_MODES.VIEW_NOTE && onCancel}
       />
     </>
   );
 
   return (
     <Form
-      onSubmit={creatingNewNote ? onSubmit : onEditNote}
+      onSubmit={noteFormMode === NOTE_FORM_MODES.CREATE_NOTE ? onSubmit : onEditNote}
       render={renderForm}
       showInlineErrorsOnly
       initialValues={{
