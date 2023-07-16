@@ -36,7 +36,7 @@ export class Note extends BaseModel implements INote {
 
   @ManyToOne(
     () => User,
-    user => user.authoredNoteItems,
+    user => user.authoredNotes,
   )
   author?: IUser;
   @RelationId(({ author }) => author)
@@ -44,7 +44,7 @@ export class Note extends BaseModel implements INote {
 
   @ManyToOne(
     () => User,
-    user => user.onBehalfOfNoteItems,
+    user => user.onBehalfOfNotes,
   )
   onBehalfOf?: IUser;
   @RelationId(({ onBehalfOf }) => onBehalfOf)
