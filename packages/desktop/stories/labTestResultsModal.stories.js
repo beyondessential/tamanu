@@ -1,5 +1,6 @@
 import React from 'react';
-import { fakeLabRequest } from '../.storybook/__mocks__/defaultEndpoints';
+import { action } from '@storybook/addon-actions';
+import { defaultEndpoints, fakeLabRequest } from '../.storybook/__mocks__/defaultEndpoints';
 import { LabTestResultsModal } from '../app/components/LabRequestModals/LabTestResultsModal';
 import { MockedApi } from './utils/mockedApi';
 
@@ -14,6 +15,7 @@ export default {
 const Template = args => (
   <MockedApi
     endpoints={{
+      ...defaultEndpoints,
       'labTestType/:labRequestId/tests': () => {
         return [
           {
@@ -41,7 +43,7 @@ const Template = args => (
       },
     }}
   >
-    <LabTestResultsModal {...args} open onClose={() => {}} />
+    <LabTestResultsModal {...args} open onClose={action('close')} />
   </MockedApi>
 );
 

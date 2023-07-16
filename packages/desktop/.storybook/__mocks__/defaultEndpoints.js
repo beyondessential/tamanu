@@ -21,6 +21,12 @@ function fakeLabTestLaboratory() {
   return { id, name };
 }
 
+function fakeLabTestMethod() {
+  const id = chance.guid();
+  const name =`${chance.name_prefix()} ${chance.animal()} method`;
+  return { id, name };
+}
+
 function fakeLabTestPriority() {
   const id = chance.guid();
   const adverb = chance.pickone([
@@ -144,6 +150,7 @@ export const defaultEndpoints = {
   'suggestions/labTestLaboratory/all': () => Array.from({ length: 10 }, fakeLabTestLaboratory),
   'suggestions/labTestPriority/all': () => Array.from({ length: 10 }, fakeLabTestPriority),
   'suggestions/labTestCategory/all': () => Array.from({ length: 10 }, fakeLabTestCategory),
+  'suggestions/labTestMethod/all': () => Array.from({ length: 10 }, fakeLabTestMethod),
   'suggestions/lessThanSevenCities': () => sixCities,
   'suggestions/moreThanSevenCities': ({ q = '' }) =>
     eightCities.filter(city => city.name.toLowerCase().startsWith(q.toLowerCase())),

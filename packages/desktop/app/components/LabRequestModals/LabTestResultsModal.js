@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Box } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Modal } from '../Modal';
 import { Heading4, SmallBodyText } from '../Typography';
-import { DateTimeField, Field, Form, SelectField, TextField } from '../Field';
-import { useApi } from '../../api';
+import { DateTimeField, Field, Form, SuggesterSelectField, TextField } from '../Field';
+import { useApi, useSuggester } from '../../api';
 import { TableFormFields } from '../Table';
 import { Colors } from '../../constants';
 import { ModalActionRow } from '../ModalActionRow';
@@ -75,13 +75,10 @@ const getColumns = len => [
       return (
         <AccessorField
           id={row.id}
-          component={SelectField}
+          endpoint="labTestMethod"
           name="method"
+          component={SuggesterSelectField}
           tabIndex={getTableTabIndex(1, i, len)}
-          options={[
-            { value: 'manual', label: 'Manual' },
-            { value: 'machine', label: 'Machine' },
-          ]}
         />
       );
     },
@@ -113,7 +110,13 @@ const getColumns = len => [
   },
 ];
 
-export const LabTestResultsForm = ({ labTestResults, onClose, values }) => {
+export const LabTestResultsForm = ({ labTestResults, onClose, values, setFieldValues }) => {
+  const methodSuggester = useSuggester('labTestMethod');
+  const columns = useMemo(() => getColumns(labTestResults.length, methodSuggester), [
+    labTestResults.length,
+    methodSuggester,
+  ]);
+
   return (
     <>
       <Box display="flex" justifyContent="space-between">
@@ -125,7 +128,7 @@ export const LabTestResultsForm = ({ labTestResults, onClose, values }) => {
         </div>
         <Field name="laboratoryOfficer" label="Lab officer" tabIndex={0} component={TextField} />
       </Box>
-      <StyledTableFormFields columns={getColumns(labTestResults.length)} data={labTestResults} />
+      <StyledTableFormFields columns={columns} data={labTestResults} />
       <ModalActionRow onConfirm={onClose} onCancel={onClose} />
     </>
   );
