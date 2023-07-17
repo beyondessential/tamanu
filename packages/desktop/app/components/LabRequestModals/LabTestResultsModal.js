@@ -20,6 +20,7 @@ import { useApi } from '../../api';
 import { TableFormFields } from '../Table';
 import { Colors } from '../../constants';
 import { ModalActionRow } from '../ModalActionRow';
+import { useLabTestResultsQuery } from '../../api/queries/useLabTestResultsQuery';
 
 const StyledTableFormFields = styled(TableFormFields)`
   margin-top: 20px;
@@ -39,15 +40,6 @@ const StyledTableFormFields = styled(TableFormFields)`
 `;
 
 const AUTOFILL_FIELD_NAMES = ['completedDate', 'labTestMethodId'];
-
-const useLabTestResults = labRequestId => {
-  const api = useApi();
-  return useQuery(
-    ['labTestResults', labRequestId],
-    () => api.get(`labRequest/${labRequestId}/tests`),
-    { enabled: !!labRequestId },
-  );
-};
 
 function getResultComponent(resultType, options) {
   if (options && options.length) return SelectField;
@@ -191,7 +183,7 @@ const ResultsFormSkeleton = () => (
 );
 
 export const LabTestResultsModal = ({ labRequest, onClose, open }) => {
-  const { data: labTestResults, isLoading, error } = useLabTestResults(labRequest.id);
+  const { data: labTestResults, isLoading, error } = useLabTestResultsQuery(labRequest.id);
   const { displayId } = labRequest;
   const initialData = useMemo(
     () =>
