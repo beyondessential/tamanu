@@ -161,17 +161,20 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
 
   const patient = useSelector(state => state.patient);
   const { data: village } = useReferenceData(patient.villageId);
-  const { data: patientAdditionalData } = usePatientAdditionalData(patient.id);
+  const { data: patientAdditionalData, isPADLoading } = usePatientAdditionalData(patient.id);
   const { data: patientConditionsData } = usePatientConditions(patient.id);
   const patientConditions = (patientConditionsData?.data || [])
     .filter(p => !p.resolved)
     .map(p => p.condition.name)
     .sort((a, b) => a.localeCompare(b));
 
-  const { streetVillage, cityTown, country } = patientAdditionalData;
   let address = 'N/A';
-  if (streetVillage && cityTown && country) {
-    address = `${streetVillage}, ${cityTown}, ${country.name}`;
+  if (!isPADLoading) {
+    const { streetVillage, cityTown, country } = patientAdditionalData;
+
+    if (streetVillage && cityTown && country) {
+      address = `${streetVillage}, ${cityTown}, ${country.name}`;
+    }
   }
 
   const {
