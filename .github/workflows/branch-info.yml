@@ -36,11 +36,11 @@ jobs:
     name: Version
     needs: run
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.ref || github.ref }}
-
       - uses: actions/github-script@v6
         id: version
         with:

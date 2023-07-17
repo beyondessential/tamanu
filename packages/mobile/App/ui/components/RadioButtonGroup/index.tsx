@@ -6,6 +6,7 @@ import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { RadioOption, RadioButton } from '../RadioButton';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
+import { RequiredIndicator } from '../RequiredIndicator';
 
 export interface RadioButtonGroupProps {
   options: RadioOption[];
@@ -14,6 +15,7 @@ export interface RadioButtonGroupProps {
   error?: boolean;
   index?: number;
   label?: string;
+  required?: boolean;
   CustomComponent?: FC<any>;
 }
 
@@ -37,6 +39,7 @@ export const RadioButtonGroup = ({
   value,
   error,
   label,
+  required = false,
   CustomComponent,
 }: RadioButtonGroupProps): JSX.Element => {
   const RadioComponent = CustomComponent || RadioButton;
@@ -44,7 +47,10 @@ export const RadioButtonGroup = ({
   return (
     <>
       {Boolean(label) && (
-        <Label>{label}</Label>
+        <Label>
+          {label}
+          {required && <RequiredIndicator />}
+        </Label>
       )}
       <RowView>
         {options.map((option, index) => (
