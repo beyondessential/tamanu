@@ -1,0 +1,106 @@
+name: CD Server Zips
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - v*.*.*
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write # OIDC token for AWS
+
+jobs:
+  info:
+    name: Branch info
+    uses: ./.github/workflows/branch-info.yml
+
+  build:
+    needs: info
+    strategy:
+      matrix:
+        package:
+          - name: central
+            path: sync-server
+          - name: facility
+            path: lan
+
+    name: Build ${{ matrix.package.name }} server zip
+    runs-on: windows-latest
+    env:
+      OUTPUT_NAME: "${{ matrix.package.name }}-${{ needs.info.outputs.version }}-windows"
+      S3_PATH: s3://bes-tamanu-release-servers/${{ needs.info.outputs.version }}
+
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: ap-southeast-2
+          role-to-assume: arn:aws:iam::143295493206:role/gha-server-s3
+          role-session-name: "${{ github.repository }}:${{ github.workflow }}"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+
+      - uses: actions/checkout@v3
+
+      - name: Setup buildkit
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build container
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          cache-from: type=gha,scope=${{ needs.info.outputs.branch }}-desktop
+          cache-to: type=gha,mode=max,scope=${{ needs.info.outputs.branch }}-desktop
+          build-args: PACKAGE_PATH=${{ matrix.package.path }}
+          push: false
+          load: true
+          tags: working
+
+      - name: Create container
+        run: docker create --name working working
+
+      - name: Copy files
+        shell: bash
+        run: docker cp working:/app $OUTPUT_NAME
+
+      - name: Reinstall dependencies
+        working-directory: ${{ env.OUTPUT_NAME }}
+        shell: bash
+        run: |
+          set -ex
+          rm -rf node_modules packages/*/node_modules
+          yarn install --frozen-lockfile --production
+
+      - name: Delete container
+        run: docker rm working
+
+      - name: Prepare production configuration
+        shell: bash
+        run: |
+          set -ex
+          rm packages/${{ matrix.package.path }}/config/local.json
+          sed -E \
+            "s|cwd: '.',( //.*)?|cwd: 'packages/${{ matrix.package.path }}',|" \
+            packages/${{ matrix.package.path }}/pm2.config.js > ${{ env.OUTPUT_NAME }}/pm2.config.js
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: debug
+          path: '${{ env.OUTPUT_NAME }}'
+
+      - name: Prepare final output
+        run: zip -r '${{ env.OUTPUT_NAME }}.zip' '${{ env.OUTPUT_NAME }}'
+
+      - name: Push to S3
+        run: aws s3 cp '${{ env.OUTPUT_NAME }}.zip' '${{ env.S3_PATH }}/${{ env.OUTPUT_NAME }}.zip' --no-progress
