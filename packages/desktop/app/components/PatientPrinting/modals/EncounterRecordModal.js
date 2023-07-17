@@ -1,4 +1,5 @@
 import React from 'react';
+import { groupBy } from 'lodash';
 
 import { NOTE_TYPES } from '@tamanu/shared/constants/notes';
 import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants/labs';
