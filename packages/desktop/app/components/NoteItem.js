@@ -56,7 +56,7 @@ const StyledNoteItemSecondaryWrapper = styled.div`
   line-height: 18px;
   color: ${Colors.softText};
 `;
-const StyledViewChangeLogWrapper = styled.span`
+const StyledViewChangelogWrapper = styled.span`
   float: right;
   margin-left: 10px;
   font-size: 11px;
@@ -141,9 +141,9 @@ const NoteItemSecondary = ({ noteItem, isEditting, onEditClick, hasPermission })
               onClickAway={() => setTooltipOpen(false)}
               title={<ItemTooltip childNoteItems={noteItem.noteItems} />}
             >
-              <StyledViewChangeLogWrapper onClick={() => setTooltipOpen(true)}>
+              <StyledViewChangelogWrapper onClick={() => setTooltipOpen(true)}>
                 View change log
-              </StyledViewChangeLogWrapper>
+              </StyledViewChangelogWrapper>
             </StyledTooltip>
           </>
         )}
