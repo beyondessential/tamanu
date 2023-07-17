@@ -1,26 +1,16 @@
 import React, { useCallback, useMemo } from 'react';
-import { LAB_TEST_RESULT_TYPES } from '@tamanu/shared/constants';
 import { Box } from '@material-ui/core';
-import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { keyBy, omit } from 'lodash';
 import { Skeleton } from '@material-ui/lab';
 import { Modal } from '../Modal';
 import { Heading4, SmallBodyText } from '../Typography';
-import {
-  DateTimeField,
-  Field,
-  Form,
-  NumberField,
-  SelectField,
-  SuggesterSelectField,
-  TextField,
-} from '../Field';
-import { useApi } from '../../api';
+import { DateTimeField, Field, Form, SuggesterSelectField, TextField } from '../Field';
 import { TableFormFields } from '../Table';
 import { Colors } from '../../constants';
 import { ModalActionRow } from '../ModalActionRow';
 import { useLabTestResultsQuery } from '../../api/queries/useLabTestResultsQuery';
+import { LabResultAccessorField, AccessorField } from './AccessorField';
 
 const StyledTableFormFields = styled(TableFormFields)`
   margin-top: 20px;
@@ -41,14 +31,6 @@ const StyledTableFormFields = styled(TableFormFields)`
 
 const AUTOFILL_FIELD_NAMES = ['completedDate', 'labTestMethodId'];
 
-function getResultComponent(resultType, options) {
-  if (options && options.length) return SelectField;
-  if (resultType === LAB_TEST_RESULT_TYPES.FREE_TEXT) return TextField;
-  return NumberField;
-}
-
-const AccessorField = ({ id, name, ...props }) => <Field {...props} name={`${id}.${name}`} />;
-
 const getColumns = (count, onChangeResult) => {
   // Generate tab index for vertical tabbing through the table
   const tabIndex = (row, col) => count * row + col + 1;
@@ -65,8 +47,9 @@ const getColumns = (count, onChangeResult) => {
       accessor: (row, i) => {
         const { resultType, options } = row.labTestType;
         return (
-          <AccessorField
-            component={getResultComponent(resultType, options)}
+          <LabResultAccessorField
+            resultType={resultType}
+            options={options}
             name="result"
             onChange={e => onChangeResult(e.target.value, row.id)}
             id={row.id}
@@ -183,8 +166,9 @@ const ResultsFormSkeleton = () => (
 );
 
 export const LabTestResultsModal = ({ labRequest, onClose, open }) => {
-  const { data: labTestResults, isLoading, error } = useLabTestResultsQuery(labRequest.id);
+  const { data: labTestResults, isLoading, error, isError } = useLabTestResultsQuery(labRequest.id);
   const { displayId } = labRequest;
+  // TODO select only needed data
   const initialData = useMemo(
     () =>
       keyBy(
