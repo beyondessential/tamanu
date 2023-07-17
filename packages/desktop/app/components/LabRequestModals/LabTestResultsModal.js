@@ -27,6 +27,8 @@ const StyledTableFormFields = styled(TableFormFields)`
   }
 `;
 
+const AUTOFILL_FIELD_NAMES = ['completedDate', 'method'];
+
 const useLabTestResults = labRequestId => {
   const api = useApi();
   return useQuery(
@@ -69,17 +71,15 @@ const getColumns = (len, onChangeResult) => {
     {
       key: 'method',
       title: 'Method',
-      accessor: (row, i) => {
-        return (
-          <AccessorField
-            id={row.id}
-            endpoint="labTestMethod"
-            name="method"
-            component={SuggesterSelectField}
-            tabIndex={tabIndex(1, i)}
-          />
-        );
-      },
+      accessor: (row, i) => (
+        <AccessorField
+          id={row.id}
+          endpoint="labTestMethod"
+          name="method"
+          component={SuggesterSelectField}
+          tabIndex={tabIndex(1, i)}
+        />
+      ),
     },
     {
       key: 'verification',
@@ -110,18 +110,26 @@ const getColumns = (len, onChangeResult) => {
 };
 
 export const LabTestResultsForm = ({ labTestResults, onClose, values, setFieldValue }) => {
+  /**
+   * On entering lab result field for a test some other fields are auto-filled optimistically
+   * This occurs in the case of
+   * 1. The user has only entered a single unique value for this field across other rows
+   * 2. The user has not already entered a value for this field in the current row
+   */
   const onChangeResult = useCallback(
     e => {
       const { name, value } = e.target;
       const [id, field] = name.split('.');
       if (values[id]?.[field] || !value) return;
-      ['method', 'completedDate'].forEach(autofillName => {
+      AUTOFILL_FIELD_NAMES.forEach(autofillName => {
         const unique = Object.values(values).reduce(
-          (acc, v) =>
-            v[autofillName] && !acc.includes(v[autofillName]) ? [...acc, v[autofillName]] : acc,
+          (acc, row) =>
+            row[autofillName] && !acc.includes(row[autofillName])
+              ? [...acc, row[autofillName]]
+              : acc,
           [],
         );
-        if (!unique.length || values[id]?.[autofillName]) return;
+        if (unique.length !== 1 || values[id]?.[autofillName]) return;
         setFieldValue(`${id}.${autofillName}`, unique[0]);
       });
     },
