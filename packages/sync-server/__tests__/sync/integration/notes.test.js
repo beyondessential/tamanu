@@ -1,5 +1,3 @@
-import config from 'config';
-
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
 import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { createDummyEncounter } from 'shared/demoData/patients';
@@ -90,23 +88,12 @@ describe('CentralSyncManager', () => {
     ({ models } = ctx.store);
 
     centralSyncManager = new CentralSyncManager(ctx);
-  });
-
-  beforeEach(async () => {
-    await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, DEFAULT_CURRENT_SYNC_TIME_VALUE);
-    await models.Facility.truncate({ cascade: true, force: true });
-    await models.Department.truncate({ cascade: true, force: true });
-    await models.Location.truncate({ cascade: true, force: true });
-    await models.ReferenceData.truncate({ cascade: true, force: true });
-    await models.User.truncate({ cascade: true, force: true });
-    await models.Note.truncate({ cascade: true, force: true });
 
     patient = await models.Patient.create({
       ...fake(models.Patient),
     });
     facility = await models.Facility.create({
       ...fake(models.Facility),
-      id: config.serverFacilityId,
     });
     user = await models.User.create(fakeUser());
     department = await models.Department.create({
@@ -123,6 +110,12 @@ describe('CentralSyncManager', () => {
       code: 'test-arrival-mode-id',
       name: 'Test arrival mode',
     });
+  });
+
+  beforeEach(async () => {
+    await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, DEFAULT_CURRENT_SYNC_TIME_VALUE);
+    await models.Note.truncate({ cascade: true, force: true });
+    await models.PatientFacility.truncate({ force: true });
   });
 
   afterAll(() => ctx.close());
@@ -216,9 +209,18 @@ describe('CentralSyncManager', () => {
     const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
     const notes = outgoingChanges.filter(c => c.recordType === 'notes');
 
-    expect(notes.find(c => c.data.recordId === encounter1.id)?.recordId).toEqual(encounter1Note.id);
-    expect(notes.find(c => c.data.recordId === encounter2.id)?.recordId).toEqual(encounter2Note.id);
-    expect(notes.find(c => c.data.recordId === encounter3.id)?.recordId).toEqual(encounter3Note.id);
+    expect(notes.find(c => c.data.recordId === encounter1.id)).toHaveProperty(
+      'recordId',
+      encounter1Note.id,
+    );
+    expect(notes.find(c => c.data.recordId === encounter2.id)).toHaveProperty(
+      'recordId',
+      encounter2Note.id,
+    );
+    expect(notes.find(c => c.data.recordId === encounter3.id)).toHaveProperty(
+      'recordId',
+      encounter3Note.id,
+    );
   });
 
   it("does not return notes created before 'since' sync tick", async () => {
