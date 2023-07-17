@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { Box, Divider } from '@material-ui/core';
+import { Box } from '@material-ui/core';
 import { Timelapse, Business, AssignmentLate } from '@material-ui/icons';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/shared/constants';
 import { useAuth } from '../../contexts/Auth';
@@ -18,6 +18,7 @@ import {
   OutlinedButton,
   TileTag,
   MODAL_TRANSITION_DURATION,
+  Button,
 } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { LabRequestChangeLabModal } from './components/LabRequestChangeLabModal';
@@ -34,6 +35,7 @@ import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
 import { Colors } from '../../constants';
+import { LabTestResultModal } from './LabTestResultModal';
 
 const Container = styled.div`
   flex: 1;
@@ -41,9 +43,15 @@ const Container = styled.div`
   flex-direction: column;
 `;
 
-const InnerContainer = styled.div`
-  padding: 12px 30px;
+const TopContainer = styled.div`
+  padding: 18px 30px;
   background-color: ${({ $backgroundColor = Colors.background }) => $backgroundColor};
+`;
+
+const BottomContainer = styled.div`
+  background-color: ${Colors.white};
+  padding: 18px 30px;
+  flex: 1;
 `;
 
 const HIDDEN_STATUSES = [
@@ -53,29 +61,31 @@ const HIDDEN_STATUSES = [
 ];
 
 const MODAL_IDS = {
-  CHANGE_STATUS: 'changeStatus',
-  VIEW_STATUS_LOG: 'viewStatusLog',
-  RECORD_SAMPLE: 'recordSample',
-  SAMPLE_DETAILS: 'sampleDetails',
-  PRINT: 'print',
-  LABEL_PRINT: 'labelPrint',
+  CANCEL: 'cancel',
   CHANGE_LABORATORY: 'changeLaboratory',
   CHANGE_PRIORITY: 'changePriority',
-  CANCEL: 'cancel',
+  CHANGE_STATUS: 'changeStatus',
+  ENTER_RESULTS: 'enterResults',
+  LABEL_PRINT: 'labelPrint',
+  PRINT: 'print',
+  RECORD_SAMPLE: 'recordSample',
+  SAMPLE_DETAILS: 'sampleDetails',
+  VIEW_STATUS_LOG: 'viewStatusLog',
 };
 
 const MODALS = {
+  [MODAL_IDS.CANCEL]: LabRequestCancelModal,
+  [MODAL_IDS.CHANGE_LABORATORY]: LabRequestChangeLabModal,
+  [MODAL_IDS.CHANGE_PRIORITY]: LabRequestChangePriorityModal,
   [MODAL_IDS.CHANGE_STATUS]: LabRequestChangeStatusModal,
-  [MODAL_IDS.VIEW_STATUS_LOG]: LabRequestLogModal,
-  [MODAL_IDS.RECORD_SAMPLE]: LabRequestRecordSampleModal,
-  [MODAL_IDS.SAMPLE_DETAILS]: LabRequestSampleDetailsModal,
-  [MODAL_IDS.PRINT]: LabRequestPrintModal,
+  [MODAL_IDS.ENTER_RESULTS]: LabTestResultModal,
   [MODAL_IDS.LABEL_PRINT]: ({ labRequest, ...props }) => (
     <LabRequestPrintLabelModal {...props} labRequests={[labRequest]} />
   ),
-  [MODAL_IDS.CHANGE_LABORATORY]: LabRequestChangeLabModal,
-  [MODAL_IDS.CHANGE_PRIORITY]: LabRequestChangePriorityModal,
-  [MODAL_IDS.CANCEL]: LabRequestCancelModal,
+  [MODAL_IDS.PRINT]: LabRequestPrintModal,
+  [MODAL_IDS.RECORD_SAMPLE]: LabRequestRecordSampleModal,
+  [MODAL_IDS.SAMPLE_DETAILS]: LabRequestSampleDetailsModal,
+  [MODAL_IDS.VIEW_STATUS_LOG]: LabRequestLogModal,
 };
 
 const Menu = ({ setModal, status, disabled }) => {
@@ -148,7 +158,7 @@ export const LabRequestView = () => {
 
   return (
     <Container>
-      <InnerContainer>
+      <TopContainer>
         <Heading2 gutterBottom>Labs</Heading2>
         <LabRequestCard
           labRequest={labRequest}
@@ -231,8 +241,13 @@ export const LabRequestView = () => {
             }}
           />
         </TileContainer>
-      </InnerContainer>
-      <InnerContainer $backgroundColor={Colors.white} style={{flex: 1}}>
+      </TopContainer>
+      <BottomContainer>
+        <Box display="flex" justifyContent="flex-end" marginBottom="20px">
+          <Button onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)}>
+            Enter results
+          </Button>
+        </Box>
         <LabRequestResultsTable
           labRequest={labRequest}
           patient={patient}
@@ -247,7 +262,7 @@ export const LabRequestView = () => {
             onClose={closeModal}
           />
         )}
-      </InnerContainer>
+      </BottomContainer>
     </Container>
   );
 };
