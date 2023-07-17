@@ -217,7 +217,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
           </DisplayValue>
           <DisplayValue name="Address">{`${address}`} </DisplayValue>
           <DisplayValue name="Sex">{`${capitaliseFirstLetter(patient.sex)}`} </DisplayValue>
-          <DisplayValue name="Village">{`${village.name || 'N/A'}`} </DisplayValue>
+          <DisplayValue name="Village">{`${village?.name || 'N/A'}`} </DisplayValue>
         </Content>
       </Section>
 
