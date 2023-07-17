@@ -17,6 +17,8 @@ permissions:
 
 jobs:
   info:
+    # only run for manual dispatch or for non-permanent branches
+    if: github.event_name == 'workflow_dispatch' || (!startsWith(github.ref, 'refs/heads/release') && github.ref != 'refs/heads/main')
     name: Branch info
     uses: ./.github/workflows/branch-info.yml
 
