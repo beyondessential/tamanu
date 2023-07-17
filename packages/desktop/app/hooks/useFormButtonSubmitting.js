@@ -8,6 +8,7 @@ export const useFormButtonSubmitting = () => {
   useEffect(() => {
     let timer;
     if (isSubmitting) {
+      // only show loading indicator when form is taking more than 1 second to submit
       timer = setTimeout(() => {
         setShowLoadingIndicator(true);
       }, 1000);

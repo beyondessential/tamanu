@@ -38,10 +38,10 @@ const ScrollToError = () => {
 
 const StyledForm = styled.form`
   ${props =>
-    props.$fieldPointerEvents
+    props.$clickable
       ? `
       .MuiFormControl-root {
-        pointer-events: ${props.$fieldPointerEvents};
+        pointer-events: none;
       }
     `
       : ''}
@@ -189,12 +189,8 @@ export class Form extends React.PureComponent {
 
     return (
       <>
-        <StyledForm
-          style={style}
-          onSubmit={submitForm}
-          noValidate
-          $fieldPointerEvents={isSubmitting ? 'none' : ''}
-        >
+        {/* do not allow editing fields when form is being submitted */}
+        <StyledForm style={style} onSubmit={submitForm} noValidate $clickable={!isSubmitting}>
           {render({
             ...formProps,
             setValues,
