@@ -1,8 +1,8 @@
 import { Op } from 'sequelize';
 import * as yup from 'yup';
-import { VITALS_DATA_ELEMENT_IDS, SURVEY_TYPES } from 'shared/constants';
+import { VITALS_DATA_ELEMENT_IDS, SURVEY_TYPES } from '@tamanu/shared/constants';
+import { parseOrNull } from '@tamanu/shared/utils/parse-or-null';
 import { ImporterMetadataError, ValidationError } from '../errors';
-import { parseVisualisationConfig } from './parseVisualisationConfig';
 
 const isNumberOrFloat = value => {
   if (typeof value !== 'number') {
@@ -35,57 +35,53 @@ const visualisationConfigSchema = yup.object().shape({
         max: yup.number().required(),
       })
       .required(),
-    normalRange: yup
-      .mixed()
-      .test({
-        name: 'normalRange',
-        message: ctx => {
-          return `normalRange must be an array or object, got ${JSON.stringify(ctx.value)}`;
-        },
-        test: value => {
-          if (yup.object().isType(value)) {
-            return normalRangeObjectSchema.validateSync(value);
-          }
-          if (yup.array().isType(value)) {
-            return value.every(normalRange => normalRangeObjectSchema.validateSync(normalRange));
-          }
-
-          return false;
-        },
-      })
-      .test({
-        name: 'normalRange',
-        message: ctx => {
-          return `normalRange must be within graphRange, got ${JSON.stringify(ctx.value)}}`; // ctx does not have access to graphRange here
-        },
-        test: (value, context) => {
-          const { graphRange } = context.parent;
-          if (!value) return false;
-
-          const checkIfWithinGraphRange = normalRange => {
-            if (isNumberOrFloat(normalRange.min) && normalRange.min < graphRange.min) {
-              return false;
-            }
-            if (isNumberOrFloat(normalRange.max) && normalRange.max > graphRange.max) {
-              return false;
-            }
-            return true;
-          };
-
-          if (yup.object().isType(value)) {
-            return checkIfWithinGraphRange(value);
-          }
-          if (yup.array().isType(value)) {
-            return value.every(normalRange => checkIfWithinGraphRange(normalRange));
-          }
-
-          return false;
-        },
-      })
-      .required(),
     interval: yup.number().required(),
   }),
 });
+
+const checkIfWithinGraphRange = (normalRange, graphRange) => {
+  if (isNumberOrFloat(normalRange.min) && normalRange.min < graphRange.min) {
+    return false;
+  }
+  if (isNumberOrFloat(normalRange.max) && normalRange.max > graphRange.max) {
+    return false;
+  }
+  return true;
+};
+
+const validateNormalRangeAsObject = (normalRange, graphRange) => {
+  normalRangeObjectSchema.validateSync(normalRange);
+
+  if (!checkIfWithinGraphRange(normalRange, graphRange)) {
+    throw new Error(
+      `normalRange must be within graphRange, got normalRange: ${JSON.stringify(
+        normalRange,
+      )}, graphRange: ${JSON.stringify(graphRange)}}`,
+    );
+  }
+
+  return true;
+};
+
+const validateNormalRangeAsArray = (normalRange, graphRange) => {
+  for (const normalRangeObject of normalRange) {
+    validateNormalRangeAsObject(normalRangeObject, graphRange);
+  }
+
+  return true;
+};
+
+const validateNormalRange = (normalRange, graphRange) => {
+  if (yup.object().isType(normalRange)) {
+    return validateNormalRangeAsObject(normalRange, graphRange);
+  }
+
+  if (yup.array().isType(normalRange)) {
+    return validateNormalRangeAsArray(normalRange, graphRange);
+  }
+
+  return false;
+};
 
 const REQUIRED_QUESTION_IDS = {
   [SURVEY_TYPES.VITALS]: Object.values(VITALS_DATA_ELEMENT_IDS),
@@ -111,29 +107,23 @@ export function ensureRequiredQuestionsPresent(surveyInfo, questionRecords) {
   }
 }
 
-export function validateVisualisationConfigs(surveyInfo, questionRecords) {
-  const { surveyType } = surveyInfo;
+export function validateVisualisationConfigs(visualisationConfigString, validationCriteriaString) {
+  const visualisationConfig = parseOrNull(visualisationConfigString);
+  const validationCriteria = parseOrNull(validationCriteriaString);
 
-  const requiredQuestions = REQUIRED_QUESTION_IDS[surveyType];
-  if (!requiredQuestions) {
-    return;
+  if (visualisationConfig) {
+    if (!validationCriteria) {
+      throw new Error('validationCriteria must be specified if visualisationConfig is presented');
+    }
+    if (!validationCriteria.normalRange) {
+      throw new Error('validationCriteria must have normalRange');
+    }
+
+    visualisationConfigSchema.validateSync(visualisationConfig);
+    validateNormalRange(validationCriteria.normalRange, visualisationConfig.yAxis.graphRange);
   }
 
-  questionRecords.forEach(record => {
-    const { model, values } = record;
-    const {
-      visualisationConfig: visualisationConfigString,
-      validationCriteria: validationCriteriaString,
-    } = values;
-    if (model === 'ProgramDataElement' && visualisationConfigString) {
-      const visualisationConfig = parseVisualisationConfig(
-        visualisationConfigString,
-        validationCriteriaString,
-      );
-
-      visualisationConfigSchema.validateSync(visualisationConfig);
-    }
-  });
+  return true;
 }
 
 async function ensureOnlyOneVitalsSurveyExists({ models }, surveyInfo) {

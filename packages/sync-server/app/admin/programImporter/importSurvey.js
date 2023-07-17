@@ -5,11 +5,7 @@ import { ImporterMetadataError } from '../errors';
 import { importRows } from '../importRows';
 
 import { readSurveyQuestions } from './readSurveyQuestions';
-import {
-  ensureRequiredQuestionsPresent,
-  validateVisualisationConfigs,
-  validateVitalsSurvey,
-} from './validation';
+import { ensureRequiredQuestionsPresent, validateVitalsSurvey } from './validation';
 
 function readSurveyInfo(workbook, surveyInfo) {
   const { sheetName, surveyType, code } = surveyInfo;
@@ -40,7 +36,6 @@ function readSurveyInfo(workbook, surveyInfo) {
 
   const questionRecords = readSurveyQuestions(data, surveyInfo);
   ensureRequiredQuestionsPresent(surveyInfo, questionRecords);
-  validateVisualisationConfigs(surveyInfo, questionRecords);
 
   return [surveyRecord, ...questionRecords];
 }
