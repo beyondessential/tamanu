@@ -31,11 +31,11 @@ import { LabRequestLogModal } from './components/LabRequestLogModal';
 import { LabRequestCard } from './components/LabRequestCard';
 import { LabRequestChangePriorityModal } from './components/LabRequestChangePriorityModal';
 import { LabRequestRecordSampleModal } from './components/LabRequestRecordSampleModal';
+import { LabTestResultsModal } from '../../components/LabRequestModals/LabTestResultsModal';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
 import { Colors } from '../../constants';
-import { LabTestResultModal } from './LabTestResultModal';
 
 const Container = styled.div`
   flex: 1;
@@ -78,7 +78,7 @@ const MODALS = {
   [MODAL_IDS.CHANGE_LABORATORY]: LabRequestChangeLabModal,
   [MODAL_IDS.CHANGE_PRIORITY]: LabRequestChangePriorityModal,
   [MODAL_IDS.CHANGE_STATUS]: LabRequestChangeStatusModal,
-  [MODAL_IDS.ENTER_RESULTS]: LabTestResultModal,
+  [MODAL_IDS.ENTER_RESULTS]: LabTestResultsModal,
   [MODAL_IDS.LABEL_PRINT]: ({ labRequest, ...props }) => (
     <LabRequestPrintLabelModal {...props} labRequests={[labRequest]} />
   ),

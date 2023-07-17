@@ -3,6 +3,7 @@ import { Box } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { keyBy, omit } from 'lodash';
+import { Skeleton } from '@material-ui/lab';
 import { Modal } from '../Modal';
 import { Heading4, SmallBodyText } from '../Typography';
 import { DateTimeField, Field, Form, SuggesterSelectField, TextField } from '../Field';
@@ -26,10 +27,6 @@ const StyledTableFormFields = styled(TableFormFields)`
   tbody tr td {
     font-size: 14px;
   }
-
-  tbody tr:last-child td {
-    border-bottom: none;
-  }
 `;
 
 const AUTOFILL_FIELD_NAMES = ['completedDate', 'labTestMethodId'];
@@ -38,7 +35,7 @@ const useLabTestResults = labRequestId => {
   const api = useApi();
   return useQuery(
     ['labTestResults', labRequestId],
-    () => api.get(`labTestType/${labRequestId}/tests`),
+    () => api.get(`labRequest/${labRequestId}/tests`),
     { enabled: !!labRequestId },
   );
 };
@@ -50,10 +47,10 @@ const getColumns = (count, onChangeResult) => {
   const tabIndex = (row, col) => count * row + col + 1;
   return [
     {
-      key: 'testType',
+      key: 'labTestType',
       title: 'Test type',
       width: '100px',
-      accessor: row => row.testType.name,
+      accessor: row => row.labTestType.name,
     },
     {
       key: 'result',
@@ -72,7 +69,7 @@ const getColumns = (count, onChangeResult) => {
       key: 'unit',
       title: 'Units',
       width: '80px',
-      accessor: row => row.testType.unit,
+      accessor: row => row.labTestType.unit,
     },
     {
       key: 'method',
@@ -115,7 +112,8 @@ const getColumns = (count, onChangeResult) => {
   ];
 };
 
-export const LabTestResultsForm = ({ labTestResults, onClose, values, setFieldValue }) => {
+const ResultsForm = ({ labTestResults, values, setFieldValue }) => {
+  const { count, data } = labTestResults;
   /**
    * On entering lab result field for a test some other fields are auto-filled optimistically
    * This occurs in the case that:
@@ -140,10 +138,7 @@ export const LabTestResultsForm = ({ labTestResults, onClose, values, setFieldVa
     [values, setFieldValue],
   );
 
-  const columns = useMemo(() => getColumns(labTestResults.length, onChangeResult), [
-    labTestResults.length,
-    onChangeResult,
-  ]);
+  const columns = useMemo(() => getColumns(count, onChangeResult), [count, onChangeResult]);
 
   return (
     <>
@@ -156,33 +151,53 @@ export const LabTestResultsForm = ({ labTestResults, onClose, values, setFieldVa
         </div>
         <Field name="laboratoryOfficer" label="Lab officer" tabIndex={0} component={TextField} />
       </Box>
-      <StyledTableFormFields columns={columns} data={labTestResults} />
-      <ModalActionRow onConfirm={onClose} onCancel={onClose} />
+      <StyledTableFormFields columns={columns} data={data} />
     </>
   );
 };
 
+const ResultsFormSkeleton = () => (
+  <Box>
+    <Box display="flex" justifyContent="space-between" marginBottom="20px">
+      <div>
+        <Skeleton variant="text" width={124} style={{ fontSize: 20, marginBottom: 4 }} />
+        <Skeleton variant="text" width={270} style={{ fontSize: 12 }} />
+      </div>
+      <div>
+        <Skeleton variant="text" width={70} style={{ fontSize: 18 }} />
+        <Skeleton variant="rect" width={241} height={40} style={{ borderRadius: 4 }} />
+      </div>
+    </Box>
+    <Skeleton variant="rect" height={257} style={{ borderRadius: 4, marginBottom: 30 }} />
+  </Box>
+);
+
 export const LabTestResultsModal = ({ labRequest, onClose, open }) => {
-  const { data: labTestResults } = useLabTestResults(labRequest.id);
+  const { data: labTestResults, isLoading, error } = useLabTestResults(labRequest.id);
   const { displayId } = labRequest;
   const initialData = useMemo(
     () =>
       keyBy(
-        labTestResults?.map(data => omit(data, ['testType'])),
+        labTestResults?.data.map(data => omit(data, ['labTestType'])),
         'id',
       ),
     [labTestResults],
   );
   return (
     <Modal width="lg" title={`Enter results | Test ID ${displayId}`} open={open} onClose={onClose}>
-      {labTestResults && (
-        <Form
-          initialValues={initialData}
-          render={props => (
-            <LabTestResultsForm labTestResults={labTestResults} onClose={onClose} {...props} />
-          )}
-        />
+      {isLoading ? (
+        <ResultsFormSkeleton />
+      ) : (
+        labTestResults && (
+          <Form
+            initialValues={initialData}
+            render={props => (
+              <ResultsForm labTestResults={labTestResults} onClose={onClose} {...props} />
+            )}
+          />
+        )
       )}
+      <ModalActionRow onConfirm={onClose} onCancel={onClose} confirmDisabled={isLoading} />
     </Modal>
   );
 };

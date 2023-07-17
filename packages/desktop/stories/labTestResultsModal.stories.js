@@ -47,7 +47,7 @@ const Template = args => (
   <MockedApi
     endpoints={{
       ...defaultEndpoints,
-      'labTestType/:labRequestId/tests': () => mockLabTests,
+      'labRequest/:labRequestId/tests': () => mockLabTests,
     }}
   >
     <LabTestResultsModal {...args} open onClose={action('close')} />
