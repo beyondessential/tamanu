@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
+import { LAB_TEST_RESULT_TYPES } from '@tamanu/shared/constants';
 import { Box } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
@@ -6,7 +7,15 @@ import { keyBy, omit } from 'lodash';
 import { Skeleton } from '@material-ui/lab';
 import { Modal } from '../Modal';
 import { Heading4, SmallBodyText } from '../Typography';
-import { DateTimeField, Field, Form, SuggesterSelectField, TextField } from '../Field';
+import {
+  DateTimeField,
+  Field,
+  Form,
+  NumberField,
+  SelectField,
+  SuggesterSelectField,
+  TextField,
+} from '../Field';
 import { useApi } from '../../api';
 import { TableFormFields } from '../Table';
 import { Colors } from '../../constants';
@@ -40,6 +49,12 @@ const useLabTestResults = labRequestId => {
   );
 };
 
+function getResultComponent(resultType, options) {
+  if (options && options.length) return SelectField;
+  if (resultType === LAB_TEST_RESULT_TYPES.FREE_TEXT) return TextField;
+  return NumberField;
+}
+
 const AccessorField = ({ id, name, ...props }) => <Field {...props} name={`${id}.${name}`} />;
 
 const getColumns = (count, onChangeResult) => {
@@ -55,15 +70,18 @@ const getColumns = (count, onChangeResult) => {
     {
       key: 'result',
       title: 'Result',
-      accessor: (row, i) => (
-        <AccessorField
-          component={TextField}
-          name="result"
-          onChange={e => onChangeResult(e.target.value, row.id)}
-          id={row.id}
-          tabIndex={tabIndex(0, i)}
-        />
-      ),
+      accessor: (row, i) => {
+        const { resultType, options } = row.labTestType;
+        return (
+          <AccessorField
+            component={getResultComponent(resultType, options)}
+            name="result"
+            onChange={e => onChangeResult(e.target.value, row.id)}
+            id={row.id}
+            tabIndex={tabIndex(0, i)}
+          />
+        );
+      },
     },
     {
       key: 'unit',
