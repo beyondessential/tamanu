@@ -229,13 +229,13 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
           <DisplayValue name="Department">{getDepartmentName(encounter)} </DisplayValue>
           <DisplayValue name="Supervising clinician">{examiner?.displayName} </DisplayValue>
           <DisplayValue name="Date of admission">
-            {getDateDisplay(startDate, { showTime: true })}
+            {getDateDisplay(startDate, { showTime: false })}
           </DisplayValue>
           <DisplayValue name="Discharging physician">
             {discharge?.discharger?.displayName}
           </DisplayValue>
           <DisplayValue name="Date of discharge">
-            {getDateDisplay(endDate, { showTime: true })}
+            {getDateDisplay(endDate, { showTime: false })}
           </DisplayValue>
           {discharge && dischargeDispositionVisible && (
             <DisplayValue name="Discharge disposition">{discharge.disposition?.name}</DisplayValue>
