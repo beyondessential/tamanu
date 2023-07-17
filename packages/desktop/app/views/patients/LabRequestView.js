@@ -36,11 +36,14 @@ import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetai
 import { Colors } from '../../constants';
 
 const Container = styled.div`
-  padding: 12px 30px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 `;
 
-const Rule = styled(Divider)`
-  margin: 0 0 20px 0;
+const InnerContainer = styled.div`
+  padding: 12px 30px;
+  background-color: ${({ $backgroundColor = Colors.background }) => $backgroundColor};
 `;
 
 const HIDDEN_STATUSES = [
@@ -145,104 +148,106 @@ export const LabRequestView = () => {
 
   return (
     <Container>
-      <Heading2 gutterBottom>Labs</Heading2>
-      <LabRequestCard
-        labRequest={labRequest}
-        isReadOnly={areLabRequestsReadOnly}
-        actions={
-          <Box display="flex" alignItems="center">
-            <OutlinedButton
-              disabled={isHidden}
-              onClick={() => {
-                handleChangeModalId(MODAL_IDS.PRINT);
-              }}
-            >
-              Print request
-            </OutlinedButton>
-            <Menu setModal={handleChangeModalId} status={labRequest.status} disabled={isHidden} />
-          </Box>
-        }
-      />
-      <LabRequestNoteForm labRequestId={labRequest.id} isReadOnly={areLabRequestsReadOnly} />
-      <TileContainer>
-        <Tile
-          Icon={() => <img src={TestCategoryIcon} alt="test category" />}
-          text="Test Category"
-          main={labRequest.category?.name || '-'}
-        />
-        <Tile
-          Icon={Timelapse}
-          text="Status"
-          main={
-            <TileTag $color={LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.color}>
-              {LAB_REQUEST_STATUS_CONFIG[displayStatus]?.label || 'Unknown'}
-            </TileTag>
+      <InnerContainer>
+        <Heading2 gutterBottom>Labs</Heading2>
+        <LabRequestCard
+          labRequest={labRequest}
+          isReadOnly={areLabRequestsReadOnly}
+          actions={
+            <Box display="flex" alignItems="center">
+              <OutlinedButton
+                disabled={isHidden}
+                onClick={() => {
+                  handleChangeModalId(MODAL_IDS.PRINT);
+                }}
+              >
+                Print request
+              </OutlinedButton>
+              <Menu setModal={handleChangeModalId} status={labRequest.status} disabled={isHidden} />
+            </Box>
           }
-          actions={{
-            ...(!areLabRequestsReadOnly && {
-              'Change status': () => {
-                handleChangeModalId(MODAL_IDS.CHANGE_STATUS);
+        />
+        <LabRequestNoteForm labRequestId={labRequest.id} isReadOnly={areLabRequestsReadOnly} />
+        <TileContainer>
+          <Tile
+            Icon={() => <img src={TestCategoryIcon} alt="test category" />}
+            text="Test Category"
+            main={labRequest.category?.name || '-'}
+          />
+          <Tile
+            Icon={Timelapse}
+            text="Status"
+            main={
+              <TileTag $color={LAB_REQUEST_STATUS_CONFIG[labRequest.status]?.color}>
+                {LAB_REQUEST_STATUS_CONFIG[displayStatus]?.label || 'Unknown'}
+              </TileTag>
+            }
+            actions={{
+              ...(!areLabRequestsReadOnly && {
+                'Change status': () => {
+                  handleChangeModalId(MODAL_IDS.CHANGE_STATUS);
+                },
+              }),
+              'View status log': () => {
+                handleChangeModalId(MODAL_IDS.VIEW_STATUS_LOG);
               },
-            }),
-            'View status log': () => {
-              handleChangeModalId(MODAL_IDS.VIEW_STATUS_LOG);
-            },
-          }}
-        />
-        <Tile
-          Icon={() => <img src={BeakerIcon} alt="beaker" />}
-          text="Sample collected"
-          isReadOnly={areLabRequestsReadOnly}
-          main={
-            <>
-              <DateDisplay
-                color={labRequest.sampleTime ? 'unset' : Colors.softText}
-                date={labRequest.sampleTime}
-                showTime
-              />
-            </>
-          }
-          actions={actions}
-        />
-        <Tile
-          Icon={Business}
-          text="Laboratory"
-          main={labRequest.laboratory?.name || '-'}
-          isReadOnly={areLabRequestsReadOnly}
-          actions={{
-            'Change laboratory': () => {
-              handleChangeModalId(MODAL_IDS.CHANGE_LABORATORY);
-            },
-          }}
-        />
-        <Tile
-          Icon={AssignmentLate}
-          text="Priority"
-          main={labRequest.priority?.name || '-'}
-          isReadOnly={areLabRequestsReadOnly}
-          actions={{
-            'Change priority': () => {
-              handleChangeModalId(MODAL_IDS.CHANGE_PRIORITY);
-            },
-          }}
-        />
-      </TileContainer>
-      <Rule />
-
-      <LabRequestResultsTable
-        labRequest={labRequest}
-        patient={patient}
-        isReadOnly={areLabTestsReadOnly}
-      />
-      {modalId && (
-        <ActiveModal
+            }}
+          />
+          <Tile
+            Icon={() => <img src={BeakerIcon} alt="beaker" />}
+            text="Sample collected"
+            isReadOnly={areLabRequestsReadOnly}
+            main={
+              <>
+                <DateDisplay
+                  color={labRequest.sampleTime ? 'unset' : Colors.softText}
+                  date={labRequest.sampleTime}
+                  showTime
+                />
+              </>
+            }
+            actions={actions}
+          />
+          <Tile
+            Icon={Business}
+            text="Laboratory"
+            main={labRequest.laboratory?.name || '-'}
+            isReadOnly={areLabRequestsReadOnly}
+            actions={{
+              'Change laboratory': () => {
+                handleChangeModalId(MODAL_IDS.CHANGE_LABORATORY);
+              },
+            }}
+          />
+          <Tile
+            Icon={AssignmentLate}
+            text="Priority"
+            main={labRequest.priority?.name || '-'}
+            isReadOnly={areLabRequestsReadOnly}
+            actions={{
+              'Change priority': () => {
+                handleChangeModalId(MODAL_IDS.CHANGE_PRIORITY);
+              },
+            }}
+          />
+        </TileContainer>
+      </InnerContainer>
+      <InnerContainer $backgroundColor={Colors.white} style={{flex: 1}}>
+        <LabRequestResultsTable
           labRequest={labRequest}
           patient={patient}
-          updateLabReq={updateLabReq}
-          open={modalOpen}
-          onClose={closeModal}
+          isReadOnly={areLabTestsReadOnly}
         />
-      )}
+        {modalId && (
+          <ActiveModal
+            labRequest={labRequest}
+            patient={patient}
+            updateLabReq={updateLabReq}
+            open={modalOpen}
+            onClose={closeModal}
+          />
+        )}
+      </InnerContainer>
     </Container>
   );
 };
