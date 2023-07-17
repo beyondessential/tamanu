@@ -36,6 +36,7 @@ const ManualLabResultModal = React.memo(({ labTest, onClose, open, isReadOnly })
       onClose={onClose}
       title={`Enter result – ${labTest && labTest.labTestType.name} | Test ID ${labRequest &&
         labRequest.displayId}`}
+      cornerExitButton={false}
     >
       <ManualLabResultForm
         labTest={labTest}
@@ -110,6 +111,8 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, isReadO
         onRowClick={openModal}
         initialSort={{ order: 'asc', orderBy: 'id' }}
         elevated={false}
+        disablePagination
+        fixedHeader
       />
     </>
   );

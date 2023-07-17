@@ -1,5 +1,8 @@
 import React, { memo, useState } from 'react';
+import { differenceInYears, differenceInMonths, differenceInWeeks, parseISO } from 'date-fns';
 import { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
+import { ReduxStoreProps } from '../../interfaces/ReduxStoreProps';
+import { PatientStateProps } from '../../store/ducks/patient';
 import { Table, TableCells } from '../Table';
 import { vitalsTableHeader } from './VitalsTableHeader';
 import { VitalsTableTitle } from './VitalsTableTitle';
@@ -13,17 +16,54 @@ import { VitalsTableRowHeader } from './VitalsTableRowHeader';
 import { VitalsTableCell } from './VitalsTableCell';
 import { SurveyScreenValidationCriteria } from '~/types';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { ValidationCriteriaNormalRange } from '../../../types/ISurvey';
+import { useSelector } from 'react-redux';
 
 interface VitalsTableProps {
   data: TableCells<PatientVitalsProps>;
   columns: string[];
 }
 
+/*
+  Only applies to vitals survey components:
+  Validation criteria normal range can be different by age but we also need
+  to support the previous format where only one is specified.
+  This will also be on desktop in file /app/utils/survey.js
+  both should be changed together. Though note that the functions might not
+  be exactly the same because of different APIs.
+*/
+const getNormalRangeByAge = (
+  validationCriteria: any = {},
+  { dateOfBirth },
+): ValidationCriteriaNormalRange | undefined => {
+  const { normalRange = {} } = validationCriteria;
+  if (Array.isArray(normalRange) === false) {
+    return normalRange;
+  }
+
+  const age = {
+    years: differenceInYears(new Date(), parseISO(dateOfBirth)),
+    months: differenceInMonths(new Date(), parseISO(dateOfBirth)),
+    weeks: differenceInWeeks(new Date(), parseISO(dateOfBirth)),
+  };
+
+  const normalRangeByAge = normalRange.find(
+    ({ ageUnit = '', ageMin = -Infinity, ageMax = Infinity }) => {
+      if (['years', 'months', 'weeks'].includes(ageUnit) === false) return false;
+      const ageInUnit = age[ageUnit];
+      return ageInUnit >= ageMin && ageInUnit < ageMax;
+    },
+  );
+
+  return normalRangeByAge;
+};
+
 const checkNeedsAttention = (
   value: string,
   validationCriteria: SurveyScreenValidationCriteria = {},
+  patient: any,
 ): boolean => {
-  const { normalRange } = validationCriteria;
+  const normalRange = getNormalRangeByAge(validationCriteria, patient);
   const fValue = parseFloat(value);
   if (!normalRange || Number.isNaN(fValue)) return false;
   return fValue > normalRange.max || fValue < normalRange.min;
@@ -31,6 +71,9 @@ const checkNeedsAttention = (
 
 export const VitalsTable = memo(
   ({ data, columns }: VitalsTableProps): JSX.Element => {
+    const { selectedPatient } = useSelector(
+      (state: ReduxStoreProps): PatientStateProps => state.patient,
+    );
     const [vitalsSurvey, error] = useBackendEffect(({ models }) => models.Survey.getVitalsSurvey());
     const [showNeedsAttentionInfo, setShowNeedsAttentionInfo] = useState(false);
 
@@ -86,7 +129,7 @@ export const VitalsTable = memo(
                 rowHeader: i => <VitalsTableRowHeader title={name} isOdd={i % 2 === 0} />,
                 cell: (cellData, i): JSX.Element => {
                   const value = cellData?.body || '';
-                  const needsAttention = checkNeedsAttention(value, rowValidationCriteria);
+                  const needsAttention = checkNeedsAttention(value, rowValidationCriteria, selectedPatient);
                   if (needsAttention && !showNeedsAttentionInfo) setShowNeedsAttentionInfo(true);
                   return (
                     <VitalsTableCell
