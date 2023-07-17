@@ -34,6 +34,13 @@ const mockLabTests = [
       unit: 'pg',
     },
   },
+  {
+    id: 4,
+    testType: {
+      name: 'MCHC',
+      unit: 'g/dL',
+    },
+  }
 ];
 
 const Template = args => (
