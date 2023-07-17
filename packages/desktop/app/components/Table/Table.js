@@ -426,31 +426,20 @@ class TableComponent extends React.Component {
   }
 
   render() {
-<<<<<<< HEAD
-    const { className, elevated, headerColor, hideHeader, lazyLoading, optionRow } = this.props;
-=======
-    const { className, elevated, headerColor, optionRow, fixedHeader } = this.props;
->>>>>>> b546e10622b06089e92c816ac15c68985c9b4eff
+    const { className, elevated, headerColor, hideHeader, fixedHeader, lazyLoading, optionRow } = this.props;
 
     return (
       <StyledTableContainer className={className} $elevated={elevated}>
         {optionRow && <OptionRow>{optionRow}</OptionRow>}
         <StyledTable>
-<<<<<<< HEAD
           {!hideHeader && (
-            <StyledTableHead $headerColor={headerColor}>
+            <StyledTableHead $headerColor={headerColor} $fixedHeader={fixedHeader}>
               <StyledTableRow>{this.renderHeaders()}</StyledTableRow>
             </StyledTableHead>
           )}
           <StyledTableBody onScroll={this.handleScroll} $lazyLoading={lazyLoading}>
             {this.renderBodyContent()}
           </StyledTableBody>
-=======
-          <StyledTableHead $headerColor={headerColor} $fixedHeader={fixedHeader}>
-            <TableRow>{this.renderHeaders()}</TableRow>
-          </StyledTableHead>
-          <TableBody>{this.renderBodyContent()}</TableBody>
->>>>>>> b546e10622b06089e92c816ac15c68985c9b4eff
           {this.renderFooter()}
         </StyledTable>
       </StyledTableContainer>
