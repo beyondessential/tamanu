@@ -12,35 +12,35 @@ export default {
   component: LabTestResultsModal,
 };
 
+const mockLabTests = [
+  {
+    id: 1,
+    testType: {
+      name: 'HGB',
+      unit: 'g/dL',
+    },
+  },
+  {
+    id: 2,
+    testType: {
+      name: 'PLT',
+      unit: 'x10^3/uL',
+    },
+  },
+  {
+    id: 3,
+    testType: {
+      name: 'MCH',
+      unit: 'pg',
+    },
+  },
+];
+
 const Template = args => (
   <MockedApi
     endpoints={{
       ...defaultEndpoints,
-      'labTestType/:labRequestId/tests': () => {
-        return [
-          {
-            id: 1,
-            testType: {
-              name: 'HGB',
-              unit: 'g/dL',
-            },
-          },
-          {
-            id: 2,
-            testType: {
-              name: 'PLT',
-              unit: 'x10^3/uL',
-            },
-          },
-          {
-            id: 3,
-            testType: {
-              name: 'MCH',
-              unit: 'pg',
-            },
-          },
-        ];
-      },
+      'labTestType/:labRequestId/tests': () => mockLabTests,
     }}
   >
     <LabTestResultsModal {...args} open onClose={action('close')} />
