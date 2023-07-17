@@ -1,9 +1,6 @@
 import { parseOrNull } from '@tamanu/shared/utils/parse-or-null';
 
-export const addNormalRangeToVisualisationConfigFromValidationCriteria = (
-  visualisationConfigString,
-  validationCriteriaString,
-) => {
+export const parseVisualisationConfig = (visualisationConfigString, validationCriteriaString) => {
   if (!visualisationConfigString && !validationCriteriaString) {
     return null;
   }

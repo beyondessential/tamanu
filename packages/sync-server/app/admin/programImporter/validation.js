@@ -2,7 +2,7 @@ import { Op } from 'sequelize';
 import * as yup from 'yup';
 import { VITALS_DATA_ELEMENT_IDS, SURVEY_TYPES } from 'shared/constants';
 import { ImporterMetadataError, ValidationError } from '../errors';
-import { addNormalRangeToVisualisationConfigFromValidationCriteria } from './addNormalRangeToVisualisationConfigFromValidationCriteria';
+import { parseVisualisationConfig } from './parseVisualisationConfig';
 
 const isNumberOrFloat = value => {
   if (typeof value !== 'number') {
@@ -126,7 +126,7 @@ export function validateVisualisationConfigs(surveyInfo, questionRecords) {
       validationCriteria: validationCriteriaString,
     } = values;
     if (model === 'ProgramDataElement' && visualisationConfigString) {
-      const visualisationConfig = addNormalRangeToVisualisationConfigFromValidationCriteria(
+      const visualisationConfig = parseVisualisationConfig(
         visualisationConfigString,
         validationCriteriaString,
       );
