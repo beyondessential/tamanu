@@ -53,7 +53,7 @@ export const DataFetchingTable = memo(
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
     useEffect(() => {
-      if (fetchState?.data?.length > 0 && lazyLoading) {
+      if (fetchState.data?.length > 0 && lazyLoading) {
         updateFetchState({ isLoadingMore: true });
       } else {
         updateFetchState({ isLoading: true });

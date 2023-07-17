@@ -85,7 +85,6 @@ export const NoteForm = ({
   noteTypeCountByType,
   noteFormMode = NOTE_FORM_MODES.CREATE_NOTE,
   onSubmit,
-  onEditNote,
   confirmText,
   cancelText = 'Cancel',
   noteContent,
@@ -160,7 +159,7 @@ export const NoteForm = ({
 
   return (
     <Form
-      onSubmit={noteFormMode === NOTE_FORM_MODES.CREATE_NOTE ? onSubmit : onEditNote}
+      onSubmit={onSubmit}
       render={renderForm}
       showInlineErrorsOnly
       initialValues={{

@@ -127,9 +127,7 @@ const NoteContent = ({
           <NoteFooterTextElement>on behalf of {note.onBehalfOf.displayName}</NoteFooterTextElement>
         ) : null}
         <DateDisplay
-          date={
-            (note.noteType !== NOTE_TYPES.TREATMENT_PLAN && note?.revisedBy?.date) || note?.date
-          }
+          date={(note.noteType !== NOTE_TYPES.TREATMENT_PLAN && note.revisedBy?.date) || note.date}
           showTime
         />
         {note.revisedById && (

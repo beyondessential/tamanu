@@ -44,39 +44,25 @@ export const NoteModal = ({
     setNoteContent(note?.content);
   }, [note]);
 
-  const handleCreateNewNote = useCallback(
+  const handleCreateOrEditNewNote = useCallback(
     async (data, { resetForm }) => {
-      const newData = {
+      const newNote = {
         ...data,
         authorId: currentUser.id,
-        onBehalfOfId: currentUser.id !== data.writtenById ? data.writtenById : undefined,
-        recordId: encounterId,
-        recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-      };
-
-      await api.post('notes', newData);
-
-      resetForm();
-      onSaved();
-    },
-    [api, currentUser.id, encounterId, onSaved],
-  );
-
-  const handleEditNote = useCallback(
-    async (_, { resetForm }) => {
-      if (!note) {
-        return;
-      }
-
-      const newNote = {
-        authorId: currentUser.id,
-        date: getCurrentDateTimeString(),
-        onBehalfOfId: note.onBehalfOfId,
-        recordType: note.recordType,
-        recordId: note.recordId,
-        noteType: note.noteType,
-        revisedById: note.revisedById || note.id,
-        content: noteContent,
+        ...(note
+          ? {
+              date: getCurrentDateTimeString(),
+              onBehalfOfId: note.onBehalfOfId,
+              recordType: note.recordType,
+              recordId: note.recordId,
+              noteType: note.noteType,
+              revisedById: note.revisedById || note.id,
+            }
+          : {
+              onBehalfOfId: currentUser.id !== data.writtenById ? data.writtenById : undefined,
+              recordId: encounterId,
+              recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+            }),
       };
 
       await api.post('notes', newNote);
@@ -84,7 +70,7 @@ export const NoteModal = ({
       resetForm();
       onSaved();
     },
-    [api, currentUser.id, note, noteContent, onSaved],
+    [api, currentUser.id, encounterId, note, onSaved],
   );
 
   return (
@@ -114,8 +100,7 @@ export const NoteModal = ({
       >
         <NoteForm
           noteFormMode={noteFormMode}
-          onSubmit={handleCreateNewNote}
-          onEditNote={handleEditNote}
+          onSubmit={handleCreateOrEditNewNote}
           onCancel={() => {
             if (noteContentHasChanged) {
               setOpenNoteCancelConfirmModal(true);
