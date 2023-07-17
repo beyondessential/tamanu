@@ -15,7 +15,7 @@ import { useEncounter } from '../../contexts/Encounter';
 import { useElectron } from '../../contexts/Electron';
 import { Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
-import { getFullLocationName } from '../../utils/location';
+import { getDepartmentName } from '../../utils/department';
 import { getDisplayAge } from '../../utils/dateTime';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { useLocalisation } from '../../contexts/Localisation';
@@ -226,7 +226,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
         <HorizontalLine />
         <Content>
           <DisplayValue name="Facility">{location?.facility?.name || 'N/A'} </DisplayValue>
-          <DisplayValue name="Department">{getFullLocationName(location)} </DisplayValue>
+          <DisplayValue name="Department">{getDepartmentName(encounter)} </DisplayValue>
           <DisplayValue name="Supervising clinician">{examiner?.displayName} </DisplayValue>
           <DisplayValue name="Date of admission">
             {getDateDisplay(startDate, { showTime: true })}
