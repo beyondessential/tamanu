@@ -1,13 +1,11 @@
 import { REPORT_STATUSES, REPORT_DATE_RANGE_LABELS } from '../../constants';
 import { REPORT_DEFINITIONS } from '../reportDefinitions';
-import { getReportModule } from '../index';
 import { canRunStaticReport } from './canRunStaticReport';
 
-const getStaticReports = async (ability, models) => {
+const getStaticReports = ability => {
   const permittedReports = [];
   for (const reportDef of REPORT_DEFINITIONS) {
-    const reportModule = await getReportModule(reportDef.id, models);
-    if (canRunStaticReport(ability, reportDef.id, reportModule.permission)) {
+    if (canRunStaticReport(ability, reportDef.id)) {
       permittedReports.push(reportDef);
     }
   }
@@ -57,7 +55,7 @@ const getDisabledReportIds = async (models, userId) => {
 
 export const getAvailableReports = async (ability, models, userId) => {
   const permittedReports = [
-    ...(await getStaticReports(ability, models)),
+    ...getStaticReports(ability, models),
     ...(await getDbReports(ability, models)),
   ];
   const disabledReportIds = await getDisabledReportIds(models, userId);

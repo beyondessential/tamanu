@@ -49,6 +49,7 @@ const UNHIDEABLE_FIELDS = [
   'emergencyContactNumber',
   'locationId',
   'locationGroupId',
+  'diagnosis',
 ];
 
 const HIDEABLE_FIELDS = [
@@ -423,6 +424,7 @@ const rootLocalisationSchema = yup
     features: yup
       .object({
         editPatientDetailsOnMobile: yup.boolean().required(),
+        quickPatientGenerator: yup.boolean().required(),
         enableInvoicing: yup.boolean().required(),
         hideOtherSex: yup.boolean().required(),
         registerNewPatient: yup.boolean().required(),
@@ -445,11 +447,19 @@ const rootLocalisationSchema = yup
         onlyAllowLabPanels: yup.boolean().required(),
         displayProcedureCodesInDischargeSummary: yup.boolean().required(),
         displayIcd10CodesInDischargeSummary: yup.boolean().required(),
+        mandatoryVitalEditReason: yup.boolean().required(),
+        enableVitalEdit: yup.boolean().required(),
       })
       .required()
       .noUnknown(),
     printMeasures: printMeasuresSchema,
     disabledReports: yup.array(yup.string().required()).defined(),
+    vitalEditReasons: yup.array(
+      yup.object({
+        value: yup.string().required(),
+        label: yup.string().required(),
+      }),
+    ),
   })
   .required()
   .noUnknown();

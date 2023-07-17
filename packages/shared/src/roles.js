@@ -35,6 +35,12 @@ export const practitioner = [
   { verb: 'write', noun: 'LabTest' },
   { verb: 'create', noun: 'LabTest' },
 
+  { verb: 'list', noun: 'LabTestType' },
+  { verb: 'read', noun: 'LabTestType' },
+
+  { verb: 'list', noun: 'LabTestPanel' },
+  { verb: 'read', noun: 'LabTestPanel' },
+
   { verb: 'read', noun: 'Encounter' },
   { verb: 'list', noun: 'Encounter' },
   { verb: 'create', noun: 'Encounter' },
@@ -58,6 +64,7 @@ export const practitioner = [
   { verb: 'list', noun: 'Vitals' },
   { verb: 'read', noun: 'Vitals' },
   { verb: 'create', noun: 'Vitals' },
+  { verb: 'write', noun: 'Vitals' },
 
   { verb: 'read', noun: 'EncounterDiagnosis' },
   { verb: 'write', noun: 'EncounterDiagnosis' },
@@ -206,7 +213,7 @@ export const practitioner = [
   { verb: 'write', noun: 'PatientSecondaryId' },
   { verb: 'create', noun: 'PatientSecondaryId' },
 
-  { verb: 'run', noun: 'Report' },
+  { verb: 'run', noun: 'StaticReport' },
 
   { verb: 'write', noun: 'OtherPractitionerEncounterNote' },
 
