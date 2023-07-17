@@ -6,6 +6,7 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { BaseInputProps } from '/interfaces/BaseInputProps';
 import { CheckboxMarkIcon } from '../Icons';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
+import { RequiredIndicator } from '../RequiredIndicator';
 
 interface CheckboxProps extends BaseInputProps {
   onChange: Function;
@@ -47,7 +48,7 @@ export const Checkbox = ({
           color={theme.colors.TEXT_SUPER_DARK}
         >
           {label}
-          {required && <StyledText color={theme.colors.ALERT}> *</StyledText>}
+          {required && <RequiredIndicator />}
         </StyledText>
       )}
       <RowView alignItems="center">
