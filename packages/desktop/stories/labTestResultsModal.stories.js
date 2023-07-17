@@ -40,7 +40,7 @@ const mockLabTests = [
       name: 'MCHC',
       unit: 'g/dL',
     },
-  }
+  },
 ];
 
 const Template = args => (

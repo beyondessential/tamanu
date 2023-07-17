@@ -2,6 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import { Box } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
+import { keyBy, omit } from 'lodash';
 import { Modal } from '../Modal';
 import { Heading4, SmallBodyText } from '../Typography';
 import { DateTimeField, Field, Form, SuggesterSelectField, TextField } from '../Field';
@@ -25,9 +26,13 @@ const StyledTableFormFields = styled(TableFormFields)`
   tbody tr td {
     font-size: 14px;
   }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
 `;
 
-const AUTOFILL_FIELD_NAMES = ['completedDate', 'method'];
+const AUTOFILL_FIELD_NAMES = ['completedDate', 'labTestMethodId'];
 
 const useLabTestResults = labRequestId => {
   const api = useApi();
@@ -40,8 +45,9 @@ const useLabTestResults = labRequestId => {
 
 const AccessorField = ({ id, name, ...props }) => <Field {...props} name={`${id}.${name}`} />;
 
-const getColumns = (len, onChangeResult) => {
-  const tabIndex = (row, col) => len * row + col + 1;
+const getColumns = (count, onChangeResult) => {
+  // Generate tab index for vertical tabbing through the table
+  const tabIndex = (row, col) => count * row + col + 1;
   return [
     {
       key: 'testType',
@@ -56,7 +62,7 @@ const getColumns = (len, onChangeResult) => {
         <AccessorField
           component={TextField}
           name="result"
-          onChange={onChangeResult}
+          onChange={e => onChangeResult(e.target.value, row.id)}
           id={row.id}
           tabIndex={tabIndex(0, i)}
         />
@@ -75,7 +81,7 @@ const getColumns = (len, onChangeResult) => {
         <AccessorField
           id={row.id}
           endpoint="labTestMethod"
-          name="method"
+          name="labTestMethodId"
           component={SuggesterSelectField}
           tabIndex={tabIndex(1, i)}
         />
@@ -112,25 +118,23 @@ const getColumns = (len, onChangeResult) => {
 export const LabTestResultsForm = ({ labTestResults, onClose, values, setFieldValue }) => {
   /**
    * On entering lab result field for a test some other fields are auto-filled optimistically
-   * This occurs in the case of
+   * This occurs in the case that:
    * 1. The user has only entered a single unique value for this field across other rows
    * 2. The user has not already entered a value for this field in the current row
    */
   const onChangeResult = useCallback(
-    e => {
-      const { name, value } = e.target;
-      const [id, field] = name.split('.');
-      if (values[id]?.[field] || !value) return;
-      AUTOFILL_FIELD_NAMES.forEach(autofillName => {
+    (value, resultId) => {
+      const rowValues = values[resultId];
+      if (rowValues?.result || !value) return;
+      AUTOFILL_FIELD_NAMES.forEach(name => {
+        // Get unique values for this field across all rows
         const unique = Object.values(values).reduce(
-          (acc, row) =>
-            row[autofillName] && !acc.includes(row[autofillName])
-              ? [...acc, row[autofillName]]
-              : acc,
+          (acc, row) => (row[name] && !acc.includes(row[name]) ? [...acc, row[name]] : acc),
           [],
         );
-        if (unique.length !== 1 || values[id]?.[autofillName]) return;
-        setFieldValue(`${id}.${autofillName}`, unique[0]);
+        if (unique.length !== 1 || rowValues?.[name]) return;
+        // Prefill the field with the unique value
+        setFieldValue(`${resultId}.${name}`, unique[0]);
       });
     },
     [values, setFieldValue],
@@ -161,10 +165,19 @@ export const LabTestResultsForm = ({ labTestResults, onClose, values, setFieldVa
 export const LabTestResultsModal = ({ labRequest, onClose, open }) => {
   const { data: labTestResults } = useLabTestResults(labRequest.id);
   const { displayId } = labRequest;
+  const initialData = useMemo(
+    () =>
+      keyBy(
+        labTestResults?.map(data => omit(data, ['testType'])),
+        'id',
+      ),
+    [labTestResults],
+  );
   return (
     <Modal width="lg" title={`Enter results | Test ID ${displayId}`} open={open} onClose={onClose}>
-      {labTestResults?.length && (
+      {labTestResults && (
         <Form
+          initialValues={initialData}
           render={props => (
             <LabTestResultsForm labTestResults={labTestResults} onClose={onClose} {...props} />
           )}
