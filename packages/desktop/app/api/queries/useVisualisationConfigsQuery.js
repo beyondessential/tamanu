@@ -4,7 +4,7 @@ import { getConfigObject, getNormalRangeByAge } from '../../utils';
 import { usePatientData } from './usePatientData';
 import { useVitalsSurvey } from './useVitalsSurvey';
 
-export const useVisualisationConfigs = () => {
+export const useVisualisationConfigsQuery = () => {
   const encounterQuery = useEncounter();
   const { encounter } = encounterQuery;
   const patientQuery = usePatientData(encounter.patientId);
