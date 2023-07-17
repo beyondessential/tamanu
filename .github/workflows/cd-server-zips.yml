@@ -42,7 +42,7 @@ jobs:
         with:
           aws-region: ap-southeast-2
           role-to-assume: arn:aws:iam::143295493206:role/gha-server-s3
-          role-session-name: "${{ github.repository }}:${{ github.workflow }}"
+          role-session-name: "${{ github.repository }}@${{ github.workflow }}"
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
