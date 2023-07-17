@@ -1,20 +1,26 @@
 import { BLOOD_PRESSURE, LINE, bloodPressureChartKeys } from '../../components/Charts/constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { getConfigObject, getNormalRangeByAge } from '../../utils';
+import { combineQueries } from '../combineQueries';
 import { usePatientData } from './usePatientData';
 import { useVitalsSurvey } from './useVitalsSurvey';
 
 export const useVisualisationConfigsQuery = () => {
   const encounterQuery = useEncounter();
   const { encounter } = encounterQuery;
+
   const patientQuery = usePatientData(encounter.patientId);
   const vitalsSurveyQuery = useVitalsSurvey();
 
-  const { data: surveyData, isLoading: isVitalsSurveyLoading } = vitalsSurveyQuery;
-  const { data: patient } = patientQuery;
+  const {
+    data: [patientData, surveyData],
+    ...restOfQuery
+  } = combineQueries([patientQuery, vitalsSurveyQuery]);
 
+  const { isSuccess } = restOfQuery;
   let visualisationConfigs = [];
-  if (!isVitalsSurveyLoading && surveyData && patient) {
+
+  if (isSuccess) {
     visualisationConfigs = surveyData.components.map(
       ({ id, dataElement, config, validationCriteria: validationCriteriaString }) => {
         const hasVitalChart = !!dataElement.visualisationConfig;
@@ -27,7 +33,7 @@ export const useVisualisationConfigsQuery = () => {
           const { normalRange } = validationCriteria;
           visualisationConfig.yAxis.normalRange = normalRange;
           if (normalRange && Array.isArray(normalRange)) {
-            const normalRangeByAge = getNormalRangeByAge(validationCriteria, patient);
+            const normalRangeByAge = getNormalRangeByAge(validationCriteria, patientData);
             visualisationConfig.yAxis.normalRange = normalRangeByAge;
           }
         }
@@ -46,5 +52,5 @@ export const useVisualisationConfigsQuery = () => {
     );
   }
 
-  return visualisationConfigs;
+  return { data: visualisationConfigs, ...restOfQuery };
 };
