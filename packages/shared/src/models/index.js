@@ -22,11 +22,14 @@ export * from './ContributingDeathCause';
 export * from './DeathRevertLog';
 
 export * from './Encounter';
+export * from './EncounterHistory';
+
 export * from './Discharge';
 export * from './Triage';
 
 export * from './ReferenceData';
 
+export * from './VitalLog';
 export * from './Vitals';
 export * from './Procedure';
 export * from './EncounterDiagnosis';
