@@ -4,10 +4,27 @@ import { VITALS_DATA_ELEMENT_IDS, SURVEY_TYPES } from 'shared/constants';
 import { ImporterMetadataError, ValidationError } from '../errors';
 import { addNormalRangeToVisualisationConfigFromValidationCriteria } from './addNormalRangeToVisualisationConfigFromValidationCriteria';
 
-const normalRangeObjectSchema = yup.object().shape({
-  min: yup.number(),
-  max: yup.number(),
-});
+const isNumberOrFloat = value => {
+  if (typeof value !== 'number') {
+    return false;
+  }
+
+  return !isNaN(value);
+};
+
+const normalRangeObjectSchema = yup
+  .object()
+  .shape({
+    min: yup.number(),
+    max: yup.number(),
+  })
+  .test({
+    name: 'normalRange',
+    message: ctx => `normalRange should have either min or max, got ${JSON.stringify(ctx.value)}`,
+    test: value => {
+      return isNumberOrFloat(value.min) || isNumberOrFloat(value.max);
+    },
+  });
 
 const visualisationConfigSchema = yup.object().shape({
   yAxis: yup.object().shape({
@@ -22,34 +39,44 @@ const visualisationConfigSchema = yup.object().shape({
       .mixed()
       .test({
         name: 'normalRange',
-        message: 'normalRange must be within graphRange or normalRange must be object or array',
+        message: ctx => {
+          return `normalRange must be an array or object, got ${JSON.stringify(ctx.value)}`;
+        },
+        test: value => {
+          if (yup.object().isType(value)) {
+            return normalRangeObjectSchema.validateSync(value);
+          }
+          if (yup.array().isType(value)) {
+            return value.every(normalRange => normalRangeObjectSchema.validateSync(normalRange));
+          }
+
+          return false;
+        },
+      })
+      .test({
+        name: 'normalRange',
+        message: ctx => {
+          return `normalRange must be within graphRange, got ${JSON.stringify(ctx.value)}}`; // ctx does not have access to graphRange here
+        },
         test: (value, context) => {
           const { graphRange } = context.parent;
           if (!value) return false;
 
           const checkIfWithinGraphRange = normalRange => {
-            if (normalRange.min && normalRange.min < graphRange.min) {
-              throw new yup.ValidationError(
-                `normalRange must be within graphRange, got normalRange.min '${normalRange.min}' < graphRange.min '${graphRange.min}' `,
-              );
+            if (isNumberOrFloat(normalRange.min) && normalRange.min < graphRange.min) {
+              return false;
             }
-            if (normalRange.max && normalRange.max > graphRange.max) {
-              throw new ValidationError(
-                `normalRange must be within graphRange, got normalRange.max '${normalRange.max}' > graphRange.max '${graphRange.max}' `,
-              );
+            if (isNumberOrFloat(normalRange.max) && normalRange.max > graphRange.max) {
+              return false;
             }
             return true;
           };
 
-          const validateNormalRange = normalRange =>
-            normalRangeObjectSchema.validateSync(normalRange) &&
-            checkIfWithinGraphRange(normalRange);
-
           if (yup.object().isType(value)) {
-            return validateNormalRange(value);
+            return checkIfWithinGraphRange(value);
           }
           if (yup.array().isType(value)) {
-            return value.every(normalRange => validateNormalRange(normalRange));
+            return value.every(normalRange => checkIfWithinGraphRange(normalRange));
           }
 
           return false;
