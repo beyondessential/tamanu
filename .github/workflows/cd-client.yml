@@ -106,19 +106,7 @@ jobs:
       - name: Package for Linux, Mac, Windows
         run: |
           docker exec working mv /package-mac.json package.json
-          docker exec working yarn run package-only --x64 --linux --mac --win
-
-      - name: Switch to AppData NSIS-only build
-        run: docker exec working mv /package-appdata.json package.json
-
-      - name: Package for Windows (AppData NSIS)
-        run: docker exec working yarn run package-only --win --x64
-
-      - name: Switch to Unelevated NSIS-only build
-        run: docker exec working mv /package-unelevated.json package.json
-
-      - name: Package for Windows (Unelevated NSIS)
-        run: docker exec working yarn run package-only --win --x64
+          docker exec working yarn run package-only --x64 --win
 
       - name: Stop container
         run: docker kill working
