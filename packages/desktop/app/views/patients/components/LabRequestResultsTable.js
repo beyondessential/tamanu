@@ -103,7 +103,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, isReadO
         labRequest={labRequest}
         labTest={activeTest}
         onClose={closeModal}
-        isReadOnly={isReadOnly}
+        isReadOnly={true}
       />
       <DataFetchingTable
         columns={sexAppropriateColumns}

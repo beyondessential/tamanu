@@ -228,13 +228,13 @@ export const LabTestResultsModal = ({ labRequest, onClose, open }) => {
             {isSuccess && (
               <ResultsForm labTestResults={labTestResults} onClose={onClose} {...props} />
             )}
-            <StyledModalActionRow
-              onConfirm={onClose}
-              onCancel={onClose}
-              confirmDisabled={isLoading || isError}
-            />
           </>
         )}
+      />
+      <StyledModalActionRow
+        onConfirm={onClose}
+        onCancel={onClose}
+        confirmDisabled={isLoading || isError}
       />
     </StyledModal>
   );
