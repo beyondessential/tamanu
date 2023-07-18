@@ -70,8 +70,11 @@ function getTooltip(float, config = {}, visibilityCriteria = {}) {
 }
 
 export const formatValue = (value, config, isEdited) => {
+  const { rounding = 0, unit = '' } = config || {};
   const float = parseFloat(value);
-  const formattedValue = isNaN(float) ? capitalize(value) || '-' : float;
+  const formattedValue = isNaN(float)
+    ? capitalize(value) || '-'
+    : `${float.toFixed(rounding)}${unit && unit.length <= 2 ? unit : ''}`;
 
   return `${formattedValue}${isEdited ? '*' : ''}`;
 };
