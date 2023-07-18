@@ -11,7 +11,7 @@ const DEFAULT_FETCH_STATE = {
   count: 0,
   errorMessage: '',
   isLoading: true,
-  isLoadingMore: false,
+  isLoadingMoreData: false,
   fetchOptions: {},
 };
 
@@ -57,7 +57,7 @@ export const DataFetchingTable = memo(
 
     useEffect(() => {
       if (fetchState.data?.length > 0 && lazyLoading) {
-        updateFetchState({ isLoadingMore: true });
+        updateFetchState({ isLoadingMoreData: true });
       } else {
         updateFetchState({ isLoading: true });
       }
@@ -94,7 +94,7 @@ export const DataFetchingTable = memo(
             data: updatedData,
             count,
             isLoading: false,
-            isLoadingMore: false,
+            isLoadingMoreData: false,
             fetchOptions,
           });
           if (onDataFetched) {
@@ -106,7 +106,11 @@ export const DataFetchingTable = memo(
         } catch (error) {
           // eslint-disable-next-line no-console
           console.error(error);
-          updateFetchState({ errorMessage: error.message, isLoading: false, isLoadingMore: false });
+          updateFetchState({
+            errorMessage: error.message,
+            isLoading: false,
+            isLoadingMoreData: false,
+          });
         }
       })();
       // Needed to compare fetchOptions as a string instead of an object
@@ -129,12 +133,12 @@ export const DataFetchingTable = memo(
 
     useEffect(() => setPage(0), [fetchOptions]);
 
-    const { data, count, isLoading, isLoadingMore, errorMessage } = fetchState;
+    const { data, count, isLoading, isLoadingMoreData, errorMessage } = fetchState;
     const { order, orderBy } = sorting;
     return (
       <Table
         isLoading={isLoading}
-        isLoadingMore={isLoadingMore}
+        isLoadingMoreData={isLoadingMoreData}
         data={data}
         errorMessage={errorMessage}
         rowsPerPage={rowsPerPage}

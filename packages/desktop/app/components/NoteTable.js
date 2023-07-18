@@ -214,7 +214,9 @@ const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) =
         endpoint={`encounter/${encounterId}/notes`}
         fetchOptions={{ noteType }}
         elevated={false}
-        noDataMessage="This patient has no notes to display. Click ‘New note’ to add a note."
+        noDataMessage={`This patient has no notes ${
+          noteType ? 'of this type ' : ''
+        }to display. Click ‘New note’ to add a note.`}
         statusMessageColor={Colors.primary}
       />
     </>

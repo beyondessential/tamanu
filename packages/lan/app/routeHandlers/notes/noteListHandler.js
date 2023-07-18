@@ -39,6 +39,9 @@ export const noteListHandler = recordType =>
       },
     ];
 
+    // All notes, filtered by recordId, recordType & visibilityStatus are loaded excluding:
+    // 1- (1st notIn) Notes that have another more recent note with the same root (revisedById)
+    // 2- (2nd notIn) Root notes that have been revised by another note
     const baseWhere = {
       id: {
         [Op.and]: [
@@ -56,14 +59,6 @@ export const noteListHandler = recordType =>
             `),
           },
           {
-            // [Op.notIn]: await models.Note.findAll({
-            //   attributes: ['revisedById'],
-            //   where: {
-            //     revisedById: {
-            //       [Op.not]: null,
-            //     },
-            //   }
-            // }),
             [Op.notIn]: db.literal(`
               (
                 SELECT revised_by_id
