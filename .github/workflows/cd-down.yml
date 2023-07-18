@@ -34,6 +34,7 @@ jobs:
           aws-region: ap-southeast-2
           role-to-assume: arn:aws:iam::143295493206:role/gha-deploy
           role-session-name: GHA@Tamanu=DeployDown
+          mask-aws-account-id: false
 
       - name: Checkout this PR
         uses: actions/checkout@v3

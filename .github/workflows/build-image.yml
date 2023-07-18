@@ -55,6 +55,7 @@ jobs:
           aws-region: ap-southeast-2
           role-to-assume: arn:aws:iam::143295493206:role/gha-build
           role-session-name: GithubActionsTamanuBuild
+          mask-aws-account-id: false
 
       - name: Login to ECR
         id: login-ecr
