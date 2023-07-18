@@ -105,7 +105,7 @@ jobs:
 
       - name: Package for Linux, Mac, Windows
         run: |
-          docker exec working mv /package-mac.json package.json
+          docker cp packages/desktop/custom.json working:/project/packages/desktop/package.json
           docker exec working yarn run package-only --x64 --win
 
       - name: Stop container
@@ -116,7 +116,6 @@ jobs:
           sudo chown -R $USER:$USER release
           mkdir -p ops/{linux,mac,windows-{appdata,msi,system,unelevated}}
           mv release/*.msi ops/windows-msi/
-          mv release/latest.yml release/*.exe* ops/windows-system/
           rm -rf release
 
       - name: Use dev bucket
@@ -140,7 +139,6 @@ jobs:
             return [
               '### :package: Desktop clients',
               '',
-              `- :window: **[Windows (System)](${S3_URL}/windows-system/Tamanu+Setup+${VERSION}.exe)**`,
               `- :window:   [Windows (MSI)](${S3_URL}/windows-msi/Tamanu+${VERSION}.msi)`,
             ].join('\n');
 
