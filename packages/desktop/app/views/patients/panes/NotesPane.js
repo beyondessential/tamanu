@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { useEncounter } from '../../../contexts/Encounter';
-import { NotePageModal } from '../../../components/NotePageModal';
-import { TableButtonRow } from '../../../components';
+import { NOTE_FORM_MODES, NoteModal } from '../../../components/NoteModal';
+import { NoteTableWithPermission } from '../../../components/NoteTable';
+import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
 import { TabPane } from '../components';
 import { SelectInput } from '../../../components/Field';
 import { noteTypes } from '../../../constants';
@@ -13,45 +14,50 @@ const StyledSelectInput = styled(SelectInput)`
   width: 200px;
 `;
 
-export const NotesPane = React.memo(({ encounter }) => {
+export const NotesPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const { noteType, setNoteType } = useEncounterNotes();
   const { loadEncounter } = useEncounter();
 
+  const noteModalOnSaved = async () => {
+    setModalOpen(false);
+    await loadEncounter(encounter.id);
+  };
+
   return (
     <TabPane>
-      <NotePageModal
+      <NoteModal
         title="New note"
         open={modalOpen}
         encounterId={encounter.id}
         onClose={() => setModalOpen(false)}
-        onSaved={async () => {
-          setModalOpen(false);
-          await loadEncounter(encounter.id);
-        }}
+        onSaved={noteModalOnSaved}
+        confirmText="Add note"
+        noteFormMode={NOTE_FORM_MODES.CREATE_NOTE}
       />
       <TableButtonRow variant="small" justifyContent="space-between">
         <StyledSelectInput
-          options={noteTypes}
+          options={[{ value: null, label: 'All' }, ...noteTypes]}
           onChange={e => setNoteType(e.target.value)}
           value={noteType}
           isClearable={false}
         />
-        {/* <ButtonWithPermissionCheck
+        <ButtonWithPermissionCheck
           onClick={() => setModalOpen(true)}
           disabled={readonly}
           verb="create"
           noun="EncounterNote"
         >
           New note
-        </ButtonWithPermissionCheck> */}
+        </ButtonWithPermissionCheck>
       </TableButtonRow>
-      {/* <NotePageTableWithPermission
-        noteType={noteType}
+      <NoteTableWithPermission
         encounterId={encounter.id}
         verb="write"
         noun="EncounterNote"
-      /> */}
+        noteModalOnSaved={noteModalOnSaved}
+        noteType={noteType}
+      />
     </TabPane>
   );
 });

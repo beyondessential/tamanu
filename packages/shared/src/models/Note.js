@@ -37,7 +37,7 @@ export class Note extends Model {
           defaultValue: '',
         },
         revisedById: {
-          type: DataTypes.STRING,
+          type: DataTypes.UUID,
           allowNull: true,
         },
         visibilityStatus: {
@@ -81,6 +81,11 @@ export class Note extends Model {
     this.belongsTo(models.User, {
       foreignKey: 'onBehalfOfId',
       as: 'onBehalfOf',
+    });
+
+    this.belongsTo(models.Note, {
+      foreignKey: 'revisedById',
+      as: 'revisedBy',
     });
   }
 

@@ -161,7 +161,6 @@ export const nonEmergencyDiagnosisCertaintyOptions = diagnosisCertaintyOptions.f
 // The order here is how they'll show up in the dropdown
 // Treatment plan first and alphabetical after that
 export const noteTypes = [
-  { value: null, label: 'All' },
   { value: NOTE_TYPES.TREATMENT_PLAN, label: 'Treatment plan' },
   { value: NOTE_TYPES.ADMISSION, label: 'Admission' },
   { value: NOTE_TYPES.CLINICAL_MOBILE, label: 'Clinical note (mobile)', hideFromDropdown: true },

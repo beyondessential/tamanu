@@ -2,9 +2,7 @@ import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { isEmpty } from 'lodash';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
 import { NOTE_TYPES } from '@tamanu/shared/constants';
 import { useLocalisation } from '../contexts/Localisation';
@@ -21,8 +19,14 @@ import {
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
-import { NoteItemList } from '../components/NoteItemList';
+import { NoteChangeLogs } from '../components/NoteChangeLogs';
 import { noteTypes, Colors } from '../constants';
+
+export const NOTE_FORM_MODES = {
+  CREATE_NOTE: 'createNote',
+  EDIT_NOTE: 'editNote',
+  VIEW_NOTE: 'viewNote',
+};
 
 /**
  * If there's already a treatment plan note, don't allow users to add another one
@@ -40,10 +44,6 @@ const getSelectableNoteTypes = noteTypeCountByType =>
         !!noteTypeCountByType[x.value],
     }));
 
-const StyledDivider = styled(Divider)`
-  margin-top: 30px;
-  margin-bottom: 20px;
-`;
 const StyledFormGrid = styled(FormGrid)`
   margin-bottom: 20px;
 `;
@@ -78,86 +78,81 @@ const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
   );
 };
 
-export const NotePageForm = ({
+export const NoteForm = ({
   practitionerSuggester,
   onCancel,
-  notePage,
-  noteItems,
+  note,
   noteTypeCountByType,
+  noteFormMode = NOTE_FORM_MODES.CREATE_NOTE,
   onSubmit,
-  onEditNoteItem,
+  confirmText,
   cancelText = 'Cancel',
-  contentRef,
+  noteContent,
+  setNoteContent,
 }) => {
   const { currentUser } = useAuth();
   const { getLocalisation } = useLocalisation();
 
-  const creatingNewNotePage = isEmpty(notePage);
-
-  const lastNoteItemRef = useCallback(node => {
-    if (node !== null) {
-      node.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, []);
+  const handleNoteContentChange = useCallback(e => setNoteContent(e.target.value), [
+    setNoteContent,
+  ]);
 
   const renderForm = ({ submitForm }) => (
     <>
-      {!creatingNewNotePage && (
-        <>
-          <StyledFormGrid columns={1}>
-            <NoteItemList
-              noteItems={noteItems}
-              currentUserId={currentUser.id}
-              onEditNoteItem={onEditNoteItem}
-              lastNoteItemRef={lastNoteItemRef}
-            />
-          </StyledFormGrid>
-
-          <StyledDivider />
-        </>
-      )}
-
       <StyledFormGrid columns={3}>
         <Field
           name="noteType"
           label="Type"
-          required
+          required={noteFormMode === NOTE_FORM_MODES.CREATE_NOTE}
           component={SelectField}
-          options={creatingNewNotePage ? getSelectableNoteTypes(noteTypeCountByType) : noteTypes}
-          disabled={!creatingNewNotePage}
+          options={
+            noteFormMode === NOTE_FORM_MODES.CREATE_NOTE
+              ? getSelectableNoteTypes(noteTypeCountByType)
+              : noteTypes
+          }
+          disabled={noteFormMode !== NOTE_FORM_MODES.CREATE_NOTE}
           formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
         />
         <Field
           name="writtenById"
           label="Written by (or on behalf of)"
-          required
+          required={noteFormMode === NOTE_FORM_MODES.CREATE_NOTE}
           component={AutocompleteField}
           suggester={practitionerSuggester}
+          disabled={noteFormMode !== NOTE_FORM_MODES.CREATE_NOTE}
         />
         <Field
           name="date"
           label="Date & time"
           component={DateTimeField}
-          required
-          disabled={!getLocalisation('features.enableNoteBackdating')}
+          required={noteFormMode === NOTE_FORM_MODES.CREATE_NOTE}
+          disabled={
+            !getLocalisation('features.enableNoteBackdating') ||
+            noteFormMode !== NOTE_FORM_MODES.CREATE_NOTE
+          }
           saveDateAsString
         />
       </StyledFormGrid>
 
-      <Field
-        inputRef={contentRef}
-        name="content"
-        label="Add note"
-        required
-        component={TextField}
-        multiline
-        rows={6}
-      />
+      {noteFormMode === NOTE_FORM_MODES.VIEW_NOTE ? (
+        <NoteChangeLogs note={note} />
+      ) : (
+        <Field
+          name="content"
+          label={noteFormMode === NOTE_FORM_MODES.CREATE_NOTE ? 'Add note' : 'Edit note'}
+          required
+          component={TextField}
+          multiline
+          value={noteContent}
+          onChange={handleNoteContentChange}
+          rows={6}
+        />
+      )}
       <ConfirmCancelRow
-        onConfirm={submitForm}
-        confirmText="Add note"
+        onConfirm={noteFormMode === NOTE_FORM_MODES.VIEW_NOTE ? onCancel : submitForm}
+        confirmText={confirmText}
         cancelText={cancelText}
-        onCancel={onCancel}
+        onCancel={noteFormMode !== NOTE_FORM_MODES.VIEW_NOTE && onCancel}
       />
     </>
   );
@@ -169,22 +164,23 @@ export const NotePageForm = ({
       showInlineErrorsOnly
       initialValues={{
         date: getCurrentDateTimeString(),
-        noteType: notePage?.noteType,
+        noteType: note?.noteType,
         writtenById: currentUser.id,
       }}
       validationSchema={yup.object().shape({
         noteType: yup
           .string()
           .oneOf(Object.values(NOTE_TYPES))
-          .required(),
-        date: yup.date().required(),
-        content: yup.string().required(),
+          .required('Note type is required'),
+        date: yup.date().required('Date is required'),
+        content: yup.string().required('Content is required'),
         writtenById: foreignKey('Written by (or on behalf of) is required'),
       })}
     />
   );
 };
 
-NotePageForm.propTypes = {
+NoteForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
+  setNoteContent: PropTypes.func.isRequired,
 };
