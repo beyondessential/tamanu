@@ -20,8 +20,26 @@ jobs:
     name: Branch info
     uses: ./.github/workflows/branch-info.yml
 
-  build:
+  image:
     needs: info
+    uses: ./.github/workflows/build-image.yml
+    strategy:
+      matrix:
+        package:
+          - name: central
+            path: sync-server
+          - name: facility
+            path: lan
+    with:
+      package-name: ${{ matrix.package.name }}
+      package-path: ${{ matrix.package.path }}
+      image-shatag: false
+      image-tags: ${{ needs.info.outputs.version }}-serverzips
+
+  build:
+    needs:
+      - info
+      - image
     strategy:
       matrix:
         package:
@@ -52,22 +70,8 @@ jobs:
           node-version: 16
           cache: yarn
 
-      - name: Setup buildkit
-        uses: docker/setup-buildx-action@v2
-
-      - name: Build container
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          cache-from: type=gha,scope=${{ needs.info.outputs.branch }}-desktop
-          cache-to: type=gha,mode=max,scope=${{ needs.info.outputs.branch }}-desktop
-          build-args: PACKAGE_PATH=${{ matrix.package.path }}
-          push: false
-          load: true
-          tags: working
-
       - name: Create container
-        run: docker create --name working working
+        run: docker create --name working ${{ needs.image.outputs.tag }}
 
       - name: Copy files
         shell: bash
