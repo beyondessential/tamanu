@@ -60,13 +60,17 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: ap-southeast-2
-          role-to-assume: arn:aws:iam::143295493206:role/gha-image-push
+          role-to-assume: arn:aws:iam::143295493206:role/gha-image-pull
           role-session-name: GHA@Tamanu=ServerZips
           mask-aws-account-id: false
 
+      # This is a workaround for https://github.com/aws-actions/amazon-ecr-login not working on windows
+      # Root cause seems to be https://github.com/docker/docker-credential-helpers/issues/190
       - name: Login to ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        shell: bash
+        run: |
+          echo '{"auths": {"https://index.docker.io/v1/": {}}, "HttpHeaders": { "User-Agent": "Docker-Client/24.0.2 (windows)"}}' > ~/.docker/config.json
+          aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin ${{ needs.image.outputs.registry }}
 
       - uses: actions/checkout@v3
 
