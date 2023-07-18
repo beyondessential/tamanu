@@ -56,6 +56,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
         verb="write"
         noun="EncounterNote"
         noteModalOnSaved={noteModalOnSaved}
+        noteType={noteType}
       />
     </TabPane>
   );

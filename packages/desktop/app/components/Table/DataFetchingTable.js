@@ -1,4 +1,6 @@
 import React, { useState, useCallback, useEffect, memo } from 'react';
+import { isEqual } from 'lodash';
+
 import { Table } from './Table';
 import { useApi } from '../../api';
 
@@ -10,6 +12,7 @@ const DEFAULT_FETCH_STATE = {
   errorMessage: '',
   isLoading: true,
   isLoadingMore: false,
+  fetchOptions: {},
 };
 
 export const DataFetchingTable = memo(
@@ -76,9 +79,15 @@ export const DataFetchingTable = memo(
             },
           );
           const transformedData = transformRow ? data.map(transformRow) : data;
-          const updatedData = lazyLoading
-            ? [...(fetchState?.data || []), ...(transformedData || [])]
-            : transformedData;
+
+          // When fetch option is no longer the same (eg: filter changed), it should reload the entire table
+          // instead of keep adding data for lazy loading
+          const shouldReloadLazyLoadingData = !isEqual(fetchState.fetchOptions, fetchOptions);
+
+          const updatedData =
+            lazyLoading && !shouldReloadLazyLoadingData
+              ? [...(fetchState?.data || []), ...(transformedData || [])]
+              : transformedData;
 
           updateFetchState({
             ...DEFAULT_FETCH_STATE,
@@ -86,6 +95,7 @@ export const DataFetchingTable = memo(
             count,
             isLoading: false,
             isLoadingMore: false,
+            fetchOptions,
           });
           if (onDataFetched) {
             onDataFetched({
