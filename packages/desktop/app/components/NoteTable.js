@@ -90,7 +90,7 @@ const NoteContent = ({
   hasPermission,
   currentUser,
   handleEditNote,
-  handleViewNoteChangelog,
+  handleViewNoteChangeLog,
 }) => {
   const [contentIsClipped, setContentIsClipped] = useState(false);
   const [textIsExpanded, setTextIsExpanded] = useState(false);
@@ -131,7 +131,7 @@ const NoteContent = ({
           showTime
         />
         {note.revisedById && (
-          <EditedButtonContainer onClick={() => handleViewNoteChangelog(note)}>
+          <EditedButtonContainer onClick={() => handleViewNoteChangeLog(note)}>
             <span>(</span>
             <EditedButton>edited</EditedButton>
             <span>)</span>
@@ -161,7 +161,7 @@ const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) =
     [setModalTitle, setModalCancelText, setIsNoteModalOpen, setModalNote, setModalNoteFormMode],
   );
 
-  const handleViewNoteChangelog = useCallback(
+  const handleViewNoteChangeLog = useCallback(
     note => {
       setModalTitle('Change log');
       setModalNoteFormMode(NOTE_FORM_MODES.VIEW_NOTE);
@@ -182,13 +182,13 @@ const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) =
             hasPermission={hasPermission}
             currentUser={currentUser}
             handleEditNote={handleEditNote}
-            handleViewNoteChangelog={handleViewNoteChangelog}
+            handleViewNoteChangeLog={handleViewNoteChangeLog}
           />
         ),
         sortable: false,
       },
     ],
-    [hasPermission, currentUser, handleEditNote, handleViewNoteChangelog],
+    [hasPermission, currentUser, handleEditNote, handleViewNoteChangeLog],
   );
 
   return (

@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useApi } from '../api';
 import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
-import { NoteChangelog } from './NoteChangelog';
+import { NoteChangeLog } from './NoteChangeLog';
 
 const StyledBox = styled(Box)`
   .MuiListItem-root {
@@ -14,16 +14,16 @@ const StyledBox = styled(Box)`
   }
 `;
 
-export const NoteChangelogs = ({ note = {} }) => {
+export const NoteChangeLogs = ({ note = {} }) => {
   const api = useApi();
 
-  const { data: { data: changelogNotes } = {} } = useQuery(
-    ['noteChangelogs', note.recordId, note.revisedById],
+  const { data: { data: changeLogNotes } = {} } = useQuery(
+    ['noteChangeLogs', note.recordId, note.revisedById],
     () => api.get(`encounter/${note.recordId}/notes/${note.revisedById}/changelogs`),
     { enabled: !!(note.recordId && note.revisedById) },
   );
 
-  if (isEmpty(note) || !changelogNotes?.length) {
+  if (isEmpty(note) || !changeLogNotes?.length) {
     return null;
   }
 
@@ -32,8 +32,8 @@ export const NoteChangelogs = ({ note = {} }) => {
       <StyledBox
         sx={{ width: '100%', maxHeight: 300, overflowY: 'auto', bgcolor: 'background.paper' }}
       >
-        {changelogNotes.map(changelogNote => (
-          <NoteChangelog key={changelogNote.id} note={changelogNote} />
+        {changeLogNotes.map(changeLogNote => (
+          <NoteChangeLog key={changeLogNote.id} note={changeLogNote} />
         ))}
       </StyledBox>
     </OuterLabelFieldWrapper>

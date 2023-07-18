@@ -19,7 +19,7 @@ import {
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
-import { NoteChangelogs } from '../components/NoteChangelogs';
+import { NoteChangeLogs } from '../components/NoteChangeLogs';
 import { noteTypes, Colors } from '../constants';
 
 export const NOTE_FORM_MODES = {
@@ -135,7 +135,7 @@ export const NoteForm = ({
       </StyledFormGrid>
 
       {noteFormMode === NOTE_FORM_MODES.VIEW_NOTE ? (
-        <NoteChangelogs note={note} />
+        <NoteChangeLogs note={note} />
       ) : (
         <Field
           name="content"
