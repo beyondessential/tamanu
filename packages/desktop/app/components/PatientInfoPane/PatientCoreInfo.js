@@ -116,6 +116,7 @@ const AgeDisplay = styled.span`
   color: ${Colors.midText};
   font-size: 14px;
   font-weight: 400;
+  text-transform: none;
 `;
 
 const HealthIdDisplay = ({ displayId }) => (
