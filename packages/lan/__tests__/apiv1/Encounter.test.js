@@ -210,19 +210,12 @@ describe('Encounter', () => {
     const result = await app.get(`/v1/encounter/${encounter.id}/notes/${rootNote.id}/changelogs`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(4);
-    expect(result.body.data[3]).toMatchObject({
-      recordId: rootNote.recordId,
+    expect(result.body.data[0]).toMatchObject({
+      recordId: changelog3.recordId,
       recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-      content: rootNote.content,
-      authorId: rootNote.authorId,
-      date: rootNote.date,
-    });
-    expect(result.body.data[2]).toMatchObject({
-      recordId: changelog1.recordId,
-      recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-      content: changelog1.content,
-      authorId: changelog1.authorId,
-      date: changelog1.date,
+      content: changelog3.content,
+      authorId: changelog3.authorId,
+      date: changelog3.date,
       revisedById: rootNote.id,
     });
     expect(result.body.data[1]).toMatchObject({
@@ -233,12 +226,12 @@ describe('Encounter', () => {
       date: changelog2.date,
       revisedById: rootNote.id,
     });
-    expect(result.body.data[3]).toMatchObject({
-      recordId: changelog3.recordId,
+    expect(result.body.data[2]).toMatchObject({
+      recordId: changelog1.recordId,
       recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-      content: changelog3.content,
-      authorId: changelog3.authorId,
-      date: changelog3.date,
+      content: changelog1.content,
+      authorId: changelog1.authorId,
+      date: changelog1.date,
       revisedById: rootNote.id,
     });
   });
