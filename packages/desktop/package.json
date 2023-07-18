@@ -77,7 +77,6 @@
     },
     "win": {
       "target": [
-        "nsis",
         "msi"
       ]
     },
@@ -88,8 +87,7 @@
     "msi": {
       "perMachine": true,
       "runAfterFinish": false,
-      "createDesktopShortcut": "always",
-      "shortcutName": "Tamanu Fiji"
+      "createDesktopShortcut": "always"
     },
     "linux": {
       "target": [
