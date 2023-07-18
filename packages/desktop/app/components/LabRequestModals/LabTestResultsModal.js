@@ -12,6 +12,20 @@ import { ModalActionRow } from '../ModalActionRow';
 import { useLabTestResultsQuery } from '../../api/queries/useLabTestResultsQuery';
 import { LabResultAccessorField, AccessorField } from './AccessorField';
 
+const StyledModalActionRow = styled(ModalActionRow)`
+  position: sticky;
+  bottom: 0;
+  background: ${Colors.white};
+  padding-bottom: 24px;
+  margin-bottom: -18px;
+`;
+
+const StyledModal = styled(Modal)`
+  .MuiDialogActions-root {
+    display: none;
+  }
+`;
+
 const StyledTableFormFields = styled(TableFormFields)`
   margin-top: 20px;
   margin-bottom: 30px;
@@ -30,8 +44,8 @@ const StyledTableFormFields = styled(TableFormFields)`
 `;
 
 const LAB_TEST_PROPERTIES = {
-  ID: 'id',
   COMPLETED_DATE: 'completedDate',
+  ID: 'id',
   LAB_TEST_METHOD_ID: 'labTestMethodId',
   RESULT: 'result',
   VERIFICATION: 'verification',
@@ -184,6 +198,7 @@ export const LabTestResultsModal = ({ labRequest, onClose, open }) => {
     isLoading,
     error,
     isError,
+    isSuccess,
   } = useLabTestResultsQuery(labRequest.id);
   const { displayId } = labRequest;
 
@@ -198,21 +213,29 @@ export const LabTestResultsModal = ({ labRequest, onClose, open }) => {
   );
 
   return (
-    <Modal width="lg" title={`Enter results | Test ID ${displayId}`} open={open} onClose={onClose}>
+    <StyledModal
+      width="lg"
+      title={`Enter results | Test ID ${displayId}`}
+      open={open}
+      onClose={onClose}
+    >
       <Form
         initialValues={initialData}
         enableReinitialize
         render={props => (
           <>
-            {isLoading ? (
-              <ResultsFormSkeleton />
-            ) : (
+            {isLoading && <ResultsFormSkeleton />}
+            {isSuccess && (
               <ResultsForm labTestResults={labTestResults} onClose={onClose} {...props} />
             )}
-            <ModalActionRow onConfirm={onClose} onCancel={onClose} confirmDisabled={isLoading} />
+            <StyledModalActionRow
+              onConfirm={onClose}
+              onCancel={onClose}
+              confirmDisabled={isLoading || isError}
+            />
           </>
         )}
       />
-    </Modal>
+    </StyledModal>
   );
 };
