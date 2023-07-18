@@ -89,12 +89,17 @@ export class Triage extends Model {
       .join(' and ');
     const reasonForEncounter = `Presented at emergency department with ${reasonsText}`;
 
-    const department = await Department.findOne({
-      where: { name: 'Emergency', facilityId: config.serverFacilityId },
-    });
+    let { departmentId } = data;
+    if (!departmentId) {
+      const department = await Department.findOne({
+        where: { name: 'Emergency', facilityId: config.serverFacilityId },
+      });
 
-    if (!data.departmentId && !department) {
-      throw new Error('Cannot find Emergency department for current facility');
+      if (!department) {
+        throw new Error('Cannot find Emergency department for current facility');
+      }
+
+      departmentId = department.id;
     }
 
     return this.sequelize.transaction(async () => {
@@ -103,7 +108,7 @@ export class Triage extends Model {
         startDate: data.triageTime,
         reasonForEncounter,
         patientId: data.patientId,
-        departmentId: data.departmentId || department.dataValues.id,
+        departmentId,
         locationId: data.locationId,
         examinerId: data.practitionerId,
       });

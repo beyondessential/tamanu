@@ -92,6 +92,8 @@ export * from './Signer';
 
 export * from './CertificateNotification';
 
+export * from './LegacyNotePage';
+export * from './LegacyNoteItem';
 export * from './Note';
 
 export * from './SyncSession';
