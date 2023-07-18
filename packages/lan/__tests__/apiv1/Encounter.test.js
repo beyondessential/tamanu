@@ -140,7 +140,7 @@ describe('Encounter', () => {
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(3);
     expect(result.body.data.every(x => x.content.match(/^Test \d$/))).toEqual(true);
-    expect(result.body.data[0]).toEqual(NOTE_TYPES.TREATMENT_PLAN);
+    expect(result.body.data[0].noteType).toEqual(NOTE_TYPES.TREATMENT_PLAN);
   });
 
   it('should get a list of notes filtered by noteType', async () => {
@@ -160,7 +160,7 @@ describe('Encounter', () => {
     expect(result.body.data.every(x => x.noteType === 'treatmentPlan')).toEqual(true);
   });
 
-  it('should get a list of changelog notes of a root note ordered ASCENDING', async () => {
+  it('should get a list of changelog notes of a root note ordered DESC', async () => {
     const encounter = await models.Encounter.create({
       ...(await createDummyEncounter(models)),
       patientId: patient.id,
@@ -210,14 +210,14 @@ describe('Encounter', () => {
     const result = await app.get(`/v1/encounter/${encounter.id}/notes/${rootNote.id}/changelogs`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(4);
-    expect(result.body.data[0]).toMatchObject({
+    expect(result.body.data[3]).toMatchObject({
       recordId: rootNote.recordId,
       recordType: NOTE_RECORD_TYPES.ENCOUNTER,
       content: rootNote.content,
       authorId: rootNote.authorId,
       date: rootNote.date,
     });
-    expect(result.body.data[1]).toMatchObject({
+    expect(result.body.data[2]).toMatchObject({
       recordId: changelog1.recordId,
       recordType: NOTE_RECORD_TYPES.ENCOUNTER,
       content: changelog1.content,
@@ -225,7 +225,7 @@ describe('Encounter', () => {
       date: changelog1.date,
       revisedById: rootNote.id,
     });
-    expect(result.body.data[2]).toMatchObject({
+    expect(result.body.data[1]).toMatchObject({
       recordId: changelog2.recordId,
       recordType: NOTE_RECORD_TYPES.ENCOUNTER,
       content: changelog2.content,
