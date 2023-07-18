@@ -45,7 +45,7 @@ permissions:
 
 jobs:
   build:
-    name: Build ${{ github.event.inputs.package-name }}
+    name: Build ${{ inputs.package-name }}
     runs-on: ubuntu-latest
 
     steps:
@@ -62,18 +62,18 @@ jobs:
 
       - uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.inputs.ref }}
+          ref: ${{ inputs.ref }}
 
       - name: Setup buildkit
         uses: docker/setup-buildx-action@v2
 
       - name: Compute sha tag
-        if: github.event.inputs.image-shatag
+        if: inputs.image-shatag
         uses: actions/github-script@v6
         id: shatag
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          INPUT_PACKAGE_NAME: ${{ github.event.inputs.package-name }}
+          INPUT_PACKAGE_NAME: ${{ inputs.package-name }}
         with:
           result-encoding: string
           script: |
@@ -87,8 +87,8 @@ jobs:
         id: tags
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          INPUT_PACKAGE_NAME: ${{ github.event.inputs.package-name }}
-          INPUT_TAGS: ${{ github.event.inputs.image-tags }}
+          INPUT_PACKAGE_NAME: ${{ inputs.package-name }}
+          INPUT_TAGS: ${{ inputs.image-tags }}
         with:
           result-encoding: string
           script: |
@@ -100,18 +100,18 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          cache-from: type=gha,scope=${{ github.event.inputs.cache-key }}-${{ github.event.inputs.package-name }}
-          cache-to: type=gha,mode=max,scope=${{ github.event.inputs.cache-key }}-${{ github.event.inputs.package-name }}
-          build-args: PACKAGE_PATH=${{ github.event.inputs.package-path }}
+          cache-from: type=gha,scope=${{ inputs.cache-key }}-${{ inputs.package-name }}
+          cache-to: type=gha,mode=max,scope=${{ inputs.cache-key }}-${{ inputs.package-name }}
+          build-args: PACKAGE_PATH=${{ inputs.package-path }}
           target: server
           push: true
           labels: |
             org.opencontainers.image.vendor=BES
-            org.opencontainers.image.title=Tamanu ${{ github.event.inputs.package-name }}
+            org.opencontainers.image.title=Tamanu ${{ inputs.package-name }}
             org.opencontainers.image.url=https://www.bes.au/products/tamanu/
             org.opencontainers.image.source=https://github.com/beyondessential/tamanu/
             org.opencontainers.image.revision=${{ github.sha }}
-            ${{ github.event.inputs.image-labels }}
+            ${{ inputs.image-labels }}
           tags: |
             ${{ steps.shatag.outputs.result }}
             ${{ steps.tags.outputs.result }}

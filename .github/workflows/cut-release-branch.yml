@@ -34,7 +34,7 @@ jobs:
           await createReleaseBranch(await import('fs'), github, context, cwd, '${{ github.event.inputs.version }}');
 
     - name: Bump version on main
-      run: node scripts/version.mjs '${{ github.event.inputs.version }}'
+      run: node scripts/version.mjs '${{ inputs.version }}'
 
     - name: Commit and push
       run: |
