@@ -103,7 +103,7 @@ export const NoteForm = ({
         <Field
           name="noteType"
           label="Type"
-          required
+          required={noteFormMode === NOTE_FORM_MODES.CREATE_NOTE}
           component={SelectField}
           options={
             noteFormMode === NOTE_FORM_MODES.CREATE_NOTE
@@ -116,7 +116,7 @@ export const NoteForm = ({
         <Field
           name="writtenById"
           label="Written by (or on behalf of)"
-          required
+          required={noteFormMode === NOTE_FORM_MODES.CREATE_NOTE}
           component={AutocompleteField}
           suggester={practitionerSuggester}
           disabled={noteFormMode !== NOTE_FORM_MODES.CREATE_NOTE}
@@ -125,7 +125,7 @@ export const NoteForm = ({
           name="date"
           label="Date & time"
           component={DateTimeField}
-          required
+          required={noteFormMode === NOTE_FORM_MODES.CREATE_NOTE}
           disabled={
             !getLocalisation('features.enableNoteBackdating') ||
             noteFormMode !== NOTE_FORM_MODES.CREATE_NOTE
@@ -171,9 +171,9 @@ export const NoteForm = ({
         noteType: yup
           .string()
           .oneOf(Object.values(NOTE_TYPES))
-          .required(),
-        date: yup.date().required(),
-        content: yup.string().required(),
+          .required('Note type is required'),
+        date: yup.date().required('Date is required'),
+        content: yup.string().required('Content is required'),
         writtenById: foreignKey('Written by (or on behalf of) is required'),
       })}
     />
