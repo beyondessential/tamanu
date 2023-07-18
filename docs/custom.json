@@ -87,7 +87,8 @@
     "msi": {
       "perMachine": true,
       "runAfterFinish": false,
-      "createDesktopShortcut": "always"
+      "createDesktopShortcut": "always",
+      "shortcutName": "Tamanu Fiji"
     },
     "linux": {
       "target": [
