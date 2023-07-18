@@ -120,17 +120,27 @@ describe('Encounter', () => {
       patientId: patient.id,
     });
     await Promise.all([
-      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.AREA_TO_BE_IMAGED, 'Test 1'),
+      models.Note.createForRecord(
+        encounter.id,
+        'Encounter',
+        NOTE_TYPES.AREA_TO_BE_IMAGED,
+        'Test 1',
+      ),
       models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.TREATMENT_PLAN, 'Test 2'),
       models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.MEDICAL, 'Test 3'),
-      models.Note.createForRecord(otherEncounter.id, 'Encounter', NOTE_TYPES.TREATMENT_PLAN, 'Fail'),
+      models.Note.createForRecord(
+        otherEncounter.id,
+        'Encounter',
+        NOTE_TYPES.TREATMENT_PLAN,
+        'Fail',
+      ),
     ]);
 
     const result = await app.get(`/v1/encounter/${encounter.id}/notes`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(3);
     expect(result.body.data.every(x => x.content.match(/^Test \d$/))).toEqual(true);
-    expect(result.body.data[0].toEqual(NOTE_TYPES.TREATMENT_PLAN);
+    expect(result.body.data[0]).toEqual(NOTE_TYPES.TREATMENT_PLAN);
   });
 
   it('should get a list of notes filtered by noteType', async () => {
