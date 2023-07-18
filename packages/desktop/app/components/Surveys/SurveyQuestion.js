@@ -7,7 +7,7 @@ const Text = styled.div`
   margin-bottom: 10px;
 `;
 
-export const SurveyQuestion = ({ component, patient, inputRef }) => {
+export const SurveyQuestion = ({ component, patient, inputRef, disabled }) => {
   const {
     dataElement,
     detail,
@@ -39,6 +39,7 @@ export const SurveyQuestion = ({ component, patient, inputRef }) => {
       config={configObject}
       helperText={detail}
       required={required}
+      disabled={disabled}
     />
   );
 };
