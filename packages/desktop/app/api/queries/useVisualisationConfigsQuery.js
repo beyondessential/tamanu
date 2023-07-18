@@ -34,16 +34,15 @@ export const useVisualisationConfigsQuery = () => {
           visualisationConfig.yAxis.normalRange = normalRange;
           if (normalRange && Array.isArray(normalRange)) {
             const normalRangeByAge = getNormalRangeByAge(validationCriteria, patientData);
-            visualisationConfig.yAxis.normalRange = normalRangeByAge;
+            visualisationConfig.yAxis.normalRange =
+              normalRangeByAge || visualisationConfig.yAxis.graphRange;
           }
         }
 
         return {
           chartType: isBloodPressureChart ? BLOOD_PRESSURE : LINE,
           key: dataElement.id,
-          name: bloodPressureChartKeys.includes(dataElement.id)
-            ? 'Blood pressure (mm Hg)'
-            : dataElement.name,
+          name: isBloodPressureChart ? 'Blood pressure (mm Hg)' : dataElement.name,
           hasVitalChart,
           config: getConfigObject(id, config),
           ...visualisationConfig,
