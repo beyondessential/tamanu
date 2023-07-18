@@ -35,6 +35,12 @@ on:
         type: string
         required: false
     outputs:
+      registry:
+        description: ECR registry
+        value: ${{ jobs.build.outputs.registry }}
+      image:
+        description: Image name (including registry)
+        value: ${{ jobs.build.outputs.image }}
       tag:
         description: Tag(s) of the built image
         value: ${{ jobs.build.outputs.tag }}
@@ -53,8 +59,8 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: ap-southeast-2
-          role-to-assume: arn:aws:iam::143295493206:role/gha-build
-          role-session-name: GithubActionsTamanuBuild
+          role-to-assume: arn:aws:iam::143295493206:role/gha-image-push
+          role-session-name: GHA@Tamanu=BuildImage
           mask-aws-account-id: false
 
       - name: Login to ECR
@@ -117,4 +123,6 @@ jobs:
             ${{ steps.shatag.outputs.result }}
             ${{ steps.tags.outputs.result }}
     outputs:
+      registry: ${{ steps.login-ecr.outputs.registry }}
+      image: ${{ steps.login-ecr.outputs.registry }}/tamanu/${{ inputs.package-name }}
       tag: ${{ steps.shatag.outputs.result || steps.tags.outputs.result }}
