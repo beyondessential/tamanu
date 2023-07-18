@@ -105,7 +105,7 @@ jobs:
 
       - name: Package for Linux, Mac, Windows
         run: |
-          docker cp packages/desktop/custom.json working:/project/packages/desktop/package.json
+          docker cp docs/custom.json working:/project/packages/desktop/package.json
           docker exec working yarn run package-only --x64 --win
 
       - name: Stop container
