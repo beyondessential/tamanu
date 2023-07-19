@@ -1,4 +1,4 @@
-import { validateVisualisationConfigs } from './validation';
+import { validateVisualisationConfigs } from './vitalsValidation';
 
 const STATUSES_TO_DELETE = ['deleted', 'hidden', 'historical'];
 
