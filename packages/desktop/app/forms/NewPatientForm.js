@@ -24,6 +24,7 @@ import { LoadingIndicator } from '../components/LoadingIndicator';
 
 import plusCircle from '../assets/images/plus_circle.svg';
 import minusCircle from '../assets/images/minus_circle.svg';
+import { RandomPatientButton } from '../views/patients/components/RandomPatientButton';
 
 const StyledImageButton = styled(Button)`
   min-width: 30px;
@@ -95,10 +96,11 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
     onSubmit(newData);
   };
 
-  const renderForm = ({ submitForm, values }) => {
+  const renderForm = ({ submitForm, values, setValues }) => {
     return (
       <>
         <IdBannerContainer>
+          <RandomPatientButton setValues={setValues} generateId={generateId} />
           <IdBanner>
             <Field name="displayId" component={IdField} regenerateId={generateId} />
           </IdBanner>

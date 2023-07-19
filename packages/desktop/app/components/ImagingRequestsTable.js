@@ -50,7 +50,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       title: 'Type',
       accessor: getImagingRequestType(imagingTypes),
     },
-    { key: 'requestedDate', title: 'Date & time', accessor: getDate },
+    { key: 'requestedDate', title: 'Requested at time', accessor: getDate },
     { key: 'requestedBy.displayName', title: 'Requested by', accessor: getDisplayName },
     ...(isCompletedTable
       ? [
@@ -101,6 +101,8 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
     [loadEncounter, dispatch, params.patientId, params.category, encounterId],
   );
 
+  const globalImagingRequestsFetchOptions = { ...statusFilter, ...searchParameters };
+
   return (
     <SearchTable
       autoRefresh={!encounterId}
@@ -108,7 +110,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       columns={encounterId ? encounterColumns : globalColumns}
       noDataMessage="No imaging requests found"
       onRowClick={selectImagingRequest}
-      fetchOptions={{ ...statusFilter, ...searchParameters }}
+      fetchOptions={encounterId ? undefined : globalImagingRequestsFetchOptions}
       elevated={false}
       initialSort={{
         order: 'desc',
