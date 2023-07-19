@@ -116,6 +116,8 @@ export const LabRequestResultsTable = React.memo(
           onRowClick={openModal}
           initialSort={{ order: 'asc', orderBy: 'id' }}
           elevated={false}
+          disablePagination
+          fixedHeader
         />
       </>
     );

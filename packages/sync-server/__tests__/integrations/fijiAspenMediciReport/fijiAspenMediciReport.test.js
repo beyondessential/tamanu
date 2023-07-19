@@ -455,10 +455,6 @@ describe('fijiAspenMediciReport', () => {
         // Location/Department
         locations: [
           {
-            location: 'Emergency room 1',
-            assignedTime: '2022-06-09T00:02:54+00:00',
-          },
-          {
             location: 'Emergency room 2',
             assignedTime: '2022-06-09T08:04:54+00:00',
           },

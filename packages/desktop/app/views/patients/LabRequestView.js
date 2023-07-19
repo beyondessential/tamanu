@@ -37,10 +37,17 @@ import { Colors } from '../../constants';
 
 const Container = styled.div`
   padding: 12px 30px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 58px);
 `;
 
 const Rule = styled(Divider)`
   margin: 0 0 20px 0;
+`;
+
+const FixedTileRow = styled(TileContainer)`
+  flex-shrink: 0;
 `;
 
 const HIDDEN_STATUSES = [
@@ -168,7 +175,7 @@ export const LabRequestView = () => {
         }
       />
       <LabRequestNoteForm labRequestId={labRequest.id} isReadOnly={areLabRequestsReadOnly} />
-      <TileContainer>
+      <FixedTileRow>
         <Tile
           Icon={() => <img src={TestCategoryIcon} alt="test category" />}
           text="Test Category"
@@ -231,7 +238,7 @@ export const LabRequestView = () => {
             },
           }}
         />
-      </TileContainer>
+      </FixedTileRow>
       <Rule />
 
       <LabRequestResultsTable
