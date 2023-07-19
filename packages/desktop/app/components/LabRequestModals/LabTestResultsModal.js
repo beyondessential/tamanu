@@ -15,7 +15,7 @@ import { ConfirmCancelRow } from '../ButtonRow';
 const TableContainer = styled.div`
   overflow-y: auto;
   max-height: 500px;
-  margin: 0px 20px;
+  margin: 0px 30px;
 `;
 
 const StyledModal = styled(Modal)`
@@ -25,7 +25,6 @@ const StyledModal = styled(Modal)`
 `;
 
 const StyledTableFormFields = styled(TableFormFields)`
-  margin: 20px 0;
   thead tr th {
     text-align: left;
     background: ${Colors.white};
@@ -40,10 +39,10 @@ const StyledTableFormFields = styled(TableFormFields)`
 `;
 
 const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
-  padding-right: 20px;
+  padding-right: 30px;
   padding-top: 18px;
+  margin-top: 20px;
   border-top: 1px solid ${Colors.outline};
-  margin-top: 0;
 `;
 
 const LAB_TEST_PROPERTIES = {
@@ -135,7 +134,7 @@ const getColumns = (count, onChangeResult) => {
 
 const ResultsFormSkeleton = () => (
   <>
-    <Box padding="20px 30px">
+    <Box padding="0 30px">
       <Box display="flex" justifyContent="space-between" marginBottom="20px">
         <div>
           <Skeleton variant="text" width={124} style={{ fontSize: 20, marginBottom: 4 }} />
@@ -146,7 +145,7 @@ const ResultsFormSkeleton = () => (
           <Skeleton variant="rect" width={241} height={40} style={{ borderRadius: 4 }} />
         </div>
       </Box>
-      <Skeleton variant="rect" height={257} style={{ borderRadius: 4, marginBottom: 30 }} />
+      <Skeleton variant="rect" height={257} style={{ borderRadius: 4 }} />
     </Box>
   </>
 );
@@ -193,7 +192,7 @@ const ResultsForm = ({ labTestResults, isLoading, isError, error, values, setFie
 
   return (
     <Box>
-      <Box display="flex" justifyContent="space-between" margin="0px 20px">
+      <Box display="flex" justifyContent="space-between" margin="0px 30px" paddingBottom="20px">
         <div>
           <Heading4 marginBottom="10px">Enter test results</Heading4>
           <SmallBodyText color="textTertiary">
@@ -242,16 +241,14 @@ export const LabTestResultsModal = ({ labRequest, onClose, open }) => {
         enableReinitialize
         render={props => (
           <>
-            {isSuccess && (
-              <ResultsForm
-                labTestResults={labTestResults}
-                onClose={onClose}
-                isLoading={isLoading}
-                isError={isError}
-                error={error}
-                {...props}
-              />
-            )}
+            <ResultsForm
+              labTestResults={labTestResults}
+              onClose={onClose}
+              isLoading={isLoading}
+              isError={isError}
+              error={error}
+              {...props}
+            />
           </>
         )}
       />
