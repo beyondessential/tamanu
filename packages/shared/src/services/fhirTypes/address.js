@@ -30,7 +30,7 @@ export class FhirAddress extends FhirBaseType {
           .array()
           .of(yup.string())
           .nullable()
-          .default([]),
+          .default([null]),
         city: yup
           .string()
           .nullable()
