@@ -15,6 +15,7 @@ import { ConfirmCancelRow } from '../ButtonRow';
 const TableContainer = styled.div`
   overflow-y: auto;
   max-height: 500px;
+  margin: 0px 20px;
 `;
 
 const StyledModal = styled(Modal)`
@@ -24,12 +25,7 @@ const StyledModal = styled(Modal)`
 `;
 
 const StyledTableFormFields = styled(TableFormFields)`
-  margin-top: 20px;
-  margin-bottom: 30px;
-
-  overflow-y: auto;
-  max-height: 400px;
-
+  margin: 20px 0;
   thead tr th {
     text-align: left;
     background: ${Colors.white};
@@ -139,7 +135,7 @@ const getColumns = (count, onChangeResult) => {
 
 const ResultsFormSkeleton = () => (
   <>
-    <Box>
+    <Box padding="20px 30px">
       <Box display="flex" justifyContent="space-between" marginBottom="20px">
         <div>
           <Skeleton variant="text" width={124} style={{ fontSize: 20, marginBottom: 4 }} />
@@ -197,7 +193,7 @@ const ResultsForm = ({ labTestResults, isLoading, isError, error, values, setFie
 
   return (
     <Box>
-      <Box display="flex" justifyContent="space-between" padding="0 20px 10px 20px">
+      <Box display="flex" justifyContent="space-between" margin="0px 20px">
         <div>
           <Heading4 marginBottom="10px">Enter test results</Heading4>
           <SmallBodyText color="textTertiary">
@@ -207,9 +203,7 @@ const ResultsForm = ({ labTestResults, isLoading, isError, error, values, setFie
         <Field name="laboratoryOfficer" label="Lab officer" tabIndex={0} component={TextField} />
       </Box>
       <TableContainer>
-        <Box padding="0 20px">
-          <StyledTableFormFields columns={columns} data={data} />
-        </Box>
+        <StyledTableFormFields columns={columns} data={data} />
       </TableContainer>
     </Box>
   );
