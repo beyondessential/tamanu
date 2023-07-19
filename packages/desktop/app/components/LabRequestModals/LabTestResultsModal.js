@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo } from 'react';
 import { Box } from '@material-ui/core';
 import styled from 'styled-components';
-import { keyBy, omit, pick } from 'lodash';
-import { Skeleton } from '@material-ui/lab';
+import { keyBy, pick } from 'lodash';
+import { Alert, AlertTitle, Skeleton } from '@material-ui/lab';
 import { Modal } from '../Modal';
 import { Heading4, SmallBodyText } from '../Typography';
 import { DateTimeField, Field, Form, SuggesterSelectField, TextField } from '../Field';
@@ -137,7 +137,34 @@ const getColumns = (count, onChangeResult) => {
   ];
 };
 
-const ResultsForm = ({ labTestResults, values, setFieldValue }) => {
+const ResultsFormSkeleton = () => (
+  <>
+    <Box>
+      <Box display="flex" justifyContent="space-between" marginBottom="20px">
+        <div>
+          <Skeleton variant="text" width={124} style={{ fontSize: 20, marginBottom: 4 }} />
+          <Skeleton variant="text" width={270} style={{ fontSize: 12 }} />
+        </div>
+        <div>
+          <Skeleton variant="text" width={70} style={{ fontSize: 18 }} />
+          <Skeleton variant="rect" width={241} height={40} style={{ borderRadius: 4 }} />
+        </div>
+      </Box>
+      <Skeleton variant="rect" height={257} style={{ borderRadius: 4, marginBottom: 30 }} />
+    </Box>
+  </>
+);
+
+const ResultsFormError = ({ error }) => (
+  <Box padding="8px 30px 25px 30px">
+    <Alert severity="error">
+      <AlertTitle>Error</AlertTitle>
+      <b>Failed to load result with error:</b> {error.message}
+    </Alert>
+  </Box>
+);
+
+const ResultsForm = ({ labTestResults, isLoading, isError, error, values, setFieldValue }) => {
   const { count, data } = labTestResults;
   /**
    * On entering lab result field for a test some other fields are auto-filled optimistically
@@ -165,6 +192,9 @@ const ResultsForm = ({ labTestResults, values, setFieldValue }) => {
 
   const columns = useMemo(() => getColumns(count, onChangeResult), [count, onChangeResult]);
 
+  if (isLoading) return <ResultsFormSkeleton />;
+  if (isError) return <ResultsFormError error={error} />;
+
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" padding="0 20px 10px 20px">
@@ -184,24 +214,6 @@ const ResultsForm = ({ labTestResults, values, setFieldValue }) => {
     </Box>
   );
 };
-
-const ResultsFormSkeleton = () => (
-  <>
-    <Box>
-      <Box display="flex" justifyContent="space-between" marginBottom="20px">
-        <div>
-          <Skeleton variant="text" width={124} style={{ fontSize: 20, marginBottom: 4 }} />
-          <Skeleton variant="text" width={270} style={{ fontSize: 12 }} />
-        </div>
-        <div>
-          <Skeleton variant="text" width={70} style={{ fontSize: 18 }} />
-          <Skeleton variant="rect" width={241} height={40} style={{ borderRadius: 4 }} />
-        </div>
-      </Box>
-      <Skeleton variant="rect" height={257} style={{ borderRadius: 4, marginBottom: 30 }} />
-    </Box>
-  </>
-);
 
 export const LabTestResultsModal = ({ labRequest, onClose, open }) => {
   const {
@@ -236,9 +248,15 @@ export const LabTestResultsModal = ({ labRequest, onClose, open }) => {
         enableReinitialize
         render={props => (
           <>
-            {isLoading && <ResultsFormSkeleton />}
             {isSuccess && (
-              <ResultsForm labTestResults={labTestResults} onClose={onClose} {...props} />
+              <ResultsForm
+                labTestResults={labTestResults}
+                onClose={onClose}
+                isLoading={isLoading}
+                isError={isError}
+                error={error}
+                {...props}
+              />
             )}
           </>
         )}
