@@ -1,10 +1,14 @@
-import { isPlainObject } from 'lodash';
+import { isPlainObject, identity } from 'lodash';
 
 import { VISIBILITY_STATUSES } from '../../constants';
 
+function mapAndCompactArray(input) {
+  return input.map(v => objectAsFhir(v)).filter(identity);
+}
+
 export function objectAsFhir(input) {
   if (Array.isArray(input)) {
-    return input.map(v => objectAsFhir(v));
+    return mapAndCompactArray(input);
   }
 
   if (!isPlainObject(input)) {
@@ -16,7 +20,7 @@ export function objectAsFhir(input) {
     if (value === null || value === undefined) {
       continue;
     } else if (Array.isArray(value)) {
-      obj[name] = value.map(v => objectAsFhir(v));
+      obj[name] = mapAndCompactArray(value);
     } else if (isPlainObject(value)) {
       obj[name] = objectAsFhir(value);
     } else {
