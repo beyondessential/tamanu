@@ -20,7 +20,8 @@
   },
   "sync": {
     "schedule": "*/1 * * * *",
-    "host": "https://central-dev.tamanu.io",
+    //"host": "https://central-dev.tamanu.io",
+    "host": "http://localhost:3000",
     "email": "",
     "password": "",
     "timeout": 10000,
