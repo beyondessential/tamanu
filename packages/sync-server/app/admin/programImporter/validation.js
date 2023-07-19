@@ -17,7 +17,11 @@ const normalRangeObjectSchema = yup
   .shape({
     min: yup.number(),
     max: yup.number(),
+    ageUnit: yup.string().oneOf(['years', 'months', 'weeks']),
+    ageMin: yup.number(),
+    ageMax: yup.number(),
   })
+  .noUnknown()
   .test({
     name: 'normalRange',
     message: ctx => `normalRange should have either min or max, got ${JSON.stringify(ctx.value)}`,
