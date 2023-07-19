@@ -1,4 +1,4 @@
-import { validateVisualisationConfigs } from './vitalsValidation';
+import { validateVitalVisualisationConfigs } from './vitalsValidation';
 
 const STATUSES_TO_DELETE = ['deleted', 'hidden', 'historical'];
 
@@ -45,7 +45,7 @@ function makeScreen(questions, componentData) {
       : null;
 
     // This validation should move to importSurvey.js. It should migrate with new unit tests to make sure things work fine.
-    validateVisualisationConfigs(visualisationConfig, validationCriteria);
+    validateVitalVisualisationConfigs(visualisationConfig, validationCriteria);
 
     return [
       {

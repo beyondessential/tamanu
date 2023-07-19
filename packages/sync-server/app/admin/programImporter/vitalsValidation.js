@@ -84,7 +84,10 @@ const validateNormalRange = (normalRange, graphRange) => {
   return false;
 };
 
-export function validateVisualisationConfigs(visualisationConfigString, validationCriteriaString) {
+export function validateVitalVisualisationConfigs(
+  visualisationConfigString,
+  validationCriteriaString,
+) {
   const visualisationConfig = parseOrNull(visualisationConfigString);
   const validationCriteria = parseOrNull(validationCriteriaString);
 
