@@ -5,7 +5,7 @@ import { combineQueries } from '../combineQueries';
 import { usePatientData } from './usePatientData';
 import { useVitalsSurvey } from './useVitalsSurvey';
 
-export const useVisualisationConfigsQuery = () => {
+export const useVitalsVisualisationConfigsQuery = () => {
   const encounterQuery = useEncounter();
   const { encounter } = encounterQuery;
 
