@@ -110,7 +110,6 @@ function telecoms(patient) {
 
 function addresses(patient) {
   const { cityTown, streetVillage } = patient.additionalData || {};
-  if (!cityTown && !streetVillage) return [];
 
   return [
     new FhirAddress({
