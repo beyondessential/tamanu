@@ -117,7 +117,7 @@ function addresses(patient) {
       type: 'physical',
       use: 'home',
       city: cityTown,
-      line: compactBy([streetVillage]),
+      line: [streetVillage],
     }),
   ];
 }
