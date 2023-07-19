@@ -8,16 +8,13 @@ import { Heading4, SmallBodyText } from '../Typography';
 import { DateTimeField, Field, Form, SuggesterSelectField, TextField } from '../Field';
 import { TableFormFields } from '../Table';
 import { Colors } from '../../constants';
-import { ModalActionRow } from '../ModalActionRow';
 import { useLabTestResultsQuery } from '../../api/queries/useLabTestResultsQuery';
 import { LabResultAccessorField, AccessorField } from './AccessorField';
+import { ConfirmCancelRow } from '../ButtonRow';
 
-const StyledModalActionRow = styled(ModalActionRow)`
-  position: sticky;
-  bottom: 0;
-  background: ${Colors.white};
-  padding-bottom: 24px;
-  margin-bottom: -18px;
+const TableContainer = styled.div`
+  overflow-y: auto;
+  max-height: 500px;
 `;
 
 const StyledModal = styled(Modal)`
@@ -30,6 +27,9 @@ const StyledTableFormFields = styled(TableFormFields)`
   margin-top: 20px;
   margin-bottom: 30px;
 
+  overflow-y: auto;
+  max-height: 400px;
+
   thead tr th {
     text-align: left;
     background: ${Colors.white};
@@ -41,6 +41,13 @@ const StyledTableFormFields = styled(TableFormFields)`
   tbody tr td {
     font-size: 14px;
   }
+`;
+
+const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
+  padding-right: 20px;
+  padding-top: 18px;
+  border-top: 1px solid ${Colors.outline};
+  margin-top: 0;
 `;
 
 const LAB_TEST_PROPERTIES = {
@@ -159,8 +166,8 @@ const ResultsForm = ({ labTestResults, values, setFieldValue }) => {
   const columns = useMemo(() => getColumns(count, onChangeResult), [count, onChangeResult]);
 
   return (
-    <>
-      <Box display="flex" justifyContent="space-between">
+    <Box>
+      <Box display="flex" justifyContent="space-between" padding="0 20px 10px 20px">
         <div>
           <Heading4 marginBottom="10px">Enter test results</Heading4>
           <SmallBodyText color="textTertiary">
@@ -169,8 +176,12 @@ const ResultsForm = ({ labTestResults, values, setFieldValue }) => {
         </div>
         <Field name="laboratoryOfficer" label="Lab officer" tabIndex={0} component={TextField} />
       </Box>
-      <StyledTableFormFields columns={columns} data={data} />
-    </>
+      <TableContainer>
+        <Box padding="0 20px">
+          <StyledTableFormFields columns={columns} data={data} />
+        </Box>
+      </TableContainer>
+    </Box>
   );
 };
 
@@ -218,6 +229,7 @@ export const LabTestResultsModal = ({ labRequest, onClose, open }) => {
       title={`Enter results | Test ID ${displayId}`}
       open={open}
       onClose={onClose}
+      overrideContentPadding
     >
       <Form
         initialValues={initialData}
@@ -231,7 +243,7 @@ export const LabTestResultsModal = ({ labRequest, onClose, open }) => {
           </>
         )}
       />
-      <StyledModalActionRow
+      <StyledConfirmCancelRow
         onConfirm={onClose}
         onCancel={onClose}
         confirmDisabled={isLoading || isError}
