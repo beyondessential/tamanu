@@ -34,41 +34,39 @@ interface TableProps {
 }
 
 export const Table = ({
-         Title = null,
-         rows,
-         columns,
-         cells,
-         tableHeader = null,
-         onPressItem,
-         scrollHandler,
-       }: TableProps): JSX.Element => (
-         <ScrollView>
-           <RowView>
-             <StyledView>
-               {Title && <Title />}
-               {rows.map((r, i) => r.rowHeader(i))}
-             </StyledView>
-             <ScrollView
-               bounces={false}
-               showsHorizontalScrollIndicator
-               onScroll={scrollHandler}
-               horizontal
-             >
-               <RowView>
-                 {columns.map((column: any) => (
-                   <StyledView key={`${column}`}>
-                     {tableHeader?.accessor(column, onPressItem)}
-                     {cells[column] &&
-                       rows.map((row, i) =>
-                         row.cell(
-                           cells[column].find(c => c[row.rowKey] === row.rowTitle),
-                           i,
-                         ),
-                       )}
-                   </StyledView>
-                 ))}
-               </RowView>
-             </ScrollView>
-           </RowView>
-         </ScrollView>
-       );
+  Title = null,
+  rows,
+  columns,
+  cells,
+  tableHeader = null,
+  onPressItem,
+  scrollHandler,
+}: TableProps): JSX.Element => (
+  <RowView>
+    <StyledView>
+      {Title && <Title />}
+      {rows.map((r, i) => r.rowHeader(i))}
+    </StyledView>
+    <ScrollView
+      bounces={false}
+      showsHorizontalScrollIndicator
+      onScroll={scrollHandler}
+      horizontal
+    >
+      <RowView>
+        {columns.map((column: any) => (
+          <StyledView key={`${column}`}>
+            {tableHeader?.accessor(column, onPressItem)}
+            {cells[column] &&
+              rows.map((row, i) =>
+                row.cell(
+                  cells[column].find(c => c[row.rowKey] === row.rowTitle),
+                  i,
+                ),
+              )}
+          </StyledView>
+        ))}
+      </RowView>
+    </ScrollView>
+  </RowView>
+);
