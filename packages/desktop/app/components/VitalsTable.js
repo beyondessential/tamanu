@@ -56,6 +56,8 @@ const MeasureCell = React.memo(({ value, data }) => {
   } = useVitalChartData();
   const visualisationConfig = visualisationConfigs.find(({ key }) => key === data.dataElementId);
   const { hasVitalChart = false } = visualisationConfig || {};
+  // If the diastolic blood pressure(DBP) is selected, we want to show the systolic blood pressure(SBP) chart instead
+  // More: DBP and SBP data are both shown on the same chart (VitalBloodPressureChart), it should use SBP's visualisation_config and validation_criteria to render the chart
   const chartKey =
     visualisationConfig.key === VITALS_DATA_ELEMENT_IDS.dbp
       ? VITALS_DATA_ELEMENT_IDS.sbp
