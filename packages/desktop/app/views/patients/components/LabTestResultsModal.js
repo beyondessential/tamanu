@@ -17,7 +17,7 @@ import { useApi } from '../../../api';
 
 const TableContainer = styled.div`
   overflow-y: auto;
-  max-height: 56vh;
+  max-height: 48vh;
   margin: 0px 30px;
 `;
 

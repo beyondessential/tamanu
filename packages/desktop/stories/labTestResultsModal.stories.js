@@ -42,6 +42,34 @@ const mockLabTests = {
         unit: 'g/dL',
       },
     },
+    {
+      id: 5,
+      labTestType: {
+        name: 'HGB',
+        unit: 'g/dL',
+      },
+    },
+    {
+      id: 6,
+      labTestType: {
+        name: 'PLT',
+        unit: 'x10^3/uL',
+      },
+    },
+    {
+      id: 7,
+      labTestType: {
+        name: 'MCH',
+        unit: 'pg',
+      },
+    },
+    {
+      id: 8,
+      labTestType: {
+        name: 'MCHC',
+        unit: 'g/dL',
+      },
+    },
   ],
   count: 4,
 };

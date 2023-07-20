@@ -304,13 +304,18 @@ labRelations.put(
         // Not all lab tests exist on specified lab request
         throw new NotFoundError();
       }
-      await Promise.all(
-        labTests.map(async labTest => {
-          const labTestBody = body[labTest.id];
-          await labTest.update(labTestBody);
-        }),
-      );
-      res.send(labTests);
+
+      const promises = [];
+
+      labTests.forEach(labTest => {
+        const labTestBody = body[labTest.id];
+        const updated = labTest.set(labTestBody);
+        if (updated.changed()) {
+          promises.push(updated.save());
+        }
+      });
+
+      res.send(await Promise.all(promises));
     });
   }),
 );

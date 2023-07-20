@@ -5,7 +5,7 @@ export const useLabTestResultsQuery = labRequestId => {
   const api = useApi();
   return useQuery(
     ['labTestResults', labRequestId],
-    () => api.get(`labRequest/${labRequestId}/tests`),
+    () => api.get(`labRequest/${labRequestId}/tests`, { order: 'asc', orderBy: 'id' }),
     { enabled: !!labRequestId },
   );
 };
