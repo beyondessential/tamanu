@@ -153,6 +153,7 @@ jobs:
         run: aws s3 sync . s3://${{ env.S3_BUCKET }} --no-progress
 
       - name: Prepare comment
+        if: github.event_name == 'pull_request'
         id: comment
         uses: actions/github-script@v6
         env:
@@ -171,7 +172,6 @@ jobs:
               `- :penguin:  [Linux (AppImage)](${S3_URL}/linux/Tamanu-${VERSION}.AppImage)`,
             ].join('\n');
 
-      # TODO: for releases, post comment elsewhere? on draft/release? slack?
       - name: Comment on PR
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v6
