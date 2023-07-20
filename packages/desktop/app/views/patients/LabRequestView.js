@@ -108,6 +108,7 @@ export const LabRequestView = () => {
   const { ability } = useAuth();
   const [modalId, setModalId] = useState(query.get('modal'));
   const [modalOpen, setModalOpen] = useState(false);
+  const [labTestTableRefreshCount, setLabTestTableRefreshCount] = useState(0);
   const { isLoading, labRequest, updateLabRequest } = useLabRequest();
   const { navigateToLabRequest } = usePatientNavigation();
 
@@ -125,6 +126,10 @@ export const LabRequestView = () => {
   };
 
   const patient = useSelector(state => state.patient);
+
+  const handleRefreshLabTestTable = () => {
+    setLabTestTableRefreshCount(oldVal => oldVal + 1);
+  };
 
   const updateLabReq = async data => {
     await updateLabRequest(labRequest.id, data);
@@ -249,6 +254,7 @@ export const LabRequestView = () => {
           </Button>
         </Box>
         <LabRequestResultsTable
+          refreshCount={labTestTableRefreshCount}
           labRequest={labRequest}
           patient={patient}
           isReadOnly={areLabTestsReadOnly}
@@ -258,6 +264,7 @@ export const LabRequestView = () => {
             labRequest={labRequest}
             patient={patient}
             updateLabReq={updateLabReq}
+            refreshLabTestTable={handleRefreshLabTestTable}
             open={modalOpen}
             onClose={closeModal}
           />

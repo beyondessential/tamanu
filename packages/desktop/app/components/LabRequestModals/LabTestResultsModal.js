@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { keyBy, pick } from 'lodash';
 import { Alert, AlertTitle, Skeleton } from '@material-ui/lab';
 import { useMutation } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
 import { Modal } from '../Modal';
 import { Heading4, SmallBodyText } from '../Typography';
 import { DateTimeField, Form, SuggesterSelectField, TextField } from '../Field';
@@ -205,7 +206,7 @@ const ResultsForm = ({ labTestResults, isLoading, isError, error, values, setFie
   );
 };
 
-export const LabTestResultsModal = ({ labRequest, onClose, open }) => {
+export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, open }) => {
   const api = useApi();
   const {
     data: labTestResults = { data: [], count: 0 },
@@ -216,12 +217,16 @@ export const LabTestResultsModal = ({ labRequest, onClose, open }) => {
   const { displayId } = labRequest;
 
   const { mutate: updateTests, isLoading: isSavingTests } = useMutation(
-    payload => {
-      return api.put(`labRequest/${labRequest.id}/tests`, payload);
-    },
+    payload => api.put(`labRequest/${labRequest.id}/tests`, payload),
     {
-      onSuccess: (_responseData, { formProps }) => {
-        console.log('responseData', _responseData);
+      onSuccess: labTestRes => {
+        toast.success(`Successfully updated ${labTestRes.length} tests for request ${displayId}`);
+        // Force refresh of data fetching table
+        refreshLabTestTable(count => count + 1);
+        onClose();
+      },
+      onError: err => {
+        toast.error(`Failed to update tests for request ${displayId}: ${err.message}`);
       },
     },
   );

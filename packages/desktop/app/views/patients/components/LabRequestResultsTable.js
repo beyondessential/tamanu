@@ -92,39 +92,42 @@ const columns = sex => [
   { title: 'Completed', key: 'completedDate', accessor: getCompletedDate, sortable: false },
 ];
 
-export const LabRequestResultsTable = React.memo(({ labRequest, patient, isReadOnly }) => {
-  const [activeTest, setActiveTest] = useState(null);
-  const [isModalOpen, setModalOpen] = useState(false);
+export const LabRequestResultsTable = React.memo(
+  ({ labRequest, patient, refreshCount, isReadOnly }) => {
+    const [activeTest, setActiveTest] = useState(null);
+    const [isModalOpen, setModalOpen] = useState(false);
 
-  const closeModal = () => setModalOpen(false);
-  const openModal = test => {
-    setActiveTest(test);
-    setModalOpen(true);
-  };
+    const closeModal = () => setModalOpen(false);
+    const openModal = test => {
+      setActiveTest(test);
+      setModalOpen(true);
+    };
 
-  const sexAppropriateColumns = columns(patient.sex);
+    const sexAppropriateColumns = columns(patient.sex);
 
-  return (
-    <>
-      <ManualLabResultModal
-        open={isModalOpen}
-        labRequest={labRequest}
-        labTest={activeTest}
-        onClose={closeModal}
-        isReadOnly={isReadOnly}
-      />
-      <StyledDataFetchingTable
-        columns={sexAppropriateColumns}
-        endpoint={`labRequest/${labRequest.id}/tests`}
-        onRowClick={openModal}
-        initialSort={{ order: 'asc', orderBy: 'id' }}
-        disablePagination
-        allowExport={false}
-        elevated={false}
-      />
-      <Box display="flex" justifyContent="flex-end" marginTop="10px" paddingRight="10px">
-        <BodyText color="textTertiary">*Edited entry</BodyText>
-      </Box>
-    </>
-  );
-});
+    return (
+      <>
+        <ManualLabResultModal
+          open={isModalOpen}
+          labRequest={labRequest}
+          labTest={activeTest}
+          onClose={closeModal}
+          isReadOnly={isReadOnly}
+        />
+        <StyledDataFetchingTable
+          columns={sexAppropriateColumns}
+          endpoint={`labRequest/${labRequest.id}/tests`}
+          onRowClick={openModal}
+          initialSort={{ order: 'asc', orderBy: 'id' }}
+          disablePagination
+          allowExport={false}
+          elevated={false}
+          refreshCount={refreshCount}
+        />
+        <Box display="flex" justifyContent="flex-end" marginTop="10px" paddingRight="10px">
+          <BodyText color="textTertiary">*Edited entry</BodyText>
+        </Box>
+      </>
+    );
+  },
+);
