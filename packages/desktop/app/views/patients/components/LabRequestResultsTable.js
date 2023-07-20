@@ -1,11 +1,19 @@
 import React, { useState, useCallback } from 'react';
+import styled from 'styled-components';
+import { Box } from '@material-ui/core';
 import { useLabRequest } from '../../../contexts/LabRequest';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import { DataFetchingTable, Modal } from '../../../components';
+import { BodyText, DataFetchingTable, Modal } from '../../../components';
 import { ManualLabResultForm } from '../../../forms/ManualLabResultForm';
 import { capitaliseFirstLetter } from '../../../utils/capitalise';
 import { getCompletedDate, getMethod } from '../../../utils/lab';
 import { LabTestResultModal } from '../LabTestResultModal';
+
+const StyledDataFetchingTable = styled(DataFetchingTable)`
+  table tbody tr:last-child td {
+    border-bottom: none;
+  }
+`;
 
 const ManualLabResultModal = React.memo(({ labTest, onClose, open, isReadOnly }) => {
   const { updateLabTest, labRequest } = useLabRequest();
@@ -103,15 +111,20 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, isReadO
         labRequest={labRequest}
         labTest={activeTest}
         onClose={closeModal}
-        isReadOnly={true}
+        isReadOnly={isReadOnly}
       />
-      <DataFetchingTable
+      <StyledDataFetchingTable
         columns={sexAppropriateColumns}
         endpoint={`labRequest/${labRequest.id}/tests`}
         onRowClick={openModal}
         initialSort={{ order: 'asc', orderBy: 'id' }}
+        disablePagination
+        allowExport={false}
         elevated={false}
       />
+      <Box display="flex" justifyContent="flex-end" marginTop="10px" paddingRight="10px">
+        <BodyText color="textTertiary">*Edited entry</BodyText>
+      </Box>
     </>
   );
 });
