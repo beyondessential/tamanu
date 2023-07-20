@@ -1,13 +1,14 @@
-import { promises as fs } from 'fs';
 import { log } from 'shared/services/logging';
 import Table from 'cli-table3';
 import { REPORT_STATUSES } from 'shared/constants';
 import { format } from 'date-fns';
-import * as reportUtils from './utils';
+import { verifyQuery, getLatestVersion } from './utils';
 
 export const DEFAULT_USER_EMAIL = 'admin@tamanu.io';
-export const ACTIVE_TEXT = '\x1b[32mactive\x1b[0m';
-export const OVERWRITING_TEXT = '\x1b[1moverwriting with new data\x1b[0m';
+
+const colorise = (colorCode, text) => `\x1b[${colorCode}m${text}\x1b[0m`;
+export const ACTIVE_TEXT = colorise('32', 'active');
+export const OVERWRITING_TEXT = colorise('1m', 'overwriting with new data');
 
 export const formatUpdatedAt = date => format(date, 'P p');
 export const getVersionError = ({ versionNumber }) =>
@@ -15,32 +16,25 @@ export const getVersionError = ({ versionNumber }) =>
     `Version ${versionNumber} does not exist, remove versionNumber from JSON and try again to auto increment`,
   );
 
-export async function createVersion(file, definition, versions, store, verbose) {
-  const data = await fs.readFile(file);
-  const versionData = JSON.parse(data);
+export async function createVersion(versionData, definition, versions, store, verbose) {
   const { ReportDefinitionVersion } = store.models;
 
   log.info('Analyzing query');
-  await reportUtils.verifyQuery(
-    versionData.query,
-    versionData.queryOptions?.parameters,
-    store,
-    verbose,
-  );
+  await verifyQuery(versionData.query, versionData.queryOptions?.parameters, store, verbose);
   log.info('Query is valid');
 
+  let { id, versionNumber } = versionData;
   if (Number.isInteger(versionData.versionNumber)) {
     const existingVersion = versions.find(v => v.versionNumber === versionData.versionNumber);
     if (!existingVersion) {
       throw getVersionError(versionData);
     }
     log.warn(`Version ${versionData.versionNumber} already exists, ${OVERWRITING_TEXT}`);
-    versionData.id = existingVersion.id;
+    id = existingVersion.id;
   } else {
-    const latestVersion = reportUtils.getLatestVersion(versions);
-    const versionNumber = (latestVersion?.versionNumber || 0) + 1;
+    const latestVersion = getLatestVersion(versions);
+    versionNumber = (latestVersion?.versionNumber || 0) + 1;
     log.info(`Auto incrementing versionNumber to ${versionNumber}`);
-    versionData.versionNumber = versionNumber;
   }
 
   let { userId } = versionData;
@@ -54,34 +48,39 @@ export async function createVersion(file, definition, versions, store, verbose) 
   }
 
   const [version] = await ReportDefinitionVersion.upsert({
-    reportDefinitionId: definition.id,
-    userId,
     ...versionData,
+    id,
+    versionNumber,
+    userId,
+    reportDefinitionId: definition.id,
   });
 
   const created = !versionData.id;
 
   const isActive =
     version.status === REPORT_STATUSES.PUBLISHED &&
-    (created || reportUtils.getLatestVersion(versions).versionNumber === version.versionNumber);
+    (created || getLatestVersion(versions).versionNumber === version.versionNumber);
 
-  log.info(
-    `${created ? 'Created new' : 'Updated'} ${isActive ? `${ACTIVE_TEXT} ` : ''}version ${
-      version.versionNumber
-    } for definition ${definition.name}`,
-  );
+  log.info('Imported new report version', {
+    action: created ? 'createdNew' : 'updated',
+    active: isActive,
+    userId,
+    versionNumber: version.versionNumber,
+    definitionName: definition.name,
+    definitionId: definition.id,
+  });
 }
 
 export async function listVersions(definition, versions) {
-  const table = new Table({
-    head: ['Version', 'Status', 'Updated'],
-  });
   if (!versions.length) {
     log.info(`No versions found for report definition ${definition.name}`);
     return;
   }
-  const activeVersion = reportUtils.getLatestVersion(versions, REPORT_STATUSES.PUBLISHED);
+  const activeVersion = getLatestVersion(versions, REPORT_STATUSES.PUBLISHED);
 
+  const table = new Table({
+    head: ['Version', 'Status', 'Updated'],
+  });
   versions.forEach(({ versionNumber, status, updatedAt }) => {
     const isActive = activeVersion?.versionNumber === versionNumber;
     table.push([

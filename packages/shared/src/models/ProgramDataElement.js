@@ -13,6 +13,7 @@ export class ProgramDataElement extends Model {
         indicator: Sequelize.STRING,
         defaultText: Sequelize.STRING,
         defaultOptions: Sequelize.TEXT,
+        visualisationConfig: Sequelize.TEXT,
         type: {
           type: Sequelize.STRING(31),
           allowNull: false,
