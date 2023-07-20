@@ -91,12 +91,24 @@ patientRelations.get(
     // Todo: Remove when WAITM-243 is complete
     const passport = await getPatientAdditionalData(models, params.id, 'passport');
     const nationalityId = await getPatientAdditionalData(models, params.id, 'nationalityId');
+    const streetVillage = await getPatientAdditionalData(models, params.id, 'streetVillage');
+    const cityTown = await getPatientAdditionalData(models, params.id, 'cityTown');
+    const countryId = await getPatientAdditionalData(models, params.id, 'countryId');
     const nationality = nationalityId
       ? await models.ReferenceData.findByPk(nationalityId)
       : undefined;
+    const country = countryId ? await models.ReferenceData.findByPk(countryId) : undefined;
 
     const recordData = additionalDataRecord ? additionalDataRecord.toJSON() : {};
-    res.send({ ...recordData, passport, nationality, nationalityId });
+    res.send({
+      ...recordData,
+      passport,
+      nationality,
+      nationalityId,
+      streetVillage,
+      cityTown,
+      country,
+    });
   }),
 );
 
