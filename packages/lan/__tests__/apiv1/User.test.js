@@ -1,8 +1,8 @@
 import { getToken, centralServerLogin } from 'lan/app/middleware/auth';
 import { pick } from 'lodash';
-import { fake, chance } from 'shared/test-helpers';
+import { fake, chance, disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { CentralServerConnection } from '../../app/sync/CentralServerConnection';
-import { createTestContext, disableHardcodedPermissionsForSuite } from '../utilities';
+import { createTestContext } from '../utilities';
 
 const createUser = overrides => ({
   email: chance.email(),

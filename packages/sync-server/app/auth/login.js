@@ -78,7 +78,7 @@ export const login = ({ secret, refreshSecret }) =>
       throw new BadAuthenticationError('Missing deviceId');
     }
 
-    const user = await findUser(store.models, email);
+    const user = await findUser(models, email);
     if (!user && config.auth.reportNoUserError) {
       // an attacker can use this to get a list of user accounts
       // but hiding this error entirely can make debugging a hassle
@@ -94,7 +94,7 @@ export const login = ({ secret, refreshSecret }) =>
     const { auth, canonicalHostName } = config;
     const { tokenDuration } = auth;
     const accessTokenJwtId = getRandomU32();
-    const [token, refreshToken, facility, localisation, permissions] = await Promise.all([
+    const [token, refreshToken, facility, localisation, permissions, role] = await Promise.all([
       getToken(
         {
           userId: user.id,
@@ -111,9 +111,10 @@ export const login = ({ secret, refreshSecret }) =>
       internalClient
         ? getRefreshToken(models, { refreshSecret, userId: user.id, deviceId })
         : undefined,
-      store.models.Facility.findByPk(facilityId),
+      models.Facility.findByPk(facilityId),
       getLocalisation(),
-      getPermissionsForRoles(store.models, user.role),
+      getPermissionsForRoles(models, user.role),
+      models.Role.findByPk(user.role),
     ]);
 
     // Send some additional data with login to tell the user about
@@ -123,6 +124,7 @@ export const login = ({ secret, refreshSecret }) =>
       refreshToken,
       user: convertFromDbRecord(stripUser(user)).data,
       permissions,
+      role: role?.forResponse() ?? null,
       facility,
       localisation,
       centralHost: config.canonicalHostName,
