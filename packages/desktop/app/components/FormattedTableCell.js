@@ -69,11 +69,19 @@ function getTooltip(float, config = {}, visibilityCriteria = {}) {
   };
 }
 
-export const formatValue = (value, config, isEdited) => {
+export const formatValue = (value, config) => {
+  const { rounding = 0, unit = '' } = config || {};
   const float = parseFloat(value);
-  const formattedValue = isNaN(float) ? capitalize(value) || '-' : float;
 
-  return `${formattedValue}${isEdited ? '*' : ''}`;
+  if (isNaN(float)) {
+    return capitalize(value) || '-';
+  }
+
+  const unitSuffix = unit && unit.length <= 2 ? unit : '';
+  if (rounding > 0 || rounding === 0) {
+    return `${float.toFixed(rounding)}${unitSuffix}`;
+  }
+  return `${float}${unitSuffix}`;
 };
 
 export const DateHeadCell = React.memo(({ value }) => (
@@ -103,7 +111,8 @@ export const RangeValidatedCell = React.memo(
   ({ value, config, validationCriteria, onClick, isEdited, ...props }) => {
     const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
     const float = round(parseFloat(value), config);
-    const formattedValue = formatValue(value, config, isEdited);
+    const isEditedSuffix = isEdited ? '*' : '';
+    const formattedValue = `${formatValue(value, config)}${isEditedSuffix}`;
     const { tooltip, severity } = useMemo(() => getTooltip(float, config, validationCriteria), [
       float,
       config,
