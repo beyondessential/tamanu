@@ -9,7 +9,7 @@ import { useApi } from '../../../api';
 import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { usePatientAdditionalData, useAdministeredVaccines } from '../../../api/queries';
+import { usePatientAdditionalDataQuery, useAdministeredVaccines } from '../../../api/queries';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
 
@@ -17,7 +17,7 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
   const api = useApi();
   const { getLocalisation } = useLocalisation();
   const { watermark, logo, footerImg, printedBy } = useCertificate();
-  const { data: additionalData } = usePatientAdditionalData(patient.id);
+  const { data: additionalData } = usePatientAdditionalDataQuery(patient.id);
 
   const { data: vaccineData } = useAdministeredVaccines(patient.id, {
     orderBy: 'date',

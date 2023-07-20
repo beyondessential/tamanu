@@ -186,8 +186,9 @@ export function getConfigObject(componentId, config) {
   }
 }
 
-function transformPatientData(patient, config) {
-  const { column = 'fullName' } = config;
+function transformPatientData(patient, additionalData, config) {
+  const { writeToPatient = {}, column = 'fullName' } = config;
+  const { isAdditionalDataField = false } = writeToPatient;
   const { dateOfBirth, firstName, lastName } = patient;
 
   const { months, years } = intervalToDuration({
@@ -209,11 +210,14 @@ function transformPatientData(patient, config) {
     case 'fullName':
       return joinNames({ firstName, lastName });
     default:
+      if (isAdditionalDataField) {
+        return additionalData ? additionalData[column] : undefined;
+      }
       return patient[column];
   }
 }
 
-export function getFormInitialValues(components, patient, currentUser = {}) {
+export function getFormInitialValues(components, patient, additionalData, currentUser = {}) {
   const initialValues = components.reduce((acc, { dataElement }) => {
     const initialValue = getInitialValue(dataElement);
     const propName = dataElement.id;
@@ -238,7 +242,7 @@ export function getFormInitialValues(components, patient, currentUser = {}) {
 
     // patient data
     if (component.dataElement.type === 'PatientData') {
-      const patientValue = transformPatientData(patient, config);
+      const patientValue = transformPatientData(patient, additionalData, config);
       if (patientValue !== undefined) initialValues[component.dataElement.id] = patientValue;
     }
   }

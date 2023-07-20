@@ -17,6 +17,8 @@ import {
 } from 'desktop/app/views/programs/ProgramsPane';
 import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
 import { PatientListingView } from 'desktop/app/views';
+import { usePatientAdditionalDataQuery } from 'desktop/app/api/queries';
+import { ErrorMessage } from 'desktop/app/components/ErrorMessage';
 import { getAnswersFromData, getActionsFromData } from '../../utils';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useEncounter } from '../../contexts/Encounter';
@@ -105,8 +107,16 @@ const SurveyFlow = ({ patient, currentUser }) => {
     }
   };
 
-  if (!programs) {
+  const { isLoading, data: patientAdditionalData, isError, error } = usePatientAdditionalDataQuery(
+    patient.id,
+  );
+
+  if (isLoading || !programs) {
     return <LoadingIndicator />;
+  }
+
+  if (isError) {
+    return <ErrorMessage title="Error" error={error} />;
   }
 
   if (!survey) {
@@ -140,6 +150,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       survey={survey}
       onCancel={unsetSurvey}
       patient={patient}
+      patientAdditionalData={patientAdditionalData}
       currentUser={currentUser}
     />
   );

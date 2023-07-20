@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
 import {
   useEncounterData,
-  usePatientAdditionalData,
+  usePatientAdditionalDataQuery,
   useLabRequestNotes,
 } from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
@@ -21,9 +21,10 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
     labRequest.encounterId,
   );
 
-  const { data: additionalData, isLoading: isAdditionalDataLoading } = usePatientAdditionalData(
-    patient.id,
-  );
+  const {
+    data: additionalData,
+    isLoading: isAdditionalDataLoading,
+  } = usePatientAdditionalDataQuery(patient.id);
 
   const { data: notePages, isLoading: areNotesLoading } = useLabRequestNotes(labRequest.id);
 

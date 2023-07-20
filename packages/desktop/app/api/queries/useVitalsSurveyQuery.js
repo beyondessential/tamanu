@@ -4,7 +4,7 @@ import { useApi, isErrorUnknownAllow404s } from '../index';
 import { getConfigObject } from '../../utils';
 import { BLOOD_PRESSURE, LINE, bloodPressureChartKeys } from '../../components/Charts/constants';
 
-export const useVitalsSurvey = () => {
+export const useVitalsSurveyQuery = () => {
   const api = useApi();
   const vitalsSurvey = useQuery(['survey', { type: 'vitals' }], () =>
     api.get(`survey/vitals`, {}, { isErrorUnknown: isErrorUnknownAllow404s }),
