@@ -15,7 +15,6 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
         onCreateNewPatient(newPatient);
       } catch (e) {
         notifyError(e.message);
-        return;
       }
     },
     [api, onCreateNewPatient],
