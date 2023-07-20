@@ -96,7 +96,7 @@ export const DataFetchingTable = memo(
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
     useEffect(() => {
-      updateFetchState({ isLoading: true });
+      // updateFetchState({ isLoading: true });
       (async () => {
         try {
           if (!endpoint) {
@@ -115,7 +115,11 @@ export const DataFetchingTable = memo(
             },
           );
 
-          if (enableAutoRefresh) {
+          if (
+            enableAutoRefresh &&
+            sorting.order === initialSort.order &&
+            sorting.orderBy === initialSort.orderBy
+          ) {
             const isFirstFetch = lastFetchCount === 0; // Check if this is the intial table load
             const rowsSinceRefresh = count - lastFetchCount; // Rows since the last autorefresh
             const rowsSinceInteraction = rowsSinceRefresh + newRowCount; // Rows added since last clearing of rows from interacting
