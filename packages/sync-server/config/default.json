@@ -96,7 +96,7 @@
     }
   },
   "export": { 
-    "maxFileSizeInMB": 1 
+    "maxFileSizeInMB": 50
   },
   "mailgun": {
     "domain": "",
