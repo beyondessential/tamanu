@@ -67,7 +67,6 @@ export const DataFetchingTable = memo(
     const { getLocalisation } = useLocalisation();
 
     const autoRefresh = getLocalisation('features.tableAutorefresh');
-
     const enableAutoRefresh = autoRefresh && autoRefresh.enabled && isAutoRefreshTable;
 
     // This callback will be passed to table cell accessors so they can force a table refresh
@@ -116,59 +115,70 @@ export const DataFetchingTable = memo(
             },
           );
 
-          const isFirstFetch = lastFetchCount === 0; // Check if this is the intial table load
-          const rowsSinceRefresh = count - lastFetchCount; // Rows since the last autorefresh
-          const rowsSinceInteraction = rowsSinceRefresh + newRowCount; // Rows added since last clearing of rows from interacting
-          const dataWithNewKey = data.map((row, i) => {
-            // Offset the indexes based on pagination
-            const actualIndex = i + page * rowsPerPage;
-            // Highlight rows green if the index is less that the index of rows since interaction AND its not the first fetch
-            const isNewRow = actualIndex < rowsSinceInteraction && !isFirstFetch;
-            return {
-              ...row,
-              new: isNewRow,
-            };
-          });
+          if (enableAutoRefresh) {
+            const isFirstFetch = lastFetchCount === 0; // Check if this is the intial table load
+            const rowsSinceRefresh = count - lastFetchCount; // Rows since the last autorefresh
+            const rowsSinceInteraction = rowsSinceRefresh + newRowCount; // Rows added since last clearing of rows from interacting
+            const dataWithNewKey = data.map((row, i) => {
+              const actualIndex = i + page * rowsPerPage; // Offset the indexes based on pagination
+              // Highlight rows green if the index is less that the index of rows since interaction AND its not the first fetch
+              const isNewRow = actualIndex < rowsSinceInteraction && !isFirstFetch;
+              return {
+                ...row,
+                new: isNewRow,
+              };
+            });
 
-          const transformedData = transformRow ? dataWithNewKey.map(transformRow) : dataWithNewKey;
+            const transformedData = transformRow
+              ? dataWithNewKey.map(transformRow)
+              : dataWithNewKey;
 
-          // If its the first fetch, we dont want to highlight the new rows green or show a notification
-          if (!isFirstFetch) {
-            // Clear notification and green rows when leaving page one. Otherwise persist while navigating between pages
-            if (page !== lastPage && lastPage === 0) {
-              clearNewRowStyles();
-            } else {
-              setNewRowCount(rowsSinceInteraction);
-              setShowNotification(rowsSinceInteraction > 0 && page !== 0);
+            // If its the first fetch, we dont want to highlight the new rows green or show a notification
+            if (!isFirstFetch) {
+              // Clear notification and green rows when leaving page one. Otherwise persist while navigating between pages
+              if (page !== lastPage && lastPage === 0) {
+                clearNewRowStyles();
+              } else {
+                setNewRowCount(rowsSinceInteraction);
+                setShowNotification(rowsSinceInteraction > 0 && page !== 0);
+              }
             }
-          }
 
-          // When autorefreshing past page one, we dont want to move rows down as it updates. Only if you are on
-          // page one should it live update, otherwise the updates come through when navigating
-          const isDataToBeUpdated = page !== lastPage || page === 0;
-          const displayData = isDataToBeUpdated ? transformedData : staticData;
+            // When autorefreshing past page one, we dont want to move rows down as it updates. Only if you are on
+            // page one should it live update, otherwise the updates come through when navigating
+            const isDataToBeUpdated = page !== lastPage || page === 0;
+            const displayData = isDataToBeUpdated ? transformedData : staticData;
 
-          // Update the table with the rows to display
-          updateFetchState({
-            ...DEFAULT_FETCH_STATE,
-            data: displayData,
-            count,
-            isLoading: false,
-          });
+            // Record page and count of last fetch to compare to the next fetch
+            setLastFetchCount(count);
+            setLastPage(page);
+            // Save a copy of this fetch to show on next fetch if we are past page 1
+            setStaticData(displayData);
 
-          // Use custom function on data if provided
-          if (onDataFetched) {
-            onDataFetched({
+            // Update the table with the rows to display
+            updateFetchState({
+              ...DEFAULT_FETCH_STATE,
               data: displayData,
               count,
+              isLoading: false,
             });
+          } else {
+            // Non autorefreshing table
+            const transformedData = transformRow ? data.map(transformRow) : data;
+            updateFetchState({
+              ...DEFAULT_FETCH_STATE,
+              data: transformedData,
+              count,
+              isLoading: false,
+            });
+            // Use custom function on data if provided
+            if (onDataFetched) {
+              onDataFetched({
+                data: transformedData,
+                count,
+              });
+            }
           }
-
-          // Record page and count of last fetch to compare to the next fetch
-          setLastFetchCount(count);
-          setLastPage(page);
-          // Save a copy of this fetch to show on next fetch if we are past page 1
-          setStaticData(displayData);
         } catch (error) {
           // eslint-disable-next-line no-console
           console.error(error);
