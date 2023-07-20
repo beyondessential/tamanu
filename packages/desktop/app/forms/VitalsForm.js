@@ -70,7 +70,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
       }}
       render={({ submitForm, values, setFieldValue }) => (
         <SurveyScreen
-          components={vitalsSurvey.components}
+          allComponents={vitalsSurvey.components}
           patient={patient}
           cols={2}
           values={values}
