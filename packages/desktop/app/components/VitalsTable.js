@@ -203,7 +203,7 @@ export const VitalsTable = React.memo(() => {
       />
       {showFooterLegend && (
         <Box textAlign="end" marginTop="8px" fontSize="9px" color={Colors.softText}>
-          *Changed entry
+          *Changed record
         </Box>
       )}
     </>
