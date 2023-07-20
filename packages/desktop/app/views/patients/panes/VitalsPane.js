@@ -7,6 +7,8 @@ import { TabPane } from '../components';
 import { useApi } from '../../../api';
 import { VitalsForm } from '../../../forms';
 import { getActionsFromData, getAnswersFromData } from '../../../utils';
+import { VitalChartDataProvider } from '../../../contexts/VitalChartData';
+import { VitalChartsModal } from '../../../components/VitalChartsModal';
 
 export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
   const queryClient = useQueryClient();
@@ -32,15 +34,18 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
 
   return (
     <TabPane>
-      <Modal title="Record vitals" open={modalOpen} onClose={handleClose}>
-        <VitalsForm onClose={handleClose} onSubmit={submitVitals} patient={patient} />
-      </Modal>
-      <TableButtonRow variant="small">
-        <Button onClick={() => setModalOpen(true)} disabled={readonly}>
-          Record vitals
-        </Button>
-      </TableButtonRow>
-      <VitalsTable />
+      <VitalChartDataProvider>
+        <Modal title="Record vitals" open={modalOpen} onClose={handleClose}>
+          <VitalsForm onClose={handleClose} onSubmit={submitVitals} patient={patient} />
+        </Modal>
+        <VitalChartsModal />
+        <TableButtonRow variant="small">
+          <Button onClick={() => setModalOpen(true)} disabled={readonly}>
+            Record vitals
+          </Button>
+        </TableButtonRow>
+        <VitalsTable />
+      </VitalChartDataProvider>
     </TabPane>
   );
 });
