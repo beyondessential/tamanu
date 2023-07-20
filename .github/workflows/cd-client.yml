@@ -129,7 +129,7 @@ jobs:
         run: |
           sudo chown -R $USER:$USER release
           mkdir -p ops/{linux,mac,windows-{appdata,msi,system}}
-          mv release/latest-linux.yml release/*.{AppImage,deb} ops/linux/
+          mv release/latest-linux.yml release/*.AppImage ops/linux/
           mv release/*-mac* ops/mac/
           mv release/*.msi ops/windows-msi/
           mv release/latest.yml release/*.exe* ops/windows-system/
