@@ -1,9 +1,9 @@
-import { isPlainObject, identity } from 'lodash';
+import { isPlainObject } from 'lodash';
 
 import { VISIBILITY_STATUSES } from '../../constants';
 
 function mapAndCompactArray(input) {
-  return input.map(v => objectAsFhir(v)).filter(identity);
+  return input.map(v => objectAsFhir(v)).filter(v => v !== null && v !== undefined);
 }
 
 export function objectAsFhir(input) {
