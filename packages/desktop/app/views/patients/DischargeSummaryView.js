@@ -137,13 +137,13 @@ const ProceduresList = ({ procedures }) => {
   ));
 };
 
-const MedicationsList = ({ medications }) => {
+const MedicationsList = ({ medications, discontinued }) => {
   if (!medications || medications.length === 0) {
     return <span>N/A</span>;
   }
 
-  return medications.map(({ medication, prescription }) => {
-    const prescriptionText = prescription ? `(${prescription})` : '';
+  return medications.map(({ medication, discontinuingReason }) => {
+    const prescriptionText = discontinuingReason && discontinued ? `(${discontinuingReason})` : '';
     return (
       <li>
         <span>{`${medication.name} ${prescriptionText}`}</span>
@@ -326,7 +326,10 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
               </GridItem>
               <GridItem>
                 <ListColumn>
-                  <MedicationsList medications={medications.filter(m => m.discontinued)} />
+                  <MedicationsList
+                    medications={medications.filter(m => m.discontinued)}
+                    discontinued
+                  />
                 </ListColumn>
               </GridItem>
             </InnerGrid>
