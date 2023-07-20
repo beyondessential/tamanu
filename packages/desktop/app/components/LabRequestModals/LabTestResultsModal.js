@@ -3,6 +3,7 @@ import { Box } from '@material-ui/core';
 import styled from 'styled-components';
 import { keyBy, pick } from 'lodash';
 import { Alert, AlertTitle, Skeleton } from '@material-ui/lab';
+import { useMutation } from '@tanstack/react-query';
 import { Modal } from '../Modal';
 import { Heading4, SmallBodyText } from '../Typography';
 import { DateTimeField, Form, SuggesterSelectField, TextField } from '../Field';
@@ -11,6 +12,7 @@ import { Colors } from '../../constants';
 import { useLabTestResultsQuery } from '../../api/queries/useLabTestResultsQuery';
 import { LabResultAccessorField, AccessorField } from './AccessorField';
 import { ConfirmCancelRow } from '../ButtonRow';
+import { useApi } from '../../api';
 
 const TableContainer = styled.div`
   overflow-y: auto;
@@ -204,6 +206,7 @@ const ResultsForm = ({ labTestResults, isLoading, isError, error, values, setFie
 };
 
 export const LabTestResultsModal = ({ labRequest, onClose, open }) => {
+  const api = useApi();
   const {
     data: labTestResults = { data: [], count: 0 },
     isLoading,
@@ -211,6 +214,17 @@ export const LabTestResultsModal = ({ labRequest, onClose, open }) => {
     isError,
   } = useLabTestResultsQuery(labRequest.id);
   const { displayId } = labRequest;
+
+  const { mutate: updateTests, isLoading: isSavingTests } = useMutation(
+    payload => {
+      return api.put(`labRequest/${labRequest.id}/tests`, payload);
+    },
+    {
+      onSuccess: (_responseData, { formProps }) => {
+        console.log('responseData', _responseData);
+      },
+    },
+  );
 
   // Select editable values to prefill the form on edit
   const initialData = useMemo(
@@ -233,7 +247,8 @@ export const LabTestResultsModal = ({ labRequest, onClose, open }) => {
       <Form
         initialValues={initialData}
         enableReinitialize
-        render={props => (
+        onSubmit={updateTests}
+        render={({ submitForm, ...props }) => (
           <>
             <ResultsForm
               labTestResults={labTestResults}
@@ -243,13 +258,13 @@ export const LabTestResultsModal = ({ labRequest, onClose, open }) => {
               error={error}
               {...props}
             />
+            <StyledConfirmCancelRow
+              onCancel={onClose}
+              onConfirm={submitForm}
+              confirmDisabled={isLoading || isError || isSavingTests}
+            />
           </>
         )}
-      />
-      <StyledConfirmCancelRow
-        onConfirm={onClose}
-        onCancel={onClose}
-        confirmDisabled={isLoading || isError}
       />
     </StyledModal>
   );

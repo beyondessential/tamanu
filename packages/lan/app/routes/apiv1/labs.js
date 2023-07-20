@@ -281,7 +281,40 @@ labRequest.post(
 );
 
 const labRelations = permissionCheckingRouter('read', 'LabRequest');
+
 labRelations.get('/:id/tests', simpleGetList('LabTest', 'labRequestId'));
+
+labRelations.put(
+  '/:id/tests',
+  asyncHandler(async (req, res) => {
+    const { models, params, body, db } = req;
+    const { id } = params;
+    req.checkPermission('write', 'LabTest');
+
+    const testIds = Object.keys(body);
+
+    db.transaction(async () => {
+      const labTests = await models.LabTest.findAll({
+        where: {
+          labRequestId: id,
+          id: testIds,
+        },
+      });
+      if (labTests.length !== testIds.length) {
+        // Not all lab tests exist on specified lab request
+        throw new NotFoundError();
+      }
+      await Promise.all(
+        labTests.map(async labTest => {
+          const labTestBody = body[labTest.id];
+          await labTest.update(labTestBody);
+        }),
+      );
+      res.send(labTests);
+    });
+  }),
+);
+
 labRelations.get('/:id/notes', notePagesWithSingleItemListHandler(NOTE_RECORD_TYPES.LAB_REQUEST));
 labRelations.get(
   '/:id/notePages',
