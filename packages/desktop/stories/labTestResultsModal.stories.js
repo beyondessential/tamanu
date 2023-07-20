@@ -1,8 +1,8 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { defaultEndpoints, fakeLabRequest } from '../.storybook/__mocks__/defaultEndpoints';
-import { LabTestResultsModal } from '../app/components/LabRequestModals/LabTestResultsModal';
 import { MockedApi } from './utils/mockedApi';
+import { LabTestResultsModal } from '../app/views/patients/components/LabTestResultsModal';
 
 export default {
   argType: {

@@ -222,7 +222,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
       onSuccess: labTestRes => {
         toast.success(`Successfully updated ${labTestRes.length} tests for request ${displayId}`);
         // Force refresh of lab test data fetching table
-        refreshLabTestTable(count => count + 1);
+        refreshLabTestTable();
         onClose();
       },
       onError: err => {
@@ -241,8 +241,6 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
     [labTestResults],
   );
 
-  const confirmDisabled = isLoading || isError || isSavingTests;
-
   return (
     <StyledModal
       width="lg"
@@ -255,7 +253,8 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
         initialValues={initialData}
         enableReinitialize
         onSubmit={updateTests}
-        render={({ submitForm, isDirty, ...props }) => {
+        render={({ submitForm, dirty, ...props }) => {
+          const confirmDisabled = isLoading || isError || isSavingTests || !dirty;
           return (
             <>
               <ResultsForm
@@ -269,7 +268,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
               <StyledConfirmCancelRow
                 onCancel={onClose}
                 onConfirm={submitForm}
-                confirmDisabled={confirmDisabled || isDirty}
+                confirmDisabled={confirmDisabled}
               />
             </>
           );
