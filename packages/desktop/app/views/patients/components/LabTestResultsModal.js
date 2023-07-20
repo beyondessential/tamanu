@@ -5,19 +5,19 @@ import { keyBy, pick } from 'lodash';
 import { Alert, AlertTitle, Skeleton } from '@material-ui/lab';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
-import { Modal } from '../Modal';
-import { Heading4, SmallBodyText } from '../Typography';
-import { DateTimeField, Form, SuggesterSelectField, TextField } from '../Field';
-import { TableFormFields } from '../Table';
-import { Colors } from '../../constants';
-import { useLabTestResultsQuery } from '../../api/queries/useLabTestResultsQuery';
+import { Modal } from '../../../components/Modal';
+import { Heading4, SmallBodyText } from '../../../components/Typography';
+import { DateTimeField, Form, SuggesterSelectField, TextField } from '../../../components/Field';
+import { TableFormFields } from '../../../components/Table';
+import { Colors } from '../../../constants';
+import { useLabTestResultsQuery } from '../../../api/queries/useLabTestResultsQuery';
 import { LabResultAccessorField, AccessorField } from './AccessorField';
-import { ConfirmCancelRow } from '../ButtonRow';
-import { useApi } from '../../api';
+import { ConfirmCancelRow } from '../../../components/ButtonRow';
+import { useApi } from '../../../api';
 
 const TableContainer = styled.div`
   overflow-y: auto;
-  max-height: 500px;
+  max-height: 56vh;
   margin: 0px 30px;
 `;
 
@@ -221,7 +221,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
     {
       onSuccess: labTestRes => {
         toast.success(`Successfully updated ${labTestRes.length} tests for request ${displayId}`);
-        // Force refresh of data fetching table
+        // Force refresh of lab test data fetching table
         refreshLabTestTable(count => count + 1);
         onClose();
       },
@@ -241,6 +241,8 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
     [labTestResults],
   );
 
+  const confirmDisabled = isLoading || isError || isSavingTests;
+
   return (
     <StyledModal
       width="lg"
@@ -253,23 +255,25 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
         initialValues={initialData}
         enableReinitialize
         onSubmit={updateTests}
-        render={({ submitForm, ...props }) => (
-          <>
-            <ResultsForm
-              labTestResults={labTestResults}
-              onClose={onClose}
-              isLoading={isLoading}
-              isError={isError}
-              error={error}
-              {...props}
-            />
-            <StyledConfirmCancelRow
-              onCancel={onClose}
-              onConfirm={submitForm}
-              confirmDisabled={isLoading || isError || isSavingTests}
-            />
-          </>
-        )}
+        render={({ submitForm, isDirty, ...props }) => {
+          return (
+            <>
+              <ResultsForm
+                labTestResults={labTestResults}
+                onClose={onClose}
+                isLoading={isLoading}
+                isError={isError}
+                error={error}
+                {...props}
+              />
+              <StyledConfirmCancelRow
+                onCancel={onClose}
+                onConfirm={submitForm}
+                confirmDisabled={confirmDisabled || isDirty}
+              />
+            </>
+          );
+        }}
       />
     </StyledModal>
   );

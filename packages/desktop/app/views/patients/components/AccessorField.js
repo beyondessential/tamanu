@@ -1,7 +1,7 @@
 import React from 'react';
 import { capitalize } from 'lodash';
 import { LAB_TEST_RESULT_TYPES } from '@tamanu/shared/constants';
-import { NumberField, SelectField, TextField, Field } from '../Field';
+import { NumberField, SelectField, TextField, Field } from '../../../components/Field';
 
 function getResultComponent(resultType, options) {
   if (options && options.length) return SelectField;

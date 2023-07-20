@@ -31,7 +31,7 @@ import { LabRequestLogModal } from './components/LabRequestLogModal';
 import { LabRequestCard } from './components/LabRequestCard';
 import { LabRequestChangePriorityModal } from './components/LabRequestChangePriorityModal';
 import { LabRequestRecordSampleModal } from './components/LabRequestRecordSampleModal';
-import { LabTestResultsModal } from '../../components/LabRequestModals/LabTestResultsModal';
+import { LabTestResultsModal } from './components/LabTestResultsModal';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
