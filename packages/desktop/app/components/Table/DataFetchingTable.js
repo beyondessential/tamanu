@@ -144,7 +144,7 @@ export const DataFetchingTable = memo(
                 clearNewRowStyles();
               } else {
                 setNewRowCount(rowsSinceInteraction);
-                setShowNotification(rowsSinceInteraction > 0 && page !== 0);
+                setShowNotification(rowsSinceInteraction > 0);
               }
             }
 
