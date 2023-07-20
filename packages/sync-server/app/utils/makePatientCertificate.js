@@ -25,8 +25,8 @@ async function getCertificateAssets(models, footerAssetName) {
         ASSET_NAMES.LETTERHEAD_LOGO,
         ASSET_NAMES.VACCINE_CERTIFICATE_WATERMARK,
         ...(footerAsset?.data
-          ? [ASSET_FALLBACK_NAMES[footerAssetName] || ASSET_NAMES.CERTIFICATE_BOTTOM_HALF_IMG]
-          : []),
+          ? []
+          : [ASSET_FALLBACK_NAMES[footerAssetName] || ASSET_NAMES.CERTIFICATE_BOTTOM_HALF_IMG]),
       ].map(name => name && models.Asset.findOne({ raw: true, where: { name } })),
     )
   ).map(record => record?.data); // avoids having to do ?.data in the prop later
