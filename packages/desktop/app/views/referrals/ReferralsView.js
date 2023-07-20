@@ -30,7 +30,6 @@ const ReferralFlow = ({ patient, currentUser }) => {
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [startTime, setStartTime] = useState(null);
 
-  // TODO: convert surveys to react-query
   useEffect(() => {
     (async () => {
       const response = await api.get(`survey`, { type: SURVEY_TYPES.REFERRAL });
