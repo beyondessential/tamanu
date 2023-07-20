@@ -161,7 +161,9 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
 
   const patient = useSelector(state => state.patient);
   const { data: village } = useReferenceData(patient.villageId);
-  const { data: patientAdditionalData, isPADLoading } = usePatientAdditionalData(patient.id);
+  const { data: patientAdditionalData, isLoading: isPADLoading } = usePatientAdditionalData(
+    patient.id,
+  );
   const { data: patientConditionsData } = usePatientConditions(patient.id);
   const patientConditions = (patientConditionsData?.data || [])
     .filter(p => !p.resolved)
