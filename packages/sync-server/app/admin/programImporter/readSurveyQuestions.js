@@ -1,5 +1,3 @@
-import { validateVitalVisualisationConfigs } from './vitalsValidation';
-
 const STATUSES_TO_DELETE = ['deleted', 'hidden', 'historical'];
 
 export function yesOrNo(value) {
@@ -36,16 +34,12 @@ function makeScreen(questions, componentData) {
       ...elementData
     } = component;
 
-    const { visualisationConfig = '' } = elementData;
     const { surveyId, ...otherComponentData } = componentData;
     const dataElId = `pde-${elementData.code}`;
 
     const deletedAt = STATUSES_TO_DELETE.includes(visibilityStatus.toLowerCase())
       ? Date.now()
       : null;
-
-    // This validation should move to importSurvey.js. It should migrate with new unit tests to make sure things work fine.
-    validateVitalVisualisationConfigs(visualisationConfig, validationCriteria);
 
     return [
       {

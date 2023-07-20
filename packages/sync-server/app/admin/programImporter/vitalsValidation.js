@@ -84,10 +84,7 @@ const validateNormalRange = (normalRange, graphRange) => {
   return false;
 };
 
-export function validateVitalVisualisationConfigs(
-  visualisationConfigString,
-  validationCriteriaString,
-) {
+function validateVitalVisualisationConfig(visualisationConfigString, validationCriteriaString) {
   const visualisationConfig = parseOrNull(visualisationConfigString);
   const validationCriteria = parseOrNull(validationCriteriaString);
 
@@ -102,6 +99,18 @@ export function validateVitalVisualisationConfigs(
     visualisationConfigSchema.validateSync(visualisationConfig);
     validateNormalRange(validationCriteria.normalRange, visualisationConfig.yAxis.graphRange);
   }
+}
 
-  return true;
+export function validateProgramDataElementRecords(records) {
+  const programDataElementRecords = records.filter(({ model }) => model === 'ProgramDataElement');
+
+  for (const programDataElementRecord of programDataElementRecords) {
+    const { values } = programDataElementRecord;
+    const { visualisationConfig = '' } = values;
+
+    const surveyScreenComponentRecord =
+      records.find(r => r.values.dataElementId === values.id) || {};
+    const { validationCriteria = '' } = surveyScreenComponentRecord.values;
+    validateVitalVisualisationConfig(visualisationConfig, validationCriteria);
+  }
 }
