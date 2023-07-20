@@ -5,7 +5,7 @@ import { keyBy, pick } from 'lodash';
 import { Alert, AlertTitle, Skeleton } from '@material-ui/lab';
 import { Modal } from '../Modal';
 import { Heading4, SmallBodyText } from '../Typography';
-import { DateTimeField, Field, Form, SuggesterSelectField, TextField } from '../Field';
+import { DateTimeField, Form, SuggesterSelectField, TextField } from '../Field';
 import { TableFormFields } from '../Table';
 import { Colors } from '../../constants';
 import { useLabTestResultsQuery } from '../../api/queries/useLabTestResultsQuery';
@@ -141,7 +141,7 @@ const ResultsFormSkeleton = () => (
           <Skeleton variant="text" width={270} style={{ fontSize: 12 }} />
         </div>
       </Box>
-      <Skeleton variant="rect" height={257} style={{ borderRadius: 4 }} />
+      <Skeleton variant="rect" height={242} style={{ borderRadius: 4 }} />
     </Box>
   </>
 );
@@ -209,7 +209,6 @@ export const LabTestResultsModal = ({ labRequest, onClose, open }) => {
     isLoading,
     error,
     isError,
-    isSuccess,
   } = useLabTestResultsQuery(labRequest.id);
   const { displayId } = labRequest;
 
