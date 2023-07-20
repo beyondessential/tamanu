@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import Box from '@material-ui/core/Box';
 import { IconButton } from '@material-ui/core';
@@ -7,7 +7,6 @@ import doubleUp from '../../assets/images/double_up.svg';
 import { Button, TextButton } from '../Button';
 import { Form } from '../Field';
 import { Colors, FORM_TYPES } from '../../constants';
-import { LoadingIndicator } from '../LoadingIndicator';
 
 const Container = styled.div`
   border: 1px solid ${Colors.outline};
@@ -75,8 +74,6 @@ export const CustomisableSearchBar = ({
   staticValues = {},
   hiddenFields,
 }) => {
-  const [isSearching, setIsSearching] = useState(false);
-
   const switchExpandValue = useCallback(() => {
     setIsExpanded(previous => {
       setIsExpanded(!previous);
@@ -85,8 +82,6 @@ export const CustomisableSearchBar = ({
 
   const handleSubmit = values => {
     onSearch({ ...values, ...staticValues });
-    setIsSearching(true);
-    setTimeout(() => setIsSearching(false), 1000);
   };
 
   return (
@@ -110,18 +105,7 @@ export const CustomisableSearchBar = ({
                   />
                 </IconButton>
               )}
-              <SearchButton type="submit" disabled={isSearching}>
-                {isSearching ? (
-                  <LoadingIndicator
-                    backgroundColor="transparent"
-                    height="15px"
-                    width="15px"
-                    size="15px"
-                  />
-                ) : (
-                  'Search'
-                )}
-              </SearchButton>
+              <SearchButton type="submit">Search</SearchButton>
               <ClearButton
                 onClick={() => {
                   // Cant check for dirty as form is reinitialized with persisted values
