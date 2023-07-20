@@ -12,36 +12,39 @@ export default {
   component: LabTestResultsModal,
 };
 
-const mockLabTests = [
-  {
-    id: 1,
-    testType: {
-      name: 'HGB',
-      unit: 'g/dL',
+const mockLabTests = {
+  data: [
+    {
+      id: 1,
+      labTestType: {
+        name: 'HGB',
+        unit: 'g/dL',
+      },
     },
-  },
-  {
-    id: 2,
-    testType: {
-      name: 'PLT',
-      unit: 'x10^3/uL',
+    {
+      id: 2,
+      labTestType: {
+        name: 'PLT',
+        unit: 'x10^3/uL',
+      },
     },
-  },
-  {
-    id: 3,
-    testType: {
-      name: 'MCH',
-      unit: 'pg',
+    {
+      id: 3,
+      labTestType: {
+        name: 'MCH',
+        unit: 'pg',
+      },
     },
-  },
-  {
-    id: 4,
-    testType: {
-      name: 'MCHC',
-      unit: 'g/dL',
+    {
+      id: 4,
+      labTestType: {
+        name: 'MCHC',
+        unit: 'g/dL',
+      },
     },
-  },
-];
+  ],
+  count: 4,
+};
 
 const Template = args => (
   <MockedApi
