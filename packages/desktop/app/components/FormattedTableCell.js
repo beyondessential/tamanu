@@ -1,17 +1,28 @@
-import { capitalize } from 'lodash';
-import React from 'react';
+import { capitalize, isNumber } from 'lodash';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { Colors } from '../constants';
 import { formatLong, formatShortest, formatTime } from './DateDisplay';
 import { TableTooltip } from './Table/TableTooltip';
 
+// severity constants
+const ALERT = 'alert';
+const INFO = 'info';
+
 const CellWrapper = styled.div`
-  background: ${({ severity }) =>
-    severity === 'alert' ? 'rgba(247, 104, 83, 0.2)' : 'transparent'};
+  background: ${({ severity }) => (severity === ALERT ? `${Colors.alert}20` : 'transparent')};
   border-radius: 10px;
   padding: 8px 14px;
-  margin: -8px ${({ severity }) => (severity === 'alert' ? '0px' : '-14px')};
+  margin: -8px ${({ severity }) => (severity === ALERT ? '0px' : '-14px')};
   width: fit-content;
+`;
+
+const ClickableCellWrapper = styled(CellWrapper)`
+  cursor: pointer;
+
+  &:hover {
+    background: ${({ severity }) => (severity === ALERT ? `${Colors.alert}40` : Colors.background)};
+  }
 `;
 
 const HeadCellWrapper = styled.div`
@@ -24,6 +35,46 @@ const HeadCellWrapper = styled.div`
     }
   }
 `;
+
+function round(float, { rounding } = {}) {
+  if (isNaN(float) || !isNumber(rounding)) {
+    return float;
+  }
+  return float.toFixed(rounding);
+}
+
+function getTooltip(float, config = {}, visibilityCriteria = {}) {
+  const { unit = '' } = config;
+  const { normalRange } = visibilityCriteria;
+  if (normalRange && float < normalRange.min) {
+    return {
+      tooltip: `Outside normal range\n <${normalRange.min}${unit}`,
+      severity: ALERT,
+    };
+  }
+  if (normalRange && float > normalRange.max) {
+    return {
+      tooltip: `Outside normal range\n >${normalRange.max}${unit}`,
+      severity: ALERT,
+    };
+  }
+  if (unit?.length > 2 && !isNaN(float)) {
+    return {
+      tooltip: `${round(float, config)}${unit}`,
+      severity: INFO,
+    };
+  }
+  return {
+    severity: INFO,
+  };
+}
+
+export const formatValue = (value, config, isEdited) => {
+  const float = parseFloat(value);
+  const formattedValue = isNaN(float) ? capitalize(value) || '-' : float;
+
+  return `${formattedValue}${isEdited ? '*' : ''}`;
+};
 
 export const DateHeadCell = React.memo(({ value }) => (
   <TableTooltip title={formatLong(value)}>
@@ -48,38 +99,26 @@ export const RangeTooltipCell = React.memo(({ value, config, validationCriteria 
   );
 });
 
-export const RangeValidatedCell = React.memo(({ value, config, validationCriteria, ...props }) => {
-  let tooltip = '';
-  let severity = 'info';
-  const { rounding = 0, unit = '' } = config || {};
-  const { normalRange } = validationCriteria || {};
-  const float = parseFloat(value);
-  const formattedValue = isNaN(float)
-    ? capitalize(value) || '-'
-    : `${float.toFixed(rounding)}${unit && unit.length <= 2 ? unit : ''}`;
-
-  if (normalRange) {
-    const baseTooltip = `Outside normal range\n`;
-    if (float < normalRange.min) {
-      tooltip = `${baseTooltip} <${normalRange.min}${unit}`;
-      severity = 'alert';
-    } else if (float > normalRange.max) {
-      tooltip = `${baseTooltip} >${normalRange.max}${unit}`;
-      severity = 'alert';
-    }
-  }
-
-  if (!tooltip && unit && unit.length > 2 && !isNaN(float)) {
-    // Show full unit in tooltip as its not displayed on table
-    tooltip = `${float.toFixed(rounding)}${unit}`;
-  }
-  return tooltip ? (
-    <TableTooltip title={tooltip}>
-      <CellWrapper severity={severity} {...props}>
+export const RangeValidatedCell = React.memo(
+  ({ value, config, validationCriteria, onClick, isEdited, ...props }) => {
+    const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
+    const float = round(parseFloat(value), config);
+    const formattedValue = formatValue(value, config, isEdited);
+    const { tooltip, severity } = useMemo(() => getTooltip(float, config, validationCriteria), [
+      float,
+      config,
+      validationCriteria,
+    ]);
+    return tooltip ? (
+      <TableTooltip title={tooltip}>
+        <CellContainer onClick={onClick} severity={severity} {...props}>
+          {formattedValue}
+        </CellContainer>
+      </TableTooltip>
+    ) : (
+      <CellContainer onClick={onClick} severity={severity} {...props}>
         {formattedValue}
-      </CellWrapper>
-    </TableTooltip>
-  ) : (
-    <CellWrapper {...props}>{formattedValue}</CellWrapper>
-  );
-});
+      </CellContainer>
+    );
+  },
+);

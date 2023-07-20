@@ -25,6 +25,7 @@ export const DummyElectronProvider = ({ children }) => (
           filePath: 'dummyFile.txt',
         };
       },
+      openUrl: url => console.log('Opening url', url),
       openPath: path => console.log('Opening path', path),
       readFile: path => {
         console.log('Reading contents of', path);
