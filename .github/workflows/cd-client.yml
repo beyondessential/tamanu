@@ -7,6 +7,8 @@ on:
     branches:
       - main
       - release/*
+    tags:
+      - v*.*.*
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.pull_request.id || github.ref }}
@@ -105,8 +107,20 @@ jobs:
 
       - name: Package for Linux, Mac, Windows
         run: |
-          docker cp docs/custom.json working:/project/packages/desktop/package.json
-          docker exec working yarn run package-only --x64 --win
+          docker exec working mv /package-mac.json package.json
+          docker exec working yarn run package-only --x64 --linux --mac --win
+
+      - name: Switch to AppData NSIS-only build
+        run: docker exec working mv /package-appdata.json package.json
+
+      - name: Package for Windows (AppData NSIS)
+        run: docker exec working yarn run package-only --win --x64
+
+      - name: Switch to Unelevated NSIS-only build
+        run: docker exec working mv /package-unelevated.json package.json
+
+      - name: Package for Windows (Unelevated NSIS)
+        run: docker exec working yarn run package-only --win --x64
 
       - name: Stop container
         run: docker kill working
@@ -115,10 +129,22 @@ jobs:
         run: |
           sudo chown -R $USER:$USER release
           mkdir -p ops/{linux,mac,windows-{appdata,msi,system,unelevated}}
+          mv release/latest-linux.yml release/*.{AppImage,deb} ops/linux/
+          mv release/*-mac* ops/mac/
           mv release/*.msi ops/windows-msi/
+          mv release/latest.yml release/*.exe* ops/windows-system/
+          mv release/appdata/latest.yml release/appdata/*.exe* ops/windows-appdata/
+          mv release/unelevated/latest.yml release/unelevated/*.exe* ops/windows-unelevated/
           rm -rf release
 
+      - name: Use release bucket
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          echo "S3_BUCKET=bes-tamanu-release-clients/${{ needs.info.outputs.version }}" >> $GITHUB_ENV
+          echo "S3_URL=https://s3-ap-southeast-2.amazonaws.com/bes-tamanu-release-clients/${{ needs.info.outputs.version }}" >> $GITHUB_ENV
+
       - name: Use dev bucket
+        if: "!startsWith(github.ref, 'refs/tags/v')"
         run: |
           echo "S3_BUCKET=bes-tamanu-dev-desktop-clients/${{ needs.info.outputs.branch }}" >> $GITHUB_ENV
           echo "S3_URL=https://s3.console.aws.amazon.com/s3/object/bes-tamanu-dev-desktop-clients?region=ap-southeast-2&prefix=${{ needs.info.outputs.branch }}" >> $GITHUB_ENV
@@ -139,7 +165,13 @@ jobs:
             return [
               '### :package: Desktop clients',
               '',
+              `- :window: **[Windows (System)](${S3_URL}/windows-system/Tamanu+Setup+${VERSION}.exe)**`,
+              `- :window:   [Windows (AppData)](${S3_URL}/windows-appdata/Tamanu+Setup+${VERSION}.exe)`,
+              `- :window:   [Windows (Unelevated)](${S3_URL}/windows-unelevated/Tamanu+Setup+${VERSION}.exe)`,
               `- :window:   [Windows (MSI)](${S3_URL}/windows-msi/Tamanu+${VERSION}.msi)`,
+              `- :apple:    [macOS (Tar)](${S3_URL}/mac/Tamanu-${VERSION}-mac.tar.xz)`,
+              `- :penguin:  [Linux (AppImage)](${S3_URL}/linux/Tamanu-${VERSION}.AppImage)`,
+              `- :penguin:  [Linux (Deb)](${S3_URL}/linux/Tamanu_${VERSION}_amd64.deb)`,
             ].join('\n');
 
       # TODO: for releases, post comment elsewhere? on draft/release? slack?
