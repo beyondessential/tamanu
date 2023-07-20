@@ -46,7 +46,7 @@ const servers = [
   { name: 'Test (Nauru)', type: 'demo', host: 'https://central-clone.nauru-dev.tamanu.io' },
   { name: 'Test (Palau)', type: 'demo', host: 'https://central-clone.palau-dev.tamanu.io' },
   { name: 'Test (Samoa)', type: 'demo', host: 'https://central-clone.samoa-dev.tamanu.io' },
-  { name: 'Test (Tonga)', type: 'demo', host: 'https://clone-central-tonga.tamanu.io' },
+  { name: 'Test (Tonga)', type: 'demo', host: 'https://central-clone.tonga-dev.tamanu.io' },
   { name: 'Test (Tuvalu)', type: 'demo', host: 'https://central-clone.tuvalu-dev.tamanu.io' },
 
   // development servers
