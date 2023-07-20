@@ -1,3 +1,5 @@
+import fs from 'fs';
+import config from 'config';
 import { writeExcelFile } from './excelUtils';
 import { createModelExporter } from './modelExporters/createModelExporter';
 
@@ -24,6 +26,18 @@ async function buildSheetDataForDataType(models, dataType) {
   };
 }
 
+function validateFileSize(fileName, maxSizeInMb) {
+  if (!fileName) {
+    return;
+  }
+  const ONE_MEGABYTE_IN_BYTES = 1024 * 1024;
+  const { size: fileSizeInBytes } = fs.statSync(fileName);
+  const maxSizeInBytes = maxSizeInMb * ONE_MEGABYTE_IN_BYTES;
+  if (fileSizeInBytes > maxSizeInBytes) {
+    throw new Error('File exported is too big. Please try to export less data types.');
+  }
+}
+
 export async function exporter(models, includedDataTypes = {}, fileName = '') {
   const sheets = await Promise.all(
     Object.values(includedDataTypes).map(async dataType => {
@@ -34,5 +48,11 @@ export async function exporter(models, includedDataTypes = {}, fileName = '') {
       };
     }),
   );
-  return writeExcelFile(sheets, fileName);
+  const exportedFileName = writeExcelFile(sheets, fileName);
+
+  // This is a temporary fix for limiting the exported file size.
+  // TODO: Remove this validation as soon as we implement the download in chunks.
+  const { maxFileSizeInMB = 50 } = config.export;
+  validateFileSize(exportedFileName, maxFileSizeInMB);
+  return exportedFileName;
 }
