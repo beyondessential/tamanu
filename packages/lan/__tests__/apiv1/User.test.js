@@ -1,6 +1,6 @@
 import { getToken, centralServerLogin } from 'lan/app/middleware/auth';
 import { pick } from 'lodash';
-import { fake, chance } from 'shared/test-helpers';
+import { fake, chance, disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { CentralServerConnection } from '../../app/sync/CentralServerConnection';
 import { createTestContext } from '../utilities';
 
@@ -20,6 +20,9 @@ describe('User', () => {
   let models = null;
   let centralServer = null;
   let ctx;
+  const rawPassword = 'PASSWORD';
+  const localisation = { foo: 'bar' };
+  let authUser = null;
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -30,11 +33,31 @@ describe('User', () => {
   });
   afterAll(() => ctx.close());
 
-  describe('auth', () => {
-    let authUser = null;
-    const rawPassword = 'PASSWORD';
-    const localisation = { foo: 'bar' };
+  describe('auth with db-defined permissions', () => {
+    disableHardcodedPermissionsForSuite();
+    let authRole = null;
 
+    beforeAll(async () => {
+      const { User, Role } = models;
+      authRole = await Role.create(fake(Role));
+      authUser = await User.create(fake(User, { password: rawPassword, role: authRole.id }));
+    });
+
+    it('should include role in the data returned by a successful login', async () => {
+      const result = await baseApp.post('/v1/login').send({
+        email: authUser.email,
+        password: rawPassword,
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body.role).toMatchObject({
+        id: authRole.id,
+        name: authRole.name,
+      });
+    });
+  });
+
+  // TODO: move to db-defined permissions
+  describe('auth', () => {
     beforeAll(async () => {
       authUser = await models.User.create(
         createUser({
@@ -191,7 +214,5 @@ describe('User', () => {
       const getResultDate = new Date(getResult.body.data[0].last_accessed_on);
       expect(getResultDate.getTime()).toBe(result2Date.getTime());
     });
-
-
   });
 });
