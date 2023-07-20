@@ -1,9 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
 import { useLabRequest } from '../../../contexts/LabRequest';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import { BodyText, DataFetchingTable, Modal } from '../../../components';
+import { DataFetchingTable, Modal } from '../../../components';
 import { ManualLabResultForm } from '../../../forms/ManualLabResultForm';
 import { capitaliseFirstLetter } from '../../../utils/capitalise';
 import { getCompletedDate, getMethod } from '../../../utils/lab';
@@ -124,9 +123,6 @@ export const LabRequestResultsTable = React.memo(
           elevated={false}
           refreshCount={refreshCount}
         />
-        <Box display="flex" justifyContent="flex-end" marginTop="10px" paddingRight="10px">
-          <BodyText color="textTertiary">*Edited entry</BodyText>
-        </Box>
       </>
     );
   },
