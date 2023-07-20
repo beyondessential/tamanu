@@ -287,7 +287,7 @@ labRelations.get('/:id/tests', simpleGetList('LabTest', 'labRequestId'));
 labRelations.put(
   '/:id/tests',
   asyncHandler(async (req, res) => {
-    const { models, params, body, db } = req;
+    const { models, params, body, db, user } = req;
     const { id } = params;
     req.checkPermission('write', 'LabTest');
 
@@ -311,6 +311,9 @@ labRelations.put(
         const labTestBody = body[labTest.id];
         const updated = labTest.set(labTestBody);
         if (updated.changed()) {
+          // Temporary solution for lab test officer string field
+          // using displayName of current user
+          labTest.set('laboratoryOfficer', user.displayName);
           promises.push(updated.save());
         }
       });
