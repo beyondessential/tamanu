@@ -135,14 +135,10 @@ const getColumns = (count, onChangeResult) => {
 const ResultsFormSkeleton = () => (
   <>
     <Box padding="0 30px">
-      <Box display="flex" justifyContent="space-between" marginBottom="20px">
+      <Box marginBottom="20px">
         <div>
           <Skeleton variant="text" width={124} style={{ fontSize: 20, marginBottom: 4 }} />
           <Skeleton variant="text" width={270} style={{ fontSize: 12 }} />
-        </div>
-        <div>
-          <Skeleton variant="text" width={70} style={{ fontSize: 18 }} />
-          <Skeleton variant="rect" width={241} height={40} style={{ borderRadius: 4 }} />
         </div>
       </Box>
       <Skeleton variant="rect" height={257} style={{ borderRadius: 4 }} />
@@ -192,14 +188,13 @@ const ResultsForm = ({ labTestResults, isLoading, isError, error, values, setFie
 
   return (
     <Box>
-      <Box display="flex" justifyContent="space-between" margin="0px 30px" paddingBottom="20px">
+      <Box margin="0px 30px" paddingBottom="20px">
         <div>
           <Heading4 marginBottom="10px">Enter test results</Heading4>
           <SmallBodyText color="textTertiary">
             Please record test results and other test result details.
           </SmallBodyText>
         </div>
-        <Field name="laboratoryOfficer" label="Lab officer" tabIndex={0} component={TextField} />
       </Box>
       <TableContainer>
         <StyledTableFormFields columns={columns} data={data} />
