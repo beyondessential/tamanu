@@ -1,7 +1,6 @@
+
 class AuditLogItem {
   userId = '';
-  resolved = false;
-
   annotations = null;
   permissionChecks = [];
 
@@ -17,14 +16,7 @@ class AuditLogItem {
   }
 
   resolve() {
-    if (this.resolved) {
-      throw new Error("Audit log entry resolved twice somehow");
-    }
-    this.resolved = true;
-
-    if (!this.shouldKeep()) return;
-
-    // just log to console for now, 
+    // just log to console/honeycomb for now
     log.info('auditLogEntry', {
       userId: this.userId,
       data: this.annotations,
@@ -52,6 +44,9 @@ const auditMiddleware = async (req, res, next) => {
   if (localisation.features.enableAuditLogs) {
     res.on('finish', (...args) => {
       audit.userId = req.user?.id;
+
+      if (!audit.shouldKeep()) return;
+      
       audit.resolve();
     });
   }

@@ -22,21 +22,17 @@ describe('Audit log', () => {
     expect(result).toHaveSucceeded();
     expect(result.body.recordedDate).toBeTruthy();
 
-    // TODO check persisted audit log entries
+    // TODO: once persisted audit logs have been built, check that it was persisted
   });
 
   it('should leave an access record with permission details', async () => {
     const result = await baseApp.post('/v1/allergy').send({});
     expect(result).toBeForbidden();
 
-    // TODO check persisted audit log entries
-  });
-
-  it('should not resolve an audit log entry twice', async () => {
-    // TODO test for this but it's definitely happening currently
+    // TODO: once persisted audit logs have been built, check that it was persisted
   });
 
   it('should discard an audit log when appropriate', async () => {
-    // TODO
+    // TODO: once persisted audit logs have been built, check that it was NOT persisted
   });
 });
