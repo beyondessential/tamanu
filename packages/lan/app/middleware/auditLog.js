@@ -1,7 +1,8 @@
-
 class AuditLogItem {
   userId = '';
+
   annotations = null;
+
   permissionChecks = [];
 
   shouldKeep() {
@@ -46,7 +47,7 @@ const auditMiddleware = async (req, res, next) => {
       audit.userId = req.user?.id;
 
       if (!audit.shouldKeep()) return;
-      
+
       audit.resolve();
     });
   }
