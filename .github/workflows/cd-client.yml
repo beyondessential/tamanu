@@ -169,7 +169,6 @@ jobs:
               `- :window:   [Windows (MSI)](${S3_URL}/windows-msi/Tamanu+${VERSION}.msi)`,
               `- :apple:    [macOS (Tar)](${S3_URL}/mac/Tamanu-${VERSION}-mac.tar.xz)`,
               `- :penguin:  [Linux (AppImage)](${S3_URL}/linux/Tamanu-${VERSION}.AppImage)`,
-              `- :penguin:  [Linux (Deb)](${S3_URL}/linux/Tamanu_${VERSION}_amd64.deb)`,
             ].join('\n');
 
       # TODO: for releases, post comment elsewhere? on draft/release? slack?
