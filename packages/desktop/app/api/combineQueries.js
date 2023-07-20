@@ -9,6 +9,6 @@ export const combineQueries = (queries, options = {}) => {
     isError: queries.some(q => q.isError),
     isSuccess: queries.length > 0 && queries.every(q => q.isSuccess),
     error: queries.find(q => q.error)?.error ?? null,
-    data: filterNoData ? data.filter(d => Boolean(d)) : data,
+    data: filterNoData ? data.filter(Boolean) : data,
   };
 };

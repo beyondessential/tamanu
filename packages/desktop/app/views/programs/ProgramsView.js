@@ -43,7 +43,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
     }
   }, [loadEncounter, params.encounterId]);
 
-  // TODO: convert programs to react-query
   useEffect(() => {
     (async () => {
       const { data } = await api.get('program');
