@@ -116,10 +116,10 @@ jobs:
       - name: Package for Windows (AppData NSIS)
         run: docker exec working yarn run package-only --win --x64
 
-      - name: Switch to Unelevated NSIS-only build
-        run: docker exec working mv /package-unelevated.json package.json
+      - name: Switch to MSI build
+        run: docker exec working mv /package-msi.json package.json
 
-      - name: Package for Windows (Unelevated NSIS)
+      - name: Package for Windows (MSI)
         run: docker exec working yarn run package-only --win --x64
 
       - name: Stop container
@@ -128,13 +128,12 @@ jobs:
       - name: Prepare final outputs
         run: |
           sudo chown -R $USER:$USER release
-          mkdir -p ops/{linux,mac,windows-{appdata,msi,system,unelevated}}
+          mkdir -p ops/{linux,mac,windows-{appdata,msi,system}}
           mv release/latest-linux.yml release/*.{AppImage,deb} ops/linux/
           mv release/*-mac* ops/mac/
           mv release/*.msi ops/windows-msi/
           mv release/latest.yml release/*.exe* ops/windows-system/
           mv release/appdata/latest.yml release/appdata/*.exe* ops/windows-appdata/
-          mv release/unelevated/latest.yml release/unelevated/*.exe* ops/windows-unelevated/
           rm -rf release
 
       - name: Use release bucket
@@ -167,7 +166,6 @@ jobs:
               '',
               `- :window: **[Windows (System)](${S3_URL}/windows-system/Tamanu+Setup+${VERSION}.exe)**`,
               `- :window:   [Windows (AppData)](${S3_URL}/windows-appdata/Tamanu+Setup+${VERSION}.exe)`,
-              `- :window:   [Windows (Unelevated)](${S3_URL}/windows-unelevated/Tamanu+Setup+${VERSION}.exe)`,
               `- :window:   [Windows (MSI)](${S3_URL}/windows-msi/Tamanu+${VERSION}.msi)`,
               `- :apple:    [macOS (Tar)](${S3_URL}/mac/Tamanu-${VERSION}-mac.tar.xz)`,
               `- :penguin:  [Linux (AppImage)](${S3_URL}/linux/Tamanu-${VERSION}.AppImage)`,
