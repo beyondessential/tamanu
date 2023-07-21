@@ -17,6 +17,37 @@ export async function createDiagnosis(models) {
   });
 }
 
+export async function createTestType(models, data) {
+  const testType = await models.LabTestType.create({ ...data });
+  return testType;
+}
+
+export async function createLabTestPanel(models, { id, name, code, labTestTypesIds }) {
+  const panel = await models.LabTestPanel.create({
+    id,
+    name,
+    code,
+  });
+
+  for (const labTestTypeId of labTestTypesIds) {
+    await models.LabTestPanelLabTestTypes.create({
+      labTestPanelId: panel.id,
+      labTestTypeId,
+    });
+  }
+}
+
+export async function createLabTestCategory(models, { id, name, code }) {
+  const labTestCategory = await models.ReferenceData.create({
+    id,
+    name,
+    code,
+    type: 'labTestCategory',
+  });
+
+  return labTestCategory;
+}
+
 export async function createPatientFieldDefCategory(models) {
   await models.PatientFieldDefinitionCategory.create({
     id: '123',

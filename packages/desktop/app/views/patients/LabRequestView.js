@@ -38,20 +38,26 @@ import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetai
 import { Colors } from '../../constants';
 
 const Container = styled.div`
-  flex: 1;
+  padding: 12px 30px;
   display: flex;
   flex-direction: column;
+  height: calc(100vh - 58px);
+  flex: 1;
 `;
 
 const TopContainer = styled.div`
   padding: 18px 30px;
-  background-color: ${({ $backgroundColor = Colors.background }) => $backgroundColor};
+  background-color: ${Colors.background};
 `;
 
 const BottomContainer = styled.div`
   background-color: ${Colors.white};
   padding: 18px 30px;
   flex: 1;
+`;
+
+const FixedTileRow = styled(TileContainer)`
+  flex-shrink: 0;
 `;
 
 const HIDDEN_STATUSES = [
@@ -144,12 +150,16 @@ export const LabRequestView = () => {
   if (isLoading) return <LoadingIndicator />;
 
   const canWriteLabRequest = ability?.can('write', 'LabRequest');
+  const canWriteLabRequestStatus = ability?.can('write', 'LabRequestStatus');
+
   const canWriteLabTest = ability?.can('write', 'LabTest');
+  const canWriteLabTestResult = ability?.can('write', 'LabTestResult');
 
   const isPublished = labRequest.status === LAB_REQUEST_STATUSES.PUBLISHED;
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
   const areLabTestsReadOnly = !canWriteLabTest || isHidden;
+  const areLabTestResultsReadOnly = !canWriteLabTestResult;
   // If the value of status is enteredInError or deleted, it should display to the user as Cancelled
   const displayStatus = areLabRequestsReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
 
@@ -184,7 +194,7 @@ export const LabRequestView = () => {
           }
         />
         <LabRequestNoteForm labRequestId={labRequest.id} isReadOnly={areLabRequestsReadOnly} />
-        <TileContainer>
+        <FixedTileRow>
           <Tile
             Icon={() => <img src={TestCategoryIcon} alt="test category" />}
             text="Test Category"
@@ -199,11 +209,12 @@ export const LabRequestView = () => {
               </TileTag>
             }
             actions={{
-              ...(!areLabRequestsReadOnly && {
-                'Change status': () => {
-                  handleChangeModalId(MODAL_IDS.CHANGE_STATUS);
-                },
-              }),
+              ...(!areLabRequestsReadOnly &&
+                canWriteLabRequestStatus && {
+                  'Change status': () => {
+                    handleChangeModalId(MODAL_IDS.CHANGE_STATUS);
+                  },
+                }),
               'View status log': () => {
                 handleChangeModalId(MODAL_IDS.VIEW_STATUS_LOG);
               },
@@ -246,7 +257,7 @@ export const LabRequestView = () => {
               },
             }}
           />
-        </TileContainer>
+        </FixedTileRow>
       </TopContainer>
       <BottomContainer>
         {!isPublished && !areLabTestsReadOnly && (
@@ -257,21 +268,22 @@ export const LabRequestView = () => {
           </Box>
         )}
         <LabRequestResultsTable
-          refreshCount={labTestTableRefreshCount}
           labRequest={labRequest}
           patient={patient}
+          refreshCount={labTestTableRefreshCount}
+          areLabTestResultsReadOnly={areLabTestResultsReadOnly}
         />
-        {modalId && (
-          <ActiveModal
-            labRequest={labRequest}
-            patient={patient}
-            updateLabReq={updateLabReq}
-            refreshLabTestTable={handleRefreshLabTestTable}
-            open={modalOpen}
-            onClose={closeModal}
-          />
-        )}
       </BottomContainer>
+      {modalId && (
+        <ActiveModal
+          labRequest={labRequest}
+          patient={patient}
+          updateLabReq={updateLabReq}
+          refreshLabTestTable={handleRefreshLabTestTable}
+          open={modalOpen}
+          onClose={closeModal}
+        />
+      )}
     </Container>
   );
 };

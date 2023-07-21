@@ -15,7 +15,7 @@ import {
 } from 'shared/constants';
 import { makeFilter, makeSimpleTextFilterFactory } from '../../utils/query';
 import { renameObjectKeys } from '../../utils/renameObjectKeys';
-import { simpleGet, simplePut, simpleGetList, permissionCheckingRouter } from './crudHelpers';
+import { simpleGet, simpleGetList, permissionCheckingRouter } from './crudHelpers';
 import { notePagesWithSingleItemListHandler } from '../../routeHandlers';
 
 export const labRequest = express.Router();
@@ -31,6 +31,10 @@ labRequest.put(
     const labRequestRecord = await models.LabRequest.findByPk(params.id);
     if (!labRequestRecord) throw new NotFoundError();
     req.checkPermission('write', labRequestRecord);
+
+    if (labRequestData.status && labRequestData.status !== labRequestRecord.status) {
+      req.checkPermission('write', 'LabRequestStatus');
+    }
 
     await db.transaction(async () => {
       if (labRequestData.status && labRequestData.status !== labRequestRecord.status) {
@@ -351,7 +355,28 @@ labRequest.use(labRelations);
 
 export const labTest = express.Router();
 
-labTest.put('/:id', simplePut('LabTest'));
+labTest.put(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const updatedLabTestData = req.body;
+
+    req.checkPermission('read', 'LabTest');
+
+    const labTestRecord = await models.LabTest.findByPk(params.id);
+    if (!labTestRecord) throw new NotFoundError();
+
+    req.checkPermission('write', labTestRecord);
+
+    if (updatedLabTestData.result && updatedLabTestData.result !== labTestRecord.result) {
+      req.checkPermission('write', 'LabTestResult');
+    }
+
+    await labTestRecord.update(updatedLabTestData);
+
+    res.send(labTestRecord);
+  }),
+);
 
 labTest.get(
   '/:id',
