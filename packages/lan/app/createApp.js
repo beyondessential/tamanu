@@ -30,7 +30,6 @@ export function createApp({ sequelize, models, syncManager, deviceId }) {
   // trust the x-forwarded-for header from addresses in `config.proxy.trusted`
   app.set('trust proxy', config.proxy.trusted);
   app.use(getLoggingMiddleware());
-  app.use(getAuditMiddleware());
 
   app.use((req, res, next) => {
     req.models = models;
@@ -42,6 +41,8 @@ export function createApp({ sequelize, models, syncManager, deviceId }) {
   });
 
   app.use(versionCompatibility);
+
+  app.use(getAuditMiddleware());
 
   // index route for debugging connectivity
   app.get('/$', (req, res) => {

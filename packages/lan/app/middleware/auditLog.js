@@ -1,5 +1,6 @@
 
-class AuditLogItem {
+// this class is only exported for testing and is not expected to be used directly
+export class AuditLogItem {
   userId = '';
   annotations = null;
   permissionChecks = [];
@@ -38,14 +39,16 @@ const auditMiddleware = async (req, res, next) => {
   const audit = new AuditLogItem();
   req.audit = audit;
 
-  const localisation = await req.getLocalisation();
+  const logsEnabled = await req.models.Setting.get('features.enableAuditLogs');
   // only attach the resolver if audit logs are enabled
   // (without this bit, all the audit logs will just be discarded)
-  if (localisation.features.enableAuditLogs) {
+  if (logsEnabled) {
     res.on('finish', (...args) => {
       audit.userId = req.user?.id;
 
-      if (!audit.shouldKeep()) return;
+      if (!audit.shouldKeep()) {
+        return;
+      }
       
       audit.resolve();
     });
