@@ -381,6 +381,68 @@ describe('Labs', () => {
     expect(body.every(panel => panel.visibilityStatus === 'current')).toBeTruthy();
   });
 
+  describe('Lab test results', () => {
+    let labRequest;
+
+    beforeEach(async () => {
+      labRequest = await models.LabRequest.createWithTests(
+        await randomLabRequest(models, { patientId }),
+      );
+    });
+
+    describe('PUT', () => {
+      it('should only update tests with changes', async () => {
+        const [test1, test2] = await labRequest.getTests();
+        const mockResult = 'Mock result';
+        const mockVerification = 'verified';
+        const response = await app.put(`/v1/labRequest/${labRequest.id}/tests`).send({
+          [test1.id]: {
+            result: mockResult,
+            verification: mockVerification,
+          },
+          [test2.id]: {
+            result: test2.result,
+          },
+        });
+        expect(response).toHaveSucceeded();
+        expect(response.body).toHaveLength(1);
+        expect(response.body[0]).toEqual(
+          expect.objectContaining({
+            id: test1.id,
+            result: mockResult,
+            verification: mockVerification,
+          }),
+        );
+      });
+
+      it('should update multiple entries with correct data', async () => {
+        const [test1, test2] = await labRequest.getTests();
+        const mockResult = 'Mock result';
+        const mockVerification = 'verified';
+        const mockResult2 = 'Mock result2';
+        const mockVerification2 = 'also verified';
+        const response = await app.put(`/v1/labRequest/${labRequest.id}/tests`).send({
+          [test1.id]: {
+            result: mockResult,
+            verification: mockVerification,
+          },
+          [test2.id]: {
+            result: mockResult2,
+            verification: mockVerification2,
+          },
+        });
+        expect(response).toHaveSucceeded();
+        expect(response.body).toHaveLength(2);
+        expect(response.body).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ id: test1.id }),
+            expect.objectContaining({ id: test2.id }),
+          ]),
+        );
+      });
+    });
+  });
+
   describe('Filtering by allFacilities', () => {
     // These are the only statuses returned by the listing endpoint
     // when no specific argument is included.
