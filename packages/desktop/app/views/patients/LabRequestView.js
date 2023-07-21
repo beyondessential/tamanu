@@ -249,7 +249,7 @@ export const LabRequestView = () => {
         </TileContainer>
       </TopContainer>
       <BottomContainer>
-        {!isPublished && (
+        {!isPublished && !areLabTestsReadOnly && (
           <Box display="flex" justifyContent="flex-end" marginBottom="20px">
             <Button onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)}>
               Enter results
@@ -260,7 +260,6 @@ export const LabRequestView = () => {
           refreshCount={labTestTableRefreshCount}
           labRequest={labRequest}
           patient={patient}
-          isReadOnly={areLabTestsReadOnly}
         />
         {modalId && (
           <ActiveModal

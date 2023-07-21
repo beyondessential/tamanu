@@ -60,8 +60,8 @@ export const DateInput = ({
   max = '9999-12-31',
   min,
   saveDateAsString = false,
-  tabIndex,
   arrows = false,
+  inputProps = {},
   ...props
 }) => {
   const [currentText, setCurrentText] = useState(fromRFC3339(value, format));
@@ -133,7 +133,7 @@ export const DateInput = ({
       onChange={onValueChange}
       InputProps={{
         // Set max property on HTML input element to force 4-digit year value (max year being 9999)
-        inputProps: { max, min, tabIndex },
+        inputProps: { max, min, ...inputProps },
       }}
       style={isPlaceholder ? { color: Colors.softText } : undefined}
       {...props}

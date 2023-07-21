@@ -98,6 +98,7 @@ export const SelectInput = ({
   inputRef,
   form,
   tabIndex,
+  inputProps = {},
   isClearable = true,
   ...props
 }) => {
@@ -202,11 +203,13 @@ export const SelectInput = ({
           placeholder="Select"
           isClearable={value !== '' && isClearable && !props.required && !disabled}
           isSearchable={false}
-          tabIndex={tabIndex}
+          tabIndex={inputProps.tabIndex}
           components={{
             Option,
             SingleValue,
-            ClearIndicator: innerProps => <ClearIndicator {...innerProps} tabIndex={tabIndex} />,
+            ClearIndicator: innerProps => (
+              <ClearIndicator {...innerProps} tabIndex={inputProps.tabIndex} />
+            ),
             DropdownIndicator: StyledChevronIcon,
           }}
           {...props}

@@ -296,7 +296,6 @@ export class AutocompleteInput extends Component {
       value,
       size,
       disabled,
-      tabIndex,
       ...other
     } = inputProps;
     const { suggestions } = this.state;
@@ -313,7 +312,6 @@ export class AutocompleteInput extends Component {
           size={size}
           InputProps={{
             ref: this.setAnchorRefForPopper,
-            tabIndex,
             endAdornment: (
               <>
                 {tag && (
@@ -361,7 +359,6 @@ export class AutocompleteInput extends Component {
       helperText,
       placeholder = 'Search...',
       inputRef,
-      tabIndex,
     } = this.props;
 
     return (
@@ -385,7 +382,6 @@ export class AutocompleteInput extends Component {
             name,
             placeholder,
             infoTooltip,
-            tabIndex,
             size,
             value: selectedOption?.value,
             tag: selectedOption?.tag,

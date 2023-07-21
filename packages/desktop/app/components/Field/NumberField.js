@@ -2,14 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { TextInput } from './TextField';
 
-export const NumberInput = ({ min, max, step, tabIndex, ...props }) => (
+export const NumberInput = ({ min, max, step, inputProps = {}, ...props }) => (
   <TextInput
     {...props}
     inputProps={{
       min,
       max,
       step,
-      tabIndex,
+      ...inputProps,
     }}
     type="number"
   />

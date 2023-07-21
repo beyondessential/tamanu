@@ -50,7 +50,7 @@ In order to properly manage form state and fields you should use
 Formik's Field component and provide a special naming scheme to avoid
 namespace collisions.
 */
-export const TableFormFields = React.memo(({ columns, data, className }) => (
+export const TableFormFields = React.memo(({ columns, data, className = '' }) => (
   <StyledFixedTable className={className}>
     <StyledTableHead>
       <TableRow>
