@@ -4,8 +4,8 @@ import config from 'config';
 import { startOfDay, endOfDay } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
-import { NotFoundError, InvalidOperationError } from 'shared/errors';
-import { toDateTimeString } from 'shared/utils/dateTime';
+import { NotFoundError, InvalidOperationError } from '@tamanu/shared/errors';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
   LAB_REQUEST_STATUSES,
   NOTE_TYPES,
@@ -293,18 +293,18 @@ labRelations.put(
 
     const testIds = Object.keys(body);
 
-    db.transaction(async () => {
-      const labTests = await models.LabTest.findAll({
-        where: {
-          labRequestId: id,
-          id: testIds,
-        },
-      });
-      if (labTests.length !== testIds.length) {
-        // Not all lab tests exist on specified lab request
-        throw new NotFoundError();
-      }
+    const labTests = await models.LabTest.findAll({
+      where: {
+        labRequestId: id,
+        id: testIds,
+      },
+    });
+    if (labTests.length !== testIds.length) {
+      // Not all lab tests exist on specified lab request
+      throw new NotFoundError();
+    }
 
+    db.transaction(async () => {
       const promises = [];
 
       labTests.forEach(labTest => {
