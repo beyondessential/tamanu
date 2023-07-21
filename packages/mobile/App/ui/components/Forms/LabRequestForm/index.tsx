@@ -1,5 +1,4 @@
 import React, { ReactElement, useState, useCallback } from 'react';
-import { useSelector } from 'react-redux';
 import { FormValidationMessage } from '/components/Forms/FormValidationMessage';
 import { Field } from '/components/Forms/FormField';
 import { FormScreenView } from '/components/Forms/FormScreenView';
