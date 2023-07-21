@@ -1,3 +1,4 @@
+import { log } from 'shared/services/logging';
 
 // this class is only exported for testing and is not expected to be used directly
 export class AuditLogItem {
@@ -45,7 +46,7 @@ const auditMiddleware = async (req, res, next) => {
   // only attach the resolver if audit logs are enabled
   // (without this bit, all the audit logs will just be discarded)
   if (logsEnabled) {
-    res.on('finish', (...args) => {
+    res.on('finish', () => {
       audit.userId = req.user?.id;
 
       if (!audit.shouldKeep()) return;
