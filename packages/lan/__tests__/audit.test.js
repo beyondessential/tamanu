@@ -12,6 +12,7 @@ describe('Audit log', () => {
   // log entries aren't persisted (yet), so use this array to track audit log entries
   // as they get resolved.
   const recentEntries = [];
+  // this flushes the recent entries array as well, so that tests can use it without additional boilerplate
   const getRecentEntries = () => { 
     const c = [...recentEntries];
     recentEntries.length = 0; // erase the array
@@ -27,8 +28,6 @@ describe('Audit log', () => {
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
-
-    await models.Setting.set("features.enableAuditLogs", true);
   });
   afterAll(() => {
     ctx.close();
