@@ -59,7 +59,8 @@ export const DataFetchingTable = memo(
     // the most recent one to determine which rows to highlight and when table data should update
     const [lastFetchCount, setLastFetchCount] = useState(0);
     const [lastPage, setLastPage] = useState(0);
-    const [staticData, setStaticData] = useState([]);
+    const [dataSnapshot, setDataSnapshot] = useState([]);
+
     const [newRowCount, setNewRowCount] = useState(0);
     const [showNotification, setShowNotification] = useState(false);
 
@@ -125,7 +126,7 @@ export const DataFetchingTable = memo(
             const rowsSinceRefresh = count - lastFetchCount; // Rows since the last autorefresh
             const rowsSinceInteraction = rowsSinceRefresh + newRowCount; // Rows added since last clearing of rows from interacting
 
-            const dataWithNewKey = transformedData.map((row, i) => {
+            const highlightedData = transformedData.map((row, i) => {
               const actualIndex = i + page * rowsPerPage; // Offset the indexes based on pagination
               // Highlight rows green if the index is less that the index of rows since interaction AND its not the first fetch
               const isNewRow = actualIndex < rowsSinceInteraction && !isFirstFetch;
@@ -149,13 +150,13 @@ export const DataFetchingTable = memo(
             // When autorefreshing past page one, we dont want to move rows down as it updates. Only if you are on
             // page one should it live update, otherwise the updates come through when navigating
             const isDataToBeUpdated = page !== lastPage || page === 0;
-            const displayData = isDataToBeUpdated ? dataWithNewKey : staticData;
+            const displayData = isDataToBeUpdated ? highlightedData : dataSnapshot;
 
             // Record page and count of last fetch to compare to the next fetch
             setLastFetchCount(count);
             setLastPage(page);
             // Save a copy of this fetch to show on next fetch if we are past page 1
-            setStaticData(displayData);
+            setDataSnapshot(displayData);
 
             // Update the table with the rows to display
             updateFetchState({
