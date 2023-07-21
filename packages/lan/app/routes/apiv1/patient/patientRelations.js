@@ -29,6 +29,7 @@ patientRelations.get(
       startDate: 'start_date',
       endDate: 'end_date',
       facilityName: 'facility_name',
+      locationGroupName: 'location_group_name',
     };
 
     const sortKey = orderBy && ENCOUNTER_SORT_KEYS[orderBy];
@@ -46,13 +47,19 @@ patientRelations.get(
           ${open ? 'AND end_date IS NULL' : ''}
       `,
       `
-        SELECT encounters.*, locations.facility_id AS facility_id, facilities.name AS facility_name
+        SELECT
+          encounters.*,
+          locations.facility_id AS facility_id,
+          facilities.name AS facility_name,
+          location_groups.name AS location_group_name
         FROM
           encounters
           INNER JOIN locations
             ON encounters.location_id = locations.id
           INNER JOIN facilities
             ON locations.facility_id = facilities.id
+          LEFT JOIN location_groups
+            ON location_groups.id = locations.location_group_id
         WHERE
           patient_id = :patientId
           ${open ? 'AND end_date IS NULL' : ''}
