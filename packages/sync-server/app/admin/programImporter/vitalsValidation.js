@@ -1,44 +1,6 @@
 import * as yup from 'yup';
 import { parseOrNull } from '@tamanu/shared/utils/parse-or-null';
-
-const isNumberOrFloat = value => {
-  if (typeof value !== 'number') {
-    return false;
-  }
-
-  return !isNaN(value);
-};
-
-const normalRangeObjectSchema = yup
-  .object()
-  .shape({
-    min: yup.number(),
-    max: yup.number(),
-    ageUnit: yup.string().oneOf(['years', 'months', 'weeks']),
-    ageMin: yup.number(),
-    ageMax: yup.number(),
-  })
-  .noUnknown()
-  .test({
-    name: 'normalRange',
-    message: ctx => `normalRange should have either min or max, got ${JSON.stringify(ctx.value)}`,
-    test: value => {
-      return isNumberOrFloat(value.min) || isNumberOrFloat(value.max);
-    },
-  });
-
-const visualisationConfigSchema = yup.object().shape({
-  yAxis: yup.object().shape({
-    graphRange: yup
-      .object()
-      .shape({
-        min: yup.number().required(),
-        max: yup.number().required(),
-      })
-      .required(),
-    interval: yup.number().required(),
-  }),
-});
+import { isNumberOrFloat } from '../../utils/numbers';
 
 const checkIfWithinGraphRange = (normalRange, graphRange) => {
   if (isNumberOrFloat(normalRange.min) && normalRange.min < graphRange.min) {
@@ -51,8 +13,6 @@ const checkIfWithinGraphRange = (normalRange, graphRange) => {
 };
 
 const validateNormalRangeAsObject = (normalRange, graphRange) => {
-  normalRangeObjectSchema.validateSync(normalRange);
-
   if (!checkIfWithinGraphRange(normalRange, graphRange)) {
     throw new Error(
       `normalRange must be within graphRange, got normalRange: ${JSON.stringify(
@@ -96,21 +56,33 @@ function validateVitalVisualisationConfig(visualisationConfigString, validationC
       throw new Error('validationCriteria must have normalRange');
     }
 
-    visualisationConfigSchema.validateSync(visualisationConfig);
     validateNormalRange(validationCriteria.normalRange, visualisationConfig.yAxis.graphRange);
   }
 }
 
-export function validateProgramDataElementRecords(records) {
+export function validateProgramDataElementRecords(records, { context, sheetName }) {
   const programDataElementRecords = records.filter(({ model }) => model === 'ProgramDataElement');
 
   for (const programDataElementRecord of programDataElementRecords) {
+    const errors = [];
     const { values } = programDataElementRecord;
-    const { visualisationConfig = '' } = values;
+    const { visualisationConfig = '', code: dataElementCode } = values;
 
     const surveyScreenComponentRecord =
       records.find(r => r.values.dataElementId === values.id) || {};
     const { validationCriteria = '' } = surveyScreenComponentRecord.values;
-    validateVitalVisualisationConfig(visualisationConfig, validationCriteria);
+
+    try {
+      validateVitalVisualisationConfig(visualisationConfig, validationCriteria);
+    } catch (e) {
+      const error = new Error(
+        `sheetName: ${sheetName}, data element code: '${dataElementCode}', ${e.message}`,
+      );
+      errors.push(error);
+
+      if (errors.length > 0) {
+        context.errors.push(...errors);
+      }
+    }
   }
 }
