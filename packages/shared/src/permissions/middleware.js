@@ -42,9 +42,9 @@ const checkPermission = (req, action, subject, field = '') => {
     throw new BadAuthenticationError('No permission');
   }
 
-  const subjectName = getSubjectName(subject)
+  const subjectName = getSubjectName(subject);
   const hasPermission = ability.can(action, subject, field);
-  
+
   if (req.audit) {
     req.audit.addPermissionCheck(action, subjectName, subject?.id);
   }
@@ -52,15 +52,14 @@ const checkPermission = (req, action, subject, field = '') => {
   if (!hasPermission) {
     // user is logged in fine, they're just not allowed - 403
     const rule = ability.relevantRuleFor(action, subject, field);
-    const reason =
-      (rule && rule.reason) || `Cannot perform action "${action}" on ${subjectName}.`;
-  
+    const reason = (rule && rule.reason) || `Cannot perform action "${action}" on ${subjectName}.`;
+
     if (req.audit) {
-      req.audit.annotate({ 
+      req.audit.annotate({
         forbiddenReason: reason,
       });
     }
-  
+
     throw new ForbiddenError(reason);
   }
 };
