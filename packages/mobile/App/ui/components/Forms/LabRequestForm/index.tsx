@@ -12,17 +12,10 @@ import { OptionType, Suggester } from '~/ui/helpers/suggester';
 import { ReferenceDataType } from '~/types';
 import { useBackend } from '~/ui/hooks';
 import { VisibilityStatus } from '~/visibilityStatuses';
-import { authUserSelector } from '~/ui/helpers/selectors';
-
-interface User {
-  id: string;
-}
 
 export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactElement => {
   const [labTestTypes, setLabTestTypes] = useState([]);
   const { models } = useBackend();
-
-  const user = useSelector(authUserSelector) as User;
 
   const labRequestCategorySuggester = new Suggester(models.ReferenceData, {
     where: {
@@ -74,7 +67,6 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
         label="Requesting clinician"
         name="requestedById"
         required
-        value={user.id}
         suggester={practitionerSuggester}
       />
       <Field
