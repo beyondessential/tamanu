@@ -96,7 +96,7 @@ export const DataFetchingTable = memo(
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
     useEffect(() => {
-      // updateFetchState({ isLoading: true });
+      updateFetchState({ isLoading: true });
       (async () => {
         try {
           if (!endpoint) {
@@ -115,15 +115,17 @@ export const DataFetchingTable = memo(
             },
           );
 
-          if (
-            enableAutoRefresh &&
-            sorting.order === initialSort.order &&
-            sorting.orderBy === initialSort.orderBy
-          ) {
+          const transformedData = transformRow ? data.map(transformRow) : data;
+
+          if (enableAutoRefresh) {
             const isFirstFetch = lastFetchCount === 0; // Check if this is the intial table load
+            const isInitialSort =
+              sorting.orderBy === initialSort.orderBy && sorting.order === initialSort.order;
+
             const rowsSinceRefresh = count - lastFetchCount; // Rows since the last autorefresh
             const rowsSinceInteraction = rowsSinceRefresh + newRowCount; // Rows added since last clearing of rows from interacting
-            const dataWithNewKey = data.map((row, i) => {
+
+            const dataWithNewKey = transformedData.map((row, i) => {
               const actualIndex = i + page * rowsPerPage; // Offset the indexes based on pagination
               // Highlight rows green if the index is less that the index of rows since interaction AND its not the first fetch
               const isNewRow = actualIndex < rowsSinceInteraction && !isFirstFetch;
@@ -132,10 +134,6 @@ export const DataFetchingTable = memo(
                 new: isNewRow,
               };
             });
-
-            const transformedData = transformRow
-              ? dataWithNewKey.map(transformRow)
-              : dataWithNewKey;
 
             // If its the first fetch, we dont want to highlight the new rows green or show a notification
             if (!isFirstFetch) {
@@ -151,7 +149,7 @@ export const DataFetchingTable = memo(
             // When autorefreshing past page one, we dont want to move rows down as it updates. Only if you are on
             // page one should it live update, otherwise the updates come through when navigating
             const isDataToBeUpdated = page !== lastPage || page === 0;
-            const displayData = isDataToBeUpdated ? transformedData : staticData;
+            const displayData = isDataToBeUpdated ? dataWithNewKey : staticData;
 
             // Record page and count of last fetch to compare to the next fetch
             setLastFetchCount(count);
@@ -168,7 +166,6 @@ export const DataFetchingTable = memo(
             });
           } else {
             // Non autorefreshing table
-            const transformedData = transformRow ? data.map(transformRow) : data;
             updateFetchState({
               ...DEFAULT_FETCH_STATE,
               data: transformedData,
