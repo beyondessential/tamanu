@@ -1,8 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Sequelize } from 'sequelize';
-import { NotFoundError, InvalidOperationError } from 'shared/errors';
-import { REPORT_VERSION_EXPORT_FORMATS, REPORT_STATUSES } from 'shared/constants';
+import { NotFoundError, InvalidOperationError } from '@tamanu/shared/errors';
+import { REPORT_VERSION_EXPORT_FORMATS, REPORT_STATUSES } from '@tamanu/shared/constants';
 import { readJSON, sanitizeFilename, verifyQuery } from './utils';
 import { DryRun } from '../errors';
 

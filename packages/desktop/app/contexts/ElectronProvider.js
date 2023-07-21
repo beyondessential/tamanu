@@ -12,6 +12,7 @@ export const ElectronProvider = ({ children }) => {
   const showSaveDialog = (...args) => remote.dialog.showSaveDialog(...args);
   const openPath = path => shell.openPath(path);
   const showItemInFolder = path => shell.showItemInFolder(path);
+  const openUrl = url => shell.openExternal(url);
 
   return (
     <ElectronContext.Provider
@@ -20,6 +21,7 @@ export const ElectronProvider = ({ children }) => {
         showSaveDialog,
         showItemInFolder,
         openPath,
+        openUrl,
         printPage,
         readFile,
       }}
