@@ -122,6 +122,7 @@ export const DataFetchingTable = memo(
             const isFirstFetch = lastFetchCount === 0; // Check if this is the intial table load
             const isInitialSort =
               sorting.orderBy === initialSort.orderBy && sorting.order === initialSort.order;
+            const hasPageChanged = page !== lastPage; // Check if the page number has changed since the last fetch
 
             const rowsSinceRefresh = count - lastFetchCount; // Rows since the last autorefresh
             const rowsSinceInteraction = rowsSinceRefresh + newRowCount; // Rows added since last clearing of rows from interacting
@@ -138,18 +139,37 @@ export const DataFetchingTable = memo(
 
             // If its the first fetch, we dont want to highlight the new rows green or show a notification
             if (!isFirstFetch) {
-              // Clear notification and green rows when leaving page one. Otherwise persist while navigating between pages
-              if (page !== lastPage && lastPage === 0) {
-                clearNewRowStyles();
-              } else {
+              // Returning to page 1 after notification appears
+              if (lastPage > 0 && page === 0 && isInitialSort) {
+                setNewRowCount(rowsSinceInteraction);
+                setShowNotification(false);
+              }
+
+              // If the user is sitting on page one sorted new to old
+              if (page === 0 && isInitialSort) {
                 setNewRowCount(rowsSinceInteraction);
                 setShowNotification(rowsSinceInteraction > 0);
+              }
+
+              if (page > 0) {
+                setNewRowCount(rowsSinceInteraction);
+                setShowNotification(rowsSinceInteraction > 0);
+              }
+
+              // Show notification if not sorted by new to old
+              if (!isInitialSort) {
+                setShowNotification(rowsSinceInteraction > 0);
+              }
+
+              // Clear styles and notification when leaving page 1
+              if (lastPage === 0 && page > 0) {
+                clearNewRowStyles();
               }
             }
 
             // When autorefreshing past page one, we dont want to move rows down as it updates. Only if you are on
             // page one should it live update, otherwise the updates come through when navigating
-            const isDataToBeUpdated = page !== lastPage || page === 0;
+            const isDataToBeUpdated = hasPageChanged || page === 0;
             const displayData = isDataToBeUpdated ? highlightedData : dataSnapshot;
 
             // Record page and count of last fetch to compare to the next fetch
