@@ -13,6 +13,10 @@ const DateWrapper = styled.div`
   min-width: 90px;
 `;
 
+const FacilityWrapper = styled.div`
+  min-width: 200px;
+`;
+
 const getDate = ({ startDate, endDate }) => (
   <DateWrapper>
     <DateDisplay date={startDate} />
@@ -22,7 +26,7 @@ const getDate = ({ startDate, endDate }) => (
 );
 const getType = ({ encounterType }) => ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label;
 const getReasonForEncounter = ({ reasonForEncounter }) => <div>{reasonForEncounter}</div>;
-const getFacility = ({ facilityName }) => <div>{facilityName}</div>;
+const getFacility = ({ facilityName }) => <FacilityWrapper>{facilityName}</FacilityWrapper>;
 
 const columns = [
   { key: 'startDate', title: 'Date', accessor: getDate },
