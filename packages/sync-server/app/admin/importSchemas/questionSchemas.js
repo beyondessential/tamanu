@@ -1,6 +1,8 @@
 import * as yup from 'yup';
+import { PROGRAM_DATA_ELEMENT_TYPE_VALUES } from '@tamanu/shared/constants/surveys';
 import { SurveyScreenComponent, baseValidationShape, baseConfigShape } from './baseSchemas';
 import { configString, validationString } from './jsonString';
+import { mathjsString } from './mathjsString';
 
 const columnReferenceConfig = baseConfigShape.shape({
   column: yup.string().required(),
@@ -17,7 +19,10 @@ export const SSCPatientData = SurveyScreenComponent.shape({
         .shape({
           fieldName: yup.string().required(),
           isAdditionalData: yup.boolean(),
-          fieldType: yup.string().required(),
+          fieldType: yup
+            .string()
+            .required()
+            .oneOf(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
         })
         .noUnknown()
         .default(null),
@@ -92,8 +97,10 @@ export const SSCNumber = SurveyScreenComponent.shape({
 export const SSCCalculatedQuestion = SurveyScreenComponent.shape({
   config: configString(numberConfig),
   validationCriteria: validationString(numberValidationCriteria),
+  calculation: mathjsString().required(),
 });
 export const SSCResult = SurveyScreenComponent.shape({
   config: configString(numberConfig),
   validationCriteria: validationString(numberValidationCriteria),
+  calculation: mathjsString().required(),
 });
