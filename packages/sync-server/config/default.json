@@ -811,6 +811,35 @@
           "value": "other",
           "label": "Other"
         }
+      ],      
+      "ageDisplayFormat": [
+        {
+          "as": "days",
+          "range": {
+            "min": { "duration": { "days": 0 } },
+            "max": { "duration": { "days": 8 }, "exclusive": true }
+          }
+        },
+        {
+          "as": "weeks",
+          "range": {
+            "min": { "duration": { "days": 8 } },
+            "max": { "duration": { "months": 1 }, "exclusive": true }
+          }
+        },
+        {
+          "as": "months",
+          "range": {
+            "min": { "duration": { "months": 1 } },
+            "max": { "duration": { "years": 2 }, "exclusive": true }
+          }
+        },
+        {
+          "as": "years",
+          "range": {
+            "min": { "duration": { "years": 2 } }
+          }
+        }
       ]
     }
   },
