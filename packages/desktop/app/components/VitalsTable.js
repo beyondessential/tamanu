@@ -56,6 +56,20 @@ const MeasureCell = React.memo(({ value, data }) => {
   } = useVitalChartData();
   const visualisationConfig = visualisationConfigs.find(({ key }) => key === data.dataElementId);
   const { hasVitalChart = false } = visualisationConfig || {};
+  // If the diastolic blood pressure(DBP) is selected, we want to show the systolic blood pressure(SBP) chart instead
+  // This is a hacky solution because:
+  // we need the visualisation configs to enable the two viz buttons that can click into the chart view, and at the same time they will pop up the same chart. Replacing DBP key with SBP is a hacky way to do it.
+  //
+  // The ideal way is to:
+  // 1. just make one button for both SBP and DBP on desktop
+  // 2. build a chart key on backend for the blood chart, build a customised viz config for it.
+  //
+  // Currently DBP and SBP data are both shown on the same chart (VitalBloodPressureChart), it should use SBP's visualisation_config and validation_criteria to render the chart
+
+  const chartKey =
+    visualisationConfig?.key === VITALS_DATA_ELEMENT_IDS.dbp
+      ? VITALS_DATA_ELEMENT_IDS.sbp
+      : visualisationConfig?.key;
 
   return (
     <>
@@ -65,7 +79,7 @@ const MeasureCell = React.memo(({ value, data }) => {
           <IconButton
             size="small"
             onClick={() => {
-              setChartKeys([visualisationConfig.key]);
+              setChartKeys([chartKey]);
               setModalTitle(value);
               setVitalChartModalOpen(true);
             }}
@@ -86,7 +100,7 @@ const TitleCell = React.memo(({ value }) => {
     visualisationConfigs,
   } = useVitalChartData();
   const allChartKeys = visualisationConfigs
-    .filter(({ hasVitalChart, key }) => hasVitalChart && key !== VITALS_DATA_ELEMENT_IDS.sbp) // Only show one blood pressure chart on multi vital charts
+    .filter(({ hasVitalChart, key }) => hasVitalChart && key !== VITALS_DATA_ELEMENT_IDS.dbp) // Only show one blood pressure chart on multi vital charts
     .map(({ key }) => key);
 
   return (
@@ -189,7 +203,7 @@ export const VitalsTable = React.memo(() => {
       />
       {showFooterLegend && (
         <Box textAlign="end" marginTop="8px" fontSize="9px" color={Colors.softText}>
-          *Changed entry
+          *Changed record
         </Box>
       )}
     </>
