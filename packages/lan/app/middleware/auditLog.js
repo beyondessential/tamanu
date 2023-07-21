@@ -43,7 +43,7 @@ const auditMiddleware = async (req, res, next) => {
   const audit = new AuditLogItem();
   req.audit = audit;
 
-  const logsEnabled = config.log.enableAuditLogs;
+  const logsEnabled = config.log.enableAuditLog;
   // only attach the resolver if audit logs are enabled
   // (without this bit, all the audit logs will just be discarded)
   if (logsEnabled) {
