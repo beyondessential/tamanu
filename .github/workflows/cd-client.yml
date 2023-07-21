@@ -122,16 +122,23 @@ jobs:
       - name: Package for Windows (MSI)
         run: docker exec working yarn run package-only --win --x64
 
+      - name: Switch to Aspen build
+        run: docker exec working mv /package-aspen.json package.json
+
+      - name: Package for Windows (Aspen)
+        run: docker exec working yarn run package-only --win --x64
+
       - name: Stop container
         run: docker kill working
 
       - name: Prepare final outputs
         run: |
           sudo chown -R $USER:$USER release
-          mkdir -p ops/{linux,mac,windows-{appdata,msi,system}}
+          mkdir -p ops/{linux,mac,windows-{appdata,msi,system,aspen}}
           mv release/latest-linux.yml release/*.AppImage ops/linux/
           mv release/*-mac* ops/mac/
           mv release/*.msi ops/windows-msi/
+          mv release/aspen/*.msi ops/windows-aspen/
           mv release/latest.yml release/*.exe* ops/windows-system/
           mv release/appdata/latest.yml release/appdata/*.exe* ops/windows-appdata/
           rm -rf release

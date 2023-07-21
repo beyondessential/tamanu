@@ -78,6 +78,8 @@ RUN jq '.build.win.target = ["nsis"] | .build.nsis.perMachine = false | .build.d
     package.json > /package-appdata.json
 RUN jq '.build.win.target = ["msi"] | .build.msi.shortcutName = "Tamanu \(.version)"' \
     package.json > /package-msi.json
+RUN jq '.build.productName = "Tamanu Fiji" | .build.appId = "org.beyondessential.TamanuFiji" | .build.directories.output = "release/aspen"' \
+    /package-msi.json > /package-aspen.json
 RUN jq '.build.mac.target = "tar.xz"' \
     package.json > /package-mac.json
 
