@@ -91,6 +91,7 @@ const getInwardArrowMeasureData = (rawData, visualisationConfig, secondaryConfig
     const secondaryValueDotColor = getDotColor({
       isInsideNormalRange,
       isOutsideGraphRange,
+      useInwardArrowVector: true,
     });
     const secondDescription = getDescription({
       data: secondaryData,
