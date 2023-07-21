@@ -67,9 +67,9 @@ const MeasureCell = React.memo(({ value, data }) => {
   // Currently DBP and SBP data are both shown on the same chart (VitalBloodPressureChart), it should use SBP's visualisation_config and validation_criteria to render the chart
 
   const chartKey =
-    visualisationConfig.key === VITALS_DATA_ELEMENT_IDS.dbp
+    visualisationConfig?.key === VITALS_DATA_ELEMENT_IDS.dbp
       ? VITALS_DATA_ELEMENT_IDS.sbp
-      : visualisationConfig.key;
+      : visualisationConfig?.key;
 
   return (
     <>
@@ -203,7 +203,7 @@ export const VitalsTable = React.memo(() => {
       />
       {showFooterLegend && (
         <Box textAlign="end" marginTop="8px" fontSize="9px" color={Colors.softText}>
-          *Changed entry
+          *Changed record
         </Box>
       )}
     </>

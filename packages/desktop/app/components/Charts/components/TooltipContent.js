@@ -64,7 +64,14 @@ export const TooltipContent = props => {
 };
 
 export const InwardArrowVectorTooltipContent = props => {
-  const { name, description, visualisationConfig, dotColor, inwardArrowVector } = props;
+  const {
+    name,
+    description,
+    secondDescription,
+    visualisationConfig,
+    dotColor,
+    inwardArrowVector,
+  } = props;
   const { config = {} } = visualisationConfig;
   const { unit = '' } = config;
 
@@ -78,6 +85,7 @@ export const InwardArrowVectorTooltipContent = props => {
         <FlexColumn>
           <span>{`${inwardArrowVector.top}/${inwardArrowVector.bottom} ${unit}`}</span>
           <span>{description}</span>
+          <span>{secondDescription}</span>
         </FlexColumn>
       </ValueWrapper>
     </Wrapper>

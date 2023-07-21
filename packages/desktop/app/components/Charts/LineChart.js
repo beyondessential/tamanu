@@ -22,11 +22,23 @@ import { InwardArrowVectorDot } from './components/InwardArrowVectorDot';
 import { CustomTooltip } from './components/CustomTooltip';
 
 export const LineChart = props => {
-  const { chartData, visualisationConfig, isLoading, useInwardArrowVector, chartProps } = props;
+  const {
+    chartData,
+    visualisationConfig,
+    isLoading,
+    useInwardArrowVector,
+    chartProps,
+    secondaryConfig,
+  } = props;
 
   const { margin, tableHeight, height, xAxisTicks, yAxisTicks } = chartProps;
   const { yAxis: yAxisConfigs } = visualisationConfig;
-  const measureData = getMeasureData(chartData, visualisationConfig, useInwardArrowVector);
+  const measureData = getMeasureData(
+    chartData,
+    visualisationConfig,
+    useInwardArrowVector,
+    secondaryConfig,
+  );
   const DotComponent = useInwardArrowVector ? InwardArrowVectorDot : CustomDot;
 
   return (
