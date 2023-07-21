@@ -3,12 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "description": "TODO",
-  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "types": "src/index.ts",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
-  "license": "SEE LICENSE IN license",
+  "license": "SEE LICENSE IN ../../license",
   "scripts": {
     "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true src",
     "build-watch": "yarn run build --watch",
