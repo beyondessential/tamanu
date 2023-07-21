@@ -11,20 +11,11 @@ export class LabTestPanelExporter extends DefaultDataExporter {
         },
       ],
     });
-    const data = labTestPanels.map(({ dataValues: panel }) => {
-      const { labTestTypes, ...otherProps } = panel;
-      const testTypes = labTestTypes
-        .map(({ id }) => {
-          return id;
-        })
-        .join(',');
-      return {
-        ...otherProps,
-        testTypesInPanel: testTypes,
-      };
-    });
 
-    return data;
+    return labTestPanels.map(({ dataValues: { labTestTypes, ...rest } }) => ({
+      ...rest,
+      testTypesInPanel: labTestTypes.map(({ id }) => id).join(','),
+    }));
   }
 
   getHeadersFromData(data) {
