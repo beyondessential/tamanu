@@ -57,7 +57,7 @@
       "packages/shared",
       "packages/constants",
       "packages/api-client",
-      "packages/api-cli"
+      "packages/simulator"
     ],
     "nohoist": [
       "**/webpack",
