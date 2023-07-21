@@ -87,7 +87,8 @@
     },
     "msi": {
       "perMachine": true,
-      "runAfterFinish": false
+      "runAfterFinish": false,
+      "createDesktopShortcut": "always"
     },
     "linux": {
       "target": [
