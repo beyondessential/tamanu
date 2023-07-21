@@ -6,7 +6,7 @@ import { Alert, AlertTitle, Skeleton } from '@material-ui/lab';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { Modal } from '../../../components/Modal';
-import { Heading4, SmallBodyText } from '../../../components/Typography';
+import { BodyText, Heading4, SmallBodyText } from '../../../components/Typography';
 import { DateTimeField, Form, SuggesterSelectField, TextField } from '../../../components/Field';
 import { TableFormFields } from '../../../components/Table';
 import { Colors } from '../../../constants';
@@ -92,7 +92,7 @@ const getColumns = (count, onChangeResult) => {
       key: 'unit',
       title: 'Units',
       width: '80px',
-      accessor: row => row.labTestType.unit,
+      accessor: row => <BodyText color="textTertiary">{row.labTestType.unit || 'N/A'}</BodyText>,
     },
     {
       key: LAB_TEST_PROPERTIES.LAB_TEST_METHOD_ID,

@@ -33,7 +33,7 @@ const columns = sex => [
   {
     title: 'Units',
     key: 'labTestType.unit',
-    accessor: ({ labTestType }) => labTestType?.unit || '',
+    accessor: ({ labTestType }) => labTestType?.unit || 'N/A',
   },
   {
     title: 'Reference',

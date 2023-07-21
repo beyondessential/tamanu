@@ -146,6 +146,7 @@ export const LabRequestView = () => {
   const canWriteLabRequest = ability?.can('write', 'LabRequest');
   const canWriteLabTest = ability?.can('write', 'LabTest');
 
+  const isPublished = labRequest.status === LAB_REQUEST_STATUSES.PUBLISHED;
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
   const areLabTestsReadOnly = !canWriteLabTest || isHidden;
@@ -248,11 +249,13 @@ export const LabRequestView = () => {
         </TileContainer>
       </TopContainer>
       <BottomContainer>
-        <Box display="flex" justifyContent="flex-end" marginBottom="20px">
-          <Button onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)}>
-            Enter results
-          </Button>
-        </Box>
+        {!isPublished && (
+          <Box display="flex" justifyContent="flex-end" marginBottom="20px">
+            <Button onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)}>
+              Enter results
+            </Button>
+          </Box>
+        )}
         <LabRequestResultsTable
           refreshCount={labTestTableRefreshCount}
           labRequest={labRequest}
