@@ -2,7 +2,9 @@
 // this class is only exported for testing and is not expected to be used directly
 export class AuditLogItem {
   userId = '';
+
   annotations = null;
+
   permissionChecks = [];
 
   shouldKeep() {
@@ -46,10 +48,7 @@ const auditMiddleware = async (req, res, next) => {
     res.on('finish', (...args) => {
       audit.userId = req.user?.id;
 
-      if (!audit.shouldKeep()) {
-        return;
-      }
-      
+      if (!audit.shouldKeep()) return;
       audit.resolve();
     });
   }
