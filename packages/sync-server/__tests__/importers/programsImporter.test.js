@@ -199,6 +199,12 @@ describe('Programs import', () => {
         expect(error.message).toEqual(errorMessages[i]);
       });
 
+      expect(stats).toMatchObject({
+        Program: { created: 1, updated: 0, errored: 0 },
+        Survey: { created: 1, updated: 0, errored: 0 },
+        ProgramDataElement: { created: 16, updated: 0, errored: 4 },
+        SurveyScreenComponent: { created: 16, updated: 0, errored: 0 },
+      });
     });
 
     it('Should import a valid vitals survey', async () => {

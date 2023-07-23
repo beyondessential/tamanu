@@ -1,6 +1,7 @@
 import * as yup from 'yup';
 import { parseOrNull } from '@tamanu/shared/utils/parse-or-null';
 import { isNumberOrFloat } from '../../utils/numbers';
+import { statkey, updateStat } from '../stats';
 
 const checkIfWithinGraphRange = (normalRange, graphRange) => {
   if (isNumberOrFloat(normalRange.min) && normalRange.min < graphRange.min) {
@@ -60,7 +61,13 @@ function validateVitalVisualisationConfig(visualisationConfigString, validationC
   }
 }
 
-export function validateProgramDataElementRecords(records, { context, sheetName }) {
+export function validateProgramDataElementRecords(
+  records,
+  { context, sheetName, stats: previousStats = {} },
+) {
+  const { errors } = context;
+  const stats = { ...previousStats };
+
   const programDataElementRecords = records.filter(({ model }) => model === 'ProgramDataElement');
 
   for (const programDataElementRecord of programDataElementRecords) {
@@ -77,10 +84,13 @@ export function validateProgramDataElementRecords(records, { context, sheetName 
     } catch (e) {
       const error = new Error(`sheetName: ${sheetName}, code: '${dataElementCode}', ${e.message}`);
       newErrors.push(error);
-      }
+    }
 
     if (newErrors.length > 0) {
+      updateStat(stats, statkey('ProgramDataElement', sheetName), 'errored', newErrors.length);
       errors.push(...newErrors);
     }
   }
+
+  return stats;
 }
