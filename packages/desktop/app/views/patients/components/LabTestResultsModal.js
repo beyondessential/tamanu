@@ -279,8 +279,8 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
                 labTestResults={labTestResults}
                 onClose={onClose}
                 isLoading={isLoading}
-                isError={isError}
                 areLabTestResultsReadOnly={areLabTestResultsReadOnly}
+                isError={isError}
                 error={error}
                 {...props}
               />

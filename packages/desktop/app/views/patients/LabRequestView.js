@@ -52,6 +52,9 @@ const TopContainer = styled.div`
 const BottomContainer = styled.div`
   background-color: ${Colors.white};
   padding: 18px 30px;
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
   flex: 1;
 `;
 
@@ -155,7 +158,7 @@ export const LabRequestView = () => {
   const isPublished = labRequest.status === LAB_REQUEST_STATUSES.PUBLISHED;
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
-  const areLabTestsReadOnly = !canWriteLabTest || isHidden;
+  const areLabTestsReadOnly = !canWriteLabTest || isHidden || isPublished;
 
   // If the value of status is enteredInError or deleted, it should display to the user as Cancelled
   const displayStatus = areLabRequestsReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
@@ -172,7 +175,7 @@ export const LabRequestView = () => {
   return (
     <Container>
       <TopContainer>
-        <Heading2 gutterBottom>Labs</Heading2>
+        <Heading2>Labs</Heading2>
         <LabRequestCard
           labRequest={labRequest}
           isReadOnly={areLabRequestsReadOnly}
