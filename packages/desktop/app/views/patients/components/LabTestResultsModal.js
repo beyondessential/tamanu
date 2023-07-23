@@ -3,7 +3,7 @@ import { Box } from '@material-ui/core';
 import styled from 'styled-components';
 import { keyBy, pick } from 'lodash';
 import { Alert, AlertTitle, Skeleton } from '@material-ui/lab';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { Modal } from '../../../components/Modal';
 import { BodyText, Heading4, SmallBodyText } from '../../../components/Typography';
@@ -222,6 +222,7 @@ const ResultsForm = ({
 
 export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, open }) => {
   const api = useApi();
+  const queryClient = useQueryClient();
   const { ability } = useAuth();
   const canWriteLabTestResult = ability?.can('write', 'LabTestResult');
   const areLabTestResultsReadOnly = !canWriteLabTestResult;
@@ -240,6 +241,8 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
       onSuccess: labTestRes => {
         toast.success(`Successfully updated ${labTestRes.length} tests for request ${displayId}`);
         // Force refresh of lab test data fetching table
+        queryClient.invalidateQueries(['labTestResults', labRequest.id]);
+
         refreshLabTestTable();
         onClose();
       },
@@ -271,8 +274,8 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
         initialValues={initialData}
         enableReinitialize
         onSubmit={updateTests}
-        render={({ submitForm, dirty, ...props }) => {
-          const confirmDisabled = isLoading || isError || isSavingTests || !dirty;
+        render={({ submitForm, isSubmitting, dirty, ...props }) => {
+          const confirmDisabled = isLoading || isError || isSavingTests || isSubmitting || !dirty;
           return (
             <>
               <ResultsForm

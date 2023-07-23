@@ -9,6 +9,11 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   table tbody tr:last-child td {
     border-bottom: none;
   }
+
+  table thead tr th {
+    position: sticky;
+    top: 0;
+  }
 `;
 
 const makeRangeStringAccessor = sex => ({ labTestType }) => {

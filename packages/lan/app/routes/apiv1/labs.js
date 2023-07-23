@@ -324,6 +324,7 @@ labRelations.put(
       const promises = [];
 
       labTests.forEach(labTest => {
+        req.checkPermission('write', labTest);
         const labTestBody = body[labTest.id];
         const updated = labTest.set(labTestBody);
         if (updated.changed()) {
@@ -366,29 +367,6 @@ labRelations.get(
 labRequest.use(labRelations);
 
 export const labTest = express.Router();
-
-labTest.put(
-  '/:id',
-  asyncHandler(async (req, res) => {
-    const { models, params } = req;
-    const updatedLabTestData = req.body;
-
-    req.checkPermission('read', 'LabTest');
-
-    const labTestRecord = await models.LabTest.findByPk(params.id);
-    if (!labTestRecord) throw new NotFoundError();
-
-    req.checkPermission('write', labTestRecord);
-
-    if (updatedLabTestData.result && updatedLabTestData.result !== labTestRecord.result) {
-      req.checkPermission('write', 'LabTestResult');
-    }
-
-    await labTestRecord.update(updatedLabTestData);
-
-    res.send(labTestRecord);
-  }),
-);
 
 labTest.get(
   '/:id',
