@@ -13,6 +13,7 @@ import {
   VISIBILITY_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
 } from 'shared/constants';
+import { keyBy } from 'lodash';
 import { makeFilter, makeSimpleTextFilterFactory } from '../../utils/query';
 import { renameObjectKeys } from '../../utils/renameObjectKeys';
 import { simpleGet, simpleGetList, permissionCheckingRouter } from './crudHelpers';
@@ -297,12 +298,24 @@ labRelations.put(
 
     const testIds = Object.keys(body);
 
-    const labTests = await models.LabTest.findAll({
+    const labTestRes = await models.LabTest.findAll({
       where: {
         labRequestId: id,
         id: testIds,
       },
     });
+
+    const labTests = keyBy(labTestRes, 'id');
+
+    // If any of the tests have a different result, check for LabTestResult permission
+    if (
+      Object.entries(body).some(
+        ([testId, testBody]) => testBody.result && testBody.result !== labTests[testId].result,
+      )
+    ) {
+      req.checkPermission('write', 'LabTestResult');
+    }
+
     if (labTests.length !== testIds.length) {
       // Not all lab tests exist on specified lab request
       throw new NotFoundError();

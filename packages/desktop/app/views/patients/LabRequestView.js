@@ -38,7 +38,6 @@ import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetai
 import { Colors } from '../../constants';
 
 const Container = styled.div`
-  padding: 12px 30px;
   display: flex;
   flex-direction: column;
   height: calc(100vh - 58px);
@@ -151,15 +150,13 @@ export const LabRequestView = () => {
 
   const canWriteLabRequest = ability?.can('write', 'LabRequest');
   const canWriteLabRequestStatus = ability?.can('write', 'LabRequestStatus');
-
   const canWriteLabTest = ability?.can('write', 'LabTest');
-  const canWriteLabTestResult = ability?.can('write', 'LabTestResult');
 
   const isPublished = labRequest.status === LAB_REQUEST_STATUSES.PUBLISHED;
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
   const areLabTestsReadOnly = !canWriteLabTest || isHidden;
-  const areLabTestResultsReadOnly = !canWriteLabTestResult;
+
   // If the value of status is enteredInError or deleted, it should display to the user as Cancelled
   const displayStatus = areLabRequestsReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
 
@@ -271,7 +268,6 @@ export const LabRequestView = () => {
           labRequest={labRequest}
           patient={patient}
           refreshCount={labTestTableRefreshCount}
-          areLabTestResultsReadOnly={areLabTestResultsReadOnly}
         />
       </BottomContainer>
       {modalId && (

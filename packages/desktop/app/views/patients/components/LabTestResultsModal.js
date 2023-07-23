@@ -14,6 +14,7 @@ import { useLabTestResultsQuery } from '../../../api/queries/useLabTestResultsQu
 import { LabResultAccessorField, AccessorField } from './AccessorField';
 import { ConfirmCancelRow } from '../../../components/ButtonRow';
 import { useApi } from '../../../api';
+import { useAuth } from '../../../contexts/Auth';
 
 const TableContainer = styled.div`
   overflow-y: auto;
@@ -61,7 +62,7 @@ const AUTOFILL_FIELD_NAMES = [
   LAB_TEST_PROPERTIES.LAB_TEST_METHOD_ID,
 ];
 
-const getColumns = (count, onChangeResult) => {
+const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
   // Generate tab index for vertical tabbing through the table
   const tabIndex = (row, col) => count * row + col + 1;
   return [
@@ -80,6 +81,7 @@ const getColumns = (count, onChangeResult) => {
           <LabResultAccessorField
             resultType={resultType}
             options={options}
+            disabled={areLabTestResultsReadOnly}
             name={LAB_TEST_PROPERTIES.RESULT}
             onChange={e => onChangeResult(e.target.value, row.id)}
             id={row.id}
@@ -144,7 +146,7 @@ const ResultsFormSkeleton = () => (
           <Skeleton variant="text" width={270} style={{ fontSize: 12 }} />
         </div>
       </Box>
-      <Skeleton variant="rect" height={242} style={{ borderRadius: 4 }} />
+      <Skeleton variant="rect" height={254} style={{ borderRadius: 4 }} />
     </Box>
   </>
 );
@@ -158,7 +160,15 @@ const ResultsFormError = ({ error }) => (
   </Box>
 );
 
-const ResultsForm = ({ labTestResults, isLoading, isError, error, values, setFieldValue }) => {
+const ResultsForm = ({
+  labTestResults,
+  isLoading,
+  isError,
+  error,
+  values,
+  setFieldValue,
+  areLabTestResultsReadOnly,
+}) => {
   const { count, data } = labTestResults;
   /**
    * On entering lab result field for a test some other fields are auto-filled optimistically
@@ -184,7 +194,11 @@ const ResultsForm = ({ labTestResults, isLoading, isError, error, values, setFie
     [values, setFieldValue],
   );
 
-  const columns = useMemo(() => getColumns(count, onChangeResult), [count, onChangeResult]);
+  const columns = useMemo(() => getColumns(count, onChangeResult, areLabTestResultsReadOnly), [
+    count,
+    onChangeResult,
+    areLabTestResultsReadOnly,
+  ]);
 
   if (isLoading) return <ResultsFormSkeleton />;
   if (isError) return <ResultsFormError error={error} />;
@@ -208,6 +222,10 @@ const ResultsForm = ({ labTestResults, isLoading, isError, error, values, setFie
 
 export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, open }) => {
   const api = useApi();
+  const { ability } = useAuth();
+  const canWriteLabTestResult = ability?.can('write', 'LabTestResult');
+  const areLabTestResultsReadOnly = !canWriteLabTestResult;
+
   const {
     data: labTestResults = { data: [], count: 0 },
     isLoading,
@@ -262,6 +280,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
                 onClose={onClose}
                 isLoading={isLoading}
                 isError={isError}
+                areLabTestResultsReadOnly={areLabTestResultsReadOnly}
                 error={error}
                 {...props}
               />

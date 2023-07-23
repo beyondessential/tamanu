@@ -1,7 +1,18 @@
 import React from 'react';
 import { capitalize } from 'lodash';
 import { LAB_TEST_RESULT_TYPES } from '@tamanu/shared/constants';
+import styled from 'styled-components';
 import { NumberField, SelectField, TextField, Field } from '../../../components/Field';
+import { Colors } from '../../../constants';
+
+const StyledField = styled(Field)`
+  .Mui-disabled {
+    background: ${Colors.softOutline};
+    .MuiOutlinedInput-notchedOutline {
+      border-color: #dedede;
+    }
+  }
+`;
 
 function getResultComponent(resultType, options) {
   if (options && options.length) return SelectField;
@@ -23,7 +34,7 @@ function getResultOptions(options) {
 }
 
 export const AccessorField = ({ id, name, tabIndex, ...props }) => (
-  <Field {...props} inputProps={{ tabIndex }} name={`${id}.${name}`} />
+  <StyledField {...props} inputProps={{ tabIndex }} name={`${id}.${name}`} />
 );
 
 export const LabResultAccessorField = ({ resultType, options, ...props }) => (
