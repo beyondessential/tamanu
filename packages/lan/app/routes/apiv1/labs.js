@@ -298,19 +298,18 @@ labRelations.put(
 
     const testIds = Object.keys(body);
 
-    const labTestRes = await models.LabTest.findAll({
+    const labTests = await models.LabTest.findAll({
       where: {
         labRequestId: id,
         id: testIds,
       },
     });
 
-    const labTests = keyBy(labTestRes, 'id');
-
     // If any of the tests have a different result, check for LabTestResult permission
+    const labTestObj = keyBy(labTests, 'id');
     if (
       Object.entries(body).some(
-        ([testId, testBody]) => testBody.result && testBody.result !== labTests[testId].result,
+        ([testId, testBody]) => testBody.result && testBody.result !== labTestObj[testId].result,
       )
     ) {
       req.checkPermission('write', 'LabTestResult');
