@@ -2,6 +2,15 @@ name: CD Client
 
 on:
   workflow_dispatch:
+    inputs:
+      deployment:
+        description: Deployment to build
+        required: true
+        default: Generic
+        type: choice
+        options:
+          - Generic
+          - Fiji Aspen
   pull_request:
   push:
     branches:
@@ -28,6 +37,8 @@ jobs:
     needs: info
     runs-on: ubuntu-latest
     name: Build desktop client
+    env:
+      deployment: ${{ inputs.deployment || 'Generic' }}
     steps:
       - name: Edit PR comment to show build status
         id: existing-comment
@@ -106,26 +117,33 @@ jobs:
             working
 
       - name: Package for Linux, Mac, Windows
+        if: env.deployment == 'Generic'
         run: |
           docker exec working mv /package-mac.json package.json
           docker exec working yarn run package-only --x64 --linux --mac --win
 
       - name: Switch to AppData NSIS-only build
+        if: env.deployment == 'Generic'
         run: docker exec working mv /package-appdata.json package.json
 
       - name: Package for Windows (AppData NSIS)
+        if: env.deployment == 'Generic'
         run: docker exec working yarn run package-only --win --x64
 
       - name: Switch to MSI build
+        if: env.deployment == 'Generic'
         run: docker exec working mv /package-msi.json package.json
 
       - name: Package for Windows (MSI)
+        if: env.deployment == 'Generic'
         run: docker exec working yarn run package-only --win --x64
 
       - name: Switch to Aspen build
+        if: env.deployment == 'Fiji Aspen'
         run: docker exec working mv /package-aspen.json package.json
 
       - name: Package for Windows (Aspen)
+        if: env.deployment == 'Fiji Aspen'
         run: docker exec working yarn run package-only --win --x64
 
       - name: Stop container
