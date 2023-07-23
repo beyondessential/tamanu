@@ -130,7 +130,7 @@ export const DataFetchingTable = memo(
             const highlightedData = transformedData.map((row, i) => {
               const actualIndex = i + page * rowsPerPage; // Offset the indexes based on pagination
               // Highlight rows green if the index is less that the index of rows since interaction AND its not the first fetch
-              const isNewRow = actualIndex < rowsSinceInteraction && !isFirstFetch;
+              const isNewRow = actualIndex < rowsSinceInteraction && !isFirstFetch && isInitialSort;
               return {
                 ...row,
                 new: isNewRow,
@@ -139,25 +139,11 @@ export const DataFetchingTable = memo(
 
             // If its the first fetch, we dont want to highlight the new rows green or show a notification
             if (!isFirstFetch) {
+              setNewRowCount(rowsSinceInteraction);
               // Returning to page 1 after notification appears
               if (lastPage > 0 && page === 0 && isInitialSort) {
-                setNewRowCount(rowsSinceInteraction);
                 setShowNotification(false);
-              }
-
-              // If the user is sitting on page one sorted new to old
-              if (page === 0 && isInitialSort) {
-                setNewRowCount(rowsSinceInteraction);
-                setShowNotification(rowsSinceInteraction > 0);
-              }
-
-              if (page > 0) {
-                setNewRowCount(rowsSinceInteraction);
-                setShowNotification(rowsSinceInteraction > 0);
-              }
-
-              // Show notification if not sorted by new to old
-              if (!isInitialSort) {
+              } else {
                 setShowNotification(rowsSinceInteraction > 0);
               }
 
