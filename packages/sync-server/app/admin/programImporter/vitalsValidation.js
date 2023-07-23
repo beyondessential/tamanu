@@ -64,7 +64,7 @@ export function validateProgramDataElementRecords(records, { context, sheetName 
   const programDataElementRecords = records.filter(({ model }) => model === 'ProgramDataElement');
 
   for (const programDataElementRecord of programDataElementRecords) {
-    const errors = [];
+    const newErrors = [];
     const { values } = programDataElementRecord;
     const { visualisationConfig = '', code: dataElementCode } = values;
 
@@ -75,14 +75,12 @@ export function validateProgramDataElementRecords(records, { context, sheetName 
     try {
       validateVitalVisualisationConfig(visualisationConfig, validationCriteria);
     } catch (e) {
-      const error = new Error(
-        `sheetName: ${sheetName}, data element code: '${dataElementCode}', ${e.message}`,
-      );
-      errors.push(error);
-
-      if (errors.length > 0) {
-        context.errors.push(...errors);
+      const error = new Error(`sheetName: ${sheetName}, code: '${dataElementCode}', ${e.message}`);
+      newErrors.push(error);
       }
+
+    if (newErrors.length > 0) {
+      errors.push(...newErrors);
     }
   }
 }
