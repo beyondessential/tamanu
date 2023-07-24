@@ -2,7 +2,7 @@ import { readFile } from 'fs/promises';
 import config from 'config';
 import { isObject } from 'lodash';
 
-const REMOVE_COMMENTS_REGEX = /((?<!:)\/\/(.*)\n)+/g;
+const REMOVE_COMMENTS_REGEX = /[^:]\/\/.*/g;
 
 export async function up(query) {
   const { serverFacilityId } = config;
@@ -23,7 +23,7 @@ export async function up(query) {
     );
   }
 
-  const defaults = JSON.parse(defaultsFile.toString().replace(REMOVE_COMMENTS_REGEX, '\n'));
+  const defaults = JSON.parse(defaultsFile.toString().replace(REMOVE_COMMENTS_REGEX, ''));
   const data = getDataFromEntries(Object.entries(defaults));
 
   // Upsert data defaultValues and don't override anything
@@ -57,6 +57,7 @@ export async function up(query) {
   }
 }
 
+// eslint-disable-next-line no-unused-vars
 export async function down(query) {
   // No down migration
 }
