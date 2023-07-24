@@ -453,8 +453,8 @@ export const FORM_STATUSES = {
 };
 
 export const SUPPORTED_DOCUMENT_TYPES = {
-  PDF: 'PDF',
-  JPEG: 'JPEG',
+  PDF: 'application/pdf',
+  JPEG: 'image/jpeg',
 };
 
 export const REQUIRED_INLINE_ERROR_MESSAGE = '*Required';

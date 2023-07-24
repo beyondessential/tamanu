@@ -4,7 +4,7 @@ import {
   createDummyEncounterMedication,
 } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData';
-import { LAB_REQUEST_STATUSES, IMAGING_REQUEST_STATUS_TYPES, NOTE_TYPES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, IMAGING_REQUEST_STATUS_TYPES, NOTE_TYPES, DOCUMENT_SOURCES } from 'shared/constants';
 import { setupSurveyFromObject } from 'shared/demoData/surveys';
 import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';
@@ -1094,6 +1094,7 @@ describe('Encounter', () => {
         const result = await app.post(`/v1/encounter/${encounter.id}/documentMetadata`).send({
           name: 'test document',
           type: 'application/pdf',
+          source: DOCUMENT_SOURCES.PATIENT_LETTER,
           documentOwner: 'someone',
           note: 'some note',
         });

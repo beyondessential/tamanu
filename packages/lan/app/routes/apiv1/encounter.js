@@ -2,9 +2,11 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes } from 'sequelize';
 import { NotFoundError, InvalidParameterError } from 'shared/errors';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
   LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
+  DOCUMENT_SOURCES,
   INVOICE_STATUSES,
   NOTE_RECORD_TYPES,
   VITALS_DATA_ELEMENT_IDS,
@@ -119,6 +121,8 @@ encounter.post(
       attachmentId,
       type,
       encounterId: params.id,
+      documentUploadedAt: getCurrentDateTimeString(),
+      source: DOCUMENT_SOURCES.UPLOADED,
     });
 
     res.send(documentMetadataObject);
