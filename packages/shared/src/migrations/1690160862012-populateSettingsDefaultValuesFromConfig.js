@@ -9,9 +9,17 @@ export async function up(query) {
   const getDataFromEntries = (entries, prefix = '') =>
     entries.flatMap(([key, value]) => {
       const path = `${prefix}${!isNaN(Number(key)) ? `[${key}]` : `${prefix && '.'}${key}`}`;
+      const stringifiedValue = JSON.stringify(value);
       return isObject(value)
         ? getDataFromEntries(Object.entries(value), path)
-        : [[path, JSON.stringify(value), ...(serverFacilityId ? [serverFacilityId] : [])]];
+        : [
+            [
+              path,
+              stringifiedValue,
+              stringifiedValue,
+              ...(serverFacilityId ? [serverFacilityId] : []),
+            ],
+          ];
     });
 
   let defaultsFile;
@@ -31,7 +39,7 @@ export async function up(query) {
   if (serverFacilityId) {
     await query.sequelize.query(
       `
-        INSERT INTO settings (key, default_value, facility_id)
+        INSERT INTO settings (key, default_value, value, facility_id)
         VALUES ${data.map(() => '(?)').join(', ')}
         ON CONFLICT (key, facility_id) WHERE key IS NOT NULL AND facility_id IS NOT NULL AND deleted_at IS NULL
         DO UPDATE SET default_value = EXCLUDED.default_value;
@@ -44,7 +52,7 @@ export async function up(query) {
   } else {
     await query.sequelize.query(
       `
-        INSERT INTO settings (key, default_value)
+        INSERT INTO settings (key, default_value, value)
         VALUES ${data.map(() => '(?)').join(', ')}
         ON CONFLICT (key) WHERE key IS NOT NULL AND facility_id IS NULL AND deleted_at IS NULL
         DO UPDATE SET default_value = EXCLUDED.default_value;
