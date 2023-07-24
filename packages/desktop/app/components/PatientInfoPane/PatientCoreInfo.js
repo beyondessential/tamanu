@@ -6,6 +6,8 @@ import { DateDisplay } from '../DateDisplay';
 import { PatientInitialsIcon } from '../PatientInitialsIcon';
 import { Colors } from '../../constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { getDisplayAge } from '../../utils/dateTime';
+import { useLocalisation } from '../../contexts/Localisation';
 
 const PatientButton = styled(Button)`
   display: block;
@@ -110,6 +112,13 @@ const HealthIdText = styled(Typography)`
   line-height: 18px;
 `;
 
+const AgeDisplay = styled.span`
+  color: ${Colors.midText};
+  font-size: 14px;
+  font-weight: 400;
+  text-transform: none;
+`;
+
 const HealthIdDisplay = ({ displayId }) => (
   <HealthIdContainer>
     <HealthId>
@@ -123,6 +132,9 @@ const HealthIdDisplay = ({ displayId }) => (
 
 export const CoreInfoDisplay = memo(({ patient }) => {
   const { navigateToPatient } = usePatientNavigation();
+  const { getLocalisation } = useLocalisation();
+  const ageDisplayFormat = getLocalisation('ageDisplayFormat');
+
   return (
     <>
       <PatientButton onClick={() => navigateToPatient(patient.id)}>
@@ -142,6 +154,7 @@ export const CoreInfoDisplay = memo(({ patient }) => {
         </CoreInfoCell>
         <CoreInfoCell path="fields.dateOfBirth.shortLabel" testId="core-info-patient-dob">
           <DateDisplay date={patient.dateOfBirth} />
+          <AgeDisplay>{` (${getDisplayAge(patient.dateOfBirth, ageDisplayFormat)})`}</AgeDisplay>
         </CoreInfoCell>
       </CoreInfoSection>
       <HealthIdDisplay displayId={patient.displayId} />

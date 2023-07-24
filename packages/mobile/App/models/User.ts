@@ -35,6 +35,9 @@ export class User extends BaseModel implements IUser {
   @OneToMany(() => LabRequest, (labRequest) => labRequest.requestedBy)
   labRequests: LabRequest[];
 
+  @OneToMany(() => LabRequest, (labRequest) => labRequest.collectedBy)
+  collectedLabRequests: LabRequest[];
+
   @OneToMany(() => AdministeredVaccine, (administeredVaccine) => administeredVaccine.recorder)
   recordedVaccines: AdministeredVaccine[];
 
