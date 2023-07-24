@@ -1,13 +1,10 @@
-import Chance from 'chance';
-
 import { convertISO9075toRFC3339 } from 'shared/utils/dateTime';
-import { fake } from 'shared/test-helpers/fake';
+import { fake, chance } from 'shared/test-helpers';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
 
 export function testDiagnosticReportHandler(integrationName, requestHeaders = {}) {
   describe(`${integrationName} integration - DiagnosticReport`, () => {
-    const chance = new Chance();
     let ctx;
     let app;
     beforeAll(async () => {

@@ -28,6 +28,8 @@ if (['major', 'minor', 'patch'].includes(version)) {
     default:
       throw new Error('unreachable');
   }
+} else if (!/^\d+[.]\d+[.]\d+$/.test(version)) {
+  throw new Error('Version must be major, minor, patch, or x.y.z');
 }
 
 async function bumpPackageJson(packagePath, newVersion) {
@@ -40,7 +42,6 @@ async function bumpPackageJson(packagePath, newVersion) {
 
 console.log('Bumping package.jsons to', version);
 for (const pkg of topLevelPkg.workspaces.packages) {
-  if (pkg === 'packages/shared') continue;
   await bumpPackageJson(pkg, version);
 }
 await bumpPackageJson('.', version);

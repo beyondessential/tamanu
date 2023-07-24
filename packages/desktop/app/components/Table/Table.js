@@ -14,7 +14,6 @@ import {
   TableSortLabel,
   TableRow,
   TableFooter,
-  TablePagination,
 } from '@material-ui/core';
 import { ExpandMore } from '@material-ui/icons';
 import { PaperStyles } from '../Paper';
@@ -23,6 +22,7 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
 import { ErrorBoundary } from '../ErrorBoundary';
+import { Paginator } from './Paginator';
 
 const preventInputCallback = e => {
   e.stopPropagation();
@@ -118,8 +118,11 @@ const StyledTable = styled(MaterialTable)`
 `;
 
 const StyledTableHead = styled(TableHead)`
-  background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
   white-space: nowrap;
+  .MuiTableCell-head {
+    background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
+    ${props => (props.$fixedHeader ? 'top: 0; position: sticky;' : '')}
+  }
 `;
 
 const StyledTableFooter = styled(TableFooter)`
@@ -148,6 +151,12 @@ const RowContainer = React.memo(({ children, rowStyle, onClick }) => (
   </StyledTableRow>
 ));
 
+const ErrorTableCell = styled(StyledTableCell)`
+  &.MuiTableCell-body {
+    padding: 60px;
+  }
+`;
+
 const Row = React.memo(
   ({ rowIndex, columns, data, onClick, cellOnChange, rowStyle, refreshTable }) => {
     const cells = columns.map(
@@ -168,7 +177,7 @@ const Row = React.memo(
           >
             <ErrorBoundary ErrorComponent={CellError}>
               {CellComponent ? (
-                <CellComponent value={displayValue} />
+                <CellComponent value={displayValue} data={data} />
               ) : (
                 <DisplayValue maxWidth={maxWidth} displayValue={displayValue} />
               )}
@@ -205,9 +214,9 @@ const DisplayValue = React.memo(({ maxWidth, displayValue }) => {
 
 const ErrorRow = React.memo(({ colSpan, children }) => (
   <RowContainer>
-    <StyledTableCell colSpan={colSpan} align="center">
+    <ErrorTableCell colSpan={colSpan} align="center">
       {children}
-    </StyledTableCell>
+    </ErrorTableCell>
   </RowContainer>
 ));
 
@@ -222,13 +231,14 @@ class TableComponent extends React.Component {
 
   handleChangePage = (event, newPage) => {
     const { onChangePage } = this.props;
-    if (onChangePage) onChangePage(newPage);
+    if (onChangePage) onChangePage(newPage - 1);
   };
 
   handleChangeRowsPerPage = event => {
-    const { onChangeRowsPerPage } = this.props;
+    const { onChangeRowsPerPage, onChangePage } = this.props;
     const newRowsPerPage = parseInt(event.target.value, 10);
     if (onChangeRowsPerPage) onChangeRowsPerPage(newRowsPerPage);
+    if (onChangePage) onChangePage(0);
   };
 
   renderHeaders() {
@@ -241,13 +251,17 @@ class TableComponent extends React.Component {
       titleData,
       headerOnChange,
     } = this.props;
-    const getContent = (key, sortable, title, titleAccessor, tooltip) => {
+    const getContent = ({ key, sortable, title, titleAccessor, tooltip, TitleCellComponent }) => {
       const onChange = headerOnChange ? event => headerOnChange(event, key) : null;
       const displayTitle = titleAccessor
         ? React.createElement(titleAccessor, { onChange, ...titleData, title })
         : title;
 
-      const headerElement = sortable ? (
+      const titleCellComponent = TitleCellComponent ? (
+        <TitleCellComponent value={displayTitle} />
+      ) : null;
+
+      const defaultHeaderElement = sortable ? (
         <TableSortLabel
           active
           direction={orderBy === key ? order : 'desc'}
@@ -260,6 +274,8 @@ class TableComponent extends React.Component {
         <span>{displayTitle || getLocalisation(`fields.${key}.shortLabel`) || key}</span>
       );
 
+      const headerElement = titleCellComponent || defaultHeaderElement;
+
       return tooltip ? (
         <ThemedTooltip title={tooltip}>{headerElement}</ThemedTooltip>
       ) : (
@@ -268,9 +284,9 @@ class TableComponent extends React.Component {
     };
 
     return columns.map(
-      ({ key, title, numeric, noTitle, titleAccessor, sortable = true, tooltip }) => (
+      ({ key, title, numeric, titleAccessor, sortable = true, tooltip, TitleCellComponent }) => (
         <HeaderContainer key={key} numeric={numeric}>
-          {getContent(key, sortable, title, titleAccessor, tooltip, noTitle)}
+          {getContent({ key, sortable, title, titleAccessor, tooltip, TitleCellComponent })}
         </HeaderContainer>
       ),
     );
@@ -318,7 +334,7 @@ class TableComponent extends React.Component {
   renderPaginator() {
     const { columns, page, count, rowsPerPage, rowsPerPageOptions } = this.props;
     return (
-      <TablePagination
+      <Paginator
         rowsPerPageOptions={rowsPerPageOptions}
         colSpan={columns.length}
         page={page}
@@ -331,10 +347,10 @@ class TableComponent extends React.Component {
   }
 
   renderFooter() {
-    const { page, exportName, columns, data, allowExport } = this.props;
+    const { page, exportName, columns, data, allowExport, count } = this.props;
 
     // Footer is empty, don't render anything
-    if (page === null && !allowExport) {
+    if ((page === null && !allowExport) || count === 0) {
       return null;
     }
 
@@ -353,13 +369,13 @@ class TableComponent extends React.Component {
   }
 
   render() {
-    const { className, elevated, headerColor, optionRow } = this.props;
+    const { className, elevated, headerColor, optionRow, fixedHeader } = this.props;
 
     return (
       <StyledTableContainer className={className} $elevated={elevated}>
         {optionRow && <OptionRow>{optionRow}</OptionRow>}
         <StyledTable>
-          <StyledTableHead $headerColor={headerColor}>
+          <StyledTableHead $headerColor={headerColor} $fixedHeader={fixedHeader}>
             <TableRow>{this.renderHeaders()}</TableRow>
           </StyledTableHead>
           <TableBody>{this.renderBodyContent()}</TableBody>
