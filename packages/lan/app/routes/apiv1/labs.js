@@ -14,12 +14,7 @@ import {
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
 } from 'shared/constants';
 import { renameObjectKeys } from 'shared/utils';
-import {
-  simpleGet,
-  simplePut,
-  simpleGetList,
-  permissionCheckingRouter,
-} from 'shared/utils/crudHelpers';
+import { simpleGet, simpleGetList, permissionCheckingRouter } from 'shared/utils/crudHelpers';
 import { makeFilter, makeSimpleTextFilterFactory } from '../../utils/query';
 import { notePagesWithSingleItemListHandler } from '../../routeHandlers';
 
