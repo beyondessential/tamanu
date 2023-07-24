@@ -5,6 +5,7 @@ import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
 import { ClearIcon } from '../Icons/ClearIcon';
+import { isEqual } from 'lodash';
 
 const Notification = styled.div`
   background-color: ${Colors.primary}10;
@@ -120,16 +121,15 @@ export const DataFetchingTable = memo(
 
           if (enableAutoRefresh) {
             const isFirstFetch = lastFetchCount === 0; // Check if this is the intial table load
-            const isInitialSort =
-              sorting.orderBy === initialSort.orderBy && sorting.order === initialSort.order;
+            const isInitialSort = isEqual(sorting, initialSort); // Check if set to initial sort
             const hasPageChanged = page !== lastPage; // Check if the page number has changed since the last fetch
 
             const rowsSinceRefresh = count - lastFetchCount; // Rows since the last autorefresh
             const rowsSinceInteraction = rowsSinceRefresh + newRowCount; // Rows added since last clearing of rows from interacting
 
+            // Highlight rows green if the index is less that the index of rows since interaction AND its not the first fetch
             const highlightedData = transformedData.map((row, i) => {
               const actualIndex = i + page * rowsPerPage; // Offset the indexes based on pagination
-              // Highlight rows green if the index is less that the index of rows since interaction AND its not the first fetch
               const isNewRow = actualIndex < rowsSinceInteraction && !isFirstFetch && isInitialSort;
               return {
                 ...row,
@@ -140,14 +140,7 @@ export const DataFetchingTable = memo(
             // If its the first fetch, we dont want to highlight the new rows green or show a notification
             if (!isFirstFetch) {
               setNewRowCount(rowsSinceInteraction);
-              // Returning to page 1 after notification appears
-              if (lastPage > 0 && page === 0 && isInitialSort) {
-                setShowNotification(false);
-              } else {
-                setShowNotification(rowsSinceInteraction > 0);
-              }
-
-              // Clear styles and notification when leaving page 1
+              setShowNotification(rowsSinceInteraction > 0);
               if (lastPage === 0 && page > 0) {
                 clearNewRowStyles();
               }
@@ -158,10 +151,9 @@ export const DataFetchingTable = memo(
             const isDataToBeUpdated = hasPageChanged || page === 0;
             const displayData = isDataToBeUpdated ? highlightedData : dataSnapshot;
 
-            // Record page and count of last fetch to compare to the next fetch
+            // Record page and count of last fetch to compare to the next fetch. Also save a copy of current data to show if not updating
             setLastFetchCount(count);
             setLastPage(page);
-            // Save a copy of this fetch to show on next fetch if we are past page 1
             setDataSnapshot(displayData);
 
             // Update the table with the rows to display
