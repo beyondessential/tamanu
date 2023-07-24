@@ -106,7 +106,8 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
     async ({ printRequested, ...data }) => {
       const document = await api.post(endpoint, {
         patientLetterData: {
-          todo: 'TODO: will pass through in the next PR',
+          ...data,
+          patient,
         },
         name: data.title,
         clinicianId: data.clinicianId,
@@ -114,7 +115,7 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
       const documentToOpen = printRequested ? document : null;
       onSubmit(documentToOpen);
     },
-    [api, endpoint, onSubmit],
+    [api, endpoint, onSubmit, patient],
   );
 
   const renderForm = props =>
@@ -136,7 +137,10 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
         clinicianId: currentUser.id,
         ...editedObject,
       }}
-      validationSchema={yup.object().shape({})}
+      validationSchema={yup.object().shape({
+        clinicianId: yup.string().required('Clinician is required'),
+        templateId: yup.string().required('Template is required'),
+      })}
     />
   );
 };
