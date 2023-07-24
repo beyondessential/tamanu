@@ -61,11 +61,14 @@ export async function createVersion(versionData, definition, versions, store, ve
     version.status === REPORT_STATUSES.PUBLISHED &&
     (created || getLatestVersion(versions).versionNumber === version.versionNumber);
 
-  log.info(
-    `${created ? 'Created new' : 'Updated'} ${isActive ? `${ACTIVE_TEXT} ` : ''}version ${
-      version.versionNumber
-    } for definition ${definition.name}`,
-  );
+  log.info('Imported new report version', {
+    action: created ? 'createdNew' : 'updated',
+    active: isActive,
+    userId,
+    versionNumber: version.versionNumber,
+    definitionName: definition.name,
+    definitionId: definition.id,
+  });
 }
 
 export async function listVersions(definition, versions) {

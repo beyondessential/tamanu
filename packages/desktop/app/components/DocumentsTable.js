@@ -5,8 +5,6 @@ import { extension } from 'mime-types';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { IconButton } from '@material-ui/core';
 
-import { DOCUMENT_SOURCES } from '@tamanu/shared/constants';
-import { DOCUMENT_SOURCE_LABELS } from '../constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { Button } from './Button';
@@ -40,7 +38,7 @@ const ActionButtons = React.memo(({ row, onDownload, onClickView }) => (
   </ActionsContainer>
 ));
 
-const getAttachmentType = type => {
+const getAttachmentType = ({ type }) => {
   // Note that this may not be the actual extension of the file uploaded.
   // Instead, its the default extension for the mime-type of the file uploaded.
   // i.e. a file which originally had '.jpg' extension may be listed as a JPEG
@@ -49,13 +47,6 @@ const getAttachmentType = type => {
   return 'Unknown';
 };
 
-const getTypeLabel = ({ source, type }) => {
-  if (source === DOCUMENT_SOURCES.UPLOADED) {
-    return getAttachmentType(type);
-  }
-
-  return DOCUMENT_SOURCE_LABELS[source] ?? 'Unknown';
-};
 const getUploadedDate = ({ documentUploadedAt }) =>
   documentUploadedAt ? <DateDisplay date={documentUploadedAt} /> : '';
 const getDepartmentName = ({ department }) => department?.name || '';
@@ -66,7 +57,7 @@ export const DocumentsTable = React.memo(
     const COLUMNS = useMemo(
       () => [
         { key: 'name', title: 'Name' },
-        { key: 'type', title: 'Type', accessor: getTypeLabel },
+        { key: 'type', title: 'Type', accessor: getAttachmentType },
         { key: 'documentUploadedAt', title: 'Upload', accessor: getUploadedDate },
         { key: 'documentOwner', title: 'Owner' },
         {

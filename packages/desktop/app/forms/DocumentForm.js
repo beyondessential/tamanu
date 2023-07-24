@@ -113,7 +113,7 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
       const attachmentType = lookupMimeType(file);
 
       try {
-        await api.postWithFileUpload(`${endpoint}/documentMetadata`, file, {
+        await api.postWithFileUpload(endpoint, file, {
           ...data,
           type: attachmentType,
           documentCreatedAt: toDateTimeString(birthtime),

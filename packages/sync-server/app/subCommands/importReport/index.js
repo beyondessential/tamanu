@@ -4,24 +4,41 @@ import { initDatabase } from '../../database';
 import * as importUtils from './utils';
 import * as importActions from './actions';
 
-export async function importReport(options) {
+async function importReport(options) {
+  const { name, ...versionData } = JSON.parse(await fs.readFile(options.file));
+  const overriddenName = options.name || name;
+
+  if (!overriddenName) {
+    throw new Error('Name must be provided in the JSON file or via the -n parameter');
+  }
+
   const store = await initDatabase({ testMode: false });
-  const definition = await importUtils.findOrCreateDefinition(options.name, store);
+  const definition = await importUtils.findOrCreateDefinition(overriddenName, store);
   const versions = await definition.getVersions();
-  if (options.list) {
-    await importActions.listVersions(definition, versions, store);
-  }
-  if (options.file) {
-    const versionData = JSON.parse(await fs.readFile(options.file));
-    await importActions.createVersion(versionData, definition, versions, store, options.verbose);
-  }
+  await importActions.createVersion(versionData, definition, versions, store, options.verbose);
   process.exit(0);
 }
 
 export const importReportCommand = new Command('importReport')
-  .description('Imports a JSON report definition version into Tamanu')
-  .requiredOption('-n, --name <string>', 'Name of the report')
-  .option('-f, --file <path>', 'Path to report definition version data JSON')
-  .option('-l, --list', 'List all report definition versions')
-  .option('-v, --verbose', 'Log additional details during import')
+  .description('Import a JSON report definition version')
+  .requiredOption('-f, --file <path>', 'Path to report definition version data JSON')
+  .option('-v, --verbose', 'log additional details during import')
+  .option('-n, --name <string>', 'override JSON-defined report name')
   .action(importReport);
+
+async function listReport(options) {
+  const store = await initDatabase({ testMode: false });
+  const { name } = options;
+  const definition = await store.models.ReportDefinition.findOne({
+    where: { name },
+  });
+  if (!definition) throw new Error(`No definition found with name=${name}`);
+  const versions = await definition.getVersions();
+  await importActions.listVersions(definition, versions, store);
+  process.exit(0);
+}
+
+export const listReportCommand = new Command('listReport')
+  .description('List the existing versions of a report definition')
+  .requiredOption('-n, --name <string>', 'Name of the report')
+  .action(listReport);
