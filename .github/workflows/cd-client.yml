@@ -2,9 +2,10 @@ name: CD Client
 
 on:
   workflow_dispatch:
+    # using dispatch will imply it's for a release
     inputs:
       deployment:
-        description: Deployment to build
+        description: Release deployment to build
         required: true
         default: Generic
         type: choice
@@ -39,6 +40,7 @@ jobs:
     name: Build desktop client
     env:
       deployment: ${{ inputs.deployment || 'Generic' }}
+      for_release: ${{ startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch' }}
     steps:
       - name: Edit PR comment to show build status
         id: existing-comment
@@ -162,13 +164,13 @@ jobs:
           rm -rf release
 
       - name: Use release bucket
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: env.for_release
         run: |
           echo "S3_BUCKET=bes-tamanu-release-clients/${{ needs.info.outputs.version }}" >> $GITHUB_ENV
           echo "S3_URL=https://s3-ap-southeast-2.amazonaws.com/bes-tamanu-release-clients/${{ needs.info.outputs.version }}" >> $GITHUB_ENV
 
       - name: Use dev bucket
-        if: "!startsWith(github.ref, 'refs/tags/v')"
+        if: "!env.for_release"
         run: |
           echo "S3_BUCKET=bes-tamanu-dev-desktop-clients/${{ needs.info.outputs.branch }}" >> $GITHUB_ENV
           echo "S3_URL=https://s3.console.aws.amazon.com/s3/object/bes-tamanu-dev-desktop-clients?region=ap-southeast-2&prefix=${{ needs.info.outputs.branch }}" >> $GITHUB_ENV
