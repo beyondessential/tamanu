@@ -57,7 +57,6 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
       title="Search imaging requests"
       onSearch={setSearchParameters}
       initialValues={{ ...statusFilter, ...searchParameters }}
-      staticValues={{ displayIdExact: true }}
       hiddenFields={
         <>
           {!isCompletedTable && (
