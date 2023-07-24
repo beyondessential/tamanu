@@ -1,12 +1,6 @@
 import React from 'react';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import {
-  AutocompleteField,
-  Field,
-  LocalisedField,
-  DOBFields,
-  SearchField,
-} from '../Field';
+import { AutocompleteField, Field, LocalisedField, DOBFields, SearchField } from '../Field';
 import { useSuggester } from '../../api';
 import { SearchBarCheckField } from './SearchBarCheckField';
 
