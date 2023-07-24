@@ -48,7 +48,7 @@ export async function migrateNotePagesToNotes({ limit = Number.MAX_SAFE_INTEGER 
                 note_pages.visibility_status,
                 note_items.author_id,
                 note_items.on_behalf_of_id,
-                note_items.revised_by_id,
+                note_items.revised_by_id::uuid,
                 note_items.content
             FROM note_items JOIN note_pages on note_items.note_page_id = note_pages.id
             WHERE note_items.id > :fromId
