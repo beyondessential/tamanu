@@ -36,6 +36,7 @@ import { scheduledVaccine } from './scheduledVaccine';
 import { suggestions } from './suggestions';
 import { survey } from './survey';
 import { surveyResponse } from './surveyResponse';
+import { surveyResponseAnswer } from './surveyResponseAnswer';
 import { sync } from './sync';
 import { syncHealth } from './syncHealth';
 import { triage } from './triage';
@@ -83,6 +84,7 @@ patientDataRoutes.use('/patientIssue', patientIssue);
 patientDataRoutes.use('/procedure', procedure);
 patientDataRoutes.use('/referral', referral);
 patientDataRoutes.use('/surveyResponse', surveyResponse);
+patientDataRoutes.use('/surveyResponseAnswer', surveyResponseAnswer);
 patientDataRoutes.use('/triage', triage);
 patientDataRoutes.use('/vitals', vitals);
 

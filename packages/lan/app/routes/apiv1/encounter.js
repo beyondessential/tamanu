@@ -348,18 +348,9 @@ encounterRelations.get(
 
     const result = await db.query(
       `
-        SELECT
-          JSONB_BUILD_OBJECT(
-            'dataElementId', answer.data_element_id,
-            'records', JSONB_OBJECT_AGG(date.body, answer.body)) result
-        FROM
-          survey_response_answers answer
-        INNER JOIN
-          survey_screen_components ssc
-        ON
-          ssc.data_element_id = answer.data_element_id
-        INNER JOIN
-          (SELECT
+        WITH
+        date AS (
+          SELECT
             response_id, body
           FROM
             survey_response_answers
@@ -373,10 +364,54 @@ encounterRelations.get(
             body IS NOT NULL
           AND
             response.encounter_id = :encounterId
-            ORDER BY body ${order} LIMIT :limit OFFSET :offset) date
+          ORDER BY body ${order} LIMIT :limit OFFSET :offset
+        ),
+        history AS (
+          SELECT
+            vl.answer_id,
+            ARRAY_AGG((
+              JSONB_BUILD_OBJECT(
+                'newValue', vl.new_value,
+                'reasonForChange', vl.reason_for_change,
+                'date', vl.date,
+                'userDisplayName', u.display_name
+              )
+            )) logs
+          FROM
+            survey_response_answers sra
+          INNER JOIN
+            survey_responses sr
+          ON
+            sr.id = sra.response_id
+          LEFT JOIN
+            vital_logs vl
+          ON
+            vl.answer_id = sra.id
+          LEFT JOIN
+            users u
+          ON
+            u.id = vl.recorded_by_id
+          WHERE
+            sr.encounter_id = :encounterId
+          GROUP BY
+            vl.answer_id
+        )
+
+        SELECT
+          JSONB_BUILD_OBJECT(
+            'dataElementId', answer.data_element_id,
+            'records', JSONB_OBJECT_AGG(date.body, JSONB_BUILD_OBJECT('id', answer.id, 'body', answer.body, 'logs', history.logs))
+          ) result
+        FROM
+          survey_response_answers answer
+        INNER JOIN
+          date
         ON date.response_id = answer.response_id
+        LEFT JOIN
+          history
+        ON history.answer_id = answer.id
         GROUP BY answer.data_element_id
-        `,
+      `,
       {
         replacements: {
           encounterId,
@@ -392,6 +427,60 @@ encounterRelations.get(
 
     res.send({
       count: parseInt(count, 10),
+      data,
+    });
+  }),
+);
+
+encounterRelations.get(
+  '/:id/vitals/:dataElementId',
+  asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
+    req.checkPermission('list', 'Vitals');
+    const { id: encounterId, dataElementId } = params;
+    const { startDate, endDate } = query;
+    const { SurveyResponse, SurveyResponseAnswer } = models;
+
+    const dateAnswers = await SurveyResponseAnswer.findAll({
+      include: [
+        {
+          model: SurveyResponse,
+          required: true,
+          as: 'surveyResponse',
+          where: { encounterId },
+        },
+      ],
+      where: {
+        dataElementId: VITALS_DATA_ELEMENT_IDS.dateRecorded,
+        body: { [Op.gte]: startDate, [Op.lte]: endDate },
+      },
+    });
+
+    const responseIds = dateAnswers.map(dateAnswer => dateAnswer.responseId);
+
+    const answers = await SurveyResponseAnswer.findAll({
+      where: {
+        responseId: responseIds,
+        dataElementId,
+        body: { [Op.and]: [{ [Op.ne]: '' }, { [Op.not]: null }] },
+      },
+    });
+
+    const data = answers
+      .map(answer => {
+        const { responseId } = answer;
+        const recordedDateAnswer = dateAnswers.find(
+          dateAnswer => dateAnswer.responseId === responseId,
+        );
+        const recordedDate = recordedDateAnswer.body;
+        return { ...answer.dataValues, recordedDate };
+      })
+      .sort((a, b) => {
+        return a.recordedDate > b.recordedDate ? 1 : -1;
+      });
+
+    res.send({
+      count: data.length,
       data,
     });
   }),

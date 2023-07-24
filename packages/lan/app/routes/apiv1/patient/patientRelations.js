@@ -33,6 +33,7 @@ patientRelations.get(
       startDate: 'start_date',
       endDate: 'end_date',
       facilityName: 'facility_name',
+      locationGroupName: 'location_group_name',
     };
 
     const sortKey = orderBy && ENCOUNTER_SORT_KEYS[orderBy];
@@ -50,13 +51,19 @@ patientRelations.get(
           ${open ? 'AND end_date IS NULL' : ''}
       `,
       `
-        SELECT encounters.*, locations.facility_id AS facility_id, facilities.name AS facility_name
+        SELECT
+          encounters.*,
+          locations.facility_id AS facility_id,
+          facilities.name AS facility_name,
+          location_groups.name AS location_group_name
         FROM
           encounters
           INNER JOIN locations
             ON encounters.location_id = locations.id
           INNER JOIN facilities
             ON locations.facility_id = facilities.id
+          LEFT JOIN location_groups
+            ON location_groups.id = locations.location_group_id
         WHERE
           patient_id = :patientId
           ${open ? 'AND end_date IS NULL' : ''}
@@ -95,12 +102,24 @@ patientRelations.get(
     // Todo: Remove when WAITM-243 is complete
     const passport = await getPatientAdditionalData(models, params.id, 'passport');
     const nationalityId = await getPatientAdditionalData(models, params.id, 'nationalityId');
+    const streetVillage = await getPatientAdditionalData(models, params.id, 'streetVillage');
+    const cityTown = await getPatientAdditionalData(models, params.id, 'cityTown');
+    const countryId = await getPatientAdditionalData(models, params.id, 'countryId');
     const nationality = nationalityId
       ? await models.ReferenceData.findByPk(nationalityId)
       : undefined;
+    const country = countryId ? await models.ReferenceData.findByPk(countryId) : undefined;
 
     const recordData = additionalDataRecord ? additionalDataRecord.toJSON() : {};
-    res.send({ ...recordData, passport, nationality, nationalityId });
+    res.send({
+      ...recordData,
+      passport,
+      nationality,
+      nationalityId,
+      streetVillage,
+      cityTown,
+      country,
+    });
   }),
 );
 
