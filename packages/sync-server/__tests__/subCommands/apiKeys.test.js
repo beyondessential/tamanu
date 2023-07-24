@@ -15,7 +15,7 @@ describe('apiKeys issue', () => {
     const { User } = ctx.store.models;
     const user = await User.create(fake(User));
     const token = await genToken('default', user.email, { expiresIn: '1 day' });
-    expect(verifyToken(token, DEFAULT_JWT_SECRET)).toMatchObject({
+    expect(await verifyToken(token, DEFAULT_JWT_SECRET)).toMatchObject({
       exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
     });
   });

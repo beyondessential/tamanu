@@ -36,7 +36,13 @@ function renderOptions(options) {
     }));
 }
 
-export const ManualLabResultForm = ({ onSubmit, onClose, labTest, isReadOnly }) => {
+export const ManualLabResultForm = ({
+  onSubmit,
+  onClose,
+  labTest,
+  isReadOnly,
+  areLabTestResultsReadOnly,
+}) => {
   const { resultType, options } = labTest.labTestType;
   const component = getComponentForTest(resultType, options);
   const methodSuggester = useSuggester('labTestMethod');
@@ -52,7 +58,7 @@ export const ManualLabResultForm = ({ onSubmit, onClose, labTest, isReadOnly }) 
             required
             component={component}
             options={renderOptions(options)}
-            disabled={isReadOnly}
+            disabled={isReadOnly || areLabTestResultsReadOnly}
           />
           <Field
             label="Completed"
