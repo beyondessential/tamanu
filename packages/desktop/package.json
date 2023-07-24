@@ -77,8 +77,7 @@
     },
     "win": {
       "target": [
-        "nsis",
-        "msi"
+        "nsis"
       ]
     },
     "nsis": {
@@ -92,7 +91,6 @@
     },
     "linux": {
       "target": [
-        "deb",
         "AppImage"
       ],
       "category": "Development"
