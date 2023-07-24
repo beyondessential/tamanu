@@ -13,9 +13,14 @@ export async function up(query) {
         ? getDataFromEntries(Object.entries(value), path)
         : [[path, serverFacilityId, JSON.stringify(value)]];
     });
-  const defaultsFile = await readFile('config/bigdog.json');
-  if (!defaultsFile) {
-    throw new Error('Could not find config/default.json');
+
+  let defaultsFile;
+  try {
+    defaultsFile = await readFile('config/default.json');
+  } catch (e) {
+    throw new Error(
+      `Failed to migrate default settings with error reading config/default.json ${e}`,
+    );
   }
   const defaults = JSON.parse(defaultsFile.toString().replace(REMOVE_COMMENTS_REGEX, '\n'));
   const data = getDataFromEntries(Object.entries(defaults));
