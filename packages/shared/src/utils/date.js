@@ -28,7 +28,7 @@ const getDifferenceFnByUnit = {
 };
 
 export function getAgeDurationFromDate(date) {
-  return intervalToDuration({ start: new Date(date), end: new Date() });
+  return intervalToDuration({ start: parseDate(date), end: new Date() });
 }
 
 const comparators = {
