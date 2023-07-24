@@ -52,11 +52,12 @@ function ageIsWithinRange(birthDate, range) {
   const { min = {}, max = {} } = range;
   const { duration: minDuration, exclusive: minExclusive } = min;
   const { duration: maxDuration, exclusive: maxExclusive } = max;
-  const minDate = addDuration(birthDate, minDuration);
-  const maxDate = addDuration(birthDate, maxDuration);
+  const minDate = minDuration ? addDuration(birthDate, minDuration) : -Infinity;
+  const maxDate = maxDuration ? addDuration(birthDate, maxDuration) : Infinity;
   const now = startOfDay(new Date());
   return (
-    compareDate(minDate, '<', now, minExclusive) && compareDate(now, '<', maxDate, maxExclusive)
+    (!minDate || compareDate(minDate, '<', now, minExclusive)) &&
+    (!maxDate || compareDate(now, '<', maxDate, maxExclusive))
   );
 }
 
