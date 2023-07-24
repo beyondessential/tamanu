@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Chance } from 'chance';
 import { Button } from '../../../components';
-import { useLocalisation } from '../../../contexts/Localisation';
+import { useFeatureFlag } from '../../../contexts/Localisation';
 
 const makeRandomPatient = generateId => {
   const chance = new Chance();
@@ -32,8 +32,7 @@ const RandomButtonStyled = styled(Button)`
 `;
 
 export const RandomPatientButton = ({ generateId, setValues }) => {
-  const { getLocalisation } = useLocalisation();
-  const allowGenerator = getLocalisation('features.quickPatientGenerator');
+  const allowGenerator = useFeatureFlag('quickPatientGenerator');
 
   if (!allowGenerator) {
     return null;

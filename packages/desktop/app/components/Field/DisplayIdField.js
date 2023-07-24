@@ -1,15 +1,16 @@
 import React from 'react';
 import { useFormikContext } from 'formik';
 
-import { useLocalisation } from '../../contexts/Localisation';
+import { useConfig } from '../../contexts/Localisation';
 import { TextField } from './TextField';
 import { LocalisedField } from './LocalisedField';
 
 export const DisplayIdField = ({ name = 'displayId', required }) => {
   const { initialValues } = useFormikContext();
-  const { getLocalisation } = useLocalisation();
-  const longLabel = getLocalisation('fields.displayId.longLabel');
-  const pattern = getLocalisation('fields.displayId.pattern') || null;
+  const [longLabel, pattern = null] = useConfig([
+    'fields.displayId.longLabel',
+    'fields.displayId.pattern',
+  ]);
   const regex = pattern ? new RegExp(pattern) : null;
 
   const validateFn = value => {

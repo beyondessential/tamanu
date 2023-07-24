@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
-import { useLocalisation } from '../../../contexts/Localisation';
+import { useConfig } from '../../../contexts/Localisation';
 import { useElectron } from '../../../contexts/Electron';
 import { SEX_VALUE_INDEX } from '../../../constants';
 import { DateDisplay } from '../../DateDisplay';
@@ -80,8 +80,7 @@ const InfoRow = styled.div`
 `;
 
 const DetailsRow = ({ name, value }) => {
-  const { getLocalisation } = useLocalisation();
-  const label = getLocalisation(`fields.${name}.shortLabel`);
+  const label = useConfig(`fields.${name}.shortLabel`);
   return (
     <InfoRow>
       <DetailsKey>{`${label}: `}</DetailsKey>
@@ -98,8 +97,7 @@ const TopRow = styled.div`
 `;
 
 const DisplayIdRow = ({ name, value }) => {
-  const { getLocalisation } = useLocalisation();
-  const label = getLocalisation(`fields.${name}.shortLabel`);
+  const label = useConfig(`fields.${name}.shortLabel`);
   return (
     <TopRow>
       <DetailsKey>{`${label}: `}</DetailsKey>

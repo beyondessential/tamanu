@@ -18,7 +18,7 @@ import { useCertificate } from '../../utils/useCertificate';
 import { getDepartmentName } from '../../utils/department';
 import { getDisplayAge } from '../../utils/dateTime';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useConfig, useFeatureFlag } from '../../contexts/Localisation';
 import {
   usePatientAdditionalData,
   usePatientConditions,
@@ -114,8 +114,7 @@ const NavContainer = styled.div`
 `;
 
 const DiagnosesList = ({ diagnoses }) => {
-  const { getLocalisation } = useLocalisation();
-  const displayIcd10Codes = getLocalisation('features.displayIcd10CodesInDischargeSummary');
+  const displayIcd10Codes = useFeatureFlag('displayIcd10CodesInDischargeSummary');
 
   return diagnoses.map(item => (
     <li>
@@ -126,8 +125,7 @@ const DiagnosesList = ({ diagnoses }) => {
 };
 
 const ProceduresList = ({ procedures }) => {
-  const { getLocalisation } = useLocalisation();
-  const displayProcedureCodes = getLocalisation('features.displayProcedureCodesInDischargeSummary');
+  const displayProcedureCodes = useFeatureFlag('displayProcedureCodesInDischargeSummary');
 
   return procedures.map(procedure => (
     <li>
@@ -155,10 +153,7 @@ const MedicationsList = ({ medications, discontinued }) => {
 const SummaryPage = React.memo(({ encounter, discharge }) => {
   const { title, subTitle, logo } = useCertificate();
 
-  const { getLocalisation } = useLocalisation();
-  const dischargeDispositionVisible =
-    getLocalisation('fields.dischargeDisposition.hidden') === false;
-
+  const dischargeDispositionVisible = useConfig('fields.dischargeDisposition.hidden') === false;
   const patient = useSelector(state => state.patient);
   const { data: village } = useReferenceData(patient.villageId);
   const { data: patientAdditionalData, isLoading: isPADLoading } = usePatientAdditionalData(

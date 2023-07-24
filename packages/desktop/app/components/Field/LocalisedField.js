@@ -2,7 +2,7 @@ import React from 'react';
 
 import * as yup from 'yup';
 import { Field } from './Field';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useConfig, useLocalisation } from '../../contexts/Localisation';
 
 export const LocalisedField = ({
   name,
@@ -11,15 +11,11 @@ export const LocalisedField = ({
   defaultLabel,
   ...props
 }) => {
-  const { getLocalisation } = useLocalisation();
-  const hidden = getLocalisation(`${path}.hidden`);
-  const label =
-    (useShortLabel
-      ? getLocalisation(`${path}.shortLabel`)
-      : getLocalisation(`${path}.longLabel`)) ||
-    defaultLabel ||
-    path;
-  const required = getLocalisation(`${path}.required`) || false;
+  const [hidden, label = defaultLabel || path, required = false] = useConfig([
+    `${path}.hidden`,
+    useShortLabel ? `${path}.shortLabel` : `${path}.longLabel`,
+    `${path}.required`,
+  ]);
   if (hidden) {
     return null;
   }

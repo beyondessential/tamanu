@@ -9,7 +9,7 @@ import { useIdleTimer } from 'react-idle-timer';
 import Typography from '@material-ui/core/Typography';
 import styled from 'styled-components';
 
-import { useLocalisation } from '../contexts/Localisation';
+import { useFeatureFlag } from '../contexts/Localisation';
 import { useAuth } from '../contexts/Auth';
 import { checkIsLoggedIn } from '../store/auth';
 
@@ -57,11 +57,10 @@ export const UserActivityMonitor = () => {
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const [showWarning, setShowWarning] = useState(false);
   const { onTimeout, refreshToken } = useAuth();
-  const { getLocalisation } = useLocalisation();
 
   // Can't fetch localisation prior to login so add defaults
   const { enabled = false, timeoutDuration = 0, warningPromptDuration = 0, refreshInterval = 0 } =
-    getLocalisation('features.idleTimeout') || {};
+    useFeatureFlag('idleTimeout') || {};
 
   const onIdle = () => {
     // TODO: WAITM-598 Replace this full logout with a login modal

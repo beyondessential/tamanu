@@ -7,7 +7,7 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
 import { NOTE_TYPES } from '@tamanu/shared/constants';
-import { useLocalisation } from '../contexts/Localisation';
+import { useFeatureFlag } from '../contexts/Localisation';
 import { useAuth } from '../contexts/Auth';
 import { foreignKey } from '../utils/validation';
 
@@ -90,7 +90,7 @@ export const NotePageForm = ({
   contentRef,
 }) => {
   const { currentUser } = useAuth();
-  const { getLocalisation } = useLocalisation();
+  const enableNoteBackdating = useFeatureFlag('enableNoteBackdating');
 
   const creatingNewNotePage = isEmpty(notePage);
 
@@ -139,7 +139,7 @@ export const NotePageForm = ({
           label="Date & time"
           component={DateTimeField}
           required
-          disabled={!getLocalisation('features.enableNoteBackdating')}
+          disabled={!enableNoteBackdating}
           saveDateAsString
         />
       </StyledFormGrid>

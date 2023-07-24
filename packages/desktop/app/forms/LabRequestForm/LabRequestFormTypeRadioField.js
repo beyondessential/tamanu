@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
 import { Field, OuterLabelFieldWrapper, RadioField } from '../../components';
 import { useApi } from '../../api';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useFeatureFlag } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
 
 const OPTIONS = {
@@ -53,8 +53,7 @@ const RadioItemSkeleton = ({ itemsLength }) => (
 
 const useLabRequestFormTypeOptions = () => {
   const api = useApi();
-  const { getLocalisation } = useLocalisation();
-  const { onlyAllowLabPanels } = getLocalisation('features') || {};
+  const onlyAllowLabPanels = useFeatureFlag('onlyAllowLabPanels');
 
   const { data, isSuccess, isLoading, isFetching } = useQuery(
     ['suggestions/labTestPanel/all'],

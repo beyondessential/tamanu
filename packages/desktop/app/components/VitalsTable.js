@@ -13,7 +13,7 @@ import { formatShortest, formatTimeWithSeconds } from './DateDisplay';
 import { EditVitalCellModal } from './EditVitalCellModal';
 import { VitalVectorIcon } from './Icons/VitalVectorIcon';
 import { useVitalChartData } from '../contexts/VitalChartData';
-import { useLocalisation } from '../contexts/Localisation';
+import { useFeatureFlag } from '../contexts/Localisation';
 import { getNormalRangeByAge } from '../utils';
 
 const StyledTable = styled(Table)`
@@ -130,8 +130,7 @@ export const VitalsTable = React.memo(() => {
   const { data, recordedDates, error, isLoading } = useVitals(encounter.id);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedCell, setSelectedCell] = useState(null);
-  const { getLocalisation } = useLocalisation();
-  const isVitalEditEnabled = getLocalisation('features.enableVitalEdit');
+  const isVitalEditEnabled = useFeatureFlag('enableVitalEdit');
   const showFooterLegend = data.some(entry =>
     recordedDates.some(date => entry[date].historyLogs.length > 1),
   );

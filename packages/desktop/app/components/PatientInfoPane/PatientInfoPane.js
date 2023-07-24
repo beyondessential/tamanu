@@ -16,7 +16,7 @@ import {
 import { DeathModal } from '../DeathModal';
 import { Colors } from '../../constants';
 import { PatientCarePlanDetails } from './PatientCarePlanNotes';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useFeatureFlag } from '../../contexts/Localisation';
 import {
   CONDITIONS_TITLE,
   ALLERGIES_TITLE,
@@ -144,15 +144,14 @@ export const PatientInfoPane = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
   const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
-  const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
   const api = useApi();
   const { data: deathData, isLoading } = useQuery(['patientDeathSummary', patient.id], () =>
     api.get(`patient/${patient.id}/death`, {}, { isErrorUnknown: isErrorUnknownAllow404s }),
   );
 
+  const patientDeathsEnabled = useFeatureFlag('enablePatientDeaths');
   const readonly = !!patient.death;
-  const patientDeathsEnabled = getLocalisation('features.enablePatientDeaths');
   const showRecordDeathActions = !isLoading && patientDeathsEnabled && !deathData?.isFinal;
   const showCauseOfDeathButton = showRecordDeathActions && Boolean(deathData);
 

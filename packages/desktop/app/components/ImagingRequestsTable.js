@@ -9,7 +9,7 @@ import { PatientNameDisplay } from './PatientNameDisplay';
 import { reloadPatient } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
 import { reloadImagingRequest } from '../store';
-import { useLocalisation } from '../contexts/Localisation';
+import { useConfig } from '../contexts/Localisation';
 import { getImagingRequestType } from '../utils/getImagingRequestType';
 import { TableCellTag } from './Tag';
 import { useImagingRequests } from '../contexts/ImagingRequests';
@@ -36,8 +36,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
   const dispatch = useDispatch();
   const params = useParams();
   const { loadEncounter } = useEncounter();
-  const { getLocalisation } = useLocalisation();
-  const imagingTypes = getLocalisation('imagingTypes') || {};
+  const imagingTypes = useConfig('imagingTypes') || {};
   const { searchParameters } = useImagingRequests(memoryKey);
   const isCompletedTable = memoryKey === IMAGING_TABLE_VERSIONS.COMPLETED.memoryKey;
 

@@ -21,7 +21,7 @@ import {
   socialMediaOptions,
   titleOptions,
 } from '../constants';
-import { useLocalisation } from '../contexts/Localisation';
+import { useFeatureFlag } from '../contexts/Localisation';
 import { useApi, useSuggester, usePatientSuggester } from '../api';
 import { getPatientDetailsValidation } from '../validations';
 import {
@@ -64,9 +64,10 @@ const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
 
 export const PrimaryDetailsGroup = () => {
   const villageSuggester = useSuggester('village');
-  const { getLocalisation } = useLocalisation();
+  const hideOtherSexFeature = useFeatureFlag('hideOtherSex');
+
   let filteredSexOptions = sexOptions;
-  if (getLocalisation('features.hideOtherSex') === true) {
+  if (hideOtherSexFeature === true) {
     filteredSexOptions = filteredSexOptions.filter(s => s.value !== 'other');
   }
 
@@ -96,8 +97,8 @@ export const PrimaryDetailsGroup = () => {
 };
 
 export const SecondaryDetailsGroup = ({ patientRegistryType, values = {}, isEdit = false }) => {
-  const { getLocalisation } = useLocalisation();
-  const canEditDisplayId = isEdit && getLocalisation('features.editDisplayId');
+  const editDisplayIdFeature = useFeatureFlag('editDisplayId');
+  const canEditDisplayId = isEdit && editDisplayIdFeature;
   const countrySuggester = useSuggester('country');
   const divisionSuggester = useSuggester('division');
   const ethnicitySuggester = useSuggester('ethnicity');

@@ -1,11 +1,11 @@
-import { useLocalisation } from '../contexts/Localisation';
+import { useFeatureFlag } from '../contexts/Localisation';
 import { sexOptions } from '../constants';
 
 export const useSexValues = () => {
-  const { getLocalisation } = useLocalisation();
+  const hideOtherSexFeature = useFeatureFlag('hideOtherSex');
   const sexValues = sexOptions.map(o => o.value);
 
-  if (getLocalisation('features.hideOtherSex') === true) {
+  if (hideOtherSexFeature === true) {
     return sexValues.filter(s => s !== 'other');
   }
 
@@ -13,11 +13,9 @@ export const useSexValues = () => {
 };
 
 export const useSexOptions = (includeAll = false) => {
-  const { getLocalisation } = useLocalisation();
+  const hideOtherSexFeature = useFeatureFlag('hideOtherSex');
   const options =
-    getLocalisation('features.hideOtherSex') === true
-      ? sexOptions.filter(s => s.value !== 'other')
-      : sexOptions;
+    hideOtherSexFeature === true ? sexOptions.filter(s => s.value !== 'other') : sexOptions;
 
   return [...(includeAll ? [{ value: '', label: 'All' }] : []), ...options];
 };

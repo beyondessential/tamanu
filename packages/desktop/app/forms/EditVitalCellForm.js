@@ -7,7 +7,7 @@ import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/shared/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { SelectField, Form, Field, OuterLabelFieldWrapper } from '../components/Field';
-import { useLocalisation } from '../contexts/Localisation';
+import { useConfig } from '../contexts/Localisation';
 import { FormGrid } from '../components/FormGrid';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { SurveyQuestion } from '../components/Surveys';
@@ -84,9 +84,10 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
   const api = useApi();
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
-  const { getLocalisation } = useLocalisation();
-  const vitalEditReasons = getLocalisation('vitalEditReasons') || [];
-  const mandatoryVitalEditReason = getLocalisation('features.mandatoryVitalEditReason');
+  const [vitalEditReasons = [], mandatoryVitalEditReason] = useConfig([
+    'vitalEditReasons',
+    'features.mandatoryVitalEditReason',
+  ]);
   const initialValue = dataPoint.value;
   const showDeleteEntryButton = ['', undefined].includes(initialValue) === false;
   const valueName = dataPoint.component.dataElement.id;

@@ -9,7 +9,7 @@ import {
 import { AutocompleteInput } from './AutocompleteField';
 import { useApi, useSuggester } from '../../api';
 import { Suggester } from '../../utils/suggester';
-import { useLocalisation } from '../../contexts/Localisation';
+import { useConfig } from '../../contexts/Localisation';
 import { BodyText } from '../Typography';
 import { useAuth } from '../../contexts/Auth';
 
@@ -156,14 +156,12 @@ export const LocationField = React.memo(({ field, error, ...props }) => (
 
 export const LocalisedLocationField = React.memo(
   ({ defaultGroupLabel = 'Area', defaultLabel = 'Location', ...props }) => {
-    const { getLocalisation } = useLocalisation();
-
     const locationGroupIdPath = 'fields.locationGroupId';
-    const locationGroupLabel =
-      getLocalisation(`${locationGroupIdPath}.longLabel`) || defaultGroupLabel;
-
     const locationIdPath = 'fields.locationId';
-    const locationLabel = getLocalisation(`${locationIdPath}.longLabel`) || defaultLabel;
+    const [locationGroupLabel = defaultGroupLabel, locationLabel = defaultLabel] = useConfig([
+      `${locationGroupIdPath}.longLabel`,
+      `${locationIdPath}.longLabel`,
+    ]);
 
     return (
       <LocationField label={locationLabel} locationGroupLabel={locationGroupLabel} {...props} />
