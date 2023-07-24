@@ -17,7 +17,7 @@ services:
   db:
     build:
       context: .
-      dockerfile: packages/shared-src/docker/postgres/Dockerfile
+      dockerfile: packages/shared/docker/postgres/Dockerfile
     volumes:
       - ./docker-volumes/db:/var/lib/postgresql/data
     environment:

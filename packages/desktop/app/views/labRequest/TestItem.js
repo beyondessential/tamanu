@@ -34,14 +34,14 @@ const StyledFormControlLabel = styled(FormControlLabel)`
 `;
 
 const LabelText = styled.span`
-  font-size: 15px;
+  font-size: 14px;
   line-height: 18px;
   flex: 1;
   color: ${Colors.darkestText};
 `;
 
 const CategoryText = styled.span`
-  font-size: 15px;
+  font-size: 14px;
   line-height: 18px;
   color: ${Colors.softText};
 `;

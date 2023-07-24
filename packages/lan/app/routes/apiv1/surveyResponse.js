@@ -92,7 +92,8 @@ surveyResponse.post(
 
     // Responses for the vitals survey will check against 'Vitals' create permissions
     // All others witll check against 'SurveyResponse' create permissions
-    req.checkPermission('create', await models.Survey.getResponsePermissionCheck(body.surveyId));
+    const noun = await models.Survey.getResponsePermissionCheck(body.surveyId);
+    req.checkPermission('create', noun);
 
     const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type);
     const updatedBody = {

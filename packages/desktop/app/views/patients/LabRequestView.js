@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 import { Timelapse, Business, AssignmentLate } from '@material-ui/icons';
-import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/shared/constants';
 import { useAuth } from '../../contexts/Auth';
 import BeakerIcon from '../../assets/images/beaker.svg';
 import TestCategoryIcon from '../../assets/images/testCategory.svg';
@@ -17,7 +17,6 @@ import {
   DateDisplay,
   OutlinedButton,
   TileTag,
-  SmallBodyText,
   MODAL_TRANSITION_DURATION,
 } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -33,13 +32,22 @@ import { LabRequestChangePriorityModal } from './components/LabRequestChangePrio
 import { LabRequestRecordSampleModal } from './components/LabRequestRecordSampleModal';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
+import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
+import { Colors } from '../../constants';
 
 const Container = styled.div`
   padding: 12px 30px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 58px);
 `;
 
 const Rule = styled(Divider)`
   margin: 0 0 20px 0;
+`;
+
+const FixedTileRow = styled(TileContainer)`
+  flex-shrink: 0;
 `;
 
 const HIDDEN_STATUSES = [
@@ -52,6 +60,7 @@ const MODAL_IDS = {
   CHANGE_STATUS: 'changeStatus',
   VIEW_STATUS_LOG: 'viewStatusLog',
   RECORD_SAMPLE: 'recordSample',
+  SAMPLE_DETAILS: 'sampleDetails',
   PRINT: 'print',
   LABEL_PRINT: 'labelPrint',
   CHANGE_LABORATORY: 'changeLaboratory',
@@ -63,6 +72,7 @@ const MODALS = {
   [MODAL_IDS.CHANGE_STATUS]: LabRequestChangeStatusModal,
   [MODAL_IDS.VIEW_STATUS_LOG]: LabRequestLogModal,
   [MODAL_IDS.RECORD_SAMPLE]: LabRequestRecordSampleModal,
+  [MODAL_IDS.SAMPLE_DETAILS]: LabRequestSampleDetailsModal,
   [MODAL_IDS.PRINT]: LabRequestPrintModal,
   [MODAL_IDS.LABEL_PRINT]: ({ labRequest, ...props }) => (
     <LabRequestPrintLabelModal {...props} labRequests={[labRequest]} />
@@ -122,16 +132,27 @@ export const LabRequestView = () => {
 
   if (isLoading) return <LoadingIndicator />;
 
-  const canWriteLabRequest = ability.can('write', 'LabRequest');
-  const canWriteLabTest = ability.can('write', 'LabTest');
+  const canWriteLabRequest = ability?.can('write', 'LabRequest');
+  const canWriteLabRequestStatus = ability?.can('write', 'LabRequestStatus');
+
+  const canWriteLabTest = ability?.can('write', 'LabTest');
+  const canWriteLabTestResult = ability?.can('write', 'LabTestResult');
 
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
   const areLabTestsReadOnly = !canWriteLabTest || isHidden;
+  const areLabTestResultsReadOnly = !canWriteLabTestResult;
   // If the value of status is enteredInError or deleted, it should display to the user as Cancelled
   const displayStatus = areLabRequestsReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
 
   const ActiveModal = MODALS[modalId] || null;
+  const actions =
+    labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
+      ? { 'Record sample': () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE) }
+      : {
+          Edit: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+          'View Details': () => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS),
+        };
 
   return (
     <Container>
@@ -154,7 +175,7 @@ export const LabRequestView = () => {
         }
       />
       <LabRequestNoteForm labRequestId={labRequest.id} isReadOnly={areLabRequestsReadOnly} />
-      <TileContainer>
+      <FixedTileRow>
         <Tile
           Icon={() => <img src={TestCategoryIcon} alt="test category" />}
           text="Test Category"
@@ -169,11 +190,12 @@ export const LabRequestView = () => {
             </TileTag>
           }
           actions={{
-            ...(!areLabRequestsReadOnly && {
-              'Change status': () => {
-                handleChangeModalId(MODAL_IDS.CHANGE_STATUS);
-              },
-            }),
+            ...(!areLabRequestsReadOnly &&
+              canWriteLabRequestStatus && {
+                'Change status': () => {
+                  handleChangeModalId(MODAL_IDS.CHANGE_STATUS);
+                },
+              }),
             'View status log': () => {
               handleChangeModalId(MODAL_IDS.VIEW_STATUS_LOG);
             },
@@ -185,22 +207,14 @@ export const LabRequestView = () => {
           isReadOnly={areLabRequestsReadOnly}
           main={
             <>
-              <DateDisplay date={labRequest.sampleTime} showTime />
-              <Box display="flex" alignItem="center">
-                <SmallBodyText style={{ marginRight: 3 }} color="textTertiary">
-                  Site:
-                </SmallBodyText>
-                <SmallBodyText>{labRequest?.site?.name || '-'}</SmallBodyText>
-              </Box>
+              <DateDisplay
+                color={labRequest.sampleTime ? 'unset' : Colors.softText}
+                date={labRequest.sampleTime}
+                showTime
+              />
             </>
           }
-          actions={{
-            [labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
-              ? 'Record sample'
-              : 'Edit']: () => {
-              handleChangeModalId(MODAL_IDS.RECORD_SAMPLE);
-            },
-          }}
+          actions={actions}
         />
         <Tile
           Icon={Business}
@@ -224,13 +238,14 @@ export const LabRequestView = () => {
             },
           }}
         />
-      </TileContainer>
+      </FixedTileRow>
       <Rule />
 
       <LabRequestResultsTable
         labRequest={labRequest}
         patient={patient}
         isReadOnly={areLabTestsReadOnly}
+        areLabTestResultsReadOnly={areLabTestResultsReadOnly}
       />
       {modalId && (
         <ActiveModal

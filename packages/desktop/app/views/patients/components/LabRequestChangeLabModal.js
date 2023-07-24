@@ -6,9 +6,9 @@ import {
   Form,
   Field,
   AutocompleteField,
-  ConfirmCancelRow,
   FormGrid,
   Modal,
+  ModalActionRow,
 } from '../../../components';
 
 const validationSchema = yup.object().shape({
@@ -16,7 +16,7 @@ const validationSchema = yup.object().shape({
 });
 
 export const LabRequestChangeLabModal = React.memo(
-  ({ laboratory, updateLabReq, open, onClose }) => {
+  ({ labRequest, updateLabReq, open, onClose }) => {
     const laboratorySuggester = useSuggester('labTestLaboratory');
 
     const updateLab = async ({ labTestLaboratoryId }) => {
@@ -32,7 +32,7 @@ export const LabRequestChangeLabModal = React.memo(
           onSubmit={updateLab}
           validationSchema={validationSchema}
           initialValues={{
-            labTestLaboratoryId: laboratory?.id,
+            labTestLaboratoryId: labRequest?.labTestLaboratoryId,
           }}
           render={({ submitForm }) => (
             <FormGrid columns={1}>
@@ -43,7 +43,7 @@ export const LabRequestChangeLabModal = React.memo(
                 suggester={laboratorySuggester}
                 required
               />
-              <ConfirmCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onClose} />
+              <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onClose} />
             </FormGrid>
           )}
         />

@@ -2,8 +2,8 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import { Box } from '@material-ui/core';
-import { VITALS_DATA_ELEMENT_IDS } from 'shared/constants';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/shared/constants';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { ModalLoader, ConfirmCancelRow, Form } from '../components';
 import { SurveyScreen } from '../components/Surveys';
 import { useVitalsSurvey } from '../api/queries';
@@ -71,7 +71,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
       }}
       render={({ submitForm, values, setFieldValue }) => (
         <SurveyScreen
-          components={vitalsSurvey.components}
+          allComponents={vitalsSurvey.components}
           patient={patient}
           cols={2}
           values={values}

@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 
-import { VACCINATION_CERTIFICATE } from 'shared/constants';
-import { VaccineCertificate } from 'shared/utils/patientCertificates';
-import { getCurrentDateString } from 'shared/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
+import { VACCINATION_CERTIFICATE } from '@tamanu/shared/constants';
+import { VaccineCertificate } from '@tamanu/shared/utils/patientCertificates';
 
 import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
