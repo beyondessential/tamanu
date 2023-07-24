@@ -193,6 +193,7 @@ describe('Programs import', () => {
         'sheetName: Vitals, code: \'PatientVitalsDBP\', normalRange must be within graphRange, got normalRange: {"min":60,"max":250}, graphRange: {"min":40,"max":240}}',
         "sheetName: Vitals, code: 'PatientVitalsHeartRate', validationCriteria must be specified if visualisationConfig is presented",
         "sheetName: Vitals, code: 'PatientVitalsRespiratoryRate', validationCriteria must have normalRange",
+        'sheetName: Vitals, code: \'PatientVitalsTemperature\', normalRange must be within graphRange, got normalRange: {"min":120,"max":185,"ageUnit":"months","ageMin":0,"ageMax":3}, graphRange: {"min":33.5,"max":41.5}}', // Validate array type normalRange
       ];
 
       errors.forEach((error, i) => {
@@ -202,7 +203,7 @@ describe('Programs import', () => {
       expect(stats).toMatchObject({
         Program: { created: 1, updated: 0, errored: 0 },
         Survey: { created: 1, updated: 0, errored: 0 },
-        ProgramDataElement: { created: 16, updated: 0, errored: 4 },
+        ProgramDataElement: { created: 16, updated: 0, errored: errorMessages.length },
         SurveyScreenComponent: { created: 16, updated: 0, errored: 0 },
       });
     });
