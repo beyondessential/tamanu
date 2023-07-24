@@ -4,33 +4,38 @@ import { isObject } from 'lodash';
 
 const REMOVE_COMMENTS_REGEX = /[^:]\/\/.*/g;
 
-export async function up(query) {
-  const { serverFacilityId } = config;
-  const getDataFromEntries = (entries, prefix = '') =>
-    entries.flatMap(([key, value]) => {
-      const path = `${prefix}${!isNaN(Number(key)) ? `[${key}]` : `${prefix && '.'}${key}`}`;
-      const stringifiedValue = JSON.stringify(value);
-      return isObject(value)
-        ? getDataFromEntries(Object.entries(value), path)
-        : [
-            [
-              path,
-              stringifiedValue,
-              stringifiedValue,
-              ...(serverFacilityId ? [serverFacilityId] : []),
-            ],
-          ];
-    });
-
-  let defaultsFile;
+const getDefaultConfig = async () => {
   try {
-    defaultsFile = await readFile('config/default.json');
+    return await readFile('config/default.json');
   } catch (e) {
     throw new Error(
       `Failed to migrate default settings with error reading config/default.json ${e}`,
     );
   }
+};
 
+const getDataFromEntries = (entries, prefix = '') => {
+  const { serverFacilityId } = config;
+  return entries.flatMap(([key, value]) => {
+    const path = `${prefix}${!isNaN(Number(key)) ? `[${key}]` : `${prefix && '.'}${key}`}`;
+    const stringifiedValue = JSON.stringify(value);
+    return isObject(value)
+      ? getDataFromEntries(Object.entries(value), path)
+      : [
+          [
+            path,
+            stringifiedValue,
+            stringifiedValue,
+            ...(serverFacilityId ? [serverFacilityId] : []),
+          ],
+        ];
+  });
+};
+
+export async function up(query) {
+  const { serverFacilityId } = config;
+
+  const defaultsFile = await getDefaultConfig();
   const defaults = JSON.parse(defaultsFile.toString().replace(REMOVE_COMMENTS_REGEX, ''));
   const data = getDataFromEntries(Object.entries(defaults));
 
@@ -65,7 +70,22 @@ export async function up(query) {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
 export async function down(query) {
-  // No down migration
+  const { serverFacilityId } = config;
+  const defaultsFile = await getDefaultConfig();
+  const defaults = JSON.parse(defaultsFile.toString().replace(REMOVE_COMMENTS_REGEX, ''));
+  const data = getDataFromEntries(Object.entries(defaults));
+  await query.sequelize.query(
+    `
+      DELETE FROM settings
+      WHERE key IN (:keys) AND value = default_value and facility_id = :serverFacilityId
+    `,
+    {
+      replacements: {
+        keys: data.map(([key]) => key),
+        serverFacilityId: serverFacilityId || null,
+      },
+      type: query.sequelize.QueryTypes.DELETE,
+    },
+  );
 }
