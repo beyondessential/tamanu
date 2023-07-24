@@ -2,7 +2,7 @@ import { readFile } from 'fs/promises';
 import config from 'config';
 import { isObject } from 'lodash';
 
-const REMOVE_COMMENTS_REGEX = /(\/\/(?!(.*)"\s*,).*\n)+/g;
+const REMOVE_COMMENTS_REGEX = /((?<!:)\/\/(.*)\n)+/g;
 
 export async function up(query) {
   const { serverFacilityId } = config;
@@ -11,7 +11,7 @@ export async function up(query) {
       const path = `${prefix}${!isNaN(Number(key)) ? `[${key}]` : `${prefix && '.'}${key}`}`;
       return isObject(value)
         ? getDataFromEntries(Object.entries(value), path)
-        : [[path, serverFacilityId, JSON.stringify(value)]];
+        : [[path, JSON.stringify(value), ...(serverFacilityId ? [serverFacilityId] : [])]];
     });
 
   let defaultsFile;
@@ -22,6 +22,7 @@ export async function up(query) {
       `Failed to migrate default settings with error reading config/default.json ${e}`,
     );
   }
+
   const defaults = JSON.parse(defaultsFile.toString().replace(REMOVE_COMMENTS_REGEX, '\n'));
   const data = getDataFromEntries(Object.entries(defaults));
 
@@ -30,7 +31,7 @@ export async function up(query) {
   if (serverFacilityId) {
     await query.sequelize.query(
       `
-        INSERT INTO settings (key, facility_id, default_value)
+        INSERT INTO settings (key, default_value, facility_id)
         VALUES ${data.map(() => '(?)').join(', ')}
         ON CONFLICT (key, facility_id) WHERE key IS NOT NULL AND facility_id IS NOT NULL AND deleted_at IS NULL
         DO UPDATE SET default_value = EXCLUDED.default_value;
@@ -45,7 +46,7 @@ export async function up(query) {
       `
         INSERT INTO settings (key, default_value)
         VALUES ${data.map(() => '(?)').join(', ')}
-        ON CONFLICT (key) WHERE key IS NOT NULL AND deleted_at IS NULL
+        ON CONFLICT (key) WHERE key IS NOT NULL AND facility_id IS NULL AND deleted_at IS NULL
         DO UPDATE SET default_value = EXCLUDED.default_value;
       `,
       {
