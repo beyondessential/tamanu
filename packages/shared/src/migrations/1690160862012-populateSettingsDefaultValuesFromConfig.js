@@ -21,14 +21,7 @@ const getDataFromEntries = (entries, prefix = '') => {
     const stringifiedValue = JSON.stringify(value);
     return isObject(value)
       ? getDataFromEntries(Object.entries(value), path)
-      : [
-          [
-            path,
-            stringifiedValue,
-            stringifiedValue,
-            ...(serverFacilityId ? [serverFacilityId] : []),
-          ],
-        ];
+      : [[path, stringifiedValue, ...(serverFacilityId ? [serverFacilityId] : [])]];
   });
 };
 
@@ -44,7 +37,7 @@ export async function up(query) {
   if (serverFacilityId) {
     await query.sequelize.query(
       `
-        INSERT INTO settings (key, default_value, value, facility_id)
+        INSERT INTO settings (key, default_value, facility_id)
         VALUES ${data.map(() => '(?)').join(', ')}
         ON CONFLICT (key, facility_id) WHERE key IS NOT NULL AND facility_id IS NOT NULL AND deleted_at IS NULL
         DO UPDATE SET default_value = EXCLUDED.default_value;
@@ -57,7 +50,7 @@ export async function up(query) {
   } else {
     await query.sequelize.query(
       `
-        INSERT INTO settings (key, default_value, value)
+        INSERT INTO settings (key, default_value)
         VALUES ${data.map(() => '(?)').join(', ')}
         ON CONFLICT (key) WHERE key IS NOT NULL AND facility_id IS NULL AND deleted_at IS NULL
         DO UPDATE SET default_value = EXCLUDED.default_value;
@@ -71,19 +64,17 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  const { serverFacilityId } = config;
   const defaultsFile = await getDefaultConfig();
   const defaults = JSON.parse(defaultsFile.toString().replace(REMOVE_COMMENTS_REGEX, ''));
   const data = getDataFromEntries(Object.entries(defaults));
   await query.sequelize.query(
     `
       DELETE FROM settings
-      WHERE key IN (:keys) AND value = default_value and facility_id = :serverFacilityId
+      WHERE key IN (:keys) AND value IS NULL AND default_value IS NOT NULL
     `,
     {
       replacements: {
         keys: data.map(([key]) => key),
-        serverFacilityId: serverFacilityId || null,
       },
       type: query.sequelize.QueryTypes.DELETE,
     },
