@@ -121,6 +121,9 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
     placeholderUser: PLACEHOLDER_USER_ID,
   };
 
+  const getDateSubtractedFromNow = daysToSubtract =>
+    toDateTimeString(sub(new Date(), { days: daysToSubtract }));
+
   const createEncounter = async (encounterPatient, overrides = {}) => {
     const encounter = await models.Encounter.create({
       ...(await createDummyEncounter(models)),
@@ -238,6 +241,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: oldLocation.id,
         examinerId: clinician.id,
         encounterType: 'admission',
+        startDate: getDateSubtractedFromNow(6),
       });
       await addLocationChangeNote(
         models,
@@ -285,6 +289,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: location.id,
         examinerId: clinician.id,
         encounterType: 'admission',
+        startDate: getDateSubtractedFromNow(6),
       });
       await addDepartmentChangeNote(
         models,
@@ -332,6 +337,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: location.id,
         examinerId: oldClinician.id,
         encounterType: 'admission',
+        startDate: getDateSubtractedFromNow(6),
       });
       await updateClinician(
         models,
@@ -378,6 +384,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: location.id,
         examinerId: clinician.id,
         encounterType: 'admission',
+        startDate: getDateSubtractedFromNow(6),
       });
       await onEncounterProgression(
         models,
@@ -436,6 +443,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: oldLocation.id,
         examinerId: oldUser.id,
         encounterType: oldEncounterType,
+        startDate: getDateSubtractedFromNow(8),
       });
 
       // Change location
@@ -444,7 +452,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         oldLocation.id,
         newLocation.id,
-        toDateTimeString(sub(new Date(), { days: 6 })),
+        getDateSubtractedFromNow(6),
       );
       encounter.locationId = newLocation.id;
       await encounter.save();
@@ -455,7 +463,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         oldDepartment.id,
         newDepartment.id,
-        toDateTimeString(sub(new Date(), { days: 5 })),
+        getDateSubtractedFromNow(5),
       );
       encounter.departmentId = newDepartment.id;
       await encounter.save();
@@ -466,7 +474,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         oldUser.id,
         newUser.id,
-        toDateTimeString(sub(new Date(), { days: 4 })),
+        getDateSubtractedFromNow(4),
       );
       encounter.examinerId = newUser.id;
       await encounter.save();
@@ -477,7 +485,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         oldEncounterType,
         newEncounterType,
-        toDateTimeString(sub(new Date(), { days: 3 })),
+        getDateSubtractedFromNow(3),
       );
       encounter.encounterType = newEncounterType;
       await encounter.save();
@@ -552,6 +560,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: location1.id,
         examinerId: clinician.id,
         encounterType,
+        startDate: getDateSubtractedFromNow(8),
       });
 
       // Change location 1
@@ -560,7 +569,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         location1.id,
         location2.id,
-        toDateTimeString(sub(new Date(), { days: 6 })),
+        getDateSubtractedFromNow(6),
       );
       encounter.locationId = location2.id;
       await encounter.save();
@@ -571,7 +580,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         location2.id,
         location3.id,
-        toDateTimeString(sub(new Date(), { days: 5 })),
+        getDateSubtractedFromNow(5),
       );
       encounter.locationId = location3.id;
       await encounter.save();
@@ -582,7 +591,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         location3.id,
         location4.id,
-        toDateTimeString(sub(new Date(), { days: 4 })),
+        getDateSubtractedFromNow(4),
       );
       encounter.locationId = location4.id;
       await encounter.save();
@@ -647,6 +656,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: location.id,
         examinerId: clinician.id,
         encounterType,
+        startDate: getDateSubtractedFromNow(8),
       });
 
       // Change department 1
@@ -655,7 +665,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         department1.id,
         department2.id,
-        toDateTimeString(sub(new Date(), { days: 6 })),
+        getDateSubtractedFromNow(6),
       );
       encounter.departmentId = department2.id;
       await encounter.save();
@@ -666,7 +676,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         department2.id,
         department3.id,
-        toDateTimeString(sub(new Date(), { days: 5 })),
+        getDateSubtractedFromNow(5),
       );
       encounter.departmentId = department3.id;
       await encounter.save();
@@ -677,7 +687,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         department3.id,
         department4.id,
-        toDateTimeString(sub(new Date(), { days: 4 })),
+        getDateSubtractedFromNow(4),
       );
       encounter.departmentId = department4.id;
       await encounter.save();
@@ -742,6 +752,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: location.id,
         examinerId: clinician1.id,
         encounterType,
+        startDate: getDateSubtractedFromNow(8),
       });
 
       // Change clinician 1
@@ -750,7 +761,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         clinician1.id,
         clinician2.id,
-        toDateTimeString(sub(new Date(), { days: 6 })),
+        getDateSubtractedFromNow(6),
       );
       encounter.examinerId = clinician2.id;
       await encounter.save();
@@ -761,7 +772,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         clinician2.id,
         clinician3.id,
-        toDateTimeString(sub(new Date(), { days: 5 })),
+        getDateSubtractedFromNow(5),
       );
       encounter.examinerId = clinician3.id;
       await encounter.save();
@@ -772,7 +783,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         clinician3.id,
         clinician4.id,
-        toDateTimeString(sub(new Date(), { days: 4 })),
+        getDateSubtractedFromNow(4),
       );
       encounter.examinerId = clinician4.id;
       await encounter.save();
@@ -837,6 +848,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: location.id,
         examinerId: clinician.id,
         encounterType: encounterType1,
+        startDate: getDateSubtractedFromNow(8),
       });
 
       // Change encounter type 1
@@ -845,7 +857,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         encounterType1,
         encounterType2,
-        toDateTimeString(sub(new Date(), { days: 6 })),
+        getDateSubtractedFromNow(6),
       );
       encounter.encounterType = encounterType2;
       await encounter.save();
@@ -856,7 +868,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         encounterType2,
         encounterType3,
-        toDateTimeString(sub(new Date(), { days: 5 })),
+        getDateSubtractedFromNow(5),
       );
       encounter.encounterType = encounterType3;
       await encounter.save();
@@ -867,7 +879,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         encounterType3,
         encounterType4,
-        toDateTimeString(sub(new Date(), { days: 4 })),
+        getDateSubtractedFromNow(4),
       );
       encounter.encounterType = encounterType4;
       await encounter.save();
@@ -940,6 +952,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: location1.id,
         examinerId: clinician1.id,
         encounterType: encounterType1,
+        startDate: getDateSubtractedFromNow(14),
       });
 
       await addLocationChangeNote(
@@ -947,7 +960,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         location1.id,
         location2.id,
-        toDateTimeString(sub(new Date(), { days: 13 })),
+        getDateSubtractedFromNow(13),
       );
       encounter.locationId = location2.id;
       await encounter.save();
@@ -957,7 +970,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         encounterType1,
         encounterType2,
-        toDateTimeString(sub(new Date(), { days: 12 })),
+        getDateSubtractedFromNow(12),
       );
       encounter.encounterType = encounterType2;
       await encounter.save();
@@ -967,7 +980,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         encounterType2,
         encounterType3,
-        toDateTimeString(sub(new Date(), { days: 11 })),
+        getDateSubtractedFromNow(11),
       );
       encounter.encounterType = encounterType3;
       await encounter.save();
@@ -977,7 +990,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         location2.id,
         location3.id,
-        toDateTimeString(sub(new Date(), { days: 10 })),
+        getDateSubtractedFromNow(10),
       );
       encounter.locationId = location3.id;
       await encounter.save();
@@ -987,7 +1000,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         department1.id,
         department2.id,
-        toDateTimeString(sub(new Date(), { days: 9 })),
+        getDateSubtractedFromNow(9),
       );
       encounter.departmentId = department2.id;
       await encounter.save();
@@ -997,7 +1010,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         department2.id,
         department3.id,
-        toDateTimeString(sub(new Date(), { days: 8 })),
+        getDateSubtractedFromNow(8),
       );
       encounter.departmentId = department3.id;
       await encounter.save();
@@ -1007,7 +1020,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         clinician1.id,
         clinician2.id,
-        toDateTimeString(sub(new Date(), { days: 7 })),
+        getDateSubtractedFromNow(7),
       );
       encounter.examinerId = clinician2.id;
       await encounter.save();
@@ -1017,7 +1030,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         encounterType3,
         encounterType4,
-        toDateTimeString(sub(new Date(), { days: 6 })),
+        getDateSubtractedFromNow(6),
       );
       encounter.encounterType = encounterType4;
       await encounter.save();
@@ -1127,7 +1140,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: location1.id,
         examinerId: clinician.id,
         encounterType,
-        startDate: toDateTimeString(sub(new Date(), { days: 6 })),
+        startDate: getDateSubtractedFromNow(6),
       });
 
       // Change location
@@ -1136,7 +1149,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         location1.id,
         location2.id,
-        toDateTimeString(sub(new Date(), { days: 3 })),
+        getDateSubtractedFromNow(3),
       );
       encounter.locationId = location2.id;
       await encounter.save();
@@ -1191,7 +1204,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: location1.id,
         examinerId: clinician.id,
         encounterType,
-        startDate: toDateTimeString(sub(new Date(), { days: 6 })),
+        startDate: getDateSubtractedFromNow(6),
       });
 
       // Change location
@@ -1200,7 +1213,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         location1.id,
         location2.id,
-        toDateTimeString(sub(new Date(), { days: 3 })),
+        getDateSubtractedFromNow(3),
       );
       encounter.locationId = location2.id;
       await encounter.save();
@@ -1211,7 +1224,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         location2.id,
         location3.id,
-        toDateTimeString(sub(new Date(), { days: 1 })),
+        getDateSubtractedFromNow(1),
       );
       encounter.locationId = location3.id;
       await encounter.save();
@@ -1275,7 +1288,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: location.id,
         examinerId: clinician.id,
         encounterType,
-        startDate: toDateTimeString(sub(new Date(), { days: 6 })),
+        startDate: getDateSubtractedFromNow(6),
       });
 
       // Change department 1
@@ -1284,7 +1297,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         department1.id,
         department2.id,
-        toDateTimeString(sub(new Date(), { days: 4 })),
+        getDateSubtractedFromNow(4),
       );
       encounter.departmentId = department2.id;
       await encounter.save();
@@ -1295,7 +1308,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         department2.id,
         department3.id,
-        toDateTimeString(sub(new Date(), { days: 2 })),
+        getDateSubtractedFromNow(2),
       );
       encounter.departmentId = department3.id;
       await encounter.save();
@@ -1351,7 +1364,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: location.id,
         examinerId: clinician1.id,
         encounterType,
-        startDate: toDateTimeString(sub(new Date(), { days: 6 })),
+        startDate: getDateSubtractedFromNow(6),
       });
 
       // Change clinician 1
@@ -1360,7 +1373,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         clinician1.id,
         clinician2.id,
-        toDateTimeString(sub(new Date(), { days: 4 })),
+        getDateSubtractedFromNow(4),
       );
       encounter.examinerId = clinician2.id;
       await encounter.save();
@@ -1371,7 +1384,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         clinician2.id,
         clinician3.id,
-        toDateTimeString(sub(new Date(), { days: 2 })),
+        getDateSubtractedFromNow(2),
       );
       encounter.examinerId = clinician3.id;
       await encounter.save();
@@ -1428,7 +1441,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: location.id,
         examinerId: clinician1.id,
         encounterType,
-        startDate: toDateTimeString(sub(new Date(), { days: 6 })),
+        startDate: getDateSubtractedFromNow(6),
       });
 
       // Change clinician 1
@@ -1437,7 +1450,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.id,
         clinician1.id,
         clinician2.id,
-        toDateTimeString(sub(new Date(), { days: 4 })),
+        getDateSubtractedFromNow(4),
       );
       encounter.examinerId = clinician2.id;
       await encounter.save();
@@ -1501,7 +1514,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: location1.id,
         examinerId: clinician1.id,
         encounterType,
-        startDate: toDateTimeString(sub(new Date(), { days: 6 })),
+        startDate: getDateSubtractedFromNow(6),
       });
 
       const encounter2 = await createEncounter(patient, {
@@ -1509,7 +1522,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: location2.id,
         examinerId: clinician2.id,
         encounterType,
-        startDate: toDateTimeString(sub(new Date(), { days: 4 })),
+        startDate: getDateSubtractedFromNow(4),
       });
 
       const encounter3 = await createEncounter(patient, {
@@ -1517,7 +1530,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: location3.id,
         examinerId: clinician3.id,
         encounterType,
-        startDate: toDateTimeString(sub(new Date(), { days: 2 })),
+        startDate: getDateSubtractedFromNow(2),
       });
 
       // Migration
@@ -1580,7 +1593,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: location1.id,
         examinerId: clinician1.id,
         encounterType,
-        startDate: toDateTimeString(sub(new Date(), { days: 6 })),
+        startDate: getDateSubtractedFromNow(6),
       });
 
       const encounter2 = await createEncounter(patient, {
@@ -1588,7 +1601,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: location2.id,
         examinerId: clinician2.id,
         encounterType,
-        startDate: toDateTimeString(sub(new Date(), { days: 4 })),
+        startDate: getDateSubtractedFromNow(4),
       });
 
       const encounter3 = await createEncounter(patient, {
@@ -1596,7 +1609,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: location3.id,
         examinerId: clinician3.id,
         encounterType,
-        startDate: toDateTimeString(sub(new Date(), { days: 2 })),
+        startDate: getDateSubtractedFromNow(2),
       });
 
       // Migration 1
