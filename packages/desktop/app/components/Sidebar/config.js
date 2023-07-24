@@ -196,4 +196,10 @@ export const SYNC_MENU_ITEMS = [
     label: 'Sync status',
     path: '/admin/sync',
   },
+  {
+    key: 'settings',
+    label: 'Settings',
+    path: '/admin/settings',
+    ability: { action: 'read', subject: 'settings' },
+  },
 ];
