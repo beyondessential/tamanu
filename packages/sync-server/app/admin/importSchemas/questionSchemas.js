@@ -102,5 +102,5 @@ export const SSCCalculatedQuestion = SurveyScreenComponent.shape({
 export const SSCResult = SurveyScreenComponent.shape({
   config: configString(numberConfig),
   validationCriteria: validationString(numberValidationCriteria),
-  calculation: mathjsString().required(),
+  calculation: mathjsString(),
 });
