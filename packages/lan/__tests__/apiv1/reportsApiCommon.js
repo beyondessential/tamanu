@@ -1,23 +1,15 @@
-import { fake } from 'shared/test-helpers';
+import { fake, disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { REPORT_STATUSES, REPORT_DEFAULT_DATE_RANGES } from 'shared/constants';
-import {
-  setHardcodedPermissionsUseForTestsOnly,
-  unsetUseHardcodedPermissionsUseForTestsOnly,
-} from 'shared/permissions/rolesToPermissions';
 
 export function testReportPermissions(getCtx, makeRequest) {
   let ctx;
   let baseApp;
 
   beforeAll(async () => {
-    setHardcodedPermissionsUseForTestsOnly(false);
     ctx = getCtx();
     baseApp = ctx.baseApp;
   });
-
-  afterAll(() => {
-    unsetUseHardcodedPermissionsUseForTestsOnly();
-  });
+  disableHardcodedPermissionsForSuite();
 
   describe('db reports', () => {
     let app;
@@ -63,7 +55,7 @@ export function testReportPermissions(getCtx, makeRequest) {
     beforeAll(async () => {
       app = await baseApp.asNewRole([
         ['run', 'StaticReport', 'admissions'],
-        ['read', 'Referral'],
+        ['read', 'Referral'], // old legacy permissions for the incomplete-referrals report
       ]);
     });
 
@@ -72,7 +64,7 @@ export function testReportPermissions(getCtx, makeRequest) {
       const res = await makeRequest(app, 'incomplete-referrals');
 
       // Assert
-      expect(res).toHaveSucceeded();
+      expect(res).toBeForbidden();
     });
 
     it('should be able to run permitted static reports with "run" permissions', async () => {

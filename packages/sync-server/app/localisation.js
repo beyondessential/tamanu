@@ -50,6 +50,7 @@ const UNHIDEABLE_FIELDS = [
   'locationId',
   'locationGroupId',
   'clinician',
+  'diagnosis',
 ];
 
 const HIDEABLE_FIELDS = [
@@ -107,6 +108,14 @@ const HIDEABLE_FIELDS = [
   'facility',
   'dischargeDisposition',
 ];
+
+const ageDurationSchema = yup
+  .object({
+    years: yup.number(),
+    months: yup.number(),
+    days: yup.number(),
+  })
+  .noUnknown();
 
 const templatesSchema = yup
   .object({
@@ -424,6 +433,7 @@ const rootLocalisationSchema = yup
     features: yup
       .object({
         editPatientDetailsOnMobile: yup.boolean().required(),
+        quickPatientGenerator: yup.boolean().required(),
         enableInvoicing: yup.boolean().required(),
         hideOtherSex: yup.boolean().required(),
         registerNewPatient: yup.boolean().required(),
@@ -446,11 +456,52 @@ const rootLocalisationSchema = yup
         onlyAllowLabPanels: yup.boolean().required(),
         displayProcedureCodesInDischargeSummary: yup.boolean().required(),
         displayIcd10CodesInDischargeSummary: yup.boolean().required(),
+        mandatoryVitalEditReason: yup.boolean().required(),
+        enableVitalEdit: yup.boolean().required(),
       })
       .required()
       .noUnknown(),
     printMeasures: printMeasuresSchema,
     disabledReports: yup.array(yup.string().required()).defined(),
+    ageDisplayFormat: yup
+      .array(
+        yup.object({
+          as: yup.string().required(),
+          range: yup
+            .object({
+              min: yup.object({
+                duration: ageDurationSchema,
+                exclusive: yup.boolean(),
+              }),
+              max: yup.object({
+                duration: ageDurationSchema,
+                exclusive: yup.boolean(),
+              }),
+            })
+            .required()
+            .test({
+              name: 'ageDisplayFormat',
+              test(range, ctx) {
+                if (!range.min && !range.max) {
+                  return ctx.createError({
+                    message: `range in ageDisplayFormat must include either min or max, or both, got ${JSON.stringify(
+                      range,
+                    )}`,
+                  });
+                }
+
+                return true;
+              },
+            }),
+        }),
+      )
+      .required(),
+    vitalEditReasons: yup.array(
+      yup.object({
+        value: yup.string().required(),
+        label: yup.string().required(),
+      }),
+    ),
   })
   .required()
   .noUnknown();

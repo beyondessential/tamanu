@@ -117,5 +117,3 @@ export const dataGenerator = async ({ models }, parameters = {}) =>
     surveyQuestionCodes: SURVEY_QUESTION_CODES,
     reportColumnTemplate,
   });
-
-export const permission = 'LabTest';

@@ -39,7 +39,6 @@ export const MultipleLabRequestsPrintout = React.memo(
         key: 'sampleTime',
         title: 'Sample time',
         accessor: ({ sampleTime }) => <DateDisplay date={sampleTime} showTime />,
-        style: { textAlign: 'center' },
         widthProportion: 2,
       },
       {
@@ -61,6 +60,7 @@ export const MultipleLabRequestsPrintout = React.memo(
         widthProportion: 3,
       },
     ];
+
     return (
       <CertificateWrapper>
         <PrintLetterhead title={title} subTitle={subTitle} logoSrc={logo} pageTitle="Lab Request" />

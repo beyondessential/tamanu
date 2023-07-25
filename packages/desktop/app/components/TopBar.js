@@ -6,6 +6,9 @@ import { DateDisplay } from './DateDisplay';
 import { Colors } from '../constants';
 import { useLocalisedText } from './LocalisedText';
 
+// Default height of the top bar
+export const TOP_BAR_HEIGHT = 97;
+
 const TopBarHeading = styled(Typography)`
   flex-grow: 1;
   font-size: 24px;
@@ -31,6 +34,7 @@ const TopBarSubHeading = styled(Typography)`
 
 const AppBar = styled.div`
   position: sticky;
+  height: ${TOP_BAR_HEIGHT}px;
   top: 0;
   z-index: 9;
   flex-grow: 1;

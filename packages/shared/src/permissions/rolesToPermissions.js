@@ -1,6 +1,5 @@
 import config from 'config';
 import { buildAbility, buildAbilityForUser } from './buildAbility';
-import { Permission } from '../models';
 import { permissionCache } from './cache';
 
 //---------------------------------------------------------
@@ -23,7 +22,7 @@ const commaSplit = s =>
     .map(x => x.trim())
     .filter(x => x);
 
-export async function queryPermissionsForRoles(roleString) {
+export async function queryPermissionsForRoles({ Permission }, roleString) {
   const roleIds = commaSplit(roleString);
   const result = await Permission.sequelize.query(
     `
@@ -44,7 +43,7 @@ export async function queryPermissionsForRoles(roleString) {
 
 // these functions allow testing permissions in isolation
 // they should ONLY be used in tests
-let { useHardcodedPermissions } = config.auth;
+let useHardcodedPermissions = Boolean(config?.auth?.useHardcodedPermissions);
 export function setHardcodedPermissionsUseForTestsOnly(val) {
   useHardcodedPermissions = Boolean(val);
   permissionCache.reset();
@@ -54,7 +53,7 @@ export function unsetUseHardcodedPermissionsUseForTestsOnly() {
   permissionCache.reset();
 }
 
-export async function getPermissionsForRoles(roleString) {
+export async function getPermissionsForRoles(models, roleString) {
   if (useHardcodedPermissions) {
     return getHardcodedPermissions(roleString);
   }
@@ -66,18 +65,18 @@ export async function getPermissionsForRoles(roleString) {
 
   // don't await this -- we want to store the promise, not the result
   // so that quick consecutive requests can benefit from it
-  const permissions = queryPermissionsForRoles(roleString);
+  const permissions = queryPermissionsForRoles(models, roleString);
 
   permissionCache.set(roleString, permissions);
   return permissions;
 }
 
-export async function getAbilityForUser(user) {
+export async function getAbilityForUser(models, user) {
   if (!user) {
     return buildAbility([]);
   }
 
-  const permissions = await getPermissionsForRoles(user.role);
+  const permissions = await getPermissionsForRoles(models, user.role);
   const ability = buildAbilityForUser(user, permissions);
 
   return ability;

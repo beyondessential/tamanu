@@ -6,6 +6,7 @@ import { importRows } from '../importRows';
 
 import { readSurveyQuestions } from './readSurveyQuestions';
 import { ensureRequiredQuestionsPresent, validateVitalsSurvey } from './validation';
+import { validateProgramDataElementRecords } from './vitalsValidation';
 
 function readSurveyInfo(workbook, surveyInfo) {
   const { sheetName, surveyType, code } = surveyInfo;
@@ -48,6 +49,7 @@ export async function importSurvey(context, workbook, surveyInfo) {
   }
 
   const records = readSurveyInfo(workbook, surveyInfo);
+  validateProgramDataElementRecords(records);
 
   return importRows(context, {
     sheetName,
