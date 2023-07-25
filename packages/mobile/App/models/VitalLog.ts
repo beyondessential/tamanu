@@ -27,10 +27,10 @@ export class VitalLog extends BaseModel implements IVitalLog {
 
   @ManyToOne(
     () => User,
-    user => user.vitalLogs,
+    user => user.recordedVitalLogs,
   )
   recordedBy: User;
-  @RelationId(({ requestedBy }) => requestedBy)
+  @RelationId(({ recordedBy }) => recordedBy)
   recordedById: string;
 
   @ManyToOne(
