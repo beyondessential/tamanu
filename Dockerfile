@@ -45,6 +45,7 @@ RUN git log -1 --pretty=%cI         | tee /meta/SOURCE_DATE_ISO
 FROM build-base as shared
 COPY packages/build-tooling/ packages/build-tooling/
 COPY packages/shared/ packages/shared/
+COPY packages/api-client/ packages/api-client/
 RUN ./docker-build-server.sh
 
 
