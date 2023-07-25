@@ -13,6 +13,9 @@ const deployment = branch.replace('release-desktop-', '');
 const buildFolder = `desktop/${deployment}`;
 pkg.build.publish.path = buildFolder;
 
+// Build only NSIS in codeship
+pkg.build.win.target = ['nsis'];
+
 // Determine installation method:
 // - omitted in this list: install to appdata
 // - included: install to Program Files

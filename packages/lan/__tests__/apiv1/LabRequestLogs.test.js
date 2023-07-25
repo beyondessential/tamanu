@@ -54,7 +54,8 @@ describe('Lab request logs', () => {
         labRequestId: labRequest.id,
       },
     });
-    expect(labRequestLog.length).toEqual(1);
+    // It should have two logs, one for when the lab request is created and another when the lab request is updated
+    expect(labRequestLog.length).toEqual(2);
   });
 
   it('should not create a lab request log if not updating the lab request status', async () => {
@@ -69,6 +70,8 @@ describe('Lab request logs', () => {
         labRequestId: response.body.id,
       },
     });
-    expect(labRequestLog.length).toEqual(0);
+
+    // It should have one log created for when the lab request is created only
+    expect(labRequestLog.length).toEqual(1);
   });
 });
