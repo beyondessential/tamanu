@@ -11,6 +11,9 @@ async function loadSettings() {
   const data = await getInsertDataFromConfigFile(CONFIG_ENVS.DEFAULT);
 
   log.info(`Populating ${data.length} settings from config/default.json`);
+
+  // Upsert data defaultValues and don't override anything
+  // On conflict narrows down to one of two partial unique indexes based on central server context.
   const res = await context.sequelize.query(
     `
      INSERT INTO settings (key, default_value)
