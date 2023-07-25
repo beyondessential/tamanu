@@ -40,7 +40,7 @@ export const LabRequestFormScreen1 = ({
       </div>
       <Field
         name="requestedById"
-        label={`Requesting ${clinicianText.toLowerCase()}}`}
+        label={`Requesting ${clinicianText.toLowerCase()}`}
         required
         component={AutocompleteField}
         suggester={practitionerSuggester}
