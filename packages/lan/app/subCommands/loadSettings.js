@@ -3,13 +3,15 @@ import config from 'config';
 import { QueryTypes } from 'sequelize';
 import { log } from '@tamanu/shared/services/logging';
 import { initDatabase } from '../database';
-import { CONFIG_ENVS, getEntriesFromConfigFile } from '../../../shared/src/utils';
+import { CONFIG_ENVS, getInsertDataFromConfigFile } from '../../../shared/src/utils';
 
 async function loadSettings() {
   const context = await initDatabase();
 
-  const data = await getEntriesFromConfigFile(CONFIG_ENVS.DEFAULT, config.serverFacilityId);
-  console.log(data)
+  log.info(`Reading settings from config/default.json`);
+  const data = await getInsertDataFromConfigFile(CONFIG_ENVS.DEFAULT, config.serverFacilityId);
+
+  log.info(`Populating ${data.length} settings from config/default.json`);
   const res = await context.sequelize.query(
     `
       INSERT INTO settings (key, default_value, facility_id)
