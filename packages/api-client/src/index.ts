@@ -1,14 +1,32 @@
 import qs from 'qs';
 
-import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
-import { SERVER_TYPES } from '@tamanu/shared/constants';
+import { SERVER_TYPES } from '@tamanu/constants';
 import { ForbiddenError } from '@tamanu/shared/errors';
+import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
-import { RequestOptions, getResponseErrorSafely, fetchOrThrowIfUnavailable } from './fetch';
-import { AuthExpiredError, VersionIncompatibleError, ServerResponseError, getVersionIncompatibleMessage } from './errors';
+import {
+  AuthExpiredError,
+  ServerResponseError,
+  VersionIncompatibleError,
+  getVersionIncompatibleMessage,
+} from './errors';
+import {
+  RequestOptions,
+  fetchOrThrowIfUnavailable,
+  getResponseErrorSafely,
+} from './fetch';
 
-export { ResponseError, RequestOptions, FetchImplementation, setFetchImplementation } from './fetch';
-export { AuthExpiredError, VersionIncompatibleError, ServerResponseError } from './errors';
+export {
+  AuthExpiredError,
+  ServerResponseError,
+  VersionIncompatibleError,
+} from './errors';
+export {
+  FetchImplementation,
+  ResponseError,
+  RequestOptions,
+  setFetchImplementation,
+} from './fetch';
 
 export interface UserResponse {
   id: string;
@@ -77,7 +95,11 @@ export class TamanuApi {
     this.#onVersionIncompatible = handler;
   }
 
-  async login(host: string, email: string, password: string): Promise<LoginOutput> {
+  async login(
+    host: string,
+    email: string,
+    password: string,
+  ): Promise<LoginOutput> {
     this.setHost(host);
     const response = await this.post(
       'login',
@@ -138,16 +160,16 @@ export class TamanuApi {
     this.#authHeader = { authorization: `Bearer ${token}` };
   }
 
-  async fetch(endpoint: string, query: QueryData = {}, config: FetchConfig = {}) {
+  async fetch(
+    endpoint: string,
+    query: QueryData = {},
+    config: FetchConfig = {},
+  ) {
     if (!this.#host) {
       throw new Error("API can't be used until the host is set");
     }
 
-    const {
-      headers,
-      returnResponse = false,
-      ...otherConfig
-    } = config;
+    const { headers, returnResponse = false, ...otherConfig } = config;
     const queryString = qs.stringify(query || {});
     const path = `${endpoint}${query ? `?${queryString}` : ''}`;
     const url = `${this.#prefix}/${path}`;
@@ -176,7 +198,11 @@ export class TamanuApi {
     }
 
     // handle auth expiring
-    if (response.status === 401 && endpoint !== 'login' && this.#onAuthFailure) {
+    if (
+      response.status === 401 &&
+      endpoint !== 'login' &&
+      this.#onAuthFailure
+    ) {
       const message = 'Your session has expired. Please log in again.';
       this.#onAuthFailure(message);
       throw new AuthExpiredError(message);
@@ -184,7 +210,10 @@ export class TamanuApi {
 
     // handle version incompatibility
     if (response.status === 400 && error) {
-      const versionIncompatibleMessage = getVersionIncompatibleMessage(error, response);
+      const versionIncompatibleMessage = getVersionIncompatibleMessage(
+        error,
+        response,
+      );
       if (versionIncompatibleMessage) {
         if (this.#onVersionIncompatible) {
           this.#onVersionIncompatible(versionIncompatibleMessage);
@@ -201,34 +230,48 @@ export class TamanuApi {
   }
 
   async download(endpoint: string, query: QueryData = {}) {
-    const response = await this.fetch(endpoint, query, { returnResponse: true });
+    const response = await this.fetch(endpoint, query, {
+      returnResponse: true,
+    });
     const blob = await response.blob();
     return blob;
   }
 
   async post<T>(endpoint: string, body?: T, config: FetchConfig = {}) {
-    return this.fetch(endpoint, {}, {
-      body: body && JSON.stringify(body),
-      headers: {
-        'Content-Type': 'application/json',
+    return this.fetch(
+      endpoint,
+      {},
+      {
+        body: body && JSON.stringify(body),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        ...config,
+        method: 'POST',
       },
-      ...config,
-      method: 'POST',
-    });
+    );
   }
 
   async put<T>(endpoint: string, body?: T, config: FetchConfig = {}) {
-    return this.fetch(endpoint, {}, {
-      body: body && JSON.stringify(body),
-      headers: {
-        'Content-Type': 'application/json',
+    return this.fetch(
+      endpoint,
+      {},
+      {
+        body: body && JSON.stringify(body),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        ...config,
+        method: 'PUT',
       },
-      ...config,
-      method: 'PUT',
-    });
+    );
   }
 
-  async delete(endpoint: string, query: QueryData = {}, config: FetchConfig = {}) {
+  async delete(
+    endpoint: string,
+    query: QueryData = {},
+    config: FetchConfig = {},
+  ) {
     return this.fetch(endpoint, query, { ...config, method: 'DELETE' });
   }
 }

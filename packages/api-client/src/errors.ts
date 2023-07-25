@@ -1,12 +1,15 @@
-import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/shared/constants';
+import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 
-import { ResponseError } from "./fetch";
+import { ResponseError } from './fetch';
 
 export class ServerResponseError extends Error { }
 export class AuthExpiredError extends ServerResponseError { }
 export class VersionIncompatibleError extends ServerResponseError { }
 
-export function getVersionIncompatibleMessage(error: ResponseError, response: Response): string | null {
+export function getVersionIncompatibleMessage(
+  error: ResponseError,
+  response: Response,
+): string | null {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
     const minAppVersion = response.headers.get('X-Min-Client-Version');
     return `Please upgrade to Tamanu Desktop v${minAppVersion} or higher. Try closing and reopening, or contact your system administrator.`;

@@ -15,7 +15,10 @@ export interface FetchImplementation {
 
 let fetchImplementation: FetchImplementation;
 // eslint-disable-next-line no-undef
-if (typeof window !== 'undefined' && Object.hasOwnProperty.call(window, 'fetch')) {
+if (
+  typeof window !== 'undefined' &&
+  Object.hasOwnProperty.call(window, 'fetch')
+) {
   // eslint-disable-next-line no-undef
   fetchImplementation = window.fetch.bind(window);
 }
@@ -44,13 +47,17 @@ export async function fetchOrThrowIfUnavailable(
   }
 }
 
-export async function getResponseErrorSafely(response: Response): Promise<{ error: ResponseError }> {
+export async function getResponseErrorSafely(
+  response: Response,
+): Promise<{ error: ResponseError }> {
   try {
     return await response.json();
   } catch (e) {
     // log json parsing errors, but still return a valid object
     // eslint-disable-next-line no-console
     console.warn(`getResponseJsonSafely: Error parsing JSON: ${e}`);
-    return { error: { name: 'JSONParseError', message: `Error parsing JSON: ${e}` } };
+    return {
+      error: { name: 'JSONParseError', message: `Error parsing JSON: ${e}` },
+    };
   }
 }
