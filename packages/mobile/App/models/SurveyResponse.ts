@@ -176,8 +176,8 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         await VitalLog.createAndSaveOne({
           date: responseRecord.endTime,
           newValue: body,
-          recordedById: userId,
-          answerId: answerRecord.id,
+          recordedBy: userId,
+          answer: answerRecord.id,
         });
       }
       setNote('Done');
