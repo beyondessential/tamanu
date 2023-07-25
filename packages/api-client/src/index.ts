@@ -1,84 +1,14 @@
 import qs from 'qs';
 
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
-import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from '@tamanu/shared/constants';
+import { SERVER_TYPES } from '@tamanu/shared/constants';
 import { ForbiddenError } from '@tamanu/shared/errors';
 
-export type ResponseObject<T> = T | { error: ResponseError };
+import { RequestOptions, getResponseErrorSafely, fetchOrThrowIfUnavailable } from './fetch';
+import { AuthExpiredError, VersionIncompatibleError, ServerResponseError, getVersionIncompatibleMessage } from './errors';
 
-export interface ResponseError {
-  name: string;
-  message: string;
-}
-
-interface RequestOptions {
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
-  headers?: Record<string, string>;
-  body?: string;
-}
-interface FetchImplementation {
-  (url: Request | string | URL, config?: RequestOptions): Promise<Response>;
-}
-
-let fetchImplementation: FetchImplementation;
-// eslint-disable-next-line no-undef
-if (typeof window !== 'undefined' && Object.hasOwnProperty.call(window, 'fetch')) {
-  // eslint-disable-next-line no-undef
-  fetchImplementation = window.fetch.bind(window);
-}
-
-export function setFetchImplementation(implementation: FetchImplementation) {
-  fetchImplementation = implementation;
-}
-
-async function getResponseErrorSafely(response: Response): Promise<{ error: ResponseError }> {
-  try {
-    return await response.json();
-  } catch (e) {
-    // log json parsing errors, but still return a valid object
-    // eslint-disable-next-line no-console
-    console.warn(`getResponseJsonSafely: Error parsing JSON: ${e}`);
-    return { error: { name: 'JSONParseError', message: `Error parsing JSON: ${e}` } };
-  }
-}
-
-function getVersionIncompatibleMessage(error: ResponseError, response: Response): string | null {
-  if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
-    const minAppVersion = response.headers.get('X-Min-Client-Version');
-    return `Please upgrade to Tamanu Desktop v${minAppVersion} or higher. Try closing and reopening, or contact your system administrator.`;
-  }
-
-  if (error.message === VERSION_COMPATIBILITY_ERRORS.HIGH) {
-    const maxAppVersion = response.headers.get('X-Max-Client-Version');
-    return `The Tamanu LAN Server only supports up to v${maxAppVersion}, and needs to be upgraded. Please contact your system administrator.`;
-  }
-
-  return null;
-}
-
-async function fetchOrThrowIfUnavailable(
-  url: Request | string | URL,
-  config?: RequestOptions,
-): Promise<Response> {
-  try {
-    const response = await fetchImplementation(url, config);
-    return response;
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.log(e.message);
-    // apply more helpful message if the server is not available
-    if (e.message === 'Failed to fetch') {
-      throw new Error(
-        'The server is unavailable. Please check with your system administrator that the address is set correctly, and that it is running',
-      );
-    }
-    throw e; // some other unhandled error
-  }
-}
-
-export class ServerResponseError extends Error {}
-export class AuthExpiredError extends ServerResponseError {}
-export class VersionIncompatibleError extends ServerResponseError {}
+export { ResponseError, RequestOptions, FetchImplementation, setFetchImplementation } from './fetch';
+export { AuthExpiredError, VersionIncompatibleError, ServerResponseError } from './errors';
 
 export interface UserResponse {
   id: string;
