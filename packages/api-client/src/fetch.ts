@@ -1,3 +1,5 @@
+import { ServerUnavailableError } from './errors';
+
 export interface ResponseError {
   name: string;
   message: string;
@@ -35,14 +37,13 @@ export async function fetchOrThrowIfUnavailable(
     const response = await fetchImplementation(url, config);
     return response;
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.log(e.message);
-    // apply more helpful message if the server is not available
-    if (e.message === 'Failed to fetch') {
-      throw new Error(
+    if (e instanceof Error && e.message === 'Failed to fetch') {
+      // apply more helpful message if the server is not available
+      throw new ServerUnavailableError(
         'The server is unavailable. Please check with your system administrator that the address is set correctly, and that it is running',
       );
     }
+
     throw e; // some other unhandled error
   }
 }

@@ -2,6 +2,7 @@ import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/shared/constants';
 
 import { ResponseError } from './fetch';
 
+export class ServerUnavailableError extends Error {}
 export class ServerResponseError extends Error {}
 export class AuthExpiredError extends ServerResponseError {}
 export class VersionIncompatibleError extends ServerResponseError {}
