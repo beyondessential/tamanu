@@ -334,7 +334,7 @@ export const DischargeForm = ({
         />
         <Field
           name="discharge.dischargerId"
-          label={clinicianText}
+          label={`Discharging ${clinicianText}`}
           component={AutocompleteField}
           suggester={practitionerSuggester}
           required
