@@ -202,6 +202,7 @@
     "@material-ui/icons": "^4.11.3",
     "@material-ui/lab": "^4.0.0-alpha.56",
     "@tamanu/shared": "*",
+    "@tamanu/api-client": "*",
     "@tanstack/react-query": "^4.0.10",
     "@types/react-autosuggest": "^9.3.7",
     "babel-eslint": "^10.0.1",
