@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import { LargeButton, ContentPane } from '../../components';
 import { AdminViewContainer } from './components/AdminViewContainer';
-import { JSONViewer } from './components/JSONViewer';
+import { JSONViewer, JSONEditor } from './components/JSONViewer';
 import { useApi } from '../../api';
 
 export const SettingsView = React.memo(() => {
@@ -27,7 +27,8 @@ export const SettingsView = React.memo(() => {
     <AdminViewContainer title="Settings">
       <ContentPane>
         <LargeButton onClick={toggleEditMode}>{editMode ? 'Cancel' : 'Edit settings'}</LargeButton>
-        {editMode ? <p>edit mode</p> : <JSONViewer json={settings} />}
+        {editMode && <LargeButton ml="1">Save</LargeButton>}
+        {editMode ? <JSONEditor json={settings} /> : <JSONViewer json={settings} />}
       </ContentPane>
     </AdminViewContainer>
   );
