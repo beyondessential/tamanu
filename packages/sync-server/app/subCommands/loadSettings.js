@@ -1,23 +1,22 @@
 import { Command } from 'commander';
-import config from 'config';
 import { QueryTypes } from 'sequelize';
 import { log } from '@tamanu/shared/services/logging';
 import { CONFIG_ENVS, getInsertDataFromConfigFile } from '@tamanu/shared/utils';
 import { initDatabase } from '../database';
 
 async function loadSettings() {
-  const context = await initDatabase();
+  const context = await initDatabase({ testMode: false });
 
   log.info(`Reading settings from config/default.json`);
-  const data = await getInsertDataFromConfigFile(CONFIG_ENVS.DEFAULT, config.serverFacilityId);
+  const data = await getInsertDataFromConfigFile(CONFIG_ENVS.DEFAULT);
 
   log.info(`Populating ${data.length} settings from config/default.json`);
   const res = await context.sequelize.query(
     `
-      INSERT INTO settings (key, default_value, facility_id)
-      VALUES ${data.map(() => '(?)').join(', ')}
-      ON CONFLICT (key, facility_id) WHERE key IS NOT NULL AND facility_id IS NOT NULL AND deleted_at IS NULL
-      DO UPDATE SET default_value = EXCLUDED.default_value;
+     INSERT INTO settings (key, default_value)
+     VALUES ${data.map(() => '(?)').join(', ')}
+     ON CONFLICT (key) WHERE key IS NOT NULL AND facility_id IS NULL AND deleted_at IS NULL
+     DO UPDATE SET default_value = EXCLUDED.default_value;
     `,
     {
       replacements: data,

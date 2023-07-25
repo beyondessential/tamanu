@@ -15,30 +15,18 @@ const readConfigFile = async configEnv => {
   }
 };
 
-const prepareRows = (entries, facilityId) => {
-  const stack = entries.map(([key, value]) => [key, value, '', false]);
-  const result = [];
-
-  while (stack.length > 0) {
-    const [key, value, prefix, keyIsIndex] = stack.pop();
+const prepareRows = (entries, facilityId, prefix = '', keyIsIndex = false) => {
+  return entries.flatMap(([key, value]) => {
     const path = `${prefix}${keyIsIndex ? `[${key}]` : `${prefix && '.'}${key}`}`;
-
-    if (isObject(value)) {
-      const newEntries = Object.entries(value);
-      const newKeyIsIndex = isArray(value);
-      for (const [newKey, newValue] of newEntries) {
-        stack.push([newKey, newValue, path, newKeyIsIndex]);
-      }
-    } else {
-      result.push([path, JSON.stringify(value), ...(facilityId ? [facilityId] : [])]);
-    }
-  }
-
-  return result;
+    // Recursive call to get data from nested objects
+    return isObject(value)
+      ? prepareRows(Object.entries(value), facilityId, path, isArray(value))
+      : [[path, JSON.stringify(value), ...(facilityId ? [facilityId] : [])]];
+  });
 };
 
 export const getInsertDataFromConfigFile = async (configEnv, facilityId) => {
   const configFile = await readConfigFile(configEnv);
-  const configJSON = JSON.parse(stripJsonComments(configFile.toString()));
+  const configJSON = JSON.parse(stripJsonComments(configFile.toString(), { whitespace: false }));
   return prepareRows(Object.entries(configJSON), facilityId);
 };
