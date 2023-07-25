@@ -5,6 +5,7 @@ import { ResponseError } from './fetch';
 export class ServerResponseError extends Error { }
 export class AuthExpiredError extends ServerResponseError { }
 export class VersionIncompatibleError extends ServerResponseError { }
+export class ServerUnavailableError extends Error {}
 
 export function getVersionIncompatibleMessage(
   error: ResponseError,
