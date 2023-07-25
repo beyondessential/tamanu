@@ -49,22 +49,27 @@ const VitalLog = new Table({
     new TableColumn({
       name: 'previousValue',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'newValue',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'reasonForChange',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'recordedById',
       type: 'varchar',
+      isNullable: false,
     }),
     new TableColumn({
       name: 'answerId',
       type: 'varchar',
+      isNullable: false,
     }),
   ],
   foreignKeys: [
