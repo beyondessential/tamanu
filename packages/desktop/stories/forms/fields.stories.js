@@ -183,6 +183,12 @@ addStories('DateInput', props => (
   />
 ));
 
+addStories('DateInput', props => (
+  <StoryControlWrapper Component={DateInput} label="Date of birth" {...props} />
+)).add('With arrows', props => (
+  <StoryControlWrapper Component={DateInput} value="2019-10-04T08:30:56.200Z" arrows {...props} />
+));
+
 addStories('DateTimeInput', props => (
   <StoryControlWrapper Component={DateTimeInput} label="Sample taken" {...props} />
 )).add('With prefilled date', props => (

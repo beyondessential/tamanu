@@ -51,7 +51,6 @@ const RelationField = ({ fieldName }): ReactElement => {
       placeholder={`Search for ${localisedPlaceholder}`}
       navigation={navigation}
       suggester={suggester}
-      modalRoute={Routes.Autocomplete.Modal}
       name={fieldName}
     />
   );
