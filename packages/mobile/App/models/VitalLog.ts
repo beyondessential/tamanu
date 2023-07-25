@@ -29,9 +29,9 @@ export class VitalLog extends BaseModel implements IVitalLog {
     () => User,
     user => user.vitalLogs,
   )
-  requestedBy: User;
+  recordedBy: User;
   @RelationId(({ requestedBy }) => requestedBy)
-  requestedById: string;
+  recordedById: string;
 
   @ManyToOne(
     () => SurveyResponseAnswer,
