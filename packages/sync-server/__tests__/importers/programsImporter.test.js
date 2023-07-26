@@ -196,5 +196,32 @@ describe('Programs import', () => {
         SurveyScreenComponent: { created: 16, updated: 0, errored: 0 },
       });
     });
+
+    it('Should import a valid vitals survey and delete visualisationConfig', async () => {
+      const { ProgramDataElement } = ctx.store.models;
+
+      const validateVisualisationConfig = async expectValue => {
+        const { visualisationConfig } = await ProgramDataElement.findOne({
+          where: {
+            code: 'PatientVitalsHeartRate',
+          },
+        });
+        expect(visualisationConfig).toEqual(expectValue);
+      };
+
+      await doImport({
+        file: 'vitals-valid',
+        dryRun: false,
+      });
+      await validateVisualisationConfig(
+        '{"yAxis":{"graphRange":{"min":30,"max":300}, "interval":10}}',
+      );
+
+      await doImport({
+        file: 'vitals-delete-visualisation-config',
+        dryRun: false,
+      });
+      await validateVisualisationConfig('');
+    });
   });
 });
