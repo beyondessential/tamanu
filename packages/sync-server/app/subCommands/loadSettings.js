@@ -1,14 +1,14 @@
 import { Command } from 'commander';
 import { QueryTypes } from 'sequelize';
 import { log } from '@tamanu/shared/services/logging';
-import { CONFIG_ENVS, getInsertDataFromConfigFile } from '@tamanu/shared/utils';
+import { CONFIG_ENVS, getSettingDataFromConfigFile } from '@tamanu/shared/utils';
 import { initDatabase } from '../database';
 
 async function loadSettings() {
   const context = await initDatabase({ testMode: false });
 
   log.info(`Reading settings from config/default.json`);
-  const data = await getInsertDataFromConfigFile(CONFIG_ENVS.DEFAULT);
+  const data = await getSettingDataFromConfigFile(CONFIG_ENVS.DEFAULT);
 
   log.info(`Populating ${data.length} settings from config/default.json`);
 
@@ -28,7 +28,6 @@ async function loadSettings() {
   );
 
   log.info(`Successfully loaded ${res[1]} settings from config/default.json`);
-
   process.exit(0);
 }
 
