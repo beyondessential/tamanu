@@ -1,6 +1,7 @@
 import { QueryTypes } from 'sequelize';
-import { arrayToDbString, renameObjectKeys } from 'shared/utils';
+import { arrayToDbString } from 'shared/utils';
 import { DIAGNOSIS_CERTAINTY, ENCOUNTER_TYPES } from '@tamanu/constants';
+import { renameObjectKeys } from '../../utils/renameObjectKeys';
 import { makeFilter } from '../../utils/query';
 import { createPatientFilters } from '../../utils/patientFilters';
 

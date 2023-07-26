@@ -2,13 +2,8 @@ import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
 import { INVOICE_LINE_ITEM_STATUSES } from '@tamanu/constants';
-import {
-  permissionCheckingRouter,
-  simpleGet,
-  simpleGetList,
-  simplePut,
-} from 'shared/utils/crudHelpers';
-import { renameObjectKeys } from 'shared/utils';
+import { permissionCheckingRouter, simpleGet, simpleGetList, simplePut } from '../crudHelpers';
+import { renameObjectKeys } from '../../../utils/renameObjectKeys';
 import { getPotentialInvoiceLineItems } from './getPotentialInvoiceLineItems';
 
 export const invoiceLineItemsRoute = permissionCheckingRouter('read', 'Invoice');
