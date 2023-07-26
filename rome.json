@@ -6,11 +6,19 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true
+			"recommended": true,
+      "correctness": {
+        "noUnusedVariables": "error"
+      },
+      "nursery": {
+        "useExhaustiveDependencies": "error",
+        "useHookAtTopLevel": "error"
+      }
 		}
 	},
   "formatter": {
-    "indentStyle": "space"
+    "indentStyle": "space",
+    "lineWidth": 100
   },
   "javascript": {
     "formatter": {
