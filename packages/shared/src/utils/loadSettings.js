@@ -15,12 +15,12 @@ const readConfigFile = async configEnv => {
   }
 };
 
-const prepareRows = (entries, facilityId, prefix = '', keyIsIndex = false) =>
+const prepareRows = (entries, facilityId, prefix = '') =>
   entries.flatMap(([key, value]) => {
-    const path = `${prefix}${keyIsIndex ? `[${key}]` : `${prefix && '.'}${key}`}`;
+    const path = `${prefix}${key}`;
     // Recursive call to get data from nested objects
-    return isObject(value)
-      ? prepareRows(Object.entries(value), facilityId, path, isArray(value))
+    return isObject(value) && !isArray(value)
+      ? prepareRows(Object.entries(value), facilityId, path)
       : [[path, JSON.stringify(value), ...(facilityId ? [facilityId] : [])]];
   });
 
