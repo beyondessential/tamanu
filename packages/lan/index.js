@@ -11,7 +11,7 @@ import {
   migrateCommand,
   reportCommand,
   migrateAppointmentsToLocationGroupsCommand,
-  loadSettingsCommand,
+  settingsCommand,
 } from './app/subCommands';
 
 async function run() {
@@ -25,7 +25,7 @@ async function run() {
   program.addCommand(syncCommand);
   program.addCommand(migrateCommand);
   program.addCommand(migrateAppointmentsToLocationGroupsCommand);
-  program.addCommand(loadSettingsCommand);
+  program.addCommand(settingsCommand);
 
   await program.parseAsync(process.argv);
 }

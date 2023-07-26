@@ -17,7 +17,7 @@ const readConfigFile = async configEnv => {
 
 const prepareRows = (entries, facilityId, prefix = '') =>
   entries.flatMap(([key, value]) => {
-    const path = `${prefix}${key}`;
+    const path = `${prefix && `${prefix}.`}${key}`;
     // Recursively call to get data from nested objects
     // Unless the value is an array, in which case we store the contents of array under a single key
     return isObject(value) && !isArray(value)
