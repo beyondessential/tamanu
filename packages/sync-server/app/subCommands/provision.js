@@ -1,7 +1,7 @@
 import { resolve } from 'path';
 import { Command } from 'commander';
 
-import { SYSTEM_USER_UUID } from '@tamanu/shared/constants';
+import { SYSTEM_USER_UUID } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 
 import { initDatabase } from '../database';

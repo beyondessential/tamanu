@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from '../errors';
-import { SYNC_DIRECTIONS, LAB_TEST_RESULT_TYPES, VISIBILITY_STATUSES } from '../constants';
+import { SYNC_DIRECTIONS, LAB_TEST_RESULT_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 
 function optionStringToArray(s) {

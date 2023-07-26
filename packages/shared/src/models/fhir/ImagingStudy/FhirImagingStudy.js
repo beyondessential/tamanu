@@ -9,7 +9,7 @@ import {
   FHIR_INTERACTIONS,
   FHIR_ISSUE_TYPE,
   IMAGING_REQUEST_STATUS_TYPES,
-} from '../../../constants';
+} from '@tamanu/constants';
 import { Deleted, Invalid } from '../../../utils/fhir';
 import { getCurrentDateTimeString, toDateTimeString } from '../../../utils/dateTime';
 

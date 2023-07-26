@@ -5,7 +5,7 @@ import {
   NOTE_TYPE_VALUES,
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
-} from '../constants';
+} from '@tamanu/constants';
 
 import { Model } from './Model';
 import { NoteItem } from './NoteItem';

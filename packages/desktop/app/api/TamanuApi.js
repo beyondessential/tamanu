@@ -8,7 +8,7 @@ import {
   AuthExpiredError,
 } from '@tamanu/api-client';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
-import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/shared/constants';
+import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { getDeviceId, notifyError } from '../utils';
 

@@ -3,7 +3,7 @@ import ms from 'ms';
 import Sequelize, { DataTypes, QueryTypes, Transaction } from 'sequelize';
 
 import { Model } from '../Model';
-import { SYNC_DIRECTIONS } from '../../constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '../../services/logging';
 import { sleepAsync } from '../../utils/sleepAsync';
 

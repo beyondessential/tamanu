@@ -20,7 +20,7 @@ import {
   LAB_REQUEST_STATUSES,
   LOCATION_AVAILABILITY_STATUS,
   LOCATION_AVAILABILITY_TAG_CONFIG,
-} from '@tamanu/shared/constants';
+} from '@tamanu/constants';
 
 import {
   medicationIcon,

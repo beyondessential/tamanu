@@ -1,6 +1,6 @@
 import { Sequelize, DataTypes } from 'sequelize';
 
-import { FHIR_INTERACTIONS } from '../../../constants/fhir';
+import { FHIR_INTERACTIONS } from '@tamanu/constants/';
 import { FhirResource } from '../Resource';
 import { getQueryOptions } from './getQueryOptions';
 import { getValues } from './getValues';

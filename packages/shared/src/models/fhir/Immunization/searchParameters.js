@@ -1,4 +1,4 @@
-import { FHIR_SEARCH_PARAMETERS, FHIR_SEARCH_TOKEN_TYPES } from '../../../constants/fhir';
+import { FHIR_SEARCH_PARAMETERS, FHIR_SEARCH_TOKEN_TYPES } from '@tamanu/constants/';
 
 export const searchParameters = {
   patient: {
