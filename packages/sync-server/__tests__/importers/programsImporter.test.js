@@ -13,14 +13,20 @@ describe('Programs import', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
   });
-  beforeEach(async () => {
+
+  const truncateTables = async () => {
     const { Program, Survey, ProgramDataElement, SurveyScreenComponent } = ctx.store.models;
     await SurveyScreenComponent.destroy({ where: {}, force: true });
     await ProgramDataElement.destroy({ where: {}, force: true });
     await Survey.destroy({ where: {}, force: true });
     await Program.destroy({ where: {}, force: true });
+  };
+
+  beforeEach(async () => {
+    await truncateTables();
   });
   afterAll(async () => {
+    await truncateTables();
     await ctx.close();
   });
 
