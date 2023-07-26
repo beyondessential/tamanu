@@ -284,6 +284,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
 
         // This was failing intermittently, apparently we have to
         // seize control to let the FhirWriteLog create itself the second time
+        // Just a comment to make PR viable
         await sleepAsync(1);
 
         // assert
