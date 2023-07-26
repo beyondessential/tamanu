@@ -6,14 +6,16 @@
   "exports": {
     ".": "./dist/index.js"
   },
-  "types": "src/index.ts",
+  "types": "./dist/index.d.ts",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN ../../license",
   "scripts": {
-    "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true src",
-    "build-watch": "yarn run build --watch",
+    "build": "yarn run build:src && yarn run build:types",
+    "build:src": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true src",
+    "build:types": "tsc --outDir dist --declaration --emitDeclarationOnly --noEmit false && mv dist/src/* dist && rm -rf dist/src",
+    "build-watch": "yarn run build:src --watch",
     "test": "NODE_ENV=test jest",
     "lint": "yarn run lint:check && yarn run lint:types",
     "lint:check": "rome check src",

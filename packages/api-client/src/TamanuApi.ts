@@ -1,6 +1,6 @@
 import qs from 'qs';
 
-import { SERVER_TYPES } from '@tamanu/shared/constants';
+import { SERVER_TYPES } from '@tamanu/constants';
 import { ForbiddenError } from '@tamanu/shared/errors';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 

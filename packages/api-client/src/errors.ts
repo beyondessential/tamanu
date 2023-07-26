@@ -1,4 +1,4 @@
-import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/shared/constants';
+import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 
 import { ResponseError } from './fetch';
 
