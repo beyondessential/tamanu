@@ -9,7 +9,6 @@ export const SettingsView = React.memo(() => {
   const api = useApi();
   const [settings, setSettings] = useState({});
   const [editMode, setEditMode] = useState(false);
-  const data = api.get('admin/settings');
 
   const toggleEditMode = () => {
     setEditMode(!editMode);
@@ -21,7 +20,7 @@ export const SettingsView = React.memo(() => {
       setSettings(settingsObject);
     };
     fetchSettings();
-  }, [data, api]);
+  }, [api]);
 
   return (
     <AdminViewContainer title="Settings">
