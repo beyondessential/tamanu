@@ -35,6 +35,7 @@ jobs:
           - "@tamanu/shared"
           - sync-server
           - "@tamanu/api-client"
+          - "@tamanu/constants"
 
     name: Test ${{ matrix.package }} os=${{ matrix.os }} node=${{ matrix.node }}
       pg=${{ matrix.postgres }}
@@ -79,6 +80,7 @@ jobs:
           - "@tamanu/shared"
           - sync-server
           - "@tamanu/api-client"
+          - "@tamanu/constants"
 
     name: Lint ${{ matrix.package }} node=${{ matrix.node }}
     runs-on: ubuntu-latest

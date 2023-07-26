@@ -235,7 +235,7 @@ export const FHIR_ENCOUNTER_CLASS_DISPLAY = {
 };
 
 export const FHIR_ENCOUNTER_CLASS_CODE = Object.fromEntries(
-  Object.keys(FHIR_ENCOUNTER_CLASS_DISPLAY).map(k => [k, k]),
+  Object.keys(FHIR_ENCOUNTER_CLASS_DISPLAY).map((k) => [k, k]),
 );
 
 export const FHIR_ENCOUNTER_STATUS = {

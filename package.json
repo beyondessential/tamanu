@@ -54,7 +54,8 @@
       "packages/sync-server",
       "packages/meta-server",
       "packages/shared",
-      "packages/api-client"
+      "packages/api-client",
+      "packages/constants"
     ],
     "nohoist": [
       "**/webpack",

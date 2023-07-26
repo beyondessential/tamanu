@@ -5,7 +5,9 @@ export const REPORT_REQUEST_STATUSES = {
   ERROR: 'Error',
 };
 
-export const REPORT_REQUEST_STATUS_VALUES = Object.values(REPORT_REQUEST_STATUSES);
+export const REPORT_REQUEST_STATUS_VALUES = Object.values(
+  REPORT_REQUEST_STATUSES,
+);
 
 export const REPORT_DATA_SOURCES = {
   THIS_FACILITY: 'thisFacility',
@@ -28,9 +30,12 @@ export const REPORT_DEFAULT_DATE_RANGES = {
   THIRTY_DAYS: '30days',
 };
 export const REPORT_DATE_RANGE_LABELS = {
-  [REPORT_DEFAULT_DATE_RANGES.ALL_TIME]: 'Date range (or leave blank for all data)',
+  [REPORT_DEFAULT_DATE_RANGES.ALL_TIME]:
+    'Date range (or leave blank for all data)',
   [REPORT_DEFAULT_DATE_RANGES.THIRTY_DAYS]:
     'Date range (or leave blank for the past 30 days of data)',
 };
 
-export const REPORT_DEFAULT_DATE_RANGES_VALUES = Object.values(REPORT_DEFAULT_DATE_RANGES);
+export const REPORT_DEFAULT_DATE_RANGES_VALUES = Object.values(
+  REPORT_DEFAULT_DATE_RANGES,
+);
