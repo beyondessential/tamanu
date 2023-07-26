@@ -20,4 +20,3 @@ export * from './user';
 export * from './migrateVitals';
 export * from './generateInitialVitalLogs';
 export * from './migrateChangelogNotesToEncounterHistory';
-export * from './loadSettings';

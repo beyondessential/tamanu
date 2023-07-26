@@ -1,12 +1,14 @@
+/* eslint-disable no-console */
+
 import { Command } from 'commander';
 import { QueryTypes } from 'sequelize';
 import { CONFIG_ENVS, getSettingDataFromConfigFile } from '@tamanu/shared/utils';
 import config from 'config';
+
 import { initDatabase } from '../database';
 
 async function initSettings({ preview }) {
   const context = await initDatabase();
-
   const data = await getSettingDataFromConfigFile(CONFIG_ENVS.DEFAULT, config.serverFacilityId);
 
   if (preview) {
@@ -40,9 +42,7 @@ export const settingsCommand = new Command('settings').description('Manage setti
   new Command('init')
     .description('Initialize settings from config json files')
     .option('--preview', 'Print the settings that will be loaded')
-    .action(async (...args) => {
-      // eslint-disable-next-line no-console
-      console.log(`-------------------------\n${await initSettings(...args)}`);
-      process.exit(0);
-    }),
+    .action(async (...args) =>
+      console.log(`-------------------------\n${await initSettings(...args)}`),
+    ),
 );
