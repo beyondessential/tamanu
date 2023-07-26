@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 
 import { fake, fakeReferenceData, showError } from 'shared/test-helpers';
-import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
 import { fakeUUID } from 'shared/utils/generateId';
 import { sleepAsync } from 'shared/utils/sleepAsync';
 

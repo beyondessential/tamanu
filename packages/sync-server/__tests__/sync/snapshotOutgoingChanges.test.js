@@ -9,7 +9,7 @@ import {
   COLUMNS_EXCLUDED_FROM_SYNC,
   SYNC_SESSION_DIRECTION,
 } from 'shared/sync';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { sleepAsync } from 'shared/utils/sleepAsync';
 import { fakeUUID } from 'shared/utils/generateId';
 

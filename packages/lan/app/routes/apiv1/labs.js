@@ -12,7 +12,7 @@ import {
   NOTE_RECORD_TYPES,
   VISIBILITY_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
-} from 'shared/constants';
+} from '@tamanu/constants';
 import { keyBy } from 'lodash';
 import { renameObjectKeys } from 'shared/utils';
 import { simpleGet, simpleGetList, permissionCheckingRouter } from 'shared/utils/crudHelpers';
