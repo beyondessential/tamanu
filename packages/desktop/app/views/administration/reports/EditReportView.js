@@ -16,7 +16,7 @@ const VersionsTableContainer = styled.div`
   margin-left: 20px;
 `;
 
-export const ReportsEditorView = () => {
+export const EditReportView = () => {
   const { currentUser } = useAuth();
   const queryClient = useQueryClient();
   const [report, setReport] = useState(null);

@@ -38,7 +38,7 @@ const SuccessMessage = ({ onClick, filePath }) => (
   </>
 );
 
-export const ReportsExportView = () => {
+export const ExportReportView = () => {
   const api = useApi();
   const { showItemInFolder, showSaveDialog } = useElectron();
 

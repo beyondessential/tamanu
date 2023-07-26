@@ -3,9 +3,9 @@ import styled from 'styled-components';
 import { TopBar } from '../../../components';
 import { TabDisplay } from '../../../components/TabDisplay';
 import { Colors } from '../../../constants';
-import { ReportsExportView } from './ReportsExportView';
-import { ReportsEditorView } from './ReportsEditorView';
-import { ReportsImportView } from './ReportsImportView';
+import { ExportReportView } from './ExportReportView';
+import { EditReportView } from './EditReportView';
+import { ImportReportView } from './ImportReportView';
 
 const OuterContainer = styled.div`
   position: relative;
@@ -25,22 +25,22 @@ const TabContainer = styled.div`
 `;
 
 const REPORT_TABS = {
-  EDITOR: 'editor',
+  EDIT: 'edit',
   IMPORT: 'import',
   EXPORT: 'export',
 };
 
 export const ReportsAdminView = () => {
-  const [currentTab, setCurrentTab] = useState(REPORT_TABS.EDITOR);
+  const [currentTab, setCurrentTab] = useState(REPORT_TABS.EDIT);
 
   const tabs = [
     {
-      label: 'Editor',
-      key: REPORT_TABS.EDITOR,
+      label: 'Edit',
+      key: REPORT_TABS.EDIT,
       icon: 'fa fa-edit',
       render: () => (
         <TabContainer>
-          <ReportsEditorView />
+          <EditReportView />
         </TabContainer>
       ),
     },
@@ -50,7 +50,7 @@ export const ReportsAdminView = () => {
       icon: 'fa fa-file-export',
       render: () => (
         <TabContainer>
-          <ReportsExportView />
+          <ExportReportView />
         </TabContainer>
       ),
     },
@@ -60,7 +60,7 @@ export const ReportsAdminView = () => {
       icon: 'fa fa-file-import',
       render: () => (
         <TabContainer>
-          <ReportsImportView />
+          <ImportReportView />
         </TabContainer>
       ),
     },
