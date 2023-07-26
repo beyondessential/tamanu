@@ -52,7 +52,7 @@ function clearLocalStorage() {
 
 export class TamanuApi extends ApiClient {
   constructor(appVersion) {
-    super('Tamanu Desktop', appVersion, getDeviceId);
+    super('Tamanu Desktop', appVersion, getDeviceId());
     this.user = null;
 
     const host = window.localStorage.getItem(HOST);
