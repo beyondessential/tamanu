@@ -8,7 +8,7 @@ import {
   DIAGNOSIS_CERTAINTY,
   NOTE_TYPES,
   VISIBILITY_STATUSES,
-} from '../constants';
+} from '@tamanu/constants';
 import { ageInYears, toDateTimeString, format } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 

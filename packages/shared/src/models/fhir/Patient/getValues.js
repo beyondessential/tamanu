@@ -2,7 +2,7 @@ import config from 'config';
 import { identity } from 'lodash';
 
 import { activeFromVisibility } from '../utils';
-import { FHIR_DATETIME_PRECISION } from '../../../constants';
+import { FHIR_DATETIME_PRECISION } from '@tamanu/constants';
 import {
   FhirAddress,
   FhirContactPoint,

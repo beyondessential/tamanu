@@ -1,6 +1,6 @@
 import { inRange } from 'lodash';
 import { log } from '../services/logging';
-import { PROGRAM_DATA_ELEMENT_TYPES } from '../constants/surveys';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants/';
 
 export function getStringValue(type, value) {
   if (value === null) {

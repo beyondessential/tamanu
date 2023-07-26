@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import {
   LOCATION_AVAILABILITY_TAG_CONFIG,
   LOCATION_AVAILABILITY_STATUS,
-} from '@tamanu/shared/constants';
+} from '@tamanu/constants';
 import { AutocompleteInput } from './AutocompleteField';
 import { useApi, useSuggester } from '../../api';
 import { Suggester } from '../../utils/suggester';

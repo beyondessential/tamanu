@@ -2,7 +2,7 @@ import { Sequelize } from 'sequelize';
 
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 

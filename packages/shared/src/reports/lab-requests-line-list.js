@@ -1,7 +1,7 @@
 import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
-import { LAB_REQUEST_STATUS_CONFIG } from '../constants';
+import { LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
 
 const FIELDS = [
   'Patient ID',

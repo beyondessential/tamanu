@@ -6,7 +6,7 @@ import {
   IMAGING_TYPES_VALUES,
   NOTE_TYPES,
   VISIBILITY_STATUSES,
-} from '../constants';
+} from '@tamanu/constants';
 import { getNotePageWithType } from '../utils/notePages';
 
 import { Model } from './Model';

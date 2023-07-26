@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 import { InvalidOperationError } from '../errors';
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { dateTimeType } from './dateTimeTypes';
 
 import { Model } from './Model';

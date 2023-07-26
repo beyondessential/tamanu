@@ -1,6 +1,6 @@
 import { Sequelize, ValidationError } from 'sequelize';
 import { InvalidOperationError } from '../errors';
-import { REFERENCE_TYPE_VALUES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '../constants';
+import { REFERENCE_TYPE_VALUES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 
 export class ReferenceData extends Model {

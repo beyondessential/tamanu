@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import { Box } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
-import { VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/shared/constants';
+import { VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/constants';
 import { Modal } from './Modal';
 import { ModalActionRow } from './ModalActionRow';
 import { Colors } from '../constants';

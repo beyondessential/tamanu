@@ -6,7 +6,7 @@ import {
   VACCINE_RECORDING_TYPES,
   VACCINE_CATEGORIES,
   SETTING_KEYS,
-} from '@tamanu/shared/constants';
+} from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
