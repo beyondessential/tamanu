@@ -6,7 +6,7 @@ import {
   VACCINE_RECORDING_TYPES,
   VACCINE_STATUS,
   SETTING_KEYS,
-} from 'shared/constants';
+} from '@tamanu/constants';
 import { fake } from 'shared/test-helpers/fake';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
 import { createTestContext } from '../utilities';

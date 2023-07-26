@@ -5,7 +5,7 @@ import express from 'express';
 
 import { getLoggingMiddleware } from 'shared/services/logging';
 import { constructPermission } from 'shared/permissions/middleware';
-import { SERVER_TYPES } from 'shared/constants';
+import { SERVER_TYPES } from '@tamanu/constants';
 
 import { buildRoutes } from './buildRoutes';
 import { authModule } from './auth';

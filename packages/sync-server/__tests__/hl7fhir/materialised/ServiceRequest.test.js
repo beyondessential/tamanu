@@ -8,7 +8,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   NOTE_TYPES,
   VISIBILITY_STATUSES,
-} from 'shared/constants';
+} from '@tamanu/constants';
 import { fakeUUID } from 'shared/utils/generateId';
 import { formatFhirDate } from 'shared/utils/fhir/datetime';
 

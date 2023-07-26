@@ -9,7 +9,7 @@ import {
   NOTE_RECORD_TYPES,
   VITALS_DATA_ELEMENT_IDS,
   IMAGING_REQUEST_STATUS_TYPES,
-} from 'shared/constants';
+} from '@tamanu/constants';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { notePageListHandler } from '../../routeHandlers';
 

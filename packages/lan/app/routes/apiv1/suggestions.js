@@ -10,7 +10,7 @@ import {
   REFERENCE_TYPES,
   INVOICE_LINE_TYPES,
   VISIBILITY_STATUSES,
-} from 'shared/constants';
+} from '@tamanu/constants';
 
 export const suggestions = express.Router();
 

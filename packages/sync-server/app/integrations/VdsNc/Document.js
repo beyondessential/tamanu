@@ -1,4 +1,4 @@
-import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
+import { ICAO_DOCUMENT_TYPES } from '@tamanu/constants';
 import { log } from 'shared/services/logging';
 import { Signer } from 'shared/models';
 import { depem, base64UrlEncode } from 'shared/utils';

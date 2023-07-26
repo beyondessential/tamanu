@@ -2,7 +2,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes, Sequelize } from 'sequelize';
 
 import { getPatientAdditionalData } from 'shared/utils';
-import { HIDDEN_VISIBILITY_STATUSES } from 'shared/constants/importable';
+import { HIDDEN_VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 
 import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from '../crudHelpers';
 import { patientSecondaryIdRoutes } from './patientSecondaryId';

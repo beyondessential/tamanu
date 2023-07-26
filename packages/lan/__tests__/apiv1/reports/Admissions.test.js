@@ -6,7 +6,7 @@ import {
   randomReferenceData,
 } from 'shared/demoData';
 import { subDays } from 'date-fns';
-import { ENCOUNTER_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { findOneOrCreate } from 'shared/test-helpers';
 import { format } from 'shared/utils/dateTime';
 import { Op } from 'sequelize';

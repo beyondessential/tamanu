@@ -2,7 +2,7 @@ import config from 'config';
 
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { LAB_REQUEST_STATUSES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 
 export const labResultWidgetRoutes = express.Router();
 

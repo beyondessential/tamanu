@@ -3,7 +3,7 @@ import {
   createDummyEncounter,
   randomReferenceId,
 } from 'shared/demoData/patients';
-import { NOTE_RECORD_TYPES, NOTE_TYPES } from 'shared/constants';
+import { NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
 import { chance } from 'shared/test-helpers';
 import { createTestContext } from '../utilities';
 

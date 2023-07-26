@@ -9,7 +9,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   NOTE_TYPES,
   VITALS_DATA_ELEMENT_IDS,
-} from 'shared/constants';
+} from '@tamanu/constants';
 import { setupSurveyFromObject } from 'shared/demoData/surveys';
 import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';

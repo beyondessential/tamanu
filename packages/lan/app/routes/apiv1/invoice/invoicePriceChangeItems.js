@@ -1,6 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
-import { INVOICE_PRICE_CHANGE_ITEM_STATUSES } from 'shared/constants';
+import { INVOICE_PRICE_CHANGE_ITEM_STATUSES } from '@tamanu/constants';
 import { NotFoundError } from 'shared/errors';
 import { permissionCheckingRouter, simpleGetList } from '../crudHelpers';
 

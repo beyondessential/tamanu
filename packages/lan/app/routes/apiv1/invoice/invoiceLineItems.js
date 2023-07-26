@@ -1,7 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
-import { INVOICE_LINE_ITEM_STATUSES } from 'shared/constants';
+import { INVOICE_LINE_ITEM_STATUSES } from '@tamanu/constants';
 import { permissionCheckingRouter, simpleGet, simpleGetList, simplePut } from '../crudHelpers';
 import { renameObjectKeys } from '../../../utils/renameObjectKeys';
 import { getPotentialInvoiceLineItems } from './getPotentialInvoiceLineItems';
