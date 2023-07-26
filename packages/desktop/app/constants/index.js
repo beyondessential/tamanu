@@ -301,6 +301,7 @@ export const LOCAL_STORAGE_KEYS = {
   SERVER: 'server',
   REMEMBER_EMAIL: 'remember-email',
   PERMISSIONS: 'permissions',
+  ROLE: 'role',
 };
 
 export const appointmentTypeOptions = Object.values(APPOINTMENT_TYPES).map(type => ({

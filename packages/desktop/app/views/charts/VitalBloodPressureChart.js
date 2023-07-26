@@ -4,11 +4,18 @@ import { LineChart } from '../../components/Charts/LineChart';
 import { useEncounter } from '../../contexts/Encounter';
 import { useVitalQuery } from '../../api/queries/useVitalQuery';
 import { getVitalChartProps } from '../../components/Charts/helpers/getVitalChartProps';
+import { useVitalChartData } from '../../contexts/VitalChartData';
 
 // Fetching and preparing blood pressure data for vital chart
 export const VitalBloodPressureChart = props => {
   const { visualisationConfig, dateRange, isInMultiChartsView } = props;
   const { encounter } = useEncounter();
+  const { visualisationConfigs } = useVitalChartData();
+
+  // Because this is a special view it needs more information
+  const dbpVisualisationConfig = visualisationConfigs.find(
+    config => config.key === VITALS_DATA_ELEMENT_IDS.dbp,
+  );
 
   const { data: sbpChartData, isLoading: isSbpLoading } = useVitalQuery(
     encounter.id,
@@ -48,6 +55,7 @@ export const VitalBloodPressureChart = props => {
         isLoading={isSbpLoading || isDbpLoading}
         chartProps={chartProps}
         useInwardArrowVector
+        secondaryConfig={dbpVisualisationConfig}
       />
     </>
   );
