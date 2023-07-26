@@ -1,5 +1,9 @@
+/// <reference path="../../shared/types/errors.d.ts" />
+/// <reference path="../../shared/types/buildAbility.d.ts" />
+
 import qs from 'qs';
 
+import type { AnyAbility, PureAbility } from '@casl/ability';
 import { SERVER_TYPES } from '@tamanu/constants';
 import { ForbiddenError } from '@tamanu/shared/errors';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
@@ -35,12 +39,12 @@ export interface ChangePasswordArgs {
   email: string;
 }
 
-export interface LoginOutput {
+export interface LoginOutput<T extends AnyAbility = PureAbility> {
   user: UserResponse;
   token: string;
   localisation: object;
   server: string;
-  ability: string;
+  ability: T;
   role: string;
 }
 
