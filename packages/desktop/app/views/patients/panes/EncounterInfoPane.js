@@ -3,8 +3,8 @@ import { formatShort } from '../../../components';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 import { getFullLocationName } from '../../../utils/location';
 import { InfoCard, InfoCardItem, InfoCardHeader } from '../../../components/InfoCard';
+import { getDepartmentName } from '../../../utils/department';
 
-const getDepartmentName = ({ department }) => (department ? department.name : 'Unknown');
 const getReferralSource = ({ referralSource }) =>
   referralSource ? referralSource.name : 'Unknown';
 
