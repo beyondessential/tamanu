@@ -4,6 +4,7 @@ import { TopBar } from '../../../components';
 import { TabDisplay } from '../../../components/TabDisplay';
 import { Colors } from '../../../constants';
 import { ExportReportView } from './ExportReportView';
+import { NewReportView } from './NewReportView';
 import { EditReportView } from './EditReportView';
 import { ImportReportView } from './ImportReportView';
 
@@ -41,6 +42,16 @@ export const ReportsAdminView = () => {
       render: () => (
         <TabContainer>
           <EditReportView />
+        </TabContainer>
+      ),
+    },
+    {
+      label: 'Create',
+      key: REPORT_TABS.CREATE,
+      icon: 'fa fa-plus',
+      render: () => (
+        <TabContainer>
+          <NewReportView />
         </TabContainer>
       ),
     },
