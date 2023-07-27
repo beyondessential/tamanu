@@ -1,12 +1,11 @@
 import React, { useMemo } from 'react';
 import * as yup from 'yup';
-import { useQuery } from '@tanstack/react-query';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
+import { uniqBy } from 'lodash';
 import styled from 'styled-components';
-import { useApi } from '../../api';
 import { Field, TextField } from '../../components';
 import { TestSelectorField } from '../../views/labRequest/TestSelector';
-import { Heading3, BodyText } from '../../components/Typography';
+import { BodyText, Heading3 } from '../../components/Typography';
 
 const StyledBodyText = styled(BodyText)`
   margin-bottom: 28px;
@@ -16,77 +15,89 @@ const StyledBodyText = styled(BodyText)`
 export const screen2ValidationSchema = yup.object().shape({
   labTestTypeIds: yup
     .array()
-    .of(yup.string())
-    .required(),
-  labTestPanelId: yup.string(),
+    .nullable()
+    .when('requestFormType', {
+      is: val => val === LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
+      then: yup
+        .array()
+        .of(yup.string())
+        .min(1, 'Please select at least one test type'),
+    }),
+  panelIds: yup
+    .array()
+    .nullable()
+    .when('requestFormType', {
+      is: val => val === LAB_REQUEST_FORM_TYPES.PANEL,
+      then: yup
+        .array()
+        .of(yup.string())
+        .min(1, 'Please select at least one panel'),
+    }),
   notes: yup.string(),
 });
 
-const SECTION_LABELS = {
+const FORM_TYPE_TO_FIELD_CONFIG = {
   [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: {
     subheading: 'Select tests',
     instructions:
       'Please select the test or tests you would like to request below and add any relevant notes. \nYou can filter test by category using the field below.',
-    testSelectorFieldLabel: 'Select tests',
+    selectableName: 'test',
+    fieldName: 'labTestTypeIds',
   },
   [LAB_REQUEST_FORM_TYPES.PANEL]: {
     subheading: 'Select panel',
     instructions:
       'Please select the panel or panels you would like to request below and add any relevant notes.',
-    testSelectorFieldLabel: 'Select the test panel or panels',
+    label: 'Select the test panel or panels',
+    selectableName: 'panel',
+    searchFieldPlaceholder: 'Search panel or category',
+    fieldName: 'panelIds',
   },
   [LAB_REQUEST_FORM_TYPES.SUPERSET]: {
     subheading: 'Select superset',
     instructions:
       'Please select the superset you would like to request below and add any relevant notes. \nYou can also remove or add additional panels to your request.',
-    testSelectorFieldLabel: 'Select superset',
+    selectableName: 'panel',
   },
 };
 
 export const LabRequestFormScreen2 = props => {
   const {
-    values: { requestFormType, labTestPanelId },
-    setFieldValue,
+    values: { requestFormType },
+    onSelectionChange,
   } = props;
 
-  const formTypeToLabelConfig = useMemo(() => {
-    return SECTION_LABELS[requestFormType] || { testSelectorFieldLabel: 'Select tests' };
-  }, [requestFormType]);
-  const api = useApi();
-  const { data: testTypesData, isLoading } = useQuery(['labTestTypes'], () =>
-    api.get('labTestType'),
-  );
-
-  const handleClearPanel = () => {
-    setFieldValue('labTestPanelId', undefined);
+  const fieldConfig = useMemo(() => FORM_TYPE_TO_FIELD_CONFIG[requestFormType], [requestFormType]);
+  const { subheading, instructions, fieldName } = fieldConfig;
+  const handleSelectionChange = ({ selectedObjects }) => {
+    if (!onSelectionChange) return;
+    const isPanelRequest = requestFormType === LAB_REQUEST_FORM_TYPES.PANEL;
+    const getKey = ({ category = {}, id }) => (isPanelRequest ? id : category.id);
+    const grouped = uniqBy(selectedObjects, getKey).map(({ category = {}, id, name }) => ({
+      categoryId: category.id,
+      categoryName: category.name,
+      ...(isPanelRequest ? { panelId: id, panelName: name } : {}),
+    }));
+    onSelectionChange(grouped);
   };
 
   return (
     <>
       <div style={{ gridColumn: '1 / -1' }}>
-        {formTypeToLabelConfig.subheading && (
-          <Heading3 mb="12px">{formTypeToLabelConfig.subheading}</Heading3>
-        )}
-        {formTypeToLabelConfig.instructions && (
-          <StyledBodyText mb="28px" color="textTertiary">
-            {formTypeToLabelConfig.instructions}
-          </StyledBodyText>
-        )}
+        <Heading3 mb="12px">{subheading}</Heading3>
+        <StyledBodyText color="textTertiary">{instructions}</StyledBodyText>
         <Field
-          name="labTestTypeIds"
-          label={formTypeToLabelConfig.testSelectorFieldLabel || 'Select tests'}
-          onClearPanel={handleClearPanel}
+          name={fieldName}
+          labelConfig={fieldConfig}
           component={TestSelectorField}
           requestFormType={requestFormType}
-          labTestPanelId={labTestPanelId}
-          testTypes={testTypesData}
-          isLoading={isLoading}
+          onChange={handleSelectionChange}
           required
           {...props}
         />
       </div>
       <div style={{ gridColumn: '1 / -1' }}>
-        <Field name="note" label="Notes" component={TextField} multiline rows={3} />
+        <Field name="notes" label="Notes" component={TextField} multiline rows={3} />
       </div>
     </>
   );

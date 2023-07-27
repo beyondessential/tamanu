@@ -31,7 +31,7 @@ jobs:
         script: |
           const cwd = '${{ github.workspace }}';
           const { createReleaseBranch } = await import(`${cwd}/scripts/gha-release-ops.mjs`);
-          await createReleaseBranch(await import('fs'), github, context, cwd);
+          await createReleaseBranch(await import('fs'), github, context, cwd, '${{ github.event.inputs.version }}');
 
     - name: Bump version on main
       run: node scripts/version.mjs '${{ github.event.inputs.version }}'

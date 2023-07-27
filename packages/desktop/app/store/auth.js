@@ -16,8 +16,8 @@ const CHANGE_PASSWORD_FAILURE = 'CHANGE_PASSWORD_FAILURE';
 
 export const restoreSession = () => async (dispatch, getState, { api }) => {
   try {
-    const { user, token, localisation, server, ability } = await api.restoreSession();
-    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server, ability });
+    const { user, token, localisation, server, ability, role } = await api.restoreSession();
+    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server, ability, role });
   } catch (e) {
     // no action required -- this just means we haven't logged in
   }
@@ -27,8 +27,12 @@ export const login = (host, email, password) => async (dispatch, getState, { api
   dispatch({ type: LOGIN_START });
 
   try {
-    const { user, token, localisation, server, ability } = await api.login(host, email, password);
-    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server, ability });
+    const { user, token, localisation, server, ability, role } = await api.login(
+      host,
+      email,
+      password,
+    );
+    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server, ability, role });
   } catch (error) {
     dispatch({ type: LOGIN_FAILURE, error: error.message });
   }
@@ -95,6 +99,7 @@ const defaultState = {
   error: null,
   token: null,
   localisation: null,
+  role: null,
   server: null,
   resetPassword: {
     loading: false,
@@ -113,6 +118,7 @@ const actionHandlers = {
   [LOGIN_START]: () => ({
     loading: true,
     user: defaultState.user,
+    role: defaultState.role,
     error: defaultState.error,
   }),
   [LOGIN_SUCCESS]: action => ({
@@ -123,6 +129,7 @@ const actionHandlers = {
     token: action.token,
     localisation: action.localisation,
     server: action.server,
+    role: action.role,
     resetPassword: defaultState.resetPassword,
     changePassword: defaultState.changePassword,
   }),
@@ -132,11 +139,13 @@ const actionHandlers = {
   }),
   [LOGOUT_WITH_ERROR]: ({ error }) => ({
     user: defaultState.user,
+    role: defaultState.role,
     error,
     token: null,
   }),
   [LOGOUT]: () => ({
     user: defaultState.user,
+    role: defaultState.role,
     token: null,
   }),
   [REQUEST_PASSWORD_RESET_START]: () => ({

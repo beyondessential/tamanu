@@ -26,7 +26,7 @@ export const userMiddleware = ({ secret }) =>
 
     let contents = null;
     try {
-      contents = verifyToken(token, secret, {
+      contents = await verifyToken(token, secret, {
         issuer: canonicalHostName,
         audience: JWT_TOKEN_TYPES.ACCESS,
       });

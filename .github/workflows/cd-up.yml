@@ -56,8 +56,8 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: ap-southeast-2
-          role-to-assume: arn:aws:iam::143295493206:role/gha-build
-          role-session-name: GithubActionsTamanuBuild
+          role-to-assume: arn:aws:iam::143295493206:role/gha-image-push
+          role-session-name: GHA@Tamanu=BuildImage
 
       - name: Login to ECR
         id: login-ecr
@@ -140,7 +140,7 @@ jobs:
           secret-ids: "INTERNAL_DB, ${{ vars.INTERNAL_DB_SECRET_ARN }}"
 
       - name: Connect to Tailscale
-        uses: ./.github/actions/tailscale
+        uses: tailscale/github-action@v2
         with:
           oauth-secret: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
           tags: tag:infra,tag:infra-gha-deploy

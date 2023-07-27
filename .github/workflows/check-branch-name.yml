@@ -11,13 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.base.ref == 'main' || github.event.pull_request.base.ref == 'dev'
     steps:
-    - name: Warn if branch name is not prefixed with feature/ or fix/
+    - name: Warn if branch name doesn't start with conventional prefixes
       env:
         BRANCH_NAME: ${{ github.head_ref }}
       shell: bash
       run: |
-        if ! grep -qP '^(feature|fix|epic)/' <<< "$BRANCH_NAME"; then
-          echo "::warning::Branch name should be prefixed with feature/ or fix/ or epic/"
+        if ! grep -qP '^(feature|fix|epic|merge)/' <<< "$BRANCH_NAME"; then
+          echo "::warning::Branch name should be prefixed with feature/ or fix/ or epic/ or merge/"
           exit 1
         fi
 

@@ -17,6 +17,8 @@ permissions:
 
 jobs:
   info:
+    # only run for manual dispatch or for non-permanent branches
+    if: github.event_name == 'workflow_dispatch' || (!startsWith(github.ref, 'refs/heads/release') && github.ref != 'refs/heads/main')
     name: Branch info
     uses: ./.github/workflows/branch-info.yml
 
@@ -56,7 +58,7 @@ jobs:
         working-directory: ops/pulumi
 
       - name: Connect to Tailscale
-        uses: ./.github/actions/tailscale
+        uses: tailscale/github-action@v2
         with:
           oauth-secret: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
           tags: tag:infra,tag:infra-gha-deploy
