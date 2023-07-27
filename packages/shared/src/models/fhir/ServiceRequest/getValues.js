@@ -88,6 +88,9 @@ async function getValuesFromImagingRequest(upstream, models) {
       reference: upstream.encounter.patient.id,
       display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
     }),
+    encounter: new FhirReference({
+      reference: `Encounter/${upstream.encounter.id}`,
+    }),
     occurrenceDateTime: formatFhirDate(upstream.requestedDate),
     requester: new FhirReference({
       display: upstream.requestedBy.displayName,
