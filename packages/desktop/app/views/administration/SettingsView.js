@@ -1,23 +1,84 @@
 import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
+import AceEditor from 'react-ace';
+import 'ace-builds/src-noconflict/mode-json';
+import 'ace-builds/src-noconflict/theme-github';
 
+import { Colors } from '../../constants';
 import { LargeButton, ContentPane } from '../../components';
 import { AdminViewContainer } from './components/AdminViewContainer';
-import { JSONViewer, JSONEditor } from './components/JSONViewer';
 import { useApi } from '../../api';
+
+const JSONViewContainer = styled.pre`
+  border: 1px solid ${Colors.outline};
+  border-radius: 4px;
+  padding: 15px;
+`;
+
+const StyledAceEditor = styled(AceEditor)`
+  border: 1px solid ${Colors.outline};
+  border-radius: 4px;
+  margin: 10px 0;
+`;
+
+const ValidationIndicator = styled.div`
+  background-color: ${p => (p.$isJsonValid ? 'green' : 'red')};
+  border: 1px solid ${Colors.outline};
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  color: white;
+  height: 30px;
+  width: 100px;
+  margin-top: 10px;
+  margin-left: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  z-index: 1;
+  right: 50px;
+  top: 126px;
+`;
 
 export const SettingsView = React.memo(() => {
   const api = useApi();
   const [settings, setSettings] = useState({});
+  const [settingsEditString, setSettingsEditString] = useState({});
   const [editMode, setEditMode] = useState(false);
 
   const toggleEditMode = () => {
     setEditMode(!editMode);
   };
 
+  const saveSettings = () => {
+    if (isJsonValid) {
+      setSettings(JSON.parse(settingsEditString));
+      console.log('Settings saved!');
+    } else {
+      console.log('invalid json');
+    }
+  };
+
+  const onChange = newValue => {
+    setSettingsEditString(newValue);
+  };
+
+  const checkValidJson = json => {
+    try {
+      JSON.parse(json);
+    } catch (e) {
+      return false;
+    }
+    return true;
+  };
+
+  const isJsonValid = checkValidJson(settingsEditString);
+
   useEffect(() => {
     const fetchSettings = async () => {
       const settingsObject = await api.get('admin/settings');
       setSettings(settingsObject);
+      setSettingsEditString(JSON.stringify(settingsObject, null, 2));
     };
     fetchSettings();
   }, [api]);
@@ -26,8 +87,25 @@ export const SettingsView = React.memo(() => {
     <AdminViewContainer title="Settings">
       <ContentPane>
         <LargeButton onClick={toggleEditMode}>{editMode ? 'Cancel' : 'Edit settings'}</LargeButton>
-        {editMode && <LargeButton ml="1">Save</LargeButton>}
-        {editMode ? <JSONEditor json={settings} /> : <JSONViewer json={settings} />}
+        {editMode ? (
+          <>
+            <ValidationIndicator $isJsonValid={isJsonValid}>
+              {isJsonValid ? 'Valid' : 'Invalid'}
+            </ValidationIndicator>
+            <StyledAceEditor
+              width="100%"
+              mode="json"
+              theme="github"
+              onChange={onChange}
+              value={settingsEditString}
+            />
+            <LargeButton disabled={!isJsonValid} onClick={saveSettings}>
+              Save
+            </LargeButton>
+          </>
+        ) : (
+          <JSONViewContainer>{JSON.stringify(settings, null, 2)}</JSONViewContainer>
+        )}
       </ContentPane>
     </AdminViewContainer>
   );
