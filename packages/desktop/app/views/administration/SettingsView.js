@@ -8,6 +8,7 @@ import { Colors } from '../../constants';
 import { LargeButton, ContentPane } from '../../components';
 import { AdminViewContainer } from './components/AdminViewContainer';
 import { useApi } from '../../api';
+import { notifySuccess, notifyError } from '../../utils';
 
 const JSONViewContainer = styled.pre`
   border: 1px solid ${Colors.outline};
@@ -22,7 +23,7 @@ const StyledAceEditor = styled(AceEditor)`
 `;
 
 const ValidationIndicator = styled.div`
-  background-color: ${p => (p.$isJsonValid ? 'green' : 'red')};
+  background-color: ${p => (p.$isJsonValid ? Colors.green : Colors.alert)};
   border: 1px solid ${Colors.outline};
   border-bottom: none;
   border-radius: 4px 4px 0 0;
@@ -53,9 +54,10 @@ export const SettingsView = React.memo(() => {
   const saveSettings = () => {
     if (isJsonValid) {
       setSettings(JSON.parse(settingsEditString));
-      console.log('Settings saved!');
+      toggleEditMode();
+      notifySuccess('Settings saved');
     } else {
-      console.log('invalid json');
+      notifyError('Invalid JSON');
     }
   };
 
