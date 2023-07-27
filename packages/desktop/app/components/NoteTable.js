@@ -25,11 +25,13 @@ const NoteRowContainer = styled.div`
 
 const NoteTypeContainer = styled.div`
   font-weight: 500;
-  color: ${Colors.darkText};
+  color: ${Colors.midText};
+  margin-bottom: 5px;
 `;
 
 const NoDataMessage = styled.span`
   font-weight: 500;
+  color: ${Colors.primary};
 `;
 
 const NoteContentContainer = styled.div`
@@ -230,7 +232,7 @@ const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) =
             to add a note.
           </NoDataMessage>
         }
-        statusMessageColor={Colors.primary}
+        noDataBackgroundColor={Colors.background}
       />
     </>
   );

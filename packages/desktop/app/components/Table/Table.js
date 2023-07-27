@@ -129,7 +129,7 @@ const StyledTableCell = styled(TableCell)`
 
 const StyledTable = styled(MaterialTable)`
   border-collapse: unset;
-  background: ${Colors.white};
+  background: ${props => props.$backgroundColor};
 
   &:last-child {
     border-bottom: none;
@@ -341,13 +341,12 @@ class TableComponent extends React.Component {
       rowStyle,
       refreshTable,
       isLoadingMore,
-      statusMessageColor,
     } = this.props;
 
     const status = this.getStatusMessage();
     if (status) {
       return (
-        <StatusRow textColor={statusMessageColor} colSpan={columns.length}>
+        <StatusRow colSpan={columns.length}>
           {errorMessage ? <ErrorSpan>{status}</ErrorSpan> : status}
         </StatusRow>
       );
@@ -434,12 +433,17 @@ class TableComponent extends React.Component {
       fixedHeader,
       lazyLoading,
       optionRow,
+      data,
+      isLoading,
+      noDataBackgroundColor,
     } = this.props;
 
     return (
       <StyledTableContainer className={className} $elevated={elevated}>
         {optionRow && <OptionRow>{optionRow}</OptionRow>}
-        <StyledTable>
+        <StyledTable
+          $backgroundColor={data.length || isLoading ? Colors.white : noDataBackgroundColor}
+        >
           {!hideHeader && (
             <StyledTableHead $headerColor={headerColor} $fixedHeader={fixedHeader}>
               <StyledTableRow>{this.renderHeaders()}</StyledTableRow>
@@ -490,6 +494,7 @@ TableComponent.propTypes = {
   elevated: PropTypes.bool,
   lazyLoading: PropTypes.bool,
   isLoadingMore: PropTypes.bool,
+  noDataBackgroundColor: PropTypes.string,
 };
 
 TableComponent.defaultProps = {
@@ -518,6 +523,7 @@ TableComponent.defaultProps = {
   allowExport: true,
   lazyLoading: false,
   isLoadingMore: false,
+  noDataBackgroundColor: Colors.white,
 };
 
 export const Table = ({ columns: allColumns, data, exportName, ...props }) => {
