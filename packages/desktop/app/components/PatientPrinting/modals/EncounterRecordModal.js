@@ -1,5 +1,4 @@
 import React from 'react';
-import { groupBy } from 'lodash';
 
 import { NOTE_TYPES } from '@tamanu/shared/constants/notes';
 import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants/labs';
@@ -188,19 +187,6 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const notesQuery = useEncounterNotes(encounter.id);
   const notes = notesQuery?.data?.data;
 
-  const rootNotes =
-    notes
-      ?.filter(note => note.noteType !== NOTE_TYPES.SYSTEM && !note.revisedById)
-      .sort((a, b) => new Date(a.date) - new Date(b.date)) || [];
-  const revisedNotes =
-    notes
-      ?.filter(note => note.noteType !== NOTE_TYPES.SYSTEM && !!note.revisedById)
-      .sort((a, b) => new Date(b.date) - new Date(a.date)) || [];
-  const revisedNotesByRootNoteId = groupBy(revisedNotes, 'revisedById');
-  const displayNotes = rootNotes.map(
-    rootNote => revisedNotesByRootNoteId[rootNote.id]?.[0] || rootNote,
-  );
-
   const systemNotes = notes?.filter(note => {
     return note.noteType === NOTE_TYPES.SYSTEM;
   });
@@ -241,7 +227,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           procedures={procedures}
           labRequests={updatedLabRequests}
           imagingRequests={updatedImagingRequests}
-          notes={displayNotes}
+          notes={notes}
           discharge={discharge}
           village={village}
           pad={padData}

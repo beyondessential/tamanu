@@ -27,6 +27,7 @@ const NoteContentContainer = styled.div`
   position: relative;
   overflow: hidden;
   display: -webkit-box;
+  white-space: pre-wrap;
   ${props =>
     !props.$expanded
       ? `
