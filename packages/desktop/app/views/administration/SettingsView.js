@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
-import 'ace-builds/src-noconflict/theme-chrome';
 
 import { Colors } from '../../constants';
 import { LargeButton, ContentPane } from '../../components';
@@ -85,10 +84,14 @@ export const SettingsView = React.memo(() => {
     fetchSettings();
   }, [api]);
 
+  // TODO: Need to be able to delete keys from the settings object. Looks like some logic already on model but not working
+
   return (
     <AdminViewContainer title="Settings">
       <ContentPane>
-        <LargeButton onClick={toggleEditMode}>{editMode ? 'Cancel' : 'Edit'}</LargeButton>
+        <LargeButton variant={editMode ? 'outlined' : 'contained'} onClick={toggleEditMode}>
+          {editMode ? 'Cancel' : 'Edit'}
+        </LargeButton>
         {editMode && (
           <SaveButton disabled={!isJsonValid} onClick={saveSettings}>
             Save
@@ -114,9 +117,8 @@ export const SettingsView = React.memo(() => {
           <StyledAceEditor
             width="100%"
             height="600px"
-            mode="json"
-            theme="chrome"
             value={JSON.stringify(settings, null, 2)}
+            mode="json"
             readOnly
             highlightActiveLine={false}
             $isJsonValid={isJsonValid}
