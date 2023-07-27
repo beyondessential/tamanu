@@ -3,18 +3,13 @@ import styled from 'styled-components';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
+import 'ace-builds/src-noconflict/theme-chrome';
 
 import { Colors } from '../../constants';
 import { LargeButton, ContentPane } from '../../components';
 import { AdminViewContainer } from './components/AdminViewContainer';
 import { useApi } from '../../api';
 import { notifySuccess, notifyError } from '../../utils';
-
-const JSONViewContainer = styled.pre`
-  border: 1px solid ${Colors.outline};
-  border-radius: 4px;
-  padding: 15px;
-`;
 
 const StyledAceEditor = styled(AceEditor)`
   border: 1px solid ${Colors.outline};
@@ -41,6 +36,10 @@ const ValidationIndicator = styled.div`
   top: 126px;
 `;
 
+const SaveButton = styled(LargeButton)`
+  margin-left: 10px;
+`;
+
 export const SettingsView = React.memo(() => {
   const api = useApi();
   const [settings, setSettings] = useState({});
@@ -55,6 +54,7 @@ export const SettingsView = React.memo(() => {
     if (isJsonValid) {
       setSettings(JSON.parse(settingsEditString));
       toggleEditMode();
+      api.put('admin/settings', JSON.parse(settingsEditString));
       notifySuccess('Settings saved');
     } else {
       notifyError('Invalid JSON');
@@ -88,7 +88,12 @@ export const SettingsView = React.memo(() => {
   return (
     <AdminViewContainer title="Settings">
       <ContentPane>
-        <LargeButton onClick={toggleEditMode}>{editMode ? 'Cancel' : 'Edit settings'}</LargeButton>
+        <LargeButton onClick={toggleEditMode}>{editMode ? 'Cancel' : 'Edit'}</LargeButton>
+        {editMode && (
+          <SaveButton disabled={!isJsonValid} onClick={saveSettings}>
+            Save
+          </SaveButton>
+        )}
         {editMode ? (
           <>
             <ValidationIndicator $isJsonValid={isJsonValid}>
@@ -101,12 +106,16 @@ export const SettingsView = React.memo(() => {
               onChange={onChange}
               value={settingsEditString}
             />
-            <LargeButton disabled={!isJsonValid} onClick={saveSettings}>
-              Save
-            </LargeButton>
           </>
         ) : (
-          <JSONViewContainer>{JSON.stringify(settings, null, 2)}</JSONViewContainer>
+          <StyledAceEditor
+            width="100%"
+            mode="json"
+            theme="chrome"
+            value={JSON.stringify(settings, null, 2)}
+            readOnly
+            highlightActiveLine={false}
+          />
         )}
       </ContentPane>
     </AdminViewContainer>

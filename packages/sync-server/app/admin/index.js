@@ -1,6 +1,7 @@
 import express from 'express';
 
 import { ForbiddenError, NotFoundError } from 'shared/errors';
+import { buildSettingsRecords } from 'shared/models/Setting';
 import { constructPermission } from 'shared/permissions/middleware';
 import asyncHandler from 'express-async-handler';
 import { createDataImporterEndpoint } from './importerEndpoint';
@@ -80,6 +81,15 @@ adminRoutes.get(
   asyncHandler(async (req, res) => {
     const { Setting } = req.store.models;
     const data = await Setting.get();
+    res.send(data);
+  }),
+);
+
+adminRoutes.put(
+  '/settings',
+  asyncHandler(async (req, res) => {
+    const { Setting } = req.store.models;
+    const data = await Setting.set('', req.body);
     res.send(data);
   }),
 );
