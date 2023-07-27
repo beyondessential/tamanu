@@ -95,7 +95,7 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
       }
     >
       <>
-        <LocalisedField name="displayId" component={SearchField} />
+        <LocalisedField useShortLabel keepLetterCase name="displayId" component={SearchField} />
         <LocalisedField name="firstName" component={SearchField} />
         <LocalisedField name="lastName" component={SearchField} />
         <Field name="requestId" label="Test ID" component={SearchField} />

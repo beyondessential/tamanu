@@ -72,7 +72,7 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         defaultLabel="Until"
         component={DateTimeField}
       />
-      <LocalisedField name="displayId" component={SearchField} />
+      <LocalisedField useShortLabel keepLetterCase name="displayId" component={SearchField} />
     </CustomisableSearchBar>
   );
 };

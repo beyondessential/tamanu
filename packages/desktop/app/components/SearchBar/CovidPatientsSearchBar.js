@@ -12,7 +12,7 @@ export const CovidPatientsSearchBar = React.memo(({ onSearch }) => {
       <LocalisedField name="firstName" component={SearchField} />
       <LocalisedField name="lastName" component={SearchField} />
       <LocalisedField name="villageId" component={AutocompleteField} suggester={villageSuggester} />
-      <LocalisedField name="displayId" component={SearchField} />
+      <LocalisedField useShortLabel keepLetterCase name="displayId" component={SearchField} />
       <DOBFields />
       <Field name="clinicalStatus" label="Clinical status" component={SearchField} />
       <SearchBarCheckField name="deceased" label="Include deceased patients" />
