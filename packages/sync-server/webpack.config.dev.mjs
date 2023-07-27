@@ -1,9 +1,9 @@
-import baseConfig, { nodemon } from '../../common.webpack.config.mjs';
+import { NODE_WEBPACK_CONFIG_SWC, nodemon } from '@tamanu/build-tooling';
 
 const watch = !process.env.NOWATCH;
 
 export default {
-  ...baseConfig,
+  ...NODE_WEBPACK_CONFIG_SWC,
   mode: 'development',
   devtool: 'eval',
   watch,

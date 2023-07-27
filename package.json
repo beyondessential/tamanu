@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "1.27.0",
+  "version": "1.30.0",
   "description": "This repo contains all the packages for Tamanu",
   "main": "index.js",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -8,7 +8,8 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN license",
   "scripts": {
-    "build-shared": "yarn workspace shared-src run build && yarn install --frozen-lockfile",
+    "create-package": "node scripts/create-package.mjs",
+    "build-shared": "node scripts/build-shared.mjs",
     "build": "yarn build-shared && concurrently \"yarn workspace sync-server run build\" \"yarn workspace lan run build\" \"yarn workspace desktop run build\" \"yarn workspace meta-server run build\" \"yarn workspace csca run build\"",
     "test": "yarn run build-shared && node scripts/test-all.mjs",
     "test-coverage": "yarn run test --coverage",
@@ -24,7 +25,7 @@
     "lan-migrate": "yarn run build-shared && TAMANU_ARGS=\"migrate up\" yarn run lan-start-dev",
     "lan-migrate-down": "yarn run build-shared && TAMANU_ARGS=\"migrate down\" yarn run lan-start-dev",
     "server-migrate-create": "node scripts/create_server_migration.mjs",
-    "shared-test": "yarn run build-shared && yarn workspace shared-src run test",
+    "shared-test": "yarn run build-shared && yarn workspace @tamanu/shared run test",
     "sync-test": "yarn run build-shared && yarn workspace sync-server run test",
     "sync-shell": "yarn run build-shared && yarn workspace sync-server run shell",
     "sync-start-dev": "yarn run build-shared && yarn run watch-shared-and sync-server start-dev",
@@ -44,6 +45,7 @@
   "private": true,
   "workspaces": {
     "packages": [
+      "packages/build-tooling",
       "packages/csca",
       "packages/scripts",
       "packages/qr-tester",
@@ -51,8 +53,7 @@
       "packages/lan",
       "packages/sync-server",
       "packages/meta-server",
-      "packages/shared",
-      "packages/shared-src"
+      "packages/shared"
     ],
     "nohoist": [
       "**/webpack",
@@ -66,11 +67,12 @@
   "devDependencies": {
     "@octokit/request": "^5.6.3",
     "eslint-config-prettier": "^4.3.0",
+    "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react-hooks": "^4.3.0",
     "nodemon": "^2.0.19",
-    "nodemon-webpack-plugin": "^4.8.1",
     "prettier": "^1.17.1",
+    "yaml": "^2.2.1",
     "yarn": "^1.22.18"
   },
   "dependencies": {

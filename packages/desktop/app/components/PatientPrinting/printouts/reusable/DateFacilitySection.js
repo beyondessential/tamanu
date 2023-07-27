@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { getCurrentDateString } from 'shared/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 import { getFullLocationName } from '../../../../utils/location';
 import { DateDisplay } from '../../../DateDisplay';

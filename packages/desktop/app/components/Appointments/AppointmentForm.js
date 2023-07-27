@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import * as yup from 'yup';
-import { APPOINTMENT_STATUSES } from 'shared/constants';
+import { APPOINTMENT_STATUSES } from '@tamanu/shared/constants';
 import { FormGrid } from '../FormGrid';
 import { Field, Form, AutocompleteField, SelectField, DateTimeField } from '../Field';
 import { ConfirmCancelRow } from '../ButtonRow';

@@ -1,6 +1,6 @@
 import { capitalize } from 'lodash';
 
-import { createValueIndex } from 'shared/utils/valueIndex';
+import { createValueIndex } from '@tamanu/shared/utils/valueIndex';
 import {
   ENCOUNTER_TYPES,
   NOTE_TYPES,
@@ -20,7 +20,7 @@ import {
   LAB_REQUEST_STATUSES,
   LOCATION_AVAILABILITY_STATUS,
   LOCATION_AVAILABILITY_TAG_CONFIG,
-} from 'shared/constants';
+} from '@tamanu/shared/constants';
 
 import {
   medicationIcon,
@@ -301,6 +301,7 @@ export const LOCAL_STORAGE_KEYS = {
   SERVER: 'server',
   REMEMBER_EMAIL: 'remember-email',
   PERMISSIONS: 'permissions',
+  ROLE: 'role',
 };
 
 export const appointmentTypeOptions = Object.values(APPOINTMENT_TYPES).map(type => ({

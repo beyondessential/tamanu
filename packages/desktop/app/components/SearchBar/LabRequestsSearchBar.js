@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { LAB_REQUEST_STATUSES } from 'shared/constants/labs';
+import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants';
 import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
 import {
   DateField,
@@ -9,7 +9,7 @@ import {
   Field,
   SuggesterSelectField,
   SearchField,
-  DisplayIdField,
+  DisplayIdSearchField,
   AutocompleteField,
   CheckField,
 } from '../Field';
@@ -97,7 +97,7 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
       }
     >
       <>
-        <DisplayIdField useShortLabel />
+        <DisplayIdSearchField useShortLabel />
         <LocalisedField name="firstName" component={SearchField} />
         <LocalisedField name="lastName" component={SearchField} />
         <Field name="requestId" label="Test ID" component={SearchField} />

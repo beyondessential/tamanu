@@ -1,4 +1,5 @@
 import { useSelector, useDispatch } from 'react-redux';
+import { useQueryClient } from '@tanstack/react-query';
 import { logout, idleTimeout } from '../store';
 import { useApi } from '../api';
 
@@ -9,6 +10,7 @@ import { useApi } from '../api';
 export const useAuth = () => {
   const dispatch = useDispatch();
   const api = useApi();
+  const queries = useQueryClient();
 
   return {
     ...useSelector(state => ({
@@ -16,8 +18,12 @@ export const useAuth = () => {
       ability: state.auth.ability,
       facility: state.auth.server?.facility || {},
       centralHost: state.auth.server?.centralHost,
+      currentRole: state.auth.role,
     })),
-    onLogout: () => dispatch(logout()),
+    onLogout: () => {
+      dispatch(logout());
+      queries.invalidateQueries();
+    },
     onTimeout: () => dispatch(idleTimeout()),
     refreshToken: () => api.refreshToken(),
   };
