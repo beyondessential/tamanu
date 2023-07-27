@@ -1,17 +1,17 @@
 import express from 'express';
-
 import { ForbiddenError, NotFoundError } from 'shared/errors';
 import { constructPermission } from 'shared/permissions/middleware';
 import asyncHandler from 'express-async-handler';
-import { createDataImporterEndpoint } from './importerEndpoint';
-
+import bodyParser from 'body-parser';
+import { promises as fs } from 'fs';
+import { createChunkedUploadEndpoint, createDataImporterEndpoint } from './importerEndpoint';
 import { programImporter } from './programImporter';
 import { referenceDataImporter } from './referenceDataImporter';
-import { exporter } from './exporter';
-
+import { exporter, getExportedFileSize, getExportedFileName } from './exporter';
 import { mergePatientHandler } from './patientMerge';
 import { syncLastCompleted } from './sync';
 import { assetRoutes } from './asset';
+import { writeChunkData } from './exporter/writeChunkData';
 
 export const adminRoutes = express.Router();
 
@@ -59,6 +59,10 @@ adminRoutes.get(
 );
 
 adminRoutes.post('/import/referenceData', createDataImporterEndpoint(referenceDataImporter));
+adminRoutes.post(
+  '/import/referenceData/process',
+  createDataImporterEndpoint(referenceDataImporter, true),
+);
 
 adminRoutes.post('/import/program', createDataImporterEndpoint(programImporter));
 
@@ -70,6 +74,44 @@ adminRoutes.get(
     res.download(filename);
   }),
 );
+
+adminRoutes.post(
+  '/export/referenceData/generate',
+  asyncHandler(async (req, res) => {
+    const { store, body } = req;
+    const filename = getExportedFileName(req.user.id);
+    await exporter(store.models, body.includedDataTypes, filename);
+    const fileDetails = await getExportedFileSize(filename);
+    res.send({
+      message: 'File was created successfully',
+      ...fileDetails,
+    });
+  }),
+);
+
+adminRoutes.get(
+  '/export/download',
+  asyncHandler(async (req, res) => {
+    const start = parseInt(req.query.start); // Assuming the start parameter is passed as a query parameter
+    const end = parseInt(req.query.end); // Assuming the end parameter is passed as a query parameter
+    const filename = getExportedFileName(req.user.id);
+    await writeChunkData(filename, start, end, res);
+  }),
+);
+
+adminRoutes.post(
+  '/export/completed',
+  asyncHandler(async (req, res) => {
+    const filename = getExportedFileName(req.user.id);
+    await fs.unlink(filename);
+    res.send({
+      message: 'Export completed successfully',
+    });
+  }),
+);
+
+adminRoutes.use(bodyParser.raw({ type: 'application/octet-stream', limit: '10mb' }));
+adminRoutes.post('/upload/chunk', createChunkedUploadEndpoint());
 
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
 

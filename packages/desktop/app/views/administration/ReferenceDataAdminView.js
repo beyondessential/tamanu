@@ -8,5 +8,6 @@ export const ReferenceDataAdminView = () => (
     endpoint="referenceData"
     dataTypes={GENERAL_IMPORTABLE_DATA_TYPES}
     dataTypesSelectable
+    useChunkData
   />
 );

@@ -148,67 +148,77 @@ const OutcomeDisplay = ({ result }) => {
   );
 };
 
-export const ImporterView = memo(({ endpoint, dataTypes, dataTypesSelectable, setIsLoading }) => {
-  const [resetKey, setResetKey] = useState(Math.random());
-  const [result, setResult] = useState(null);
+export const ImporterView = memo(
+  ({ endpoint, dataTypes, dataTypesSelectable, setIsLoading, useChunkData }) => {
+    const [resetKey, setResetKey] = useState(Math.random());
+    const [result, setResult] = useState(null);
 
-  const api = useApi();
+    const api = useApi();
 
-  const onSubmitUpload = useCallback(
-    async ({ file, ...data }) => {
-      setResult(null);
-      setIsLoading(true);
-      try {
-        const intermediateResult = await api.postWithFileUpload(
-          `admin/import/${endpoint}`,
-          file,
-          data,
-        );
+    const onSubmitUpload = useCallback(
+      async ({ file, ...data }) => {
+        setResult(null);
+        setIsLoading(true);
+        try {
+          let intermediateResult = {};
+          if (useChunkData) {
+            // This is to handle the nginx limitation we have when uploading larger files.
+            await api.uploadFileInChunks(`admin/upload/chunk`, file);
+            intermediateResult = await api.post(`admin/import/${endpoint}/process`, {
+              ...data,
+            });
+          } else {
+            intermediateResult = await api.postWithFileUpload(
+              `admin/import/${endpoint}`,
+              file,
+              data,
+            );
+          }
+          if (intermediateResult.sentData) {
+            // reset the form
+            setResetKey(Math.random());
+          }
 
-        if (intermediateResult.sentData) {
-          // reset the form
-          setResetKey(Math.random());
+          setResult(intermediateResult);
+          return true;
+        } finally {
+          setIsLoading(false);
         }
+      },
+      [api, endpoint, setIsLoading, useChunkData],
+    );
 
-        setResult(intermediateResult);
-        return true;
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [api, endpoint, setIsLoading],
-  );
+    const renderForm = useCallback(
+      props => (
+        <ImportForm dataTypes={dataTypes} dataTypesSelectable={dataTypesSelectable} {...props} />
+      ),
+      [dataTypes, dataTypesSelectable],
+    );
 
-  const renderForm = useCallback(
-    props => (
-      <ImportForm dataTypes={dataTypes} dataTypesSelectable={dataTypesSelectable} {...props} />
-    ),
-    [dataTypes, dataTypesSelectable],
-  );
+    const initialDataTypes = useMemo(() => dataTypes && [...dataTypes], [dataTypes]);
 
-  const initialDataTypes = useMemo(() => dataTypes && [...dataTypes], [dataTypes]);
-
-  return (
-    <>
-      <Form
-        key={resetKey}
-        onSubmit={onSubmitUpload}
-        validationSchema={yup.object().shape({
-          includedDataTypes: dataTypesSelectable
-            ? yup
-                .array()
-                .of(yup.string())
-                .required()
-                .min(1)
-            : undefined,
-          file: yup.string().required(),
-        })}
-        initialValues={{
-          includedDataTypes: initialDataTypes,
-        }}
-        render={renderForm}
-      />
-      <OutcomeDisplay result={result} />
-    </>
-  );
-});
+    return (
+      <>
+        <Form
+          key={resetKey}
+          onSubmit={onSubmitUpload}
+          validationSchema={yup.object().shape({
+            includedDataTypes: dataTypesSelectable
+              ? yup
+                  .array()
+                  .of(yup.string())
+                  .required()
+                  .min(1)
+              : undefined,
+            file: yup.string().required(),
+          })}
+          initialValues={{
+            includedDataTypes: initialDataTypes,
+          }}
+          render={renderForm}
+        />
+        <OutcomeDisplay result={result} />
+      </>
+    );
+  },
+);

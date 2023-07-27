@@ -305,6 +305,34 @@ export class TamanuApi {
     });
   }
 
+  async uploadFileInChunks(endpoint, filePath, options) {
+    const fileStats = await promises.stat(filePath);
+    const fileSize = fileStats.size;
+
+    const chunkSize = 5 * 1024 * 1024; // 5MB
+
+    let start = 0;
+    let end = Math.min(chunkSize, fileSize);
+    const fileContent = await promises.readFile(filePath);
+    while (start < fileSize) {
+      const chunk = fileContent.slice(start, end);
+      const headers = {
+        'content-type': 'application/octet-stream',
+        'content-range': `bytes=${start}-${end}/${fileSize}`,
+      };
+
+      await this.fetch(endpoint, null, {
+        method: 'POST',
+        body: chunk,
+        headers,
+        ...options,
+      });
+
+      start = end;
+      end = Math.min(end + chunkSize, fileSize);
+    }
+  }
+
   async post(endpoint, body, options = {}) {
     return this.fetch(endpoint, null, {
       method: 'POST',

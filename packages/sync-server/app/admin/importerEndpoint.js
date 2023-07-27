@@ -96,11 +96,22 @@ export async function importerTransaction({
     };
   }
 }
+function getImportedFileName(userId) {
+  return `imported-${userId}.xlsx`;
+}
 
-export function createDataImporterEndpoint(importer) {
+async function getDataFromFileSystem(req) {
+  const { ...otherProps } = req.body;
+  const fileName = getImportedFileName(req.user.id);
+  if (!fileName) throw Error('File name is required');
+
+  const file = fileName;
+  return { ...otherProps, deleteFileAfterImport: true, file };
+}
+
+export function createDataImporterEndpoint(importer, importingUsingChunks = false) {
   return asyncHandler(async (req, res) => {
     const start = Date.now();
-    const { store } = req;
 
     // read uploaded data
     const {
@@ -108,8 +119,9 @@ export function createDataImporterEndpoint(importer) {
       deleteFileAfterImport = true,
       dryRun = false,
       includedDataTypes,
-    } = await getUploadedData(req);
+    } = importingUsingChunks ? await getDataFromFileSystem(req) : await getUploadedData(req);
 
+    const { store } = req;
     const result = await importerTransaction({
       importer,
       file,
@@ -138,5 +150,40 @@ export function createDataImporterEndpoint(importer) {
         host: config.canonicalHostName,
       },
     });
+  });
+}
+
+export function createChunkedUploadEndpoint() {
+  return asyncHandler(async (req, res) => {
+    const contentRange = req.headers['content-range'];
+    const userId = req.user.id;
+    // Parse the range information from the Content-Range header
+    const [, start, end, fileSize] = contentRange.match(/bytes=(\d+)-(\d+)\/(\d+)/);
+    if (!req.app.locals.fileData) {
+      req.app.locals.fileData = {};
+    }
+
+    if (parseInt(start, 10) === 0) {
+      // Reset upload
+      req.app.locals.fileData[req.user.id] = null;
+    }
+    // Extract the uploaded chunk data from the request body
+    const chunkData = req.body;
+    if (!req.app.locals.fileData[userId]) {
+      req.app.locals.fileData[userId] = Buffer.from(chunkData, 'binary');
+    } else {
+      req.app.locals.fileData[userId] = Buffer.concat([req.app.locals.fileData[userId], chunkData]);
+    }
+    if (end !== fileSize) {
+      // Chunk received successfully, send a partial content response
+      res.status(206).send({});
+      return;
+    }
+
+    const fileName = getImportedFileName(userId);
+    await fs.writeFile(fileName, req.app.locals.fileData[userId], { encoding: 'binary' });
+
+    // File is fully uploaded
+    res.status(200).send({ message: 'File was created succesfully' });
   });
 }
