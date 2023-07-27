@@ -40,7 +40,7 @@ const DISCHARGED_MEDICATION_COLUMNS = [
   {
     key: 'location.facility.name',
     title: 'Facility',
-    accessor: data => data?.encounter?.location?.facility?.name ?? '',
+    accessor: data => data?.encounter?.location.facility.name ?? '',
     sortable: false,
   },
   {
