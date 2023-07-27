@@ -8,7 +8,9 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   NOTE_TYPES,
   VISIBILITY_STATUSES,
+  LAB_REQUEST_STATUSES,
 } from 'shared/constants';
+import { randomLabRequest } from '@tamanu/shared/demoData';
 import { fakeUUID } from 'shared/utils/generateId';
 import { formatFhirDate } from 'shared/utils/fhir/datetime';
 
@@ -83,10 +85,16 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         FhirServiceRequest,
         ImagingRequest,
         ImagingRequestArea,
+        LabRequest,
+        LabTestPanel,
+        LabTestPanelRequest,
       } = ctx.store.models;
       await FhirServiceRequest.destroy({ where: {} });
       await ImagingRequest.destroy({ where: {} });
       await ImagingRequestArea.destroy({ where: {} });
+      await LabRequest.destroy({ where: {} });
+      await LabTestPanel.destroy({ where: {} });
+      await LabTestPanelRequest.destroy({ where: {} });
 
       encounter = await Encounter.create(
         fake(Encounter, {
@@ -98,7 +106,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       );
     });
 
-    it('fetches a service request by materialised ID', async () => {
+    it('fetches a service request by materialised ID (imaging request)', async () => {
       // arrange
       const { FhirServiceRequest, ImagingRequest, NoteItem, NotePage } = ctx.store.models;
       const ir = await ImagingRequest.create(
@@ -210,6 +218,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           type: 'Patient',
           display: `${resources.patient.firstName} ${resources.patient.lastName}`,
         },
+        encounter: {
+          reference: `Encounter/${encounter.id}`,
+        },
         occurrenceDateTime: formatFhirDate('2022-03-04 15:30:00'),
         requester: {
           display: resources.practitioner.displayName,
@@ -231,6 +242,116 @@ Patient may need mobility assistance`,
             text: 'Patient may have shrapnel in leg - need to confirm beforehand',
           },
         ],
+      });
+      expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
+      expect(response).toHaveSucceeded();
+
+      // regression EPI-403
+      expect(response.body.subject).not.toHaveProperty('identifier');
+    });
+
+    it('fetches a service request by materialised ID (lab request)', async () => {
+      // arrange
+      const {
+        FhirServiceRequest,
+        LabRequest,
+        ReferenceData,
+        LabTestPanel,
+        LabTestPanelRequest,
+      } = ctx.store.models;
+      const category = await ReferenceData.create({
+        id: 'test1',
+        type: 'labTestCategory',
+        code: 'test1',
+        name: 'Test 1',
+      });
+      const labTestPanel = await LabTestPanel.create({
+        ...fake(LabTestPanel),
+        categoryId: category.id,
+      });
+      const labTestPanelRequest = await LabTestPanelRequest.create({
+        ...fake(LabTestPanelRequest),
+        labTestPanelId: labTestPanel.id,
+        encounterId: encounter.id,
+      });
+      const labRequestData = await randomLabRequest(ctx.store.models, {
+        requestedById: resources.practitioner.id,
+        patientId: resources.patient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        labTestPanelRequestId: labTestPanelRequest.id, // make one of them part of a panel
+        requestedDate: '2022-07-27 16:30:00',
+      });
+      const lr = await LabRequest.create(labRequestData);
+      const mat = await FhirServiceRequest.materialiseFromUpstream(lr.id);
+      await FhirServiceRequest.resolveUpstreams();
+
+      const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`;
+
+      // act
+      const response = await app.get(path);
+
+      // normalise for comparison
+      // eslint-disable-next-line no-unused-expressions
+      response.body?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
+      response.body?.identifier?.sort((a, b) => a.system.localeCompare(b.system));
+
+      // assert
+      expect(response.body).toMatchObject({
+        resourceType: 'ServiceRequest',
+        id: expect.any(String),
+        meta: {
+          lastUpdated: formatFhirDate(mat.lastUpdated),
+        },
+        identifier: [
+          {
+            system: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-labrequest.html',
+            value: lr.id,
+          },
+          {
+            system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-labrequest.html',
+            value: lr.displayId,
+          },
+        ],
+        status: 'completed',
+        intent: 'order',
+        category: [
+          {
+            coding: [
+              {
+                system: 'http://snomed.info/sct',
+                code: '108252007',
+              },
+            ],
+          },
+        ],
+        priority: 'routine',
+        code: {
+          coding: [
+            {
+              code: labTestPanel.externalCode,
+              display: labTestPanel.name,
+              system:
+                'http://intersystems.com/fhir/extn/sda3/lib/code-table-translated-prior-codes',
+            },
+          ],
+        },
+        orderDetail: [],
+        subject: {
+          reference: `Patient/${resources.pat.id}`,
+          type: 'Patient',
+          display: `${resources.patient.firstName} ${resources.patient.lastName}`,
+        },
+        encounter: {
+          reference: `Encounter/${encounter.id}`,
+        },
+        occurrenceDateTime: formatFhirDate('2022-07-27 16:30:00'),
+        requester: {
+          display: resources.practitioner.displayName,
+          reference: `Practitioner/${resources.practitioner.id}`,
+        },
+        locationCode: [],
+        note: [],
       });
       expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
       expect(response).toHaveSucceeded();
