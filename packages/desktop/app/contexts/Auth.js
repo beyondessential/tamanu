@@ -2,6 +2,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
 import { logout, idleTimeout } from '../store';
 import { useApi } from '../api';
+import { useEncounterNotes } from './EncounterNotes';
 
 // This is just a redux selector for now.
 // This should become its own proper context once the auth stuff
@@ -11,6 +12,7 @@ export const useAuth = () => {
   const dispatch = useDispatch();
   const api = useApi();
   const queries = useQueryClient();
+  const { resetNoteContext } = useEncounterNotes();
 
   return {
     ...useSelector(state => ({
@@ -23,6 +25,7 @@ export const useAuth = () => {
     onLogout: () => {
       dispatch(logout());
       queries.invalidateQueries();
+      resetNoteContext();
     },
     onTimeout: () => dispatch(idleTimeout()),
     refreshToken: () => api.refreshToken(),

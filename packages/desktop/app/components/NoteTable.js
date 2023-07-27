@@ -5,7 +5,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import { NOTE_TYPES } from '@tamanu/shared/constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-import { Colors } from '../constants';
+import { Colors, NOTE_TYPE_LABELS } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { NOTE_FORM_MODES, NoteModal } from './NoteModal';
 import { withPermissionCheck } from './withPermissionCheck';
@@ -21,6 +21,15 @@ const StyledEditIcon = styled(EditIcon)`
 const NoteRowContainer = styled.div`
   display: flex;
   flex-direction: column;
+`;
+
+const NoteTypeContainer = styled.div`
+  font-weight: 500;
+  color: ${Colors.darkText};
+`;
+
+const NoDataMessage = styled.span`
+  font-weight: 500;
 `;
 
 const NoteContentContainer = styled.div`
@@ -98,6 +107,7 @@ const NoteContent = ({
   const handleReadLess = useCallback(() => setTextIsExpanded(false), []);
   return (
     <NoteRowContainer>
+      <NoteTypeContainer>{NOTE_TYPE_LABELS[note.noteType]}</NoteTypeContainer>
       <NoteBodyContainer>
         <NoteContentContainer
           $expanded={textIsExpanded}
@@ -214,9 +224,12 @@ const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) =
         endpoint={`encounter/${encounterId}/notes`}
         fetchOptions={{ noteType }}
         elevated={false}
-        noDataMessage={`This patient has no notes ${
-          noteType ? 'of this type ' : ''
-        }to display. Click ‘New note’ to add a note.`}
+        noDataMessage={
+          <NoDataMessage>
+            This patient has no notes {noteType ? 'of this type ' : ''}to display. Click ‘New note’
+            to add a note.
+          </NoDataMessage>
+        }
         statusMessageColor={Colors.primary}
       />
     </>
