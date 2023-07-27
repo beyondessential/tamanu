@@ -104,7 +104,6 @@ const ItemTooltip = ({ childNoteItems = [] }) => {
   return childNoteItems.map(noteItem => (
     <div key={noteItem.id}>
       <StyledNoteItemLogMetadata>
-        <div>{noteItem.type} </div>
         {noteItem.author?.displayName ? <span>{noteItem.author.displayName} </span> : null}
         {noteItem.onBehalfOf?.displayName ? (
           <span>on behalf of {noteItem.onBehalfOf.displayName} </span>
