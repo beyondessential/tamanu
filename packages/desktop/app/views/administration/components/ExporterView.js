@@ -29,42 +29,70 @@ const ExportForm = ({ isSubmitting, dataTypes, dataTypesSelectable }) => (
   </FormGrid>
 );
 
-export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelectable }) => {
-  const api = useApi();
+export const ExporterView = memo(
+  ({ title, endpoint, dataTypes, dataTypesSelectable, useChunkData }) => {
+    const api = useApi();
 
-  const onSubmit = useCallback(
-    async ({ includedDataTypes }) => {
-      const blob = await api.download(`admin/export/${endpoint}`, {
-        includedDataTypes,
-      });
-      saveBlobAs(blob, {
-        defaultFileName: `${title} export ${getCurrentCountryTimeZoneDateTimeString()
-          .replaceAll(':', '-')
-          .replaceAll('/', '-')}.xlsx`,
-      });
-    },
-    [api, title, endpoint],
-  );
+    const onSubmit = useCallback(
+      async ({ includedDataTypes }) => {
+        let blob = new Blob([]);
+        if (useChunkData) {
+          // Generate the file without downloading it.
+          const { sizeInBytes, maxChunkSizeInBytes } = await api.post(
+            `admin/export/${endpoint}/generate`,
+            {
+              includedDataTypes,
+            },
+          );
 
-  const renderForm = useCallback(
-    props => (
-      <ExportForm dataTypes={dataTypes} dataTypesSelectable={dataTypesSelectable} {...props} />
-    ),
-    [dataTypes, dataTypesSelectable],
-  );
+          // Download the file using chunks
+          let start = 0;
+          let end = Math.min(maxChunkSizeInBytes, sizeInBytes);
+          while (start < sizeInBytes) {
+            const chunkedBlob = await api.download(`admin/export/download`, { start, end });
+            blob = new Blob([blob, chunkedBlob]);
+            start = end + 1;
+            end = Math.min(end + maxChunkSizeInBytes, sizeInBytes);
+          }
+        } else {
+          // Generate and download the file
+          blob = await api.download(`admin/export/${endpoint}`, {
+            includedDataTypes,
+          });
+        }
+        saveBlobAs(blob, {
+          defaultFileName: `${title} export ${getCurrentCountryTimeZoneDateTimeString()
+            .replaceAll(':', '-')
+            .replaceAll('/', '-')}.xlsx`,
+        });
 
-  return (
-    <>
-      <Form
-        onSubmit={onSubmit}
-        validationSchema={yup.object().shape({
-          includedDataTypes: yup.array(),
-        })}
-        initialValues={{
-          includedDataTypes: [...dataTypes],
-        }}
-        render={renderForm}
-      />
-    </>
-  );
-});
+        if (useChunkData) {
+          await api.post('admin/export/completed');
+        }
+      },
+      [api, title, endpoint, useChunkData],
+    );
+
+    const renderForm = useCallback(
+      props => (
+        <ExportForm dataTypes={dataTypes} dataTypesSelectable={dataTypesSelectable} {...props} />
+      ),
+      [dataTypes, dataTypesSelectable],
+    );
+
+    return (
+      <>
+        <Form
+          onSubmit={onSubmit}
+          validationSchema={yup.object().shape({
+            includedDataTypes: yup.array(),
+          })}
+          initialValues={{
+            includedDataTypes: [...dataTypes],
+          }}
+          render={renderForm}
+        />
+      </>
+    );
+  },
+);
