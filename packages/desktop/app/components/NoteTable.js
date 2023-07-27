@@ -5,7 +5,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import { NOTE_TYPES } from '@tamanu/shared/constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-import { Colors, NOTE_TYPE_LABELS } from '../constants';
+import { noteTypes, Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { NOTE_FORM_MODES, NoteModal } from './NoteModal';
 import { withPermissionCheck } from './withPermissionCheck';
@@ -38,6 +38,7 @@ const NoteContentContainer = styled.div`
   position: relative;
   overflow: hidden;
   display: -webkit-box;
+  white-space: pre-line;
   ${props =>
     !props.$expanded
       ? `
@@ -65,6 +66,15 @@ const ReadMoreSpan = styled(EllipsisHideShowSpan)`
 `;
 
 const ShowLessSpan = styled(EllipsisHideShowSpan)``;
+
+const NoteHeaderContainer = styled.div`
+  margin-bottom: 5px;
+`;
+
+const NoteHeaderText = styled.span`
+  font-weight: 500;
+  color: ${Colors.midText};
+`;
 
 const NoteBodyContainer = styled.div`
   display: flex;
@@ -102,6 +112,7 @@ const NoteContent = ({
   currentUser,
   handleEditNote,
   handleViewNoteChangeLog,
+  isNotFilteredByNoteType,
 }) => {
   const [contentIsClipped, setContentIsClipped] = useState(false);
   const [textIsExpanded, setTextIsExpanded] = useState(false);
@@ -109,7 +120,13 @@ const NoteContent = ({
   const handleReadLess = useCallback(() => setTextIsExpanded(false), []);
   return (
     <NoteRowContainer>
-      <NoteTypeContainer>{NOTE_TYPE_LABELS[note.noteType]}</NoteTypeContainer>
+      {isNotFilteredByNoteType && (
+        <NoteHeaderContainer>
+          <NoteHeaderText>
+            {noteTypes.find(type => type.value === note.noteType).label}
+          </NoteHeaderText>
+        </NoteHeaderContainer>
+      )}
       <NoteBodyContainer>
         <NoteContentContainer
           $expanded={textIsExpanded}
@@ -195,12 +212,13 @@ const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) =
             currentUser={currentUser}
             handleEditNote={handleEditNote}
             handleViewNoteChangeLog={handleViewNoteChangeLog}
+            isNotFilteredByNoteType={!noteType}
           />
         ),
         sortable: false,
       },
     ],
-    [hasPermission, currentUser, handleEditNote, handleViewNoteChangeLog],
+    [hasPermission, currentUser, noteType, handleEditNote, handleViewNoteChangeLog],
   );
 
   return (
