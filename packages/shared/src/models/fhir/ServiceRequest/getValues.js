@@ -103,11 +103,11 @@ async function getValuesFromLabRequest(upstream) {
     contained: labContained(upstream),
     identifier: [
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.serviceRequestImagingId,
+        system: config.hl7.dataDictionaries.serviceRequestLabId,
         value: upstream.id,
       }),
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.serviceRequestImagingDisplayId,
+        system: config.hl7.dataDictionaries.serviceRequestLabDisplayId,
         value: upstream.displayId,
       }),
     ],
