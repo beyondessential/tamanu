@@ -6,9 +6,9 @@ import {
   Form,
   Field,
   AutocompleteField,
-  ConfirmCancelRow,
   FormGrid,
   Modal,
+  ModalActionRow,
 } from '../../../components';
 
 const validationSchema = yup.object().shape({
@@ -43,7 +43,7 @@ export const LabRequestChangeLabModal = React.memo(
                 suggester={laboratorySuggester}
                 required
               />
-              <ConfirmCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onClose} />
+              <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onClose} />
             </FormGrid>
           )}
         />

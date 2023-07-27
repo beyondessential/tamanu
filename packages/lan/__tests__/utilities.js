@@ -1,6 +1,5 @@
 import 'jest-expect-message';
 import supertest from 'supertest';
-import Chance from 'chance';
 import config from 'config';
 import http from 'http';
 
@@ -11,11 +10,7 @@ import {
   seedLocationGroups,
   seedLabTests,
 } from 'shared/demoData';
-import { fake, showError } from 'shared/test-helpers';
-import {
-  setHardcodedPermissionsUseForTestsOnly,
-  unsetUseHardcodedPermissionsUseForTestsOnly,
-} from 'shared/permissions/rolesToPermissions';
+import { chance, fake, showError } from 'shared/test-helpers';
 
 import { createApp } from 'lan/app/createApp';
 import { initDatabase, closeDatabase } from 'lan/app/database';
@@ -28,19 +23,8 @@ import { deleteAllTestIds } from './setupUtilities';
 import { FacilitySyncManager } from '../app/sync/FacilitySyncManager';
 import { CentralServerConnection } from '../app/sync/CentralServerConnection';
 
-export function disableHardcodedPermissionsForSuite() {
-  beforeAll(() => {
-    setHardcodedPermissionsUseForTestsOnly(false);
-  });
-  afterAll(() => {
-    unsetUseHardcodedPermissionsUseForTestsOnly();
-  });
-}
-
 jest.mock('../app/sync/CentralServerConnection');
 jest.mock('../app/utils/uploadAttachment');
-
-const chance = new Chance();
 
 const formatError = response => `
 
@@ -140,7 +124,7 @@ export async function createTestContext() {
   await seedLocationGroups(models);
 
   // Create the facility for the current config if it doesn't exist
-  await models.Facility.findOrCreate({
+  const [facility] = await models.Facility.findOrCreate({
     where: {
       id: config.serverFacilityId,
     },
@@ -149,6 +133,9 @@ export async function createTestContext() {
       name: 'Test Facility',
     },
   });
+
+  // ensure there's a corresponding local system fact for it too
+  await models.LocalSystemFact.set('facilityId', facility.id);
 
   const expressApp = createApp(dbResult);
   const appServer = http.createServer(expressApp);
