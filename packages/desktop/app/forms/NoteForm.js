@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
 import { NOTE_TYPES } from '@tamanu/shared/constants';
 import { useLocalisation } from '../contexts/Localisation';
@@ -46,6 +47,10 @@ const getSelectableNoteTypes = noteTypeCountByType =>
 
 const StyledFormGrid = styled(FormGrid)`
   margin-bottom: 20px;
+`;
+const StyledDivider = styled(Divider)`
+  margin-top: 30px;
+  margin-bottom: 30px;
 `;
 const StyledTooltip = styled(props => (
   <Tooltip classes={{ popper: props.className }} {...props}>
@@ -148,6 +153,7 @@ export const NoteForm = ({
           rows={6}
         />
       )}
+      <StyledDivider />
       <ConfirmCancelRow
         onConfirm={noteFormMode === NOTE_FORM_MODES.VIEW_NOTE ? onCancel : submitForm}
         confirmText={confirmText}

@@ -177,6 +177,10 @@ export const noteTypes = [
   { value: NOTE_TYPES.SYSTEM, label: 'System', hideFromDropdown: true },
 ];
 
+export const NOTE_TYPE_LABELS = Object.fromEntries(
+  noteTypes.map(noteType => [noteType.value, noteType.label]),
+);
+
 export const encounterOptions = [
   { value: ENCOUNTER_TYPES.ADMISSION, label: 'Hospital admission', image: medicationIcon },
   {
