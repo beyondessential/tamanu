@@ -74,7 +74,7 @@ export const noteListHandler = recordType =>
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     };
 
-    const queryOrder = orderBy ? [[orderBy, order.toUpperCase()]] : [['date', 'DESC']];
+    const queryOrder = orderBy ? [[orderBy, order.toUpperCase()]] : [['revisedBy', 'date', 'DESC']];
 
     let rows;
     let totalCount;

@@ -23,6 +23,17 @@ const NoteRowContainer = styled.div`
   flex-direction: column;
 `;
 
+const NoteTypeContainer = styled.div`
+  font-weight: 500;
+  color: ${Colors.midText};
+  margin-bottom: 5px;
+`;
+
+const NoDataMessage = styled.span`
+  font-weight: 500;
+  color: ${Colors.primary};
+`;
+
 const NoteContentContainer = styled.div`
   position: relative;
   overflow: hidden;
@@ -233,10 +244,13 @@ const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) =
         endpoint={`encounter/${encounterId}/notes`}
         fetchOptions={{ noteType }}
         elevated={false}
-        noDataMessage={`This patient has no notes ${
-          noteType ? 'of this type ' : ''
-        }to display. Click ‘New note’ to add a note.`}
-        statusMessageColor={Colors.primary}
+        noDataMessage={
+          <NoDataMessage>
+            This patient has no notes {noteType ? 'of this type ' : ''}to display. Click ‘New note’
+            to add a note.
+          </NoDataMessage>
+        }
+        noDataBackgroundColor={Colors.background}
       />
     </>
   );
