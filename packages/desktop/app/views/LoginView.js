@@ -57,7 +57,7 @@ export const LoginView = () => {
 
   const [screen, setScreen] = useState('login');
 
-  const submitLogin = data => {
+  const submitLogin = async data => {
     const { host, email, password, rememberMe } = data;
 
     // If a different user logs in, reset patient state and navigate to index
@@ -72,7 +72,9 @@ export const LoginView = () => {
       localStorage.removeItem(REMEMBER_EMAIL);
     }
 
-    dispatch(login(host, email, password));
+    // The await is necessary to prevent redux-form unlocking submission
+    // redux-thunk definitely returns a promise, and this works
+    await dispatch(login(host, email, password));
   };
 
   return (
