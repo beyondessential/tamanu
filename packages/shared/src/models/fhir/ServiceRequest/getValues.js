@@ -108,7 +108,7 @@ async function getValuesFromLabRequest(upstream) {
       }),
       new FhirIdentifier({
         system: config.hl7.dataDictionaries.serviceRequestImagingDisplayId,
-        value: upstream.display_id,
+        value: upstream.displayId,
       }),
     ],
     status: statusFromLabRequest(upstream),

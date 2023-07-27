@@ -12,13 +12,13 @@ COPY package.json license ./
 FROM base AS build-base
 RUN apk add --no-cache \
     --virtual .build-deps \
-    make \
+    bash \
+    g++ \
     gcc \
     git \
-    g++ \
-    python3 \
-    bash \
-    jq
+    jq \
+    make \
+    python3
 COPY yarn.lock .yarnrc common.* babel.config.js scripts/docker-build-server.sh ./
 
 FROM base AS run-base
@@ -61,8 +61,32 @@ COPY packages/${PACKAGE_PATH}/ packages/${PACKAGE_PATH}/
 # do the build
 RUN ./docker-build-server.sh ${PACKAGE_PATH}
 
-# restart from a fresh base without the build tools
+
+## Special target for packaging the desktop app
+# layer efficiency or size doesn't matter as this is not distributed
+FROM electronuserland/builder:16-wine AS build-desktop
+RUN apt update && apt install -y jq
+WORKDIR /project
+COPY --from=build-base /app/ ./
+COPY --from=shared /app/packages/ packages/
+COPY packages/desktop/ packages/desktop/
+RUN yarn workspace desktop install --non-interactive --frozen-lockfile
+RUN yarn workspace desktop build
+ENV NODE_ENV=production
+WORKDIR /project/packages/desktop
+RUN jq '.build.win.target = ["nsis"] | .build.nsis.perMachine = false | .build.directories.output = "release/appdata"' \
+    package.json > /package-appdata.json
+RUN jq '.build.win.target = ["msi"] | .build.msi.shortcutName = "Tamanu \(.version)"' \
+    package.json > /package-msi.json
+RUN jq '.build.productName = "Tamanu Fiji" | .build.appId = "org.beyondessential.TamanuFiji" | .build.directories.output = "release/aspen"' \
+    /package-msi.json > /package-aspen.json
+RUN jq '.build.mac.target = "tar.xz"' \
+    package.json > /package-mac.json
+
+
+## Normal final target for servers
 FROM run-base as server
+# restart from a fresh base without the build tools
 ARG PACKAGE_PATH
 # FROM resets the ARGs, so we need to redeclare it
 

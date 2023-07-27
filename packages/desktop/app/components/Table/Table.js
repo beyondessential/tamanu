@@ -118,8 +118,11 @@ const StyledTable = styled(MaterialTable)`
 `;
 
 const StyledTableHead = styled(TableHead)`
-  background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
   white-space: nowrap;
+  .MuiTableCell-head {
+    background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
+    ${props => (props.$fixedHeader ? 'top: 0; position: sticky;' : '')}
+  }
 `;
 
 const StyledTableFooter = styled(TableFooter)`
@@ -174,7 +177,7 @@ const Row = React.memo(
           >
             <ErrorBoundary ErrorComponent={CellError}>
               {CellComponent ? (
-                <CellComponent value={displayValue} />
+                <CellComponent value={displayValue} data={data} />
               ) : (
                 <DisplayValue maxWidth={maxWidth} displayValue={displayValue} />
               )}
@@ -248,13 +251,17 @@ class TableComponent extends React.Component {
       titleData,
       headerOnChange,
     } = this.props;
-    const getContent = (key, sortable, title, titleAccessor, tooltip) => {
+    const getContent = ({ key, sortable, title, titleAccessor, tooltip, TitleCellComponent }) => {
       const onChange = headerOnChange ? event => headerOnChange(event, key) : null;
       const displayTitle = titleAccessor
         ? React.createElement(titleAccessor, { onChange, ...titleData, title })
         : title;
 
-      const headerElement = sortable ? (
+      const titleCellComponent = TitleCellComponent ? (
+        <TitleCellComponent value={displayTitle} />
+      ) : null;
+
+      const defaultHeaderElement = sortable ? (
         <TableSortLabel
           active
           direction={orderBy === key ? order : 'desc'}
@@ -267,6 +274,8 @@ class TableComponent extends React.Component {
         <span>{displayTitle || getLocalisation(`fields.${key}.shortLabel`) || key}</span>
       );
 
+      const headerElement = titleCellComponent || defaultHeaderElement;
+
       return tooltip ? (
         <ThemedTooltip title={tooltip}>{headerElement}</ThemedTooltip>
       ) : (
@@ -275,9 +284,9 @@ class TableComponent extends React.Component {
     };
 
     return columns.map(
-      ({ key, title, numeric, noTitle, titleAccessor, sortable = true, tooltip }) => (
+      ({ key, title, numeric, titleAccessor, sortable = true, tooltip, TitleCellComponent }) => (
         <HeaderContainer key={key} numeric={numeric}>
-          {getContent(key, sortable, title, titleAccessor, tooltip, noTitle)}
+          {getContent({ key, sortable, title, titleAccessor, tooltip, TitleCellComponent })}
         </HeaderContainer>
       ),
     );
@@ -360,13 +369,13 @@ class TableComponent extends React.Component {
   }
 
   render() {
-    const { className, elevated, headerColor, optionRow } = this.props;
+    const { className, elevated, headerColor, optionRow, fixedHeader } = this.props;
 
     return (
       <StyledTableContainer className={className} $elevated={elevated}>
         {optionRow && <OptionRow>{optionRow}</OptionRow>}
         <StyledTable>
-          <StyledTableHead $headerColor={headerColor}>
+          <StyledTableHead $headerColor={headerColor} $fixedHeader={fixedHeader}>
             <TableRow>{this.renderHeaders()}</TableRow>
           </StyledTableHead>
           <TableBody>{this.renderBodyContent()}</TableBody>

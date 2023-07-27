@@ -1,9 +1,6 @@
-import Chance from 'chance';
-import { fake } from 'shared/test-helpers';
+import { fake, chance } from 'shared/test-helpers';
 
 import { createTestContext } from '../utilities';
-
-const chance = new Chance();
 
 describe('ImagingResult', () => {
   let ctx;

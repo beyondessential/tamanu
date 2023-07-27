@@ -57,7 +57,7 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
       }
       open={open}
       onClose={onClose}
-      disableHeaderCloseIcon
+      cornerExitButton={false}
     >
       <ModalBody>
         <div>
