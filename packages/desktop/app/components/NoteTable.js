@@ -23,12 +23,6 @@ const NoteRowContainer = styled.div`
   flex-direction: column;
 `;
 
-const NoteTypeContainer = styled.div`
-  font-weight: 500;
-  color: ${Colors.midText};
-  margin-bottom: 5px;
-`;
-
 const NoDataMessage = styled.span`
   font-weight: 500;
   color: ${Colors.primary};
