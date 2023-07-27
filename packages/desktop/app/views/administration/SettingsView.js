@@ -12,7 +12,7 @@ import { useApi } from '../../api';
 import { notifySuccess, notifyError } from '../../utils';
 
 const StyledAceEditor = styled(AceEditor)`
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${p => (p.$isJsonValid ? Colors.outline : Colors.alert)};
   border-radius: 4px;
   margin: 10px 0;
 `;
@@ -101,20 +101,26 @@ export const SettingsView = React.memo(() => {
             </ValidationIndicator>
             <StyledAceEditor
               width="100%"
+              height="600px"
               mode="json"
               theme="github"
               onChange={onChange}
               value={settingsEditString}
+              $isJsonValid={isJsonValid}
+              showPrintMargin={false}
             />
           </>
         ) : (
           <StyledAceEditor
             width="100%"
+            height="600px"
             mode="json"
             theme="chrome"
             value={JSON.stringify(settings, null, 2)}
             readOnly
             highlightActiveLine={false}
+            $isJsonValid={isJsonValid}
+            showPrintMargin={false}
           />
         )}
       </ContentPane>
