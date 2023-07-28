@@ -79,6 +79,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
   describe('materialise', () => {
     let encounter;
+    let fhirEncounter;
     beforeEach(async () => {
       const {
         Encounter,
@@ -88,6 +89,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         LabRequest,
         LabTestPanel,
         LabTestPanelRequest,
+        FhirEncounter,
       } = ctx.store.models;
       await FhirServiceRequest.destroy({ where: {} });
       await ImagingRequest.destroy({ where: {} });
@@ -104,6 +106,8 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           examinerId: resources.practitioner.id,
         }),
       );
+
+      fhirEncounter = await FhirEncounter.materialiseFromUpstream(encounter.id);
     });
 
     it('fetches a service request by materialised ID (imaging request)', async () => {
@@ -219,7 +223,8 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           display: `${resources.patient.firstName} ${resources.patient.lastName}`,
         },
         encounter: {
-          reference: `Encounter/${encounter.id}`,
+          reference: `Encounter/${fhirEncounter.id}`,
+          type: 'Encounter',
         },
         occurrenceDateTime: formatFhirDate('2022-03-04 15:30:00'),
         requester: {
@@ -343,7 +348,8 @@ Patient may need mobility assistance`,
           display: `${resources.patient.firstName} ${resources.patient.lastName}`,
         },
         encounter: {
-          reference: `Encounter/${encounter.id}`,
+          reference: `Encounter/${fhirEncounter.id}`,
+          type: 'Encounter',
         },
         occurrenceDateTime: formatFhirDate('2022-07-27 16:30:00'),
         requester: {
