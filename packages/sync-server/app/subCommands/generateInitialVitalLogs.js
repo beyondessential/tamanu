@@ -55,7 +55,6 @@ async function generateVitalLogsInBatch(store, vitalsSurveyId, batchSize, offset
     },
   );
 
-  log.info(typeof metadata.rowCount);
   return metadata.rowCount;
 }
 
