@@ -1,11 +1,19 @@
 import { readFile } from 'fs/promises';
-import { Op } from 'sequelize';
 import config from 'config';
 import { pick } from 'lodash';
 import stripJsonComments from 'strip-json-comments';
 import { defaults } from '../settings/defaults';
 import { buildSettingsRecords } from '../models/Setting';
 import { SETTING_KEYS } from '../constants';
+
+const SETTINGS_PREDATING_MIGRATION = [
+  SETTING_KEYS.VACCINATION_DEFAULTS,
+  SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS,
+  'fhir.worker.heartbeat',
+  'certifications.covidClearanceCertificate',
+  'syncAllLabRequests',
+  'integrations.imaging',
+];
 
 export async function up(query) {
   const { serverFacilityId } = config;
@@ -26,20 +34,15 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  // Should this be a soft delete
-  await query.sequelize.models.Setting.destroy({
-    where: {
-      key: {
-        // Existed before migration created
-        [Op.notIn]: [
-          SETTING_KEYS.VACCINATION_DEFAULTS,
-          SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS,
-          'fhir.worker.heartbeat',
-          'certifications.covidClearanceCertificate',
-          'syncAllLabRequests',
-          'integrations.imaging',
-        ],
+  await query.sequelize.query(
+    `
+      DELETE FROM settings
+      WHERE key NOT IN (:keys)
+    `,
+    {
+      replacements: {
+        keys: SETTINGS_PREDATING_MIGRATION,
       },
     },
-  });
+  );
 }
