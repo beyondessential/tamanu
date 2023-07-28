@@ -80,7 +80,7 @@ adminRoutes.get(
   '/settings',
   asyncHandler(async (req, res) => {
     const { Setting } = req.store.models;
-    const data = await Setting.get();
+    const data = await Setting.get('', req.query.facilityId);
     res.send(data);
   }),
 );
@@ -89,7 +89,16 @@ adminRoutes.put(
   '/settings',
   asyncHandler(async (req, res) => {
     const { Setting } = req.store.models;
-    const data = await Setting.set('', req.body);
+    const data = await Setting.set('', req.body.settings, req.body.facilityId);
+    res.send(data);
+  }),
+);
+
+adminRoutes.get(
+  '/facilities',
+  asyncHandler(async (req, res) => {
+    const { Facility } = req.store.models;
+    const data = await Facility.findAll();
     res.send(data);
   }),
 );
