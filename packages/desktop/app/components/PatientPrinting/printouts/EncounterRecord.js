@@ -1,8 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
-
 import { startCase } from 'lodash';
+
+import { NOTE_TYPES } from '@tamanu/shared/constants';
 
 import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { DateDisplay } from '../../DateDisplay';
@@ -408,11 +409,22 @@ export const EncounterRecord = React.memo(
                       <BoldText>{noteTypes.find(x => x.value === note.noteType).label}</BoldText>
                       <ChildNote>{note.content}</ChildNote>
                       <NoteMeta>
+                        <span>
+                          {note.noteType === NOTE_TYPES.TREATMENT_PLAN
+                            ? 'Last updated: '
+                            : 'Created: '}
+                        </span>
                         <span>{note.author?.displayName || ''} </span>
                         {note.onBehalfOf ? (
                           <span>on behalf of {note.onBehalfOf.displayName} </span>
                         ) : null}
-                        <DateDisplay date={note.date} showDate showTime />
+                        <DateDisplay
+                          date={
+                            (note.noteType !== NOTE_TYPES.TREATMENT_PLAN && note.revisedBy?.date) ||
+                            note.date
+                          }
+                          showTime
+                        />
                         {note.revisedById ? ' (edited)' : ''}
                       </NoteMeta>
                     </RowContent>
