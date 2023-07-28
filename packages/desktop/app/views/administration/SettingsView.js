@@ -87,7 +87,7 @@ export const SettingsView = React.memo(() => {
           value={selectedFacility}
           onChange={onChangeFacility}
           options={ALL_FACILITIES_OPTION.concat(facilityOptions)}
-          helperText="Select a facility to view and edit its settings"
+          label="Select a facility to view and edit its settings"
           isClearable={false}
         />
         <ButtonRow>

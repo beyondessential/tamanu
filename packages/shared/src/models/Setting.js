@@ -86,6 +86,7 @@ export class Setting extends Model {
               },
             }
           : {}),
+        // TODO: need to get either null values or specific facilities. Hard to edit when mixed together
         facilityId: {
           [Op.or]: {
             [Op.eq]: facilityId,
