@@ -14,7 +14,7 @@ const { major, minor } = parse(pkgjson.version);
 //
 // To do so, set this to a string like '1.30.2'.
 //
-// THIS SHOULD BE RARE and only used in exceptional circumstances.
+// THIS SHOULD BE RARE and only used in exceptional circumstances.
 // When merging to main or other branches, this MUST be reset to null.
 const MIN_CLIENT_OVERRIDE = null;
 
