@@ -28,6 +28,8 @@ if (['major', 'minor', 'patch'].includes(version)) {
     default:
       throw new Error('unreachable');
   }
+} else if (!/^\d+[.]\d+[.]\d+$/.test(version)) {
+  throw new Error('Version must be major, minor, patch, or x.y.z');
 }
 
 async function bumpPackageJson(packagePath, newVersion) {

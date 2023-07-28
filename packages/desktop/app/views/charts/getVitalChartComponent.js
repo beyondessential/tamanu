@@ -9,6 +9,10 @@ const VITAL_CHARTS_MAPPING = {
 
 export const getVitalChartComponent = chartKey => {
   const chartType = VITAL_CHARTS[chartKey];
+  if (!chartType) {
+    return VitalLineChart;
+  }
+
   const VitalChartComponent = VITAL_CHARTS_MAPPING[chartType];
   return VitalChartComponent;
 };

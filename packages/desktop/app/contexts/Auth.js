@@ -18,6 +18,7 @@ export const useAuth = () => {
       ability: state.auth.ability,
       facility: state.auth.server?.facility || {},
       centralHost: state.auth.server?.centralHost,
+      currentRole: state.auth.role,
     })),
     onLogout: () => {
       dispatch(logout());

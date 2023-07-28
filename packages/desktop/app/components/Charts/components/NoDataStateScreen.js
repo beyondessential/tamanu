@@ -26,8 +26,8 @@ export const NoDataStateScreen = props => {
     textAnchor: 'middle',
   };
   const lineHeight = 18;
-  const lineOne = `No recorded vitals to display. To record vitals, please click the`;
-  const lineTwo = `'Record vitals' button from the vitals table`;
+  const lineOne = `No recorded vitals to display for the selected date range. To record`;
+  const lineTwo = `vitals, please click the 'Record vitals' button from the vitals table.`;
 
   const loadingMessage = 'Vitals graph loading...';
 
