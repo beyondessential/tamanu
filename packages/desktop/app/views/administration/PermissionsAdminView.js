@@ -6,7 +6,6 @@ export const PermissionsAdminView = () => (
   <ImportExportView
     title="Permissions"
     endpoint="referenceData"
-    disableExport
     dataTypes={PERMISSION_IMPORTABLE_DATA_TYPES}
   />
 );
