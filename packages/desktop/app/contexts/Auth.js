@@ -22,7 +22,9 @@ export const useAuth = () => {
     })),
     onLogout: () => {
       dispatch(logout());
-      queries.resetQueries();
+      setTimeout(() => {
+        queries.resetQueries();
+      }, 1);
     },
     onTimeout: () => dispatch(idleTimeout()),
     refreshToken: () => api.refreshToken(),
