@@ -22,8 +22,8 @@
   },
   "devDependencies": {
     "@beyondessential/eslint-config-js": "^1.1.0",
-    "@tamanu/build-tooling": "*",
     "@swc/jest": "0.2.26",
+    "@tamanu/build-tooling": "*",
     "chai": "^4.1.2",
     "eslint": "^5.15.2",
     "eslint-import-resolver-webpack": "^0.11.0",
@@ -71,6 +71,7 @@
     "react": "16.8.5",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
+    "semver": "^7.5.4",
     "sequelize": "^6.21.3",
     "shortid": "^2.2.13",
     "umzug": "^2.3.0",
