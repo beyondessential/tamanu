@@ -4,7 +4,7 @@ import { VITALS_DATA_ELEMENT_IDS } from 'shared/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { initDatabase } from '../database';
 
-const SURVEY_RESPONSE_BATCH_SIZE = 10000;
+const SURVEY_RESPONSE_BATCH_SIZE = 1000;
 
 async function generateVitalLogsInBatch(store, vitalsSurveyId, batchSize, offset) {
   const { sequelize } = store;
