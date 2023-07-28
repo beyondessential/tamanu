@@ -22,7 +22,9 @@ export const useAuth = () => {
     })),
     onLogout: () => {
       dispatch(logout());
+      // setTimeout prevents resetQueries from triggering a page rerender and blocking logout
       setTimeout(() => {
+        // resets queries instead of invalidating them (clears from cache as well as refetching)
         queries.resetQueries();
       }, 1);
     },
