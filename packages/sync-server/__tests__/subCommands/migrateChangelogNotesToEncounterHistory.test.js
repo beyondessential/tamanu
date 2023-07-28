@@ -1451,6 +1451,81 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           encounterType,
         });
       });
+
+      it('skips a changelog migration when cannot find matched location name', async () => {
+        const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+        const location1 = await createLocation('location 1', {
+          locationGroupId: locationGroup1.id,
+        });
+        const location2 = await createLocation('location 2', {
+          locationGroupId: locationGroup1.id,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+        });
+        const location3 = await createLocation('location 3', {
+          locationGroupId: locationGroup2.id,
+        });
+        const department = await createDepartment('department');
+        const clinician = await createUser('user');
+        const encounterType = 'admission';
+
+        const encounter = await createEncounter(patient, {
+          departmentId: department.id,
+          locationId: location1.id,
+          examinerId: clinician.id,
+          encounterType,
+          startDate: getDateSubtractedFromNow(6),
+        });
+
+        // Change location 1
+        await encounter.addLocationChangeNote(
+          'Changed location',
+          location2.id,
+          getDateSubtractedFromNow(3),
+        );
+        encounter.locationId = location2.id;
+        await encounter.save();
+
+        // Change location 2
+        await encounter.addLocationChangeNote(
+          'Changed location',
+          location3.id,
+          getDateSubtractedFromNow(1),
+        );
+        encounter.locationId = location3.id;
+        await encounter.save();
+
+        location2.name = 'Changed location 2';
+        await location2.save();
+
+        await migrateChangelogNotesToEncounterHistory(SUB_COMMAND_OPTIONS);
+
+        expect(exitSpy).toBeCalledWith(0);
+
+        const encounterHistoryRecords = await models.EncounterHistory.findAll({
+          order: [['date', 'ASC']],
+        });
+
+        // Should skip location2
+        expect(encounterHistoryRecords).toHaveLength(2);
+
+        // Initial encounter
+        expect(encounterHistoryRecords[0]).toMatchObject({
+          encounterId: encounter.id,
+          departmentId: department.id,
+          locationId: location1.id,
+          examinerId: clinician.id,
+          encounterType,
+        });
+
+        // Should skip location2 as location name has been changed
+        expect(encounterHistoryRecords[1]).toMatchObject({
+          encounterId: encounter.id,
+          departmentId: department.id,
+          locationId: location3.id,
+          examinerId: clinician.id,
+          encounterType,
+        });
+      });
     });
 
     describe('departments migration', () => {
@@ -1810,6 +1885,74 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           encounterType,
         });
       });
+
+      it('skips a changelog migration when cannot find matched department name', async () => {
+        const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+        const department1 = await createDepartment('department 1', {
+          facilityId: facility1.id,
+        });
+        const department2 = await createDepartment('department 2', {
+          facilityId: facility1.id,
+        });
+        const department3 = await createDepartment('department 3', {
+          facilityId: facility1.id,
+        });
+
+        const location = await createLocation('location', { facilityId: facility1.id });
+        const clinician = await createUser('user');
+        const encounterType = 'admission';
+
+        const encounter = await createEncounter(patient, {
+          departmentId: department1.id,
+          locationId: location.id,
+          examinerId: clinician.id,
+          encounterType,
+          startDate: getDateSubtractedFromNow(6),
+        });
+
+        // Change department 1
+        await encounter.addDepartmentChangeNote(department2.id, getDateSubtractedFromNow(4));
+        encounter.departmentId = department2.id;
+        await encounter.save();
+
+        // Change department 2
+        await encounter.addDepartmentChangeNote(department3.id, getDateSubtractedFromNow(2));
+        encounter.departmentId = department3.id;
+        await encounter.save();
+
+        department2.name = 'Changed department 2';
+        await department2.save();
+
+        // Migration
+        await migrateChangelogNotesToEncounterHistory(SUB_COMMAND_OPTIONS);
+
+        expect(exitSpy).toBeCalledWith(0);
+
+        const encounterHistoryRecords = await models.EncounterHistory.findAll({
+          order: [['date', 'ASC']],
+        });
+
+        // should skip department2
+        expect(encounterHistoryRecords).toHaveLength(2);
+
+        // Initial encounter
+        expect(encounterHistoryRecords[0]).toMatchObject({
+          encounterId: encounter.id,
+          departmentId: department1.id,
+          locationId: location.id,
+          examinerId: clinician.id,
+          encounterType,
+        });
+
+        // Department 2 should be skipped as department name has been changed
+        expect(encounterHistoryRecords[1]).toMatchObject({
+          encounterId: encounter.id,
+          departmentId: department3.id,
+          locationId: location.id,
+          examinerId: clinician.id,
+          encounterType,
+        });
+      });
     });
 
     describe('clinicians migration', () => {
@@ -1889,6 +2032,67 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           departmentId: department.id,
           locationId: location.id,
           examinerId: clinician4.id,
+          encounterType,
+        });
+      });
+
+      it('skips a changelog migration when cannot find matched user name', async () => {
+        const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+        const clinician1 = await createUser('clinician 1');
+        const clinician2 = await createUser('clinician 2');
+        const clinician3 = await createUser('clinician 3');
+        const department = await createDepartment('department');
+        const location = await createLocation('location');
+        const encounterType = 'admission';
+
+        const encounter = await createEncounter(patient, {
+          departmentId: department.id,
+          locationId: location.id,
+          examinerId: clinician1.id,
+          encounterType,
+          startDate: getDateSubtractedFromNow(6),
+        });
+
+        // Change clinician 1
+        await encounter.updateClinician(clinician2.id, getDateSubtractedFromNow(4));
+        encounter.examinerId = clinician2.id;
+        await encounter.save();
+
+        // Change clinician 2
+        await encounter.updateClinician(clinician3.id, getDateSubtractedFromNow(2));
+        encounter.examinerId = clinician3.id;
+        await encounter.save();
+
+        clinician2.displayName = 'Changed clinician 2';
+        await clinician2.save();
+
+        // Migration
+        await migrateChangelogNotesToEncounterHistory(SUB_COMMAND_OPTIONS);
+
+        expect(exitSpy).toBeCalledWith(0);
+
+        const encounterHistoryRecords = await models.EncounterHistory.findAll({
+          order: [['date', 'ASC']],
+        });
+
+        // should skip clinician2
+        expect(encounterHistoryRecords).toHaveLength(2);
+
+        // Initial encounter
+        expect(encounterHistoryRecords[0]).toMatchObject({
+          encounterId: encounter.id,
+          departmentId: department.id,
+          locationId: location.id,
+          examinerId: clinician1.id,
+          encounterType,
+        });
+
+        // Should skip clinician 2 as the name has been updated
+        expect(encounterHistoryRecords[1]).toMatchObject({
+          encounterId: encounter.id,
+          departmentId: department.id,
+          locationId: location.id,
+          examinerId: clinician3.id,
           encounterType,
         });
       });
