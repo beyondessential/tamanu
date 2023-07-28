@@ -52,7 +52,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       fake(Department, { locationId: location.id, facilityId: facility.id }),
     );
 
-    const [extCode1, extCode2, pat, locationGroup] = await Promise.all([
+    const [extCode1, extCode2, fhirPatient, locationGroup] = await Promise.all([
       ImagingAreaExternalCode.create(fake(ImagingAreaExternalCode, { areaId: area1.id })),
       ImagingAreaExternalCode.create(fake(ImagingAreaExternalCode, { areaId: area2.id })),
       FhirPatient.materialiseFromUpstream(patient.id),
@@ -71,7 +71,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       department,
       extCode1,
       extCode2,
-      pat,
+      fhirPatient,
       locationGroup,
     };
   });
@@ -214,7 +214,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           },
         ].sort((a, b) => a.text.localeCompare(b.text)),
         subject: {
-          reference: `Patient/${resources.pat.id}`,
+          reference: `Patient/${resources.fhirPatient.id}`,
           type: 'Patient',
           display: `${resources.patient.firstName} ${resources.patient.lastName}`,
         },
@@ -338,7 +338,7 @@ Patient may need mobility assistance`,
         },
         orderDetail: [],
         subject: {
-          reference: `Patient/${resources.pat.id}`,
+          reference: `Patient/${resources.fhirPatient.id}`,
           type: 'Patient',
           display: `${resources.patient.firstName} ${resources.patient.lastName}`,
         },
@@ -501,7 +501,7 @@ Patient may need mobility assistance`,
                 },
               ],
               subject: {
-                reference: `Patient/${resources.pat.id}`,
+                reference: `Patient/${resources.fhirPatient.id}`,
                 type: 'Patient',
                 display: `${resources.patient.firstName} ${resources.patient.lastName}`,
               },
@@ -618,7 +618,7 @@ Patient may need mobility assistance`,
                 },
               ],
               subject: {
-                reference: `Patient/${resources.pat.id}`,
+                reference: `Patient/${resources.fhirPatient.id}`,
                 type: 'Patient',
                 display: `${resources.patient.firstName} ${resources.patient.lastName}`,
               },
@@ -845,7 +845,7 @@ Patient may need mobility assistance`,
       expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
       expect(
         response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
-      ).toBe(resources.pat.id);
+      ).toBe(resources.fhirPatient.id);
       expect(response).toHaveSucceeded();
     });
 
@@ -859,7 +859,7 @@ Patient may need mobility assistance`,
       expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
       expect(
         response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
-      ).toBe(resources.pat.id);
+      ).toBe(resources.fhirPatient.id);
       expect(response).toHaveSucceeded();
     });
 
