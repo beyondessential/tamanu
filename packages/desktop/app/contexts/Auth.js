@@ -22,11 +22,9 @@ export const useAuth = () => {
     })),
     onLogout: () => {
       dispatch(logout());
-      // setTimeout prevents resetQueries from triggering a page rerender and blocking logout
-      setTimeout(() => {
-        // resets queries instead of invalidating them (clears from cache as well as refetching)
-        queries.resetQueries();
-      }, 1);
+      // removes items from cache but doesn't trigger a re-render
+      // because the login screen doesn't have any queries on it, this should be fine
+      queries.removeQueries();
     },
     onTimeout: () => dispatch(idleTimeout()),
     refreshToken: () => api.refreshToken(),
