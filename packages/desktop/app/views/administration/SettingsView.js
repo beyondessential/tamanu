@@ -5,7 +5,7 @@ import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
 
 import { Colors } from '../../constants';
-import { LargeButton, ContentPane } from '../../components';
+import { LargeButton, ContentPane, ConfirmCancelRow } from '../../components';
 import { AdminViewContainer } from './components/AdminViewContainer';
 import { useApi } from '../../api';
 import { notifySuccess, notifyError } from '../../utils';
@@ -14,29 +14,6 @@ const StyledAceEditor = styled(AceEditor)`
   border: 1px solid ${p => (p.$isJsonValid ? Colors.outline : Colors.alert)};
   border-radius: 4px;
   margin: 10px 0;
-`;
-
-const ValidationIndicator = styled.div`
-  background-color: ${p => (p.$isJsonValid ? Colors.green : Colors.alert)};
-  border: 1px solid ${Colors.outline};
-  border-bottom: none;
-  border-radius: 4px 4px 0 0;
-  color: white;
-  height: 30px;
-  width: 100px;
-  margin-top: 10px;
-  margin-left: 5px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  z-index: 1;
-  right: 50px;
-  top: 126px;
-`;
-
-const SaveButton = styled(LargeButton)`
-  margin-left: 10px;
 `;
 
 export const SettingsView = React.memo(() => {
@@ -89,30 +66,38 @@ export const SettingsView = React.memo(() => {
   return (
     <AdminViewContainer title="Settings">
       <ContentPane>
-        <LargeButton variant={editMode ? 'outlined' : 'contained'} onClick={toggleEditMode}>
-          {editMode ? 'Cancel' : 'Edit'}
-        </LargeButton>
-        {editMode && (
-          <SaveButton disabled={!isJsonValid} onClick={saveSettings}>
-            Save
-          </SaveButton>
-        )}
         {editMode ? (
-          <>
-            <ValidationIndicator $isJsonValid={isJsonValid}>
-              {isJsonValid ? 'Valid' : 'Invalid'}
-            </ValidationIndicator>
-            <StyledAceEditor
-              width="100%"
-              height="600px"
-              mode="json"
-              theme="github"
-              onChange={onChange}
-              value={settingsEditString}
-              $isJsonValid={isJsonValid}
-              showPrintMargin={false}
-            />
-          </>
+          <ConfirmCancelRow
+            confirmDisabled={!isJsonValid}
+            confirmText="Save"
+            onConfirm={saveSettings}
+            onCancel={toggleEditMode}
+          />
+        ) : (
+          <LargeButton onClick={toggleEditMode}>Edit</LargeButton>
+        )}
+        <StyledAceEditor
+          width="100%"
+          height="600px"
+          mode="json"
+          theme={editMode ? 'github' : ''}
+          onChange={onChange}
+          value={editMode ? settingsEditString : JSON.stringify(settings, null, 2)}
+          $isJsonValid={isJsonValid}
+          showPrintMargin={false}
+          readOnly={!editMode}
+        />
+        {/* {editMode ? (
+          <StyledAceEditor
+            width="100%"
+            height="600px"
+            mode="json"
+            theme="github"
+            onChange={onChange}
+            value={settingsEditString}
+            $isJsonValid={isJsonValid}
+            showPrintMargin={false}
+          />
         ) : (
           <StyledAceEditor
             width="100%"
@@ -124,7 +109,7 @@ export const SettingsView = React.memo(() => {
             $isJsonValid={isJsonValid}
             showPrintMargin={false}
           />
-        )}
+        )} */}
       </ContentPane>
     </AdminViewContainer>
   );
