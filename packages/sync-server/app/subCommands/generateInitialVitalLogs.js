@@ -33,16 +33,16 @@ async function generateVitalLogsInBatch(store, vitalsSurveyId, batchSize, offset
         paginated_survey_responses psr
       INNER JOIN
         survey_response_answers sra ON psr.id = sra.response_id
+        AND
+          sra.body IS NOT NULL
+        AND
+          sra.body != ''
+        AND
+          sra.data_element_id != :dateDataElementId
       LEFT JOIN
         vital_logs vl ON vl.answer_id = sra.id
-      WHERE
-        sra.body IS NOT NULL
-      AND
-        sra.body != ''
-      AND
-        sra.data_element_id != :dateDataElementId
-      AND
-        vl.id IS NULL;
+        AND
+          vl.id IS NULL;
     `,
     {
       replacements: {
