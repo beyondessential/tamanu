@@ -1477,8 +1477,10 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         });
 
         // Change location 1
-        await encounter.addLocationChangeNote(
-          'Changed location',
+        await addLocationChangeNote(
+          models,
+          encounter.id,
+          location1.id,
           location2.id,
           getDateSubtractedFromNow(3),
         );
@@ -1486,8 +1488,10 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await encounter.save();
 
         // Change location 2
-        await encounter.addLocationChangeNote(
-          'Changed location',
+        await addLocationChangeNote(
+          models,
+          encounter.id,
+          location2.id,
           location3.id,
           getDateSubtractedFromNow(1),
         );
@@ -1911,12 +1915,24 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         });
 
         // Change department 1
-        await encounter.addDepartmentChangeNote(department2.id, getDateSubtractedFromNow(4));
+        await addDepartmentChangeNote(
+          models,
+          encounter.id,
+          department1.id,
+          department2.id,
+          getDateSubtractedFromNow(4),
+        );
         encounter.departmentId = department2.id;
         await encounter.save();
 
         // Change department 2
-        await encounter.addDepartmentChangeNote(department3.id, getDateSubtractedFromNow(2));
+        await addDepartmentChangeNote(
+          models,
+          encounter.id,
+          department2.id,
+          department3.id,
+          getDateSubtractedFromNow(2),
+        );
         encounter.departmentId = department3.id;
         await encounter.save();
 
@@ -2054,12 +2070,24 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         });
 
         // Change clinician 1
-        await encounter.updateClinician(clinician2.id, getDateSubtractedFromNow(4));
+        await updateClinician(
+          models,
+          encounter.id,
+          clinician1.id,
+          clinician2.id,
+          getDateSubtractedFromNow(4),
+        );
         encounter.examinerId = clinician2.id;
         await encounter.save();
 
         // Change clinician 2
-        await encounter.updateClinician(clinician3.id, getDateSubtractedFromNow(2));
+        await updateClinician(
+          models,
+          encounter.id,
+          clinician2.id,
+          clinician3.id,
+          getDateSubtractedFromNow(2),
+        );
         encounter.examinerId = clinician3.id;
         await encounter.save();
 
