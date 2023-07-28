@@ -14,7 +14,6 @@ import { notifySuccess, notifyError } from '../../utils';
 const StyledAceEditor = styled(AceEditor)`
   border: 1px solid ${p => (p.$isJsonValid ? Colors.outline : Colors.alert)};
   border-radius: 4px;
-  margin: 10px 0;
 `;
 
 const FacilitySelector = styled(SelectInput)`
@@ -30,6 +29,8 @@ const checkValidJson = json => {
   return true;
 };
 
+const ALL_FACILITIES_OPTION = [{ label: 'All Facilities', value: null }];
+
 export const SettingsView = React.memo(() => {
   const api = useApi();
   const [settings, setSettings] = useState({});
@@ -38,14 +39,9 @@ export const SettingsView = React.memo(() => {
   const [selectedFacility, setSelectedFacility] = useState(null);
   const [editMode, setEditMode] = useState(false);
 
-  const toggleEditMode = () => {
-    setEditMode(!editMode);
-  };
+  const toggleEditMode = () => setEditMode(!editMode);
 
-  const onChangeSettings = newValue => {
-    setSettingsEditString(newValue);
-  };
-
+  const onChangeSettings = newValue => setSettingsEditString(newValue);
   const onChangeFacility = event => {
     setSelectedFacility(event.target.value || null);
     setEditMode(false);
@@ -84,17 +80,15 @@ export const SettingsView = React.memo(() => {
     fetchSettings();
   }, [api, selectedFacility]);
 
-  // TODO: Need to be able to delete keys from the settings object. Looks like some logic already on model but not working
-
   return (
     <AdminViewContainer title="Settings">
       <TopBar>
         <FacilitySelector
-          name="selectedFacility"
           value={selectedFacility}
           onChange={onChangeFacility}
-          options={facilityOptions}
-          helperText="Select a facility to view and edit its specific settings"
+          options={ALL_FACILITIES_OPTION.concat(facilityOptions)}
+          helperText="Select a facility to view and edit its settings"
+          isClearable={false}
         />
         <ButtonRow>
           {editMode ? (
@@ -102,7 +96,7 @@ export const SettingsView = React.memo(() => {
               <LargeButton variant="outlined" onClick={toggleEditMode}>
                 Cancel
               </LargeButton>
-              <LargeButton tooltip="Invalud" onClick={saveSettings} disabled={!isJsonValid}>
+              <LargeButton onClick={saveSettings} disabled={!isJsonValid}>
                 Save
               </LargeButton>
             </>

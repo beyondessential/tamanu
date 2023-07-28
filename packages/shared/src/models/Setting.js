@@ -145,6 +145,7 @@ export class Setting extends Model {
       {
         where: {
           key: {
+            // TODO: need to alter this to properly delete and update records. Currently we duplicate edits and cant delete
             [Op.and]: {
               [Op.or]: {
                 [Op.eq]: key,
