@@ -185,20 +185,24 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const village = villageQuery?.data?.name;
 
   const notesQuery = useEncounterNotes(encounter.id);
-  const notes = notesQuery?.data?.data;
+  const notes = notesQuery?.data?.data || [];
 
-  const systemNotes = notes?.filter(note => {
+  const displayNotes = notes.filter(note => {
+    return note.noteType !== NOTE_TYPES.SYSTEM;
+  });
+
+  const systemNotes = notes.filter(note => {
     return note.noteType === NOTE_TYPES.SYSTEM;
   });
 
-  const locationSystemNotes = systemNotes?.filter(note => {
+  const locationSystemNotes = systemNotes.filter(note => {
     return note.content.match(locationNoteMatcher);
   });
   const locationHistory = locationSystemNotes
     ? extractLocationHistory(locationSystemNotes, encounter, locationNoteMatcher)
     : [];
 
-  const encounterTypeSystemNotes = systemNotes?.filter(note => {
+  const encounterTypeSystemNotes = systemNotes.filter(note => {
     return note.content.match(encounterTypeNoteMatcher);
   });
   const encounterTypeHistory = encounterTypeSystemNotes
@@ -227,7 +231,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           procedures={procedures}
           labRequests={updatedLabRequests}
           imagingRequests={updatedImagingRequests}
-          notes={notes}
+          notes={displayNotes}
           discharge={discharge}
           village={village}
           pad={padData}

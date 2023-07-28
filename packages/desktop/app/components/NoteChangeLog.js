@@ -13,10 +13,14 @@ const StyledListItemText = styled(ListItemText)`
     white-space: pre-line;
     width: 100%;
   }
+  &.MuiListItemText-root {
+    margin-bottom: 0;
+  }
 `;
 const StyledNoteChangeLogSecondaryWrapper = styled.div`
+  font-weight: 500;
   font-size: 11px;
-  line-height: 18px;
+  line-height: 15px;
   color: ${Colors.softText};
   margin-top: 5px;
 `;
