@@ -47,19 +47,19 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       Facility.create(fake(Facility)),
     ]);
 
-    const location = await Location.create(fake(Location, { facilityId: facility.id }));
-    const department = await Department.create(
-      fake(Department, { locationId: location.id, facilityId: facility.id }),
-    );
-
     const [extCode1, extCode2, fhirPatient, locationGroup] = await Promise.all([
       ImagingAreaExternalCode.create(fake(ImagingAreaExternalCode, { areaId: area1.id })),
       ImagingAreaExternalCode.create(fake(ImagingAreaExternalCode, { areaId: area2.id })),
       FhirPatient.materialiseFromUpstream(patient.id),
-      LocationGroup.create(
-        fake(LocationGroup, { facilityId: facility.id, locationId: location.id }),
-      ),
+      LocationGroup.create(fake(LocationGroup, { facilityId: facility.id })),
     ]);
+
+    const location = await Location.create(
+      fake(Location, { facilityId: facility.id, locationGroupId: locationGroup.id }),
+    );
+    const department = await Department.create(
+      fake(Department, { locationId: location.id, facilityId: facility.id }),
+    );
 
     resources = {
       practitioner,
