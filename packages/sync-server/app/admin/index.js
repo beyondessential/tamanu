@@ -80,7 +80,7 @@ adminRoutes.get(
   '/settings',
   asyncHandler(async (req, res) => {
     const { Setting } = req.store.models;
-    const data = await Setting.get('', req.query.facilityId);
+    const data = await Setting.get('', req.query.facilityId, !!req.query.facilityId);
     res.send(data);
   }),
 );

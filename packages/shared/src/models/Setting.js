@@ -73,7 +73,7 @@ export class Setting extends Model {
    * IMPORTANT: Duplicated from mobile/models/Setting.ts
    * Please update both places when modify
    */
-  static async get(key = '', facilityId = null) {
+  static async get(key = '', facilityId = null, facilityFilter = false) {
     const settings = await Setting.findAll({
       where: {
         ...(key
@@ -88,10 +88,14 @@ export class Setting extends Model {
           : {}),
         // TODO: need to get either null values or specific facilities. Hard to edit when mixed together
         facilityId: {
-          [Op.or]: {
-            [Op.eq]: facilityId,
-            [Op.is]: null,
-          },
+          ...(facilityFilter
+            ? { [Op.eq]: facilityId }
+            : {
+                [Op.or]: {
+                  [Op.eq]: facilityId,
+                  [Op.is]: null,
+                },
+              }),
         },
       },
 
