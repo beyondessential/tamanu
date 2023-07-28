@@ -10,6 +10,7 @@ const SETTINGS_PREDATING_MIGRATION = [
   SETTING_KEYS.VACCINATION_DEFAULTS,
   SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS,
   'fhir.worker.heartbeat',
+  'fhir.worker.assumeDroppedAfter',
   'certifications.covidClearanceCertificate',
   'syncAllLabRequests',
   'integrations.imaging',
