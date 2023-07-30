@@ -13,7 +13,6 @@ async function generateVitalLogsInBatch(store, vitalsSurveyId, batchSize, offset
     where: { surveyId: vitalsSurveyId },
     order: [
       ['createdAt', 'ASC'],
-      ['updatedAt', 'ASC'],
       ['id', 'ASC'],
     ],
     limit: batchSize,
