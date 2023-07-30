@@ -18,6 +18,9 @@
     "sampleRate": 1, // 5 = 1/5 = 20% of traces get sent to honeycomb
     "enabled": true
   },
+  "permissions": {
+    "cacheTTL": 60000
+  },
   "sync": {
     "schedule": "*/1 * * * *",
     "host": "https://central-dev.tamanu.io",
@@ -95,9 +98,7 @@
     //
     // As of 29/08/2022 all our deployments are behind a local nginx proxy and so
     // this shouldn't need to be changed.
-    "trusted": [
-      "loopback"
-    ]
+    "trusted": ["loopback"]
   },
   // this should be an IANA tzdata timezone
   // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
