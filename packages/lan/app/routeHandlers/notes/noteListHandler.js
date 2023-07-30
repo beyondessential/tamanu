@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import Sequelize, { Op } from 'sequelize';
 import asyncHandler from 'express-async-handler';
 import { NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/shared/constants';
 
@@ -74,7 +74,17 @@ export const noteListHandler = recordType =>
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     };
 
-    const queryOrder = orderBy ? [[orderBy, order.toUpperCase()]] : [['revisedBy', 'date', 'DESC']];
+    const queryOrder = orderBy
+      ? [[orderBy, order.toUpperCase()]]
+      : [
+          [
+            // If the note has already been revised then order by the root note's date.
+            // If this is the root note then order by the date of this note
+            Sequelize.literal(
+              'case when "revisedBy"."date" notnull then "revisedBy"."date" else "Note"."date" end desc',
+            ),
+          ],
+        ];
 
     let rows;
     let totalCount;
