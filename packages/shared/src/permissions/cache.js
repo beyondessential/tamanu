@@ -3,7 +3,7 @@ import config from 'config';
 
 class PermissionCache {
   constructor() {
-    this.cacheTTL = config.permissions?.cacheTTL;
+    this.ttl = config.auth.permissionCacheTTL;
   }
 
   cache = {};
@@ -14,11 +14,11 @@ class PermissionCache {
 
   set(key, value) {
     this.cache[key] = value;
-    if (!this.cacheTTL) return;
+    if (!this.ttl) return;
     // Invalidate cached permissions after TTL
     setTimeout(() => {
       delete this.cache[key];
-    }, config.permissions?.cacheTTL);
+    }, this.ttl);
   }
 
   reset() {

@@ -18,9 +18,6 @@
     "sampleRate": 1, // 5 = 1/5 = 20% of traces get sent to honeycomb
     "enabled": true
   },
-  "permissions": {
-    "cacheTTL": 60000
-  },
   "sync": {
     "schedule": "*/1 * * * *",
     "host": "https://central-dev.tamanu.io",
@@ -60,7 +57,8 @@
   "auth": {
     "saltRounds": 12,
     "tokenDuration": "1h",
-    "useHardcodedPermissions": true
+    "useHardcodedPermissions": true,
+    "permissionCacheTTL": 60000
   },
   "survey": {
     "defaultCodes": {
