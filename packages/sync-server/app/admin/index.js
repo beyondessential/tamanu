@@ -89,7 +89,7 @@ adminRoutes.put(
   '/settings',
   asyncHandler(async (req, res) => {
     const { Setting } = req.store.models;
-    const data = await Setting.set('', req.body.settings, req.body.facilityId);
+    const data = await Setting.set('', req.body.settings, req.body.facilityId, true);
     res.send(data);
   }),
 );

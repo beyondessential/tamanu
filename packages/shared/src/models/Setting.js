@@ -86,7 +86,6 @@ export class Setting extends Model {
               },
             }
           : {}),
-        // TODO: need to get either null values or specific facilities. Hard to edit when mixed together
         facilityId: {
           ...(facilityFilter
             ? { [Op.eq]: facilityId }
@@ -123,7 +122,7 @@ export class Setting extends Model {
     return getAtPath(settingsObject, key);
   }
 
-  static async set(key, value, facilityId = null) {
+  static async set(key, value, facilityId = null, facilityFilter = false) {
     const records = buildSettingsRecords(key, value, facilityId);
 
     // create or update records
@@ -152,10 +151,14 @@ export class Setting extends Model {
           key: {
             // TODO: need to alter this to properly delete and update records. Currently we duplicate edits and cant delete
             [Op.and]: {
-              [Op.or]: {
-                [Op.eq]: key,
-                [Op.like]: `${key}.%`,
-              },
+              ...(facilityFilter
+                ? {}
+                : {
+                    [Op.or]: {
+                      [Op.eq]: key,
+                      [Op.like]: `${key}.%`,
+                    },
+                  }),
               [Op.notIn]: records.map(r => r.key),
             },
           },
