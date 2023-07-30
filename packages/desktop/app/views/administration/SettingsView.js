@@ -9,7 +9,7 @@ import { Colors } from '../../constants';
 import { LargeButton, ContentPane, ButtonRow, TopBar, SelectInput } from '../../components';
 import { AdminViewContainer } from './components/AdminViewContainer';
 import { useApi } from '../../api';
-import { notifySuccess, notifyError } from '../../utils';
+import { notifySuccess } from '../../utils';
 
 const StyledAceEditor = styled(AceEditor)`
   border: 1px solid ${p => (p.$isJsonValid ? Colors.outline : Colors.alert)};
@@ -20,48 +20,79 @@ const FacilitySelector = styled(SelectInput)`
   width: 500px;
 `;
 
-const checkValidJson = json => {
-  try {
-    JSON.parse(json);
-  } catch (e) {
-    return false;
-  }
-  return true;
-};
-
 const ALL_FACILITIES_OPTION = [{ label: 'All Facilities', value: null }];
+
+const generateAnnotationFromErrorMessage = (errorMessage, json) => {
+  const rows = json.split('\n');
+  let charCount = 0;
+  let row;
+  let column;
+
+  const match = errorMessage.match(/position (\d+)/);
+  const position = parseInt(match[1], 10);
+
+  for (let i = 0; i < rows.length; i++) {
+    charCount += rows[i].length + 1; // Add 1 for the newline character
+    if (charCount > position) {
+      row = i;
+      column = position - (charCount - rows[i].length);
+      break;
+    }
+  }
+  return {
+    type: 'error',
+    row,
+    column,
+    text: errorMessage,
+  };
+};
 
 export const SettingsView = React.memo(() => {
   const api = useApi();
   const [settings, setSettings] = useState({});
   const [settingsEditString, setSettingsEditString] = useState({});
+
   const [facilityOptions, setFacilityOptions] = useState([]);
   const [selectedFacility, setSelectedFacility] = useState(null);
+
   const [editMode, setEditMode] = useState(false);
+
+  const [errorAnnotation, setErrorAnnotation] = useState(null);
+
+  const isValidJSON = !errorAnnotation;
+
+  const checkValidJson = json => {
+    try {
+      JSON.parse(json);
+      setErrorAnnotation(null);
+    } catch (error) {
+      const annotation = generateAnnotationFromErrorMessage(error.message, json);
+      setErrorAnnotation([annotation]);
+      return false;
+    }
+    return true;
+  };
 
   const toggleEditMode = () => setEditMode(!editMode);
 
-  const onChangeSettings = newValue => setSettingsEditString(newValue);
+  const onChangeSettings = newValue => {
+    checkValidJson(newValue);
+    setSettingsEditString(newValue);
+  };
   const onChangeFacility = event => {
     setSelectedFacility(event.target.value || null);
     setEditMode(false);
   };
 
   const saveSettings = () => {
-    if (isJsonValid) {
-      setSettings(JSON.parse(settingsEditString));
-      toggleEditMode();
-      api.put('admin/settings', {
-        settings: JSON.parse(settingsEditString),
-        facilityId: selectedFacility,
-      });
-      notifySuccess('Settings saved');
-    } else {
-      notifyError('Invalid JSON');
-    }
+    setSettings(JSON.parse(settingsEditString));
+    toggleEditMode();
+    api.put('admin/settings', {
+      settings: JSON.parse(settingsEditString),
+      facilityId: selectedFacility,
+    });
+    notifySuccess('Settings saved');
   };
-
-  const isJsonValid = checkValidJson(settingsEditString);
 
   useEffect(() => {
     const fetchFacilities = async () => {
@@ -96,7 +127,7 @@ export const SettingsView = React.memo(() => {
               <LargeButton variant="outlined" onClick={toggleEditMode}>
                 Cancel
               </LargeButton>
-              <LargeButton onClick={saveSettings} disabled={!isJsonValid}>
+              <LargeButton onClick={saveSettings} disabled={!isValidJSON}>
                 Save
               </LargeButton>
             </>
@@ -113,9 +144,10 @@ export const SettingsView = React.memo(() => {
           theme={editMode ? 'github' : 'chrome'}
           onChange={onChangeSettings}
           value={editMode ? settingsEditString : JSON.stringify(settings, null, 2)}
-          $isJsonValid={isJsonValid}
+          $isJsonValid={isValidJSON}
           showPrintMargin={false}
           readOnly={!editMode}
+          annotations={errorAnnotation}
         />
       </ContentPane>
     </AdminViewContainer>
