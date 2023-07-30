@@ -22,7 +22,7 @@ const FacilitySelector = styled(SelectInput)`
 
 const ALL_FACILITIES_OPTION = [{ label: 'All Facilities', value: null }];
 
-const generateAnnotationFromErrorMessage = (errorMessage, json) => {
+const generateAnnotationFromJSONError = (errorMessage, json) => {
   const rows = json.split('\n');
   let charCount = 0;
   let row;
@@ -66,7 +66,7 @@ export const SettingsView = React.memo(() => {
       JSON.parse(json);
       setErrorAnnotation(null);
     } catch (error) {
-      const annotation = generateAnnotationFromErrorMessage(error.message, json);
+      const annotation = generateAnnotationFromJSONError(error.message, json);
       setErrorAnnotation([annotation]);
       return false;
     }
