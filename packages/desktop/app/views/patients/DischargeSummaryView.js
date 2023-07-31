@@ -82,8 +82,8 @@ const ListColumn = styled.ul`
   list-style-type: none;
   padding: 0;
   margin: 0;
+  font-size: 10px;
   li {
-    font-size: 10px;
     padding-left: 0;
   }
 `;
