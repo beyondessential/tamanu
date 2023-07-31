@@ -116,6 +116,7 @@ export const DataFetchingMedicationTable = () => {
       endpoint="medication"
       columns={FULL_LISTING_COLUMNS}
       noDataMessage="No medication requests found"
+      initialSort={{ order: 'desc', orderBy: 'date' }}
       onRowClick={onMedicationSelect}
     />
   );
