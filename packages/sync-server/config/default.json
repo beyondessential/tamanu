@@ -619,6 +619,10 @@
         "diagnosis": {
           "shortLabel": "Diagnosis",
           "longLabel": "Diagnosis"
+        },
+        "userDisplayId": {
+          "shortLabel": "Registration number",
+          "longLabel": "Registration number",
         }
       },
       "features": {
@@ -631,7 +635,7 @@
         "mergePopulatedPADRecords": true,
         "enableNoteBackdating": true,
         "enableCovidClearanceCertificate": false,
-        "editDisplayId": false,
+        "editPatientDisplayId": false,
         "patientPlannedMove": false,
         "idleTimeout": {
           "enabled": true,

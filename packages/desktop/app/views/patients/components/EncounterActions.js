@@ -129,6 +129,12 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
       condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
     },
     {
+      // Duplicate "Admit to hospital" as it should display below "Discharge".
+      label: 'Admit to hospital',
+      onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
+      condition: () => encounter.encounterType === ENCOUNTER_TYPES.CLINIC,
+    },
+    {
       label: 'Move patient',
       condition: () => enablePatientMoveActions && !encounter.plannedLocation,
       onClick: onPlanLocationChange,
