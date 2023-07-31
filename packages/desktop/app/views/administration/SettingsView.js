@@ -63,10 +63,6 @@ export const SettingsView = React.memo(() => {
   const areSettingsPresent = Object.keys(settings).length > 0;
   const formattedJSONString = areSettingsPresent ? JSON.stringify(settings, null, 2) : '';
 
-  const helperText = selectedFacility
-    ? 'Apply only to this facility'
-    : 'Shared between all facilities';
-
   // Check if the JSON is valid and add an error annotation to the code editor if not
   const checkValidJson = json => {
     try {
@@ -89,6 +85,7 @@ export const SettingsView = React.memo(() => {
   const onChangeFacility = event => {
     setSelectedFacility(event.target.value || null);
     setEditMode(false);
+    setErrorAnnotation(null);
   };
 
   // Convert settings string from editor into object and post to backend
@@ -157,6 +154,7 @@ export const SettingsView = React.memo(() => {
           theme={editMode ? 'eclipse' : 'dawn'}
           onChange={onChangeSettings}
           value={editMode ? settingsEditString : formattedJSONString}
+          highlightActiveLine={editMode}
           $isJsonValid={isValidJSON}
           readOnly={!editMode}
           annotations={errorAnnotation}
