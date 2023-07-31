@@ -164,7 +164,7 @@ reportsRouter.post(
       sequelize,
     } = store;
 
-    const { name, file, dryRun } = await getUploadedData(req);
+    const { name, file, dryRun, deleteFileAfterImport = true } = await getUploadedData(req);
     const versionData = await readJSON(file);
 
     if (versionData.versionNumber)
@@ -220,7 +220,9 @@ reportsRouter.post(
       }
     }
     // eslint-disable-next-line no-unused-vars
-    await fs.unlink(file).catch(ignore => {});
+    if (deleteFileAfterImport) {
+      await fs.unlink(file).catch(ignore => {});
+    }
     res.send(feedback);
   }),
 );

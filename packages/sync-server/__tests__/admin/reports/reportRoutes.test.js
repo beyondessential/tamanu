@@ -200,8 +200,8 @@ describe('reportRoutes', () => {
       const res = await adminApp.post(`/v1/admin/reports/import`).send({
         file: path.join(__dirname, '/data/without-version-number.json'),
         name: 'Report Import Test Dry Run',
-        userId: user.id,
         dryRun: true,
+        deleteFileAfterImport: false,
       });
       expect(res).toHaveSucceeded();
       expect(res.body).toEqual({
@@ -221,7 +221,7 @@ describe('reportRoutes', () => {
       const res = await adminApp.post(`/v1/admin/reports/import`).send({
         file: path.join(__dirname, '/data/without-version-number.json'),
         name: 'Report Import Test',
-        userId: user.id,
+        deleteFileAfterImport: false,
       });
       expect(res).toHaveSucceeded();
       expect(res.body).toEqual({
@@ -245,7 +245,7 @@ describe('reportRoutes', () => {
       const res = await adminApp.post(`/v1/admin/reports/import`).send({
         file: path.join(__dirname, '/data/without-version-number.json'),
         name: testReport.name,
-        userId: user.id,
+        deleteFileAfterImport: false,
       });
       expect(res).toHaveSucceeded();
       expect(res.body).toEqual({
@@ -268,7 +268,7 @@ describe('reportRoutes', () => {
       const res = await adminApp.post(`/v1/admin/reports/import`).send({
         file: path.join(__dirname, '/data/with-version-number.json'),
         name: testReport.name,
-        userId: user.id,
+        deleteFileAfterImport: false,
       });
       expect(res).toHaveRequestError('InvalidOperationError');
       expect(res.body.error.message).toBe('Cannot import a report with a version number');
