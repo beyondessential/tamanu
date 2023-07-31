@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Sequelize } from 'sequelize';
+import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { NotFoundError, InvalidOperationError } from '@tamanu/shared/errors';
 import { REPORT_VERSION_EXPORT_FORMATS, REPORT_STATUSES } from '@tamanu/shared/constants';
 import { readJSON, sanitizeFilename, verifyQuery } from './utils';
@@ -156,13 +157,13 @@ reportsRouter.get(
 reportsRouter.post(
   '/import',
   asyncHandler(async (req, res) => {
-    const { store, body, user } = req;
+    const { store, user } = req;
     const {
       models: { ReportDefinition, ReportDefinitionVersion },
       sequelize,
     } = store;
 
-    const { name, file, dryRun } = body;
+    const { name, file, dryRun } = await getUploadedData(req);
     const versionData = await readJSON(file);
 
     if (versionData.versionNumber)

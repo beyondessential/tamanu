@@ -106,9 +106,9 @@ export const ReportsImportView = () => {
 
   const handleSubmit = async payload => {
     try {
-      const { reportDefinitionId, ...importValues } = payload;
+      const { reportDefinitionId, file, ...importValues } = payload;
       setFeedback(null);
-      const res = await api.post('admin/reports/import', importValues);
+      const res = await api.postWithFileUpload('admin/reports/import', file, importValues);
       const { dryRun, name } = importValues;
       setFeedback({ ...res, name, dryRun });
       if (!dryRun) {
