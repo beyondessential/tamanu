@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-json';
-import 'ace-builds/src-noconflict/theme-github';
-import 'ace-builds/src-noconflict/theme-chrome';
+import 'ace-builds/src-noconflict/theme-eclipse';
+import 'ace-builds/src-noconflict/theme-dawn';
 
 import { Colors } from '../../constants';
 import { LargeButton, ContentPane, ButtonRow, TopBar, SelectInput } from '../../components';
@@ -60,7 +60,10 @@ export const SettingsView = React.memo(() => {
   const [errorAnnotation, setErrorAnnotation] = useState(null);
 
   const isValidJSON = !errorAnnotation;
+  const areSettingsPresent = Object.keys(settings).length > 0;
+  const formattedJSONString = areSettingsPresent ? JSON.stringify(settings, null, 2) : '';
 
+  // Check if the JSON is valid and add an error annotation to the code editor if not
   const checkValidJson = json => {
     try {
       JSON.parse(json);
@@ -84,6 +87,7 @@ export const SettingsView = React.memo(() => {
     setEditMode(false);
   };
 
+  // Convert settings string from editor into object and post to backend
   const saveSettings = () => {
     setSettings(JSON.parse(settingsEditString));
     toggleEditMode();
@@ -141,13 +145,15 @@ export const SettingsView = React.memo(() => {
           width="100%"
           height="600px"
           mode="json"
-          theme={editMode ? 'github' : 'chrome'}
+          theme={editMode ? 'eclipse' : 'dawn'}
           onChange={onChangeSettings}
-          value={editMode ? settingsEditString : JSON.stringify(settings, null, 2)}
+          value={editMode ? settingsEditString : formattedJSONString}
           $isJsonValid={isValidJSON}
           showPrintMargin={false}
           readOnly={!editMode}
           annotations={errorAnnotation}
+          placeholder="No settings found for this facility"
+          fontSize={14}
         />
       </ContentPane>
     </AdminViewContainer>
