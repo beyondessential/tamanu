@@ -117,6 +117,15 @@ export const SettingsView = React.memo(() => {
     fetchSettings();
   }, [api, selectedFacility]);
 
+  const onLoad = editor => {
+    // Disable the "undo" command (Ctrl+Z)
+    editor.commands.addCommand({
+      name: 'undo',
+      bindKey: { win: 'Ctrl-Z', mac: 'Command-Z' },
+      exec: () => {},
+    });
+  };
+
   return (
     <AdminViewContainer title="Settings">
       <TopBar>
@@ -126,7 +135,6 @@ export const SettingsView = React.memo(() => {
           options={ALL_FACILITIES_OPTION.concat(facilityOptions)}
           label="Select a facility/server to view and edit its settings"
           isClearable={false}
-          // helperText={helperText}
         />
         <ButtonRow>
           {editMode ? (
@@ -158,6 +166,7 @@ export const SettingsView = React.memo(() => {
           $isJsonValid={isValidJSON}
           readOnly={!editMode}
           annotations={errorAnnotation}
+          onLoad={onLoad}
         />
       </ContentPane>
     </AdminViewContainer>
