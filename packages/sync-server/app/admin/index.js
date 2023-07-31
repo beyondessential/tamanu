@@ -1,7 +1,6 @@
 import express from 'express';
 
 import { ForbiddenError, NotFoundError } from 'shared/errors';
-import { buildSettingsRecords } from 'shared/models/Setting';
 import { constructPermission } from 'shared/permissions/middleware';
 import asyncHandler from 'express-async-handler';
 import { createDataImporterEndpoint } from './importerEndpoint';

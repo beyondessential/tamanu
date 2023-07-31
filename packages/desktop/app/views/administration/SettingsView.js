@@ -63,6 +63,10 @@ export const SettingsView = React.memo(() => {
   const areSettingsPresent = Object.keys(settings).length > 0;
   const formattedJSONString = areSettingsPresent ? JSON.stringify(settings, null, 2) : '';
 
+  const helperText = selectedFacility
+    ? 'Apply only to this facility'
+    : 'Shared between all facilities';
+
   // Check if the JSON is valid and add an error annotation to the code editor if not
   const checkValidJson = json => {
     try {
@@ -89,10 +93,11 @@ export const SettingsView = React.memo(() => {
 
   // Convert settings string from editor into object and post to backend
   const saveSettings = () => {
-    setSettings(JSON.parse(settingsEditString));
+    const settingsObject = JSON.parse(settingsEditString);
+    setSettings(settingsObject);
     toggleEditMode();
     api.put('admin/settings', {
-      settings: JSON.parse(settingsEditString),
+      settings: settingsObject,
       facilityId: selectedFacility,
     });
     notifySuccess('Settings saved');
@@ -122,8 +127,9 @@ export const SettingsView = React.memo(() => {
           value={selectedFacility}
           onChange={onChangeFacility}
           options={ALL_FACILITIES_OPTION.concat(facilityOptions)}
-          label="Select a facility to view and edit its settings"
+          label="Select a facility/server to view and edit its settings"
           isClearable={false}
+          // helperText={helperText}
         />
         <ButtonRow>
           {editMode ? (
@@ -145,15 +151,15 @@ export const SettingsView = React.memo(() => {
           width="100%"
           height="600px"
           mode="json"
+          showPrintMargin={false}
+          placeholder="No settings found for this facility"
+          fontSize={14}
           theme={editMode ? 'eclipse' : 'dawn'}
           onChange={onChangeSettings}
           value={editMode ? settingsEditString : formattedJSONString}
           $isJsonValid={isValidJSON}
-          showPrintMargin={false}
           readOnly={!editMode}
           annotations={errorAnnotation}
-          placeholder="No settings found for this facility"
-          fontSize={14}
         />
       </ContentPane>
     </AdminViewContainer>
