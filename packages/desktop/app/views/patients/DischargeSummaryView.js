@@ -56,6 +56,7 @@ const Section = styled(Box)`
 const Note = styled.p`
   font-size: 10px;
   border: 1px solid black;
+  white-space: pre-line;
   margin: 0;
   padding: 8px 10px;
 `;
