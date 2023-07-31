@@ -280,16 +280,20 @@ patientRoute.get(
 
         // Exact match sort
         const exactMatchSort = selectedFilters
-          .map(filter => `upper(${snakeCase(filter)}) = ${`:exactMatchSort${filter}`} DESC`)
+          .map(
+            filter => `upper(patients.${snakeCase(filter)}) = ${`:exactMatchSort${filter}`} DESC`,
+          )
           .join(', ');
 
         // Begins with sort
         const beginsWithSort = selectedFilters
-          .map(filter => `upper(${snakeCase(filter)}) LIKE :beginsWithSort${filter} DESC`)
+          .map(filter => `upper(patients.${snakeCase(filter)}) LIKE :beginsWithSort${filter} DESC`)
           .join(', ');
 
         // the last one is
-        const alphabeticSort = selectedFilters.map(filter => `${snakeCase(filter)} ASC`).join(', ');
+        const alphabeticSort = selectedFilters
+          .map(filter => `patients.${snakeCase(filter)} ASC`)
+          .join(', ');
 
         filterSort = `${exactMatchSort}, ${beginsWithSort}, ${alphabeticSort}`;
       }
