@@ -1,4 +1,5 @@
 import express from 'express';
+import { promises as fs } from 'fs';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Sequelize } from 'sequelize';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
@@ -218,6 +219,8 @@ reportsRouter.post(
         throw err;
       }
     }
+    // eslint-disable-next-line no-unused-vars
+    await fs.unlink(file).catch(ignore => {});
     res.send(feedback);
   }),
 );
