@@ -11,6 +11,9 @@ import { SYNC_DIRECTIONS } from './types';
 @Entity('user')
 export class User extends BaseModel implements IUser {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
+  
+  @Column()
+  displayId: string;
 
   @Index()
   @Column({ unique: true })

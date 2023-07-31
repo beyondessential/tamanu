@@ -42,7 +42,7 @@ export const PrescriptionPrintout = React.memo(
           data={{
             Date: date ? <DateDisplay date={date} /> : null,
             Prescriber: prescriber?.displayName,
-            'Prescriber ID': '', // We don't currently store this in the db, add it later
+            'Prescriber ID': prescriber?.displayId,
             Facility: encounterData?.location?.facility?.name,
             Medication: medication.name,
             Instructions: prescription,
