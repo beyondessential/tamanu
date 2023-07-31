@@ -13,14 +13,20 @@ describe('Programs import', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
   });
-  beforeEach(async () => {
+
+  const truncateTables = async () => {
     const { Program, Survey, ProgramDataElement, SurveyScreenComponent } = ctx.store.models;
     await SurveyScreenComponent.destroy({ where: {}, force: true });
     await ProgramDataElement.destroy({ where: {}, force: true });
     await Survey.destroy({ where: {}, force: true });
     await Program.destroy({ where: {}, force: true });
+  };
+
+  beforeEach(async () => {
+    await truncateTables();
   });
   afterAll(async () => {
+    await truncateTables();
     await ctx.close();
   });
 
@@ -221,6 +227,33 @@ describe('Programs import', () => {
         ProgramDataElement: { created: 16, updated: 0, errored: 0 },
         SurveyScreenComponent: { created: 16, updated: 0, errored: 0 },
       });
+    });
+
+    it('Should import a valid vitals survey and delete visualisationConfig', async () => {
+      const { ProgramDataElement } = ctx.store.models;
+
+      const validateVisualisationConfig = async expectValue => {
+        const { visualisationConfig } = await ProgramDataElement.findOne({
+          where: {
+            code: 'PatientVitalsHeartRate',
+          },
+        });
+        expect(visualisationConfig).toEqual(expectValue);
+      };
+
+      await doImport({
+        file: 'vitals-valid',
+        dryRun: false,
+      });
+      await validateVisualisationConfig(
+        '{"yAxis":{"graphRange":{"min":30,"max":300}, "interval":10}}',
+      );
+
+      await doImport({
+        file: 'vitals-delete-visualisation-config',
+        dryRun: false,
+      });
+      await validateVisualisationConfig('');
     });
   });
 });

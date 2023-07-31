@@ -33,6 +33,7 @@ import { PatientFacility } from './PatientFacility';
 import { Setting } from './Setting';
 import { NotePage } from './NotePage';
 import { NoteItem } from './NoteItem';
+import { VitalLog } from './VitalLog';
 
 export const MODELS_MAP = {
   ReferenceData,
@@ -48,6 +49,7 @@ export const MODELS_MAP = {
   SurveyScreenComponent,
   SurveyResponse,
   SurveyResponseAnswer,
+  VitalLog,
   Vitals,
   Diagnosis,
   ScheduledVaccine,
