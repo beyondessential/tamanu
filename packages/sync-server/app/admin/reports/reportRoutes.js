@@ -219,8 +219,8 @@ reportsRouter.post(
         throw err;
       }
     }
-    // eslint-disable-next-line no-unused-vars
     if (deleteFileAfterImport) {
+      // eslint-disable-next-line no-unused-vars
       await fs.unlink(file).catch(ignore => {});
     }
     res.send(feedback);
