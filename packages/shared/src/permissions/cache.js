@@ -1,11 +1,6 @@
 import { isEmpty } from 'lodash';
-import config from 'config';
 
 class PermissionCache {
-  constructor() {
-    this.ttl = config.auth.permissionCacheTTL;
-  }
-
   cache = {};
 
   get(key) {
@@ -14,11 +9,10 @@ class PermissionCache {
 
   set(key, value) {
     this.cache[key] = value;
-    if (!this.ttl) return;
-    // Invalidate cached permissions after TTL
-    setTimeout(() => {
-      delete this.cache[key];
-    }, this.ttl);
+  }
+
+  delete(key) {
+    delete this.cache[key];
   }
 
   reset() {

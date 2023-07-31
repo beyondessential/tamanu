@@ -68,6 +68,15 @@ export async function getPermissionsForRoles(models, roleString) {
   const permissions = queryPermissionsForRoles(models, roleString);
 
   permissionCache.set(roleString, permissions);
+
+  const { permissionCacheTTL } = config.auth;
+  if (permissionCacheTTL) {
+    // Invalidate the cache after the TTL
+    setTimeout(() => {
+      permissionCache.delete(roleString);
+    }, permissionCacheTTL);
+  }
+
   return permissions;
 }
 
