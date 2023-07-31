@@ -97,7 +97,7 @@ export const PrimaryDetailsGroup = () => {
 
 export const SecondaryDetailsGroup = ({ patientRegistryType, values = {}, isEdit = false }) => {
   const { getLocalisation } = useLocalisation();
-  const canEditDisplayId = isEdit && getLocalisation('features.editDisplayId');
+  const canEditDisplayId = isEdit && getLocalisation('features.editPatientDisplayId');
   const countrySuggester = useSuggester('country');
   const divisionSuggester = useSuggester('division');
   const ethnicitySuggester = useSuggester('ethnicity');
