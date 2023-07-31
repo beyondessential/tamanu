@@ -73,7 +73,7 @@ export class Setting extends Model {
    * IMPORTANT: Duplicated from mobile/models/Setting.ts
    * Please update both places when modify
    */
-  static async get(key = '', facilityId = null, facilityFilter = false) {
+  static async get(key = '', facilityId = null, facilityLinkedOnly = false) {
     const settings = await Setting.findAll({
       where: {
         ...(key
@@ -87,7 +87,7 @@ export class Setting extends Model {
             }
           : {}),
         facilityId: {
-          ...(facilityFilter
+          ...(facilityLinkedOnly
             ? { [Op.eq]: facilityId }
             : {
                 [Op.or]: {
@@ -122,7 +122,7 @@ export class Setting extends Model {
     return getAtPath(settingsObject, key);
   }
 
-  static async set(key, value, facilityId = null, facilityFilter = false) {
+  static async set(key, value, facilityId = null) {
     const records = buildSettingsRecords(key, value, facilityId);
 
     // create or update records
@@ -150,7 +150,7 @@ export class Setting extends Model {
         where: {
           key: {
             [Op.and]: {
-              ...(facilityFilter
+              ...(key === ''
                 ? {}
                 : {
                     [Op.or]: {
