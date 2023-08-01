@@ -21,20 +21,20 @@ export async function up(query) {
       defaultValue: Sequelize.fn('current_timestamp', 3),
     },
     name: {
-      type: Sequelize.STRING,
+      type: Sequelize.TEXT,
       allowNull: false,
     },
     date_created: {
       type: 'date_string',
     },
     title: {
-      type: Sequelize.STRING,
+      type: Sequelize.TEXT,
     },
     body: {
-      type: Sequelize.STRING,
+      type: Sequelize.TEXT,
     },
     visibility_status: {
-      type: Sequelize.TEXT,
+      type: Sequelize.STRING,
       defaultValue: VISIBILITY_STATUSES.CURRENT,
     },
     created_by_id: {
