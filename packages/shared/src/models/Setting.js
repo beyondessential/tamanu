@@ -158,6 +158,10 @@ export class Setting extends Model {
       },
     );
   }
+
+  static buildSyncFilter() {
+    return `WHERE (facility_id = :facilityId OR scope = 'global') AND ${this.tableName}.updated_at_sync_tick > :since`;
+  }
 }
 
 export function buildSettingsRecords(keyPrefix, value, facilityId) {
