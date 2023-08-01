@@ -50,6 +50,7 @@ const UNHIDEABLE_FIELDS = [
   'locationId',
   'locationGroupId',
   'diagnosis',
+  'userDisplayId',
 ];
 
 const HIDEABLE_FIELDS = [
@@ -440,7 +441,7 @@ const rootLocalisationSchema = yup
         mergePopulatedPADRecords: yup.boolean().required(),
         enableNoteBackdating: yup.boolean().required(),
         enableCovidClearanceCertificate: yup.boolean().required(),
-        editDisplayId: yup.boolean().required(),
+        editPatientDisplayId: yup.boolean().required(),
         patientPlannedMove: yup.boolean().required(),
         idleTimeout: yup
           .object()
