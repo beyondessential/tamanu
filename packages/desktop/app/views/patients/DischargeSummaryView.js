@@ -158,6 +158,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
   const { getLocalisation } = useLocalisation();
   const dischargeDispositionVisible =
     getLocalisation('fields.dischargeDisposition.hidden') === false;
+  const ageDisplayFormat = getLocalisation('ageDisplayFormat');
 
   const patient = useSelector(state => state.patient);
   const { data: village } = useReferenceData(patient.villageId);
@@ -215,7 +216,10 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
             {patient.displayId}
           </LocalisedDisplayValue>
           <DisplayValue name="DOB">
-            {`${formatShort(patient.dateOfBirth)} (${getDisplayAge(patient.dateOfBirth)})`}
+            {`${formatShort(patient.dateOfBirth)} (${getDisplayAge(
+              patient.dateOfBirth,
+              ageDisplayFormat,
+            )})`}
           </DisplayValue>
           <DisplayValue name="Address">{`${address}`} </DisplayValue>
           <DisplayValue name="Sex">{`${capitaliseFirstLetter(patient.sex)}`} </DisplayValue>
