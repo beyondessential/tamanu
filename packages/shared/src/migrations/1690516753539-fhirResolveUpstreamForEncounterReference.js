@@ -5,14 +5,10 @@ export async function up(query) {
     AS $$
       UPDATE fhir.service_requests sr
       SET encounter = jsonb_build_object(
-          'reference',
-          'Encounter/' || e.id,
-          'type',
-          'Encounter',
-          'identifier',
-          null,
-          'display',
-          null
+          'reference', 'Encounter/' || e.id,
+          'type', 'Encounter',
+          'identifier', null,
+          'display', null
         )
       FROM fhir.encounters e
       WHERE true
