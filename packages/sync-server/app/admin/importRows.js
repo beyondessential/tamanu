@@ -41,8 +41,10 @@ function loadExisting(Model, id) {
 
 export async function importRows(
   { errors, log, models },
-  { rows, sheetName, stats = {}, foreignKeySchemata = {} },
+  { rows, sheetName, stats: previousStats = {}, foreignKeySchemata = {} },
 ) {
+  const stats = { ...previousStats };
+
   log.debug('Importing rows to database', { count: rows.length });
   if (rows.length === 0) {
     log.debug('Nothing to do, skipping');
