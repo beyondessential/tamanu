@@ -204,7 +204,7 @@ patientRoute.get(
         ...EncounterMedication.getFullReferenceAssociations(),
         {
           association: 'encounter',
-          include: [{ association: 'location', include: ['locationGroup'] }],
+          include: [{ association: 'location', include: ['facility'] }],
         },
       ],
       order: orderBy ? getOrderClause(order, orderBy) : undefined,
@@ -280,16 +280,20 @@ patientRoute.get(
 
         // Exact match sort
         const exactMatchSort = selectedFilters
-          .map(filter => `upper(${snakeCase(filter)}) = ${`:exactMatchSort${filter}`} DESC`)
+          .map(
+            filter => `upper(patients.${snakeCase(filter)}) = ${`:exactMatchSort${filter}`} DESC`,
+          )
           .join(', ');
 
         // Begins with sort
         const beginsWithSort = selectedFilters
-          .map(filter => `upper(${snakeCase(filter)}) LIKE :beginsWithSort${filter} DESC`)
+          .map(filter => `upper(patients.${snakeCase(filter)}) LIKE :beginsWithSort${filter} DESC`)
           .join(', ');
 
         // the last one is
-        const alphabeticSort = selectedFilters.map(filter => `${snakeCase(filter)} ASC`).join(', ');
+        const alphabeticSort = selectedFilters
+          .map(filter => `patients.${snakeCase(filter)} ASC`)
+          .join(', ');
 
         filterSort = `${exactMatchSort}, ${beginsWithSort}, ${alphabeticSort}`;
       }
@@ -305,14 +309,11 @@ patientRoute.get(
       ? `
       FROM patients
         LEFT JOIN (
-            SELECT patient_id, max(start_date) AS most_recent_open_encounter
-            FROM encounters
-            WHERE end_date IS NULL
-            GROUP BY patient_id
-          ) recent_encounter_by_patient
-          ON patients.id = recent_encounter_by_patient.patient_id
-        LEFT JOIN encounters
-          ON (patients.id = encounters.patient_id AND recent_encounter_by_patient.most_recent_open_encounter = encounters.start_date)
+          SELECT *, ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY start_date DESC, id DESC) AS row_num
+          FROM encounters
+          WHERE end_date IS NULL
+        ) encounters
+          ON (patients.id = encounters.patient_id AND encounters.row_num = 1)
         LEFT JOIN reference_data AS village
           ON (village.type = 'village' AND village.id = patients.village_id)
         LEFT JOIN (
@@ -330,14 +331,11 @@ patientRoute.get(
       : `
       FROM patients
         LEFT JOIN (
-            SELECT patient_id, max(start_date) AS most_recent_open_encounter
+            SELECT *, ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY start_date DESC, id DESC) AS row_num
             FROM encounters
             WHERE end_date IS NULL
-            GROUP BY patient_id
-          ) recent_encounter_by_patient
-          ON patients.id = recent_encounter_by_patient.patient_id
-        LEFT JOIN encounters
-          ON (patients.id = encounters.patient_id AND recent_encounter_by_patient.most_recent_open_encounter = encounters.start_date)
+          ) encounters
+          ON (patients.id = encounters.patient_id AND encounters.row_num = 1)
         LEFT JOIN users AS clinician 
           ON clinician.id = encounters.examiner_id  
         LEFT JOIN departments AS department

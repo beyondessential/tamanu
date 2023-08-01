@@ -37,10 +37,17 @@ import { Colors } from '../../constants';
 
 const Container = styled.div`
   padding: 12px 30px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 58px);
 `;
 
 const Rule = styled(Divider)`
   margin: 0 0 20px 0;
+`;
+
+const FixedTileRow = styled(TileContainer)`
+  flex-shrink: 0;
 `;
 
 const HIDDEN_STATUSES = [
@@ -126,11 +133,15 @@ export const LabRequestView = () => {
   if (isLoading) return <LoadingIndicator />;
 
   const canWriteLabRequest = ability?.can('write', 'LabRequest');
+  const canWriteLabRequestStatus = ability?.can('write', 'LabRequestStatus');
+
   const canWriteLabTest = ability?.can('write', 'LabTest');
+  const canWriteLabTestResult = ability?.can('write', 'LabTestResult');
 
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
   const areLabTestsReadOnly = !canWriteLabTest || isHidden;
+  const areLabTestResultsReadOnly = !canWriteLabTestResult;
   // If the value of status is enteredInError or deleted, it should display to the user as Cancelled
   const displayStatus = areLabRequestsReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
 
@@ -164,7 +175,7 @@ export const LabRequestView = () => {
         }
       />
       <LabRequestNoteForm labRequestId={labRequest.id} isReadOnly={areLabRequestsReadOnly} />
-      <TileContainer>
+      <FixedTileRow>
         <Tile
           Icon={() => <img src={TestCategoryIcon} alt="test category" />}
           text="Test Category"
@@ -179,11 +190,12 @@ export const LabRequestView = () => {
             </TileTag>
           }
           actions={{
-            ...(!areLabRequestsReadOnly && {
-              'Change status': () => {
-                handleChangeModalId(MODAL_IDS.CHANGE_STATUS);
-              },
-            }),
+            ...(!areLabRequestsReadOnly &&
+              canWriteLabRequestStatus && {
+                'Change status': () => {
+                  handleChangeModalId(MODAL_IDS.CHANGE_STATUS);
+                },
+              }),
             'View status log': () => {
               handleChangeModalId(MODAL_IDS.VIEW_STATUS_LOG);
             },
@@ -226,13 +238,14 @@ export const LabRequestView = () => {
             },
           }}
         />
-      </TileContainer>
+      </FixedTileRow>
       <Rule />
 
       <LabRequestResultsTable
         labRequest={labRequest}
         patient={patient}
         isReadOnly={areLabTestsReadOnly}
+        areLabTestResultsReadOnly={areLabTestResultsReadOnly}
       />
       {modalId && (
         <ActiveModal
