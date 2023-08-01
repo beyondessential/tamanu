@@ -130,6 +130,7 @@ export const DumbAddLabRequestScreen = ({
     sampleDate: new Date(),
     requestedDate: new Date(),
     requestedTime: new Date(),
+    requestedById: user.id,
     displayId,
   };
 

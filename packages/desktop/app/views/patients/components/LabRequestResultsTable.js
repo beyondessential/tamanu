@@ -7,46 +7,49 @@ import { capitaliseFirstLetter } from '../../../utils/capitalise';
 import { getCompletedDate, getMethod } from '../../../utils/lab';
 import { LabTestResultModal } from '../LabTestResultModal';
 
-const ManualLabResultModal = React.memo(({ labTest, onClose, open, isReadOnly }) => {
-  const { updateLabTest, labRequest } = useLabRequest();
-  const { navigateToLabRequest } = usePatientNavigation();
+const ManualLabResultModal = React.memo(
+  ({ labTest, onClose, open, isReadOnly, areLabTestResultsReadOnly }) => {
+    const { updateLabTest, labRequest } = useLabRequest();
+    const { navigateToLabRequest } = usePatientNavigation();
 
-  const onSubmit = useCallback(
-    async ({ result, completedDate, laboratoryOfficer, labTestMethodId, verification }) => {
-      await updateLabTest(labRequest.id, labTest.id, {
-        result: `${result}`,
-        completedDate,
-        laboratoryOfficer,
-        verification,
-        labTestMethodId,
-      });
-      navigateToLabRequest(labRequest.id);
-      onClose();
-    },
-    [labRequest, labTest, onClose, updateLabTest, navigateToLabRequest],
-  );
+    const onSubmit = useCallback(
+      async ({ result, completedDate, laboratoryOfficer, labTestMethodId, verification }) => {
+        await updateLabTest(labRequest.id, labTest.id, {
+          result: `${result}`,
+          completedDate,
+          laboratoryOfficer,
+          verification,
+          labTestMethodId,
+        });
+        navigateToLabRequest(labRequest.id);
+        onClose();
+      },
+      [labRequest, labTest, onClose, updateLabTest, navigateToLabRequest],
+    );
 
-  if (isReadOnly) {
-    return <LabTestResultModal labTestId={labTest?.id} onClose={onClose} open={open} />;
-  }
+    if (isReadOnly) {
+      return <LabTestResultModal labTestId={labTest?.id} onClose={onClose} open={open} />;
+    }
 
-  return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      title={`Enter result – ${labTest && labTest.labTestType.name} | Test ID ${labRequest &&
-        labRequest.displayId}`}
-      cornerExitButton={false}
-    >
-      <ManualLabResultForm
-        labTest={labTest}
-        onSubmit={onSubmit}
+    return (
+      <Modal
+        open={open}
         onClose={onClose}
-        isReadOnly={isReadOnly}
-      />
-    </Modal>
-  );
-});
+        title={`Enter result – ${labTest && labTest.labTestType.name} | Test ID ${labRequest &&
+          labRequest.displayId}`}
+        cornerExitButton={false}
+      >
+        <ManualLabResultForm
+          labTest={labTest}
+          onSubmit={onSubmit}
+          onClose={onClose}
+          isReadOnly={isReadOnly}
+          areLabTestResultsReadOnly={areLabTestResultsReadOnly}
+        />
+      </Modal>
+    );
+  },
+);
 
 const makeRangeStringAccessor = sex => ({ labTestType }) => {
   const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
@@ -84,34 +87,39 @@ const columns = sex => [
   { title: 'Completed', key: 'completedDate', accessor: getCompletedDate, sortable: false },
 ];
 
-export const LabRequestResultsTable = React.memo(({ labRequest, patient, isReadOnly }) => {
-  const [activeTest, setActiveTest] = useState(null);
-  const [isModalOpen, setModalOpen] = useState(false);
+export const LabRequestResultsTable = React.memo(
+  ({ labRequest, patient, isReadOnly, areLabTestResultsReadOnly }) => {
+    const [activeTest, setActiveTest] = useState(null);
+    const [isModalOpen, setModalOpen] = useState(false);
 
-  const closeModal = () => setModalOpen(false);
-  const openModal = test => {
-    setActiveTest(test);
-    setModalOpen(true);
-  };
+    const closeModal = () => setModalOpen(false);
+    const openModal = test => {
+      setActiveTest(test);
+      setModalOpen(true);
+    };
 
-  const sexAppropriateColumns = columns(patient.sex);
+    const sexAppropriateColumns = columns(patient.sex);
 
-  return (
-    <>
-      <ManualLabResultModal
-        open={isModalOpen}
-        labRequest={labRequest}
-        labTest={activeTest}
-        onClose={closeModal}
-        isReadOnly={isReadOnly}
-      />
-      <DataFetchingTable
-        columns={sexAppropriateColumns}
-        endpoint={`labRequest/${labRequest.id}/tests`}
-        onRowClick={openModal}
-        initialSort={{ order: 'asc', orderBy: 'id' }}
-        elevated={false}
-      />
-    </>
-  );
-});
+    return (
+      <>
+        <ManualLabResultModal
+          open={isModalOpen}
+          labRequest={labRequest}
+          labTest={activeTest}
+          onClose={closeModal}
+          isReadOnly={isReadOnly}
+          areLabTestResultsReadOnly={areLabTestResultsReadOnly}
+        />
+        <DataFetchingTable
+          columns={sexAppropriateColumns}
+          endpoint={`labRequest/${labRequest.id}/tests`}
+          onRowClick={openModal}
+          initialSort={{ order: 'asc', orderBy: 'id' }}
+          elevated={false}
+          disablePagination
+          fixedHeader
+        />
+      </>
+    );
+  },
+);
