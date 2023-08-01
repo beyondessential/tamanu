@@ -55,6 +55,7 @@ const servers = [
   { name: 'RC (1.28)', type: 'dev', host: 'https://central.release-1-28.internal.tamanu.io' },
   { name: 'RC (1.29)', type: 'dev', host: 'https://central.release-1-29.internal.tamanu.io' },
   { name: 'RC (1.30)', type: 'dev', host: 'https://central.release-1-30.internal.tamanu.io' },
+  { name: 'Dev (PR 4446)', type: 'dev', host: 'https://central.feature-sav-15-scheduledvax-visibility.internal.tamanu.io' },
   { name: 'Stress Test', type: 'dev', host: 'https://central-stress-test.tamanu.io' },
   { name: 'UAT-VPS', type: 'dev', host: 'https://sync-uat.tamanu.io' },
   { name: 'UAT-PMI', type: 'dev', host: 'https://central-uat-pmi.tamanu.io' },
