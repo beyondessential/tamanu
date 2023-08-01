@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState, useRef } from 'react';
 import styled from 'styled-components';
 import EditIcon from '@material-ui/icons/Edit';
 
@@ -23,12 +23,8 @@ const NoteRowContainer = styled.div`
   flex-direction: column;
 `;
 
-const NoDataMessage = styled.span`
-  font-weight: 500;
-  color: ${Colors.primary};
-`;
-
 const NoteContentContainer = styled.div`
+  width: 100%;
   position: relative;
   overflow: hidden;
   display: -webkit-box;
@@ -36,7 +32,7 @@ const NoteContentContainer = styled.div`
   ${props =>
     !props.$expanded
       ? `
-    text-overflow: ellipsis;
+    text-overflow: clip;
     -webkit-line-clamp: 4;
             line-clamp: 4;
     -webkit-box-orient: vertical;
@@ -56,7 +52,7 @@ const EllipsisHideShowSpan = styled.span`
 const ReadMoreSpan = styled(EllipsisHideShowSpan)`
   position: absolute;
   bottom: 0;
-  right: 0;
+  ${props => (props.$bottom > 0 ? `right: 0` : '')};
 `;
 
 const ShowLessSpan = styled(EllipsisHideShowSpan)``;
@@ -108,10 +104,12 @@ const NoteContent = ({
   handleViewNoteChangeLog,
   isNotFilteredByNoteType,
 }) => {
+  const noteContentContainerRef = useRef();
+  const contentLineClipping = useRef();
   const [contentIsClipped, setContentIsClipped] = useState(false);
-  const [textIsExpanded, setTextIsExpanded] = useState(false);
-  const handleReadMore = useCallback(() => setTextIsExpanded(true), []);
-  const handleReadLess = useCallback(() => setTextIsExpanded(false), []);
+  const [contentIsExpanded, setContentIsExpanded] = useState(false);
+  const handleReadMore = useCallback(() => setContentIsExpanded(true), []);
+  const handleReadLess = useCallback(() => setContentIsExpanded(false), []);
   return (
     <NoteRowContainer>
       {isNotFilteredByNoteType && (
@@ -123,14 +121,41 @@ const NoteContent = ({
       )}
       <NoteBodyContainer>
         <NoteContentContainer
-          $expanded={textIsExpanded}
-          ref={el => setContentIsClipped(el?.offsetHeight < el?.scrollHeight)}
+          $expanded={contentIsExpanded}
+          ref={el => {
+            noteContentContainerRef.current = el;
+            setContentIsClipped(el?.offsetHeight < el?.scrollHeight);
+          }}
         >
-          <span>{note?.content || ''}</span>
-          {contentIsClipped && !textIsExpanded && (
-            <ReadMoreSpan onClick={handleReadMore}>...read more</ReadMoreSpan>
-          )}
-          {textIsExpanded && <ShowLessSpan onClick={handleReadLess}> Show less</ShowLessSpan>}
+          {note?.content?.split('\n').map((line, i, { length }) => {
+            const elementRef = contentLineClipping?.current?.[i];
+            const contentOffsetHeight = noteContentContainerRef.current?.offsetHeight;
+            const isVisible = contentOffsetHeight > elementRef?.offsetTop;
+            const hiddenHeight =
+              elementRef?.offsetTop + elementRef?.offsetHeight - contentOffsetHeight;
+            return (
+              <>
+                <span
+                  ref={el => {
+                    const tempLineClipping = [...(contentLineClipping?.current || [])];
+                    tempLineClipping[i] = el;
+                    contentLineClipping.current = tempLineClipping;
+                  }}
+                >
+                  {line}
+                  {contentIsClipped && !contentIsExpanded && isVisible && hiddenHeight >= -1 && (
+                    <ReadMoreSpan $bottom={hiddenHeight} onClick={handleReadMore}>
+                      ...read more
+                    </ReadMoreSpan>
+                  )}
+                  {'\n'}
+                </span>
+                {contentIsExpanded && i === length - 1 && (
+                  <ShowLessSpan onClick={handleReadLess}> Show less</ShowLessSpan>
+                )}
+              </>
+            );
+          })}
         </NoteContentContainer>
         {(hasPermission || currentUser.id === note.authorId) &&
           note.noteType !== NOTE_TYPES.SYSTEM && (
@@ -238,13 +263,10 @@ const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) =
         endpoint={`encounter/${encounterId}/notes`}
         fetchOptions={{ noteType }}
         elevated={false}
-        noDataMessage={
-          <NoDataMessage>
-            This patient has no notes {noteType ? 'of this type ' : ''}to display. Click ‘New note’
-            to add a note.
-          </NoDataMessage>
-        }
-        noDataBackgroundColor={Colors.background}
+        noDataMessage={`This patient has no notes ${
+          noteType ? 'of this type ' : ''
+        }to display. Click ‘New note’ to add a note.`}
+        statusMessageColor={Colors.primary}
       />
     </>
   );
