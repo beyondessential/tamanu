@@ -31,8 +31,10 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
   const imagingPriorities = getLocalisation('imagingPriorities') || [];
-  const areaSuggester = useSuggester('locationGroup');
-  const departmentSuggester = useSuggester('department');
+  const areaSuggester = useSuggester('facilityLocationGroup');
+  const departmentSuggester = useSuggester('department', {
+    baseQueryParameters: { filterByFacility: true },
+  });
   const requesterSuggester = useSuggester('practitioner');
   const isCompletedTable = memoryKey === IMAGING_TABLE_VERSIONS.COMPLETED.memoryKey;
 

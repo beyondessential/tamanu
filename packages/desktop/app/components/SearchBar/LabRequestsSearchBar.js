@@ -39,7 +39,7 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
     advancedFields,
     searchParameters,
   );
-  const locationGroupSuggester = useSuggester('locationGroup');
+  const locationGroupSuggester = useSuggester('facilityLocationGroup');
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: {
       filterByFacility: true,
