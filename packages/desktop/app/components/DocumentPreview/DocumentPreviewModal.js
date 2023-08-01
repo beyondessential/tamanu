@@ -54,6 +54,7 @@ export const DocumentPreviewModal = ({ open, onClose, onDownload, document }) =>
           </Subtitle>
         </div>
       }
+      printable={document.source === DOCUMENT_SOURCES.PATIENT_LETTER}
       additionalActions={[<DownloadButton onClick={onDownload} key="Download" />]}
       width="md"
       overrideContentPadding
