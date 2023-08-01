@@ -22,7 +22,9 @@ export const useAuth = () => {
     })),
     onLogout: () => {
       dispatch(logout());
-      queries.invalidateQueries();
+      // removes items from cache but doesn't trigger a re-render
+      // because the login screen doesn't have any queries on it, this should be fine
+      queries.removeQueries();
     },
     onTimeout: () => dispatch(idleTimeout()),
     refreshToken: () => api.refreshToken(),
