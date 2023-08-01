@@ -1,9 +1,15 @@
 export async function up(query) {
-  await query.addIndex('imaging_results', {
-    fields: ['imaging_request_id'],
-  });
+  await query.sequelize.query(`
+    CREATE INDEX IF NOT EXISTS
+      imaging_results_imaging_request_id
+    ON
+      imaging_results (imaging_request_id)
+  `);
 }
 
 export async function down(query) {
-  await query.removeIndex('imaging_results', ['imaging_request_id']);
+  await query.sequelize.query(`
+    DROP INDEX
+      imaging_results_imaging_request_id
+  `);
 }
