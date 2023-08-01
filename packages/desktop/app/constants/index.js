@@ -209,7 +209,7 @@ export const encounterOptions = [
   },
   {
     value: ENCOUNTER_TYPES.VACCINATION,
-    label: 'Vaccination',
+    label: 'Vaccination record',
     image: vaccineIcon,
     hideFromMenu: true,
   },
