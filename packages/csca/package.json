@@ -1,6 +1,6 @@
 {
   "name": "csca",
-  "version": "1.28.6",
+  "version": "1.30.0",
   "private": true,
   "description": "CSCA tooling for Tamanu desktop app",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",

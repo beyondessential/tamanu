@@ -1,6 +1,6 @@
 {
   "name": "scripts",
-  "version": "1.28.6",
+  "version": "1.30.0",
   "main": "index.js",
   "license": "SEE LICENSE IN license",
   "scripts": {
