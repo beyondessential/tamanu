@@ -187,7 +187,8 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const notesQuery = useEncounterNotes(encounter.id, {
     orderBy: 'date',
     order: 'ASC',
-  });
+  }); // order notes by edited date
+
   const notes = notesQuery?.data?.data || [];
 
   const displayNotes = notes.filter(note => {
