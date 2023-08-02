@@ -5,7 +5,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import { NOTE_TYPES } from '@tamanu/shared/constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-import { noteTypes, Colors } from '../constants';
+import { Colors, NOTE_TYPE_LABELS } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { NOTE_FORM_MODES, NoteModal } from './NoteModal';
 import { withPermissionCheck } from './withPermissionCheck';
@@ -114,9 +114,7 @@ const NoteContent = ({
     <NoteRowContainer>
       {isNotFilteredByNoteType && (
         <NoteHeaderContainer>
-          <NoteHeaderText>
-            {noteTypes.find(type => type.value === note.noteType).label}
-          </NoteHeaderText>
+          <NoteHeaderText>{NOTE_TYPE_LABELS[note.noteType]}</NoteHeaderText>
         </NoteHeaderContainer>
       )}
       <NoteBodyContainer>
