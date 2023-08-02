@@ -110,12 +110,16 @@ patientVaccineRoutes.put(
   }),
 );
 
-async function getVaccinationDescription(models, scheduledVaccineId) {
-  const scheduledVaccine = await models.ScheduledVaccine.findByPk(scheduledVaccineId, {
+async function getVaccinationDescription(models, vaccineData) {
+  const scheduledVaccine = await models.ScheduledVaccine.findByPk(vaccineData.scheduledVaccineId, {
     include: 'vaccine',
   });
 
-  return ['Vaccination recorded for', scheduledVaccine.vaccine?.name, scheduledVaccine.schedule]
+  const prefixMessage =
+    vaccineData.status === VACCINE_STATUS.GIVEN
+      ? 'Vaccination recorded for'
+      : 'Vaccination recorded as not given for';
+  return [prefixMessage, scheduledVaccine.vaccine?.name, scheduledVaccine.schedule]
     .filter(Boolean)
     .join(' ');
 }
@@ -182,10 +186,7 @@ patientVaccineRoutes.post(
           examinerId: vaccineData.recorderId,
           locationId,
           departmentId,
-          reasonForEncounter: await getVaccinationDescription(
-            req.models,
-            vaccineData.scheduledVaccineId,
-          ),
+          reasonForEncounter: await getVaccinationDescription(req.models, vaccineData),
         });
         await newEncounter.update({
           endDate: vaccineData.date || currentDate,
