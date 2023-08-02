@@ -31,8 +31,9 @@ import { LabTestPanel } from './LabTestPanel';
 import { LocalSystemFact } from './LocalSystemFact';
 import { PatientFacility } from './PatientFacility';
 import { Setting } from './Setting';
-import { NotePage } from './NotePage';
-import { NoteItem } from './NoteItem';
+import { LegacyNotePage } from './LegacyNotePage';
+import { LegacyNoteItem } from './LegacyNoteItem';
+import { Note } from './Note';
 import { VitalLog } from './VitalLog';
 
 export const MODELS_MAP = {
@@ -69,7 +70,8 @@ export const MODELS_MAP = {
   LocalSystemFact,
   PatientFacility,
   Setting,
-  NotePage,
-  NoteItem,
+  LegacyNotePage,
+  LegacyNoteItem,
+  Note,
 };
 export const MODELS_ARRAY: typeof BaseModel[] = Object.values(MODELS_MAP);

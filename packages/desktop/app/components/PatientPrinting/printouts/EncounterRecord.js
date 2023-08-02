@@ -414,15 +414,13 @@ export const EncounterRecord = React.memo(
                   <tbody>
                     <Row>
                       <Cell colSpan={3}>
-                        {note.noteItems.map(noteItem => (
-                          <ChildNote>
-                            <BoldText>
-                              <DateDisplay date={noteItem.date} showDate showTime />
-                              {noteItem.revisedById ? ' (edited)' : ''}
-                            </BoldText>
-                            {noteItem.content}
-                          </ChildNote>
-                        ))}
+                        <ChildNote>
+                          <BoldText>
+                            <DateDisplay date={note.date} showDate showTime />
+                            {note.revisedById ? ' (edited)' : ''}
+                          </BoldText>
+                          {note.content}
+                        </ChildNote>
                       </Cell>
                     </Row>
                   </tbody>

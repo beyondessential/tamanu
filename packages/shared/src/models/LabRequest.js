@@ -159,9 +159,9 @@ export class LabRequest extends Model {
       as: 'certificate_notification',
     });
 
-    this.hasMany(models.NotePage, {
+    this.hasMany(models.Note, {
       foreignKey: 'recordId',
-      as: 'notePages',
+      as: 'notes',
       constraints: false,
       scope: {
         recordType: this.name,

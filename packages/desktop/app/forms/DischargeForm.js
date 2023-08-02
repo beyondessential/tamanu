@@ -54,7 +54,7 @@ const ConfirmContent = styled.div`
 const MAX_REPEATS = 12;
 const REPEATS_OPTIONS = range(MAX_REPEATS + 1).map(value => ({ label: value, value }));
 
-const getDischargeInitialValues = (encounter, dischargeNotePages, medicationInitialValues) => {
+const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialValues) => {
   const today = new Date();
   const encounterStartDate = parseISO(encounter.startDate);
   return {
@@ -69,7 +69,7 @@ const getDischargeInitialValues = (encounter, dischargeNotePages, medicationInit
         )
       : getCurrentDateTimeString(),
     discharge: {
-      note: dischargeNotePages.map(np => np.noteItems?.[0]?.content).join('\n'),
+      note: dischargeNotes.map(n => n.content).join('\n'),
     },
     medications: medicationInitialValues,
     // Used in creation of associated notes
@@ -257,7 +257,7 @@ export const DischargeForm = ({
   onSubmit,
 }) => {
   const { encounter } = useEncounter();
-  const [dischargeNotePages, setDischargeNotePages] = useState([]);
+  const [dischargeNotes, setDischargeNotes] = useState([]);
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
 
@@ -281,8 +281,8 @@ export const DischargeForm = ({
 
   useEffect(() => {
     (async () => {
-      const { data: notePages } = await api.get(`encounter/${encounter.id}/notePages`);
-      setDischargeNotePages(notePages.filter(n => n.noteType === 'discharge'));
+      const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
+      setDischargeNotes(notes.filter(n => n.noteType === 'discharge'));
     })();
   }, [api, encounter.id]);
 
@@ -290,11 +290,7 @@ export const DischargeForm = ({
     <PaginatedForm
       onSubmit={handleSubmit}
       onCancel={onCancel}
-      initialValues={getDischargeInitialValues(
-        encounter,
-        dischargeNotePages,
-        medicationInitialValues,
-      )}
+      initialValues={getDischargeInitialValues(encounter, dischargeNotes, medicationInitialValues)}
       FormScreen={DischargeFormScreen}
       SummaryScreen={DischargeSummaryScreen}
       validationSchema={yup.object().shape({

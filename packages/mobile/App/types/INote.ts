@@ -1,5 +1,5 @@
 import { ID } from './ID';
-import { INoteItem } from './INoteItem';
+import { IUser } from './IUser';
 import { DateString } from './DateString';
 
 export enum NoteRecordType {
@@ -29,7 +29,7 @@ export enum NoteType {
   HANDOVER = 'handover',
 }
 
-export interface INotePage {
+export interface INote {
   id: ID;
   noteType: NoteType;
   date: DateString;
@@ -37,5 +37,13 @@ export interface INotePage {
   recordType: NoteRecordType;
   recordId: ID;
 
-  noteItems: INoteItem[];
+  content: string;
+
+  revisedById?: string;
+
+  author?: IUser;
+  authorId?: ID;
+
+  onBehalfOf?: IUser;
+  onBehalfOfId?: ID;
 }

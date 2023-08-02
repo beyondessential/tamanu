@@ -144,13 +144,12 @@ describe('Labs', () => {
     expect(response).toHaveSucceeded();
 
     const labRequest = await models.LabRequest.findByPk(response.body[0].id, {
-      include: 'notePages',
+      include: 'notes',
     });
     expect(labRequest).toBeTruthy();
 
-    expect(labRequest.notePages).toHaveLength(1);
-    const note = await labRequest.notePages[0].getNoteItems();
-    expect(note[0]).toHaveProperty('content', content);
+    expect(labRequest.notes).toHaveLength(1);
+    expect(labRequest.notes[0]).toHaveProperty('content', content);
   });
 
   it('should record a lab request with a note', async () => {
@@ -169,13 +168,12 @@ describe('Labs', () => {
     expect(response).toHaveSucceeded();
 
     const labRequest = await models.LabRequest.findByPk(response.body[0].id, {
-      include: 'notePages',
+      include: 'notes',
     });
     expect(labRequest).toBeTruthy();
 
-    expect(labRequest.notePages).toHaveLength(1);
-    const note = await labRequest.notePages[0].getNoteItems();
-    expect(note[0]).toHaveProperty('content', content);
+    expect(labRequest.notes).toHaveLength(1);
+    expect(labRequest.notes[0]).toHaveProperty('content', content);
   });
 
   it('should record a lab request with a Lab Test Panel', async () => {

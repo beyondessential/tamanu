@@ -4,9 +4,9 @@ import { SYNC_DIRECTIONS } from '../constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
-import { buildNoteItemLinkedSyncFilter } from './buildNoteLinkedSyncFilter';
+import { buildNoteItemLinkedSyncFilter } from './buildLegacyNoteLinkedSyncFilter';
 
-export class NoteItem extends Model {
+export class LegacyNoteItem extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -30,6 +30,7 @@ export class NoteItem extends Model {
       },
       {
         ...options,
+        tableName: 'note_items',
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         validate: {
           mustHaveContent() {
@@ -43,7 +44,7 @@ export class NoteItem extends Model {
   }
 
   static initRelations(models) {
-    this.belongsTo(models.NotePage, {
+    this.belongsTo(models.LegacyNotePage, {
       foreignKey: 'notePageId',
       as: 'notePage',
     });

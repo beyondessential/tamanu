@@ -189,9 +189,9 @@ export class Encounter extends Model {
       as: 'referralSource',
     });
 
-    this.hasMany(models.NotePage, {
+    this.hasMany(models.Note, {
       foreignKey: 'recordId',
-      as: 'notePages',
+      as: 'notes',
       constraints: false,
       scope: {
         recordType: this.name,
@@ -354,13 +354,10 @@ export class Encounter extends Model {
   }
 
   async addSystemNote(content, date, user) {
-    const notePage = await this.createNotePage({
+    return this.createNote({
       noteType: NOTE_TYPES.SYSTEM,
       date,
-    });
-    await notePage.createNoteItem({
       content,
-      date,
       ...(user?.id && { authorId: user?.id }),
     });
   }

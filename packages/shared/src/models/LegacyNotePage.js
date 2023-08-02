@@ -8,12 +8,12 @@ import {
 } from '../constants';
 
 import { Model } from './Model';
-import { NoteItem } from './NoteItem';
-import { buildNotePageLinkedSyncFilter } from './buildNoteLinkedSyncFilter';
+import { LegacyNoteItem } from './LegacyNoteItem';
+import { buildNotePageLinkedSyncFilter } from './buildLegacyNoteLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 
-export class NotePage extends Model {
+export class LegacyNotePage extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -41,6 +41,7 @@ export class NotePage extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        tableName: 'note_pages',
         validate: {
           mustHaveValidRelationType() {
             if (!NOTE_RECORD_TYPE_VALUES.includes(this.recordType)) {
@@ -66,7 +67,7 @@ export class NotePage extends Model {
       });
     });
 
-    this.hasMany(models.NoteItem, {
+    this.hasMany(models.LegacyNoteItem, {
       foreignKey: 'notePageId',
       as: 'noteItems',
       constraints: false,
@@ -81,7 +82,7 @@ export class NotePage extends Model {
    * @returns
    */
   async getCombinedNoteObject(models) {
-    const noteItem = await models.NoteItem.findOne({
+    const noteItem = await models.LegacyNoteItem.findOne({
       include: [
         { model: models.User, as: 'author' },
         { model: models.User, as: 'onBehalfOf' },
@@ -106,14 +107,14 @@ export class NotePage extends Model {
   }
 
   static async createForRecord(recordId, recordType, noteType, content, authorId) {
-    const notePage = await NotePage.create({
+    const notePage = await LegacyNotePage.create({
       recordId,
       recordType,
       noteType,
       date: getCurrentDateTimeString(),
     });
 
-    await NoteItem.create({
+    await LegacyNoteItem.create({
       notePageId: notePage.id,
       content,
       date: getCurrentDateTimeString(),

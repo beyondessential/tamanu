@@ -1,13 +1,103 @@
 import { sub } from 'date-fns';
 
+import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { fake } from '@tamanu/shared/test-helpers/fake';
-import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { NOTE_RECORD_TYPES, NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/shared/constants';
-import { sleepAsync } from '@tamanu/shared/utils';
 
 import { createTestContext } from '../utilities';
 import { migrateChangelogNotesToEncounterHistory } from '../../app/subCommands';
+
+import { sleepAsync } from '@tamanu/shared/utils';
+
+const addSystemNote = async (models, recordId, content, date) => {
+  const notePage = await models.LegacyNotePage.create({
+    recordId,
+    recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+    date,
+    noteType: NOTE_TYPES.SYSTEM,
+  });
+
+  await models.LegacyNoteItem.create({
+    notePageId: notePage.id,
+    date,
+    content,
+  });
+};
+
+const addLocationChangeNote = async (
+  models,
+  recordId,
+  oldLocationId,
+  newLocationId,
+  submittedTime,
+) => {
+  const { Location } = models;
+  const oldLocation = await Location.findOne({
+    where: { id: oldLocationId },
+    include: 'locationGroup',
+  });
+  const newLocation = await Location.findOne({
+    where: { id: newLocationId },
+    include: 'locationGroup',
+  });
+
+  await addSystemNote(
+    models,
+    recordId,
+    `Changed location from ${Location.formatFullLocationName(
+      oldLocation,
+    )} to ${Location.formatFullLocationName(newLocation)}`,
+    submittedTime,
+  );
+};
+
+const addDepartmentChangeNote = async (
+  models,
+  recordId,
+  fromDepartmentId,
+  toDepartmentId,
+  submittedTime,
+) => {
+  const { Department } = models;
+  const oldDepartment = await Department.findOne({ where: { id: fromDepartmentId } });
+  const newDepartment = await Department.findOne({ where: { id: toDepartmentId } });
+  await addSystemNote(
+    models,
+    recordId,
+    `Changed department from ${oldDepartment.name} to ${newDepartment.name}`,
+    submittedTime,
+  );
+};
+
+const updateClinician = async (models, recordId, oldClinicianId, newClinicianId, submittedTime) => {
+  const { User } = models;
+  const oldClinician = await User.findOne({ where: { id: oldClinicianId } });
+  const newClinician = await User.findOne({ where: { id: newClinicianId } });
+  await addSystemNote(
+    models,
+    recordId,
+    `Changed supervising clinician from ${oldClinician.displayName} to ${newClinician.displayName}`,
+    submittedTime,
+  );
+};
+
+const onEncounterProgression = async (
+  models,
+  recordId,
+  oldEncounterType,
+  newEncounterType,
+  submittedTime,
+  user,
+) => {
+  await addSystemNote(
+    models,
+    recordId,
+    `Changed type from ${oldEncounterType} to ${newEncounterType}`,
+    submittedTime,
+    user,
+  );
+};
 
 describe('migrateChangelogNotesToEncounterHistory', () => {
   let ctx;
@@ -76,8 +166,8 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       cascade: true,
       force: true,
     });
-    await models.NoteItem.truncate({ cascade: true, force: true });
-    await models.NotePage.truncate({ cascade: true, force: true });
+    await models.LegacyNoteItem.truncate({ cascade: true, force: true });
+    await models.LegacyNotePage.truncate({ cascade: true, force: true });
     await models.User.truncate({
       cascade: true,
       force: true,
@@ -131,8 +221,10 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounterType: 'admission',
         startDate: getDateSubtractedFromNow(6),
       });
-      await encounter.addLocationChangeNote(
-        'Changed location',
+      await addLocationChangeNote(
+        models,
+        encounter.id,
+        oldLocation.id,
         newLocation.id,
         getCurrentDateTimeString(),
       );
@@ -177,7 +269,13 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounterType: 'admission',
         startDate: getDateSubtractedFromNow(6),
       });
-      await encounter.addDepartmentChangeNote(newDepartment.id, getCurrentDateTimeString());
+      await addDepartmentChangeNote(
+        models,
+        encounter.id,
+        oldDepartment.id,
+        newDepartment.id,
+        getCurrentDateTimeString(),
+      );
       encounter.departmentId = newDepartment.id;
       await encounter.save();
 
@@ -219,7 +317,13 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounterType: 'admission',
         startDate: getDateSubtractedFromNow(6),
       });
-      await encounter.updateClinician(newClinician.id, getCurrentDateTimeString());
+      await updateClinician(
+        models,
+        encounter.id,
+        oldClinician.id,
+        newClinician.id,
+        getCurrentDateTimeString(),
+      );
       encounter.examinerId = newClinician.id;
       await encounter.save();
 
@@ -260,7 +364,13 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounterType: 'admission',
         startDate: getDateSubtractedFromNow(6),
       });
-      await encounter.onEncounterProgression('clinic', getCurrentDateTimeString());
+      await onEncounterProgression(
+        models,
+        encounter.id,
+        'admission',
+        'clinic',
+        getCurrentDateTimeString(),
+      );
       encounter.encounterType = 'clinic';
       await encounter.save();
 
@@ -315,8 +425,10 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       });
 
       // Change location
-      await encounter.addLocationChangeNote(
-        'Changed location',
+      await addLocationChangeNote(
+        models,
+        encounter.id,
+        oldLocation.id,
         newLocation.id,
         getDateSubtractedFromNow(6),
       );
@@ -324,17 +436,35 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       await encounter.save();
 
       // Change department
-      await encounter.addDepartmentChangeNote(newDepartment.id, getDateSubtractedFromNow(5));
+      await addDepartmentChangeNote(
+        models,
+        encounter.id,
+        oldDepartment.id,
+        newDepartment.id,
+        getDateSubtractedFromNow(5),
+      );
       encounter.departmentId = newDepartment.id;
       await encounter.save();
 
       // Change clinician
-      await encounter.updateClinician(newUser.id, getDateSubtractedFromNow(4));
+      await updateClinician(
+        models,
+        encounter.id,
+        oldUser.id,
+        newUser.id,
+        getDateSubtractedFromNow(4),
+      );
       encounter.examinerId = newUser.id;
       await encounter.save();
 
       // Change encounter type
-      await encounter.onEncounterProgression(newEncounterType, getDateSubtractedFromNow(3));
+      await onEncounterProgression(
+        models,
+        encounter.id,
+        oldEncounterType,
+        newEncounterType,
+        getDateSubtractedFromNow(3),
+      );
       encounter.encounterType = newEncounterType;
       await encounter.save();
 
@@ -412,8 +542,10 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       });
 
       // Change location 1
-      await encounter.addLocationChangeNote(
-        'Changed location',
+      await addLocationChangeNote(
+        models,
+        encounter.id,
+        location1.id,
         location2.id,
         getDateSubtractedFromNow(6),
       );
@@ -421,8 +553,10 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       await encounter.save();
 
       // Change location 2
-      await encounter.addLocationChangeNote(
-        'Changed location',
+      await addLocationChangeNote(
+        models,
+        encounter.id,
+        location2.id,
         location3.id,
         getDateSubtractedFromNow(5),
       );
@@ -430,8 +564,10 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       await encounter.save();
 
       // Change location 3
-      await encounter.addLocationChangeNote(
-        'Changed location',
+      await addLocationChangeNote(
+        models,
+        encounter.id,
+        location3.id,
         location4.id,
         getDateSubtractedFromNow(4),
       );
@@ -502,17 +638,35 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       });
 
       // Change department 1
-      await encounter.addDepartmentChangeNote(department2.id, getDateSubtractedFromNow(6));
+      await addDepartmentChangeNote(
+        models,
+        encounter.id,
+        department1.id,
+        department2.id,
+        getDateSubtractedFromNow(6),
+      );
       encounter.departmentId = department2.id;
       await encounter.save();
 
       // Change department 2
-      await encounter.addDepartmentChangeNote(department3.id, getDateSubtractedFromNow(5));
+      await addDepartmentChangeNote(
+        models,
+        encounter.id,
+        department2.id,
+        department3.id,
+        getDateSubtractedFromNow(5),
+      );
       encounter.departmentId = department3.id;
       await encounter.save();
 
       // Change department 3
-      await encounter.addDepartmentChangeNote(department4.id, getDateSubtractedFromNow(4));
+      await addDepartmentChangeNote(
+        models,
+        encounter.id,
+        department3.id,
+        department4.id,
+        getDateSubtractedFromNow(4),
+      );
       encounter.departmentId = department4.id;
       await encounter.save();
 
@@ -580,17 +734,35 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       });
 
       // Change clinician 1
-      await encounter.updateClinician(clinician2.id, getDateSubtractedFromNow(6));
+      await updateClinician(
+        models,
+        encounter.id,
+        clinician1.id,
+        clinician2.id,
+        getDateSubtractedFromNow(6),
+      );
       encounter.examinerId = clinician2.id;
       await encounter.save();
 
       // Change clinician 2
-      await encounter.updateClinician(clinician3.id, getDateSubtractedFromNow(5));
+      await updateClinician(
+        models,
+        encounter.id,
+        clinician2.id,
+        clinician3.id,
+        getDateSubtractedFromNow(5),
+      );
       encounter.examinerId = clinician3.id;
       await encounter.save();
 
       // Change clinician 3
-      await encounter.updateClinician(clinician4.id, getDateSubtractedFromNow(4));
+      await updateClinician(
+        models,
+        encounter.id,
+        clinician3.id,
+        clinician4.id,
+        getDateSubtractedFromNow(4),
+      );
       encounter.examinerId = clinician4.id;
       await encounter.save();
 
@@ -658,17 +830,35 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       });
 
       // Change encounter type 1
-      await encounter.onEncounterProgression(encounterType2, getDateSubtractedFromNow(6));
+      await onEncounterProgression(
+        models,
+        encounter.id,
+        encounterType1,
+        encounterType2,
+        getDateSubtractedFromNow(6),
+      );
       encounter.encounterType = encounterType2;
       await encounter.save();
 
       // Change encounter type 2
-      await encounter.onEncounterProgression(encounterType3, getDateSubtractedFromNow(5));
+      await onEncounterProgression(
+        models,
+        encounter.id,
+        encounterType2,
+        encounterType3,
+        getDateSubtractedFromNow(5),
+      );
       encounter.encounterType = encounterType3;
       await encounter.save();
 
       // Change encounter type 3
-      await encounter.onEncounterProgression(encounterType4, getDateSubtractedFromNow(4));
+      await onEncounterProgression(
+        models,
+        encounter.id,
+        encounterType3,
+        encounterType4,
+        getDateSubtractedFromNow(4),
+      );
       encounter.encounterType = encounterType4;
       await encounter.save();
 
@@ -743,43 +933,83 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         startDate: getDateSubtractedFromNow(14),
       });
 
-      await encounter.addLocationChangeNote(
-        'Changed location',
+      await addLocationChangeNote(
+        models,
+        encounter.id,
+        location1.id,
         location2.id,
         getDateSubtractedFromNow(13),
       );
       encounter.locationId = location2.id;
       await encounter.save();
 
-      await encounter.onEncounterProgression(encounterType2, getDateSubtractedFromNow(12));
+      await onEncounterProgression(
+        models,
+        encounter.id,
+        encounterType1,
+        encounterType2,
+        getDateSubtractedFromNow(12),
+      );
       encounter.encounterType = encounterType2;
       await encounter.save();
 
-      await encounter.onEncounterProgression(encounterType3, getDateSubtractedFromNow(11));
+      await onEncounterProgression(
+        models,
+        encounter.id,
+        encounterType2,
+        encounterType3,
+        getDateSubtractedFromNow(11),
+      );
       encounter.encounterType = encounterType3;
       await encounter.save();
 
-      await encounter.addLocationChangeNote(
-        'Changed location',
+      await addLocationChangeNote(
+        models,
+        encounter.id,
+        location2.id,
         location3.id,
         getDateSubtractedFromNow(10),
       );
       encounter.locationId = location3.id;
       await encounter.save();
 
-      await encounter.addDepartmentChangeNote(department2.id, getDateSubtractedFromNow(9));
+      await addDepartmentChangeNote(
+        models,
+        encounter.id,
+        department1.id,
+        department2.id,
+        getDateSubtractedFromNow(9),
+      );
       encounter.departmentId = department2.id;
       await encounter.save();
 
-      await encounter.addDepartmentChangeNote(department3.id, getDateSubtractedFromNow(8));
+      await addDepartmentChangeNote(
+        models,
+        encounter.id,
+        department2.id,
+        department3.id,
+        getDateSubtractedFromNow(8),
+      );
       encounter.departmentId = department3.id;
       await encounter.save();
 
-      await encounter.updateClinician(clinician2.id, getDateSubtractedFromNow(7));
+      await updateClinician(
+        models,
+        encounter.id,
+        clinician1.id,
+        clinician2.id,
+        getDateSubtractedFromNow(7),
+      );
       encounter.examinerId = clinician2.id;
       await encounter.save();
 
-      await encounter.onEncounterProgression(encounterType4, getDateSubtractedFromNow(6));
+      await onEncounterProgression(
+        models,
+        encounter.id,
+        encounterType3,
+        encounterType4,
+        getDateSubtractedFromNow(6),
+      );
       encounter.encounterType = encounterType4;
       await encounter.save();
 
@@ -899,8 +1129,10 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         });
 
         // Change location
-        await encounter.addLocationChangeNote(
-          'Changed location',
+        await addLocationChangeNote(
+          models,
+          encounter.id,
+          location1.id,
           location2.id,
           getDateSubtractedFromNow(3),
         );
@@ -908,8 +1140,10 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await encounter.save();
 
         // Change location
-        await encounter.addLocationChangeNote(
-          'Changed location',
+        await addLocationChangeNote(
+          models,
+          encounter.id,
+          location2.id,
           location4.id,
           getDateSubtractedFromNow(1),
         );
@@ -983,8 +1217,10 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         });
 
         // Change location
-        await encounter.addLocationChangeNote(
-          'Changed location',
+        await addLocationChangeNote(
+          models,
+          encounter.id,
+          location1.id,
           location2.id,
           getDateSubtractedFromNow(3),
         );
@@ -992,8 +1228,10 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await encounter.save();
 
         // Change location
-        await encounter.addLocationChangeNote(
-          'Changed location',
+        await addLocationChangeNote(
+          models,
+          encounter.id,
+          location2.id,
           location4.id,
           getDateSubtractedFromNow(1),
         );
@@ -1066,8 +1304,10 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         });
 
         // Change location 1
-        await encounter.addLocationChangeNote(
-          'Changed location',
+        await addLocationChangeNote(
+          models,
+          encounter.id,
+          location1.id,
           location2.id,
           getDateSubtractedFromNow(3),
         );
@@ -1075,8 +1315,10 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await encounter.save();
 
         // Change location 2
-        await encounter.addLocationChangeNote(
-          'Changed location',
+        await addLocationChangeNote(
+          models,
+          encounter.id,
+          location2.id,
           location4.id,
           getDateSubtractedFromNow(1),
         );
@@ -1151,8 +1393,10 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         });
 
         // Change location 1
-        await encounter.addLocationChangeNote(
-          'Changed location',
+        await addLocationChangeNote(
+          models,
+          encounter.id,
+          location1.id,
           location2.id,
           getDateSubtractedFromNow(3),
         );
@@ -1160,8 +1404,10 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await encounter.save();
 
         // Change location 2
-        await encounter.addLocationChangeNote(
-          'Changed location',
+        await addLocationChangeNote(
+          models,
+          encounter.id,
+          location2.id,
           location4.id,
           getDateSubtractedFromNow(1),
         );
@@ -1231,8 +1477,10 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         });
 
         // Change location 1
-        await encounter.addLocationChangeNote(
-          'Changed location',
+        await addLocationChangeNote(
+          models,
+          encounter.id,
+          location1.id,
           location2.id,
           getDateSubtractedFromNow(3),
         );
@@ -1240,8 +1488,10 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await encounter.save();
 
         // Change location 2
-        await encounter.addLocationChangeNote(
-          'Changed location',
+        await addLocationChangeNote(
+          models,
+          encounter.id,
+          location2.id,
           location3.id,
           getDateSubtractedFromNow(1),
         );
@@ -1311,12 +1561,24 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         });
 
         // Change department 1
-        await encounter.addDepartmentChangeNote(department2.id, getDateSubtractedFromNow(4));
+        await addDepartmentChangeNote(
+          models,
+          encounter.id,
+          department1.id,
+          department2.id,
+          getDateSubtractedFromNow(4),
+        );
         encounter.departmentId = department2.id;
         await encounter.save();
 
         // Change department 2
-        await encounter.addDepartmentChangeNote(department4.id, getDateSubtractedFromNow(2));
+        await addDepartmentChangeNote(
+          models,
+          encounter.id,
+          department2.id,
+          department4.id,
+          getDateSubtractedFromNow(2),
+        );
         encounter.departmentId = department4.id;
         await encounter.save();
 
@@ -1388,12 +1650,24 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         });
 
         // Change department 1
-        await encounter.addDepartmentChangeNote(department2.id, getDateSubtractedFromNow(4));
+        await addDepartmentChangeNote(
+          models,
+          encounter.id,
+          department1.id,
+          department2.id,
+          getDateSubtractedFromNow(4),
+        );
         encounter.departmentId = department2.id;
         await encounter.save();
 
         // Change department 2
-        await encounter.addDepartmentChangeNote(department4.id, getDateSubtractedFromNow(2));
+        await addDepartmentChangeNote(
+          models,
+          encounter.id,
+          department2.id,
+          department4.id,
+          getDateSubtractedFromNow(2),
+        );
         encounter.departmentId = department4.id;
         await encounter.save();
 
@@ -1465,12 +1739,24 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         });
 
         // Change department 1
-        await encounter.addDepartmentChangeNote(department2.id, getDateSubtractedFromNow(4));
+        await addDepartmentChangeNote(
+          models,
+          encounter.id,
+          department1.id,
+          department2.id,
+          getDateSubtractedFromNow(4),
+        );
         encounter.departmentId = department2.id;
         await encounter.save();
 
         // Change department 2
-        await encounter.addDepartmentChangeNote(department4.id, getDateSubtractedFromNow(2));
+        await addDepartmentChangeNote(
+          models,
+          encounter.id,
+          department2.id,
+          department4.id,
+          getDateSubtractedFromNow(2),
+        );
         encounter.departmentId = department4.id;
         await encounter.save();
 
@@ -1544,12 +1830,24 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         });
 
         // Change department 1
-        await encounter.addDepartmentChangeNote(department2.id, getDateSubtractedFromNow(4));
+        await addDepartmentChangeNote(
+          models,
+          encounter.id,
+          department1.id,
+          department2.id,
+          getDateSubtractedFromNow(4),
+        );
         encounter.departmentId = department2.id;
         await encounter.save();
 
         // Change department 2
-        await encounter.addDepartmentChangeNote(department4.id, getDateSubtractedFromNow(2));
+        await addDepartmentChangeNote(
+          models,
+          encounter.id,
+          department2.id,
+          department4.id,
+          getDateSubtractedFromNow(2),
+        );
         encounter.departmentId = department4.id;
         await encounter.save();
 
@@ -1617,12 +1915,24 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         });
 
         // Change department 1
-        await encounter.addDepartmentChangeNote(department2.id, getDateSubtractedFromNow(4));
+        await addDepartmentChangeNote(
+          models,
+          encounter.id,
+          department1.id,
+          department2.id,
+          getDateSubtractedFromNow(4),
+        );
         encounter.departmentId = department2.id;
         await encounter.save();
 
         // Change department 2
-        await encounter.addDepartmentChangeNote(department3.id, getDateSubtractedFromNow(2));
+        await addDepartmentChangeNote(
+          models,
+          encounter.id,
+          department2.id,
+          department3.id,
+          getDateSubtractedFromNow(2),
+        );
         encounter.departmentId = department3.id;
         await encounter.save();
 
@@ -1682,12 +1992,24 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         });
 
         // Change clinician 1
-        await encounter.updateClinician(clinician2.id, getDateSubtractedFromNow(4));
+        await updateClinician(
+          models,
+          encounter.id,
+          clinician1.id,
+          clinician2.id,
+          getDateSubtractedFromNow(4),
+        );
         encounter.examinerId = clinician2.id;
         await encounter.save();
 
         // Change clinician 2
-        await encounter.updateClinician(clinician4.id, getDateSubtractedFromNow(2));
+        await updateClinician(
+          models,
+          encounter.id,
+          clinician2.id,
+          clinician4.id,
+          getDateSubtractedFromNow(2),
+        );
         encounter.examinerId = clinician4.id;
         await encounter.save();
 
@@ -1748,12 +2070,24 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         });
 
         // Change clinician 1
-        await encounter.updateClinician(clinician2.id, getDateSubtractedFromNow(4));
+        await updateClinician(
+          models,
+          encounter.id,
+          clinician1.id,
+          clinician2.id,
+          getDateSubtractedFromNow(4),
+        );
         encounter.examinerId = clinician2.id;
         await encounter.save();
 
         // Change clinician 2
-        await encounter.updateClinician(clinician3.id, getDateSubtractedFromNow(2));
+        await updateClinician(
+          models,
+          encounter.id,
+          clinician2.id,
+          clinician3.id,
+          getDateSubtractedFromNow(2),
+        );
         encounter.examinerId = clinician3.id;
         await encounter.save();
 
@@ -1809,11 +2143,17 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       });
 
       // Change clinician 1
-      await encounter.updateClinician(clinician2.id, getDateSubtractedFromNow(4));
+      await updateClinician(
+        models,
+        encounter.id,
+        clinician1.id,
+        clinician2.id,
+        getDateSubtractedFromNow(4),
+      );
       encounter.examinerId = clinician2.id;
       await encounter.save();
 
-      await models.NotePage.createForRecord(
+      await models.LegacyNotePage.createForRecord(
         encounter.id,
         NOTE_RECORD_TYPES.ENCOUNTER,
         NOTE_TYPES.SYSTEM,

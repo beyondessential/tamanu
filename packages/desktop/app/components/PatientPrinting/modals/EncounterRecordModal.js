@@ -1,4 +1,5 @@
 import React from 'react';
+import { groupBy } from 'lodash';
 
 import { NOTE_TYPES } from '@tamanu/shared/constants/notes';
 import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants/labs';
@@ -27,21 +28,20 @@ const encounterTypeNoteMatcher = /^Changed type from (?<from>.*) to (?<to>.*)/;
 
 // This is the general function that extracts the important values from the notes into an object based on their regex matcher
 const extractUpdateHistoryFromNoteData = (notes, encounterData, matcher) => {
-  if (notes?.length > 0 && notes[0].noteItems[0].content.match(matcher)) {
+  if (notes?.length > 0 && notes[0].content.match(matcher)) {
     const {
       groups: { from },
-    } = notes[0].noteItems[0].content.match(matcher);
+    } = notes[0].content.match(matcher);
 
     const history = [
       {
         to: from,
         date: encounterData.startDate,
       },
-      ...notes?.map(({ noteItems }) => {
+      ...notes?.map(({ content, date }) => {
         const {
           groups: { to },
-        } = noteItems[0].content.match(matcher);
-        const { date } = noteItems[0];
+        } = content.match(matcher);
         return { to, date };
       }),
     ];
@@ -188,77 +188,32 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const notesQuery = useEncounterNotes(encounter.id);
   const notes = notesQuery?.data?.data;
 
-  const displayNotes = notes?.filter(note => {
-    return note.noteType !== NOTE_TYPES.SYSTEM;
-  });
+  const rootNotes =
+    notes
+      ?.filter(note => note.noteType !== NOTE_TYPES.SYSTEM && !note.revisedById)
+      .sort((a, b) => new Date(a.date) - new Date(b.date)) || [];
+  const revisedNotes =
+    notes
+      ?.filter(note => note.noteType !== NOTE_TYPES.SYSTEM && !!note.revisedById)
+      .sort((a, b) => new Date(b.date) - new Date(a.date)) || [];
+  const revisedNotesByRootNoteId = groupBy(revisedNotes, 'revisedById');
+  const displayNotes = rootNotes.map(
+    rootNote => revisedNotesByRootNoteId[rootNote.id]?.[0] || rootNote,
+  );
 
   const systemNotes = notes?.filter(note => {
     return note.noteType === NOTE_TYPES.SYSTEM;
   });
 
-  // Add orignal note to each note object linked to an edited note
-  const linkedNotes = displayNotes?.map(note => {
-    const updatedNote = JSON.parse(JSON.stringify(note));
-    updatedNote.noteItems = note.noteItems.map(noteItem => {
-      const updatedNoteItem = noteItem;
-      const linkedNote = note.noteItems.find(item => item.id === noteItem.revisedById);
-      updatedNoteItem.originalNote = linkedNote || { id: updatedNoteItem.id };
-      return updatedNoteItem;
-    });
-    return updatedNote;
-  });
-
-  // Remove orignal notes that have been edited and duplicate edits
-  const seen = new Set();
-  const editedNoteIds = [];
-  if (notes) {
-    notes.forEach(note => {
-      note.noteItems.forEach(noteItem => {
-        if (noteItem.revisedById) {
-          editedNoteIds.push(noteItem.revisedById);
-        }
-      });
-    });
-  }
-  const filteredNotes = linkedNotes?.map(note => {
-    const noteCopy = note;
-    noteCopy.noteItems = noteCopy.noteItems.reverse().filter(noteItem => {
-      const duplicate = seen.has(noteItem.originalNote?.id);
-      seen.add(noteItem.originalNote?.id);
-      return !duplicate && !editedNoteIds.includes(noteItem.id);
-    });
-    return noteCopy;
-  });
-
-  // In order to show notes in the orginially created order this checks if it has an original note linked and sorts by
-  // that first and then the actual note date if it has no link
-  const orderedNotes = filteredNotes?.map(note => {
-    return {
-      ...note,
-      noteItems: note.noteItems.sort((a, b) => {
-        if (a.revisedById && b.revisedById) {
-          return new Date(a.originalNote.date) - new Date(b.originalNote.date);
-        }
-        if (a.revisedById) {
-          return new Date(a.originalNote.date) - new Date(b.date);
-        }
-        if (b.revisedById) {
-          return new Date(a.date) - new Date(b.originalNote.date);
-        }
-        return new Date(a.date) - new Date(b.date);
-      }),
-    };
-  });
-
   const locationSystemNotes = systemNotes?.filter(note => {
-    return note.noteItems[0].content.match(locationNoteMatcher);
+    return note.content.match(locationNoteMatcher);
   });
   const locationHistory = locationSystemNotes
     ? extractLocationHistory(locationSystemNotes, encounter, locationNoteMatcher)
     : [];
 
   const encounterTypeSystemNotes = systemNotes?.filter(note => {
-    return note.noteItems[0].content.match(encounterTypeNoteMatcher);
+    return note.content.match(encounterTypeNoteMatcher);
   });
   const encounterTypeHistory = encounterTypeSystemNotes
     ? extractEncounterTypeHistory(encounterTypeSystemNotes, encounter, encounterTypeNoteMatcher)
@@ -286,7 +241,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           procedures={procedures}
           labRequests={updatedLabRequests}
           imagingRequests={updatedImagingRequests}
-          notes={orderedNotes}
+          notes={displayNotes}
           discharge={discharge}
           village={village}
           pad={padData}
