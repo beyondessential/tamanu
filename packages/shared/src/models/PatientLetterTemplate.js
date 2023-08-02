@@ -23,7 +23,7 @@ export class PatientLetterTemplate extends Model {
           type: Sequelize.TEXT,
         },
         visibilityStatus: {
-          type: Sequelize.STRING,
+          type: Sequelize.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
         },
       },

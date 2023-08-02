@@ -34,7 +34,7 @@ export async function up(query) {
       type: Sequelize.TEXT,
     },
     visibility_status: {
-      type: Sequelize.STRING,
+      type: Sequelize.TEXT,
       defaultValue: VISIBILITY_STATUSES.CURRENT,
     },
     created_by_id: {
