@@ -20,7 +20,10 @@ const FacilitySelector = styled(SelectInput)`
   width: 500px;
 `;
 
-const ALL_FACILITIES_OPTION = [{ label: 'All Facilities', value: null }];
+const ALL_FACILITIES_OPTION = [
+  { label: 'Central Server', value: 'central' },
+  { label: 'All Facilities', value: null },
+];
 
 const generateAnnotationFromJSONError = (errorMessage, json) => {
   const rows = json.split('\n');
@@ -62,6 +65,10 @@ export const SettingsView = React.memo(() => {
   const isValidJSON = !errorAnnotation;
   const areSettingsPresent = Object.keys(settings).length > 0;
   const formattedJSONString = areSettingsPresent ? JSON.stringify(settings, null, 2) : '';
+  let scope;
+  if (selectedFacility === 'central') scope = 'global';
+  else if (selectedFacility) scope = 'facility';
+  else scope = 'global';
 
   // Check if the JSON is valid and add an error annotation to the code editor if not
   const checkValidJson = json => {
@@ -96,6 +103,7 @@ export const SettingsView = React.memo(() => {
     api.put('admin/settings', {
       settings: settingsObject,
       facilityId: selectedFacility,
+      scope,
     });
     notifySuccess('Settings saved');
   };
@@ -108,14 +116,17 @@ export const SettingsView = React.memo(() => {
       );
     };
     const fetchSettings = async () => {
-      const settingsObject = await api.get('admin/settings', { facilityId: selectedFacility });
+      const settingsObject = await api.get('admin/settings', {
+        facilityId: selectedFacility,
+        scope,
+      });
       setSettings(settingsObject);
       setSettingsEditString(JSON.stringify(settingsObject, null, 2));
     };
 
     fetchFacilities();
     fetchSettings();
-  }, [api, selectedFacility]);
+  }, [api, selectedFacility, scope]);
 
   const onLoad = editor => {
     // Disable the "undo" command (Ctrl+Z)

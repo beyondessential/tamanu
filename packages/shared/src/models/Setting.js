@@ -73,7 +73,7 @@ export class Setting extends Model {
    * IMPORTANT: Duplicated from mobile/models/Setting.ts
    * Please update both places when modify
    */
-  static async get(key = '', facilityId = null, facilityLinkedOnly = false) {
+  static async get(key = '', facilityId = null, scope) {
     const settings = await Setting.findAll({
       where: {
         ...(key
@@ -86,8 +86,9 @@ export class Setting extends Model {
               },
             }
           : {}),
+        ...(scope ? { scope: { [Op.eq]: scope } } : {}),
         facilityId: {
-          ...(facilityLinkedOnly
+          ...(scope === 'facility'
             ? { [Op.eq]: facilityId }
             : {
                 [Op.or]: {
