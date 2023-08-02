@@ -46,7 +46,7 @@ interface Call {
 abstract class Player extends GameElement {
   abstract routine(): Activity[];
 
-  #runid: number = 0;
+  #runid = 0;
   #inbox: Activity[] = [];
   #outbox: Call[] = [];
 
@@ -98,7 +98,7 @@ abstract class Player extends GameElement {
 }
 
 abstract class Game extends GameElement {
-  round: number = 0;
+  round = 0;
   #players: Map<string, Player[]> = new Map();
 
   addPlayer(player: Player): void {
@@ -142,3 +142,7 @@ abstract class Game extends GameElement {
     }
   }
 }
+
+class NewGame extends Game {}
+
+new NewGame('game', { api: new TamanuApi('game', '1.2.3', 'no') });
