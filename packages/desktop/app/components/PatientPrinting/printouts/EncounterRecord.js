@@ -1,8 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
-
 import { startCase } from 'lodash';
+
+import { NOTE_TYPES } from '@tamanu/shared/constants';
 
 import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { DateDisplay } from '../../DateDisplay';
@@ -11,9 +12,9 @@ import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { ListTable } from './reusable/ListTable';
 import { DisplayValue, LocalisedDisplayValue } from './reusable/CertificateLabels';
 import {
-  noteTypes,
   DRUG_ROUTE_VALUE_TO_LABEL,
   ENCOUNTER_OPTIONS_BY_VALUE,
+  NOTE_TYPE_LABELS,
 } from '../../../constants';
 
 import { ImagingRequestData } from './reusable/ImagingRequestData';
@@ -41,13 +42,14 @@ const Row = styled.tr`
   border-bottom: 1px solid black;
 `;
 
-const Cell = styled.td`
-  border-right: 1px solid black;
-  padding-top: 0.5rem;
-  padding-left: 0.5rem;
-  padding-bottom: 0.5rem;
+const RowContent = styled.div`
+  margin: 0.5rem;
   font-size: 10px;
-  line-height: 12px;
+  white-space: pre-wrap;
+`;
+
+const NoteMeta = styled.div`
+  font-size: 8px;
 `;
 
 const BoldText = styled.strong`
@@ -403,27 +405,21 @@ export const EncounterRecord = React.memo(
               <>
                 <Table>
                   <Row>
-                    <Cell width="10%">
-                      <BoldText>Note type</BoldText>
-                    </Cell>
-                    <Cell width="35%">{noteTypes.find(x => x.value === note.noteType).label}</Cell>
-                    <Cell>
-                      <DateDisplay date={note.date} showDate showTime />
-                    </Cell>
+                    <RowContent>
+                      <BoldText>{NOTE_TYPE_LABELS[note.noteType]}</BoldText>
+                      <ChildNote>{note.content}</ChildNote>
+                      <NoteMeta>
+                        <span>
+                          {note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}
+                        </span>
+                        <span>{note.author?.displayName || ''} </span>
+                        {note.onBehalfOf ? (
+                          <span>on behalf of {note.onBehalfOf.displayName} </span>
+                        ) : null}
+                        <DateDisplay date={note.date} showTime />
+                      </NoteMeta>
+                    </RowContent>
                   </Row>
-                  <tbody>
-                    <Row>
-                      <Cell colSpan={3}>
-                        <ChildNote>
-                          <BoldText>
-                            <DateDisplay date={note.date} showDate showTime />
-                            {note.revisedById ? ' (edited)' : ''}
-                          </BoldText>
-                          {note.content}
-                        </ChildNote>
-                      </Cell>
-                    </Row>
-                  </tbody>
                 </Table>
               </>
             ))}
