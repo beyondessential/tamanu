@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/simulator",
-  "version": "1.29.0",
+  "version": "1.30.0",
   "private": true,
   "description": "Simulation tooling to generate lots of fake data for testing",
   "exports": {
@@ -12,21 +12,20 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN ../../license",
   "scripts": {
-    "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true src",
-    "build-watch": "yarn run build --watch",
-    "test": "NODE_ENV=test jest",
-    "lint": "eslint src"
+    "build": "yarn run build:src && yarn run build:types",
+    "build:src": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true src",
+    "build:types": "tsc --outDir dist --declaration --emitDeclarationOnly --noEmit false && mv dist/src/* dist && rm -rf dist/src",
+    "build-watch": "yarn run build:src --watch",
+    "test": "echo no tests yet",
+    "lint": "yarn run lint:check && yarn run lint:types",
+    "lint:check": "rome check src",
+    "lint:types": "tsc",
+    "lint:fix": "rome check src --apply-unsafe",
+    "fmt": "rome format src --write"
   },
   "devDependencies": {
-    "@beyondessential/eslint-config-beyondessential": "^2.6.0",
     "@tamanu/build-tooling": "*",
-    "@jest/globals": "^29.4.3",
-    "@swc/jest": "^0.2.24",
-    "@types/node": "^18.14.6",
-    "@typescript-eslint/eslint-plugin": "^5.54.0",
-    "@typescript-eslint/parser": "^5.54.0",
-    "eslint": "^8.35.0",
-    "jest": "^29.4.3"
+    "@types/node": "^18.14.6"
   },
   "dependencies": {
     "@tamanu/api-client": "*"
