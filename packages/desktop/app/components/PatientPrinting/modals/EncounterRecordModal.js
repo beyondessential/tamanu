@@ -184,7 +184,10 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const villageQuery = useReferenceData(patient?.villageId);
   const village = villageQuery?.data?.name;
 
-  const notesQuery = useEncounterNotes(encounter.id);
+  const notesQuery = useEncounterNotes(encounter.id, {
+    orderBy: 'date',
+    order: 'ASC',
+  });
   const notes = notesQuery?.data?.data || [];
 
   const displayNotes = notes.filter(note => {

@@ -410,22 +410,13 @@ export const EncounterRecord = React.memo(
                       <ChildNote>{note.content}</ChildNote>
                       <NoteMeta>
                         <span>
-                          {note.noteType === NOTE_TYPES.TREATMENT_PLAN
-                            ? 'Last updated: '
-                            : 'Created: '}
+                          {note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}
                         </span>
                         <span>{note.author?.displayName || ''} </span>
                         {note.onBehalfOf ? (
                           <span>on behalf of {note.onBehalfOf.displayName} </span>
                         ) : null}
-                        <DateDisplay
-                          date={
-                            (note.noteType !== NOTE_TYPES.TREATMENT_PLAN && note.revisedBy?.date) ||
-                            note.date
-                          }
-                          showTime
-                        />
-                        {note.revisedById ? ' (edited)' : ''}
+                        <DateDisplay date={note.date} showTime />
                       </NoteMeta>
                     </RowContent>
                   </Row>
