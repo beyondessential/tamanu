@@ -92,6 +92,8 @@ export const NotePageForm = ({
   const { currentUser } = useAuth();
   const { getLocalisation } = useLocalisation();
 
+  console.log('dummy change');
+
   const creatingNewNotePage = isEmpty(notePage);
 
   const lastNoteItemRef = useCallback(node => {
