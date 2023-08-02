@@ -3,11 +3,11 @@ import { v4 as uuid } from 'uuid';
 
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
 import { SYNC_SESSION_DIRECTION } from 'shared/sync';
-import { fake, fakeUser, fakeSurvey, fakeReferenceData } from 'shared/test-helpers/fake';
+import { fake, fakeUser, fakeSurvey, fakeReferenceData, chance } from 'shared/test-helpers/fake';
 import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData';
 import { sleepAsync } from 'shared/utils/sleepAsync';
-import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
+import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES, SETTINGS_SCOPES } from 'shared/constants';
 import { toDateTimeString } from 'shared/utils/dateTime';
 
 import { createTestContext } from '../utilities';
@@ -325,6 +325,82 @@ describe('CentralSyncManager', () => {
         // Assert if outgoing changes contain only encounter2 and not encounter1
         expect(sessionTwoEncounterIds).toHaveLength(1);
         expect(sessionTwoEncounterIds[0]).toEqual(encounter2.id);
+      });
+
+      describe('handles settings snapshotting', () => {
+        const generateSetting = async (scope, facilityId = null) => {
+          const setting = await models.Setting.create({
+            ...fake(models.Setting),
+            scope,
+            facilityId,
+            deletedAt: null,
+          });
+          return setting;
+        };
+
+        it('doesnt send "central" settings to any facilities', async () => {
+          const OLD_SYNC_TICK = 10;
+          const NEW_SYNC_TICK = 20;
+
+          await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, OLD_SYNC_TICK);
+
+          await generateSetting(SETTINGS_SCOPES.CENTRAL);
+          await generateSetting(SETTINGS_SCOPES.GLOBAL);
+
+          await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, NEW_SYNC_TICK);
+
+          const centralSyncManager = initializeCentralSyncManager();
+          const { sessionId } = await centralSyncManager.startSession();
+          await waitForSession(centralSyncManager, sessionId);
+
+          await centralSyncManager.setupSnapshotForPull(
+            sessionId,
+            {
+              since: 15,
+            },
+            () => true,
+          );
+
+          const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+          outgoingChanges.forEach(record => {
+            expect(record.scope).not.toBe(SETTINGS_SCOPES.GLOBAL);
+          });
+        });
+        it('only sends "global" and "facility" settings to relevant facilities', async () => {
+          const OLD_SYNC_TICK = 10;
+          const NEW_SYNC_TICK = 20;
+          const VALID_FACILITY_SETTINGS = [SETTINGS_SCOPES.GLOBAL, SETTINGS_SCOPES.FACILITY];
+
+          const facility = await models.Facility.create({
+            ...fake(models.Facility),
+          });
+
+          await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, OLD_SYNC_TICK);
+
+          await generateSetting(SETTINGS_SCOPES.CENTRAL);
+          await generateSetting(SETTINGS_SCOPES.GLOBAL);
+          await generateSetting(SETTINGS_SCOPES.FACILITY, facility.id);
+
+          await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, NEW_SYNC_TICK);
+
+          const centralSyncManager = initializeCentralSyncManager();
+          const { sessionId } = await centralSyncManager.startSession();
+          await waitForSession(centralSyncManager, sessionId);
+
+          await centralSyncManager.setupSnapshotForPull(
+            sessionId,
+            {
+              since: 15,
+              facilityId: facility.id,
+            },
+            () => true,
+          );
+
+          const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+          outgoingChanges.forEach(record => {
+            expect(VALID_FACILITY_SETTINGS).toContain(record.scope);
+          });
+        });
       });
     });
 
