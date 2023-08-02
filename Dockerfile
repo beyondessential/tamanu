@@ -19,7 +19,8 @@ RUN apk add --no-cache \
     jq \
     make \
     python3
-COPY yarn.lock .yarnrc common.* babel.config.js scripts ./
+COPY yarn.lock .yarnrc common.* babel.config.js ./
+COPY scripts/ scripts/
 
 FROM base AS run-base
 RUN apk add --no-cache bash curl jq
