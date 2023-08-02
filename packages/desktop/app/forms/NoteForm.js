@@ -171,7 +171,7 @@ export const NoteForm = ({
       initialValues={{
         date: getCurrentDateTimeString(),
         noteType: note?.noteType,
-        writtenById: currentUser.id,
+        writtenById: note?.onBehalfOfId || note?.authorId || currentUser.id,
       }}
       validationSchema={yup.object().shape({
         noteType: yup

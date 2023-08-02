@@ -57,7 +57,8 @@ export const StyledTextField = styled(MuiTextField)`
   }
 
   // Focused state
-  .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline,
+  .MuiOutlinedInput-root.Mui-focused:hover .MuiOutlinedInput-notchedOutline {
     border: 1px solid ${props => props.theme.palette.primary.main};
   }
 
