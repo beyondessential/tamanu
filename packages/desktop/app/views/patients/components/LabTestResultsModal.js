@@ -64,7 +64,7 @@ const AUTOFILL_FIELD_NAMES = [
 
 const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
   // Generate tab index for vertical tabbing through the table
-  const tabIndex = (row, col) => count * row + col + 1;
+  const tabIndex = (col, row) => count * col + row + 1;
   return [
     {
       key: 'labTestType',
