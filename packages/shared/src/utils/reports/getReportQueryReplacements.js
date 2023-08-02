@@ -1,4 +1,4 @@
-import { subDays, startOfDay } from 'date-fns';
+import { subDays, startOfDay, parseISO } from 'date-fns';
 import { REPORT_DEFAULT_DATE_RANGES } from '../../constants';
 
 const CATCH_ALL_FROM_DATE = '1970-01-01';
@@ -24,9 +24,10 @@ export const getReportQueryReplacements = async (
   const { LocalSystemFact } = context.models;
   const currentFacilityId = (await LocalSystemFact.get('facilityId')) || null;
 
-  const toDate = params.toDate ? new Date(params.toDate) : new Date();
-  const fromDate = getStartDate(dateRange, toDate);
+  const toDate = params.toDate ? parseISO(params.toDate) : new Date();
+  const fromDate = params.fromDate ? parseISO(params.fromDate) : getStartDate(dateRange, toDate);
   const paramDefaults = paramDefinitions.reduce((obj, { name }) => ({ ...obj, [name]: null }), {});
+
   return {
     ...paramDefaults,
     ...params,
