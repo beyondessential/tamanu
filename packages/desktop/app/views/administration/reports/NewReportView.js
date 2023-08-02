@@ -18,6 +18,7 @@ import {
 } from '../../../components';
 import { Colors } from '../../../constants';
 import { QueryEditor } from './QueryEditor';
+import { ParameterList, ParameterItem } from './components/editing';
 
 const Container = styled.div`
   padding: 20px;
@@ -26,10 +27,6 @@ const Container = styled.div`
 
 const StyledButton = styled(OutlinedButton)`
   background: ${Colors.white};
-`;
-
-const ConfirmButton = styled(StyledButton)`
-  background: ${Colors.primary};
 `;
 
 const STATUS_OPTIONS = [
@@ -46,6 +43,10 @@ const DATE_RANGE_OPTIONS = Object.entries(REPORT_DEFAULT_DATE_RANGES).map(([, va
   label: value,
   value,
 }));
+
+const generateDefaultParameter = () => ({
+  id: Math.random(),
+});
 
 const schema = {
   name: yup.string().required('Report name is a required field'),
@@ -72,10 +73,14 @@ const schema = {
     .required('Status is a required field'),
 };
 
-const NewReportForm = ({ isSubmitting }) => {
+const NewReportForm = ({ isSubmitting, values, setValues }) => {
   const [showSqlEditor, setShowSqlEditor] = useState(false);
-  const handleUpdate = () => {};
+  const handleUpdate = query => setValues({ ...values, query });
   const handleCloseSqlEditor = () => setShowSqlEditor(false);
+  const [params, setParams] = useState([]);
+  const onParamsAdd = () => setParams([...params, generateDefaultParameter()]);
+  const onParamsChange = () => {};
+  const onParamsDelete = () => {};
 
   return (
     <Container>
@@ -93,6 +98,19 @@ const NewReportForm = ({ isSubmitting }) => {
           component={SelectField}
           options={DATE_RANGE_OPTIONS}
         />
+        <ParameterList onAdd={onParamsAdd}>
+          {params.map(({ id, ...rest }) => {
+            return (
+              <ParameterItem
+                key={id}
+                id={id}
+                {...rest}
+                onDelete={onParamsDelete}
+                onChange={onParamsChange}
+              />
+            );
+          })}
+        </ParameterList>
         <StyledButton onClick={() => setShowSqlEditor(true)}>Edit SQL</StyledButton>
         <QueryEditor
           title="Edit SQL"
