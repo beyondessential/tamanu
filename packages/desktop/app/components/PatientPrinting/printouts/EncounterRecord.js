@@ -12,9 +12,9 @@ import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { ListTable } from './reusable/ListTable';
 import { DisplayValue, LocalisedDisplayValue } from './reusable/CertificateLabels';
 import {
-  noteTypes,
   DRUG_ROUTE_VALUE_TO_LABEL,
   ENCOUNTER_OPTIONS_BY_VALUE,
+  NOTE_TYPE_LABELS,
 } from '../../../constants';
 
 import { ImagingRequestData } from './reusable/ImagingRequestData';
@@ -406,7 +406,7 @@ export const EncounterRecord = React.memo(
                 <Table>
                   <Row>
                     <RowContent>
-                      <BoldText>{noteTypes.find(x => x.value === note.noteType).label}</BoldText>
+                      <BoldText>{NOTE_TYPE_LABELS[note.noteType]}</BoldText>
                       <ChildNote>{note.content}</ChildNote>
                       <NoteMeta>
                         <span>
