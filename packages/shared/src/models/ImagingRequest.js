@@ -1,5 +1,4 @@
 import { Sequelize } from 'sequelize';
-import { InvalidOperationError } from '../errors';
 import {
   SYNC_DIRECTIONS,
   IMAGING_REQUEST_STATUS_TYPES,
@@ -7,6 +6,7 @@ import {
   NOTE_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
+import { InvalidOperationError } from '../errors';
 import { getNotePageWithType } from '../utils/notePages';
 
 import { Model } from './Model';

@@ -14,11 +14,7 @@ import {
   VersionIncompatibleError,
   getVersionIncompatibleMessage,
 } from './errors';
-import {
-  RequestOptions,
-  fetchOrThrowIfUnavailable,
-  getResponseErrorSafely,
-} from './fetch';
+import { RequestOptions, fetchOrThrowIfUnavailable, getResponseErrorSafely } from './fetch';
 
 export interface UserResponse {
   id: string;
@@ -87,11 +83,7 @@ export class TamanuApi {
     this.#onVersionIncompatible = handler;
   }
 
-  async login(
-    host: string,
-    email: string,
-    password: string,
-  ): Promise<LoginOutput> {
+  async login(host: string, email: string, password: string): Promise<LoginOutput> {
     this.setHost(host);
     const response = await this.post(
       'login',
@@ -152,11 +144,7 @@ export class TamanuApi {
     this.#authHeader = { authorization: `Bearer ${token}` };
   }
 
-  async fetch(
-    endpoint: string,
-    query: QueryData = {},
-    config: FetchConfig = {},
-  ) {
+  async fetch(endpoint: string, query: QueryData = {}, config: FetchConfig = {}) {
     if (!this.#host) {
       throw new Error("API can't be used until the host is set");
     }
@@ -190,11 +178,7 @@ export class TamanuApi {
     }
 
     // handle auth expiring
-    if (
-      response.status === 401 &&
-      endpoint !== 'login' &&
-      this.#onAuthFailure
-    ) {
+    if (response.status === 401 && endpoint !== 'login' && this.#onAuthFailure) {
       const message = 'Your session has expired. Please log in again.';
       this.#onAuthFailure(message);
       throw new AuthExpiredError(message);
@@ -202,10 +186,7 @@ export class TamanuApi {
 
     // handle version incompatibility
     if (response.status === 400 && error) {
-      const versionIncompatibleMessage = getVersionIncompatibleMessage(
-        error,
-        response,
-      );
+      const versionIncompatibleMessage = getVersionIncompatibleMessage(error, response);
       if (versionIncompatibleMessage) {
         if (this.#onVersionIncompatible) {
           this.#onVersionIncompatible(versionIncompatibleMessage);
@@ -259,11 +240,7 @@ export class TamanuApi {
     );
   }
 
-  async delete(
-    endpoint: string,
-    query: QueryData = {},
-    config: FetchConfig = {},
-  ) {
+  async delete(endpoint: string, query: QueryData = {}, config: FetchConfig = {}) {
     return this.fetch(endpoint, query, { ...config, method: 'DELETE' });
   }
 }

@@ -2,14 +2,14 @@ import config from 'config';
 import { DataTypes } from 'sequelize';
 import * as yup from 'yup';
 
-import { FhirResource } from '../Resource';
-
-import { FhirAnnotation, FhirIdentifier, FhirReference } from '../../../services/fhirTypes';
 import {
   FHIR_INTERACTIONS,
   FHIR_ISSUE_TYPE,
   IMAGING_REQUEST_STATUS_TYPES,
 } from '@tamanu/constants';
+import { FhirResource } from '../Resource';
+
+import { FhirAnnotation, FhirIdentifier, FhirReference } from '../../../services/fhirTypes';
 import { Deleted, Invalid } from '../../../utils/fhir';
 import { getCurrentDateTimeString, toDateTimeString } from '../../../utils/dateTime';
 

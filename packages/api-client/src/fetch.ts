@@ -17,10 +17,7 @@ export interface FetchImplementation {
 
 let fetchImplementation: FetchImplementation;
 // eslint-disable-next-line no-undef
-if (
-  typeof window !== 'undefined' &&
-  Object.hasOwnProperty.call(window, 'fetch')
-) {
+if (typeof window !== 'undefined' && Object.hasOwnProperty.call(window, 'fetch')) {
   // eslint-disable-next-line no-undef
   fetchImplementation = window.fetch.bind(window);
 }

@@ -1,6 +1,6 @@
 import Sequelize, { DataTypes, QueryTypes } from 'sequelize';
-import { Model } from '../Model';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { Model } from '../Model';
 
 export class FhirJobWorker extends Model {
   static init({ primaryKey, ...options }) {
