@@ -401,28 +401,26 @@ export const EncounterRecord = React.memo(
         {notes.length > 0 ? (
           <>
             <TableHeading>Notes</TableHeading>
-            {notes.map(note => (
-              <>
-                <Table>
-                  <Row>
-                    <RowContent>
-                      <BoldText>{NOTE_TYPE_LABELS[note.noteType]}</BoldText>
-                      <ChildNote>{note.content}</ChildNote>
-                      <NoteMeta>
-                        <span>
-                          {note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}
-                        </span>
-                        <span>{note.author?.displayName || ''} </span>
-                        {note.onBehalfOf ? (
-                          <span>on behalf of {note.onBehalfOf.displayName} </span>
-                        ) : null}
-                        <DateDisplay date={note.date} showTime />
-                      </NoteMeta>
-                    </RowContent>
-                  </Row>
-                </Table>
-              </>
-            ))}
+            <Table>
+              {notes.map(note => (
+                <Row>
+                  <RowContent>
+                    <BoldText>{NOTE_TYPE_LABELS[note.noteType]}</BoldText>
+                    <ChildNote>{note.content}</ChildNote>
+                    <NoteMeta>
+                      <span>
+                        {note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}
+                      </span>
+                      <span>{note.author?.displayName || ''} </span>
+                      {note.onBehalfOf ? (
+                        <span>on behalf of {note.onBehalfOf.displayName} </span>
+                      ) : null}
+                      <DateDisplay date={note.date} showTime />
+                    </NoteMeta>
+                  </RowContent>
+                </Row>
+              ))}
+            </Table>
           </>
         ) : null}
       </ShiftedCertificateWrapper>

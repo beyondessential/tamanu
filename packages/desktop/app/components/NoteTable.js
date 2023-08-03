@@ -96,6 +96,11 @@ const NoteFooterTextElement = styled.span`
   margin-right: 3px;
 `;
 
+const NoDataMessage = styled.span`
+  font-weight: 500;
+  color: ${Colors.primary};
+`;
+
 const NoteContent = ({
   note,
   hasPermission,
@@ -262,10 +267,13 @@ const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) =
         fetchOptions={{ noteType }}
         elevated={false}
         noDataBackgroundColor={Colors.background}
-        noDataMessage={`This patient has no notes ${
-          noteType ? 'of this type ' : ''
-        }to display. Click ‘New note’ to add a note.`}
-        statusMessageColor={Colors.primary}
+        noDataMessage={
+          <NoDataMessage>
+            {`This patient has no notes ${
+              noteType ? 'of this type ' : ''
+            }to display. Click ‘New note’ to add a note.`}
+          </NoDataMessage>
+        }
       />
     </>
   );
