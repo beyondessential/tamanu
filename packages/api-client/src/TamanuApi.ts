@@ -179,6 +179,11 @@ export class TamanuApi {
       if (returnResponse) {
         return response;
       }
+
+      if (response.status === 204) {
+        return null;
+      }
+
       return response.json();
     }
 
