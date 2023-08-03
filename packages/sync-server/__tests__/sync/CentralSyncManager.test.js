@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid';
 
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
 import { SYNC_SESSION_DIRECTION } from 'shared/sync';
-import { fake, fakeUser, fakeSurvey, fakeReferenceData, chance } from 'shared/test-helpers/fake';
+import { fake, fakeUser, fakeSurvey, fakeReferenceData } from 'shared/test-helpers/fake';
 import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData';
 import { sleepAsync } from 'shared/utils/sleepAsync';
