@@ -325,4 +325,71 @@ describe('User', () => {
       expect(resultIds).toEqual(sourceIds);
     });
   });
+
+  describe('User preference', () => {
+    let user = null;
+    let app = null;
+    const defaultSelectedGraphedVitalsOnFilter = [
+      'data-element-1',
+      'data-element-2',
+      'data-element-3',
+    ].join(',');
+    const updateUserPreference = async userPreference => {
+      const result = await app.post('/v1/user/userPreferences').send(userPreference);
+      expect(result).toHaveSucceeded();
+      expect(result.body).toMatchObject({
+        userId: user.id,
+        ...userPreference,
+      });
+      return result;
+    };
+
+    beforeAll(async () => {
+      user = await models.User.create(
+        createUser({
+          role: 'practitioner',
+        }),
+      );
+      app = await baseApp.asUser(user);
+
+      await updateUserPreference({
+        selectedGraphedVitalsOnFilter: defaultSelectedGraphedVitalsOnFilter,
+      });
+    });
+
+    it('should fetch current user saved user preference', async () => {
+      const result = await app.get('/v1/user/userPreferences');
+      expect(result).toHaveSucceeded();
+      expect(result.body).toMatchObject({
+        selectedGraphedVitalsOnFilter: defaultSelectedGraphedVitalsOnFilter,
+      });
+    });
+
+    it('should update current user preference and updatedAt for selected graphed vitals on filter', async () => {
+      const newSelectedGraphedVitalsOnFilter = ['data-element-1', 'data-element-2'].join(',');
+      const result1 = await app.get('/v1/user/userPreferences');
+      const result2 = await updateUserPreference({
+        selectedGraphedVitalsOnFilter: newSelectedGraphedVitalsOnFilter,
+      });
+      const result1Date = new Date(result1.body.updatedAt);
+      const result2Date = new Date(result2.body.updatedAt);
+      expect(result2Date.getTime()).toBeGreaterThan(result1Date.getTime());
+    });
+
+    it('should delete user preference if user is deleted', async () => {
+      const { User, UserPreference } = models;
+      await User.destroy({
+        where: {
+          id: user.id,
+        },
+      });
+      const userPreference = await UserPreference.findOne({
+        where: {
+          userId: user.id,
+        },
+      });
+
+      expect(userPreference).toBe(null);
+    });
+  });
 });

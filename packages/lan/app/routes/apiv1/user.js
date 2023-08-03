@@ -124,6 +124,55 @@ user.post(
   }),
 );
 
+user.get(
+  '/userPreferences',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { UserPreference },
+      user: currentUser,
+    } = req;
+
+    req.checkPermission('read', currentUser);
+
+    const userPreferences = await UserPreference.findOne({
+      where: { userId: currentUser.id },
+    });
+
+    res.send(userPreferences);
+  }),
+);
+
+user.post(
+  '/userPreferences',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { UserPreference },
+      user: currentUser,
+      body,
+    } = req;
+
+    req.checkPermission('read', currentUser);
+
+    const { selectedGraphedVitalsOnFilter } = body;
+    let userPreferences = await UserPreference.findOne({
+      where: { userId: currentUser.id },
+    });
+
+    if (userPreferences) {
+      await userPreferences.update({
+        selectedGraphedVitalsOnFilter,
+      });
+    } else {
+      userPreferences = await UserPreference.create({
+        userId: currentUser.id,
+        selectedGraphedVitalsOnFilter,
+      });
+    }
+
+    res.send(userPreferences);
+  }),
+);
+
 user.get('/:id', simpleGet('User'));
 
 const globalUserRequests = permissionCheckingRouter('list', 'User');
