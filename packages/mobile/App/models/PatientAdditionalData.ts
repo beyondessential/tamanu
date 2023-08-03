@@ -6,9 +6,8 @@ import {
   PrimaryColumn,
   BeforeInsert,
   BeforeUpdate,
-  AfterLoad,
 } from 'typeorm/browser';
-import { snakeCase, isEqual, isEmpty } from 'lodash';
+import { snakeCase, isEmpty } from 'lodash';
 import { BaseModel, IdRelation } from './BaseModel';
 import { IPatientAdditionalData } from '~/types';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
