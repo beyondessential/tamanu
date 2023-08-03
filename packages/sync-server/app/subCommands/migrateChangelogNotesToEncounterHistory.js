@@ -373,6 +373,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                 encounter_type
             from change_log_with_id
             where not exists (select encounter_id from encounter_history where encounter_id = record_id)
+            and location_id notnull and department_id notnull and examiner_id notnull
             returning encounter_id
         )
         select max(encounter_id) as "maxId"
