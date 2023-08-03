@@ -62,6 +62,12 @@ const caseInsensitiveStartsWithFilter = (fieldName, _operator, value) => ({
   },
 });
 
+const caseInsensitiveFilter = (fieldName, _operator, value) => ({
+  [fieldName]: {
+    [Op.iLike]: `%${value}%`,
+  },
+});
+
 export const imagingRequest = express.Router();
 
 imagingRequest.get(
@@ -302,7 +308,7 @@ globalImagingRequests.get(
     const patientFilters = mapQueryFilters(filterParams, [
       { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },
       { key: 'lastName', mapFn: caseInsensitiveStartsWithFilter },
-      { key: 'displayId', mapFn: caseInsensitiveStartsWithFilter },
+      { key: 'displayId', mapFn: caseInsensitiveFilter },
     ]);
 
     const encounterFilters = mapQueryFilters(filterParams, [
