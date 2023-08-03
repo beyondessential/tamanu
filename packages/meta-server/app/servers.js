@@ -51,21 +51,16 @@ const servers = [
 
   // development servers
   { name: 'Dev (main)', type: 'dev', host: 'https://central.main.internal.tamanu.io' },
-  { name: 'RC (1.27)', type: 'dev', host: 'https://central.release-1-27.internal.tamanu.io' },
   { name: 'RC (1.28)', type: 'dev', host: 'https://central.release-1-28.internal.tamanu.io' },
   { name: 'RC (1.29)', type: 'dev', host: 'https://central.release-1-29.internal.tamanu.io' },
   { name: 'RC (1.30)', type: 'dev', host: 'https://central.release-1-30.internal.tamanu.io' },
-  { name: 'Dev (PR 4446)', type: 'dev', host: 'https://central.feature-sav-15-scheduledvax-visibility.internal.tamanu.io' },
+  { name: 'RC (1.31)', type: 'dev', host: 'https://central.release-1-31.internal.tamanu.io' },
+  { name: 'RC (1.32)', type: 'dev', host: 'https://central.release-1-32.internal.tamanu.io' },
   { name: 'Stress Test', type: 'dev', host: 'https://central-stress-test.tamanu.io' },
-  { name: 'UAT-VPS', type: 'dev', host: 'https://sync-uat.tamanu.io' },
-  { name: 'UAT-PMI', type: 'dev', host: 'https://central-uat-pmi.tamanu.io' },
-  { name: 'UAT-Rispacs', type: 'dev', host: 'https://sync-uat-rispacs.tamanu.io' },
-
-  // tester maintained servers
-  { name: 'Tester (Da)', type: 'dev', host: 'https://central-da.tamanu.io' },
-  { name: 'Tester (Klaus)', type: 'dev', host: 'https://central-klaus.tamanu.io' },
-  { name: 'Tester (Sepi)', type: 'dev', host: 'https://central-sepi.tamanu.io' },
-  { name: 'Tester (Sima)', type: 'dev', host: 'https://central-sima.tamanu.io' },
+  { name: 'UAT (LIMS)', type: 'dev', host: 'https://central.uat-lims.aspen-dev.tamanu.io' },
+  { name: 'UAT (Medici)', type: 'dev', host: 'https://central.uat-medici.aspen-dev.tamanu.io' },
+  { name: 'UAT (SENAITE)', type: 'dev', host: 'https://central.uat-senaite.aspen-dev.tamanu.io' },
+  { name: 'Dev (PR 4446)', type: 'dev', host: 'https://central.feature-sav-15-scheduledvax-visibility.internal.tamanu.io' },
 ];
 
 serversRouter.get('/', (req, res) => {
