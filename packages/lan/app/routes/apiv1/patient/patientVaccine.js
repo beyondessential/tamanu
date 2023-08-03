@@ -115,17 +115,15 @@ async function getVaccinationDescription(models, vaccineData) {
     include: 'vaccine',
   });
 
-  if (vaccineData.category === VACCINE_CATEGORIES.OTHER) {
-    return `Vaccination recorded for ${vaccineData.vaccineName}`;
-  }
-
   const prefixMessage =
     vaccineData.status === VACCINE_STATUS.GIVEN
       ? 'Vaccination recorded for'
       : 'Vaccination recorded as not given for';
-  return [prefixMessage, scheduledVaccine.vaccine?.name, scheduledVaccine.schedule]
-    .filter(Boolean)
-    .join(' ');
+  const vaccineDetails =
+    vaccineData.category === VACCINE_CATEGORIES.OTHER
+      ? [vaccineData.vaccineName]
+      : [scheduledVaccine.vaccine?.name, scheduledVaccine.schedule];
+  return [prefixMessage, ...vaccineDetails].filter(Boolean).join(' ');
 }
 
 patientVaccineRoutes.post(
