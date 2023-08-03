@@ -14,6 +14,7 @@ import { syncLastCompleted } from './sync';
 import { reportsRouter } from './reports/reportRoutes';
 import { patientLetterTemplateRoutes } from './patientLetterTemplate';
 import { assetRoutes } from './asset';
+import { userRoutes } from './user';
 
 export const adminRoutes = express.Router();
 
@@ -24,7 +25,7 @@ export const adminRoutes = express.Router();
 adminRoutes.use(constructPermission);
 
 adminRoutes.use(
-  asyncHandler((req, res, next) => {
+  asyncHandler((req, _res, next) => {
     if (!req.ability.can('write', 'ReferenceData') || !req.ability.can('write', 'User')) {
       throw new ForbiddenError(
         'You do not have permission to access the central server admin panel.',
@@ -79,3 +80,4 @@ adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
 adminRoutes.use('/patientLetterTemplate', patientLetterTemplateRoutes);
 
 adminRoutes.use('/asset', assetRoutes);
+adminRoutes.use('/user', userRoutes);
