@@ -113,7 +113,7 @@ export const AppointmentsCalendar = () => {
       ),
     },
     clinician: {
-      label: clinicianText,
+      label: `${clinicianText}s`,
       component: (
         <AutocompleteInput
           value={filterValue}
