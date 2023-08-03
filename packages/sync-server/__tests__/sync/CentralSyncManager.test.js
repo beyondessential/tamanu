@@ -327,7 +327,8 @@ describe('CentralSyncManager', () => {
         expect(sessionTwoEncounterIds[0]).toEqual(encounter2.id);
       });
 
-      it('only sends "global" and "facility" settings to relevant facilities', async () => {
+      it('filters settings to be synced by sync tick', async () => {
+        await models.Setting.truncate({ cascade: true, force: true });
         const generateSetting = async (scope, facilityId = null) => {
           const setting = await models.Setting.create({
             ...fake(models.Setting),
@@ -338,25 +339,19 @@ describe('CentralSyncManager', () => {
           return setting;
         };
 
-        const OLD_SYNC_TICK = 10;
-        const NEW_SYNC_TICK = 20;
-        const VALID_FACILITY_SETTINGS = [SETTINGS_SCOPES.GLOBAL, SETTINGS_SCOPES.FACILITY];
-
         const facility1 = await models.Facility.create({
           ...fake(models.Facility),
         });
-        const facility2 = await models.Facility.create({
-          ...fake(models.Facility),
-        });
 
-        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, OLD_SYNC_TICK);
+        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 10);
 
-        await generateSetting(SETTINGS_SCOPES.CENTRAL);
         await generateSetting(SETTINGS_SCOPES.GLOBAL);
-        await generateSetting(SETTINGS_SCOPES.FACILITY, facility1.id);
-        await generateSetting(SETTINGS_SCOPES.FACILITY, facility2.id);
+        await generateSetting(SETTINGS_SCOPES.GLOBAL);
 
-        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, NEW_SYNC_TICK);
+        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 20);
+
+        const newSetting1 = await generateSetting(SETTINGS_SCOPES.GLOBAL);
+        const newSetting2 = await generateSetting(SETTINGS_SCOPES.GLOBAL);
 
         const centralSyncManager = initializeCentralSyncManager();
         const { sessionId } = await centralSyncManager.startSession();
@@ -373,10 +368,55 @@ describe('CentralSyncManager', () => {
 
         const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
 
-        expect(outgoingChanges.length).toBe(2);
-        outgoingChanges.forEach(({ data }) => {
-          expect(VALID_FACILITY_SETTINGS).toContain(data.scope);
+        expect(outgoingChanges.map(c => c.recordId).sort()).toEqual(
+          [newSetting1.id, newSetting2.id].sort(),
+        );
+      });
+
+      it('only sends "global" and "facility" settings to relevant facilities', async () => {
+        await models.Setting.truncate({ cascade: true, force: true });
+        const generateSetting = async (scope, facilityId = null) => {
+          const setting = await models.Setting.create({
+            ...fake(models.Setting),
+            scope,
+            facilityId,
+            deletedAt: null,
+          });
+          return setting;
+        };
+
+        const facility1 = await models.Facility.create({
+          ...fake(models.Facility),
         });
+        const facility2 = await models.Facility.create({
+          ...fake(models.Facility),
+        });
+
+        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 10);
+
+        await generateSetting(SETTINGS_SCOPES.CENTRAL);
+        const globalSetting = await generateSetting(SETTINGS_SCOPES.GLOBAL);
+        const facility1Setting = await generateSetting(SETTINGS_SCOPES.FACILITY, facility1.id);
+        await generateSetting(SETTINGS_SCOPES.FACILITY, facility2.id);
+
+        const centralSyncManager = initializeCentralSyncManager();
+        const { sessionId } = await centralSyncManager.startSession();
+        await waitForSession(centralSyncManager, sessionId);
+
+        await centralSyncManager.setupSnapshotForPull(
+          sessionId,
+          {
+            since: 5, // after the facilities were created, but before all of the settings were
+            facilityId: facility1.id,
+          },
+          () => true,
+        );
+
+        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+
+        expect(outgoingChanges.map(c => c.recordId).sort()).toEqual(
+          [globalSetting.id, facility1Setting.id].sort(),
+        );
       });
     });
 
