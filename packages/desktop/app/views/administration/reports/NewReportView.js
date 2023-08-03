@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import * as yup from 'yup';
-import { Grid } from '@material-ui/core';
+import { Accordion, AccordionDetails, AccordionSummary, Grid } from '@material-ui/core';
 import { REPORT_DEFAULT_DATE_RANGES } from '@tamanu/shared/constants/reports';
 import { useApi } from '../../../api';
 import {
@@ -23,10 +23,6 @@ const Container = styled.div`
 
 const StyledField = styled(Field)`
   flex-grow: 1;
-`;
-
-const QueryContainer = styled(Grid)`
-  margin-top: 20px;
 `;
 
 const StatusField = styled(Field)`
@@ -112,30 +108,44 @@ const NewReportForm = ({ isSubmitting, values, setValues }) => {
           />
         </Grid>
       </Grid>
-      <QueryContainer container spacing={2}>
-        <Grid item xs={8}>
-          <SQLQueryEditor
-            customKeywords={params.map(p => p.name)}
-            onChange={setQuery}
-            value={values.query}
-          />
-        </Grid>
-        <Grid item xs={4}>
-          <ParameterList onAdd={onParamsAdd}>
-            {params.map(({ id, ...rest }) => {
-              return (
-                <ParameterItem
-                  key={id}
-                  id={id}
-                  {...rest}
-                  onDelete={onParamsDelete}
-                  onChange={onParamsChange}
-                />
-              );
-            })}
-          </ParameterList>
-        </Grid>
-      </QueryContainer>
+      <Accordion defaultExpanded>
+        <AccordionSummary>
+          <Grid container spacing={1}>
+            <Grid item xs={8}>
+              Query
+            </Grid>
+            <Grid item xs={4}>
+              Parameters
+            </Grid>
+          </Grid>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Grid container spacing={2}>
+            <Grid item xs={8}>
+              <SQLQueryEditor
+                customKeywords={params.map(p => p.name)}
+                onChange={setQuery}
+                value={values.query}
+              />
+            </Grid>
+            <Grid item xs={4}>
+              <ParameterList onAdd={onParamsAdd}>
+                {params.map(({ id, ...rest }) => {
+                  return (
+                    <ParameterItem
+                      key={id}
+                      id={id}
+                      {...rest}
+                      onDelete={onParamsDelete}
+                      onChange={onParamsChange}
+                    />
+                  );
+                })}
+              </ParameterList>
+            </Grid>
+          </Grid>
+        </AccordionDetails>
+      </Accordion>
       <ButtonRow>
         <StatusField
           name="status"
