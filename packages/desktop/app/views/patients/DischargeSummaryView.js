@@ -56,6 +56,7 @@ const Section = styled(Box)`
 const Note = styled.p`
   font-size: 10px;
   border: 1px solid black;
+  white-space: pre-line;
   margin: 0;
   padding: 8px 10px;
 `;
@@ -81,8 +82,8 @@ const ListColumn = styled.ul`
   list-style-type: none;
   padding: 0;
   margin: 0;
+  font-size: 10px;
   li {
-    font-size: 10px;
     padding-left: 0;
   }
 `;
@@ -158,6 +159,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
   const { getLocalisation } = useLocalisation();
   const dischargeDispositionVisible =
     getLocalisation('fields.dischargeDisposition.hidden') === false;
+  const ageDisplayFormat = getLocalisation('ageDisplayFormat');
 
   const patient = useSelector(state => state.patient);
   const { data: village } = useReferenceData(patient.villageId);
@@ -215,7 +217,10 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
             {patient.displayId}
           </LocalisedDisplayValue>
           <DisplayValue name="DOB">
-            {`${formatShort(patient.dateOfBirth)} (${getDisplayAge(patient.dateOfBirth)})`}
+            {`${formatShort(patient.dateOfBirth)} (${getDisplayAge(
+              patient.dateOfBirth,
+              ageDisplayFormat,
+            )})`}
           </DisplayValue>
           <DisplayValue name="Address">{`${address}`} </DisplayValue>
           <DisplayValue name="Sex">{`${capitaliseFirstLetter(patient.sex)}`} </DisplayValue>

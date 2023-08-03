@@ -211,7 +211,7 @@ labRequest.get(
     const sortKeys = {
       displayId: 'patient.display_id',
       patientName: 'UPPER(patient.last_name)',
-      requestId: 'display_id',
+      requestId: 'lab_requests.display_id',
       testCategory: 'category.name',
       labTestPanelName: 'lab_test_panel.id',
       requestedDate: 'requested_date',
