@@ -1,5 +1,5 @@
-import { Element } from "./Element.js";
-import { Player, PlayerConstructor } from "./Player.js";
+import { Element } from './Element.js';
+import { Player, PlayerConstructor } from './Player.js';
 
 export abstract class Game extends Element {
   round = 0;
@@ -30,7 +30,7 @@ export abstract class Game extends Element {
     }
 
     const calls = players.flatMap((player) => player.outbox());
-    for (const { player, activity } of calls) {
+    for (const { player, Activity, args } of calls) {
       if (player.kind === 'one') {
         const targets = this.#players.get(player.type);
         if (!targets) {
@@ -38,7 +38,7 @@ export abstract class Game extends Element {
         }
 
         const target = targets[Math.floor(Math.random() * targets.length)];
-        target.receive(activity);
+        target.receive({ Activity, args });
       } else if (player.kind === 'all') {
         const targets = this.#players.get(player.type);
         if (!targets) {
@@ -46,7 +46,7 @@ export abstract class Game extends Element {
         }
 
         for (const target of targets) {
-          target.receive(activity);
+          target.receive({ Activity, args });
         }
       }
     }

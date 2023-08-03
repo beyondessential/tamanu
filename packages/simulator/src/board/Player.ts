@@ -1,14 +1,14 @@
-import { Role } from "../TamanuApi.js";
-import { Activity, ActivityConstructor } from "./Activity.js";
-import { Element } from "./Element.js";
-import { Call, Context } from "./types.js";
+import { Role } from '../TamanuApi.js';
+import { ActivityConstructor } from './Activity.js';
+import { Element } from './Element.js';
+import { Call, CallArgs, Context } from './types.js';
 
 export abstract class Player extends Element {
   abstract readonly role: Role;
   abstract readonly routine: ActivityConstructor[];
 
   #runid = 0;
-  #inbox: Activity[] = [];
+  #inbox: Omit<Call, 'player'>[] = [];
   #outbox: Call[] = [];
 
   async run(): Promise<void> {
@@ -17,45 +17,49 @@ export abstract class Player extends Element {
     const currentInbox = [...this.#inbox];
     this.#inbox = [];
 
-    for (const activity of currentInbox) {
-      await activity.run();
+    for (const [n, { Activity: Act, args }] of currentInbox.entries()) {
+      const activity = new Act(`${this.id}-${this.#runid}-inbox(${n})`, this.context);
+      await activity.run(this, args);
     }
 
     for (const [n, Act] of this.routine.entries()) {
       const activity = new Act(`${this.id}-${this.#runid}-routine(${n})`, this.context);
-      await activity.run();
+      await activity.run(this);
     }
   }
 
-  #callIds = new Map<string, number>();
-  callId(reason: string): string {
-    const n = this.#callIds.get(reason) ?? 0;
-    this.#callIds.set(reason, n + 1);
-    return `${this.id}-${this.#runid}-call(${reason},${n})`;
-  }
-
-  sendToOne(playerType: string, activity: Activity): void {
+  sendToOne(
+    playerType: PlayerConstructor,
+    activity: ActivityConstructor,
+    args: CallArgs = {},
+  ): void {
     this.#outbox.push({
       player: {
         kind: 'one',
-        type: playerType,
+        type: playerType.name,
       },
-      activity,
+      Activity: activity,
+      args,
     });
   }
 
-  sendToAll(playerType: string, activity: Activity): void {
+  sendToAll(
+    playerType: PlayerConstructor,
+    activity: ActivityConstructor,
+    args: CallArgs = {},
+  ): void {
     this.#outbox.push({
       player: {
         kind: 'all',
-        type: playerType,
+        type: playerType.name,
       },
-      activity,
+      Activity: activity,
+      args,
     });
   }
 
-  receive(activity: Activity): void {
-    this.#inbox.push(activity);
+  receive(call: Omit<Call, 'player'>): void {
+    this.#inbox.push(call);
   }
 
   outbox(): Call[] {
@@ -65,4 +69,4 @@ export abstract class Player extends Element {
   }
 }
 
-export type PlayerConstructor = { new (id: string, context: Context): Player };
+export type PlayerConstructor = { name: string; new (id: string, context: Context): Player };

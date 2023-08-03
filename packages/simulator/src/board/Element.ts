@@ -1,4 +1,4 @@
-import { Context } from "./types.js";
+import { Context } from './types.js';
 
 export abstract class Element {
   readonly id: string;
@@ -9,5 +9,5 @@ export abstract class Element {
     this.context = context;
   }
 
-  abstract run(): Promise<void>;
+  abstract run(...args: unknown[]): Promise<void>;
 }

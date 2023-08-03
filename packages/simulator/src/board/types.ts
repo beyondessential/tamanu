@@ -1,5 +1,5 @@
 import { Role, TamanuApi } from '../TamanuApi.js';
-import { Activity } from './Activity.js';
+import { ActivityConstructor } from './Activity.js';
 
 export interface Context {
   api: TamanuApi;
@@ -24,7 +24,9 @@ export interface AllOf {
   type: string;
 }
 
+export type CallArgs = Record<string, unknown>;
 export interface Call {
   player: OneOf | AllOf;
-  activity: Activity;
+  Activity: ActivityConstructor;
+  args: CallArgs;
 }

@@ -1,15 +1,17 @@
-import { Element } from "./Element.js";
-import { Context } from "./types.js";
+import { Role } from '../TamanuApi.js';
+import { Element } from './Element.js';
+import { Player } from './Player.js';
+import { CallArgs, Context } from './types.js';
 
 export abstract class Activity extends Element {
-  async gather(): Promise<void> {}
-  abstract act(): Promise<void>;
-  async call(): Promise<void> {}
+  async gather(_gatherArgs: CallArgs): Promise<void> {}
+  abstract act(role: Role): Promise<void>;
+  async call(_player: Player): Promise<void> {}
 
-  async run(): Promise<void> {
-    await this.gather();
-    await this.act();
-    await this.call();
+  async run(player: Player, gatherArgs: CallArgs = {}): Promise<void> {
+    await this.gather(gatherArgs);
+    await this.act(player.role);
+    await this.call(player);
   }
 }
 

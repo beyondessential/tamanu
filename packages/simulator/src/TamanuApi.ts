@@ -1,6 +1,6 @@
-import { TamanuApi as OriginalApi } from '@tamanu/api-client';
 import { version } from '../package.json';
 import { chance } from './fake.js';
+import { TamanuApi as OriginalApi } from '@tamanu/api-client';
 
 export type Role = 'admin' | 'practitioner';
 export type Host = 'central' | 'facility';
@@ -17,7 +17,6 @@ const ADMIN: User = {
   role: 'admin',
 };
 
-
 export class TamanuApi {
   #deviceId: string;
 
@@ -25,7 +24,7 @@ export class TamanuApi {
   #central: string;
   #facility: string;
 
-  constructor (centralHost: string | URL, facilityHost: string | URL) {
+  constructor(centralHost: string | URL, facilityHost: string | URL) {
     this.#deviceId = chance.guid();
     this.#central = centralHost.toString();
     this.#facility = facilityHost.toString();

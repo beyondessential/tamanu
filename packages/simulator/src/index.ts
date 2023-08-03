@@ -1,11 +1,11 @@
-import { fetch } from 'undici';
 import { FetchImplementation, setFetchImplementation } from '@tamanu/api-client';
+import { fetch } from 'undici';
 setFetchImplementation(fetch as unknown as FetchImplementation);
 
+import { TamanuApi } from './TamanuApi.js';
 import { Game } from './board/Game.js';
 import { makeContext } from './board/types.js';
 import { Receptionist } from './players/Receptionist.js';
-import { TamanuApi } from './TamanuApi.js';
 
 class MakePatients extends Game {
   #patientsTarget: number;
@@ -18,7 +18,7 @@ class MakePatients extends Game {
 
   async stopCondition(): Promise<boolean> {
     const api = await this.context.api.as('admin');
-    const patients = await api.get('patient', { countOnly: true }) as { count: number };
+    const patients = (await api.get('patient', { countOnly: true })) as { count: number };
     console.log(`Patients: ${patients.count}/${this.#patientsTarget}`);
     return patients.count >= this.#patientsTarget;
   }
