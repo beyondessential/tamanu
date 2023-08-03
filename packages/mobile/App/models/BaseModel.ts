@@ -188,7 +188,7 @@ export abstract class BaseModel extends BaseEntity {
     return instance.save();
   }
 
-  static syncDirection = null;
+  static syncDirection: string | null = null;
 
   static uploadLimit = 100;
 
