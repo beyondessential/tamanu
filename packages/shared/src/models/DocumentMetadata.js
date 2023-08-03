@@ -64,7 +64,7 @@ export class DocumentMetadata extends Model {
     return ['department'];
   }
 
-  static buildSyncFilter(patientIds) {
+  static buildPatientSyncFilter(patientIds) {
     if (patientIds.length === 0) {
       return null;
     }

@@ -49,7 +49,7 @@ export class VitalLog extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds, sessionConfig) {
+  static buildPatientSyncFilter(patientIds, sessionConfig) {
     if (patientIds.length === 0) {
       return null;
     }

@@ -45,4 +45,8 @@ export class ImagingAreaExternalCode extends Model {
       as: 'area',
     });
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }

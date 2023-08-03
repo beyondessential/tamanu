@@ -136,4 +136,8 @@ export class ReportDefinitionVersion extends Model {
     });
     return generateReportFromQueryData(queryResults);
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }

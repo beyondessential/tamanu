@@ -52,4 +52,8 @@ export class LocationGroup extends Model {
       foreignKey: 'locationGroupId',
     });
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }

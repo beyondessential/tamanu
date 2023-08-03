@@ -85,7 +85,7 @@ export class AdministeredVaccine extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds, { syncAllEncountersForTheseVaccines }) {
+  static buildPatientSyncFilter(patientIds, { syncAllEncountersForTheseVaccines }) {
     const joins = [];
     const wheres = [];
 

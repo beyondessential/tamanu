@@ -118,4 +118,15 @@ export class Model extends sequelize.Model {
     // implement on the specific model if needed
     return values;
   }
+
+  static buildSyncFilter() {
+    // every model that syncs from central to facilities (PULL_FROM_CENTRAL or BIDRIRECTIONAL sync
+    // direction) must implement either buildSyncFilter or buildPatientSyncFilter, to make sure it
+    // is considered
+    // models that sync all records to all facilities (i.e. don't need a sync filter) should
+    // implement buildSyncFilter by returning null
+    throw new Error(
+      'Every model that syncs from central to facilities must implement either buildSyncFilter or buildPatientSyncFilter. If it syncs everywhere, simply implement buildSyncFilter and return null.',
+    );
+  }
 }

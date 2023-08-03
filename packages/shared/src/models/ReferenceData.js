@@ -71,4 +71,8 @@ export class ReferenceData extends Model {
 
     return super.update(values);
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }
