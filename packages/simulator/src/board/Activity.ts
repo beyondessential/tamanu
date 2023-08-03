@@ -2,7 +2,7 @@ import { Element } from "./Element.js";
 import { Context } from "./types.js";
 
 export abstract class Activity extends Element {
-  abstract gather(): Promise<void>;
+  async gather(): Promise<void> {}
   abstract act(): Promise<void>;
   async call(): Promise<void> {}
 

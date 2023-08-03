@@ -1,9 +1,11 @@
+import { Role } from "../TamanuApi.js";
 import { Activity, ActivityConstructor } from "./Activity.js";
 import { Element } from "./Element.js";
 import { Call, Context } from "./types.js";
 
 export abstract class Player extends Element {
-  abstract routine(): ActivityConstructor[];
+  abstract readonly role: Role;
+  abstract readonly routine: ActivityConstructor[];
 
   #runid = 0;
   #inbox: Activity[] = [];
@@ -19,8 +21,7 @@ export abstract class Player extends Element {
       await activity.run();
     }
 
-    const routine = this.routine();
-    for (const [n, Act] of routine.entries()) {
+    for (const [n, Act] of this.routine.entries()) {
       const activity = new Act(`${this.id}-${this.#runid}-routine(${n})`, this.context);
       await activity.run();
     }

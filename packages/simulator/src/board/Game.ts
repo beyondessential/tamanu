@@ -1,9 +1,11 @@
 import { Element } from "./Element.js";
 import { Player, PlayerConstructor } from "./Player.js";
 
-export class Game extends Element {
+export abstract class Game extends Element {
   round = 0;
   #players: Map<string, Player[]> = new Map();
+
+  abstract stopCondition(): Promise<boolean>;
 
   addPlayer(Play: PlayerConstructor, n = 1): void {
     if (this.round > 0) {
@@ -18,8 +20,9 @@ export class Game extends Element {
     }
   }
 
-  async run(): Promise<void> {
+  async runRound(): Promise<void> {
     this.round += 1;
+    console.time(`Round ${this.round}`);
 
     const players = [...this.#players.values()].flat();
     for (const player of players) {
@@ -46,6 +49,14 @@ export class Game extends Element {
           target.receive(activity);
         }
       }
+    }
+
+    console.timeEnd(`Round ${this.round}`);
+  }
+
+  async run(): Promise<void> {
+    while (!(await this.stopCondition())) {
+      await this.runRound();
     }
   }
 }

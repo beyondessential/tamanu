@@ -1,25 +1,34 @@
-import { TamanuApi } from '@tamanu/api-client';
+import { fetch } from 'undici';
+import { FetchImplementation, setFetchImplementation } from '@tamanu/api-client';
+setFetchImplementation(fetch as unknown as FetchImplementation);
+
 import { Game } from './board/Game.js';
-import { Player } from './board/Player.js';
-import { Activity, ActivityConstructor } from './board/Activity.js';
-import { makeContext } from 'board/types.js';
+import { makeContext } from './board/types.js';
+import { Receptionist } from './players/Receptionist.js';
+import { TamanuApi } from './TamanuApi.js';
 
-class Login extends Activity {
-  async gather(): Promise<void> {
-    //
+class MakePatients extends Game {
+  #patientsTarget: number;
+
+  constructor(amount: number, ...rest: ConstructorParameters<typeof Game>) {
+    super(...rest);
+    this.#patientsTarget = amount;
+    this.addPlayer(Receptionist, 2);
   }
 
-  async act(): Promise<void> {
-    //
+  async stopCondition(): Promise<boolean> {
+    const api = await this.context.api.as('admin');
+    const patients = await api.get('patient', { countOnly: true }) as { count: number };
+    console.log(`Patients: ${patients.count}/${this.#patientsTarget}`);
+    return patients.count >= this.#patientsTarget;
   }
 }
 
-class Doctor extends Player {
-  routine(): ActivityConstructor[] {
-    return [Login];
-  }
-}
-
-// TODO: host argument instead of pulling from config, then override in desktop
-const game = new Game('game', makeContext({ api: new TamanuApi('game', '1.2.3', 'no') }));
-game.addPlayer(Doctor, 10);
+(async () => {
+  const game = new MakePatients(
+    100,
+    'game',
+    makeContext({ api: new TamanuApi('http://localhost:3000', 'http://localhost:4000') }),
+  );
+  await game.run();
+})().catch(console.error);
