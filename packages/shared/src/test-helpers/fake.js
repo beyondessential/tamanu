@@ -244,7 +244,13 @@ const FIELD_HANDLERS = {
   UUID: () => fakeUUID(),
 };
 
-const IGNORED_FIELDS = ['createdAt', 'updatedAt', 'deletedAt', 'updatedAtSyncTick'];
+const IGNORED_FIELDS = [
+  'createdAt',
+  'updatedAt',
+  'deletedAt',
+  'updatedAtSyncTick',
+  'updatedAtByField',
+];
 
 const MODEL_SPECIFIC_OVERRIDES = {
   Facility: () => ({
