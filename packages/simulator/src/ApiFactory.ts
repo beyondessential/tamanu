@@ -18,44 +18,52 @@ const ADMIN: User = {
 };
 
 export class ApiFactory {
-  #deviceId: string;
+  readonly deviceId: string;
 
   #users: Map<Role, User> = new Map();
+  #pendingUsers: Map<Role, Promise<User>> = new Map();
   #central: string;
   #facility: string;
 
   constructor(centralHost: string | URL, facilityHost: string | URL) {
-    this.#deviceId = chance.guid();
+    this.deviceId = chance.guid();
     this.#central = centralHost.toString();
     this.#facility = facilityHost.toString();
   }
 
   #makeApi(host: Host) {
     const name = host === 'central' ? 'Tamanu LAN Server' : 'Tamanu Desktop';
-    return new TamanuApi(name, version, this.#deviceId);
+    return new TamanuApi(name, version, this.deviceId);
   }
 
   async #makeUser(role: Role): Promise<User> {
-    if (this.#users.has(role)) {
-      throw new Error(`User for ${role} role already exists`);
-    }
+    const extantUser = this.#users.get(role);
+    if (extantUser) return extantUser;
 
-    const api = this.#makeApi('central');
-    await api.login(this.#central, ADMIN.email, ADMIN.password);
+    const pendingUser = this.#pendingUsers.get(role);
+    if (pendingUser) return pendingUser;
 
-    const email = `${this.#deviceId}-${role}@tamanu.io`;
-    const password = chance.string({ length: 12, alpha: true, numeric: true });
-    await api.post('admin/user', {
-      email,
-      password,
-      displayName: chance.name(),
-      displayId: chance.string({ length: 6, alpha: true, numeric: true }),
-      role,
-    });
+    const newPendingUser = (async () => {
+      const api = this.#makeApi('central');
+      await api.login(this.#central, ADMIN.email, ADMIN.password);
 
-    const user = { email, password, role };
-    this.#users.set(role, user);
-    return user;
+      const email = `${this.deviceId}-${role}@tamanu.io`;
+      const password = chance.string({ length: 12, alpha: true, numeric: true });
+      await api.post('admin/user', {
+        email,
+        password,
+        displayName: chance.name(),
+        displayId: chance.string({ length: 6, alpha: true, numeric: true }),
+        role,
+      });
+
+      const user = { email, password, role };
+      this.#users.set(role, user);
+      this.#pendingUsers.delete(role);
+      return user;
+    })();
+    this.#pendingUsers.set(role, newPendingUser);
+    return newPendingUser;
   }
 
   async as(role: Role, host: Host = 'facility'): Promise<TamanuApi> {

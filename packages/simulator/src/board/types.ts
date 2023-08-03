@@ -1,4 +1,4 @@
-import { Role, ApiFactory } from '../ApiFactory.js';
+import { ApiFactory, Role } from '../ApiFactory.js';
 import { ActivityConstructor } from './Activity.js';
 
 export interface Context {

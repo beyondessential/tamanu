@@ -4,16 +4,18 @@ setFetchImplementation(fetch as unknown as FetchImplementation);
 
 import { ApiFactory } from './ApiFactory.js';
 import { Game } from './board/Game.js';
-import { makeContext } from './board/types.js';
+import { Context, makeContext } from './board/types.js';
 import { Receptionist } from './players/Receptionist.js';
+import { Nurse } from './players/Nurse.js';
 
-class MakePatients extends Game {
+class MakePatientsGame extends Game {
   #patientsTarget: number;
 
-  constructor(amount: number, ...rest: ConstructorParameters<typeof Game>) {
-    super(...rest);
+  constructor(amount: number, context: Context) {
+    super(MakePatientsGame.name, context);
     this.#patientsTarget = amount;
     this.addPlayer(Receptionist, 2);
+    this.addPlayer(Nurse, 10);
   }
 
   async stopCondition(): Promise<boolean> {
@@ -25,9 +27,8 @@ class MakePatients extends Game {
 }
 
 (async () => {
-  const game = new MakePatients(
-    100,
-    'game',
+  const game = new MakePatientsGame(
+    200,
     makeContext({ api: new ApiFactory('http://localhost:3000', 'http://localhost:4000') }),
   );
   await game.run();

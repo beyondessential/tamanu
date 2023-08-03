@@ -18,12 +18,12 @@ export abstract class Player extends Element {
     this.#inbox = [];
 
     for (const [n, { Activity: Act, args }] of currentInbox.entries()) {
-      const activity = new Act(`${this.id}-${this.#runid}-inbox(${n})`, this.context);
+      const activity = new Act(`${this.id}:act(${this.#runid}):inbox(${n})`, this.context);
       await activity.run(this, args);
     }
 
     for (const [n, Act] of this.routine.entries()) {
-      const activity = new Act(`${this.id}-${this.#runid}-routine(${n})`, this.context);
+      const activity = new Act(`${this.id}:act(${this.#runid}):routine(${n})`, this.context);
       await activity.run(this);
     }
   }

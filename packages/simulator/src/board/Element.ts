@@ -5,8 +5,9 @@ export abstract class Element {
   context: Context;
 
   constructor(id: string, context: Context) {
-    this.id = `${this.constructor.name}-${id}`;
+    this.id = `${this.constructor.name}(${id})`;
     this.context = context;
+    console.debug(`Created ${this.id}`);
   }
 
   abstract run(...args: unknown[]): Promise<void>;

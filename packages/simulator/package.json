@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "@tamanu/api-client": "*",
+    "@tamanu/constants": "*",
     "chance": "^1.1.11",
     "date-fns": "^2.30.0",
     "undici": "^5.22.1"

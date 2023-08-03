@@ -14,9 +14,9 @@ export abstract class Game extends Element {
 
     for (let i = 0; i < n; i += 1) {
       const players = this.#players.get(Play.name) ?? [];
-      const player = new Play(`${this.id}-${Play.name}(${players.length})`, this.context);
+      const player = new Play(`${players.length}`, this.context);
       players.push(player);
-      this.#players.set(Play.constructor.name, players);
+      this.#players.set(Play.name, players);
     }
   }
 
@@ -25,28 +25,31 @@ export abstract class Game extends Element {
     console.time(`Round ${this.round}`);
 
     const players = [...this.#players.values()].flat();
-    for (const player of players) {
-      await player.run();
-    }
+    console.debug(`Running ${players.length} players simultaneously`);
+    await Promise.all(players.map((player) => player.run()));
 
+    console.debug('Collecting outboxes');
     const calls = players.flatMap((player) => player.outbox());
-    for (const { player, Activity, args } of calls) {
-      if (player.kind === 'one') {
-        const targets = this.#players.get(player.type);
-        if (!targets) {
-          throw new Error(`Unknown player type ${player.type}`);
-        }
+    if (calls.length > 0) {
+      console.debug(`Distributing ${calls.length} calls`)
+      for (const { player, Activity, args } of calls) {
+        if (player.kind === 'one') {
+          const targets = this.#players.get(player.type);
+          if (!targets) {
+            throw new Error(`Unknown player type ${player.type}`);
+          }
 
-        const target = targets[Math.floor(Math.random() * targets.length)];
-        target.receive({ Activity, args });
-      } else if (player.kind === 'all') {
-        const targets = this.#players.get(player.type);
-        if (!targets) {
-          throw new Error(`Unknown player type ${player.type}`);
-        }
-
-        for (const target of targets) {
+          const target = targets[Math.floor(Math.random() * targets.length)];
           target.receive({ Activity, args });
+        } else if (player.kind === 'all') {
+          const targets = this.#players.get(player.type);
+          if (!targets) {
+            throw new Error(`Unknown player type ${player.type}`);
+          }
+
+          for (const target of targets) {
+            target.receive({ Activity, args });
+          }
         }
       }
     }

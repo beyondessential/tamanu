@@ -1,9 +1,6 @@
-import { Role } from '../ApiFactory.js';
-import { Activity } from '../board/Activity.js';
-import { Player } from '../board/Player.js';
-import { chance, optionally, upto } from '../fake.js';
 import { Nurse } from '../players/Nurse.js';
 import { AdmitPatient } from './AdmitPatient.js';
+import { Activity, Player, Role, chance, optionally, upto } from './prelude.js';
 import { differenceInYears, formatISO } from 'date-fns';
 
 export class Intake extends Activity {
@@ -38,7 +35,7 @@ export class Intake extends Activity {
   async call(player: Player): Promise<void> {
     for (const id of this.#newPatientIds) {
       // if (chance.bool({ likelihood: 10 })) {
-      //   player.sendToOne(Nurse, TriagePatient, { patientId: id });
+      //   player.sendToOne(Doctor, TriagePatient, { patientId: id });
       //   return;
       // }
 
