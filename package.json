@@ -9,8 +9,8 @@
   "license": "SEE LICENSE IN license",
   "scripts": {
     "create-package": "node scripts/create-package.mjs",
-    "build-shared": "node scripts/build-shared.mjs",
-    "build": "yarn build-shared && concurrently \"yarn workspace sync-server run build\" \"yarn workspace lan run build\" \"yarn workspace desktop run build\" \"yarn workspace meta-server run build\" \"yarn workspace csca run build\"",
+    "build": "node scripts/build-all.mjs",
+    "build-shared": "yarn run build --shared-only",
     "test": "yarn run build-shared && node scripts/test-all.mjs",
     "test-coverage": "yarn run test --coverage",
     "lint-all": "node scripts/lint-all.mjs",
