@@ -60,7 +60,11 @@ const servers = [
   { name: 'UAT (LIMS)', type: 'dev', host: 'https://central.uat-lims.aspen-dev.tamanu.io' },
   { name: 'UAT (Medici)', type: 'dev', host: 'https://central.uat-medici.aspen-dev.tamanu.io' },
   { name: 'UAT (SENAITE)', type: 'dev', host: 'https://central.uat-senaite.aspen-dev.tamanu.io' },
-  { name: 'Dev (PR 4446)', type: 'dev', host: 'https://central.feature-sav-15-scheduledvax-visibility.internal.tamanu.io' },
+  {
+    name: 'Dev (PR 4446)',
+    type: 'dev',
+    host: 'https://central.feature-sav-15-scheduledvax-visibility.internal.tamanu.io',
+  },
 ];
 
 serversRouter.get('/', (req, res) => {
