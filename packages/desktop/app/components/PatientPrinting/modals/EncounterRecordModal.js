@@ -4,6 +4,7 @@ import { NOTE_TYPES } from '@tamanu/shared/constants/notes';
 import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants/labs';
 import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/shared/constants/statuses';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/shared/constants/diagnoses';
+import { ForbiddenError } from '@tamanu/shared/errors';
 
 import { EncounterRecord } from '../printouts/EncounterRecord';
 import { Modal } from '../../Modal';
@@ -264,7 +265,7 @@ export const EncounterRecordModalContents = ({ encounter, onClose }) => {
   ]);
 
   if (allQueries.isError) {
-    if (allQueries.errors.some(x => x.name === 'ForbiddenError')) {
+    if (allQueries.errors.some(e => e instanceof ForbiddenError)) {
       return <ForbiddenErrorModalContents onClose={onClose} />;
     }
     // If this next bit ever shows up it means it's a bug - show some detail
