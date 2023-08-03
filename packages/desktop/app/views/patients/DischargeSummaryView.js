@@ -56,6 +56,7 @@ const Section = styled(Box)`
 const Note = styled.p`
   font-size: 10px;
   border: 1px solid black;
+  white-space: pre-line;
   margin: 0;
   padding: 8px 10px;
 `;
@@ -81,8 +82,8 @@ const ListColumn = styled.ul`
   list-style-type: none;
   padding: 0;
   margin: 0;
+  font-size: 10px;
   li {
-    font-size: 10px;
     padding-left: 0;
   }
 `;
