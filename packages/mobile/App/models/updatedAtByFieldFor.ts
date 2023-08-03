@@ -4,7 +4,10 @@ import { Database } from '~/infra/db';
 import { extractIncludedColumns } from '~/services/sync/utils/extractIncludedColumns';
 import { BaseModel } from './BaseModel';
 
-export async function setUpdatedAtByFieldFor(Model: typeof BaseModel, that: typeof Model): Promise<void> {
+export async function setUpdatedAtByFieldFor(
+  Model: typeof BaseModel,
+  that: InstanceType<typeof Model>,
+): Promise<void> {
   const syncTick = await getSyncTick(Database.models, CURRENT_SYNC_TIME);
   const excludedColumns = [...Model.excludedSyncColumns, 'deletedAt', 'updatedAtByField'];
   const includedColumns = extractIncludedColumns(Model, excludedColumns);
