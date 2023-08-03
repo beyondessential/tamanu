@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
+import * as yup from 'yup';
+import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
 import PropTypes from 'prop-types';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useAuth } from '../../contexts/Auth';
+import { foreignKey } from '../../utils/validation';
 
 import { MultiStepForm, FormStep } from '../MultiStepForm';
-import { LabRequestFormScreen1, screen1ValidationSchema } from './LabRequestFormScreen1';
+import { LabRequestFormScreen1 } from './LabRequestFormScreen1';
 import { LabRequestFormScreen2, screen2ValidationSchema } from './LabRequestFormScreen2';
 import { LabRequestFormScreen3 } from './LabRequestFormScreen3';
-
-const combinedValidationSchema = screen1ValidationSchema.concat(screen2ValidationSchema);
+import { useLocalisedText } from '../../components';
 
 export const LabRequestMultiStepForm = ({
   isSubmitting,
@@ -24,6 +26,18 @@ export const LabRequestMultiStepForm = ({
 }) => {
   const { currentUser } = useAuth();
   const [initialSamples, setInitialSamples] = useState([]);
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
+
+  // For fields please see LabRequestFormScreen1.js
+  const screen1ValidationSchema = yup.object().shape({
+    requestedById: foreignKey(`Requesting ${clinicianText.toLowerCase()} is required`),
+    requestedDate: yup.date().required('Request date is required'),
+    requestFormType: yup
+      .string()
+      .oneOf(Object.values(LAB_REQUEST_FORM_TYPES))
+      .required('Request type must be selected'),
+  });
+  const combinedValidationSchema = screen1ValidationSchema.concat(screen2ValidationSchema);
 
   return (
     <MultiStepForm

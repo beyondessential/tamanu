@@ -114,6 +114,8 @@ const DataStatusMessage = ({ message }) => (
 
 const PatientDeathSummary = React.memo(({ patient }) => {
   const api = useApi();
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
+
   const { data: deathData, error, isLoading } = useQuery(['patientDeathSummary', patient.id], () =>
     api.get(`patient/${patient.id}/death`, {}, { showUnknownErrorToast: false }),
   );
@@ -144,7 +146,7 @@ const PatientDeathSummary = React.memo(({ patient }) => {
           </ContentText>
         </ContentItem>
         <ContentItem>
-          <ContentLabel>Clinician:</ContentLabel>
+          <ContentLabel>{clinicianText}:</ContentLabel>
           <ContentText>{deathData?.clinician?.displayName}</ContentText>
         </ContentItem>
         <ContentItem style={{ gridColumn: '1/-1' }}>

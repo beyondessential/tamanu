@@ -288,7 +288,7 @@ export const EncounterRecord = React.memo(
     pad,
     medications,
   }) => {
-    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
+    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' }).toLowerCase();
     const { firstName, lastName, dateOfBirth, sex, displayId } = patient;
     const { department, location, examiner, reasonForEncounter, startDate, endDate } = encounter;
     const { title, subTitle, logo } = certificateData;

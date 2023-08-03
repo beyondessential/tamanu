@@ -6,7 +6,12 @@ import ArrowBackIcon from '@material-ui/icons/KeyboardArrowLeft';
 import ArrowForwardIcon from '@material-ui/icons/KeyboardArrowRight';
 
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { PageContainer, TOP_BAR_HEIGHT, TopBar as TopBarBase } from '../../components';
+import {
+  PageContainer,
+  useLocalisedText,
+  TOP_BAR_HEIGHT,
+  TopBar as TopBarBase,
+} from '../../components';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from '../../components/Appointments/DailySchedule';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
@@ -82,6 +87,7 @@ const TodayButton = styled(Button)`
 export const AppointmentsCalendar = () => {
   const api = useApi();
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
   const [date, setDate] = useState(new Date());
   const [filterValue, setFilterValue] = useState('');
@@ -107,7 +113,7 @@ export const AppointmentsCalendar = () => {
       ),
     },
     clinician: {
-      label: 'Clinicians',
+      label: clinicianText,
       component: (
         <AutocompleteInput
           value={filterValue}

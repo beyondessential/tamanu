@@ -1,6 +1,5 @@
 import React from 'react';
-import * as yup from 'yup';
-import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
+
 import { Heading3, BodyText } from '../../components/Typography';
 import {
   AutocompleteField,
@@ -10,18 +9,9 @@ import {
   SuggesterSelectField,
   useLocalisedText,
 } from '../../components';
-import { foreignKey } from '../../utils/validation';
 import { LabRequestFormTypeRadioField } from './LabRequestFormTypeRadioField';
 
-export const screen1ValidationSchema = yup.object().shape({
-  requestedById: foreignKey('Requesting clinician is required'),
-  requestedDate: yup.date().required('Request date is required'),
-  requestFormType: yup
-    .string()
-    .oneOf(Object.values(LAB_REQUEST_FORM_TYPES))
-    .required('Request type must be selected'),
-});
-
+// If update any fields please update screen1ValidationSchema in LabRequestMultiStepForm.js
 export const LabRequestFormScreen1 = ({
   setFieldValue,
   values,
