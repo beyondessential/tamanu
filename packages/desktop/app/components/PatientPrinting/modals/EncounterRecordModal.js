@@ -93,7 +93,7 @@ const extractLocationHistory = (notes, encounterData) => {
   });
 };
 
-export const EncounterRecordModalContents = ({ encounter, onClose }) => {
+export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const { getLocalisation } = useLocalisation();
   const certificateData = useCertificate();
 
@@ -102,6 +102,73 @@ export const EncounterRecordModalContents = ({ encounter, onClose }) => {
 
   const padDataQuery = usePatientAdditionalData(patient?.id);
   const padData = padDataQuery.data;
+
+  const labRequestsQuery = useLabRequests(encounter.id, {
+    order: 'asc',
+    orderBy: 'requestedDate',
+  });
+  const labRequests = labRequestsQuery.data;
+
+  const imagingRequestsQuery = useImagingRequests(encounter.id, {
+    order: 'asc',
+    orderBy: 'requestedDate',
+  });
+  const imagingRequestsData = imagingRequestsQuery.data?.data || [];
+
+  const dischargeQuery = useEncounterDischarge(encounter);
+  const discharge = dischargeQuery.data;
+
+  const villageQuery = useReferenceData(patient?.villageId);
+  const village = villageQuery.data?.name;
+
+  const notesQuery = useEncounterNotes(encounter.id);
+  const notes = notesQuery.data?.data || [];
+
+  const allQueries = combineQueries([
+    patientQuery,
+    padDataQuery,
+    labRequestsQuery,
+    imagingRequestsQuery,
+    dischargeQuery,
+    villageQuery,
+    notesQuery,
+  ]);
+
+  const modalProps = {
+    title: 'Encounter Record',
+    color: Colors.white,
+    open,
+    onClose,
+    maxWidth: 'md',
+    printable: !allQueries.isError && !allQueries.isFetching, // do not show print button when there is error or is fetching
+  };
+
+  if (allQueries.isFetching) {
+    return (
+      <Modal {...modalProps}>
+        <LoadingIndicator />
+      </Modal>
+    );
+  }
+
+  if (allQueries.isError) {
+    if (allQueries.errors.some(e => e instanceof ForbiddenError)) {
+      return (
+        <Modal {...modalProps}>
+          <ForbiddenErrorModalContents onClose={onClose} />
+        </Modal>
+      );
+    }
+    // If this next bit ever shows up it means it's a bug - show some detail
+    return (
+      <Modal {...modalProps}>
+        <p>An unexpected error occurred. Please contact your system administrator.</p>
+        <p>Error details:</p>
+        <pre>{JSON.stringify(allQueries.errors, null, 2)}</pre>
+        <ModalActionRow onConfirm={onClose} confirmText="Close" />
+      </Modal>
+    );
+  }
 
   // Filter and sort diagnoses: remove error/cancelled diagnosis, sort by whether it is primary and then date
   const diagnoses = encounter.diagnoses
@@ -122,11 +189,6 @@ export const EncounterRecordModalContents = ({ encounter, onClose }) => {
     LAB_REQUEST_STATUSES.DELETED,
   ];
 
-  const labRequestsQuery = useLabRequests(encounter.id, {
-    order: 'asc',
-    orderBy: 'requestedDate',
-  });
-  const labRequests = labRequestsQuery.data;
   const updatedLabRequests = [];
   if (labRequests) {
     labRequests.data.forEach(labRequest => {
@@ -153,11 +215,6 @@ export const EncounterRecordModalContents = ({ encounter, onClose }) => {
 
   const imagingTypeNames = getLocalisation('imagingTypes') || {};
 
-  const imagingRequestsQuery = useImagingRequests(encounter.id, {
-    order: 'asc',
-    orderBy: 'requestedDate',
-  });
-  const imagingRequestsData = imagingRequestsQuery.data?.data || [];
   const imagingRequests = imagingRequestsData
     .filter(({ status }) => !imagingStatusesToExclude.includes(status))
     .map(imagingRequest => ({
@@ -169,15 +226,6 @@ export const EncounterRecordModalContents = ({ encounter, onClose }) => {
   const medications = encounter.medications
     .filter(medication => !medication.discontinued)
     .sort((a, b) => new Date(a.date) - new Date(b.date));
-
-  const dischargeQuery = useEncounterDischarge(encounter);
-  const discharge = dischargeQuery.data;
-
-  const villageQuery = useReferenceData(patient?.villageId);
-  const village = villageQuery.data?.name;
-
-  const notesQuery = useEncounterNotes(encounter.id);
-  const notes = notesQuery.data?.data || [];
 
   const displayNotes = notes.filter(note => note.noteType !== NOTE_TYPES.SYSTEM);
 
@@ -254,64 +302,24 @@ export const EncounterRecordModalContents = ({ encounter, onClose }) => {
     encounterTypeNoteMatcher,
   );
 
-  const allQueries = combineQueries([
-    patientQuery,
-    padDataQuery,
-    labRequestsQuery,
-    imagingRequestsQuery,
-    dischargeQuery,
-    villageQuery,
-    notesQuery,
-  ]);
-
-  if (allQueries.isError) {
-    if (allQueries.errors.some(e => e instanceof ForbiddenError)) {
-      return <ForbiddenErrorModalContents onClose={onClose} />;
-    }
-    // If this next bit ever shows up it means it's a bug - show some detail
-    return (
-      <>
-        <p>An unexpected error occurred. Please contact your system administrator.</p>
-        <p>Error details:</p>
-        <pre>{JSON.stringify(allQueries.errors, null, 2)}</pre>
-        <ModalActionRow onConfirm={onClose} confirmText="Close" />
-      </>
-    );
-  }
-
-  if (allQueries.isFetching) {
-    return <LoadingIndicator />;
-  }
-
   return (
-    <EncounterRecord
-      patient={patient}
-      encounter={encounter}
-      certificateData={certificateData}
-      encounterTypeHistory={encounterTypeHistory}
-      locationHistory={locationHistory}
-      diagnoses={diagnoses}
-      procedures={procedures}
-      labRequests={updatedLabRequests}
-      imagingRequests={imagingRequests}
-      notes={orderedNotes}
-      discharge={discharge}
-      village={village}
-      pad={padData}
-      medications={medications}
-    />
+    <Modal {...modalProps}>
+      <EncounterRecord
+        patient={patient}
+        encounter={encounter}
+        certificateData={certificateData}
+        encounterTypeHistory={encounterTypeHistory}
+        locationHistory={locationHistory}
+        diagnoses={diagnoses}
+        procedures={procedures}
+        labRequests={updatedLabRequests}
+        imagingRequests={imagingRequests}
+        notes={orderedNotes}
+        discharge={discharge}
+        village={village}
+        pad={padData}
+        medications={medications}
+      />
+    </Modal>
   );
 };
-
-export const EncounterRecordModal = ({ encounter, open, onClose }) => (
-  <Modal
-    title="Encounter Record"
-    color={Colors.white}
-    open={open}
-    onClose={onClose}
-    printable
-    maxWidth="md"
-  >
-    <EncounterRecordModalContents encounter={encounter} onClose={onClose} />
-  </Modal>
-);
