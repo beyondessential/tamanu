@@ -9,6 +9,7 @@ import BaseDeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
 import { TextField, DefaultIconButton } from '../../../../../components';
 
 const Divider = styled(BaseDivider)`
+  margin-top: 20px;
   margin-bottom: 20px;
 `;
 
@@ -25,69 +26,65 @@ export const ParameterItem = props => {
   const { id, name, label, parameterField, suggesterEndpoint, onDelete, onChange } = props;
 
   return (
-    <Grid container spacing={0} key={id}>
-      <Grid container spacing={2}>
-        <Grid item xs={5}>
-          <TextField
-            field={{
-              name: 'name',
-              value: name,
-              onChange: event => {
-                onChange(id, 'name', event.target.value);
-              },
-            }}
-            placeholder="Text"
-            label="Name"
-          />
-        </Grid>
-        <Grid item xs={5}>
-          <TextField
-            field={{
-              name: 'label',
-              value: label,
-              onChange: event => {
-                onChange(id, 'label', event.target.value);
-              },
-            }}
-            placeholder="Text"
-            label="Label"
-          />
-        </Grid>
+    <Grid container spacing={2} key={id}>
+      <Grid item xs={6}>
+        <TextField
+          field={{
+            name: 'name',
+            value: name,
+            onChange: event => {
+              onChange(id, 'name', event.target.value);
+            },
+          }}
+          placeholder="Text"
+          label="Name"
+        />
       </Grid>
-      <Grid item xs={10}>
-        <Grid item xs={5}>
-          <TextField
-            field={{
-              name: 'parameterField',
-              value: parameterField,
-              onChange: event => {
-                onChange(id, 'parameterField', event.target.value);
-              },
-            }}
-            placeholder="Text"
-            label="Parameter field"
-          />
-        </Grid>
-        <Grid item xs={4}>
-          <TextField
-            field={{
-              name: 'suggesterEndpoint',
-              value: suggesterEndpoint,
-              onChange: event => {
-                onChange(id, 'suggesterEndpoint', event.target.value);
-              },
-            }}
-            placeholder="Text"
-            label="Suggester endpoint"
-          />
-        </Grid>
-        <Grid item xs={1}>
-          <IconButton variant="text" onClick={() => onDelete(id)}>
-            <DeleteOutlinedIcon />
-          </IconButton>
-        </Grid>
+      <Grid item xs={5}>
+        <TextField
+          field={{
+            name: 'label',
+            value: label,
+            onChange: event => {
+              onChange(id, 'label', event.target.value);
+            },
+          }}
+          placeholder="Text"
+          label="Label"
+        />
       </Grid>
-      <Grid item xs={10}>
+      <Grid item xs={1}>
+        <IconButton variant="text" onClick={() => onDelete(id)}>
+          <DeleteOutlinedIcon />
+        </IconButton>
+      </Grid>
+      <Grid item xs={6}>
+        <TextField
+          field={{
+            name: 'parameterField',
+            value: parameterField,
+            onChange: event => {
+              onChange(id, 'parameterField', event.target.value);
+            },
+          }}
+          placeholder="Text"
+          label="Parameter field"
+        />
+      </Grid>
+      <Grid item xs={6}>
+        <TextField
+          field={{
+            name: 'suggesterEndpoint',
+            value: suggesterEndpoint,
+            onChange: event => {
+              onChange(id, 'suggesterEndpoint', event.target.value);
+            },
+          }}
+          placeholder="Text"
+          label="Suggester endpoint"
+        />
+      </Grid>
+      <Grid item xs={12}>
         <Divider />
       </Grid>
     </Grid>

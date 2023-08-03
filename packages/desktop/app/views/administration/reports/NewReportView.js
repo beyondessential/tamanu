@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import * as yup from 'yup';
+import { Grid } from '@material-ui/core';
 import { REPORT_DEFAULT_DATE_RANGES } from '@tamanu/shared/constants/reports';
 import { useApi } from '../../../api';
 import {
@@ -10,23 +11,26 @@ import {
   ButtonRow,
   Field,
   Form,
-  FormGrid,
   MultiselectField,
-  OutlinedButton,
   SelectField,
   TextField,
 } from '../../../components';
-import { Colors } from '../../../constants';
-import { QueryEditor } from './QueryEditor';
-import { ParameterList, ParameterItem } from './components/editing';
+import { ParameterList, ParameterItem, SQLQueryEditor } from './components/editing';
 
 const Container = styled.div`
   padding: 20px;
-  max-width: 500px;
 `;
 
-const StyledButton = styled(OutlinedButton)`
-  background: ${Colors.white};
+const StyledField = styled(Field)`
+  flex-grow: 1;
+`;
+
+const QueryContainer = styled(Grid)`
+  margin-top: 20px;
+`;
+
+const StatusField = styled(Field)`
+  width: 130px;
 `;
 
 const STATUS_OPTIONS = [
@@ -74,67 +78,78 @@ const schema = {
 };
 
 const NewReportForm = ({ isSubmitting, values, setValues }) => {
-  const [showSqlEditor, setShowSqlEditor] = useState(false);
-  const handleUpdate = query => setValues({ ...values, query });
-  const handleCloseSqlEditor = () => setShowSqlEditor(false);
+  const setQuery = query => setValues({ ...values, query });
   const [params, setParams] = useState([]);
   const onParamsAdd = () => setParams([...params, generateDefaultParameter()]);
-  const onParamsChange = () => {};
-  const onParamsDelete = () => {};
+  const onParamsChange = (paramId, field, newValue) => {
+    const paramIndex = params.findIndex(p => p.id === paramId);
+    const newParams = [...params];
+    newParams[paramIndex] = { ...newParams[paramIndex], [field]: newValue };
+    setParams(newParams);
+  };
+  const onParamsDelete = paramId => setParams([...params.filter(p => p.id !== paramId)]);
 
   return (
     <Container>
-      <FormGrid columns={1}>
-        <Field required label="Report name" name="name" component={TextField} />
-        <Field
-          label="Can be run on"
-          name="dataSources"
-          component={MultiselectField}
-          options={DATA_SOURCE_OPTIONS}
-        />
-        <Field
-          label="Default date range"
-          name="defaultDateRange"
-          component={SelectField}
-          options={DATE_RANGE_OPTIONS}
-        />
-        <ParameterList onAdd={onParamsAdd}>
-          {params.map(({ id, ...rest }) => {
-            return (
-              <ParameterItem
-                key={id}
-                id={id}
-                {...rest}
-                onDelete={onParamsDelete}
-                onChange={onParamsChange}
-              />
-            );
-          })}
-        </ParameterList>
-        <StyledButton onClick={() => setShowSqlEditor(true)}>Edit SQL</StyledButton>
-        <QueryEditor
-          title="Edit SQL"
-          initialValue=""
-          onSubmit={handleUpdate}
-          open={showSqlEditor}
-          onClose={handleCloseSqlEditor}
-        />
-        <Field
-          label="Published status"
+      <Grid container spacing={2}>
+        <Grid item xs={4}>
+          <StyledField required label="Report name" name="name" component={TextField} />
+        </Grid>
+        <Grid item xs={4}>
+          <StyledField
+            label="Can be run on"
+            name="dataSources"
+            component={MultiselectField}
+            options={DATA_SOURCE_OPTIONS}
+          />
+        </Grid>
+        <Grid item xs={4}>
+          <StyledField
+            label="Default date range"
+            name="defaultDateRange"
+            component={SelectField}
+            options={DATE_RANGE_OPTIONS}
+          />
+        </Grid>
+      </Grid>
+      <QueryContainer container spacing={2}>
+        <Grid item xs={8}>
+          <SQLQueryEditor
+            customKeywords={params.map(p => p.name)}
+            onChange={setQuery}
+            value={values.query}
+          />
+        </Grid>
+        <Grid item xs={4}>
+          <ParameterList onAdd={onParamsAdd}>
+            {params.map(({ id, ...rest }) => {
+              return (
+                <ParameterItem
+                  key={id}
+                  id={id}
+                  {...rest}
+                  onDelete={onParamsDelete}
+                  onChange={onParamsChange}
+                />
+              );
+            })}
+          </ParameterList>
+        </Grid>
+      </QueryContainer>
+      <ButtonRow>
+        <StatusField
           name="status"
           component={SelectField}
+          isClearable={false}
           options={[
             { label: 'Draft', value: 'draft' },
             { label: 'Published', value: 'published' },
           ]}
         />
-        <ButtonRow>
-          <StyledButton variant="outlined">Test</StyledButton>
-          <Button variant="contained" color="primary" type="submit" isSubmitting={isSubmitting}>
-            Create
-          </Button>
-        </ButtonRow>
-      </FormGrid>
+        <Button variant="contained" color="primary" type="submit" isSubmitting={isSubmitting}>
+          Create
+        </Button>
+      </ButtonRow>
     </Container>
   );
 };
