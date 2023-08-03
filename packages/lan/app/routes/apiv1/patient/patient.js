@@ -204,7 +204,7 @@ patientRoute.get(
         ...EncounterMedication.getFullReferenceAssociations(),
         {
           association: 'encounter',
-          include: [{ association: 'location', include: ['locationGroup'] }],
+          include: [{ association: 'location', include: ['facility'] }],
         },
       ],
       order: orderBy ? getOrderClause(order, orderBy) : undefined,
