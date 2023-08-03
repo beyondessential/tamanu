@@ -8,6 +8,8 @@ export function doWithAllPackages(fn) {
   const workspaces = new Set(Object.keys(workspaceTree));
   const processed = new Set();
 
+  const packagesThatAreDependedOn = new Set(Object.values(workspaceTree).flatMap(({ workspaceDependencies }) => workspaceDependencies));
+
   while (processed.size < workspaces.size) {
     for (const workspace of workspaces) {
       if (processed.has(workspace)) continue;
@@ -24,7 +26,7 @@ export function doWithAllPackages(fn) {
           continue;
         }
 
-        fn(workspace, pkg, pkgPath);
+        fn(workspace, pkg, pkgPath, packagesThatAreDependedOn.has(workspace));
       }
     }
   }
