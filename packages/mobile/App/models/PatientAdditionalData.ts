@@ -12,7 +12,7 @@ import { IPatientAdditionalData } from '~/types';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { Patient } from './Patient';
 import { SYNC_DIRECTIONS } from './types';
-import { setUpdatedAtByFieldFor } from './updatedAtByFieldFor';
+import { setUpdatedAtByFieldFor } from './common/updatedAtByFieldFor';
 
 @Entity('patient_additional_data')
 export class PatientAdditionalData extends BaseModel implements IPatientAdditionalData {
