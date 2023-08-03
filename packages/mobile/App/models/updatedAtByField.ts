@@ -4,13 +4,13 @@ import { Database } from '~/infra/db';
 import { extractIncludedColumns } from '~/services/sync/utils/extractIncludedColumns';
 import { BaseModel } from './BaseModel';
 
-export async function setUpdatedAtByField(Model: typeof BaseModel): Promise<void> {
+export async function setUpdatedAtByField(Model: typeof BaseModel, that: typeof Model): Promise<void> {
   const syncTick = await getSyncTick(Database.models, CURRENT_SYNC_TIME);
   const excludedColumns = [...Model.excludedSyncColumns, 'deletedAt', 'updatedAtByField'];
   const includedColumns = extractIncludedColumns(Model, excludedColumns);
   let newUpdatedAtByField = {};
   const oldModelRecord = await Model.findOne({
-    id: this.id,
+    id: that.id,
   });
 
   // only calculate updatedAtByField if a modified version hasn't been explicitly passed,
@@ -22,8 +22,8 @@ export async function setUpdatedAtByField(Model: typeof BaseModel): Promise<void
       }
     });
   } else if (
-    !this.updatedAtByField ||
-    this.updatedAtByField === oldModelRecord.updatedAtByField
+    !that.updatedAtByField ||
+    that.updatedAtByField === oldModelRecord.updatedAtByField
   ) {
     // retain the old sync ticks from previous updatedAtByField
     newUpdatedAtByField = JSON.parse(oldModelRecord.updatedAtByField);
@@ -46,6 +46,6 @@ export async function setUpdatedAtByField(Model: typeof BaseModel): Promise<void
   }
 
   if (!isEmpty(newUpdatedAtByField)) {
-    this.updatedAtByField = JSON.stringify(newUpdatedAtByField);
+    that.updatedAtByField = JSON.stringify(newUpdatedAtByField);
   }
 }
