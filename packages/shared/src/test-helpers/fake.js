@@ -286,6 +286,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
       culturalName: chance.first({ gender: nameGender }),
       dateOfDeath: null,
       email: chance.email(),
+      updatedAtByField: {},
     };
   },
   PatientAdditionalData: ({ id, patientId }) => {
