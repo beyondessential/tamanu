@@ -1,8 +1,8 @@
-import { Role, TamanuApi } from '../TamanuApi.js';
+import { Role, ApiFactory } from '../ApiFactory.js';
 import { ActivityConstructor } from './Activity.js';
 
 export interface Context {
-  api: TamanuApi;
+  api: ApiFactory;
   store: Map<string, unknown>;
   role?: Role;
 }

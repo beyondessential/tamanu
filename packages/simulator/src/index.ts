@@ -2,7 +2,7 @@ import { FetchImplementation, setFetchImplementation } from '@tamanu/api-client'
 import { fetch } from 'undici';
 setFetchImplementation(fetch as unknown as FetchImplementation);
 
-import { TamanuApi } from './TamanuApi.js';
+import { ApiFactory } from './ApiFactory.js';
 import { Game } from './board/Game.js';
 import { makeContext } from './board/types.js';
 import { Receptionist } from './players/Receptionist.js';
@@ -28,7 +28,7 @@ class MakePatients extends Game {
   const game = new MakePatients(
     100,
     'game',
-    makeContext({ api: new TamanuApi('http://localhost:3000', 'http://localhost:4000') }),
+    makeContext({ api: new ApiFactory('http://localhost:3000', 'http://localhost:4000') }),
   );
   await game.run();
 })().catch(console.error);

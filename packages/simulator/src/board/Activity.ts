@@ -1,4 +1,4 @@
-import { Role } from '../TamanuApi.js';
+import { Role } from '../ApiFactory.js';
 import { Element } from './Element.js';
 import { Player } from './Player.js';
 import { CallArgs, Context } from './types.js';

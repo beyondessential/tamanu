@@ -1,6 +1,6 @@
 import { version } from '../package.json';
 import { chance } from './fake.js';
-import { TamanuApi as OriginalApi } from '@tamanu/api-client';
+import { TamanuApi } from '@tamanu/api-client';
 
 export type Role = 'admin' | 'practitioner';
 export type Host = 'central' | 'facility';
@@ -17,7 +17,7 @@ const ADMIN: User = {
   role: 'admin',
 };
 
-export class TamanuApi {
+export class ApiFactory {
   #deviceId: string;
 
   #users: Map<Role, User> = new Map();
@@ -32,7 +32,7 @@ export class TamanuApi {
 
   #makeApi(host: Host) {
     const name = host === 'central' ? 'Tamanu LAN Server' : 'Tamanu Desktop';
-    return new OriginalApi(name, version, this.#deviceId);
+    return new TamanuApi(name, version, this.#deviceId);
   }
 
   async #makeUser(role: Role): Promise<User> {
@@ -58,7 +58,7 @@ export class TamanuApi {
     return user;
   }
 
-  async as(role: Role, host: Host = 'facility'): Promise<OriginalApi> {
+  async as(role: Role, host: Host = 'facility'): Promise<TamanuApi> {
     const hostUrl = host === 'central' ? this.#central : this.#facility;
     const api = this.#makeApi(host);
 

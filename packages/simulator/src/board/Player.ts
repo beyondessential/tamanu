@@ -1,4 +1,4 @@
-import { Role } from '../TamanuApi.js';
+import { Role } from '../ApiFactory.js';
 import { ActivityConstructor } from './Activity.js';
 import { Element } from './Element.js';
 import { Call, CallArgs, Context } from './types.js';

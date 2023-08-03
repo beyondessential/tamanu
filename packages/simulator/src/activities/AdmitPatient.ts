@@ -1,4 +1,4 @@
-import { Role } from '../TamanuApi.js';
+import { Role } from '../ApiFactory.js';
 import { Activity } from '../board/Activity.js';
 
 export class AdmitPatient extends Activity {

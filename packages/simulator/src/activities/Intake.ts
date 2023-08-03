@@ -1,4 +1,4 @@
-import { Role } from '../TamanuApi.js';
+import { Role } from '../ApiFactory.js';
 import { Activity } from '../board/Activity.js';
 import { Player } from '../board/Player.js';
 import { chance, optionally, upto } from '../fake.js';
