@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 import { getTable } from './utils/queryRunner';
 
-const tableName = 'users';
+const tableName = 'user';
 const columnName = 'displayId';
 
 export class addDisplayIdToUsers1688428478000 implements MigrationInterface {
