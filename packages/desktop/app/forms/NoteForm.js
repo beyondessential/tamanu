@@ -45,6 +45,13 @@ const getSelectableNoteTypes = noteTypeCountByType =>
         !!noteTypeCountByType[x.value],
     }));
 
+const getNoteDateFieldValue = (noteFormMode, note) => {
+  if (noteFormMode === NOTE_FORM_MODES.CREATE_NOTE) return new Date();
+  if (note.noteType === NOTE_TYPES.TREATMENT_PLAN && noteFormMode === NOTE_FORM_MODES.EDIT_NOTE)
+    return note.date;
+  return note.revisedBy?.date || note.date;
+};
+
 const StyledFormGrid = styled(FormGrid)`
   margin-bottom: 20px;
 `;
@@ -128,13 +135,19 @@ export const NoteForm = ({
         />
         <Field
           name="date"
-          label="Date & time"
+          label={`${
+            noteFormMode === NOTE_FORM_MODES.EDIT_NOTE &&
+            note.noteType === NOTE_TYPES.TREATMENT_PLAN
+              ? 'Last updated'
+              : 'Created at'
+          } Date & time`}
           component={DateTimeField}
           required={noteFormMode === NOTE_FORM_MODES.CREATE_NOTE}
           disabled={
             !getLocalisation('features.enableNoteBackdating') ||
             noteFormMode !== NOTE_FORM_MODES.CREATE_NOTE
           }
+          value={getNoteDateFieldValue(noteFormMode, note)}
           saveDateAsString
         />
       </StyledFormGrid>
