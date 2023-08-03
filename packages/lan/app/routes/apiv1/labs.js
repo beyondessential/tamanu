@@ -90,6 +90,7 @@ labRequest.get(
     } = query;
 
     const makeSimpleTextFilter = makeSimpleTextFilterFactory(filterParams);
+    const makePartialTextFilter = makeSimpleTextFilterFactory(filterParams, false);
     const filters = [
       makeFilter(true, `lab_requests.status != :deleted`, () => ({
         deleted: LAB_REQUEST_STATUSES.DELETED,
@@ -105,7 +106,7 @@ labRequest.get(
       makeFilter(filterParams.category, 'category.id = :category'),
       makeSimpleTextFilter('priority', 'priority.id'),
       makeFilter(filterParams.laboratory, 'lab_requests.lab_test_laboratory_id = :laboratory'),
-      makeSimpleTextFilter('displayId', 'patient.display_id'),
+      makePartialTextFilter('displayId', 'patient.display_id'),
       makeSimpleTextFilter('firstName', 'patient.first_name'),
       makeSimpleTextFilter('lastName', 'patient.last_name'),
       makeSimpleTextFilter('patientId', 'patient.id'),
