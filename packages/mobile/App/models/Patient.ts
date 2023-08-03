@@ -1,7 +1,7 @@
 import { Entity, Column, OneToMany, Index, BeforeInsert, BeforeUpdate } from 'typeorm/browser';
 import { getUniqueId } from 'react-native-device-info';
 import { addHours, parseISO, startOfDay, subYears } from 'date-fns';
-import { groupBy, snakeCase, isEmpty } from 'lodash';
+import { groupBy } from 'lodash';
 import { readConfig } from '~/services/config';
 import { BaseModel, IdRelation } from './BaseModel';
 import { Encounter } from './Encounter';
@@ -14,19 +14,9 @@ import { PatientAdditionalData } from './PatientAdditionalData';
 import { PatientFacility } from './PatientFacility';
 import { ReferenceData, NullableReferenceDataRelation } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
-import { CURRENT_SYNC_TIME, getSyncTick } from '~/services/sync';
-import { Database } from '~/infra/db';
-import { extractIncludedColumns } from '~/services/sync/utils/extractIncludedColumns';
-
 import { DateStringColumn } from './DateColumns';
+import { setUpdatedAtByFieldFor } from './updatedAtByFieldFor';
 const TIME_OFFSET = 3;
-const METADATA_FIELDS = [
-  'createdAt',
-  'updatedAt',
-  'deletedAt',
-  'updatedAtSyncTick',
-  'updatedAtByField',
-];
 
 @Entity('patient')
 export class Patient extends BaseModel implements IPatient {
@@ -95,48 +85,7 @@ export class Patient extends BaseModel implements IPatient {
   @BeforeInsert()
   @BeforeUpdate()
   async setUpdatedAtByField(): Promise<void> {
-    const syncTick = await getSyncTick(Database.models, CURRENT_SYNC_TIME);
-    const includedColumns = extractIncludedColumns(Patient, METADATA_FIELDS);
-    let newUpdatedAtByField = {};
-    const oldPatient = await Patient.findOne({
-      id: this.id,
-    });
-
-    // only calculate updatedAtByField if a modified version hasn't been explicitly passed,
-    // e.g. from a central record syncing down to this device
-    if (!oldPatient) {
-      includedColumns.forEach(camelCaseKey => {
-        if (this[snakeCase(camelCaseKey)] !== undefined) {
-          newUpdatedAtByField[snakeCase(camelCaseKey)] = syncTick;
-        }
-      });
-    } else if (
-      !this.updatedAtByField ||
-      this.updatedAtByField === oldPatient.updatedAtByField
-    ) {
-      // retain the old sync ticks from previous updatedAtByField
-      newUpdatedAtByField = JSON.parse(oldPatient.updatedAtByField);
-      includedColumns.forEach(camelCaseKey => {
-        const snakeCaseKey = snakeCase(camelCaseKey);
-        // when saving relation id for instance, typeorm requires saving using
-        // relation name instead (eg: when saving 'nationalityId', the value is in 'nationality')
-        const relationKey = camelCaseKey.slice(-2) === 'Id' ? camelCaseKey.slice(0, -2) : null;
-        const oldValue = oldPatient[camelCaseKey];
-        // if this is a relation key, the value may be in form of ( { id: 'abc' } ),
-        // or it may be just the id
-        const currentValue = relationKey
-          ? this[relationKey]?.id || this[relationKey]
-          : this[camelCaseKey];
-
-        if (oldValue !== currentValue) {
-          newUpdatedAtByField[snakeCaseKey] = syncTick;
-        }
-      });
-    }
-
-    if (!isEmpty(newUpdatedAtByField)) {
-      this.updatedAtByField = JSON.stringify(newUpdatedAtByField);
-    }
+    return setUpdatedAtByFieldFor(Patient, this);
   }
 
   static async markForSync(patientId: string): Promise<void> {
