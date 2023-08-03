@@ -95,6 +95,9 @@
       "tokenExpiry": 20
     }
   },
+  "export": { 
+    "maxFileSizeInMB": 50
+  },
   "mailgun": {
     "domain": "",
     "apiKey": "",
@@ -612,10 +615,15 @@
         "diagnosis": {
           "shortLabel": "Diagnosis",
           "longLabel": "Diagnosis"
+        },
+        "userDisplayId": {
+          "shortLabel": "Registration number",
+          "longLabel": "Registration number",
         }
       },
       "features": {
         "editPatientDetailsOnMobile": true,
+        "quickPatientGenerator": false,
         "enableInvoicing": false,
         "registerNewPatient": true,
         "hideOtherSex": true,
@@ -623,7 +631,7 @@
         "mergePopulatedPADRecords": true,
         "enableNoteBackdating": true,
         "enableCovidClearanceCertificate": false,
-        "editDisplayId": false,
+        "editPatientDisplayId": false,
         "patientPlannedMove": false,
         "idleTimeout": {
           "enabled": true,
@@ -635,7 +643,9 @@
         "fhirNewZealandEthnicity": false,
         "onlyAllowLabPanels": false,
         "displayProcedureCodesInDischargeSummary": true,
-        "displayIcd10CodesInDischargeSummary": true
+        "displayIcd10CodesInDischargeSummary": true,
+        "mandatoryVitalEditReason": false,
+        "enableVitalEdit": false
       },
       "templates": {
         "letterhead": {
@@ -787,7 +797,54 @@
       // generated in the sync server. Can be `tamanu` or `icao` or `eudcc`.
       // `tamanu` implies that the signing integrations are not enabled.
       "previewUvciFormat": "tamanu",
-      "disabledReports": []
+      "disabledReports": [],
+      "vitalEditReasons": [
+        {
+          "value": "incorrect-patient",
+          "label": "Incorrect patient"
+        },
+        {
+          "value": "incorrect-value",
+          "label": "Incorrect value recorded"
+        },
+        {
+          "value": "recorded-in-error",
+          "label": "Recorded in error"
+        },
+        {
+          "value": "other",
+          "label": "Other"
+        }
+      ],      
+      "ageDisplayFormat": [
+        {
+          "as": "days",
+          "range": {
+            "min": { "duration": { "days": 0 } },
+            "max": { "duration": { "days": 8 }, "exclusive": true }
+          }
+        },
+        {
+          "as": "weeks",
+          "range": {
+            "min": { "duration": { "days": 8 } },
+            "max": { "duration": { "months": 1 }, "exclusive": true }
+          }
+        },
+        {
+          "as": "months",
+          "range": {
+            "min": { "duration": { "months": 1 } },
+            "max": { "duration": { "years": 2 }, "exclusive": true }
+          }
+        },
+        {
+          "as": "years",
+          "range": {
+            "min": { "duration": { "years": 2 } }
+          }
+        }
+      ]
     }
   },
   "reportProcess": {
@@ -817,7 +874,8 @@
       "serviceRequestLabDisplayId": "http://data-dictionary.tamanu-fiji.org/tamanu-mrid-labrequest.html",
       "serviceRequestLabId": "http://data-dictionary.tamanu-fiji.org/tamanu-id-labrequest.html",
       "imagingStudyAccessionId": "http://data-dictionary.tamanu-fiji.org/ris-accession-number.html",
-      "ethnicityId": "http://data-dictionary.tamanu-fiji.org/extensions/ethnic-group-code.html"
+      "ethnicityId": "http://data-dictionary.tamanu-fiji.org/extensions/ethnic-group-code.html",
+      "locationPhysicalType": "http://terminology.hl7.org/CodeSystem/location-physical-type"
     }
   },
   "s3": {},

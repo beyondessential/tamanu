@@ -16,25 +16,18 @@ permissions:
   id-token: write # OIDC token for AWS
 
 jobs:
+  info:
+    # only run for manual dispatch or for non-permanent branches
+    if: github.event_name == 'workflow_dispatch' || (!startsWith(github.ref, 'refs/heads/release') && github.ref != 'refs/heads/main')
+    name: Branch info
+    uses: ./.github/workflows/branch-info.yml
+
   down:
+    needs: info
     name: Bring down environment
     runs-on: ubuntu-latest
 
     steps:
-      - name: Normalise branch/ref name
-        uses: actions/github-script@v6
-        id: ref
-        env:
-          GH_HEAD_REF: ${{ github.head_ref }}
-          GH_REF_NAME: ${{ github.ref_name }}
-        with:
-          result-encoding: string
-          script: |
-            return ((process.env.GH_HEAD_REF || process.env.GH_REF_NAME)
-              .replace(/[^a-z0-9-]/g, '-')
-              .replace(/-+/g, '-')
-              .replace(/^-|-$/g, ''));
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -65,7 +58,7 @@ jobs:
         working-directory: ops/pulumi
 
       - name: Connect to Tailscale
-        uses: ./.github/actions/tailscale
+        uses: tailscale/github-action@v2
         with:
           oauth-secret: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
           tags: tag:infra,tag:infra-gha-deploy
@@ -76,7 +69,7 @@ jobs:
           work-dir: ops/pulumi/tamanu-internal
           command: destroy
           remove: true
-          stack-name: bes/${{ steps.ref.outputs.result }}
+          stack-name: bes/${{ needs.info.outputs.branch }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-on-pr: ${{ github.event_name == 'pull_request' }}
         env:

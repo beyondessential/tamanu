@@ -4,11 +4,16 @@ import {
   createDummyEncounterMedication,
 } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData';
-import { LAB_REQUEST_STATUSES, IMAGING_REQUEST_STATUS_TYPES, NOTE_TYPES } from 'shared/constants';
+import {
+  LAB_REQUEST_STATUSES,
+  IMAGING_REQUEST_STATUS_TYPES,
+  NOTE_TYPES,
+  VITALS_DATA_ELEMENT_IDS,
+} from 'shared/constants';
 import { setupSurveyFromObject } from 'shared/demoData/surveys';
 import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';
-import { subWeeks } from 'date-fns';
+import { addHours, formatISO9075, subWeeks } from 'date-fns';
 import { isEqual } from 'lodash';
 
 import { uploadAttachment } from '../../app/utils/uploadAttachment';
@@ -969,6 +974,7 @@ describe('Encounter', () => {
     describe('vitals', () => {
       let vitalsEncounter = null;
       let vitalsPatient = null;
+      const surveyResponseId = 'vitals-survey-response';
 
       beforeAll(async () => {
         // The original patient may or may not have a current encounter
@@ -1005,13 +1011,31 @@ describe('Encounter', () => {
               name: 'PatientVitalsHeartRate',
               type: 'Number',
             },
+            {
+              name: 'PatientVitalsSBP',
+              type: 'Number',
+            },
           ],
+        });
+      });
+
+      afterEach(async () => {
+        await models.SurveyResponseAnswer.destroy({
+          where: {
+            response_id: surveyResponseId,
+          },
+        });
+        await models.SurveyResponse.destroy({
+          where: {
+            id: surveyResponseId,
+          },
         });
       });
 
       it('should record a new vitals reading', async () => {
         const submissionDate = getCurrentDateTimeString();
         const result = await app.post('/v1/surveyResponse').send({
+          id: surveyResponseId,
           surveyId: 'vitals-survey',
           patientId: vitalsPatient.id,
           startTime: submissionDate,
@@ -1037,6 +1061,7 @@ describe('Encounter', () => {
           'pde-PatientVitalsWeight': 789,
         };
         await app.post('/v1/surveyResponse').send({
+          id: surveyResponseId,
           surveyId: 'vitals-survey',
           patientId: vitalsPatient.id,
           startTime: submissionDate,
@@ -1055,12 +1080,148 @@ describe('Encounter', () => {
               expect.objectContaining({
                 dataElementId: key,
                 records: {
-                  [submissionDate]: value.toString(),
+                  [submissionDate]: expect.objectContaining({
+                    id: expect.any(String),
+                    body: value.toString(),
+                    logs: null,
+                  }),
                 },
               }),
             ),
           ),
         );
+      });
+
+      describe('vitals data by data element id', () => {
+        const nullAnswer = {
+          responseId: 'response_id_5',
+          submissionDate: formatISO9075(addHours(new Date(), -5)),
+          value: 'null', // null value exist on the databases for historical reasons
+        };
+        const answers = [
+          {
+            responseId: 'response_id_1',
+            submissionDate: formatISO9075(addHours(new Date(), -1)),
+            value: 122,
+          },
+          {
+            responseId: 'response_id_2',
+            submissionDate: formatISO9075(addHours(new Date(), -3)),
+            value: 155,
+          },
+          {
+            responseId: 'response_id_3',
+            submissionDate: formatISO9075(addHours(new Date(), -2)),
+            value: 133,
+          },
+          {
+            responseId: 'response_id_4',
+            submissionDate: formatISO9075(addHours(new Date(), -4)),
+            value: '',
+          },
+          nullAnswer,
+        ];
+        const patientVitalSbpKey = VITALS_DATA_ELEMENT_IDS.sbp;
+
+        beforeAll(async () => {
+          for (const answer of answers) {
+            const { submissionDate, value, responseId } = answer;
+            const surveyResponseAnswersBody = {
+              'pde-PatientVitalsDate': submissionDate,
+              [patientVitalSbpKey]: value,
+            };
+            await app.post('/v1/surveyResponse').send({
+              id: responseId,
+              surveyId: 'vitals-survey',
+              patientId: vitalsPatient.id,
+              startTime: submissionDate,
+              endTime: submissionDate,
+              answers: surveyResponseAnswersBody,
+            });
+          }
+
+          // Can't import null value by endpoint as it is prevented, so we have to update it manually
+          await models.SurveyResponseAnswer.update(
+            { body: null },
+            {
+              where: {
+                response_id: nullAnswer.responseId,
+                data_element_id: patientVitalSbpKey,
+              },
+            },
+          );
+        });
+
+        afterAll(async () => {
+          for (const answer of answers) {
+            await models.SurveyResponseAnswer.destroy({
+              where: {
+                response_id: answer.responseId,
+              },
+            });
+            await models.SurveyResponse.destroy({
+              where: {
+                id: answer.responseId,
+              },
+            });
+          }
+        });
+
+        it('should get vital data within time frame and filter out empty and null value', async () => {
+          const startDateString = formatISO9075(addHours(new Date(), -4));
+          const endDateString = formatISO9075(new Date());
+          const expectedAnswers = answers.filter(
+            answer => answer.value !== '' && answer.value !== nullAnswer.value,
+          );
+
+          const result = await app.get(
+            `/v1/encounter/${vitalsEncounter.id}/vitals/${patientVitalSbpKey}?startDate=${startDateString}&endDate=${endDateString}`,
+          );
+          expect(result).toHaveSucceeded();
+          const { body } = result;
+          expect(body).toHaveProperty('count');
+          expect(body.count).toEqual(expectedAnswers.length);
+          expect(body).toHaveProperty('data');
+          expect(body.data).toEqual(
+            expect.arrayContaining(
+              expectedAnswers.map(answer =>
+                expect.objectContaining({
+                  dataElementId: patientVitalSbpKey,
+                  body: answer.value.toString(),
+                  recordedDate: answer.submissionDate,
+                }),
+              ),
+            ),
+          );
+
+          const expectedRecordedDate = [...expectedAnswers]
+            .sort((a, b) => (a.submissionDate > b.submissionDate ? 1 : -1))
+            .map(answer => answer.submissionDate);
+          const resultRecordedDate = body.data.map(data => data.recordedDate);
+          expect(resultRecordedDate).toEqual(expectedRecordedDate);
+        });
+
+        it('should get vital data on the edge of time frame (equal to startdate)', async () => {
+          const startDateString = answers[0].submissionDate;
+          const endDateString = formatISO9075(new Date());
+          const result = await app.get(
+            `/v1/encounter/${vitalsEncounter.id}/vitals/${patientVitalSbpKey}?startDate=${startDateString}&endDate=${endDateString}`,
+          );
+          expect(result).toHaveSucceeded();
+          const { body } = result;
+          expect(body).toHaveProperty('count');
+          expect(body.count).toEqual(1);
+          expect(body).toHaveProperty('data');
+          expect(body.data).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                dataElementId: patientVitalSbpKey,
+                body: answers[0].value.toString(),
+                recordedDate: answers[0].submissionDate,
+              }),
+            ]),
+          );
+        });
       });
     });
 
@@ -1098,6 +1259,317 @@ describe('Encounter', () => {
         const metadata = await models.DocumentMetadata.findByPk(result.body.id);
         expect(metadata).toBeDefined();
         expect(uploadAttachment.mock.calls.length).toBe(1);
+      });
+    });
+
+    describe('encounter history', () => {
+      describe('single change', () => {
+        it('should record an encounter history when an encounter is created', async () => {
+          const encounter = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient.id,
+          });
+
+          const encounterHistoryRecords = await models.EncounterHistory.findAll({
+            where: {
+              encounterId: encounter.id,
+            },
+          });
+
+          expect(encounterHistoryRecords).toHaveLength(1);
+          expect(encounterHistoryRecords[0]).toMatchObject({
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: encounter.locationId,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+          });
+        });
+
+        it('should record an encounter history for a location change', async () => {
+          const [oldLocation, newLocation] = await models.Location.findAll({ limit: 2 });
+          const submittedTime = getCurrentDateTimeString();
+          const encounter = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient.id,
+            locationId: oldLocation.id,
+          });
+
+          await app.put(`/v1/encounter/${encounter.id}`).send({
+            locationId: newLocation.id,
+            submittedTime,
+          });
+
+          const encounterHistoryRecords = await models.EncounterHistory.findAll({
+            where: {
+              encounterId: encounter.id,
+            },
+          });
+
+          expect(encounterHistoryRecords).toHaveLength(2);
+          expect(encounterHistoryRecords[0]).toMatchObject({
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: oldLocation.id,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+          });
+
+          expect(encounterHistoryRecords[1]).toMatchObject({
+            date: submittedTime,
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: newLocation.id,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+          });
+        });
+
+        it('should record an encounter history for a department change', async () => {
+          const [oldDepartment, newDepartment] = await models.Department.findAll({ limit: 2 });
+          const submittedTime = getCurrentDateTimeString();
+          const encounter = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient.id,
+            departmentId: oldDepartment.id,
+          });
+
+          await app.put(`/v1/encounter/${encounter.id}`).send({
+            departmentId: newDepartment.id,
+            submittedTime,
+          });
+
+          const encounterHistoryRecords = await models.EncounterHistory.findAll({
+            where: {
+              encounterId: encounter.id,
+            },
+          });
+
+          expect(encounterHistoryRecords).toHaveLength(2);
+          expect(encounterHistoryRecords[0]).toMatchObject({
+            encounterId: encounter.id,
+            departmentId: oldDepartment.id,
+            locationId: encounter.locationId,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+          });
+          expect(encounterHistoryRecords[1]).toMatchObject({
+            date: submittedTime,
+            encounterId: encounter.id,
+            departmentId: newDepartment.id,
+            locationId: encounter.locationId,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+          });
+        });
+
+        it('should record an encounter history for a clinician change', async () => {
+          const [oldClinician, newClinician] = await models.User.findAll({ limit: 2 });
+          const submittedTime = getCurrentDateTimeString();
+          const encounter = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient.id,
+            examinerId: oldClinician.id,
+          });
+
+          await app.put(`/v1/encounter/${encounter.id}`).send({
+            examinerId: newClinician.id,
+            submittedTime,
+          });
+
+          const encounterHistoryRecords = await models.EncounterHistory.findAll({
+            where: {
+              encounterId: encounter.id,
+            },
+          });
+
+          expect(encounterHistoryRecords).toHaveLength(2);
+          expect(encounterHistoryRecords[0]).toMatchObject({
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: encounter.locationId,
+            examinerId: oldClinician.id,
+            encounterType: encounter.encounterType,
+          });
+          expect(encounterHistoryRecords[1]).toMatchObject({
+            date: submittedTime,
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: encounter.locationId,
+            examinerId: newClinician.id,
+            encounterType: encounter.encounterType,
+          });
+        });
+
+        it('should record an encounter history for an encounter type change', async () => {
+          const oldEncounterType = 'admission';
+          const newEncounterType = 'clinic';
+          const submittedTime = getCurrentDateTimeString();
+          const encounter = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient.id,
+            encounterType: oldEncounterType,
+          });
+
+          await app.put(`/v1/encounter/${encounter.id}`).send({
+            encounterType: newEncounterType,
+            submittedTime,
+          });
+
+          const encounterHistoryRecords = await models.EncounterHistory.findAll({
+            where: {
+              encounterId: encounter.id,
+            },
+          });
+
+          expect(encounterHistoryRecords).toHaveLength(2);
+          expect(encounterHistoryRecords[0]).toMatchObject({
+            date: submittedTime,
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: encounter.locationId,
+            examinerId: encounter.examinerId,
+            encounterType: oldEncounterType,
+          });
+          expect(encounterHistoryRecords[1]).toMatchObject({
+            date: submittedTime,
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: encounter.locationId,
+            examinerId: encounter.examinerId,
+            encounterType: newEncounterType,
+          });
+        });
+      });
+
+      describe('multiple changes', () => {
+        it('should record an encounter history for mixed changes', async () => {
+          const [oldLocation, newLocation] = await models.Location.findAll({ limit: 2 });
+          const [oldDepartment, newDepartment] = await models.Department.findAll({ limit: 2 });
+          const [oldClinician, newClinician] = await models.User.findAll({ limit: 2 });
+
+          const encounter = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient.id,
+            examinerId: oldClinician.id,
+            locationId: oldLocation.id,
+            departmentId: oldDepartment.id,
+          });
+
+          const locationChangeSubmittedTime = getCurrentDateTimeString();
+          await app.put(`/v1/encounter/${encounter.id}`).send({
+            locationId: newLocation.id,
+            submittedTime: locationChangeSubmittedTime,
+          });
+
+          let encounterHistoryRecords = await models.EncounterHistory.findAll({
+            where: {
+              encounterId: encounter.id,
+            },
+            order: [['date', 'ASC']],
+          });
+
+          expect(encounterHistoryRecords).toHaveLength(2);
+          expect(encounterHistoryRecords[0]).toMatchObject({
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: oldLocation.id,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+          });
+          expect(encounterHistoryRecords[1]).toMatchObject({
+            date: locationChangeSubmittedTime,
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: newLocation.id,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+          });
+
+          const departmentChangeSubmittedTime = getCurrentDateTimeString();
+          await app.put(`/v1/encounter/${encounter.id}`).send({
+            departmentId: newDepartment.id,
+            submittedTime: departmentChangeSubmittedTime,
+          });
+
+          encounterHistoryRecords = await models.EncounterHistory.findAll({
+            where: {
+              encounterId: encounter.id,
+            },
+            order: [['date', 'ASC']],
+          });
+
+          expect(encounterHistoryRecords).toHaveLength(3);
+          expect(encounterHistoryRecords[0]).toMatchObject({
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: encounter.locationId,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+          });
+          expect(encounterHistoryRecords[1]).toMatchObject({
+            date: locationChangeSubmittedTime,
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: newLocation.id,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+          });
+          expect(encounterHistoryRecords[2]).toMatchObject({
+            date: departmentChangeSubmittedTime,
+            encounterId: encounter.id,
+            departmentId: newDepartment.id,
+            locationId: newLocation.id,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+          });
+
+          const clinicianChangeSubmittedTime = getCurrentDateTimeString();
+          await app.put(`/v1/encounter/${encounter.id}`).send({
+            examinerId: newClinician.id,
+            submittedTime: clinicianChangeSubmittedTime,
+          });
+
+          encounterHistoryRecords = await models.EncounterHistory.findAll({
+            where: {
+              encounterId: encounter.id,
+            },
+            order: [['date', 'ASC']],
+          });
+
+          expect(encounterHistoryRecords).toHaveLength(4);
+          expect(encounterHistoryRecords[0]).toMatchObject({
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: encounter.locationId,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+          });
+          expect(encounterHistoryRecords[1]).toMatchObject({
+            date: locationChangeSubmittedTime,
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: newLocation.id,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+          });
+          expect(encounterHistoryRecords[2]).toMatchObject({
+            date: departmentChangeSubmittedTime,
+            encounterId: encounter.id,
+            departmentId: newDepartment.id,
+            locationId: newLocation.id,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+          });
+          expect(encounterHistoryRecords[3]).toMatchObject({
+            date: clinicianChangeSubmittedTime,
+            encounterId: encounter.id,
+            departmentId: newDepartment.id,
+            locationId: newLocation.id,
+            examinerId: newClinician.id,
+            encounterType: encounter.encounterType,
+          });
+        });
       });
     });
 

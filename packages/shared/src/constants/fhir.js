@@ -1,3 +1,5 @@
+import { upperFirst } from 'lodash';
+
 export const FHIR_INTERACTIONS = {
   INSTANCE: {
     READ: 'resource-read',
@@ -254,3 +256,29 @@ export const FHIR_ENCOUNTER_LOCATION_STATUS = {
   RESERVED: 'reserved',
   COMPLETED: 'completed',
 };
+
+// see http://terminology.hl7.org/CodeSystem/location-physical-type
+export const FHIR_LOCATION_PHYSICAL_TYPE_CODE = {
+  SITE: 'si',
+  BUILDING: 'bu',
+  WING: 'wi',
+  WARD: 'wa',
+  LEVEL: 'lvl',
+  CORRIDOR: 'co',
+  ROOM: 'ro',
+  BED: 'bd',
+  VEHICLE: 've',
+  HOUSE: 'ho',
+  CABINET: 'ca',
+  ROAD: 'rd',
+  AREA: 'area',
+  JURISDICTION: 'jdn',
+  VIRTUAL: 'vi',
+};
+
+export const FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY = Object.fromEntries(
+  Object.entries(FHIR_LOCATION_PHYSICAL_TYPE_CODE).map(([k, v]) => [
+    v,
+    upperFirst(k.toLowerCase()),
+  ]),
+);

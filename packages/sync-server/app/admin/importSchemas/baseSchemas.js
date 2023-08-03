@@ -6,6 +6,7 @@ import {
   VACCINE_STATUS,
   LAB_TEST_RESULT_TYPES,
   VISIBILITY_STATUSES,
+  LAB_TEST_TYPE_VISIBILITY_STATUSES,
 } from 'shared/constants';
 import config from 'config';
 import { jsonString, validationString, configString } from './jsonString';
@@ -67,6 +68,7 @@ export const PatientAdditionalData = yup.object().shape({
 
 export const User = Base.shape({
   email: yup.string().required(),
+  displayId: yup.string(),
   displayName: yup.string().required(),
   password: yup.string(),
 });
@@ -122,12 +124,16 @@ export const LabTestType = Base.shape({
   unit: yup.string(),
   maleRange: yup.string().matches(rangeRegex),
   femaleRange: yup.string().matches(rangeRegex),
-  visibilityStatus,
+  visibilityStatus: yup
+    .string()
+    .default(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT)
+    .oneOf(Object.values(LAB_TEST_TYPE_VISIBILITY_STATUSES)),
 });
 
 export const LabTestPanel = Base.shape({
   name: yup.string().required(),
   code: yup.string().required(),
+  categoryId: yup.string().required(),
   visibilityStatus,
 });
 

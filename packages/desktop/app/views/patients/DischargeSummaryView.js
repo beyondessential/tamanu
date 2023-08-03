@@ -8,16 +8,26 @@ import Box from '@material-ui/core/Box';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/shared/constants';
 
 import { PrintPortal, PrintLetterhead } from '../../components/PatientPrinting';
-import { LocalisedText } from '../../components/LocalisedText';
 import { useApi, isErrorUnknownAllow404s } from '../../api';
 import { Button } from '../../components/Button';
-import { DateDisplay } from '../../components/DateDisplay';
+import { formatShort, getDateDisplay } from '../../components/DateDisplay';
 import { useEncounter } from '../../contexts/Encounter';
 import { useElectron } from '../../contexts/Electron';
 import { Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
-import { getFullLocationName } from '../../utils/location';
+import { getDepartmentName } from '../../utils/department';
+import { getDisplayAge } from '../../utils/dateTime';
+import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { useLocalisation } from '../../contexts/Localisation';
+import {
+  usePatientAdditionalData,
+  usePatientConditions,
+  useReferenceData,
+} from '../../api/queries';
+import {
+  DisplayValue,
+  LocalisedDisplayValue,
+} from '../../components/PatientPrinting/printouts/reusable/CertificateLabels';
 
 const Container = styled.div`
   background: ${Colors.white};
@@ -25,13 +35,30 @@ const Container = styled.div`
 `;
 
 const SummaryPageContainer = styled.div`
-  margin: 0 auto;
+  margin: 0 60px;
   max-width: 830px;
 `;
 
 const Label = styled.span`
-  min-width: 200px;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 10px;
+  vertical-align: top;
+`;
+
+const Text = styled(Label)`
+  font-weight: 400;
+`;
+
+const Section = styled(Box)`
+  padding-bottom: 10px;
+`;
+
+const Note = styled.p`
+  font-size: 10px;
+  border: 1px solid black;
+  white-space: pre-line;
+  margin: 0;
+  padding: 8px 10px;
 `;
 
 const Content = styled.div`
@@ -40,26 +67,43 @@ const Content = styled.div`
   grid-column-gap: 100px;
 `;
 
-const Header = styled.section`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-column-gap: 100px;
-  margin: 50px 0 20px 0;
+const Header = styled.div`
+  font-size: 12px;
+  line-height: 14px;
+  font-weight: 600;
 `;
 
 const HorizontalLine = styled.div`
-  margin: 20px 0;
+  margin: 5px 0;
   border-top: 1px solid ${Colors.primaryDark};
 `;
 
-const ListColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-
-  ul {
-    margin: 0;
-    padding-left: 20px;
+const ListColumn = styled.ul`
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  font-size: 10px;
+  li {
+    padding-left: 0;
   }
+`;
+
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  border-top: 1px solid black;
+  border-left: 1px solid black;
+`;
+
+const InnerGrid = styled(Grid)`
+  border: none;
+  grid-template-columns: max-content auto;
+`;
+
+const GridItem = styled.div`
+  border-right: 1px solid black;
+  border-bottom: 1px solid black;
+  padding: 8px 10px;
 `;
 
 const NavContainer = styled.div`
@@ -70,72 +114,43 @@ const NavContainer = styled.div`
   padding: 20px;
 `;
 
-const IdValue = styled.span`
-  font-weight: normal;
-`;
-
 const DiagnosesList = ({ diagnoses }) => {
   const { getLocalisation } = useLocalisation();
-
-  if (diagnoses.length === 0) {
-    return <span>N/A</span>;
-  }
-
   const displayIcd10Codes = getLocalisation('features.displayIcd10CodesInDischargeSummary');
 
-  return diagnoses
-    .filter(({ certainty }) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(certainty))
-    .map(item => (
-      <li>
-        {item.diagnosis.name}
-        {displayIcd10Codes && (
-          <span>
-            {' '}
-            <Label>ICD 10 Code: </Label> {item.diagnosis.code}
-          </span>
-        )}
-      </li>
-    ));
+  return diagnoses.map(item => (
+    <li>
+      {item.diagnosis.name}
+      {displayIcd10Codes && <span>{` (${item.diagnosis.code})`}</span>}
+    </li>
+  ));
 };
 
 const ProceduresList = ({ procedures }) => {
   const { getLocalisation } = useLocalisation();
-
-  if (!procedures || procedures.length === 0) {
-    return <span>N/A</span>;
-  }
-
   const displayProcedureCodes = getLocalisation('features.displayProcedureCodesInDischargeSummary');
 
   return procedures.map(procedure => (
     <li>
       {procedure.procedureType.name}
-      {displayProcedureCodes && (
-        <span>
-          {' '}
-          (<Label>CPT Code: </Label> {procedure.procedureType.code})
-        </span>
-      )}
+      {displayProcedureCodes && <span>{` (${procedure.procedureType.code})`}</span>}
     </li>
   ));
 };
 
-const MedicationsList = ({ medications }) => {
+const MedicationsList = ({ medications, discontinued }) => {
   if (!medications || medications.length === 0) {
     return <span>N/A</span>;
   }
 
-  return medications.map(({ medication, prescription }) => (
-    <li>
-      <span>{medication.name}</span>
-      {prescription && (
-        <span>
-          <br />
-          {prescription}
-        </span>
-      )}
-    </li>
-  ));
+  return medications.map(({ medication, discontinuingReason }) => {
+    const prescriptionText = discontinuingReason && discontinued ? `(${discontinuingReason})` : '';
+    return (
+      <li>
+        <span>{`${medication.name} ${prescriptionText}`}</span>
+      </li>
+    );
+  });
 };
 
 const SummaryPage = React.memo(({ encounter, discharge }) => {
@@ -144,8 +159,28 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
   const { getLocalisation } = useLocalisation();
   const dischargeDispositionVisible =
     getLocalisation('fields.dischargeDisposition.hidden') === false;
+  const ageDisplayFormat = getLocalisation('ageDisplayFormat');
 
   const patient = useSelector(state => state.patient);
+  const { data: village } = useReferenceData(patient.villageId);
+  const { data: patientAdditionalData, isLoading: isPADLoading } = usePatientAdditionalData(
+    patient.id,
+  );
+  const { data: patientConditionsData } = usePatientConditions(patient.id);
+  const patientConditions = (patientConditionsData?.data || [])
+    .filter(p => !p.resolved)
+    .map(p => p.condition.name)
+    .sort((a, b) => a.localeCompare(b));
+
+  let address = 'N/A';
+  if (!isPADLoading) {
+    const { streetVillage, cityTown, country } = patientAdditionalData;
+
+    if (streetVillage && cityTown && country) {
+      address = `${streetVillage}, ${cityTown}, ${country.name}`;
+    }
+  }
+
   const {
     diagnoses,
     procedures,
@@ -154,11 +189,14 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
     endDate,
     location,
     examiner,
-    reasonForEncounter,
+    reasonForEncounter = 'N/A',
   } = encounter;
 
-  const primaryDiagnoses = diagnoses.filter(d => d.isPrimary);
-  const secondaryDiagnoses = diagnoses.filter(d => !d.isPrimary);
+  const visibleDiagnoses = diagnoses.filter(
+    ({ certainty }) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(certainty),
+  );
+  const primaryDiagnoses = visibleDiagnoses.filter(d => d.isPrimary);
+  const secondaryDiagnoses = visibleDiagnoses.filter(d => !d.isPrimary);
 
   return (
     <SummaryPageContainer>
@@ -168,89 +206,150 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
         logoSrc={logo}
         pageTitle="Patient Discharge Summary"
       />
-      <Header>
-        <h4>
-          <Label>Patient name: </Label>
-          <span>{`${patient.firstName} ${patient.lastName}`}</span>
-        </h4>
-        <h4>
-          <Label>
-            <LocalisedText path="fields.displayId.shortLabel" />:{' '}
-          </Label>
-          <IdValue>{patient.displayId}</IdValue>
-        </h4>
-      </Header>
-      <Content>
-        <div>
-          <Label>Admission date: </Label>
-          <DateDisplay date={startDate} showTime />
-        </div>
-        <div>
-          <Label>Discharge date: </Label>
-          <DateDisplay date={endDate} showTime />
-        </div>
-        <div>
-          <Label>Department: </Label>
-          {getFullLocationName(location)}
-        </div>
-        {discharge && dischargeDispositionVisible && (
-          <div>
-            <Label>Discharge disposition: </Label>
-            {discharge.disposition?.name}
-          </div>
-        )}
-        <div />
-      </Content>
-      <HorizontalLine />
-      <Content>
-        <div>
-          <Label>Supervising clinician: </Label>
-          <span>{examiner?.displayName}</span>
-        </div>
-        <div />
-        <div>
-          <Label>Discharging physician: </Label>
-          <span>{discharge?.discharger?.displayName}</span>
-        </div>
-        <div />
-      </Content>
-      <HorizontalLine />
-      <Content>
-        <Label>Reason for encounter: </Label>
-        <div>{reasonForEncounter}</div>
-        <Label>Primary diagnoses: </Label>
-        <ListColumn>
-          <ul>
-            <DiagnosesList diagnoses={primaryDiagnoses} />
-          </ul>
-        </ListColumn>
-        <Label>Secondary diagnoses: </Label>
-        <ListColumn>
-          <ul>
-            <DiagnosesList diagnoses={secondaryDiagnoses} />
-          </ul>
-        </ListColumn>
-        <Label>Procedures: </Label>
-        <ListColumn>
-          <ul>
-            <ProceduresList procedures={procedures} />
-          </ul>
-        </ListColumn>
-        <Label>Discharge medications: </Label>
-        <ListColumn>
-          <ul>
-            <MedicationsList
-              medications={medications.filter(
-                medication => !medication.discontinued && medication.isDischarge,
-              )}
-            />
-          </ul>
-        </ListColumn>
-        <div>
+      <Section>
+        <Header>Patient details</Header>
+        <HorizontalLine />
+        <Content>
+          <DisplayValue name="Patient name">
+            {patient.firstName} {patient.lastName}
+          </DisplayValue>
+          <LocalisedDisplayValue path="fields.displayId.shortLabel">
+            {patient.displayId}
+          </LocalisedDisplayValue>
+          <DisplayValue name="DOB">
+            {`${formatShort(patient.dateOfBirth)} (${getDisplayAge(
+              patient.dateOfBirth,
+              ageDisplayFormat,
+            )})`}
+          </DisplayValue>
+          <DisplayValue name="Address">{`${address}`} </DisplayValue>
+          <DisplayValue name="Sex">{`${capitaliseFirstLetter(patient.sex)}`} </DisplayValue>
+          <DisplayValue name="Village">{`${village?.name || 'N/A'}`} </DisplayValue>
+        </Content>
+      </Section>
+
+      <Section>
+        <Header>Encounter details</Header>
+        <HorizontalLine />
+        <Content>
+          <DisplayValue name="Facility">{location?.facility?.name || 'N/A'} </DisplayValue>
+          <DisplayValue name="Department">{getDepartmentName(encounter)} </DisplayValue>
+          <DisplayValue name="Supervising clinician">{examiner?.displayName} </DisplayValue>
+          <DisplayValue name="Date of admission">
+            {getDateDisplay(startDate, { showTime: false })}
+          </DisplayValue>
+          <DisplayValue name="Discharging physician">
+            {discharge?.discharger?.displayName}
+          </DisplayValue>
+          <DisplayValue name="Date of discharge">
+            {getDateDisplay(endDate, { showTime: false })}
+          </DisplayValue>
+          {discharge && dischargeDispositionVisible && (
+            <DisplayValue name="Discharge disposition">{discharge.disposition?.name}</DisplayValue>
+          )}
+          <DisplayValue name="Reason for encounter">{reasonForEncounter}</DisplayValue>
+        </Content>
+      </Section>
+
+      {patientConditions.length > 0 && (
+        <Section>
+          <Grid>
+            <GridItem>
+              <Label>Ongoing conditions</Label>
+            </GridItem>
+            <GridItem>
+              <ListColumn>
+                {patientConditions.map(condition => (
+                  <li>{condition}</li>
+                ))}
+              </ListColumn>
+            </GridItem>
+          </Grid>
+        </Section>
+      )}
+
+      {primaryDiagnoses.length > 0 && (
+        <Section>
+          <Grid>
+            <GridItem>
+              <Label>Primary diagnoses</Label>
+            </GridItem>
+            <GridItem>
+              <ListColumn>
+                <DiagnosesList diagnoses={primaryDiagnoses} />
+              </ListColumn>
+            </GridItem>
+          </Grid>
+        </Section>
+      )}
+
+      {secondaryDiagnoses.length > 0 && (
+        <Section>
+          <Grid>
+            <GridItem>
+              <Label>Secondary diagnoses</Label>
+            </GridItem>
+            <GridItem>
+              <ListColumn>
+                <DiagnosesList diagnoses={secondaryDiagnoses} />
+              </ListColumn>
+            </GridItem>
+          </Grid>
+        </Section>
+      )}
+
+      {procedures.length > 0 && (
+        <Section>
+          <Grid>
+            <GridItem>
+              <Label>Procedures</Label>
+            </GridItem>
+            <GridItem>
+              <ListColumn>
+                <ProceduresList procedures={procedures} />
+              </ListColumn>
+            </GridItem>
+          </Grid>
+        </Section>
+      )}
+
+      {medications.length !== 0 && (
+        <Section>
+          <Grid>
+            <GridItem>
+              <Label>Medications</Label>
+            </GridItem>
+            <InnerGrid>
+              <GridItem>
+                <Text>Current</Text>
+              </GridItem>
+              <GridItem>
+                <ListColumn>
+                  <MedicationsList medications={medications.filter(m => !m.discontinued)} />
+                </ListColumn>
+              </GridItem>
+              <GridItem>
+                <Text>Discontinued</Text>
+              </GridItem>
+              <GridItem>
+                <ListColumn>
+                  <MedicationsList
+                    medications={medications.filter(m => m.discontinued)}
+                    discontinued
+                  />
+                </ListColumn>
+              </GridItem>
+            </InnerGrid>
+          </Grid>
+        </Section>
+      )}
+
+      {discharge?.note && (
+        <Section>
           <Label>Discharge planning notes:</Label>
-          <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{discharge?.note}</div>
-        </div>
-      </Content>
+          <Note>{discharge.note}</Note>
+        </Section>
+      )}
     </SummaryPageContainer>
   );
 });

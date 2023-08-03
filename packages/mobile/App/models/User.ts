@@ -5,11 +5,15 @@ import { IUser, INoteItem } from '~/types';
 import { AdministeredVaccine } from './AdministeredVaccine';
 import { NoteItem } from './NoteItem';
 import { LabRequest } from './LabRequest';
+import { VitalLog } from './VitalLog';
 import { SYNC_DIRECTIONS } from './types';
 
 @Entity('user')
 export class User extends BaseModel implements IUser {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
+  
+  @Column()
+  displayId: string;
 
   @Index()
   @Column({ unique: true })
@@ -32,6 +36,9 @@ export class User extends BaseModel implements IUser {
   @OneToMany(() => LabRequest, (labRequest) => labRequest.requestedBy)
   labRequests: LabRequest[];
 
+  @OneToMany(() => LabRequest, (labRequest) => labRequest.collectedBy)
+  collectedLabRequests: LabRequest[];
+
   @OneToMany(() => AdministeredVaccine, (administeredVaccine) => administeredVaccine.recorder)
   recordedVaccines: AdministeredVaccine[];
 
@@ -40,6 +47,9 @@ export class User extends BaseModel implements IUser {
 
   @OneToMany(() => NoteItem, noteItem => noteItem.onBehalfOf)
   onBehalfOfNoteItems: NoteItem[];
+
+  @OneToMany(() => VitalLog, vitalLog => vitalLog.recordedBy)
+  recordedVitalLogs: VitalLog[];
 
   static excludedSyncColumns: string[] = [...BaseModel.excludedSyncColumns, 'localPassword'];
 }
