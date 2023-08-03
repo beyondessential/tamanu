@@ -1209,7 +1209,7 @@ describe('CentralSyncManager', () => {
       const incomingChanges = changes.map(c => ({
         ...c,
         direction: SYNC_SESSION_DIRECTION.INCOMING,
-        updatedAtByFieldSum: null,
+        updatedAtByFieldSum: expect.any(Number),
       }));
 
       expect(insertSnapshotRecords).toBeCalledTimes(1);
