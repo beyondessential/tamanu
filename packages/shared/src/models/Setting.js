@@ -34,6 +34,7 @@ export class Setting extends Model {
           allowNull: false,
         },
         value: Sequelize.JSONB,
+        scope: Sequelize.STRING,
       },
       {
         ...options,

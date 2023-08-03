@@ -370,6 +370,9 @@ const MODEL_SPECIFIC_OVERRIDES = {
   Location: () => ({
     maxOccupancy: 1,
   }),
+  Setting: () => ({
+    value: chance.string(),
+  }),
 };
 
 const FHIR_MODELS_HANDLERS = {

@@ -327,7 +327,7 @@ describe('CentralSyncManager', () => {
         expect(sessionTwoEncounterIds[0]).toEqual(encounter2.id);
       });
 
-      describe('handles settings snapshotting', () => {
+      it('only sends "global" and "facility" settings to relevant facilities', async () => {
         const generateSetting = async (scope, facilityId = null) => {
           const setting = await models.Setting.create({
             ...fake(models.Setting),
@@ -338,68 +338,44 @@ describe('CentralSyncManager', () => {
           return setting;
         };
 
-        it('doesnt send "central" settings to any facilities', async () => {
-          const OLD_SYNC_TICK = 10;
-          const NEW_SYNC_TICK = 20;
+        const OLD_SYNC_TICK = 10;
+        const NEW_SYNC_TICK = 20;
+        const VALID_FACILITY_SETTINGS = [SETTINGS_SCOPES.GLOBAL, SETTINGS_SCOPES.FACILITY];
 
-          await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, OLD_SYNC_TICK);
-
-          await generateSetting(SETTINGS_SCOPES.CENTRAL);
-          await generateSetting(SETTINGS_SCOPES.GLOBAL);
-
-          await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, NEW_SYNC_TICK);
-
-          const centralSyncManager = initializeCentralSyncManager();
-          const { sessionId } = await centralSyncManager.startSession();
-          await waitForSession(centralSyncManager, sessionId);
-
-          await centralSyncManager.setupSnapshotForPull(
-            sessionId,
-            {
-              since: 15,
-            },
-            () => true,
-          );
-
-          const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-          outgoingChanges.forEach(record => {
-            expect(record.scope).not.toBe(SETTINGS_SCOPES.GLOBAL);
-          });
+        const facility1 = await models.Facility.create({
+          ...fake(models.Facility),
         });
-        it('only sends "global" and "facility" settings to relevant facilities', async () => {
-          const OLD_SYNC_TICK = 10;
-          const NEW_SYNC_TICK = 20;
-          const VALID_FACILITY_SETTINGS = [SETTINGS_SCOPES.GLOBAL, SETTINGS_SCOPES.FACILITY];
+        const facility2 = await models.Facility.create({
+          ...fake(models.Facility),
+        });
 
-          const facility = await models.Facility.create({
-            ...fake(models.Facility),
-          });
+        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, OLD_SYNC_TICK);
 
-          await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, OLD_SYNC_TICK);
+        await generateSetting(SETTINGS_SCOPES.CENTRAL);
+        await generateSetting(SETTINGS_SCOPES.GLOBAL);
+        await generateSetting(SETTINGS_SCOPES.FACILITY, facility1.id);
+        await generateSetting(SETTINGS_SCOPES.FACILITY, facility2.id);
 
-          await generateSetting(SETTINGS_SCOPES.CENTRAL);
-          await generateSetting(SETTINGS_SCOPES.GLOBAL);
-          await generateSetting(SETTINGS_SCOPES.FACILITY, facility.id);
+        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, NEW_SYNC_TICK);
 
-          await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, NEW_SYNC_TICK);
+        const centralSyncManager = initializeCentralSyncManager();
+        const { sessionId } = await centralSyncManager.startSession();
+        await waitForSession(centralSyncManager, sessionId);
 
-          const centralSyncManager = initializeCentralSyncManager();
-          const { sessionId } = await centralSyncManager.startSession();
-          await waitForSession(centralSyncManager, sessionId);
+        await centralSyncManager.setupSnapshotForPull(
+          sessionId,
+          {
+            since: 15,
+            facilityId: facility1.id,
+          },
+          () => true,
+        );
 
-          await centralSyncManager.setupSnapshotForPull(
-            sessionId,
-            {
-              since: 15,
-              facilityId: facility.id,
-            },
-            () => true,
-          );
+        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
 
-          const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-          outgoingChanges.forEach(record => {
-            expect(VALID_FACILITY_SETTINGS).toContain(record.scope);
-          });
+        expect(outgoingChanges.length).toBe(2);
+        outgoingChanges.forEach(({ data }) => {
+          expect(VALID_FACILITY_SETTINGS).toContain(data.scope);
         });
       });
     });
