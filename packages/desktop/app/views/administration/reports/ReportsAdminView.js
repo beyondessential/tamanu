@@ -27,6 +27,7 @@ const TabContainer = styled.div`
 
 const REPORT_TABS = {
   EDIT: 'edit',
+  CREATE: 'create',
   IMPORT: 'import',
   EXPORT: 'export',
 };

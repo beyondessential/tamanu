@@ -48,7 +48,7 @@ const generateDefaultParameter = () => ({
   id: Math.random(),
 });
 
-const schema = {
+const schema = yup.object().shape({
   name: yup.string().required('Report name is a required field'),
   dataSources: yup
     .array()
@@ -71,11 +71,12 @@ const schema = {
     .string()
     .oneOf(STATUS_OPTIONS.map(s => s.value))
     .required('Status is a required field'),
-};
+});
 
 const NewReportForm = ({ isSubmitting, values, setValues }) => {
   const setQuery = query => setValues({ ...values, query });
-  const [params, setParams] = useState([]);
+  const params = values.parameters || [];
+  const setParams = newParams => setValues({ ...values, parameters: newParams });
   const onParamsAdd = () => setParams([...params, generateDefaultParameter()]);
   const onParamsChange = (paramId, field, newValue) => {
     const paramIndex = params.findIndex(p => p.id === paramId);
