@@ -74,8 +74,8 @@ export class Setting extends BaseModel {
         ...row,
       };
 
-      // Convert updatedAtByField to JSON STRING
-      // because updatedAtByField's type is string in mobile
+      // Convert "value" field to JSON STRING
+      // because value's type is string in mobile
       // (Sqlite does not support JSON type)
       if (row.data.value) {
         sanitizedRow.data.value = JSON.stringify(sanitizedRow.data.value);
