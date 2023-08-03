@@ -15,7 +15,7 @@ import { PatientFacility } from './PatientFacility';
 import { ReferenceData, NullableReferenceDataRelation } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 import { DateStringColumn } from './DateColumns';
-import { setUpdatedAtByFieldFor } from './updatedAtByFieldFor';
+import { setUpdatedAtByFieldFor } from './common/updatedAtByFieldFor';
 const TIME_OFFSET = 3;
 
 @Entity('patient')
