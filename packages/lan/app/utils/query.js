@@ -7,7 +7,7 @@ export const makeFilter = (check, sql, transform) => {
   };
 };
 
-export const makeSimpleTextFilterFactory = (params, mustStartWithFilter = true) => (
+export const makeSimpleTextFilterFactory = (params, matchFromStart = true) => (
   paramKey,
   sqlField,
 ) => {
@@ -16,7 +16,7 @@ export const makeSimpleTextFilterFactory = (params, mustStartWithFilter = true) 
   return {
     sql: `UPPER(${sqlField}) LIKE UPPER(:${paramKey})`,
     transform: p => ({
-      [paramKey]: `${mustStartWithFilter ? '' : '%'}${p[paramKey]}%`,
+      [paramKey]: `${matchFromStart ? '' : '%'}${p[paramKey]}%`,
     }),
   };
 };
