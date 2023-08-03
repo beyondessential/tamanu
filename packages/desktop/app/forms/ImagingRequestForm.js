@@ -121,7 +121,11 @@ export const ImagingRequestForm = React.memo(
                 component={DateTimeField}
                 saveDateAsString
               />
-              <TextInput label="Supervising clinician" disabled value={examinerLabel} />
+              <TextInput
+                label={`Supervising ${clinicianText.toLowerCase()}`}
+                disabled
+                value={examinerLabel}
+              />
               <Field
                 name="requestedById"
                 label={`Requesting ${clinicianText.toLowerCase()}`}
