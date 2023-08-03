@@ -7,16 +7,24 @@ export const makeFilter = (check, sql, transform) => {
   };
 };
 
-export const makeSimpleTextFilterFactory = (params, matchFromStart = true) => (
-  paramKey,
-  sqlField,
-) => {
+export const makeSimpleTextFilterFactory = params => (paramKey, sqlField) => {
   if (!params[paramKey]) return null;
 
   return {
     sql: `UPPER(${sqlField}) LIKE UPPER(:${paramKey})`,
     transform: p => ({
-      [paramKey]: `${matchFromStart ? '' : '%'}${p[paramKey]}%`,
+      [paramKey]: `${p[paramKey]}%`,
+    }),
+  };
+};
+
+export const makeSubstringTextFilterFactory = params => (paramKey, sqlField) => {
+  if (!params[paramKey]) return null;
+
+  return {
+    sql: `UPPER(${sqlField}) LIKE UPPER(:${paramKey})`,
+    transform: p => ({
+      [paramKey]: `%${p[paramKey]}%`,
     }),
   };
 };
