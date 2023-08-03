@@ -503,7 +503,7 @@ export class Encounter extends Model {
         isLocationChanged ||
         isClinicianChanged
       ) {
-        await EncounterHistory.createSnapshot(updatedEncounter, data.submittedTime);
+        await EncounterHistory.createSnapshot(updatedEncounter, submittedTime);
       }
 
       return updatedEncounter;
