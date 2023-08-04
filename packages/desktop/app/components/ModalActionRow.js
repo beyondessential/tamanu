@@ -16,7 +16,7 @@ const makeModalRow = (Component, includeLeftPadding = true) => {
     justify-content: flex-end;
   `;
 
-  return (className = '', props) => (
+  return ({ className = '', ...props }) => (
     <FullWidthRow className={className}>
       <Row {...props} />
     </FullWidthRow>
