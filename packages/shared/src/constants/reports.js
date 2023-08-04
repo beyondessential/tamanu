@@ -19,6 +19,11 @@ export const REPORT_EXPORT_FORMATS = {
   CSV: 'csv',
 };
 
+export const REPORT_VERSION_EXPORT_FORMATS = {
+  SQL: 'sql',
+  JSON: 'json',
+};
+
 export const REPORT_STATUSES = { DRAFT: 'draft', PUBLISHED: 'published' };
 
 export const REPORT_STATUSES_VALUES = Object.values(REPORT_STATUSES);
