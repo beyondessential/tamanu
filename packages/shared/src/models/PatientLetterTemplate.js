@@ -10,17 +10,17 @@ export class PatientLetterTemplate extends Model {
       {
         id: primaryKey,
         name: {
-          type: Sequelize.STRING,
+          type: Sequelize.TEXT,
           allowNull: false,
         },
         dateCreated: dateType('dateCreated', {
           defaultValue: getCurrentDateString,
         }),
         title: {
-          type: Sequelize.STRING,
+          type: Sequelize.TEXT,
         },
         body: {
-          type: Sequelize.STRING,
+          type: Sequelize.TEXT,
         },
         visibilityStatus: {
           type: Sequelize.TEXT,
