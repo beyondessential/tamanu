@@ -33,9 +33,6 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
       initialValues={{
         after: startOfDay(new Date()),
       }}
-      staticValues={{
-        displayIdExact: true,
-      }}
     >
       <LocalisedField name="firstName" component={SearchField} />
       <LocalisedField name="lastName" component={SearchField} />
@@ -77,7 +74,7 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         defaultLabel="Until"
         component={DateTimeField}
       />
-      <LocalisedField name="displayId" component={SearchField} />
+      <LocalisedField useShortLabel keepLetterCase name="displayId" component={SearchField} />
     </CustomisableSearchBar>
   );
 };
