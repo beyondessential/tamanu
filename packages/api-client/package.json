@@ -1,10 +1,13 @@
 {
   "name": "@tamanu/api-client",
-  "version": "1.29.0",
+  "version": "1.30.0",
   "private": true,
   "description": "API client for Tamanu Facility Server",
   "exports": {
     ".": "./dist/index.js"
+  },
+  "bin": {
+    "tamanu-api": "./dist/cli.js"
   },
   "types": "./dist/index.d.ts",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -18,7 +21,8 @@
     "build-watch": "yarn run build:src --watch",
     "lint": "yarn run lint:check && yarn run lint:types",
     "lint:check": "eslint src",
-    "lint:types": "tsc"
+    "lint:types": "tsc",
+    "start": "node dist/cli.js"
   },
   "devDependencies": {
     "@beyondessential/eslint-config-beyondessential": "^2.6.0",

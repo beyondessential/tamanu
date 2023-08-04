@@ -1,9 +1,12 @@
 {
   "extends": ["../../common.tsconfig.json"],
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "package.json"
   ],
   "compilerOptions": {
     "baseUrl": "./src",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "resolveJsonModule": true
   }
 }
