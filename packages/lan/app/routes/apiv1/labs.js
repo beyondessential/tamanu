@@ -14,13 +14,13 @@ import {
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
 } from 'shared/constants';
 import { keyBy } from 'lodash';
+import { renameObjectKeys } from 'shared/utils';
+import { simpleGet, simpleGetList, permissionCheckingRouter } from 'shared/utils/crudHelpers';
 import {
   makeFilter,
   makeSimpleTextFilterFactory,
   makeSubstringTextFilterFactory,
 } from '../../utils/query';
-import { renameObjectKeys } from '../../utils/renameObjectKeys';
-import { simpleGet, simpleGetList, permissionCheckingRouter } from './crudHelpers';
 import { notePagesWithSingleItemListHandler } from '../../routeHandlers';
 
 export const labRequest = express.Router();
