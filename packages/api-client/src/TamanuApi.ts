@@ -6,7 +6,7 @@ import qs from 'qs';
 import type { AnyAbility, PureAbility } from '@casl/ability';
 import { SERVER_TYPES } from '@tamanu/constants';
 import { ForbiddenError } from '@tamanu/shared/errors';
-import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
+import { Permission, buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import {
   AuthExpiredError,
@@ -123,13 +123,23 @@ export class TamanuApi {
     server.type = serverType;
     server.centralHost = centralHost;
     this.setToken(token);
-    this.lastRefreshed = Date.now();
 
-    const user = await this.get('user/me');
-    this.user = user;
-    const ability = buildAbilityForUser(user, permissions);
-
+    const { user, ability } = await this.fetchUserData(permissions);
     return { user, token, localisation, server, ability, role };
+  }
+
+  async fetchUserData(permissions?: Permission[]) {
+    const user = await this.get('user/me');
+    this.lastRefreshed = Date.now();
+    this.user = user;
+
+    if (!permissions) {
+      // TODO: fetch permissions from server
+      return { user, ability: buildAbilityForUser(user, []) };
+    }
+
+    const ability = buildAbilityForUser(user, permissions);
+    return { user, ability };
   }
 
   async requestPasswordReset(host: string, email: string) {
