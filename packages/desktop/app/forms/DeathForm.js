@@ -20,6 +20,7 @@ import {
   PaginatedForm,
   FormGrid,
   FormSeparatorLine,
+  useLocalisedText,
 } from '../components';
 import { useAuth } from '../contexts/Auth';
 import { DeathFormScreen } from './DeathFormScreen';
@@ -63,6 +64,7 @@ export const DeathForm = React.memo(
     facilitySuggester,
   }) => {
     const { currentUser } = useAuth();
+    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
     const canBePregnant = patient.sex === 'female' && ageInYears(patient.dateOfBirth) >= 12;
     const isInfant = ageInMonths(patient.dateOfBirth) <= 2;
 
@@ -87,7 +89,7 @@ export const DeathForm = React.memo(
           clinicianId: yup
             .string()
             .required()
-            .label('Attending clinician'),
+            .label(`Attending ${clinicianText.toLowerCase()}`),
           lastSurgeryDate: yup
             .date()
             .max(yup.ref('timeOfDeath'), "Date of last surgery can't be after time of death"),
@@ -115,7 +117,7 @@ export const DeathForm = React.memo(
           />
           <Field
             name="clinicianId"
-            label="Attending Clinician"
+            label={`Attending ${clinicianText.toLowerCase()}`}
             component={AutocompleteField}
             suggester={practitionerSuggester}
             required
