@@ -10,10 +10,12 @@ import {
 } from '../Field';
 import { appointmentTypeOptions, appointmentStatusOptions } from '../../constants';
 import { useSuggester } from '../../api';
+import { useLocalisedText } from '../LocalisedText';
 
 export const AppointmentsSearchBar = ({ onSearch }) => {
   const practitionerSuggester = useSuggester('practitioner');
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
   return (
     <CustomisableSearchBar
@@ -36,7 +38,7 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
       <LocalisedField name="lastName" component={SearchField} />
       <LocalisedField
         name="clinicianId"
-        defaultLabel="Clinician"
+        defaultLabel={clinicianText}
         component={AutocompleteField}
         suggester={practitionerSuggester}
       />

@@ -1,4 +1,4 @@
-import { camelify, renameObjectKeys } from '../app/utils/renameObjectKeys';
+import { camelify, renameObjectKeys } from '../../src/utils/renameObjectKeys';
 
 describe('renameObjectKeys', () => {
   it('should change snake to camel case', () => {
