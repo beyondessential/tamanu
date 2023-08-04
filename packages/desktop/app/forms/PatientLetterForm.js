@@ -148,6 +148,7 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
         ...editedObject,
       }}
       validationSchema={yup.object().shape({
+        date: yup.date().required('Date is required'),
         clinicianId: yup.string().required('Clinician is required'),
         title: yup.string().required('Letter title is required'),
         body: yup.string().required('Note is required'),
