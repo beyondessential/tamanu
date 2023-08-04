@@ -22,6 +22,7 @@ export class ApiFactory {
 
   #users: Map<Role, User> = new Map();
   #pendingUsers: Map<Role, Promise<User>> = new Map();
+  #tokens: Map<Role, string> = new Map();
   #central: string;
   #facility: string;
 
@@ -34,6 +35,27 @@ export class ApiFactory {
   #makeApi(host: Host) {
     const name = host === 'central' ? 'Tamanu LAN Server' : 'Tamanu Desktop';
     return new TamanuApi(name, version, this.deviceId);
+  }
+
+  async #login(api: TamanuApi, role: Role, host: Host): Promise<void> {
+    const hostUrl = host === 'central' ? this.#central : this.#facility;
+
+    if (this.#tokens.has(role)) {
+      api.setHost(hostUrl);
+      api.setToken(this.#tokens.get(role) as string);
+      try {
+        await api.fetchUserData();
+        return;
+      } catch (_: unknown) {
+        // ignored, we'll go get a new token
+      }
+    }
+
+    let user = role === 'admin' ? ADMIN : this.#users.get(role);
+    if (!user) user = await this.#makeUser(role);
+
+    const { token } = await api.login(hostUrl, user.email, user.password);
+    this.#tokens.set(role, token);
   }
 
   async #makeUser(role: Role): Promise<User> {
@@ -67,20 +89,8 @@ export class ApiFactory {
   }
 
   async as(role: Role, host: Host = 'facility'): Promise<TamanuApi> {
-    const hostUrl = host === 'central' ? this.#central : this.#facility;
     const api = this.#makeApi(host);
-
-    if (role === 'admin') {
-      await api.login(hostUrl, ADMIN.email, ADMIN.password);
-      return api;
-    }
-
-    let user = this.#users.get(role);
-    if (!user) {
-      user = await this.#makeUser(role);
-    }
-
-    await api.login(hostUrl, user.email, user.password);
+    await this.#login(api, role, host);
     return api;
   }
 }
