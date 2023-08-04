@@ -4,12 +4,12 @@ import { Player } from './Player.js';
 import { CallArgs, Context } from './types.js';
 
 export abstract class Activity extends Element {
-  async gather(_gatherArgs: CallArgs): Promise<void> {}
+  async gather(_role: Role, _gatherArgs: CallArgs): Promise<void> {}
   abstract act(role: Role): Promise<void>;
   async call(_player: Player): Promise<void> {}
 
   async run(player: Player, gatherArgs: CallArgs = {}): Promise<void> {
-    await this.gather(gatherArgs);
+    await this.gather(player.role, gatherArgs);
     await this.act(player.role);
     await this.call(player);
   }
