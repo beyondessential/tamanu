@@ -1,6 +1,6 @@
 import React from 'react';
 import { remote, shell } from 'electron';
-import { readFile } from 'fs/promises';
+import { readFile, writeFile, stat } from 'fs/promises';
 
 import { ElectronContext } from './Electron';
 
@@ -24,6 +24,8 @@ export const ElectronProvider = ({ children }) => {
         openUrl,
         printPage,
         readFile,
+        writeFile,
+        getFileStatus: stat,
       }}
     >
       {children}

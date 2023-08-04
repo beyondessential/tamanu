@@ -7,3 +7,4 @@ export { ReferenceDataAdminView } from './ReferenceDataAdminView';
 export { PatientMergeView } from './patientMerge';
 export { SyncView } from './SyncView';
 export { ReportsAdminView } from './reports/ReportsAdminView';
+export { TemplateView } from './templates';
