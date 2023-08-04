@@ -32,6 +32,10 @@ const Gap = styled.div`
   margin-left: auto !important;
 `;
 
+const StyledFormGrid = styled(FormGrid)`
+  margin-top: 1.2rem;
+`;
+
 const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
   const api = useApi();
   const practitionerSuggester = useSuggester('practitioner');
@@ -69,12 +73,11 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
         />
         <Field name="date" label="Date" required component={DateField} saveDateAsString />
       </FormGrid>
-      <FormGrid columns={1}>
+      <StyledFormGrid columns={1}>
         <Field
           name="templateId"
           label="Template"
           suggester={patientLetterTemplateSuggester}
-          required
           component={AutocompleteField}
           onChange={e => onChangeTemplate(e.target.value)}
         />
@@ -85,7 +88,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
           component={TallMultilineTextField}
           disabled={templateLoading}
         />
-      </FormGrid>
+      </StyledFormGrid>
       <ModalGenericButtonRow>
         <FinaliseAndPrintButton onClick={e => submitForm(e, { printRequested: true })}>
           Finalise & Print
