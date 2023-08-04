@@ -61,7 +61,6 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
       endpoint={`labRequest/${labRequest.id}/tests`}
       initialSort={{ order: 'asc', orderBy: 'id' }}
       disablePagination
-      allowExport={false}
       elevated={false}
       refreshCount={refreshCount}
     />
