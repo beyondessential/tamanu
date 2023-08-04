@@ -32,7 +32,7 @@ const Gap = styled.div`
   margin-left: auto !important;
 `;
 
-const LetterFormGrid = styled(FormGrid)`
+const StyledFormGrid = styled(FormGrid)`
   margin-top: 1.2rem;
 `;
 
@@ -73,7 +73,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
         />
         <Field name="date" label="Date" required component={DateField} saveDateAsString />
       </FormGrid>
-      <LetterFormGrid columns={1}>
+      <StyledFormGrid columns={1}>
         <Field
           name="templateId"
           label="Template"
@@ -88,7 +88,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
           component={TallMultilineTextField}
           disabled={templateLoading}
         />
-      </LetterFormGrid>
+      </StyledFormGrid>
       <ModalGenericButtonRow>
         <FinaliseAndPrintButton onClick={e => submitForm(e, { printRequested: true })}>
           Finalise & Print
