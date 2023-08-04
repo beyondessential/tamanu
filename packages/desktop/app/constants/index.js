@@ -30,6 +30,7 @@ import {
   radiologyIcon,
   scheduleIcon,
   patientIcon,
+  vaccineIcon,
 } from './images';
 
 export const MUI_SPACING_UNIT = 8;
@@ -206,6 +207,12 @@ export const encounterOptions = [
     value: ENCOUNTER_TYPES.SURVEY_RESPONSE,
     label: 'Survey response',
     image: patientIcon,
+    hideFromMenu: true,
+  },
+  {
+    value: ENCOUNTER_TYPES.VACCINATION,
+    label: 'Vaccination record',
+    image: vaccineIcon,
     hideFromMenu: true,
   },
 ];
