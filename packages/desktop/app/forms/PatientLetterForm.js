@@ -91,6 +91,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
         <Field
           name="body"
           label="Note"
+          required
           component={TallMultilineTextField}
           disabled={templateLoading}
         />
@@ -149,6 +150,7 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
       validationSchema={yup.object().shape({
         clinicianId: yup.string().required('Clinician is required'),
         title: yup.string().required('Letter title is required'),
+        body: yup.string().required('Note is required'),
       })}
     />
   );
