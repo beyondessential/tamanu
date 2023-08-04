@@ -1,6 +1,6 @@
 {
   "name": "sync-server",
-  "version": "1.28.8",
+  "version": "1.30.0",
   "private": true,
   "description": "Sync server for Tamanu desktop app",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -101,7 +101,6 @@
     "read": "^1.0.7",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
-    "semver": "^7.5.4",
     "sequelize": "^6.21.3",
     "tiny-async-pool": "^1.2.0",
     "transliteration": "^2.2.0",

@@ -1,5 +1,5 @@
-import { fake } from 'shared/test-helpers';
-import { createTestContext, disableHardcodedPermissionsForSuite } from '../utilities';
+import { fake, disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
+import { createTestContext } from '../utilities';
 import { testReportPermissions, setupReportPermissionsTest } from './reportsApiCommon';
 
 const reportsUtils = {

@@ -13,9 +13,13 @@ import {
   VISIBILITY_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
 } from 'shared/constants';
-import { makeFilter, makeSimpleTextFilterFactory } from '../../utils/query';
+import {
+  makeFilter,
+  makeSimpleTextFilterFactory,
+  makeSubstringTextFilterFactory,
+} from '../../utils/query';
 import { renameObjectKeys } from '../../utils/renameObjectKeys';
-import { simpleGet, simplePut, simpleGetList, permissionCheckingRouter } from './crudHelpers';
+import { simpleGet, simpleGetList, permissionCheckingRouter } from './crudHelpers';
 import { notePagesWithSingleItemListHandler } from '../../routeHandlers';
 
 export const labRequest = express.Router();
@@ -31,6 +35,10 @@ labRequest.put(
     const labRequestRecord = await models.LabRequest.findByPk(params.id);
     if (!labRequestRecord) throw new NotFoundError();
     req.checkPermission('write', labRequestRecord);
+
+    if (labRequestData.status && labRequestData.status !== labRequestRecord.status) {
+      req.checkPermission('write', 'LabRequestStatus');
+    }
 
     await db.transaction(async () => {
       if (labRequestData.status && labRequestData.status !== labRequestRecord.status) {
@@ -86,6 +94,7 @@ labRequest.get(
     } = query;
 
     const makeSimpleTextFilter = makeSimpleTextFilterFactory(filterParams);
+    const makePartialTextFilter = makeSubstringTextFilterFactory(filterParams);
     const filters = [
       makeFilter(true, `lab_requests.status != :deleted`, () => ({
         deleted: LAB_REQUEST_STATUSES.DELETED,
@@ -101,7 +110,7 @@ labRequest.get(
       makeFilter(filterParams.category, 'category.id = :category'),
       makeSimpleTextFilter('priority', 'priority.id'),
       makeFilter(filterParams.laboratory, 'lab_requests.lab_test_laboratory_id = :laboratory'),
-      makeSimpleTextFilter('displayId', 'patient.display_id'),
+      makePartialTextFilter('displayId', 'patient.display_id'),
       makeSimpleTextFilter('firstName', 'patient.first_name'),
       makeSimpleTextFilter('lastName', 'patient.last_name'),
       makeSimpleTextFilter('patientId', 'patient.id'),
@@ -201,7 +210,7 @@ labRequest.get(
     const sortKeys = {
       displayId: 'patient.display_id',
       patientName: 'UPPER(patient.last_name)',
-      requestId: 'display_id',
+      requestId: 'lab_requests.display_id',
       testCategory: 'category.name',
       labTestPanelName: 'lab_test_panel.id',
       requestedDate: 'requested_date',
@@ -310,7 +319,28 @@ labRequest.use(labRelations);
 
 export const labTest = express.Router();
 
-labTest.put('/:id', simplePut('LabTest'));
+labTest.put(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const updatedLabTestData = req.body;
+
+    req.checkPermission('read', 'LabTest');
+
+    const labTestRecord = await models.LabTest.findByPk(params.id);
+    if (!labTestRecord) throw new NotFoundError();
+
+    req.checkPermission('write', labTestRecord);
+
+    if (updatedLabTestData.result && updatedLabTestData.result !== labTestRecord.result) {
+      req.checkPermission('write', 'LabTestResult');
+    }
+
+    await labTestRecord.update(updatedLabTestData);
+
+    res.send(labTestRecord);
+  }),
+);
 
 labTest.get(
   '/:id',

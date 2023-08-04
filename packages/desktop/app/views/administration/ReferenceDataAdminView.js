@@ -7,7 +7,6 @@ export const ReferenceDataAdminView = () => (
     title="Reference data"
     endpoint="referenceData"
     dataTypes={GENERAL_IMPORTABLE_DATA_TYPES}
-    disableExport
     dataTypesSelectable
   />
 );

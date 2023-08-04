@@ -18,10 +18,13 @@ export const useAuth = () => {
       ability: state.auth.ability,
       facility: state.auth.server?.facility || {},
       centralHost: state.auth.server?.centralHost,
+      currentRole: state.auth.role,
     })),
     onLogout: () => {
       dispatch(logout());
-      queries.invalidateQueries();
+      // removes items from cache but doesn't trigger a re-render
+      // because the login screen doesn't have any queries on it, this should be fine
+      queries.removeQueries();
     },
     onTimeout: () => dispatch(idleTimeout()),
     refreshToken: () => api.refreshToken(),
