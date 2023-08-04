@@ -64,16 +64,11 @@ export const activeCovid19PatientsHandler = async (req, res) => {
 
     --- Selecting current encounter and patients info
     LEFT JOIN (
-      SELECT patient_id, max(start_date) AS most_recent_open_encounter_start_date
+      SELECT *, ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY start_date DESC, id DESC) AS row_num
       FROM encounters
       WHERE end_date IS NULL
-      GROUP BY patient_id
-    ) recent_encounter_by_patient
-      ON patients.id = recent_encounter_by_patient.patient_id
-    LEFT JOIN encounters
-      ON (patients.id = encounters.patient_id 
-        AND recent_encounter_by_patient.most_recent_open_encounter_start_date = encounters.start_date
-        AND encounters.end_date IS NULL)
+      ) encounters
+      ON (patients.id = encounters.patient_id AND encounters.row_num = 1)
     LEFT JOIN reference_data AS village
       ON patients.village_id = village.id
 
