@@ -4,7 +4,7 @@ import { Command } from 'commander';
 import {
   SYSTEM_USER_UUID,
   GENERAL_IMPORTABLE_DATA_TYPES,
-  PERMISSIONS_IMPORTABLE_DATA_TYPES,
+  PERMISSION_IMPORTABLE_DATA_TYPES,
 } from '@tamanu/shared/constants';
 import { log } from '@tamanu/shared/services/logging';
 
@@ -51,7 +51,7 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
       models: store.models,
       stats,
       file: realpath,
-      includedDataTypes: [...GENERAL_IMPORTABLE_DATA_TYPES, ...PERMISSIONS_IMPORTABLE_DATA_TYPES],
+      includedDataTypes: [...GENERAL_IMPORTABLE_DATA_TYPES, ...PERMISSION_IMPORTABLE_DATA_TYPES],
     });
   }
 
