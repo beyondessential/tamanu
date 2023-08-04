@@ -11,10 +11,10 @@ import {
   VISIBILITY_STATUSES,
 } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
+import { permissionCheckingRouter } from 'shared/utils/crudHelpers';
 import { toDateTimeString, toDateString } from 'shared/utils/dateTime';
 import { getNotePageWithType } from 'shared/utils/notePages';
 import { mapQueryFilters } from '../../database/utils';
-import { permissionCheckingRouter } from './crudHelpers';
 import { getImagingProvider } from '../../integrations/imaging';
 
 async function renderResults(models, imagingRequest) {
