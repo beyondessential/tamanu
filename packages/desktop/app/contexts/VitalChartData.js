@@ -29,7 +29,8 @@ export const VitalChartDataProvider = ({ children }) => {
     format(new Date(), DATE_TIME_FORMAT),
   ]);
   const [vitalChartModalOpen, setVitalChartModalOpen] = useState(false);
-  const { data: visualisationConfigs } = useVitalsVisualisationConfigsQuery();
+  const { data } = useVitalsVisualisationConfigsQuery();
+  const { visualisationConfigs } = data;
 
   return (
     <VitalChartDataContext.Provider

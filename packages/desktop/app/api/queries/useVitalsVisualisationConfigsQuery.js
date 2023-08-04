@@ -1,3 +1,4 @@
+import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/shared/constants/surveys';
 import { BLOOD_PRESSURE, LINE, bloodPressureChartKeys } from '../../components/Charts/constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { getConfigObject, getNormalRangeByAge } from '../../utils';
@@ -51,5 +52,9 @@ export const useVitalsVisualisationConfigsQuery = () => {
     );
   }
 
-  return { data: visualisationConfigs, ...restOfQuery };
+  const allGraphedChartKeys = visualisationConfigs
+    .filter(({ hasVitalChart, key }) => hasVitalChart && key !== VITALS_DATA_ELEMENT_IDS.dbp) // Only show one blood pressure chart on multi vital charts
+    .map(({ key }) => key);
+
+  return { data: { visualisationConfigs, allGraphedChartKeys }, ...restOfQuery };
 };

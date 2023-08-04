@@ -15,6 +15,7 @@ import { VitalVectorIcon } from './Icons/VitalVectorIcon';
 import { useVitalChartData } from '../contexts/VitalChartData';
 import { useLocalisation } from '../contexts/Localisation';
 import { getNormalRangeByAge } from '../utils';
+import { useVitalsVisualisationConfigsQuery } from '../api/queries/useVitalsVisualisationConfigsQuery';
 
 const StyledTable = styled(Table)`
   overflow-x: auto;
@@ -99,22 +100,20 @@ const TitleCell = React.memo(({ value }) => {
     setChartKeys,
     setModalTitle,
     setVitalChartModalOpen,
-    visualisationConfigs,
     setIsInMultiChartsView,
   } = useVitalChartData();
-  const allChartKeys = visualisationConfigs
-    .filter(({ hasVitalChart, key }) => hasVitalChart && key !== VITALS_DATA_ELEMENT_IDS.dbp) // Only show one blood pressure chart on multi vital charts
-    .map(({ key }) => key);
+  const { data } = useVitalsVisualisationConfigsQuery;
+  const { allGraphedChartKeys } = data;
 
   return (
     <>
       <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
         {value}
-        {allChartKeys.length > 0 && (
+        {allGraphedChartKeys.length > 0 && (
           <IconButton
             size="small"
             onClick={() => {
-              setChartKeys(allChartKeys);
+              setChartKeys(allGraphedChartKeys);
               setIsInMultiChartsView(true);
               setModalTitle('Vitals');
               setVitalChartModalOpen(true);
