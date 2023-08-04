@@ -1,10 +1,13 @@
 {
   "name": "@tamanu/api-client",
-  "version": "1.29.0",
+  "version": "1.30.0",
   "private": true,
   "description": "API client for Tamanu Facility Server",
   "exports": {
     ".": "./dist/index.js"
+  },
+  "bin": {
+    "tamanu-api": "./dist/cli.js"
   },
   "types": "./dist/index.d.ts",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -21,7 +24,8 @@
     "lint:check": "rome check src",
     "lint:types": "tsc",
     "lint:fix": "rome check src --apply-unsafe",
-    "fmt": "rome format src --write"
+    "fmt": "rome format src --write",
+    "start": "node dist/cli.js"
   },
   "devDependencies": {
     "@tamanu/build-tooling": "*",

@@ -28,7 +28,20 @@ export interface QueryData {
 }
 
 export interface FetchConfig extends RequestOptions {
+  /**
+   * If true, the Response object will be returned instead of the parsed JSON.
+   *
+   * Defaults to false.
+   */
   returnResponse?: boolean;
+
+  /**
+   * If true, the Response object will be thrown instead of attempting to parse
+   * an error from the response body.
+   *
+   * Defaults to false.
+   */
+  throwResponse?: boolean;
 }
 
 export interface ChangePasswordArgs {
@@ -149,7 +162,7 @@ export class TamanuApi {
       throw new Error("API can't be used until the host is set");
     }
 
-    const { headers, returnResponse = false, ...otherConfig } = config;
+    const { headers, returnResponse = false, throwResponse = false, ...otherConfig } = config;
     const queryString = qs.stringify(query || {});
     const path = `${endpoint}${query ? `?${queryString}` : ''}`;
     const url = `${this.#prefix}/${path}`;
@@ -175,6 +188,19 @@ export class TamanuApi {
       return response.json();
     }
 
+    if (throwResponse) {
+      return response;
+    }
+
+    return this.extractError(endpoint, response);
+  }
+
+  /**
+   * Handle errors from the server response.
+   *
+   * Generally only used internally.
+   */
+  async extractError(endpoint: string, response: Response) {
     const { error } = await getResponseErrorSafely(response);
 
     // handle forbidden error and trigger catch all modal
@@ -199,6 +225,7 @@ export class TamanuApi {
         throw new VersionIncompatibleError(versionIncompatibleMessage);
       }
     }
+
     const message = error?.message || response.status;
     throw new ServerResponseError(`Server error response: ${message}`);
   }
