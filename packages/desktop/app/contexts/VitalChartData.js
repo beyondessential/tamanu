@@ -15,12 +15,14 @@ export const VitalChartDataContext = React.createContext({
   setDateRange: () => {},
   dateRange: ['', ''],
   isInMultiChartsView: false,
+  setIsInMultiChartsView: () => {},
 });
 
 export const useVitalChartData = () => useContext(VitalChartDataContext);
 
 export const VitalChartDataProvider = ({ children }) => {
   const [chartKeys, setChartKeys] = useState([]);
+  const [isInMultiChartsView, setIsInMultiChartsView] = useState(false);
   const [modalTitle, setModalTitle] = useState(null);
   const [dateRange, setDateRange] = useState([
     format(addDays(new Date(), -1), DATE_TIME_FORMAT),
@@ -41,7 +43,8 @@ export const VitalChartDataProvider = ({ children }) => {
         setModalTitle,
         dateRange,
         setDateRange,
-        isInMultiChartsView: chartKeys.length > 1,
+        isInMultiChartsView,
+        setIsInMultiChartsView,
       }}
     >
       {children}

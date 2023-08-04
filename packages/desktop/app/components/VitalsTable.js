@@ -53,6 +53,7 @@ const MeasureCell = React.memo(({ value, data }) => {
     setModalTitle,
     setVitalChartModalOpen,
     visualisationConfigs,
+    setIsInMultiChartsView,
   } = useVitalChartData();
   const visualisationConfig = visualisationConfigs.find(({ key }) => key === data.dataElementId);
   const { hasVitalChart = false } = visualisationConfig || {};
@@ -80,6 +81,7 @@ const MeasureCell = React.memo(({ value, data }) => {
             size="small"
             onClick={() => {
               setChartKeys([chartKey]);
+              setIsInMultiChartsView(false);
               setModalTitle(value);
               setVitalChartModalOpen(true);
             }}
@@ -98,6 +100,7 @@ const TitleCell = React.memo(({ value }) => {
     setModalTitle,
     setVitalChartModalOpen,
     visualisationConfigs,
+    setIsInMultiChartsView,
   } = useVitalChartData();
   const allChartKeys = visualisationConfigs
     .filter(({ hasVitalChart, key }) => hasVitalChart && key !== VITALS_DATA_ELEMENT_IDS.dbp) // Only show one blood pressure chart on multi vital charts
@@ -112,6 +115,7 @@ const TitleCell = React.memo(({ value }) => {
             size="small"
             onClick={() => {
               setChartKeys(allChartKeys);
+              setIsInMultiChartsView(true);
               setModalTitle('Vitals');
               setVitalChartModalOpen(true);
             }}
