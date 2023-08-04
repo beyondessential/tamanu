@@ -9,7 +9,7 @@ export class Intake extends Activity {
   async act(role: Role): Promise<void> {
     const api = await this.context.api.as(role);
 
-    for (const _ of upto(5)) {
+    for (const _ of upto(50)) {
       const dateOfBirth = chance.birthday();
       const age = differenceInYears(new Date(), dateOfBirth);
       const { id } = await api.post('patient', {
