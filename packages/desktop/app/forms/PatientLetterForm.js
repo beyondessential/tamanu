@@ -142,7 +142,6 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
       }}
       validationSchema={yup.object().shape({
         clinicianId: yup.string().required('Clinician is required'),
-        templateId: yup.string().required('Template is required'),
       })}
     />
   );
