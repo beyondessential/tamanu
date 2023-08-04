@@ -38,7 +38,7 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
   /// REFERENCE DATA
 
   const errors = [];
-  const stats = {};
+  const stats = [];
   for (const { file: referenceDataFile, ...rest } of referenceData ?? []) {
     if (!referenceDataFile) {
       throw new Error(`Unknown reference data import with keys ${Object.keys(rest).join(', ')}`);
