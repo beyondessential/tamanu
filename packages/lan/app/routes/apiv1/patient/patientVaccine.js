@@ -8,6 +8,7 @@ import {
   VACCINE_CATEGORIES,
   VACCINE_STATUS,
   SETTING_KEYS,
+  VISIBILITY_STATUSES,
 } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 import { getCurrentDateString } from 'shared/utils/dateTime';
@@ -46,6 +47,7 @@ patientVaccineRoutes.get(
         , max(sv.schedule) AS schedule
         , max(sv.weeks_from_birth_due) AS weeks_from_birth_due
         , max(sv.vaccine_id) AS vaccine_id
+        , max(sv.visibility_status) AS visibility_status
         , count(av.id) AS administered
         FROM scheduled_vaccines sv
         LEFT JOIN (
@@ -81,11 +83,15 @@ patientVaccineRoutes.get(
           // eslint-disable-next-line no-param-reassign
           allVaccines[vaccineSchedule.label] = rest;
         }
-        allVaccines[vaccineSchedule.label].schedules.push({
-          schedule: vaccineSchedule.schedule,
-          scheduledVaccineId: vaccineSchedule.id,
-          administered: asRealNumber(vaccineSchedule.administered) > 0,
-        });
+        const administered = asRealNumber(vaccineSchedule.administered) > 0;
+        // Exclude historical schedules unless administered
+        if (vaccineSchedule.visibilityStatus !== VISIBILITY_STATUSES.HISTORICAL || administered) {
+          allVaccines[vaccineSchedule.label].schedules.push({
+            schedule: vaccineSchedule.schedule,
+            scheduledVaccineId: vaccineSchedule.id,
+            administered,
+          });
+        }
         return allVaccines;
       }, {});
 
