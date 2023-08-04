@@ -12,8 +12,8 @@ const ActionRow = styled(ConfirmCancelRow)`
   justify-content: flex-end;
 `;
 
-export const ModalActionRow = props => (
-  <FullWidthRow>
+export const ModalActionRow = ({ className = '', ...props }) => (
+  <FullWidthRow className={className}>
     <ActionRow {...props} />
   </FullWidthRow>
 );
