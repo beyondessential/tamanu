@@ -81,7 +81,13 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
           component={AutocompleteField}
           onChange={e => onChangeTemplate(e.target.value)}
         />
-        <Field name="title" label="Letter title" component={TextField} disabled={templateLoading} />
+        <Field
+          name="title"
+          label="Letter title"
+          required
+          component={TextField}
+          disabled={templateLoading}
+        />
         <Field
           name="body"
           label="Note"
@@ -142,6 +148,7 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
       }}
       validationSchema={yup.object().shape({
         clinicianId: yup.string().required('Clinician is required'),
+        title: yup.string().required('Letter title is required'),
       })}
     />
   );
