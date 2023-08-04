@@ -102,18 +102,17 @@ const TitleCell = React.memo(({ value }) => {
     setVitalChartModalOpen,
     setIsInMultiChartsView,
   } = useVitalChartData();
-  const { data } = useVitalsVisualisationConfigsQuery;
-  const { allGraphedChartKeys } = data;
+  const { data, isLoading, isError } = useVitalsVisualisationConfigsQuery();
 
   return (
     <>
       <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
         {value}
-        {allGraphedChartKeys.length > 0 && (
+        {!isLoading && !isError && data && data.allGraphedChartKeys.length > 0 && (
           <IconButton
             size="small"
             onClick={() => {
-              setChartKeys(allGraphedChartKeys);
+              setChartKeys(data.allGraphedChartKeys);
               setIsInMultiChartsView(true);
               setModalTitle('Vitals');
               setVitalChartModalOpen(true);
