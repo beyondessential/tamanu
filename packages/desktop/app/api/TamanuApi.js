@@ -4,7 +4,6 @@ import { ipcRenderer } from 'electron';
 import {
   TamanuApi as ApiClient,
   VersionIncompatibleError,
-  isErrorUnknownDefault,
   AuthExpiredError,
 } from '@tamanu/api-client';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
@@ -12,14 +11,12 @@ import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { getDeviceId, notifyError } from '../utils';
 
-export { isErrorUnknownDefault, isErrorUnknownAllow404s } from '@tamanu/api-client';
-
 const { HOST, TOKEN, LOCALISATION, SERVER, PERMISSIONS, ROLE } = LOCAL_STORAGE_KEYS;
 
 function safeGetStoredJSON(key) {
   try {
     return JSON.parse(localStorage.getItem(key));
-  } catch (e) {
+  } catch (_) {
     return {};
   }
 }
@@ -48,6 +45,20 @@ function clearLocalStorage() {
   localStorage.removeItem(SERVER);
   localStorage.removeItem(PERMISSIONS);
   localStorage.removeItem(ROLE);
+}
+
+export function isErrorUnknownDefault(_error, response) {
+  if (!response || typeof response.status !== 'number') {
+    return true;
+  }
+  return response.status >= 400;
+}
+
+export function isErrorUnknownAllow404s(error, response) {
+  if (response?.status === 404) {
+    return false;
+  }
+  return isErrorUnknownDefault(error, response);
 }
 
 export class TamanuApi extends ApiClient {
