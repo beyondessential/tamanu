@@ -41,8 +41,8 @@ async function generateVitalLogsInBatch(store, vitalsSurveyId, batchSize, offset
           sra.data_element_id != :dateDataElementId
       LEFT JOIN
         vital_logs vl ON vl.answer_id = sra.id
-        AND
-          vl.id IS NULL;
+      WHERE
+        vl.id IS NULL;
     `,
     {
       replacements: {
