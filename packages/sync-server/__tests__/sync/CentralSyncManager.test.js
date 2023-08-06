@@ -7,7 +7,7 @@ import { fake, fakeUser, fakeSurvey, fakeReferenceData } from 'shared/test-helpe
 import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData';
 import { sleepAsync } from 'shared/utils/sleepAsync';
-import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
+import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES, SETTINGS_SCOPES } from 'shared/constants';
 import { toDateTimeString } from 'shared/utils/dateTime';
 
 import { createTestContext } from '../utilities';
@@ -325,6 +325,98 @@ describe('CentralSyncManager', () => {
         // Assert if outgoing changes contain only encounter2 and not encounter1
         expect(sessionTwoEncounterIds).toHaveLength(1);
         expect(sessionTwoEncounterIds[0]).toEqual(encounter2.id);
+      });
+
+      it('filters settings to be synced by sync tick', async () => {
+        await models.Setting.truncate({ cascade: true, force: true });
+        const generateSetting = async (scope, facilityId = null) => {
+          const setting = await models.Setting.create({
+            ...fake(models.Setting),
+            scope,
+            facilityId,
+            deletedAt: null,
+          });
+          return setting;
+        };
+
+        const facility1 = await models.Facility.create({
+          ...fake(models.Facility),
+        });
+
+        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 10);
+
+        await generateSetting(SETTINGS_SCOPES.GLOBAL);
+        await generateSetting(SETTINGS_SCOPES.GLOBAL);
+
+        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 20);
+
+        const newSetting1 = await generateSetting(SETTINGS_SCOPES.GLOBAL);
+        const newSetting2 = await generateSetting(SETTINGS_SCOPES.GLOBAL);
+
+        const centralSyncManager = initializeCentralSyncManager();
+        const { sessionId } = await centralSyncManager.startSession();
+        await waitForSession(centralSyncManager, sessionId);
+
+        await centralSyncManager.setupSnapshotForPull(
+          sessionId,
+          {
+            since: 15,
+            facilityId: facility1.id,
+          },
+          () => true,
+        );
+
+        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+
+        expect(outgoingChanges.map(c => c.recordId).sort()).toEqual(
+          [newSetting1.id, newSetting2.id].sort(),
+        );
+      });
+
+      it('only sends "global" and "facility" settings to relevant facilities', async () => {
+        await models.Setting.truncate({ cascade: true, force: true });
+        const generateSetting = async (scope, facilityId = null) => {
+          const setting = await models.Setting.create({
+            ...fake(models.Setting),
+            scope,
+            facilityId,
+            deletedAt: null,
+          });
+          return setting;
+        };
+
+        const facility1 = await models.Facility.create({
+          ...fake(models.Facility),
+        });
+        const facility2 = await models.Facility.create({
+          ...fake(models.Facility),
+        });
+
+        await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, 10);
+
+        await generateSetting(SETTINGS_SCOPES.CENTRAL);
+        const globalSetting = await generateSetting(SETTINGS_SCOPES.GLOBAL);
+        const facility1Setting = await generateSetting(SETTINGS_SCOPES.FACILITY, facility1.id);
+        await generateSetting(SETTINGS_SCOPES.FACILITY, facility2.id);
+
+        const centralSyncManager = initializeCentralSyncManager();
+        const { sessionId } = await centralSyncManager.startSession();
+        await waitForSession(centralSyncManager, sessionId);
+
+        await centralSyncManager.setupSnapshotForPull(
+          sessionId,
+          {
+            since: 5, // after the facilities were created, but before all of the settings were
+            facilityId: facility1.id,
+          },
+          () => true,
+        );
+
+        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+
+        expect(outgoingChanges.map(c => c.recordId).sort()).toEqual(
+          [globalSetting.id, facility1Setting.id].sort(),
+        );
       });
     });
 
