@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 import { getTable } from './utils/queryRunner';
 
-const tableName = 'settings';
+const tableName = 'setting';
 const columnName = 'scope';
 
 export class addScopeToSettingsTable1691115215000 implements MigrationInterface {
