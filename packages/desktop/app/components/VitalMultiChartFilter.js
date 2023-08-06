@@ -74,11 +74,11 @@ export const VitalMultiChartFilter = () => {
     .map(({ key, name }) => ({ value: key, label: name }));
 
   const { selectedGraphedVitalsOnFilter = '' } = userPreferencesQuery?.data || {};
-  const [values, setValues] = React.useState(allGraphedChartKeys);
+  const [selectedGraphedVitals, setSelectedGraphedVitals] = React.useState(allGraphedChartKeys);
 
   useEffect(() => {
     if (selectedGraphedVitalsOnFilter !== '') {
-      setValues(selectedGraphedVitalsOnFilter.split(','));
+      setSelectedGraphedVitals(selectedGraphedVitalsOnFilter.split(','));
     }
   }, [selectedGraphedVitalsOnFilter]);
 
@@ -88,7 +88,7 @@ export const VitalMultiChartFilter = () => {
       newSelectedChartKeys.includes(key),
     );
 
-    setValues(sortedSelectedChartKeys);
+    setSelectedGraphedVitals(sortedSelectedChartKeys);
     setChartKeys(sortedSelectedChartKeys);
     userPreferencesMutation.mutate({
       selectedGraphedVitalsOnFilter: sortedSelectedChartKeys.join(','),
@@ -97,7 +97,7 @@ export const VitalMultiChartFilter = () => {
 
   const field = {
     name: 'selectedGraphedVitalsOnFilter',
-    value: values,
+    value: selectedGraphedVitals,
     onChange: handleChange,
   };
 
