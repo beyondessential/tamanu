@@ -56,6 +56,7 @@ export class User extends Model {
     super.init(
       {
         id: primaryKey,
+        displayId: Sequelize.STRING,
         email: {
           type: Sequelize.STRING,
           allowNull: false,

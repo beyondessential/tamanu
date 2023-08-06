@@ -17,6 +17,9 @@ export class Setting extends BaseModel {
   @Column({ nullable: false })
   value: string;
 
+  @Column({ nullable: false })
+  scope: string;
+
   @ManyToOne(() => Facility)
   facility: IFacility;
 

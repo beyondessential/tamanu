@@ -7,7 +7,7 @@ import { CentralServerConnection } from '../sync';
 // req: express request, maxFileSize: integer (size in bytes)
 export const uploadAttachment = async (req, maxFileSize) => {
   // TODO: Figure out permission management for writing
-  // an Attachment (this will be stored only in the sync server)
+  // an Attachment
   // req.checkPermission('write', 'Attachment'); ??
 
   // Read request and extract file, stats and metadata

@@ -1,6 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { isPlainObject, get as getAtPath, set as setAtPath } from 'lodash';
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '../constants';
 import { Model } from './Model';
 
 /**
@@ -34,6 +34,7 @@ export class Setting extends Model {
           allowNull: false,
         },
         value: Sequelize.JSONB,
+        scope: Sequelize.STRING,
       },
       {
         ...options,
@@ -166,6 +167,10 @@ export class Setting extends Model {
         },
       },
     );
+  }
+
+  static buildSyncFilter() {
+    return `WHERE (facility_id = :facilityId OR scope = '${SETTINGS_SCOPES.GLOBAL}') AND ${this.tableName}.updated_at_sync_tick > :since`;
   }
 }
 
