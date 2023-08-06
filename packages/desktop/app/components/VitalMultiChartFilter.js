@@ -7,6 +7,7 @@ import { ExpandedMultiSelectField } from './Field/ExpandedMultiSelectField';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { useUserPreferencesMutation } from '../api/mutations/useUserPreferencesMutation';
 import { useVitalsVisualisationConfigsQuery } from '../api/queries/useVitalsVisualisationConfigsQuery';
+import { useVitalChartData } from '../contexts/VitalChartData';
 
 export const VitalMultiChartFilterComponent = ({ options, field }) => {
   const [open, setOpen] = useState(false);
@@ -61,6 +62,7 @@ export const VitalMultiChartFilterComponent = ({ options, field }) => {
 };
 
 export const VitalMultiChartFilter = () => {
+  const { setChartKeys } = useVitalChartData();
   const vitalsVisualisationConfigsQuery = useVitalsVisualisationConfigsQuery();
   const userPreferencesQuery = useUserPreferencesQuery();
   const userPreferencesMutation = useUserPreferencesMutation();
@@ -81,14 +83,20 @@ export const VitalMultiChartFilter = () => {
   }, [selectedGraphedVitalsOnFilter]);
 
   const handleChange = newValues => {
-    setValues(newValues.target.value);
+    const newSelectedChartKeys = newValues.target.value;
+    const sortedSelectedChartKeys = allGraphedChartKeys.filter(key =>
+      newSelectedChartKeys.includes(key),
+    );
+
+    setValues(sortedSelectedChartKeys);
+    setChartKeys(sortedSelectedChartKeys);
     userPreferencesMutation.mutate({
-      selectedGraphedVitalsOnFilter: newValues.target.value.join(','),
+      selectedGraphedVitalsOnFilter: sortedSelectedChartKeys.join(','),
     });
   };
 
   const field = {
-    name: 'multiSelectFieldKey',
+    name: 'selectedGraphedVitalsOnFilter',
     value: values,
     onChange: handleChange,
   };
