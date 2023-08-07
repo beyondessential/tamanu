@@ -35,7 +35,7 @@ class MakePatientsGame extends Game {
 
 (async () => {
   const game = new MakePatientsGame(
-    200,
+    8000,
     makeContext({ api: new ApiFactory('http://localhost:3000', 'http://localhost:4000') }),
   );
   await game.run();

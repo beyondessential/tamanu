@@ -1,5 +1,5 @@
 import { Nurse } from '../players/Nurse.js';
-import { TakeVitals } from './TakeVitals.js';
+import { FillSurvey } from './FillSurvey.js';
 import { Activity, Player, Role, chance } from './prelude.js';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 
@@ -11,10 +11,10 @@ export class AdmitPatient extends Activity {
   #departmentId?: string;
   #locationId?: string;
 
-  async gather(role: Role, {
-    patientId,
-    admissionType,
-  }: { patientId: string; admissionType: 'hospital' | 'clinic' }): Promise<void> {
+  async gather(
+    role: Role,
+    { patientId, admissionType }: { patientId: string; admissionType: 'hospital' | 'clinic' },
+  ): Promise<void> {
     this.#patientId = patientId;
     this.#encounterType =
       admissionType === 'hospital' ? ENCOUNTER_TYPES.ADMISSION : ENCOUNTER_TYPES.CLINIC;
@@ -48,7 +48,8 @@ export class AdmitPatient extends Activity {
   }
 
   async call(player: Player): Promise<void> {
-    player.sendToOne(Nurse, TakeVitals, {
+    player.sendToOne(Nurse, FillSurvey, {
+      surveyId: 'vitals',
       patientId: this.#patientId,
       encounterId: this.#encounterId,
     });
