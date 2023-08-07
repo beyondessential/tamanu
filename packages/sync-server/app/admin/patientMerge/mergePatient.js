@@ -236,7 +236,7 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
     // update missing fields
     await keepPatient.update({
       ...omit(unwantedPatient.dataValues, omittedColumns),
-      ...keepPatient.dataValues,
+      ...omit(keepPatient.dataValues, omittedColumns),
     });
     // update core patient record
     await unwantedPatient.update({
