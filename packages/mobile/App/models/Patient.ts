@@ -14,6 +14,7 @@ import { PatientAdditionalData } from './PatientAdditionalData';
 import { PatientFacility } from './PatientFacility';
 import { ReferenceData, NullableReferenceDataRelation } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
+
 import { DateStringColumn } from './DateColumns';
 const TIME_OFFSET = 3;
 
