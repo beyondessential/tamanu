@@ -54,7 +54,7 @@ const generateAnnotationFromJSONError = (errorMessage, json) => {
   let column;
 
   const match = errorMessage.match(/position (\d+)/);
-  const position = parseInt(match[1], 10);
+  const position = parseInt(match && match[1], 10);
 
   for (let i = 0; i < rows.length; i++) {
     charCount += rows[i].length + 1; // Add 1 for the newline character
@@ -136,7 +136,7 @@ export const SettingsView = React.memo(() => {
       facilityId: selectedFacility !== SETTINGS_SCOPES.CENTRAL ? selectedFacility : null,
       scope,
     });
-    
+
     if (response.code === 200) {
       notifySuccess('Settings saved');
     } else {
