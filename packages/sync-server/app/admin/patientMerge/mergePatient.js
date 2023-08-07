@@ -138,26 +138,42 @@ export async function mergePatientFieldValues(models, keepPatientId, unwantedPat
     where: { patientId: unwantedPatientId },
   });
   if (existingUnwantedFieldValues.length === 0) return [];
-  const existingUnwantedObject = existingUnwantedFieldValues.reduce((acc, record) => {
-    const { definitionId, value } = record;
-    return { ...acc, [definitionId]: value };
-  }, {});
 
   const existingKeepFieldValues = await models.PatientFieldValue.findAll({
     where: { patientId: keepPatientId },
   });
-  for (const keepRecord of existingKeepFieldValues) {
-    // Prefer the keep record value if defined, otherwise if the unwanted value is defined use that
-    await keepRecord.update({
-      value: keepRecord.value || existingUnwantedObject[keepRecord.definitionId],
-    });
+  const createdRecords = [];
+
+  // Iterate through all definitions to ensure we're not missing any
+  const patientFieldDefinitions = await models.PatientFieldDefinition.findAll();
+  for (const definition of patientFieldDefinitions) {
+    const keepRecord = existingKeepFieldValues.find(
+      ({ definitionId }) => definitionId === definition.id,
+    );
+    const unwantedRecord = existingUnwantedFieldValues.find(
+      ({ definitionId }) => definitionId === definition.id,
+    );
+
+    if (keepRecord) {
+      // Prefer the keep record value if defined, otherwise if the unwanted value is defined use that
+      await keepRecord.update({
+        value: keepRecord.value || unwantedRecord.value,
+      });
+    } else if (unwantedRecord.value) {
+      const newKeepRecord = await models.PatientFieldValue.create({
+        value: unwantedRecord.value,
+        definitionId: definition.id,
+        patientId: keepPatientId,
+      });
+      createdRecords.push(newKeepRecord);
+    }
   }
 
   await models.PatientFieldValue.destroy({
     where: { patientId: unwantedPatientId },
     force: true,
   });
-  return existingKeepFieldValues;
+  return [...existingKeepFieldValues, ...createdRecords];
 }
 
 export async function reconcilePatientFacilities(models, keepPatientId, unwantedPatientId) {
