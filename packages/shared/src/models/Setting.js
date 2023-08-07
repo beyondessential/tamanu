@@ -74,7 +74,7 @@ export class Setting extends Model {
    * IMPORTANT: Duplicated from mobile/models/Setting.ts
    * Please update both places when modify
    */
-  static async get(key = '', facilityId = null, scope) {
+  static async get(key = '', facilityId = null, scope = 'global') {
     const keyWhere = key
       ? {
           key: {
@@ -131,7 +131,7 @@ export class Setting extends Model {
     return getAtPath(settingsObject, key);
   }
 
-  static async set(key, value, facilityId = null, scope) {
+  static async set(key, value, facilityId = null, scope = 'global') {
     const records = buildSettingsRecords(key, value, facilityId, scope);
 
     // create or update records
