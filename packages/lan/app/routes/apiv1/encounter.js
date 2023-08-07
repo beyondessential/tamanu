@@ -2,17 +2,16 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes } from 'sequelize';
 import { NotFoundError, InvalidParameterError } from 'shared/errors';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
   LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
+  DOCUMENT_SOURCES,
   INVOICE_STATUSES,
   NOTE_RECORD_TYPES,
   VITALS_DATA_ELEMENT_IDS,
   IMAGING_REQUEST_STATUS_TYPES,
 } from 'shared/constants';
-import { uploadAttachment } from '../../utils/uploadAttachment';
-import { notePageListHandler } from '../../routeHandlers';
-
 import {
   simpleGet,
   simpleGetHasOne,
@@ -21,7 +20,11 @@ import {
   permissionCheckingRouter,
   runPaginatedQuery,
   paginatedGetList,
-} from './crudHelpers';
+} from 'shared/utils/crudHelpers';
+import { uploadAttachment } from '../../utils/uploadAttachment';
+import { notePageListHandler } from '../../routeHandlers';
+import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
+
 import { getLabRequestList } from '../../routeHandlers/labs';
 
 export const encounter = express.Router();
@@ -119,11 +122,15 @@ encounter.post(
       attachmentId,
       type,
       encounterId: params.id,
+      documentUploadedAt: getCurrentDateTimeString(),
+      source: DOCUMENT_SOURCES.UPLOADED,
     });
 
     res.send(documentMetadataObject);
   }),
 );
+
+encounter.post('/:id/createPatientLetter', createPatientLetter('Encounter', 'encounterId'));
 
 const encounterRelations = permissionCheckingRouter('read', 'Encounter');
 encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));

@@ -13,12 +13,19 @@ export class Attachment extends Model {
       },
       {
         ...options,
-        syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
+        syncDirection: SYNC_DIRECTIONS.PUSH_TO_CENTRAL,
       },
     );
   }
 
-  static sanitizeForCentralServer({ data, ...restOfValues }) {
+  static sanitizeForDatabase({ data, ...restOfValues }) {
     return { ...restOfValues, data: Buffer.from(data, 'base64') };
+  }
+
+  // Attachments don't sync on desktop. Strangely, they do actually sync as
+  // their upload mechanism on mobile. We should probably change this to be consistent on both
+  // https://github.com/beyondessential/tamanu/pull/3352
+  static sanitizeForCentralServer(values) {
+    return this.sanitizeForDatabase(values);
   }
 }

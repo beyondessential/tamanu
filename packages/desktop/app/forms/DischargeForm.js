@@ -31,7 +31,11 @@ import { TableFormFields } from '../components/Table';
 import { ConfirmCancelBackRow, ConfirmCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
-import { MODAL_PADDING_LEFT_AND_RIGHT, MODAL_PADDING_TOP_AND_BOTTOM } from '../components';
+import {
+  MODAL_PADDING_LEFT_AND_RIGHT,
+  MODAL_PADDING_TOP_AND_BOTTOM,
+  useLocalisedText,
+} from '../components';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -184,6 +188,8 @@ const medicationColumns = [
 const EncounterOverview = ({
   encounter: { procedures, diagnoses, startDate, examiner, reasonForEncounter },
 }) => {
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
+
   // Only display diagnoses that don't have a certainty of 'error' or 'disproven'
   const currentDiagnoses = diagnoses.filter(d => !['error', 'disproven'].includes(d.certainty));
 
@@ -191,7 +197,7 @@ const EncounterOverview = ({
     <>
       <DateTimeInput label="Admission date" value={startDate} disabled />
       <TextInput
-        label="Supervising clinician"
+        label={`Supervising ${clinicianText.toLowerCase()}`}
         value={examiner ? examiner.displayName : '-'}
         disabled
       />
@@ -257,6 +263,7 @@ export const DischargeForm = ({
   onSubmit,
 }) => {
   const { encounter } = useEncounter();
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
   const [dischargeNotePages, setDischargeNotePages] = useState([]);
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
@@ -302,7 +309,9 @@ export const DischargeForm = ({
         discharge: yup
           .object()
           .shape({
-            dischargerId: foreignKey('Discharging physician is a required field'),
+            dischargerId: foreignKey(
+              `Discharging ${clinicianText.toLowerCase()} is a required field'`,
+            ),
           })
           .shape({
             dispositionId: getLocalisedSchema({
@@ -325,7 +334,7 @@ export const DischargeForm = ({
         />
         <Field
           name="discharge.dischargerId"
-          label="Discharging physician"
+          label={`Discharging ${clinicianText.toLowerCase()}`}
           component={AutocompleteField}
           suggester={practitionerSuggester}
           required

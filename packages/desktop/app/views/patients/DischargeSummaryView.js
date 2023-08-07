@@ -28,6 +28,7 @@ import {
   DisplayValue,
   LocalisedDisplayValue,
 } from '../../components/PatientPrinting/printouts/reusable/CertificateLabels';
+import { useLocalisedText } from '../../components';
 
 const Container = styled.div`
   background: ${Colors.white};
@@ -56,6 +57,7 @@ const Section = styled(Box)`
 const Note = styled.p`
   font-size: 10px;
   border: 1px solid black;
+  white-space: pre-line;
   margin: 0;
   padding: 8px 10px;
 `;
@@ -81,8 +83,8 @@ const ListColumn = styled.ul`
   list-style-type: none;
   padding: 0;
   margin: 0;
+  font-size: 10px;
   li {
-    font-size: 10px;
     padding-left: 0;
   }
 `;
@@ -154,6 +156,7 @@ const MedicationsList = ({ medications, discontinued }) => {
 
 const SummaryPage = React.memo(({ encounter, discharge }) => {
   const { title, subTitle, logo } = useCertificate();
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' }).toLowerCase();
 
   const { getLocalisation } = useLocalisation();
   const dischargeDispositionVisible =
@@ -233,11 +236,11 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
         <Content>
           <DisplayValue name="Facility">{location?.facility?.name || 'N/A'} </DisplayValue>
           <DisplayValue name="Department">{getDepartmentName(encounter)} </DisplayValue>
-          <DisplayValue name="Supervising clinician">{examiner?.displayName} </DisplayValue>
+          <DisplayValue name={`Supervising ${clinicianText}`}>{examiner?.displayName}</DisplayValue>
           <DisplayValue name="Date of admission">
             {getDateDisplay(startDate, { showTime: false })}
           </DisplayValue>
-          <DisplayValue name="Discharging physician">
+          <DisplayValue name={`Discharging ${clinicianText}`}>
             {discharge?.discharger?.displayName}
           </DisplayValue>
           <DisplayValue name="Date of discharge">

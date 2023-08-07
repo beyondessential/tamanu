@@ -27,7 +27,7 @@ const reportColumnTemplate = [
     accessor: data => ageInYears(data.patient.dateOfBirth),
   },
   { title: 'Patient Type', accessor: data => data.patientBillingType?.name },
-  { title: 'Admitting Doctor/Nurse', accessor: data => data.examiner?.displayName },
+  { title: 'Admitting Clinician', accessor: data => data.examiner?.displayName },
   {
     title: 'Admission Date',
     accessor: data => format(data.startDate, 'dd/MM/yyyy h:mm:ss a'),
