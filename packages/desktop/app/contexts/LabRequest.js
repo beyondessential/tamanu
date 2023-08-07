@@ -69,11 +69,6 @@ export const LabRequestProvider = ({ children }) => {
     await loadLabRequest(labRequestId);
   };
 
-  const updateLabTest = async (labRequestId, labTestId, data) => {
-    await api.put(`labTest/${labTestId}`, data);
-    await loadLabRequest(labRequestId);
-  };
-
   return (
     <LabRequestContext.Provider
       value={{
@@ -81,7 +76,6 @@ export const LabRequestProvider = ({ children }) => {
         isLoading,
         loadLabRequest,
         updateLabRequest,
-        updateLabTest,
         searchParameters,
         setSearchParameters,
       }}

@@ -49,10 +49,11 @@ export async function importSurvey(context, workbook, surveyInfo) {
   }
 
   const records = readSurveyInfo(workbook, surveyInfo);
-  validateProgramDataElementRecords(records);
+  const stats = validateProgramDataElementRecords(records, { context, sheetName });
 
   return importRows(context, {
     sheetName,
     rows: records,
+    stats,
   });
 }

@@ -1,8 +1,4 @@
-import {
-  LAB_TEST_STATUSES,
-  LAB_REQUEST_STATUSES,
-  LAB_TEST_TYPE_VISIBILITY_STATUSES,
-} from '@tamanu/shared/constants';
+import { LAB_REQUEST_STATUSES, LAB_TEST_TYPE_VISIBILITY_STATUSES } from '@tamanu/shared/constants';
 import config from 'config';
 import {
   createDummyPatient,
@@ -274,38 +270,6 @@ describe('Labs', () => {
 
   test.todo('should not record a lab request with zero tests');
 
-  it('should record a test result', async () => {
-    const labRequest = await models.LabRequest.createWithTests(
-      await randomLabRequest(models, { patientId }),
-    );
-    const [labTest] = await labRequest.getTests();
-
-    const result = '100';
-    const response = await app.put(`/v1/labTest/${labTest.id}`).send({ result });
-    expect(response).toHaveSucceeded();
-
-    const labTestCheck = await models.LabTest.findByPk(labTest.id);
-    expect(labTestCheck).toHaveProperty('result', result);
-  });
-
-  test.todo('should fail to record a number test result against a string test');
-  test.todo('should fail to record a string test result against an number test');
-
-  test.todo('should record multiple test results');
-
-  it('should update the status of a lab test', async () => {
-    const labRequest = await models.LabRequest.createWithTests(
-      await randomLabRequest(models, { patientId }),
-    );
-    const [labTest] = await labRequest.getTests();
-    const status = LAB_TEST_STATUSES.PUBLISHED;
-    const response = await app.put(`/v1/labTest/${labTest.id}`).send({ status });
-    expect(response).toHaveSucceeded();
-
-    const labTestCheck = await models.LabTest.findByPk(labTest.id);
-    expect(labTestCheck).toHaveProperty('status', status);
-  });
-
   it('should update the status of a lab request', async () => {
     const { id: requestId } = await models.LabRequest.createWithTests(
       await randomLabRequest(models, { patientId }),
@@ -379,6 +343,88 @@ describe('Labs', () => {
     const { body } = result;
 
     expect(body.every(panel => panel.visibilityStatus === 'current')).toBeTruthy();
+  });
+
+  describe('Lab test results', () => {
+    let labRequest;
+
+    beforeEach(async () => {
+      labRequest = await models.LabRequest.createWithTests(
+        await randomLabRequest(models, { patientId }),
+      );
+    });
+
+    describe('PUT', () => {
+      test.todo('should fail to record a number test result against a string test');
+      test.todo('should fail to record a string test result against an number test');
+
+      it('should only update tests with changes', async () => {
+        const [test1, test2] = await labRequest.getTests();
+        const mockResult = 'Mock result';
+        const mockVerification = 'verified';
+        const response = await app.put(`/v1/labRequest/${labRequest.id}/tests`).send({
+          [test1.id]: {
+            result: mockResult,
+            verification: mockVerification,
+          },
+          [test2.id]: {
+            result: test2.result,
+          },
+        });
+        expect(response).toHaveSucceeded();
+        expect(response.body).toHaveLength(1);
+        expect(response.body[0]).toEqual(
+          expect.objectContaining({
+            id: test1.id,
+            result: mockResult,
+            verification: mockVerification,
+          }),
+        );
+      });
+
+      it('should update multiple entries with correct data', async () => {
+        const [test1, test2] = await labRequest.getTests();
+        const mockResult = 'Mock result';
+        const mockVerification = 'verified';
+        const mockResult2 = 'Mock result2';
+        const mockVerification2 = 'also verified';
+        const response = await app.put(`/v1/labRequest/${labRequest.id}/tests`).send({
+          [test1.id]: {
+            result: mockResult,
+            verification: mockVerification,
+          },
+          [test2.id]: {
+            result: mockResult2,
+            verification: mockVerification2,
+          },
+        });
+        expect(response).toHaveSucceeded();
+        expect(response.body).toHaveLength(2);
+        expect(response.body).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ id: test1.id }),
+            expect.objectContaining({ id: test2.id }),
+          ]),
+        );
+      });
+
+      it('should fail with not found if body contains an invalid test id', async () => {
+        const [test1] = await labRequest.getTests();
+        const mockResult = 'Mock result';
+        const mockVerification = 'verified';
+        const response = await app.put(`/v1/labRequest/${labRequest.id}/tests`).send({
+          [test1.id]: {
+            result: mockResult,
+            verification: mockVerification,
+          },
+          invalidTestId: {
+            result: mockResult,
+            verification: mockVerification,
+          },
+        });
+        expect(response).toHaveRequestError(404);
+      });
+    });
   });
 
   describe('Filtering by allFacilities', () => {
