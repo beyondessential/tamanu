@@ -3,14 +3,14 @@ import { useEncounter } from '../../contexts/Encounter';
 import { getConfigObject, getNormalRangeByAge } from '../../utils';
 import { combineQueries } from '../combineQueries';
 import { usePatientData } from './usePatientData';
-import { useVitalsSurvey } from './useVitalsSurvey';
+import { useVitalsSurveyQuery } from './useVitalsSurveyQuery';
 
 export const useVitalsVisualisationConfigsQuery = () => {
   const encounterQuery = useEncounter();
   const { encounter } = encounterQuery;
 
   const patientQuery = usePatientData(encounter.patientId);
-  const vitalsSurveyQuery = useVitalsSurvey();
+  const vitalsSurveyQuery = useVitalsSurveyQuery();
 
   const {
     data: [patientData, surveyData],
