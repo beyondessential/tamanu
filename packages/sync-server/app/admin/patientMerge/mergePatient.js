@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { chunk } from 'lodash';
+import { chunk, omit } from 'lodash';
 import config from 'config';
 import { VISIBILITY_STATUSES, PATIENT_MERGE_DELETION_ACTIONS } from 'shared/constants';
 import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
@@ -40,6 +40,27 @@ export const specificUpdateModels = [
   'NotePage',
   'PatientFacility',
   'PatientFieldValue',
+];
+
+// These columns should be omitted as we never want
+// them to be preserved from the unwanted record.
+const omittedColumns = [
+  // common
+  'id',
+  'createdAt',
+  'updatedAt',
+  'deletedAt',
+  'updatedAtSyncTick',
+  'patientId',
+
+  // patient
+  'mergedIntoId',
+  'visibilityStatus',
+  'dateOfBirthLegacy',
+  'dateOfDeathLegacy',
+
+  // pad
+  'updatedAtByField',
 ];
 
 const fieldReferencesPatient = field => field.references?.model === 'patients';
@@ -197,6 +218,11 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
 
     const updates = {};
 
+    // update missing fields
+    await keepPatient.update({
+      ...omit(unwantedPatient.dataValues, omittedColumns),
+      ...keepPatient.dataValues,
+    });
     // update core patient record
     await unwantedPatient.update({
       mergedIntoId: keepPatientId,
@@ -214,7 +240,7 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
       throw new Error(`Unknown config option for patientMerge.deletionAction: ${action}`);
     }
 
-    updates.Patient = 1;
+    updates.Patient = 2;
 
     // update associated records
     for (const modelName of simpleUpdateModels) {
