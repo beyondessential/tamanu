@@ -20,7 +20,9 @@ export const globalDefaults = {
       includedPatientFieldIds: [],
     },
   },
-  plannedMoveTimeoutHours: 24,
+  // The time zone setting is currently only used for Vaccine Certificates
+  // Todo: remove this timeZone once all date fields have been migrated to date_time_strings
+  timeZone: null,
   imagingTypes: {
     // keys are taken from IMAGING_TYPES in shared/constants/imaging
     // e.g.
@@ -58,8 +60,6 @@ export const globalDefaults = {
   },
   localisation: {
     allowInvalid: false,
-    // the labResultWidget and timeZone keys are here for legacy reasons
-    // don't put anything else in the top level of localisation unless it relates to localisation itself
     data: {
       // To do: review this section when implementing the patient charts feature
       units: {
@@ -531,9 +531,6 @@ export const globalDefaults = {
           rowGap: '0',
         },
       },
-      // The time zone setting is currently only used for Vaccine Certificates
-      // Todo: remove this timeZone once all date fields have been migrated to date_time_strings
-      timeZone: null,
       triageCategories: [
         {
           level: 1,
