@@ -1,22 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import AceEditor from 'react-ace';
-import 'ace-builds/src-noconflict/mode-json';
-import 'ace-builds/src-noconflict/theme-eclipse';
-import 'ace-builds/src-noconflict/theme-dawn';
 
 import { SETTINGS_SCOPES } from '@tamanu/shared/constants';
 
-import { Colors } from '../../constants';
-import { LargeButton, ContentPane, ButtonRow, TopBar, SelectInput } from '../../components';
-import { AdminViewContainer } from './components/AdminViewContainer';
-import { useApi } from '../../api';
-import { notifySuccess, notifyError } from '../../utils';
-
-const StyledAceEditor = styled(AceEditor)`
-  border: 1px solid ${p => (p.$isJsonValid ? Colors.outline : Colors.alert)};
-  border-radius: 4px;
-`;
+import { Colors } from '../../../constants';
+import { LargeButton, ContentPane, ButtonRow, TopBar, SelectInput } from '../../../components';
+import { AdminViewContainer } from '../components/AdminViewContainer';
+import { JSONEditor } from './SettingsJSONEditor';
+import { useApi } from '../../../api';
+import { notifySuccess, notifyError } from '../../../utils';
 
 const StyledTopBar = styled(TopBar)`
   padding: 0;
@@ -50,33 +42,6 @@ const BASIC_OPTIONS = [
   },
 ];
 
-// The error given to us doesnt give us enough info to find the exact row and column of the error
-// in the JSON string, so we have to do some work to find it
-const generateAnnotationFromJSONError = (errorMessage, json) => {
-  const rows = json.split('\n');
-  let charCount = 0;
-  let row;
-  let column;
-
-  const match = errorMessage.match(/position (\d+)/);
-  const position = parseInt(match && match[1], 10);
-
-  for (let i = 0; i < rows.length; i++) {
-    charCount += rows[i].length + 1; // Add 1 for the newline character
-    if (charCount > position) {
-      row = i;
-      column = position - (charCount - rows[i].length);
-      break;
-    }
-  }
-  return {
-    type: 'error',
-    row,
-    column,
-    text: errorMessage,
-  };
-};
-
 export const SettingsView = React.memo(() => {
   const api = useApi();
   const [settings, setSettings] = useState({});
@@ -87,9 +52,6 @@ export const SettingsView = React.memo(() => {
 
   const [editMode, setEditMode] = useState(false);
 
-  const [errorAnnotation, setErrorAnnotation] = useState(null);
-
-  const isValidJSON = !errorAnnotation;
   const areSettingsPresent = Object.keys(settings).length > 0;
   const formattedJSONString = areSettingsPresent ? JSON.stringify(settings, null, 2) : '';
 
@@ -106,29 +68,14 @@ export const SettingsView = React.memo(() => {
     helperText = 'These settings will apply to all facilities/devices';
   }
 
-  // Check if the JSON is valid and add an error annotation to the code editor if not
-  const checkValidJson = json => {
-    try {
-      JSON.parse(json);
-      setErrorAnnotation(null);
-    } catch (error) {
-      const annotation = generateAnnotationFromJSONError(error.message, json);
-      setErrorAnnotation([annotation]);
-      return false;
-    }
-    return true;
-  };
-
   const toggleEditMode = () => setEditMode(!editMode);
 
   const onChangeSettings = newValue => {
-    checkValidJson(newValue);
     setSettingsEditString(newValue);
   };
   const onChangeFacility = event => {
     setSelectedFacility(event.target.value || null);
     setEditMode(false);
-    setErrorAnnotation(null);
   };
 
   // Convert settings string from editor into object and post to backend
@@ -177,15 +124,6 @@ export const SettingsView = React.memo(() => {
     fetchSettings();
   }, [api, selectedFacility, scope]);
 
-  const onLoad = editor => {
-    // Disable the "undo" command (Ctrl+Z)
-    editor.commands.addCommand({
-      name: 'undo',
-      bindKey: { win: 'Ctrl-Z', mac: 'Command-Z' },
-      exec: () => {},
-    });
-  };
-
   return (
     <AdminViewContainer title="Settings">
       <StyledTopBar>
@@ -203,9 +141,7 @@ export const SettingsView = React.memo(() => {
               <LargeButton variant="outlined" onClick={toggleEditMode}>
                 Cancel
               </LargeButton>
-              <LargeButton onClick={saveSettings} disabled={!isValidJSON}>
-                Save
-              </LargeButton>
+              <LargeButton onClick={saveSettings}>Save</LargeButton>
             </>
           ) : (
             <LargeButton onClick={toggleEditMode}>Edit</LargeButton>
@@ -213,21 +149,10 @@ export const SettingsView = React.memo(() => {
         </ButtonRow>
       </StyledTopBar>
       <ContentPane>
-        <StyledAceEditor
-          width="100%"
-          height="600px"
-          mode="json"
-          showPrintMargin={false}
-          placeholder="No settings found for this facility/server"
-          fontSize={14}
-          theme={editMode ? 'eclipse' : 'dawn'}
+        <JSONEditor
           onChange={onChangeSettings}
           value={editMode ? settingsEditString : formattedJSONString}
-          highlightActiveLine={editMode}
-          $isJsonValid={isValidJSON}
-          readOnly={!editMode}
-          annotations={errorAnnotation}
-          onLoad={onLoad}
+          editMode={editMode}
         />
       </ContentPane>
     </AdminViewContainer>
