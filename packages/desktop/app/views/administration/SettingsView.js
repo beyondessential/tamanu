@@ -38,7 +38,7 @@ const BASIC_OPTIONS = [
   },
   {
     label: 'All Facilities',
-    value: null, // null is equivalent to no faciliites in backend logic
+    value: null, // null is equivalent to all faciliites in backend logic
     tag: {
       label: 'Global',
       background: Colors.orange,
@@ -95,7 +95,7 @@ export const SettingsView = React.memo(() => {
     helperText = 'These settings stay on the central server and wont apply to any facilities';
   } else if (selectedFacility) {
     scope = SETTINGS_SCOPES.FACILITY;
-    helperText = `These settings will only apply to ${selectedFacility}`;
+    helperText = `These settings will only apply to this facility`;
   } else {
     scope = SETTINGS_SCOPES.GLOBAL;
     helperText = 'These settings will apply to all facilities/devices';
@@ -148,7 +148,7 @@ export const SettingsView = React.memo(() => {
       const facilitiesArray = await api.get('admin/facilities');
       setFacilityOptions(
         facilitiesArray.map(facility => ({
-          label: `${facility.name}`,
+          label: facility.name,
           value: facility.id,
           tag: {
             label: 'Facility',
@@ -212,7 +212,7 @@ export const SettingsView = React.memo(() => {
           height="600px"
           mode="json"
           showPrintMargin={false}
-          placeholder="No settings found for this facility"
+          placeholder="No settings found for this facility/server"
           fontSize={14}
           theme={editMode ? 'eclipse' : 'dawn'}
           onChange={onChangeSettings}
