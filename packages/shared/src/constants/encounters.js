@@ -6,6 +6,7 @@ export const ENCOUNTER_TYPES = {
   OBSERVATION: 'observation',
   TRIAGE: 'triage',
   SURVEY_RESPONSE: 'surveyResponse',
+  VACCINATION: 'vaccination',
 };
 
 export const ENCOUNTER_TYPE_VALUES = Object.values(ENCOUNTER_TYPES);

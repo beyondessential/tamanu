@@ -5,7 +5,7 @@ import { QueryTypes } from 'sequelize';
 
 import { BadAuthenticationError } from 'shared/errors';
 import { getPermissions } from 'shared/permissions/middleware';
-import { simpleGet, paginatedGetList, permissionCheckingRouter } from './crudHelpers';
+import { simpleGet, paginatedGetList, permissionCheckingRouter } from 'shared/utils/crudHelpers';
 
 export const user = express.Router();
 

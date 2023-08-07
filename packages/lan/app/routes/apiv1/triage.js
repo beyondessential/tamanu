@@ -6,9 +6,9 @@ import { QueryTypes } from 'sequelize';
 import { InvalidParameterError } from 'shared/errors';
 import { NOTE_TYPES, ENCOUNTER_TYPES } from 'shared/constants';
 
-import { renameObjectKeys } from '../../utils/renameObjectKeys';
+import { renameObjectKeys } from 'shared/utils';
 
-import { simpleGet, simplePut } from './crudHelpers';
+import { simpleGet, simplePut } from 'shared/utils/crudHelpers';
 
 export const triage = express.Router();
 

@@ -99,6 +99,7 @@ export class ReportDefinitionVersion extends Model {
 
     this.belongsTo(models.User, {
       foreignKey: { name: 'userId', allowNull: false },
+      as: 'createdBy',
     });
 
     this.hasMany(models.ReportRequest);
@@ -135,5 +136,22 @@ export class ReportDefinitionVersion extends Model {
       replacements,
     });
     return generateReportFromQueryData(queryResults);
+  }
+
+  forResponse(includeRelationIds = false) {
+    const {
+      updatedAtSyncTick,
+      reportDefinitionId,
+      ReportDefinitionId,
+      userId,
+      ...rest
+    } = this.get();
+    return {
+      ...rest,
+      ...(includeRelationIds && {
+        reportDefinitionId,
+        userId,
+      }),
+    };
   }
 }
