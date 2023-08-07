@@ -136,10 +136,11 @@ export const SettingsView = React.memo(() => {
       facilityId: selectedFacility !== SETTINGS_SCOPES.CENTRAL ? selectedFacility : null,
       scope,
     });
-    if (response === 200) {
+    
+    if (response.code === 200) {
       notifySuccess('Settings saved');
     } else {
-      notifyError('Error while saving settings');
+      notifyError(`Error while saving settings: ${response.message}`);
     }
   };
 

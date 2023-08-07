@@ -95,9 +95,9 @@ adminRoutes.put(
     const { Setting } = req.store.models;
     try {
       await Setting.set('', req.body.settings, req.body.facilityId, req.body.scope);
-      res.send('200');
+      res.json({ code: 200 });
     } catch (error) {
-      res.send('500');
+      res.json({ code: 500, message: error.message });
     }
   }),
 );
