@@ -55,7 +55,7 @@ describe('Patient merge', () => {
 
     const { updates } = await mergePatient(models, keep.id, merge.id);
     expect(updates).toEqual({
-      Patient: 1,
+      Patient: 2,
     });
 
     await keep.reload({ paranoid: false });
@@ -117,7 +117,7 @@ describe('Patient merge', () => {
     const { updates } = await mergePatient(models, keep.id, merge.id);
 
     expect(updates).toEqual({
-      Patient: 1,
+      Patient: 2,
       Encounter: 2,
     });
 
@@ -145,7 +145,7 @@ describe('Patient merge', () => {
     const { updates } = await mergePatient(models, keep.id, merge.id);
 
     expect(updates).toEqual({
-      Patient: 1,
+      Patient: 2,
       PatientAllergy: 1,
       PatientIssue: 1,
     });
@@ -172,7 +172,7 @@ describe('Patient merge', () => {
 
     const { updates } = await mergePatient(models, keep.id, merge.id);
     expect(updates).toEqual({
-      Patient: 1,
+      Patient: 2,
       PatientDeathData: 1,
     });
 
@@ -207,7 +207,7 @@ describe('Patient merge', () => {
 
     const { updates } = await mergePatient(models, keep.id, merge.id);
     expect(updates).toEqual({
-      Patient: 1,
+      Patient: 2,
       NotePage: 1,
     });
     await note.reload();
@@ -231,7 +231,7 @@ describe('Patient merge', () => {
 
       const { updates } = await mergePatient(models, keep.id, merge.id);
       expect(updates).toEqual({
-        Patient: 1,
+        Patient: 2,
         PatientAdditionalData: 1,
       });
 
@@ -265,7 +265,7 @@ describe('Patient merge', () => {
 
       const { updates } = await mergePatient(models, keep.id, merge.id);
       expect(updates).toEqual({
-        Patient: 1,
+        Patient: 2,
         PatientAdditionalData: 1,
       });
 
@@ -340,7 +340,7 @@ describe('Patient merge', () => {
 
       const { updates } = await mergePatient(models, keep.id, merge.id);
       expect(updates).toEqual({
-        Patient: 1,
+        Patient: 2,
         PatientFieldValue: 2,
       });
 
@@ -390,7 +390,7 @@ describe('Patient merge', () => {
 
       const { updates } = await mergePatient(models, keep.id, merge.id);
       expect(updates).toEqual({
-        Patient: 1,
+        Patient: 2,
         PatientFacility: 3,
       });
 
@@ -412,7 +412,7 @@ describe('Patient merge', () => {
       });
       expect(response).toHaveSucceeded();
       expect(response.body.updates).toEqual({
-        Patient: 1,
+        Patient: 2,
       });
 
       await keep.reload({ paranoid: false });
