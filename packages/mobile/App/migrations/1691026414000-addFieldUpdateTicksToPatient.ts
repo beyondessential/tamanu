@@ -12,7 +12,7 @@ const METADATA_FIELDS = [
 
 const CURRENT_SYNC_TICK_KEY = 'currentSyncTick';
 
-export class addFieldUpdateTicksToPAD1668987530000 implements MigrationInterface {
+export class addFieldUpdateTicksToPatient1691026414000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     const tableObject = await getTable(queryRunner, 'patient');
     await queryRunner.addColumn(
