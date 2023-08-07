@@ -82,15 +82,18 @@ function checkVisibilityCriteria(component, allComponents, values) {
       }
 
       const matchingComponent = allComponents.find(x => x.dataElement?.code === questionCode);
-      if (matchingComponent?.dataElement?.type === 'MultiSelect') {
-        const givenValues = values[questionCode].split(', ');
-        return givenValues.includes(answersEnablingFollowUp);
-      }
+      const isMultiSelect =
+        matchingComponent?.dataElement?.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
 
       if (Array.isArray(answersEnablingFollowUp)) {
-        return answersEnablingFollowUp.includes(value);
+        return isMultiSelect
+          ? (value?.split(',') || []).some(selected => answersEnablingFollowUp.includes(selected))
+          : answersEnablingFollowUp.includes(value);
       }
-      return answersEnablingFollowUp === value;
+
+      return isMultiSelect
+        ? value?.includes(answersEnablingFollowUp)
+        : answersEnablingFollowUp === value;
     };
 
     return conjunction === 'and'

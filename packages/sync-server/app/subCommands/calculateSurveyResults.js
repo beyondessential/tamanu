@@ -50,15 +50,17 @@ const checkVisibilityCriteria = (component, allComponents, answerByCode) => {
       }
 
       const matchingComponent = allComponents.find(x => x.code === questionCode);
-      if (matchingComponent?.type === 'MultiSelect') {
-        const givenValues = answerByCode[questionCode].split(', ');
-        return givenValues.includes(answersEnablingFollowUp);
-      }
+      const isMultiSelect = matchingComponent?.type === 'MultiSelect';
 
       if (Array.isArray(answersEnablingFollowUp)) {
-        return answersEnablingFollowUp.includes(value);
+        return isMultiSelect
+          ? (value?.split(',') || []).some(selected => answersEnablingFollowUp.includes(selected))
+          : answersEnablingFollowUp.includes(value);
       }
-      return answersEnablingFollowUp === value;
+
+      return isMultiSelect
+        ? value?.includes(answersEnablingFollowUp)
+        : answersEnablingFollowUp === value;
     };
 
     return conjunction === 'and'
