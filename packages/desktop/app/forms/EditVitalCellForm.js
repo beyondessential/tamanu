@@ -25,7 +25,7 @@ const Text = styled(Typography)`
 `;
 
 const DeleteEntryButton = ({ disabled, onClick }) => (
-  <Box display="flex" alignSelf="end">
+  <Box display="flex" alignSelf="start" marginTop="18px">
     <IconButton color="primary" edge="start" disabled={disabled} onClick={onClick} disableRipple>
       <DeleteOutlineIcon fontSize="small" />
       <Text>Delete entry</Text>

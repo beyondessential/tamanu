@@ -31,6 +31,7 @@ function makeScreen(questions, componentData) {
       row,
       type,
       visibilityStatus = '',
+      visualisationConfig = '',
       ...elementData
     } = component;
 
@@ -49,6 +50,7 @@ function makeScreen(questions, componentData) {
           id: dataElId,
           defaultOptions: '',
           type,
+          visualisationConfig,
           ...elementData,
         },
       },

@@ -25,7 +25,7 @@ export const getReportQueryReplacements = async (
   const currentFacilityId = (await LocalSystemFact.get('facilityId')) || null;
 
   const toDate = params.toDate ? new Date(params.toDate) : new Date();
-  const fromDate = getStartDate(dateRange, toDate);
+  const fromDate = params.fromDate ? new Date(params.fromDate) : getStartDate(dateRange, toDate);
   const paramDefaults = paramDefinitions.reduce((obj, { name }) => ({ ...obj, [name]: null }), {});
   return {
     ...paramDefaults,
