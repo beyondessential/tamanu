@@ -7,9 +7,13 @@ import 'ace-builds/src-noconflict/theme-dawn';
 
 import { Colors } from '../../../constants';
 
-const StyledAceEditor = styled(AceEditor)`
+const StyledJSONEditor = styled(AceEditor)`
   border: 1px solid ${p => (p.$isJsonValid ? Colors.outline : Colors.alert)};
   border-radius: 4px;
+  .error-marker {
+    position: absolute;
+    background-color: ${Colors.alert} !important;
+  }
 `;
 
 const generateAnnotationFromJSONError = (errorMessage, json) => {
@@ -37,8 +41,9 @@ const generateAnnotationFromJSONError = (errorMessage, json) => {
   };
 };
 
-export const JSONEditor = React.memo(({ value, onChange, editMode }) => {
+export const JSONEditor = React.memo(({ value, onChange, editMode, showValidation }) => {
   const [errorAnnotation, setErrorAnnotation] = useState(null);
+  const [marker, setMarker] = useState(null);
 
   const isValidJSON = !errorAnnotation;
 
@@ -46,9 +51,20 @@ export const JSONEditor = React.memo(({ value, onChange, editMode }) => {
     try {
       JSON.parse(json);
       setErrorAnnotation(null);
+      setMarker([]);
     } catch (error) {
       const annotation = generateAnnotationFromJSONError(error.message, json);
       setErrorAnnotation([annotation]);
+      setMarker([
+        {
+          startRow: annotation.row,
+          startCol: annotation.column + 1,
+          endRow: annotation.row,
+          endCol: annotation.column + 2,
+          className: 'error-marker',
+          type: 'background',
+        },
+      ]);
       return false;
     }
     return true;
@@ -69,7 +85,7 @@ export const JSONEditor = React.memo(({ value, onChange, editMode }) => {
   };
 
   return (
-    <StyledAceEditor
+    <StyledJSONEditor
       width="100%"
       height="600px"
       mode="json"
@@ -79,11 +95,13 @@ export const JSONEditor = React.memo(({ value, onChange, editMode }) => {
       theme={editMode ? 'eclipse' : 'dawn'}
       onChange={onChangeJSONString}
       value={value}
-      highlightActiveLine={editMode}
-      $isJsonValid={isValidJSON}
+      highlightActiveLine={false}
+      $isJsonValid={isValidJSON || !showValidation}
       readOnly={!editMode}
-      annotations={errorAnnotation}
+      annotations={showValidation ? errorAnnotation : null}
       onLoad={onLoad}
+      tabSize={2}
+      markers={showValidation ? marker : []}
     />
   );
 });
