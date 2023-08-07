@@ -5,7 +5,6 @@ import { VISIBILITY_STATUSES, PATIENT_MERGE_DELETION_ACTIONS } from 'shared/cons
 import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
 import { InvalidParameterError } from 'shared/errors';
 import { log } from 'shared/services/logging';
-import { mergeRecord } from 'shared/sync/mergeRecord';
 
 const BULK_CREATE_BATCH_SIZE = 100;
 
@@ -122,15 +121,15 @@ export async function mergePatientAdditionalData(models, keepPatientId, unwanted
     where: { patientId: keepPatientId },
     raw: true,
   });
-  const mergedPAD = mergeRecord(existingKeepPAD || {}, {
-    ...existingUnwantedPAD,
+  const mergedPAD = {
+    ...omit(existingUnwantedPAD, omittedColumns),
+    ...omit(existingKeepPAD, omittedColumns),
     patientId: keepPatientId,
-  });
+  };
   await models.PatientAdditionalData.destroy({
     where: { patientId: { [Op.in]: [keepPatientId, unwantedPatientId] } },
     force: true,
   });
-  delete mergedPAD.id; // id is a generated field, delete it before creating the new one
   return models.PatientAdditionalData.create(mergedPAD);
 }
 
