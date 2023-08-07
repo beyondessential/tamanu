@@ -61,6 +61,7 @@ export const SettingsView = React.memo(() => {
 
   const areSettingsPresent = Object.keys(settings).length > 0;
   const formattedJSONString = areSettingsPresent ? JSON.stringify(settings, null, 2) : '';
+  const hasSettingsChanged = formattedJSONString !== settingsEditString;
 
   let scope;
   let helperText;
@@ -155,7 +156,9 @@ export const SettingsView = React.memo(() => {
               <LargeButton variant="outlined" onClick={toggleEditMode}>
                 Cancel
               </LargeButton>
-              <LargeButton onClick={saveSettings}>Save</LargeButton>
+              <LargeButton onClick={saveSettings} disabled={!hasSettingsChanged}>
+                Save
+              </LargeButton>
             </>
           ) : (
             <LargeButton onClick={toggleEditMode}>Edit</LargeButton>
