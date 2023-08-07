@@ -87,7 +87,7 @@ export class Setting extends Model {
               },
             }
           : {}),
-        ...(scope ? { scope: { [Op.eq]: scope } } : {}),
+        ...(scope ? { scope } : {}),
         facilityId: {
           ...(scope === 'facility'
             ? { [Op.eq]: facilityId }
@@ -124,21 +124,21 @@ export class Setting extends Model {
     return getAtPath(settingsObject, key);
   }
 
-  static async set(key, value, facilityId = null) {
-    const records = buildSettingsRecords(key, value, facilityId);
+  static async set(key, value, facilityId = null, scope) {
+    const records = buildSettingsRecords(key, value, facilityId, scope);
 
     // create or update records
     await Promise.all(
       records.map(async record => {
         // can't use upsert as sequelize can't parse our triple-index unique constraint
         const existing = await this.findOne({
-          where: { key: record.key, facilityId: record.facilityId },
+          where: { key: record.key, facilityId: record.facilityId, scope: record.scope },
         });
 
         if (existing) {
           await this.update({ value: record.value }, { where: { id: existing.id } });
         } else {
-          await this.create(record);
+          await this.create({ ...record, scope });
         }
       }),
     );
@@ -163,6 +163,7 @@ export class Setting extends Model {
               [Op.notIn]: records.map(r => r.key),
             },
           },
+          ...(scope ? { scope } : {}),
           facilityId,
         },
       },
@@ -174,11 +175,11 @@ export class Setting extends Model {
   }
 }
 
-export function buildSettingsRecords(keyPrefix, value, facilityId) {
+export function buildSettingsRecords(keyPrefix, value, facilityId, scope) {
   if (isPlainObject(value)) {
     return Object.entries(value).flatMap(([k, v]) =>
-      buildSettingsRecords([keyPrefix, k].filter(Boolean).join('.'), v, facilityId),
+      buildSettingsRecords([keyPrefix, k].filter(Boolean).join('.'), v, facilityId, scope),
     );
   }
-  return [{ key: keyPrefix, value, facilityId }];
+  return [{ key: keyPrefix, value, facilityId, scope }];
 }
