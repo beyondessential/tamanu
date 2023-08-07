@@ -16,13 +16,33 @@ const StyledAceEditor = styled(AceEditor)`
   border-radius: 4px;
 `;
 
+const StyledTopBar = styled(TopBar)`
+  padding: 0;
+`;
+
 const FacilitySelector = styled(SelectInput)`
   width: 500px;
 `;
 
 const ALL_FACILITIES_OPTION = [
-  { label: 'Central Server', value: 'central' },
-  { label: 'All Facilities', value: null },
+  {
+    label: 'Central Server',
+    value: 'central',
+    tag: {
+      label: 'Central',
+      background: Colors.primary,
+      color: Colors.white,
+    },
+  },
+  {
+    label: 'All Facilities',
+    value: null,
+    tag: {
+      label: 'Global',
+      background: Colors.primary,
+      color: Colors.white,
+    },
+  },
 ];
 
 const generateAnnotationFromJSONError = (errorMessage, json) => {
@@ -65,10 +85,19 @@ export const SettingsView = React.memo(() => {
   const isValidJSON = !errorAnnotation;
   const areSettingsPresent = Object.keys(settings).length > 0;
   const formattedJSONString = areSettingsPresent ? JSON.stringify(settings, null, 2) : '';
+
   let scope;
-  if (selectedFacility === 'central') scope = 'global';
-  else if (selectedFacility) scope = 'facility';
-  else scope = 'global';
+  let helperText;
+  if (selectedFacility === 'central') {
+    scope = 'central';
+    helperText = 'These settings stay on the central server and wont apply to any facilities';
+  } else if (selectedFacility) {
+    scope = 'facility';
+    helperText = `These settings will only apply to ${selectedFacility}`;
+  } else {
+    scope = 'global';
+    helperText = 'These settings will apply to all facilities/devices';
+  }
 
   // Check if the JSON is valid and add an error annotation to the code editor if not
   const checkValidJson = json => {
@@ -102,7 +131,7 @@ export const SettingsView = React.memo(() => {
     toggleEditMode();
     api.put('admin/settings', {
       settings: settingsObject,
-      facilityId: selectedFacility,
+      facilityId: selectedFacility !== 'central' ? selectedFacility : null,
       scope,
     });
     notifySuccess('Settings saved');
@@ -112,7 +141,15 @@ export const SettingsView = React.memo(() => {
     const fetchFacilities = async () => {
       const facilitiesArray = await api.get('admin/facilities');
       setFacilityOptions(
-        facilitiesArray.map(facility => ({ label: facility.name, value: facility.id })),
+        facilitiesArray.map(facility => ({
+          label: `${facility.name}`,
+          value: facility.id,
+          tag: {
+            label: 'Facility',
+            background: Colors.primary,
+            color: Colors.white,
+          },
+        })),
       );
     };
     const fetchSettings = async () => {
@@ -139,13 +176,14 @@ export const SettingsView = React.memo(() => {
 
   return (
     <AdminViewContainer title="Settings">
-      <TopBar>
+      <StyledTopBar>
         <FacilitySelector
           value={selectedFacility}
           onChange={onChangeFacility}
           options={ALL_FACILITIES_OPTION.concat(facilityOptions)}
           label="Select a facility/server to view and edit its settings"
           isClearable={false}
+          helperText={helperText}
         />
         <ButtonRow>
           {editMode ? (
@@ -161,7 +199,7 @@ export const SettingsView = React.memo(() => {
             <LargeButton onClick={toggleEditMode}>Edit</LargeButton>
           )}
         </ButtonRow>
-      </TopBar>
+      </StyledTopBar>
       <ContentPane>
         <StyledAceEditor
           width="100%"
