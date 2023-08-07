@@ -452,6 +452,11 @@ const endpoints = {
       dateOfBirth: '1990-01-01',
     };
   },
+  'user/userPreferences': () => {
+    return {
+      selectedGraphedVitalsOnFilter: '',
+    };
+  },
 };
 
 storiesOf('Vitals', module)

@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
-import { Box, ClickAwayListener, Popover } from '@material-ui/core';
+import { ClickAwayListener, Popover } from '@material-ui/core';
 import FilterListIcon from '@material-ui/icons/FilterList';
+import styled from 'styled-components';
 
-import { GreyOutlinedButton } from './Button';
+import { GreyOutlinedButton as BaseGreyOutlinedButton } from './Button';
 import { ExpandedMultiSelectField } from './Field/ExpandedMultiSelectField';
 import { useUserPreferencesMutation } from '../api/mutations/useUserPreferencesMutation';
 import { useVitalsVisualisationConfigsQuery } from '../api/queries/useVitalsVisualisationConfigsQuery';
 import { useVitalChartData } from '../contexts/VitalChartData';
+
+const GreyOutlinedButton = styled(BaseGreyOutlinedButton)`
+  width: 105px;
+  height: 40px;
+`;
 
 export const VitalMultiChartFilterComponent = ({ options, field }) => {
   const [open, setOpen] = useState(false);
@@ -30,12 +36,11 @@ export const VitalMultiChartFilterComponent = ({ options, field }) => {
     // Notice that ClickAwayListener only accepts one child element.
     <ClickAwayListener onClickAway={handleOnClose}>
       <div>
-        <Box paddingLeft="100px">
-          <GreyOutlinedButton onClick={handleClick}>
-            <FilterListIcon color="primary" />
-            Filter
-          </GreyOutlinedButton>
-        </Box>
+        <GreyOutlinedButton onClick={handleClick}>
+          <FilterListIcon color="primary" />
+          Filter
+        </GreyOutlinedButton>
+
         <Popover
           open={open}
           anchorEl={anchorEl}
