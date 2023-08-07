@@ -6,5 +6,5 @@ export const useUserPreferencesQuery = () => {
   const api = useApi();
   const { currentUser } = useAuth();
 
-  return useQuery(['userPreferences', currentUser], () => api.get('user/userPreferences'));
+  return useQuery(['userPreferences', currentUser.id], () => api.get('user/userPreferences'));
 };

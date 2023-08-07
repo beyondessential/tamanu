@@ -10,12 +10,12 @@ export const useUserPreferencesMutation = () => {
   return useMutation({
     mutationKey: ['userPreferences'],
     mutationFn: async newUserPreferences => {
-      await api.post(`user/userPreferences`, {
+      return api.post(`user/userPreferences`, {
         ...newUserPreferences,
       });
     },
     onSuccess: data => {
-      queryClient.setQueriesData(['userPreferences', currentUser], data);
+      queryClient.setQueriesData(['userPreferences', currentUser.id], data);
     },
   });
 };
