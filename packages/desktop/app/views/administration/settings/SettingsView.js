@@ -21,6 +21,12 @@ const FacilitySelector = styled(SelectInput)`
   }
 `;
 
+const SCOPE_HELPERTEXT = {
+  CENTRAL: 'These settings stay on the central server and wont apply to any facilities',
+  GLOBAL: 'These settings will apply to all facilities/devices',
+  FACILITY: `These settings will only apply to this facility/devices linked to it`,
+};
+
 const BASIC_OPTIONS = [
   {
     label: 'Central Server',
@@ -51,6 +57,7 @@ export const SettingsView = React.memo(() => {
   const [selectedFacility, setSelectedFacility] = useState(null);
 
   const [editMode, setEditMode] = useState(false);
+  const [showValidation, setShowValidation] = useState(false);
 
   const areSettingsPresent = Object.keys(settings).length > 0;
   const formattedJSONString = areSettingsPresent ? JSON.stringify(settings, null, 2) : '';
@@ -59,19 +66,20 @@ export const SettingsView = React.memo(() => {
   let helperText;
   if (selectedFacility === SETTINGS_SCOPES.CENTRAL) {
     scope = SETTINGS_SCOPES.CENTRAL;
-    helperText = 'These settings stay on the central server and wont apply to any facilities';
+    helperText = SCOPE_HELPERTEXT.CENTRAL;
   } else if (selectedFacility) {
     scope = SETTINGS_SCOPES.FACILITY;
-    helperText = `These settings will only apply to this facility`;
+    helperText = SCOPE_HELPERTEXT.FACILITY;
   } else {
     scope = SETTINGS_SCOPES.GLOBAL;
-    helperText = 'These settings will apply to all facilities/devices';
+    helperText = SCOPE_HELPERTEXT.GLOBAL;
   }
 
   const toggleEditMode = () => setEditMode(!editMode);
 
   const onChangeSettings = newValue => {
     setSettingsEditString(newValue);
+    setShowValidation(false);
   };
   const onChangeFacility = event => {
     setSelectedFacility(event.target.value || null);
@@ -80,10 +88,13 @@ export const SettingsView = React.memo(() => {
 
   // Convert settings string from editor into object and post to backend
   const saveSettings = async () => {
+    // Check if the JSON is valid and notify if not
     try {
+      setShowValidation(false);
       JSON.parse(settingsEditString);
     } catch (error) {
       notifyError(`Invalid JSON: ${error.message}`);
+      setShowValidation(true);
       return;
     }
     const settingsObject = JSON.parse(settingsEditString);
@@ -103,7 +114,7 @@ export const SettingsView = React.memo(() => {
   };
 
   useEffect(() => {
-    const fetchFacilities = async () => {
+    const fetchData = async () => {
       const facilitiesArray = await api.get('admin/facilities');
       setFacilityOptions(
         facilitiesArray.map(facility => ({
@@ -116,8 +127,6 @@ export const SettingsView = React.memo(() => {
           },
         })),
       );
-    };
-    const fetchSettings = async () => {
       const settingsObject = await api.get('admin/settings', {
         facilityId: selectedFacility,
         scope,
@@ -126,8 +135,7 @@ export const SettingsView = React.memo(() => {
       setSettingsEditString(JSON.stringify(settingsObject, null, 2));
     };
 
-    fetchFacilities();
-    fetchSettings();
+    fetchData();
   }, [api, selectedFacility, scope]);
 
   return (
@@ -157,6 +165,7 @@ export const SettingsView = React.memo(() => {
       <ContentPane>
         <JSONEditor
           onChange={onChangeSettings}
+          showValidation={showValidation}
           value={editMode ? settingsEditString : formattedJSONString}
           editMode={editMode}
         />
