@@ -75,28 +75,35 @@ export class Setting extends Model {
    * Please update both places when modify
    */
   static async get(key = '', facilityId = null, scope) {
+    const keyWhere = key
+      ? {
+          key: {
+            [Op.or]: {
+              [Op.eq]: key,
+              [Op.like]: `${key}.%`,
+            },
+          },
+        }
+      : {};
+
+    const scopeWhere = scope ? { scope } : {};
+
+    const facilityIdWhere =
+      scope === SETTINGS_SCOPES.FACILITY
+        ? { [Op.eq]: facilityId }
+        : {
+            [Op.or]: {
+              [Op.eq]: facilityId,
+              [Op.is]: null,
+            },
+          };
+
     const settings = await Setting.findAll({
       where: {
-        ...(key
-          ? {
-              key: {
-                [Op.or]: {
-                  [Op.eq]: key,
-                  [Op.like]: `${key}.%`,
-                },
-              },
-            }
-          : {}),
-        ...(scope ? { scope } : {}),
+        ...keyWhere,
+        ...scopeWhere,
         facilityId: {
-          ...(scope === 'facility'
-            ? { [Op.eq]: facilityId }
-            : {
-                [Op.or]: {
-                  [Op.eq]: facilityId,
-                  [Op.is]: null,
-                },
-              }),
+          ...facilityIdWhere,
         },
       },
 
@@ -143,6 +150,15 @@ export class Setting extends Model {
       }),
     );
 
+    const keyWhere = key
+      ? {
+          [Op.or]: {
+            [Op.eq]: key,
+            [Op.like]: `${key}.%`,
+          },
+        }
+      : {};
+
     // delete any records that are no longer needed
     await this.update(
       {
@@ -152,18 +168,11 @@ export class Setting extends Model {
         where: {
           key: {
             [Op.and]: {
-              ...(key === ''
-                ? {}
-                : {
-                    [Op.or]: {
-                      [Op.eq]: key,
-                      [Op.like]: `${key}.%`,
-                    },
-                  }),
+              ...keyWhere,
               [Op.notIn]: records.map(r => r.key),
             },
           },
-          ...(scope ? { scope } : {}),
+          scope,
           facilityId,
         },
       },
