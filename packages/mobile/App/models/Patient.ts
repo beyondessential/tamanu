@@ -1,4 +1,4 @@
-import { Entity, Column, OneToMany, Index } from 'typeorm/browser';
+import { Entity, Column, OneToMany, Index, BeforeInsert, BeforeUpdate } from 'typeorm/browser';
 import { getUniqueId } from 'react-native-device-info';
 import { addHours, parseISO, startOfDay, subYears } from 'date-fns';
 import { groupBy } from 'lodash';
@@ -16,6 +16,7 @@ import { ReferenceData, NullableReferenceDataRelation } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 
 import { DateStringColumn } from './DateColumns';
+import { setUpdatedAtByFieldFor } from './common/updatedAtByFieldFor';
 const TIME_OFFSET = 3;
 
 @Entity('patient')
@@ -78,6 +79,15 @@ export class Patient extends BaseModel implements IPatient {
     secondaryId => secondaryId.patient,
   )
   secondaryIds: PatientSecondaryId[];
+
+  @Column({ nullable: true })
+  updatedAtByField: string;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async setUpdatedAtByField(): Promise<void> {
+    return setUpdatedAtByFieldFor(Patient, this);
+  }
 
   static async markForSync(patientId: string): Promise<void> {
     const facilityId = await readConfig('facilityId', '');
@@ -248,5 +258,37 @@ export class Patient extends BaseModel implements IPatient {
     const columns = Object.keys(data).sort((a, b) => parseISO(b).getTime() - parseISO(a).getTime());
 
     return { data, columns };
+  }
+
+  static sanitizeRecordDataForPush(rows) {
+    return rows.map(row => {
+      const sanitizedRow = {
+        ...row,
+      };
+
+      // Convert updatedAtByField to JSON because central server expects it to be JSON
+      if (row.data.updatedAtByField) {
+        sanitizedRow.data.updatedAtByField = JSON.parse(sanitizedRow.data.updatedAtByField);
+      }
+
+      return sanitizedRow;
+    });
+  }
+
+  static sanitizePulledRecordData(rows) {
+    return rows.map(row => {
+      const sanitizedRow = {
+        ...row,
+      };
+
+      // Convert updatedAtByField to JSON STRING
+      // because updatedAtByField's type is string in mobile
+      // (Sqlite does not support JSON type)
+      if (row.data.updatedAtByField) {
+        sanitizedRow.data.updatedAtByField = JSON.stringify(sanitizedRow.data.updatedAtByField);
+      }
+
+      return sanitizedRow;
+    });
   }
 }
