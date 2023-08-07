@@ -6,7 +6,7 @@ import { SETTINGS_SCOPES } from '@tamanu/shared/constants';
 import { Colors } from '../../../constants';
 import { LargeButton, ContentPane, ButtonRow, TopBar, SelectInput } from '../../../components';
 import { AdminViewContainer } from '../components/AdminViewContainer';
-import { JSONEditor } from './SettingsJSONEditor';
+import { JSONEditor } from './JSONEditor';
 import { useApi } from '../../../api';
 import { notifySuccess, notifyError } from '../../../utils';
 
@@ -80,6 +80,12 @@ export const SettingsView = React.memo(() => {
 
   // Convert settings string from editor into object and post to backend
   const saveSettings = async () => {
+    try {
+      JSON.parse(settingsEditString);
+    } catch (error) {
+      notifyError(`Invalid JSON: ${error.message}`);
+      return;
+    }
     const settingsObject = JSON.parse(settingsEditString);
     setSettings(settingsObject);
     toggleEditMode();
