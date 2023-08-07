@@ -928,7 +928,7 @@
     "deletionAction": "RENAME"
   },
   "validateQuestionConfigs": {
-    "enabled": true
+    "enabled": false
   },
   // this should be an IANA tzdata timezone
   // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
