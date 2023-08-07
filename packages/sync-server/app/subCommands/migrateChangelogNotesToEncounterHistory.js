@@ -208,7 +208,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                                     rows between
                                     1 following and
                                     unbounded following), null))[1],
-                            l.name)
+                            'latest_encounter')
                 end as location_name,
 
                 case when location_group_name notnull then location_group_name
@@ -241,7 +241,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                                     rows between
                                     1 following and
                                     unbounded following), null))[1],
-                            d.name)
+                            'latest_encounter')
                 end as department_name,
 
                 case when examiner_name notnull then examiner_name
@@ -258,7 +258,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                                     rows between
                                     1 following and
                                     unbounded following), null))[1],
-                            u.display_name)
+                            'latest_encounter')
                 end as examiner_name
             from change_log_historical_partial log
             left join batch_encounters e on e.id = log.encounter_id
@@ -326,12 +326,21 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             union
 
             -- Changelog when encounters are changed in between
-            select
+            select distinct
                 log.encounter_id as record_id,
                 log.start_datetime as date,
-                d.id as department_id,
-                l.id as location_id,
-                u.id as examiner_id,
+                case 
+                    when d.id notnull then d.id 
+                    when log.department_name = 'latest_encounter' then e.department_id
+                end as department_id,
+                case 
+                    when l.id notnull then l.id 
+                    when log.location_name = 'latest_encounter' then e.location_id
+                end as location_id,
+                case 
+                    when u.id notnull then u.id 
+                    when log.examiner_name = 'latest_encounter' then e.examiner_id
+                end as examiner_id,
                 log.encounter_type
             from change_log_historical_complete log
             left join unique_departments_by_facility d on d.name = log.department_name and
@@ -342,17 +351,11 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                                     case when lg.id notnull and log.location_group_name <> 'non_determined_location_group_name' then l.location_group_id = lg.id else true end and
                                     l.facility_id = log.encounter_facility_id
             left join unique_users u on u.display_name = log.examiner_name
-            where d.facility_id = log.encounter_facility_id
-            and l.facility_id = log.encounter_facility_id
+            left join batch_encounters e on e.id = log.encounter_id
+            where case when log.department_name <> 'latest_encounter' then d.facility_id = log.encounter_facility_id else true end
+            and case when log.location_name <> 'latest_encounter' then l.facility_id = log.encounter_facility_id else true end
             -- This is to filter the case where there are multiple location 
             -- with the same names out of the changelog, same as departments and users
-            group by 
-                record_id,
-                date,
-                department_id,
-                location_id,
-                examiner_id,
-                encounter_type
             order by record_id, date
         ),
         inserted as (

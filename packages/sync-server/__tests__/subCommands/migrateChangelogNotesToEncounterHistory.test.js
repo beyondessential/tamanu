@@ -1280,6 +1280,72 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           encounterType,
         });
       });
+
+      it('works out location of the latest encounter when location has duplicated names in different location groups', async () => {
+        const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+        const location1 = await createLocation('location same name', {
+          locationGroupId: locationGroup1.id,
+        });
+        const location2 = await createLocation('location same name', {
+          locationGroupId: locationGroup2.id,
+        });
+        const department1 = await createDepartment('department 1');
+        const department2 = await createDepartment('department 2');
+        const department3 = await createDepartment('department 3');
+        const clinician = await createUser('user');
+        const encounterType = 'admission';
+
+        const encounter = await createEncounter(patient, {
+          departmentId: department1.id,
+          locationId: location1.id,
+          examinerId: clinician.id,
+          encounterType,
+          startDate: getDateSubtractedFromNow(6),
+        });
+
+        await encounter.addDepartmentChangeNote(department2.id, getDateSubtractedFromNow(4));
+        encounter.departmentId = department2.id;
+        await encounter.save();
+
+        await encounter.addDepartmentChangeNote(department3.id, getDateSubtractedFromNow(2));
+        encounter.departmentId = department3.id;
+        await encounter.save();
+
+        await migrateChangelogNotesToEncounterHistory(SUB_COMMAND_OPTIONS);
+
+        expect(exitSpy).toBeCalledWith(0);
+
+        const encounterHistoryRecords = await models.EncounterHistory.findAll({
+          order: [['date', 'ASC']],
+        });
+
+        expect(encounterHistoryRecords).toHaveLength(3);
+
+        // Initial encounter
+        expect(encounterHistoryRecords[0]).toMatchObject({
+          encounterId: encounter.id,
+          departmentId: department1.id,
+          locationId: location1.id,
+          examinerId: clinician.id,
+          encounterType,
+        });
+
+        expect(encounterHistoryRecords[1]).toMatchObject({
+          encounterId: encounter.id,
+          departmentId: department2.id,
+          locationId: location1.id,
+          examinerId: clinician.id,
+          encounterType,
+        });
+
+        expect(encounterHistoryRecords[2]).toMatchObject({
+          encounterId: encounter.id,
+          departmentId: department3.id,
+          locationId: location1.id,
+          examinerId: clinician.id,
+          encounterType,
+        });
+      });
     });
 
     describe('departments migration', () => {
@@ -1659,6 +1725,86 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           encounterType,
         });
       });
+
+      it('works out department of the latest encounter when department has duplicated names in different facilities', async () => {
+        const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+        const location1 = await createLocation('location 1', {
+          locationGroupId: locationGroup1.id,
+        });
+        const location2 = await createLocation('location 2', {
+          locationGroupId: locationGroup1.id,
+        });
+        const location3 = await createLocation('location 3', {
+          locationGroupId: locationGroup1.id,
+        });
+        const department1 = await createDepartment('department same name', {
+          facilityId: facility1.id,
+        });
+        const department2 = await createDepartment('department same name', {
+          facilityId: facility2.id,
+        });
+        const clinician = await createUser('user');
+        const encounterType = 'admission';
+
+        const encounter = await createEncounter(patient, {
+          departmentId: department1.id,
+          locationId: location1.id,
+          examinerId: clinician.id,
+          encounterType,
+          startDate: getDateSubtractedFromNow(8),
+        });
+
+        await encounter.addLocationChangeNote(
+          'Changed location',
+          location2.id,
+          getDateSubtractedFromNow(6),
+        );
+        encounter.locationId = location2.id;
+        await encounter.save();
+
+        await encounter.addLocationChangeNote(
+          'Changed location',
+          location3.id,
+          getDateSubtractedFromNow(4),
+        );
+        encounter.locationId = location3.id;
+        await encounter.save();
+
+        await migrateChangelogNotesToEncounterHistory(SUB_COMMAND_OPTIONS);
+
+        expect(exitSpy).toBeCalledWith(0);
+
+        const encounterHistoryRecords = await models.EncounterHistory.findAll({
+          order: [['date', 'ASC']],
+        });
+
+        expect(encounterHistoryRecords).toHaveLength(3);
+
+        // Initial encounter
+        expect(encounterHistoryRecords[0]).toMatchObject({
+          encounterId: encounter.id,
+          departmentId: department1.id,
+          locationId: location1.id,
+          examinerId: clinician.id,
+          encounterType,
+        });
+
+        expect(encounterHistoryRecords[1]).toMatchObject({
+          encounterId: encounter.id,
+          departmentId: department1.id,
+          locationId: location2.id,
+          examinerId: clinician.id,
+          encounterType,
+        });
+
+        expect(encounterHistoryRecords[2]).toMatchObject({
+          encounterId: encounter.id,
+          departmentId: department1.id,
+          locationId: location3.id,
+          examinerId: clinician.id,
+          encounterType,
+        });
+      });
     });
 
     describe('clinicians migration', () => {
@@ -1787,6 +1933,84 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           departmentId: department.id,
           locationId: location.id,
           examinerId: clinician3.id,
+          encounterType,
+        });
+      });
+
+      it('works out clinician of the latest encounter when clinician has duplicated names', async () => {
+        const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+        const location1 = await createLocation('location 1', {
+          locationGroupId: locationGroup1.id,
+        });
+        const location2 = await createLocation('location 2', {
+          locationGroupId: locationGroup1.id,
+        });
+        const location3 = await createLocation('location 3', {
+          locationGroupId: locationGroup1.id,
+        });
+        const department = await createDepartment('department 1', {
+          facilityId: facility1.id,
+        });
+        const clinician1 = await createUser('clinician same name');
+        const clinician2 = await createUser('clinician same name');
+        const encounterType = 'admission';
+
+        const encounter = await createEncounter(patient, {
+          departmentId: department.id,
+          locationId: location1.id,
+          examinerId: clinician1.id,
+          encounterType,
+          startDate: getDateSubtractedFromNow(8),
+        });
+
+        await encounter.addLocationChangeNote(
+          'Changed location',
+          location2.id,
+          getDateSubtractedFromNow(6),
+        );
+        encounter.locationId = location2.id;
+        await encounter.save();
+
+        await encounter.addLocationChangeNote(
+          'Changed location',
+          location3.id,
+          getDateSubtractedFromNow(4),
+        );
+        encounter.locationId = location3.id;
+        await encounter.save();
+
+        await migrateChangelogNotesToEncounterHistory(SUB_COMMAND_OPTIONS);
+
+        expect(exitSpy).toBeCalledWith(0);
+
+        const encounterHistoryRecords = await models.EncounterHistory.findAll({
+          order: [['date', 'ASC']],
+        });
+
+        expect(encounterHistoryRecords).toHaveLength(3);
+
+        // Initial encounter
+        expect(encounterHistoryRecords[0]).toMatchObject({
+          encounterId: encounter.id,
+          departmentId: department.id,
+          locationId: location1.id,
+          examinerId: clinician1.id,
+          encounterType,
+        });
+
+        expect(encounterHistoryRecords[1]).toMatchObject({
+          encounterId: encounter.id,
+          departmentId: department.id,
+          locationId: location2.id,
+          examinerId: clinician1.id,
+          encounterType,
+        });
+
+        expect(encounterHistoryRecords[2]).toMatchObject({
+          encounterId: encounter.id,
+          departmentId: department.id,
+          locationId: location3.id,
+          examinerId: clinician1.id,
           encounterType,
         });
       });
