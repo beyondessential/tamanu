@@ -3,11 +3,13 @@ import { render } from 'react-dom';
 import { persistStore } from 'redux-persist';
 
 import Root from './Root';
-import './fonts.scss';
-import './react-toastify.scss';
 import { API } from './api/singletons';
 import { registerYup } from './utils/errorMessages';
 import { initStore, restoreSession, authFailure, versionIncompatible } from './store';
+
+import './fonts.scss';
+import './react-toastify.scss';
+import './report-editor.scss';
 
 function initPersistor(api, store) {
   const persistor = persistStore(store, null, () => {

@@ -1,3 +1,4 @@
+import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/shared/constants/surveys';
 import { Colors } from '../../../constants';
 
 const getDotColor = ({ isInsideNormalRange, isOutsideGraphRange, useInwardArrowVector }) => {
@@ -36,40 +37,95 @@ const getDisplayValue = ({ data, isOutsideGraphRange, yAxis }) => {
   return displayValue;
 };
 
+// Alter descriptions cause otherwise is a bit involved and it's very specific
+const getBloodPressureDescription = (description, key) => {
+  if (description.length === 0) return description;
+  const vitalSymbol = key === VITALS_DATA_ELEMENT_IDS.sbp ? 'SBP' : 'DBP';
+  return description.replaceAll('(Outside', `(${vitalSymbol} outside`);
+};
+
+const getDefaultMeasureData = (rawData, visualisationConfig) => {
+  const { yAxis } = visualisationConfig;
+  return rawData.map(d => {
+    const isInsideNormalRange =
+      d.value >= yAxis.normalRange.min && d.value <= yAxis.normalRange.max;
+    const isOutsideGraphRange = d.value < yAxis.graphRange.min || d.value > yAxis.graphRange.max;
+
+    const dotColor = getDotColor({
+      isInsideNormalRange,
+      isOutsideGraphRange,
+    });
+    const displayValue = getDisplayValue({ data: d, isOutsideGraphRange, yAxis });
+    const description = getDescription({
+      data: d,
+      isInsideNormalRange,
+      isOutsideGraphRange,
+      yAxis,
+    });
+
+    return {
+      ...d,
+      timestamp: Date.parse(d.name),
+      [DISPLAY_VALUE_KEY]: displayValue,
+      dotColor,
+      description,
+      visualisationConfig,
+    };
+  });
+};
+
+const getInwardArrowMeasureData = (rawData, visualisationConfig, secondaryConfig) => {
+  const defaultMeasureData = getDefaultMeasureData(rawData, visualisationConfig);
+  const { yAxis } = secondaryConfig;
+
+  // Adjust shape calculations for secondary value in arrow vector
+  // (currently this just applies to DBP in blood pressure).
+  return defaultMeasureData.map(baseData => {
+    const secondaryData = { value: baseData.inwardArrowVector.bottom };
+
+    const isInsideNormalRange =
+      secondaryData.value >= yAxis.normalRange.min && secondaryData.value <= yAxis.normalRange.max;
+    const isOutsideGraphRange =
+      secondaryData.value < yAxis.graphRange.min || secondaryData.value > yAxis.graphRange.max;
+
+    const secondaryValueDotColor = getDotColor({
+      isInsideNormalRange,
+      isOutsideGraphRange,
+      useInwardArrowVector: true,
+    });
+    const secondDescription = getDescription({
+      data: secondaryData,
+      isInsideNormalRange,
+      isOutsideGraphRange,
+      yAxis,
+    });
+
+    // Preserve the first one if its an alert, otherwise the secondary
+    const finalDotColor =
+      baseData.dotColor === Colors.alert ? Colors.alert : secondaryValueDotColor;
+
+    return {
+      ...baseData,
+      dotColor: finalDotColor,
+      description: getBloodPressureDescription(baseData.description, visualisationConfig.key),
+      secondDescription: getBloodPressureDescription(secondDescription, secondaryConfig.key),
+    };
+  });
+};
+
 export const DISPLAY_VALUE_KEY = 'displayValue';
 
-export const getMeasureData = (rawData, visualisationConfig, useInwardArrowVector) => {
-  const { yAxis } = visualisationConfig;
+export const getMeasureData = (
+  rawData,
+  visualisationConfig,
+  useInwardArrowVector,
+  secondaryConfig,
+) => {
+  const measureData = useInwardArrowVector
+    ? getInwardArrowMeasureData(rawData, visualisationConfig, secondaryConfig)
+    : getDefaultMeasureData(rawData, visualisationConfig);
 
-  return rawData
-    .map(d => {
-      const isInsideNormalRange =
-        d.value >= yAxis.normalRange.min && d.value <= yAxis.normalRange.max;
-      const isOutsideGraphRange = d.value < yAxis.graphRange.min || d.value > yAxis.graphRange.max;
-
-      const dotColor = getDotColor({
-        isInsideNormalRange,
-        isOutsideGraphRange,
-        useInwardArrowVector,
-      });
-      const displayValue = getDisplayValue({ data: d, isOutsideGraphRange, yAxis });
-      const description = getDescription({
-        data: d,
-        isInsideNormalRange,
-        isOutsideGraphRange,
-        yAxis,
-      });
-
-      return {
-        ...d,
-        timestamp: Date.parse(d.name),
-        [DISPLAY_VALUE_KEY]: displayValue,
-        dotColor,
-        description,
-        visualisationConfig,
-      };
-    })
-    .sort((a, b) => {
-      return a.timestamp - b.timestamp;
-    });
+  return measureData.sort((a, b) => {
+    return a.timestamp - b.timestamp;
+  });
 };

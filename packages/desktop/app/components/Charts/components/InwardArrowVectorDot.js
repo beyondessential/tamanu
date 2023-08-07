@@ -20,9 +20,10 @@ export const InwardArrowVectorDot = props => {
 
   const heightPerInterval = getHeightPerYAxisInterval(yAxis, tableHeight);
   const vectorHeight = ((top - bottom) / interval) * heightPerInterval;
+  const clampedVectorHeight = Math.min(vectorHeight, tableHeight);
 
   const verticalLine = {
-    bottom: { x: 6, y: 7.5 + vectorHeight },
+    bottom: { x: 6, y: 7.5 + clampedVectorHeight },
   };
   const startAndEndPointOfBottomInwardArrow = {
     y: verticalLine.bottom.y + 6,
