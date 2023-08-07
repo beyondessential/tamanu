@@ -13,8 +13,9 @@ const SelectInstructions = () => (
   <div>
     <MainInstruction>Select which version of the patient should be kept.</MainInstruction>
     <p>
-      Basic data, including name, patient ID, DOB, sex, location, blood type and contact details
-      will be retained from the selected patient record only. Clinical information such as
+      Patient details recorded against the patient record to be kept, including name, sex, location,
+      blood type and contact details will be retained. Any details that are only recorded against
+      the patient record to be merged will also be retained. Clinical information such as
       encounters, allergies, existing conditions and family history will be retained from both
       patient records.
     </p>
