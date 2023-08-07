@@ -119,7 +119,7 @@ export class Setting extends Model {
     return getAtPath(settingsObject, key);
   }
 
-  static async set(key, value, facilityId = null) {
+  static async set(key, value, facilityId = null, scope) {
     const records = buildSettingsRecords(key, value, facilityId);
 
     // create or update records
@@ -127,13 +127,13 @@ export class Setting extends Model {
       records.map(async record => {
         // can't use upsert as sequelize can't parse our triple-index unique constraint
         const existing = await this.findOne({
-          where: { key: record.key, facilityId: record.facilityId },
+          where: { key: record.key, facilityId: record.facilityId, scope },
         });
 
         if (existing) {
           await this.update({ value: record.value }, { where: { id: existing.id } });
         } else {
-          await this.create(record);
+          await this.create({ ...record, scope });
         }
       }),
     );
@@ -155,6 +155,7 @@ export class Setting extends Model {
             },
           },
           facilityId,
+          scope,
         },
       },
     );

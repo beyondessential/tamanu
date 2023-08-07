@@ -1,10 +1,9 @@
 import { readFile } from 'fs/promises';
 import config from 'config';
-import { pick, set, unset } from 'lodash';
+import { defaultsDeep, pick, set, unset } from 'lodash';
 import stripJsonComments from 'strip-json-comments';
 
-import { buildSettingsRecords } from '../models/Setting';
-import { SETTING_KEYS } from '../constants';
+import { SETTINGS_SCOPES, SETTING_KEYS } from '../constants';
 
 import { facilityDefaults } from '../settings/facility';
 import { centralDefaults } from '../settings/central';
@@ -20,23 +19,35 @@ const SETTINGS_PREDATING_MIGRATION = [
   'integrations.imaging',
 ];
 
-const MIGRATE_FROM_LOCALISATION = [
+const MOVE_FROM_LOCALISATION_TO_ROOT = [
   'labResultWidget',
   'timeZone',
   'data.imagingTypes',
   'data.features',
 ];
 
+const getDefaultedSettings = (settings, defaults) =>
+  defaultsDeep(
+    pick(
+      settings,
+      // Top level keys not defined in defaults are ignored as sensitive or require
+      // restart to take effect
+      Object.keys(defaults),
+    ),
+    defaults,
+  );
+
 export async function up(query) {
-  const { serverFacilityId } = config;
+  const { serverFacilityId = null } = config;
 
   const scopedDefaults = serverFacilityId ? facilityDefaults : centralDefaults;
+  const scope = serverFacilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.CENTRAL;
 
   const localData = JSON.parse(stripJsonComments((await readFile('config/local.json')).toString()));
 
   if ('localisation' in localData && !serverFacilityId) {
     // Move some localisation keys to top level to match new defaults structure
-    MIGRATE_FROM_LOCALISATION.forEach(key => {
+    MOVE_FROM_LOCALISATION_TO_ROOT.forEach(key => {
       const value = localData[key];
       if (value) {
         set(localData, key, value);
@@ -45,23 +56,11 @@ export async function up(query) {
     });
   }
 
-  const validKeys = Object.keys({ ...globalDefaults, ...scopedDefaults });
+  const globalConfig = getDefaultedSettings(config, globalDefaults);
+  const scopedConfig = getDefaultedSettings(config, scopedDefaults);
 
-  const localConfig = pick(
-    JSON.parse(stripJsonComments((await readFile('config/local.json')).toString())),
-    // Top level keys not defined in defaults are ignored as sensitive or require
-    // restart to take effect
-    validKeys,
-  );
-
-  const localSettings = buildSettingsRecords('', localConfig, serverFacilityId);
-
-  await Promise.all(
-    localSettings.map(({ key, value, facilityId }) => {
-      // Get scope
-      return query.sequelize.models.Setting.set(key, value, facilityId);
-    }),
-  );
+  await query.sequelize.models.Setting.set('', globalConfig, null, SETTINGS_SCOPES.GLOBAL);
+  await query.sequelize.models.Setting.set('', scopedConfig, serverFacilityId, scope);
 }
 
 export async function down(query) {
