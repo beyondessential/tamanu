@@ -125,12 +125,15 @@ function fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponen
 }
 
 /**
- * IMPORTANT: We also have another version of this method in sync-server
- * sub commands 'calculateSurveyResults'.
- * The sub command is for recalculate survey results due to an issue that
- * resultText was not synced properly to sync-server before.
+ * IMPORTANT: We have 4 other versions of this method:
+ *
+ * - mobile/App/ui/helpers/fields.ts
+ * - desktop/app/utils/survey.js
+ * - shared/src/utils/fields.js
+ * - sync-server/app/subCommands/calculateSurveyResults.js
+ *
  * So if there is an update to this method, please make the same update
- * in the other version in sync-server
+ * in the other versions
  */
 export function checkVisibilityCriteria(
   component: ISurveyScreenComponent,

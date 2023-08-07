@@ -7,6 +7,17 @@ import { initDatabase } from '../database';
 
 const SURVEY_RESPONSE_BATCH_SIZE = 1000;
 
+/**
+ * IMPORTANT: We have 4 other versions of this method:
+ *
+ * - mobile/App/ui/helpers/fields.ts
+ * - desktop/app/utils/survey.js
+ * - shared/src/utils/fields.js
+ * - sync-server/app/subCommands/calculateSurveyResults.js
+ *
+ * So if there is an update to this method, please make the same update
+ * in the other versions
+ */
 const checkVisibilityCriteria = (component, allComponents, answerByCode) => {
   const { visibilityCriteria } = component;
   // nothing set - show by default

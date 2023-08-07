@@ -40,6 +40,17 @@ function compareData(dataType, expected, given) {
   return false;
 }
 
+/**
+ * IMPORTANT: We have 4 other versions of this method:
+ *
+ * - mobile/App/ui/helpers/fields.ts
+ * - desktop/app/utils/survey.js
+ * - shared/src/utils/fields.js
+ * - sync-server/app/subCommands/calculateSurveyResults.js
+ *
+ * So if there is an update to this method, please make the same update
+ * in the other versions
+ */
 function checkVisibilityCriteria(component, allComponents, values) {
   const { visibilityCriteria } = component;
   // nothing set - show by default
