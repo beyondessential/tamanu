@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Box, ClickAwayListener, Popover } from '@material-ui/core';
 import FilterListIcon from '@material-ui/icons/FilterList';
 
 import { GreyOutlinedButton } from './Button';
 import { ExpandedMultiSelectField } from './Field/ExpandedMultiSelectField';
-import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { useUserPreferencesMutation } from '../api/mutations/useUserPreferencesMutation';
 import { useVitalsVisualisationConfigsQuery } from '../api/queries/useVitalsVisualisationConfigsQuery';
 import { useVitalChartData } from '../contexts/VitalChartData';
@@ -62,9 +61,8 @@ export const VitalMultiChartFilterComponent = ({ options, field }) => {
 };
 
 export const VitalMultiChartFilter = () => {
-  const { setChartKeys } = useVitalChartData();
+  const { chartKeys, setChartKeys } = useVitalChartData();
   const vitalsVisualisationConfigsQuery = useVitalsVisualisationConfigsQuery();
-  const userPreferencesQuery = useUserPreferencesQuery();
   const userPreferencesMutation = useUserPreferencesMutation();
 
   const { data } = vitalsVisualisationConfigsQuery;
@@ -73,22 +71,12 @@ export const VitalMultiChartFilter = () => {
     .filter(({ key }) => allGraphedChartKeys.includes(key))
     .map(({ key, name }) => ({ value: key, label: name }));
 
-  const { selectedGraphedVitalsOnFilter = '' } = userPreferencesQuery?.data || {};
-  const [selectedGraphedVitals, setSelectedGraphedVitals] = React.useState(allGraphedChartKeys);
-
-  useEffect(() => {
-    if (selectedGraphedVitalsOnFilter !== '') {
-      setSelectedGraphedVitals(selectedGraphedVitalsOnFilter.split(','));
-    }
-  }, [selectedGraphedVitalsOnFilter]);
-
   const handleChange = newValues => {
     const newSelectedChartKeys = newValues.target.value;
     const sortedSelectedChartKeys = allGraphedChartKeys.filter(key =>
       newSelectedChartKeys.includes(key),
     );
 
-    setSelectedGraphedVitals(sortedSelectedChartKeys);
     setChartKeys(sortedSelectedChartKeys);
     userPreferencesMutation.mutate({
       selectedGraphedVitalsOnFilter: sortedSelectedChartKeys.join(','),
@@ -97,7 +85,7 @@ export const VitalMultiChartFilter = () => {
 
   const field = {
     name: 'selectedGraphedVitalsOnFilter',
-    value: selectedGraphedVitals,
+    value: chartKeys,
     onChange: handleChange,
   };
 

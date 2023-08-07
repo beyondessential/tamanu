@@ -16,6 +16,8 @@ import { useVitalChartData } from '../contexts/VitalChartData';
 import { useLocalisation } from '../contexts/Localisation';
 import { getNormalRangeByAge } from '../utils';
 import { useVitalsVisualisationConfigsQuery } from '../api/queries/useVitalsVisualisationConfigsQuery';
+import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
+import { combineQueries } from '../api';
 
 const StyledTable = styled(Table)`
   overflow-x: auto;
@@ -102,25 +104,41 @@ const TitleCell = React.memo(({ value }) => {
     setVitalChartModalOpen,
     setIsInMultiChartsView,
   } = useVitalChartData();
-  const { data, isLoading, isError } = useVitalsVisualisationConfigsQuery();
+  const vitalsVisualisationConfigsQuery = useVitalsVisualisationConfigsQuery();
+  const userPreferencesQuery = useUserPreferencesQuery();
+  const {
+    data: [vitalsVisualisationConfigs, userPreferences],
+    isSuccess,
+  } = combineQueries([vitalsVisualisationConfigsQuery, userPreferencesQuery]);
+
+  let chartKeys = [];
+  if (isSuccess) {
+    const { selectedGraphedVitalsOnFilter = '' } = userPreferences;
+    chartKeys =
+      selectedGraphedVitalsOnFilter !== ''
+        ? selectedGraphedVitalsOnFilter.split(',')
+        : vitalsVisualisationConfigs.allGraphedChartKeys;
+  }
 
   return (
     <>
       <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
         {value}
-        {!isLoading && !isError && data && data.allGraphedChartKeys.length > 0 && (
-          <IconButton
-            size="small"
-            onClick={() => {
-              setChartKeys(data.allGraphedChartKeys);
-              setIsInMultiChartsView(true);
-              setModalTitle('Vitals');
-              setVitalChartModalOpen(true);
-            }}
-          >
-            <VitalVectorIcon />
-          </IconButton>
-        )}
+        {isSuccess &&
+          vitalsVisualisationConfigs &&
+          vitalsVisualisationConfigs.allGraphedChartKeys.length > 0 && (
+            <IconButton
+              size="small"
+              onClick={() => {
+                setChartKeys(chartKeys);
+                setIsInMultiChartsView(true);
+                setModalTitle('Vitals');
+                setVitalChartModalOpen(true);
+              }}
+            >
+              <VitalVectorIcon />
+            </IconButton>
+          )}
       </Box>
     </>
   );
