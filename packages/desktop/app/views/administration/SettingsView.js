@@ -30,7 +30,7 @@ const ALL_FACILITIES_OPTION = [
     value: 'central',
     tag: {
       label: 'Central',
-      background: Colors.primary,
+      background: Colors.pink,
       color: Colors.white,
     },
   },
@@ -39,7 +39,7 @@ const ALL_FACILITIES_OPTION = [
     value: null,
     tag: {
       label: 'Global',
-      background: Colors.primary,
+      background: Colors.orange,
       color: Colors.white,
     },
   },
@@ -146,7 +146,7 @@ export const SettingsView = React.memo(() => {
           value: facility.id,
           tag: {
             label: 'Facility',
-            background: Colors.primary,
+            background: Colors.blue,
             color: Colors.white,
           },
         })),
