@@ -5,6 +5,8 @@ import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-eclipse';
 import 'ace-builds/src-noconflict/theme-dawn';
 
+import { SETTINGS_SCOPES } from '@tamanu/shared/constants';
+
 import { Colors } from '../../constants';
 import { LargeButton, ContentPane, ButtonRow, TopBar, SelectInput } from '../../components';
 import { AdminViewContainer } from './components/AdminViewContainer';
@@ -24,10 +26,10 @@ const FacilitySelector = styled(SelectInput)`
   width: 500px;
 `;
 
-const ALL_FACILITIES_OPTION = [
+const BASIC_OPTIONS = [
   {
     label: 'Central Server',
-    value: 'central',
+    value: SETTINGS_SCOPES.CENTRAL,
     tag: {
       label: 'Central',
       background: Colors.pink,
@@ -88,14 +90,14 @@ export const SettingsView = React.memo(() => {
 
   let scope;
   let helperText;
-  if (selectedFacility === 'central') {
-    scope = 'central';
+  if (selectedFacility === SETTINGS_SCOPES.CENTRAL) {
+    scope = SETTINGS_SCOPES.CENTRAL;
     helperText = 'These settings stay on the central server and wont apply to any facilities';
   } else if (selectedFacility) {
-    scope = 'facility';
+    scope = SETTINGS_SCOPES.FACILITY;
     helperText = `These settings will only apply to ${selectedFacility}`;
   } else {
-    scope = 'global';
+    scope = SETTINGS_SCOPES.GLOBAL;
     helperText = 'These settings will apply to all facilities/devices';
   }
 
@@ -131,7 +133,7 @@ export const SettingsView = React.memo(() => {
     toggleEditMode();
     api.put('admin/settings', {
       settings: settingsObject,
-      facilityId: selectedFacility !== 'central' ? selectedFacility : null,
+      facilityId: selectedFacility !== SETTINGS_SCOPES.CENTRAL ? selectedFacility : null,
       scope,
     });
     notifySuccess('Settings saved');
@@ -180,7 +182,7 @@ export const SettingsView = React.memo(() => {
         <FacilitySelector
           value={selectedFacility}
           onChange={onChangeFacility}
-          options={ALL_FACILITIES_OPTION.concat(facilityOptions)}
+          options={BASIC_OPTIONS.concat(facilityOptions)}
           label="Select a facility/server to view and edit its settings"
           isClearable={false}
           helperText={helperText}
