@@ -24,6 +24,9 @@ const StyledTopBar = styled(TopBar)`
 
 const FacilitySelector = styled(SelectInput)`
   width: 500px;
+  .css-g1d714-ValueContainer {
+    overflow: visible;
+  }
 `;
 
 const BASIC_OPTIONS = [
@@ -47,6 +50,8 @@ const BASIC_OPTIONS = [
   },
 ];
 
+// The error given to us doesnt give us enough info to find the exact row and column of the error
+// in the JSON string, so we have to do some work to find it
 const generateAnnotationFromJSONError = (errorMessage, json) => {
   const rows = json.split('\n');
   let charCount = 0;
