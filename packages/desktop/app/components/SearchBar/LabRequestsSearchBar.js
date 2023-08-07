@@ -9,7 +9,6 @@ import {
   Field,
   SuggesterSelectField,
   SearchField,
-  DisplayIdSearchField,
   AutocompleteField,
   CheckField,
 } from '../Field';
@@ -49,7 +48,6 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
   return (
     <CustomisableSearchBar
       initialValues={searchParameters}
-      staticValues={{ displayIdExact: true }}
       onSearch={setSearchParameters}
       isExpanded={showAdvancedFields}
       setIsExpanded={setShowAdvancedFields}
@@ -97,7 +95,7 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
       }
     >
       <>
-        <DisplayIdSearchField useShortLabel />
+        <LocalisedField useShortLabel keepLetterCase name="displayId" component={SearchField} />
         <LocalisedField name="firstName" component={SearchField} />
         <LocalisedField name="lastName" component={SearchField} />
         <Field name="requestId" label="Test ID" component={SearchField} />

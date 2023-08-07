@@ -66,6 +66,7 @@ export const createPatientFilters = filterParams => {
         currentPatientExcludeEncounterTypes: [
           ENCOUNTER_TYPES.IMAGING,
           ENCOUNTER_TYPES.SURVEY_RESPONSE,
+          ENCOUNTER_TYPES.VACCINATION,
         ],
       }),
     ),
