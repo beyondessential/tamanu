@@ -647,6 +647,7 @@ Patient may need mobility assistance`,
 
   describe('search', () => {
     let encounter;
+    let fhirEncounter;
     let irs;
     beforeAll(async () => {
       const {
@@ -654,6 +655,7 @@ Patient may need mobility assistance`,
         FhirServiceRequest,
         ImagingRequest,
         ImagingRequestArea,
+        FhirEncounter,
       } = ctx.store.models;
       await FhirServiceRequest.destroy({ where: {} });
       await ImagingRequest.destroy({ where: {} });
@@ -667,6 +669,8 @@ Patient may need mobility assistance`,
           examinerId: resources.practitioner.id,
         }),
       );
+
+      fhirEncounter = await FhirEncounter.materialiseFromUpstream(encounter.id);
 
       irs = await Promise.all([
         (async () => {
@@ -877,6 +881,20 @@ Patient may need mobility assistance`,
       expect(response.body.total).toBe(2);
       expect(response.body.entry.length).toBe(2);
       expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+      expect(response).toHaveSucceeded();
+    });
+
+    it('includes encounter as materialised encounter', async () => {
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Encounter:encounter`,
+      );
+
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.length).toBe(3);
+      expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+      expect(
+        response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
+      ).toBe(fhirEncounter.id);
       expect(response).toHaveSucceeded();
     });
   });
