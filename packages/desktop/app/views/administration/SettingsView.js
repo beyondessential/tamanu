@@ -11,7 +11,7 @@ import { Colors } from '../../constants';
 import { LargeButton, ContentPane, ButtonRow, TopBar, SelectInput } from '../../components';
 import { AdminViewContainer } from './components/AdminViewContainer';
 import { useApi } from '../../api';
-import { notifySuccess } from '../../utils';
+import { notifySuccess, notifyError } from '../../utils';
 
 const StyledAceEditor = styled(AceEditor)`
   border: 1px solid ${p => (p.$isJsonValid ? Colors.outline : Colors.alert)};
@@ -38,7 +38,7 @@ const BASIC_OPTIONS = [
   },
   {
     label: 'All Facilities',
-    value: null,
+    value: null, // null is equivalent to no faciliites in backend logic
     tag: {
       label: 'Global',
       background: Colors.orange,
@@ -127,16 +127,20 @@ export const SettingsView = React.memo(() => {
   };
 
   // Convert settings string from editor into object and post to backend
-  const saveSettings = () => {
+  const saveSettings = async () => {
     const settingsObject = JSON.parse(settingsEditString);
     setSettings(settingsObject);
     toggleEditMode();
-    api.put('admin/settings', {
+    const response = await api.put('admin/settings', {
       settings: settingsObject,
       facilityId: selectedFacility !== SETTINGS_SCOPES.CENTRAL ? selectedFacility : null,
       scope,
     });
-    notifySuccess('Settings saved');
+    if (response === 200) {
+      notifySuccess('Settings saved');
+    } else {
+      notifyError('Error while saving settings');
+    }
   };
 
   useEffect(() => {
