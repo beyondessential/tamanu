@@ -7,6 +7,7 @@ import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
 import { foreignKey } from '../utils/validation';
+import { LocalisedText } from '../components';
 
 export const PatientCarePlanForm = ({
   practitionerSuggester,
@@ -30,7 +31,7 @@ export const PatientCarePlanForm = ({
           <Field name="date" label="Date recorded" component={DateTimeField} saveDateAsString />
           <Field
             name="examinerId"
-            label="Doctor/nurse"
+            label={<LocalisedText path="fields.clinician.shortLabel" />}
             component={AutocompleteField}
             suggester={practitionerSuggester}
           />

@@ -7,8 +7,10 @@ import { usePatientNavigation } from '../utils/usePatientNavigation';
 
 import { ChangeClinicianForm } from '../forms/ChangeClinicianForm';
 import { Modal } from './Modal';
+import { useLocalisedText } from './LocalisedText';
 
 export const ChangeClinicianModal = React.memo(({ open, onClose }) => {
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
   const { navigateToEncounter } = usePatientNavigation();
   const { encounter, writeAndViewEncounter } = useEncounter();
   const clinicianSuggester = useSuggester('practitioner');
@@ -21,7 +23,7 @@ export const ChangeClinicianModal = React.memo(({ open, onClose }) => {
   );
 
   return (
-    <Modal title="Change clinician" open={open} onClose={onClose}>
+    <Modal title={`Change ${clinicianText.toLowerCase()}`} open={open} onClose={onClose}>
       <ChangeClinicianForm
         clinicianSuggester={clinicianSuggester}
         onSubmit={onSubmit}
