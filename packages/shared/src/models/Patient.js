@@ -29,7 +29,6 @@ export class Patient extends Model {
         },
         email: Sequelize.STRING,
         visibilityStatus: Sequelize.STRING,
-        updatedAtByField: Sequelize.JSON,
       },
       {
         ...options,
