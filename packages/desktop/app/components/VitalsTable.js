@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/shared/constants';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/shared/constants/surveys';
-import { Box, IconButton as IconButtonComponent } from '@material-ui/core';
+import { Box, CircularProgress, IconButton as IconButtonComponent } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
@@ -109,6 +109,7 @@ const TitleCell = React.memo(({ value }) => {
   const {
     data: [vitalsVisualisationConfigs, userPreferences],
     isSuccess,
+    isLoading,
   } = combineQueries([vitalsVisualisationConfigsQuery, userPreferencesQuery]);
 
   let chartKeys = [];
@@ -139,6 +140,7 @@ const TitleCell = React.memo(({ value }) => {
               <VitalVectorIcon />
             </IconButton>
           )}
+        {isLoading && <CircularProgress size={14} />}
       </Box>
     </>
   );
