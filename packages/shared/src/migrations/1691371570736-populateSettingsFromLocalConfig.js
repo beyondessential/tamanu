@@ -19,6 +19,13 @@ const SETTINGS_PREDATING_MIGRATION = [
   'integrations.imaging',
 ];
 
+const CENTRAL_KEY_TRANSFORM_MAP = {
+  'localisation.labResultWidget': 'labResultWidget',
+  'localisation.timeZone': 'timeZone',
+  'localisation.data.imagingTypes': 'imagingTypes',
+  'localisation.data.features': 'features',
+};
+
 const MOVE_FROM_LOCALISATION_TO_ROOT = [
   'labResultWidget',
   'timeZone',
@@ -26,15 +33,12 @@ const MOVE_FROM_LOCALISATION_TO_ROOT = [
   'data.features',
 ];
 
-const getDefaultedSettings = (settings, defaults) =>
-  defaultsDeep(
-    pick(
-      settings,
-      // Top level keys not defined in defaults are ignored as sensitive or require
-      // restart to take effect
-      Object.keys(defaults),
-    ),
-    defaults,
+const pickSettings = (settings, defaults) =>
+  pick(
+    settings,
+    // Top level keys not defined in defaults are ignored as sensitive or require
+    // restart to take effect
+    Object.keys(defaults),
   );
 
 export async function up(query) {
@@ -54,12 +58,11 @@ export async function up(query) {
         unset(localData, `localisation.${key}`);
       }
     });
+    const globalConfig = pickSettings(localData, globalDefaults);
+    await query.sequelize.models.Setting.set('', globalConfig, null, SETTINGS_SCOPES.GLOBAL);
   }
 
-  const globalConfig = getDefaultedSettings(config, globalDefaults);
-  const scopedConfig = getDefaultedSettings(config, scopedDefaults);
-
-  await query.sequelize.models.Setting.set('', globalConfig, null, SETTINGS_SCOPES.GLOBAL);
+  const scopedConfig = pickSettings(localData, scopedDefaults);
   await query.sequelize.models.Setting.set('', scopedConfig, serverFacilityId, scope);
 }
 
