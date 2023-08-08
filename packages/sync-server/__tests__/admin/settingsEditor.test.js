@@ -1,6 +1,23 @@
 import { SETTINGS_SCOPES } from '@tamanu/shared/constants';
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { fake, chance } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
+
+function generateRandomObject(depth = 1, maxDepth = 3) {
+  if (depth > maxDepth) {
+    return chance.pickone([null, chance.bool(), chance.integer(), chance.string()]);
+  }
+
+  const object = {};
+  const numProperties = chance.integer({ min: 1, max: 5 });
+
+  for (let i = 0; i < numProperties; i++) {
+    const key = chance.word();
+    const value = generateRandomObject(depth + 1, maxDepth);
+    object[key] = value;
+  }
+
+  return object;
+}
 
 describe('Settings Editor', () => {
   let ctx;
@@ -19,7 +36,7 @@ describe('Settings Editor', () => {
     await ctx.close();
   });
 
-  const saveSettings = async (settings, facilityId = null, scope) => {
+  const saveSettings = async (settings, facilityId = null, scope = 'global') => {
     const response = await adminApp.put('/v1/admin/settings').send({
       settings,
       facilityId,
@@ -28,22 +45,16 @@ describe('Settings Editor', () => {
     return response;
   };
 
-  const getSettings = async (facilityId = null, scope) => {
+  const getSettings = async (scope, facilityId = null) => {
     const response = await adminApp.get('/v1/admin/settings').query({ facilityId, scope });
     return response;
   };
 
   it('Can set and get settings by scope using admin endpoints', async () => {
-    const SETTINGS_JSON_EXAMPLES = {
-      [SETTINGS_SCOPES.CENTRAL]: {
-        centralKey: 'centralValue',
-      },
-      [SETTINGS_SCOPES.GLOBAL]: {
-        globalKey: 'globalValue',
-      },
-      [SETTINGS_SCOPES.FACILITY]: {
-        facilityKey: 'facilityValue',
-      },
+    const scopeTestJsons = {
+      [SETTINGS_SCOPES.CENTRAL]: generateRandomObject(),
+      [SETTINGS_SCOPES.GLOBAL]: generateRandomObject(),
+      [SETTINGS_SCOPES.FACILITY]: generateRandomObject(),
     };
 
     const { Facility } = models;
@@ -53,7 +64,7 @@ describe('Settings Editor', () => {
     const saveResponses = await Promise.all(
       Object.values(SETTINGS_SCOPES).map(async scope => {
         const facilityId = scope === SETTINGS_SCOPES.FACILITY ? facility.id : null;
-        const putResponse = await saveSettings(SETTINGS_JSON_EXAMPLES[scope], facilityId, scope);
+        const putResponse = await saveSettings(scopeTestJsons[scope], facilityId, scope);
         return putResponse;
       }),
     );
@@ -67,28 +78,21 @@ describe('Settings Editor', () => {
     const getResponses = await Promise.all(
       Object.values(SETTINGS_SCOPES).map(async scope => {
         const facilityId = scope === SETTINGS_SCOPES.FACILITY ? facility.id : null;
-
-        // const getResponse = await adminApp.get('/v1/admin/settings').query({ scope, facilityId });
-        const getResponse = await getSettings(facilityId, scope);
+        const getResponse = await getSettings(scope, facilityId);
         return { getResponse, scope };
       }),
     );
     // Ensure that the response was successful and the json fetched from the get endpoint is the same as the JSON saved on the put
     getResponses.forEach(({ getResponse, scope }) => {
       expect(getResponse).toHaveSucceeded();
-      expect(getResponse.body).toEqual(SETTINGS_JSON_EXAMPLES[scope]);
+      expect(getResponse.body).toEqual(scopeTestJsons[scope]);
     });
   });
 
   it('Will only get settings from the selected facility', async () => {
-    const FACILITY_1_JSON = {
-      facilityId: 'facility1',
-    };
-    const FACILITY_2_JSON = {
-      facilityId: 'facility2',
-    };
+    const FACILITY_1_JSON = generateRandomObject();
+    const FACILITY_2_JSON = generateRandomObject();
 
-    await models.Setting.truncate({ cascade: true, force: true });
     const { Facility } = models;
     const facility1 = await Facility.create(fake(models.Facility));
     const facility2 = await Facility.create(fake(models.Facility));
@@ -96,11 +100,11 @@ describe('Settings Editor', () => {
     await saveSettings(FACILITY_1_JSON, facility1.id, SETTINGS_SCOPES.FACILITY);
     await saveSettings(FACILITY_2_JSON, facility2.id, SETTINGS_SCOPES.FACILITY);
 
-    const facility1Fetch = await getSettings(facility1.id, SETTINGS_SCOPES.FACILITY);
+    const facility1Fetch = await getSettings(SETTINGS_SCOPES.FACILITY, facility1.id);
     expect(facility1Fetch).toHaveSucceeded();
     const facility1Data = facility1Fetch.body;
 
-    const facility2Fetch = await getSettings(facility2.id, SETTINGS_SCOPES.FACILITY);
+    const facility2Fetch = await getSettings(SETTINGS_SCOPES.FACILITY, facility2.id);
     expect(facility2Fetch).toHaveSucceeded();
     const facility2Data = facility2Fetch.body;
 
@@ -108,6 +112,55 @@ describe('Settings Editor', () => {
     expect(facility2Data).toEqual(FACILITY_2_JSON);
   });
 
-  it.todo('Should be able to edit a the key of a key-value pair');
-  it.todo('Should be able to delete a key-value pair');
+  it('Should be able to delete a key-value pair', async () => {
+    const BEFORE_DELETION_JSON = {
+      key1: 'value1',
+      key2: 'value2',
+    };
+    const AFTER_DELETION_JSON = {
+      key2: 'value2',
+    };
+
+    await saveSettings(BEFORE_DELETION_JSON, null, SETTINGS_SCOPES.GLOBAL);
+    const beforeDeletionResponse = await getSettings(SETTINGS_SCOPES.GLOBAL);
+    expect(beforeDeletionResponse.body).toEqual(BEFORE_DELETION_JSON);
+
+    await saveSettings(AFTER_DELETION_JSON, null, SETTINGS_SCOPES.GLOBAL);
+    const afterDeletionResponse = await getSettings(SETTINGS_SCOPES.GLOBAL);
+    expect(afterDeletionResponse.body).toEqual(AFTER_DELETION_JSON);
+  });
+
+  it('Should be able to edit the key of a key-value pair', async () => {
+    const BEFORE_EDIT_JSON = {
+      beforeEditKey: true,
+    };
+    const AFTER_EDIT_JSON = {
+      afterEditKEy: true,
+    };
+
+    await saveSettings(BEFORE_EDIT_JSON, null, SETTINGS_SCOPES.GLOBAL);
+    const beforeEditResponse = await getSettings(SETTINGS_SCOPES.GLOBAL);
+    expect(beforeEditResponse.body).toEqual(BEFORE_EDIT_JSON);
+
+    await saveSettings(AFTER_EDIT_JSON, null, SETTINGS_SCOPES.GLOBAL);
+    const afterEditResponse = await getSettings(SETTINGS_SCOPES.GLOBAL);
+    expect(afterEditResponse.body).toEqual(AFTER_EDIT_JSON);
+  });
+
+  it('Should be able to edit the value of a key-value pair', async () => {
+    const BEFORE_EDIT_JSON = {
+      key: 'beforeEditValue',
+    };
+    const AFTER_EDIT_JSON = {
+      key: 'afterEditValue',
+    };
+
+    await saveSettings(BEFORE_EDIT_JSON, null, SETTINGS_SCOPES.GLOBAL);
+    const beforeEditResponse = await getSettings(SETTINGS_SCOPES.GLOBAL);
+    expect(beforeEditResponse.body).toEqual(BEFORE_EDIT_JSON);
+
+    await saveSettings(AFTER_EDIT_JSON, null, SETTINGS_SCOPES.GLOBAL);
+    const afterEditResponse = await getSettings(SETTINGS_SCOPES.GLOBAL);
+    expect(afterEditResponse.body).toEqual(AFTER_EDIT_JSON);
+  });
 });
