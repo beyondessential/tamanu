@@ -154,20 +154,15 @@ user.post(
     req.checkPermission('read', currentUser);
 
     const { selectedGraphedVitalsOnFilter } = body;
-    let userPreferences = await UserPreference.findOne({
+    const existedUserPreferences = await UserPreference.findOne({
       where: { userId: currentUser.id },
     });
 
-    if (userPreferences) {
-      await userPreferences.update({
-        selectedGraphedVitalsOnFilter,
-      });
-    } else {
-      userPreferences = await UserPreference.create({
-        userId: currentUser.id,
-        selectedGraphedVitalsOnFilter,
-      });
-    }
+    const [userPreferences] = await UserPreference.upsert({
+      id: existedUserPreferences?.id,
+      selectedGraphedVitalsOnFilter,
+      userId: currentUser.id,
+    });
 
     res.send(userPreferences);
   }),
