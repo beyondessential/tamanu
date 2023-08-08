@@ -14,7 +14,7 @@ const GreyOutlinedButton = styled(BaseGreyOutlinedButton)`
   height: 40px;
 `;
 
-export const VitalMultiChartFilterComponent = ({ options, field }) => {
+export const DumbVitalMultiChartFilter = ({ options, field }) => {
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null); // When the button is clicked, the anchorEl state is updated to the clicked button element, which will serve as the anchor for the Popover component.
 
@@ -94,5 +94,5 @@ export const VitalMultiChartFilter = () => {
     onChange: handleChange,
   };
 
-  return <VitalMultiChartFilterComponent options={filterOptions} field={field} />;
+  return <DumbVitalMultiChartFilter options={filterOptions} field={field} />;
 };

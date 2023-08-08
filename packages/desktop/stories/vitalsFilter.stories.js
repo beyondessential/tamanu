@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 
-import { VitalMultiChartFilterComponent } from '../app/components/VitalMultiChartFilter';
+import { DumbVitalMultiChartFilter } from '../app/components/VitalMultiChartFilter';
 
 storiesOf('Vitals', module).add('Vital Filter', () => {
   const [values, setValues] = React.useState([]);
@@ -23,5 +23,5 @@ storiesOf('Vitals', module).add('Vital Filter', () => {
     onChange: handleChange,
   };
 
-  return <VitalMultiChartFilterComponent options={options} field={field} />;
+  return <DumbVitalMultiChartFilter options={options} field={field} />;
 });
