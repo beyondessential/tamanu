@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { chunk, isEmpty, omit, omitBy } from 'lodash';
+import { chunk, omit, omitBy } from 'lodash';
 import config from 'config';
 import { VISIBILITY_STATUSES, PATIENT_MERGE_DELETION_ACTIONS } from 'shared/constants';
 import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
@@ -64,8 +64,8 @@ const omittedColumns = [
 
 // Keeps all non-empty values from keepRecord, otherwise grabs values from unwantedRecord
 function getMergedFieldsForUpdate(keepRecordValues = {}, unwantedRecordValues = {}) {
-  const keepRecordNonEmptyValues = omitBy(keepRecordValues, isEmpty);
-  const unwantedRecordNonEmptyValues = omitBy(unwantedRecordValues, isEmpty);
+  const keepRecordNonEmptyValues = omitBy(keepRecordValues, Boolean);
+  const unwantedRecordNonEmptyValues = omitBy(unwantedRecordValues, Boolean);
 
   return {
     ...omit(unwantedRecordNonEmptyValues, omittedColumns),
@@ -165,7 +165,7 @@ export async function mergePatientFieldValues(models, keepPatientId, unwantedPat
       ({ definitionId }) => definitionId === definition.id,
     );
 
-    if (keepRecord && isEmpty(keepRecord.value)) {
+    if (keepRecord && Boolean(keepRecord.value)) {
       const updated = await keepRecord.update({
         value: unwantedRecord.value,
       });
