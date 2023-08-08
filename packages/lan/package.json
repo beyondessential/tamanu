@@ -18,16 +18,14 @@
     "test": "NODE_ENV=test jest",
     "test-watch": "yarn test --watch",
     "build": "rimraf ./dist/ && webpack --config webpack.config.prod.mjs",
-    "lint": "eslint app"
+    "lint": "rome check src",
+    "lint:fix": "rome check src --apply-unsafe",
+    "fmt": "rome format src --write"
   },
   "devDependencies": {
-    "@beyondessential/eslint-config-js": "^1.1.0",
     "@tamanu/build-tooling": "*",
     "@swc/jest": "0.2.26",
     "chai": "^4.1.2",
-    "eslint": "^5.15.2",
-    "eslint-import-resolver-webpack": "^0.11.0",
-    "eslint-plugin-import": "^2.22.1",
     "fast-check": "^3.3.0",
     "jest": "^29.3.1",
     "jest-expect-message": "^1.1.3",

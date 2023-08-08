@@ -15,7 +15,6 @@
     "test-coverage": "yarn run test --coverage",
     "lint-all": "node scripts/lint-all.mjs",
     "lint-fix": "yarn run lint-all --fix",
-    "upgrade-lint-rules": "yarn workspaces run yarn upgrade @beyondessential/eslint-config-js --latest",
     "desktop-start-dev": "yarn workspace desktop run start-dev",
     "storybook": "yarn run watch-shared-and desktop storybook",
     "watch-shared-and": "node scripts/watch-shared-and.js",
@@ -66,17 +65,12 @@
   },
   "devDependencies": {
     "@octokit/request": "^5.6.3",
-    "eslint-config-prettier": "^4.3.0",
-    "eslint-import-resolver-alias": "^1.1.2",
-    "eslint-plugin-prettier": "^3.1.0",
-    "eslint-plugin-react-hooks": "^4.3.0",
     "nodemon": "^2.0.19",
     "prettier": "^1.17.1",
     "yaml": "^2.2.1",
     "yarn": "^1.22.18"
   },
   "dependencies": {
-    "babel-eslint": "^10.0.1",
     "concurrently": "^5.2.0",
     "config": "3.0.1",
     "pm2": "^4.5.0"
