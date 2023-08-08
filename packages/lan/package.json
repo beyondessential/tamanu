@@ -18,9 +18,9 @@
     "test": "NODE_ENV=test jest",
     "test-watch": "yarn test --watch",
     "build": "rimraf ./dist/ && webpack --config webpack.config.prod.mjs",
-    "lint": "rome check src",
-    "lint:fix": "rome check src --apply-unsafe",
-    "fmt": "rome format src --write"
+    "lint": "rome check app __tests__ *.js",
+    "lint:fix": "yarn run lint --apply-unsafe",
+    "fmt": "rome format app __tests__ *.js --write"
   },
   "devDependencies": {
     "@tamanu/build-tooling": "*",

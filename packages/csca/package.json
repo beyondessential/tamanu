@@ -11,8 +11,11 @@
   "scripts": {
     "build": "swc --delete-dir-on-start -D -d build/ src/",
     "cli": "yarn build && node build",
-    "lint": "eslint src/**/*.ts && tsc --noEmit",
-    "lint:fix": "eslint src/**/*.ts --fix"
+    "lint": "yarn run lint:check && yarn run lint:types",
+    "lint:check": "rome check src",
+    "lint:types": "tsc",
+    "lint:fix": "yarn run lint --apply-unsafe",
+    "fmt": "rome format src --write"
   },
   "devDependencies": {
     "@beyondessential/eslint-config-beyondessential": "^2.6.0",

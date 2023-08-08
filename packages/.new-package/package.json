@@ -18,7 +18,7 @@
     "lint": "yarn run lint:check && yarn run lint:types",
     "lint:check": "rome check src",
     "lint:types": "tsc",
-    "lint:fix": "rome check src --apply-unsafe",
+    "lint:fix": "yarn run lint --apply-unsafe",
     "fmt": "rome format src --write"
   },
   "devDependencies": {

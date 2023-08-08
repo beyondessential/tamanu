@@ -27,9 +27,9 @@
     "build": "rimraf ./dist/ && webpack --config webpack.config.prod.mjs",
     "build-dev": "rimraf ./dist/ && NOWATCH=true webpack --config webpack.config.dev.mjs",
     "shell": "yarn build-dev && node ./dist/app.bundle.js shell",
-    "lint": "rome check src",
-    "lint:fix": "rome check src --apply-unsafe",
-    "fmt": "rome format src --write"
+    "lint": "rome check app __tests__ scripts *.js",
+    "lint:fix": "yarn run lint --apply-unsafe",
+    "fmt": "rome format app __tests__ scripts *.js --write"
   },
   "devDependencies": {
     "@swc/jest": "0.2.26",
