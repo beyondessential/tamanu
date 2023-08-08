@@ -90,15 +90,15 @@ describe('Settings Editor', () => {
   });
 
   it('Will only get settings linked to the selected facility', async () => {
-    const FACILITY_1_JSON = generateRandomObject();
-    const FACILITY_2_JSON = generateRandomObject();
+    const facility1Json = generateRandomObject();
+    const facility2Json = generateRandomObject();
 
     const { Facility } = models;
     const facility1 = await Facility.create(fake(models.Facility));
     const facility2 = await Facility.create(fake(models.Facility));
 
-    await saveSettings(FACILITY_1_JSON, SETTINGS_SCOPES.FACILITY, facility1.id);
-    await saveSettings(FACILITY_2_JSON, SETTINGS_SCOPES.FACILITY, facility2.id);
+    await saveSettings(facility1Json, SETTINGS_SCOPES.FACILITY, facility1.id);
+    await saveSettings(facility2Json, SETTINGS_SCOPES.FACILITY, facility2.id);
 
     const facility1Fetch = await getSettings(SETTINGS_SCOPES.FACILITY, facility1.id);
     expect(facility1Fetch).toHaveSucceeded();
@@ -108,8 +108,8 @@ describe('Settings Editor', () => {
     expect(facility2Fetch).toHaveSucceeded();
     const facility2Data = facility2Fetch.body;
 
-    expect(facility1Data).toEqual(FACILITY_1_JSON);
-    expect(facility2Data).toEqual(FACILITY_2_JSON);
+    expect(facility1Data).toEqual(facility1Json);
+    expect(facility2Data).toEqual(facility2Json);
   });
 
   it('Should be able to delete a key-value pair', async () => {
