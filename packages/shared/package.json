@@ -31,7 +31,11 @@
     "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true src",
     "build-watch": "yarn run build --watch",
     "test": "NODE_ENV=test jest",
-    "lint": "eslint src"
+    "lint": "yarn run lint:check && yarn run lint:types",
+    "lint:check": "rome check src",
+    "lint:types": "tsc",
+    "lint:fix": "rome check src --apply-unsafe",
+    "fmt": "rome format src --write"
   },
   "private": true,
   "devDependencies": {
