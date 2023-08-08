@@ -36,7 +36,7 @@ describe('Settings Editor', () => {
     await ctx.close();
   });
 
-  const saveSettings = async (settings, facilityId = null, scope = 'global') => {
+  const saveSettings = async (settings, scope = 'global', facilityId = null) => {
     const response = await adminApp.put('/v1/admin/settings').send({
       settings,
       facilityId,
@@ -64,7 +64,7 @@ describe('Settings Editor', () => {
     const saveResponses = await Promise.all(
       Object.values(SETTINGS_SCOPES).map(async scope => {
         const facilityId = scope === SETTINGS_SCOPES.FACILITY ? facility.id : null;
-        const putResponse = await saveSettings(scopeTestJsons[scope], facilityId, scope);
+        const putResponse = await saveSettings(scopeTestJsons[scope], scope, facilityId);
         return putResponse;
       }),
     );
@@ -89,7 +89,7 @@ describe('Settings Editor', () => {
     });
   });
 
-  it('Will only get settings from the selected facility', async () => {
+  it('Will only get settings linked to the selected facility', async () => {
     const FACILITY_1_JSON = generateRandomObject();
     const FACILITY_2_JSON = generateRandomObject();
 
@@ -97,8 +97,8 @@ describe('Settings Editor', () => {
     const facility1 = await Facility.create(fake(models.Facility));
     const facility2 = await Facility.create(fake(models.Facility));
 
-    await saveSettings(FACILITY_1_JSON, facility1.id, SETTINGS_SCOPES.FACILITY);
-    await saveSettings(FACILITY_2_JSON, facility2.id, SETTINGS_SCOPES.FACILITY);
+    await saveSettings(FACILITY_1_JSON, SETTINGS_SCOPES.FACILITY, facility1.id);
+    await saveSettings(FACILITY_2_JSON, SETTINGS_SCOPES.FACILITY, facility2.id);
 
     const facility1Fetch = await getSettings(SETTINGS_SCOPES.FACILITY, facility1.id);
     expect(facility1Fetch).toHaveSucceeded();
@@ -121,11 +121,11 @@ describe('Settings Editor', () => {
       key2: 'value2',
     };
 
-    await saveSettings(BEFORE_DELETION_JSON, null, SETTINGS_SCOPES.GLOBAL);
+    await saveSettings(BEFORE_DELETION_JSON, SETTINGS_SCOPES.GLOBAL);
     const beforeDeletionResponse = await getSettings(SETTINGS_SCOPES.GLOBAL);
     expect(beforeDeletionResponse.body).toEqual(BEFORE_DELETION_JSON);
 
-    await saveSettings(AFTER_DELETION_JSON, null, SETTINGS_SCOPES.GLOBAL);
+    await saveSettings(AFTER_DELETION_JSON, SETTINGS_SCOPES.GLOBAL);
     const afterDeletionResponse = await getSettings(SETTINGS_SCOPES.GLOBAL);
     expect(afterDeletionResponse.body).toEqual(AFTER_DELETION_JSON);
   });
@@ -138,11 +138,11 @@ describe('Settings Editor', () => {
       afterEditKEy: true,
     };
 
-    await saveSettings(BEFORE_EDIT_JSON, null, SETTINGS_SCOPES.GLOBAL);
+    await saveSettings(BEFORE_EDIT_JSON, SETTINGS_SCOPES.GLOBAL);
     const beforeEditResponse = await getSettings(SETTINGS_SCOPES.GLOBAL);
     expect(beforeEditResponse.body).toEqual(BEFORE_EDIT_JSON);
 
-    await saveSettings(AFTER_EDIT_JSON, null, SETTINGS_SCOPES.GLOBAL);
+    await saveSettings(AFTER_EDIT_JSON, SETTINGS_SCOPES.GLOBAL);
     const afterEditResponse = await getSettings(SETTINGS_SCOPES.GLOBAL);
     expect(afterEditResponse.body).toEqual(AFTER_EDIT_JSON);
   });
@@ -155,11 +155,11 @@ describe('Settings Editor', () => {
       key: 'afterEditValue',
     };
 
-    await saveSettings(BEFORE_EDIT_JSON, null, SETTINGS_SCOPES.GLOBAL);
+    await saveSettings(BEFORE_EDIT_JSON, SETTINGS_SCOPES.GLOBAL);
     const beforeEditResponse = await getSettings(SETTINGS_SCOPES.GLOBAL);
     expect(beforeEditResponse.body).toEqual(BEFORE_EDIT_JSON);
 
-    await saveSettings(AFTER_EDIT_JSON, null, SETTINGS_SCOPES.GLOBAL);
+    await saveSettings(AFTER_EDIT_JSON, SETTINGS_SCOPES.GLOBAL);
     const afterEditResponse = await getSettings(SETTINGS_SCOPES.GLOBAL);
     expect(afterEditResponse.body).toEqual(AFTER_EDIT_JSON);
   });
