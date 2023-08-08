@@ -152,7 +152,6 @@ export async function mergePatientFieldValues(models, keepPatientId, unwantedPat
   const existingKeepFieldValues = await models.PatientFieldValue.findAll({
     where: { patientId: keepPatientId },
   });
-  const createdRecords = [];
 
   // Iterate through all definitions to ensure we're not missing any
   const patientFieldDefinitions = await models.PatientFieldDefinition.findAll();
@@ -164,18 +163,16 @@ export async function mergePatientFieldValues(models, keepPatientId, unwantedPat
       ({ definitionId }) => definitionId === definition.id,
     );
 
-    if (keepRecord) {
-      // Prefer the keep record value if defined, otherwise if the unwanted value is defined use that
+    if (keepRecord && isEmpty(keepRecord.value)) {
       await keepRecord.update({
-        value: keepRecord.value || unwantedRecord.value,
+        value: unwantedRecord.value,
       });
     } else if (unwantedRecord.value) {
-      const newKeepRecord = await models.PatientFieldValue.create({
+      await models.PatientFieldValue.create({
         value: unwantedRecord.value,
         definitionId: definition.id,
         patientId: keepPatientId,
       });
-      createdRecords.push(newKeepRecord);
     }
   }
 
@@ -183,7 +180,7 @@ export async function mergePatientFieldValues(models, keepPatientId, unwantedPat
     where: { patientId: unwantedPatientId },
     force: true,
   });
-  return [...existingKeepFieldValues, ...createdRecords];
+  return [...existingKeepFieldValues];
 }
 
 export async function reconcilePatientFacilities(models, keepPatientId, unwantedPatientId) {
