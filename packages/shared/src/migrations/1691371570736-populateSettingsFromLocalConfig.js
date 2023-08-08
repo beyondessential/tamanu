@@ -1,6 +1,6 @@
 import { readFile } from 'fs/promises';
 import config from 'config';
-import { defaultsDeep, pick, set, unset } from 'lodash';
+import { get, has, pick, set, unset } from 'lodash';
 import stripJsonComments from 'strip-json-comments';
 
 import { SETTINGS_SCOPES, SETTING_KEYS } from '../constants';
@@ -19,6 +19,7 @@ const SETTINGS_PREDATING_MIGRATION = [
   'integrations.imaging',
 ];
 
+// Move some keys out of localisation into top level
 const CENTRAL_KEY_TRANSFORM_MAP = {
   'localisation.labResultWidget': 'labResultWidget',
   'localisation.timeZone': 'timeZone',
@@ -26,14 +27,7 @@ const CENTRAL_KEY_TRANSFORM_MAP = {
   'localisation.data.features': 'features',
 };
 
-const MOVE_FROM_LOCALISATION_TO_ROOT = [
-  'labResultWidget',
-  'timeZone',
-  'data.imagingTypes',
-  'data.features',
-];
-
-const pickSettings = (settings, defaults) =>
+const pickValidSettings = (settings, defaults) =>
   pick(
     settings,
     // Top level keys not defined in defaults are ignored as sensitive or require
@@ -49,21 +43,24 @@ export async function up(query) {
 
   const localData = JSON.parse(stripJsonComments((await readFile('config/local.json')).toString()));
 
-  if ('localisation' in localData && !serverFacilityId) {
-    // Move some localisation keys to top level to match new defaults structure
-    MOVE_FROM_LOCALISATION_TO_ROOT.forEach(key => {
-      const value = localData[key];
-      if (value) {
-        set(localData, key, value);
-        unset(localData, `localisation.${key}`);
-      }
-    });
-    const globalConfig = pickSettings(localData, globalDefaults);
-    await query.sequelize.models.Setting.set('', globalConfig, null, SETTINGS_SCOPES.GLOBAL);
-  }
-
-  const scopedConfig = pickSettings(localData, scopedDefaults);
+  const scopedConfig = pickValidSettings(localData, scopedDefaults);
   await query.sequelize.models.Setting.set('', scopedConfig, serverFacilityId, scope);
+
+  if (!serverFacilityId) return;
+
+  /* Central server only */
+
+  // Transform some keys out of localisation into top level
+  Object.entries(CENTRAL_KEY_TRANSFORM_MAP).forEach(([oldKey, newKey]) => {
+    const value = has(localData, oldKey) && get(localData, oldKey);
+    if (value) {
+      set(localData, newKey, value);
+      unset(localData, oldKey);
+    }
+  });
+
+  const globalConfig = pickValidSettings(localData, globalDefaults);
+  await query.sequelize.models.Setting.set('', globalConfig, null, SETTINGS_SCOPES.GLOBAL);
 }
 
 export async function down(query) {
