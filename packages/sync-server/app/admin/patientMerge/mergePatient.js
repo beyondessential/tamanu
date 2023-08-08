@@ -63,7 +63,7 @@ const omittedColumns = [
 ];
 
 // Keeps all non-empty values from keepRecord, otherwise grabs values from unwantedRecord
-function getSelectedMergeRecord(keepRecordValues = {}, unwantedRecordValues = {}) {
+function getMergedFieldsForUpdate(keepRecordValues = {}, unwantedRecordValues = {}) {
   const keepRecordNonEmptyValues = omitBy(keepRecordValues, isEmpty);
   const unwantedRecordNonEmptyValues = omitBy(unwantedRecordValues, isEmpty);
 
@@ -133,7 +133,7 @@ export async function mergePatientAdditionalData(models, keepPatientId, unwanted
     raw: true,
   });
   const mergedPAD = {
-    ...getSelectedMergeRecord(existingKeepPAD, existingUnwantedPAD),
+    ...getMergedFieldsForUpdate(existingKeepPAD, existingUnwantedPAD),
     patientId: keepPatientId,
   };
   await models.PatientAdditionalData.destroy({
@@ -245,7 +245,7 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
 
     // update missing fields
     await keepPatient.update(
-      getSelectedMergeRecord(keepPatient.dataValues, unwantedPatient.dataValues),
+      getMergedFieldsForUpdate(keepPatient.dataValues, unwantedPatient.dataValues),
     );
 
     // update core patient record
