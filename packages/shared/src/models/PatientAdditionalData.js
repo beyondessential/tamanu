@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '../constants';
 import { Model } from './Model';
-import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
+import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class PatientAdditionalData extends Model {
@@ -96,7 +96,7 @@ export class PatientAdditionalData extends Model {
     return ['countryOfBirth', 'nationality'];
   }
 
-  static buildSyncFilter = buildPatientLinkedSyncFilter;
+  static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
 
   static async getForPatient(patientId) {
     return this.findOne({ where: { patientId } });

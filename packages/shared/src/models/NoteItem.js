@@ -59,5 +59,5 @@ export class NoteItem extends Model {
     });
   }
 
-  static buildSyncFilter = buildNoteItemLinkedSyncFilter;
+  static buildPatientSyncFilter = buildNoteItemLinkedSyncFilter;
 }

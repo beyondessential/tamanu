@@ -95,4 +95,8 @@ export class LabTestType extends Model {
       options: optionStringToArray(options),
     };
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }

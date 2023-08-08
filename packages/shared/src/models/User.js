@@ -111,4 +111,8 @@ export class User extends Model {
       through: 'UserFacility',
     });
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }
