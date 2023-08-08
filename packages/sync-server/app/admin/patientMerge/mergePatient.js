@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { chunk, omit } from 'lodash';
+import { chunk, isEmpty, omit, omitBy } from 'lodash';
 import config from 'config';
 import { VISIBILITY_STATUSES, PATIENT_MERGE_DELETION_ACTIONS } from 'shared/constants';
 import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
@@ -63,10 +63,13 @@ const omittedColumns = [
 ];
 
 // Keeps all non-empty values from keepRecord, otherwise grabs values from unwantedRecord
-function getSelectedMergeRecord(keepRecord = {}, unwantedRecord = {}) {
+function getSelectedMergeRecord(keepRecordValues = {}, unwantedRecordValues = {}) {
+  const keepRecordNonEmptyValues = omitBy(keepRecordValues, isEmpty);
+  const unwantedRecordNonEmptyValues = omitBy(unwantedRecordValues, isEmpty);
+
   return {
-    ...omit(unwantedRecord.dataValues, omittedColumns),
-    ...omit(keepRecord.dataValues, omittedColumns),
+    ...omit(unwantedRecordNonEmptyValues, omittedColumns),
+    ...omit(keepRecordNonEmptyValues, omittedColumns),
   };
 }
 
@@ -241,7 +244,9 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
     const updates = {};
 
     // update missing fields
-    await keepPatient.update(getSelectedMergeRecord(keepPatient, unwantedPatient));
+    await keepPatient.update(
+      getSelectedMergeRecord(keepPatient.dataValues, unwantedPatient.dataValues),
+    );
 
     // update core patient record
     await unwantedPatient.update({
