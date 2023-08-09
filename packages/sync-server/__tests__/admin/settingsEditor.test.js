@@ -3,6 +3,7 @@ import { fake, chance } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 
 function generateRandomObject(depth = 1, maxDepth = 3) {
+  // Settings values can be either booleans, integers, strings, objects or arrays
   if (depth > maxDepth) {
     return chance.pickone([null, chance.bool(), chance.integer(), chance.string()]);
   }
@@ -51,6 +52,7 @@ describe('Settings Editor', () => {
   };
 
   it('Can set and get settings by scope using admin endpoints', async () => {
+    // Randomly generated JSON objects to save to the DB
     const scopeTestJsons = {
       [SETTINGS_SCOPES.CENTRAL]: generateRandomObject(),
       [SETTINGS_SCOPES.GLOBAL]: generateRandomObject(),
@@ -135,7 +137,7 @@ describe('Settings Editor', () => {
       beforeEditKey: true,
     };
     const AFTER_EDIT_JSON = {
-      afterEditKEy: true,
+      afterEditKey: true,
     };
 
     await saveSettings(BEFORE_EDIT_JSON, SETTINGS_SCOPES.GLOBAL);
