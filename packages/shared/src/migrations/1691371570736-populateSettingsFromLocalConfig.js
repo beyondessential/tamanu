@@ -46,7 +46,8 @@ export async function up(query) {
   try {
     await access('config/production.json', constants.F_OK);
     configPath = 'config/production.json';
-  } catch (_error) {
+  } catch (error) {
+    console.log(error, 'No production config found, using local config');
     configPath = 'config/local.json';
   }
 
