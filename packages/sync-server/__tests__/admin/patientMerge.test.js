@@ -9,7 +9,6 @@ import {
 } from '../../app/admin/patientMerge/mergePatient';
 import { PatientMergeMaintainer } from '../../app/tasks/PatientMergeMaintainer';
 import { createTestContext } from '../utilities';
-import { Op } from 'sequelize';
 
 describe('Patient merge', () => {
   let ctx;
