@@ -338,6 +338,35 @@ describe('Patient merge', () => {
       expect(newKeepPatientPad).toHaveProperty('secondaryContactNumber', 'merge-secondary-phone');
       expect(newKeepPatientPad).toHaveProperty('emergencyContactNumber', 'merge-emergency-phone');
     });
+
+    it('Should NOT use sync merge logic', async () => {
+      const { PatientAdditionalData, LocalSystemFact } = models;
+      const [keep, merge] = await makeTwoPatients();
+      await PatientAdditionalData.create({
+        patientId: keep.id,
+        passport: 'keep-passport',
+      });
+
+      // Manually update currentSyncTick to fake sync behavior
+      const systemFact = await LocalSystemFact.findOne({ where: { key: 'currentSyncTick' } });
+      await systemFact.update({ value: 2 });
+
+      await PatientAdditionalData.create({
+        patientId: merge.id,
+        passport: 'merge-passport',
+      });
+
+      const { updates } = await mergePatient(models, keep.id, merge.id);
+      expect(updates).toEqual({
+        Patient: 2,
+        PatientAdditionalData: 1,
+      });
+      const newKeepPatientPad = await PatientAdditionalData.findOne({
+        where: { patientId: keep.id },
+        paranoid: false,
+      });
+      expect(newKeepPatientPad).toHaveProperty('passport', 'keep-passport');
+    });
   });
 
   describe('PatientFieldValue', () => {
