@@ -3,7 +3,7 @@ const isCI = !!process.env.CI;
 const BASE = {
   setupFiles: ['<rootDir>/__tests__/setup.js'],
   testRegex: '(\\.|/)(test|spec)\\.[jt]sx?$',
-  collectCoverageFrom: ['src/**/*.[jt]s'],
+  collectCoverageFrom: ['src/**/*.js'],
 
   maxWorkers: isCI ? '100%' : '50%',
 

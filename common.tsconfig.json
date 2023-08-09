@@ -1,10 +1,7 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "alwaysStrict": true,
-    "esModuleInterop": true,
-    "ignoreDeprecations": "5.0",
-    "importsNotUsedAsValues": "preserve",
+    "importsNotUsedAsValues": true,
     "isolatedModules": true,
     "module": "CommonJS",
     "moduleResolution": "node",
@@ -12,9 +9,12 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "pretty": true,
-    "strict": true,
-    "target": "es2020"
+    "strict": true
   },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ],
   "exclude": [
     "build",
     "dist",
