@@ -26,17 +26,11 @@ describe('removeDuplicatedDischarges', () => {
     toDateTimeString(sub(new Date(), { days: daysToSubtract }));
 
   const createEncounter = async (encounterPatient, overrides = {}) => {
-    const encounter = await models.Encounter.create({
+    return models.Encounter.create({
       ...(await createDummyEncounter(models)),
       patientId: encounterPatient.id,
       ...overrides,
     });
-
-    // Clear the encounter_history data so that
-    // the migration will not skip this encounter when migrating changelog
-    await models.EncounterHistory.destroy({ where: { encounterId: encounter.id }, force: true });
-
-    return encounter;
   };
 
   const createLocation = async (locationName, overrides) => {
