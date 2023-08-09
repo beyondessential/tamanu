@@ -61,7 +61,7 @@ jobs:
       - if: matrix.package == 'sync-server' || matrix.package == 'lan'
         run: yarn workspace ${{ matrix.package }} run test --shard 3/3
 
-      - if: "!(matrix.package == 'sync-server' || matrix.package == 'lan')"
+      - if: matrix.package != 'sync-server' && matrix.package != 'lan'
         run: yarn workspace ${{ matrix.package }} run test
 
   lint:
