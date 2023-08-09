@@ -51,7 +51,7 @@ const ImportFeedback = ({ feedback }) => (
       {feedback.createdDefinition ? 'Created new' : 'Updated existing'} definition:{' '}
       <b>{feedback.name}</b>
     </BodyText>
-    {feedback.createdDefinition && (
+    {feedback.reportDefinitionId && (
       <BodyText mb={1}>
         Report id: <b>{feedback.reportDefinitionId}</b>
       </BodyText>
