@@ -213,6 +213,22 @@ describe('Patient merge', () => {
     expect(note.recordId).toEqual(keep.id);
   });
 
+  describe('Patient', () => {
+    it('Should preserve fields and grab missing fields', async () => {
+      const [keep, merge] = await makeTwoPatients({ middleName: '', culturalName: null });
+      const mergedFirstName = merge.firstName;
+      const mergeMiddleName = merge.middleName;
+      const mergeCulturalName = merge.culturalName;
+
+      await mergePatient(models, keep.id, merge.id);
+      await keep.reload({ paranoid: false });
+
+      expect(keep.firstName).not.toBe(mergedFirstName);
+      expect(keep).toHaveProperty('middleName', mergeMiddleName);
+      expect(keep).toHaveProperty('culturalName', mergeCulturalName);
+    });
+  });
+
   describe('PatientAdditionalData', () => {
     it('Should delete both PADs and generate a new one', async () => {
       const { PatientAdditionalData } = models;
