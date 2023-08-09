@@ -8,7 +8,7 @@ import { ModalLoader, ConfirmCancelRow, Form } from '../components';
 import { SurveyScreen } from '../components/Surveys';
 import { useVitalsSurvey } from '../api/queries';
 import { getFormInitialValues, getValidationSchema } from '../utils';
-import { ForbiddenError } from '../components/ForbiddenErrorModal';
+import { ForbiddenErrorModalContents } from '../components/ForbiddenErrorModal';
 import { Modal } from '../components/Modal';
 import { useAuth } from '../contexts/Auth';
 
@@ -37,7 +37,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
   if (!canCreateVitals) {
     return (
       <Modal title="Permission required" open onClose={onClose}>
-        <ForbiddenError onConfirm={onClose} confirmText="Close" />
+        <ForbiddenErrorModalContents onConfirm={onClose} confirmText="Close" />
       </Modal>
     );
   }

@@ -20,6 +20,7 @@ const StickyContainer = styled.div`
   padding-left: 30px;
   padding-right: 30px;
   border-bottom: 1px solid ${Colors.softOutline};
+  flex-shrink: 0;
 `;
 
 const VerticalDivider = styled.div`

@@ -19,7 +19,8 @@ RUN apk add --no-cache \
     jq \
     make \
     python3
-COPY yarn.lock .yarnrc common.* babel.config.js scripts/docker-build-server.sh ./
+COPY yarn.lock .yarnrc common.* babel.config.js ./
+COPY scripts/ scripts/
 
 FROM base AS run-base
 RUN apk add --no-cache bash curl jq
@@ -45,7 +46,7 @@ RUN git log -1 --pretty=%cI         | tee /meta/SOURCE_DATE_ISO
 FROM build-base as shared
 COPY packages/build-tooling/ packages/build-tooling/
 COPY packages/shared/ packages/shared/
-RUN ./docker-build-server.sh
+RUN scripts/docker-build-server.sh
 
 
 ## Build the target server
@@ -59,7 +60,7 @@ COPY --from=shared /app/packages/ packages/
 COPY packages/${PACKAGE_PATH}/ packages/${PACKAGE_PATH}/
 
 # do the build
-RUN ./docker-build-server.sh ${PACKAGE_PATH}
+RUN scripts/docker-build-server.sh ${PACKAGE_PATH}
 
 
 ## Special target for packaging the desktop app
@@ -76,8 +77,10 @@ ENV NODE_ENV=production
 WORKDIR /project/packages/desktop
 RUN jq '.build.win.target = ["nsis"] | .build.nsis.perMachine = false | .build.directories.output = "release/appdata"' \
     package.json > /package-appdata.json
-RUN jq '.build.win.target = ["nsis"] | .build.nsis.oneClick = false | .build.nsis.allowElevation = false | .build.directories.output = "release/unelevated"' \
-    package.json > /package-unelevated.json
+RUN jq '.build.win.target = ["msi"] | .build.msi.shortcutName = "Tamanu \(.version)"' \
+    package.json > /package-msi.json
+RUN jq '.build.productName = "Tamanu Fiji" | .build.appId = "org.beyondessential.TamanuFiji" | .build.directories.output = "release/aspen"' \
+    /package-msi.json > /package-aspen.json
 RUN jq '.build.mac.target = "tar.xz"' \
     package.json > /package-mac.json
 

@@ -36,7 +36,7 @@ export const screen2ValidationSchema = yup.object().shape({
   notes: yup.string(),
 });
 
-const FORM_TYPE_TO_FIELD_CONFIG = {
+export const FORM_TYPE_TO_FIELD_CONFIG = {
   [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: {
     subheading: 'Select tests',
     instructions:
