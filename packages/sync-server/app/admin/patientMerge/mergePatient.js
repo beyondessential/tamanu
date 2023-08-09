@@ -62,10 +62,14 @@ const omittedColumns = [
   'updatedAtByField',
 ];
 
+function isNullOrEmptyString(value) {
+  return value === null || value === '';
+}
+
 // Keeps all non-empty values from keepRecord, otherwise grabs values from unwantedRecord
 function getMergedFieldsForUpdate(keepRecordValues = {}, unwantedRecordValues = {}) {
-  const keepRecordNonEmptyValues = omitBy(keepRecordValues, Boolean);
-  const unwantedRecordNonEmptyValues = omitBy(unwantedRecordValues, Boolean);
+  const keepRecordNonEmptyValues = omitBy(keepRecordValues, isNullOrEmptyString);
+  const unwantedRecordNonEmptyValues = omitBy(unwantedRecordValues, isNullOrEmptyString);
 
   return {
     ...omit(unwantedRecordNonEmptyValues, omittedColumns),
@@ -165,7 +169,7 @@ export async function mergePatientFieldValues(models, keepPatientId, unwantedPat
       ({ definitionId }) => definitionId === definition.id,
     );
 
-    if (keepRecord && Boolean(keepRecord.value)) {
+    if (keepRecord && isNullOrEmptyString(keepRecord.value)) {
       const updated = await keepRecord.update({
         value: unwantedRecord.value,
       });
