@@ -354,6 +354,7 @@ describe('Patient merge', () => {
       const systemFact = await LocalSystemFact.findOne({ where: { key: 'currentSyncTick' } });
       await systemFact.update({ value: 2 });
 
+     // Create merge PAD second, so it would be preferred under sync logic (but NOT under merge logic)
       await PatientAdditionalData.create({
         patientId: merge.id,
         passport: 'merge-passport',
