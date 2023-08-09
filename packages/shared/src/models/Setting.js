@@ -74,7 +74,7 @@ export class Setting extends Model {
    * IMPORTANT: Duplicated from mobile/models/Setting.ts
    * Please update both places when modify
    */
-  static async get(key = '', facilityId = null, scope = 'global') {
+  static async get(key = '', facilityId = null, scope) {
     const keyWhere = key
       ? {
           key: {
