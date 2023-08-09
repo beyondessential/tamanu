@@ -140,9 +140,11 @@ describe('Settings Editor', () => {
   it('Should be able to edit the key of a key-value pair', async () => {
     const BEFORE_EDIT_JSON = {
       beforeEditKey: true,
+      controlKey: true,
     };
     const AFTER_EDIT_JSON = {
       afterEditKey: true,
+      controlKey: true,
     };
 
     await saveSettings(BEFORE_EDIT_JSON, SETTINGS_SCOPES.GLOBAL);
@@ -157,9 +159,11 @@ describe('Settings Editor', () => {
   it('Should be able to edit the value of a key-value pair', async () => {
     const BEFORE_EDIT_JSON = {
       key: 'beforeEditValue',
+      controlKey: true,
     };
     const AFTER_EDIT_JSON = {
       key: 'afterEditValue',
+      controlKey: true,
     };
 
     await saveSettings(BEFORE_EDIT_JSON, SETTINGS_SCOPES.GLOBAL);
