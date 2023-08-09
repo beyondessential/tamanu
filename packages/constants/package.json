@@ -15,12 +15,12 @@
   "scripts": {
     "build": "yarn run build:src && yarn run build:types",
     "build:src": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true src",
-    "build:types": "tsc --outDir dist --declaration --emitDeclarationOnly --noEmit false && mv dist/src/* dist && rm -rf dist/src",
-    "build-watch": "yarn run build:src --watch"
+    "build:types": "tsc --declaration --emitDeclarationOnly --noEmit false && move-dts src dist",
+    "build-watch": "yarn run build && yarn run build:src --watch",
+    "lint": "tsc"
   },
   "devDependencies": {
     "@tamanu/build-tooling": "*",
-    "@types/node": "^18.14.6",
-    "typescript": "^5.1.6"
+    "@types/node": "^18.14.6"
   }
 }
