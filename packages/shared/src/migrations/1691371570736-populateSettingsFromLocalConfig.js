@@ -1,4 +1,5 @@
-import { readFile } from 'fs/promises';
+import { access, readFile } from 'fs/promises';
+import { constants } from 'fs';
 import config from 'config';
 import { get, has, pick, set, unset } from 'lodash';
 import stripJsonComments from 'strip-json-comments';
@@ -41,7 +42,15 @@ export async function up(query) {
   const scopedDefaults = serverFacilityId ? facilityDefaults : centralDefaults;
   const scope = serverFacilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.CENTRAL;
 
-  const localData = JSON.parse(stripJsonComments((await readFile('config/local.json')).toString()));
+  let configPath;
+  try {
+    await access('config/production.json', constants.F_OK);
+    configPath = 'config/production.json';
+  } catch (_error) {
+    configPath = 'config/local.json';
+  }
+
+  const localData = JSON.parse(stripJsonComments((await readFile(configPath)).toString()));
 
   const scopedConfig = pickValidSettings(localData, scopedDefaults);
   await query.sequelize.models.Setting.set('', scopedConfig, serverFacilityId, scope);
