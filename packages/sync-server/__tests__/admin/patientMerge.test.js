@@ -281,6 +281,41 @@ describe('Patient merge', () => {
       expect(newKeepPatientPad).toHaveProperty('patientId', keep.id);
       expect(newMergePatientPad).toEqual(null);
     });
+
+    it('Should keep data from the keep patient and fill unknown values from merge patient', async () => {
+      const { PatientAdditionalData } = models;
+      const [keep, merge] = await makeTwoPatients();
+
+      await PatientAdditionalData.create({
+        patientId: keep.id,
+        passport: 'keep-passport',
+        primaryContactNumber: 'keep-primary-phone',
+        emergencyContactNumber: '',
+      });
+
+      await PatientAdditionalData.create({
+        patientId: merge.id,
+        primaryContactNumber: 'merge-primary-phone',
+        secondaryContactNumber: 'merge-secondary-phone',
+        emergencyContactNumber: 'merge-emergency-phone',
+      });
+
+      const { updates } = await mergePatient(models, keep.id, merge.id);
+      expect(updates).toEqual({
+        Patient: 2,
+        PatientAdditionalData: 1,
+      });
+
+      const newKeepPatientPad = await PatientAdditionalData.findOne({
+        where: { patientId: keep.id },
+        paranoid: false,
+      });
+
+      expect(newKeepPatientPad).toHaveProperty('passport', 'keep-passport');
+      expect(newKeepPatientPad).toHaveProperty('primaryContactNumber', 'keep-primary-phone');
+      expect(newKeepPatientPad).toHaveProperty('secondaryContactNumber', 'merge-secondary-phone');
+      expect(newKeepPatientPad).toHaveProperty('emergencyContactNumber', 'merge-emergency-phone');
+    });
   });
 
   describe('PatientFieldValue', () => {
