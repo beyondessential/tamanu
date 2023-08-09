@@ -17,20 +17,15 @@
   "scripts": {
     "build": "yarn run build:src && yarn run build:types",
     "build:src": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true src",
-    "build:types": "tsc --outDir dist --declaration --emitDeclarationOnly --noEmit false && mv dist/src/* dist && rm -rf dist/src",
-    "build-watch": "yarn run build:src --watch",
-    "lint": "yarn run lint:check && yarn run lint:types",
-    "lint:check": "eslint src",
-    "lint:types": "tsc",
+    "build:types": "tsc --declaration --emitDeclarationOnly --noEmit false && move-dts src dist",
+    "build-watch": "yarn run build && yarn run build:src --watch",
+    "test": "echo no tests yet",
+    "lint": "tsc",
     "start": "node dist/cli.js"
   },
   "devDependencies": {
-    "@beyondessential/eslint-config-beyondessential": "^2.6.0",
     "@tamanu/build-tooling": "*",
-    "@types/node": "^18.14.6",
-    "@typescript-eslint/eslint-plugin": "^6.2.0",
-    "@typescript-eslint/parser": "^6.2.0",
-    "eslint": "^8.45.0"
+    "@types/node": "^18.14.6"
   },
   "dependencies": {
     "@casl/ability": "^4.1.0",
