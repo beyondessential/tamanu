@@ -5,7 +5,12 @@ import { createTestContext } from '../utilities';
 function generateRandomObject(depth = 1, maxDepth = 3) {
   // Settings values can be either booleans, integers, strings, objects or arrays
   if (depth > maxDepth) {
-    return chance.pickone([null, chance.bool(), chance.integer(), chance.string()]);
+    return chance.pickone([
+      chance.bool(),
+      chance.integer(),
+      chance.string(),
+      [chance.string(), chance.string(), chance.string()],
+    ]);
   }
 
   const object = {};
@@ -168,11 +173,13 @@ describe('Settings Editor', () => {
 
   it('Should fetch a list of facility names and ids linked to the central server', async () => {
     const { Facility } = models;
+
     const facilityList = await Facility.findAll({ attributes: ['id', 'name'] });
     const plainFacilityList = facilityList.map(facility => facility.get({ plain: true }));
 
     const endpointResponse = await adminApp.get('/v1/admin/facilities');
     expect(endpointResponse).toHaveSucceeded();
+
     expect(endpointResponse.body).toEqual(plainFacilityList);
   });
 });
