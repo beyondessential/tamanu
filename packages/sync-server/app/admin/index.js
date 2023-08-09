@@ -80,6 +80,8 @@ adminRoutes.use('/patientLetterTemplate', patientLetterTemplateRoutes);
 
 adminRoutes.use('/asset', assetRoutes);
 
+// These settings endpoints are setup for viewing and saving the settings in the JSON editor in the admin panel.
+// We can only view/save settings by scope as a whole object and dont edit by key like you do in the subcommand
 adminRoutes.get(
   '/settings',
   asyncHandler(async (req, res) => {
