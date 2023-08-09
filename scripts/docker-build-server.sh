@@ -28,7 +28,8 @@ yarn install --non-interactive --frozen-lockfile
 # so we don't need to build shared here, and in the shared stage we don't build
 # the server packages, hence this neat branching logic here
 if is_building_shared; then
-  yarn workspace @tamanu/shared build
+  yarn clean
+  yarn build-shared
 else
   # clear out the tests and files not useful for production
   rm -rf packages/*/__tests__ || true
