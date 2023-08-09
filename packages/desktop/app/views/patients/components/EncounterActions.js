@@ -11,7 +11,7 @@ import { BeginPatientMoveModal } from './BeginPatientMoveModal';
 import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
 import { CancelPatientMoveModal } from './CancelPatientMoveModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import { Button } from '../../../components';
+import { Button, useLocalisedText } from '../../../components';
 import { DropdownButton } from '../../../components/DropdownButton';
 import { MoveModal } from './MoveModal';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
@@ -53,6 +53,7 @@ const ENCOUNTER_MODALS = {
 const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType }) => {
   const { navigateToSummary } = usePatientNavigation();
   const { getLocalisation } = useLocalisation();
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
   const onChangeEncounterType = type => {
     setNewEncounterType(type);
@@ -128,6 +129,12 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
       condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
     },
     {
+      // Duplicate "Admit to hospital" as it should display below "Discharge".
+      label: 'Admit to hospital',
+      onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
+      condition: () => encounter.encounterType === ENCOUNTER_TYPES.CLINIC,
+    },
+    {
       label: 'Move patient',
       condition: () => enablePatientMoveActions && !encounter.plannedLocation,
       onClick: onPlanLocationChange,
@@ -137,7 +144,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
       onClick: onChangeDepartment,
     },
     {
-      label: 'Change clinician',
+      label: `Change ${clinicianText.toLowerCase()}`,
       onClick: onChangeClinician,
     },
     {

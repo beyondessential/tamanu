@@ -112,6 +112,26 @@ export const GreyOutlinedButton = styled(props => <StyledButton {...props} />)`
   color: ${props => props.theme.palette.text.secondary};
 `;
 
+export const RedOutlinedButton = styled(props => <StyledButton {...props} />)`
+  border: 1px solid ${Colors.alert};
+  color: ${Colors.alert};
+`;
+
+const StyledLargeButton = styled(StyledButton)`
+  font-size: 15px;
+  line-height: 18px;
+  padding: 12px 25px;
+  border: 1px solid ${props => props.theme.palette.primary.main};
+`;
+
+export const LargeButton = props => (
+  <StyledLargeButton variant="contained" color="primary" {...props} />
+);
+
+export const LargeOutlineButton = props => (
+  <StyledLargeButton variant="outlined" color="primary" {...props} />
+);
+
 const StyledDeleteButton = styled(Button)`
   background: ${red[600]};
   color: ${Colors.white};

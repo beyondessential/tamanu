@@ -2,7 +2,7 @@ import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import { INVOICE_PRICE_CHANGE_ITEM_STATUSES } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
-import { permissionCheckingRouter, simpleGetList } from '../crudHelpers';
+import { permissionCheckingRouter, simpleGetList } from 'shared/utils/crudHelpers';
 
 export const invoicePriceChangeItemsRoute = permissionCheckingRouter('read', 'Invoice');
 
