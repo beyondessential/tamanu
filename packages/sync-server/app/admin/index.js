@@ -106,7 +106,7 @@ adminRoutes.get(
   '/facilities',
   asyncHandler(async (req, res) => {
     const { Facility } = req.store.models;
-    const data = await Facility.findAll();
+    const data = await Facility.findAll({ attributes: ['id', 'name'] });
     res.send(data);
   }),
 );
