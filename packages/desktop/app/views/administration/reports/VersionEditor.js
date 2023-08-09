@@ -6,7 +6,7 @@ import Ajv from 'ajv';
 import { toast } from 'react-toastify';
 import SaveAsIcon from '@material-ui/icons/SaveAltSharp';
 import EditIcon from '@material-ui/icons/EditSharp';
-import { OutlinedButton, CardItem, formatShort, formatTime } from '../../../components';
+import { OutlinedButton, CardItem, DateDisplay, formatTime } from '../../../components';
 import { schema, templates } from './schema';
 import { useAuth } from '../../../contexts/Auth';
 import { Colors } from '../../../constants';
@@ -87,6 +87,12 @@ const SaveIcon = styled(SaveAsIcon)`
   margin-right: 10px;
 `;
 
+const getDateTime = value => {
+  const date = DateDisplay.stringFormat(value);
+  const time = DateDisplay.stringFormat(value, formatTime);
+  return `${date} ${time}`;
+};
+
 const VersionInfo = ({ name, version }) => (
   <VersionInfoCard>
     <CardHeader>
@@ -94,10 +100,7 @@ const VersionInfo = ({ name, version }) => (
       <CardItem label="Version" value={version.versionNumber} />
     </CardHeader>
     <CardDivider />
-    <CardItem
-      label="Created"
-      value={`${formatShort(version.createdAt)} ${formatTime(version.createdAt)}`}
-    />
+    <CardItem label="Created" value={getDateTime(version.createdAt)} />
     <CardItem label="Created by" value={version.createdBy?.displayName} />
   </VersionInfoCard>
 );
