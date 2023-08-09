@@ -174,7 +174,7 @@ export async function mergePatientFieldValues(models, keepPatientId, unwantedPat
         value: unwantedRecord.value,
       });
       records.push(updated);
-    } else if (unwantedRecord.value) {
+    } else if (!keepRecord && unwantedRecord.value) {
       const created = await models.PatientFieldValue.create({
         value: unwantedRecord.value,
         definitionId: definition.id,
