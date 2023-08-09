@@ -3,8 +3,8 @@ import asyncHandler from 'express-async-handler';
 
 import { QueryTypes } from 'sequelize';
 
-import { NotFoundError } from 'shared/errors';
-import { renameObjectKeys } from '../../utils/renameObjectKeys';
+import { NotFoundError } from '../errors';
+import { renameObjectKeys } from './renameObjectKeys';
 
 // utility function for creating a subroute that all checks the same
 // action (for eg different relation reads on an encounter all check encounter.read)

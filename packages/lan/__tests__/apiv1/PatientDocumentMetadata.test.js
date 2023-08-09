@@ -1,4 +1,5 @@
 import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patients';
+import { DOCUMENT_SOURCES } from 'shared/constants';
 import { createTestContext } from '../utilities';
 import { uploadAttachment } from '../../app/utils/uploadAttachment';
 
@@ -81,12 +82,14 @@ describe('PatientDocumentMetadata', () => {
     const metadataOne = await models.DocumentMetadata.create({
       name: 'A',
       type: 'application/pdf',
+      source: DOCUMENT_SOURCES.UPLOADED,
       attachmentId: 'fake-id-1',
       patientId: patient.id,
     });
     const metadataTwo = await models.DocumentMetadata.create({
       name: 'B',
       type: 'image/jpeg',
+      source: DOCUMENT_SOURCES.UPLOADED,
       attachmentId: 'fake-id-2',
       encounterId: encounter.id,
     });
@@ -147,6 +150,7 @@ describe('PatientDocumentMetadata', () => {
       {
         name: 'A',
         type: 'application/pdf',
+        source: DOCUMENT_SOURCES.UPLOADED,
         documentOwner: 'ownerA',
         attachmentId: 'fake-id-1',
         patientId: patient.id,
@@ -154,6 +158,7 @@ describe('PatientDocumentMetadata', () => {
       {
         name: 'B',
         type: 'image/jpeg',
+        source: DOCUMENT_SOURCES.UPLOADED,
         documentOwner: 'ownerA',
         attachmentId: 'fake-id-2',
         patientId: patient.id,
@@ -161,6 +166,7 @@ describe('PatientDocumentMetadata', () => {
       {
         name: 'C',
         type: 'image/jpeg',
+        source: DOCUMENT_SOURCES.UPLOADED,
         documentOwner: 'ownerB',
         attachmentId: 'fake-id-3',
         patientId: patient.id,
