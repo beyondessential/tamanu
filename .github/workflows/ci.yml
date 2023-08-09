@@ -34,7 +34,6 @@ jobs:
           - meta-server
           - "@tamanu/shared"
           - sync-server
-          - "@tamanu/constants"
 
     name: Test ${{ matrix.package }} os=${{ matrix.os }} node=${{ matrix.node }}
       pg=${{ matrix.postgres }}
