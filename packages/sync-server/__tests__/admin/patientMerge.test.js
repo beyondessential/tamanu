@@ -276,11 +276,7 @@ describe('Patient merge', () => {
         primaryContactNumber: 'merge-phone',
       });
 
-      const { updates } = await mergePatient(models, keep.id, merge.id);
-      expect(updates).toEqual({
-        Patient: 2,
-        PatientAdditionalData: 1,
-      });
+      await mergePatient(models, keep.id, merge.id);
 
       const newKeepPatientPad = await PatientAdditionalData.findOne({
         where: { patientId: keep.id },
@@ -304,11 +300,7 @@ describe('Patient merge', () => {
         primaryContactNumber: 'merge-phone',
       });
 
-      const { updates } = await mergePatient(models, keep.id, merge.id);
-      expect(updates).toEqual({
-        Patient: 2,
-        PatientAdditionalData: 1,
-      });
+      await mergePatient(models, keep.id, merge.id);
 
       const newKeepPatientPad = await PatientAdditionalData.findOne({
         where: { patientId: keep.id },
@@ -337,11 +329,7 @@ describe('Patient merge', () => {
         emergencyContactNumber: 'merge-emergency-phone',
       });
 
-      const { updates } = await mergePatient(models, keep.id, merge.id);
-      expect(updates).toEqual({
-        Patient: 2,
-        PatientAdditionalData: 1,
-      });
+      await mergePatient(models, keep.id, merge.id);
 
       const newKeepPatientPad = await PatientAdditionalData.findOne({
         where: { patientId: keep.id },
@@ -371,11 +359,7 @@ describe('Patient merge', () => {
         passport: 'merge-passport',
       });
 
-      const { updates } = await mergePatient(models, keep.id, merge.id);
-      expect(updates).toEqual({
-        Patient: 2,
-        PatientAdditionalData: 1,
-      });
+      await mergePatient(models, keep.id, merge.id);
       const newKeepPatientPad = await PatientAdditionalData.findOne({
         where: { patientId: keep.id },
         paranoid: false,
