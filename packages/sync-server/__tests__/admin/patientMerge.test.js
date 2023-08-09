@@ -385,6 +385,11 @@ describe('Patient merge', () => {
         name: 'Alter Ego',
         fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
       });
+      const definitionC = await PatientFieldDefinition.create({
+        categoryId: category.id,
+        name: 'Avatar name',
+        fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
+      });
 
       const [keep, merge] = await makeTwoPatients();
       const testValuesObject = {
@@ -393,10 +398,16 @@ describe('Patient merge', () => {
           keep: 'Jason Todd',
           expect: 'Jason Todd',
         },
+        // Copies values if keep patient has empty string
         [definitionB.id]: {
           merge: 'Robin',
           keep: '',
           expect: 'Robin',
+        },
+        // Creates value if keep patient didn't had any record
+        [definitionC.id]: {
+          merge: 'Nightwing',
+          expect: 'Nightwing',
         },
       };
 
@@ -420,15 +431,20 @@ describe('Patient merge', () => {
         definitionId: definitionB.id,
         value: testValuesObject[definitionB.id].keep,
       });
+      await PatientFieldValue.create({
+        patientId: merge.id,
+        definitionId: definitionC.id,
+        value: testValuesObject[definitionC.id].merge,
+      });
 
       const { updates } = await mergePatient(models, keep.id, merge.id);
       expect(updates).toEqual({
         Patient: 2,
-        PatientFieldValue: 1,
+        PatientFieldValue: 2,
       });
 
       const updatedFieldValues = await PatientFieldValue.findAll({});
-      expect(updatedFieldValues.length).toEqual(2);
+      expect(updatedFieldValues.length).toEqual(3);
       updatedFieldValues.forEach(fieldValue => {
         expect(fieldValue.value).toEqual(testValuesObject[fieldValue.definitionId].expect);
       });
