@@ -3,6 +3,7 @@ import { createNamespace } from 'cls-hooked';
 import pg from 'pg';
 import util from 'util';
 
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from './logging';
 import { serviceContext, serviceName } from './logging/context';
 
@@ -10,7 +11,6 @@ import { migrate, assertUpToDate, NON_SYNCING_TABLES } from './migrations';
 import * as models from '../models';
 import { createDateTypes } from './createDateTypes';
 import { setupQuote } from '../utils/pgComposite';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
 createDateTypes();
 

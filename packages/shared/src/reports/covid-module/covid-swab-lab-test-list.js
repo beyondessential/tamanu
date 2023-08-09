@@ -10,8 +10,8 @@ import {
 } from 'date-fns';
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
-import { differenceInMilliseconds, format } from '../../utils/dateTime';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
+import { differenceInMilliseconds, format } from '../../utils/dateTime';
 import { generateReportFromQueryData } from '../utilities';
 import { transformAnswers } from '../utilities/transformAnswers';
 
