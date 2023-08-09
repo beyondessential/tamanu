@@ -211,7 +211,7 @@ export class TamanuApi {
     }
 
     if (throwResponse) {
-      return response;
+      throw response;
     }
 
     return this.extractError(endpoint, response);
