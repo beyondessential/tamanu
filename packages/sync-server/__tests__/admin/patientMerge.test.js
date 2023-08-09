@@ -9,6 +9,7 @@ import {
 } from '../../app/admin/patientMerge/mergePatient';
 import { PatientMergeMaintainer } from '../../app/tasks/PatientMergeMaintainer';
 import { createTestContext } from '../utilities';
+import { Op } from 'sequelize';
 
 describe('Patient merge', () => {
   let ctx;
@@ -213,6 +214,39 @@ describe('Patient merge', () => {
   });
 
   describe('PatientAdditionalData', () => {
+    it('Should delete both PADs and generate a new one', async () => {
+      const { PatientAdditionalData } = models;
+      const [keep, merge] = await makeTwoPatients();
+      const oldKeepPatientPad = await PatientAdditionalData.create({
+        patientId: keep.id,
+        passport: 'keep-passport',
+      });
+      await PatientAdditionalData.create({
+        patientId: merge.id,
+        primaryContactNumber: 'merge-phone',
+      });
+      const oldKeepPatientPadCreatedAt = oldKeepPatientPad.createdAt;
+
+      const { updates } = await mergePatient(models, keep.id, merge.id);
+      expect(updates).toEqual({
+        Patient: 2,
+        PatientAdditionalData: 1,
+      });
+
+      const newKeepPatientPad = await PatientAdditionalData.findOne({
+        where: { patientId: keep.id },
+        paranoid: false,
+      });
+      const newMergePatientPad = await PatientAdditionalData.findOne({
+        where: { patientId: merge.id },
+        paranoid: false,
+      });
+
+      expect(newMergePatientPad).toEqual(null);
+      expect(newKeepPatientPad.createdAt).not.toBe(oldKeepPatientPadCreatedAt);
+      expect(newKeepPatientPad).toHaveProperty('deletedAt', null);
+    });
+
     it('Should merge patient additional data cleanly', async () => {
       const { PatientAdditionalData } = models;
       const [keep, merge] = await makeTwoPatients();
