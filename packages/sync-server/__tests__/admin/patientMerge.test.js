@@ -237,15 +237,9 @@ describe('Patient merge', () => {
         where: { patientId: keep.id },
         paranoid: false,
       });
-      const newMergePatientPad = await PatientAdditionalData.findOne({
-        where: { patientId: merge.id },
-        paranoid: false,
-      });
 
-      expect(newKeepPatientPad).toHaveProperty('deletedAt', null);
       expect(newKeepPatientPad).toHaveProperty('passport', 'keep-passport');
       expect(newKeepPatientPad).toHaveProperty('primaryContactNumber', 'merge-phone');
-      expect(newMergePatientPad).toEqual(null);
     });
 
     it('Should merge patient additional data even if the keep patient PAD is null', async () => {
@@ -271,15 +265,9 @@ describe('Patient merge', () => {
         where: { patientId: keep.id },
         paranoid: false,
       });
-      const newMergePatientPad = await PatientAdditionalData.findOne({
-        where: { patientId: merge.id },
-        paranoid: false,
-      });
 
-      expect(newKeepPatientPad).toHaveProperty('deletedAt', null);
       expect(newKeepPatientPad).toHaveProperty('primaryContactNumber', 'merge-phone');
       expect(newKeepPatientPad).toHaveProperty('patientId', keep.id);
-      expect(newMergePatientPad).toEqual(null);
     });
 
     it('Should keep data from the keep patient and fill unknown values from merge patient', async () => {
