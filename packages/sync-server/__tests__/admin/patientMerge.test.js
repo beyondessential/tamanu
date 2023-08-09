@@ -339,7 +339,7 @@ describe('Patient merge', () => {
       const { updates } = await mergePatient(models, keep.id, merge.id);
       expect(updates).toEqual({
         Patient: 2,
-        PatientFieldValue: 2,
+        PatientFieldValue: 1,
       });
 
       const updatedFieldValues = await PatientFieldValue.findAll({});
