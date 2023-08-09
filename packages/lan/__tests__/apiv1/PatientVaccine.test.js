@@ -75,7 +75,9 @@ describe('PatientVaccine', () => {
     await models.ScheduledVaccine.truncate({ cascade: true });
     await models.AdministeredVaccine.truncate({ cascade: true });
 
-    drug = await models.ReferenceData.create(fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }));
+    drug = await models.ReferenceData.create(
+      fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),
+    );
 
     // set up reference data
     // create 3 scheduled vaccines, 2 routine and 1 campaign and 2 catch up
@@ -440,7 +442,26 @@ describe('PatientVaccine', () => {
       const vaccine = await models.AdministeredVaccine.findByPk(result.body.id);
       const encounter = await vaccine.getEncounter();
       expect(encounter).toHaveProperty('encounterType', ENCOUNTER_TYPES.VACCINATION);
-      expect(encounter.reasonForEncounter).toMatch(`Vaccination recorded for ${drug.name} ${scheduled1.schedule}`);
+      expect(encounter.reasonForEncounter).toMatch(
+        `Vaccination recorded for ${drug.name} ${scheduled1.schedule}`,
+      );
+    });
+
+    it('Should update reason for encounter with correct description when vaccine is recorded in error', async () => {
+      const result = await app.get(`/v1/patient/${patient.id}/administeredVaccines`);
+
+      const markedAsRecordedInError = await app
+        .put(`/v1/patient/${patient.id}/administeredVaccine/${result.body.data[0].id}`)
+        .send({ status: VACCINE_STATUS.RECORDED_IN_ERROR });
+
+      expect(markedAsRecordedInError).toHaveSucceeded();
+
+      const vaccine = await models.AdministeredVaccine.findByPk(markedAsRecordedInError.body.id);
+      const encounter = await vaccine.getEncounter();
+      expect(vaccine.status).toEqual(VACCINE_STATUS.RECORDED_IN_ERROR);
+      expect(encounter.reasonForEncounter).toMatch(
+        `${drug.name} ${scheduled1.schedule} record deleted`,
+      );
     });
   });
 
