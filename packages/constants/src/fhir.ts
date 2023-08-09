@@ -1,5 +1,3 @@
-import { upperFirst } from 'lodash';
-
 export const FHIR_INTERACTIONS = {
   INSTANCE: {
     READ: 'resource-read',
@@ -235,7 +233,7 @@ export const FHIR_ENCOUNTER_CLASS_DISPLAY = {
 };
 
 export const FHIR_ENCOUNTER_CLASS_CODE = Object.fromEntries(
-  Object.keys(FHIR_ENCOUNTER_CLASS_DISPLAY).map((k) => [k, k]),
+  Object.keys(FHIR_ENCOUNTER_CLASS_DISPLAY).map(k => [k, k]),
 );
 
 export const FHIR_ENCOUNTER_STATUS = {
@@ -279,6 +277,6 @@ export const FHIR_LOCATION_PHYSICAL_TYPE_CODE = {
 export const FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY = Object.fromEntries(
   Object.entries(FHIR_LOCATION_PHYSICAL_TYPE_CODE).map(([k, v]) => [
     v,
-    upperFirst(k.toLowerCase()),
+    `${k.substring(0, 1).toUpperCase()}${k.substring(1).toLowerCase()}`,
   ]),
 );
