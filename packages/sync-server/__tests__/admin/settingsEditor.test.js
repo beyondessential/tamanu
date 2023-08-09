@@ -165,4 +165,14 @@ describe('Settings Editor', () => {
     const afterEditResponse = await getSettings(SETTINGS_SCOPES.GLOBAL);
     expect(afterEditResponse.body).toEqual(AFTER_EDIT_JSON);
   });
+
+  it('Should fetch a list of facility names and ids linked to the central server', async () => {
+    const { Facility } = models;
+    const facilityList = await Facility.findAll({ attributes: ['id', 'name'] });
+    const plainFacilityList = facilityList.map(facility => facility.get({ plain: true }));
+
+    const endpointResponse = await adminApp.get('/v1/admin/facilities');
+    expect(endpointResponse).toHaveSucceeded();
+    expect(endpointResponse.body).toEqual(plainFacilityList);
+  });
 });
