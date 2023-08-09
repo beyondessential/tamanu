@@ -41,4 +41,8 @@ export class UserFacility extends Model {
     }
     return super.create(values, options);
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }

@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { PATIENT_ISSUE_TYPES, SYNC_DIRECTIONS } from '../constants';
 import { Model } from './Model';
-import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
+import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
@@ -34,5 +34,5 @@ export class PatientIssue extends Model {
     this.belongsTo(models.Patient, { foreignKey: 'patientId' });
   }
 
-  static buildSyncFilter = buildPatientLinkedSyncFilter;
+  static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
 }

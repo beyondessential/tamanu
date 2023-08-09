@@ -64,4 +64,8 @@ export class InvoiceLineType extends Model {
       },
     ];
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }

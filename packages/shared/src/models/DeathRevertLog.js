@@ -51,4 +51,8 @@ export class DeathRevertLog extends Model {
       as: 'revertedBy',
     });
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }

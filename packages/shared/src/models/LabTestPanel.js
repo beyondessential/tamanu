@@ -44,4 +44,8 @@ export class LabTestPanel extends Model {
       as: 'category',
     });
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }
