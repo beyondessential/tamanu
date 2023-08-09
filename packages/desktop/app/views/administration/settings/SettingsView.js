@@ -76,8 +76,10 @@ export const SettingsView = React.memo(() => {
     helperText = SCOPE_HELPERTEXT.GLOBAL;
   }
 
-  const toggleEditMode = () => setEditMode(!editMode);
-
+  const toggleEditMode = () => {
+    setEditMode(!editMode);
+    setShowValidation(false);
+  };
   const onChangeSettings = newValue => {
     setSettingsEditString(newValue);
     setShowValidation(false);
