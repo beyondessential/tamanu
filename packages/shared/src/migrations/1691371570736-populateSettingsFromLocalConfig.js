@@ -1,7 +1,7 @@
 import { access, readFile } from 'fs/promises';
 import { constants } from 'fs';
 import config from 'config';
-import { get, has, pick, set, unset } from 'lodash';
+import { defaultsDeep, get, has, isEmpty, pick, set, unset } from 'lodash';
 import stripJsonComments from 'strip-json-comments';
 
 import { SETTINGS_SCOPES, SETTING_KEYS } from '../constants';
@@ -42,24 +42,26 @@ export async function up(query) {
   const scopedDefaults = serverFacilityId ? facilityDefaults : centralDefaults;
   const scope = serverFacilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.CENTRAL;
 
-  let configPath;
-  try {
-    await access('config/test.json', constants.F_OK);
-    console.log('test exists');
-  } catch (error) {
-    console.log(error);
-  }
-  try {
-    await access('config/production.json', constants.F_OK);
-    configPath = 'config/production.json';
-  } catch (error) {
-    console.log(error, 'No production config found, using local config', console.log(process.ENV));
-    configPath = 'config/local.json';
+  const localConfig = await [('config/production.json', 'config/local.json')].reduce(
+    async (acc, configPath) => {
+      try {
+        await access(configPath, constants.F_OK);
+        const filesConfig = JSON.parse(stripJsonComments((await readFile(configPath)).toString()));
+        return defaultsDeep(acc, filesConfig);
+      } catch (err) {
+        return acc;
+      }
+    },
+    {},
+  );
+
+  if (isEmpty(localConfig)) {
+    // eslint-disable-next-line no-console
+    console.log('No local config found, skipping settings migration');
+    return;
   }
 
-  const localData = JSON.parse(stripJsonComments((await readFile(configPath)).toString()));
-
-  const scopedConfig = pickValidSettings(localData, scopedDefaults);
+  const scopedConfig = pickValidSettings(localConfig, scopedDefaults);
   await query.sequelize.models.Setting.set('', scopedConfig, serverFacilityId, scope);
 
   if (serverFacilityId) return;
@@ -68,14 +70,14 @@ export async function up(query) {
 
   // Transform some keys out of localisation into top level
   Object.entries(CENTRAL_KEY_TRANSFORM_MAP).forEach(([oldKey, newKey]) => {
-    const value = has(localData, oldKey) && get(localData, oldKey);
+    const value = has(localConfig, oldKey) && get(localConfig, oldKey);
     if (value) {
-      set(localData, newKey, value);
-      unset(localData, oldKey);
+      set(localConfig, newKey, value);
+      unset(localConfig, oldKey);
     }
   });
 
-  const globalConfig = pickValidSettings(localData, globalDefaults);
+  const globalConfig = pickValidSettings(localConfig, globalDefaults);
   await query.sequelize.models.Setting.set('', globalConfig, null, SETTINGS_SCOPES.GLOBAL);
 }
 
