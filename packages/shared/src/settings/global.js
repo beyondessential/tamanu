@@ -18,6 +18,28 @@ export const globalDefaults = {
     // e.g.
     // "xRay": { "label": "X-Ray" }
   },
+  country: {
+    name: '',
+    'alpha-2': '',
+    'alpha-3': '',
+  },
+  printMeasures: {
+    labRequestPrintLabel: {
+      width: 50.8,
+    },
+    stickerLabelPage: {
+      pageWidth: '210mm',
+      pageHeight: '297mm',
+      pageMarginTop: '15.09mm',
+      pageMarginLeft: '6.4mm',
+      columnTotal: 3,
+      columnWidth: '64mm',
+      columnGap: '3.01mm',
+      rowTotal: 10,
+      rowHeight: '26.7mm',
+      rowGap: '0',
+    },
+  },
   features: {
     editPatientDetailsOnMobile: true,
     quickPatientGenerator: false,
@@ -54,11 +76,6 @@ export const globalDefaults = {
       // To do: review this section when implementing the patient charts feature
       units: {
         temperature: 'celsius',
-      },
-      country: {
-        name: '',
-        'alpha-2': '',
-        'alpha-3': '',
       },
       fields: {
         countryName: {
@@ -504,23 +521,6 @@ export const globalDefaults = {
           label: 'Other',
         },
       ],
-      printMeasures: {
-        labRequestPrintLabel: {
-          width: 50.8,
-        },
-        stickerLabelPage: {
-          pageWidth: '210mm',
-          pageHeight: '297mm',
-          pageMarginTop: '15.09mm',
-          pageMarginLeft: '6.4mm',
-          columnTotal: 3,
-          columnWidth: '64mm',
-          columnGap: '3.01mm',
-          rowTotal: 10,
-          rowHeight: '26.7mm',
-          rowGap: '0',
-        },
-      },
       triageCategories: [
         {
           level: 1,

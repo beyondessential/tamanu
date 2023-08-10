@@ -28,6 +28,8 @@ const CENTRAL_KEY_TRANSFORM_MAP = {
   'localisation.labResultWidget': 'labResultWidget',
   'localisation.data.imagingTypes': 'imagingTypes',
   'localisation.data.features': 'features',
+  'localisation.data.printMeasures': 'printMeasures',
+  'localisation.data.country': 'country',
   'localisation.timeZone': null,
 };
 
@@ -68,7 +70,6 @@ export async function up(query) {
 
   /* Central server only */
 
-  // Transform some keys out of localisation into top level
   Object.entries(CENTRAL_KEY_TRANSFORM_MAP).forEach(([oldKey, newKey]) => {
     const value = has(localConfig, oldKey) && get(localConfig, oldKey);
     if (value) {
