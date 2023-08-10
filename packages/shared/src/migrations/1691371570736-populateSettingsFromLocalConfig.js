@@ -44,10 +44,16 @@ export async function up(query) {
 
   let configPath;
   try {
+    await access('config/test.json', constants.F_OK);
+    console.log('test exists');
+  } catch (error) {
+    console.log(error);
+  }
+  try {
     await access('config/production.json', constants.F_OK);
     configPath = 'config/production.json';
   } catch (error) {
-    console.log(error, 'No production config found, using local config');
+    console.log(error, 'No production config found, using local config', console.log(process.ENV));
     configPath = 'config/local.json';
   }
 
