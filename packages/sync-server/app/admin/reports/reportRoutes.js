@@ -212,6 +212,8 @@ reportsRouter.post(
           if (dryRun) {
             throw new DryRun();
           }
+
+          feedback.reportDefinitionId = definition.id;
         },
       );
     } catch (err) {

@@ -87,11 +87,12 @@ const SaveIcon = styled(SaveAsIcon)`
   margin-right: 10px;
 `;
 
-const VersionInfo = ({ name, version }) => (
+const VersionInfo = ({ name, id, version }) => (
   <VersionInfoCard>
     <CardHeader>
       <CardItem label="Name" value={name} />
       <CardItem label="Version" value={version.versionNumber} />
+      <CardItem label="Report id" value={id} />
     </CardHeader>
     <CardDivider />
     <CardItem
@@ -232,7 +233,7 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
           </StyledButton>
         </ButtonContainer>
         <DetailList>
-          <VersionInfo name={name} version={version} />
+          <VersionInfo id={id} name={name} version={version} />
           {value && (
             <ErrorBoundary errorKey={version.id} ErrorComponent={LoadError}>
               <JsonEditor
