@@ -1,14 +1,4 @@
 export const facilityDefaults = {
-  log: {
-    path: '',
-    consoleLevel: 'http',
-    color: true,
-  },
-  honeycomb: {
-    enabled: true,
-    sampleRate: 100, // 100 = 1/100 = 1% of traces get sent to honeycomb
-    // in contrast, logs are always sent
-  },
   admin: {
     allowAdminRoutes: false,
   },
@@ -23,27 +13,15 @@ export const facilityDefaults = {
     overridePort: null,
     protocol: 'https',
   },
-  sync: {
-    schedule: '*/1 * * * *',
-    host: 'https://central-dev.tamanu.io',
-    email: '',
-    password: '',
-    timeout: 10000,
-    readOnly: false,
-    persistedCacheBatchSize: 10000,
+  honeycomb: {
     enabled: true,
-    backoff: {
-      multiplierMs: 300,
-      maxAttempts: 15,
-      maxWaitMs: 10000,
-    },
-    dynamicLimiter: {
-      initialLimit: 10, // start relatively low then grow upward
-      minLimit: 1,
-      maxLimit: 10000,
-      optimalTimePerPageMs: 2000, // aim for 2 seconds per page
-      maxLimitChangePerPage: 0.2, // max 20% increase/decrease from page to page
-    },
+    sampleRate: 100, // 100 = 1/100 = 1% of traces get sent to honeycomb
+    // in contrast, logs are always sent
+  },
+  log: {
+    color: true,
+    consoleLevel: 'http',
+    path: '',
   },
   schedules: {
     medicationDiscontinuer: {
@@ -53,9 +31,31 @@ export const facilityDefaults = {
   },
   senaite: {
     enabled: false,
+    password: 'admin',
     server: 'https://192.168.33.100',
     username: 'admin',
-    password: 'admin',
   },
   serverFacilityId: '',
+  sync: {
+    backoff: {
+      maxAttempts: 15,
+      maxWaitMs: 10000,
+      multiplierMs: 300,
+    },
+    dynamicLimiter: {
+      initialLimit: 10, // start relatively low then grow upward
+      maxLimit: 10000,
+      maxLimitChangePerPage: 0.2, // max 20% increase/decrease from page to page
+      minLimit: 1,
+      optimalTimePerPageMs: 2000, // aim for 2 seconds per page
+    },
+    email: '',
+    enabled: true,
+    host: 'https://central-dev.tamanu.io',
+    password: '',
+    persistedCacheBatchSize: 10000,
+    readOnly: false,
+    schedule: '*/1 * * * *',
+    timeout: 10000,
+  },
 };
