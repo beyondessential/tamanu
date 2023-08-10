@@ -31,6 +31,7 @@ const CENTRAL_KEY_TRANSFORM_MAP = {
   'localisation.data.printMeasures': 'printMeasures',
   'localisation.data.country': 'country',
   'localisation.timeZone': null,
+  'localisation.data': 'localisation',
 };
 
 const pickValidSettings = (settings, defaults) =>
