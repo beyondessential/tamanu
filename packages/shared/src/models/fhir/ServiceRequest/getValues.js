@@ -88,6 +88,10 @@ async function getValuesFromImagingRequest(upstream, models) {
       reference: upstream.encounter.patient.id,
       display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
     }),
+    encounter: new FhirReference({
+      type: 'upstream://encounter',
+      reference: upstream.encounter.id,
+    }),
     occurrenceDateTime: formatFhirDate(upstream.requestedDate),
     requester: new FhirReference({
       display: upstream.requestedBy.displayName,
@@ -103,11 +107,11 @@ async function getValuesFromLabRequest(upstream) {
     contained: labContained(upstream),
     identifier: [
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.serviceRequestImagingId,
+        system: config.hl7.dataDictionaries.serviceRequestLabId,
         value: upstream.id,
       }),
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.serviceRequestImagingDisplayId,
+        system: config.hl7.dataDictionaries.serviceRequestLabDisplayId,
         value: upstream.displayId,
       }),
     ],
@@ -132,7 +136,8 @@ async function getValuesFromLabRequest(upstream) {
       display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
     }),
     encounter: new FhirReference({
-      reference: `Encounter/${upstream.encounter.id}`,
+      type: 'upstream://encounter',
+      reference: upstream.encounter.id,
     }),
     occurrenceDateTime: formatFhirDate(upstream.requestedDate),
     requester: new FhirReference({
