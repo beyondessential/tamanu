@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { Typography } from '@material-ui/core';
 import { DOCUMENT_SOURCES } from '@tamanu/shared/constants';
-
 import { Modal } from '../Modal';
 import PDFPreview from './PDFPreview';
 import PhotoPreview from './PhotoPreview';
@@ -56,6 +55,7 @@ export const DocumentPreviewModal = ({ open, onClose, onDownload, document }) =>
       }
       printable={document.source === DOCUMENT_SOURCES.PATIENT_LETTER}
       additionalActions={[<DownloadButton onClick={onDownload} key="Download" />]}
+      onPrint={() => window.print()}
       width="md"
       overrideContentPadding
       onClose={() => {
