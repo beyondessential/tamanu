@@ -174,6 +174,7 @@ export const DataFetchingTable = memo(
             const displayData = isDataToBeUpdated ? highlightedData : dataSnapshot;
 
             // Record page and count of last fetch to compare to the next fetch. Also save a copy of current data to show if not updating
+            // TODO: THIS SHOULD GO TO INOT FETCH STATE?
             setLastFetchCount(count);
             setLastPage(page);
             setDataSnapshot(displayData);
