@@ -81,23 +81,14 @@ export const SettingsView = React.memo(() => {
   const [editMode, setEditMode] = useState(false);
   const [showValidation, setShowValidation] = useState(false);
 
+  const [jsonError, setJsonError] = useState(null);
+
   const areSettingsPresent = Object.keys(settings).length > 0;
   const formattedJSONString = areSettingsPresent ? JSON.stringify(settings, null, 2) : '';
   const hasSettingsChanged = formattedJSONString !== settingsEditString;
 
   const scope = getScope(selectedFacility);
   const helperText = getHelperText(selectedFacility);
-  // let helperText;
-  // if (selectedFacility === SETTINGS_SCOPES.CENTRAL) {
-  //   // scope = SETTINGS_SCOPES.CENTRAL;
-  //   helperText = SCOPE_HELPERTEXT.CENTRAL;
-  // } else if (selectedFacility) {
-  //   // scope = SETTINGS_SCOPES.FACILITY;
-  //   helperText = SCOPE_HELPERTEXT.FACILITY;
-  // } else {
-  //   // scope = SETTINGS_SCOPES.GLOBAL;
-  //   helperText = SCOPE_HELPERTEXT.GLOBAL;
-  // }
 
   const toggleEditMode = () => {
     setEditMode(!editMode);
@@ -121,6 +112,7 @@ export const SettingsView = React.memo(() => {
     } catch (error) {
       notifyError(`Invalid JSON: ${error.message}`);
       setShowValidation(true);
+      setJsonError(error);
       return;
     }
     const settingsObject = JSON.parse(settingsEditString);
@@ -196,6 +188,7 @@ export const SettingsView = React.memo(() => {
           showValidation={showValidation}
           value={editMode ? settingsEditString : formattedJSONString}
           editMode={editMode}
+          error={jsonError}
         />
       </ContentPane>
     </AdminViewContainer>
