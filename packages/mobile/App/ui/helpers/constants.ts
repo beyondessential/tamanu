@@ -192,6 +192,7 @@ export const EncounterTypeNames = {
   observation: 'Observation',
   triage: 'Triage',
   surveyResponse: 'Survey response',
+  vaccination: 'Vaccination record',
 };
 
 export const LabRequestStatus = {
