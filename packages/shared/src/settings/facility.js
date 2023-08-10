@@ -31,7 +31,6 @@ export const facilityDefaults = {
   },
   senaite: {
     enabled: false,
-    password: 'admin',
     server: 'https://192.168.33.100',
     username: 'admin',
   },
@@ -52,7 +51,6 @@ export const facilityDefaults = {
     email: '',
     enabled: true,
     host: 'https://central-dev.tamanu.io',
-    password: '',
     persistedCacheBatchSize: 10000,
     readOnly: false,
     schedule: '*/1 * * * *',

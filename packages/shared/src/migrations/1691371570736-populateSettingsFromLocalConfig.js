@@ -22,26 +22,46 @@ const SETTINGS_PREDATING_MIGRATION = [
   'integrations.imaging',
 ];
 
-const GLOBAL_KEY_TRANSFORM_MAP = {
-  // Move some keys out of localisation into top level and delete timeZone
-  'localisation.labResultWidget': 'labResultWidget',
-  'localisation.data.imagingTypes': 'imagingTypes',
-  'localisation.data.features': 'features',
-  'localisation.data.printMeasures': 'printMeasures',
-  'localisation.data.country': 'country',
-  // Delete timeZone in favor of countryTimeZone
-  'localisation.timeZone': null,
-  // Move remaining keys to root of localisation
-  'localisation.data': 'localisation',
+const SCOPED_KEY_TRANSFORM_MAPS = {
+  [SETTINGS_SCOPES.CENTRAL]: {
+    // Remove secrets inside nested keys of configs we want to keep
+    'honeycomb.apiKey': null,
+    'integrations.fijiVrs.password': null,
+    'integrations.signer.keySecret': null,
+    'integrations.omnilab.secret': null,
+  },
+  [SETTINGS_SCOPES.FACILITY]: {
+    // Remove secrets inside nested keys of configs we want to keep
+    'sync.password': null,
+    'senaite.password': null,
+    'honeycomb.apiKey': null,
+  },
+  [SETTINGS_SCOPES.GLOBAL]: {
+    // Move some keys out of localisation into top level and delete timeZone
+    'localisation.labResultWidget': 'labResultWidget',
+    'localisation.data.imagingTypes': 'imagingTypes',
+    'localisation.data.features': 'features',
+    'localisation.data.printMeasures': 'printMeasures',
+    'localisation.data.country': 'country',
+    // Delete timeZone in favor of countryTimeZone
+    'localisation.timeZone': null,
+    // Move remaining keys to root of localisation
+    'localisation.data': 'localisation',
+  },
 };
 
-const pickValidSettings = (settings, defaults) =>
-  pick(
-    settings,
-    // Top level keys not defined in defaults are ignored
-    // This allows us to not migrate everything in the local config
-    Object.keys(defaults),
-  );
+const transformKeys = (settings, transformMap, defaults) => {
+  Object.entries(transformMap).forEach(([oldKey, newKey]) => {
+    const value = has(settings, oldKey) && get(settings, oldKey);
+    if (value) {
+      if (newKey) set(settings, newKey, value);
+      unset(settings, oldKey);
+    }
+  });
+  // Remove top level keys not found in scoped defaults,
+  // This also removes root keys not present in any scope like db, auth
+  return pick(settings, Object.keys(defaults));
+};
 
 export async function up(query) {
   const { serverFacilityId = null } = config;
@@ -66,24 +86,20 @@ export async function up(query) {
     return;
   }
 
+  const scopedConfig = transformKeys(localConfig, SCOPED_KEY_TRANSFORM_MAPS[scope], scopedDefaults);
   // Set the settings for either the facility or central scope
-  const scopedConfig = pickValidSettings(localConfig, scopedDefaults);
   await query.sequelize.models.Setting.set('', scopedConfig, serverFacilityId, scope);
 
   if (serverFacilityId) return;
 
   /* Central server only */
 
-  Object.entries(GLOBAL_KEY_TRANSFORM_MAP).forEach(([oldKey, newKey]) => {
-    const value = has(localConfig, oldKey) && get(localConfig, oldKey);
-    if (value) {
-      if (newKey) set(localConfig, newKey, value);
-      unset(localConfig, oldKey);
-    }
-  });
-
+  const globalConfig = transformKeys(
+    localConfig,
+    SCOPED_KEY_TRANSFORM_MAPS[SETTINGS_SCOPES.GLOBAL],
+    globalDefaults,
+  );
   // Set the settings for the global scope
-  const globalConfig = pickValidSettings(localConfig, globalDefaults);
   await query.sequelize.models.Setting.set('', globalConfig, null, SETTINGS_SCOPES.GLOBAL);
 }
 
