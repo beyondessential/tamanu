@@ -22,23 +22,24 @@ const SETTINGS_PREDATING_MIGRATION = [
   'integrations.imaging',
 ];
 
-// Move some keys out of localisation into top level and delete timeZone
-// In favor of countryTimeZone
-const CENTRAL_KEY_TRANSFORM_MAP = {
+const GLOBAL_KEY_TRANSFORM_MAP = {
+  // Move some keys out of localisation into top level and delete timeZone
   'localisation.labResultWidget': 'labResultWidget',
   'localisation.data.imagingTypes': 'imagingTypes',
   'localisation.data.features': 'features',
   'localisation.data.printMeasures': 'printMeasures',
   'localisation.data.country': 'country',
+  // Delete timeZone in favor of countryTimeZone
   'localisation.timeZone': null,
+  // Move remaining keys to root of localisation
   'localisation.data': 'localisation',
 };
 
 const pickValidSettings = (settings, defaults) =>
   pick(
     settings,
-    // Top level keys not defined in defaults are ignored as sensitive or require
-    // restart to take effect
+    // Top level keys not defined in defaults are ignored
+    // This allows us to not migrate everything in the local config
     Object.keys(defaults),
   );
 
@@ -48,6 +49,7 @@ export async function up(query) {
   const scopedDefaults = serverFacilityId ? facilityDefaults : centralDefaults;
   const scope = serverFacilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.CENTRAL;
 
+  // Merge production -> local if exists
   const localConfig = await POSSIBLE_CONFIG_PATHS.reduce(async (prevPromise, configPath) => {
     const prev = await prevPromise;
     try {
@@ -64,6 +66,7 @@ export async function up(query) {
     return;
   }
 
+  // Set the settings for either the facility or central scope
   const scopedConfig = pickValidSettings(localConfig, scopedDefaults);
   await query.sequelize.models.Setting.set('', scopedConfig, serverFacilityId, scope);
 
@@ -71,7 +74,7 @@ export async function up(query) {
 
   /* Central server only */
 
-  Object.entries(CENTRAL_KEY_TRANSFORM_MAP).forEach(([oldKey, newKey]) => {
+  Object.entries(GLOBAL_KEY_TRANSFORM_MAP).forEach(([oldKey, newKey]) => {
     const value = has(localConfig, oldKey) && get(localConfig, oldKey);
     if (value) {
       if (newKey) set(localConfig, newKey, value);
@@ -79,6 +82,7 @@ export async function up(query) {
     }
   });
 
+  // Set the settings for the global scope
   const globalConfig = pickValidSettings(localConfig, globalDefaults);
   await query.sequelize.models.Setting.set('', globalConfig, null, SETTINGS_SCOPES.GLOBAL);
 }
