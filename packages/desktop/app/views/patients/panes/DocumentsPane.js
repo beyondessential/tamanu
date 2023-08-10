@@ -65,6 +65,30 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
     [api, openPath, showSaveDialog, writeFile],
   );
 
+  const onPrintPDF = useCallback(
+    async attachmentId => {
+      try {
+        const { data } = await api.get(`attachment/${attachmentId}`, {
+          base64: true,
+        });
+        const dataUri = `data:application/pdf;base64,${data}`;
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = dataUri;
+
+        document.body.appendChild(iframe);
+
+        iframe.onload = () => {
+          // Print the PDF after it's loaded in the iframe
+          iframe.contentWindow.print();
+        };
+      } catch (error) {
+        console.error('Printing PDF error:', error.message);
+      }
+    },
+    [api],
+  );
+
   const refreshTable = useCallback(() => setRefreshCount(count => count + 1), [setRefreshCount]);
   const closeModal = useCallback(() => setModalStatus(MODAL_STATES.CLOSED), [setModalStatus]);
   const downloadCurrent = useCallback(() => onDownload(selectedDocument), [
@@ -117,6 +141,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         onClose={closeModal}
         document={selectedDocument ?? {}}
         onDownload={downloadCurrent}
+        onPrintPDF={onPrintPDF}
       />
     </>
   );
