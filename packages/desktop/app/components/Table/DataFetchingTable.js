@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useEffect, memo } from 'react';
-import styled, { keyframes, css } from 'styled-components';
+import styled from 'styled-components';
 import { isEqual } from 'lodash';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getDateDisplay } from '../DateDisplay';
 import { Table } from './Table';
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
@@ -29,7 +30,7 @@ const Notification = styled.div`
 const LastUpdatedBadge = styled.div`
   position: absolute;
   top: 120px;
-  right: 35px;
+  right: 45px;
   z-index: 9;
   color: ${Colors.softText};
   font-size: 11px;
@@ -251,7 +252,7 @@ export const DataFetchingTable = memo(
         )}
         {enableAutoRefresh && (
           <LastUpdatedBadge>
-            Last updated at: {lastUpdatedAt}
+            Last updated at: {getDateDisplay(lastUpdatedAt, { showTime: true })}
             <RefreshIcon onClick={refreshTable} />
           </LastUpdatedBadge>
         )}
