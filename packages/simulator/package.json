@@ -17,13 +17,7 @@
     "build:types": "tsc --declaration --emitDeclarationOnly --noEmit false && move-dts src dist",
     "build-watch": "yarn run build && yarn run build:src --watch",
     "start": "node dist/index.js",
-    "start-inspect": "node inspect dist/index.js",
-    "test": "echo no tests yet",
-    "lint": "yarn run lint:check && yarn run lint:types",
-    "lint:check": "rome check src",
-    "lint:types": "tsc",
-    "lint:fix": "rome check src --apply-unsafe",
-    "fmt": "rome format src --write"
+    "start-inspect": "node inspect dist/index.js"
   },
   "devDependencies": {
     "@tamanu/build-tooling": "*",
