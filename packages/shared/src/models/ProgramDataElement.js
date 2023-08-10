@@ -34,4 +34,8 @@ export class ProgramDataElement extends Model {
       defaultOptions: parseOrNull(defaultOptions),
     };
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }

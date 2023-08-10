@@ -196,6 +196,7 @@ describe('snapshotOutgoingChanges', () => {
             return promise;
           },
         },
+        buildSyncFilter: () => null,
       };
 
       const startTime = new Date();
@@ -278,6 +279,7 @@ describe('snapshotOutgoingChanges', () => {
             return promise;
           },
         },
+        buildSyncFilter: () => null,
       };
 
       const startTime = new Date();

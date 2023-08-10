@@ -82,4 +82,8 @@ export class SurveyScreenComponent extends Model {
       options: parseOrNull(options),
     };
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }

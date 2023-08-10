@@ -25,4 +25,8 @@ export class PatientFieldDefinitionCategory extends Model {
       as: 'definitions',
     });
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }
