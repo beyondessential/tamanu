@@ -964,11 +964,11 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           locationGroupId: locationGroup1.id,
         });
         const location2 = await createLocation('location same name', {
-          locationGroupId: null,
+          locationGroupId: null, // some old changelog does not have locationGroup information
         });
-        await sleepAsync(50);
+        await sleepAsync(50); // to create a gap in updated_at
         const location3 = await createLocation('location same name', {
-          locationGroupId: null,
+          locationGroupId: null, // some old changelog does not have locationGroup information
         });
 
         const location4 = await createLocation('location 4', {
