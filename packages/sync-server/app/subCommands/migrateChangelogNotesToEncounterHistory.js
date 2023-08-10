@@ -220,7 +220,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                                     unbounded following), null))[1],
                             -- Flag to indicate that we should use latest encounter's location here
                             -- Have to use a flag instead of just populating the ids here because this sub query is for extracting names from changelog only.
-                            -- Having a mix of ids and names will cause more complexity later when extracting the ids from the names
+                            -- Having a mix of ids and names will cause more complexity later when extracting the ids from the names.
                             '${LATEST_ENCOUNTER_FLAG}')
                 end as location_name,
 
@@ -365,8 +365,19 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                                     l.facility_id = log.encounter_facility_id
             left join unique_users u on u.display_name = log.examiner_name
             left join batch_encounters e on e.id = log.encounter_id
-            where case when log.department_name <> '${LATEST_ENCOUNTER_FLAG}' then d.facility_id = log.encounter_facility_id else true end
-            and case when log.location_name <> '${LATEST_ENCOUNTER_FLAG}' then l.facility_id = log.encounter_facility_id else true end
+            where 
+                case 
+                    -- if we know that it should be latest encounter then don't bother verifying the facility_id
+                    when log.department_name <> '${LATEST_ENCOUNTER_FLAG}' 
+                        then d.facility_id = log.encounter_facility_id 
+                    else true 
+                end
+            and case 
+                    -- if we know that it should be latest encounter then don't bother verifying the facility_id
+                    when log.location_name <> '${LATEST_ENCOUNTER_FLAG}' 
+                        then l.facility_id = log.encounter_facility_id 
+                else true
+             end
             -- This is to filter the case where there are multiple location 
             -- with the same names out of the changelog, same as departments and users
             order by record_id, date
