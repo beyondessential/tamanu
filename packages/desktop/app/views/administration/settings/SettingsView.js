@@ -79,7 +79,6 @@ export const SettingsView = React.memo(() => {
   const [selectedFacility, setSelectedFacility] = useState(null);
 
   const [editMode, setEditMode] = useState(false);
-  const [showValidation, setShowValidation] = useState(false);
 
   const [jsonError, setJsonError] = useState(null);
 
@@ -92,11 +91,10 @@ export const SettingsView = React.memo(() => {
 
   const toggleEditMode = () => {
     setEditMode(!editMode);
-    setShowValidation(false);
   };
   const onChangeSettings = newValue => {
     setSettingsEditString(newValue);
-    setShowValidation(false);
+    setJsonError(null);
   };
   const onChangeFacility = event => {
     setSelectedFacility(event.target.value || null);
@@ -107,11 +105,9 @@ export const SettingsView = React.memo(() => {
   const saveSettings = async () => {
     // Check if the JSON is valid and notify if not
     try {
-      setShowValidation(false);
       JSON.parse(settingsEditString);
     } catch (error) {
       notifyError(`Invalid JSON: ${error.message}`);
-      setShowValidation(true);
       setJsonError(error);
       return;
     }
@@ -185,7 +181,6 @@ export const SettingsView = React.memo(() => {
       <ContentPane>
         <JSONEditor
           onChange={onChangeSettings}
-          showValidation={showValidation}
           value={editMode ? settingsEditString : formattedJSONString}
           editMode={editMode}
           error={jsonError}
