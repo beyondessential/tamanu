@@ -205,7 +205,7 @@ export const SYNC_MENU_ITEMS = [
     key: 'settings',
     label: 'Settings',
     path: '/admin/settings',
-    ability: { action: 'read', subject: 'settings' },
+    ability: { action: 'write', subject: 'settings' },
   },
   {
     key: 'reports',
