@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, memo } from 'react';
+import React, { memo } from 'react';
 import styled from 'styled-components';
 
 import { ClearIcon } from '../Icons/ClearIcon';
@@ -31,10 +31,10 @@ const NotificationClearIcon = styled(ClearIcon)`
   }
 `;
 
-export const TableNotification = memo(({ message, onClick }) => {
+export const TableNotification = memo(({ message, clearNotification }) => {
   return (
     <Notification>
-      <NotificationClearIcon onClick={onClick} />
+      <NotificationClearIcon onClick={clearNotification} />
       {message}
     </Notification>
   );

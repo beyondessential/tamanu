@@ -2,14 +2,16 @@ import React, { useState, useCallback, useEffect, memo } from 'react';
 import styled from 'styled-components';
 import { isEqual } from 'lodash';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { getDateDisplay } from '../DateDisplay';
-import { Table } from './Table';
+
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
-import { Colors } from '../../constants';
-import { ClearIcon } from '../Icons/ClearIcon';
+
+import { getDateDisplay } from '../DateDisplay';
+import { Table } from './Table';
 import { RefreshIcon } from '../Icons/RefreshIcon';
 import { TableNotification } from './TableNotification';
+
+import { Colors } from '../../constants';
 
 const LastUpdatedBadge = styled.div`
   position: absolute;
@@ -32,7 +34,18 @@ const LastUpdatedBadge = styled.div`
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
-const DEFAULT_FETCH_STATE = { data: [], count: 0, errorMessage: '', isLoading: true };
+const DEFAULT_FETCH_STATE = {
+  data: [],
+  count: 0,
+  errorMessage: '',
+  isLoading: true,
+  previousFetch: {
+    page: 0,
+    count: 0,
+    dataSnapshot: [],
+    lastUpdatedAt: getCurrentDateTimeString(),
+  },
+};
 
 export const DataFetchingTable = memo(
   ({
@@ -52,19 +65,12 @@ export const DataFetchingTable = memo(
     const [fetchState, setFetchState] = useState(DEFAULT_FETCH_STATE);
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
 
-    // This group of states are for tracking the previous state of fetches and comparing to
-    // the most recent one to determine which rows to highlight and when table data should update
-    const [lastFetchCount, setLastFetchCount] = useState(0);
-    const [lastPage, setLastPage] = useState(0);
-    const [lastUpdatedAt, setLastUpdatedAt] = useState(getCurrentDateTimeString());
-    const [dataSnapshot, setDataSnapshot] = useState([]);
-
     const [newRowCount, setNewRowCount] = useState(0);
     const [showNotification, setShowNotification] = useState(false);
 
     const api = useApi();
-    const { getLocalisation } = useLocalisation();
 
+    const { getLocalisation } = useLocalisation();
     const autoRefresh = getLocalisation('features.tableAutorefresh');
     const enableAutoRefresh = autoRefresh && autoRefresh.enabled && isAutoRefreshTable;
 
@@ -95,6 +101,7 @@ export const DataFetchingTable = memo(
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
     useEffect(() => {
+      // TODO: only show the loading indicator when search takes longer than a couple seconds
       updateFetchState({ isLoading: true });
       (async () => {
         try {
@@ -117,11 +124,12 @@ export const DataFetchingTable = memo(
           const transformedData = transformRow ? data.map(transformRow) : data;
 
           if (enableAutoRefresh) {
-            const isFirstFetch = lastFetchCount === 0; // Check if this is the intial table load
+            const { previousFetch } = fetchState;
+            const isFirstFetch = previousFetch.count === 0; // Check if this is the intial table load
             const isInitialSort = isEqual(sorting, initialSort); // Check if set to initial sort
-            const hasPageChanged = page !== lastPage; // Check if the page number has changed since the last fetch
+            const hasPageChanged = page !== previousFetch?.page; // Check if the page number has changed since the last fetch
 
-            const rowsSinceRefresh = count - lastFetchCount; // Rows since the last autorefresh
+            const rowsSinceRefresh = count - previousFetch?.count; // Rows since the last autorefresh
             const rowsSinceInteraction = rowsSinceRefresh + newRowCount; // Rows added since last clearing of rows from interacting
 
             // Highlight rows green if the index is less that the index of rows since interaction AND its not the first fetch
@@ -138,7 +146,7 @@ export const DataFetchingTable = memo(
             if (!isFirstFetch) {
               setNewRowCount(rowsSinceInteraction);
               setShowNotification(rowsSinceInteraction > 0);
-              if (lastPage === 0 && page > 0) {
+              if (previousFetch.page === 0 && page > 0) {
                 clearNewRowStyles();
               }
             }
@@ -146,14 +154,7 @@ export const DataFetchingTable = memo(
             // When autorefreshing past page one, we dont want to move rows down as it updates. Only if you are on
             // page one should it live update, otherwise the updates come through when navigating
             const isDataToBeUpdated = hasPageChanged || page === 0;
-            const displayData = isDataToBeUpdated ? highlightedData : dataSnapshot;
-
-            // Record page and count of last fetch to compare to the next fetch. Also save a copy of current data to show if not updating
-            // TODO: THIS SHOULD GO TO INOT FETCH STATE?
-            setLastFetchCount(count);
-            setLastPage(page);
-            setDataSnapshot(displayData);
-            setLastUpdatedAt(getCurrentDateTimeString());
+            const displayData = isDataToBeUpdated ? highlightedData : previousFetch.dataSnapshot;
 
             // Update the table with the rows to display
             updateFetchState({
@@ -161,6 +162,13 @@ export const DataFetchingTable = memo(
               data: displayData,
               count,
               isLoading: false,
+              // Record page and count of last fetch to compare to the next fetch. Also save a copy of current data to show if not updating
+              previousFetch: {
+                page,
+                count,
+                dataSnapshot: displayData,
+                lastUpdatedAt: getCurrentDateTimeString(),
+              },
             });
           } else {
             // Non autorefreshing table
@@ -187,13 +195,8 @@ export const DataFetchingTable = memo(
 
       // Check if autoregresh is enabled in config and that the autorefresh prop is added to table
       if (enableAutoRefresh) {
-        const tableAutorefresh = setInterval(() => {
-          refreshTable();
-        }, autoRefresh.interval);
-
-        return () => {
-          clearInterval(tableAutorefresh);
-        };
+        const tableAutorefresh = setInterval(() => refreshTable(), autoRefresh.interval);
+        return () => clearInterval(tableAutorefresh);
       }
 
       // Needed to compare fetchOptions as a string instead of an object
@@ -215,16 +218,19 @@ export const DataFetchingTable = memo(
 
     useEffect(() => setPage(0), [fetchOptions]);
 
-    const { data, count, isLoading, errorMessage } = fetchState;
+    const { data, count, isLoading, errorMessage, previousFetch } = fetchState;
     const { order, orderBy } = sorting;
     return (
       <>
         {showNotification && (
-          <TableNotification message="test" onClick={() => setShowNotification(false)} />
+          <TableNotification
+            message="New records available to view"
+            clearNotification={() => setShowNotification(false)}
+          />
         )}
         {enableAutoRefresh && (
           <LastUpdatedBadge>
-            Last updated at: {getDateDisplay(lastUpdatedAt, { showTime: true })}
+            Last updated at: {getDateDisplay(previousFetch?.lastUpdatedAt, { showTime: true })}
             <RefreshIcon onClick={refreshTable} />
           </LastUpdatedBadge>
         )}
