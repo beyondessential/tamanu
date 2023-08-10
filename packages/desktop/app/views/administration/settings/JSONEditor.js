@@ -7,6 +7,11 @@ import 'ace-builds/src-noconflict/theme-dawn';
 
 import { Colors } from '../../../constants';
 
+const THEMES = {
+  VIEW: 'dawn',
+  EDIT: 'eclipse',
+};
+
 const StyledJSONEditor = styled(AceEditor)`
   border: 1px solid ${p => (p.$isJsonValid ? Colors.outline : Colors.alert)};
   border-radius: 4px;
@@ -41,7 +46,7 @@ const generateAnnotationFromJSONError = (errorMessage, json) => {
   };
 };
 
-export const JSONEditor = React.memo(({ value, onChange, editMode, error }) => {
+export const JSONEditor = React.memo(({ value, onChange, editMode, error, placeholderText }) => {
   const [errorAnnotation, setErrorAnnotation] = useState(null);
   const [marker, setMarker] = useState(null);
 
@@ -72,14 +77,9 @@ export const JSONEditor = React.memo(({ value, onChange, editMode, error }) => {
     editor.commands.addCommand({
       name: 'undo',
       bindKey: { win: 'Ctrl-Z', mac: 'Command-Z' },
-      exec: () => {},
+      exec: () => {}, // does nothing
     });
   };
-
-  // const onChangeJSONString = newValue => {
-  //   // checkValidJson(newValue);
-  //   onChange(newValue);
-  // };
 
   return (
     <StyledJSONEditor
@@ -87,9 +87,9 @@ export const JSONEditor = React.memo(({ value, onChange, editMode, error }) => {
       height="600px"
       mode="json"
       showPrintMargin={false}
-      placeholder="No settings found for this facility/server"
+      placeholder={placeholderText}
       fontSize={14}
-      theme={editMode ? 'eclipse' : 'dawn'}
+      theme={editMode ? THEMES.EDIT : THEMES.VIEW}
       onChange={onChange}
       value={value}
       highlightActiveLine={false}
