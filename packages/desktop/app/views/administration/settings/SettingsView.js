@@ -184,6 +184,7 @@ export const SettingsView = React.memo(() => {
           value={editMode ? settingsEditString : formattedJSONString}
           editMode={editMode}
           error={jsonError}
+          placeholderText="No settings found for this server/facility"
         />
       </ContentPane>
     </AdminViewContainer>
