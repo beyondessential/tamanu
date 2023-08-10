@@ -103,18 +103,6 @@ patientVaccineRoutes.get(
   }),
 );
 
-async function getDeletedVaccineReasonForEncounter(models, vaccineData) {
-  const scheduledVaccine = await models.ScheduledVaccine.findByPk(vaccineData.scheduledVaccineId, {
-    include: 'vaccine',
-  });
-
-  const vaccineDetails =
-    vaccineData.category === VACCINE_CATEGORIES.OTHER
-      ? [vaccineData.vaccineName]
-      : [scheduledVaccine.vaccine?.name, scheduledVaccine.schedule];
-  return [...vaccineDetails, 'record deleted'].filter(Boolean).join(' ');
-}
-
 patientVaccineRoutes.put(
   '/:id/administeredVaccine/:vaccineId',
   asyncHandler(async (req, res) => {
@@ -133,7 +121,7 @@ patientVaccineRoutes.put(
 
         // If encounter type is VACCINATION, it means the encounter only has vaccine attached to it
         if (encounter.encounterType === ENCOUNTER_TYPES.VACCINATION) {
-          encounter.reasonForEncounter = await getDeletedVaccineReasonForEncounter(models, vaccine);
+          encounter.reasonForEncounter = `${encounter.reasonForEncounter} reverted`;
           await encounter.save();
         }
       }

@@ -449,18 +449,23 @@ describe('PatientVaccine', () => {
 
     it('Should update reason for encounter with correct description when vaccine is recorded in error', async () => {
       const result = await app.get(`/v1/patient/${patient.id}/administeredVaccines`);
+      const vaccineId = result.body.data[0].id;
+      const vaccine = await models.AdministeredVaccine.findByPk(vaccineId);
+      const encounter = await vaccine.getEncounter();
 
       const markedAsRecordedInError = await app
-        .put(`/v1/patient/${patient.id}/administeredVaccine/${result.body.data[0].id}`)
+        .put(`/v1/patient/${patient.id}/administeredVaccine/${vaccineId}`)
         .send({ status: VACCINE_STATUS.RECORDED_IN_ERROR });
 
       expect(markedAsRecordedInError).toHaveSucceeded();
 
-      const vaccine = await models.AdministeredVaccine.findByPk(markedAsRecordedInError.body.id);
-      const encounter = await vaccine.getEncounter();
-      expect(vaccine.status).toEqual(VACCINE_STATUS.RECORDED_IN_ERROR);
-      expect(encounter.reasonForEncounter).toMatch(
-        `${drug.name} ${scheduled1.schedule} record deleted`,
+      const updatedVaccine = await models.AdministeredVaccine.findByPk(
+        markedAsRecordedInError.body.id,
+      );
+      const updatedEncounter = await updatedVaccine.getEncounter();
+      expect(updatedVaccine.status).toEqual(VACCINE_STATUS.RECORDED_IN_ERROR);
+      expect(updatedEncounter.reasonForEncounter).toMatch(
+        `${encounter.reasonForEncounter} reverted`,
       );
     });
   });
