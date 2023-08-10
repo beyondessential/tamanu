@@ -4,7 +4,7 @@ import { ipcRenderer } from 'electron';
 
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from '@tamanu/shared/constants';
-import { ForbiddenError } from '@tamanu/shared/errors';
+import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { getDeviceId, notifyError } from '../utils';
 
@@ -272,6 +272,11 @@ export class TamanuApi {
     if (showUnknownErrorToast && isErrorUnknown(error, response)) {
       notifyError(['Network request failed', `Path: ${path}`, `Message: ${message}`]);
     }
+
+    if (response.status === 404) {
+      throw new NotFoundError(message);
+    }
+
     throw new Error(`Facility server error response: ${message}`);
   }
 

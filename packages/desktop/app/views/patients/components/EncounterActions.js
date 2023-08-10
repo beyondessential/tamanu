@@ -69,7 +69,12 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
   const onViewSummary = () => navigateToSummary();
   const onViewEncounterRecord = () => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_RECORD);
 
-  if (encounter.endDate) {
+  if (
+    encounter.endDate &&
+    ![ENCOUNTER_TYPES.VACCINATION, ENCOUNTER_TYPES.SURVEY_RESPONSE].includes(
+      encounter.encounterType,
+    )
+  ) {
     return (
       <div>
         <Button variant="outlined" color="primary" onClick={onViewSummary}>
