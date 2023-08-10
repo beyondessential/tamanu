@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-json';
@@ -41,19 +41,18 @@ const generateAnnotationFromJSONError = (errorMessage, json) => {
   };
 };
 
-export const JSONEditor = React.memo(({ value, onChange, editMode, showValidation }) => {
+export const JSONEditor = React.memo(({ value, onChange, editMode, error }) => {
   const [errorAnnotation, setErrorAnnotation] = useState(null);
   const [marker, setMarker] = useState(null);
 
-  const isValidJSON = !errorAnnotation;
+  const isValidJSON = !error?.message;
 
-  const checkValidJson = json => {
-    try {
-      JSON.parse(json);
+  useEffect(() => {
+    if (isValidJSON) {
       setErrorAnnotation(null);
       setMarker([]);
-    } catch (error) {
-      const annotation = generateAnnotationFromJSONError(error.message, json);
+    } else {
+      const annotation = generateAnnotationFromJSONError(error.message, value);
       setErrorAnnotation([annotation]);
       setMarker([
         {
@@ -65,10 +64,8 @@ export const JSONEditor = React.memo(({ value, onChange, editMode, showValidatio
           type: 'background',
         },
       ]);
-      return false;
     }
-    return true;
-  };
+  }, [error, value, isValidJSON]);
 
   const onLoad = editor => {
     // Disable the "undo" command (Ctrl+Z)
@@ -79,10 +76,10 @@ export const JSONEditor = React.memo(({ value, onChange, editMode, showValidatio
     });
   };
 
-  const onChangeJSONString = newValue => {
-    checkValidJson(newValue);
-    onChange(newValue);
-  };
+  // const onChangeJSONString = newValue => {
+  //   // checkValidJson(newValue);
+  //   onChange(newValue);
+  // };
 
   return (
     <StyledJSONEditor
@@ -93,15 +90,15 @@ export const JSONEditor = React.memo(({ value, onChange, editMode, showValidatio
       placeholder="No settings found for this facility/server"
       fontSize={14}
       theme={editMode ? 'eclipse' : 'dawn'}
-      onChange={onChangeJSONString}
+      onChange={onChange}
       value={value}
       highlightActiveLine={false}
-      $isJsonValid={isValidJSON || !showValidation}
+      $isJsonValid={isValidJSON}
       readOnly={!editMode}
-      annotations={showValidation ? errorAnnotation : null}
+      annotations={errorAnnotation}
       onLoad={onLoad}
       tabSize={2}
-      markers={showValidation ? marker : []}
+      markers={marker}
     />
   );
 });
