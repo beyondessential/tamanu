@@ -1,7 +1,2 @@
 **/main.prod.js
 **/main.dev.js
-
-# packages covered by rome
-packages/api-client/
-packages/constants/
-packages/simulator/

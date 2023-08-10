@@ -6,8 +6,3 @@
 **/realm-object-server/**
 **/data/**
 **/.bin/**
-
-# packages covered by rome
-packages/api-client/
-packages/constants/
-packages/simulator/
