@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from '../constants';
 import { Model } from './Model';
-import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
+import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
@@ -35,5 +35,5 @@ export class PatientAllergy extends Model {
     return ['allergy'];
   }
 
-  static buildSyncFilter = buildPatientLinkedSyncFilter;
+  static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
 }

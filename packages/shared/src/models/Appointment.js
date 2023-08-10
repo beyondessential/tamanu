@@ -57,7 +57,7 @@ export class Appointment extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds) {
+  static buildPatientSyncFilter(patientIds) {
     if (patientIds.length === 0) {
       return null;
     }
