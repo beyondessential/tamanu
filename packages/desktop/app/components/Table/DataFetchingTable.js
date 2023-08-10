@@ -9,23 +9,7 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { RefreshIcon } from '../Icons/RefreshIcon';
-
-const Notification = styled.div`
-  background-color: ${Colors.primary}10;
-  border: 1px solid ${Colors.primary}1a;
-  border-radius: 4px;
-  color: ${Colors.primary};
-
-  height: 48px;
-  line-height: 48px;
-  width: 320px;
-  padding-left: 15px;
-
-  position: absolute;
-  top: 28px;
-  right: 35px;
-  z-index: 9;
-`;
+import { TableNotification } from './TableNotification';
 
 const LastUpdatedBadge = styled.div`
   position: absolute;
@@ -43,16 +27,6 @@ const LastUpdatedBadge = styled.div`
     &:hover {
       background-color: ${Colors.softOutline};
     }
-  }
-`;
-
-const NotificationClearIcon = styled(ClearIcon)`
-  position: absolute;
-  right: 20px;
-  top: 19px;
-  cursor: pointer;
-  path {
-    fill: ${Colors.primary};
   }
 `;
 
@@ -246,9 +220,7 @@ export const DataFetchingTable = memo(
     return (
       <>
         {showNotification && (
-          <Notification>
-            New requests available to view <NotificationClearIcon onClick={clearNewRowStyles} />
-          </Notification>
+          <TableNotification message="test" onClick={() => setShowNotification(false)} />
         )}
         {enableAutoRefresh && (
           <LastUpdatedBadge>
