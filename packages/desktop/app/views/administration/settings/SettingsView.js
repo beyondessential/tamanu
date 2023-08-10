@@ -48,6 +48,28 @@ const BASIC_OPTIONS = [
   },
 ];
 
+const getScope = selectedFacility => {
+  switch (selectedFacility) {
+    case SETTINGS_SCOPES.CENTRAL:
+      return SETTINGS_SCOPES.CENTRAL;
+    case null:
+      return SETTINGS_SCOPES.GLOBAL;
+    default:
+      return SETTINGS_SCOPES.FACILITY;
+  }
+};
+
+const getHelperText = selectedFacility => {
+  switch (selectedFacility) {
+    case SETTINGS_SCOPES.CENTRAL:
+      return SCOPE_HELPERTEXT.CENTRAL;
+    case null:
+      return SCOPE_HELPERTEXT.GLOBAL;
+    default:
+      return SCOPE_HELPERTEXT.FACILITY;
+  }
+};
+
 export const SettingsView = React.memo(() => {
   const api = useApi();
   const [settings, setSettings] = useState({});
@@ -63,18 +85,19 @@ export const SettingsView = React.memo(() => {
   const formattedJSONString = areSettingsPresent ? JSON.stringify(settings, null, 2) : '';
   const hasSettingsChanged = formattedJSONString !== settingsEditString;
 
-  let scope;
-  let helperText;
-  if (selectedFacility === SETTINGS_SCOPES.CENTRAL) {
-    scope = SETTINGS_SCOPES.CENTRAL;
-    helperText = SCOPE_HELPERTEXT.CENTRAL;
-  } else if (selectedFacility) {
-    scope = SETTINGS_SCOPES.FACILITY;
-    helperText = SCOPE_HELPERTEXT.FACILITY;
-  } else {
-    scope = SETTINGS_SCOPES.GLOBAL;
-    helperText = SCOPE_HELPERTEXT.GLOBAL;
-  }
+  const scope = getScope(selectedFacility);
+  const helperText = getHelperText(selectedFacility);
+  // let helperText;
+  // if (selectedFacility === SETTINGS_SCOPES.CENTRAL) {
+  //   // scope = SETTINGS_SCOPES.CENTRAL;
+  //   helperText = SCOPE_HELPERTEXT.CENTRAL;
+  // } else if (selectedFacility) {
+  //   // scope = SETTINGS_SCOPES.FACILITY;
+  //   helperText = SCOPE_HELPERTEXT.FACILITY;
+  // } else {
+  //   // scope = SETTINGS_SCOPES.GLOBAL;
+  //   helperText = SCOPE_HELPERTEXT.GLOBAL;
+  // }
 
   const toggleEditMode = () => {
     setEditMode(!editMode);
