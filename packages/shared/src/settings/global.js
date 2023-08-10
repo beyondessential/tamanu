@@ -10,9 +10,6 @@ export const globalDefaults = {
       includedPatientFieldIds: [],
     },
   },
-  // The time zone setting is currently only used for Vaccine Certificates
-  // Todo: remove this timeZone once all date fields have been migrated to date_time_strings
-  timeZone: null,
   imagingTypes: {
     // keys are taken from IMAGING_TYPES in shared/constants/imaging
     // e.g.
