@@ -127,9 +127,9 @@ export const DataFetchingTable = memo(
             const { previousFetch } = fetchState;
             const isFirstFetch = previousFetch.count === 0; // Check if this is the intial table load
             const isInitialSort = isEqual(sorting, initialSort); // Check if set to initial sort
-            const hasPageChanged = page !== previousFetch?.page; // Check if the page number has changed since the last fetch
+            const hasPageChanged = page !== previousFetch.page; // Check if the page number has changed since the last fetch
 
-            const rowsSinceRefresh = count - previousFetch?.count; // Rows since the last autorefresh
+            const rowsSinceRefresh = count - previousFetch.count; // Rows since the last autorefresh
             const rowsSinceInteraction = rowsSinceRefresh + newRowCount; // Rows added since last clearing of rows from interacting
 
             // Highlight rows green if the index is less that the index of rows since interaction AND its not the first fetch
