@@ -1,7 +1,7 @@
 import { access, readFile } from 'fs/promises';
 import { constants } from 'fs';
 import config from 'config';
-import { defaultsDeep, get, has, isEmpty, pick, set, unset } from 'lodash';
+import { get, has, isEmpty, merge, pick, set, unset } from 'lodash';
 import stripJsonComments from 'strip-json-comments';
 
 import { SETTINGS_SCOPES, SETTING_KEYS } from '../constants';
@@ -9,6 +9,8 @@ import { SETTINGS_SCOPES, SETTING_KEYS } from '../constants';
 import { facilityDefaults } from '../settings/facility';
 import { centralDefaults } from '../settings/central';
 import { globalDefaults } from '../settings/global';
+
+const POSSIBLE_CONFIG_PATHS = ['config/production.json', 'config/local.json'];
 
 const SETTINGS_PREDATING_MIGRATION = [
   SETTING_KEYS.VACCINATION_DEFAULTS,
@@ -20,12 +22,13 @@ const SETTINGS_PREDATING_MIGRATION = [
   'integrations.imaging',
 ];
 
-// Move some keys out of localisation into top level
+// Move some keys out of localisation into top level and delete timeZone
+// In favor of countryTimeZone
 const CENTRAL_KEY_TRANSFORM_MAP = {
   'localisation.labResultWidget': 'labResultWidget',
-  'localisation.timeZone': 'timeZone',
   'localisation.data.imagingTypes': 'imagingTypes',
   'localisation.data.features': 'features',
+  'localisation.timeZone': null,
 };
 
 const pickValidSettings = (settings, defaults) =>
@@ -42,22 +45,19 @@ export async function up(query) {
   const scopedDefaults = serverFacilityId ? facilityDefaults : centralDefaults;
   const scope = serverFacilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.CENTRAL;
 
-  const localConfig = await [('config/production.json', 'config/local.json')].reduce(
-    async (acc, configPath) => {
-      try {
-        await access(configPath, constants.F_OK);
-        const filesConfig = JSON.parse(stripJsonComments((await readFile(configPath)).toString()));
-        return defaultsDeep(acc, filesConfig);
-      } catch (err) {
-        return acc;
-      }
-    },
-    {},
-  );
+  const localConfig = await POSSIBLE_CONFIG_PATHS.reduce(async (prevPromise, configPath) => {
+    const prev = await prevPromise;
+    try {
+      await access(configPath, constants.F_OK);
+      return merge(prev, JSON.parse(stripJsonComments((await readFile(configPath)).toString())));
+    } catch (err) {
+      return prev;
+    }
+  }, Promise.resolve({}));
 
   if (isEmpty(localConfig)) {
-    // eslint-disable-next-line no-console
-    console.log('No local config found, skipping settings migration');
+    // Skipping this migration if no relevant config is found
+    // This is expected to happen in test contexts
     return;
   }
 
@@ -72,7 +72,7 @@ export async function up(query) {
   Object.entries(CENTRAL_KEY_TRANSFORM_MAP).forEach(([oldKey, newKey]) => {
     const value = has(localConfig, oldKey) && get(localConfig, oldKey);
     if (value) {
-      set(localConfig, newKey, value);
+      if (newKey) set(localConfig, newKey, value);
       unset(localConfig, oldKey);
     }
   });
