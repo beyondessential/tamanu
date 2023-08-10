@@ -12,11 +12,10 @@ is_building_shared() {
   test -z "$package"
 }
 
-# save the original package.jsons
-cp package.json{,.orig}
-
 # let build-tooling be installed in production mode
-jq '.dependencies["@tamanu/build-tooling"] = "*"' package.json.orig > package.json
+cp package.json{,.working}
+jq '.dependencies["@tamanu/build-tooling"] = "*"' package.json.working > package.json
+rm package.json.working
 
 # put cache in packages/ so it's carried between stages
 yarn config set cache-folder /app/packages/.yarn-cache
@@ -38,7 +37,19 @@ else
   rm -rf packages/*/coverage || true
   rm -rf packages/*/config/{local,development,test}.* || true
 
-  yarn workspace "$package" build
+  # remove from yarn workspace list all packages that aren't the ones we're building
+  cp package.json{,.working}
+  scripts/list-packages.mjs --no-shared --paths \
+    | jq \
+      --slurpfile top package.json.working \
+      --arg wanted "$package" \
+      '(. - ["packages/\($wanted)"]) as $x | $top[0] | .workspaces.packages -= $x' \
+    > package.json.new
+  mv package.json.new package.json
+  rm package.json.working
+
+  # build the world
+  yarn build
 fi
 
 # clean up when building a server package
@@ -55,8 +66,11 @@ if ! is_building_shared; then
   # clear out the build configs
   rm -rf packages/*/*.config.* || true
 
-  # restore the top level package.json
-  mv package.json{.orig,}
+  # remove build-tooling from top package.json
+  cp package.json{,.working}
+  jq '.dependencies |= del(."@tamanu/build-tooling") | .workspaces.packages -= ["packages/build-tooling"]' \
+    package.json.working > package.json
+  rm package.json.working
 
   # cleanup
   yarn cache clean
