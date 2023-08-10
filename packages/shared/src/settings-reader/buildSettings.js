@@ -1,4 +1,5 @@
 import config from 'config';
+import { merge } from 'lodash';
 import { SETTINGS_SCOPES } from '../constants';
 import { centralDefaults } from '../settings/central';
 import { facilityDefaults } from '../settings/facility';
@@ -28,13 +29,10 @@ export async function buildSettings(models) {
   let settings = {};
   for (const reader of readers) {
     const value = await reader.getSettings();
-    // console.log({ reader, value });
     if (value) {
       // Prioritize the previous one
-      settings = { ...value, ...settings };
+      settings = merge(value, settings);
     }
   }
-  console.log({ settings });
-
   return settings;
 }

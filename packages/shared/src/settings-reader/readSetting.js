@@ -9,6 +9,5 @@ export async function readSetting(models, key) {
     settingsCache.set(settings);
   }
 
-  console.log({ settings, key });
   return get(settings, key);
 }

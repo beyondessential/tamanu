@@ -2,6 +2,7 @@ import { Sequelize, Op } from 'sequelize';
 import { isPlainObject, get as getAtPath, set as setAtPath } from 'lodash';
 import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '../constants';
 import { Model } from './Model';
+import { settingsCache } from '../settings-reader/settingsCache';
 
 /**
  * Stores nested settings data, where each leaf node in the nested object has a record in the table,
@@ -39,6 +40,20 @@ export class Setting extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        hooks: {
+          afterSave() {
+            settingsCache.reset();
+          },
+          afterBulkCreate() {
+            settingsCache.reset();
+          },
+          afterBulkUpdate() {
+            settingsCache.reset();
+          },
+          afterBulkDestroy() {
+            settingsCache.reset();
+          },
+        },
         indexes: [
           {
             // settings_alive_key_unique_cnt
