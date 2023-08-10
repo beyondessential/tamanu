@@ -1,11 +1,13 @@
 import React, { useState, useCallback, useEffect, memo } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
+import { isEqual } from 'lodash';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { Table } from './Table';
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
 import { ClearIcon } from '../Icons/ClearIcon';
-import { isEqual } from 'lodash';
+import { RefreshIcon } from '../Icons/RefreshIcon';
 
 const Notification = styled.div`
   background-color: ${Colors.primary}10;
@@ -22,6 +24,25 @@ const Notification = styled.div`
   top: 28px;
   right: 35px;
   z-index: 9;
+`;
+
+const LastUpdatedBadge = styled.div`
+  position: absolute;
+  top: 120px;
+  right: 35px;
+  z-index: 9;
+  color: ${Colors.softText};
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  svg {
+    margin-left: 5px;
+    cursor: pointer;
+    border-radius: 3px;
+    &:hover {
+      background-color: ${Colors.softOutline};
+    }
+  }
 `;
 
 const NotificationClearIcon = styled(ClearIcon)`
@@ -60,6 +81,7 @@ export const DataFetchingTable = memo(
     // the most recent one to determine which rows to highlight and when table data should update
     const [lastFetchCount, setLastFetchCount] = useState(0);
     const [lastPage, setLastPage] = useState(0);
+    const [lastUpdatedAt, setLastUpdatedAt] = useState(getCurrentDateTimeString());
     const [dataSnapshot, setDataSnapshot] = useState([]);
 
     const [newRowCount, setNewRowCount] = useState(0);
@@ -155,6 +177,7 @@ export const DataFetchingTable = memo(
             setLastFetchCount(count);
             setLastPage(page);
             setDataSnapshot(displayData);
+            setLastUpdatedAt(getCurrentDateTimeString());
 
             // Update the table with the rows to display
             updateFetchState({
@@ -224,6 +247,12 @@ export const DataFetchingTable = memo(
           <Notification>
             New requests available to view <NotificationClearIcon onClick={clearNewRowStyles} />
           </Notification>
+        )}
+        {enableAutoRefresh && (
+          <LastUpdatedBadge>
+            Last updated at: {lastUpdatedAt}
+            <RefreshIcon onClick={refreshTable} />
+          </LastUpdatedBadge>
         )}
         <Table
           isLoading={isLoading}
