@@ -72,6 +72,9 @@ if ! is_building_shared; then
     package.json.working > package.json
   rm package.json.working
 
+  # remove build dependencies
+  yarn install --non-interactive --frozen-lockfile
+
   # cleanup
   yarn cache clean
   yarn config delete cache-folder
