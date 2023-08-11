@@ -17,7 +17,11 @@ const StyledJSONEditor = styled(AceEditor)`
   border-radius: 4px;
   .error-marker {
     position: absolute;
-    background-color: ${Colors.alert} !important;
+    background-color: ${Colors.alert};
+  }
+  &.ace_editor {
+    width: 100% !important;
+    height: 600px !important;
   }
 `;
 
@@ -83,8 +87,6 @@ export const JSONEditor = React.memo(({ value, onChange, editMode, error, placeh
 
   return (
     <StyledJSONEditor
-      width="100%"
-      height="600px"
       mode="json"
       showPrintMargin={false}
       placeholder={placeholderText}
