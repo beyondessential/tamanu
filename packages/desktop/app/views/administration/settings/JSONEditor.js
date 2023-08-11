@@ -38,7 +38,7 @@ const generateAnnotationFromJSONError = (errorMessage, json) => {
     charCount += rows[i].length + 1; // Add 1 for the newline character
     if (charCount > position) {
       row = i;
-      column = position - (charCount - rows[i].length);
+      column = position - (charCount - rows[i].length) + 1; // Add 1 to column count as 1 indexed
       break;
     }
   }
@@ -66,9 +66,9 @@ export const JSONEditor = React.memo(({ value, onChange, editMode, error, placeh
       setMarker([
         {
           startRow: annotation.row,
-          startCol: annotation.column + 1,
+          startCol: annotation.column,
           endRow: annotation.row,
-          endCol: annotation.column + 2,
+          endCol: annotation.column + 1, // endCol is exclusive so need to add 1 in order to highlight the character
           className: 'error-marker',
           type: 'background',
         },
