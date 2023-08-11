@@ -58,7 +58,7 @@ export const JSONEditor = React.memo(({ value, onChange, editMode, error, placeh
       setMarker([]);
     } else {
       const annotation = generateAnnotationFromJSONError(error.message, value);
-      setErrorAnnotation([annotation]);
+      setErrorAnnotation(annotation);
       setMarker([
         {
           startRow: annotation.row,
@@ -95,7 +95,7 @@ export const JSONEditor = React.memo(({ value, onChange, editMode, error, placeh
       highlightActiveLine={false}
       $isJsonValid={isValidJSON}
       readOnly={!editMode}
-      annotations={errorAnnotation}
+      annotations={errorAnnotation ? [errorAnnotation] : null}
       onLoad={onLoad}
       tabSize={2}
       markers={marker}
