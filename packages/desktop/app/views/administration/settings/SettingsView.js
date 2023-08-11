@@ -15,12 +15,6 @@ const StyledTopBar = styled(TopBar)`
   padding: 0;
 `;
 
-const SCOPE_HELPERTEXT = {
-  CENTRAL: 'These settings stay on the central server and wont apply to any facilities',
-  GLOBAL: 'These settings will apply to all facilities/devices',
-  FACILITY: `These settings will only apply to this facility/devices linked to it`,
-};
-
 const getScope = selectedFacility => {
   switch (selectedFacility) {
     case SETTINGS_SCOPES.CENTRAL:

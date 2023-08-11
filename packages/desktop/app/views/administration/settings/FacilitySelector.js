@@ -19,17 +19,6 @@ const SCOPE_HELPERTEXT = {
   FACILITY: `These settings will only apply to this facility/devices linked to it`,
 };
 
-const getHelperText = selectedFacility => {
-  switch (selectedFacility) {
-    case SETTINGS_SCOPES.CENTRAL:
-      return SCOPE_HELPERTEXT.CENTRAL;
-    case null:
-      return SCOPE_HELPERTEXT.GLOBAL;
-    default:
-      return SCOPE_HELPERTEXT.FACILITY;
-  }
-};
-
 const BASIC_OPTIONS = [
   {
     label: 'Central Server',
@@ -50,6 +39,17 @@ const BASIC_OPTIONS = [
     },
   },
 ];
+
+const getHelperText = selectedFacility => {
+  switch (selectedFacility) {
+    case SETTINGS_SCOPES.CENTRAL:
+      return SCOPE_HELPERTEXT.CENTRAL;
+    case null:
+      return SCOPE_HELPERTEXT.GLOBAL;
+    default:
+      return SCOPE_HELPERTEXT.FACILITY;
+  }
+};
 
 export const FacilitySelector = React.memo(({ selectedFacility, onChangeFacility }) => {
   const api = useApi();
