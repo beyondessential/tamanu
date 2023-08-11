@@ -38,8 +38,14 @@ export const SettingsView = React.memo(() => {
   const hasSettingsChanged = formattedJSONString !== settingsEditString;
   const scope = getScope(selectedFacility);
 
-  const toggleEditMode = () => {
-    setEditMode(!editMode);
+  const turnOnEditMode = () => {
+    setEditMode(true);
+    setJsonError(null);
+  };
+  const turnOffEditMode = () => {
+    setEditMode(false);
+    setJsonError(null);
+    setSettingsEditString(JSON.stringify(settings, null, 2));
   };
   const onChangeSettings = newValue => {
     setSettingsEditString(newValue);
@@ -48,6 +54,7 @@ export const SettingsView = React.memo(() => {
   const onChangeFacility = event => {
     setSelectedFacility(event.target.value || null);
     setEditMode(false);
+    setJsonError(null);
   };
 
   // Convert settings string from editor into object and post to backend
@@ -62,7 +69,7 @@ export const SettingsView = React.memo(() => {
     }
     const settingsObject = JSON.parse(settingsEditString);
     setSettings(settingsObject);
-    toggleEditMode();
+    turnOffEditMode();
     const response = await api.put('admin/settings', {
       settings: settingsObject,
       facilityId: selectedFacility !== SETTINGS_SCOPES.CENTRAL ? selectedFacility : null,
@@ -96,7 +103,7 @@ export const SettingsView = React.memo(() => {
         <ButtonRow>
           {editMode ? (
             <>
-              <LargeButton variant="outlined" onClick={toggleEditMode}>
+              <LargeButton variant="outlined" onClick={turnOffEditMode}>
                 Cancel
               </LargeButton>
               <LargeButton onClick={saveSettings} disabled={!hasSettingsChanged}>
@@ -104,7 +111,7 @@ export const SettingsView = React.memo(() => {
               </LargeButton>
             </>
           ) : (
-            <LargeButton onClick={toggleEditMode}>Edit</LargeButton>
+            <LargeButton onClick={turnOnEditMode}>Edit</LargeButton>
           )}
         </ButtonRow>
       </StyledTopBar>
