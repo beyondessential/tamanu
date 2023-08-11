@@ -963,17 +963,26 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         const location1 = await createLocation('location 1', {
           locationGroupId: locationGroup1.id,
         });
-        const location2 = await createLocation('location same name', {
+        const location2 = await createLocation('location same name 1', {
           locationGroupId: null, // some old changelog does not have locationGroup information
         });
         await sleepAsync(50); // to create a gap in updated_at
-        const location3 = await createLocation('location same name', {
+        const location3 = await createLocation('location same name 1', {
           locationGroupId: null, // some old changelog does not have locationGroup information
         });
 
-        const location4 = await createLocation('location 4', {
+        const location4 = await createLocation('location same name 2', {
+          locationGroupId: null, // some old changelog does not have locationGroup information
+        });
+        await sleepAsync(50); // to create a gap in updated_at
+        const location5 = await createLocation('location same name 2', {
+          locationGroupId: null, // some old changelog does not have locationGroup information
+        });
+
+        const location6 = await createLocation('location 3', {
           locationGroupId: locationGroup2.id,
         });
+
         const department = await createDepartment('department');
         const clinician = await createUser('user');
         const encounterType = 'admission';
@@ -986,7 +995,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           startDate: getDateSubtractedFromNow(6),
         });
 
-        // Change location
+        // Change location 1 to 2
         await encounter.addLocationChangeNote(
           'Changed location',
           location2.id,
@@ -995,13 +1004,22 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.locationId = location2.id;
         await encounter.save();
 
-        // Change location
+        // Change location 2 to 4
         await encounter.addLocationChangeNote(
           'Changed location',
           location4.id,
-          getDateSubtractedFromNow(1),
+          getDateSubtractedFromNow(2),
         );
         encounter.locationId = location4.id;
+        await encounter.save();
+
+        // Change location 4 to 6
+        await encounter.addLocationChangeNote(
+          'Changed location',
+          location6.id,
+          getDateSubtractedFromNow(1),
+        );
+        encounter.locationId = location6.id;
         await encounter.save();
 
         // Migration
@@ -1013,7 +1031,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           order: [['date', 'ASC']],
         });
 
-        expect(encounterHistoryRecords).toHaveLength(3);
+        expect(encounterHistoryRecords).toHaveLength(4);
 
         // Original encounter
         expect(encounterHistoryRecords[0]).toMatchObject({
@@ -1024,7 +1042,8 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           encounterType,
         });
 
-        // Updated location from 1 to 3 (3 should be selected as it was created after)
+        // Updated location from 1 to 3
+        // (2 and 3 have the same name but 5 should be selected as it was created after)
         expect(encounterHistoryRecords[1]).toMatchObject({
           encounterId: encounter.id,
           departmentId: department.id,
@@ -1033,11 +1052,21 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           encounterType,
         });
 
-        // Updated location from 3 to 4
+        // Updated location from 3 to 5
+        // (4 and 5 have the same name but 5 should be selected as it was created after)
         expect(encounterHistoryRecords[2]).toMatchObject({
           encounterId: encounter.id,
           departmentId: department.id,
-          locationId: location4.id,
+          locationId: location5.id,
+          examinerId: clinician.id,
+          encounterType,
+        });
+
+        // Updated location from 5 to 6
+        expect(encounterHistoryRecords[3]).toMatchObject({
+          encounterId: encounter.id,
+          departmentId: department.id,
+          locationId: location6.id,
           examinerId: clinician.id,
           encounterType,
         });
@@ -2413,7 +2442,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         departmentId: department1.id,
         locationId: location1.id,
         examinerId: clinician1.id,
-        date: getDateSubtractedFromToday(5),
+        date: getDateSubtractedFromToday(5), // changelog date is 4 days ago, so 5 should be expected
         encounterType,
       });
     });
