@@ -34,8 +34,8 @@ export const SettingsView = React.memo(() => {
   const [jsonError, setJsonError] = useState(null);
 
   const areSettingsPresent = Object.keys(settings).length > 0;
-  const formattedJSONString = areSettingsPresent ? JSON.stringify(settings, null, 2) : '';
-  const hasSettingsChanged = formattedJSONString !== settingsEditString;
+  const settingsViewString = areSettingsPresent ? JSON.stringify(settings, null, 2) : '';
+  const hasSettingsChanged = settingsViewString !== settingsEditString;
   const scope = getScope(selectedFacility);
 
   const turnOnEditMode = () => {
@@ -118,10 +118,11 @@ export const SettingsView = React.memo(() => {
       <ContentPane>
         <JSONEditor
           onChange={onChangeSettings}
-          value={editMode ? settingsEditString : formattedJSONString}
+          value={editMode ? settingsEditString : settingsViewString}
           editMode={editMode}
           error={jsonError}
           placeholderText="No settings found for this server/facility"
+          fontSize={14}
         />
       </ContentPane>
     </AdminViewContainer>

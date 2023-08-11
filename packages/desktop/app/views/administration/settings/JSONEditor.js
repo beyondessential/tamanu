@@ -31,8 +31,6 @@ const generateAnnotationFromJSONError = (errorMessage, json) => {
   let row;
   let column;
 
-  // const match = errorMessage.match(/position (\d+)/);
-  // const position = parseInt(match && match[1], 10);
   const position = errorMessage.match(/position (\d+)/)?.[1];
 
   for (let i = 0; i < rows.length; i++) {
@@ -51,57 +49,59 @@ const generateAnnotationFromJSONError = (errorMessage, json) => {
   };
 };
 
-export const JSONEditor = React.memo(({ value, onChange, editMode, error, placeholderText }) => {
-  const [errorAnnotation, setErrorAnnotation] = useState(null);
-  const [marker, setMarker] = useState(null);
+export const JSONEditor = React.memo(
+  ({ value, onChange, editMode, error, placeholderText, fontSize }) => {
+    const [errorAnnotation, setErrorAnnotation] = useState(null);
+    const [marker, setMarker] = useState(null);
 
-  const isValidJSON = !error?.message;
+    const isValidJSON = !error?.message;
 
-  useEffect(() => {
-    if (isValidJSON) {
-      setErrorAnnotation(null);
-      setMarker([]);
-    } else {
-      const annotation = generateAnnotationFromJSONError(error.message, value);
-      setErrorAnnotation(annotation);
-      setMarker([
-        {
-          startRow: annotation.row,
-          startCol: annotation.column,
-          endRow: annotation.row,
-          endCol: annotation.column + 1, // endCol is exclusive so need to add 1 in order to highlight the character
-          className: 'error-marker',
-          type: 'background',
-        },
-      ]);
-    }
-  }, [error, value, isValidJSON]);
+    useEffect(() => {
+      if (isValidJSON) {
+        setErrorAnnotation(null);
+        setMarker([]);
+      } else {
+        const annotation = generateAnnotationFromJSONError(error.message, value);
+        setErrorAnnotation(annotation);
+        setMarker([
+          {
+            startRow: annotation.row,
+            startCol: annotation.column,
+            endRow: annotation.row,
+            endCol: annotation.column + 1, // endCol is exclusive so need to add 1 in order to highlight the character
+            className: 'error-marker',
+            type: 'background',
+          },
+        ]);
+      }
+    }, [error, value, isValidJSON]);
 
-  const onLoad = editor => {
-    // Disable the "undo" command (Ctrl+Z)
-    editor.commands.addCommand({
-      name: 'undo',
-      bindKey: { win: 'Ctrl-Z', mac: 'Command-Z' },
-      exec: () => {}, // does nothing
-    });
-  };
+    const onLoad = editor => {
+      // Disable the "undo" command (Ctrl+Z)
+      editor.commands.addCommand({
+        name: 'undo',
+        bindKey: { win: 'Ctrl-Z', mac: 'Command-Z' },
+        exec: () => {}, // does nothing
+      });
+    };
 
-  return (
-    <StyledJSONEditor
-      mode="json"
-      showPrintMargin={false}
-      placeholder={placeholderText}
-      fontSize={14}
-      theme={editMode ? THEMES.EDIT : THEMES.VIEW}
-      onChange={onChange}
-      value={value}
-      highlightActiveLine={false}
-      $isJsonValid={isValidJSON}
-      readOnly={!editMode}
-      annotations={errorAnnotation ? [errorAnnotation] : null}
-      onLoad={onLoad}
-      tabSize={2}
-      markers={marker}
-    />
-  );
-});
+    return (
+      <StyledJSONEditor
+        mode="json"
+        showPrintMargin={false}
+        placeholder={placeholderText}
+        fontSize={fontSize}
+        theme={editMode ? THEMES.EDIT : THEMES.VIEW}
+        onChange={onChange}
+        value={value}
+        highlightActiveLine={false}
+        $isJsonValid={isValidJSON}
+        readOnly={!editMode}
+        annotations={errorAnnotation ? [errorAnnotation] : null}
+        onLoad={onLoad}
+        tabSize={2}
+        markers={marker}
+      />
+    );
+  },
+);
