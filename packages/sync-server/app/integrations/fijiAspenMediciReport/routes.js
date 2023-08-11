@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler';
 import { upperFirst } from 'lodash';
 import { parseISO } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
-import { FHIR_DATETIME_PRECISION } from 'shared/constants/fhir';
+import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
 import { parseDateTime, formatFhirDate } from 'shared/utils/fhir/datetime';
 import config from 'config';
 

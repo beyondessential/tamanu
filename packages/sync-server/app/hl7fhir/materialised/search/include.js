@@ -1,4 +1,4 @@
-import { FHIR_INTERACTIONS, FHIR_SEARCH_PARAMETERS } from 'shared/constants';
+import { FHIR_INTERACTIONS, FHIR_SEARCH_PARAMETERS } from '@tamanu/constants';
 import { FhirReference } from 'shared/services/fhirTypes/reference';
 import { FhirError, Processing, Unsupported } from 'shared/utils/fhir';
 import { resourcesThatCanDo } from 'shared/utils/fhir/resources';

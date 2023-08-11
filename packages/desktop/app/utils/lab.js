@@ -1,5 +1,5 @@
 import React from 'react';
-import { LAB_REQUEST_STATUS_CONFIG } from '@tamanu/shared/constants';
+import { LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
 import { DateDisplay } from '../components';
 import { PatientNameDisplay } from '../components/PatientNameDisplay';
 import { TableCellTag } from '../components/Tag';

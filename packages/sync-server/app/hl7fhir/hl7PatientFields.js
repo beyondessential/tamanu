@@ -2,7 +2,7 @@ import { Op } from 'sequelize';
 import { InvalidParameterError } from 'shared/errors';
 import * as yup from 'yup';
 
-import { VISIBILITY_STATUSES } from 'shared/constants';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { hl7ParameterTypes, stringTypeModifiers } from './hl7Parameters';
 
 // Import directly from file instead of index to avoid dependency cycle
