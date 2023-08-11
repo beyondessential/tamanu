@@ -83,7 +83,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
           iframe.contentWindow.print();
         };
       } catch (error) {
-        console.error('Printing PDF error:', error.message);
+        notifyError(error.message);
       }
     },
     [api],
