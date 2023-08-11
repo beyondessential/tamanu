@@ -2135,8 +2135,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
 
     it('creates encounter_history for encounter that does not have changelog', async () => {
       const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
-      const clinician1 = await createUser('Clinician 1');
-      const clinician2 = await createUser('Clinician 2');
+      const clinician = await createUser('Clinician');
       const department = await createDepartment('department');
       const location = await createLocation('location');
       const encounterType = 'admission';
@@ -2144,22 +2143,17 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       const encounter = await createEncounter(patient, {
         departmentId: department.id,
         locationId: location.id,
-        examinerId: clinician1.id,
+        examinerId: clinician.id,
         encounterType,
         startDate: getDateSubtractedFromNow(6),
       });
-
-      // Change clinician 1
-      await encounter.updateClinician(clinician2.id, getDateSubtractedFromNow(4));
-      encounter.examinerId = clinician2.id;
-      await encounter.save();
 
       await models.NotePage.createForRecord(
         encounter.id,
         NOTE_RECORD_TYPES.ENCOUNTER,
         NOTE_TYPES.SYSTEM,
         'Automatically discharged',
-        clinician1.id,
+        clinician.id,
       );
 
       // Migration
@@ -2171,23 +2165,14 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         order: [['date', 'ASC']],
       });
 
-      expect(encounterHistoryRecords).toHaveLength(2);
+      expect(encounterHistoryRecords).toHaveLength(1);
 
-      // 1st encounter
+      // Still record for initial encounter created when there is note but not related to encounter changes
       expect(encounterHistoryRecords[0]).toMatchObject({
         encounterId: encounter.id,
         departmentId: department.id,
         locationId: location.id,
-        examinerId: clinician1.id,
-        encounterType,
-      });
-
-      // Latest encounter
-      expect(encounterHistoryRecords[1]).toMatchObject({
-        encounterId: encounter.id,
-        departmentId: department.id,
-        locationId: location.id,
-        examinerId: clinician2.id,
+        examinerId: clinician.id,
         encounterType,
       });
     });
