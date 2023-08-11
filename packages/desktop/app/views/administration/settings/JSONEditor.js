@@ -31,8 +31,9 @@ const generateAnnotationFromJSONError = (errorMessage, json) => {
   let row;
   let column;
 
-  const match = errorMessage.match(/position (\d+)/);
-  const position = parseInt(match && match[1], 10);
+  // const match = errorMessage.match(/position (\d+)/);
+  // const position = parseInt(match && match[1], 10);
+  const position = errorMessage.match(/position (\d+)/)?.[1];
 
   for (let i = 0; i < rows.length; i++) {
     charCount += rows[i].length + 1; // Add 1 for the newline character
