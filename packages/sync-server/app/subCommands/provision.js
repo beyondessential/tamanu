@@ -5,7 +5,7 @@ import {
   SYSTEM_USER_UUID,
   GENERAL_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
-} from '@tamanu/shared/constants';
+} from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 
 import { initDatabase } from '../database';

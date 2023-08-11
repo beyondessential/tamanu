@@ -1,5 +1,5 @@
 import { createScheduledVaccine } from 'shared/demoData/vaccines';
-import { VISIBILITY_STATUSES } from 'shared/constants';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
 describe('Scheduled Vaccine', () => {

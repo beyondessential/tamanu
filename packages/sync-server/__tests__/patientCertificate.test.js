@@ -5,7 +5,7 @@ import {
 } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData/labRequests';
 import { fake } from 'shared/test-helpers/fake';
-import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
 import { makeVaccineCertificate, makeCovidCertificate } from '../app/utils/makePatientCertificate';
 
 import { createTestContext } from './utilities';

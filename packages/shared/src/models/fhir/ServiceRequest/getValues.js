@@ -1,5 +1,13 @@
 import config from 'config';
 
+import {
+  FHIR_REQUEST_INTENT,
+  FHIR_REQUEST_PRIORITY,
+  FHIR_REQUEST_STATUS,
+  IMAGING_REQUEST_STATUS_TYPES,
+  LAB_REQUEST_STATUSES,
+  NOTE_TYPES,
+} from '@tamanu/constants';
 import { getNotePagesWithType } from '../../../utils/notePages';
 import {
   FhirAnnotation,
@@ -8,14 +16,6 @@ import {
   FhirIdentifier,
   FhirReference,
 } from '../../../services/fhirTypes';
-import {
-  FHIR_REQUEST_INTENT,
-  FHIR_REQUEST_PRIORITY,
-  FHIR_REQUEST_STATUS,
-  IMAGING_REQUEST_STATUS_TYPES,
-  LAB_REQUEST_STATUSES,
-  NOTE_TYPES,
-} from '../../../constants';
 import { Exception, formatFhirDate } from '../../../utils/fhir';
 
 export async function getValues(upstream, models) {

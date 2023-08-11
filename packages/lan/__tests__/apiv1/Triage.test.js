@@ -7,7 +7,7 @@ import {
   randomReferenceId,
 } from 'shared/demoData';
 import { fake } from 'shared/test-helpers';
-import { ENCOUNTER_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 

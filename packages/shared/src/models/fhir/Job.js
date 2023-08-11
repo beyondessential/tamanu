@@ -2,8 +2,8 @@ import { trace } from '@opentelemetry/api';
 import ms from 'ms';
 import Sequelize, { DataTypes, QueryTypes, Transaction } from 'sequelize';
 
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from '../Model';
-import { SYNC_DIRECTIONS } from '../../constants';
 import { log } from '../../services/logging';
 import { sleepAsync } from '../../utils/sleepAsync';
 
