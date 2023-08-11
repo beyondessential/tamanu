@@ -8,7 +8,7 @@ import { SelectInput } from '../../../components';
 
 const FacilitySelectorInput = styled(SelectInput)`
   width: 500px;
-  .css-g1d714-ValueContainer {
+  div:first-child {
     overflow: visible;
   }
 `;
