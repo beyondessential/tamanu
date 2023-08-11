@@ -15,7 +15,7 @@ const FacilitySelectorInput = styled(SelectInput)`
 
 const SCOPE_HELPERTEXT = {
   CENTRAL: 'These settings stay on the central server and wont apply to any facilities',
-  GLOBAL: 'These settings will apply to all facilities/devices',
+  GLOBAL: 'These settings will apply to all servers/devices',
   FACILITY: `These settings will only apply to this facility/devices linked to it`,
 };
 
@@ -30,7 +30,7 @@ const BASIC_OPTIONS = [
     },
   },
   {
-    label: 'All Facilities',
+    label: 'Global Settings',
     value: null, // null is equivalent to all faciliites in backend logic
     tag: {
       label: 'Global',

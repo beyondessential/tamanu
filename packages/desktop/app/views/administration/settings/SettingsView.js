@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 import { SETTINGS_SCOPES } from '@tamanu/shared/constants';
 
-import { Colors } from '../../../constants';
 import { LargeButton, ContentPane, ButtonRow, TopBar } from '../../../components';
 import { AdminViewContainer } from '../components/AdminViewContainer';
 import { JSONEditor } from './JSONEditor';
@@ -30,17 +29,13 @@ export const SettingsView = React.memo(() => {
   const api = useApi();
   const [settings, setSettings] = useState({});
   const [settingsEditString, setSettingsEditString] = useState({});
-
   const [selectedFacility, setSelectedFacility] = useState(null);
-
   const [editMode, setEditMode] = useState(false);
-
   const [jsonError, setJsonError] = useState(null);
 
   const areSettingsPresent = Object.keys(settings).length > 0;
   const formattedJSONString = areSettingsPresent ? JSON.stringify(settings, null, 2) : '';
   const hasSettingsChanged = formattedJSONString !== settingsEditString;
-
   const scope = getScope(selectedFacility);
 
   const toggleEditMode = () => {
@@ -82,7 +77,7 @@ export const SettingsView = React.memo(() => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchSettings = async () => {
       const settingsObject = await api.get('admin/settings', {
         facilityId: selectedFacility,
         scope,
@@ -91,7 +86,7 @@ export const SettingsView = React.memo(() => {
       setSettingsEditString(JSON.stringify(settingsObject, null, 2));
     };
 
-    fetchData();
+    fetchSettings();
   }, [api, selectedFacility, scope]);
 
   return (
