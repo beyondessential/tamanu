@@ -1,5 +1,6 @@
 import React, { ReactElement, useMemo, useEffect, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { FormikHandlers } from 'formik';
 import { getFormInitialValues, getFormSchema } from './helpers';
 import { Form } from '../Form';
 import { FormFields } from './FormFields';
@@ -32,7 +33,7 @@ export const SurveyForm = ({
     components,
     formValues,
   ]);
-  
+
   const submitVisibleValues = useCallback(
     (values: any) => {
       // 1. get a list of visible fields
@@ -62,7 +63,7 @@ export const SurveyForm = ({
       onSubmit={submitVisibleValues}
       validate={validate}
     >
-      {({ values, setFieldValue }): ReactElement => {
+      {({ values, setFieldValue, isSubmitting }: FormikHandlers): ReactElement => {
         useEffect(() => {
           // recalculate dynamic fields
           const calculatedValues = runCalculations(components, values);
@@ -79,7 +80,12 @@ export const SurveyForm = ({
           });
 
         }, [values]);
-        return <FormFields components={components} note={note} patient={patient} />;
+        return <FormFields
+          components={components}
+          note={note}
+          patient={patient}
+          isSubmitting={isSubmitting}
+        />;
       }}
     </Form>
   );

@@ -8,7 +8,7 @@ import { Field } from '/components/Forms/FormField';
 import { SectionHeader } from '/components/SectionHeader';
 import { FullView, StyledView } from '/styled/common';
 import { TextField } from '/components/TextField/TextField';
-import { Button } from '/components/Button';
+import { SubmitButton } from '/components/Forms/SubmitButton';
 import { theme } from '/styled/theme';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
@@ -113,12 +113,10 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                   <SectionHeader h3>Prescription notes</SectionHeader>
                 </StyledView>
                 <Field component={TextField} name="note" multiline />
-                <Button
+                <SubmitButton
                   marginTop={screenPercentageToDP(1.22, Orientation.Height)}
                   marginBottom={screenPercentageToDP(1.22, Orientation.Height)}
-                  backgroundColor={theme.colors.PRIMARY_MAIN}
-                  onPress={handleSubmit}
-                  buttonText="Submit"
+                  onSubmit={handleSubmit}
                 />
               </ScrollView>
             </KeyboardAvoidingView>

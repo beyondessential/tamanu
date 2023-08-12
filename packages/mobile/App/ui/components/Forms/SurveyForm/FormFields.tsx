@@ -7,8 +7,8 @@ import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 import { SurveyQuestion } from './SurveyQuestion';
 import { FormScreenView } from '../FormScreenView';
 import { SubmitButton } from '../SubmitButton';
-import { SectionHeader } from '../../SectionHeader';
 import { Button } from '../../Button';
+import { SectionHeader } from '../../SectionHeader';
 import { ErrorBoundary } from '../../ErrorBoundary';
 import { FullView, RowView, StyledText, StyledView } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
@@ -55,9 +55,10 @@ interface FormFieldsProps {
   components: ISurveyScreenComponent[];
   patient: IPatient;
   note: string;
+  isSubmitting: boolean;
 }
 
-export const FormFields = ({ components, note, patient }: FormFieldsProps): ReactElement => {
+export const FormFields = ({ components, note, patient, isSubmitting }: FormFieldsProps): ReactElement => {
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
   const scrollViewRef = useRef(null);
   const { errors, validateForm, setStatus, submitForm, values, resetForm } = useFormikContext<
@@ -169,7 +170,7 @@ export const FormFields = ({ components, note, patient }: FormFieldsProps): Reac
           {maxIndex > 1 && (
             <Button
               margin={5}
-              disabled={currentScreenIndex === 0}
+              disabled={currentScreenIndex === 0 || isSubmitting}
               buttonText="Previous Page"
               onPress={onNavigatePrevious}
             />

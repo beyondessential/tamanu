@@ -1,7 +1,7 @@
 import React, { ReactElement, useCallback, Ref } from 'react';
-import { Formik } from 'formik';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { Button } from '../../Button';
+import { Form } from '../Form';
+import { SubmitButton } from '../SubmitButton';
 import { theme } from '/styled/theme';
 import { FullView } from '/styled/common';
 import { CauseOfDeathSection } from './CauseOfDeathSection';
@@ -20,28 +20,23 @@ export const DeceasedForm = ({
   scrollViewRef,
 }: DeceasedFormProps): ReactElement => {
   const renderForm = useCallback(
-    ({ handleSubmit }) => (
+    () => (
       <FullView background={theme.colors.BACKGROUND_GREY}>
         <FormScreenView scrollViewRef={scrollViewRef}>
           <CauseOfDeathSection scrollToField={scrollToField} />
           <AdditionalNotesSection scrollToField={scrollToField} />
-          <Button
-            marginTop={screenPercentageToDP(1.22, Orientation.Height)}
-            backgroundColor={theme.colors.PRIMARY_MAIN}
-            onPress={handleSubmit}
-            buttonText="Submit"
-          />
+          <SubmitButton marginTop={screenPercentageToDP(1.22, Orientation.Height)} />
         </FormScreenView>
       </FullView>
     ),
     [],
   );
   return (
-    <Formik
+    <Form
       initialValues={initialValues}
       onSubmit={(values): void => console.log(values)}
     >
       {renderForm}
-    </Formik>
+    </Form>
   );
 };

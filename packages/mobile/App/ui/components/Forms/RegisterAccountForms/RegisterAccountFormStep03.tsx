@@ -6,6 +6,7 @@ import { Field } from '../FormField';
 import { StyledView, StyledText, FullView, RowView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
+import { SubmitButton } from '../SubmitButton';
 import { Button } from '../../Button';
 import { RegisterAccountFormStep3FormValues } from '../../../contexts/RegisterAccountContext';
 import { Checkbox } from '../../Checkbox';
@@ -48,7 +49,7 @@ const Form = ({
     })}
     onSubmit={onSubmit}
   >
-    {({ handleSubmit }: FormikHandlers): ReactNode => (
+    {({ isSubmitting }: FormikHandlers): ReactNode => (
       <StyledView
         height={screenPercentageToDP(7.29 * 4, Orientation.Height)}
         width="100%"
@@ -92,11 +93,10 @@ const Form = ({
             borderColor={theme.colors.WHITE}
             buttonText="Back"
             textColor={theme.colors.WHITE}
+            disabled={isSubmitting}
           />
-          <Button
+          <SubmitButton
             flex={1}
-            onPress={handleSubmit}
-            backgroundColor={theme.colors.SECONDARY_MAIN}
             buttonText="Create Account"
             textColor={theme.colors.TEXT_SUPER_DARK}
           />

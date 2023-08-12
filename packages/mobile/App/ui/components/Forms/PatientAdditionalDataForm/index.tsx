@@ -38,14 +38,10 @@ export const PatientAdditionalDataForm = ({
       validationSchema={patientAdditionalDataValidationSchema}
       onSubmit={onCreateOrEditAdditionalData}
     >
-      {({ handleSubmit, isSubmitting }): ReactElement => (
+      {(): ReactElement => (
         <FormScreenView scrollViewRef={scrollViewRef}>
           <FormSectionHeading text={sectionTitle} />
-          <PatientAdditionalDataFields
-            handleSubmit={handleSubmit}
-            isSubmitting={isSubmitting}
-            fields={fields}
-          />
+          <PatientAdditionalDataFields fields={fields} />
         </FormScreenView>
       )}
     </Form>

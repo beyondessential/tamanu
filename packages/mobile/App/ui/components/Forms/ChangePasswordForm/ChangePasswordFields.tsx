@@ -2,20 +2,12 @@ import React, { ReactElement } from 'react';
 import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Field } from '../FormField';
-import { Button } from '../../Button';
+import { SubmitButton } from '../SubmitButton';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { TextField } from '../../TextField/TextField';
 import { ServerSelector } from '../../ServerSelectorField/ServerSelector';
 
-type ChangePasswordFieldsProps = {
-  handleSubmit: (value: any) => void;
-  isSubmitting: boolean;
-};
-
-export const ChangePasswordFields = ({
-  handleSubmit,
-  isSubmitting,
-}: ChangePasswordFieldsProps): ReactElement => (
+export const ChangePasswordFields = (): ReactElement => (
   <StyledView
     marginTop={screenPercentageToDP(14.7, Orientation.Height)}
     marginRight={screenPercentageToDP(2.43, Orientation.Width)}
@@ -51,11 +43,9 @@ export const ChangePasswordFields = ({
       />
       <Field name="server" component={ServerSelector} label="Select a country" />
     </StyledView>
-    <Button
+    <SubmitButton
       marginTop={20}
       backgroundColor={theme.colors.SECONDARY_MAIN}
-      onPress={handleSubmit}
-      loadingAction={isSubmitting}
       textColor={theme.colors.TEXT_SUPER_DARK}
       fontSize={screenPercentageToDP('1.94', Orientation.Height)}
       fontWeight={500}

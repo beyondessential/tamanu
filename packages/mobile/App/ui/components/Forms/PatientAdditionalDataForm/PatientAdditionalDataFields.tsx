@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { Button } from '../../Button';
+import { SubmitButton } from '../SubmitButton';
 import { TextField } from '../../TextField/TextField';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
@@ -70,22 +70,12 @@ function getComponentForField(fieldName: string): React.FC<{ fieldName: string}>
   throw new Error(`Unexpected field ${fieldName} for patient additional data.`);
 }
 
-export const PatientAdditionalDataFields = ({
-  handleSubmit,
-  isSubmitting,
-  fields,
-}): ReactElement => (
+export const PatientAdditionalDataFields = ({ fields }): ReactElement => (
   <StyledView justifyContent="space-between">
     {fields.map(fieldName => {
       const Component = getComponentForField(fieldName);
       return <Component fieldName={fieldName} key={fieldName} />;
     })}
-    <Button
-      backgroundColor={theme.colors.PRIMARY_MAIN}
-      onPress={handleSubmit}
-      loadingAction={isSubmitting}
-      buttonText="Save"
-      marginTop={10}
-    />
+    <SubmitButton buttonText="Save" marginTop={10} />
   </StyledView>
 );
