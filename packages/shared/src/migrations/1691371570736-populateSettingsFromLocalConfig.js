@@ -10,7 +10,7 @@ import { facilityDefaults } from '../settings/facility';
 import { centralDefaults } from '../settings/central';
 import { globalDefaults } from '../settings/global';
 
-const POSSIBLE_CONFIG_PATHS = ['config/production.json', 'config/local.json'];
+const APPLICABLE_CONFIG_FILES = ['config/production.json', 'config/local.json'];
 
 const SETTINGS_PREDATING_MIGRATION = [
   SETTING_KEYS.VACCINATION_DEFAULTS,
@@ -24,17 +24,20 @@ const SETTINGS_PREDATING_MIGRATION = [
 
 const SCOPED_KEY_TRANSFORM_MAPS = {
   [SETTINGS_SCOPES.CENTRAL]: {
-    // Remove secrets inside nested keys of configs we want to keep
+    // Remove credentials inside nested keys of configs we want to keep
     'honeycomb.apiKey': null,
-    'integrations.fijiVrs.password': null,
     'integrations.signer.keySecret': null,
     'integrations.omnilab.secret': null,
+    'integrations.fijiVrs.username': null,
+    'integrations.fijiVrs.password': null,
   },
   [SETTINGS_SCOPES.FACILITY]: {
-    // Remove secrets inside nested keys of configs we want to keep
-    'sync.password': null,
-    'senaite.password': null,
+    // Remove credentials inside nested keys of configs we want to keep
     'honeycomb.apiKey': null,
+    'sync.username': null,
+    'sync.password': null,
+    'senaite.username': null,
+    'senaite.password': null,
   },
   [SETTINGS_SCOPES.GLOBAL]: {
     // Move some keys out of localisation into top level and delete timeZone
@@ -43,8 +46,10 @@ const SCOPED_KEY_TRANSFORM_MAPS = {
     'localisation.data.features': 'features',
     'localisation.data.printMeasures': 'printMeasures',
     'localisation.data.country': 'country',
-    // Delete timeZone in favor of countryTimeZone
+    // Replace timeZone in favor of countryTimeZone
     'localisation.timeZone': null,
+    // Remove only other top level localisation key that is no longer needed
+    'localisation.allowInvalid': null,
     // Move remaining keys to root of localisation
     'localisation.data': 'localisation',
   },
@@ -70,7 +75,7 @@ export async function up(query) {
   const scope = serverFacilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.CENTRAL;
 
   // Merge production -> local if exists
-  const localConfig = await POSSIBLE_CONFIG_PATHS.reduce(async (prevPromise, configPath) => {
+  const localConfig = await APPLICABLE_CONFIG_FILES.reduce(async (prevPromise, configPath) => {
     const prev = await prevPromise;
     try {
       await access(configPath, constants.F_OK);
@@ -94,16 +99,28 @@ export async function up(query) {
 
   /* Central server only */
 
+  // Get existing keys from global scope
+  const existingGlobalSettings = await query.sequelize.models.Setting.findAll({
+    where: { scope: SETTINGS_SCOPES.GLOBAL },
+  });
+
   const globalConfig = transformKeys(
     localConfig,
     SCOPED_KEY_TRANSFORM_MAPS[SETTINGS_SCOPES.GLOBAL],
     globalDefaults,
   );
+
   // Set the settings for the global scope
-  await query.sequelize.models.Setting.set('', globalConfig, null, SETTINGS_SCOPES.GLOBAL);
+  await query.sequelize.models.Setting.set(
+    '',
+    merge(globalConfig, existingGlobalSettings),
+    null,
+    SETTINGS_SCOPES.GLOBAL,
+  );
 }
 
 export async function down(query) {
+  // TODO: delete where key not like
   await query.sequelize.query(
     `
       DELETE FROM settings
