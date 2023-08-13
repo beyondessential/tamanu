@@ -103,6 +103,7 @@ export const DataFetchingTable = memo(
     useEffect(() => {
       // TODO: only show the loading indicator when search takes longer than a couple seconds
       updateFetchState({ isLoading: true });
+      // TODO: Need to break apart this useEffect into smaller pieces
       (async () => {
         try {
           if (!endpoint) {
@@ -230,7 +231,7 @@ export const DataFetchingTable = memo(
         )}
         {enableAutoRefresh && (
           <LastUpdatedBadge>
-            Last updated at: {getDateDisplay(previousFetch?.lastUpdatedAt, { showTime: true })}
+            Last updated: {getDateDisplay(previousFetch?.lastUpdatedAt, { showTime: true })}
             <RefreshIcon onClick={refreshTable} />
           </LastUpdatedBadge>
         )}
