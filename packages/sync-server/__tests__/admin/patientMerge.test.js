@@ -1,8 +1,9 @@
 import { fake, fakeUser } from 'shared/test-helpers/fake';
-import { NOTE_TYPES } from 'shared/constants/notes';
-import { VISIBILITY_STATUSES } from 'shared/constants';
+import { NOTE_TYPES } from '@tamanu/constants/notes';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { InvalidParameterError } from 'shared/errors';
-import { PATIENT_FIELD_DEFINITION_TYPES } from 'shared/constants/patientFields';
+import { LocalSystemFact } from 'shared/models/LocalSystemFact';
+import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import {
   mergePatient,
   getTablesWithNoMergeCoverage,

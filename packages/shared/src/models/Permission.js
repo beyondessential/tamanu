@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { permissionCache } from '../permissions/cache';
 import { Model } from './Model';
 

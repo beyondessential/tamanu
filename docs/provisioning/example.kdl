@@ -27,3 +27,7 @@ provisioning {
     - file="2023-07-03-demo-like.xlsx"
   }
 }
+
+programs {
+  - file "vitals.xlsx"
+}

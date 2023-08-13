@@ -1,4 +1,4 @@
-import { REPORT_STATUSES } from 'shared/constants';
+import { REPORT_STATUSES } from '@tamanu/constants';
 import {
   findOrCreateDefinition,
   getLatestVersion,

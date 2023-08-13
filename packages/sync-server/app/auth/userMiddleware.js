@@ -2,7 +2,7 @@ import { trace, propagation, context } from '@opentelemetry/api';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
 
-import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
+import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
 import { verifyToken, stripUser, findUserById } from './utils';
 
