@@ -130,6 +130,7 @@ export const DataFetchingTable = memo(
             const isInitialSort = isEqual(sorting, initialSort); // Check if set to initial sort
             const hasPageChanged = page !== previousFetch.page; // Check if the page number has changed since the last fetch
             const hasSortingChanged = !isEqual(sorting, previousFetch?.sorting); // Check if the sorting has changed since the last fetch
+            const hasRecordCountIncreased = count > previousFetch.count; // Check if the record count has increased since the last fetch
 
             const rowsSinceRefresh = count - previousFetch.count; // Rows since the last autorefresh
             const rowsSinceInteraction = rowsSinceRefresh + newRowCount; // Rows added since last clearing of rows from interacting
@@ -144,14 +145,15 @@ export const DataFetchingTable = memo(
               };
             });
 
+            const isLeavingPageOne = previousFetch.page === 0 && page > 0;
+            const isChangingFromInitialSort =
+              isEqual(previousFetch.sorting, initialSort) && hasSortingChanged;
+
             // If its the first fetch, we dont want to highlight the new rows green or show a notification
             if (!isFirstFetch) {
               setNewRowCount(rowsSinceInteraction);
-              setShowNotification(rowsSinceInteraction > 0);
-              if (
-                (previousFetch.page === 0 && page > 0) ||
-                (page === 0 && isEqual(previousFetch.sorting, initialSort) && hasSortingChanged)
-              ) {
+              if (hasRecordCountIncreased) setShowNotification(true);
+              if (isLeavingPageOne || (page === 0 && isChangingFromInitialSort)) {
                 clearNewRowStyles();
               }
             }
