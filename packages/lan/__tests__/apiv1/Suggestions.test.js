@@ -1,4 +1,4 @@
-import { SURVEY_TYPES, VISIBILITY_STATUSES, LOCATION_AVAILABILITY_STATUS } from 'shared/constants';
+import { SURVEY_TYPES, VISIBILITY_STATUSES, LOCATION_AVAILABILITY_STATUS } from '@tamanu/constants';
 import {
   splitIds,
   buildDiagnosis,

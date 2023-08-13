@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { LAB_TEST_STATUSES, SYNC_DIRECTIONS } from '../constants';
+import { LAB_TEST_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 import { dateType, dateTimeType } from './dateTimeTypes';

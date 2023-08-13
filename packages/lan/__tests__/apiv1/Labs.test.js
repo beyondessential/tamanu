@@ -1,4 +1,4 @@
-import { LAB_REQUEST_STATUSES, LAB_TEST_TYPE_VISIBILITY_STATUSES } from '@tamanu/shared/constants';
+import { LAB_REQUEST_STATUSES, LAB_TEST_TYPE_VISIBILITY_STATUSES } from '@tamanu/constants';
 import config from 'config';
 import {
   createDummyPatient,

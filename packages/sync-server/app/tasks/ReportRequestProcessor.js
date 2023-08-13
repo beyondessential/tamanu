@@ -2,7 +2,7 @@ import config from 'config';
 import sequelize from 'sequelize';
 import { spawn } from 'child_process';
 
-import { REPORT_REQUEST_STATUSES } from 'shared/constants';
+import { REPORT_REQUEST_STATUSES } from '@tamanu/constants';
 import { getReportModule } from 'shared/reports';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
