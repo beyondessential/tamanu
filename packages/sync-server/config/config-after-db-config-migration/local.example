@@ -1,0 +1,9 @@
+{
+  "db": {
+    "name": "",
+    "verbose": false,
+    "username": "",
+    "password": "",
+    "migrateOnStartup": true
+  },
+}

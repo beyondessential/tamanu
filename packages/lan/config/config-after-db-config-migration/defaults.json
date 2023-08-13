@@ -1,0 +1,38 @@
+{
+  "auth": {
+    "saltRounds": 12,
+    "tokenDuration": "1h",
+    "useHardcodedPermissions": true
+  },
+  "db": {
+    "migrateOnStartup": false,
+    "name": "tamanu-lan",
+    "password": "",
+    "username": "",
+    "verbose": false
+  },
+  "honeycomb": {
+    "apiKey": ""
+  },
+  "port": 4000,
+  "proxy": {
+    // Possible values: https://expressjs.com/en/guide/behind-proxies.html
+    //
+    // This should only be set to servers we trust! `loopback` is a safe default
+    // because it means we only trust proxies running on the machine itself, e.g.
+    // local nginx.
+    //
+    // As of 29/08/2022 all our deployments are behind a local nginx proxy and so
+    // this shouldn't need to be changed.
+    "trusted": ["loopback"]
+  },
+  "senaite": {
+    "password": "",
+    "username": ""
+  },
+  "serverFacilityId": "",
+  "sync": {
+    "email": "",
+    "password": ""
+  }
+}
