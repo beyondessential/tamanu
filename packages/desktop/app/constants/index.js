@@ -44,8 +44,8 @@ export const DB_OBJECTS_MAX_DEPTH = {
 // Should only be colours that are defined as constants in Figma
 // (with the exception of searchTintColor)
 export const Colors = {
-  primary: '#326699',
-  primaryDark: '#2f4358',
+  primary: '#dd0000',
+  primaryDark: '#000000',
   secondary: '#ffcc24',
   alert: '#f76853',
   orange: '#f17f16',
