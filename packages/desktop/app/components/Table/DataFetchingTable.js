@@ -150,7 +150,7 @@ export const DataFetchingTable = memo(
               setShowNotification(rowsSinceInteraction > 0);
               if (
                 (previousFetch.page === 0 && page > 0) ||
-                (isEqual(previousFetch.sorting, initialSort) && hasSortingChanged)
+                (page === 0 && isEqual(previousFetch.sorting, initialSort) && hasSortingChanged)
               ) {
                 clearNewRowStyles();
               }
@@ -158,7 +158,7 @@ export const DataFetchingTable = memo(
 
             // When autorefreshing past page one, we dont want to move rows down as it updates. Only if you are on
             // page one should it live update, otherwise the updates come through when navigating
-            const isDataToBeUpdated = hasPageChanged || page === 0;
+            const isDataToBeUpdated = hasPageChanged || hasSortingChanged || page === 0;
             const displayData = isDataToBeUpdated ? highlightedData : previousFetch.dataSnapshot;
 
             // Update the table with the rows to display
