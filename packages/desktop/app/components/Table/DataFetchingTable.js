@@ -129,6 +129,7 @@ export const DataFetchingTable = memo(
             const isFirstFetch = previousFetch.count === 0; // Check if this is the intial table load
             const isInitialSort = isEqual(sorting, initialSort); // Check if set to initial sort
             const hasPageChanged = page !== previousFetch.page; // Check if the page number has changed since the last fetch
+            const hasSortingChanged = !isEqual(sorting, previousFetch?.sorting); // Check if the sorting has changed since the last fetch
 
             const rowsSinceRefresh = count - previousFetch.count; // Rows since the last autorefresh
             const rowsSinceInteraction = rowsSinceRefresh + newRowCount; // Rows added since last clearing of rows from interacting
@@ -147,7 +148,10 @@ export const DataFetchingTable = memo(
             if (!isFirstFetch) {
               setNewRowCount(rowsSinceInteraction);
               setShowNotification(rowsSinceInteraction > 0);
-              if (previousFetch.page === 0 && page > 0) {
+              if (
+                (previousFetch.page === 0 && page > 0) ||
+                (isEqual(previousFetch.sorting, initialSort) && hasSortingChanged)
+              ) {
                 clearNewRowStyles();
               }
             }
@@ -169,6 +173,7 @@ export const DataFetchingTable = memo(
                 count,
                 dataSnapshot: displayData,
                 lastUpdatedAt: getCurrentDateTimeString(),
+                sorting,
               },
             });
           } else {
