@@ -65,7 +65,7 @@ const PrintOption = ({ setCurrentlyPrinting }) => (
   <Form
     initialValues={{
       leftPadding: 0,
-      rightPadding: 0,
+      shrinkBy: 0,
       colorOption: COLOR_OPTIONS[2].value,
       printSelection: PRINT_SELECTION_OPTIONS[0].value,
     }}
@@ -76,7 +76,7 @@ const PrintOption = ({ setCurrentlyPrinting }) => (
       <>
         <FormGrid columns={2}>
           <Field name="leftPadding" label="Left padding" component={NumberField} min={0} />
-          <Field name="rightPadding" label="Right padding" component={NumberField} min={0} />
+          <Field name="shrinkBy" label="Shrink by (%)" component={NumberField} min={0} max={99} />
           <Field
             name="colorOption"
             label="Type of black"

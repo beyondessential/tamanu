@@ -20,10 +20,12 @@ const Card = styled.div`
   width: ${cardDimensions.width}mm;
   height: ${cardDimensions.height}mm;
   padding-left: ${p => p.leftPadding || '0.2'}rem;
-  padding-right: ${p => p.rightPadding || '0.2'}rem;
+  padding-right: 0.2rem;
   padding-top: 0.2rem;
   padding-bottom: 0.2rem;
   color: ${p => p.colorOption};
+  ${p => p.shrinkFactor !== 1 && `transform: scale(${p.shrinkFactor});`}
+  ${p => p.shrinkFactor !== 1 && `transform-origin: left top;`}
 `;
 
 const Details = styled.div`
@@ -147,6 +149,9 @@ export const PatientIDCardPage = ({ patient, imageData, pageProps }) => {
   const showPhoto = printSelection === 'default' || printSelection === 'photo';
   const showText = printSelection === 'default' || printSelection === 'text';
 
+  const { shrinkBy } = pageProps;
+  const shrinkFactor = (100 - shrinkBy) / 100;
+
   useEffect(() => {
     printPage({
       landscape: true,
@@ -163,7 +168,7 @@ export const PatientIDCardPage = ({ patient, imageData, pageProps }) => {
 
   return (
     <PrintPortal>
-      <Card {...pageProps}>
+      <Card {...pageProps} shrinkFactor={shrinkFactor}>
         <TopBar />
         <MainSection>
           <PhotoContainer style={{ visibility: showPhoto ? 'visible' : 'hidden' }}>
