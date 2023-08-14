@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, memo } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { isEqual } from 'lodash';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
@@ -12,6 +12,24 @@ import { RefreshIcon } from '../Icons/RefreshIcon';
 import { TableNotification } from './TableNotification';
 
 import { Colors } from '../../constants';
+
+const spin = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const RefreshButton = styled(RefreshIcon)`
+  ${props =>
+    props.$isSpinning
+      ? css`
+          animation: 1s linear ${spin} infinite;
+        `
+      : ''}
+`;
 
 const LastUpdatedBadge = styled.div`
   position: absolute;
@@ -67,6 +85,7 @@ export const DataFetchingTable = memo(
 
     const [newRowCount, setNewRowCount] = useState(0);
     const [showNotification, setShowNotification] = useState(false);
+    const [isRefreshSpinning, setIsRefreshSpinning] = useState(true);
 
     const api = useApi();
 
@@ -98,9 +117,17 @@ export const DataFetchingTable = memo(
       setNewRowCount(0);
     };
 
+    const spinRefreshButton = () => {
+      setIsRefreshSpinning(true);
+      setTimeout(() => {
+        setIsRefreshSpinning(false);
+      }, 1000);
+    };
+
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
     useEffect(() => {
+      spinRefreshButton();
       const loadingTimeout = setTimeout(() => {
         updateFetchState({ isLoading: true });
       }, 1000);
@@ -242,7 +269,7 @@ export const DataFetchingTable = memo(
         {enableAutoRefresh && (
           <LastUpdatedBadge>
             Last updated: {getDateDisplay(previousFetch?.lastUpdatedAt, { showTime: true })}
-            <RefreshIcon onClick={refreshTable} />
+            <RefreshButton $isSpinning={isRefreshSpinning} onClick={refreshTable} />
           </LastUpdatedBadge>
         )}
         <Table
