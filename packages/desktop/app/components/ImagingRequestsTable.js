@@ -30,7 +30,7 @@ const getPatientDisplayId = ({ encounter }) => encounter.patient.displayId;
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
 const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} timeOnlyTooltip />;
 const getCompletedDate = ({ completedAt }) => <DateDisplay date={completedAt} timeOnlyTooltip />;
-const getPriority = ({ priority }) => capitaliseFirstLetter(priority);
+const getPriority = ({ priority }) => priority ? capitaliseFirstLetter(priority) : '';
 
 export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, statuses = [] }) => {
   const dispatch = useDispatch();
