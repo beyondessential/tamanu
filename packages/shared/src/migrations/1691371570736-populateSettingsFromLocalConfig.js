@@ -10,6 +10,13 @@ import { facilityDefaults } from '../settings/facility';
 import { centralDefaults } from '../settings/central';
 import { globalDefaults } from '../settings/global';
 
+const ENV_CONFIG_PATHS = {
+  development: 'config/development.json',
+  // TODO: currently test migrations does not seem to handle this migration and needs to exit early
+  // test: 'config/test.json',
+  production: 'config/production.json',
+};
+
 const SETTINGS_PREDATING_MIGRATION = [
   SETTING_KEYS.VACCINATION_DEFAULTS,
   SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS,
@@ -73,8 +80,9 @@ export async function up(query) {
   const scopedDefaults = serverFacilityId ? facilityDefaults : centralDefaults;
   const scope = serverFacilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.CENTRAL;
 
+  const envConfigPath = ENV_CONFIG_PATHS[process.env.NODE_ENV];
   // Merge env specific config -> local if exists
-  const localConfig = await ['config/production.json', 'config/local.json'].reduce(
+  const localConfig = await [...(envConfigPath ? [envConfigPath] : []), 'config/local.json'].reduce(
     async (prevPromise, configPath) => {
       const prev = await prevPromise;
       try {
