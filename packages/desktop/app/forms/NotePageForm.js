@@ -6,7 +6,7 @@ import { isEmpty } from 'lodash';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
-import { NOTE_TYPES } from '@tamanu/shared/constants';
+import { NOTE_TYPES } from '@tamanu/constants';
 import { useLocalisation } from '../contexts/Localisation';
 import { useAuth } from '../contexts/Auth';
 import { foreignKey } from '../utils/validation';

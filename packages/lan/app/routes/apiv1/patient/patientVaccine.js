@@ -9,7 +9,7 @@ import {
   VACCINE_STATUS,
   SETTING_KEYS,
   VISIBILITY_STATUSES,
-} from 'shared/constants';
+} from '@tamanu/constants';
 import { NotFoundError } from 'shared/errors';
 import { getCurrentDateString } from 'shared/utils/dateTime';
 

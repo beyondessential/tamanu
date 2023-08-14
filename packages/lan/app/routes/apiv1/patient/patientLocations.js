@@ -3,7 +3,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { objectToCamelCase } from 'shared/utils';
-import { LOCATION_AVAILABILITY_STATUS, VISIBILITY_STATUSES } from 'shared/constants';
+import { LOCATION_AVAILABILITY_STATUS, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 const patientsLocationSelect = (planned, encountersWhereAndClauses) => `
   SELECT

@@ -4,7 +4,7 @@ import {
   randomReferenceData,
 } from 'shared/demoData/patients';
 import { randomRecord } from 'shared/demoData/utilities';
-import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
 import { toDateTimeString } from 'shared/utils/dateTime';
 import { format } from 'shared/utils/dateTime';
 import { createTestContext } from '../../../utilities';

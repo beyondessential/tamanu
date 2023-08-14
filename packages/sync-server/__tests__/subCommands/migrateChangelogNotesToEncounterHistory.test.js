@@ -3,7 +3,7 @@ import { sub } from 'date-fns';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { NOTE_RECORD_TYPES, NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/shared/constants';
+import { NOTE_RECORD_TYPES, NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { sleepAsync } from '@tamanu/shared/utils';
 
 import { createTestContext } from '../utilities';

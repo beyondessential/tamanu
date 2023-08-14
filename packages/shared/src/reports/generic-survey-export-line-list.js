@@ -1,6 +1,6 @@
 import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
 import { keyBy } from 'lodash';
-import { NON_ANSWERABLE_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '../constants';
+import { NON_ANSWERABLE_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { toDateTimeString } from '../utils/dateTime';
 import {
   generateReportFromQueryData,
