@@ -91,9 +91,13 @@ export async function up(query) {
     return;
   }
 
-  const scopedConfig = transformKeys(localConfig, SCOPED_KEY_TRANSFORM_MAPS[scope], scopedDefaults);
+  const scopedSettings = transformKeys(
+    localConfig,
+    SCOPED_KEY_TRANSFORM_MAPS[scope],
+    scopedDefaults,
+  );
   // Set the settings for either the facility or central scope
-  await query.sequelize.models.Setting.set('', scopedConfig, serverFacilityId, scope);
+  await query.sequelize.models.Setting.set('', scopedSettings, serverFacilityId, scope);
 
   if (serverFacilityId) return;
 
@@ -104,7 +108,7 @@ export async function up(query) {
     where: { scope: SETTINGS_SCOPES.GLOBAL },
   });
 
-  const globalConfig = transformKeys(
+  const globalSettings = transformKeys(
     localConfig,
     SCOPED_KEY_TRANSFORM_MAPS[SETTINGS_SCOPES.GLOBAL],
     globalDefaults,
@@ -113,22 +117,21 @@ export async function up(query) {
   // Set the settings for the global scope
   await query.sequelize.models.Setting.set(
     '',
-    merge(globalConfig, existingGlobalSettings),
+    merge(globalSettings, existingGlobalSettings),
     null,
     SETTINGS_SCOPES.GLOBAL,
   );
 }
 
 export async function down(query) {
-  // TODO: delete where key not like
   await query.sequelize.query(
     `
       DELETE FROM settings
-      WHERE key NOT IN (:keys)
+      WHERE key ~* :keyRegex
     `,
     {
       replacements: {
-        keys: SETTINGS_PREDATING_MIGRATION,
+        keyRegex: `^(?!${SETTINGS_PREDATING_MIGRATION.join('|')}).*$`,
       },
     },
   );
