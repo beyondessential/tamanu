@@ -87,6 +87,24 @@ const prepareReplacementsForInsert = (settings, serverFacilityId, scope) => {
 export async function up(query) {
   const { serverFacilityId = null } = config;
 
+  // TODO: Resolve this in ci if possible
+  // In the context of migration tests ci step,
+  // currently the test.json serverFacilityId is not time of migrations
+  if (serverFacilityId && process.env.NODE_ENV === 'test') {
+    await query.sequelize.query(
+      `
+          INSERT INTO facilities (id, code, name)
+          VALUES (:facilityId, :facilityId, :facilityId)
+          ON CONFLICT (id) DO NOTHING
+        `,
+      {
+        replacements: {
+          facilityId: serverFacilityId,
+        },
+      },
+    );
+  }
+
   // Merge env specific config -> local if exists
   const localConfig = await [`config/${process.env.NODE_ENV}.json`, 'config/local.json'].reduce(
     async (prevPromise, configPath) => {
