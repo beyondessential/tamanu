@@ -8,7 +8,9 @@ doWithAllPackages((name, _pkg, pkgPath, isShared) => {
   if (process.argv.includes('--shared-only') && !isShared) {
     console.error(`Skipping ${name} as it's not a shared package...`);
     return;
-  } else if (process.argv.includes('--no-shared') && isShared) {
+  }
+
+  if (process.argv.includes('--no-shared') && isShared) {
     console.error(`Skipping ${name} as it is a shared package...`);
     return;
   }
