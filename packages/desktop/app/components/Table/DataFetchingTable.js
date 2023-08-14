@@ -23,12 +23,11 @@ const spin = keyframes`
 `;
 
 const Spinner = styled(RefreshIcon)`
-  ${props =>
-    props.$isSpinning
-      ? css`
-          animation: 0.5s linear ${spin} infinite;
-        `
-      : ''}
+  ${({ $isSpinning }) =>
+    $isSpinning &&
+    css`
+      animation: 0.5s linear ${spin} infinite;
+    `}
 `;
 
 const RefreshButton = styled.div`
@@ -118,11 +117,6 @@ export const DataFetchingTable = memo(
       setFetchState(oldFetchState => ({ ...oldFetchState, ...newFetchState }));
     }, []);
 
-    const clearNewRowStyles = () => {
-      setShowNotification(false);
-      setNewRowCount(0);
-    };
-
     const spinRefreshButton = () => {
       setIsRefreshSpinning(true);
       setTimeout(() => {
@@ -133,6 +127,8 @@ export const DataFetchingTable = memo(
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
     useEffect(() => {
+      console.log(fetchState.previousFetch?.fetchOptions);
+      console.log(fetchOptions);
       spinRefreshButton();
       const loadingTimeout = setTimeout(() => {
         updateFetchState({ isLoading: true });
@@ -166,6 +162,7 @@ export const DataFetchingTable = memo(
             const hasPageChanged = page !== previousFetch.page; // Check if the page number has changed since the last fetch
             const hasSortingChanged = !isEqual(sorting, previousFetch?.sorting); // Check if the sorting has changed since the last fetch
             const hasRecordCountIncreased = count > previousFetch.count; // Check if the record count has increased since the last fetch
+            const hasSearchChanged = !isEqual(fetchOptions, previousFetch?.fetchOptions); // Check if the search has changed since the last fetch
 
             const rowsSinceRefresh = count - previousFetch.count; // Rows since the last autorefresh
             const rowsSinceInteraction = rowsSinceRefresh + newRowCount; // Rows added since last clearing of rows from interacting
@@ -173,7 +170,7 @@ export const DataFetchingTable = memo(
             // Highlight rows green if the index is less that the index of rows since interaction AND its not the first fetch
             const highlightedData = transformedData.map((row, i) => {
               const actualIndex = i + page * rowsPerPage; // Offset the indexes based on pagination
-              const isNewRow = actualIndex < rowsSinceInteraction && !isFirstFetch && isInitialSort;
+              const isNewRow = actualIndex < rowsSinceInteraction && !isFirstFetch && isInitialSort && !hasSearchChanged;
               return {
                 ...row,
                 new: isNewRow,
@@ -188,8 +185,13 @@ export const DataFetchingTable = memo(
             if (!isFirstFetch) {
               setNewRowCount(rowsSinceInteraction);
               if (hasRecordCountIncreased) setShowNotification(true);
-              if (isLeavingPageOne || (page === 0 && isChangingFromInitialSort)) {
-                clearNewRowStyles();
+              if (
+                isLeavingPageOne ||
+                (page === 0 && isChangingFromInitialSort) ||
+                hasSearchChanged
+              ) {
+                setShowNotification(false);
+                setNewRowCount(0);
               }
             }
 
@@ -211,6 +213,7 @@ export const DataFetchingTable = memo(
                 dataSnapshot: displayData,
                 lastUpdatedAt: getCurrentDateTimeString(),
                 sorting,
+                fetchOptions,
               },
             });
           } else {
