@@ -143,6 +143,10 @@ const PatientPhoto = ({ imageData }) => (
 
 export const PatientIDCardPage = ({ patient, imageData, pageProps }) => {
   const { printPage } = useElectron();
+  const { printSelection } = pageProps;
+  const showPhoto = printSelection === 'default' || printSelection === 'photo';
+  const showText = printSelection === 'default' || printSelection === 'text';
+
   useEffect(() => {
     printPage({
       landscape: true,
@@ -162,11 +166,11 @@ export const PatientIDCardPage = ({ patient, imageData, pageProps }) => {
       <Card {...pageProps}>
         <TopBar />
         <MainSection>
-          <PhotoContainer>
+          <PhotoContainer style={{ visibility: showPhoto ? 'visible' : 'hidden' }}>
             <PatientPhoto imageData={imageData} />
             <PhotoLabel patient={patient} />
           </PhotoContainer>
-          <Details>
+          <Details style={{ visibility: showText ? 'visible' : 'hidden' }}>
             <DisplayIdRow name="displayId" value={patient.displayId} />
             <DetailsRow name="lastName" value={patient.lastName} />
             <DetailsRow name="firstName" value={patient.firstName} />
@@ -174,7 +178,7 @@ export const PatientIDCardPage = ({ patient, imageData, pageProps }) => {
             <DetailsRow name="sex" value={SEX_VALUE_INDEX[patient.sex].label} />
           </Details>
         </MainSection>
-        <BarcodeRow>
+        <BarcodeRow style={{ visibility: showText ? 'visible' : 'hidden' }}>
           <PatientBarcode patient={patient} width="43mm" height="5.9mm" />
         </BarcodeRow>
         <BottomBar />

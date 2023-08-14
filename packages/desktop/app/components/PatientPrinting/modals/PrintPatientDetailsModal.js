@@ -46,12 +46,28 @@ const COLOR_OPTIONS = [
   },
 ];
 
+const PRINT_SELECTION_OPTIONS = [
+  {
+    label: 'Default (photo + text)',
+    value: 'default',
+  },
+  {
+    label: 'Photo only',
+    value: 'photo',
+  },
+  {
+    label: 'Text only',
+    value: 'text',
+  },
+];
+
 const PrintOption = ({ setCurrentlyPrinting }) => (
   <Form
     initialValues={{
       leftPadding: 0,
       rightPadding: 0,
       colorOption: COLOR_OPTIONS[2].value,
+      printSelection: PRINT_SELECTION_OPTIONS[0].value,
     }}
     onSubmit={async values => {
       setCurrentlyPrinting('idcard', values);
@@ -66,6 +82,13 @@ const PrintOption = ({ setCurrentlyPrinting }) => (
             label="Type of black"
             component={SelectField}
             options={COLOR_OPTIONS}
+            required
+          />
+          <Field
+            name="printSelection"
+            label="Print selection"
+            component={SelectField}
+            options={PRINT_SELECTION_OPTIONS}
             required
           />
         </FormGrid>
