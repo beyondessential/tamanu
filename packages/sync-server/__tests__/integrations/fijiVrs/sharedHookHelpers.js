@@ -1,4 +1,4 @@
-import { REFERENCE_TYPES } from 'shared/constants';
+import { REFERENCE_TYPES } from '@tamanu/constants';
 import { chance } from 'shared/test-helpers';
 
 export const fakeVRSPatient = async ({ ReferenceData }) => {

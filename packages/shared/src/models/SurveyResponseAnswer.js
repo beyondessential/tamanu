@@ -1,7 +1,7 @@
 import config from 'config';
 import { upperFirst } from 'lodash';
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { InvalidOperationError } from '../errors';
 import { runCalculations } from '../utils/calculations';

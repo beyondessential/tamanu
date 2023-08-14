@@ -7,7 +7,7 @@ import {
   FHIR_SEARCH_PREFIXES,
   FHIR_SEARCH_TOKEN_TYPES,
   FHIR_DATETIME_PRECISION,
-} from 'shared/constants';
+} from '@tamanu/constants';
 import { Invalid, Unsupported, RESULT_PARAMETER_NAMES } from 'shared/utils/fhir';
 
 import { findField } from './common';

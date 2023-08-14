@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Box, FormHelperText, capitalize } from '@material-ui/core';
-import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
+import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { useQuery } from '@tanstack/react-query';
 import { subStrSearch } from '../../utils/subStringSearch';
 import { Colors } from '../../constants';
