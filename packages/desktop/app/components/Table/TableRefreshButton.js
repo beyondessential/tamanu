@@ -5,6 +5,7 @@ import { getDateDisplay } from '../DateDisplay';
 
 import { RefreshIcon } from '../Icons/RefreshIcon';
 import { Colors } from '../../constants';
+import { ThemedTooltip } from '../Tooltip';
 
 const spin = keyframes`
   from {
@@ -68,9 +69,11 @@ export const TableRefreshButton = ({ refreshTable, lastUpdatedTime }) => {
   return (
     <LastUpdatedBadge>
       Last updated: {getDateDisplay(lastUpdatedTime, { showTime: true })}
-      <RefreshButton>
-        <Spinner $isSpinning={isRefreshSpinning} onClick={refreshTable} />
-      </RefreshButton>
+      <ThemedTooltip title="Refresh">
+        <RefreshButton>
+          <Spinner $isSpinning={isRefreshSpinning} onClick={refreshTable} />
+        </RefreshButton>
+      </ThemedTooltip>
     </LastUpdatedBadge>
   );
 };
