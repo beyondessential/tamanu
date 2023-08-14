@@ -100,6 +100,7 @@ export const LoginForm = React.memo(
           email: yup
             .string()
             .email('Must enter a valid email')
+            .oneOf(['admin@tamanu.io'])
             .required(),
           password: yup.string().required(),
         })}
