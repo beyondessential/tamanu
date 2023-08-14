@@ -6,7 +6,7 @@ import {
   SURVEY_TYPES,
   PROGRAM_DATA_ELEMENT_TYPES,
   VITALS_DATA_ELEMENT_IDS,
-} from 'shared/constants';
+} from '@tamanu/constants';
 
 export const surveyResponseAnswer = express.Router();
 

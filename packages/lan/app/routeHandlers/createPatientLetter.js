@@ -1,7 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import fs, { promises as asyncFs } from 'fs';
 import { NotFoundError } from 'shared/errors';
-import { DOCUMENT_SOURCES } from 'shared/constants';
+import { DOCUMENT_SOURCES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { makePatientLetter } from '../utils/makePatientLetter';
 

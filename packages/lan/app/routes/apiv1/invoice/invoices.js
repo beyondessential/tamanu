@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { customAlphabet } from 'nanoid';
 import { NotFoundError, InvalidParameterError } from 'shared/errors';
-import { INVOICE_STATUSES, INVOICE_PAYMENT_STATUSES } from 'shared/constants';
+import { INVOICE_STATUSES, INVOICE_PAYMENT_STATUSES } from '@tamanu/constants';
 import { simplePut } from 'shared/utils/crudHelpers';
 
 import { invoiceLineItemsRoute } from './invoiceLineItems';

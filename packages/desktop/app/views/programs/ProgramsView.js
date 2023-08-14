@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { useApi } from 'desktop/app/api';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { SURVEY_TYPES } from '@tamanu/shared/constants';
+import { SURVEY_TYPES } from '@tamanu/constants';
 import { reloadPatient } from 'desktop/app/store/patient';
 import { getCurrentUser } from 'desktop/app/store/auth';
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';

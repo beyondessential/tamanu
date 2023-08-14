@@ -9,7 +9,7 @@ import {
   NOTE_TYPES,
   VISIBILITY_STATUSES,
   LAB_REQUEST_STATUSES,
-} from 'shared/constants';
+} from '@tamanu/constants';
 import { randomLabRequest } from '@tamanu/shared/demoData';
 import { fakeUUID } from 'shared/utils/generateId';
 import { formatFhirDate } from 'shared/utils/fhir/datetime';

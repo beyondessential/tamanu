@@ -1,4 +1,4 @@
-import { FHIR_INTERACTIONS, JOB_TOPICS } from 'shared/constants';
+import { FHIR_INTERACTIONS, JOB_TOPICS } from '@tamanu/constants';
 import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 
 export async function entireResource({ payload: { resource } }, { log, sequelize, models }) {

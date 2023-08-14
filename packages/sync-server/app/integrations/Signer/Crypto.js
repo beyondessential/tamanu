@@ -25,7 +25,7 @@ import {
   ExtKeyUsage,
   AuthorityKeyIdentifier,
 } from 'pkijs';
-import { ICAO_DOCUMENT_TYPES, X502_OIDS } from 'shared/constants';
+import { ICAO_DOCUMENT_TYPES, X502_OIDS } from '@tamanu/constants';
 import { depem, pem } from 'shared/utils';
 import { getLocalisation } from '../../localisation';
 
