@@ -123,6 +123,10 @@ export const DataFetchingTable = memo(
             const rowsSinceRefresh = count - previousFetch.count; // Rows since the last autorefresh
             const rowsSinceInteraction = rowsSinceRefresh + newRowCount; // Rows added since last clearing of rows from interacting
 
+            const isLeavingPageOne = previousFetch.page === 0 && page > 0;
+            const isChangingFromInitialSort =
+              isEqual(previousFetch.sorting, initialSort) && hasSortingChanged;
+
             // Highlight rows green if the index is less that the index of rows since interaction AND its not the first fetch
             const highlightedData = transformedData.map((row, i) => {
               const actualIndex = i + page * rowsPerPage; // Offset the indexes based on pagination
@@ -133,9 +137,10 @@ export const DataFetchingTable = memo(
               };
             });
 
-            const isLeavingPageOne = previousFetch.page === 0 && page > 0;
-            const isChangingFromInitialSort =
-              isEqual(previousFetch.sorting, initialSort) && hasSortingChanged;
+            // When autorefreshing past page one, we dont want to move rows down as it updates. Only if you are on
+            // page one should it live update, otherwise the updates come through when navigating
+            const isDataToBeUpdated = hasPageChanged || hasSortingChanged || page === 0;
+            const displayData = isDataToBeUpdated ? highlightedData : previousFetch.dataSnapshot;
 
             // If its the first fetch, we dont want to highlight the new rows green or show a notification
             if (!isFirstFetch) {
@@ -151,11 +156,6 @@ export const DataFetchingTable = memo(
                 if (hasRecordCountIncreased) setShowNotification(true);
               }
             }
-
-            // When autorefreshing past page one, we dont want to move rows down as it updates. Only if you are on
-            // page one should it live update, otherwise the updates come through when navigating
-            const isDataToBeUpdated = hasPageChanged || hasSortingChanged || page === 0;
-            const displayData = isDataToBeUpdated ? highlightedData : previousFetch.dataSnapshot;
 
             // Update the table with the rows to display
             updateFetchState({
