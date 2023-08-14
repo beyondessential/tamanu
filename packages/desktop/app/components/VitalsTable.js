@@ -33,6 +33,10 @@ const StyledTable = styled(Table)`
       width: 160px;
       min-width: 160px;
     }
+    thead tr th:not(:first-child):not(:last-child) {
+      /* Each content cell is fixed width except the last one, which takes the rest of the space */
+      width: 115px;
+    }
     tbody tr td:first-child {
       background: ${Colors.white};
     }
@@ -169,6 +173,7 @@ export const VitalsTable = React.memo(() => {
           const shouldBeClickable = isVitalEditEnabled && isCalculatedQuestion === false;
           return (
             <RangeValidatedCell
+              maxWidth="75px"
               value={value}
               config={config}
               validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
