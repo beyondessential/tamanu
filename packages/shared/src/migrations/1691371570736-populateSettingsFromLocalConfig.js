@@ -9,11 +9,11 @@ import { SETTINGS_SCOPES, SETTING_KEYS } from '@tamanu/constants/settings';
 import { facilityDefaults } from '../settings/facility';
 import { centralDefaults } from '../settings/central';
 import { globalDefaults } from '../settings/global';
+import { buildSettingsRecords } from '../models/Setting';
 
 const ENV_CONFIG_PATHS = {
   development: 'config/development.json',
-  // TODO: currently test migrations does not seem to handle this migration and needs to exit early
-  // test: 'config/test.json',
+  test: 'config/test.json',
   production: 'config/production.json',
 };
 
@@ -101,34 +101,42 @@ export async function up(query) {
     return;
   }
 
-  const scopedSettings = transformKeys(
-    localConfig,
-    SCOPED_KEY_TRANSFORM_MAPS[scope],
-    scopedDefaults,
+  const scopedSettingData = buildSettingsRecords(
+    '',
+    transformKeys(localConfig, SCOPED_KEY_TRANSFORM_MAPS[scope], scopedDefaults),
+    serverFacilityId,
+  ).map(({ key, value, facilityId }) => [key, JSON.stringify(value), facilityId, scope]);
+
+  await query.sequelize.query(
+    `
+      INSERT INTO settings (key, value, facility_id, scope)
+      VALUES ${scopedSettingData.map(() => '(?)').join(', ')}
+    `,
+    {
+      replacements: scopedSettingData,
+    },
   );
-  // Set the settings for either the facility or central scope
-  await query.sequelize.models.Setting.set('', scopedSettings, serverFacilityId, scope);
+
+  // // Set the settings for either the facility or central scope
+  // await query.sequelize.models.Setting.set('', scopedSettings, serverFacilityId, scope);
 
   if (serverFacilityId) return;
 
   /* Central server only */
-  // Get existing keys from global scope
-  const existingGlobalSettings = await query.sequelize.models.Setting.findAll({
-    where: { scope: SETTINGS_SCOPES.GLOBAL },
-  });
-
-  const globalSettings = transformKeys(
-    localConfig,
-    SCOPED_KEY_TRANSFORM_MAPS[SETTINGS_SCOPES.GLOBAL],
-    globalDefaults,
-  );
-
-  // Set the settings for the global scope
-  await query.sequelize.models.Setting.set(
+  const globalSettingData = buildSettingsRecords(
     '',
-    merge(globalSettings, existingGlobalSettings),
+    transformKeys(localConfig, SCOPED_KEY_TRANSFORM_MAPS[SETTINGS_SCOPES.GLOBAL], globalDefaults),
     null,
-    SETTINGS_SCOPES.GLOBAL,
+  ).map(({ key, value }) => [key, JSON.stringify(value), null, SETTINGS_SCOPES.GLOBAL]);
+
+  await query.sequelize.query(
+    `
+      INSERT INTO settings (key, value, facility_id, scope)
+      VALUES ${scopedSettingData.map(() => '(?)').join(', ')}
+    `,
+    {
+      replacements: globalSettingData,
+    },
   );
 }
 
