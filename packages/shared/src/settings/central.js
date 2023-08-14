@@ -139,6 +139,10 @@ export const centralDefaults = {
     consoleLevel: 'http',
     path: '',
   },
+  mailgun: {
+    domain: 'tupaia.org',
+    from: 'tamanu@tupaia.org',
+  },
   notifications: {
     certificates: {
       labTestCategoryIds: [],

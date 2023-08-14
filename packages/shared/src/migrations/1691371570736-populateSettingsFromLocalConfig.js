@@ -26,6 +26,7 @@ const SCOPED_KEY_TRANSFORM_MAPS = {
   [SETTINGS_SCOPES.CENTRAL]: {
     // Remove credentials inside nested keys of configs we want to keep
     'honeycomb.apiKey': null,
+    'mailgun.apiKey': null,
     'integrations.signer.keySecret': null,
     'integrations.omnilab.secret': null,
     'integrations.fijiVrs.username': null,
@@ -102,7 +103,6 @@ export async function up(query) {
   if (serverFacilityId) return;
 
   /* Central server only */
-
   // Get existing keys from global scope
   const existingGlobalSettings = await query.sequelize.models.Setting.findAll({
     where: { scope: SETTINGS_SCOPES.GLOBAL },
@@ -124,6 +124,7 @@ export async function up(query) {
 }
 
 export async function down(query) {
+  // Delete all settings except those that predate this migration
   await query.sequelize.query(
     `
       DELETE FROM settings
