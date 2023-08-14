@@ -1,62 +1,17 @@
 import React, { useState, useCallback, useEffect, memo } from 'react';
-import styled, { keyframes, css } from 'styled-components';
+import styled from 'styled-components';
 import { isEqual } from 'lodash';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
 
-import { getDateDisplay } from '../DateDisplay';
 import { Table } from './Table';
-import { RefreshIcon } from '../Icons/RefreshIcon';
 import { TableNotification } from './TableNotification';
+import { TableRefreshButton } from './TableRefreshButton';
 
-import { Colors } from '../../constants';
-
-const spin = keyframes`
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-`;
-
-const Spinner = styled(RefreshIcon)`
-  ${({ $isSpinning }) =>
-    $isSpinning &&
-    css`
-      animation: 0.5s linear ${spin} infinite;
-      path {
-        transition: fill 0.3s ease-in-out;
-        fill: ${Colors.softText};
-      }
-    `}
-`;
-
-const RefreshButton = styled.div`
-  margin-left: 5px;
-  cursor: pointer;
-  border-radius: 3px;
-  &:hover {
-    background-color: ${Colors.softOutline};
-  }
-  height: 25px;
-  width: 25px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const LastUpdatedBadge = styled.div`
-  position: absolute;
-  top: 120px;
-  right: 45px;
-  z-index: 9;
-  color: ${Colors.softText};
-  font-size: 11px;
-  display: flex;
-  align-items: center;
+const TableContainer = styled.div`
+  position: relative;
 `;
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
@@ -94,7 +49,6 @@ export const DataFetchingTable = memo(
 
     const [newRowCount, setNewRowCount] = useState(0);
     const [showNotification, setShowNotification] = useState(false);
-    const [isRefreshSpinning, setIsRefreshSpinning] = useState(true);
 
     const api = useApi();
 
@@ -121,19 +75,9 @@ export const DataFetchingTable = memo(
       setFetchState(oldFetchState => ({ ...oldFetchState, ...newFetchState }));
     }, []);
 
-    const spinRefreshButton = () => {
-      setIsRefreshSpinning(true);
-      setTimeout(() => {
-        setIsRefreshSpinning(false);
-      }, 1000);
-    };
-
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
     useEffect(() => {
-      console.log(fetchState.previousFetch?.fetchOptions);
-      console.log(fetchOptions);
-      spinRefreshButton();
       const loadingTimeout = setTimeout(() => {
         updateFetchState({ isLoading: true });
       }, 1000);
@@ -276,7 +220,7 @@ export const DataFetchingTable = memo(
     const { data, count, isLoading, errorMessage, previousFetch } = fetchState;
     const { order, orderBy } = sorting;
     return (
-      <>
+      <TableContainer>
         {showNotification && (
           <TableNotification
             message="New records available to view"
@@ -284,12 +228,10 @@ export const DataFetchingTable = memo(
           />
         )}
         {enableAutoRefresh && (
-          <LastUpdatedBadge>
-            Last updated: {getDateDisplay(previousFetch?.lastUpdatedAt, { showTime: true })}
-            <RefreshButton>
-              <Spinner $isSpinning={isRefreshSpinning} onClick={refreshTable} />
-            </RefreshButton>
-          </LastUpdatedBadge>
+          <TableRefreshButton
+            lastUpdatedTime={previousFetch?.lastUpdatedAt}
+            refreshTable={refreshTable}
+          />
         )}
         <Table
           isLoading={isLoading}
@@ -308,7 +250,7 @@ export const DataFetchingTable = memo(
           rowStyle={row => (row.new ? 'background-color: #F8FFF8;' : '')}
           {...props}
         />
-      </>
+      </TableContainer>
     );
   },
 );
