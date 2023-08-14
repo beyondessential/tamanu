@@ -1,6 +1,7 @@
 import { snakeCase } from 'lodash';
 import { Sequelize, Utils, DataTypes, QueryTypes } from 'sequelize';
 import * as yup from 'yup';
+import { subMinutes } from 'date-fns';
 
 import {
   SYNC_DIRECTIONS,
@@ -37,6 +38,15 @@ export class FhirResource extends Model {
           type: DataTypes.TIMESTAMP,
           allowNull: false,
           defaultValue: Sequelize.NOW,
+          set(utcDate) {
+            // Sequelize converts TIMESTAMP into UTC, so we convert it back to local time
+            if (!(utcDate instanceof Date)) {
+              return utcDate;
+            }
+            const localOffsetMinutes = new Date().getTimezoneOffset();
+            this.setDataValue('lastUpdated', subMinutes(utcDate, localOffsetMinutes));
+            return this.lastUpdated;
+          },
         },
         ...attributes,
       },
