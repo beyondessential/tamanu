@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { isEmpty } from 'lodash';
-import { NOTE_RECORD_TYPES } from '@tamanu/shared/constants';
+import { NOTE_RECORD_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { useApi } from '../api';

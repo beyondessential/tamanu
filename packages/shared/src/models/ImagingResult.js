@@ -1,7 +1,7 @@
 import { Sequelize, DataTypes } from 'sequelize';
 
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
-import { SYNC_DIRECTIONS } from '../constants';
 
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';

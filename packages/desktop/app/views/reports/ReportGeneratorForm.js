@@ -9,7 +9,7 @@ import {
   REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
   REPORT_EXPORT_FORMATS,
-} from '@tamanu/shared/constants';
+} from '@tamanu/constants';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useApi } from '../../api';
 import { useAuth } from '../../contexts/Auth';

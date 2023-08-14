@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
-import { DOCUMENT_SIZE_LIMIT, DOCUMENT_SOURCES } from 'shared/constants';
+import { DOCUMENT_SIZE_LIMIT, DOCUMENT_SOURCES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { NotFoundError } from 'shared/errors';
 import { uploadAttachment } from '../../../utils/uploadAttachment';

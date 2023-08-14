@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/shared/constants';
-import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/shared/constants/surveys';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
 import { Box, IconButton as IconButtonComponent } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { Table } from './Table';
