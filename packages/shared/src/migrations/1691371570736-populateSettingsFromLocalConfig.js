@@ -74,8 +74,8 @@ const prepareReplacementsForInsert = (settings, serverFacilityId, scope) => {
   // This also removes root keys not present in any scope eg: db & auth
   const validKeys = pick(settings, Object.keys(SCOPED_DEFAULTS[scope]));
 
-  // Map replacement to array of tuples for insert query
   const settingRecords = buildSettingsRecords('', validKeys, serverFacilityId);
+  // Map replacement to array of tuples for insert query
   return settingRecords.map(({ key, value, facilityId }) => [
     key,
     JSON.stringify(value),
@@ -126,9 +126,9 @@ export async function up(query) {
 
   if (serverFacilityId) return;
 
-  /* Central server only */
+  // Central server only
+  // Create the settings for global scope
   const globalSettingData = prepareReplacementsForInsert(localConfig, null, SETTINGS_SCOPES.GLOBAL);
-
   await query.sequelize.query(
     `
       INSERT INTO settings (key, value, facility_id, scope)
