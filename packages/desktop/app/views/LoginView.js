@@ -6,7 +6,6 @@ import { push } from 'connected-react-router';
 
 import { TamanuLogo } from '../components';
 import { LOCAL_STORAGE_KEYS } from '../constants';
-import { splashImages } from '../constants/images';
 
 import { LoginForm } from '../forms/LoginForm';
 import { ResetPasswordForm } from '../forms/ResetPasswordForm';
@@ -29,9 +28,7 @@ const Grid = styled.div`
   height: 100vh;
   justify-content: center;
   align-items: center;
-  background-image: url(${splashImages[1]});
-  background-repeat: no-repeat;
-  background-size: cover;
+  background-color: #333333;
 `;
 
 const LoginContainer = styled(Paper)`
