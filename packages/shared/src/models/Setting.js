@@ -145,17 +145,15 @@ export class Setting extends Model {
       },
       {
         where: {
-          ...(key && {
-            key: {
-              [Op.and]: {
-                [Op.or]: {
-                  [Op.eq]: key,
-                  [Op.like]: `${key}.%`,
-                },
-                [Op.notIn]: records.map(r => r.key),
+          key: {
+            [Op.and]: {
+              [Op.or]: {
+                [Op.eq]: key,
+                [Op.like]: `${key}.%`,
               },
+              [Op.notIn]: records.map(r => r.key),
             },
-          }),
+          },
           facilityId,
           scope,
         },
