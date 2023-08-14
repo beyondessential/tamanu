@@ -4,7 +4,7 @@ import config from 'config';
 import { get, has, isEmpty, merge, pick, set, unset } from 'lodash';
 import stripJsonComments from 'strip-json-comments';
 
-import { SETTINGS_SCOPES, SETTING_KEYS } from '../constants';
+import { SETTINGS_SCOPES, SETTING_KEYS } from '@tamanu/constants';
 
 import { facilityDefaults } from '../settings/facility';
 import { centralDefaults } from '../settings/central';
