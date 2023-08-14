@@ -101,8 +101,9 @@ export const DataFetchingTable = memo(
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
     useEffect(() => {
-      // TODO: only show the loading indicator when search takes longer than a couple seconds
-      updateFetchState({ isLoading: true });
+      const loadingTimeout = setTimeout(() => {
+        updateFetchState({ isLoading: true });
+      }, 1000);
       // TODO: Need to break apart this useEffect into smaller pieces
       (async () => {
         try {
@@ -121,6 +122,7 @@ export const DataFetchingTable = memo(
               showUnknownErrorToast: false,
             },
           );
+          clearTimeout(loadingTimeout);
 
           const transformedData = transformRow ? data.map(transformRow) : data;
 
@@ -196,6 +198,7 @@ export const DataFetchingTable = memo(
           }
         } catch (error) {
           // eslint-disable-next-line no-console
+          clearTimeout(loadingTimeout);
           console.error(error);
           updateFetchState({ errorMessage: error.message, isLoading: false });
         }
