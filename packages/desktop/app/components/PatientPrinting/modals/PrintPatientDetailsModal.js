@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
+import * as yup from 'yup';
 
 import { Modal } from '../../Modal';
 import { Button } from '../../Button';
@@ -69,14 +70,40 @@ const PrintOption = ({ setCurrentlyPrinting }) => (
       colorOption: COLOR_OPTIONS[2].value,
       printSelection: PRINT_SELECTION_OPTIONS[0].value,
     }}
+    validationSchema={yup.object().shape({
+      leftPadding: yup
+        .number()
+        .min(0)
+        .max(10)
+        .required(),
+      shrinkBy: yup
+        .number()
+        .min(0)
+        .max(99)
+        .required(),
+    })}
     onSubmit={async values => {
       setCurrentlyPrinting('idcard', values);
     }}
     render={() => (
       <>
         <FormGrid columns={2}>
-          <Field name="leftPadding" label="Left padding" component={NumberField} min={0} />
-          <Field name="shrinkBy" label="Shrink by (%)" component={NumberField} min={0} max={99} />
+          <Field
+            name="leftPadding"
+            label="Left padding"
+            component={NumberField}
+            min={0}
+            max={10}
+            required
+          />
+          <Field
+            name="shrinkBy"
+            label="Shrink by (%)"
+            component={NumberField}
+            min={0}
+            max={99}
+            required
+          />
           <Field
             name="colorOption"
             label="Type of black"
