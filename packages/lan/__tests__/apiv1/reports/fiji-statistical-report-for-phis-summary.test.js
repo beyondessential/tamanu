@@ -1,4 +1,4 @@
-import { REFERENCE_TYPES } from 'shared/constants';
+import { REFERENCE_TYPES } from '@tamanu/constants';
 import {
   createDummyEncounter,
   createDummyEncounterDiagnosis,

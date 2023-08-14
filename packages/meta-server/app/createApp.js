@@ -4,7 +4,7 @@ import morgan from 'morgan';
 import compression from 'compression';
 
 import { log } from 'shared/services/logging';
-import { SERVER_TYPES } from 'shared/constants';
+import { SERVER_TYPES } from '@tamanu/constants';
 
 import { versionRouter } from './versions';
 import { serversRouter } from './servers';

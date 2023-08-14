@@ -1,5 +1,5 @@
 import { Sequelize, Op } from 'sequelize';
-import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES, VACCINE_STATUS } from '../constants';
+import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES, VACCINE_STATUS } from '@tamanu/constants';
 import { getCovidClearanceCertificateFilter, getLabTestsFromLabRequests } from '../utils';
 import { Model } from './Model';
 import { dateType, dateTimeType } from './dateTimeTypes';

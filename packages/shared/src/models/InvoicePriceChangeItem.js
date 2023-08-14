@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { INVOICE_PRICE_CHANGE_ITEM_STATUSES, SYNC_DIRECTIONS } from '../constants';
+import { INVOICE_PRICE_CHANGE_ITEM_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 import { dateType } from './dateTimeTypes';

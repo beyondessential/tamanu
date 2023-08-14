@@ -4,8 +4,8 @@ import { isEmpty, groupBy } from 'lodash';
 import { useQuery } from '@tanstack/react-query';
 
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
-import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/shared/constants';
-import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/shared/constants/patientFields';
+import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
+import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 
 import { useSexValues } from '../hooks';
 import {

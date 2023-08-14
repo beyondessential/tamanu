@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Box, IconButton, Typography } from '@material-ui/core';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { useQueryClient } from '@tanstack/react-query';
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/shared/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { SelectField, Form, Field, OuterLabelFieldWrapper } from '../components/Field';

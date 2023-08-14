@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { SERVER_TYPES } from 'shared/constants';
+import { SERVER_TYPES } from '@tamanu/constants';
 import { log } from 'shared/services/logging';
 import { fetchWithTimeout } from 'shared/utils/fetchWithTimeout';
 

@@ -8,7 +8,7 @@ import {
   ENCOUNTER_TYPES,
   IMAGING_TYPES,
   DIAGNOSIS_CERTAINTY,
-} from 'shared/constants';
+} from '@tamanu/constants';
 import { toDateTimeString } from 'shared/utils/dateTime';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';

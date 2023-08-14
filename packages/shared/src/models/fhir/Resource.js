@@ -7,7 +7,7 @@ import {
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_TOKEN_TYPES,
   FHIR_DATETIME_PRECISION,
-} from '../../constants';
+} from '@tamanu/constants';
 import { objectAsFhir } from './utils';
 import { formatFhirDate } from '../../utils/fhir';
 import { Model } from '../Model';

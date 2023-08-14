@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 
-import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from '../constants';
+import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 
