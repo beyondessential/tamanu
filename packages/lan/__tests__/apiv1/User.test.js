@@ -338,6 +338,7 @@ describe('User', () => {
       const result = await app.post('/v1/user/userPreferences').send(userPreference);
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
+        id: user.id,
         userId: user.id,
         ...userPreference,
       });
@@ -357,7 +358,7 @@ describe('User', () => {
       });
     });
 
-    it('should fetch current user saved user preference', async () => {
+    it('should fetch current user existing user preference', async () => {
       const result = await app.get('/v1/user/userPreferences');
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
@@ -376,7 +377,7 @@ describe('User', () => {
       expect(result2Date.getTime()).toBeGreaterThan(result1Date.getTime());
     });
 
-    it('should delete user preference if user is deleted', async () => {
+    it('should delete user preference if the user is deleted', async () => {
       const { User, UserPreference } = models;
       await User.destroy({
         where: {

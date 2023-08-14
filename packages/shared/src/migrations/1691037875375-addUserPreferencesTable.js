@@ -2,11 +2,10 @@ import Sequelize from 'sequelize';
 
 export async function up(query) {
   await query.createTable('user_preferences', {
+    // User preference records use a user_id as the primary key, acting as a
+    // db-level enforcement of one per user, and simplifying sync
     id: {
-      type: Sequelize.UUID,
-      defaultValue: Sequelize.fn('uuid_generate_v4'),
-      allowNull: false,
-      primaryKey: true,
+      type: 'TEXT GENERATED ALWAYS AS ("user_id") STORED',
     },
     created_at: {
       type: Sequelize.DATE,
@@ -28,6 +27,7 @@ export async function up(query) {
         model: 'users',
         key: 'id',
       },
+      primaryKey: true,
       onDelete: 'cascade',
       allowNull: false,
     },
