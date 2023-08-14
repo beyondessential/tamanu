@@ -103,12 +103,16 @@ export const DataFetchingTable = memo(
       return highlightedData;
     };
 
+    const loadingIndicatorDelay = () => {
+      return setTimeout(() => {
+        updateFetchState({ isLoading: true });
+      }, 1000);
+    };
+
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
     useEffect(() => {
-      const loadingTimeout = setTimeout(() => {
-        updateFetchState({ isLoading: true });
-      }, 1000);
+      const loadingDelay = loadingIndicatorDelay();
       // TODO: Need to break apart this useEffect into smaller pieces
       (async () => {
         try {
@@ -116,7 +120,7 @@ export const DataFetchingTable = memo(
             throw new Error('Missing endpoint to fetch data.');
           }
           const { data, count } = await fetchData();
-          clearTimeout(loadingTimeout);
+          clearTimeout(loadingDelay);
 
           const transformedData = transformRow ? data.map(transformRow) : data;
 
@@ -197,7 +201,7 @@ export const DataFetchingTable = memo(
             }
           }
         } catch (error) {
-          clearTimeout(loadingTimeout);
+          clearTimeout(loadingDelay);
           // eslint-disable-next-line no-console
           console.error(error);
           updateFetchState({ errorMessage: error.message, isLoading: false });
@@ -209,6 +213,8 @@ export const DataFetchingTable = memo(
         const tableAutorefresh = setInterval(() => refreshTable(), autoRefresh.interval);
         return () => clearInterval(tableAutorefresh);
       }
+
+      return () => {};
 
       // Needed to compare fetchOptions as a string instead of an object
       // eslint-disable-next-line react-hooks/exhaustive-deps
