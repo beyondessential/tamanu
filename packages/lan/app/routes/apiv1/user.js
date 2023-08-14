@@ -138,7 +138,8 @@ user.get(
       where: { userId: currentUser.id },
     });
 
-    res.send(userPreferences);
+    // Return {} as default if no user preferences exist
+    res.send(userPreferences || {});
   }),
 );
 
