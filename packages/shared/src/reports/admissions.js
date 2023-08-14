@@ -2,13 +2,13 @@ import { Op } from 'sequelize';
 import { subDays, startOfDay, endOfDay, parseISO } from 'date-fns';
 import upperFirst from 'lodash/upperFirst';
 
-import { Location } from '../models/Location';
 import {
   ENCOUNTER_TYPES,
   DIAGNOSIS_CERTAINTY,
   NOTE_TYPES,
   VISIBILITY_STATUSES,
-} from '../constants';
+} from '@tamanu/constants';
+import { Location } from '../models/Location';
 import { ageInYears, toDateTimeString, format } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
@@ -27,7 +27,7 @@ const reportColumnTemplate = [
     accessor: data => ageInYears(data.patient.dateOfBirth),
   },
   { title: 'Patient Type', accessor: data => data.patientBillingType?.name },
-  { title: 'Admitting Doctor/Nurse', accessor: data => data.examiner?.displayName },
+  { title: 'Admitting Clinician', accessor: data => data.examiner?.displayName },
   {
     title: 'Admission Date',
     accessor: data => format(data.startDate, 'dd/MM/yyyy h:mm:ss a'),

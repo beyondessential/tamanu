@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 export const scheduledVaccine = express.Router();
 
@@ -12,7 +13,10 @@ scheduledVaccine.get(
       query: { category },
     } = req;
 
-    const where = category ? { category } : undefined;
+    const where = {
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      ...(category && { category }),
+    };
     const scheduledVaccines = await ScheduledVaccine.findAll({ where });
     const results = scheduledVaccines.map(sv => sv.dataValues);
 

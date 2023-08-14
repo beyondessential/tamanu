@@ -1,6 +1,6 @@
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData/labRequests';
-import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
 import { fake } from 'shared/test-helpers/fake';
 
 import { createTestContext } from '../utilities';

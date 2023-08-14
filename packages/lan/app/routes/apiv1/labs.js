@@ -4,18 +4,23 @@ import config from 'config';
 import { startOfDay, endOfDay } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
-import { NotFoundError, InvalidOperationError } from 'shared/errors';
-import { toDateTimeString } from 'shared/utils/dateTime';
+import { NotFoundError, InvalidOperationError } from '@tamanu/shared/errors';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
   LAB_REQUEST_STATUSES,
   NOTE_TYPES,
   NOTE_RECORD_TYPES,
   VISIBILITY_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
-} from 'shared/constants';
-import { makeFilter, makeSimpleTextFilterFactory } from '../../utils/query';
-import { renameObjectKeys } from '../../utils/renameObjectKeys';
-import { simpleGet, simplePut, simpleGetList, permissionCheckingRouter } from './crudHelpers';
+} from '@tamanu/constants';
+import { keyBy } from 'lodash';
+import { renameObjectKeys } from 'shared/utils';
+import { simpleGet, simpleGetList, permissionCheckingRouter } from 'shared/utils/crudHelpers';
+import {
+  makeFilter,
+  makeSimpleTextFilterFactory,
+  makeSubstringTextFilterFactory,
+} from '../../utils/query';
 import { notePagesWithSingleItemListHandler } from '../../routeHandlers';
 
 export const labRequest = express.Router();
@@ -31,6 +36,10 @@ labRequest.put(
     const labRequestRecord = await models.LabRequest.findByPk(params.id);
     if (!labRequestRecord) throw new NotFoundError();
     req.checkPermission('write', labRequestRecord);
+
+    if (labRequestData.status && labRequestData.status !== labRequestRecord.status) {
+      req.checkPermission('write', 'LabRequestStatus');
+    }
 
     await db.transaction(async () => {
       if (labRequestData.status && labRequestData.status !== labRequestRecord.status) {
@@ -86,6 +95,7 @@ labRequest.get(
     } = query;
 
     const makeSimpleTextFilter = makeSimpleTextFilterFactory(filterParams);
+    const makePartialTextFilter = makeSubstringTextFilterFactory(filterParams);
     const filters = [
       makeFilter(true, `lab_requests.status != :deleted`, () => ({
         deleted: LAB_REQUEST_STATUSES.DELETED,
@@ -101,7 +111,7 @@ labRequest.get(
       makeFilter(filterParams.category, 'category.id = :category'),
       makeSimpleTextFilter('priority', 'priority.id'),
       makeFilter(filterParams.laboratory, 'lab_requests.lab_test_laboratory_id = :laboratory'),
-      makeSimpleTextFilter('displayId', 'patient.display_id'),
+      makePartialTextFilter('displayId', 'patient.display_id'),
       makeSimpleTextFilter('firstName', 'patient.first_name'),
       makeSimpleTextFilter('lastName', 'patient.last_name'),
       makeSimpleTextFilter('patientId', 'patient.id'),
@@ -201,7 +211,7 @@ labRequest.get(
     const sortKeys = {
       displayId: 'patient.display_id',
       patientName: 'UPPER(patient.last_name)',
-      requestId: 'display_id',
+      requestId: 'lab_requests.display_id',
       testCategory: 'category.name',
       labTestPanelName: 'lab_test_panel.id',
       requestedDate: 'requested_date',
@@ -281,7 +291,60 @@ labRequest.post(
 );
 
 const labRelations = permissionCheckingRouter('read', 'LabRequest');
+
 labRelations.get('/:id/tests', simpleGetList('LabTest', 'labRequestId'));
+
+labRelations.put(
+  '/:id/tests',
+  asyncHandler(async (req, res) => {
+    const { models, params, body, db, user } = req;
+    const { id } = params;
+    req.checkPermission('write', 'LabTest');
+
+    const testIds = Object.keys(body);
+
+    const labTests = await models.LabTest.findAll({
+      where: {
+        labRequestId: id,
+        id: testIds,
+      },
+    });
+
+    // If any of the tests have a different result, check for LabTestResult permission
+    const labTestObj = keyBy(labTests, 'id');
+    if (
+      Object.entries(body).some(
+        ([testId, testBody]) => testBody.result && testBody.result !== labTestObj[testId].result,
+      )
+    ) {
+      req.checkPermission('write', 'LabTestResult');
+    }
+
+    if (labTests.length !== testIds.length) {
+      // Not all lab tests exist on specified lab request
+      throw new NotFoundError();
+    }
+
+    db.transaction(async () => {
+      const promises = [];
+
+      labTests.forEach(labTest => {
+        req.checkPermission('write', labTest);
+        const labTestBody = body[labTest.id];
+        const updated = labTest.set(labTestBody);
+        if (updated.changed()) {
+          // Temporary solution for lab test officer string field
+          // using displayName of current user
+          labTest.set('laboratoryOfficer', user.displayName);
+          promises.push(updated.save());
+        }
+      });
+
+      res.send(await Promise.all(promises));
+    });
+  }),
+);
+
 labRelations.get('/:id/notes', notePagesWithSingleItemListHandler(NOTE_RECORD_TYPES.LAB_REQUEST));
 labRelations.get(
   '/:id/notePages',
@@ -309,8 +372,6 @@ labRelations.get(
 labRequest.use(labRelations);
 
 export const labTest = express.Router();
-
-labTest.put('/:id', simplePut('LabTest'));
 
 labTest.get(
   '/:id',

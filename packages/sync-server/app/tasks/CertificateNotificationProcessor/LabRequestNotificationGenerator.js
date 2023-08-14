@@ -6,7 +6,7 @@ import {
   LAB_REQUEST_STATUSES,
   COVID_19_CLEARANCE_CERTIFICATE,
   CERTIFICATE_NOTIFICATION_STATUSES,
-} from 'shared/constants';
+} from '@tamanu/constants';
 import { log } from 'shared/services/logging';
 import { ScheduledTask } from 'shared/tasks';
 import { getPatientSurveyResponseAnswer } from 'shared/utils';
