@@ -91,6 +91,18 @@ export const DataFetchingTable = memo(
       return { data, count };
     };
 
+    const highlightDataRows = (data, newRows) => {
+      const highlightedData = data.map((row, i) => {
+        const actualIndex = i + page * rowsPerPage; // Offset the indexes based on pagination
+        const isHighlighted = actualIndex < newRows;
+        return {
+          ...row,
+          highlighted: isHighlighted,
+        };
+      });
+      return highlightedData;
+    };
+
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
     useEffect(() => {
@@ -118,7 +130,7 @@ export const DataFetchingTable = memo(
             const hasRecordCountIncreased = count > previousFetch.count; // Check if the record count has increased since the last fetch
             const hasSearchChanged = !isEqual(fetchOptions, previousFetch?.fetchOptions); // Check if the search has changed since the last fetch
 
-            const isLiveUpdateView = !isFirstFetch && isInitialSort && !hasSearchChanged;
+            const isLiveUpdating = !isFirstFetch && isInitialSort && !hasSearchChanged;
 
             const rowsSinceRefresh = count - previousFetch.count; // Rows since the last autorefresh
             const rowsSinceInteraction = rowsSinceRefresh + newRowCount; // Rows added since last clearing of rows from interacting
@@ -128,14 +140,9 @@ export const DataFetchingTable = memo(
               isEqual(previousFetch.sorting, initialSort) && hasSortingChanged;
 
             // Highlight rows green if the index is less that the index of rows since interaction AND its not the first fetch
-            const highlightedData = transformedData.map((row, i) => {
-              const actualIndex = i + page * rowsPerPage; // Offset the indexes based on pagination
-              const isNewRow = actualIndex < rowsSinceInteraction && isLiveUpdateView;
-              return {
-                ...row,
-                new: isNewRow,
-              };
-            });
+            const highlightedData = isLiveUpdating
+              ? highlightDataRows(transformedData, rowsSinceInteraction)
+              : transformedData;
 
             // When autorefreshing past page one, we dont want to move rows down as it updates. Only if you are on
             // page one should it live update, otherwise the updates come through when navigating
@@ -252,7 +259,7 @@ export const DataFetchingTable = memo(
           orderBy={orderBy}
           rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
           refreshTable={refreshTable}
-          rowStyle={row => (row.new ? 'background-color: #F8FFF8;' : '')}
+          rowStyle={row => (row.highlighted ? 'background-color: #F8FFF8;' : '')}
           {...props}
         />
       </TableContainer>
