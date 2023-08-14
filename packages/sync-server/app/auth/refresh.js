@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
+import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { BadAuthenticationError } from 'shared/errors';
 
 import {
@@ -33,7 +33,7 @@ export const refresh = ({ secret, refreshSecret }) =>
 
     let contents = null;
     try {
-      contents = verifyToken(refreshToken, refreshSecret, {
+      contents = await verifyToken(refreshToken, refreshSecret, {
         audience: JWT_TOKEN_TYPES.REFRESH,
         issuer: canonicalHostName,
       });
@@ -68,7 +68,7 @@ export const refresh = ({ secret, refreshSecret }) =>
 
     // issue new access token
     const accessTokenJwtId = getRandomU32();
-    const token = getToken(
+    const token = await getToken(
       {
         userId: user.id,
         deviceId,
@@ -87,7 +87,7 @@ export const refresh = ({ secret, refreshSecret }) =>
     const refreshTokenJwtId = getRandomU32();
     const hashedRefreshId = await bcrypt.hash(newRefreshId, saltRounds);
 
-    const newRefreshToken = getToken(
+    const newRefreshToken = await getToken(
       {
         userId: user.id,
         refreshId: newRefreshId,

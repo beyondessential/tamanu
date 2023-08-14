@@ -2,11 +2,16 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { Typography } from '@material-ui/core';
+import { DOCUMENT_SOURCES } from '@tamanu/constants';
+
 import { Modal } from '../Modal';
 import PDFPreview from './PDFPreview';
 import PhotoPreview from './PhotoPreview';
 import { Button } from '../Button';
 import { SUPPORTED_DOCUMENT_TYPES } from '../../constants';
+
+const getTitle = ({ source, name }) =>
+  source === DOCUMENT_SOURCES.PATIENT_LETTER ? 'Patient letter' : name;
 
 const DownloadButton = ({ onClick }) => {
   return (
@@ -31,30 +36,25 @@ const Preview = ({ documentType, attachmentId, ...props }) => {
   return `Preview is not supported for document type ${documentType}`;
 };
 
-export const DocumentPreviewModal = ({
-  open,
-  title,
-  attachmentId,
-  documentType,
-  onClose,
-  onDownload,
-}) => {
+export const DocumentPreviewModal = ({ open, onClose, onDownload, document }) => {
   const [scrollPage, setScrollPage] = useState(1);
   const [pageCount, setPageCount] = useState();
+  const { type: documentType, attachmentId } = document;
 
   return (
     <Modal
       open={open}
       title={
         <div>
-          {title}
+          {getTitle(document)}
           <Subtitle>
             {documentType === SUPPORTED_DOCUMENT_TYPES.PDF
-              ? `Page ${scrollPage} of ${pageCount}`
+              ? `Page ${scrollPage} of ${pageCount ?? 'Unknown'}`
               : null}
           </Subtitle>
         </div>
       }
+      printable={document.source === DOCUMENT_SOURCES.PATIENT_LETTER}
       additionalActions={[<DownloadButton onClick={onDownload} key="Download" />]}
       width="md"
       overrideContentPadding

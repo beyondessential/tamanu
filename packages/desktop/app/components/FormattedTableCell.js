@@ -1,5 +1,6 @@
 import { capitalize, isNumber } from 'lodash';
-import React, { useMemo } from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
+
 import styled from 'styled-components';
 import { Colors } from '../constants';
 import { formatLong, formatShortest, formatTime } from './DateDisplay';
@@ -69,11 +70,19 @@ function getTooltip(float, config = {}, visibilityCriteria = {}) {
   };
 }
 
-export const formatValue = (value, config, isEdited) => {
+export const formatValue = (value, config) => {
+  const { rounding = 0, unit = '' } = config || {};
   const float = parseFloat(value);
-  const formattedValue = isNaN(float) ? capitalize(value) || '-' : float;
 
-  return `${formattedValue}${isEdited ? '*' : ''}`;
+  if (isNaN(float)) {
+    return capitalize(value) || '-';
+  }
+
+  const unitSuffix = unit && unit.length <= 2 ? unit : '';
+  if (rounding > 0 || rounding === 0) {
+    return `${float.toFixed(rounding)}${unitSuffix}`;
+  }
+  return `${float}${unitSuffix}`;
 };
 
 export const DateHeadCell = React.memo(({ value }) => (
@@ -84,6 +93,45 @@ export const DateHeadCell = React.memo(({ value }) => (
     </HeadCellWrapper>
   </TableTooltip>
 ));
+
+const LimitedLinesCellWrapper = styled.div`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: ${props => props.maxLines};
+`;
+
+export const LimitedLinesCell = ({ value, maxLines = 2 }) => {
+  const contentRef = useRef(null);
+  const [isClamped, setClamped] = useState(false);
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+
+  // isClamped logic from: https://stackoverflow.com/a/74255034/11324801
+  useEffect(() => {
+    const handleResize = () => {
+      if (contentRef && contentRef.current) {
+        setClamped(contentRef.current.scrollHeight > contentRef.current.clientHeight);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return (
+    <TableTooltip
+      title={value}
+      open={isClamped && tooltipOpen}
+      onOpen={() => setTooltipOpen(true)}
+      onClose={() => setTooltipOpen(false)}
+    >
+      <LimitedLinesCellWrapper ref={contentRef} maxLines={maxLines}>
+        {value}
+      </LimitedLinesCellWrapper>
+    </TableTooltip>
+  );
+};
 
 export const RangeTooltipCell = React.memo(({ value, config, validationCriteria }) => {
   const { unit = '' } = config || {};
@@ -103,7 +151,8 @@ export const RangeValidatedCell = React.memo(
   ({ value, config, validationCriteria, onClick, isEdited, ...props }) => {
     const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
     const float = round(parseFloat(value), config);
-    const formattedValue = formatValue(value, config, isEdited);
+    const isEditedSuffix = isEdited ? '*' : '';
+    const formattedValue = `${formatValue(value, config)}${isEditedSuffix}`;
     const { tooltip, severity } = useMemo(() => getTooltip(float, config, validationCriteria), [
       float,
       config,

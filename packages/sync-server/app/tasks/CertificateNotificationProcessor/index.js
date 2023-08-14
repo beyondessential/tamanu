@@ -9,7 +9,7 @@ import {
   CERTIFICATE_NOTIFICATION_STATUSES,
   COVID_19_CLEARANCE_CERTIFICATE,
   VACCINATION_CERTIFICATE,
-} from 'shared/constants';
+} from '@tamanu/constants';
 import { log } from 'shared/services/logging';
 import { ScheduledTask } from 'shared/tasks';
 import { generateUVCI } from 'shared/utils/uvci';

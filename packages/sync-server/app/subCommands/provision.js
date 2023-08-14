@@ -1,7 +1,11 @@
 import { resolve } from 'path';
 import { Command } from 'commander';
 
-import { SYSTEM_USER_UUID } from '@tamanu/shared/constants';
+import {
+  SYSTEM_USER_UUID,
+  GENERAL_IMPORTABLE_DATA_TYPES,
+  PERMISSION_IMPORTABLE_DATA_TYPES,
+} from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 
 import { initDatabase } from '../database';
@@ -9,6 +13,7 @@ import { checkIntegrationsConfig } from '../integrations';
 import { loadSettingFile } from '../utils/loadSettingFile';
 import { referenceDataImporter } from '../admin/referenceDataImporter';
 import { getRandomBase64String } from '../auth/utils';
+import { programImporter } from '../admin/programImporter/programImporter';
 
 export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
   const store = await initDatabase({ testMode: false });
@@ -26,15 +31,19 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
 
   checkIntegrationsConfig();
 
-  const { users, facilities, referenceData, settings: globalSettings } = await loadSettingFile(
-    provisioningFile,
-  );
+  const {
+    users = {},
+    facilities = {},
+    programs = [],
+    referenceData = [],
+    settings: globalSettings = {},
+  } = await loadSettingFile(provisioningFile);
 
   /// //////////////
   /// REFERENCE DATA
 
   const errors = [];
-  const stats = {};
+  const stats = [];
   for (const { file: referenceDataFile, ...rest } of referenceData ?? []) {
     if (!referenceDataFile) {
       throw new Error(`Unknown reference data import with keys ${Object.keys(rest).join(', ')}`);
@@ -47,6 +56,7 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
       models: store.models,
       stats,
       file: realpath,
+      includedDataTypes: [...GENERAL_IMPORTABLE_DATA_TYPES, ...PERMISSION_IMPORTABLE_DATA_TYPES],
     });
   }
 
@@ -62,7 +72,7 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
   /// //////////
   /// FACILITIES
 
-  for (const [id, { user, password, settings, ...fields }] of Object.entries(facilities ?? {})) {
+  for (const [id, { user, password, settings, ...fields }] of Object.entries(facilities)) {
     const facility = await store.models.Facility.findByPk(id);
     if (facility) {
       log.info('Updating facility', { id });
@@ -81,13 +91,13 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
   /// ////////
   /// SETTINGS
 
-  for (const [key, value] of Object.entries(globalSettings ?? {})) {
+  for (const [key, value] of Object.entries(globalSettings)) {
     log.info('Installing global setting', { key });
     await store.models.Setting.set(key, value);
   }
 
-  for (const [id, { settings }] of Object.entries(facilities ?? {})) {
-    for (const [key, value] of Object.entries(settings ?? {})) {
+  for (const [id, { settings = {} }] of Object.entries(facilities)) {
+    for (const [key, value] of Object.entries(settings)) {
       log.info('Installing facility setting', { key, facility: id });
       await store.models.Setting.set(key, value, id);
     }
@@ -97,8 +107,8 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
   /// USERS
 
   const allUsers = [
-    ...Object.entries(users ?? {}),
-    ...Object.entries(facilities ?? {})
+    ...Object.entries(users),
+    ...Object.entries(facilities)
       .map(
         ([id, { user, password }]) =>
           user && password && [user, { displayName: `System: ${id} sync`, password }],
@@ -139,7 +149,34 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
     displayName: 'System',
   });
 
-  log.info(`Done.`);
+  /// ////////
+  /// PROGRAMS
+
+  for (const { file: programFile, ...rest } of programs) {
+    if (!programFile) {
+      throw new Error(`Unknown program import with keys ${Object.keys(rest).join(', ')}`);
+    }
+
+    const realpath = resolve(provisioningFile, programFile);
+    log.info('Importing program from file', { file: realpath });
+    await programImporter({
+      errors,
+      models: store.models,
+      stats,
+      file: realpath,
+    });
+  }
+
+  if (errors.length) {
+    for (const error of errors) {
+      log.error(error);
+    }
+    throw new Error(`Encountered ${errors.length} errors during provisioning`);
+  }
+
+  log.info('Imported programs successfully', stats);
+
+  log.info('Done.');
 }
 
 export const provisionCommand = new Command('provision')

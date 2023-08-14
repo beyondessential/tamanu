@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { simpleGet } from '../crudHelpers';
+import { simpleGet } from 'shared/utils/crudHelpers';
 
 export const invoiceLineTypes = express.Router();
 
