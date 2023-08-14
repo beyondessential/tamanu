@@ -75,6 +75,22 @@ export const DataFetchingTable = memo(
       setFetchState(oldFetchState => ({ ...oldFetchState, ...newFetchState }));
     }, []);
 
+    const fetchData = async () => {
+      const { data, count } = await api.get(
+        endpoint,
+        {
+          page,
+          ...(!disablePagination ? { rowsPerPage } : {}),
+          ...sorting,
+          ...fetchOptions,
+        },
+        {
+          showUnknownErrorToast: false,
+        },
+      );
+      return { data, count };
+    };
+
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
     useEffect(() => {
@@ -87,18 +103,7 @@ export const DataFetchingTable = memo(
           if (!endpoint) {
             throw new Error('Missing endpoint to fetch data.');
           }
-          const { data, count } = await api.get(
-            endpoint,
-            {
-              page,
-              ...(!disablePagination ? { rowsPerPage } : {}),
-              ...sorting,
-              ...fetchOptions,
-            },
-            {
-              showUnknownErrorToast: false,
-            },
-          );
+          const { data, count } = await fetchData();
           clearTimeout(loadingTimeout);
 
           const transformedData = transformRow ? data.map(transformRow) : data;
@@ -107,10 +112,13 @@ export const DataFetchingTable = memo(
             const { previousFetch } = fetchState;
             const isFirstFetch = previousFetch.count === 0; // Check if this is the intial table load
             const isInitialSort = isEqual(sorting, initialSort); // Check if set to initial sort
+
             const hasPageChanged = page !== previousFetch.page; // Check if the page number has changed since the last fetch
             const hasSortingChanged = !isEqual(sorting, previousFetch?.sorting); // Check if the sorting has changed since the last fetch
             const hasRecordCountIncreased = count > previousFetch.count; // Check if the record count has increased since the last fetch
             const hasSearchChanged = !isEqual(fetchOptions, previousFetch?.fetchOptions); // Check if the search has changed since the last fetch
+
+            const isLiveUpdateView = !isFirstFetch && isInitialSort && !hasSearchChanged;
 
             const rowsSinceRefresh = count - previousFetch.count; // Rows since the last autorefresh
             const rowsSinceInteraction = rowsSinceRefresh + newRowCount; // Rows added since last clearing of rows from interacting
@@ -118,11 +126,7 @@ export const DataFetchingTable = memo(
             // Highlight rows green if the index is less that the index of rows since interaction AND its not the first fetch
             const highlightedData = transformedData.map((row, i) => {
               const actualIndex = i + page * rowsPerPage; // Offset the indexes based on pagination
-              const isNewRow =
-                actualIndex < rowsSinceInteraction &&
-                !isFirstFetch &&
-                isInitialSort &&
-                !hasSearchChanged;
+              const isNewRow = actualIndex < rowsSinceInteraction && isLiveUpdateView;
               return {
                 ...row,
                 new: isNewRow,
@@ -135,8 +139,6 @@ export const DataFetchingTable = memo(
 
             // If its the first fetch, we dont want to highlight the new rows green or show a notification
             if (!isFirstFetch) {
-              setNewRowCount(rowsSinceInteraction);
-              if (hasRecordCountIncreased) setShowNotification(true);
               if (
                 isLeavingPageOne ||
                 (page === 0 && isChangingFromInitialSort) ||
@@ -144,6 +146,9 @@ export const DataFetchingTable = memo(
               ) {
                 setShowNotification(false);
                 setNewRowCount(0);
+              } else {
+                setNewRowCount(rowsSinceInteraction);
+                if (hasRecordCountIncreased) setShowNotification(true);
               }
             }
 
@@ -185,8 +190,8 @@ export const DataFetchingTable = memo(
             }
           }
         } catch (error) {
-          // eslint-disable-next-line no-console
           clearTimeout(loadingTimeout);
+          // eslint-disable-next-line no-console
           console.error(error);
           updateFetchState({ errorMessage: error.message, isLoading: false });
         }
