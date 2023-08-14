@@ -22,13 +22,27 @@ const spin = keyframes`
   }
 `;
 
-const RefreshButton = styled(RefreshIcon)`
+const Spinner = styled(RefreshIcon)`
   ${props =>
     props.$isSpinning
       ? css`
-          animation: 1s linear ${spin} infinite;
+          animation: 0.5s linear ${spin} infinite;
         `
       : ''}
+`;
+
+const RefreshButton = styled.div`
+  margin-left: 5px;
+  cursor: pointer;
+  border-radius: 3px;
+  &:hover {
+    background-color: ${Colors.softOutline};
+  }
+  height: 25px;
+  width: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 const LastUpdatedBadge = styled.div`
@@ -40,14 +54,6 @@ const LastUpdatedBadge = styled.div`
   font-size: 11px;
   display: flex;
   align-items: center;
-  svg {
-    margin-left: 5px;
-    cursor: pointer;
-    border-radius: 3px;
-    &:hover {
-      background-color: ${Colors.softOutline};
-    }
-  }
 `;
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
@@ -269,7 +275,9 @@ export const DataFetchingTable = memo(
         {enableAutoRefresh && (
           <LastUpdatedBadge>
             Last updated: {getDateDisplay(previousFetch?.lastUpdatedAt, { showTime: true })}
-            <RefreshButton $isSpinning={isRefreshSpinning} onClick={refreshTable} />
+            <RefreshButton>
+              <Spinner $isSpinning={isRefreshSpinning} onClick={refreshTable} />
+            </RefreshButton>
           </LastUpdatedBadge>
         )}
         <Table
