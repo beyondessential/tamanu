@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { INVOICE_STATUS_TYPES } from '@tamanu/shared/constants';
+import { INVOICE_STATUS_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi } from '../api';
 import { getInvoiceTotal, calculateInvoiceTotal } from '../utils';

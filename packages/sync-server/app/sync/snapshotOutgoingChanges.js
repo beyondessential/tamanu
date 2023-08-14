@@ -4,7 +4,7 @@ import {
   SYNC_SESSION_DIRECTION,
   COLUMNS_EXCLUDED_FROM_SYNC,
 } from 'shared/sync';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from 'shared/services/logging/log';
 import { withConfig } from 'shared/utils/withConfig';
 

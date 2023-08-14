@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { NOTE_TYPES } from '@tamanu/shared/constants/notes';
-import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants/labs';
-import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/shared/constants/statuses';
-import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/shared/constants/diagnoses';
+import { NOTE_TYPES } from '@tamanu/constants/notes';
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
+import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants/statuses';
+import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants/diagnoses';
 import { ForbiddenError } from '@tamanu/shared/errors';
 
 import { EncounterRecord } from '../printouts/EncounterRecord';

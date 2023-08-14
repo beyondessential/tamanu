@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { PATIENT_ISSUE_TYPES, SYNC_DIRECTIONS } from '../constants';
+import { PATIENT_ISSUE_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { dateTimeType } from './dateTimeTypes';

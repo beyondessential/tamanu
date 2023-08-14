@@ -1,5 +1,5 @@
 import * as yup from 'yup';
-import { BIRTH_DELIVERY_TYPES, BIRTH_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/shared/constants';
+import { BIRTH_DELIVERY_TYPES, BIRTH_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
 
 export const getPatientDetailsValidation = sexValues => {
   return yup.object().shape({
