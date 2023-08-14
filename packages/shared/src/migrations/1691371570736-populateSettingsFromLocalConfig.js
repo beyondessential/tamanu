@@ -10,8 +10,6 @@ import { facilityDefaults } from '../settings/facility';
 import { centralDefaults } from '../settings/central';
 import { globalDefaults } from '../settings/global';
 
-const APPLICABLE_CONFIG_FILES = ['config/production.json', 'config/local.json'];
-
 const SETTINGS_PREDATING_MIGRATION = [
   SETTING_KEYS.VACCINATION_DEFAULTS,
   SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS,
@@ -75,16 +73,19 @@ export async function up(query) {
   const scopedDefaults = serverFacilityId ? facilityDefaults : centralDefaults;
   const scope = serverFacilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.CENTRAL;
 
-  // Merge production -> local if exists
-  const localConfig = await APPLICABLE_CONFIG_FILES.reduce(async (prevPromise, configPath) => {
-    const prev = await prevPromise;
-    try {
-      await access(configPath, constants.F_OK);
-      return merge(prev, JSON.parse(stripJsonComments((await readFile(configPath)).toString())));
-    } catch (err) {
-      return prev;
-    }
-  }, Promise.resolve({}));
+  // Merge env specific config -> local if exists
+  const localConfig = await [`config/${process.env.NODE_ENV}.json`, 'config/local.json'].reduce(
+    async (prevPromise, configPath) => {
+      const prev = await prevPromise;
+      try {
+        await access(configPath, constants.F_OK);
+        return merge(prev, JSON.parse(stripJsonComments((await readFile(configPath)).toString())));
+      } catch (err) {
+        return prev;
+      }
+    },
+    Promise.resolve({}),
+  );
 
   if (isEmpty(localConfig)) {
     // Skipping this migration if no relevant config is found
