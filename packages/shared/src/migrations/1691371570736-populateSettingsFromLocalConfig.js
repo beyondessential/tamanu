@@ -11,12 +11,6 @@ import { centralDefaults } from '../settings/central';
 import { globalDefaults } from '../settings/global';
 import { buildSettingsRecords } from '../models/Setting';
 
-const ENV_CONFIG_PATHS = {
-  development: 'config/development.json',
-  test: 'config/test.json',
-  production: 'config/production.json',
-};
-
 const SETTINGS_PREDATING_MIGRATION = [
   SETTING_KEYS.VACCINATION_DEFAULTS,
   SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS,
@@ -26,6 +20,12 @@ const SETTINGS_PREDATING_MIGRATION = [
   'syncAllLabRequests',
   'integrations.imaging',
 ];
+
+const SCOPED_DEFAULTS = {
+  [SETTINGS_SCOPES.CENTRAL]: centralDefaults,
+  [SETTINGS_SCOPES.FACILITY]: facilityDefaults,
+  [SETTINGS_SCOPES.GLOBAL]: globalDefaults,
+};
 
 const SCOPED_KEY_TRANSFORM_MAPS = {
   [SETTINGS_SCOPES.CENTRAL]: {
@@ -61,8 +61,9 @@ const SCOPED_KEY_TRANSFORM_MAPS = {
   },
 };
 
-const transformKeys = (settings, transformMap, defaults) => {
-  Object.entries(transformMap).forEach(([oldKey, newKey]) => {
+const prepareReplacementsForInsert = (settings, serverFacilityId, scope) => {
+  // Transform settings that need to be moved or deleted
+  Object.entries(SCOPED_KEY_TRANSFORM_MAPS[scope]).forEach(([oldKey, newKey]) => {
     const value = has(settings, oldKey) && get(settings, oldKey);
     if (value) {
       if (newKey) set(settings, newKey, value);
@@ -70,19 +71,24 @@ const transformKeys = (settings, transformMap, defaults) => {
     }
   });
   // Remove top level keys not found in scoped defaults,
-  // This also removes root keys not present in any scope like db, auth
-  return pick(settings, Object.keys(defaults));
+  // This also removes root keys not present in any scope eg: db & auth
+  const validKeys = pick(settings, Object.keys(SCOPED_DEFAULTS[scope]));
+
+  // Map replacement to array of tuples for insert query
+  const settingRecords = buildSettingsRecords('', validKeys, serverFacilityId);
+  return settingRecords.map(({ key, value, facilityId }) => [
+    key,
+    JSON.stringify(value),
+    facilityId,
+    scope,
+  ]);
 };
 
 export async function up(query) {
   const { serverFacilityId = null } = config;
 
-  const scopedDefaults = serverFacilityId ? facilityDefaults : centralDefaults;
-  const scope = serverFacilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.CENTRAL;
-
-  const envConfigPath = ENV_CONFIG_PATHS[process.env.NODE_ENV];
   // Merge env specific config -> local if exists
-  const localConfig = await [...(envConfigPath ? [envConfigPath] : []), 'config/local.json'].reduce(
+  const localConfig = await [`config/${process.env.NODE_ENV}.json`, 'config/local.json'].reduce(
     async (prevPromise, configPath) => {
       const prev = await prevPromise;
       try {
@@ -101,12 +107,13 @@ export async function up(query) {
     return;
   }
 
-  const scopedSettingData = buildSettingsRecords(
-    '',
-    transformKeys(localConfig, SCOPED_KEY_TRANSFORM_MAPS[scope], scopedDefaults),
+  const scopedSettingData = prepareReplacementsForInsert(
+    localConfig,
     serverFacilityId,
-  ).map(({ key, value, facilityId }) => [key, JSON.stringify(value), facilityId, scope]);
+    serverFacilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.CENTRAL,
+  );
 
+  // Create the settings for either the facility or central scope
   await query.sequelize.query(
     `
       INSERT INTO settings (key, value, facility_id, scope)
@@ -117,22 +124,15 @@ export async function up(query) {
     },
   );
 
-  // // Set the settings for either the facility or central scope
-  // await query.sequelize.models.Setting.set('', scopedSettings, serverFacilityId, scope);
-
   if (serverFacilityId) return;
 
   /* Central server only */
-  const globalSettingData = buildSettingsRecords(
-    '',
-    transformKeys(localConfig, SCOPED_KEY_TRANSFORM_MAPS[SETTINGS_SCOPES.GLOBAL], globalDefaults),
-    null,
-  ).map(({ key, value }) => [key, JSON.stringify(value), null, SETTINGS_SCOPES.GLOBAL]);
+  const globalSettingData = prepareReplacementsForInsert(localConfig, null, SETTINGS_SCOPES.GLOBAL);
 
   await query.sequelize.query(
     `
       INSERT INTO settings (key, value, facility_id, scope)
-      VALUES ${scopedSettingData.map(() => '(?)').join(', ')}
+      VALUES ${globalSettingData.map(() => '(?)').join(', ')}
     `,
     {
       replacements: globalSettingData,
