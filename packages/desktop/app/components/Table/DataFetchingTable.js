@@ -27,6 +27,9 @@ const Spinner = styled(RefreshIcon)`
     $isSpinning &&
     css`
       animation: 0.5s linear ${spin} infinite;
+      path {
+        fill: ${Colors.softText};
+      }
     `}
 `;
 
@@ -170,7 +173,11 @@ export const DataFetchingTable = memo(
             // Highlight rows green if the index is less that the index of rows since interaction AND its not the first fetch
             const highlightedData = transformedData.map((row, i) => {
               const actualIndex = i + page * rowsPerPage; // Offset the indexes based on pagination
-              const isNewRow = actualIndex < rowsSinceInteraction && !isFirstFetch && isInitialSort && !hasSearchChanged;
+              const isNewRow =
+                actualIndex < rowsSinceInteraction &&
+                !isFirstFetch &&
+                isInitialSort &&
+                !hasSearchChanged;
               return {
                 ...row,
                 new: isNewRow,
