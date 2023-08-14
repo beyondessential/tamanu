@@ -34,7 +34,7 @@ const SCOPED_KEY_TRANSFORM_MAPS = {
   [SETTINGS_SCOPES.FACILITY]: {
     // Remove credentials inside nested keys of configs we want to keep
     'honeycomb.apiKey': null,
-    'sync.username': null,
+    'sync.email': null,
     'sync.password': null,
     'senaite.username': null,
     'senaite.password': null,
