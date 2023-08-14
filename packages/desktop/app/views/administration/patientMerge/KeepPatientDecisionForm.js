@@ -15,9 +15,11 @@ const SelectInstructions = () => (
     <p>
       Patient details recorded against the patient record to be kept, including name, sex, location,
       blood type and contact details will be retained. Any details that are only recorded against
-      the patient record to be merged will also be retained. Clinical information such as
-      encounters, allergies, existing conditions and family history will be retained from both
-      patient records.
+      the patient record to be merged will also be retained.
+    </p>
+    <p>
+      Clinical information such as encounters, allergies, existing conditions and family history
+      will be retained from both patient records.
     </p>
   </div>
 );
