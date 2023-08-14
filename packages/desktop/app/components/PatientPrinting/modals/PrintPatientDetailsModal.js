@@ -5,61 +5,17 @@ import { Modal } from '../../Modal';
 import { Button } from '../../Button';
 import { Colors } from '../../../constants';
 import { useApi, isErrorUnknownAllow404s } from '../../../api';
-import { useLocalisation } from '../../../contexts/Localisation';
+import { Form, Field, NumberField, SelectField } from '../../Field';
+import { FormGrid } from '../../FormGrid';
 
 import { PatientIDCardPage } from './PatientIDCardPage';
-import { PatientStickerLabelPage } from './PatientStickerLabelPage';
-import { CovidTestCertificateModal } from './CovidTestCertificateModal';
-import { CovidClearanceCertificateModal } from './CovidClearanceCertificateModal';
-import { BirthNotificationCertificateModal } from './BirthNotificationCertificateModal';
 
 const PRINT_OPTIONS = {
-  barcode: {
-    label: 'ID Labels',
-    component: PatientStickerLabelPage,
-  },
   idcard: {
     label: 'ID Card',
     component: PatientIDCardPage,
   },
-  covidTestCert: {
-    label: 'COVID-19 test certificate',
-    component: CovidTestCertificateModal,
-  },
-  covidClearanceCert: {
-    label: 'COVID-19 clearance certificate',
-    component: CovidClearanceCertificateModal,
-    condition: getLocalisation => getLocalisation('features.enableCovidClearanceCertificate'),
-  },
-  birthNotification: {
-    label: 'Birth notification',
-    component: BirthNotificationCertificateModal,
-  },
 };
-
-const PrintOptionList = ({ className, setCurrentlyPrinting }) => {
-  const { getLocalisation } = useLocalisation();
-
-  return (
-    <div className={className}>
-      {Object.entries(PRINT_OPTIONS)
-        .filter(([, { condition }]) => !condition || condition(getLocalisation))
-        .map(([type, { label, icon }]) => (
-          <PrintOption
-            key={type}
-            label={label}
-            onPress={() => setCurrentlyPrinting(type)}
-            icon={icon}
-          />
-        ))}
-    </div>
-  );
-};
-const StyledPrintOptionList = styled(PrintOptionList)`
-  padding: 20px 50px;
-  display: flex;
-  flex-direction: column;
-`;
 
 const PrintOptionButton = styled(Button)`
   background: ${Colors.white};
@@ -75,10 +31,50 @@ const PrintOptionButton = styled(Button)`
   margin: 14px 0px;
 `;
 
-const PrintOption = ({ label, onPress }) => (
-  <PrintOptionButton color="default" onClick={onPress}>
-    {label}
-  </PrintOptionButton>
+const COLOR_OPTIONS = [
+  {
+    label: 'True black',
+    value: '#000000',
+  },
+  {
+    label: 'Mixed black',
+    value: '#0A0B0B',
+  },
+  {
+    label: 'Default',
+    value: '#444444',
+  },
+];
+
+const PrintOption = ({ setCurrentlyPrinting }) => (
+  <Form
+    initialValues={{
+      leftPadding: 0,
+      rightPadding: 0,
+      colorOption: COLOR_OPTIONS[2].value,
+    }}
+    onSubmit={async values => {
+      setCurrentlyPrinting('idcard', values);
+    }}
+    render={() => (
+      <>
+        <FormGrid columns={2}>
+          <Field name="leftPadding" label="Left padding" component={NumberField} min={0} />
+          <Field name="rightPadding" label="Right padding" component={NumberField} min={0} />
+          <Field
+            name="colorOption"
+            label="Type of black"
+            component={SelectField}
+            options={COLOR_OPTIONS}
+            required
+          />
+        </FormGrid>
+        <PrintOptionButton color="default" type="submit">
+          PRINT ID CARD
+        </PrintOptionButton>
+      </>
+    )}
+  />
 );
 
 async function getPatientProfileImage(api, patientId) {
@@ -99,13 +95,15 @@ export const PrintPatientDetailsModal = ({ patient }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [printType, setPrintType] = useState(null);
   const [imageData, setImageData] = useState('');
+  const [pageProps, setPageProps] = useState({});
   const api = useApi();
 
   const setCurrentlyPrinting = useCallback(
-    async type => {
+    async (type, pagePropsData) => {
       setPrintType(type);
       setImageData('');
       if (type === 'idcard') {
+        setPageProps(pagePropsData);
         const data = await getPatientProfileImage(api, patient.id);
         setImageData(data);
       }
@@ -131,7 +129,7 @@ export const PrintPatientDetailsModal = ({ patient }) => {
       // no selection yet -- show selection modal
       return (
         <Modal title="Select item to print" open={isModalOpen} onClose={closeModal}>
-          <StyledPrintOptionList setCurrentlyPrinting={setCurrentlyPrinting} />
+          <PrintOption setCurrentlyPrinting={setCurrentlyPrinting} />
         </Modal>
       );
     }
@@ -152,7 +150,7 @@ export const PrintPatientDetailsModal = ({ patient }) => {
       }
       props.imageData = imageData;
     }
-    return <Component {...props} />;
+    return <Component {...props} pageProps={pageProps} />;
   })();
 
   return (

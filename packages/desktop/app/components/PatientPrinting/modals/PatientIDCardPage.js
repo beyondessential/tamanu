@@ -17,9 +17,13 @@ const cardDimensions = {
 const Card = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 0.2rem;
   width: ${cardDimensions.width}mm;
   height: ${cardDimensions.height}mm;
+  padding-left: ${p => p.leftPadding || '0.2'}rem;
+  padding-right: ${p => p.rightPadding || '0.2'}rem;
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+  color: ${p => p.colorOption};
 `;
 
 const Details = styled.div`
@@ -137,7 +141,7 @@ const PatientPhoto = ({ imageData }) => (
   </PhotoFrame>
 );
 
-export const PatientIDCardPage = ({ patient, imageData }) => {
+export const PatientIDCardPage = ({ patient, imageData, pageProps }) => {
   const { printPage } = useElectron();
   useEffect(() => {
     printPage({
@@ -155,7 +159,7 @@ export const PatientIDCardPage = ({ patient, imageData }) => {
 
   return (
     <PrintPortal>
-      <Card>
+      <Card {...pageProps}>
         <TopBar />
         <MainSection>
           <PhotoContainer>
