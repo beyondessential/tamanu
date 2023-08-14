@@ -87,6 +87,15 @@ const prepareReplacementsForInsert = (settings, serverFacilityId, scope) => {
 export async function up(query) {
   const { serverFacilityId = null } = config;
 
+  if (process.env.NODE_ENV === 'test' && serverFacilityId) {
+    // Skipping this migration if running in test context
+    // Currently the "CI / Test migrations server=lan" fails due to
+    // test.json serverFacilityId not existing in the database
+    // Adding it preemptively clashes with a handful of places within
+    // the test suite
+    return;
+  }
+
   // Merge env specific config -> local if exists
   const localConfig = await [`config/${process.env.NODE_ENV}.json`, 'config/local.json'].reduce(
     async (prevPromise, configPath) => {
@@ -100,12 +109,6 @@ export async function up(query) {
     },
     Promise.resolve({}),
   );
-
-  if (isEmpty(localConfig)) {
-    // Skipping this migration if no relevant config is found
-    // This is expected to happen in test contexts
-    return;
-  }
 
   const scopedSettingData = prepareReplacementsForInsert(
     localConfig,
