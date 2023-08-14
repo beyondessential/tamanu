@@ -74,7 +74,7 @@ export async function up(query) {
   const scope = serverFacilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.CENTRAL;
 
   // Merge env specific config -> local if exists
-  const localConfig = await [`config/${process.env.NODE_ENV}.json`, 'config/local.json'].reduce(
+  const localConfig = await ['config/production.json', 'config/local.json'].reduce(
     async (prevPromise, configPath) => {
       const prev = await prevPromise;
       try {
