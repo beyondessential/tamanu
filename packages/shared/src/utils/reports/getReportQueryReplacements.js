@@ -1,5 +1,5 @@
 import { subDays, startOfDay } from 'date-fns';
-import { REPORT_DEFAULT_DATE_RANGES } from '../../constants';
+import { REPORT_DEFAULT_DATE_RANGES } from '@tamanu/constants';
 
 const CATCH_ALL_FROM_DATE = '1970-01-01';
 

@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 const {
   INVOICE_LINE_ITEM_STATUSES,
   INVOICE_PRICE_CHANGE_ITEM_STATUSES,
-} = require('@tamanu/shared/constants');
+} = require('@tamanu/constants');
 
 module.exports = {
   up: async query => {

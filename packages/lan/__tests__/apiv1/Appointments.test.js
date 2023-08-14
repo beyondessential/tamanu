@@ -1,6 +1,6 @@
 import { createDummyPatient } from 'shared/demoData/patients';
 import { add } from 'date-fns';
-import { APPOINTMENT_TYPES, APPOINTMENT_STATUSES } from 'shared/constants';
+import { APPOINTMENT_TYPES, APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { randomRecordId } from 'shared/demoData/utilities';
 import { createTestContext } from '../utilities';
 

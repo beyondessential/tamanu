@@ -2,7 +2,7 @@ import React from 'react';
 import { Switch, Route, Redirect } from 'react-router';
 import { useSelector } from 'react-redux';
 
-import { SERVER_TYPES } from '@tamanu/shared/constants';
+import { SERVER_TYPES } from '@tamanu/constants';
 
 import { App } from './App';
 import {
