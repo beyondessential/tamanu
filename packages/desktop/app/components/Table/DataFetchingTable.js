@@ -63,6 +63,7 @@ export const DataFetchingTable = memo(
 
     const manualRefresh = useCallback(() => {
       setSorting(initialSort);
+      setPage(0);
       refreshTable();
     }, [initialSort, refreshTable]);
 
@@ -135,7 +136,6 @@ export const DataFetchingTable = memo(
 
             const hasPageChanged = page !== previousFetch.page;
             const hasSortingChanged = !isEqual(sorting, previousFetch?.sorting);
-            const hasRecordCountIncreased = count > previousFetch.count;
             const hasSearchChanged = !isEqual(fetchOptions, previousFetch?.fetchOptions);
 
             const isLiveUpdating = !isFirstFetch && isInitialSort && !hasSearchChanged;
@@ -156,19 +156,16 @@ export const DataFetchingTable = memo(
             // page one should it live update, otherwise the updates come through when navigating
             const isDataToBeUpdated = hasPageChanged || hasSortingChanged || page === 0;
             const displayData = isDataToBeUpdated ? highlightedData : previousFetch.dataSnapshot;
+            const shouldResetRows =
+              isLeavingPageOne || (page === 0 && isChangingFromInitialSort) || hasSearchChanged;
 
             // If its the first fetch, we dont want to highlight the new rows green or show a notification
             if (!isFirstFetch) {
-              if (
-                isLeavingPageOne ||
-                (page === 0 && isChangingFromInitialSort) ||
-                hasSearchChanged
-              ) {
+              setNewRowCount(rowsSinceInteraction);
+              setShowNotification(rowsSinceInteraction > 0 && !(page === 0 && isInitialSort));
+              if (shouldResetRows) {
                 setShowNotification(false);
                 setNewRowCount(0);
-              } else {
-                setNewRowCount(rowsSinceInteraction);
-                if (hasRecordCountIncreased) setShowNotification(true);
               }
             }
 
@@ -241,11 +238,13 @@ export const DataFetchingTable = memo(
 
     const { data, count, isLoading, errorMessage, previousFetch } = fetchState;
     const { order, orderBy } = sorting;
+
+    const notificationMessage = `${newRowCount} new records available to view`;
     return (
       <TableContainer>
         {showNotification && (
           <TableNotification
-            message="New records available to view"
+            message={notificationMessage}
             clearNotification={() => setShowNotification(false)}
           />
         )}
