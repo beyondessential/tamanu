@@ -138,21 +138,18 @@ export const DataFetchingTable = memo(
             const hasSortingChanged = !isEqual(sorting, previousFetch?.sorting);
             const hasSearchChanged = !isEqual(fetchOptions, previousFetch?.fetchOptions);
 
-            const isLiveUpdating = !isFirstFetch && isInitialSort && !hasSearchChanged;
-
-            const rowsSinceRefresh = count - previousFetch.count;
-            const rowsSinceInteraction = rowsSinceRefresh + newRowCount;
+            const rowsSinceInteraction = count - previousFetch.count + newRowCount;
 
             const isLeavingPageOne = previousFetch.page === 0 && page > 0;
             const isChangingFromInitialSort =
               isEqual(previousFetch.sorting, initialSort) && hasSortingChanged;
 
+            // When autorefreshing past page one, we dont want to move rows down as it updates. Only if you are on
+            // page one should it live update, otherwise the updates come through when navigating
+            const isLiveUpdating = !isFirstFetch && isInitialSort && !hasSearchChanged;
             const highlightedData = isLiveUpdating
               ? highlightDataRows(transformedData, rowsSinceInteraction)
               : transformedData;
-
-            // When autorefreshing past page one, we dont want to move rows down as it updates. Only if you are on
-            // page one should it live update, otherwise the updates come through when navigating
             const isDataToBeUpdated = hasPageChanged || hasSortingChanged || page === 0;
             const displayData = isDataToBeUpdated ? highlightedData : previousFetch.dataSnapshot;
             const shouldResetRows =
