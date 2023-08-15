@@ -1,39 +1,17 @@
 export async function up(query) {
-  await query.sequelize.transaction(async transaction => {
-    await query.renameTable('lab_test_panels', 'lab_panels', { transaction });
-
-    await query.renameTable('lab_test_panel_lab_test_types', 'lab_panel_lab_test_types', {
-      transaction,
-    });
-    await query.renameColumn('lab_panel_lab_test_types', 'lab_test_panel_id', 'lab_panel_id', {
-      transaction,
-    });
-
-    await query.renameTable('lab_test_panel_requests', 'lab_panel_requests', { transaction });
-    await query.renameColumn('lab_panel_requests', 'lab_test_panel_id', 'lab_panel_id', {
-      transaction,
-    });
-    await query.renameColumn('lab_requests', 'lab_test_panel_request_id', 'lab_panel_request_id', {
-      transaction,
-    });
-  });
+  await query.renameTable('lab_test_panels', 'lab_panels');
+  await query.renameTable('lab_test_panel_lab_test_types', 'lab_panel_lab_test_types');
+  await query.renameColumn('lab_panel_lab_test_types', 'lab_test_panel_id', 'lab_panel_id');
+  await query.renameTable('lab_test_panel_requests', 'lab_panel_requests');
+  await query.renameColumn('lab_panel_requests', 'lab_test_panel_id', 'lab_panel_id');
+  await query.renameColumn('lab_requests', 'lab_test_panel_request_id', 'lab_panel_request_id');
 }
 
 export async function down(query) {
-  await query.sequelize.transaction(async transaction => {
-    await query.renameColumn('lab_requests', 'lab_panel_request_id', 'lab_test_panel_request_id', {
-      transaction,
-    });
-    await query.renameColumn('lab_panel_requests', 'lab_panel_id', 'lab_test_panel_id', {
-      transaction,
-    });
-    await query.renameTable('lab_panel_requests', 'lab_test_panel_requests', { transaction });
-    await query.renameColumn('lab_panel_lab_test_types', 'lab_panel_id', 'lab_test_panel_id', {
-      transaction,
-    });
-    await query.renameTable('lab_panel_lab_test_types', 'lab_test_panel_lab_test_types', {
-      transaction,
-    });
-    await query.renameTable('lab_panels', 'lab_test_panels', { transaction });
-  });
+  await query.renameColumn('lab_requests', 'lab_panel_request_id', 'lab_test_panel_request_id');
+  await query.renameColumn('lab_panel_requests', 'lab_panel_id', 'lab_test_panel_id');
+  await query.renameTable('lab_panel_requests', 'lab_test_panel_requests');
+  await query.renameColumn('lab_panel_lab_test_types', 'lab_panel_id', 'lab_test_panel_id');
+  await query.renameTable('lab_panel_lab_test_types', 'lab_test_panel_lab_test_types');
+  await query.renameTable('lab_panels', 'lab_test_panels');
 }
