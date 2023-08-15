@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useEffect, memo } from 'react';
-import styled from 'styled-components';
 import { isEqual } from 'lodash';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
@@ -9,10 +8,6 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { Table } from './Table';
 import { TableNotification } from './TableNotification';
 import { TableRefreshButton } from './TableRefreshButton';
-
-const TableContainer = styled.div`
-  position: relative;
-`;
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
@@ -235,7 +230,7 @@ export const DataFetchingTable = memo(
 
     const notificationMessage = `${newRowCount} new records available to view`;
     return (
-      <TableContainer>
+      <>
         {showNotification && (
           <TableNotification
             message={notificationMessage}
@@ -265,7 +260,7 @@ export const DataFetchingTable = memo(
           rowStyle={row => (row.highlighted ? 'background-color: #F8FFF8;' : '')}
           {...props}
         />
-      </TableContainer>
+      </>
     );
   },
 );

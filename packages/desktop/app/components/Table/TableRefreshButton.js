@@ -41,7 +41,7 @@ const RefreshButton = styled.div`
 const LastUpdatedBadge = styled.div`
   position: absolute;
   right: 0;
-  top: -210px;
+  top: -12px;
   color: ${Colors.softText};
   font-size: 11px;
   display: flex;

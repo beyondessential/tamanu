@@ -15,9 +15,9 @@ const Notification = styled.div`
   width: 320px;
   padding-left: 15px;
 
-  position: absolute;
-  top: -300px;
-  right: 0px;
+  position: fixed;
+  top: 25px;
+  right: 48px;
   z-index: 9;
 `;
 
