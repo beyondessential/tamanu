@@ -87,13 +87,24 @@ const prepareReplacementsForInsert = (settings, serverFacilityId, scope) => {
 export async function up(query) {
   const { serverFacilityId = null } = config;
 
+  // In the case of facility ci migration test run-through
+  // we need to skip this migration as it predates seeding
+  // of initial facility and will fail foreign key constraint
   if (process.env.NODE_ENV === 'test' && serverFacilityId) {
-    // Skipping this migration if running in test context
-    // Currently the "CI / Test migrations server=lan" fails due to
-    // test.json serverFacilityId not existing in the database
-    // Adding it preemptively clashes with a handful of places within
-    // the test suite
-    return;
+    const facility = await query.sequelize.query(
+      `
+        SELECT id
+        FROM facilities
+        WHERE id = :facilityId
+      `,
+      {
+        replacements: {
+          facilityId: serverFacilityId,
+        },
+        type: query.sequelize.QueryTypes.SELECT,
+      },
+    );
+    if (!facility.length) return;
   }
 
   // Merge env specific config -> local if exists
