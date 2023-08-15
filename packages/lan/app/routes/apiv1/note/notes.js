@@ -84,7 +84,7 @@ noteRoute.put(
     if (editedNote.noteType === NOTE_TYPES.TREATMENT_PLAN) {
       req.checkPermission('write', 'TreatmentPlan');
     }
-    
+
     req.checkPermission('write', editedNote.recordType);
 
     const owner = await models[editedNote.recordType].findByPk(editedNote.recordId);
