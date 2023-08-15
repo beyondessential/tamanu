@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import { QueryTypes } from 'sequelize';
 
 import { log } from 'shared/services/logging';
 
@@ -6,7 +7,7 @@ import { initDatabase } from '../database';
 import { sleepAsync } from '../../../shared/src/utils/sleepAsync';
 
 export async function removeDuplicatedDischarges(options = {}) {
-  const { batchSize = Number.MAX_SAFE_INTEGER } = options;
+  const { batchSize = Number.MAX_SAFE_INTEGER, sleepAsyncDuration = 50 } = options;
   log.info(`Removing duplicated discharges with options:`, options);
 
   const store = await initDatabase({ testMode: false });
@@ -16,17 +17,17 @@ export async function removeDuplicatedDischarges(options = {}) {
     let fromId = '';
 
     while (fromId != null) {
-      const [[{ maxId }]] = await sequelize.query(
+      const [{ maxId }] = await sequelize.query(
         `
             WITH 
 
             -- For batching by encounters
             batch_encounters as (
                 SELECT * FROM encounters
-                WHERE id > :fromId
+                WHERE id > $fromId
                 AND deleted_at IS NULL
                 ORDER BY id
-                LIMIT :limit
+                LIMIT $limit
             ),
 
             ordered_discharges AS
@@ -50,7 +51,8 @@ export async function removeDuplicatedDischarges(options = {}) {
             SELECT MAX(id) as "maxId" FROM batch_encounters;
        `,
         {
-          replacements: {
+          type: QueryTypes.SELECT,
+          bind: {
             fromId,
             limit: batchSize,
           },
@@ -61,7 +63,8 @@ export async function removeDuplicatedDischarges(options = {}) {
 
       log.info(`Deleted duplicated discharges for ${batchSize} encounters...`);
 
-      sleepAsync(50);
+      // Delay 50ms to avoid overloading
+      await sleepAsync(sleepAsyncDuration);
     }
 
     log.info(`Removed duplicated discharges successfully.`);
@@ -76,5 +79,9 @@ export async function removeDuplicatedDischarges(options = {}) {
 export const removeDuplicatedDischargesCommand = new Command('removeDuplicatedDischarges')
   .description('Remove duplicated discharges')
   .option('-b, --batchSize <number>', 'Batching size for number of encounters')
+  .option(
+    '-s, --sleepAsyncDuration <number>',
+    'Sleep duration between batches in milliseconds (default 50ms)',
+  )
 
   .action(removeDuplicatedDischarges);
