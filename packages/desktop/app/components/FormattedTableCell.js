@@ -160,16 +160,19 @@ export const RangeValidatedCell = React.memo(
       config,
       validationCriteria,
     ]);
-    return tooltip ? (
-      <TableTooltip title={tooltip}>
-        <CellContainer onClick={onClick} severity={severity} {...props}>
-          <LimitedLinesCell value={formattedValue} maxWidth={maxWidth} maxLines={1} />
-        </CellContainer>
-      </TableTooltip>
-    ) : (
+
+    const CellWithoutTooltip = (
       <CellContainer onClick={onClick} severity={severity} {...props}>
         <LimitedLinesCell value={formattedValue} maxWidth={maxWidth} maxLines={1} />
       </CellContainer>
+    );
+
+    return tooltip ? (
+      <TableTooltip title={tooltip}>
+        <CellWithoutTooltip />
+      </TableTooltip>
+    ) : (
+      <CellWithoutTooltip />
     );
   },
 );
