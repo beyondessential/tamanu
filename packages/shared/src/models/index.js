@@ -29,6 +29,7 @@ export * from './Triage';
 
 export * from './ReferenceData';
 
+export * from './VitalLog';
 export * from './Vitals';
 export * from './Procedure';
 export * from './EncounterDiagnosis';
@@ -75,6 +76,7 @@ export * from './UserLocalisationCache';
 export * from './Asset';
 export * from './Appointment';
 export * from './DocumentMetadata';
+export * from './PatientLetterTemplate';
 
 export * from './OneTimeLogin';
 export * from './RefreshToken';

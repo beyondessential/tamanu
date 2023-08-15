@@ -323,3 +323,5 @@ createSuggester('patientLabPanelTypes', 'LabPanel', (search, query) => {
 // TODO: Use generic LabTest permissions for this suggester
 createAllRecordsSuggesterRoute('labPanel', 'LabPanel', VISIBILITY_CRITERIA);
 createNameSuggester('labPanel', 'LabPanel');
+
+createNameSuggester('patientLetterTemplate', 'PatientLetterTemplate');

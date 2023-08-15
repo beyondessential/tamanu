@@ -127,39 +127,41 @@ const DateTooltip = ({ date, children, timeOnlyTooltip }) => {
   );
 };
 
-export const DateDisplay = React.memo(
-  ({
-    date: dateValue,
-    showDate = true,
-    showTime = false,
-    showExplicitDate = false,
-    shortYear = false,
-    timeOnlyTooltip = false,
-    color = 'unset',
-  }) => {
-    const dateObj = parseDate(dateValue);
+export const getDateDisplay = (
+  dateValue,
+  { showDate = true, showTime = false, showExplicitDate = false, shortYear = false },
+) => {
+  const dateObj = parseDate(dateValue);
 
-    const parts = [];
-    if (showDate) {
-      if (shortYear) {
-        parts.push(formatShortest(dateObj));
-      } else {
-        parts.push(formatShort(dateObj));
-      }
-    } else if (showExplicitDate) {
-      if (shortYear) {
-        parts.push(formatShortestExplicit(dateObj));
-      } else {
-        parts.push(formatShortExplicit(dateObj));
-      }
+  const parts = [];
+  if (showDate) {
+    if (shortYear) {
+      parts.push(formatShortest(dateObj));
+    } else {
+      parts.push(formatShort(dateObj));
     }
-    if (showTime) {
-      parts.push(formatTime(dateObj));
+  } else if (showExplicitDate) {
+    if (shortYear) {
+      parts.push(formatShortestExplicit(dateObj));
+    } else {
+      parts.push(formatShortExplicit(dateObj));
     }
+  }
+  if (showTime) {
+    parts.push(formatTime(dateObj));
+  }
+
+  return parts.join(' ');
+};
+
+export const DateDisplay = React.memo(
+  ({ date: dateValue, timeOnlyTooltip = false, color = 'unset', ...props }) => {
+    const displayDateString = getDateDisplay(dateValue, { ...props });
+    const dateObj = parseDate(dateValue);
 
     return (
       <DateTooltip date={dateObj} timeOnlyTooltip={timeOnlyTooltip}>
-        <span style={{ color }}>{parts.join(' ')}</span>
+        <span style={{ color }}>{displayDateString}</span>
       </DateTooltip>
     );
   },
@@ -177,4 +179,7 @@ export const MultilineDatetimeDisplay = React.memo(
   },
 );
 
-DateDisplay.rawFormat = formatShort;
+DateDisplay.rawFormat = dateValue => {
+  const dateObj = parseDate(dateValue);
+  return formatShort(dateObj);
+};

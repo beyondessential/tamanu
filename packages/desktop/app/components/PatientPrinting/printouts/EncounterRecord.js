@@ -9,7 +9,7 @@ import { DateDisplay } from '../../DateDisplay';
 import { capitaliseFirstLetter } from '../../../utils/capitalise';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { ListTable } from './reusable/ListTable';
-import { CertificateLabel, LocalisedCertificateLabel } from './reusable/CertificateLabels';
+import { DisplayValue, LocalisedDisplayValue } from './reusable/CertificateLabels';
 import {
   noteTypes,
   DRUG_ROUTE_VALUE_TO_LABEL,
@@ -17,6 +17,7 @@ import {
 } from '../../../constants';
 
 import { ImagingRequestData } from './reusable/ImagingRequestData';
+import { useLocalisedText } from '../../LocalisedText';
 
 // STYLES
 const CompactListTable = styled(ListTable)`
@@ -74,19 +75,6 @@ const SummaryHeading = styled(Typography)`
 const TableHeading = styled(SummaryHeading)`
   margin-left: 3px;
   margin-top: 15px;
-  margin-bottom: 5px;
-`;
-
-const LocalisedDisplayValue = styled(LocalisedCertificateLabel)`
-  font-size: 10px;
-  line-height: 12px;
-  margin-bottom: 5px;
-`;
-
-const DisplayValue = styled(CertificateLabel)`
-  font-size: 10px;
-  line-height: 12px;
-  margin-bottom: 9px;
   margin-bottom: 5px;
 `;
 
@@ -300,6 +288,7 @@ export const EncounterRecord = React.memo(
     pad,
     medications,
   }) => {
+    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' }).toLowerCase();
     const { firstName, lastName, dateOfBirth, sex, displayId } = patient;
     const { department, location, examiner, reasonForEncounter, startDate, endDate } = encounter;
     const { title, subTitle, logo } = certificateData;
@@ -337,10 +326,10 @@ export const EncounterRecord = React.memo(
         <RowContainer>
           <div>
             <LocalisedDisplayValue name="facility">{location.facility.name}</LocalisedDisplayValue>
-            <DisplayValue name="Supervising clinician" size="10px">
+            <DisplayValue name={`Supervising ${clinicianText}`} size="10px">
               {examiner.displayName}
             </DisplayValue>
-            <DisplayValue name="Discharging clinician" size="10px">
+            <DisplayValue name={`Discharging ${clinicianText}`} size="10px">
               {discharge?.discharger?.displayName}
             </DisplayValue>
             <DisplayValue name="Reason for encounter" size="10px">

@@ -96,6 +96,9 @@ const PatientPaneInner = styled.div`
   // We don't support mobile devices.
   // Set a minimum width to stop layouts breaking on small screens
   min-width: ${PATIENT_PANE_WIDTH};
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 `;
 
 export const PatientRoutes = React.memo(() => {
