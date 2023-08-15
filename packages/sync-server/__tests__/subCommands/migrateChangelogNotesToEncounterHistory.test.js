@@ -958,7 +958,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         });
       });
 
-      it('chooses later updated location when there are duplicated location names and changelog does not does not contain location group', async () => {
+      it('chooses later updated location when there are duplicated location names and changelog does not contain location group', async () => {
         const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
         const location1 = await createLocation('location 1', {
           locationGroupId: locationGroup1.id,
