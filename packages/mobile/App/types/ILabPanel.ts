@@ -2,7 +2,7 @@ import { VisibilityStatus } from '~/visibilityStatuses';
 import { ID } from './ID';
 import { ILabTestType } from './ILabTestType';
 
-export interface ILabTestPanel {
+export interface ILabPanel {
   id: ID;
 
   code: string;

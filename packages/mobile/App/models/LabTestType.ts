@@ -5,7 +5,7 @@ import { BaseModel } from './BaseModel';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
-import { LabTestPanel } from './LabTestPanel';
+import { LabPanel } from './LabPanel';
 
 @Entity('labTestType')
 export class LabTestType extends BaseModel implements ILabTestType {
@@ -42,10 +42,10 @@ export class LabTestType extends BaseModel implements ILabTestType {
   options?: string;
 
   @ManyToMany(
-    () => LabTestPanel,
-    labTestPanel => labTestPanel.tests,
+    () => LabPanel,
+    labPanel => labPanel.tests,
   )
-  labTestPanels: LabTestPanel[];
+  labPanels: LabPanel[];
 
   // TODO: What to do with relations with no "as"
   @ReferenceDataRelation()

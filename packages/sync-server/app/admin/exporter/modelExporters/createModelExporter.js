@@ -2,7 +2,7 @@ import { REFERENCE_TYPE_VALUES } from 'shared/constants';
 import { AdministeredVaccineExporter } from './AdministeredVaccineExporter';
 import { DefaultDataExporter } from './DefaultDataExporter';
 import { PatientExporter } from './PatientExporter';
-import { LabTestPanelExporter } from './LabTestPanelExporter';
+import { LabPanelExporter } from './LabPanelExporter';
 import { PermissionExporter } from './PermissionExporter';
 import { ReferenceDataExporter } from './ReferenceDataExporter';
 
@@ -10,7 +10,7 @@ const CustomExportersByDataType = {
   permission: PermissionExporter,
   patient: PatientExporter,
   administeredVaccine: AdministeredVaccineExporter,
-  labTestPanel: LabTestPanelExporter,
+  labPanel: LabPanelExporter,
 };
 export const createModelExporter = (models, dataType) => {
   const referenceDataTypes = [...REFERENCE_TYPE_VALUES, 'diagnosis'];

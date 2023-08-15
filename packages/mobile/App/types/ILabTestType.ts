@@ -1,4 +1,4 @@
-import { LabTestPanel } from '~/models/LabTestPanel';
+import { LabPanel } from '~/models/LabPanel';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { ID } from './ID';
 import { IReferenceData } from './IReferenceData';
@@ -6,7 +6,7 @@ import { IReferenceData } from './IReferenceData';
 export enum LabTestResultType {
   NUMBER = 'Number',
   FREE_TEXT = 'FreeText',
-  SELECT = 'Select'
+  SELECT = 'Select',
 }
 
 export interface ILabTestType {
@@ -24,7 +24,7 @@ export interface ILabTestType {
 
   labTestCategory: IReferenceData;
   labTestCategoryId: string;
-  visibilityStatus: VisibilityStatus.Current,
+  visibilityStatus: VisibilityStatus.Current;
 
-  labTestPanels?: LabTestPanel[];
+  labPanels?: LabPanel[];
 }

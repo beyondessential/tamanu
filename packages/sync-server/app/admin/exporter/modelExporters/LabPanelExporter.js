@@ -1,8 +1,8 @@
 import { DefaultDataExporter } from './DefaultDataExporter';
 
-export class LabTestPanelExporter extends DefaultDataExporter {
+export class LabPanelExporter extends DefaultDataExporter {
   async getData() {
-    const labTestPanels = await this.models.LabTestPanel.findAll({
+    const labPanels = await this.models.LabPanel.findAll({
       include: [
         {
           model: this.models.LabTestType,
@@ -12,7 +12,7 @@ export class LabTestPanelExporter extends DefaultDataExporter {
       ],
     });
 
-    return labTestPanels.map(({ dataValues: { labTestTypes, ...rest } }) => ({
+    return labPanels.map(({ dataValues: { labTestTypes, ...rest } }) => ({
       ...rest,
       testTypesInPanel: labTestTypes.map(({ id }) => id).join(','),
     }));

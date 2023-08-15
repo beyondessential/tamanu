@@ -22,16 +22,16 @@ export async function createTestType(models, data) {
   return testType;
 }
 
-export async function createLabTestPanel(models, { id, name, code, labTestTypesIds }) {
-  const panel = await models.LabTestPanel.create({
+export async function createLabPanel(models, { id, name, code, labTestTypesIds }) {
+  const panel = await models.LabPanel.create({
     id,
     name,
     code,
   });
 
   for (const labTestTypeId of labTestTypesIds) {
-    await models.LabTestPanelLabTestTypes.create({
-      labTestPanelId: panel.id,
+    await models.LabPanelLabTestTypes.create({
+      labPanelId: panel.id,
       labTestTypeId,
     });
   }

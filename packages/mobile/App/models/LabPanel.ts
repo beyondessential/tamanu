@@ -1,13 +1,13 @@
 import { Entity, Column, ManyToMany, JoinTable } from 'typeorm/browser';
 
-import { ILabTestPanel } from '~/types';
+import { ILabPanel } from '~/types';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { LabTestType } from './LabTestType';
 
-@Entity('lab_test_panel')
-export class LabTestPanel extends BaseModel implements ILabTestPanel {
+@Entity('lab_panel')
+export class LabPanel extends BaseModel implements ILabPanel {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
   @Column({ type: 'varchar', nullable: false })
@@ -21,10 +21,10 @@ export class LabTestPanel extends BaseModel implements ILabTestPanel {
 
   @ManyToMany(
     () => LabTestType,
-    labTestType => labTestType.labTestPanels,
+    labTestType => labTestType.labPanels,
   )
   @JoinTable({
-    name: 'lab_test_panel_lab_test_types',
+    name: 'lab_panel_lab_test_types',
   })
   tests: LabTestType[];
 }
