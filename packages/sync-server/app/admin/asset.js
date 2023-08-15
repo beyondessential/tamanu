@@ -2,7 +2,7 @@ import * as yup from 'yup';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { ASSET_NAMES, ASSET_MIME_TYPES } from 'shared/constants/importable';
+import { ASSET_NAMES, ASSET_MIME_TYPES } from '@tamanu/constants/importable';
 
 export const assetRoutes = express.Router();
 

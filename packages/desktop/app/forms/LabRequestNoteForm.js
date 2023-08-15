@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import NotesIcon from '@material-ui/icons/Notes';
 import { Box } from '@material-ui/core';
-import { NOTE_TYPES } from '@tamanu/shared/constants';
+import { NOTE_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { useApi } from '../api';

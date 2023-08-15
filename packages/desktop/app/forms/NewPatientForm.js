@@ -4,7 +4,7 @@ import Collapse from '@material-ui/core/Collapse';
 import Button from '@material-ui/core/Button';
 import { useQuery } from '@tanstack/react-query';
 
-import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/shared/constants';
+import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
 
 import { Form, Field } from '../components/Field';
 import { IdField } from '../components/Field/IdField';
