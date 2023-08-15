@@ -224,16 +224,17 @@ describe('reportRoutes', () => {
         deleteFileAfterImport: false,
       });
       expect(res).toHaveSucceeded();
-      expect(res.body).toEqual({
-        versionNumber: 1,
-        createdDefinition: true,
-      });
       const report = await models.ReportDefinition.findOne({
         where: { name: 'Report Import Test' },
         include: {
           model: models.ReportDefinitionVersion,
           as: 'versions',
         },
+      });
+      expect(res.body).toEqual({
+        versionNumber: 1,
+        createdDefinition: true,
+        reportDefinitionId: report.id,
       });
       expect(report).toBeTruthy();
       expect(report.versions).toHaveLength(1);
@@ -248,16 +249,17 @@ describe('reportRoutes', () => {
         deleteFileAfterImport: false,
       });
       expect(res).toHaveSucceeded();
-      expect(res.body).toEqual({
-        versionNumber: 2,
-        createdDefinition: false,
-      });
       const report = await models.ReportDefinition.findOne({
         where: { name: testReport.name },
         include: {
           model: models.ReportDefinitionVersion,
           as: 'versions',
         },
+      });
+      expect(res.body).toEqual({
+        versionNumber: 2,
+        reportDefinitionId: report.id,
+        createdDefinition: false,
       });
       expect(report).toBeTruthy();
       expect(report.versions).toHaveLength(2);
