@@ -34,7 +34,7 @@ const StyledTable = styled(Table)`
       min-width: 160px;
     }
     thead tr th:not(:first-child):not(:last-child) {
-      /* Each content cell is fixed width except the last one, which takes the rest of the space */
+      /* Each data column is fixed width except the last one, which takes the rest of the space */
       width: 115px;
     }
     tbody tr td:first-child {
