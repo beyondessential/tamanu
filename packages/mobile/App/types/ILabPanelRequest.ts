@@ -1,13 +1,13 @@
 import { Encounter } from '~/models/Encounter';
-import { LabTestPanel } from '~/models/LabTestPanel';
+import { LabPanel } from '~/models/LabPanel';
 import { ID } from './ID';
 
-export interface ILabTestPanelRequest {
+export interface ILabPanelRequest {
   id: ID;
 
   encounter: Encounter;
   encounterId: string;
 
-  labTestPanel: LabTestPanel;
-  labTestPanelId: string;
+  labPanel: LabPanel;
+  labPanelId: string;
 }

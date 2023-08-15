@@ -356,9 +356,9 @@ patientRelations.get(
       ? `AND lab_test_type_id IN (
          SELECT lab_test_type_id
          FROM
-           lab_test_panel_lab_test_types
+           lab_panel_lab_test_types
          WHERE
-           lab_test_panel_id = :panelId
+           lab_panel_id = :panelId
        )`
       : ''
   }

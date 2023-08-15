@@ -172,10 +172,10 @@ labRequest.get(
           ON (laboratory.type = 'labTestLaboratory' AND lab_requests.lab_test_laboratory_id = laboratory.id)
         LEFT JOIN reference_data AS site
           ON (site.type = 'labSampleSite' AND lab_requests.lab_sample_site_id = site.id)
-        LEFT JOIN lab_test_panel_requests AS lab_test_panel_requests
-          ON (lab_test_panel_requests.id = lab_requests.lab_test_panel_request_id)
-        LEFT JOIN lab_test_panels AS lab_test_panel
-          ON (lab_test_panel.id = lab_test_panel_requests.lab_test_panel_id)
+        LEFT JOIN lab_panel_requests AS lab_panel_requests
+          ON (lab_panel_requests.id = lab_requests.lab_panel_request_id)
+        LEFT JOIN lab_panels AS lab_panel
+          ON (lab_panel.id = lab_panel_requests.lab_panel_id)
         LEFT JOIN patients AS patient
           ON (patient.id = encounter.patient_id)
         LEFT JOIN users AS examiner
@@ -240,7 +240,7 @@ labRequest.get(
           category.name AS category_name,
           priority.id AS priority_id,
           priority.name AS priority_name,
-          lab_test_panel.name as lab_test_panel_name,
+          lab_panel.name as lab_panel_name,
           laboratory.id AS laboratory_id,
           laboratory.name AS laboratory_name,
           location.facility_id AS facility_id
