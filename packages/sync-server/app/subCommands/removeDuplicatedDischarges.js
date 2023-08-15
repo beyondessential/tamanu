@@ -1,10 +1,10 @@
 import { Command } from 'commander';
 import { QueryTypes } from 'sequelize';
 
+import { sleepAsync } from '@tamanu/shared/utils';
 import { log } from 'shared/services/logging';
 
 import { initDatabase } from '../database';
-import { sleepAsync } from '../../../shared/src/utils/sleepAsync';
 
 export async function removeDuplicatedDischarges(options = {}) {
   const { batchSize = Number.MAX_SAFE_INTEGER, sleepAsyncDuration = 50 } = options;
