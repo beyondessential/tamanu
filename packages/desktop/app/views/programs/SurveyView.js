@@ -22,10 +22,6 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
   const initialValues = getFormInitialValues(components, patient, currentUser);
   const validationSchema = useMemo(() => getValidationSchema(survey), [survey]);
 
-  const onSubmitSurvey = data => {
-    onSubmit(data);
-  };
-
   const renderSurvey = props => {
     const {
       submitForm,
@@ -80,7 +76,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
       </SurveyPaneHeader>
       <Form
         initialValues={initialValues}
-        onSubmit={onSubmitSurvey}
+        onSubmit={onSubmit}
         render={renderSurvey}
         validationSchema={validationSchema}
         validateOnChange

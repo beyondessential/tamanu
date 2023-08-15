@@ -165,7 +165,7 @@ export const DropdownButton = React.memo(
           color="primary"
           disableElevation
           style={{ width: '100%' }}
-          disabled={!hasPermission || isSubmitting}
+          disabled={!hasPermission}
         >
           <MainButton onClick={event => handleClick(event, 0)} isSubmitting={isSubmitting}>
             {!hasPermission && <LockIcon />}
@@ -198,7 +198,7 @@ export const DropdownButton = React.memo(
 );
 
 export const FormSubmitDropdownButton = ({ ...props }) => {
-  const isSubmitting = useFormButtonSubmitting();
+  const { isSubmitting } = useFormButtonSubmitting();
   return <DropdownButton isSubmitting={isSubmitting} {...props} />;
 };
 

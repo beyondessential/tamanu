@@ -137,7 +137,7 @@ export const VaccineForm = ({
 
   return (
     <Form
-      onSubmit={data => onSubmit({ ...data, category })}
+      onSubmit={async data => onSubmit({ ...data, category })}
       showInlineErrorsOnly
       initialValues={
         !editMode

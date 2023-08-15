@@ -11,7 +11,7 @@ import { ButtonRow } from '../../../components/ButtonRow';
 import { FormSubmitButton } from '../../../components/Button';
 import { saveBlobAs } from '../../../utils/saveBlobAs';
 
-const ExportForm = ({ isSubmitting, dataTypes, dataTypesSelectable }) => (
+const ExportForm = ({ dataTypes, dataTypesSelectable }) => (
   <FormGrid columns={1}>
     {dataTypesSelectable && (
       <Field
@@ -22,9 +22,7 @@ const ExportForm = ({ isSubmitting, dataTypes, dataTypesSelectable }) => (
       />
     )}
     <ButtonRow>
-      <FormSubmitButton type="submit" disabled={isSubmitting}>
-        Export
-      </FormSubmitButton>
+      <FormSubmitButton text="Export" />
     </ButtonRow>
   </FormGrid>
 );

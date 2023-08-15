@@ -53,7 +53,7 @@ const ImportStatsDisplay = ({ stats }) => (
   />
 );
 
-const ImportForm = ({ isSubmitting, submitForm, dataTypes, dataTypesSelectable }) => (
+const ImportForm = ({ submitForm, dataTypes, dataTypesSelectable }) => (
   <FormGrid columns={1}>
     <Field
       component={FileChooserField}
@@ -71,24 +71,8 @@ const ImportForm = ({ isSubmitting, submitForm, dataTypes, dataTypesSelectable }
       />
     )}
     <ButtonRow>
-      <LargeOutlinedSubmitButton
-        disabled={isSubmitting}
-        size="large"
-        onClick={event => {
-          submitForm(event, { dryRun: true });
-        }}
-      >
-        Test import
-      </LargeOutlinedSubmitButton>
-      <LargeSubmitButton
-        disabled={isSubmitting}
-        size="large"
-        onClick={event => {
-          submitForm(event);
-        }}
-      >
-        Import
-      </LargeSubmitButton>
+      <LargeOutlinedSubmitButton onSubmit={submitForm} text="Test import" />
+      <LargeSubmitButton onSubmit={submitForm} text="Import" />
     </ButtonRow>
   </FormGrid>
 );

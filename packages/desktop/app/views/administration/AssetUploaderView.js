@@ -87,15 +87,7 @@ export const AssetUploaderView = memo(() => {
                 required
               />
               <ButtonRow>
-                <LargeSubmitButton
-                  disabled={isSubmitting}
-                  size="large"
-                  onClick={event => {
-                    submitForm(event);
-                  }}
-                >
-                  Import
-                </LargeSubmitButton>
+                <LargeSubmitButton onSubmit={submitForm} text="Import" />
               </ButtonRow>
               <ResultDisplay result={result} />
             </FormGrid>

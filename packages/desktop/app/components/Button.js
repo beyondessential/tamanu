@@ -35,7 +35,7 @@ const StyledButton = styled(MuiButton)`
   padding: 11px 18px 12px 18px;
   box-shadow: none;
   min-width: 100px;
-  ${props => (props.$clickable ? `pointer-events: none;` : '')}
+  ${({ $clickable = true }) => (!$clickable ? `pointer-events: none;` : '')}
 
   .MuiSvgIcon-root {
     width: 19.5px;
@@ -68,7 +68,6 @@ const BaseButton = ({
 }) => {
   const locationsProps = getLocationProps(props);
   const displayLock = !isSubmitting && !hasPermission;
-
   return (
     <StyledButton {...props} {...locationsProps} disabled={disabled || !hasPermission}>
       {displayLock && <Lock />}
@@ -78,9 +77,14 @@ const BaseButton = ({
   );
 };
 
-export const Button = ({ isSubmitting, ...props }) => {
-  return <BaseButton isSubmitting={isSubmitting} showLoadingIndicator={isSubmitting} {...props} />;
-};
+export const Button = ({ isSubmitting = false, ...props }) => (
+  <BaseButton
+    isSubmitting={isSubmitting}
+    $clickable={!isSubmitting}
+    showLoadingIndicator={isSubmitting}
+    {...props}
+  />
+);
 
 BaseButton.propTypes = {
   isSubmitting: PropTypes.bool,
@@ -220,6 +224,7 @@ export const FormSubmitButton = ({
       color={color}
       onClick={onSubmit}
       $clickable={!isSubmitting}
+      type="submit"
       {...props}
     >
       {children || text}

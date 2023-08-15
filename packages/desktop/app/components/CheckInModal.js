@@ -16,7 +16,6 @@ export const CheckInModal = React.memo(
 
     const onCreateEncounter = useCallback(
       async data => {
-        onClose();
         const newEncounter = {
           patientId,
           referralId: referral?.id,
@@ -31,6 +30,8 @@ export const CheckInModal = React.memo(
         if (typeof onSubmitEncounter === 'function') {
           onSubmitEncounter(newEncounter);
         }
+
+        onClose();
 
         dispatch(reloadPatient(patientId));
       },

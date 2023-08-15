@@ -46,8 +46,8 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
     return <ErrorMessage error={error} />;
   }
 
-  const handleSubmit = data => {
-    onSubmit({ survey: vitalsSurvey, ...data });
+  const handleSubmit = async data => {
+    await onSubmit({ survey: vitalsSurvey, ...data });
   };
 
   return (

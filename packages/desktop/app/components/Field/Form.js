@@ -3,6 +3,7 @@ import { Formik, useFormikContext } from 'formik';
 import PropTypes from 'prop-types';
 import { ValidationError } from 'yup';
 import { Typography } from '@material-ui/core';
+import { Alert, AlertTitle } from '@material-ui/lab';
 import styled from 'styled-components';
 
 import { flattenObject } from '../../utils';
@@ -38,7 +39,7 @@ const ScrollToError = () => {
 
 const StyledForm = styled.form`
   ${props =>
-    props.$clickable
+    !props.$clickable
       ? `
       .MuiFormControl-root {
         pointer-events: none;
@@ -185,12 +186,22 @@ export class Form extends React.PureComponent {
       originalSetValues(newValues);
     };
 
-    const { render, style } = this.props;
+    const { render, style, onSubmit, formType = FORM_TYPES.DATA_FORM } = this.props;
+
+    const hasNonAsyncSubmitHandler =
+      process.env.NODE_ENV === 'development' &&
+      formType === FORM_TYPES.DATA_FORM &&
+      onSubmit.constructor.name !== 'AsyncFunction';
 
     return (
       <>
         {/* do not allow editing fields when form is being submitted */}
         <StyledForm style={style} onSubmit={submitForm} noValidate $clickable={!isSubmitting}>
+          {hasNonAsyncSubmitHandler && (
+            <Alert severity="warning">
+              <AlertTitle>DEV Warning: this form does not have async onSubmit</AlertTitle>
+            </Alert>
+          )}
           {render({
             ...formProps,
             setValues,

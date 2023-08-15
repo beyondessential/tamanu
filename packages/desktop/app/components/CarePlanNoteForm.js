@@ -80,7 +80,7 @@ export function CarePlanNoteForm({
             ) : (
               <div />
             )}
-            <FormSubmitButton variant="outlined" color="primary" type="submit">
+            <FormSubmitButton variant="outlined" color="primary">
               {note ? 'Save' : 'Add Note'}
             </FormSubmitButton>
           </ButtonRow>

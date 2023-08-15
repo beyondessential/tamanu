@@ -372,14 +372,14 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
     ? PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY
     : PATIENT_REGISTRY_TYPES.NEW_PATIENT;
 
-  const handleSubmit = data => {
+  const handleSubmit = async data => {
     const newData = { ...data };
 
     if (newData.registeredBirthPlace !== PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY) {
       newData.birthFacilityId = null;
     }
 
-    onSubmit(newData);
+    await onSubmit(newData);
   };
 
   const sexValues = useSexValues();
