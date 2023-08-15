@@ -178,7 +178,7 @@ export class LabRequest extends Model {
       'laboratory',
       'site',
       { association: 'labPanelRequest', include: ['labPanel'] },
-      { association: 'tests', include: ['labType'] },
+      { association: 'tests', include: ['labTestType'] },
     ];
   }
 
