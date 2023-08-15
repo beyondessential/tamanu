@@ -12,7 +12,7 @@ export class renamePanelRelatedTables1692065678000 implements MigrationInterface
     }
     await queryRunner.renameColumn('lab_test_panel_request', 'labTestPanelId', 'labPanelId');
     await queryRunner.createForeignKey(
-      'lab_panel_request',
+      'lab_test_panel_request',
       new TableForeignKey({
         columnNames: ['labPanelId'],
         referencedColumnNames: ['id'],
@@ -51,7 +51,7 @@ export class renamePanelRelatedTables1692065678000 implements MigrationInterface
     }
     await queryRunner.renameColumn('lab_panel_request', 'labPanelId', 'labTestPanelId');
     await queryRunner.createForeignKey(
-      'lab_test_panel_request',
+      'lab_panel_request',
       new TableForeignKey({
         columnNames: ['labTestPanelId'],
         referencedColumnNames: ['id'],
@@ -68,7 +68,7 @@ export class renamePanelRelatedTables1692065678000 implements MigrationInterface
     }
     await queryRunner.renameColumn('lab_panel_lab_test_type', 'labPanelId', 'labTestPanelId');
     await queryRunner.createForeignKey(
-      'lab_test_panel_lab_test_type',
+      'lab_panel_lab_test_type',
       new TableForeignKey({
         columnNames: ['labTestPanelId'],
         referencedColumnNames: ['id'],
