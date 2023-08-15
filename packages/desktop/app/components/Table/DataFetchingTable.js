@@ -147,7 +147,6 @@ export const DataFetchingTable = memo(
             const isChangingFromInitialSort =
               isEqual(previousFetch.sorting, initialSort) && hasSortingChanged;
 
-            // Highlight rows green if the index is less that the index of rows since interaction AND its not the first fetch
             const highlightedData = isLiveUpdating
               ? highlightDataRows(transformedData, rowsSinceInteraction)
               : transformedData;
@@ -159,7 +158,6 @@ export const DataFetchingTable = memo(
             const shouldResetRows =
               isLeavingPageOne || (page === 0 && isChangingFromInitialSort) || hasSearchChanged;
 
-            // If its the first fetch, we dont want to highlight the new rows green or show a notification
             if (!isFirstFetch) {
               setNewRowCount(rowsSinceInteraction);
               setShowNotification(rowsSinceInteraction > 0 && !(page === 0 && isInitialSort));
@@ -169,7 +167,6 @@ export const DataFetchingTable = memo(
               }
             }
 
-            // Update the table with the rows to display
             updateFetchState({
               ...DEFAULT_FETCH_STATE,
               data: displayData,
@@ -215,7 +212,7 @@ export const DataFetchingTable = memo(
         return () => clearInterval(tableAutorefresh);
       }
 
-      return () => {};
+      return () => {}; // Needed to add return due to the conditional return above
 
       // Needed to compare fetchOptions as a string instead of an object
       // eslint-disable-next-line react-hooks/exhaustive-deps
