@@ -93,11 +93,12 @@ const getDateTime = value => {
   return `${date} ${time}`;
 };
 
-const VersionInfo = ({ name, version }) => (
+const VersionInfo = ({ name, reportDefinitionId, version }) => (
   <VersionInfoCard>
     <CardHeader>
       <CardItem label="Name" value={name} />
       <CardItem label="Version" value={version.versionNumber} />
+      <CardItem label="Report id" value={reportDefinitionId} />
     </CardHeader>
     <CardDivider />
     <CardItem label="Created" value={getDateTime(version.createdAt)} />
@@ -154,7 +155,7 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
     versionNumber,
     ...editableData
   } = version;
-  const { name } = report;
+  const { name, id: reportDefinitionId } = report;
   const { currentUser } = useAuth();
   const [showSqlEditor, setShowSqlEditor] = useState(false);
   const [isValid, setIsValid] = useState(true);
@@ -235,7 +236,7 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
           </StyledButton>
         </ButtonContainer>
         <DetailList>
-          <VersionInfo name={name} version={version} />
+          <VersionInfo reportDefinitionId={reportDefinitionId} name={name} version={version} />
           {value && (
             <ErrorBoundary errorKey={version.id} ErrorComponent={LoadError}>
               <JsonEditor
