@@ -113,7 +113,6 @@ export const DataFetchingTable = memo(
 
     useEffect(() => {
       const loadingDelay = loadingIndicatorDelay();
-      // TODO: Need to break apart this useEffect into smaller pieces
       (async () => {
         try {
           if (!endpoint) {
