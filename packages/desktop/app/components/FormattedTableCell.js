@@ -168,11 +168,9 @@ export const RangeValidatedCell = React.memo(
     );
 
     return tooltip ? (
-      <TableTooltip title={tooltip}>
-        <CellWithoutTooltip />
-      </TableTooltip>
+      <TableTooltip title={tooltip}>{CellWithoutTooltip}</TableTooltip>
     ) : (
-      <CellWithoutTooltip />
+      CellWithoutTooltip
     );
   },
 );
