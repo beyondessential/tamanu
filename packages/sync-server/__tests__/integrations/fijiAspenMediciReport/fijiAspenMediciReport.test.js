@@ -8,7 +8,7 @@ import {
   ENCOUNTER_TYPES,
   IMAGING_TYPES,
   DIAGNOSIS_CERTAINTY,
-} from 'shared/constants';
+} from '@tamanu/constants';
 import { toDateTimeString } from 'shared/utils/dateTime';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
@@ -454,10 +454,6 @@ describe('fijiAspenMediciReport', () => {
 
         // Location/Department
         locations: [
-          {
-            location: 'Emergency room 1',
-            assignedTime: '2022-06-09T00:02:54+00:00',
-          },
           {
             location: 'Emergency room 2',
             assignedTime: '2022-06-09T08:04:54+00:00',

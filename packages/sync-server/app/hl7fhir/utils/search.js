@@ -1,6 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import moment from 'moment';
-import { FHIR_SEARCH_PARAMETERS } from 'shared/constants';
+import { FHIR_SEARCH_PARAMETERS } from '@tamanu/constants';
 import { jsonFromBase64, jsonToBase64 } from 'shared/utils/encodings';
 import { InvalidParameterError } from 'shared/errors';
 import { toDateString } from 'shared/utils/dateTime';

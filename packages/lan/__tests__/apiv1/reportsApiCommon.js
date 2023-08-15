@@ -1,6 +1,5 @@
-import { fake } from 'shared/test-helpers';
-import { REPORT_STATUSES, REPORT_DEFAULT_DATE_RANGES } from 'shared/constants';
-import { disableHardcodedPermissionsForSuite } from '../utilities';
+import { fake, disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
+import { REPORT_STATUSES, REPORT_DEFAULT_DATE_RANGES } from '@tamanu/constants';
 
 export function testReportPermissions(getCtx, makeRequest) {
   let ctx;

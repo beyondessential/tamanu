@@ -1,6 +1,6 @@
 import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patients';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
-import { VACCINE_CATEGORIES } from 'shared/constants';
+import { VACCINE_CATEGORIES } from '@tamanu/constants';
 
 export async function createDiagnosis(models) {
   await models.ReferenceData.create({
@@ -15,6 +15,37 @@ export async function createDiagnosis(models) {
     id: 'icd10-S79-9',
     name: 'Thigh injury',
   });
+}
+
+export async function createTestType(models, data) {
+  const testType = await models.LabTestType.create({ ...data });
+  return testType;
+}
+
+export async function createLabTestPanel(models, { id, name, code, labTestTypesIds }) {
+  const panel = await models.LabTestPanel.create({
+    id,
+    name,
+    code,
+  });
+
+  for (const labTestTypeId of labTestTypesIds) {
+    await models.LabTestPanelLabTestTypes.create({
+      labTestPanelId: panel.id,
+      labTestTypeId,
+    });
+  }
+}
+
+export async function createLabTestCategory(models, { id, name, code }) {
+  const labTestCategory = await models.ReferenceData.create({
+    id,
+    name,
+    code,
+    type: 'labTestCategory',
+  });
+
+  return labTestCategory;
 }
 
 export async function createPatientFieldDefCategory(models) {

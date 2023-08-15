@@ -6,7 +6,7 @@ import {
   randomReferenceData,
 } from 'shared/demoData';
 import { subDays } from 'date-fns';
-import { ENCOUNTER_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { findOneOrCreate } from 'shared/test-helpers';
 import { format } from 'shared/utils/dateTime';
 import { Op } from 'sequelize';
@@ -238,7 +238,7 @@ describe('Admissions report', () => {
           'Date of Birth': format(expectedPatient.dateOfBirth, 'dd/MM/yyyy'),
           Age: 1,
           'Patient Type': 'Charity',
-          'Admitting Doctor/Nurse': expectedExaminer.displayName,
+          'Admitting Clinician': expectedExaminer.displayName,
           'Admission Date': '20/02/2021 9:07:26 AM',
           'Discharge Date': '21/02/2021 11:03:07 AM',
           Location:

@@ -95,7 +95,7 @@ export const DateField = React.memo(
     const formatValue = useCallback(() => {
       if (value) {
         if (mode === 'date') return formatDate(dateValue, DateFormats.DDMMYY);
-        return formatDate(dateValue, DateFormats.TIME_HHMMSS);
+        return formatDate(dateValue, DateFormats.TIME);
       }
       return null;
     }, [mode, value]);

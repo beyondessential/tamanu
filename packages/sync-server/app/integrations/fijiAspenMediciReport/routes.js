@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler';
 import { upperFirst } from 'lodash';
 import { parseISO } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
-import { FHIR_DATETIME_PRECISION } from 'shared/constants/fhir';
+import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
 import { parseDateTime, formatFhirDate } from 'shared/utils/fhir/datetime';
 import config from 'config';
 
@@ -245,16 +245,10 @@ location_info as (
         'location', coalesce(lg.name || ', ', '' ) || l.name,
         'assignedTime', e.start_date::timestamp at time zone $timezone_string
       ))
-      else 
-        array_to_json(json_build_object(
-          'location', first_from, --first "from" from note
-          'assignedTime', e.start_date::timestamp at time zone $timezone_string
-        ) ||
-        array_agg(
-          json_build_object(
-            'location', "to",
-            'assignedTime', nh.date::timestamp at time zone $timezone_string
-          ) ORDER BY nh.date
+      else
+        json_build_array(json_build_object(
+          'location', coalesce(lg.name || ', ', '' ) || l.name,
+          'assignedTime', MAX(nh.date::timestamp at time zone $timezone_string)
         ))
     end location_history
   from encounters e
@@ -262,17 +256,7 @@ location_info as (
   left join location_groups lg on l.location_group_id = lg.id
   left join note_history nh
   on nh.encounter_id = e.id and nh.place = 'location'
-  left join (
-    select
-      nh2.encounter_id enc_id,
-      "from" first_from,
-      date
-    from note_history nh2
-    order by date
-    limit 1
-    ) first_from
-  on e.id = first_from.enc_id
-  group by e.id, l.name, lg.name, e.start_date, first_from
+  group by e.id, l.name, lg.name, e.start_date
 ),
 
 triage_info as (

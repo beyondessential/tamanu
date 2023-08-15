@@ -2,13 +2,13 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import { Box } from '@material-ui/core';
-import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/shared/constants';
+import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { ModalLoader, ConfirmCancelRow, Form } from '../components';
 import { SurveyScreen } from '../components/Surveys';
 import { useVitalsSurvey } from '../api/queries';
 import { getFormInitialValues, getValidationSchema } from '../utils';
-import { ForbiddenError } from '../components/ForbiddenErrorModal';
+import { ForbiddenErrorModalContents } from '../components/ForbiddenErrorModal';
 import { Modal } from '../components/Modal';
 import { useAuth } from '../contexts/Auth';
 
@@ -37,7 +37,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
   if (!canCreateVitals) {
     return (
       <Modal title="Permission required" open onClose={onClose}>
-        <ForbiddenError onConfirm={onClose} confirmText="Close" />
+        <ForbiddenErrorModalContents onConfirm={onClose} confirmText="Close" />
       </Modal>
     );
   }
@@ -71,7 +71,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
       }}
       render={({ submitForm, values, setFieldValue }) => (
         <SurveyScreen
-          components={vitalsSurvey.components}
+          allComponents={vitalsSurvey.components}
           patient={patient}
           cols={2}
           values={values}

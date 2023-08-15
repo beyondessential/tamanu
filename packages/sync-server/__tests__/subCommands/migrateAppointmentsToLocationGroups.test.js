@@ -1,5 +1,5 @@
 import { fake } from 'shared/test-helpers/fake';
-import { IMAGING_TYPES } from 'shared/constants';
+import { IMAGING_TYPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { migrateImagingRequests } from '../../app/subCommands';
 

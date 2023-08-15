@@ -5,7 +5,7 @@ import {
   PATIENT_COMMUNICATION_CHANNELS_VALUES,
   PATIENT_COMMUNICATION_TYPES_VALUES,
   SYNC_DIRECTIONS,
-} from '../constants';
+} from '@tamanu/constants';
 
 import { Model } from './Model';
 

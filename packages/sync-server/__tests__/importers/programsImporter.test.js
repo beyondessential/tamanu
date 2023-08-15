@@ -1,5 +1,5 @@
 import { fake } from 'shared/test-helpers/fake';
-import { SURVEY_TYPES } from 'shared/constants';
+import { SURVEY_TYPES } from '@tamanu/constants';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { programImporter } from '../../app/admin/programImporter';
 import { createTestContext } from '../utilities';
@@ -82,7 +82,7 @@ describe('Programs import', () => {
     const getComponents = async () => {
       const survey = await Survey.findByPk('program-testprogram-deletion');
       expect(survey).toBeTruthy();
-      return await survey.getComponents();
+      return survey.getComponents();
     };
 
     {
@@ -186,6 +186,32 @@ describe('Programs import', () => {
         dryRun: true,
       });
       expect(errors).toContainValidationError('metadata', 0, 'Vitals survey can not be sensitive');
+    });
+
+    it('Should validate normalRange in validation_criteria', async () => {
+      const { errors, stats } = await doImport({
+        file: 'vitals-validate-normal-range-in-validation-criteria',
+        dryRun: true,
+      });
+
+      const errorMessages = [
+        'sheetName: Vitals, code: \'PatientVitalsSBP\', normalRange must be within graphRange, got normalRange: {"min":30,"max":120}, graphRange: {"min":40,"max":240}}',
+        'sheetName: Vitals, code: \'PatientVitalsDBP\', normalRange must be within graphRange, got normalRange: {"min":60,"max":250}, graphRange: {"min":40,"max":240}}',
+        "sheetName: Vitals, code: 'PatientVitalsHeartRate', validationCriteria must be specified if visualisationConfig is presented",
+        "sheetName: Vitals, code: 'PatientVitalsRespiratoryRate', validationCriteria must have normalRange",
+        'sheetName: Vitals, code: \'PatientVitalsTemperature\', normalRange must be within graphRange, got normalRange: {"min":120,"max":185,"ageUnit":"months","ageMin":0,"ageMax":3}, graphRange: {"min":33.5,"max":41.5}}', // Validate array type normalRange
+      ];
+
+      errors.forEach((error, i) => {
+        expect(error.message).toEqual(errorMessages[i]);
+      });
+
+      expect(stats).toMatchObject({
+        Program: { created: 1, updated: 0, errored: 0 },
+        Survey: { created: 1, updated: 0, errored: 0 },
+        ProgramDataElement: { created: 16, updated: 0, errored: errorMessages.length },
+        SurveyScreenComponent: { created: 16, updated: 0, errored: 0 },
+      });
     });
 
     it('Should import a valid vitals survey', async () => {

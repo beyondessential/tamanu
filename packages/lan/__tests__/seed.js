@@ -1,4 +1,4 @@
-import { IMAGING_AREA_TYPES } from 'shared/constants';
+import { IMAGING_AREA_TYPES } from '@tamanu/constants';
 import { ICD10_DIAGNOSES, TRIAGE_DIAGNOSES, DRUGS, CARE_PLANS, splitIds } from 'shared/demoData';
 import {
   X_RAY_IMAGING_AREAS,
