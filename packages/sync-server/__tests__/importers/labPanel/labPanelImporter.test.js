@@ -8,7 +8,7 @@ import '../matchers';
 // the importer can take a little while
 jest.setTimeout(30000);
 
-describe('Lab Test Panel import', () => {
+describe('Lab Panel import', () => {
   let ctx;
   let models;
   beforeAll(async () => {
@@ -36,9 +36,9 @@ describe('Lab Test Panel import', () => {
     const { file, ...opts } = options;
     return importerTransaction({
       importer: referenceDataImporter,
-      file: `./__tests__/importers/labTestPanel/${file}.xlsx`,
+      file: `./__tests__/importers/labPanel/${file}.xlsx`,
       models,
-      includedDataTypes: ['labTestPanel'],
+      includedDataTypes: ['labPanel'],
       ...opts,
     });
   }
@@ -46,7 +46,7 @@ describe('Lab Test Panel import', () => {
   describe('Valid data', () => {
     it('should succeed with valid data', async () => {
       const { didntSendReason, errors, stats } = await doImport({
-        file: 'lab-test-panel-valid',
+        file: 'lab-panel-valid',
         dryRun: true,
       });
 
@@ -69,7 +69,7 @@ describe('Lab Test Panel import', () => {
   describe('Invalid data', () => {
     it('should validate LabTestPanel mandatory categoryId field', async () => {
       const { didntSendReason, errors } = await doImport({
-        file: 'lab-test-panel-no-category-id',
+        file: 'lab-panel-no-category-id',
         dryRun: true,
       });
 
