@@ -108,7 +108,7 @@ export const LimitedLinesCell = ({ value, maxWidth, maxLines = 2 }) => {
   const [isClamped, setClamped] = useState(false);
   const [tooltipOpen, setTooltipOpen] = useState(false);
 
-  // isClamped logic from: https://stackoverflow.com/a/74255034/11324801
+  // isClamped logic inspired by: https://stackoverflow.com/a/74255034/11324801
   useEffect(() => {
     const handleResize = () => {
       if (contentRef && contentRef.current) {
