@@ -21,10 +21,6 @@ const Spinner = styled(RefreshIcon)`
     $isSpinning &&
     css`
       animation: 0.5s linear ${spin} infinite;
-      path {
-        transition: fill 0.3s ease-in-out;
-        fill: ${Colors.softText};
-      }
     `}
 `;
 
