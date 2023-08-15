@@ -87,16 +87,16 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         ImagingRequest,
         ImagingRequestArea,
         LabRequest,
-        LabTestPanel,
-        LabTestPanelRequest,
+        LabPanel,
+        LabPanelRequest,
         FhirEncounter,
       } = ctx.store.models;
       await FhirServiceRequest.destroy({ where: {} });
       await ImagingRequest.destroy({ where: {} });
       await ImagingRequestArea.destroy({ where: {} });
       await LabRequest.destroy({ where: {} });
-      await LabTestPanel.destroy({ where: {} });
-      await LabTestPanelRequest.destroy({ where: {} });
+      await LabPanel.destroy({ where: {} });
+      await LabPanelRequest.destroy({ where: {} });
 
       encounter = await Encounter.create(
         fake(Encounter, {
@@ -261,8 +261,8 @@ Patient may need mobility assistance`,
         FhirServiceRequest,
         LabRequest,
         ReferenceData,
-        LabTestPanel,
-        LabTestPanelRequest,
+        LabPanel,
+        LabPanelRequest,
       } = ctx.store.models;
       const category = await ReferenceData.create({
         id: 'test1',
@@ -270,13 +270,13 @@ Patient may need mobility assistance`,
         code: 'test1',
         name: 'Test 1',
       });
-      const labTestPanel = await LabTestPanel.create({
-        ...fake(LabTestPanel),
+      const labPanel = await LabPanel.create({
+        ...fake(LabPanel),
         categoryId: category.id,
       });
-      const labTestPanelRequest = await LabTestPanelRequest.create({
-        ...fake(LabTestPanelRequest),
-        labTestPanelId: labTestPanel.id,
+      const labPanelRequest = await LabPanelRequest.create({
+        ...fake(LabPanelRequest),
+        labPanelId: labPanel.id,
         encounterId: encounter.id,
       });
       const labRequestData = await randomLabRequest(ctx.store.models, {
@@ -284,7 +284,7 @@ Patient may need mobility assistance`,
         patientId: resources.patient.id,
         encounterId: encounter.id,
         status: LAB_REQUEST_STATUSES.PUBLISHED,
-        labTestPanelRequestId: labTestPanelRequest.id, // make one of them part of a panel
+        labPanelRequestId: labPanelRequest.id, // make one of them part of a panel
         requestedDate: '2022-07-27 16:30:00',
       });
       const lr = await LabRequest.create(labRequestData);
@@ -334,8 +334,8 @@ Patient may need mobility assistance`,
         code: {
           coding: [
             {
-              code: labTestPanel.externalCode,
-              display: labTestPanel.name,
+              code: labPanel.externalCode,
+              display: labPanel.name,
               system:
                 'http://intersystems.com/fhir/extn/sda3/lib/code-table-translated-prior-codes',
             },
