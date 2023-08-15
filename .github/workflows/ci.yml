@@ -60,8 +60,20 @@ jobs:
       - if: matrix.package == 'sync-server' || matrix.package == 'lan'
         run: yarn workspace ${{ matrix.package }} run test --shard 3/3
 
-      - if: "!(matrix.package == 'sync-server' || matrix.package == 'lan')"
+      - if: matrix.package != 'sync-server' && matrix.package != 'lan'
         run: yarn workspace ${{ matrix.package }} run test
+
+  build-all:
+    name: Build all packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+      - run: yarn
+      - run: yarn build
 
   lint:
     continue-on-error: true
@@ -175,6 +187,7 @@ jobs:
     name: Tests pass
     needs:
       - test
+      - build-all
       - lint
       - storybook
       - migrations

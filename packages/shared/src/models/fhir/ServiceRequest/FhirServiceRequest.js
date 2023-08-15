@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize';
 
+import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import { FhirResource } from '../Resource';
 
-import { FHIR_INTERACTIONS } from '../../../constants';
 import { getQueryOptions } from './getQueryOptions';
 import { getValues } from './getValues';
 import { fromImagingRequests, fromLabRequests } from './getQueryToFindUpstreamIds';

@@ -1,4 +1,4 @@
-import { REFERENCE_TYPES } from 'shared/constants';
+import { REFERENCE_TYPES } from '@tamanu/constants';
 
 import { importerTransaction } from '../../../app/admin/importerEndpoint';
 import { referenceDataImporter } from '../../../app/admin/referenceDataImporter';

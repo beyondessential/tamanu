@@ -1,5 +1,13 @@
 import config from 'config';
 
+import {
+  FHIR_REQUEST_INTENT,
+  FHIR_REQUEST_PRIORITY,
+  FHIR_REQUEST_STATUS,
+  IMAGING_REQUEST_STATUS_TYPES,
+  LAB_REQUEST_STATUSES,
+  NOTE_TYPES,
+} from '@tamanu/constants';
 import { getNotePagesWithType } from '../../../utils/notePages';
 import {
   FhirAnnotation,
@@ -8,14 +16,6 @@ import {
   FhirIdentifier,
   FhirReference,
 } from '../../../services/fhirTypes';
-import {
-  FHIR_REQUEST_INTENT,
-  FHIR_REQUEST_PRIORITY,
-  FHIR_REQUEST_STATUS,
-  IMAGING_REQUEST_STATUS_TYPES,
-  LAB_REQUEST_STATUSES,
-  NOTE_TYPES,
-} from '../../../constants';
 import { Exception, formatFhirDate } from '../../../utils/fhir';
 
 export async function getValues(upstream, models) {
@@ -88,6 +88,10 @@ async function getValuesFromImagingRequest(upstream, models) {
       reference: upstream.encounter.patient.id,
       display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
     }),
+    encounter: new FhirReference({
+      type: 'upstream://encounter',
+      reference: upstream.encounter.id,
+    }),
     occurrenceDateTime: formatFhirDate(upstream.requestedDate),
     requester: new FhirReference({
       display: upstream.requestedBy.displayName,
@@ -103,11 +107,11 @@ async function getValuesFromLabRequest(upstream) {
     contained: labContained(upstream),
     identifier: [
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.serviceRequestImagingId,
+        system: config.hl7.dataDictionaries.serviceRequestLabId,
         value: upstream.id,
       }),
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.serviceRequestImagingDisplayId,
+        system: config.hl7.dataDictionaries.serviceRequestLabDisplayId,
         value: upstream.displayId,
       }),
     ],
@@ -132,7 +136,8 @@ async function getValuesFromLabRequest(upstream) {
       display: `${upstream.encounter.patient.firstName} ${upstream.encounter.patient.lastName}`,
     }),
     encounter: new FhirReference({
-      reference: `Encounter/${upstream.encounter.id}`,
+      type: 'upstream://encounter',
+      reference: upstream.encounter.id,
     }),
     occurrenceDateTime: formatFhirDate(upstream.requestedDate),
     requester: new FhirReference({

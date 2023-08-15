@@ -9,7 +9,9 @@ export const MANNER_OF_DEATHS = [
   'Unknown/Could not be determined',
 ];
 
-export const MANNER_OF_DEATH_OPTIONS = Object.values(MANNER_OF_DEATHS).map(type => ({
-  label: type,
-  value: type,
-}));
+export const MANNER_OF_DEATH_OPTIONS = Object.values(MANNER_OF_DEATHS).map(
+  (type) => ({
+    label: type,
+    value: type,
+  }),
+);

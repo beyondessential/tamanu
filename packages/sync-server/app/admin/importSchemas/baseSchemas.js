@@ -7,7 +7,7 @@ import {
   LAB_TEST_RESULT_TYPES,
   VISIBILITY_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
-} from 'shared/constants';
+} from '@tamanu/constants';
 import config from 'config';
 import { jsonString, validationString, configString } from './jsonString';
 

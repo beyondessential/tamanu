@@ -3,7 +3,7 @@ If your PR is red because of this test you probably need to add
 a migration that registers a trigger for database tables.
 */
 
-import { FHIR_INTERACTIONS } from 'shared/constants';
+import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 import { createTestContext } from '../../utilities';
 

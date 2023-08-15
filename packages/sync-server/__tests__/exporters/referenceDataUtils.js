@@ -1,6 +1,6 @@
 import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patients';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
-import { VACCINE_CATEGORIES } from 'shared/constants';
+import { VACCINE_CATEGORIES } from '@tamanu/constants';
 
 export async function createDiagnosis(models) {
   await models.ReferenceData.create({
