@@ -150,7 +150,7 @@ export const RangeTooltipCell = React.memo(({ value, config, validationCriteria 
 });
 
 export const RangeValidatedCell = React.memo(
-  ({ value, config, validationCriteria, onClick, isEdited, maxWidth, ...props }) => {
+  ({ value, config, validationCriteria, onClick, isEdited, ValueWrapper, ...props }) => {
     const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
     const float = round(parseFloat(value), config);
     const isEditedSuffix = isEdited ? '*' : '';
@@ -163,7 +163,7 @@ export const RangeValidatedCell = React.memo(
 
     const CellWithoutTooltip = (
       <CellContainer onClick={onClick} severity={severity} {...props}>
-        <LimitedLinesCell value={formattedValue} maxWidth={maxWidth} maxLines={1} />
+        {ValueWrapper ? <ValueWrapper value={formattedValue} /> : formattedValue}
       </CellContainer>
     );
 

@@ -7,7 +7,12 @@ import { useSelector } from 'react-redux';
 import { Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
 import { Colors } from '../constants';
-import { RangeValidatedCell, DateHeadCell, RangeTooltipCell } from './FormattedTableCell';
+import {
+  RangeValidatedCell,
+  DateHeadCell,
+  RangeTooltipCell,
+  LimitedLinesCell,
+} from './FormattedTableCell';
 import { useVitals } from '../api/queries/useVitals';
 import { formatShortest, formatTimeWithSeconds } from './DateDisplay';
 import { EditVitalCellModal } from './EditVitalCellModal';
@@ -173,12 +178,14 @@ export const VitalsTable = React.memo(() => {
           const shouldBeClickable = isVitalEditEnabled && isCalculatedQuestion === false;
           return (
             <RangeValidatedCell
-              maxWidth="75px"
               value={value}
               config={config}
               validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
               isEdited={historyLogs.length > 1}
               onClick={shouldBeClickable ? handleCellClick : null}
+              ValueWrapper={({ value: formattedValue }) => (
+                <LimitedLinesCell value={formattedValue} maxWidth="75px" maxLines={1} />
+              )}
             />
           );
         },
