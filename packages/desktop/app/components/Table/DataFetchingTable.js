@@ -126,18 +126,18 @@ export const DataFetchingTable = memo(
 
           if (enableAutoRefresh) {
             const { previousFetch } = fetchState;
-            const isFirstFetch = previousFetch.count === 0; // Check if this is the intial table load
-            const isInitialSort = isEqual(sorting, initialSort); // Check if set to initial sort
+            const isFirstFetch = previousFetch.count === 0;
+            const isInitialSort = isEqual(sorting, initialSort);
 
-            const hasPageChanged = page !== previousFetch.page; // Check if the page number has changed since the last fetch
-            const hasSortingChanged = !isEqual(sorting, previousFetch?.sorting); // Check if the sorting has changed since the last fetch
-            const hasRecordCountIncreased = count > previousFetch.count; // Check if the record count has increased since the last fetch
-            const hasSearchChanged = !isEqual(fetchOptions, previousFetch?.fetchOptions); // Check if the search has changed since the last fetch
+            const hasPageChanged = page !== previousFetch.page;
+            const hasSortingChanged = !isEqual(sorting, previousFetch?.sorting);
+            const hasRecordCountIncreased = count > previousFetch.count;
+            const hasSearchChanged = !isEqual(fetchOptions, previousFetch?.fetchOptions);
 
             const isLiveUpdating = !isFirstFetch && isInitialSort && !hasSearchChanged;
 
-            const rowsSinceRefresh = count - previousFetch.count; // Rows since the last autorefresh
-            const rowsSinceInteraction = rowsSinceRefresh + newRowCount; // Rows added since last clearing of rows from interacting
+            const rowsSinceRefresh = count - previousFetch.count;
+            const rowsSinceInteraction = rowsSinceRefresh + newRowCount;
 
             const isLeavingPageOne = previousFetch.page === 0 && page > 0;
             const isChangingFromInitialSort =
