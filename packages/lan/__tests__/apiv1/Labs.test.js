@@ -174,13 +174,13 @@ describe('Labs', () => {
     expect(note[0]).toHaveProperty('content', content);
   });
 
-  it('should record a lab request with a Lab Test Panel', async () => {
-    const labTestPanel = await models.LabTestPanel.create({
+  it('should record a lab request with a Panel', async () => {
+    const labPanel = await models.LabPanel.create({
       name: 'Demo test panel',
       code: 'demo-test-panel',
     });
 
-    const labTestTypes = await createTestTypesForPanel(models, labTestPanel);
+    const labTestTypes = await createTestTypesForPanel(models, labPanel);
 
     const encounter = await models.Encounter.create({
       ...(await createDummyEncounter(models)),
@@ -189,7 +189,7 @@ describe('Labs', () => {
 
     const response = await app
       .post('/v1/labRequest')
-      .send({ panelIds: [labTestPanel.id], encounterId: encounter.id });
+      .send({ panelIds: [labPanel.id], encounterId: encounter.id });
 
     expect(response).toHaveSucceeded();
 
@@ -211,11 +211,11 @@ describe('Labs', () => {
   });
 
   it('should record samples for panels', async () => {
-    const labTestPanel = await models.LabTestPanel.create({
+    const labPanel = await models.LabPanel.create({
       name: 'Demo test panel',
       code: 'demo-test-panel',
     });
-    const labTestTypes = await createTestTypesForPanel(models, labTestPanel);
+    const labTestTypes = await createTestTypesForPanel(models, labPanel);
 
     const encounter = await models.Encounter.create({
       ...(await createDummyEncounter(models)),
@@ -224,12 +224,12 @@ describe('Labs', () => {
 
     const sampleTime = '2023-06-09 00:00:00';
     const sampleDetails = {
-      [labTestPanel.id]: {
+      [labPanel.id]: {
         sampleTime,
       },
     };
     const response = await app.post('/v1/labRequest').send({
-      panelIds: [labTestPanel.id],
+      panelIds: [labPanel.id],
       encounterId: encounter.id,
       sampleDetails,
     });
@@ -333,12 +333,12 @@ describe('Labs', () => {
   });
 
   it('should only retrieve panels with a visibilityStatus status of current', async () => {
-    await models.LabTestPanel.create({
+    await models.LabPanel.create({
       name: 'Historical test panel',
       code: 'historical-test-panel',
       visibilityStatus: 'historical',
     });
-    const result = await app.get('/v1/labTestPanel');
+    const result = await app.get('/v1/labPanel');
     expect(result).toHaveSucceeded();
     const { body } = result;
 
@@ -490,12 +490,12 @@ describe('Labs', () => {
     });
   });
 });
-async function createTestTypesForPanel(models, labTestPanel) {
+async function createTestTypesForPanel(models, labPanel) {
   const labTestTypes = await createLabTestTypes(models);
   await Promise.all(
     labTestTypes.map(ltt =>
-      models.LabTestPanelLabTestTypes.create({
-        labTestPanelId: labTestPanel.id,
+      models.LabPanelLabTestTypes.create({
+        labPanelId: labPanel.id,
         labTestTypeId: ltt.id,
       }),
     ),

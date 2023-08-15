@@ -14,7 +14,7 @@ import {
   createVaccine,
   createDataForEncounter,
   createTestType,
-  createLabTestPanel,
+  createLabPanel,
   createLabTestCategory,
 } from './referenceDataUtils';
 
@@ -47,9 +47,9 @@ describe('Reference data exporter', () => {
       'EncounterHistory',
       'Encounter',
       'ScheduledVaccine',
-      'LabTestPanelLabTestTypes',
+      'LabPanelLabTestTypes',
       'LabTestType',
-      'LabTestPanel',
+      'LabPanel',
       'ReferenceData',
       'Patient',
       'PatientFieldDefinitionCategory',
@@ -171,13 +171,13 @@ describe('Reference data exporter', () => {
       code: 'test-type-2',
       labTestCategoryId: category.id,
     });
-    await createLabTestPanel(models, {
+    await createLabPanel(models, {
       id: 'panel-with-two-types',
       name: 'Panel with two types',
       code: 'panel-with-two-types',
       labTestTypesIds: [testType1.id, testType2.id],
     });
-    await exporter(models, { 1: 'labTestPanel' });
+    await exporter(models, { 1: 'labPanel' });
 
     expect(writeExcelFile).toBeCalledWith(
       [
@@ -202,7 +202,7 @@ describe('Reference data exporter', () => {
               'test-type-1,test-type-2',
             ],
           ],
-          name: 'Lab Test Panel',
+          name: 'Lab Panel',
         },
       ],
       '',

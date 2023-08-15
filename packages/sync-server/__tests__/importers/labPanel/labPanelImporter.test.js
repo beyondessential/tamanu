@@ -53,8 +53,8 @@ describe('Lab Panel import', () => {
       expect(didntSendReason).toEqual('dryRun');
       expect(errors).toBeEmpty();
       expect(stats).toEqual({
-        LabTestPanel: { created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 },
-        LabTestPanelLabTestTypes: {
+        LabPanel: { created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 },
+        LabPanelLabTestTypes: {
           created: 1,
           updated: 0,
           errored: 0,
@@ -67,7 +67,7 @@ describe('Lab Panel import', () => {
   });
 
   describe('Invalid data', () => {
-    it('should validate LabTestPanel mandatory categoryId field', async () => {
+    it('should validate LabPanel mandatory categoryId field', async () => {
       const { didntSendReason, errors } = await doImport({
         file: 'lab-panel-no-category-id',
         dryRun: true,
@@ -76,9 +76,9 @@ describe('Lab Panel import', () => {
       expect(didntSendReason).toEqual('validationFailed');
 
       expect(errors).toContainValidationError(
-        'labTestPanel',
+        'labPanel',
         2,
-        'categoryId is a required field on labTestPanel at row 2',
+        'categoryId is a required field on labPanel at row 2',
       );
     });
   });

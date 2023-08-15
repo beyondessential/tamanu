@@ -608,7 +608,7 @@ describe('CentralSyncManager', () => {
         let facility;
         let encounter1;
         let encounter2;
-        let labTestPanelRequest1;
+        let labPanelRequest1;
         let labRequest1;
         let labRequest2;
         let labRequest1Tests;
@@ -660,20 +660,20 @@ describe('CentralSyncManager', () => {
             code: 'test1',
             name: 'Test 1',
           });
-          const labTestPanel = await models.LabTestPanel.create({
-            ...fake(models.LabTestPanel),
+          const labPanel = await models.LabPanel.create({
+            ...fake(models.LabPanel),
             categoryId: category.id,
           });
-          labTestPanelRequest1 = await models.LabTestPanelRequest.create({
-            ...fake(models.LabTestPanelRequest),
-            labTestPanelId: labTestPanel.id,
+          labPanelRequest1 = await models.LabPanelRequest.create({
+            ...fake(models.LabPanelRequest),
+            labPanelId: labPanel.id,
             encounterId: encounter1.id,
           });
           const labRequest1Data = await randomLabRequest(models, {
             patientId: patient1.id,
             encounterId: encounter1.id,
             status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
-            labTestPanelRequestId: labTestPanelRequest1.id, // make one of them part of a panel
+            labPanelRequestId: labPanelRequest1.id, // make one of them part of a panel
           });
           labRequest1 = await models.LabRequest.create(labRequest1Data);
           const labRequest1TestsData = labRequest1Data.labTestTypeIds.map(labTestTypeId => ({
@@ -760,7 +760,7 @@ describe('CentralSyncManager', () => {
           expect(outgoingChanges.map(r => r.recordId)).toEqual(
             expect.arrayContaining([
               encounter1.id,
-              labTestPanelRequest1.id,
+              labPanelRequest1.id,
               labRequest1.id,
               ...labRequest1Tests.map(lt => lt.id),
               encounter2.id,
@@ -805,7 +805,7 @@ describe('CentralSyncManager', () => {
           expect(outgoingChanges.map(r => r.recordId)).not.toEqual(
             expect.arrayContaining([
               encounter1.id,
-              labTestPanelRequest1.id,
+              labPanelRequest1.id,
               labRequest1.id,
               ...labRequest1Tests.map(lt => lt.id),
               encounter2.id,
