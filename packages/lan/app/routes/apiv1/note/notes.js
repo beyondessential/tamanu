@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { NotFoundError, ForbiddenError } from 'shared/errors';
-import { NOTE_RECORD_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
+import { NOTE_TYPES, NOTE_RECORD_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
 
 import { checkNotePermission } from '../../../utils/checkNotePermission';
 
@@ -81,6 +81,10 @@ noteRoute.put(
       throw new ForbiddenError('Cannot edit encounter notes.');
     }
 
+    if (editedNote.noteType === NOTE_TYPES.TREATMENT_PLAN) {
+      req.checkPermission('write', 'TreatmentPlan');
+    }
+    
     req.checkPermission('write', editedNote.recordType);
 
     const owner = await models[editedNote.recordType].findByPk(editedNote.recordId);

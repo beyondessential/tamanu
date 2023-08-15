@@ -103,6 +103,7 @@ const NoDataMessage = styled.span`
 
 const NoteContent = ({
   note,
+  hasEncounterNoteWritePermission,
   hasPermission,
   currentUser,
   handleEditNote,
@@ -160,7 +161,7 @@ const NoteContent = ({
             );
           })}
         </NoteContentContainer>
-        {(hasPermission || currentUser.id === note.authorId) &&
+        {((hasPermission && hasEncounterNoteWritePermission) || currentUser.id === note.authorId) &&
           note.noteType !== NOTE_TYPES.SYSTEM && (
             <StyledEditIcon onClick={() => handleEditNote(note)} />
           )}
@@ -192,6 +193,8 @@ const NoteContent = ({
     </NoteRowContainer>
   );
 };
+
+const NoteContentWithPermission = withPermissionCheck(NoteContent);
 
 const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) => {
   const { currentUser } = useAuth();
@@ -228,9 +231,12 @@ const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) =
         key: 'content',
         title: 'Content',
         accessor: note => (
-          <NoteContent
+          <NoteContentWithPermission
+            // null verb will allow action (hasPermission becomes set to true)
+            verb={note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'write' : null}
+            noun={note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'TreatmentPlan' : null}
             note={note}
-            hasPermission={hasPermission}
+            hasEncounterNoteWritePermission={hasPermission}
             currentUser={currentUser}
             handleEditNote={handleEditNote}
             handleViewNoteChangeLog={handleViewNoteChangeLog}

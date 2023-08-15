@@ -7,6 +7,7 @@ import {
   DOCUMENT_SIZE_LIMIT,
   INVOICE_STATUSES,
   NOTE_RECORD_TYPES,
+  NOTE_TYPES,
   VITALS_DATA_ELEMENT_IDS,
   IMAGING_REQUEST_STATUS_TYPES,
 } from 'shared/constants';
@@ -90,6 +91,9 @@ encounter.post(
       throw new NotFoundError();
     }
     req.checkPermission('write', owner);
+    if (body.noteType === NOTE_TYPES.TREATMENT_PLAN) {
+      req.checkPermission('write', 'TreatmentPlan');
+    }
     const note = await owner.createNote(body);
 
     res.send(note);
