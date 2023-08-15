@@ -54,8 +54,8 @@ const combinationsToIgnore = [
   ['imaging_requests', 'lab_requests'],
   ['imaging_requests', 'lab_tests'],
   ['imaging_requests', 'lab_test_types'],
-  ['imaging_requests', 'lab_test_panel_requests'],
-  ['imaging_requests', 'lab_test_panels'],
+  ['imaging_requests', 'lab_panel_requests'],
+  ['imaging_requests', 'lab_panels'],
 ];
 
 function isIgnored(upstreamTable, table) {
