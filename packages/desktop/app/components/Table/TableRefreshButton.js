@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 
 import { getDateDisplay } from '../DateDisplay';
@@ -58,16 +58,17 @@ export const TableRefreshButton = ({ refreshTable, lastUpdatedTime }) => {
     }, 1000);
   };
 
-  useEffect(() => {
+  const handleClick = () => {
+    refreshTable();
     spinRefreshButton();
-  }, [lastUpdatedTime]);
+  };
 
   return (
     <LastUpdatedBadge>
       Last updated: {getDateDisplay(lastUpdatedTime, { showTime: true })}
       <ThemedTooltip title="Refresh">
         <RefreshButton>
-          <Spinner $isSpinning={isRefreshSpinning} onClick={refreshTable} />
+          <Spinner $isSpinning={isRefreshSpinning} onClick={handleClick} />
         </RefreshButton>
       </ThemedTooltip>
     </LastUpdatedBadge>

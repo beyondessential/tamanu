@@ -61,6 +61,11 @@ export const DataFetchingTable = memo(
       setForcedRefreshCount(prevCount => prevCount + 1);
     }, []);
 
+    const manualRefresh = useCallback(() => {
+      setSorting(initialSort);
+      refreshTable();
+    }, [initialSort, refreshTable]);
+
     const handleChangeOrderBy = useCallback(
       columnKey => {
         const { order, orderBy } = sorting;
@@ -247,7 +252,7 @@ export const DataFetchingTable = memo(
         {enableAutoRefresh && (
           <TableRefreshButton
             lastUpdatedTime={previousFetch?.lastUpdatedAt}
-            refreshTable={refreshTable}
+            refreshTable={manualRefresh}
           />
         )}
         <Table
