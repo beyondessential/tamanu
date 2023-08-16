@@ -12,13 +12,20 @@ import { globalDefaults } from '../settings/global';
 import { buildSettingsRecords } from '../models/Setting';
 
 const SETTINGS_PREDATING_MIGRATION = [
-  SETTING_KEYS.VACCINATION_DEFAULTS,
-  SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS,
+  `${SETTING_KEYS.VACCINATION_DEFAULTS}.departmentId`,
+  `${SETTING_KEYS.VACCINATION_DEFAULTS}.locationId`,
+  `${SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS}.departmentId`,
+  `${SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS}.locationId`,
   'fhir.worker.heartbeat',
   'fhir.worker.assumeDroppedAfter',
-  'certifications.covidClearanceCertificate',
+  'integrations.imaging.enabled',
+  'integrations.imaging.provider',
+  'certifications.covidClearanceCertificate.after',
+  'certifications.covidClearanceCertificate.daysSinceSampleTime',
+  'certifications.covidClearanceCertificate.labTestCategories',
+  'certifications.covidClearanceCertificate.labTestTypes',
+  'certifications.covidClearanceCertificate.labTestResults',
   'syncAllLabRequests',
-  'integrations.imaging',
 ];
 
 const SCOPED_DEFAULTS = {
@@ -159,11 +166,11 @@ export async function down(query) {
   await query.sequelize.query(
     `
       DELETE FROM settings
-      WHERE key ~* :keyRegex
-    `,
+      WHERE key NOT IN (:keys)
+   `,
     {
       replacements: {
-        keyRegex: `^(?!${SETTINGS_PREDATING_MIGRATION.join('|').replace('.', '\\.')}).*$`,
+        keys: SETTINGS_PREDATING_MIGRATION,
       },
     },
   );
