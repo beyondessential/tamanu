@@ -26,6 +26,16 @@ export const noteListHandler = recordType =>
         as: 'revisedBy',
         required: false,
         attributes: ['date'],
+        include: [
+          {
+            model: models.User,
+            as: 'author',
+          },
+          {
+            model: models.User,
+            as: 'onBehalfOf',
+          },
+        ],
       },
     ];
 

@@ -2,7 +2,8 @@ import React, { useCallback, useMemo, useState, useRef } from 'react';
 import styled from 'styled-components';
 import EditIcon from '@material-ui/icons/Edit';
 
-import { NOTE_TYPES } from '@tamanu/constants';
+import { NOTE_TYPES, NOTE_PERMISSION_TYPES } from '@tamanu/constants';
+
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { Colors, NOTE_TYPE_LABELS } from '../constants';
@@ -101,20 +102,53 @@ const NoDataMessage = styled.span`
   color: ${Colors.primary};
 `;
 
+const getIndividualNotePermissionCheck = (ability, currentUser, note) => {
+  // Whoever created the note should be able to edit it
+  if (note.revisedBy && currentUser.id === note.revisedBy.author.id) {
+    return true;
+  }
+
+  // Whoever created the note should be able to edit it (this is in case the note is the root note and has not been edited)
+  if (!note.revisedBy && currentUser.id === note.authorId) {
+    return true;
+  }
+
+  if (note.noteType === NOTE_TYPES.TREATMENT_PLAN) {
+    return (
+      ability?.can('write', NOTE_PERMISSION_TYPES.TREATMENT_PLAN_NOTE) ||
+      ability?.can('write', NOTE_PERMISSION_TYPES.OTHER_PRACTITIONER_ENCOUNTER_NOTE)
+    );
+  }
+
+  return ability?.can('write', NOTE_PERMISSION_TYPES.OTHER_PRACTITIONER_ENCOUNTER_NOTE);
+};
+
 const NoteContent = ({
   note,
-  hasPermission,
-  currentUser,
+  hasEncounterNoteWritePermission,
   handleEditNote,
   handleViewNoteChangeLog,
   isNotFilteredByNoteType,
 }) => {
+  const { currentUser, ability } = useAuth();
+  const hasIndividualNotePermission = getIndividualNotePermissionCheck(ability, currentUser, note);
   const noteContentContainerRef = useRef();
   const contentLineClipping = useRef();
   const [contentIsClipped, setContentIsClipped] = useState(false);
   const [contentIsExpanded, setContentIsExpanded] = useState(false);
   const handleReadMore = useCallback(() => setContentIsExpanded(true), []);
   const handleReadLess = useCallback(() => setContentIsExpanded(false), []);
+
+  const noteMetaPrefix = note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated:' : 'Created:';
+  const noteAuthorName =
+    note.noteType === NOTE_TYPES.TREATMENT_PLAN || !note.revisedBy
+      ? note.author?.displayName
+      : note.revisedBy?.author?.displayName;
+  const noteOnBehalfOfName =
+    note.noteType === NOTE_TYPES.TREATMENT_PLAN || !note.revisedBy
+      ? note.onBehalfOf?.displayName
+      : note.revisedBy?.onBehalfOf?.displayName;
+
   return (
     <NoteRowContainer>
       {isNotFilteredByNoteType && (
@@ -160,22 +194,17 @@ const NoteContent = ({
             );
           })}
         </NoteContentContainer>
-        {(hasPermission || currentUser.id === note.authorId) &&
+        {hasIndividualNotePermission &&
+          hasEncounterNoteWritePermission &&
           note.noteType !== NOTE_TYPES.SYSTEM && (
             <StyledEditIcon onClick={() => handleEditNote(note)} />
           )}
       </NoteBodyContainer>
       <NoteFooterContainer>
-        {note.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
-          <NoteFooterTextElement>Last updated:</NoteFooterTextElement>
-        ) : (
-          <NoteFooterTextElement>Created:</NoteFooterTextElement>
-        )}
-        {note.author?.displayName ? (
-          <NoteFooterTextElement>{note.author.displayName}</NoteFooterTextElement>
-        ) : null}
-        {note.onBehalfOf?.displayName ? (
-          <NoteFooterTextElement>on behalf of {note.onBehalfOf.displayName}</NoteFooterTextElement>
+        <NoteFooterTextElement>{noteMetaPrefix}</NoteFooterTextElement>
+        {noteAuthorName ? <NoteFooterTextElement>{noteAuthorName}</NoteFooterTextElement> : null}
+        {noteOnBehalfOfName ? (
+          <NoteFooterTextElement>on behalf of {noteOnBehalfOfName}</NoteFooterTextElement>
         ) : null}
         <DateDisplay
           date={(note.noteType !== NOTE_TYPES.TREATMENT_PLAN && note.revisedBy?.date) || note.date}
@@ -193,7 +222,12 @@ const NoteContent = ({
   );
 };
 
-const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) => {
+const NoteTable = ({
+  encounterId,
+  hasPermission: hasEncounterNoteWritePermission,
+  noteModalOnSaved,
+  noteType,
+}) => {
   const { currentUser } = useAuth();
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
   const [modalNoteFormMode, setModalNoteFormMode] = useState(NOTE_FORM_MODES.EDIT_NOTE);
@@ -230,7 +264,7 @@ const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) =
         accessor: note => (
           <NoteContent
             note={note}
-            hasPermission={hasPermission}
+            hasEncounterNoteWritePermission={hasEncounterNoteWritePermission}
             currentUser={currentUser}
             handleEditNote={handleEditNote}
             handleViewNoteChangeLog={handleViewNoteChangeLog}
@@ -240,12 +274,18 @@ const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) =
         sortable: false,
       },
     ],
-    [hasPermission, currentUser, noteType, handleEditNote, handleViewNoteChangeLog],
+    [
+      hasEncounterNoteWritePermission,
+      currentUser,
+      noteType,
+      handleEditNote,
+      handleViewNoteChangeLog,
+    ],
   );
 
   return (
     <>
-      {hasPermission && (
+      {hasEncounterNoteWritePermission && (
         <NoteModal
           open={isNoteModalOpen}
           encounterId={encounterId}
