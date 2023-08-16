@@ -103,7 +103,7 @@ async function getReleases(github, context, cursor = null) {
     : null;
 }
 
-async function findRelease(github, context, version) {
+async function findRelease(github, context, fn) {
   let nextCursor = null;
   // eslint-disable-next-line no-constant-condition
   while (true) {
@@ -114,12 +114,7 @@ async function findRelease(github, context, version) {
     nextCursor = cursor;
 
     for (const release of releases) {
-      if (
-        release.tagName === `v${version}` ||
-        release.tagName === version ||
-        release.name === `v${version}` ||
-        release.name === version
-      ) {
+      if (fn(release.tagName) || fn(release.name)) {
         return release.databaseId;
       }
     }
@@ -130,7 +125,17 @@ async function findRelease(github, context, version) {
 
 export async function publishRelease(github, context, version) {
   console.log(`Find release matching ${version}...`);
-  const releaseId = await findRelease(github, context, version);
+  const releaseId = await findRelease(
+    github,
+    context,
+    name => name === `v${version}` || name === version,
+  );
+
+  if (!releaseId) {
+    console.log(`::error title=Not found::Release ${version} not found!`);
+    throw new Error(`Release ${version} not found!`);
+  }
+
   console.log(`Get release #${releaseId}...`);
   const release = (
     await github.rest.repos.getRelease({
@@ -142,7 +147,31 @@ export async function publishRelease(github, context, version) {
 
   if (!release?.draft) {
     console.log(`Release ${version} is not a draft, skipping`);
+    console.log(
+      `::warning title=Not a draft::Release ${version} is not a draft, skipped publishing`,
+    );
     return;
+  }
+
+  let markLatest = true;
+  // Lookup published releases for the *next* release branch(es):
+  // if there are any, we won't mark this release as latest.
+  // To deal with skipped release branches, we'll look up to 3 forward.
+  const [major, minor] = version.split('.', 3);
+  if (
+    await findRelease(
+      github,
+      context,
+      name =>
+        name.startsWith(`v${major + 1}.`) ||
+        name.startsWith(`v${major}.${minor + 1}`) ||
+        name.startsWith(`v${major}.${minor + 2}`) ||
+        name.startsWith(`v${major}.${minor + 3}`),
+    )
+  ) {
+    console.log('Not marking release as latest');
+    console.log(`::notice title=Hotfix::Release ${version} not marked latest`);
+    markLatest = false;
   }
 
   console.log('Publishing release...');
@@ -151,6 +180,7 @@ export async function publishRelease(github, context, version) {
     repo: context.repo.repo,
     release_id: release.id,
     draft: false,
+    make_latest: markLatest,
   });
   console.log('Done.');
 }
