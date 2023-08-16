@@ -6,7 +6,11 @@ import styled from 'styled-components';
 import { Divider as BaseDivider } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import BaseDeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
-import { TextField, DefaultIconButton } from '../../../../../components';
+import { TextField, DefaultIconButton, AutocompleteField } from '../../../../../components';
+import {
+  PARAMETER_FIELD_COMPONENTS,
+  FIELD_TYPES_WITH_SUGGESTERS,
+} from '../../../../reports/ParameterField';
 
 const Divider = styled(BaseDivider)`
   margin-top: 20px;
@@ -59,7 +63,7 @@ export const ParameterItem = props => {
         </IconButton>
       </Grid>
       <Grid item xs={6}>
-        <TextField
+        <AutocompleteField
           field={{
             name: 'parameterField',
             value: parameterField,
@@ -69,21 +73,27 @@ export const ParameterItem = props => {
           }}
           placeholder="Text"
           label="Field type"
+          options={Object.keys(PARAMETER_FIELD_COMPONENTS).map(key => ({
+            label: key,
+            value: key,
+          }))}
         />
       </Grid>
-      <Grid item xs={6}>
-        <TextField
-          field={{
-            name: 'suggesterEndpoint',
-            value: suggesterEndpoint,
-            onChange: event => {
-              onChange(id, 'suggesterEndpoint', event.target.value);
-            },
-          }}
-          placeholder="Text"
-          label="Suggester endpoint"
-        />
-      </Grid>
+      {FIELD_TYPES_WITH_SUGGESTERS.includes(parameterField) && (
+        <Grid item xs={6}>
+          <TextField
+            field={{
+              name: 'suggesterEndpoint',
+              value: suggesterEndpoint,
+              onChange: event => {
+                onChange(id, 'suggesterEndpoint', event.target.value);
+              },
+            }}
+            placeholder="Text"
+            label="Suggester endpoint"
+          />
+        </Grid>
+      )}
       <Grid item xs={12}>
         <Divider />
       </Grid>

@@ -18,6 +18,11 @@ import { ImagingTypeField } from './ImagingTypeField';
 import { VaccineField } from './VaccineField';
 import { useSuggester } from '../../api';
 
+export const FIELD_TYPES_WITH_SUGGESTERS = [
+  'ParameterSuggesterSelectField',
+  'ParameterAutocompleteField',
+];
+
 const ParameterSuggesterSelectField = ({ suggesterEndpoint, name, ...props }) => (
   <Field component={SuggesterSelectField} endpoint={suggesterEndpoint} name={name} {...props} />
 );
