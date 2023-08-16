@@ -54,15 +54,6 @@ jobs:
 
     # do release management after the critical bits above as we care less if those fail
 
-    - name: Publish the draft release if one exists
-      uses: actions/github-script@v6
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const cwd = '${{ github.workspace }}';
-          const { publishRelease } = await import(`${cwd}/scripts/gha-release-ops.mjs`);
-          await publishRelease(github, context, '${{ steps.tagged.outputs.current_version }}');
-
     - name: Create draft for next release
       uses: actions/github-script@v6
       with:
@@ -71,3 +62,12 @@ jobs:
           const cwd = '${{ github.workspace }}';
           const { createDraftRelease } = await import(`${cwd}/scripts/gha-release-ops.mjs`);
           await createDraftRelease(await import('fs'), github, context, cwd, '${{ steps.nextv.outputs.next_version }}');
+
+    - name: Publish the draft release if one exists
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const cwd = '${{ github.workspace }}';
+          const { publishRelease } = await import(`${cwd}/scripts/gha-release-ops.mjs`);
+          await publishRelease(github, context, '${{ steps.tagged.outputs.current_version }}');
