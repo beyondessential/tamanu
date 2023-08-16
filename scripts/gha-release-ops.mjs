@@ -172,7 +172,7 @@ export async function publishRelease(github, context, version) {
       parseInt(thisMajor) < parseInt(latestMajor) ||
       parseInt(thisMinor) < parseInt(latestMinor)
     ) {
-      console.log('Not marking release as latest');
+      console.log('Not marking release as latest as there is a higher published version');
       console.log(`::notice title=Hotfix::Release ${version} not marked latest`);
       markLatest = false;
     }
