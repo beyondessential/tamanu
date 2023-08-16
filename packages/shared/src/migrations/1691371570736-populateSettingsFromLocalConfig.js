@@ -163,7 +163,7 @@ export async function down(query) {
     `,
     {
       replacements: {
-        keyRegex: `^(?!${SETTINGS_PREDATING_MIGRATION.join('|')}).*$`,
+        keyRegex: `^(?!${SETTINGS_PREDATING_MIGRATION.join('|').replace('.', '\\.')}).*$`,
       },
     },
   );
