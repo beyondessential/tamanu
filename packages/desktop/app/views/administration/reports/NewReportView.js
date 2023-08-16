@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
@@ -6,6 +6,7 @@ import * as yup from 'yup';
 import { Accordion, AccordionDetails, AccordionSummary, Grid } from '@material-ui/core';
 import { REPORT_DEFAULT_DATE_RANGES } from '@tamanu/shared/constants/reports';
 import { useApi } from '../../../api';
+import { useAuth } from '../../../contexts/Auth';
 import {
   Button,
   ButtonRow,
@@ -168,10 +169,17 @@ const NewReportForm = ({ isSubmitting, values, setValues }) => {
 export const NewReportView = () => {
   const api = useApi();
   const queryClient = useQueryClient();
+  const { currentUser } = useAuth();
 
-  const handleSubmit = async payload => {
+  const handleSubmit = async ({ name, query, status, ...queryOptions }) => {
     try {
-      await api.post('admin/reports', payload);
+      await api.post('admin/reports', {
+        name,
+        query,
+        status,
+        queryOptions,
+        userId: currentUser.id,
+      });
       queryClient.invalidateQueries(['reportList']);
     } catch (err) {
       toast.error(`Failed to create report: ${err.message}`);
