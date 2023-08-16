@@ -138,14 +138,14 @@ export const NoteInfoSection = ({
       fontSize={14}
       label="Note type"
       value={noteType}
-      borderHeight={40}
+      borderHeight={50}
     />
     <InfoCardItem
       numberOfColumns={numberOfColumns}
       fontSize={14}
       label={writtenByLabel}
       value={writtenBy}
-      borderHeight={40}
+      borderHeight={50}
     />
     {date && (
       <InfoCardItem
@@ -153,7 +153,7 @@ export const NoteInfoSection = ({
         fontSize={14}
         label={dateLabel}
         value={<DateDisplay date={date} showTime />}
-        borderHeight={40}
+        borderHeight={50}
       />
     )}
   </StyledInfoCard>
