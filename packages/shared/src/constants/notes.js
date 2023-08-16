@@ -27,5 +27,10 @@ export const NOTE_TYPES = {
   HANDOVER: 'handover',
 };
 
+export const NOTE_PERMISSION_TYPES = {
+  OTHER_PRACTITIONER_ENCOUNTER_NOTE: 'OtherPractitionerEncounterNote',
+  TREATMENT_PLAN_NOTE: 'TreatmentPlanNote',
+};
+
 export const NOTE_RECORD_TYPE_VALUES = Object.values(NOTE_RECORD_TYPES);
 export const NOTE_TYPE_VALUES = Object.values(NOTE_TYPES);

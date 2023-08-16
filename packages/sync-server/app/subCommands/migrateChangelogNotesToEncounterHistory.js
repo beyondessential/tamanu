@@ -1,9 +1,9 @@
 import { Command } from 'commander';
 
 import { log } from 'shared/services/logging';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { initDatabase } from '../database';
-import { sleepAsync } from '../../../shared/src/utils/sleepAsync';
 
 export async function migrateChangelogNotesToEncounterHistory(options = {}) {
   const { batchSize = Number.MAX_SAFE_INTEGER } = options;

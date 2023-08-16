@@ -91,9 +91,6 @@ encounter.post(
       throw new NotFoundError();
     }
     req.checkPermission('write', owner);
-    if (body.noteType === NOTE_TYPES.TREATMENT_PLAN) {
-      req.checkPermission('write', 'TreatmentPlan');
-    }
     const note = await owner.createNote(body);
 
     res.send(note);
