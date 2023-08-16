@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { DateDisplay, formatTime } from '../../../components';
 import { REPORT_STATUSES } from '@tamanu/constants';
+import { DateDisplay, formatTime } from '../../../components';
 import { Table } from '../../../components/Table';
 import { Colors } from '../../../constants';
 import { StatusTag } from '../../../components/Tag';
