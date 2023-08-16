@@ -6,9 +6,9 @@ import { NOTE_TYPES, NOTE_PERMISSION_TYPES } from '@tamanu/constants';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-import { Colors, NOTE_TYPE_LABELS } from '../constants';
+import { Colors, NOTE_FORM_MODES, NOTE_TYPE_LABELS } from '../constants';
 import { useAuth } from '../contexts/Auth';
-import { NOTE_FORM_MODES, NoteModal } from './NoteModal';
+import { NoteModal } from './NoteModal';
 import { withPermissionCheck } from './withPermissionCheck';
 
 const StyledEditIcon = styled(EditIcon)`

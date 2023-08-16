@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
-import { NOTE_RECORD_TYPES } from '@tamanu/constants';
+import { NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
 
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
@@ -9,8 +9,19 @@ import { Modal } from './Modal';
 import { NoteForm } from '../forms/NoteForm';
 import { ConfirmModal } from './ConfirmModal';
 import { useAuth } from '../contexts/Auth';
+import { NOTE_FORM_MODES } from '../constants';
 
-export { NOTE_FORM_MODES } from '../forms/NoteForm';
+const getOnBehalfOfId = (noteFormMode, currentUserId, newData, note) => {
+  // When editing non treatment plan notes, we just want to retain the previous onBehalfOfId;
+  if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && note.noteType !== NOTE_TYPES.TREATMENT_PLAN) {
+    return note.onBehalfOfId;
+  }
+
+  // Otherwise, the Written by field is editable, check if it is the same as current user to populate on behalf of
+  return newData.writtenById && currentUserId !== newData.writtenById
+    ? newData.writtenById
+    : undefined;
+};
 
 export const NoteModal = ({
   title = 'Note',
@@ -49,8 +60,7 @@ export const NoteModal = ({
       const newNote = {
         ...data,
         authorId: currentUser.id,
-        onBehalfOfId:
-          data.writtenById && currentUser.id !== data.writtenById ? data.writtenById : undefined,
+        onBehalfOfId: getOnBehalfOfId(noteFormMode, currentUser.id, data, note),
         ...(note
           ? {
               recordType: note.recordType,
@@ -69,7 +79,7 @@ export const NoteModal = ({
       resetForm();
       onSaved();
     },
-    [api, currentUser.id, encounterId, note, onSaved],
+    [api, noteFormMode, currentUser.id, encounterId, note, onSaved],
   );
 
   return (
