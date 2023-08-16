@@ -2,11 +2,15 @@ import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
 import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { createDummyEncounter } from 'shared/demoData/patients';
 import { sleepAsync } from 'shared/utils/sleepAsync';
-import { IMAGING_TYPES, LAB_REQUEST_STATUSES, NOTE_TYPES } from '@tamanu/constants';
+import {
+  IMAGING_TYPES,
+  LAB_REQUEST_STATUSES,
+  NOTE_TYPES,
+  NOTE_RECORD_TYPES,
+} from '@tamanu/constants';
 
 import { createTestContext } from '../../utilities';
 import { CentralSyncManager } from '../../../app/sync/CentralSyncManager';
-import { NOTE_RECORD_TYPES } from '../../../../shared/src/constants';
 
 const waitForSession = async (centralSyncManager, sessionId) => {
   let ready = false;
