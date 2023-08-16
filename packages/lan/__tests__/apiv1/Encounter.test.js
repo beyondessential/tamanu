@@ -12,7 +12,8 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   NOTE_TYPES,
   VITALS_DATA_ELEMENT_IDS,
-} from 'shared/constants';
+  DOCUMENT_SOURCES,
+} from '@tamanu/constants';
 import { setupSurveyFromObject } from 'shared/demoData/surveys';
 import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';
@@ -1352,6 +1353,7 @@ describe('Encounter', () => {
         const result = await app.post(`/v1/encounter/${encounter.id}/documentMetadata`).send({
           name: 'test document',
           type: 'application/pdf',
+          source: DOCUMENT_SOURCES.PATIENT_LETTER,
           documentOwner: 'someone',
           note: 'some note',
         });

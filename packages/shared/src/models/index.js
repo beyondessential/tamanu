@@ -76,6 +76,7 @@ export * from './UserLocalisationCache';
 export * from './Asset';
 export * from './Appointment';
 export * from './DocumentMetadata';
+export * from './PatientLetterTemplate';
 
 export * from './OneTimeLogin';
 export * from './RefreshToken';

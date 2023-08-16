@@ -1,6 +1,6 @@
 import config from 'config';
 import { endOfDay, startOfDay, parseISO } from 'date-fns';
-import { LAB_REQUEST_STATUSES } from '../constants';
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 

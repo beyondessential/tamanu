@@ -3,7 +3,7 @@ import { getDisplayDate } from '../patientCertificates/getDisplayDate';
 import { Divider } from './Divider';
 import { Col, Row } from '../patientCertificates/Layout';
 import { P } from '../patientCertificates/Typography';
-import { getName, getSex, getDOB } from './accessors';
+import { getName, getSex, getDOB } from '../patientAccessors';
 
 const PATIENT_FIELDS = [
   { key: 'name', label: 'Patient Name', accessor: getName, percentageWidth: 40 },

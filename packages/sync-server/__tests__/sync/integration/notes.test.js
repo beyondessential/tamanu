@@ -2,7 +2,7 @@ import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
 import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { createDummyEncounter } from 'shared/demoData/patients';
 import { sleepAsync } from 'shared/utils/sleepAsync';
-import { IMAGING_TYPES, LAB_REQUEST_STATUSES, NOTE_TYPES } from 'shared/constants';
+import { IMAGING_TYPES, LAB_REQUEST_STATUSES, NOTE_TYPES } from '@tamanu/constants';
 
 import { createTestContext } from '../../utilities';
 import { CentralSyncManager } from '../../../app/sync/CentralSyncManager';

@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { FHIR_DATETIME_PRECISION } from 'shared/constants/fhir';
+import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
 import { InvalidParameterError, Exception } from 'shared/errors';
 import { formatFhirDate } from 'shared/utils/fhir/datetime';
 import { createTestContext } from '../utilities';

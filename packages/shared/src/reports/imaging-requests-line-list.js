@@ -1,6 +1,6 @@
 import { subDays } from 'date-fns';
+import { IMAGING_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
 import { toDateTimeString } from '../utils/dateTime';
-import { IMAGING_REQUEST_STATUS_CONFIG } from '../constants';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [

@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
-import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants/labs';
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
 
 import { useSelectableColumn } from '../../Table';
 import { ConfirmCancelRow } from '../../ButtonRow';
