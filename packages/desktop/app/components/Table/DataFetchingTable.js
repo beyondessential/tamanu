@@ -148,7 +148,9 @@ export const DataFetchingTable = memo(
             const isDataToBeUpdated = hasPageChanged || hasSortingChanged || page === 0;
             const displayData = isDataToBeUpdated ? highlightedData : previousFetch.dataSnapshot;
             const shouldResetRows =
-              isLeavingPageOne || (page === 0 && isChangingFromInitialSort) || hasSearchChanged;
+              (isLeavingPageOne && isInitialSort) ||
+              (page === 0 && isChangingFromInitialSort) ||
+              hasSearchChanged;
 
             if (!isFirstFetch) {
               setNewRowCount(rowsSinceInteraction);
