@@ -13,6 +13,7 @@ import {
   NOTE_TYPES,
   VITALS_DATA_ELEMENT_IDS,
   DOCUMENT_SOURCES,
+  NOTE_RECORD_TYPES,
 } from '@tamanu/constants';
 import { setupSurveyFromObject } from 'shared/demoData/surveys';
 import { fake, fakeUser } from 'shared/test-helpers/fake';
@@ -20,7 +21,6 @@ import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTim
 
 import { uploadAttachment } from '../../app/utils/uploadAttachment';
 import { createTestContext } from '../utilities';
-import { NOTE_RECORD_TYPES } from '../../../shared/src/constants';
 
 describe('Encounter', () => {
   let patient = null;
