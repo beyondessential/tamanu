@@ -120,7 +120,7 @@ export const NoteForm = ({
         />
         <Field
           name="writtenById"
-          label="Written by (or on behalf of)"
+          label="Created by (or on behalf of)"
           required={noteFormMode === NOTE_FORM_MODES.CREATE_NOTE}
           component={AutocompleteField}
           suggester={practitionerSuggester}
