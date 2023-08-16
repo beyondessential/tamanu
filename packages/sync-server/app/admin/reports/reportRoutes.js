@@ -4,6 +4,7 @@ import { QueryTypes, Sequelize } from 'sequelize';
 import { NotFoundError, InvalidOperationError } from '@tamanu/shared/errors';
 import { REPORT_VERSION_EXPORT_FORMATS, REPORT_STATUSES } from '@tamanu/shared/constants';
 import { readJSON, sanitizeFilename, verifyQuery } from './utils';
+import { createReportDefinitionVersion } from './createReportDefinitionVersion';
 import { DryRun } from '../errors';
 
 export const reportsRouter = express.Router();
@@ -78,36 +79,9 @@ reportsRouter.post(
   '/:reportId/versions',
   asyncHandler(async (req, res) => {
     const { store, params, body } = req;
-    const {
-      models: { ReportDefinitionVersion },
-      sequelize,
-    } = store;
     const { reportId } = params;
-
-    if (body.versionNumber)
-      throw new InvalidOperationError('Cannot create a report with a version number');
-
-    await verifyQuery(body.query, body.queryOptions.parameters, store);
-    await sequelize.transaction(
-      {
-        // Prevents race condition when determining the next version number
-        isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
-      },
-      async () => {
-        const latestVersion = await ReportDefinitionVersion.findOne({
-          where: { reportDefinitionId: reportId },
-          attributes: ['versionNumber'],
-          order: [['versionNumber', 'DESC']],
-        });
-        const nextVersionNumber = (latestVersion?.versionNumber || 0) + 1;
-        const version = await ReportDefinitionVersion.create({
-          ...body,
-          versionNumber: nextVersionNumber,
-          reportDefinitionId: reportId,
-        });
-        res.send(version);
-      },
-    );
+    const version = await createReportDefinitionVersion(store, reportId, body);
+    res.send(version);
   }),
 );
 
