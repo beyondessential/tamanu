@@ -9,7 +9,7 @@ export const createPatientLetter = (modelName, idField) =>
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'DocumentMetadata');
     const { models, params } = req;
-    const { patientLetterData, clinicianId, name } = req.body;
+    const { patientLetterData, clinicianId, name, facilityId } = req.body;
 
     const documentCreatedAt = getCurrentDateTimeString();
 
@@ -32,6 +32,7 @@ export const createPatientLetter = (modelName, idField) =>
       title: patientLetterData.title,
       body: patientLetterData.body,
       patient: patientLetterData.patient,
+      facilityId,
     });
 
     const { size } = fs.statSync(filePath);

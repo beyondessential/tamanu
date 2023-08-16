@@ -2,9 +2,14 @@ import React from 'react';
 import { CertificateLogo } from './Layout';
 import { CertificateAddress, CertificateTitle } from './Typography';
 
-export const LetterheadSection = ({ getLocalisation, logoSrc, certificateTitle }) => {
-  const title = getLocalisation('templates.letterhead.title');
-  const subTitle = getLocalisation('templates.letterhead.subTitle');
+export const LetterheadSection = ({
+  getLocalisation,
+  logoSrc,
+  certificateTitle,
+  overrideLetterhead,
+}) => {
+  const title = overrideLetterhead?.title ?? getLocalisation('templates.letterhead.title');
+  const subTitle = overrideLetterhead?.subTitle ?? getLocalisation('templates.letterhead.subTitle');
   return (
     <>
       {logoSrc && <CertificateLogo logoSrc={logoSrc} />}
