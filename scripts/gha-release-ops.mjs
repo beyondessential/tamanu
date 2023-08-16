@@ -29,6 +29,29 @@ export async function createReleaseBranch({ readFileSync }, github, context, cwd
   console.log("It doesn't, creating branch...");
   await github.rest.git.createRef({ owner, repo, ref: `refs/${ref}`, sha });
 
+  console.log('Creating release cutoff commit...');
+  await github.graphql(
+    `
+    mutation ($input: CreateCommitOnBranchInput!) {
+      createCommitOnBranch(input: $input) {
+        commit { url }
+      }
+    }
+    `,
+    {
+      input: {
+        branch: {
+          repositoryNameWithOwner: `${owner}/${repo}`,
+          branchName: branch,
+        },
+        message: {
+          headline: `Cut-off for release branch ${major}.${minor}`,
+        },
+        expectedHeadOid: sha,
+      },
+    },
+  );
+
   let nextVersion;
   switch (nextVersionSpec) {
     case 'patch':
