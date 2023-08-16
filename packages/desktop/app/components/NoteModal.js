@@ -63,8 +63,6 @@ export const NoteModal = ({
             }),
       };
 
-      console.log('newNote', newNote);
-
       await api.post('notes', newNote);
 
       resetForm();
@@ -76,7 +74,7 @@ export const NoteModal = ({
   return (
     <>
       <ConfirmModal
-        title="Discard add note"
+        title="Discard note"
         open={openNoteCancelConfirmModal}
         width="sm"
         onCancel={() => setOpenNoteCancelConfirmModal(false)}
