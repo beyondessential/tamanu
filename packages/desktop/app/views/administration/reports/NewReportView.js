@@ -17,6 +17,7 @@ import {
   TextField,
 } from '../../../components';
 import { ParameterList, ParameterItem, SQLQueryEditor } from './components/editing';
+import { FIELD_TYPES_WITH_SUGGESTERS } from '../../reports/ParameterField';
 
 const Container = styled.div`
   padding: 20px;
@@ -64,7 +65,11 @@ const schema = yup.object().shape({
       name: yup.string().required('Parameter name is a required field'),
       label: yup.string().required('Parameter label is a required field'),
       parameterField: yup.string().required('Parameter field type is a required field'),
-      suggesterEndpoint: yup.string().required('Suggester endpoint is a required field'),
+      suggesterEndpoint: yup.string().when('parameterField', {
+        is: parameterField => FIELD_TYPES_WITH_SUGGESTERS.includes(parameterField),
+        then: yup.string().required('Suggester endpoint is a required field'),
+        otherwise: yup.string(),
+      }),
     }),
   ),
   query: yup.string().required('Query is a required field'),
