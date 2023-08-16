@@ -79,7 +79,8 @@ async function getReleases(github, context, cursor = null) {
           nodes {
             databaseId,
             name,
-            tagName
+            tagName,
+            isDraft
           }
           edges {
             cursor
@@ -114,7 +115,7 @@ async function findRelease(github, context, fn) {
     nextCursor = cursor;
 
     for (const release of releases) {
-      if (fn(release.tagName) || fn(release.name)) {
+      if (fn(release.tagName, release) || fn(release.name, release)) {
         return release.databaseId;
       }
     }
@@ -124,16 +125,16 @@ async function findRelease(github, context, fn) {
 }
 
 export async function publishRelease(github, context, version) {
-  console.log(`Find release matching ${version}...`);
+  console.log(`Find draft release matching ${version}...`);
   const releaseId = await findRelease(
     github,
     context,
-    name => name === `v${version}` || name === version,
+    (name, { isDraft }) => isDraft && (name === `v${version}` || name === version),
   );
 
   if (!releaseId) {
-    console.log(`::error title=Not found::Release ${version} not found!`);
-    throw new Error(`Release ${version} not found!`);
+    console.log(`::error title=Draft not found::Draft release ${version} not found!`);
+    throw new Error(`Draft release ${version} not found!`);
   }
 
   console.log(`Get release #${releaseId}...`);
@@ -162,11 +163,11 @@ export async function publishRelease(github, context, version) {
     await findRelease(
       github,
       context,
-      name =>
-        name.startsWith(`v${major + 1}.`) ||
-        name.startsWith(`v${major}.${minor + 1}`) ||
-        name.startsWith(`v${major}.${minor + 2}`) ||
-        name.startsWith(`v${major}.${minor + 3}`),
+      (name, { isDraft }) =>
+        !isDraft &&
+        new RegExp(`^v?(${major + 1}|${major}[.](${minor + 1}|${minor + 2}|${minor + 3}))[.]`).test(
+          name,
+        ),
     )
   ) {
     console.log('Not marking release as latest');
