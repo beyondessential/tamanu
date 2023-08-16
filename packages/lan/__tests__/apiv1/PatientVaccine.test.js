@@ -6,10 +6,12 @@ import {
   VACCINE_RECORDING_TYPES,
   VACCINE_STATUS,
   SETTING_KEYS,
-} from 'shared/constants';
+  ENCOUNTER_TYPES,
+} from '@tamanu/constants';
 import { fake } from 'shared/test-helpers/fake';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
 import { createTestContext } from '../utilities';
+import { REFERENCE_TYPES } from '@tamanu/constants';
 
 describe('PatientVaccine', () => {
   let ctx;
@@ -31,6 +33,7 @@ describe('PatientVaccine', () => {
   let givenVaccine1 = null;
   let notGivenVaccine1 = null;
   let patient = null;
+  let drug = null;
 
   const recordAdministeredVaccine = async (patientObject, vaccine, overrides) => {
     const encounter = await models.Encounter.create(
@@ -51,6 +54,7 @@ describe('PatientVaccine', () => {
         category,
         label,
         schedule,
+        vaccineId: drug.id,
       }),
     );
   };
@@ -70,6 +74,10 @@ describe('PatientVaccine', () => {
 
     await models.ScheduledVaccine.truncate({ cascade: true });
     await models.AdministeredVaccine.truncate({ cascade: true });
+
+    drug = await models.ReferenceData.create(
+      fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),
+    );
 
     // set up reference data
     // create 3 scheduled vaccines, 2 routine and 1 campaign and 2 catch up
@@ -418,6 +426,47 @@ describe('PatientVaccine', () => {
 
       const vaccine = await models.AdministeredVaccine.findByPk(result.body.id);
       expect(vaccine.date).toBe(null);
+    });
+
+    it('Should create a vaccine encounter with the correct description', async () => {
+      const result = await app.post(`/v1/patient/${patient.id}/administeredVaccine`).send({
+        status: VACCINE_STATUS.GIVEN,
+        scheduledVaccineId: scheduled1.id,
+        recorderId: clinician.id,
+        givenBy: 'Clinician',
+        givenElsewhere: true,
+      });
+
+      expect(result).toHaveSucceeded();
+
+      const vaccine = await models.AdministeredVaccine.findByPk(result.body.id);
+      const encounter = await vaccine.getEncounter();
+      expect(encounter).toHaveProperty('encounterType', ENCOUNTER_TYPES.VACCINATION);
+      expect(encounter.reasonForEncounter).toMatch(
+        `Vaccination recorded for ${drug.name} ${scheduled1.schedule}`,
+      );
+    });
+
+    it('Should update reason for encounter with correct description when vaccine is recorded in error', async () => {
+      const result = await app.get(`/v1/patient/${patient.id}/administeredVaccines`);
+      const vaccineId = result.body.data[0].id;
+      const vaccine = await models.AdministeredVaccine.findByPk(vaccineId);
+      const encounter = await vaccine.getEncounter();
+
+      const markedAsRecordedInError = await app
+        .put(`/v1/patient/${patient.id}/administeredVaccine/${vaccineId}`)
+        .send({ status: VACCINE_STATUS.RECORDED_IN_ERROR });
+
+      expect(markedAsRecordedInError).toHaveSucceeded();
+
+      const updatedVaccine = await models.AdministeredVaccine.findByPk(
+        markedAsRecordedInError.body.id,
+      );
+      const updatedEncounter = await updatedVaccine.getEncounter();
+      expect(updatedVaccine.status).toEqual(VACCINE_STATUS.RECORDED_IN_ERROR);
+      expect(updatedEncounter.reasonForEncounter).toMatch(
+        `${encounter.reasonForEncounter} reverted`,
+      );
     });
   });
 

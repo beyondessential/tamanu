@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { log } from 'shared/services/logging';
-import { VITALS_DATA_ELEMENT_IDS } from 'shared/constants';
+import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { initDatabase } from '../database';
 

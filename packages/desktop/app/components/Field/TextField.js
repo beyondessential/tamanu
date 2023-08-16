@@ -105,6 +105,10 @@ export const MultilineTextField = ({ field, ...props }) => (
   />
 );
 
+export const TallMultilineTextField = props => (
+  <MultilineTextField style={{ minHeight: '156px' }} {...props} />
+);
+
 export const ReadOnlyTextField = ({ field, ...props }) => (
   <TextInput
     disabled

@@ -1,13 +1,13 @@
 import { Sequelize } from 'sequelize';
-import { InvalidOperationError } from '../errors';
 import {
   SYNC_DIRECTIONS,
   IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TYPES_VALUES,
   NOTE_TYPES,
   VISIBILITY_STATUSES,
-} from '../constants';
+} from '@tamanu/constants';
 import { getNoteWithType } from '../utils/notes';
+import { InvalidOperationError } from '../errors';
 
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';

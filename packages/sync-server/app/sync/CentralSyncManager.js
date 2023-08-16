@@ -2,7 +2,7 @@ import { trace } from '@opentelemetry/api';
 import { Op, Transaction } from 'sequelize';
 import _config from 'config';
 
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
 import { log } from 'shared/services/logging';
 import {

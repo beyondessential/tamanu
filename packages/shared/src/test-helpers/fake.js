@@ -13,7 +13,7 @@ import {
   REFERENCE_TYPE_VALUES,
   VISIBILITY_STATUSES,
   LAB_REQUEST_STATUSES,
-} from '../constants';
+} from '@tamanu/constants';
 import { toDateTimeString, toDateString } from '../utils/dateTime';
 import { fakeUUID } from '../utils/generateId';
 import {

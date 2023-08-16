@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import { defaultsDeep } from 'lodash';
 
 import { log } from 'shared/services/logging';
-import { IMAGING_TYPES } from 'shared/constants';
+import { IMAGING_TYPES } from '@tamanu/constants';
 
 const fieldSchema = yup
   .object({
@@ -49,6 +49,7 @@ const UNHIDEABLE_FIELDS = [
   'emergencyContactNumber',
   'locationId',
   'locationGroupId',
+  'clinician',
   'diagnosis',
   'userDisplayId',
 ];

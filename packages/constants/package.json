@@ -1,0 +1,26 @@
+{
+  "name": "@tamanu/constants",
+  "version": "1.31.0",
+  "private": true,
+  "description": "Shared constants",
+  "exports": {
+    ".": "./dist/index.js",
+    "./*": "./dist/*.js"
+  },
+  "types": "./dist/index.d.ts",
+  "homepage": "https://github.com/beyondessential/tamanu.git#readme",
+  "repository": "git@github.com:beyondessential/tamanu.git",
+  "author": "Beyond Essential Systems Pty. Ltd.",
+  "license": "SEE LICENSE IN ../../license",
+  "scripts": {
+    "build": "yarn run build:src && yarn run build:types",
+    "build:src": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true src",
+    "build:types": "tsc --declaration --emitDeclarationOnly --noEmit false && move-dts src dist",
+    "build-watch": "yarn run build && yarn run build:src --watch",
+    "lint": "tsc"
+  },
+  "devDependencies": {
+    "@tamanu/build-tooling": "*",
+    "@types/node": "^18.14.6"
+  }
+}

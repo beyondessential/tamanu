@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
-import { ENCOUNTER_TYPES } from '@tamanu/shared/constants';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { DischargeModal } from '../../../components/DischargeModal';
 import { ChangeEncounterTypeModal } from '../../../components/ChangeEncounterTypeModal';
@@ -11,7 +11,7 @@ import { BeginPatientMoveModal } from './BeginPatientMoveModal';
 import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
 import { CancelPatientMoveModal } from './CancelPatientMoveModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import { Button } from '../../../components';
+import { Button, useLocalisedText } from '../../../components';
 import { DropdownButton } from '../../../components/DropdownButton';
 import { MoveModal } from './MoveModal';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
@@ -53,6 +53,7 @@ const ENCOUNTER_MODALS = {
 const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType }) => {
   const { navigateToSummary } = usePatientNavigation();
   const { getLocalisation } = useLocalisation();
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
   const onChangeEncounterType = type => {
     setNewEncounterType(type);
@@ -143,7 +144,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
       onClick: onChangeDepartment,
     },
     {
-      label: 'Change clinician',
+      label: `Change ${clinicianText.toLowerCase()}`,
       onClick: onChangeClinician,
     },
     {

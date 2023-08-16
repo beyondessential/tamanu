@@ -1,7 +1,7 @@
 import config from 'config';
 import { Sequelize, Op } from 'sequelize';
 
-import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from '../constants';
+import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 
 import { Model } from './Model';

@@ -1,6 +1,6 @@
 import { sub } from 'date-fns';
 import { toDateString } from 'shared/utils/dateTime';
-import { ENCOUNTER_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 
 import { makeFilter } from './query';
 
@@ -66,6 +66,7 @@ export const createPatientFilters = filterParams => {
         currentPatientExcludeEncounterTypes: [
           ENCOUNTER_TYPES.IMAGING,
           ENCOUNTER_TYPES.SURVEY_RESPONSE,
+          ENCOUNTER_TYPES.VACCINATION,
         ],
       }),
     ),

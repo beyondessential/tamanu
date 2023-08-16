@@ -1,4 +1,4 @@
-import { NOTE_RECORD_TYPES } from 'shared/constants';
+import { NOTE_RECORD_TYPES } from '@tamanu/constants';
 
 function getParentRecordVerb(verb) {
   switch (verb) {

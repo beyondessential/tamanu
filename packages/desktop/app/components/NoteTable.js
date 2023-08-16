@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState, useRef } from 'react';
 import styled from 'styled-components';
 import EditIcon from '@material-ui/icons/Edit';
 
-import { NOTE_TYPES } from '@tamanu/shared/constants';
+import { NOTE_TYPES } from '@tamanu/constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { Colors, NOTE_TYPE_LABELS } from '../constants';
