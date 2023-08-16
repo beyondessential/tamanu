@@ -76,6 +76,18 @@ reportsRouter.get(
 );
 
 reportsRouter.post(
+  '/',
+  asyncHandler(async (req, res) => {
+    const { store, body } = req;
+    const { ReportDefinition } = store.models;
+    const { name, ...definitionVersion } = body;
+    const report = await ReportDefinition.create({ name });
+    const version = await createReportDefinitionVersion(store, report.id, definitionVersion);
+    res.send({ name: report.name, ...version });
+  }),
+);
+
+reportsRouter.post(
   '/:reportId/versions',
   asyncHandler(async (req, res) => {
     const { store, params, body } = req;
