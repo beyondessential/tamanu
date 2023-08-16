@@ -68,7 +68,7 @@ export const ParameterItem = props => {
             },
           }}
           placeholder="Text"
-          label="Parameter field"
+          label="Field type"
         />
       </Grid>
       <Grid item xs={6}>

@@ -62,7 +62,7 @@ const schema = yup.object().shape({
     yup.object().shape({
       name: yup.string().required('Parameter name is a required field'),
       label: yup.string().required('Parameter label is a required field'),
-      parameterField: yup.string().required('Parameter field is a required field'),
+      parameterField: yup.string().required('Parameter field type is a required field'),
       suggesterEndpoint: yup.string().required('Suggester endpoint is a required field'),
     }),
   ),
