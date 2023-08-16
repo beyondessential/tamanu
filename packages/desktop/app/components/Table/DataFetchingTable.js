@@ -154,7 +154,7 @@ export const DataFetchingTable = memo(
 
             if (!isFirstFetch) {
               setNewRowCount(rowsSinceInteraction);
-              setShowNotification(rowsSinceInteraction > 0 && !(page === 0 && isInitialSort));
+              setShowNotification(count > previousFetch.count && !(page === 0 && isInitialSort));
               if (shouldResetRows) {
                 setShowNotification(false);
                 setNewRowCount(0);
