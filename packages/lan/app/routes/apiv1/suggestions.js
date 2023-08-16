@@ -10,7 +10,7 @@ import {
   REFERENCE_TYPES,
   INVOICE_LINE_TYPES,
   VISIBILITY_STATUSES,
-} from 'shared/constants';
+} from '@tamanu/constants';
 
 export const suggestions = express.Router();
 
@@ -323,3 +323,5 @@ createSuggester('patientLabTestPanelTypes', 'LabTestPanel', (search, query) => {
 // TODO: Use generic LabTest permissions for this suggester
 createAllRecordsSuggesterRoute('labTestPanel', 'LabTestPanel', VISIBILITY_CRITERIA);
 createNameSuggester('labTestPanel', 'LabTestPanel');
+
+createNameSuggester('patientLetterTemplate', 'PatientLetterTemplate');

@@ -70,7 +70,7 @@ export async function migrateNotePagesToNotes({ limit = Number.MAX_SAFE_INTEGER 
         },
       );
 
-      sleepAsync(50);
+      await sleepAsync(50);
 
       fromId = maxId;
       const chunkCount = parseInt(count, 10);

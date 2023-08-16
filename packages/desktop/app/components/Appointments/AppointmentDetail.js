@@ -7,7 +7,7 @@ import Select from 'react-select';
 import CloseIcon from '@material-ui/icons/Close';
 import { IconButton } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
-import { APPOINTMENT_STATUSES } from '@tamanu/shared/constants';
+import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { useQuery } from '@tanstack/react-query';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TextDisplayIdLabel } from '../DisplayIdLabel';
@@ -19,6 +19,7 @@ import { AppointmentModal } from './AppointmentModal';
 import { Button, DeleteButton } from '../Button';
 import { Modal } from '../Modal';
 import { EncounterModal } from '../EncounterModal';
+import { LocalisedText } from '../LocalisedText';
 import { usePatientCurrentEncounter } from '../../api/queries';
 
 const Heading = styled.div`
@@ -296,7 +297,9 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
         />
       </FirstRow>
       <Section>
-        <Heading>Clinician</Heading>
+        <Heading>
+          <LocalisedText path="fields.clinician.shortLabel" />
+        </Heading>
         {clinician.displayName}
       </Section>
       <PatientInfo patient={patient} />

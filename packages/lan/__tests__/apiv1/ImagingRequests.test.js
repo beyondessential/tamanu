@@ -6,7 +6,7 @@ import {
   VISIBILITY_STATUSES,
   REFERENCE_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
-} from 'shared/constants';
+} from '@tamanu/constants';
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { fake } from 'shared/test-helpers/fake';

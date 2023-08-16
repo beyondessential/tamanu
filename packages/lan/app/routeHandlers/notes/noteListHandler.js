@@ -1,6 +1,6 @@
 import Sequelize, { Op } from 'sequelize';
 import asyncHandler from 'express-async-handler';
-import { NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/shared/constants';
+import { NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { checkNotePermission } from '../../utils/checkNotePermission';
 

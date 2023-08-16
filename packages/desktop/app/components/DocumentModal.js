@@ -1,59 +1,55 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Typography } from '@material-ui/core';
-import { Modal, ModalLoader } from './Modal';
+
+import { Modal } from './Modal';
 import { DocumentForm } from '../forms/DocumentForm';
-import { ConfirmCancelRow } from './ButtonRow';
 
-const MessageContainer = styled.div`
-  margin: 0 auto;
-  padding: 30px 0;
-  max-width: 480px;
-`;
+export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable }) => {
+  const [preventClose, setPreventClose] = useState(false);
 
-const MessageTitle = styled(Typography)`
-  font-weight: 500;
-  font-size: 18px;
-  line-height: 21px;
-  margin-bottom: 10px;
-  color: ${props => props.theme.palette.error.main};
-`;
+  const handleClose = useCallback(() => {
+    // Prevent user from navigating away if we're submitting a document
+    if (!preventClose) {
+      onClose();
+    }
+  }, [preventClose, onClose]);
 
-const Message = styled(Typography)`
-  font-weight: 400;
-  color: ${props => props.theme.palette.text.secondary};
-  font-size: 16px;
-  line-height: 18px;
-  margin-bottom: 30px;
-`;
+  const onStart = useCallback(() => setPreventClose(true), [setPreventClose]);
+  const onError = useCallback(() => setPreventClose(false), [setPreventClose]);
+  const onSubmit = useCallback(() => {
+    setPreventClose(false);
+    handleClose();
+    refreshTable();
+  }, [setPreventClose, handleClose, refreshTable]);
 
-export const DocumentModal = React.memo(({ open, onClose, onSubmit, isSubmitting, isError }) => {
-  let ModalBody = (
-    <DocumentForm actionText="Add" onSubmit={onSubmit} onCancel={onClose} editedObject={document} />
-  );
+  useEffect(() => {
+    function handleBeforeUnload(event) {
+      if (preventClose) {
+        // According to the electron docs, using event.returnValue is
+        // is recommended rather than just returning a value.
+        // https://www.electronjs.org/docs/latest/api/browser-window#event-close
+        // eslint-disable-next-line no-param-reassign
+        event.returnValue = false;
+      }
+    }
 
-  if (isSubmitting) {
-    ModalBody = <ModalLoader loadingText="Please wait while we upload your document" />;
-  } else if (isError) {
-    ModalBody = (
-      <div>
-        <MessageContainer>
-          <MessageTitle>Unable to upload file</MessageTitle>
-          <Message>
-            File cannot be uploaded at this time. This may be due to network problems or
-            insufficient storage space on your server. Please try again in a few minutes or contact
-            your system administrator.
-          </Message>
-        </MessageContainer>
-        <ConfirmCancelRow cancelText="Close" onCancel={onClose} />
-      </div>
-    );
-  }
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [preventClose]);
 
   return (
-    <Modal width="md" title="Add document" open={open} onClose={onClose}>
-      {ModalBody}
+    <Modal width="md" title="Add document" open={open} onClose={handleClose}>
+      <DocumentForm
+        onSubmit={onSubmit}
+        onStart={onStart}
+        onError={onError}
+        onCancel={handleClose}
+        editedObject={document}
+        endpoint={endpoint}
+      />
     </Modal>
   );
 });
@@ -61,13 +57,10 @@ export const DocumentModal = React.memo(({ open, onClose, onSubmit, isSubmitting
 DocumentModal.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired,
-  isSubmitting: PropTypes.bool,
-  isError: PropTypes.bool,
+  endpoint: PropTypes.string.isRequired,
+  refreshTable: PropTypes.func.isRequired,
 };
 
 DocumentModal.defaultProps = {
   open: false,
-  isSubmitting: false,
-  isError: false,
 };

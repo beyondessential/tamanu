@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { NOTE_RECORD_TYPES } from '@tamanu/shared/constants';
+
+import { NOTE_RECORD_TYPES } from '@tamanu/constants';
 
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';

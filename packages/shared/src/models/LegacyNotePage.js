@@ -1,11 +1,11 @@
 import { DataTypes } from 'sequelize';
-import { log } from '../services/logging';
 import {
   NOTE_RECORD_TYPE_VALUES,
   NOTE_TYPE_VALUES,
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
-} from '../constants';
+} from '@tamanu/constants';
+import { log } from '../services/logging';
 
 import { Model } from './Model';
 import { LegacyNoteItem } from './LegacyNoteItem';

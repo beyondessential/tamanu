@@ -1,7 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 
-import { VISIBILITY_STATUSES } from 'shared/constants/importable';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { checkNotePermission } from '../../utils/checkNotePermission';
 
