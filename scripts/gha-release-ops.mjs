@@ -61,29 +61,84 @@ export async function createDraftRelease({ readFileSync }, github, context, cwd,
     name: `v${version}`,
     draft: true,
     prerelease: false,
+    make_latest: false,
     body: template.replace(/%VERSION%/g, version),
   });
 }
 
-export async function publishRelease(github, context, version) {
-  let release;
-  try {
-    console.log(`Fetch release ${version}...`);
-    release = (
-      await github.rest.repos.getReleaseByTag({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        tag: `v${version}`,
-      })
-    )?.data;
-  } catch (err) {
-    if (err.toString().includes('Not Found')) {
-      console.log('Release not found, skipping');
-      return;
+async function getReleases(github, context, cursor = null) {
+  const {
+    data: {
+      repository: { releases },
+    },
+  } = await github.graphql(
+    `
+    query($owner: String!, $name: String!, $cursor: String) {) {
+      repository(owner: $owner, name: $name, before: $cursor) {
+        releases(last: 100, orderBy: { field: CREATED_AT, direction: DESC }) {
+          nodes {
+            databaseId,
+            name,
+            tagName
+          }
+          edges {
+            cursor
+          }
+        }
+      }
     }
+    `,
+    {
+      owner: context.repo.owner,
+      name: context.repo.repo,
+      cursor,
+    },
+  );
 
-    throw err;
+  return releases.nodes.length
+    ? {
+        cursor: releases.edges[releases.edges.length - 1].cursor,
+        releases: releases.nodes,
+      }
+    : null;
+}
+
+async function findRelease(github, context, version) {
+  let nextCursor = null;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const data = await getReleases(github, context, nextCursor);
+    if (!data) break;
+
+    const { cursor, releases } = data;
+    nextCursor = cursor;
+
+    for (const release of releases) {
+      if (
+        release.tagName === `v${version}` ||
+        release.tagName === version ||
+        release.name === `v${version}` ||
+        release.name === version
+      ) {
+        return release.databaseId;
+      }
+    }
   }
+
+  return false;
+}
+
+export async function publishRelease(github, context, version) {
+  console.log(`Find release matching ${version}...`);
+  const releaseId = await findRelease(github, context, version);
+  console.log(`Get release #${releaseId}...`);
+  const release = (
+    await github.rest.repos.getRelease({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      releaseId,
+    })
+  )?.data;
 
   if (!release?.draft) {
     console.log(`Release ${version} is not a draft, skipping`);
