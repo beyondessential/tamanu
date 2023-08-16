@@ -15,7 +15,7 @@ jobs:
     permissions:
       contents: write
     steps:
-    - if: "!startsWith(github.ref, 'refs/heads/release/')"
+    - if: (!startsWith(github.ref, 'refs/heads/release/'))
       run: |
         echo "This workflow can only be run on a release branch"
         exit 1
