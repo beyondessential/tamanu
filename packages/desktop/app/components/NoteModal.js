@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { NOTE_RECORD_TYPES } from '@tamanu/shared/constants';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
@@ -49,21 +48,22 @@ export const NoteModal = ({
       const newNote = {
         ...data,
         authorId: currentUser.id,
+        onBehalfOfId:
+          data.writtenById && currentUser.id !== data.writtenById ? data.writtenById : undefined,
         ...(note
           ? {
-              date: getCurrentDateTimeString(),
-              onBehalfOfId: note.onBehalfOfId,
               recordType: note.recordType,
               recordId: note.recordId,
               noteType: note.noteType,
               revisedById: note.revisedById || note.id,
             }
           : {
-              onBehalfOfId: currentUser.id !== data.writtenById ? data.writtenById : undefined,
               recordId: encounterId,
               recordType: NOTE_RECORD_TYPES.ENCOUNTER,
             }),
       };
+
+      console.log('newNote', newNote);
 
       await api.post('notes', newNote);
 
@@ -89,7 +89,7 @@ export const NoteModal = ({
       <Modal
         title={title}
         open={open}
-        width="md"
+        width="lg"
         onClose={() => {
           if (noteContentHasChanged) {
             setOpenNoteCancelConfirmModal(true);

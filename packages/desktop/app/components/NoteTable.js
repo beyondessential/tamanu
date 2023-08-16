@@ -236,7 +236,9 @@ const NoteTable = ({
 
   const handleEditNote = useCallback(
     note => {
-      setModalTitle('Edit note');
+      setModalTitle(
+        note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Update treatment plan' : 'Edit note',
+      );
       setModalCancelText('Cancel');
       setModalNoteFormMode(NOTE_FORM_MODES.EDIT_NOTE);
       setIsNoteModalOpen(true);
