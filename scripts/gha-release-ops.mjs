@@ -76,9 +76,9 @@ async function getReleases(github, context, cursor = null) {
     },
   } = await github.graphql(
     `
-    query($owner: String!, $name: String!, $cursor: String, $batchSize: Integer!) {) {
-      repository(owner: $owner, name: $name, before: $cursor) {
-        releases(last: $batchSize, orderBy: { field: CREATED_AT, direction: DESC }) {
+    query($owner: String!, $name: String!, $cursor: String, $batchSize: Int) {
+      repository(owner: $owner, name: $name) {
+        releases(last: $batchSize, before: $cursor, orderBy: { field: CREATED_AT, direction: DESC }) {
           nodes {
             databaseId,
             name,
