@@ -1,5 +1,8 @@
 /* eslint-disable no-console */
 
+// Set by github
+const MAX_GITHUB_RELEASES_BATCH_SIZE = 100;
+
 export async function createReleaseBranch({ readFileSync }, github, context, cwd, nextVersionSpec) {
   console.log('Reading current version...');
   const { version } = JSON.parse(readFileSync(`${cwd}/package.json`, 'utf-8'));
@@ -73,9 +76,9 @@ async function getReleases(github, context, cursor = null) {
     },
   } = await github.graphql(
     `
-    query($owner: String!, $name: String!, $cursor: String) {) {
+    query($owner: String!, $name: String!, $cursor: String, $batchSize: Integer!) {) {
       repository(owner: $owner, name: $name, before: $cursor) {
-        releases(last: 100, orderBy: { field: CREATED_AT, direction: DESC }) {
+        releases(last: $batchSize, orderBy: { field: CREATED_AT, direction: DESC }) {
           nodes {
             databaseId,
             name,
@@ -90,6 +93,7 @@ async function getReleases(github, context, cursor = null) {
     }
     `,
     {
+      batchSize: MAX_GITHUB_RELEASES_BATCH_SIZE,
       owner: context.repo.owner,
       name: context.repo.repo,
       cursor,
@@ -104,7 +108,7 @@ async function getReleases(github, context, cursor = null) {
     : null;
 }
 
-async function findRelease(github, context, fn) {
+async function findRelease(github, context, testForMatch) {
   let nextCursor = null;
   // eslint-disable-next-line no-constant-condition
   while (true) {
@@ -115,7 +119,7 @@ async function findRelease(github, context, fn) {
     nextCursor = cursor;
 
     for (const release of releases) {
-      if (fn(release.tagName, release) || fn(release.name, release)) {
+      if (testForMatch(release.tagName, release) || testForMatch(release.name, release)) {
         return release;
       }
     }
