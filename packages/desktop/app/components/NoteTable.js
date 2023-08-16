@@ -227,7 +227,7 @@ const NoteTable = ({
   noteModalOnSaved,
   noteType,
 }) => {
-  const { currentUser, ability } = useAuth();
+  const { currentUser } = useAuth();
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
   const [modalNoteFormMode, setModalNoteFormMode] = useState(NOTE_FORM_MODES.EDIT_NOTE);
   const [modalTitle, setModalTitle] = useState('');
