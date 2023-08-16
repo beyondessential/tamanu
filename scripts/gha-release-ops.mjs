@@ -116,12 +116,12 @@ async function findRelease(github, context, fn) {
 
     for (const release of releases) {
       if (fn(release.tagName, release) || fn(release.name, release)) {
-        return release.databaseId;
+        return release;
       }
     }
   }
 
-  return false;
+  return null;
 }
 
 export async function publishRelease(github, context, version) {
@@ -130,7 +130,7 @@ export async function publishRelease(github, context, version) {
     github,
     context,
     (name, { isDraft }) => isDraft && (name === `v${version}` || name === version),
-  );
+  )?.databaseId;
 
   if (!releaseId) {
     console.log(`::error title=Draft not found::Draft release ${version} not found!`);
@@ -154,25 +154,28 @@ export async function publishRelease(github, context, version) {
     return;
   }
 
+  console.log('Fetching latest published release...');
   let markLatest = true;
-  // Lookup published releases for the *next* release branch(es):
-  // if there are any, we won't mark this release as latest.
-  // To deal with skipped release branches, we'll look up to 3 forward.
-  const [major, minor] = version.split('.', 3);
-  if (
-    await findRelease(
-      github,
-      context,
-      (name, { isDraft }) =>
-        !isDraft &&
-        new RegExp(`^v?(${major + 1}|${major}[.](${minor + 1}|${minor + 2}|${minor + 3}))[.]`).test(
-          name,
-        ),
-    )
-  ) {
-    console.log('Not marking release as latest');
-    console.log(`::notice title=Hotfix::Release ${version} not marked latest`);
-    markLatest = false;
+  const latestPublished = await findRelease(github, context, (_, { isDraft }) => !isDraft);
+  if (!latestPublished) {
+    console.log('No published releases found');
+  } else {
+    console.log(
+      `Latest published release is ${latestPublished.name} (tag: ${latestPublished.tagName})`,
+    );
+    const [thisMajor, thisMinor] = version.split('.', 3);
+    const [, latestMajor, latestMinor] = (latestPublished.name ?? latestPublished.tagName).match(
+      /^v?(\d+)[.](\d+)/,
+    );
+
+    if (
+      parseInt(thisMajor) < parseInt(latestMajor) ||
+      parseInt(thisMinor) < parseInt(latestMinor)
+    ) {
+      console.log('Not marking release as latest');
+      console.log(`::notice title=Hotfix::Release ${version} not marked latest`);
+      markLatest = false;
+    }
   }
 
   console.log('Publishing release...');
