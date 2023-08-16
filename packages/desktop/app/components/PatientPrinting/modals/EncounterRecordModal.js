@@ -267,21 +267,21 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   return (
     <Modal {...modalProps}>
       <EncounterRecord
-          patient={patient}
-          encounter={encounter}
-          certificateData={certificateData}
-          encounterTypeHistory={encounterTypeHistory}
-          locationHistory={locationHistory}
-          diagnoses={diagnoses}
-          procedures={procedures}
-          labRequests={updatedLabRequests}
-          imagingRequests={updatedImagingRequests}
-          notes={displayNotes}
-          discharge={discharge}
-          village={village}
-          pad={padData}
-          medications={medications}
-        />
+        patient={patient}
+        encounter={encounter}
+        certificateData={certificateData}
+        encounterTypeHistory={encounterTypeHistory}
+        locationHistory={locationHistory}
+        diagnoses={diagnoses}
+        procedures={procedures}
+        labRequests={updatedLabRequests}
+        imagingRequests={imagingRequests}
+        notes={displayNotes}
+        discharge={discharge}
+        village={village}
+        pad={padData}
+        medications={medications}
+      />
     </Modal>
   );
 };

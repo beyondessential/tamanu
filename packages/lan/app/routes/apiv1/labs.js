@@ -21,6 +21,7 @@ import {
   makeSimpleTextFilterFactory,
   makeSubstringTextFilterFactory,
 } from '../../utils/query';
+import { notesWithSingleItemListHandler } from '../../routeHandlers';
 
 export const labRequest = express.Router();
 
