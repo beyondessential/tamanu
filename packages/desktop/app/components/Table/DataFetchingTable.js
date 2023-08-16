@@ -44,6 +44,7 @@ export const DataFetchingTable = memo(
 
     const [newRowCount, setNewRowCount] = useState(0);
     const [showNotification, setShowNotification] = useState(false);
+    const [isNotificationMuted, setIsNotificationMuted] = useState(false);
 
     const api = useApi();
 
@@ -140,7 +141,7 @@ export const DataFetchingTable = memo(
               isEqual(previousFetch.sorting, initialSort) && hasSortingChanged;
 
             // When autorefreshing past page one, we dont want to move rows down as it updates. Only if you are on
-            // page one should it live update, otherwise the updates come through when navigating
+            // page one sorted reverse chronologically should it live update, otherwise the updates come through when navigating/sorting
             const isLiveUpdating = !isFirstFetch && isInitialSort && !hasSearchChanged;
             const highlightedData = isLiveUpdating
               ? highlightDataRows(transformedData, rowsSinceInteraction)
@@ -152,9 +153,13 @@ export const DataFetchingTable = memo(
               (page === 0 && isChangingFromInitialSort) ||
               hasSearchChanged;
 
+            if (count > previousFetch.count) {
+              setIsNotificationMuted(false);
+            }
+
             if (!isFirstFetch) {
               setNewRowCount(rowsSinceInteraction);
-              setShowNotification(count > previousFetch.count && !(page === 0 && isInitialSort));
+              setShowNotification(rowsSinceInteraction > 0 && !(page === 0 && isInitialSort));
               if (shouldResetRows) {
                 setShowNotification(false);
                 setNewRowCount(0);
@@ -205,7 +210,6 @@ export const DataFetchingTable = memo(
         const tableAutorefresh = setInterval(() => refreshTable(), autoRefresh.interval);
         return () => clearInterval(tableAutorefresh);
       }
-
       return () => {}; // Needed to add return due to the conditional return above
 
       // Needed to compare fetchOptions as a string instead of an object
@@ -233,10 +237,13 @@ export const DataFetchingTable = memo(
     const notificationMessage = `${newRowCount} new records available to view`;
     return (
       <>
-        {showNotification && (
+        {!isNotificationMuted && showNotification && (
           <TableNotification
             message={notificationMessage}
-            clearNotification={() => setShowNotification(false)}
+            clearNotification={() => {
+              setShowNotification(false);
+              setIsNotificationMuted(true);
+            }}
           />
         )}
         {enableAutoRefresh && (
