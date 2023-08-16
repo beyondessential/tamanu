@@ -6,7 +6,7 @@ import Divider from '@material-ui/core/Divider';
 import EditIcon from '@material-ui/icons/Edit';
 import Tooltip from '@material-ui/core/Tooltip';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import { NOTE_PERMISSION_TYPES } from '@tamanu/shared/constants';
+import { NOTE_PERMISSION_TYPES } from '@tamanu/constants';
 
 import { DateDisplay } from './DateDisplay';
 import { TextInput } from './Field/TextField';

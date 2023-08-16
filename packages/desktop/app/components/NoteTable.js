@@ -6,9 +6,9 @@ import { NOTE_TYPES, NOTE_PERMISSION_TYPES } from '@tamanu/constants';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-import { Colors, NOTE_TYPE_LABELS } from '../constants';
+import { Colors, NOTE_FORM_MODES, NOTE_TYPE_LABELS } from '../constants';
 import { useAuth } from '../contexts/Auth';
-import { NOTE_FORM_MODES, NoteModal } from './NoteModal';
+import { NoteModal } from './NoteModal';
 import { withPermissionCheck } from './withPermissionCheck';
 
 const StyledEditIcon = styled(EditIcon)`
@@ -237,7 +237,9 @@ const NoteTable = ({
 
   const handleEditNote = useCallback(
     note => {
-      setModalTitle('Edit note');
+      setModalTitle(
+        note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Update treatment plan' : 'Edit note',
+      );
       setModalCancelText('Cancel');
       setModalNoteFormMode(NOTE_FORM_MODES.EDIT_NOTE);
       setIsNoteModalOpen(true);

@@ -218,7 +218,7 @@ export const practitioner = [
 
   { verb: 'run', noun: 'StaticReport' },
 
-  // { verb: 'write', noun: 'OtherPractitionerEncounterNote' },
+  { verb: 'write', noun: 'OtherPractitionerEncounterNote' },
   { verb: 'write', noun: 'TreatmentPlanNote' },
 
   { verb: 'read', noun: 'EncounterNote' },
