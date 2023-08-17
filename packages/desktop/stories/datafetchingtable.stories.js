@@ -30,11 +30,6 @@ const dummyColumns = [
   { key: 'name', title: 'Patient' },
   { key: 'location', title: 'Location' },
   { key: 'age', title: 'Age' },
-  {
-    key: 'date',
-    title: 'Date',
-    accessor: ({ date }) => <DateDisplay date={date} timeOnlyTooltip />,
-  },
 ];
 
 const dummyApi = {
@@ -77,12 +72,18 @@ const TableWithDynamicData = () => {
     };
   }, []);
 
+  const dateColumn = {
+    key: 'date',
+    title: 'Date',
+    accessor: ({ date }) => <DateDisplay date={date} timeOnlyTooltip />,
+  };
+
   return (
     <ApiContext.Provider value={dummyApi}>
       <Container>
         <DataFetchingTable
           endpoint="ages"
-          columns={dummyColumns}
+          columns={dummyColumns.concat(dateColumn)}
           initialSort={{ order: 'desc', orderBy: 'date' }}
           autoRefresh
         />
