@@ -75,6 +75,7 @@ export const NoteForm = ({
         date: getCurrentDateTimeString(),
         noteType: note?.noteType,
         writtenById: currentUser.id,
+        content: note?.content,
       }}
       validationSchema={yup.object().shape({
         noteType: yup
@@ -83,7 +84,14 @@ export const NoteForm = ({
           .required('Note type is required'),
         date: yup.date().required('Date is required'),
         content: yup.string().required('Content is required'),
-        writtenById: foreignKey('Written by (or on behalf of) is required'),
+        writtenById: foreignKey(
+          `${
+            noteFormMode === NOTE_FORM_MODES.EDIT_NOTE &&
+            note?.noteType === NOTE_TYPES.TREATMENT_PLAN
+              ? 'Updated'
+              : 'Created'
+          } by (or on behalf of) is required`,
+        ),
       })}
     />
   );
