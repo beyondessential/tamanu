@@ -76,4 +76,9 @@ storiesOf('DataFetchingTable', module)
     <ApiContext.Provider value={paginationErrorApi}>
       <DataFetchingTable endpoint="ages" columns={dummyColumns} />
     </ApiContext.Provider>
+  ))
+  .add('With autorefresh', () => (
+    <ApiContext.Provider value={paginationErrorApi}>
+      <DataFetchingTable endpoint="ages" columns={dummyColumns} autorefresh />
+    </ApiContext.Provider>
   ));
