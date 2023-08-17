@@ -33,7 +33,7 @@ export async function createReportDefinitionVersion(store, reportId, definition,
         versionNumber: nextVersionNumber,
         reportDefinitionId,
       });
-      return version;
+      return { name, ...version };
     },
   );
 }
