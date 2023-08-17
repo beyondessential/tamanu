@@ -206,7 +206,6 @@ export const DataFetchingTable = memo(
         }
       })();
 
-      // Check if autoregresh is enabled in config and that the autorefresh prop is added to table
       if (enableAutoRefresh) {
         const tableAutorefresh = setInterval(() => refreshTable(), autoRefresh.interval);
         return () => clearInterval(tableAutorefresh);
