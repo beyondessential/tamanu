@@ -145,59 +145,17 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
     deletedAt,
     createdBy,
     versionNumber,
+    active,
     ...editableData
   } = version;
   const { name, id: reportDefinitionId } = report;
-  const [showSqlEditor, setShowSqlEditor] = useState(false);
-  const [isValid, setIsValid] = useState(true);
-  const [dirty, setDirty] = useState(false);
-  const [value, setValue] = useState(editableData);
-  const [submitting, setSubmitting] = useState(false);
 
-  // Handle change is debounced by jsoneditor-react
-  const handleChange = json => {
-    setValue(json);
-    setDirty(JSON.stringify(json) !== JSON.stringify(editableData));
-    setIsValid(ajv.validate(schema, json));
-  };
-
-  // Force jsoneditor to re-render
-  const triggerRefresh = json => {
-    setValue(null);
-    setTimeout(() => setValue(json), 0);
-  };
-
-  const handleReset = () => {
-    triggerRefresh(editableData);
-  };
-
-  const handleUpdate = query => {
-    if (query === editableData.query) return;
-    setDirty(true);
-    const updatedData = { ...value, query };
-    triggerRefresh(updatedData);
-  };
-
-  const handleShowSqlEditor = () => setShowSqlEditor(true);
-  const handleCloseSqlEditor = () => setShowSqlEditor(false);
-
-  const handleSave = async () => {
-    try {
-      setSubmitting(true);
-      const res = await onSave(value);
-      toast.success(`Successfully created new version ${res.versionNumber}`);
-      setDirty(false);
-    } catch (err) {
-      toast.error(<VersionError errorMessage={err.message} />);
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  console.log(report, version);
 
   return (
     <>
       <EditorContainer>
-        <ButtonContainer>
+        {/* <ButtonContainer>
           <StyledButton onClick={onBack}>Back</StyledButton>
           <StyledButton onClick={handleReset} disabled={!dirty}>
             Reset
@@ -208,7 +166,7 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
             <SaveIcon />
             Save new version
           </SaveButton>
-        </ButtonContainer>
+        </ButtonContainer> */}
         <DetailList>
           <VersionInfo reportDefinitionId={reportDefinitionId} name={name} version={version} />
         </DetailList>
