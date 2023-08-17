@@ -51,6 +51,11 @@ const ImportFeedback = ({ feedback }) => (
       {feedback.createdDefinition ? 'Created new' : 'Updated existing'} definition:{' '}
       <b>{feedback.name}</b>
     </BodyText>
+    {feedback.reportDefinitionId && (
+      <BodyText mb={1}>
+        Report id: <b>{feedback.reportDefinitionId}</b>
+      </BodyText>
+    )}
     <BodyText>
       created new version: <b>{feedback.versionNumber}</b>
     </BodyText>
@@ -106,9 +111,9 @@ export const ImportReportView = () => {
 
   const handleSubmit = async payload => {
     try {
-      const { reportDefinitionId, ...importValues } = payload;
+      const { reportDefinitionId, file, ...importValues } = payload;
       setFeedback(null);
-      const res = await api.post('admin/reports/import', importValues);
+      const res = await api.postWithFileUpload('admin/reports/import', file, importValues);
       const { dryRun, name } = importValues;
       setFeedback({ ...res, name, dryRun });
       if (!dryRun) {
