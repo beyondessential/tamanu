@@ -35,9 +35,7 @@ exports[`settings get (global) retrieves an object 1`] = `
 `;
 
 exports[`settings list (facility) shows all settings 1`] = `
-"fhir.worker.assumeDroppedAfter
-fhir.worker.heartbeat
-test.tree.branch.leaf
+"test.tree.branch.leaf
 test.tree.branch.root (facility only)
 test.tree.flower
 test.value"
@@ -52,9 +50,7 @@ test.tree.flower"
 `;
 
 exports[`settings list (global) shows all settings 1`] = `
-"fhir.worker.assumeDroppedAfter
-fhir.worker.heartbeat
-test.tree.branch.leaf
+"test.tree.branch.leaf
 test.tree.flower
 test.value"
 `;
