@@ -65,10 +65,10 @@ storiesOf('DataFetchingTable', module)
   ))
   .add('With optionRow', () => (
     <ApiContext.Provider value={dummyApi}>
-      <DataFetchingTable 
-        endpoint="ages" 
+      <DataFetchingTable
+        endpoint="ages"
         columns={dummyColumns}
-        optionRow={<CheckInput label={<small>Dummy checkbox</small>} />} 
+        optionRow={<CheckInput label={<small>Dummy checkbox</small>} />}
       />
     </ApiContext.Provider>
   ))
@@ -77,8 +77,9 @@ storiesOf('DataFetchingTable', module)
       <DataFetchingTable endpoint="ages" columns={dummyColumns} />
     </ApiContext.Provider>
   ))
-  .add('With autorefresh', () => (
-    <ApiContext.Provider value={paginationErrorApi}>
+  // Create mock endpoint for localisation to enable autorefresh
+  .add('With autorefresh', () => ( 
+    <ApiContext.Provider value={dummyApi}>
       <DataFetchingTable endpoint="ages" columns={dummyColumns} autorefresh />
     </ApiContext.Provider>
   ));
