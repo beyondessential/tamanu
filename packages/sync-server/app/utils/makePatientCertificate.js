@@ -4,7 +4,7 @@ import path from 'path';
 import QRCode from 'qrcode';
 import { get } from 'lodash';
 import config from 'config';
-import { ASSET_NAMES, ASSET_FALLBACK_NAMES } from '@tamanu/shared/constants';
+import { ASSET_NAMES, ASSET_FALLBACK_NAMES } from '@tamanu/constants';
 
 import {
   tmpdir,
