@@ -126,6 +126,7 @@ export const DataFetchingTable = memo(
           const transformedData = transformRow ? data.map(transformRow) : data;
 
           if (enableAutoRefresh) {
+            // TODO: extract as much of this into a custom hook as possible
             const { previousFetch } = fetchState;
             const isFirstFetch = previousFetch.count === 0;
             const isInitialSort = isEqual(sorting, initialSort);
