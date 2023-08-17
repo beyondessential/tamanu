@@ -234,7 +234,9 @@ export const DataFetchingTable = memo(
     const { data, count, isLoading, errorMessage, previousFetch } = fetchState;
     const { order, orderBy } = sorting;
 
-    const notificationMessage = `${newRowCount} new records available to view`;
+    const notificationMessage = `${newRowCount} new record${
+      newRowCount > 1 ? 's' : ''
+    } available to view`;
     return (
       <>
         {!isNotificationMuted && showNotification && (
