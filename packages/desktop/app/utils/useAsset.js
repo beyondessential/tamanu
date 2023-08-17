@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ASSET_FALLBACK_NAMES } from '@tamanu/shared/constants';
+import { ASSET_FALLBACK_NAMES } from '@tamanu/constants';
 import { useApi } from '../api';
 
 export const useAsset = assetName => {

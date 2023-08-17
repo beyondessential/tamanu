@@ -1,5 +1,5 @@
 import { useSelector } from 'react-redux';
-import { ASSET_NAMES } from '@tamanu/shared/constants';
+import { ASSET_NAMES } from '@tamanu/constants';
 import { useLocalisation } from '../contexts/Localisation';
 import { useAsset } from './useAsset';
 import { useTemplate } from './useTemplate';
