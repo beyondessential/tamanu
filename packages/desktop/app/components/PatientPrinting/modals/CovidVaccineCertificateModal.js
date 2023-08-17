@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 
-import { ICAO_DOCUMENT_TYPES } from '@tamanu/shared/constants';
+import { ICAO_DOCUMENT_TYPES } from '@tamanu/constants';
 import { CovidVaccineCertificate } from '@tamanu/shared/utils/patientCertificates';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 

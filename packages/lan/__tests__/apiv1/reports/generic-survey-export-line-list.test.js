@@ -1,5 +1,5 @@
 import { randomReferenceDataObjects } from 'shared/demoData/patients';
-import { PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { fake } from 'shared/test-helpers';
 import { toDateTimeString, format } from 'shared/utils/dateTime';
 import { subDays } from 'date-fns';

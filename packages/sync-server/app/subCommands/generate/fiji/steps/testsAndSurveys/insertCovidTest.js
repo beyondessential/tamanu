@@ -1,5 +1,5 @@
 import { fake } from 'shared/test-helpers';
-import { LAB_TEST_STATUSES, LAB_REQUEST_STATUSES } from 'shared/constants';
+import { LAB_TEST_STATUSES, LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { chance } from '../../../chance';
 
 export const insertCovidTest = async ({ LabTest, LabRequest }, setupData, { encounterId }) => {

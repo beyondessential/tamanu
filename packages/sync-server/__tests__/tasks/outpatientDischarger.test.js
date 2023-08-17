@@ -1,5 +1,5 @@
 import { sub, isSameDay, startOfDay, endOfDay, parseISO } from 'date-fns';
-import { ENCOUNTER_TYPES } from 'shared/constants/encounters';
+import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
 import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { toDateTimeString } from 'shared/utils/dateTime';
 

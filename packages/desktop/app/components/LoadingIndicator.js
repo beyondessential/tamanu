@@ -9,7 +9,7 @@ const LoadingIconContainer = styled.div`
   background: ${props => props.backgroundColor || '#cecece'};
   opacity: 0.5;
   overflow: hidden;
-  z-index: 9999;
+  z-index: 1200; // high but below a modal's z-index of 1300
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
 

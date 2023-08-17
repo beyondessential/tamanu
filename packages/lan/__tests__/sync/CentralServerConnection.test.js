@@ -1,4 +1,4 @@
-import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
+import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import {
   FacilityAndSyncVersionIncompatibleError,
   RemoteCallFailedError,

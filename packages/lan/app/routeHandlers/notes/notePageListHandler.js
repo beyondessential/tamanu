@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import { VISIBILITY_STATUSES } from 'shared/constants/importable';
+import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 
 import { checkNotePermission } from '../../utils/checkNotePermission';
 

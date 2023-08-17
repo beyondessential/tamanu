@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const { CERTIFICATE_NOTIFICATION_STATUSES } = require('@tamanu/shared/constants');
+const { CERTIFICATE_NOTIFICATION_STATUSES } = require('@tamanu/constants');
 
 module.exports = {
   up: async query => {

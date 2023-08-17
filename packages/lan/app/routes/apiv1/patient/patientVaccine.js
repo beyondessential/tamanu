@@ -9,7 +9,7 @@ import {
   VACCINE_STATUS,
   SETTING_KEYS,
   VISIBILITY_STATUSES,
-} from 'shared/constants';
+} from '@tamanu/constants';
 import { NotFoundError } from 'shared/errors';
 import { getCurrentDateString } from 'shared/utils/dateTime';
 
@@ -106,13 +106,29 @@ patientVaccineRoutes.get(
 patientVaccineRoutes.put(
   '/:id/administeredVaccine/:vaccineId',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const { db, models, params } = req;
     req.checkPermission('read', 'PatientVaccine');
-    const object = await models.AdministeredVaccine.findByPk(params.vaccineId);
-    if (!object) throw new NotFoundError();
+    const updatedVaccineData = req.body;
+    const vaccine = await models.AdministeredVaccine.findByPk(params.vaccineId);
+    if (!vaccine) throw new NotFoundError();
     req.checkPermission('write', 'PatientVaccine');
-    await object.update(req.body);
-    res.send(object);
+
+    const updatedVaccine = await db.transaction(async () => {
+      await vaccine.update(updatedVaccineData);
+
+      if (updatedVaccineData.status === VACCINE_STATUS.RECORDED_IN_ERROR) {
+        const encounter = await models.Encounter.findByPk(vaccine.encounterId);
+
+        // If encounter type is VACCINATION, it means the encounter only has vaccine attached to it
+        if (encounter.encounterType === ENCOUNTER_TYPES.VACCINATION) {
+          encounter.reasonForEncounter = `${encounter.reasonForEncounter} reverted`;
+          await encounter.save();
+        }
+      }
+
+      return vaccine;
+    });
+    res.send(updatedVaccine);
   }),
 );
 

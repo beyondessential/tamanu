@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
-import { VACCINATION_CERTIFICATE } from '@tamanu/shared/constants';
+import { VACCINATION_CERTIFICATE } from '@tamanu/constants';
 import { VaccineCertificate } from '@tamanu/shared/utils/patientCertificates';
 
 import { Modal } from '../../Modal';

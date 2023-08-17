@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { SURVEY_TYPES } from '@tamanu/shared/constants';
+import { SURVEY_TYPES } from '@tamanu/constants';
 
 import { useApi } from 'desktop/app/api';
 import { reloadPatient } from 'desktop/app/store/patient';
