@@ -1,4 +1,4 @@
-import Sequelize, { QueryTypes } from 'sequelize';
+import { QueryTypes } from 'sequelize';
 
 export async function up(query) {
   const dupes = await query.sequelize.query(
@@ -20,17 +20,13 @@ export async function up(query) {
     );
   }
 
-  await query.changeColumn('report_definitions', 'name', {
-    type: Sequelize.STRING,
-    allowNull: false,
-    unique: true,
-  });
+  await query.sequelize.query(`
+    ALTER TABLE report_definitions ADD CONSTRAINT report_definitions_name_key UNIQUE (name);
+  `);
 }
 
 export async function down(query) {
-  await query.changeColumn('report_definitions', 'name', {
-    type: Sequelize.STRING,
-    allowNull: false,
-    unique: false,
-  });
+  await query.sequelize.query(`
+    ALTER TABLE report_definitions DROP CONSTRAINT report_definitions_name_key;
+ `);
 }
