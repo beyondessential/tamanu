@@ -13,7 +13,7 @@ export async function createReportDefinitionVersion(store, reportId, definitionV
   }
 
   await verifyQuery(definitionVersion.query, definitionVersion.queryOptions.parameters, store);
-  await sequelize.transaction(
+  return sequelize.transaction(
     {
       // Prevents race condition when determining the next version number
       isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,

@@ -85,7 +85,7 @@ reportsRouter.post(
     const { name, ...definitionVersion } = body;
     const report = await ReportDefinition.create({ name });
     const version = await createReportDefinitionVersion(store, report.id, definitionVersion);
-    res.send({ name: report.name, ...version });
+    res.send({ name: report.name, ...version.get({ plain: true }) });
   }),
 );
 

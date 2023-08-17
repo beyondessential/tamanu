@@ -234,7 +234,7 @@ describe('reportRoutes', () => {
     });
     it('should export a report as sql', async () => {
       const { ReportDefinitionVersion } = models;
-      const versionData = getMockReportVersion(1, 'select \n bark from dog');
+      const versionData = getMockReportVersion(1, 'select\n bark from dog');
       const v1 = await ReportDefinitionVersion.create(versionData);
       const res = await adminApp.get(
         `/v1/admin/reports/${testReport.id}/versions/${v1.id}/export/sql`,
