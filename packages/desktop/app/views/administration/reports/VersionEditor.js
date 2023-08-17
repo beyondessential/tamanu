@@ -8,7 +8,6 @@ import SaveAsIcon from '@material-ui/icons/SaveAltSharp';
 import EditIcon from '@material-ui/icons/EditSharp';
 import { OutlinedButton, CardItem, formatShort, formatTime } from '../../../components';
 import { schema, templates } from './schema';
-import { useAuth } from '../../../contexts/Auth';
 import { Colors } from '../../../constants';
 import { ErrorBoundary } from '../../../components/ErrorBoundary';
 import { QueryEditor } from './QueryEditor';
@@ -153,7 +152,6 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
     ...editableData
   } = version;
   const { name, id: reportDefinitionId } = report;
-  const { currentUser } = useAuth();
   const [showSqlEditor, setShowSqlEditor] = useState(false);
   const [isValid, setIsValid] = useState(true);
   const [dirty, setDirty] = useState(false);
@@ -190,10 +188,7 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
   const handleSave = async () => {
     try {
       setSubmitting(true);
-      const res = await onSave({
-        ...value,
-        userId: currentUser.id,
-      });
+      const res = await onSave(value);
       toast.success(`Successfully created new version ${res.versionNumber}`);
       setDirty(false);
     } catch (err) {

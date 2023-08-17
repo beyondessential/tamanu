@@ -2,11 +2,16 @@ import React from 'react';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
+import { capitalize } from 'lodash';
 import * as yup from 'yup';
 import { Accordion, AccordionDetails, AccordionSummary, Grid } from '@material-ui/core';
-import { REPORT_DEFAULT_DATE_RANGES } from '@tamanu/constants/reports';
+import {
+  REPORT_DEFAULT_DATE_RANGES_VALUES,
+  REPORT_DATA_SOURCES,
+  REPORT_DATA_SOURCE_VALUES,
+  REPORT_STATUSES_VALUES,
+} from '@tamanu/constants/reports';
 import { useApi } from '../../../api';
-import { useAuth } from '../../../contexts/Auth';
 import {
   Button,
   ButtonRow,
@@ -31,17 +36,17 @@ const StatusField = styled(Field)`
   width: 130px;
 `;
 
-const STATUS_OPTIONS = [
-  { label: 'Draft', value: 'draft' },
-  { label: 'Published', value: 'published' },
-];
+const STATUS_OPTIONS = REPORT_STATUSES_VALUES.map(status => ({
+  label: capitalize(status),
+  value: status,
+}));
 
 const DATA_SOURCE_OPTIONS = [
-  { label: 'Facility server', value: 'thisFacility' },
-  { label: 'Central server', value: 'allFacilities' },
+  { label: 'Facility server', value: REPORT_DATA_SOURCES.THIS_FACILITY },
+  { label: 'Central server', value: REPORT_DATA_SOURCES.ALL_FACILITIES },
 ];
 
-const DATE_RANGE_OPTIONS = Object.entries(REPORT_DEFAULT_DATE_RANGES).map(([, value]) => ({
+const DATE_RANGE_OPTIONS = REPORT_DEFAULT_DATE_RANGES_VALUES.map(value => ({
   label: value,
   value,
 }));
@@ -54,6 +59,7 @@ const schema = yup.object().shape({
   name: yup.string().required('Report name is a required field'),
   dataSources: yup
     .array()
+    .of(yup.string().oneOf(REPORT_DATA_SOURCE_VALUES))
     .min(1)
     .required('Select at least one data source'),
   defaultDateRange: yup
@@ -90,7 +96,7 @@ const NewReportForm = ({ isSubmitting, values, setValues }) => {
     newParams[paramIndex] = { ...newParams[paramIndex], [field]: newValue };
     setParams(newParams);
   };
-  const onParamsDelete = paramId => setParams([...params.filter(p => p.id !== paramId)]);
+  const onParamsDelete = paramId => setParams(params.filter(p => p.id !== paramId));
 
   return (
     <Container>
@@ -158,10 +164,7 @@ const NewReportForm = ({ isSubmitting, values, setValues }) => {
           name="status"
           component={SelectField}
           isClearable={false}
-          options={[
-            { label: 'Draft', value: 'draft' },
-            { label: 'Published', value: 'published' },
-          ]}
+          options={STATUS_OPTIONS}
         />
         <Button variant="contained" color="primary" type="submit" isSubmitting={isSubmitting}>
           Create
@@ -174,7 +177,6 @@ const NewReportForm = ({ isSubmitting, values, setValues }) => {
 export const NewReportView = () => {
   const api = useApi();
   const queryClient = useQueryClient();
-  const { currentUser } = useAuth();
 
   const handleSubmit = async ({ name, query, status, ...queryOptions }) => {
     try {
@@ -183,7 +185,6 @@ export const NewReportView = () => {
         query,
         status,
         queryOptions,
-        userId: currentUser.id,
       });
       queryClient.invalidateQueries(['reportList']);
     } catch (err) {
@@ -198,8 +199,9 @@ export const NewReportView = () => {
         validationSchema={schema}
         initialValues={{
           status: STATUS_OPTIONS[0].value,
-          dataSources: DATA_SOURCE_OPTIONS.map(o => o.value),
+          dataSources: [...REPORT_DATA_SOURCE_VALUES],
           defaultDateRange: DATE_RANGE_OPTIONS[0].value,
+          parameters: [],
         }}
         render={NewReportForm}
       />

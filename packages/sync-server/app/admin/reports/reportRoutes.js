@@ -80,21 +80,18 @@ reportsRouter.get(
 reportsRouter.post(
   '/',
   asyncHandler(async (req, res) => {
-    const { store, body } = req;
-    const { ReportDefinition } = store.models;
-    const { name, ...definitionVersion } = body;
-    const report = await ReportDefinition.create({ name });
-    const version = await createReportDefinitionVersion(store, report.id, definitionVersion);
-    res.send({ name: report.name, ...version.get({ plain: true }) });
+    const { store, body, user } = req;
+    const version = await createReportDefinitionVersion(store, null, body, user.id);
+    res.send(version);
   }),
 );
 
 reportsRouter.post(
   '/:reportId/versions',
   asyncHandler(async (req, res) => {
-    const { store, params, body } = req;
+    const { store, params, body, user } = req;
     const { reportId } = params;
-    const version = await createReportDefinitionVersion(store, reportId, body);
+    const version = await createReportDefinitionVersion(store, reportId, body, user.id);
     res.send(version);
   }),
 );

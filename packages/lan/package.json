@@ -78,7 +78,7 @@
     "winston": "^3.2.1",
     "winston-transport": "^4.5.0",
     "xlsx": "^0.16.9",
-    "yup": "^0.27.0"
+    "yup": "^0.32.9"
   },
   "imports": {
     "shared": "@tamanu/shared"

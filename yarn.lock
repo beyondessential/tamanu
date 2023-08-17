@@ -13185,11 +13185,6 @@ flush-write-stream@^1.0.0:
     inherits "^2.0.3"
     readable-stream "^2.3.6"
 
-fn-name@~2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/fn-name/-/fn-name-2.0.1.tgz#5214d7537a4d06a4a301c0cc262feb84188002e7"
-  integrity sha512-oIDB1rXf3BUnn00bh2jVM0byuqr94rBh6g7ZfdKcbmp1we2GQtPzKdloyvBXHs+q3fvxB8EqX5ecFba3RwCSjA==
-
 fn.name@1.x.x:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/fn.name/-/fn.name-1.1.0.tgz#26cad8017967aea8731bc42961d04a3d5988accc"
@@ -20556,11 +20551,6 @@ prop-types@^15.0, prop-types@^15.0.0, prop-types@^15.5.10, prop-types@^15.5.7, p
     object-assign "^4.1.1"
     react-is "^16.13.1"
 
-property-expr@^1.5.0:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/property-expr/-/property-expr-1.5.1.tgz#22e8706894a0c8e28d58735804f6ba3a3673314f"
-  integrity sha512-CGuc0VUTGthpJXL36ydB6jnbyOf/rAHFvmVrJlH+Rg0DqqLFQGAP6hIaxD/G0OAmBJPhXDHuEJigrp0e0wFV6g==
-
 property-expr@^2.0.4:
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/property-expr/-/property-expr-2.0.5.tgz#278bdb15308ae16af3e3b9640024524f4dc02cb4"
@@ -23758,7 +23748,7 @@ symbol.prototype.description@^1.0.0:
     has-symbols "^1.0.2"
     object.getownpropertydescriptors "^2.1.2"
 
-synchronous-promise@^2.0.15, synchronous-promise@^2.0.6:
+synchronous-promise@^2.0.15:
   version "2.0.17"
   resolved "https://registry.yarnpkg.com/synchronous-promise/-/synchronous-promise-2.0.17.tgz#38901319632f946c982152586f2caf8ddc25c032"
   integrity sha512-AsS729u2RHUfEra9xJrE39peJcc2stq2+poBXX8bcM08Y6g9j/i/PUzwNQqkaJde7Ntg1TO7bSREbR5sdosQ+g==
@@ -25758,6 +25748,7 @@ world-countries@^4.0.0:
   integrity sha512-LsFFYmggquj0U+i7VUaJOZYz5F4QNu+oceGw8odnyVHMT2LxYSdVncqdouOEnq1esr7yCakp9+3BZTztuSw1Pg==
 
 "wrap-ansi-cjs@npm:wrap-ansi@^7.0.0", wrap-ansi@^7.0.0:
+  name wrap-ansi-cjs
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
   integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==
@@ -26122,18 +26113,6 @@ yocto-queue@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz#0294eb3dee05028d31ee1a5fa2c556a6aaf10a1b"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
-
-yup@^0.27.0:
-  version "0.27.0"
-  resolved "https://registry.yarnpkg.com/yup/-/yup-0.27.0.tgz#f8cb198c8e7dd2124beddc2457571329096b06e7"
-  integrity sha512-v1yFnE4+u9za42gG/b/081E7uNW9mUj3qtkmelLbW5YPROZzSH/KUUyJu9Wt8vxFJcT9otL/eZopS0YK1L5yPQ==
-  dependencies:
-    "@babel/runtime" "^7.0.0"
-    fn-name "~2.0.1"
-    lodash "^4.17.11"
-    property-expr "^1.5.0"
-    synchronous-promise "^2.0.6"
-    toposort "^2.0.2"
 
 yup@^0.32.11, yup@^0.32.9:
   version "0.32.11"
