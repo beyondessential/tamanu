@@ -23,7 +23,7 @@ const honeyApi = new Libhoney({
   disabled: !(apiKey && enabled && dataset),
 });
 
-export class HoneycombTransport extends Transport {
+class HoneycombTransport extends Transport {
   log(info, callback) {
     const event = honeyApi.newEvent();
     event.add(info);
