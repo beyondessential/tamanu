@@ -83,8 +83,13 @@ export const VitalMultiChartFilter = () => {
     );
 
     setChartKeys(sortedSelectedChartKeys);
+
+    const selectedGraphedVitalsOnFilter =
+      sortedSelectedChartKeys.length === allGraphedChartKeys.length
+        ? 'select-all'
+        : sortedSelectedChartKeys.join(',');
     userPreferencesMutation.mutate({
-      selectedGraphedVitalsOnFilter: sortedSelectedChartKeys.join(','),
+      selectedGraphedVitalsOnFilter,
     });
   };
 

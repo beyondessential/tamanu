@@ -114,11 +114,15 @@ const TitleCell = React.memo(({ value }) => {
 
   let chartKeys = [];
   if (isSuccess) {
-    const { selectedGraphedVitalsOnFilter = '' } = userPreferences;
-    chartKeys =
-      selectedGraphedVitalsOnFilter !== ''
-        ? selectedGraphedVitalsOnFilter.split(',')
-        : vitalsVisualisationConfigs.allGraphedChartKeys;
+    const {
+      selectedGraphedVitalsOnFilter: rawSelectedGraphedVitalsOnFilter = 'select-all',
+    } = userPreferences;
+    const selectedGraphedVitalsOnFilter = rawSelectedGraphedVitalsOnFilter.trim();
+    const { allGraphedChartKeys } = vitalsVisualisationConfigs;
+
+    chartKeys = ['select-all', ''].includes(selectedGraphedVitalsOnFilter)
+      ? allGraphedChartKeys
+      : selectedGraphedVitalsOnFilter.split(',').filter(key => allGraphedChartKeys.includes(key));
   }
 
   return (
