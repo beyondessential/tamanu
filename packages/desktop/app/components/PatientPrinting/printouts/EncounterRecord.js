@@ -1,8 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
-
 import { startCase } from 'lodash';
+
+import { NOTE_TYPES } from '@tamanu/constants';
 
 import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { DateDisplay } from '../../DateDisplay';
@@ -11,12 +12,13 @@ import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { ListTable } from './reusable/ListTable';
 import { DisplayValue, LocalisedDisplayValue } from './reusable/CertificateLabels';
 import {
-  noteTypes,
   DRUG_ROUTE_VALUE_TO_LABEL,
   ENCOUNTER_OPTIONS_BY_VALUE,
+  NOTE_TYPE_LABELS,
 } from '../../../constants';
 
 import { ImagingRequestData } from './reusable/ImagingRequestData';
+import { useLocalisedText } from '../../LocalisedText';
 
 // STYLES
 const CompactListTable = styled(ListTable)`
@@ -41,13 +43,14 @@ const Row = styled.tr`
   border-bottom: 1px solid black;
 `;
 
-const Cell = styled.td`
-  border-right: 1px solid black;
-  padding-top: 0.5rem;
-  padding-left: 0.5rem;
-  padding-bottom: 0.5rem;
+const RowContent = styled.div`
+  margin: 0.5rem;
   font-size: 10px;
-  line-height: 12px;
+  white-space: pre-wrap;
+`;
+
+const NoteMeta = styled.div`
+  font-size: 8px;
 `;
 
 const BoldText = styled.strong`
@@ -287,6 +290,7 @@ export const EncounterRecord = React.memo(
     pad,
     medications,
   }) => {
+    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' }).toLowerCase();
     const { firstName, lastName, dateOfBirth, sex, displayId } = patient;
     const { department, location, examiner, reasonForEncounter, startDate, endDate } = encounter;
     const { title, subTitle, logo } = certificateData;
@@ -324,10 +328,10 @@ export const EncounterRecord = React.memo(
         <RowContainer>
           <div>
             <LocalisedDisplayValue name="facility">{location.facility.name}</LocalisedDisplayValue>
-            <DisplayValue name="Supervising clinician" size="10px">
+            <DisplayValue name={`Supervising ${clinicianText}`} size="10px">
               {examiner.displayName}
             </DisplayValue>
-            <DisplayValue name="Discharging clinician" size="10px">
+            <DisplayValue name={`Discharging ${clinicianText}`} size="10px">
               {discharge?.discharger?.displayName}
             </DisplayValue>
             <DisplayValue name="Reason for encounter" size="10px">
@@ -399,34 +403,26 @@ export const EncounterRecord = React.memo(
         {notes.length > 0 ? (
           <>
             <TableHeading>Notes</TableHeading>
-            {notes.map(note => (
-              <>
-                <Table>
-                  <Row>
-                    <Cell width="10%">
-                      <BoldText>Note type</BoldText>
-                    </Cell>
-                    <Cell width="35%">{noteTypes.find(x => x.value === note.noteType).label}</Cell>
-                    <Cell>
-                      <DateDisplay date={note.date} showDate showTime />
-                    </Cell>
-                  </Row>
-                  <tbody>
-                    <Row>
-                      <Cell colSpan={3}>
-                        <ChildNote>
-                          <BoldText>
-                            <DateDisplay date={note.date} showDate showTime />
-                            {note.revisedById ? ' (edited)' : ''}
-                          </BoldText>
-                          {note.content}
-                        </ChildNote>
-                      </Cell>
-                    </Row>
-                  </tbody>
-                </Table>
-              </>
-            ))}
+            <Table>
+              {notes.map(note => (
+                <Row>
+                  <RowContent>
+                    <BoldText>{NOTE_TYPE_LABELS[note.noteType]}</BoldText>
+                    <ChildNote>{note.content}</ChildNote>
+                    <NoteMeta>
+                      <span>
+                        {note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}
+                      </span>
+                      <span>{note.author?.displayName || ''} </span>
+                      {note.onBehalfOf ? (
+                        <span>on behalf of {note.onBehalfOf.displayName} </span>
+                      ) : null}
+                      <DateDisplay date={note.date} showTime />
+                    </NoteMeta>
+                  </RowContent>
+                </Row>
+              ))}
+            </Table>
           </>
         ) : null}
       </ShiftedCertificateWrapper>

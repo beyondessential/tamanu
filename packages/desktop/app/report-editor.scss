@@ -1,0 +1,35 @@
+@import '~jsoneditor/dist/jsoneditor.css';
+@import '~@uiw/react-textarea-code-editor/dist.css';
+
+.jsoneditor-navigation-bar {
+  display: none;
+}
+
+.jsoneditor {
+  border: none;
+}
+
+.jsoneditor-tree-inner {
+  padding: 20px;
+}
+
+div.jsoneditor-tree {
+  background: #ffffff;
+  border-radius: 6px;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 1px -1px, rgba(0, 0, 0, 0.14) 0px 1px 1px 0px,
+    rgba(0, 0, 0, 0.12) 0px 1px 3px 0px;
+}
+
+div.jsoneditor-field[contenteditable='true']:focus,
+div.jsoneditor-field[contenteditable='true']:hover,
+div.jsoneditor-value[contenteditable='true']:focus,
+div.jsoneditor-value[contenteditable='true']:hover,
+div.jsoneditor-field.jsoneditor-highlight,
+div.jsoneditor-value.jsoneditor-highlight {
+  background: #fffde2;
+  border-radius: 6px;
+}
+
+tr.jsoneditor-highlight, tr.jsoneditor-selected {
+  background: #f1f0f0;
+}

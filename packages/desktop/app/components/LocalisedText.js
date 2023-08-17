@@ -11,3 +11,6 @@ export const LocalisedText = ({ path }) => {
   }
   return value;
 };
+
+// Better name for using LocalisedText as a hook
+export const useLocalisedText = props => LocalisedText(props);

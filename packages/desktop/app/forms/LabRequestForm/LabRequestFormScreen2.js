@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import * as yup from 'yup';
-import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
+import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { uniqBy } from 'lodash';
 import styled from 'styled-components';
 import { Field, TextField } from '../../components';
@@ -36,7 +36,7 @@ export const screen2ValidationSchema = yup.object().shape({
   notes: yup.string(),
 });
 
-const FORM_TYPE_TO_FIELD_CONFIG = {
+export const FORM_TYPE_TO_FIELD_CONFIG = {
   [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: {
     subheading: 'Select tests',
     instructions:

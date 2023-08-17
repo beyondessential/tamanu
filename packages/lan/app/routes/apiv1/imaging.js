@@ -9,12 +9,12 @@ import {
   IMAGING_AREA_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
   VISIBILITY_STATUSES,
-} from 'shared/constants';
+} from '@tamanu/constants';
 import { NotFoundError } from 'shared/errors';
+import { permissionCheckingRouter } from 'shared/utils/crudHelpers';
 import { toDateTimeString, toDateString } from 'shared/utils/dateTime';
 import { getNoteWithType } from 'shared/utils/notes';
 import { mapQueryFilters } from '../../database/utils';
-import { permissionCheckingRouter } from './crudHelpers';
 import { getImagingProvider } from '../../integrations/imaging';
 
 async function renderResults(models, imagingRequest) {
@@ -59,6 +59,12 @@ async function renderResults(models, imagingRequest) {
 const caseInsensitiveStartsWithFilter = (fieldName, _operator, value) => ({
   [fieldName]: {
     [Op.iLike]: `${value}%`,
+  },
+});
+
+const caseInsensitiveFilter = (fieldName, _operator, value) => ({
+  [fieldName]: {
+    [Op.iLike]: `%${value}%`,
   },
 });
 
@@ -290,7 +296,7 @@ globalImagingRequests.get(
     const patientFilters = mapQueryFilters(filterParams, [
       { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },
       { key: 'lastName', mapFn: caseInsensitiveStartsWithFilter },
-      { key: 'displayId', mapFn: caseInsensitiveStartsWithFilter },
+      { key: 'displayId', mapFn: caseInsensitiveFilter },
     ]);
 
     const encounterFilters = mapQueryFilters(filterParams, [

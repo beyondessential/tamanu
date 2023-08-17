@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { useEncounter } from '../../../contexts/Encounter';
-import { NOTE_FORM_MODES, NoteModal } from '../../../components/NoteModal';
+import { NoteModal } from '../../../components/NoteModal';
 import { NoteTableWithPermission } from '../../../components/NoteTable';
 import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
 import { TabPane } from '../components';
 import { SelectInput } from '../../../components/Field';
-import { noteTypes } from '../../../constants';
+import { NOTE_FORM_MODES, noteTypes } from '../../../constants';
 import { useEncounterNotes } from '../../../contexts/EncounterNotes';
 
 const StyledSelectInput = styled(SelectInput)`

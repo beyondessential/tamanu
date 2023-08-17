@@ -1,5 +1,5 @@
 import { QueryTypes } from 'sequelize';
-import { INVOICE_LINE_ITEM_STATUSES } from 'shared/constants';
+import { INVOICE_LINE_ITEM_STATUSES } from '@tamanu/constants';
 
 const getInvoiceLineNotExistYetClause = `invoice_line_types.id NOT IN (SELECT invoice_line_type_id
           FROM invoice_line_items

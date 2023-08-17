@@ -8,7 +8,7 @@ import {
   randomReferenceIds,
 } from 'shared/demoData';
 import { subDays } from 'date-fns';
-import { ENCOUNTER_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { toDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../../utilities';
 

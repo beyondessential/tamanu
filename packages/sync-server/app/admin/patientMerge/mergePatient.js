@@ -1,8 +1,8 @@
 import { Op } from 'sequelize';
 import { chunk } from 'lodash';
 import config from 'config';
-import { VISIBILITY_STATUSES, PATIENT_MERGE_DELETION_ACTIONS } from 'shared/constants';
-import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
+import { VISIBILITY_STATUSES, PATIENT_MERGE_DELETION_ACTIONS } from '@tamanu/constants';
+import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 import { InvalidParameterError } from 'shared/errors';
 import { log } from 'shared/services/logging';
 import { mergeRecord } from 'shared/sync/mergeRecord';

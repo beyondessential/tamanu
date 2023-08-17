@@ -6,7 +6,7 @@ import { reloadPatient } from 'desktop/app/store/patient';
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';
 import { PatientListingView } from 'desktop/app/views';
 import { FormGrid } from 'desktop/app/components/FormGrid';
-import { SURVEY_TYPES } from '@tamanu/shared/constants';
+import { SURVEY_TYPES } from '@tamanu/constants';
 
 import { SurveySelector } from '../programs/SurveySelector';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from '../programs/ProgramsPane';

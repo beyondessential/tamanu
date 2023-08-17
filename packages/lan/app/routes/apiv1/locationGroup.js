@@ -2,7 +2,7 @@ import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
-import { simpleGet, simplePut, simplePost } from './crudHelpers';
+import { simpleGet, simplePut, simplePost } from 'shared/utils/crudHelpers';
 
 export const locationGroup = express.Router();
 

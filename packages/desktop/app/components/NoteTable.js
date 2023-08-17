@@ -1,13 +1,14 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState, useRef } from 'react';
 import styled from 'styled-components';
 import EditIcon from '@material-ui/icons/Edit';
 
-import { NOTE_TYPES } from '@tamanu/shared/constants';
+import { NOTE_TYPES, NOTE_PERMISSION_TYPES } from '@tamanu/constants';
+
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-import { noteTypes, Colors } from '../constants';
+import { Colors, NOTE_FORM_MODES, NOTE_TYPE_LABELS } from '../constants';
 import { useAuth } from '../contexts/Auth';
-import { NOTE_FORM_MODES, NoteModal } from './NoteModal';
+import { NoteModal } from './NoteModal';
 import { withPermissionCheck } from './withPermissionCheck';
 
 const StyledEditIcon = styled(EditIcon)`
@@ -23,12 +24,8 @@ const NoteRowContainer = styled.div`
   flex-direction: column;
 `;
 
-const NoDataMessage = styled.span`
-  font-weight: 500;
-  color: ${Colors.primary};
-`;
-
 const NoteContentContainer = styled.div`
+  width: 100%;
   position: relative;
   overflow: hidden;
   display: -webkit-box;
@@ -36,7 +33,7 @@ const NoteContentContainer = styled.div`
   ${props =>
     !props.$expanded
       ? `
-    text-overflow: ellipsis;
+    text-overflow: clip;
     -webkit-line-clamp: 4;
             line-clamp: 4;
     -webkit-box-orient: vertical;
@@ -56,7 +53,7 @@ const EllipsisHideShowSpan = styled.span`
 const ReadMoreSpan = styled(EllipsisHideShowSpan)`
   position: absolute;
   bottom: 0;
-  right: 0;
+  ${props => (props.$bottom > 0 ? `right: 0` : '')};
 `;
 
 const ShowLessSpan = styled(EllipsisHideShowSpan)``;
@@ -100,54 +97,114 @@ const NoteFooterTextElement = styled.span`
   margin-right: 3px;
 `;
 
+const NoDataMessage = styled.span`
+  font-weight: 500;
+  color: ${Colors.primary};
+`;
+
+const getIndividualNotePermissionCheck = (ability, currentUser, note) => {
+  // Whoever created the note should be able to edit it
+  if (note.revisedBy && currentUser.id === note.revisedBy.author.id) {
+    return true;
+  }
+
+  // Whoever created the note should be able to edit it (this is in case the note is the root note and has not been edited)
+  if (!note.revisedBy && currentUser.id === note.authorId) {
+    return true;
+  }
+
+  if (note.noteType === NOTE_TYPES.TREATMENT_PLAN) {
+    return (
+      ability?.can('write', NOTE_PERMISSION_TYPES.TREATMENT_PLAN_NOTE) ||
+      ability?.can('write', NOTE_PERMISSION_TYPES.OTHER_PRACTITIONER_ENCOUNTER_NOTE)
+    );
+  }
+
+  return ability?.can('write', NOTE_PERMISSION_TYPES.OTHER_PRACTITIONER_ENCOUNTER_NOTE);
+};
+
 const NoteContent = ({
   note,
-  hasPermission,
-  currentUser,
+  hasEncounterNoteWritePermission,
   handleEditNote,
   handleViewNoteChangeLog,
   isNotFilteredByNoteType,
 }) => {
+  const { currentUser, ability } = useAuth();
+  const hasIndividualNotePermission = getIndividualNotePermissionCheck(ability, currentUser, note);
+  const noteContentContainerRef = useRef();
+  const contentLineClipping = useRef();
   const [contentIsClipped, setContentIsClipped] = useState(false);
-  const [textIsExpanded, setTextIsExpanded] = useState(false);
-  const handleReadMore = useCallback(() => setTextIsExpanded(true), []);
-  const handleReadLess = useCallback(() => setTextIsExpanded(false), []);
+  const [contentIsExpanded, setContentIsExpanded] = useState(false);
+  const handleReadMore = useCallback(() => setContentIsExpanded(true), []);
+  const handleReadLess = useCallback(() => setContentIsExpanded(false), []);
+
+  const noteMetaPrefix = note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated:' : 'Created:';
+  const noteAuthorName =
+    note.noteType === NOTE_TYPES.TREATMENT_PLAN || !note.revisedBy
+      ? note.author?.displayName
+      : note.revisedBy?.author?.displayName;
+  const noteOnBehalfOfName =
+    note.noteType === NOTE_TYPES.TREATMENT_PLAN || !note.revisedBy
+      ? note.onBehalfOf?.displayName
+      : note.revisedBy?.onBehalfOf?.displayName;
+
   return (
     <NoteRowContainer>
       {isNotFilteredByNoteType && (
         <NoteHeaderContainer>
-          <NoteHeaderText>
-            {noteTypes.find(type => type.value === note.noteType).label}
-          </NoteHeaderText>
+          <NoteHeaderText>{NOTE_TYPE_LABELS[note.noteType]}</NoteHeaderText>
         </NoteHeaderContainer>
       )}
       <NoteBodyContainer>
         <NoteContentContainer
-          $expanded={textIsExpanded}
-          ref={el => setContentIsClipped(el?.offsetHeight < el?.scrollHeight)}
+          $expanded={contentIsExpanded}
+          ref={el => {
+            noteContentContainerRef.current = el;
+            setContentIsClipped(el?.offsetHeight < el?.scrollHeight);
+          }}
         >
-          <span>{note?.content || ''}</span>
-          {contentIsClipped && !textIsExpanded && (
-            <ReadMoreSpan onClick={handleReadMore}>...read more</ReadMoreSpan>
-          )}
-          {textIsExpanded && <ShowLessSpan onClick={handleReadLess}> Show less</ShowLessSpan>}
+          {note?.content?.split('\n').map((line, i, { length }) => {
+            const elementRef = contentLineClipping?.current?.[i];
+            const contentOffsetHeight = noteContentContainerRef.current?.offsetHeight;
+            const isVisible = contentOffsetHeight > elementRef?.offsetTop;
+            const hiddenHeight =
+              elementRef?.offsetTop + elementRef?.offsetHeight - contentOffsetHeight;
+            return (
+              <>
+                <span
+                  ref={el => {
+                    const tempLineClipping = [...(contentLineClipping?.current || [])];
+                    tempLineClipping[i] = el;
+                    contentLineClipping.current = tempLineClipping;
+                  }}
+                >
+                  {line}
+                  {contentIsClipped && !contentIsExpanded && isVisible && hiddenHeight >= -1 && (
+                    <ReadMoreSpan $bottom={hiddenHeight} onClick={handleReadMore}>
+                      ...read more
+                    </ReadMoreSpan>
+                  )}
+                  {'\n'}
+                </span>
+                {contentIsExpanded && i === length - 1 && (
+                  <ShowLessSpan onClick={handleReadLess}> Show less</ShowLessSpan>
+                )}
+              </>
+            );
+          })}
         </NoteContentContainer>
-        {(hasPermission || currentUser.id === note.authorId) &&
+        {hasIndividualNotePermission &&
+          hasEncounterNoteWritePermission &&
           note.noteType !== NOTE_TYPES.SYSTEM && (
             <StyledEditIcon onClick={() => handleEditNote(note)} />
           )}
       </NoteBodyContainer>
       <NoteFooterContainer>
-        {note.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
-          <NoteFooterTextElement>Last updated:</NoteFooterTextElement>
-        ) : (
-          <NoteFooterTextElement>Created:</NoteFooterTextElement>
-        )}
-        {note.author?.displayName ? (
-          <NoteFooterTextElement>{note.author.displayName}</NoteFooterTextElement>
-        ) : null}
-        {note.onBehalfOf?.displayName ? (
-          <NoteFooterTextElement>on behalf of {note.onBehalfOf.displayName}</NoteFooterTextElement>
+        <NoteFooterTextElement>{noteMetaPrefix}</NoteFooterTextElement>
+        {noteAuthorName ? <NoteFooterTextElement>{noteAuthorName}</NoteFooterTextElement> : null}
+        {noteOnBehalfOfName ? (
+          <NoteFooterTextElement>on behalf of {noteOnBehalfOfName}</NoteFooterTextElement>
         ) : null}
         <DateDisplay
           date={(note.noteType !== NOTE_TYPES.TREATMENT_PLAN && note.revisedBy?.date) || note.date}
@@ -165,7 +222,12 @@ const NoteContent = ({
   );
 };
 
-const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) => {
+const NoteTable = ({
+  encounterId,
+  hasPermission: hasEncounterNoteWritePermission,
+  noteModalOnSaved,
+  noteType,
+}) => {
   const { currentUser } = useAuth();
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
   const [modalNoteFormMode, setModalNoteFormMode] = useState(NOTE_FORM_MODES.EDIT_NOTE);
@@ -175,7 +237,9 @@ const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) =
 
   const handleEditNote = useCallback(
     note => {
-      setModalTitle('Edit note');
+      setModalTitle(
+        note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Update treatment plan' : 'Edit note',
+      );
       setModalCancelText('Cancel');
       setModalNoteFormMode(NOTE_FORM_MODES.EDIT_NOTE);
       setIsNoteModalOpen(true);
@@ -202,7 +266,7 @@ const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) =
         accessor: note => (
           <NoteContent
             note={note}
-            hasPermission={hasPermission}
+            hasEncounterNoteWritePermission={hasEncounterNoteWritePermission}
             currentUser={currentUser}
             handleEditNote={handleEditNote}
             handleViewNoteChangeLog={handleViewNoteChangeLog}
@@ -212,12 +276,18 @@ const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) =
         sortable: false,
       },
     ],
-    [hasPermission, currentUser, noteType, handleEditNote, handleViewNoteChangeLog],
+    [
+      hasEncounterNoteWritePermission,
+      currentUser,
+      noteType,
+      handleEditNote,
+      handleViewNoteChangeLog,
+    ],
   );
 
   return (
     <>
-      {hasPermission && (
+      {hasEncounterNoteWritePermission && (
         <NoteModal
           open={isNoteModalOpen}
           encounterId={encounterId}
@@ -238,13 +308,14 @@ const NoteTable = ({ encounterId, hasPermission, noteModalOnSaved, noteType }) =
         endpoint={`encounter/${encounterId}/notes`}
         fetchOptions={{ noteType }}
         elevated={false}
+        noDataBackgroundColor={Colors.background}
         noDataMessage={
           <NoDataMessage>
-            This patient has no notes {noteType ? 'of this type ' : ''}to display. Click ‘New note’
-            to add a note.
+            {`This patient has no notes ${
+              noteType ? 'of this type ' : ''
+            }to display. Click ‘New note’ to add a note.`}
           </NoDataMessage>
         }
-        noDataBackgroundColor={Colors.background}
       />
     </>
   );

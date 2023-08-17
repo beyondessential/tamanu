@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { NOTE_RECORD_TYPES } from '@tamanu/shared/constants';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+
+import { NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
 
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
@@ -9,8 +9,19 @@ import { Modal } from './Modal';
 import { NoteForm } from '../forms/NoteForm';
 import { ConfirmModal } from './ConfirmModal';
 import { useAuth } from '../contexts/Auth';
+import { NOTE_FORM_MODES } from '../constants';
 
-export { NOTE_FORM_MODES } from '../forms/NoteForm';
+const getOnBehalfOfId = (noteFormMode, currentUserId, newData, note) => {
+  // When editing non treatment plan notes, we just want to retain the previous onBehalfOfId;
+  if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && note.noteType !== NOTE_TYPES.TREATMENT_PLAN) {
+    return note.onBehalfOfId;
+  }
+
+  // Otherwise, the Written by field is editable, check if it is the same as current user to populate on behalf of
+  return newData.writtenById && currentUserId !== newData.writtenById
+    ? newData.writtenById
+    : undefined;
+};
 
 export const NoteModal = ({
   title = 'Note',
@@ -49,17 +60,15 @@ export const NoteModal = ({
       const newNote = {
         ...data,
         authorId: currentUser.id,
+        onBehalfOfId: getOnBehalfOfId(noteFormMode, currentUser.id, data, note),
         ...(note
           ? {
-              date: getCurrentDateTimeString(),
-              onBehalfOfId: note.onBehalfOfId,
               recordType: note.recordType,
               recordId: note.recordId,
               noteType: note.noteType,
               revisedById: note.revisedById || note.id,
             }
           : {
-              onBehalfOfId: currentUser.id !== data.writtenById ? data.writtenById : undefined,
               recordId: encounterId,
               recordType: NOTE_RECORD_TYPES.ENCOUNTER,
             }),
@@ -70,13 +79,13 @@ export const NoteModal = ({
       resetForm();
       onSaved();
     },
-    [api, currentUser.id, encounterId, note, onSaved],
+    [api, noteFormMode, currentUser.id, encounterId, note, onSaved],
   );
 
   return (
     <>
       <ConfirmModal
-        title="Discard add note"
+        title="Discard note"
         open={openNoteCancelConfirmModal}
         width="sm"
         onCancel={() => setOpenNoteCancelConfirmModal(false)}
@@ -89,7 +98,7 @@ export const NoteModal = ({
       <Modal
         title={title}
         open={open}
-        width="md"
+        width="lg"
         onClose={() => {
           if (noteContentHasChanged) {
             setOpenNoteCancelConfirmModal(true);

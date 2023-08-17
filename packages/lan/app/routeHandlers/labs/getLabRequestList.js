@@ -1,9 +1,9 @@
 import asyncHandler from 'express-async-handler';
-import { VISIBILITY_STATUSES } from 'shared/constants/importable';
+import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 
-import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
+import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 
-import { getResourceList } from '../../routes/apiv1/crudHelpers';
+import { getResourceList } from 'shared/utils/crudHelpers';
 
 export const getLabRequestList = (foreignKey = '', options = {}) =>
   asyncHandler(async (req, res) => {
