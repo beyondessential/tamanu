@@ -6,6 +6,7 @@ import Chance from 'chance';
 import { ApiContext } from '../app/api';
 import { DataFetchingTable } from '../app/components/Table';
 import { CheckInput } from '../app/components/Field';
+import { DateDisplay } from '../app/components';
 
 const chance = new Chance();
 
@@ -19,7 +20,7 @@ function fakePatient() {
     name: chance.name({ gender }),
     age: chance.age(),
     location: chance.address(),
-    date: chance.date({ string: true, american: false }),
+    date: chance.date(),
   };
 }
 
@@ -29,7 +30,11 @@ const dummyColumns = [
   { key: 'name', title: 'Patient' },
   { key: 'location', title: 'Location' },
   { key: 'age', title: 'Age' },
-  { key: 'date', title: 'Date' },
+  {
+    key: 'date',
+    title: 'Date',
+    accessor: ({ date }) => <DateDisplay date={date} timeOnlyTooltip />,
+  },
 ];
 
 const dummyApi = {
@@ -84,7 +89,7 @@ const TableWithDynamicData = () => {
       </Container>
     </ApiContext.Provider>
   );
-}
+};
 
 storiesOf('DataFetchingTable', module)
   .add('Plain', () => (
