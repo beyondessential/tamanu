@@ -1,16 +1,12 @@
 import { Box, CircularProgress, Tooltip } from '@material-ui/core';
-import { JsonEditor } from 'jsoneditor-react/es';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import Ajv from 'ajv';
 import { toast } from 'react-toastify';
 import SaveAsIcon from '@material-ui/icons/SaveAltSharp';
-import EditIcon from '@material-ui/icons/EditSharp';
 import { OutlinedButton, CardItem, formatShort, formatTime } from '../../../components';
-import { schema, templates } from './schema';
+import { schema } from './schema';
 import { Colors } from '../../../constants';
-import { ErrorBoundary } from '../../../components/ErrorBoundary';
-import { QueryEditor } from './QueryEditor';
 
 const ajv = new Ajv({ allErrors: true });
 
@@ -200,15 +196,6 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
 
   return (
     <>
-      {value && (
-        <QueryEditor
-          title={`Edit Query: ${name} v${version.versionNumber}`}
-          initialValue={value.query}
-          onSubmit={handleUpdate}
-          open={showSqlEditor}
-          onClose={handleCloseSqlEditor}
-        />
-      )}
       <EditorContainer>
         <ButtonContainer>
           <StyledButton onClick={onBack}>Back</StyledButton>
@@ -221,27 +208,9 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
             <SaveIcon />
             Save new version
           </SaveButton>
-          <StyledButton onClick={handleShowSqlEditor}>
-            {' '}
-            <EditIcon />
-            Edit SQL
-          </StyledButton>
         </ButtonContainer>
         <DetailList>
           <VersionInfo reportDefinitionId={reportDefinitionId} name={name} version={version} />
-          {value && (
-            <ErrorBoundary errorKey={version.id} ErrorComponent={LoadError}>
-              <JsonEditor
-                schema={schema}
-                ajv={ajv}
-                value={value}
-                onChange={handleChange}
-                allowSchemaSuggestions
-                mainMenuBar={false}
-                templates={templates}
-              />
-            </ErrorBoundary>
-          )}
         </DetailList>
       </EditorContainer>
     </>
