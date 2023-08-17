@@ -7,7 +7,7 @@ import {
   LAB_TEST_RESULT_TYPES,
   VISIBILITY_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
-} from 'shared/constants';
+} from '@tamanu/constants';
 import config from 'config';
 import { jsonString, validationString, configString } from './jsonString';
 
@@ -68,6 +68,7 @@ export const PatientAdditionalData = yup.object().shape({
 
 export const User = Base.shape({
   email: yup.string().required(),
+  displayId: yup.string(),
   displayName: yup.string().required(),
   password: yup.string(),
 });

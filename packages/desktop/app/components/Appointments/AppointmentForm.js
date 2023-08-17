@@ -1,17 +1,19 @@
 import React, { useCallback } from 'react';
 import * as yup from 'yup';
-import { APPOINTMENT_STATUSES } from '@tamanu/shared/constants';
+import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { FormGrid } from '../FormGrid';
 import { Field, Form, AutocompleteField, SelectField, DateTimeField } from '../Field';
 import { ConfirmCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 import { useApi, usePatientSuggester, useSuggester } from '../../api';
 import { appointmentTypeOptions } from '../../constants';
+import { useLocalisedText } from '../LocalisedText';
 
 export const AppointmentForm = props => {
   const { onSuccess = () => {}, onCancel, appointment } = props;
   const api = useApi();
   const isUpdating = !!appointment;
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
   const clinicianSuggester = useSuggester('practitioner');
   const patientSuggester = usePatientSuggester();
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
@@ -55,7 +57,7 @@ export const AppointmentForm = props => {
         patientId: yup.string().required('Please select a patient'),
         type: yup.string().required('Please choose an appointment type'),
         startTime: yup.string().required('Please select a start time'),
-        clinicianId: yup.string().required('Please select a clinician'),
+        clinicianId: yup.string().required(`Please select a ${clinicianText.toLowerCase()}`),
         locationGroupId: yup
           .string()
           .required('Please select an area')
@@ -91,7 +93,7 @@ export const AppointmentForm = props => {
               />
               <Field label="End time" name="endTime" saveDateAsString component={DateTimeField} />
               <Field
-                label="Clinician"
+                label={clinicianText}
                 name="clinicianId"
                 component={AutocompleteField}
                 suggester={clinicianSuggester}

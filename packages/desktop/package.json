@@ -1,7 +1,7 @@
 {
   "name": "desktop",
   "productName": "Tamanu",
-  "version": "1.30.0",
+  "version": "1.31.0",
   "description": "Tamanu Desktop application",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -77,8 +77,7 @@
     },
     "win": {
       "target": [
-        "nsis",
-        "msi"
+        "nsis"
       ]
     },
     "nsis": {
@@ -92,7 +91,6 @@
     },
     "linux": {
       "target": [
-        "deb",
         "AppImage"
       ],
       "category": "Development"

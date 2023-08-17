@@ -2,7 +2,7 @@ import { v4 as uuid } from 'uuid';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import config from 'config';
-import { JWT_TOKEN_TYPES } from '@tamanu/shared/constants/auth';
+import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { fake, disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { createTestContext, withDate } from '../utilities';
 

@@ -1,7 +1,7 @@
 import { keyBy } from 'lodash';
 import { Op } from 'sequelize';
 import { endOfDay, isAfter, parseISO, startOfDay } from 'date-fns';
-import { REFERRAL_STATUSES } from '../../constants';
+import { REFERRAL_STATUSES } from '@tamanu/constants';
 import { generateReportFromQueryData, getAnswers } from '../utilities';
 import {
   transformAndRemoveDuplicatedAnswersPerDate,

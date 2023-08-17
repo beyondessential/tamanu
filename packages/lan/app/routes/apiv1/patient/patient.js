@@ -5,10 +5,10 @@ import { QueryTypes, Op } from 'sequelize';
 import { snakeCase } from 'lodash';
 
 import { NotFoundError } from 'shared/errors';
-import { PATIENT_REGISTRY_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
+import { PATIENT_REGISTRY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { isGeneratedDisplayId } from 'shared/utils/generateId';
 
-import { renameObjectKeys } from '../../../utils/renameObjectKeys';
+import { renameObjectKeys } from 'shared/utils';
 import { createPatientFilters } from '../../../utils/patientFilters';
 import { patientVaccineRoutes } from './patientVaccine';
 import { patientDocumentMetadataRoutes } from './patientDocumentMetadata';
@@ -204,7 +204,7 @@ patientRoute.get(
         ...EncounterMedication.getFullReferenceAssociations(),
         {
           association: 'encounter',
-          include: [{ association: 'location', include: ['locationGroup'] }],
+          include: [{ association: 'location', include: ['facility'] }],
         },
       ],
       order: orderBy ? getOrderClause(order, orderBy) : undefined,
@@ -280,16 +280,20 @@ patientRoute.get(
 
         // Exact match sort
         const exactMatchSort = selectedFilters
-          .map(filter => `upper(${snakeCase(filter)}) = ${`:exactMatchSort${filter}`} DESC`)
+          .map(
+            filter => `upper(patients.${snakeCase(filter)}) = ${`:exactMatchSort${filter}`} DESC`,
+          )
           .join(', ');
 
         // Begins with sort
         const beginsWithSort = selectedFilters
-          .map(filter => `upper(${snakeCase(filter)}) LIKE :beginsWithSort${filter} DESC`)
+          .map(filter => `upper(patients.${snakeCase(filter)}) LIKE :beginsWithSort${filter} DESC`)
           .join(', ');
 
         // the last one is
-        const alphabeticSort = selectedFilters.map(filter => `${snakeCase(filter)} ASC`).join(', ');
+        const alphabeticSort = selectedFilters
+          .map(filter => `patients.${snakeCase(filter)} ASC`)
+          .join(', ');
 
         filterSort = `${exactMatchSort}, ${beginsWithSort}, ${alphabeticSort}`;
       }

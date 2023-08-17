@@ -1,5 +1,5 @@
 import { createDummyPatient, randomReferenceDataObjects } from 'shared/demoData/patients';
-import { REFERRAL_STATUSES, REFERENCE_TYPES } from 'shared/constants';
+import { REFERRAL_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
 import { createTestContext } from '../../../utilities';
 import {
   setupProgramAndSurvey,

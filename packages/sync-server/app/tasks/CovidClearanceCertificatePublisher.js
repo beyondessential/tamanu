@@ -5,7 +5,7 @@ import { getPatientSurveyResponseAnswer, getCovidClearanceCertificateFilter } fr
 import {
   COVID_19_CLEARANCE_CERTIFICATE,
   CERTIFICATE_NOTIFICATION_STATUSES,
-} from 'shared/constants';
+} from '@tamanu/constants';
 import { log } from 'shared/services/logging';
 
 export class CovidClearanceCertificatePublisher extends ScheduledTask {

@@ -1,8 +1,8 @@
 import express from 'express';
+import asyncHandler from 'express-async-handler';
 
 import { ForbiddenError, NotFoundError } from 'shared/errors';
 import { constructPermission } from 'shared/permissions/middleware';
-import asyncHandler from 'express-async-handler';
 import { createDataImporterEndpoint } from './importerEndpoint';
 
 import { programImporter } from './programImporter';
@@ -12,6 +12,7 @@ import { exporter } from './exporter';
 import { mergePatientHandler } from './patientMerge';
 import { syncLastCompleted } from './sync';
 import { reportsRouter } from './reports/reportRoutes';
+import { patientLetterTemplateRoutes } from './patientLetterTemplate';
 import { assetRoutes } from './asset';
 
 export const adminRoutes = express.Router();
@@ -74,5 +75,7 @@ adminRoutes.get(
 );
 
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
+
+adminRoutes.use('/patientLetterTemplate', patientLetterTemplateRoutes);
 
 adminRoutes.use('/asset', assetRoutes);

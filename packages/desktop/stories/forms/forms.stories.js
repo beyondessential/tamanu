@@ -14,7 +14,7 @@ import {
   USERS,
   DEPARTMENTS,
 } from '@tamanu/shared/demoData';
-import { VACCINE_RECORDING_TYPES } from '@tamanu/shared/constants';
+import { VACCINE_RECORDING_TYPES } from '@tamanu/constants';
 import { MockedApi } from '../utils/mockedApi';
 import { mockLabRequestFormEndpoints } from '../utils/mockLabData';
 import { EncounterForm } from '../../app/forms/EncounterForm';

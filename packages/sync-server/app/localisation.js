@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import { defaultsDeep } from 'lodash';
 
 import { log } from 'shared/services/logging';
-import { IMAGING_TYPES } from 'shared/constants';
+import { IMAGING_TYPES } from '@tamanu/constants';
 
 const fieldSchema = yup
   .object({
@@ -49,7 +49,9 @@ const UNHIDEABLE_FIELDS = [
   'emergencyContactNumber',
   'locationId',
   'locationGroupId',
+  'clinician',
   'diagnosis',
+  'userDisplayId',
 ];
 
 const HIDEABLE_FIELDS = [
@@ -440,7 +442,7 @@ const rootLocalisationSchema = yup
         mergePopulatedPADRecords: yup.boolean().required(),
         enableNoteBackdating: yup.boolean().required(),
         enableCovidClearanceCertificate: yup.boolean().required(),
-        editDisplayId: yup.boolean().required(),
+        editPatientDisplayId: yup.boolean().required(),
         patientPlannedMove: yup.boolean().required(),
         idleTimeout: yup
           .object()

@@ -1,8 +1,10 @@
 import express from 'express';
+import { promises as fs } from 'fs';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Sequelize } from 'sequelize';
+import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { NotFoundError, InvalidOperationError } from '@tamanu/shared/errors';
-import { REPORT_VERSION_EXPORT_FORMATS, REPORT_STATUSES } from '@tamanu/shared/constants';
+import { REPORT_VERSION_EXPORT_FORMATS, REPORT_STATUSES } from '@tamanu/constants';
 import { readJSON, sanitizeFilename, verifyQuery } from './utils';
 import { createReportDefinitionVersion } from './createReportDefinitionVersion';
 import { DryRun } from '../errors';
@@ -142,13 +144,13 @@ reportsRouter.get(
 reportsRouter.post(
   '/import',
   asyncHandler(async (req, res) => {
-    const { store, body, user } = req;
+    const { store, user } = req;
     const {
       models: { ReportDefinition, ReportDefinitionVersion },
       sequelize,
     } = store;
 
-    const { name, file, dryRun } = body;
+    const { name, file, dryRun, deleteFileAfterImport = true } = await getUploadedData(req);
     const versionData = await readJSON(file);
 
     if (versionData.versionNumber)
@@ -196,12 +198,18 @@ reportsRouter.post(
           if (dryRun) {
             throw new DryRun();
           }
+
+          feedback.reportDefinitionId = definition.id;
         },
       );
     } catch (err) {
       if (!(err instanceof DryRun)) {
         throw err;
       }
+    }
+    if (deleteFileAfterImport) {
+      // eslint-disable-next-line no-unused-vars
+      await fs.unlink(file).catch(ignore => {});
     }
     res.send(feedback);
   }),
