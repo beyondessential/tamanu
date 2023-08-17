@@ -5,6 +5,8 @@ import { log } from 'shared/services/logging';
 import { initDatabase } from '../database';
 import { sleepAsync } from '../../../shared/src/utils/sleepAsync';
 
+const LATEST_ENCOUNTER_FLAG = 'latest_encounter';
+
 export async function migrateChangelogNotesToEncounterHistory(options = {}) {
   const { batchSize = Number.MAX_SAFE_INTEGER } = options;
   log.info(`Migrating changelog notes with options:`, options);
@@ -95,7 +97,15 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
         change_log_historical_partial as (
             select
                 e.id as encounter_id,
-                case when lag(e.start_date) over w isnull then e.start_date
+                -- For the encounter_history when the encounter is first created:
+                -- 1. If encounter.start_date is before the first changelog.date, pick encounter.start_date as "date"
+                -- 2. If encounter.start_date is after the first changelog's date, pick the changelog's date minus 1 day as "date"
+                -- This is to preserve the order of the encounter history
+                case 
+                    when lag(e.start_date) over w isnull and e.start_date::timestamp > n.date::timestamp
+                        then to_char(n.date::timestamp - interval '1 day', 'YYYY-MM-DD HH24:MI:SS')
+                    when lag(e.start_date) over w isnull and e.start_date::timestamp < n.date::timestamp
+                        then e.start_date
                     else lag(n.date) over w
                 end as start_datetime,
 
@@ -208,7 +218,10 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                                     rows between
                                     1 following and
                                     unbounded following), null))[1],
-                            l.name)
+                            -- Flag to indicate that we should use latest encounter's location here
+                            -- Have to use a flag instead of just populating the ids here because this sub query is for extracting names from changelog only.
+                            -- Having a mix of ids and names will cause more complexity later when extracting the ids from the names.
+                            '${LATEST_ENCOUNTER_FLAG}')
                 end as location_name,
 
                 case when location_group_name notnull then location_group_name
@@ -241,7 +254,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                                     rows between
                                     1 following and
                                     unbounded following), null))[1],
-                            d.name)
+                            '${LATEST_ENCOUNTER_FLAG}')
                 end as department_name,
 
                 case when examiner_name notnull then examiner_name
@@ -258,7 +271,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                                     rows between
                                     1 following and
                                     unbounded following), null))[1],
-                            u.display_name)
+                            '${LATEST_ENCOUNTER_FLAG}')
                 end as examiner_name
             from change_log_historical_partial log
             left join batch_encounters e on e.id = log.encounter_id
@@ -326,12 +339,21 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             union
 
             -- Changelog when encounters are changed in between
-            select
+            select distinct
                 log.encounter_id as record_id,
                 log.start_datetime as date,
-                d.id as department_id,
-                l.id as location_id,
-                u.id as examiner_id,
+                case 
+                    when d.id notnull then d.id 
+                    when log.department_name = '${LATEST_ENCOUNTER_FLAG}' then e.department_id
+                end as department_id,
+                case 
+                    when l.id notnull then l.id 
+                    when log.location_name = '${LATEST_ENCOUNTER_FLAG}' then e.location_id
+                end as location_id,
+                case 
+                    when u.id notnull then u.id 
+                    when log.examiner_name = '${LATEST_ENCOUNTER_FLAG}' then e.examiner_id
+                end as examiner_id,
                 log.encounter_type
             from change_log_historical_complete log
             left join unique_departments_by_facility d on d.name = log.department_name and
@@ -342,17 +364,22 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                                     case when lg.id notnull and log.location_group_name <> 'non_determined_location_group_name' then l.location_group_id = lg.id else true end and
                                     l.facility_id = log.encounter_facility_id
             left join unique_users u on u.display_name = log.examiner_name
-            where d.facility_id = log.encounter_facility_id
-            and l.facility_id = log.encounter_facility_id
+            left join batch_encounters e on e.id = log.encounter_id
+            where 
+                case 
+                    -- if we know that it should be latest encounter then don't bother verifying the facility_id
+                    when log.department_name <> '${LATEST_ENCOUNTER_FLAG}' 
+                        then d.facility_id = log.encounter_facility_id 
+                    else true 
+                end
+            and case 
+                    -- if we know that it should be latest encounter then don't bother verifying the facility_id
+                    when log.location_name <> '${LATEST_ENCOUNTER_FLAG}' 
+                        then l.facility_id = log.encounter_facility_id 
+                else true
+             end
             -- This is to filter the case where there are multiple location 
             -- with the same names out of the changelog, same as departments and users
-            group by 
-                record_id,
-                date,
-                department_id,
-                location_id,
-                examiner_id,
-                encounter_type
             order by record_id, date
         ),
         inserted as (
@@ -373,6 +400,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                 encounter_type
             from change_log_with_id
             where not exists (select encounter_id from encounter_history where encounter_id = record_id)
+            and location_id notnull and department_id notnull and examiner_id notnull
             returning encounter_id
         )
         select max(encounter_id) as "maxId"

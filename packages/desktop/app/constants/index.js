@@ -20,7 +20,9 @@ import {
   LAB_REQUEST_STATUSES,
   LOCATION_AVAILABILITY_STATUS,
   LOCATION_AVAILABILITY_TAG_CONFIG,
-} from '@tamanu/shared/constants';
+  DOCUMENT_SOURCES,
+  TEMPLATE_TYPES,
+} from '@tamanu/constants';
 
 import {
   medicationIcon,
@@ -28,6 +30,7 @@ import {
   radiologyIcon,
   scheduleIcon,
   patientIcon,
+  vaccineIcon,
 } from './images';
 
 export const MUI_SPACING_UNIT = 8;
@@ -204,6 +207,12 @@ export const encounterOptions = [
     value: ENCOUNTER_TYPES.SURVEY_RESPONSE,
     label: 'Survey response',
     image: patientIcon,
+    hideFromMenu: true,
+  },
+  {
+    value: ENCOUNTER_TYPES.VACCINATION,
+    label: 'Vaccination record',
+    image: vaccineIcon,
     hideFromMenu: true,
   },
 ];
@@ -420,6 +429,10 @@ export const PATIENT_REGISTRY_OPTIONS = [
   { value: PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY, label: 'Register birth' },
 ];
 
+export const TEMPLATE_TYPE_OPTIONS = [
+  { value: TEMPLATE_TYPES.PATIENT_LETTER, label: 'Patient Letter' },
+];
+
 export const PATIENT_STATUS = {
   INPATIENT: 'Inpatient',
   OUTPATIENT: 'Outpatient',
@@ -447,9 +460,14 @@ export const FORM_STATUSES = {
   SUBMIT_ATTEMPTED: 'SUBMIT_ATTEMPTED',
 };
 
+export const DOCUMENT_SOURCE_LABELS = {
+  [DOCUMENT_SOURCES.PATIENT_LETTER]: 'Patient Letter',
+  [DOCUMENT_SOURCES.UPLOADED]: 'Uploaded',
+};
+
 export const SUPPORTED_DOCUMENT_TYPES = {
-  PDF: 'PDF',
-  JPEG: 'JPEG',
+  PDF: 'application/pdf',
+  JPEG: 'image/jpeg',
 };
 
 export const REQUIRED_INLINE_ERROR_MESSAGE = '*Required';

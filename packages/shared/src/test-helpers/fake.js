@@ -13,7 +13,7 @@ import {
   REFERENCE_TYPE_VALUES,
   VISIBILITY_STATUSES,
   LAB_REQUEST_STATUSES,
-} from '../constants';
+} from '@tamanu/constants';
 import { toDateTimeString, toDateString } from '../utils/dateTime';
 import { fakeUUID } from '../utils/generateId';
 import {
@@ -117,7 +117,13 @@ export function fakeReferenceData(prefix = 'test-') {
 
 export function fakeUser(prefix = 'test-') {
   const id = fakeUUID();
-  return fakeStringFields(`${prefix}user_${id}_`, ['id', 'email', 'displayName', 'role']);
+  return fakeStringFields(`${prefix}user_${id}_`, [
+    'id',
+    'displayId',
+    'email',
+    'displayName',
+    'role',
+  ]);
 }
 
 export function fakeProgram(prefix = 'test-') {
@@ -337,6 +343,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
   },
   User: () => ({
     email: chance.email(),
+    displayId: chance.hash({ length: 5 }),
     displayName: chance.name(),
     role: 'practitioner',
   }),

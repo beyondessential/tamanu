@@ -1,8 +1,9 @@
+import { format } from 'date-fns';
 import { getDisplayAge } from '../../src/utils/date';
 
 describe('date', () => {
   describe('getDisplayAge', () => {
-    const now = new Date('2023-07-11');
+    const now = new Date('2023-07-11 22:55:36');
 
     beforeAll(() => {
       jest.resetModules();
@@ -100,7 +101,9 @@ describe('date', () => {
     ];
 
     testCases.forEach(testCase => {
-      it(`should display age '${testCase.expectedDisplayAge}' from date of birth '${testCase.dateOfBirth}'`, () => {
+      it(`should display age '${testCase.expectedDisplayAge}' from date of birth '${
+        testCase.dateOfBirth
+      }' at '${format(now, 'yyyy-MM-dd')}'`, () => {
         const displayAge = getDisplayAge(testCase.dateOfBirth, ageDisplayFormat);
         expect(displayAge).toEqual(testCase.expectedDisplayAge);
       });

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { CovidLabCertificate, CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
-import { ICAO_DOCUMENT_TYPES, ASSET_NAMES } from '@tamanu/shared/constants';
+import { ICAO_DOCUMENT_TYPES, ASSET_NAMES } from '@tamanu/constants';
 
 import { Modal } from '../../Modal';
 import { useApi } from '../../../api';

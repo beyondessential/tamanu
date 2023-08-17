@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-import { FHIR_SEARCH_PARAMETERS, FHIR_SEARCH_PREFIXES } from '../../constants';
+import { FHIR_SEARCH_PARAMETERS, FHIR_SEARCH_PREFIXES } from '@tamanu/constants';
 import { DATE_OBJECT_SCHEMA, parseDateTime } from './datetime';
 
 const SEARCH_PREFIXES_ENUM = Object.values(FHIR_SEARCH_PREFIXES);

@@ -1,7 +1,7 @@
 import { formatInTimeZone } from 'date-fns-tz';
 import { transliterate as tr } from 'transliteration';
 import config from 'config';
-import { EUDCC_CERTIFICATE_TYPES, EUDCC_SCHEMA_VERSION } from 'shared/constants';
+import { EUDCC_CERTIFICATE_TYPES, EUDCC_SCHEMA_VERSION } from '@tamanu/constants';
 import { generateUVCI } from 'shared/utils/uvci';
 import { getLocalisation } from '../../localisation';
 

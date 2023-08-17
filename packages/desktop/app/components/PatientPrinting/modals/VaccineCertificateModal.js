@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 
-import { VACCINATION_CERTIFICATE, ASSET_NAMES } from '@tamanu/shared/constants';
+import { VACCINATION_CERTIFICATE, ASSET_NAMES } from '@tamanu/constants';
 import { VaccineCertificate } from '@tamanu/shared/utils/patientCertificates';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
 import { CovidLabCertificate, CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
-import { COVID_19_CLEARANCE_CERTIFICATE, ASSET_NAMES } from '@tamanu/shared/constants';
+import { COVID_19_CLEARANCE_CERTIFICATE, ASSET_NAMES } from '@tamanu/constants';
 
 import { Modal } from '../../Modal';
 import { useApi } from '../../../api';

@@ -8,7 +8,7 @@ import {
   newKeypairAndCsr,
   TestCSCA,
 } from 'sync-server/app/integrations/Signer';
-import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
+import { ICAO_DOCUMENT_TYPES } from '@tamanu/constants';
 import { generateICAOFormatUVCI } from 'shared/utils/uvci/icao';
 import crypto from 'crypto';
 import { expect } from 'chai';

@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { REPORT_REQUEST_STATUSES } from 'shared/constants';
+import { REPORT_REQUEST_STATUSES } from '@tamanu/constants';
 import { getReportModule } from 'shared/reports';
 import { createNamedLogger } from 'shared/services/logging/createNamedLogger';
 import { checkReportModulePermissions } from 'shared/reports/utilities/checkReportModulePermissions';
