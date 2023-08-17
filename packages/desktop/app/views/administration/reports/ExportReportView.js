@@ -3,7 +3,7 @@ import { promises as fs } from 'fs';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';
-import { REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/shared/constants/reports';
+import { REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
 import { Field, Form, FormGrid, OutlinedButton, RadioField } from '../../../components';
 import { useApi } from '../../../api';
 import { ReportSelectField, VersionSelectField } from './ReportsSelectFields';

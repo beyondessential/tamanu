@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import * as yup from 'yup';
 import { Accordion, AccordionDetails, AccordionSummary, Grid } from '@material-ui/core';
-import { REPORT_DEFAULT_DATE_RANGES } from '@tamanu/shared/constants/reports';
+import { REPORT_DEFAULT_DATE_RANGES } from '@tamanu/constants/reports';
 import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
 import {
