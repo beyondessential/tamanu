@@ -75,6 +75,7 @@ export const NoteForm = ({
         date: getCurrentDateTimeString(),
         noteType: note?.noteType,
         writtenById: currentUser.id,
+        content: note?.content,
       }}
       validationSchema={yup.object().shape({
         noteType: yup
