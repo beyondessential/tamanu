@@ -16,7 +16,6 @@ export const HandoverNotesPDF = ({
       <HandoverHeaderSection
         letterheadConfig={letterheadConfig}
         locationGroupName={locationGroupName}
-        getLocalisation={getLocalisation}
         logoSrc={logoSrc}
       />
       <Box mb={0}>
