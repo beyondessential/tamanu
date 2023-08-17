@@ -1,7 +1,5 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Alert, AlertTitle } from '@material-ui/lab';
-import { Box } from '@material-ui/core';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { ModalLoader, ConfirmCancelRow, Form } from '../components';
