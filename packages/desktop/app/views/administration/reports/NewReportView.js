@@ -180,13 +180,14 @@ export const NewReportView = () => {
 
   const handleSubmit = async ({ name, query, status, ...queryOptions }) => {
     try {
-      await api.post('admin/reports', {
+      const { reportDefinitionId } = await api.post('admin/reports', {
         name,
         query,
         status,
         queryOptions,
       });
       queryClient.invalidateQueries(['reportList']);
+      toast.success(`Imported report: ${reportDefinitionId}`);
     } catch (err) {
       toast.error(`Failed to create report: ${err.message}`);
     }
