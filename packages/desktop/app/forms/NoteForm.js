@@ -87,7 +87,7 @@ export const NoteForm = ({
         writtenById: foreignKey(
           `${
             noteFormMode === NOTE_FORM_MODES.EDIT_NOTE &&
-            note.noteType === NOTE_TYPES.TREATMENT_PLAN
+            note?.noteType === NOTE_TYPES.TREATMENT_PLAN
               ? 'Updated'
               : 'Created'
           } by (or on behalf of) is required`,
