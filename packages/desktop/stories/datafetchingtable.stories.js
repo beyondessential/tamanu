@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import styled from 'styled-components';
 import { storiesOf } from '@storybook/react';
 import Chance from 'chance';
 
@@ -8,12 +9,17 @@ import { CheckInput } from '../app/components/Field';
 
 const chance = new Chance();
 
+const Container = styled.div`
+  position: relative;
+`;
+
 function fakePatient() {
   const gender = chance.pick(['male', 'female']);
   return {
     name: chance.name({ gender }),
     age: chance.age(),
     location: chance.address(),
+    date: chance.date({ string: true, american: false }),
   };
 }
 
@@ -23,17 +29,11 @@ const dummyColumns = [
   { key: 'name', title: 'Patient' },
   { key: 'location', title: 'Location' },
   { key: 'age', title: 'Age' },
+  { key: 'date', title: 'Date' },
 ];
-
-function sleep(milliseconds) {
-  return new Promise(resolve => {
-    setTimeout(resolve, milliseconds);
-  });
-}
 
 const dummyApi = {
   get: async (endpoint, { order, orderBy, page, rowsPerPage }) => {
-    await sleep(1000);
     const sortedData = dummyData.sort(({ [orderBy]: a }, { [orderBy]: b }) => {
       if (typeof a === 'string') {
         return order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
@@ -48,6 +48,9 @@ const dummyApi = {
       count: dummyData.length,
     };
   },
+  addPatient: newPatient => {
+    dummyData.unshift(newPatient); // Add the new patient at the beginning of the array
+  },
 };
 
 const paginationErrorApi = {
@@ -56,6 +59,32 @@ const paginationErrorApi = {
     return dummyApi.get(endpoint, query);
   },
 };
+
+const TableWithDynamicData = () => {
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const newPatient = fakePatient();
+      dummyApi.addPatient(newPatient);
+    }, chance.integer({ min: 5000, max: 15000 })); // Random interval between 5 to 15 seconds
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
+  return (
+    <ApiContext.Provider value={dummyApi}>
+      <Container>
+        <DataFetchingTable
+          endpoint="ages"
+          columns={dummyColumns}
+          initialSort={{ order: 'desc', orderBy: 'date' }}
+          autoRefresh
+        />
+      </Container>
+    </ApiContext.Provider>
+  );
+}
 
 storiesOf('DataFetchingTable', module)
   .add('Plain', () => (
@@ -77,9 +106,4 @@ storiesOf('DataFetchingTable', module)
       <DataFetchingTable endpoint="ages" columns={dummyColumns} />
     </ApiContext.Provider>
   ))
-  // Create mock endpoint for localisation to enable autorefresh
-  .add('With autorefresh', () => ( 
-    <ApiContext.Provider value={dummyApi}>
-      <DataFetchingTable endpoint="ages" columns={dummyColumns} autorefresh />
-    </ApiContext.Provider>
-  ));
+  .add('With autorefresh enabled', () => TableWithDynamicData());
