@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { NOTE_TYPES } from '@tamanu/shared/constants/notes';
-import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants/labs';
-import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/shared/constants/statuses';
-import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/shared/constants/diagnoses';
-import { ForbiddenError } from '@tamanu/shared/errors';
+import { NOTE_TYPES } from '@tamanu/constants/notes';
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
+import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants/statuses';
+import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants/diagnoses';
+import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
 
 import { EncounterRecord } from '../printouts/EncounterRecord';
 import { Modal } from '../../Modal';
@@ -159,15 +159,25 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
         </Modal>
       );
     }
-    // If this next bit ever shows up it means it's a bug - show some detail
-    return (
-      <Modal {...modalProps}>
-        <p>An unexpected error occurred. Please contact your system administrator.</p>
-        <p>Error details:</p>
-        <pre>{JSON.stringify(allQueries.errors, null, 2)}</pre>
-        <ModalActionRow onConfirm={onClose} confirmText="Close" />
-      </Modal>
-    );
+
+    // Some old discharged encounters do not have discharge record
+    // It is a data issue and we don't want to it to break the entire Encounter Summary
+    const hasOnlyDischargeNotFoundError =
+      allQueries.errors.length === 1 &&
+      dischargeQuery.isError &&
+      dischargeQuery.error instanceof NotFoundError;
+
+    if (!hasOnlyDischargeNotFoundError) {
+      // If this next bit ever shows up it means it's a bug - show some detail
+      return (
+        <Modal {...modalProps}>
+          <p>An unexpected error occurred. Please contact your system administrator.</p>
+          <p>Error details:</p>
+          <pre>{JSON.stringify(allQueries.errors, null, 2)}</pre>
+          <ModalActionRow onConfirm={onClose} confirmText="Close" />
+        </Modal>
+      );
+    }
   }
 
   // Filter and sort diagnoses: remove error/cancelled diagnosis, sort by whether it is primary and then date

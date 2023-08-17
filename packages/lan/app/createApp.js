@@ -4,7 +4,7 @@ import config from 'config';
 import express from 'express';
 import path from 'path';
 
-import { SERVER_TYPES } from 'shared/constants';
+import { SERVER_TYPES } from '@tamanu/constants';
 import { getLoggingMiddleware } from 'shared/services/logging';
 
 import routes from './routes';

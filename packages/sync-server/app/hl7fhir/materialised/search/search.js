@@ -1,6 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import { ValidationError } from 'yup';
-import { FHIR_BUNDLE_TYPES } from 'shared/constants';
+import { FHIR_BUNDLE_TYPES } from '@tamanu/constants';
 import { Invalid, OperationOutcome, Unsupported, normaliseParameters } from 'shared/utils/fhir';
 
 import { Bundle } from '../bundle';

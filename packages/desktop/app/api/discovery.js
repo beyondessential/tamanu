@@ -1,7 +1,7 @@
 import dgram from 'dgram';
 import { isEqual } from 'lodash';
 
-import { DISCOVERY_PORT, DISCOVERY_MAGIC_STRING } from '@tamanu/shared/constants';
+import { DISCOVERY_PORT, DISCOVERY_MAGIC_STRING } from '@tamanu/constants';
 
 const PORT = process.env.DISCOVERY_PORT || DISCOVERY_PORT;
 const BROADCAST_IP = '255.255.255.255';

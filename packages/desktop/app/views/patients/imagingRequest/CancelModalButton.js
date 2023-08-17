@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/shared/constants';
+import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
 
 import { CancelModal } from '../../../components/CancelModal';
 import { Button } from '../../../components/Button';

@@ -1,4 +1,4 @@
-import { REPORT_REQUEST_STATUSES } from 'shared/constants';
+import { REPORT_REQUEST_STATUSES } from '@tamanu/constants';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 
