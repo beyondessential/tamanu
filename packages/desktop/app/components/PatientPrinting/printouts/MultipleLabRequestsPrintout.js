@@ -60,7 +60,7 @@ export const MultipleLabRequestsPrintout = React.memo(
           if (labTestPanelRequest) {
             return labTestPanelRequest.labTestPanel.name;
           }
-          return tests ? tests.map(test => test.labTestType?.name).join(', ') : '';
+          return tests?.map(test => test.labTestType?.name).join(', ') || '';
         },
         widthProportion: 3,
       },
