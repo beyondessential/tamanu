@@ -48,8 +48,12 @@ describe('settings', () => {
   });
 
   describe('list (global)', () => {
-    it('shows all settings', () => expect(listSettings('test')).resolves.toMatchSnapshot());
-
+    it('shows all settings', async () => {
+      const list = await listSettings();
+      // Remove all lines not starting with test.
+      // As full contents of settings is not guaranteed to be the same
+      expect(list.replace(/\n?^(?!test.).*$\n?/gm, '')).toMatchSnapshot();
+    });
     it('shows some settings with a filter', () =>
       expect(listSettings('test.tree')).resolves.toMatchSnapshot());
 
@@ -58,8 +62,12 @@ describe('settings', () => {
   });
 
   describe('list (facility)', () => {
-    it('shows all settings', () =>
-      expect(listSettings('test', { facility })).resolves.toMatchSnapshot());
+    it('shows all settings', async () => {
+      const list = await listSettings('', { facility });
+      // Remove all lines not starting with test.
+      // As full contents of settings is not guaranteed to be the same
+      expect(list.replace(/\n?^(?!test.).*$\n?/gm, '')).toMatchSnapshot();
+    });
 
     it('shows some settings with a filter', () =>
       expect(listSettings('test.tree', { facility })).resolves.toMatchSnapshot());
