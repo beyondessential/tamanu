@@ -11,7 +11,8 @@ import { PDFViewer, printPDF } from '../PatientPrinting/PDFViewer';
 export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
   const { getLocalisation } = useLocalisation();
   const api = useApi();
-  const { logo } = useCertificate();
+  const { title, subTitle, logo } = useCertificate();
+  const letterheadConfig = { title, subTitle };
   const modalTitle = `Handover notes ${getDisplayDate(new Date(), 'dd/MM/yy')}`;
 
   const {
@@ -36,6 +37,7 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
           handoverNotes={handoverNotes}
           locationGroupName={locationGroup.name}
           getLocalisation={getLocalisation}
+          letterheadConfig={letterheadConfig}
         />
       </PDFViewer>
     </Modal>
