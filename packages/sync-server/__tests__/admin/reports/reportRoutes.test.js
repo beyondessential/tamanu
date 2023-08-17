@@ -117,6 +117,57 @@ describe('reportRoutes', () => {
     });
   });
 
+  describe('POST /reports', () => {
+    it('should create a report', async () => {
+      const name = 'Test Report 2';
+      const { ReportDefinition, ReportDefinitionVersion } = models;
+      const { versionNumber, ...definition } = getMockReportVersion(
+        1,
+        'select * from patients limit 1',
+      );
+      const res = await adminApp.post('/v1/admin/reports').send({ name, ...definition });
+      expect(res).toHaveSucceeded();
+      expect(res.body.query).toBe('select * from patients limit 1');
+      expect(res.body.versionNumber).toBe(1);
+      const reports = await ReportDefinition.findAll({
+        where: {
+          name,
+        },
+      });
+      expect(reports).toHaveLength(1);
+      const versions = await ReportDefinitionVersion.findAll({
+        where: {
+          reportDefinitionId: reports[0].id,
+        },
+      });
+      expect(versions).toHaveLength(1);
+    });
+
+    it('should not return unnecessary metadata', async () => {
+      const { versionNumber, ...definition } = getMockReportVersion(
+        1,
+        'select * from patients limit 1',
+      );
+      const res = await adminApp
+        .post('/v1/admin/reports')
+        .send({ name: 'Test Report 3', ...definition });
+      expect(res).toHaveSucceeded();
+      expect(Object.keys(res.body)).toEqual(
+        expect.arrayContaining([
+          'id',
+          'name',
+          'versionNumber',
+          'query',
+          'createdAt',
+          'updatedAt',
+          'status',
+          'notes',
+          'queryOptions',
+        ]),
+      );
+    });
+  });
+
   describe('POST /reports/:id/versions', () => {
     it('should create a new version', async () => {
       const { ReportDefinitionVersion } = models;
