@@ -16,7 +16,7 @@ export async function up(query) {
   if (dupes.length > 0) {
     const names = dupes.map(d => `"${d.name}" (x${d.count})`).join(',');
     throw new Error(
-      `Found some Report definitions in the db that have the same name as each other. Please resolve the duplication before proceeding.\nThe duplicated names are: ${names}`,
+      `Found some report definitions in the db that have the same name as each other. Please resolve the duplication before proceeding.\nThe duplicated names are: ${names}`,
     );
   }
 
