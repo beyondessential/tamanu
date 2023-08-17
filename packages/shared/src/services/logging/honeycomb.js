@@ -14,7 +14,7 @@ const legacyNames = {
   serverType: context[SemanticAttributes.SERVICE_TYPE],
 };
 
-const { apiKey, enabled } = config?.honeycomb || {};
+const { apiKey, enabled, level = 'info' } = config?.honeycomb || {};
 
 const dataset = serviceName(context);
 const honeyApi = new Libhoney({
@@ -23,7 +23,7 @@ const honeyApi = new Libhoney({
   disabled: !(apiKey && enabled && dataset),
 });
 
-class HoneycombTransport extends Transport {
+export class HoneycombTransport extends Transport {
   log(info, callback) {
     const event = honeyApi.newEvent();
     event.add(info);
@@ -34,4 +34,6 @@ class HoneycombTransport extends Transport {
   }
 }
 
-export const honeycombTransport = new HoneycombTransport();
+export const honeycombTransport = new HoneycombTransport({
+  level,
+});
