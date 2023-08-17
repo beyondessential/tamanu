@@ -53,11 +53,11 @@ export const EditReportView = () => {
   };
 
   return (
-    <InnerContainer>
+    <>
       {version ? (
         <VersionEditor report={report} version={version} onBack={handleBack} onSave={handleSave} />
       ) : (
-        <>
+        <InnerContainer>
           <ReportTable
             data={reportData}
             selected={report?.id}
@@ -75,8 +75,8 @@ export const EditReportView = () => {
               />
             </VersionsTableContainer>
           )}
-        </>
+        </InnerContainer>
       )}
-    </InnerContainer>
+    </>
   );
 };

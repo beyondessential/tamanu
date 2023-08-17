@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { capitalize } from 'lodash';
 import * as yup from 'yup';
-import { Accordion, AccordionDetails, AccordionSummary, Grid } from '@material-ui/core';
+import { Accordion, AccordionDetails, AccordionSummary, Grid, Box } from '@material-ui/core';
 import {
   REPORT_DEFAULT_DATE_RANGES_VALUES,
   REPORT_DATA_SOURCES,
@@ -23,6 +23,7 @@ import {
 } from '../../../components';
 import { ParameterList, ParameterItem, SQLQueryEditor } from './components/editing';
 import { FIELD_TYPES_WITH_SUGGESTERS } from '../../reports/ParameterField';
+import { VersionInfo } from './components/VersionInfo';
 
 const Container = styled.div`
   padding: 20px;
@@ -99,7 +100,7 @@ const NewReportForm = ({ isSubmitting, values, setValues }) => {
   const onParamsDelete = paramId => setParams(params.filter(p => p.id !== paramId));
 
   return (
-    <Container>
+    <>
       <Grid container spacing={2}>
         <Grid item xs={4}>
           <StyledField required label="Report name" name="name" component={TextField} />
@@ -170,11 +171,11 @@ const NewReportForm = ({ isSubmitting, values, setValues }) => {
           Create
         </Button>
       </ButtonRow>
-    </Container>
+    </>
   );
 };
 
-export const NewReportView = () => {
+export const NewReportView = ({ version, report }) => {
   const api = useApi();
   const queryClient = useQueryClient();
 
@@ -194,18 +195,25 @@ export const NewReportView = () => {
   };
 
   return (
-    <>
+    <Container>
+      {version && (
+        <Box mb={3}>
+          <VersionInfo reportDefinitionId={report.id} name={report.name} version={version} />
+        </Box>
+      )}
       <Form
         onSubmit={handleSubmit}
         validationSchema={schema}
-        initialValues={{
-          status: STATUS_OPTIONS[0].value,
-          dataSources: [...REPORT_DATA_SOURCE_VALUES],
-          defaultDateRange: DATE_RANGE_OPTIONS[0].value,
-          parameters: [],
-        }}
+        initialValues={
+          version || {
+            status: STATUS_OPTIONS[0].value,
+            dataSources: [...REPORT_DATA_SOURCE_VALUES],
+            defaultDateRange: DATE_RANGE_OPTIONS[0].value,
+            parameters: [],
+          }
+        }
         render={NewReportForm}
       />
-    </>
+    </Container>
   );
 };
