@@ -7,10 +7,10 @@ import {
   createDummyPatient,
   randomReferenceId,
 } from 'shared/demoData/patients';
-import { PATIENT_FIELD_DEFINITION_TYPES } from 'shared/constants/patientFields';
+import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import { fake } from 'shared/test-helpers/fake';
 import { randomLabRequest } from 'shared/demoData/labRequests';
-import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
 import { getCurrentDateString, toDateTimeString } from 'shared/utils/dateTime';
 import { CertificateTypes } from 'shared/utils/patientCertificates';
 

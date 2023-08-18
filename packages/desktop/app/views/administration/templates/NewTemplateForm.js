@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { Link } from '@material-ui/core';
 
-import { TEMPLATE_TYPES } from '@tamanu/shared/constants';
+import { TEMPLATE_TYPES } from '@tamanu/constants';
 
 import {
   Form,

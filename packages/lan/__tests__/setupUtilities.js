@@ -1,5 +1,5 @@
 import { Op, Sequelize } from 'sequelize';
-import { FHIR_INTERACTIONS } from 'shared/constants/fhir';
+import { FHIR_INTERACTIONS } from '@tamanu/constants/fhir';
 import { sortInDependencyOrder } from 'shared/models/sortInDependencyOrder';
 import { FAKE_UUID_PATTERN } from 'shared/utils/generateId';
 

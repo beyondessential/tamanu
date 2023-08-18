@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, DOCUMENT_SOURCES } from '../constants';
+import { SYNC_DIRECTIONS, DOCUMENT_SOURCES } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';

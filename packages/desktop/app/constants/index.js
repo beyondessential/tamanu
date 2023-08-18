@@ -22,7 +22,7 @@ import {
   LOCATION_AVAILABILITY_TAG_CONFIG,
   DOCUMENT_SOURCES,
   TEMPLATE_TYPES,
-} from '@tamanu/shared/constants';
+} from '@tamanu/constants';
 
 import {
   medicationIcon,
@@ -179,6 +179,10 @@ export const noteTypes = [
   { value: NOTE_TYPES.SURGICAL, label: 'Surgical' },
   { value: NOTE_TYPES.SYSTEM, label: 'System', hideFromDropdown: true },
 ];
+
+export const NOTE_TYPE_LABELS = Object.fromEntries(
+  noteTypes.map(noteType => [noteType.value, noteType.label]),
+);
 
 export const encounterOptions = [
   { value: ENCOUNTER_TYPES.ADMISSION, label: 'Hospital admission', image: medicationIcon },
@@ -475,4 +479,10 @@ export const REQUIRED_INLINE_ERROR_MESSAGE = '*Required';
 export const FORM_TYPES = {
   SEARCH_FORM: 'searchForm',
   DATA_FORM: 'dataForm',
+};
+
+export const NOTE_FORM_MODES = {
+  CREATE_NOTE: 'createNote',
+  EDIT_NOTE: 'editNote',
+  VIEW_NOTE: 'viewNote',
 };

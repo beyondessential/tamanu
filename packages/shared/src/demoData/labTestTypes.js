@@ -1,4 +1,4 @@
-import { LAB_TEST_RESULT_TYPES } from '../constants';
+import { LAB_TEST_RESULT_TYPES } from '@tamanu/constants';
 
 const LAB_TEST_CATEGORY_OTHER = {
   name: 'Other',

@@ -30,7 +30,7 @@ import { ReferenceData, ReferenceDataRelation } from '~/models/ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { DateTimeStringColumn } from './DateColumns';
-import { NotePage } from './NotePage';
+import { Note } from './Note';
 
 const TIME_OFFSET = 3;
 
@@ -232,15 +232,14 @@ export class Encounter extends BaseModel implements IEncounter {
       order: { startDate: 'DESC' },
     });
 
-    const notes = await NotePage.find({
+    const notes = await Note.find({
       where: { recordId: In(encounters.map(({ id }) => id)) },
-      relations: ['noteItems'],
     });
 
     // Usually a patient won't have too many encounters, but if they do, this will be slow.
     return encounters.map(encounter => ({
       ...encounter,
-      notePages: notes.filter(note => note.recordId === encounter.id),
+      notes: notes.filter(note => note.recordId === encounter.id),
     }));
   }
 
@@ -272,20 +271,4 @@ export class Encounter extends BaseModel implements IEncounter {
 
     return query.getRawMany();
   }
-
-  static includedSyncRelations = [
-    'administeredVaccines',
-    'surveyResponses',
-    'surveyResponses.answers',
-    'diagnoses',
-    'medications',
-    'vitals',
-    'initiatedReferrals',
-    'completedReferrals',
-    'labRequests',
-    'labRequests.tests',
-    // Can't add these here as there's no ORM relation
-    // 'notePages',
-    // 'notePages.noteItems',
-  ];
 }

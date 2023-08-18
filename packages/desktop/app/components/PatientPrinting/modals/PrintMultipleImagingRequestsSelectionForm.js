@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
-import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/shared/constants/statuses';
+import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants/statuses';
 
 import { useSelectableColumn } from '../../Table';
 import { ConfirmCancelRow } from '../../ButtonRow';
@@ -21,7 +21,7 @@ export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter
       const result = await api.get(
         `encounter/${encodeURIComponent(encounter.id)}/imagingRequests`,
         {
-          includeNotePages: 'true',
+          includeNotes: 'true',
           status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
           orderBy: 'requestedDate',
           order: 'ASC',

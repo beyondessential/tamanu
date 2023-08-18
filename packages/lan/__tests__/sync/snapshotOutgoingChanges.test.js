@@ -2,7 +2,7 @@ import { expect, beforeAll, describe, it } from '@jest/globals';
 
 import { fakeReferenceData, withErrorShown } from 'shared/test-helpers';
 import { SYNC_SESSION_DIRECTION, getModelsForDirection } from 'shared/sync';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { sleepAsync } from 'shared/utils/sleepAsync';
 
 import { createTestContext } from '../utilities';

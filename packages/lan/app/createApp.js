@@ -4,8 +4,9 @@ import config from 'config';
 import express from 'express';
 import path from 'path';
 
-import { SERVER_TYPES } from 'shared/constants';
+import { SERVER_TYPES } from '@tamanu/constants';
 import { getLoggingMiddleware } from 'shared/services/logging';
+import { getAuditMiddleware } from './middleware/auditLog';
 
 import routes from './routes';
 import errorHandler from './middleware/errorHandler';
@@ -40,6 +41,8 @@ export function createApp({ sequelize, models, syncManager, deviceId }) {
   });
 
   app.use(versionCompatibility);
+
+  app.use(getAuditMiddleware());
 
   // index route for debugging connectivity
   app.get('/$', (req, res) => {

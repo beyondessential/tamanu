@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { NOTE_TYPES } from '@tamanu/shared/constants/notes';
-import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants/labs';
-import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/shared/constants/statuses';
-import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/shared/constants/diagnoses';
+import { NOTE_TYPES } from '@tamanu/constants/notes';
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
+import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants/statuses';
+import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants/diagnoses';
 import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
 
 import { EncounterRecord } from '../printouts/EncounterRecord';
@@ -31,24 +31,26 @@ const encounterTypeNoteMatcher = /^Changed type from (?<from>.*) to (?<to>.*)/;
 
 // This is the general function that extracts the important values from the notes into an object based on their regex matcher
 const extractUpdateHistoryFromNoteData = (notes, encounterData, matcher) => {
-  if (notes.length === 0) return null;
+  if (notes?.length > 0 && notes[0].content.match(matcher)) {
+    const {
+      groups: { from },
+    } = notes[0].content.match(matcher);
 
-  const getMatch = noteItems => noteItems[0].content.match(matcher)?.groups;
-
-  const match = getMatch(notes[0].noteItems);
-  if (!match) return null;
-
-  return [
-    {
-      to: match.from,
-      date: encounterData.startDate,
-    },
-    ...notes.map(({ noteItems }) => {
-      const { to } = getMatch(noteItems);
-      const { date } = noteItems[0];
-      return { to, date };
-    }),
-  ];
+    const history = [
+      {
+        to: from,
+        date: encounterData.startDate,
+      },
+      ...notes?.map(({ content, date }) => {
+        const {
+          groups: { to },
+        } = content.match(matcher);
+        return { to, date };
+      }),
+    ];
+    return history;
+  }
+  return null;
 };
 
 // These two functions both take the generated object based on the matcher from the above function and alters the data names to be relavant to the table.
@@ -121,8 +123,11 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const villageQuery = useReferenceData(patient?.villageId);
   const village = villageQuery.data?.name;
 
-  const notesQuery = useEncounterNotes(encounter.id);
-  const notes = notesQuery.data?.data || [];
+  const notesQuery = useEncounterNotes(encounter.id, {
+    orderBy: 'date',
+    order: 'ASC',
+  }); // order notes by edited date
+  const notes = notesQuery?.data?.data || [];
 
   const allQueries = combineQueries([
     patientQuery,
@@ -237,80 +242,27 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     .filter(medication => !medication.discontinued)
     .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-  const displayNotes = notes.filter(note => note.noteType !== NOTE_TYPES.SYSTEM);
-
-  // Add orignal note to each note object linked to an edited note
-  const linkedNotes = displayNotes.map(note => {
-    const updatedNote = JSON.parse(JSON.stringify(note));
-    updatedNote.noteItems = note.noteItems.map(noteItem => {
-      const updatedNoteItem = noteItem;
-      const linkedNote = note.noteItems.find(item => item.id === noteItem.revisedById);
-      updatedNoteItem.originalNote = linkedNote || { id: updatedNoteItem.id };
-      return updatedNoteItem;
-    });
-    return updatedNote;
+  const displayNotes = notes.filter(note => {
+    return note.noteType !== NOTE_TYPES.SYSTEM;
   });
 
-  // Remove original notes that have been edited and duplicate edits
-  const revisedByIds = new Set();
-  notes.forEach(note => {
-    note.noteItems.forEach(noteItem => {
-      if (noteItem.revisedById) {
-        revisedByIds.add(noteItem.revisedById);
-      }
-    });
+  const systemNotes = notes.filter(note => {
+    return note.noteType === NOTE_TYPES.SYSTEM;
   });
 
-  const seenNotes = new Set();
-  const filteredNotes = linkedNotes.map(note => {
-    const noteCopy = note;
-    noteCopy.noteItems = noteCopy.noteItems.reverse().filter(noteItem => {
-      const duplicate = seenNotes.has(noteItem.originalNote?.id);
-      seenNotes.add(noteItem.originalNote?.id);
-      return !duplicate && !revisedByIds.has(noteItem.id);
-    });
-    return noteCopy;
+  const locationSystemNotes = systemNotes.filter(note => {
+    return note.content.match(locationNoteMatcher);
   });
+  const locationHistory = locationSystemNotes
+    ? extractLocationHistory(locationSystemNotes, encounter, locationNoteMatcher)
+    : [];
 
-  // In order to show notes in the orginially created order this checks if it has an original note linked and sorts by
-  // that first and then the actual note date if it has no link
-  const orderedNotes = filteredNotes.map(note => {
-    return {
-      ...note,
-      noteItems: note.noteItems.sort((a, b) => {
-        if (a.revisedById && b.revisedById) {
-          return new Date(a.originalNote.date) - new Date(b.originalNote.date);
-        }
-        if (a.revisedById) {
-          return new Date(a.originalNote.date) - new Date(b.date);
-        }
-        if (b.revisedById) {
-          return new Date(a.date) - new Date(b.originalNote.date);
-        }
-        return new Date(a.date) - new Date(b.date);
-      }),
-    };
+  const encounterTypeSystemNotes = systemNotes.filter(note => {
+    return note.content.match(encounterTypeNoteMatcher);
   });
-
-  const systemNotes = notes.filter(note => note.noteType === NOTE_TYPES.SYSTEM);
-
-  const locationSystemNotes = systemNotes.filter(note =>
-    note.noteItems[0].content.match(locationNoteMatcher),
-  );
-  const locationHistory = extractLocationHistory(
-    locationSystemNotes,
-    encounter,
-    locationNoteMatcher,
-  );
-
-  const encounterTypeSystemNotes = systemNotes.filter(note =>
-    note.noteItems[0].content.match(encounterTypeNoteMatcher),
-  );
-  const encounterTypeHistory = extractEncounterTypeHistory(
-    encounterTypeSystemNotes,
-    encounter,
-    encounterTypeNoteMatcher,
-  );
+  const encounterTypeHistory = encounterTypeSystemNotes
+    ? extractEncounterTypeHistory(encounterTypeSystemNotes, encounter, encounterTypeNoteMatcher)
+    : [];
 
   return (
     <Modal {...modalProps}>
@@ -324,7 +276,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
         procedures={procedures}
         labRequests={updatedLabRequests}
         imagingRequests={imagingRequests}
-        notes={orderedNotes}
+        notes={displayNotes}
         discharge={discharge}
         village={village}
         pad={padData}
