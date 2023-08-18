@@ -17,11 +17,7 @@ const spin = keyframes`
 `;
 
 const Spinner = styled(RefreshIcon)`
-  ${({ $isSpinning }) =>
-    $isSpinning &&
-    css`
-      animation: 0.5s linear ${spin} infinite;
-    `}
+  animation: 0.5s linear ${spin} infinite;
 `;
 
 const RefreshButton = styled.div`
@@ -63,12 +59,14 @@ export const TableRefreshButton = ({ refreshTable, lastUpdatedTime }) => {
     spinRefreshButton();
   };
 
+  const RefreshSpinner = isRefreshSpinning ? Spinner : RefreshIcon;
+
   return (
     <LastUpdatedBadge>
       Last updated: {getDateDisplay(lastUpdatedTime, { showTime: true })}
       <ThemedTooltip title="Refresh">
         <RefreshButton>
-          <Spinner $isSpinning={isRefreshSpinning} onClick={handleClick} />
+          <RefreshSpinner onClick={handleClick} />
         </RefreshButton>
       </ThemedTooltip>
     </LastUpdatedBadge>
