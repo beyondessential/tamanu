@@ -103,10 +103,11 @@ async function getReleases(github, context, cursor = null) {
       repository(owner: $owner, name: $name) {
         releases(last: $batchSize, before: $cursor, orderBy: { field: CREATED_AT, direction: DESC }) {
           nodes {
-            databaseId,
-            name,
-            tagName,
+            databaseId
+            name
+            tagName
             isDraft
+            description
           }
           edges {
             cursor
@@ -213,5 +214,40 @@ export async function publishRelease(github, context, version) {
     draft: false,
     make_latest: markLatest,
   });
+  console.log('Done.');
+}
+
+export async function uploadToRelease({ fs, github, context, artifactsDir, version, section }) {
+  console.log(`Find release matching ${version}...`);
+  const release = await findRelease(
+    github,
+    context,
+    name => name === `v${version}` || name === version,
+  );
+
+  if (!release) {
+    throw new Error('Cannot find a matching release!');
+  }
+
+  console.log('Updating release description');
+  await github.rest.repos.updateRelease({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    release_id: release.id,
+    description: `${release.description}\n\n${section}`,
+  });
+
+  const fileList = await fs.readdir(artifactsDir);
+  for (const file of fileList) {
+    console.log('Uploading', file, 'to release', release.databaseId);
+    await github.rest.repos.uploadReleaseAsset({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      release_id: release.databaseId,
+      name: file,
+      data: await fs.readFile(`${artifactsDir}/${file}`),
+    });
+  }
+
   console.log('Done.');
 }

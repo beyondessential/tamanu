@@ -149,11 +149,13 @@ jobs:
       - name: Prepare final outputs
         run: |
           sudo chown -R $USER:$USER release
-          mkdir -p ops/{linux,mac,windows-{appdata,msi,system,aspen}}
+          mkdir -p ops/{linux,mac,windows-{appdata,msi,system,aspen}} artifacts
           mv release/latest-linux.yml release/*.AppImage ops/linux/
           mv release/*-mac* ops/mac/
+          cp release/*.msi artifacts/TamanuSetup.x64.msi
           mv release/*.msi ops/windows-msi/
           mv release/aspen/*.msi ops/windows-aspen/
+          cp release/*.exe artifacts/TamanuSetup.x64.exe
           mv release/latest.yml release/*.exe* ops/windows-system/
           mv release/appdata/latest.yml release/appdata/*.exe* ops/windows-appdata/
           rm -rf release
@@ -175,7 +177,7 @@ jobs:
         run: aws s3 sync . s3://${{ env.S3_BUCKET }} --no-progress
 
       - name: Prepare comment
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' || github.ref_type == 'tag'
         id: comment
         uses: actions/github-script@v6
         env:
@@ -220,3 +222,22 @@ jobs:
                 body: process.env.COMMENT_BODY,
               });
             }
+
+      - name: Push to release
+        if: github.ref_type == 'tag'
+        uses: actions/github-script@v6
+        env:
+          RELEASE_SECTION: ${{ steps.comment.outputs.result }}
+          RELEASE_VERSION: ${{ needs.info.outputs.version }}
+        with:
+          script: |
+            const cwd = '${{ github.workspace }}';
+            const { uploadToRelease } = await import(`${cwd}/scripts/gha-release-ops.mjs`);
+            await uploadToRelease({
+              fs: await import('fs/promises'),
+              github,
+              context,
+              artifactsDir: `${cwd}/artifacts`,
+              version: process.env.RELEASE_VERSION,
+              section: process.env.RELEASE_SECTION,
+            });
