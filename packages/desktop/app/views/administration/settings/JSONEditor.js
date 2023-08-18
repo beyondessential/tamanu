@@ -59,16 +59,14 @@ export const JSONEditor = React.memo(
       } else {
         const annotation = generateAnnotationFromJSONError(error.message, value);
         setErrorAnnotation(annotation);
-        setMarker([
-          {
-            startRow: annotation.row,
-            startCol: annotation.column,
-            endRow: annotation.row,
-            endCol: annotation.column + 1, // endCol is exclusive so need to add 1 in order to highlight the final character
-            className: 'error-marker',
-            type: 'background',
-          },
-        ]);
+        setMarker({
+          startRow: annotation.row,
+          startCol: annotation.column,
+          endRow: annotation.row,
+          endCol: annotation.column + 1, // endCol is exclusive so need to add 1 in order to highlight the final character
+          className: 'error-marker',
+          type: 'background',
+        });
       }
     }, [error, value, isValidJSON]);
 
@@ -98,7 +96,7 @@ export const JSONEditor = React.memo(
         annotations={errorAnnotation ? [errorAnnotation] : null}
         onLoad={onLoad}
         tabSize={2}
-        markers={marker}
+        markers={marker ? [marker] : null}
       />
     );
   },
