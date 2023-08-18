@@ -51,9 +51,8 @@ const generateDefaultParameter = () => ({
 const schema = yup.object().shape({
   name: yup.string().required('Report name is a required field'),
   dataSources: yup
-    .array()
-    .of(yup.string().oneOf(REPORT_DATA_SOURCE_VALUES))
-    .min(1)
+    .string()
+    .oneOf(REPORT_DATA_SOURCE_VALUES.join(','), ...REPORT_DATA_SOURCE_VALUES)
     .required('Select at least one data source'),
   defaultDateRange: yup
     .string()
