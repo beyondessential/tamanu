@@ -55,7 +55,7 @@ const schema = yup.object().shape({
     .test(val => {
       const values = val?.split(', ') || [];
       return values.length && values.every(v => REPORT_DATA_SOURCE_VALUES.includes(v));
-    })
+    }, 'Select at least one data source')
     .required('Select at least one data source'),
   defaultDateRange: yup
     .string()
@@ -92,8 +92,6 @@ const ReportEditorForm = ({ isSubmitting, values, setFieldValue, dirty, isEdit }
     setParams(newParams);
   };
   const onParamsDelete = paramId => setParams(params.filter(p => p.id !== paramId));
-
-  console.log('values', values);
 
   return (
     <>
