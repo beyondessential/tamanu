@@ -93,7 +93,7 @@ export async function createDraftRelease({ readFileSync }, github, context, cwd,
 }
 
 async function getReleases(github, context, cursor = null) {
-  const { errors, data } = await github.graphql(
+  const { repository: { releases } } = await github.graphql(
     `
     query($owner: String!, $name: String!, $cursor: String, $batchSize: Int) {
       repository(owner: $owner, name: $name) {
@@ -120,11 +120,6 @@ async function getReleases(github, context, cursor = null) {
     },
   );
 
-  if (errors) {
-    throw new Error(`Graphql errors ${errors.map(e => e.message).join(', ')}`);
-  }
-
-  const { releases } = data.repository;
   return releases.nodes.length
     ? {
         cursor: releases.edges[releases.edges.length - 1].cursor,
