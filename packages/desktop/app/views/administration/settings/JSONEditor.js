@@ -13,7 +13,7 @@ const THEMES = {
 };
 
 const StyledJSONEditor = styled(AceEditor)`
-  border: 1px solid ${p => (p.$isJsonValid ? Colors.outline : Colors.alert)};
+  border: 1px solid ${p => (p.$hasError ? Colors.alert : Colors.outline)};
   border-radius: 4px;
   .error-marker {
     position: absolute;
@@ -50,10 +50,8 @@ export const JSONEditor = React.memo(
     const [errorAnnotation, setErrorAnnotation] = useState(null);
     const [marker, setMarker] = useState(null);
 
-    const isValidJSON = !error?.message;
-
     useEffect(() => {
-      if (isValidJSON) {
+      if (!error?.message) {
         setErrorAnnotation(null);
         setMarker([]);
       } else {
@@ -68,7 +66,7 @@ export const JSONEditor = React.memo(
           type: 'background',
         });
       }
-    }, [error, value, isValidJSON]);
+    }, [error, value]);
 
     const onLoad = editor => {
       // Disable the "undo" command (Ctrl+Z)
@@ -91,7 +89,7 @@ export const JSONEditor = React.memo(
         onChange={onChange}
         value={value}
         highlightActiveLine={false}
-        $isJsonValid={isValidJSON}
+        $hasError={!!errorAnnotation}
         readOnly={!editMode}
         annotations={errorAnnotation ? [errorAnnotation] : null}
         onLoad={onLoad}
