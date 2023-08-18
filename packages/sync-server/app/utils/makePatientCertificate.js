@@ -4,6 +4,7 @@ import path from 'path';
 import QRCode from 'qrcode';
 import { get } from 'lodash';
 import config from 'config';
+import { ASSET_NAMES, ASSET_FALLBACK_NAMES } from '@tamanu/constants';
 
 import {
   tmpdir,
@@ -15,18 +16,22 @@ import { CovidLabCertificate, CertificateTypes } from 'shared/utils/patientCerti
 
 import { getLocalisation } from '../localisation';
 
-async function getCertificateAssets(models) {
-  const [logo, signingImage, watermark] = (
+async function getCertificateAssets(models, footerAssetName) {
+  const footerAsset = await models.Asset.findOne({ raw: true, where: { name: footerAssetName } });
+  const footerAssetData = footerAsset?.data;
+  const [logo, watermark, signingImage] = (
     await Promise.all(
       [
-        'letterhead-logo',
-        'certificate-bottom-half-img',
-        'vaccine-certificate-watermark',
-      ].map(name => models.Asset.findOne({ raw: true, where: { name } })),
+        ASSET_NAMES.LETTERHEAD_LOGO,
+        ASSET_NAMES.VACCINE_CERTIFICATE_WATERMARK,
+        ...(footerAsset?.data
+          ? []
+          : [ASSET_FALLBACK_NAMES[footerAssetName] || ASSET_NAMES.CERTIFICATE_BOTTOM_HALF_IMG]),
+      ].map(name => name && models.Asset.findOne({ raw: true, where: { name } })),
     )
   ).map(record => record?.data); // avoids having to do ?.data in the prop later
 
-  return { logo, signingImage, watermark };
+  return { logo, signingImage: footerAssetData || signingImage, watermark };
 }
 
 async function renderPdf(element, fileName) {
@@ -66,7 +71,10 @@ export const makeCovidVaccineCertificate = async (
   const getLocalisationData = key => get(localisation, key);
 
   const fileName = `covid-vaccine-certificate-${patient.id}.pdf`;
-  const { logo, signingImage, watermark } = await getCertificateAssets(models);
+  const { logo, signingImage, watermark } = await getCertificateAssets(
+    models,
+    ASSET_NAMES.COVID_VACCINATION_CERTIFICATE_FOOTER,
+  );
   const { certifiableVaccines, patientData } = await getPatientVaccines(models, patient);
   const vds = qrData ? await QRCode.toDataURL(qrData) : null;
 
@@ -92,7 +100,10 @@ export const makeVaccineCertificate = async (patient, printedBy, printedDate, mo
   const getLocalisationData = key => get(localisation, key);
 
   const fileName = `vaccine-certificate-${patient.id}.pdf`;
-  const { logo, signingImage, watermark } = await getCertificateAssets(models);
+  const { logo, signingImage, watermark } = await getCertificateAssets(
+    models,
+    ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER,
+  );
   const { vaccines, patientData } = await getPatientVaccines(models, patient);
 
   return renderPdf(
@@ -121,7 +132,11 @@ export const makeCovidCertificate = async (
   const getLocalisationData = key => get(localisation, key);
 
   const fileName = `covid-${certType}-certificate-${patient.id}.pdf`;
-  const { logo, signingImage, watermark } = await getCertificateAssets(models);
+  const footerAssetName =
+    certType === CertificateTypes.test
+      ? ASSET_NAMES.COVID_TEST_CERTIFICATE_FOOTER
+      : ASSET_NAMES.COVID_CLEARANCE_CERTIFICATE_FOOTER;
+  const { logo, signingImage, watermark } = await getCertificateAssets(models, footerAssetName);
   const vds = vdsData ? await QRCode.toDataURL(vdsData) : null;
   const additionalData = await models.PatientAdditionalData.findOne({
     where: { patientId: patient.id },

@@ -1,8 +1,8 @@
 import config from 'config';
 import { identity } from 'lodash';
 
+import { FHIR_DATETIME_PRECISION } from '@tamanu/constants';
 import { activeFromVisibility } from '../utils';
-import { FHIR_DATETIME_PRECISION } from '../../../constants';
 import {
   FhirAddress,
   FhirContactPoint,

@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { Sequelize, Op } from 'sequelize';
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 
 export class Signer extends Model {

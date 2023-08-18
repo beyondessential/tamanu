@@ -1,6 +1,6 @@
 import config from 'config';
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
-import { LOCATION_AVAILABILITY_STATUS, VISIBILITY_STATUSES } from 'shared/constants';
+import { LOCATION_AVAILABILITY_STATUS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 

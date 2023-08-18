@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes, Sequelize } from 'sequelize';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { NotFoundError, InvalidOperationError } from '@tamanu/shared/errors';
-import { REPORT_VERSION_EXPORT_FORMATS, REPORT_STATUSES } from '@tamanu/shared/constants';
+import { REPORT_VERSION_EXPORT_FORMATS, REPORT_STATUSES } from '@tamanu/constants';
 import { readJSON, sanitizeFilename, verifyQuery } from './utils';
 import { DryRun } from '../errors';
 
@@ -212,6 +212,8 @@ reportsRouter.post(
           if (dryRun) {
             throw new DryRun();
           }
+
+          feedback.reportDefinitionId = definition.id;
         },
       );
     } catch (err) {

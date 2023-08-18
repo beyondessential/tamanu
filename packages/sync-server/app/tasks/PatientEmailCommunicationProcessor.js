@@ -1,5 +1,5 @@
 import config from 'config';
-import { PATIENT_COMMUNICATION_CHANNELS, COMMUNICATION_STATUSES } from 'shared/constants';
+import { PATIENT_COMMUNICATION_CHANNELS, COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 

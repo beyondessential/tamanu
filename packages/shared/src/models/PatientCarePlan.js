@@ -1,4 +1,4 @@
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
@@ -28,9 +28,9 @@ export class PatientCarePlan extends Model {
     this.belongsTo(models.ReferenceData, { foreignKey: 'carePlanId', as: 'carePlan' });
     this.belongsTo(models.User, { foreignKey: 'examinerId', as: 'examiner' });
 
-    this.hasMany(models.NotePage, {
+    this.hasMany(models.Note, {
       foreignKey: 'recordId',
-      as: 'notePages',
+      as: 'notes',
       constraints: false,
       scope: {
         recordType: this.name,
