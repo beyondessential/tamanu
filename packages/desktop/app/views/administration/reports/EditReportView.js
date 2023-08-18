@@ -40,7 +40,7 @@ const getInitialValues = (version, report) => {
     query,
     status,
     ...options,
-    dataSources: dataSources.join(','),
+    dataSources: dataSources.join(', '),
   };
 };
 
@@ -54,7 +54,7 @@ const VersionEditorView = ({ report, version, setVersion, onBack }) => {
     const payload = {
       queryOptions: {
         ...queryOptions,
-        dataSources: dataSources.split(','),
+        dataSources: dataSources.split(', '),
       },
       query,
       status,

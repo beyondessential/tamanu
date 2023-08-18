@@ -27,7 +27,7 @@ export const CreateReportView = () => {
         status,
         queryOptions: {
           ...queryOptions,
-          dataSources: dataSources.split(','),
+          dataSources: dataSources.split(', '),
         },
       });
       queryClient.invalidateQueries(['reportList']);
