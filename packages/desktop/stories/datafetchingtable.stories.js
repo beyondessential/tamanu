@@ -12,6 +12,8 @@ const chance = new Chance();
 
 const Container = styled.div`
   position: relative;
+  padding-top: 20px;
+  margin-top: 75px;
 `;
 
 function fakePatient() {
@@ -20,7 +22,7 @@ function fakePatient() {
     name: chance.name({ gender }),
     age: chance.age(),
     location: chance.address(),
-    date: chance.date(),
+    date: Date.now(),
   };
 }
 
