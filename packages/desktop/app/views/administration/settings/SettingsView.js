@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import { SETTINGS_SCOPES } from '@tamanu/shared/constants';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 import { LargeButton, ContentPane, ButtonRow, TopBar } from '../../../components';
 import { AdminViewContainer } from '../components/AdminViewContainer';

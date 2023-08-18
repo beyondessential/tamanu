@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { SETTINGS_SCOPES } from '@tamanu/shared/constants';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
