@@ -57,7 +57,12 @@ export const MultipleLabRequestsPrintout = React.memo(
       {
         key: 'testType',
         title: 'Test type',
-        accessor: ({ tests }) => tests?.map(test => test.labTestType?.name).join(', ') || '',
+        accessor: ({ labTestPanelRequest, tests }) => {
+          if (labTestPanelRequest) {
+            return labTestPanelRequest.labTestPanel.name;
+          }
+          return tests?.map(test => test.labTestType?.name).join(', ') || '';
+        },
         widthProportion: 3,
       },
     ];
