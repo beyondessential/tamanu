@@ -110,9 +110,15 @@ jobs:
 
       - name: Start container
         run: |
-          docker run -dit --rm --name working \
-            -v $PWD/release:/project/packages/desktop/release \
-            working
+          tryonce() {
+            docker run -dit --rm --name working \
+              -v $PWD/release:/app/packages/desktop/release \
+              working
+            sleep 1
+            docker exec working echo "Container started"
+          }
+
+          tryonce || tryonce || tryonce
 
       - name: Package for Linux, Mac, Windows
         run: |

@@ -2,7 +2,7 @@ import config from 'config';
 import supertest from 'supertest';
 import http from 'http';
 
-import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES } from '@tamanu/shared/constants';
+import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers';
 import { createApp } from 'sync-server/app/createApp';
 import { initDatabase, closeDatabase } from 'sync-server/app/database';

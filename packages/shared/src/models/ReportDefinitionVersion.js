@@ -5,7 +5,7 @@ import {
   REPORT_STATUSES,
   REPORT_STATUSES_VALUES,
   REPORT_DEFAULT_DATE_RANGES_VALUES,
-} from '../constants';
+} from '@tamanu/constants';
 import { Model } from './Model';
 import { getReportQueryReplacements } from '../utils/reports/getReportQueryReplacements';
 

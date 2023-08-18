@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { SETTINGS_SCOPES } from '@tamanu/shared/constants';
+import { SETTINGS_SCOPES } from '@tamanu/constants/settings';
 
 export async function up(query) {
   await query.addColumn('settings', 'scope', {

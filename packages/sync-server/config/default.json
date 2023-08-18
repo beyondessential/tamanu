@@ -622,7 +622,7 @@
         },
         "userDisplayId": {
           "shortLabel": "Registration number",
-          "longLabel": "Registration number",
+          "longLabel": "Registration number"
         }
       },
       "features": {

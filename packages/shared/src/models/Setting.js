@@ -1,6 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { isPlainObject, get as getAtPath, set as setAtPath } from 'lodash';
-import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '../constants';
+import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '@tamanu/constants';
 import { Model } from './Model';
 
 /**
@@ -131,7 +131,7 @@ export class Setting extends Model {
     return getAtPath(settingsObject, key);
   }
 
-  static async set(key, value, facilityId = null, scope = 'global') {
+  static async set(key, value, facilityId = null, scope = SETTINGS_SCOPES.GLOBAL) {
     const records = buildSettingsRecords(key, value, facilityId, scope);
 
     // create or update records
@@ -139,7 +139,7 @@ export class Setting extends Model {
       records.map(async record => {
         // can't use upsert as sequelize can't parse our triple-index unique constraint
         const existing = await this.findOne({
-          where: { key: record.key, facilityId: record.facilityId, scope: record.scope },
+          where: { key: record.key, facilityId: record.facilityId, scope },
         });
 
         if (existing) {
@@ -174,6 +174,7 @@ export class Setting extends Model {
           },
           scope,
           facilityId,
+          scope,
         },
       },
     );

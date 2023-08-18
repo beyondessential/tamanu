@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom';
 import { pick } from 'lodash';
 import styled from 'styled-components';
 
-import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/shared/constants';
+import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants';

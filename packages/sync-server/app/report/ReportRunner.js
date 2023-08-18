@@ -5,7 +5,7 @@ import { format as formatDate } from 'date-fns';
 import * as AWS from '@aws-sdk/client-s3';
 import mkdirp from 'mkdirp';
 
-import { COMMUNICATION_STATUSES } from 'shared/constants';
+import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { getReportModule } from 'shared/reports';
 import { createNamedLogger } from 'shared/services/logging/createNamedLogger';
 

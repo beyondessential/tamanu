@@ -1,4 +1,4 @@
-import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/shared/constants/surveys';
+import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
 
 export const CHART_MARGIN = { top: 7, bottom: 15, left: 0, right: 30 };
 

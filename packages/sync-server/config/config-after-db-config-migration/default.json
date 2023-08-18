@@ -1,0 +1,68 @@
+{
+  "auth": {
+    "refreshToken": {
+      "absoluteExpiration": false,
+      "refreshIdLength": 54,
+      "secret": null,
+      "tokenDuration": "30d"
+    },
+    "reportNoUserError": false,
+    "resetPassword": {
+      "tokenExpiry": 20,
+      "tokenLength": 6
+    },
+    "saltRounds": 12,
+    // these secrets should be set if more than one process of the sync-server is running
+    // otherwise, each process will use a different key and tokens won't match
+    "secret": null,
+    "tokenDuration": "1h",
+    "useHardcodedPermissions": true
+  },
+  // this should be set to the external address of the server, e.g. "https://central-dev.tamanu.io"
+  "canonicalHostName": "http://localhost:3000",
+  "db": {
+    "migrateOnStartup": false,
+    "name": "tamanu-sync",
+    "password": "",
+    "pool": {
+      "max": 10
+      // "min": 5,
+      // "idle": 10000,
+      // "acquire": 60000,
+      // "evict": 1000
+    },
+    "username": "",
+    // when verbose to true, log.consoleLevel must be set to "debug" to see any output
+    "verbose": false
+  },
+  "honeycomb": {
+    "apiKey": ""
+  },
+  "integrations": {
+    "fijiVrs": {
+      "password": "",
+      "username": ""
+    },
+    "omnilab": {
+      "secret": null
+    },
+    "signer": {
+      "keySecret": null
+    }
+  },
+  "mailgun": {
+    "apiKey": ""
+  },
+  "port": 3000,
+  "proxy": {
+    // Possible values: https://expressjs.com/en/guide/behind-proxies.html
+    //
+    // This should only be set to servers we trust! `loopback` is a safe default
+    // because it means we only trust proxies running on the machine itself, e.g.
+    // local nginx.
+    //
+    // As of 29/08/2022 all our deployments are behind a local nginx proxy and so
+    // this shouldn't need to be changed.
+    "trusted": ["loopback"]
+  }
+}
