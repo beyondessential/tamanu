@@ -87,6 +87,7 @@ const schema = yup.object().shape({
 });
 
 const NewReportForm = ({ isSubmitting, values, setValues }) => {
+  const isEditing = !!values.versionNumber;
   const setQuery = query => setValues({ ...values, query });
   const params = values.parameters || [];
   const setParams = newParams => setValues({ ...values, parameters: newParams });
@@ -103,7 +104,13 @@ const NewReportForm = ({ isSubmitting, values, setValues }) => {
     <>
       <Grid container spacing={2}>
         <Grid item xs={4}>
-          <StyledField required label="Report name" name="name" component={TextField} />
+          <StyledField
+            disabled={isEditing}
+            required
+            label="Report name"
+            name="name"
+            component={TextField}
+          />
         </Grid>
         <Grid item xs={4}>
           <StyledField
@@ -175,6 +182,20 @@ const NewReportForm = ({ isSubmitting, values, setValues }) => {
   );
 };
 
+const getInitialValues = (version, report) => {
+  if (version) {
+    const { queryOptions, query, status, versionNumber } = version;
+    const { name } = report;
+    return { ...queryOptions, query, status, versionNumber, name };
+  }
+  return {
+    status: STATUS_OPTIONS[0].value,
+    dataSources: [...REPORT_DATA_SOURCE_VALUES],
+    defaultDateRange: DATE_RANGE_OPTIONS[0].value,
+    parameters: [],
+  };
+};
+
 export const NewReportView = ({ version, report }) => {
   const api = useApi();
   const queryClient = useQueryClient();
@@ -204,14 +225,7 @@ export const NewReportView = ({ version, report }) => {
       <Form
         onSubmit={handleSubmit}
         validationSchema={schema}
-        initialValues={
-          version || {
-            status: STATUS_OPTIONS[0].value,
-            dataSources: [...REPORT_DATA_SOURCE_VALUES],
-            defaultDateRange: DATE_RANGE_OPTIONS[0].value,
-            parameters: [],
-          }
-        }
+        initialValues={getInitialValues(version, report)}
         render={NewReportForm}
       />
     </Container>

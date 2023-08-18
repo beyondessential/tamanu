@@ -3,8 +3,10 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useApi } from '../../../api';
 import { ReportTable, VersionTable } from './ReportTables';
-import { VersionEditor } from './VersionEditor';
 import { useAuth } from '../../../contexts/Auth';
+import { OutlinedButton } from '../../../components';
+import { Colors } from '../../../constants';
+import { NewReportView } from './NewReportView';
 
 const InnerContainer = styled.div`
   display: flex;
@@ -14,6 +16,18 @@ const InnerContainer = styled.div`
 
 const VersionsTableContainer = styled.div`
   margin-left: 20px;
+`;
+
+const ButtonContainer = styled.div`
+  padding-left: 20px;
+  padding-right: 20px;
+`;
+
+const StyledButton = styled(OutlinedButton)`
+  background: ${Colors.white};
+  &.Mui-disabled {
+    border-color: ${Colors.outline};
+  }
 `;
 
 export const EditReportView = () => {
@@ -55,7 +69,12 @@ export const EditReportView = () => {
   return (
     <>
       {version ? (
-        <VersionEditor report={report} version={version} onBack={handleBack} onSave={handleSave} />
+        <>
+          <ButtonContainer>
+            <StyledButton onClick={handleBack}>Back</StyledButton>
+          </ButtonContainer>
+          <NewReportView version={version} report={report} />
+        </>
       ) : (
         <InnerContainer>
           <ReportTable
