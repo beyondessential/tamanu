@@ -25,6 +25,10 @@ const getScope = selectedFacility => {
   }
 };
 
+const getSettingsString = settings => {
+  return JSON.stringify(settings, null, 2);
+};
+
 export const SettingsView = React.memo(() => {
   const api = useApi();
   const [settings, setSettings] = useState({});
@@ -34,18 +38,18 @@ export const SettingsView = React.memo(() => {
   const [jsonError, setJsonError] = useState(null);
 
   const areSettingsPresent = Object.keys(settings).length > 0;
-  const settingsViewString = areSettingsPresent ? JSON.stringify(settings, null, 2) : '';
+  const settingsViewString = areSettingsPresent ? getSettingsString(settings) : '';
   const hasSettingsChanged = settingsViewString !== settingsEditString;
   const scope = getScope(selectedFacility);
 
   const turnOnEditMode = () => {
     setEditMode(true);
     setJsonError(null);
+    setSettingsEditString(getSettingsString(settings));
   };
   const turnOffEditMode = () => {
     setEditMode(false);
     setJsonError(null);
-    setSettingsEditString(JSON.stringify(settings, null, 2));
   };
   const onChangeSettings = newValue => {
     setSettingsEditString(newValue);
@@ -90,9 +94,7 @@ export const SettingsView = React.memo(() => {
         scope,
       });
       setSettings(settingsObject);
-      setSettingsEditString(JSON.stringify(settingsObject, null, 2));
     };
-
     fetchSettings();
   }, [api, selectedFacility, scope]);
 
