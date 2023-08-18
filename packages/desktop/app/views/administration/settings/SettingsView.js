@@ -25,7 +25,7 @@ const getScope = selectedFacility => {
   }
 };
 
-const getSettingsString = settings => {
+const buildSettingsString = settings => {
   return JSON.stringify(settings, null, 2);
 };
 
@@ -34,21 +34,19 @@ export const SettingsView = React.memo(() => {
   const [settings, setSettings] = useState({});
   const [settingsEditString, setSettingsEditString] = useState('');
   const [selectedFacility, setSelectedFacility] = useState(null);
-  const [editMode, setEditMode] = useState(false);
   const [jsonError, setJsonError] = useState(null);
 
   const areSettingsPresent = Object.keys(settings).length > 0;
-  const settingsViewString = areSettingsPresent ? getSettingsString(settings) : '';
+  const settingsViewString = areSettingsPresent ? buildSettingsString(settings) : '';
   const hasSettingsChanged = settingsViewString !== settingsEditString;
   const scope = getScope(selectedFacility);
 
   const turnOnEditMode = () => {
-    setEditMode(true);
     setJsonError(null);
-    setSettingsEditString(getSettingsString(settings));
+    setSettingsEditString(buildSettingsString(settings));
   };
   const turnOffEditMode = () => {
-    setEditMode(false);
+    setSettingsEditString(null);
     setJsonError(null);
   };
   const onChangeSettings = newValue => {
@@ -57,7 +55,7 @@ export const SettingsView = React.memo(() => {
   };
   const onChangeFacility = event => {
     setSelectedFacility(event.target.value || null);
-    setEditMode(false);
+    setSettingsEditString(null);
     setJsonError(null);
   };
 
@@ -97,6 +95,8 @@ export const SettingsView = React.memo(() => {
     };
     fetchSettings();
   }, [api, selectedFacility, scope]);
+
+  const editMode = !!settingsEditString;
 
   return (
     <AdminViewContainer title="Settings">
