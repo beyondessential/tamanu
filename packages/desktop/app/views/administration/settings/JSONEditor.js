@@ -64,7 +64,7 @@ export const JSONEditor = React.memo(
             startRow: annotation.row,
             startCol: annotation.column,
             endRow: annotation.row,
-            endCol: annotation.column + 1, // endCol is exclusive so need to add 1 in order to highlight the character
+            endCol: annotation.column + 1, // endCol is exclusive so need to add 1 in order to highlight the final character
             className: 'error-marker',
             type: 'background',
           },
