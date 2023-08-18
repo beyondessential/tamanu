@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
-import toast from 'react-toastify';
+import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { useApi } from '../../../api';
@@ -47,7 +47,7 @@ const VersionEditorView = ({ report, version, setVersion, onBack }) => {
   const { currentUser } = useAuth();
   const queryClient = useQueryClient();
 
-  const handleSave = async ({ query, status, versionNumber, name, ...queryOptions }) => {
+  const handleSave = async ({ query, status, name, ...queryOptions }) => {
     const payload = {
       queryOptions,
       query,
@@ -55,7 +55,7 @@ const VersionEditorView = ({ report, version, setVersion, onBack }) => {
     };
     try {
       const result = await api.post(`admin/reports/${report.id}/versions`, payload);
-      toast.success(`Saved new version: ${versionNumber}`);
+      toast.success(`Saved new version: ${result.versionNumber}`);
       setVersion({
         ...result,
         createdBy: {

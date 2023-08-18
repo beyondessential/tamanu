@@ -78,7 +78,7 @@ const schema = yup.object().shape({
     .required('Status is a required field'),
 });
 
-const ReportEditorForm = ({ isSubmitting, values, setValues, isEdit }) => {
+const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) => {
   const setQuery = query => setValues({ ...values, query });
   const params = values.parameters || [];
   const setParams = newParams => setValues({ ...values, parameters: newParams });
@@ -165,7 +165,13 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, isEdit }) => {
           isClearable={false}
           options={STATUS_OPTIONS}
         />
-        <Button variant="contained" color="primary" type="submit" isSubmitting={isSubmitting}>
+        <Button
+          disabled={!dirty}
+          variant="contained"
+          color="primary"
+          type="submit"
+          isSubmitting={isSubmitting}
+        >
           {isEdit ? 'Create new version' : 'Create'}
         </Button>
       </ButtonRow>
@@ -177,6 +183,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
   return (
     <Form
       onSubmit={onSubmit}
+      enableReinitialize
       validationSchema={schema}
       initialValues={initialValues}
       render={formikContext => <ReportEditorForm {...formikContext} isEdit={isEdit} />}
