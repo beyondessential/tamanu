@@ -224,11 +224,11 @@ jobs:
             }
 
       - name: Push to release
-        if: github.ref_type == 'tag'
+        if: github.ref_type == 'tag' || github.event_name == 'pull_request'
         uses: actions/github-script@v6
         env:
           RELEASE_SECTION: ${{ steps.comment.outputs.result }}
-          RELEASE_VERSION: ${{ needs.info.outputs.version }}
+          RELEASE_VERSION: '1.31.0'
         with:
           script: |
             const cwd = '${{ github.workspace }}';
