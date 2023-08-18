@@ -6,7 +6,7 @@ import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { LargeButton, ContentPane, ButtonRow, TopBar } from '../../../components';
 import { AdminViewContainer } from '../components/AdminViewContainer';
 import { JSONEditor } from './JSONEditor';
-import { FacilitySelector } from './FacilitySelector';
+import { ScopeSelector } from './ScopeSelector';
 import { useApi } from '../../../api';
 import { notifySuccess, notifyError } from '../../../utils';
 
@@ -101,7 +101,7 @@ export const SettingsView = React.memo(() => {
   return (
     <AdminViewContainer title="Settings">
       <StyledTopBar>
-        <FacilitySelector selectedFacility={selectedFacility} onChangeFacility={onChangeFacility} />
+        <ScopeSelector selectedFacility={selectedFacility} onChangeFacility={onChangeFacility} />
         <ButtonRow>
           {editMode ? (
             <>

@@ -6,7 +6,7 @@ import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
 import { SelectInput } from '../../../components';
 
-const FacilitySelectorInput = styled(SelectInput)`
+const ScopeSelectorInput = styled(SelectInput)`
   width: 500px;
   div:first-child {
     overflow: visible;
@@ -51,7 +51,7 @@ const getHelperText = selectedFacility => {
   }
 };
 
-export const FacilitySelector = React.memo(({ selectedFacility, onChangeFacility }) => {
+export const ScopeSelector = React.memo(({ selectedFacility, onChangeFacility }) => {
   const api = useApi();
   const [facilityOptions, setFacilityOptions] = useState([]);
 
@@ -76,7 +76,7 @@ export const FacilitySelector = React.memo(({ selectedFacility, onChangeFacility
   const helperText = getHelperText(selectedFacility);
 
   return (
-    <FacilitySelectorInput
+    <ScopeSelectorInput
       value={selectedFacility}
       onChange={onChangeFacility}
       options={BASIC_OPTIONS.concat(facilityOptions)}
