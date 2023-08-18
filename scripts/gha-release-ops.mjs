@@ -103,10 +103,10 @@ async function getReleases(github, context, cursor = null) {
       repository(owner: $owner, name: $name) {
         releases(last: $batchSize, before: $cursor, orderBy: { field: CREATED_AT, direction: DESC }) {
           nodes {
-            databaseId
-            name
-            tagName
-            isDraft
+            databaseId,
+            name,
+            tagName,
+            isDraft,
             description
           }
           edges {
