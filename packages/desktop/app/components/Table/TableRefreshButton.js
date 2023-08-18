@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import styled, { keyframes, css } from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 
-import { getDateDisplay } from '../DateDisplay';
+import { DateDisplay } from '../DateDisplay';
 
 import { RefreshIcon } from '../Icons/RefreshIcon';
 import { Colors } from '../../constants';
@@ -63,7 +63,10 @@ export const TableRefreshButton = ({ refreshTable, lastUpdatedTime }) => {
 
   return (
     <LastUpdatedBadge>
-      Last updated: {getDateDisplay(lastUpdatedTime, { showTime: true })}
+      <span>
+        <span>Last updated:</span>
+        <DateDisplay date={lastUpdatedTime} showTime />
+      </span>
       <ThemedTooltip title="Refresh">
         <RefreshButton>
           <RefreshSpinner onClick={handleClick} />
