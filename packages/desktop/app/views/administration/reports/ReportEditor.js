@@ -52,11 +52,11 @@ const schema = yup.object().shape({
   name: yup.string().required('Report name is a required field'),
   dataSources: yup
     .string()
-    .test(val => {
+    .test('test-data-sources', 'Select at least one data source', val => {
       const values = val?.split(', ') || [];
       return values.length && values.every(v => REPORT_DATA_SOURCE_VALUES.includes(v));
-    }, 'Select at least one data source')
-    .required('Select at least one data source'),
+    })
+    .required('Data sources is a required field'),
   defaultDateRange: yup
     .string()
     .oneOf(DATE_RANGE_OPTIONS.map(o => o.value))
