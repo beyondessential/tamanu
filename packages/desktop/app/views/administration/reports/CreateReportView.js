@@ -18,15 +18,20 @@ export const CreateReportView = () => {
   const api = useApi();
   const queryClient = useQueryClient();
 
-  const onSubmit = async ({ name, query, status, ...queryOptions }) => {
+  const onSubmit = async ({ name, query, status, ...queryOptions }, formikContext) => {
+    const { dataSources } = queryOptions;
     try {
       const { reportDefinitionId } = await api.post('admin/reports', {
         name,
         query,
         status,
-        queryOptions,
+        queryOptions: {
+          ...queryOptions,
+          dataSources: dataSources.split(','),
+        },
       });
       queryClient.invalidateQueries(['reportList']);
+      formikContext.resetForm();
       toast.success(`Imported report: ${reportDefinitionId}`);
     } catch (err) {
       toast.error(`Failed to create report: ${err.message}`);
@@ -37,8 +42,8 @@ export const CreateReportView = () => {
     <Container>
       <ReportEditor
         initialValues={{
-          status: REPORT_STATUSES.ACTIVE,
-          dataSources: [REPORT_DATA_SOURCES.CENTRAL_SERVER],
+          status: REPORT_STATUSES.PUBLISHED,
+          dataSources: [REPORT_DATA_SOURCES.ALL_FACILITIES],
           defaultDateRange: REPORT_DEFAULT_DATE_RANGES.THIRTY_DAYS,
           parameters: [],
         }}

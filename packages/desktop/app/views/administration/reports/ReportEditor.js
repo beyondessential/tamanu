@@ -78,10 +78,10 @@ const schema = yup.object().shape({
     .required('Status is a required field'),
 });
 
-const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) => {
-  const setQuery = query => setValues({ ...values, query });
+const ReportEditorForm = ({ isSubmitting, values, setFieldValue, dirty, isEdit }) => {
+  const setQuery = query => setFieldValue('query', query);
   const params = values.parameters || [];
-  const setParams = newParams => setValues({ ...values, parameters: newParams });
+  const setParams = newParams => setFieldValue('parameters', newParams);
   const onParamsAdd = () => setParams([...params, generateDefaultParameter()]);
   const onParamsChange = (paramId, field, newValue) => {
     const paramIndex = params.findIndex(p => p.id === paramId);

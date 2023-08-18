@@ -48,14 +48,18 @@ const VersionEditorView = ({ report, version, setVersion, onBack }) => {
   const queryClient = useQueryClient();
 
   const handleSave = async ({ query, status, name, ...queryOptions }) => {
+    const { dataSources } = queryOptions;
     const payload = {
-      queryOptions,
+      queryOptions: {
+        ...queryOptions,
+        dataSources: dataSources.split(','),
+      },
       query,
       status,
     };
     try {
       const result = await api.post(`admin/reports/${report.id}/versions`, payload);
-      toast.success(`Saved new version: ${result.versionNumber}`);
+      toast.success(`Saved new version: ${result.versionNumber} for report ${report.name}`);
       setVersion({
         ...result,
         createdBy: {
