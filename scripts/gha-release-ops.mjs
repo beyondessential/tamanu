@@ -234,7 +234,7 @@ export async function uploadToRelease({ fs, github, context, artifactsDir, versi
     owner: context.repo.owner,
     repo: context.repo.repo,
     release_id: release.id,
-    description: `${release.description}\n\n${section}`,
+    body: `${release.description}\n\n${section}`,
   });
 
   const fileList = await fs.readdir(artifactsDir);
