@@ -4,9 +4,9 @@ import { TopBar } from '../../../components';
 import { TabDisplay } from '../../../components/TabDisplay';
 import { Colors } from '../../../constants';
 import { ExportReportView } from './ExportReportView';
-import { EditReportView } from './EditReportView';
 import { ImportReportView } from './ImportReportView';
 import { CreateReportView } from './CreateReportView';
+import { SelectReportView } from './SelectReportView';
 
 const OuterContainer = styled.div`
   position: relative;
@@ -42,7 +42,7 @@ export const ReportsAdminView = () => {
       icon: 'fa fa-edit',
       render: () => (
         <TabContainer>
-          <EditReportView />
+          <SelectReportView />
         </TabContainer>
       ),
     },
