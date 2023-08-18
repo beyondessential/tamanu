@@ -1,17 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'react-toastify';
 import { capitalize } from 'lodash';
 import * as yup from 'yup';
-import { Accordion, AccordionDetails, AccordionSummary, Grid, Box } from '@material-ui/core';
+import { Accordion, AccordionDetails, AccordionSummary, Grid } from '@material-ui/core';
 import {
   REPORT_DEFAULT_DATE_RANGES_VALUES,
   REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
   REPORT_STATUSES_VALUES,
 } from '@tamanu/constants/reports';
-import { useApi } from '../../../api';
 import {
   Button,
   ButtonRow,
@@ -23,11 +20,6 @@ import {
 } from '../../../components';
 import { ParameterList, ParameterItem, SQLQueryEditor } from './components/editing';
 import { FIELD_TYPES_WITH_SUGGESTERS } from '../../reports/ParameterField';
-import { VersionInfo } from './components/VersionInfo';
-
-const Container = styled.div`
-  padding: 20px;
-`;
 
 const StyledField = styled(Field)`
   flex-grow: 1;
@@ -86,8 +78,7 @@ const schema = yup.object().shape({
     .required('Status is a required field'),
 });
 
-const NewReportForm = ({ isSubmitting, values, setValues }) => {
-  const isEditing = !!values.versionNumber;
+const ReportEditorForm = ({ isSubmitting, values, setValues, isEdit }) => {
   const setQuery = query => setValues({ ...values, query });
   const params = values.parameters || [];
   const setParams = newParams => setValues({ ...values, parameters: newParams });
@@ -105,7 +96,7 @@ const NewReportForm = ({ isSubmitting, values, setValues }) => {
       <Grid container spacing={2}>
         <Grid item xs={4}>
           <StyledField
-            disabled={isEditing}
+            disabled={isEdit}
             required
             label="Report name"
             name="name"
@@ -175,59 +166,20 @@ const NewReportForm = ({ isSubmitting, values, setValues }) => {
           options={STATUS_OPTIONS}
         />
         <Button variant="contained" color="primary" type="submit" isSubmitting={isSubmitting}>
-          Create
+          {isEdit ? 'Create new version' : 'Create'}
         </Button>
       </ButtonRow>
     </>
   );
 };
 
-const getInitialValues = (version, report) => {
-  if (version) {
-    const { queryOptions, query, status, versionNumber } = version;
-    const { name } = report;
-    return { ...queryOptions, query, status, versionNumber, name };
-  }
-  return {
-    status: STATUS_OPTIONS[0].value,
-    dataSources: [...REPORT_DATA_SOURCE_VALUES],
-    defaultDateRange: DATE_RANGE_OPTIONS[0].value,
-    parameters: [],
-  };
-};
-
-export const NewReportView = ({ version, report }) => {
-  const api = useApi();
-  const queryClient = useQueryClient();
-
-  const handleSubmit = async ({ name, query, status, ...queryOptions }) => {
-    try {
-      const { reportDefinitionId } = await api.post('admin/reports', {
-        name,
-        query,
-        status,
-        queryOptions,
-      });
-      queryClient.invalidateQueries(['reportList']);
-      toast.success(`Imported report: ${reportDefinitionId}`);
-    } catch (err) {
-      toast.error(`Failed to create report: ${err.message}`);
-    }
-  };
-
+export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
   return (
-    <Container>
-      {version && (
-        <Box mb={3}>
-          <VersionInfo reportDefinitionId={report.id} name={report.name} version={version} />
-        </Box>
-      )}
-      <Form
-        onSubmit={handleSubmit}
-        validationSchema={schema}
-        initialValues={getInitialValues(version, report)}
-        render={NewReportForm}
-      />
-    </Container>
+    <Form
+      onSubmit={onSubmit}
+      validationSchema={schema}
+      initialValues={initialValues}
+      render={formikContext => <ReportEditorForm {...formikContext} isEdit={isEdit} />}
+    />
   );
 };
