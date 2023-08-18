@@ -28,7 +28,7 @@ const getScope = selectedFacility => {
 export const SettingsView = React.memo(() => {
   const api = useApi();
   const [settings, setSettings] = useState({});
-  const [settingsEditString, setSettingsEditString] = useState({});
+  const [settingsEditString, setSettingsEditString] = useState('');
   const [selectedFacility, setSelectedFacility] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [jsonError, setJsonError] = useState(null);
