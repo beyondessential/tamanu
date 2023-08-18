@@ -136,7 +136,12 @@ export class CentralSyncManager {
     const durationMs = Date.now() - session.startTime;
     log.debug('CentralSyncManager.completingSession', { sessionId, durationMs });
     await completeSyncSession(this.store, sessionId);
-    log.info('CentralSyncManager.completedSession', { sessionId, durationMs });
+    log.info('CentralSyncManager.completedSession', { 
+      sessionId,
+      durationMs,
+      facilityId: session.debugInfo.facilityId,
+      deviceId: session.debugInfo.deviceId,
+    });
   }
 
   async markSnapshotAsProcessing(sessionId) {
