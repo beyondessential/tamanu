@@ -91,65 +91,67 @@ jobs:
           # in PRs, use the actual PR branch, not the merge branch
           ref: ${{ github.event.pull_request.head.ref || github.ref }}
 
-      - name: Setup buildkit
-        uses: docker/setup-buildx-action@v2
+      # - name: Setup buildkit
+      #   uses: docker/setup-buildx-action@v2
 
-      - name: Build container
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          cache-from: type=gha,scope=${{ needs.info.outputs.branch }}-desktop
-          cache-to: type=gha,mode=max,scope=${{ needs.info.outputs.branch }}-desktop
-          target: build-desktop
-          push: false
-          load: true
-          tags: working
+      # - name: Build container
+      #   uses: docker/build-push-action@v4
+      #   with:
+      #     context: .
+      #     cache-from: type=gha,scope=${{ needs.info.outputs.branch }}-desktop
+      #     cache-to: type=gha,mode=max,scope=${{ needs.info.outputs.branch }}-desktop
+      #     target: build-desktop
+      #     push: false
+      #     load: true
+      #     tags: working
 
       - name: Make output folders
         run: mkdir -p release/{appdata,unelevated}
 
-      - name: Start container
-        run: |
-          tryonce() {
-            docker run -dit --rm --name working \
-              -v $PWD/release:/app/packages/desktop/release \
-              working
-            sleep 1
-            docker exec working echo "Container started"
-          }
+      # - name: Start container
+      #   run: |
+      #     tryonce() {
+      #       docker run -dit --rm --name working \
+      #         -v $PWD/release:/app/packages/desktop/release \
+      #         working
+      #       sleep 1
+      #       docker exec working echo "Container started"
+      #     }
 
-          tryonce || tryonce || tryonce
+      #     tryonce || tryonce || tryonce
 
-      - name: Package for Linux, Mac, Windows
-        run: |
-          docker exec working mv /package-mac.json package.json
-          docker exec working yarn run package-only --x64 --linux --mac --win
+      # - name: Package for Linux, Mac, Windows
+      #   run: |
+      #     docker exec working mv /package-mac.json package.json
+      #     docker exec working yarn run package-only --x64 --linux --mac --win
 
-      - name: Switch to AppData NSIS-only build
-        run: docker exec working mv /package-appdata.json package.json
+      # - name: Switch to AppData NSIS-only build
+      #   run: docker exec working mv /package-appdata.json package.json
 
-      - name: Package for Windows (AppData NSIS)
-        run: docker exec working yarn run package-only --win --x64
+      # - name: Package for Windows (AppData NSIS)
+      #   run: docker exec working yarn run package-only --win --x64
 
-      - name: Switch to MSI build
-        run: docker exec working mv /package-msi.json package.json
+      # - name: Switch to MSI build
+      #   run: docker exec working mv /package-msi.json package.json
 
-      - name: Package for Windows (MSI)
-        run: docker exec working yarn run package-only --win --x64
+      # - name: Package for Windows (MSI)
+      #   run: docker exec working yarn run package-only --win --x64
 
-      - name: Switch to Aspen build
-        run: docker exec working mv /package-aspen.json package.json
+      # - name: Switch to Aspen build
+      #   run: docker exec working mv /package-aspen.json package.json
 
-      - name: Package for Windows (Aspen)
-        run: docker exec working yarn run package-only --win --x64
+      # - name: Package for Windows (Aspen)
+      #   run: docker exec working yarn run package-only --win --x64
 
-      - name: Stop container
-        run: docker kill working
+      # - name: Stop container
+      #   run: docker kill working
 
       - name: Prepare final outputs
         run: |
           sudo chown -R $USER:$USER release
           mkdir -p ops/{linux,mac,windows-{appdata,msi,system,aspen}} artifacts
+          touch artifacts/TamanuSetup.x64.msi
+          exit 0
           mv release/latest-linux.yml release/*.AppImage ops/linux/
           mv release/*-mac* ops/mac/
           cp release/*.msi artifacts/TamanuSetup.x64.msi
@@ -160,21 +162,21 @@ jobs:
           mv release/appdata/latest.yml release/appdata/*.exe* ops/windows-appdata/
           rm -rf release
 
-      - name: Use release bucket
-        if: inputs.bucket == 'release' || startsWith(github.ref, 'refs/tags/v')
-        run: |
-          echo "S3_BUCKET=bes-tamanu-release-clients/${{ needs.info.outputs.version }}" >> $GITHUB_ENV
-          echo "S3_URL=https://s3-ap-southeast-2.amazonaws.com/bes-tamanu-release-clients/${{ needs.info.outputs.version }}" >> $GITHUB_ENV
+      # - name: Use release bucket
+      #   if: inputs.bucket == 'release' || startsWith(github.ref, 'refs/tags/v')
+      #   run: |
+      #     echo "S3_BUCKET=bes-tamanu-release-clients/${{ needs.info.outputs.version }}" >> $GITHUB_ENV
+      #     echo "S3_URL=https://s3-ap-southeast-2.amazonaws.com/bes-tamanu-release-clients/${{ needs.info.outputs.version }}" >> $GITHUB_ENV
 
-      - name: Use dev bucket
-        if: inputs.bucket == 'dev or rc' || !startsWith(github.ref, 'refs/tags/v')
-        run: |
-          echo "S3_BUCKET=bes-tamanu-dev-desktop-clients/${{ needs.info.outputs.branch }}" >> $GITHUB_ENV
-          echo "S3_URL=https://s3.console.aws.amazon.com/s3/object/bes-tamanu-dev-desktop-clients?region=ap-southeast-2&prefix=${{ needs.info.outputs.branch }}" >> $GITHUB_ENV
+      # - name: Use dev bucket
+      #   if: inputs.bucket == 'dev or rc' || !startsWith(github.ref, 'refs/tags/v')
+      #   run: |
+      #     echo "S3_BUCKET=bes-tamanu-dev-desktop-clients/${{ needs.info.outputs.branch }}" >> $GITHUB_ENV
+      #     echo "S3_URL=https://s3.console.aws.amazon.com/s3/object/bes-tamanu-dev-desktop-clients?region=ap-southeast-2&prefix=${{ needs.info.outputs.branch }}" >> $GITHUB_ENV
 
-      - name: Push to S3
-        working-directory: ops
-        run: aws s3 sync . s3://${{ env.S3_BUCKET }} --no-progress
+      # - name: Push to S3
+      #   working-directory: ops
+      #   run: aws s3 sync . s3://${{ env.S3_BUCKET }} --no-progress
 
       - name: Prepare comment
         if: github.event_name == 'pull_request' || github.ref_type == 'tag'
