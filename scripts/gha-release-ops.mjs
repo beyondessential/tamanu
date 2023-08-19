@@ -139,6 +139,7 @@ async function findRelease(github, context, testForMatch) {
     nextCursor = cursor;
 
     for (const release of releases) {
+      console.log(`::debug::Release ${JSON.stringify(release)}`);
       if (testForMatch(release.tagName, release) || testForMatch(release.name, release)) {
         return release;
       }
