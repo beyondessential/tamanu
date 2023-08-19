@@ -24,8 +24,8 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
-  pull-requests: write
+  contents: write # for uploading to release
+  pull-requests: write # for writing comment
   id-token: write # OIDC token for AWS
 
 jobs:
