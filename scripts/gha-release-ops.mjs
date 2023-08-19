@@ -117,6 +117,7 @@ async function getPublishedReleases(github, context, cursor = null) {
             name
             tagName
             description
+            isDraft
           }
         }
       }
@@ -130,10 +131,11 @@ async function getPublishedReleases(github, context, cursor = null) {
     },
   );
 
+  // isDraft filtering there just in case they start adding them to GraphQL
   return releases.nodes.length
     ? {
         cursor: releases.pageInfo.hasNextPage && releases.pageInfo.endCursor,
-        releases: releases.nodes,
+        releases: releases.nodes.filter(release => !release.isDraft),
       }
     : null;
 }
