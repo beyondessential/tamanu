@@ -97,6 +97,7 @@ async function getDraftReleases(github, context) {
     owner: context.repo.owner,
     repo: context.repo.repo,
   });
+  console.log(JSON.stringify(releases));
 
   return releases.filter(release => release.draft);
 }
