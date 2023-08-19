@@ -93,13 +93,12 @@ export async function createDraftRelease({ readFileSync }, github, context, cwd,
 }
 
 async function getDraftReleases(github, context) {
-  const releases = await github.rest.repos.listReleases({
+  const response = await github.rest.repos.listReleases({
     owner: context.repo.owner,
     repo: context.repo.repo,
   });
-  console.log(JSON.stringify(releases));
 
-  return releases.filter(release => release.draft);
+  return response.data.filter(release => release.draft);
 }
 
 async function getPublishedReleases(github, context, cursor = null) {
