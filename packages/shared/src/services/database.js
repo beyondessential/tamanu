@@ -78,7 +78,7 @@ async function connectToDatabase(dbOptions) {
     ? (query, obj) =>
         log.debug('databaseQuery', {
           query: util.inspect(query),
-          binding: util.inspect(obj.bind || [], { breakLength: Infinity })
+          binding: util.inspect(obj.bind || [], { breakLength: Infinity }),
         })
     : null;
 
