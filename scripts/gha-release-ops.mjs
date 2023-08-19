@@ -93,7 +93,7 @@ export async function createDraftRelease({ readFileSync }, github, context, cwd,
 }
 
 async function getDraftReleases(github, context) {
-  const releases = await github.rest.listReleases({
+  const releases = await github.rest.repos.listReleases({
     owner: context.repo.owner,
     repo: context.repo.repo,
   });
