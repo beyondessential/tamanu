@@ -106,7 +106,7 @@ async function getPublishedReleases(github, context, cursor = null) {
   const { repository: { releases } } = await github.graphql(
     `
     query($owner: String!, $repo: String!, $cursor: String, $batchSize: Int) {
-      repository(owner: $owner, repo: $repo) {
+      repository(owner: $owner, name: $repo) {
         releases(last: $batchSize, before: $cursor, orderBy: { field: CREATED_AT, direction: DESC }) {
           pageInfo {
             endCursor
