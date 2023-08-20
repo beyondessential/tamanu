@@ -16,6 +16,8 @@ jobs:
       contents: write
     steps:
     - uses: actions/checkout@v3
+    - run: cp scripts/gha-release-ops.mjs /tmp/
+    - uses: actions/checkout@v3
       with:
         ref: main
         token: ${{ secrets.TAMANU_RELEASE_PAT }}
@@ -30,7 +32,7 @@ jobs:
         github-token: ${{ secrets.TAMANU_RELEASE_PAT }}
         script: |
           const cwd = '${{ github.workspace }}';
-          const { createReleaseBranch } = await import(`${cwd}/scripts/gha-release-ops.mjs`);
+          const { createReleaseBranch } = await import(`/tmp/gha-release-ops.mjs`);
           await createReleaseBranch(await import('fs'), github, context, cwd, '${{ github.event.inputs.version }}');
 
     - name: Bump version on main
