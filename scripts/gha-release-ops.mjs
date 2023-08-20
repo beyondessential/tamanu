@@ -33,29 +33,6 @@ export async function checkBranchDoesNotExist(github, context, branch) {
   }
 }
 
-  // console.log('It does not, creating release cutoff commit...');
-  // const currentTree = await github.rest.git.getCommit({
-  //   owner,
-  //   repo,
-  //   commit_sha: sha,
-  // });
-  // const tree = await github.rest.git.createTree({
-  //   owner,
-  //   repo,
-  //   tree: [], // empty commit
-  //   base_tree: currentTree.data.tree.sha,
-  // });
-  // const tip = await github.rest.git.createCommit({
-  //   owner,
-  //   repo,
-  //   message: `Cut-off for release branch ${major}.${minor}`,
-  //   tree: tree.data.sha,
-  //   parents: [sha],
-  // });
-
-  // console.log('Creating branch...');
-  // await github.rest.git.createRef({ owner, repo, ref: `refs/${ref}`, sha: tip.data.sha });
-
 export async function createNextDraft({ readFileSync }, github, context, cwd, nextVersionSpec) {
   const { major, minor } = currentVersion({ readFileSync }, cwd);
 

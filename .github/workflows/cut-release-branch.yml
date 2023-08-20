@@ -16,8 +16,6 @@ jobs:
       contents: write
     steps:
     - uses: actions/checkout@v3
-    - run: cp scripts/gha-release-ops.mjs /tmp/
-    - uses: actions/checkout@v3
       with:
         ref: main
         token: ${{ secrets.TAMANU_RELEASE_PAT }}
@@ -39,7 +37,7 @@ jobs:
         result-encoding: string
         script: |
           const cwd = '${{ github.workspace }}';
-          const { currentVersion } = await import(`/tmp/gha-release-ops.mjs`);
+          const { currentVersion } = await import(`${cwd}/scripts/gha-release-ops.mjs`);
           return currentVersion(await import('fs'), cwd).branch;
 
     - name: Check new release branch doesn't already exist
@@ -50,7 +48,7 @@ jobs:
         github-token: ${{ secrets.TAMANU_RELEASE_PAT }}
         script: |
           const cwd = '${{ github.workspace }}';
-          const { checkBranchDoesNotExist } = await import(`/tmp/gha-release-ops.mjs`);
+          const { checkBranchDoesNotExist } = await import(`${cwd}/scripts/gha-release-ops.mjs`);
           await checkBranchDoesNotExist(github, context, process.env.NEW_BRANCH_NAME);
 
     - name: Create new release branch
@@ -69,7 +67,7 @@ jobs:
         github-token: ${{ secrets.TAMANU_RELEASE_PAT }}
         script: |
           const cwd = '${{ github.workspace }}';
-          const { createNextDraft } = await import(`/tmp/gha-release-ops.mjs`);
+          const { createNextDraft } = await import(`${cwd}/scripts/gha-release-ops.mjs`);
           await createNextDraft(await import('fs'), github, context, cwd, '${{ github.event.inputs.version }}');
 
     - name: Bump version on main
