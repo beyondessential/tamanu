@@ -14,7 +14,7 @@ import {
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
-import { validatePulledRecords } from './validatePulledRecords';
+import { validateIfPulledRecordsUpdatedAfterPush } from './validateIfPulledRecordsUpdatedAfterPush';
 
 export class FacilitySyncManager {
   static config = _config;
@@ -166,7 +166,7 @@ export class FacilitySyncManager {
       pullSince,
     );
 
-    await validatePulledRecords(
+    await validateIfPulledRecordsUpdatedAfterPush(
       Object.values(getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL)),
       this.sequelize,
       sessionId,
