@@ -22,6 +22,8 @@ const DEFAULT_FETCH_STATE = {
     dataSnapshot: [],
     lastUpdatedAt: getCurrentDateTimeString(),
   },
+  isLoadingMoreData: false,
+  fetchOptions: {},
 };
 
 export const DataFetchingTable = memo(
@@ -34,6 +36,7 @@ export const DataFetchingTable = memo(
     onDataFetched,
     disablePagination = false,
     autoRefresh: isAutoRefreshTable,
+    lazyLoading = false,
     ...props
   }) => {
     const [page, setPage] = useState(0);
@@ -114,16 +117,29 @@ export const DataFetchingTable = memo(
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
     useEffect(() => {
-      const loadingDelay = loadingIndicatorDelay();
+      if (fetchState.data?.length > 0 && lazyLoading) {
+        updateFetchState({ isLoadingMoreData: true });
+      } else {
+        updateFetchState({ isLoading: true });
+      }
       (async () => {
         try {
           if (!endpoint) {
             throw new Error('Missing endpoint to fetch data.');
           }
           const { data, count } = await fetchData();
-          clearTimeout(loadingDelay);
+          // clearTimeout(loadingDelay);
 
           const transformedData = transformRow ? data.map(transformRow) : data;
+
+          // When fetch option is no longer the same (eg: filter changed), it should reload the entire table
+          // instead of keep adding data for lazy loading
+          const shouldReloadLazyLoadingData = !isEqual(fetchState.fetchOptions, fetchOptions);
+
+          const updatedData =
+            lazyLoading && !shouldReloadLazyLoadingData
+              ? [...(fetchState?.data || []), ...(transformedData || [])]
+              : transformedData;
 
           if (enableAutoRefresh) {
             // TODO: extract as much of this into a custom hook as possible
@@ -145,7 +161,7 @@ export const DataFetchingTable = memo(
             // page one sorted reverse chronologically should it live update, otherwise the updates come through when navigating/sorting
             const isLiveUpdating = !isFirstFetch && isInitialSort && !hasSearchChanged;
             const highlightedData = isLiveUpdating
-              ? highlightDataRows(transformedData, rowsSinceInteraction)
+              ? highlightDataRows(updatedData, rowsSinceInteraction)
               : transformedData;
             const isDataToBeUpdated = hasPageChanged || hasSortingChanged || page === 0;
             const displayData = isDataToBeUpdated ? highlightedData : previousFetch.dataSnapshot;
@@ -181,28 +197,34 @@ export const DataFetchingTable = memo(
                 sorting,
                 fetchOptions,
               },
+              isLoadingMoreData: false,
+              fetchOptions,
             });
           } else {
             // Non autorefreshing table
             updateFetchState({
               ...DEFAULT_FETCH_STATE,
-              data: transformedData,
+              data: updatedData,
               count,
               isLoading: false,
             });
             // Use custom function on data if provided
             if (onDataFetched) {
               onDataFetched({
-                data: transformedData,
+                data: updatedData,
                 count,
               });
             }
           }
         } catch (error) {
-          clearTimeout(loadingDelay);
+          // clearTimeout(loadingDelay);
           // eslint-disable-next-line no-console
           console.error(error);
-          updateFetchState({ errorMessage: error.message, isLoading: false });
+          updateFetchState({
+            errorMessage: error.message,
+            isLoading: false,
+            isLoadingMoreData: false,
+          });
         }
       })();
 
@@ -217,6 +239,7 @@ export const DataFetchingTable = memo(
     }, [
       api,
       endpoint,
+      lazyLoading,
       page,
       rowsPerPage,
       sorting,
@@ -231,7 +254,7 @@ export const DataFetchingTable = memo(
 
     useEffect(() => setPage(0), [fetchOptions]);
 
-    const { data, count, isLoading, errorMessage, previousFetch } = fetchState;
+    const { data, count, isLoading, isLoadingMoreData, errorMessage, previousFetch } = fetchState;
     const { order, orderBy } = sorting;
 
     const notificationMessage = `${newRowCount} new record${
@@ -256,6 +279,7 @@ export const DataFetchingTable = memo(
         )}
         <Table
           isLoading={isLoading}
+          isLoadingMoreData={isLoadingMoreData}
           data={data}
           errorMessage={errorMessage}
           rowsPerPage={rowsPerPage}
@@ -269,6 +293,7 @@ export const DataFetchingTable = memo(
           rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
           refreshTable={refreshTable}
           rowStyle={row => (row.highlighted ? 'background-color: #F8FFF8;' : '')}
+          lazyLoading={lazyLoading}
           {...props}
         />
       </>

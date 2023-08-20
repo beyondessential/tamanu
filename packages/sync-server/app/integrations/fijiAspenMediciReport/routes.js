@@ -34,11 +34,10 @@ notes_info as (
       json_build_object(
         'noteType', note_type,
         'content', "content",
-        'noteDate', ni."date"::timestamp at time zone $timezone_string
+        'noteDate', "date"::timestamp at time zone $timezone_string
       ) 
     ) aggregated_notes
-  from note_pages np
-  join note_items ni on ni.note_page_id = np.id
+  from notes
   group by record_id
 ),
 
@@ -171,11 +170,10 @@ encounter_notes_info as (
       json_build_object(
         'noteType', note_type,
         'content', "content",
-        'noteDate', ni."date"::timestamp at time zone $timezone_string
-      ) order by ni.date desc
+        'noteDate', "date"::timestamp at time zone $timezone_string
+      ) order by n.date desc
     ) "Notes"
-  from note_pages np
-  join note_items ni on ni.note_page_id = np.id
+  from notes n
   where note_type != 'system'
   group by record_id
 ),
@@ -186,18 +184,17 @@ note_history as (
     matched_vals[1] place,
     matched_vals[2] "from",
     matched_vals[3] "to",
-    ni.date
-  from note_pages np
-  join note_items ni on ni.note_page_id = np.id
+    n.date
+  from notes n
   join (
   	select
   		id,
   		regexp_matches(content, 'Changed (.*) from (.*) to (.*)') matched_vals
-  	from note_items
+  	from notes
   ) matched_vals
-  on matched_vals.id = ni.id 
+  on matched_vals.id = n.id 
   where note_type = 'system'
-  and ni.content ~ 'Changed (.*) from (.*) to (.*)'
+  and n.content ~ 'Changed (.*) from (.*) to (.*)'
 ),
 
 department_info as (
