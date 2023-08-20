@@ -11,7 +11,8 @@
   "log": {
     "path": "",
     "consoleLevel": "http",
-    "color": true
+    "color": true,
+    "enableAuditLog": false
   },
   "honeycomb": {
     "apiKey": "",

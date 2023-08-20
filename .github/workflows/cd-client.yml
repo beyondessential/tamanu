@@ -24,8 +24,8 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
-  pull-requests: write
+  contents: write # for uploading to release
+  pull-requests: write # for writing comment
   id-token: write # OIDC token for AWS
 
 jobs:
@@ -149,23 +149,25 @@ jobs:
       - name: Prepare final outputs
         run: |
           sudo chown -R $USER:$USER release
-          mkdir -p ops/{linux,mac,windows-{appdata,msi,system,aspen}}
+          mkdir -p ops/{linux,mac,windows-{appdata,msi,system,aspen}} artifacts
           mv release/latest-linux.yml release/*.AppImage ops/linux/
           mv release/*-mac* ops/mac/
+          cp release/*.msi artifacts/TamanuSetup.x64.msi
           mv release/*.msi ops/windows-msi/
           mv release/aspen/*.msi ops/windows-aspen/
+          cp release/*.exe artifacts/TamanuSetup.x64.exe
           mv release/latest.yml release/*.exe* ops/windows-system/
           mv release/appdata/latest.yml release/appdata/*.exe* ops/windows-appdata/
           rm -rf release
 
       - name: Use release bucket
-        if: inputs.bucket == 'release' || startsWith(github.ref, 'refs/tags/v')
+        if: inputs.bucket == 'release' || github.ref_type == 'tag'
         run: |
           echo "S3_BUCKET=bes-tamanu-release-clients/${{ needs.info.outputs.version }}" >> $GITHUB_ENV
           echo "S3_URL=https://s3-ap-southeast-2.amazonaws.com/bes-tamanu-release-clients/${{ needs.info.outputs.version }}" >> $GITHUB_ENV
 
       - name: Use dev bucket
-        if: inputs.bucket == 'dev or rc' || !startsWith(github.ref, 'refs/tags/v')
+        if: inputs.bucket == 'dev or rc' || github.ref_type != 'tag'
         run: |
           echo "S3_BUCKET=bes-tamanu-dev-desktop-clients/${{ needs.info.outputs.branch }}" >> $GITHUB_ENV
           echo "S3_URL=https://s3.console.aws.amazon.com/s3/object/bes-tamanu-dev-desktop-clients?region=ap-southeast-2&prefix=${{ needs.info.outputs.branch }}" >> $GITHUB_ENV
@@ -175,7 +177,7 @@ jobs:
         run: aws s3 sync . s3://${{ env.S3_BUCKET }} --no-progress
 
       - name: Prepare comment
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' || github.ref_type == 'tag'
         id: comment
         uses: actions/github-script@v6
         env:
@@ -185,7 +187,7 @@ jobs:
           script: |
             const {S3_URL, VERSION} = process.env;
             return [
-              '### :package: Desktop clients',
+              '## :package: Desktop clients',
               '',
               `- :window: **[Windows (System)](${S3_URL}/windows-system/Tamanu+Setup+${VERSION}.exe)**`,
               `- :window:   [Windows (AppData)](${S3_URL}/windows-appdata/Tamanu+Setup+${VERSION}.exe)`,
@@ -220,3 +222,22 @@ jobs:
                 body: process.env.COMMENT_BODY,
               });
             }
+
+      - name: Push to release
+        if: github.ref_type == 'tag'
+        uses: actions/github-script@v6
+        env:
+          RELEASE_SECTION: ${{ steps.comment.outputs.result }}
+          RELEASE_VERSION: ${{ needs.info.outputs.version }}
+        with:
+          script: |
+            const cwd = '${{ github.workspace }}';
+            const { uploadToRelease } = await import(`${cwd}/scripts/gha-release-ops.mjs`);
+            await uploadToRelease({
+              fs: await import('fs/promises'),
+              github,
+              context,
+              artifactsDir: `${cwd}/artifacts`,
+              version: process.env.RELEASE_VERSION,
+              section: process.env.RELEASE_SECTION,
+            });
