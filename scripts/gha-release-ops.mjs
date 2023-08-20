@@ -30,11 +30,16 @@ export async function createReleaseBranch({ readFileSync }, github, context, cwd
   }
 
   console.log('It does not, creating release cutoff commit...');
+  const currentTree = await github.rest.git.getCommit({
+    owner,
+    repo,
+    commit_sha: sha,
+  });
   const tree = await github.rest.git.createTree({
     owner,
     repo,
     tree: [], // empty commit
-    base_tree: sha,
+    base_tree: currentTree.data.tree.sha,
   });
   const tip = await github.rest.git.createCommit({
     owner,
