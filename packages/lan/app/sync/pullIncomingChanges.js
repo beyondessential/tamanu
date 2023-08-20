@@ -46,6 +46,7 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
       direction: SYNC_SESSION_DIRECTION.INCOMING,
     }));
 
+    console.log('recordsToSave', recordsToSave);
     // This is an attempt to avoid storing all the pulled data
     // in the memory because we might run into memory issue when:
     // 1. During the first sync when there is a lot of data to load

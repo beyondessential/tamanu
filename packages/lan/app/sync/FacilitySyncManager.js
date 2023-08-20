@@ -14,6 +14,7 @@ import {
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
+import { validatePulledRecords } from './validatePulledRecords';
 
 export class FacilitySyncManager {
   static config = _config;
@@ -163,6 +164,12 @@ export class FacilitySyncManager {
       this.sequelize,
       sessionId,
       pullSince,
+    );
+
+    await validatePulledRecords(
+      Object.values(getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL)),
+      this.sequelize,
+      sessionId,
     );
 
     await this.sequelize.transaction(async () => {
