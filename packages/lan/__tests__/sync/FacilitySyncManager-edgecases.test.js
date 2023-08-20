@@ -110,7 +110,7 @@ describe('FacilitySyncManager edge cases', () => {
     ).toStrictEqual([safePatientId, riskyPatientId].sort());
   });
 
-  it.only('will throw an error if there is update between push and pull', async () => {
+  it('will throw an error if there is update between push and pull', async () => {
     const ENCOUNTER_ID = '8b672978-2207-41fc-9da0-6de8b21a47a9';
 
     const currentSyncTick = '6';
