@@ -174,7 +174,6 @@ export class Setting extends Model {
           },
           scope,
           facilityId,
-          scope,
         },
       },
     );
