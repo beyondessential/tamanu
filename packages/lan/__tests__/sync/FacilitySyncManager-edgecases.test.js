@@ -5,7 +5,6 @@ import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
-// import { pushOutgoingChanges } from '../../app/sync/pushOutgoingChanges';
 
 describe('FacilitySyncManager edge cases', () => {
   let ctx;
