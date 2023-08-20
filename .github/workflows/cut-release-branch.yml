@@ -60,7 +60,7 @@ jobs:
         set -ex
         git switch --create "$NEW_BRANCH_NAME"
         git commit --allow-empty -m "Cut-off for $NEW_BRANCH_NAME"
-        git push
+        git push origin "$NEW_BRANCH_NAME"
         git switch main
 
     - name: Create next release draft
