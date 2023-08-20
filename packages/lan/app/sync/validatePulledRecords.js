@@ -1,6 +1,10 @@
 import { getSnapshotTableName, SYNC_SESSION_DIRECTION } from 'shared/sync';
 
-const validatePulledRecordsForModel = async (model, sequelize, sessionId) => {
+/**
+ * If a pulled record was also updated between push and pull, it will get overwritten by pullings.
+ * Throw an error so that the sync restarts and the updated record is not forgotten and pushed to central in the next sync.
+ */
+const validateIfPulledRecordsUpdatedAfterPushForModel = async (model, sequelize, sessionId) => {
   const snapshotTableName = getSnapshotTableName(sessionId);
 
   const [[{ count: countString }]] = await sequelize.query(
@@ -30,8 +34,8 @@ const validatePulledRecordsForModel = async (model, sequelize, sessionId) => {
   }
 };
 
-export const validatePulledRecords = async (models, sequelize, sessionId) => {
+export const validateIfPulledRecordsUpdatedAfterPush = async (models, sequelize, sessionId) => {
   for (const model of models) {
-    await validatePulledRecordsForModel(model, sequelize, sessionId);
+    await validateIfPulledRecordsUpdatedAfterPushForModel(model, sequelize, sessionId);
   }
 };

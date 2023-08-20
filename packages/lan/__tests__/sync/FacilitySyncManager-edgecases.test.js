@@ -4,6 +4,7 @@ import config from 'config';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patients';
+
 import { createTestContext } from '../utilities';
 
 describe('FacilitySyncManager edge cases', () => {
@@ -109,99 +110,144 @@ describe('FacilitySyncManager edge cases', () => {
     ).toStrictEqual([safePatientId, riskyPatientId].sort());
   });
 
-  it('will throw an error if there is update between push and pull', async () => {
+  describe('handles local updates between push and pull', () => {
+    let patient;
+    let user;
+    let department;
+    let location;
+    let encounter;
+    let syncManager;
+
+    const CURRENT_SYNC_TICK = '6';
+    const NEW_SYNC_TICK = '8';
     const ENCOUNTER_ID = '8b672978-2207-41fc-9da0-6de8b21a47a9';
 
-    const currentSyncTick = '6';
-    const newSyncTick = '8';
-
-    // set current sync tick
-    await models.LocalSystemFact.set('currentSyncTick', currentSyncTick);
-    await models.LocalSystemFact.set('lastSuccessfulSyncPush', LAST_SUCCESSFUL_SYNC_PUSH);
-    const facility = await models.Facility.create({
-      ...fake(models.Facility),
-    });
-    await models.User.create(fakeUser());
-    await models.Department.create({
-      ...fake(models.Department),
-      facilityId: facility.id,
-    });
-    await models.Location.create({
-      ...fake(models.Location),
-      facilityId: facility.id,
-    });
-    const patient = await models.Patient.create({
-      ...fake(models.Patient),
-    });
-    const encounter = await models.Encounter.create({
-      ...(await createDummyEncounter(models)),
-      id: ENCOUNTER_ID,
-      patientId: patient.id,
+    beforeAll(async () => {
+      const facility = await models.Facility.create({
+        ...fake(models.Facility),
+      });
+      user = await models.User.create(fakeUser());
+      department = await models.Department.create({
+        ...fake(models.Department),
+        facilityId: facility.id,
+      });
+      location = await models.Location.create({
+        ...fake(models.Location),
+        facilityId: facility.id,
+      });
+      patient = await models.Patient.create({
+        ...fake(models.Patient),
+      });
     });
 
-    let resolvePushOutgoingChangesPromise;
-    const pushOutgoingChangesPromise = new Promise(resolve => {
-      resolvePushOutgoingChangesPromise = () => resolve(true);
-    });
-    jest.doMock('../../app/sync/pushOutgoingChanges', () => ({
-      ...jest.requireActual('../../app/sync/pushOutgoingChanges'),
-      pushOutgoingChanges: jest.fn().mockImplementation(() => {
-        return pushOutgoingChangesPromise;
-      }),
-    }));
+    beforeEach(async () => {
+      jest.resetModules();
 
-    const {
-      FacilitySyncManager: TestFacilitySyncManager,
-    } = require('../../app/sync/FacilitySyncManager');
-    const syncManager = new TestFacilitySyncManager({
-      models,
-      sequelize,
-      centralServer: {
-        startSyncSession: jest.fn().mockImplementation(async () => ({
-          sessionId: TEST_SESSION_ID,
-          startedAtTick: newSyncTick,
-        })),
-        push: jest.fn(),
-        pull: jest.fn().mockImplementation(async () => [
-          {
-            id: ENCOUNTER_ID,
-            recordId: ENCOUNTER_ID,
-            isDeleted: false,
-            recordType: models.Encounter.tableName,
-            savedAtSyncTick: 1,
-            data: {
+      await models.Encounter.truncate({ force: true, cascade: true });
+
+      // set current sync tick
+      await models.LocalSystemFact.set('currentSyncTick', CURRENT_SYNC_TICK);
+      await models.LocalSystemFact.set('lastSuccessfulSyncPush', LAST_SUCCESSFUL_SYNC_PUSH);
+
+      encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        id: ENCOUNTER_ID,
+        patientId: patient.id,
+      });
+
+      const {
+        FacilitySyncManager: TestFacilitySyncManager,
+      } = require('../../app/sync/FacilitySyncManager');
+      syncManager = new TestFacilitySyncManager({
+        models,
+        sequelize,
+        centralServer: {
+          startSyncSession: jest.fn().mockImplementation(async () => ({
+            sessionId: TEST_SESSION_ID,
+            startedAtTick: NEW_SYNC_TICK,
+          })),
+          push: jest.fn(),
+          pull: jest.fn().mockImplementation(async () => [
+            {
               id: ENCOUNTER_ID,
-              ...encounter.dataValues,
+              recordId: ENCOUNTER_ID,
+              isDeleted: false,
+              recordType: models.Encounter.tableName,
+              savedAtSyncTick: 1,
+              data: {
+                id: ENCOUNTER_ID,
+                ...encounter.dataValues,
+              },
             },
-          },
-        ]),
-        completePush: jest.fn(),
-        endSyncSession: jest.fn(),
-        initiatePull: jest.fn().mockImplementation(async () => ({
-          totalToPull: 1,
-          pullUntil: 1,
-        })),
-      },
+          ]),
+          completePush: jest.fn(),
+          endSyncSession: jest.fn(),
+          initiatePull: jest.fn().mockImplementation(async () => ({
+            totalToPull: 1,
+            pullUntil: 1,
+          })),
+        },
+      });
+      syncManager.__testSpyEnabled = true;
     });
-    syncManager.__testSpyEnabled = true;
 
-    // start the sync
-    const syncPromise = syncManager.runSync();
+    it('does not throw an error if pulled records was not updated between push and pull', async () => {
+      let resolvePushOutgoingChangesPromise;
+      const pushOutgoingChangesPromise = new Promise(resolve => {
+        resolvePushOutgoingChangesPromise = async () => resolve(true);
+      });
+      jest.doMock('../../app/sync/pushOutgoingChanges', () => ({
+        ...jest.requireActual('../../app/sync/pushOutgoingChanges'),
+        pushOutgoingChanges: jest.fn().mockImplementation(() => {
+          return pushOutgoingChangesPromise;
+        }),
+      }));
 
-    await sleepAsync(200);
+      // start the sync
+      const syncPromise = syncManager.runSync();
 
-    // Update encounter after snapshotting for push has finished
-    encounter.reasonForEncounter = 'Updated';
-    await encounter.save();
+      // after a wait for sync to move through to snapshotting, commit the transaction and await
+      // the rest of the sync
+      await sleepAsync(200);
 
-    try {
-      // Release pushOutgoingChanges promise and proceed the validation
-      resolvePushOutgoingChangesPromise();
-      await syncPromise;
-    } catch (e) {
-      expect(e.message).toEqual(
-        'Facility: There are encounters records updated in between pull and push',
-      );
-    }
+      // Patient is not the pulled record
+      patient.lastName = 'Updated';
+      await patient.save();
+
+      await resolvePushOutgoingChangesPromise();
+      expect(async () => {
+        await syncPromise;
+      }).not.toThrow();
+    });
+
+    it('throws an error if a pulled record was updated between push and pull', async () => {
+      let resolvePushOutgoingChangesPromise;
+      const pushOutgoingChangesPromise = new Promise(resolve => {
+        resolvePushOutgoingChangesPromise = async () => resolve(true);
+      });
+      jest.doMock('../../app/sync/pushOutgoingChanges', () => ({
+        ...jest.requireActual('../../app/sync/pushOutgoingChanges'),
+        pushOutgoingChanges: jest.fn().mockImplementation(() => {
+          return pushOutgoingChangesPromise;
+        }),
+      }));
+
+      // start the sync
+      const syncPromise = syncManager.runSync();
+
+      // after a wait for sync to move through to snapshotting, commit the transaction and await
+      // the rest of the sync
+      await sleepAsync(200);
+
+      // Encounter is the pulled record
+      encounter.reasonForEncounter = 'Updated';
+      await encounter.save();
+
+      await resolvePushOutgoingChangesPromise();
+
+      expect(async () => {
+        await syncPromise;
+      }).rejects.toThrow();
+    });
   });
 });
