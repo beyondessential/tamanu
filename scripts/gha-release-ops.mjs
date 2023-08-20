@@ -3,7 +3,7 @@
 // Set by github
 const MAX_GITHUB_RELEASES_BATCH_SIZE = 100;
 
-export async function createReleaseBranch({ readFileSync }, github, context, cwd, nextVersionSpec) {
+export function currentVersion({ readFileSync }, cwd) {
   console.log('Reading current version...');
   const { version } = JSON.parse(readFileSync(`${cwd}/package.json`, 'utf-8'));
 
@@ -11,8 +11,11 @@ export async function createReleaseBranch({ readFileSync }, github, context, cwd
   const branch = `release/${major}.${minor}`;
   console.log('Release branch:', branch);
 
+  return { version, major, minor, branch };
+}
+
+export async function checkBranchDoesNotExist(github, context, branch) {
   const {
-    sha,
     repo: { owner, repo },
   } = context;
 
@@ -28,29 +31,33 @@ export async function createReleaseBranch({ readFileSync }, github, context, cwd
       throw err;
     } // else it's what we expect
   }
+}
 
-  console.log('It does not, creating release cutoff commit...');
-  const currentTree = await github.rest.git.getCommit({
-    owner,
-    repo,
-    commit_sha: sha,
-  });
-  const tree = await github.rest.git.createTree({
-    owner,
-    repo,
-    tree: [], // empty commit
-    base_tree: currentTree.data.tree.sha,
-  });
-  const tip = await github.rest.git.createCommit({
-    owner,
-    repo,
-    message: `Cut-off for release branch ${major}.${minor}`,
-    tree: tree.data.sha,
-    parents: [sha],
-  });
+  // console.log('It does not, creating release cutoff commit...');
+  // const currentTree = await github.rest.git.getCommit({
+  //   owner,
+  //   repo,
+  //   commit_sha: sha,
+  // });
+  // const tree = await github.rest.git.createTree({
+  //   owner,
+  //   repo,
+  //   tree: [], // empty commit
+  //   base_tree: currentTree.data.tree.sha,
+  // });
+  // const tip = await github.rest.git.createCommit({
+  //   owner,
+  //   repo,
+  //   message: `Cut-off for release branch ${major}.${minor}`,
+  //   tree: tree.data.sha,
+  //   parents: [sha],
+  // });
 
-  console.log('Creating branch...');
-  await github.rest.git.createRef({ owner, repo, ref: `refs/${ref}`, sha: tip.data.sha });
+  // console.log('Creating branch...');
+  // await github.rest.git.createRef({ owner, repo, ref: `refs/${ref}`, sha: tip.data.sha });
+
+export async function createNextDraft({ readFileSync }, github, context, cwd, nextVersionSpec) {
+  const { major, minor } = currentVersion({ readFileSync }, cwd);
 
   let nextVersion;
   switch (nextVersionSpec) {

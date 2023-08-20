@@ -22,26 +22,62 @@ jobs:
         ref: main
         token: ${{ secrets.TAMANU_RELEASE_PAT }}
 
+    - name: Set up committer info
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+
     - uses: actions/setup-node@v3
       with:
         node-version: 16
 
+    - name: Compute new release branch name
+      uses: actions/github-script@v6
+      id: branchname
+      with:
+        github-token: ${{ secrets.TAMANU_RELEASE_PAT }}
+        result-encoding: string
+        script: |
+          const cwd = '${{ github.workspace }}';
+          const { currentVersion } = await import(`/tmp/gha-release-ops.mjs`);
+          return currentVersion(import('fs'), cwd).branch;
+
+    - name: Check new release branch doesn't already exist
+      uses: actions/github-script@v6
+      env:
+        NEW_BRANCH_NAME: ${{ steps.branchname.outputs.result }}
+      with:
+        github-token: ${{ secrets.TAMANU_RELEASE_PAT }}
+        script: |
+          const cwd = '${{ github.workspace }}';
+          const { checkNewReleaseBranchDoesNotExist } = await import(`/tmp/gha-release-ops.mjs`);
+          await checkNewReleaseBranchDoesNotExist(github, context, process.env.NEW_BRANCH_NAME);
+
     - name: Create new release branch
+      env:
+        NEW_BRANCH_NAME: ${{ steps.branchname.outputs.result }}
+      run: |
+        set -ex
+        git switch --create "$NEW_BRANCH_NAME"
+        git commit --allow-empty -m "Cut-off for $NEW_BRANCH_NAME"
+        git push
+        git switch main
+
+    - name: Create next release draft
       uses: actions/github-script@v6
       with:
         github-token: ${{ secrets.TAMANU_RELEASE_PAT }}
         script: |
           const cwd = '${{ github.workspace }}';
-          const { createReleaseBranch } = await import(`/tmp/gha-release-ops.mjs`);
-          await createReleaseBranch(await import('fs'), github, context, cwd, '${{ github.event.inputs.version }}');
+          const { createNextDraft } = await import(`/tmp/gha-release-ops.mjs`);
+          await createNextDraft(await import('fs'), github, context, cwd, '${{ github.event.inputs.version }}');
 
     - name: Bump version on main
       run: node scripts/version.mjs '${{ github.event.inputs.version }}'
 
     - name: Commit and push
       run: |
-        git config user.name github-actions
-        git config user.email github-actions@github.com
+        set -ex
         version=$(jq -r .version package.json)
         git commit -am "Bump version to $version"
         git push
