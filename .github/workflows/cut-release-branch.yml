@@ -50,8 +50,8 @@ jobs:
         github-token: ${{ secrets.TAMANU_RELEASE_PAT }}
         script: |
           const cwd = '${{ github.workspace }}';
-          const { checkNewReleaseBranchDoesNotExist } = await import(`/tmp/gha-release-ops.mjs`);
-          await checkNewReleaseBranchDoesNotExist(github, context, process.env.NEW_BRANCH_NAME);
+          const { checkBranchDoesNotExist } = await import(`/tmp/gha-release-ops.mjs`);
+          await checkBranchDoesNotExist(github, context, process.env.NEW_BRANCH_NAME);
 
     - name: Create new release branch
       env:
