@@ -29,31 +29,23 @@ export async function createReleaseBranch({ readFileSync }, github, context, cwd
     } // else it's what we expect
   }
 
-  console.log("It doesn't, creating branch...");
-  await github.rest.git.createRef({ owner, repo, ref: `refs/${ref}`, sha });
+  console.log('It does not, creating release cutoff commit...');
+  const tree = await github.rest.git.createTree({
+    owner,
+    repo,
+    tree: [], // empty commit
+    base_tree: sha,
+  });
+  const tip = await github.rest.git.createCommit({
+    owner,
+    repo,
+    message: `Cut-off for release branch ${major}.${minor}`,
+    tree: tree.data.sha,
+    parents: [sha],
+  });
 
-  console.log('Creating release cutoff commit...');
-  await github.graphql(
-    `
-    mutation ($input: CreateCommitOnBranchInput!) {
-      createCommitOnBranch(input: $input) {
-        commit { url }
-      }
-    }
-    `,
-    {
-      input: {
-        branch: {
-          repositoryNameWithOwner: `${owner}/${repo}`,
-          branchName: branch,
-        },
-        message: {
-          headline: `Cut-off for release branch ${major}.${minor}`,
-        },
-        expectedHeadOid: sha,
-      },
-    },
-  );
+  console.log('Creating branch...');
+  await github.rest.git.createRef({ owner, repo, ref: `refs/${ref}`, sha: tip.data.sha });
 
   let nextVersion;
   switch (nextVersionSpec) {
@@ -92,18 +84,11 @@ export async function createDraftRelease({ readFileSync }, github, context, cwd,
   });
 }
 
-async function getDraftReleases(github, context) {
-  const response = await github.rest.repos.listReleases({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
-  });
-
-  return response.data.filter(release => release.draft);
-}
-
 async function getPublishedReleases(github, context, cursor = null) {
   // GraphQL is more efficient than API but doesn't contain draft releases
-  const { repository: { releases } } = await github.graphql(
+  const {
+    repository: { releases },
+  } = await github.graphql(
     `
     query($owner: String!, $repo: String!, $cursor: String, $batchSize: Int) {
       repository(owner: $owner, name: $repo) {
@@ -141,12 +126,17 @@ async function getPublishedReleases(github, context, cursor = null) {
 }
 
 async function findDraftRelease(github, context, testForMatch) {
-  const releases = await getDraftReleases(github, context);
-
-  for (const release of releases) {
-    console.log(`::debug:: Draft release ${JSON.stringify(release)}`);
-    if (testForMatch(release.tagName, release) || testForMatch(release.name, release)) {
-      return release;
+  // Less efficient than above GraphQL (30 per page), but includes drafts
+  for await (const response of github.paginate.iterator(github.rest.issues.listReleases, {
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+  })) {
+    for (const release of response.data) {
+      if (!release.draft) continue;
+      console.log(`::debug:: Draft release ${JSON.stringify(release)}`);
+      if (testForMatch(release.tagName, release) || testForMatch(release.name, release)) {
+        return release;
+      }
     }
   }
 
@@ -198,9 +188,7 @@ export async function publishRelease(github, context, version) {
       `Latest published release is tag=${latestPublished.tagName} name=${latestPublished.name}`,
     );
     const [thisMajor, thisMinor] = version.split('.', 3);
-    const [, latestMajor, latestMinor] = latestPublished.tagName.match(
-      /^v?(\d+)[.](\d+)/,
-    );
+    const [, latestMajor, latestMinor] = latestPublished.tagName.match(/^v?(\d+)[.](\d+)/);
 
     if (
       parseInt(thisMajor) < parseInt(latestMajor) ||
@@ -224,8 +212,8 @@ export async function publishRelease(github, context, version) {
 }
 
 export async function uploadToRelease({ fs, github, context, artifactsDir, version, section }) {
-  // Presumption is that there's less drafts so this should be one just-in-case
-  // call if this workflow happens to run before the release is published.
+  // Presumption is that there are less drafts than published releases, so first check if this
+  // version is in draft, just in case this workflow happens to run before the release is published.
   console.log(`Find draft release matching ${version}...`);
   let release = await findDraftRelease(
     github,
