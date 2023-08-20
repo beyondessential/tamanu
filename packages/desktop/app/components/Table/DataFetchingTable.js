@@ -15,15 +15,15 @@ const DEFAULT_FETCH_STATE = {
   data: [],
   count: 0,
   errorMessage: '',
-  isLoading: true,
+  isLoadingMoreData: false,
+};
+const DEFAULT_PREVIOUS_FETCH = {
   previousFetch: {
     page: 0,
     count: 0,
     dataSnapshot: [],
     lastUpdatedAt: getCurrentDateTimeString(),
   },
-  isLoadingMoreData: false,
-  fetchOptions: {},
 };
 
 export const DataFetchingTable = memo(
@@ -44,6 +44,8 @@ export const DataFetchingTable = memo(
     const [sorting, setSorting] = useState(initialSort);
     const [fetchState, setFetchState] = useState(DEFAULT_FETCH_STATE);
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
+    const [previousFetch, setPreviousFetch] = useState(DEFAULT_PREVIOUS_FETCH);
 
     const [newRowCount, setNewRowCount] = useState(0);
     const [showNotification, setShowNotification] = useState(false);
@@ -110,7 +112,7 @@ export const DataFetchingTable = memo(
 
     const loadingIndicatorDelay = () => {
       return setTimeout(() => {
-        updateFetchState({ isLoading: true });
+        setIsLoading(true);
       }, 1000);
     };
 
@@ -120,7 +122,7 @@ export const DataFetchingTable = memo(
       if (fetchState.data?.length > 0 && lazyLoading) {
         updateFetchState({ isLoadingMoreData: true });
       } else {
-        updateFetchState({ isLoading: true });
+        setIsLoading(true);
       }
       (async () => {
         try {
@@ -134,7 +136,7 @@ export const DataFetchingTable = memo(
 
           // When fetch option is no longer the same (eg: filter changed), it should reload the entire table
           // instead of keep adding data for lazy loading
-          const shouldReloadLazyLoadingData = !isEqual(fetchState.fetchOptions, fetchOptions);
+          const shouldReloadLazyLoadingData = !isEqual(previousFetch.fetchOptions, fetchOptions);
 
           const updatedData =
             lazyLoading && !shouldReloadLazyLoadingData
@@ -142,8 +144,7 @@ export const DataFetchingTable = memo(
               : transformedData;
 
           if (enableAutoRefresh) {
-            // TODO: extract as much of this into a custom hook as possible
-            const { previousFetch } = fetchState;
+            // const { previousFetch } = fetchState;
             const isFirstFetch = previousFetch.count === 0;
             const isInitialSort = isEqual(sorting, initialSort);
 
@@ -183,30 +184,30 @@ export const DataFetchingTable = memo(
               }
             }
 
+            setIsLoading(false);
+            setPreviousFetch({
+              page,
+              count,
+              dataSnapshot: displayData,
+              lastUpdatedAt: getCurrentDateTimeString(),
+              sorting,
+              fetchOptions,
+            });
+
             updateFetchState({
               ...DEFAULT_FETCH_STATE,
               data: displayData,
               count,
-              isLoading: false,
-              // Record page and count of last fetch to compare to the next fetch. Also save a copy of current data to show if not updating
-              previousFetch: {
-                page,
-                count,
-                dataSnapshot: displayData,
-                lastUpdatedAt: getCurrentDateTimeString(),
-                sorting,
-                fetchOptions,
-              },
               isLoadingMoreData: false,
-              fetchOptions,
             });
           } else {
             // Non autorefreshing table
+            setIsLoading(false);
             updateFetchState({
               ...DEFAULT_FETCH_STATE,
               data: updatedData,
               count,
-              isLoading: false,
+              isLoadingMoreData: false,
             });
             // Use custom function on data if provided
             if (onDataFetched) {
@@ -218,11 +219,11 @@ export const DataFetchingTable = memo(
           }
         } catch (error) {
           // clearTimeout(loadingDelay);
+          setIsLoading(false);
           // eslint-disable-next-line no-console
           console.error(error);
           updateFetchState({
             errorMessage: error.message,
-            isLoading: false,
             isLoadingMoreData: false,
           });
         }
@@ -254,7 +255,7 @@ export const DataFetchingTable = memo(
 
     useEffect(() => setPage(0), [fetchOptions]);
 
-    const { data, count, isLoading, isLoadingMoreData, errorMessage, previousFetch } = fetchState;
+    const { data, count, isLoadingMoreData, errorMessage } = fetchState;
     const { order, orderBy } = sorting;
 
     const notificationMessage = `${newRowCount} new record${
