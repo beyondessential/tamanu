@@ -206,8 +206,6 @@ describe('FacilitySyncManager edge cases', () => {
       // start the sync
       const syncPromise = syncManager.runSync();
 
-      // after a wait for sync to move through to snapshotting, commit the transaction and await
-      // the rest of the sync
       await sleepAsync(200);
 
       // Patient is not the pulled record
@@ -235,8 +233,6 @@ describe('FacilitySyncManager edge cases', () => {
       // start the sync
       const syncPromise = syncManager.runSync();
 
-      // after a wait for sync to move through to snapshotting, commit the transaction and await
-      // the rest of the sync
       await sleepAsync(200);
 
       // Encounter is the pulled record
