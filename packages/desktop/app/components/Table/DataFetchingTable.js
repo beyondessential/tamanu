@@ -18,12 +18,12 @@ const DEFAULT_FETCH_STATE = {
   isLoadingMoreData: false,
 };
 const DEFAULT_PREVIOUS_FETCH = {
-  previousFetch: {
-    page: 0,
-    count: 0,
-    dataSnapshot: [],
-    lastUpdatedAt: getCurrentDateTimeString(),
-  },
+  page: 0,
+  count: 0,
+  dataSnapshot: [],
+  lastUpdatedAt: getCurrentDateTimeString(),
+  sorting: DEFAULT_SORT,
+  fetchOptions: {},
 };
 
 export const DataFetchingTable = memo(
@@ -134,17 +134,8 @@ export const DataFetchingTable = memo(
 
           const transformedData = transformRow ? data.map(transformRow) : data;
 
-          // When fetch option is no longer the same (eg: filter changed), it should reload the entire table
-          // instead of keep adding data for lazy loading
-          const shouldReloadLazyLoadingData = !isEqual(previousFetch.fetchOptions, fetchOptions);
-
-          const updatedData =
-            lazyLoading && !shouldReloadLazyLoadingData
-              ? [...(fetchState?.data || []), ...(transformedData || [])]
-              : transformedData;
-
           if (enableAutoRefresh) {
-            // const { previousFetch } = fetchState;
+            console.log(previousFetch);
             const isFirstFetch = previousFetch.count === 0;
             const isInitialSort = isEqual(sorting, initialSort);
 
@@ -162,7 +153,7 @@ export const DataFetchingTable = memo(
             // page one sorted reverse chronologically should it live update, otherwise the updates come through when navigating/sorting
             const isLiveUpdating = !isFirstFetch && isInitialSort && !hasSearchChanged;
             const highlightedData = isLiveUpdating
-              ? highlightDataRows(updatedData, rowsSinceInteraction)
+              ? highlightDataRows(transformedData, rowsSinceInteraction)
               : transformedData;
             const isDataToBeUpdated = hasPageChanged || hasSortingChanged || page === 0;
             const displayData = isDataToBeUpdated ? highlightedData : previousFetch.dataSnapshot;
@@ -201,8 +192,24 @@ export const DataFetchingTable = memo(
               isLoadingMoreData: false,
             });
           } else {
-            // Non autorefreshing table
+            // When fetch option is no longer the same (eg: filter changed), it should reload the entire table
+            // instead of keep adding data for lazy loading
+            const shouldReloadLazyLoadingData = !isEqual(previousFetch.fetchOptions, fetchOptions);
+
+            const updatedData =
+              lazyLoading && !shouldReloadLazyLoadingData
+                ? [...(fetchState?.data || []), ...(transformedData || [])]
+                : transformedData;
+
             setIsLoading(false);
+            setPreviousFetch({
+              page,
+              count,
+              dataSnapshot: updatedData,
+              lastUpdatedAt: getCurrentDateTimeString(),
+              sorting,
+              fetchOptions,
+            });
             updateFetchState({
               ...DEFAULT_FETCH_STATE,
               data: updatedData,
