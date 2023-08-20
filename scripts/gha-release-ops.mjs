@@ -1,5 +1,8 @@
 /* eslint-disable no-console */
 
+// Set by github
+const MAX_GITHUB_RELEASES_BATCH_SIZE = 100;
+
 export async function createReleaseBranch({ readFileSync }, github, context, cwd, nextVersionSpec) {
   console.log('Reading current version...');
   const { version } = JSON.parse(readFileSync(`${cwd}/package.json`, 'utf-8'));
@@ -28,6 +31,29 @@ export async function createReleaseBranch({ readFileSync }, github, context, cwd
 
   console.log("It doesn't, creating branch...");
   await github.rest.git.createRef({ owner, repo, ref: `refs/${ref}`, sha });
+
+  console.log('Creating release cutoff commit...');
+  await github.graphql(
+    `
+    mutation ($input: CreateCommitOnBranchInput!) {
+      createCommitOnBranch(input: $input) {
+        commit { url }
+      }
+    }
+    `,
+    {
+      input: {
+        branch: {
+          repositoryNameWithOwner: `${owner}/${repo}`,
+          branchName: branch,
+        },
+        message: {
+          headline: `Cut-off for release branch ${major}.${minor}`,
+        },
+        expectedHeadOid: sha,
+      },
+    },
+  );
 
   let nextVersion;
   switch (nextVersionSpec) {
@@ -61,33 +87,129 @@ export async function createDraftRelease({ readFileSync }, github, context, cwd,
     name: `v${version}`,
     draft: true,
     prerelease: false,
+    make_latest: false,
     body: template.replace(/%VERSION%/g, version),
   });
 }
 
-export async function publishRelease(github, context, version) {
-  let release;
-  try {
-    console.log(`Fetch release ${version}...`);
-    release = (
-      await github.rest.repos.getReleaseByTag({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        tag: `v${version}`,
-      })
-    )?.data;
-  } catch (err) {
-    if (err.toString().includes('Not Found')) {
-      console.log('Release not found, skipping');
-      return;
-    }
+async function getDraftReleases(github, context) {
+  const response = await github.rest.repos.listReleases({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+  });
 
-    throw err;
+  return response.data.filter(release => release.draft);
+}
+
+async function getPublishedReleases(github, context, cursor = null) {
+  // GraphQL is more efficient than API but doesn't contain draft releases
+  const { repository: { releases } } = await github.graphql(
+    `
+    query($owner: String!, $repo: String!, $cursor: String, $batchSize: Int) {
+      repository(owner: $owner, name: $repo) {
+        releases(last: $batchSize, before: $cursor, orderBy: { field: CREATED_AT, direction: DESC }) {
+          pageInfo {
+            endCursor
+            hasNextPage
+          }
+          nodes {
+            databaseId
+            name
+            tagName
+            description
+            isDraft
+          }
+        }
+      }
+    }
+    `,
+    {
+      batchSize: MAX_GITHUB_RELEASES_BATCH_SIZE,
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      cursor,
+    },
+  );
+
+  // isDraft filtering there just in case they start adding them to GraphQL
+  return releases.nodes.length
+    ? {
+        cursor: releases.pageInfo.hasNextPage && releases.pageInfo.endCursor,
+        releases: releases.nodes.filter(release => !release.isDraft),
+      }
+    : null;
+}
+
+async function findDraftRelease(github, context, testForMatch) {
+  const releases = await getDraftReleases(github, context);
+
+  for (const release of releases) {
+    console.log(`::debug:: Draft release ${JSON.stringify(release)}`);
+    if (testForMatch(release.tagName, release) || testForMatch(release.name, release)) {
+      return release;
+    }
   }
 
-  if (!release?.draft) {
-    console.log(`Release ${version} is not a draft, skipping`);
-    return;
+  return null;
+}
+
+async function findPublishedRelease(github, context, testForMatch) {
+  let nextCursor = null;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const data = await getPublishedReleases(github, context, nextCursor);
+    if (!data) break;
+
+    const { cursor, releases } = data;
+    if (!cursor) break;
+    nextCursor = cursor;
+
+    for (const release of releases) {
+      console.log(`::debug:: Published release ${JSON.stringify(release)}`);
+      if (testForMatch(release.tagName, release) || testForMatch(release.name, release)) {
+        return release;
+      }
+    }
+  }
+
+  return null;
+}
+
+export async function publishRelease(github, context, version) {
+  console.log(`Find draft release matching ${version}...`);
+  const release = await findDraftRelease(
+    github,
+    context,
+    name => name === `v${version}` || name === version,
+  );
+
+  if (!release) {
+    console.log(`::error title=Draft not found::Draft release ${version} not found!`);
+    throw new Error(`Draft release ${version} not found!`);
+  }
+
+  console.log('Fetching latest published release...');
+  let markLatest = true;
+  const latestPublished = await findPublishedRelease(github, context, () => true);
+  if (!latestPublished) {
+    console.log('No published releases found');
+  } else {
+    console.log(
+      `Latest published release is tag=${latestPublished.tagName} name=${latestPublished.name}`,
+    );
+    const [thisMajor, thisMinor] = version.split('.', 3);
+    const [, latestMajor, latestMinor] = latestPublished.tagName.match(
+      /^v?(\d+)[.](\d+)/,
+    );
+
+    if (
+      parseInt(thisMajor) < parseInt(latestMajor) ||
+      parseInt(thisMinor) < parseInt(latestMinor)
+    ) {
+      console.log('Not marking release as latest as there is a higher published version');
+      console.log(`::notice title=Hotfix::Release ${version} not marked latest`);
+      markLatest = false;
+    }
   }
 
   console.log('Publishing release...');
@@ -96,6 +218,57 @@ export async function publishRelease(github, context, version) {
     repo: context.repo.repo,
     release_id: release.id,
     draft: false,
+    make_latest: markLatest,
   });
+  console.log('Done.');
+}
+
+export async function uploadToRelease({ fs, github, context, artifactsDir, version, section }) {
+  // Presumption is that there's less drafts so this should be one just-in-case
+  // call if this workflow happens to run before the release is published.
+  console.log(`Find draft release matching ${version}...`);
+  let release = await findDraftRelease(
+    github,
+    context,
+    name => name === `v${version}` || name === version,
+  );
+
+  if (!release) {
+    console.log(`Find published release matching ${version}...`);
+    release = await findPublishedRelease(
+      github,
+      context,
+      name => name === `v${version}` || name === version,
+    );
+  }
+
+  if (!release) {
+    throw new Error('Cannot find a matching release!');
+  }
+
+  // GraphQL and API have different names for the same fields
+  const releaseId = release.databaseId ?? release.id;
+  const body = release.description ?? release.body;
+
+  console.log('Updating release description');
+  await github.rest.repos.updateRelease({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    release_id: releaseId,
+    body: `${body}\n\n${section}`,
+  });
+
+  const fileList = await fs.readdir(artifactsDir);
+  for (const file of fileList) {
+    console.log('Uploading', file, 'to release', releaseId);
+    await github.rest.repos.uploadReleaseAsset({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      release_id: releaseId,
+      name: file,
+      data: await fs.readFile(`${artifactsDir}/${file}`),
+    });
+  }
+
   console.log('Done.');
 }

@@ -9,12 +9,13 @@ export const HandoverNotesPDF = ({
   locationGroupName,
   logoSrc,
   getLocalisation,
+  letterheadConfig,
 }) => (
   <Document>
     <Page size="A4" style={styles.page}>
       <HandoverHeaderSection
+        letterheadConfig={letterheadConfig}
         locationGroupName={locationGroupName}
-        getLocalisation={getLocalisation}
         logoSrc={logoSrc}
       />
       <Box mb={0}>

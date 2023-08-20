@@ -104,13 +104,12 @@ with
     select
       rm.month,
       a.facility_name,
-      count(ni.id) num
+      count(n.id) num
     from
       reporting_months rm
       left join admission_data a on a.start_date between rm.month and (rm.month + interval '1' month - interval '1' day)
-      left join note_pages np on a.id = np.record_id
-      left join note_items ni on np.id = ni.note_page_id
-    where np.note_type = 'system' and ni.content like 'Changed department%'
+      left join notes n on a.id = n.record_id
+    where n.note_type = 'system' and n.content like 'Changed department%'
     group by rm.month, a.facility_name
   ),
   available_beds as (
