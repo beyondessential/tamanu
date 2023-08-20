@@ -40,7 +40,7 @@ jobs:
         script: |
           const cwd = '${{ github.workspace }}';
           const { currentVersion } = await import(`/tmp/gha-release-ops.mjs`);
-          return currentVersion(import('fs'), cwd).branch;
+          return currentVersion(await import('fs'), cwd).branch;
 
     - name: Check new release branch doesn't already exist
       uses: actions/github-script@v6
