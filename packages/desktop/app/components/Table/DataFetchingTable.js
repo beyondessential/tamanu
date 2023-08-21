@@ -35,7 +35,7 @@ export const DataFetchingTable = memo(
     onDataFetched,
     disablePagination = false,
     autoRefresh: isAutoRefreshTable,
-    lazyLoading = true,
+    lazyLoading = false,
     ...props
   }) => {
     const [page, setPage] = useState(0);
