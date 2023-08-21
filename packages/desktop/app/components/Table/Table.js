@@ -79,11 +79,18 @@ const StyledTableRow = styled(TableRow)`
 
   ${p => (p.$rowStyle ? p.$rowStyle : '')}
 
-  &.MuiTableRow-root {
-    display: table;
-    table-layout: fixed;
-    width: 100%;
-  }
+  ${p =>
+    p.$lazyLoading
+      ? `
+      &.MuiTableRow-root {
+        display: table;
+        table-layout: fixed;
+        width: 100%;
+      }
+    `
+      : ''}
+
+
 `;
 
 const StyledTableContainer = styled.div`
@@ -95,9 +102,14 @@ const StyledTableContainer = styled.div`
 
 const StyledTableBody = styled(TableBody)`
   &.MuiTableBody-root {
-    overflow: auto;
-    display: block;
-    ${props => (props.$lazyLoading ? `max-height: 300px;` : '')};
+    ${props =>
+      props.$lazyLoading
+        ? `
+        overflow: auto;
+        max-height: 300px;
+        display: block;
+      `
+        : ''};
   }
 `;
 
@@ -137,9 +149,14 @@ const StyledTable = styled(MaterialTable)`
 `;
 
 const StyledTableHead = styled(TableHead)`
-  display: table;
-  table-layout: fixed;
-  width: 100%;
+  ${props =>
+    props.$lazyLoading
+      ? `
+      display: table;
+      table-layout: fixed;
+      width: 100%;
+    `
+      : ''}
   background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
   white-space: nowrap;
   .MuiTableCell-head {
@@ -168,8 +185,8 @@ const HeaderContainer = React.memo(({ children, numeric }) => (
   <StyledTableCell align={numeric ? 'right' : 'left'}>{children}</StyledTableCell>
 ));
 
-const RowContainer = React.memo(({ children, rowStyle, onClick }) => (
-  <StyledTableRow onClick={onClick} $rowStyle={rowStyle}>
+const RowContainer = React.memo(({ children, lazyLoading, rowStyle, onClick }) => (
+  <StyledTableRow onClick={onClick} $rowStyle={rowStyle} $lazyLoading={lazyLoading}>
     {children}
   </StyledTableRow>
 ));
@@ -182,7 +199,7 @@ const StatusTableCell = styled(StyledTableCell)`
 `;
 
 const Row = React.memo(
-  ({ rowIndex, columns, data, onClick, cellOnChange, rowStyle, refreshTable }) => {
+  ({ rowIndex, columns, data, onClick, cellOnChange, lazyLoading, rowStyle, refreshTable }) => {
     const cells = columns.map(
       ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
         const onChange = cellOnChange ? event => cellOnChange(event, key, rowIndex, data) : null;
@@ -214,6 +231,7 @@ const Row = React.memo(
       <RowContainer
         onClick={onClick && (() => onClick(data))}
         rowStyle={rowStyle ? rowStyle(data) : ''}
+        lazyLoading={lazyLoading}
       >
         {cells}
       </RowContainer>
@@ -367,11 +385,12 @@ class TableComponent extends React.Component {
               cellOnChange={cellOnChange}
               refreshTable={refreshTable}
               rowStyle={rowStyle}
+              lazyLoading={lazyLoading}
             />
           );
         })}
         {isLoadingMore && (
-          <StyledTableRow>
+          <StyledTableRow $lazyLoading={lazyLoading}>
             <CenteredLoadingIndicatorContainer>
               <LoadingIndicator
                 backgroundColor="transparent"
@@ -412,7 +431,7 @@ class TableComponent extends React.Component {
 
     return (
       <StyledTableFooter>
-        <StyledTableRow>
+        <StyledTableRow $lazyLoading={lazyLoading}>
           {allowExport ? (
             <TableCell colSpan={page !== null ? 2 : columns.length}>
               <DownloadDataButton exportName={exportName} columns={columns} data={data} />
@@ -446,7 +465,7 @@ class TableComponent extends React.Component {
         >
           {!hideHeader && (
             <StyledTableHead $headerColor={headerColor} $fixedHeader={fixedHeader}>
-              <StyledTableRow>{this.renderHeaders()}</StyledTableRow>
+              <StyledTableRow $lazyLoading={lazyLoading}>{this.renderHeaders()}</StyledTableRow>
             </StyledTableHead>
           )}
           <StyledTableBody onScroll={this.handleScroll} $lazyLoading={lazyLoading}>
