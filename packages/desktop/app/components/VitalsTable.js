@@ -56,6 +56,10 @@ const IconButton = styled(IconButtonComponent)`
   padding: 9px 5px;
 `;
 
+const VitalsLimitedLinesCell = ({ value }) => (
+  <LimitedLinesCell value={value} maxWidth="75px" maxLines={1} />
+);
+
 const MeasureCell = React.memo(({ value, data }) => {
   const {
     setChartKeys,
@@ -183,9 +187,7 @@ export const VitalsTable = React.memo(() => {
               validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
               isEdited={historyLogs.length > 1}
               onClick={shouldBeClickable ? handleCellClick : null}
-              ValueWrapper={({ value: formattedValue }) => (
-                <LimitedLinesCell value={formattedValue} maxWidth="75px" maxLines={1} />
-              )}
+              ValueWrapper={VitalsLimitedLinesCell}
             />
           );
         },
