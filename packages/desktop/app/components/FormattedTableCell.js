@@ -97,9 +97,11 @@ export const DateHeadCell = React.memo(({ value }) => (
 const LimitedLinesCellWrapper = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
-  ${({ maxLines }) => (maxLines > 1 ? 'display: -webkit-box;' : '')}
-  ${({ maxLines }) => (maxLines > 1 ? '-webkit-box-orient: vertical;' : '')}
-  ${({ maxLines }) => (maxLines > 1 ? `-webkit-line-clamp: ${maxLines};` : '')}
+  ${({ maxLines }) => (maxLines <= 1 ? '' : `
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: ${maxLines};
+  `)}
   max-width: ${props => props.maxWidth};
 `;
 
