@@ -109,7 +109,7 @@ export class TamanuApi extends ApiClient {
     try {
       return await super.fetch(endpoint, query, otherConfig);
     } catch (err) {
-      const message = err?.message || response.status;
+      const message = err?.message || err?.response?.status;
 
       if (err instanceof AuthExpiredError) {
         clearLocalStorage();
@@ -120,7 +120,11 @@ export class TamanuApi extends ApiClient {
           ipcRenderer.invoke('update-available', this.getHost());
         }
       } else if (showUnknownErrorToast && isErrorUnknown(err, err.response)) {
-        notifyError(['Network request failed', `Path: ${err.path ?? endpoint}`, `Message: ${message}`]);
+        notifyError([
+          'Network request failed',
+          `Path: ${err.path ?? endpoint}`,
+          `Message: ${message}`,
+        ]);
       }
 
       throw new Error(`Facility server error response: ${message}`);
