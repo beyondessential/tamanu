@@ -30,10 +30,9 @@ async function createPackage(name) {
   const ciPath = './.github/workflows/ci.yml';
   const ci = parseDocument(await readFile(ciPath, 'utf-8'));
   ci.contents.addIn(['jobs', 'test', 'strategy', 'matrix', 'package'], `@tamanu/${name}`);
-  ci.contents.addIn(['jobs', 'lint', 'strategy', 'matrix', 'package'], `@tamanu/${name}`);
   await writeFile(ciPath, ci.toString());
 
-  console.log("All done! Don't forget to run yarn and yarn build-shared");
+  console.log("All done! Don't forget to run yarn and yarn build-shared, and add to Dockerfile if needed");
   process.exit(0);
 }
 

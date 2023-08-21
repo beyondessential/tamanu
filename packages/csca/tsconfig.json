@@ -1,11 +1,17 @@
 {
-  "baseUrl": "./src",
+  "$schema": "https://json.schemastore.org/tsconfig",
   "extends": ["../../common.tsconfig.json"],
+  "include": [
+    "package.json",
+    "src/**/*"
+  ],
   "compilerOptions": {
-    "outDir": "./build",
+    "baseUrl": "./src",
+    "strict": false,
     "esModuleInterop": true,
+    "experimentalDecorators": true,
     "isolatedModules": false,
-    "noEmit": false,
+    "noEmit": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "target": "es2020"
