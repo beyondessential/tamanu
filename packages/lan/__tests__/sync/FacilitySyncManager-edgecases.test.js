@@ -4,6 +4,11 @@ import config from 'config';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patients';
+import {
+  CURRENT_SYNC_TIME_KEY,
+  LAST_SUCCESSFUL_SYNC_PULL_KEY,
+  LAST_SUCCESSFUL_SYNC_PUSH_KEY,
+} from 'shared/sync/constants';
 
 import { createTestContext } from '../utilities';
 
@@ -13,6 +18,7 @@ describe('FacilitySyncManager edge cases', () => {
   let sequelize;
   const TEST_SESSION_ID = 'sync123';
   const LAST_SUCCESSFUL_SYNC_PUSH = '2';
+  const LAST_SUCCESSFUL_SYNC_PULL = '2';
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -59,8 +65,8 @@ describe('FacilitySyncManager edge cases', () => {
     syncManager.__testSpyEnabled = true;
 
     // set current sync tick
-    await models.LocalSystemFact.set('currentSyncTick', currentSyncTick);
-    await ctx.models.LocalSystemFact.set('lastSuccessfulSyncPush', LAST_SUCCESSFUL_SYNC_PUSH);
+    await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, currentSyncTick);
+    await ctx.models.LocalSystemFact.set(LAST_SUCCESSFUL_SYNC_PUSH_KEY, LAST_SUCCESSFUL_SYNC_PUSH);
 
     // create a record that will be committed before the sync starts, so safely gets the current
     // sync tick and available in the db for snapshotting
@@ -91,7 +97,7 @@ describe('FacilitySyncManager edge cases', () => {
     await syncPromise;
 
     // check that the sync tick has been updated
-    const updatedSyncTick = await models.LocalSystemFact.get('currentSyncTick');
+    const updatedSyncTick = await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY);
     expect(updatedSyncTick).toBe(newSyncTick);
 
     // check that both patient records have the old sync tick
@@ -110,51 +116,15 @@ describe('FacilitySyncManager edge cases', () => {
     ).toStrictEqual([safePatientId, riskyPatientId].sort());
   });
 
-  describe('handles local updates between push and pull', () => {
+  describe('handles local updates between "snapshot for push" and "pull"', () => {
     let patient;
-    let user;
-    let department;
-    let location;
     let encounter;
     let syncManager;
 
     const CURRENT_SYNC_TICK = '6';
     const NEW_SYNC_TICK = '8';
-    const ENCOUNTER_ID = '8b672978-2207-41fc-9da0-6de8b21a47a9';
 
-    beforeAll(async () => {
-      const facility = await models.Facility.create({
-        ...fake(models.Facility),
-      });
-      user = await models.User.create(fakeUser());
-      department = await models.Department.create({
-        ...fake(models.Department),
-        facilityId: facility.id,
-      });
-      location = await models.Location.create({
-        ...fake(models.Location),
-        facilityId: facility.id,
-      });
-      patient = await models.Patient.create({
-        ...fake(models.Patient),
-      });
-    });
-
-    beforeEach(async () => {
-      jest.resetModules();
-
-      await models.Encounter.truncate({ force: true, cascade: true });
-
-      // set current sync tick
-      await models.LocalSystemFact.set('currentSyncTick', CURRENT_SYNC_TICK);
-      await models.LocalSystemFact.set('lastSuccessfulSyncPush', LAST_SUCCESSFUL_SYNC_PUSH);
-
-      encounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        id: ENCOUNTER_ID,
-        patientId: patient.id,
-      });
-
+    const initializeSyncManager = (sessionId, pulledEncounter) => {
       const {
         FacilitySyncManager: TestFacilitySyncManager,
       } = require('../../app/sync/FacilitySyncManager');
@@ -169,14 +139,13 @@ describe('FacilitySyncManager edge cases', () => {
           push: jest.fn(),
           pull: jest.fn().mockImplementation(async () => [
             {
-              id: ENCOUNTER_ID,
-              recordId: ENCOUNTER_ID,
+              id: pulledEncounter.id,
+              recordId: pulledEncounter.id,
               isDeleted: false,
               recordType: models.Encounter.tableName,
               savedAtSyncTick: 1,
               data: {
-                id: ENCOUNTER_ID,
-                ...encounter.dataValues,
+                ...pulledEncounter.dataValues,
               },
             },
           ]),
@@ -189,6 +158,38 @@ describe('FacilitySyncManager edge cases', () => {
         },
       });
       syncManager.__testSpyEnabled = true;
+    };
+
+    beforeAll(async () => {
+      const facility = await models.Facility.create({
+        ...fake(models.Facility),
+      });
+      await models.User.create(fakeUser());
+      await models.Department.create({
+        ...fake(models.Department),
+        facilityId: facility.id,
+      });
+      await models.Location.create({
+        ...fake(models.Location),
+        facilityId: facility.id,
+      });
+      patient = await models.Patient.create({
+        ...fake(models.Patient),
+      });
+    });
+
+    beforeEach(async () => {
+      jest.resetModules();
+
+      await models.Encounter.truncate({ force: true, cascade: true });
+      await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
+      await models.LocalSystemFact.set(LAST_SUCCESSFUL_SYNC_PUSH_KEY, LAST_SUCCESSFUL_SYNC_PUSH);
+      await models.LocalSystemFact.set(LAST_SUCCESSFUL_SYNC_PULL_KEY, LAST_SUCCESSFUL_SYNC_PULL);
+
+      encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
     });
 
     it('does not throw an error if pulled records was not updated between push and pull', async () => {
@@ -203,19 +204,21 @@ describe('FacilitySyncManager edge cases', () => {
         }),
       }));
 
+      initializeSyncManager('123', encounter);
+
       // start the sync
       const syncPromise = syncManager.runSync();
 
       await sleepAsync(200);
 
-      // Patient is not the pulled record
+      // Update patient which is not one of the pulled records
       patient.lastName = 'Updated';
       await patient.save();
 
       await resolvePushOutgoingChangesPromise();
-      expect(async () => {
-        await syncPromise;
-      }).not.toThrow();
+
+      // No expects as if there is an error, it should fail the test
+      await syncPromise;
     });
 
     it('throws an error if a pulled record was updated between push and pull', async () => {
@@ -230,20 +233,24 @@ describe('FacilitySyncManager edge cases', () => {
         }),
       }));
 
+      initializeSyncManager('456', encounter);
+
       // start the sync
       const syncPromise = syncManager.runSync();
 
       await sleepAsync(200);
 
-      // Encounter is the pulled record
+      // Update encounter which is one of the pulled records
       encounter.reasonForEncounter = 'Updated';
       await encounter.save();
 
       await resolvePushOutgoingChangesPromise();
 
-      expect(async () => {
+      await expect(async () => {
         await syncPromise;
-      }).rejects.toThrow();
+      }).rejects.toThrow(
+        'Facility: There are 1 encounters record(s) updated snapshot for pushing and now.',
+      );
     });
   });
 });
