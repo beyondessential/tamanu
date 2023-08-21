@@ -23,7 +23,7 @@ export class ProgramRegistryClinicalStatus extends Model {
       },
       {
         ...options,
-        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
       },
     );
   }
