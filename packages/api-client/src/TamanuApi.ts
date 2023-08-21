@@ -5,7 +5,7 @@ import qs from 'qs';
 
 import type { AnyAbility, PureAbility } from '@casl/ability';
 import { SERVER_TYPES } from '@tamanu/constants';
-import { ForbiddenError } from '@tamanu/shared/errors';
+import { NotFoundError, ForbiddenError } from '@tamanu/shared/errors';
 import { Permission, buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import {
@@ -224,10 +224,15 @@ export class TamanuApi {
    */
   async extractError(endpoint: string, response: Response) {
     const { error } = await getResponseErrorSafely(response);
+    const message = error?.message || response.status.toString();
 
     // handle forbidden error and trigger catch all modal
     if (response.status === 403 && error) {
-      throw new ForbiddenError(error?.message);
+      throw new ForbiddenError(message);
+    }
+
+    if (response.status === 404) {
+      throw new NotFoundError(message);
     }
 
     // handle auth expiring
@@ -255,7 +260,6 @@ export class TamanuApi {
       }
     }
 
-    const message = error?.message || response.status;
     throw new ServerResponseError(`Server error response: ${message}`);
   }
 
