@@ -112,7 +112,11 @@ export class FhirJob extends Model {
 
         // eslint-disable-next-line no-unused-expressions
         trace.getActiveSpan()?.addEvent('grab retry', { delay, attempt: i + 1 });
-        log.warn(`Failed to grab job, retrying in ${ms(delay)} (${i + 1}/${GRAB_RETRY})`);
+        log.debug(`Failed to grab job, retrying in ${ms(delay)} (${i + 1}/${GRAB_RETRY})`);
+
+        if (i > GRAB_RETRY / 2) {
+          log.warn(`Failed to grab job after ${i + 1} retries, this is unusual`);
+        }
 
         await sleepAsync(delay);
         continue;

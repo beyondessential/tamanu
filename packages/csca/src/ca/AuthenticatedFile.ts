@@ -24,7 +24,8 @@ export default class AuthenticatedFile {
     const contents = await fs.readFile(this.path);
 
     try {
-      const publicKey = this.key.type === 'private' ? (await keyPairFromPrivate(this.key)).publicKey : this.key;
+      const publicKey =
+        this.key.type === 'private' ? (await keyPairFromPrivate(this.key)).publicKey : this.key;
 
       const sig = await fs.readFile(this.sigFile());
       const check = await crypto.subtle.verify(
