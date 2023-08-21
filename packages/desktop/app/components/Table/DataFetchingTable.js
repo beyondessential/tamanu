@@ -35,7 +35,7 @@ export const DataFetchingTable = memo(
     onDataFetched,
     disablePagination = false,
     autoRefresh: isAutoRefreshTable,
-    lazyLoading = false,
+    lazyLoading = true,
     ...props
   }) => {
     const [page, setPage] = useState(0);
@@ -123,25 +123,25 @@ export const DataFetchingTable = memo(
 
     const loadingIndicatorDelay = () => {
       return setTimeout(() => {
-        setIsLoading(true);
+        if (fetchState.data?.length > 0 && lazyLoading) {
+          setIsLoadingMoreData(true);
+        } else {
+          setIsLoading(true);
+        }
       }, 1000);
     };
 
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
     useEffect(() => {
-      if (fetchState.data?.length > 0 && lazyLoading) {
-        setIsLoadingMoreData(true);
-      } else {
-        setIsLoading(true);
-      }
+      const loadingDelay = loadingIndicatorDelay();
       (async () => {
         try {
           if (!endpoint) {
             throw new Error('Missing endpoint to fetch data.');
           }
           const { data, count } = await fetchData();
-          // clearTimeout(loadingDelay);
+          clearTimeout(loadingDelay);
 
           const transformedData = transformRow ? data.map(transformRow) : data;
 
@@ -215,7 +215,7 @@ export const DataFetchingTable = memo(
             }
           }
         } catch (error) {
-          // clearTimeout(loadingDelay);
+          clearTimeout(loadingDelay);
           setIsLoading(false);
           setIsLoadingMoreData(false);
 
