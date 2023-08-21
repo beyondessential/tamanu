@@ -31,7 +31,7 @@ const validateModelIfPulledRecordsUpdatedAfterPushSnapshot = async (model, sessi
   const count = parseInt(countString, 10);
   if (count) {
     throw new Error(
-      `Facility: There are ${count} ${model.tableName} record(s) updated snapshot for pushing and now.`,
+      `Facility: There are ${count} ${model.tableName} record(s) updated between 'snapshot-for-pushing' and now. Error thrown to restart the sync cycle and push the updated records to central`,
     );
   }
 };
