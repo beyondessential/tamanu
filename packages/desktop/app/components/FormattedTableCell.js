@@ -102,7 +102,7 @@ const LimitedLinesCellWrapper = styled.div`
     -webkit-box-orient: vertical;
     -webkit-line-clamp: ${maxLines};
   `)}
-  max-width: ${props => props.maxWidth};
+  ${({ maxWidth }) => (maxWidth && `max-width: ${ maxWidth };`)};
 `;
 
 export const LimitedLinesCell = ({ value, maxWidth, maxLines = 2 }) => {
