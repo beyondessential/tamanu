@@ -110,6 +110,17 @@ export const DataFetchingTable = memo(
       return highlightedData;
     };
 
+    const updatePreviousFetchState = (data, count) => {
+      setPreviousFetch({
+        page,
+        count,
+        dataSnapshot: data,
+        lastUpdatedAt: getCurrentDateTimeString(),
+        sorting,
+        fetchOptions,
+      });
+    };
+
     const loadingIndicatorDelay = () => {
       return setTimeout(() => {
         setIsLoading(true);
@@ -135,62 +146,48 @@ export const DataFetchingTable = memo(
           const transformedData = transformRow ? data.map(transformRow) : data;
 
           if (enableAutoRefresh) {
-            console.log(previousFetch);
             const isFirstFetch = previousFetch.count === 0;
             const isInitialSort = isEqual(sorting, initialSort);
-
-            const hasPageChanged = page !== previousFetch.page;
-            const hasSortingChanged = !isEqual(sorting, previousFetch?.sorting);
             const hasSearchChanged = !isEqual(fetchOptions, previousFetch?.fetchOptions);
+            const hasSortingChanged = !isEqual(sorting, previousFetch?.sorting);
 
             const rowsSinceInteraction = count - previousFetch.count + newRowCount;
 
-            const isLeavingPageOne = previousFetch.page === 0 && page > 0;
-            const isChangingFromInitialSort =
-              isEqual(previousFetch.sorting, initialSort) && hasSortingChanged;
-
-            // When autorefreshing past page one, we dont want to move rows down as it updates. Only if you are on
-            // page one sorted reverse chronologically should it live update, otherwise the updates come through when navigating/sorting
-            const isLiveUpdating = !isFirstFetch && isInitialSort && !hasSearchChanged;
-            const highlightedData = isLiveUpdating
-              ? highlightDataRows(transformedData, rowsSinceInteraction)
-              : transformedData;
+            const shouldHighlightData = !isFirstFetch && isInitialSort && !hasSearchChanged;
+            const highlightedData = highlightDataRows(
+              transformedData,
+              shouldHighlightData ? rowsSinceInteraction : 0,
+            );
+            const hasPageChanged = page !== previousFetch.page;
             const isDataToBeUpdated = hasPageChanged || hasSortingChanged || page === 0;
             const displayData = isDataToBeUpdated ? highlightedData : previousFetch.dataSnapshot;
-            const shouldResetRows =
-              (isLeavingPageOne && isInitialSort) ||
-              (page === 0 && isChangingFromInitialSort) ||
-              hasSearchChanged;
 
-            if (count > previousFetch.count) {
-              setIsNotificationMuted(false);
-            }
-
-            if (!isFirstFetch) {
-              setNewRowCount(rowsSinceInteraction);
-              setShowNotification(rowsSinceInteraction > 0 && !(page === 0 && isInitialSort));
-              if (shouldResetRows) {
-                setShowNotification(false);
-                setNewRowCount(0);
-              }
-            }
-
+            if (count > previousFetch.count) setIsNotificationMuted(false);
             setIsLoading(false);
-            setPreviousFetch({
-              page,
-              count,
-              dataSnapshot: displayData,
-              lastUpdatedAt: getCurrentDateTimeString(),
-              sorting,
-              fetchOptions,
-            });
-
+            updatePreviousFetchState(displayData, count);
             updateFetchState({
               ...DEFAULT_FETCH_STATE,
               data: displayData,
               count,
               isLoadingMoreData: false,
             });
+
+            const isLeavingPageOne = previousFetch.page === 0 && page > 0;
+            const isChangingFromInitialSort =
+              isEqual(previousFetch.sorting, initialSort) && hasSortingChanged;
+            if (
+              // conditions for resetting new row styling
+              (isLeavingPageOne && isInitialSort) ||
+              (page === 0 && isChangingFromInitialSort) ||
+              hasSearchChanged ||
+              isFirstFetch
+            ) {
+              setShowNotification(false);
+              setNewRowCount(0);
+            } else {
+              setNewRowCount(rowsSinceInteraction);
+              setShowNotification(rowsSinceInteraction > 0 && !(page === 0 && isInitialSort));
+            }
           } else {
             // When fetch option is no longer the same (eg: filter changed), it should reload the entire table
             // instead of keep adding data for lazy loading
@@ -202,14 +199,7 @@ export const DataFetchingTable = memo(
                 : transformedData;
 
             setIsLoading(false);
-            setPreviousFetch({
-              page,
-              count,
-              dataSnapshot: updatedData,
-              lastUpdatedAt: getCurrentDateTimeString(),
-              sorting,
-              fetchOptions,
-            });
+            updatePreviousFetchState(updatedData, count);
             updateFetchState({
               ...DEFAULT_FETCH_STATE,
               data: updatedData,
