@@ -97,12 +97,15 @@ export const DateHeadCell = React.memo(({ value }) => (
 const LimitedLinesCellWrapper = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
-  ${({ maxLines }) => (maxLines <= 1 ? '' : `
+  ${({ maxLines }) =>
+    maxLines <= 1
+      ? ''
+      : `
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: ${maxLines};
-  `)}
-  ${({ maxWidth }) => (maxWidth && `max-width: ${ maxWidth };`)};
+  `}
+  ${({ maxWidth }) => maxWidth && `max-width: ${maxWidth};`};
 `;
 
 export const LimitedLinesCell = ({ value, maxWidth, maxLines = 2 }) => {
@@ -151,8 +154,18 @@ export const RangeTooltipCell = React.memo(({ value, config, validationCriteria 
   );
 });
 
+const DefaultWrapper = ({ value }) => <>{value}</>;
+
 export const RangeValidatedCell = React.memo(
-  ({ value, config, validationCriteria, onClick, isEdited, ValueWrapper, ...props }) => {
+  ({
+    value,
+    config,
+    validationCriteria,
+    onClick,
+    isEdited,
+    ValueWrapper = DefaultWrapper,
+    ...props
+  }) => {
     const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
     const float = round(parseFloat(value), config);
     const isEditedSuffix = isEdited ? '*' : '';
@@ -163,16 +176,12 @@ export const RangeValidatedCell = React.memo(
       validationCriteria,
     ]);
 
-    const CellWithoutTooltip = (
+    const cell = (
       <CellContainer onClick={onClick} severity={severity} {...props}>
-        {ValueWrapper ? <ValueWrapper value={formattedValue} /> : formattedValue}
+        <ValueWrapper value={formattedValue} />
       </CellContainer>
     );
 
-    return tooltip ? (
-      <TableTooltip title={tooltip}>{CellWithoutTooltip}</TableTooltip>
-    ) : (
-      CellWithoutTooltip
-    );
+    return tooltip ? <TableTooltip title={tooltip}>{cell}</TableTooltip> : cell;
   },
 );
