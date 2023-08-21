@@ -9,22 +9,15 @@
   "license": "SEE LICENSE IN license",
   "main": "src/index.js",
   "scripts": {
-    "build": "swc --delete-dir-on-start -D -d build/ src/",
+    "build": "swc --delete-dir-on-start --out-dir build --copy-files --source-maps true src",
     "cli": "yarn build && node build",
-    "lint": "eslint src/**/*.ts && tsc --noEmit",
-    "lint:fix": "eslint src/**/*.ts --fix"
+    "lint": "tsc"
   },
   "devDependencies": {
-    "@beyondessential/eslint-config-beyondessential": "^2.6.0",
-    "@swc/cli": "^0.1.62",
-    "@swc/core": "^1.3.52",
+    "@tamanu/build-tooling": "*",
     "@types/archiver": "^5.3.1",
     "@types/node": "^14.0.4",
-    "@types/prompts": "^2.0.14",
-    "@typescript-eslint/eslint-plugin": "^2.14.0",
-    "@typescript-eslint/parser": "^2.14.0",
-    "eslint": "^7.14.0",
-    "typescript": "^3.9.2"
+    "@types/prompts": "^2.0.14"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.74.0",
