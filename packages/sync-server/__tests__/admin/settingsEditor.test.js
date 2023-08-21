@@ -1,4 +1,4 @@
-import { SETTINGS_SCOPES } from '@tamanu/shared/constants';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake, chance } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 
