@@ -170,7 +170,6 @@ export const DataFetchingTable = memo(
               ...DEFAULT_FETCH_STATE,
               data: displayData,
               count,
-              isLoadingMoreData: false,
             });
 
             const isLeavingPageOne = previousFetch.page === 0 && page > 0;
