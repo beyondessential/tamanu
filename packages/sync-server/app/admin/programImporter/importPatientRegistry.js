@@ -22,19 +22,27 @@ function readPatientRegistryData(workbook) {
     secondaryRecords: clinicalStatuses,
   } = readOneToManySheet(workbook.Sheets.PatientRegistry, 'PatientRegistry');
 
+  if (!patientRegistryRecord.patientRegistryCode) {
+    throw new ImporterMetadataError('A patient registry must have a code');
+  }
+
+  if (!patientRegistryRecord.patientRegistryName) {
+    throw new ImporterMetadataError('A patient registry must have a name');
+  }
+
   return {
     patientRegistryRecord,
     clinicalStatuses,
   };
 }
 
-export async function importPatientRegistry(context, workbook, surveyInfo) {
+export async function importPatientRegistry(context, workbook, stats, programId) {
   const { patientRegistryRecord, clinicalStatuses } = readPatientRegistryData(workbook);
 
   if (!patientRegistryRecord) return;
 
   // actually import the programRegistry to the database
-  return (
+  const (
     importRows(context, {
       sheetName: 'PatientRegistry',
       rows: [
