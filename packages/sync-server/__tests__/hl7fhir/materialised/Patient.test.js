@@ -4,7 +4,7 @@ import { fake } from 'shared/test-helpers/fake';
 import { getCurrentDateString } from 'shared/utils/dateTime';
 import { fakeUUID } from 'shared/utils/generateId';
 import { formatFhirDate } from 'shared/utils/fhir/datetime';
-import { FHIR_DATETIME_PRECISION } from 'shared/constants/fhir';
+import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
 
 import { createTestContext } from '../../utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';

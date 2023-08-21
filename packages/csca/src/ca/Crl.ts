@@ -2,33 +2,33 @@
 
 import { promises as fs } from 'fs';
 
+import { AsnConvert, OctetString } from '@peculiar/asn1-schema';
 import {
-  CertificateList,
-  TBSCertList,
-  Version,
-  Name,
-  Time,
-  Extension,
   AuthorityKeyIdentifier,
-  id_ce_authorityKeyIdentifier,
-  GeneralName,
   CRLNumber,
-  id_ce_cRLNumber,
+  CertificateList,
+  Extension,
+  GeneralName,
+  Name,
   RevokedCertificate,
+  TBSCertList,
+  Time,
+  Version,
+  id_ce_authorityKeyIdentifier,
+  id_ce_cRLNumber,
 } from '@peculiar/asn1-x509';
 import {
   AuthorityKeyIdentifierExtension,
   EcAlgorithm,
   Extension as X509Extension,
 } from '@peculiar/x509';
-import { AsnConvert, OctetString } from '@peculiar/asn1-schema';
 import { add } from 'date-fns';
 
+import crypto from '../crypto';
+import { ecdsaBERToWebSig, ecdsaWebSigToBER } from '../ext/EcdsaSig';
+import { numberToBuffer } from '../utils';
 import Certificate from './Certificate';
 import State, { readSerialNumber } from './State';
-import crypto from '../crypto';
-import { numberToBuffer } from '../utils';
-import { ecdsaWebSigToBER, ecdsaBERToWebSig } from '../ext/EcdsaSig';
 
 function asAki(ext: X509Extension | undefined): AuthorityKeyIdentifierExtension | undefined {
   if (ext instanceof AuthorityKeyIdentifierExtension) return ext;
@@ -66,12 +66,13 @@ export default class Crl {
 
     const revokedCertificates = revokedCerts.length
       ? revokedCerts.map(
-        cert => new RevokedCertificate({
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          revocationDate: new Time(cert.revocationDate!),
-          userCertificate: cert.serial,
-        }),
-      )
+          (cert) =>
+            new RevokedCertificate({
+              // rome-ignore lint/style/noNonNullAssertion: always exists here
+              revocationDate: new Time(cert.revocationDate!),
+              userCertificate: cert.serial,
+            }),
+        )
       : undefined;
 
     // Doc 9303-12 defines the CRL profile in §7.1.4:
@@ -93,7 +94,7 @@ export default class Crl {
     //     so it's not at all the same API >:(
 
     const keyIdentifier = asAki(
-      ca.x509.extensions.find(ext => ext.type === id_ce_authorityKeyIdentifier),
+      ca.x509.extensions.find((ext) => ext.type === id_ce_authorityKeyIdentifier),
     )?.keyId;
     if (!keyIdentifier) throw new Error('CSCA missing AuthorityKeyIdentifier extension');
 
@@ -132,14 +133,16 @@ export default class Crl {
     });
 
     const tbs = AsnConvert.serialize(tbsCertList);
-    const signature = ecdsaWebSigToBER(await crypto.subtle.sign(
-      {
-        name: 'ECDSA',
-        hash: 'SHA-256',
-      },
-      key,
-      tbs,
-    ));
+    const signature = ecdsaWebSigToBER(
+      await crypto.subtle.sign(
+        {
+          name: 'ECDSA',
+          hash: 'SHA-256',
+        },
+        key,
+        tbs,
+      ),
+    );
 
     const certList = new CertificateList({
       tbsCertList,
@@ -184,7 +187,7 @@ export default class Crl {
 
   public async serial(): Promise<Buffer> {
     const crl = await this.read();
-    const numext = crl.crlExtensions?.find(ext => ext.extnID === id_ce_cRLNumber);
+    const numext = crl.crlExtensions?.find((ext) => ext.extnID === id_ce_cRLNumber);
     if (!numext) throw new Error('CRL missing CRLNumber extension');
     const num = AsnConvert.parse(numext.extnValue, CRLNumber);
     return numberToBuffer(num.value);

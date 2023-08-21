@@ -1,6 +1,6 @@
 import { subDays } from 'date-fns';
+import { IMAGING_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
 import { toDateTimeString } from '../utils/dateTime';
-import { IMAGING_REQUEST_STATUS_CONFIG } from '../constants';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -79,7 +79,7 @@ select
   ir.imaging_type as "Imaging type",
   case
     when ira.id is not null then rdi.name
-    else ni.content
+    else n.content
     end as "Area to be imaged",
   ir.status as "Status",
   case
@@ -97,8 +97,7 @@ from
   left join departments d on d.id = e.department_id
   left join users u_supervising on u_supervising.id=e.examiner_id
   left join users u_requesting on u_requesting.id=ir.requested_by_id
-  left join note_pages np on np.record_id = ir.id and np.note_type = 'areaToBeImaged'
-  left join note_items ni on np.id = ni.note_page_id
+  left join notes n on n.record_id = ir.id and n.note_type = 'areaToBeImaged'
   left join imaging_request_areas ira on ira.imaging_request_id = ir.id
   left join reference_data rdi on rdi.id = ira.area_id
 where

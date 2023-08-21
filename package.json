@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "1.31.0",
+  "version": "1.32.0",
   "description": "This repo contains all the packages for Tamanu",
   "main": "index.js",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -54,7 +54,8 @@
       "packages/lan",
       "packages/sync-server",
       "packages/meta-server",
-      "packages/shared"
+      "packages/shared",
+      "packages/constants"
     ],
     "nohoist": [
       "**/webpack",

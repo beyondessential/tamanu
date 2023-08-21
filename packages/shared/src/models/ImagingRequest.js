@@ -1,13 +1,13 @@
 import { Sequelize } from 'sequelize';
-import { InvalidOperationError } from '../errors';
 import {
   SYNC_DIRECTIONS,
   IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TYPES_VALUES,
   NOTE_TYPES,
   VISIBILITY_STATUSES,
-} from '../constants';
-import { getNotePageWithType } from '../utils/notePages';
+} from '@tamanu/constants';
+import { getNoteWithType } from '../utils/notes';
+import { InvalidOperationError } from '../errors';
 
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
@@ -77,30 +77,19 @@ export class ImagingRequest extends Model {
   }
 
   async extractNotes() {
-    const notePages =
-      this.notePages ||
-      (await this.getNotePages({
+    const notes =
+      this.notes ||
+      (await this.getNotes({
         where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
-        include: [{ association: 'noteItems' }],
       }));
     const extractWithType = async type => {
-      const notePage = getNotePageWithType(notePages, type);
-      if (!notePage) {
-        return '';
-      }
-      let { noteItems } = notePage;
-      if (!Array.isArray(noteItems)) {
-        noteItems = await notePage.getNoteItems();
-      }
-      if (noteItems?.length === 0) {
-        return '';
-      }
-      return noteItems[0].content;
+      const note = getNoteWithType(notes, type);
+      return note?.content || '';
     };
     return {
       note: await extractWithType(NOTE_TYPES.OTHER),
       areaNote: await extractWithType(NOTE_TYPES.AREA_TO_BE_IMAGED),
-      notePages,
+      notes,
     };
   }
 
@@ -146,9 +135,9 @@ export class ImagingRequest extends Model {
       foreignKey: 'imagingRequestId',
     });
 
-    this.hasMany(models.NotePage, {
+    this.hasMany(models.Note, {
       foreignKey: 'recordId',
-      as: 'notePages',
+      as: 'notes',
       constraints: false,
       scope: {
         recordType: this.name,

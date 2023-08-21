@@ -9,7 +9,7 @@ import {
   FHIR_ENCOUNTER_STATUS,
   FHIR_LOCATION_PHYSICAL_TYPE_CODE,
   FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY,
-} from '../../../constants';
+} from '@tamanu/constants';
 import {
   FhirCodeableConcept,
   FhirCoding,

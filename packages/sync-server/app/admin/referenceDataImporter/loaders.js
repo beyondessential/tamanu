@@ -1,6 +1,6 @@
 import { endOfDay, startOfDay } from 'date-fns';
 import { getJsDateFromExcel } from 'excel-date-to-js';
-import { ENCOUNTER_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 
 export const loaderFactory = model => ({ note, ...values }) => [{ model, values }];
 

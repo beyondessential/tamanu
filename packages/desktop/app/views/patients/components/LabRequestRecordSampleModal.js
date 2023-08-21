@@ -1,6 +1,6 @@
 import React from 'react';
 import * as yup from 'yup';
-import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants';
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import styled from 'styled-components';
 import {
   FormGrid,

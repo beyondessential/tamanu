@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 
-import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
-import { VACCINATION_CERTIFICATE } from '@tamanu/shared/constants';
+import { VACCINATION_CERTIFICATE, ASSET_NAMES } from '@tamanu/constants';
 import { VaccineCertificate } from '@tamanu/shared/utils/patientCertificates';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
@@ -16,7 +16,9 @@ import { PDFViewer, printPDF } from '../PDFViewer';
 export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
   const { getLocalisation } = useLocalisation();
-  const { watermark, logo, footerImg, printedBy } = useCertificate();
+  const { watermark, logo, footerImg, printedBy } = useCertificate({
+    footerAssetName: ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER,
+  });
   const { data: additionalData } = usePatientAdditionalData(patient.id);
 
   const { data: vaccineData } = useAdministeredVaccines(patient.id, {
