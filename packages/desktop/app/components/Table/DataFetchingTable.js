@@ -15,7 +15,6 @@ const DEFAULT_FETCH_STATE = {
   data: [],
   count: 0,
   errorMessage: '',
-  isLoadingMoreData: false,
 };
 const DEFAULT_PREVIOUS_FETCH = {
   page: 0,
@@ -45,6 +44,7 @@ export const DataFetchingTable = memo(
     const [fetchState, setFetchState] = useState(DEFAULT_FETCH_STATE);
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
+    const [isLoadingMoreData, setIsLoadingMoreData] = useState(false);
     const [previousFetch, setPreviousFetch] = useState(DEFAULT_PREVIOUS_FETCH);
 
     const [newRowCount, setNewRowCount] = useState(0);
@@ -131,7 +131,7 @@ export const DataFetchingTable = memo(
 
     useEffect(() => {
       if (fetchState.data?.length > 0 && lazyLoading) {
-        updateFetchState({ isLoadingMoreData: true });
+        setIsLoadingMoreData(true);
       } else {
         setIsLoading(true);
       }
@@ -164,6 +164,7 @@ export const DataFetchingTable = memo(
 
             if (count > previousFetch.count) setIsNotificationMuted(false);
             setIsLoading(false);
+            setIsLoadingMoreData(false);
             updatePreviousFetchState(displayData, count);
             updateFetchState({
               ...DEFAULT_FETCH_STATE,
@@ -199,12 +200,12 @@ export const DataFetchingTable = memo(
                 : transformedData;
 
             setIsLoading(false);
+            setIsLoadingMoreData(false);
             updatePreviousFetchState(updatedData, count);
             updateFetchState({
               ...DEFAULT_FETCH_STATE,
               data: updatedData,
               count,
-              isLoadingMoreData: false,
             });
             // Use custom function on data if provided
             if (onDataFetched) {
@@ -217,11 +218,12 @@ export const DataFetchingTable = memo(
         } catch (error) {
           // clearTimeout(loadingDelay);
           setIsLoading(false);
+          setIsLoadingMoreData(false);
+
           // eslint-disable-next-line no-console
           console.error(error);
           updateFetchState({
             errorMessage: error.message,
-            isLoadingMoreData: false,
           });
         }
       })();
@@ -252,7 +254,7 @@ export const DataFetchingTable = memo(
 
     useEffect(() => setPage(0), [fetchOptions]);
 
-    const { data, count, isLoadingMoreData, errorMessage } = fetchState;
+    const { data, count, errorMessage } = fetchState;
     const { order, orderBy } = sorting;
 
     const notificationMessage = `${newRowCount} new record${
