@@ -156,6 +156,7 @@ export const DataFetchingTable = memo(
             const shouldHighlightData = !isFirstFetch && isInitialSort && !hasSearchChanged;
             const highlightedData = highlightDataRows(
               transformedData,
+              // TODO: would like to use the state after being set to refractor but I am running into async problems
               shouldHighlightData ? rowsSinceInteraction : 0,
             );
             const hasPageChanged = page !== previousFetch.page;
