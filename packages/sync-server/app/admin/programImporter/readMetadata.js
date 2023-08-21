@@ -28,43 +28,55 @@ function checkHomeServer(homeServer) {
   return importingToHome;
 }
 
-export function readMetadata(metadataSheet) {
-  // The Metadata sheet follows this structure:
-  // first few rows: program metadata (key in column A, value in column B)
-  // then: survey metadata header row (with name & code in columns A/B, then other keys)
-  // then: survey metadata values (corresponding to keys in the header row)
+export function readOneToManySheet(sheet, sheetName) {
+  // The sheet follows this structure:
+  // first few rows: data for the primary record (key in column A, value in column B)
+  // then: secondary record header row (with name & code in columns A/B, then other keys)
+  // then: secondary record values (corresponding to keys in the header row)
+  const primaryRecord = {};
 
-  log.debug('Checking for metadata sheet');
-  if (!metadataSheet) {
-    throw new ImporterMetadataError('A program workbook must have a sheet named Metadata');
-  }
-
-  const metadata = {};
-
-  // Read rows as program metadata until we hit the survey header row
-  // (this should be within the first few rows, there aren't many program metadata keys and
+  // Read rows as part of the primary record until we hit the header row
+  // (this should be within the first few rows, there shouldn't be that many keys and
   // there's no reason to add blank rows here)
-  log.debug('Reading metadata for survey header row');
   const headerRowIndex = (() => {
-    const rowsToSearch = 10; // there are only a handful of metadata keys, so give up pretty early
+    const rowsToSearch = 10;
     for (let i = 0; i < rowsToSearch; ++i) {
-      const cell = metadataSheet[`A${i + 1}`];
+      const cell = sheet[`A${i + 1}`];
       if (!cell) continue;
       if (cell.v === 'code' || cell.v === 'name') {
         // we've hit the header row -- immediately return
         return i;
       }
-      const nextCell = metadataSheet[`B${i + 1}`];
+      const nextCell = sheet[`B${i + 1}`];
       if (!nextCell) continue;
-      metadata[cell.v.trim()] = nextCell.v.trim();
+      primaryRecord[cell.v.trim()] = nextCell.v.trim();
     }
 
     // we've exhausted the search
     throw new ImporterMetadataError(
-      "A survey workbook Metadata sheet must have a row starting with a 'name' or 'code' cell in the first 10 rows",
+      `A survey workbook ${sheetName} sheet must have a row starting with a 'name' or 'code' cell in the first 10 rows`,
     );
   })();
 
+  return {
+    primaryRecord,
+    secondaryRecords: utils.sheet_to_json(sheet, { range: headerRowIndex }),
+    headerRowIndex,
+  };
+}
+
+export function readMetadata(metadataSheet) {
+  log.debug('Checking for metadata sheet');
+  if (!metadataSheet) {
+    throw new ImporterMetadataError('A program workbook must have a sheet named Metadata');
+  }
+
+  log.debug('Reading metadata for survey header row');
+
+  const { primaryRecord: metadata, secondaryRecords, headerRowIndex } = readOneToManySheet(
+    metadataSheet,
+    'Metadata',
+  );
   if (!metadata.programCode) {
     throw new ImporterMetadataError('A program must have a code');
   }
@@ -84,8 +96,7 @@ export function readMetadata(metadataSheet) {
   const programName = `${prefix}${metadata.programName}`;
   const programId = `program-${idify(metadata.programCode)}`;
 
-  const surveyMetadata = utils
-    .sheet_to_json(metadataSheet, { range: headerRowIndex })
+  const surveyMetadata = secondaryRecords
     .map(row => ({
       ...row,
       sheetName: row.name,

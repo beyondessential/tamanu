@@ -5,6 +5,7 @@ import { importRows } from '../importRows';
 
 import { readMetadata } from './readMetadata';
 import { importSurvey } from './importSurvey';
+import { importPatientRegistry } from './importPatientRegistry';
 
 export const PERMISSIONS = ['Program', 'Survey'];
 
@@ -36,6 +37,8 @@ export async function programImporter({ errors, models, stats, file, whitelist =
       ],
     }),
   );
+
+  await importPatientRegistry(createContext('PatientRegistry'), workbook, stats);
 
   const surveysToImport = surveyMetadata.filter(({ name, code }) => {
     // check against whitelist
