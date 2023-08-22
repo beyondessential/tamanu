@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES, CURRENTLY_AT_TYPE } from '@tamanu/constants';
+import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 
 export class ProgramRegistry extends Model {
@@ -28,6 +29,13 @@ export class ProgramRegistry extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        validate: {
+          mustHaveValidCurrentlyAtType() {
+            if (!CURRENTLY_AT_TYPES.includes(this.currentlyAtType)) {
+              throw new InvalidOperationError(`The currentlyAtType must be one of ${CURRENTLY_AT_TYPES.join(', ')}`);
+            }
+          }
+        }
       },
     );
   }

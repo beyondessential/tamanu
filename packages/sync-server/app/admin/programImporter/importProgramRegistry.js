@@ -28,7 +28,7 @@ function readProgramRegistryData(workbook) {
   };
 }
 
-const nameIsUnique = (context, name, id) => {
+const nameIsNonUnique = (context, name, id) => {
   return context.models.ProgramRegistry.count({
     where: { name, id: { [Op.ne]: id }, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
   });
@@ -42,8 +42,12 @@ export async function importProgramRegistry(programRegistryContext, workbook, pr
   const { registryRecord, clinicalStatuses } = readProgramRegistryData(workbook);
   const registryId = `pr-${registryRecord.registryCode}`;
 
-  if (!(await nameIsUnique(programRegistryContext, registryRecord.registryName, registryId))) {
-    throw new DataImportError('Registry', -2, 'A registry name must be unique');
+  if (await nameIsNonUnique(programRegistryContext, registryRecord.registryName, registryId)) {
+    throw new DataImportError(
+      'Registry',
+      -2,
+      `A registry name must be unique (name: ${registryRecord.registryName})`,
+    );
   }
 
   log.debug('Importing Program Registry');
