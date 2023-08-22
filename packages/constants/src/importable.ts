@@ -1,12 +1,9 @@
 import { IMAGING_AREA_TYPES } from './imaging';
 
-export const GENERAL_IMPORTABLE_DATA_TYPES = [
-  'additionalInvoiceLine',
-  'administeredVaccine',
+export const REFERENCE_IMPORTABLE_DATA_TYPES = [
   'allergy',
   'angiogramImagingArea',
   'arrivalMode',
-  'carePlan',
   'certifiableVaccine',
   'colonoscopyImagingArea',
   'country',
@@ -43,7 +40,6 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'nationality',
   'nursingZone',
   'occupation',
-  'patient',
   'patientBillingType',
   'patientFieldDefinition',
   'patientFieldDefinitionCategory',
@@ -58,13 +54,29 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'subdivision',
   'triageReason',
   'ultrasoundImagingArea',
-  'user',
   'vaccine',
   'vascularStudyImagingArea',
   'village',
   'xRayImagingArea',
   'vaccineNotGivenReason',
   'vaccineCircumstance',
+];
+
+export const CLINICAL_IMPORTABLE_DATA_TYPES = [
+  'administeredVaccine',
+];
+
+export const PMI_IMPORTABLE_DATA_TYPES = [
+  'patient',
+];
+
+export const USER_IMPORTABLE_DATA_TYPES = [
+  'user',
+];
+
+export const GENERAL_IMPORTABLE_DATA_TYPES = [
+  'additionalInvoiceLine',
+  'carePlan',
 ].sort();
 
 export const PERMISSION_IMPORTABLE_DATA_TYPES = ['permission', 'role'];

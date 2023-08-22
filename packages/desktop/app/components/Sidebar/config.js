@@ -171,6 +171,16 @@ export const SYNC_MENU_ITEMS = [
     path: '/admin/referenceData',
   },
   {
+    key: 'clinicalData',
+    label: 'Clinical data',
+    path: '/admin/clinicalData',
+  },
+  {
+    key: 'userData',
+    label: 'User data',
+    path: '/admin/userData',
+  },
+  {
     key: 'permissions',
     label: 'Permissions',
     path: '/admin/permissions',
