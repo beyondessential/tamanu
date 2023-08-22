@@ -24,6 +24,10 @@ export async function up(query) {
       allowNull: true,
     },
 
+    code: {
+      type: Sequelize.TEXT,
+      allowNull: false,
+    },
     name: {
       type: DataTypes.TEXT,
       allowNull: false,

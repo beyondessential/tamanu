@@ -8,6 +8,10 @@ export class ProgramRegistryClinicalStatus extends Model {
     super.init(
       {
         id: primaryKey,
+        code: {
+          type: Sequelize.TEXT,
+          allowNull: false,
+        },
         name: {
           type: Sequelize.TEXT,
           allowNull: false,
