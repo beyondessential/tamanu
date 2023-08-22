@@ -14,7 +14,11 @@ export const buildSyncRoutes = ctx => {
     '/',
     asyncHandler(async (req, res) => {
       const { user, deviceId, facilityId } = req;
-      const { sessionId, tick } = await syncManager.startSession(user.id, deviceId, facilityId);
+      const { sessionId, tick } = await syncManager.startSession({
+        userId: user.id,
+        deviceId,
+        facilityId,
+      });
       res.json({ sessionId, tick });
     }),
   );
