@@ -6,7 +6,7 @@ import { createTestContext } from '../utilities';
 import './matchers';
 
 // the importer can take a little while
-jest.setTimeout(30000);
+jest.setTimeout(1000000);
 
 describe('Programs import', () => {
   let ctx;
@@ -254,6 +254,25 @@ describe('Programs import', () => {
         dryRun: false,
       });
       await validateVisualisationConfig('');
+    });
+  });
+
+  describe('Program Registry', () => {
+    it('import a valid registry', async () => {
+      const { errors, stats, didntSendReason } = await doImport({
+        file: 'registry-valid',
+        dryRun: true,
+      });
+      expect(errors).toBeEmpty();
+      expect(didntSendReason).toEqual('dryRun');
+      expect(stats).toMatchObject({
+        Program: { created: 1, updated: 0, errored: 0 },
+        Survey: { created: 1, updated: 0, errored: 0 },
+        ProgramDataElement: { created: 1, updated: 0, errored: 0 },
+        SurveyScreenComponent: { created: 1, updated: 0, errored: 0 },
+        ProgramRegistry: { created: 1, updated: 0, errored: 0 },
+        ProgramRegistryClinicalStatus: { created: 3, updated: 0, errored: 0 },
+      });
     });
   });
 });

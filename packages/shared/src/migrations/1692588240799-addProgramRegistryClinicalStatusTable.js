@@ -2,7 +2,7 @@ import Sequelize, { DataTypes } from 'sequelize';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 export async function up(query) {
-  await query.createTable('program_registries', {
+  await query.createTable('program_registry_clinical_statuses', {
     id: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -49,5 +49,5 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.dropTable('program_registries');
+  await query.dropTable('program_registry_clinical_statuses');
 }

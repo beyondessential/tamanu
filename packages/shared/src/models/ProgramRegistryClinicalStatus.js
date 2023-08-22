@@ -1,7 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilterJoins } from './buildEncounterLinkedSyncFilter';
 
 export class ProgramRegistryClinicalStatus extends Model {
   static init({ primaryKey, ...options }) {
