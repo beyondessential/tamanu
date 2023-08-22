@@ -6,7 +6,7 @@ export const VersionInfo = ({ name, reportDefinitionId, version }) => (
   <InfoCard inlineValues>
     <InfoCardItem label="Name" value={name} />
     <InfoCardItem label="Version" value={version.versionNumber} />
-    <InfoCardItem label="Report id" value={reportDefinitionId} />
+    <InfoCardItem label="Report ID" value={reportDefinitionId} />
     <InfoCardItem
       label="Created"
       value={`${formatShort(version.createdAt)} ${formatTime(version.createdAt)}`}
