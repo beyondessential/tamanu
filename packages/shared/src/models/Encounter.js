@@ -399,8 +399,8 @@ export class Encounter extends Model {
   async closeTriage(endDate) {
     const triage = await this.getLinkedTriage();
     if (!triage) return;
-    if (triage.closedTime) return;  // already closed
-    
+    if (triage.closedTime) return; // already closed
+
     await triage.update({
       closedTime: endDate,
     });
