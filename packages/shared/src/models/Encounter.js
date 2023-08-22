@@ -398,11 +398,12 @@ export class Encounter extends Model {
 
   async closeTriage(endDate) {
     const triage = await this.getLinkedTriage();
-    if (triage) {
-      await triage.update({
-        closedTime: endDate,
-      });
-    }
+    if (!triage) return;
+    if (triage.closedTime) return;  // already closed
+    
+    await triage.update({
+      closedTime: endDate,
+    });
   }
 
   async updateClinician(newClinicianId, submittedTime, user) {
