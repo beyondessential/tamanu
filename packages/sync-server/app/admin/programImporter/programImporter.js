@@ -38,7 +38,9 @@ export async function programImporter({ errors, models, stats, file, whitelist =
     }),
   );
 
-  await importProgramRegistry(createContext('ProgramRegistry'), workbook, programRecord.id);
+  stats.push(
+    await importProgramRegistry(createContext('ProgramRegistry'), workbook, programRecord.id),
+  );
 
   const surveysToImport = surveyMetadata.filter(({ name, code }) => {
     // check against whitelist

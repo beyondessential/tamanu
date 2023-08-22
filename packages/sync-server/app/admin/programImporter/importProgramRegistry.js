@@ -54,9 +54,10 @@ export async function importProgramRegistry(programRegistryContext, workbook, pr
 
   if (!programRegistryRecord) return {};
 
+  const registryId = `pr-${programRegistryRecord.registryCode}`;
   // actually import the programRegistry to the database
   log.debug('Importing Program Registry');
-
+  console.log(programRegistryContext);
   const stats = await importRows(programRegistryContext, {
     sheetName: 'Registry',
     rows: [
@@ -64,7 +65,7 @@ export async function importProgramRegistry(programRegistryContext, workbook, pr
         model: 'ProgramRegistry',
         sheetRow: -1,
         values: {
-          id: `pr-${programRegistryRecord.registryCode}`,
+          id: registryId,
           programId,
           name: programRegistryRecord.registryName,
           code: programRegistryRecord.registryCode,
@@ -75,14 +76,19 @@ export async function importProgramRegistry(programRegistryContext, workbook, pr
     ],
   });
 
-  log.debug('Reading Patient Registry Clinical statuses');
-  const clinicalStatusRecords = readClinicalStatuses(clinicalStatuses);
-
   console.log('Importing Patient Registry Clinical statuses');
   log.debug('Importing Patient Registry Clinical statuses');
   return importRows(programRegistryContext, {
     sheetName: 'Registry',
-    rows: clinicalStatusRecords,
+    rows: clinicalStatuses.map(row => ({
+      model: 'ProgramRegistryClinicalStatus',
+      sheetRow: row.__rowNum__,
+      values: {
+        id: `prcl-${row.code}`,
+        programRegistryId: registryId,
+        ...row,
+      },
+    })),
     stats,
   });
 }

@@ -44,6 +44,7 @@ export async function importRows(
   { rows, sheetName, stats: previousStats = {}, foreignKeySchemata = {} },
 ) {
   const stats = { ...previousStats };
+  console.log(models);
 
   log.debug('Importing rows to database', { count: rows.length });
   if (rows.length === 0) {
@@ -187,8 +188,10 @@ export async function importRows(
   log.debug('Upserting database rows', { rows: validRows.length });
   for (const { model, sheetRow, values } of validRows) {
     const Model = models[model];
+    log.debug(JSON.stringify(models));
     const primaryKey = getPrimaryKey(model, values);
     const existing = await loadExisting(Model, primaryKey);
+    log.debug(models, existing);
     try {
       if (existing) {
         if (values.deletedAt) {

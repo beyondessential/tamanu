@@ -4,7 +4,7 @@ import { VISIBILITY_STATUSES } from '@tamanu/constants';
 export async function up(query) {
   await query.createTable('program_registries', {
     id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING,
       allowNull: false,
       primaryKey: true,
       defaultValue: Sequelize.fn('uuid_generate_v4'),
@@ -32,16 +32,16 @@ export async function up(query) {
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    currentlyAtType: {
+    currently_at_type: {
       type: Sequelize.TEXT,
       allowNull: false,
     },
-    visibilityStatus: {
+    visibility_status: {
       type: Sequelize.TEXT,
       defaultValue: VISIBILITY_STATUSES.CURRENT,
     },
 
-    programId: {
+    program_id: {
       type: Sequelize.STRING,
       allowNull: false,
     },

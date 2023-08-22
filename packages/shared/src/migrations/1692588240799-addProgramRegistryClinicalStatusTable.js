@@ -32,16 +32,15 @@ export async function up(query) {
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    currentlyAtType: {
+    color: {
       type: Sequelize.TEXT,
-      allowNull: false,
     },
-    visibilityStatus: {
+    visibility_status: {
       type: Sequelize.TEXT,
       defaultValue: VISIBILITY_STATUSES.CURRENT,
     },
 
-    programRegistryId: {
+    program_registry_id: {
       type: Sequelize.STRING,
       allowNull: false,
     },
