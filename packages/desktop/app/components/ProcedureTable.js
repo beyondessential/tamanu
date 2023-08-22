@@ -8,7 +8,7 @@ const getCodeLabel = ({ procedureType }) => procedureType.code;
 
 const COLUMNS = [
   { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} /> },
-  { key: 'code', title: 'Code', accessor: getCodeLabel },
+  { key: 'ProcedureType.code', title: 'Code', accessor: getCodeLabel },
   { key: 'type', title: 'Procedure', accessor: getProcedureLabel },
 ];
 
