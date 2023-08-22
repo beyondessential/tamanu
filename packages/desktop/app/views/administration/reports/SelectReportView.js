@@ -25,12 +25,12 @@ export const SelectReportView = () => {
     () => api.get('admin/reports'),
   );
 
-  const areVersionsEnabled = !!report?.id;
+  const showVersions = !!report?.id;
   const { data: versionData, isLoading: areVersionsLoading, error: versionsError } = useQuery(
     ['reportVersions', report?.id],
     () => api.get(`admin/reports/${report?.id}/versions`),
     {
-      enabled: areVersionsEnabled,
+      enabled: showVersions,
     },
   );
 
@@ -54,11 +54,11 @@ export const SelectReportView = () => {
             loading={isReportLoading}
             error={reportError?.message}
           />
-          {versionData && (
+          {report && (
             <VersionsTableContainer>
               <VersionTable
                 data={versionData}
-                loading={areVersionsEnabled && areVersionsLoading}
+                loading={areVersionsLoading}
                 error={versionsError?.message}
                 onRowClick={setVersion}
               />
