@@ -27,6 +27,7 @@ export async function up(query) {
     code: {
       type: Sequelize.TEXT,
       allowNull: false,
+      unique: true,
     },
     name: {
       type: DataTypes.TEXT,

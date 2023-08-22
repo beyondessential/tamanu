@@ -10,6 +10,7 @@ export class ProgramRegistry extends Model {
         code: {
           type: Sequelize.TEXT,
           allowNull: false,
+          unique: true,
         },
         name: {
           type: Sequelize.TEXT,

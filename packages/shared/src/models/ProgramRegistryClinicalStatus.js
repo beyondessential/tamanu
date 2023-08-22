@@ -10,6 +10,7 @@ export class ProgramRegistryClinicalStatus extends Model {
         code: {
           type: Sequelize.TEXT,
           allowNull: false,
+          unique: true,
         },
         name: {
           type: Sequelize.TEXT,
