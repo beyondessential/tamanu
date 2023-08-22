@@ -87,6 +87,7 @@ const StyledTableRow = styled(TableRow)`
 `;
 
 const StyledTableContainer = styled.div`
+  overflow: auto;
   border-radius: 5px;
   background: white;
   border: 1px solid ${Colors.outline};
