@@ -28,7 +28,7 @@ function checkHomeServer(homeServer) {
   return importingToHome;
 }
 
-export function readOneToManySheet(sheet, sheetName) {
+export function readTwoModelTypeSheet(sheet, sheetName) {
   // The sheet follows this structure:
   // first few rows: data for the primary record (key in column A, value in column B)
   // then: secondary record header row (with name & code in columns A/B, then other keys)
@@ -61,7 +61,6 @@ export function readOneToManySheet(sheet, sheetName) {
   return {
     primaryRecord,
     secondaryRecords: utils.sheet_to_json(sheet, { range: headerRowIndex }),
-    headerRowIndex,
   };
 }
 
@@ -72,11 +71,11 @@ export function readMetadata(metadataSheet) {
   }
 
   log.debug('Reading metadata for survey header row');
-
-  const { primaryRecord: metadata, secondaryRecords, headerRowIndex } = readOneToManySheet(
+  const { primaryRecord: metadata, secondaryRecords: surveyRows } = readTwoModelTypeSheet(
     metadataSheet,
     'Metadata',
   );
+
   if (!metadata.programCode) {
     throw new ImporterMetadataError('A program must have a code');
   }
@@ -96,7 +95,7 @@ export function readMetadata(metadataSheet) {
   const programName = `${prefix}${metadata.programName}`;
   const programId = `program-${idify(metadata.programCode)}`;
 
-  const surveyMetadata = secondaryRecords
+  const surveyMetadata = surveyRows
     .map(row => ({
       ...row,
       sheetName: row.name,
@@ -104,7 +103,7 @@ export function readMetadata(metadataSheet) {
       name: `${prefix}${row.name}`,
       programId,
     }))
-    .filter(({ status, name }, rowIndex) => {
+    .filter(({ status, name, __rowNum__: rowIndex }) => {
       // check against home server & publication status
       switch (status || 'draft') {
         case 'publish':
@@ -117,11 +116,15 @@ export function readMetadata(metadataSheet) {
         default:
           throw new ValidationError(
             'Metadata',
-            rowIndex + headerRowIndex,
+            rowIndex,
             `Survey ${name} has invalid status ${status}. Must be one of publish, draft, hidden.`,
           );
       }
     });
+
+  if (surveyMetadata.some(({ sheetName }) => sheetName === 'Registry')) {
+    throw new ImporterMetadataError('Cannot have a survey called "Registry"');
+  }
 
   return {
     programRecord: {

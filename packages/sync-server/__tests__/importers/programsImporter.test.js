@@ -274,5 +274,22 @@ describe('Programs import', () => {
         ProgramRegistryClinicalStatus: { created: 3, updated: 0, errored: 0 },
       });
     });
+
+    it('should properly update clinical statuses', async () => {
+      await doImport({ file: 'registry-valid', dryRun: false });
+      const { didntSendReason, errors, stats } = await doImport({
+        file: 'registry-update-statuses',
+        dryRun: true,
+      });
+
+      expect(errors).toBeEmpty();
+      expect(didntSendReason).toEqual('dryRun');
+      expect(stats).toMatchObject({
+        Program: { created: 0, updated: 1, errored: 0 },
+        Survey: { created: 0, updated: 1, errored: 0 },
+        ProgramRegistry: { created: 0, updated: 1, errored: 0 },
+        ProgramRegistryClinicalStatus: { created: 1, updated: 3, errored: 0 },
+      });
+    });
   });
 });

@@ -66,6 +66,4 @@ export default {
   },
 
   imagingAreaExternalCode: {},
-
-  // TODO: Check this out
 };
