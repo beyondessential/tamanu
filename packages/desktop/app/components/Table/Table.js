@@ -464,7 +464,11 @@ class TableComponent extends React.Component {
           $backgroundColor={data.length || isLoading ? Colors.white : noDataBackgroundColor}
         >
           {!hideHeader && (
-            <StyledTableHead $headerColor={headerColor} $fixedHeader={fixedHeader} $lazyLoading={lazyLoading}>
+            <StyledTableHead
+              $headerColor={headerColor}
+              $fixedHeader={fixedHeader}
+              $lazyLoading={lazyLoading}
+            >
               <StyledTableRow $lazyLoading={lazyLoading}>{this.renderHeaders()}</StyledTableRow>
             </StyledTableHead>
           )}
