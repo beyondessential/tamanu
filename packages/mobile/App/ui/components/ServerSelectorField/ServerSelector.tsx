@@ -5,8 +5,10 @@ import { SelectOption, Dropdown } from '../Dropdown';
 import { StyledText, StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
+import * as overrides from '/root/serverOverrides';
 
-const META_SERVER = __DEV__ ? 'https://meta-dev.tamanu.io' : 'https://meta.tamanu.io';
+const DEFAULT_META_SERVER = __DEV__ ? 'https://meta-dev.tamanu.io' : 'https://meta.tamanu.io';
+const META_SERVER = overrides?.metaServer || DEFAULT_META_SERVER;
 
 type Server = {
   name: string;
@@ -19,6 +21,11 @@ const fetchServers = async (): Promise<SelectOption[]> => {
   // The sync server config is sticky, so you can safely revert it after
   // the first sync begins and it'll stay connecting to your local server.
   // return [{ label: 'Local', value: 'http://192.168.0.1:3000' }];
+
+  // allows overriding the central server list in builds
+  if (overrides?.centralServers) {
+    return overrides.centralServers;
+  }
 
   const response = await fetch(`${META_SERVER}/servers`);
   const servers: Server[] = await response.json();
