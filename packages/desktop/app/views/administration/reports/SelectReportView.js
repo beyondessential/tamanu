@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { push } from 'connected-react-router';
+import { useDispatch } from 'react-redux';
 import { useApi } from '../../../api';
 import { ReportTable, VersionTable } from './ReportTables';
-import { EditReportView } from './EditReportView';
 
 const FlexContainer = styled.div`
   padding: 20px;
@@ -16,9 +17,14 @@ const VersionsTableContainer = styled.div`
 `;
 
 export const SelectReportView = () => {
-  const [report, setReport] = useState(null);
-  const [version, setVersion] = useState(null);
   const api = useApi();
+  const dispatch = useDispatch();
+
+  const [report, setReport] = useState(null);
+
+  const handleVersionClick = ({ id }) => {
+    dispatch(push(`/admin/reports/${report.id}/versions/${id}/edit`));
+  };
 
   const { data: reportData = [], isLoading: isReportLoading, error: reportError } = useQuery(
     ['reportList'],
@@ -34,38 +40,25 @@ export const SelectReportView = () => {
     },
   );
 
-  const handleBack = () => setVersion(null);
-
   return (
-    <>
-      {version ? (
-        <EditReportView
-          report={report}
-          version={version}
-          onBack={handleBack}
-          setVersion={setVersion}
-        />
-      ) : (
-        <FlexContainer>
-          <ReportTable
-            data={reportData}
-            selected={report?.id}
-            onRowClick={setReport}
-            loading={isReportLoading}
-            error={reportError?.message}
+    <FlexContainer>
+      <ReportTable
+        data={reportData}
+        selected={report?.id}
+        onRowClick={setReport}
+        loading={isReportLoading}
+        error={reportError?.message}
+      />
+      {report && (
+        <VersionsTableContainer>
+          <VersionTable
+            data={versionData}
+            loading={areVersionsLoading}
+            error={versionsError?.message}
+            onRowClick={handleVersionClick}
           />
-          {report && (
-            <VersionsTableContainer>
-              <VersionTable
-                data={versionData}
-                loading={areVersionsLoading}
-                error={versionsError?.message}
-                onRowClick={setVersion}
-              />
-            </VersionsTableContainer>
-          )}
-        </FlexContainer>
+        </VersionsTableContainer>
       )}
-    </>
+    </FlexContainer>
   );
 };

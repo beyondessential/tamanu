@@ -211,3 +211,31 @@ reportsRouter.post(
     res.send(feedback);
   }),
 );
+
+reportsRouter.get(
+  '/:reportId/versions/:versionId',
+  asyncHandler(async (req, res) => {
+    const {
+      store,
+      params,
+      models: { ReportDefinitionVersion },
+    } = req;
+    const { reportId, versionId } = params;
+    const version = await ReportDefinitionVersion.findOne({
+      where: { id: versionId, reportDefinitionId: reportId },
+      include: [
+        {
+          model: store.models.User,
+          as: 'createdBy',
+          attributes: ['displayName'],
+        },
+        {
+          model: store.models.ReportDefinition,
+          as: 'reportDefinition',
+          attributes: ['name', 'id'],
+        },
+      ],
+    });
+    res.send(version);
+  }),
+);
