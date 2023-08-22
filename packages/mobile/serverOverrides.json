@@ -1,1 +1,4 @@
-{"centralServers": [{ "label": "example", "value": "https://example.org" }]}
+{
+  "centralServers": null,
+  "metaServer": null
+}
