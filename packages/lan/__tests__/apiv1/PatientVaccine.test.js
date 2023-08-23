@@ -6,12 +6,13 @@ import {
   VACCINE_RECORDING_TYPES,
   VACCINE_STATUS,
   SETTING_KEYS,
+  SETTINGS_SCOPES,
   ENCOUNTER_TYPES,
+  REFERENCE_TYPES,
 } from '@tamanu/constants';
 import { fake } from 'shared/test-helpers/fake';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
 import { createTestContext } from '../utilities';
-import { REFERENCE_TYPES } from '@tamanu/constants';
 
 describe('PatientVaccine', () => {
   let ctx;
@@ -75,7 +76,9 @@ describe('PatientVaccine', () => {
     await models.ScheduledVaccine.truncate({ cascade: true });
     await models.AdministeredVaccine.truncate({ cascade: true });
 
-    drug = await models.ReferenceData.create(fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }));
+    drug = await models.ReferenceData.create(
+      fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),
+    );
 
     // set up reference data
     // create 3 scheduled vaccines, 2 routine and 1 campaign and 2 catch up
@@ -242,11 +245,13 @@ describe('PatientVaccine', () => {
         SETTING_KEYS.VACCINATION_DEFAULTS,
         { locationId: location.id, departmentId: department.id },
         facility.id,
+        SETTINGS_SCOPES.FACILITY,
       );
       await models.Setting.set(
         SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS,
         { locationId: location2.id, departmentId: department2.id },
         facility.id,
+        SETTINGS_SCOPES.FACILITY,
       );
     });
 
@@ -440,7 +445,9 @@ describe('PatientVaccine', () => {
       const vaccine = await models.AdministeredVaccine.findByPk(result.body.id);
       const encounter = await vaccine.getEncounter();
       expect(encounter).toHaveProperty('encounterType', ENCOUNTER_TYPES.VACCINATION);
-      expect(encounter.reasonForEncounter).toMatch(`Vaccination recorded for ${drug.name} ${scheduled1.schedule}`);
+      expect(encounter.reasonForEncounter).toMatch(
+        `Vaccination recorded for ${drug.name} ${scheduled1.schedule}`,
+      );
     });
   });
 
