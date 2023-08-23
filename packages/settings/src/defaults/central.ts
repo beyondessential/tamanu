@@ -46,7 +46,8 @@ export const centralDefaults = {
   integrations: {
     euDcc: {
       enabled: false,
-      // Responsible org for vax cert issuance, e.g. 'Ministry of Health of the Tamanu Republic'. If null defaults to the facility name.
+      // Responsible org for vax cert issuance, e.g. 'Ministry of Health of the Tamanu Republic'.
+      // If null defaults to the facility name.
       issuer: null,
     },
     fhir: {
@@ -92,7 +93,8 @@ export const centralDefaults = {
     },
     signer: {
       enabled: false,
-      // For VDS-NC: exactly 2 uppercase letters/numbers, must be unique in country, ref 9303-13 §2.2.1(a)
+      // For VDS-NC: exactly 2 uppercase letters/numbers, must be unique in country,
+      // ref 9303-13 §2.2.1(a)
       // For EU DCC: at least 1 character, must be unique in country, should be descriptive
       commonName: 'TA',
       // For EU DCC only: the name of the issuing organisation (provider/O of the DSC)
@@ -256,7 +258,8 @@ export const centralDefaults = {
   sync: {
     adjustDataBatchSize: 20000,
     // at its very large default, maxRecordsPerPullSnapshotChunk is essentially "off"
-    // can be turned on by lowering to some amount that seems appropriate if snapshot performance is an issue
+    // can be turned on by lowering to some amount that seems appropriate
+    // if snapshot performance is an issue
     maxRecordsPerPullSnapshotChunk: 1000000000,
     numberConcurrentPullSnapshots: 4,
     persistedCacheBatchSize: 20000,
