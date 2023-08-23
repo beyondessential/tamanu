@@ -185,7 +185,6 @@ export const DataFetchingTable = memo(
             const displayData = isDataToBeUpdated ? highlightedData : previousFetch.dataSnapshot;
 
             if (count > previousFetch.count) setIsNotificationMuted(false);
-            onDataFetchedInternal(displayData, count);
 
             const isLeavingPageOne = previousFetch.page === 0 && page > 0;
             const isChangingFromInitialSort =
@@ -203,6 +202,8 @@ export const DataFetchingTable = memo(
               setNewRowCount(rowsSinceInteraction);
               setShowNotification(rowsSinceInteraction > 0 && !(page === 0 && isInitialSort));
             }
+
+            onDataFetchedInternal(displayData, count);
           } else {
             // When fetch option is no longer the same (eg: filter changed), it should reload the entire table
             // instead of keep adding data for lazy loading
