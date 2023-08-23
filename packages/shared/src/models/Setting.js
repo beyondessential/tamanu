@@ -1,7 +1,7 @@
 import { Sequelize, Op } from 'sequelize';
 import { isPlainObject, get as getAtPath, set as setAtPath } from 'lodash';
 import { settingsCache } from '@tamanu/settings/cache';
-import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '../constants';
+import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '@tamanu/constants';
 import { Model } from './Model';
 
 /**

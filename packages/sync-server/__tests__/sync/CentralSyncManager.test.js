@@ -830,6 +830,7 @@ describe('CentralSyncManager', () => {
           await models.Setting.create({
             facilityId: facility.id,
             key: 'syncAllLabRequests',
+            scope: SETTINGS_SCOPES.FACILITY,
             value: true,
           });
 
@@ -875,6 +876,7 @@ describe('CentralSyncManager', () => {
           await models.Setting.create({
             facilityId: facility.id,
             key: 'syncAllLabRequests',
+            scope: SETTINGS_SCOPES.FACILITY,
             value: false,
           });
 
