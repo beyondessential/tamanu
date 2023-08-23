@@ -1,0 +1,21 @@
+{
+  "db": {
+    "name": "tamanu-sync-test"
+  },
+  "auth": {
+    "secret": "secret",
+    "refreshToken": {
+      "secret": "refreshSecret"
+    },
+    "reportNoUserError": true,
+    "useHardcodedPermissions": false
+  },
+  "integrations": {
+    "signer": {
+      "keySecret": "2hcp3wizGFFnGgsgZZDqFZDmUjaFCIppN8HnyBABqck="
+    },
+    "omniLab": {
+      "secret": "YHNDrUGvl2A/QNxWvliek14B40DE9IF8VrdXV5x9kJE="
+    }
+  }
+}

@@ -1,6 +1,6 @@
 import { Sequelize, ValidationError } from 'sequelize';
+import { REFERENCE_TYPE_VALUES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
-import { REFERENCE_TYPE_VALUES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '../constants';
 import { Model } from './Model';
 
 export class ReferenceData extends Model {
@@ -70,5 +70,9 @@ export class ReferenceData extends Model {
     }
 
     return super.update(values);
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 }

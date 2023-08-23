@@ -4,7 +4,7 @@ import config from 'config';
 
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
-import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
+import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 
 import { QueryTypes } from 'sequelize';
 import {

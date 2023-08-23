@@ -1,10 +1,10 @@
 import Sequelize from 'sequelize';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
-import { SYNC_DIRECTIONS } from '../constants';
 import { dateTimeType } from './dateTimeTypes';
 
 import { Model } from './Model';
-import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
+import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class PatientBirthData extends Model {
@@ -72,5 +72,5 @@ export class PatientBirthData extends Model {
     'registeredBirthPlace',
   ];
 
-  static buildSyncFilter = buildPatientLinkedSyncFilter;
+  static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
 }

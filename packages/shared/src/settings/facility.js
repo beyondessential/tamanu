@@ -31,11 +31,8 @@ export const facilityDefaults = {
   },
   senaite: {
     enabled: false,
-    password: 'admin',
     server: 'https://192.168.33.100',
-    username: 'admin',
   },
-  serverFacilityId: '',
   sync: {
     backoff: {
       maxAttempts: 15,
@@ -49,10 +46,8 @@ export const facilityDefaults = {
       minLimit: 1,
       optimalTimePerPageMs: 2000, // aim for 2 seconds per page
     },
-    email: '',
     enabled: true,
     host: 'https://central-dev.tamanu.io',
-    password: '',
     persistedCacheBatchSize: 10000,
     readOnly: false,
     schedule: '*/1 * * * *',

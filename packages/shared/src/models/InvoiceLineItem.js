@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { INVOICE_LINE_ITEM_STATUSES, SYNC_DIRECTIONS } from '../constants';
+import { INVOICE_LINE_ITEM_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 import { dateType } from './dateTimeTypes';
@@ -52,7 +52,7 @@ export class InvoiceLineItem extends Model {
     ];
   }
 
-  static buildSyncFilter(patientIds) {
+  static buildPatientSyncFilter(patientIds) {
     if (patientIds.length === 0) {
       return null;
     }

@@ -22,7 +22,7 @@ import {
   LOCATION_AVAILABILITY_TAG_CONFIG,
   DOCUMENT_SOURCES,
   TEMPLATE_TYPES,
-} from '@tamanu/shared/constants';
+} from '@tamanu/constants';
 
 import {
   medicationIcon,

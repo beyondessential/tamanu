@@ -7,7 +7,7 @@ import { fake, fakeUser, fakeSurvey, fakeReferenceData } from 'shared/test-helpe
 import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData';
 import { sleepAsync } from 'shared/utils/sleepAsync';
-import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES, SETTINGS_SCOPES } from 'shared/constants';
+import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { toDateTimeString } from 'shared/utils/dateTime';
 
 import { createTestContext } from '../utilities';
@@ -465,6 +465,7 @@ describe('CentralSyncManager', () => {
               return mockedModelSnapshotOutgoingChangesQueryPromise;
             },
           },
+          buildSyncFilter: () => null,
         };
 
         return {

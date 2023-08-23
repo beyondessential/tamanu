@@ -3,7 +3,7 @@ import path from 'path';
 
 import { log } from 'shared/services/logging';
 import { REPORT_DEFINITIONS } from 'shared/reports';
-import { REPORT_EXPORT_FORMATS } from 'shared/constants';
+import { REPORT_EXPORT_FORMATS } from '@tamanu/constants';
 import { EmailService } from '../services/EmailService';
 import { ReportRunner } from '../report/ReportRunner';
 import { initDatabase } from '../database';

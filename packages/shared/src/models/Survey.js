@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, SURVEY_TYPES } from '../constants';
+import { SYNC_DIRECTIONS, SURVEY_TYPES } from '@tamanu/constants';
 import { Model } from './Model';
 
 export class Survey extends Model {
@@ -56,5 +56,9 @@ export class Survey extends Model {
       return 'Vitals';
     }
     return 'SurveyResponse';
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 }

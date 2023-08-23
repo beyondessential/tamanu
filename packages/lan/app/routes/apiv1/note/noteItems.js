@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
-import { VISIBILITY_STATUSES } from 'shared/constants';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { checkNotePermission } from '../../../utils/checkNotePermission';
 
