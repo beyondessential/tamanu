@@ -92,7 +92,7 @@ describe('removeDuplicatedDischarges', () => {
 
   afterAll(() => ctx.close());
 
-  it('removes all duplicated discharges except for the latest for single encounter', async () => {
+  it('removes all duplicated discharges except for the oldest for single encounter', async () => {
     const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
 
     const encounter = await createEncounter(patient, {
@@ -153,13 +153,13 @@ describe('removeDuplicatedDischarges', () => {
 
     // should keep the latest discharge data
     expect(dischargesAfterMigration[0]).toMatchObject({
-      note: discharge3Data.discharge.note,
+      note: discharge1Data.discharge.note,
       encounterId: encounter.id,
-      dischargerId: discharge3Data.discharge.dischargerId,
+      dischargerId: discharge1Data.discharge.dischargerId,
     });
   });
 
-  it('removes all duplicated discharges except for the latest for multiple encounters', async () => {
+  it('removes all duplicated discharges except for the oldest for multiple encounters', async () => {
     const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
 
     const encounter1 = await createEncounter(patient, {
@@ -235,13 +235,13 @@ describe('removeDuplicatedDischarges', () => {
 
     // should keep the latest discharge data
     expect(dischargesAfterMigration[0]).toMatchObject({
-      note: encounter1Discharge2Data.discharge.note,
+      note: encounter1Discharge1Data.discharge.note,
       encounterId: encounter1.id,
       dischargerId: encounter1Discharge2Data.discharge.dischargerId,
     });
 
     expect(dischargesAfterMigration[1]).toMatchObject({
-      note: encounter2Discharge2Data.discharge.note,
+      note: encounter2Discharge1Data.discharge.note,
       encounterId: encounter2.id,
       dischargerId: encounter2Discharge2Data.discharge.dischargerId,
     });

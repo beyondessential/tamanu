@@ -34,7 +34,7 @@ export async function removeDuplicatedDischarges(options = {}) {
             (
                 SELECT discharges.id,
                 discharges.encounter_id,
-                row_number() over (PARTITION BY encounter_id ORDER BY encounter_id, discharges.updated_at DESC) as row_num
+                row_number() over (PARTITION BY encounter_id ORDER BY encounter_id, discharges.created_at ASC) as row_num
                 FROM discharges
                 JOIN batch_encounters ON batch_encounters.id = discharges.encounter_id
                 WHERE discharges.deleted_at IS NULL
