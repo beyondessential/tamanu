@@ -9,6 +9,7 @@ export async function up(query) {
   await query.sequelize.query(
     'ALTER INDEX IF EXISTS lab_test_panels_pkey RENAME TO lab_panels_pkey;',
   );
+  await query.renameTable('lab_test_panels', 'lab_panels');
 
   // lab_test_panel_lab_test_types -> lab_panel_lab_test_types
   await query.sequelize.query(
