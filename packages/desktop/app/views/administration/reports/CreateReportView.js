@@ -7,6 +7,8 @@ import {
   REPORT_DATA_SOURCES,
   REPORT_DEFAULT_DATE_RANGES,
 } from '@tamanu/constants/reports';
+import { useDispatch } from 'react-redux';
+import { push } from 'connected-react-router';
 import { useApi } from '../../../api';
 import { ReportEditor } from './ReportEditor';
 
@@ -16,12 +18,13 @@ const Container = styled.div`
 
 export const CreateReportView = () => {
   const api = useApi();
+  const dispatch = useDispatch();
   const queryClient = useQueryClient();
 
-  const onSubmit = async ({ name, query, status, ...queryOptions }, formikContext) => {
+  const onSubmit = async ({ name, query, status, ...queryOptions }) => {
     const { dataSources } = queryOptions;
     try {
-      const { reportDefinitionId } = await api.post('admin/reports', {
+      const { reportDefinitionId, id } = await api.post('admin/reports', {
         name,
         query,
         status,
@@ -31,7 +34,7 @@ export const CreateReportView = () => {
         },
       });
       queryClient.invalidateQueries(['reportList']);
-      formikContext.resetForm();
+      dispatch(push(`/admin/reports/${reportDefinitionId}/versions/${id}/edit`));
       toast.success(`Imported report: ${reportDefinitionId}`);
     } catch (err) {
       toast.error(`Failed to create report: ${err.message}`);
