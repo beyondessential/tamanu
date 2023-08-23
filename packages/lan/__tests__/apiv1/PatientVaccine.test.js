@@ -6,7 +6,6 @@ import {
   VACCINE_RECORDING_TYPES,
   VACCINE_STATUS,
   SETTING_KEYS,
-  SETTINGS_SCOPES,
   ENCOUNTER_TYPES,
   REFERENCE_TYPES,
 } from '@tamanu/constants';
@@ -245,13 +244,11 @@ describe('PatientVaccine', () => {
         SETTING_KEYS.VACCINATION_DEFAULTS,
         { locationId: location.id, departmentId: department.id },
         facility.id,
-        SETTINGS_SCOPES.FACILITY,
       );
       await models.Setting.set(
         SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS,
         { locationId: location2.id, departmentId: department2.id },
         facility.id,
-        SETTINGS_SCOPES.FACILITY,
       );
     });
 
