@@ -4,11 +4,8 @@ import config from 'config';
 import { get, has, pick, set, unset } from 'lodash';
 import stripJsonComments from 'strip-json-comments';
 
+import { facilityDefaults, centralDefaults, globalDefaults } from '@tamanu/settings';
 import { SETTINGS_SCOPES, SETTING_KEYS } from '../constants';
-
-import { facilityDefaults } from '../settings/facility';
-import { centralDefaults } from '../settings/central';
-import { globalDefaults } from '../settings/global';
 
 const SETTINGS_PREDATING_MIGRATION = [
   SETTING_KEYS.VACCINATION_DEFAULTS,

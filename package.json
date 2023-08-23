@@ -53,7 +53,8 @@
       "packages/lan",
       "packages/sync-server",
       "packages/meta-server",
-      "packages/shared"
+      "packages/shared",
+      "packages/settings"
     ],
     "nohoist": [
       "**/webpack",

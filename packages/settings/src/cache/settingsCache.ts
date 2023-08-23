@@ -1,7 +1,7 @@
 class SettingsCache {
-  cache = null;
+  cache: any | null = null;
 
-  expirationTimestamp = null;
+  expirationTimestamp: number | null = null;
 
   // TTL in milliseconds
   ttl = 60000;

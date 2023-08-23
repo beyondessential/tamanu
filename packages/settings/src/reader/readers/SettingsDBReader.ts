@@ -1,7 +1,11 @@
 import { Reader } from './Reader';
 
 export class SettingsDBReader extends Reader {
-  constructor(models, scope, facilityId) {
+  models: any;
+  scope: string;
+  facilityId: string | undefined;
+
+  constructor(models: any, scope: string, facilityId?: string) {
     super();
     this.models = models;
     this.scope = scope;

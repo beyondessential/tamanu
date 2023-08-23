@@ -1,11 +1,11 @@
-import { readSetting } from '@tamanu/shared/settings-reader/readSetting';
+import { settingsCache, ReadSettings } from '@tamanu/settings';
+
 import { SETTINGS_SCOPES } from '@tamanu/shared/constants';
-import { settingsCache } from '@tamanu/shared/settings-reader/settingsCache';
 import { createTestContext } from '../utilities';
 import { createSetting } from './settingsUtils';
 
-jest.mock('@tamanu/shared/settings/central', () => {
-  const originalModule = jest.requireActual('@tamanu/shared/settings/central');
+jest.mock('@tamanu/settings/defaults/central', () => {
+  const originalModule = jest.requireActual('@tamanu/settings/defaults/central');
   return {
     ...originalModule,
     centralDefaults: {
@@ -28,8 +28,8 @@ jest.mock('@tamanu/shared/settings/central', () => {
   };
 });
 
-jest.mock('@tamanu/shared/settings/global', () => {
-  const originalModule = jest.requireActual('@tamanu/shared/settings/global');
+jest.mock('@tamanu/settings/defaults/global', () => {
+  const originalModule = jest.requireActual('@tamanu/settings/defaults/global');
   return {
     ...originalModule,
     globalDefaults: {
@@ -56,11 +56,13 @@ jest.mock('@tamanu/shared/settings/global', () => {
 describe('Read Settings', () => {
   let ctx;
   let models;
+  let readSetting;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
     jest.clearAllMocks();
+    readSetting = new ReadSettings(models);
   });
 
   afterAll(() => ctx.close());
@@ -71,26 +73,26 @@ describe('Read Settings', () => {
   });
 
   it('Read a nonexistent setting should retrieve undefined', async () => {
-    const value = await readSetting(models, 'nonexistent.config');
+    const value = await readSetting.get('nonexistent.config');
     expect(value).toEqual(undefined);
   });
 
   it('It should merge leafs inside the same attribute', async () => {
     await createSetting(models, 'root.leaf1', 'db-global-value', SETTINGS_SCOPES.GLOBAL);
     await createSetting(models, 'root.leaf2', 'db-central-value', SETTINGS_SCOPES.CENTRAL);
-    const value = await readSetting(models, 'root.leaf1');
+    const value = await readSetting.get('root.leaf1');
     expect(value).toEqual('db-global-value');
-    const value2 = await readSetting(models, 'root.leaf2');
+    const value2 = await readSetting.get('root.leaf2');
     expect(value2).toEqual('db-central-value');
   });
 
   it('Should read value from central file', async () => {
-    const value = await readSetting(models, 'honeycomb.sampleRate');
+    const value = await readSetting.get('honeycomb.sampleRate');
     expect(value).toEqual(100);
   });
 
   it('Should read value from global file', async () => {
-    const value = await readSetting(models, 'survey.defaultCodes.department');
+    const value = await readSetting.get('survey.defaultCodes.department');
     expect(value).toEqual('GeneralClinic');
   });
 
@@ -103,19 +105,19 @@ describe('Read Settings', () => {
       SETTINGS_SCOPES.CENTRAL,
     );
 
-    const globalDbValue = await readSetting(models, 'specific.to.global-db');
+    const globalDbValue = await readSetting.get('specific.to.global-db');
     expect(globalDbValue).toEqual('db-global-value');
 
-    const centralDbValue = await readSetting(models, 'specific.to.central-db');
+    const centralDbValue = await readSetting.get('specific.to.central-db');
     expect(centralDbValue).toEqual('db-central-value');
 
-    const globalFileValue = await readSetting(models, 'specific.to.global-file');
+    const globalFileValue = await readSetting.get('specific.to.global-file');
     expect(globalFileValue).toEqual('file-global-value');
 
-    const centralFileValue = await readSetting(models, 'specific.to.central-file');
+    const centralFileValue = await readSetting.get('specific.to.central-file');
     expect(centralFileValue).toEqual('file-central-value');
 
-    const value2 = await readSetting(models, 'root.leaf2');
+    const value2 = await readSetting.get('root.leaf2');
     expect(value2).toEqual('db-central-value');
   });
 });
