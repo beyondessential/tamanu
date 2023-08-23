@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES, CURRENTLY_AT_TYPE } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES, CURRENTLY_AT_TYPES } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 
@@ -32,7 +32,9 @@ export class ProgramRegistry extends Model {
         validate: {
           mustHaveValidCurrentlyAtType() {
             if (!CURRENTLY_AT_TYPES.includes(this.currentlyAtType)) {
-              throw new InvalidOperationError(`The currentlyAtType must be one of ${CURRENTLY_AT_TYPES.join(', ')}`);
+              throw new InvalidOperationError(`The currentlyAtType must be one of ${
+                CURRENTLY_AT_TYPES.join(', ')
+              }`);
             }
           }
         }
