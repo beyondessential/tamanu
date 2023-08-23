@@ -133,6 +133,27 @@ export const DataFetchingTable = memo(
 
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
+    // TODO: better name for this
+    const onDataFetchedInternal = useCallback((data, count) => {
+      setIsLoading(false);
+      setIsLoadingMoreData(false);
+  
+      updatePreviousFetchState(data, count);
+      updateFetchState({
+        ...DEFAULT_FETCH_STATE,
+        data,
+        count,
+      });
+
+      // Use custom function on data if provided
+      if (onDataFetched) {
+        onDataFetched({
+          data,
+          count,
+        });
+      }
+    });
+
     useEffect(() => {
       const loadingDelay = loadingIndicatorDelay();
       (async () => {
@@ -164,14 +185,7 @@ export const DataFetchingTable = memo(
             const displayData = isDataToBeUpdated ? highlightedData : previousFetch.dataSnapshot;
 
             if (count > previousFetch.count) setIsNotificationMuted(false);
-            setIsLoading(false);
-            setIsLoadingMoreData(false);
-            updatePreviousFetchState(displayData, count);
-            updateFetchState({
-              ...DEFAULT_FETCH_STATE,
-              data: displayData,
-              count,
-            });
+            onDataFetchedInternal(displayData, count);
 
             const isLeavingPageOne = previousFetch.page === 0 && page > 0;
             const isChangingFromInitialSort =
@@ -199,21 +213,7 @@ export const DataFetchingTable = memo(
                 ? [...(fetchState?.data || []), ...(transformedData || [])]
                 : transformedData;
 
-            setIsLoading(false);
-            setIsLoadingMoreData(false);
-            updatePreviousFetchState(updatedData, count);
-            updateFetchState({
-              ...DEFAULT_FETCH_STATE,
-              data: updatedData,
-              count,
-            });
-            // Use custom function on data if provided
-            if (onDataFetched) {
-              onDataFetched({
-                data: updatedData,
-                count,
-              });
-            }
+            onDataFetchedInternal(updatedData, count);
           }
         } catch (error) {
           clearTimeout(loadingDelay);
