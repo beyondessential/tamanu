@@ -131,22 +131,28 @@ export async function up(query) {
     serverFacilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.CENTRAL,
   );
 
-  // Create the settings for either the facility or central scope
-  await query.sequelize.query(
-    `
-      INSERT INTO settings (key, value, facility_id, scope)
-      VALUES ${scopedSettingData.map(() => '(?)').join(', ')}
-    `,
-    {
-      replacements: scopedSettingData,
-    },
-  );
+  if(scopedSettingData.length){
+    // Create the settings for either the facility or central scope
+    await query.sequelize.query(
+      `
+        INSERT INTO settings (key, value, facility_id, scope)
+        VALUES ${scopedSettingData.map(() => '(?)').join(', ')}
+      `,
+      {
+        replacements: scopedSettingData,
+      },
+    );
+  }
 
   if (serverFacilityId) return;
 
   // Central server only
   // Create the settings for global scope
   const globalSettingData = prepareReplacementsForInsert(localConfig, null, SETTINGS_SCOPES.GLOBAL);
+  if(!globalSettingData.length){
+    return;
+  }
+  
   await query.sequelize.query(
     `
       INSERT INTO settings (key, value, facility_id, scope)
