@@ -2,7 +2,10 @@ import { MigrationInterface, QueryRunner, TableForeignKey } from 'typeorm';
 
 export class renamePanelRelatedTables1692065678000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
+    // lab_test_panel -> lab_panel
     await queryRunner.renameTable('lab_test_panel', 'lab_panel');
+
+    // lab_test_panel_request -> lab_panel_request
     const labTestPanelRequestTable = await queryRunner.getTable('lab_test_panel_request');
     const labTestPanelRequestFKey = labTestPanelRequestTable?.foreignKeys.find(
       fk => fk.columnNames.indexOf('labTestPanelId') !== -1,
@@ -20,6 +23,8 @@ export class renamePanelRelatedTables1692065678000 implements MigrationInterface
       }),
     );
     await queryRunner.renameTable('lab_test_panel_request', 'lab_panel_request');
+
+    // lab_test_panel_lab_test_type -> lab_panel_lab_test_type
     const labTestPanelLabTestTypeTable = await queryRunner.getTable('lab_test_panel_lab_test_type');
     const labTestPanelLabTestTypeFKey = labTestPanelLabTestTypeTable?.foreignKeys.find(
       fk => fk.columnNames.indexOf('labTestPanelId') !== -1,
@@ -41,7 +46,10 @@ export class renamePanelRelatedTables1692065678000 implements MigrationInterface
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
+    // lab_panel -> lab_test_panel
     await queryRunner.renameTable('lab_panel', 'lab_test_panel');
+
+    // lab_panel_request -> lab_test_panel_request
     const labPanelRequestTable = await queryRunner.getTable('lab_panel_request');
     const labPanelRequestFKey = labPanelRequestTable?.foreignKeys.find(
       fk => fk.columnNames.indexOf('labPanelId') !== -1,
@@ -59,6 +67,8 @@ export class renamePanelRelatedTables1692065678000 implements MigrationInterface
       }),
     );
     await queryRunner.renameTable('lab_panel_request', 'lab_test_panel_request');
+
+    // lab_panel_lab_test_type -> lab_test_panel_lab_test_type
     const labPanelLabTestTypeTable = await queryRunner.getTable('lab_panel_lab_test_type');
     const labPanelLabTestTypeFKey = labPanelLabTestTypeTable?.foreignKeys.find(
       fk => fk.columnNames.indexOf('labPanelId') !== -1,
