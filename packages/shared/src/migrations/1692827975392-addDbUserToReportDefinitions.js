@@ -4,7 +4,7 @@ export async function up(query) {
   await query.addColumn('report_definitions', 'db_user', {
     type: Sequelize.ENUM('tamanu_dataset_reporting', 'tamanu_raw_reporting'),
     allowNull: false,
-    defaultValue: 'tamanu_dataset_reporting'
+    defaultValue: 'tamanu_dataset_reporting',
   });
 
   await query.sequelize.query(`
