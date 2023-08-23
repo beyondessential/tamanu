@@ -1,6 +1,5 @@
 import { settingsCache, ReadSettings } from '@tamanu/settings';
-
-import { SETTINGS_SCOPES } from '@tamanu/shared/constants';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { createSetting } from './settingsUtils';
 
