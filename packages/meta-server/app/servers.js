@@ -41,7 +41,7 @@ const servers = [
 
   // test servers
   { name: 'Test (Aspen)', type: 'demo', host: 'https://central-clone.aspen-dev.tamanu.io' },
-  { name: 'Test (Fiji)', type: 'demo', host: 'https://central-clone.tamanu-fiji.org' },
+  { name: 'Test (Fiji)', type: 'demo', host: 'https://central-clone.fiji-dev.tamanu.io' },
   { name: 'Test (Kiribati)', type: 'demo', host: 'https://central-clone.kiribati-dev.tamanu.io' },
   { name: 'Test (Nauru)', type: 'demo', host: 'https://central-clone.nauru-dev.tamanu.io' },
   { name: 'Test (Palau)', type: 'demo', host: 'https://central-clone.palau-dev.tamanu.io' },
@@ -57,7 +57,11 @@ const servers = [
   { name: 'RC (1.31)', type: 'dev', host: 'https://central.release-1-31.internal.tamanu.io' },
   { name: 'RC (1.32)', type: 'dev', host: 'https://central.release-1-32.internal.tamanu.io' },
   { name: 'RC (1.33)', type: 'dev', host: 'https://central.release-1-33.internal.tamanu.io' },
-  { name: 'Dev (PR 4446)', type: 'dev', host: 'https://central.feature-sav-15-scheduledvax-visibility.internal.tamanu.io' },
+  {
+    name: 'Dev (PR 4446)',
+    type: 'dev',
+    host: 'https://central.feature-sav-15-scheduledvax-visibility.internal.tamanu.io',
+  },
   { name: 'Stress Test', type: 'dev', host: 'https://central-stress-test.tamanu.io' },
   { name: 'UAT-VPS', type: 'dev', host: 'https://sync-uat.tamanu.io' },
   { name: 'UAT-PMI', type: 'dev', host: 'https://central-uat-pmi.tamanu.io' },
