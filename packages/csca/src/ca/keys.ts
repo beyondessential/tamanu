@@ -30,7 +30,8 @@ export async function writePrivateKey(
 export async function readPrivateKey(path: string, encryptionKey: CryptoKey): Promise<CryptoKey> {
   const data = await fs.readFile(path);
   const schema = data.slice(0, 1);
-  if (schema[0] !== PRIVATE_KEY_LAYOUT_SCHEMA) throw new Error(`Invalid private key file: schema ${schema[0]} not supported`);
+  if (schema[0] !== PRIVATE_KEY_LAYOUT_SCHEMA)
+    throw new Error(`Invalid private key file: schema ${schema[0]} not supported`);
 
   const iv = data.slice(1, 13);
   const wrapped = data.slice(13);

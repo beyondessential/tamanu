@@ -21,7 +21,7 @@ import {
   makeSimpleTextFilterFactory,
   makeSubstringTextFilterFactory,
 } from '../../utils/query';
-import { notePagesWithSingleItemListHandler } from '../../routeHandlers';
+import { notesWithSingleItemListHandler } from '../../routeHandlers';
 
 export const labRequest = express.Router();
 
@@ -283,16 +283,15 @@ labRequest.post(
       throw new NotFoundError();
     }
     req.checkPermission('write', lab);
-    const notePage = await lab.createNotePage(body);
-    await notePage.createNoteItem(body);
-    const response = await notePage.getCombinedNoteObject(models);
-    res.send(response);
+    const note = await lab.createNote(body);
+    res.send(note);
   }),
 );
 
 const labRelations = permissionCheckingRouter('read', 'LabRequest');
 
 labRelations.get('/:id/tests', simpleGetList('LabTest', 'labRequestId'));
+labRelations.get('/:id/notes', notesWithSingleItemListHandler(NOTE_RECORD_TYPES.LAB_REQUEST));
 
 labRelations.put(
   '/:id/tests',
@@ -342,30 +341,6 @@ labRelations.put(
 
       res.send(await Promise.all(promises));
     });
-  }),
-);
-
-labRelations.get('/:id/notes', notePagesWithSingleItemListHandler(NOTE_RECORD_TYPES.LAB_REQUEST));
-labRelations.get(
-  '/:id/notePages',
-  asyncHandler(async (req, res) => {
-    const { models, params } = req;
-    const { id } = params;
-    req.checkPermission('read', 'LabRequest');
-    const response = await models.NotePage.findAll({
-      include: [
-        {
-          model: models.NoteItem,
-          as: 'noteItems',
-        },
-      ],
-      where: {
-        recordId: id,
-        recordType: NOTE_RECORD_TYPES.LAB_REQUEST,
-        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-      },
-    });
-    res.send(response);
   }),
 );
 
@@ -525,11 +500,12 @@ async function createLabRequest(
 
   const newLabRequest = await models.LabRequest.createWithTests(labRequestData);
   if (note?.content) {
-    const notePage = await newLabRequest.createNotePage({
+    await newLabRequest.createNote({
       noteType: NOTE_TYPES.OTHER,
       date: note.date,
+      ...note,
+      authorId: user.id,
     });
-    await notePage.createNoteItem({ ...note, authorId: user.id });
   }
   return newLabRequest;
 }

@@ -36,7 +36,7 @@ export const simpleUpdateModels = [
 export const specificUpdateModels = [
   'Patient',
   'PatientAdditionalData',
-  'NotePage',
+  'Note',
   'PatientFacility',
   'PatientFieldValue',
 ];
@@ -304,14 +304,14 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
     // Merge notes - these don't have a patient_id due to their polymorphic FK setup
     // so need to be handled slightly differently.
     const notesMerged = await mergeRecordsForModel(
-      models.NotePage,
+      models.Note,
       keepPatientId,
       unwantedPatientId,
       'record_id',
       `AND record_type = '${NOTE_RECORD_TYPES.PATIENT}'`,
     );
     if (notesMerged > 0) {
-      updates.NotePage = notesMerged;
+      updates.Note = notesMerged;
     }
 
     // Finally reconcile patient_facilities records
