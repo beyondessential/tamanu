@@ -18,6 +18,7 @@ export * from './patientFields';
 export * from './reports';
 export * from './servers';
 export * from './statuses';
+export * from './suggesters';
 export * from './surveys';
 export * from './sync';
 export * from './templates';
