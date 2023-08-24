@@ -21,7 +21,7 @@ const Card = styled.div`
   height: ${cardDimensions.height}mm;
   padding-left: ${p => p.leftPadding || '1'}mm;
   padding-right: 1mm;
-  padding-top: 1mm;
+  padding-top: ${p => p.topPadding || '1'}mm;
   padding-bottom: 1mm;
   color: #000000;
   ${p => p.shrinkFactor !== 1 && `transform: scale(${p.shrinkFactor});`}
