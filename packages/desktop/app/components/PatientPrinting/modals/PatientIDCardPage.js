@@ -68,7 +68,7 @@ const DetailsValue = styled.span`
 `;
 
 const DetailsKey = styled.span`
-  width: 23mm;
+  width: 18mm;
   font-weight: bold;
 `;
 
