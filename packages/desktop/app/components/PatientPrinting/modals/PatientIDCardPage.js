@@ -19,10 +19,10 @@ const Card = styled.div`
   flex-direction: column;
   width: ${cardDimensions.width}mm;
   height: ${cardDimensions.height}mm;
-  padding-left: ${p => p.leftPadding || '0.2'}rem;
-  padding-right: 0.2rem;
-  padding-top: 0.2rem;
-  padding-bottom: 0.2rem;
+  padding-left: ${p => p.leftPadding || '1'}mm;
+  padding-right: 1mm;
+  padding-top: 1mm;
+  padding-bottom: 1mm;
   color: #000000;
 `;
 
