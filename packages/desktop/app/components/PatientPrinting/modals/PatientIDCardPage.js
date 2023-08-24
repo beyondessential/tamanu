@@ -24,8 +24,6 @@ const Card = styled.div`
   padding-top: ${p => p.topPadding || '1'}mm;
   padding-bottom: 1mm;
   color: #000000;
-  ${p => p.shrinkFactor !== 1 && `transform: scale(${p.shrinkFactor});`}
-  ${p => p.shrinkFactor !== 1 && `transform-origin: left top;`}
 `;
 
 const Details = styled.div`
@@ -127,12 +125,6 @@ const PatientPhoto = ({ imageData }) => (
 
 export const PatientIDCardPage = ({ patient, imageData, pageProps }) => {
   const { printPage } = useElectron();
-  const { printSelection } = pageProps;
-  const showPhoto = printSelection === 'default' || printSelection === 'photo';
-  const showText = printSelection === 'default' || printSelection === 'text';
-
-  const { shrinkBy } = pageProps;
-  const shrinkFactor = (100 - shrinkBy) / 100;
 
   useEffect(() => {
     printPage({
@@ -150,14 +142,14 @@ export const PatientIDCardPage = ({ patient, imageData, pageProps }) => {
 
   return (
     <PrintPortal>
-      <Card {...pageProps} shrinkFactor={shrinkFactor}>
+      <Card {...pageProps}>
         <TopBar />
         <MainSection>
-          <PhotoContainer style={{ visibility: showPhoto ? 'visible' : 'hidden' }}>
+          <PhotoContainer>
             <PatientPhoto imageData={imageData} />
             <PhotoLabel patient={patient} />
           </PhotoContainer>
-          <Details style={{ visibility: showText ? 'visible' : 'hidden' }}>
+          <Details>
             <DetailsRow name="displayId" value={patient.displayId} />
             <DetailsRow name="lastName" value={patient.lastName} />
             <DetailsRow name="firstName" value={patient.firstName} />
@@ -165,7 +157,7 @@ export const PatientIDCardPage = ({ patient, imageData, pageProps }) => {
             <DetailsRow name="sex" value={SEX_VALUE_INDEX[patient.sex].label} />
           </Details>
         </MainSection>
-        <BarcodeRow style={{ visibility: showText ? 'visible' : 'hidden' }}>
+        <BarcodeRow>
           <PatientBarcode patient={patient} width="43mm" height="5.9mm" />
         </BarcodeRow>
         <BottomBar />

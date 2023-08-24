@@ -32,54 +32,22 @@ const PrintOptionButton = styled(Button)`
   margin: 14px 0px;
 `;
 
-const COLOR_OPTIONS = [
-  {
-    label: 'True black',
-    value: '#000000',
-  },
-  {
-    label: 'Mixed black',
-    value: '#0A0B0B',
-  },
-  {
-    label: 'Default',
-    value: '#444444',
-  },
-];
-
-const PRINT_SELECTION_OPTIONS = [
-  {
-    label: 'Default (photo + text)',
-    value: 'default',
-  },
-  {
-    label: 'Photo only',
-    value: 'photo',
-  },
-  {
-    label: 'Text only',
-    value: 'text',
-  },
-];
-
 const PrintOption = ({ setCurrentlyPrinting }) => (
   <Form
     initialValues={{
       leftPadding: 0,
-      shrinkBy: 0,
-      colorOption: COLOR_OPTIONS[2].value,
-      printSelection: PRINT_SELECTION_OPTIONS[0].value,
+      topPadding: 0,
     }}
     validationSchema={yup.object().shape({
       leftPadding: yup
         .number()
         .min(0)
-        .max(10)
+        .max(30)
         .required(),
-      shrinkBy: yup
+      topPadding: yup
         .number()
         .min(0)
-        .max(99)
+        .max(30)
         .required(),
     })}
     onSubmit={async values => {
@@ -90,32 +58,18 @@ const PrintOption = ({ setCurrentlyPrinting }) => (
         <FormGrid columns={2}>
           <Field
             name="leftPadding"
-            label="Left padding"
+            label="Left padding (mm)"
             component={NumberField}
             min={0}
-            max={10}
+            max={30}
             required
           />
           <Field
-            name="shrinkBy"
-            label="Shrink by (%)"
+            name="topPadding"
+            label="Top padding (mm)"
             component={NumberField}
             min={0}
-            max={99}
-            required
-          />
-          <Field
-            name="colorOption"
-            label="Type of black"
-            component={SelectField}
-            options={COLOR_OPTIONS}
-            required
-          />
-          <Field
-            name="printSelection"
-            label="Print selection"
-            component={SelectField}
-            options={PRINT_SELECTION_OPTIONS}
+            max={30}
             required
           />
         </FormGrid>
