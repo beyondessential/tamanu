@@ -124,7 +124,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
             options={DATE_RANGE_OPTIONS}
           />
         </Grid>
-        {canWriteReportUser && !isEdit && (
+        {canWriteReportUser && (
           <Grid item xs={4}>
             <StyledField
               label="DB role"
@@ -132,6 +132,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
               component={SelectField}
               options={DB_ROLE_OPTIONS}
               defaultValue={REPORT_DB_ROLES.DATASET}
+              disabled={isEdit}
             />
           </Grid>
         )}

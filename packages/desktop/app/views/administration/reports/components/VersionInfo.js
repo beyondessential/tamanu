@@ -1,6 +1,7 @@
 import React from 'react';
 import { formatShort, formatTime } from '../../../../components';
 import { InfoCard, InfoCardItem } from '../../../../components/InfoCard';
+import { DB_ROLES, REPORT_STATUSES } from '@tamanu/constants/reports';
 
 export const VersionInfo = ({ version }) => (
   <InfoCard inlineValues>
@@ -12,5 +13,6 @@ export const VersionInfo = ({ version }) => (
       value={`${formatShort(version.createdAt)} ${formatTime(version.createdAt)}`}
     />
     <InfoCardItem label="Created by" value={version.createdBy?.displayName} />
+    <InfoCardItem label="DB Role" value={version.reportDefinition.dbRole} />
   </InfoCard>
 );

@@ -232,7 +232,7 @@ reportsRouter.get(
         {
           model: store.models.ReportDefinition,
           as: 'reportDefinition',
-          attributes: ['name', 'id'],
+          attributes: ['name', 'id', 'dbRole'],
         },
       ],
     });
