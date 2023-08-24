@@ -171,16 +171,14 @@ export const DataFetchingTable = memo(
             // (rather than rows that still haven't been viewed from a previous fetch)
             if (count > previousFetch.count) setIsNotificationMuted(false);
 
-            const rowsSinceInteraction = count - previousFetch.count + newRowCount;
-
-            const hasSearchChanged = !isEqual(fetchOptions, previousFetch?.fetchOptions);
-            const isFirstFetch = previousFetch.count === 0;
             const isInitialSort = isEqual(sorting, initialSort);
             const hasSortingChanged = !isEqual(sorting, previousFetch?.sorting);
             
             // TODO: move out of a function
             const getShouldShowRowHighlight = () => {
-              if (isFirstFetch) return false;
+              if (previousFetch.count === 0) return false; // first fetch never needs a highlight
+              
+              const hasSearchChanged = !isEqual(fetchOptions, previousFetch?.fetchOptions);
               if (hasSearchChanged) return false;
 
               const isLeavingPageOne = previousFetch.page === 0 && page > 0;
@@ -192,24 +190,24 @@ export const DataFetchingTable = memo(
             };
             
             if (getShouldShowRowHighlight()) {
+              const rowsSinceInteraction = count - previousFetch.count + newRowCount;
               setShowNotification(rowsSinceInteraction > 0 && !(page === 0 && isInitialSort));
               setNewRowCount(rowsSinceInteraction);
+
+              const hasPageChanged = page !== previousFetch.page;
+              const isDataToBeUpdated = hasPageChanged || hasSortingChanged || page === 0;
+              const highlightStartIndex = isInitialSort ? rowsSinceInteraction : 0;
+              
+              const displayData = isDataToBeUpdated 
+                ? highlightDataRows(transformedData, highlightStartIndex)
+                : previousFetch.dataSnapshot;
+
+              onDataFetchedInternal(displayData, count);
             } else {
               setShowNotification(false);
               setNewRowCount(0);
+              onDataFetchedInternal(transformedData, count);
             }
-
-            const shouldHighlightData = !isFirstFetch && isInitialSort && !hasSearchChanged;
-            const hasPageChanged = page !== previousFetch.page;
-            const isDataToBeUpdated = hasPageChanged || hasSortingChanged || page === 0;
-            const displayData = isDataToBeUpdated 
-              ? highlightDataRows(
-                transformedData,
-                // TODO: would like to use the state after being set to refractor but I am running into async problems
-                shouldHighlightData ? rowsSinceInteraction : 0,
-              )
-              : previousFetch.dataSnapshot;
-            onDataFetchedInternal(displayData, count);
           } else {
             // When fetch option is no longer the same (eg: filter changed), it should reload the entire table
             // instead of keep adding data for lazy loading
