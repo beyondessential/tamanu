@@ -21,6 +21,7 @@ import {
 } from '../../../components';
 import { ParameterList, ParameterItem, SQLQueryEditor } from './components/editing';
 import { FIELD_TYPES_WITH_SUGGESTERS } from '../../reports/ParameterField';
+import { useAuth } from '../../../contexts/Auth';
 
 const StyledField = styled(Field)`
   flex-grow: 1;
@@ -87,6 +88,7 @@ const schema = yup.object().shape({
 });
 
 const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) => {
+  const { ability } = useAuth();
   const setQuery = query => setValues({ ...values, query });
   const params = values.parameters || [];
   const setParams = newParams => setValues({ ...values, parameters: newParams });
@@ -98,6 +100,9 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
     setParams(newParams);
   };
   const onParamsDelete = paramId => setParams(params.filter(p => p.id !== paramId));
+
+  const canWriteReportUser = ability?.can('write', 'ReportDbUser');
+
   return (
     <>
       <Grid container spacing={2}>
@@ -126,14 +131,16 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
             options={DATE_RANGE_OPTIONS}
           />
         </Grid>
-        <Grid item xs={4}>
-          <StyledField
-            label="Where to run"
-            name="reportDBRole"
-            component={SelectField}
-            options={DB_ROLE_OPTIONS}
-          />
-        </Grid>
+        {canWriteReportUser && (
+          <Grid item xs={4}>
+            <StyledField
+              label="Where to run"
+              name="reportDBRole"
+              component={SelectField}
+              options={DB_ROLE_OPTIONS}
+            />
+          </Grid>
+        )}
       </Grid>
       <Accordion defaultExpanded>
         <AccordionSummary>
