@@ -171,19 +171,21 @@ export const DataFetchingTable = memo(
             // (rather than rows that still haven't been viewed from a previous fetch)
             if (count > previousFetch.count) setIsNotificationMuted(false);
 
-            const hasSearchChanged = !isEqual(fetchOptions, previousFetch?.fetchOptions);
             const rowsSinceInteraction = count - previousFetch.count + newRowCount;
+
+            const hasSearchChanged = !isEqual(fetchOptions, previousFetch?.fetchOptions);
             const isFirstFetch = previousFetch.count === 0;
             const isInitialSort = isEqual(sorting, initialSort);
             const hasSortingChanged = !isEqual(sorting, previousFetch?.sorting);
-
-            const isLeavingPageOne = previousFetch.page === 0 && page > 0;
-            const isChangingFromInitialSort = isEqual(previousFetch.sorting, initialSort) && hasSortingChanged;
             
             // TODO: move out of a function
             const getShouldShowRowHighlight = () => {
               if (isFirstFetch) return false;
               if (hasSearchChanged) return false;
+
+              const isLeavingPageOne = previousFetch.page === 0 && page > 0;
+              const isChangingFromInitialSort = isEqual(previousFetch.sorting, initialSort) && hasSortingChanged;
+  
               if (isLeavingPageOne && isInitialSort) return false;
               if (page === 0 && isChangingFromInitialSort) return false;
               return true;
@@ -213,12 +215,14 @@ export const DataFetchingTable = memo(
             // instead of keep adding data for lazy loading
             const shouldReloadLazyLoadingData = !isEqual(previousFetch.fetchOptions, fetchOptions);
 
-            const updatedData =
-              lazyLoading && !shouldReloadLazyLoadingData
-                ? [...(fetchState?.data || []), ...(transformedData || [])]
-                : transformedData;
-
-            onDataFetchedInternal(updatedData, count);
+            if (lazyLoading && !shouldReloadLazyLoadingData) {
+              onDataFetchedInternal([
+                ...(fetchState.data || []),
+                ...(transformedData || [])
+              ], count);
+            } else {
+              onDataFetchedInternal(transformedData, count);
+            }
           }
         } catch (error) {
           clearTimeout(loadingDelay);
