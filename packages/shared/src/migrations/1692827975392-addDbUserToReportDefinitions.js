@@ -6,7 +6,7 @@ const DB_ROLES = {
 };
 
 export async function up(query) {
-  await query.addColumn('report_definitions', 'db_user', {
+  await query.addColumn('report_definitions', 'db_role', {
     type: Sequelize.STRING,
     allowNull: false,
     defaultValue: DB_ROLES.DATASET,
@@ -14,10 +14,10 @@ export async function up(query) {
 
   await query.sequelize.query(`
     UPDATE "report_definitions"
-    SET "db_user" = '${DB_ROLES.RAW}'
+    SET "db_role" = '${DB_ROLES.RAW}'
   `);
 }
 
 export async function down(query) {
-  await query.removeColumn('report_definitions', 'db_user');
+  await query.removeColumn('report_definitions', 'db_role');
 }
