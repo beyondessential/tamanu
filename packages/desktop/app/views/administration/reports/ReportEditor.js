@@ -128,7 +128,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
           <Grid item xs={4}>
             <StyledField
               label="DB role"
-              name="reportDbRole"
+              name="dbRole"
               component={SelectField}
               options={DB_ROLE_OPTIONS}
               defaultValue={REPORT_DB_ROLES.DATASET}
