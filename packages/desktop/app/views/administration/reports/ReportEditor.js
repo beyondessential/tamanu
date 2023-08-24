@@ -124,7 +124,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
             options={DATE_RANGE_OPTIONS}
           />
         </Grid>
-        {canWriteReportUser && (
+        {canWriteReportUser && !isEdit && (
           <Grid item xs={4}>
             <StyledField
               label="DB role"
