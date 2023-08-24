@@ -1,7 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'react-toastify';
 import { capitalize } from 'lodash';
 import * as yup from 'yup';
 import { Accordion, AccordionDetails, AccordionSummary, Grid } from '@material-ui/core';
@@ -11,7 +9,6 @@ import {
   REPORT_DATA_SOURCE_VALUES,
   REPORT_STATUSES_VALUES,
 } from '@tamanu/constants/reports';
-import { useApi } from '../../../api';
 import {
   Button,
   ButtonRow,
@@ -23,10 +20,6 @@ import {
 } from '../../../components';
 import { ParameterList, ParameterItem, SQLQueryEditor } from './components/editing';
 import { FIELD_TYPES_WITH_SUGGESTERS } from '../../reports/ParameterField';
-
-const Container = styled.div`
-  padding: 20px;
-`;
 
 const StyledField = styled(Field)`
   flex-grow: 1;
@@ -58,10 +51,12 @@ const generateDefaultParameter = () => ({
 const schema = yup.object().shape({
   name: yup.string().required('Report name is a required field'),
   dataSources: yup
-    .array()
-    .of(yup.string().oneOf(REPORT_DATA_SOURCE_VALUES))
-    .min(1)
-    .required('Select at least one data source'),
+    .string()
+    .test('test-data-sources', 'Select at least one data source', val => {
+      const values = val?.split(', ') || [];
+      return values.length && values.every(v => REPORT_DATA_SOURCE_VALUES.includes(v));
+    })
+    .required('Data sources is a required field'),
   defaultDateRange: yup
     .string()
     .oneOf(DATE_RANGE_OPTIONS.map(o => o.value))
@@ -85,7 +80,7 @@ const schema = yup.object().shape({
     .required('Status is a required field'),
 });
 
-const NewReportForm = ({ isSubmitting, values, setValues }) => {
+const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) => {
   const setQuery = query => setValues({ ...values, query });
   const params = values.parameters || [];
   const setParams = newParams => setValues({ ...values, parameters: newParams });
@@ -99,10 +94,16 @@ const NewReportForm = ({ isSubmitting, values, setValues }) => {
   const onParamsDelete = paramId => setParams(params.filter(p => p.id !== paramId));
 
   return (
-    <Container>
+    <>
       <Grid container spacing={2}>
         <Grid item xs={4}>
-          <StyledField required label="Report name" name="name" component={TextField} />
+          <StyledField
+            disabled={isEdit}
+            required
+            label="Report name"
+            name="name"
+            component={TextField}
+          />
         </Grid>
         <Grid item xs={4}>
           <StyledField
@@ -166,46 +167,28 @@ const NewReportForm = ({ isSubmitting, values, setValues }) => {
           isClearable={false}
           options={STATUS_OPTIONS}
         />
-        <Button variant="contained" color="primary" type="submit" isSubmitting={isSubmitting}>
-          Create
+        <Button
+          disabled={!dirty}
+          variant="contained"
+          color="primary"
+          type="submit"
+          isSubmitting={isSubmitting}
+        >
+          {isEdit ? 'Create new version' : 'Create'}
         </Button>
       </ButtonRow>
-    </Container>
+    </>
   );
 };
 
-export const NewReportView = () => {
-  const api = useApi();
-  const queryClient = useQueryClient();
-
-  const handleSubmit = async ({ name, query, status, ...queryOptions }) => {
-    try {
-      const { reportDefinitionId } = await api.post('admin/reports', {
-        name,
-        query,
-        status,
-        queryOptions,
-      });
-      queryClient.invalidateQueries(['reportList']);
-      toast.success(`Imported report: ${reportDefinitionId}`);
-    } catch (err) {
-      toast.error(`Failed to create report: ${err.message}`);
-    }
-  };
-
+export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
   return (
-    <>
-      <Form
-        onSubmit={handleSubmit}
-        validationSchema={schema}
-        initialValues={{
-          status: STATUS_OPTIONS[0].value,
-          dataSources: [...REPORT_DATA_SOURCE_VALUES],
-          defaultDateRange: DATE_RANGE_OPTIONS[0].value,
-          parameters: [],
-        }}
-        render={NewReportForm}
-      />
-    </>
+    <Form
+      onSubmit={onSubmit}
+      enableReinitialize
+      validationSchema={schema}
+      initialValues={initialValues}
+      render={formikContext => <ReportEditorForm {...formikContext} isEdit={isEdit} />}
+    />
   );
 };

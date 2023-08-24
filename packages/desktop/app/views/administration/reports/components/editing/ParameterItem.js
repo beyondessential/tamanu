@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { Divider as BaseDivider } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import BaseDeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
-import { TextField, DefaultIconButton, AutocompleteField } from '../../../../../components';
+import { TextField, DefaultIconButton, SelectField } from '../../../../../components';
 import {
   PARAMETER_FIELD_COMPONENTS,
   FIELD_TYPES_WITH_SUGGESTERS,
@@ -63,7 +63,7 @@ export const ParameterItem = props => {
         </IconButton>
       </Grid>
       <Grid item xs={6}>
-        <AutocompleteField
+        <SelectField
           field={{
             name: 'parameterField',
             value: parameterField,
