@@ -23,7 +23,7 @@ const Card = styled.div`
   padding-right: 0.2rem;
   padding-top: 0.2rem;
   padding-bottom: 0.2rem;
-  color: ${p => p.colorOption};
+  color: #000000;
   ${p => p.shrinkFactor !== 1 && `transform: scale(${p.shrinkFactor});`}
   ${p => p.shrinkFactor !== 1 && `transform-origin: left top;`}
 `;
