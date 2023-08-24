@@ -167,28 +167,18 @@ export const DataFetchingTable = memo(
           const transformedData = transformRow ? data.map(transformRow) : data;
 
           if (enableAutoRefresh) {
-            const isFirstFetch = previousFetch.count === 0;
-            const isInitialSort = isEqual(sorting, initialSort);
-            const hasSearchChanged = !isEqual(fetchOptions, previousFetch?.fetchOptions);
-            const hasSortingChanged = !isEqual(sorting, previousFetch?.sorting);
-
-            const rowsSinceInteraction = count - previousFetch.count + newRowCount;
-
-            const shouldHighlightData = !isFirstFetch && isInitialSort && !hasSearchChanged;
-            const highlightedData = highlightDataRows(
-              transformedData,
-              // TODO: would like to use the state after being set to refractor but I am running into async problems
-              shouldHighlightData ? rowsSinceInteraction : 0,
-            );
-            const hasPageChanged = page !== previousFetch.page;
-            const isDataToBeUpdated = hasPageChanged || hasSortingChanged || page === 0;
-            const displayData = isDataToBeUpdated ? highlightedData : previousFetch.dataSnapshot;
-
+            // only notify if there's more *new* unviewed rows 
+            // (rather than rows that still haven't been viewed from a previous fetch)
             if (count > previousFetch.count) setIsNotificationMuted(false);
 
+            const hasSearchChanged = !isEqual(fetchOptions, previousFetch?.fetchOptions);
+            const rowsSinceInteraction = count - previousFetch.count + newRowCount;
+            const isFirstFetch = previousFetch.count === 0;
+            const isInitialSort = isEqual(sorting, initialSort);
+            const hasSortingChanged = !isEqual(sorting, previousFetch?.sorting);
+
             const isLeavingPageOne = previousFetch.page === 0 && page > 0;
-            const isChangingFromInitialSort =
-              isEqual(previousFetch.sorting, initialSort) && hasSortingChanged;
+            const isChangingFromInitialSort = isEqual(previousFetch.sorting, initialSort) && hasSortingChanged;
             if (
               // conditions for resetting new row styling
               (isLeavingPageOne && isInitialSort) ||
@@ -199,10 +189,20 @@ export const DataFetchingTable = memo(
               setShowNotification(false);
               setNewRowCount(0);
             } else {
-              setNewRowCount(rowsSinceInteraction);
               setShowNotification(rowsSinceInteraction > 0 && !(page === 0 && isInitialSort));
+              setNewRowCount(rowsSinceInteraction);
             }
 
+            const shouldHighlightData = !isFirstFetch && isInitialSort && !hasSearchChanged;
+            const hasPageChanged = page !== previousFetch.page;
+            const isDataToBeUpdated = hasPageChanged || hasSortingChanged || page === 0;
+            const displayData = isDataToBeUpdated 
+              ? highlightDataRows(
+                transformedData,
+                // TODO: would like to use the state after being set to refractor but I am running into async problems
+                shouldHighlightData ? rowsSinceInteraction : 0,
+              )
+              : previousFetch.dataSnapshot;
             onDataFetchedInternal(displayData, count);
           } else {
             // When fetch option is no longer the same (eg: filter changed), it should reload the entire table
