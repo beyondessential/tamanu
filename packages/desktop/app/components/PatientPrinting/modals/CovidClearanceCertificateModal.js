@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
 import { CovidLabCertificate, CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
-import { COVID_19_CLEARANCE_CERTIFICATE } from '@tamanu/constants';
+import { COVID_19_CLEARANCE_CERTIFICATE, ASSET_NAMES } from '@tamanu/constants';
 
 import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
@@ -17,7 +17,9 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
   const [labs, setLabs] = useState([]);
   const { getLocalisation } = useLocalisation();
   const api = useApi();
-  const { watermark, logo, footerImg, printedBy } = useCertificate();
+  const { watermark, logo, footerImg, printedBy } = useCertificate({
+    footerAssetName: ASSET_NAMES.COVID_CLEARANCE_CERTIFICATE_FOOTER,
+  });
   const { data: additionalData } = usePatientAdditionalData(patient.id);
 
   useEffect(() => {

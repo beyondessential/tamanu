@@ -1,18 +1,17 @@
 import { Entity, Column, OneToMany } from 'typeorm/browser';
 
-import { JoinTable } from 'typeorm';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { DateStringColumn } from './DateColumns';
 import { ISO9075_DATE_SQLITE_DEFAULT } from './columnDefaults';
 
-import { ID, INoteItem, INotePage, NoteRecordType, NoteType, DateString } from '~/types';
+import { ID, ILegacyNoteItem, ILegacyNotePage, NoteRecordType, NoteType, DateString } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 
 import { BaseModel } from './BaseModel';
-import { NoteItem } from './NoteItem';
+import { LegacyNoteItem } from './LegacyNoteItem';
 
 @Entity('notePage')
-export class NotePage extends BaseModel implements INotePage {
+export class LegacyNotePage extends BaseModel implements ILegacyNotePage {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   @Column({ type: 'varchar', nullable: false })
@@ -29,20 +28,20 @@ export class NotePage extends BaseModel implements INotePage {
   @Column({ type: 'varchar', nullable: false })
   recordId: ID;
 
-  @OneToMany(() => NoteItem, noteItem => noteItem.notePage)
-  noteItems: INoteItem[];
+  @OneToMany(() => LegacyNoteItem, noteItem => noteItem.notePage)
+  noteItems: ILegacyNoteItem[];
 
   static async createForRecord(
     { recordId, recordType, noteType, content, author },
-  ): Promise<NotePage> {
-    const notePage = await NotePage.createAndSaveOne<NotePage>({
+  ): Promise<LegacyNotePage> {
+    const notePage = await LegacyNotePage.createAndSaveOne<LegacyNotePage>({
       recordId,
       recordType,
       noteType,
       date: getCurrentDateTimeString(),
     });
 
-    await NoteItem.createAndSaveOne({
+    await LegacyNoteItem.createAndSaveOne({
       notePage: notePage.id,
       content,
       date: getCurrentDateTimeString(),
