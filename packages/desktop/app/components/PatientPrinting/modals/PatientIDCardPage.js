@@ -17,9 +17,13 @@ const cardDimensions = {
 const Card = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 0.2rem;
   width: ${cardDimensions.width}mm;
   height: ${cardDimensions.height}mm;
+  padding-left: ${p => p.leftPadding || '0.2'}rem;
+  padding-right: 0.2rem;
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+  color: #000000;
 `;
 
 const Details = styled.div`
