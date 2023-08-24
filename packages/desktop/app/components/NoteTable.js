@@ -34,8 +34,8 @@ const NoteContentContainer = styled.div`
     !props.$expanded
       ? `
     text-overflow: clip;
-    -webkit-line-clamp: 4;
-            line-clamp: 4;
+    -webkit-line-clamp: 20;
+            line-clamp: 20;
     -webkit-box-orient: vertical;
   `
       : ''}
