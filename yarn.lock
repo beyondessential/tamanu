@@ -6655,7 +6655,7 @@ ajv@^6.1.0, ajv@^6.10.0, ajv@^6.10.2, ajv@^6.12.0, ajv@^6.12.2, ajv@^6.12.3, ajv
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
 
-ajv@^8.0.0, ajv@^8.0.1, ajv@^8.10.0, ajv@^8.6.3, ajv@^8.8.0:
+ajv@^8.0.0, ajv@^8.10.0, ajv@^8.6.3, ajv@^8.8.0:
   version "8.12.0"
   resolved "https://registry.yarnpkg.com/ajv/-/ajv-8.12.0.tgz#d1a0527323e22f53562c567c00991577dfbe19d1"
   integrity sha512-sRu1kpcO9yLtYxBKvqfTeh9KzZEwO3STyX1HT+4CaDzC6HpTGYhIhPIzj9XuKU7KYDwnaeh5hcOwjy1QuJzBPA==
@@ -11168,7 +11168,7 @@ electron-debug@^2.0.0:
     electron-is-dev "^0.3.0"
     electron-localshortcut "^3.1.0"
 
-electron-devtools-installer@^3.1.1:
+electron-devtools-installer@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/electron-devtools-installer/-/electron-devtools-installer-3.2.0.tgz#acc48d24eb7033fe5af284a19667e73b78d406d0"
   integrity sha512-t3UczsYugm4OAbqvdImMCImIMVdFzJAHgbwHpkl5jmfu1izVgUcP/mnrPqJIpEeCK1uZGpt+yHgWEN+9EwoYhQ==
