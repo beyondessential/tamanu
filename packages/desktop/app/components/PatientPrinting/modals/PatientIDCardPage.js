@@ -25,7 +25,7 @@ const Card = styled.div`
 const Details = styled.div`
   display: flex;
   flex-direction: column;
-  padding-top: 0.3rem;
+  padding-top: 5mm;
   margin-left: 5mm;
 `;
 
