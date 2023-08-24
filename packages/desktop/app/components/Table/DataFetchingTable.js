@@ -179,18 +179,22 @@ export const DataFetchingTable = memo(
 
             const isLeavingPageOne = previousFetch.page === 0 && page > 0;
             const isChangingFromInitialSort = isEqual(previousFetch.sorting, initialSort) && hasSortingChanged;
-            if (
-              // conditions for resetting new row styling
-              (isLeavingPageOne && isInitialSort) ||
-              (page === 0 && isChangingFromInitialSort) ||
-              hasSearchChanged ||
-              isFirstFetch
-            ) {
-              setShowNotification(false);
-              setNewRowCount(0);
-            } else {
+            
+            // TODO: move out of a function
+            const getShouldShowRowHighlight = () => {
+              if (isFirstFetch) return false;
+              if (hasSearchChanged) return false;
+              if (isLeavingPageOne && isInitialSort) return false;
+              if (page === 0 && isChangingFromInitialSort) return false;
+              return true;
+            };
+            
+            if (getShouldShowRowHighlight()) {
               setShowNotification(rowsSinceInteraction > 0 && !(page === 0 && isInitialSort));
               setNewRowCount(rowsSinceInteraction);
+            } else {
+              setShowNotification(false);
+              setNewRowCount(0);
             }
 
             const shouldHighlightData = !isFirstFetch && isInitialSort && !hasSearchChanged;
