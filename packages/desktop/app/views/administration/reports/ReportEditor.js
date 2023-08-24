@@ -8,6 +8,7 @@ import {
   REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
   REPORT_STATUSES_VALUES,
+  REPORT_DB_ROLES_VALUES,
 } from '@tamanu/constants/reports';
 import {
   Button,
@@ -40,6 +41,11 @@ const DATA_SOURCE_OPTIONS = [
 ];
 
 const DATE_RANGE_OPTIONS = REPORT_DEFAULT_DATE_RANGES_VALUES.map(value => ({
+  label: value,
+  value,
+}));
+
+const DB_ROLE_OPTIONS = REPORT_DB_ROLES_VALUES.map(value => ({
   label: value,
   value,
 }));
@@ -92,7 +98,6 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
     setParams(newParams);
   };
   const onParamsDelete = paramId => setParams(params.filter(p => p.id !== paramId));
-
   return (
     <>
       <Grid container spacing={2}>
@@ -119,6 +124,14 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
             name="defaultDateRange"
             component={SelectField}
             options={DATE_RANGE_OPTIONS}
+          />
+        </Grid>
+        <Grid item xs={4}>
+          <StyledField
+            label="Where to run"
+            name="reportDBRole"
+            component={SelectField}
+            options={DB_ROLE_OPTIONS}
           />
         </Grid>
       </Grid>
