@@ -90,24 +90,6 @@ const DetailsRow = ({ name, value }) => {
   );
 };
 
-const TopRow = styled.div`
-  font-size: 3.3mm;
-  padding-bottom: 0.1rem;
-  display: flex;
-  flex-direction: row;
-`;
-
-const DisplayIdRow = ({ name, value }) => {
-  const { getLocalisation } = useLocalisation();
-  const label = getLocalisation(`fields.${name}.shortLabel`);
-  return (
-    <TopRow>
-      <DetailsKey>{`${label}: `}</DetailsKey>
-      <DetailsValue>{value}</DetailsValue>
-    </TopRow>
-  );
-};
-
 const PhotoLabel = ({ patient }) => (
   <div style={{ fontSize: '2.2mm', textAlign: 'center' }}>
     <strong style={{ margin: 'auto' }}>
@@ -163,7 +145,7 @@ export const PatientIDCardPage = ({ patient, imageData }) => {
             <PhotoLabel patient={patient} />
           </PhotoContainer>
           <Details>
-            <DisplayIdRow name="displayId" value={patient.displayId} />
+            <DetailsRow name="displayId" value={patient.displayId} />
             <DetailsRow name="lastName" value={patient.lastName} />
             <DetailsRow name="firstName" value={patient.firstName} />
             <DetailsRow name="dateOfBirth" value={DateDisplay.rawFormat(patient.dateOfBirth)} />
