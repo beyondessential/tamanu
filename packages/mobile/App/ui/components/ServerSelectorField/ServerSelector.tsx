@@ -5,7 +5,7 @@ import { SelectOption, Dropdown } from '../Dropdown';
 import { StyledText, StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
-import * as overrides from '/root/serverOverrides';
+import * as overrides from '/root/serverOverrides.json';
 
 const DEFAULT_META_SERVER = __DEV__ ? 'https://meta-dev.tamanu.io' : 'https://meta.tamanu.io';
 const META_SERVER = overrides?.metaServer || DEFAULT_META_SERVER;
