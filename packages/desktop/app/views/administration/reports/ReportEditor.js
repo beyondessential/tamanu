@@ -8,7 +8,7 @@ import {
   REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
   REPORT_STATUSES_VALUES,
-  REPORT_DB_ROLES_VALUES,
+  REPORT_DB_ROLES,
 } from '@tamanu/constants/reports';
 import {
   Button,
@@ -46,10 +46,10 @@ const DATE_RANGE_OPTIONS = REPORT_DEFAULT_DATE_RANGES_VALUES.map(value => ({
   value,
 }));
 
-const DB_ROLE_OPTIONS = REPORT_DB_ROLES_VALUES.map(value => ({
-  label: value,
-  value,
-}));
+const DB_ROLE_OPTIONS = [
+  { label: 'Dataset', value: REPORT_DB_ROLES.DATASET },
+  { label: 'Raw', value: REPORT_DB_ROLES.RAW },
+];
 
 const generateDefaultParameter = () => ({
   id: Math.random(),
@@ -102,6 +102,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
   const onParamsDelete = paramId => setParams(params.filter(p => p.id !== paramId));
 
   const canWriteReportUser = ability?.can('write', 'ReportDbUser');
+  const showDataSourceField = values.reportDbRole === REPORT_DB_ROLES.RAW;
 
   return (
     <>
@@ -117,14 +118,6 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
         </Grid>
         <Grid item xs={4}>
           <StyledField
-            label="Can be run on"
-            name="dataSources"
-            component={MultiselectField}
-            options={DATA_SOURCE_OPTIONS}
-          />
-        </Grid>
-        <Grid item xs={4}>
-          <StyledField
             label="Default date range"
             name="defaultDateRange"
             component={SelectField}
@@ -134,10 +127,21 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
         {canWriteReportUser && (
           <Grid item xs={4}>
             <StyledField
-              label="Where to run"
-              name="reportDBRole"
+              label="DB role"
+              name="reportDbRole"
               component={SelectField}
               options={DB_ROLE_OPTIONS}
+              defaultValue={REPORT_DB_ROLES.DATASET}
+            />
+          </Grid>
+        )}
+        {showDataSourceField && (
+          <Grid item xs={4}>
+            <StyledField
+              label="Can be run on"
+              name="dataSources"
+              component={MultiselectField}
+              options={DATA_SOURCE_OPTIONS}
             />
           </Grid>
         )}
