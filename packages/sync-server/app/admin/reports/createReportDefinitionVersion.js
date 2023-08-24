@@ -19,8 +19,8 @@ export async function createReportDefinitionVersion(store, reportId, definition,
       isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
     },
     async () => {
-      const { name, ...definitionVersion } = definition;
-      const reportDefinitionId = reportId || (await ReportDefinition.create({ name })).id;
+      const { name, dbRole, ...definitionVersion } = definition;
+      const reportDefinitionId = reportId || (await ReportDefinition.create({ name, dbRole })).id;
       const latestVersion = await ReportDefinitionVersion.findOne({
         where: { reportDefinitionId: reportId },
         attributes: ['versionNumber'],
