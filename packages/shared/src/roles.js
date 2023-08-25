@@ -135,7 +135,7 @@ export const practitioner = [
   { verb: 'write', noun: 'ReportDefinitionVersion' },
   { verb: 'create', noun: 'ReportDefinitionVersion' },
 
-  { verb: 'write', noun: 'ReportDbUser' },
+  { verb: 'write', noun: 'ReportDbRole' },
 
   { verb: 'list', noun: 'PatientCarePlan' },
   { verb: 'read', noun: 'PatientCarePlan' },
