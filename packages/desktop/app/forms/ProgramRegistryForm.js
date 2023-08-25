@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 
@@ -8,6 +8,8 @@ import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
 import { foreignKey, optionalForeignKey } from '../utils/validation';
+import { useApi } from '../api';
+import { Suggester } from '../utils/suggester';
 
 const suggesterType = PropTypes.shape({
   fetchSuggestions: PropTypes.func,
@@ -24,10 +26,10 @@ export const ProgramRegistryForm = React.memo(
     registeredBySuggester,
   }) => {
     const api = useApi();
-    const programRegistryStatusSuggester = new Suggester(api, 'programRegistryStatus', {
-      baseQueryParameters: { programRegistryId: true },
-    });
     const [programRegistryId, setProgramRegistryId] = useState();
+    const programRegistryStatusSuggester = new Suggester(api, 'programRegistryStatus', {
+      baseQueryParameters: { programRegistryId },
+    });
     return (
       <Form
         onSubmit={onSubmit}
@@ -47,15 +49,23 @@ export const ProgramRegistryForm = React.memo(
                 <FormGrid style={{ gridColumn: 'span 2' }}>
                   <Field
                     name="programRegistryId"
-                    label={'Program registry'}
+                    label="Program registry"
                     required
                     component={AutocompleteField}
                     suggester={programRegistrySuggester}
                     onChange={id => {
-                      console.log(id);
                       setProgramRegistryId(id);
                     }}
                   />
+                  <Field
+                    name="status"
+                    label="Status"
+                    component={AutocompleteField}
+                    suggester={programRegistryStatusSuggester}
+                    disabled={!programRegistryId}
+                  />
+                </FormGrid>
+                <FormGrid style={{ gridColumn: 'span 2' }}>
                   <Field
                     name="date"
                     label="Date of registration"
@@ -64,27 +74,20 @@ export const ProgramRegistryForm = React.memo(
                     component={DateField}
                   />
                   <Field
-                    name="registeringFacilityId"
-                    label={'Registering facility'}
-                    required
-                    component={AutocompleteField}
-                    suggester={registeringFacilitySuggester}
-                  />
-                </FormGrid>
-                <FormGrid style={{ gridColumn: 'span 2' }}>
-                  <Field
-                    name="status"
-                    label="Status"
-                    component={AutocompleteField}
-                    suggester={programRegistryStatusSuggester}
-                    disabled={!programRegistryId}
-                  />
-                  <Field
                     name="registeredById"
                     label={'Registered by'}
                     required
                     component={AutocompleteField}
                     suggester={registeredBySuggester}
+                  />
+                </FormGrid>
+                <FormGrid style={{ gridColumn: 'span 2' }}>
+                  <Field
+                    name="registeringFacilityId"
+                    label="Registering facility"
+                    required
+                    component={AutocompleteField}
+                    suggester={registeringFacilitySuggester}
                   />
                 </FormGrid>
 
