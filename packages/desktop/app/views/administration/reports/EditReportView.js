@@ -53,11 +53,12 @@ export const EditReportView = () => {
   );
 
   const handleBack = () => {
-    dispatch(push('administration/reports'));
+    dispatch(push('admin/reports'));
   };
 
   const handleSave = async ({ query, status, name, ...queryOptions }) => {
     const { dataSources } = queryOptions;
+    const { reportDefinition } = version;
     const payload = {
       queryOptions: {
         ...queryOptions,
@@ -67,13 +68,13 @@ export const EditReportView = () => {
       status,
     };
     try {
-      const result = await api.post(`admin/reports/${version.reportId}/versions`, payload);
+      const result = await api.post(`admin/reports/${reportDefinition.id}/versions`, payload);
       toast.success(
-        `Saved new version: ${result.versionNumber} for report ${version.reportDefinition.name}`,
+        `Saved new version: ${result.versionNumber} for report ${reportDefinition.name}`,
       );
-      queryClient.invalidateQueries(['reportVersions', version.reportDefinitionId]);
+      queryClient.invalidateQueries(['reportVersions', reportDefinition.id]);
       queryClient.invalidateQueries(['reportList']);
-      dispatch(push(`/administration/reports/${version.reportId}/versions/${result.id}/edit`));
+      dispatch(push(`/admin/reports/${reportDefinition.id}/versions/${result.id}/edit`));
     } catch (err) {
       toast.error(`Failed to save version: ${err.message}`);
     }
