@@ -42,9 +42,9 @@ const ReportStatusTag = ({ status }) => {
   );
 };
 
-const useTableSorting = () => {
-  const [orderBy, setOrderBy] = useState(null);
-  const [order, setOrder] = useState('asc');
+const useTableSorting = ({initialSortKey, initialSortDirection}) => {
+  const [orderBy, setOrderBy] = useState(initialSortKey);
+  const [order, setOrder] = useState(initialSortDirection);
 
   const customSort = (data = []) => {
     const sortedData = data.sort((a, b) => {
@@ -68,7 +68,10 @@ const useTableSorting = () => {
 };
 
 export const ReportTable = React.memo(({ data, selected, onRowClick, loading, error }) => {
-  const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting();
+  const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting({
+    initialSortKey: 'name',
+    initialSortDirection: 'asc',
+  });
 
   return (
     <StyledTable
@@ -112,7 +115,10 @@ export const ReportTable = React.memo(({ data, selected, onRowClick, loading, er
 });
 
 export const VersionTable = React.memo(({ data, onRowClick, loading, error }) => {
-  const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting();
+  const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting({
+    initialSortKey: 'createdAt',
+    initialSortDirection: 'desc',
+  });
 
   return (
     <StyledTable
