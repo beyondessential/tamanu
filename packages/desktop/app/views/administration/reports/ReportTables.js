@@ -135,6 +135,7 @@ export const VersionTable = React.memo(({ data, onRowClick, loading, error }) =>
         {
           title: 'Status',
           key: 'status',
+          sortable: false,
           accessor: ({ status, active }) => <ReportStatusTag status={active ? 'active' : status} />,
         },
       ]}
