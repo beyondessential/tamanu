@@ -143,7 +143,7 @@ const NoteContent = ({
   const handleReadMore = useCallback(() => setContentIsExpanded(true), []);
   const handleReadLess = useCallback(() => setContentIsExpanded(false), []);
 
-  const noteMetaPrefix = note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated:' : 'Created:';
+  const showNoteMetaPrefix = note.noteType === NOTE_TYPES.TREATMENT_PLAN && note.revisedById;
   const noteAuthorName =
     note.noteType === NOTE_TYPES.TREATMENT_PLAN || !note.revisedBy
       ? note.author?.displayName
@@ -205,7 +205,7 @@ const NoteContent = ({
           )}
       </NoteBodyContainer>
       <NoteFooterContainer>
-        {note.revisedById && <NoteFooterTextElement>{noteMetaPrefix}</NoteFooterTextElement>}
+        {showNoteMetaPrefix && <NoteFooterTextElement>Last updated:</NoteFooterTextElement>}
         {noteAuthorName ? <NoteFooterTextElement>{noteAuthorName}</NoteFooterTextElement> : null}
         {noteOnBehalfOfName ? (
           <NoteFooterTextElement>on behalf of {noteOnBehalfOfName}</NoteFooterTextElement>
