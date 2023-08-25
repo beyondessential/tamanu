@@ -11,6 +11,10 @@ import { useAuth } from '../contexts/Auth';
 import { NoteModal } from './NoteModal';
 import { withPermissionCheck } from './withPermissionCheck';
 
+const StyledDataFetchingTable = styled(DataFetchingTable)`
+  height: 62vh;
+`;
+
 const StyledEditIcon = styled(EditIcon)`
   cursor: pointer;
   float: right;
@@ -300,7 +304,7 @@ const NoteTable = ({
           confirmText={modalNoteFormMode === NOTE_FORM_MODES.VIEW_NOTE ? 'Close' : 'Save'}
         />
       )}
-      <DataFetchingTable
+      <StyledDataFetchingTable
         lazyLoading
         hideHeader
         allowExport={false}
