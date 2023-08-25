@@ -17,7 +17,7 @@ export class PatientBirthData extends Model {
         birthDeliveryType: { type: Sequelize.STRING },
         attendantAtBirth: { type: Sequelize.STRING },
         nameOfAttendantAtBirth: { type: Sequelize.STRING },
-        gestationalAgeEstimate: { type: Sequelize.INTEGER },
+        gestationalAgeEstimate: { type: Sequelize.FLOAT },
         apgarScoreOneMinute: { type: Sequelize.INTEGER },
         apgarScoreFiveMinutes: { type: Sequelize.INTEGER },
         apgarScoreTenMinutes: { type: Sequelize.INTEGER },

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
-import { Box, IconButton as IconButtonComponent } from '@material-ui/core';
+import { Box, CircularProgress, IconButton as IconButtonComponent } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
@@ -20,6 +20,9 @@ import { VitalVectorIcon } from './Icons/VitalVectorIcon';
 import { useVitalChartData } from '../contexts/VitalChartData';
 import { useLocalisation } from '../contexts/Localisation';
 import { getNormalRangeByAge } from '../utils';
+import { useVitalsVisualisationConfigsQuery } from '../api/queries/useVitalsVisualisationConfigsQuery';
+import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
+import { combineQueries } from '../api';
 
 const StyledTable = styled(Table)`
   overflow-x: auto;
@@ -66,6 +69,7 @@ const MeasureCell = React.memo(({ value, data }) => {
     setModalTitle,
     setVitalChartModalOpen,
     visualisationConfigs,
+    setIsInMultiChartsView,
   } = useVitalChartData();
   const visualisationConfig = visualisationConfigs.find(({ key }) => key === data.dataElementId);
   const { hasVitalChart = false } = visualisationConfig || {};
@@ -93,6 +97,7 @@ const MeasureCell = React.memo(({ value, data }) => {
             size="small"
             onClick={() => {
               setChartKeys([chartKey]);
+              setIsInMultiChartsView(false);
               setModalTitle(value);
               setVitalChartModalOpen(true);
             }}
@@ -110,28 +115,49 @@ const TitleCell = React.memo(({ value }) => {
     setChartKeys,
     setModalTitle,
     setVitalChartModalOpen,
-    visualisationConfigs,
+    setIsInMultiChartsView,
   } = useVitalChartData();
-  const allChartKeys = visualisationConfigs
-    .filter(({ hasVitalChart, key }) => hasVitalChart && key !== VITALS_DATA_ELEMENT_IDS.dbp) // Only show one blood pressure chart on multi vital charts
-    .map(({ key }) => key);
+  const vitalsVisualisationConfigsQuery = useVitalsVisualisationConfigsQuery();
+  const userPreferencesQuery = useUserPreferencesQuery();
+  const {
+    data: [vitalsVisualisationConfigs, userPreferences],
+    isSuccess,
+    isLoading,
+  } = combineQueries([vitalsVisualisationConfigsQuery, userPreferencesQuery]);
+
+  let chartKeys = [];
+  if (isSuccess) {
+    const {
+      selectedGraphedVitalsOnFilter: rawSelectedGraphedVitalsOnFilter = 'select-all',
+    } = userPreferences;
+    const selectedGraphedVitalsOnFilter = rawSelectedGraphedVitalsOnFilter.trim();
+    const { allGraphedChartKeys } = vitalsVisualisationConfigs;
+
+    chartKeys = ['select-all', ''].includes(selectedGraphedVitalsOnFilter)
+      ? allGraphedChartKeys
+      : selectedGraphedVitalsOnFilter.split(',').filter(key => allGraphedChartKeys.includes(key));
+  }
 
   return (
     <>
       <Box flexDirection="row" display="flex" alignItems="center" justifyContent="space-between">
         {value}
-        {allChartKeys.length > 0 && (
-          <IconButton
-            size="small"
-            onClick={() => {
-              setChartKeys(allChartKeys);
-              setModalTitle('Vitals');
-              setVitalChartModalOpen(true);
-            }}
-          >
-            <VitalVectorIcon />
-          </IconButton>
-        )}
+        {isSuccess &&
+          vitalsVisualisationConfigs &&
+          vitalsVisualisationConfigs.allGraphedChartKeys.length > 0 && (
+            <IconButton
+              size="small"
+              onClick={() => {
+                setChartKeys(chartKeys);
+                setIsInMultiChartsView(true);
+                setModalTitle('Vitals');
+                setVitalChartModalOpen(true);
+              }}
+            >
+              <VitalVectorIcon />
+            </IconButton>
+          )}
+        {isLoading && <CircularProgress size={14} />}
       </Box>
     </>
   );
