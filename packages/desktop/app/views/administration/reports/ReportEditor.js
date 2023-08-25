@@ -121,6 +121,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
             label="Default date range"
             name="defaultDateRange"
             component={SelectField}
+            isClearable={false}
             options={DATE_RANGE_OPTIONS}
           />
         </Grid>
