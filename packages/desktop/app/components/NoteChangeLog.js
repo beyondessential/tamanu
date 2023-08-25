@@ -19,7 +19,7 @@ const StyledListItemText = styled(ListItemText)`
     width: 100%;
   }
 `;
-const StyledNoteChangeLogSecondaryWrapper = styled.div`
+const StyledNoteChangeLogInfoWrapper = styled.div`
   font-weight: 500;
   font-size: 11px;
   line-height: 15px;
@@ -29,14 +29,14 @@ const StyledNoteChangeLogSecondaryWrapper = styled.div`
 
 const NoteChangeLogMain = ({ note }) => <span>{note.content} </span>;
 
-const NoteChangeLogSecondary = ({ note }) => (
-  <StyledNoteChangeLogSecondaryWrapper>
+const NoteChangeLogInfo = ({ note }) => (
+  <StyledNoteChangeLogInfoWrapper>
     <>
       <span>{note.author?.displayName || ''} </span>
       {note.onBehalfOf ? <span>on behalf of {note.onBehalfOf.displayName} </span> : null}
       <DateDisplay date={note.date} showTime />
     </>
-  </StyledNoteChangeLogSecondaryWrapper>
+  </StyledNoteChangeLogInfoWrapper>
 );
 
 export const NoteChangeLog = ({ note }) => (
@@ -44,7 +44,7 @@ export const NoteChangeLog = ({ note }) => (
     <StyledListItemText
       primary={
         <>
-          <NoteChangeLogSecondary note={note} />
+          <NoteChangeLogInfo note={note} />
           <NoteChangeLogMain note={note} />
           <StyledDivider />
         </>
