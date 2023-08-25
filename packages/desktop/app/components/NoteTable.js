@@ -305,7 +305,6 @@ const NoteTable = ({
         />
       )}
       <StyledDataFetchingTable
-        isNoteTable
         lazyLoading
         hideHeader
         allowExport={false}
