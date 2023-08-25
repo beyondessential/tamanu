@@ -443,10 +443,11 @@ class TableComponent extends React.Component {
       data,
       isLoading,
       noDataBackgroundColor,
+      tableRef,
     } = this.props;
 
     return (
-      <StyledTableContainer className={className} $elevated={elevated}>
+      <StyledTableContainer className={className} $elevated={elevated} ref={tableRef}>
         {optionRow && <OptionRow>{optionRow}</OptionRow>}
         <StyledTable
           $backgroundColor={data.length || isLoading ? Colors.white : noDataBackgroundColor}
@@ -535,7 +536,7 @@ TableComponent.defaultProps = {
   noDataBackgroundColor: Colors.white,
 };
 
-export const Table = ({ columns: allColumns, data, exportName, ...props }) => {
+export const Table = React.forwardRef(({ columns: allColumns, data, exportName, ...props }, ref) => {
   const { getLocalisation } = useLocalisation();
   const columns = allColumns.filter(({ key }) => getLocalisation(`fields.${key}.hidden`) !== true);
 
@@ -545,7 +546,8 @@ export const Table = ({ columns: allColumns, data, exportName, ...props }) => {
       data={data}
       exportname={exportName}
       getLocalisation={getLocalisation}
+      tableRef={ref}
       {...props}
     />
   );
-};
+});
