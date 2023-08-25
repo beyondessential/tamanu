@@ -107,7 +107,7 @@ const StyledTableBody = styled(TableBody)`
       props.$lazyLoading
         ? `
         overflow: auto;
-        max-height: 300px;
+        height: 62vh;
         display: block;
       `
         : ''};
