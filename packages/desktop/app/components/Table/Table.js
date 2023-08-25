@@ -536,18 +536,22 @@ TableComponent.defaultProps = {
   noDataBackgroundColor: Colors.white,
 };
 
-export const Table = React.forwardRef(({ columns: allColumns, data, exportName, ...props }, ref) => {
-  const { getLocalisation } = useLocalisation();
-  const columns = allColumns.filter(({ key }) => getLocalisation(`fields.${key}.hidden`) !== true);
+export const Table = React.forwardRef(
+  ({ columns: allColumns, data, exportName, ...props }, ref) => {
+    const { getLocalisation } = useLocalisation();
+    const columns = allColumns.filter(
+      ({ key }) => getLocalisation(`fields.${key}.hidden`) !== true,
+    );
 
-  return (
-    <TableComponent
-      columns={columns}
-      data={data}
-      exportname={exportName}
-      getLocalisation={getLocalisation}
-      tableRef={ref}
-      {...props}
-    />
-  );
-});
+    return (
+      <TableComponent
+        columns={columns}
+        data={data}
+        exportname={exportName}
+        getLocalisation={getLocalisation}
+        tableRef={ref}
+        {...props}
+      />
+    );
+  },
+);
