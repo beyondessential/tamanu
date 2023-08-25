@@ -109,7 +109,6 @@ export const ReportTable = React.memo(({ data, selected, onRowClick, loading, er
       customSort={customSort}
       orderBy={orderBy}
       order={order}
-      initialSort={{ orderBy: 'name', order: 'desc' }}
     />
   );
 });
