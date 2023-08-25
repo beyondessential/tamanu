@@ -1,7 +1,6 @@
 import React from 'react';
 import { formatShort, formatTime } from '../../../../components';
 import { InfoCard, InfoCardItem } from '../../../../components/InfoCard';
-import { DB_ROLES, REPORT_STATUSES } from '@tamanu/constants/reports';
 
 export const VersionInfo = ({ version }) => (
   <InfoCard inlineValues>
