@@ -245,7 +245,7 @@ storiesOf('Forms', module)
 
 storiesOf('Forms', module).add('ProgramRegistryFrom', () => (
   <MockedApi endpoints={mockProgramRegistrytFormEndpoints}>
-    <Modal width="md" title="Add program registry">
+    <Modal width="md" title="Add program registry" open>
       <ProgramRegistryForm
         onSubmit={action('submit')}
         onCancel={action('cancel')}

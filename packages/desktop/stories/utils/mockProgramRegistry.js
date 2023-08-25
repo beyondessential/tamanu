@@ -12,7 +12,7 @@ export const mockProgramRegistrytFormEndpoints = {
     { id: '1', name: 'Normal' },
     { id: '2', name: 'Urgent' },
   ],
-  'suggestions/programRegistyStatus/all': () => [
+  'suggestions/programRegistryStatus/all': () => [
     { id: '1', name: 'Pending' },
     { id: '2', name: 'Inprogress' },
     { id: '3', name: 'Complete' },
