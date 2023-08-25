@@ -101,7 +101,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
   };
   const onParamsDelete = paramId => setParams(params.filter(p => p.id !== paramId));
 
-  const canWriteReportUser = ability?.can('write', 'ReportDbUser');
+  const canWriteRawReportUser = ability?.can('write', 'ReportDbUser');
   const showDataSourceField = values.dbRole === REPORT_DB_ROLES.RAW;
 
   return (
@@ -124,7 +124,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
             options={DATE_RANGE_OPTIONS}
           />
         </Grid>
-        {canWriteReportUser && (
+        {canWriteRawReportUser && (
           <Grid item xs={4}>
             <StyledField
               label="DB role"
