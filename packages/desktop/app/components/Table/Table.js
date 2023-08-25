@@ -101,6 +101,19 @@ const StyledTableContainer = styled.div`
   ${props => (props.$elevated ? PaperStyles : null)};
 `;
 
+const StyledTableBody = styled(TableBody)`
+  &.MuiTableBody-root {
+    ${props =>
+      props.$lazyLoading
+        ? `
+        overflow: auto;
+        max-height: 300px;
+        display: block;
+      `
+        : ''};
+  }
+`;
+
 const StyledTableCellContent = styled.div`
   max-width: ${props => props.maxWidth}px;
   overflow: hidden;
@@ -461,7 +474,9 @@ class TableComponent extends React.Component {
               <StyledTableRow $lazyLoading={lazyLoading}>{this.renderHeaders()}</StyledTableRow>
             </StyledTableHead>
           )}
-          <TableBody onScroll={this.handleScroll}>{this.renderBodyContent()}</TableBody>
+          <StyledTableBody onScroll={this.handleScroll} $lazyLoading={lazyLoading}>
+            {this.renderBodyContent()}
+          </StyledTableBody>
           {this.renderFooter()}
         </StyledTable>
       </StyledTableContainer>
