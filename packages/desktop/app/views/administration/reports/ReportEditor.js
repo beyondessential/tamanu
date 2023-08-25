@@ -134,6 +134,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
               options={DB_ROLE_OPTIONS}
               defaultValue={REPORT_DB_ROLES.DATASET}
               disabled={isEdit}
+              isClearable={false}
             />
           </Grid>
         )}
