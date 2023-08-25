@@ -42,7 +42,7 @@ const ReportStatusTag = ({ status }) => {
   );
 };
 
-const useTableSorting = ({initialSortKey, initialSortDirection}) => {
+const useTableSorting = ({ initialSortKey, initialSortDirection }) => {
   const [orderBy, setOrderBy] = useState(initialSortKey);
   const [order, setOrder] = useState(initialSortDirection);
 
