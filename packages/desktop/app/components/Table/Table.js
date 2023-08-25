@@ -107,7 +107,7 @@ const StyledTableBody = styled(TableBody)`
       props.$lazyLoading
         ? `
         overflow: auto;
-        max-height: 300px;
+        height: 62vh;
         display: block;
       `
         : ''};
@@ -456,10 +456,11 @@ class TableComponent extends React.Component {
       data,
       isLoading,
       noDataBackgroundColor,
+      tableRef,
     } = this.props;
 
     return (
-      <StyledTableContainer className={className} $elevated={elevated}>
+      <StyledTableContainer className={className} $elevated={elevated} ref={tableRef}>
         {optionRow && <OptionRow>{optionRow}</OptionRow>}
         <StyledTable
           $backgroundColor={data.length || isLoading ? Colors.white : noDataBackgroundColor}
@@ -550,17 +551,22 @@ TableComponent.defaultProps = {
   noDataBackgroundColor: Colors.white,
 };
 
-export const Table = ({ columns: allColumns, data, exportName, ...props }) => {
-  const { getLocalisation } = useLocalisation();
-  const columns = allColumns.filter(({ key }) => getLocalisation(`fields.${key}.hidden`) !== true);
+export const Table = React.forwardRef(
+  ({ columns: allColumns, data, exportName, ...props }, ref) => {
+    const { getLocalisation } = useLocalisation();
+    const columns = allColumns.filter(
+      ({ key }) => getLocalisation(`fields.${key}.hidden`) !== true,
+    );
 
-  return (
-    <TableComponent
-      columns={columns}
-      data={data}
-      exportname={exportName}
-      getLocalisation={getLocalisation}
-      {...props}
-    />
-  );
-};
+    return (
+      <TableComponent
+        columns={columns}
+        data={data}
+        exportname={exportName}
+        getLocalisation={getLocalisation}
+        tableRef={ref}
+        {...props}
+      />
+    );
+  },
+);
