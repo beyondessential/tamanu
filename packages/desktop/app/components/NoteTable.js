@@ -205,7 +205,7 @@ const NoteContent = ({
           )}
       </NoteBodyContainer>
       <NoteFooterContainer>
-        <NoteFooterTextElement>{noteMetaPrefix}</NoteFooterTextElement>
+        {note.revisedById && <NoteFooterTextElement>{noteMetaPrefix}</NoteFooterTextElement>}
         {noteAuthorName ? <NoteFooterTextElement>{noteAuthorName}</NoteFooterTextElement> : null}
         {noteOnBehalfOfName ? (
           <NoteFooterTextElement>on behalf of {noteOnBehalfOfName}</NoteFooterTextElement>
