@@ -17,7 +17,8 @@
     "build:src": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true src",
     "build:types": "tsc --declaration --emitDeclarationOnly --noEmit false && move-dts src dist",
     "build-watch": "yarn run build && yarn run build:src --watch",
-    "lint": "tsc"
+    "lint": "tsc",
+    "lint:fix": "echo tsc --fix not yet supported"
   },
   "devDependencies": {
     "@tamanu/build-tooling": "*",
