@@ -25,6 +25,7 @@ import { changeDateColumnToNullableForAdministeredVaccine1683598923000 } from '.
 import { addDisplayIdToUsers1688428478000 } from './1688428478000-addDisplayIdToUsers';
 import { addSpecimenTypeAndCollectedByToLabRequest1686083400000 } from './1686083400000-addSpecimenTypeAndCollectedByToLabRequest';
 import { addVitalLogs1690236942000 } from './1690236942000-addVitalLogs';
+import { migrateNotePagesToNotes1688950151000 } from './1688950151000-migrateNotePagesToNotes';
 import { addScopeToSettingsTable1691115215000 } from './1691115215000-addScopeToSettingsTable';
 
 export const migrationList = [
@@ -54,5 +55,6 @@ export const migrationList = [
   addDisplayIdToUsers1688428478000,
   addSpecimenTypeAndCollectedByToLabRequest1686083400000,
   addVitalLogs1690236942000,
+  migrateNotePagesToNotes1688950151000,
   addScopeToSettingsTable1691115215000,
 ];
