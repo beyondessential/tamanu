@@ -1,3 +1,7 @@
+/// <reference path="../../../../shared/types/models.d.ts" />
+
+import { Model } from '@tamanu/shared/models';
+// import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { Reader } from './Reader';
 
 export class SettingsDBReader extends Reader {
@@ -5,7 +9,7 @@ export class SettingsDBReader extends Reader {
   scope: string;
   facilityId: string | undefined;
 
-  constructor(models: any, scope: string, facilityId?: string) {
+  constructor(models: { [key: string]: Model }, scope: string, facilityId?: string) {
     super();
     this.models = models;
     this.scope = scope;

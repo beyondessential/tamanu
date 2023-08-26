@@ -15,7 +15,7 @@ class SettingsCache {
     return this.cache;
   }
 
-  set(value) {
+  set(value: any) {
     this.cache = value;
     // Calculate expiration timestamp based on ttl
     this.expirationTimestamp = Date.now() + this.ttl;

@@ -4,12 +4,12 @@ import { settingsCache } from '../cache';
 export class ReadSettings {
   models: any;
   facilityId: string | undefined;
-  constructor(models, facilityId) {
+  constructor(models: any, facilityId: any) {
     this.models = models;
     this.facilityId = facilityId;
   }
 
-  async get(key) {
+  async get(key: any) {
     let settings = settingsCache.get();
     if (!settings) {
       settings = await buildSettings(this.models, this.facilityId);
