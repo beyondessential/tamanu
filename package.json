@@ -8,7 +8,7 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN license",
   "scripts": {
-    "clean": "rimraf packages/*/dist packages/*/*.tsbuildinfo",
+    "clean": "rimraf packages/*/dist packages/*/src/**/*.d.ts",
     "create-package": "node scripts/create-package.mjs",
     "build": "node scripts/build-all.mjs",
     "build-shared": "yarn run build --shared-only",
@@ -55,7 +55,9 @@
       "packages/sync-server",
       "packages/meta-server",
       "packages/shared",
-      "packages/constants"
+      "packages/constants",
+      "packages/api-client",
+      "packages/api-cli"
     ],
     "nohoist": [
       "**/webpack",
