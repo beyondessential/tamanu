@@ -460,7 +460,7 @@ class TableComponent extends React.Component {
     } = this.props;
 
     return (
-      <StyledTableContainer className={className} $elevated={elevated} ref={tableRef}>
+      <StyledTableContainer className={className} $elevated={elevated}>
         {optionRow && <OptionRow>{optionRow}</OptionRow>}
         <StyledTable
           $backgroundColor={data.length || isLoading ? Colors.white : noDataBackgroundColor}
@@ -474,7 +474,7 @@ class TableComponent extends React.Component {
               <StyledTableRow $lazyLoading={lazyLoading}>{this.renderHeaders()}</StyledTableRow>
             </StyledTableHead>
           )}
-          <StyledTableBody onScroll={this.handleScroll} $lazyLoading={lazyLoading}>
+          <StyledTableBody onScroll={this.handleScroll} $lazyLoading={lazyLoading} ref={tableRef}>
             {this.renderBodyContent()}
           </StyledTableBody>
           {this.renderFooter()}
