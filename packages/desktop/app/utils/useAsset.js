@@ -27,14 +27,14 @@ export const useAsset = assetName => {
 
   useEffect(() => {
     if (queryData) {
-      setAssetData(queryResponseToAssetData(queryData.data));
+      setAssetData(queryResponseToAssetData(queryData));
       setAssetDataType(queryData.type);
     }
   }, [queryData]);
 
   useEffect(() => {
     if (!queryData && fallbackQueryData) {
-      setAssetData(queryResponseToAssetData(fallbackQueryData.data));
+      setAssetData(queryResponseToAssetData(fallbackQueryData));
       setAssetDataType(fallbackQueryData.type);
     }
   }, [queryData, fallbackQueryData]);
