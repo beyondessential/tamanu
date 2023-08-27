@@ -32,12 +32,12 @@ export class ProgramRegistry extends Model {
         validate: {
           mustHaveValidCurrentlyAtType() {
             if (!Object.values(CURRENTLY_AT_TYPES).includes(this.currentlyAtType)) {
-              throw new InvalidOperationError(`The currentlyAtType must be one of ${
-                CURRENTLY_AT_TYPES.join(', ')
-              }`);
+              throw new InvalidOperationError(
+                `The currentlyAtType must be one of ${CURRENTLY_AT_TYPES.join(', ')}`,
+              );
             }
-          }
-        }
+          },
+        },
       },
     );
   }
