@@ -23,7 +23,7 @@ const fetchServers = async (): Promise<SelectOption[]> => {
   // return [{ label: 'Local', value: 'http://192.168.0.1:3000' }];
 
   // allows overriding the central server list in builds
-  if (overrides?.centralServers) {
+  if (overrides.centralServers) {
     return overrides.centralServers;
   }
 
