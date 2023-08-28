@@ -98,12 +98,14 @@ export function readMetadata(metadataSheet) {
   const surveyMetadata = surveyRows
     .map(row => ({
       ...row,
+      // Note: __rowNum__ is a non-enumerable property, so needs to be accessed explicitly here
+      rowIndex: row.__rowNum__,
       sheetName: row.name,
       id: `${programId}-${idify(row.code)}`,
       name: `${prefix}${row.name}`,
       programId,
     }))
-    .filter(({ status, name, __rowNum__: rowIndex }) => {
+    .filter(({ status, name, rowIndex }) => {
       // check against home server & publication status
       switch (status || 'draft') {
         case 'publish':

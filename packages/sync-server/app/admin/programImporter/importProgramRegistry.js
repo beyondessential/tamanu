@@ -74,6 +74,7 @@ export async function importProgramRegistry(programRegistryContext, workbook, pr
     sheetName: 'Registry',
     rows: clinicalStatuses.map(row => ({
       model: 'ProgramRegistryClinicalStatus',
+      // Note: __rowNum__ is a non-enumerable property, so needs to be accessed explicitly here
       sheetRow: row.__rowNum__,
       values: {
         id: `prcl-${row.code}`,
