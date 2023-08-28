@@ -107,6 +107,14 @@ export class User extends Model {
       foreignKey: 'completedById',
     });
 
+    this.hasMany(models.UserPreference, {
+      foreignKey: 'userId',
+    });
+
+    this.hasMany(models.UserFacility, {
+      foreignKey: 'facilityId',
+    });
+
     this.belongsToMany(models.Facility, {
       through: 'UserFacility',
     });

@@ -30,7 +30,9 @@ export const ReferenceDataField = React.memo(({
     (async (): Promise<void> => {
       const repo = models.ReferenceData.getRepository();
       const data = await repo.find({
-        type: referenceDataType,
+        where: {
+          type: referenceDataType,
+        },
       });
 
       setDropdownItems(data.map(item => ({ label: item.name, value: item.id })));

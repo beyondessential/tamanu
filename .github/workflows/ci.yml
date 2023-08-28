@@ -76,33 +76,21 @@ jobs:
       - run: yarn build
 
   lint:
-    continue-on-error: true
-
-    strategy:
-      fail-fast: false
-      matrix:
-        node:
-          - '16.x'
-        package:
-          - desktop
-          - lan
-          - meta-server
-          - "@tamanu/shared"
-          - sync-server
-
-    name: Lint ${{ matrix.package }} node=${{ matrix.node }}
+    name: Lint packages
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node }}
+      - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 16
           cache: yarn
       - run: yarn
       - run: yarn build-shared
 
-      - run: yarn workspace ${{ matrix.package }} run lint
+      - run: yarn lint-all
+        env:
+          CONTINUE_ON_ERROR: true
 
   storybook:
     # Workaround for define plugin conflict warning
