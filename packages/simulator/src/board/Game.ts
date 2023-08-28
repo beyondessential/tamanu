@@ -12,12 +12,11 @@ export abstract class Game extends Element {
       throw new Error('Game has started, cannot add more players');
     }
 
-    for (let i = 0; i < n; i += 1) {
-      const players = this.#players.get(Play.name) ?? [];
-      const player = new Play(`${players.length}`, this.context);
-      players.push(player);
-      this.#players.set(Play.name, players);
-    }
+    const players = this.#players.get(Play.name) ?? [];
+    const newPlayers = (new Array(n)).fill(0).map((_, i) => {
+      return new Play(`${players.length + i}`, this.context);
+    });
+    this.#players.set(Play.name, [...players, ...newPlayers]);
   }
 
   async runRound(): Promise<void> {
