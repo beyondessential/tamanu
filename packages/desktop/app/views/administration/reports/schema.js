@@ -1,5 +1,5 @@
 import {
-  REFERENCE_TYPE_VALUES,
+  SUGGESTER_ENDPOINTS,
   REPORT_STATUSES_VALUES,
   REPORT_DEFAULT_DATE_RANGES_VALUES,
   REPORT_DATA_SOURCE_VALUES,
@@ -97,19 +97,9 @@ export const schema = {
           title: 'Suggester Endpoint',
           description:
             'This is the form field that is displayed to the user in the Tamanu desktop app that is used to capture the user input',
-          enum: [
-            'department',
-            'facility',
-            'facilityLocationGroup',
-            'invoiceLineTypes',
-            'practitioner',
-            'patients',
-            'labTestType',
-            'location',
-            'locationGroup',
-            'survey',
-            ...REFERENCE_TYPE_VALUES,
-          ],
+          enum: SUGGESTER_ENDPOINTS.sort((a, b) => {
+            return a.localeCompare(b);
+          }),
         },
         suggesterOptions: {
           type: 'object',

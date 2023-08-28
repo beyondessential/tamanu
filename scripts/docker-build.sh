@@ -26,7 +26,11 @@ common() {
 
 build_shared() {
   yarn clean
-  yarn build-shared
+  # as `yarn build-shared` removes anything that's not a dependency of another
+  #   package, and when the Dockerfile builds `shared` it removes non-shared
+  #   packages, we want to run `yarn build` to ensure every remaining package
+  #   is build regardless of whether it appears to be dependent
+  yarn build
 }
 
 remove_irrelevant_packages() {

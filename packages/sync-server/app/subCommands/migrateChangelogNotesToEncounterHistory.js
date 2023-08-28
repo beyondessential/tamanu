@@ -1,9 +1,9 @@
 import { Command } from 'commander';
 
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import { log } from 'shared/services/logging';
 
 import { initDatabase } from '../database';
-import { sleepAsync } from '../../../shared/src/utils/sleepAsync';
 
 const LATEST_ENCOUNTER_FLAG = 'latest_encounter';
 
@@ -418,7 +418,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
 
       log.info(`Migrated changelog of ${batchSize} batch_encounters...`);
 
-      sleepAsync(50);
+      await sleepAsync(50);
     }
 
     process.exit(0);

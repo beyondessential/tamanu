@@ -1,16 +1,16 @@
 import { ID } from './ID';
-import { INotePage } from './INotePage';
+import { ILegacyNotePage } from './ILegacyNotePage';
 import { IUser } from './IUser';
 import { DateTimeString } from './DateString';
 
-export interface INoteItem {
+export interface ILegacyNoteItem {
   id: ID;
   date: DateTimeString;
   content: string;
 
   revisedById?: string;
 
-  notePage: INotePage
+  notePage: ILegacyNotePage
   notePageId: ID;
 
   author?: IUser;
