@@ -55,6 +55,7 @@ export const migrationList = [
   addDisplayIdToUsers1688428478000,
   addSpecimenTypeAndCollectedByToLabRequest1686083400000,
   addVitalLogs1690236942000,
+  addScopeToSettingsTable1691115215000,
   migrateNotePagesToNotes1688950151000,
   addScopeToSettingsTable1691115215000,
 ];
