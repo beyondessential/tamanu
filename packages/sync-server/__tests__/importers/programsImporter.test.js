@@ -149,7 +149,7 @@ describe('Programs import', () => {
 
     expect(errors[0]).toHaveProperty(
       'message',
-      'Survey Samoa PEN Referral Example has invalid status not-a-status. Must be one of publish, draft, hidden. on Metadata at row 9',
+      'Survey Samoa PEN Referral Example has invalid status not-a-status. Must be one of publish, draft, hidden. on Metadata at row 8',
     );
   });
 
