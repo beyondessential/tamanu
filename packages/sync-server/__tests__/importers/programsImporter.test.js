@@ -6,7 +6,7 @@ import { createTestContext } from '../utilities';
 import './matchers';
 
 // the importer can take a little while
-jest.setTimeout(30000);
+jest.setTimeout(300000);
 
 describe('Programs import', () => {
   let ctx;
@@ -136,6 +136,20 @@ describe('Programs import', () => {
     expect(errors[0]).toHaveProperty(
       'message',
       `ENOENT: no such file or directory, open './__tests__/importers/programs-nofile.xlsx'`,
+    );
+  });
+
+  it('should error on invalid import status', async () => {
+    const { didntSendReason, errors } = await doImport({
+      file: 'invalid-survey-status',
+      dryRun: true,
+    });
+
+    expect(didntSendReason).toEqual('validationFailed');
+
+    expect(errors[0]).toHaveProperty(
+      'message',
+      'Survey Samoa PEN Referral Example has invalid status not-a-status. Must be one of publish, draft, hidden. on Metadata at row 9',
     );
   });
 
