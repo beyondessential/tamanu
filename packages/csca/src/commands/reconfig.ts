@@ -1,18 +1,19 @@
+import { execFileSync } from 'child_process';
+import { Command } from 'commander';
 import { promises as fs } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { Command } from 'commander';
-import { execFileSync } from 'child_process';
 
 import CA from '../ca';
-import { confirm } from '../utils';
 import { validate } from '../ca/Config';
+import { confirm } from '../utils';
 
 async function run(folder: string, config?: string): Promise<void> {
   const ca = new CA(folder);
   await ca.openReadOnly();
 
-  const configFile = config || join(await fs.mkdtemp(join(tmpdir(), 'csca-reconfig-')), 'config.json');
+  const configFile =
+    config || join(await fs.mkdtemp(join(tmpdir(), 'csca-reconfig-')), 'config.json');
 
   if (!config) {
     // Write existing config to tempfile
