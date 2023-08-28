@@ -29,6 +29,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     const {
       Department,
+      Encounter,
       Facility,
       ImagingAreaExternalCode,
       Location,
@@ -61,7 +62,17 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       fake(Department, { locationId: location.id, facilityId: facility.id }),
     );
 
+    const encounter = await Encounter.create(
+      fake(Encounter, {
+        patientId: patient.id,
+        locationId: location.id,
+        departmentId: department.id,
+        examinerId: practitioner.id,
+      }),
+    );
+
     resources = {
+      encounter,
       practitioner,
       patient,
       area1,
@@ -78,11 +89,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   afterAll(() => ctx.close());
 
   describe('materialise', () => {
-    let encounter;
     let fhirEncounter;
     beforeEach(async () => {
       const {
-        Encounter,
         FhirServiceRequest,
         ImagingRequest,
         ImagingRequestArea,
@@ -98,16 +107,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       await LabTestPanel.destroy({ where: {} });
       await LabTestPanelRequest.destroy({ where: {} });
 
-      encounter = await Encounter.create(
-        fake(Encounter, {
-          patientId: resources.patient.id,
-          locationId: resources.location.id,
-          departmentId: resources.department.id,
-          examinerId: resources.practitioner.id,
-        }),
-      );
-
-      fhirEncounter = await FhirEncounter.materialiseFromUpstream(encounter.id);
+      fhirEncounter = await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
     });
 
     it('fetches a service request by materialised ID (imaging request)', async () => {
@@ -116,7 +116,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       const ir = await ImagingRequest.create(
         fake(ImagingRequest, {
           requestedById: resources.practitioner.id,
-          encounterId: encounter.id,
+          encounterId: resources.encounter.id,
           locationGroupId: resources.locationGroup.id,
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: 'routine',
@@ -277,12 +277,12 @@ Patient may need mobility assistance`,
       const labTestPanelRequest = await LabTestPanelRequest.create({
         ...fake(LabTestPanelRequest),
         labTestPanelId: labTestPanel.id,
-        encounterId: encounter.id,
+        encounterId: resources.encounter.id,
       });
       const labRequestData = await randomLabRequest(ctx.store.models, {
         requestedById: resources.practitioner.id,
         patientId: resources.patient.id,
-        encounterId: encounter.id,
+        encounterId: resources.encounter.id,
         status: LAB_REQUEST_STATUSES.PUBLISHED,
         labTestPanelRequestId: labTestPanelRequest.id, // make one of them part of a panel
         requestedDate: '2022-07-27 16:30:00',
@@ -372,7 +372,7 @@ Patient may need mobility assistance`,
       const ir = await ImagingRequest.create(
         fake(ImagingRequest, {
           requestedById: resources.practitioner.id,
-          encounterId: encounter.id,
+          encounterId: resources.encounter.id,
           locationGroupId: resources.locationGroup.id,
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: null,
@@ -416,7 +416,7 @@ Patient may need mobility assistance`,
       const ir = await ImagingRequest.create(
         fake(ImagingRequest, {
           requestedById: resources.practitioner.id,
-          encounterId: encounter.id,
+          encounterId: resources.encounter.id,
           locationGroupId: resources.locationGroup.id,
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: 'routine',
@@ -533,7 +533,7 @@ Patient may need mobility assistance`,
       const ir = await ImagingRequest.create(
         fake(ImagingRequest, {
           requestedById: resources.practitioner.id,
-          encounterId: encounter.id,
+          encounterId: resources.encounter.id,
           locationGroupId: resources.locationGroup.id,
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: 'routine',
@@ -646,34 +646,19 @@ Patient may need mobility assistance`,
   });
 
   describe('search', () => {
-    let encounter;
     let irs;
     beforeAll(async () => {
-      const {
-        Encounter,
-        FhirServiceRequest,
-        ImagingRequest,
-        ImagingRequestArea,
-      } = ctx.store.models;
+      const { FhirServiceRequest, ImagingRequest, ImagingRequestArea } = ctx.store.models;
       await FhirServiceRequest.destroy({ where: {} });
       await ImagingRequest.destroy({ where: {} });
       await ImagingRequestArea.destroy({ where: {} });
-
-      encounter = await Encounter.create(
-        fake(Encounter, {
-          patientId: resources.patient.id,
-          locationId: resources.location.id,
-          departmentId: resources.department.id,
-          examinerId: resources.practitioner.id,
-        }),
-      );
 
       irs = await Promise.all([
         (async () => {
           const ir = await ImagingRequest.create(
             fake(ImagingRequest, {
               requestedById: resources.practitioner.id,
-              encounterId: encounter.id,
+              encounterId: resources.encounter.id,
               locationId: resources.location.id,
               status: IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS,
               priority: 'urgent',
@@ -691,7 +676,7 @@ Patient may need mobility assistance`,
           const ir = await ImagingRequest.create(
             fake(ImagingRequest, {
               requestedById: resources.practitioner.id,
-              encounterId: encounter.id,
+              encounterId: resources.encounter.id,
               locationId: resources.location.id,
               status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
               priority: 'routine',
