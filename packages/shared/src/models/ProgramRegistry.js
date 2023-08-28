@@ -31,9 +31,10 @@ export class ProgramRegistry extends Model {
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         validate: {
           mustHaveValidCurrentlyAtType() {
-            if (!Object.values(CURRENTLY_AT_TYPES).includes(this.currentlyAtType)) {
+            const values = Object.values(CURRENTLY_AT_TYPES);
+            if (!values.includes(this.currentlyAtType)) {
               throw new InvalidOperationError(
-                `The currentlyAtType must be one of ${CURRENTLY_AT_TYPES.join(', ')}`,
+                `The currentlyAtType must be one of ${values.join(', ')}`,
               );
             }
           },
