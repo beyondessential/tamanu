@@ -35,4 +35,8 @@ export class UserPreference extends Model {
       as: 'user',
     });
   }
+  
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }
