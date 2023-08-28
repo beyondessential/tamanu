@@ -5874,9 +5874,9 @@
   integrity sha512-FXKWbsJ6a1hIrRxv+FoukuHnGTgEzKYGi7kilfMae96AL9UNkPFNWJEEYWzdRI9ooIkbr4AKldyuSTLql06vLQ==
 
 "@types/node@^18.14.6":
-  version "18.17.4"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.17.4.tgz#bf8ae9875528929cc9930dc3f066cd0481fe1231"
-  integrity sha512-ATL4WLgr7/W40+Sp1WnNTSKbgVn6Pvhc/2RHAdt8fl6NsQyp4oPCi2eKcGOvA494bwf1K/W6nGgZ9TwDqvpjdw==
+  version "18.17.0"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.17.0.tgz#35d44267a33dd46b49ee0f73d31b05fd7407e290"
+  integrity sha512-GXZxEtOxYGFchyUzxvKI14iff9KZ2DI+A6a37o6EQevtg6uO9t+aUZKcaC1Te5Ng1OnLM7K9NVVj+FbecD9cJg==
 
 "@types/nodemon@latest":
   version "1.19.2"
@@ -6500,10 +6500,10 @@ accessibility-developer-tools@^2.11.0:
   resolved "https://registry.yarnpkg.com/accessibility-developer-tools/-/accessibility-developer-tools-2.12.0.tgz#3da0cce9d6ec6373964b84f35db7cfc3df7ab514"
   integrity sha512-ltexLD/Bzwr1tDskQQFi88L4akbn8zFLIFIc00vFkH3G4hNEHruuJVcJuJTeUXLxms9dSon+cHSCmfFThnowFQ==
 
-ace-builds@^1.15.2:
-  version "1.16.0"
-  resolved "https://registry.yarnpkg.com/ace-builds/-/ace-builds-1.16.0.tgz#b4d38f9566157510fc22ee183d4f96b978f4fcc8"
-  integrity sha512-EriMhoxdfhh0zKm7icSt8EXekODAOVsYh9fpnlru9ALwf0Iw7J7bpuqLjhi3QRxvVKR7P0teQdJwTvjVMcYHuw==
+ace-builds@^1.20.0:
+  version "1.24.1"
+  resolved "https://registry.yarnpkg.com/ace-builds/-/ace-builds-1.24.1.tgz#90c929d9e31bb1092aea9deb32767bf51f77b034"
+  integrity sha512-TLcxMxiTRX5Eq9bBVSd/bTJlanCBULiv/IULLohJDDaCAfcpZKJBVSd4OWfN/j2c2jCLc+jhpNWGELiJZw3wPw==
 
 acorn-import-assertions@^1.7.6:
   version "1.8.0"
@@ -6655,17 +6655,7 @@ ajv@^6.1.0, ajv@^6.10.0, ajv@^6.10.2, ajv@^6.12.0, ajv@^6.12.2, ajv@^6.12.3, ajv
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
 
-ajv@^7.2.4:
-  version "7.2.4"
-  resolved "https://registry.yarnpkg.com/ajv/-/ajv-7.2.4.tgz#8e239d4d56cf884bccca8cca362f508446dc160f"
-  integrity sha512-nBeQgg/ZZA3u3SYxyaDvpvDtgZ/EZPF547ARgZBrG9Bhu1vKDwAIjtIf+sDtJUKa2zOcEbmRLBRSyMraS/Oy1A==
-  dependencies:
-    fast-deep-equal "^3.1.1"
-    json-schema-traverse "^1.0.0"
-    require-from-string "^2.0.2"
-    uri-js "^4.2.2"
-
-ajv@^8.0.0, ajv@^8.10.0, ajv@^8.6.3, ajv@^8.8.0:
+ajv@^8.0.0, ajv@^8.0.1, ajv@^8.10.0, ajv@^8.6.3, ajv@^8.8.0:
   version "8.12.0"
   resolved "https://registry.yarnpkg.com/ajv/-/ajv-8.12.0.tgz#d1a0527323e22f53562c567c00991577dfbe19d1"
   integrity sha512-sRu1kpcO9yLtYxBKvqfTeh9KzZEwO3STyX1HT+4CaDzC6HpTGYhIhPIzj9XuKU7KYDwnaeh5hcOwjy1QuJzBPA==
@@ -16001,16 +15991,16 @@ jsoneditor-react@^3.1.2:
     prop-types "^15.7.2"
 
 jsoneditor@^9.10.0:
-  version "9.10.0"
-  resolved "https://registry.yarnpkg.com/jsoneditor/-/jsoneditor-9.10.0.tgz#954c3fcf2cf0cef88bbd409304e41379270b93df"
-  integrity sha512-vmVSD3ubZ8jwkiDKVW5MB5ESI/MUm4trVUw5WnT4j5FV6m81liA2YfQ0l84PlN4qJ3DCeYWFWfprOUoCjzkDhQ==
+  version "9.10.2"
+  resolved "https://registry.yarnpkg.com/jsoneditor/-/jsoneditor-9.10.2.tgz#c8c3acb59d674931971f059f7c7015c52e5e7460"
+  integrity sha512-sT9U8T9MB7We5uyCnofugqYPJtQ5rPJngFlvpdtyFTFKFjOMnlWE1jVhFwjTXwGBoFeiLS+S6rVuhIhJ35Jutw==
   dependencies:
-    ace-builds "^1.15.2"
+    ace-builds "^1.20.0"
     ajv "^6.12.6"
     javascript-natural-sort "^0.7.1"
     jmespath "^0.16.0"
     json-source-map "^0.6.1"
-    jsonrepair "^3.0.2"
+    jsonrepair "^3.1.0"
     mobius1-selectr "^2.4.13"
     picomodal "^3.0.0"
     vanilla-picker "^2.12.1"
@@ -16031,10 +16021,10 @@ jsonfile@^6.0.1:
   optionalDependencies:
     graceful-fs "^4.1.6"
 
-jsonrepair@^3.0.2:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/jsonrepair/-/jsonrepair-3.0.2.tgz#aa26bedeb4cd6fce57c0f664f1905ee4b2762837"
-  integrity sha512-jf3eC13iGklfXqpER/OV6q24rMhXwNAoMg+zPZgPVHxGLoDaNaKk+9TdsRtGQSIAsbC1xafiIAKSwThhtHCpcw==
+jsonrepair@^3.1.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/jsonrepair/-/jsonrepair-3.2.0.tgz#ca1b6fdd23ae76bb8c82742f7a5773a7cef3d651"
+  integrity sha512-6eHBc2z5vipym4S8rzTcCXQBLWpkSzi9bk7I3xTdUxRzXyYvfjoVZzJ97N4C/9vcKI9NgNp3slPwHufDr0rFYw==
 
 jsonwebtoken@^8.4.0:
   version "8.5.1"
