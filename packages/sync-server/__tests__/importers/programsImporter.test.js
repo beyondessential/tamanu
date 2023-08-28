@@ -272,7 +272,7 @@ describe('Programs import', () => {
   });
 
   describe('Program Registry', () => {
-    it('import a valid registry', async () => {
+    it('should import a valid registry', async () => {
       const { errors, stats, didntSendReason } = await doImport({
         file: 'registry-valid',
         dryRun: true,
