@@ -17,7 +17,6 @@ import {
 import { VACCINE_RECORDING_TYPES } from '@tamanu/constants';
 import { MockedApi } from '../utils/mockedApi';
 import { mockLabRequestFormEndpoints } from '../utils/mockLabData';
-import { mockProgramRegistrytFormEndpoints } from '../utils/mockProgramRegistry';
 import { EncounterForm } from '../../app/forms/EncounterForm';
 import { TriageForm } from '../../app/forms/TriageForm';
 import { ProcedureForm } from '../../app/forms/ProcedureForm';
@@ -32,7 +31,6 @@ import { MedicationForm } from '../../app/forms/MedicationForm';
 import { DeathForm } from '../../app/forms/DeathForm';
 import { FamilyHistoryForm } from '../../app/forms/FamilyHistoryForm';
 import { LabRequestSummaryPane } from '../../app/views/patients/components/LabRequestSummaryPane';
-import { ProgramRegistryForm } from '../../app/forms/ProgramRegistryForm';
 import { createDummySuggester, mapToSuggestions } from '../utils';
 import { Modal } from '../../app/components/Modal';
 
@@ -57,16 +55,6 @@ const patientSuggester = createDummySuggester(
   })),
 );
 const drugSuggester = createDummySuggester(mapToSuggestions(DRUGS));
-
-const programRegistrySuggester = createDummySuggester(
-  mapToSuggestions(mockProgramRegistrytFormEndpoints['suggestions/programRegistry/all']()),
-);
-const registeringFacilitySuggester = createDummySuggester(
-  mapToSuggestions(mockProgramRegistrytFormEndpoints['suggestions/registeringFacility/all']()),
-);
-const registeredBySuggester = createDummySuggester(
-  mapToSuggestions(mockProgramRegistrytFormEndpoints['suggestions/registeredBy/all']()),
-);
 
 storiesOf('Forms', module).add('DeathForm', () => {
   const onSubmit = data => {
@@ -242,17 +230,3 @@ storiesOf('Forms', module)
       </Modal>
     </MockedApi>
   ));
-
-storiesOf('Forms', module).add('ProgramRegistryFrom', () => (
-  <MockedApi endpoints={mockProgramRegistrytFormEndpoints}>
-    <Modal width="md" title="Add program registry" open>
-      <ProgramRegistryForm
-        onSubmit={action('submit')}
-        onCancel={action('cancel')}
-        programRegistrySuggester={programRegistrySuggester}
-        registeringFacilitySuggester={registeringFacilitySuggester}
-        registeredBySuggester={registeredBySuggester}
-      />
-    </Modal>
-  </MockedApi>
-));
