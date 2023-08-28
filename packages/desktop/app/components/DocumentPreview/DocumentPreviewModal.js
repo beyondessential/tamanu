@@ -36,7 +36,7 @@ const Preview = ({ documentType, attachmentId, ...props }) => {
   return `Preview is not supported for document type ${documentType}`;
 };
 
-export const DocumentPreviewModal = ({ open, onClose, onDownload, document }) => {
+export const DocumentPreviewModal = ({ open, onClose, onDownload, document, onPrintPDF }) => {
   const [scrollPage, setScrollPage] = useState(1);
   const [pageCount, setPageCount] = useState();
   const { type: documentType, attachmentId } = document;
@@ -55,6 +55,7 @@ export const DocumentPreviewModal = ({ open, onClose, onDownload, document }) =>
         </div>
       }
       printable={document.source === DOCUMENT_SOURCES.PATIENT_LETTER}
+      onPrint={() => onPrintPDF(attachmentId)}
       additionalActions={[<DownloadButton onClick={onDownload} key="Download" />]}
       width="md"
       overrideContentPadding

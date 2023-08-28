@@ -24,7 +24,7 @@ export interface LogEntry {
   ts: Date;
   op: Operation;
   metadata: LogMetadata;
-  data?: any;
+  data?: object;
 }
 
 function localMetadata(): LogMetadata {

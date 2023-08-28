@@ -1,12 +1,18 @@
-import { Command } from 'commander';
-import COUNTRIES from 'world-countries';
-import type { Country } from 'world-countries';
-import prompts from 'prompts';
-import { enumFromStringValue, enumValues, confirm } from '../utils';
 import CA from '../ca';
-import { addLeaps, Profile, signerDefaultValidityDays, signerExtensions, signerWorkingDays } from '../ca/profile';
 import { ConfigFile, period } from '../ca/Config';
 import { CRL_URL_BASE, CSCA_PKUP, CSCA_VALIDITY } from '../ca/constants';
+import {
+  Profile,
+  addLeaps,
+  signerDefaultValidityDays,
+  signerExtensions,
+  signerWorkingDays,
+} from '../ca/profile';
+import { confirm, enumFromStringValue, enumValues } from '../utils';
+import { Command } from 'commander';
+import prompts from 'prompts';
+import COUNTRIES from 'world-countries';
+import type { Country } from 'world-countries';
 
 const DEFAULT_SERIAL = 'CC000001';
 
@@ -29,7 +35,7 @@ function countryScore(country: Country, name: string): number {
 }
 
 function lookupCountries(name: string): Country[] {
-  const matching = COUNTRIES.filter(c => countryScore(c, name) > 0);
+  const matching = COUNTRIES.filter((c) => countryScore(c, name) > 0);
   matching.sort((a, b) => countryScore(b, name) - countryScore(a, name));
   return matching;
 }
@@ -77,17 +83,20 @@ function makeCAConfig(
   };
 }
 
-async function run(countryName: string, options: {
-  dir?: string;
-  alpha2?: string;
-  alpha3?: string;
-  shortname?: string;
-  fullname?: string;
-  provider: string;
-  deptOrg?: string;
-  profile: string;
-  serial?: string;
-}): Promise<void> {
+async function run(
+  countryName: string,
+  options: {
+    dir?: string;
+    alpha2?: string;
+    alpha3?: string;
+    shortname?: string;
+    fullname?: string;
+    provider: string;
+    deptOrg?: string;
+    profile: string;
+    serial?: string;
+  },
+): Promise<void> {
   console.debug(`Looking up country info for ${countryName}`);
   const countries = lookupCountries(countryName);
   let country: Country | undefined;
@@ -105,7 +114,7 @@ async function run(countryName: string, options: {
         type: 'select',
         name: 'value',
         message: `Multiple countries found for ${countryName}, please select one`,
-        choices: countries.map(c => ({
+        choices: countries.map((c) => ({
           title: c.name.common,
           description: c.name.official,
           value: c,
@@ -119,7 +128,10 @@ async function run(countryName: string, options: {
   const alpha3 = options.alpha3 || country?.cca3;
   const alpha2 = options.alpha2 || country?.cca2;
 
-  if (!alpha2 || !alpha3) throw new Error('Country not found or country info incomplete, provide alpha-2 and -3 codes manually');
+  if (!alpha2 || !alpha3)
+    throw new Error(
+      'Country not found or country info incomplete, provide alpha-2 and -3 codes manually',
+    );
   if (!/^[A-Z]{2}$/.test(alpha2)) throw new Error('Invalid alpha-2 code');
   if (!/^[A-Z]{3}$/.test(alpha3)) throw new Error('Invalid alpha-3 code');
 
@@ -151,13 +163,26 @@ async function run(countryName: string, options: {
 export default new Command('create')
   .description('creates a new CSCA')
   .argument('country name')
-  .option('-P, --profile <profile>', `issuance profile to use (one of: ${enumValues(Profile).join(', ')})`, 'vds')
+  .option(
+    '-P, --profile <profile>',
+    `issuance profile to use (one of: ${enumValues(Profile).join(', ')})`,
+    'vds',
+  )
   .option('-d, --dir <path>', 'override the state directory name')
   .option('-2, --alpha-2 <code>', 'override the ISO 3166-1 alpha-2 code')
   .option('-3, --alpha-3 <code>', 'override the ISO 3166-1 alpha-3 code')
   .option('-n, --shortname <name>', 'override the short name of the CSCA (e.g. TamanuHealthCSCA)')
-  .option('-N, --fullname <name>', 'override the full name of the CSCA (e.g. "Kingdom of Tamanu Health CSCA")')
+  .option(
+    '-N, --fullname <name>',
+    'override the full name of the CSCA (e.g. "Kingdom of Tamanu Health CSCA")',
+  )
   .option('-p, --provider <name>', 'override the provider (O/org field) of the CSCA', 'BES')
-  .option('-D, --dept-org <name>', 'provide the department/organization (OU/org-unit field) of the CSCA (optional, e.g. the full name of the ministry of health)')
-  .option('-S, --serial <hexnumber>', `override the serial number of the CSCA (optional, defaults to ${DEFAULT_SERIAL}, must not start with 0)`)
+  .option(
+    '-D, --dept-org <name>',
+    'provide the department/organization (OU/org-unit field) of the CSCA (optional, e.g. the full name of the ministry of health)',
+  )
+  .option(
+    '-S, --serial <hexnumber>',
+    `override the serial number of the CSCA (optional, defaults to ${DEFAULT_SERIAL}, must not start with 0)`,
+  )
   .action(run);
