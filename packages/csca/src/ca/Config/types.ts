@@ -1,6 +1,6 @@
-import { add } from 'date-fns';
-import { Extension } from '../certificateExtensions';
 import { truncateToSeconds } from '../../utils';
+import { Extension } from '../certificateExtensions';
+import { add } from 'date-fns';
 
 export interface ConfigFile {
   name: string;

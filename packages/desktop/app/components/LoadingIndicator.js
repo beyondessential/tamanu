@@ -7,9 +7,9 @@ const LoadingIconContainer = styled.div`
   width: ${props => props.width || '100%'};
   height: ${props => props.height || '100vh'};
   background: ${props => props.backgroundColor || '#cecece'};
-  opacity: 0.5;
+  opacity: ${props => props.opacity || 0.5};
   overflow: hidden;
-  z-index: 9999;
+  z-index: 1200; // high but below a modal's z-index of 1300
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
 
@@ -21,8 +21,13 @@ const LoadingIconContainer = styled.div`
   }
 `;
 
-export const LoadingIndicator = React.memo(({ backgroundColor, height, width, size }) => (
-  <LoadingIconContainer backgroundColor={backgroundColor} height={height} width={width}>
+export const LoadingIndicator = React.memo(({ backgroundColor, opacity, height, width, size }) => (
+  <LoadingIconContainer
+    backgroundColor={backgroundColor}
+    height={height}
+    width={width}
+    opacity={opacity}
+  >
     <CircularProgress size={size || '5rem'} />
   </LoadingIconContainer>
 ));
