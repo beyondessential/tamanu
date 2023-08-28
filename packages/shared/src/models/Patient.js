@@ -77,9 +77,9 @@ export class Patient extends Model {
       as: 'mergedPatients',
     });
 
-    this.hasMany(models.NotePage, {
+    this.hasMany(models.Note, {
       foreignKey: 'recordId',
-      as: 'notePages',
+      as: 'notes',
       constraints: false,
       scope: {
         recordType: this.name,
