@@ -110,7 +110,7 @@ export class FacilitySyncManager {
 
     const durationMs = Date.now() - startTime.getTime();
     log.info('FacilitySyncManager.completedSession', {
-      durationMs
+      durationMs,
     });
 
     // clear temp data stored for persist
@@ -141,7 +141,9 @@ export class FacilitySyncManager {
       pushSince,
     );
     if (outgoingChanges.length > 0) {
-      log.info('FacilitySyncManager.pushingOutgoingChanges', { totalPushing: outgoingChanges.length });
+      log.info('FacilitySyncManager.pushingOutgoingChanges', {
+        totalPushing: outgoingChanges.length,
+      });
       if (this.__testSpyEnabled) {
         this.__testOnlyPushChangesSpy.push({ sessionId, outgoingChanges });
       }
