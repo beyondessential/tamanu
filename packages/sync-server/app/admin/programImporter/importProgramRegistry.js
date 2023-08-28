@@ -77,7 +77,7 @@ export async function importProgramRegistry(programRegistryContext, workbook, pr
       // Note: __rowNum__ is a non-enumerable property, so needs to be accessed explicitly here
       sheetRow: row.__rowNum__,
       values: {
-        id: `prcl-${row.code}`,
+        id: `prClinicalStatus-${row.code}`,
         programRegistryId: registryId,
         ...row,
       },
