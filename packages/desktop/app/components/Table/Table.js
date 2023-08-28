@@ -474,7 +474,11 @@ class TableComponent extends React.Component {
               <StyledTableRow $lazyLoading={lazyLoading}>{this.renderHeaders()}</StyledTableRow>
             </StyledTableHead>
           )}
-          <StyledTableBody onScroll={this.handleScroll} $lazyLoading={lazyLoading} ref={tableRef}>
+          <StyledTableBody
+            onScroll={lazyLoading ? this.handleScroll : undefined}
+            $lazyLoading={lazyLoading}
+            ref={tableRef}
+          >
             {this.renderBodyContent()}
           </StyledTableBody>
           {this.renderFooter()}

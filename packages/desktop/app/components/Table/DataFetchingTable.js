@@ -138,7 +138,10 @@ export const DataFetchingTable = memo(
       disablePagination,
     ]);
 
-    useEffect(() => setPage(0), [fetchOptions]);
+    useEffect(() => {
+      setPage(0);
+      setFetchState({ ...DEFAULT_FETCH_STATE });
+    }, [fetchOptionsString]);
 
     const { data, count, isLoading, isLoadingMoreData, errorMessage } = fetchState;
     const { order, orderBy } = sorting;
