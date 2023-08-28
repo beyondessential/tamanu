@@ -40,7 +40,7 @@ export async function importProgramRegistry(programRegistryContext, workbook, pr
   if (!workbook.Sheets.Registry) return {};
 
   const { registryRecord, clinicalStatuses } = readProgramRegistryData(workbook);
-  const registryId = `pr-${registryRecord.registryCode}`;
+  const registryId = `programRegistry-${registryRecord.registryCode}`;
 
   if (await nameIsNonUnique(programRegistryContext, registryRecord.registryName, registryId)) {
     throw new DataImportError(
