@@ -112,7 +112,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('fetches a service request by materialised ID (imaging request)', async () => {
       // arrange
-      const { FhirServiceRequest, ImagingRequest, NoteItem, NotePage } = ctx.store.models;
+      const { FhirServiceRequest, ImagingRequest, Note } = ctx.store.models;
       const ir = await ImagingRequest.create(
         fake(ImagingRequest, {
           requestedById: resources.practitioner.id,
@@ -124,28 +124,22 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           imagingType: 'xRay',
         }),
       );
-      const [np1, np2] = await NotePage.bulkCreate([
-        fake(NotePage, {
+      await Note.bulkCreate([
+        fake(Note, {
           date: '2022-03-05',
           visibilityStatus: VISIBILITY_STATUSES.CURRENT,
           noteType: NOTE_TYPES.OTHER,
           recordType: ImagingRequest.name,
           recordId: ir.id,
+          content: 'Suspected adenoma',
         }),
-        fake(NotePage, {
+        fake(Note, {
           date: '2022-03-06',
           visibilityStatus: VISIBILITY_STATUSES.CURRENT,
           noteType: NOTE_TYPES.OTHER,
           recordType: ImagingRequest.name,
           recordId: ir.id,
-        }),
-      ]);
-      await NoteItem.bulkCreate([
-        fake(NoteItem, { notePageId: np1.id, content: 'Suspected adenoma' }),
-        fake(NoteItem, { notePageId: np1.id, content: 'Patient may need mobility assistance' }),
-        fake(NoteItem, {
-          notePageId: np2.id,
-          content: 'Patient may have shrapnel in leg - need to confirm beforehand',
+          content: 'Patient may need mobility assistance',
         }),
       ]);
 
@@ -238,13 +232,11 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         note: [
           {
             time: formatFhirDate('2022-03-05'),
-            text: `Suspected adenoma
-
-Patient may need mobility assistance`,
+            text: 'Suspected adenoma',
           },
           {
             time: formatFhirDate('2022-03-06'),
-            text: 'Patient may have shrapnel in leg - need to confirm beforehand',
+            text: 'Patient may need mobility assistance',
           },
         ],
       });

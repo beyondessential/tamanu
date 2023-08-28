@@ -1,7 +1,7 @@
 import { program } from 'commander';
 
 import { version } from '../package.json';
-import { create, sign, crlUpload, reconfig, revoke } from './commands';
+import { create, crlUpload, reconfig, revoke, sign } from './commands';
 
 program
   .version(version)
@@ -12,7 +12,7 @@ program
   .addCommand(reconfig)
   .addCommand(revoke)
   .parseAsync(process.argv)
-  .catch(e => {
+  .catch((e) => {
     console.error(e.stack);
     process.exit(1);
   });

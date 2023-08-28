@@ -91,7 +91,7 @@ describe('Imaging requests', () => {
         requestedById: app.user.id,
       });
 
-      await models.NotePage.createForRecord(
+      await models.Note.createForRecord(
         createdImagingRequest.id,
         NOTE_RECORD_TYPES.IMAGING_REQUEST,
         NOTE_TYPES.AREA_TO_BE_IMAGED,
@@ -99,7 +99,7 @@ describe('Imaging requests', () => {
         app.user.id,
       );
 
-      await models.NotePage.createForRecord(
+      await models.Note.createForRecord(
         createdImagingRequest.id,
         NOTE_RECORD_TYPES.IMAGING_REQUEST,
         NOTE_TYPES.OTHER,
@@ -123,14 +123,14 @@ describe('Imaging requests', () => {
         imagingType: IMAGING_TYPES.CT_SCAN,
         requestedById: app.user.id,
       });
-      const n1 = await models.NotePage.createForRecord(
+      const n1 = await models.Note.createForRecord(
         createdImagingRequest.id,
         NOTE_RECORD_TYPES.IMAGING_REQUEST,
         NOTE_TYPES.AREA_TO_BE_IMAGED,
         'test-area-note',
         app.user.id,
       );
-      const n2 = await models.NotePage.createForRecord(
+      const n2 = await models.Note.createForRecord(
         createdImagingRequest.id,
         NOTE_RECORD_TYPES.IMAGING_REQUEST,
         NOTE_TYPES.OTHER,
@@ -140,7 +140,7 @@ describe('Imaging requests', () => {
 
       // Act
       const result = await app.get(
-        `/v1/encounter/${encounter.id}/imagingRequests?includeNotePages=true`,
+        `/v1/encounter/${encounter.id}/imagingRequests?includeNotes=true`,
       );
 
       // Assert
@@ -153,8 +153,8 @@ describe('Imaging requests', () => {
         areaNote: 'test-area-note',
       });
       expect(
-        retrievedImgReq.notePages
-          .map(np => np.id)
+        retrievedImgReq.notes
+          .map(note => note.id)
           .sort()
           .join(','),
       ).toBe([n1.id, n2.id].sort().join(','));
