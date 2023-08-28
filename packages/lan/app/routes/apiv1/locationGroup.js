@@ -100,12 +100,10 @@ locationGroup.get(
 		      SELECT record_id, MAX(date) AS date
 		      FROM notes
 		      WHERE record_type = 'Encounter' AND note_type = 'handover'
-          AND revised_by_id IS NULL
 		      GROUP BY record_id
 		    ) AS max_notes ON encounters.id = max_notes.record_id
 		    LEFT JOIN notes ON max_notes.record_id = notes.record_id
 		      AND max_notes.date = notes.date
-          AND revised_by_id IS NULL
         WHERE location_groups.id = :id and locations.max_occupancy = 1
         AND locations.facility_id = :facilityId
         GROUP BY location_groups.name,
