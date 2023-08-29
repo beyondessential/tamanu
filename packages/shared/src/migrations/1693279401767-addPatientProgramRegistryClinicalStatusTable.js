@@ -31,6 +31,10 @@ export async function up(query) {
       type: Sequelize.TEXT,
     },
 
+    patient_id: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
     program_registry_id: {
       type: Sequelize.STRING,
       allowNull: false,
