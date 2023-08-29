@@ -183,7 +183,7 @@ export const DataFetchingTable = memo(
       const isInitialSort = isEqual(sorting, initialSort);
       const hasSortingChanged = !isEqual(sorting, previousFetch?.sorting);
 
-      const getShouldResetRowHiglighting = () => {
+      const getShouldResetRowHighlighting = () => {
         if (previousFetch.count === 0) return true; // first fetch never needs a highlight
 
         const hasSearchChanged = !isEqual(fetchOptions, previousFetch?.fetchOptions);
@@ -198,7 +198,7 @@ export const DataFetchingTable = memo(
         return false;
       };
 
-      if (getShouldResetRowHiglighting()) {
+      if (getShouldResetRowHighlighting()) {
         setShowNotification(false);
         setNewRowCount(0);
         return transformedData;
