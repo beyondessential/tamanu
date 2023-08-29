@@ -16,7 +16,6 @@ import {
 import {
   simpleGet,
   simpleGetHasOne,
-  simplePost,
   simpleGetList,
   permissionCheckingRouter,
   runPaginatedQuery,

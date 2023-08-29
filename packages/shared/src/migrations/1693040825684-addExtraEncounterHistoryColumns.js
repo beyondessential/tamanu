@@ -17,6 +17,6 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.dropColumn('encounter_history', 'modifier_id');
-  await query.dropColumn('encounter_history', 'change_type');
+  await query.removeColumn('encounter_history', 'modifier_id');
+  await query.removeColumn('encounter_history', 'change_type');
 }
