@@ -36,6 +36,7 @@ export const HandoverPatient = ({
   notes,
   getLocalisation,
   createdAt,
+  isEdited,
 }) => {
   const detailsToDisplay = PATIENT_FIELDS.filter(
     ({ key }) => !getLocalisation(`fields.${key}.hidden`),
@@ -73,7 +74,11 @@ export const HandoverPatient = ({
               <ValueDisplay width="100%" title="Notes" value={notes} />
               {createdAt && (
                 <Col style={{ width: '100%' }}>
-                  <P style={{ fontSize: 8 }}>{getDisplayDate(createdAt, 'dd/MM/yyyy hh:mm a')}</P>
+                  <P style={{ fontSize: 8 }}>
+                    {`${getDisplayDate(createdAt, 'dd/MM/yyyy hh:mm a')}${
+                      isEdited ? ' (edited)' : ''
+                    }`}
+                  </P>
                 </Col>
               )}
             </Row>
