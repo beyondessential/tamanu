@@ -165,12 +165,13 @@ export const DataFetchingTable = memo(
       const transformedData = transformRow ? data.map(transformRow) : data;
       const hasSearchChanged = !isEqual(fetchOptions, previousFetch?.fetchOptions);
 
+      // When fetch option is no longer the same (eg: filter changed), it should reload the entire table
+      // instead of keep adding data for lazy loading
+      if (lazyLoading && !hasSearchChanged) {
+        return [...(fetchState.data || []), ...(transformedData || [])];
+      }
+
       if (!enableAutoRefresh) {
-        // When fetch option is no longer the same (eg: filter changed), it should reload the entire table
-        // instead of keep adding data for lazy loading
-        if (lazyLoading && !hasSearchChanged) {
-          return [...(fetchState.data || []), ...(transformedData || [])];
-        }
         return transformedData;
       }
 
