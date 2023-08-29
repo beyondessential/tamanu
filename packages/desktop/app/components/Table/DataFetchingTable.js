@@ -163,16 +163,14 @@ export const DataFetchingTable = memo(
 
     const transformData = (data, count) => {
       const transformedData = transformRow ? data.map(transformRow) : data;
+      const hasSearchChanged = !isEqual(fetchOptions, previousFetch?.fetchOptions);
 
       if (!enableAutoRefresh) {
         // When fetch option is no longer the same (eg: filter changed), it should reload the entire table
         // instead of keep adding data for lazy loading
-        const shouldReloadLazyLoadingData = !isEqual(previousFetch.fetchOptions, fetchOptions);
-
-        if (lazyLoading && !shouldReloadLazyLoadingData) {
+        if (lazyLoading && !hasSearchChanged) {
           return [...(fetchState.data || []), ...(transformedData || [])];
         }
-
         return transformedData;
       }
 
