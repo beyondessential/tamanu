@@ -1,0 +1,22 @@
+import Sequelize from 'sequelize';
+
+export async function up(query) {
+  await query.addColumn('encounter_history', 'modifier_id', {
+    type: Sequelize.STRING,
+    references: {
+      model: 'users',
+      key: 'id',
+    },
+    allowNull: true,
+  });
+
+  await query.addColumn('encounter_history', 'change_type', {
+    type: Sequelize.STRING,
+    allowNull: true,
+  });
+}
+
+export async function down(query) {
+  await query.dropColumn('encounter_history', 'modifier_id');
+  await query.dropColumn('encounter_history', 'change_type');
+}

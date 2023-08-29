@@ -6,6 +6,7 @@ import {
   ENCOUNTER_TYPE_VALUES,
   NOTE_TYPES,
   SYNC_DIRECTIONS,
+  EncounterChangeType,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { dateTimeType } from './dateTimeTypes';
@@ -313,10 +314,13 @@ export class Encounter extends Model {
     await dischargeOutpatientEncounters(this.sequelize.models, recordIds);
   }
 
-  static async create(...args) {
+  static async create(encounterData, user) {
     const { EncounterHistory } = this.sequelize.models;
-    const encounter = await super.create(...args);
-    await EncounterHistory.createSnapshot(encounter, getCurrentDateTimeString());
+    const encounter = await super.create(encounterData);
+    await EncounterHistory.createSnapshot(encounter, {
+      modifierId: user?.id,
+      submittedTime: getCurrentDateTimeString(),
+    });
 
     return encounter;
   }
@@ -423,6 +427,7 @@ export class Encounter extends Model {
 
   async update(data, user) {
     const { Location, EncounterHistory } = this.sequelize.models;
+    let changeType;
 
     const updateEncounter = async () => {
       const additionalChanges = {};
@@ -437,11 +442,13 @@ export class Encounter extends Model {
       const isEncounterTypeChanged =
         data.encounterType && data.encounterType !== this.encounterType;
       if (isEncounterTypeChanged) {
+        changeType = EncounterChangeType.EncounterType;
         await this.onEncounterProgression(data.encounterType, data.submittedTime, user);
       }
 
       const isLocationChanged = data.locationId && data.locationId !== this.locationId;
       if (isLocationChanged) {
+        changeType = EncounterChangeType.Location;
         await this.addLocationChangeNote(
           'Changed location',
           data.locationId,
@@ -488,11 +495,13 @@ export class Encounter extends Model {
 
       const isDepartmentChanged = data.departmentId && data.departmentId !== this.departmentId;
       if (isDepartmentChanged) {
+        changeType = EncounterChangeType.Department;
         await this.addDepartmentChangeNote(data.departmentId, data.submittedTime, user);
       }
 
       const isClinicianChanged = data.examinerId && data.examinerId !== this.examinerId;
       if (isClinicianChanged) {
+        changeType = EncounterChangeType.Examiner;
         await this.updateClinician(data.examinerId, data.submittedTime, user);
       }
 
@@ -505,7 +514,11 @@ export class Encounter extends Model {
         isLocationChanged ||
         isClinicianChanged
       ) {
-        await EncounterHistory.createSnapshot(updatedEncounter, data.submittedTime);
+        await EncounterHistory.createSnapshot(updatedEncounter, {
+          modifierId: user?.id,
+          changeType,
+          submittedTime: data.submittedTime,
+        });
       }
 
       return updatedEncounter;

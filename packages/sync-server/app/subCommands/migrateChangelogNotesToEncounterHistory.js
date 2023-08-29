@@ -36,6 +36,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                 np.id,
                 np.record_id,
                 np.note_type,
+                ni.author_id as modifier_id,
                 ni.date,
                 ni.content
             from note_pages np
@@ -97,6 +98,15 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
         change_log_historical_partial as (
             select
                 e.id as encounter_id,
+                case when lag(n.modifier_id) over w isnull then null
+                    else lag(n.modifier_id) over w
+                end as modifier_id,
+                case when lag(n.content) over w like 'Changed department%' then 'department'
+                    when lag(n.content) over w like 'Changed location%' then 'location'
+                    when lag(n.content) over w like 'Changed supervising clinician%' then 'supervising clinician'
+                    when lag(n.content) over w like 'Changed type%' then 'type'
+                    else null
+                end as change_type,
                 -- For the encounter_history when the encounter is first created:
                 -- 1. If encounter.start_date is before the first changelog.date, pick encounter.start_date as "date"
                 -- 2. If encounter.start_date is after the first changelog's date, pick the changelog's date minus 1 day as "date"
@@ -179,6 +189,8 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
         change_log_historical_complete as (
             select
                 encounter_id,
+                modifier_id,
+                change_type,
                 start_datetime,
                 l.facility_id as encounter_facility_id,
                 case when log.encounter_type notnull then log.encounter_type
@@ -284,7 +296,8 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
         change_log_latest as (
             select
                 DISTINCT ON(record_id)
-                content,
+                modifier_id,
+                (regexp_matches(content, 'Changed (.*) from (.*) to (.*)'))[1] AS change_type,
                 date,
                 department_id,
                 location_id,
@@ -320,6 +333,8 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             select
                 record_id,
                 date,
+                null as modifier_id, -- N/A for first encounter snapshot
+                null as change_type, -- N/A for first encounter snapshot
                 department_id,
                 location_id,
                 examiner_id,
@@ -331,6 +346,8 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             select
                 record_id,
                 date,
+                modifier_id,
+                change_type,
                 department_id,
                 location_id,
                 examiner_id,
@@ -342,6 +359,8 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             select distinct
                 log.encounter_id as record_id,
                 log.start_datetime as date,
+                log.modifier_id,
+                log.change_type,
                 case 
                     when d.id notnull then d.id 
                     when log.department_name = '${LATEST_ENCOUNTER_FLAG}' then e.department_id
@@ -386,6 +405,8 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             insert into encounter_history(
                 encounter_id,
                 date,
+                modifier_id,
+                change_type,
                 department_id,
                 location_id,
                 examiner_id,
@@ -394,6 +415,11 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             select
                 record_id,
                 date,
+                modifier_id,
+                case when change_type = 'type' then 'encounter_type'
+                    when change_type = 'supervising clinician' then 'examiner'
+                    else change_type
+                end as change_type,
                 department_id,
                 location_id,
                 examiner_id,
