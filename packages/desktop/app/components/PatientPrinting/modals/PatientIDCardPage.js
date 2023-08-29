@@ -19,9 +19,9 @@ const Card = styled.div`
   flex-direction: column;
   width: ${cardDimensions.width}mm;
   height: ${cardDimensions.height}mm;
-  padding-left: ${p => p.leftPadding || '1'}mm;
+  padding-left: ${p => p.cardMarginLeft};
   padding-right: 1mm;
-  padding-top: ${p => p.topPadding || '1'}mm;
+  padding-top: ${p => p.cardMarginTop};
   padding-bottom: 1mm;
   color: #000000;
 `;
@@ -125,6 +125,8 @@ const PatientPhoto = ({ imageData }) => (
 
 export const PatientIDCardPage = ({ patient, imageData }) => {
   const { printPage } = useElectron();
+  const { getLocalisation } = useLocalisation();
+  const measures = getLocalisation('printMeasures.idCardPage');
   useEffect(() => {
     printPage({
       landscape: true,
@@ -141,7 +143,7 @@ export const PatientIDCardPage = ({ patient, imageData }) => {
 
   return (
     <PrintPortal>
-      <Card>
+      <Card {...measures}>
         <TopBar />
         <MainSection>
           <PhotoContainer>
