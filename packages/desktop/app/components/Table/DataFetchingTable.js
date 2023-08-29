@@ -183,23 +183,22 @@ export const DataFetchingTable = memo(
       const isInitialSort = isEqual(sorting, initialSort);
       const hasSortingChanged = !isEqual(sorting, previousFetch?.sorting);
 
-      const getShouldShowRowHighlight = () => {
-        if (previousFetch.count === 0) return false; // first fetch never needs a highlight
+      const shouldResetRowHiglighting = () => {
+        if (previousFetch.count === 0) return true; // first fetch never needs a highlight
 
         const hasSearchChanged = !isEqual(fetchOptions, previousFetch?.fetchOptions);
-        if (hasSearchChanged) return false; // if search changed reset highlighting
+        if (hasSearchChanged) return true; // if search changed reset highlighting
 
         const isLeavingPageOne = previousFetch.page === 0 && page > 0;
         const isChangingFromInitialSort =
           isEqual(previousFetch.sorting, initialSort) && hasSortingChanged;
 
-        if (isLeavingPageOne && isInitialSort) return false; // if leaving page one when green rows visible, reset highlighting
-        if (page === 0 && isChangingFromInitialSort) return false; // if changing sort on page one when green rows visible, reset highlighting
-        return true;
+        if (isLeavingPageOne && isInitialSort) return true; // if leaving page one when green rows visible, reset highlighting
+        if (page === 0 && isChangingFromInitialSort) return true; // if changing sort on page one when green rows visible, reset highlighting
+        return false;
       };
 
-      if (!getShouldShowRowHighlight()) {
-        // This is essentially a "reset" of the notification and row styling
+      if (shouldResetRowHiglighting()) {
         setShowNotification(false);
         setNewRowCount(0);
         return transformedData;
