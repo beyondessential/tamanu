@@ -69,20 +69,18 @@ export const HandoverPatient = ({
             />
           </Row>
           {diagnosis && <ValueDisplay width="100%" title="Diagnosis" value={diagnosis} />}
-          {notes && (
-            <Row>
-              <ValueDisplay width="100%" title="Notes" value={notes} />
-              {createdAt && (
-                <Col style={{ width: '100%' }}>
-                  <P style={{ fontSize: 8 }}>
-                    {`${getDisplayDate(createdAt, 'dd/MM/yyyy hh:mm a')}${
-                      isEdited ? ' (edited)' : ''
-                    }`}
-                  </P>
-                </Col>
-              )}
-            </Row>
-          )}
+          <Row>
+            <ValueDisplay width="100%" title="Notes" value={notes || 'N/A'} />
+            {!!notes && !!createdAt && (
+              <Col style={{ width: '100%' }}>
+                <P style={{ fontSize: 8 }}>
+                  {`${getDisplayDate(createdAt, 'dd/MM/yyyy hh:mm a')}${
+                    isEdited ? ' (edited)' : ''
+                  }`}
+                </P>
+              </Col>
+            )}
+          </Row>
         </Col>
       </Row>
       <Divider />
