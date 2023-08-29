@@ -35,6 +35,7 @@ rm -rf packages/*/config/{development,test,local}.json || true
 
 # do the build
 yarn install --non-interactive --production --frozen-lockfile
+yarn workspace @tamanu/constants build
 yarn workspace @tamanu/shared build
 yarn workspace $pkg_name build
 
