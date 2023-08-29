@@ -53,5 +53,10 @@ export class ProgramRegistry extends Model {
       foreignKey: 'programRegistryId',
       as: 'clinicalStatuses',
     });
+
+    this.hasMany(models.PatientProgramRegistration, {
+      foreignKey: 'programRegistryId',
+      as: 'patientProgramRegistrations',
+    });
   }
 }
