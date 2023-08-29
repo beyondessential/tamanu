@@ -7,6 +7,8 @@ import { ForeignkeyResolutionError, UpsertionError, ValidationError } from './er
 import { statkey, updateStat } from './stats';
 import * as schemas from './importSchemas';
 
+const PatientFieldValueModelName = 'PatientFieldValue';
+
 function findFieldName(values, fkField) {
   const fkFieldLower = fkField.toLowerCase();
   const fkFieldCamel = camelCase(fkField);
@@ -27,6 +29,11 @@ function getPrimaryKey(model, values) {
     return values.patientId;
   }
 
+  // PatientFieldValue model has a composite PK that uses patientId & definitionId
+  if (model === PatientFieldValueModelName) {
+    return { definitionId: values.definitionId, patientId: values.patientId };
+  }
+
   return values.id;
 }
 
@@ -35,6 +42,13 @@ function loadExisting(Model, id) {
 
   // user model needs to have access to password to hash it
   if (Model.name === 'User') return Model.scope('withPassword').findByPk(id, { paranoid: false });
+
+  // PatientFieldValue model has a composite PK that uses patientId & definitionId
+  if (Model.name === PatientFieldValueModelName)
+    return Model.findOne(
+      { where: { patientId: id.patientId, definitionId: id.definitionId } },
+      { paranoid: false },
+    );
 
   return Model.findByPk(id, { paranoid: false });
 }

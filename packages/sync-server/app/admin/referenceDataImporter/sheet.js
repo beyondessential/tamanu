@@ -83,8 +83,15 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
       Object.entries(data).map(([key, value]) => [key.trim(), value]),
     );
     try {
-      for (const { model, values } of loader(trimmed)) {
+      for (const { model, values } of loader(trimmed, models, FOREIGN_KEY_SCHEMATA)) {
         if (!models[model]) throw new Error(`No such type of data: ${model}`);
+        if (model === 'PatientFieldValue') {
+          const existingDefinition =
+            values?.definitionId &&
+            (await models.PatientFieldDefinition.findOne({ where: { id: values.definitionId } }));
+          if (!existingDefinition)
+            throw new Error(`No such patient field definition: ${values?.definitionId}`);
+        }
 
         if (values.id && idCache.has(values.id)) {
           errors.push(new ValidationError(sheetName, sheetRow, `duplicate id: ${values.id}`));
