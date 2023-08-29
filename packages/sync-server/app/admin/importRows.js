@@ -87,6 +87,7 @@ export async function importRows(
           const fkFieldValue = values[fkFieldName];
           const fkNameLowerId = `${lowerFirst(fkSchema.field)}Id`;
 
+          // This will never return a value since a set's has() shallow compares keys and objects will never be equal in this case
           const hasLocalId = lookup.has({ kind: fkSchema.field, id: fkFieldValue });
           const idByLocalName = lookup.get({
             kind: fkSchema.field,
