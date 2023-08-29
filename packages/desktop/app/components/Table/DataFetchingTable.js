@@ -183,8 +183,6 @@ export const DataFetchingTable = memo(
 
       const getShouldResetRowHighlighting = () => {
         if (previousFetch.count === 0) return true; // first fetch never needs a highlight
-
-        const hasSearchChanged = !isEqual(fetchOptions, previousFetch?.fetchOptions);
         if (hasSearchChanged) return true; // if search changed reset highlighting
 
         const isLeavingPageOne = previousFetch.page === 0 && page > 0;
@@ -193,6 +191,7 @@ export const DataFetchingTable = memo(
 
         if (isLeavingPageOne && isInitialSort) return true; // if leaving page one when green rows visible, reset highlighting
         if (page === 0 && isChangingFromInitialSort) return true; // if changing sort on page one when green rows visible, reset highlighting
+
         return false;
       };
 
