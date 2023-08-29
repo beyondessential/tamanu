@@ -135,29 +135,25 @@ export const DataFetchingTable = memo(
 
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
-    // TODO: better name for this
-    const onDataFetchedInternal = useCallback(
-      (data, count) => {
-        setIsLoading(false);
-        setIsLoadingMoreData(false);
+    const updateTableWithData = useCallback((data, count) => {
+      setIsLoading(false);
+      setIsLoadingMoreData(false);
 
-        updatePreviousFetchState(data, count);
-        updateFetchState({
-          ...DEFAULT_FETCH_STATE,
+      updatePreviousFetchState(data, count);
+      updateFetchState({
+        ...DEFAULT_FETCH_STATE,
+        data,
+        count,
+      });
+
+      // Use custom function on data if provided
+      if (onDataFetched) {
+        onDataFetched({
           data,
           count,
         });
-
-        // Use custom function on data if provided
-        if (onDataFetched) {
-          onDataFetched({
-            data,
-            count,
-          });
-        }
-      },
-      [onDataFetched, updateFetchState, updatePreviousFetchState],
-    );
+      }
+    }, []);
 
     const transformData = (data, count) => {
       const transformedData = transformRow ? data.map(transformRow) : data;
@@ -228,7 +224,7 @@ export const DataFetchingTable = memo(
           clearTimeout(loadingDelay);
 
           const transformedData = transformData(data, count);
-          onDataFetchedInternal(transformedData, count);
+          updateTableWithData(transformedData, count);
         } catch (error) {
           clearTimeout(loadingDelay);
           setIsLoading(false);
