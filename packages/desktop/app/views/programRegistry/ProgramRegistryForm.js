@@ -11,11 +11,6 @@ import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
 
-const suggesterType = PropTypes.shape({
-  fetchSuggestions: PropTypes.func,
-  fetchCurrentOption: PropTypes.func,
-});
-
 export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObject }) => {
   const api = useApi();
   const [programRegistryId, setProgramRegistryId] = useState();
