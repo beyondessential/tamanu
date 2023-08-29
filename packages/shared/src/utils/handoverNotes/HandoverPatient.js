@@ -71,7 +71,7 @@ export const HandoverPatient = ({
           {diagnosis && <ValueDisplay width="100%" title="Diagnosis" value={diagnosis} />}
           <Row>
             <ValueDisplay width="100%" title="Notes" value={notes || 'N/A'} />
-            {createdAt && ( // createdAt only exists if notes exists
+            {!!notes && !!createdAt && (
               <Col style={{ width: '100%' }}>
                 <P style={{ fontSize: 8 }}>
                   {`${getDisplayDate(createdAt, 'dd/MM/yyyy hh:mm a')}${
