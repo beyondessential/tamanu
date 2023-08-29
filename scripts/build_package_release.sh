@@ -16,7 +16,7 @@ buildplace=$(mktemp -d)
 # copy workspace root and shared into buildplace
 cp package.json   "$buildplace/package.json.orig"
 jq '.dependencies["@tamanu/build-tooling"] = "*"' package.json > "$buildplace/package.json"
-cp -R yarn.lock *.config.*   "$buildplace/"
+cp -R yarn.lock common.tsconfig.json *.config.*   "$buildplace/"
 mkdir -p "$buildplace/packages"
 cp -R packages/build-tooling packages/shared packages/constants   "$buildplace/packages/"
 
@@ -43,6 +43,7 @@ yarn workspace $pkg_name build
 rm -rf node_modules/@tamanu/build-tooling
 rm -rf packages/build-tooling
 rm -rf packages/**/node_modules/@tamanu/build-tooling
+rm common.tsconfig.json
 
 # clear out the build configs
 rm -rf packages/*/*.config.* || true
