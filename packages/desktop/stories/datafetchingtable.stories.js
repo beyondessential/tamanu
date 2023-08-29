@@ -67,7 +67,7 @@ const TableWithDynamicData = () => {
     const interval = setInterval(() => {
       const newPatient = fakePatient();
       dummyApi.addPatient(newPatient);
-    }, chance.integer({ min: 1000, max: 1000 })); // Random interval between 5 to 15 seconds
+    }, chance.integer({ min: 1000, max: 1000 })); // Add a new patient every second
 
     return () => {
       clearInterval(interval);
@@ -85,7 +85,7 @@ const TableWithDynamicData = () => {
       <Container>
         <DataFetchingTable
           endpoint="ages"
-          overrideLocalisationForStorybook={{ enabled: true, interval: 500 }}
+          overrideLocalisationForStorybook={{ enabled: true, interval: 5000 }} // Mock autorefresh config for every 5 seconds
           columns={dummyColumns.concat(dateColumn)}
           initialSort={{ order: 'desc', orderBy: 'date' }}
           autoRefresh
