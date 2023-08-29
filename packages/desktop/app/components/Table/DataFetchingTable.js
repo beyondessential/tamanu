@@ -55,7 +55,8 @@ export const DataFetchingTable = memo(
     const api = useApi();
 
     const { getLocalisation } = useLocalisation();
-    const autoRefresh = overrideLocalisationForStorybook || getLocalisation('features.tableAutorefresh');
+    const autoRefresh =
+      overrideLocalisationForStorybook || getLocalisation('features.tableAutorefresh');
     const enableAutoRefresh = autoRefresh && autoRefresh.enabled && isAutoRefreshTable;
 
     // This callback will be passed to table cell accessors so they can force a table refresh
@@ -135,65 +136,66 @@ export const DataFetchingTable = memo(
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
     // TODO: better name for this
-    const onDataFetchedInternal = useCallback((data, count) => {
-      setIsLoading(false);
-      setIsLoadingMoreData(false);
-  
-      updatePreviousFetchState(data, count);
-      updateFetchState({
-        ...DEFAULT_FETCH_STATE,
-        data,
-        count,
-      });
+    const onDataFetchedInternal = useCallback(
+      (data, count) => {
+        setIsLoading(false);
+        setIsLoadingMoreData(false);
 
-      // Use custom function on data if provided
-      if (onDataFetched) {
-        onDataFetched({
+        updatePreviousFetchState(data, count);
+        updateFetchState({
+          ...DEFAULT_FETCH_STATE,
           data,
           count,
         });
-      }
-    });
+
+        // Use custom function on data if provided
+        if (onDataFetched) {
+          onDataFetched({
+            data,
+            count,
+          });
+        }
+      },
+      [onDataFetched, updateFetchState, updatePreviousFetchState],
+    );
 
     const transformData = (data, count) => {
       const transformedData = transformRow ? data.map(transformRow) : data;
 
       if (!enableAutoRefresh) {
-         // When fetch option is no longer the same (eg: filter changed), it should reload the entire table
+        // When fetch option is no longer the same (eg: filter changed), it should reload the entire table
         // instead of keep adding data for lazy loading
         const shouldReloadLazyLoadingData = !isEqual(previousFetch.fetchOptions, fetchOptions);
 
         if (lazyLoading && !shouldReloadLazyLoadingData) {
-          return [
-            ...(fetchState.data || []),
-            ...(transformedData || [])
-          ];
+          return [...(fetchState.data || []), ...(transformedData || [])];
         }
 
         return transformedData;
       }
 
-      // only notify if there's more *new* unviewed rows 
+      // only notify if there's more *new* unviewed rows
       // (rather than rows that still haven't been viewed from a previous fetch)
       if (count > previousFetch.count) setIsNotificationMuted(false);
 
       const isInitialSort = isEqual(sorting, initialSort);
       const hasSortingChanged = !isEqual(sorting, previousFetch?.sorting);
-      
+
       const getShouldShowRowHighlight = () => {
         if (previousFetch.count === 0) return false; // first fetch never needs a highlight
-        
+
         const hasSearchChanged = !isEqual(fetchOptions, previousFetch?.fetchOptions);
         if (hasSearchChanged) return false;
 
         const isLeavingPageOne = previousFetch.page === 0 && page > 0;
-        const isChangingFromInitialSort = isEqual(previousFetch.sorting, initialSort) && hasSortingChanged;
+        const isChangingFromInitialSort =
+          isEqual(previousFetch.sorting, initialSort) && hasSortingChanged;
 
         if (isLeavingPageOne && isInitialSort) return false;
         if (page === 0 && isChangingFromInitialSort) return false;
         return true;
       };
-      
+
       if (!getShouldShowRowHighlight()) {
         setShowNotification(false);
         setNewRowCount(0);
@@ -207,8 +209,8 @@ export const DataFetchingTable = memo(
       const hasPageChanged = page !== previousFetch.page;
       const isDataToBeUpdated = hasPageChanged || hasSortingChanged || page === 0;
       const highlightStartIndex = isInitialSort ? rowsSinceInteraction : 0;
-      
-      const displayData = isDataToBeUpdated 
+
+      const displayData = isDataToBeUpdated
         ? highlightDataRows(transformedData, highlightStartIndex)
         : previousFetch.dataSnapshot;
 
@@ -222,12 +224,11 @@ export const DataFetchingTable = memo(
           if (!endpoint) {
             throw new Error('Missing endpoint to fetch data.');
           }
-          const { data, count }= await fetchData();
+          const { data, count } = await fetchData();
           clearTimeout(loadingDelay);
 
           const transformedData = transformData(data, count);
           onDataFetchedInternal(transformedData, count);
-
         } catch (error) {
           clearTimeout(loadingDelay);
           setIsLoading(false);
