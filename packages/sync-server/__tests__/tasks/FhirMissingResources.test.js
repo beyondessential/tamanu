@@ -1,6 +1,6 @@
 import { fake } from 'shared/test-helpers';
 import { Op } from 'sequelize';
-import { IMAGING_REQUEST_STATUS_TYPES, NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { fakeResourcesOfFhirServiceRequest } from '../testData/fhir';
 import { FhirMissingResources } from '../../app/tasks/FhirMissingResources';
