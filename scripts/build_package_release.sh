@@ -11,14 +11,14 @@ shopt -s extglob
 pkg_name="${1?must specify a package}"
 RELEASE_DIR="${RELEASE_DIR:-release-nodejs}"
 target="$(pwd)/packages/$pkg_name/$RELEASE_DIR"
-buildplace=$(mktemp --directory)
+buildplace=$(mktemp -d)
 
 # copy workspace root and shared into buildplace
 cp package.json   "$buildplace/package.json.orig"
 jq '.dependencies["@tamanu/build-tooling"] = "*"' package.json > "$buildplace/package.json"
 cp -R yarn.lock *.config.*   "$buildplace/"
 mkdir -p "$buildplace/packages"
-cp -R packages/build-tooling packages/shared   "$buildplace/packages/"
+cp -R packages/build-tooling packages/shared packages/constants   "$buildplace/packages/"
 
 # copy desired package
 cp -R "packages/$pkg_name"   "$buildplace/packages/"
@@ -53,6 +53,8 @@ mv -v package.json{.orig,}
 # this is quite hacky but we'll change how this works altogether very soon (SAV-263)
 cp -R packages/shared/node_modules/*   node_modules/
 rm -rf packages/$pkg_name/node_modules/@tamanu/shared || true
+cp -R packages/constants/node_modules/*   node_modules/ || true # doesn't exist yet
+rm -rf packages/$pkg_name/node_modules/@tamanu/constants || true
 cp -R packages/$pkg_name/node_modules/*   node_modules/
 rm -rf packages/$pkg_name/node_modules || true
 mv -v node_modules   packages/$pkg_name/node_modules
@@ -61,6 +63,8 @@ mv -v node_modules   packages/$pkg_name/node_modules
 mkdir -p packages/$pkg_name/node_modules/@tamanu
 rm -rf packages/$pkg_name/node_modules/@tamanu/shared
 mv -v packages/shared   packages/$pkg_name/node_modules/@tamanu/shared
+rm -rf packages/$pkg_name/node_modules/@tamanu/constants
+mv -v packages/constants   packages/$pkg_name/node_modules/@tamanu/constants
 
 # out of build
 popd
