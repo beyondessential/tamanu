@@ -35,18 +35,14 @@ export async function up(query) {
       type: Sequelize.STRING,
       allowNull: false,
     },
-
     clinical_status_id: {
       type: Sequelize.STRING,
-      allowNull: false,
     },
     facility_id: {
       type: Sequelize.STRING,
-      allowNull: false,
     },
     village_id: {
       type: Sequelize.STRING,
-      allowNull: false,
     },
   });
 }
