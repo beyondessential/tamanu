@@ -112,16 +112,19 @@ export const DataFetchingTable = memo(
       return highlightedData;
     };
 
-    const updatePreviousFetchState = (data, count) => {
-      setPreviousFetch({
-        page,
-        count,
-        dataSnapshot: data,
-        lastUpdatedAt: getCurrentDateTimeString(),
-        sorting,
-        fetchOptions,
-      });
-    };
+    const updatePreviousFetchState = useCallback(
+      (data, count) => {
+        setPreviousFetch({
+          page,
+          count,
+          dataSnapshot: data,
+          lastUpdatedAt: getCurrentDateTimeString(),
+          sorting,
+          fetchOptions,
+        });
+      },
+      [fetchOptions, page, sorting],
+    );
 
     const loadingIndicatorDelay = () => {
       return setTimeout(() => {
@@ -135,25 +138,28 @@ export const DataFetchingTable = memo(
 
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
-    const updateTableWithData = useCallback((data, count) => {
-      setIsLoading(false);
-      setIsLoadingMoreData(false);
+    const updateTableWithData = useCallback(
+      (data, count) => {
+        setIsLoading(false);
+        setIsLoadingMoreData(false);
 
-      updatePreviousFetchState(data, count);
-      updateFetchState({
-        ...DEFAULT_FETCH_STATE,
-        data,
-        count,
-      });
-
-      // Use custom function on data if provided
-      if (onDataFetched) {
-        onDataFetched({
+        updatePreviousFetchState(data, count);
+        updateFetchState({
+          ...DEFAULT_FETCH_STATE,
           data,
           count,
         });
-      }
-    }, []);
+
+        // Use custom function on data if provided
+        if (onDataFetched) {
+          onDataFetched({
+            data,
+            count,
+          });
+        }
+      },
+      [onDataFetched, updateFetchState, updatePreviousFetchState],
+    );
 
     const transformData = (data, count) => {
       const transformedData = transformRow ? data.map(transformRow) : data;
@@ -181,25 +187,26 @@ export const DataFetchingTable = memo(
         if (previousFetch.count === 0) return false; // first fetch never needs a highlight
 
         const hasSearchChanged = !isEqual(fetchOptions, previousFetch?.fetchOptions);
-        if (hasSearchChanged) return false;
+        if (hasSearchChanged) return false; // if search changed reset highlighting
 
         const isLeavingPageOne = previousFetch.page === 0 && page > 0;
         const isChangingFromInitialSort =
           isEqual(previousFetch.sorting, initialSort) && hasSortingChanged;
 
-        if (isLeavingPageOne && isInitialSort) return false;
-        if (page === 0 && isChangingFromInitialSort) return false;
+        if (isLeavingPageOne && isInitialSort) return false; // if leaving page one when green rows visible, reset highlighting
+        if (page === 0 && isChangingFromInitialSort) return false; // if changing sort on page one when green rows visible, reset highlighting
         return true;
       };
 
       if (!getShouldShowRowHighlight()) {
+        // This is essentially a "reset" of the notification and row styling
         setShowNotification(false);
         setNewRowCount(0);
         return transformedData;
       }
 
-      const rowsSinceInteraction = count - previousFetch.count + newRowCount;
-      setShowNotification(rowsSinceInteraction > 0 && !(page === 0 && isInitialSort));
+      const rowsSinceInteraction = count - previousFetch.count + newRowCount; // these are the rows since the user interacted with the app (reset row styling)
+      setShowNotification(rowsSinceInteraction > 0 && !(page === 0 && isInitialSort)); // Only show notification when green rows not visible
       setNewRowCount(rowsSinceInteraction);
 
       const hasPageChanged = page !== previousFetch.page;
@@ -208,7 +215,7 @@ export const DataFetchingTable = memo(
 
       const displayData = isDataToBeUpdated
         ? highlightDataRows(transformedData, highlightStartIndex)
-        : previousFetch.dataSnapshot;
+        : previousFetch.dataSnapshot; // Show the previous fetches data snapshot if the data is not to be updated
 
       return displayData;
     };
@@ -221,10 +228,10 @@ export const DataFetchingTable = memo(
             throw new Error('Missing endpoint to fetch data.');
           }
           const { data, count } = await fetchData();
-          clearTimeout(loadingDelay);
+          clearTimeout(loadingDelay); // Clear the loading indicator timeout if data fetched before 1 second passes (stops flash from short loading time)
 
-          const transformedData = transformData(data, count);
-          updateTableWithData(transformedData, count);
+          const transformedData = transformData(data, count); // Transform the data before updating the table rows
+          updateTableWithData(transformedData, count); // Set the data for table rows and update the previous fetch state
         } catch (error) {
           clearTimeout(loadingDelay);
           setIsLoading(false);
