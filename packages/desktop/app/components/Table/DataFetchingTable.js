@@ -175,6 +175,7 @@ export const DataFetchingTable = memo(
         return transformedData;
       }
 
+      // Autorefresh calculations follow this point
       // only notify if there's more *new* unviewed rows
       // (rather than rows that still haven't been viewed from a previous fetch)
       if (count > previousFetch.count) setIsNotificationMuted(false);
