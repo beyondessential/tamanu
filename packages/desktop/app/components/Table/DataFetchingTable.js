@@ -136,13 +136,16 @@ export const DataFetchingTable = memo(
       }, 1000);
     };
 
+    const clearLoadingIndicators = () => {
+      setIsLoading(false);
+      setIsLoadingMoreData(false);
+    };
+
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
     const updateTableWithData = useCallback(
       (data, count) => {
-        setIsLoading(false);
-        setIsLoadingMoreData(false);
-
+        clearLoadingIndicators();
         updatePreviousFetchState(data, count);
         updateFetchState({
           ...DEFAULT_FETCH_STATE,
@@ -232,9 +235,7 @@ export const DataFetchingTable = memo(
           updateTableWithData(transformedData, count); // Set the data for table rows and update the previous fetch state
         } catch (error) {
           clearTimeout(loadingDelay);
-          setIsLoading(false);
-          setIsLoadingMoreData(false);
-
+          clearLoadingIndicators();
           // eslint-disable-next-line no-console
           console.error(error);
           updateFetchState({
