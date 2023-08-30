@@ -5,22 +5,21 @@
   "description": "BES - Settings",
   "exports": {
     ".": "./dist/index.js",
-    "./cache": "./dist/cache/index.js",
-    "./defaults": "./dist/defaults/index.js",
-    "./defaults/*": "./dist/defaults/*.js",
-    "./reader": "./dist/reader/index.js",
-    "./reader/*": "./dist/reader/*.js"
+    "./*": "./dist/*.js"
   },
-  "types": "src/index.ts",
+  "types": "./dist/index.d.ts",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN ../../license",
   "scripts": {
-    "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true src",
-    "build-watch": "yarn run build --watch",
+    "build": "yarn run build:src && yarn run build:types",
+    "build:src": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true src",
+    "build:types": "tsc --declaration --emitDeclarationOnly --noEmit false && move-dts src dist",
+    "build-watch": "yarn run build && yarn run build:src --watch",
     "test": "NODE_ENV=test jest --passWithNoTests",
-    "lint": "eslint src"
+    "lint": "tsc",
+    "start": "node dist/cli.js"
   },
   "devDependencies": {
     "@beyondessential/eslint-config-beyondessential": "^2.6.0",
@@ -35,6 +34,7 @@
     "jest": "^29.4.3"
   },
   "dependencies": {
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "@tamanu/constants": "*"
   }
 }

@@ -113,6 +113,8 @@
     "yup": "^0.32.9"
   },
   "imports": {
-    "shared": "@tamanu/shared"
+    "shared": "@tamanu/shared",
+    "settings": "@tamanu/settings"
+    
   }
 }

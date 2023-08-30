@@ -1,15 +1,16 @@
 import { get as lodashGet } from 'lodash';
 import { buildSettings } from './buildSettings';
 import { settingsCache } from '../cache';
+import { Models } from './readers/SettingsDBReader';
 export class ReadSettings {
-  models: any;
-  facilityId: string | undefined;
-  constructor(models, facilityId) {
+  models: Models;
+  facilityId?: string;
+  constructor(models: Models, facilityId?: string) {
     this.models = models;
     this.facilityId = facilityId;
   }
 
-  async get(key) {
+  async get(key: string) {
     let settings = settingsCache.get();
     if (!settings) {
       settings = await buildSettings(this.models, this.facilityId);

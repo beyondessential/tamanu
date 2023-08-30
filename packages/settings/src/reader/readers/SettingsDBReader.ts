@@ -1,11 +1,18 @@
 import { Reader } from './Reader';
 
+interface SettingModel {
+  get: (key: string, facilityId?:string, scope?:string)=> any
+}
+export interface Models {
+  Setting: SettingModel;
+}
+
 export class SettingsDBReader extends Reader {
-  models: any;
+  models: Models;
   scope: string;
   facilityId: string | undefined;
 
-  constructor(models: any, scope: string, facilityId?: string) {
+  constructor(models: Models, scope: string, facilityId?: string) {
     super();
     this.models = models;
     this.scope = scope;

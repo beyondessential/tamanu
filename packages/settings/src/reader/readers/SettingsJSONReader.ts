@@ -2,7 +2,7 @@ import { Reader } from './Reader';
 
 export class SettingsJSONReader extends Reader {
   jsonConfig: any;
-  constructor(jsonConfig) {
+  constructor(jsonConfig: any) {
     super();
     this.jsonConfig = jsonConfig;
   }
