@@ -88,6 +88,7 @@ export const InfoPaneList = memo(
     itemTitle = '',
     CustomEditForm,
     getEditFormName = () => '???',
+    CustomListeItemTemplate,
   }) => {
     const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
     const { adding, editKey } = addEditState;
@@ -146,15 +147,48 @@ export const InfoPaneList = memo(
         </TitleContainer>
         <DataList>
           {error && error.message}
-          {!error &&
-            items.map(item => {
+          {/* {!error && */}
+          {/* TODO: temporary code! to be removed later */}
+          {(title === 'Program Registry' || !error) &&
+            (title === 'Program Registry'
+              ? [
+                  {
+                    id: 'asdasdasd',
+                    name: 'Program 1',
+                    status: 'Active',
+                    clinicalStatus: 'Critical',
+                  },
+                  {
+                    id: '324234asdasdasd',
+                    name: 'Program 1',
+                    status: 'Removed',
+                    clinicalStatus: 'Needs review',
+                  },
+                  {
+                    id: '324234asdasdasdwefwf',
+                    name: 'Program 3',
+                    status: 'Active',
+                    clinicalStatus: 'Low risk',
+                  },
+                ]
+              : items
+            ).map(item => {
               const { id } = item;
               const name = getName(item);
               if (behavior === 'collapse') {
                 return (
                   <React.Fragment key={id}>
                     <Collapse in={editKey !== id}>
-                      <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
+                      {!!CustomListeItemTemplate ? (
+                        <CustomListeItemTemplate
+                          item={item}
+                          handleRowClick={handleRowClick}
+                          ListItem={ListItem}
+                          getName={getName}
+                        />
+                      ) : (
+                        <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
+                      )}
                     </Collapse>
                     <Collapse in={editKey === id}>
                       <EditForm
@@ -173,7 +207,16 @@ export const InfoPaneList = memo(
 
               return (
                 <React.Fragment key={id}>
-                  <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
+                  {!!CustomListeItemTemplate ? (
+                    <CustomListeItemTemplate
+                      item={item}
+                      handleRowClick={handleRowClick}
+                      ListItem={ListItem}
+                      getName={getName}
+                    />
+                  ) : (
+                    <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
+                  )}
                   <Modal
                     width="md"
                     title={getEditFormName(item)}

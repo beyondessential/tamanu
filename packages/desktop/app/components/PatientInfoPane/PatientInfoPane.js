@@ -14,6 +14,7 @@ import {
   PatientIssueForm,
 } from '../../forms';
 import { ProgramRegistryForm } from '../../views/programRegistry/ProgramRegistryForm';
+import { ProgramRegistryListItem } from '../../views/programRegistry/ProgramRegistryListItem';
 import { DeathModal } from '../DeathModal';
 import { Colors } from '../../constants';
 import { PatientCarePlanDetails } from './PatientCarePlanNotes';
@@ -109,10 +110,11 @@ const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
     endpoint="programRegistry"
     getEndpoint={`patient/${patient.id}/program-registry`}
     Form={ProgramRegistryForm}
-    getName={({ programRegistry }) => programRegistry.name}
+    CustomListeItemTemplate={ProgramRegistryListItem}
+    getName={programRegistry => programRegistry.name}
     behavior="modal"
     itemTitle="Add program registry"
-    getEditFormName={({ programRegistry }) => `Program registry: ${programRegistry.name}`}
+    getEditFormName={programRegistry => `Program registry: ${programRegistry.name}`}
   />
 ));
 
