@@ -19,7 +19,6 @@ import { theme } from '~/ui/styled/theme';
 import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { UserAvatar } from '~/ui/components/UserAvatar';
-import { Button } from '~/ui/components/Button';
 import {
   GeneralInfo,
   HealthIdentificationRow,
@@ -65,9 +64,9 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
   }, [navigation]);
 
-  const onRecordDeath = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.DeceasedStack.Index);
-  }, [navigation]);
+  // const onRecordDeath = useCallback(() => {
+  //   navigation.navigate(Routes.HomeStack.DeceasedStack.Index);
+  // }, [navigation]);
 
   return (
     <FullView>
@@ -129,13 +128,14 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
           <AllergiesList onEdit={onEditField} allergies={allergies} />
           */}
           <PatientIssues onEdit={onEditPatientIssues} patientId={selectedPatient.id} />
+          {/* Not functional yet
           <Button
             paddingLeft={20}
             paddingRight={20}
             marginBottom={40}
             onPress={onRecordDeath}
             buttonText="Record patient death"
-          />
+          /> */}
         </StyledScrollView>
       </FullView>
     </FullView>
