@@ -295,7 +295,7 @@ export const DataFetchingTable = memo(
         )}
         <Table
           isLoading={isLoading}
-          isLoadingMoreData={isLoadingMoreData}
+          isLoadingMore={isLoadingMoreData}
           data={data}
           errorMessage={errorMessage}
           rowsPerPage={rowsPerPage}
