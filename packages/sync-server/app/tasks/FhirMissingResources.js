@@ -1,8 +1,8 @@
 import config from 'config';
-import { ScheduledTask } from 'shared/tasks';
 import { FHIR_INTERACTIONS, JOB_TOPICS } from '@tamanu/constants';
-import { log } from 'shared/services/logging';
-import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
+import { ScheduledTask } from '@tamanu/shared/tasks';
+import { log } from '@tamanu/shared/services/logging';
+import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 
 export class FhirMissingResources extends ScheduledTask {
   constructor(context) {

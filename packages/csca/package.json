@@ -11,7 +11,7 @@
   "scripts": {
     "build": "swc --delete-dir-on-start --out-dir build --copy-files --source-maps true src",
     "cli": "yarn build && node build",
-    "lint": "tsc"
+    "lint:types": "tsc"
   },
   "devDependencies": {
     "@tamanu/build-tooling": "*",
