@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { logout, idleTimeout } from '../store';
 import { useApi } from '../api';
 import { useEncounterNotes } from './EncounterNotes';
+import { clearLocalStorage } from '../api/TamanuApi';
 
 // This is just a redux selector for now.
 // This should become its own proper context once the auth stuff
@@ -24,6 +25,7 @@ export const useAuth = () => {
     })),
     onLogout: () => {
       dispatch(logout());
+      clearLocalStorage();
       // removes items from cache but doesn't trigger a re-render
       // because the login screen doesn't have any queries on it, this should be fine
       queries.removeQueries();
