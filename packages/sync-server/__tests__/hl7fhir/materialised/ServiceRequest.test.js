@@ -15,7 +15,7 @@ import { fakeUUID } from 'shared/utils/generateId';
 import { formatFhirDate } from 'shared/utils/fhir/datetime';
 
 import { createTestContext } from '../../utilities';
-import { fakeResourcesOfFhirServiceRequest } from '../../testData/fhir';
+import { fakeResourcesOfFhirServiceRequest } from '../../fake/fhir';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 

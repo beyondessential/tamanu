@@ -2,7 +2,7 @@ import { fake } from 'shared/test-helpers';
 import { Op } from 'sequelize';
 import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
-import { fakeResourcesOfFhirServiceRequest } from '../testData/fhir';
+import { fakeResourcesOfFhirServiceRequest } from '../fake/fhir';
 import { FhirMissingResources } from '../../app/tasks/FhirMissingResources';
 
 describe('FhirMissingResources task', () => {

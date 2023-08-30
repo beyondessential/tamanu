@@ -1,9 +1,9 @@
 import { fake } from 'shared/test-helpers';
-import { IMAGING_REQUEST_STATUS_TYPES, NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { fhir } from '../../app/subCommands/fhir';
 import { ApplicationContext } from '../../app/ApplicationContext';
-import { fakeResourcesOfFhirServiceRequest } from '../testData/fhir';
+import { fakeResourcesOfFhirServiceRequest } from '../fake/fhir';
 
 describe('fhir sub commands', () => {
   let ctx;

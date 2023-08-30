@@ -62,4 +62,3 @@ export const fakeResourcesOfFhirServiceRequest = async models => {
 
   return resources;
 };
-

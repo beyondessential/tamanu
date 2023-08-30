@@ -3,7 +3,7 @@ import { log } from 'shared/services/logging';
 
 import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
-import { fakeResourcesOfFhirServiceRequest } from '../testData/fhir';
+import { fakeResourcesOfFhirServiceRequest } from '../fake/fhir';
 import { allFromUpstream } from '../../app/tasks/fhir/refresh/allFromUpstream';
 
 describe('FHIR refresh handler', () => {
