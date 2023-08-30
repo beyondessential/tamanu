@@ -11,15 +11,11 @@ import { TableRefreshButton } from './TableRefreshButton';
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
-const DEFAULT_FETCH_STATE = {
-  data: [],
-  count: 0,
-  errorMessage: '',
-};
-const initialisePreviousFetch = () => ({
+
+const initialiseFetchState = () => ({
   page: 0,
   count: 0,
-  dataSnapshot: [],
+  data: [],
   lastUpdatedAt: getCurrentDateTimeString(),
   sorting: DEFAULT_SORT,
   fetchOptions: {},
@@ -42,11 +38,11 @@ export const DataFetchingTable = memo(
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(ROWS_PER_PAGE_OPTIONS[0]);
     const [sorting, setSorting] = useState(initialSort);
-    const [fetchState, setFetchState] = useState(DEFAULT_FETCH_STATE);
+    const [fetchState, setFetchState] = useState(initialiseFetchState());
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingMoreData, setIsLoadingMoreData] = useState(false);
-    const [previousFetch, setPreviousFetch] = useState(initialisePreviousFetch());
+    const [errorMessage, setErrorMessage] = useState(null);
 
     const [newRowCount, setNewRowCount] = useState(0);
     const [showNotification, setShowNotification] = useState(false);
@@ -80,10 +76,6 @@ export const DataFetchingTable = memo(
       [sorting],
     );
 
-    const updateFetchState = useCallback(newFetchState => {
-      setFetchState(oldFetchState => ({ ...oldFetchState, ...newFetchState }));
-    }, []);
-
     const fetchData = async () => {
       const { data, count } = await api.get(
         endpoint,
@@ -112,12 +104,12 @@ export const DataFetchingTable = memo(
       return highlightedData;
     };
 
-    const updatePreviousFetchState = useCallback(
+    const updateFetchState = useCallback(
       (data, count) => {
-        setPreviousFetch({
+        setFetchState({
           page,
           count,
-          dataSnapshot: data,
+          data,
           lastUpdatedAt: getCurrentDateTimeString(),
           sorting,
           fetchOptions,
@@ -146,12 +138,7 @@ export const DataFetchingTable = memo(
     const updateTableWithData = useCallback(
       (data, count) => {
         clearLoadingIndicators();
-        updatePreviousFetchState(data, count);
-        updateFetchState({
-          ...DEFAULT_FETCH_STATE,
-          data,
-          count,
-        });
+        updateFetchState(data, count);
 
         // Use custom function on data if provided
         if (onDataFetched) {
@@ -161,12 +148,12 @@ export const DataFetchingTable = memo(
           });
         }
       },
-      [onDataFetched, updateFetchState, updatePreviousFetchState],
+      [onDataFetched, updateFetchState],
     );
 
     const transformData = (data, count) => {
       const transformedData = transformRow ? data.map(transformRow) : data;
-      const hasSearchChanged = !isEqual(fetchOptions, previousFetch?.fetchOptions);
+      const hasSearchChanged = !isEqual(fetchOptions, fetchState?.fetchOptions);
 
       // When fetch option is no longer the same (eg: filter changed), it should reload the entire table
       // instead of keep adding data for lazy loading
@@ -181,18 +168,18 @@ export const DataFetchingTable = memo(
       // Autorefresh calculations follow this point
       // only notify if there's more *new* unviewed rows
       // (rather than rows that still haven't been viewed from a previous fetch)
-      if (count > previousFetch.count) setIsNotificationMuted(false);
+      if (count > fetchState.count) setIsNotificationMuted(false);
 
       const isInitialSort = isEqual(sorting, initialSort);
-      const hasSortingChanged = !isEqual(sorting, previousFetch?.sorting);
+      const hasSortingChanged = !isEqual(sorting, fetchState?.sorting);
 
       const getShouldResetRowHighlighting = () => {
-        if (previousFetch.count === 0) return true; // first fetch never needs a highlight
+        if (fetchState.count === 0) return true; // first fetch never needs a highlight
         if (hasSearchChanged) return true; // if search changed reset highlighting
 
-        const isLeavingPageOne = previousFetch.page === 0 && page > 0;
+        const isLeavingPageOne = fetchState.page === 0 && page > 0;
         const isChangingFromInitialSort =
-          isEqual(previousFetch.sorting, initialSort) && hasSortingChanged;
+          isEqual(fetchState.sorting, initialSort) && hasSortingChanged;
 
         if (isLeavingPageOne && isInitialSort) return true; // if leaving page one when green rows visible, reset highlighting
         if (page === 0 && isChangingFromInitialSort) return true; // if changing sort on page one when green rows visible, reset highlighting
@@ -206,17 +193,17 @@ export const DataFetchingTable = memo(
         return transformedData;
       }
 
-      const rowsSinceInteraction = count - previousFetch.count + newRowCount; // these are the rows since the user interacted with the app (reset row styling)
+      const rowsSinceInteraction = count - fetchState.count + newRowCount; // these are the rows since the user interacted with the app (reset row styling)
       setShowNotification(rowsSinceInteraction > 0 && !(page === 0 && isInitialSort)); // Only show notification when green rows not visible
       setNewRowCount(rowsSinceInteraction);
 
-      const hasPageChanged = page !== previousFetch.page;
+      const hasPageChanged = page !== fetchState.page;
       const isDataToBeUpdated = hasPageChanged || hasSortingChanged || page === 0;
       const highlightStartIndex = isInitialSort ? rowsSinceInteraction : 0;
 
       const displayData = isDataToBeUpdated
         ? highlightDataRows(transformedData, highlightStartIndex)
-        : previousFetch.dataSnapshot; // Show the previous fetches data snapshot if the data is not to be updated
+        : fetchState.data; // Show the previous fetches data snapshot if the data is not to be updated
 
       return displayData;
     };
@@ -238,9 +225,7 @@ export const DataFetchingTable = memo(
           clearLoadingIndicators();
           // eslint-disable-next-line no-console
           console.error(error);
-          updateFetchState({
-            errorMessage: error.message,
-          });
+          setErrorMessage(error.message);
         }
       })();
 
@@ -264,13 +249,12 @@ export const DataFetchingTable = memo(
       forcedRefreshCount,
       transformRow,
       onDataFetched,
-      updateFetchState,
       disablePagination,
     ]);
 
     useEffect(() => setPage(0), [fetchOptions]);
 
-    const { data, count, errorMessage } = fetchState;
+    const { data, count, lastUpdatedAt } = fetchState;
     const { order, orderBy } = sorting;
 
     const notificationMessage = `${newRowCount} new record${
@@ -288,10 +272,7 @@ export const DataFetchingTable = memo(
           />
         )}
         {enableAutoRefresh && (
-          <TableRefreshButton
-            lastUpdatedTime={previousFetch?.lastUpdatedAt}
-            refreshTable={manualRefresh}
-          />
+          <TableRefreshButton lastUpdatedTime={lastUpdatedAt} refreshTable={manualRefresh} />
         )}
         <Table
           isLoading={isLoading}
