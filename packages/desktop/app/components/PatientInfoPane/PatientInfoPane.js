@@ -112,7 +112,6 @@ const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
     getName={({ programRegistry }) => programRegistry.name}
     behavior="modal"
     itemTitle="Add program registry"
-    // CustomEditForm={PatientCarePlanDetails}
     getEditFormName={({ programRegistry }) => `Program registry: ${programRegistry.name}`}
   />
 ));
