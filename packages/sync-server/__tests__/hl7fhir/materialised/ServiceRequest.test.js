@@ -22,6 +22,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   let ctx;
   let app;
   let resources;
+  let materialisedResources;
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -37,6 +38,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       ReferenceData,
       User,
       FhirPatient,
+      FhirPractitioner,
     } = ctx.store.models;
 
     const [practitioner, patient, area1, area2, facility] = await Promise.all([
@@ -73,6 +75,11 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       extCode2,
       fhirPatient,
       locationGroup,
+    };
+
+    const fhirPractitioner = await FhirPractitioner.materialiseFromUpstream(practitioner.id);
+    materialisedResources = {
+      fhirPractitioner,
     };
   });
   afterAll(() => ctx.close());
@@ -222,7 +229,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         },
         occurrenceDateTime: formatFhirDate('2022-03-04 15:30:00'),
         requester: {
-          display: resources.practitioner.displayName,
+          type: 'Practitioner',
+          reference: `Practitioner/${materialisedResources.fhirPractitioner.id}`,
+          display: materialisedResources.fhirPractitioner.name[0].text,
         },
         locationCode: [
           {
@@ -345,8 +354,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         },
         occurrenceDateTime: formatFhirDate('2022-07-27 16:30:00'),
         requester: {
-          display: resources.practitioner.displayName,
-          reference: `Practitioner/${resources.practitioner.id}`,
+          type: 'Practitioner',
+          reference: `Practitioner/${materialisedResources.fhirPractitioner.id}`,
+          display: materialisedResources.fhirPractitioner.name[0].text,
         },
         locationCode: [],
         note: [],
@@ -505,7 +515,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
               },
               occurrenceDateTime: formatFhirDate('2023-11-12 13:14:15'),
               requester: {
-                display: resources.practitioner.displayName,
+                type: 'Practitioner',
+                reference: `Practitioner/${materialisedResources.fhirPractitioner.id}`,
+                display: materialisedResources.fhirPractitioner.name[0].text,
               },
               locationCode: [
                 {
@@ -622,7 +634,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
               },
               occurrenceDateTime: formatFhirDate('2023-11-12 13:14:15'),
               requester: {
-                display: resources.practitioner.displayName,
+                type: 'Practitioner',
+                reference: `Practitioner/${materialisedResources.fhirPractitioner.id}`,
+                display: materialisedResources.fhirPractitioner.name[0].text,
               },
               locationCode: [
                 {
