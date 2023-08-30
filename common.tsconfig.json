@@ -2,10 +2,10 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "alwaysStrict": true,
+    "composite": true,
     "esModuleInterop": true,
     "ignoreDeprecations": "5.0",
     "importsNotUsedAsValues": "preserve",
-    "incremental": false,
     "isolatedModules": true,
     "module": "ES2020",
     "moduleResolution": "Node16",
