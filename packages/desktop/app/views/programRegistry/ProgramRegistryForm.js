@@ -15,14 +15,16 @@ import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 
-export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObject }) => {
+export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObject, patient }) => {
   const { currentUser, facility } = useAuth();
   const [programRegistryId, setProgramRegistryId] = useState();
 
+  const programRegistrySuggester = useSuggester('programRegistry', {
+    baseQueryParameters: { patientId: patient.id },
+  });
   const programRegistryStatusSuggester = useSuggester('programRegistryStatus', {
     baseQueryParameters: { programRegistryId },
   });
-  const programRegistrySuggester = useSuggester('programRegistry');
   const registeredBySuggester = useSuggester('practitioner');
   const registeringFacilitySuggester = useSuggester('facility');
   return (

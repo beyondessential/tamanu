@@ -70,7 +70,13 @@ export const InfoPaneAddEditForm = memo(
 
     return (
       <FormContainer>
-        <Form onCancel={onClose} editedObject={item} onSubmit={onSubmit} {...suggesters} />
+        <Form
+          onCancel={onClose}
+          editedObject={item}
+          onSubmit={onSubmit}
+          patient={patient}
+          {...suggesters}
+        />
       </FormContainer>
     );
   },
