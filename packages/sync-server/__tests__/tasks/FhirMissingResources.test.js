@@ -13,12 +13,18 @@ describe('FhirMissingResources task', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    const { FhirEncounter, ImagingRequest, FhirServiceRequest } = ctx.store.models;
+    const {
+      FhirEncounter,
+      ImagingRequest,
+      FhirServiceRequest,
+      FhirPractitioner,
+    } = ctx.store.models;
 
     fhirMissingResourcesWorker = new FhirMissingResources(ctx);
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
 
     await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
+    await FhirPractitioner.materialiseFromUpstream(resources.practitioner.id);
 
     imagingRequest = await ImagingRequest.create(
       fake(ImagingRequest, {
@@ -41,7 +47,7 @@ describe('FhirMissingResources task', () => {
     ctx.close();
   });
 
-  it('should create a FHIR resource if it is missing', async () => {
+  it('should create one FHIR fromUpstream job if a FHIR resource is missing', async () => {
     const { FhirServiceRequest, FhirJob } = ctx.store.models;
     const fhirServiceRequest = await FhirServiceRequest.findOne({
       where: {
