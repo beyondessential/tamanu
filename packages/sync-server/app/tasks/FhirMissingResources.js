@@ -29,12 +29,13 @@ export class FhirMissingResources extends ScheduledTask {
       for (const UpstreamModel of Resource.UpstreamModels) {
         const upstreamTable = UpstreamModel.tableName;
 
-        const [{ total }] = await Resource.sequelize.query(
+        const [[{ total }]] = await Resource.sequelize.query(
           `SELECT COUNT(up.id) as total FROM "${upstreamTable}" up
           LEFT JOIN fhir."${resourceTable}" r ON r.upstream_id = up.id
           WHERE r.id IS NULL`,
         );
-        all += total;
+
+        all += parseInt(total);
       }
     }
 
@@ -47,7 +48,7 @@ export class FhirMissingResources extends ScheduledTask {
       for (const UpstreamModel of Resource.UpstreamModels) {
         const upstreamTable = UpstreamModel.tableName;
 
-        const [{ total }] = await Resource.sequelize.query(
+        const [[{ total }]] = await Resource.sequelize.query(
           `SELECT COUNT(up.id) as total FROM "${upstreamTable}" up
           LEFT JOIN fhir."${resourceTable}" r ON r.upstream_id = up.id
           WHERE r.id IS NULL`,
