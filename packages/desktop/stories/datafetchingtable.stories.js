@@ -115,4 +115,9 @@ storiesOf('DataFetchingTable', module)
       <DataFetchingTable endpoint="ages" columns={dummyColumns} />
     </ApiContext.Provider>
   ))
-  .add('With autorefresh enabled', () => TableWithDynamicData());
+  .add('With autorefresh enabled', () => TableWithDynamicData())
+  .add('With lazy loading', () => (
+    <ApiContext.Provider value={dummyApi}>
+      <DataFetchingTable lazyLoading endpoint="ages" columns={dummyColumns} />
+    </ApiContext.Provider>
+  ));
