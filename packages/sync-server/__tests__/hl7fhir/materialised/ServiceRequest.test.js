@@ -23,6 +23,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   let ctx;
   let app;
   let resources;
+  let fhirResources;
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -32,7 +33,6 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   afterAll(() => ctx.close());
 
   describe('materialise', () => {
-    let fhirEncounter;
     beforeEach(async () => {
       const {
         FhirServiceRequest,
@@ -43,6 +43,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         LabTestPanelRequest,
         FhirEncounter,
       } = ctx.store.models;
+      await FhirEncounter.destroy({ where: {} });
       await FhirServiceRequest.destroy({ where: {} });
       await ImagingRequest.destroy({ where: {} });
       await ImagingRequestArea.destroy({ where: {} });
@@ -50,7 +51,8 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       await LabTestPanel.destroy({ where: {} });
       await LabTestPanelRequest.destroy({ where: {} });
 
-      fhirEncounter = await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
+      const fhirEncounter = await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
+      fhirResources = { fhirEncounter };
     });
 
     it('fetches a service request by materialised ID (imaging request)', async () => {
@@ -160,7 +162,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           display: `${resources.patient.firstName} ${resources.patient.lastName}`,
         },
         encounter: {
-          reference: `Encounter/${fhirEncounter.id}`,
+          reference: `Encounter/${fhirResources.fhirEncounter.id}`,
           type: 'Encounter',
         },
         occurrenceDateTime: formatFhirDate('2022-03-04 15:30:00'),
@@ -283,7 +285,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           display: `${resources.patient.firstName} ${resources.patient.lastName}`,
         },
         encounter: {
-          reference: `Encounter/${fhirEncounter.id}`,
+          reference: `Encounter/${fhirResources.fhirEncounter.id}`,
           type: 'Encounter',
         },
         occurrenceDateTime: formatFhirDate('2022-07-27 16:30:00'),
@@ -582,11 +584,21 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
   describe('search', () => {
     let irs;
+
     beforeAll(async () => {
-      const { FhirServiceRequest, ImagingRequest, ImagingRequestArea } = ctx.store.models;
+      const {
+        FhirEncounter,
+        FhirServiceRequest,
+        ImagingRequest,
+        ImagingRequestArea,
+      } = ctx.store.models;
+      await FhirEncounter.destroy({ where: {} });
       await FhirServiceRequest.destroy({ where: {} });
       await ImagingRequest.destroy({ where: {} });
       await ImagingRequestArea.destroy({ where: {} });
+
+      const fhirEncounter = await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
+      fhirResources = { fhirEncounter };
 
       irs = await Promise.all([
         (async () => {
@@ -797,6 +809,20 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       expect(response.body.total).toBe(2);
       expect(response.body.entry.length).toBe(2);
       expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+      expect(response).toHaveSucceeded();
+    });
+
+    it('includes encounter as materialised encounter', async () => {
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Encounter:encounter`,
+      );
+
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.length).toBe(3);
+      expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
+      expect(
+        response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
+      ).toBe(fhirResources.fhirEncounter.id);
       expect(response).toHaveSucceeded();
     });
   });
