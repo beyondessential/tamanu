@@ -1371,10 +1371,13 @@ describe('Encounter', () => {
     describe('encounter history', () => {
       describe('single change', () => {
         it('should record an encounter history when an encounter is created', async () => {
-          const encounter = await models.Encounter.create({
+          const result = await app.post('/v1/encounter').send({
             ...(await createDummyEncounter(models)),
             patientId: patient.id,
           });
+
+          expect(result).toHaveSucceeded();
+          const encounter = await models.Encounter.findByPk(result.body.id);
 
           const encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
@@ -1389,6 +1392,7 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
+            actorId: user.id,
           });
         });
 
@@ -1402,7 +1406,6 @@ describe('Encounter', () => {
           });
 
           expect(result).toHaveSucceeded();
-          expect(result.body.id).toBeTruthy();
           const encounter = await models.Encounter.findByPk(result.body.id);
 
           await app.put(`/v1/encounter/${encounter.id}`).send({
@@ -1448,7 +1451,6 @@ describe('Encounter', () => {
           });
 
           expect(result).toHaveSucceeded();
-          expect(result.body.id).toBeTruthy();
           const encounter = await models.Encounter.findByPk(result.body.id);
 
           await app.put(`/v1/encounter/${encounter.id}`).send({
@@ -1494,7 +1496,6 @@ describe('Encounter', () => {
           });
 
           expect(result).toHaveSucceeded();
-          expect(result.body.id).toBeTruthy();
           const encounter = await models.Encounter.findByPk(result.body.id);
 
           await app.put(`/v1/encounter/${encounter.id}`).send({
@@ -1541,7 +1542,6 @@ describe('Encounter', () => {
           });
 
           expect(result).toHaveSucceeded();
-          expect(result.body.id).toBeTruthy();
           const encounter = await models.Encounter.findByPk(result.body.id);
 
           await app.put(`/v1/encounter/${encounter.id}`).send({
@@ -1593,7 +1593,6 @@ describe('Encounter', () => {
           });
 
           expect(result).toHaveSucceeded();
-          expect(result.body.id).toBeTruthy();
           const encounter = await models.Encounter.findByPk(result.body.id);
 
           const locationChangeSubmittedTime = getCurrentDateTimeString();

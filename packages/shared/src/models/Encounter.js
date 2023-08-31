@@ -320,7 +320,7 @@ export class Encounter extends Model {
 
     const { EncounterHistory } = this.sequelize.models;
     await EncounterHistory.createSnapshot(encounter, {
-      actorId,
+      actorId: actorId || encounter.examinerId,
       submittedTime: getCurrentDateTimeString(),
     });
 
@@ -510,6 +510,7 @@ export class Encounter extends Model {
       const { submittedTime, ...encounterData } = data;
       const updatedEncounter = await super.update({ ...encounterData, ...additionalChanges }, user);
 
+      // multiple changes in 1 update transaction is not supported at the moment
       if (
         isEncounterTypeChanged ||
         isDepartmentChanged ||
