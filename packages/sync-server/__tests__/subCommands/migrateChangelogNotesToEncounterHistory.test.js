@@ -2046,10 +2046,10 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           locationGroupId: locationGroup1.id,
         });
         const location2 = await createLocation('location same name', {
-          locationGroupId: null,
+          locationGroupId: null, // no location group so generated changelog will not contain it
         });
         const location3 = await createLocation('location same name', {
-          locationGroupId: null,
+          locationGroupId: null, // no location group so generated changelog will not contain it
         });
         const location4 = await createLocation('location 4', {
           locationGroupId: locationGroup2.id,
@@ -2116,18 +2116,18 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           actorId: null,
         });
 
-        // Updated location from 1 to 2
+        // Updated location from 1 to 3
         expect(encounterHistoryRecords[1]).toMatchObject({
           encounterId: encounter.id,
           departmentId: department.id,
-          locationId: location3.id,
+          locationId: location3.id, // location 3 is picked as it was updated later
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Location,
           actorId: defaultUser.id,
         });
 
-        // Updated location from 2 to 4
+        // Updated location from 3 to 4
         expect(encounterHistoryRecords[2]).toMatchObject({
           encounterId: encounter.id,
           departmentId: department.id,
