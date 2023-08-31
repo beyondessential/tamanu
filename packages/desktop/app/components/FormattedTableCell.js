@@ -3,7 +3,7 @@ import React, { useRef, useState, useEffect, useMemo } from 'react';
 
 import styled from 'styled-components';
 import { Colors } from '../constants';
-import { formatLong, formatShortest, formatTime } from './DateDisplay';
+import { DateDisplay, formatLong, formatShortest, formatTime } from './DateDisplay';
 import { TableTooltip } from './Table/TableTooltip';
 
 // severity constants
@@ -86,10 +86,10 @@ export const formatValue = (value, config) => {
 };
 
 export const DateHeadCell = React.memo(({ value }) => (
-  <TableTooltip title={formatLong(value)}>
+  <TableTooltip title={DateDisplay.stringFormat(value, formatLong)}>
     <HeadCellWrapper>
-      <div>{formatShortest(value)}</div>
-      <div>{formatTime(value)}</div>
+      <div>{DateDisplay.stringFormat(value, formatShortest)}</div>
+      <div>{DateDisplay.stringFormat(value, formatTime)}</div>
     </HeadCellWrapper>
   </TableTooltip>
 ));

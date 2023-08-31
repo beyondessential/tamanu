@@ -9,7 +9,7 @@ import { useEncounter } from '../contexts/Encounter';
 import { Colors } from '../constants';
 import { RangeValidatedCell, DateHeadCell, RangeTooltipCell } from './FormattedTableCell';
 import { useVitals } from '../api/queries/useVitals';
-import { formatShortest, formatTimeWithSeconds } from './DateDisplay';
+import { DateDisplay, formatShortest, formatTimeWithSeconds } from './DateDisplay';
 import { EditVitalCellModal } from './EditVitalCellModal';
 import { VitalVectorIcon } from './Icons/VitalVectorIcon';
 import { useVitalChartData } from '../contexts/VitalChartData';
@@ -46,6 +46,11 @@ const StyledTable = styled(Table)`
   }
 `;
 
+const getExportOverrideTitle = date => {
+  const shortestDate = DateDisplay.stringFormat(date, formatShortest);
+  const timeWithSeconds = DateDisplay.stringFormat(date, formatTimeWithSeconds);
+  return `${shortestDate} ${timeWithSeconds}`;
+};
 const IconButton = styled(IconButtonComponent)`
   padding: 9px 5px;
 `;
@@ -204,7 +209,7 @@ export const VitalsTable = React.memo(() => {
           );
         },
         exportOverrides: {
-          title: `${formatShortest(date)} ${formatTimeWithSeconds(date)}`,
+          title: getExportOverrideTitle(date),
         },
       })),
   ];
