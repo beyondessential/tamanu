@@ -63,7 +63,7 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
     async () => {
       const result = await api.get(`encounter/${encodeURIComponent(encounter.id)}/labRequests`, {
         includeNotes: 'true',
-        status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        status: [LAB_REQUEST_STATUSES.RECEPTION_PENDING, LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED],
         order: 'asc',
         orderBy: 'requestedDate',
       });
