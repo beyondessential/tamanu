@@ -260,7 +260,7 @@ export const DataFetchingTable = memo(
 
     useEffect(() => {
       setPage(0);
-      setFetchState({ ...DEFAULT_FETCH_STATE });
+      setFetchState(initialiseFetchState());
     }, [fetchOptionsString]);
 
     const { data, count, lastUpdatedAt } = fetchState;
