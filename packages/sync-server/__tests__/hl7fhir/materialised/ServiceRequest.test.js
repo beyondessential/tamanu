@@ -23,12 +23,20 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   let ctx;
   let app;
   let resources;
-  let fhirResources;
+  const fhirResources = {
+    fhirPractitioner: null,
+    fhirEncounter: null,
+  };
 
   beforeAll(async () => {
     ctx = await createTestContext();
     app = await ctx.baseApp.asRole('practitioner');
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
+    const { FhirPractitioner } = ctx.store.models;
+    const fhirPractitioner = await FhirPractitioner.materialiseFromUpstream(
+      resources.practitioner.id,
+    );
+    fhirResources.fhirPractitioner = fhirPractitioner;
   });
   afterAll(() => ctx.close());
 
@@ -52,7 +60,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       await LabTestPanelRequest.destroy({ where: {} });
 
       const fhirEncounter = await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
-      fhirResources = { fhirEncounter };
+      fhirResources.fhirEncounter = fhirEncounter;
     });
 
     it('fetches a service request by materialised ID (imaging request)', async () => {
@@ -167,7 +175,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         },
         occurrenceDateTime: formatFhirDate('2022-03-04 15:30:00'),
         requester: {
-          display: resources.practitioner.displayName,
+          type: 'Practitioner',
+          reference: `Practitioner/${fhirResources.fhirPractitioner.id}`,
+          display: fhirResources.fhirPractitioner.name[0].text,
         },
         locationCode: [
           {
@@ -290,8 +300,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         },
         occurrenceDateTime: formatFhirDate('2022-07-27 16:30:00'),
         requester: {
-          display: resources.practitioner.displayName,
-          reference: `Practitioner/${resources.practitioner.id}`,
+          type: 'Practitioner',
+          reference: `Practitioner/${fhirResources.fhirPractitioner.id}`,
+          display: fhirResources.fhirPractitioner.name[0].text,
         },
         locationCode: [],
         note: [],
@@ -450,7 +461,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
               },
               occurrenceDateTime: formatFhirDate('2023-11-12 13:14:15'),
               requester: {
-                display: resources.practitioner.displayName,
+                type: 'Practitioner',
+                reference: `Practitioner/${fhirResources.fhirPractitioner.id}`,
+                display: fhirResources.fhirPractitioner.name[0].text,
               },
               locationCode: [
                 {
@@ -567,7 +580,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
               },
               occurrenceDateTime: formatFhirDate('2023-11-12 13:14:15'),
               requester: {
-                display: resources.practitioner.displayName,
+                type: 'Practitioner',
+                reference: `Practitioner/${fhirResources.fhirPractitioner.id}`,
+                display: fhirResources.fhirPractitioner.name[0].text,
               },
               locationCode: [
                 {
@@ -598,7 +613,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       await ImagingRequestArea.destroy({ where: {} });
 
       const fhirEncounter = await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
-      fhirResources = { fhirEncounter };
+      fhirResources.fhirEncounter = fhirEncounter;
 
       irs = await Promise.all([
         (async () => {

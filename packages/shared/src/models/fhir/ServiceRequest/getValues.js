@@ -95,7 +95,8 @@ async function getValuesFromImagingRequest(upstream, models) {
     }),
     occurrenceDateTime: formatFhirDate(upstream.requestedDate),
     requester: new FhirReference({
-      display: upstream.requestedBy.displayName,
+      type: 'upstream://practitioner',
+      reference: upstream.requestedBy.id,
     }),
     locationCode: locationCode(upstream),
     note: imagingAnnotations(upstream),
@@ -142,8 +143,8 @@ async function getValuesFromLabRequest(upstream) {
     }),
     occurrenceDateTime: formatFhirDate(upstream.requestedDate),
     requester: new FhirReference({
-      reference: `Practitioner/${upstream.requestedBy.id}`,
-      display: upstream.requestedBy.displayName,
+      type: 'upstream://practitioner',
+      reference: upstream.requestedBy.id,
     }),
     note: labAnnotations(upstream),
   };
