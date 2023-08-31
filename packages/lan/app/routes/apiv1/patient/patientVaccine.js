@@ -203,18 +203,16 @@ patientVaccineRoutes.post(
       if (existingEncounter) {
         encounterId = existingEncounter.get('id');
       } else {
-        const newEncounter = await req.models.Encounter.create(
-          {
-            encounterType: ENCOUNTER_TYPES.VACCINATION,
-            startDate: vaccineData.date || currentDate,
-            patientId,
-            examinerId: vaccineData.recorderId,
-            locationId,
-            departmentId,
-            reasonForEncounter: await getVaccinationDescription(req.models, vaccineData),
-            actorId: user.id,
-          },
-        );
+        const newEncounter = await req.models.Encounter.create({
+          encounterType: ENCOUNTER_TYPES.VACCINATION,
+          startDate: vaccineData.date || currentDate,
+          patientId,
+          examinerId: vaccineData.recorderId,
+          locationId,
+          departmentId,
+          reasonForEncounter: await getVaccinationDescription(req.models, vaccineData),
+          actorId: user.id,
+        });
         await newEncounter.update({
           endDate: vaccineData.date || currentDate,
           systemNote: 'Automatically discharged',
