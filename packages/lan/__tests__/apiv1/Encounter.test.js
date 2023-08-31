@@ -1395,14 +1395,15 @@ describe('Encounter', () => {
         it('should record an encounter history for a location change', async () => {
           const [oldLocation, newLocation] = await models.Location.findAll({ limit: 2 });
           const submittedTime = getCurrentDateTimeString();
-          const encounter = await models.Encounter.create(
-            {
-              ...(await createDummyEncounter(models)),
-              patientId: patient.id,
-              locationId: oldLocation.id,
-            },
-            user,
-          );
+          const result = await app.post('/v1/encounter').send({
+            ...(await createDummyEncounter(models)),
+            patientId: patient.id,
+            locationId: oldLocation.id,
+          });
+
+          expect(result).toHaveSucceeded();
+          expect(result.body.id).toBeTruthy();
+          const encounter = await models.Encounter.findByPk(result.body.id);
 
           await app.put(`/v1/encounter/${encounter.id}`).send({
             locationId: newLocation.id,
@@ -1422,7 +1423,7 @@ describe('Encounter', () => {
             locationId: oldLocation.id,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
-            modifierId: user.id,
+            actorId: user.id,
           });
 
           expect(encounterHistoryRecords[1]).toMatchObject({
@@ -1433,21 +1434,22 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             changeType: EncounterChangeType.Location,
-            modifierId: user.id,
+            actorId: user.id,
           });
         });
 
         it('should record an encounter history for a department change', async () => {
           const [oldDepartment, newDepartment] = await models.Department.findAll({ limit: 2 });
           const submittedTime = getCurrentDateTimeString();
-          const encounter = await models.Encounter.create(
-            {
-              ...(await createDummyEncounter(models)),
-              patientId: patient.id,
-              departmentId: oldDepartment.id,
-            },
-            user,
-          );
+          const result = await app.post('/v1/encounter').send({
+            ...(await createDummyEncounter(models)),
+            patientId: patient.id,
+            departmentId: oldDepartment.id,
+          });
+
+          expect(result).toHaveSucceeded();
+          expect(result.body.id).toBeTruthy();
+          const encounter = await models.Encounter.findByPk(result.body.id);
 
           await app.put(`/v1/encounter/${encounter.id}`).send({
             departmentId: newDepartment.id,
@@ -1467,7 +1469,7 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
-            modifierId: user.id,
+            actorId: user.id,
           });
           expect(encounterHistoryRecords[1]).toMatchObject({
             date: submittedTime,
@@ -1477,21 +1479,23 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             changeType: EncounterChangeType.Department,
-            modifierId: user.id,
+            actorId: user.id,
           });
         });
 
         it('should record an encounter history for a clinician change', async () => {
           const [oldClinician, newClinician] = await models.User.findAll({ limit: 2 });
           const submittedTime = getCurrentDateTimeString();
-          const encounter = await models.Encounter.create(
-            {
-              ...(await createDummyEncounter(models)),
-              patientId: patient.id,
-              examinerId: oldClinician.id,
-            },
-            user,
-          );
+
+          const result = await app.post('/v1/encounter').send({
+            ...(await createDummyEncounter(models)),
+            patientId: patient.id,
+            examinerId: oldClinician.id,
+          });
+
+          expect(result).toHaveSucceeded();
+          expect(result.body.id).toBeTruthy();
+          const encounter = await models.Encounter.findByPk(result.body.id);
 
           await app.put(`/v1/encounter/${encounter.id}`).send({
             examinerId: newClinician.id,
@@ -1511,7 +1515,7 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: oldClinician.id,
             encounterType: encounter.encounterType,
-            modifierId: user.id,
+            actorId: user.id,
           });
           expect(encounterHistoryRecords[1]).toMatchObject({
             date: submittedTime,
@@ -1521,7 +1525,7 @@ describe('Encounter', () => {
             examinerId: newClinician.id,
             encounterType: encounter.encounterType,
             changeType: EncounterChangeType.Examiner,
-            modifierId: user.id,
+            actorId: user.id,
           });
         });
 
@@ -1529,14 +1533,16 @@ describe('Encounter', () => {
           const oldEncounterType = 'admission';
           const newEncounterType = 'clinic';
           const submittedTime = getCurrentDateTimeString();
-          const encounter = await models.Encounter.create(
-            {
-              ...(await createDummyEncounter(models)),
-              patientId: patient.id,
-              encounterType: oldEncounterType,
-            },
-            user,
-          );
+
+          const result = await app.post('/v1/encounter').send({
+            ...(await createDummyEncounter(models)),
+            patientId: patient.id,
+            encounterType: oldEncounterType,
+          });
+
+          expect(result).toHaveSucceeded();
+          expect(result.body.id).toBeTruthy();
+          const encounter = await models.Encounter.findByPk(result.body.id);
 
           await app.put(`/v1/encounter/${encounter.id}`).send({
             encounterType: newEncounterType,
@@ -1557,7 +1563,7 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: encounter.examinerId,
             encounterType: oldEncounterType,
-            modifierId: user.id,
+            actorId: user.id,
           });
           expect(encounterHistoryRecords[1]).toMatchObject({
             date: submittedTime,
@@ -1567,7 +1573,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: newEncounterType,
             changeType: EncounterChangeType.EncounterType,
-            modifierId: user.id,
+            actorId: user.id,
           });
         });
       });
@@ -1578,16 +1584,17 @@ describe('Encounter', () => {
           const [oldDepartment, newDepartment] = await models.Department.findAll({ limit: 2 });
           const [oldClinician, newClinician] = await models.User.findAll({ limit: 2 });
 
-          const encounter = await models.Encounter.create(
-            {
-              ...(await createDummyEncounter(models)),
-              patientId: patient.id,
-              examinerId: oldClinician.id,
-              locationId: oldLocation.id,
-              departmentId: oldDepartment.id,
-            },
-            user,
-          );
+          const result = await app.post('/v1/encounter').send({
+            ...(await createDummyEncounter(models)),
+            patientId: patient.id,
+            examinerId: oldClinician.id,
+            locationId: oldLocation.id,
+            departmentId: oldDepartment.id,
+          });
+
+          expect(result).toHaveSucceeded();
+          expect(result.body.id).toBeTruthy();
+          const encounter = await models.Encounter.findByPk(result.body.id);
 
           const locationChangeSubmittedTime = getCurrentDateTimeString();
           await app.put(`/v1/encounter/${encounter.id}`).send({
@@ -1639,7 +1646,7 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
-            modifierId: user.id,
+            actorId: user.id,
           });
           expect(encounterHistoryRecords[1]).toMatchObject({
             date: locationChangeSubmittedTime,
@@ -1648,7 +1655,7 @@ describe('Encounter', () => {
             locationId: newLocation.id,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
-            modifierId: user.id,
+            actorId: user.id,
             changeType: EncounterChangeType.Location,
           });
           expect(encounterHistoryRecords[2]).toMatchObject({
@@ -1658,7 +1665,7 @@ describe('Encounter', () => {
             locationId: newLocation.id,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
-            modifierId: user.id,
+            actorId: user.id,
             changeType: EncounterChangeType.Department,
           });
 
@@ -1682,7 +1689,7 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
-            modifierId: user.id,
+            actorId: user.id,
           });
           expect(encounterHistoryRecords[1]).toMatchObject({
             date: locationChangeSubmittedTime,
@@ -1691,7 +1698,7 @@ describe('Encounter', () => {
             locationId: newLocation.id,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
-            modifierId: user.id,
+            actorId: user.id,
             changeType: EncounterChangeType.Location,
           });
           expect(encounterHistoryRecords[2]).toMatchObject({
@@ -1701,7 +1708,7 @@ describe('Encounter', () => {
             locationId: newLocation.id,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
-            modifierId: user.id,
+            actorId: user.id,
             changeType: EncounterChangeType.Department,
           });
           expect(encounterHistoryRecords[3]).toMatchObject({
@@ -1711,7 +1718,7 @@ describe('Encounter', () => {
             locationId: newLocation.id,
             examinerId: newClinician.id,
             encounterType: encounter.encounterType,
-            modifierId: user.id,
+            actorId: user.id,
             changeType: EncounterChangeType.Examiner,
           });
         });

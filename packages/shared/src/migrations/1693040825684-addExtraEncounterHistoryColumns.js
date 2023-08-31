@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 
 export async function up(query) {
-  await query.addColumn('encounter_history', 'modifier_id', {
+  await query.addColumn('encounter_history', 'actor_id', {
     type: Sequelize.STRING,
     references: {
       model: 'users',
@@ -17,6 +17,6 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.removeColumn('encounter_history', 'modifier_id');
+  await query.removeColumn('encounter_history', 'actor_id');
   await query.removeColumn('encounter_history', 'change_type');
 }

@@ -36,7 +36,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                 np.id,
                 np.record_id,
                 np.note_type,
-                ni.author_id as modifier_id,
+                ni.author_id as actor_id,
                 ni.date,
                 ni.content
             from note_pages np
@@ -98,9 +98,9 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
         change_log_historical_partial as (
             select
                 e.id as encounter_id,
-                case when lag(n.modifier_id) over w isnull then null
-                    else lag(n.modifier_id) over w
-                end as modifier_id,
+                case when lag(n.actor_id) over w isnull then null
+                    else lag(n.actor_id) over w
+                end as actor_id,
                 case when lag(n.content) over w like 'Changed department%' then 'department'
                     when lag(n.content) over w like 'Changed location%' then 'location'
                     when lag(n.content) over w like 'Changed supervising clinician%' then 'supervising clinician'
@@ -189,7 +189,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
         change_log_historical_complete as (
             select
                 encounter_id,
-                modifier_id,
+                actor_id,
                 change_type,
                 start_datetime,
                 l.facility_id as encounter_facility_id,
@@ -296,7 +296,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
         change_log_latest as (
             select
                 DISTINCT ON(record_id)
-                modifier_id,
+                actor_id,
                 (regexp_matches(content, 'Changed (.*) from (.*) to (.*)'))[1] AS change_type,
                 date,
                 department_id,
@@ -333,7 +333,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             select
                 record_id,
                 date,
-                null as modifier_id, -- N/A for first encounter snapshot
+                null as actor_id, -- N/A for first encounter snapshot
                 null as change_type, -- N/A for first encounter snapshot
                 department_id,
                 location_id,
@@ -346,7 +346,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             select
                 record_id,
                 date,
-                modifier_id,
+                actor_id,
                 change_type,
                 department_id,
                 location_id,
@@ -359,7 +359,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             select distinct
                 log.encounter_id as record_id,
                 log.start_datetime as date,
-                log.modifier_id,
+                log.actor_id,
                 log.change_type,
                 case 
                     when d.id notnull then d.id 
@@ -405,7 +405,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             insert into encounter_history(
                 encounter_id,
                 date,
-                modifier_id,
+                actor_id,
                 change_type,
                 department_id,
                 location_id,
@@ -415,7 +415,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             select
                 record_id,
                 date,
-                modifier_id,
+                actor_id,
                 case when change_type = 'type' then 'encounter_type'
                     when change_type = 'supervising clinician' then 'examiner'
                     else change_type

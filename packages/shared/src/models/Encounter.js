@@ -314,11 +314,13 @@ export class Encounter extends Model {
     await dischargeOutpatientEncounters(this.sequelize.models, recordIds);
   }
 
-  static async create(encounterData, user) {
+  static async create(data, ...args) {
+    const { actorId, ...encounterData } = data;
+    const encounter = await super.create(encounterData, ...args);
+
     const { EncounterHistory } = this.sequelize.models;
-    const encounter = await super.create(encounterData);
     await EncounterHistory.createSnapshot(encounter, {
-      modifierId: user?.id,
+      actorId,
       submittedTime: getCurrentDateTimeString(),
     });
 
@@ -515,7 +517,7 @@ export class Encounter extends Model {
         isClinicianChanged
       ) {
         await EncounterHistory.createSnapshot(updatedEncounter, {
-          modifierId: user?.id,
+          actorId: user?.id,
           changeType,
           submittedTime: data.submittedTime,
         });

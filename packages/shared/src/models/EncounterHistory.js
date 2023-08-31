@@ -53,19 +53,19 @@ export class EncounterHistory extends Model {
     });
 
     this.belongsTo(models.User, {
-      foreignKey: 'modifierId',
-      as: 'modifier',
+      foreignKey: 'actorId',
+      as: 'actor',
     });
   }
 
-  static async createSnapshot(encounter, { modifierId, changeType, submittedTime }) {
+  static async createSnapshot(encounter, { actorId, changeType, submittedTime }) {
     return EncounterHistory.create({
       encounterId: encounter.id,
       encounterType: encounter.encounterType,
       locationId: encounter.locationId,
       departmentId: encounter.departmentId,
       examinerId: encounter.examinerId,
-      modifierId,
+      actorId,
       changeType,
       date: submittedTime || getCurrentDateTimeString(),
     });

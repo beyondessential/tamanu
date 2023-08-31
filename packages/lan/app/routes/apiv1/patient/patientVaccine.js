@@ -212,8 +212,8 @@ patientVaccineRoutes.post(
             locationId,
             departmentId,
             reasonForEncounter: await getVaccinationDescription(req.models, vaccineData),
+            actorId: user.id,
           },
-          user,
         );
         await newEncounter.update({
           endDate: vaccineData.date || currentDate,

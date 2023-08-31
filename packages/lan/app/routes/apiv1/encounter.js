@@ -35,7 +35,7 @@ encounter.post(
   asyncHandler(async (req, res) => {
     const { models, body, user } = req;
     req.checkPermission('create', 'Encounter');
-    const object = await models.Encounter.create(body, user);
+    const object = await models.Encounter.create({ ...body, actorId: user.id });
     res.send(object);
   }),
 );

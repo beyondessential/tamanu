@@ -276,7 +276,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType: 'admission',
         changeType: null,
-        modifierId: null,
+        actorId: null,
       });
 
       expect(encounterHistoryRecords[1]).toMatchObject({
@@ -286,7 +286,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType: 'admission',
         changeType: EncounterChangeType.Location,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
     });
 
@@ -328,7 +328,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType: 'admission',
         changeType: null,
-        modifierId: null,
+        actorId: null,
       });
 
       expect(encounterHistoryRecords[1]).toMatchObject({
@@ -338,7 +338,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType: 'admission',
         changeType: EncounterChangeType.Department,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
     });
 
@@ -380,7 +380,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: oldClinician.id,
         encounterType: 'admission',
         changeType: null,
-        modifierId: null,
+        actorId: null,
       });
 
       expect(encounterHistoryRecords[1]).toMatchObject({
@@ -390,7 +390,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: newClinician.id,
         encounterType: 'admission',
         changeType: EncounterChangeType.Examiner,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
     });
 
@@ -431,7 +431,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType: 'admission',
         changeType: null,
-        modifierId: null,
+        actorId: null,
       });
 
       expect(encounterHistoryRecords[1]).toMatchObject({
@@ -441,7 +441,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType: 'clinic',
         changeType: EncounterChangeType.EncounterType,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
     });
 
@@ -484,7 +484,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType: 'admission',
         changeType: null,
-        modifierId: null,
+        actorId: null,
       });
 
       expect(encounterHistoryRecords[1]).toMatchObject({
@@ -494,7 +494,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType: 'clinic',
         changeType: EncounterChangeType.EncounterType,
-        modifierId: modifier.id,
+        actorId: modifier.id,
       });
     });
   });
@@ -583,7 +583,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: oldUser.id,
         encounterType: oldEncounterType,
         changeType: null,
-        modifierId: null,
+        actorId: null,
       });
 
       // Location change history
@@ -594,7 +594,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: oldUser.id,
         encounterType: oldEncounterType,
         changeType: EncounterChangeType.Location,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
 
       // Department change history
@@ -605,7 +605,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: oldUser.id,
         encounterType: oldEncounterType,
         changeType: EncounterChangeType.Department,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
 
       // Clinician change history
@@ -616,7 +616,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: newUser.id,
         encounterType: oldEncounterType,
         changeType: EncounterChangeType.Examiner,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
 
       // Encounter type change history
@@ -627,7 +627,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: newUser.id,
         encounterType: newEncounterType,
         changeType: EncounterChangeType.EncounterType,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
     });
 
@@ -699,7 +699,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType,
         changeType: null,
-        modifierId: null,
+        actorId: null,
       });
 
       // Location change history 1
@@ -710,7 +710,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType,
         changeType: EncounterChangeType.Location,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
 
       // Location change history 2
@@ -721,7 +721,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType,
         changeType: EncounterChangeType.Location,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
 
       // Location change history 3
@@ -732,7 +732,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType,
         changeType: EncounterChangeType.Location,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
     });
 
@@ -803,7 +803,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType,
         changeType: null,
-        modifierId: null,
+        actorId: null,
       });
 
       // Department change history 1
@@ -814,7 +814,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType,
         changeType: EncounterChangeType.Department,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
 
       // Department change history 2
@@ -825,7 +825,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType,
         changeType: EncounterChangeType.Department,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
 
       // Department change history 3
@@ -836,7 +836,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType,
         changeType: EncounterChangeType.Department,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
     });
 
@@ -907,7 +907,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician1.id,
         encounterType,
         changeType: null,
-        modifierId: null,
+        actorId: null,
       });
 
       // Clinician change history 1
@@ -918,7 +918,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician2.id,
         encounterType,
         changeType: EncounterChangeType.Examiner,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
 
       // Clinician change history 2
@@ -929,7 +929,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician3.id,
         encounterType,
         changeType: EncounterChangeType.Examiner,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
 
       // Clinician change history 3
@@ -940,7 +940,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician4.id,
         encounterType,
         changeType: EncounterChangeType.Examiner,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
     });
 
@@ -1011,7 +1011,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType: encounterType1,
         changeType: null,
-        modifierId: null,
+        actorId: null,
       });
 
       // Encounter type change history 1
@@ -1022,7 +1022,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType: encounterType2,
         changeType: EncounterChangeType.EncounterType,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
 
       // Encounter type change history 2
@@ -1033,7 +1033,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType: encounterType3,
         changeType: EncounterChangeType.EncounterType,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
 
       // Encounter type change history 3
@@ -1044,7 +1044,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType: encounterType4,
         changeType: EncounterChangeType.EncounterType,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
     });
 
@@ -1170,7 +1170,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician1.id,
         encounterType: encounterType1,
         changeType: null,
-        modifierId: null,
+        actorId: null,
       });
 
       expect(encounterHistoryRecords[1]).toMatchObject({
@@ -1180,7 +1180,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician1.id,
         encounterType: encounterType1,
         changeType: EncounterChangeType.Location,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
 
       expect(encounterHistoryRecords[2]).toMatchObject({
@@ -1190,7 +1190,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician1.id,
         encounterType: encounterType2,
         changeType: EncounterChangeType.EncounterType,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
 
       expect(encounterHistoryRecords[3]).toMatchObject({
@@ -1200,7 +1200,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician1.id,
         encounterType: encounterType3,
         changeType: EncounterChangeType.EncounterType,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
 
       expect(encounterHistoryRecords[4]).toMatchObject({
@@ -1210,7 +1210,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician1.id,
         encounterType: encounterType3,
         changeType: EncounterChangeType.Location,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
 
       expect(encounterHistoryRecords[5]).toMatchObject({
@@ -1220,7 +1220,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician1.id,
         encounterType: encounterType3,
         changeType: EncounterChangeType.Department,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
 
       expect(encounterHistoryRecords[6]).toMatchObject({
@@ -1230,7 +1230,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician1.id,
         encounterType: encounterType3,
         changeType: EncounterChangeType.Department,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
 
       expect(encounterHistoryRecords[7]).toMatchObject({
@@ -1240,7 +1240,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician2.id,
         encounterType: encounterType3,
         changeType: EncounterChangeType.Examiner,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
 
       expect(encounterHistoryRecords[8]).toMatchObject({
@@ -1250,7 +1250,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician2.id,
         encounterType: encounterType4,
         changeType: EncounterChangeType.EncounterType,
-        modifierId: defaultUser.id,
+        actorId: defaultUser.id,
       });
     });
 
@@ -1327,7 +1327,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType: encounterType1,
         changeType: null,
-        modifierId: null,
+        actorId: null,
       });
 
       // Encounter type change history 1
@@ -1338,7 +1338,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType: encounterType2,
         changeType: EncounterChangeType.EncounterType,
-        modifierId: modifier1.id,
+        actorId: modifier1.id,
       });
 
       // Encounter type change history 2
@@ -1349,7 +1349,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType: encounterType3,
         changeType: EncounterChangeType.EncounterType,
-        modifierId: modifier2.id,
+        actorId: modifier2.id,
       });
 
       // Encounter type change history 3
@@ -1360,7 +1360,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType: encounterType4,
         changeType: EncounterChangeType.EncounterType,
-        modifierId: modifier1.id,
+        actorId: modifier1.id,
       });
     });
   });
@@ -1438,7 +1438,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: null,
-          modifierId: null,
+          actorId: null,
         });
 
         // Updated location from 1 to 2
@@ -1449,7 +1449,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Location,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
 
         // Updated location from 2 to 4
@@ -1460,7 +1460,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Location,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
       });
 
@@ -1553,7 +1553,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: null,
-          modifierId: null,
+          actorId: null,
         });
 
         // Updated location from 1 to 3
@@ -1565,7 +1565,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Location,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
 
         // Updated location from 3 to 5
@@ -1577,7 +1577,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Location,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
 
         // Updated location from 5 to 6
@@ -1588,7 +1588,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Location,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
       });
 
@@ -1659,7 +1659,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: null,
-          modifierId: null,
+          actorId: null,
         });
 
         // Updated location from 1 to 2
@@ -1670,7 +1670,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Location,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
 
         // Updated location from 2 to 4
@@ -1681,7 +1681,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Location,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
       });
 
@@ -1752,7 +1752,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: null,
-          modifierId: null,
+          actorId: null,
         });
 
         // Updated location from 1 to 3
@@ -1763,7 +1763,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Location,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
 
         // Updated location from 3 to 4
@@ -1774,7 +1774,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Location,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
       });
 
@@ -1847,7 +1847,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: null,
-          modifierId: null,
+          actorId: null,
         });
 
         // Updated location from 1 to 3
@@ -1858,7 +1858,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Location,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
 
         // Updated location from 3 to 4
@@ -1869,7 +1869,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Location,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
       });
 
@@ -1941,7 +1941,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: null,
-          modifierId: null,
+          actorId: null,
         });
 
         // Should skip location2 as location name has been changed
@@ -1952,7 +1952,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Location,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
       });
 
@@ -2016,7 +2016,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: null,
-          modifierId: null,
+          actorId: null,
         });
 
         expect(encounterHistoryRecords[1]).toMatchObject({
@@ -2026,7 +2026,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Department,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
 
         expect(encounterHistoryRecords[2]).toMatchObject({
@@ -2036,7 +2036,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Department,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
       });
     });
@@ -2110,7 +2110,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: null,
-          modifierId: null,
+          actorId: null,
         });
 
         // Updated department 1 to department 2
@@ -2121,7 +2121,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Department,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
 
         // Updated department 2 to department 4
@@ -2132,7 +2132,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Department,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
       });
 
@@ -2205,7 +2205,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: null,
-          modifierId: null,
+          actorId: null,
         });
 
         // Updated department 1 to department 2
@@ -2216,7 +2216,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Department,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
 
         // Updated department 1 to department 4
@@ -2227,7 +2227,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Department,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
       });
 
@@ -2300,7 +2300,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: null,
-          modifierId: null,
+          actorId: null,
         });
 
         // Updated deparment 1 to department 3
@@ -2311,7 +2311,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Department,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
 
         // Updated deparment 3 to department 4
@@ -2322,7 +2322,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Department,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
       });
 
@@ -2397,7 +2397,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: null,
-          modifierId: null,
+          actorId: null,
         });
 
         // Updated deparment 1 to department 3
@@ -2408,7 +2408,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Department,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
 
         // Updated deparment 3 to department 4
@@ -2419,7 +2419,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Department,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
       });
 
@@ -2492,7 +2492,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: null,
-          modifierId: null,
+          actorId: null,
         });
 
         // Department 2 should be skipped as department name has been changed
@@ -2503,7 +2503,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Department,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
       });
 
@@ -2573,7 +2573,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: null,
-          modifierId: null,
+          actorId: null,
         });
 
         expect(encounterHistoryRecords[1]).toMatchObject({
@@ -2583,7 +2583,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Location,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
 
         expect(encounterHistoryRecords[2]).toMatchObject({
@@ -2593,7 +2593,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician.id,
           encounterType,
           changeType: EncounterChangeType.Location,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
       });
     });
@@ -2659,7 +2659,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician1.id,
           encounterType,
           changeType: null,
-          modifierId: null,
+          actorId: null,
         });
 
         // 2nd encounter
@@ -2670,7 +2670,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician3.id,
           encounterType,
           changeType: EncounterChangeType.Examiner,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
 
         // Latest encounter
@@ -2681,7 +2681,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician4.id,
           encounterType,
           changeType: EncounterChangeType.Examiner,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
       });
 
@@ -2747,7 +2747,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician1.id,
           encounterType,
           changeType: null,
-          modifierId: null,
+          actorId: null,
         });
 
         // Should skip clinician 2 as the name has been updated
@@ -2758,7 +2758,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician3.id,
           encounterType,
           changeType: EncounterChangeType.Examiner,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
       });
 
@@ -2826,7 +2826,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician1.id,
           encounterType,
           changeType: null,
-          modifierId: null,
+          actorId: null,
         });
 
         expect(encounterHistoryRecords[1]).toMatchObject({
@@ -2836,7 +2836,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician1.id,
           encounterType,
           changeType: EncounterChangeType.Location,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
 
         expect(encounterHistoryRecords[2]).toMatchObject({
@@ -2846,7 +2846,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
           examinerId: clinician1.id,
           encounterType,
           changeType: EncounterChangeType.Location,
-          modifierId: defaultUser.id,
+          actorId: defaultUser.id,
         });
       });
     });
@@ -2893,7 +2893,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician.id,
         encounterType,
         changeType: null,
-        modifierId: null,
+        actorId: null,
       });
     });
 
@@ -2956,7 +2956,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician1.id,
         encounterType,
         changeType: null,
-        modifierId: null,
+        actorId: null,
       });
 
       // 2nd encounter
@@ -2967,7 +2967,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician2.id,
         encounterType,
         changeType: null,
-        modifierId: null,
+        actorId: null,
       });
 
       // 3rd encounter
@@ -2978,7 +2978,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician3.id,
         encounterType,
         changeType: null,
-        modifierId: null,
+        actorId: null,
       });
     });
 
@@ -3044,7 +3044,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician1.id,
         encounterType,
         changeType: null,
-        modifierId: null,
+        actorId: null,
       });
 
       // 2nd encounter
@@ -3055,7 +3055,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician2.id,
         encounterType,
         changeType: null,
-        modifierId: null,
+        actorId: null,
       });
 
       // 3rd encounter
@@ -3066,7 +3066,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         examinerId: clinician3.id,
         encounterType,
         changeType: null,
-        modifierId: null,
+        actorId: null,
       });
     });
 
@@ -3117,7 +3117,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         date: encounter.startDate,
         encounterType,
         changeType: null,
-        modifierId: null,
+        actorId: null,
       });
     });
 
@@ -3168,7 +3168,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         date: getDateSubtractedFromToday(5), // changelog date is 4 days ago, so 5 should be expected
         encounterType,
         changeType: null,
-        modifierId: null,
+        actorId: null,
       });
     });
   });
