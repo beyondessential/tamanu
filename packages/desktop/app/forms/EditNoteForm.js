@@ -26,9 +26,9 @@ export const EditNoteForm = ({ note, onNoteContentChange, onSubmit, onCancel }) 
         numberOfColumns={3}
         noteType={NOTE_TYPE_LABELS[note.noteType]}
         date={note.revisedBy ? note.revisedBy.date : note.date}
-        writtenByLabel="Created by (or on behalf of)"
+        writtenByLabel="Written by (or on behalf of)"
         writtenBy={writtenBy}
-        dateLabel="Created at date & time"
+        dateLabel="Date & time"
       />
       <br />
       <NoteContentField onChange={onNoteContentChange} />
