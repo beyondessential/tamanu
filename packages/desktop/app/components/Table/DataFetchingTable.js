@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, memo } from 'react';
+import React, { useState, useCallback, useEffect, useRef, memo } from 'react';
 import { isEqual } from 'lodash';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
@@ -48,6 +48,7 @@ export const DataFetchingTable = memo(
     const [showNotification, setShowNotification] = useState(false);
     const [isNotificationMuted, setIsNotificationMuted] = useState(false);
 
+    const tableRef = useRef(null);
     const api = useApi();
 
     const { getLocalisation } = useLocalisation();
@@ -155,6 +156,11 @@ export const DataFetchingTable = memo(
       const transformedData = transformRow ? data.map(transformRow) : data;
       const hasSearchChanged = !isEqual(fetchOptions, fetchState?.fetchOptions);
 
+      if (lazyLoading && hasSearchChanged) {
+        // eslint-disable-next-line no-unused-expressions
+        tableRef?.current?.scroll({ top: 0 });
+      }
+
       // When fetch option is no longer the same (eg: filter changed), it should reload the entire table
       // instead of keep adding data for lazy loading
       if (lazyLoading && !hasSearchChanged) {
@@ -252,7 +258,10 @@ export const DataFetchingTable = memo(
       disablePagination,
     ]);
 
-    useEffect(() => setPage(0), [fetchOptions]);
+    useEffect(() => {
+      setPage(0);
+      setFetchState({ ...DEFAULT_FETCH_STATE });
+    }, [fetchOptionsString]);
 
     const { data, count, lastUpdatedAt } = fetchState;
     const { order, orderBy } = sorting;
@@ -291,6 +300,7 @@ export const DataFetchingTable = memo(
           refreshTable={refreshTable}
           rowStyle={row => (row.highlighted ? 'background-color: #F8FFF8;' : '')}
           lazyLoading={lazyLoading}
+          ref={tableRef}
           {...props}
         />
       </>
