@@ -11,6 +11,7 @@ import { Colors } from '../../../constants';
 
 import { MultipleLabRequestsPrintoutModal } from './MultipleLabRequestsPrintoutModal';
 import { FormDivider, PrintMultipleSelectionTable } from './PrintMultipleSelectionTable';
+import { getStatus } from '../../../utils/lab';
 
 const COLUMN_KEYS = {
   SELECTED: 'selected',
@@ -19,6 +20,7 @@ const COLUMN_KEYS = {
   REQUESTED_BY: 'requestedBy',
   PRIORITY: 'priority',
   CATEGORY: 'labTestCategory',
+  STATUS: 'status',
 };
 
 const COLUMNS = [
@@ -52,6 +54,12 @@ const COLUMNS = [
     title: 'Test category',
     sortable: false,
     accessor: ({ category }) => category?.name || '',
+  },
+  {
+    key: COLUMN_KEYS.STATUS,
+    title: 'Status',
+    sortable: false,
+    accessor: getStatus,
   },
 ];
 
