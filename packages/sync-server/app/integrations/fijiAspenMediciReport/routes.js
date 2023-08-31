@@ -304,7 +304,7 @@ encounter_history_info as (
                   when 'clinic' then 'SOPD'
                   else encounter_type
                 end,
-        'startDate', date
+        'startDate', date::timestamp at time zone $timezone_string
       ) order by date
     ) "Encounter history"
   from encounter_history
@@ -459,6 +459,10 @@ routes.get(
         date: formatDate(procedure.date),
       })),
       notes: mapNotes(encounter.notes),
+      encounterType: encounter.encounterType?.map(encounterType => ({
+        ...encounterType,
+        startDate: formatDate(encounterType.startDate),
+      })),
     }));
 
     res.status(200).send({ data: mappedData });
