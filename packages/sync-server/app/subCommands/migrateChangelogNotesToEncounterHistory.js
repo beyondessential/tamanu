@@ -68,6 +68,17 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             where ordered.row_num = 1
         ),
 
+        unique_locations_by_facility as (
+            select id, name, facility_id
+            from (
+                select id, name, facility_id, visibility_status,
+                  row_number() over (partition by name, facility_id
+                                    order by case when visibility_status = 'current' then 0 else 1 end, updated_at desc) AS row_num
+                FROM locations
+            ) ordered
+            where ordered.row_num = 1
+        ),
+
         -- Choose the departments unique within a facility that
         -- 1. If there are duplicated departments with the same name in a facility, and all of their visibility_status = current, choose the last updated_one
         -- 2. If there are duplicated departments with the same name in a facility, and there is 1 with visibility_status = current, choose the current one
@@ -366,7 +377,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                     when log.department_name = '${LATEST_ENCOUNTER_FLAG}' then e.department_id
                 end as department_id,
                 case 
-                    when l.id notnull then l.id 
+                    when unique_l_by_lg.id notnull or unique_l_by_f.id notnull then coalesce(unique_l_by_lg.id, unique_l_by_f.id)
                     when log.location_name = '${LATEST_ENCOUNTER_FLAG}' then e.location_id
                 end as location_id,
                 case 
@@ -379,9 +390,16 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                                     d.facility_id = log.encounter_facility_id
             left join location_groups lg on lg.name = log.location_group_name and
                                         lg.facility_id = log.encounter_facility_id
-            left join unique_locations_by_location_group l on l.name = log.location_name and
-                                    case when lg.id notnull and log.location_group_name <> 'non_determined_location_group_name' then l.location_group_id = lg.id else true end and
-                                    l.facility_id = log.encounter_facility_id
+            left join unique_locations_by_location_group unique_l_by_lg on unique_l_by_lg.name = log.location_name and
+                                    case when lg.id notnull and log.location_group_name <> 'non_determined_location_group_name' 
+                                        then unique_l_by_lg.location_group_id = lg.id 
+                                        else lg.id = 'DO_NOT_JOIN' end and -- Only join 'unique_locations_by_location_group' when there location_group.id CAN BE DETERMINED
+                                    unique_l_by_lg.facility_id = log.encounter_facility_id
+            left join unique_locations_by_facility unique_l_by_f on unique_l_by_f.name = log.location_name and
+                                    case when lg.id isnull or log.location_group_name = 'non_determined_location_group_name' 
+                                        then true 
+                                        else lg.id = 'DO_NOT_JOIN' end and -- Only join 'unique_locations_by_facility' when location_group.id CAN NOT BE DETERMINED
+                                    unique_l_by_f.facility_id = log.encounter_facility_id
             left join unique_users u on u.display_name = log.examiner_name
             left join batch_encounters e on e.id = log.encounter_id
             where 
@@ -394,7 +412,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             and case 
                     -- if we know that it should be latest encounter then don't bother verifying the facility_id
                     when log.location_name <> '${LATEST_ENCOUNTER_FLAG}' 
-                        then l.facility_id = log.encounter_facility_id 
+                        then unique_l_by_lg.facility_id = log.encounter_facility_id or unique_l_by_f.facility_id = log.encounter_facility_id
                 else true
              end
             -- This is to filter the case where there are multiple location 
