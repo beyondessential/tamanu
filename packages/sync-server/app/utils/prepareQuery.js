@@ -4,7 +4,9 @@ import { Utils, QueryTypes } from 'sequelize';
 // This is mostly copied from Model.findAll internals in sequelize
 // and as such is highly coupled to the internals of sequelize 6.
 // However, there's no other reliable way to get the SQL :(
-export async function prepareQuery(Model, options) {
+export async function prepareQuery(Model, query) {
+  let options = query || { where: {} };
+
   Model.warnOnInvalidOptions(options, Object.keys(Model.rawAttributes));
   const tableNames = {};
   tableNames[Model.getTableName(options)] = true;

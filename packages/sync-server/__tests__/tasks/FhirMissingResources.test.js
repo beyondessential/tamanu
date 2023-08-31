@@ -8,25 +8,33 @@ import { FhirMissingResources } from '../../app/tasks/FhirMissingResources';
 describe('FhirMissingResources task', () => {
   let ctx;
   let resources;
-  let imagingRequest;
   let fhirMissingResourcesWorker;
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    const {
-      FhirEncounter,
-      ImagingRequest,
-      FhirServiceRequest,
-      FhirPractitioner,
-    } = ctx.store.models;
+    const { FhirEncounter, FhirPractitioner } = ctx.store.models;
 
     fhirMissingResourcesWorker = new FhirMissingResources(ctx);
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
 
     await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
     await FhirPractitioner.materialiseFromUpstream(resources.practitioner.id);
+  });
 
-    imagingRequest = await ImagingRequest.create(
+  beforeEach(async () => {
+    const { FhirJob, FhirServiceRequest, ImagingRequest } = ctx.store.models;
+    await FhirJob.destroy({ where: {} });
+    await FhirServiceRequest.destroy({ where: {} });
+    await ImagingRequest.destroy({ where: {} });
+  });
+
+  afterAll(() => {
+    ctx.close();
+  });
+
+  it('should create one FHIR fromUpstream job if a FHIR resource is missing', async () => {
+    const { FhirServiceRequest, ImagingRequest, FhirJob } = ctx.store.models;
+    const imagingRequest = await ImagingRequest.create(
       fake(ImagingRequest, {
         requestedById: resources.practitioner.id,
         encounterId: resources.encounter.id,
@@ -41,14 +49,7 @@ describe('FhirMissingResources task', () => {
     await imagingRequest.setAreas([resources.area1.id, resources.area2.id]);
     await FhirServiceRequest.materialiseFromUpstream(imagingRequest.id);
     await FhirServiceRequest.resolveUpstreams();
-  });
 
-  afterAll(() => {
-    ctx.close();
-  });
-
-  it('should create one FHIR fromUpstream job if a FHIR resource is missing', async () => {
-    const { FhirServiceRequest, FhirJob } = ctx.store.models;
     const fhirServiceRequest = await FhirServiceRequest.findOne({
       where: {
         upstreamId: imagingRequest.id,
@@ -77,5 +78,34 @@ describe('FhirMissingResources task', () => {
       resource: 'ServiceRequest',
       upstreamId: imagingRequest.id,
     });
+  });
+
+  it('should not create one FHIR fromUpstream job if the missing upstream resource do not meet pre-filter criteria', async () => {
+    const { Encounter, FhirJob } = ctx.store.models;
+    await fhirMissingResourcesWorker.run();
+
+    // A new encounter That should not be materialised
+    const encounter = await Encounter.create(
+      fake(Encounter, {
+        patientId: resources.patient.id,
+        locationId: resources.location.id,
+        departmentId: resources.department.id,
+        examinerId: resources.practitioner.id,
+        encounterType: 'clinic',
+      }),
+    );
+
+    const countQueue = await fhirMissingResourcesWorker.countQueue();
+    expect(countQueue).toEqual(0);
+    await fhirMissingResourcesWorker.run();
+
+    const fhirJob = await FhirJob.findOne({
+      where: {
+        topic: 'fhir.refresh.fromUpstream',
+      },
+    });
+
+    expect(fhirJob).toBeNull();
+    await encounter.destroy();
   });
 });
