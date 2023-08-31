@@ -39,13 +39,15 @@ export async function allFromUpstream({ payload }, { log, sequelize, models }) {
     });
 
     for (const UpstreamModel of Resource.UpstreamModels) {
-      const query = await Resource.queryToFindUpstreamIdsFromTable(
+      const queryToFilterUpstream = await Resource.queryToFilterUpstream(UpstreamModel.tableName);
+      const queryToFindUpstreamIdsFromTable = await Resource.queryToFindUpstreamIdsFromTable(
         UpstreamModel.tableName,
         tableName,
         id,
         deletedRow,
       );
-      if (!query) {
+
+      if (!queryToFindUpstreamIdsFromTable) {
         log.debug('no upstream found for row', {
           resource: Resource.fhirName,
           table,
@@ -55,9 +57,14 @@ export async function allFromUpstream({ payload }, { log, sequelize, models }) {
         continue;
       }
 
-      const sql = await prepareQuery(UpstreamModel, query);
+      const sql = await combineQueriesToSql(
+        UpstreamModel,
+        queryToFilterUpstream,
+        queryToFindUpstreamIdsFromTable,
+      );
+
       const insertSql = `
-        WITH upstreams AS (${sql.replace(/;$/, '')})
+        WITH upstreams AS (${sql.replaceAll(';', '')})
         INSERT INTO fhir.jobs (topic, discriminant, payload)
         SELECT
           $topic::text,
@@ -91,6 +98,34 @@ export async function allFromUpstream({ payload }, { log, sequelize, models }) {
       });
     }
   }
+}
+
+async function combineQueriesToSql(
+  UpstreamModel,
+  queryToFilterUpstream,
+  queryToFindUpstreamIdsFromTable,
+) {
+  const sqlToFindUpstreamIdsFromTable = await prepareQuery(
+    UpstreamModel,
+    queryToFindUpstreamIdsFromTable,
+  );
+
+  if (!queryToFilterUpstream) {
+    return sqlToFindUpstreamIdsFromTable;
+  }
+
+  const sqlToFilterUpstream = await prepareQuery(UpstreamModel, queryToFilterUpstream);
+
+  return `
+    WITH
+      found_upstreams AS (${sqlToFindUpstreamIdsFromTable}),
+      pre_filtered_upstreams AS (${sqlToFilterUpstream})
+
+    SELECT * 
+    FROM found_upstreams 
+    INNER JOIN pre_filtered_upstreams 
+    USING (id)
+  `;
 }
 
 /* eslint-disable no-param-reassign */
