@@ -32,4 +32,9 @@ export const searchParameters = {
     path: [['subject']],
     referenceTypes: ['Patient'],
   },
+  encounter: {
+    type: FHIR_SEARCH_PARAMETERS.REFERENCE,
+    path: [['encounter']],
+    referenceTypes: ['Encounter'],
+  },
 };
