@@ -67,7 +67,7 @@ describe('PatientCarePlan', () => {
         date: getCurrentDateTimeString(),
         carePlanId,
         patientId: patient.get('id'),
-        examinerId: onBehalfOfUserId,
+        onBehalfOfId: onBehalfOfUserId,
         content: 'Main care plan',
       });
       expect(createCarePlanRequest).toHaveSucceeded();
@@ -76,7 +76,7 @@ describe('PatientCarePlan', () => {
         .send({
           date: getCurrentDateTimeString(),
           content: 'Second note',
-          examinerId: onBehalfOfUserId,
+          onBehalfOfId: onBehalfOfUserId,
         });
       expect(additionalNoteRequest).toHaveSucceeded();
       const noteResult = await app.get(
