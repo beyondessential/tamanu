@@ -213,9 +213,9 @@ export class CentralServerConnection {
   async startSyncSession() {
     const { sessionId } = await this.fetch('sync', {
       method: 'POST',
-      body: { 
+      body: {
         facilityId: config.serverFacilityId,
-        deviceId: this.deviceId, 
+        deviceId: this.deviceId,
       },
     });
 

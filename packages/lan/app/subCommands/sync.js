@@ -6,7 +6,7 @@ import { FacilitySyncManager, CentralServerConnection } from '../sync';
 
 async function sync() {
   const context = await initDatabase();
-  
+
   await initDeviceId(context);
 
   context.centralServer = new CentralServerConnection(context);
