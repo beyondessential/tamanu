@@ -58,7 +58,7 @@ export async function allFromUpstream({ payload }, { log, sequelize, models }) {
         continue;
       }
 
-      const sql = await combineQueriesToSql(
+      const sql = await innerJoinQueriesToSql(
         UpstreamModel,
         queryToFilterUpstream,
         queryToFindUpstreamIdsFromTable,
@@ -101,7 +101,7 @@ export async function allFromUpstream({ payload }, { log, sequelize, models }) {
   }
 }
 
-async function combineQueriesToSql(
+async function innerJoinQueriesToSql(
   UpstreamModel,
   queryToFilterUpstream,
   queryToFindUpstreamIdsFromTable,
