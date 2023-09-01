@@ -3,16 +3,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { MuiBox, Divider as BaseDivider } from '@material-ui/core';
+import { Divider as BaseDivider } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import BaseDeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
 import {
   TextField,
-  MultilineTextField,
   DefaultIconButton,
   SelectField,
   ArrayField,
   Field,
+  OuterLabelFieldWrapper
 } from '../../../../../components';
 import {
   PARAMETER_FIELD_COMPONENTS,
@@ -34,10 +34,30 @@ const DeleteOutlinedIcon = styled(BaseDeleteOutlinedIcon)`
   font-size: 25px;
 `;
 
-const OptionsEditor = styled(TextField)``;
+const OptionRow = styled.div`
+  display: flex;
+  margin-bottom: 10px;
+`;
 
 export const ParameterItem = props => {
-  const { id, name, label, parameterField, suggesterEndpoint, onDelete, onChange, options } = props;
+  const {
+    id,
+    name,
+    label,
+    parameterField,
+    suggesterEndpoint,
+    onDelete,
+    onChange,
+    options = [],
+  } = props;
+
+  const onChangeOptions = (index, type, event) => {
+    if (options[index] === undefined) {
+      options[index] = {};
+    }
+    options[index][type] = event.target.value;
+    onChange(id, `options`, [...options]);
+  };
 
   return (
     <Grid container spacing={2} key={id}>
@@ -104,20 +124,39 @@ export const ParameterItem = props => {
           />
         </Grid>
       )}
-      <Grid item xs={12}>
-        {FIELD_TYPES_WITH_PREDEFINED_OPTIONS.includes(parameterField) && (
-          <MultilineTextField
-            field={{
-              name: 'options',
-              value: options,
-              onChange: event => {
-                onChange(id, 'options', event.target.value);
-              },
-            }}
-            placeholder='[{ "label": "Option 1", "value": "option1" },{ "label": "Option 2", "value": "option2" }]'
-            label="Options"
+      {FIELD_TYPES_WITH_PREDEFINED_OPTIONS.includes(parameterField) && (
+        <Grid item xs={12}>
+          <OuterLabelFieldWrapper label="Options" />
+          <Field
+            name="options"
+            component={ArrayField}
+            renderField={(index, DeleteButton) => (
+              <OptionRow>
+                <Field
+                  name={`options[${index}].label`}
+                  label="Label"
+                  component={TextField}
+                  value={options[index]?.label}
+                  onChange={event => {
+                    onChangeOptions(index, 'label', event);
+                  }}
+                />
+                <Field
+                  name={`options[${index}].value`}
+                  label="Value"
+                  component={TextField}
+                  value={options[index]?.value}
+                  onChange={event => {
+                    onChangeOptions(index, 'value', event);
+                  }}
+                />
+                {index > 0 && DeleteButton}
+              </OptionRow>
+            )}
           />
-        )}
+        </Grid>
+      )}
+      <Grid item xs={12}>
         <Divider />
       </Grid>
     </Grid>
