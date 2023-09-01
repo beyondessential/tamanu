@@ -39,7 +39,6 @@ const COLUMNS = [
     key: COLUMN_KEYS.REQUESTED_BY,
     title: 'Requested by',
     sortable: false,
-    maxWidth: 300,
     accessor: ({ requestedBy }) => requestedBy?.displayName || '',
   },
   {
