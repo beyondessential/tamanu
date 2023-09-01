@@ -62,6 +62,7 @@ export const TriageForm = ({
           label="Triage date & time"
           required
           component={DateTimeField}
+          max="2023-09-01T23:59"
           saveDateAsString
         />
         <Field name="locationId" component={LocalisedLocationField} required />
@@ -163,7 +164,10 @@ export const TriageForm = ({
         ...editedObject,
       }}
       validationSchema={yup.object().shape({
-        triageTime: yup.date().required(),
+        triageTime: yup
+          .date()
+          .required()
+          .max(new Date(), 'Triage time cannot be in the future'),
         chiefComplaintId: foreignKey('Chief complaint must be selected'),
         practitionerId: foreignKey(`Triage ${clinicianText.toLowerCase()} must be selected`),
         locationId: foreignKey('Location must be selected'),
