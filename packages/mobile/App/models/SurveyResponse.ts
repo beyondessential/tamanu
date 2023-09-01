@@ -133,7 +133,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       try {
         vitalsSurvey = await Survey.getVitalsSurvey();
       } catch (e) {
-        console.error('No vital survey could be found');
+        console.error(`Errored while trying to get vitals survey: ${e}`);
       }
 
       // use optional chaining because vitals survey might not exist
