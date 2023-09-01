@@ -44,11 +44,11 @@ export class CentralServerConnection {
   // test mocks don't always apply properly - this ensures the mock will be used
   fetchImplementation = fetch;
 
-  constructor(ctx) {
+  constructor({ deviceId }) {
     this.host = config.sync.host.trim().replace(/\/*$/, '');
     this.timeout = config.sync.timeout;
     this.batchSize = config.sync.channelBatchSize;
-    this.deviceId = ctx?.deviceId;
+    this.deviceId = deviceId;
   }
 
   async fetch(endpoint, params = {}) {
@@ -213,7 +213,10 @@ export class CentralServerConnection {
   async startSyncSession() {
     const { sessionId } = await this.fetch('sync', {
       method: 'POST',
-      body: { facilityId: config.serverFacilityId },
+      body: { 
+        facilityId: config.serverFacilityId,
+        deviceId: this.deviceId, 
+      },
     });
 
     // then, poll the sync/:sessionId/ready endpoint until we get a valid response
