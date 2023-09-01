@@ -183,6 +183,8 @@ export const ReportGeneratorForm = () => {
     return <LoadingIndicator backgroundColor="#f7f9fb" />;
   }
 
+  console.log(parameters);
+
   return (
     <Form
       initialValues={{
@@ -235,19 +237,22 @@ export const ReportGeneratorForm = () => {
             <>
               <Spacer />
               <FormGrid columns={3}>
-                {parameters.map(({ parameterField, required, name, label, ...restOfProps }) => {
-                  return (
-                    <ParameterField
-                      key={name || parameterField}
-                      required={required}
-                      name={name}
-                      label={label}
-                      parameterValues={values}
-                      parameterField={parameterField}
-                      {...restOfProps}
-                    />
-                  );
-                })}
+                {parameters.map(
+                  ({ parameterField, required, name, label, options, ...restOfProps }) => {
+                    return (
+                      <ParameterField
+                        key={name || parameterField}
+                        required={required}
+                        name={name}
+                        label={label}
+                        parameterValues={values}
+                        parameterField={parameterField}
+                        options={typeof options === 'string' ? JSON.parse(options) : options}
+                        {...restOfProps}
+                      />
+                    );
+                  },
+                )}
               </FormGrid>
             </>
           ) : null}
