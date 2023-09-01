@@ -1,15 +1,15 @@
-import { promises as fs } from 'fs';
 import { setMilliseconds } from 'date-fns';
+import { promises as fs } from 'fs';
 import prompts from 'prompts';
 
 import crypto from './crypto';
 
 export function enumFromStringValue<T>(enm: { [s: string]: T }, value: string): T {
-  if (!((Object.values(enm) as unknown) as string[]).includes(value)) {
+  if (!(Object.values(enm) as unknown as string[]).includes(value)) {
     throw new Error(`Invalid value: ${value}`);
   }
 
-  return (value as unknown) as T;
+  return value as unknown as T;
 }
 
 export function enumValues<T>(enm: { [s: string]: T }): T[] {
