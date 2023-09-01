@@ -3,7 +3,7 @@ import React, { useRef, useState, useEffect, useMemo } from 'react';
 
 import styled from 'styled-components';
 import { Colors } from '../constants';
-import { formatLong, formatShortest, formatTime } from './DateDisplay';
+import { DateDisplay, formatLong, formatShortest, formatTime } from './DateDisplay';
 import { TableTooltip } from './Table/TableTooltip';
 
 // severity constants
@@ -86,10 +86,10 @@ export const formatValue = (value, config) => {
 };
 
 export const DateHeadCell = React.memo(({ value }) => (
-  <TableTooltip title={formatLong(value)}>
+  <TableTooltip title={DateDisplay.stringFormat(value, formatLong)}>
     <HeadCellWrapper>
-      <div>{formatShortest(value)}</div>
-      <div>{formatTime(value)}</div>
+      <div>{DateDisplay.stringFormat(value, formatShortest)}</div>
+      <div>{DateDisplay.stringFormat(value, formatTime)}</div>
     </HeadCellWrapper>
   </TableTooltip>
 ));
@@ -97,21 +97,28 @@ export const DateHeadCell = React.memo(({ value }) => (
 const LimitedLinesCellWrapper = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: ${props => props.maxLines};
+  ${({ maxLines }) =>
+    maxLines <= 1
+      ? ''
+      : `
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: ${maxLines};
+  `}
+  ${({ maxWidth }) => maxWidth && `max-width: ${maxWidth};`};
 `;
 
-export const LimitedLinesCell = ({ value, maxLines = 2 }) => {
+export const LimitedLinesCell = ({ value, maxWidth, maxLines = 2 }) => {
   const contentRef = useRef(null);
   const [isClamped, setClamped] = useState(false);
   const [tooltipOpen, setTooltipOpen] = useState(false);
 
-  // isClamped logic from: https://stackoverflow.com/a/74255034/11324801
+  // isClamped logic inspired by: https://stackoverflow.com/a/74255034/11324801
   useEffect(() => {
     const handleResize = () => {
       if (contentRef && contentRef.current) {
-        setClamped(contentRef.current.scrollHeight > contentRef.current.clientHeight);
+        const { scrollHeight, clientHeight, scrollWidth, clientWidth } = contentRef.current;
+        setClamped(scrollHeight > clientHeight || scrollWidth > clientWidth);
       }
     };
     handleResize();
@@ -126,7 +133,7 @@ export const LimitedLinesCell = ({ value, maxLines = 2 }) => {
       onOpen={() => setTooltipOpen(true)}
       onClose={() => setTooltipOpen(false)}
     >
-      <LimitedLinesCellWrapper ref={contentRef} maxLines={maxLines}>
+      <LimitedLinesCellWrapper ref={contentRef} maxLines={maxLines} maxWidth={maxWidth}>
         {value}
       </LimitedLinesCellWrapper>
     </TableTooltip>
@@ -147,8 +154,18 @@ export const RangeTooltipCell = React.memo(({ value, config, validationCriteria 
   );
 });
 
+const DefaultWrapper = ({ value }) => <>{value}</>;
+
 export const RangeValidatedCell = React.memo(
-  ({ value, config, validationCriteria, onClick, isEdited, ...props }) => {
+  ({
+    value,
+    config,
+    validationCriteria,
+    onClick,
+    isEdited,
+    ValueWrapper = DefaultWrapper,
+    ...props
+  }) => {
     const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
     const float = round(parseFloat(value), config);
     const isEditedSuffix = isEdited ? '*' : '';
@@ -158,16 +175,13 @@ export const RangeValidatedCell = React.memo(
       config,
       validationCriteria,
     ]);
-    return tooltip ? (
-      <TableTooltip title={tooltip}>
-        <CellContainer onClick={onClick} severity={severity} {...props}>
-          {formattedValue}
-        </CellContainer>
-      </TableTooltip>
-    ) : (
+
+    const cell = (
       <CellContainer onClick={onClick} severity={severity} {...props}>
-        {formattedValue}
+        <ValueWrapper value={formattedValue} />
       </CellContainer>
     );
+
+    return tooltip ? <TableTooltip title={tooltip}>{cell}</TableTooltip> : cell;
   },
 );
