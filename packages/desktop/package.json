@@ -203,7 +203,6 @@
     "@material-ui/icons": "^4.11.3",
     "@material-ui/lab": "^4.0.0-alpha.56",
     "@tamanu/shared": "*",
-    "@tamanu/api-client": "*",
     "@tanstack/react-query": "^4.0.10",
     "@uiw/react-textarea-code-editor": "^2.1.1",
     "@types/react-autosuggest": "^9.3.7",

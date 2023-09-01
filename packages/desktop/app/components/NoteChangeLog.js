@@ -2,9 +2,14 @@ import React from 'react';
 import styled from 'styled-components';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import Divider from '@material-ui/core/Divider';
 
 import { DateDisplay } from './DateDisplay';
 import { Colors } from '../constants';
+
+const StyledDivider = styled(Divider)`
+  margin-top: 10px;
+`;
 
 const StyledListItemText = styled(ListItemText)`
   .MuiListItemText-primary {
@@ -13,11 +18,8 @@ const StyledListItemText = styled(ListItemText)`
     white-space: pre-line;
     width: 100%;
   }
-  &.MuiListItemText-root {
-    margin-bottom: 0;
-  }
 `;
-const StyledNoteChangeLogSecondaryWrapper = styled.div`
+const StyledNoteChangeLogInfoWrapper = styled.div`
   font-weight: 500;
   font-size: 11px;
   line-height: 15px;
@@ -27,14 +29,14 @@ const StyledNoteChangeLogSecondaryWrapper = styled.div`
 
 const NoteChangeLogMain = ({ note }) => <span>{note.content} </span>;
 
-const NoteChangeLogSecondary = ({ note }) => (
-  <StyledNoteChangeLogSecondaryWrapper>
+const NoteChangeLogInfo = ({ note }) => (
+  <StyledNoteChangeLogInfoWrapper>
     <>
       <span>{note.author?.displayName || ''} </span>
       {note.onBehalfOf ? <span>on behalf of {note.onBehalfOf.displayName} </span> : null}
       <DateDisplay date={note.date} showTime />
     </>
-  </StyledNoteChangeLogSecondaryWrapper>
+  </StyledNoteChangeLogInfoWrapper>
 );
 
 export const NoteChangeLog = ({ note }) => (
@@ -42,8 +44,9 @@ export const NoteChangeLog = ({ note }) => (
     <StyledListItemText
       primary={
         <>
+          <NoteChangeLogInfo note={note} />
           <NoteChangeLogMain note={note} />
-          <NoteChangeLogSecondary note={note} />
+          <StyledDivider />
         </>
       }
     />
