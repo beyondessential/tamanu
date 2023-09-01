@@ -40,7 +40,10 @@ async function showStatus() {
 
     log.info(
       // eslint-disable-next-line prettier/prettier
-      `${Resource.name}: ${count}/${upstreamCount} records/upstream, last updated ${latest}/${upstreamLatest || 'never'}`,
+      `${
+        Resource.name
+      }: ${count}/${upstreamCount} records/upstream, last updated ${latest}/${upstreamLatest ||
+        'never'}`,
     );
   }
 
