@@ -247,7 +247,7 @@ export const ReportGeneratorForm = () => {
                         label={label}
                         parameterValues={values}
                         parameterField={parameterField}
-                        options={options ? JSON.parse(options) : []}
+                        options={typeof options === 'string' ? JSON.parse(options) : options}
                         {...restOfProps}
                       />
                     );
