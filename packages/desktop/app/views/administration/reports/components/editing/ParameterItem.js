@@ -58,7 +58,7 @@ export const ParameterItem = props => {
     options[index][type] = event.target.value;
     onChange(id, `options`, [...options]);
   };
-
+  
   return (
     <Grid container spacing={2} key={id}>
       <Grid item xs={6}>
@@ -130,6 +130,7 @@ export const ParameterItem = props => {
           <Field
             name="options"
             component={ArrayField}
+            initialFieldNumber={options.length}
             renderField={(index, DeleteButton) => (
               <OptionRow>
                 <Field
