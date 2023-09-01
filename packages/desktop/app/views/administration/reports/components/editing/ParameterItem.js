@@ -12,7 +12,7 @@ import {
   SelectField,
   ArrayField,
   Field,
-  OuterLabelFieldWrapper
+  OuterLabelFieldWrapper,
 } from '../../../../../components';
 import {
   PARAMETER_FIELD_COMPONENTS,
@@ -34,9 +34,14 @@ const DeleteOutlinedIcon = styled(BaseDeleteOutlinedIcon)`
   font-size: 25px;
 `;
 
-const OptionRow = styled.div`
+const DeleteContainer = styled.div`
   display: flex;
-  margin-bottom: 10px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 35px;
+  button {
+    padding: 0;
+  }
 `;
 
 export const ParameterItem = props => {
@@ -58,7 +63,7 @@ export const ParameterItem = props => {
     options[index][type] = event.target.value;
     onChange(id, `options`, [...options]);
   };
-  
+
   return (
     <Grid container spacing={2} key={id}>
       <Grid item xs={6}>
@@ -125,37 +130,45 @@ export const ParameterItem = props => {
         </Grid>
       )}
       {FIELD_TYPES_WITH_PREDEFINED_OPTIONS.includes(parameterField) && (
-        <Grid item xs={12}>
-          <OuterLabelFieldWrapper label="Options" />
+        <>
+          <Grid item xs={12}>
+            <OuterLabelFieldWrapper label="Options" />
+          </Grid>
           <Field
             name="options"
             component={ArrayField}
             initialFieldNumber={options.length}
             renderField={(index, DeleteButton) => (
-              <OptionRow>
-                <Field
-                  name={`options[${index}].label`}
-                  label="Label"
-                  component={TextField}
-                  value={options[index]?.label}
-                  onChange={event => {
-                    onChangeOptions(index, 'label', event);
-                  }}
-                />
-                <Field
-                  name={`options[${index}].value`}
-                  label="Value"
-                  component={TextField}
-                  value={options[index]?.value}
-                  onChange={event => {
-                    onChangeOptions(index, 'value', event);
-                  }}
-                />
-                {index > 0 && DeleteButton}
-              </OptionRow>
+              <>
+                <Grid item xs={6}>
+                  <Field
+                    name={`options[${index}].label`}
+                    label="Label"
+                    component={TextField}
+                    value={options[index]?.label}
+                    onChange={event => {
+                      onChangeOptions(index, 'label', event);
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={5}>
+                  <Field
+                    name={`options[${index}].value`}
+                    label="Value"
+                    component={TextField}
+                    value={options[index]?.value}
+                    onChange={event => {
+                      onChangeOptions(index, 'value', event);
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={1}>
+                  <DeleteContainer>{index > 0 && DeleteButton}</DeleteContainer>
+                </Grid>
+              </>
             )}
           />
-        </Grid>
+        </>
       )}
       <Grid item xs={12}>
         <Divider />
