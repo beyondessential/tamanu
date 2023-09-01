@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, memo } from 'react';
+import React, { useState, useCallback, useEffect, useRef, memo } from 'react';
 import { isEqual } from 'lodash';
 
 import { Table } from './Table';
@@ -32,6 +32,7 @@ export const DataFetchingTable = memo(
     const [sorting, setSorting] = useState(initialSort);
     const [fetchState, setFetchState] = useState(DEFAULT_FETCH_STATE);
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
+    const tableRef = useRef(null);
     const api = useApi();
 
     // This callback will be passed to table cell accessors so they can force a table refresh
@@ -66,6 +67,7 @@ export const DataFetchingTable = memo(
           if (!endpoint) {
             throw new Error('Missing endpoint to fetch data.');
           }
+
           const { data, count } = await api.get(
             endpoint,
             {
@@ -83,6 +85,11 @@ export const DataFetchingTable = memo(
           // When fetch option is no longer the same (eg: filter changed), it should reload the entire table
           // instead of keep adding data for lazy loading
           const shouldReloadLazyLoadingData = !isEqual(fetchState.fetchOptions, fetchOptions);
+
+          if (lazyLoading && shouldReloadLazyLoadingData) {
+            // eslint-disable-next-line no-unused-expressions
+            tableRef?.current?.scroll({ top: 0 });
+          }
 
           const updatedData =
             lazyLoading && !shouldReloadLazyLoadingData
@@ -131,7 +138,10 @@ export const DataFetchingTable = memo(
       disablePagination,
     ]);
 
-    useEffect(() => setPage(0), [fetchOptions]);
+    useEffect(() => {
+      setPage(0);
+      setFetchState({ ...DEFAULT_FETCH_STATE });
+    }, [fetchOptionsString]);
 
     const { data, count, isLoading, isLoadingMoreData, errorMessage } = fetchState;
     const { order, orderBy } = sorting;
@@ -152,6 +162,7 @@ export const DataFetchingTable = memo(
         rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
         refreshTable={refreshTable}
         lazyLoading={lazyLoading}
+        ref={tableRef}
         {...props}
       />
     );
