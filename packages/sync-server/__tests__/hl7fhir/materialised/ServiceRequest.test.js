@@ -831,13 +831,27 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       const response = await app.get(
         `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Encounter:encounter`,
       );
-
       expect(response.body.total).toBe(2);
       expect(response.body.entry.length).toBe(3);
       expect(response.body.entry.filter(({ search: { mode } }) => mode === 'match').length).toBe(2);
       expect(
         response.body.entry.find(({ search: { mode } }) => mode === 'include')?.resource.id,
       ).toBe(fhirResources.fhirEncounter.id);
+    });
+
+    it('includes requester practitioner', async () => {
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?category=363679005&_include=Practitioner:requester`,
+      );
+      const practitionerRef = response.body.entry.find(
+        ({ search: { mode } }) => mode === 'include',
+      );
+      expect(practitionerRef).toBeDefined();
+      expect(practitionerRef.resource.id).toBe(fhirResources.fhirPractitioner.id);
+      expect(practitionerRef.resource.name.length).toBe(1);
+      expect(practitionerRef.resource.name[0].text).toBe(
+        fhirResources.fhirPractitioner.name[0].text,
+      );
       expect(response).toHaveSucceeded();
     });
   });
