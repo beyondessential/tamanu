@@ -5,12 +5,12 @@ import { LAST_SUCCESSFUL_SYNC_PUSH_KEY } from 'shared/sync/constants';
  * If a pulled record was also updated between push and pull, it would get overwritten by pullings if we proceed.
  * Throw an error so that the sync restarts and the updated record is not forgotten and pushed to central in the next sync.
  */
-const validateModelIfPulledRecordsUpdatedAfterPushSnapshot = async (model, sessionId) => {
+const assertModelIfPulledRecordsUpdatedAfterPushSnapshot = async (model, sessionId) => {
   const snapshotTableName = getSnapshotTableName(sessionId);
 
-  const [[{ count: countString }]] = await model.sequelize.query(
+  const [[{ count }]] = await model.sequelize.query(
     `
-      SELECT COUNT(*) as count 
+      SELECT COUNT(*)::integer as count
       FROM ${snapshotTableName}
       JOIN ${model.tableName} 
         ON ${snapshotTableName}.record_id::text = ${model.tableName}.id::text
@@ -28,7 +28,6 @@ const validateModelIfPulledRecordsUpdatedAfterPushSnapshot = async (model, sessi
     },
   );
 
-  const count = parseInt(countString, 10);
   if (count) {
     throw new Error(
       `Facility: There are ${count} ${model.tableName} record(s) updated between 'snapshot-for-pushing' and now. Error thrown to restart the sync cycle and push the updated records to central`,
@@ -36,8 +35,8 @@ const validateModelIfPulledRecordsUpdatedAfterPushSnapshot = async (model, sessi
   }
 };
 
-export const validateIfPulledRecordsUpdatedAfterPushSnapshot = async (models, sessionId) => {
+export const assertIfPulledRecordsUpdatedAfterPushSnapshot = async (models, sessionId) => {
   for (const model of models) {
-    await validateModelIfPulledRecordsUpdatedAfterPushSnapshot(model, sessionId);
+    await assertModelIfPulledRecordsUpdatedAfterPushSnapshot(model, sessionId);
   }
 };

@@ -27,6 +27,7 @@
     "timeout": 10000,
     "readOnly": false,
     "persistedCacheBatchSize": 10000,
+    "assertIfPulledRecordsUpdatedAfterPushSnapshot": true,
     "enabled": true,
     "backoff": {
       "multiplierMs": 300,

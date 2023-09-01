@@ -124,10 +124,13 @@ describe('FacilitySyncManager edge cases', () => {
     const CURRENT_SYNC_TICK = '6';
     const NEW_SYNC_TICK = '8';
 
-    const initializeSyncManager = (sessionId, pulledEncounter) => {
+    const initializeSyncManager = (pulledEncounter, configToOverride) => {
       const {
         FacilitySyncManager: TestFacilitySyncManager,
       } = require('../../app/sync/FacilitySyncManager');
+      if (configToOverride) {
+        TestFacilitySyncManager.overrideConfig(configToOverride);
+      }
       syncManager = new TestFacilitySyncManager({
         models,
         sequelize,
@@ -204,7 +207,7 @@ describe('FacilitySyncManager edge cases', () => {
         }),
       }));
 
-      initializeSyncManager('123', encounter);
+      initializeSyncManager(encounter);
 
       // start the sync
       const syncPromise = syncManager.runSync();
@@ -233,7 +236,7 @@ describe('FacilitySyncManager edge cases', () => {
         }),
       }));
 
-      initializeSyncManager('456', encounter);
+      initializeSyncManager(encounter);
 
       // start the sync
       const syncPromise = syncManager.runSync();
@@ -249,8 +252,40 @@ describe('FacilitySyncManager edge cases', () => {
       await expect(async () => {
         await syncPromise;
       }).rejects.toThrow(
-        'Facility: There are 1 encounters record(s) updated snapshot for pushing and now.',
+        "Facility: There are 1 encounters record(s) updated between 'snapshot-for-pushing' and now. Error thrown to restart the sync cycle and push the updated records to central",
       );
+    });
+
+    it('does not throw an error if a pulled record was updated between push and pull, but the config was disabled', async () => {
+      let resolvePushOutgoingChangesPromise;
+      const pushOutgoingChangesPromise = new Promise(resolve => {
+        resolvePushOutgoingChangesPromise = async () => resolve(true);
+      });
+      jest.doMock('../../app/sync/pushOutgoingChanges', () => ({
+        ...jest.requireActual('../../app/sync/pushOutgoingChanges'),
+        pushOutgoingChanges: jest.fn().mockImplementation(() => {
+          return pushOutgoingChangesPromise;
+        }),
+      }));
+
+      const configToOverride = {
+        sync: { enabled: false, assertIfPulledRecordsUpdatedAfterPushSnapshot: false },
+      };
+      initializeSyncManager(encounter, configToOverride);
+
+      // start the sync
+      const syncPromise = syncManager.runSync();
+
+      await sleepAsync(200);
+
+      // Update encounter which is one of the pulled records
+      encounter.reasonForEncounter = 'Updated';
+      await encounter.save();
+
+      await resolvePushOutgoingChangesPromise();
+
+      // No expects as if there is an error, it should fail the test
+      await syncPromise;
     });
   });
 });

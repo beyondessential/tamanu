@@ -18,7 +18,7 @@ import {
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
-import { validateIfPulledRecordsUpdatedAfterPushSnapshot } from './validateIfPulledRecordsUpdatedAfterPushSnapshot';
+import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
 
 export class FacilitySyncManager {
   static config = _config;
@@ -170,10 +170,12 @@ export class FacilitySyncManager {
       pullSince,
     );
 
-    await validateIfPulledRecordsUpdatedAfterPushSnapshot(
-      Object.values(getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL)),
-      sessionId,
-    );
+    if (this.constructor.config.sync.assertIfPulledRecordsUpdatedAfterPushSnapshot) {
+      await assertIfPulledRecordsUpdatedAfterPushSnapshot(
+        Object.values(getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL)),
+        sessionId,
+      );
+    }
 
     await this.sequelize.transaction(async () => {
       if (totalPulled > 0) {
