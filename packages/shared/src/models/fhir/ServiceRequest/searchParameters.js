@@ -37,4 +37,9 @@ export const searchParameters = {
     path: [['encounter']],
     referenceTypes: ['Encounter'],
   },
+  requester: {
+    type: FHIR_SEARCH_PARAMETERS.REFERENCE,
+    path: [['requester']],
+    referenceTypes: ['Practitioner'],
+  },
 };
