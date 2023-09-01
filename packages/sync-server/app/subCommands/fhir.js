@@ -70,11 +70,13 @@ async function doRefresh(resource, { existing, missing, since }) {
   const sql = (
     await Promise.all(
       Resource.UpstreamModels.map(async upstreamModel => {
-        const sqlToSelect = await prepareQuery(upstreamModel, {
+        const queryToFilterUpstream = await Resource.queryToFilterUpstream(upstreamModel.tableName);
+        const sqlToFilterUpstream = await prepareQuery(upstreamModel, {
           attributes: ['id', 'deleted_at', 'updated_at'],
+          ...queryToFilterUpstream,
         });
 
-        return sqlToSelect.replace(/;$/, '');
+        return sqlToFilterUpstream.replace(/;$/, '');
       }),
     )
   ).join(' UNION ');
