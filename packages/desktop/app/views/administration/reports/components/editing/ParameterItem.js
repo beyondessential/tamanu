@@ -3,13 +3,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Divider as BaseDivider } from '@material-ui/core';
+import { MuiBox, Divider as BaseDivider } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import BaseDeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
-import { TextField, DefaultIconButton, SelectField } from '../../../../../components';
+import {
+  TextField,
+  MultilineTextField,
+  DefaultIconButton,
+  SelectField,
+  ArrayField,
+  Field,
+} from '../../../../../components';
 import {
   PARAMETER_FIELD_COMPONENTS,
   FIELD_TYPES_WITH_SUGGESTERS,
+  FIELD_TYPES_WITH_PREDEFINED_OPTIONS,
 } from '../../../../reports/ParameterField';
 
 const Divider = styled(BaseDivider)`
@@ -26,8 +34,10 @@ const DeleteOutlinedIcon = styled(BaseDeleteOutlinedIcon)`
   font-size: 25px;
 `;
 
+const OptionsEditor = styled(TextField)``;
+
 export const ParameterItem = props => {
-  const { id, name, label, parameterField, suggesterEndpoint, onDelete, onChange } = props;
+  const { id, name, label, parameterField, suggesterEndpoint, onDelete, onChange, options } = props;
 
   return (
     <Grid container spacing={2} key={id}>
@@ -95,6 +105,19 @@ export const ParameterItem = props => {
         </Grid>
       )}
       <Grid item xs={12}>
+        {FIELD_TYPES_WITH_PREDEFINED_OPTIONS.includes(parameterField) && (
+          <MultilineTextField
+            field={{
+              name: 'options',
+              value: options,
+              onChange: event => {
+                onChange(id, 'options', event.target.value);
+              },
+            }}
+            placeholder='[{ "label": "Option 1", "value": "option1" },{ "label": "Option 2", "value": "option2" }]'
+            label="Options"
+          />
+        )}
         <Divider />
       </Grid>
     </Grid>

@@ -23,6 +23,11 @@ export const FIELD_TYPES_WITH_SUGGESTERS = [
   'ParameterAutocompleteField',
 ];
 
+export const FIELD_TYPES_WITH_PREDEFINED_OPTIONS = [
+  'ParameterSelectField',
+  'ParameterMultiselectField',
+];
+
 const ParameterSuggesterSelectField = ({ suggesterEndpoint, name, ...props }) => (
   <Field component={SuggesterSelectField} endpoint={suggesterEndpoint} name={name} {...props} />
 );
