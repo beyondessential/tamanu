@@ -19,7 +19,10 @@ import {
   TextField,
 } from '../../../components';
 import { ParameterList, ParameterItem, SQLQueryEditor } from './components/editing';
-import { FIELD_TYPES_WITH_SUGGESTERS } from '../../reports/ParameterField';
+import {
+  FIELD_TYPES_WITH_PREDEFINED_OPTIONS,
+  FIELD_TYPES_WITH_SUGGESTERS,
+} from '../../reports/ParameterField';
 
 const StyledField = styled(Field)`
   flex-grow: 1;
@@ -70,6 +73,15 @@ const schema = yup.object().shape({
         is: parameterField => FIELD_TYPES_WITH_SUGGESTERS.includes(parameterField),
         then: yup.string().required('Suggester endpoint is a required field'),
         otherwise: yup.string(),
+      }),
+      options: yup.array().when('parameterField', {
+        is: parameterField => FIELD_TYPES_WITH_PREDEFINED_OPTIONS.includes(parameterField),
+        then: yup
+          .array()
+          .test('test-options', 'Each option must contain a label and value', val =>
+            val.every(o => o.label && o.value),
+          ),
+        otherwise: yup.array(),
       }),
     }),
   ),
