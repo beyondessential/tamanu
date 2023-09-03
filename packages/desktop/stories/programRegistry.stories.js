@@ -13,6 +13,15 @@ const mockedProgramRegistryPatientDetailsEndPoint = {
 };
 storiesOf('Program Registry', module).add('DisplayPatientRegDetails', () => (
   <MockedApi endpoints={{ mockedProgramRegistryPatientDetailsEndPoint }}>
-    <DisplayPatientRegDetails />
+    <DisplayPatientRegDetails
+      patient={{ firstName: 'Tareq', lastName: 'Aziz' }}
+      program={{
+        date: '2023-08-28T02:40:16.237Z',
+        programRegistryClinicalStatusId: 'Low risk',
+      }}
+      clinician={{
+        name: 'Alaister',
+      }}
+    />
   </MockedApi>
 ));
