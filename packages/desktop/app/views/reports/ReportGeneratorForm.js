@@ -183,8 +183,6 @@ export const ReportGeneratorForm = () => {
     return <LoadingIndicator backgroundColor="#f7f9fb" />;
   }
 
-  console.log(parameters);
-
   return (
     <Form
       initialValues={{
