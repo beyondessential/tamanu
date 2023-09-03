@@ -78,7 +78,7 @@ const InfoRow = styled.div`
   display: flex;
   flex-direction: row;
 `;
-
+//
 const DetailsRow = ({ name, value }) => {
   const { getLocalisation } = useLocalisation();
   const label = getLocalisation(`fields.${name}.shortLabel`);
