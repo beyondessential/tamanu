@@ -1,10 +1,19 @@
-import React, { useState, useCallback, useEffect, memo } from 'react';
+import React, { useState, useCallback, useEffect, useRef, memo } from 'react';
+import { isEqual } from 'lodash';
+
 import { Table } from './Table';
 import { useApi } from '../../api';
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
-const DEFAULT_FETCH_STATE = { data: [], count: 0, errorMessage: '', isLoading: true };
+const DEFAULT_FETCH_STATE = {
+  data: [],
+  count: 0,
+  errorMessage: '',
+  isLoading: true,
+  isLoadingMoreData: false,
+  fetchOptions: {},
+};
 
 export const DataFetchingTable = memo(
   ({
@@ -15,6 +24,7 @@ export const DataFetchingTable = memo(
     refreshCount = 0,
     onDataFetched,
     disablePagination = false,
+    lazyLoading = false,
     ...props
   }) => {
     const [page, setPage] = useState(0);
@@ -22,6 +32,7 @@ export const DataFetchingTable = memo(
     const [sorting, setSorting] = useState(initialSort);
     const [fetchState, setFetchState] = useState(DEFAULT_FETCH_STATE);
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
+    const tableRef = useRef(null);
     const api = useApi();
 
     // This callback will be passed to table cell accessors so they can force a table refresh
@@ -46,12 +57,17 @@ export const DataFetchingTable = memo(
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
     useEffect(() => {
-      updateFetchState({ isLoading: true });
+      if (fetchState.data?.length > 0 && lazyLoading) {
+        updateFetchState({ isLoadingMoreData: true });
+      } else {
+        updateFetchState({ isLoading: true });
+      }
       (async () => {
         try {
           if (!endpoint) {
             throw new Error('Missing endpoint to fetch data.');
           }
+
           const { data, count } = await api.get(
             endpoint,
             {
@@ -65,11 +81,28 @@ export const DataFetchingTable = memo(
             },
           );
           const transformedData = transformRow ? data.map(transformRow) : data;
+
+          // When fetch option is no longer the same (eg: filter changed), it should reload the entire table
+          // instead of keep adding data for lazy loading
+          const shouldReloadLazyLoadingData = !isEqual(fetchState.fetchOptions, fetchOptions);
+
+          if (lazyLoading && shouldReloadLazyLoadingData) {
+            // eslint-disable-next-line no-unused-expressions
+            tableRef?.current?.scroll({ top: 0 });
+          }
+
+          const updatedData =
+            lazyLoading && !shouldReloadLazyLoadingData
+              ? [...(fetchState?.data || []), ...(transformedData || [])]
+              : transformedData;
+
           updateFetchState({
             ...DEFAULT_FETCH_STATE,
-            data: transformedData,
+            data: updatedData,
             count,
             isLoading: false,
+            isLoadingMoreData: false,
+            fetchOptions,
           });
           if (onDataFetched) {
             onDataFetched({
@@ -80,7 +113,11 @@ export const DataFetchingTable = memo(
         } catch (error) {
           // eslint-disable-next-line no-console
           console.error(error);
-          updateFetchState({ errorMessage: error.message, isLoading: false });
+          updateFetchState({
+            errorMessage: error.message,
+            isLoading: false,
+            isLoadingMoreData: false,
+          });
         }
       })();
       // Needed to compare fetchOptions as a string instead of an object
@@ -88,6 +125,7 @@ export const DataFetchingTable = memo(
     }, [
       api,
       endpoint,
+      lazyLoading,
       page,
       rowsPerPage,
       sorting,
@@ -100,13 +138,17 @@ export const DataFetchingTable = memo(
       disablePagination,
     ]);
 
-    useEffect(() => setPage(0), [fetchOptions]);
+    useEffect(() => {
+      setPage(0);
+      setFetchState({ ...DEFAULT_FETCH_STATE });
+    }, [fetchOptionsString]);
 
-    const { data, count, isLoading, errorMessage } = fetchState;
+    const { data, count, isLoading, isLoadingMoreData, errorMessage } = fetchState;
     const { order, orderBy } = sorting;
     return (
       <Table
         isLoading={isLoading}
+        isLoadingMoreData={isLoadingMoreData}
         data={data}
         errorMessage={errorMessage}
         rowsPerPage={rowsPerPage}
@@ -119,6 +161,8 @@ export const DataFetchingTable = memo(
         orderBy={orderBy}
         rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
         refreshTable={refreshTable}
+        lazyLoading={lazyLoading}
+        ref={tableRef}
         {...props}
       />
     );

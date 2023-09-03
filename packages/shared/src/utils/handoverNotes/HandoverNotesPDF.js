@@ -9,27 +9,31 @@ export const HandoverNotesPDF = ({
   locationGroupName,
   logoSrc,
   getLocalisation,
+  letterheadConfig,
 }) => (
   <Document>
     <Page size="A4" style={styles.page}>
       <HandoverHeaderSection
+        letterheadConfig={letterheadConfig}
         locationGroupName={locationGroupName}
-        getLocalisation={getLocalisation}
         logoSrc={logoSrc}
       />
       <Box mb={0}>
-        {handoverNotes.map(({ patient, diagnosis, notes, location, createdAt, arrivalDate }) => (
-          <HandoverPatient
-            key={`patient-notes-${patient.displayId}`}
-            patient={patient}
-            location={location}
-            createdAt={createdAt}
-            diagnosis={diagnosis}
-            arrivalDate={arrivalDate}
-            notes={notes}
-            getLocalisation={getLocalisation}
-          />
-        ))}
+        {handoverNotes.map(
+          ({ patient, diagnosis, notes, location, createdAt, isEdited, arrivalDate }) => (
+            <HandoverPatient
+              key={`patient-notes-${patient.displayId}`}
+              patient={patient}
+              location={location}
+              createdAt={createdAt}
+              diagnosis={diagnosis}
+              arrivalDate={arrivalDate}
+              notes={notes}
+              isEdited={isEdited}
+              getLocalisation={getLocalisation}
+            />
+          ),
+        )}
       </Box>
     </Page>
   </Document>

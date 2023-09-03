@@ -153,6 +153,7 @@ export const VersionEditor = ({ report, version, onBack, onSave }) => {
     deletedAt,
     createdBy,
     versionNumber,
+    active,
     ...editableData
   } = version;
   const { name, id: reportDefinitionId } = report;
