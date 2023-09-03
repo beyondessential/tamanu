@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { Divider as BaseDivider } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import BaseDeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
+import { SUGGESTER_ENDPOINTS } from '@tamanu/constants';
 import {
   TextField,
   DefaultIconButton,
@@ -97,7 +98,7 @@ export const ParameterItem = props => {
           <DeleteOutlinedIcon />
         </IconButton>
       </Grid>
-      <Grid item xs={6}>
+      <Grid item xs={11}>
         <SelectField
           field={{
             name: 'parameterField',
@@ -115,8 +116,8 @@ export const ParameterItem = props => {
         />
       </Grid>
       {FIELD_TYPES_WITH_SUGGESTERS.includes(parameterField) && (
-        <Grid item xs={6}>
-          <TextField
+        <Grid item xs={11}>
+          <SelectField
             field={{
               name: 'suggesterEndpoint',
               value: suggesterEndpoint,
@@ -126,6 +127,10 @@ export const ParameterItem = props => {
             }}
             placeholder="Text"
             label="Suggester endpoint"
+            options={SUGGESTER_ENDPOINTS.sort((a, b) => a.localeCompare(b)).map(key => ({
+              label: key,
+              value: key,
+            }))}
           />
         </Grid>
       )}
