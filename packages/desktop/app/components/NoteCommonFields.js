@@ -77,7 +77,7 @@ const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
     <div>{label}</div>
   );
 };
-export const WrittenByField = ({ label = 'Created by (or on behalf of)', required, disabled }) => {
+export const WrittenByField = ({ label = 'Written by (or on behalf of)', required, disabled }) => {
   const practitionerSuggester = useSuggester('practitioner');
 
   return (
