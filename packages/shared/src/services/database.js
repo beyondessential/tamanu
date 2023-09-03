@@ -67,16 +67,19 @@ async function connectToDatabase(dbOptions) {
     await unsafeRecreatePgDb({ ...dbOptions, name });
   }
 
-  log.info(
-    `Connecting to database ${username || '<no username>'}:*****@${host || '<no host>'}:${port ||
-      '<no port>'}/${name || '<no name>'}...`,
-  );
+  log.info('databaseConnection', {
+    username,
+    host,
+    port,
+    name,
+  });
 
   const logging = verbose
     ? (query, obj) =>
-        log.debug(
-          `${util.inspect(query)}; -- ${util.inspect(obj.bind || [], { breakLength: Infinity })}`,
-        )
+        log.debug('databaseQuery', {
+          query: util.inspect(query),
+          binding: util.inspect(obj.bind || [], { breakLength: Infinity }),
+        })
     : null;
 
   const options = {
@@ -138,7 +141,7 @@ export async function initDatabase(dbOptions) {
     allowNull: false,
     primaryKey: true,
   };
-  log.info(`Registering ${modelClasses.length} models...`);
+  log.info('registeringModels', { count: modelClasses.length });
   modelClasses.forEach(modelClass => {
     modelClass.init(
       {
