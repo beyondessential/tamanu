@@ -1,0 +1,81 @@
+import React from 'react';
+import { DataFetchingTable } from '../../components/Table/DataFetchingTable';
+import styled from 'styled-components';
+import { DateDisplay } from '../../components/DateDisplay';
+import { Colors } from '../../constants';
+import { Heading3 } from '../../components/Typography';
+const CLINICAL_STATUSES = {
+  CRITICAL: 'Critical',
+  NEEDS_REVIEW: 'Needs review',
+  LOW_RISK: 'Low risk',
+};
+
+const CLINICAL_COLORS_BY_STATUS = {
+  [CLINICAL_STATUSES.CRITICAL]: {
+    color: 'rgba(247, 104, 83, 1)',
+    background: 'rgba(247, 104, 83, 0.1)',
+  },
+  [CLINICAL_STATUSES.NEEDS_REVIEW]: {
+    color: 'rgba(203, 97, 0, 1)',
+    background: 'rgba(203, 97, 0, 0.1)',
+  },
+  [CLINICAL_STATUSES.LOW_RISK]: { color: '#19934E', background: 'rgba(25, 147, 78, 0.1)' },
+};
+
+const Container = styled.div`
+  background-color: ${Colors.white};
+  padding: 15px 15px 30px 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: center;
+`;
+
+const Statusbadge = styled.div`
+  padding: 15px 10px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  height: 20px;
+  background-color: ${props => CLINICAL_COLORS_BY_STATUS[props.children].background};
+  color: ${props => CLINICAL_COLORS_BY_STATUS[props.children].color};
+`;
+export const ProgramRegistryStatusHistory = ({ program }) => {
+  const columns = [
+    {
+      key: 'status',
+      title: 'Status',
+      accessor: row => {
+        return <Statusbadge>{row.status}</Statusbadge>;
+      },
+      sortable: false,
+    },
+    { key: 'recordedBy', title: 'Recorded By', sortable: false },
+    {
+      key: 'date',
+      title: 'Date recorded',
+      accessor: row => <DateDisplay date={row.date} />,
+      sortable: false,
+    },
+  ];
+  return (
+    <Container>
+      <Heading3>Program Status History</Heading3>
+      <br />
+      <DataFetchingTable
+        endpoint={`/programRegistry/history/${program.id}`}
+        columns={columns}
+        initialSort={{
+          orderBy: 'date',
+          order: 'asc',
+        }}
+        allowExport={false}
+        lazyLoading
+        noDataMessage="No program responses found"
+        // onRowClick={onSelectResponse}
+        elevated={false}
+      />
+    </Container>
+  );
+};
