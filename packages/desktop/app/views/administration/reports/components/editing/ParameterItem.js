@@ -64,6 +64,11 @@ export const ParameterItem = props => {
     onChange(id, `options`, [...options]);
   };
 
+  const onOptionDelete = index => {
+    const optionsWithRemovedKey = options.filter((_, i) => i !== index);
+    onChange(id, `options`, [...optionsWithRemovedKey]);
+  };
+
   return (
     <Grid container spacing={2} key={id}>
       <Grid item xs={6}>
@@ -163,7 +168,9 @@ export const ParameterItem = props => {
                   />
                 </Grid>
                 <Grid item xs={1}>
-                  <DeleteContainer>{index > 0 && DeleteButton}</DeleteContainer>
+                  <DeleteContainer onClick={() => onOptionDelete(index)}>
+                    {index > 0 && DeleteButton}
+                  </DeleteContainer>
                 </Grid>
               </>
             )}
