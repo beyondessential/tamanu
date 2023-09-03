@@ -1,6 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 import {
+  SUGGESTER_ENDPOINTS,
+  SUGGESTER_ENDPOINTS_SUPPORTING_ALL,
+} from '@tamanu/constants/suggesters';
+import {
   AutocompleteField,
   Field,
   SelectField,
@@ -19,8 +23,8 @@ import { VaccineField } from './VaccineField';
 import { useSuggester } from '../../api';
 
 export const FIELD_TYPES_TO_SUGGESTER_OPTIONS = {
-  ParameterSuggesterSelectField: 'suggesterOptions',
-  ParameterAutocompleteField: 'suggesterOptions',
+  ParameterSuggesterSelectField: SUGGESTER_ENDPOINTS_SUPPORTING_ALL,
+  ParameterAutocompleteField: SUGGESTER_ENDPOINTS,
 };
 
 export const FIELD_TYPES_WITH_SUGGESTERS = Object.keys(FIELD_TYPES_TO_SUGGESTER_OPTIONS);
