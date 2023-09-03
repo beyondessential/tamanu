@@ -27,6 +27,8 @@
     "timeout": 10000,
     "readOnly": false,
     "persistedCacheBatchSize": 10000,
+    "delayTimeBetweenPersistedCacheBatchInMilliseconds": 50,
+    "delayTimeBetweenCacheBatchInMilliseconds": 50,
     "enabled": true,
     "backoff": {
       "multiplierMs": 300,

@@ -1,6 +1,9 @@
 import { Op } from 'sequelize';
 import config from 'config';
 import asyncPool from 'tiny-async-pool';
+
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
+
 import { sortInDependencyOrder } from '../models/sortInDependencyOrder';
 import { log } from '../services/logging/log';
 import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
@@ -8,7 +11,7 @@ import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
 import { mergeRecord } from './mergeRecord';
 import { SYNC_SESSION_DIRECTION } from './constants';
 
-const { persistedCacheBatchSize } = config.sync;
+const { persistedCacheBatchSize, delayTimeBetweenPersistedCacheBatchInMilliseconds } = config.sync;
 const UPDATE_WORKER_POOL_SIZE = 100;
 
 const saveCreates = async (model, records) => {
@@ -109,7 +112,14 @@ const saveChangesForModelInBatches = async (
     fromId = batchRecords[batchRecords.length - 1].id;
 
     try {
+      log.info('Sync: Persisting cache to table', {
+        table: model.tableName,
+        count: batchRecords.length,
+      });
+
       await saveChangesForModel(model, batchRecords, isCentralServer);
+
+      await sleepAsync(delayTimeBetweenPersistedCacheBatchInMilliseconds);
     } catch (error) {
       log.error(`Failed to save changes for ${model.name}`);
       throw error;

@@ -34,6 +34,7 @@
   "sync": {
     "readOnly": false,
     "persistedCacheBatchSize": 20000,
+    "delayTimeBetweenPersistedCacheBatchInMilliseconds": 50,
     "adjustDataBatchSize": 20000,
     "syncAllEncountersForTheseVaccines": [],
     "numberConcurrentPullSnapshots": 4,
