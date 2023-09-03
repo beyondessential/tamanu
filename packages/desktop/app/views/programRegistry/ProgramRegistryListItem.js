@@ -30,9 +30,8 @@ const StatusRemovedDiv = styled.div`
   margin: 0px 5px;
 `;
 
-export const ProgramRegistryListItem = ({ item, handleRowClick, ListItem, getName }) => {
+export const ProgramRegistryListItem = ({ item, handleRowClick, ListItem }) => {
   const { id, name, status, clinicalStatus } = item;
-  console.log();
   return (
     <ListItem onClick={() => handleRowClick(id)}>
       <FlexRowSpaceBetween>

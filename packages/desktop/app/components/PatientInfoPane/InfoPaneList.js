@@ -147,39 +147,15 @@ export const InfoPaneList = memo(
         </TitleContainer>
         <DataList>
           {error && error.message}
-          {/* {!error && */}
-          {/* TODO: temporary code! to be removed later */}
-          {(title === 'Program Registry' || !error) &&
-            (title === 'Program Registry'
-              ? [
-                  {
-                    id: 'asdasdasd',
-                    name: 'Program 1',
-                    status: 'Active',
-                    clinicalStatus: 'Critical',
-                  },
-                  {
-                    id: '324234asdasdasd',
-                    name: 'Program 1',
-                    status: 'Removed',
-                    clinicalStatus: 'Needs review',
-                  },
-                  {
-                    id: '324234asdasdasdwefwf',
-                    name: 'Program 3',
-                    status: 'Active',
-                    clinicalStatus: 'Low risk',
-                  },
-                ]
-              : items
-            ).map(item => {
+          {!error &&
+            items.map(item => {
               const { id } = item;
               const name = getName(item);
               if (behavior === 'collapse') {
                 return (
                   <React.Fragment key={id}>
                     <Collapse in={editKey !== id}>
-                      {!!CustomListeItemTemplate ? (
+                      {CustomListeItemTemplate ? (
                         <CustomListeItemTemplate
                           item={item}
                           handleRowClick={handleRowClick}
@@ -207,7 +183,7 @@ export const InfoPaneList = memo(
 
               return (
                 <React.Fragment key={id}>
-                  {!!CustomListeItemTemplate ? (
+                  {CustomListeItemTemplate ? (
                     <CustomListeItemTemplate
                       item={item}
                       handleRowClick={handleRowClick}
