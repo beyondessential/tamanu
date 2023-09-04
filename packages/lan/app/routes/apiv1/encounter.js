@@ -16,7 +16,6 @@ import {
 import {
   simpleGet,
   simpleGetHasOne,
-  simplePost,
   simpleGetList,
   permissionCheckingRouter,
   runPaginatedQuery,
@@ -31,7 +30,15 @@ import { getLabRequestList } from '../../routeHandlers/labs';
 export const encounter = express.Router();
 
 encounter.get('/:id', simpleGet('Encounter'));
-encounter.post('/$', simplePost('Encounter'));
+encounter.post(
+  '/$',
+  asyncHandler(async (req, res) => {
+    const { models, body, user } = req;
+    req.checkPermission('create', 'Encounter');
+    const object = await models.Encounter.create({ ...body, actorId: user.id });
+    res.send(object);
+  }),
+);
 
 encounter.put(
   '/:id',
