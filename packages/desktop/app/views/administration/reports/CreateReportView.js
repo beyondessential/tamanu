@@ -21,7 +21,7 @@ export const CreateReportView = () => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
 
-  const onSubmit = async ({ name, query, status, ...queryOptions }) => {
+  const onSubmit = async ({ name, query, status, options, ...queryOptions }) => {
     const { dataSources } = queryOptions;
     try {
       const { reportDefinitionId, id } = await api.post('admin/reports', {

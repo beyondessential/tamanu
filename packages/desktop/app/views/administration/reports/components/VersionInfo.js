@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatShort, formatTime } from '../../../../components';
+import { DateDisplay, formatShortest, formatTime } from '../../../../components';
 import { InfoCard, InfoCardItem } from '../../../../components/InfoCard';
 
 export const VersionInfo = ({ version }) => (
@@ -9,7 +9,9 @@ export const VersionInfo = ({ version }) => (
     <InfoCardItem label="Report ID" value={version.reportDefinition.id} />
     <InfoCardItem
       label="Created"
-      value={`${formatShort(version.createdAt)} ${formatTime(version.createdAt)}`}
+      value={`${DateDisplay.stringFormat(version.createdAt, formatShortest)} ${formatTime(
+        version.createdAt,
+      )}`}
     />
     <InfoCardItem label="Created by" value={version.createdBy?.displayName} />
   </InfoCard>
