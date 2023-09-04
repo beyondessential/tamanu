@@ -1,5 +1,5 @@
 import * as yup from 'yup';
-import { PROGRAM_DATA_ELEMENT_TYPE_VALUES } from '@tamanu/shared/constants';
+import { PROGRAM_DATA_ELEMENT_TYPE_VALUES } from '@tamanu/constants';
 import { SurveyScreenComponent, baseValidationShape, baseConfigShape } from './baseSchemas';
 import { configString, validationString, visualisationConfigString } from './jsonString';
 import { isNumberOrFloat } from '../../utils/numbers';
