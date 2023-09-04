@@ -7,9 +7,14 @@ import { useSelector } from 'react-redux';
 import { Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
 import { Colors } from '../constants';
-import { RangeValidatedCell, DateHeadCell, RangeTooltipCell } from './FormattedTableCell';
+import {
+  RangeValidatedCell,
+  DateHeadCell,
+  RangeTooltipCell,
+  LimitedLinesCell,
+} from './FormattedTableCell';
 import { useVitals } from '../api/queries/useVitals';
-import { formatShortest, formatTimeWithSeconds } from './DateDisplay';
+import { DateDisplay, formatShortest, formatTimeWithSeconds } from './DateDisplay';
 import { EditVitalCellModal } from './EditVitalCellModal';
 import { VitalVectorIcon } from './Icons/VitalVectorIcon';
 import { useVitalChartData } from '../contexts/VitalChartData';
@@ -36,6 +41,10 @@ const StyledTable = styled(Table)`
       width: 160px;
       min-width: 160px;
     }
+    thead tr th:not(:first-child):not(:last-child) {
+      /* Each data column is fixed width except the last one, which takes the rest of the space */
+      width: 115px;
+    }
     tbody tr td:first-child {
       background: ${Colors.white};
     }
@@ -46,9 +55,18 @@ const StyledTable = styled(Table)`
   }
 `;
 
+const getExportOverrideTitle = date => {
+  const shortestDate = DateDisplay.stringFormat(date, formatShortest);
+  const timeWithSeconds = DateDisplay.stringFormat(date, formatTimeWithSeconds);
+  return `${shortestDate} ${timeWithSeconds}`;
+};
 const IconButton = styled(IconButtonComponent)`
   padding: 9px 5px;
 `;
+
+const VitalsLimitedLinesCell = ({ value }) => (
+  <LimitedLinesCell value={value} maxWidth="75px" maxLines={1} />
+);
 
 const MeasureCell = React.memo(({ value, data }) => {
   const {
@@ -200,11 +218,12 @@ export const VitalsTable = React.memo(() => {
               validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
               isEdited={historyLogs.length > 1}
               onClick={shouldBeClickable ? handleCellClick : null}
+              ValueWrapper={VitalsLimitedLinesCell}
             />
           );
         },
         exportOverrides: {
-          title: `${formatShortest(date)} ${formatTimeWithSeconds(date)}`,
+          title: getExportOverrideTitle(date),
         },
       })),
   ];

@@ -20,6 +20,7 @@ const BaseTag = styled.div`
   }};
   color: ${p => (p.$color ? p.$color : DEFAULTS.color)};
   font-weight: 400;
+  ${p => p.noWrap && 'white-space: nowrap;'}
 `;
 
 export const FormFieldTag = styled(BaseTag)`
