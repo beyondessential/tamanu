@@ -104,7 +104,7 @@ const ImportForm = ({ isSubmitting, setFieldValue, feedback, values = {} }) => {
   );
 };
 
-export const ReportsImportView = () => {
+export const ImportReportView = () => {
   const api = useApi();
   const queryClient = useQueryClient();
   const [feedback, setFeedback] = useState(null);
