@@ -111,31 +111,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
         <StyledScrollView background={theme.colors.BACKGROUND_GREY}>
           <GeneralInfo patient={selectedPatient} onEdit={onEditPatient} />
           <AdditionalInfo patient={selectedPatient} onEdit={editPatientAdditionalData} />
-          {/* Not functional yet
-          <NotificationCheckbox value={reminders} onChange={changeReminder} />
-          <FamilyInformation
-            onEdit={onEditField}
-            parentsInfo={parentsInfo}
-          />
-          <OnGoingConditions
-            onEdit={onEditField}
-            ongoingConditions={ongoingConditions}
-          />
-          <FamilyHistory
-            onEdit={onEditField}
-            familyHistory={familyHistory}
-          />
-          <AllergiesList onEdit={onEditField} allergies={allergies} />
-          */}
           <PatientIssues onEdit={onEditPatientIssues} patientId={selectedPatient.id} />
-          {/* Not functional yet
-          <Button
-            paddingLeft={20}
-            paddingRight={20}
-            marginBottom={40}
-            onPress={onRecordDeath}
-            buttonText="Record patient death"
-          /> */}
         </StyledScrollView>
       </FullView>
     </FullView>
