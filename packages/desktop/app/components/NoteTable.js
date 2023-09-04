@@ -34,8 +34,8 @@ const NoteContentContainer = styled.div`
     !props.$expanded
       ? `
     text-overflow: clip;
-    -webkit-line-clamp: 4;
-            line-clamp: 4;
+    -webkit-line-clamp: 20;
+            line-clamp: 20;
     -webkit-box-orient: vertical;
   `
       : ''}
@@ -139,7 +139,7 @@ const NoteContent = ({
   const handleReadMore = useCallback(() => setContentIsExpanded(true), []);
   const handleReadLess = useCallback(() => setContentIsExpanded(false), []);
 
-  const noteMetaPrefix = note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated:' : 'Created:';
+  const showNoteMetaPrefix = note.noteType === NOTE_TYPES.TREATMENT_PLAN && note.revisedById;
   const noteAuthorName =
     note.noteType === NOTE_TYPES.TREATMENT_PLAN || !note.revisedBy
       ? note.author?.displayName
@@ -201,7 +201,7 @@ const NoteContent = ({
           )}
       </NoteBodyContainer>
       <NoteFooterContainer>
-        <NoteFooterTextElement>{noteMetaPrefix}</NoteFooterTextElement>
+        {showNoteMetaPrefix && <NoteFooterTextElement>Last updated:</NoteFooterTextElement>}
         {noteAuthorName ? <NoteFooterTextElement>{noteAuthorName}</NoteFooterTextElement> : null}
         {noteOnBehalfOfName ? (
           <NoteFooterTextElement>on behalf of {noteOnBehalfOfName}</NoteFooterTextElement>
