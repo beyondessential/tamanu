@@ -2,6 +2,7 @@
   "extends": ["../../common.tsconfig.json"],
   "include": [
     "src/**/*.ts",
+    "node_modules/@types/lodash/*.ts",
     "package.json"
   ],
   "compilerOptions": {
