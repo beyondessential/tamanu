@@ -72,6 +72,11 @@ const DetailsValue = styled.span`
   max-height: 30px;
   overflow: hidden;
   font-weight: bold;
+
+  /* Used to display an ellipsis if needed  */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 `;
 
 const DetailsKey = styled.span`
