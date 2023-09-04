@@ -1,5 +1,6 @@
+type Cache = Record<string, string | number | object>;
 export class SettingsCache {
-  cache: any | null = null;
+  cache: Cache | null = null;
 
   expirationTimestamp: number | null = null;
 
@@ -15,7 +16,7 @@ export class SettingsCache {
     return this.cache;
   }
 
-  set(value: any) {
+  set(value: Cache) {
     this.cache = value;
     // Calculate expiration timestamp based on ttl
     this.expirationTimestamp = Date.now() + this.ttl;

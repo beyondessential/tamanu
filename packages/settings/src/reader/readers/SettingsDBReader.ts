@@ -1,8 +1,8 @@
-import { Reader } from './Reader';
+import { Reader, ReaderSettingResult } from './Reader';
 
 interface SettingModel {
   get: (key: string, facilityId?: string, scope?: string) =>
-  Promise<undefined | Record<string, string | number>>
+  Promise<undefined | ReaderSettingResult>
 }
 export interface Models {
   Setting: SettingModel;

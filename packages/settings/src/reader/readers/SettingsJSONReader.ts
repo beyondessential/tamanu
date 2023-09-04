@@ -1,8 +1,8 @@
-import { Reader } from './Reader';
+import { Reader, ReaderSettingResult } from './Reader';
 
 export class SettingsJSONReader extends Reader {
-  jsonConfig: any;
-  constructor(jsonConfig: any) {
+  jsonConfig: ReaderSettingResult;
+  constructor(jsonConfig: ReaderSettingResult) {
     super();
     this.jsonConfig = jsonConfig;
   }
