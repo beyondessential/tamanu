@@ -366,7 +366,7 @@ describe(`Materialised FHIR - Encounter`, () => {
   });
 
   describe('errors', () => {
-    it('returns not found when fetching a non-existent service request', async () => {
+    it('returns not found when fetching a non-existent encounter', async () => {
       // arrange
       const id = fakeUUID();
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Encounter/${id}`;
