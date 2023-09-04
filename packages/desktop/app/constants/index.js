@@ -486,3 +486,21 @@ export const NOTE_FORM_MODES = {
   EDIT_NOTE: 'editNote',
   VIEW_NOTE: 'viewNote',
 };
+
+export const CLINICAL_STATUSES = {
+  CRITICAL: 'Critical',
+  NEEDS_REVIEW: 'Needs review',
+  LOW_RISK: 'Low risk',
+};
+
+export const CLINICAL_COLORS_BY_STATUS = {
+  [CLINICAL_STATUSES.CRITICAL]: {
+    color: 'rgba(247, 104, 83, 1)',
+    background: 'rgba(247, 104, 83, 0.1)',
+  },
+  [CLINICAL_STATUSES.NEEDS_REVIEW]: {
+    color: 'rgba(203, 97, 0, 1)',
+    background: 'rgba(203, 97, 0, 0.1)',
+  },
+  [CLINICAL_STATUSES.LOW_RISK]: { color: '#19934E', background: 'rgba(25, 147, 78, 0.1)' },
+};

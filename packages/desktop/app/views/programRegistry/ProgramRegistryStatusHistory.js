@@ -2,26 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import { DataFetchingTable } from '../../components/Table/DataFetchingTable';
 import { DateDisplay } from '../../components/DateDisplay';
-import { Colors } from '../../constants';
+import { Colors, CLINICAL_COLORS_BY_STATUS } from '../../constants';
 import { Heading3 } from '../../components/Typography';
-
-const CLINICAL_STATUSES = {
-  CRITICAL: 'Critical',
-  NEEDS_REVIEW: 'Needs review',
-  LOW_RISK: 'Low risk',
-};
-
-const CLINICAL_COLORS_BY_STATUS = {
-  [CLINICAL_STATUSES.CRITICAL]: {
-    color: 'rgba(247, 104, 83, 1)',
-    background: 'rgba(247, 104, 83, 0.1)',
-  },
-  [CLINICAL_STATUSES.NEEDS_REVIEW]: {
-    color: 'rgba(203, 97, 0, 1)',
-    background: 'rgba(203, 97, 0, 0.1)',
-  },
-  [CLINICAL_STATUSES.LOW_RISK]: { color: '#19934E', background: 'rgba(25, 147, 78, 0.1)' },
-};
 
 const Container = styled.div`
   background-color: ${Colors.white};
@@ -59,6 +41,16 @@ export const ProgramRegistryStatusHistory = ({ program }) => {
       accessor: row => <DateDisplay date={row.date} />,
       sortable: false,
     },
+    ...(program.removedOnce
+      ? [
+          {
+            key: 'registrationDate',
+            title: 'Date of registration',
+            accessor: row => <DateDisplay date={row.date} />,
+            sortable: false,
+          },
+        ]
+      : []),
   ];
   return (
     <Container>
