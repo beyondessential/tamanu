@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Avatar } from '@material-ui/core';
 import { Colors } from '../../constants/index';
 import { DateDisplay } from '../../components/DateDisplay';
-import { Avatar } from '@material-ui/core';
-import { programsIcon, kebabIcon } from '../../constants/images';
+import { programsIcon } from '../../constants/images';
 import { GreyOutlinedButton } from '../../components/Button';
 import { MenuButton } from '../../components/MenuButton';
 
@@ -55,21 +55,27 @@ const StatusContainer = styled.div`
 `;
 
 const ChangeStatusContainer = styled.div`
-  width: 40%;
+  width: ${props => (props.extraWidth ? 35 + 25 : 35)}%;
   display: flex;
   align-items: center;
   flex-direction: row;
   border-left: 1px solid ${Colors.softOutline};
   padding-left: 10px;
-  justify-content: space-around;
+  justify-content: space-between;
 `;
 
 const MenuContainer = styled.div`
-  width: 5%;
-  background-color: ${Colors.hoverGrey};
-  height: 28px;
-  width: 28px;
-  border-radius: 100px;
+  width: 10%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: end;
+  .menu {
+    // height: 28px;
+    // width: 28px;
+    border-radius: 100px;
+    background-color: ${Colors.hoverGrey};
+  }
 `;
 
 const Statusbadge = styled.div`
@@ -82,7 +88,7 @@ const Statusbadge = styled.div`
   background-color: #19934e1a;
 `;
 
-export const DisplayPatientRegDetails = ({ patient, program, clinician }) => {
+export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
   return (
     <DisplayContainer>
       <LogoContainer>
@@ -92,37 +98,52 @@ export const DisplayPatientRegDetails = ({ patient, program, clinician }) => {
         <LabelValueContainer>
           <div className="label">Date of registration:</div>
           <div className="value">
-            <DateDisplay date={program.date} />
+            <DateDisplay date={patientProgramRegistration.date} />
           </div>
         </LabelValueContainer>
         <LabelValueContainer>
           <div className="label">Registered by:</div>
-          <div className="value">{clinician.name}</div>
+          <div className="value">{patientProgramRegistration.addedBy}</div>
         </LabelValueContainer>
       </LabelContainer>
-      <StatusContainer>
-        <LabelValueContainer>
-          <div className="label">Date removed:</div>
-          <div className="value">
-            <DateDisplay date={program.date} />
-          </div>
-        </LabelValueContainer>
-        <LabelValueContainer>
-          <div className="label">Removed by:</div>
-          <div className="value">{clinician.name}</div>
-        </LabelValueContainer>
-      </StatusContainer>
-      <ChangeStatusContainer>
-        <Statusbadge color="green">{program.programRegistryClinicalStatusId}</Statusbadge>
+      {patientProgramRegistration.registrationStatus === 'Removed' && (
+        <StatusContainer>
+          <LabelValueContainer>
+            <div className="label">Date removed:</div>
+            <div className="value">
+              <DateDisplay date={patientProgramRegistration.date} />
+            </div>
+          </LabelValueContainer>
+          <LabelValueContainer>
+            <div className="label">Removed by:</div>
+            <div className="value">{patientProgramRegistration.removedBy}</div>
+          </LabelValueContainer>
+        </StatusContainer>
+      )}
+      <ChangeStatusContainer
+        {...(patientProgramRegistration.registrationStatus !== 'Removed' && { extraWidth: true })}
+      >
+        <Statusbadge color="green">
+          {patientProgramRegistration.programRegistryClinicalStatusId}
+        </Statusbadge>
         <GreyOutlinedButton>Change Status</GreyOutlinedButton>
       </ChangeStatusContainer>
       <MenuContainer>
-        <MenuButton
-          actions={{
-            Activate: () => {},
-            Delete: () => {},
-          }}
-        />
+        <div className="menu">
+          <MenuButton
+            actions={
+              patientProgramRegistration.registrationStatus !== 'Removed'
+                ? {
+                    Remove: () => {},
+                    Delete: () => {},
+                  }
+                : {
+                    Activate: () => {},
+                    Delete: () => {},
+                  }
+            }
+          />
+        </div>
       </MenuContainer>
     </DisplayContainer>
   );
