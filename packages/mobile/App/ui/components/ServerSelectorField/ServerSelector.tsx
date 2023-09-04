@@ -7,9 +7,6 @@ import { theme } from '../../styled/theme';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
 import * as overrides from '/root/serverOverrides.json';
 
-const DEFAULT_META_SERVER = __DEV__ ? 'https://meta-dev.tamanu.io' : 'https://meta.tamanu.io';
-const META_SERVER = overrides?.metaServer || DEFAULT_META_SERVER;
-
 type Server = {
   name: string;
   type: string;
@@ -22,12 +19,15 @@ const fetchServers = async (): Promise<SelectOption[]> => {
   // the first sync begins and it'll stay connecting to your local server.
   // return [{ label: 'Local', value: 'http://192.168.0.1:3000' }];
 
-  // allows overriding the central server list in builds
-  if (overrides.centralServers) {
-    return overrides.centralServers;
+  // allows overriding the central server list or meta server in builds
+  const { metaServer: metaServerOverride, centralServers: centralServerOverrides } = overrides;
+  if (centralServerOverrides) {
+    return centralServerOverrides;
   }
 
-  const response = await fetch(`${META_SERVER}/servers`);
+  const defaultMetaServer = __DEV__ ? 'https://meta-dev.tamanu.io' : 'https://meta.tamanu.io';
+  const metaServer = metaServerOverride || defaultMetaServer;
+  const response = await fetch(`${metaServer}/servers`);
   const servers: Server[] = await response.json();
 
   return servers.map(s => ({ label: s.name, value: s.host }));
