@@ -2,7 +2,7 @@ import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS, REGISTRATION_STATUSES } from '@tamanu/constants';
 import { dateType } from './dateTimeTypes';
 import { getCurrentDateString } from '../utils/dateTime';
-import { InvalidOperationError } from '../errors';
+// import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 
 export class PatientProgramRegistration extends Model {
@@ -22,16 +22,16 @@ export class PatientProgramRegistration extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-        validate: {
-          mustHaveValidCurrentlyAtType() {
-            const values = Object.values(CURRENTLY_AT_TYPES);
-            if (!values.includes(this.currentlyAtType)) {
-              throw new InvalidOperationError(
-                `The currentlyAtType must be one of ${values.join(', ')}`,
-              );
-            }
-          },
-        },
+        // validate: {
+        //   mustHaveValidCurrentlyAtType() {
+        //     const values = Object.values(CURRENTLY_AT_TYPES);
+        //     if (!values.includes(this.currentlyAtType)) {
+        //       throw new InvalidOperationError(
+        //         `The currentlyAtType must be one of ${values.join(', ')}`,
+        //       );
+        //     }
+        //   },
+        // },
       },
     );
   }
@@ -51,6 +51,11 @@ export class PatientProgramRegistration extends Model {
       as: 'clinicalStatus',
     });
 
+    this.belongsTo(models.Facility, {
+      foreignKey: 'registeringFacilityId',
+      as: 'facility',
+    });
+
     // 1. Note that only one of facilityId or villageId will usually be set,
     // depending on the currentlyAtType of the related programRegistry.
     // 2. The first entry in a patient's registration list for a given program
@@ -60,7 +65,7 @@ export class PatientProgramRegistration extends Model {
       as: 'facility',
     });
 
-    this.belongsTo(models.Village, {
+    this.belongsTo(models.ReferenceData, {
       foreignKey: 'villageId',
       as: 'village',
     });

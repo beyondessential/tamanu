@@ -42,6 +42,9 @@ export async function up(query) {
     clinical_status_id: {
       type: Sequelize.STRING,
     },
+    registering_facility_id: {
+      type: Sequelize.STRING,
+    },
     facility_id: {
       type: Sequelize.STRING,
     },
