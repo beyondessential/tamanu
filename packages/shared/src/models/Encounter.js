@@ -510,14 +510,14 @@ export class Encounter extends Model {
       const { submittedTime, ...encounterData } = data;
       const updatedEncounter = await super.update({ ...encounterData, ...additionalChanges }, user);
 
-      const snapshotTableChanges = [
+      const snapshotChanges = [
         isEncounterTypeChanged,
         isDepartmentChanged,
         isLocationChanged,
         isClinicianChanged,
       ].filter(Boolean);
 
-      if (snapshotTableChanges.length > 1) {
+      if (snapshotChanges.length > 1) {
         // Will revert all the changes above if error is thrown as this is in a transaction
         throw new InvalidOperationError(
           'Encounter type, department, location and clinician must be changed in separate operations',
@@ -525,7 +525,7 @@ export class Encounter extends Model {
       }
 
       // multiple changes in 1 update transaction is not supported at the moment
-      if (snapshotTableChanges.length === 1) {
+      if (snapshotChanges.length === 1) {
         await EncounterHistory.createSnapshot(updatedEncounter, {
           actorId: user?.id,
           changeType,
