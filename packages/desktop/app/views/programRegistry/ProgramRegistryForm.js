@@ -15,13 +15,11 @@ import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api/useApi';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObject, patient }) => {
   const api = useApi();
   const { currentUser, facility } = useAuth();
   const [program, setProgram] = useState();
-
   const programRegistrySuggester = useSuggester('program', {
     baseQueryParameters: { patientId: patient.id },
   });
@@ -30,8 +28,6 @@ export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObjec
   });
   const registeredBySuggester = useSuggester('practitioner');
   const registeringFacilitySuggester = useSuggester('facility');
-  const registeringVillageSuggester = useSuggester('village');
-  VISIBILITY_STATUSES;
 
   const onProgramSelect = async id => {
     try {
@@ -44,9 +40,6 @@ export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObjec
   return (
     <Form
       onSubmit={data => {
-        console.log(data);
-        if (program.currentlyAtType === 'facility') delete data.villageId;
-        else if (program.currentlyAtType === 'village') delete data.facilityId;
         data.patientId = patient.id;
         onSubmit(data);
       }}
@@ -96,31 +89,21 @@ export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObjec
                   name="registeringClinicianId"
                   label="Registered by"
                   required
+                  value={currentUser.id}
                   component={AutocompleteField}
                   suggester={registeredBySuggester}
                   onChange={e => console.log(e)}
                 />
               </FormGrid>
-              {(program && program.currentlyAtType) === 'facility' && (
-                <FormGrid style={{ gridColumn: 'span 2' }}>
-                  <Field
-                    name="facilityId"
-                    label="Registering facility"
-                    component={AutocompleteField}
-                    suggester={registeringFacilitySuggester}
-                  />
-                </FormGrid>
-              )}
-              {program && program.currentlyAtType === 'village' && (
-                <FormGrid style={{ gridColumn: 'span 2' }}>
-                  <Field
-                    name="villageId"
-                    label="Registering village"
-                    component={AutocompleteField}
-                    suggester={registeringVillageSuggester}
-                  />
-                </FormGrid>
-              )}
+              <FormGrid style={{ gridColumn: 'span 2' }}>
+                <Field
+                  name="facilityId"
+                  label="Registering facility"
+                  value={facility.id}
+                  component={AutocompleteField}
+                  suggester={registeringFacilitySuggester}
+                />
+              </FormGrid>
 
               <ConfirmCancelRow
                 onCancel={handleCancel}
@@ -142,7 +125,6 @@ export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObjec
         programRegistryClinicalStatusId: optionalForeignKey(),
         date: yup.date(),
         facilityId: optionalForeignKey(),
-        villageId: optionalForeignKey(),
         registeringClinicianId: foreignKey('Registered by must be selected'),
       })}
     />

@@ -60,17 +60,18 @@ const ListItem = styled.li`
 
 const shouldShowIssueInWarningModal = ({ type }) => type === PATIENT_ISSUE_TYPES.WARNING;
 
-const getItems = (isIssuesPane, response) => {
-  const items = response?.data || [];
+const getItems = (isIssuesPane, response, customListModifierFunc) => {
+  const items =
+    (customListModifierFunc ? customListModifierFunc(response?.data) : response?.data) || [];
   if (isIssuesPane === false) {
     return { items, warnings: null };
   }
 
   const warnings = items.filter(shouldShowIssueInWarningModal);
-  const sortedIssues = [
-    ...warnings,
-    ...items.filter(issue => !shouldShowIssueInWarningModal(issue)),
-  ];
+  let sortedIssues = [...warnings, ...items.filter(issue => !shouldShowIssueInWarningModal(issue))];
+  if (customListModifierFunc) {
+    sortedIssues = customListModifierFunc(sortedIssues);
+  }
 
   return { items: sortedIssues, warnings };
 };
@@ -88,7 +89,8 @@ export const InfoPaneList = memo(
     itemTitle = '',
     CustomEditForm,
     getEditFormName = () => '???',
-    CustomListeItemTemplate,
+    CustomListItemTemplate,
+    customListModifierFunc,
   }) => {
     const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
     const { adding, editKey } = addEditState;
@@ -97,7 +99,7 @@ export const InfoPaneList = memo(
       api.get(getEndpoint),
     );
     const isIssuesPane = title === ISSUES_TITLE;
-    const { items, warnings } = getItems(isIssuesPane, data);
+    const { items, warnings } = getItems(isIssuesPane, data, customListModifierFunc);
 
     const handleAddButtonClick = useCallback(
       () => setAddEditState({ adding: !adding, editKey: null }),
@@ -155,8 +157,8 @@ export const InfoPaneList = memo(
                 return (
                   <React.Fragment key={id}>
                     <Collapse in={editKey !== id}>
-                      {CustomListeItemTemplate ? (
-                        <CustomListeItemTemplate
+                      {CustomListItemTemplate ? (
+                        <CustomListItemTemplate
                           item={item}
                           handleRowClick={handleRowClick}
                           ListItem={ListItem}
@@ -183,8 +185,8 @@ export const InfoPaneList = memo(
 
               return (
                 <React.Fragment key={id}>
-                  {CustomListeItemTemplate ? (
-                    <CustomListeItemTemplate
+                  {CustomListItemTemplate ? (
+                    <CustomListItemTemplate
                       item={item}
                       handleRowClick={handleRowClick}
                       ListItem={ListItem}

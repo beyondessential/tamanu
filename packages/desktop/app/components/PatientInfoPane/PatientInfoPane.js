@@ -110,11 +110,29 @@ const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
     endpoint="programRegistry"
     getEndpoint={`patient/${patient.id}/program-registry`}
     Form={ProgramRegistryForm}
-    CustomListeItemTemplate={ProgramRegistryListItem}
+    CustomListItemTemplate={ProgramRegistryListItem}
     getName={programRegistry => programRegistry.name}
     behavior="modal"
     itemTitle="Add program registry"
     getEditFormName={programRegistry => `Program registry: ${programRegistry.name}`}
+    customListModifierFunc={list => {
+      if (!list) return list;
+      return list.sort((a, b) => {
+        if (a.status < b.status) {
+          return -1;
+        }
+        if (a.status > b.status) {
+          return 1;
+        }
+        if (a.clinicalStatus < b.clinicalStatus) {
+          return -1;
+        }
+        if (a.clinicalStatus > b.clinicalStatus) {
+          return 1;
+        }
+        return 0;
+      });
+    }}
   />
 ));
 
