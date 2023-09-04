@@ -205,10 +205,10 @@ export const DataFetchingTable = memo(
 
       const hasPageChanged = page !== fetchState.page;
       const isDataToBeUpdated = hasPageChanged || hasSortingChanged || page === 0;
-      const highlightStartIndex = isInitialSort ? rowsSinceInteraction : 0;
+      const rowsToHighlight = isInitialSort ? rowsSinceInteraction : 0;
 
       const displayData = isDataToBeUpdated
-        ? highlightDataRows(transformedData, highlightStartIndex)
+        ? highlightDataRows(transformedData, rowsToHighlight)
         : fetchState.data; // Show the previous fetches data snapshot if the data is not to be updated
 
       return displayData;
