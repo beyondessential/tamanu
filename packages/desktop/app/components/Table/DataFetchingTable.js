@@ -30,7 +30,7 @@ export const DataFetchingTable = memo(
     refreshCount = 0,
     onDataFetched,
     disablePagination = false,
-    autoRefresh: isAutoRefreshTable,
+    autoRefresh,
     lazyLoading = false,
     overrideLocalisationForStorybook = false,
     ...props
@@ -52,9 +52,9 @@ export const DataFetchingTable = memo(
     const api = useApi();
 
     const { getLocalisation } = useLocalisation();
-    const autoRefresh =
-      overrideLocalisationForStorybook || getLocalisation('features.tableAutorefresh');
-    const enableAutoRefresh = autoRefresh && autoRefresh.enabled && isAutoRefreshTable;
+    const autoRefreshConfig =
+      overrideLocalisationForStorybook || getLocalisation('features.tableAutoRefresh');
+    const enableAutoRefresh = autoRefreshConfig && autoRefreshConfig.enabled && autoRefresh;
 
     // This callback will be passed to table cell accessors so they can force a table refresh
     const refreshTable = useCallback(() => {
@@ -236,7 +236,7 @@ export const DataFetchingTable = memo(
       })();
 
       if (enableAutoRefresh) {
-        const tableAutorefresh = setInterval(() => refreshTable(), autoRefresh.interval);
+        const tableAutorefresh = setInterval(() => refreshTable(), autoRefreshConfig.interval);
         return () => clearInterval(tableAutorefresh);
       }
       return () => {}; // Needed to add return due to the conditional return above
