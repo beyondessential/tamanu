@@ -1,12 +1,8 @@
 {
   "extends": ["../../common.tsconfig.json"],
-  "include": [
-    "src/**/*.ts",
-    "node_modules/@types",
-    "package.json"
-  ],
+  "include": ["src/**/*.ts", "package.json"],
   "compilerOptions": {
     "baseUrl": "./src",
-    "types": ["node", "lodash"],
+    "types": ["node"]
   }
 }
