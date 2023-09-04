@@ -1,11 +1,11 @@
 import { ReadSettings, settingsCache } from '@tamanu/settings';
-import { buildSettings } from '@tamanu/settings/reader/buildSettings';
+import { buildSettings } from '@tamanu/settings/reader';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { createSetting } from './settingsUtils';
 
-jest.mock('@tamanu/settings/reader/buildSettings', () => {
-  const originalModule = jest.requireActual('@tamanu/settings/reader/buildSettings');
+jest.mock('@tamanu/settings/reader', () => {
+  const originalModule = jest.requireActual('@tamanu/settings/reader');
   return {
     ...originalModule,
     buildSettings: jest.fn(() => ({ timezone: 'gmt-3' })),

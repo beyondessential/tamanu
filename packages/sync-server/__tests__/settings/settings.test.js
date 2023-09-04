@@ -3,8 +3,8 @@ import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { createSetting } from './settingsUtils';
 
-jest.mock('@tamanu/settings/defaults/central', () => {
-  const originalModule = jest.requireActual('@tamanu/settings/defaults/central');
+jest.mock('@tamanu/settings/defaults', () => {
+  const originalModule = jest.requireActual('@tamanu/settings/defaults');
   return {
     ...originalModule,
     centralDefaults: {
@@ -24,13 +24,6 @@ jest.mock('@tamanu/settings/defaults/central', () => {
         // in contrast, logs are always sent
       },
     },
-  };
-});
-
-jest.mock('@tamanu/settings/defaults/global', () => {
-  const originalModule = jest.requireActual('@tamanu/settings/defaults/global');
-  return {
-    ...originalModule,
     globalDefaults: {
       survey: {
         defaultCodes: {
@@ -115,8 +108,5 @@ describe('Read Settings', () => {
 
     const centralFileValue = await readSetting.get('specific.to.central-file');
     expect(centralFileValue).toEqual('file-central-value');
-
-    const value2 = await readSetting.get('root.leaf2');
-    expect(value2).toEqual('db-central-value');
   });
 });

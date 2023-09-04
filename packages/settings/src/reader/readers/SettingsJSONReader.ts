@@ -7,7 +7,7 @@ export class SettingsJSONReader extends Reader {
     this.jsonConfig = jsonConfig;
   }
 
-  getSettings() {
+  async getSettings() {
     return this.jsonConfig;
   }
 }

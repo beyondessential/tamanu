@@ -1,4 +1,4 @@
-class SettingsCache {
+export class SettingsCache {
   cache: any | null = null;
 
   expirationTimestamp: number | null = null;

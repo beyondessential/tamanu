@@ -1,7 +1,8 @@
 import { Reader } from './Reader';
 
 interface SettingModel {
-  get: (key: string, facilityId?:string, scope?:string)=> any
+  get: (key: string, facilityId?: string, scope?: string) =>
+  Promise<undefined | Record<string, string | number>>
 }
 export interface Models {
   Setting: SettingModel;
@@ -19,10 +20,10 @@ export class SettingsDBReader extends Reader {
     this.facilityId = facilityId;
   }
 
-  getSettings() {
+  async getSettings() {
     const { Setting } = this.models;
     // Get all settings for the selected scope/facility
-    const settings = Setting.get('', this.facilityId, this.scope);
+    const settings = await Setting.get('', this.facilityId, this.scope);
 
     return settings;
   }
