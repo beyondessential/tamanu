@@ -42,7 +42,7 @@ export const fakeResourcesOfFhirServiceRequest = async models => {
       locationId: location.id,
       departmentId: department.id,
       examinerId: practitioner.id,
-      encounterType: 'surveyResponse',
+      encounterType: 'admission',
     }),
   );
 

@@ -91,7 +91,7 @@ describe('FHIR refresh handler', () => {
           locationId: resources.location.id,
           departmentId: resources.department.id,
           examinerId: resources.practitioner.id,
-          encounterType: 'clinic',
+          encounterType: 'surveyResponse',
         }),
       );
 
@@ -118,6 +118,7 @@ describe('FHIR refresh handler', () => {
 
       expect(count).toEqual(0);
       expect(rows).toEqual([]);
+      await encounter.destroy();
     });
   });
 });

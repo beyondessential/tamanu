@@ -91,7 +91,7 @@ describe('FhirMissingResources task', () => {
         locationId: resources.location.id,
         departmentId: resources.department.id,
         examinerId: resources.practitioner.id,
-        encounterType: 'clinic',
+        encounterType: 'surveyResponse',
       }),
     );
 

@@ -127,15 +127,16 @@ describe('fhir sub commands', () => {
   it('should not update those upstream records that do not meet pre filter criteria', async () => {
     const { Encounter, FhirEncounter } = ctx.store.models;
     // new encounter with different encounter type that do not meet pre filter criteria
-    await Encounter.create(
+    const encounter = await Encounter.create(
       fake(Encounter, {
         patientId: resources.patient.id,
         locationId: resources.location.id,
         departmentId: resources.department.id,
         examinerId: resources.practitioner.id,
-        encounterType: 'clinic',
+        encounterType: 'surveyResponse',
       }),
     );
+
     await fhir({ refresh: 'Encounter' });
     const fhirEncounter = await FhirEncounter.findAndCountAll({
       where: {},
@@ -143,5 +144,6 @@ describe('fhir sub commands', () => {
 
     expect(fhirEncounter.count).toEqual(1);
     expect(fhirEncounter.rows[0].upstreamId).toEqual(resources.encounter.id);
+    await encounter.destroy();
   });
 });
