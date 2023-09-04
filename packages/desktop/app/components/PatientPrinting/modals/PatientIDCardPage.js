@@ -68,6 +68,9 @@ const BottomBar = styled.div`
 `;
 
 const DetailsValue = styled.span`
+  max-width: 35mm;
+  max-height: 30px;
+  overflow: hidden;
   font-weight: bold;
 `;
 
