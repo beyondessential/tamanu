@@ -149,7 +149,10 @@ export const ParameterItem = props => {
           <Field
             name="options"
             component={ArrayField}
-            initialFieldNumber={options.length}
+            value={[
+              { label: '', value: '' },
+              { label: '', value: '' },
+            ]}
             renderField={(index, DeleteButton) => (
               <>
                 <Grid item xs={6}>
