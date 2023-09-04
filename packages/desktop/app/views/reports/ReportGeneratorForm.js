@@ -183,8 +183,6 @@ export const ReportGeneratorForm = () => {
     return <LoadingIndicator backgroundColor="#f7f9fb" />;
   }
 
-  console.log(parameters);
-
   return (
     <Form
       initialValues={{
@@ -247,7 +245,6 @@ export const ReportGeneratorForm = () => {
                         label={label}
                         parameterValues={values}
                         parameterField={parameterField}
-                        options={typeof options === 'string' ? JSON.parse(options) : options}
                         {...restOfProps}
                       />
                     );
