@@ -7,13 +7,15 @@ export const SUGGESTER_ENDPOINTS_SUPPORTING_ALL = [
   'locationGroup',
 ];
 
-export const SUGGESTER_ENDPOINTS = [
-  ...SUGGESTER_ENDPOINTS_SUPPORTING_ALL,
+export const SUGGESTER_ENDPOINTS_SUPPORTING_ID = [
+  ...REFERENCE_TYPE_VALUES,
   'department',
   'facility',
   'facilityLocationGroup',
   'invoiceLineTypes',
+  'labTestPanel',
   'location',
+  'locationGroup',
   'patient',
   'patientLabTestCategories',
   'patientLabTestPanelTypes',

@@ -10,7 +10,8 @@ import {
   REFERENCE_TYPES,
   INVOICE_LINE_TYPES,
   VISIBILITY_STATUSES,
-  SUGGESTER_ENDPOINTS,
+  SUGGESTER_ENDPOINTS_SUPPORTING_ALL,
+  SUGGESTER_ENDPOINTS_SUPPORTING_ID,
 } from '@tamanu/constants';
 
 export const suggestions = express.Router();
@@ -327,21 +328,29 @@ createNameSuggester('labTestPanel', 'LabTestPanel');
 
 createNameSuggester('patientLetterTemplate', 'PatientLetterTemplate');
 
-const routerEndpoints = suggestions.stack.map(layer => {
-  const path = layer.route.path.replace('/', '').replaceAll('$', '');
-  const root = path.split('/')[0];
-  return root;
+const suggesterPaths = [
+  ...new Set(suggestions.stack.map(layer => layer.route.path.replace(/\$|^\/|\/:id/g, ''))),
+];
+
+suggesterPaths.forEach(path => {
+  const endpointList = path.endsWith('/all')
+    ? SUGGESTER_ENDPOINTS_SUPPORTING_ALL
+    : SUGGESTER_ENDPOINTS_SUPPORTING_ID;
+  if (endpointList.includes(path.replace('/all', ''))) return;
+  throw new Error(
+    `Suggester endpoint exists in router but not included in shared constant: ${path}`,
+  );
 });
-const rootElements = [...new Set(routerEndpoints)];
-SUGGESTER_ENDPOINTS.forEach(endpoint => {
-  if (!rootElements.includes(endpoint)) {
-    throw new Error(
-      `Suggester endpoint exists in shared constant but not included in router: ${endpoint}`,
-    );
-  }
+
+SUGGESTER_ENDPOINTS_SUPPORTING_ALL.forEach(endpoint => {
+  if (suggesterPaths.includes(`${endpoint}/all`)) return;
+  throw new Error(
+    `Suggester endpoint exists in shared constant but has no corresponding route in router: ${endpoint}/all`,
+  );
 });
-rootElements.forEach(endpoint => {
-  if (!SUGGESTER_ENDPOINTS.includes(endpoint)) {
-    throw new Error(`Suggester endpoint not added to shared constant: ${endpoint}`);
-  }
+SUGGESTER_ENDPOINTS_SUPPORTING_ID.forEach(endpoint => {
+  if (suggesterPaths.includes(endpoint)) return;
+  throw new Error(
+    `Suggester endpoint exists in shared constant but has no corresponding route in router: ${endpoint}`,
+  );
 });
