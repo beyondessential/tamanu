@@ -2,9 +2,24 @@ import Sequelize from 'sequelize';
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import { verifyQuery } from './utils';
 
+const createReportDefinition = async (store, name) => {
+  const {
+    models: { ReportDefinition },
+  } = store;
+  try {
+    return (await ReportDefinition.create({ name })).id;
+  } catch (error) {
+    if (error.parent.code === '23505') {
+      throw new Error('Report name already exists');
+    } else {
+      throw new Error(error.message);
+    }
+  }
+};
+
 export async function createReportDefinitionVersion(store, reportId, definition, userId) {
   const {
-    models: { ReportDefinition, ReportDefinitionVersion },
+    models: { ReportDefinitionVersion },
     sequelize,
   } = store;
 
@@ -20,7 +35,7 @@ export async function createReportDefinitionVersion(store, reportId, definition,
     },
     async () => {
       const { name, ...definitionVersion } = definition;
-      const reportDefinitionId = reportId || (await ReportDefinition.create({ name })).id;
+      const reportDefinitionId = reportId || (await createReportDefinition(store, name));
       const latestVersion = await ReportDefinitionVersion.findOne({
         where: { reportDefinitionId: reportId },
         attributes: ['versionNumber'],
