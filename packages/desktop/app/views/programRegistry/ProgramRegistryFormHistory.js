@@ -18,10 +18,8 @@ export const ProgramRegistryFormHistory = ({ program }) => {
     },
     { key: 'result', title: 'Result', sortable: false },
     {
-      key: 'id',
-      title: '',
       sortable: false,
-      accessor: row => (
+      accessor: () => (
         <MenuButton
           actions={{
             Print: () => {},
