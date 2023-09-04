@@ -27,20 +27,9 @@ import {
 } from './CustomComponents';
 
 const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => {
-  // const [reminders, setReminders] = useState(reminderWarnings);
-  // const [editField, setEditField] = useState(false);
-
-  // const changeReminder = useCallback((value: boolean) => {
-  //   setReminders(value);
-  // }, []);
-
   const onNavigateBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
-
-  // const onEditField = useCallback(() => {
-  //   setEditField(!editField);
-  // }, [editField]);
 
   const onEditPatient = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.EditPatient, {
@@ -63,10 +52,6 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
   const onEditPatientIssues = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
   }, [navigation]);
-
-  // const onRecordDeath = useCallback(() => {
-  //   navigation.navigate(Routes.HomeStack.DeceasedStack.Index);
-  // }, [navigation]);
 
   return (
     <FullView>
