@@ -78,7 +78,7 @@ function saveToLocalStorage({ token, localisation, server, permissions, role }) 
   localStorage.setItem(ROLE, JSON.stringify(role));
 }
 
-export function clearLocalStorage() {
+function clearLocalStorage() {
   localStorage.removeItem(TOKEN);
   localStorage.removeItem(LOCALISATION);
   localStorage.removeItem(SERVER);
