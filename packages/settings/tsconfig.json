@@ -6,6 +6,8 @@
   ],
   "compilerOptions": {
     "baseUrl": "./src",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "typeRoots": ["node_modules/@types"],
+    "types": ["lodash"]
   }
 }
