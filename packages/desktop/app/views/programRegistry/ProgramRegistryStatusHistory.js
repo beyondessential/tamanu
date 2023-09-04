@@ -1,9 +1,10 @@
 import React from 'react';
-import { DataFetchingTable } from '../../components/Table/DataFetchingTable';
 import styled from 'styled-components';
+import { DataFetchingTable } from '../../components/Table/DataFetchingTable';
 import { DateDisplay } from '../../components/DateDisplay';
 import { Colors } from '../../constants';
 import { Heading3 } from '../../components/Typography';
+
 const CLINICAL_STATUSES = {
   CRITICAL: 'Critical',
   NEEDS_REVIEW: 'Needs review',
