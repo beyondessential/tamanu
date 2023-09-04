@@ -6,7 +6,6 @@ import { SemanticAttributes, serviceContext, serviceName } from './context';
 const context = serviceContext();
 const legacyNames = {
   deployment: context[SemanticAttributes.DEPLOYMENT_NAME],
-  facilityId: context[SemanticAttributes.DEPLOYMENT_FACILITY],
   nodeEnv: context[SemanticAttributes.DEPLOYMENT_ENVIRONMENT],
   processId: context[SemanticAttributes.PROCESS_ID],
   hostname: context[SemanticAttributes.NET_HOST_NAME],
