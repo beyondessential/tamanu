@@ -40,8 +40,7 @@ export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObjec
   return (
     <Form
       onSubmit={data => {
-        data.patientId = patient.id;
-        onSubmit(data);
+        onSubmit({ ...data, patientId: patient.id });
       }}
       render={({ submitForm, values }) => {
         const handleCancel = () => onCancel && onCancel();
@@ -92,7 +91,6 @@ export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObjec
                   value={currentUser.id}
                   component={AutocompleteField}
                   suggester={registeredBySuggester}
-                  onChange={e => console.log(e)}
                 />
               </FormGrid>
               <FormGrid style={{ gridColumn: 'span 2' }}>
