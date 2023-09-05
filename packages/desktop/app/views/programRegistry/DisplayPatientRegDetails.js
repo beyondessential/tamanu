@@ -91,8 +91,6 @@ const ValueDisplay = ({ label, value }) => (
 export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
   const isRemoved =
     patientProgramRegistration.status.code === PROGRAM_REGISTRATION_STATUSES.REMOVED;
-
-  console.log(isRemoved);
   return (
     <DisplayContainer>
       <LogoContainer>
