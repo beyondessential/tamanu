@@ -18,8 +18,7 @@
     "build:types": "tsc --declaration --emitDeclarationOnly --noEmit false && move-dts src dist",
     "build-watch": "yarn run build && yarn run build:src --watch",
     "test": "NODE_ENV=test jest --passWithNoTests",
-    "lint": "tsc",
-    "start": "node dist/cli.js"
+    "lint": "tsc"
   },
   "devDependencies": {
     "@beyondessential/eslint-config-beyondessential": "^2.6.0",
