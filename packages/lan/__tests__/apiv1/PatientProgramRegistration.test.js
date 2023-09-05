@@ -1,46 +1,7 @@
 import { fake } from 'shared/test-helpers/fake';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
-import { program } from '../../app/routes/apiv1/program';
 
-const hi = {
-  programRegistryId: '123123',
-  patientId: '11231231',
-  registeringFacilityId: '12312312',
-  registeringFacility: {
-    id: '12312312',
-    name: 'Home facility',
-  },
-
-  registrationStatus: 'active',
-
-  programRegistryClinicalStatusId: '123123',
-  programRegistryClinicalStatus: {
-    id: '123123',
-    code: 'critical',
-    name: 'Critical',
-    visibilityStatus: 'current',
-    color: 'red',
-  },
-
-  // this...
-  facilityId: '1231231',
-  facility: {
-    id: '1231231',
-    name: 'Currently At Facility',
-  },
-  villageId: null,
-  village: null,
-
-  // or this...
-  // facilityId: null,
-  // village: null,
-  // villageId: '12312312',
-  // village: {
-  //   id: '12312312',
-  //   name: 'Currently At Village',
-  // }
-};
 jest.setTimeout(1000000);
 describe('PatientProgramRegistration', () => {
   let ctx = null;
@@ -57,7 +18,6 @@ describe('PatientProgramRegistration', () => {
 
   beforeEach(async () => {
     await models.PatientProgramRegistration.truncate({ cascade: true });
-    // await models.Setting.truncate();
   });
 
   afterAll(() => ctx.close());
@@ -74,7 +34,7 @@ describe('PatientProgramRegistration', () => {
       const programRegistry2 = await models.ProgramRegistry.create(
         fake(models.ProgramRegistry, { programId: program2.id }),
       );
-      const program1registration1 = await models.PatientProgramRegistration.create(
+      await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           programRegistryId: programRegistry1.id,
           clinicianId: clinician.id,
@@ -82,7 +42,7 @@ describe('PatientProgramRegistration', () => {
           date: '2023-09-02 08:00:00',
         }),
       );
-      const program1registration2 = await models.PatientProgramRegistration.create(
+      await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           programRegistryId: programRegistry1.id,
           clinicianId: clinician.id,
@@ -90,7 +50,7 @@ describe('PatientProgramRegistration', () => {
           date: '2023-09-04 08:00:00',
         }),
       );
-      const program2registration1 = await models.PatientProgramRegistration.create(
+      await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           clinicianId: clinician.id,
           programRegistryId: programRegistry2.id,
@@ -117,7 +77,7 @@ describe('PatientProgramRegistration', () => {
     });
   });
 
-  describe('POST patient/:patientId/programRegistration/:programId', () => {
+  describe('POST patient/:patientId/programRegistration/:programRegistryId', () => {
     it('creates a new program registration', async () => {
       const clinician = await models.User.create(fake(models.User));
       const patient = await models.Patient.create(fake(models.Patient));
@@ -126,7 +86,7 @@ describe('PatientProgramRegistration', () => {
         fake(models.ProgramRegistry, { programId: program1.id }),
       );
       const result = await app
-        .post(`/v1/patient/${patient.id}/programRegistration/${program1.id}`)
+        .post(`/v1/patient/${patient.id}/programRegistration/${programRegistry1.id}`)
         .send({
           programRegistryId: programRegistry1.id,
           clinicianId: clinician.id,
@@ -166,7 +126,7 @@ describe('PatientProgramRegistration', () => {
       await new Promise(resolve => setTimeout(resolve, 100));
 
       const result = await app
-        .post(`/v1/patient/${patient.id}/programRegistration/${program1.id}`)
+        .post(`/v1/patient/${patient.id}/programRegistration/${programRegistry1.id}`)
         .send({
           // clinicianId: Should come from existing registration
           patientId: patient.id,

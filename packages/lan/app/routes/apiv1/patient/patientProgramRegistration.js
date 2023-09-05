@@ -42,36 +42,29 @@ patientProgramRegistration.get(
 );
 
 patientProgramRegistration.post(
-  '/:patientId/programRegistration/:programId',
+  '/:patientId/programRegistration/:programRegistryId',
   asyncHandler(async (req, res) => {
     const { models, params, body, db } = req;
-    const { patientId, programId } = params;
+    const { patientId, programRegistryId } = params;
 
     req.checkPermission('read', 'Patient');
     const patient = await models.Patient.findByPk(patientId);
     if (!patient) throw new NotFoundError();
 
     req.checkPermission('read', 'ProgramRegistry');
-    // There should only ever be one current ProgramRegistry per program,
-    // but this isn't database enforced
-    const programRegistry = await models.ProgramRegistry.findOne({
-      where: {
-        programId,
-        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-      },
-    });
+    const programRegistry = await models.ProgramRegistry.findbyPk(programRegistryId);
     if (!programRegistry) throw new NotFoundError();
 
     req.checkPermission('read', 'ProgramRegistry');
     const existingRegistration = await models.PatientProgramRegistration.findOne({
       attributes: {
-        // We want to create a new id and updatedAt for the new record.
+        // We don't want to override the defaults for the new record.
         exclude: ['id', 'updatedAt', 'updatedAtSyncTick'],
       },
       where: {
         id: { [Op.in]: db.literal(MOST_RECENT_WHERE_CONDITION_LITERAL) },
-        programRegistryId: programRegistry.id,
-        patientId: patient.id,
+        programRegistryId,
+        patientId,
       },
       raw: true,
     });
@@ -81,10 +74,10 @@ patientProgramRegistration.post(
     } else {
       req.checkPermission('create', 'PatientProgramRegistration');
     }
-    console.log('existingRegistration', existingRegistration);
+
     const registration = await models.PatientProgramRegistration.create({
       patientId,
-      programRegistryId: programRegistry.id,
+      programRegistryId,
       ...(existingRegistration ?? {}),
       ...body,
     });
