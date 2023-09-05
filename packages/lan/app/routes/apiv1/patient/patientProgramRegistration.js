@@ -50,7 +50,7 @@ patientProgramRegistration.post(
     if (!patient) throw new NotFoundError();
 
     req.checkPermission('read', 'ProgramRegistry');
-    const programRegistry = await models.ProgramRegistry.findbyPk(programRegistryId);
+    const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
     if (!programRegistry) throw new NotFoundError();
 
     req.checkPermission('read', 'ProgramRegistry');
