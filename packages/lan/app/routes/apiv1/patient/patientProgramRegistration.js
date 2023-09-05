@@ -44,7 +44,7 @@ patientProgramRegistration.get(
 patientProgramRegistration.post(
   '/:patientId/programRegistration/:programId',
   asyncHandler(async (req, res) => {
-    const { models, params, body } = req;
+    const { models, params, body, db } = req;
     const { patientId, programId } = params;
 
     req.checkPermission('read', 'Patient');
@@ -62,32 +62,28 @@ patientProgramRegistration.post(
     });
     if (!programRegistry) throw new NotFoundError();
 
-    req.checkPermission('create', 'PatientProgramRegistration');
+    req.checkPermission('read', 'ProgramRegistry');
+    const existingRegistration = await models.PatientProgramRegistration.findOne({
+      where: {
+        id: { [Op.in]: db.literal(MOST_RECENT_WHERE_CONDITION_LITERAL) },
+        programRegistryId: programRegistry.id,
+        patientId: patient.id,
+      },
+    });
+
+    if (existingRegistration) {
+      req.checkPermission('write', 'PatientProgramRegistration');
+    } else {
+      req.checkPermission('create', 'PatientProgramRegistration');
+    }
+
     const registration = await models.PatientProgramRegistration.create({
       patientId,
       programRegistryId: programRegistry.id,
+      ...(existingRegistration ?? {}),
       ...body,
     });
 
     res.send(registration);
   }),
 );
-
-// patientProgramRegistration.post(
-//   '/:id/patientProgramRegistration',
-//   asyncHandler(async (req, res) => {
-//     const { models, params, query } = req;
-//     const { facilityId } = query;
-
-//     req.checkPermission('read', 'Patient');
-//     req.checkPermission('read', 'PatientProgramRegistration');
-
-//     const registrationData = await models.PatientProgramRegistration.findOne({
-//       where: { patientId: params.id },
-//     });
-
-//     const recordData = registrationData ? registrationData.toJSON() : {};
-
-//     res.send({ ...recordData });
-//   }),
-// );

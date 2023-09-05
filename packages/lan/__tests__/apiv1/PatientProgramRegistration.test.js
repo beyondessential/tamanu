@@ -1,4 +1,5 @@
 import { fake } from 'shared/test-helpers/fake';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { program } from '../../app/routes/apiv1/program';
 
@@ -121,13 +122,9 @@ describe('PatientProgramRegistration', () => {
       const clinician = await models.User.create(fake(models.User));
       const patient = await models.Patient.create(fake(models.Patient));
       const program1 = await models.Program.create(fake(models.Program));
-      // const program2 = await models.Program.create(fake(models.Program));
       const programRegistry1 = await models.ProgramRegistry.create(
         fake(models.ProgramRegistry, { programId: program1.id }),
       );
-      // const programRegistry2 = await models.ProgramRegistry.create(
-      //   fake(models.ProgramRegistry, { programId: program2.id }),
-      // );
       const result = await app
         .post(`/v1/patient/${patient.id}/programRegistration/${program1.id}`)
         .send({
@@ -139,14 +136,50 @@ describe('PatientProgramRegistration', () => {
 
       expect(result).toHaveSucceeded();
 
-      const createdRegistration = await models.PatientProgramRegistration.findByPk(
-        result.body.data.id,
-      );
+      const createdRegistration = await models.PatientProgramRegistration.findByPk(result.body.id);
 
       expect(createdRegistration).toMatchObject({
         programRegistryId: programRegistry1.id,
         clinicianId: clinician.id,
         patientId: patient.id,
+        date: '2023-09-02 08:00:00',
+      });
+    });
+
+    it('edits a program registration', async () => {
+      const clinician = await models.User.create(fake(models.User));
+      const patient = await models.Patient.create(fake(models.Patient));
+      const program1 = await models.Program.create(fake(models.Program));
+      const programRegistry1 = await models.ProgramRegistry.create(
+        fake(models.ProgramRegistry, { programId: program1.id }),
+      );
+      await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          programRegistryId: programRegistry1.id,
+          clinicianId: clinician.id,
+          patientId: patient.id,
+          date: '2023-09-02 08:00:00',
+        }),
+      );
+      const result = await app
+        .post(`/v1/patient/${patient.id}/programRegistration/${program1.id}`)
+        .send({
+          // clinicianId: Should come from existing registration
+          patientId: patient.id,
+          programRegistryId: programRegistry1.id,
+          registrationStatus: REGISTRATION_STATUSES.INACTIVE,
+          date: '2023-09-02 09:00:00',
+        });
+
+      expect(result).toHaveSucceeded();
+
+      const createdRegistration = await models.PatientProgramRegistration.findByPk(result.body.id);
+
+      expect(createdRegistration).toMatchObject({
+        programRegistryId: programRegistry1.id,
+        clinicianId: clinician.id,
+        patientId: patient.id,
+        registrationStatus: REGISTRATION_STATUSES.INACTIVE,
         date: '2023-09-02 08:00:00',
       });
     });
