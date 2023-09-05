@@ -153,7 +153,7 @@ describe('PatientProgramRegistration', () => {
       const programRegistry1 = await models.ProgramRegistry.create(
         fake(models.ProgramRegistry, { programId: program1.id }),
       );
-      await models.PatientProgramRegistration.create(
+      const existingRegistration = await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           programRegistryId: programRegistry1.id,
           clinicianId: clinician.id,
@@ -161,6 +161,10 @@ describe('PatientProgramRegistration', () => {
           date: '2023-09-02 08:00:00',
         }),
       );
+
+      // Add a small delay so the registrations are definitely created at distinctly different times.
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       const result = await app
         .post(`/v1/patient/${patient.id}/programRegistration/${program1.id}`)
         .send({
@@ -180,8 +184,9 @@ describe('PatientProgramRegistration', () => {
         clinicianId: clinician.id,
         patientId: patient.id,
         registrationStatus: REGISTRATION_STATUSES.INACTIVE,
-        date: '2023-09-02 08:00:00',
+        date: '2023-09-02 09:00:00',
       });
+      expect(createdRegistration.updatedAt).not.toEqual(existingRegistration.updatedAt);
     });
   });
 });

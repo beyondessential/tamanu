@@ -64,11 +64,16 @@ patientProgramRegistration.post(
 
     req.checkPermission('read', 'ProgramRegistry');
     const existingRegistration = await models.PatientProgramRegistration.findOne({
+      attributes: {
+        // We want to create a new id and updatedAt for the new record.
+        exclude: ['id', 'updatedAt', 'updatedAtSyncTick'],
+      },
       where: {
         id: { [Op.in]: db.literal(MOST_RECENT_WHERE_CONDITION_LITERAL) },
         programRegistryId: programRegistry.id,
         patientId: patient.id,
       },
+      raw: true,
     });
 
     if (existingRegistration) {
@@ -76,7 +81,7 @@ patientProgramRegistration.post(
     } else {
       req.checkPermission('create', 'PatientProgramRegistration');
     }
-
+    console.log('existingRegistration', existingRegistration);
     const registration = await models.PatientProgramRegistration.create({
       patientId,
       programRegistryId: programRegistry.id,

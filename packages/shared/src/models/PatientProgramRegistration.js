@@ -22,16 +22,6 @@ export class PatientProgramRegistration extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-        // validate: {
-        //   mustHaveValidCurrentlyAtType() {
-        //     const values = Object.values(CURRENTLY_AT_TYPES);
-        //     if (!values.includes(this.currentlyAtType)) {
-        //       throw new InvalidOperationError(
-        //         `The currentlyAtType must be one of ${values.join(', ')}`,
-        //       );
-        //     }
-        //   },
-        // },
       },
     );
   }
