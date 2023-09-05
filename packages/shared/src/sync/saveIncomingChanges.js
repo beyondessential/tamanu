@@ -11,7 +11,11 @@ import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
 import { mergeRecord } from './mergeRecord';
 import { SYNC_SESSION_DIRECTION } from './constants';
 
-const { persistedCacheBatchSize, pauseBetweenPersistedCacheBatchesInMilliseconds, persistUpdateWorkerPoolSize } = config.sync;
+const {
+  persistedCacheBatchSize,
+  pauseBetweenPersistedCacheBatchesInMilliseconds,
+  persistUpdateWorkerPoolSize,
+} = config.sync;
 
 const saveCreates = async (model, records) => {
   // can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
