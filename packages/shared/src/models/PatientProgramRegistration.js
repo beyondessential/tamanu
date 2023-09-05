@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS, REGISTRATION_STATUSES } from '@tamanu/constants';
-import { dateType } from './dateTimeTypes';
-import { getCurrentDateString } from '../utils/dateTime';
+import { dateTimeType } from './dateTimeTypes';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 // import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 
@@ -10,9 +10,9 @@ export class PatientProgramRegistration extends Model {
     super.init(
       {
         id: primaryKey,
-        date: dateType('date', {
+        date: dateTimeType('date', {
           allowNull: false,
-          defaultValue: getCurrentDateString,
+          defaultValue: getCurrentDateTimeString,
         }),
         registrationStatus: {
           type: Sequelize.TEXT,

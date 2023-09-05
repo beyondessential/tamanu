@@ -24,7 +24,7 @@ export async function up(query) {
     },
 
     date: {
-      type: DataTypes.DATESTRING,
+      type: DataTypes.DATETIMESTRING,
       allowNull: false,
     },
     registration_status: {
