@@ -24,7 +24,7 @@ const Statusbadge = styled.div`
   background-color: ${props => CLINICAL_COLORS_BY_STATUS[props.children].background};
   color: ${props => CLINICAL_COLORS_BY_STATUS[props.children].color};
 `;
-export const ProgramRegistryStatusHistory = ({ program }) => {
+export const ProgramRegistryStatusHistory = ({ patient, program }) => {
   const columns = [
     {
       key: 'status',
@@ -57,7 +57,7 @@ export const ProgramRegistryStatusHistory = ({ program }) => {
       <Heading3>Program Status History</Heading3>
       <br />
       <DataFetchingTable
-        endpoint={`/programRegistry/history/${program.id}`}
+        endpoint={`/patient/${patient.id}/programRegistration/${program.id}`}
         columns={columns}
         initialSort={{
           orderBy: 'date',

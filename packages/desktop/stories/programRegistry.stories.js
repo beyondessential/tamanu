@@ -173,6 +173,7 @@ const dummyApi = {
 storiesOf('Program Registry', module).add('ProgramRegistryStatusHistory removed never', () => (
   <ApiContext.Provider value={dummyApi}>
     <ProgramRegistryStatusHistory
+      patient={{ id: '34234234' }}
       program={{
         id: '23242234234',
         date: '2023-08-28T02:40:16.237Z',
@@ -186,6 +187,7 @@ storiesOf('Program Registry', module).add('ProgramRegistryStatusHistory removed 
 storiesOf('Program Registry', module).add('ProgramRegistryStatusHistory removed once', () => (
   <ApiContext.Provider value={dummyApi}>
     <ProgramRegistryStatusHistory
+      patient={{ id: '34234234' }}
       program={{
         id: '23242234234',
         date: '2023-08-28T02:40:16.237Z',
