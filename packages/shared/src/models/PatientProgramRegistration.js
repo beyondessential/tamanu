@@ -53,7 +53,7 @@ export class PatientProgramRegistration extends Model {
 
     this.belongsTo(models.Facility, {
       foreignKey: 'registeringFacilityId',
-      as: 'facility',
+      as: 'registeringFacility',
     });
 
     // 1. Note that only one of facilityId or villageId will usually be set,
