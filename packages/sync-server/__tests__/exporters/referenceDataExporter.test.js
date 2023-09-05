@@ -16,6 +16,7 @@ import {
   createTestType,
   createLabPanel,
   createLabTestCategory,
+  createPatientFieldDefinitions,
 } from './referenceDataUtils';
 
 jest.mock('../../app/admin/exporter/excelUtils', () => {
@@ -52,6 +53,7 @@ describe('Reference data exporter', () => {
       'LabPanel',
       'ReferenceData',
       'Patient',
+      'PatientFieldDefinition',
       'PatientFieldDefinitionCategory',
       'Location',
       'Department',
@@ -95,6 +97,33 @@ describe('Reference data exporter', () => {
             ['1234', 'test 1234'],
           ],
           name: 'Patient Field Def Category',
+        },
+      ],
+      '',
+    );
+  });
+
+  it('It should export Patient field definition with the right options', async () => {
+    await createPatientFieldDefCategory(models);
+    await createPatientFieldDefinitions(models);
+
+    await exporter(models, { 1: 'patientFieldDefinition' });
+    expect(writeExcelFile).toBeCalledWith(
+      [
+        {
+          data: [
+            ['id', 'name', 'fieldType', 'options', 'visibilityStatus', 'categoryId'],
+            [
+              'fieldDefinition-primaryPolicyNumber',
+              'Primary policy number',
+              'string',
+              null,
+              'current',
+              '123',
+            ],
+            ['fieldDefinition-size', 'Size', 'select', 's,m,l', 'current', '123'],
+          ],
+          name: 'Patient Field Definition',
         },
       ],
       '',

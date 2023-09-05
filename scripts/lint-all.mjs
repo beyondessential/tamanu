@@ -8,17 +8,22 @@ doWithAllPackages((name, pkg) => {
     return;
   }
 
-  console.log(`Linting ${name}...`);
-
   const args = ['workspace', pkg.name, 'run'];
-  if (process.argv.includes('--fix') && pkg?.scripts?.['lint:fix']) {
+  const fixing = process.argv.includes('--fix');
+
+  if (fixing && pkg.scripts['lint:fix']) {
     // Some packages require special handling for lint --fix
     args.push('lint:fix');
     args.push(...process.argv.slice(2).filter(arg => arg !== '--fix'));
+  } else if (fixing && pkg.scripts.lint === 'tsc') {
+    console.log(`Skipping ${name} as tsc doesn't support --fix...`);
+    return;
   } else {
     args.push('lint');
     args.push(...process.argv.slice(2));
   }
+
+  console.log(`Linting ${name}...`);
 
   try {
     execFileSync('yarn', args, {

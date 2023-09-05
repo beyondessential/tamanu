@@ -36,7 +36,7 @@ function getEncounterTypeLabel(type) {
 }
 
 function getEncounterLabel(encounter) {
-  const encounterDate = DateDisplay.rawFormat(encounter.startDate);
+  const encounterDate = DateDisplay.stringFormat(encounter.startDate);
   const encounterTypeLabel = getEncounterTypeLabel(encounter.encounterType);
   return `${encounterDate} (${encounterTypeLabel})`;
 }
