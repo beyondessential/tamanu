@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Avatar } from '@material-ui/core';
-import { Colors } from '../../constants/index';
+import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants/index';
 import { DateDisplay } from '../../components/DateDisplay';
 import { programsIcon } from '../../constants/images';
 import { GreyOutlinedButton } from '../../components/Button';
@@ -10,8 +10,7 @@ import { MenuButton } from '../../components/MenuButton';
 const DisplayContainer = styled.div`
   display: flex;
   height: 74px;
-  width: 797px;
-  // width: 100%;
+  width: 100%;
   flex-direction: row;
   justify-content: start;
   align-items: center;
@@ -19,9 +18,6 @@ const DisplayContainer = styled.div`
   font-size: 11px;
   padding: 10px;
   background-color: ${Colors.white};
-  div {
-    // border: 1px dotted black;
-  }
 `;
 const LogoContainer = styled.div`
   width: 5%;
@@ -71,14 +67,12 @@ const MenuContainer = styled.div`
   align-items: center;
   justify-content: end;
   .menu {
-    // height: 28px;
-    // width: 28px;
     border-radius: 100px;
     background-color: ${Colors.hoverGrey};
   }
 `;
 
-const Statusbadge = styled.div`
+const StatusBadge = styled.div`
   padding: 11px 6px;
   border-radius: 20px;
   display: flex;
@@ -88,51 +82,53 @@ const Statusbadge = styled.div`
   background-color: #19934e1a;
 `;
 
+const ValueDisplay = ({ label, value }) => (
+  <LabelValueContainer>
+    <div className="label">{label}: </div> <div className="value">{value}</div>
+  </LabelValueContainer>
+);
+
 export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
+  const isRemoved =
+    patientProgramRegistration.status.code === PROGRAM_REGISTRATION_STATUSES.REMOVED;
+
+  console.log(isRemoved);
   return (
     <DisplayContainer>
       <LogoContainer>
         <Avatar src={programsIcon} style={{ height: '22px', width: '22px' }} />
       </LogoContainer>
       <LabelContainer>
-        <LabelValueContainer>
-          <div className="label">Date of registration:</div>
-          <div className="value">
-            <DateDisplay date={patientProgramRegistration.date} />
-          </div>
-        </LabelValueContainer>
-        <LabelValueContainer>
-          <div className="label">Registered by:</div>
-          <div className="value">{patientProgramRegistration.addedBy}</div>
-        </LabelValueContainer>
+        <ValueDisplay
+          label="Date of registration"
+          value={<DateDisplay date={patientProgramRegistration.date} />}
+        />
+        <ValueDisplay
+          label="Registered by"
+          value={patientProgramRegistration.addedBy.displayName}
+        />
       </LabelContainer>
-      {patientProgramRegistration.registrationStatus === 'Removed' && (
+      {isRemoved && (
         <StatusContainer>
-          <LabelValueContainer>
-            <div className="label">Date removed:</div>
-            <div className="value">
-              <DateDisplay date={patientProgramRegistration.date} />
-            </div>
-          </LabelValueContainer>
-          <LabelValueContainer>
-            <div className="label">Removed by:</div>
-            <div className="value">{patientProgramRegistration.removedBy}</div>
-          </LabelValueContainer>
+          <ValueDisplay
+            label="Date removed"
+            value={<DateDisplay date={patientProgramRegistration.date} />}
+          />
+          <ValueDisplay
+            label="Removed by"
+            value={patientProgramRegistration.removedBy.displayName}
+          />
         </StatusContainer>
       )}
-      <ChangeStatusContainer
-        {...(patientProgramRegistration.registrationStatus !== 'Removed' && { extraWidth: true })}
-      >
-        <Statusbadge color="green">
-          {patientProgramRegistration.programRegistryClinicalStatusId}
-        </Statusbadge>
+      <ChangeStatusContainer extraWidth={!isRemoved}>
+        <StatusBadge color="green">{patientProgramRegistration.status.name}</StatusBadge>
         <GreyOutlinedButton>Change Status</GreyOutlinedButton>
       </ChangeStatusContainer>
       <MenuContainer>
         <div className="menu">
           <MenuButton
             actions={
-              patientProgramRegistration.registrationStatus !== 'Removed'
+              isRemoved
                 ? {
                     Remove: () => {},
                     Delete: () => {},
