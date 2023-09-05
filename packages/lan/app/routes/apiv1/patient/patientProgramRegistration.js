@@ -1,24 +1,11 @@
+import Sequelize, { Op } from 'sequelize';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { NotFoundError } from 'shared/errors';
 
 export const patientProgramRegistration = express.Router();
 
-// const MOST_RECENT_WHERE_CONDITION = {
-//   id: {
-//     [Op.notIn]: db.literal(`
-//       (
-//         SELECT id
-//         FROM (
-//           SELECT id, revised_by_id, ROW_NUMBER() OVER (PARTITION BY revised_by_id ORDER BY date DESC, id DESC) AS row_num
-//           FROM notes
-//           WHERE revised_by_id IS NOT NULL
-//         ) n
-//         WHERE n.row_num != 1
-//       )
-//     `),
-//   },
-// }
 const MOST_RECENT_WHERE_CONDITION_LITERAL = `
   (
     SELECT id
@@ -41,51 +28,50 @@ patientProgramRegistration.get(
     req.checkPermission('read', 'PatientProgramRegistration');
     req.checkPermission('list', 'PatientProgramRegistration');
 
-    console.log('hey!');
-    const registrationData1 = await db.query(`
-      SELECT ppr.* FROM patient_program_registrations ppr
-      JOIN (
-        SELECT 
-          id,
-          ROW_NUMBER() OVER (PARTITION BY patient_id, program_registry_id ORDER BY date DESC, id DESC) AS row_num
-          FROM patient_program_registrations
-      ) n ON n.id = ppr.id
-      WHERE n.row_num = 1
-    `);
-    console.log(registrationData1.data);
     const registrationData = await models.PatientProgramRegistration.findAll({
       where: {
-        id: db.literal(MOST_RECENT_WHERE_CONDITION_LITERAL),
+        id: { [Op.in]: db.literal(MOST_RECENT_WHERE_CONDITION_LITERAL) },
         patientId: params.id,
       },
+      // order: TODO
     });
     console.log(registrationData);
 
-    const recordData = registrationData ? registrationData.toJSON() : {};
-
-    res.send({ ...recordData });
+    res.send({ data: registrationData });
   }),
 );
 
-// patientProgramRegistration.post(
-//   '/:id/patientProgramRegistration',
-//   asyncHandler(async (req, res) => {
-//     const { models, params, body } = req;
-//     req.checkPermission('read', 'Patient');
-//     const patient = await models.Patient.findByPk(params.id);
-//     if (!patient) throw new NotFoundError();
+patientProgramRegistration.post(
+  '/:patientId/programRegistration/:programId',
+  asyncHandler(async (req, res) => {
+    const { models, params, body } = req;
+    const { patientId, programId } = params;
 
-//     req.checkPermission('create', 'PatientSecondaryId');
-//     const secondaryId = await models.PatientSecondaryId.create({
-//       value: req.body.value,
-//       visibilityStatus: req.body.visibilityStatus,
-//       typeId: req.body.typeId,
-//       patientId: params.id,
-//     });
+    req.checkPermission('read', 'Patient');
+    const patient = await models.Patient.findByPk(patientId);
+    if (!patient) throw new NotFoundError();
 
-//     res.send(secondaryId);
-//   }),
-// );
+    req.checkPermission('read', 'ProgramRegistry');
+    // There should only ever be one current ProgramRegistry per program,
+    // but this isn't database enforced
+    const programRegistry = await models.ProgramRegistry.findOne({
+      where: {
+        programId,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      },
+    });
+    if (!programRegistry) throw new NotFoundError();
+
+    req.checkPermission('create', 'PatientProgramRegistration');
+    const registration = await models.PatientProgramRegistration.create({
+      patientId,
+      programRegistryId: programRegistry.id,
+      ...body,
+    });
+
+    res.send(registration);
+  }),
+);
 
 // patientProgramRegistration.post(
 //   '/:id/patientProgramRegistration',

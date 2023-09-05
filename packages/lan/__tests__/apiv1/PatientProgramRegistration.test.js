@@ -1,5 +1,6 @@
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
+import { program } from '../../app/routes/apiv1/program';
 
 const hi = {
   programRegistryId: '123123',
@@ -60,18 +61,21 @@ describe('PatientProgramRegistration', () => {
 
   afterAll(() => ctx.close());
 
-  describe('GET patient/:patient_id/programRegistration', () => {
-    const TEST_KEY = 'templates.test.key';
-    const TEST_VALUE = 'test-value';
-
+  describe('GET patient/:id/programRegistration', () => {
     it('fetches most recent registration for each program', async () => {
       const clinician = await models.User.create(fake(models.User));
       const patient = await models.Patient.create(fake(models.Patient));
       const program1 = await models.Program.create(fake(models.Program));
       const program2 = await models.Program.create(fake(models.Program));
+      const programRegistry1 = await models.ProgramRegistry.create(
+        fake(models.ProgramRegistry, { programId: program1.id }),
+      );
+      const programRegistry2 = await models.ProgramRegistry.create(
+        fake(models.ProgramRegistry, { programId: program2.id }),
+      );
       const program1registration1 = await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
-          programRegistryId: program1.id,
+          programRegistryId: programRegistry1.id,
           clinicianId: clinician.id,
           patientId: patient.id,
           date: '2023-09-02 08:00:00',
@@ -79,7 +83,7 @@ describe('PatientProgramRegistration', () => {
       );
       const program1registration2 = await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
-          programRegistryId: program1.id,
+          programRegistryId: programRegistry1.id,
           clinicianId: clinician.id,
           patientId: patient.id,
           date: '2023-09-04 08:00:00',
@@ -88,7 +92,7 @@ describe('PatientProgramRegistration', () => {
       const program2registration1 = await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           clinicianId: clinician.id,
-          programRegistryId: program2.id,
+          programRegistryId: programRegistry2.id,
           patientId: patient.id,
         }),
       );
@@ -96,7 +100,55 @@ describe('PatientProgramRegistration', () => {
       const result = await app.get(`/v1/patient/${patient.id}/programRegistration`);
 
       expect(result).toHaveSucceeded();
-      expect(result.body.data).toEqual(TEST_VALUE);
+      expect(result.body.data).toMatchObject([
+        {
+          clinicianId: clinician.id,
+          date: '2023-09-04 08:00:00',
+          patientId: patient.id,
+          programRegistryId: programRegistry1.id,
+        },
+        {
+          clinicianId: clinician.id,
+          patientId: patient.id,
+          programRegistryId: programRegistry2.id,
+        },
+      ]);
+    });
+  });
+
+  describe('POST patient/:patientId/programRegistration/:programId', () => {
+    it('creates a new program registration', async () => {
+      const clinician = await models.User.create(fake(models.User));
+      const patient = await models.Patient.create(fake(models.Patient));
+      const program1 = await models.Program.create(fake(models.Program));
+      // const program2 = await models.Program.create(fake(models.Program));
+      const programRegistry1 = await models.ProgramRegistry.create(
+        fake(models.ProgramRegistry, { programId: program1.id }),
+      );
+      // const programRegistry2 = await models.ProgramRegistry.create(
+      //   fake(models.ProgramRegistry, { programId: program2.id }),
+      // );
+      const result = await app
+        .post(`/v1/patient/${patient.id}/programRegistration/${program1.id}`)
+        .send({
+          programRegistryId: programRegistry1.id,
+          clinicianId: clinician.id,
+          patientId: patient.id,
+          date: '2023-09-02 08:00:00',
+        });
+
+      expect(result).toHaveSucceeded();
+
+      const createdRegistration = await models.PatientProgramRegistration.findByPk(
+        result.body.data.id,
+      );
+
+      expect(createdRegistration).toMatchObject({
+        programRegistryId: programRegistry1.id,
+        clinicianId: clinician.id,
+        patientId: patient.id,
+        date: '2023-09-02 08:00:00',
+      });
     });
   });
 });
