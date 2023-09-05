@@ -64,16 +64,4 @@ export class PatientProgramRegistration extends Model {
       as: 'village',
     });
   }
-
-  static getListReferenceAssociations() {
-    return [
-      'patient',
-      'village',
-      'facility',
-      'registeringFacility',
-      'clinician',
-      'clinicalStatus',
-      'programRegistry',
-    ];
-  }
 }
