@@ -65,26 +65,30 @@ describe('PatientProgramRegistration', () => {
     const TEST_VALUE = 'test-value';
 
     it('fetches most recent registration for each program', async () => {
+      const clinician = await models.User.create(fake(models.User));
       const patient = await models.Patient.create(fake(models.Patient));
       const program1 = await models.Program.create(fake(models.Program));
       const program2 = await models.Program.create(fake(models.Program));
       const program1registration1 = await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
-          programId: program1.id,
+          programRegistryId: program1.id,
+          clinicianId: clinician.id,
           patientId: patient.id,
-          date: '2023-09-02 8:00:00',
+          date: '2023-09-02 08:00:00',
         }),
       );
       const program1registration2 = await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
-          programId: program1.id,
+          programRegistryId: program1.id,
+          clinicianId: clinician.id,
           patientId: patient.id,
-          date: '2023-09-04 8:00:00',
+          date: '2023-09-04 08:00:00',
         }),
       );
       const program2registration1 = await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
-          programId: program2.id,
+          clinicianId: clinician.id,
+          programRegistryId: program2.id,
           patientId: patient.id,
         }),
       );
