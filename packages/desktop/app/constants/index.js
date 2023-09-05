@@ -487,20 +487,45 @@ export const NOTE_FORM_MODES = {
   VIEW_NOTE: 'viewNote',
 };
 
-export const CLINICAL_STATUSES = {
-  CRITICAL: 'Critical',
-  NEEDS_REVIEW: 'Needs review',
-  LOW_RISK: 'Low risk',
-};
-
-export const CLINICAL_COLORS_BY_STATUS = {
-  [CLINICAL_STATUSES.CRITICAL]: {
-    color: 'rgba(247, 104, 83, 1)',
-    background: 'rgba(247, 104, 83, 0.1)',
+export const STATUS_COLOR = {
+  purple: {
+    color: '#2C017A',
+    background: '#D9D9FF',
   },
-  [CLINICAL_STATUSES.NEEDS_REVIEW]: {
-    color: 'rgba(203, 97, 0, 1)',
-    background: 'rgba(203, 97, 0, 0.1)',
+  pink: {
+    color: '#92054F',
+    background: '#FFDCE0',
   },
-  [CLINICAL_STATUSES.LOW_RISK]: { color: '#19934E', background: 'rgba(25, 147, 78, 0.1)' },
+  orange: {
+    color: '#9E5100',
+    background: '#FFF3CC',
+  },
+  yellow: {
+    color: '#846603',
+    background: '#F9ECB5',
+  },
+  blue: {
+    color: '#0C4C9B',
+    background: '#CCE8FF',
+  },
+  green: {
+    color: '#135B34',
+    background: '#E6F5E6',
+  },
+  grey: {
+    color: '#2D2D2D',
+    background: '#EFEFEF',
+  },
+  red: {
+    color: '#A95245',
+    background: '#FFE4D4',
+  },
+  brown: {
+    color: '#542C1D',
+    background: '#F4DDC8',
+  },
+  teal: {
+    color: '#0A3E50',
+    background: '#D4E9EE',
+  },
 };

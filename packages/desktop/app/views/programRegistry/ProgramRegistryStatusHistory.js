@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { DataFetchingTable } from '../../components/Table/DataFetchingTable';
 import { DateDisplay } from '../../components/DateDisplay';
-import { Colors, CLINICAL_COLORS_BY_STATUS } from '../../constants';
+import { Colors, STATUS_COLOR } from '../../constants';
 import { Heading3 } from '../../components/Typography';
 
 const Container = styled.div`
@@ -14,15 +14,15 @@ const Container = styled.div`
   justify-content: center;
 `;
 
-const Statusbadge = styled.div`
+const StatusBadge = styled.div`
   padding: 15px 10px;
   border-radius: 20px;
   display: flex;
   align-items: center;
   width: fit-content;
   height: 20px;
-  background-color: ${props => CLINICAL_COLORS_BY_STATUS[props.children].background};
-  color: ${props => CLINICAL_COLORS_BY_STATUS[props.children].color};
+  background-color: ${props => STATUS_COLOR[props.color].background};
+  color: ${props => STATUS_COLOR[props.color].color};
 `;
 export const ProgramRegistryStatusHistory = ({ patient, program }) => {
   const columns = [
@@ -30,11 +30,16 @@ export const ProgramRegistryStatusHistory = ({ patient, program }) => {
       key: 'status',
       title: 'Status',
       accessor: row => {
-        return <Statusbadge>{row.status}</Statusbadge>;
+        return <StatusBadge color={row.status.color}>{row.status.name}</StatusBadge>;
       },
       sortable: false,
     },
-    { key: 'recordedBy', title: 'Recorded By', sortable: false },
+    {
+      key: 'clinicianId',
+      title: 'Recorded By',
+      sortable: false,
+      accessor: row => row.clinician.displayName,
+    },
     {
       key: 'date',
       title: 'Date recorded',
