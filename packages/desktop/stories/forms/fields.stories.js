@@ -81,7 +81,8 @@ function addStories(name, Component, note) {
     .add('Disabled', () => <Component disabled />)
     .add('With help text', () => <Component helperText="Here is some help text" />)
     .add('With error', () => <Component error helperText="Here is an error message" />)
-    .add('Clearable', () => <Component clearButton />);
+    .add('Clearable', () => <Component clearButton />)
+    .add('Max date time', () => <Component inputProps={{ max: '2023-09-01T04:22' }} />);
 }
 
 addStories(

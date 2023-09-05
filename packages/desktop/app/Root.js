@@ -1,5 +1,7 @@
 import React from 'react';
 import { Provider } from 'react-redux';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ConnectedRouter } from 'connected-react-router';
@@ -21,19 +23,21 @@ import { PatientSearchProvider } from './contexts/PatientSearch';
 import { EncounterNotesProvider } from './contexts/EncounterNotes';
 
 const StateContextProviders = ({ children, store }) => (
-  <EncounterProvider store={store}>
-    <ReferralProvider>
-      <ImagingRequestsProvider>
-        <EncounterNotesProvider>
-          <LabRequestProvider store={store}>
-            <PatientSearchProvider>
-              <LocalisationProvider store={store}>{children}</LocalisationProvider>
-            </PatientSearchProvider>
-          </LabRequestProvider>
-        </EncounterNotesProvider>
-      </ImagingRequestsProvider>
-    </ReferralProvider>
-  </EncounterProvider>
+  <LocalizationProvider dateAdapter={AdapterDateFns}>
+    <EncounterProvider store={store}>
+      <ReferralProvider>
+        <ImagingRequestsProvider>
+          <EncounterNotesProvider>
+            <LabRequestProvider store={store}>
+              <PatientSearchProvider>
+                <LocalisationProvider store={store}>{children}</LocalisationProvider>
+              </PatientSearchProvider>
+            </LabRequestProvider>
+          </EncounterNotesProvider>
+        </ImagingRequestsProvider>
+      </ReferralProvider>
+    </EncounterProvider>
+  </LocalizationProvider>
 );
 
 const queryClient = new QueryClient({

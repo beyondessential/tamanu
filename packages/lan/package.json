@@ -68,7 +68,7 @@
     "node-fetch": "^2.6.1",
     "pg": "^8.5.1",
     "prompts": "^2.0.0",
-    "react": "16.8.5",
+    "react": "17.0.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
     "sequelize": "^6.21.3",

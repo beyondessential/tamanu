@@ -2,6 +2,8 @@ import React, { useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
+import { DateTimePicker as MuiDateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+
 import { Box } from '@material-ui/core';
 import { addDays, isAfter, isBefore, parse } from 'date-fns';
 import {
@@ -131,12 +133,7 @@ export const DateInput = ({
       type={type}
       value={currentText}
       onChange={onValueChange}
-      InputProps={{
-        // Set max property on HTML input element to force 4-digit year value (max year being 9999)
-        inputProps: { max, min, ...inputProps },
-      }}
-      style={isPlaceholder ? { color: Colors.softText } : undefined}
-      {...props}
+      inputProps={{ id: 'test', max: '2023-09-01T10:22', min: '2023-09-01T04:22' }}
     />
   );
 
@@ -171,6 +168,11 @@ export const TimeField = ({ field, ...props }) => (
 
 export const DateTimeField = ({ field, ...props }) => (
   <DateTimeInput name={field.name} value={field.value} onChange={field.onChange} {...props} />
+);
+
+// MUIX DateTimePicker, new version of DateTimeField from Material UI
+export const MuiDateTimeField = props => (
+  <MuiDateTimePicker views={['year', 'month', 'day', 'hours', 'minutes']} />
 );
 
 DateInput.propTypes = {

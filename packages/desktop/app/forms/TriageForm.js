@@ -15,6 +15,7 @@ import {
   RadioField,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
+  MuiDateTimeField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ModalActionRow } from '../components/ModalActionRow';
@@ -61,8 +62,9 @@ export const TriageForm = ({
           name="triageTime"
           label="Triage date & time"
           required
-          component={DateTimeField}
-          max="2023-09-01T23:59"
+          component={MuiDateTimeField}
+          inputProps={{ max: '2023-09-01T23:59' }}
+          // max="2023-09-01T23:59"
           saveDateAsString
         />
         <Field name="locationId" component={LocalisedLocationField} required />
