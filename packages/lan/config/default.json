@@ -28,7 +28,7 @@
     "readOnly": false,
     "persistedCacheBatchSize": 10000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
-    "delayTimeBetweenCacheBatchInMilliseconds": 50,
+    "pauseBetweenCacheBatchInMilliseconds": 50,
     "persistUpdateWorkerPoolSize": 100,
     "enabled": true,
     "backoff": {

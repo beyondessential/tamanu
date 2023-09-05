@@ -6,7 +6,7 @@ import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { calculatePageLimit } from './calculatePageLimit';
 
-const { persistedCacheBatchSize, delayTimeBetweenCacheBatchInMilliseconds } = config.sync;
+const { persistedCacheBatchSize, pauseBetweenCacheBatchInMilliseconds } = config.sync;
 
 export const pullIncomingChanges = async (centralServer, sequelize, sessionId, since) => {
   // initiating pull also returns the sync tick (or point on the sync timeline) that the
@@ -55,7 +55,7 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
     for (const batchOfRows of chunk(recordsToSave, persistedCacheBatchSize)) {
       await insertSnapshotRecords(sequelize, sessionId, batchOfRows);
 
-      await sleepAsync(delayTimeBetweenCacheBatchInMilliseconds);
+      await sleepAsync(pauseBetweenCacheBatchInMilliseconds);
     }
 
     limit = calculatePageLimit(limit, pullTime);
