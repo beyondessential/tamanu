@@ -2,7 +2,7 @@ import { REFERENCE_TYPE_VALUES } from './importable';
 
 export const SUGGESTER_ENDPOINTS_SUPPORTING_ALL = [
   ...REFERENCE_TYPE_VALUES,
-  'labTestPanel',
+  'labPanel',
   'labTestType',
   'locationGroup',
 ];
@@ -13,8 +13,6 @@ export const SUGGESTER_ENDPOINTS = [
   'facility',
   'facilityLocationGroup',
   'invoiceLineTypes',
-  'labPanel',
-  'labTestType',
   'location',
   'patient',
   'patientLabTestCategories',
