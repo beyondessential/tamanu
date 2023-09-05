@@ -1,12 +1,11 @@
-import Sequelize, { Op } from 'sequelize';
+import { Op } from 'sequelize';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { NotFoundError } from 'shared/errors';
 
 export const patientProgramRegistration = express.Router();
 
-const MOST_RECENT_WHERE_CONDITION_LITERAL = `
+const GET_MOST_RECENT_REGISTRATIONS_QUERY = `
   (
     SELECT id
     FROM (
@@ -30,12 +29,11 @@ patientProgramRegistration.get(
 
     const registrationData = await models.PatientProgramRegistration.findAll({
       where: {
-        id: { [Op.in]: db.literal(MOST_RECENT_WHERE_CONDITION_LITERAL) },
+        id: { [Op.in]: db.literal(GET_MOST_RECENT_REGISTRATIONS_QUERY) },
         patientId: params.id,
       },
       // order: TODO
     });
-    console.log(registrationData);
 
     res.send({ data: registrationData });
   }),
@@ -62,7 +60,7 @@ patientProgramRegistration.post(
         exclude: ['id', 'updatedAt', 'updatedAtSyncTick'],
       },
       where: {
-        id: { [Op.in]: db.literal(MOST_RECENT_WHERE_CONDITION_LITERAL) },
+        id: { [Op.in]: db.literal(GET_MOST_RECENT_REGISTRATIONS_QUERY) },
         programRegistryId,
         patientId,
       },

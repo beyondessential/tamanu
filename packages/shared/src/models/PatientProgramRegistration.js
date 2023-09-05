@@ -2,7 +2,6 @@ import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS, REGISTRATION_STATUSES } from '@tamanu/constants';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
-// import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 
 export class PatientProgramRegistration extends Model {
