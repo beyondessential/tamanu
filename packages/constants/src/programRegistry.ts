@@ -6,5 +6,5 @@ export const CURRENTLY_AT_TYPES = {
 export const REGISTRATION_STATUSES = {
   ACTIVE: 'active',
   INACTIVE: 'inactive',
-  RECORDED_IN_ERROR: 'recordedInError'.
+  RECORDED_IN_ERROR: 'recordedInError',
 };
