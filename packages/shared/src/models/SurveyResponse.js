@@ -26,6 +26,10 @@ async function createPatientIssues(models, questions, patientId) {
   }
 }
 
+/**
+ * DUPLICATED IN mobile/App/models/SurveyResponse.ts
+ * Please keep in sync
+ */
 async function writeToPatientFields(models, questions, answers, patientId) {
   // these will store values to write to patient records following submission
   const patientRecordValues = {};
