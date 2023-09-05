@@ -18,6 +18,50 @@ import { VitalLog } from './VitalLog';
 import { SYNC_DIRECTIONS } from './types';
 import { DateTimeStringColumn } from './DateColumns';
 
+/**
+ * DUPLICATED IN shared/models/SurveyResponse.js
+ * Please keep in sync
+ */
+async function writeToPatientFields(questions, answers, patientId) {
+  // these will store values to write to patient records following submission
+  const patientRecordValues = {};
+  const patientAdditionalDataValues = {};
+
+  const patientDataQuestions = questions.filter(
+    q => q.dataElement.type === FieldTypes.PATIENT_DATA, // Different
+  );
+  for (const question of patientDataQuestions) {
+    const questionConfig = question.getConfigObject();
+    const { dataElement } = question;
+
+    if (!questionConfig.writeToPatient) {
+      // this is just a question that's reading patient data, not writing it
+      continue;
+    }
+
+    const { fieldName, isAdditionalDataField } = questionConfig.writeToPatient || {};
+    if (!fieldName) {
+      throw new Error('No fieldName defined for writeToPatient config');
+    }
+
+    const value = answers[dataElement.code];
+    if (isAdditionalDataField) {
+      patientAdditionalDataValues[fieldName] = value;
+    } else {
+      patientRecordValues[fieldName] = value;
+    }
+  }
+
+  // Save values to database records
+  if (Object.keys(patientRecordValues).length) {
+    await Patient.updateValues(patientId, patientRecordValues);
+  }
+  if (Object.keys(patientAdditionalDataValues).length) {
+    await PatientAdditionalData.updateForPatient(patientId, patientAdditionalDataValues);
+  }
+}
+
+
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
@@ -120,14 +164,6 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
       setNote('Attaching answers...');
 
-      // these will store values to write to patient records following submission
-      const patientRecordValues = {};
-      const patientAdditionalDataValues = {};
-
-      // TODO: this should just look at the field name and decide; there will never be overlap
-      const isAdditionalDataField = questionConfig =>
-        questionConfig.writeToPatient?.isAdditionalDataField;
-
       // figure out if its a vital survey response
       const vitalsSurvey = await Survey.getVitalsSurvey();
       // use optional chaining because vitals survey might not exist
@@ -150,18 +186,6 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
           continue;
         }
 
-        if (dataElement.type === FieldTypes.PATIENT_DATA) {
-          const questionConfig = component.getConfigObject();
-          const fieldName = questionConfig.writeToPatient?.fieldName;
-          if (fieldName) {
-            if (isAdditionalDataField(questionConfig)) {
-              patientAdditionalDataValues[fieldName] = value;
-            } else {
-              patientRecordValues[fieldName] = value;
-            }
-          }
-        }
-
         const body = getStringValue(dataElement.type, value);
 
         setNote(`Attaching answer for ${dataElement.id}...`);
@@ -180,15 +204,10 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
           answer: answerRecord.id,
         });
       }
-      setNote('Done');
+      setNote('Writing patient data');
 
-      // Save values to database records
-      if (Object.keys(patientRecordValues).length) {
-        await Patient.updateValues(patientId, patientRecordValues);
-      }
-      if (Object.keys(patientAdditionalDataValues).length) {
-        await PatientAdditionalData.updateForPatient(patientId, patientAdditionalDataValues);
-      }
+      await writeToPatientFields(components, finalValues, patientId)
+      setNote('Done');
 
       return responseRecord;
     } catch (e) {
