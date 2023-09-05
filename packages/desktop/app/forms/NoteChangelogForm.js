@@ -26,8 +26,8 @@ export const NoteChangelogForm = ({ note, onCancel }) => {
         numberOfColumns={3}
         noteType={NOTE_TYPE_LABELS[note.noteType]}
         date={note.revisedBy?.date || note.date}
-        dateLabel="Created at date & time"
-        writtenByLabel="Created by (or on behalf of)"
+        dateLabel="Date & time"
+        writtenByLabel="Written by (or on behalf of)"
         writtenBy={writtenBy}
       />
       <br />

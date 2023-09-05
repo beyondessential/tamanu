@@ -169,7 +169,7 @@ export const noteTypes = [
   { value: NOTE_TYPES.CLINICAL_MOBILE, label: 'Clinical note (mobile)', hideFromDropdown: true },
   { value: NOTE_TYPES.DIETARY, label: 'Dietary' },
   { value: NOTE_TYPES.DISCHARGE, label: 'Discharge planning' },
-  { value: NOTE_TYPES.HANDOVER, label: 'Handover Notes' },
+  { value: NOTE_TYPES.HANDOVER, label: 'Handover note' },
   { value: NOTE_TYPES.MEDICAL, label: 'Medical' },
   { value: NOTE_TYPES.NURSING, label: 'Nursing' },
   { value: NOTE_TYPES.OTHER, label: 'Other' },

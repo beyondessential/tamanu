@@ -8,6 +8,8 @@ import {
   differenceInMilliseconds as dateFnsDifferenceInMilliseconds,
   parseISO,
   isMatch,
+  sub,
+  startOfDay,
 } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import config from 'config';
@@ -107,6 +109,14 @@ export function getCurrentCountryTimeZoneDateString() {
 
 export function getCurrentDateTimeString() {
   return formatISO9075(new Date());
+}
+
+export function getDateTimeSubtractedFromNow(daysToSubtract) {
+  return toDateTimeString(sub(new Date(), { days: daysToSubtract }));
+}
+
+export function getDateSubtractedFromToday(daysToSubtract) {
+  return toDateTimeString(sub(startOfDay(new Date()), { days: daysToSubtract }));
 }
 
 export function getCurrentDateString() {
