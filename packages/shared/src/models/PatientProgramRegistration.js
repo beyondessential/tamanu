@@ -51,6 +51,11 @@ export class PatientProgramRegistration extends Model {
       as: 'clinicalStatus',
     });
 
+    this.belongsTo(models.User, {
+      foreignKey: 'clinicianId',
+      as: 'clinician',
+    });
+
     this.belongsTo(models.Facility, {
       foreignKey: 'registeringFacilityId',
       as: 'registeringFacility',

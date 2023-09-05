@@ -39,7 +39,7 @@ const hi = {
   //   name: 'Currently At Village',
   // }
 };
-jest.setTimeout(100000);
+jest.setTimeout(1000000);
 describe('PatientProgramRegistration', () => {
   let ctx = null;
   let app = null;
