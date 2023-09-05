@@ -89,7 +89,7 @@ export const InfoPaneList = memo(
     itemTitle = '',
     CustomEditForm,
     getEditFormName = () => '???',
-    CustomListItemTemplate,
+    ListItemComponent,
     customListModifierFunc,
   }) => {
     const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
@@ -157,8 +157,8 @@ export const InfoPaneList = memo(
                 return (
                   <React.Fragment key={id}>
                     <Collapse in={editKey !== id}>
-                      {CustomListItemTemplate ? (
-                        <CustomListItemTemplate
+                      {ListItemComponent ? (
+                        <ListItemComponent
                           item={item}
                           handleRowClick={handleRowClick}
                           ListItem={ListItem}
@@ -185,8 +185,8 @@ export const InfoPaneList = memo(
 
               return (
                 <React.Fragment key={id}>
-                  {CustomListItemTemplate ? (
-                    <CustomListItemTemplate
+                  {ListItemComponent ? (
+                    <ListItemComponent
                       item={item}
                       handleRowClick={handleRowClick}
                       ListItem={ListItem}

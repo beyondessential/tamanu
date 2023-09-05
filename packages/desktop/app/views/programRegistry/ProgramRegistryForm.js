@@ -88,7 +88,6 @@ export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObjec
                   name="registeringClinicianId"
                   label="Registered by"
                   required
-                  value={currentUser.id}
                   component={AutocompleteField}
                   suggester={registeredBySuggester}
                 />
@@ -97,7 +96,6 @@ export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObjec
                 <Field
                   name="facilityId"
                   label="Registering facility"
-                  value={facility.id}
                   component={AutocompleteField}
                   suggester={registeringFacilitySuggester}
                 />

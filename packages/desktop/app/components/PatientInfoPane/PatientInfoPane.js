@@ -110,7 +110,7 @@ const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
     endpoint="programRegistry"
     getEndpoint={`patient/${patient.id}/program-registry`}
     Form={ProgramRegistryForm}
-    CustomListItemTemplate={ProgramRegistryListItem}
+    ListItemComponent={ProgramRegistryListItem}
     getName={programRegistry => programRegistry.name}
     behavior="modal"
     itemTitle="Add program registry"
