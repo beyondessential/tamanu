@@ -151,7 +151,7 @@ export const PatientIDCardPage = ({ patient, imageData }) => {
         width: cardDimensions.height * 1000,
       },
     });
-  });
+  }, [printPage]);
 
   return (
     <PrintPortal>
