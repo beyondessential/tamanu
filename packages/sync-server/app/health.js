@@ -82,6 +82,7 @@ healthRoutes.get(
         options: req.store.sequelize.options,
         ...(await getMigrations(req.store.sequelize)),
       },
+      // TODO
       config: sanitise(config),
     });
   }),

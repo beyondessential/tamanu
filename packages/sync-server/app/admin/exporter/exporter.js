@@ -1,5 +1,6 @@
+import { ReadSettings } from '@tamanu/settings';
 import { promises as asyncFs } from 'fs';
-import config from 'config';
+// import config from 'config';
 import { writeExcelFile } from './excelUtils';
 import { createModelExporter } from './modelExporters/createModelExporter';
 
@@ -41,6 +42,7 @@ async function validateFileSize(fileName, maxSizeInMb) {
 }
 
 export async function exporter(models, includedDataTypes = {}, fileName = '') {
+  const readSettings = new ReadSettings(models);
   const sheets = await Promise.all(
     Object.values(includedDataTypes).map(async dataType => {
       const { data, tabName } = await buildSheetDataForDataType(models, dataType);
@@ -54,7 +56,7 @@ export async function exporter(models, includedDataTypes = {}, fileName = '') {
 
   // This is a temporary fix for limiting the exported file size.
   // TODO: Remove this validation as soon as we implement the download in chunks.
-  const { maxFileSizeInMB } = config.export;
+  const { maxFileSizeInMB } = await readSettings.get('export');
   await validateFileSize(exportedFileName, maxFileSizeInMB);
   return exportedFileName;
 }

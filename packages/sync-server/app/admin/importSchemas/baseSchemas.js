@@ -8,7 +8,7 @@ import {
   VISIBILITY_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import config from 'config';
+// import config from 'config';
 import { jsonString, validationString, configString } from './jsonString';
 
 const visibilityStatus = yup
