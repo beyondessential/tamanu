@@ -69,7 +69,7 @@ adminRoutes.get(
   '/export/referenceData',
   asyncHandler(async (req, res) => {
     const { store, query } = req;
-    const filename = await exporter(store.models, query.includedDataTypes);
+    const filename = await exporter(store.models, query.includedDataTypes, req.settings);
     res.download(filename);
   }),
 );

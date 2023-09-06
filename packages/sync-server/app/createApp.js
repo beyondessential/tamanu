@@ -1,11 +1,14 @@
 import bodyParser from 'body-parser';
 import compression from 'compression';
-import config from 'config';
+import { ReadSettings } from '@tamanu/settings';
+// import config from 'config';
 import express from 'express';
 
 import { getLoggingMiddleware } from 'shared/services/logging';
 import { constructPermission } from 'shared/permissions/middleware';
 import { SERVER_TYPES } from '@tamanu/constants';
+
+import { buildSettingsReader } from 'shared/settings/middleware';
 
 import { buildRoutes } from './buildRoutes';
 import { authModule } from './auth';
@@ -17,7 +20,7 @@ import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { version } from './serverInfo';
 
-export function createApp(ctx) {
+export async function createApp(ctx) {
   const { store, emailService } = ctx;
 
   // Init our app
@@ -28,7 +31,8 @@ export function createApp(ctx) {
   app.use(bodyParser.urlencoded({ extended: true }));
 
   // trust the x-forwarded-for header from addresses in `config.proxy.trusted`
-  app.set('trust proxy', config.proxy.trusted);
+  const readSettings = new ReadSettings(store.models);
+  app.set('trust proxy', await readSettings.get('proxy.trusted'));
   app.use(getLoggingMiddleware());
 
   app.use((req, res, next) => {
@@ -60,6 +64,7 @@ export function createApp(ctx) {
   app.use('/v1/public', publicRoutes);
   app.use('/v1', authModule);
   app.use('/v1', constructPermission);
+  app.use('/v1', buildSettingsReader);
   app.use('/v1', buildRoutes(ctx));
 
   // Dis-allow all other routes
