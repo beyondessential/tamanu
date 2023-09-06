@@ -20,7 +20,7 @@ import {
   Field,
   Form,
   RadioField,
-  formatShort,
+  DateDisplay,
 } from '../../components';
 import { FormSubmitDropdownButton } from '../../components/DropdownButton';
 import { Colors } from '../../constants';
@@ -142,7 +142,7 @@ export const ReportGeneratorForm = () => {
 
         const reportName = reportsById[reportId].name;
 
-        const date = formatShort(new Date());
+        const date = DateDisplay.stringFormat(new Date());
 
         const metadata = [
           ['Report Name:', reportName],
@@ -235,19 +235,21 @@ export const ReportGeneratorForm = () => {
             <>
               <Spacer />
               <FormGrid columns={3}>
-                {parameters.map(({ parameterField, required, name, label, ...restOfProps }) => {
-                  return (
-                    <ParameterField
-                      key={name || parameterField}
-                      required={required}
-                      name={name}
-                      label={label}
-                      parameterValues={values}
-                      parameterField={parameterField}
-                      {...restOfProps}
-                    />
-                  );
-                })}
+                {parameters.map(
+                  ({ parameterField, required, name, label, options, ...restOfProps }) => {
+                    return (
+                      <ParameterField
+                        key={name || parameterField}
+                        required={required}
+                        name={name}
+                        label={label}
+                        parameterValues={values}
+                        parameterField={parameterField}
+                        {...restOfProps}
+                      />
+                    );
+                  },
+                )}
               </FormGrid>
             </>
           ) : null}

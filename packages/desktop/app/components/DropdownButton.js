@@ -98,7 +98,7 @@ const MenuButton = styled(MuiButton)`
 
 const Popper = styled(MuiPopper)`
   margin-top: 2px;
-  z-index: 1500; // This needs to be higher than the modal z-index (1400) to be visible in modals
+  z-index: 1500; // This needs to be higher than the modal z-index (1300) to be visible in modals
   min-width: ${props => (props.anchorEl ? `${props.anchorEl.offsetWidth}px` : `${0}`)};
 `;
 

@@ -99,6 +99,7 @@ export const LoginForm = React.memo(
           email: yup
             .string()
             .email('Must enter a valid email')
+            .nullable()
             .required(),
           password: yup.string().required(),
         })}

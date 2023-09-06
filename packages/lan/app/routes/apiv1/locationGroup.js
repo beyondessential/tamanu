@@ -61,8 +61,49 @@ locationGroup.get(
       return;
     }
 
-    const result = await req.db.query(
+    const results = await req.db.query(
       `
+      WITH 
+      
+      latest_root_handover_notes as (
+        SELECT id, record_id, date, content
+        FROM (SELECT id, record_id, date, content,
+                ROW_NUMBER() OVER (PARTITION BY record_id ORDER BY date DESC) AS row_num
+              FROM notes
+              WHERE revised_by_id isnull 
+                AND record_type = 'Encounter' 
+                AND note_type = 'handover') n
+        WHERE n.row_num = 1
+      ),
+
+      latest_handover_notes AS (
+        -- Get the latest edited note of the latest created note
+        SELECT 
+          n.id,
+          n.record_id,
+          n.revised_by_id,
+          n.content,
+          n.date as created_date
+        FROM (SELECT notes.id, notes.record_id, notes.revised_by_id, notes.content, latest_root_handover_notes.date,
+                ROW_NUMBER() OVER (PARTITION BY revised_by_id ORDER BY notes.date DESC) AS row_num
+              FROM notes
+                INNER JOIN latest_root_handover_notes ON latest_root_handover_notes.id = notes.revised_by_id
+              ) n
+        WHERE n.row_num = 1
+
+        UNION
+
+        -- Get the root note of the latest created note if it has not been edited
+        SELECT 
+          id, 
+          record_id, 
+          null as revised_by_id,
+          content,
+          latest.date as created_date
+        FROM latest_root_handover_notes latest
+        WHERE NOT EXISTS (SELECT id FROM notes WHERE revised_by_id = latest.id)
+      )
+    
       SELECT location_groups.name AS area,
        locations.name AS location,
        patients.display_id,
@@ -72,8 +113,9 @@ locationGroup.get(
        patients.sex,
        encounters.start_date AS arrival_date,
        diagnosis.name AS diagnosis,
-       note_items.content AS notes,
-       note_pages.created_at
+       latest_handover_notes.content AS notes,
+       latest_handover_notes.created_date,
+       latest_handover_notes.revised_by_id notnull as is_edited
         FROM locations
         INNER JOIN location_groups ON locations.location_group_id = location_groups.id
         INNER JOIN encounters ON locations.id = encounters.location_id
@@ -96,15 +138,7 @@ locationGroup.get(
           WHERE encounter_diagnoses.certainty NOT IN ('disproven', 'error') 
           GROUP BY encounter_id
           ) AS diagnosis ON encounters.id = diagnosis.encounter_id
-		    LEFT JOIN (
-		      SELECT record_id, MAX(date) AS date
-		      FROM note_pages
-		      WHERE record_type = 'Encounter' AND note_type = 'handover'
-		      GROUP BY record_id
-		    ) AS max_note_pages ON encounters.id = max_note_pages.record_id
-		    LEFT JOIN note_pages ON max_note_pages.record_id = note_pages.record_id
-		      AND max_note_pages.date = note_pages.date
-        LEFT JOIN note_items ON note_items.note_page_id = note_pages.id
+		    LEFT JOIN latest_handover_notes ON encounters.id = latest_handover_notes.record_id
         WHERE location_groups.id = :id and locations.max_occupancy = 1
         AND locations.facility_id = :facilityId
         GROUP BY location_groups.name,
@@ -115,8 +149,9 @@ locationGroup.get(
           patients.date_of_birth,
           patients.sex,
           encounters.start_date,
-          note_items.content,
-          note_pages.created_at,
+          latest_handover_notes.content,
+          latest_handover_notes.created_date,
+          latest_handover_notes.revised_by_id,
           diagnosis.name
       `,
       {
@@ -128,7 +163,7 @@ locationGroup.get(
       },
     );
 
-    const data = result.map(item => ({
+    const data = results.map(item => ({
       location: item.location,
       arrivalDate: item.arrival_date,
       patient: {
@@ -140,7 +175,8 @@ locationGroup.get(
       },
       diagnosis: item.diagnosis,
       notes: item.notes,
-      createdAt: item.created_at,
+      createdAt: item.created_date,
+      isEdited: item.is_edited,
     }));
     res.send({ locationGroup: group, data });
   }),
