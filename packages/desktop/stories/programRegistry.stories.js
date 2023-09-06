@@ -18,7 +18,7 @@ storiesOf('Program Registry', module).add('ProgramRegistry Status Cahnge', () =>
       <ChangeStatusFormModal
         onSubmit={action('submit')}
         onCancel={action('cancel')}
-        program={{ id: '3e2r23r23r' }}
+        program={{ id: '3e2r23r23r', programRegistryClinicalStatusId: '1' }}
         patient={{ id: '3e2r23r23r' }}
       />
     </MockedApi>
