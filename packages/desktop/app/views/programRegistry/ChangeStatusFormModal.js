@@ -21,14 +21,14 @@ export const ChangeStatusFormModal = ({ onSubmit, onCancel, program, patient }) 
   return (
     <Modal title="Change Status" open>
       <Form
-        onSubmit={data =>
+        onSubmit={data => {
           onSubmit({
             ...data,
             programId: program.id,
             clinicianId: currentUser.id,
             patientId: patient.id,
           })
-        }
+        }}
         render={({ submitForm }) => {
           const handleCancel = () => onCancel && onCancel();
           return (
