@@ -1,4 +1,4 @@
-import config from 'config';
+// import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { promises as fs } from 'fs';
 import { singularize } from 'inflection';
@@ -135,7 +135,7 @@ export function createDataImporterEndpoint(importer) {
       ...result,
       duration: (Date.now() - start) / 1000.0,
       serverInfo: {
-        host: config.canonicalHostName,
+        host: await req.settings.get('canonicalHostName'),
       },
     });
   });

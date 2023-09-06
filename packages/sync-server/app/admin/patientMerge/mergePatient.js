@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 import { chunk, omit, omitBy } from 'lodash';
-import config from 'config';
+// import config from 'config';
 import { VISIBILITY_STATUSES, PATIENT_MERGE_DELETION_ACTIONS } from '@tamanu/constants';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 import { InvalidParameterError } from 'shared/errors';
@@ -191,7 +191,12 @@ export async function mergePatientFieldValues(models, keepPatientId, unwantedPat
   return records;
 }
 
-export async function reconcilePatientFacilities(models, keepPatientId, unwantedPatientId) {
+export async function reconcilePatientFacilities(
+  models,
+  keepPatientId,
+  unwantedPatientId,
+  deleteAction,
+) {
   // This is a special case that helps with syncing the now-merged patient to any facilities
   // that track it
   // For any facility with a patient_facilities record on _either_ patient, we create a brand new
@@ -223,7 +228,7 @@ export async function reconcilePatientFacilities(models, keepPatientId, unwanted
   return newPatientFacilities;
 }
 
-export async function mergePatient(models, keepPatientId, unwantedPatientId) {
+export async function mergePatient(models, keepPatientId, unwantedPatientId, deleteAction) {
   const { sequelize } = models.Patient;
 
   if (keepPatientId === unwantedPatientId) {
@@ -259,12 +264,11 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
       visibilityStatus: VISIBILITY_STATUSES.MERGED,
     });
 
-    const action = config.patientMerge?.deletionAction;
-    if (action === PATIENT_MERGE_DELETION_ACTIONS.RENAME) {
+    if (deleteAction === PATIENT_MERGE_DELETION_ACTIONS.RENAME) {
       await unwantedPatient.update({ firstName: 'Deleted', lastName: 'Patient' });
-    } else if (action === PATIENT_MERGE_DELETION_ACTIONS.DESTROY) {
+    } else if (deleteAction === PATIENT_MERGE_DELETION_ACTIONS.DESTROY) {
       await unwantedPatient.destroy(); // this will just set deletedAt
-    } else if (action === PATIENT_MERGE_DELETION_ACTIONS.NONE) {
+    } else if (deleteAction === PATIENT_MERGE_DELETION_ACTIONS.NONE) {
       // do nothing
     } else {
       throw new Error(`Unknown config option for patientMerge.deletionAction: ${action}`);
