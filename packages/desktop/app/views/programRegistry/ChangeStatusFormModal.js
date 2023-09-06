@@ -27,7 +27,7 @@ export const ChangeStatusFormModal = ({ onSubmit, onCancel, program, patient }) 
             programId: program.id,
             clinicianId: currentUser.id,
             patientId: patient.id,
-          })
+          });
         }}
         render={({ submitForm }) => {
           const handleCancel = () => onCancel && onCancel();
