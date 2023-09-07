@@ -17,15 +17,19 @@ const cardDimensions = {
 const Card = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 0.2rem;
   width: ${cardDimensions.width}mm;
   height: ${cardDimensions.height}mm;
+  padding-left: ${p => p.cardMarginLeft};
+  padding-right: 1mm;
+  padding-top: ${p => p.cardMarginTop};
+  padding-bottom: 1mm;
+  color: #000000;
 `;
 
 const Details = styled.div`
   display: flex;
   flex-direction: column;
-  padding-top: 0.3rem;
+  justify-content: center;
   margin-left: 5mm;
 `;
 
@@ -64,11 +68,19 @@ const BottomBar = styled.div`
 `;
 
 const DetailsValue = styled.span`
+  max-width: 35mm;
+  max-height: 30px;
+  overflow: hidden;
   font-weight: bold;
+
+  /* Used to display an ellipsis if needed  */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 `;
 
 const DetailsKey = styled.span`
-  width: 23mm;
+  width: 18mm;
   font-weight: bold;
 `;
 
@@ -87,24 +99,6 @@ const DetailsRow = ({ name, value }) => {
       <DetailsKey>{`${label}: `}</DetailsKey>
       <DetailsValue>{value}</DetailsValue>
     </InfoRow>
-  );
-};
-
-const TopRow = styled.div`
-  font-size: 3.3mm;
-  padding-bottom: 0.1rem;
-  display: flex;
-  flex-direction: row;
-`;
-
-const DisplayIdRow = ({ name, value }) => {
-  const { getLocalisation } = useLocalisation();
-  const label = getLocalisation(`fields.${name}.shortLabel`);
-  return (
-    <TopRow>
-      <DetailsKey>{`${label}: `}</DetailsKey>
-      <DetailsValue>{value}</DetailsValue>
-    </TopRow>
   );
 };
 
@@ -139,6 +133,8 @@ const PatientPhoto = ({ imageData }) => (
 
 export const PatientIDCardPage = ({ patient, imageData }) => {
   const { printPage } = useElectron();
+  const { getLocalisation } = useLocalisation();
+  const measures = getLocalisation('printMeasures.idCardPage');
   useEffect(() => {
     printPage({
       landscape: true,
@@ -155,7 +151,7 @@ export const PatientIDCardPage = ({ patient, imageData }) => {
 
   return (
     <PrintPortal>
-      <Card>
+      <Card {...measures}>
         <TopBar />
         <MainSection>
           <PhotoContainer>
@@ -163,7 +159,7 @@ export const PatientIDCardPage = ({ patient, imageData }) => {
             <PhotoLabel patient={patient} />
           </PhotoContainer>
           <Details>
-            <DisplayIdRow name="displayId" value={patient.displayId} />
+            <DetailsRow name="displayId" value={patient.displayId} />
             <DetailsRow name="lastName" value={patient.lastName} />
             <DetailsRow name="firstName" value={patient.firstName} />
             <DetailsRow name="dateOfBirth" value={DateDisplay.stringFormat(patient.dateOfBirth)} />
