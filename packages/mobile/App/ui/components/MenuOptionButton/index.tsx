@@ -11,6 +11,8 @@ export const MenuOptionButton: FC<MenuOptionButtonProps> = ({
   title,
   onPress,
   fontWeight = 500,
+  textProps,
+  arrowForwardIconProps,
 }: MenuOptionButtonProps): React.ReactElement => (
   <TouchableHighlight underlayColor={theme.colors.DEFAULT_OFF} onPress={onPress}>
     <RowView
@@ -30,8 +32,9 @@ export const MenuOptionButton: FC<MenuOptionButtonProps> = ({
       <RowView flex={1}>
         <StyledText
           fontWeight={fontWeight}
-          color={theme.colors.TEXT_DARK}
+          color={theme.colors.TEXT_SUPER_DARK}
           fontSize={screenPercentageToDP('1.94', Orientation.Height)}
+          {...textProps}
         >
           {title}
         </StyledText>
@@ -41,6 +44,7 @@ export const MenuOptionButton: FC<MenuOptionButtonProps> = ({
           fill={theme.colors.TEXT_SOFT}
           height={screenPercentageToDP('1.5', Orientation.Height)}
           width={screenPercentageToDP('1.5', Orientation.Height)}
+          {...arrowForwardIconProps}
         />
       </StyledView>
     </RowView>

@@ -70,7 +70,9 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
             <MenuOptionButton
               key={item.id}
               title={item.name}
-              onPress={(): void => onNavigateToSurvey(item)}
+              onPress={(): void => onNavigateToSurveyList(item)}
+              textProps={{ fontWeight: 400, color: theme.colors.TEXT_SUPER_DARK }}
+              arrowForwardIconProps={{ size: 16, fill: theme.colors.TEXT_DARK }}
             />
           )}
           ItemSeparatorComponent={Separator}
