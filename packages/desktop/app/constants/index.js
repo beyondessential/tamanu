@@ -487,6 +487,12 @@ export const NOTE_FORM_MODES = {
   VIEW_NOTE: 'viewNote',
 };
 
+export const PROGRAM_REGISTRATION_STATUSES = {
+  REMOVED: 'removed',
+  ACTIVE: 'active',
+  ENTERED_IN_ERROR: 'entered-in-error',
+};
+
 export const STATUS_COLOR = {
   purple: {
     color: '#2C017A',

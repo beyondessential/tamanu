@@ -6,8 +6,9 @@ import { ApiContext } from '../app/api';
 const dummyData = [
   {
     id: '1',
-    statusId: '1',
-    status: {
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '1',
+    programRegistryClinicalStatus: {
       id: '1',
       name: 'Low risk',
       color: 'green',
@@ -22,8 +23,9 @@ const dummyData = [
   },
   {
     id: '2',
-    statusId: '2',
-    status: {
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '2',
+    programRegistryClinicalStatus: {
       id: '2',
       name: 'Needs review',
       color: 'yellow',
@@ -38,8 +40,9 @@ const dummyData = [
   },
   {
     id: '3',
-    statusId: '3',
-    status: {
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '3',
+    programRegistryClinicalStatus: {
       id: '3',
       name: 'Critical',
       color: 'red',
@@ -54,8 +57,9 @@ const dummyData = [
   },
   {
     id: '4',
-    statusId: '4',
-    status: {
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '4',
+    programRegistryClinicalStatus: {
       id: '4',
       name: 'Needs review',
       color: 'yellow',
@@ -70,8 +74,9 @@ const dummyData = [
   },
   {
     id: '5',
-    statusId: '5',
-    status: {
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '5',
+    programRegistryClinicalStatus: {
       id: '5',
       name: 'Low risk',
       color: 'green',
@@ -86,8 +91,9 @@ const dummyData = [
   },
   {
     id: '6',
-    statusId: '6',
-    status: {
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '6',
+    programRegistryClinicalStatus: {
       id: '6',
       name: 'Needs review',
       color: 'yellow',
@@ -102,8 +108,9 @@ const dummyData = [
   },
   {
     id: '7',
-    statusId: '7',
-    status: {
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '7',
+    programRegistryClinicalStatus: {
       id: '7',
       name: 'Critical',
       color: 'red',
@@ -118,8 +125,9 @@ const dummyData = [
   },
   {
     id: '8',
-    statusId: '8',
-    status: {
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '8',
+    programRegistryClinicalStatus: {
       id: '8',
       name: 'Needs review',
       color: 'yellow',
@@ -134,8 +142,9 @@ const dummyData = [
   },
   {
     id: '9',
-    statusId: '9',
-    status: {
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '9',
+    programRegistryClinicalStatus: {
       id: '9',
       name: 'Low risk',
       color: 'green',
@@ -150,8 +159,9 @@ const dummyData = [
   },
   {
     id: '10',
-    statusId: '10',
-    status: {
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '10',
+    programRegistryClinicalStatus: {
       id: '10',
       name: 'Needs review',
       color: 'yellow',
@@ -166,8 +176,9 @@ const dummyData = [
   },
   {
     id: '11',
-    statusId: '11',
-    status: {
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '11',
+    programRegistryClinicalStatus: {
       id: '11',
       name: 'Critical',
       color: 'red',
@@ -182,8 +193,9 @@ const dummyData = [
   },
   {
     id: '12',
-    statusId: '12',
-    status: {
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '12',
+    programRegistryClinicalStatus: {
       id: '12',
       name: 'Needs review',
       color: 'yellow',
@@ -198,8 +210,9 @@ const dummyData = [
   },
   {
     id: '13',
-    statusId: '13',
-    status: {
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '13',
+    programRegistryClinicalStatus: {
       id: '13',
       name: 'Low risk',
       color: 'green',
@@ -214,8 +227,9 @@ const dummyData = [
   },
   {
     id: '14',
-    statusId: '14',
-    status: {
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '14',
+    programRegistryClinicalStatus: {
       id: '14',
       name: 'Needs review',
       color: 'yellow',
@@ -230,8 +244,9 @@ const dummyData = [
   },
   {
     id: '15',
-    statusId: '15',
-    status: {
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '15',
+    programRegistryClinicalStatus: {
       id: '15',
       name: 'Critical',
       color: 'red',
@@ -246,8 +261,9 @@ const dummyData = [
   },
   {
     id: '16',
-    statusId: '16',
-    status: {
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '16',
+    programRegistryClinicalStatus: {
       id: '16',
       name: 'Needs review',
       color: 'yellow',
@@ -262,8 +278,9 @@ const dummyData = [
   },
   {
     id: '17',
-    statusId: '17',
-    status: {
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '17',
+    programRegistryClinicalStatus: {
       id: '17',
       name: 'Low risk',
       color: 'green',
@@ -278,8 +295,9 @@ const dummyData = [
   },
   {
     id: '18',
-    statusId: '18',
-    status: {
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '18',
+    programRegistryClinicalStatus: {
       id: '18',
       name: 'Needs review',
       color: 'yellow',
@@ -294,8 +312,9 @@ const dummyData = [
   },
   {
     id: '19',
-    statusId: '19',
-    status: {
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '19',
+    programRegistryClinicalStatus: {
       id: '19',
       name: 'Critical',
       color: 'red',
@@ -310,8 +329,9 @@ const dummyData = [
   },
   {
     id: '20',
-    statusId: '20',
-    status: {
+    registrationStatus: 'removed',
+    programRegistryClinicalStatusId: '20',
+    programRegistryClinicalStatus: {
       id: '20',
       name: 'Needs review',
       color: 'yellow',
@@ -333,17 +353,21 @@ function sleep(milliseconds) {
 }
 
 const dummyApi = {
-  get: async (endpoint, { order, orderBy, page, rowsPerPage }) => {
-    await sleep(1000);
-    const sortedData = dummyData.sort(({ [orderBy]: a }, { [orderBy]: b }) => {
-      if (typeof a === 'string') {
-        return order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
-      }
-      return order === 'asc' ? a - b : b - a;
-    });
-    const startIndex = page * rowsPerPage;
-    const endIndex = startIndex + rowsPerPage;
+  get: async (endpoint, options) => {
+    console.log(options.order, options.orderBy);
+    const sortedData =
+      options.order && options.orderBy
+        ? dummyData.sort(({ [options.orderBy]: a }, { [options.orderBy]: b }) => {
+            if (typeof a === 'string') {
+              return options.order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
+            }
+            return options.order === 'asc' ? a - b : b - a;
+          })
+        : sortedData;
+    const startIndex = options.page * options.rowsPerPage || 0;
+    const endIndex = startIndex + options.rowsPerPage ? options.rowsPerPage : sortedData.length;
 
+    console.log(endpoint, sortedData);
     return {
       data: sortedData.slice(startIndex, endIndex),
       count: dummyData.length,
@@ -357,7 +381,6 @@ storiesOf('Program Registry', module).add('ProgramRegistryStatusHistory removed 
       program={{
         id: '23242234234',
         date: '2023-08-28T02:40:16.237Z',
-        removedOnce: false,
       }}
     />
   </ApiContext.Provider>
@@ -370,7 +393,6 @@ storiesOf('Program Registry', module).add('ProgramRegistryStatusHistory removed 
       program={{
         id: '23242234234',
         date: '2023-08-28T02:40:16.237Z',
-        removedOnce: true,
       }}
     />
   </ApiContext.Provider>
