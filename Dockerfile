@@ -47,6 +47,7 @@ FROM build-base as shared
 COPY packages/api-client/ packages/api-client/
 COPY packages/build-tooling/ packages/build-tooling/
 COPY packages/constants/ packages/constants/
+COPY packages/settings/ packages/settings/
 COPY packages/shared/ packages/shared/
 RUN scripts/docker-build.sh shared
 

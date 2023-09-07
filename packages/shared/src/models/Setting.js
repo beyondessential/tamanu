@@ -1,5 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { isPlainObject, get as getAtPath, set as setAtPath } from 'lodash';
+import { settingsCache } from '@tamanu/settings/cache';
 import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '@tamanu/constants';
 import { Model } from './Model';
 
@@ -39,6 +40,20 @@ export class Setting extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        hooks: {
+          afterSave() {
+            settingsCache.reset();
+          },
+          afterBulkCreate() {
+            settingsCache.reset();
+          },
+          afterBulkUpdate() {
+            settingsCache.reset();
+          },
+          afterBulkDestroy() {
+            settingsCache.reset();
+          },
+        },
         indexes: [
           {
             // settings_alive_key_unique_cnt
@@ -55,7 +70,7 @@ export class Setting extends Model {
           {
             // settings_alive_key_unique_without_facility_idx
             unique: true,
-            fields: ['key'],
+            fields: ['key', 'scope'],
             where: { deleted_at: null, facility_id: null },
           },
         ],
@@ -74,7 +89,7 @@ export class Setting extends Model {
    * IMPORTANT: Duplicated from mobile/models/Setting.ts
    * Please update both places when modify
    */
-  static async get(key = '', facilityId = null) {
+  static async get(key = '', facilityId = null, scope = '') {
     const settings = await Setting.findAll({
       where: {
         ...(key
@@ -85,6 +100,11 @@ export class Setting extends Model {
                   [Op.like]: `${key}.%`,
                 },
               },
+            }
+          : {}),
+        ...(scope
+          ? {
+              scope,
             }
           : {}),
         facilityId: {
@@ -119,7 +139,8 @@ export class Setting extends Model {
     return getAtPath(settingsObject, key);
   }
 
-  static async set(key, value, facilityId = null, scope = SETTINGS_SCOPES.GLOBAL) {
+  static async set(key, value, facilityId = null, scopeParam) {
+    const scope = scopeParam || facilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.GLOBAL;
     const records = buildSettingsRecords(key, value, facilityId);
 
     // create or update records
