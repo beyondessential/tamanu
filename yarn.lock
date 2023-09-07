@@ -18732,7 +18732,7 @@ pbkdf2@^3.0.3:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
-pdfjs-dist@^3.2.146:
+pdfjs-dist@3.3.122:
   version "3.3.122"
   resolved "https://registry.yarnpkg.com/pdfjs-dist/-/pdfjs-dist-3.3.122.tgz#750047cb347a8124092180fc4399d4f31f1de37b"
   integrity sha512-98WC09jOq3OuqrmF5+LZfcyzTlGA0sY9ocMBbWZ/H6Pwni7deptxwkNZVLieOz+4nSoTEW25PsfnfOj3ELrHdA==
