@@ -6,7 +6,11 @@ type SurveyResponseScreenParams = {
     program: IProgram;
     surveyId: string;
     latestResponseId: string;
-    selectedPatient: { id: string };
+    selectedPatient: {
+      id: string;
+      firstName?: string;
+      lastName?: string;
+    };
     encounterType: string;
     surveyType: SurveyTypes;
   };

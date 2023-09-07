@@ -7,51 +7,31 @@ import { theme } from '/styled/theme';
 import { MenuOptionButton } from '/components/MenuOptionButton';
 import { Separator } from '/components/Separator';
 import { Routes } from '/helpers/routes';
-import { StackHeader } from '/components/StackHeader';
 import { withPatient } from '/containers/Patient';
-import { IPatient, SurveyTypes } from '~/types';
-import { joinNames } from '/helpers/user';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
-import { Survey } from '~/models/Survey';
-import { useAuth } from '~/ui/contexts/AuthContext';
+import { Program } from '~/models/Program';
 
-interface ProgramListScreenProps {
-  selectedPatient: IPatient;
-}
-
-const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
+const Screen = (): ReactElement => {
   const navigation = useNavigation();
-  const { ability } = useAuth();
 
-  const [surveys, error] = useBackendEffect(({ models }) =>
-    models.Survey.find({
-      where: {
-        surveyType: SurveyTypes.Programs,
-      },
+  const [programs, error] = useBackendEffect(({ models }) =>
+    models.Program.find({
       order: {
         name: 'ASC',
       },
     }),
   );
 
-  const filteredSurveys = surveys?.filter(survey => survey.shouldShowInList(ability));
-
-  const goBack = useCallback(() => {
-    navigation.goBack();
-  }, []);
-
-  const onNavigateToSurvey = (survey: Survey): void => {
-    navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.Index, {
-      surveyId: survey.id,
-      surveyName: survey.name,
-      surveyType: SurveyTypes.Programs,
+  const onNavigateToSurveyList = (program: Program): void => {
+    navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.Index, {
+      programId: program.id,
+      programName: program.name,
     });
   };
 
   return (
     <FullView>
-      <StackHeader title="Programs" subtitle={joinNames(selectedPatient)} onGoBack={goBack} />
       {error ? (
         <ErrorScreen error={error} />
       ) : (
@@ -64,7 +44,7 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
             paddingTop: 5,
           }}
           showsVerticalScrollIndicator={false}
-          data={filteredSurveys}
+            data={programs}
           keyExtractor={(item): string => item.id}
           renderItem={({ item }): ReactElement => (
             <MenuOptionButton

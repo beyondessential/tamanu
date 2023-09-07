@@ -62,8 +62,11 @@ export const Routes = {
       SurveyResponseDetailsScreen: '',
       ProgramTabs: {
         Index: '',
-        AddDetails: '',
-        ViewHistory: '',
+        SurveyTabs: {
+          Index: '',
+          AddDetails: '',
+          ViewHistory: '',
+        }
       },
     },
     ReferralStack: {
