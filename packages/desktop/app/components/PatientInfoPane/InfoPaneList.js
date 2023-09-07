@@ -67,7 +67,10 @@ const getItems = (isIssuesPane, response) => {
   }
 
   const warnings = items.filter(shouldShowIssueInWarningModal);
-  let sortedIssues = [...warnings, ...items.filter(issue => !shouldShowIssueInWarningModal(issue))];
+  const sortedIssues = [
+    ...warnings,
+    ...items.filter(issue => !shouldShowIssueInWarningModal(issue)),
+  ];
 
   return { items: sortedIssues, warnings };
 };
