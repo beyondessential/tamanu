@@ -143,7 +143,9 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
                   <SubmitNoteButton $underline disabled={formSubmitIsDisabled} text="Save" />
                 </Box>
               ) : (
-                <ShowAddNoteFormButton $underline onClick={() => setActive(true)} text="Add note" />
+                <ShowAddNoteFormButton $underline onClick={() => setActive(true)}>
+                  Add note
+                </ShowAddNoteFormButton>
               );
             }}
           />
