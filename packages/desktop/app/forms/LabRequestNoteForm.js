@@ -12,6 +12,7 @@ import {
   Field,
   TextField,
   DateDisplay,
+  Button,
   FormSubmitButton,
   FormCancelButton,
 } from '../components';
@@ -74,11 +75,15 @@ const buttonStyle = css`
   }
 `;
 
-const SubmitButton = styled(FormSubmitButton)`
+const SubmitNoteButton = styled(FormSubmitButton)`
   ${buttonStyle}
 `;
 
-const CancelButton = styled(FormCancelButton)`
+const ShowAddNoteFormButton = styled(Button)`
+  ${buttonStyle}
+`;
+
+const CancelAddNoteButton = styled(FormCancelButton)`
   ${buttonStyle}
 `;
 
@@ -134,11 +139,11 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
               return active ? (
                 <Box display="flex" alignItems="center">
                   <NotesInput label="" name="content" component={TextField} autoFocus />
-                  <CancelButton onClick={() => setActive(false)}>Cancel</CancelButton>
-                  <SubmitButton $underline disabled={formSubmitIsDisabled} text="Save" />
+                  <CancelAddNoteButton onClick={() => setActive(false)}>Cancel</CancelAddNoteButton>
+                  <SubmitNoteButton $underline disabled={formSubmitIsDisabled} text="Save" />
                 </Box>
               ) : (
-                <SubmitButton $underline onClick={() => setActive(true)} text="Add note" />
+                <ShowAddNoteFormButton $underline onClick={() => setActive(true)} text="Add note" />
               );
             }}
           />
