@@ -4,8 +4,10 @@ import React, {
   useState,
 } from 'react';
 import { useSelector } from 'react-redux';
+import { Dimensions, Text } from 'react-native';
+import Modal from 'react-native-modal';
 import { useNavigation } from '@react-navigation/native';
-import { FullView } from '~/ui/styled/common';
+import { FullView, StyledView } from '~/ui/styled/common';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { SurveyResponseScreenProps } from '/interfaces/Screens/ProgramsStack/SurveyResponseScreen';
@@ -16,6 +18,18 @@ import { useBackend, useBackendEffect } from '~/ui/hooks';
 import { SurveyTypes, GenericFormValues } from '~/types';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { authUserSelector } from '~/ui/helpers/selectors';
+import { joinNames } from '~/ui/helpers/user';
+import { StackHeader } from '~/ui/components/StackHeader';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { theme } from '~/ui/styled/theme';
+import { Button } from '~/ui/components/Button';
+
+const buttonSharedStyles = {
+  width: screenPercentageToDP('25', Orientation.Width),
+  height: screenPercentageToDP('4.6', Orientation.Height),
+  fontSize: 12,
+  fontWeight: 500,
+}
 
 export const SurveyResponseScreen = ({
   route,
@@ -26,6 +40,7 @@ export const SurveyResponseScreen = ({
   const navigation = useNavigation();
 
   const [note, setNote] = useState('');
+  const [showModal, setShowModal] = useState(false);
 
   const [survey, surveyError, isSurveyLoading] = useBackendEffect(
     ({ models }) => models.Survey.getRepository().findOne(surveyId),
@@ -84,6 +99,13 @@ export const SurveyResponseScreen = ({
     },
     [survey, components],
   );
+  const closeModalCallback = useCallback(async () => {
+    setShowModal(false);
+  }, []);
+
+  const openExitModal = useCallback(async () => {
+    setShowModal(true);
+  }, []);
 
   const error = surveyError || componentsError || padError;
   // due to how useBackendEffect works we need to stay in the loading state for queries which depend
@@ -99,13 +121,67 @@ export const SurveyResponseScreen = ({
   return (
     <ErrorBoundary resetRoute={Routes.HomeStack.ProgramStack.ProgramListScreen}>
       <FullView>
+        <StackHeader title={survey.name} subtitle={joinNames(selectedPatient)} onGoBack={() => { }} />
         <SurveyForm
           patient={selectedPatient}
           patientAdditionalData={patientAdditionalData}
           note={note}
           components={components}
           onSubmit={onSubmit}
+          openExitModal={openExitModal}
         />
+
+        <Modal
+          isVisible={showModal}
+          onBackdropPress={closeModalCallback}
+          backdropOpacity={1}
+          backdropColor='#a5a5a5'
+          deviceHeight={Dimensions.get('window').height}
+        >
+          <StyledView
+            style={{
+              alignItems: 'center',
+              flex: 1, backgroundColor: theme.colors.BACKGROUND_GREY,
+              borderRadius: 5,
+              maxHeight: screenPercentageToDP('24', Orientation.Height),
+              width: screenPercentageToDP('66', Orientation.Width),
+              padding: 20,
+              marginLeft: screenPercentageToDP('10', Orientation.Width)
+            }}>
+            <Text
+              style={{
+                fontSize: 12,
+                color: theme.colors.BLACK,
+                fontWeight: 'bold',
+                marginBottom: 10
+              }}>
+              Exit form?
+            </Text>
+            <Text
+              style={{
+                fontSize: 12,
+                textAlign: 'center',
+                color: theme.colors.BLACK,
+              }}
+            >Are you sure you want to exit the form? You will loose any information currently entered.
+            </Text>
+            <StyledView flexDirection="row" justifyContent="space-between" width="95%" marginTop={10}>
+              <Button
+                outline
+                borderColor={theme.colors.MAIN_SUPER_DARK}
+                borderWidth={0.1}
+                buttonText="Stay on page"
+                onPress={closeModalCallback}
+                {...buttonSharedStyles}
+              />
+              <Button
+                buttonText="Exit"
+                onPress={closeModalCallback}
+                {...buttonSharedStyles}
+              />
+            </StyledView>
+          </StyledView>
+        </Modal>
       </FullView>
     </ErrorBoundary>
   );

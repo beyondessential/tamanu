@@ -55,9 +55,11 @@ interface FormFieldsProps {
   components: ISurveyScreenComponent[];
   patient: IPatient;
   note: string;
+  openExitModal: () => Promise<void>;
 }
 
-export const FormFields = ({ components, note, patient }: FormFieldsProps): ReactElement => {
+export const FormFields = ({ components, note, patient, openExitModal }: FormFieldsProps): ReactElement => {
+
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
   const scrollViewRef = useRef(null);
   const { errors, validateForm, setStatus, submitForm, values, resetForm } = useFormikContext<
@@ -166,16 +168,16 @@ export const FormFields = ({ components, note, patient }: FormFieldsProps): Reac
           </StyledText>
         )}
         <RowView width="68%" marginTop={25}>
-          {maxIndex > 1 && (
             <Button
+            outline
+            borderColor={theme.colors.MAIN_SUPER_DARK}
+            borderWidth={0.1}
               margin={5}
-              disabled={currentScreenIndex === 0}
-              buttonText="Previous Page"
-              onPress={onNavigatePrevious}
+            buttonText="Cancel"
+            onPress={openExitModal}
             />
-          )}
           {currentScreenIndex !== maxIndex ? (
-            <Button margin={5} buttonText="Next Page" onPress={onNavigateNext} />
+            <Button margin={5} buttonText="Next" onPress={onNavigateNext} />
           ) : (
             <SubmitButton margin={5} onSubmit={onSubmit} />
           )}

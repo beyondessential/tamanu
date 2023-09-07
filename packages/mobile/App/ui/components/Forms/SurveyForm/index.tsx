@@ -10,6 +10,7 @@ import { authUserSelector } from '/helpers/selectors';
 
 export type SurveyFormProps = {
   onSubmit: (values: any) => Promise<void>;
+  openExitModal: () => Promise<void>;
   components: ISurveyComponent[];
   patient: any;
   note: string;
@@ -24,6 +25,7 @@ export const SurveyForm = ({
   patient,
   patientAdditionalData,
   validate,
+  openExitModal
 }: SurveyFormProps): ReactElement => {
   const currentUser = useSelector(authUserSelector);
   const initialValues = useMemo(
@@ -81,7 +83,7 @@ export const SurveyForm = ({
             ...calculatedValues,
           });
         }, [values]);
-        return <FormFields components={components} note={note} patient={patient} />;
+        return <FormFields components={components} note={note} patient={patient} openExitModal={openExitModal} />;
       }}
     </Form>
   );
