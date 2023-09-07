@@ -6,6 +6,7 @@ import { DateDisplay } from '../../components/DateDisplay';
 import { programsIcon } from '../../constants/images';
 import { GreyOutlinedButton } from '../../components/Button';
 import { MenuButton } from '../../components/MenuButton';
+import { STATUS_COLOR } from '../../constants';
 
 const DisplayContainer = styled.div`
   display: flex;
@@ -79,7 +80,7 @@ const StatusBadge = styled.div`
   align-items: center;
   height: 20px;
   color: ${props => props.color};
-  background-color: #19934e1a;
+  background-color: ${props => props.backgroundColor};
 `;
 
 const ValueDisplay = ({ label, value }) => (
@@ -90,7 +91,7 @@ const ValueDisplay = ({ label, value }) => (
 
 export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
   const isRemoved =
-    patientProgramRegistration.status.code === PROGRAM_REGISTRATION_STATUSES.REMOVED;
+    patientProgramRegistration.registrationStatus === PROGRAM_REGISTRATION_STATUSES.REMOVED;
   return (
     <DisplayContainer>
       <LogoContainer>
@@ -103,7 +104,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
         />
         <ValueDisplay
           label="Registered by"
-          value={patientProgramRegistration.addedBy.displayName}
+          value={patientProgramRegistration.clinician.displayName}
         />
       </LabelContainer>
       {isRemoved && (
@@ -119,7 +120,14 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
         </StatusContainer>
       )}
       <ChangeStatusContainer extraWidth={!isRemoved}>
-        <StatusBadge color="green">{patientProgramRegistration.status.name}</StatusBadge>
+        <StatusBadge
+          color={STATUS_COLOR[patientProgramRegistration.programRegistryClinicalStatus.color].color}
+          backgroundColor={
+            STATUS_COLOR[patientProgramRegistration.programRegistryClinicalStatus.color].background
+          }
+        >
+          {patientProgramRegistration.programRegistryClinicalStatus.name}
+        </StatusBadge>
         <GreyOutlinedButton>Change Status</GreyOutlinedButton>
       </ChangeStatusContainer>
       <MenuContainer>
