@@ -12,6 +12,10 @@ export class ReportDefinition extends Model {
           allowNull: false,
           unique: true,
         },
+        dbRole: {
+          type: Sequelize.STRING,
+          allowNull: false,
+        },
       },
       {
         ...options,
