@@ -31,7 +31,7 @@ const fakeTimeout = message => (url, opts) =>
 const fetch = jest.fn();
 
 const createCentralServerConnection = () => {
-  const centralServer = new CentralServerConnection();
+  const centralServer = new CentralServerConnection({ deviceId: 'test' });
   centralServer.fetchImplementation = fetch;
   return centralServer;
 };

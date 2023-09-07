@@ -20,6 +20,15 @@ export async function createReportDefinitionVersion(store, reportId, definition,
     },
     async () => {
       const { name, dbRole, ...definitionVersion } = definition;
+      if (!reportId) {
+        const existingDefinition = await ReportDefinition.findOne({
+          where: { name },
+          attributes: ['id'],
+        });
+        if (existingDefinition) {
+          throw new InvalidOperationError('Report name already exists');
+        }
+      }
       const reportDefinitionId = reportId || (await ReportDefinition.create({ name, dbRole })).id;
       const latestVersion = await ReportDefinitionVersion.findOne({
         where: { reportDefinitionId: reportId },

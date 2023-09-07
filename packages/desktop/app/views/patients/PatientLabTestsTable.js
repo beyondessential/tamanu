@@ -5,7 +5,7 @@ import { Table } from '../../components/Table';
 import { RangeValidatedCell, DateHeadCell } from '../../components/FormattedTableCell';
 import { Colors } from '../../constants';
 import { LabTestResultModal } from './LabTestResultModal';
-import { BodyText, formatShort, formatTimeWithSeconds } from '../../components';
+import { BodyText, DateDisplay, formatTimeWithSeconds } from '../../components';
 
 const COLUMN_WIDTHS = [150, 120, 120];
 
@@ -103,6 +103,12 @@ const StyledButton = styled(Button)`
   }
 `;
 
+const getTitle = value => {
+  const date = DateDisplay.stringFormat(value);
+  const timeWithSeconds = DateDisplay.stringFormat(value, formatTimeWithSeconds);
+  return `${date} ${timeWithSeconds}`;
+};
+
 export const PatientLabTestsTable = React.memo(
   ({ patient, labTests = [], count, isLoading, searchParameters }) => {
     const [modalLabTestId, setModalLabTestId] = useState();
@@ -180,7 +186,7 @@ export const PatientLabTestsTable = React.memo(
             return <StyledButton disabled>-</StyledButton>;
           },
           exportOverrides: {
-            title: `${formatShort(date)} ${formatTimeWithSeconds(date)}`,
+            title: `${getTitle(date)}`,
             accessor: row => row.results[date]?.result || '-',
           },
         })),

@@ -10,6 +10,7 @@ export class ReportDefinition extends Model {
         name: {
           type: Sequelize.STRING,
           allowNull: false,
+          unique: true,
         },
         dbRole: {
           type: Sequelize.STRING,
@@ -18,6 +19,7 @@ export class ReportDefinition extends Model {
       },
       {
         ...options,
+        indexes: [{ unique: true, fields: ['name'] }],
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );

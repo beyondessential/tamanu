@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { REPORT_STATUSES } from '@tamanu/constants';
-import { formatShort, formatTime } from '../../../components';
+import { DateDisplay, formatTime } from '../../../components';
 import { Table } from '../../../components/Table';
 import { Colors } from '../../../constants';
 import { StatusTag } from '../../../components/Tag';
@@ -69,6 +69,14 @@ const useTableSorting = ({ initialSortKey, initialSortDirection }) => {
   return { orderBy, order, onChangeOrderBy, customSort };
 };
 
+const getDateTime = value => {
+  if (!value) return '-';
+
+  const date = DateDisplay.stringFormat(value);
+  const time = DateDisplay.stringFormat(value, formatTime);
+  return `${date} ${time}`;
+};
+
 export const ReportTable = React.memo(({ data, selected, onRowClick, loading, error }) => {
   const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting({
     initialSortKey: 'name',
@@ -89,8 +97,7 @@ export const ReportTable = React.memo(({ data, selected, onRowClick, loading, er
         {
           title: 'Last updated',
           key: 'lastUpdated',
-          accessor: ({ lastUpdated }) =>
-            lastUpdated ? `${formatShort(lastUpdated)} ${formatTime(lastUpdated)}` : '-',
+          accessor: ({ lastUpdated }) => getDateTime(lastUpdated),
         },
         {
           title: 'Version count',
@@ -130,7 +137,7 @@ export const VersionTable = React.memo(({ data, onRowClick, loading, error }) =>
         {
           title: 'Created time',
           key: 'createdAt',
-          accessor: ({ updatedAt }) => `${formatShort(updatedAt)} ${formatTime(updatedAt)}`,
+          accessor: ({ updatedAt }) => getDateTime(updatedAt),
         },
         {
           title: 'Status',
