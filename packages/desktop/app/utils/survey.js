@@ -234,14 +234,14 @@ export function getFormInitialValues(components, patient, additionalData, curren
     const config = getConfigObject(component.id, component.config) || {};
 
     // current user data
-    if (component.dataElement.type === 'UserData') {
+    if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.USER_DATA) {
       const { column = 'displayName' } = config;
       const userValue = currentUser[column];
       if (userValue !== undefined) initialValues[component.dataElement.id] = userValue;
     }
 
     // patient data
-    if (component.dataElement.type === 'PatientData') {
+    if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA) {
       const patientValue = transformPatientData(patient, additionalData, config);
       if (patientValue !== undefined) initialValues[component.dataElement.id] = patientValue;
     }
@@ -253,7 +253,7 @@ export const getAnswersFromData = (data, survey) =>
   Object.entries(data).reduce((acc, [key, val]) => {
     if (
       survey.components.find(({ dataElement }) => dataElement.id === key)?.dataElement?.type !==
-      'PatientIssue'
+      PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE
     ) {
       acc[key] = val;
     }

@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { getComponentForQuestionType, getConfigObject, mapOptionsToValues } from '../../utils';
 import { Field } from '../Field';
 
@@ -25,8 +26,12 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled }) => {
   const validationCriteriaObject = getConfigObject(id, validationCriteria);
   const required = validationCriteriaObject?.mandatory || null;
 
-  if (component.dataElement.type === 'Result') return <Text>{`${text} ${component.detail}`}</Text>;
-  if (!FieldComponent) return <Text>{text}</Text>;
+  if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES) {
+    return <Text>{`${text} ${component.detail}`}</Text>;
+  }
+  if (!FieldComponent) {
+    return <Text>{text}</Text>;
+  }
 
   return (
     <Field

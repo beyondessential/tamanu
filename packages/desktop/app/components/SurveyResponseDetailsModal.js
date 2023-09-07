@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+
 import { Modal } from './Modal';
 import { DateDisplay } from './DateDisplay';
 import { Table } from './Table';
@@ -31,19 +33,19 @@ const COLUMNS = [
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const [surveyLink, setSurveyLink] = useState(null);
       switch (type) {
-        case 'Result':
+        case PROGRAM_DATA_ELEMENT_TYPES.RESULT:
           return <SurveyResultBadge resultText={answer} />;
-        case 'Calculated':
+        case PROGRAM_DATA_ELEMENT_TYPES.CALCULATED:
           return parseFloat(answer).toFixed(1);
-        case 'Photo':
+        case PROGRAM_DATA_ELEMENT_TYPES.PHOTO:
           return <ViewPhotoLink imageId={answer} />;
-        case 'Checkbox':
+        case PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX:
           return convertBinaryToYesNo(answer);
-        case 'SubmissionDate':
+        case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
           return <DateDisplay date={answer} />;
-        case 'Date':
+        case PROGRAM_DATA_ELEMENT_TYPES.DATE:
           return <DateDisplay date={answer} />;
-        case 'SurveyLink':
+        case PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK:
           return (
             <>
               <Button onClick={() => setSurveyLink(answer)} variant="contained" color="primary">
@@ -64,7 +66,7 @@ const COLUMNS = [
 
 function shouldShow(component) {
   switch (component.dataElement.type) {
-    case 'Instruction':
+    case PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION:
       return false;
     default:
       return true;

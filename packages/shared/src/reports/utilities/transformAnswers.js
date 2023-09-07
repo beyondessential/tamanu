@@ -1,5 +1,6 @@
 import { parseISO } from 'date-fns';
 import { keyBy, groupBy } from 'lodash';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { format, differenceInMilliseconds, isISOString } from '../../utils/dateTime';
 
 const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
@@ -46,12 +47,12 @@ const convertDateAnswer = (answer, { dateFormat = 'dd-MM-yyyy' }) => {
 
 export const getAnswerBody = async (models, componentConfig, type, answer, transformConfig) => {
   switch (type) {
-    case 'Date':
-    case 'SubmissionDate':
+    case PROGRAM_DATA_ELEMENT_TYPES.DATE:
+    case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
       return convertDateAnswer(answer, transformConfig);
-    case 'Checkbox':
+    case PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX:
       return convertBinaryToYesNo(answer);
-    case 'Autocomplete':
+    case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
       return convertAutocompleteAnswer(models, componentConfig, answer);
     default:
       return answer;
@@ -60,7 +61,7 @@ export const getAnswerBody = async (models, componentConfig, type, answer, trans
 
 export const getAutocompleteComponentMap = surveyComponents => {
   const autocompleteComponents = surveyComponents
-    .filter(c => c.dataElement.dataValues.type === 'Autocomplete')
+    .filter(c => c.dataElement.dataValues.type === PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE)
     .map(({ dataElementId, config: componentConfig }) => [
       dataElementId,
       componentConfig ? JSON.parse(componentConfig) : {},
