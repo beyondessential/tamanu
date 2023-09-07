@@ -53,7 +53,7 @@ const ImportStatsDisplay = ({ stats }) => (
   />
 );
 
-const ImportForm = ({ submitForm, dataTypes, dataTypesSelectable }) => (
+const ImportForm = ({ dataTypes, dataTypesSelectable }) => (
   <FormGrid columns={1}>
     <Field
       component={FileChooserField}
