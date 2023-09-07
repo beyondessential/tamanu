@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo, useEffect, useCallback, useState } from 'react';
+import React, { ReactElement, useMemo, useEffect, useCallback, useState, Dispatch, SetStateAction } from 'react';
 import { useSelector } from 'react-redux';
 import { getFormInitialValues, getFormSchema } from './helpers';
 import { ISurveyComponent, IPatientAdditionalData } from '~/types';
@@ -16,6 +16,8 @@ export type SurveyFormProps = {
   note: string;
   validate: any;
   patientAdditionalData: IPatientAdditionalData[];
+  setCurrentScreenIndex: Dispatch<SetStateAction<number>>;
+  currentScreenIndex: number;
 };
 
 export const SurveyForm = ({
@@ -25,7 +27,9 @@ export const SurveyForm = ({
   patient,
   patientAdditionalData,
   validate,
-  openExitModal
+  openExitModal,
+  setCurrentScreenIndex,
+  currentScreenIndex
 }: SurveyFormProps): ReactElement => {
   const currentUser = useSelector(authUserSelector);
   const initialValues = useMemo(
@@ -83,7 +87,15 @@ export const SurveyForm = ({
             ...calculatedValues,
           });
         }, [values]);
-        return <FormFields components={components} note={note} patient={patient} openExitModal={openExitModal} />;
+        return (
+          <FormFields
+            components={components}
+            note={note}
+            patient={patient}
+            openExitModal={openExitModal}
+            setCurrentScreenIndex={setCurrentScreenIndex}
+            currentScreenIndex={currentScreenIndex}
+          />)
       }}
     </Form>
   );

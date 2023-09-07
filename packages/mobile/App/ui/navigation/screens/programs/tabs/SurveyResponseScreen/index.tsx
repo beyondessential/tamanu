@@ -41,6 +41,7 @@ export const SurveyResponseScreen = ({
 
   const [note, setNote] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
 
   const [survey, surveyError, isSurveyLoading] = useBackendEffect(
     ({ models }) => models.Survey.getRepository().findOne(surveyId),
@@ -89,23 +90,34 @@ export const SurveyResponseScreen = ({
         return;
       }
 
-      navigation.navigate(
-        Routes.HomeStack.ProgramStack.ProgramTabs.ViewHistory,
-        {
-          surveyId: surveyId,
-          latestResponseId: response.id,
-        },
-      );
+      // navigation.navigate(
+      //   Routes.HomeStack.ProgramStack.ProgramTabs.ViewHistory,
+      //   {
+      //     surveyId: surveyId,
+      //     latestResponseId: response.id,
+      //   },
+      // );
     },
     [survey, components],
   );
+
+  const onNavigatePrevious = (): void => {
+    setCurrentScreenIndex(Math.max(currentScreenIndex - 1, 0));
+  };
   const closeModalCallback = useCallback(async () => {
     setShowModal(false);
   }, []);
-
   const openExitModal = useCallback(async () => {
     setShowModal(true);
   }, []);
+  const onGoBack = async () => {
+    if (currentScreenIndex > 0) {
+      onNavigatePrevious();
+    }
+    else {
+      openExitModal();
+    }
+  }
 
   const error = surveyError || componentsError || padError;
   // due to how useBackendEffect works we need to stay in the loading state for queries which depend
@@ -121,7 +133,7 @@ export const SurveyResponseScreen = ({
   return (
     <ErrorBoundary resetRoute={Routes.HomeStack.ProgramStack.ProgramListScreen}>
       <FullView>
-        <StackHeader title={survey.name} subtitle={joinNames(selectedPatient)} onGoBack={() => { }} />
+        <StackHeader title={survey.name} subtitle={joinNames(selectedPatient)} onGoBack={onGoBack} />
         <SurveyForm
           patient={selectedPatient}
           patientAdditionalData={patientAdditionalData}
@@ -129,6 +141,8 @@ export const SurveyResponseScreen = ({
           components={components}
           onSubmit={onSubmit}
           openExitModal={openExitModal}
+          setCurrentScreenIndex={setCurrentScreenIndex}
+          currentScreenIndex={currentScreenIndex}
         />
 
         <Modal

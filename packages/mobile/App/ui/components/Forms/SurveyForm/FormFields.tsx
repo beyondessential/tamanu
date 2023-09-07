@@ -56,11 +56,11 @@ interface FormFieldsProps {
   patient: IPatient;
   note: string;
   openExitModal: () => Promise<void>;
+  currentScreenIndex: number;
+  setCurrentScreenIndex: (index: number) => void,
 }
 
-export const FormFields = ({ components, note, patient, openExitModal }: FormFieldsProps): ReactElement => {
-
-  const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
+export const FormFields = ({ components, currentScreenIndex, setCurrentScreenIndex, note, patient, openExitModal }: FormFieldsProps): ReactElement => {
   const scrollViewRef = useRef(null);
   const { errors, validateForm, setStatus, submitForm, values, resetForm } = useFormikContext<
     GenericFormValues
@@ -109,10 +109,6 @@ export const FormFields = ({ components, note, patient, openExitModal }: FormFie
       await submitForm();
       resetForm();
     });
-  };
-
-  const onNavigatePrevious = (): void => {
-    setCurrentScreenIndex(Math.max(currentScreenIndex - 1, 0));
   };
 
   const shouldShow = useCallback(
@@ -168,14 +164,14 @@ export const FormFields = ({ components, note, patient, openExitModal }: FormFie
           </StyledText>
         )}
         <RowView width="68%" marginTop={25}>
-            <Button
+          <Button
             outline
             borderColor={theme.colors.MAIN_SUPER_DARK}
             borderWidth={0.1}
-              margin={5}
+            margin={5}
             buttonText="Cancel"
             onPress={openExitModal}
-            />
+          />
           {currentScreenIndex !== maxIndex ? (
             <Button margin={5} buttonText="Next" onPress={onNavigateNext} />
           ) : (
