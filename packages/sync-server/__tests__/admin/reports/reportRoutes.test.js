@@ -1,6 +1,6 @@
 import path from 'path';
 import { User } from 'shared/models/User';
-import { REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
+import { REPORT_VERSION_EXPORT_FORMATS, REPORT_DB_ROLES } from '@tamanu/constants/reports';
 import { createTestContext, withDate } from '../../utilities';
 import { readJSON, sanitizeFilename, verifyQuery } from '../../../app/admin/reports/utils';
 
@@ -19,6 +19,7 @@ describe('reportRoutes', () => {
     adminApp = await baseApp.asRole('admin');
     testReport = await models.ReportDefinition.create({
       name: 'Test Report',
+      dbRole: REPORT_DB_ROLES.RAW,
     });
     user = await User.create({
       displayName: 'Test User',
@@ -125,7 +126,7 @@ describe('reportRoutes', () => {
         1,
         'select * from patients limit 1',
       );
-      const res = await adminApp.post('/v1/admin/reports').send({ name, ...definition });
+      const res = await adminApp.post('/v1/admin/reports').send({ name, dbRole: REPORT_DB_ROLES.RAW, ...definition });
       expect(res).toHaveSucceeded();
       expect(res.body.query).toBe('select * from patients limit 1');
       expect(res.body.versionNumber).toBe(1);
@@ -150,7 +151,7 @@ describe('reportRoutes', () => {
       );
       const res = await adminApp
         .post('/v1/admin/reports')
-        .send({ name: 'Test Report 3', ...definition });
+        .send({ name: 'Test Report 3', dbRole: REPORT_DB_ROLES.RAW, ...definition });
       expect(res).toHaveSucceeded();
       expect(Object.keys(res.body)).toEqual(
         expect.arrayContaining([
@@ -273,6 +274,7 @@ describe('reportRoutes', () => {
         file: path.join(__dirname, '/data/without-version-number.json'),
         name: 'Report Import Test',
         deleteFileAfterImport: false,
+        dbRole: REPORT_DB_ROLES.RAW,
       });
       expect(res).toHaveSucceeded();
       const report = await models.ReportDefinition.findOne({
