@@ -326,6 +326,10 @@ const printMeasuresSchema = yup
       rowHeight: validCssAbsoluteLength,
       rowGap: validCssAbsoluteLength,
     }),
+    idCardPage: yup.object({
+      cardMarginTop: validCssAbsoluteLength,
+      cardMarginLeft: validCssAbsoluteLength,
+    }),
   })
   .required()
   .noUnknown();
