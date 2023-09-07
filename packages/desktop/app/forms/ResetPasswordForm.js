@@ -75,7 +75,7 @@ export const ResetPasswordForm = React.memo(
             setFieldValue={setFieldValue}
           />
         </Collapse>
-        <StyledPrimarySubmitButton type="submit">Reset Password</StyledPrimarySubmitButton>
+        <StyledPrimarySubmitButton text="Reset Password" />
         <Button onClick={onNavToLogin} color="default" variant="text">
           Back
         </Button>

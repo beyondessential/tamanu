@@ -78,7 +78,7 @@ export const LoginForm = React.memo(
             setFieldValue={setFieldValue}
           />
         </Collapse>
-        <LoginButton type="submit">Login to your account</LoginButton>
+        <LoginButton text="Login to your account" />
         <Button onClick={onNavToResetPassword} color="default" variant="text">
           Forgot your password?
         </Button>

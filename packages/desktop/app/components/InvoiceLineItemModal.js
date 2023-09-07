@@ -7,7 +7,7 @@ import { foreignKey } from '../utils/validation';
 import { Modal } from './Modal';
 import { Form, Field, DateField, AutocompleteField, NumberField } from './Field';
 import { FormGrid } from './FormGrid';
-import { ConfirmCancelRow } from './ButtonRow';
+import { FormSubmitCancelRow } from './ButtonRow';
 
 export const InvoiceLineItemModal = ({
   title,
@@ -83,7 +83,11 @@ export const InvoiceLineItemModal = ({
               label="Discount/markup % (-/+)"
               component={NumberField}
             />
-            <ConfirmCancelRow confirmText={actionText} onConfirm={submitForm} onCancel={onClose} />
+            <FormSubmitCancelRow
+              confirmText={actionText}
+              onConfirm={submitForm}
+              onCancel={onClose}
+            />
           </FormGrid>
         )}
         initialValues={initialValues}

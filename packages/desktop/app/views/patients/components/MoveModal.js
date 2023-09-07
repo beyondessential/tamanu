@@ -3,7 +3,7 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
   Modal,
   FormGrid,
-  ConfirmCancelRow,
+  FormSubmitCancelRow,
   Form,
   Field,
   LocalisedLocationField,
@@ -29,7 +29,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
               label="New location"
               required
             />
-            <ConfirmCancelRow onConfirm={submitForm} onCancel={onClose} />
+            <FormSubmitCancelRow onConfirm={submitForm} onCancel={onClose} />
           </FormGrid>
         )}
       />

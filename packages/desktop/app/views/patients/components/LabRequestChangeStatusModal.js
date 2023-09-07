@@ -3,7 +3,7 @@ import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
 import * as yup from 'yup';
 
 import {
-  ConfirmCancelRow,
+  FormSubmitCancelRow,
   DateTimeField,
   Field,
   FormGrid,
@@ -69,7 +69,11 @@ export const LabRequestChangeStatusModal = React.memo(
                     />
                   </>
                 )}
-              <ConfirmCancelRow confirmText="Confirm" onCancel={onClose} onConfirm={submitForm} />
+              <FormSubmitCancelRow
+                confirmText="Confirm"
+                onCancel={onClose}
+                onConfirm={submitForm}
+              />
             </FormGrid>
           )}
         />

@@ -235,7 +235,7 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
             <h4>{imagingRequest.results.length > 0 ? 'Add additional result' : 'Add result'}</h4>
             <NewResultSection disabled={!canAddResult} />
             <ButtonRow style={{ marginTop: 20 }}>
-              {!isCancelled && <FormSubmitButton type="submit">Save</FormSubmitButton>}
+              {!isCancelled && <FormSubmitButton text="Save" />}
             </ButtonRow>
           </>
         );

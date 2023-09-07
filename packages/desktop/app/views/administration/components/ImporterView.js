@@ -71,8 +71,8 @@ const ImportForm = ({ submitForm, dataTypes, dataTypesSelectable }) => (
       />
     )}
     <ButtonRow>
-      <LargeOutlinedSubmitButton onSubmit={submitForm} text="Test import" />
-      <LargeSubmitButton onSubmit={submitForm} text="Import" />
+      <LargeOutlinedSubmitButton text="Test import" />
+      <LargeSubmitButton text="Import" />
     </ButtonRow>
   </FormGrid>
 );

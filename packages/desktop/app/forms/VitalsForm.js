@@ -4,7 +4,7 @@ import { Alert, AlertTitle } from '@material-ui/lab';
 import { Box } from '@material-ui/core';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { ModalLoader, ConfirmCancelRow, Form } from '../components';
+import { ModalLoader, FormSubmitCancelRow, Form } from '../components';
 import { SurveyScreen } from '../components/Surveys';
 import { useVitalsSurvey } from '../api/queries';
 import { getFormInitialValues, getValidationSchema } from '../utils';
@@ -46,9 +46,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
     return <ErrorMessage error={error} />;
   }
 
-  const handleSubmit = async data => {
-    await onSubmit({ survey: vitalsSurvey, ...data });
-  };
+  const handleSubmit = data => onSubmit({ survey: vitalsSurvey, ...data });
 
   return (
     <Form
@@ -77,7 +75,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
           values={values}
           setFieldValue={setFieldValue}
           submitButton={
-            <ConfirmCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onClose} />
+            <FormSubmitCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onClose} />
           }
         />
       )}

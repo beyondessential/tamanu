@@ -2,7 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Modal } from './Modal';
-import { ConfirmCancelRow } from './ButtonRow';
+import { FormSubmitCancelRow } from './ButtonRow';
 import { SelectField, Form, Field } from './Field';
 import { BodyText } from './Typography';
 
@@ -42,7 +42,7 @@ export const CancelModal = React.memo(
                 helperText={isReasonForDelete(values.reasonForCancellation) ? helperText : null}
               />
             </Wrapper>
-            <ConfirmCancelRow onCancel={onClose} onConfirm={submitForm} cancelText="Close" />
+            <FormSubmitCancelRow onCancel={onClose} onConfirm={submitForm} cancelText="Close" />
           </ModalBody>
         )}
       />

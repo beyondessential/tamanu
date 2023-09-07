@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useFormikContext } from 'formik';
 
-export const useFormButtonSubmitting = () => {
+export const useFormButtonLoadingIndicator = isLoading => {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
-  const { isSubmitting } = useFormikContext();
 
   useEffect(() => {
     let timer;
@@ -11,10 +10,10 @@ export const useFormButtonSubmitting = () => {
       clearTimeout(timer);
     }
 
-    if (isSubmitting) {
+    if (isLoading) {
       // only show loading indicator when form is taking more than 1 second to submit
       timer = setTimeout(() => {
-        if (isSubmitting) {
+        if (isLoading) {
           setShowLoadingIndicator(true);
         }
       }, 1000);
@@ -23,7 +22,14 @@ export const useFormButtonSubmitting = () => {
     }
 
     return () => clearTimeout(timer);
-  }, [isSubmitting]);
+  }, [isLoading]);
+
+  return showLoadingIndicator;
+};
+
+export const useFormButtonSubmitting = () => {
+  const { isSubmitting } = useFormikContext();
+  const showLoadingIndicator = useFormButtonLoadingIndicator(isSubmitting);
 
   return { isSubmitting, showLoadingIndicator };
 };

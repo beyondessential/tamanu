@@ -68,7 +68,7 @@ export const AssetUploaderView = memo(() => {
         name: yup.string().required(),
         filename: yup.string().required(),
       })}
-      render={({ isSubmitting, submitForm }) => (
+      render={({ isSubmitting }) => (
         <AdminViewContainer title="Asset upload" showLoadingIndicator={isSubmitting}>
           <ContentPane>
             <FormGrid columns={1}>
@@ -87,7 +87,7 @@ export const AssetUploaderView = memo(() => {
                 required
               />
               <ButtonRow>
-                <LargeSubmitButton onSubmit={submitForm} text="Import" />
+                <LargeSubmitButton text="Import" />
               </ButtonRow>
               <ResultDisplay result={result} />
             </FormGrid>

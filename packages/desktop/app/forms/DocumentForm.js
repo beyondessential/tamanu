@@ -14,7 +14,7 @@ import { foreignKey } from '../utils/validation';
 import { Form, Field, TextField, AutocompleteField } from '../components/Field';
 import { FileChooserField } from '../components/Field/FileChooserField';
 import { FormGrid } from '../components/FormGrid';
-import { ConfirmCancelRow } from '../components/ButtonRow';
+import { ConfirmCancelRow, FormSubmitCancelRow } from '../components/ButtonRow';
 import { ModalLoader } from '../components/Modal';
 
 const MessageContainer = styled.div`
@@ -90,7 +90,7 @@ const DocumentFormContents = ({ submitForm, departmentSuggester, onCancel }) => 
         suggester={departmentSuggester}
       />
       <Field name="note" label="Note" component={TextField} style={{ gridColumn: '1 / -1' }} />
-      <ConfirmCancelRow confirmText="Add" onConfirm={submitForm} onCancel={onCancel} />
+      <FormSubmitCancelRow confirmText="Add" onConfirm={submitForm} onCancel={onCancel} />
     </FormGrid>
   );
 };

@@ -49,10 +49,18 @@ const StyledForm = styled.form`
 `;
 
 export class Form extends React.PureComponent {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+
+    const { onSubmit, formType = FORM_TYPES.DATA_FORM } = props;
+    const hasNonAsyncSubmitHandler =
+      process.env.NODE_ENV === 'development' &&
+      formType === FORM_TYPES.DATA_FORM &&
+      onSubmit.constructor.name !== 'AsyncFunction';
+
     this.state = {
       validationErrors: {},
+      showWarningForNonAsyncSubmitHandler: hasNonAsyncSubmitHandler,
     };
   }
 
@@ -186,19 +194,18 @@ export class Form extends React.PureComponent {
       originalSetValues(newValues);
     };
 
-    const { render, style, onSubmit, formType = FORM_TYPES.DATA_FORM } = this.props;
-
-    const hasNonAsyncSubmitHandler =
-      process.env.NODE_ENV === 'development' &&
-      formType === FORM_TYPES.DATA_FORM &&
-      onSubmit.constructor.name !== 'AsyncFunction';
+    const { render, style } = this.props;
+    const { showWarningForNonAsyncSubmitHandler } = this.state;
 
     return (
       <>
         {/* do not allow editing fields when form is being submitted */}
         <StyledForm style={style} onSubmit={submitForm} noValidate $clickable={!isSubmitting}>
-          {hasNonAsyncSubmitHandler && (
-            <Alert severity="warning">
+          {showWarningForNonAsyncSubmitHandler && (
+            <Alert
+              severity="warning"
+              onClose={() => this.setState({ showWarningForNonAsyncSubmitHandler: false })}
+            >
               <AlertTitle>DEV Warning: this form does not have async onSubmit</AlertTitle>
             </Alert>
           )}

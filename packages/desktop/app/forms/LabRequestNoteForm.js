@@ -74,7 +74,7 @@ const buttonStyle = css`
   }
 `;
 
-const SaveButton = styled(FormSubmitButton)`
+const SubmitButton = styled(FormSubmitButton)`
   ${buttonStyle}
 `;
 
@@ -135,14 +135,10 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
                 <Box display="flex" alignItems="center">
                   <NotesInput label="" name="content" component={TextField} autoFocus />
                   <CancelButton onClick={() => setActive(false)}>Cancel</CancelButton>
-                  <SaveButton type="submit" $underline disabled={formSubmitIsDisabled}>
-                    Save
-                  </SaveButton>
+                  <SubmitButton $underline disabled={formSubmitIsDisabled} text="Save" />
                 </Box>
               ) : (
-                <SaveButton $underline onClick={() => setActive(true)}>
-                  Add note
-                </SaveButton>
+                <SubmitButton $underline onClick={() => setActive(true)} text="Add note" />
               );
             }}
           />

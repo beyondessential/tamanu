@@ -1,7 +1,7 @@
 import React, { Children } from 'react';
 import styled from 'styled-components';
 
-import { FormCancelButton, FormSubmitButton, OutlinedButton } from './Button';
+import { FormCancelButton, FormSubmitButton, OutlinedButton, Button } from './Button';
 
 const FlexSpaceBetween = styled.div`
   display: flex;
@@ -30,7 +30,7 @@ export const ButtonRow = React.memo(({ children, ...props }) => (
   </Row>
 ));
 
-export const ConfirmCancelRow = React.memo(
+export const FormSubmitCancelRow = React.memo(
   ({
     onCancel,
     onConfirm,
@@ -49,6 +49,25 @@ export const ConfirmCancelRow = React.memo(
   ),
 );
 
+export const ConfirmCancelRow = React.memo(
+  ({
+    onCancel,
+    onConfirm,
+    confirmText = 'Confirm',
+    confirmColor = 'primary',
+    cancelText = 'Cancel',
+    confirmDisabled,
+    ...props
+  }) => (
+    <ButtonRow {...props}>
+      {onCancel && <OutlinedButton onClick={onCancel}>{cancelText}</OutlinedButton>}
+      <Button color={confirmColor} onSubmit={onConfirm} disabled={confirmDisabled}>
+        {confirmText}
+      </Button>
+    </ButtonRow>
+  ),
+);
+
 const GoBackButtonContainer = styled(ButtonRow)`
   align-items: stretch;
   justify-content: flex-start;
@@ -59,13 +78,13 @@ const GoBackButtonContainer = styled(ButtonRow)`
   }
 `;
 
-export const ConfirmCancelBackRow = ({ onBack, backButtonText = 'Back', ...props }) => (
+export const FormConfirmCancelBackRow = ({ onBack, backButtonText = 'Back', ...props }) => (
   <FlexSpaceBetween>
     {onBack && (
       <GoBackButtonContainer>
         <OutlinedButton onClick={onBack}>{backButtonText}</OutlinedButton>
       </GoBackButtonContainer>
     )}
-    <ConfirmCancelRow {...props} />
+    <FormSubmitCancelRow {...props} />
   </FlexSpaceBetween>
 );

@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import {
-  Button,
   ButtonRow,
-  ConfirmCancelRow,
+  FormSubmitCancelRow,
   Form,
   FormGrid,
   FormSeparatorLine,
@@ -81,10 +80,9 @@ export const MultiStepForm = ({
               {stepNumber > 0 && (
                 <StyledBackButton onClick={() => previous(props.values)}>Back</StyledBackButton>
               )}
-              <ConfirmCancelRow
+              <FormSubmitCancelRow
                 confirmText={step.props.submitButtonText || 'Next'}
                 onCancel={onCancel}
-                onConfirm={() => true}
               />
             </ButtonRow>
           </FormGrid>

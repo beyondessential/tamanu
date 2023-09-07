@@ -408,7 +408,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
 
   return (
     <Form
-      render={({ submitForm, values }) => (
+      render={({ values }) => (
         <>
           <PrimaryDetailsGroup />
           <StyledPatientDetailSecondaryDetailsGroupWrapper>
@@ -423,9 +423,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
             fieldValues={fieldValuesResponse?.data}
           />
           <ButtonRow>
-            <FormSubmitButton variant="contained" color="primary" onClick={submitForm}>
-              Save
-            </FormSubmitButton>
+            <FormSubmitButton variant="contained" color="primary" text="Save" />
           </ButtonRow>
         </>
       )}

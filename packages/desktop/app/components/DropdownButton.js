@@ -14,17 +14,16 @@ import {
 import LockIcon from '@material-ui/icons/Lock';
 
 import { Colors } from '../constants';
-import { Button } from './Button';
+import { FormSubmitButton, Button } from './Button';
 import { withPermissionCheck } from './withPermissionCheck';
 import { withPermissionTooltip } from './withPermissionTooltip';
-import { useFormButtonSubmitting } from '../hooks/useFormButtonSubmitting';
 
 const Container = styled.div`
   position: relative;
   display: inline-block;
 `;
 
-const MainButton = styled(Button)`
+const mainButtonStyles = `
   border-radius: 3px;
   text-transform: none;
   font-size: 14px;
@@ -60,6 +59,13 @@ const MainButton = styled(Button)`
     margin-left: 5px;
     margin-right: 10px;
   }
+`;
+const FormMainButton = styled(FormSubmitButton)`
+  ${mainButtonStyles}
+`;
+
+const MainButton = styled(Button)`
+  ${mainButtonStyles}
 `;
 
 const MenuButton = styled(MuiButton)`
@@ -119,7 +125,15 @@ const MenuList = styled(MuiMenuList)`
 `;
 
 export const DropdownButton = React.memo(
-  ({ variant, size, actions, style, className, hasPermission = true, isSubmitting }) => {
+  ({
+    variant,
+    size,
+    actions,
+    style,
+    className,
+    hasPermission = true,
+    MainButtonComponent = MainButton,
+  }) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const anchorRef = useRef(null);
 
@@ -140,18 +154,17 @@ export const DropdownButton = React.memo(
 
     if (otherActions.length === 0) {
       return (
-        <MainButton
+        <MainButtonComponent
           variant={variant}
           size={size}
           color="primary"
           disableElevation
           style={{ borderColor: Colors.primary }}
           onClick={event => handleClick(event, 0)}
-          isSubmitting={isSubmitting}
         >
           {!hasPermission && <LockIcon />}
           {mainAction.label}
-        </MainButton>
+        </MainButtonComponent>
       );
     }
 
@@ -167,10 +180,10 @@ export const DropdownButton = React.memo(
           style={{ width: '100%' }}
           disabled={!hasPermission}
         >
-          <MainButton onClick={event => handleClick(event, 0)} isSubmitting={isSubmitting}>
+          <MainButtonComponent onClick={event => handleClick(event, 0)}>
             {!hasPermission && <LockIcon />}
             {mainAction.label}
-          </MainButton>
+          </MainButtonComponent>
           <MenuButton onClick={handleToggle}>
             <KeyboardArrowDownIcon />
           </MenuButton>
@@ -198,8 +211,7 @@ export const DropdownButton = React.memo(
 );
 
 export const FormSubmitDropdownButton = ({ ...props }) => {
-  const { isSubmitting } = useFormButtonSubmitting();
-  return <DropdownButton isSubmitting={isSubmitting} {...props} />;
+  return <DropdownButton MainButtonComponent={FormMainButton} {...props} />;
 };
 
 DropdownButton.propTypes = {
