@@ -130,25 +130,6 @@ storiesOf('Program Registry', module).add('ProgramRegistry Info Panlist', () => 
             behavior="modal"
             itemTitle="Add program registry"
             getEditFormName={programRegistry => `Program registry: ${programRegistry.name}`}
-            customListModifierFunc={list => {
-              if (!list) return list;
-              return list.sort((a, b) => {
-                if (a.status < b.status) {
-                  return -1;
-                }
-                if (a.status > b.status) {
-                  return 1;
-                }
-
-                if (a.clinicalStatus < b.clinicalStatus) {
-                  return -1;
-                }
-                if (a.clinicalStatus > b.clinicalStatus) {
-                  return 1;
-                }
-                return 0;
-              });
-            }}
           />
         </div>
       </ApiContext.Provider>

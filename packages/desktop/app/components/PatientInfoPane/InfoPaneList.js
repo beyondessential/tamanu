@@ -60,18 +60,14 @@ const ListItem = styled.li`
 
 const shouldShowIssueInWarningModal = ({ type }) => type === PATIENT_ISSUE_TYPES.WARNING;
 
-const getItems = (isIssuesPane, response, customListModifierFunc) => {
-  const items =
-    (customListModifierFunc ? customListModifierFunc(response?.data) : response?.data) || [];
+const getItems = (isIssuesPane, response) => {
+  const items = response?.data || [];
   if (isIssuesPane === false) {
     return { items, warnings: null };
   }
 
   const warnings = items.filter(shouldShowIssueInWarningModal);
   let sortedIssues = [...warnings, ...items.filter(issue => !shouldShowIssueInWarningModal(issue))];
-  if (customListModifierFunc) {
-    sortedIssues = customListModifierFunc(sortedIssues);
-  }
 
   return { items: sortedIssues, warnings };
 };
@@ -90,7 +86,6 @@ export const InfoPaneList = memo(
     CustomEditForm,
     getEditFormName = () => '???',
     ListItemComponent,
-    customListModifierFunc,
   }) => {
     const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
     const { adding, editKey } = addEditState;
@@ -99,7 +94,7 @@ export const InfoPaneList = memo(
       api.get(getEndpoint),
     );
     const isIssuesPane = title === ISSUES_TITLE;
-    const { items, warnings } = getItems(isIssuesPane, data, customListModifierFunc);
+    const { items, warnings } = getItems(isIssuesPane, data);
 
     const handleAddButtonClick = useCallback(
       () => setAddEditState({ adding: !adding, editKey: null }),
