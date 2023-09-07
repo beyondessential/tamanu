@@ -119,6 +119,7 @@ describe('reportRoutes', () => {
   });
 
   describe('POST /reports', () => {
+    const dbRole = REPORT_DB_ROLES.RAW;
     it('should create a report', async () => {
       const name = 'Test Report 2';
       const { ReportDefinition, ReportDefinitionVersion } = models;
@@ -126,7 +127,7 @@ describe('reportRoutes', () => {
         1,
         'select * from patients limit 1',
       );
-      const res = await adminApp.post('/v1/admin/reports').send({ name, dbRole: REPORT_DB_ROLES.RAW, ...definition });
+      const res = await adminApp.post('/v1/admin/reports').send({ name, dbRole, ...definition });
       expect(res).toHaveSucceeded();
       expect(res.body.query).toBe('select * from patients limit 1');
       expect(res.body.versionNumber).toBe(1);
@@ -151,7 +152,7 @@ describe('reportRoutes', () => {
       );
       const res = await adminApp
         .post('/v1/admin/reports')
-        .send({ name: 'Test Report 3', dbRole: REPORT_DB_ROLES.RAW, ...definition });
+        .send({ name: 'Test Report 3', dbRole, ...definition });
       expect(res).toHaveSucceeded();
       expect(Object.keys(res.body)).toEqual(
         expect.arrayContaining([
@@ -248,12 +249,14 @@ describe('reportRoutes', () => {
   });
 
   describe('POST /reports/import', () => {
+    const dbRole = REPORT_DB_ROLES.RAW;
     it('should not create a version if dry run', async () => {
       const res = await adminApp.post(`/v1/admin/reports/import`).send({
         file: path.join(__dirname, '/data/without-version-number.json'),
         name: 'Report Import Test Dry Run',
         dryRun: true,
         deleteFileAfterImport: false,
+        dbRole,
       });
       expect(res).toHaveSucceeded();
       expect(res.body).toEqual({
@@ -274,7 +277,7 @@ describe('reportRoutes', () => {
         file: path.join(__dirname, '/data/without-version-number.json'),
         name: 'Report Import Test',
         deleteFileAfterImport: false,
-        dbRole: REPORT_DB_ROLES.RAW,
+        dbRole,
       });
       expect(res).toHaveSucceeded();
       const report = await models.ReportDefinition.findOne({
@@ -300,6 +303,7 @@ describe('reportRoutes', () => {
         file: path.join(__dirname, '/data/without-version-number.json'),
         name: testReport.name,
         deleteFileAfterImport: false,
+        dbRole,
       });
       expect(res).toHaveSucceeded();
       const report = await models.ReportDefinition.findOne({
