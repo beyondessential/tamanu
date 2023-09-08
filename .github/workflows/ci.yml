@@ -51,7 +51,7 @@ jobs:
           shard: ${{ matrix.shard }}
         run: |
           [[ -z "$shard" ]] || shard="--shard $shard"
-          yarn workspace "$package" run test "$shard"
+          yarn workspace "$package" run test $shard
 
   build-all:
     name: Build all packages
