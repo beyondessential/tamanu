@@ -1,12 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Avatar } from '@material-ui/core';
-import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants/index';
+import { Colors, STATUS_COLOR, PROGRAM_REGISTRATION_STATUSES } from '../../constants/index';
 import { DateDisplay } from '../../components/DateDisplay';
 import { programsIcon } from '../../constants/images';
 import { GreyOutlinedButton } from '../../components/Button';
 import { MenuButton } from '../../components/MenuButton';
-import { STATUS_COLOR } from '../../constants';
 
 const DisplayContainer = styled.div`
   display: flex;
