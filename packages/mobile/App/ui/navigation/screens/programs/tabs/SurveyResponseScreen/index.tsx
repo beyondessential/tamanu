@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux';
 import { Dimensions, Text } from 'react-native';
 import Modal from 'react-native-modal';
 import { useNavigation } from '@react-navigation/native';
-import { FullView, StyledView } from '~/ui/styled/common';
+import { CenterView, FullView, RowView } from '~/ui/styled/common';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { SurveyResponseScreenProps } from '/interfaces/Screens/ProgramsStack/SurveyResponseScreen';
@@ -29,11 +29,9 @@ const buttonSharedStyles = {
   height: screenPercentageToDP('4.6', Orientation.Height),
   fontSize: 12,
   fontWeight: 500,
-}
+};
 
-export const SurveyResponseScreen = ({
-  route,
-}: SurveyResponseScreenProps): ReactElement => {
+export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): ReactElement => {
   const { surveyId, selectedPatient, surveyType } = route.params;
   const isReferral = surveyType === SurveyTypes.Referral;
   const selectedPatientId = selectedPatient.id;
@@ -80,13 +78,10 @@ export const SurveyResponseScreen = ({
 
       if (!response) return;
       if (isReferral) {
-        navigation.navigate(
-          Routes.HomeStack.ReferralStack.ViewHistory.Index,
-          {
-            surveyId: surveyId,
-            latestResponseId: response.id,
-          },
-        );
+        navigation.navigate(Routes.HomeStack.ReferralStack.ViewHistory.Index, {
+          surveyId: surveyId,
+          latestResponseId: response.id,
+        });
         return;
       }
 
@@ -113,11 +108,10 @@ export const SurveyResponseScreen = ({
   const onGoBack = async () => {
     if (currentScreenIndex > 0) {
       onNavigatePrevious();
-    }
-    else {
+    } else {
       openExitModal();
     }
-  }
+  };
 
   const error = surveyError || componentsError || padError;
   // due to how useBackendEffect works we need to stay in the loading state for queries which depend
@@ -133,7 +127,11 @@ export const SurveyResponseScreen = ({
   return (
     <ErrorBoundary resetRoute={Routes.HomeStack.ProgramStack.ProgramListScreen}>
       <FullView>
-        <StackHeader title={survey.name} subtitle={joinNames(selectedPatient)} onGoBack={onGoBack} />
+        <StackHeader
+          title={survey.name}
+          subtitle={joinNames(selectedPatient)}
+          onGoBack={onGoBack}
+        />
         <SurveyForm
           patient={selectedPatient}
           patientAdditionalData={patientAdditionalData}
@@ -149,26 +147,27 @@ export const SurveyResponseScreen = ({
           isVisible={showModal}
           onBackdropPress={closeModalCallback}
           backdropOpacity={1}
-          backdropColor='#a5a5a5'
+          backdropColor="#a5a5a5"
           deviceHeight={Dimensions.get('window').height}
         >
-          <StyledView
+          <CenterView
             style={{
-              alignItems: 'center',
-              flex: 1, backgroundColor: theme.colors.BACKGROUND_GREY,
+              backgroundColor: theme.colors.BACKGROUND_GREY,
               borderRadius: 5,
               maxHeight: screenPercentageToDP('24', Orientation.Height),
               width: screenPercentageToDP('66', Orientation.Width),
               padding: 20,
-              marginLeft: screenPercentageToDP('10', Orientation.Width)
-            }}>
+              marginLeft: screenPercentageToDP('10', Orientation.Width),
+            }}
+          >
             <Text
               style={{
                 fontSize: 12,
                 color: theme.colors.BLACK,
                 fontWeight: 'bold',
-                marginBottom: 10
-              }}>
+                marginBottom: 10,
+              }}
+            >
               Exit form?
             </Text>
             <Text
@@ -177,9 +176,11 @@ export const SurveyResponseScreen = ({
                 textAlign: 'center',
                 color: theme.colors.BLACK,
               }}
-            >Are you sure you want to exit the form? You will loose any information currently entered.
+            >
+              Are you sure you want to exit the form? You will loose any information currently
+              entered.
             </Text>
-            <StyledView flexDirection="row" justifyContent="space-between" width="95%" marginTop={10}>
+            <RowView flexDirection="row" justifyContent="space-between" width="95%" marginTop={10}>
               <Button
                 outline
                 borderColor={theme.colors.MAIN_SUPER_DARK}
@@ -188,13 +189,9 @@ export const SurveyResponseScreen = ({
                 onPress={closeModalCallback}
                 {...buttonSharedStyles}
               />
-              <Button
-                buttonText="Exit"
-                onPress={closeModalCallback}
-                {...buttonSharedStyles}
-              />
-            </StyledView>
-          </StyledView>
+              <Button buttonText="Exit" onPress={closeModalCallback} {...buttonSharedStyles} />
+            </RowView>
+          </CenterView>
         </Modal>
       </FullView>
     </ErrorBoundary>
