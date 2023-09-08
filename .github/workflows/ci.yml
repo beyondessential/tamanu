@@ -26,7 +26,7 @@ jobs:
           node-version: 16
           cache: yarn
       - run: yarn
-      - run: tar -caf node_modules.tar.zst node_modules packages/*/node_modules
+      - run: tar -c node_modules packages/*/node_modules | zstd -10 -T0 -o node_modules.tar.zst
       - uses: actions/upload-artifact@v3
         with:
           name: node_modules
@@ -58,7 +58,6 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: node_modules
-          path: node_modules.tar.zst
       - run: tar -xf node_modules.tar.zst
       - run: yarn
       - run: yarn build-shared
@@ -88,7 +87,6 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: node_modules
-          path: node_modules.tar.zst
       - run: tar -xf node_modules.tar.zst
       - run: yarn
       - run: yarn build
@@ -107,7 +105,6 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: node_modules
-          path: node_modules.tar.zst
       - run: tar -xf node_modules.tar.zst
       - run: yarn
       - run: yarn build-shared
@@ -141,7 +138,6 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: node_modules
-          path: node_modules.tar.zst
       - run: tar -xf node_modules.tar.zst
       - run: yarn
       - run: yarn build-shared
@@ -171,7 +167,6 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: node_modules
-          path: node_modules.tar.zst
       - run: tar -xf node_modules.tar.zst
       - run: yarn
       - run: yarn build-shared
