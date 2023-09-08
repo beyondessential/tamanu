@@ -169,10 +169,9 @@ jobs:
       - run: yarn test
         working-directory: packages/mobile
 
-  # Dummy job to have a stable name for PR requirements
-  tests-pass:
-    if: always() # always run even if dependencies fail
-    name: Tests pass
+  allgreen:
+    name: All Green
+    if: always()
     needs:
       - test
       - build-all
@@ -182,7 +181,7 @@ jobs:
       - test-mobile
     runs-on: ubuntu-latest
     steps:
-      # fail if ANY dependency has failed or been skipped or cancelled
-      - if: "contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped')
-          || contains(needs.*.result, 'cancelled')"
-        run: exit 1
+      - name: Green if all jobs are green
+        uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}
