@@ -20,48 +20,38 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          # - macos
-          - ubuntu
-          # - windows
-        node:
-          - '16.x'
-        postgres:
-          # - '12'
-          - '14'
-        package:
-          - lan
-          - meta-server
-          - "@tamanu/shared"
-          - sync-server
+        include:
+          - { package: lan,         shard: 1/3, postgres: 14 }
+          - { package: lan,         shard: 2/3, postgres: 14 }
+          - { package: lan,         shard: 3/3, postgres: 14 }
+          - { package: sync-server, shard: 1/3, postgres: 14 }
+          - { package: sync-server, shard: 2/3, postgres: 14 }
+          - { package: sync-server, shard: 3/3, postgres: 14 }
+          - { package: meta-server }
+          - { package: "@tamanu/shared" }
 
-    name: Test ${{ matrix.package }} os=${{ matrix.os }} node=${{ matrix.node }}
-      pg=${{ matrix.postgres }}
-    runs-on: ${{ matrix.os }}-latest
+    name: Test ${{ matrix.package }}
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node }}
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 16
           cache: yarn
       - run: yarn
       - run: yarn build-shared
 
-      - name: Install and start postgres ${{ matrix.postgres }} if needed
-        if: matrix.package == 'sync-server' || matrix.package == 'lan'
-        run: .github/scripts/install-postgres-${{ matrix.os }}.sh ${{ matrix.postgres }}
-          ${{ matrix.package }}
+      - name: Install and start postgres if needed
+        if: matrix.postgres
+        run: .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }} ${{ matrix.package }}
 
-      - if: matrix.package == 'sync-server' || matrix.package == 'lan'
-        run: yarn workspace ${{ matrix.package }} run test --shard 1/3
-      - if: matrix.package == 'sync-server' || matrix.package == 'lan'
-        run: yarn workspace ${{ matrix.package }} run test --shard 2/3
-      - if: matrix.package == 'sync-server' || matrix.package == 'lan'
-        run: yarn workspace ${{ matrix.package }} run test --shard 3/3
-
-      - if: matrix.package != 'sync-server' && matrix.package != 'lan'
-        run: yarn workspace ${{ matrix.package }} run test
+      - name: Run tests
+        env:
+          package: ${{ matrix.package }}
+          shard: ${{ matrix.shard }}
+        run: |
+          [[ ! -z "$shared" ]] && shard="--shard $shard"
+          yarn workspace "$package" run test "$shard"
 
   build-all:
     name: Build all packages
