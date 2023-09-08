@@ -30,7 +30,7 @@ export class Setting extends BaseModel {
    * IMPORTANT: Duplicated from shared-src/models/Setting.js
    * Please update both places when modify
    */
-  static async get(key = '', facilityId = null) {
+  static async get(key = '', facilityId = null, scope = '') {
     const settingsQueryBuilder = this.getRepository()
       .createQueryBuilder('setting')
       .where(
@@ -43,6 +43,14 @@ export class Setting extends BaseModel {
       settingsQueryBuilder.andWhere(
         new Brackets(qb => {
           qb.where('key = :key', { key }).orWhere('key LIKE :keyLike', { keyLike: `${key}.%` });
+        }),
+      );
+    }
+
+    if (scope) {
+      settingsQueryBuilder.andWhere(
+        new Brackets(qb => {
+          qb.where('scope = :scope', { scope });
         }),
       );
     }

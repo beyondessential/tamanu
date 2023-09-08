@@ -830,6 +830,7 @@ describe('CentralSyncManager', () => {
           await models.Setting.create({
             facilityId: facility.id,
             key: 'syncAllLabRequests',
+            scope: SETTINGS_SCOPES.FACILITY,
             value: true,
           });
 
@@ -875,6 +876,7 @@ describe('CentralSyncManager', () => {
           await models.Setting.create({
             facilityId: facility.id,
             key: 'syncAllLabRequests',
+            scope: SETTINGS_SCOPES.FACILITY,
             value: false,
           });
 
@@ -1260,12 +1262,11 @@ describe('CentralSyncManager', () => {
         expect(insertedEncounter.endDate).toBe(expectedDischargedEndDate);
 
         // outgoingChanges should contain:
-        // 1 encounter, 1 note_page, 1 note_item (system generated note for discharge), and 1 discharge
-        expect(outgoingChanges).toHaveLength(4);
+        // 1 encounter, 1 note (system generated note for discharge), and 1 discharge
+        expect(outgoingChanges).toHaveLength(3);
         expect(returnedEncounter.data.id).toBe(encounterData.id);
         expect(returnedEncounter.data.endDate).toBe(expectedDischargedEndDate);
-        expect(outgoingChanges.find(c => c.recordType === 'note_pages')).toBeDefined();
-        expect(outgoingChanges.find(c => c.recordType === 'note_items')).toBeDefined();
+        expect(outgoingChanges.find(c => c.recordType === 'notes')).toBeDefined();
         expect(outgoingChanges.find(c => c.recordType === 'discharges')).toBeDefined();
       });
     });

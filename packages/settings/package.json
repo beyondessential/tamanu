@@ -1,0 +1,40 @@
+{
+  "name": "@tamanu/settings",
+  "version": "1.31.0",
+  "private": true,
+  "description": "BES - Settings",
+  "exports": {
+    ".": "./dist/index.js",
+    "./*": "./dist/*/index.js"
+  },
+  "types": "./dist/index.d.ts",
+  "homepage": "https://github.com/beyondessential/tamanu.git#readme",
+  "repository": "git@github.com:beyondessential/tamanu.git",
+  "author": "Beyond Essential Systems Pty. Ltd.",
+  "license": "SEE LICENSE IN ../../license",
+  "scripts": {
+    "build": "yarn run build:src && yarn run build:types",
+    "build:src": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true src",
+    "build:types": "tsc --declaration --emitDeclarationOnly --noEmit false && move-dts src dist",
+    "build-watch": "yarn run build && yarn run build:src --watch",
+    "test": "NODE_ENV=test jest --passWithNoTests",
+    "lint": "tsc"
+  },
+  "devDependencies": {
+    "@beyondessential/eslint-config-beyondessential": "^2.6.0",
+    "@jest/globals": "^29.4.3",
+    "@swc/jest": "^0.2.24",
+    "@tamanu/build-tooling": "*",
+    "@types/config": "^3.3.0",
+    "@types/node": "^18.14.6",
+    "@typescript-eslint/eslint-plugin": "^5.54.0",
+    "@typescript-eslint/parser": "^5.54.0",
+    "eslint": "^8.35.0",
+    "jest": "^29.4.3"
+  },
+  "dependencies": {
+    "@tamanu/constants": "*",
+    "@types/lodash": "^4.14.197",
+    "lodash": "^4.17.21"
+  }
+}
