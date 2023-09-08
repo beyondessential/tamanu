@@ -7,6 +7,8 @@ import { ImportErrorsTable } from '../app/views/administration/components/Import
 import { ImportStatsDisplay } from '../app/views/administration/components/ImportStatsDisplay';
 import { ImportExportView } from '../app/views/administration/components/ImportExportView';
 import { AssetUploaderView } from '../app/views/administration/AssetUploaderView';
+import { SettingsView } from '../app/views/administration/settings/SettingsView';
+import { MockedApi } from './utils/mockedApi';
 
 const sampleResponse = {
   sentData: false,
@@ -74,6 +76,28 @@ const dummySubmit = overrides => async formData => {
   };
 };
 
+const endpoints = {
+  'admin/settings': (data, id) => {
+    console.log(data)
+    const { scope } = data;
+    return {
+      serverScope: scope,
+      testValues: {
+        boolean: true,
+        number: 36,
+        string: 'hello',
+        array: [1, 2, 3],
+      },
+    };
+  },
+  'admin/facilities': (data) => {
+    return [
+      { id: 'facility-1', name: 'Facility 1' },
+      { id: 'facility-2', name: 'Facility 2' },
+    ];
+  },
+};
+
 storiesOf('Admin/ImportExportView', module).add('Whole view', () => (
   <ImportExportView
     onSubmit={dummySubmit()}
@@ -92,5 +116,12 @@ storiesOf('Admin/ErrorTable', module)
   .add('Default', () => <ImportErrorsTable errors={sampleResponse.errors} />)
   .add('No errors', () => <ImportErrorsTable errors={[]} />);
 
-storiesOf('Admin/AssetUploaderView', module)
-  .add('Default', () => <AssetUploaderView />);
+storiesOf('Admin/AssetUploaderView', module).add('Default', () => <AssetUploaderView />);
+
+storiesOf('Admin/SettingsEditor', module)
+  .addDecorator(Story => (
+    <MockedApi endpoints={endpoints}>
+      <Story />
+    </MockedApi>
+  ))
+  .add('Default', () => <SettingsView />);
