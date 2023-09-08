@@ -7,7 +7,7 @@ import { fake, fakeUser, fakeSurvey, fakeReferenceData } from 'shared/test-helpe
 import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData';
 import { sleepAsync } from 'shared/utils/sleepAsync';
-import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
+import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { toDateTimeString } from 'shared/utils/dateTime';
 
 import { createTestContext } from '../utilities';
@@ -1167,12 +1167,11 @@ describe('CentralSyncManager', () => {
         expect(insertedEncounter.endDate).toBe(expectedDischargedEndDate);
 
         // outgoingChanges should contain:
-        // 1 encounter, 1 note_page, 1 note_item (system generated note for discharge), and 1 discharge
-        expect(outgoingChanges).toHaveLength(4);
+        // 1 encounter, 1 note (system generated note for discharge), and 1 discharge
+        expect(outgoingChanges).toHaveLength(3);
         expect(returnedEncounter.data.id).toBe(encounterData.id);
         expect(returnedEncounter.data.endDate).toBe(expectedDischargedEndDate);
-        expect(outgoingChanges.find(c => c.recordType === 'note_pages')).toBeDefined();
-        expect(outgoingChanges.find(c => c.recordType === 'note_items')).toBeDefined();
+        expect(outgoingChanges.find(c => c.recordType === 'notes')).toBeDefined();
         expect(outgoingChanges.find(c => c.recordType === 'discharges')).toBeDefined();
       });
     });

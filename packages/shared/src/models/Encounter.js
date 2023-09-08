@@ -1,7 +1,12 @@
 import { Sequelize } from 'sequelize';
 import { endOfDay, isBefore, parseISO, startOfToday } from 'date-fns';
 
-import { ENCOUNTER_TYPES, ENCOUNTER_TYPE_VALUES, NOTE_TYPES, SYNC_DIRECTIONS } from '../constants';
+import {
+  ENCOUNTER_TYPES,
+  ENCOUNTER_TYPE_VALUES,
+  NOTE_TYPES,
+  SYNC_DIRECTIONS,
+} from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { dateTimeType } from './dateTimeTypes';
 
@@ -189,9 +194,9 @@ export class Encounter extends Model {
       as: 'referralSource',
     });
 
-    this.hasMany(models.NotePage, {
+    this.hasMany(models.Note, {
       foreignKey: 'recordId',
-      as: 'notePages',
+      as: 'notes',
       constraints: false,
       scope: {
         recordType: this.name,
@@ -354,13 +359,10 @@ export class Encounter extends Model {
   }
 
   async addSystemNote(content, date, user) {
-    const notePage = await this.createNotePage({
+    return this.createNote({
       noteType: NOTE_TYPES.SYSTEM,
       date,
-    });
-    await notePage.createNoteItem({
       content,
-      date,
       ...(user?.id && { authorId: user?.id }),
     });
   }
@@ -396,11 +398,12 @@ export class Encounter extends Model {
 
   async closeTriage(endDate) {
     const triage = await this.getLinkedTriage();
-    if (triage) {
-      await triage.update({
-        closedTime: endDate,
-      });
-    }
+    if (!triage) return;
+    if (triage.closedTime) return; // already closed
+
+    await triage.update({
+      closedTime: endDate,
+    });
   }
 
   async updateClinician(newClinicianId, submittedTime, user) {

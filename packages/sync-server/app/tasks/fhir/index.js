@@ -1,5 +1,5 @@
 import { FhirWorker } from 'shared/tasks';
-import { JOB_TOPICS } from 'shared/constants';
+import { JOB_TOPICS } from '@tamanu/constants';
 import { log } from 'shared/services/logging';
 
 import { allFromUpstream } from './refresh/allFromUpstream';

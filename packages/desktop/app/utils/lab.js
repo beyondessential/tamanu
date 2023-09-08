@@ -1,5 +1,5 @@
 import React from 'react';
-import { LAB_REQUEST_STATUS_CONFIG } from '@tamanu/shared/constants';
+import { LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
 import { DateDisplay } from '../components';
 import { PatientNameDisplay } from '../components/PatientNameDisplay';
 import { TableCellTag } from '../components/Tag';
@@ -7,7 +7,7 @@ import { TableCellTag } from '../components/Tag';
 const StatusDisplay = React.memo(({ status }) => {
   const { background, color, label } = LAB_REQUEST_STATUS_CONFIG[status];
   return (
-    <TableCellTag $background={background} $color={color}>
+    <TableCellTag $background={background} $color={color} noWrap>
       {label}
     </TableCellTag>
   );

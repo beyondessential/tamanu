@@ -60,37 +60,37 @@ jobs:
       - if: matrix.package == 'sync-server' || matrix.package == 'lan'
         run: yarn workspace ${{ matrix.package }} run test --shard 3/3
 
-      - if: "!(matrix.package == 'sync-server' || matrix.package == 'lan')"
+      - if: matrix.package != 'sync-server' && matrix.package != 'lan'
         run: yarn workspace ${{ matrix.package }} run test
 
-  lint:
-    continue-on-error: true
-
-    strategy:
-      fail-fast: false
-      matrix:
-        node:
-          - '16.x'
-        package:
-          - desktop
-          - lan
-          - meta-server
-          - "@tamanu/shared"
-          - sync-server
-
-    name: Lint ${{ matrix.package }} node=${{ matrix.node }}
+  build-all:
+    name: Build all packages
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+      - run: yarn
+      - run: yarn build
+
+  lint:
+    name: Lint packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 16
           cache: yarn
       - run: yarn
       - run: yarn build-shared
 
-      - run: yarn workspace ${{ matrix.package }} run lint
+      - run: yarn lint-all
+        env:
+          CONTINUE_ON_ERROR: true
 
   storybook:
     # Workaround for define plugin conflict warning
@@ -175,6 +175,7 @@ jobs:
     name: Tests pass
     needs:
       - test
+      - build-all
       - lint
       - storybook
       - migrations

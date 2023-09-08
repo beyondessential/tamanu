@@ -2,7 +2,7 @@ import {
   COMMUNICATION_STATUSES,
   PATIENT_COMMUNICATION_CHANNELS,
   PATIENT_COMMUNICATION_TYPES,
-} from '../constants';
+} from '@tamanu/constants';
 
 export async function createReferralNotification(referral, models) {
   const { PatientCommunication, User, Department, Facility } = models;

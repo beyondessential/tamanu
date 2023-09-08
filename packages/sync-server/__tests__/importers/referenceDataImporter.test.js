@@ -3,9 +3,9 @@ import { fake } from 'shared/test-helpers/fake';
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
-} from 'shared/constants/importable';
+} from '@tamanu/constants/importable';
 import { createDummyPatient } from 'shared/demoData/patients';
-import { REFERENCE_TYPES } from 'shared/constants';
+import { REFERENCE_TYPES } from '@tamanu/constants';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
 import { createTestContext } from '../utilities';

@@ -7,7 +7,7 @@ import {
   RemoteTimeoutError,
   RemoteCallFailedError,
 } from 'shared/errors';
-import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
+import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import { getResponseJsonSafely } from 'shared/utils';
 import { log } from 'shared/services/logging';
 import { fetchWithTimeout } from 'shared/utils/fetchWithTimeout';
@@ -44,11 +44,11 @@ export class CentralServerConnection {
   // test mocks don't always apply properly - this ensures the mock will be used
   fetchImplementation = fetch;
 
-  constructor(ctx) {
+  constructor({ deviceId }) {
     this.host = config.sync.host.trim().replace(/\/*$/, '');
     this.timeout = config.sync.timeout;
     this.batchSize = config.sync.channelBatchSize;
-    this.deviceId = ctx?.deviceId;
+    this.deviceId = deviceId;
   }
 
   async fetch(endpoint, params = {}) {
@@ -211,7 +211,13 @@ export class CentralServerConnection {
   }
 
   async startSyncSession() {
-    const { sessionId } = await this.fetch('sync', { method: 'POST' });
+    const { sessionId } = await this.fetch('sync', {
+      method: 'POST',
+      body: {
+        facilityId: config.serverFacilityId,
+        deviceId: this.deviceId,
+      },
+    });
 
     // then, poll the sync/:sessionId/ready endpoint until we get a valid response
     // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked

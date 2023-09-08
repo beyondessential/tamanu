@@ -4,7 +4,8 @@
     "migrateOnStartup": true
   },
   "log": {
-    "consoleLevel": null
+    "consoleLevel": null,
+    "enableAuditLog": true
   },
   "survey": {
     "defaultCodes": {

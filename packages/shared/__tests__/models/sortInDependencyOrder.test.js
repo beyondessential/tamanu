@@ -3,10 +3,11 @@
 import * as fc from 'fast-check';
 import { uniq } from 'lodash';
 
-import { chance } from 'shared/test-helpers';
-import { SYNC_DIRECTIONS } from '../../src/constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
+
 import { Model } from '../../src/models/Model';
 import { sortInDependencyOrder } from '../../src/models/sortInDependencyOrder';
+import { chance } from '../../src/test-helpers';
 
 function modelTrees() {
   // `tie` is literally the word "tie", as in tying a knot. We're creating a recursive
