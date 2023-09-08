@@ -1,5 +1,6 @@
 import React from 'react';
 import * as yup from 'yup';
+import styled from 'styled-components';
 import {
   Modal,
   ConfirmCancelRow,
@@ -12,6 +13,14 @@ import {
 import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { foreignKey } from '../../utils/validation';
+
+const StyledFormGrid = styled(FormGrid)`
+  grid-column: 1 / -1;
+  width: 70%;
+  display: block;
+  margin: auto;
+  margin-top: 30px;
+`;
 
 export const ChangeStatusFormModal = ({ onSubmit, onCancel, program, patient }) => {
   const { currentUser } = useAuth();
@@ -30,26 +39,17 @@ export const ChangeStatusFormModal = ({ onSubmit, onCancel, program, patient }) 
           });
         }}
         render={({ submitForm }) => {
-          const handleCancel = () => onCancel && onCancel();
+          const handleCancel = () => onCancel();
           return (
             <div>
-              <FormGrid
-                columns={1}
-                style={{
-                  gridColumn: '1 / -1',
-                  width: '70%',
-                  display: 'block',
-                  margin: 'auto',
-                  marginTop: '30px',
-                }}
-              >
+              <StyledFormGrid columns={1} style={{}}>
                 <Field
                   name="programRegistryClinicalStatusId"
                   label="Status"
                   component={AutocompleteField}
                   suggester={programRegistryStatusSuggester}
                 />
-              </FormGrid>
+              </StyledFormGrid>
               <FormSeparatorLine style={{ marginTop: '60px', marginBottom: '30px' }} />
               <ConfirmCancelRow onConfirm={submitForm} onCancel={handleCancel} />
             </div>
