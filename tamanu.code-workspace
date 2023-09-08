@@ -25,6 +25,10 @@
       "path": "packages/scripts"
     },
     {
+      "name": "settings",
+      "path": "packages/settings"
+    },
+    {
       "name": "shared",
       "path": "packages/shared"
     },

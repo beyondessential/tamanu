@@ -108,5 +108,5 @@ export class Note extends Model {
     return this[parentGetter](options);
   }
 
-  static buildSyncFilter = buildNoteLinkedSyncFilter;
+  static buildPatientSyncFilter = buildNoteLinkedSyncFilter;
 }
