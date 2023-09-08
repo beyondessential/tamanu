@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { ReferralTabs } from './ReferralTabs';
+import { ReferralScreen } from './ReferralScreen';
 import { SurveyResponseDetailsScreen } from '../screens/programs/SurveyResponseDetailsScreen';
 import { Routes } from '/helpers/routes';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
@@ -20,7 +20,7 @@ export const ReferralStack = (): ReactElement => {
   return (
     <ErrorBoundary>
       <Stack.Navigator headerMode="none">
-        <Stack.Screen name={Routes.HomeStack.ReferralStack.Index} component={ReferralTabs} />
+        <Stack.Screen name={Routes.HomeStack.ReferralStack.Index} component={ReferralScreen} />
         <Stack.Screen
           name={Routes.HomeStack.ReferralStack.ViewHistory.SurveyResponseDetailsScreen}
           component={SurveyResponseDetailsScreen}

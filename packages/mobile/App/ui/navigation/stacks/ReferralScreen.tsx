@@ -13,7 +13,7 @@ import { ReferralFormListScreen } from '../screens/referrals/ReferralFormListScr
 
 const Tabs = createTopTabNavigator();
 
-export const ReferralTabs = ({ navigation }: BaseAppProps): ReactElement => {
+export const ReferralScreen = ({ navigation }: BaseAppProps): ReactElement => {
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
