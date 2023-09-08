@@ -95,6 +95,10 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   }, []);
   const onExit = () => {
     closeModalCallback();
+    if (isReferral) {
+      navigation.navigate(Routes.HomeStack.ReferralStack.Index);
+      return;
+    }
     navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.Index);
   };
   const onGoBack = async () => {
