@@ -12,14 +12,13 @@ const Text = styled.div`
   }
 `;
 
-export const DeleteProgramRegistry = ({ onSubmit, onCancel }) => {
+export const DeleteProgramRegistry = ({ program, onSubmit, onCancel }) => {
   return (
     <Modal title="Delete record" open>
       <div>
         <Text>
           <p>
-            Are you sure you would like to delete the patient from the Hepatitis B program registry?
-            This will delete associated patient registry records. This action is irreversible.
+            {`Are you sure you would like to delete the patient from the ${program.name} program registry? This will delete associated patient registry records. This action is irreversible.`}
           </p>
         </Text>
         <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />
