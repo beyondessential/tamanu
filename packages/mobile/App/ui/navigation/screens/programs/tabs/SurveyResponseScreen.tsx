@@ -19,6 +19,7 @@ import { StackHeader } from '~/ui/components/StackHeader';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { theme } from '~/ui/styled/theme';
 import { Button } from '~/ui/components/Button';
+import { useCurrentScreen } from '~/ui/hooks/useCurrentScreen';
 
 const buttonSharedStyles = {
   width: screenPercentageToDP('25', Orientation.Width),
@@ -32,10 +33,10 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   const isReferral = surveyType === SurveyTypes.Referral;
   const selectedPatientId = selectedPatient.id;
   const navigation = useNavigation();
+  const { currentScreenIndex, onNavigatePrevious, setCurrentScreenIndex } = useCurrentScreen();
 
   const [note, setNote] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
 
   const [survey, surveyError, isSurveyLoading] = useBackendEffect(
     ({ models }) => models.Survey.getRepository().findOne(surveyId),
@@ -84,9 +85,6 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
     [survey, components],
   );
 
-  const onNavigatePrevious = (): void => {
-    setCurrentScreenIndex(Math.max(currentScreenIndex - 1, 0));
-  };
   const closeModalCallback = useCallback(async () => {
     setShowModal(false);
   }, []);
@@ -134,7 +132,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
           note={note}
           components={components}
           onSubmit={onSubmit}
-          openExitModal={openExitModal}
+          onCancel={openExitModal}
           setCurrentScreenIndex={setCurrentScreenIndex}
           currentScreenIndex={currentScreenIndex}
         />

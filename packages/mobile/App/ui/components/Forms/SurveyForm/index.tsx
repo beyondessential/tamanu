@@ -12,6 +12,7 @@ export type SurveyFormProps = {
   onSubmit: (values: any) => Promise<void>;
   openExitModal: () => Promise<void>;
   components: ISurveyComponent[];
+  onCancel?: () => Promise<void>;
   patient: any;
   note: string;
   validate: any;
@@ -27,9 +28,9 @@ export const SurveyForm = ({
   patient,
   patientAdditionalData,
   validate,
-  openExitModal,
+  onCancel,
   setCurrentScreenIndex,
-  currentScreenIndex
+  currentScreenIndex,
 }: SurveyFormProps): ReactElement => {
   const currentUser = useSelector(authUserSelector);
   const initialValues = useMemo(
@@ -92,10 +93,11 @@ export const SurveyForm = ({
             components={components}
             note={note}
             patient={patient}
-            openExitModal={openExitModal}
+            onCancel={onCancel}
             setCurrentScreenIndex={setCurrentScreenIndex}
             currentScreenIndex={currentScreenIndex}
-          />)
+          />
+        );
       }}
     </Form>
   );
