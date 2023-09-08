@@ -169,7 +169,7 @@ jobs:
       - run: yarn test
         working-directory: packages/mobile
 
-  allgreen:
+  tests-pass:
     name: All Green
     if: always()
     needs:
