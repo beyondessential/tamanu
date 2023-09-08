@@ -16,7 +16,24 @@ env:
   NODE_ENV: test
 
 jobs:
+  dependencies:
+    name: Install dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+      - run: yarn
+      - run: tar -caf node_modules.tar.zst node_modules packages/*/node_modules
+      - uses: actions/upload-artifact@v3
+        with:
+          name: node_modules
+          path: node_modules.tar.zst
+
   test:
+    needs: dependencies
     strategy:
       fail-fast: false
       matrix:
@@ -30,7 +47,7 @@ jobs:
           - { package: meta-server }
           - { package: "@tamanu/shared" }
 
-    name: Test ${{ matrix.package }}
+    name: Test ${{ matrix.package }} ${{ matrix.shard }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -38,6 +55,11 @@ jobs:
         with:
           node-version: 16
           cache: yarn
+      - uses: actions/download-artifact@v3
+        with:
+          name: node_modules
+          path: node_modules.tar.zst
+      - run: tar -xf node_modules.tar.zst
       - run: yarn
       - run: yarn build-shared
 
@@ -54,27 +76,39 @@ jobs:
           yarn workspace "$package" run test "$shard"
 
   build-all:
+    needs: dependencies
     name: Build all packages
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: yarn
+      - uses: actions/download-artifact@v3
+        with:
+          name: node_modules
+          path: node_modules.tar.zst
+      - run: tar -xf node_modules.tar.zst
       - run: yarn
       - run: yarn build
 
   lint:
+    needs: dependencies
     name: Lint packages
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: yarn
+      - uses: actions/download-artifact@v3
+        with:
+          name: node_modules
+          path: node_modules.tar.zst
+      - run: tar -xf node_modules.tar.zst
       - run: yarn
       - run: yarn build-shared
 
@@ -83,6 +117,7 @@ jobs:
           CONTINUE_ON_ERROR: true
 
   storybook:
+    needs: dependencies
     # Workaround for define plugin conflict warning
     env:
       NODE_ENV: development
@@ -97,17 +132,23 @@ jobs:
     name: Test storybook node=${{ matrix.node }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
           cache: yarn
+      - uses: actions/download-artifact@v3
+        with:
+          name: node_modules
+          path: node_modules.tar.zst
+      - run: tar -xf node_modules.tar.zst
       - run: yarn
       - run: yarn build-shared
       - run: yarn workspace desktop run verify-storybook
 
   migrations:
+    needs: dependencies
     strategy:
       fail-fast: false
       matrix:
@@ -122,11 +163,16 @@ jobs:
     name: Test migrations server=${{ matrix.server }} pg=${{ matrix.postgres }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: yarn
+      - uses: actions/download-artifact@v3
+        with:
+          name: node_modules
+          path: node_modules.tar.zst
+      - run: tar -xf node_modules.tar.zst
       - run: yarn
       - run: yarn build-shared
 
@@ -146,7 +192,7 @@ jobs:
     name: Test mobile node=${{ matrix.node }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node }}
         uses: actions/setup-node@v3
         with:
