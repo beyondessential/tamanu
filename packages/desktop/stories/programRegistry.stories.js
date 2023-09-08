@@ -16,7 +16,7 @@ const dummyData = [
     clinicianId: '1',
     clinician: {
       id: '1',
-      displayName: 'Tareq',
+      displayName: 'Tareq The First',
     },
     date: '2023-08-28T02:40:16.237Z',
     registrationDate: '2023-08-28T02:40:16.237Z',
@@ -339,7 +339,7 @@ const dummyData = [
     clinicianId: '20',
     clinician: {
       id: '20',
-      displayName: 'Taslim',
+      displayName: 'Taslim the last',
     },
     date: '2023-08-28T02:40:16.237Z',
     registrationDate: '2023-08-28T02:40:16.237Z',

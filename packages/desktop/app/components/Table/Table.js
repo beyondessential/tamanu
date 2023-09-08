@@ -98,6 +98,12 @@ const StyledTableContainer = styled.div`
   border-radius: 5px;
   background: white;
   border: 1px solid ${Colors.outline};
+  width: 100%;
+  ${props =>
+    props.isBodyScrollable &&
+    props.rowHeight &&
+    props.rowDisplayAtATime &&
+    'height: ' + props.rowHeight * props.rowDisplayAtATime + 'px'}
   ${props => (props.$elevated ? PaperStyles : null)};
 `;
 
@@ -158,6 +164,13 @@ const StyledTableHead = styled(TableHead)`
       width: 100%;
     `
       : ''}
+  ${props =>
+    props.isBodyScrollable
+      ? `
+      position: sticky;
+      top: 0;
+  `
+      : ``}
   background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
   white-space: nowrap;
   .MuiTableCell-head {
@@ -457,10 +470,19 @@ class TableComponent extends React.Component {
       isLoading,
       noDataBackgroundColor,
       tableRef,
+      rowHeight = 82,
+      rowDisplayAtATime = 4,
+      isBodyScrollable,
     } = this.props;
 
     return (
-      <StyledTableContainer className={className} $elevated={elevated}>
+      <StyledTableContainer
+        className={className}
+        $elevated={elevated}
+        isBodyScrollable
+        rowHeight={rowHeight}
+        rowDisplayAtATime={rowDisplayAtATime}
+      >
         {optionRow && <OptionRow>{optionRow}</OptionRow>}
         <StyledTable
           $backgroundColor={data.length || isLoading ? Colors.white : noDataBackgroundColor}
@@ -470,6 +492,7 @@ class TableComponent extends React.Component {
               $headerColor={headerColor}
               $fixedHeader={fixedHeader}
               $lazyLoading={lazyLoading}
+              isBodyScrollable={isBodyScrollable}
             >
               <StyledTableRow $lazyLoading={lazyLoading}>{this.renderHeaders()}</StyledTableRow>
             </StyledTableHead>

@@ -78,6 +78,7 @@ export const ProgramRegistryStatusHistory = ({ patient, program }) => {
       <Heading3>Program Status History</Heading3>
       <br />
       <Table
+        isBodyScrollable
         data={data ? data.data : []}
         columns={columns}
         rowsPerPage={4}
