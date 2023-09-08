@@ -8,125 +8,128 @@
 // string is fine).
 
 export const Routes = {
-  Autocomplete: {
-    Index: '',
-    Modal: '',
-  },
-  SignUpStack: {
-    Index: '',
-    Intro: '',
-    RegisterAccountStep1: '',
-    RegisterAccountStep2: '',
-    RegisterAccountStep3: '',
-    SignIn: '',
-    SelectFacility: '',
-    ResetPassword: '',
-    ChangePassword: '',
-  },
-  HomeStack: {
-    Index: '',
-    WelcomeIntroStack: '',
-    VaccineStack: {
-      Index: '',
-      VaccineTabs: {
-        Index: '',
-        Routine: '',
-        Catchup: '',
-        Campaign: '',
-      },
-      NewVaccineTabs: {
-        Index: '',
-        GivenOnTimeTab: '',
-        NotTakeTab: '',
-      },
-      VaccineModalScreen: '',
-    },
-    HomeTabs: {
-      Index: '',
-      Home: '',
-      Reports: '',
-      SyncData: '',
-      More: '',
-    },
-    VitalsStack: {
-      Index: '',
-      VitalsTabs: {
-        Index: '',
-        AddDetails: '',
-        ViewHistory: '',
-      },
-    },
-    ProgramStack: {
-      Index: '',
-      ProgramListScreen: '',
-      SurveyResponseDetailsScreen: '',
-      ProgramTabs: {
-        Index: '',
-        SurveyTabs: {
-          Index: '',
-          AddDetails: '',
-          ViewHistory: '',
-        }
-      },
-    },
-    ReferralStack: {
-      Index: '',
-      ReferralList: {
-        Index: '',
-        AddReferralDetails: '',
-      },
-      ViewHistory: {
-        Index: '',
-        SurveyResponseDetailsScreen: '',
-      },
-    },
-    SearchPatientStack: {
-      Index: '',
-      SearchPatientTabs: {
-        Index: '',
-        RecentViewed: '',
-        ViewAll: '',
-      },
-      FilterSearch: '',
-    },
-    DiagnosisAndTreatmentTabs: {
-      Index: '',
-      AddIllnessScreen: '',
-      PrescribeMedication: '',
-      ViewHistory: '',
-    },
-    LabRequestStack: {
-      Index: '',
-      LabRequestTabs: {
-        ViewHistory: '',
-        NewRequest: '',
-      },
-    },
-    HistoryVitalsStack: {
-      Index: '',
-      HistoryVitalsTabs: {
-        Index: '',
-        Visits: '',
-        Vitals: '',
-        Vaccines: '',
-      },
-    },
-    RegisterPatientStack: {
-      Index: '',
-      PatientPersonalInfo: '',
-      PatientSpecificInfo: '',
-      NewPatient: '',
-    },
-    PatientDetailsStack: {
-      Index: '',
-      AddPatientIssue: '',
-      EditPatient: '',
-      EditPatientAdditionalData: '',
-    },
-    PatientActions: '',
-    ExportDataScreen: '',
-  },
-};
+         Autocomplete: {
+           Index: '',
+           Modal: '',
+         },
+         SignUpStack: {
+           Index: '',
+           Intro: '',
+           RegisterAccountStep1: '',
+           RegisterAccountStep2: '',
+           RegisterAccountStep3: '',
+           SignIn: '',
+           SelectFacility: '',
+           ResetPassword: '',
+           ChangePassword: '',
+         },
+         HomeStack: {
+           Index: '',
+           WelcomeIntroStack: '',
+           VaccineStack: {
+             Index: '',
+             VaccineTabs: {
+               Index: '',
+               Routine: '',
+               Catchup: '',
+               Campaign: '',
+             },
+             NewVaccineTabs: {
+               Index: '',
+               GivenOnTimeTab: '',
+               NotTakeTab: '',
+             },
+             VaccineModalScreen: '',
+           },
+           HomeTabs: {
+             Index: '',
+             Home: '',
+             Reports: '',
+             SyncData: '',
+             More: '',
+           },
+           VitalsStack: {
+             Index: '',
+             VitalsTabs: {
+               Index: '',
+               AddDetails: '',
+               ViewHistory: '',
+             },
+           },
+           ProgramStack: {
+             Index: '',
+             SurveyResponseDetailsScreen: '',
+             ProgramTabs: {
+               Index: '',
+               SurveyTabs: {
+                 Index: '',
+                 AddDetails: '',
+                 ViewHistory: '',
+               },
+             },
+           },
+           ReferralStack: {
+             Index: '',
+             ReferralList: {
+               Index: '',
+               AddReferralDetails: '',
+             },
+             ViewHistory: {
+               Index: '',
+               SurveyResponseDetailsScreen: '',
+             },
+           },
+           SearchPatientStack: {
+             Index: '',
+             SearchPatientTabs: {
+               Index: '',
+               RecentViewed: '',
+               ViewAll: '',
+             },
+             FilterSearch: '',
+           },
+           DiagnosisAndTreatmentTabs: {
+             Index: '',
+             AddIllnessScreen: '',
+             PrescribeMedication: '',
+             ViewHistory: '',
+           },
+           DeceasedStack: {
+             Index: '',
+             AddDeceasedDetails: '',
+           },
+           LabRequestStack: {
+             Index: '',
+             LabRequestTabs: {
+               ViewHistory: '',
+               NewRequest: '',
+             },
+           },
+           HistoryVitalsStack: {
+             Index: '',
+             HistoryVitalsTabs: {
+               Index: '',
+               Visits: '',
+               Vitals: '',
+               Vaccines: '',
+             },
+           },
+           RegisterPatientStack: {
+             Index: '',
+             PatientPersonalInfo: '',
+             PatientSpecificInfo: '',
+             NewPatient: '',
+           },
+           PatientDetailsStack: {
+             Index: '',
+             AddPatientIssue: '',
+             EditPatient: '',
+             EditPatientAdditionalData: '',
+           },
+           PatientActions: '',
+           ExportDataScreen: '',
+         },
+       };
 
 // this function is set up to reassign the values on Routes in-place
 // rather than recreate the object (like how [].reduce would) so that

@@ -35,6 +35,17 @@ const TabNavigator = ({
             selectedPatient,
           }}
           options={{
+            title: 'View history',
+          }}
+          name={Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.ViewHistory}
+          component={ProgramViewHistoryScreen}
+        />
+        <Tabs.Screen
+          initialParams={{
+            // surveyId,
+            selectedPatient,
+          }}
+          options={{
             title: 'New form',
           }}
           name={Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.AddDetails}
