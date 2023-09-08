@@ -2,14 +2,14 @@ import React, { ReactElement } from 'react';
 import { theme } from '/styled/theme';
 import { FlatList } from 'react-native';
 
-import { SurveyResponseScreenProps } from '../../../../../interfaces/Screens/ProgramsStack/SurveyResponseScreen';
-import { Routes } from '../../../../../helpers/routes';
-import { ErrorScreen } from '../../../../../components/ErrorScreen';
-import { LoadingScreen } from '../../../../../components/LoadingScreen';
-import { Separator } from '../../../../../components/Separator';
-import { SurveyResponseLink } from '../../../../../components/SurveyResponseLink';
+import { SurveyResponseScreenProps } from '../../../../interfaces/Screens/ProgramsStack/SurveyResponseScreen';
+import { Routes } from '../../../../helpers/routes';
+import { ErrorScreen } from '../../../../components/ErrorScreen';
+import { LoadingScreen } from '../../../../components/LoadingScreen';
+import { Separator } from '../../../../components/Separator';
+import { SurveyResponseLink } from '../../../../components/SurveyResponseLink';
 
-import { useBackendEffect } from '../../../../../hooks';
+import { useBackendEffect } from '../../../../hooks';
 
 export const ProgramViewHistoryScreen = ({
   route,
@@ -30,10 +30,7 @@ export const ProgramViewHistoryScreen = ({
         return null;
       }
 
-      return models.SurveyResponse.getForPatient(
-        selectedPatient.id,
-        surveyId,
-      );
+      return models.SurveyResponse.getForPatient(selectedPatient.id, surveyId);
     },
     [navigation.isFocused, latestResponseId],
   );
@@ -59,9 +56,7 @@ export const ProgramViewHistoryScreen = ({
       keyExtractor={(item): string => item.id}
       renderItem={({ item, index }): ReactElement => (
         <SurveyResponseLink
-          backgroundColor={
-            index % 2 ? theme.colors.BACKGROUND_GREY : theme.colors.WHITE
-          }
+          backgroundColor={index % 2 ? theme.colors.BACKGROUND_GREY : theme.colors.WHITE}
           surveyResponse={item}
           detailsRouteName={Routes.HomeStack.ProgramStack.SurveyResponseDetailsScreen}
         />
