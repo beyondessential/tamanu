@@ -1,8 +1,4 @@
-import React, {
-  useCallback,
-  ReactElement,
-  useState,
-} from 'react';
+import React, { useCallback, ReactElement, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Dimensions, Text } from 'react-native';
 import Modal from 'react-native-modal';
@@ -125,7 +121,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   }
 
   return (
-    <ErrorBoundary resetRoute={Routes.HomeStack.ProgramStack.ProgramListScreen}>
+    <ErrorBoundary resetRoute={Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.AddDetails}>
       <FullView>
         <StackHeader
           title={survey.name}
