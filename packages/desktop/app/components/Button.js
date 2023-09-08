@@ -35,7 +35,6 @@ const StyledButton = styled(MuiButton)`
   padding: 11px 18px 12px 18px;
   box-shadow: none;
   min-width: 100px;
-  ${({ $clickable = true }) => (!$clickable ? `pointer-events: none;` : '')}
 
   .MuiSvgIcon-root {
     width: 19.5px;
@@ -57,7 +56,7 @@ const StyledCircularProgress = styled(CircularProgress)`
   margin-right: 5px;
 `;
 
-const BaseButton = ({
+export const Button = ({
   children,
   isSubmitting,
   disabled,
@@ -77,23 +76,14 @@ const BaseButton = ({
   );
 };
 
-export const Button = ({ isSubmitting = false, ...props }) => (
-  <BaseButton
-    isSubmitting={isSubmitting}
-    $clickable={!isSubmitting}
-    showLoadingIndicator={isSubmitting}
-    {...props}
-  />
-);
-
-BaseButton.propTypes = {
+Button.propTypes = {
   isSubmitting: PropTypes.bool,
   disabled: PropTypes.bool,
   variant: PropTypes.PropTypes.oneOf(['contained', 'outlined', 'text']),
   color: PropTypes.PropTypes.oneOf(['default', 'primary', 'secondary']),
 };
 
-BaseButton.defaultProps = {
+Button.defaultProps = {
   isSubmitting: false,
   disabled: false,
   variant: 'contained',
@@ -218,24 +208,24 @@ export const FormSubmitButton = ({
   const { isSubmitting, showLoadingIndicator } = useFormButtonSubmitting();
 
   return (
-    <BaseButton
+    <Button
       isSubmitting={isSubmitting}
       showLoadingIndicator={showLoadingIndicator}
       color={color}
       onClick={onSubmit}
-      $clickable={!isSubmitting}
+      disabled={isSubmitting}
       type="submit"
       {...props}
     >
       {children || text}
-    </BaseButton>
+    </Button>
   );
 };
 
 export const FormCancelButton = ({ ...props }) => {
   const { isSubmitting } = useFormikContext();
 
-  return <OutlinedButton $clickable={!isSubmitting} {...props} />;
+  return <OutlinedButton disabled={isSubmitting} {...props} />;
 };
 
 export const StyledPrimarySubmitButton = styled(FormSubmitButton)`
