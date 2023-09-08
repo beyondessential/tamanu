@@ -354,7 +354,7 @@ function sleep(milliseconds) {
 
 const dummyApi = {
   get: async (endpoint, options) => {
-    console.log(options.order, options.orderBy);
+    await sleep(5000);
     const sortedData =
       options.order && options.orderBy
         ? dummyData.sort(({ [options.orderBy]: a }, { [options.orderBy]: b }) => {
@@ -366,8 +366,6 @@ const dummyApi = {
         : sortedData;
     const startIndex = options.page * options.rowsPerPage || 0;
     const endIndex = startIndex + options.rowsPerPage ? options.rowsPerPage : sortedData.length;
-
-    console.log(endpoint, sortedData);
     return {
       data: sortedData.slice(startIndex, endIndex),
       count: dummyData.length,
@@ -377,10 +375,8 @@ const dummyApi = {
 storiesOf('Program Registry', module).add('ProgramRegistryStatusHistory removed never', () => (
   <ApiContext.Provider value={dummyApi}>
     <ProgramRegistryStatusHistory
-      patient={{ id: '34234234' }}
-      program={{
+      programRegistry={{
         id: '23242234234',
-        date: '2023-08-28T02:40:16.237Z',
       }}
     />
   </ApiContext.Provider>
@@ -389,10 +385,8 @@ storiesOf('Program Registry', module).add('ProgramRegistryStatusHistory removed 
 storiesOf('Program Registry', module).add('ProgramRegistryStatusHistory removed once', () => (
   <ApiContext.Provider value={dummyApi}>
     <ProgramRegistryStatusHistory
-      patient={{ id: '34234234' }}
-      program={{
+      programRegistry={{
         id: '23242234234',
-        date: '2023-08-28T02:40:16.237Z',
       }}
     />
   </ApiContext.Provider>

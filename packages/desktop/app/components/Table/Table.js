@@ -103,7 +103,7 @@ const StyledTableContainer = styled.div`
     props.isBodyScrollable &&
     props.rowHeight &&
     props.rowDisplayAtATime &&
-    'height: ' + props.rowHeight * props.rowDisplayAtATime + 'px'}
+    `height: ${props.rowHeight * props.rowDisplayAtATime}px`}
   ${props => (props.$elevated ? PaperStyles : null)};
 `;
 
