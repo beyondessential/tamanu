@@ -10,12 +10,13 @@ import { Separator } from '../../../../components/Separator';
 import { SurveyResponseLink } from '../../../../components/SurveyResponseLink';
 
 import { useBackendEffect } from '../../../../hooks';
+import { StyledText } from '~/ui/styled/common';
 
 export const ProgramViewHistoryScreen = ({
   route,
   navigation,
 }: SurveyResponseScreenProps): ReactElement => {
-  const { surveyId, selectedPatient, latestResponseId } = route.params;
+  const { selectedPatient, latestResponseId } = route.params;
 
   // use latestResponseId to ensure that we refresh when
   // a new survey is submitted (as this tab can be mounted while
@@ -30,7 +31,7 @@ export const ProgramViewHistoryScreen = ({
         return null;
       }
 
-      return models.SurveyResponse.getForPatient(selectedPatient.id, surveyId);
+      return models.SurveyResponse.getForPatient(selectedPatient.id);
     },
     [navigation.isFocused, latestResponseId],
   );
@@ -62,6 +63,16 @@ export const ProgramViewHistoryScreen = ({
         />
       )}
       ItemSeparatorComponent={Separator}
+      ListFooterComponent={(): ReactElement => {
+        if (responses.length > 80) {
+          return (
+            <StyledText paddingLeft={10}>
+              Pease view Tamanu Desktop for complete history of program form submissions.
+            </StyledText>
+          );
+        }
+        return <></>;
+      }}
     />
   );
 };
