@@ -74,20 +74,12 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
 
       if (!response) return;
       if (isReferral) {
-        navigation.navigate(Routes.HomeStack.ReferralStack.ViewHistory.Index, {
-          surveyId: surveyId,
-          latestResponseId: response.id,
-        });
-        return;
-      }
-
-      // navigation.navigate(
-      //   Routes.HomeStack.ProgramStack.ProgramTabs.ViewHistory,
-      //   {
-      //     surveyId: surveyId,
-      //     latestResponseId: response.id,
-      //   },
-      // );
+                        navigation.navigate(Routes.HomeStack.ReferralStack.ViewHistory.Index, {
+                          surveyId: surveyId,
+                          latestResponseId: response.id,
+                        });
+                        return;
+                      }
     },
     [survey, components],
   );
@@ -101,6 +93,10 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   const openExitModal = useCallback(async () => {
     setShowModal(true);
   }, []);
+  const onExit = () => {
+    closeModalCallback();
+    navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.Index);
+  };
   const onGoBack = async () => {
     if (currentScreenIndex > 0) {
       onNavigatePrevious();
@@ -185,7 +181,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
                 onPress={closeModalCallback}
                 {...buttonSharedStyles}
               />
-              <Button buttonText="Exit" onPress={closeModalCallback} {...buttonSharedStyles} />
+              <Button buttonText="Exit" onPress={onExit} {...buttonSharedStyles} />
             </RowView>
           </CenterView>
         </Modal>
