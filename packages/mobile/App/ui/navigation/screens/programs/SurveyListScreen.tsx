@@ -72,11 +72,17 @@ const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement
       ) : (
         <FullView>
           <StyledView
-            height={screenPercentageToDP('7.29', Orientation.Height)}
             paddingLeft={screenPercentageToDP('4.86', Orientation.Width)}
             paddingTop={screenPercentageToDP('1.76', Orientation.Height)}
+            paddingBottom={screenPercentageToDP('1.76', Orientation.Height)}
           >
-            <StyledText fontWeight={500} color={theme.colors.TEXT_SUPER_DARK} fontSize={screenPercentageToDP('3', Orientation.Height)}>{programName}</StyledText>
+            <StyledText
+              fontWeight={500}
+              color={theme.colors.TEXT_SUPER_DARK}
+              fontSize={screenPercentageToDP('2.5', Orientation.Height)}
+            >
+              {programName}
+            </StyledText>
           </StyledView>
           <Separator />
           <FlatList

@@ -1,4 +1,4 @@
-import React, { useCallback, ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 import { FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FullView } from '/styled/common';
@@ -44,7 +44,7 @@ const Screen = (): ReactElement => {
             paddingTop: 5,
           }}
           showsVerticalScrollIndicator={false}
-            data={programs}
+          data={programs}
           keyExtractor={(item): string => item.id}
           renderItem={({ item }): ReactElement => (
             <MenuOptionButton

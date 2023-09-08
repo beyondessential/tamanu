@@ -74,12 +74,12 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
 
       if (!response) return;
       if (isReferral) {
-                        navigation.navigate(Routes.HomeStack.ReferralStack.ViewHistory.Index, {
-                          surveyId: surveyId,
-                          latestResponseId: response.id,
-                        });
-                        return;
-                      }
+        navigation.navigate(Routes.HomeStack.ReferralStack.ViewHistory.Index, {
+          surveyId: surveyId,
+          latestResponseId: response.id,
+        });
+        return;
+      }
     },
     [survey, components],
   );
