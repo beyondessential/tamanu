@@ -8,15 +8,27 @@ export const ProgramRegistryFormHistory = ({ program }) => {
     {
       key: 'date',
       title: 'Date submitted',
-      accessor: row => <DateDisplay date={row.date} />,
+      accessor: row => <DateDisplay date={row.endTime} />,
+      sortable: true,
     },
-    { key: 'submittedBy', title: 'Submitted By', sortable: false },
     {
-      key: 'from',
-      title: 'From',
+      key: 'userId',
+      title: 'Submitted By',
+      accessor: row => row.user.displayName,
       sortable: false,
     },
-    { key: 'result', title: 'Result', sortable: false },
+    {
+      key: 'surveyId',
+      title: 'From',
+      accessor: row => row.survey.name,
+      sortable: false,
+    },
+    {
+      key: 'result',
+      title: 'Result',
+      accessor: row => row.result || row.resultText,
+      sortable: false,
+    },
     {
       sortable: false,
       accessor: () => (
