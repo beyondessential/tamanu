@@ -162,7 +162,13 @@ const createNameSuggester = (
   }));
 
 createNameSuggester('department', 'Department', filterByFacilityWhereBuilder);
-createNameSuggester('facility');
+createAllRecordsSuggesterRoute('department', 'Department', {
+  ...VISIBILITY_CRITERIA,
+  facilityId: config.serverFacilityId,
+});
+
+createNameSuggester('facility', 'Facility');
+createAllRecordsSuggesterRoute('facility', 'Facility', VISIBILITY_CRITERIA);
 
 // Calculate the availability of the location before passing on to the front end
 createSuggester(
