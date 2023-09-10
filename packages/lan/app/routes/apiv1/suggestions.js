@@ -127,6 +127,17 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
   }));
 });
 
+createSuggester(
+  'labTestType',
+  'LabTestType',
+  VISIBILITY_CRITERIA,
+  ({ name, code, id, labTestCategoryId }) => ({
+    name,
+    code,
+    id,
+    labTestCategoryId,
+  }),
+);
 createAllRecordsSuggesterRoute(
   'labTestType',
   'LabTestType',
@@ -212,7 +223,10 @@ createAllRecordsSuggesterRoute('locationGroup', 'LocationGroup', VISIBILITY_CRIT
 createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
 
 // Location groups filtered by facility. Used in the survey form autocomplete
-createAllRecordsSuggesterRoute('facilityLocationGroup', 'LocationGroup', VISIBILITY_CRITERIA);
+createAllRecordsSuggesterRoute('facilityLocationGroup', 'LocationGroup', {
+  ...VISIBILITY_CRITERIA,
+  facilityId: config.serverFacilityId,
+});
 createNameSuggester('facilityLocationGroup', 'LocationGroup', (search, query) =>
   filterByFacilityWhereBuilder(search, { ...query, filterByFacility: true }),
 );
@@ -228,6 +242,12 @@ createSuggester(
   }),
   ({ id, name }) => ({ id, name }),
 );
+createAllRecordsSuggesterRoute('survey', 'Survey', {
+  ...VISIBILITY_CRITERIA,
+  surveyType: {
+    [Op.notIn]: [SURVEY_TYPES.OBSOLETE, SURVEY_TYPES.VITALS],
+  },
+});
 
 createSuggester(
   'invoiceLineTypes',
@@ -238,6 +258,10 @@ createSuggester(
   }),
   ({ id, name, price }) => ({ id, name, price }),
 );
+createAllRecordsSuggesterRoute('invoiceLineTypes', 'InvoiceLineType', {
+  ...VISIBILITY_CRITERIA,
+  itemType: INVOICE_LINE_TYPES.ADDITIONAL,
+});
 
 createSuggester(
   'practitioner',
