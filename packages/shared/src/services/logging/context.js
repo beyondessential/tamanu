@@ -7,7 +7,7 @@ export const ENV = process.env.NODE_ENV ?? 'development';
 export const PROCESS_ID = shortid.generate();
 export const HOSTNAME = os.hostname();
 
-export const SemanticAttributes = {
+const SemanticAttributes = {
   ...OpenTelSemantics,
   DEPLOYMENT_NAME: 'deployment.name',
   DEPLOYMENT_ENVIRONMENT: 'deployment.environment',
