@@ -29,7 +29,7 @@
     "persistedCacheBatchSize": 10000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "pauseBetweenCacheBatchInMilliseconds": 50,
-    "persistUpdateWorkerPoolSize": 100,
+    "persistUpdateWorkerPoolSize": 5,
     "enabled": true,
     "backoff": {
       "multiplierMs": 300,

@@ -38,7 +38,7 @@
     "adjustDataBatchSize": 20000,
     "syncAllEncountersForTheseVaccines": [],
     "numberConcurrentPullSnapshots": 4,
-    "persistUpdateWorkerPoolSize": 100,
+    "persistUpdateWorkerPoolSize": 5,
     // at its very large default, maxRecordsPerPullSnapshotChunk is essentially "off"
     // can be turned on by lowering to some amount that seems appropriate if snapshot performance is an issue
     "maxRecordsPerPullSnapshotChunk": 1000000000
