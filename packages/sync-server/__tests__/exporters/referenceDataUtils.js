@@ -1,4 +1,5 @@
 import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patients';
+import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
 import { VACCINE_CATEGORIES } from '@tamanu/constants';
 
@@ -56,6 +57,22 @@ export async function createPatientFieldDefCategory(models) {
   await models.PatientFieldDefinitionCategory.create({
     id: '1234',
     name: 'test 1234',
+  });
+}
+
+export async function createPatientFieldDefinitions(models) {
+  await models.PatientFieldDefinition.create({
+    id: 'fieldDefinition-primaryPolicyNumber',
+    name: 'Primary policy number',
+    fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
+    categoryId: '123',
+  });
+  await models.PatientFieldDefinition.create({
+    id: 'fieldDefinition-size',
+    name: 'Size',
+    fieldType: PATIENT_FIELD_DEFINITION_TYPES.SELECT,
+    categoryId: '123',
+    options: ['s', 'm', 'l'],
   });
 }
 
