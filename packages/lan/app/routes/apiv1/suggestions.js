@@ -218,7 +218,28 @@ createSuggester(
   },
   'name',
 );
-createAllRecordsSuggesterRoute('location', 'Location', VISIBILITY_CRITERIA);
+createAllRecordsSuggesterRoute(
+  'location',
+  'Location',
+  VISIBILITY_CRITERIA,
+  async location => {
+    const availability = await location.getAvailability();
+    const { name, code, id, maxOccupancy, facilityId } = location;
+
+    const lg = await location.getLocationGroup();
+    const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id };
+    return {
+      name,
+      code,
+      maxOccupancy,
+      id,
+      availability,
+      facilityId,
+      ...(locationGroup && { locationGroup }),
+    };
+  },
+  'name',
+);
 
 createAllRecordsSuggesterRoute('locationGroup', 'LocationGroup', VISIBILITY_CRITERIA);
 createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
@@ -243,12 +264,17 @@ createSuggester(
   }),
   ({ id, name }) => ({ id, name }),
 );
-createAllRecordsSuggesterRoute('survey', 'Survey', {
-  ...VISIBILITY_CRITERIA,
-  surveyType: {
-    [Op.notIn]: [SURVEY_TYPES.OBSOLETE, SURVEY_TYPES.VITALS],
+createAllRecordsSuggesterRoute(
+  'survey',
+  'Survey',
+  {
+    ...VISIBILITY_CRITERIA,
+    surveyType: {
+      [Op.notIn]: [SURVEY_TYPES.OBSOLETE, SURVEY_TYPES.VITALS],
+    },
   },
-});
+  ({ id, name }) => ({ id, name }),
+);
 
 createSuggester(
   'invoiceLineTypes',
@@ -259,10 +285,15 @@ createSuggester(
   }),
   ({ id, name, price }) => ({ id, name, price }),
 );
-createAllRecordsSuggesterRoute('invoiceLineTypes', 'InvoiceLineType', {
-  ...VISIBILITY_CRITERIA,
-  itemType: INVOICE_LINE_TYPES.ADDITIONAL,
-});
+createAllRecordsSuggesterRoute(
+  'invoiceLineTypes',
+  'InvoiceLineType',
+  {
+    ...VISIBILITY_CRITERIA,
+    itemType: INVOICE_LINE_TYPES.ADDITIONAL,
+  },
+  ({ id, name, price }) => ({ id, name, price }),
+);
 
 createSuggester(
   'practitioner',
@@ -276,7 +307,16 @@ createSuggester(
   }),
   'display_name',
 );
-createAllRecordsSuggesterRoute('practitioner', 'User', VISIBILITY_CRITERIA);
+createAllRecordsSuggesterRoute(
+  'practitioner',
+  'User',
+  VISIBILITY_CRITERIA,
+  ({ id, displayName }) => ({
+    id,
+    name: displayName,
+  }),
+  'display_name',
+);
 
 createSuggester(
   'patient',
@@ -293,7 +333,13 @@ createSuggester(
   patient => patient,
   'first_name',
 );
-createAllRecordsSuggesterRoute('patient', 'Patient', VISIBILITY_CRITERIA);
+createAllRecordsSuggesterRoute(
+  'patient',
+  'Patient',
+  VISIBILITY_CRITERIA,
+  patient => patient,
+  'first_name',
+);
 
 // Specifically fetches lab test categories that have a lab request against a patient
 createSuggester('patientLabTestCategories', 'ReferenceData', (search, query) => {
