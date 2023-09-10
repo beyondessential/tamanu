@@ -1,19 +1,13 @@
 import { REFERENCE_TYPE_VALUES } from './importable';
 
-export const SUGGESTER_ENDPOINTS_SUPPORTING_ALL = [
-  ...REFERENCE_TYPE_VALUES,
-  'labTestPanel',
-  'labTestType',
-  'locationGroup',
-];
-
-export const SUGGESTER_ENDPOINTS_SUPPORTING_ID = [
+export const SUGGESTER_ENDPOINTS = [
   ...REFERENCE_TYPE_VALUES,
   'department',
   'facility',
   'facilityLocationGroup',
   'invoiceLineTypes',
   'labTestPanel',
+  'labTestType',
   'location',
   'locationGroup',
   'patient',
