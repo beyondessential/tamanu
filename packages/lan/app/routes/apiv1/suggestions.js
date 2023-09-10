@@ -99,6 +99,15 @@ function createAllRecordsSuggesterRoute(
   );
 }
 
+function createNotImplementedAllRecordsSuggesterRoute(endpoint) {
+  suggestions.get(
+    `/${endpoint}/all$`,
+    asyncHandler(async (req, res) => {
+      res.status(501).send({ error: { message: 'Not implemented' } });
+    }),
+  );
+}
+
 // Add a new suggester for a particular model at the given endpoint.
 // Records will be filtered based on the whereSql parameter. The user's search term
 // will be passed to the sql query as ":search" - see the existing suggestion
@@ -367,6 +376,7 @@ createSuggester('patientLabTestCategories', 'ReferenceData', (search, query) => 
     },
   };
 });
+createNotImplementedAllRecordsSuggesterRoute('patientLabTestCategories');
 
 // Specifically fetches lab panels that have a lab test against a patient
 createSuggester('patientLabTestPanelTypes', 'LabTestPanel', (search, query) => {
@@ -399,6 +409,7 @@ createSuggester('patientLabTestPanelTypes', 'LabTestPanel', (search, query) => {
     },
   };
 });
+createNotImplementedAllRecordsSuggesterRoute('patientLabTestPanelTypes');
 
 // TODO: Use generic LabTest permissions for this suggester
 createAllRecordsSuggesterRoute('labTestPanel', 'LabTestPanel', VISIBILITY_CRITERIA);
