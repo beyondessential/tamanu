@@ -218,6 +218,7 @@ createSuggester(
   },
   'name',
 );
+createAllRecordsSuggesterRoute('location', 'Location', VISIBILITY_CRITERIA);
 
 createAllRecordsSuggesterRoute('locationGroup', 'LocationGroup', VISIBILITY_CRITERIA);
 createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
@@ -275,6 +276,7 @@ createSuggester(
   }),
   'display_name',
 );
+createAllRecordsSuggesterRoute('practitioner', 'User', VISIBILITY_CRITERIA);
 
 createSuggester(
   'patient',
@@ -291,6 +293,7 @@ createSuggester(
   patient => patient,
   'first_name',
 );
+createAllRecordsSuggesterRoute('patient', 'Patient', VISIBILITY_CRITERIA);
 
 // Specifically fetches lab test categories that have a lab request against a patient
 createSuggester('patientLabTestCategories', 'ReferenceData', (search, query) => {
