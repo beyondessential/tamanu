@@ -390,7 +390,7 @@ describe('Suggestions', () => {
 
   it('Should get all suggestions on the /all endpoint', async () => {
     await models.ReferenceData.truncate({ cascade: true });
-    const dummyRecords = (new Array(30)).fill(0).map((_, i) => ({
+    const dummyRecords = new Array(30).fill(0).map((_, i) => ({
       id: `diag-${i}`,
       type: 'icd10',
       name: `Diag ${i}`,

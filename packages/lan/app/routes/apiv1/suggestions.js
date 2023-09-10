@@ -203,10 +203,10 @@ createSuggester(
 );
 
 createAllRecordsSuggesterRoute('locationGroup', 'LocationGroup', VISIBILITY_CRITERIA);
-
 createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
 
 // Location groups filtered by facility. Used in the survey form autocomplete
+createAllRecordsSuggesterRoute('facilityLocationGroup', 'LocationGroup', VISIBILITY_CRITERIA);
 createNameSuggester('facilityLocationGroup', 'LocationGroup', (search, query) =>
   filterByFacilityWhereBuilder(search, { ...query, filterByFacility: true }),
 );
@@ -325,6 +325,7 @@ createSuggester('patientLabTestPanelTypes', 'LabTestPanel', (search, query) => {
 createAllRecordsSuggesterRoute('labTestPanel', 'LabTestPanel', VISIBILITY_CRITERIA);
 createNameSuggester('labTestPanel', 'LabTestPanel');
 
+createAllRecordsSuggesterRoute('patientLetterTemplate', VISIBILITY_CRITERIA);
 createNameSuggester('patientLetterTemplate', 'PatientLetterTemplate');
 
 const suggesterPaths = [
