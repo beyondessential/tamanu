@@ -138,7 +138,6 @@ export class FacilitySyncManager {
     // to be pushed, and then pushing those up in batches
     // this avoids any of the records to be pushed being changed during the push period and
     // causing data that isn't internally coherent from ending up on the sync server
-
     const pushSince = (await this.models.LocalSystemFact.get(LAST_SUCCESSFUL_SYNC_PUSH_KEY)) || -1;
     log.info('FacilitySyncManager.snapshottingOutgoingChanges', { pushSince });
 
@@ -197,7 +196,6 @@ export class FacilitySyncManager {
       // update the last successful sync in the same save transaction - if updating the cursor fails,
       // we want to roll back the rest of the saves so that we don't end up detecting them as
       // needing a sync up to the central server when we attempt to resync from the same old cursor
-
       log.debug('FacilitySyncManager.updatingLastSuccessfulSyncPull', { pullUntil });
       await this.models.LocalSystemFact.set(LAST_SUCCESSFUL_SYNC_PULL_KEY, pullUntil);
     });
