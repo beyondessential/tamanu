@@ -8,7 +8,8 @@ import {
   VISIBILITY_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-// import config from 'config';
+// TODO: use db fetcher config
+import config from 'config';
 import { jsonString, validationString, configString } from './jsonString';
 
 const visibilityStatus = yup
@@ -166,6 +167,7 @@ export const SurveyScreenComponent = Base.shape({
   validationCriteria: config.validateQuestionConfigs.enabled
     ? validationString(baseValidationShape)
     : jsonString(),
+  // TODO: using db fetcher config
   config: config.validateQuestionConfigs.enabled ? configString(baseConfigShape) : jsonString(),
   screenIndex: yup.number().required(),
   componentIndex: yup.number().required(),

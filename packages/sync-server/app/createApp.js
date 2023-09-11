@@ -62,9 +62,9 @@ export async function createApp(ctx) {
 
   // API v1
   app.use('/v1/public', publicRoutes);
+  app.use('/v1', buildSettingsReader);
   app.use('/v1', authModule);
   app.use('/v1', constructPermission);
-  app.use('/v1', buildSettingsReader);
   app.use('/v1', buildRoutes(ctx));
 
   // Dis-allow all other routes

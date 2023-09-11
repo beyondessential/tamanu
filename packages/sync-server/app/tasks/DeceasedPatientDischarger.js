@@ -12,6 +12,7 @@ export class DeceasedPatientDischarger extends ScheduledTask {
   }
 
   constructor(context) {
+    // TODO: Use db config fetcher( Constructor cannot be async)
     const conf = config.schedules.deceasedPatientDischarger;
     super(conf.schedule, log);
     this.config = conf;

@@ -6,6 +6,7 @@ import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 
 export class FhirMissingResources extends ScheduledTask {
   constructor(context) {
+    // TODO: Use db config fetcher( Constructor cannot be async)
     const conf = config.schedules.fhirMissingResources;
     super(conf.schedule, log.child({ task: 'FhirMissingResources' }));
     this.config = conf;

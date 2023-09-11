@@ -9,6 +9,7 @@ export class VRSActionRetrier extends ScheduledTask {
   }
 
   constructor(context) {
+    // TODO: Use db config fetcher (cannot use async on constructor)
     super(config.integrations.fijiVrs.retrySchedule, log);
     this.context = context;
   }

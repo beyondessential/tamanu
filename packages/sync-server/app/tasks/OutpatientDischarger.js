@@ -15,6 +15,7 @@ export class OutpatientDischarger extends ScheduledTask {
   }
 
   constructor(context, overrideConfig = null) {
+    // TODO: Use db config fetcher (cannot use async on constructor)
     const conf = {
       ...config.schedules.outpatientDischarger,
       ...overrideConfig,

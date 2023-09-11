@@ -1,3 +1,4 @@
+// TODO: use db fetcher config
 import config from 'config';
 
 export function getBaseUrl(req, includePath = true) {

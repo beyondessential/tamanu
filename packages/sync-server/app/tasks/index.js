@@ -1,4 +1,4 @@
-import config from 'config';
+// import config from 'config';
 import { log } from 'shared/services/logging';
 
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
@@ -21,6 +21,7 @@ import { FhirMissingResources } from './FhirMissingResources';
 export { startFhirWorkerTasks } from './fhir';
 
 export async function startScheduledTasks(context) {
+  const { settings } = context;
   const taskClasses = [
     OutpatientDischarger,
     DeceasedPatientDischarger,
@@ -31,27 +32,27 @@ export async function startScheduledTasks(context) {
     FhirMissingResources,
   ];
 
-  if (config.schedules.automaticLabTestResultPublisher.enabled) {
+  if (await settings.get('schedules.automaticLabTestResultPublisher.enabled')) {
     taskClasses.push(AutomaticLabTestResultPublisher);
   }
 
-  if (config.schedules.covidClearanceCertificatePublisher.enabled) {
+  if (await settings.get('schedules.covidClearanceCertificatePublisher.enabled')) {
     taskClasses.push(CovidClearanceCertificatePublisher);
   }
 
-  if (config.integrations.fijiVrs.enabled) {
+  if (await await settings.get('integrations.fijiVrs.enabled')) {
     taskClasses.push(VRSActionRetrier);
   }
 
-  if (config.integrations.signer.enabled) {
+  if (await settings.get('integrations.signer.enabled')) {
     taskClasses.push(SignerWorkingPeriodChecker, SignerRenewalChecker, SignerRenewalSender);
   }
 
-  if (config.schedules.plannedMoveTimeout.enabled) {
+  if (await settings.get('schedules.plannedMoveTimeout.enabled')) {
     taskClasses.push(PlannedMoveTimeout);
   }
 
-  if (config.schedules.staleSyncSessionCleaner.enabled) {
+  if (await settings.get('schedules.staleSyncSessionCleaner.enabled')) {
     taskClasses.push(StaleSyncSessionCleaner);
   }
 
@@ -74,9 +75,10 @@ export async function startScheduledTasks(context) {
 
 async function getReportSchedulers(context) {
   const systemUser = await context.store.models.User.getSystemUser();
-
+  const { settings } = context;
   const schedulers = [];
-  for (const options of config.scheduledReports) {
+  const scheduledReports = await settings.get('scheduledReports');
+  for (const options of scheduledReports) {
     schedulers.push(
       new ReportRequestScheduler(context, { ...options, requestedByUserId: systemUser.id }),
     );

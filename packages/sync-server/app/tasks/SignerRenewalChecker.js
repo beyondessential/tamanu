@@ -7,6 +7,7 @@ import { getLocalisation } from '../localisation';
 
 export class SignerRenewalChecker extends ScheduledTask {
   constructor(context) {
+    // TODO: Use db config fetcher (cannot use async on constructor)
     const conf = config.schedules.signerRenewalChecker;
     super(conf.schedule, log);
     this.config = conf;

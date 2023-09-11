@@ -13,6 +13,7 @@ import { getPatientSurveyResponseAnswer } from 'shared/utils';
 
 export class LabRequestNotificationGenerator extends ScheduledTask {
   constructor(context) {
+    // TODO: Use db config fetcher (cannot use async on constructor)
     const conf = config.schedules.certificateNotificationProcessor;
     super(null, log);
     this.config = conf;

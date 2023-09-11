@@ -21,6 +21,7 @@ export class PatientMergeMaintainer extends ScheduledTask {
   }
 
   constructor(context, overrideConfig = null) {
+    // TODO: Use db config fetcher (cannot use async on constructor)
     const conf = {
       ...config.schedules.patientMergeMaintainer,
       ...overrideConfig,

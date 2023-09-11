@@ -10,6 +10,7 @@ export class StaleSyncSessionCleaner extends ScheduledTask {
   }
 
   constructor(context) {
+    // TODO: Use db config fetcher (cannot use async on constructor)
     const conf = config.schedules.staleSyncSessionCleaner;
     super(conf.schedule, log);
     this.config = conf;

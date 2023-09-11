@@ -22,6 +22,7 @@ export const COLUMNS_TO_DATA_ELEMENT_ID = {
 
 const conversionFunctions = {
   temperature: value => {
+    // TODO: use db config fetcher
     if (value && config.localisation.data.units.temperature === 'fahrenheit') {
       // Do this the hard way so we don't need to add a conversion lib to sync
       return (value * (9 / 5) + 32).toFixed(1);

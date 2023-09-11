@@ -10,6 +10,7 @@ const FREE_SPACE_REQUIRED =
 // Returns the available disk space in bytes.
 export const getFreeDiskSpace = async () => {
   try {
+    // TODO: Use db config fetcher
     const diskStats = await checkDiskSpace(config.disk.diskPath);
     return diskStats.free;
   } catch (error) {

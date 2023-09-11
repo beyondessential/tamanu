@@ -12,6 +12,7 @@ import { login } from './login';
 import { refresh } from './refresh';
 import { userMiddleware, userInfo } from './userMiddleware';
 
+// TODO: use db config fetcher?
 export const DEFAULT_JWT_SECRET = config.auth.secret || uuid();
 export const DEFAULT_JWT_REFRESH_SECRET = config.auth.refreshToken.secret || uuid();
 
