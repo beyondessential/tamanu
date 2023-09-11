@@ -137,7 +137,7 @@ export async function createTestContext() {
   // ensure there's a corresponding local system fact for it too
   await models.LocalSystemFact.set('facilityId', facility.id);
 
-  const expressApp = createApp(dbResult);
+  const expressApp = await createApp(dbResult);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest(appServer);
 

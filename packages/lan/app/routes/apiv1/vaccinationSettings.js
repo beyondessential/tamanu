@@ -1,6 +1,5 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import config from 'config';
 
 export const vaccinationSettings = express.Router();
 
@@ -10,7 +9,6 @@ vaccinationSettings.get(
     req.flagPermissionChecked();
 
     const {
-      models: { Setting },
       params: { key },
     } = req;
 
@@ -18,7 +16,7 @@ vaccinationSettings.get(
       throw new Error('Invalid vaccinations key');
     }
 
-    const defaults = await Setting.get(key, config.serverFacilityId);
+    const defaults = await req.settings.get(key);
 
     res.send({ data: defaults || null });
   }),

@@ -4,7 +4,7 @@ import { log } from 'shared/services/logging';
 import { insertSnapshotRecords, SYNC_SESSION_DIRECTION } from 'shared/sync';
 
 import { calculatePageLimit } from './calculatePageLimit';
-
+// TODO: use db fetcher config
 const { persistedCacheBatchSize } = config.sync;
 
 export const pullIncomingChanges = async (centralServer, sequelize, sessionId, since) => {

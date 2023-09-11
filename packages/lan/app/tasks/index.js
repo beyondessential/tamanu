@@ -6,6 +6,7 @@ import { SyncTask } from './SyncTask';
 const TASKS = [SyncTask, MedicationDiscontinuer];
 
 export function startScheduledTasks(context) {
+  // TODO: use db fetcher config
   if (config.senaite.enabled) {
     // TODO: port to new backend
     // const senaite = new SenaitePoller(context);
