@@ -51,6 +51,7 @@ export async function newKeypairAndCsr() {
     ['sign', 'verify'],
   );
 
+  // TODO: use db config fetcher
   const { keySecret, commonName, provider } = config.integrations.signer;
 
   const countryCode = (await getLocalisation()).country['alpha-2'];
@@ -142,6 +143,7 @@ export function loadCertificateIntoSigner(certificate, workingPeriod = {}) {
   const workingPeriodStart = workingPeriod.start ?? validityPeriodStart;
   let workingPeriodEnd = workingPeriod.end ?? validityPeriodEnd;
   if (!workingPeriod.end) {
+    // TODO: use db config fetcher
     if (config.integrations.vdsNc?.enabled) {
       workingPeriodEnd = add(workingPeriodStart, { days: 96 });
     }

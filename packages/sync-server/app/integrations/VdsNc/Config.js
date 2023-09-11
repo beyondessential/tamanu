@@ -1,4 +1,3 @@
-import config from 'config';
 import * as yup from 'yup';
 
 const SCHEMA = yup
@@ -8,7 +7,7 @@ const SCHEMA = yup
   })
   .noUnknown();
 
-export function checkVdsNcConfig() {
-  const { vdsNc } = config.integrations;
+export async function checkVdsNcConfig(settings) {
+  const { vdsNc } = await settings.get('integrations');
   if (vdsNc.enabled) SCHEMA.validateSync(vdsNc);
 }

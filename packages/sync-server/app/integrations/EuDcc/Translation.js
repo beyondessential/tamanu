@@ -1,6 +1,5 @@
 import { formatInTimeZone } from 'date-fns-tz';
 import { transliterate as tr } from 'transliteration';
-import config from 'config';
 import { EUDCC_CERTIFICATE_TYPES, EUDCC_SCHEMA_VERSION } from '@tamanu/constants';
 import { generateUVCI } from 'shared/utils/uvci';
 import { getLocalisation } from '../../localisation';
@@ -20,7 +19,7 @@ const SCHEDULE_TO_SEQUENCE = {
 
 const FORMAT_ISODATE = 'yyyy-MM-dd';
 
-export async function createEuDccVaccinationData(administeredVaccineId, { models }) {
+export async function createEuDccVaccinationData(administeredVaccineId, { models, settings }) {
   const {
     Patient,
     ReferenceData,
@@ -137,7 +136,7 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
         sd: certVax.maximumDosage,
         dt: vaxDate,
         co: country['alpha-2'],
-        is: config.integrations.euDcc.issuer ?? facilityName,
+        is: (await settings.get('integrations.euDcc.issuer')) ?? facilityName,
         ci: generateUVCI(id, { format: 'eudcc', countryCode: country['alpha-2'] }),
       },
     ],

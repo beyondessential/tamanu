@@ -1,5 +1,6 @@
 import { trace } from '@opentelemetry/api';
 import { Op, Transaction } from 'sequelize';
+// TODO: use db config fetcher
 import _config from 'config';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';

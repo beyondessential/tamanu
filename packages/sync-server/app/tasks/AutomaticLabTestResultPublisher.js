@@ -10,6 +10,7 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
   }
 
   constructor(context, overrideConfig = null) {
+    // TODO: use db config fetcher. (Constructor cannot be async)
     const { schedule, results } =
       overrideConfig || config.schedules.automaticLabTestResultPublisher;
     super(schedule, log);

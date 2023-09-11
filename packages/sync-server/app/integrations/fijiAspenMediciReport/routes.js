@@ -12,6 +12,7 @@ import { requireClientHeaders } from '../../middleware/requireClientHeaders';
 
 export const routes = express.Router();
 
+// TODO: use db config fetcher
 const COUNTRY_TIMEZONE = config?.countryTimeZone;
 
 // Workaround for this test changing from a hotfix, see EPI-483/484

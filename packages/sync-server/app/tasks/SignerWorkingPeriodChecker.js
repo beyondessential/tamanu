@@ -5,6 +5,7 @@ import { Op, Sequelize } from 'sequelize';
 
 export class SignerWorkingPeriodChecker extends ScheduledTask {
   constructor(context) {
+    // TODO: Use db config fetcher (cannot use async on constructor)
     const conf = config.schedules.signerWorkingPeriodChecker;
     super(conf.schedule, log);
     this.config = conf;

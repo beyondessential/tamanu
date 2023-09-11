@@ -9,13 +9,14 @@ import { importSurvey } from './importSurvey';
 
 export const PERMISSIONS = ['Program', 'Survey'];
 
-export async function programImporter({ errors, models, stats, file, whitelist = [] }) {
+export async function programImporter({ errors, models, stats, file, whitelist = [], settings }) {
   const createContext = sheetName => ({
     errors,
     log: log.child({
       file,
       sheetName,
     }),
+    settings,
     models,
   });
 
@@ -61,6 +62,7 @@ export async function programImporter({ errors, models, stats, file, whitelist =
   for (const surveyInfo of surveysToImport) {
     try {
       const context = createContext(surveyInfo.name);
+      console.log({ context });
       const result = await importSurvey(context, workbook, surveyInfo);
       stats.push(result);
     } catch (e) {
