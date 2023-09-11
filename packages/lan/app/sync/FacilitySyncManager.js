@@ -85,7 +85,7 @@ export class FacilitySyncManager {
       );
     }
 
-    log.info(`Sync: Initiating session`, { reason: this.reason });
+    log.info('FacilitySyncManager.startSession', { reason: this.reason });
 
     // clear previous temp data, in case last session errored out or server was restarted
     await dropAllSnapshotTables(this.sequelize);
@@ -98,7 +98,7 @@ export class FacilitySyncManager {
       startedAtTick: newSyncClockTime,
     } = await this.centralServer.startSyncSession();
 
-    log.info('Sync: Session started', {
+    log.info('FacilitySyncManager.receivedSessionInfo', {
       sessionId,
       startedAtTick: newSyncClockTime,
     });
@@ -108,8 +108,10 @@ export class FacilitySyncManager {
 
     await this.centralServer.endSyncSession(sessionId);
 
-    const elapsedTimeMs = Date.now() - startTime.getTime();
-    log.info(`FacilitySyncManager.runSync: finished sync run in ${elapsedTimeMs}ms`);
+    const durationMs = Date.now() - startTime.getTime();
+    log.info('FacilitySyncManager.completedSession', {
+      durationMs,
+    });
 
     // clear temp data stored for persist
     await dropSnapshotTable(this.sequelize, sessionId);
@@ -123,7 +125,7 @@ export class FacilitySyncManager {
     // or updated even mid way through this sync, are marked using the new tick and will be captured
     // in the next push
     await this.models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, newSyncClockTime);
-    log.debug('Sync: Updated local sync clock time', { newSyncClockTime });
+    log.debug('FacilitySyncManager.updatedLocalSyncClockTime', { newSyncClockTime });
 
     await waitForPendingEditsUsingSyncTick(this.sequelize, currentSyncClockTime);
 
@@ -132,21 +134,23 @@ export class FacilitySyncManager {
     // this avoids any of the records to be pushed being changed during the push period and
     // causing data that isn't internally coherent from ending up on the sync server
     const pushSince = (await this.models.LocalSystemFact.get('lastSuccessfulSyncPush')) || -1;
-    log.info('Sync: Snapshotting outgoing changes', { pushSince });
+    log.info('FacilitySyncManager.snapshottingOutgoingChanges', { pushSince });
     const outgoingChanges = await snapshotOutgoingChanges(
       this.sequelize,
       getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
       pushSince,
     );
     if (outgoingChanges.length > 0) {
-      log.info('Sync: Pushing outgoing changes', { totalPushing: outgoingChanges.length });
+      log.info('FacilitySyncManager.pushingOutgoingChanges', {
+        totalPushing: outgoingChanges.length,
+      });
       if (this.__testSpyEnabled) {
         this.__testOnlyPushChangesSpy.push({ sessionId, outgoingChanges });
       }
       await pushOutgoingChanges(this.centralServer, sessionId, outgoingChanges);
     }
     await this.models.LocalSystemFact.set('lastSuccessfulSyncPush', currentSyncClockTime);
-    log.debug('Sync: Updated last successful push', { currentSyncClockTime });
+    log.debug('FacilitySyncManager.updatedLastSuccessfulPush', { currentSyncClockTime });
   }
 
   async pullChanges(sessionId) {
@@ -167,7 +171,7 @@ export class FacilitySyncManager {
 
     await this.sequelize.transaction(async () => {
       if (totalPulled > 0) {
-        log.info('Sync: Saving changes', { totalPulled });
+        log.info('FacilitySyncManager.savingChanges', { totalPulled });
         await saveIncomingChanges(
           this.sequelize,
           getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
@@ -178,7 +182,7 @@ export class FacilitySyncManager {
       // update the last successful sync in the same save transaction - if updating the cursor fails,
       // we want to roll back the rest of the saves so that we don't end up detecting them as
       // needing a sync up to the central server when we attempt to resync from the same old cursor
-      log.debug('Sync: Updating last successful sync pull', { pullUntil });
+      log.debug('FacilitySyncManager.updatingLastSuccessfulSyncPull', { pullUntil });
       await this.models.LocalSystemFact.set('lastSuccessfulSyncPull', pullUntil);
     });
   }

@@ -13,6 +13,7 @@ import {
   REFERENCE_TYPE_VALUES,
   VISIBILITY_STATUSES,
   LAB_REQUEST_STATUSES,
+  CURRENTLY_AT_TYPES,
 } from '@tamanu/constants';
 import { toDateTimeString, toDateString } from '../utils/dateTime';
 import { fakeUUID } from '../utils/generateId';
@@ -366,6 +367,9 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
   Location: () => ({
     maxOccupancy: 1,
+  }),
+  ProgramRegistry: () => ({
+    currentlyAtType: chance.pickone(Object.values(CURRENTLY_AT_TYPES)),
   }),
 };
 

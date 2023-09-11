@@ -1,9 +1,78 @@
 import React from 'react';
+import { action } from '@storybook/addon-actions';
+import { ApiContext } from '../app/api';
+import { MockedApi } from './utils/mockedApi';
+import { Modal } from '../app/components/Modal';
+import { InfoPaneList } from '../app/components/PatientInfoPane/InfoPaneList';
+import { ProgramRegistryForm } from '../app/views/programRegistry/ProgramRegistryForm';
+import { ProgramRegistryListItem } from '../app/views/programRegistry/ProgramRegistryListItem';
+import { PROGRAM_REGISTRY } from '../app/components/PatientInfoPane/paneTitles';
+import { DisplayPatientRegDetails } from '../app/views/programRegistry/DisplayPatientRegDetails';
 import { storiesOf } from '@storybook/react';
 import { ProgramRegistryStatusHistory } from '../app/views/programRegistry/ProgramRegistryStatusHistory';
 
-import { ApiContext } from '../app/api';
-const dummyData = [
+//#region ProgramRegistryForm
+const mockProgramRegistrytFormEndpoints = {
+  'program/1': () => ({
+    data: {
+      id: '1',
+      currentlyAtType: 'facility',
+    },
+  }),
+  'program/2': () => ({
+    data: {
+      id: '2',
+      currentlyAtType: 'facility',
+    },
+  }),
+  'program/3': () => ({
+    data: {
+      id: '3',
+      currentlyAtType: 'village',
+    },
+  }),
+  'suggestions/program': () => [
+    { id: '1', name: 'Arm' },
+    { id: '2', name: 'Leg' },
+    { id: '3', name: 'Shoulder' },
+  ],
+  'suggestions/facility': () => [
+    { id: '1', name: 'Hospital 1' },
+    { id: '2', name: 'Hospital 2' },
+  ],
+  'suggestions/practitioner': () => [
+    { id: 'test-user-id', name: 'Test user id' },
+    { id: '2', name: 'Test user id 2' },
+  ],
+  'suggestions/programRegistryClinicalStatus': () => [
+    { id: '1', name: 'current' },
+    { id: '2', name: 'historical' },
+    { id: '3', name: 'merged' },
+  ],
+};
+
+storiesOf('Program Registry', module).add('ProgramRegistryFrom', () => (
+  <MockedApi endpoints={mockProgramRegistrytFormEndpoints}>
+    <Modal width="md" title="Add program registry" open>
+      <ProgramRegistryForm
+        onSubmit={action('submit')}
+        onCancel={action('cancel')}
+        patient={{ id: '323r2r234r' }}
+      />
+    </Modal>
+  </MockedApi>
+));
+
+//#endregion ProgramRegistryForm
+
+//#region ProgramRegistryStatusHistory
+
+function sleep(milliseconds) {
+  return new Promise(resolve => {
+    setTimeout(resolve, milliseconds);
+  });
+}
+const dummyDataForProgramRegistryStatusHistory = [
   {
     id: '1',
     registrationStatus: 'active',
@@ -106,269 +175,27 @@ const dummyData = [
     date: '2023-08-28T02:40:16.237Z',
     registrationDate: '2023-08-28T02:40:16.237Z',
   },
-  {
-    id: '7',
-    registrationStatus: 'active',
-    programRegistryClinicalStatusId: '7',
-    programRegistryClinicalStatus: {
-      id: '7',
-      name: 'Critical',
-      color: 'red',
-    },
-    clinicianId: '7',
-    clinician: {
-      id: '7',
-      displayName: 'Torun',
-    },
-    date: '2023-08-28T02:40:16.237Z',
-    registrationDate: '2023-08-28T02:40:16.237Z',
-  },
-  {
-    id: '8',
-    registrationStatus: 'active',
-    programRegistryClinicalStatusId: '8',
-    programRegistryClinicalStatus: {
-      id: '8',
-      name: 'Needs review',
-      color: 'yellow',
-    },
-    clinicianId: '8',
-    clinician: {
-      id: '8',
-      displayName: 'Taslim',
-    },
-    date: '2023-08-28T02:40:16.237Z',
-    registrationDate: '2023-08-28T02:40:16.237Z',
-  },
-  {
-    id: '9',
-    registrationStatus: 'active',
-    programRegistryClinicalStatusId: '9',
-    programRegistryClinicalStatus: {
-      id: '9',
-      name: 'Low risk',
-      color: 'green',
-    },
-    clinicianId: '9',
-    clinician: {
-      id: '9',
-      displayName: 'Tareq',
-    },
-    date: '2023-08-28T02:40:16.237Z',
-    registrationDate: '2023-08-28T02:40:16.237Z',
-  },
-  {
-    id: '10',
-    registrationStatus: 'active',
-    programRegistryClinicalStatusId: '10',
-    programRegistryClinicalStatus: {
-      id: '10',
-      name: 'Needs review',
-      color: 'yellow',
-    },
-    clinicianId: '10',
-    clinician: {
-      id: '10',
-      displayName: 'Aziz',
-    },
-    date: '2023-08-28T02:40:16.237Z',
-    registrationDate: '2023-08-28T02:40:16.237Z',
-  },
-  {
-    id: '11',
-    registrationStatus: 'active',
-    programRegistryClinicalStatusId: '11',
-    programRegistryClinicalStatus: {
-      id: '11',
-      name: 'Critical',
-      color: 'red',
-    },
-    clinicianId: '11',
-    clinician: {
-      id: '11',
-      displayName: 'Torun',
-    },
-    date: '2023-08-28T02:40:16.237Z',
-    registrationDate: '2023-08-28T02:40:16.237Z',
-  },
-  {
-    id: '12',
-    registrationStatus: 'active',
-    programRegistryClinicalStatusId: '12',
-    programRegistryClinicalStatus: {
-      id: '12',
-      name: 'Needs review',
-      color: 'yellow',
-    },
-    clinicianId: '12',
-    clinician: {
-      id: '12',
-      displayName: 'Taslim',
-    },
-    date: '2023-08-28T02:40:16.237Z',
-    registrationDate: '2023-08-28T02:40:16.237Z',
-  },
-  {
-    id: '13',
-    registrationStatus: 'active',
-    programRegistryClinicalStatusId: '13',
-    programRegistryClinicalStatus: {
-      id: '13',
-      name: 'Low risk',
-      color: 'green',
-    },
-    clinicianId: '13',
-    clinician: {
-      id: '13',
-      displayName: 'Tareq',
-    },
-    date: '2023-08-28T02:40:16.237Z',
-    registrationDate: '2023-08-28T02:40:16.237Z',
-  },
-  {
-    id: '14',
-    registrationStatus: 'active',
-    programRegistryClinicalStatusId: '14',
-    programRegistryClinicalStatus: {
-      id: '14',
-      name: 'Needs review',
-      color: 'yellow',
-    },
-    clinicianId: '14',
-    clinician: {
-      id: '14',
-      displayName: 'Aziz',
-    },
-    date: '2023-08-28T02:40:16.237Z',
-    registrationDate: '2023-08-28T02:40:16.237Z',
-  },
-  {
-    id: '15',
-    registrationStatus: 'active',
-    programRegistryClinicalStatusId: '15',
-    programRegistryClinicalStatus: {
-      id: '15',
-      name: 'Critical',
-      color: 'red',
-    },
-    clinicianId: '15',
-    clinician: {
-      id: '15',
-      displayName: 'Torun',
-    },
-    date: '2023-08-28T02:40:16.237Z',
-    registrationDate: '2023-08-28T02:40:16.237Z',
-  },
-  {
-    id: '16',
-    registrationStatus: 'active',
-    programRegistryClinicalStatusId: '16',
-    programRegistryClinicalStatus: {
-      id: '16',
-      name: 'Needs review',
-      color: 'yellow',
-    },
-    clinicianId: '16',
-    clinician: {
-      id: '16',
-      displayName: 'Taslim',
-    },
-    date: '2023-08-28T02:40:16.237Z',
-    registrationDate: '2023-08-28T02:40:16.237Z',
-  },
-  {
-    id: '17',
-    registrationStatus: 'active',
-    programRegistryClinicalStatusId: '17',
-    programRegistryClinicalStatus: {
-      id: '17',
-      name: 'Low risk',
-      color: 'green',
-    },
-    clinicianId: '17',
-    clinician: {
-      id: '17',
-      displayName: 'Tareq',
-    },
-    date: '2023-08-28T02:40:16.237Z',
-    registrationDate: '2023-08-28T02:40:16.237Z',
-  },
-  {
-    id: '18',
-    registrationStatus: 'active',
-    programRegistryClinicalStatusId: '18',
-    programRegistryClinicalStatus: {
-      id: '18',
-      name: 'Needs review',
-      color: 'yellow',
-    },
-    clinicianId: '18',
-    clinician: {
-      id: '18',
-      displayName: 'Aziz',
-    },
-    date: '2023-08-28T02:40:16.237Z',
-    registrationDate: '2023-08-28T02:40:16.237Z',
-  },
-  {
-    id: '19',
-    registrationStatus: 'active',
-    programRegistryClinicalStatusId: '19',
-    programRegistryClinicalStatus: {
-      id: '19',
-      name: 'Critical',
-      color: 'red',
-    },
-    clinicianId: '19',
-    clinician: {
-      id: '19',
-      displayName: 'Torun',
-    },
-    date: '2023-08-28T02:40:16.237Z',
-    registrationDate: '2023-08-28T02:40:16.237Z',
-  },
-  {
-    id: '20',
-    registrationStatus: 'removed',
-    programRegistryClinicalStatusId: '20',
-    programRegistryClinicalStatus: {
-      id: '20',
-      name: 'Needs review',
-      color: 'yellow',
-    },
-    clinicianId: '20',
-    clinician: {
-      id: '20',
-      displayName: 'Taslim the last',
-    },
-    date: '2023-08-28T02:40:16.237Z',
-    registrationDate: '2023-08-28T02:40:16.237Z',
-  },
 ];
-
-function sleep(milliseconds) {
-  return new Promise(resolve => {
-    setTimeout(resolve, milliseconds);
-  });
-}
 
 const dummyApi = {
   get: async (endpoint, options) => {
     await sleep(5000);
     const sortedData =
       options.order && options.orderBy
-        ? dummyData.sort(({ [options.orderBy]: a }, { [options.orderBy]: b }) => {
-            if (typeof a === 'string') {
-              return options.order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
-            }
-            return options.order === 'asc' ? a - b : b - a;
-          })
+        ? dummyDataForProgramRegistryStatusHistory.sort(
+            ({ [options.orderBy]: a }, { [options.orderBy]: b }) => {
+              if (typeof a === 'string') {
+                return options.order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
+              }
+              return options.order === 'asc' ? a - b : b - a;
+            },
+          )
         : sortedData;
     const startIndex = options.page * options.rowsPerPage || 0;
     const endIndex = startIndex + options.rowsPerPage ? options.rowsPerPage : sortedData.length;
     return {
       data: sortedData.slice(startIndex, endIndex),
-      count: dummyData.length,
+      count: dummyDataForProgramRegistryStatusHistory.length,
     };
   },
 };
@@ -391,3 +218,159 @@ storiesOf('Program Registry', module).add('ProgramRegistryStatusHistory removed 
     />
   </ApiContext.Provider>
 ));
+
+//#endregion ProgramRegistryStatusHistory
+
+//#region InfoPaneList
+const dummyProgramRegistriesForInfoPaneList = [
+  {
+    id: '1',
+    name: 'Seasonal fever',
+    status: 'Removed',
+    clinicalStatus: 'Needs review',
+  },
+  {
+    id: '12',
+    name: 'Hepatities B',
+    status: 'Active',
+    clinicalStatus: 'Low risk',
+  },
+  {
+    id: '13',
+    name: 'Covid',
+    status: 'Removed',
+    clinicalStatus: 'Critical',
+  },
+  {
+    id: '14',
+    name: 'Dengue',
+    status: 'Active',
+    clinicalStatus: 'Needs review',
+  },
+  {
+    id: '15',
+    name: 'Diabetis',
+    status: 'Active',
+    clinicalStatus: 'Critical',
+  },
+  {
+    id: '16',
+    name: 'Typhoid',
+    status: 'Removed',
+    clinicalStatus: 'Low risk',
+  },
+];
+const dummyApiForInfoPaneList = {
+  get: async endpoint => {
+    await sleep(1000);
+    return {
+      data: dummyProgramRegistriesForInfoPaneList,
+    };
+  },
+};
+storiesOf('Program Registry', module).add('ProgramRegistry Info Panlist', () => {
+  const patient = { id: '323r2r234r' };
+  return (
+    <MockedApi endpoints={mockProgramRegistrytFormEndpoints}>
+      <ApiContext.Provider value={dummyApiForInfoPaneList}>
+        <div style={{ width: '250px', backgroundColor: 'white', padding: '10px' }}>
+          <InfoPaneList
+            patient={patient}
+            readonly={false}
+            title={PROGRAM_REGISTRY}
+            endpoint="programRegistry"
+            getEndpoint={`patient/${patient.id}/program-registry`}
+            Form={ProgramRegistryForm}
+            ListItemComponent={ProgramRegistryListItem}
+            getName={programRegistry => programRegistry.name}
+            behavior="modal"
+            itemTitle="Add program registry"
+            getEditFormName={programRegistry => `Program registry: ${programRegistry.name}`}
+          />
+        </div>
+      </ApiContext.Provider>
+    </MockedApi>
+  );
+});
+//#endregion InfoPaneList
+
+//#region DisplayPatientRegDetails
+storiesOf('Program Registry', module).add('DisplayPatientRegDetails Low risk', () => (
+  <div style={{ width: '797px' }}>
+    <DisplayPatientRegDetails
+      patientProgramRegistration={{
+        date: '2023-08-28T02:40:16.237Z',
+        programRegistryClinicalStatusId: '123123',
+        programRegistryClinicalStatus: {
+          id: '123123',
+          code: 'low_risk',
+          name: 'Low risk',
+          color: 'green',
+        },
+        clinicianId: '213123',
+        clinician: {
+          id: '213123',
+          displayName: 'Alaister',
+        },
+        registrationStatus: 'active',
+      }}
+    />
+  </div>
+));
+
+storiesOf('Program Registry', module).add('DisplayPatientRegDetails Critical', () => (
+  <div style={{ width: '797px' }}>
+    <DisplayPatientRegDetails
+      patientProgramRegistration={{
+        date: '2023-08-28T02:40:16.237Z',
+        programRegistryClinicalStatusId: '123123',
+        programRegistryClinicalStatus: {
+          id: '123123',
+          code: 'critical',
+          name: 'Critical',
+          color: 'red',
+        },
+        clinicianId: '213123',
+        clinician: {
+          id: '213123',
+          displayName: 'Alaister',
+        },
+        removedById: '213123',
+        removedBy: {
+          id: '213123',
+          displayName: 'Alaister',
+        },
+        registrationStatus: 'removed',
+      }}
+    />
+  </div>
+));
+
+storiesOf('Program Registry', module).add('DisplayPatientRegDetails Needs review', () => (
+  <div style={{ width: '797px' }}>
+    <DisplayPatientRegDetails
+      patientProgramRegistration={{
+        date: '2023-08-28T02:40:16.237Z',
+        programRegistryClinicalStatusId: '123123',
+        programRegistryClinicalStatus: {
+          id: '123123',
+          code: 'needs_review',
+          name: 'Needs review',
+          color: 'yellow',
+        },
+        clinicianId: '213123',
+        clinician: {
+          id: '213123',
+          displayName: 'Alaister',
+        },
+        removedById: '213123',
+        removedBy: {
+          id: '213123',
+          displayName: 'Alaister',
+        },
+        registrationStatus: 'removed',
+      }}
+    />
+  </div>
+));
+//#endregion DisplayPatientRegDetails
