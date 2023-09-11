@@ -3,6 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { ASSET_FALLBACK_NAMES } from '@tamanu/constants';
 import { useApi } from '../api';
 
+const queryResponseToAssetData = response => Buffer.from(response.data).toString('base64');
+
 export const useAsset = assetName => {
   const api = useApi();
 
@@ -17,7 +19,7 @@ export const useAsset = assetName => {
   const { data: fallbackQueryData } = useQuery({
     queryKey: ['asset', fallbackAssetName],
     queryFn: () => api.get(`asset/${fallbackAssetName}`),
-    enabled: !!fallbackAssetName && assetFetched,
+    enabled: !!fallbackAssetName && assetFetched && !queryData,
   });
 
   const [assetData, setAssetData] = useState(null);
@@ -25,17 +27,17 @@ export const useAsset = assetName => {
 
   useEffect(() => {
     if (queryData) {
-      setAssetData(Buffer.from(queryData.data).toString('base64'));
+      setAssetData(queryResponseToAssetData(queryData));
       setAssetDataType(queryData.type);
     }
   }, [queryData]);
 
   useEffect(() => {
-    if (!assetData && fallbackQueryData) {
-      setAssetData(Buffer.from(fallbackQueryData.data).toString('base64'));
+    if (!queryData && fallbackQueryData) {
+      setAssetData(queryResponseToAssetData(fallbackQueryData));
       setAssetDataType(fallbackQueryData.type);
     }
-  }, [assetData, fallbackQueryData]);
+  }, [queryData, fallbackQueryData]);
 
   if (!assetData) {
     return null;
