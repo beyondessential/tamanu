@@ -1,1 +1,0 @@
-{"version":3,"sources":["../../../src/reader/readers/Reader.ts"],"sourcesContent":["export class Reader {\n  async getSettings() {\n    throw new Error('getSettings() method not implemented');\n  }\n}\n"],"names":["Reader","getSettings","Error"],"mappings":";;;;+BAAaA;;aAAAA;;AAAN,IAAA,AAAMA,SAAN,MAAMA;IACX,MAAMC,cAAc;QAClB,MAAM,IAAIC,MAAM,wCAAwC;IAC1D;AACF"}
