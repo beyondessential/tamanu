@@ -20,6 +20,11 @@ export async function performAssumedRoleOperation(context, role, query, replacem
       type: QueryTypes.SELECT,
       replacements,
     });
+    const resetRoleSettingsQuery = rolconfig.reduce((acc, { config }) => {
+      const [key] = config.split('=');
+      return `${acc} RESET ${key};`;
+    }, '');
+    await sequelize.query(resetRoleSettingsQuery);
     await sequelize.query('RESET ROLE');
     return res;
   });
