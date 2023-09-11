@@ -8,6 +8,7 @@ import {
 } from '@tamanu/constants';
 import { Model } from './Model';
 import { getReportQueryReplacements } from '../utils/reports/getReportQueryReplacements';
+import { performAssumedRoleOperation } from '../utils/assumedRoles';
 
 const optionsValidator = yup.object({
   parameters: yup
@@ -129,6 +130,15 @@ export class ReportDefinitionVersion extends Model {
       queryOptions.parameters,
       parameters,
       queryOptions.defaultDateRange,
+    );
+
+
+
+    const assumedRoleQueryResultsDebug = await performAssumedRoleOperation(
+      context,
+      'tamanu_dataset_reporting',
+      reportQuery,
+      replacements,
     );
 
     const queryResults = await sequelize.query(reportQuery, {
