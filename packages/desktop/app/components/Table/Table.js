@@ -486,7 +486,7 @@ class TableComponent extends React.Component {
               $headerColor={headerColor}
               $fixedHeader={fixedHeader}
               $lazyLoading={lazyLoading}
-              isBodyScrollable={isBodyScrollable}
+              $isBodyScrollable={isBodyScrollable}
             >
               <StyledTableRow $lazyLoading={lazyLoading}>{this.renderHeaders()}</StyledTableRow>
             </StyledTableHead>
@@ -542,6 +542,7 @@ TableComponent.propTypes = {
   lazyLoading: PropTypes.bool,
   isLoadingMore: PropTypes.bool,
   noDataBackgroundColor: PropTypes.string,
+  isBodyScrollable: PropTypes.bool,
 };
 
 TableComponent.defaultProps = {
@@ -572,6 +573,7 @@ TableComponent.defaultProps = {
   lazyLoading: false,
   isLoadingMore: false,
   noDataBackgroundColor: Colors.white,
+  isBodyScrollable: false,
 };
 
 export const Table = React.forwardRef(
