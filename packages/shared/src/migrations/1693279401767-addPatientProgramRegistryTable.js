@@ -28,6 +28,7 @@ export async function up(query) {
       allowNull: false,
     },
     registration_status: {
+      allowNull: false,
       type: Sequelize.TEXT,
     },
 

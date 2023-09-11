@@ -49,11 +49,10 @@ patientProgramRegistration.post(
     const patient = await models.Patient.findByPk(patientId);
     if (!patient) throw new NotFoundError();
 
-    req.checkPermission('read', 'ProgramRegistry');
+    req.checkPermission('read', 'ProgramRegistry', { id: programRegistryId });
     const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
     if (!programRegistry) throw new NotFoundError();
 
-    req.checkPermission('read', 'ProgramRegistry');
     const existingRegistration = await models.PatientProgramRegistration.findOne({
       attributes: {
         // We don't want to override the defaults for the new record.
@@ -68,9 +67,9 @@ patientProgramRegistration.post(
     });
 
     if (existingRegistration) {
-      req.checkPermission('write', 'PatientProgramRegistration');
+      req.checkPermission('write', 'PatientProgramRegistration', { programRegistryId });
     } else {
-      req.checkPermission('create', 'PatientProgramRegistration');
+      req.checkPermission('create', 'PatientProgramRegistration', { programRegistryId });
     }
 
     const registration = await models.PatientProgramRegistration.create({
