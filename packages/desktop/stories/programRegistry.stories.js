@@ -1,5 +1,4 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { ApiContext } from '../app/api';
 import { MockedApi } from './utils/mockedApi';
@@ -9,6 +8,8 @@ import { ProgramRegistryForm } from '../app/views/programRegistry/ProgramRegistr
 import { ProgramRegistryListItem } from '../app/views/programRegistry/ProgramRegistryListItem';
 import { PROGRAM_REGISTRY } from '../app/components/PatientInfoPane/paneTitles';
 import { DisplayPatientRegDetails } from '../app/views/programRegistry/DisplayPatientRegDetails';
+import { storiesOf } from '@storybook/react';
+import { ProgramRegistryStatusHistory } from '../app/views/programRegistry/ProgramRegistryStatusHistory';
 
 //#region ProgramRegistryForm
 const mockProgramRegistrytFormEndpoints = {
@@ -62,7 +63,166 @@ storiesOf('Program Registry', module).add('ProgramRegistryFrom', () => (
   </MockedApi>
 ));
 
-const dummyProgramRegistries = [
+//#endregion ProgramRegistryForm
+
+//#region ProgramRegistryStatusHistory
+
+function sleep(milliseconds) {
+  return new Promise(resolve => {
+    setTimeout(resolve, milliseconds);
+  });
+}
+const dummyDataForProgramRegistryStatusHistory = [
+  {
+    id: '1',
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '1',
+    programRegistryClinicalStatus: {
+      id: '1',
+      name: 'Low risk',
+      color: 'green',
+    },
+    clinicianId: '1',
+    clinician: {
+      id: '1',
+      displayName: 'Tareq The First',
+    },
+    date: '2023-08-28T02:40:16.237Z',
+    registrationDate: '2023-08-28T02:40:16.237Z',
+  },
+  {
+    id: '2',
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '2',
+    programRegistryClinicalStatus: {
+      id: '2',
+      name: 'Needs review',
+      color: 'yellow',
+    },
+    clinicianId: '2',
+    clinician: {
+      id: '2',
+      displayName: 'Aziz',
+    },
+    date: '2023-08-28T02:40:16.237Z',
+    registrationDate: '2023-08-28T02:40:16.237Z',
+  },
+  {
+    id: '3',
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '3',
+    programRegistryClinicalStatus: {
+      id: '3',
+      name: 'Critical',
+      color: 'red',
+    },
+    clinicianId: '3',
+    clinician: {
+      id: '3',
+      displayName: 'Torun',
+    },
+    date: '2023-08-28T02:40:16.237Z',
+    registrationDate: '2023-08-28T02:40:16.237Z',
+  },
+  {
+    id: '4',
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '4',
+    programRegistryClinicalStatus: {
+      id: '4',
+      name: 'Needs review',
+      color: 'yellow',
+    },
+    clinicianId: '4',
+    clinician: {
+      id: '4',
+      displayName: 'Taslim',
+    },
+    date: '2023-08-28T02:40:16.237Z',
+    registrationDate: '2023-08-28T02:40:16.237Z',
+  },
+  {
+    id: '5',
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '5',
+    programRegistryClinicalStatus: {
+      id: '5',
+      name: 'Low risk',
+      color: 'green',
+    },
+    clinicianId: '5',
+    clinician: {
+      id: '5',
+      displayName: 'Tareq',
+    },
+    date: '2023-08-28T02:40:16.237Z',
+    registrationDate: '2023-08-28T02:40:16.237Z',
+  },
+  {
+    id: '6',
+    registrationStatus: 'active',
+    programRegistryClinicalStatusId: '6',
+    programRegistryClinicalStatus: {
+      id: '6',
+      name: 'Needs review',
+      color: 'yellow',
+    },
+    clinicianId: '6',
+    clinician: {
+      id: '6',
+      displayName: 'Aziz',
+    },
+    date: '2023-08-28T02:40:16.237Z',
+    registrationDate: '2023-08-28T02:40:16.237Z',
+  },
+];
+
+const dummyApi = {
+  get: async (endpoint, options) => {
+    await sleep(5000);
+    const sortedData =
+      options.order && options.orderBy
+        ? dummyDataForProgramRegistryStatusHistory.sort(
+            ({ [options.orderBy]: a }, { [options.orderBy]: b }) => {
+              if (typeof a === 'string') {
+                return options.order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
+              }
+              return options.order === 'asc' ? a - b : b - a;
+            },
+          )
+        : sortedData;
+    const startIndex = options.page * options.rowsPerPage || 0;
+    const endIndex = startIndex + options.rowsPerPage ? options.rowsPerPage : sortedData.length;
+    return {
+      data: sortedData.slice(startIndex, endIndex),
+      count: dummyDataForProgramRegistryStatusHistory.length,
+    };
+  },
+};
+storiesOf('Program Registry', module).add('ProgramRegistryStatusHistory removed never', () => (
+  <ApiContext.Provider value={dummyApi}>
+    <ProgramRegistryStatusHistory
+      programRegistry={{
+        id: '23242234234',
+      }}
+    />
+  </ApiContext.Provider>
+));
+
+storiesOf('Program Registry', module).add('ProgramRegistryStatusHistory removed once', () => (
+  <ApiContext.Provider value={dummyApi}>
+    <ProgramRegistryStatusHistory
+      programRegistry={{
+        id: '23242234234',
+      }}
+    />
+  </ApiContext.Provider>
+));
+
+//#endregion ProgramRegistryStatusHistory
+
+//#region InfoPaneList
+const dummyProgramRegistriesForInfoPaneList = [
   {
     id: '1',
     name: 'Seasonal fever',
@@ -100,17 +260,11 @@ const dummyProgramRegistries = [
     clinicalStatus: 'Low risk',
   },
 ];
-
-function sleep(milliseconds) {
-  return new Promise(resolve => {
-    setTimeout(resolve, milliseconds);
-  });
-}
-const dummyApi = {
+const dummyApiForInfoPaneList = {
   get: async endpoint => {
     await sleep(1000);
     return {
-      data: dummyProgramRegistries,
+      data: dummyProgramRegistriesForInfoPaneList,
     };
   },
 };
@@ -118,7 +272,7 @@ storiesOf('Program Registry', module).add('ProgramRegistry Info Panlist', () => 
   const patient = { id: '323r2r234r' };
   return (
     <MockedApi endpoints={mockProgramRegistrytFormEndpoints}>
-      <ApiContext.Provider value={dummyApi}>
+      <ApiContext.Provider value={dummyApiForInfoPaneList}>
         <div style={{ width: '250px', backgroundColor: 'white', padding: '10px' }}>
           <InfoPaneList
             patient={patient}
@@ -138,8 +292,7 @@ storiesOf('Program Registry', module).add('ProgramRegistry Info Panlist', () => 
     </MockedApi>
   );
 });
-
-//#endregion
+//#endregion InfoPaneList
 
 //#region DisplayPatientRegDetails
 storiesOf('Program Registry', module).add('DisplayPatientRegDetails Low risk', () => (
@@ -220,4 +373,4 @@ storiesOf('Program Registry', module).add('DisplayPatientRegDetails Needs review
     />
   </div>
 ));
-//#endregion
+//#endregion DisplayPatientRegDetails
