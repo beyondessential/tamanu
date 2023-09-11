@@ -88,6 +88,7 @@ function importDataElement(row) {
     defaultOptions: options,
     optionLabels: newlinesToArray(optionLabels),
     defaultText: text,
+    // Note: __rowNum__ is a non-enumerable property, so needs to be accessed explicitly here
     row: row.__rowNum__,
     ...rest,
   };

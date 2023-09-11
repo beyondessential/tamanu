@@ -15,6 +15,7 @@ export * from './labs';
 export * from './locations';
 export * from './notes';
 export * from './patientFields';
+export * from './programRegistry';
 export * from './reports';
 export * from './servers';
 export * from './statuses';
