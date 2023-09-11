@@ -41,7 +41,7 @@ RUN yarn install --non-interactive --frozen-lockfile \
     && rm -rf node_modules packages/*/node_modules
 
 # Tool configs
-COPY .eslintignore .eslintrc .prettierignore .prettierrc *.config.* ./
+COPY .eslintignore .eslintrc .prettierignore .prettierrc *.config.* common.tsconfig.json ./
 
 # Rest of the source
 COPY scripts/ scripts/

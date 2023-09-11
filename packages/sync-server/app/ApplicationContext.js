@@ -25,12 +25,12 @@ export class ApplicationContext {
     this.closeHooks.push(hook);
   }
 
-  close = async () => {
+  async close() {
     for (const hook of this.closeHooks) {
       await hook();
     }
     await closeDatabase();
-  };
+  }
 
   async waitForClose() {
     return this.closePromise;

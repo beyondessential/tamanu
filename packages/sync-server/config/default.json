@@ -29,7 +29,8 @@
     "apiKey": "",
     "sampleRate": 100,  // 100 = 1/100 = 1% of traces get sent to honeycomb
                         // in contrast, logs are always sent
-    "enabled": true
+    "enabled": true,
+    "level": "info"
   },
   "sync": {
     "readOnly": false,
@@ -763,6 +764,10 @@
           "rowTotal": 10,
           "rowHeight": "26.7mm",
           "rowGap": "0"
+        },
+        "idCardPage": {
+          "cardMarginTop": "1mm",
+          "cardMarginLeft": "5mm"
         }
       },
       // The time zone setting is currently only used for Vaccine Certificates

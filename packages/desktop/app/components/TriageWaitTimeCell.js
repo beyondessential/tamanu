@@ -59,7 +59,7 @@ export const TriageWaitTimeCell = React.memo(
       case ENCOUNTER_TYPES.OBSERVATION:
       case ENCOUNTER_TYPES.EMERGENCY:
         return (
-          <TriageCell arrivalTime={arrivalTime}>
+          <TriageCell arrivalTime={assumedArrivalTime}>
             {`Seen at ${format(new Date(closedTime), 'h:mma')}`}
           </TriageCell>
         );
