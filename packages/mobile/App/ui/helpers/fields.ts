@@ -199,7 +199,7 @@ export function shouldSaveComponent(
   const isVisible = checkVisibilityCriteria(component, allComponents, values);
   // the next line intentionally only accepts the exact json value `false`
   // eslint-disable-next-line no-unneeded-ternary
-  const shouldPersist = config['shouldPersist'] === false ? false : true;
+  const shouldPersist = !config['omitFromResult'];
   return isVisible && shouldPersist;
 }
 

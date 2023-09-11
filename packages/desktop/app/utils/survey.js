@@ -190,9 +190,7 @@ export function getConfigObject(componentId, config) {
 export function shouldSaveComponent(component, values, components) {
   const config = getConfigObject(component.id, component.config);
   const isVisible = checkVisibility(component, values, components);
-  // the next line intentionally only accepts the exact json value `false`
-  // eslint-disable-next-line no-unneeded-ternary
-  const shouldPersist = config.shouldPersist === false ? false : true;
+  const shouldPersist = !config.omitFromResult;
   return isVisible && shouldPersist;
 }
 
