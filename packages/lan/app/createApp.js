@@ -6,15 +6,16 @@ import path from 'path';
 
 import { SERVER_TYPES } from '@tamanu/constants';
 import { getLoggingMiddleware } from 'shared/services/logging';
+import { buildSettingsReader } from 'shared/settings/middleware';
+import { ReadSettings } from '@tamanu/settings';
 import { getAuditMiddleware } from './middleware/auditLog';
 
 import routes from './routes';
 import errorHandler from './middleware/errorHandler';
 import { versionCompatibility } from './middleware/versionCompatibility';
-
 import { version } from './serverInfo';
 
-export function createApp({ sequelize, models, syncManager, deviceId }) {
+export async function createApp({ sequelize, models, syncManager, deviceId }) {
   // Init our app
   const app = express();
   app.use(compression());
@@ -27,8 +28,9 @@ export function createApp({ sequelize, models, syncManager, deviceId }) {
     next();
   });
 
+  const settings = new ReadSettings(models, config.serverFacilityId);
   // trust the x-forwarded-for header from addresses in `config.proxy.trusted`
-  app.set('trust proxy', config.proxy.trusted);
+  app.set('trust proxy', await settings.get('proxy.trusted'));
   app.use(getLoggingMiddleware());
 
   app.use((req, res, next) => {
@@ -39,6 +41,7 @@ export function createApp({ sequelize, models, syncManager, deviceId }) {
 
     next();
   });
+  app.use(buildSettingsReader);
 
   app.use(versionCompatibility);
 

@@ -1,3 +1,4 @@
+// TODO: use db fetcher config
 import _config from 'config';
 import { log } from 'shared/services/logging';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';

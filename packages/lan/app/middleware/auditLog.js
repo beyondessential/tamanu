@@ -1,5 +1,4 @@
 import { log } from 'shared/services/logging';
-import config from 'config';
 
 // this class is only exported for testing and is not expected to be used directly
 export class AuditLogItem {
@@ -43,7 +42,7 @@ const auditMiddleware = async (req, res, next) => {
   const audit = new AuditLogItem();
   req.audit = audit;
 
-  const logsEnabled = config.log.enableAuditLog;
+  const logsEnabled = await req.settings.get('log.enableAuditLog');
   // only attach the resolver if audit logs are enabled
   // (without this bit, all the audit logs will just be discarded)
   if (logsEnabled) {

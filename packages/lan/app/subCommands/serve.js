@@ -24,6 +24,7 @@ async function serve({ skipMigrationCheck }) {
   });
 
   const context = await initDatabase();
+  // TODO: use db fetcher config
   if (config.db.migrateOnStartup) {
     await context.sequelize.migrate('up');
   } else {
@@ -44,7 +45,7 @@ async function serve({ skipMigrationCheck }) {
     config,
   });
 
-  const app = createApp(context);
+  const app = await createApp(context);
 
   const { port } = config;
   const server = app.listen(port, () => {

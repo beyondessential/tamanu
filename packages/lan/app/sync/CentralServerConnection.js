@@ -45,6 +45,7 @@ export class CentralServerConnection {
   fetchImplementation = fetch;
 
   constructor(ctx) {
+    // TODO: use db fetcher config?
     this.host = config.sync.host.trim().replace(/\/*$/, '');
     this.timeout = config.sync.timeout;
     this.batchSize = config.sync.channelBatchSize;

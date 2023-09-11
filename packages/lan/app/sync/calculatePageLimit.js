@@ -5,6 +5,7 @@ import config from 'config';
 export const calculatePageLimit = (
   currentLimit,
   lastPageTime,
+  // TODO: use db fetcher config
   dynamicLimiter = config.sync.dynamicLimiter,
 ) => {
   const {
