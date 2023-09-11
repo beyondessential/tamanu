@@ -271,4 +271,73 @@ describe('Programs import', () => {
       await validateVisualisationConfig('');
     });
   });
+
+  describe('Program Registry', () => {
+    it('should import a valid registry', async () => {
+      const { errors, stats, didntSendReason } = await doImport({
+        file: 'registry-valid',
+        dryRun: true,
+      });
+      expect(errors).toBeEmpty();
+      expect(didntSendReason).toEqual('dryRun');
+      expect(stats).toMatchObject({
+        Program: { created: 1, updated: 0, errored: 0 },
+        Survey: { created: 1, updated: 0, errored: 0 },
+        ProgramDataElement: { created: 1, updated: 0, errored: 0 },
+        SurveyScreenComponent: { created: 1, updated: 0, errored: 0 },
+        ProgramRegistry: { created: 1, updated: 0, errored: 0 },
+        ProgramRegistryClinicalStatus: { created: 3, updated: 0, errored: 0 },
+      });
+    });
+
+    it('should properly update clinical statuses', async () => {
+      await doImport({ file: 'registry-valid', dryRun: false });
+      const { didntSendReason, errors, stats } = await doImport({
+        file: 'registry-update-statuses',
+        dryRun: true,
+      });
+
+      expect(errors).toBeEmpty();
+      expect(didntSendReason).toEqual('dryRun');
+      expect(stats).toMatchObject({
+        Program: { created: 0, updated: 1, errored: 0 },
+        Survey: { created: 0, updated: 1, errored: 0 },
+        ProgramRegistry: { created: 0, updated: 1, errored: 0 },
+        ProgramRegistryClinicalStatus: { created: 1, updated: 3, errored: 0 },
+      });
+    });
+
+    it('should error on invalid currentlyAtType', async () => {
+      const { errors } = await doImport({
+        file: 'registry-invalid-currently-at-type',
+        dryRun: true,
+      });
+
+      expect(errors[0].message).toEqual(
+        'Validation error: The currentlyAtType must be one of village, facility on Registry at row 1',
+      );
+    });
+
+    it('should enforce unique name', async () => {
+      await doImport({ file: 'registry-valid', dryRun: false });
+      const { errors } = await doImport({
+        file: 'registry-duplicated-name',
+        dryRun: true,
+      });
+
+      expect(errors[0].message).toEqual(
+        'A registry name must be unique (name: Valid Registry) on Registry at row 0',
+      );
+    });
+
+    it('should not enforce unique name for historical registries', async () => {
+      await doImport({ file: 'registry-valid', dryRun: false });
+      await doImport({ file: 'registry-make-historical', dryRun: false });
+      const { errors } = await doImport({
+        file: 'registry-duplicated-name',
+        dryRun: true,
+      });
+      expect(errors).toBeEmpty();
+    });
+  });
 });
