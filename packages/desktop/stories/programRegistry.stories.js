@@ -13,6 +13,7 @@ import { ProgramRegistryFormHistory } from '../app/views/programRegistry/Program
 import { DisplayPatientRegDetails } from '../app/views/programRegistry/DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from '../app/views/programRegistry/ProgramRegistryStatusHistory';
 import { DeleteProgramRegistry } from '../app/views/programRegistry/DeleteProgramRegistry';
+import { ActivateProgramRegistryFormModal } from '../app/views/programRegistry/ActivateProgramRegistryFormModal';
 
 //#region InfoPaneList
 const dummyProgramRegistriesForInfoPaneList = [
@@ -546,3 +547,33 @@ storiesOf('Program Registry', module).add('ProgramRegistry Delete Modal', () => 
   );
 });
 //#endregion DeleteProgramRegistry
+
+//#region
+const mockProgramRegistrytFormEndpointsForActivateProgramRegistryFormModal = {
+  'suggestions/facility': () => [
+    { id: '1', name: 'Hospital 1' },
+    { id: '2', name: 'Hospital 2' },
+  ],
+  'suggestions/practitioner': () => [
+    { id: 'test-user-id', name: 'Test user id' },
+    { id: '2', name: 'Test user id 2' },
+  ],
+  'suggestions/programRegistryClinicalStatus': () => [
+    { id: '1', name: 'current' },
+    { id: '2', name: 'historical' },
+    { id: '3', name: 'merged' },
+  ],
+};
+
+storiesOf('Program Registry', module).add('ActivateProgramRegistryFormModal', () => (
+  <MockedApi endpoints={mockProgramRegistrytFormEndpointsForActivateProgramRegistryFormModal}>
+    <ActivateProgramRegistryFormModal
+      onSubmit={action('submit')}
+      onCancel={action('cancel')}
+      patient={{ id: '323r2r234r' }}
+      program={{ id: 'asdasdasdasd', programRegistryClinicalStatusId: '2', name: 'Hepatitis B' }}
+      open
+    />
+  </MockedApi>
+));
+//#endregion
