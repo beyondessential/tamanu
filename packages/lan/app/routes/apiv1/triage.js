@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
 import { InvalidParameterError } from 'shared/errors';
-import { NOTE_TYPES, ENCOUNTER_TYPES } from 'shared/constants';
+import { NOTE_TYPES, ENCOUNTER_TYPES } from '@tamanu/constants';
 
 import { renameObjectKeys } from 'shared/utils';
 
@@ -45,10 +45,8 @@ triage.post(
     // The triage form groups notes as a single string for submission
     // so put it into a single note record
     if (notes) {
-      const notePage = await triageRecord.createNotePage({
+      await triageRecord.createNote({
         noteType: NOTE_TYPES.OTHER,
-      });
-      await notePage.createNoteItem({
         content: notes,
       });
     }

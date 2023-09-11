@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler';
 import { upperFirst } from 'lodash';
 import { parseISO } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
-import { FHIR_DATETIME_PRECISION } from 'shared/constants/fhir';
+import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
 import { parseDateTime, formatFhirDate } from 'shared/utils/fhir/datetime';
 import config from 'config';
 
@@ -34,11 +34,10 @@ notes_info as (
       json_build_object(
         'noteType', note_type,
         'content', "content",
-        'noteDate', ni."date"::timestamp at time zone $timezone_string
+        'noteDate', "date"::timestamp at time zone $timezone_string
       ) 
     ) aggregated_notes
-  from note_pages np
-  join note_items ni on ni.note_page_id = np.id
+  from notes
   group by record_id
 ),
 
@@ -171,11 +170,10 @@ encounter_notes_info as (
       json_build_object(
         'noteType', note_type,
         'content', "content",
-        'noteDate', ni."date"::timestamp at time zone $timezone_string
-      ) order by ni.date desc
+        'noteDate', "date"::timestamp at time zone $timezone_string
+      ) order by n.date desc
     ) "Notes"
-  from note_pages np
-  join note_items ni on ni.note_page_id = np.id
+  from notes n
   where note_type != 'system'
   group by record_id
 ),
@@ -186,18 +184,17 @@ note_history as (
     matched_vals[1] place,
     matched_vals[2] "from",
     matched_vals[3] "to",
-    ni.date
-  from note_pages np
-  join note_items ni on ni.note_page_id = np.id
+    n.date
+  from notes n
   join (
   	select
   		id,
   		regexp_matches(content, 'Changed (.*) from (.*) to (.*)') matched_vals
-  	from note_items
+  	from notes
   ) matched_vals
-  on matched_vals.id = ni.id 
+  on matched_vals.id = n.id 
   where note_type = 'system'
-  and ni.content ~ 'Changed (.*) from (.*) to (.*)'
+  and n.content ~ 'Changed (.*) from (.*) to (.*)'
 ),
 
 department_info as (
@@ -290,6 +287,28 @@ discharge_disposition_info as (
         order by updated_at desc
         LIMIT 1)
   join reference_data disposition on disposition.id = d.disposition_id
+),
+
+encounter_history_info as (
+  select
+    encounter_id,
+    json_agg(
+      json_build_object(
+        'type', case encounter_type
+                  when 'admission' then 'AR-DRG'
+                  when 'imaging' then 'AR-DRG'
+                  when 'emergency' then 'URG/UDG'
+                  when 'observation' then 'URG/UDG'
+                  when 'triage' then 'URG/UDG'
+                  when 'surveyResponse' then 'URG/UDG'
+                  when 'clinic' then 'SOPD'
+                  else encounter_type
+                end,
+        'startDate', date::timestamp at time zone $timezone_string
+      ) order by date
+    ) "Encounter history"
+  from encounter_history
+  group by encounter_id
 )
 
 SELECT
@@ -304,16 +323,7 @@ e.id "encounterId",
 e.start_date::timestamp at time zone $timezone_string "encounterStartDate",
 e.end_date::timestamp at time zone $timezone_string "encounterEndDate",
 e.end_date::timestamp at time zone $timezone_string "dischargeDate",
-case e.encounter_type
-  when 'admission' then 'AR-DRG'
-  when 'imaging' then 'AR-DRG'
-  when 'emergency' then 'URG/UDG'
-  when 'observation' then 'URG/UDG'
-  when 'triage' then 'URG/UDG'
-  when 'surveyResponse' then 'URG/UDG'
-  when 'clinic' then 'SOPD'
-  else e.encounter_type
-end "encounterType",
+ehi."Encounter history" "encounterType",
 birth_data.birth_weight "weight",
 0 "hoursOfVentilation",
 0 "leaveDays",
@@ -358,6 +368,7 @@ left join triage_info ti on ti.encounter_id = e.id
 left join location_info li on li.encounter_id = e.id
 left join department_info di2 on di2.encounter_id = e.id
 left join discharge_disposition_info ddi on ddi.encounter_id = e.id
+left join encounter_history_info ehi on e.id = ehi.encounter_id
 
 WHERE true
   AND coalesce(billing.id, '-') LIKE coalesce($billing_type, '%%')
@@ -448,6 +459,10 @@ routes.get(
         date: formatDate(procedure.date),
       })),
       notes: mapNotes(encounter.notes),
+      encounterType: encounter.encounterType?.map(encounterType => ({
+        ...encounterType,
+        startDate: formatDate(encounterType.startDate),
+      })),
     }));
 
     res.status(200).send({ data: mappedData });

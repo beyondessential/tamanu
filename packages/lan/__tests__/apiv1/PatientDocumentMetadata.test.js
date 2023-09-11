@@ -1,5 +1,5 @@
 import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patients';
-import { DOCUMENT_SOURCES } from 'shared/constants';
+import { DOCUMENT_SOURCES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { uploadAttachment } from '../../app/utils/uploadAttachment';
 

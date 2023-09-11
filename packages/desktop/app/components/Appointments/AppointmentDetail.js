@@ -7,7 +7,7 @@ import Select from 'react-select';
 import CloseIcon from '@material-ui/icons/Close';
 import { IconButton } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
-import { APPOINTMENT_STATUSES } from '@tamanu/shared/constants';
+import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { useQuery } from '@tanstack/react-query';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TextDisplayIdLabel } from '../DisplayIdLabel';

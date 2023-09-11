@@ -1,4 +1,4 @@
-import { FHIR_SEARCH_PARAMETERS, FHIR_SEARCH_TOKEN_TYPES } from '../../../constants';
+import { FHIR_SEARCH_PARAMETERS, FHIR_SEARCH_TOKEN_TYPES } from '@tamanu/constants';
 
 export const searchParameters = {
   identifier: {
@@ -31,5 +31,15 @@ export const searchParameters = {
     type: FHIR_SEARCH_PARAMETERS.REFERENCE,
     path: [['subject']],
     referenceTypes: ['Patient'],
+  },
+  encounter: {
+    type: FHIR_SEARCH_PARAMETERS.REFERENCE,
+    path: [['encounter']],
+    referenceTypes: ['Encounter'],
+  },
+  requester: {
+    type: FHIR_SEARCH_PARAMETERS.REFERENCE,
+    path: [['requester']],
+    referenceTypes: ['Practitioner'],
   },
 };

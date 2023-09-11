@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import { defaultsDeep } from 'lodash';
 
 import { log } from 'shared/services/logging';
-import { IMAGING_TYPES } from 'shared/constants';
+import { IMAGING_TYPES } from '@tamanu/constants';
 
 const fieldSchema = yup
   .object({
@@ -325,6 +325,10 @@ const printMeasuresSchema = yup
       rowTotal: yup.number().required(),
       rowHeight: validCssAbsoluteLength,
       rowGap: validCssAbsoluteLength,
+    }),
+    idCardPage: yup.object({
+      cardMarginTop: validCssAbsoluteLength,
+      cardMarginLeft: validCssAbsoluteLength,
     }),
   })
   .required()

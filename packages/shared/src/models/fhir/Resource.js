@@ -1,18 +1,16 @@
 import { snakeCase } from 'lodash';
-import { Sequelize, Utils, DataTypes, QueryTypes } from 'sequelize';
-import * as yup from 'yup';
+import { Sequelize, Utils, DataTypes } from 'sequelize';
+import { subMinutes } from 'date-fns';
 
 import {
   SYNC_DIRECTIONS,
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_TOKEN_TYPES,
   FHIR_DATETIME_PRECISION,
-} from '../../constants';
+} from '@tamanu/constants';
 import { objectAsFhir } from './utils';
 import { formatFhirDate } from '../../utils/fhir';
 import { Model } from '../Model';
-
-const missingRecordsPrivateMethod = Symbol('missingRecords');
 
 export class FhirResource extends Model {
   static init(attributes, { primaryKey, ...options }) {
@@ -37,6 +35,15 @@ export class FhirResource extends Model {
           type: DataTypes.TIMESTAMP,
           allowNull: false,
           defaultValue: Sequelize.NOW,
+          set(utcDate) {
+            // Sequelize converts TIMESTAMP into UTC, so we convert it back to local time
+            if (!(utcDate instanceof Date)) {
+              return utcDate;
+            }
+            const localOffsetMinutes = new Date().getTimezoneOffset();
+            this.setDataValue('lastUpdated', subMinutes(utcDate, localOffsetMinutes));
+            return this.lastUpdated;
+          },
         },
         ...attributes,
       },
@@ -142,64 +149,6 @@ export class FhirResource extends Model {
       if (upstream) break;
     }
     return upstream;
-  }
-
-  // query to do lookup of non-deleted upstream records that are not present in the FHIR tables
-  // does direct sql interpolation, NEVER use with user or variable input
-  static [missingRecordsPrivateMethod](select, trail = '') {
-    const tableNames = this.UpstreamModels.map(model => model.tableName);
-    return `
-      WITH upstream AS (
-        SELECT
-          coalesce(${tableNames.map(tableName => `${tableName}.id`).join(', ')}) as id,
-          coalesce(${tableNames
-            .map(tableName => `${tableName}.deleted_at`)
-            .join(', ')}) as deleted_at
-        FROM ${tableNames
-          .map((tableName, i) => {
-            return i === 0
-              ? tableName
-              : `FULL OUTER JOIN ${tableName} ON ${tableNames[0]}.id = ${tableName}.id`;
-          })
-          .join(' ')}
-      )
-
-      SELECT ${select}
-      FROM upstream
-      LEFT JOIN fhir.${this.tableName} downstream ON downstream.upstream_id = upstream.id
-      WHERE upstream.deleted_at IS NULL AND downstream.id IS NULL
-      ${trail}
-    `;
-  }
-
-  static async findMissingRecordsIds(limit = 1000) {
-    if (!this.UpstreamModels || this.UpstreamModels.length === 0) return [];
-
-    const limitValid = yup
-      .number()
-      .positive()
-      .integer()
-      .validateSync(limit);
-    const rows = await this.sequelize.query(
-      this[missingRecordsPrivateMethod](
-        'upstream.id',
-        `ORDER BY upstream.updated_at ASC LIMIT ${limitValid}`,
-      ),
-      { type: QueryTypes.SELECT },
-    );
-    return rows.map(({ id }) => id);
-  }
-
-  static async countMissingRecords() {
-    if (!this.UpstreamModels || this.UpstreamModels.length === 0) return 0;
-    const rows = await this.sequelize.query(
-      this[missingRecordsPrivateMethod]('count(upstream.*) as count'),
-      {
-        type: QueryTypes.SELECT,
-      },
-    );
-
-    return Number(rows[0]?.count || 0);
   }
 
   static async resolveUpstreams() {

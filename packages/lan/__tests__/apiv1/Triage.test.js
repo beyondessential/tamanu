@@ -7,7 +7,7 @@ import {
   randomReferenceId,
 } from 'shared/demoData';
 import { fake } from 'shared/test-helpers';
-import { ENCOUNTER_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
@@ -157,6 +157,40 @@ describe('Triage', () => {
     expect(progressResponse).toHaveSucceeded();
     const updatedTriage = await models.Triage.findByPk(createdTriage.id);
     expect(updatedTriage.closedTime).toBeTruthy();
+  });
+
+  it('should not update the closed time of an already-closed triage', async () => {
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+    const createdTriage = await models.Triage.create(
+      await createDummyTriage(models, {
+        patientId: encounterPatient.id,
+        departmentId: await randomRecordId(models, 'Department'),
+      }),
+    );
+    const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
+    expect(createdEncounter).toBeTruthy();
+
+    const DATE_1 = '2023-01-01 10:00:00';
+    const DATE_2 = '2023-01-01 10:30:00';
+
+    // progress encounter once (which should update the triage)
+    const progressResponse = await app.put(`/v1/encounter/${createdEncounter.id}`).send({
+      encounterType: ENCOUNTER_TYPES.EMERGENCY,
+      submittedTime: DATE_1,
+    });
+    expect(progressResponse).toHaveSucceeded();
+    const updatedTriage = await models.Triage.findByPk(createdTriage.id);
+    expect(updatedTriage.closedTime).toEqual(DATE_1);
+
+    // and again (which should NOT update the triage)
+    const progressResponse2 = await app.put(`/v1/encounter/${createdEncounter.id}`).send({
+      encounterType: ENCOUNTER_TYPES.ADMISSION,
+      submittedTime: DATE_2,
+    });
+    expect(progressResponse2).toHaveSucceeded();
+    const updatedTriage2 = await models.Triage.findByPk(createdTriage.id);
+    expect(updatedTriage2.closedTime).toEqual(DATE_1);
+    
   });
 
   it('should set the encounter reason to the text of the chief complaints', async () => {

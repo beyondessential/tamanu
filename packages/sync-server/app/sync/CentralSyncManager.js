@@ -2,7 +2,7 @@ import { trace } from '@opentelemetry/api';
 import { Op, Transaction } from 'sequelize';
 import _config from 'config';
 
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
 import { log } from 'shared/services/logging';
 import {
@@ -67,7 +67,7 @@ export class CentralSyncManager {
     return { tick: tock - 1, tock };
   }
 
-  async startSession(userId, deviceId) {
+  async startSession(debugInfo = {}) {
     // as a side effect of starting a new session, cause a tick on the global sync clock
     // this is a convenient way to tick the clock, as it means that no two sync sessions will
     // happen at the same global sync time, meaning there's no ambiguity when resolving conflicts
@@ -76,7 +76,7 @@ export class CentralSyncManager {
     const syncSession = await this.store.models.SyncSession.create({
       startTime,
       lastConnectionTime: startTime,
-      debugInfo: { userId, deviceId },
+      debugInfo,
     });
 
     // no await as prepare session (especially the tickTockGlobalClock action) might get blocked
@@ -84,7 +84,10 @@ export class CentralSyncManager {
     // Client should poll for the result later.
     this.prepareSession(syncSession);
 
-    log.info('CentralSyncManager.startSession', { sessionId: syncSession.id, deviceId });
+    log.info('CentralSyncManager.startSession', {
+      sessionId: syncSession.id,
+      ...debugInfo,
+    });
 
     return { sessionId: syncSession.id };
   }
@@ -136,7 +139,12 @@ export class CentralSyncManager {
     const durationMs = Date.now() - session.startTime;
     log.debug('CentralSyncManager.completingSession', { sessionId, durationMs });
     await completeSyncSession(this.store, sessionId);
-    log.info('CentralSyncManager.completedSession', { sessionId, durationMs });
+    log.info('CentralSyncManager.completedSession', {
+      sessionId,
+      durationMs,
+      facilityId: session.debugInfo.facilityId,
+      deviceId: session.debugInfo.deviceId,
+    });
   }
 
   async markSnapshotAsProcessing(sessionId) {
@@ -222,7 +230,6 @@ export class CentralSyncManager {
       );
 
       await models.SyncSession.addDebugInfo(sessionId, {
-        facilityId,
         isMobile,
         tablesForFullResync,
       });
