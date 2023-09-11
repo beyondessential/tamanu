@@ -98,7 +98,9 @@ const StyledTableContainer = styled.div`
   border-radius: 5px;
   background: white;
   border: 1px solid ${Colors.outline};
+  width: 100%;
   ${props => (props.$elevated ? PaperStyles : null)};
+  ${props => (props.containerStyle ? props.containerStyle : null)}
 `;
 
 const StyledTableBody = styled(TableBody)`
@@ -158,6 +160,13 @@ const StyledTableHead = styled(TableHead)`
       width: 100%;
     `
       : ''}
+  ${props =>
+    props.isBodyScrollable
+      ? `
+      position: sticky;
+      top: 0;
+  `
+      : ``}
   background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
   white-space: nowrap;
   .MuiTableCell-head {
@@ -457,10 +466,17 @@ class TableComponent extends React.Component {
       isLoading,
       noDataBackgroundColor,
       tableRef,
+      containerStyle,
+      isBodyScrollable,
     } = this.props;
 
     return (
-      <StyledTableContainer className={className} $elevated={elevated}>
+      <StyledTableContainer
+        className={className}
+        $elevated={elevated}
+        isBodyScrollable
+        containerStyle={containerStyle}
+      >
         {optionRow && <OptionRow>{optionRow}</OptionRow>}
         <StyledTable
           $backgroundColor={data?.length || isLoading ? Colors.white : noDataBackgroundColor}
@@ -470,6 +486,7 @@ class TableComponent extends React.Component {
               $headerColor={headerColor}
               $fixedHeader={fixedHeader}
               $lazyLoading={lazyLoading}
+              isBodyScrollable={isBodyScrollable}
             >
               <StyledTableRow $lazyLoading={lazyLoading}>{this.renderHeaders()}</StyledTableRow>
             </StyledTableHead>
@@ -519,6 +536,7 @@ TableComponent.propTypes = {
   exportName: PropTypes.string,
   refreshTable: PropTypes.func,
   rowStyle: PropTypes.func,
+  containerStyle: PropTypes.string,
   allowExport: PropTypes.bool,
   elevated: PropTypes.bool,
   lazyLoading: PropTypes.bool,
@@ -549,6 +567,7 @@ TableComponent.defaultProps = {
   exportName: 'TamanuExport',
   refreshTable: null,
   rowStyle: null,
+  containerStyle: null,
   allowExport: true,
   lazyLoading: false,
   isLoadingMore: false,
