@@ -72,6 +72,14 @@ export const usePatientNavigation = () => {
     );
   };
 
+  const navigateToProgramRegistry = (programRegistryId, title) => {
+    const programRegistryRoute =
+      generatePath(PATIENT_PATHS.PROGRAM_REGISTRY, {
+        ...params,
+        programRegistryId,
+      }) + `?title=${title}`;
+    navigate(programRegistryRoute);
+  };
   return {
     navigateToPatient,
     navigateToEncounter,
@@ -79,5 +87,6 @@ export const usePatientNavigation = () => {
     navigateToImagingRequest,
     navigateToCategory,
     navigateToSummary,
+    navigateToProgramRegistry,
   };
 };
