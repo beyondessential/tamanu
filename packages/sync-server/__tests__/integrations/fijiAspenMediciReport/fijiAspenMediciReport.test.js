@@ -383,6 +383,9 @@ describe('fijiAspenMediciReport', () => {
 
   it(`Should produce a simple report`, async () => {
     const { patient, encounterId } = fakedata;
+    // Not a precise checker, only overall shape - the report is grabbing that from a
+    // date time string field so it does not matter much in this context
+    const isoStringRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+00:00$/;
     // act
     const response = await app
       .get('/v1/integration/fijiAspenMediciReport?period.start=2022-05-09&period.end=2022-10-09')
@@ -407,7 +410,16 @@ describe('fijiAspenMediciReport', () => {
         encounterStartDate: '2022-06-09T00:02:54.000Z',
         encounterEndDate: '2022-06-12T00:02:54.000Z',
         dischargeDate: '2022-06-12T00:02:54.000Z',
-        encounterType: 'AR-DRG',
+        encounterType: [
+          {
+            startDate: expect.stringMatching(isoStringRegex),
+            type: 'AR-DRG',
+          },
+          {
+            startDate: expect.stringMatching(isoStringRegex),
+            type: 'AR-DRG',
+          },
+        ],
         reasonForEncounter: 'Severe Migrane',
 
         // New fields
