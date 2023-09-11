@@ -186,6 +186,16 @@ export function getConfigObject(componentId, config) {
   }
 }
 
+// also exists on mobile
+export function shouldSaveComponent(component, values, components) {
+  const config = getConfigObject(component.id, component.config);
+  const isVisible = checkVisibility(component, values, components);
+  // the next line intentionally only accepts the exact json value `false`
+  // eslint-disable-next-line no-unneeded-ternary
+  const shouldPersist = config.shouldPersist === false ? false : true;
+  return isVisible && shouldPersist;
+}
+
 function transformPatientData(patient, additionalData, config) {
   const { writeToPatient = {}, column = 'fullName' } = config;
   const { isAdditionalDataField = false } = writeToPatient;

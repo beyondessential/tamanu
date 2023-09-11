@@ -1,5 +1,5 @@
 import { inRange } from 'lodash';
-import { isDate, formatISO9075 } from 'date-fns';
+import { formatISO9075 } from 'date-fns';
 import { ISurveyScreenComponent, DataElementType } from '~/types/ISurvey';
 
 export const FieldTypes = {
@@ -187,6 +187,20 @@ export function checkVisibilityCriteria(
 
     return fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponents);
   }
+}
+
+// also exists on desktop
+export function shouldSaveComponent(
+  component: ISurveyScreenComponent,
+  allComponents: ISurveyScreenComponent[],
+  values: object,
+): boolean {
+  const config = component.getConfigObject();
+  const isVisible = checkVisibilityCriteria(component, allComponents, values);
+  // the next line intentionally only accepts the exact json value `false`
+  // eslint-disable-next-line no-unneeded-ternary
+  const shouldPersist = config['shouldPersist'] === false ? false : true;
+  return isVisible && shouldPersist;
 }
 
 interface ResultValue {

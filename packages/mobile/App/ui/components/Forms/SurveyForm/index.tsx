@@ -4,7 +4,7 @@ import { getFormInitialValues, getFormSchema } from './helpers';
 import { ISurveyComponent, IPatientAdditionalData } from '~/types';
 import { Form } from '../Form';
 import { FormFields } from './FormFields';
-import { checkVisibilityCriteria } from '/helpers/fields';
+import { shouldSaveComponent, checkVisibilityCriteria } from '/helpers/fields';
 import { runCalculations } from '~/ui/helpers/calculations';
 import { authUserSelector } from '/helpers/selectors';
 
@@ -36,22 +36,22 @@ export const SurveyForm = ({
     [checkVisibilityCriteria, components, formValues],
   );
 
-  const submitVisibleValues = useCallback(
+  const submitSaveableValues = useCallback(
     (values: any) => {
-      // 1. get a list of visible fields
-      const visibleFields = new Set(
+      // 1. get a list of saveable fields (visible and with config.shouldPersist !== false)
+      const saveableFields = new Set(
         components
-          .filter(c => checkVisibilityCriteria(c, components, values))
+          .filter(c => shouldSaveComponent(c, components, values))
           .map(x => x.dataElement.code),
       );
 
-      // 2. Filter the form values to only include visible fields
-      const visibleValues = Object.fromEntries(
-        Object.entries(values).filter(([key]) => visibleFields.has(key)),
+      // 2. Filter the form values to only include saveable fields
+      const saveableValues = Object.fromEntries(
+        Object.entries(values).filter(([key]) => saveableFields.has(key)),
       );
 
-      // 3. Set visible values in form state?
-      return onSubmit(visibleValues);
+      // 3. Set saveable values in form state?
+      return onSubmit(saveableValues);
     },
     [components, onSubmit],
   );
@@ -62,7 +62,7 @@ export const SurveyForm = ({
       validateOnBlur
       validationSchema={formValidationSchema}
       initialValues={initialValues}
-      onSubmit={submitVisibleValues}
+      onSubmit={submitSaveableValues}
       validate={validate}
     >
       {({ values, setFieldValue }): ReactElement => {

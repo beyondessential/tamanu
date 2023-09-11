@@ -68,11 +68,15 @@ export class SurveyScreenComponent extends BaseModel implements ISurveyScreenCom
     }
   }
 
-  getConfigObject(): any {
+  getConfigObject(): object {
     if (!this.config) return {};
 
     try {
-      return JSON.parse(this.config);
+      const parsed = JSON.parse(this.config) as unknown;
+      if (typeof parsed !== 'object') {
+        throw new Error("string wasn't a JSON object");
+      }
+      return parsed;
     } catch (e) {
       // eslint-disable-next-line no-console
       console.warn(`Invalid config in survey screen component ${this.id}`);
