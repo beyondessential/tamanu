@@ -1,6 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
+import { ChangeStatusFormModal } from '../app/views/programRegistry/ChangeStatusFormModal';
 import { ApiContext } from '../app/api';
 import { MockedApi } from './utils/mockedApi';
 import { Modal } from '../app/components/Modal';
@@ -117,11 +118,6 @@ const mockProgramRegistrytFormEndpoints = {
   'suggestions/practitioner': () => [
     { id: 'test-user-id', name: 'Test user id' },
     { id: '2', name: 'Test user id 2' },
-  ],
-  'suggestions/programRegistryClinicalStatus': () => [
-    { id: '1', name: 'current' },
-    { id: '2', name: 'historical' },
-    { id: '3', name: 'merged' },
   ],
 };
 
@@ -513,3 +509,27 @@ storiesOf('Program Registry', module).add('ProgramRegistryFormHistory', () => (
   </ApiContext.Provider>
 ));
 //#endregion ProgramRegistryFormHistory
+
+//#region ChangeStatusFormModal
+const mockProgramRegistrytFormEndpointsForChangeStatusFormModal = {
+  'suggestions/programRegistryClinicalStatus': () => [
+    { id: '1', name: 'current' },
+    { id: '2', name: 'historical' },
+    { id: '3', name: 'merged' },
+  ],
+};
+
+storiesOf('Program Registry', module).add('ProgramRegistry Status Cahnge', () => {
+  return (
+    <MockedApi endpoints={mockProgramRegistrytFormEndpointsForChangeStatusFormModal}>
+      <ChangeStatusFormModal
+        onSubmit={action('submit')}
+        onCancel={action('cancel')}
+        program={{ id: '3e2r23r23r', programRegistryClinicalStatusId: '1' }}
+        patient={{ id: '3e2r23r23r' }}
+      />
+    </MockedApi>
+  );
+});
+
+//#endregion ChangeStatusFormModal

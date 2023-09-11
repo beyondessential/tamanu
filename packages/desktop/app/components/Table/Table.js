@@ -161,7 +161,7 @@ const StyledTableHead = styled(TableHead)`
     `
       : ''}
   ${props =>
-    props.isBodyScrollable
+    props.$isBodyScrollable
       ? `
       position: sticky;
       top: 0;
@@ -211,7 +211,10 @@ const StatusTableCell = styled(StyledTableCell)`
 const Row = React.memo(
   ({ rowIndex, columns, data, onClick, cellOnChange, lazyLoading, rowStyle, refreshTable }) => {
     const cells = columns.map(
-      ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
+      (
+        { key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput },
+        cIndex,
+      ) => {
         const onChange = cellOnChange ? event => cellOnChange(event, key, rowIndex, data) : null;
         const value = accessor
           ? React.createElement(accessor, { refreshTable, onChange, ...data, rowIndex })
@@ -220,9 +223,9 @@ const Row = React.memo(
         const backgroundColor = typeof cellColor === 'function' ? cellColor(data) : cellColor;
         return (
           <StyledTableCell
+            key={!!key ? key : cIndex}
             onClick={dontCallRowInput ? preventInputCallback : undefined}
             background={backgroundColor}
-            key={key}
             align={numeric ? 'right' : 'left'}
             data-test-class={`table-column-${key}`}
           >
