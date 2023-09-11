@@ -28,7 +28,7 @@ async function writeToPatientFields(questions, answers, patientId) {
   const patientAdditionalDataValues = {};
 
   const patientDataQuestions = questions.filter(
-    q => q.dataElement.type === FieldTypes.PATIENT_DATA, // Different
+    q => q.dataElement.type === FieldTypes.PATIENT_DATA,
   );
   for (const question of patientDataQuestions) {
     const questionConfig = question.getConfigObject();
