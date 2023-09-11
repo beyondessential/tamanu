@@ -5,6 +5,7 @@ import { importRows } from '../importRows';
 
 import { readMetadata } from './readMetadata';
 import { importSurvey } from './importSurvey';
+import { importProgramRegistry } from './importProgramRegistry';
 
 export const PERMISSIONS = ['Program', 'Survey'];
 
@@ -35,6 +36,10 @@ export async function programImporter({ errors, models, stats, file, whitelist =
         },
       ],
     }),
+  );
+
+  stats.push(
+    await importProgramRegistry(createContext('ProgramRegistry'), workbook, programRecord.id),
   );
 
   const surveysToImport = surveyMetadata.filter(({ name, code }) => {

@@ -41,6 +41,7 @@ export const ProgramRegistryFormHistory = ({ programRegistry, patient }) => {
           }}
         />
       ),
+      required: false,
     },
   ];
   return (
