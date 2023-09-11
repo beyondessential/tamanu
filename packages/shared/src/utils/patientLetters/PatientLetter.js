@@ -57,7 +57,7 @@ const DetailsSection = ({ getLocalisation, data }) => {
   );
 };
 
-export const PatientLetter = ({ getLocalisation, data, logoSrc }) => {
+export const PatientLetter = ({ getLocalisation, data, logoSrc, letterheadConfig }) => {
   const { title: certificateTitle, body, patient = {}, clinician, documentCreatedAt } = data;
 
   return (
@@ -68,6 +68,7 @@ export const PatientLetter = ({ getLocalisation, data, logoSrc }) => {
             getLocalisation={getLocalisation}
             logoSrc={logoSrc}
             certificateTitle={certificateTitle ?? ''}
+            letterheadConfig={letterheadConfig}
           />
           <DetailsSection
             data={{ ...patient, clinicianName: clinician.displayName, documentCreatedAt }}

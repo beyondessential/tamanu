@@ -6,6 +6,7 @@ import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { NotFoundError, InvalidOperationError } from '@tamanu/shared/errors';
 import { REPORT_VERSION_EXPORT_FORMATS, REPORT_STATUSES } from '@tamanu/constants';
 import { readJSON, sanitizeFilename, verifyQuery } from './utils';
+import { createReportDefinitionVersion } from './createReportDefinitionVersion';
 import { DryRun } from '../errors';
 
 export const reportsRouter = express.Router();
@@ -77,39 +78,21 @@ reportsRouter.get(
 );
 
 reportsRouter.post(
+  '/',
+  asyncHandler(async (req, res) => {
+    const { store, body, user } = req;
+    const version = await createReportDefinitionVersion(store, null, body, user.id);
+    res.send(version);
+  }),
+);
+
+reportsRouter.post(
   '/:reportId/versions',
   asyncHandler(async (req, res) => {
-    const { store, params, body } = req;
-    const {
-      models: { ReportDefinitionVersion },
-      sequelize,
-    } = store;
+    const { store, params, body, user } = req;
     const { reportId } = params;
-
-    if (body.versionNumber)
-      throw new InvalidOperationError('Cannot create a report with a version number');
-
-    await verifyQuery(body.query, body.queryOptions.parameters, store);
-    await sequelize.transaction(
-      {
-        // Prevents race condition when determining the next version number
-        isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
-      },
-      async () => {
-        const latestVersion = await ReportDefinitionVersion.findOne({
-          where: { reportDefinitionId: reportId },
-          attributes: ['versionNumber'],
-          order: [['versionNumber', 'DESC']],
-        });
-        const nextVersionNumber = (latestVersion?.versionNumber || 0) + 1;
-        const version = await ReportDefinitionVersion.create({
-          ...body,
-          versionNumber: nextVersionNumber,
-          reportDefinitionId: reportId,
-        });
-        res.send(version);
-      },
-    );
+    const version = await createReportDefinitionVersion(store, reportId, body, user.id);
+    res.send(version);
   }),
 );
 
@@ -212,6 +195,8 @@ reportsRouter.post(
           if (dryRun) {
             throw new DryRun();
           }
+
+          feedback.reportDefinitionId = definition.id;
         },
       );
     } catch (err) {
@@ -224,5 +209,33 @@ reportsRouter.post(
       await fs.unlink(file).catch(ignore => {});
     }
     res.send(feedback);
+  }),
+);
+
+reportsRouter.get(
+  '/:reportId/versions/:versionId',
+  asyncHandler(async (req, res) => {
+    const {
+      store,
+      params,
+      models: { ReportDefinitionVersion },
+    } = req;
+    const { reportId, versionId } = params;
+    const version = await ReportDefinitionVersion.findOne({
+      where: { id: versionId, reportDefinitionId: reportId },
+      include: [
+        {
+          model: store.models.User,
+          as: 'createdBy',
+          attributes: ['displayName'],
+        },
+        {
+          model: store.models.ReportDefinition,
+          as: 'reportDefinition',
+          attributes: ['name', 'id'],
+        },
+      ],
+    });
+    res.send(version);
   }),
 );

@@ -11,6 +11,7 @@ import { Colors } from '../../../constants';
 
 import { MultipleLabRequestsPrintoutModal } from './MultipleLabRequestsPrintoutModal';
 import { FormDivider, PrintMultipleSelectionTable } from './PrintMultipleSelectionTable';
+import { getStatus } from '../../../utils/lab';
 
 const COLUMN_KEYS = {
   SELECTED: 'selected',
@@ -19,6 +20,7 @@ const COLUMN_KEYS = {
   REQUESTED_BY: 'requestedBy',
   PRIORITY: 'priority',
   CATEGORY: 'labTestCategory',
+  STATUS: 'status',
 };
 
 const COLUMNS = [
@@ -37,7 +39,6 @@ const COLUMNS = [
     key: COLUMN_KEYS.REQUESTED_BY,
     title: 'Requested by',
     sortable: false,
-    maxWidth: 300,
     accessor: ({ requestedBy }) => requestedBy?.displayName || '',
   },
   {
@@ -53,6 +54,12 @@ const COLUMNS = [
     sortable: false,
     accessor: ({ category }) => category?.name || '',
   },
+  {
+    key: COLUMN_KEYS.STATUS,
+    title: 'Status',
+    sortable: false,
+    accessor: getStatus,
+  },
 ];
 
 export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, onClose }) => {
@@ -62,8 +69,8 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
     ['labRequests', encounter.id],
     async () => {
       const result = await api.get(`encounter/${encodeURIComponent(encounter.id)}/labRequests`, {
-        includeNotePages: 'true',
-        status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        includeNotes: 'true',
+        status: [LAB_REQUEST_STATUSES.RECEPTION_PENDING, LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED],
         order: 'asc',
         orderBy: 'requestedDate',
       });
