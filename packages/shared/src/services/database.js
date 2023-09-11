@@ -20,17 +20,10 @@ createDateTypes();
 const asyncLocalStorage = new AsyncLocalStorage();
 // eslint-disable-next-line react-hooks/rules-of-hooks
 Sequelize.useCLS({
-  bind() {}, // compatibility with cls-hooked, not used by sequelize
-  get(id) {
-    return asyncLocalStorage.getStore()?.get(id);
-  },
-  set(id, value) {
-    // eslint-disable-next-line no-unused-expressions
-    asyncLocalStorage.getStore()?.set(id, value);
-  },
-  run(callback) {
-    asyncLocalStorage.run(new Map(), callback);
-  },
+  bind: () => {}, // compatibility with cls-hooked, not used by sequelize
+  get: (id) => asyncLocalStorage.getStore()?.get(id),
+  set: (id, value) => asyncLocalStorage.getStore()?.set(id, value),
+  run: (callback) => asyncLocalStorage.run(new Map(), callback),
 });
 
 // this is dangerous and should only be used in test mode
