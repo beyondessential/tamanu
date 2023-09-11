@@ -1,4 +1,11 @@
-import React, { ReactElement, useCallback, useState, useRef, MutableRefObject } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useState,
+  useRef,
+  MutableRefObject,
+  useEffect,
+} from 'react';
 import { useFormikContext } from 'formik';
 import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { IPatient, ISurveyScreenComponent } from '../../../../types';
@@ -14,6 +21,7 @@ import { FullView, RowView, StyledText, StyledView } from '../../../styled/commo
 import { theme } from '../../../styled/theme';
 import { FORM_STATUSES } from '/helpers/constants';
 import { GenericFormValues } from '~/models/Forms';
+import { BackHandler } from 'react-native';
 
 interface UseScrollToFirstError {
   setQuestionPosition: (yPosition: string) => void;
@@ -56,8 +64,9 @@ interface FormFieldsProps {
   patient: IPatient;
   note: string;
   onCancel?: () => Promise<void>;
+  onGoBack: () => void;
   currentScreenIndex: number;
-  setCurrentScreenIndex: (index: number) => void,
+  setCurrentScreenIndex: (index: number) => void;
 }
 
 export const FormFields = ({
@@ -67,6 +76,7 @@ export const FormFields = ({
   note,
   patient,
   onCancel,
+  onGoBack,
 }: FormFieldsProps): ReactElement => {
   const scrollViewRef = useRef(null);
   const { errors, validateForm, setStatus, submitForm, values, resetForm } = useFormikContext<
@@ -122,6 +132,18 @@ export const FormFields = ({
     (component: ISurveyScreenComponent) => checkVisibilityCriteria(component, components, values),
     [values],
   );
+
+  // Handle back button press or swipe right gesture
+  useEffect(() => {
+    const backAction = () => {
+      onGoBack();
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+    return () => backHandler.remove();
+  }, [currentScreenIndex]); // Re-subscribe if screen index changes, otherwise onGoBack() won't work.
 
   // Note: we set the key on FullView so that React registers it as a whole
   // new component, rather than a component whose contents happen to have

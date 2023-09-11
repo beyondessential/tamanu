@@ -13,6 +13,7 @@ export type SurveyFormProps = {
   openExitModal: () => Promise<void>;
   components: ISurveyComponent[];
   onCancel?: () => Promise<void>;
+  onGoBack: () => void;
   patient: any;
   note: string;
   validate: any;
@@ -31,6 +32,7 @@ export const SurveyForm = ({
   onCancel,
   setCurrentScreenIndex,
   currentScreenIndex,
+  onGoBack,
 }: SurveyFormProps): ReactElement => {
   const currentUser = useSelector(authUserSelector);
   const initialValues = useMemo(
@@ -96,6 +98,7 @@ export const SurveyForm = ({
             onCancel={onCancel}
             setCurrentScreenIndex={setCurrentScreenIndex}
             currentScreenIndex={currentScreenIndex}
+            onGoBack={onGoBack}
           />
         );
       }}

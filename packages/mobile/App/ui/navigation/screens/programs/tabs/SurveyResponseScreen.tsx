@@ -99,7 +99,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
     }
     navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.Index);
   };
-  const onGoBack = async () => {
+  const onGoBack = () => {
     if (currentScreenIndex > 0) {
       onNavigatePrevious();
     } else {
@@ -135,6 +135,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
           onCancel={openExitModal}
           setCurrentScreenIndex={setCurrentScreenIndex}
           currentScreenIndex={currentScreenIndex}
+          onGoBack={onGoBack}
         />
 
         <Modal
