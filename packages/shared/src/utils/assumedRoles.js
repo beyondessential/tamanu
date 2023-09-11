@@ -8,20 +8,21 @@ async function resetRoleForConnection(connection) {
   await connection.query('RESET ROLE');
 }
 
-export async function performAssumedRoleOperation(context, query, role) {
+export async function performAssumedRoleOperation(context, role, query, replacements) {
   const { sequelize } = context;
   let connection;
   try {
     // Acquire a connection from the pool
-    connection = await sequelize.getConnection();
+    connection = await sequelize.connectionManager.getConnection();
 
     await setRoleForConnection(connection, role);
-    return await connection.query(query, { type: QueryTypes.SELECT });
+    const res = await connection.query('SELECT * from patients', []);
+    return res;
   } finally {
     if (connection) {
       await resetRoleForConnection(connection);
       // Release the connection back to the pool
-      await connection.release();
+      await sequelize.connectionManager.releaseConnection(connection);
     }
   }
 }
