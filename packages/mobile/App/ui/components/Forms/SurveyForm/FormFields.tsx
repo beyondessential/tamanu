@@ -64,7 +64,7 @@ interface FormFieldsProps {
   patient: IPatient;
   note: string;
   onCancel?: () => Promise<void>;
-  onGoBack: () => void;
+  onGoBack?: () => void;
   currentScreenIndex: number;
   setCurrentScreenIndex: (index: number) => void;
 }
@@ -136,6 +136,9 @@ export const FormFields = ({
   // Handle back button press or swipe right gesture
   useEffect(() => {
     const backAction = () => {
+      if (!onGoBack) {
+        return false;
+      }
       onGoBack();
       return true;
     };

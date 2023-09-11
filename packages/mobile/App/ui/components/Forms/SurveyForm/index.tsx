@@ -13,10 +13,10 @@ export type SurveyFormProps = {
   openExitModal: () => Promise<void>;
   components: ISurveyComponent[];
   onCancel?: () => Promise<void>;
-  onGoBack: () => void;
+  onGoBack?: () => void;
   patient: any;
   note: string;
-  validate: any;
+  validate?: any;
   patientAdditionalData: IPatientAdditionalData[];
   setCurrentScreenIndex: Dispatch<SetStateAction<number>>;
   currentScreenIndex: number;
