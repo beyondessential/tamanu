@@ -82,6 +82,8 @@ export const ProgramRegistryStatusHistory = ({ programRegistry }) => {
         data={data ? data.data : []}
         columns={columns}
         rowsPerPage={4}
+        rowStyle={() => `height: 82px;`}
+        containerStyle="height: 350px;"
         allowExport={false}
         noDataMessage="No Program registry clinical status found"
         elevated={false}

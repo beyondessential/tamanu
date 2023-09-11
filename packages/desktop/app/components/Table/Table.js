@@ -99,12 +99,8 @@ const StyledTableContainer = styled.div`
   background: white;
   border: 1px solid ${Colors.outline};
   width: 100%;
-  ${props =>
-    props.isBodyScrollable &&
-    props.rowHeight &&
-    props.rowDisplayAtATime &&
-    `height: ${props.rowHeight * props.rowDisplayAtATime}px`}
   ${props => (props.$elevated ? PaperStyles : null)};
+  ${props => (props.containerStyle ? props.containerStyle : null)}
 `;
 
 const StyledTableBody = styled(TableBody)`
@@ -470,8 +466,7 @@ class TableComponent extends React.Component {
       isLoading,
       noDataBackgroundColor,
       tableRef,
-      rowHeight = 82,
-      rowDisplayAtATime = 4,
+      containerStyle,
       isBodyScrollable,
     } = this.props;
 
@@ -480,8 +475,7 @@ class TableComponent extends React.Component {
         className={className}
         $elevated={elevated}
         isBodyScrollable
-        rowHeight={rowHeight}
-        rowDisplayAtATime={rowDisplayAtATime}
+        containerStyle={containerStyle}
       >
         {optionRow && <OptionRow>{optionRow}</OptionRow>}
         <StyledTable
@@ -542,6 +536,7 @@ TableComponent.propTypes = {
   exportName: PropTypes.string,
   refreshTable: PropTypes.func,
   rowStyle: PropTypes.func,
+  containerStyle: PropTypes.string,
   allowExport: PropTypes.bool,
   elevated: PropTypes.bool,
   lazyLoading: PropTypes.bool,
@@ -572,6 +567,7 @@ TableComponent.defaultProps = {
   exportName: 'TamanuExport',
   refreshTable: null,
   rowStyle: null,
+  containerStyle: null,
   allowExport: true,
   lazyLoading: false,
   isLoadingMore: false,
