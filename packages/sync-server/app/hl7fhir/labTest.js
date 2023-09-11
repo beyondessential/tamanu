@@ -72,6 +72,7 @@ function labTestMethodToHL7Extension(labTestMethod) {
     return [];
   }
 
+  // TODO: use db config fetcher
   const groupNamespace = `${config.hl7.dataDictionaries.testMethod}/covid-test-methods`;
   const testsNamespace = `${groupNamespace}/rdt`;
 
@@ -102,6 +103,7 @@ export function labTestToHL7DiagnosticReport(labTest) {
     identifier: [
       {
         use: 'official',
+        // TODO: use db config fetcher
         system: config.hl7.dataDictionaries.labRequestDisplayId,
         value: labRequest.displayId,
       },

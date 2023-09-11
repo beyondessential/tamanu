@@ -1,4 +1,4 @@
-import config from 'config';
+// import config from 'config';
 import * as yup from 'yup';
 import { log } from 'shared/services/logging';
 
@@ -12,8 +12,8 @@ const SCHEMA = yup.object().shape({
   }),
 });
 
-export function checkFhirConfig() {
-  const { fhir } = config.integrations;
+export async function checkFhirConfig(settings) {
+  const { fhir } = await settings.get('integrations');
   if (fhir.enabled) {
     const { default: defaultValue, max } = fhir.parameters._count;
     if (defaultValue > max) {

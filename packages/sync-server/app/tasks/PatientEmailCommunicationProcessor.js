@@ -11,6 +11,7 @@ const maskEmail = email => email.replace(/[^@]*/g, maskMiddle);
 
 export class PatientEmailCommunicationProcessor extends ScheduledTask {
   constructor(context) {
+    // TODO: Use db config fetcher (cannot use async on constructor)
     const conf = config.schedules.patientEmailCommunicationProcessor;
     super(conf.schedule, log);
     this.config = conf;

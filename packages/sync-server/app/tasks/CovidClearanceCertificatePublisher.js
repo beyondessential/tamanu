@@ -14,6 +14,7 @@ export class CovidClearanceCertificatePublisher extends ScheduledTask {
   }
 
   constructor(context) {
+    // TODO: Use db config fetcher( Constructor cannot be async)
     const { schedule } = config.schedules.covidClearanceCertificatePublisher;
     super(schedule, log);
     this.models = context.store.models;

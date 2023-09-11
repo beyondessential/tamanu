@@ -27,6 +27,7 @@ import { LabRequestNotificationGenerator } from './LabRequestNotificationGenerat
 
 export class CertificateNotificationProcessor extends ScheduledTask {
   constructor(context) {
+    // TODO: Use db config fetcher (cannot use async on constructor)
     const conf = config.schedules.certificateNotificationProcessor;
     super(conf.schedule, log);
     this.config = conf;
@@ -48,6 +49,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
   async run() {
     const { models } = this.context.store;
+    const { settings } = this.context;
     const { CertificateNotification, CertifiableVaccine, PatientCommunication, Patient } = models;
     const vdsEnabled = config.integrations.vdsNc.enabled;
     const euDccEnabled = config.integrations.euDcc.enabled;
@@ -112,6 +114,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
                 const povData = await createEuDccVaccinationData(latestCertifiableVax.id, {
                   models,
+                  settings,
                 });
 
                 qrData = await HCERTPack(povData, { models });
@@ -163,10 +166,10 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
             sublog.info('Generating test certificate PDF');
             pdf = await makeCovidCertificate(
+              { models, settings },
               CertificateTypes.test,
               patient,
               printedBy,
-              models,
               qrData,
             );
             break;
@@ -177,10 +180,10 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
             sublog.info('Generating clearance certificate PDF');
             pdf = await makeCovidCertificate(
+              { models, settings },
               CertificateTypes.clearance,
               patient,
               printedBy,
-              models,
               qrData,
             );
             break;

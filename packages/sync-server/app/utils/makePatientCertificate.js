@@ -3,7 +3,6 @@ import ReactPDF from '@react-pdf/renderer';
 import path from 'path';
 import QRCode from 'qrcode';
 import { get } from 'lodash';
-import config from 'config';
 import { ASSET_NAMES, ASSET_FALLBACK_NAMES } from '@tamanu/constants';
 
 import {
@@ -122,10 +121,10 @@ export const makeVaccineCertificate = async (patient, printedBy, printedDate, mo
 };
 
 export const makeCovidCertificate = async (
+  { models, settings },
   certType,
   patient,
   printedBy,
-  models,
   vdsData = null,
 ) => {
   const localisation = await getLocalisation();
@@ -145,13 +144,13 @@ export const makeCovidCertificate = async (
   const passportFromSurveyResponse = await getPatientSurveyResponseAnswer(
     models,
     patient.id,
-    config?.questionCodeIds?.passport,
+    await settings.get('questionCodeIds.passport'),
   );
 
   const nationalityId = await getPatientSurveyResponseAnswer(
     models,
     patient.id,
-    config?.questionCodeIds?.nationalityId,
+    await settings.get('questionCodeIds.nationalityId'),
   );
 
   const nationalityRecord = await models.ReferenceData.findByPk(nationalityId);

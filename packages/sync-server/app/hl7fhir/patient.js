@@ -44,6 +44,7 @@ function patientIds(patient, additional) {
     {
       use: 'usual',
       value: patient.displayId,
+      // TODO: use db config fetcher
       assigner: config.hl7.assigners.patientDisplayId,
       system: config.hl7.dataDictionaries.patientDisplayId,
     },
