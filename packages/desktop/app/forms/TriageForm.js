@@ -62,7 +62,7 @@ export const TriageForm = ({
           name="triageTime"
           label="Triage date & time"
           required
-          max={format(endOfDay(new Date()), `yyyy-MM-dd'T'HH:mm`)} // Weird time picker behaviour with date.now(), so using end of day. It will be also validated on summit.
+          max={format(endOfDay(new Date()), `yyyy-MM-dd'T'HH:mm`)} // Weird time picker behaviour with date.now(), so using end of day. It will be also validated on submit.
           component={DateTimeField}
           saveDateAsString
         />
