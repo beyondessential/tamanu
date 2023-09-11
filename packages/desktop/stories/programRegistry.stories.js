@@ -1,15 +1,89 @@
 import React from 'react';
+import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { ApiContext } from '../app/api';
 import { MockedApi } from './utils/mockedApi';
 import { Modal } from '../app/components/Modal';
+import { PROGRAM_REGISTRY } from '../app/components/PatientInfoPane/paneTitles';
 import { InfoPaneList } from '../app/components/PatientInfoPane/InfoPaneList';
 import { ProgramRegistryForm } from '../app/views/programRegistry/ProgramRegistryForm';
 import { ProgramRegistryListItem } from '../app/views/programRegistry/ProgramRegistryListItem';
-import { PROGRAM_REGISTRY } from '../app/components/PatientInfoPane/paneTitles';
+import { ProgramRegistryFormHistory } from '../app/views/programRegistry/ProgramRegistryFormHistory';
 import { DisplayPatientRegDetails } from '../app/views/programRegistry/DisplayPatientRegDetails';
-import { storiesOf } from '@storybook/react';
 import { ProgramRegistryStatusHistory } from '../app/views/programRegistry/ProgramRegistryStatusHistory';
+
+//#region InfoPaneList
+const dummyProgramRegistriesForInfoPaneList = [
+  {
+    id: '1',
+    name: 'Seasonal fever',
+    status: 'Removed',
+    clinicalStatus: 'Needs review',
+  },
+  {
+    id: '12',
+    name: 'Hepatities B',
+    status: 'Active',
+    clinicalStatus: 'Low risk',
+  },
+  {
+    id: '13',
+    name: 'Covid',
+    status: 'Removed',
+    clinicalStatus: 'Critical',
+  },
+  {
+    id: '14',
+    name: 'Dengue',
+    status: 'Active',
+    clinicalStatus: 'Needs review',
+  },
+  {
+    id: '15',
+    name: 'Diabetis',
+    status: 'Active',
+    clinicalStatus: 'Critical',
+  },
+  {
+    id: '16',
+    name: 'Typhoid',
+    status: 'Removed',
+    clinicalStatus: 'Low risk',
+  },
+];
+const dummyApiForInfoPaneList = {
+  get: async endpoint => {
+    await sleep(1000);
+    return {
+      data: dummyProgramRegistriesForInfoPaneList,
+    };
+  },
+};
+storiesOf('Program Registry', module).add('ProgramRegistry Info Panlist', () => {
+  const patient = { id: '323r2r234r' };
+  return (
+    <MockedApi endpoints={mockProgramRegistrytFormEndpoints}>
+      <ApiContext.Provider value={dummyApiForInfoPaneList}>
+        <div style={{ width: '250px', backgroundColor: 'white', padding: '10px' }}>
+          <InfoPaneList
+            patient={patient}
+            readonly={false}
+            title={PROGRAM_REGISTRY}
+            endpoint="programRegistry"
+            getEndpoint={`patient/${patient.id}/program-registry`}
+            Form={ProgramRegistryForm}
+            ListItemComponent={ProgramRegistryListItem}
+            getName={programRegistry => programRegistry.name}
+            behavior="modal"
+            itemTitle="Add program registry"
+            getEditFormName={programRegistry => `Program registry: ${programRegistry.name}`}
+          />
+        </div>
+      </ApiContext.Provider>
+    </MockedApi>
+  );
+});
+//#endregion InfoPaneList
 
 //#region ProgramRegistryForm
 const mockProgramRegistrytFormEndpoints = {
@@ -65,13 +139,89 @@ storiesOf('Program Registry', module).add('ProgramRegistryFrom', () => (
 
 //#endregion ProgramRegistryForm
 
+//#region DisplayPatientRegDetails
+storiesOf('Program Registry', module).add('DisplayPatientRegDetails Low risk', () => (
+  <div style={{ width: '797px' }}>
+    <DisplayPatientRegDetails
+      patientProgramRegistration={{
+        date: '2023-08-28T02:40:16.237Z',
+        programRegistryClinicalStatusId: '123123',
+        programRegistryClinicalStatus: {
+          id: '123123',
+          code: 'low_risk',
+          name: 'Low risk',
+          color: 'green',
+        },
+        clinicianId: '213123',
+        clinician: {
+          id: '213123',
+          displayName: 'Alaister',
+        },
+        registrationStatus: 'active',
+      }}
+    />
+  </div>
+));
+
+storiesOf('Program Registry', module).add('DisplayPatientRegDetails Critical', () => (
+  <div style={{ width: '797px' }}>
+    <DisplayPatientRegDetails
+      patientProgramRegistration={{
+        date: '2023-08-28T02:40:16.237Z',
+        programRegistryClinicalStatusId: '123123',
+        programRegistryClinicalStatus: {
+          id: '123123',
+          code: 'critical',
+          name: 'Critical',
+          color: 'red',
+        },
+        clinicianId: '213123',
+        clinician: {
+          id: '213123',
+          displayName: 'Alaister',
+        },
+        removedById: '213123',
+        removedBy: {
+          id: '213123',
+          displayName: 'Alaister',
+        },
+        registrationStatus: 'removed',
+      }}
+    />
+  </div>
+));
+
+storiesOf('Program Registry', module).add('DisplayPatientRegDetails Needs review', () => (
+  <div style={{ width: '797px' }}>
+    <DisplayPatientRegDetails
+      patientProgramRegistration={{
+        date: '2023-08-28T02:40:16.237Z',
+        programRegistryClinicalStatusId: '123123',
+        programRegistryClinicalStatus: {
+          id: '123123',
+          code: 'needs_review',
+          name: 'Needs review',
+          color: 'yellow',
+        },
+        clinicianId: '213123',
+        clinician: {
+          id: '213123',
+          displayName: 'Alaister',
+        },
+        removedById: '213123',
+        removedBy: {
+          id: '213123',
+          displayName: 'Alaister',
+        },
+        registrationStatus: 'removed',
+      }}
+    />
+  </div>
+));
+//#endregion DisplayPatientRegDetails
+
 //#region ProgramRegistryStatusHistory
 
-function sleep(milliseconds) {
-  return new Promise(resolve => {
-    setTimeout(resolve, milliseconds);
-  });
-}
 const dummyDataForProgramRegistryStatusHistory = [
   {
     id: '1',
@@ -177,7 +327,7 @@ const dummyDataForProgramRegistryStatusHistory = [
   },
 ];
 
-const dummyApi = {
+const dummyApiForProgramRegistryStatusHistory = {
   get: async (endpoint, options) => {
     await sleep(5000);
     const sortedData =
@@ -200,7 +350,7 @@ const dummyApi = {
   },
 };
 storiesOf('Program Registry', module).add('ProgramRegistryStatusHistory removed never', () => (
-  <ApiContext.Provider value={dummyApi}>
+  <ApiContext.Provider value={dummyApiForProgramRegistryStatusHistory}>
     <ProgramRegistryStatusHistory
       programRegistry={{
         id: '23242234234',
@@ -210,7 +360,7 @@ storiesOf('Program Registry', module).add('ProgramRegistryStatusHistory removed 
 ));
 
 storiesOf('Program Registry', module).add('ProgramRegistryStatusHistory removed once', () => (
-  <ApiContext.Provider value={dummyApi}>
+  <ApiContext.Provider value={dummyApiForProgramRegistryStatusHistory}>
     <ProgramRegistryStatusHistory
       programRegistry={{
         id: '23242234234',
@@ -221,156 +371,145 @@ storiesOf('Program Registry', module).add('ProgramRegistryStatusHistory removed 
 
 //#endregion ProgramRegistryStatusHistory
 
-//#region InfoPaneList
-const dummyProgramRegistriesForInfoPaneList = [
+//#region ProgramRegistryFormHistory
+
+const dummyDataForProgramRegistryFormHistory = [
   {
-    id: '1',
-    name: 'Seasonal fever',
-    status: 'Removed',
-    clinicalStatus: 'Needs review',
+    id: 1,
+    endTime: '2023-09-07 15:54:00',
+    userId: '10',
+    user: {
+      displayName: 'Hyacinthie',
+    },
+    surveyId: '100000',
+    survey: {
+      name: 'Engineering',
+    },
+    result: '9851',
+    resultText: '9851',
   },
   {
-    id: '12',
-    name: 'Hepatities B',
-    status: 'Active',
-    clinicalStatus: 'Low risk',
+    id: 2,
+    endTime: '2023-09-07 15:54:00',
+    userId: '20',
+    user: {
+      displayName: 'Mame',
+    },
+    surveyId: '200000',
+    survey: {
+      name: 'Marketing',
+    },
+    result: '1160',
+    resultText: '1160',
   },
   {
-    id: '13',
-    name: 'Covid',
-    status: 'Removed',
-    clinicalStatus: 'Critical',
+    id: 3,
+    endTime: '2023-09-07 15:54:00',
+    userId: '30',
+    user: {
+      displayName: 'Orland',
+    },
+    surveyId: '300000',
+    survey: {
+      name: 'Product Management',
+    },
+    result: '3634',
+    resultText: '3634',
   },
   {
-    id: '14',
-    name: 'Dengue',
-    status: 'Active',
-    clinicalStatus: 'Needs review',
+    id: 4,
+    endTime: '2023-09-07 15:54:00',
+    userId: '40',
+    user: {
+      displayName: 'Noell',
+    },
+    surveyId: '400000',
+    survey: {
+      name: 'Engineering',
+    },
+    result: '8025',
+    resultText: '8025',
   },
   {
-    id: '15',
-    name: 'Diabetis',
-    status: 'Active',
-    clinicalStatus: 'Critical',
+    id: 5,
+    endTime: '2023-09-07 15:54:00',
+    userId: '50',
+    user: {
+      displayName: 'Hinda',
+    },
+    surveyId: '500000',
+    survey: {
+      name: 'Services',
+    },
+    result: '9631',
+    resultText: '9631',
   },
   {
-    id: '16',
-    name: 'Typhoid',
-    status: 'Removed',
-    clinicalStatus: 'Low risk',
+    id: 6,
+    endTime: '2023-09-07 15:54:00',
+    userId: '60',
+    user: {
+      displayName: 'Abbey',
+    },
+    surveyId: '600000',
+    survey: {
+      name: 'Marketing',
+    },
+    result: '6816',
+    resultText: '6816',
+  },
+  {
+    id: 7,
+    endTime: '2023-09-07 15:54:00',
+    userId: '70',
+    user: {
+      displayName: 'Ginelle',
+    },
+    surveyId: '700000',
+    survey: {
+      name: 'Human Resources',
+    },
+    result: '4687',
+    resultText: '4687',
   },
 ];
-const dummyApiForInfoPaneList = {
-  get: async endpoint => {
+function sleep(milliseconds) {
+  return new Promise(resolve => {
+    setTimeout(resolve, milliseconds);
+  });
+}
+
+const dummyApiForProgramRegistryFormHistory = {
+  get: async (endpoint, { order, orderBy, page, rowsPerPage }) => {
+    console.log(endpoint);
     await sleep(1000);
+    const sortedData = dummyDataForProgramRegistryFormHistory.sort(
+      ({ [orderBy]: a }, { [orderBy]: b }) => {
+        if (typeof a === 'string') {
+          return order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
+        }
+        return order === 'asc' ? a - b : b - a;
+      },
+    );
+    const startIndex = page * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+
     return {
-      data: dummyProgramRegistriesForInfoPaneList,
+      data: sortedData.slice(startIndex, endIndex),
+      count: dummyDataForProgramRegistryFormHistory.length,
     };
   },
 };
-storiesOf('Program Registry', module).add('ProgramRegistry Info Panlist', () => {
-  const patient = { id: '323r2r234r' };
-  return (
-    <MockedApi endpoints={mockProgramRegistrytFormEndpoints}>
-      <ApiContext.Provider value={dummyApiForInfoPaneList}>
-        <div style={{ width: '250px', backgroundColor: 'white', padding: '10px' }}>
-          <InfoPaneList
-            patient={patient}
-            readonly={false}
-            title={PROGRAM_REGISTRY}
-            endpoint="programRegistry"
-            getEndpoint={`patient/${patient.id}/program-registry`}
-            Form={ProgramRegistryForm}
-            ListItemComponent={ProgramRegistryListItem}
-            getName={programRegistry => programRegistry.name}
-            behavior="modal"
-            itemTitle="Add program registry"
-            getEditFormName={programRegistry => `Program registry: ${programRegistry.name}`}
-          />
-        </div>
-      </ApiContext.Provider>
-    </MockedApi>
-  );
-});
-//#endregion InfoPaneList
-
-//#region DisplayPatientRegDetails
-storiesOf('Program Registry', module).add('DisplayPatientRegDetails Low risk', () => (
-  <div style={{ width: '797px' }}>
-    <DisplayPatientRegDetails
-      patientProgramRegistration={{
-        date: '2023-08-28T02:40:16.237Z',
-        programRegistryClinicalStatusId: '123123',
-        programRegistryClinicalStatus: {
-          id: '123123',
-          code: 'low_risk',
-          name: 'Low risk',
-          color: 'green',
-        },
-        clinicianId: '213123',
-        clinician: {
-          id: '213123',
-          displayName: 'Alaister',
-        },
-        registrationStatus: 'active',
+storiesOf('Program Registry', module).add('ProgramRegistryFormHistory', () => (
+  <ApiContext.Provider value={dummyApiForProgramRegistryFormHistory}>
+    <ProgramRegistryFormHistory
+      programRegistry={{
+        id: '23242234234',
+      }}
+      patient={{
+        id: '23242234234',
       }}
     />
-  </div>
+  </ApiContext.Provider>
 ));
-
-storiesOf('Program Registry', module).add('DisplayPatientRegDetails Critical', () => (
-  <div style={{ width: '797px' }}>
-    <DisplayPatientRegDetails
-      patientProgramRegistration={{
-        date: '2023-08-28T02:40:16.237Z',
-        programRegistryClinicalStatusId: '123123',
-        programRegistryClinicalStatus: {
-          id: '123123',
-          code: 'critical',
-          name: 'Critical',
-          color: 'red',
-        },
-        clinicianId: '213123',
-        clinician: {
-          id: '213123',
-          displayName: 'Alaister',
-        },
-        removedById: '213123',
-        removedBy: {
-          id: '213123',
-          displayName: 'Alaister',
-        },
-        registrationStatus: 'removed',
-      }}
-    />
-  </div>
-));
-
-storiesOf('Program Registry', module).add('DisplayPatientRegDetails Needs review', () => (
-  <div style={{ width: '797px' }}>
-    <DisplayPatientRegDetails
-      patientProgramRegistration={{
-        date: '2023-08-28T02:40:16.237Z',
-        programRegistryClinicalStatusId: '123123',
-        programRegistryClinicalStatus: {
-          id: '123123',
-          code: 'needs_review',
-          name: 'Needs review',
-          color: 'yellow',
-        },
-        clinicianId: '213123',
-        clinician: {
-          id: '213123',
-          displayName: 'Alaister',
-        },
-        removedById: '213123',
-        removedBy: {
-          id: '213123',
-          displayName: 'Alaister',
-        },
-        registrationStatus: 'removed',
-      }}
-    />
-  </div>
-));
-//#endregion DisplayPatientRegDetails
+//#endregion ProgramRegistryFormHistory
