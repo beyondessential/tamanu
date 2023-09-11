@@ -23,12 +23,14 @@ const STATUS_CONFIG = {
 
 const StyledTable = styled(Table)`
   max-height: 500px;
+  max-width: 520px;
+  overflow-y: auto;
   table {
-    thead tr th {
+    thead {
       position: sticky;
       top: 0;
-      background-color: ${Colors.offWhite};
       z-index: 1;
+      background-color: ${Colors.offWhite};
     }
   }
 `;
@@ -60,19 +62,16 @@ export const ReportTable = React.memo(({ data, selected, onRowClick, loading, er
       {
         title: 'Name',
         key: 'name',
-        minWidth: 400,
       },
       {
         title: 'Last updated',
         key: 'lastUpdated',
-        minWidth: 300,
         accessor: ({ lastUpdated }) => getDateTime(lastUpdated),
       },
       {
         title: 'Version count',
         key: 'versionCount',
         numeric: true,
-        minWidth: 200,
         accessor: ({ versionCount }) => versionCount || 0,
       },
     ]}
@@ -92,12 +91,10 @@ export const VersionTable = React.memo(({ data, onRowClick, loading, error }) =>
       {
         title: 'Version',
         key: 'versionNumber',
-        minWidth: 200,
       },
       {
         title: 'Created time',
         key: 'createdAt',
-        minWidth: 300,
         accessor: ({ updatedAt }) => getDateTime(updatedAt),
       },
       {
