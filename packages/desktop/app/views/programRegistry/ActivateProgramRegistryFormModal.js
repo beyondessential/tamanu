@@ -14,7 +14,7 @@ export const ActivateProgramRegistryFormModal = React.memo(
   ({ onCancel, onSubmit, editedObject, patient, program, open }) => {
     const { currentUser, facility } = useAuth();
     const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
-      baseQueryParameters: { programId: program ? program.id : null },
+      baseQueryParameters: { programId: program.id },
     });
     const registeredBySuggester = useSuggester('practitioner');
     const registeringFacilitySuggester = useSuggester('facility');
@@ -93,7 +93,7 @@ ActivateProgramRegistryFormModal.propTypes = {
   onCancel: PropTypes.func.isRequired,
   editedObject: PropTypes.shape({}),
   patient: PropTypes.shape({}).isRequired,
-  program: PropTypes.shape({}).isRequired,
+  program: PropTypes.shape({ id: PropTypes.string }).isRequired,
   open: PropTypes.bool.isRequired,
 };
 
