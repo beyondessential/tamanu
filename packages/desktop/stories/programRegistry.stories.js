@@ -12,6 +12,7 @@ import { ProgramRegistryListItem } from '../app/views/programRegistry/ProgramReg
 import { ProgramRegistryFormHistory } from '../app/views/programRegistry/ProgramRegistryFormHistory';
 import { DisplayPatientRegDetails } from '../app/views/programRegistry/DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from '../app/views/programRegistry/ProgramRegistryStatusHistory';
+import { DeleteProgramRegistry } from '../app/views/programRegistry/DeleteProgramRegistry';
 
 //#region InfoPaneList
 const dummyProgramRegistriesForInfoPaneList = [
@@ -533,3 +534,15 @@ storiesOf('Program Registry', module).add('ProgramRegistry Status Cahnge', () =>
 });
 
 //#endregion ChangeStatusFormModal
+
+//#region DeleteProgramRegistry
+storiesOf('Program Registry', module).add('ProgramRegistry Delete Modal', () => {
+  return (
+    <DeleteProgramRegistry
+      program={{ name: 'Hepatitis B' }}
+      onSubmit={action('submit')}
+      onCancel={action('cancel')}
+    />
+  );
+});
+//#endregion DeleteProgramRegistry
