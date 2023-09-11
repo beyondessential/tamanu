@@ -14,6 +14,7 @@ export class PatientProgramRegistration extends Model {
           defaultValue: getCurrentDateTimeString,
         }),
         registrationStatus: {
+          allowNull: false,
           type: Sequelize.TEXT,
           defaultValue: REGISTRATION_STATUSES.ACTIVE,
         },
