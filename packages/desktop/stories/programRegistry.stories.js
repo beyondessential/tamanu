@@ -293,6 +293,7 @@ function sleep(milliseconds) {
 
 const dummyApi = {
   get: async (endpoint, { order, orderBy, page, rowsPerPage }) => {
+    console.log(endpoint);
     await sleep(1000);
     const sortedData = dummyData.sort(({ [orderBy]: a }, { [orderBy]: b }) => {
       if (typeof a === 'string') {
@@ -312,10 +313,11 @@ const dummyApi = {
 storiesOf('Program Registry', module).add('ProgramRegistryFormHistory', () => (
   <ApiContext.Provider value={dummyApi}>
     <ProgramRegistryFormHistory
-      program={{
+      programRegistry={{
         id: '23242234234',
-        date: '2023-08-28T02:40:16.237Z',
-        programRegistryClinicalStatusId: 'Low risk',
+      }}
+      patient={{
+        id: '23242234234',
       }}
     />
   </ApiContext.Provider>

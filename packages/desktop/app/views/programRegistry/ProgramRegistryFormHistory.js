@@ -1,9 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { DataFetchingTable } from '../../components/Table/DataFetchingTable';
 import { DateDisplay } from '../../components/DateDisplay';
 import { MenuButton } from '../../components/MenuButton';
 
-export const ProgramRegistryFormHistory = ({ program }) => {
+export const ProgramRegistryFormHistory = ({ programRegistry, patient }) => {
   const columns = [
     {
       key: 'date',
@@ -19,7 +20,7 @@ export const ProgramRegistryFormHistory = ({ program }) => {
     },
     {
       key: 'surveyId',
-      title: 'From',
+      title: 'Form',
       accessor: row => row.survey.name,
       sortable: false,
     },
@@ -44,15 +45,23 @@ export const ProgramRegistryFormHistory = ({ program }) => {
   ];
   return (
     <DataFetchingTable
-      endpoint={`/programRegistry/history/${program.id}`}
+      endpoint={`/patient/${patient.id}/programRegistration/${programRegistry.id}/surveyResponses`}
       columns={columns}
       initialSort={{
         orderBy: 'date',
         order: 'asc',
       }}
-      noDataMessage="No program responses found"
-      // onRowClick={onSelectResponse}
+      noDataMessage="No Program registry responses found"
       elevated={false}
     />
   );
+};
+
+ProgramRegistryFormHistory.prototype = {
+  patient: PropTypes.shape({
+    id: PropTypes.string,
+  }),
+  programRegistry: PropTypes.shape({
+    id: PropTypes.string,
+  }),
 };
