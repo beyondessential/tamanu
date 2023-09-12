@@ -17,6 +17,7 @@ import {
   Refresh,
   Lock,
 } from '@material-ui/icons';
+
 import { Colors } from '../constants';
 import { withPermissionCheck } from './withPermissionCheck';
 import { withPermissionTooltip } from './withPermissionTooltip';
@@ -35,6 +36,10 @@ const StyledButton = styled(MuiButton)`
   padding: 11px 18px 12px 18px;
   box-shadow: none;
   min-width: 100px;
+
+  /* Button is already disabled functionally,
+  this is only to visually make it more obvious that the button is disabled */
+  ${props => (props.functionallyDisabled ? 'pointer-events: none;' : '')}
 
   .MuiSvgIcon-root {
     width: 19.5px;
@@ -56,19 +61,33 @@ const StyledCircularProgress = styled(CircularProgress)`
   margin-right: 5px;
 `;
 
-export const Button = ({
+const BaseButton = ({
   children,
   isSubmitting,
   disabled,
+  functionallyDisabled = false, // for disable the function of button, but still keep the visual the same
   hasPermission = true,
   loadingColor = Colors.white,
   showLoadingIndicator,
+  type,
   ...props
 }) => {
   const locationsProps = getLocationProps(props);
   const displayLock = !isSubmitting && !hasPermission;
+  const buttonComponent = functionallyDisabled
+    ? // disable this lint because it should be safe to assume that the type is correct
+      // eslint-disable-next-line react/button-has-type
+      buttonProps => <button type={type} {...buttonProps} disabled />
+    : undefined;
   return (
-    <StyledButton {...props} {...locationsProps} disabled={disabled || !hasPermission}>
+    <StyledButton
+      {...props}
+      {...locationsProps}
+      disabled={disabled || !hasPermission}
+      type={type}
+      functionallyDisabled={functionallyDisabled}
+      component={buttonComponent}
+    >
       {displayLock && <Lock />}
       {showLoadingIndicator && <StyledCircularProgress color={loadingColor} size={25} />}
       {!showLoadingIndicator && children}
@@ -76,18 +95,29 @@ export const Button = ({
   );
 };
 
-Button.propTypes = {
+export const Button = ({ isSubmitting = false, ...props }) => (
+  <BaseButton
+    isSubmitting={isSubmitting}
+    functionallyDisabled={isSubmitting}
+    showLoadingIndicator={isSubmitting}
+    {...props}
+  />
+);
+
+BaseButton.propTypes = {
   isSubmitting: PropTypes.bool,
   disabled: PropTypes.bool,
   variant: PropTypes.PropTypes.oneOf(['contained', 'outlined', 'text']),
   color: PropTypes.PropTypes.oneOf(['default', 'primary', 'secondary']),
+  type: PropTypes.PropTypes.oneOf(['button', 'submit', 'reset']),
 };
 
-Button.defaultProps = {
+BaseButton.defaultProps = {
   isSubmitting: false,
   disabled: false,
   variant: 'contained',
   color: 'primary',
+  type: 'button',
 };
 
 const StyledOutlinedButton = styled(StyledButton)`
@@ -213,7 +243,7 @@ export const FormSubmitButton = ({
       showLoadingIndicator={showLoadingIndicator}
       color={color}
       onClick={onSubmit}
-      disabled={isSubmitting}
+      functionallyDisabled={isSubmitting}
       type="submit"
       {...props}
     >
@@ -225,7 +255,7 @@ export const FormSubmitButton = ({
 export const FormCancelButton = ({ ...props }) => {
   const { isSubmitting } = useFormikContext();
 
-  return <OutlinedButton disabled={isSubmitting} {...props} />;
+  return <OutlinedButton functionallyDisabled={isSubmitting} {...props} />;
 };
 
 export const StyledPrimarySubmitButton = styled(FormSubmitButton)`
