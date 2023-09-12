@@ -106,24 +106,26 @@ async function innerJoinQueriesToSql(
   queryToFilterUpstream,
   queryToFindUpstreamIdsFromTable,
 ) {
-  const sqlToFindUpstreamIdsFromTable = await prepareQuery(
-    UpstreamModel,
-    queryToFindUpstreamIdsFromTable,
-  );
+  const sqlToFindUpstreamIdsFromTable = await prepareQuery(UpstreamModel, {
+    ...queryToFindUpstreamIdsFromTable,
+    attributes: ['id'],
+  });
 
   if (!queryToFilterUpstream) {
     return sqlToFindUpstreamIdsFromTable;
   }
 
-  const sqlToFilterUpstream = await prepareQuery(UpstreamModel, queryToFilterUpstream);
+  const sqlToFilterUpstream = await prepareQuery(UpstreamModel, {
+    ...queryToFilterUpstream,
+    attributes: ['id'],
+  });
 
   return `
     WITH
       found_upstreams AS (${sqlToFindUpstreamIdsFromTable}),
       pre_filtered_upstreams AS (${sqlToFilterUpstream})
 
-    SELECT * 
-    FROM found_upstreams 
+    SELECT * FROM found_upstreams 
     INNER JOIN pre_filtered_upstreams 
     USING (id)
   `;

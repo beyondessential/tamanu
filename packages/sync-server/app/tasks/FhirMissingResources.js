@@ -30,7 +30,10 @@ export class FhirMissingResources extends ScheduledTask {
       for (const UpstreamModel of Resource.UpstreamModels) {
         const upstreamTable = UpstreamModel.tableName;
         const queryToFilterUpstream = await Resource.queryToFilterUpstream(upstreamTable);
-        const sql = await prepareQuery(UpstreamModel, queryToFilterUpstream);
+        const sql = await prepareQuery(UpstreamModel, {
+          ...queryToFilterUpstream,
+          attributes: ['id'],
+        });
 
         const [[{ total }]] = await Resource.sequelize.query(
           `
@@ -53,7 +56,10 @@ export class FhirMissingResources extends ScheduledTask {
       for (const UpstreamModel of Resource.UpstreamModels) {
         const upstreamTable = UpstreamModel.tableName;
         const queryToFilterUpstream = await Resource.queryToFilterUpstream(upstreamTable);
-        const sql = await prepareQuery(UpstreamModel, queryToFilterUpstream);
+        const sql = await prepareQuery(UpstreamModel, {
+          ...queryToFilterUpstream,
+          attributes: ['id'],
+        });
 
         const [[{ total }]] = await Resource.sequelize.query(
           `
