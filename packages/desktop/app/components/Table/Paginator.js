@@ -133,7 +133,7 @@ export const Paginator = React.memo(
             MenuProps={{ classes: { paper: classes.selectMenu } }}
           >
             {rowsPerPageOptions.map((option, index) => (
-              <StyledMenuItem key={index} value={option}>
+              <StyledMenuItem key={option} value={option}>
                 {option}
               </StyledMenuItem>
             ))}

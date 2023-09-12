@@ -223,7 +223,7 @@ const Row = React.memo(
         const backgroundColor = typeof cellColor === 'function' ? cellColor(data) : cellColor;
         return (
           <StyledTableCell
-            key={!!key ? key : cIndex}
+            key={key ? key : cIndex}
             onClick={dontCallRowInput ? preventInputCallback : undefined}
             background={backgroundColor}
             align={numeric ? 'right' : 'left'}
