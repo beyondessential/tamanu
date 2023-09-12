@@ -409,7 +409,6 @@ describe('Programs', () => {
 
         const result = await app.post(`/v1/surveyResponse`).send({
           answers: { [pdeId]: true },
-          actions: { [pdeId]: true },
           surveyId,
           encounterId: testEncounter.id,
         });
@@ -437,7 +436,6 @@ describe('Programs', () => {
 
         const result = await app.post(`/v1/surveyResponse`).send({
           answers: { [pdeId]: TEST_EMAIL },
-          actions: { [pdeId]: true },
           surveyId,
           encounterId: testEncounter.id,
         });
@@ -464,7 +462,6 @@ describe('Programs', () => {
 
         const result = await app.post(`/v1/surveyResponse`).send({
           answers: { [pdeId]: TEST_PASSPORT },
-          actions: { [pdeId]: true },
           surveyId,
           encounterId: testEncounter.id,
         });
@@ -493,7 +490,6 @@ describe('Programs', () => {
 
         const result = await app.post(`/v1/surveyResponse`).send({
           answers: { [pdeId]: TEST_PASSPORT },
-          actions: { [pdeId]: true },
           surveyId,
           patientId: freshPatient.id,
         });
