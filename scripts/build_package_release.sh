@@ -18,7 +18,7 @@ cp package.json   "$buildplace/package.json.orig"
 jq '.dependencies["@tamanu/build-tooling"] = "*"' package.json > "$buildplace/package.json"
 cp -R yarn.lock common.tsconfig.json *.config.*   "$buildplace/"
 mkdir -p "$buildplace/packages"
-cp -R packages/build-tooling packages/shared packages/constants   "$buildplace/packages/"
+cp -R packages/build-tooling packages/shared packages/constants packages/settings   "$buildplace/packages/"
 
 # copy desired package
 cp -R "packages/$pkg_name"   "$buildplace/packages/"
@@ -36,6 +36,7 @@ rm -rf packages/*/config/{development,test,local}.json || true
 # do the build
 yarn install --non-interactive --production --frozen-lockfile
 yarn workspace @tamanu/constants build
+yarn workspace @tamanu/settings build
 yarn workspace @tamanu/shared build
 yarn workspace $pkg_name build
 
@@ -57,6 +58,8 @@ cp -R packages/shared/node_modules/*   node_modules/
 rm -rf packages/$pkg_name/node_modules/@tamanu/shared || true
 cp -R packages/constants/node_modules/*   node_modules/ || true # doesn't exist yet
 rm -rf packages/$pkg_name/node_modules/@tamanu/constants || true
+cp -R packages/settings/node_modules/*   node_modules/ || true # doesn't exist yet
+rm -rf packages/$pkg_name/node_modules/@tamanu/settings || true
 cp -R packages/$pkg_name/node_modules/*   node_modules/
 rm -rf packages/$pkg_name/node_modules || true
 mv -v node_modules   packages/$pkg_name/node_modules
@@ -67,6 +70,8 @@ rm -rf packages/$pkg_name/node_modules/@tamanu/shared
 mv -v packages/shared   packages/$pkg_name/node_modules/@tamanu/shared
 rm -rf packages/$pkg_name/node_modules/@tamanu/constants
 mv -v packages/constants   packages/$pkg_name/node_modules/@tamanu/constants
+rm -rf packages/$pkg_name/node_modules/@tamanu/settings
+mv -v packages/constants   packages/$pkg_name/node_modules/@tamanu/settings
 
 # out of build
 popd
