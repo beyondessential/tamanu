@@ -88,15 +88,15 @@ export const ActivateProgramRegistryFormModal = React.memo(
   },
 );
 
-ActivateProgramRegistryFormModal.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  editedObject: PropTypes.shape({}),
-  patient: PropTypes.shape({}).isRequired,
-  program: PropTypes.shape({ id: PropTypes.string }).isRequired,
-  open: PropTypes.bool.isRequired,
-};
+// ActivateProgramRegistryFormModal.propTypes = {
+//   onSubmit: PropTypes.func.isRequired,
+//   onCancel: PropTypes.func.isRequired,
+//   editedObject: PropTypes.shape({}),
+//   patient: PropTypes.shape({}).isRequired,
+//   program: PropTypes.shape({ id: PropTypes.string }).isRequired,
+//   open: PropTypes.bool.isRequired,
+// };
 
-ActivateProgramRegistryFormModal.defaultProps = {
-  editedObject: null,
-};
+// ActivateProgramRegistryFormModal.defaultProps = {
+//   editedObject: null,
+// };

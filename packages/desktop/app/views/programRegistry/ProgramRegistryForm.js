@@ -20,7 +20,7 @@ export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObjec
   const api = useApi();
   const { currentUser, facility } = useAuth();
   const [program, setProgram] = useState();
-  const programRegistrySuggester = useSuggester('program', {
+  const programRegistrySuggester = useSuggester('programRegistries', {
     baseQueryParameters: { patientId: patient.id },
   });
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
@@ -31,7 +31,7 @@ export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObjec
 
   const onProgramSelect = async id => {
     try {
-      const { data } = await api.get(`program/${id}`);
+      const { data } = await api.get(`programRegistry/${id}`);
       setProgram(data);
     } catch (error) {
       setProgram(undefined);
@@ -127,12 +127,12 @@ export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObjec
   );
 });
 
-ProgramRegistryForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  editedObject: PropTypes.shape({}),
-};
+// ProgramRegistryForm.propTypes = {
+//   onSubmit: PropTypes.func.isRequired,
+//   onCancel: PropTypes.func.isRequired,
+//   editedObject: PropTypes.shape({}),
+// };
 
-ProgramRegistryForm.defaultProps = {
-  editedObject: null,
-};
+// ProgramRegistryForm.defaultProps = {
+//   editedObject: null,
+// };
