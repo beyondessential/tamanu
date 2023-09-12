@@ -26,6 +26,47 @@ async function createPatientIssues(models, questions, patientId) {
   }
 }
 
+const SIMPLE_PATIENT_FIELDS = [
+  'displayId',
+  'firstName',
+  'middleName',
+  'lastName',
+  'culturalName',
+  'dateOfBirth',
+  'dateOfDeath',
+  'sex',
+  'email',
+  'visibilityStatus',
+
+  // Relations
+  'villageId',
+];
+
+const ADDITIONAL_DATA_FIELDS = [
+  'placeOfBirth',
+  'bloodType',
+  'primaryContactNumber',
+  'secondaryContactNumber',
+  'maritalStatus',
+  'cityTown',
+  'streetVillage',
+  'educationalLevel',
+  'socialMedia',
+  'title',
+  'birthCertificate',
+  'drivingLicense',
+  'passport',
+  'emergencyContactName',
+  'emergencyContactNumber',
+  'motherId',
+  'fatherId',
+  // 'updatedAtByField',
+];
+
+const FIELD_NAME = {
+};
+
+
 /**
  * DUPLICATED IN mobile/App/models/SurveyResponse.ts
  * Please keep in sync
