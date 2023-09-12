@@ -3,6 +3,7 @@ import {
   PROGRAM_DATA_ELEMENT_TYPES,
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
+  PATIENT_DATA_FIELD_LOCATIONS,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
@@ -29,17 +30,6 @@ async function createPatientIssues(models, questions, patientId) {
     });
   }
 }
-
-const PATIENT_DATA_FIELD_LOCATIONS = {
-  PatientProgramRegistration: {
-    registrationClinicalStatus: 'clinicalStatusId',
-    programRegistrationStatus: 'registrationStatus',
-    registrationClinician: 'clinicianId',
-    registeringFacility: 'registeringFacilityId',
-    registrationCurrentlyAtVillage: 'villageId',
-    registrationCurrentlyAtFacility: 'facilityId',
-  },
-};
 
 const getDbLocation = (models, fieldName) => {
   // First check the manually defined fields

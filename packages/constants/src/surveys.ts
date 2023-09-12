@@ -84,3 +84,14 @@ export const VITAL_CHARTS = {
   [PDE_SPO2]: LINE,
   [PDE_AVPU]: LINE,
 };
+
+export const PATIENT_DATA_FIELD_LOCATIONS = {
+  PatientProgramRegistration: {
+    registrationClinicalStatus: 'clinicalStatusId',
+    programRegistrationStatus: 'registrationStatus',
+    registrationClinician: 'clinicianId',
+    registeringFacility: 'registeringFacilityId',
+    registrationCurrentlyAtVillage: 'villageId',
+    registrationCurrentlyAtFacility: 'facilityId',
+  },
+};

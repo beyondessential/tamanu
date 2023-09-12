@@ -2,6 +2,7 @@ import { Entity, Column, ManyToOne, OneToMany, RelationId } from 'typeorm/browse
 
 import { ISurveyResponse, EncounterType, ICreateSurveyResponse } from '~/types';
 
+import { PATIENT_DATA_FIELD_LOCATIONS } from '@tamanu/constants';
 import { getStringValue, getResultValue, isCalculated, FieldTypes } from '~/ui/helpers/fields';
 
 import { runCalculations } from '~/ui/helpers/calculations';
@@ -18,18 +19,38 @@ import { VitalLog } from './VitalLog';
 import { SYNC_DIRECTIONS } from './types';
 import { DateTimeStringColumn } from './DateColumns';
 
+const getDbLocation = fieldName => {
+  // First check the manually defined fields
+  for (const [modelName, fieldMappings] of Object.entries(PATIENT_DATA_FIELD_LOCATIONS)) {
+    if (fieldMappings[fieldName])
+      return {
+        modelName,
+        fieldName: fieldMappings[fieldName],
+      };
+  }
+  
+  // If not, assume that the field is on either of the "direct" patient data models
+  for (const model of [Patient, PatientAdditionalData]) {
+    if (model.getRepository().metadata.columns.includes(fieldName)) {
+      return { modelName: model.name, fieldName };
+    }
+  }
+
+  throw new Error(`Unknown fieldName: ${fieldName}`);
+};
+
 /**
  * DUPLICATED IN shared/models/SurveyResponse.js
  * Please keep in sync
  */
 async function writeToPatientFields(questions, answers, patientId) {
   // these will store values to write to patient records following submission
-  const patientRecordValues = {};
-  const patientAdditionalDataValues = {};
+  const recordValuesByModel = {};
 
   const patientDataQuestions = questions.filter(
     q => q.dataElement.type === FieldTypes.PATIENT_DATA,
   );
+
   for (const question of patientDataQuestions) {
     const questionConfig = question.getConfigObject();
     const { dataElement } = question;
@@ -39,28 +60,35 @@ async function writeToPatientFields(questions, answers, patientId) {
       continue;
     }
 
-    const { fieldName, isAdditionalDataField } = questionConfig.writeToPatient || {};
-    if (!fieldName) {
+    const { fieldName: configFieldName } = questionConfig.writeToPatient || {};
+    if (!configFieldName) {
       throw new Error('No fieldName defined for writeToPatient config');
     }
 
-    const value = answers[dataElement.code];
-    if (isAdditionalDataField) {
-      patientAdditionalDataValues[fieldName] = value;
-    } else {
-      patientRecordValues[fieldName] = value;
-    }
+    const value = answers[dataElement.id];
+    const { modelName, fieldName } = getDbLocation(configFieldName);
+    if (!recordValuesByModel[modelName]) recordValuesByModel[modelName] = {};
+    recordValuesByModel[modelName][fieldName] = value;
   }
 
   // Save values to database records
-  if (Object.keys(patientRecordValues).length) {
-    await Patient.updateValues(patientId, patientRecordValues);
-  }
-  if (Object.keys(patientAdditionalDataValues).length) {
-    await PatientAdditionalData.updateForPatient(patientId, patientAdditionalDataValues);
+  for (const [modelName, values] of Object.entries(recordValuesByModel)) {
+    switch (modelName) {
+      case 'Patient': {
+        await Patient.updateValues(patientId, values);
+        break;
+      }
+      case 'PatientAdditionalData': {
+        await PatientAdditionalData.updateForPatient(patientId, values);
+        break;
+      }
+      case 'PatientProgramRegistration':
+        throw new Error('Program registrations not yet implemented on mobile');
+      default:
+        throw new Error('Model not recognized');
+    }
   }
 }
-
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
