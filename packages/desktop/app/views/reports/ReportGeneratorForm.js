@@ -235,21 +235,19 @@ export const ReportGeneratorForm = () => {
             <>
               <Spacer />
               <FormGrid columns={3}>
-                {parameters.map(
-                  ({ parameterField, required, name, label, options, ...restOfProps }) => {
-                    return (
-                      <ParameterField
-                        key={name || parameterField}
-                        required={required}
-                        name={name}
-                        label={label}
-                        parameterValues={values}
-                        parameterField={parameterField}
-                        {...restOfProps}
-                      />
-                    );
-                  },
-                )}
+                {parameters.map(({ parameterField, required, name, label, ...restOfProps }) => {
+                  return (
+                    <ParameterField
+                      key={name || parameterField}
+                      required={required}
+                      name={name}
+                      label={label}
+                      parameterValues={values}
+                      parameterField={parameterField}
+                      {...restOfProps}
+                    />
+                  );
+                })}
               </FormGrid>
             </>
           ) : null}
