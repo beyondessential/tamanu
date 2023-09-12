@@ -65,7 +65,7 @@ const MenuContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: end;
+  justify-content: flex-end;
   .menu {
     border-radius: 100px;
     background-color: ${Colors.hoverGrey};

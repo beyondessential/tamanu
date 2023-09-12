@@ -577,3 +577,7 @@ storiesOf('Program Registry', module).add('ActivateProgramRegistryFormModal', ()
   </MockedApi>
 ));
 //#endregion
+
+//#region
+storiesOf('Program Registry', module).add('ProgramRegistryView', () => <ProgramRegistryView />);
+//#endregion
