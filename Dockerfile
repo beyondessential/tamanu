@@ -44,7 +44,6 @@ RUN git log -1 --pretty=%cI         | tee /meta/SOURCE_DATE_ISO
 
 ## Build the shared packages and get their dependencies
 FROM build-base as shared
-COPY packages/api-client/ packages/api-client/
 COPY packages/build-tooling/ packages/build-tooling/
 COPY packages/constants/ packages/constants/
 COPY packages/settings/ packages/settings/
