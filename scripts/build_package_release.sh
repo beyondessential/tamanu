@@ -71,7 +71,7 @@ mv -v packages/shared   packages/$pkg_name/node_modules/@tamanu/shared
 rm -rf packages/$pkg_name/node_modules/@tamanu/constants
 mv -v packages/constants   packages/$pkg_name/node_modules/@tamanu/constants
 rm -rf packages/$pkg_name/node_modules/@tamanu/settings
-mv -v packages/constants   packages/$pkg_name/node_modules/@tamanu/settings
+mv -v packages/settings   packages/$pkg_name/node_modules/@tamanu/settings
 
 # out of build
 popd
