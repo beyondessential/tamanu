@@ -9,6 +9,7 @@ import { fhir } from '../../app/subCommands/fhir';
 import { ApplicationContext } from '../../app/ApplicationContext';
 import {
   fakeResourcesOfFhirServiceRequest,
+  fakeResourcesOfFhirServiceRequestWithImagingRequest,
   fakeResourcesOfFhirServiceRequestWithLabRequest,
 } from '../fake/fhir';
 
@@ -20,23 +21,15 @@ describe('fhir sub commands', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    const { FhirEncounter, ImagingRequest, FhirServiceRequest } = ctx.store.models;
+    const { FhirEncounter, FhirServiceRequest } = ctx.store.models;
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
 
     await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
 
-    imagingRequest = await ImagingRequest.create(
-      fake(ImagingRequest, {
-        requestedById: resources.practitioner.id,
-        encounterId: resources.encounter.id,
-        locationGroupId: resources.locationGroup.id,
-        status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
-        priority: 'routine',
-        requestedDate: '2022-03-04 15:30:00',
-        imagingType: 'xRay',
-      }),
+    imagingRequest = await fakeResourcesOfFhirServiceRequestWithImagingRequest(
+      ctx.store.models,
+      resources,
     );
-    await imagingRequest.setAreas([resources.area1.id, resources.area2.id]);
 
     labRequest = (
       await fakeResourcesOfFhirServiceRequestWithLabRequest(ctx.store.models, resources)

@@ -1,9 +1,11 @@
 import { fake } from 'shared/test-helpers';
 import { log } from 'shared/services/logging';
 
-import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
-import { fakeResourcesOfFhirServiceRequest } from '../fake/fhir';
+import {
+  fakeResourcesOfFhirServiceRequest,
+  fakeResourcesOfFhirServiceRequestWithImagingRequest,
+} from '../fake/fhir';
 import { allFromUpstream } from '../../app/tasks/fhir/refresh/allFromUpstream';
 
 describe('FHIR refresh handler', () => {
@@ -13,25 +15,16 @@ describe('FHIR refresh handler', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    const { FhirEncounter, ImagingRequest } = ctx.store.models;
+    const { FhirEncounter } = ctx.store.models;
 
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
 
     await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
 
-    imagingRequest = await ImagingRequest.create(
-      fake(ImagingRequest, {
-        requestedById: resources.practitioner.id,
-        encounterId: resources.encounter.id,
-        locationGroupId: resources.locationGroup.id,
-        status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
-        priority: 'routine',
-        requestedDate: '2022-03-04 15:30:00',
-        imagingType: 'xRay',
-      }),
+    imagingRequest = await fakeResourcesOfFhirServiceRequestWithImagingRequest(
+      ctx.store.models,
+      resources,
     );
-
-    await imagingRequest.setAreas([resources.area1.id, resources.area2.id]);
   });
 
   describe('allFromUpstream', () => {

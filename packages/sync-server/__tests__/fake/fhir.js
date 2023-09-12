@@ -1,6 +1,6 @@
 import { fake, fakeReferenceData } from 'shared/test-helpers';
 import { randomLabRequest } from '@tamanu/shared/demoData';
-import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { LAB_REQUEST_STATUSES, IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
 
 export const fakeResourcesOfFhirServiceRequest = async models => {
   const {
@@ -93,4 +93,24 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (models, re
   const labRequest = await LabRequest.create(labRequestData);
 
   return { category, labTestPanel, labTestPanelRequest, labRequest };
+};
+
+export const fakeResourcesOfFhirServiceRequestWithImagingRequest = async (models, resources) => {
+  const { ImagingRequest } = models;
+
+  const imagingRequest = await ImagingRequest.create(
+    fake(ImagingRequest, {
+      requestedById: resources.practitioner.id,
+      encounterId: resources.encounter.id,
+      locationGroupId: resources.locationGroup.id,
+      status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+      priority: 'routine',
+      requestedDate: '2022-03-04 15:30:00',
+      imagingType: 'xRay',
+    }),
+  );
+
+  await imagingRequest.setAreas([resources.area1.id, resources.area2.id]);
+
+  return imagingRequest;
 };

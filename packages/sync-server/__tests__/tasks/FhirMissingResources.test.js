@@ -1,8 +1,10 @@
 import { fake } from 'shared/test-helpers';
 import { Op } from 'sequelize';
-import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
-import { fakeResourcesOfFhirServiceRequest } from '../fake/fhir';
+import {
+  fakeResourcesOfFhirServiceRequest,
+  fakeResourcesOfFhirServiceRequestWithImagingRequest,
+} from '../fake/fhir';
 import { FhirMissingResources } from '../../app/tasks/FhirMissingResources';
 
 describe('FhirMissingResources task', () => {
@@ -33,20 +35,11 @@ describe('FhirMissingResources task', () => {
   });
 
   it('should create one FHIR fromUpstream job if a FHIR resource is missing', async () => {
-    const { FhirServiceRequest, ImagingRequest, FhirJob } = ctx.store.models;
-    const imagingRequest = await ImagingRequest.create(
-      fake(ImagingRequest, {
-        requestedById: resources.practitioner.id,
-        encounterId: resources.encounter.id,
-        locationGroupId: resources.locationGroup.id,
-        status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
-        priority: 'routine',
-        requestedDate: '2022-03-04 15:30:00',
-        imagingType: 'xRay',
-      }),
+    const { FhirServiceRequest, FhirJob } = ctx.store.models;
+    const imagingRequest = await fakeResourcesOfFhirServiceRequestWithImagingRequest(
+      ctx.store.models,
+      resources,
     );
-
-    await imagingRequest.setAreas([resources.area1.id, resources.area2.id]);
     await FhirServiceRequest.materialiseFromUpstream(imagingRequest.id);
     await FhirServiceRequest.resolveUpstreams();
 
