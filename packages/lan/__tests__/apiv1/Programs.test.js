@@ -426,7 +426,6 @@ describe('Programs', () => {
           config: {
             writeToPatient: {
               fieldName: 'email',
-              isAdditionalDataField: false,
             },
           },
         });
@@ -451,7 +450,6 @@ describe('Programs', () => {
           config: {
             writeToPatient: {
               fieldName: 'passport',
-              isAdditionalDataField: true,
             },
           },
         });
@@ -477,7 +475,6 @@ describe('Programs', () => {
           config: {
             writeToPatient: {
               fieldName: 'passport',
-              isAdditionalDataField: true,
             },
           },
         });

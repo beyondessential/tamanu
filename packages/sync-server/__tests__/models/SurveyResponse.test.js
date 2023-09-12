@@ -112,7 +112,6 @@ describe('SurveyResponse.createWithAnswers', () => {
       config: {
         writeToPatient: {
           fieldName: 'email',
-          isAdditionalDataField: false,
         },
       },
     });
@@ -159,7 +158,6 @@ describe('SurveyResponse.createWithAnswers', () => {
       config: {
         writeToPatient: {
           fieldName: 'registrationClinicalStatus',
-          isAdditionalDataField: false,
         },
       },
     });
