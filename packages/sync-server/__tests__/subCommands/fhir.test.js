@@ -1,5 +1,4 @@
 import { fake } from 'shared/test-helpers';
-import { randomLabRequest } from '@tamanu/shared/demoData';
 import {
   IMAGING_REQUEST_STATUS_TYPES,
   LAB_REQUEST_STATUSES,
@@ -8,7 +7,10 @@ import {
 import { createTestContext } from '../utilities';
 import { fhir } from '../../app/subCommands/fhir';
 import { ApplicationContext } from '../../app/ApplicationContext';
-import { fakeResourcesOfFhirServiceRequest } from '../fake/fhir';
+import {
+  fakeResourcesOfFhirServiceRequest,
+  fakeResourcesOfFhirServiceRequestWithLabRequest,
+} from '../fake/fhir';
 
 describe('fhir sub commands', () => {
   let ctx;
@@ -18,15 +20,7 @@ describe('fhir sub commands', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    const {
-      FhirEncounter,
-      ImagingRequest,
-      LabRequest,
-      FhirServiceRequest,
-      ReferenceData,
-      LabTestPanel,
-      LabTestPanelRequest,
-    } = ctx.store.models;
+    const { FhirEncounter, ImagingRequest, FhirServiceRequest } = ctx.store.models;
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
 
     await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
@@ -44,30 +38,9 @@ describe('fhir sub commands', () => {
     );
     await imagingRequest.setAreas([resources.area1.id, resources.area2.id]);
 
-    const category = await ReferenceData.create({
-      id: 'test1',
-      type: 'labTestCategory',
-      code: 'test1',
-      name: 'Test 1',
-    });
-    const labTestPanel = await LabTestPanel.create({
-      ...fake(LabTestPanel),
-      categoryId: category.id,
-    });
-    const labTestPanelRequest = await LabTestPanelRequest.create({
-      ...fake(LabTestPanelRequest),
-      labTestPanelId: labTestPanel.id,
-      encounterId: resources.encounter.id,
-    });
-    const labRequestData = await randomLabRequest(ctx.store.models, {
-      requestedById: resources.practitioner.id,
-      patientId: resources.patient.id,
-      encounterId: resources.encounter.id,
-      status: LAB_REQUEST_STATUSES.PUBLISHED,
-      labTestPanelRequestId: labTestPanelRequest.id, // make one of them part of a panel
-      requestedDate: '2022-07-27 16:30:00',
-    });
-    labRequest = await LabRequest.create(labRequestData);
+    labRequest = (
+      await fakeResourcesOfFhirServiceRequestWithLabRequest(ctx.store.models, resources)
+    ).labRequest;
 
     await FhirServiceRequest.materialiseFromUpstream(imagingRequest.id);
     await FhirServiceRequest.materialiseFromUpstream(labRequest.id);

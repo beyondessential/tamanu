@@ -1,4 +1,6 @@
 import { fake, fakeReferenceData } from 'shared/test-helpers';
+import { randomLabRequest } from '@tamanu/shared/demoData';
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 
 export const fakeResourcesOfFhirServiceRequest = async models => {
   const {
@@ -62,4 +64,33 @@ export const fakeResourcesOfFhirServiceRequest = async models => {
   };
 
   return resources;
+};
+
+export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (models, resources) => {
+  const { LabRequest, ReferenceData, LabTestPanel, LabTestPanelRequest } = models;
+  const category = await ReferenceData.create({
+    ...fake(ReferenceData),
+    type: 'labTestCategory',
+  });
+  const labTestPanel = await LabTestPanel.create({
+    ...fake(LabTestPanel),
+    categoryId: category.id,
+  });
+  const labTestPanelRequest = await LabTestPanelRequest.create({
+    ...fake(LabTestPanelRequest),
+    labTestPanelId: labTestPanel.id,
+    encounterId: resources.encounter.id,
+  });
+  const labRequestData = await randomLabRequest(models, {
+    requestedById: resources.practitioner.id,
+    patientId: resources.patient.id,
+    encounterId: resources.encounter.id,
+    status: LAB_REQUEST_STATUSES.PUBLISHED,
+    labTestPanelRequestId: labTestPanelRequest.id, // make one of them part of a panel
+    requestedDate: '2022-07-27 16:30:00',
+  });
+
+  const labRequest = await LabRequest.create(labRequestData);
+
+  return { category, labTestPanel, labTestPanelRequest, labRequest };
 };
