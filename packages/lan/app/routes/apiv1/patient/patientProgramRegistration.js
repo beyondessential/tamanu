@@ -1,22 +1,10 @@
 import { Op } from 'sequelize';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { NotFoundError } from 'shared/errors';
+import { NotFoundError } from '@tamanu/shared/errors';
+import { GET_MOST_RECENT_REGISTRATIONS_QUERY } from '@tamanu/shared/models/PatientProgramRegistration';
 
 export const patientProgramRegistration = express.Router();
-
-const GET_MOST_RECENT_REGISTRATIONS_QUERY = `
-  (
-    SELECT id
-    FROM (
-      SELECT 
-        id,
-        ROW_NUMBER() OVER (PARTITION BY patient_id, program_registry_id ORDER BY date DESC, id DESC) AS row_num
-      FROM patient_program_registrations
-    ) n
-    WHERE n.row_num = 1
-  )
-`;
 
 patientProgramRegistration.get(
   '/:id/programRegistration',
@@ -54,16 +42,10 @@ patientProgramRegistration.post(
     if (!programRegistry) throw new NotFoundError();
 
     const existingRegistration = await models.PatientProgramRegistration.findOne({
-      attributes: {
-        // We don't want to override the defaults for the new record.
-        exclude: ['id', 'updatedAt', 'updatedAtSyncTick'],
-      },
       where: {
-        id: { [Op.in]: db.literal(GET_MOST_RECENT_REGISTRATIONS_QUERY) },
         programRegistryId,
         patientId,
       },
-      raw: true,
     });
 
     if (existingRegistration) {
@@ -75,7 +57,6 @@ patientProgramRegistration.post(
     const registration = await models.PatientProgramRegistration.create({
       patientId,
       programRegistryId,
-      ...(existingRegistration ?? {}),
       ...body,
     });
 

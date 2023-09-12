@@ -26,45 +26,24 @@ async function createPatientIssues(models, questions, patientId) {
   }
 }
 
-const SIMPLE_PATIENT_FIELDS = [
-  'displayId',
-  'firstName',
-  'middleName',
-  'lastName',
-  'culturalName',
-  'dateOfBirth',
-  'dateOfDeath',
-  'sex',
-  'email',
-  'visibilityStatus',
-
-  // Relations
-  'villageId',
-];
-
-const ADDITIONAL_DATA_FIELDS = [
-  'placeOfBirth',
-  'bloodType',
-  'primaryContactNumber',
-  'secondaryContactNumber',
-  'maritalStatus',
-  'cityTown',
-  'streetVillage',
-  'educationalLevel',
-  'socialMedia',
-  'title',
-  'birthCertificate',
-  'drivingLicense',
-  'passport',
-  'emergencyContactName',
-  'emergencyContactNumber',
-  'motherId',
-  'fatherId',
-  // 'updatedAtByField',
-];
-
-const FIELD_NAME = {
+const FIELD_LOCATIONS = {
+  registrationClinicalStatus: {
+    modelName: 'PatientProgramRegistration',
+    fieldName: 'clinicalStatus',
+  },
 };
+
+const getDbLocation = (models, fieldName) => {
+  if(FIELD_LOCATIONS[fieldName]) return FIELD_LOCATIONS[fieldName];
+
+  ['Patient', 'PatientAdditionalData'].forEach(modelName => {
+    if (models[modelName].getAttributes().includes(fieldName)){
+      return { modelName, fieldName };
+    }
+  });
+
+  throw new Error(`Unknown fieldName: ${fieldName}`);
+}
 
 
 /**
@@ -73,12 +52,12 @@ const FIELD_NAME = {
  */
 async function writeToPatientFields(models, questions, answers, patientId) {
   // these will store values to write to patient records following submission
-  const patientRecordValues = {};
-  const patientAdditionalDataValues = {};
+  const recordValuesByModel = {};
 
   const patientDataQuestions = questions.filter(
     q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
   );
+
   for (const question of patientDataQuestions) {
     const { dataElement, config: configString } = question;
     const config = JSON.parse(configString) || {};
@@ -88,28 +67,33 @@ async function writeToPatientFields(models, questions, answers, patientId) {
       continue;
     }
 
-    const { fieldName, isAdditionalDataField } = config.writeToPatient || {};
-    if (!fieldName) {
+    const { fieldName: configFieldName, isAdditionalDataField } = config.writeToPatient || {};
+    if (!configFieldName) {
       throw new Error('No fieldName defined for writeToPatient config');
     }
 
+    const { modelName, fieldName } = getDbLocation(configFieldName);
     const value = answers[dataElement.id];
-    if (isAdditionalDataField) {
-      patientAdditionalDataValues[fieldName] = value;
-    } else {
-      patientRecordValues[fieldName] = value;
-    }
+    recordValuesByModel[modelName][fieldName] = value;
   }
 
   // Save values to database records
-  const { Patient, PatientAdditionalData } = models;
-  if (Object.keys(patientRecordValues).length) {
-    const patient = await Patient.findByPk(patientId);
-    await patient.update(patientRecordValues);
-  }
-  if (Object.keys(patientAdditionalDataValues).length) {
-    const pad = await PatientAdditionalData.getOrCreateForPatient(patientId);
-    await pad.update(patientAdditionalDataValues);
+  const patient = await models.Patient.findByPk(patientId);
+  for (const [modelName, values] of Object.entries(recordValuesByModel)) {
+    switch (modelName){
+      case 'Patient':
+        await patient.update(values);
+      case 'PatientAdditionalData':{
+        const pad = await PatientAdditionalData.getOrCreateForPatient(patientId);
+        await pad.update(values);
+      }
+      case 'PatientProgramRegistration':{
+        const pad = await PatientProgramRegistration.create(patientId);
+        await pad.update(patientAdditionalDataValues);
+      }
+      default:
+        throw new InvalidOperationError('Model not recognized');
+    }
   }
 }
 

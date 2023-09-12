@@ -4,6 +4,19 @@ import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { Model } from './Model';
 
+export const GET_MOST_RECENT_REGISTRATIONS_QUERY = `
+  (
+    SELECT id
+    FROM (
+      SELECT 
+        id,
+        ROW_NUMBER() OVER (PARTITION BY patient_id, program_registry_id ORDER BY date DESC, id DESC) AS row_num
+      FROM patient_program_registrations
+    ) n
+    WHERE n.row_num = 1
+  )
+`;
+
 export class PatientProgramRegistration extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
@@ -64,5 +77,36 @@ export class PatientProgramRegistration extends Model {
       foreignKey: 'villageId',
       as: 'village',
     });
+  }
+
+  static async create(values) {
+    const { programRegistryId, patientId, ...restOfUpdates } = values;
+    const { PatientProgramRegistration } = this.sequelize.models;
+    const existingRegistration = await PatientProgramRegistration.findOne({
+      attributes: {
+        // We don't want to override the defaults for the new record.
+        exclude: ['id', 'updatedAt', 'updatedAtSyncTick'],
+      },
+      where: {
+        id: { [Op.in]: db.literal(GET_MOST_RECENT_REGISTRATIONS_QUERY) },
+        programRegistryId,
+        patientId,
+      },
+      raw: true,
+    }); 
+    const registration = await models.PatientProgramRegistration.create();
+
+    
+    return super.create({
+      patientId,
+      programRegistryId,
+      ...(existingRegistration ?? {}),
+      ...restOfUpdates,
+    });
+  }
+
+  async update(values) {
+    const { PatientProgramRegistration } = this.sequelize.models;
+    return PatientProgramRegistration.create(values);
   }
 }

@@ -49,6 +49,9 @@ describe('SurveyResponse.createWithAnswers', () => {
   afterEach(async () => {
     await models.SurveyResponse.truncate();
     await models.SurveyResponseAnswer.truncate();
+    await models.ProgramRegistry.truncate();
+    await models.ProgramRegistryClinicalStatus.truncate();
+    await models.PatientProgramRegistration.truncate();
   });
 
   afterAll(async () => {
@@ -137,6 +140,43 @@ describe('SurveyResponse.createWithAnswers', () => {
     });
     expect(await models.Patient.findByPk(patientId)).toMatchObject({
       email: 'alastair@bes.au',
+    });
+  });
+
+  it('creates patient program registration from actions', async () => {
+    const survey = await createDummySurvey(models);
+    const registry = await models.ProgramRegistry.create({
+      ...fake(models.ProgramRegistry),
+      programId: survey.programId,
+    });
+    const clinicalStatus = await models.ProgramRegistryClinicalStatus.create({
+      ...fake(models.ProgramRegistryClinicalStatus),
+      programRegistryId: registry.id,
+    });
+    const { dataElement } = await createDummyDataElement(models, survey, {
+      type: PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
+      config: {
+        writeToPatient: {
+          fieldName: 'registrationClinicalStatus',
+          isAdditionalDataField: false,
+        },
+      },
+    });
+
+    await models.SurveyResponse.sequelize.transaction(() =>
+      models.SurveyResponse.createWithAnswers({
+        patientId,
+        encounterId,
+        surveyId: survey.id,
+        answers: {
+          [dataElement.id]: clinicalStatus.id,
+        },
+      }),
+    );
+
+    expect(await models.PatientProgramRegistration.findOne()).toMatchObject({
+      patientId,
+      clinicalStatus: clinicalStatus.id,
     });
   });
 });
