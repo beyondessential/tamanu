@@ -1,6 +1,6 @@
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers/factory';
-import { SURVEY_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { SURVEY_TYPES, PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES, REGISTRATION_STATUSES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
 async function createDummySurvey(models) {
@@ -147,6 +147,7 @@ describe('SurveyResponse.createWithAnswers', () => {
     const survey = await createDummySurvey(models);
     const registry = await models.ProgramRegistry.create({
       ...fake(models.ProgramRegistry),
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       programId: survey.programId,
     });
     const clinicalStatus = await models.ProgramRegistryClinicalStatus.create({
@@ -176,7 +177,9 @@ describe('SurveyResponse.createWithAnswers', () => {
 
     expect(await models.PatientProgramRegistration.findOne()).toMatchObject({
       patientId,
-      clinicalStatus: clinicalStatus.id,
+      clinicalStatusId: clinicalStatus.id,
+      programRegistryId: registry.id,
+      registrationStatus: REGISTRATION_STATUSES.ACTIVE,
     });
   });
 });

@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS, REGISTRATION_STATUSES } from '@tamanu/constants';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
@@ -81,6 +81,7 @@ export class PatientProgramRegistration extends Model {
 
   static async create(values) {
     const { programRegistryId, patientId, ...restOfUpdates } = values;
+    console.log('ásdkjlfasd')
     const { PatientProgramRegistration } = this.sequelize.models;
     const existingRegistration = await PatientProgramRegistration.findOne({
       attributes: {
@@ -88,15 +89,13 @@ export class PatientProgramRegistration extends Model {
         exclude: ['id', 'updatedAt', 'updatedAtSyncTick'],
       },
       where: {
-        id: { [Op.in]: db.literal(GET_MOST_RECENT_REGISTRATIONS_QUERY) },
+        id: { [Op.in]: Sequelize.literal(GET_MOST_RECENT_REGISTRATIONS_QUERY) },
         programRegistryId,
         patientId,
       },
       raw: true,
     }); 
-    const registration = await models.PatientProgramRegistration.create();
-
-    
+    console.log('existingRegistration', existingRegistration);
     return super.create({
       patientId,
       programRegistryId,
@@ -105,8 +104,8 @@ export class PatientProgramRegistration extends Model {
     });
   }
 
-  async update(values) {
-    const { PatientProgramRegistration } = this.sequelize.models;
-    return PatientProgramRegistration.create(values);
-  }
+  // async update(values) {
+  //   const { PatientProgramRegistration } = this.sequelize.models;
+  //   return PatientProgramRegistration.create(values);
+  // }
 }

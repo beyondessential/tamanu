@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { PROGRAM_DATA_ELEMENT_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
@@ -29,18 +29,19 @@ async function createPatientIssues(models, questions, patientId) {
 const FIELD_LOCATIONS = {
   registrationClinicalStatus: {
     modelName: 'PatientProgramRegistration',
-    fieldName: 'clinicalStatus',
+    fieldName: 'clinicalStatusId',
   },
 };
 
 const getDbLocation = (models, fieldName) => {
   if(FIELD_LOCATIONS[fieldName]) return FIELD_LOCATIONS[fieldName];
 
-  ['Patient', 'PatientAdditionalData'].forEach(modelName => {
-    if (models[modelName].getAttributes().includes(fieldName)){
+  for (const modelName of ['Patient', 'PatientAdditionalData']) {
+    console.log(Object.keys(models[modelName].getAttributes()));
+    if (Object.keys(models[modelName].getAttributes()).includes(fieldName)){
       return { modelName, fieldName };
     }
-  });
+  };
 
   throw new Error(`Unknown fieldName: ${fieldName}`);
 }
@@ -50,7 +51,7 @@ const getDbLocation = (models, fieldName) => {
  * DUPLICATED IN mobile/App/models/SurveyResponse.ts
  * Please keep in sync
  */
-async function writeToPatientFields(models, questions, answers, patientId) {
+async function writeToPatientFields(models, questions, answers, patientId, surveyId) {
   // these will store values to write to patient records following submission
   const recordValuesByModel = {};
 
@@ -72,24 +73,34 @@ async function writeToPatientFields(models, questions, answers, patientId) {
       throw new Error('No fieldName defined for writeToPatient config');
     }
 
-    const { modelName, fieldName } = getDbLocation(configFieldName);
     const value = answers[dataElement.id];
+    const { modelName, fieldName } = getDbLocation(models, configFieldName);
+    if(!recordValuesByModel[modelName]) recordValuesByModel[modelName] = {};
     recordValuesByModel[modelName][fieldName] = value;
   }
 
   // Save values to database records
-  const patient = await models.Patient.findByPk(patientId);
   for (const [modelName, values] of Object.entries(recordValuesByModel)) {
     switch (modelName){
-      case 'Patient':
+      case 'Patient': {
+        const patient = await models.Patient.findByPk(patientId);
         await patient.update(values);
-      case 'PatientAdditionalData':{
-        const pad = await PatientAdditionalData.getOrCreateForPatient(patientId);
-        await pad.update(values);
+        break;
       }
-      case 'PatientProgramRegistration':{
-        const pad = await PatientProgramRegistration.create(patientId);
-        await pad.update(patientAdditionalDataValues);
+      case 'PatientAdditionalData': {
+        const pad = await models.PatientAdditionalData.getOrCreateForPatient(patientId);
+        await pad.update(values);
+        break;
+      }
+      case 'PatientProgramRegistration': {
+        console.log('values', values);
+        const { programId } = await models.Survey.findByPk(surveyId);
+        const { id: programRegistryId } = await models.ProgramRegistry.findOne({ where: { programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT } });
+        if (!programRegistryId) {
+          throw new Error('No program registry configured for the current form');
+        }
+        await models.PatientProgramRegistration.create({ patientId, programRegistryId, ...values });
+        break;
       }
       default:
         throw new InvalidOperationError('Model not recognized');
@@ -97,11 +108,11 @@ async function writeToPatientFields(models, questions, answers, patientId) {
   }
 }
 
-async function handleSurveyResponseActions(models, questions, answers, patientId) {
+async function handleSurveyResponseActions(models, questions, answers, patientId, surveyId) {
   const activeQuestions = getActiveActionComponents(questions, answers);
   console.log(activeQuestions);
   await createPatientIssues(models, activeQuestions, patientId);
-  await writeToPatientFields(models, activeQuestions, answers, patientId);
+  await writeToPatientFields(models, activeQuestions, answers, patientId, surveyId);
 }
 
 export class SurveyResponse extends Model {
@@ -293,6 +304,7 @@ export class SurveyResponse extends Model {
       questions,
       finalAnswers,
       encounter.patientId,
+      surveyId,
     );
 
     return record;
