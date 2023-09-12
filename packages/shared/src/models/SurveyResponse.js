@@ -1,5 +1,9 @@
 import { Sequelize } from 'sequelize';
-import { PROGRAM_DATA_ELEMENT_TYPES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  PROGRAM_DATA_ELEMENT_TYPES,
+  SYNC_DIRECTIONS,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
@@ -26,7 +30,7 @@ async function createPatientIssues(models, questions, patientId) {
   }
 }
 
-const FIELD_LOCATIONS = {
+const PATIENT_DATA_FIELD_LOCATIONS = {
   registrationClinicalStatus: {
     modelName: 'PatientProgramRegistration',
     fieldName: 'clinicalStatusId',
@@ -34,17 +38,16 @@ const FIELD_LOCATIONS = {
 };
 
 const getDbLocation = (models, fieldName) => {
-  if(FIELD_LOCATIONS[fieldName]) return FIELD_LOCATIONS[fieldName];
+  if (PATIENT_DATA_FIELD_LOCATIONS[fieldName]) return PATIENT_DATA_FIELD_LOCATIONS[fieldName];
 
   for (const modelName of ['Patient', 'PatientAdditionalData']) {
-    console.log(Object.keys(models[modelName].getAttributes()));
     if (Object.keys(models[modelName].getAttributes()).includes(fieldName)){
       return { modelName, fieldName };
     }
-  };
+  }
 
   throw new Error(`Unknown fieldName: ${fieldName}`);
-}
+};
 
 
 /**
@@ -68,20 +71,20 @@ async function writeToPatientFields(models, questions, answers, patientId, surve
       continue;
     }
 
-    const { fieldName: configFieldName, isAdditionalDataField } = config.writeToPatient || {};
+    const { fieldName: configFieldName } = config.writeToPatient || {};
     if (!configFieldName) {
       throw new Error('No fieldName defined for writeToPatient config');
     }
 
     const value = answers[dataElement.id];
     const { modelName, fieldName } = getDbLocation(models, configFieldName);
-    if(!recordValuesByModel[modelName]) recordValuesByModel[modelName] = {};
+    if (!recordValuesByModel[modelName]) recordValuesByModel[modelName] = {};
     recordValuesByModel[modelName][fieldName] = value;
   }
 
   // Save values to database records
   for (const [modelName, values] of Object.entries(recordValuesByModel)) {
-    switch (modelName){
+    switch (modelName) {
       case 'Patient': {
         const patient = await models.Patient.findByPk(patientId);
         await patient.update(values);
@@ -93,9 +96,10 @@ async function writeToPatientFields(models, questions, answers, patientId, surve
         break;
       }
       case 'PatientProgramRegistration': {
-        console.log('values', values);
         const { programId } = await models.Survey.findByPk(surveyId);
-        const { id: programRegistryId } = await models.ProgramRegistry.findOne({ where: { programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT } });
+        const { id: programRegistryId } = await models.ProgramRegistry.findOne({
+          where: { programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT }
+        });
         if (!programRegistryId) {
           throw new Error('No program registry configured for the current form');
         }
@@ -110,7 +114,6 @@ async function writeToPatientFields(models, questions, answers, patientId, surve
 
 async function handleSurveyResponseActions(models, questions, answers, patientId, surveyId) {
   const activeQuestions = getActiveActionComponents(questions, answers);
-  console.log(activeQuestions);
   await createPatientIssues(models, activeQuestions, patientId);
   await writeToPatientFields(models, activeQuestions, answers, patientId, surveyId);
 }
@@ -272,7 +275,6 @@ export class SurveyResponse extends Model {
     };
 
     // create answer records
-    console.log(finalAnswers, answers);
     for (const a of Object.entries(finalAnswers)) {
       const [dataElementId, value] = a;
       const dataElement = findDataElement(dataElementId);

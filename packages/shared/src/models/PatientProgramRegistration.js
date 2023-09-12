@@ -81,9 +81,7 @@ export class PatientProgramRegistration extends Model {
 
   static async create(values) {
     const { programRegistryId, patientId, ...restOfUpdates } = values;
-    console.log('ásdkjlfasd')
-    const { PatientProgramRegistration } = this.sequelize.models;
-    const existingRegistration = await PatientProgramRegistration.findOne({
+    const existingRegistration = await this.sequelize.models.PatientProgramRegistration.findOne({
       attributes: {
         // We don't want to override the defaults for the new record.
         exclude: ['id', 'updatedAt', 'updatedAtSyncTick'],
@@ -94,8 +92,8 @@ export class PatientProgramRegistration extends Model {
         patientId,
       },
       raw: true,
-    }); 
-    console.log('existingRegistration', existingRegistration);
+    });
+
     return super.create({
       patientId,
       programRegistryId,

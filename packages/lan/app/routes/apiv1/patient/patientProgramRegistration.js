@@ -30,7 +30,7 @@ patientProgramRegistration.get(
 patientProgramRegistration.post(
   '/:patientId/programRegistration/:programRegistryId',
   asyncHandler(async (req, res) => {
-    const { models, params, body, db } = req;
+    const { models, params, body } = req;
     const { patientId, programRegistryId } = params;
 
     req.checkPermission('read', 'Patient');
