@@ -101,9 +101,4 @@ export class PatientProgramRegistration extends Model {
       ...restOfUpdates,
     });
   }
-
-  // async update(values) {
-  //   const { PatientProgramRegistration } = this.sequelize.models;
-  //   return PatientProgramRegistration.create(values);
-  // }
 }
