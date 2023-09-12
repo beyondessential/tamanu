@@ -17,7 +17,8 @@
   "honeycomb": {
     "apiKey": "",
     "sampleRate": 1, // 5 = 1/5 = 20% of traces get sent to honeycomb
-    "enabled": true
+    "enabled": true,
+    "level": "info"
   },
   "sync": {
     "schedule": "*/1 * * * *",

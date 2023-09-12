@@ -10,10 +10,12 @@ export class ReportDefinition extends Model {
         name: {
           type: Sequelize.STRING,
           allowNull: false,
+          unique: true,
         },
       },
       {
         ...options,
+        indexes: [{ unique: true, fields: ['name'] }],
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
