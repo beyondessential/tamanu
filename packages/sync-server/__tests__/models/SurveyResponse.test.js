@@ -28,7 +28,6 @@ async function createDummyDataElement(models, survey, { config, ...dataElementOv
   return { dataElement };
 }
 
-jest.setTimeout(1000000);
 describe('SurveyResponse.createWithAnswers', () => {
   let ctx;
   let models;
