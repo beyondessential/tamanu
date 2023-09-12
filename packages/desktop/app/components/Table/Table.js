@@ -463,7 +463,7 @@ class TableComponent extends React.Component {
       <StyledTableContainer className={className} $elevated={elevated}>
         {optionRow && <OptionRow>{optionRow}</OptionRow>}
         <StyledTable
-          $backgroundColor={data.length || isLoading ? Colors.white : noDataBackgroundColor}
+          $backgroundColor={data?.length || isLoading ? Colors.white : noDataBackgroundColor}
         >
           {!hideHeader && (
             <StyledTableHead
