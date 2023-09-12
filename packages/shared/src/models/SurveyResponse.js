@@ -38,28 +38,28 @@ const PATIENT_DATA_FIELD_LOCATIONS = {
     registeringFacility: 'registeringFacilityId',
     registrationCurrentlyAtVillage: 'villageId',
     registrationCurrentlyAtFacility: 'facilityId',
-  }
+  },
 };
 
 const getDbLocation = (models, fieldName) => {
   // First check the manually defined fields
   for (const [modelName, fieldMappings] of Object.entries(PATIENT_DATA_FIELD_LOCATIONS)) {
-    if (fieldMappings[fieldName]) return {
-      modelName,
-      fieldName: fieldMappings[fieldName],
-    }
+    if (fieldMappings[fieldName])
+      return {
+        modelName,
+        fieldName: fieldMappings[fieldName],
+      };
   }
-  
+
   // If not, assume that the field is on either of the "direct" patient data models
   for (const modelName of ['Patient', 'PatientAdditionalData']) {
-    if (Object.keys(models[modelName].getAttributes()).includes(fieldName)){
+    if (Object.keys(models[modelName].getAttributes()).includes(fieldName)) {
       return { modelName, fieldName };
     }
   }
 
   throw new Error(`Unknown fieldName: ${fieldName}`);
 };
-
 
 /**
  * DUPLICATED IN mobile/App/models/SurveyResponse.ts
@@ -109,7 +109,7 @@ async function writeToPatientFields(models, questions, answers, patientId, surve
       case 'PatientProgramRegistration': {
         const { programId } = await models.Survey.findByPk(surveyId);
         const { id: programRegistryId } = await models.ProgramRegistry.findOne({
-          where: { programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT }
+          where: { programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
         });
         if (!programRegistryId) {
           throw new Error('No program registry configured for the current form');
