@@ -4,7 +4,7 @@ import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { runCalculations } from '../utils/calculations';
-import { getStringValue, getResultValue } from '../utils/fields';
+import { getStringValue, getResultValue, getActiveActionComponents } from '../utils/fields';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 
@@ -113,8 +113,9 @@ async function writeToPatientFields(models, questions, answers, patientId) {
   }
 }
 
-async function handleSurveyResponseActions(models, questions, actions, answers, patientId) {
-  const activeQuestions = questions.filter(q => actions[q.dataElementId]);
+async function handleSurveyResponseActions(models, questions, answers, patientId) {
+  const activeQuestions = getActiveActionComponents(questions, answers);
+  console.log(activeQuestions);
   await createPatientIssues(models, activeQuestions, patientId);
   await writeToPatientFields(models, activeQuestions, answers, patientId);
 }
@@ -227,7 +228,7 @@ export class SurveyResponse extends Model {
       throw new Error('SurveyResponse.createWithAnswers must always run inside a transaction!');
     }
     const { models } = this.sequelize;
-    const { answers, actions = {}, surveyId, patientId, encounterId, ...responseData } = data;
+    const { answers, surveyId, patientId, encounterId, ...responseData } = data;
 
     // ensure survey exists
     const survey = await models.Survey.findByPk(surveyId);
@@ -306,7 +307,6 @@ export class SurveyResponse extends Model {
     await handleSurveyResponseActions(
       models,
       questions,
-      actions,
       finalAnswers,
       encounter.patientId,
     );

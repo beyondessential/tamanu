@@ -256,17 +256,6 @@ export const getAnswersFromData = (data, survey) =>
     return acc;
   }, {});
 
-export const getActionsFromData = (data, survey) =>
-  Object.entries(data).reduce((acc, [key]) => {
-    const component = survey.components.find(({ dataElement }) => dataElement.id === key);
-    if (ACTION_DATA_ELEMENT_TYPES.includes(component?.dataElement?.type)) {
-      if (checkVisibility(component, data, survey.components)) {
-        acc[key] = true;
-      }
-    }
-    return acc;
-  }, {});
-
 export const getValidationSchema = surveyData => {
   if (!surveyData) return {};
   const { components } = surveyData;

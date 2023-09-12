@@ -12,7 +12,7 @@ async function createDummySurvey(models) {
   });
 }
 
-async function createDummyDataElement(models, survey, dataElementOverrides) {
+async function createDummyDataElement(models, survey, { config, ...dataElementOverrides }) {
   const dataElement = await models.ProgramDataElement.create({
     ...fake(models.ProgramDataElement),
     ...dataElementOverrides,
@@ -22,6 +22,7 @@ async function createDummyDataElement(models, survey, dataElementOverrides) {
     ...fake(models.SurveyScreenComponent),
     dataElementId: dataElement.id,
     surveyId: survey.id,
+    config: JSON.stringify(config),
   });
 
   return { dataElement };
@@ -98,6 +99,44 @@ describe('SurveyResponse.createWithAnswers', () => {
     expect(await models.SurveyResponseAnswer.findOne()).toMatchObject({
       dataElementId: dataElement.id,
       body: '12',
+    });
+  });
+
+  it('creates patient data from actions', async () => {
+    const survey = await createDummySurvey(models);
+    const { dataElement } = await createDummyDataElement(models, survey, {
+      type: PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
+      config: {
+        writeToPatient: {
+          fieldName: 'email',
+          isAdditionalDataField: false,
+        },
+      },
+    });
+
+    await models.SurveyResponse.sequelize.transaction(() =>
+      models.SurveyResponse.createWithAnswers({
+        patientId,
+        encounterId,
+        surveyId: survey.id,
+        answers: {
+          [dataElement.id]: 'alastair@bes.au',
+        },
+      }),
+    );
+
+    expect(await models.SurveyResponse.findOne()).toMatchObject({
+      surveyId: survey.id,
+      encounterId,
+      result: 0,
+      resultText: '',
+    });
+    expect(await models.SurveyResponseAnswer.findOne()).toMatchObject({
+      dataElementId: dataElement.id,
+      body: 'alastair@bes.au',
+    });
+    expect(await models.Patient.findByPk(patientId)).toMatchObject({
+      email: 'alastair@bes.au',
     });
   });
 });

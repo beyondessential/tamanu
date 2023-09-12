@@ -360,6 +360,9 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
   SurveyScreenComponent: () => ({
     calculation: null,
+    visibilityCriteria: null,
+    config: null,
+    options: null,
   }),
   Encounter: () => ({
     encounterType: chance.pickone(ENCOUNTER_TYPE_VALUES),
