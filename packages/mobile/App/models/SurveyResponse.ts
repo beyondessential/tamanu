@@ -30,10 +30,11 @@ const getDbLocation = fieldName => {
   }
   
   // If not, assume that the field is on either of the "direct" patient data models
-  for (const model of [Patient, PatientAdditionalData]) {
-    if (model.getRepository().metadata.columns.includes(fieldName)) {
-      return { modelName: model.name, fieldName };
-    }
+  if (Patient.getRepository().metadata.columns.includes(fieldName)) {
+    return { modelName: 'Patient', fieldName };
+  }
+  if (PatientAdditionalData.getRepository().metadata.columns.includes(fieldName)) {
+    return { modelName: 'PatientAdditionalData', fieldName };
   }
 
   throw new Error(`Unknown fieldName: ${fieldName}`);
