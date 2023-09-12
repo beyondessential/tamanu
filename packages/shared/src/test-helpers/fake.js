@@ -358,6 +358,9 @@ const MODEL_SPECIFIC_OVERRIDES = {
   Survey: () => ({
     isSensitive: false,
   }),
+  SurveyScreenComponent: () => ({
+    calculation: null,
+  }),
   Encounter: () => ({
     encounterType: chance.pickone(ENCOUNTER_TYPE_VALUES),
   }),

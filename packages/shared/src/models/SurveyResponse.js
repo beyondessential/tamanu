@@ -276,6 +276,7 @@ export class SurveyResponse extends Model {
     };
 
     // create answer records
+    console.log(finalAnswers, answers);
     for (const a of Object.entries(finalAnswers)) {
       const [dataElementId, value] = a;
       const dataElement = findDataElement(dataElementId);

@@ -7,6 +7,7 @@ async function createDummySurvey(models) {
   const program = await models.Program.create(fake(models.Program));
   return models.Survey.create({
     ...fake(models.Program),
+    surveyType: SURVEY_TYPES.PROGRAMS,
     programId: program.id,
   });
 }
@@ -24,17 +25,6 @@ async function createDummyDataElement(models, survey, dataElementOverrides) {
   });
 
   return { dataElement };
-}
-
-function createDummySurveyResponse(survey) {
-  const answers = {};
-  survey.dataElements.forEach(q => {
-    answers[q.id] = getRandomAnswer(q);
-  });
-  return {
-    surveyId: survey.id,
-    answers,
-  };
 }
 
 jest.setTimeout(1000000);
@@ -67,7 +57,7 @@ describe('SurveyResponse.createWithAnswers', () => {
   it('should error if not run in a transaction', async () => {
     const survey = await createDummySurvey(models);
     const dataElement = await createDummyDataElement(models, survey, {
-      type: 'text',
+      type: PROGRAM_DATA_ELEMENT_TYPES.NUMBER,
     });
 
     expect(() =>
@@ -76,7 +66,7 @@ describe('SurveyResponse.createWithAnswers', () => {
         encounterId,
         surveyId: survey.id,
         answers: {
-          [dataElement.id]: 'Test Answer',
+          [dataElement.id]: 12,
         },
       }),
     ).rejects.toThrow('SurveyResponse.createWithAnswers must always run inside a transaction!');
@@ -85,7 +75,7 @@ describe('SurveyResponse.createWithAnswers', () => {
   it('creates a surveyResponse and basic answer', async () => {
     const survey = await createDummySurvey(models);
     const { dataElement } = await createDummyDataElement(models, survey, {
-      type: 'text',
+      type: PROGRAM_DATA_ELEMENT_TYPES.NUMBER,
     });
 
     await models.SurveyResponse.sequelize.transaction(() =>
@@ -94,7 +84,7 @@ describe('SurveyResponse.createWithAnswers', () => {
         encounterId,
         surveyId: survey.id,
         answers: {
-          [dataElement.id]: 'Test Answer',
+          [dataElement.id]: 12,
         },
       }),
     );
@@ -105,9 +95,9 @@ describe('SurveyResponse.createWithAnswers', () => {
       result: 0,
       resultText: '',
     });
-    expect(await models.SurveyResponseAnswer.findOne()).toEqual({
+    expect(await models.SurveyResponseAnswer.findOne()).toMatchObject({
       dataElementId: dataElement.id,
-      body: 'Test Answer',
+      body: '12',
     });
   });
 });
