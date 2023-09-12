@@ -31,15 +31,26 @@ async function createPatientIssues(models, questions, patientId) {
 }
 
 const PATIENT_DATA_FIELD_LOCATIONS = {
-  registrationClinicalStatus: {
-    modelName: 'PatientProgramRegistration',
-    fieldName: 'clinicalStatusId',
-  },
+  PatientProgramRegistration: {
+    registrationClinicalStatus: 'clinicalStatusId',
+    programRegistrationStatus: 'registrationStatus',
+    registrationClinician: 'clinicianId',
+    registeringFacility: 'registeringFacilityId',
+    registrationCurrentlyAtVillage: 'villageId',
+    registrationCurrentlyAtFacility: 'facilityId',
+  }
 };
 
 const getDbLocation = (models, fieldName) => {
-  if (PATIENT_DATA_FIELD_LOCATIONS[fieldName]) return PATIENT_DATA_FIELD_LOCATIONS[fieldName];
-
+  // First check the manually defined fields
+  for (const [modelName, fieldMappings] of Object.entries(PATIENT_DATA_FIELD_LOCATIONS)) {
+    if (fieldMappings[fieldName]) return {
+      modelName,
+      fieldName: fieldMappings[fieldName],
+    }
+  }
+  
+  // If not, assume that the field is on either of the "direct" patient data models
   for (const modelName of ['Patient', 'PatientAdditionalData']) {
     if (Object.keys(models[modelName].getAttributes()).includes(fieldName)){
       return { modelName, fieldName };
