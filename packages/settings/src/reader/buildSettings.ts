@@ -1,5 +1,5 @@
 import { merge } from 'lodash';
-import { SETTINGS_SCOPES } from '@tamanu/constants/settings';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 import { centralDefaults, facilityDefaults, globalDefaults } from '../defaults';
 import { Models, SettingsDBReader } from './readers/SettingsDBReader';
