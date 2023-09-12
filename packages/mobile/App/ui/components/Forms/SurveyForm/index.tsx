@@ -38,7 +38,7 @@ export const SurveyForm = ({
 
   const submitSaveableValues = useCallback(
     (values: any) => {
-      // 1. get a list of saveable fields (visible and with config.shouldPersist !== false)
+      // 1. get a list of saveable fields (visible and with config.omitFromResult)
       const saveableFields = new Set(
         components
           .filter(c => shouldSaveComponent(c, components, values))
