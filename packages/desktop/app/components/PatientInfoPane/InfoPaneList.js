@@ -88,6 +88,7 @@ export const InfoPaneList = memo(
     itemTitle = '',
     CustomEditForm,
     getEditFormName = () => '???',
+    ListItemComponent,
   }) => {
     const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
     const { adding, editKey } = addEditState;
@@ -154,7 +155,16 @@ export const InfoPaneList = memo(
                 return (
                   <React.Fragment key={id}>
                     <Collapse in={editKey !== id}>
-                      <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
+                      {ListItemComponent ? (
+                        <ListItemComponent
+                          item={item}
+                          handleRowClick={handleRowClick}
+                          ListItem={ListItem}
+                          getName={getName}
+                        />
+                      ) : (
+                        <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
+                      )}
                     </Collapse>
                     <Collapse in={editKey === id}>
                       <EditForm
@@ -173,7 +183,16 @@ export const InfoPaneList = memo(
 
               return (
                 <React.Fragment key={id}>
-                  <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
+                  {ListItemComponent ? (
+                    <ListItemComponent
+                      item={item}
+                      handleRowClick={handleRowClick}
+                      ListItem={ListItem}
+                      getName={getName}
+                    />
+                  ) : (
+                    <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
+                  )}
                   <Modal
                     width="md"
                     title={getEditFormName(item)}
