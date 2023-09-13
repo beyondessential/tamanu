@@ -31,7 +31,7 @@ export const publicIntegrationRoutes = express.Router();
 
 export const initIntegrations = async ctx => {
   for (const [key, integration] of Object.entries(integrations)) {
-    if (ctx.settings.get(`integrations${key}.enabled`)) {
+    if (ctx.settings.get(`integrations.${key}.enabled`)) {
       log.info(`initIntegrations: ${key}: initialising`);
       const { routes, publicRoutes, initAppContext } = integration;
       if (initAppContext) {
@@ -57,18 +57,15 @@ export async function checkIntegrationsConfig(settings) {
   await checkVdsNcConfig(settings);
   await checkFhirConfig(settings);
 
+  const integrationsSettings = await settings.get('integrations');
   if (
-    ((await settings.get('integrations.euDcc.enabled')) ||
-      (await settings.get('integrations.vdsNc.enabled'))) &&
-    !(await settings.get('integrations.signer.enabled'))
+    (integrationsSettings?.euDcc?.enabled || integrationsSettings?.vdsNc?.enabled) &&
+    !integrationsSettings?.signer?.enabled
   ) {
     throw new Error('euDcc and vdsNc integrations require the signer integration to be enabled');
   }
 
-  if (
-    (await settings.get('integrations.euDcc.enabled')) &&
-    (await settings.get('integrations.vdsNc.enabled'))
-  ) {
+  if (integrationsSettings?.euDcc?.enabled && integrationsSettings?.vdsNc?.enabled) {
     throw new Error('Cannot enable both euDcc and vdsNc integrations at the same time');
   }
 }

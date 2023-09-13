@@ -52,7 +52,7 @@ patientProfilePicture.get(
     const attachmentId = result[0].body;
 
     // load the attachment from the central server
-    const centralServer = new CentralServerConnection({ deviceId });
+    const centralServer = new CentralServerConnection({ deviceId }, await req.settings.get('sync'));
     const response = await centralServer.fetch(`attachment/${attachmentId}?base64=true`, {
       method: 'GET',
     });

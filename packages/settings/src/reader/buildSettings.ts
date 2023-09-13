@@ -26,6 +26,7 @@ export async function buildSettings(models: Models, facilityId?: string) {
   let settings = {};
   for (const reader of readers) {
     const value = await reader.getSettings();
+    console.log({ value });
     if (value) {
       // Prioritize the previous one
       settings = merge(value, settings);

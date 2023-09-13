@@ -1,5 +1,4 @@
 import asyncHandler from 'express-async-handler';
-// TODO: use settings db fetcher
 import config from 'config';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';

@@ -27,7 +27,7 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
 
   await store.sequelize.assertUpToDate({ skipMigrationCheck });
 
-  const app = await createApp(context);
+  const app = createApp(context);
 
   await performTimeZoneChecks({
     sequelize: store.sequelize,

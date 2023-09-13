@@ -1,7 +1,6 @@
 import bodyParser from 'body-parser';
 import compression from 'compression';
-import { ReadSettings } from '@tamanu/settings';
-// import config from 'config';
+import config from 'config';
 import express from 'express';
 
 import { getLoggingMiddleware } from 'shared/services/logging';
@@ -20,7 +19,7 @@ import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { version } from './serverInfo';
 
-export async function createApp(ctx) {
+export function createApp(ctx) {
   const { store, emailService } = ctx;
 
   // Init our app
@@ -31,8 +30,7 @@ export async function createApp(ctx) {
   app.use(bodyParser.urlencoded({ extended: true }));
 
   // trust the x-forwarded-for header from addresses in `config.proxy.trusted`
-  const readSettings = new ReadSettings(store.models);
-  app.set('trust proxy', await readSettings.get('proxy.trusted'));
+  app.set('trust proxy', config.proxy.trusted);
   app.use(getLoggingMiddleware());
 
   app.use((req, res, next) => {
