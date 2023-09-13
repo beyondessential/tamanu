@@ -90,6 +90,9 @@ const prepareReplacementsForInsert = (settings, serverFacilityId, scope) => {
 export async function up(query) {
   const { serverFacilityId = null } = config;
 
+  // eslint-disable-next-line no-console
+  console.log('Up migration for facility', serverFacilityId);
+
   // In the case of facility ci migration test run-through
   // we need to skip this migration as it predates seeding
   // of initial facility and will fail foreign key constraint
@@ -132,6 +135,9 @@ export async function up(query) {
     serverFacilityId,
     serverFacilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.CENTRAL,
   );
+
+  // eslint-disable-next-line no-console
+  console.log('scopped data', scopedSettingData);
 
   if (scopedSettingData.length) {
     // Create the settings for either the facility or central scope
