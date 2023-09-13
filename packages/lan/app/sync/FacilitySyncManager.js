@@ -43,6 +43,10 @@ export class FacilitySyncManager {
 
   reason = '';
 
+  lastDurationMs = 0;
+  lastCompletedAt = 0;
+  currentStartTime = 0;
+
   constructor({ models, sequelize, centralServer }) {
     this.models = models;
     this.sequelize = sequelize;
@@ -75,6 +79,7 @@ export class FacilitySyncManager {
     } finally {
       this.syncPromise = null;
       this.reason = '';
+      this.currentStartTime = 0;
     }
   }
 
@@ -90,7 +95,8 @@ export class FacilitySyncManager {
     // clear previous temp data, in case last session errored out or server was restarted
     await dropAllSnapshotTables(this.sequelize);
 
-    const startTime = new Date();
+    const startTime = (new Date()).getTime();
+    this.currentStartTime = startTime;
 
     // the first step of sync is to start a session and retrieve the session id
     const {
@@ -108,10 +114,12 @@ export class FacilitySyncManager {
 
     await this.centralServer.endSyncSession(sessionId);
 
-    const durationMs = Date.now() - startTime.getTime();
+    const durationMs = Date.now() - startTime;
     log.info('FacilitySyncManager.completedSession', {
       durationMs,
     });
+    this.lastDurationMs = durationMs;
+    this.lastCompletedAt = new Date();
 
     // clear temp data stored for persist
     await dropSnapshotTable(this.sequelize, sessionId);

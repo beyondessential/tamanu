@@ -1,6 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
+import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
+
 export const sync = express.Router();
 
 sync.post(
@@ -32,4 +34,28 @@ sync.post(
 
     res.send({ message });
   }),
+);
+
+sync.get(
+  '/status',
+  asyncHandler(async (req, res) => {
+    const { syncManager, models } = req;
+
+    req.flagPermissionChecked(); // no particular permission check for checking sync status
+
+    const lastCompletedSyncTick = parseInt(await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY));
+    const lastCompletedDurationMs = syncManager.lastDurationMs;
+    const lastCompletedAt = syncManager.lastCompletedAt;
+
+    const isSyncRunning = syncManager.isSyncRunning();
+    const currentDuration = isSyncRunning ? ((new Date().getTime()) - syncManager.currentStartTime) : 0;
+
+    res.send({
+      lastCompletedSyncTick,
+      lastCompletedAt,
+      lastCompletedDurationMs,
+      currentDuration,
+      isSyncRunning,
+    });
+  })
 );
