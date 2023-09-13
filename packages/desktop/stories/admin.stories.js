@@ -77,8 +77,7 @@ const dummySubmit = overrides => async formData => {
 };
 
 const endpoints = {
-  'admin/settings': (data, id) => {
-    console.log(data)
+  'admin/settings': data => {
     const { scope } = data;
     return {
       serverScope: scope,
@@ -90,7 +89,7 @@ const endpoints = {
       },
     };
   },
-  'admin/facilities': (data) => {
+  'admin/facilities': () => {
     return [
       { id: 'facility-1', name: 'Facility 1' },
       { id: 'facility-2', name: 'Facility 2' },
