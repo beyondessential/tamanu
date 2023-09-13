@@ -229,7 +229,7 @@
     "nano": "^6.4.4",
     "nanoid": "^3.1.29",
     "node-polyglot": "^2.3.0",
-    "pdfjs-dist": "^3.2.146",
+    "pdfjs-dist": "3.3.122",
     "prop-types": "^15.6.2",
     "qs": "^6.10.2",
     "react": "^16.8.5",
