@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import { createNamespace } from 'cls-hooked';
 import pg from 'pg';
 import util from 'util';
+import { ReadSettings } from '@tamanu/settings';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from './logging';
@@ -170,8 +171,10 @@ export async function initDatabase(dbOptions) {
     }
   });
 
+  const settings = new ReadSettings(models);
+
   // add isInsideTransaction helper to avoid exposing the namespace
   sequelize.isInsideTransaction = () => !!namespace.get('transaction');
 
-  return { sequelize, models };
+  return { sequelize, models, settings };
 }
