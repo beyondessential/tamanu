@@ -127,12 +127,12 @@ export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObjec
   );
 });
 
-// ProgramRegistryForm.propTypes = {
-//   onSubmit: PropTypes.func.isRequired,
-//   onCancel: PropTypes.func.isRequired,
-//   editedObject: PropTypes.shape({}),
-// };
+ProgramRegistryForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  editedObject: PropTypes.shape({}),
+};
 
-// ProgramRegistryForm.defaultProps = {
-//   editedObject: null,
-// };
+ProgramRegistryForm.defaultProps = {
+  editedObject: null,
+};

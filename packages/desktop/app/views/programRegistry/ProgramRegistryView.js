@@ -1,9 +1,12 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import { CircularProgress } from '@material-ui/core';
 import { Colors } from '../../constants';
 import { useUrlQueryParams } from '../../hooks';
 import { DisplayPatientRegDetails } from './DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from './ProgramRegistryStatusHistory';
+import { usePatientProgramRegistry } from '../../api/queries/usePatientProgramRegistry';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
@@ -52,45 +55,54 @@ const StatusInactiveDot = styled.div`
 `;
 export const ProgramRegistryView = () => {
   const queryParams = useUrlQueryParams();
-  return (
-    <>
-      <ViewHeader>
-        <h1>{queryParams.get('title')}</h1>
-        <StatusDiv>
-          <StatusActiveDot />
-          <span>Active</span>
-        </StatusDiv>
-      </ViewHeader>
-      <Container>
-        <Row>
-          <DisplayPatientRegDetails
-            patientProgramRegistration={{
-              date: '2023-08-28T02:40:16.237Z',
-              programRegistryClinicalStatusId: '123123',
-              programRegistryClinicalStatus: {
-                id: '123123',
-                code: 'low_risk',
-                name: 'Low risk',
-                color: 'green',
-              },
-              clinicianId: '213123',
-              clinician: {
-                id: '213123',
-                displayName: 'Alaister',
-              },
-              removedById: '213123',
-              removedBy: {
-                id: '213123',
-                displayName: 'Alaister',
-              },
-              registrationStatus: 'removed',
-            }}
-          />
-        </Row>
-        <Row>
-          <ProgramRegistryStatusHistory />
-        </Row>
-      </Container>
-    </>
-  );
+  const params = useParams();
+  const title = queryParams.get('title');
+  const programRegistryId = params.id;
+
+  const { data, isLoading, isError } = usePatientProgramRegistry(programRegistryId);
+
+  if (isLoading) return <CircularProgress size="5rem" />;
+  else if (isError) return <p>Program registry '{title}' not found.</p>;
+  else
+    return (
+      <>
+        <ViewHeader>
+          <h1></h1>
+          <StatusDiv>
+            <StatusActiveDot />
+            <span>Active</span>
+          </StatusDiv>
+        </ViewHeader>
+        <Container>
+          <Row>
+            <DisplayPatientRegDetails
+              patientProgramRegistration={{
+                date: '2023-08-28T02:40:16.237Z',
+                programRegistryClinicalStatusId: '123123',
+                programRegistryClinicalStatus: {
+                  id: '123123',
+                  code: 'low_risk',
+                  name: 'Low risk',
+                  color: 'green',
+                },
+                clinicianId: '213123',
+                clinician: {
+                  id: '213123',
+                  displayName: 'Alaister',
+                },
+                removedById: '213123',
+                removedBy: {
+                  id: '213123',
+                  displayName: 'Alaister',
+                },
+                registrationStatus: 'removed',
+              }}
+            />
+          </Row>
+          <Row>
+            <ProgramRegistryStatusHistory />
+          </Row>
+        </Container>
+      </>
+    );
 };

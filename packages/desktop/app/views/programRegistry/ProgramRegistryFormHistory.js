@@ -58,7 +58,7 @@ export const ProgramRegistryFormHistory = ({ programRegistry, patient }) => {
   );
 };
 
-ProgramRegistryFormHistory.prototype = {
+ProgramRegistryFormHistory.propTypes = {
   patient: PropTypes.shape({
     id: PropTypes.string,
   }),

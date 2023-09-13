@@ -15,6 +15,7 @@ import { DisplayPatientRegDetails } from '../app/views/programRegistry/DisplayPa
 import { ProgramRegistryStatusHistory } from '../app/views/programRegistry/ProgramRegistryStatusHistory';
 import { DeleteProgramRegistry } from '../app/views/programRegistry/DeleteProgramRegistry';
 import { ActivateProgramRegistryFormModal } from '../app/views/programRegistry/ActivateProgramRegistryFormModal';
+import { ProgramRegistryView } from '../app/views/programRegistry/ProgramRegistryView';
 
 function sleep(milliseconds) {
   return new Promise(resolve => {
@@ -80,7 +81,7 @@ const programRegistriesForInfoPaneList = [
   },
 ];
 
-const patient = { id: '323r2r234r' };
+const patient = { id: 'patient_id' };
 const programRegistry1 = {
   data: {
     id: '1',
@@ -349,7 +350,7 @@ const dummyApi = {
     switch (endpoint) {
       case 'programRegistration/program_registry_id/clinicalStatuses':
         return getSortedData(programRegistryStatusHistories, options);
-      case '/patient/23242234234/programRegistration/23242234234/surveyResponses':
+      case '/patient/patient_id/programRegistration/1/surveyResponses':
         return getSortedData(programRegistryFormHistory, options);
       case 'suggestions/facility':
         return facilities;
@@ -365,7 +366,7 @@ const dummyApi = {
         return programRegistry2;
       case 'programRegistry/3':
         return programRegistry3;
-      case 'patient/323r2r234r/program-registry':
+      case 'patient/patient_id/program-registry':
         return { data: programRegistriesForInfoPaneList };
     }
   },
@@ -424,7 +425,21 @@ storiesOf('Program Registry', module).add('DisplayPatientRegDetails Low risk', (
 storiesOf('Program Registry', module).add('DisplayPatientRegDetails Critical', () => (
   <div style={{ width: '797px' }}>
     <DisplayPatientRegDetails
-      patientProgramRegistration={{ ...patientProgramRegistration, registrationStatus: 'removed' }}
+      patientProgramRegistration={{
+        ...patientProgramRegistration,
+        removedById: '213123',
+        removedBy: {
+          id: '213123',
+          displayName: 'Alaister',
+        },
+        programRegistryClinicalStatus: {
+          id: '123123',
+          code: 'critical',
+          name: 'Critical',
+          color: 'red',
+        },
+        registrationStatus: 'removed',
+      }}
     />
   </div>
 ));
@@ -434,6 +449,11 @@ storiesOf('Program Registry', module).add('DisplayPatientRegDetails Needs review
     <DisplayPatientRegDetails
       patientProgramRegistration={{
         ...patientProgramRegistration,
+        removedById: '213123',
+        removedBy: {
+          id: '213123',
+          displayName: 'Alaister',
+        },
         programRegistryClinicalStatus: {
           id: '123123',
           code: 'needs_review',
@@ -475,14 +495,7 @@ storiesOf('Program Registry', module).add('ProgramRegistryStatusHistory removed 
 
 storiesOf('Program Registry', module).add('ProgramRegistryFormHistory', () => (
   <ApiContext.Provider value={dummyApi}>
-    <ProgramRegistryFormHistory
-      programRegistry={{
-        id: '23242234234',
-      }}
-      patient={{
-        id: '23242234234',
-      }}
-    />
+    <ProgramRegistryFormHistory programRegistry={programRegistry1.data} patient={patient} />
   </ApiContext.Provider>
 ));
 //#endregion ProgramRegistryFormHistory
@@ -531,6 +544,10 @@ storiesOf('Program Registry', module).add('ActivateProgramRegistryFormModal', ()
 ));
 //#endregion
 
-//#region
-// storiesOf('Program Registry', module).add('ProgramRegistryView', () => <ProgramRegistryView />);
-//#endregion
+//#region ProgramRegistryView
+storiesOf('Program Registry', module).add('ProgramRegistryView', () => (
+  <ApiContext.Provider value={dummyApi}>
+    <ProgramRegistryView />
+  </ApiContext.Provider>
+));
+//#endregion ProgramRegistryView
