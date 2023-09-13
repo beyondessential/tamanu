@@ -18,7 +18,7 @@ triage.put('/:id', simplePut('Triage'));
 triage.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, db } = req;
+    const { models, db, user } = req;
     const { vitals, notes } = req.body;
 
     req.checkPermission('create', 'Triage');
@@ -26,7 +26,7 @@ triage.post(
       req.checkPermission('create', 'Vitals');
     }
 
-    const triageRecord = await models.Triage.create(req.body);
+    const triageRecord = await models.Triage.create({ ...req.body, actorId: user.id });
 
     if (vitals) {
       const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type);
