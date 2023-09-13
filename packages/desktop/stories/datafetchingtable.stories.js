@@ -92,7 +92,7 @@ const TableWithDynamicData = () => {
       <Container>
         <DataFetchingTable
           endpoint="ages"
-          overrideLocalisationForStorybook={{ enabled: true, interval: 5000 }} // Mock autorefresh config for every 5 seconds
+          overrideLocalisationForStorybook={{ enabled: true, interval: 5 }} // Mock autorefresh config for every 5 seconds
           columns={dummyColumns.concat(dateColumn)}
           initialSort={{ order: 'desc', orderBy: 'date' }}
           autoRefresh

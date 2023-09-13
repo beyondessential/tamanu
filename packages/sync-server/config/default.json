@@ -651,7 +651,8 @@
         "displayIcd10CodesInDischargeSummary": true,
         "tableAutoRefresh": {
           "enabled": false,
-          "interval": 300000
+          // In Seconds
+          "interval": 300
         },
         "mandatoryVitalEditReason": false,
         "enableVitalEdit": false

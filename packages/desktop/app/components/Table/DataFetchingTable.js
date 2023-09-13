@@ -236,7 +236,10 @@ export const DataFetchingTable = memo(
       })();
 
       if (enableAutoRefresh) {
-        const tableAutorefresh = setInterval(() => refreshTable(), autoRefreshConfig.interval);
+        const tableAutorefresh = setInterval(
+          () => refreshTable(),
+          autoRefreshConfig.interval * 1000,
+        );
         return () => clearInterval(tableAutorefresh);
       }
       return () => {}; // Needed to add return due to the conditional return above
