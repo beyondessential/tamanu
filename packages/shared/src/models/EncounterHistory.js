@@ -15,6 +15,9 @@ export class EncounterHistory extends Model {
           type: Sequelize.STRING,
           allowNull: false,
         },
+        changeType: {
+          type: Sequelize.STRING,
+        },
         date: dateTimeType('date', {
           allowNull: false,
           defaultValue: getCurrentDateTimeString,
@@ -48,15 +51,22 @@ export class EncounterHistory extends Model {
       foreignKey: 'departmentId',
       as: 'department',
     });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'actorId',
+      as: 'actor',
+    });
   }
 
-  static async createSnapshot(encounter, submittedTime) {
+  static async createSnapshot(encounter, { actorId, changeType, submittedTime }) {
     return EncounterHistory.create({
       encounterId: encounter.id,
       encounterType: encounter.encounterType,
       locationId: encounter.locationId,
       departmentId: encounter.departmentId,
       examinerId: encounter.examinerId,
+      actorId,
+      changeType,
       date: submittedTime || getCurrentDateTimeString(),
     });
   }
