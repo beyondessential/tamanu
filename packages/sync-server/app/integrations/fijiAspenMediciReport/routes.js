@@ -6,14 +6,9 @@ import { parseISO } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
 import { parseDateTime, formatFhirDate } from 'shared/utils/fhir/datetime';
-import config from 'config';
-
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
 
 export const routes = express.Router();
-
-// TODO: use db config fetcher
-const COUNTRY_TIMEZONE = config?.countryTimeZone;
 
 // Workaround for this test changing from a hotfix, see EPI-483/484
 function formatDate(date) {
@@ -380,8 +375,8 @@ ORDER BY e.end_date DESC
 LIMIT $limit OFFSET $offset;
 `;
 
-const parseDateParam = date => {
-  const { plain: parsedDate } = parseDateTime(date, { withTz: COUNTRY_TIMEZONE });
+const parseDateParam = (date, timezone) => {
+  const { plain: parsedDate } = parseDateTime(date, { withTz: timezone });
   return parsedDate || null;
 };
 
@@ -397,20 +392,23 @@ routes.get(
       encounters,
       offset = 0,
     } = req.query;
-    if (!COUNTRY_TIMEZONE) {
-      throw new Error('A countryTimeZone must be configured in local.json for this report to run');
+
+    const timezone = await req.settings.get('countryTimeZone');
+
+    if (!timezone) {
+      throw new Error('A countryTimeZone must be configured in config for this report to run');
     }
 
     const data = await sequelize.query(reportQuery, {
       type: QueryTypes.SELECT,
       bind: {
-        from_date: parseDateParam(fromDate, COUNTRY_TIMEZONE),
-        to_date: parseDateParam(toDate, COUNTRY_TIMEZONE),
+        from_date: parseDateParam(fromDate, timezone),
+        to_date: parseDateParam(toDate, timezone),
         input_encounter_ids: encounters?.split(',') ?? [],
         billing_type: null,
         limit: parseInt(limit, 10),
         offset, // Should still be able to offset even with no limit
-        timezone_string: COUNTRY_TIMEZONE,
+        timezone_string: timezone,
       },
     });
 
