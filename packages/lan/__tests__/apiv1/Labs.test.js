@@ -298,7 +298,7 @@ describe('Labs', () => {
     expect(labRequest).toHaveProperty('status', status);
   });
 
-  it('should not fetch lab test types directly from general labTestType get route when visibilityStatus set to "panelsOnly"', async () => {
+  it('should not fetch lab test types directly from general labTestType get route when visibilityStatus set to "panelsOnly" or "historical"', async () => {
     const makeLabTestType = async visibilityStatus => {
       const category = await models.ReferenceData.create({
         ...fake(models.ReferenceData),
@@ -320,13 +320,16 @@ describe('Labs', () => {
     await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
     await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
     await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.HISTORICAL);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.HISTORICAL);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.HISTORICAL);
 
     const result = await app.get('/v1/labTestType');
     expect(result).toHaveSucceeded();
     const { body } = result;
     expect(body.length).toBe(3);
     body.forEach(labTestType => {
-      expect(labTestType.visibilityStatus).not.toBe('panelsOnly');
+      expect(labTestType.visibilityStatus).toBe(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT);
     });
   });
 
