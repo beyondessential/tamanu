@@ -137,6 +137,7 @@ export async function importRows(
   for (const { model, sheetRow, values } of resolvedRows) {
     try {
       let schemaName;
+      let validationContext;
       if (model === 'ReferenceData') {
         const specificSchemaName = `RD${sheetName}`;
         const specificSchemaExists = !!schemas[specificSchemaName];
@@ -151,6 +152,7 @@ export async function importRows(
         const specificSchemaName = `SSC${type}`;
         const specificSchemaExists = !!schemas[specificSchemaName];
         const validateQuestionEnabled = await readSettings.get('validateQuestionConfigs.enabled');
+        validationContext = { validateQuestionEnabled };
         if (validateQuestionEnabled && specificSchemaExists) {
           schemaName = specificSchemaName;
         } else {
@@ -169,7 +171,7 @@ export async function importRows(
       validRows.push({
         model,
         sheetRow,
-        values: await schema.validate(values, { abortEarly: false }),
+        values: await schema.validate(values, { abortEarly: false, context: validationContext }),
       });
     } catch (err) {
       updateStat(stats, statkey(model, sheetName), 'errored');
