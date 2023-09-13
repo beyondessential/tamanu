@@ -2,6 +2,7 @@
   "extends": ["../../common.tsconfig.json"],
   "include": ["src/**/*.ts", "package.json"],
   "compilerOptions": {
-    "baseUrl": "./src"
+    "baseUrl": "./src",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo"
   }
 }

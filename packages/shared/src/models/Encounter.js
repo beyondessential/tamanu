@@ -6,6 +6,7 @@ import {
   ENCOUNTER_TYPE_VALUES,
   NOTE_TYPES,
   SYNC_DIRECTIONS,
+  EncounterChangeType,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { dateTimeType } from './dateTimeTypes';
@@ -313,10 +314,15 @@ export class Encounter extends Model {
     await dischargeOutpatientEncounters(this.sequelize.models, recordIds);
   }
 
-  static async create(...args) {
+  static async create(data, ...args) {
+    const { actorId, ...encounterData } = data;
+    const encounter = await super.create(encounterData, ...args);
+
     const { EncounterHistory } = this.sequelize.models;
-    const encounter = await super.create(...args);
-    await EncounterHistory.createSnapshot(encounter, getCurrentDateTimeString());
+    await EncounterHistory.createSnapshot(encounter, {
+      actorId: actorId || encounter.examinerId,
+      submittedTime: getCurrentDateTimeString(),
+    });
 
     return encounter;
   }
@@ -398,11 +404,12 @@ export class Encounter extends Model {
 
   async closeTriage(endDate) {
     const triage = await this.getLinkedTriage();
-    if (triage) {
-      await triage.update({
-        closedTime: endDate,
-      });
-    }
+    if (!triage) return;
+    if (triage.closedTime) return; // already closed
+
+    await triage.update({
+      closedTime: endDate,
+    });
   }
 
   async updateClinician(newClinicianId, submittedTime, user) {
@@ -423,6 +430,7 @@ export class Encounter extends Model {
 
   async update(data, user) {
     const { Location, EncounterHistory } = this.sequelize.models;
+    let changeType;
 
     const updateEncounter = async () => {
       const additionalChanges = {};
@@ -437,11 +445,13 @@ export class Encounter extends Model {
       const isEncounterTypeChanged =
         data.encounterType && data.encounterType !== this.encounterType;
       if (isEncounterTypeChanged) {
+        changeType = EncounterChangeType.EncounterType;
         await this.onEncounterProgression(data.encounterType, data.submittedTime, user);
       }
 
       const isLocationChanged = data.locationId && data.locationId !== this.locationId;
       if (isLocationChanged) {
+        changeType = EncounterChangeType.Location;
         await this.addLocationChangeNote(
           'Changed location',
           data.locationId,
@@ -488,24 +498,40 @@ export class Encounter extends Model {
 
       const isDepartmentChanged = data.departmentId && data.departmentId !== this.departmentId;
       if (isDepartmentChanged) {
+        changeType = EncounterChangeType.Department;
         await this.addDepartmentChangeNote(data.departmentId, data.submittedTime, user);
       }
 
       const isClinicianChanged = data.examinerId && data.examinerId !== this.examinerId;
       if (isClinicianChanged) {
+        changeType = EncounterChangeType.Examiner;
         await this.updateClinician(data.examinerId, data.submittedTime, user);
       }
 
       const { submittedTime, ...encounterData } = data;
       const updatedEncounter = await super.update({ ...encounterData, ...additionalChanges }, user);
 
-      if (
-        isEncounterTypeChanged ||
-        isDepartmentChanged ||
-        isLocationChanged ||
-        isClinicianChanged
-      ) {
-        await EncounterHistory.createSnapshot(updatedEncounter, data.submittedTime);
+      const snapshotChanges = [
+        isEncounterTypeChanged,
+        isDepartmentChanged,
+        isLocationChanged,
+        isClinicianChanged,
+      ].filter(Boolean);
+
+      if (snapshotChanges.length > 1) {
+        // Will revert all the changes above if error is thrown as this is in a transaction
+        throw new InvalidOperationError(
+          'Encounter type, department, location and clinician must be changed in separate operations',
+        );
+      }
+
+      // multiple changes in 1 update transaction is not supported at the moment
+      if (snapshotChanges.length === 1) {
+        await EncounterHistory.createSnapshot(updatedEncounter, {
+          actorId: user?.id,
+          changeType,
+          submittedTime: data.submittedTime,
+        });
       }
 
       return updatedEncounter;

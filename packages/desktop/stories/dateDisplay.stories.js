@@ -25,8 +25,8 @@ storiesOf('DateDisplay', module)
         <DateDisplay date={testDate} showDate={false} showExplicitDate />
       </Box>
       <Box mb={5}>
-        <span>Raw Format: </span>
-        <span>{DateDisplay.rawFormat(testDate)}</span>
+        <span>String Format: </span>
+        <span>{DateDisplay.stringFormat(testDate)}</span>
       </Box>
     </Box>
   ));

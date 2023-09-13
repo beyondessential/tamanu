@@ -14,6 +14,7 @@ import {
   VITALS_DATA_ELEMENT_IDS,
   DOCUMENT_SOURCES,
   NOTE_RECORD_TYPES,
+  EncounterChangeType,
 } from '@tamanu/constants';
 import { setupSurveyFromObject } from 'shared/demoData/surveys';
 import { fake, fakeUser } from 'shared/test-helpers/fake';
@@ -24,6 +25,7 @@ import { createTestContext } from '../utilities';
 
 describe('Encounter', () => {
   let patient = null;
+  let user = null;
   let app = null;
   let baseApp = null;
   let models = null;
@@ -34,7 +36,8 @@ describe('Encounter', () => {
     baseApp = ctx.baseApp;
     models = ctx.models;
     patient = await models.Patient.create(await createDummyPatient(models));
-    app = await baseApp.asRole('practitioner');
+    user = await models.User.create({ ...fakeUser(), role: 'practitioner' });
+    app = await baseApp.asUser(user);
   });
   afterAll(() => ctx.close());
 
@@ -1368,10 +1371,13 @@ describe('Encounter', () => {
     describe('encounter history', () => {
       describe('single change', () => {
         it('should record an encounter history when an encounter is created', async () => {
-          const encounter = await models.Encounter.create({
+          const result = await app.post('/v1/encounter').send({
             ...(await createDummyEncounter(models)),
             patientId: patient.id,
           });
+
+          expect(result).toHaveSucceeded();
+          const encounter = await models.Encounter.findByPk(result.body.id);
 
           const encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
@@ -1386,22 +1392,28 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
+            actorId: user.id,
           });
         });
 
         it('should record an encounter history for a location change', async () => {
           const [oldLocation, newLocation] = await models.Location.findAll({ limit: 2 });
           const submittedTime = getCurrentDateTimeString();
-          const encounter = await models.Encounter.create({
+          const result = await app.post('/v1/encounter').send({
             ...(await createDummyEncounter(models)),
             patientId: patient.id,
             locationId: oldLocation.id,
           });
 
-          await app.put(`/v1/encounter/${encounter.id}`).send({
+          expect(result).toHaveSucceeded();
+          const encounter = await models.Encounter.findByPk(result.body.id);
+
+          const updateResult = await app.put(`/v1/encounter/${encounter.id}`).send({
             locationId: newLocation.id,
             submittedTime,
           });
+
+          expect(updateResult).toHaveSucceeded();
 
           const encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
@@ -1416,6 +1428,7 @@ describe('Encounter', () => {
             locationId: oldLocation.id,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
+            actorId: user.id,
           });
 
           expect(encounterHistoryRecords[1]).toMatchObject({
@@ -1425,22 +1438,29 @@ describe('Encounter', () => {
             locationId: newLocation.id,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
+            changeType: EncounterChangeType.Location,
+            actorId: user.id,
           });
         });
 
         it('should record an encounter history for a department change', async () => {
           const [oldDepartment, newDepartment] = await models.Department.findAll({ limit: 2 });
           const submittedTime = getCurrentDateTimeString();
-          const encounter = await models.Encounter.create({
+          const result = await app.post('/v1/encounter').send({
             ...(await createDummyEncounter(models)),
             patientId: patient.id,
             departmentId: oldDepartment.id,
           });
 
-          await app.put(`/v1/encounter/${encounter.id}`).send({
+          expect(result).toHaveSucceeded();
+          const encounter = await models.Encounter.findByPk(result.body.id);
+
+          const updateResult = await app.put(`/v1/encounter/${encounter.id}`).send({
             departmentId: newDepartment.id,
             submittedTime,
           });
+
+          expect(updateResult).toHaveSucceeded();
 
           const encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
@@ -1455,6 +1475,7 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
+            actorId: user.id,
           });
           expect(encounterHistoryRecords[1]).toMatchObject({
             date: submittedTime,
@@ -1463,22 +1484,30 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
+            changeType: EncounterChangeType.Department,
+            actorId: user.id,
           });
         });
 
         it('should record an encounter history for a clinician change', async () => {
           const [oldClinician, newClinician] = await models.User.findAll({ limit: 2 });
           const submittedTime = getCurrentDateTimeString();
-          const encounter = await models.Encounter.create({
+
+          const result = await app.post('/v1/encounter').send({
             ...(await createDummyEncounter(models)),
             patientId: patient.id,
             examinerId: oldClinician.id,
           });
 
-          await app.put(`/v1/encounter/${encounter.id}`).send({
+          expect(result).toHaveSucceeded();
+          const encounter = await models.Encounter.findByPk(result.body.id);
+
+          const updateResult = await app.put(`/v1/encounter/${encounter.id}`).send({
             examinerId: newClinician.id,
             submittedTime,
           });
+
+          expect(updateResult).toHaveSucceeded();
 
           const encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
@@ -1493,6 +1522,7 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: oldClinician.id,
             encounterType: encounter.encounterType,
+            actorId: user.id,
           });
           expect(encounterHistoryRecords[1]).toMatchObject({
             date: submittedTime,
@@ -1501,6 +1531,8 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: newClinician.id,
             encounterType: encounter.encounterType,
+            changeType: EncounterChangeType.Examiner,
+            actorId: user.id,
           });
         });
 
@@ -1508,16 +1540,22 @@ describe('Encounter', () => {
           const oldEncounterType = 'admission';
           const newEncounterType = 'clinic';
           const submittedTime = getCurrentDateTimeString();
-          const encounter = await models.Encounter.create({
+
+          const result = await app.post('/v1/encounter').send({
             ...(await createDummyEncounter(models)),
             patientId: patient.id,
             encounterType: oldEncounterType,
           });
 
-          await app.put(`/v1/encounter/${encounter.id}`).send({
+          expect(result).toHaveSucceeded();
+          const encounter = await models.Encounter.findByPk(result.body.id);
+
+          const updateResult = await app.put(`/v1/encounter/${encounter.id}`).send({
             encounterType: newEncounterType,
             submittedTime,
           });
+
+          expect(updateResult).toHaveSucceeded();
 
           const encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
@@ -1533,6 +1571,7 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: encounter.examinerId,
             encounterType: oldEncounterType,
+            actorId: user.id,
           });
           expect(encounterHistoryRecords[1]).toMatchObject({
             date: submittedTime,
@@ -1541,6 +1580,8 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: encounter.examinerId,
             encounterType: newEncounterType,
+            changeType: EncounterChangeType.EncounterType,
+            actorId: user.id,
           });
         });
       });
@@ -1551,7 +1592,7 @@ describe('Encounter', () => {
           const [oldDepartment, newDepartment] = await models.Department.findAll({ limit: 2 });
           const [oldClinician, newClinician] = await models.User.findAll({ limit: 2 });
 
-          const encounter = await models.Encounter.create({
+          const result = await app.post('/v1/encounter').send({
             ...(await createDummyEncounter(models)),
             patientId: patient.id,
             examinerId: oldClinician.id,
@@ -1559,11 +1600,16 @@ describe('Encounter', () => {
             departmentId: oldDepartment.id,
           });
 
+          expect(result).toHaveSucceeded();
+          const encounter = await models.Encounter.findByPk(result.body.id);
+
           const locationChangeSubmittedTime = getCurrentDateTimeString();
-          await app.put(`/v1/encounter/${encounter.id}`).send({
+
+          const updateResult = await app.put(`/v1/encounter/${encounter.id}`).send({
             locationId: newLocation.id,
             submittedTime: locationChangeSubmittedTime,
           });
+          expect(updateResult).toHaveSucceeded();
 
           let encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
@@ -1590,10 +1636,12 @@ describe('Encounter', () => {
           });
 
           const departmentChangeSubmittedTime = getCurrentDateTimeString();
-          await app.put(`/v1/encounter/${encounter.id}`).send({
+          const updateResult2 = await app.put(`/v1/encounter/${encounter.id}`).send({
             departmentId: newDepartment.id,
             submittedTime: departmentChangeSubmittedTime,
           });
+
+          expect(updateResult2).toHaveSucceeded();
 
           encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
@@ -1609,6 +1657,7 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
+            actorId: user.id,
           });
           expect(encounterHistoryRecords[1]).toMatchObject({
             date: locationChangeSubmittedTime,
@@ -1617,6 +1666,8 @@ describe('Encounter', () => {
             locationId: newLocation.id,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
+            actorId: user.id,
+            changeType: EncounterChangeType.Location,
           });
           expect(encounterHistoryRecords[2]).toMatchObject({
             date: departmentChangeSubmittedTime,
@@ -1625,13 +1676,17 @@ describe('Encounter', () => {
             locationId: newLocation.id,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
+            actorId: user.id,
+            changeType: EncounterChangeType.Department,
           });
 
           const clinicianChangeSubmittedTime = getCurrentDateTimeString();
-          await app.put(`/v1/encounter/${encounter.id}`).send({
+          const updateResult3 = await app.put(`/v1/encounter/${encounter.id}`).send({
             examinerId: newClinician.id,
             submittedTime: clinicianChangeSubmittedTime,
           });
+
+          expect(updateResult3).toHaveSucceeded();
 
           encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
@@ -1647,6 +1702,7 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
+            actorId: user.id,
           });
           expect(encounterHistoryRecords[1]).toMatchObject({
             date: locationChangeSubmittedTime,
@@ -1655,6 +1711,8 @@ describe('Encounter', () => {
             locationId: newLocation.id,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
+            actorId: user.id,
+            changeType: EncounterChangeType.Location,
           });
           expect(encounterHistoryRecords[2]).toMatchObject({
             date: departmentChangeSubmittedTime,
@@ -1663,6 +1721,8 @@ describe('Encounter', () => {
             locationId: newLocation.id,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
+            actorId: user.id,
+            changeType: EncounterChangeType.Department,
           });
           expect(encounterHistoryRecords[3]).toMatchObject({
             date: clinicianChangeSubmittedTime,
@@ -1671,6 +1731,68 @@ describe('Encounter', () => {
             locationId: newLocation.id,
             examinerId: newClinician.id,
             encounterType: encounter.encounterType,
+            actorId: user.id,
+            changeType: EncounterChangeType.Examiner,
+          });
+        });
+      });
+
+      describe('multiple changes in 1 encounter update', () => {
+        it('throws an error if multiple changes happen in 1 encounter update', async () => {
+          const [oldLocation, newLocation] = await models.Location.findAll({ limit: 2 });
+          const [oldDepartment, newDepartment] = await models.Department.findAll({ limit: 2 });
+          const [clinician] = await models.User.findAll({ limit: 1 });
+
+          const result = await app.post('/v1/encounter').send({
+            ...(await createDummyEncounter(models)),
+            patientId: patient.id,
+            examinerId: clinician.id,
+            locationId: oldLocation.id,
+            departmentId: oldDepartment.id,
+          });
+
+          expect(result).toHaveSucceeded();
+          const encounter = await models.Encounter.findByPk(result.body.id);
+
+          const locationChangeSubmittedTime = getCurrentDateTimeString();
+          const updateResult = await app.put(`/v1/encounter/${encounter.id}`).send({
+            locationId: newLocation.id, // update new location
+            departmentId: newDepartment.id, // update new department
+            examinerId: clinician.id,
+            submittedTime: locationChangeSubmittedTime,
+          });
+
+          expect(updateResult).toHaveRequestError();
+          expect(updateResult.body.error.message).toEqual(
+            'Encounter type, department, location and clinician must be changed in separate operations',
+          );
+
+          const newEncounter = await models.Encounter.findByPk(result.body.id);
+
+          // Confirm that the encounter has not been changed if an error has been thrown
+          expect(newEncounter).toMatchObject({
+            patientId: patient.id,
+            examinerId: clinician.id,
+            locationId: oldLocation.id,
+            departmentId: oldDepartment.id,
+          });
+
+          const encounterHistoryRecords = await models.EncounterHistory.findAll({
+            where: {
+              encounterId: encounter.id,
+            },
+            order: [['date', 'ASC']],
+          });
+
+          // only 1 encounter history for initial encounter snapshot
+          expect(encounterHistoryRecords).toHaveLength(1);
+          expect(encounterHistoryRecords[0]).toMatchObject({
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: encounter.locationId,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+            actorId: user.id,
           });
         });
       });

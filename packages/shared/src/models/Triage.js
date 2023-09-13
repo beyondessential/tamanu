@@ -111,6 +111,7 @@ export class Triage extends Model {
         departmentId,
         locationId: data.locationId,
         examinerId: data.practitionerId,
+        actorId: data.actorId,
       });
 
       return super.create({

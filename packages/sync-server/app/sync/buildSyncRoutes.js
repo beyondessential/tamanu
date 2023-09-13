@@ -13,8 +13,13 @@ export const buildSyncRoutes = ctx => {
   syncRoutes.post(
     '/',
     asyncHandler(async (req, res) => {
-      const { user, deviceId } = req;
-      const { sessionId, tick } = await syncManager.startSession(user.id, deviceId);
+      const { user, body } = req;
+      const { facilityId, deviceId } = body;
+      const { sessionId, tick } = await syncManager.startSession({
+        userId: user.id,
+        deviceId,
+        facilityId,
+      });
       res.json({ sessionId, tick });
     }),
   );

@@ -1,5 +1,4 @@
-import { access, readFile } from 'fs/promises';
-import { constants } from 'fs';
+import { constants, promises as fs } from 'fs';
 import config from 'config';
 import { get, has, merge, pick, set, unset } from 'lodash';
 import stripJsonComments from 'strip-json-comments';
@@ -116,8 +115,11 @@ export async function up(query) {
     async (prevPromise, configPath) => {
       const prev = await prevPromise;
       try {
-        await access(configPath, constants.F_OK);
-        return merge(prev, JSON.parse(stripJsonComments((await readFile(configPath)).toString())));
+        await fs.access(configPath, constants.F_OK);
+        return merge(
+          prev,
+          JSON.parse(stripJsonComments((await fs.readFile(configPath)).toString())),
+        );
       } catch (err) {
         return prev;
       }
