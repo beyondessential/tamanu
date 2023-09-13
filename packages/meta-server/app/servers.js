@@ -23,6 +23,7 @@ const servers = [
   { name: 'Palau', type: 'live', host: 'https://sync.tamanu-palau.org' },
   { name: 'Samoa', type: 'live', host: 'https://tamanu-sync.health.gov.ws' },
   { name: 'Tonga', type: 'live', host: 'https://central-tonga.tamanu.io' },
+  { name: 'Tonga VMCP', type: 'live', host: 'https://central.tamanu-tonga.org' },
   { name: 'Tuvalu', type: 'live', host: 'https://sync.tamanu-tuvalu.org' },
 
   // demo servers
