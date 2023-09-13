@@ -4,6 +4,7 @@ import { Command } from 'commander';
 import { log } from 'shared/services/logging';
 
 import { performTimeZoneChecks } from 'shared/utils/timeZoneCheck';
+import { ReadSettings } from '@tamanu/settings';
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
 import { initDatabase, performDatabaseIntegrityChecks } from '../database';
@@ -24,7 +25,6 @@ async function serve({ skipMigrationCheck }) {
   });
 
   const context = await initDatabase();
-  // TODO: use db fetcher config
   if (config.db.migrateOnStartup) {
     await context.sequelize.migrate('up');
   } else {
@@ -34,10 +34,12 @@ async function serve({ skipMigrationCheck }) {
   await initDeviceId(context);
   await checkConfig(config, context);
   await performDatabaseIntegrityChecks(context);
-
-  context.centralServer = new CentralServerConnection(context);
+  const settings = new ReadSettings(context.models, config.serverFacilityId);
+  const syncConfig = await settings.get('sync');
+  context.centralServer = new CentralServerConnection(context, syncConfig);
   context.centralServer.connect(); // preemptively connect central server to speed up sync
   context.syncManager = new FacilitySyncManager(context);
+  context.config = await settings.get();
 
   await performTimeZoneChecks({
     remote: context.centralServer,
@@ -45,7 +47,7 @@ async function serve({ skipMigrationCheck }) {
     config,
   });
 
-  const app = await createApp(context);
+  const app = createApp(context);
 
   const { port } = config;
   const server = app.listen(port, () => {

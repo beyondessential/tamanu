@@ -44,12 +44,11 @@ export class CentralServerConnection {
   // test mocks don't always apply properly - this ensures the mock will be used
   fetchImplementation = fetch;
 
-  constructor(ctx) {
-    // TODO: use db fetcher config?
-    this.host = config.sync.host.trim().replace(/\/*$/, '');
-    this.timeout = config.sync.timeout;
-    this.batchSize = config.sync.channelBatchSize;
-    this.deviceId = deviceId;
+  constructor(ctx, syncConfig = { host: '', timeout: 0, channelBatchSize: 0 }) {
+    this.host = syncConfig.host.trim().replace(/\/*$/, '');
+    this.timeout = syncConfig.timeout;
+    this.batchSize = syncConfig.channelBatchSize;
+    this.deviceId = ctx?.deviceId;
   }
 
   async fetch(endpoint, params = {}) {

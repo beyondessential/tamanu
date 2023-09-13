@@ -1,4 +1,5 @@
 import { trace, propagation, context } from '@opentelemetry/api';
+import { ReadSettings } from '@tamanu/settings';
 import { sign as signCallback, verify as verifyCallback } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
 import config from 'config';
@@ -44,8 +45,11 @@ async function comparePassword(user, password) {
 }
 
 export async function centralServerLogin(models, email, password, deviceId) {
+  const settings = new ReadSettings(models, config.serverFacilityId);
+  const syncConfig = await settings.get('sync');
+
   // try logging in to sync server
-  const centralServer = new CentralServerConnection({ deviceId });
+  const centralServer = new CentralServerConnection(context, syncConfig);
   const response = await centralServer.fetch('login', {
     awaitConnection: false,
     retryAuth: false,

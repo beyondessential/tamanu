@@ -1,7 +1,6 @@
 import config from 'config';
 
 export const setupEnv = () => {
-  // TODO
   const { accessKeyId, secretAccessKey } = config.s3;
 
   // AWS SDK has no way of directly passing creds, this is the least painful supported method

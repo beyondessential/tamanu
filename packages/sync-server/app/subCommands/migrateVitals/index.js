@@ -3,7 +3,7 @@ import { Sequelize } from 'sequelize';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { log } from 'shared/services/logging';
 import { v4 as generateId } from 'uuid';
-import config from 'config';
+import { ReadSettings } from '@tamanu/settings';
 import { initDatabase } from '../../database';
 
 const BATCH_COUNT = 100;
@@ -21,7 +21,7 @@ export const COLUMNS_TO_DATA_ELEMENT_ID = {
 };
 
 const conversionFunctions = {
-  temperature: value => {
+  temperature: (config, value) => {
     // TODO: use db config fetcher
     if (value && config.localisation.data.units.temperature === 'fahrenheit') {
       // Do this the hard way so we don't need to add a conversion lib to sync
@@ -86,6 +86,9 @@ export async function migrateVitals() {
         }));
         await models.SurveyResponse.bulkCreate(newResponses);
 
+        const settings = new ReadSettings(models);
+        // get all settings
+        const config = await settings.get();
         // Each survey response generates many answer, map them to an array of arrays then flatten
         const answerData = vitalsChunk.map(vital =>
           Object.entries(vital.dataValues)
@@ -93,7 +96,7 @@ export async function migrateVitals() {
             .map(([key, value]) => ({
               dataElementId: COLUMNS_TO_DATA_ELEMENT_ID[key],
               responseId: idMap.get(vital.dataValues.id),
-              body: conversionFunctions[key] ? conversionFunctions[key](value) : value,
+              body: conversionFunctions[key] ? conversionFunctions[key](config, value) : value,
             })),
         );
         await models.SurveyResponseAnswer.bulkCreate(answerData.flat());
