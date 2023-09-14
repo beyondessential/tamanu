@@ -20,7 +20,11 @@ export const ActivateProgramRegistryFormModal = React.memo(
     const registeringFacilitySuggester = useSuggester('facility');
 
     return (
-      <Modal title={`Activate ${programRegistry.name} program registry`} open={open}>
+      <Modal
+        title={`Activate ${programRegistry.name} program registry`}
+        open={open}
+        onClose={onCancel}
+      >
         <Form
           onSubmit={data => {
             onSubmit({ ...data, patientId: patient.id, programRegistryId: programRegistry.id });
@@ -41,24 +45,24 @@ export const ActivateProgramRegistryFormModal = React.memo(
                       name="date"
                       label="Date of registration"
                       saveDateAsString
-                      required
                       component={DateField}
+                      required
                     />
                   </FormGrid>
                   <FormGrid style={{ gridColumn: 'span 2' }}>
                     <Field
                       name="registeringClinicianId"
                       label="Registered by"
-                      required
                       component={AutocompleteField}
                       suggester={registeredBySuggester}
+                      required
                     />
                     <Field
                       name="facilityId"
                       label="Registering facility"
-                      required
                       component={AutocompleteField}
                       suggester={registeringFacilitySuggester}
+                      required
                     />
                   </FormGrid>
                   <ConfirmCancelRow
@@ -79,8 +83,8 @@ export const ActivateProgramRegistryFormModal = React.memo(
           validationSchema={yup.object().shape({
             programRegistryClinicalStatusId: optionalForeignKey(),
             date: yup.date().required('Date of registration must be selected'),
-            registeringClinicianId: foreignKey('Registered by must be selected'),
-            facilityId: foreignKey('Registering facility must be selected'),
+            registeringClinicianId: foreignKey().required('Registered by must be selected'),
+            facilityId: foreignKey().required('Registering facility must be selected'),
           })}
         />
       </Modal>

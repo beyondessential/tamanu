@@ -16,6 +16,7 @@ import { ProgramRegistryStatusHistory } from '../app/views/programRegistry/Progr
 import { DeleteProgramRegistryFormModal } from '../app/views/programRegistry/DeleteProgramRegistryFormModal';
 import { ActivateProgramRegistryFormModal } from '../app/views/programRegistry/ActivateProgramRegistryFormModal';
 import { ProgramRegistryView } from '../app/views/programRegistry/ProgramRegistryView';
+import { RemoveProgramRegistryFormModal } from '../app/views/programRegistry/RemoveProgramRegistryFormModal';
 
 function sleep(milliseconds) {
   return new Promise(resolve => {
@@ -120,7 +121,18 @@ const patientProgramRegistration = {
     id: '213123',
     displayName: 'Alaister',
   },
-  registrationStatus: 'active',
+  registeringFacilityId: 'registering_facility_id',
+  registeringFacility: {
+    id: 'registering_facility_id',
+    code: 'registring_facitlity',
+    name: 'Hospital 1',
+  },
+  registrationStatus: 'removed',
+  removedById: '213123',
+  removedBy: {
+    id: '213123',
+    displayName: 'Alaister',
+  },
 };
 
 const programRegistryStatusHistories = [
@@ -431,17 +443,6 @@ storiesOf('Program Registry', module).add('DisplayPatientRegDetails Critical', (
     <DisplayPatientRegDetails
       patientProgramRegistration={{
         ...patientProgramRegistration,
-        removedById: '213123',
-        removedBy: {
-          id: '213123',
-          displayName: 'Alaister',
-        },
-        programRegistryClinicalStatus: {
-          id: '123123',
-          code: 'critical',
-          name: 'Critical',
-          color: 'red',
-        },
         registrationStatus: 'removed',
       }}
     />
@@ -453,18 +454,7 @@ storiesOf('Program Registry', module).add('DisplayPatientRegDetails Needs review
     <DisplayPatientRegDetails
       patientProgramRegistration={{
         ...patientProgramRegistration,
-        removedById: '213123',
-        removedBy: {
-          id: '213123',
-          displayName: 'Alaister',
-        },
-        programRegistryClinicalStatus: {
-          id: '123123',
-          code: 'needs_review',
-          name: 'Needs review',
-          color: 'yellow',
-        },
-        registrationStatus: 'removed',
+        registrationStatus: 'active',
       }}
     />
   </div>
@@ -548,6 +538,19 @@ storiesOf('Program Registry', module).add('ActivateProgramRegistryFormModal', ()
   </ApiContext.Provider>
 ));
 //#endregion
+
+//#region RemoveProgramRegistryFormModal
+storiesOf('Program Registry', module).add('RemoveProgramRegistryFormModal', () => (
+  <ApiContext.Provider value={dummyApi}>
+    <RemoveProgramRegistryFormModal
+      programRegistry={patientProgramRegistration}
+      onSubmit={action('submit')}
+      onCancel={action('cancel')}
+      open
+    />
+  </ApiContext.Provider>
+));
+//#endregion RemoveProgramRegistryFormModal
 
 //#region ProgramRegistryView
 storiesOf('Program Registry', module).add('ProgramRegistryView', () => (

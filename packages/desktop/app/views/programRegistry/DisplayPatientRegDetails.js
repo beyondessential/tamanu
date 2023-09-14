@@ -9,6 +9,7 @@ import { MenuButton } from '../../components/MenuButton';
 import { ChangeStatusFormModal } from './ChangeStatusFormModal';
 import { ActivateProgramRegistryFormModal } from './ActivateProgramRegistryFormModal';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
+import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 
 const DisplayContainer = styled.div`
   display: flex;
@@ -99,6 +100,9 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
   const [openActivateProgramRegistryFormModal, setOpenActivateProgramRegistryFormModal] = useState(
     false,
   );
+  const [openRemoveProgramRegistryFormModal, setOpenRemoveProgramRegistryFormModal] = useState(
+    false,
+  );
 
   const isRemoved =
     patientProgramRegistration.registrationStatus === PROGRAM_REGISTRATION_STATUSES.REMOVED;
@@ -142,7 +146,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           Change Status
         </OutlinedButton>
         <ChangeStatusFormModal
-          onSubmit={data => {
+          onSubmit={() => {
             // console.log(data);
             setOpenChangeStatusFormModal(false);
           }}
@@ -160,11 +164,11 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
             actions={
               isRemoved
                 ? {
-                    Remove: () => {},
+                    Activate: () => setOpenActivateProgramRegistryFormModal(true),
                     Delete: () => setOpenDeleteProgramRegistryFormModal(true),
                   }
                 : {
-                    Activate: () => setOpenActivateProgramRegistryFormModal(true),
+                    Remove: () => setOpenRemoveProgramRegistryFormModal(true),
                     Delete: () => setOpenDeleteProgramRegistryFormModal(true),
                   }
             }
@@ -180,6 +184,17 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
         onCancel={() => {
           // console.log('canceled');
           setOpenActivateProgramRegistryFormModal(false);
+        }}
+      />
+      <RemoveProgramRegistryFormModal
+        open={openRemoveProgramRegistryFormModal}
+        programRegistry={patientProgramRegistration}
+        onSubmit={() => {
+          setOpenRemoveProgramRegistryFormModal(false);
+        }}
+        onCancel={() => {
+          // console.log('canceled');
+          setOpenRemoveProgramRegistryFormModal(false);
         }}
       />
       <DeleteProgramRegistryFormModal

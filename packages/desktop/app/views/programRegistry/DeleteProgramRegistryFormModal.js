@@ -14,7 +14,7 @@ const Text = styled.div`
 
 export const DeleteProgramRegistryFormModal = ({ programRegistry, onSubmit, onCancel, open }) => {
   return (
-    <Modal title="Delete record" open={open}>
+    <Modal title="Delete record" open={open} onClose={onCancel}>
       <div>
         <Text>
           <p>
