@@ -26,7 +26,7 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled }) => {
   const validationCriteriaObject = getConfigObject(id, validationCriteria);
   const required = validationCriteriaObject?.mandatory || null;
 
-  if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES) {
+  if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.RESULT) {
     return <Text>{`${text} ${component.detail}`}</Text>;
   }
   if (!FieldComponent) {
