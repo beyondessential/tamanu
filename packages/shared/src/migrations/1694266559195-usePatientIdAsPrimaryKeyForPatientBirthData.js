@@ -1,4 +1,4 @@
-import Sequelize, { DataTypes } from 'sequelize';
+import Sequelize from 'sequelize';
 
 export async function up(query) {
   await query.sequelize.query(
@@ -16,10 +16,9 @@ export async function up(query) {
 export async function down(query) {
   await query.removeColumn('patient_birth_data', 'id');
   await query.addColumn('patient_birth_data', 'id', {
-    type: DataTypes.UUID,
-    primaryKey: true,
+    type: Sequelize.STRING,
     allowNull: false,
-    defaultValue: Sequelize.fn('uuid_generate_v4'),
+    defaultValue: Sequelize.UUIDV4,
   });
   await query.sequelize.query(`
     ALTER TABLE patient_birth_data DROP CONSTRAINT patient_birth_data_pkey;
