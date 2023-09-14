@@ -54,8 +54,8 @@ jobs:
     name: Build ${{ matrix.package.name }} server zip
     runs-on: windows-latest
     env:
-      OUTPUT_NAME: "${{ matrix.package.name }}-${{ needs.info.outputs.version }}-windows"
-      S3_PATH: s3://bes-tamanu-release-servers/${{ needs.info.outputs.version }}
+      OUTPUT_NAME: "test-${{ matrix.package.name }}-${{ needs.info.outputs.version }}-windows"
+      S3_PATH: s3://bes-tamanu-release-servers/test/${{ needs.info.outputs.version }}
 
     steps:
       - name: Configure AWS Credentials
