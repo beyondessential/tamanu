@@ -1,4 +1,4 @@
-export function buildPatientLinkedSyncFilter(patientIds) {
+export function buildPatientSyncFilterViaPatientId(patientIds) {
   if (patientIds.length === 0) {
     return null;
   }

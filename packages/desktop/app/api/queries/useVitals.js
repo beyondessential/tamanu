@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
 import { useApi, isErrorUnknownAllow404s } from '../index';
-import { useVitalsSurvey } from './useVitalsSurvey';
+import { useVitalsSurveyQuery } from './useVitalsSurveyQuery';
 import { getConfigObject } from '../../utils';
 
 export const useVitals = encounterId => {
@@ -14,7 +14,7 @@ export const useVitals = encounterId => {
     ),
   );
 
-  const surveyQuery = useVitalsSurvey();
+  const surveyQuery = useVitalsSurveyQuery();
   const error = vitalsQuery.error || surveyQuery.error;
 
   let vitalsRecords = [];
