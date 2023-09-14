@@ -66,3 +66,8 @@ ProgramRegistryFormHistory.propTypes = {
     id: PropTypes.string,
   }),
 };
+
+ProgramRegistryFormHistory.defaultProps = {
+  patient: null,
+  programRegistry: null,
+};

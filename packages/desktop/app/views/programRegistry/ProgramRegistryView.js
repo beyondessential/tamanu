@@ -67,28 +67,28 @@ export const ProgramRegistryView = () => {
   const { data, isLoading, isError } = usePatientProgramRegistry(patientId, programRegistryId);
 
   if (isLoading) return <CircularProgress size="5rem" />;
-  else if (isError) return <p>Program registry '{title || 'Unknown'}' not found.</p>;
-  else
-    return (
-      <>
-        <ViewHeader>
-          <h1>{title || data.name}</h1>
-          <StatusDiv>
-            <StatusActiveDot />
-            <b>{getFirstCharUpperCase(data.registrationStatus)}</b>
-          </StatusDiv>
-        </ViewHeader>
-        <Container>
-          <Row>
-            <DisplayPatientRegDetails patientProgramRegistration={data} />
-          </Row>
-          <Row>
-            <ProgramRegistryStatusHistory programRegistry={data} />
-          </Row>
-          <Row>
-            <ProgramRegistryFormHistory programRegistry={data} patient={{ id: patientId }} />
-          </Row>
-        </Container>
-      </>
-    );
+  if (isError) return <p>Program registry &apos;{title || 'Unknown'}&apos; not found.</p>;
+
+  return (
+    <>
+      <ViewHeader>
+        <h1>{title || data.name}</h1>
+        <StatusDiv>
+          {data.registrationStatus === 'active' ? <StatusActiveDot /> : <StatusInactiveDot />}
+          <b>{getFirstCharUpperCase(data.registrationStatus)}</b>
+        </StatusDiv>
+      </ViewHeader>
+      <Container>
+        <Row>
+          <DisplayPatientRegDetails patientProgramRegistration={data} />
+        </Row>
+        <Row>
+          <ProgramRegistryStatusHistory programRegistry={data} />
+        </Row>
+        <Row>
+          <ProgramRegistryFormHistory programRegistry={data} patient={{ id: patientId }} />
+        </Row>
+      </Container>
+    </>
+  );
 };
