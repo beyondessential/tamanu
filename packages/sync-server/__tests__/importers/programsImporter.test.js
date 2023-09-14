@@ -255,5 +255,42 @@ describe('Programs import', () => {
       });
       await validateVisualisationConfig('');
     });
+
+    it('should delete vital survey questions', async () => {
+      const { Survey } = ctx.store.models;
+
+      const getComponents = async () => {
+        const survey = await Survey.findByPk('program-testvitals-vitalsgood');
+        expect(survey).toBeTruthy();
+        return survey.getComponents();
+      };
+
+      {
+        const { errors, stats } = await doImport({ file: 'vitals-delete-questions' });
+        expect(errors).toBeEmpty();
+        expect(stats).toMatchObject({
+          Program: { created: 1, updated: 0, errored: 0 },
+          Survey: { created: 1, updated: 0, errored: 0 },
+          ProgramDataElement: { created: 16, updated: 0, errored: 0 },
+          SurveyScreenComponent: { created: 16, updated: 0, errored: 0 },
+        });
+      }
+
+      // find imported ssc
+      const componentsBefore = await getComponents();
+      expect(componentsBefore).toHaveLength(16);
+
+      {
+        const { errors, stats } = await doImport({ file: 'vitals-delete-questions-2' });
+        expect(errors).toBeEmpty();
+        expect(stats).toMatchObject({
+          ProgramDataElement: { updated: 16 }, // deleter should NOT delete underlying PDEs
+          SurveyScreenComponent: { deleted: 1 },
+        });
+      }
+
+      const componentsAfter = await getComponents();
+      expect(componentsAfter).toHaveLength(15);
+    });
   });
 });
