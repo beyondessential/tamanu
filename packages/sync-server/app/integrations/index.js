@@ -58,13 +58,13 @@ export async function checkIntegrationsConfig(settings) {
   await checkFhirConfig(settings);
 
   if (
-    (integrationsSettings?.euDcc?.enabled || integrationsSettings?.vdsNc?.enabled) &&
-    !integrationsSettings?.signer?.enabled
+    (integrationSettings?.euDcc?.enabled || integrationSettings?.vdsNc?.enabled) &&
+    !integrationSettings?.signer?.enabled
   ) {
     throw new Error('euDcc and vdsNc integrations require the signer integration to be enabled');
   }
 
-  if (integrationsSettings?.euDcc?.enabled && integrationsSettings?.vdsNc?.enabled) {
+  if (integrationSettings?.euDcc?.enabled && integrationSettings?.vdsNc?.enabled) {
     throw new Error('Cannot enable both euDcc and vdsNc integrations at the same time');
   }
 }

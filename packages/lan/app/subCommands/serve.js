@@ -42,6 +42,7 @@ async function serve({ skipMigrationCheck }) {
   context.config = await settings.get();
 
   const countryTimeZone = await settings.get('countryTimeZone');
+  const discoverySettings = await settings.get('discovery');
 
   await performTimeZoneChecks({
     remote: context.centralServer,
@@ -60,7 +61,7 @@ async function serve({ skipMigrationCheck }) {
     server.close();
   });
 
-  listenForServerQueries();
+  listenForServerQueries(discoverySettings);
 
   startScheduledTasks(context);
 }
