@@ -5,6 +5,7 @@ import { PatientIssue } from './PatientIssue';
 import { PatientSecondaryId } from './PatientSecondaryId';
 import { User } from './User';
 import { Encounter } from './Encounter';
+import { EncounterHistory } from './EncounterHistory';
 import { Program } from './Program';
 import { ProgramDataElement } from './ProgramDataElement';
 import { Survey } from './Survey';
@@ -44,6 +45,7 @@ export const MODELS_MAP = {
   PatientSecondaryId,
   User,
   Encounter,
+  EncounterHistory,
   Program,
   ProgramDataElement,
   Survey,
