@@ -1,9 +1,13 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import { CircularProgress } from '@material-ui/core';
 import { Colors } from '../../constants';
 import { useUrlQueryParams } from '../../hooks';
 import { DisplayPatientRegDetails } from './DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from './ProgramRegistryStatusHistory';
+import { usePatientProgramRegistry } from '../../api/queries/usePatientProgramRegistry';
+import { ProgramRegistryFormHistory } from './ProgramRegistryFormHistory';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
@@ -50,47 +54,41 @@ const StatusInactiveDot = styled.div`
   border-radius: 10px;
   margin: 0px 5px;
 `;
+
+const getFirstCharUpperCase = str => str.charAt(0).toUpperCase() + str.slice(1);
+
 export const ProgramRegistryView = () => {
   const queryParams = useUrlQueryParams();
-  return (
-    <>
-      <ViewHeader>
-        <h1>{queryParams.get('title')}</h1>
-        <StatusDiv>
-          <StatusActiveDot />
-          <span>Active</span>
-        </StatusDiv>
-      </ViewHeader>
-      <Container>
-        <Row>
-          <DisplayPatientRegDetails
-            patientProgramRegistration={{
-              date: '2023-08-28T02:40:16.237Z',
-              programRegistryClinicalStatusId: '123123',
-              programRegistryClinicalStatus: {
-                id: '123123',
-                code: 'low_risk',
-                name: 'Low risk',
-                color: 'green',
-              },
-              clinicianId: '213123',
-              clinician: {
-                id: '213123',
-                displayName: 'Alaister',
-              },
-              removedById: '213123',
-              removedBy: {
-                id: '213123',
-                displayName: 'Alaister',
-              },
-              registrationStatus: 'removed',
-            }}
-          />
-        </Row>
-        <Row>
-          <ProgramRegistryStatusHistory />
-        </Row>
-      </Container>
-    </>
-  );
+  const params = useParams();
+  const title = queryParams.get('title');
+  const patientId = params.patiendId || 'patient_id';
+  const programRegistryId = params.programRegistryId || 'program_registry_id';
+
+  const { data, isLoading, isError } = usePatientProgramRegistry(patientId, programRegistryId);
+
+  if (isLoading) return <CircularProgress size="5rem" />;
+  else if (isError) return <p>Program registry '{title || 'Unknown'}' not found.</p>;
+  else
+    return (
+      <>
+        <ViewHeader>
+          <h1>{title || data.name}</h1>
+          <StatusDiv>
+            <StatusActiveDot />
+            <b>{getFirstCharUpperCase(data.registrationStatus)}</b>
+          </StatusDiv>
+        </ViewHeader>
+        <Container>
+          <Row>
+            <DisplayPatientRegDetails patientProgramRegistration={data} />
+          </Row>
+          <Row>
+            <ProgramRegistryStatusHistory programRegistry={data} />
+          </Row>
+          <Row>
+            <ProgramRegistryFormHistory programRegistry={data} patient={{ id: patientId }} />
+          </Row>
+        </Container>
+      </>
+    );
 };

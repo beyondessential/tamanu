@@ -1,9 +1,10 @@
+// @ts-check
+
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { ChangeStatusFormModal } from '../app/views/programRegistry/ChangeStatusFormModal';
 import { ApiContext } from '../app/api';
-import { MockedApi } from './utils/mockedApi';
 import { Modal } from '../app/components/Modal';
 import { PROGRAM_REGISTRY } from '../app/components/PatientInfoPane/paneTitles';
 import { InfoPaneList } from '../app/components/PatientInfoPane/InfoPaneList';
@@ -14,9 +15,34 @@ import { DisplayPatientRegDetails } from '../app/views/programRegistry/DisplayPa
 import { ProgramRegistryStatusHistory } from '../app/views/programRegistry/ProgramRegistryStatusHistory';
 import { DeleteProgramRegistry } from '../app/views/programRegistry/DeleteProgramRegistry';
 import { ActivateProgramRegistryFormModal } from '../app/views/programRegistry/ActivateProgramRegistryFormModal';
+import { ProgramRegistryView } from '../app/views/programRegistry/ProgramRegistryView';
 
-//#region InfoPaneList
-const dummyProgramRegistriesForInfoPaneList = [
+function sleep(milliseconds) {
+  return new Promise(resolve => {
+    setTimeout(resolve, milliseconds);
+  });
+}
+const getSortedData = (
+  list = [],
+  options = { page: 0, orderBy: '', order: 'asc', rowsPerPage: 10 },
+) => {
+  const sortedData =
+    options.order && options.orderBy
+      ? list.sort(({ [options.orderBy]: a }, { [options.orderBy]: b }) => {
+          if (typeof a === 'string') {
+            return options.order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
+          }
+          return options.order === 'asc' ? a - b : b - a;
+        })
+      : list;
+  const startIndex = options.page * options.rowsPerPage || 0;
+  const endIndex = startIndex + options.rowsPerPage ? options.rowsPerPage : sortedData.length;
+  return {
+    data: sortedData.slice(startIndex, endIndex),
+    count: list.length,
+  };
+};
+const programRegistriesForInfoPaneList = [
   {
     id: '1',
     name: 'Seasonal fever',
@@ -54,173 +80,50 @@ const dummyProgramRegistriesForInfoPaneList = [
     clinicalStatus: 'Low risk',
   },
 ];
-const dummyApiForInfoPaneList = {
-  get: async endpoint => {
-    await sleep(1000);
-    return {
-      data: dummyProgramRegistriesForInfoPaneList,
-    };
+
+const patient = { id: 'patient_id' };
+const programRegistry1 = {
+  data: {
+    id: '1',
+    name: 'Hepatitis B',
+    currentlyAtType: 'facility',
   },
 };
-storiesOf('Program Registry', module).add('ProgramRegistry Info Panlist', () => {
-  const patient = { id: '323r2r234r' };
-  return (
-    <MockedApi endpoints={mockProgramRegistrytFormEndpoints}>
-      <ApiContext.Provider value={dummyApiForInfoPaneList}>
-        <div style={{ width: '250px', backgroundColor: 'white', padding: '10px' }}>
-          <InfoPaneList
-            patient={patient}
-            readonly={false}
-            title={PROGRAM_REGISTRY}
-            endpoint="programRegistry"
-            getEndpoint={`patient/${patient.id}/program-registry`}
-            Form={ProgramRegistryForm}
-            ListItemComponent={ProgramRegistryListItem}
-            getName={programRegistry => programRegistry.name}
-            behavior="modal"
-            itemTitle="Add program registry"
-            getEditFormName={programRegistry => `Program registry: ${programRegistry.name}`}
-          />
-        </div>
-      </ApiContext.Provider>
-    </MockedApi>
-  );
-});
-//#endregion InfoPaneList
-
-//#region ProgramRegistryForm
-const mockProgramRegistrytFormEndpoints = {
-  'program/1': () => ({
-    data: {
-      id: '1',
-      currentlyAtType: 'facility',
-    },
-  }),
-  'program/2': () => ({
-    data: {
-      id: '2',
-      currentlyAtType: 'facility',
-    },
-  }),
-  'program/3': () => ({
-    data: {
-      id: '3',
-      currentlyAtType: 'village',
-    },
-  }),
-  'suggestions/program': () => [
-    { id: '1', name: 'Arm' },
-    { id: '2', name: 'Leg' },
-    { id: '3', name: 'Shoulder' },
-  ],
-  'suggestions/facility': () => [
-    { id: '1', name: 'Hospital 1' },
-    { id: '2', name: 'Hospital 2' },
-  ],
-  'suggestions/practitioner': () => [
-    { id: 'test-user-id', name: 'Test user id' },
-    { id: '2', name: 'Test user id 2' },
-  ],
+const programRegistry2 = {
+  data: {
+    id: '2',
+    name: 'Pneomonia',
+    currentlyAtType: 'facility',
+  },
+};
+const programRegistry3 = {
+  data: {
+    id: '3',
+    name: 'Diabetis',
+    currentlyAtType: 'village',
+  },
+};
+const programRegistries = [programRegistry1.data, programRegistry2.data, programRegistry3.data];
+const patientProgramRegistration = {
+  id: 'program_registry_id',
+  date: '2023-08-28T02:40:16.237Z',
+  name: 'Hepatitis B',
+  programRegistryClinicalStatusId: '123123',
+  programRegistryClinicalStatus: {
+    id: '123123',
+    code: 'low_risk',
+    name: 'Low risk',
+    color: 'green',
+  },
+  clinicianId: '213123',
+  clinician: {
+    id: '213123',
+    displayName: 'Alaister',
+  },
+  registrationStatus: 'active',
 };
 
-storiesOf('Program Registry', module).add('ProgramRegistryFrom', () => (
-  <MockedApi endpoints={mockProgramRegistrytFormEndpoints}>
-    <Modal width="md" title="Add program registry" open>
-      <ProgramRegistryForm
-        onSubmit={action('submit')}
-        onCancel={action('cancel')}
-        patient={{ id: '323r2r234r' }}
-      />
-    </Modal>
-  </MockedApi>
-));
-
-//#endregion ProgramRegistryForm
-
-//#region DisplayPatientRegDetails
-storiesOf('Program Registry', module).add('DisplayPatientRegDetails Low risk', () => (
-  <div style={{ width: '797px' }}>
-    <DisplayPatientRegDetails
-      patientProgramRegistration={{
-        date: '2023-08-28T02:40:16.237Z',
-        programRegistryClinicalStatusId: '123123',
-        programRegistryClinicalStatus: {
-          id: '123123',
-          code: 'low_risk',
-          name: 'Low risk',
-          color: 'green',
-        },
-        clinicianId: '213123',
-        clinician: {
-          id: '213123',
-          displayName: 'Alaister',
-        },
-        registrationStatus: 'active',
-      }}
-    />
-  </div>
-));
-
-storiesOf('Program Registry', module).add('DisplayPatientRegDetails Critical', () => (
-  <div style={{ width: '797px' }}>
-    <DisplayPatientRegDetails
-      patientProgramRegistration={{
-        date: '2023-08-28T02:40:16.237Z',
-        programRegistryClinicalStatusId: '123123',
-        programRegistryClinicalStatus: {
-          id: '123123',
-          code: 'critical',
-          name: 'Critical',
-          color: 'red',
-        },
-        clinicianId: '213123',
-        clinician: {
-          id: '213123',
-          displayName: 'Alaister',
-        },
-        removedById: '213123',
-        removedBy: {
-          id: '213123',
-          displayName: 'Alaister',
-        },
-        registrationStatus: 'removed',
-      }}
-    />
-  </div>
-));
-
-storiesOf('Program Registry', module).add('DisplayPatientRegDetails Needs review', () => (
-  <div style={{ width: '797px' }}>
-    <DisplayPatientRegDetails
-      patientProgramRegistration={{
-        date: '2023-08-28T02:40:16.237Z',
-        programRegistryClinicalStatusId: '123123',
-        programRegistryClinicalStatus: {
-          id: '123123',
-          code: 'needs_review',
-          name: 'Needs review',
-          color: 'yellow',
-        },
-        clinicianId: '213123',
-        clinician: {
-          id: '213123',
-          displayName: 'Alaister',
-        },
-        removedById: '213123',
-        removedBy: {
-          id: '213123',
-          displayName: 'Alaister',
-        },
-        registrationStatus: 'removed',
-      }}
-    />
-  </div>
-));
-//#endregion DisplayPatientRegDetails
-
-//#region ProgramRegistryStatusHistory
-
-const dummyDataForProgramRegistryStatusHistory = [
+const programRegistryStatusHistories = [
   {
     id: '1',
     registrationStatus: 'active',
@@ -325,53 +228,7 @@ const dummyDataForProgramRegistryStatusHistory = [
   },
 ];
 
-const dummyApiForProgramRegistryStatusHistory = {
-  get: async (endpoint, options) => {
-    await sleep(5000);
-    const sortedData =
-      options.order && options.orderBy
-        ? dummyDataForProgramRegistryStatusHistory.sort(
-            ({ [options.orderBy]: a }, { [options.orderBy]: b }) => {
-              if (typeof a === 'string') {
-                return options.order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
-              }
-              return options.order === 'asc' ? a - b : b - a;
-            },
-          )
-        : sortedData;
-    const startIndex = options.page * options.rowsPerPage || 0;
-    const endIndex = startIndex + options.rowsPerPage ? options.rowsPerPage : sortedData.length;
-    return {
-      data: sortedData.slice(startIndex, endIndex),
-      count: dummyDataForProgramRegistryStatusHistory.length,
-    };
-  },
-};
-storiesOf('Program Registry', module).add('ProgramRegistryStatusHistory removed never', () => (
-  <ApiContext.Provider value={dummyApiForProgramRegistryStatusHistory}>
-    <ProgramRegistryStatusHistory
-      programRegistry={{
-        id: '23242234234',
-      }}
-    />
-  </ApiContext.Provider>
-));
-
-storiesOf('Program Registry', module).add('ProgramRegistryStatusHistory removed once', () => (
-  <ApiContext.Provider value={dummyApiForProgramRegistryStatusHistory}>
-    <ProgramRegistryStatusHistory
-      programRegistry={{
-        id: '23242234234',
-      }}
-    />
-  </ApiContext.Provider>
-));
-
-//#endregion ProgramRegistryStatusHistory
-
-//#region ProgramRegistryFormHistory
-
-const dummyDataForProgramRegistryFormHistory = [
+const programRegistryFormHistory = [
   {
     id: 1,
     endTime: '2023-09-07 15:54:00',
@@ -471,66 +328,194 @@ const dummyDataForProgramRegistryFormHistory = [
     resultText: '4687',
   },
 ];
-function sleep(milliseconds) {
-  return new Promise(resolve => {
-    setTimeout(resolve, milliseconds);
-  });
-}
 
-const dummyApiForProgramRegistryFormHistory = {
-  get: async (endpoint, { order, orderBy, page, rowsPerPage }) => {
+const facilities = [
+  { id: '1', name: 'Hospital 1' },
+  { id: '2', name: 'Hospital 2' },
+];
+
+const practitioners = [
+  { id: 'test-user-id', name: 'Test user id' },
+  { id: '2', name: 'Test user id 2' },
+];
+
+const programRegistryClinicalStatusList = [
+  { id: '1', name: 'Low risk', color: 'green' },
+  { id: '2', name: 'Needs review', color: 'yellow' },
+  { id: '3', name: 'Critical', color: 'red' },
+];
+
+const dummyApi = {
+  get: async (endpoint, options) => {
     console.log(endpoint);
-    await sleep(1000);
-    const sortedData = dummyDataForProgramRegistryFormHistory.sort(
-      ({ [orderBy]: a }, { [orderBy]: b }) => {
-        if (typeof a === 'string') {
-          return order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
-        }
-        return order === 'asc' ? a - b : b - a;
-      },
-    );
-    const startIndex = page * rowsPerPage;
-    const endIndex = startIndex + rowsPerPage;
-
-    return {
-      data: sortedData.slice(startIndex, endIndex),
-      count: dummyDataForProgramRegistryFormHistory.length,
-    };
+    await sleep(500);
+    switch (endpoint) {
+      case 'programRegistration/program_registry_id/clinicalStatuses':
+        return getSortedData(programRegistryStatusHistories, options);
+      case 'patient/patient_id/programRegistration/program_registry_id/surveyResponses':
+        return getSortedData(programRegistryFormHistory, options);
+      case 'suggestions/facility':
+        return facilities;
+      case 'suggestions/practitioner':
+        return practitioners;
+      case 'suggestions/programRegistryClinicalStatus':
+        return programRegistryClinicalStatusList;
+      case 'suggestions/programRegistries':
+        return programRegistries;
+      case 'programRegistry/1':
+        return programRegistry1;
+      case 'programRegistry/2':
+        return programRegistry2;
+      case 'programRegistry/3':
+        return programRegistry3;
+      case 'patient/patient_id/program-registry':
+        return { data: programRegistriesForInfoPaneList };
+      case 'patient/patient_id/programRegistration/program_registry_id':
+        return patientProgramRegistration;
+    }
   },
 };
-storiesOf('Program Registry', module).add('ProgramRegistryFormHistory', () => (
-  <ApiContext.Provider value={dummyApiForProgramRegistryFormHistory}>
-    <ProgramRegistryFormHistory
-      programRegistry={{
-        id: '23242234234',
-      }}
-      patient={{
-        id: '23242234234',
+
+//#region InfoPaneList
+
+storiesOf('Program Registry', module).add('ProgramRegistry Info Panlist', () => {
+  return (
+    <ApiContext.Provider value={dummyApi}>
+      <div style={{ width: '250px', backgroundColor: 'white', padding: '10px' }}>
+        <InfoPaneList
+          patient={patient}
+          readonly={false}
+          title={PROGRAM_REGISTRY}
+          endpoint="programRegistry"
+          getEndpoint={`patient/${patient.id}/program-registry`}
+          Form={ProgramRegistryForm}
+          ListItemComponent={ProgramRegistryListItem}
+          getName={programRegistry => programRegistry.name}
+          behavior="modal"
+          itemTitle="Add program registry"
+          getEditFormName={programRegistry => `Program registry: ${programRegistry.name}`}
+        />
+      </div>
+    </ApiContext.Provider>
+  );
+});
+//#endregion InfoPaneList
+
+//#region ProgramRegistryForm
+
+storiesOf('Program Registry', module).add('ProgramRegistryFrom', () => (
+  // <MockedApi endpoints={mockProgramRegistrytFormEndpoints}>
+  //     </MockedApi>
+  <ApiContext.Provider value={dummyApi}>
+    <Modal width="md" title="Add program registry" open>
+      <ProgramRegistryForm
+        onSubmit={action('submit')}
+        onCancel={action('cancel')}
+        patient={patient}
+      />
+    </Modal>
+  </ApiContext.Provider>
+));
+
+//#endregion ProgramRegistryForm
+
+//#region DisplayPatientRegDetails
+storiesOf('Program Registry', module).add('DisplayPatientRegDetails Low risk', () => (
+  <div style={{ width: '797px' }}>
+    <DisplayPatientRegDetails patientProgramRegistration={patientProgramRegistration} />
+  </div>
+));
+
+storiesOf('Program Registry', module).add('DisplayPatientRegDetails Critical', () => (
+  <div style={{ width: '797px' }}>
+    <DisplayPatientRegDetails
+      patientProgramRegistration={{
+        ...patientProgramRegistration,
+        removedById: '213123',
+        removedBy: {
+          id: '213123',
+          displayName: 'Alaister',
+        },
+        programRegistryClinicalStatus: {
+          id: '123123',
+          code: 'critical',
+          name: 'Critical',
+          color: 'red',
+        },
+        registrationStatus: 'removed',
       }}
     />
+  </div>
+));
+
+storiesOf('Program Registry', module).add('DisplayPatientRegDetails Needs review', () => (
+  <div style={{ width: '797px' }}>
+    <DisplayPatientRegDetails
+      patientProgramRegistration={{
+        ...patientProgramRegistration,
+        removedById: '213123',
+        removedBy: {
+          id: '213123',
+          displayName: 'Alaister',
+        },
+        programRegistryClinicalStatus: {
+          id: '123123',
+          code: 'needs_review',
+          name: 'Needs review',
+          color: 'yellow',
+        },
+        registrationStatus: 'removed',
+      }}
+    />
+  </div>
+));
+//#endregion DisplayPatientRegDetails
+
+//#region ProgramRegistryStatusHistory
+
+storiesOf('Program Registry', module).add('ProgramRegistryStatusHistory removed never', () => (
+  <ApiContext.Provider value={dummyApi}>
+    <ProgramRegistryStatusHistory
+      programRegistry={{
+        id: 'program_registry_id',
+      }}
+    />
+  </ApiContext.Provider>
+));
+
+storiesOf('Program Registry', module).add('ProgramRegistryStatusHistory removed once', () => (
+  <ApiContext.Provider value={dummyApi}>
+    <ProgramRegistryStatusHistory
+      programRegistry={{
+        id: 'program_registry_id',
+      }}
+    />
+  </ApiContext.Provider>
+));
+
+//#endregion ProgramRegistryStatusHistory
+
+//#region ProgramRegistryFormHistory
+
+storiesOf('Program Registry', module).add('ProgramRegistryFormHistory', () => (
+  <ApiContext.Provider value={dummyApi}>
+    <ProgramRegistryFormHistory programRegistry={programRegistry1.data} patient={patient} />
   </ApiContext.Provider>
 ));
 //#endregion ProgramRegistryFormHistory
 
 //#region ChangeStatusFormModal
-const mockProgramRegistrytFormEndpointsForChangeStatusFormModal = {
-  'suggestions/programRegistryClinicalStatus': () => [
-    { id: '1', name: 'current' },
-    { id: '2', name: 'historical' },
-    { id: '3', name: 'merged' },
-  ],
-};
 
-storiesOf('Program Registry', module).add('ProgramRegistry Status Cahnge', () => {
+storiesOf('Program Registry', module).add('ProgramRegistry Status Change', () => {
   return (
-    <MockedApi endpoints={mockProgramRegistrytFormEndpointsForChangeStatusFormModal}>
+    <ApiContext.Provider value={dummyApi}>
       <ChangeStatusFormModal
         onSubmit={action('submit')}
         onCancel={action('cancel')}
         program={{ id: '3e2r23r23r', programRegistryClinicalStatusId: '1' }}
-        patient={{ id: '3e2r23r23r' }}
+        patient={patient}
       />
-    </MockedApi>
+    </ApiContext.Provider>
   );
 });
 
@@ -549,35 +534,24 @@ storiesOf('Program Registry', module).add('ProgramRegistry Delete Modal', () => 
 //#endregion DeleteProgramRegistry
 
 //#region
-const mockProgramRegistrytFormEndpointsForActivateProgramRegistryFormModal = {
-  'suggestions/facility': () => [
-    { id: '1', name: 'Hospital 1' },
-    { id: '2', name: 'Hospital 2' },
-  ],
-  'suggestions/practitioner': () => [
-    { id: 'test-user-id', name: 'Test user id' },
-    { id: '2', name: 'Test user id 2' },
-  ],
-  'suggestions/programRegistryClinicalStatus': () => [
-    { id: '1', name: 'current' },
-    { id: '2', name: 'historical' },
-    { id: '3', name: 'merged' },
-  ],
-};
 
 storiesOf('Program Registry', module).add('ActivateProgramRegistryFormModal', () => (
-  <MockedApi endpoints={mockProgramRegistrytFormEndpointsForActivateProgramRegistryFormModal}>
+  <ApiContext.Provider value={dummyApi}>
     <ActivateProgramRegistryFormModal
       onSubmit={action('submit')}
       onCancel={action('cancel')}
-      patient={{ id: '323r2r234r' }}
+      patient={patient}
       program={{ id: 'asdasdasdasd', programRegistryClinicalStatusId: '2', name: 'Hepatitis B' }}
       open
     />
-  </MockedApi>
+  </ApiContext.Provider>
 ));
 //#endregion
 
-//#region
-storiesOf('Program Registry', module).add('ProgramRegistryView', () => <ProgramRegistryView />);
-//#endregion
+//#region ProgramRegistryView
+storiesOf('Program Registry', module).add('ProgramRegistryView', () => (
+  <ApiContext.Provider value={dummyApi}>
+    <ProgramRegistryView />
+  </ApiContext.Provider>
+));
+//#endregion ProgramRegistryView
