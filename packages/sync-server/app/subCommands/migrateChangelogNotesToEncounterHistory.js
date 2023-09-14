@@ -36,6 +36,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                 np.id,
                 np.record_id,
                 np.note_type,
+                ni.author_id as actor_id,
                 ni.date,
                 ni.content
             from note_pages np
@@ -61,6 +62,17 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             from (
                 select id, name, location_group_id, facility_id, visibility_status,
                   row_number() over (partition by name, location_group_id, facility_id
+                                    order by case when visibility_status = 'current' then 0 else 1 end, updated_at desc) AS row_num
+                FROM locations
+            ) ordered
+            where ordered.row_num = 1
+        ),
+
+        unique_locations_by_facility as (
+            select id, name, facility_id
+            from (
+                select id, name, facility_id, visibility_status,
+                  row_number() over (partition by name, facility_id
                                     order by case when visibility_status = 'current' then 0 else 1 end, updated_at desc) AS row_num
                 FROM locations
             ) ordered
@@ -97,6 +109,15 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
         change_log_historical_partial as (
             select
                 e.id as encounter_id,
+                case when lag(n.actor_id) over w isnull then null
+                    else lag(n.actor_id) over w
+                end as actor_id,
+                case when lag(n.content) over w like 'Changed department%' then 'department'
+                    when lag(n.content) over w like 'Changed location%' then 'location'
+                    when lag(n.content) over w like 'Changed supervising clinician%' then 'supervising clinician'
+                    when lag(n.content) over w like 'Changed type%' then 'type'
+                    else null
+                end as change_type,
                 -- For the encounter_history when the encounter is first created:
                 -- 1. If encounter.start_date is before the first changelog.date, pick encounter.start_date as "date"
                 -- 2. If encounter.start_date is after the first changelog's date, pick the changelog's date minus 1 day as "date"
@@ -179,6 +200,8 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
         change_log_historical_complete as (
             select
                 encounter_id,
+                actor_id,
+                change_type,
                 start_datetime,
                 l.facility_id as encounter_facility_id,
                 case when log.encounter_type notnull then log.encounter_type
@@ -284,7 +307,8 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
         change_log_latest as (
             select
                 DISTINCT ON(record_id)
-                content,
+                actor_id,
+                (regexp_matches(content, 'Changed (.*) from (.*) to (.*)'))[1] AS change_type,
                 date,
                 department_id,
                 location_id,
@@ -320,6 +344,8 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             select
                 record_id,
                 date,
+                null as actor_id, -- N/A for first encounter snapshot
+                null as change_type, -- N/A for first encounter snapshot
                 department_id,
                 location_id,
                 examiner_id,
@@ -331,6 +357,8 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             select
                 record_id,
                 date,
+                actor_id,
+                change_type,
                 department_id,
                 location_id,
                 examiner_id,
@@ -342,12 +370,14 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             select distinct
                 log.encounter_id as record_id,
                 log.start_datetime as date,
+                log.actor_id,
+                log.change_type,
                 case 
                     when d.id notnull then d.id 
                     when log.department_name = '${LATEST_ENCOUNTER_FLAG}' then e.department_id
                 end as department_id,
                 case 
-                    when l.id notnull then l.id 
+                    when unique_l_by_lg.id notnull or unique_l_by_f.id notnull then coalesce(unique_l_by_lg.id, unique_l_by_f.id)
                     when log.location_name = '${LATEST_ENCOUNTER_FLAG}' then e.location_id
                 end as location_id,
                 case 
@@ -360,9 +390,16 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                                     d.facility_id = log.encounter_facility_id
             left join location_groups lg on lg.name = log.location_group_name and
                                         lg.facility_id = log.encounter_facility_id
-            left join unique_locations_by_location_group l on l.name = log.location_name and
-                                    case when lg.id notnull and log.location_group_name <> 'non_determined_location_group_name' then l.location_group_id = lg.id else true end and
-                                    l.facility_id = log.encounter_facility_id
+            left join unique_locations_by_location_group unique_l_by_lg on unique_l_by_lg.name = log.location_name and
+                                    case when lg.id notnull and log.location_group_name <> 'non_determined_location_group_name' 
+                                        then unique_l_by_lg.location_group_id = lg.id 
+                                        else lg.id = 'DO_NOT_JOIN' end and -- Only join 'unique_locations_by_location_group' when there location_group.id CAN BE DETERMINED
+                                    unique_l_by_lg.facility_id = log.encounter_facility_id
+            left join unique_locations_by_facility unique_l_by_f on unique_l_by_f.name = log.location_name and
+                                    case when lg.id isnull or log.location_group_name = 'non_determined_location_group_name' 
+                                        then true 
+                                        else lg.id = 'DO_NOT_JOIN' end and -- Only join 'unique_locations_by_facility' when location_group.id CAN NOT BE DETERMINED
+                                    unique_l_by_f.facility_id = log.encounter_facility_id
             left join unique_users u on u.display_name = log.examiner_name
             left join batch_encounters e on e.id = log.encounter_id
             where 
@@ -375,7 +412,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             and case 
                     -- if we know that it should be latest encounter then don't bother verifying the facility_id
                     when log.location_name <> '${LATEST_ENCOUNTER_FLAG}' 
-                        then l.facility_id = log.encounter_facility_id 
+                        then unique_l_by_lg.facility_id = log.encounter_facility_id or unique_l_by_f.facility_id = log.encounter_facility_id
                 else true
              end
             -- This is to filter the case where there are multiple location 
@@ -386,6 +423,8 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             insert into encounter_history(
                 encounter_id,
                 date,
+                actor_id,
+                change_type,
                 department_id,
                 location_id,
                 examiner_id,
@@ -394,6 +433,11 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             select
                 record_id,
                 date,
+                actor_id,
+                case when change_type = 'type' then 'encounter_type'
+                    when change_type = 'supervising clinician' then 'examiner'
+                    else change_type
+                end as change_type,
                 department_id,
                 location_id,
                 examiner_id,
