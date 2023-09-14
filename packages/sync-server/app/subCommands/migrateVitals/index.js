@@ -4,6 +4,7 @@ import { SURVEY_TYPES } from '@tamanu/constants';
 import { log } from 'shared/services/logging';
 import { v4 as generateId } from 'uuid';
 import { initDatabase } from '../../database';
+import { ReadSettings } from '@tamanu/settings';
 
 const BATCH_COUNT = 100;
 export const COLUMNS_TO_DATA_ELEMENT_ID = {
@@ -31,7 +32,9 @@ const conversionFunctions = {
 
 export async function migrateVitals() {
   const store = await initDatabase({ testMode: false });
-  const { models, sequelize, settings } = store;
+  const { models, sequelize } = store;
+
+  const settings = new ReadSettings(models);
 
   const vitalsSurvey = await models.Survey.findOne({
     where: {

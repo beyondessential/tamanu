@@ -171,10 +171,8 @@ export async function initDatabase(dbOptions) {
     }
   });
 
-  const settings = new ReadSettings(models);
-
   // add isInsideTransaction helper to avoid exposing the namespace
   sequelize.isInsideTransaction = () => !!namespace.get('transaction');
 
-  return { sequelize, models, settings };
+  return { sequelize, models };
 }

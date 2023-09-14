@@ -1,6 +1,4 @@
 import express from 'express';
-// import config from 'config';
-
 import { log } from 'shared/services/logging';
 
 import * as fijiVrs from './fiji-vrs';
@@ -31,7 +29,8 @@ export const publicIntegrationRoutes = express.Router();
 
 export const initIntegrations = async ctx => {
   for (const [key, integration] of Object.entries(integrations)) {
-    if (await ctx.settings.get(`integrations${key}.enabled`)) {
+    const { enabled, requireClientHeaders } = await ctx.settings.get(`integrations.${key}`);
+    if (enabled) {
       log.info(`initIntegrations: ${key}: initialising`);
       const { routes, publicRoutes, initAppContext } = integration;
       if (initAppContext) {
@@ -39,9 +38,7 @@ export const initIntegrations = async ctx => {
       }
       if (routes) {
         const isRouter = Object.getPrototypeOf(routes) === express.Router;
-        const actualRoutes = isRouter
-          ? routes
-          : routes(ctx, await ctx.settings.get(`integrations.${key}.requireClientHeaders`));
+        const actualRoutes = isRouter ? routes : routes(ctx, requireClientHeaders);
         integrationRoutes.use(`/${key}`, actualRoutes);
       }
       if (publicRoutes) {
@@ -54,23 +51,20 @@ export const initIntegrations = async ctx => {
 };
 
 export async function checkIntegrationsConfig(settings) {
+  const integrationSettings = await settings.get('integrations');
   await checkEuDccConfig(settings);
   await checkSignerConfig(settings);
   await checkVdsNcConfig(settings);
   await checkFhirConfig(settings);
 
   if (
-    ((await settings.get('integrations.euDcc.enabled')) ||
-      (await settings.get('integrations.vdsNc.enabled'))) &&
-    !(await settings.get('integrations.signer.enabled'))
+    (integrationSettings.euDcc.enabled || integrationSettings.vdsNc.enabled) &&
+    !integrationSettings.signer.enabled
   ) {
     throw new Error('euDcc and vdsNc integrations require the signer integration to be enabled');
   }
 
-  if (
-    (await settings.get('integrations.euDcc.enabled')) &&
-    (await settings.get('integrations.vdsNc.enabled'))
-  ) {
+  if (integrationSettings.euDcc.enabled && integrationSettings.vdsNc.enabled) {
     throw new Error('Cannot enable both euDcc and vdsNc integrations at the same time');
   }
 }

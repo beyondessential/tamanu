@@ -2,6 +2,7 @@ import { ReadSettings } from '@tamanu/settings';
 import { EmailService } from './services/EmailService';
 import { closeDatabase, initDatabase } from './database';
 import { initIntegrations } from './integrations';
+import { createCustomYupMethods } from './utils/customYupMethods';
 
 export class ApplicationContext {
   store = null;
@@ -21,6 +22,7 @@ export class ApplicationContext {
     this.closePromise = new Promise(resolve => {
       this.onClose(resolve);
     });
+    createCustomYupMethods(this.settings);
     await initIntegrations(this);
     return this;
   }
