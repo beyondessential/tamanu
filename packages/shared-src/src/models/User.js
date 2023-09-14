@@ -1,6 +1,6 @@
 import { hash } from 'bcrypt';
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from 'shared/constants';
 import { Model } from './Model';
 
 const DEFAULT_SALT_ROUNDS = 10;
@@ -66,6 +66,10 @@ export class User extends Model {
           type: Sequelize.STRING,
           defaultValue: 'practitioner',
           allowNull: false,
+        },
+        visibilityStatus: {
+          type: Sequelize.STRING,
+          defaultValue: VISIBILITY_STATUSES.CURRENT,
         },
       },
       {

@@ -1,11 +1,12 @@
 import { Entity, Column, Index, OneToMany } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { Referral } from './Referral';
-import { IUser, INoteItem } from '~/types';
+import { IUser } from '~/types';
 import { AdministeredVaccine } from './AdministeredVaccine';
 import { NoteItem } from './NoteItem';
 import { LabRequest } from './LabRequest';
 import { SYNC_DIRECTIONS } from './types';
+import { VisibilityStatus } from '../visibilityStatuses';
 
 @Entity('user')
 export class User extends BaseModel implements IUser {
@@ -25,6 +26,9 @@ export class User extends BaseModel implements IUser {
 
   @Column()
   role: string;
+
+  @Column({ default: VisibilityStatus.Current })
+  visibilityStatus: string;
 
   @OneToMany(() => Referral, (referral) => referral.practitioner)
   referrals: Referral[];
