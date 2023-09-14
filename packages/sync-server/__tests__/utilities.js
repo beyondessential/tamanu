@@ -9,12 +9,14 @@ import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import { getToken } from 'sync-server/app/auth/utils';
 import { DEFAULT_JWT_SECRET } from 'sync-server/app/auth';
 import { initIntegrations } from 'sync-server/app/integrations';
+import { ReadSettings } from '@tamanu/settings';
 
 class MockApplicationContext {
   closeHooks = [];
 
   async init() {
     this.store = await initDatabase({ testMode: true });
+    this.settings = new ReadSettings(this.store.models);
     this.emailService = {
       sendEmail: jest.fn().mockImplementation(() =>
         Promise.resolve({

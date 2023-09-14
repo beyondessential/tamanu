@@ -11,8 +11,6 @@ import { migrate, assertUpToDate, NON_SYNCING_TABLES } from './migrations';
 import * as models from '../models';
 import { createDateTypes } from './createDateTypes';
 import { setupQuote } from '../utils/pgComposite';
-import { createCustomYupMethods } from 'sync-server/app/utils/customYupMethods';
-import { ReadSettings } from '@tamanu/settings';
 
 createDateTypes();
 
