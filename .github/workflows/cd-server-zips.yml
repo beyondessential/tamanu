@@ -3,8 +3,6 @@ name: CD Server Zips
 on:
   workflow_dispatch:
   push:
-    branches:
-      - feature/epi-571-add-workflow-to-build-server-zips
     tags:
       - v*.*.*
 
