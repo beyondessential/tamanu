@@ -13,7 +13,7 @@ import { ProgramRegistryListItem } from '../app/views/programRegistry/ProgramReg
 import { ProgramRegistryFormHistory } from '../app/views/programRegistry/ProgramRegistryFormHistory';
 import { DisplayPatientRegDetails } from '../app/views/programRegistry/DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from '../app/views/programRegistry/ProgramRegistryStatusHistory';
-import { DeleteProgramRegistry } from '../app/views/programRegistry/DeleteProgramRegistry';
+import { DeleteProgramRegistryFormModal } from '../app/views/programRegistry/DeleteProgramRegistryFormModal';
 import { ActivateProgramRegistryFormModal } from '../app/views/programRegistry/ActivateProgramRegistryFormModal';
 import { ProgramRegistryView } from '../app/views/programRegistry/ProgramRegistryView';
 
@@ -521,17 +521,18 @@ storiesOf('Program Registry', module).add('ProgramRegistry Status Change', () =>
 
 //#endregion ChangeStatusFormModal
 
-//#region DeleteProgramRegistry
+//#region DeleteProgramRegistryFormModal
 storiesOf('Program Registry', module).add('ProgramRegistry Delete Modal', () => {
   return (
-    <DeleteProgramRegistry
-      program={{ name: 'Hepatitis B' }}
+    <DeleteProgramRegistryFormModal
+      open
+      programRegistry={{ name: 'Hepatitis B' }}
       onSubmit={action('submit')}
       onCancel={action('cancel')}
     />
   );
 });
-//#endregion DeleteProgramRegistry
+//#endregion DeleteProgramRegistryFormModal
 
 //#region
 
@@ -541,7 +542,7 @@ storiesOf('Program Registry', module).add('ActivateProgramRegistryFormModal', ()
       onSubmit={action('submit')}
       onCancel={action('cancel')}
       patient={patient}
-      program={{ id: 'asdasdasdasd', programRegistryClinicalStatusId: '2', name: 'Hepatitis B' }}
+      programRegistry={patientProgramRegistration}
       open
     />
   </ApiContext.Provider>

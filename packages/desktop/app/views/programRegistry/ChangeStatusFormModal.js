@@ -11,7 +11,6 @@ import {
   Field,
 } from '../../components';
 import { useSuggester } from '../../api';
-import { useAuth } from '../../contexts/Auth';
 import { foreignKey } from '../../utils/validation';
 
 const StyledFormGrid = styled(FormGrid)`
