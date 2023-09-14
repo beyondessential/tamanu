@@ -42,7 +42,6 @@ function sleep(milliseconds) {
 
 const dummyApi = {
   get: async (endpoint, { order, orderBy, page, rowsPerPage }) => {
-    await sleep(1500);
     const sortedData = dummyData.sort(({ [orderBy]: a }, { [orderBy]: b }) => {
       if (typeof a === 'string') {
         return order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);

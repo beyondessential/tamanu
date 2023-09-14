@@ -277,6 +277,7 @@ export const DataFetchingTable = memo(
         {!isNotificationMuted && showNotification && (
           <TableNotification
             message={notificationMessage}
+            refreshTable={manualRefresh}
             clearNotification={() => {
               setShowNotification(false);
               setIsNotificationMuted(true);

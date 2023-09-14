@@ -31,11 +31,15 @@ const NotificationClearIcon = styled(ClearIcon)`
   }
 `;
 
-export const TableNotification = memo(({ message, clearNotification }) => {
+const RefreshText = styled.span`
+  cursor: pointer;
+`;
+
+export const TableNotification = memo(({ message, refreshTable, clearNotification }) => {
   return (
     <Notification>
       <NotificationClearIcon onClick={clearNotification} />
-      {message}
+      <RefreshText onClick={refreshTable}>{message}</RefreshText>
     </Notification>
   );
 });
