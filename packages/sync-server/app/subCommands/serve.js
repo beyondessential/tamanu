@@ -32,6 +32,7 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
 
   const app = createApp(context);
   const countryTimeZone = await settings.get('countryTimeZone');
+  const numberConcurrentPullSnapshots = await settings.get('sync.numberConcurrentPullSnapshots');
 
   await performTimeZoneChecks({
     sequelize: store.sequelize,
@@ -39,14 +40,13 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
   });
 
   const minConnectionPoolSnapshotHeadroom = 4;
-  const connectionPoolSnapshotHeadroom =
-    config.db?.pool?.max - config?.sync?.numberConcurrentPullSnapshots;
+  const connectionPoolSnapshotHeadroom = config.db?.pool?.max - numberConcurrentPullSnapshots;
   if (connectionPoolSnapshotHeadroom < minConnectionPoolSnapshotHeadroom) {
     log.warn(
       `WARNING: config.db.pool.max is dangerously close to config.sync.numberConcurrentPullSnapshots (within ${minConnectionPoolSnapshotHeadroom} connections)`,
       {
         'config.db.pool.max': config.db?.pool?.max,
-        'config.sync.numberConcurrentPullSnapshots': config.sync?.numberConcurrentPullSnapshots,
+        'config.sync.numberConcurrentPullSnapshots': numberConcurrentPullSnapshots,
         connectionPoolSnapshotHeadroom,
       },
     );

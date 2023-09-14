@@ -2,7 +2,6 @@ import { Sequelize } from 'sequelize';
 import { createNamespace } from 'cls-hooked';
 import pg from 'pg';
 import util from 'util';
-import { ReadSettings } from '@tamanu/settings';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from './logging';
