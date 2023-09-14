@@ -3,9 +3,10 @@ import styled from 'styled-components';
 import { TopBar } from '../../../components';
 import { TabDisplay } from '../../../components/TabDisplay';
 import { Colors } from '../../../constants';
-import { ReportsExportView } from './ReportsExportView';
-import { ReportsEditorView } from './ReportsEditorView';
-import { ReportsImportView } from './ReportsImportView';
+import { ExportReportView } from './ExportReportView';
+import { ImportReportView } from './ImportReportView';
+import { CreateReportView } from './CreateReportView';
+import { SelectReportView } from './SelectReportView';
 
 const OuterContainer = styled.div`
   position: relative;
@@ -25,22 +26,33 @@ const TabContainer = styled.div`
 `;
 
 const REPORT_TABS = {
-  EDITOR: 'editor',
+  EDIT: 'edit',
+  CREATE: 'create',
   IMPORT: 'import',
   EXPORT: 'export',
 };
 
 export const ReportsAdminView = () => {
-  const [currentTab, setCurrentTab] = useState(REPORT_TABS.EDITOR);
+  const [currentTab, setCurrentTab] = useState(REPORT_TABS.EDIT);
 
   const tabs = [
     {
-      label: 'Editor',
-      key: REPORT_TABS.EDITOR,
+      label: 'Edit',
+      key: REPORT_TABS.EDIT,
       icon: 'fa fa-edit',
       render: () => (
         <TabContainer>
-          <ReportsEditorView />
+          <SelectReportView />
+        </TabContainer>
+      ),
+    },
+    {
+      label: 'Create',
+      key: REPORT_TABS.CREATE,
+      icon: 'fa fa-plus',
+      render: () => (
+        <TabContainer>
+          <CreateReportView />
         </TabContainer>
       ),
     },
@@ -50,7 +62,7 @@ export const ReportsAdminView = () => {
       icon: 'fa fa-file-export',
       render: () => (
         <TabContainer>
-          <ReportsExportView />
+          <ExportReportView />
         </TabContainer>
       ),
     },
@@ -60,7 +72,7 @@ export const ReportsAdminView = () => {
       icon: 'fa fa-file-import',
       render: () => (
         <TabContainer>
-          <ReportsImportView />
+          <ImportReportView />
         </TabContainer>
       ),
     },

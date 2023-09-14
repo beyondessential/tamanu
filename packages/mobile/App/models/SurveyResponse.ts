@@ -129,7 +129,13 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         questionConfig.writeToPatient?.isAdditionalDataField;
 
       // figure out if its a vital survey response
-      const vitalsSurvey = await Survey.getVitalsSurvey();
+      let vitalsSurvey;
+      try {
+        vitalsSurvey = await Survey.getVitalsSurvey();
+      } catch (e) {
+        console.error(`Errored while trying to get vitals survey: ${e}`);
+      }
+
       // use optional chaining because vitals survey might not exist
       const isVitalSurvey = surveyId === vitalsSurvey?.id;
 

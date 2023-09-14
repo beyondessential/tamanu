@@ -71,7 +71,7 @@ patientCarePlan.post(
       noteType: NOTE_TYPES.TREATMENT_PLAN,
       content: req.body.content,
       authorId: req.user.id,
-      onBehalfOfId: req.body.examinerId,
+      onBehalfOfId: req.body.onBehalfOfId,
     });
 
     res.send(newNote);

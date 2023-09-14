@@ -17,7 +17,8 @@
   "honeycomb": {
     "apiKey": "",
     "sampleRate": 1, // 5 = 1/5 = 20% of traces get sent to honeycomb
-    "enabled": true
+    "enabled": true,
+    "level": "info"
   },
   "sync": {
     "schedule": "*/1 * * * *",
@@ -27,6 +28,9 @@
     "timeout": 10000,
     "readOnly": false,
     "persistedCacheBatchSize": 10000,
+    "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
+    "pauseBetweenCacheBatchInMilliseconds": 50,
+    "persistUpdateWorkerPoolSize": 5,
     "enabled": true,
     "backoff": {
       "multiplierMs": 300,

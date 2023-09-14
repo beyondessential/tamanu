@@ -29,14 +29,17 @@
     "apiKey": "",
     "sampleRate": 100,  // 100 = 1/100 = 1% of traces get sent to honeycomb
                         // in contrast, logs are always sent
-    "enabled": true
+    "enabled": true,
+    "level": "info"
   },
   "sync": {
     "readOnly": false,
     "persistedCacheBatchSize": 20000,
+    "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "adjustDataBatchSize": 20000,
     "syncAllEncountersForTheseVaccines": [],
     "numberConcurrentPullSnapshots": 4,
+    "persistUpdateWorkerPoolSize": 5,
     // at its very large default, maxRecordsPerPullSnapshotChunk is essentially "off"
     // can be turned on by lowering to some amount that seems appropriate if snapshot performance is an issue
     "maxRecordsPerPullSnapshotChunk": 1000000000
@@ -763,6 +766,10 @@
           "rowTotal": 10,
           "rowHeight": "26.7mm",
           "rowGap": "0"
+        },
+        "idCardPage": {
+          "cardMarginTop": "1mm",
+          "cardMarginLeft": "5mm"
         }
       },
       // The time zone setting is currently only used for Vaccine Certificates
