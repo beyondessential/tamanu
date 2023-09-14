@@ -186,7 +186,7 @@ export class LabRequest extends Model {
     return [...LabRequest.getListReferenceAssociations(), 'collectedBy', 'specimenType'];
   }
 
-  static buildSyncFilter(patientIds, sessionConfig) {
+  static buildPatientSyncFilter(patientIds, sessionConfig) {
     if (sessionConfig.syncAllLabRequests) {
       return ''; // include all lab requests
     }

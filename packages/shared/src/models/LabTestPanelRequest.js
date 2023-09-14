@@ -26,7 +26,7 @@ export class LabTestPanelRequest extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds, sessionConfig) {
+  static buildPatientSyncFilter(patientIds, sessionConfig) {
     if (sessionConfig.syncAllLabRequests) {
       return ''; // include all lab panel requests
     }
