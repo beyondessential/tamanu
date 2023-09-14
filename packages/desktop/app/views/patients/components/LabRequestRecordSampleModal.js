@@ -13,7 +13,7 @@ import {
 } from '../../../components';
 import { Colors } from '../../../constants';
 import { useSuggester } from '../../../api';
-import { ModalActionRow } from '../../../components/ModalActionRow';
+import { ModalFormActionRow } from '../../../components/ModalActionRow';
 
 const validationSchema = yup.object().shape({
   sampleTime: yup.date().required(),
@@ -103,7 +103,7 @@ const LabRequestRecordSampleForm = ({ submitForm, values, onClose }) => {
           />
         </FormGrid>
       </FieldContainer>
-      <ModalActionRow onConfirm={submitForm} confirmText="Confirm" onCancel={onClose} />
+      <ModalFormActionRow onConfirm={submitForm} confirmText="Confirm" onCancel={onClose} />
     </>
   );
 };

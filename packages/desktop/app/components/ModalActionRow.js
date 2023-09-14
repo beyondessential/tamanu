@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { MODAL_PADDING_LEFT_AND_RIGHT, FullWidthRow } from './Modal';
 import { Colors } from '../constants';
-import { ButtonRow, ConfirmCancelRow } from './ButtonRow';
+import { ButtonRow, ConfirmCancelRow, FormSubmitCancelRow } from './ButtonRow';
 
 // TODO this is a little weird - might be better to refactor ConfirmCancelRow to allow replacing
 // the ButtonRow component it uses with a differently styled one
@@ -28,3 +28,5 @@ export const ModalGenericButtonRow = makeModalRow(ButtonRow);
 // this is the component for the "standard actions" at the bottom of a modal (ie confirm/cancel)
 // anything deviating from this pattern should use ModalGenericButtonRow instead
 export const ModalActionRow = makeModalRow(ConfirmCancelRow, false);
+
+export const ModalFormActionRow = makeModalRow(FormSubmitCancelRow, false);
