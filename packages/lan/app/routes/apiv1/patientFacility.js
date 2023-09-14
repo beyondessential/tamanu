@@ -27,14 +27,13 @@ patientFacility.post('/$', async (req, res) => {
     where: { facilityId, patientId },
   });
 
-
-  const lastCompletedSyncTick = parseInt(await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY));
+  const syncTick = parseInt(await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY));
 
   // trigger a sync to immediately start pulling data for this patient
   syncManager.triggerSync(`marked patient ${patient.displayId} for sync`);
 
   res.send({
     record,
-    lastCompletedSyncTick,
+    syncTick,
   });
 });

@@ -19,6 +19,7 @@ import { ElectronProvider } from './contexts/ElectronProvider';
 import { ImagingRequestsProvider } from './contexts/ImagingRequests';
 import { PatientSearchProvider } from './contexts/PatientSearch';
 import { EncounterNotesProvider } from './contexts/EncounterNotes';
+import { SyncStateProvider } from './contexts/SyncState';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
@@ -27,7 +28,9 @@ const StateContextProviders = ({ children, store }) => (
         <EncounterNotesProvider>
           <LabRequestProvider store={store}>
             <PatientSearchProvider>
-              <LocalisationProvider store={store}>{children}</LocalisationProvider>
+              <SyncStateProvider>
+                <LocalisationProvider store={store}>{children}</LocalisationProvider>
+              </SyncStateProvider>
             </PatientSearchProvider>
           </LabRequestProvider>
         </EncounterNotesProvider>

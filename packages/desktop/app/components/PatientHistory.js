@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
 import { OutlinedButton } from './Button';
@@ -8,6 +8,7 @@ import { MarkPatientForSync } from './MarkPatientForSync';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 import { LocationGroupCell } from './LocationCell';
 import { LimitedLinesCell } from './FormattedTableCell';
+import { useSyncState } from '../contexts/SyncState';
 
 const DateWrapper = styled.div`
   min-width: 90px;
@@ -56,24 +57,39 @@ const SyncWarning = styled.p`
   margin: 1rem;
 `;
 
-const RefreshButton = styled(OutlinedButton)`
-  margin-left: 0.5rem;
-`;
+const SyncWarningBanner = ({ patient, onRefresh }) => {
+  const syncState = useSyncState();
+  const isSyncing = syncState.isPatientSyncing(patient.id);
+  const [wasSyncing, setWasSyncing] = useState(isSyncing);
+
+  if (isSyncing != wasSyncing) {
+    setWasSyncing(isSyncing);
+    // refresh the table on a timeout so we aren't updating two components at once
+    setTimeout(onRefresh, 100);
+  }
+
+  if (!isSyncing) return null;
+
+  return (
+    <SyncWarning>
+      Patient is being synced, so records might not be fully updated.
+    </SyncWarning>
+  );
+};
 
 export const PatientHistory = ({ patient, onItemClick }) => {
   const [refreshCount, setRefreshCount] = useState(0);
+  const refreshTable = useCallback(
+    () => setRefreshCount(refreshCount + 1),
+    [refreshCount]
+  );
 
   if (!patient.markedForSync) {
     return <MarkPatientForSync patient={patient} />;
   }
   return (
     <>
-      {patient.syncing && (
-        <SyncWarning>
-          Patient is being synced, so records might not be fully updated.
-          <RefreshButton onClick={() => setRefreshCount(refreshCount + 1)}>Refresh</RefreshButton>
-        </SyncWarning>
-      )}
+      <SyncWarningBanner patient={patient} onRefresh={refreshTable} />
       <DataFetchingTable
         columns={columns}
         onRowClick={row => onItemClick(row.id)}
