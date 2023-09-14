@@ -2,6 +2,7 @@ import React, { ReactElement, useMemo, useEffect, useCallback, useState } from '
 import { useSelector } from 'react-redux';
 import { FormikHandlers } from 'formik';
 import { getFormInitialValues, getFormSchema } from './helpers';
+import { ISurveyComponent, IPatientAdditionalData } from '~/types';
 import { Form } from '../Form';
 import { FormFields } from './FormFields';
 import { checkVisibilityCriteria } from '/helpers/fields';
@@ -10,10 +11,11 @@ import { authUserSelector } from '/helpers/selectors';
 
 export type SurveyFormProps = {
   onSubmit: (values: any) => Promise<void>;
-  components: any;
+  components: ISurveyComponent[];
   patient: any;
   note: string;
   validate: any;
+  patientAdditionalData: IPatientAdditionalData[];
 };
 
 export const SurveyForm = ({
@@ -21,18 +23,19 @@ export const SurveyForm = ({
   components,
   note,
   patient,
+  patientAdditionalData,
   validate,
 }: SurveyFormProps): ReactElement => {
   const currentUser = useSelector(authUserSelector);
-  const initialValues = useMemo(() => getFormInitialValues(components, currentUser, patient), [
-    components,
-  ]);
+  const initialValues = useMemo(
+    () => getFormInitialValues(components, currentUser, patient, patientAdditionalData),
+    [components, currentUser, patient, patientAdditionalData],
+  );
   const [formValues, setFormValues] = useState(initialValues);
-  const formValidationSchema = useMemo(() => getFormSchema(components.filter(c => checkVisibilityCriteria(c, components, formValues))), [
-    checkVisibilityCriteria,
-    components,
-    formValues,
-  ]);
+  const formValidationSchema = useMemo(
+    () => getFormSchema(components.filter(c => checkVisibilityCriteria(c, components, formValues))),
+    [checkVisibilityCriteria, components, formValues],
+  );
 
   const submitVisibleValues = useCallback(
     (values: any) => {
@@ -78,7 +81,6 @@ export const SurveyForm = ({
             ...values,
             ...calculatedValues,
           });
-
         }, [values]);
         return <FormFields
           components={components}
