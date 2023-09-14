@@ -2,12 +2,13 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { CircularProgress } from '@material-ui/core';
-import { Colors } from '../../constants';
+import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
 import { useUrlQueryParams } from '../../hooks';
 import { DisplayPatientRegDetails } from './DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from './ProgramRegistryStatusHistory';
 import { usePatientProgramRegistry } from '../../api/queries/usePatientProgramRegistry';
 import { ProgramRegistryFormHistory } from './ProgramRegistryFormHistory';
+import { ProgramRegistrySelectSurvey } from './ProgramRegistrySelectSurvey';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
@@ -74,7 +75,11 @@ export const ProgramRegistryView = () => {
       <ViewHeader>
         <h1>{title || data.name}</h1>
         <StatusDiv>
-          {data.registrationStatus === 'active' ? <StatusActiveDot /> : <StatusInactiveDot />}
+          {data.registrationStatus === PROGRAM_REGISTRATION_STATUSES.ACTIVE ? (
+            <StatusActiveDot />
+          ) : (
+            <StatusInactiveDot />
+          )}
           <b>{getFirstCharUpperCase(data.registrationStatus)}</b>
         </StatusDiv>
       </ViewHeader>
@@ -83,10 +88,19 @@ export const ProgramRegistryView = () => {
           <DisplayPatientRegDetails patientProgramRegistration={data} />
         </Row>
         <Row>
-          <ProgramRegistryStatusHistory programRegistry={data} />
+          <ProgramRegistrySelectSurvey
+            patientProgramRegistration={data}
+            patient={{ id: patientId }}
+          />
         </Row>
         <Row>
-          <ProgramRegistryFormHistory programRegistry={data} patient={{ id: patientId }} />
+          <ProgramRegistryStatusHistory patientProgramRegistration={data} />
+        </Row>
+        <Row>
+          <ProgramRegistryFormHistory
+            patientProgramRegistration={data}
+            patient={{ id: patientId }}
+          />
         </Row>
       </Container>
     </>

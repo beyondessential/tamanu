@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import {
@@ -10,8 +10,10 @@ import {
   AutocompleteField,
   Field,
 } from '../../components';
+import { PROGRAM_REGISTRATION_STATUSES } from '../../constants';
 import { useSuggester } from '../../api';
 import { foreignKey } from '../../utils/validation';
+import { OutlinedButton } from '../../components/Button';
 
 const StyledFormGrid = styled(FormGrid)`
   grid-column: 1 / -1;
@@ -21,40 +23,56 @@ const StyledFormGrid = styled(FormGrid)`
   margin-top: 30px;
 `;
 
-export const ChangeStatusFormModal = ({ onSubmit, onCancel, programRegistry, open }) => {
+export const ChangeStatusFormModal = ({ patientProgramRegistration }) => {
+  const [openChangeStatusFormModal, setOpenChangeStatusFormModal] = useState(false);
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
-    baseQueryParameters: { programRegistryId: programRegistry.id },
+    baseQueryParameters: { programRegistryId: patientProgramRegistration.id },
   });
+  const isRemoved =
+    patientProgramRegistration.registrationStatus === PROGRAM_REGISTRATION_STATUSES.REMOVED;
   return (
-    <Modal title="Change Status" open={open}>
-      <Form
-        onSubmit={data => {
-          onSubmit(data);
-        }}
-        render={({ submitForm }) => {
-          const handleCancel = () => onCancel();
-          return (
-            <div>
-              <StyledFormGrid columns={1} style={{}}>
-                <Field
-                  name="programRegistryClinicalStatusId"
-                  label="Status"
-                  component={AutocompleteField}
-                  suggester={programRegistryStatusSuggester}
+    <>
+      <OutlinedButton onClick={() => setOpenChangeStatusFormModal(true)} disabled={isRemoved}>
+        Change Status
+      </OutlinedButton>
+      <Modal
+        title="Change Status"
+        open={openChangeStatusFormModal}
+        onClose={() => setOpenChangeStatusFormModal(false)}
+      >
+        <Form
+          onSubmit={() => {
+            // console.log(data);
+            setOpenChangeStatusFormModal(false);
+          }}
+          render={({ submitForm }) => {
+            return (
+              <div>
+                <StyledFormGrid columns={1}>
+                  <Field
+                    name="programRegistryClinicalStatusId"
+                    label="Status"
+                    component={AutocompleteField}
+                    suggester={programRegistryStatusSuggester}
+                  />
+                </StyledFormGrid>
+                <FormSeparatorLine style={{ marginTop: '60px', marginBottom: '30px' }} />
+                <ConfirmCancelRow
+                  onConfirm={submitForm}
+                  onCancel={() => setOpenChangeStatusFormModal(false)}
                 />
-              </StyledFormGrid>
-              <FormSeparatorLine style={{ marginTop: '60px', marginBottom: '30px' }} />
-              <ConfirmCancelRow onConfirm={submitForm} onCancel={handleCancel} />
-            </div>
-          );
-        }}
-        initialValues={{
-          programRegistryClinicalStatusId: programRegistry.programRegistryClinicalStatusId,
-        }}
-        validationSchema={yup.object().shape({
-          programRegistryClinicalStatusId: foreignKey().required('Status must be selected'),
-        })}
-      />
-    </Modal>
+              </div>
+            );
+          }}
+          initialValues={{
+            programRegistryClinicalStatusId:
+              patientProgramRegistration.programRegistryClinicalStatusId,
+          }}
+          validationSchema={yup.object().shape({
+            programRegistryClinicalStatusId: foreignKey().required('Status must be selected'),
+          })}
+        />
+      </Modal>
+    </>
   );
 };

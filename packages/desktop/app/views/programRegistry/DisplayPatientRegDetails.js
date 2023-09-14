@@ -4,7 +4,6 @@ import { Avatar } from '@material-ui/core';
 import { Colors, STATUS_COLOR, PROGRAM_REGISTRATION_STATUSES } from '../../constants/index';
 import { DateDisplay } from '../../components/DateDisplay';
 import { programsIcon } from '../../constants/images';
-import { OutlinedButton } from '../../components/Button';
 import { MenuButton } from '../../components/MenuButton';
 import { ChangeStatusFormModal } from './ChangeStatusFormModal';
 import { ActivateProgramRegistryFormModal } from './ActivateProgramRegistryFormModal';
@@ -93,7 +92,6 @@ const ValueDisplay = ({ label, value }) => (
 );
 
 export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
-  const [openChangeStatusFormModal, setOpenChangeStatusFormModal] = useState(false);
   const [openDeleteProgramRegistryFormModal, setOpenDeleteProgramRegistryFormModal] = useState(
     false,
   );
@@ -142,21 +140,8 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
         >
           {patientProgramRegistration.programRegistryClinicalStatus.name}
         </StatusBadge>
-        <OutlinedButton onClick={() => setOpenChangeStatusFormModal(true)}>
-          Change Status
-        </OutlinedButton>
-        <ChangeStatusFormModal
-          onSubmit={() => {
-            // console.log(data);
-            setOpenChangeStatusFormModal(false);
-          }}
-          onCancel={() => {
-            // console.log('canceled');
-            setOpenChangeStatusFormModal(false);
-          }}
-          programRegistry={patientProgramRegistration}
-          open={openChangeStatusFormModal}
-        />
+
+        <ChangeStatusFormModal patientProgramRegistration={patientProgramRegistration} />
       </ChangeStatusContainer>
       <MenuContainer>
         <div className="menu">
@@ -177,7 +162,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
       </MenuContainer>
       <ActivateProgramRegistryFormModal
         open={openActivateProgramRegistryFormModal}
-        programRegistry={patientProgramRegistration}
+        patientProgramRegistration={patientProgramRegistration}
         onSubmit={() => {
           setOpenActivateProgramRegistryFormModal(false);
         }}
@@ -188,7 +173,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
       />
       <RemoveProgramRegistryFormModal
         open={openRemoveProgramRegistryFormModal}
-        programRegistry={patientProgramRegistration}
+        patientProgramRegistration={patientProgramRegistration}
         onSubmit={() => {
           setOpenRemoveProgramRegistryFormModal(false);
         }}

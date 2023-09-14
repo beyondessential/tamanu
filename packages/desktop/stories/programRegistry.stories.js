@@ -17,6 +17,7 @@ import { DeleteProgramRegistryFormModal } from '../app/views/programRegistry/Del
 import { ActivateProgramRegistryFormModal } from '../app/views/programRegistry/ActivateProgramRegistryFormModal';
 import { ProgramRegistryView } from '../app/views/programRegistry/ProgramRegistryView';
 import { RemoveProgramRegistryFormModal } from '../app/views/programRegistry/RemoveProgramRegistryFormModal';
+import { ProgramRegistrySelectSurvey } from '../app/views/programRegistry/ProgramRegistrySelectSurvey';
 
 function sleep(milliseconds) {
   return new Promise(resolve => {
@@ -127,7 +128,8 @@ const patientProgramRegistration = {
     code: 'registring_facitlity',
     name: 'Hospital 1',
   },
-  registrationStatus: 'removed',
+  // registrationStatus: 'removed',
+  registrationStatus: 'active',
   removedById: '213123',
   removedBy: {
     id: '213123',
@@ -374,6 +376,8 @@ const dummyApi = {
         return programRegistryClinicalStatusList;
       case 'suggestions/programRegistries':
         return programRegistries;
+      case 'suggestions/survey':
+        return programRegistryFormHistory.map(x => ({ id: x.id.toString(), name: x.survey.name }));
       case 'programRegistry/1':
         return programRegistry1;
       case 'programRegistry/2':
@@ -551,6 +555,17 @@ storiesOf('Program Registry', module).add('RemoveProgramRegistryFormModal', () =
   </ApiContext.Provider>
 ));
 //#endregion RemoveProgramRegistryFormModal
+
+//#region ProgramRegistrySelectSurvey
+storiesOf('Program Registry', module).add('ProgramRegistrySelectSurvey', () => (
+  <ApiContext.Provider value={dummyApi}>
+    <ProgramRegistrySelectSurvey
+      patientProgramRegistration={patientProgramRegistration}
+      // patient={patient}
+    />
+  </ApiContext.Provider>
+));
+//#endregion ProgramRegistrySelectSurvey
 
 //#region ProgramRegistryView
 storiesOf('Program Registry', module).add('ProgramRegistryView', () => (
