@@ -25,4 +25,8 @@ export class Role extends Model {
       foreignKey: 'roleId',
     });
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }

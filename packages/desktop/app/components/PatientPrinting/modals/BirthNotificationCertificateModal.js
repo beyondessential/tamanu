@@ -6,7 +6,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { useApi, isErrorUnknownAllow404s } from '../../../api';
 import { LoadingIndicator } from '../../LoadingIndicator';
 import { useCertificate } from '../../../utils/useCertificate';
-import { usePatientAdditionalData } from '../../../api/queries';
+import { usePatientAdditionalDataQuery } from '../../../api/queries';
 
 import { BirthNotificationCertificate } from '../printouts/BirthNotificationCertificate';
 
@@ -94,7 +94,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
   const api = useApi();
   const { facility } = useAuth();
   const certificateData = useCertificate();
-  const { data: additionalData, isLoading: additionalDataLoading } = usePatientAdditionalData(
+  const { data: additionalData, isLoading: additionalDataLoading } = usePatientAdditionalDataQuery(
     patient.id,
   );
   const { data: motherData, isLoading: motherDataLoading } = useParent(
