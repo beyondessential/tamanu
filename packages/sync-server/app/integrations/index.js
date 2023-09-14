@@ -39,7 +39,9 @@ export const initIntegrations = async ctx => {
       }
       if (routes) {
         const isRouter = Object.getPrototypeOf(routes) === express.Router;
-        const actualRoutes = isRouter ? routes : routes(ctx);
+        const actualRoutes = isRouter
+          ? routes
+          : routes(ctx, await ctx.settings.get(`integrations.${key}.requireClientHeaders`));
         integrationRoutes.use(`/${key}`, actualRoutes);
       }
       if (publicRoutes) {

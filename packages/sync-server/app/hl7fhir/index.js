@@ -12,7 +12,7 @@ import { fhirRoutes as matRoutes } from './materialised';
 
 import { requireClientHeaders as requireClientHeadersMiddleware } from '../middleware/requireClientHeaders';
 
-export function fhirRoutes(ctx, { requireClientHeaders } = {}) {
+export function fhirRoutes(ctx, requireClientHeaders) {
   const routes = Router();
 
   if (requireClientHeaders) {
