@@ -48,7 +48,7 @@ export const findUser = async (models, email) => {
 
 export const findUserById = async (models, id) => {
   const user = await models.User.findByPk(id);
-  if (!user) {
+  if (!user || user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
     return null;
   }
   return user.get({ plain: true });
