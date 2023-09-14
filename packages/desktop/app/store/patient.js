@@ -24,20 +24,36 @@ export const reloadPatient = id => async (dispatch, getState, { api }) => {
   }
 };
 
+const pollUntilComplete = (api, tick) => {
+  return new Promise(resolve => setTimeout(resolve, 12000)); 
+};
+
 export const syncPatient = patientId => async (dispatch, getState, { api }) => {
   dispatch({
     type: PATIENT_SYNCING,
-    data: true,
+    data: {
+      syncing: true,
+      patientId,
+    },
   });
-  await api.post(`patientFacility`, { patientId });
-  dispatch(reloadPatient(patientId));
-
-  // typically it takes a while for sync to complete
-  // so wait for about 30 seconds till removing syncing state
-  await new Promise(resolve => setTimeout(resolve, 30000));
+  const result = await api.post(`patientFacility`, { patientId });
+  
   dispatch({
     type: PATIENT_SYNCING,
-    data: false,
+    tick: result.lastCompletedSyncTick,
+  });
+  dispatch(reloadPatient(patientId));
+
+  // TODO: poll sync status endpoint until it returns a higher tick than the start tick
+  const hardcodedDelay = new Promise(resolve => setTimeout(resolve, 2000));
+  const completionPoll = pollUntilComplete(api, result.lastCompletedSyncTick);
+  
+  // typically it takes a while for sync to complete
+  // so wait for about 30 seconds till removing syncing state
+  await Promise.all([hardcodedDelay, pollTillComplete]);
+  dispatch({
+    type: PATIENT_SYNCING,
+    data: null,
   });
 };
 
@@ -78,7 +94,8 @@ export const patientReducer = (state = defaultState, action) => {
     case PATIENT_SYNCING:
       return {
         ...state,
-        syncing: action.data,
+        syncing: action.syncing,
+        tick: action.tick,
       };
     default:
       return state;

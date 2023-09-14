@@ -1,5 +1,7 @@
 import express from 'express';
 import config from 'config';
+
+import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
 import { NotFoundError } from 'shared/errors';
 
 export const patientFacility = express.Router();
@@ -25,8 +27,14 @@ patientFacility.post('/$', async (req, res) => {
     where: { facilityId, patientId },
   });
 
+
+  const lastCompletedSyncTick = parseInt(await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY));
+
   // trigger a sync to immediately start pulling data for this patient
   syncManager.triggerSync(`marked patient ${patient.displayId} for sync`);
 
-  res.send(record);
+  res.send({
+    record,
+    lastCompletedSyncTick,
+  });
 });
