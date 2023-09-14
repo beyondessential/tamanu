@@ -4,6 +4,7 @@ import { Command } from 'commander';
 import { log } from 'shared/services/logging';
 
 import { performTimeZoneChecks } from 'shared/utils/timeZoneCheck';
+import { ReadSettings } from '@tamanu/settings';
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
 import { initDatabase, performDatabaseIntegrityChecks } from '../database';
@@ -33,15 +34,19 @@ async function serve({ skipMigrationCheck }) {
   await initDeviceId(context);
   await checkConfig(config, context);
   await performDatabaseIntegrityChecks(context);
-
-  context.centralServer = new CentralServerConnection(context);
+  const settings = new ReadSettings(context.models, config.serverFacilityId);
+  const syncConfig = await settings.get('sync');
+  context.centralServer = new CentralServerConnection(context, syncConfig);
   context.centralServer.connect(); // preemptively connect central server to speed up sync
   context.syncManager = new FacilitySyncManager(context);
+  context.config = await settings.get();
+
+  const countryTimeZone = await settings.get('countryTimeZone');
 
   await performTimeZoneChecks({
     remote: context.centralServer,
     sequelize: context.sequelize,
-    config,
+    countryTimeZone,
   });
 
   const app = createApp(context);

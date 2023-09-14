@@ -1,6 +1,7 @@
 import config from 'config';
 import { Command } from 'commander';
 
+import { ReadSettings } from '@tamanu/settings';
 import { log } from 'shared/services/logging';
 import { performTimeZoneChecks } from 'shared/utils/timeZoneCheck';
 
@@ -23,15 +24,18 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
   });
 
   const context = await new ApplicationContext().init();
-  const { store } = context;
+  const { store, models } = context;
+
+  const settings = new ReadSettings(models, config.serverFacilityId);
 
   await store.sequelize.assertUpToDate({ skipMigrationCheck });
 
-  const app = await createApp(context);
+  const app = createApp(context);
+  const countryTimeZone = await settings.get('countryTimeZone');
 
   await performTimeZoneChecks({
     sequelize: store.sequelize,
-    config,
+    countryTimeZone,
   });
 
   const minConnectionPoolSnapshotHeadroom = 4;

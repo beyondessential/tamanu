@@ -26,7 +26,7 @@ export const uploadAttachment = async (req, maxFileSize) => {
 
   // Upload file to sync server
   // CentralServerConnection takes care of adding headers and convert body to JSON
-  const centralServer = new CentralServerConnection({ deviceId });
+  const centralServer = new CentralServerConnection({ deviceId }, await req.settings.get('sync'));
   const syncResponse = await centralServer.fetch('attachment', {
     method: 'POST',
     body: {

@@ -19,6 +19,7 @@ const isIrrecoverable = e => {
 export const callWithBackoff = async (
   fn,
   {
+    // TODO: use db fetcher config
     maxAttempts = config.sync.backoff.maxAttempts,
     maxWaitMs = config.sync.backoff.maxWaitMs,
     multiplierMs = config.sync.backoff.multiplierMs,

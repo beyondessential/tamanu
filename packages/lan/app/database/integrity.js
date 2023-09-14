@@ -1,5 +1,6 @@
 import config from 'config';
 import { log } from 'shared/services/logging';
+import { ReadSettings } from '@tamanu/settings';
 import { CentralServerConnection } from '../sync';
 
 export async function performDatabaseIntegrityChecks(context) {
@@ -15,7 +16,9 @@ export async function performDatabaseIntegrityChecks(context) {
  */
 async function ensureHostMatches(context) {
   const { LocalSystemFact } = context.models;
-  const centralServer = new CentralServerConnection(context);
+  const settings = new ReadSettings(context.models, config.serverFacilityId);
+  const syncConfig = await settings.get('sync');
+  const centralServer = new CentralServerConnection(context, syncConfig);
   const configuredHost = centralServer.host;
   const lastHost = await LocalSystemFact.get('syncHost');
 
@@ -53,7 +56,10 @@ async function ensureFacilityMatches(context) {
 }
 
 async function performInitialIntegritySetup(context) {
-  const centralServer = new CentralServerConnection(context);
+  const settings = new ReadSettings(context.models, config.serverFacilityId);
+  const syncConfig = await settings.get('sync');
+  const centralServer = new CentralServerConnection(context, syncConfig);
+
   log.info(`Verifying sync connection to ${centralServer.host}...`);
 
   const { token, facility } = await centralServer.connect();

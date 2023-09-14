@@ -151,6 +151,7 @@ export async function importRows(
         const specificSchemaName = `SSC${type}`;
         const specificSchemaExists = !!schemas[specificSchemaName];
         const validateQuestionEnabled = await readSettings.get('validateQuestionConfigs.enabled');
+
         if (validateQuestionEnabled && specificSchemaExists) {
           schemaName = specificSchemaName;
         } else {
