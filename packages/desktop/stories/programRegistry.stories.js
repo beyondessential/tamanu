@@ -108,9 +108,9 @@ const patientProgramRegistration = {
   id: 'program_registry_id',
   date: '2023-08-28T02:40:16.237Z',
   name: 'Hepatitis B',
-  programRegistryClinicalStatusId: '123123',
+  programRegistryClinicalStatusId: '1',
   programRegistryClinicalStatus: {
-    id: '123123',
+    id: '1',
     code: 'low_risk',
     name: 'Low risk',
     color: 'green',
@@ -512,8 +512,8 @@ storiesOf('Program Registry', module).add('ProgramRegistry Status Change', () =>
       <ChangeStatusFormModal
         onSubmit={action('submit')}
         onCancel={action('cancel')}
-        program={{ id: '3e2r23r23r', programRegistryClinicalStatusId: '1' }}
-        patient={patient}
+        programRegistry={patientProgramRegistration}
+        open
       />
     </ApiContext.Provider>
   );

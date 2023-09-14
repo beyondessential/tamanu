@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Avatar } from '@material-ui/core';
 import { Colors, STATUS_COLOR, PROGRAM_REGISTRATION_STATUSES } from '../../constants/index';
 import { DateDisplay } from '../../components/DateDisplay';
 import { programsIcon } from '../../constants/images';
-import { GreyOutlinedButton } from '../../components/Button';
+import { OutlinedButton } from '../../components/Button';
 import { MenuButton } from '../../components/MenuButton';
+import { ChangeStatusFormModal } from './ChangeStatusFormModal';
 
 const DisplayContainer = styled.div`
   display: flex;
@@ -89,6 +90,7 @@ const ValueDisplay = ({ label, value }) => (
 );
 
 export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
+  const [openChangeStatusFormModal, setOpenChangeStatusFormModal] = useState(false);
   const isRemoved =
     patientProgramRegistration.registrationStatus === PROGRAM_REGISTRATION_STATUSES.REMOVED;
   return (
@@ -127,7 +129,21 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
         >
           {patientProgramRegistration.programRegistryClinicalStatus.name}
         </StatusBadge>
-        <GreyOutlinedButton>Change Status</GreyOutlinedButton>
+        <OutlinedButton onClick={() => setOpenChangeStatusFormModal(true)}>
+          Change Status
+        </OutlinedButton>
+        <ChangeStatusFormModal
+          onSubmit={data => {
+            console.log(data);
+            setOpenChangeStatusFormModal(false);
+          }}
+          onCancel={() => {
+            console.log('canceled');
+            setOpenChangeStatusFormModal(false);
+          }}
+          programRegistry={patientProgramRegistration}
+          open={openChangeStatusFormModal}
+        />
       </ChangeStatusContainer>
       <MenuContainer>
         <div className="menu">
