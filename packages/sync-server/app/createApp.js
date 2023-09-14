@@ -8,7 +8,8 @@ import { getLoggingMiddleware } from 'shared/services/logging';
 import { constructPermission } from 'shared/permissions/middleware';
 import { SERVER_TYPES } from '@tamanu/constants';
 
-import { buildSettingsReader } from 'shared/settings/middleware';
+import { buildSettingsReader } from '@tamanu/shared/settings/middleware';
+import { createCustomYupMethods } from './utils/customYupMethods';
 
 import { buildRoutes } from './buildRoutes';
 import { authModule } from './auth';
@@ -21,7 +22,9 @@ import { versionCompatibility } from './middleware/versionCompatibility';
 import { version } from './serverInfo';
 
 export async function createApp(ctx) {
-  const { store, emailService } = ctx;
+  const { store, emailService, settings } = ctx;
+
+  createCustomYupMethods(settings);
 
   // Init our app
   const app = express();
