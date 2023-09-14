@@ -162,12 +162,12 @@ export const baseConfigShape = yup.object().noUnknown();
 
 export const SurveyScreenComponent = Base.shape({
   visibilityCriteria: jsonString(),
-  validationCriteria: yup.string().whenSetting('validateQuestionEnabled', {
+  validationCriteria: yup.string().whenSetting('validateQuestionConfig', {
     is: true,
     then: validationString(baseValidationShape),
     otherwise: jsonString(),
   }),
-  config: yup.string().whenSetting('validateQuestionEnabled', {
+  config: yup.string().whenSetting('validateQuestionConfig', {
     is: true,
     then: configString(baseConfigShape),
     otherwise: jsonString(),
