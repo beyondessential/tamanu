@@ -81,7 +81,7 @@ export class EncounterMedication extends Model {
     return ['Medication', 'encounter', 'prescriber', 'discontinuingClinician'];
   }
 
-  static buildSyncFilter(patientIds) {
+  static buildPatientSyncFilter(patientIds) {
     if (patientIds.length === 0) {
       return null;
     }
