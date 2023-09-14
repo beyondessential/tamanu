@@ -48,35 +48,38 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
   const [loading, setLoading] = useState(false);
   const api = useApi();
 
-  const handleEvent = useCallback(async (cb) => {
-    if (loading) return;
-    setLoading(true);
+  const handleEvent = useCallback(
+    async cb => {
+      if (loading) return;
+      setLoading(true);
 
-    try {
-      await cb();
-    } catch (error) {
-      toast.error(<Error errorMessage={error.message} />);
-    } finally {
-      setLoading(false);
-    }
-  }, [loading]);
+      try {
+        await cb();
+      } catch (error) {
+        toast.error(<Error errorMessage={error.message} />);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [loading],
+  );
 
   const handleClick = async event => {
     if (event.shiftKey) {
       handleEvent(async () => {
         toast.info('Starting manual sync...');
-        await api.post(`sync/run`)
+        await api.post(`sync/run`);
         toast.success('Manual sync complete');
       });
       return;
-    } 
-    
+    }
+
     if (event.ctrlKey) {
       handleEvent(async () => {
         const status = await api.get('/sync/status');
         const parts = [];
         if (status.lastCompletedAt === 0) {
-          parts.push(<div>{`Facility server has not synced since last restart.`}</div>);
+          parts.push(<div>Facility server has not synced since last restart.</div>);
         } else {
           const ago = formatDuration(new Date() - new Date(status.lastCompletedAt));
           const took = formatDuration(status.lastCompletedDurationMs);
@@ -89,8 +92,7 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
         toast.info(<div>{parts}</div>);
       });
       return;
-    } 
-    
+    }
 
     if (onClick) {
       onClick(event);

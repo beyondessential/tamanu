@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
-import { OutlinedButton } from './Button';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { MarkPatientForSync } from './MarkPatientForSync';
@@ -62,7 +61,7 @@ const SyncWarningBanner = ({ patient, onRefresh }) => {
   const isSyncing = syncState.isPatientSyncing(patient.id);
   const [wasSyncing, setWasSyncing] = useState(isSyncing);
 
-  if (isSyncing != wasSyncing) {
+  if (isSyncing !== wasSyncing) {
     setWasSyncing(isSyncing);
     // refresh the table on a timeout so we aren't updating two components at once
     setTimeout(onRefresh, 100);
@@ -70,19 +69,12 @@ const SyncWarningBanner = ({ patient, onRefresh }) => {
 
   if (!isSyncing) return null;
 
-  return (
-    <SyncWarning>
-      Patient is being synced, so records might not be fully updated.
-    </SyncWarning>
-  );
+  return <SyncWarning>Patient is being synced, so records might not be fully updated.</SyncWarning>;
 };
 
 export const PatientHistory = ({ patient, onItemClick }) => {
   const [refreshCount, setRefreshCount] = useState(0);
-  const refreshTable = useCallback(
-    () => setRefreshCount(refreshCount + 1),
-    [refreshCount]
-  );
+  const refreshTable = useCallback(() => setRefreshCount(refreshCount + 1), [refreshCount]);
 
   if (!patient.markedForSync) {
     return <MarkPatientForSync patient={patient} />;

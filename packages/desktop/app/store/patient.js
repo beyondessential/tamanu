@@ -24,10 +24,6 @@ export const reloadPatient = id => async (dispatch, getState, { api }) => {
   }
 };
 
-const pollUntilComplete = (api, tick) => {
-  return new Promise(resolve => setTimeout(resolve, 12000)); 
-};
-
 // reducers
 
 const defaultState = {

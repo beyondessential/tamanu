@@ -44,7 +44,9 @@ export class FacilitySyncManager {
   reason = '';
 
   lastDurationMs = 0;
+
   lastCompletedAt = 0;
+
   currentStartTime = 0;
 
   constructor({ models, sequelize, centralServer }) {
@@ -95,7 +97,7 @@ export class FacilitySyncManager {
     // clear previous temp data, in case last session errored out or server was restarted
     await dropAllSnapshotTables(this.sequelize);
 
-    const startTime = (new Date()).getTime();
+    const startTime = new Date().getTime();
     this.currentStartTime = startTime;
 
     // the first step of sync is to start a session and retrieve the session id

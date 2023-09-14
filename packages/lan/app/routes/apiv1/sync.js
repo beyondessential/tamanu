@@ -45,10 +45,10 @@ sync.get(
 
     const lastCompletedSyncTick = parseInt(await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY));
     const lastCompletedDurationMs = syncManager.lastDurationMs;
-    const lastCompletedAt = syncManager.lastCompletedAt;
+    const { lastCompletedAt } = syncManager;
 
     const isSyncRunning = syncManager.isSyncRunning();
-    const currentDuration = isSyncRunning ? ((new Date().getTime()) - syncManager.currentStartTime) : 0;
+    const currentDuration = isSyncRunning ? new Date().getTime() - syncManager.currentStartTime : 0;
 
     res.send({
       lastCompletedSyncTick,
@@ -57,5 +57,5 @@ sync.get(
       currentDuration,
       isSyncRunning,
     });
-  })
+  }),
 );

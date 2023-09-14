@@ -24,7 +24,7 @@ const MarkPatientForSyncIcon = styled(Loop)`
 
 export const MarkPatientForSync = ({ patient }) => {
   const dispatch = useDispatch();
-  const api = useApi()
+  const api = useApi();
   const syncState = useSyncState();
 
   const patientId = patient.id;
