@@ -8,6 +8,7 @@ import { readConfig, writeConfig } from '~/services/config';
 import { AuthenticationError, invalidUserCredentialsMessage, OutdatedVersionError } from '../error';
 import { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
 import { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
+import { VisibilityStatus } from '../../visibilityStatuses';
 
 export class AuthService {
   models: typeof MODELS_MAP;
@@ -56,6 +57,7 @@ export class AuthService {
     console.log('Signing in locally as', email);
     const user = await this.models.User.findOne({
       email,
+      visibilityStatus: VisibilityStatus.Current,
     });
 
     if (!user || !(await compare(password, user.localPassword))) {

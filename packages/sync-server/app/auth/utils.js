@@ -1,6 +1,7 @@
 import Sequelize from 'sequelize';
 import jwt from 'jsonwebtoken';
 import { randomBytes, randomInt } from 'crypto';
+import { VISIBILITY_STATUSES } from '../../../shared-src/src/constants';
 
 const MAX_U32_VALUE = 2 ** 32 - 1;
 
@@ -28,10 +29,15 @@ export const verifyToken = (token, secret, options) => jwt.verify(token, secret,
 
 export const findUser = async (models, email) => {
   const user = await models.User.scope('withPassword').findOne({
-    // email addresses are case insensitive so compare them as such
-    where: Sequelize.where(
-      Sequelize.fn('lower', Sequelize.col('email')),
-      Sequelize.fn('lower', email),
+    where: Sequelize.and(
+      // email addresses are case insensitive so compare them as such
+      Sequelize.where(
+        Sequelize.fn('lower', Sequelize.col('email')),
+        Sequelize.fn('lower', email),
+      ),
+      {
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      }
     ),
   });
   if (!user) {
