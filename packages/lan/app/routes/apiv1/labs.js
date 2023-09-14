@@ -384,7 +384,12 @@ labTestType.get(
       ],
       // We dont include lab tests with a visibility status of panels only in this route as it is only used for the indivudual lab workflow
       where: {
-        visibilityStatus: { [Op.not]: LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY },
+        visibilityStatus: {
+          [Op.notIn]: [
+            LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY,
+            LAB_TEST_TYPE_VISIBILITY_STATUSES.HISTORICAL,
+          ],
+        },
       },
     });
     res.send(labTests);
