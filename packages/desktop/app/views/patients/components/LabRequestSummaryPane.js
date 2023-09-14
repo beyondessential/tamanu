@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
+import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { Colors } from '../../../constants';
 import { MultipleLabRequestsPrintoutModal } from '../../../components/PatientPrinting/modals/MultipleLabRequestsPrintoutModal';
 import {
@@ -13,6 +13,7 @@ import {
   useSelectableColumn,
   OutlinedButton,
   Heading3,
+  useLocalisedText,
 } from '../../../components';
 import { LabRequestPrintLabelModal } from '../../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { useLabRequestNotes } from '../../../api/queries';
@@ -100,11 +101,12 @@ export const LabRequestSummaryPane = React.memo(
     const { selectedRows, selectableColumn } = useSelectableColumn(labRequests, {
       columnKey: 'selected',
     });
+    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
     const noRowSelected = useMemo(() => !selectedRows?.length, [selectedRows]);
     // All the lab requests were made in a batch and have the same details
     const { id, requestedDate, requestedBy, department, priority } = labRequests[0];
 
-    const { data: notePages, isLoading: areNotesLoading } = useLabRequestNotes(id);
+    const { data: { data: notes = [] } = {}, isLoading: areNotesLoading } = useLabRequestNotes(id);
 
     return (
       <Container>
@@ -115,7 +117,10 @@ export const LabRequestSummaryPane = React.memo(
         </BodyText>
         <Card>
           <StyledInfoCard gridRowGap={10} elevated={false}>
-            <InfoCardItem label="Requesting clinician" value={requestedBy?.displayName} />
+            <InfoCardItem
+              label={`Requesting ${clinicianText.toLowerCase()}`}
+              value={requestedBy?.displayName}
+            />
             <InfoCardItem
               label="Request date & time"
               value={<DateDisplay date={requestedDate} showTime />}
@@ -156,7 +161,7 @@ export const LabRequestSummaryPane = React.memo(
             encounter={encounter}
             labRequests={selectedRows.map(row => ({
               ...row,
-              notePages,
+              notes,
             }))}
             open={isOpen === MODALS.PRINT}
             onClose={() => setIsOpen(false)}

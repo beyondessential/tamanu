@@ -9,7 +9,7 @@ import {
   REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
   REPORT_EXPORT_FORMATS,
-} from '@tamanu/shared/constants';
+} from '@tamanu/constants';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useApi } from '../../api';
 import { useAuth } from '../../contexts/Auth';
@@ -20,7 +20,7 @@ import {
   Field,
   Form,
   RadioField,
-  formatShort,
+  DateDisplay,
 } from '../../components';
 import { DropdownButton } from '../../components/DropdownButton';
 import { Colors } from '../../constants';
@@ -142,7 +142,7 @@ export const ReportGeneratorForm = () => {
 
         const reportName = reportsById[reportId].name;
 
-        const date = formatShort(new Date());
+        const date = DateDisplay.stringFormat(new Date());
 
         const metadata = [
           ['Report Name:', reportName],

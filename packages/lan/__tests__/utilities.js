@@ -11,10 +11,6 @@ import {
   seedLabTests,
 } from 'shared/demoData';
 import { chance, fake, showError } from 'shared/test-helpers';
-import {
-  setHardcodedPermissionsUseForTestsOnly,
-  unsetUseHardcodedPermissionsUseForTestsOnly,
-} from 'shared/permissions/rolesToPermissions';
 
 import { createApp } from 'lan/app/createApp';
 import { initDatabase, closeDatabase } from 'lan/app/database';
@@ -26,15 +22,6 @@ import { deleteAllTestIds } from './setupUtilities';
 
 import { FacilitySyncManager } from '../app/sync/FacilitySyncManager';
 import { CentralServerConnection } from '../app/sync/CentralServerConnection';
-
-export function disableHardcodedPermissionsForSuite() {
-  beforeAll(() => {
-    setHardcodedPermissionsUseForTestsOnly(false);
-  });
-  afterAll(() => {
-    unsetUseHardcodedPermissionsUseForTestsOnly();
-  });
-}
 
 jest.mock('../app/sync/CentralServerConnection');
 jest.mock('../app/utils/uploadAttachment');
@@ -192,7 +179,7 @@ export async function createTestContext() {
 
   jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
 
-  const centralServer = new CentralServerConnection();
+  const centralServer = new CentralServerConnection({ deviceId: 'test' });
 
   const context = { baseApp, sequelize, models, centralServer };
 

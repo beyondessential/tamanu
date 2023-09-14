@@ -1,8 +1,8 @@
 import config from 'config';
 import { identity } from 'lodash';
 
+import { FHIR_DATETIME_PRECISION } from '@tamanu/constants';
 import { activeFromVisibility } from '../utils';
-import { FHIR_DATETIME_PRECISION } from '../../../constants';
 import {
   FhirAddress,
   FhirContactPoint,
@@ -110,14 +110,13 @@ function telecoms(patient) {
 
 function addresses(patient) {
   const { cityTown, streetVillage } = patient.additionalData || {};
-  if (!cityTown && !streetVillage) return [];
 
   return [
     new FhirAddress({
       type: 'physical',
       use: 'home',
       city: cityTown,
-      line: compactBy([streetVillage]),
+      line: [streetVillage],
     }),
   ];
 }

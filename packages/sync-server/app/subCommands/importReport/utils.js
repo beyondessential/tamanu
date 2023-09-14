@@ -1,6 +1,6 @@
 import { log } from 'shared/services/logging';
 import { QueryTypes } from 'sequelize';
-import { getReportQueryReplacements } from 'shared/utils/reports/getReportQueryReplacements';
+import { getReportQueryReplacements } from '@tamanu/shared/utils/reports/getReportQueryReplacements';
 
 export async function findOrCreateDefinition(name, store) {
   const { ReportDefinition } = store.models;

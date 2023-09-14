@@ -1,8 +1,9 @@
 import { capitalize, isNumber } from 'lodash';
-import React, { useMemo } from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
+
 import styled from 'styled-components';
 import { Colors } from '../constants';
-import { formatLong, formatShortest, formatTime } from './DateDisplay';
+import { DateDisplay, formatLong, formatShortest, formatTime } from './DateDisplay';
 import { TableTooltip } from './Table/TableTooltip';
 
 // severity constants
@@ -69,21 +70,75 @@ function getTooltip(float, config = {}, visibilityCriteria = {}) {
   };
 }
 
-export const formatValue = (value, config, isEdited) => {
+export const formatValue = (value, config) => {
+  const { rounding = 0, unit = '' } = config || {};
   const float = parseFloat(value);
-  const formattedValue = isNaN(float) ? capitalize(value) || '-' : float;
 
-  return `${formattedValue}${isEdited ? '*' : ''}`;
+  if (isNaN(float)) {
+    return capitalize(value) || '-';
+  }
+
+  const unitSuffix = unit && unit.length <= 2 ? unit : '';
+  if (rounding > 0 || rounding === 0) {
+    return `${float.toFixed(rounding)}${unitSuffix}`;
+  }
+  return `${float}${unitSuffix}`;
 };
 
 export const DateHeadCell = React.memo(({ value }) => (
-  <TableTooltip title={formatLong(value)}>
+  <TableTooltip title={DateDisplay.stringFormat(value, formatLong)}>
     <HeadCellWrapper>
-      <div>{formatShortest(value)}</div>
-      <div>{formatTime(value)}</div>
+      <div>{DateDisplay.stringFormat(value, formatShortest)}</div>
+      <div>{DateDisplay.stringFormat(value, formatTime)}</div>
     </HeadCellWrapper>
   </TableTooltip>
 ));
+
+const LimitedLinesCellWrapper = styled.div`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  ${({ maxLines }) =>
+    maxLines <= 1
+      ? ''
+      : `
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: ${maxLines};
+  `}
+  ${({ maxWidth }) => maxWidth && `max-width: ${maxWidth};`};
+`;
+
+export const LimitedLinesCell = ({ value, maxWidth, maxLines = 2 }) => {
+  const contentRef = useRef(null);
+  const [isClamped, setClamped] = useState(false);
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+
+  // isClamped logic inspired by: https://stackoverflow.com/a/74255034/11324801
+  useEffect(() => {
+    const handleResize = () => {
+      if (contentRef && contentRef.current) {
+        const { scrollHeight, clientHeight, scrollWidth, clientWidth } = contentRef.current;
+        setClamped(scrollHeight > clientHeight || scrollWidth > clientWidth);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return (
+    <TableTooltip
+      title={value}
+      open={isClamped && tooltipOpen}
+      onOpen={() => setTooltipOpen(true)}
+      onClose={() => setTooltipOpen(false)}
+    >
+      <LimitedLinesCellWrapper ref={contentRef} maxLines={maxLines} maxWidth={maxWidth}>
+        {value}
+      </LimitedLinesCellWrapper>
+    </TableTooltip>
+  );
+};
 
 export const RangeTooltipCell = React.memo(({ value, config, validationCriteria }) => {
   const { unit = '' } = config || {};
@@ -99,26 +154,34 @@ export const RangeTooltipCell = React.memo(({ value, config, validationCriteria 
   );
 });
 
+const DefaultWrapper = ({ value }) => <>{value}</>;
+
 export const RangeValidatedCell = React.memo(
-  ({ value, config, validationCriteria, onClick, isEdited, ...props }) => {
+  ({
+    value,
+    config,
+    validationCriteria,
+    onClick,
+    isEdited,
+    ValueWrapper = DefaultWrapper,
+    ...props
+  }) => {
     const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
     const float = round(parseFloat(value), config);
-    const formattedValue = formatValue(value, config, isEdited);
+    const isEditedSuffix = isEdited ? '*' : '';
+    const formattedValue = `${formatValue(value, config)}${isEditedSuffix}`;
     const { tooltip, severity } = useMemo(() => getTooltip(float, config, validationCriteria), [
       float,
       config,
       validationCriteria,
     ]);
-    return tooltip ? (
-      <TableTooltip title={tooltip}>
-        <CellContainer onClick={onClick} severity={severity} {...props}>
-          {formattedValue}
-        </CellContainer>
-      </TableTooltip>
-    ) : (
+
+    const cell = (
       <CellContainer onClick={onClick} severity={severity} {...props}>
-        {formattedValue}
+        <ValueWrapper value={formattedValue} />
       </CellContainer>
     );
+
+    return tooltip ? <TableTooltip title={tooltip}>{cell}</TableTooltip> : cell;
   },
 );

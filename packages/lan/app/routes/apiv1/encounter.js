@@ -2,32 +2,43 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes } from 'sequelize';
 import { NotFoundError, InvalidParameterError } from 'shared/errors';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
   LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
+  DOCUMENT_SOURCES,
   INVOICE_STATUSES,
   NOTE_RECORD_TYPES,
   VITALS_DATA_ELEMENT_IDS,
   IMAGING_REQUEST_STATUS_TYPES,
-} from 'shared/constants';
-import { uploadAttachment } from '../../utils/uploadAttachment';
-import { notePageListHandler } from '../../routeHandlers';
+} from '@tamanu/constants';
 
 import {
   simpleGet,
   simpleGetHasOne,
-  simplePost,
   simpleGetList,
   permissionCheckingRouter,
   runPaginatedQuery,
   paginatedGetList,
-} from './crudHelpers';
+} from 'shared/utils/crudHelpers';
+import { uploadAttachment } from '../../utils/uploadAttachment';
+import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
+import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
+
 import { getLabRequestList } from '../../routeHandlers/labs';
 
 export const encounter = express.Router();
 
 encounter.get('/:id', simpleGet('Encounter'));
-encounter.post('/$', simplePost('Encounter'));
+encounter.post(
+  '/$',
+  asyncHandler(async (req, res) => {
+    const { models, body, user } = req;
+    req.checkPermission('create', 'Encounter');
+    const object = await models.Encounter.create({ ...body, actorId: user.id });
+    res.send(object);
+  }),
+);
 
 encounter.put(
   '/:id',
@@ -90,11 +101,9 @@ encounter.post(
       throw new NotFoundError();
     }
     req.checkPermission('write', owner);
-    const notePage = await owner.createNotePage(body);
-    await notePage.createNoteItem(body);
-    const response = await notePage.getCombinedNoteObject(models);
+    const note = await owner.createNote(body);
 
-    res.send(response);
+    res.send(note);
   }),
 );
 
@@ -119,11 +128,15 @@ encounter.post(
       attachmentId,
       type,
       encounterId: params.id,
+      documentUploadedAt: getCurrentDateTimeString(),
+      source: DOCUMENT_SOURCES.UPLOADED,
     });
 
     res.send(documentMetadataObject);
   }),
 );
+
+encounter.post('/:id/createPatientLetter', createPatientLetter('Encounter', 'encounterId'));
 
 const encounterRelations = permissionCheckingRouter('read', 'Encounter');
 encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));
@@ -157,10 +170,10 @@ encounterRelations.get(
       orderBy = 'createdAt',
       rowsPerPage,
       page,
-      includeNotePages: includeNotePagesStr = 'false',
+      includeNotes: includeNotesStr = 'false',
       status,
     } = query;
-    const includeNotePages = includeNotePagesStr === 'true';
+    const includeNote = includeNotesStr === 'true';
 
     req.checkPermission('list', 'ImagingRequest');
 
@@ -194,7 +207,7 @@ encounterRelations.get(
       objects.map(async ir => {
         return {
           ...ir.forResponse(),
-          ...(includeNotePages ? await ir.extractNotes() : undefined),
+          ...(includeNote ? await ir.extractNotes() : undefined),
           areas: ir.areas.map(a => a.forResponse()),
         };
       }),
@@ -204,14 +217,14 @@ encounterRelations.get(
   }),
 );
 
-encounterRelations.get('/:id/notePages', notePageListHandler(NOTE_RECORD_TYPES.ENCOUNTER));
+encounterRelations.get('/:id/notes', noteListHandler(NOTE_RECORD_TYPES.ENCOUNTER));
 
 encounterRelations.get(
-  '/:id/notePages/noteTypes',
+  '/:id/notes/noteTypes',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const encounterId = params.id;
-    const noteTypeCounts = await models.NotePage.count({
+    const noteTypeCounts = await models.Note.count({
       group: ['noteType'],
       where: { recordId: encounterId, recordType: 'Encounter' },
     });
@@ -221,6 +234,11 @@ encounterRelations.get(
     });
     res.send({ data: noteTypeToCount });
   }),
+);
+
+encounterRelations.get(
+  '/:id/notes/:noteId/changelogs',
+  noteChangelogsHandler(NOTE_RECORD_TYPES.ENCOUNTER),
 );
 
 encounterRelations.get(

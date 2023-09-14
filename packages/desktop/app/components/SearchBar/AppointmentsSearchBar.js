@@ -10,10 +10,12 @@ import {
 } from '../Field';
 import { appointmentTypeOptions, appointmentStatusOptions } from '../../constants';
 import { useSuggester } from '../../api';
+import { useLocalisedText } from '../LocalisedText';
 
 export const AppointmentsSearchBar = ({ onSearch }) => {
   const practitionerSuggester = useSuggester('practitioner');
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
   return (
     <CustomisableSearchBar
@@ -31,15 +33,12 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
       initialValues={{
         after: startOfDay(new Date()),
       }}
-      staticValues={{
-        displayIdExact: true,
-      }}
     >
       <LocalisedField name="firstName" component={SearchField} />
       <LocalisedField name="lastName" component={SearchField} />
       <LocalisedField
         name="clinicianId"
-        defaultLabel="Clinician"
+        defaultLabel={clinicianText}
         component={AutocompleteField}
         suggester={practitionerSuggester}
       />
@@ -75,7 +74,7 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         defaultLabel="Until"
         component={DateTimeField}
       />
-      <LocalisedField name="displayId" component={SearchField} />
+      <LocalisedField useShortLabel keepLetterCase name="displayId" component={SearchField} />
     </CustomisableSearchBar>
   );
 };

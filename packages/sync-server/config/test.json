@@ -1,3 +1,4 @@
+// For running unit tests, defined values in 'local.json' have priority and will overwrite config here.
 {
   "db": {
     "name": "tamanu-sync-test"

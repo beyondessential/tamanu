@@ -31,7 +31,11 @@ import { TableFormFields } from '../components/Table';
 import { ConfirmCancelBackRow, ConfirmCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
-import { MODAL_PADDING_LEFT_AND_RIGHT, MODAL_PADDING_TOP_AND_BOTTOM } from '../components';
+import {
+  MODAL_PADDING_LEFT_AND_RIGHT,
+  MODAL_PADDING_TOP_AND_BOTTOM,
+  useLocalisedText,
+} from '../components';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -54,7 +58,7 @@ const ConfirmContent = styled.div`
 const MAX_REPEATS = 12;
 const REPEATS_OPTIONS = range(MAX_REPEATS + 1).map(value => ({ label: value, value }));
 
-const getDischargeInitialValues = (encounter, dischargeNotePages, medicationInitialValues) => {
+const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialValues) => {
   const today = new Date();
   const encounterStartDate = parseISO(encounter.startDate);
   return {
@@ -69,7 +73,7 @@ const getDischargeInitialValues = (encounter, dischargeNotePages, medicationInit
         )
       : getCurrentDateTimeString(),
     discharge: {
-      note: dischargeNotePages.map(np => np.noteItems?.[0]?.content).join('\n'),
+      note: dischargeNotes.map(n => n.content).join('\n'),
     },
     medications: medicationInitialValues,
     // Used in creation of associated notes
@@ -184,6 +188,8 @@ const medicationColumns = [
 const EncounterOverview = ({
   encounter: { procedures, diagnoses, startDate, examiner, reasonForEncounter },
 }) => {
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
+
   // Only display diagnoses that don't have a certainty of 'error' or 'disproven'
   const currentDiagnoses = diagnoses.filter(d => !['error', 'disproven'].includes(d.certainty));
 
@@ -191,7 +197,7 @@ const EncounterOverview = ({
     <>
       <DateTimeInput label="Admission date" value={startDate} disabled />
       <TextInput
-        label="Supervising clinician"
+        label={`Supervising ${clinicianText.toLowerCase()}`}
         value={examiner ? examiner.displayName : '-'}
         disabled
       />
@@ -257,7 +263,8 @@ export const DischargeForm = ({
   onSubmit,
 }) => {
   const { encounter } = useEncounter();
-  const [dischargeNotePages, setDischargeNotePages] = useState([]);
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
+  const [dischargeNotes, setDischargeNotes] = useState([]);
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
 
@@ -281,8 +288,8 @@ export const DischargeForm = ({
 
   useEffect(() => {
     (async () => {
-      const { data: notePages } = await api.get(`encounter/${encounter.id}/notePages`);
-      setDischargeNotePages(notePages.filter(n => n.noteType === 'discharge'));
+      const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
+      setDischargeNotes(notes.filter(n => n.noteType === 'discharge'));
     })();
   }, [api, encounter.id]);
 
@@ -290,11 +297,7 @@ export const DischargeForm = ({
     <PaginatedForm
       onSubmit={handleSubmit}
       onCancel={onCancel}
-      initialValues={getDischargeInitialValues(
-        encounter,
-        dischargeNotePages,
-        medicationInitialValues,
-      )}
+      initialValues={getDischargeInitialValues(encounter, dischargeNotes, medicationInitialValues)}
       FormScreen={DischargeFormScreen}
       SummaryScreen={DischargeSummaryScreen}
       validationSchema={yup.object().shape({
@@ -302,7 +305,9 @@ export const DischargeForm = ({
         discharge: yup
           .object()
           .shape({
-            dischargerId: foreignKey('Discharging physician is a required field'),
+            dischargerId: foreignKey(
+              `Discharging ${clinicianText.toLowerCase()} is a required field'`,
+            ),
           })
           .shape({
             dispositionId: getLocalisedSchema({
@@ -325,7 +330,7 @@ export const DischargeForm = ({
         />
         <Field
           name="discharge.dischargerId"
-          label="Discharging physician"
+          label={`Discharging ${clinicianText.toLowerCase()}`}
           component={AutocompleteField}
           suggester={practitionerSuggester}
           required

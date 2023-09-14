@@ -1,4 +1,4 @@
-import { REFERENCE_TYPES } from 'shared/constants';
+import { REFERENCE_TYPES } from '@tamanu/constants';
 import { createDummyPatient } from 'shared/demoData/patients';
 import { parseDate } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
@@ -13,6 +13,10 @@ import {
   createRole,
   createVaccine,
   createDataForEncounter,
+  createTestType,
+  createLabTestPanel,
+  createLabTestCategory,
+  createPatientFieldDefinitions,
 } from './referenceDataUtils';
 
 jest.mock('../../app/admin/exporter/excelUtils', () => {
@@ -44,8 +48,12 @@ describe('Reference data exporter', () => {
       'EncounterHistory',
       'Encounter',
       'ScheduledVaccine',
+      'LabTestPanelLabTestTypes',
+      'LabTestType',
+      'LabTestPanel',
       'ReferenceData',
       'Patient',
+      'PatientFieldDefinition',
       'PatientFieldDefinitionCategory',
       'Location',
       'Department',
@@ -89,6 +97,33 @@ describe('Reference data exporter', () => {
             ['1234', 'test 1234'],
           ],
           name: 'Patient Field Def Category',
+        },
+      ],
+      '',
+    );
+  });
+
+  it('It should export Patient field definition with the right options', async () => {
+    await createPatientFieldDefCategory(models);
+    await createPatientFieldDefinitions(models);
+
+    await exporter(models, { 1: 'patientFieldDefinition' });
+    expect(writeExcelFile).toBeCalledWith(
+      [
+        {
+          data: [
+            ['id', 'name', 'fieldType', 'options', 'visibilityStatus', 'categoryId'],
+            [
+              'fieldDefinition-primaryPolicyNumber',
+              'Primary policy number',
+              'string',
+              null,
+              'current',
+              '123',
+            ],
+            ['fieldDefinition-size', 'Size', 'select', 's,m,l', 'current', '123'],
+          ],
+          name: 'Patient Field Definition',
         },
       ],
       '',
@@ -140,6 +175,63 @@ describe('Reference data exporter', () => {
             ['allergy-Wheat', 'Wheat', 'Wheat', 'current'],
           ],
           name: 'Allergy',
+        },
+      ],
+      '',
+    );
+  });
+
+  it('Should export Panels with associated test types', async () => {
+    const category = await createLabTestCategory(models, {
+      id: 'category-1',
+      name: 'Category 1',
+      code: 'category-1',
+    });
+
+    const testType1 = await createTestType(models, {
+      id: 'test-type-1',
+      name: 'Test Type 1',
+      code: 'test-type-1',
+      labTestCategoryId: category.id,
+    });
+    const testType2 = await createTestType(models, {
+      id: 'test-type-2',
+      name: 'Test Type 2',
+      code: 'test-type-2',
+      labTestCategoryId: category.id,
+    });
+    await createLabTestPanel(models, {
+      id: 'panel-with-two-types',
+      name: 'Panel with two types',
+      code: 'panel-with-two-types',
+      labTestTypesIds: [testType1.id, testType2.id],
+    });
+    await exporter(models, { 1: 'labTestPanel' });
+
+    expect(writeExcelFile).toBeCalledWith(
+      [
+        {
+          data: [
+            [
+              'id',
+              'code',
+              'name',
+              'visibilityStatus',
+              'externalCode',
+              'categoryId',
+              'testTypesInPanel',
+            ],
+            [
+              'panel-with-two-types',
+              'panel-with-two-types',
+              'Panel with two types',
+              'current',
+              null,
+              null,
+              'test-type-1,test-type-2',
+            ],
+          ],
+          name: 'Lab Test Panel',
         },
       ],
       '',

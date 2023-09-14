@@ -1,17 +1,14 @@
 import { Command } from 'commander';
 
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import { log } from 'shared/services/logging';
 
 import { initDatabase } from '../database';
-import { sleepAsync } from '../../../shared/src/utils/sleepAsync';
+
+const LATEST_ENCOUNTER_FLAG = 'latest_encounter';
 
 export async function migrateChangelogNotesToEncounterHistory(options = {}) {
-  const {
-    batchSize = Number.MAX_SAFE_INTEGER,
-    placeholderLocation = 'location-Placeholder',
-    placeholderDepartment = 'department-Placeholder',
-    placeholderUser = 'user-Placeholder-Placeholder',
-  } = options;
+  const { batchSize = Number.MAX_SAFE_INTEGER } = options;
   log.info(`Migrating changelog notes with options:`, options);
 
   const store = await initDatabase({ testMode: false });
@@ -39,6 +36,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                 np.id,
                 np.record_id,
                 np.note_type,
+                ni.author_id as actor_id,
                 ni.date,
                 ni.content
             from note_pages np
@@ -55,39 +53,80 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             where content like 'Changed%'
         ),
 
-        unique_location_names_in_location_groups as (
-            select name, location_group_id, facility_id
-            from locations
-            group by facility_id, location_group_id, name
-            having count(*) = 1
+        -- Choose the locations unique within a location group that
+        -- 1. If there are duplicated locations with the same name in a location group, and all of their visibility_status = current, choose the last updated_one
+        -- 2. If there are duplicated locations with the same name in a location group, and there is 1 with visibility_status = current, choose the current one
+        -- 3. If there are duplicated locations with the same name in a location group, and all of their visibility_status = historical, choose the last updated one
+        unique_locations_by_location_group as (
+            select id, name, location_group_id, facility_id
+            from (
+                select id, name, location_group_id, facility_id, visibility_status,
+                  row_number() over (partition by name, location_group_id, facility_id
+                                    order by case when visibility_status = 'current' then 0 else 1 end, updated_at desc) AS row_num
+                FROM locations
+            ) ordered
+            where ordered.row_num = 1
         ),
 
-        unique_location_names_in_facility as (
-            select name, facility_id
-            from locations
-            group by facility_id, name
-            having count(*) = 1
+        unique_locations_by_facility as (
+            select id, name, facility_id
+            from (
+                select id, name, facility_id, visibility_status,
+                  row_number() over (partition by name, facility_id
+                                    order by case when visibility_status = 'current' then 0 else 1 end, updated_at desc) AS row_num
+                FROM locations
+            ) ordered
+            where ordered.row_num = 1
         ),
 
-        unique_department_names as (
-            select name, facility_id
-            from departments
-            group by facility_id, name
-            having count(*) = 1
+        -- Choose the departments unique within a facility that
+        -- 1. If there are duplicated departments with the same name in a facility, and all of their visibility_status = current, choose the last updated_one
+        -- 2. If there are duplicated departments with the same name in a facility, and there is 1 with visibility_status = current, choose the current one
+        -- 3. If there are duplicated departments with the same name in a facility, and all of their visibility_status = historical, choose the last updated one
+        unique_departments_by_facility as (
+            select id, name, facility_id
+            from (
+                select id, name, facility_id, visibility_status,
+                  row_number() over (partition by name, facility_id
+                                    order by case when visibility_status = 'current' then 0 else 1 end, updated_at desc) AS row_num
+                FROM departments
+            ) ordered
+            where ordered.row_num = 1
         ),
 
-        unique_user_names as (
-            select display_name
-            from users
-            group by display_name
-            having count(*) = 1
+        -- Choose the unique globally. If there are duplicated users with the same name, choose the last updated_one
+        unique_users as (
+            select id, display_name
+            from (
+                select id, display_name,
+                  row_number() over (partition by display_name order by updated_at desc) AS row_num
+                FROM users
+            ) ordered
+            where ordered.row_num = 1
         ),
 
         -- Generate a encounter_history structure record for each changelog
         change_log_historical_partial as (
             select
                 e.id as encounter_id,
-                case when lag(e.start_date) over w isnull then e.start_date
+                case when lag(n.actor_id) over w isnull then null
+                    else lag(n.actor_id) over w
+                end as actor_id,
+                case when lag(n.content) over w like 'Changed department%' then 'department'
+                    when lag(n.content) over w like 'Changed location%' then 'location'
+                    when lag(n.content) over w like 'Changed supervising clinician%' then 'supervising clinician'
+                    when lag(n.content) over w like 'Changed type%' then 'type'
+                    else null
+                end as change_type,
+                -- For the encounter_history when the encounter is first created:
+                -- 1. If encounter.start_date is before the first changelog.date, pick encounter.start_date as "date"
+                -- 2. If encounter.start_date is after the first changelog's date, pick the changelog's date minus 1 day as "date"
+                -- This is to preserve the order of the encounter history
+                case 
+                    when lag(e.start_date) over w isnull and e.start_date::timestamp > n.date::timestamp
+                        then to_char(n.date::timestamp - interval '1 day', 'YYYY-MM-DD HH24:MI:SS')
+                    when lag(e.start_date) over w isnull and e.start_date::timestamp < n.date::timestamp
+                        then e.start_date
                     else lag(n.date) over w
                 end as start_datetime,
 
@@ -161,6 +200,8 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
         change_log_historical_complete as (
             select
                 encounter_id,
+                actor_id,
+                change_type,
                 start_datetime,
                 l.facility_id as encounter_facility_id,
                 case when log.encounter_type notnull then log.encounter_type
@@ -200,7 +241,10 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                                     rows between
                                     1 following and
                                     unbounded following), null))[1],
-                            l.name)
+                            -- Flag to indicate that we should use latest encounter's location here
+                            -- Have to use a flag instead of just populating the ids here because this sub query is for extracting names from changelog only.
+                            -- Having a mix of ids and names will cause more complexity later when extracting the ids from the names.
+                            '${LATEST_ENCOUNTER_FLAG}')
                 end as location_name,
 
                 case when location_group_name notnull then location_group_name
@@ -233,7 +277,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                                     rows between
                                     1 following and
                                     unbounded following), null))[1],
-                            d.name)
+                            '${LATEST_ENCOUNTER_FLAG}')
                 end as department_name,
 
                 case when examiner_name notnull then examiner_name
@@ -250,7 +294,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
                                     rows between
                                     1 following and
                                     unbounded following), null))[1],
-                            u.display_name)
+                            '${LATEST_ENCOUNTER_FLAG}')
                 end as examiner_name
             from change_log_historical_partial log
             left join batch_encounters e on e.id = log.encounter_id
@@ -263,7 +307,8 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
         change_log_latest as (
             select
                 DISTINCT ON(record_id)
-                content,
+                actor_id,
+                (regexp_matches(content, 'Changed (.*) from (.*) to (.*)'))[1] AS change_type,
                 date,
                 department_id,
                 location_id,
@@ -299,6 +344,8 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             select
                 record_id,
                 date,
+                null as actor_id, -- N/A for first encounter snapshot
+                null as change_type, -- N/A for first encounter snapshot
                 department_id,
                 location_id,
                 examiner_id,
@@ -310,6 +357,8 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             select
                 record_id,
                 date,
+                actor_id,
+                change_type,
                 department_id,
                 location_id,
                 examiner_id,
@@ -318,77 +367,64 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             union
 
             -- Changelog when encounters are changed in between
-            select
+            select distinct
                 log.encounter_id as record_id,
                 log.start_datetime as date,
-                -- For department_id, when there are duplicated department names in the same facility,
-                -- it is not possible to work out exactly which one it is from the department name,
-                -- so replace it with a placeholder department.
-                case when exists (select name 
-                                from unique_department_names uniques
-                                where name = d.name
-                                and d.facility_id = uniques.facility_id)
-                        then 
-                            d.id
-                        else 
-                            :placeholderDepartment
-                    end as department_id,
-                -- For location_id, when there are duplicated location names in the same location_group,
-                -- it is not possible to work out exactly which one it is from the location name,
-                -- so replace it with a placeholder location.
-                case when (lg.id notnull and 
-                            log.location_group_name <> 'non_determined_location_group_name' and
-                            exists (select uniques.name 
-                                    from unique_location_names_in_location_groups uniques 
-                                    where uniques.name = l.name 
-                                    and lg.id = uniques.location_group_id)) 
-                        or 
-                            exists (select name 
-                                from unique_location_names_in_facility uniques
-                            where name = l.name
-                                and l.facility_id = uniques.facility_id)
-                        then l.id
-                    else
-                        :placeholderLocation
-                    end as location_id,
-                -- For examiner_id, when there are duplicated user names,
-                -- it is not possible to work out exactly which one it is from the user name,
-                -- so replace it with a placeholder user.
-                case when exists (select display_name 
-                                from unique_user_names
-                                where display_name = u.display_name)
-                        then 
-                            u.id
-                        else 
-                            :placeholderUser
-                    end as examiner_id,
+                log.actor_id,
+                log.change_type,
+                case 
+                    when d.id notnull then d.id 
+                    when log.department_name = '${LATEST_ENCOUNTER_FLAG}' then e.department_id
+                end as department_id,
+                case 
+                    when unique_l_by_lg.id notnull or unique_l_by_f.id notnull then coalesce(unique_l_by_lg.id, unique_l_by_f.id)
+                    when log.location_name = '${LATEST_ENCOUNTER_FLAG}' then e.location_id
+                end as location_id,
+                case 
+                    when u.id notnull then u.id 
+                    when log.examiner_name = '${LATEST_ENCOUNTER_FLAG}' then e.examiner_id
+                end as examiner_id,
                 log.encounter_type
             from change_log_historical_complete log
-            left join departments d on d.name = log.department_name and
+            left join unique_departments_by_facility d on d.name = log.department_name and
                                     d.facility_id = log.encounter_facility_id
             left join location_groups lg on lg.name = log.location_group_name and
                                         lg.facility_id = log.encounter_facility_id
-            left join locations l on l.name = log.location_name and
-                                    case when lg.id notnull and log.location_group_name <> 'non_determined_location_group_name' then l.location_group_id = lg.id else true end and
-                                    l.facility_id = log.encounter_facility_id
-            left join users u on u.display_name = log.examiner_name
-            where d.facility_id = log.encounter_facility_id
-            and l.facility_id = log.encounter_facility_id
+            left join unique_locations_by_location_group unique_l_by_lg on unique_l_by_lg.name = log.location_name and
+                                    case when lg.id notnull and log.location_group_name <> 'non_determined_location_group_name' 
+                                        then unique_l_by_lg.location_group_id = lg.id 
+                                        else lg.id = 'DO_NOT_JOIN' end and -- Only join 'unique_locations_by_location_group' when there location_group.id CAN BE DETERMINED
+                                    unique_l_by_lg.facility_id = log.encounter_facility_id
+            left join unique_locations_by_facility unique_l_by_f on unique_l_by_f.name = log.location_name and
+                                    case when lg.id isnull or log.location_group_name = 'non_determined_location_group_name' 
+                                        then true 
+                                        else lg.id = 'DO_NOT_JOIN' end and -- Only join 'unique_locations_by_facility' when location_group.id CAN NOT BE DETERMINED
+                                    unique_l_by_f.facility_id = log.encounter_facility_id
+            left join unique_users u on u.display_name = log.examiner_name
+            left join batch_encounters e on e.id = log.encounter_id
+            where 
+                case 
+                    -- if we know that it should be latest encounter then don't bother verifying the facility_id
+                    when log.department_name <> '${LATEST_ENCOUNTER_FLAG}' 
+                        then d.facility_id = log.encounter_facility_id 
+                    else true 
+                end
+            and case 
+                    -- if we know that it should be latest encounter then don't bother verifying the facility_id
+                    when log.location_name <> '${LATEST_ENCOUNTER_FLAG}' 
+                        then unique_l_by_lg.facility_id = log.encounter_facility_id or unique_l_by_f.facility_id = log.encounter_facility_id
+                else true
+             end
             -- This is to filter the case where there are multiple location 
             -- with the same names out of the changelog, same as departments and users
-            group by 
-                record_id,
-                date,
-                department_id,
-                location_id,
-                examiner_id,
-                encounter_type
             order by record_id, date
         ),
         inserted as (
             insert into encounter_history(
                 encounter_id,
                 date,
+                actor_id,
+                change_type,
                 department_id,
                 location_id,
                 examiner_id,
@@ -397,12 +433,18 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
             select
                 record_id,
                 date,
+                actor_id,
+                case when change_type = 'type' then 'encounter_type'
+                    when change_type = 'supervising clinician' then 'examiner'
+                    else change_type
+                end as change_type,
                 department_id,
                 location_id,
                 examiner_id,
                 encounter_type
             from change_log_with_id
             where not exists (select encounter_id from encounter_history where encounter_id = record_id)
+            and location_id notnull and department_id notnull and examiner_id notnull
             returning encounter_id
         )
         select max(encounter_id) as "maxId"
@@ -412,9 +454,6 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
           replacements: {
             fromId,
             limit: batchSize,
-            placeholderDepartment,
-            placeholderLocation,
-            placeholderUser,
           },
         },
       );
@@ -423,7 +462,7 @@ export async function migrateChangelogNotesToEncounterHistory(options = {}) {
 
       log.info(`Migrated changelog of ${batchSize} batch_encounters...`);
 
-      sleepAsync(50);
+      await sleepAsync(50);
     }
 
     process.exit(0);
@@ -438,17 +477,5 @@ export const migrateChangelogNotesToEncounterHistoryCommand = new Command(
 )
   .description('Migrates changelog notes to encounter history')
   .option('-b, --batchSize <number>', 'Batching size for migrating changelog notes')
-  .option(
-    '-u, --placeholderUser <string>',
-    'Placeholder user when cannot work out which user from the changelog',
-  )
-  .option(
-    '-d, --placeholderDepartment <string>',
-    'Placeholder department when cannot work out which department from the changelog',
-  )
-  .option(
-    '-l, --placeholderLocation <string>',
-    'Placeholder location when cannot work out which location from the changelog',
-  )
 
   .action(migrateChangelogNotesToEncounterHistory);

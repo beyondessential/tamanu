@@ -2,13 +2,13 @@ import { Op } from 'sequelize';
 import { subDays, startOfDay, endOfDay, parseISO } from 'date-fns';
 import upperFirst from 'lodash/upperFirst';
 
-import { Location } from '../models/Location';
 import {
   ENCOUNTER_TYPES,
   DIAGNOSIS_CERTAINTY,
   NOTE_TYPES,
   VISIBILITY_STATUSES,
-} from '../constants';
+} from '@tamanu/constants';
+import { Location } from '../models/Location';
 import { ageInYears, toDateTimeString, format } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
@@ -27,7 +27,7 @@ const reportColumnTemplate = [
     accessor: data => ageInYears(data.patient.dateOfBirth),
   },
   { title: 'Patient Type', accessor: data => data.patientBillingType?.name },
-  { title: 'Admitting Doctor/Nurse', accessor: data => data.examiner?.displayName },
+  { title: 'Admitting Clinician', accessor: data => data.examiner?.displayName },
   {
     title: 'Admission Date',
     accessor: data => format(data.startDate, 'dd/MM/yyyy h:mm:ss a'),
@@ -75,50 +75,27 @@ const stringifyDiagnoses = (diagnoses, shouldBePrimary) =>
     .join('; ');
 
 const getAllNotes = async (models, encounterIds) => {
-  const locationChangeNotePages = await models.NotePage.findAll({
-    include: [
-      {
-        model: models.NoteItem,
-        as: 'noteItems',
-        where: {
-          content: {
-            [Op.like]: 'Changed location from%',
-          },
-        },
-      },
-    ],
+  const locationChangeNotes = await models.Note.findAll({
     where: {
+      content: {
+        [Op.like]: 'Changed location from%',
+      },
       recordId: encounterIds,
       noteType: NOTE_TYPES.SYSTEM,
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     },
   });
 
-  const departmentChangeNotePages = await models.NotePage.findAll({
-    include: [
-      {
-        model: models.NoteItem,
-        as: 'noteItems',
-        where: {
-          content: {
-            [Op.like]: 'Changed department from%',
-          },
-        },
-      },
-    ],
+  const departmentChangeNotes = await models.Note.findAll({
     where: {
+      content: {
+        [Op.like]: 'Changed department from%',
+      },
       recordId: encounterIds,
       noteType: NOTE_TYPES.SYSTEM,
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     },
   });
-
-  const locationChangeNotes = await Promise.all(
-    locationChangeNotePages.map(l => l.getCombinedNoteObject(models)),
-  );
-  const departmentChangeNotes = await Promise.all(
-    departmentChangeNotePages.map(d => d.getCombinedNoteObject(models)),
-  );
 
   return { locationChangeNotes, departmentChangeNotes };
 };

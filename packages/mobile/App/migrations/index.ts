@@ -22,7 +22,11 @@ import { addSettingTable1678400759000 } from './1678400759000-addSettingTable';
 import { addConsentGivenByToAdministeredVaccine1682923186000 } from './1682923186000-addConsentGivenByToAdministeredVaccine';
 import { addNewColumnsToAdministeredVaccine1683596516000 } from './1683596516000-addNewColumnsToAdministeredVaccine';
 import { changeDateColumnToNullableForAdministeredVaccine1683598923000 } from './1683598923000-changeDateColumnToNullableForAdministeredVaccine';
+import { addDisplayIdToUsers1688428478000 } from './1688428478000-addDisplayIdToUsers';
 import { addSpecimenTypeAndCollectedByToLabRequest1686083400000 } from './1686083400000-addSpecimenTypeAndCollectedByToLabRequest';
+import { addVitalLogs1690236942000 } from './1690236942000-addVitalLogs';
+import { migrateNotePagesToNotes1688950151000 } from './1688950151000-migrateNotePagesToNotes';
+import { addEncounterHistoryTable1693484817000 } from './1693484817000-addEncounterHistoryTable';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -48,5 +52,9 @@ export const migrationList = [
   addConsentGivenByToAdministeredVaccine1682923186000,
   addNewColumnsToAdministeredVaccine1683596516000,
   changeDateColumnToNullableForAdministeredVaccine1683598923000,
+  addDisplayIdToUsers1688428478000,
   addSpecimenTypeAndCollectedByToLabRequest1686083400000,
+  addVitalLogs1690236942000,
+  migrateNotePagesToNotes1688950151000,
+  addEncounterHistoryTable1693484817000,
 ];

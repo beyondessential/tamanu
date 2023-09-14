@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { Collapse, Button, Typography } from '@material-ui/core';
 import { kebabCase } from 'lodash';
-import { PATIENT_ISSUE_TYPES } from '@tamanu/shared/constants';
+import { PATIENT_ISSUE_TYPES } from '@tamanu/constants';
 import { Colors } from '../../constants';
 import { Modal } from '../Modal';
 import { PatientAlert } from '../PatientAlert';

@@ -18,12 +18,14 @@ permissions:
 jobs:
   info:
     # only run for manual dispatch or for non-permanent branches
-    if: github.event_name == 'workflow_dispatch' || (!startsWith(github.ref, 'refs/heads/release') && github.ref != 'refs/heads/main')
+    if: github.event_name == 'workflow_dispatch' || (!startsWith(github.ref, 'refs/heads/release') && !startsWith(github.head_ref, 'release/') && github.ref != 'refs/heads/main' && github.ref_name != 'main')
     name: Branch info
     uses: ./.github/workflows/branch-info.yml
 
   down:
     needs: info
+    # check once again after normalisation just in case
+    if: github.event_name == 'workflow_dispatch' || (!startsWith(needs.info.outputs.branch, 'release-') && needs.info.outputs.branch != 'main')
     name: Bring down environment
     runs-on: ubuntu-latest
 

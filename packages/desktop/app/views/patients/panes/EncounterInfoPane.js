@@ -1,10 +1,10 @@
 import React from 'react';
-import { formatShort } from '../../../components';
+import { DateDisplay } from '../../../components';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 import { getFullLocationName } from '../../../utils/location';
 import { InfoCard, InfoCardItem, InfoCardHeader } from '../../../components/InfoCard';
+import { getDepartmentName } from '../../../utils/department';
 
-const getDepartmentName = ({ department }) => (department ? department.name : 'Unknown');
 const getReferralSource = ({ referralSource }) =>
   referralSource ? referralSource.name : 'Unknown';
 
@@ -37,7 +37,7 @@ export const EncounterInfoPane = React.memo(
       )}
       <InfoCardItem label="Encounter type" value={getEncounterType(encounter)} />
       {encounter.endDate && (
-        <InfoCardItem label="Discharge date" value={formatShort(encounter.endDate)} />
+        <InfoCardItem label="Discharge date" value={DateDisplay.stringFormat(encounter.endDate)} />
       )}
       <InfoCardItem label="Reason for encounter" value={encounter.reasonForEncounter} />
     </InfoCard>

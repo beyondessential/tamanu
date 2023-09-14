@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { addDays, format } from 'date-fns';
 
 import { DATE_TIME_FORMAT } from '../components/Charts/components/DateTimeSelector';
-import { useVitalsSurvey } from '../api/queries/useVitalsSurvey';
+import { useVitalsVisualisationConfigsQuery } from '../api/queries/useVitalsVisualisationConfigsQuery';
 
 export const VitalChartDataContext = React.createContext({
   visualisationConfigs: [],
@@ -15,20 +15,22 @@ export const VitalChartDataContext = React.createContext({
   setDateRange: () => {},
   dateRange: ['', ''],
   isInMultiChartsView: false,
+  setIsInMultiChartsView: () => {},
 });
 
 export const useVitalChartData = () => useContext(VitalChartDataContext);
 
 export const VitalChartDataProvider = ({ children }) => {
   const [chartKeys, setChartKeys] = useState([]);
+  const [isInMultiChartsView, setIsInMultiChartsView] = useState(false);
   const [modalTitle, setModalTitle] = useState(null);
   const [dateRange, setDateRange] = useState([
     format(addDays(new Date(), -1), DATE_TIME_FORMAT),
     format(new Date(), DATE_TIME_FORMAT),
   ]);
   const [vitalChartModalOpen, setVitalChartModalOpen] = useState(false);
-
-  const { visualisationConfigs } = useVitalsSurvey();
+  const { data } = useVitalsVisualisationConfigsQuery();
+  const { visualisationConfigs } = data;
 
   return (
     <VitalChartDataContext.Provider
@@ -42,7 +44,8 @@ export const VitalChartDataProvider = ({ children }) => {
         setModalTitle,
         dateRange,
         setDateRange,
-        isInMultiChartsView: chartKeys.length > 1,
+        isInMultiChartsView,
+        setIsInMultiChartsView,
       }}
     >
       {children}

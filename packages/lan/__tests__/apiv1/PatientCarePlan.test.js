@@ -67,7 +67,7 @@ describe('PatientCarePlan', () => {
         date: getCurrentDateTimeString(),
         carePlanId,
         patientId: patient.get('id'),
-        examinerId: onBehalfOfUserId,
+        onBehalfOfId: onBehalfOfUserId,
         content: 'Main care plan',
       });
       expect(createCarePlanRequest).toHaveSucceeded();
@@ -76,7 +76,7 @@ describe('PatientCarePlan', () => {
         .send({
           date: getCurrentDateTimeString(),
           content: 'Second note',
-          examinerId: onBehalfOfUserId,
+          onBehalfOfId: onBehalfOfUserId,
         });
       expect(additionalNoteRequest).toHaveSucceeded();
       const noteResult = await app.get(
@@ -99,7 +99,7 @@ describe('PatientCarePlan', () => {
         content: 'Main care plan',
       });
       const noteResult = await app.get(`/v1/patientCarePlan/${result.body.id}/notes`);
-      const deleteResult = await app.delete(`/v1/notePages/${noteResult.body[0].id}`);
+      const deleteResult = await app.delete(`/v1/notes/${noteResult.body[0].id}`);
       expect(deleteResult).toHaveSucceeded();
       const emptyNotesResult = await app.get(`/v1/patientCarePlan/${result.body.id}/notes`);
       expect(emptyNotesResult.body.length).toBe(0);

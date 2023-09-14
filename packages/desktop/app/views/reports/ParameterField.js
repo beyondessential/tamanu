@@ -1,6 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 import {
+  SUGGESTER_ENDPOINTS,
+  SUGGESTER_ENDPOINTS_SUPPORTING_ALL,
+} from '@tamanu/constants/suggesters';
+import {
   AutocompleteField,
   Field,
   SelectField,
@@ -17,6 +21,18 @@ import { VaccineCategoryField } from './VaccineCategoryField';
 import { ImagingTypeField } from './ImagingTypeField';
 import { VaccineField } from './VaccineField';
 import { useSuggester } from '../../api';
+
+export const FIELD_TYPES_TO_SUGGESTER_OPTIONS = {
+  ParameterSuggesterSelectField: SUGGESTER_ENDPOINTS_SUPPORTING_ALL,
+  ParameterAutocompleteField: SUGGESTER_ENDPOINTS,
+};
+
+export const FIELD_TYPES_WITH_SUGGESTERS = Object.keys(FIELD_TYPES_TO_SUGGESTER_OPTIONS);
+
+export const FIELD_TYPES_WITH_PREDEFINED_OPTIONS = [
+  'ParameterSelectField',
+  'ParameterMultiselectField',
+];
 
 const ParameterSuggesterSelectField = ({ suggesterEndpoint, name, ...props }) => (
   <Field component={SuggesterSelectField} endpoint={suggesterEndpoint} name={name} {...props} />
@@ -37,7 +53,7 @@ const ParameterMultiselectField = ({ name, ...props }) => (
 
 const EmptyField = styled.div``;
 
-const PARAMETER_FIELD_COMPONENTS = {
+export const PARAMETER_FIELD_COMPONENTS = {
   VillageField,
   LabTestLaboratoryField,
   PractitionerField,

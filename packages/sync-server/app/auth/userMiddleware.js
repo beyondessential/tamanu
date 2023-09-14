@@ -2,7 +2,7 @@ import { trace, propagation, context } from '@opentelemetry/api';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
 
-import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
+import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
 import { verifyToken, stripUser, findUserById } from './utils';
 
@@ -26,7 +26,7 @@ export const userMiddleware = ({ secret }) =>
 
     let contents = null;
     try {
-      contents = verifyToken(token, secret, {
+      contents = await verifyToken(token, secret, {
         issuer: canonicalHostName,
         audience: JWT_TOKEN_TYPES.ACCESS,
       });

@@ -128,6 +128,7 @@ export const fakeUser = (): IUser => {
   const uuid = uuidv4();
   return {
     id: `user-id-${uuid}`,
+    displayId: `user-displayId-${uuid}`,
     email: `user-email-${uuid}@example.com`,
     displayName: `user-displayName-${uuid}`,
     role: 'practitioner',

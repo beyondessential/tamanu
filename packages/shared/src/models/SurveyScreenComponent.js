@@ -1,5 +1,5 @@
 import { Sequelize, Op } from 'sequelize';
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { parseOrNull } from '../utils/parse-or-null';
 import { log } from '../services/logging';
 import { Model } from './Model';
@@ -81,5 +81,9 @@ export class SurveyScreenComponent extends Model {
       ...values,
       options: parseOrNull(options),
     };
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 }

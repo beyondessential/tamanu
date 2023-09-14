@@ -20,7 +20,9 @@ import {
   LAB_REQUEST_STATUSES,
   LOCATION_AVAILABILITY_STATUS,
   LOCATION_AVAILABILITY_TAG_CONFIG,
-} from '@tamanu/shared/constants';
+  DOCUMENT_SOURCES,
+  TEMPLATE_TYPES,
+} from '@tamanu/constants';
 
 import {
   medicationIcon,
@@ -28,6 +30,7 @@ import {
   radiologyIcon,
   scheduleIcon,
   patientIcon,
+  vaccineIcon,
 } from './images';
 
 export const MUI_SPACING_UNIT = 8;
@@ -166,7 +169,7 @@ export const noteTypes = [
   { value: NOTE_TYPES.CLINICAL_MOBILE, label: 'Clinical note (mobile)', hideFromDropdown: true },
   { value: NOTE_TYPES.DIETARY, label: 'Dietary' },
   { value: NOTE_TYPES.DISCHARGE, label: 'Discharge planning' },
-  { value: NOTE_TYPES.HANDOVER, label: 'Handover Notes' },
+  { value: NOTE_TYPES.HANDOVER, label: 'Handover note' },
   { value: NOTE_TYPES.MEDICAL, label: 'Medical' },
   { value: NOTE_TYPES.NURSING, label: 'Nursing' },
   { value: NOTE_TYPES.OTHER, label: 'Other' },
@@ -176,6 +179,10 @@ export const noteTypes = [
   { value: NOTE_TYPES.SURGICAL, label: 'Surgical' },
   { value: NOTE_TYPES.SYSTEM, label: 'System', hideFromDropdown: true },
 ];
+
+export const NOTE_TYPE_LABELS = Object.fromEntries(
+  noteTypes.map(noteType => [noteType.value, noteType.label]),
+);
 
 export const encounterOptions = [
   { value: ENCOUNTER_TYPES.ADMISSION, label: 'Hospital admission', image: medicationIcon },
@@ -204,6 +211,12 @@ export const encounterOptions = [
     value: ENCOUNTER_TYPES.SURVEY_RESPONSE,
     label: 'Survey response',
     image: patientIcon,
+    hideFromMenu: true,
+  },
+  {
+    value: ENCOUNTER_TYPES.VACCINATION,
+    label: 'Vaccination record',
+    image: vaccineIcon,
     hideFromMenu: true,
   },
 ];
@@ -301,6 +314,7 @@ export const LOCAL_STORAGE_KEYS = {
   SERVER: 'server',
   REMEMBER_EMAIL: 'remember-email',
   PERMISSIONS: 'permissions',
+  ROLE: 'role',
 };
 
 export const appointmentTypeOptions = Object.values(APPOINTMENT_TYPES).map(type => ({
@@ -419,6 +433,10 @@ export const PATIENT_REGISTRY_OPTIONS = [
   { value: PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY, label: 'Register birth' },
 ];
 
+export const TEMPLATE_TYPE_OPTIONS = [
+  { value: TEMPLATE_TYPES.PATIENT_LETTER, label: 'Patient Letter' },
+];
+
 export const PATIENT_STATUS = {
   INPATIENT: 'Inpatient',
   OUTPATIENT: 'Outpatient',
@@ -446,9 +464,14 @@ export const FORM_STATUSES = {
   SUBMIT_ATTEMPTED: 'SUBMIT_ATTEMPTED',
 };
 
+export const DOCUMENT_SOURCE_LABELS = {
+  [DOCUMENT_SOURCES.PATIENT_LETTER]: 'Patient Letter',
+  [DOCUMENT_SOURCES.UPLOADED]: 'Uploaded',
+};
+
 export const SUPPORTED_DOCUMENT_TYPES = {
-  PDF: 'PDF',
-  JPEG: 'JPEG',
+  PDF: 'application/pdf',
+  JPEG: 'image/jpeg',
 };
 
 export const REQUIRED_INLINE_ERROR_MESSAGE = '*Required';
@@ -456,4 +479,10 @@ export const REQUIRED_INLINE_ERROR_MESSAGE = '*Required';
 export const FORM_TYPES = {
   SEARCH_FORM: 'searchForm',
   DATA_FORM: 'dataForm',
+};
+
+export const NOTE_FORM_MODES = {
+  CREATE_NOTE: 'createNote',
+  EDIT_NOTE: 'editNote',
+  VIEW_NOTE: 'viewNote',
 };

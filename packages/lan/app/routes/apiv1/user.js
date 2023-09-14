@@ -5,7 +5,7 @@ import { QueryTypes } from 'sequelize';
 
 import { BadAuthenticationError } from 'shared/errors';
 import { getPermissions } from 'shared/permissions/middleware';
-import { simpleGet, paginatedGetList, permissionCheckingRouter } from './crudHelpers';
+import { simpleGet, paginatedGetList, permissionCheckingRouter } from 'shared/utils/crudHelpers';
 
 export const user = express.Router();
 
@@ -55,7 +55,7 @@ user.get(
     let andClauses = '';
 
     if (query.encounterType) {
-      andClauses = `AND encounters.encounter_type = '${query.encounterType}'`;
+      andClauses = 'AND encounters.encounter_type = :encounterType';
     }
 
     const recentlyViewedPatients = await req.db.query(
@@ -74,15 +74,12 @@ user.get(
         LEFT JOIN patients
           ON (patients.id = user_recently_viewed_patients.patient_id)
         LEFT JOIN (
-            SELECT patient_id, max(start_date) AS most_recent_open_encounter
+            SELECT *, ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY start_date DESC, id DESC) AS row_num
             FROM encounters
             WHERE end_date IS NULL
-            GROUP BY patient_id
-          ) recent_encounter_by_patient
-          ON (patients.id = recent_encounter_by_patient.patient_id)
-        LEFT JOIN encounters
-          ON (patients.id = encounters.patient_id AND recent_encounter_by_patient.most_recent_open_encounter = encounters.start_date)
-        WHERE user_recently_viewed_patients.user_id = '${currentUser.id}'
+            ) encounters
+            ON (patients.id = encounters.patient_id AND encounters.row_num = 1)
+        WHERE user_recently_viewed_patients.user_id = :userId
         ${andClauses}
         ORDER BY last_accessed_on DESC
         LIMIT 12
@@ -91,6 +88,10 @@ user.get(
         model: Patient,
         type: QueryTypes.SELECT,
         mapToModel: true,
+        replacements: {
+          userId: currentUser.id,
+          encounterType: query.encounterType,
+        },
       },
     );
 
@@ -120,6 +121,46 @@ user.post(
     });
 
     res.send(createdRelation);
+  }),
+);
+
+user.get(
+  '/userPreferences',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { UserPreference },
+      user: currentUser,
+    } = req;
+
+    req.checkPermission('read', currentUser);
+
+    const userPreferences = await UserPreference.findOne({
+      where: { userId: currentUser.id },
+    });
+
+    // Return {} as default if no user preferences exist
+    res.send(userPreferences || {});
+  }),
+);
+
+user.post(
+  '/userPreferences',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { UserPreference },
+      user: currentUser,
+      body,
+    } = req;
+
+    req.checkPermission('write', currentUser);
+
+    const { selectedGraphedVitalsOnFilter } = body;
+    const [userPreferences] = await UserPreference.upsert({
+      selectedGraphedVitalsOnFilter,
+      userId: currentUser.id,
+    });
+
+    res.send(userPreferences);
   }),
 );
 

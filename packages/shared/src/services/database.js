@@ -3,6 +3,7 @@ import { createNamespace } from 'cls-hooked';
 import pg from 'pg';
 import util from 'util';
 
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from './logging';
 import { serviceContext, serviceName } from './logging/context';
 
@@ -10,7 +11,6 @@ import { migrate, assertUpToDate, NON_SYNCING_TABLES } from './migrations';
 import * as models from '../models';
 import { createDateTypes } from './createDateTypes';
 import { setupQuote } from '../utils/pgComposite';
-import { SYNC_DIRECTIONS } from '../constants';
 
 createDateTypes();
 
@@ -67,16 +67,19 @@ async function connectToDatabase(dbOptions) {
     await unsafeRecreatePgDb({ ...dbOptions, name });
   }
 
-  log.info(
-    `Connecting to database ${username || '<no username>'}:*****@${host || '<no host>'}:${port ||
-      '<no port>'}/${name || '<no name>'}...`,
-  );
+  log.info('databaseConnection', {
+    username,
+    host,
+    port,
+    name,
+  });
 
   const logging = verbose
     ? (query, obj) =>
-        log.debug(
-          `${util.inspect(query)}; -- ${util.inspect(obj.bind || [], { breakLength: Infinity })}`,
-        )
+        log.debug('databaseQuery', {
+          query: util.inspect(query),
+          binding: util.inspect(obj.bind || [], { breakLength: Infinity }),
+        })
     : null;
 
   const options = {
@@ -138,7 +141,7 @@ export async function initDatabase(dbOptions) {
     allowNull: false,
     primaryKey: true,
   };
-  log.info(`Registering ${modelClasses.length} models...`);
+  log.info('registeringModels', { count: modelClasses.length });
   modelClasses.forEach(modelClass => {
     modelClass.init(
       {

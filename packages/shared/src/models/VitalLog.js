@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/shared/constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
@@ -49,7 +49,7 @@ export class VitalLog extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds, sessionConfig) {
+  static buildPatientSyncFilter(patientIds, sessionConfig) {
     if (patientIds.length === 0) {
       return null;
     }

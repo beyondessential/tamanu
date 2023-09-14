@@ -9,12 +9,12 @@ import {
   IMAGING_AREA_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
   VISIBILITY_STATUSES,
-} from 'shared/constants';
+} from '@tamanu/constants';
 import { NotFoundError } from 'shared/errors';
+import { permissionCheckingRouter } from 'shared/utils/crudHelpers';
 import { toDateTimeString, toDateString } from 'shared/utils/dateTime';
-import { getNotePageWithType } from 'shared/utils/notePages';
+import { getNoteWithType } from 'shared/utils/notes';
 import { mapQueryFilters } from '../../database/utils';
-import { permissionCheckingRouter } from './crudHelpers';
 import { getImagingProvider } from '../../integrations/imaging';
 
 async function renderResults(models, imagingRequest) {
@@ -59,6 +59,12 @@ async function renderResults(models, imagingRequest) {
 const caseInsensitiveStartsWithFilter = (fieldName, _operator, value) => ({
   [fieldName]: {
     [Op.iLike]: `${value}%`,
+  },
+});
+
+const caseInsensitiveFilter = (fieldName, _operator, value) => ({
+  [fieldName]: {
+    [Op.iLike]: `%${value}%`,
   },
 });
 
@@ -121,8 +127,7 @@ imagingRequest.get(
           ],
         },
         {
-          association: 'notePages',
-          include: [{ association: 'noteItems' }],
+          association: 'notes',
         },
       ],
     });
@@ -159,12 +164,12 @@ imagingRequest.put(
     }
 
     // Get related notes (general, area to be imaged)
-    const relatedNotePages = await imagingRequestObject.getNotePages({
+    const relatedNotes = await imagingRequestObject.getNotes({
       where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
     });
 
-    const otherNotePage = getNotePageWithType(relatedNotePages, NOTE_TYPES.OTHER);
-    const areaNotePage = getNotePageWithType(relatedNotePages, NOTE_TYPES.AREA_TO_BE_IMAGED);
+    const otherNote = getNoteWithType(relatedNotes, NOTE_TYPES.OTHER);
+    const areaNoteObject = getNoteWithType(relatedNotes, NOTE_TYPES.AREA_TO_BE_IMAGED);
 
     const notes = {
       note: '',
@@ -173,39 +178,32 @@ imagingRequest.put(
 
     // Update or create the note with new content if provided
     if (note) {
-      if (otherNotePage) {
-        const [otherNoteItem] = await otherNotePage.getNoteItems();
-        const newNote = `${otherNoteItem.content}. ${note}`;
-        await otherNoteItem.update({ content: newNote });
-        notes.note = otherNoteItem.content;
+      if (otherNote) {
+        const newNote = `${otherNote.content}. ${note}`;
+        await otherNote.update({ content: newNote });
+        notes.note = otherNote.content;
       } else {
-        const notePage = await imagingRequestObject.createNotePage({
+        const noteObject = await imagingRequestObject.createNote({
           noteType: NOTE_TYPES.OTHER,
-        });
-        const noteItem = await notePage.createNoteItem({
           content: note,
           authorId: user.id,
         });
-        notes.note = noteItem.content;
+        notes.note = noteObject.content;
       }
     }
 
     // Update or create the imaging areas note with new content if provided
     if (areaNote) {
-      if (areaNotePage) {
-        const areaNoteItems = await areaNotePage.getNoteItems();
-        const areaNoteItem = areaNoteItems[0];
-        await areaNoteItem.update({ content: areaNote });
-        notes.areaNote = areaNoteItem?.content || '';
+      if (areaNoteObject) {
+        await areaNoteObject.update({ content: areaNote });
+        notes.areaNote = areaNote.content || '';
       } else {
-        const notePage = await imagingRequestObject.createNotePage({
+        const noteObject = await imagingRequestObject.createNote({
           noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
-        });
-        const noteItem = await notePage.createNoteItem({
           content: areaNote,
           authorId: user.id,
         });
-        notes.areaNote = noteItem.content;
+        notes.areaNote = noteObject.content;
       }
     }
 
@@ -254,25 +252,21 @@ imagingRequest.post(
       }
 
       if (note) {
-        const notePage = await newImagingRequest.createNotePage({
+        const noteObject = await newImagingRequest.createNote({
           noteType: NOTE_TYPES.OTHER,
-        });
-        const noteItem = await notePage.createNoteItem({
           content: note,
           authorId: user.id,
         });
-        notes.note = noteItem.content;
+        notes.note = noteObject.content;
       }
 
       if (areaNote) {
-        const notePage = await newImagingRequest.createNotePage({
+        const noteObject = await newImagingRequest.createNote({
           noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
-        });
-        const noteItem = await notePage.createNoteItem({
           content: areaNote,
           authorId: user.id,
         });
-        notes.areaNote = noteItem.content;
+        notes.areaNote = noteObject.content;
       }
     });
 
@@ -302,7 +296,7 @@ globalImagingRequests.get(
     const patientFilters = mapQueryFilters(filterParams, [
       { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },
       { key: 'lastName', mapFn: caseInsensitiveStartsWithFilter },
-      { key: 'displayId', mapFn: caseInsensitiveStartsWithFilter },
+      { key: 'displayId', mapFn: caseInsensitiveFilter },
     ]);
 
     const encounterFilters = mapQueryFilters(filterParams, [

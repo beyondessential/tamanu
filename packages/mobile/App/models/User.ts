@@ -1,15 +1,19 @@
 import { Entity, Column, Index, OneToMany } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { Referral } from './Referral';
-import { IUser, INoteItem } from '~/types';
+import { IUser } from '~/types';
 import { AdministeredVaccine } from './AdministeredVaccine';
-import { NoteItem } from './NoteItem';
+import { Note } from './Note';
 import { LabRequest } from './LabRequest';
+import { VitalLog } from './VitalLog';
 import { SYNC_DIRECTIONS } from './types';
 
 @Entity('user')
 export class User extends BaseModel implements IUser {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
+  
+  @Column()
+  displayId: string;
 
   @Index()
   @Column({ unique: true })
@@ -38,11 +42,14 @@ export class User extends BaseModel implements IUser {
   @OneToMany(() => AdministeredVaccine, (administeredVaccine) => administeredVaccine.recorder)
   recordedVaccines: AdministeredVaccine[];
 
-  @OneToMany(() => NoteItem, noteItem => noteItem.author)
-  authoredNoteItems: NoteItem[];
+  @OneToMany(() => Note, note => note.author)
+  authoredNotes: Note[];
 
-  @OneToMany(() => NoteItem, noteItem => noteItem.onBehalfOf)
-  onBehalfOfNoteItems: NoteItem[];
+  @OneToMany(() => Note, note => note.onBehalfOf)
+  onBehalfOfNotes: Note[];
+
+  @OneToMany(() => VitalLog, vitalLog => vitalLog.recordedBy)
+  recordedVitalLogs: VitalLog[];
 
   static excludedSyncColumns: string[] = [...BaseModel.excludedSyncColumns, 'localPassword'];
 }

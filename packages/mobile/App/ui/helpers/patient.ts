@@ -13,6 +13,13 @@ export enum VaccineStatus {
   HISTORICAL = 'HISTORICAL',
 }
 
+export enum VaccineCategory {
+  CAMPAIGN = 'Campaign',
+  CATCHUP = 'Catchup',
+  ROUTINE = 'Routine',
+  OTHER = 'Other',
+}
+
 export function getWeeksFromDate(date: string): number {
   return differenceInWeeks(new Date(), parseISO(date));
 }

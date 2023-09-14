@@ -13,7 +13,7 @@ import {
   REFERENCE_TYPE_VALUES,
   VISIBILITY_STATUSES,
   LAB_REQUEST_STATUSES,
-} from '../constants';
+} from '@tamanu/constants';
 import { toDateTimeString, toDateString } from '../utils/dateTime';
 import { fakeUUID } from '../utils/generateId';
 import {
@@ -117,7 +117,13 @@ export function fakeReferenceData(prefix = 'test-') {
 
 export function fakeUser(prefix = 'test-') {
   const id = fakeUUID();
-  return fakeStringFields(`${prefix}user_${id}_`, ['id', 'email', 'displayName', 'role']);
+  return fakeStringFields(`${prefix}user_${id}_`, [
+    'id',
+    'displayId',
+    'email',
+    'displayName',
+    'role',
+  ]);
 }
 
 export function fakeProgram(prefix = 'test-') {
@@ -337,6 +343,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
   },
   User: () => ({
     email: chance.email(),
+    displayId: chance.hash({ length: 5 }),
     displayName: chance.name(),
     role: 'practitioner',
   }),
@@ -349,16 +356,13 @@ const MODEL_SPECIFIC_OVERRIDES = {
   Encounter: () => ({
     encounterType: chance.pickone(ENCOUNTER_TYPE_VALUES),
   }),
-  NotePage: () => ({
-    // This is a hack because the type of NotePage.id is UUID, whereas tests might create ids of the form:
-    // NotePage.id.123e4567-e89b-12d3-a456-426614174000
+  Note: () => ({
+    // This is a hack because the type of Note.id is UUID, whereas tests might create ids of the form:
+    // Note.id.123e4567-e89b-12d3-a456-426614174000
     // Setting id: undefined allows the model to create a default uuid and therefore avoid erroring
     // It will be fixed properly as part of EPI-160
     id: undefined,
     noteType: chance.pickone(NOTE_TYPE_VALUES),
-  }),
-  NoteItem: () => ({
-    id: undefined,
   }),
   Location: () => ({
     maxOccupancy: 1,

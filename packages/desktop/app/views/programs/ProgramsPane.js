@@ -7,6 +7,7 @@ export const ProgramsPane = styled(Paper)`
   background: white;
   padding: 30px;
   max-width: 700px;
+  min-width: 500px;
   margin: 50px auto;
   border-radius: 3px;
 `;

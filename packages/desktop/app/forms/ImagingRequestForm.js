@@ -29,13 +29,14 @@ import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { DropdownButton } from '../components/DropdownButton';
+import { useLocalisedText } from '../components';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type).label;
 }
 
 function getEncounterLabel(encounter) {
-  const encounterDate = DateDisplay.rawFormat(encounter.startDate);
+  const encounterDate = DateDisplay.stringFormat(encounter.startDate);
   const encounterTypeLabel = getEncounterTypeLabel(encounter.encounterType);
   return `${encounterDate} (${encounterTypeLabel})`;
 }
@@ -84,6 +85,7 @@ export const ImagingRequestForm = React.memo(
     editedObject,
     generateId = shortid.generate,
   }) => {
+    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
     const { getLocalisation } = useLocalisation();
     const imagingTypes = getLocalisation('imagingTypes') || {};
     const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
@@ -104,7 +106,7 @@ export const ImagingRequestForm = React.memo(
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          requestedById: foreignKey('Requesting doctor is required'),
+          requestedById: foreignKey(`Requesting ${clinicianText.toLowerCase()} is required`),
           requestedDate: yup.date().required(),
         })}
         render={({ submitForm, values }) => {
@@ -119,10 +121,14 @@ export const ImagingRequestForm = React.memo(
                 component={DateTimeField}
                 saveDateAsString
               />
-              <TextInput label="Supervising clinician" disabled value={examinerLabel} />
+              <TextInput
+                label={`Supervising ${clinicianText.toLowerCase()}`}
+                disabled
+                value={examinerLabel}
+              />
               <Field
                 name="requestedById"
-                label="Requesting doctor"
+                label={`Requesting ${clinicianText.toLowerCase()}`}
                 required
                 component={AutocompleteField}
                 suggester={practitionerSuggester}

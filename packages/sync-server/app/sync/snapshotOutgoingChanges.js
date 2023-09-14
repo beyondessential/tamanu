@@ -4,7 +4,7 @@ import {
   SYNC_SESSION_DIRECTION,
   COLUMNS_EXCLUDED_FROM_SYNC,
 } from 'shared/sync';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from 'shared/services/logging/log';
 import { withConfig } from 'shared/utils/withConfig';
 
@@ -24,13 +24,17 @@ const snapshotChangesForModel = async (
   });
 
   const CHUNK_SIZE = config.sync.maxRecordsPerPullSnapshotChunk;
-  const modelHasSyncFilter = !!model.buildSyncFilter;
-  const filter = modelHasSyncFilter ? model.buildSyncFilter(patientIds, sessionConfig) : '';
-  if (modelHasSyncFilter && filter === null) {
-    // if filter is null, it indicates no records will be available so no point in going further
+  const modelHasPatientSyncFilter = !!model.buildPatientSyncFilter;
+  const patientSyncFilter = modelHasPatientSyncFilter
+    ? model.buildPatientSyncFilter(patientIds, sessionConfig)
+    : '';
+  if (modelHasPatientSyncFilter && patientSyncFilter === null) {
+    // if patient sync filter is null, it indicates no records will be available so no point in going further
     // e.g. patientIds is empty, so a patient linked filter will produce no data
     return 0;
   }
+
+  const filter = modelHasPatientSyncFilter ? patientSyncFilter : model.buildSyncFilter();
 
   const { tableName: table } = model;
 
@@ -90,8 +94,8 @@ const snapshotChangesForModel = async (
         LIMIT :limit
         RETURNING record_id
       )
-      SELECT MAX(record_id) as "maxId", 
-        count(*) as "count" 
+      SELECT MAX(record_id) as "maxId",
+        count(*) as "count"
       FROM inserted;
     `,
       {

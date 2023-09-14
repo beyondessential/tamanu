@@ -2,19 +2,30 @@ name: CD Client
 
 on:
   workflow_dispatch:
+    inputs:
+      bucket:
+        description: S3 bucket to upload to
+        required: true
+        default: release
+        type: choice
+        options:
+          - release
+          - dev or rc
   pull_request:
   push:
     branches:
       - main
       - release/*
+    tags:
+      - v*.*.*
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.pull_request.id || github.ref }}
   cancel-in-progress: true
 
 permissions:
-  contents: read
-  pull-requests: write
+  contents: write # for uploading to release
+  pull-requests: write # for writing comment
   id-token: write # OIDC token for AWS
 
 jobs:
@@ -100,9 +111,15 @@ jobs:
 
       - name: Start container
         run: |
-          docker run -dit --rm --name working \
-            -v $PWD/release:/project/packages/desktop/release \
-            working
+          tryonce() {
+            docker run -dit --rm --name working \
+              -v $PWD/release:/app/packages/desktop/release \
+              working
+            sleep 1
+            docker exec working echo "Container started"
+          }
+
+          tryonce || tryonce || tryonce
 
       - name: Package for Linux, Mac, Windows
         run: |
@@ -115,10 +132,16 @@ jobs:
       - name: Package for Windows (AppData NSIS)
         run: docker exec working yarn run package-only --win --x64
 
-      - name: Switch to Unelevated NSIS-only build
-        run: docker exec working mv /package-unelevated.json package.json
+      - name: Switch to MSI build
+        run: docker exec working mv /package-msi.json package.json
 
-      - name: Package for Windows (Unelevated NSIS)
+      - name: Package for Windows (MSI)
+        run: docker exec working yarn run package-only --win --x64
+
+      - name: Switch to Aspen build
+        run: docker exec working mv /package-aspen.json package.json
+
+      - name: Package for Windows (Aspen)
         run: docker exec working yarn run package-only --win --x64
 
       - name: Stop container
@@ -127,23 +150,25 @@ jobs:
       - name: Prepare final outputs
         run: |
           sudo chown -R $USER:$USER release
-          mkdir -p ops/{linux,mac,windows-{appdata,msi,system,unelevated}}
-          mv release/latest-linux.yml release/*.{AppImage,deb} ops/linux/
+          mkdir -p ops/{linux,mac,windows-{appdata,msi,system,aspen}} artifacts
+          mv release/latest-linux.yml release/*.AppImage ops/linux/
           mv release/*-mac* ops/mac/
+          cp release/*.msi artifacts/TamanuSetup.x64.msi
           mv release/*.msi ops/windows-msi/
+          mv release/aspen/*.msi ops/windows-aspen/
+          cp release/*.exe artifacts/TamanuSetup.x64.exe
           mv release/latest.yml release/*.exe* ops/windows-system/
           mv release/appdata/latest.yml release/appdata/*.exe* ops/windows-appdata/
-          mv release/unelevated/latest.yml release/unelevated/*.exe* ops/windows-unelevated/
           rm -rf release
 
       - name: Use release bucket
-        if: startsWith(github.ref, 'refs/heads/release/')
+        if: inputs.bucket == 'release' || github.ref_type == 'tag'
         run: |
           echo "S3_BUCKET=bes-tamanu-release-clients/${{ needs.info.outputs.version }}" >> $GITHUB_ENV
           echo "S3_URL=https://s3-ap-southeast-2.amazonaws.com/bes-tamanu-release-clients/${{ needs.info.outputs.version }}" >> $GITHUB_ENV
 
       - name: Use dev bucket
-        if: "!startsWith(github.ref, 'refs/heads/release/')"
+        if: inputs.bucket == 'dev or rc' || github.ref_type != 'tag'
         run: |
           echo "S3_BUCKET=bes-tamanu-dev-desktop-clients/${{ needs.info.outputs.branch }}" >> $GITHUB_ENV
           echo "S3_URL=https://s3.console.aws.amazon.com/s3/object/bes-tamanu-dev-desktop-clients?region=ap-southeast-2&prefix=${{ needs.info.outputs.branch }}" >> $GITHUB_ENV
@@ -153,6 +178,7 @@ jobs:
         run: aws s3 sync . s3://${{ env.S3_BUCKET }} --no-progress
 
       - name: Prepare comment
+        if: github.event_name == 'pull_request' || github.ref_type == 'tag'
         id: comment
         uses: actions/github-script@v6
         env:
@@ -162,18 +188,16 @@ jobs:
           script: |
             const {S3_URL, VERSION} = process.env;
             return [
-              '### :package: Desktop clients',
+              '## :package: Desktop clients',
               '',
               `- :window: **[Windows (System)](${S3_URL}/windows-system/Tamanu+Setup+${VERSION}.exe)**`,
               `- :window:   [Windows (AppData)](${S3_URL}/windows-appdata/Tamanu+Setup+${VERSION}.exe)`,
-              `- :window:   [Windows (Unelevated)](${S3_URL}/windows-unelevated/Tamanu+Setup+${VERSION}.exe)`,
               `- :window:   [Windows (MSI)](${S3_URL}/windows-msi/Tamanu+${VERSION}.msi)`,
+              `- :window:   [Windows (Aspen)](${S3_URL}/windows-aspen/Tamanu+${VERSION}.msi)`,
               `- :apple:    [macOS (Tar)](${S3_URL}/mac/Tamanu-${VERSION}-mac.tar.xz)`,
               `- :penguin:  [Linux (AppImage)](${S3_URL}/linux/Tamanu-${VERSION}.AppImage)`,
-              `- :penguin:  [Linux (Deb)](${S3_URL}/linux/Tamanu_${VERSION}_amd64.deb)`,
             ].join('\n');
 
-      # TODO: for releases, post comment elsewhere? on draft/release? slack?
       - name: Comment on PR
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v6
@@ -199,3 +223,22 @@ jobs:
                 body: process.env.COMMENT_BODY,
               });
             }
+
+      - name: Push to release
+        if: github.ref_type == 'tag'
+        uses: actions/github-script@v6
+        env:
+          RELEASE_SECTION: ${{ steps.comment.outputs.result }}
+          RELEASE_VERSION: ${{ needs.info.outputs.version }}
+        with:
+          script: |
+            const cwd = '${{ github.workspace }}';
+            const { uploadToRelease } = await import(`${cwd}/scripts/gha-release-ops.mjs`);
+            await uploadToRelease({
+              fs: await import('fs/promises'),
+              github,
+              context,
+              artifactsDir: `${cwd}/artifacts`,
+              version: process.env.RELEASE_VERSION,
+              section: process.env.RELEASE_SECTION,
+            });

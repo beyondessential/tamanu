@@ -5,8 +5,8 @@ import {
   randomReferenceData,
 } from 'shared/demoData/patients';
 import { randomLabRequest, randomDate } from 'shared/demoData';
-import { PATIENT_FIELD_DEFINITION_TYPES } from 'shared/constants/patientFields';
-import { LAB_REQUEST_STATUSES } from 'shared/constants';
+import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { Chance } from 'chance';
 import { fake } from 'shared/test-helpers/fake';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';

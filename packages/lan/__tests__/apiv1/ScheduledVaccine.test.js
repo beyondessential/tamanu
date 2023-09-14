@@ -1,4 +1,5 @@
 import { createScheduledVaccine } from 'shared/demoData/vaccines';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
 describe('Scheduled Vaccine', () => {
@@ -6,6 +7,7 @@ describe('Scheduled Vaccine', () => {
   let app = null;
   let scheduledVaccine1 = null;
   let scheduledVaccine2 = null;
+  let historicalVisibilityVaccine = null;
   let ctx;
 
   beforeAll(async () => {
@@ -19,13 +21,17 @@ describe('Scheduled Vaccine', () => {
         category: 'Category1',
         label: 'Label1',
         schedule: 'Schedule1',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       }),
     );
     scheduledVaccine2 = await models.ScheduledVaccine.create(
       await createScheduledVaccine(models, {
-        category: 'Category2',
-        label: 'Label2',
-        schedule: 'Schedule2',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      }),
+    );
+    historicalVisibilityVaccine = await models.ScheduledVaccine.create(
+      await createScheduledVaccine(models, {
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
       }),
     );
   });
@@ -33,8 +39,14 @@ describe('Scheduled Vaccine', () => {
 
   it('should reject with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');
-    const result = await noPermsApp.get(`/v1/scheduledVaccine`, {});
+    const result = await noPermsApp.get(`/v1/scheduledVaccine`);
     expect(result).toBeForbidden();
+  });
+
+  it('should only return vaccines with visibilityStatus = current', async () => {
+    const result = await app.get(`/v1/scheduledVaccine`, {});
+    expect(result).toHaveSucceeded();
+    expect(result.body.length).toBe(2);
   });
 
   describe('returns data based on query parameters', () => {

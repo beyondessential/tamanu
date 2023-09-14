@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { IMAGING_TABLE_VERSIONS, IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/shared/constants';
+import { IMAGING_TABLE_VERSIONS, IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
 import {
   DateField,
@@ -57,7 +57,6 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
       title="Search imaging requests"
       onSearch={setSearchParameters}
       initialValues={{ ...statusFilter, ...searchParameters }}
-      staticValues={{ displayIdExact: true }}
       hiddenFields={
         <>
           {!isCompletedTable && (
@@ -101,7 +100,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
         </>
       }
     >
-      <LocalisedField name="displayId" component={SearchField} />
+      <LocalisedField useShortLabel keepLetterCase name="displayId" component={SearchField} />
       <LocalisedField name="firstName" component={SearchField} />
       <LocalisedField name="lastName" component={SearchField} />
       <LocalisedField name="requestId" defaultLabel="Request ID" component={SearchField} />

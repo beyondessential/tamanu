@@ -1,7 +1,7 @@
 {
   "name": "desktop",
   "productName": "Tamanu",
-  "version": "1.29.0",
+  "version": "1.34.0",
   "description": "Tamanu Desktop application",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -77,8 +77,7 @@
     },
     "win": {
       "target": [
-        "nsis",
-        "msi"
+        "nsis"
       ]
     },
     "nsis": {
@@ -87,11 +86,11 @@
     },
     "msi": {
       "perMachine": true,
-      "runAfterFinish": false
+      "runAfterFinish": false,
+      "createDesktopShortcut": "always"
     },
     "linux": {
       "target": [
-        "deb",
         "AppImage"
       ],
       "category": "Development"
@@ -164,6 +163,7 @@
     "husky": "^0.14.3",
     "identity-obj-proxy": "^3.0.0",
     "json5-loader": "^1.0.1",
+    "js-sql-parser": "^1.4.1",
     "lint-staged": "^7.2.0",
     "mini-css-extract-plugin": "^0.4.1",
     "minimist": "^1.2.0",
@@ -173,6 +173,7 @@
     "pg-hstore": "^2.3.4",
     "prettier": "^1.14.0",
     "qrcode": "^1.5.0",
+    "react-ace": "^10.1.0",
     "react-test-renderer": "^16.4.1",
     "redux-logger": "^3.0.6",
     "rimraf": "^2.6.2",
@@ -228,7 +229,7 @@
     "nano": "^6.4.4",
     "nanoid": "^3.1.29",
     "node-polyglot": "^2.3.0",
-    "pdfjs-dist": "^3.2.146",
+    "pdfjs-dist": "3.3.122",
     "prop-types": "^15.6.2",
     "qs": "^6.10.2",
     "react": "^16.8.5",
@@ -259,7 +260,7 @@
     "styled-components": "^5.3.3",
     "typeface-roboto": "^0.0.54",
     "xlsx": "^0.14.0",
-    "yup": "^0.27.0"
+    "yup": "^0.32.9"
   },
   "devEngines": {
     "node": ">=7.x <11.0",

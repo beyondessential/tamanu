@@ -15,7 +15,7 @@ jobs:
     permissions:
       contents: write
     steps:
-    - if: "!startsWith(github.ref, 'refs/heads/release/')"
+    - if: (!startsWith(github.ref, 'refs/heads/release/'))
       run: |
         echo "This workflow can only be run on a release branch"
         exit 1
@@ -35,9 +35,10 @@ jobs:
         git config user.name github-actions
         git config user.email github-actions@github.com
         version=$(jq -r .version package.json)
+        git commit --allow-empty -am "Release v$version"
         echo "current_version=$version" >> $GITHUB_OUTPUT
         git tag -a "v$version" -m "Release $version"
-        git push --tags
+        git push --follow-tags
 
     - name: Bump version on branch
       run: node scripts/version.mjs '${{ inputs.version }}'
@@ -53,15 +54,6 @@ jobs:
 
     # do release management after the critical bits above as we care less if those fail
 
-    - name: Publish the draft release if one exists
-      uses: actions/github-script@v6
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const cwd = '${{ github.workspace }}';
-          const { publishRelease } = await import(`${cwd}/scripts/gha-release-ops.mjs`);
-          await publishRelease(github, context, '${{ steps.tagged.outputs.current_version }}');
-
     - name: Create draft for next release
       uses: actions/github-script@v6
       with:
@@ -70,3 +62,12 @@ jobs:
           const cwd = '${{ github.workspace }}';
           const { createDraftRelease } = await import(`${cwd}/scripts/gha-release-ops.mjs`);
           await createDraftRelease(await import('fs'), github, context, cwd, '${{ steps.nextv.outputs.next_version }}');
+
+    - name: Publish the draft release if one exists
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const cwd = '${{ github.workspace }}';
+          const { publishRelease } = await import(`${cwd}/scripts/gha-release-ops.mjs`);
+          await publishRelease(github, context, '${{ steps.tagged.outputs.current_version }}');

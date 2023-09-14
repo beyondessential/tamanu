@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
-import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
+import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import styled from 'styled-components';
 import { useApi, useSuggester, combineQueries } from '../api';
@@ -31,7 +31,7 @@ const useLabRequests = labRequestIds => {
       };
     }),
   });
-  return combineQueries(queries);
+  return combineQueries(queries, { filterNoData: true });
 };
 
 export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {

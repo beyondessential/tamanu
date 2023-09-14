@@ -4,9 +4,8 @@ import { Box, Logo } from '../patientCertificates/Layout';
 import { H1, H3 } from '../patientCertificates/Typography';
 import { Divider } from './Divider';
 
-export const HandoverHeaderSection = ({ getLocalisation, logoSrc, locationGroupName }) => {
-  const title = getLocalisation('templates.letterhead.title');
-  const subTitle = getLocalisation('templates.letterhead.subTitle');
+export const HandoverHeaderSection = ({ letterheadConfig, logoSrc, locationGroupName }) => {
+  const { title, subTitle } = letterheadConfig;
   return (
     <>
       {logoSrc && <Logo logoSrc={logoSrc} />}
