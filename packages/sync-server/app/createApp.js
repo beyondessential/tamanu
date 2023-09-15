@@ -1,3 +1,4 @@
+import './utils/customYupMethods';
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import config from 'config';
@@ -9,7 +10,6 @@ import { constructPermission } from 'shared/permissions/middleware';
 import { SERVER_TYPES } from '@tamanu/constants';
 
 import { buildSettingsReader } from '@tamanu/shared/settings/middleware';
-import { createCustomYupMethods } from './utils/customYupMethods';
 
 import { buildRoutes } from './buildRoutes';
 import { authModule } from './auth';
@@ -22,9 +22,7 @@ import { versionCompatibility } from './middleware/versionCompatibility';
 import { version } from './serverInfo';
 
 export function createApp(ctx) {
-  const { store, emailService, settings } = ctx;
-
-  createCustomYupMethods(settings);
+  const { store, emailService } = ctx;
 
   // Init our app
   const app = express();

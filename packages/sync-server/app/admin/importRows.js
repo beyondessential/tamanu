@@ -45,7 +45,7 @@ export async function importRows(
   { rows, sheetName, stats: previousStats = {}, foreignKeySchemata = {} },
 ) {
   const stats = { ...previousStats };
-  const readSettings = new ReadSettings(models);
+  const settings = new ReadSettings(models);
   log.debug('Importing rows to database', { count: rows.length });
   if (rows.length === 0) {
     log.debug('Nothing to do, skipping');
@@ -150,7 +150,7 @@ export async function importRows(
         const { type } = values;
         const specificSchemaName = `SSC${type}`;
         const specificSchemaExists = !!schemas[specificSchemaName];
-        const validateQuestionEnabled = await readSettings.get('validateQuestionConfigs.enabled');
+        const validateQuestionEnabled = await settings.get('validateQuestionConfigs.enabled');
 
         if (validateQuestionEnabled && specificSchemaExists) {
           schemaName = specificSchemaName;
@@ -170,7 +170,12 @@ export async function importRows(
       validRows.push({
         model,
         sheetRow,
-        values: await schema.validate(values, { abortEarly: false }),
+        values: await schema.validate(values, {
+          abortEarly: false,
+          context: {
+            settings,
+          },
+        }),
       });
     } catch (err) {
       updateStat(stats, statkey(model, sheetName), 'errored');
