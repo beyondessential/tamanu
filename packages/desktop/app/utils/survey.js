@@ -1,3 +1,4 @@
+// Much of this file is duplicated in `packages/mobile/App/ui/components/Forms/SurveyForm/helpers.ts`
 import React from 'react';
 import * as yup from 'yup';
 import { inRange } from 'lodash';

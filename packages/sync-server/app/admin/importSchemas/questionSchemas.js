@@ -22,8 +22,8 @@ export const SSCPatientData = SurveyScreenComponent.shape({
           isAdditionalData: yup.boolean(),
           fieldType: yup
             .string()
-            .required()
-            .oneOf(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
+            .oneOf(PROGRAM_DATA_ELEMENT_TYPE_VALUES)
+            .required(),
         })
         .noUnknown()
         .default(null),

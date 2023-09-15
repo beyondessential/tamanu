@@ -1,3 +1,4 @@
+// Much of this file is duplicated in `packages/desktop/app/utils/survey.js`
 import * as Yup from 'yup';
 
 import { getAgeFromDate, getAgeWithMonthsFromDate } from '~/ui/helpers/date';

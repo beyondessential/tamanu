@@ -25,12 +25,14 @@ import { Department } from './Department';
 import { Location } from './Location';
 import { Referral } from './Referral';
 import { LabRequest } from './LabRequest';
+import { EncounterHistory } from './EncounterHistory';
 import { readConfig } from '~/services/config';
 import { ReferenceData, ReferenceDataRelation } from '~/models/ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { DateTimeStringColumn } from './DateColumns';
 import { Note } from './Note';
+import { AfterInsert } from 'typeorm';
 
 const TIME_OFFSET = 3;
 
@@ -99,6 +101,12 @@ export class Encounter extends BaseModel implements IEncounter {
   labRequests: LabRequest[];
 
   @OneToMany(
+    () => EncounterHistory,
+    encounterHistory => encounterHistory.encounter,
+  )
+  encounterHistory: LabRequest[];
+
+  @OneToMany(
     () => Diagnosis,
     diagnosis => diagnosis.encounter,
     {
@@ -146,6 +154,11 @@ export class Encounter extends BaseModel implements IEncounter {
   @BeforeInsert()
   async markPatientForSync(): Promise<void> {
     await Patient.markForSync(this.patient);
+  }
+
+  @AfterInsert()
+  async snapshotEncounter(): Promise<void> {
+    await EncounterHistory.createSnapshot(this);
   }
 
   static async getCurrentEncounterForPatient(patientId: string): Promise<Encounter | undefined> {

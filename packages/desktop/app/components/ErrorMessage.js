@@ -8,7 +8,7 @@ export const ErrorMessage = ({ title, errorMessage, error }) => {
       <Alert severity="error">
         <AlertTitle>{title}</AlertTitle>
         {errorMessage}
-        {error ? <pre>error.stack</pre> : ''}
+        {error ? <pre>{error.stack}</pre> : ''}
       </Alert>
     </Box>
   );
