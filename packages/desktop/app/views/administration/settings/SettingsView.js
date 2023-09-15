@@ -114,7 +114,7 @@ export const SettingsView = React.memo(() => {
     <AdminViewContainer title="Settings">
       <StyledTopBar>
         <ScopeSelector selectedFacility={selectedFacility} onChangeFacility={onChangeFacility} />
-        <DefaultSettingsButton size="large" onClick={() => setIsDefaultModalOpen(true)}>
+        <DefaultSettingsButton onClick={() => setIsDefaultModalOpen(true)}>
           <Settings />
           View default {scope} settings
         </DefaultSettingsButton>
