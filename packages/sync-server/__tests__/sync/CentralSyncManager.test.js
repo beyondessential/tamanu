@@ -373,6 +373,7 @@ describe('CentralSyncManager', () => {
               return mockedModelSnapshotOutgoingChangesQueryPromise;
             },
           },
+          buildSyncFilter: () => null,
         };
 
         return {

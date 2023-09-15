@@ -283,4 +283,8 @@ export class Patient extends Model {
       }
     }
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }

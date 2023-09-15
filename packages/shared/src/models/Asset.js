@@ -45,4 +45,8 @@ export class Asset extends Model {
     // Anything else that Buffer natively supports
     return { ...restOfValues, data: Buffer.from(data) };
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }
