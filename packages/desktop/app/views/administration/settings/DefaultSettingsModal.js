@@ -13,16 +13,17 @@ const SCOPE_DEFAULT_SETTINGS = {
 
 const Description = styled.div`
   font-size: 14px;
+  margin-bottom: 18px;
 `;
 
 export const DefaultSettingsModal = React.memo(({ scope, open, onClose }) => {
-  const defaultSettingsObject = SCOPE_DEFAULT_SETTINGS[scope];
+  const defaultSettingsForScope = JSON.stringify(SCOPE_DEFAULT_SETTINGS[scope], null, 2);
   return (
     <Modal open={open} onClose={onClose} width="lg" title={`Default ${scope} settings`}>
       <Description>
         These are the fallback values for keys not defined in {scope} settings
       </Description>
-      <JSONEditor value={JSON.stringify(defaultSettingsObject, null, 2)} editMode={false} />
+      <JSONEditor value={defaultSettingsForScope} editMode={false} />
     </Modal>
   );
 });
