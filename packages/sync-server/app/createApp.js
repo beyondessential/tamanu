@@ -21,7 +21,7 @@ import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { version } from './serverInfo';
 
-export async function createApp(ctx) {
+export function createApp(ctx) {
   const { store, emailService, settings } = ctx;
 
   createCustomYupMethods(settings);

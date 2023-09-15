@@ -31,6 +31,8 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
   await store.sequelize.assertUpToDate({ skipMigrationCheck });
 
   const app = createApp(context);
+
+  console.log(app);
   const countryTimeZone = await settings.get('countryTimeZone');
   const numberConcurrentPullSnapshots = await settings.get('sync.numberConcurrentPullSnapshots');
 

@@ -2,7 +2,7 @@
 import _config from 'config';
 import { log } from 'shared/services/logging';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
+import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
 import {
   createSnapshotTable,
   dropSnapshotTable,
