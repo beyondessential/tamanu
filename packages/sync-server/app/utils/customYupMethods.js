@@ -1,8 +1,9 @@
 import * as yup from 'yup';
 
-yup.addMethod(yup.string, 'whenSetting', function whenSetting(key, { is, then, otherwise }) {});
+// Initialize method
+yup.addMethod(yup.string, 'whenSetting', function whenSetting() {});
 
-// Idea for standardizing use of settings in yup validation:
+// Override method with settings implementation
 export const createCustomYupMethods = settings => {
   yup.addMethod(yup.string, 'whenSetting', function whenSetting(key, { is, then, otherwise }) {
     return this.test('whenSetting', '', async value => {
