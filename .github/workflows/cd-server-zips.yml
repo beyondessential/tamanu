@@ -98,8 +98,7 @@ jobs:
       - name: Prepare production configuration
         run: |
           set -ex
-          ls packages/${{ matrix.package.path }}
-          rm packages/${{ matrix.package.path }}/config/local.json
+          ls packages/${{ matrix.package.path }}/config
           sed -E \
             "s|cwd: '.',( //.*)?|cwd: 'packages/${{ matrix.package.path }}',|" \
             packages/${{ matrix.package.path }}/pm2.config.js > ${{ env.OUTPUT_NAME }}/pm2.config.js
