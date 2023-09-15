@@ -14,6 +14,9 @@ export class SurveyResponseAnswer extends Model {
         id: primaryKey,
         name: DataTypes.STRING,
         body: DataTypes.TEXT,
+        // when body is the user-readable name of a relation from the time the survey was answered
+        // (e.g. a village), bodyId is the id of that village
+        bodyId: DataTypes.STRING,
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );

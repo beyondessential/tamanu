@@ -18,6 +18,11 @@ export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAn
   @Column({ nullable: true })
   body?: string;
 
+  // when body is the user-readable name of a relation from the time the survey was answered
+  // (e.g. a village), bodyId is the id of that village
+  @Column({ nullable: true })
+  bodyId?: string;
+
   @ManyToOne(
     () => SurveyResponse,
     surveyResponse => surveyResponse.answers,

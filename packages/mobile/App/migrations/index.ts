@@ -27,6 +27,7 @@ import { addSpecimenTypeAndCollectedByToLabRequest1686083400000 } from './168608
 import { addVitalLogs1690236942000 } from './1690236942000-addVitalLogs';
 import { migrateNotePagesToNotes1688950151000 } from './1688950151000-migrateNotePagesToNotes';
 import { addEncounterHistoryTable1693484817000 } from './1693484817000-addEncounterHistoryTable';
+import { addBodyIdToSurveyResponseAnswer1694759796000 } from './1694759796000-addBodyIdToSurveyResponseAnswer';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -57,4 +58,5 @@ export const migrationList = [
   addVitalLogs1690236942000,
   migrateNotePagesToNotes1688950151000,
   addEncounterHistoryTable1693484817000,
+  addBodyIdToSurveyResponseAnswer1694759796000,
 ];
