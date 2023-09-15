@@ -52,7 +52,7 @@ jobs:
             path: lan
 
     name: Build ${{ matrix.package.name }} server zip
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     env:
       OUTPUT_NAME: "test-${{ matrix.package.name }}-${{ needs.info.outputs.version }}-windows"
       S3_PATH: s3://bes-tamanu-release-servers/test/${{ needs.info.outputs.version }}
@@ -69,7 +69,10 @@ jobs:
       # This is a workaround for https://github.com/aws-actions/amazon-ecr-login not working on windows
       # Root cause seems to be https://github.com/docker/docker-credential-helpers/issues/190
       - name: Login to ECR
-        uses: aws-actions/amazon-ecr-login@v1
+        shell: bash
+        run: |
+          echo '{"auths": {"https://index.docker.io/v1/": {}}, "HttpHeaders": { "User-Agent": "Docker-Client/24.0.2 (windows)"}}' > ~/.docker/config.json
+          aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin ${{ needs.image.outputs.registry }}
 
       - uses: actions/checkout@v3
 
@@ -83,10 +86,12 @@ jobs:
         run: docker create --name working --platform linux/amd64 ${{ needs.image.outputs.registry }}/tamanu/${{ matrix.package.name }}:${{ needs.info.outputs.version }}-serverzips
 
       - name: Copy files
+        shell: bash
         run: docker cp working:/app $OUTPUT_NAME
 
       - name: Reinstall dependencies
         working-directory: ${{ env.OUTPUT_NAME }}
+        shell: bash
         run: |
           set -ex
           rm -rf node_modules packages/*/node_modules
@@ -96,9 +101,9 @@ jobs:
         run: docker rm working
 
       - name: Prepare production configuration
+        shell: bash
         run: |
           set -ex
-          ls packages/${{ matrix.package.path }}/config
           sed -E \
             "s|cwd: '.',( //.*)?|cwd: 'packages/${{ matrix.package.path }}',|" \
             packages/${{ matrix.package.path }}/pm2.config.js > ${{ env.OUTPUT_NAME }}/pm2.config.js
