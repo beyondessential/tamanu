@@ -96,6 +96,7 @@ export const JSONEditor = React.memo(
         onLoad={onLoad}
         tabSize={2}
         markers={marker ? [marker] : null}
+        wrapEnabled
       />
     );
   },

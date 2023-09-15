@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { Settings } from '@material-ui/icons';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
-import { LargeButton, ContentPane, ButtonRow, TopBar } from '../../../components';
+import { LargeButton, TextButton, ContentPane, ButtonRow, TopBar } from '../../../components';
 import { AdminViewContainer } from '../components/AdminViewContainer';
 import { JSONEditor } from './JSONEditor';
 import { ScopeSelector } from './ScopeSelector';
@@ -13,6 +14,15 @@ import { notifySuccess, notifyError } from '../../../utils';
 
 const StyledTopBar = styled(TopBar)`
   padding: 0;
+`;
+
+const DefaultSettingsButton = styled(TextButton)`
+  font-size: 14px;
+  white-space: nowrap;
+  margin-left: 10px;
+  .MuiSvgIcon-root {
+    margin-right: 5px;
+  }
 `;
 
 const getScope = selectedFacility => {
@@ -104,10 +114,11 @@ export const SettingsView = React.memo(() => {
     <AdminViewContainer title="Settings">
       <StyledTopBar>
         <ScopeSelector selectedFacility={selectedFacility} onChangeFacility={onChangeFacility} />
+        <DefaultSettingsButton size="large" onClick={() => setIsDefaultModalOpen(true)}>
+          <Settings />
+          View default {scope} settings
+        </DefaultSettingsButton>
         <ButtonRow>
-          <LargeButton onClick={() => setIsDefaultModalOpen(true)}>
-            View default settings
-          </LargeButton>
           {editMode ? (
             <>
               <LargeButton variant="outlined" onClick={turnOffEditMode}>
