@@ -64,8 +64,10 @@ jobs:
           mask-aws-account-id: false
 
       - name: Login to ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        shell: bash
+        run: |
+          echo '{"auths": {"https://index.docker.io/v1/": {}}, "HttpHeaders": { "User-Agent": "Docker-Client/24.0.2 (windows)"}}' > ~/.docker/config.json
+          aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin ${{ needs.image.outputs.registry }}
 
       - uses: actions/checkout@v3
         with:
