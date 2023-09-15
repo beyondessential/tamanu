@@ -83,7 +83,7 @@ jobs:
           cache: yarn
 
       - name: Create container
-        run: docker create --name working --platform linux/amd64 ${{ needs.image.outputs.registry }}/tamanu/${{ matrix.package.name }}:${{ needs.info.outputs.version }}-serverzips
+        run: docker create --name working --platform windows-amd64 ${{ needs.image.outputs.registry }}/tamanu/${{ matrix.package.name }}:${{ needs.info.outputs.version }}-serverzips
 
       - name: Copy files
         shell: bash
