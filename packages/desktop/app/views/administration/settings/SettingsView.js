@@ -7,6 +7,7 @@ import { LargeButton, ContentPane, ButtonRow, TopBar } from '../../../components
 import { AdminViewContainer } from '../components/AdminViewContainer';
 import { JSONEditor } from './JSONEditor';
 import { ScopeSelector } from './ScopeSelector';
+import { DefaultSettingsModal } from './DefaultSettingsModal';
 import { useApi } from '../../../api';
 import { notifySuccess, notifyError } from '../../../utils';
 
@@ -35,6 +36,7 @@ export const SettingsView = React.memo(() => {
   const [settingsEditString, setSettingsEditString] = useState('');
   const [selectedFacility, setSelectedFacility] = useState(null);
   const [jsonError, setJsonError] = useState(null);
+  const [isDefaultModalOpen, setIsDefaultModalOpen] = useState(false);
 
   const areSettingsPresent = Object.keys(settings).length > 0;
   const settingsViewString = areSettingsPresent ? buildSettingsString(settings) : '';
@@ -103,6 +105,9 @@ export const SettingsView = React.memo(() => {
       <StyledTopBar>
         <ScopeSelector selectedFacility={selectedFacility} onChangeFacility={onChangeFacility} />
         <ButtonRow>
+          <LargeButton onClick={() => setIsDefaultModalOpen(true)}>
+            View default settings
+          </LargeButton>
           {editMode ? (
             <>
               <LargeButton variant="outlined" onClick={turnOffEditMode}>
@@ -127,6 +132,11 @@ export const SettingsView = React.memo(() => {
           fontSize={14}
         />
       </ContentPane>
+      <DefaultSettingsModal
+        open={isDefaultModalOpen}
+        onClose={() => setIsDefaultModalOpen(false)}
+        scope={scope}
+      />
     </AdminViewContainer>
   );
 });
