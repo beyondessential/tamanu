@@ -9,6 +9,7 @@ import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import { getToken } from 'sync-server/app/auth/utils';
 import { DEFAULT_JWT_SECRET } from 'sync-server/app/auth';
 import { initIntegrations } from 'sync-server/app/integrations';
+import { ReadSettings } from '@tamanu/settings';
 
 class MockApplicationContext {
   closeHooks = [];
@@ -23,6 +24,7 @@ class MockApplicationContext {
         }),
       ),
     };
+    this.settings = new ReadSettings(this.store.models);
     await initIntegrations(this);
     return this;
   }
@@ -42,6 +44,8 @@ class MockApplicationContext {
 export async function createTestContext() {
   const ctx = await new MockApplicationContext().init();
   const { models } = ctx.store;
+  const settings = new ReadSettings(models);
+  ctx.settings = settings;
   const expressApp = createApp(ctx);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest.agent(appServer);
