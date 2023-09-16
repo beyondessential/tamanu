@@ -30,8 +30,8 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
     throw new Error(`Found ${userCount} users already in the database, aborting provision`);
   }
 
-  const settings = new ReadSettings(store.models);
-  await checkIntegrationsConfig(settings);
+  const readSettings = new ReadSettings(store.models);
+  await checkIntegrationsConfig(readSettings);
 
   const {
     users = {},

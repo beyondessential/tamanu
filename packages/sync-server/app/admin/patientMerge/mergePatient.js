@@ -191,12 +191,7 @@ export async function mergePatientFieldValues(models, keepPatientId, unwantedPat
   return records;
 }
 
-export async function reconcilePatientFacilities(
-  models,
-  keepPatientId,
-  unwantedPatientId,
-  deleteAction,
-) {
+export async function reconcilePatientFacilities(models, keepPatientId, unwantedPatientId) {
   // This is a special case that helps with syncing the now-merged patient to any facilities
   // that track it
   // For any facility with a patient_facilities record on _either_ patient, we create a brand new
@@ -271,7 +266,7 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId, del
     } else if (deleteAction === PATIENT_MERGE_DELETION_ACTIONS.NONE) {
       // do nothing
     } else {
-      throw new Error(`Unknown config option for patientMerge.deletionAction: ${action}`);
+      throw new Error(`Unknown config option for patientMerge.deletionAction: ${deleteAction}`);
     }
 
     updates.Patient = 2;
