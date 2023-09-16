@@ -62,7 +62,6 @@ export async function programImporter({ errors, models, stats, file, whitelist =
   for (const surveyInfo of surveysToImport) {
     try {
       const context = createContext(surveyInfo.name);
-      console.log({ context });
       const result = await importSurvey(context, workbook, surveyInfo);
       stats.push(result);
     } catch (e) {
