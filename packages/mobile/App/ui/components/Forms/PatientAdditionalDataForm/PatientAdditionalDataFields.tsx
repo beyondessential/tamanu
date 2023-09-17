@@ -7,8 +7,10 @@ import { TextField } from '../../TextField/TextField';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
+import { Field } from '~/ui/components/Forms/FormField';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 import { Routes } from '~/ui/helpers/routes';
+import { PatientFieldDefinitionComponents } from '~/ui/helpers/fieldComponents';
 import { useBackend } from '~/ui/hooks';
 
 import {
@@ -70,16 +72,28 @@ function getComponentForField(fieldName: string): React.FC<{ fieldName: string}>
   throw new Error(`Unexpected field ${fieldName} for patient additional data.`);
 }
 
+const getFieldComponent = fieldName => {
+  const Component = getComponentForField(fieldName);
+  return <Component fieldName={fieldName} key={fieldName} />;
+}
+
+const getCustomFieldComponent = ({ id, name, options, fieldType }) => {
+  return <Field
+    name={id}
+    label={name}
+    component={PatientFieldDefinitionComponents[fieldType]}
+    options={options?.split(',')}
+  />;
+}
+
 export const PatientAdditionalDataFields = ({
   handleSubmit,
   isSubmitting,
   fields,
+  isCustomFields,
 }): ReactElement => (
   <StyledView justifyContent="space-between">
-    {fields.map(fieldName => {
-      const Component = getComponentForField(fieldName);
-      return <Component fieldName={fieldName} key={fieldName} />;
-    })}
+    {fields.map(isCustomFields ? getCustomFieldComponent : getFieldComponent)}
     <Button
       backgroundColor={theme.colors.PRIMARY_MAIN}
       onPress={handleSubmit}

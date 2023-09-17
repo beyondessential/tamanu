@@ -80,12 +80,8 @@ const getMappedFormValues = (values: object): object => {
   return mappedValues;
 };
 
-export abstract class BaseModel extends BaseEntity {
+export abstract class BaseModelWithoutId extends BaseEntity {
   static allModels = undefined;
-
-  @PrimaryColumn()
-  @Generated('uuid')
-  id: string;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -98,14 +94,14 @@ export abstract class BaseModel extends BaseEntity {
 
   constructor() {
     super();
-    const thisModel = this.constructor as typeof BaseModel;
+    const thisModel = this.constructor as typeof BaseModelWithoutId;
 
     if (!thisModel.syncDirection) {
       throw new Error(`syncDirection is required for model ${this.constructor.name}`);
     }
   }
 
-  static injectAllModels(allModels: Record<string, typeof BaseModel>): void {
+  static injectAllModels(allModels: Record<string, typeof BaseModelWithoutId>): void {
     this.allModels = allModels;
   }
 
@@ -151,42 +147,11 @@ export abstract class BaseModel extends BaseEntity {
     the same column name (fieldNameId: 'some-id'). However, it will only
     work that way on creation and not edition.
   */
-  static createAndSaveOne<T extends BaseModel>(data?: object): Promise<T> {
+  static createAndSaveOne<T extends BaseModelWithoutId>(data?: object): Promise<T> {
     const repo = this.getRepository<T>();
     return repo.create(sanitiseForImport<T>(repo, data)).save();
   }
 
-  /*
-    Helper function to properly update TypeORM relations. The .update()
-    method doesn't provide a reliable way of confirming it succeeded and
-    columns specified with 'IdRelation' and 'RelationId' need special handling.
-  */
-  static async updateValues<T extends BaseModel>(id: string, values: object): Promise<T | null> {
-    const repo = this.getRepository<T>();
-
-    // Find the actual instance we want to update
-    const instance = await repo.findOne(id);
-
-    // Bail early if no record was found
-    if (!instance) {
-      console.error(
-        `${this.name} record with ID ${id} doesn't exist, therefore it can't be updated`,
-      );
-      return null;
-    }
-
-    // Get appropiate key/value pairs to manage relations
-    const mappedValues = getMappedFormValues(values);
-
-    // Update each specified value
-    Object.entries(mappedValues).forEach(([key, value]) => {
-      instance[key] = value;
-    });
-
-    // Return the updated instance. NOTE: updated relations won't have
-    // all fields until you reload the instance again, only their ID.
-    return instance.save();
-  }
 
   static syncDirection = null;
 
@@ -202,4 +167,43 @@ export abstract class BaseModel extends BaseEntity {
     // model (see Diagnosis and Medication)
     return `${this.getRepository().metadata.tableName}s`;
   }
+}
+
+export abstract class BaseModel extends BaseModelWithoutId {
+
+    @PrimaryColumn()
+    @Generated('uuid')
+    id: string;
+
+    /*
+      Helper function to properly update TypeORM relations. The .update()
+      method doesn't provide a reliable way of confirming it succeeded and
+      columns specified with 'IdRelation' and 'RelationId' need special handling.
+    */
+    static async updateValues<T extends BaseModel>(id: string, values: object): Promise<T | null> {
+      const repo = this.getRepository<T>();
+
+      // Find the actual instance we want to update
+      const instance = await repo.findOne(id);
+
+      // Bail early if no record was found
+      if (!instance) {
+        console.error(
+          `${this.name} record with ID ${id} doesn't exist, therefore it can't be updated`,
+        );
+        return null;
+      }
+
+      // Get appropiate key/value pairs to manage relations
+      const mappedValues = getMappedFormValues(values);
+
+      // Update each specified value
+      Object.entries(mappedValues).forEach(([key, value]) => {
+        instance[key] = value;
+      });
+
+      // Return the updated instance. NOTE: updated relations won't have
+      // all fields until you reload the instance again, only their ID.
+      return instance.save();
+    }
 }

@@ -8,11 +8,12 @@ import { InformationBox } from '../navigation/screens/home/PatientDetails/Custom
 
 interface FieldRowDisplayProps {
   fields: string[][];
+  isCustomFields?: boolean;
 }
 
-export const FieldRowDisplay = ({ fields }: FieldRowDisplayProps): ReactElement => {
+export const FieldRowDisplay = ({ fields, isCustomFields }: FieldRowDisplayProps): ReactElement => {
   const { getString, getBool } = useLocalisation();
-  const visibleFields = fields.filter(([name]) => getBool(`fields.${name}.hidden`) !== true);
+  const visibleFields = isCustomFields ? fields : fields.filter(([name]) => getBool(`fields.${name}.hidden`) !== true);
   const fieldsPerRow = isTablet() ? 2 : 1;
   const rows = chunk(visibleFields, fieldsPerRow);
 
@@ -24,7 +25,7 @@ export const FieldRowDisplay = ({ fields }: FieldRowDisplayProps): ReactElement 
             <InformationBox
               key={name}
               flex={1}
-              title={getString(`fields.${name}.longLabel`)}
+              title={isCustomFields ? name : getString(`fields.${name}.longLabel`)}
               info={info}
             />
           ))}

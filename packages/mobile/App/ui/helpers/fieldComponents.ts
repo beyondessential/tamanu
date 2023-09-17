@@ -1,4 +1,4 @@
-import { FieldTypes } from './fields';
+import { FieldTypes, PatientFieldDefinitionTypes } from './fields';
 
 import { TextField, LimitedTextField } from '~/ui/components/TextField/TextField';
 import { RadioButtonGroup } from '~/ui/components/RadioButtonGroup';
@@ -37,4 +37,10 @@ export const FieldByType = {
   [FieldTypes.INSTRUCTION]: null,
   [FieldTypes.RESULT]: null,
   [FieldTypes.PATIENT_ISSUE_GENERATOR]: ReadOnlyField,
+};
+
+export const PatientFieldDefinitionComponents = {
+  [PatientFieldDefinitionTypes.STRING]: FieldByType[FieldTypes.TEXT],
+  [PatientFieldDefinitionTypes.NUMBER]: [FieldTypes.NUMBER],
+  [PatientFieldDefinitionTypes.SELECT]: [FieldTypes.SELECT],
 };

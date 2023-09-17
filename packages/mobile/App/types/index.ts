@@ -2,6 +2,9 @@ export * from './AuthToken';
 export * from './SyncConnectionParameters';
 
 export * from './IPatient';
+export * from './IPatientFieldDefinition';
+export * from './IPatientFieldDefinitionCategory';
+export * from './IPatientFieldValue';
 export * from './IPatientIssue';
 export * from './IPatientSecondaryId';
 export * from './IEncounter';
