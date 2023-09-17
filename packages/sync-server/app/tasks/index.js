@@ -22,6 +22,9 @@ export { startFhirWorkerTasks } from './fhir';
 
 export async function startScheduledTasks(context) {
   const { settings } = context;
+  const schedules = await settings.get('schedules');
+  const integrations = await settings.get('integrations');
+
   const taskClasses = [
     OutpatientDischarger,
     DeceasedPatientDischarger,
@@ -32,27 +35,27 @@ export async function startScheduledTasks(context) {
     FhirMissingResources,
   ];
 
-  if (await settings.get('schedules.automaticLabTestResultPublisher.enabled')) {
+  if (schedules.automaticLabTestResultPublisher.enabled) {
     taskClasses.push(AutomaticLabTestResultPublisher);
   }
 
-  if (await settings.get('schedules.covidClearanceCertificatePublisher.enabled')) {
+  if (schedules.covidClearanceCertificatePublisher.enabled) {
     taskClasses.push(CovidClearanceCertificatePublisher);
   }
 
-  if (await await settings.get('integrations.fijiVrs.enabled')) {
+  if (integrations.fijiVrs.enabled) {
     taskClasses.push(VRSActionRetrier);
   }
 
-  if (await settings.get('integrations.signer.enabled')) {
+  if (integrations.signer.enabled) {
     taskClasses.push(SignerWorkingPeriodChecker, SignerRenewalChecker, SignerRenewalSender);
   }
 
-  if (await settings.get('schedules.plannedMoveTimeout.enabled')) {
+  if (schedules.plannedMoveTimeout.enabled) {
     taskClasses.push(PlannedMoveTimeout);
   }
 
-  if (await settings.get('schedules.staleSyncSessionCleaner.enabled')) {
+  if (schedules.staleSyncSessionCleaner.enabled) {
     taskClasses.push(StaleSyncSessionCleaner);
   }
 

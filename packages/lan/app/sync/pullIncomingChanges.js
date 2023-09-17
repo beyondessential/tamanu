@@ -1,21 +1,19 @@
-import config from 'config';
 import { chunk } from 'lodash';
 import { log } from 'shared/services/logging';
 import { insertSnapshotRecords, SYNC_SESSION_DIRECTION } from 'shared/sync';
 
 import { calculatePageLimit } from './calculatePageLimit';
-// TODO: use db fetcher config
-const { persistedCacheBatchSize } = config.sync;
 
 export const pullIncomingChanges = async (centralServer, sequelize, sessionId, since) => {
   // initiating pull also returns the sync tick (or point on the sync timeline) that the
   // central server considers this session will be up to after pulling all changes
   log.info('Sync: Waiting for central server to prepare records to pull');
   const { totalToPull, pullUntil } = await centralServer.initiatePull(sessionId, since);
+  const { persistedCacheBatchSize, dynamicLimiter } = await centralServer.settings.get('sync');
 
   log.info('Sync: Pulling changes', { since, totalToPull });
   let fromId;
-  let limit = calculatePageLimit();
+  let limit = calculatePageLimit(dynamicLimiter);
   let totalPulled = 0;
 
   // pull changes a page at a time
@@ -55,7 +53,7 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
       await insertSnapshotRecords(sequelize, sessionId, batchOfRows);
     }
 
-    limit = calculatePageLimit(limit, pullTime);
+    limit = calculatePageLimit(dynamicLimiter, limit, pullTime);
   }
 
   return { totalPulled: totalToPull, pullUntil };
