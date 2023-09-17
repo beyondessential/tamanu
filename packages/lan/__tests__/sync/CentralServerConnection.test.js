@@ -31,7 +31,19 @@ const fakeTimeout = message => (url, opts) =>
 const fetch = jest.fn();
 
 const createCentralServerConnection = () => {
-  const centralServer = new CentralServerConnection({ deviceId: 'test' });
+  const centralServer = new CentralServerConnection({
+    deviceId: 'test',
+    settings: {
+      get: key => {
+        if (key === 'sync.requestFailureRate') return Promise.resolve(0);
+        return Promise.resolve({
+          multiplierMs: 300,
+          maxAttempts: 15,
+          maxWaitMs: 10000,
+        });
+      },
+    },
+  });
   centralServer.fetchImplementation = fetch;
   return centralServer;
 };
