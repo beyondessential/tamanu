@@ -1,5 +1,3 @@
-import config from 'config';
-
 import { log } from 'shared/services/logging';
 import { sleepAsync } from 'shared/utils';
 import { BadAuthenticationError, FacilityAndSyncVersionIncompatibleError } from 'shared/errors';

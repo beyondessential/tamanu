@@ -19,9 +19,9 @@ const vrsErrorHandler = buildErrorHandler(error => ({
 export const routes = (_context, requireClientHeaders) => {
   const router = express.Router();
   if (requireClientHeaders) {
-    routes.use(requireClientHeadersMiddleware);
+    router.use(requireClientHeadersMiddleware);
   }
-  routes.post(
+  router.post(
     '/hooks/patientCreated',
     asyncHandler(async (req, res) => {
       const { body, ctx } = req;
@@ -30,7 +30,7 @@ export const routes = (_context, requireClientHeaders) => {
     }),
   );
 
-  routes.use(vrsErrorHandler);
+  router.use(vrsErrorHandler);
   return router;
 };
 
