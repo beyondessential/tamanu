@@ -21,7 +21,9 @@ export const SubmitButton = ({ onSubmit, ...props }: SubmitButtonProps): ReactEl
     } catch (e) {
       throw e;
     } finally {
-      setIsLoading(false);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 2000);
     }
   }, [onSubmit, submitForm]);
   return (
