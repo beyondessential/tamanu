@@ -184,7 +184,7 @@ export async function createTestContext() {
   const syncConfig = await settings.get('sync');
   const centralServer = new CentralServerConnection({ deviceId: 'test', syncConfig });
 
-  const context = { baseApp, sequelize, models, centralServer };
+  const context = { baseApp, sequelize, models, centralServer, settings };
 
   context.syncManager = new FacilitySyncManager(context);
 

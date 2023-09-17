@@ -9,6 +9,7 @@ import { createTestContext } from '../utilities';
 describe('FacilitySyncManager edge cases', () => {
   let ctx;
   let models;
+  let settings;
   let sequelize;
   const TEST_SESSION_ID = 'sync123';
 
@@ -16,6 +17,7 @@ describe('FacilitySyncManager edge cases', () => {
     ctx = await createTestContext();
     models = ctx.models;
     sequelize = ctx.sequelize;
+    settings = ctx.settings;
   });
 
   afterAll(() => ctx.close());
@@ -37,6 +39,9 @@ describe('FacilitySyncManager edge cases', () => {
     const {
       FacilitySyncManager: TestFacilitySyncManager,
     } = require('../../app/sync/FacilitySyncManager');
+
+    const syncSettings = await settings.get('sync');
+
     const syncManager = new TestFacilitySyncManager({
       models,
       sequelize,
@@ -52,6 +57,9 @@ describe('FacilitySyncManager edge cases', () => {
           totalToPull: 0,
           pullUntil: 0,
         })),
+        settings: {
+          get: () => Promise.resolve(syncSettings),
+        },
       },
     });
     syncManager.__testSpyEnabled = true;
