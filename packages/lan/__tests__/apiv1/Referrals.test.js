@@ -121,8 +121,11 @@ describe('Referrals', () => {
   });
 
   it('should use the default department if one is not provided', async () => {
+    // Todo use db fetcher
     const { department: departmentCode } = config.survey.defaultCodes;
-    const department = await findOneOrCreate(ctx.models, ctx.models.Department, { code: departmentCode });
+    const department = await findOneOrCreate(ctx.models, ctx.models.Department, {
+      code: departmentCode,
+    });
 
     const { locationId } = encounter;
     const result = await app.post('/v1/referral').send({
@@ -142,6 +145,7 @@ describe('Referrals', () => {
   });
 
   it('should use the default location if one is not provided', async () => {
+    // Todo use db fetcher
     const { location: locationCode } = config.survey.defaultCodes;
     const location = await findOneOrCreate(ctx.models, ctx.models.Location, { code: locationCode });
 

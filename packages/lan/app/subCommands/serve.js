@@ -31,12 +31,13 @@ async function serve({ skipMigrationCheck }) {
     await context.sequelize.assertUpToDate({ skipMigrationCheck });
   }
 
-  await initDeviceId(context);
-  await checkConfig(config, context);
-  await performDatabaseIntegrityChecks(context);
   const settings = new ReadSettings(context.models, config.serverFacilityId);
   const syncConfig = await settings.get('sync');
   context.settings = settings;
+
+  await initDeviceId(context);
+  await checkConfig(config, context);
+  await performDatabaseIntegrityChecks(context);
   context.centralServer = new CentralServerConnection(context, syncConfig);
   context.centralServer.connect(); // preemptively connect central server to speed up sync
   context.syncManager = new FacilitySyncManager(context);

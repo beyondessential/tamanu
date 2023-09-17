@@ -3,6 +3,7 @@ import { TestProvider } from './TestProvider';
 
 export async function getImagingProvider(models) {
   const { Setting } = models;
+  // Todo use db fetcher
   const config = await Setting.get('integrations.imaging');
   if (!config || !config.enabled) return false;
 

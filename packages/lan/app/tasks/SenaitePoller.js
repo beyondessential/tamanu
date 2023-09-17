@@ -11,6 +11,7 @@ import { log } from 'shared/services/logging';
 const SENAITE_ERROR_STATUS = 'manual';
 
 const TARGET_STATES = ['verified', 'published', 'invalid', SENAITE_ERROR_STATUS];
+// TODO does this use db fetcher?
 const BASE_URL = config.senaite.server;
 
 function formatForSenaite(datetime) {

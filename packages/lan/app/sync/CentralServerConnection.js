@@ -83,8 +83,9 @@ export class CentralServerConnection {
 
     return callWithBackoff(
       async () => {
-        if (config.debugging.requestFailureRate) {
-          if (Math.random() < config.debugging.requestFailureRate) {
+        const requestFailureRate = await this.settings.get('sync.requestFailureRate');
+        if (requestFailureRate) {
+          if (Math.random() < requestFailureRate) {
             // intended to cause some % of requests to fail, to simulate a flaky connection
             throw new Error('Chaos: made your request fail');
           }
