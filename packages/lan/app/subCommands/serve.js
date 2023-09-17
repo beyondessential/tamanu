@@ -32,19 +32,19 @@ async function serve({ skipMigrationCheck }) {
   }
 
   const settings = new ReadSettings(context.models, config.serverFacilityId);
-  const syncConfig = await settings.get('sync');
   context.settings = settings;
+  const syncConfig = await settings.get('sync');
+  const countryTimeZone = await settings.get('countryTimeZone');
+  const discoverySettings = await settings.get('discovery');
 
   await initDeviceId(context);
   await checkConfig(config, context);
   await performDatabaseIntegrityChecks(context);
+
   context.centralServer = new CentralServerConnection(context, syncConfig);
   context.centralServer.connect(); // preemptively connect central server to speed up sync
   context.syncManager = new FacilitySyncManager(context);
   context.config = await settings.get();
-
-  const countryTimeZone = await settings.get('countryTimeZone');
-  const discoverySettings = await settings.get('discovery');
 
   await performTimeZoneChecks({
     remote: context.centralServer,

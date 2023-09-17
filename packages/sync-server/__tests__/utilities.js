@@ -25,6 +25,7 @@ class MockApplicationContext {
         }),
       ),
     };
+    this.settings = new ReadSettings(this.store.models);
     await initIntegrations(this);
     return this;
   }
@@ -44,6 +45,8 @@ class MockApplicationContext {
 export async function createTestContext() {
   const ctx = await new MockApplicationContext().init();
   const { models } = ctx.store;
+  const settings = new ReadSettings(models);
+  ctx.settings = settings;
   const expressApp = createApp(ctx);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest.agent(appServer);

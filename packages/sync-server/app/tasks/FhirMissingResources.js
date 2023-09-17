@@ -1,8 +1,8 @@
 import config from 'config';
-import { ScheduledTask } from 'shared/tasks';
 import { FHIR_INTERACTIONS, JOB_TOPICS } from '@tamanu/constants';
-import { log } from 'shared/services/logging';
-import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
+import { ScheduledTask } from '@tamanu/shared/tasks';
+import { log } from '@tamanu/shared/services/logging';
+import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 
 export class FhirMissingResources extends ScheduledTask {
   constructor(context) {
@@ -30,12 +30,13 @@ export class FhirMissingResources extends ScheduledTask {
       for (const UpstreamModel of Resource.UpstreamModels) {
         const upstreamTable = UpstreamModel.tableName;
 
-        const [{ total }] = await Resource.sequelize.query(
+        const [[{ total }]] = await Resource.sequelize.query(
           `SELECT COUNT(up.id) as total FROM "${upstreamTable}" up
           LEFT JOIN fhir."${resourceTable}" r ON r.upstream_id = up.id
           WHERE r.id IS NULL`,
         );
-        all += total;
+
+        all += parseInt(total);
       }
     }
 
@@ -48,7 +49,7 @@ export class FhirMissingResources extends ScheduledTask {
       for (const UpstreamModel of Resource.UpstreamModels) {
         const upstreamTable = UpstreamModel.tableName;
 
-        const [{ total }] = await Resource.sequelize.query(
+        const [[{ total }]] = await Resource.sequelize.query(
           `SELECT COUNT(up.id) as total FROM "${upstreamTable}" up
           LEFT JOIN fhir."${resourceTable}" r ON r.upstream_id = up.id
           WHERE r.id IS NULL`,

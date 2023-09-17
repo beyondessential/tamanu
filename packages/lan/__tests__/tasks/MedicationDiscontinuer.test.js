@@ -4,7 +4,9 @@ import {
   createDummyEncounterMedication,
 } from 'shared/demoData/patients';
 import { addDays, subDays } from 'date-fns';
+import config from 'config';
 import { getCurrentDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
+import { ReadSettings } from '@tamanu/settings';
 import { createTestContext } from '../utilities';
 import { MedicationDiscontinuer } from '../../app/tasks/MedicationDiscontinuer';
 
@@ -45,6 +47,9 @@ describe('Encounter', () => {
   beforeAll(async () => {
     context = await createTestContext();
     models = context.models;
+    const settings = new ReadSettings(models, config.serverFacilityId);
+    const contextConfig = await settings.get();
+    context.config = contextConfig;
     await context.baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
 

@@ -7,18 +7,18 @@ import { calculatePageLimit } from './calculatePageLimit';
 export const pullIncomingChanges = async (centralServer, sequelize, sessionId, since) => {
   // initiating pull also returns the sync tick (or point on the sync timeline) that the
   // central server considers this session will be up to after pulling all changes
-  log.info('Sync: Waiting for central server to prepare records to pull');
+  log.info('FacilitySyncManager.pull.waitingForCentral');
   const { totalToPull, pullUntil } = await centralServer.initiatePull(sessionId, since);
   const { persistedCacheBatchSize, dynamicLimiter } = await centralServer.settings.get('sync');
 
-  log.info('Sync: Pulling changes', { since, totalToPull });
+  log.info('FacilitySyncManager.pulling', { since, totalToPull });
   let fromId;
   let limit = calculatePageLimit(dynamicLimiter);
   let totalPulled = 0;
 
   // pull changes a page at a time
   while (totalPulled < totalToPull) {
-    log.debug('Sync: Pulling page of records', {
+    log.debug('FacilitySyncManager.pull.pullingPage', {
       fromId,
       limit,
     });
@@ -32,11 +32,11 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
     const pullTime = Date.now() - startTime;
 
     if (!records.length) {
-      log.debug(`Sync: Pull returned no more changes, finishing`);
+      log.debug(`FacilitySyncManager.pull.noMoreChanges`);
       break;
     }
 
-    log.info('Sync: Saving changes to cache', { count: records.length });
+    log.info('FacilitySyncManager.savingChangesToSnapshot', { count: records.length });
 
     const recordsToSave = records.map(r => ({
       ...r,

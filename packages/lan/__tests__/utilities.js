@@ -16,6 +16,7 @@ import { createApp } from 'lan/app/createApp';
 import { initDatabase, closeDatabase } from 'lan/app/database';
 import { getToken } from 'lan/app/middleware/auth';
 
+import { ReadSettings } from '@tamanu/settings';
 import { toMatchTabularReport } from './toMatchTabularReport';
 import { allSeeds } from './seed';
 import { deleteAllTestIds } from './setupUtilities';
@@ -179,7 +180,9 @@ export async function createTestContext() {
 
   jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
 
-  const centralServer = new CentralServerConnection();
+  const settings = new ReadSettings(models, config.serverFacilityId);
+  const syncConfig = await settings.get('sync');
+  const centralServer = new CentralServerConnection({ deviceId: 'test', syncConfig });
 
   const context = { baseApp, sequelize, models, centralServer };
 

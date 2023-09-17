@@ -36,10 +36,6 @@ export class Note extends Model {
           allowNull: false,
           defaultValue: '',
         },
-        revisedById: {
-          type: DataTypes.UUID,
-          allowNull: true,
-        },
         visibilityStatus: {
           type: DataTypes.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
@@ -86,6 +82,7 @@ export class Note extends Model {
     this.belongsTo(models.Note, {
       foreignKey: 'revisedById',
       as: 'revisedBy',
+      constraints: false,
     });
   }
 
