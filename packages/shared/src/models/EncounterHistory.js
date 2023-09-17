@@ -1,8 +1,8 @@
 import { Sequelize } from 'sequelize';
 
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
-import { SYNC_DIRECTIONS } from '../constants';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
@@ -14,6 +14,9 @@ export class EncounterHistory extends Model {
         encounterType: {
           type: Sequelize.STRING,
           allowNull: false,
+        },
+        changeType: {
+          type: Sequelize.STRING,
         },
         date: dateTimeType('date', {
           allowNull: false,
@@ -48,20 +51,27 @@ export class EncounterHistory extends Model {
       foreignKey: 'departmentId',
       as: 'department',
     });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'actorId',
+      as: 'actor',
+    });
   }
 
-  static async createSnapshot(encounter, submittedTime) {
+  static async createSnapshot(encounter, { actorId, changeType, submittedTime }) {
     return EncounterHistory.create({
       encounterId: encounter.id,
       encounterType: encounter.encounterType,
       locationId: encounter.locationId,
       departmentId: encounter.departmentId,
       examinerId: encounter.examinerId,
+      actorId,
+      changeType,
       date: submittedTime || getCurrentDateTimeString(),
     });
   }
 
-  static buildSyncFilter(patientIds) {
+  static buildPatientSyncFilter(patientIds) {
     if (patientIds.length === 0) {
       return null;
     }

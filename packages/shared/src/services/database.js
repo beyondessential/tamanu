@@ -1,8 +1,9 @@
+import { AsyncLocalStorage } from 'async_hooks';
 import { Sequelize } from 'sequelize';
-import { createNamespace } from 'cls-hooked';
 import pg from 'pg';
 import util from 'util';
 
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from './logging';
 import { serviceContext, serviceName } from './logging/context';
 
@@ -10,16 +11,20 @@ import { migrate, assertUpToDate, NON_SYNCING_TABLES } from './migrations';
 import * as models from '../models';
 import { createDateTypes } from './createDateTypes';
 import { setupQuote } from '../utils/pgComposite';
-import { SYNC_DIRECTIONS } from '../constants';
 
 createDateTypes();
 
 // this allows us to use transaction callbacks without manually managing a transaction handle
 // https://sequelize.org/master/manual/transactions.html#automatically-pass-transactions-to-all-queries
-// done once for all sequelize objects
-const namespace = createNamespace('sequelize-transaction-namespace');
+// done once for all sequelize objects. Instead of cls-hooked we use the built-in AsyncLocalStorage.
+const asyncLocalStorage = new AsyncLocalStorage();
 // eslint-disable-next-line react-hooks/rules-of-hooks
-Sequelize.useCLS(namespace);
+Sequelize.useCLS({
+  bind: () => {}, // compatibility with cls-hooked, not used by sequelize
+  get: id => asyncLocalStorage.getStore()?.get(id),
+  set: (id, value) => asyncLocalStorage.getStore()?.set(id, value),
+  run: callback => asyncLocalStorage.run(new Map(), callback),
+});
 
 // this is dangerous and should only be used in test mode
 const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
@@ -67,16 +72,19 @@ async function connectToDatabase(dbOptions) {
     await unsafeRecreatePgDb({ ...dbOptions, name });
   }
 
-  log.info(
-    `Connecting to database ${username || '<no username>'}:*****@${host || '<no host>'}:${port ||
-      '<no port>'}/${name || '<no name>'}...`,
-  );
+  log.info('databaseConnection', {
+    username,
+    host,
+    port,
+    name,
+  });
 
   const logging = verbose
     ? (query, obj) =>
-        log.debug(
-          `${util.inspect(query)}; -- ${util.inspect(obj.bind || [], { breakLength: Infinity })}`,
-        )
+        log.debug('databaseQuery', {
+          query: util.inspect(query),
+          binding: util.inspect(obj.bind || [], { breakLength: Infinity }),
+        })
     : null;
 
   const options = {
@@ -138,7 +146,7 @@ export async function initDatabase(dbOptions) {
     allowNull: false,
     primaryKey: true,
   };
-  log.info(`Registering ${modelClasses.length} models...`);
+  log.info('registeringModels', { count: modelClasses.length });
   modelClasses.forEach(modelClass => {
     modelClass.init(
       {
@@ -170,8 +178,8 @@ export async function initDatabase(dbOptions) {
     }
   });
 
-  // add isInsideTransaction helper to avoid exposing the namespace
-  sequelize.isInsideTransaction = () => !!namespace.get('transaction');
+  // add isInsideTransaction helper to avoid exposing the asynclocalstorage
+  sequelize.isInsideTransaction = () => !!asyncLocalStorage.getStore();
 
   return { sequelize, models };
 }

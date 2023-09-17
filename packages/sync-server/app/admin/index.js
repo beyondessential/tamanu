@@ -11,6 +11,7 @@ import { exporter } from './exporter';
 
 import { mergePatientHandler } from './patientMerge';
 import { syncLastCompleted } from './sync';
+import { reportsRouter } from './reports/reportRoutes';
 import { patientLetterTemplateRoutes } from './patientLetterTemplate';
 import { assetRoutes } from './asset';
 
@@ -33,6 +34,7 @@ adminRoutes.use(
   }),
 );
 
+adminRoutes.use('/reports', reportsRouter);
 adminRoutes.post('/mergePatient', mergePatientHandler);
 
 // A temporary lookup-patient-by-displayId endpoint, just to

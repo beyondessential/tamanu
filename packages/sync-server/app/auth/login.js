@@ -2,7 +2,7 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
+import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { BadAuthenticationError } from 'shared/errors';
 import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
 import { getLocalisation } from '../localisation';

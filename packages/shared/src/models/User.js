@@ -1,6 +1,6 @@
 import { hash } from 'bcrypt';
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, SYSTEM_USER_UUID } from '../constants';
+import { SYNC_DIRECTIONS, SYSTEM_USER_UUID } from '@tamanu/constants';
 import { Model } from './Model';
 
 const DEFAULT_SALT_ROUNDS = 10;
@@ -107,8 +107,20 @@ export class User extends Model {
       foreignKey: 'completedById',
     });
 
+    this.hasMany(models.UserPreference, {
+      foreignKey: 'userId',
+    });
+
+    this.hasMany(models.UserFacility, {
+      foreignKey: 'facilityId',
+    });
+
     this.belongsToMany(models.Facility, {
       through: 'UserFacility',
     });
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 }

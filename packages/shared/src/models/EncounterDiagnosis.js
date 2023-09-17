@@ -1,5 +1,9 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, DIAGNOSIS_CERTAINTY, DIAGNOSIS_CERTAINTY_VALUES } from '../constants';
+import {
+  SYNC_DIRECTIONS,
+  DIAGNOSIS_CERTAINTY,
+  DIAGNOSIS_CERTAINTY_VALUES,
+} from '@tamanu/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
@@ -56,7 +60,7 @@ export class EncounterDiagnosis extends Model {
     return ['Diagnosis'];
   }
 
-  static buildSyncFilter(patientIds) {
+  static buildPatientSyncFilter(patientIds) {
     if (patientIds.length === 0) {
       return null;
     }

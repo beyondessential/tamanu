@@ -1,2 +1,2 @@
-export * from 'shared/constants';
+export * from '@tamanu/constants';
 // Local constants

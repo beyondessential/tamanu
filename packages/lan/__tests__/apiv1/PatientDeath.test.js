@@ -1,4 +1,4 @@
-import { VISIBILITY_STATUSES } from 'shared/constants/importable';
+import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { fake } from 'shared/test-helpers/fake';
 import { toDateString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
@@ -158,9 +158,8 @@ describe('PatientDeath', () => {
     expect(discharge).toBeTruthy();
     expect(discharge.dischargerId).toEqual(clinicianId);
 
-    const notePages = await encounter.getNotePages();
-    const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
-    expect(noteItems[0].content).toEqual('Automatically discharged');
+    const notes = await encounter.getNotes();
+    expect(notes[0].content).toEqual('Automatically discharged');
   });
 
   it('should return no death data for alive patient', async () => {

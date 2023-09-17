@@ -1,5 +1,5 @@
 import { Sequelize, Op } from 'sequelize';
-import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES, VACCINE_STATUS } from '../constants';
+import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES, VACCINE_STATUS } from '@tamanu/constants';
 import { getCovidClearanceCertificateFilter, getLabTestsFromLabRequests } from '../utils';
 import { Model } from './Model';
 import { dateType, dateTimeType } from './dateTimeTypes';
@@ -77,9 +77,9 @@ export class Patient extends Model {
       as: 'mergedPatients',
     });
 
-    this.hasMany(models.NotePage, {
+    this.hasMany(models.Note, {
       foreignKey: 'recordId',
-      as: 'notePages',
+      as: 'notes',
       constraints: false,
       scope: {
         recordType: this.name,
@@ -277,5 +277,9 @@ export class Patient extends Model {
         await PatientFieldValue.create({ value, definitionId, patientId: this.id });
       }
     }
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 }

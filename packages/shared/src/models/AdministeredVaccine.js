@@ -1,6 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
-import { SYNC_DIRECTIONS } from '../constants';
 import { Model } from './Model';
 import { Encounter } from './Encounter';
 import { ScheduledVaccine } from './ScheduledVaccine';
@@ -85,7 +85,7 @@ export class AdministeredVaccine extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds, { syncAllEncountersForTheseVaccines }) {
+  static buildPatientSyncFilter(patientIds, { syncAllEncountersForTheseVaccines }) {
     const joins = [];
     const wheres = [];
 

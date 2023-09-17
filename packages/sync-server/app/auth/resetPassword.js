@@ -4,7 +4,7 @@ import config from 'config';
 import * as yup from 'yup';
 import { addMinutes } from 'date-fns';
 
-import { COMMUNICATION_STATUSES } from 'shared/constants';
+import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { log } from 'shared/services/logging';
 import { findUser, getRandomBase64String } from './utils';
 

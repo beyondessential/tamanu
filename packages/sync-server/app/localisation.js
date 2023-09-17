@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import { defaultsDeep } from 'lodash';
 
 import { log } from 'shared/services/logging';
-import { IMAGING_TYPES } from 'shared/constants';
+import { IMAGING_TYPES } from '@tamanu/constants';
 
 const fieldSchema = yup
   .object({
@@ -326,6 +326,10 @@ const printMeasuresSchema = yup
       rowHeight: validCssAbsoluteLength,
       rowGap: validCssAbsoluteLength,
     }),
+    idCardPage: yup.object({
+      cardMarginTop: validCssAbsoluteLength,
+      cardMarginLeft: validCssAbsoluteLength,
+    }),
   })
   .required()
   .noUnknown();
@@ -457,6 +461,10 @@ const rootLocalisationSchema = yup
         onlyAllowLabPanels: yup.boolean().required(),
         displayProcedureCodesInDischargeSummary: yup.boolean().required(),
         displayIcd10CodesInDischargeSummary: yup.boolean().required(),
+        tableAutoRefresh: yup.object().shape({
+          enabled: yup.boolean().required(),
+          interval: yup.number().required(),
+        }),
         mandatoryVitalEditReason: yup.boolean().required(),
         enableVitalEdit: yup.boolean().required(),
       })

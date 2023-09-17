@@ -1,6 +1,6 @@
 import { action } from '@storybook/addon-actions';
 import React from 'react';
-import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
+import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { Box } from '@material-ui/core';
 import { TestSelectorInput } from '../app/views/labRequest/TestSelector';
 import { MockedApi } from './utils/mockedApi';

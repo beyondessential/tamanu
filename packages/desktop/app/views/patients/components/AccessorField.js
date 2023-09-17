@@ -1,6 +1,6 @@
 import React from 'react';
 import { capitalize } from 'lodash';
-import { LAB_TEST_RESULT_TYPES } from '@tamanu/shared/constants';
+import { LAB_TEST_RESULT_TYPES } from '@tamanu/constants';
 import styled from 'styled-components';
 import { NumberField, SelectField, TextField, Field } from '../../../components/Field';
 import { Colors } from '../../../constants';

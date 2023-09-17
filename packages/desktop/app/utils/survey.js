@@ -1,3 +1,4 @@
+// Much of this file is duplicated in `packages/mobile/App/ui/components/Forms/SurveyForm/helpers.ts`
 import React from 'react';
 import * as yup from 'yup';
 import { inRange } from 'lodash';
@@ -18,7 +19,7 @@ import {
   DateTimeField,
 } from 'desktop/app/components/Field';
 import { ageInYears, ageInMonths, ageInWeeks } from '@tamanu/shared/utils/dateTime';
-import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from '@tamanu/shared/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { joinNames } from './user';
 
 const InstructionField = ({ label, helperText }) => (
@@ -186,8 +187,9 @@ export function getConfigObject(componentId, config) {
   }
 }
 
-function transformPatientData(patient, config) {
-  const { column = 'fullName' } = config;
+function transformPatientData(patient, additionalData, config) {
+  const { writeToPatient = {}, column = 'fullName' } = config;
+  const { isAdditionalDataField = false } = writeToPatient;
   const { dateOfBirth, firstName, lastName } = patient;
 
   const { months, years } = intervalToDuration({
@@ -209,11 +211,14 @@ function transformPatientData(patient, config) {
     case 'fullName':
       return joinNames({ firstName, lastName });
     default:
+      if (isAdditionalDataField) {
+        return additionalData ? additionalData[column] : undefined;
+      }
       return patient[column];
   }
 }
 
-export function getFormInitialValues(components, patient, currentUser = {}) {
+export function getFormInitialValues(components, patient, additionalData, currentUser = {}) {
   const initialValues = components.reduce((acc, { dataElement }) => {
     const initialValue = getInitialValue(dataElement);
     const propName = dataElement.id;
@@ -238,7 +243,7 @@ export function getFormInitialValues(components, patient, currentUser = {}) {
 
     // patient data
     if (component.dataElement.type === 'PatientData') {
-      const patientValue = transformPatientData(patient, config);
+      const patientValue = transformPatientData(patient, additionalData, config);
       if (patientValue !== undefined) initialValues[component.dataElement.id] = patientValue;
     }
   }

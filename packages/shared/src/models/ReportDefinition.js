@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 
 export class ReportDefinition extends Model {
@@ -10,10 +10,12 @@ export class ReportDefinition extends Model {
         name: {
           type: Sequelize.STRING,
           allowNull: false,
+          unique: true,
         },
       },
       {
         ...options,
+        indexes: [{ unique: true, fields: ['name'] }],
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
@@ -21,5 +23,9 @@ export class ReportDefinition extends Model {
 
   static initRelations(models) {
     this.hasMany(models.ReportDefinitionVersion, { as: 'versions' });
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 }

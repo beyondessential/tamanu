@@ -1,5 +1,5 @@
 import { fake } from 'shared/test-helpers/fake';
-import { SURVEY_TYPES } from 'shared/constants';
+import { SURVEY_TYPES } from '@tamanu/constants';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { programImporter } from '../../app/admin/programImporter';
 import { createTestContext } from '../utilities';
@@ -137,6 +137,21 @@ describe('Programs import', () => {
       'message',
       `ENOENT: no such file or directory, open './__tests__/importers/programs-nofile.xlsx'`,
     );
+  });
+
+  it('should error on invalid calculations', async () => {
+    const { didntSendReason, errors, stats } = await doImport({
+      file: 'calculation-validation',
+      dryRun: true,
+    });
+    expect(didntSendReason).toEqual('validationFailed');
+    expect(stats).toMatchObject({
+      Program: { created: 1, updated: 0, errored: 0 },
+      Survey: { created: 1, updated: 0, errored: 0 },
+      ProgramDataElement: { created: 6, updated: 0, errored: 0 },
+      SurveyScreenComponent: { created: 4, updated: 0, errored: 2 }, // 2 invalid calculations
+    });
+    expect(errors.length).toEqual(2);
   });
 
   it('run validation against question configs', async () => {

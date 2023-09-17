@@ -1,4 +1,4 @@
-import { LAB_REQUEST_STATUSES, LAB_TEST_TYPE_VISIBILITY_STATUSES } from '@tamanu/shared/constants';
+import { LAB_REQUEST_STATUSES, LAB_TEST_TYPE_VISIBILITY_STATUSES } from '@tamanu/constants';
 import config from 'config';
 import {
   createDummyPatient,
@@ -140,13 +140,12 @@ describe('Labs', () => {
     expect(response).toHaveSucceeded();
 
     const labRequest = await models.LabRequest.findByPk(response.body[0].id, {
-      include: 'notePages',
+      include: 'notes',
     });
     expect(labRequest).toBeTruthy();
 
-    expect(labRequest.notePages).toHaveLength(1);
-    const note = await labRequest.notePages[0].getNoteItems();
-    expect(note[0]).toHaveProperty('content', content);
+    expect(labRequest.notes).toHaveLength(1);
+    expect(labRequest.notes[0]).toHaveProperty('content', content);
   });
 
   it('should record a lab request with a note', async () => {
@@ -165,13 +164,12 @@ describe('Labs', () => {
     expect(response).toHaveSucceeded();
 
     const labRequest = await models.LabRequest.findByPk(response.body[0].id, {
-      include: 'notePages',
+      include: 'notes',
     });
     expect(labRequest).toBeTruthy();
 
-    expect(labRequest.notePages).toHaveLength(1);
-    const note = await labRequest.notePages[0].getNoteItems();
-    expect(note[0]).toHaveProperty('content', content);
+    expect(labRequest.notes).toHaveLength(1);
+    expect(labRequest.notes[0]).toHaveProperty('content', content);
   });
 
   it('should record a lab request with a Lab Test Panel', async () => {
@@ -300,7 +298,7 @@ describe('Labs', () => {
     expect(labRequest).toHaveProperty('status', status);
   });
 
-  it('should not fetch lab test types directly from general labTestType get route when visibilityStatus set to "panelsOnly"', async () => {
+  it('should not fetch lab test types directly from general labTestType get route when visibilityStatus set to "panelsOnly" or "historical"', async () => {
     const makeLabTestType = async visibilityStatus => {
       const category = await models.ReferenceData.create({
         ...fake(models.ReferenceData),
@@ -322,13 +320,16 @@ describe('Labs', () => {
     await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
     await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
     await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.HISTORICAL);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.HISTORICAL);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.HISTORICAL);
 
     const result = await app.get('/v1/labTestType');
     expect(result).toHaveSucceeded();
     const { body } = result;
     expect(body.length).toBe(3);
     body.forEach(labTestType => {
-      expect(labTestType.visibilityStatus).not.toBe('panelsOnly');
+      expect(labTestType.visibilityStatus).toBe(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT);
     });
   });
 

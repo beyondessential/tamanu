@@ -6,7 +6,7 @@ import {
   randomReferenceData,
 } from 'shared/demoData';
 import { subDays } from 'date-fns';
-import { ENCOUNTER_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { findOneOrCreate } from 'shared/test-helpers';
 import { format } from 'shared/utils/dateTime';
 import { Op } from 'sequelize';
@@ -173,50 +173,37 @@ describe('Admissions report', () => {
 
       await expectedEncounter.update({
         departmentId: expectedDepartment2.id,
+      });
+
+      await expectedEncounter.update({
         locationId: newLocation.id,
       });
 
-      const departmentChangeNotePage = await models.NotePage.findOne({
-        include: [
-          {
-            model: models.NoteItem,
-            as: 'noteItems',
-            where: {
-              content: {
-                [Op.like]: 'Changed department from%',
-              },
-            },
-          },
-        ],
+      const departmentChangeNote = await models.Note.findOne({
         where: {
           recordId: expectedEncounter.id,
           noteType: 'system',
+          content: {
+            [Op.like]: 'Changed department from%',
+          },
         },
       });
 
-      const locationChangeNotePage = await models.NotePage.findOne({
-        include: [
-          {
-            model: models.NoteItem,
-            as: 'noteItems',
-            where: {
-              content: {
-                [Op.like]: 'Changed location from%',
-              },
-            },
-          },
-        ],
+      const locationChangeNote = await models.Note.findOne({
         where: {
           recordId: expectedEncounter.id,
           noteType: 'system',
+          content: {
+            [Op.like]: 'Changed location from%',
+          },
         },
       });
 
-      await departmentChangeNotePage.noteItems?.[0].update({
+      await departmentChangeNote.update({
         date: '2021-02-20 11:10:00',
       });
 
-      await locationChangeNotePage.noteItems?.[0].update({
+      await locationChangeNote.update({
         date: '2021-02-20 12:10:00',
       });
 

@@ -1,16 +1,17 @@
+import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
 import { BLOOD_PRESSURE, LINE, bloodPressureChartKeys } from '../../components/Charts/constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { getConfigObject, getNormalRangeByAge } from '../../utils';
 import { combineQueries } from '../combineQueries';
 import { usePatientData } from './usePatientData';
-import { useVitalsSurvey } from './useVitalsSurvey';
+import { useVitalsSurveyQuery } from './useVitalsSurveyQuery';
 
 export const useVitalsVisualisationConfigsQuery = () => {
   const encounterQuery = useEncounter();
   const { encounter } = encounterQuery;
 
   const patientQuery = usePatientData(encounter.patientId);
-  const vitalsSurveyQuery = useVitalsSurvey();
+  const vitalsSurveyQuery = useVitalsSurveyQuery();
 
   const {
     data: [patientData, surveyData],
@@ -51,5 +52,9 @@ export const useVitalsVisualisationConfigsQuery = () => {
     );
   }
 
-  return { data: visualisationConfigs, ...restOfQuery };
+  const allGraphedChartKeys = visualisationConfigs
+    .filter(({ hasVitalChart, key }) => hasVitalChart && key !== VITALS_DATA_ELEMENT_IDS.dbp) // Only show one blood pressure chart on multi vital charts
+    .map(({ key }) => key);
+
+  return { data: { visualisationConfigs, allGraphedChartKeys }, ...restOfQuery };
 };

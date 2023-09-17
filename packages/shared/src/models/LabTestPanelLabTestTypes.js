@@ -1,4 +1,4 @@
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 
 export class LabTestPanelLabTestTypes extends Model {
@@ -20,5 +20,9 @@ export class LabTestPanelLabTestTypes extends Model {
       foreignKey: 'labTestTypeId',
       as: 'labTestType',
     });
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 }
