@@ -65,6 +65,7 @@ export const LabRequestsTable = React.memo(
 
     return (
       <SearchTable
+        autoRefresh
         endpoint="labRequest"
         columns={columns}
         noDataMessage="No lab requests found"

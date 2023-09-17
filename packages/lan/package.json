@@ -46,7 +46,6 @@
     "case": "^1.6.3",
     "chalk": "^5.0.1",
     "chance": "^1.1.8",
-    "cls-hooked": "^4.2.2",
     "commander": "^9.0.0",
     "compression": "^1.7.2",
     "config": "^3.0.1",
