@@ -4,7 +4,6 @@ import {
   RemoteCallFailedError,
   BadAuthenticationError,
 } from 'shared/errors';
-import { createTestContext } from '../utilities';
 
 const { CentralServerConnection } = jest.requireActual('../../app/sync/CentralServerConnection');
 
@@ -31,14 +30,13 @@ const fakeTimeout = message => (url, opts) =>
 
 const fetch = jest.fn();
 
+const createCentralServerConnection = () => {
+  const centralServer = new CentralServerConnection({ deviceId: 'test' });
+  centralServer.fetchImplementation = fetch;
+  return centralServer;
+};
+
 describe('CentralServerConnection', () => {
-  let ctx;
-  beforeAll(async () => {
-    ctx = await createTestContext();
-  });
-
-  afterAll(() => ctx.close());
-
   const authSuccess = fakeSuccess({
     token: 'this-is-not-real',
     user: {
@@ -77,28 +75,21 @@ describe('CentralServerConnection', () => {
   );
 
   describe('authentication', () => {
-    let centralServer;
-
-    beforeEach(async () => {
-      centralServer = new CentralServerConnection(
-        { settings: ctx.settings, deviceId: 'test' },
-        { timeout: 10000, host: 'http://localhost:3000' },
-      );
-      centralServer.fetchImplementation = fetch;
-    });
-
     it('authenticates against a central server', async () => {
+      const centralServer = createCentralServerConnection();
       fetch.mockReturnValueOnce(authSuccess);
       await centralServer.connect();
       expect(centralServer.token).toEqual('this-is-not-real');
     });
 
     it('throws a BadAuthenticationError if the credentials are invalid', async () => {
+      const centralServer = createCentralServerConnection();
       fetch.mockReturnValueOnce(authInvalid);
       await expect(centralServer.connect()).rejects.toThrow(BadAuthenticationError);
     });
 
     it('throws a FacilityAndSyncVersionIncompatibleError with an appropriate message if the client version is too low', async () => {
+      const centralServer = createCentralServerConnection();
       fetch.mockReturnValueOnce(clientVersionLow);
       await expect(centralServer.connect()).rejects.toThrow(/please upgrade.*v1\.0\.0/i);
       fetch.mockReturnValueOnce(clientVersionLow);
@@ -108,6 +99,7 @@ describe('CentralServerConnection', () => {
     });
 
     it('throws a FacilityAndSyncVersionIncompatibleError with an appropriate message if the client version is too high', async () => {
+      const centralServer = createCentralServerConnection();
       fetch.mockReturnValueOnce(clientVersionHigh);
       await expect(centralServer.connect()).rejects.toThrow(/only supports up to v2\.0\.0/i);
       fetch.mockReturnValueOnce(clientVersionHigh);
@@ -117,11 +109,13 @@ describe('CentralServerConnection', () => {
     });
 
     it('throws a RemoteCallFailedError if any other server error is returned', async () => {
+      const centralServer = createCentralServerConnection();
       fetch.mockReturnValueOnce(authFailure);
       await expect(centralServer.connect()).rejects.toThrow(RemoteCallFailedError);
     });
 
     it('retrieves user data', async () => {
+      const centralServer = createCentralServerConnection();
       fetch
         .mockReturnValueOnce(authSuccess)
         .mockReturnValueOnce(fakeSuccess({ displayName: 'Fake User' }));
@@ -129,6 +123,7 @@ describe('CentralServerConnection', () => {
     });
 
     it('retries if a token is invalid', async () => {
+      const centralServer = createCentralServerConnection();
       fetch
         .mockReturnValueOnce(authSuccess)
         .mockReturnValueOnce(authInvalid)
@@ -140,10 +135,11 @@ describe('CentralServerConnection', () => {
     it('times out requests', async () => {
       jest.setTimeout(2000); // fail quickly
       jest.useFakeTimers();
+      const centralServer = createCentralServerConnection();
       fetch.mockImplementationOnce(fakeTimeout('fake timeout'));
       const connectPromise = centralServer.connect();
       jest.runAllTimers();
-      await expect(connectPromise).rejects.toThrow('fake timeout');
+      await await expect(connectPromise).rejects.toThrow('fake timeout');
     });
   });
 });

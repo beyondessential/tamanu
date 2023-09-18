@@ -44,13 +44,11 @@ export class CentralServerConnection {
   // test mocks don't always apply properly - this ensures the mock will be used
   fetchImplementation = fetch;
 
-  constructor(context, syncSettings) {
-    const { deviceId, settings } = context;
-    const { host, timeout } = syncSettings;
-    this.host = host.trim().replace(/\/*$/, '');
-    this.timeout = timeout;
-    this.deviceId = deviceId;
-    this.settings = settings;
+  constructor(ctx, syncConfig = { host: '', timeout: 0, channelBatchSize: 0 }) {
+    this.host = syncConfig.host.trim().replace(/\/*$/, '');
+    this.timeout = syncConfig.timeout;
+    this.batchSize = syncConfig.channelBatchSize;
+    this.deviceId = ctx?.deviceId;
   }
 
   async fetch(endpoint, params = {}) {
@@ -82,11 +80,9 @@ export class CentralServerConnection {
     const url = `${this.host}/${API_VERSION}/${endpoint}`;
     log.debug(`[sync] ${method} ${url}`);
 
-    const requestFailureRate = await this.settings.get('debugging.requestFailureRate');
-
     return callWithBackoff(async () => {
-      if (requestFailureRate) {
-        if (Math.random() < requestFailureRate) {
+      if (config.debugging.requestFailureRate) {
+        if (Math.random() < config.debugging.requestFailureRate) {
           // intended to cause some % of requests to fail, to simulate a flaky connection
           throw new Error('Chaos: made your request fail');
         }
@@ -155,7 +151,7 @@ export class CentralServerConnection {
         }
         throw e;
       }
-    }, backoff || (await this.settings.get('sync.backoff')));
+    }, backoff);
   }
 
   async pollUntilTrue(endpoint) {
