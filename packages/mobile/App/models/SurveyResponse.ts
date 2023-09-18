@@ -4,7 +4,7 @@ import { ISurveyResponse, ISurveyResponseValues, ICreateSurveyResponse } from '~
 import { EncounterType } from '~/types/IEncounter';
 import { SurveyScreenConfig } from '~/types/ISurvey'
 
-import { getStringValue, getResultValue, isCalculated, FieldTypes } from '~/ui/helpers/fields';
+import { getBodyValue, getBodyId, getResultValue, isCalculated, FieldTypes } from '~/ui/helpers/fields';
 
 import { runCalculations } from '~/ui/helpers/calculations';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
@@ -170,12 +170,14 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
           }
         }
 
-        const body = getStringValue(dataElement.type, value);
+        const body = await getBodyValue(component, value);
+        const bodyId = getBodyId(component, value);
 
         setNote(`Attaching answer for ${dataElement.id}...`);
         const answerRecord = await SurveyResponseAnswer.createAndSaveOne({
           dataElement: dataElement.id,
           body,
+          bodyId,
           response: responseRecord.id,
         });
 

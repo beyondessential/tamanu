@@ -1,6 +1,8 @@
 import { inRange } from 'lodash';
 import { formatISO9075 } from 'date-fns';
 import { ISurveyScreenComponent, DataElementType } from '~/types/ISurvey';
+import { AutocompleteSourceToColumnMap } from '~/ui/helpers/constants';
+import { Database } from '~/infra/db/index';
 
 export const FieldTypes = {
   TEXT: 'FreeText',
@@ -28,23 +30,72 @@ export const FieldTypes = {
   PATIENT_ISSUE_GENERATOR: 'PatientIssueGenerator',
 };
 
-export const getStringValue = (type: string, value: any): string => {
-  switch (type) {
+export const getBodyId = (c: ISurveyScreenComponent, value: unknown): string | null => {
+  if (c.dataElement.type === FieldTypes.AUTOCOMPLETE && typeof value === 'string') {
+    return value;
+  }
+  return null;
+};
+
+export const getBodyValue = async (c: ISurveyScreenComponent, value: unknown): Promise<string | null> => {
+  const config = c.getConfigObject();
+  let fieldType: string = c.dataElement.type;
+  if (fieldType === FieldTypes.PATIENT_DATA) {
+    fieldType = config?.writeToPatient?.fieldType || fieldType;
+  }
+  switch (fieldType) {
     case FieldTypes.TEXT:
     case FieldTypes.MULTILINE:
-      return value;
-
+      if (typeof value === 'string') {
+        return value;
+      }
+      return null;
     case FieldTypes.DATE:
     case FieldTypes.SUBMISSION_DATE:
-      return value && formatISO9075(value);
+      if (c.dataElement.type === FieldTypes.PATIENT_DATA && typeof value === 'string') {
+        return `${value}`; // TODO: PatientData relies on an exact being passed from the patient if there's nothing selected in the datepicker
+      }
+      return value ? formatISO9075(value) : null;
     case FieldTypes.BINARY:
     case FieldTypes.CHECKBOX:
       if (typeof value === 'string') return value;
       // booleans should all be stored as Yes/No to match meditrak
       return value ? 'Yes' : 'No';
     case FieldTypes.CALCULATED:
-      // TODO: configurable precision on calculated fields
-      return value.toFixed(1);
+      if (typeof value === 'number') {
+        // TODO: configurable precision on calculated fields
+        return value.toFixed(1);
+      }
+      return `${value}`;
+    case FieldTypes.AUTOCOMPLETE:
+      let model: any;
+      let columnName: string;
+      try {
+        const { source } = config;
+        if (!source) throw new Error('missing config.source');
+        columnName = AutocompleteSourceToColumnMap[source];
+        if (!columnName) throw new Error('missing columnName mapping for config.source');
+        model = Database.models[source];
+        if (!model) throw new Error('unable to find model from config.source');
+      } catch (e) {
+        throw new Error(`Invalid configuration for component ${c.id}, please contact your helpdesk or system administrator\n$Original: {e.message}`);
+      }
+      if (!value) {
+        /*
+         * Check value after config validation so it's harder to miss an invalid
+         * survey config during testing.
+         */
+        return null;
+      }
+      const record = await model.findOne({ id: value });
+      if (!record) {
+        return null;
+      }
+      const name = record[columnName];
+      if (typeof name !== 'string') {
+        return null;
+      }
+      return name;
     default:
       return `${value}`;
   }
