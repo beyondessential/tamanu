@@ -5,6 +5,8 @@ import { log } from '../services/logging';
 import { Model } from './Model';
 
 export class SurveyScreenComponent extends Model {
+  static deletedAtKey = 'visibilityStatus';
+
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -18,6 +20,7 @@ export class SurveyScreenComponent extends Model {
         config: Sequelize.STRING,
         options: Sequelize.TEXT,
         calculation: Sequelize.STRING,
+        [this.deletedAtKey]: Sequelize.STRING,
       },
       {
         ...options,
