@@ -19,6 +19,17 @@ import { VitalLog } from './VitalLog';
 import { SYNC_DIRECTIONS } from './types';
 import { DateTimeStringColumn } from './DateColumns';
 
+const PATIENT_DATA_FIELD_LOCATIONS = {
+  PatientProgramRegistration: {
+    registrationClinicalStatus: 'clinicalStatusId',
+    programRegistrationStatus: 'registrationStatus',
+    registrationClinician: 'clinicianId',
+    registeringFacility: 'registeringFacilityId',
+    registrationCurrentlyAtVillage: 'villageId',
+    registrationCurrentlyAtFacility: 'facilityId',
+  },
+};
+
 const getDbLocation = fieldName => {
   // First check the manually defined fields
   for (const [modelName, fieldMappings] of Object.entries(PATIENT_DATA_FIELD_LOCATIONS)) {
