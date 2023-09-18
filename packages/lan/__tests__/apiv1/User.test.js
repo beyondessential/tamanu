@@ -1,6 +1,7 @@
 import { getToken, centralServerLogin } from 'lan/app/middleware/auth';
 import { pick } from 'lodash';
 import { fake, chance, disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { addHours } from 'date-fns';
 import { createDummyEncounter } from 'shared/demoData/patients';
 
@@ -26,6 +27,7 @@ describe('User', () => {
   const rawPassword = 'PASSWORD';
   const localisation = { foo: 'bar' };
   let authUser = null;
+  let deactivatedUser = null;
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -44,6 +46,11 @@ describe('User', () => {
       const { User, Role } = models;
       authRole = await Role.create(fake(Role));
       authUser = await User.create(fake(User, { password: rawPassword, role: authRole.id }));
+      deactivatedUser = await User.create(fake(User, { 
+        password: rawPassword, 
+        role: authRole.id, 
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL, 
+      }));
     });
 
     it('should include role in the data returned by a successful login', async () => {
@@ -85,47 +92,65 @@ describe('User', () => {
     test.todo('should refresh a token');
     test.todo('should not refresh an expired token');
 
-    it('should get the user based on the current token', async () => {
-      const userAgent = await baseApp.asUser(authUser);
-      const result = await userAgent.get('/v1/user/me');
-      expect(result).toHaveSucceeded();
-      expect(result.body).toHaveProperty('id', authUser.id);
-    });
-
-    it('should fail to get the user with a null token', async () => {
-      const result = await baseApp.get('/v1/user/me');
-      expect(result).toHaveRequestError();
-    });
-
-    it('should fail to get the user with an expired token', async () => {
-      const expiredToken = await getToken(authUser, '-1s');
-      const result = await baseApp
-        .get('/v1/user/me')
-        .set('authorization', `Bearer ${expiredToken}`);
-      expect(result).toHaveRequestError();
-    });
-
-    it('should fail to get the user with an invalid token', async () => {
-      const result = await baseApp
-        .get('/v1/user/me')
-        .set('authorization', 'Bearer ABC_not_a_valid_token');
-      expect(result).toHaveRequestError();
-    });
-
-    it('should fail to obtain a token for a wrong password', async () => {
-      const result = await baseApp.post('/v1/login').send({
-        email: authUser.email,
-        password: 'PASSWARD',
+    describe('Rejected tokens', () => {
+      it('should get the user based on the current token', async () => {
+        const userAgent = await baseApp.asUser(authUser);
+        const result = await userAgent.get('/v1/user/me');
+        expect(result).toHaveSucceeded();
+        expect(result.body).toHaveProperty('id', authUser.id);
       });
-      expect(result).toHaveRequestError();
+
+      it('should fail to get the user with a null token', async () => {
+        const result = await baseApp.get('/v1/user/me');
+        expect(result).toHaveRequestError();
+      });
+
+      it('should fail to get the user with an expired token', async () => {
+        const expiredToken = await getToken(authUser, '-1s');
+        const result = await baseApp
+          .get('/v1/user/me')
+          .set('authorization', `Bearer ${expiredToken}`);
+        expect(result).toHaveRequestError();
+      });
+
+      it('should fail to get the user with an invalid token', async () => {
+        const result = await baseApp
+          .get('/v1/user/me')
+          .set('authorization', 'Bearer ABC_not_a_valid_token');
+        expect(result).toHaveRequestError();
+      });
+
+      it('should fail to get a deactivated user with a valid token', async () => {
+        const userAgent = await baseApp.asUser(deactivatedUser);
+        const result = await userAgent.get('/v1/user/me');
+        expect(result).toHaveRequestError();
+      });
     });
 
-    it('should fail to obtain a token for a wrong email', async () => {
-      const result = await baseApp.post('/v1/login').send({
-        email: 'test@toast.com',
-        password: rawPassword,
+    describe('Rejected logins', () => {
+      it('should fail to obtain a token for a wrong password', async () => {
+        const result = await baseApp.post('/v1/login').send({
+          email: authUser.email,
+          password: 'PASSWARD',
+        });
+        expect(result).toHaveRequestError();
       });
-      expect(result).toHaveRequestError();
+
+      it('should fail to obtain a token for a wrong email', async () => {
+        const result = await baseApp.post('/v1/login').send({
+          email: 'test@toast.com',
+          password: rawPassword,
+        });
+        expect(result).toHaveRequestError();
+      });
+
+      it('should fail to obtain a token for a deactivated user', async () => {
+        const result = await baseApp.post('/v1/login').send({
+          email: deactivatedUser.email,
+          password: rawPassword,
+        });
+        expect(result).toHaveRequestError();
+      });
     });
 
     it('should return cached feature flags in the login request', async () => {

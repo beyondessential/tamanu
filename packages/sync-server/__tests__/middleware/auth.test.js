@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import config from 'config';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
+import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { fake, disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { createTestContext, withDate } from '../utilities';
 
@@ -48,6 +49,11 @@ describe('Auth', () => {
       ...USERS.map(r => User.create(r)),
       Facility.create(TEST_FACILITY),
     ]);
+
+    deactivatedUser = await User.create(fake(User, { 
+      password: TEST_PASSWORD,
+      visibilityStatus: VISIBILITY_STATUSES.HISTORICAL
+    }));
   });
 
   afterAll(async () => close());
@@ -182,6 +188,15 @@ describe('Auth', () => {
       });
       expect(response).toHaveRequestError();
     });
+
+    it('Should reject a deactivated user', async () => {
+      const response = await baseApp.post('/v1/login').send({
+        email: deactivatedUser.email,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(response).toHaveRequestError();
+    });
   });
 
   describe('Refresh token', () => {
@@ -223,6 +238,7 @@ describe('Auth', () => {
       expect(newTokenContents.iat).toBeGreaterThan(oldTokenContents.iat);
       expect(newTokenContents.exp).toBeGreaterThan(oldTokenContents.exp);
     });
+
     it('Should return a rotated refresh token', async () => {
       const loginResponse = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
@@ -270,6 +286,7 @@ describe('Auth', () => {
         bcrypt.compare(newRefreshTokenContents.refreshId, refreshTokenRecord.refreshId),
       ).resolves.toBe(true);
     });
+
     it('Should reject if external client', async () => {
       const loginResponse = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
@@ -286,6 +303,7 @@ describe('Auth', () => {
         });
       expect(refreshResponse).toHaveRequestError();
     });
+
     it('Should reject invalid refresh token', async () => {
       const loginResponse = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
@@ -300,6 +318,7 @@ describe('Auth', () => {
       });
       expect(refreshResponse).toHaveRequestError();
     });
+
     it('Should fail if refresh token requested with a token with aud not of refresh', async () => {
       const loginResponse = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
@@ -317,6 +336,7 @@ describe('Auth', () => {
       });
       expect(refreshResponse).toHaveRequestError();
     });
+
     it('Should fail if refresh token requested from different device', async () => {
       const loginResponse = await baseApp.post('/v1/login').send({
         email: TEST_EMAIL,
@@ -333,6 +353,32 @@ describe('Auth', () => {
       });
       expect(refreshResponse).toHaveRequestError();
     });
+
+
+    it('Should fail if refresh token requested from deactivated user', async () => {
+      const freshUser = await models.User.create(fake(User), {
+        password: TEST_PASSWORD,
+      });
+      const loginResponse = await baseApp.post('/v1/login').send({
+        email: freshUser.email,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(loginResponse).toHaveSucceeded();
+      const { refreshToken } = loginResponse.body;
+
+      await freshUser.update({
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      });
+
+      const refreshResponse = await baseApp.post('/v1/refresh').send({
+        refreshToken,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(refreshResponse).toHaveRequestError();
+    });
+
+    
   });
 
   describe('User management', () => {
