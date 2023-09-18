@@ -37,7 +37,7 @@ export class LabRequestLog extends Model {
     return ['labRequest', 'updatedBy'];
   }
 
-  static buildSyncFilter(patientIds) {
+  static buildPatientSyncFilter(patientIds) {
     if (patientIds.length === 0) {
       return null;
     }

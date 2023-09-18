@@ -173,6 +173,9 @@ describe('Admissions report', () => {
 
       await expectedEncounter.update({
         departmentId: expectedDepartment2.id,
+      });
+
+      await expectedEncounter.update({
         locationId: newLocation.id,
       });
 
