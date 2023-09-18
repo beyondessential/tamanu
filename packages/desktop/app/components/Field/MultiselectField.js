@@ -152,7 +152,7 @@ const getValues = value => {
     return null;
   }
 
-  return Array.isArray(value) ? value : value.split(', ');
+  return Array.isArray(value) ? value : value.split('; ');
 };
 
 export const MultiselectInput = ({
@@ -178,7 +178,7 @@ export const MultiselectInput = ({
   const handleChange = useCallback(
     selectedOptions => {
       setSelected(selectedOptions);
-      const newValue = selectedOptions.map(x => x.value).join(', ');
+      const newValue = selectedOptions.map(x => x.value).join('; ');
       onChange({ target: { value: newValue, name } });
     },
     [onChange, name],

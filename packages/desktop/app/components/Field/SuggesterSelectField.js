@@ -18,7 +18,7 @@ export const SuggesterSelectField = React.memo(
       if (field.value) {
         let values;
         if (isMulti) {
-          values = Array.isArray(field.value) ? field.value : field.value.split(',');
+          values = Array.isArray(field.value) ? field.value : field.value.split('; ');
         } else {
           values = [field.value];
         }

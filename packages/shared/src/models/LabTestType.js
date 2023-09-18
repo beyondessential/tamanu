@@ -8,7 +8,7 @@ function optionStringToArray(s) {
   const trimmed = s.trim();
   if (!trimmed) return undefined;
   return trimmed
-    .split(', ')
+    .split('; ')
     .map(x => x.trim())
     .filter(x => x);
 }

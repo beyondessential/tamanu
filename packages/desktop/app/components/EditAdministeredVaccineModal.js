@@ -28,7 +28,7 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
         ...newData,
         circumstanceIds: Array.isArray(newData.circumstanceIds)
           ? newData.circumstanceIds
-          : newData.circumstanceIds?.split(',').map(c => c.trim()),
+          : newData.circumstanceIds?.split('; '),
       });
       dispatch(reloadPatient(patientId));
     },

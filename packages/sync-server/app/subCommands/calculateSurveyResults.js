@@ -40,7 +40,7 @@ const checkVisibilityCriteria = (component, allComponents, answerByCode) => {
 
       const matchingComponent = allComponents.find(x => x.code === questionCode);
       if (matchingComponent?.type === 'MultiSelect') {
-        const givenValues = answerByCode[questionCode].split(', ');
+        const givenValues = answerByCode[questionCode].split('; ');
         return givenValues.includes(answersEnablingFollowUp);
       }
 

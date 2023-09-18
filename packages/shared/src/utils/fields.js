@@ -31,7 +31,7 @@ function compareData(dataType, expected, given) {
       break;
     }
     case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
-      return given.split(', ').includes(expected);
+      return given.split('; ').includes(expected);
     default:
       if (expected === given) return true;
       break;
@@ -72,7 +72,7 @@ function checkVisibilityCriteria(component, allComponents, values) {
 
       const matchingComponent = allComponents.find(x => x.dataElement?.code === questionCode);
       if (matchingComponent?.dataElement?.type === 'MultiSelect') {
-        const givenValues = values[questionCode].split(', ');
+        const givenValues = values[questionCode].split('; ');
         return givenValues.includes(answersEnablingFollowUp);
       }
 

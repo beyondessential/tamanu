@@ -220,7 +220,7 @@ const getData = async (sequelize, parameters) => {
   } = parameters;
 
   let results = [];
-  for (const surveyId of surveyIds.split(', ')) {
+  for (const surveyId of surveyIds.split('; ')) {
     const resultsForSurvey = await sequelize.query(
       `
         SELECT
@@ -286,7 +286,7 @@ const getTotalPatientsScreened = async (sequelize, parameters) => {
     {
       type: sequelize.QueryTypes.SELECT,
       replacements: {
-        screening_survey_ids: surveyIds.split(', '),
+        screening_survey_ids: surveyIds.split('; '),
         referral_survey_id: null,
         from_date: queryFromDate,
         to_date: queryToDate,

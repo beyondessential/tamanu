@@ -118,7 +118,7 @@ const getData = async (sequelize, parameters) => {
     statuses,
   } = parameters;
 
-  const selectedStatuses = statuses?.split(', ') ?? null;
+  const selectedStatuses = statuses?.split('; ') ?? null;
 
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,

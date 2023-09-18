@@ -112,7 +112,7 @@ export function checkVisibility(component, values, allComponents) {
 
       if (Array.isArray(answersEnablingFollowUp)) {
         return isMultiSelect
-          ? (value?.split(',') || []).some(selected => answersEnablingFollowUp.includes(selected))
+          ? (value?.split(';') || []).some(selected => answersEnablingFollowUp.includes(selected))
           : answersEnablingFollowUp.includes(value);
       }
 

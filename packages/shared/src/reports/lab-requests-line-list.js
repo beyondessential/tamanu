@@ -154,8 +154,8 @@ const getData = async (sequelize, parameters) => {
     startOfDay(fromDate ? parseISO(fromDate) : subDays(new Date(), 30)),
   );
   const queryToDate = toDate && toDateTimeString(endOfDay(parseISO(toDate)));
-  const selectedStatuses = statuses?.split(', ') ?? null;
-  const selectedLabTestTypes = labTestTypeIds?.split(', ') ?? null;
+  const selectedStatuses = statuses?.split('; ') ?? null;
+  const selectedLabTestTypes = labTestTypeIds?.split('; ') ?? null;
 
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
