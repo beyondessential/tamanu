@@ -23,6 +23,10 @@ describe('Read Settings - Cache', () => {
     jest.clearAllMocks();
   });
 
+  beforeEach(() => {
+    settingsCache.reset();
+  });
+
   afterAll(() => ctx.close());
 
   afterEach(async () => {
