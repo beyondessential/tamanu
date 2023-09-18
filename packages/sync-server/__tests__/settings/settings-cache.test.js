@@ -19,6 +19,7 @@ describe('Read Settings - Cache', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     settings = ctx.settings;
+    models = ctx.store.models;
     jest.clearAllMocks();
   });
 

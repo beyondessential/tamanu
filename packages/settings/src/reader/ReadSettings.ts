@@ -1,5 +1,5 @@
 import { get as lodashGet } from 'lodash';
-import { buildSettings } from './buildSettings';
+import { buildSettings } from '../index';
 import { settingsCache } from '../cache';
 import { Models } from './readers/SettingsDBReader';
 export class ReadSettings {
