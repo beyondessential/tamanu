@@ -1,4 +1,3 @@
-import '../app/utils/customYupMethods';
 import config from 'config';
 import supertest from 'supertest';
 import http from 'http';
