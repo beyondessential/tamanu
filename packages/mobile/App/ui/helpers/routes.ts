@@ -92,10 +92,6 @@ export const Routes = {
       PrescribeMedication: '',
       ViewHistory: '',
     },
-    DeceasedStack: {
-      Index: '',
-      AddDeceasedDetails: '',
-    },
     LabRequestStack: {
       Index: '',
       LabRequestTabs: {

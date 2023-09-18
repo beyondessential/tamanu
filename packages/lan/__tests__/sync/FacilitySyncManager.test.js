@@ -179,6 +179,10 @@ describe('FacilitySyncManager', () => {
         ...jest.requireActual('../../app/sync/pullIncomingChanges'),
         pullIncomingChanges: jest.fn().mockImplementation(() => []),
       }));
+      jest.doMock('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot', () => ({
+        ...jest.requireActual('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot'),
+        assertIfPulledRecordsUpdatedAfterPushSnapshot: jest.fn(),
+      }));
 
       // Have to load test function within test scope so that we can mock dependencies per test case
       const {
@@ -213,6 +217,10 @@ describe('FacilitySyncManager', () => {
       jest.doMock('../../app/sync/pullIncomingChanges', () => ({
         ...jest.requireActual('../../app/sync/pullIncomingChanges'),
         pullIncomingChanges: jest.fn().mockImplementation(() => ({ totalPulled: 3, tick: 1 })),
+      }));
+      jest.doMock('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot', () => ({
+        ...jest.requireActual('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot'),
+        assertIfPulledRecordsUpdatedAfterPushSnapshot: jest.fn(),
       }));
 
       // Have to load test function within test scope so that we can mock dependencies per test case

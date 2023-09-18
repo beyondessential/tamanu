@@ -11,7 +11,6 @@ import { ProgramStack } from './ProgramStack';
 import { VitalsStack } from './VitalsStack';
 import { DiagnosisAndTreatmentTabs } from './DiagnosisAndTreatmentTabs';
 import { ReferralStack } from './ReferralStack';
-import { DeceasedStack } from './DeceasedStack';
 import { HistoryVitalsStack } from './HistoryVitalsStack';
 import { ExportDataScreen } from '../screens/home/ExportDataScreen';
 import { LabRequestStack } from './LabRequestStack';
@@ -70,7 +69,6 @@ export const HomeStack = (): ReactElement => {
         component={DiagnosisAndTreatmentTabs}
       />
       <Stack.Screen name={Routes.HomeStack.ReferralStack.Index} component={ReferralStack} />
-      <Stack.Screen name={Routes.HomeStack.DeceasedStack.Index} component={DeceasedStack} />
       <Stack.Screen name={Routes.HomeStack.LabRequestStack.Index} component={LabRequestStack} />
     </Stack.Navigator>
   );

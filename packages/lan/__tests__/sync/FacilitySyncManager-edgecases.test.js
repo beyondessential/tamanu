@@ -2,8 +2,14 @@
 import config from 'config';
 
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
-import { fake } from '@tamanu/shared/test-helpers/fake';
-import { createDummyPatient } from 'shared/demoData/patients';
+import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
+import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patients';
+import {
+  CURRENT_SYNC_TIME_KEY,
+  LAST_SUCCESSFUL_SYNC_PULL_KEY,
+  LAST_SUCCESSFUL_SYNC_PUSH_KEY,
+} from 'shared/sync/constants';
+
 import { createTestContext } from '../utilities';
 
 describe('FacilitySyncManager edge cases', () => {
@@ -11,6 +17,8 @@ describe('FacilitySyncManager edge cases', () => {
   let models;
   let sequelize;
   const TEST_SESSION_ID = 'sync123';
+  const LAST_SUCCESSFUL_SYNC_PUSH = '2';
+  const LAST_SUCCESSFUL_SYNC_PULL = '2';
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -57,8 +65,8 @@ describe('FacilitySyncManager edge cases', () => {
     syncManager.__testSpyEnabled = true;
 
     // set current sync tick
-    await models.LocalSystemFact.set('currentSyncTick', currentSyncTick);
-    await ctx.models.LocalSystemFact.set('lastSuccessfulSyncPush', '2');
+    await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, currentSyncTick);
+    await ctx.models.LocalSystemFact.set(LAST_SUCCESSFUL_SYNC_PUSH_KEY, LAST_SUCCESSFUL_SYNC_PUSH);
 
     // create a record that will be committed before the sync starts, so safely gets the current
     // sync tick and available in the db for snapshotting
@@ -89,7 +97,7 @@ describe('FacilitySyncManager edge cases', () => {
     await syncPromise;
 
     // check that the sync tick has been updated
-    const updatedSyncTick = await models.LocalSystemFact.get('currentSyncTick');
+    const updatedSyncTick = await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY);
     expect(updatedSyncTick).toBe(newSyncTick);
 
     // check that both patient records have the old sync tick
@@ -106,5 +114,178 @@ describe('FacilitySyncManager edge cases', () => {
         .map(c => c.recordId)
         .sort(),
     ).toStrictEqual([safePatientId, riskyPatientId].sort());
+  });
+
+  describe('handles local updates between "snapshot for push" and "pull"', () => {
+    let patient;
+    let encounter;
+    let syncManager;
+
+    const CURRENT_SYNC_TICK = '6';
+    const NEW_SYNC_TICK = '8';
+
+    const initializeSyncManager = (pulledEncounter, configToOverride) => {
+      const {
+        FacilitySyncManager: TestFacilitySyncManager,
+      } = require('../../app/sync/FacilitySyncManager');
+      if (configToOverride) {
+        TestFacilitySyncManager.overrideConfig(configToOverride);
+      }
+      syncManager = new TestFacilitySyncManager({
+        models,
+        sequelize,
+        centralServer: {
+          startSyncSession: jest.fn().mockImplementation(async () => ({
+            sessionId: TEST_SESSION_ID,
+            startedAtTick: NEW_SYNC_TICK,
+          })),
+          push: jest.fn(),
+          pull: jest.fn().mockImplementation(async () => [
+            {
+              id: pulledEncounter.id,
+              recordId: pulledEncounter.id,
+              isDeleted: false,
+              recordType: models.Encounter.tableName,
+              savedAtSyncTick: 1,
+              data: {
+                ...pulledEncounter.dataValues,
+              },
+            },
+          ]),
+          completePush: jest.fn(),
+          endSyncSession: jest.fn(),
+          initiatePull: jest.fn().mockImplementation(async () => ({
+            totalToPull: 1,
+            pullUntil: 1,
+          })),
+        },
+      });
+      syncManager.__testSpyEnabled = true;
+    };
+
+    beforeAll(async () => {
+      const facility = await models.Facility.create({
+        ...fake(models.Facility),
+      });
+      await models.User.create(fakeUser());
+      await models.Department.create({
+        ...fake(models.Department),
+        facilityId: facility.id,
+      });
+      await models.Location.create({
+        ...fake(models.Location),
+        facilityId: facility.id,
+      });
+      patient = await models.Patient.create({
+        ...fake(models.Patient),
+      });
+    });
+
+    beforeEach(async () => {
+      jest.resetModules();
+
+      await models.Encounter.truncate({ force: true, cascade: true });
+      await models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, CURRENT_SYNC_TICK);
+      await models.LocalSystemFact.set(LAST_SUCCESSFUL_SYNC_PUSH_KEY, LAST_SUCCESSFUL_SYNC_PUSH);
+      await models.LocalSystemFact.set(LAST_SUCCESSFUL_SYNC_PULL_KEY, LAST_SUCCESSFUL_SYNC_PULL);
+
+      encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+    });
+
+    it('does not throw an error if pulled records was not updated between push and pull', async () => {
+      let resolvePushOutgoingChangesPromise;
+      const pushOutgoingChangesPromise = new Promise(resolve => {
+        resolvePushOutgoingChangesPromise = async () => resolve(true);
+      });
+      jest.doMock('../../app/sync/pushOutgoingChanges', () => ({
+        ...jest.requireActual('../../app/sync/pushOutgoingChanges'),
+        pushOutgoingChanges: jest.fn().mockImplementation(() => {
+          return pushOutgoingChangesPromise;
+        }),
+      }));
+
+      initializeSyncManager(encounter);
+
+      // start the sync
+      const syncPromise = syncManager.runSync();
+
+      await sleepAsync(200);
+
+      // Update patient which is not one of the pulled records
+      patient.lastName = 'Updated';
+      await patient.save();
+
+      await resolvePushOutgoingChangesPromise();
+
+      // No expects as if there is an error, it should fail the test
+      await syncPromise;
+    });
+
+    it('throws an error if a pulled record was updated between push and pull', async () => {
+      let resolvePushOutgoingChangesPromise;
+      const pushOutgoingChangesPromise = new Promise(resolve => {
+        resolvePushOutgoingChangesPromise = async () => resolve(true);
+      });
+      jest.doMock('../../app/sync/pushOutgoingChanges', () => ({
+        ...jest.requireActual('../../app/sync/pushOutgoingChanges'),
+        pushOutgoingChanges: jest.fn().mockImplementation(() => {
+          return pushOutgoingChangesPromise;
+        }),
+      }));
+
+      initializeSyncManager(encounter);
+
+      // start the sync
+      const syncPromise = syncManager.runSync();
+
+      await sleepAsync(200);
+
+      // Update encounter which is one of the pulled records
+      encounter.reasonForEncounter = 'Updated';
+      await encounter.save();
+
+      await resolvePushOutgoingChangesPromise();
+
+      await expect(async () => {
+        await syncPromise;
+      }).rejects.toThrow(
+        "Facility: There are 1 encounters record(s) updated between 'snapshot-for-pushing' and now. Error thrown to restart the sync cycle and push the updated records to central",
+      );
+    });
+
+    it('does not throw an error if a pulled record was updated between push and pull, but the config was disabled', async () => {
+      let resolvePushOutgoingChangesPromise;
+      const pushOutgoingChangesPromise = new Promise(resolve => {
+        resolvePushOutgoingChangesPromise = async () => resolve(true);
+      });
+      jest.doMock('../../app/sync/pushOutgoingChanges', () => ({
+        ...jest.requireActual('../../app/sync/pushOutgoingChanges'),
+        pushOutgoingChanges: jest.fn().mockImplementation(() => {
+          return pushOutgoingChangesPromise;
+        }),
+      }));
+
+      const configToOverride = {
+        sync: { enabled: false, assertIfPulledRecordsUpdatedAfterPushSnapshot: false },
+      };
+      initializeSyncManager(encounter, configToOverride);
+
+      // start the sync
+      const syncPromise = syncManager.runSync();
+
+      await sleepAsync(200);
+
+      // Update encounter which is one of the pulled records
+      encounter.reasonForEncounter = 'Updated';
+      await encounter.save();
+
+      await resolvePushOutgoingChangesPromise();
+
+      // No expects as if there is an error, it should fail the test
+      await syncPromise;
+    });
   });
 });
