@@ -1,4 +1,5 @@
 import { trace, propagation, context } from '@opentelemetry/api';
+import config from 'config';
 import asyncHandler from 'express-async-handler';
 
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
@@ -9,7 +10,7 @@ export const userMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
     const { store, headers } = req;
 
-    const canonicalHostName = await req.settings.get('canonicalHostName');
+    const { canonicalHostName } = config;
 
     // get token
     const { authorization } = headers;

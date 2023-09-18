@@ -17,13 +17,13 @@ import { getNoteWithType } from 'shared/utils/notes';
 import { mapQueryFilters } from '../../database/utils';
 import { getImagingProvider } from '../../integrations/imaging';
 
-async function renderResults(models, imagingRequest) {
+async function renderResults(context, imagingRequest) {
   const results = imagingRequest.results
     ?.filter(result => !result.deletedAt)
     .map(result => result.get({ plain: true }));
   if (!results || results.length === 0) return results;
 
-  const imagingProvider = await getImagingProvider(models);
+  const imagingProvider = await getImagingProvider(context);
   if (imagingProvider) {
     const urls = await Promise.all(
       imagingRequest.results.map(async result => {
@@ -102,10 +102,12 @@ imagingRequest.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
-      models: { ImagingRequest, ImagingResult, User, ReferenceData },
+      models,
+      settings,
       params: { id },
     } = req;
     req.checkPermission('read', 'ImagingRequest');
+    const { ImagingRequest, ImagingResult, User, ReferenceData } = models;
     const imagingRequestObject = await ImagingRequest.findByPk(id, {
       include: [
         {
@@ -136,7 +138,7 @@ imagingRequest.get(
     res.send({
       ...imagingRequestObject.get({ plain: true }),
       ...(await imagingRequestObject.extractNotes()),
-      results: await renderResults(req.models, imagingRequestObject),
+      results: await renderResults({ models, settings }, imagingRequestObject),
     });
   }),
 );
@@ -220,10 +222,12 @@ imagingRequest.put(
       }
     }
 
+    const { models, settings } = req;
+
     res.send({
       ...imagingRequestObject.get({ plain: true }),
       ...notes,
-      results: await renderResults(req.models, imagingRequestObject),
+      results: await renderResults({ models, settings }, imagingRequestObject),
     });
   }),
 );

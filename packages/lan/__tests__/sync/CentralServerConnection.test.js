@@ -78,12 +78,11 @@ describe('CentralServerConnection', () => {
 
   describe('authentication', () => {
     let centralServer;
+
     beforeEach(async () => {
-      jest.clearAllMocks();
-      const syncSettings = await ctx.settings.get('sync');
       centralServer = new CentralServerConnection(
         { settings: ctx.settings, deviceId: 'test' },
-        syncSettings,
+        { timeout: 10000, host: 'http://localhost:3000' },
       );
       centralServer.fetchImplementation = fetch;
     });
@@ -142,7 +141,6 @@ describe('CentralServerConnection', () => {
       jest.setTimeout(2000); // fail quickly
       jest.useFakeTimers();
       fetch.mockImplementationOnce(fakeTimeout('fake timeout'));
-      centralServer.fetchImplementation = fetch;
       const connectPromise = centralServer.connect();
       jest.runAllTimers();
       await expect(connectPromise).rejects.toThrow('fake timeout');

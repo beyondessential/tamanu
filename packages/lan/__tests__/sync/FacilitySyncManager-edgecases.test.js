@@ -40,12 +40,11 @@ describe('FacilitySyncManager edge cases', () => {
       FacilitySyncManager: TestFacilitySyncManager,
     } = require('../../app/sync/FacilitySyncManager');
 
-    const syncSettings = await settings.get('sync');
-
     const syncManager = new TestFacilitySyncManager({
       models,
       sequelize,
       centralServer: {
+        settings,
         startSyncSession: jest.fn().mockImplementation(async () => ({
           sessionId: TEST_SESSION_ID,
           startedAtTick: newSyncTick,
@@ -57,9 +56,6 @@ describe('FacilitySyncManager edge cases', () => {
           totalToPull: 0,
           pullUntil: 0,
         })),
-        settings: {
-          get: () => Promise.resolve(syncSettings),
-        },
       },
     });
     syncManager.__testSpyEnabled = true;

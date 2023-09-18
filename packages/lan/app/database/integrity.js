@@ -14,9 +14,9 @@ export async function performDatabaseIntegrityChecks(context) {
 /*
  * ensureHostMatches
  */
-async function ensureHostMatches(context) {
-  const { LocalSystemFact } = context.models;
-  const settings = new ReadSettings(context.models, config.serverFacilityId);
+async function ensureHostMatches({ context }) {
+  const { settings, models } = context;
+  const { LocalSystemFact } = models;
   const syncConfig = await settings.get('sync');
   const centralServer = new CentralServerConnection(context, syncConfig);
   const configuredHost = centralServer.host;
@@ -56,7 +56,7 @@ async function ensureFacilityMatches(context) {
 }
 
 async function performInitialIntegritySetup(context) {
-  const settings = new ReadSettings(context.models, config.serverFacilityId);
+  const { settings, models } = context;
   const syncConfig = await settings.get('sync');
   const centralServer = new CentralServerConnection(context, syncConfig);
 
@@ -75,7 +75,7 @@ async function performInitialIntegritySetup(context) {
   }
 
   // We've ensured that our immutable config stuff is valid -- save it!
-  const { LocalSystemFact } = context.models;
+  const { LocalSystemFact } = models;
   await LocalSystemFact.set('facilityId', facility.id);
 
   log.info(`Verified with sync server as ${facility.name}`);

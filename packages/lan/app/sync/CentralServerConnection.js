@@ -44,11 +44,13 @@ export class CentralServerConnection {
   // test mocks don't always apply properly - this ensures the mock will be used
   fetchImplementation = fetch;
 
-  constructor(ctx, { host, timeout }) {
+  constructor(context, syncSettings) {
+    const { deviceId, settings } = context;
+    const { host, timeout } = syncSettings;
     this.host = host.trim().replace(/\/*$/, '');
     this.timeout = timeout;
-    this.deviceId = ctx?.deviceId;
-    this.settings = ctx?.settings;
+    this.deviceId = deviceId;
+    this.settings = settings;
   }
 
   async fetch(endpoint, params = {}) {
@@ -80,82 +82,80 @@ export class CentralServerConnection {
     const url = `${this.host}/${API_VERSION}/${endpoint}`;
     log.debug(`[sync] ${method} ${url}`);
 
-    return callWithBackoff(
-      async () => {
-        const requestFailureRate = await this.settings.get('sync.requestFailureRate');
-        if (requestFailureRate) {
-          if (Math.random() < requestFailureRate) {
-            // intended to cause some % of requests to fail, to simulate a flaky connection
-            throw new Error('Chaos: made your request fail');
-          }
+    const requestFailureRate = await this.settings.get('debugging.requestFailureRate');
+
+    return callWithBackoff(async () => {
+      if (requestFailureRate) {
+        if (Math.random() < requestFailureRate) {
+          // intended to cause some % of requests to fail, to simulate a flaky connection
+          throw new Error('Chaos: made your request fail');
         }
-        try {
-          const response = await fetchWithTimeout(
-            url,
-            {
-              method,
-              headers: {
-                Accept: 'application/json',
-                'X-Tamanu-Client': 'Tamanu LAN Server',
-                'X-Version': version,
-                Authorization: this.token ? `Bearer ${this.token}` : undefined,
-                'Content-Type': body ? 'application/json' : undefined,
-                ...headers,
-              },
-              body: body && JSON.stringify(body),
-              timeout: this.timeout,
-              ...otherParams,
+      }
+      try {
+        const response = await fetchWithTimeout(
+          url,
+          {
+            method,
+            headers: {
+              Accept: 'application/json',
+              'X-Tamanu-Client': 'Tamanu LAN Server',
+              'X-Version': version,
+              Authorization: this.token ? `Bearer ${this.token}` : undefined,
+              'Content-Type': body ? 'application/json' : undefined,
+              ...headers,
             },
-            this.fetchImplementation,
-          );
-          const isInvalidToken = response?.status === 401;
-          if (isInvalidToken) {
-            if (retryAuth) {
-              log.warn('Token was invalid - reconnecting to sync server');
-              await this.connect();
-              return this.fetch(endpoint, { ...params, retryAuth: false });
-            }
-            throw new BadAuthenticationError(`Invalid credentials`);
+            body: body && JSON.stringify(body),
+            timeout: this.timeout,
+            ...otherParams,
+          },
+          this.fetchImplementation,
+        );
+        const isInvalidToken = response?.status === 401;
+        if (isInvalidToken) {
+          if (retryAuth) {
+            log.warn('Token was invalid - reconnecting to sync server');
+            await this.connect();
+            return this.fetch(endpoint, { ...params, retryAuth: false });
           }
-
-          if (!response.ok) {
-            const responseBody = await getResponseJsonSafely(response);
-            const { error } = responseBody;
-
-            // handle version incompatibility
-            if (response.status === 400 && error) {
-              const versionIncompatibleMessage = getVersionIncompatibleMessage(error, response);
-              if (versionIncompatibleMessage) {
-                throw new FacilityAndSyncVersionIncompatibleError(versionIncompatibleMessage);
-              }
-            }
-
-            const errorMessage = error ? error.message : 'no error message given';
-            const err = new RemoteCallFailedError(
-              `Server responded with status code ${response.status} (${errorMessage})`,
-            );
-            // attach status and body from response
-            err.centralServerResponse = {
-              message: errorMessage,
-              status: response.status,
-              body: responseBody,
-            };
-            throw err;
-          }
-
-          return await response.json();
-        } catch (e) {
-          // TODO: import AbortError from node-fetch once we're on v3.0
-          if (e.name === 'AbortError') {
-            throw new RemoteTimeoutError(
-              `Server failed to respond within ${this.timeout}ms - ${url}`,
-            );
-          }
-          throw e;
+          throw new BadAuthenticationError(`Invalid credentials`);
         }
-      },
-      { ...(await this.settings.get('sync.backoff')), ...backoff },
-    );
+
+        if (!response.ok) {
+          const responseBody = await getResponseJsonSafely(response);
+          const { error } = responseBody;
+
+          // handle version incompatibility
+          if (response.status === 400 && error) {
+            const versionIncompatibleMessage = getVersionIncompatibleMessage(error, response);
+            if (versionIncompatibleMessage) {
+              throw new FacilityAndSyncVersionIncompatibleError(versionIncompatibleMessage);
+            }
+          }
+
+          const errorMessage = error ? error.message : 'no error message given';
+          const err = new RemoteCallFailedError(
+            `Server responded with status code ${response.status} (${errorMessage})`,
+          );
+          // attach status and body from response
+          err.centralServerResponse = {
+            message: errorMessage,
+            status: response.status,
+            body: responseBody,
+          };
+          throw err;
+        }
+
+        return await response.json();
+      } catch (e) {
+        // TODO: import AbortError from node-fetch once we're on v3.0
+        if (e.name === 'AbortError') {
+          throw new RemoteTimeoutError(
+            `Server failed to respond within ${this.timeout}ms - ${url}`,
+          );
+        }
+        throw e;
+      }
+    }, backoff || (await this.settings.get('sync.backoff')));
   }
 
   async pollUntilTrue(endpoint) {

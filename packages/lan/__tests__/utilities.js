@@ -182,7 +182,7 @@ export async function createTestContext() {
 
   const settings = new ReadSettings(models, config.serverFacilityId);
   const syncConfig = await settings.get('sync');
-  const centralServer = new CentralServerConnection({ deviceId: 'test', syncConfig });
+  const centralServer = new CentralServerConnection({ deviceId: 'test' }, syncConfig);
 
   const context = { baseApp, sequelize, models, centralServer, settings };
 
