@@ -184,19 +184,39 @@ export async function importRows(
     return stats;
   }
 
+  const destroyRecord = async (Model, record) => {
+    const isParanoid = Model.getIsParanoid();
+    if (isParanoid) {
+      await record.destroy();
+    } else {
+      await record.update({ [Model.deletedAtKey]: 'historical' });
+    }
+  };
+
+  const restoreRecord = async (Model, record) => {
+    const isParanoid = Model.getIsParanoid();
+    if (isParanoid) {
+      await record.restore();
+    } else {
+      await record.update({ [Model.deletedAtKey]: null });
+    }
+  };
+
   log.debug('Upserting database rows', { rows: validRows.length });
   for (const { model, sheetRow, values } of validRows) {
     const Model = models[model];
     const primaryKey = getPrimaryKey(model, values);
     const existing = await loadExisting(Model, primaryKey);
+    const { deletedAtKey } = Model;
+
     try {
       if (existing) {
-        if (values.deletedAt) {
-          await existing.destroy();
+        if (values[deletedAtKey]) {
+          await destroyRecord(Model, existing);
           updateStat(stats, statkey(model, sheetName), 'deleted');
         } else {
-          if (existing.deletedAt) {
-            await existing.restore();
+          if (existing[deletedAtKey]) {
+            await restoreRecord(Model, existing);
             updateStat(stats, statkey(model, sheetName), 'restored');
           }
           await existing.update(values);
