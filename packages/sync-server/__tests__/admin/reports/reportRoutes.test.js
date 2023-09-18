@@ -14,15 +14,17 @@ describe('reportRoutes', () => {
   let adminApp;
   let testReport;
   let user;
+  let dbRole;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.store.models;
     adminApp = await baseApp.asRole('admin');
+    dbRole = reportingRoles.raw;
     testReport = await models.ReportDefinition.create({
       name: 'Test Report',
-      dbRole: reportingRoles.raw,
+      dbRole,
     });
     user = await User.create({
       displayName: 'Test User',
@@ -122,7 +124,6 @@ describe('reportRoutes', () => {
   });
 
   describe('POST /reports', () => {
-    const dbRole = reportingRoles.raw;
     it('should create a report', async () => {
       const name = 'Test Report 2';
       const { ReportDefinition, ReportDefinitionVersion } = models;
@@ -252,7 +253,6 @@ describe('reportRoutes', () => {
   });
 
   describe('POST /reports/import', () => {
-    const dbRole = reportingRoles.raw;
     it('should not create a version if dry run', async () => {
       const res = await adminApp.post(`/v1/admin/reports/import`).send({
         file: path.join(__dirname, '/data/without-version-number.json'),
