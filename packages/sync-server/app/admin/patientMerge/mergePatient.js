@@ -223,8 +223,9 @@ export async function reconcilePatientFacilities(models, keepPatientId, unwanted
   return newPatientFacilities;
 }
 
-export async function mergePatient(models, keepPatientId, unwantedPatientId, deleteAction) {
+export async function mergePatient({ models, settings }, keepPatientId, unwantedPatientId) {
   const { sequelize } = models.Patient;
+  const deleteAction = await settings.get('patientMerge.deletionAction');
 
   if (keepPatientId === unwantedPatientId) {
     throw new InvalidParameterError('Cannot merge a patient record into itself.');

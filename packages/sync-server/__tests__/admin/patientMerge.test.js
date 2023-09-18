@@ -13,6 +13,7 @@ import { createTestContext } from '../utilities';
 describe('Patient merge', () => {
   let ctx;
   let models;
+  let settings;
   let baseApp;
   let adminApp;
 
@@ -33,6 +34,7 @@ describe('Patient merge', () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.store.models;
+    settings = ctx.settings;
     adminApp = await baseApp.asRole('admin');
   });
 
@@ -51,7 +53,7 @@ describe('Patient merge', () => {
   it('Should merge a patient with no additional records', async () => {
     const [keep, merge] = await makeTwoPatients();
 
-    const { updates } = await mergePatient(models, keep.id, merge.id);
+    const { updates } = await mergePatient({ models, settings }, keep.id, merge.id);
     expect(updates).toEqual({
       Patient: 2,
     });
@@ -112,7 +114,7 @@ describe('Patient merge', () => {
       patientId: keep.id,
     });
 
-    const { updates } = await mergePatient(models, keep.id, merge.id);
+    const { updates } = await mergePatient({ models, settings }, keep.id, merge.id);
 
     expect(updates).toEqual({
       Patient: 2,
@@ -140,7 +142,7 @@ describe('Patient merge', () => {
       patientId: merge.id,
     });
 
-    const { updates } = await mergePatient(models, keep.id, merge.id);
+    const { updates } = await mergePatient({ models, settings }, keep.id, merge.id);
 
     expect(updates).toEqual({
       Patient: 2,
@@ -168,7 +170,7 @@ describe('Patient merge', () => {
       clinicianId: clinician.id,
     });
 
-    const { updates } = await mergePatient(models, keep.id, merge.id);
+    const { updates } = await mergePatient({ models, settings }, keep.id, merge.id);
     expect(updates).toEqual({
       Patient: 2,
       PatientDeathData: 1,
@@ -181,19 +183,25 @@ describe('Patient merge', () => {
   it('Should throw if the keep patient and merge patient are the same', async () => {
     const { Patient } = models;
     const keep = await Patient.create(fake(Patient));
-    expect(() => mergePatient(models, keep.id, keep.id)).rejects.toThrow(InvalidParameterError);
+    expect(() => mergePatient({ models, settings }, keep.id, keep.id)).rejects.toThrow(
+      InvalidParameterError,
+    );
   });
 
   it("Should throw if the keep patient doesn't exist", async () => {
     const { Patient } = models;
     const keep = await Patient.create(fake(Patient));
-    expect(() => mergePatient(models, keep.id, 'not real')).rejects.toThrow(InvalidParameterError);
+    expect(() => mergePatient({ models, settings }, keep.id, 'not real')).rejects.toThrow(
+      InvalidParameterError,
+    );
   });
 
   it("Should throw if the merge patient doesn't exist", async () => {
     const { Patient } = models;
     const merge = await Patient.create(fake(Patient));
-    expect(() => mergePatient(models, 'not real', merge.id)).rejects.toThrow(InvalidParameterError);
+    expect(() => mergePatient({ models, settings }, 'not real', merge.id)).rejects.toThrow(
+      InvalidParameterError,
+    );
   });
 
   it('Should merge a page of notes across', async () => {
@@ -203,7 +211,7 @@ describe('Patient merge', () => {
       noteType: NOTE_TYPES.OTHER,
     });
 
-    const { updates } = await mergePatient(models, keep.id, merge.id);
+    const { updates } = await mergePatient({ models, settings }, keep.id, merge.id);
     expect(updates).toEqual({
       Patient: 2,
       Note: 1,
@@ -219,7 +227,7 @@ describe('Patient merge', () => {
       const mergeMiddleName = merge.middleName;
       const mergeCulturalName = merge.culturalName;
 
-      await mergePatient(models, keep.id, merge.id);
+      await mergePatient({ models, settings }, keep.id, merge.id);
       await keep.reload({ paranoid: false });
 
       expect(keep.firstName).not.toBe(mergedFirstName);
@@ -242,7 +250,7 @@ describe('Patient merge', () => {
       });
       const oldKeepPatientPadCreatedAt = oldKeepPatientPad.createdAt;
 
-      const { updates } = await mergePatient(models, keep.id, merge.id);
+      const { updates } = await mergePatient({ models, settings }, keep.id, merge.id);
       expect(updates).toEqual({
         Patient: 2,
         PatientAdditionalData: 1,
@@ -276,7 +284,7 @@ describe('Patient merge', () => {
         primaryContactNumber: 'merge-phone',
       });
 
-      await mergePatient(models, keep.id, merge.id);
+      await mergePatient({ models, settings }, keep.id, merge.id);
 
       const newKeepPatientPad = await PatientAdditionalData.findOne({
         where: { patientId: keep.id },
@@ -300,7 +308,7 @@ describe('Patient merge', () => {
         primaryContactNumber: 'merge-phone',
       });
 
-      await mergePatient(models, keep.id, merge.id);
+      await mergePatient({ models, settings }, keep.id, merge.id);
 
       const newKeepPatientPad = await PatientAdditionalData.findOne({
         where: { patientId: keep.id },
@@ -329,7 +337,7 @@ describe('Patient merge', () => {
         emergencyContactNumber: 'merge-emergency-phone',
       });
 
-      await mergePatient(models, keep.id, merge.id);
+      await mergePatient({ models, settings }, keep.id, merge.id);
 
       const newKeepPatientPad = await PatientAdditionalData.findOne({
         where: { patientId: keep.id },
@@ -354,13 +362,13 @@ describe('Patient merge', () => {
       const systemFact = await LocalSystemFact.findOne({ where: { key: 'currentSyncTick' } });
       await systemFact.update({ value: 2 });
 
-     // Create merge PAD second, so it would be preferred under sync logic (but NOT under merge logic)
+      // Create merge PAD second, so it would be preferred under sync logic (but NOT under merge logic)
       await PatientAdditionalData.create({
         patientId: merge.id,
         passport: 'merge-passport',
       });
 
-      await mergePatient(models, keep.id, merge.id);
+      await mergePatient({ models, settings }, keep.id, merge.id);
       const newKeepPatientPad = await PatientAdditionalData.findOne({
         where: { patientId: keep.id },
         paranoid: false,
@@ -438,7 +446,7 @@ describe('Patient merge', () => {
         value: testValuesObject[definitionC.id].merge,
       });
 
-      const { updates } = await mergePatient(models, keep.id, merge.id);
+      const { updates } = await mergePatient({ models, settings }, keep.id, merge.id);
       expect(updates).toEqual({
         Patient: 2,
         PatientFieldValue: 2,
@@ -488,7 +496,7 @@ describe('Patient merge', () => {
       const prePatientFacilities = await PatientFacility.findAll({});
       expect(prePatientFacilities.length).toEqual(4);
 
-      const { updates } = await mergePatient(models, keep.id, merge.id);
+      const { updates } = await mergePatient({ models, settings }, keep.id, merge.id);
       expect(updates).toEqual({
         Patient: 2,
         PatientFacility: 3,
@@ -571,7 +579,7 @@ describe('Patient merge', () => {
       const { PatientIssue } = models;
 
       const [keep, merge] = await makeTwoPatients();
-      await mergePatient(models, keep.id, merge.id);
+      await mergePatient({ models, settings }, keep.id, merge.id);
 
       const enc = await PatientIssue.create({
         ...fake(PatientIssue),
@@ -591,7 +599,7 @@ describe('Patient merge', () => {
       const { PatientAdditionalData, LocalSystemFact } = models;
 
       const [keep, merge] = await makeTwoPatients();
-      await mergePatient(models, keep.id, merge.id);
+      await mergePatient({ models, settings }, keep.id, merge.id);
 
       // give the Keep patient some PAD to reconcile into
       const keepPad = await PatientAdditionalData.create({
@@ -628,7 +636,7 @@ describe('Patient merge', () => {
       const { Note } = models;
 
       const [keep, merge] = await makeTwoPatients();
-      await mergePatient(models, keep.id, merge.id);
+      await mergePatient({ models, settings }, keep.id, merge.id);
 
       const note = await merge.createNote({
         ...fake(Note),
@@ -649,7 +657,7 @@ describe('Patient merge', () => {
       const facility = await Facility.create(fake(Facility));
 
       const [keep, merge] = await makeTwoPatients();
-      await mergePatient(models, keep.id, merge.id);
+      await mergePatient({ models, settings }, keep.id, merge.id);
 
       // create the facility association after the merge
       await PatientFacility.create({

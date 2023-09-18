@@ -2,9 +2,12 @@ import asyncHandler from 'express-async-handler';
 import { mergePatient } from './mergePatient';
 
 export const mergePatientHandler = asyncHandler(async (req, res) => {
-  const { body, store } = req;
+  const { body, store, settings } = req;
   const { keepPatientId, unwantedPatientId } = body;
-  const deleteAction = await req.settings.get('patientMerge.deletionAction');
-  const result = await mergePatient(store.models, keepPatientId, unwantedPatientId, deleteAction);
+  const result = await mergePatient(
+    { models: store.models, settings },
+    keepPatientId,
+    unwantedPatientId,
+  );
   res.send(result);
 });
