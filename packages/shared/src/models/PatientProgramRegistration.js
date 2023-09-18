@@ -65,4 +65,8 @@ export class PatientProgramRegistration extends Model {
       as: 'village',
     });
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }
