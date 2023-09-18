@@ -112,4 +112,8 @@ export class PatientProgramRegistration extends Model {
       // Order: TODO
     });
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }
