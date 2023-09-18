@@ -52,7 +52,11 @@
     "username": "",
     "password": "",
     "verbose": false,
-    "migrateOnStartup": false
+    "migrateOnStartup": false,
+    "reportingRoles": {
+      "raw": "tamanu_raw_reporting",
+      "dataset": "tamanu_dataset_reporting"
+    }
   },
   "senaite": {
     "enabled": false,

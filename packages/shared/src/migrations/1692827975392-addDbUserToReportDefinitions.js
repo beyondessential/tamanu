@@ -1,20 +1,24 @@
 import Sequelize from 'sequelize';
+import config from 'config';
 
-const DB_ROLES = {
-  RAW: 'tamanu_raw_reporting',
-  DATASET: 'tamanu_dataset_reporting',
-};
+const { reportingRoles } = config.db;
+
+if (!reportingRoles || !reportingRoles.raw || !reportingRoles.dataset) {
+  throw Error(
+    'A dataset and raw reporting role must be configured in local.json for this migration to run.',
+  );
+}
 
 export async function up(query) {
   await query.addColumn('report_definitions', 'db_role', {
     type: Sequelize.STRING,
     allowNull: false,
-    defaultValue: DB_ROLES.DATASET,
+    defaultValue: reportingRoles.dataset,
   });
 
   await query.sequelize.query(`
     UPDATE "report_definitions"
-    SET "db_role" = '${DB_ROLES.RAW}'
+    SET "db_role" = '${reportingRoles.raw}'
   `);
 }
 
