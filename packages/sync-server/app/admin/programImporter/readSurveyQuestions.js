@@ -38,8 +38,8 @@ function makeScreen(questions, componentData) {
     const { surveyId, ...otherComponentData } = componentData;
     const dataElId = `pde-${elementData.code}`;
 
-    const deletedAt = STATUSES_TO_DELETE.includes(visibilityStatus.toLowerCase())
-      ? Date.now()
+    const translatedVisibilityStatus = STATUSES_TO_DELETE.includes(visibilityStatus.toLowerCase())
+      ? 'historical'
       : null;
 
     return [
@@ -73,7 +73,7 @@ function makeScreen(questions, componentData) {
           // different question types use different validation criteria
           type,
           ...otherComponentData,
-          deletedAt,
+          visibilityStatus: translatedVisibilityStatus,
         },
       },
     ];
