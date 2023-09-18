@@ -51,18 +51,18 @@ const getDbLocation = (models, fieldName) => {
   throw new Error(`Unknown fieldName: ${fieldName}`);
 };
 
-/**
- * DUPLICATED IN mobile/App/models/SurveyResponse.ts
- * Please keep in sync
+/** Returns in the format:
+ * {
+ *  Patient: { key1: 'value1' },
+ *  PatientAdditionalData: { key1: 'value1' },
+ * }
  */
-async function writeToPatientFields(models, questions, answers, patientId, surveyId) {
-  // these will store values to write to patient records following submission
+const getFieldsToWrite = (models, questions, answers) => {
   const recordValuesByModel = {};
 
   const patientDataQuestions = questions.filter(
     q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
   );
-
   for (const question of patientDataQuestions) {
     const { dataElement, config: configString } = question;
     const config = JSON.parse(configString) || {};
@@ -82,34 +82,39 @@ async function writeToPatientFields(models, questions, answers, patientId, surve
     if (!recordValuesByModel[modelName]) recordValuesByModel[modelName] = {};
     recordValuesByModel[modelName][fieldName] = value;
   }
+  return recordValuesByModel;
+};
 
-  // Save values to database records
-  for (const [modelName, values] of Object.entries(recordValuesByModel)) {
-    switch (modelName) {
-      case 'Patient': {
-        const patient = await models.Patient.findByPk(patientId);
-        await patient.update(values);
-        break;
-      }
-      case 'PatientAdditionalData': {
-        const pad = await models.PatientAdditionalData.getOrCreateForPatient(patientId);
-        await pad.update(values);
-        break;
-      }
-      case 'PatientProgramRegistration': {
-        const { programId } = await models.Survey.findByPk(surveyId);
-        const { id: programRegistryId } = await models.ProgramRegistry.findOne({
-          where: { programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
-        });
-        if (!programRegistryId) {
-          throw new Error('No program registry configured for the current form');
-        }
-        await models.PatientProgramRegistration.create({ patientId, programRegistryId, ...values });
-        break;
-      }
-      default:
-        throw new InvalidOperationError('Model not recognized');
+/**
+ * DUPLICATED IN mobile/App/models/SurveyResponse.ts
+ * Please keep in sync
+ */
+async function writeToPatientFields(models, questions, answers, patientId, surveyId) {
+  const valuesByModel = getFieldsToWrite(models, questions, answers);
+
+  if (valuesByModel.Patient) {
+    const patient = await models.Patient.findByPk(patientId);
+    await patient.update(valuesByModel.Patient);
+  }
+
+  if (valuesByModel.PatientAdditionalData) {
+    const pad = await models.PatientAdditionalData.getOrCreateForPatient(patientId);
+    await pad.update(valuesByModel.PatientAdditionalData);
+  }
+
+  if (valuesByModel.PatientProgramRegistration) {
+    const { programId } = await models.Survey.findByPk(surveyId);
+    const { id: programRegistryId } = await models.ProgramRegistry.findOne({
+      where: { programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    });
+    if (!programRegistryId) {
+      throw new Error('No program registry configured for the current form');
     }
+    await models.PatientProgramRegistration.create({
+      patientId,
+      programRegistryId,
+      ...valuesByModel.PatientProgramRegistration,
+    });
   }
 }
 
