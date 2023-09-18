@@ -132,5 +132,5 @@ export class LegacyNotePage extends Model {
     return this[parentGetter](options);
   }
 
-  static buildSyncFilter = buildNotePageLinkedSyncFilter;
+  static buildPatientSyncFilter = buildNotePageLinkedSyncFilter;
 }

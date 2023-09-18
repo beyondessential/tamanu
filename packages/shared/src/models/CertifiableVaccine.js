@@ -82,4 +82,8 @@ export class CertifiableVaccine extends Model {
   usableForEuDcc() {
     return this.euProductCode !== null && this.targetCode !== null && this.manufacturerId !== null;
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }

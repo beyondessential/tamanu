@@ -56,7 +56,7 @@ export class Triage extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds) {
+  static buildPatientSyncFilter(patientIds) {
     if (patientIds.length === 0) {
       return null;
     }
@@ -111,6 +111,7 @@ export class Triage extends Model {
         departmentId,
         locationId: data.locationId,
         examinerId: data.practitionerId,
+        actorId: data.actorId,
       });
 
       return super.create({
