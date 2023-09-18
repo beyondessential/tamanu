@@ -1,0 +1,33 @@
+provisioning {
+  users {
+    "admin@tamanu.io" {
+        role "admin"
+        password "admin"
+        displayName "Initial Admin"
+    }
+  }
+
+  facilities {
+    facility-a {
+        name "Facility A"
+        code "a"
+        user "facility-a@tamanu.io"
+        password "facility-a"
+    }
+
+    facility-b {
+        name "Facility B"
+        code "b"
+        user "facility-b@tamanu.io"
+        password "facility-b"
+    }
+  }
+
+  referenceData {
+    - file="2023-07-03-demo-like.xlsx"
+  }
+}
+
+programs {
+  - file "vitals.xlsx"
+}

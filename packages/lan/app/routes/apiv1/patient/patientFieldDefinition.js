@@ -1,8 +1,8 @@
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
-import { HIDDEN_VISIBILITY_STATUSES } from 'shared/constants/importable';
-import { permissionCheckingRouter } from '../crudHelpers';
+import { HIDDEN_VISIBILITY_STATUSES } from '@tamanu/constants/importable';
+import { permissionCheckingRouter } from 'shared/utils/crudHelpers';
 
 export const patientFieldDefinition = permissionCheckingRouter('read', 'Patient');
 

@@ -4,11 +4,11 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
 import { InvalidParameterError } from 'shared/errors';
-import { NOTE_TYPES, ENCOUNTER_TYPES } from 'shared/constants';
+import { NOTE_TYPES, ENCOUNTER_TYPES } from '@tamanu/constants';
 
-import { renameObjectKeys } from '../../utils/renameObjectKeys';
+import { renameObjectKeys } from 'shared/utils';
 
-import { simpleGet, simplePut } from './crudHelpers';
+import { simpleGet, simplePut } from 'shared/utils/crudHelpers';
 
 export const triage = express.Router();
 
@@ -18,7 +18,7 @@ triage.put('/:id', simplePut('Triage'));
 triage.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, db } = req;
+    const { models, db, user } = req;
     const { vitals, notes } = req.body;
 
     req.checkPermission('create', 'Triage');
@@ -26,7 +26,7 @@ triage.post(
       req.checkPermission('create', 'Vitals');
     }
 
-    const triageRecord = await models.Triage.create(req.body);
+    const triageRecord = await models.Triage.create({ ...req.body, actorId: user.id });
 
     if (vitals) {
       const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type);
@@ -45,10 +45,8 @@ triage.post(
     // The triage form groups notes as a single string for submission
     // so put it into a single note record
     if (notes) {
-      const notePage = await triageRecord.createNotePage({
+      await triageRecord.createNote({
         noteType: NOTE_TYPES.OTHER,
-      });
-      await notePage.createNoteItem({
         content: notes,
       });
     }

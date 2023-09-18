@@ -153,8 +153,8 @@ export function checkVisibilityCriteria(
       return true;
     }
 
-    const checkIfQuestionMeetsCriteria = ([questionId, answersEnablingFollowUp]): boolean => {
-      const value = values[questionId];
+    const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]): boolean => {
+      const value = values[questionCode];
       if (answersEnablingFollowUp.type === 'range') {
         if (!value) return false;
         const { start, end } = answersEnablingFollowUp;
@@ -166,9 +166,9 @@ export function checkVisibilityCriteria(
         }
       }
 
-      const matchingComponent = allComponents.find(x => x.dataElement?.code === questionId);
+      const matchingComponent = allComponents.find(x => x.dataElement?.code === questionCode);
       if (matchingComponent?.dataElement?.type === DataElementType.MultiSelect) {
-        const givenValues = values[questionId].split(', ');
+        const givenValues = values[questionCode].split(', ');
         return givenValues.includes(answersEnablingFollowUp);
       }
 

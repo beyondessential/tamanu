@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
+import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { SUPPORTED_CLIENT_VERSIONS } from '../../app/middleware/versionCompatibility';
 
@@ -125,7 +125,6 @@ describe('Version compatibility', () => {
         'packages/desktop/app/package.json',
         'packages/sync-server/package.json',
         'packages/lan/package.json',
-        'packages/shared-src/package.json',
         'packages/shared/package.json',
         'packages/meta-server/package.json',
         'packages/scripts/package.json',

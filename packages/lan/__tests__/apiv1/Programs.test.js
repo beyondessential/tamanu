@@ -1,9 +1,7 @@
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
-import Chance from 'chance';
-import { SURVEY_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
+import { SURVEY_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { chance } from 'shared/test-helpers';
 import { createTestContext } from '../utilities';
-
-const chance = new Chance();
 
 let baseApp = null;
 let models = null;

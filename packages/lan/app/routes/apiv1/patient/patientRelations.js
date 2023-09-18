@@ -2,9 +2,14 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes, Sequelize } from 'sequelize';
 
 import { getPatientAdditionalData } from 'shared/utils';
-import { HIDDEN_VISIBILITY_STATUSES } from 'shared/constants/importable';
+import { HIDDEN_VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 
-import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from '../crudHelpers';
+import { renameObjectKeys } from '@tamanu/shared/utils/renameObjectKeys';
+import {
+  simpleGetList,
+  permissionCheckingRouter,
+  runPaginatedQuery,
+} from 'shared/utils/crudHelpers';
 import { patientSecondaryIdRoutes } from './patientSecondaryId';
 import { patientDeath } from './patientDeath';
 import { patientProfilePicture } from './patientProfilePicture';
@@ -28,6 +33,7 @@ patientRelations.get(
       startDate: 'start_date',
       endDate: 'end_date',
       facilityName: 'facility_name',
+      locationGroupName: 'location_group_name',
     };
 
     const sortKey = orderBy && ENCOUNTER_SORT_KEYS[orderBy];
@@ -45,13 +51,19 @@ patientRelations.get(
           ${open ? 'AND end_date IS NULL' : ''}
       `,
       `
-        SELECT encounters.*, locations.facility_id AS facility_id, facilities.name AS facility_name
+        SELECT
+          encounters.*,
+          locations.facility_id AS facility_id,
+          facilities.name AS facility_name,
+          location_groups.name AS location_group_name
         FROM
           encounters
           INNER JOIN locations
             ON encounters.location_id = locations.id
           INNER JOIN facilities
             ON locations.facility_id = facilities.id
+          LEFT JOIN location_groups
+            ON location_groups.id = locations.location_group_id
         WHERE
           patient_id = :patientId
           ${open ? 'AND end_date IS NULL' : ''}
@@ -90,12 +102,24 @@ patientRelations.get(
     // Todo: Remove when WAITM-243 is complete
     const passport = await getPatientAdditionalData(models, params.id, 'passport');
     const nationalityId = await getPatientAdditionalData(models, params.id, 'nationalityId');
+    const streetVillage = await getPatientAdditionalData(models, params.id, 'streetVillage');
+    const cityTown = await getPatientAdditionalData(models, params.id, 'cityTown');
+    const countryId = await getPatientAdditionalData(models, params.id, 'countryId');
     const nationality = nationalityId
       ? await models.ReferenceData.findByPk(nationalityId)
       : undefined;
+    const country = countryId ? await models.ReferenceData.findByPk(countryId) : undefined;
 
     const recordData = additionalDataRecord ? additionalDataRecord.toJSON() : {};
-    res.send({ ...recordData, passport, nationality, nationalityId });
+    res.send({
+      ...recordData,
+      passport,
+      nationality,
+      nationalityId,
+      streetVillage,
+      cityTown,
+      country,
+    });
   }),
 );
 
@@ -281,109 +305,80 @@ patientRelations.get(
 
     const { categoryId, panelId, status = 'published' } = query;
 
-    const { count, data } = await runPaginatedQuery(
-      db,
-      LabTest,
-      `
-        SELECT COUNT(DISTINCT lab_test_type_id) AS count
-        FROM
-          lab_tests
-        INNER JOIN
-          lab_requests
-        ON
-          lab_tests.lab_request_id = lab_requests.id
-        WHERE
-          encounter_id IN (
-            SELECT id
-            FROM
-              encounters
-            WHERE
-              patient_id = :patientId
-            )
-          AND lab_requests.status = '${status}'
-          AND lab_requests.sample_time IS NOT NULL
-          ${categoryId ? `AND lab_requests.lab_test_category_id = '${categoryId}'` : ''}
-          ${
-            panelId
-              ? `AND lab_test_type_id IN (
-                SELECT lab_test_type_id
-                FROM
-                  lab_test_panel_lab_test_types
-                WHERE
-                  lab_test_panel_id = '${panelId}'
-              )`
-              : ''
-          }
-      `,
-      `
-        SELECT
-          reference_data.name AS test_category,
-          lab_test_types.name AS test_type,
-          FIRST(lab_test_types.unit) AS unit,
-          JSONB_BUILD_OBJECT(
-            'male', JSONB_BUILD_OBJECT(
-              'min', MIN(lab_test_types.male_min),
-              'max', MAX(lab_test_types.male_max)
-            ),
-            'female', JSONB_BUILD_OBJECT(
-              'min', MIN(lab_test_types.female_min),
-              'max', MAX(lab_test_types.female_max)
-            )
-          ) AS normal_ranges,
-          JSONB_OBJECT_AGG(
-            lab_requests.sample_time, JSONB_BUILD_OBJECT(
-              'result', lab_tests.result,
-              'id', lab_tests.id
-            )
-          ) AS results
-        FROM
-          lab_tests
-        INNER JOIN
-          lab_requests
-        ON
-          lab_tests.lab_request_id = lab_requests.id
-        INNER JOIN
-          lab_test_types
-        ON
-          lab_tests.lab_test_type_id = lab_test_types.id
-        INNER JOIN
-          reference_data
-        ON
-          lab_test_types.lab_test_category_id = reference_data.id
-        WHERE
-        encounter_id IN (
-            SELECT id
-            FROM
-              encounters
-            WHERE
-              patient_id = :patientId
-          )
-        AND lab_requests.status = '${status}'
-        AND lab_requests.sample_time IS NOT NULL
-        ${categoryId ? `AND lab_requests.lab_test_category_id = '${categoryId}'` : ''}
-        ${
-          panelId
-            ? `AND lab_test_type_id IN (
-               SELECT lab_test_type_id
-               FROM
-                 lab_test_panel_lab_test_types
-               WHERE
-                 lab_test_panel_id = '${panelId}'
-             )`
-            : ''
-        }
-        GROUP BY
-          test_category, test_type
-        ORDER BY
-          test_category
-      `,
-      { patientId: params.id },
-      query,
+    const results = await db.query(
+      `SELECT
+    reference_data.name AS test_category,
+    lab_test_types.name AS test_type,
+    FIRST(lab_test_types.unit) AS unit,
+    JSONB_BUILD_OBJECT(
+      'male', JSONB_BUILD_OBJECT(
+        'min', MIN(lab_test_types.male_min),
+        'max', MAX(lab_test_types.male_max)
+      ),
+      'female', JSONB_BUILD_OBJECT(
+        'min', MIN(lab_test_types.female_min),
+        'max', MAX(lab_test_types.female_max)
+      )
+    ) AS normal_ranges,
+    JSONB_OBJECT_AGG(
+      lab_requests.sample_time, JSONB_BUILD_OBJECT(
+        'result', lab_tests.result,
+        'id', lab_tests.id
+      )
+    ) AS results
+  FROM
+    lab_tests
+  INNER JOIN
+    lab_requests
+  ON
+    lab_tests.lab_request_id = lab_requests.id
+  INNER JOIN
+    lab_test_types
+  ON
+    lab_tests.lab_test_type_id = lab_test_types.id
+  INNER JOIN
+    reference_data
+  ON
+    lab_test_types.lab_test_category_id = reference_data.id
+  WHERE
+  encounter_id IN (
+      SELECT id
+      FROM
+        encounters
+      WHERE
+        patient_id = :patientId
+    )
+  AND lab_requests.status = :status
+  AND lab_requests.sample_time IS NOT NULL
+  ${categoryId ? 'AND lab_requests.lab_test_category_id = :categoryId' : ''}
+  ${
+    panelId
+      ? `AND lab_test_type_id IN (
+         SELECT lab_test_type_id
+         FROM
+           lab_test_panel_lab_test_types
+         WHERE
+           lab_test_panel_id = :panelId
+       )`
+      : ''
+  }
+  GROUP BY
+    test_category, test_type
+  ORDER BY
+    test_category`,
+      {
+        replacements: { patientId: params.id, status, categoryId, panelId },
+        model: LabTest,
+        type: QueryTypes.SELECT,
+        mapToModel: true,
+      },
     );
 
+    const formattedData = results.map(x => renameObjectKeys(x.forResponse()));
+
     res.send({
-      count: parseInt(count, 10),
-      data,
+      count: results.length,
+      data: formattedData,
     });
   }),
 );

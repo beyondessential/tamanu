@@ -1,22 +1,39 @@
+import { parse } from 'semver';
 import { buildVersionCompatibilityCheck } from 'shared/utils';
 import { InvalidClientHeadersError } from 'shared/errors';
 
-// If a new version of the mobile app is being released in conjunction with an update to the sync
-// server, set `min` for `Tamanu Mobile` to reflect that, and mobile users will be logged out until
-// they have updated. Similarly with the LAN server, it won't be able to sync if its version is
-// not supported.
+// only works via webpack, not direct nodejs
+import pkgjson from '../../package.json';
+
+const { major, minor } = parse(pkgjson.version);
+
+// In general, all versions in the current minor version should be compatible with each other.
+// However, if there is an incompatibility between any (desktop, facility) client version and a
+// central server version, this can be used to override the forbid clients below a certain version
+// from connecting.
+//
+// To do so, set this to a string like '1.30.2'.
+//
+// THIS SHOULD BE RARE and only used in exceptional circumstances.
+// When merging to main or other branches, this MUST be reset to null.
+const MIN_CLIENT_OVERRIDE = null;
+
+export const MIN_CLIENT_VERSION = MIN_CLIENT_OVERRIDE ?? `${major}.${minor}.0`;
+export const MAX_CLIENT_VERSION = `${major}.${minor}.999`;
+// Note that .999 is only for clarity; higher patch versions will always be allowed
+
 export const SUPPORTED_CLIENT_VERSIONS = {
   'Tamanu LAN Server': {
-    min: '1.27.0',
-    max: '1.27.0', // note that higher patch versions will be allowed to connect
+    min: MIN_CLIENT_VERSION,
+    max: MAX_CLIENT_VERSION,
   },
   'Tamanu Desktop': {
-    min: '1.27.0',
-    max: '1.27.0', // note that higher patch versions will be allowed to connect
+    min: MIN_CLIENT_VERSION,
+    max: MAX_CLIENT_VERSION,
   },
   'Tamanu Mobile': {
-    min: '1.27.0',
-    max: '1.27.0', // note that higher patch versions will be allowed to connect
+    min: MIN_CLIENT_VERSION,
+    max: MAX_CLIENT_VERSION,
   },
   'fiji-vps': {
     min: null,

@@ -18,16 +18,19 @@ import { ReferralProvider } from './contexts/Referral';
 import { ElectronProvider } from './contexts/ElectronProvider';
 import { ImagingRequestsProvider } from './contexts/ImagingRequests';
 import { PatientSearchProvider } from './contexts/PatientSearch';
+import { EncounterNotesProvider } from './contexts/EncounterNotes';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
     <ReferralProvider>
       <ImagingRequestsProvider>
-        <LabRequestProvider store={store}>
-          <PatientSearchProvider>
-            <LocalisationProvider store={store}>{children}</LocalisationProvider>
-          </PatientSearchProvider>
-        </LabRequestProvider>
+        <EncounterNotesProvider>
+          <LabRequestProvider store={store}>
+            <PatientSearchProvider>
+              <LocalisationProvider store={store}>{children}</LocalisationProvider>
+            </PatientSearchProvider>
+          </LabRequestProvider>
+        </EncounterNotesProvider>
       </ImagingRequestsProvider>
     </ReferralProvider>
   </EncounterProvider>
@@ -44,13 +47,13 @@ const queryClient = new QueryClient({
 
 export default function Root({ api, store, history }) {
   return (
-    <Provider store={store}>
-      <ApiContext.Provider value={api}>
-        <ConnectedRouter history={history}>
-          <StylesProvider injectFirst>
-            <MuiThemeProvider theme={theme}>
-              <ThemeProvider theme={theme}>
-                <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <Provider store={store}>
+        <ApiContext.Provider value={api}>
+          <ConnectedRouter history={history}>
+            <StylesProvider injectFirst>
+              <MuiThemeProvider theme={theme}>
+                <ThemeProvider theme={theme}>
                   <StateContextProviders store={store}>
                     <ReactQueryDevtools initialIsOpen={false} />
                     <ElectronProvider>
@@ -69,13 +72,13 @@ export default function Root({ api, store, history }) {
                       <RoutingApp />
                     </ElectronProvider>
                   </StateContextProviders>
-                </QueryClientProvider>
-              </ThemeProvider>
-            </MuiThemeProvider>
-          </StylesProvider>
-        </ConnectedRouter>
-      </ApiContext.Provider>
-    </Provider>
+                </ThemeProvider>
+              </MuiThemeProvider>
+            </StylesProvider>
+          </ConnectedRouter>
+        </ApiContext.Provider>
+      </Provider>
+    </QueryClientProvider>
   );
 }
 

@@ -27,7 +27,7 @@ export default {
   },
   subSection: {
     backgroundColor: colorPack.light,
-    borderBottomWidth: 1,
+    borderWidth: 1,
     borderColor: colorPack.borderColor,
     paddingLeft: 0,
     paddingRight: 20,

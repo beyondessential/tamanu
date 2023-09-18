@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import { Box } from '@material-ui/core';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import {
   Form,
@@ -22,6 +22,7 @@ import { NestedVitalsModal } from '../components/NestedVitalsModal';
 import { useApi, useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
 import { getActionsFromData, getAnswersFromData } from '../utils';
+import { useLocalisedText } from '../components';
 
 const InfoPopupLabel = React.memo(() => (
   <span>
@@ -40,6 +41,7 @@ export const TriageForm = ({
 }) => {
   const api = useApi();
   const dispatch = useDispatch();
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
   const { getLocalisation } = useLocalisation();
   const triageCategories = getLocalisation('triageCategories');
   const practitionerSuggester = useSuggester('practitioner');
@@ -105,7 +107,7 @@ export const TriageForm = ({
         </FormGrid>
         <Field
           name="practitionerId"
-          label="Triage clinician"
+          label={`Triage ${clinicianText.toLowerCase()}`}
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
@@ -163,7 +165,7 @@ export const TriageForm = ({
       validationSchema={yup.object().shape({
         triageTime: yup.date().required(),
         chiefComplaintId: foreignKey('Chief complaint must be selected'),
-        practitionerId: foreignKey('Triage clinician must be selected'),
+        practitionerId: foreignKey(`Triage ${clinicianText.toLowerCase()} must be selected`),
         locationId: foreignKey('Location must be selected'),
         score: yup.string().required(),
       })}

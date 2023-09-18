@@ -1,18 +1,15 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import * as yup from 'yup';
-import Select from 'react-select';
 import styled from 'styled-components';
-import { format, getCurrentDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
-import Checkbox from '@material-ui/core/Checkbox';
 import { range } from 'lodash';
 import { isFuture, parseISO, set } from 'date-fns';
-import { Colors } from '../constants';
+import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { Divider as BaseDivider } from '@material-ui/core';
+import { Colors, FORM_STATUSES } from '../constants';
 import { useApi } from '../api';
-
 import { foreignKey } from '../utils/validation';
 
 import {
-  Form,
   Field,
   AutocompleteField,
   TextField,
@@ -20,6 +17,10 @@ import {
   StyledTextField,
   LocalisedField,
   useLocalisedSchema,
+  CheckControl,
+  SelectField,
+  PaginatedForm,
+  DefaultFormScreen,
 } from '../components/Field';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { DateTimeField, DateTimeInput } from '../components/Field/DateField';
@@ -27,14 +28,37 @@ import { TextInput } from '../components/Field/TextField';
 import { FormGrid } from '../components/FormGrid';
 import { TableFormFields } from '../components/Table';
 
-import { ConfirmCancelRow } from '../components/ButtonRow';
+import { ConfirmCancelBackRow, ConfirmCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
+import {
+  MODAL_PADDING_LEFT_AND_RIGHT,
+  MODAL_PADDING_TOP_AND_BOTTOM,
+  useLocalisedText,
+} from '../components';
+
+const Divider = styled(BaseDivider)`
+  margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
+`;
+
+const ConfirmContent = styled.div`
+  text-align: left;
+  padding: ${40 - MODAL_PADDING_TOP_AND_BOTTOM}px ${80 - MODAL_PADDING_LEFT_AND_RIGHT}px;
+  h3 {
+    color: ${Colors.alert};
+    font-size: 16px;
+    font-weight: 500;
+  }
+  p {
+    font-size: 14px;
+    font-weight: 400;
+  }
+`;
 
 const MAX_REPEATS = 12;
 const REPEATS_OPTIONS = range(MAX_REPEATS + 1).map(value => ({ label: value, value }));
 
-const getDischargeInitialValues = (encounter, dischargeNotePages, medicationInitialValues) => {
+const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialValues) => {
   const today = new Date();
   const encounterStartDate = parseISO(encounter.startDate);
   return {
@@ -49,7 +73,7 @@ const getDischargeInitialValues = (encounter, dischargeNotePages, medicationInit
         )
       : getCurrentDateTimeString(),
     discharge: {
-      note: dischargeNotePages.map(np => np.noteItems?.[0]?.content).join('\n'),
+      note: dischargeNotes.map(n => n.content).join('\n'),
     },
     medications: medicationInitialValues,
     // Used in creation of associated notes
@@ -89,23 +113,6 @@ const ProcedureList = React.memo(({ procedures }) => (
   </StyledUnorderedList>
 ));
 
-const SelectFieldWithoutLabel = ({ field, form, options, ...props }) => {
-  const handleChange = option => form.setFieldValue(field.name, option.value);
-
-  return (
-    <Select
-      name={field.name}
-      value={options.find(option => option.value === field.value)}
-      onChange={handleChange}
-      options={options}
-      menuPlacement="auto"
-      menuPosition="fixed"
-      menuShouldBlockScroll="true"
-      {...props}
-    />
-  );
-};
-
 const NumberFieldWithoutLabel = ({ field, ...props }) => (
   <StyledTextField
     name={field.name}
@@ -120,7 +127,7 @@ const NumberFieldWithoutLabel = ({ field, ...props }) => (
 const StyledFlexDiv = styled.div`
   display: flex;
 `;
-const StyledCheckbox = styled(Checkbox)`
+const StyledCheckbox = styled(CheckControl)`
   font-size: 16px;
 `;
 const StyledTextSpan = styled.span`
@@ -135,11 +142,8 @@ alongside the checkbox with different stylings.
 const CustomCheckField = ({ field, lineOne, lineTwo }) => (
   <StyledFlexDiv>
     <StyledCheckbox
-      icon={<i className="far fa-square" />}
-      checkedIcon={<i className="far fa-check-square" />}
       color="primary"
-      value="checked"
-      checked={field.value || false}
+      value={field.value}
       name={field.name}
       onChange={field.onChange}
     />
@@ -165,7 +169,8 @@ const QuantityAccessor = ({ id }) => (
 const RepeatsAccessor = ({ id }) => (
   <Field
     name={`medications.${id}.repeats`}
-    component={SelectFieldWithoutLabel}
+    isClearable={false}
+    component={SelectField}
     options={REPEATS_OPTIONS}
   />
 );
@@ -183,6 +188,8 @@ const medicationColumns = [
 const EncounterOverview = ({
   encounter: { procedures, diagnoses, startDate, examiner, reasonForEncounter },
 }) => {
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
+
   // Only display diagnoses that don't have a certainty of 'error' or 'disproven'
   const currentDiagnoses = diagnoses.filter(d => !['error', 'disproven'].includes(d.certainty));
 
@@ -190,7 +197,7 @@ const EncounterOverview = ({
     <>
       <DateTimeInput label="Admission date" value={startDate} disabled />
       <TextInput
-        label="Supervising clinician"
+        label={`Supervising ${clinicianText.toLowerCase()}`}
         value={examiner ? examiner.displayName : '-'}
         disabled
       />
@@ -210,6 +217,45 @@ const EncounterOverview = ({
   );
 };
 
+const DischargeFormScreen = props => {
+  const { validateForm, onStepForward, setStatus, status, onCancel } = props;
+
+  return (
+    <DefaultFormScreen
+      customBottomRow={
+        <ConfirmCancelRow
+          onCancel={onCancel}
+          onConfirm={async () => {
+            const { isCanceled, ...formErrors } = await validateForm();
+            if (Object.keys(formErrors).length > 0) {
+              // Hacky, set to SUBMIT_ATTEMPTED status to view error before summary page
+              // without hitting submit button, it works with one page only. Ideally we should
+              // have Pagination form component to handle this.
+              setStatus({ ...status, submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
+            } else {
+              onStepForward();
+            }
+          }}
+          confirmText="Finalise"
+          cancelText="Cancel"
+        />
+      }
+      {...props}
+    />
+  );
+};
+
+const DischargeSummaryScreen = ({ onStepBack, submitForm, onCancel }) => (
+  <div className="ConfirmContent">
+    <ConfirmContent>
+      <h3>Confirm patient discharge</h3>
+      <p>Are you sure you want to discharge the patient? This action is irreversible.</p>
+    </ConfirmContent>
+    <Divider />
+    <ConfirmCancelBackRow onBack={onStepBack} onConfirm={submitForm} onCancel={onCancel} />
+  </div>
+);
+
 export const DischargeForm = ({
   dispositionSuggester,
   practitionerSuggester,
@@ -217,7 +263,8 @@ export const DischargeForm = ({
   onSubmit,
 }) => {
   const { encounter } = useEncounter();
-  const [dischargeNotePages, setDischargeNotePages] = useState([]);
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
+  const [dischargeNotes, setDischargeNotes] = useState([]);
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
 
@@ -241,13 +288,36 @@ export const DischargeForm = ({
 
   useEffect(() => {
     (async () => {
-      const { data: notePages } = await api.get(`encounter/${encounter.id}/notePages`);
-      setDischargeNotePages(notePages.filter(n => n.noteType === 'discharge'));
+      const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
+      setDischargeNotes(notes.filter(n => n.noteType === 'discharge'));
     })();
   }, [api, encounter.id]);
 
-  const renderForm = ({ submitForm }) => (
-    <>
+  return (
+    <PaginatedForm
+      onSubmit={handleSubmit}
+      onCancel={onCancel}
+      initialValues={getDischargeInitialValues(encounter, dischargeNotes, medicationInitialValues)}
+      FormScreen={DischargeFormScreen}
+      SummaryScreen={DischargeSummaryScreen}
+      validationSchema={yup.object().shape({
+        endDate: yup.date().required(),
+        discharge: yup
+          .object()
+          .shape({
+            dischargerId: foreignKey(
+              `Discharging ${clinicianText.toLowerCase()} is a required field'`,
+            ),
+          })
+          .shape({
+            dispositionId: getLocalisedSchema({
+              name: 'dischargeDisposition',
+            }),
+          })
+          .required(),
+      })}
+      formProps={{ enableReinitialize: true, showInlineErrorsOnly: true, validateOnChange: true }}
+    >
       <FormGrid>
         <EncounterOverview encounter={encounter} />
         <Field
@@ -260,7 +330,7 @@ export const DischargeForm = ({
         />
         <Field
           name="discharge.dischargerId"
-          label="Discharging physician"
+          label={`Discharging ${clinicianText.toLowerCase()}`}
           component={AutocompleteField}
           suggester={practitionerSuggester}
           required
@@ -290,35 +360,7 @@ export const DischargeForm = ({
           rows={4}
           style={{ gridColumn: '1 / -1' }}
         />
-        <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText="Finalise" />
       </FormGrid>
-    </>
-  );
-
-  return (
-    <Form
-      onSubmit={handleSubmit}
-      render={renderForm}
-      enableReinitialize
-      initialValues={getDischargeInitialValues(
-        encounter,
-        dischargeNotePages,
-        medicationInitialValues,
-      )}
-      validationSchema={yup.object().shape({
-        endDate: yup.date().required(),
-        discharge: yup
-          .object()
-          .shape({
-            dischargerId: foreignKey('Discharging physician is a required field'),
-          })
-          .shape({
-            dispositionId: getLocalisedSchema({
-              name: 'dischargeDisposition',
-            }),
-          })
-          .required(),
-      })}
-    />
+    </PaginatedForm>
   );
 };

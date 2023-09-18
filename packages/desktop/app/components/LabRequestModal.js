@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
-import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
+import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
+import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import styled from 'styled-components';
-import { useApi, useSuggester } from '../api';
-import { combineQueries } from '../api/combineQueries';
+import { useApi, useSuggester, combineQueries } from '../api';
 import { Modal } from './Modal';
 import { LabRequestMultiStepForm } from '../forms/LabRequestForm/LabRequestMultiStepForm';
 import { LabRequestSummaryPane } from '../views/patients/components/LabRequestSummaryPane';
@@ -11,7 +11,7 @@ import { useEncounter } from '../contexts/Encounter';
 
 const StyledModal = styled(Modal)`
   .MuiDialog-paper {
-    max-width: 926px;
+    max-width: 1200px;
   }
 `;
 
@@ -31,7 +31,7 @@ const useLabRequests = labRequestIds => {
       };
     }),
   });
-  return combineQueries(queries);
+  return combineQueries(queries, { filterNoData: true });
 };
 
 export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
@@ -41,14 +41,24 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
   const { loadEncounter } = useEncounter();
   const { isSuccess, isLoading, data: newLabRequests } = useLabRequests(newLabRequestIds);
   const practitionerSuggester = useSuggester('practitioner');
+  const specimenTypeSuggester = useSuggester('specimenType');
+  const labSampleSiteSuggester = useSuggester('labSampleSite');
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
   });
 
   const handleSubmit = async data => {
-    const response = await api.post(`labRequest`, {
-      ...data,
+    const { notes, ...rest } = data;
+    const response = await api.post('labRequest', {
+      ...rest,
       encounterId: encounter.id,
+      labTest: {
+        date: getCurrentDateString(),
+      },
+      note: {
+        date: getCurrentDateTimeString(),
+        content: notes,
+      },
     });
     setNewLabRequestIds(response.map(request => request.id));
   };
@@ -58,6 +68,8 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
       setNewLabRequestIds([]);
       await loadEncounter(encounter.id);
     }
+
+    setRequestFormType(null);
     onClose();
   };
 
@@ -70,10 +82,12 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
       isSubmitting={isLoading}
       onSubmit={handleSubmit}
       onChangeStep={handleChangeStep}
-      onCancel={onClose}
+      onCancel={handleClose}
       encounter={encounter}
       practitionerSuggester={practitionerSuggester}
       departmentSuggester={departmentSuggester}
+      specimenTypeSuggester={specimenTypeSuggester}
+      labSampleSiteSuggester={labSampleSiteSuggester}
     />
   );
 
@@ -90,11 +104,10 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
 
   return (
     <StyledModal
-      maxWidth="md"
       title={`New lab request${requestFormType ? ` | ${SECTION_TITLES[requestFormType]}` : ''}`}
       open={open}
       onClose={handleClose}
-      minHeight={500}
+      minHeight={800}
     >
       {ModalBody}
     </StyledModal>

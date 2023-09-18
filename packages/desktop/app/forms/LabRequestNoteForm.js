@@ -3,7 +3,8 @@ import styled from 'styled-components';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import NotesIcon from '@material-ui/icons/Notes';
 import { Button, Box } from '@material-ui/core';
-import { NOTE_TYPES } from 'shared/constants';
+import { NOTE_TYPES } from '@tamanu/constants';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi } from '../api';
 import { Form, Field, TextField, DateDisplay } from '../components';
 
@@ -74,12 +75,13 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
     api.get(`labRequest/${labRequestId}/notes`),
   );
 
-  const { mutate: saveNote } = useMutation(
+  const { mutate: saveNote, isLoading: isSavingNote } = useMutation(
     ({ values }) => {
       return api.post(`labRequest/${labRequestId}/notes`, {
         content: values.content?.trim(),
         authorId: api.user.id,
         noteType: NOTE_TYPES.OTHER,
+        date: getCurrentDateTimeString(),
       });
     },
     {
@@ -112,7 +114,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
               saveNote({ values, formProps });
             }}
             render={({ values }) => {
-              const formSubmitIsDisabled = !values.content?.trim();
+              const formSubmitIsDisabled = !values.content?.trim() || isSavingNote;
               return active ? (
                 <Box display="flex" alignItems="center">
                   <NotesInput label="" name="content" component={TextField} autoFocus />

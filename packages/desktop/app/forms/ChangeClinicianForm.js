@@ -2,19 +2,22 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { Form, Field, AutocompleteField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
+import { useLocalisedText } from '../components';
 
 export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) => {
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
+
   const renderForm = ({ submitForm }) => (
     <FormGrid columns={1}>
       <Field
         name="examinerId"
         component={AutocompleteField}
-        label="Search new clinician"
+        label={`Search new ${clinicianText.toLowerCase()}`}
         required
         suggester={clinicianSuggester}
       />
@@ -29,7 +32,7 @@ export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) 
         submittedTime: getCurrentDateTimeString(),
       }}
       validationSchema={yup.object().shape({
-        examinerId: yup.string().required('Clinician is required'),
+        examinerId: yup.string().required(`${clinicianText} is required`),
       })}
       render={renderForm}
       onSubmit={onSubmit}

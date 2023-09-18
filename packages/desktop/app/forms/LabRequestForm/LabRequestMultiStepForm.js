@@ -1,23 +1,23 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useState } from 'react';
 import * as yup from 'yup';
-import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dateTime';
-import { LAB_REQUEST_STATUSES, LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
+import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
+import PropTypes from 'prop-types';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useAuth } from '../../contexts/Auth';
+import { foreignKey } from '../../utils/validation';
 
 import { MultiStepForm, FormStep } from '../MultiStepForm';
-import { LabRequestFormScreen1, screen1ValidationSchema } from './LabRequestFormScreen1';
+import { LabRequestFormScreen1 } from './LabRequestFormScreen1';
 import { LabRequestFormScreen2, screen2ValidationSchema } from './LabRequestFormScreen2';
-
-const combinedValidationSchema = yup.object().shape({
-  ...screen1ValidationSchema.fields,
-  ...screen2ValidationSchema.fields,
-});
+import { LabRequestFormScreen3 } from './LabRequestFormScreen3';
+import { useLocalisedText } from '../../components';
 
 export const LabRequestMultiStepForm = ({
   isSubmitting,
   practitionerSuggester,
   departmentSuggester,
+  specimenTypeSuggester,
+  labSampleSiteSuggester,
   encounter,
   onCancel,
   onChangeStep,
@@ -25,6 +25,19 @@ export const LabRequestMultiStepForm = ({
   editedObject,
 }) => {
   const { currentUser } = useAuth();
+  const [initialSamples, setInitialSamples] = useState([]);
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
+
+  // For fields please see LabRequestFormScreen1.js
+  const screen1ValidationSchema = yup.object().shape({
+    requestedById: foreignKey(`Requesting ${clinicianText.toLowerCase()} is required`),
+    requestedDate: yup.date().required('Request date is required'),
+    requestFormType: yup
+      .string()
+      .oneOf(Object.values(LAB_REQUEST_FORM_TYPES))
+      .required('Request type must be selected'),
+  });
+  const combinedValidationSchema = screen1ValidationSchema.concat(screen2ValidationSchema);
 
   return (
     <MultiStepForm
@@ -33,16 +46,12 @@ export const LabRequestMultiStepForm = ({
       onSubmit={onSubmit}
       isSubmitting={isSubmitting}
       initialValues={{
-        requestFormType: LAB_REQUEST_FORM_TYPES.PANEL,
         requestedById: currentUser.id,
         departmentId: encounter.departmentId,
         requestedDate: getCurrentDateTimeString(),
-        specimenAttached: 'no',
-        status: LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
         labTestTypeIds: [],
+        panelIds: [],
         notes: '',
-        // LabTest date
-        date: getCurrentDateString(),
         ...editedObject,
       }}
       validationSchema={combinedValidationSchema}
@@ -53,8 +62,20 @@ export const LabRequestMultiStepForm = ({
           departmentSuggester={departmentSuggester}
         />
       </FormStep>
-      <FormStep validationSchema={screen2ValidationSchema} submitButtonText="Finalise">
-        <LabRequestFormScreen2 />
+      <FormStep validationSchema={screen2ValidationSchema}>
+        <LabRequestFormScreen2
+          onSelectionChange={samples => {
+            setInitialSamples(samples);
+          }}
+        />
+      </FormStep>
+      <FormStep submitButtonText="Finalise">
+        <LabRequestFormScreen3
+          practitionerSuggester={practitionerSuggester}
+          specimenTypeSuggester={specimenTypeSuggester}
+          labSampleSiteSuggester={labSampleSiteSuggester}
+          initialSamples={initialSamples}
+        />
       </FormStep>
     </MultiStepForm>
   );

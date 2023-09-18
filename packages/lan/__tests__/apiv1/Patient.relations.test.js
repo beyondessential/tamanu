@@ -5,8 +5,8 @@ import {
   randomReferenceData,
 } from 'shared/demoData/patients';
 import { randomLabRequest, randomDate } from 'shared/demoData';
-import { PATIENT_FIELD_DEFINITION_TYPES } from 'shared/constants/patientFields';
-import { LAB_REQUEST_STATUSES } from 'shared/constants';
+import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { Chance } from 'chance';
 import { fake } from 'shared/test-helpers/fake';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
@@ -634,16 +634,6 @@ describe('Patient relations', () => {
       }
     });
 
-    it('Paginates large quantities of lab tests', async () => {
-      const rowsPerPage = 5;
-      const response = await app.get(
-        `/v1/patient/${labTestsPatient.id}/labTestResults?rowsPerPage=${rowsPerPage}`,
-      );
-      expect(response).toHaveSucceeded();
-      expect(response.body.count).toEqual(labTestTypes.length);
-      expect(response.body.data.length).toEqual(rowsPerPage);
-    });
-
     it('Defaults to only fetching published lab tests', async () => {
       const response = await app.get(`/v1/patient/${labTestsPatient.id}/labTestResults`);
       expect(response).toHaveSucceeded();
@@ -684,16 +674,6 @@ describe('Patient relations', () => {
       response.body.data.forEach(labTest => {
         expect(labTest.testCategory).toEqual(randomCategory.name);
       });
-    });
-
-    it('Paginate with filter', async () => {
-      const rowsPerPage = 1;
-      const response = await app.get(
-        `/v1/patient/${labTestsPatient.id}/labTestResults?categoryId=${randomCategory.id}&rowsPerPage=${rowsPerPage}`,
-      );
-      expect(response).toHaveSucceeded();
-      expect(response.body.count).toBeGreaterThan(rowsPerPage);
-      expect(response.body.data.length).toEqual(rowsPerPage);
     });
 
     test.todo('Allows filtering lab tests by panel');

@@ -8,7 +8,8 @@ import {
   VACCINE_CATEGORIES,
   VACCINE_STATUS,
   SETTING_KEYS,
-} from 'shared/constants';
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { NotFoundError } from 'shared/errors';
 import { getCurrentDateString } from 'shared/utils/dateTime';
 
@@ -46,6 +47,7 @@ patientVaccineRoutes.get(
         , max(sv.schedule) AS schedule
         , max(sv.weeks_from_birth_due) AS weeks_from_birth_due
         , max(sv.vaccine_id) AS vaccine_id
+        , max(sv.visibility_status) AS visibility_status
         , count(av.id) AS administered
         FROM scheduled_vaccines sv
         LEFT JOIN (
@@ -81,11 +83,15 @@ patientVaccineRoutes.get(
           // eslint-disable-next-line no-param-reassign
           allVaccines[vaccineSchedule.label] = rest;
         }
-        allVaccines[vaccineSchedule.label].schedules.push({
-          schedule: vaccineSchedule.schedule,
-          scheduledVaccineId: vaccineSchedule.id,
-          administered: asRealNumber(vaccineSchedule.administered) > 0,
-        });
+        const administered = asRealNumber(vaccineSchedule.administered) > 0;
+        // Exclude historical schedules unless administered
+        if (vaccineSchedule.visibilityStatus !== VISIBILITY_STATUSES.HISTORICAL || administered) {
+          allVaccines[vaccineSchedule.label].schedules.push({
+            schedule: vaccineSchedule.schedule,
+            scheduledVaccineId: vaccineSchedule.id,
+            administered,
+          });
+        }
         return allVaccines;
       }, {});
 
@@ -100,20 +106,52 @@ patientVaccineRoutes.get(
 patientVaccineRoutes.put(
   '/:id/administeredVaccine/:vaccineId',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const { db, models, params } = req;
     req.checkPermission('read', 'PatientVaccine');
-    const object = await models.AdministeredVaccine.findByPk(params.vaccineId);
-    if (!object) throw new NotFoundError();
+    const updatedVaccineData = req.body;
+    const vaccine = await models.AdministeredVaccine.findByPk(params.vaccineId);
+    if (!vaccine) throw new NotFoundError();
     req.checkPermission('write', 'PatientVaccine');
-    await object.update(req.body);
-    res.send(object);
+
+    const updatedVaccine = await db.transaction(async () => {
+      await vaccine.update(updatedVaccineData);
+
+      if (updatedVaccineData.status === VACCINE_STATUS.RECORDED_IN_ERROR) {
+        const encounter = await models.Encounter.findByPk(vaccine.encounterId);
+
+        // If encounter type is VACCINATION, it means the encounter only has vaccine attached to it
+        if (encounter.encounterType === ENCOUNTER_TYPES.VACCINATION) {
+          encounter.reasonForEncounter = `${encounter.reasonForEncounter} reverted`;
+          await encounter.save();
+        }
+      }
+
+      return vaccine;
+    });
+    res.send(updatedVaccine);
   }),
 );
+
+async function getVaccinationDescription(models, vaccineData) {
+  const scheduledVaccine = await models.ScheduledVaccine.findByPk(vaccineData.scheduledVaccineId, {
+    include: 'vaccine',
+  });
+
+  const prefixMessage =
+    vaccineData.status === VACCINE_STATUS.GIVEN
+      ? 'Vaccination recorded for'
+      : 'Vaccination recorded as not given for';
+  const vaccineDetails =
+    vaccineData.category === VACCINE_CATEGORIES.OTHER
+      ? [vaccineData.vaccineName]
+      : [scheduledVaccine.vaccine?.name, scheduledVaccine.schedule];
+  return [prefixMessage, ...vaccineDetails].filter(Boolean).join(' ');
+}
 
 patientVaccineRoutes.post(
   '/:id/administeredVaccine',
   asyncHandler(async (req, res) => {
-    const { db } = req;
+    const { db, user } = req;
     req.checkPermission('create', 'PatientVaccine');
 
     // Require scheduledVaccineId if vaccine category is not OTHER
@@ -148,8 +186,12 @@ patientVaccineRoutes.post(
 
     if (!departmentId || !locationId) {
       const vaccinationDefaults =
-        (await models.Setting.get(SETTING_KEYS.VACCINATION_DEFAULTS, config.serverFacilityId)) ||
-        {};
+        (await models.Setting.get(
+          vaccineData.givenElsewhere
+            ? SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS
+            : SETTING_KEYS.VACCINATION_DEFAULTS,
+          config.serverFacilityId,
+        )) || {};
       departmentId = departmentId || vaccinationDefaults.departmentId;
       locationId = locationId || vaccinationDefaults.locationId;
     }
@@ -162,12 +204,14 @@ patientVaccineRoutes.post(
         encounterId = existingEncounter.get('id');
       } else {
         const newEncounter = await req.models.Encounter.create({
-          encounterType: ENCOUNTER_TYPES.CLINIC,
+          encounterType: ENCOUNTER_TYPES.VACCINATION,
           startDate: vaccineData.date || currentDate,
           patientId,
           examinerId: vaccineData.recorderId,
           locationId,
           departmentId,
+          reasonForEncounter: await getVaccinationDescription(req.models, vaccineData),
+          actorId: user.id,
         });
         await newEncounter.update({
           endDate: vaccineData.date || currentDate,
@@ -284,5 +328,27 @@ patientVaccineRoutes.get(
     });
 
     res.send({ count: results.count, data: results.data });
+  }),
+);
+
+patientVaccineRoutes.get(
+  '/:id/administeredVaccine/:vaccineId/circumstances',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'PatientVaccine');
+    const { models, params } = req;
+    const administeredVaccine = await models.AdministeredVaccine.findByPk(params.vaccineId);
+    if (!administeredVaccine) throw new NotFoundError();
+    if (
+      !Array.isArray(administeredVaccine.circumstanceIds) ||
+      administeredVaccine.circumstanceIds.length === 0
+    )
+      res.send({ count: 0, data: [] });
+    const results = await models.ReferenceData.findAll({
+      where: {
+        id: administeredVaccine.circumstanceIds,
+      },
+    });
+
+    res.send({ count: results.count, data: results?.map(({ id, name }) => ({ id, name })) });
   }),
 );

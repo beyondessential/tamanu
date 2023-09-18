@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { BackendManager } from '~/services/BackendManager';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 
-export type ResultArray<T> = [T | null, Error | null];
+export type ResultArray<T> = [T | null, Error | null, boolean];
 
 export const useCancelableEffect = <T>(
   fetcher: () => Promise<T> | T,
@@ -10,6 +10,7 @@ export const useCancelableEffect = <T>(
 ): ResultArray<T> => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let canceled = false;
@@ -21,6 +22,8 @@ export const useCancelableEffect = <T>(
         }
       } catch (e) {
         setError(e);
+      } finally {
+        setIsLoading(false);
       }
     })();
     return (): void => {
@@ -28,7 +31,7 @@ export const useCancelableEffect = <T>(
     };
   }, dependencies);
 
-  return [data, error];
+  return [data, error, isLoading];
 };
 
 export const useBackendEffect = <T>(

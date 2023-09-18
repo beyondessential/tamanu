@@ -1,12 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { Form, Field, DateField, AutocompleteField, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
 import { foreignKey, optionalForeignKey } from '../utils/validation';
+import { LocalisedText } from '../components';
 
 export const FamilyHistoryForm = ({
   onCancel,
@@ -36,7 +37,7 @@ export const FamilyHistoryForm = ({
         <Field name="relationship" label="Relation to patient" component={TextField} />
         <Field
           name="practitionerId"
-          label="Doctor/nurse"
+          label={<LocalisedText path="fields.clinician.shortLabel" />}
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />

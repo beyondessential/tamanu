@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { ENCOUNTER_TYPES, REFERRAL_STATUSES } from 'shared/constants';
+import { ENCOUNTER_TYPES, REFERRAL_STATUSES } from '@tamanu/constants';
 import { useDispatch } from 'react-redux';
 import { useApi } from '../api';
 

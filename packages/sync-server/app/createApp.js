@@ -5,7 +5,7 @@ import express from 'express';
 
 import { getLoggingMiddleware } from 'shared/services/logging';
 import { constructPermission } from 'shared/permissions/middleware';
-import { SERVER_TYPES } from 'shared/constants';
+import { SERVER_TYPES } from '@tamanu/constants';
 
 import { buildRoutes } from './buildRoutes';
 import { authModule } from './auth';
@@ -40,7 +40,9 @@ export function createApp(ctx) {
   app.use(versionCompatibility);
 
   app.use((req, res, next) => {
+    req.models = store.models; // cross-compatibility with lan for shared middleware
     req.store = store;
+    req.models = store.models;
     req.emailService = emailService;
     req.ctx = ctx;
 

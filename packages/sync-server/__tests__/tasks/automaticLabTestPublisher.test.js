@@ -1,6 +1,6 @@
 import { createDummyPatient } from 'shared/demoData/patients';
-import { LAB_REQUEST_STATUSES, ENCOUNTER_TYPES } from 'shared/constants';
-import { fake, fakeUser } from 'shared/test-helpers';
+import { LAB_REQUEST_STATUSES, ENCOUNTER_TYPES } from '@tamanu/constants';
+import { fake, chance, fakeUser } from 'shared/test-helpers';
 import { createTestContext } from '../utilities';
 import { AutomaticLabTestResultPublisher } from '../../app/tasks/AutomaticLabTestResultPublisher';
 
@@ -51,7 +51,7 @@ describe('Lab test publisher', () => {
     });
     const labRequest = await models.LabRequest.create({
       encounterId: encounter.id,
-      displayId: `${Math.random()}`,
+      displayId: `${chance.hash({ length: 10 })}`,
     });
     if (!(await models.LabTestType.findByPk(testType))) {
       await models.LabTestType.create({

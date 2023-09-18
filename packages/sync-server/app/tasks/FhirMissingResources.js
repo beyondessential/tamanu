@@ -1,10 +1,8 @@
 import config from 'config';
-import { ScheduledTask } from 'shared/tasks';
-import { FHIR_INTERACTIONS, JOB_TOPICS } from 'shared/constants';
-import { log } from 'shared/services/logging';
-import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
-
-const materialisableResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
+import { FHIR_INTERACTIONS, JOB_TOPICS } from '@tamanu/constants';
+import { ScheduledTask } from '@tamanu/shared/tasks';
+import { log } from '@tamanu/shared/services/logging';
+import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 
 export class FhirMissingResources extends ScheduledTask {
   constructor(context) {
@@ -12,6 +10,10 @@ export class FhirMissingResources extends ScheduledTask {
     super(conf.schedule, log.child({ task: 'FhirMissingResources' }));
     this.config = conf;
     this.context = context;
+    this.materialisableResources = resourcesThatCanDo(
+      this.context.store.models,
+      FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
+    );
   }
 
   getName() {
@@ -21,18 +23,19 @@ export class FhirMissingResources extends ScheduledTask {
   async countQueue() {
     let all = 0;
 
-    for (const Resource of materialisableResources) {
+    for (const Resource of this.materialisableResources) {
       const resourceTable = Resource.tableName;
 
       for (const UpstreamModel of Resource.UpstreamModels) {
         const upstreamTable = UpstreamModel.tableName;
 
-        const [{ total }] = await Resource.sequelize.query(
+        const [[{ total }]] = await Resource.sequelize.query(
           `SELECT COUNT(up.id) as total FROM "${upstreamTable}" up
           LEFT JOIN fhir."${resourceTable}" r ON r.upstream_id = up.id
           WHERE r.id IS NULL`,
         );
-        all += total;
+
+        all += parseInt(total);
       }
     }
 
@@ -40,12 +43,12 @@ export class FhirMissingResources extends ScheduledTask {
   }
 
   async run() {
-    for (const Resource of materialisableResources) {
+    for (const Resource of this.materialisableResources) {
       const resourceTable = Resource.tableName;
       for (const UpstreamModel of Resource.UpstreamModels) {
         const upstreamTable = UpstreamModel.tableName;
 
-        const [{ total }] = await Resource.sequelize.query(
+        const [[{ total }]] = await Resource.sequelize.query(
           `SELECT COUNT(up.id) as total FROM "${upstreamTable}" up
           LEFT JOIN fhir."${resourceTable}" r ON r.upstream_id = up.id
           WHERE r.id IS NULL`,

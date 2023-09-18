@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import AccessTime from '@material-ui/icons/AccessTime';
-import { ENCOUNTER_TYPES } from 'shared/constants/encounters';
+import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
 import { useApi } from '../api';
 import { StatisticsCard, StatisticsCardContainer } from './StatisticsCard';
 import { Colors } from '../constants';

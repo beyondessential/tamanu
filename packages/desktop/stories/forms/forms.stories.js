@@ -13,9 +13,8 @@ import {
   LOCATIONS,
   USERS,
   DEPARTMENTS,
-} from 'shared/demoData';
-import { VACCINE_RECORDING_TYPES } from 'shared/constants';
-
+} from '@tamanu/shared/demoData';
+import { VACCINE_RECORDING_TYPES } from '@tamanu/constants';
 import { MockedApi } from '../utils/mockedApi';
 import { mockLabRequestFormEndpoints } from '../utils/mockLabData';
 import { EncounterForm } from '../../app/forms/EncounterForm';
@@ -36,6 +35,7 @@ import { createDummySuggester, mapToSuggestions } from '../utils';
 import { Modal } from '../../app/components/Modal';
 
 import '@fortawesome/fontawesome-free/css/all.css';
+import { fakeLabRequest } from '../../.storybook/__mocks__/defaultEndpoints';
 
 const PATIENTS = new Array(20).fill(0).map(() => createDummyPatient());
 
@@ -226,7 +226,10 @@ storiesOf('Forms', module)
   .add('LabRequestSummaryPane', () => (
     <MockedApi endpoints={mockLabRequestFormEndpoints}>
       <Modal width="md" title="New lab request" open>
-        <LabRequestSummaryPane labRequest={{}} />
+        <LabRequestSummaryPane
+          encounter={{}}
+          labRequests={[fakeLabRequest(), fakeLabRequest()]}
+        />
       </Modal>
     </MockedApi>
   ));

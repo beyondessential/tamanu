@@ -9,7 +9,7 @@ import {
   COLUMNS_EXCLUDED_FROM_SYNC,
   SYNC_SESSION_DIRECTION,
 } from 'shared/sync';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { sleepAsync } from 'shared/utils/sleepAsync';
 import { fakeUUID } from 'shared/utils/generateId';
 
@@ -196,6 +196,7 @@ describe('snapshotOutgoingChanges', () => {
             return promise;
           },
         },
+        buildSyncFilter: () => null,
       };
 
       const startTime = new Date();
@@ -278,6 +279,7 @@ describe('snapshotOutgoingChanges', () => {
             return promise;
           },
         },
+        buildSyncFilter: () => null,
       };
 
       const startTime = new Date();
@@ -352,14 +354,22 @@ describe('snapshotOutgoingChanges', () => {
       } = models;
       const firstTock = await LocalSystemFact.increment('currentSyncTick', 2);
       const user = await User.create(fake(User));
-      const patient = await Patient.create(fake(Patient));
+      const patient1 = await Patient.create(fake(Patient));
+      const patient2 = await Patient.create(fake(Patient));
       const facility = await Facility.create(fake(Facility));
       const location = await Location.create({ ...fake(Location), facilityId: facility.id });
       const department = await Department.create({ ...fake(Department), facilityId: facility.id });
-      const encounter = await Encounter.create({
+      const encounter1 = await Encounter.create({
         ...fake(Encounter),
         examinerId: user.id,
-        patientId: patient.id,
+        patientId: patient1.id,
+        locationId: location.id,
+        departmentId: department.id,
+      });
+      const encounter2 = await Encounter.create({
+        ...fake(Encounter),
+        examinerId: user.id,
+        patientId: patient2.id,
         locationId: location.id,
         departmentId: department.id,
       });
@@ -369,20 +379,31 @@ describe('snapshotOutgoingChanges', () => {
         ...fake(ReferenceData),
         type: 'labTestCategory',
       });
-      const labRequest = await LabRequest.create({
+      const labRequest1 = await LabRequest.create({
         ...fake(LabRequest),
         requestedById: user.id,
-        encounterId: encounter.id,
+        encounterId: encounter1.id,
+        labTestCategoryId: labTestCategory.id,
+      });
+      const labRequest2 = await LabRequest.create({
+        ...fake(LabRequest),
+        requestedById: user.id,
+        encounterId: encounter2.id,
         labTestCategoryId: labTestCategory.id,
       });
       const labTestType = await LabTestType.create({
         ...fake(LabTestType),
         labTestCategoryId: labTestCategory.id,
       });
-      const labTest = await LabTest.create({
+      const labTest1 = await LabTest.create({
         ...fake(LabTest),
         labTestTypeId: labTestType.id,
-        labRequestId: labRequest.id,
+        labRequestId: labRequest1.id,
+      });
+      const labTest2 = await LabTest.create({
+        ...fake(LabTest),
+        labTestTypeId: labTestType.id,
+        labRequestId: labRequest2.id,
       });
 
       const startTime = new Date();
@@ -392,17 +413,39 @@ describe('snapshotOutgoingChanges', () => {
       });
       await createSnapshotTable(ctx.store.sequelize, syncSession.id);
 
-      return { encounter, labTest, labRequest, firstTock, secondTock, syncSession };
+      return {
+        encounter1,
+        encounter2,
+        labTest1,
+        labTest2,
+        labRequest1,
+        labRequest2,
+        patient1,
+        patient2,
+        firstTock,
+        secondTock,
+        syncSession,
+      };
     };
 
     it('includes a lab request for a patient not marked for sync, with its associated test and encounter, if turned on', async () => {
       const { Encounter, LabRequest, LabTest } = models;
-      const { encounter, labTest, labRequest, firstTock, syncSession } = await setupTestData();
+      const {
+        encounter1,
+        encounter2,
+        labTest1,
+        labTest2,
+        labRequest1,
+        labRequest2,
+        patient2,
+        firstTock,
+        syncSession,
+      } = await setupTestData();
 
       await snapshotOutgoingChanges(
         { Encounter, LabRequest, LabTest },
         firstTock - 1,
-        [],
+        [patient2.id],
         syncSession.id,
         fakeUUID(),
         { ...simplestSessionConfig, syncAllLabRequests: true },
@@ -414,18 +457,34 @@ describe('snapshotOutgoingChanges', () => {
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
       expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
-        [labTest.id, labRequest.id, encounter.id].sort(),
+        [
+          labTest1.id,
+          labTest2.id,
+          labRequest1.id,
+          labRequest2.id,
+          encounter1.id,
+          encounter2.id,
+        ].sort(),
       );
     });
 
-    it('includes encounters for new lab requests even if the encounter is older than the sync "since" time', async () => {
+    it('includes encounters for patients not marked for sync even if the encounter is older than the sync "since" time', async () => {
       const { Encounter, LabRequest, LabTest } = models;
-      const { encounter, labTest, labRequest, secondTock, syncSession } = await setupTestData();
+      const {
+        encounter1,
+        labTest1,
+        labTest2,
+        labRequest1,
+        labRequest2,
+        patient2,
+        secondTock,
+        syncSession,
+      } = await setupTestData();
 
       await snapshotOutgoingChanges(
         { Encounter, LabRequest, LabTest },
         secondTock - 1,
-        [],
+        [patient2.id],
         syncSession.id,
         fakeUUID(),
         { ...simplestSessionConfig, syncAllLabRequests: true },
@@ -437,7 +496,15 @@ describe('snapshotOutgoingChanges', () => {
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
       expect(outgoingSnapshotRecords.map(r => r.recordId).sort()).toEqual(
-        [labTest.id, labRequest.id, encounter.id].sort(),
+        [
+          labTest1.id,
+          labTest2.id,
+          labRequest1.id,
+          labRequest2.id,
+          // n.b. only expect encounter1 here, as encounter2 is for a marked-for-sync patient,
+          // and older than the sync tick so is not synced here
+          encounter1.id,
+        ].sort(),
       );
     });
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
-import { LOCATION_AVAILABILITY_TAG_CONFIG, LOCATION_AVAILABILITY_STATUS } from 'shared/constants';
+import { LOCATION_AVAILABILITY_TAG_CONFIG, LOCATION_AVAILABILITY_STATUS } from '@tamanu/constants';
 import { AutocompleteInput } from './AutocompleteField';
 import { useApi, useSuggester } from '../../api';
 import { Suggester } from '../../utils/suggester';
@@ -77,16 +77,13 @@ export const LocationInput = React.memo(
 
     const handleChangeCategory = event => {
       setGroupId(event.target.value);
+      setLocationId('');
+      onChange({ target: { value: '', name } });
     };
 
     const handleChange = async event => {
       setLocationId(event.target.value);
       onChange({ target: { value: event.target.value, name } });
-    };
-
-    const clearLocationField = () => {
-      setLocationId('');
-      onChange({ target: { value: '', name } });
     };
 
     // Disable the location and location group fields if:
@@ -109,7 +106,6 @@ export const LocationInput = React.memo(
           value={groupId}
           disabled={locationGroupSelectIsDisabled || disabled}
           autofill={!value} // do not autofill if there is a pre-filled value
-          onClear={clearLocationField}
         />
         <AutocompleteInput
           label={label}

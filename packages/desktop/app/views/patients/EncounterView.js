@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Divider, Box } from '@material-ui/core';
-import { ENCOUNTER_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
@@ -28,6 +28,7 @@ import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { EncounterActions } from './components';
 import { useReferenceData } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
+import { VitalChartDataProvider } from '../../contexts/VitalChartData';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -35,7 +36,11 @@ const TABS = [
   {
     label: 'Vitals',
     key: ENCOUNTER_TAB_NAMES.VITALS,
-    render: props => <VitalsPane {...props} />,
+    render: props => (
+      <VitalChartDataProvider>
+        <VitalsPane {...props} />
+      </VitalChartDataProvider>
+    ),
   },
   {
     label: 'Notes',
@@ -144,9 +149,13 @@ export const EncounterView = () => {
         subTitle={encounter.location?.facility?.name}
         encounter={encounter}
       >
-        {(facility.id === encounter.location.facilityId || encounter.endDate) && (
-          <EncounterActions encounter={encounter} />
-        )}
+        {(facility.id === encounter.location.facilityId || encounter.endDate) &&
+          // Hide all actions if encounter type is Vaccination or Survey Response,
+          // as they should only contain 1 survey response or vaccination and discharged automatically,
+          // no need to show any summaries or actions
+          ![ENCOUNTER_TYPES.VACCINATION, ENCOUNTER_TYPES.SURVEY_RESPONSE].includes(
+            encounter.encounterType,
+          ) && <EncounterActions encounter={encounter} />}
       </EncounterTopBar>
       <ContentPane>
         <EncounterInfoPane

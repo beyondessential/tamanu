@@ -3,7 +3,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { objectToCamelCase } from 'shared/utils';
-import { LOCATION_AVAILABILITY_STATUS } from 'shared/constants';
+import { LOCATION_AVAILABILITY_STATUS, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 const patientsLocationSelect = (planned, encountersWhereAndClauses) => `
   SELECT
@@ -227,7 +227,7 @@ patientLocations.get(
         FROM locations
         LEFT JOIN location_groups ON locations.location_group_id = location_groups.id
         LEFT JOIN open_encounters ON locations.id = open_encounters.location_id
-        WHERE locations.facility_id = $facilityId
+        WHERE locations.facility_id = $facilityId AND locations.visibility_status = $visibilityStatusCurrent
         GROUP BY locations.id, location_groups.id
       ) locations
       LEFT JOIN (
@@ -309,6 +309,14 @@ patientLocations.get(
       OFFSET $offset
     `;
 
+    const bindParams = {
+      ...(filterParams.status && { status: filterParams.status }),
+      ...(filterParams.area && { area: filterParams.area }),
+      ...(filterParams.location && { location: filterParams.location }),
+      facilityId: config.serverFacilityId,
+      visibilityStatusCurrent: VISIBILITY_STATUSES.CURRENT,
+    };
+
     const data = await req.db.query(
       `
         ${withClauses}
@@ -334,10 +342,7 @@ patientLocations.get(
       {
         type: QueryTypes.SELECT,
         bind: {
-          ...(filterParams.status && { status: filterParams.status }),
-          ...(filterParams.area && { area: filterParams.area }),
-          ...(filterParams.location && { location: filterParams.location }),
-          facilityId: config.serverFacilityId,
+          ...bindParams,
           limit,
           offset,
         },
@@ -354,12 +359,7 @@ patientLocations.get(
       `,
       {
         type: QueryTypes.SELECT,
-        bind: {
-          ...(filterParams.status && { status: filterParams.status }),
-          ...(filterParams.area && { area: filterParams.area }),
-          ...(filterParams.location && { location: filterParams.location }),
-          facilityId: config.serverFacilityId,
-        },
+        bind: bindParams,
       },
     );
 

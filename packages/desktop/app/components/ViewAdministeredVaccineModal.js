@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import { Box } from '@material-ui/core';
-import { VACCINE_STATUS, VACCINE_STATUS_LABELS } from 'shared/constants';
+import { useQuery } from '@tanstack/react-query';
+import { VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/constants';
 import { Modal } from './Modal';
 import { ModalActionRow } from './ModalActionRow';
 import { Colors } from '../constants';
-import { useSuggester } from '../api';
+import { useApi } from '../api';
 
 import { DateDisplay } from './DateDisplay';
 
@@ -78,9 +79,11 @@ const ErrorMessage = () => {
 
 export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
   const {
+    id: vaccineRecordId,
     status,
     injectionSite,
     scheduledVaccine: { label: vaccineLabel, schedule },
+    encounter: { patientId },
     recorder,
     givenBy,
     location,
@@ -99,24 +102,14 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
   const routine = !vaccineName;
   const notGiven = VACCINE_STATUS.NOT_GIVEN === status;
 
-  const vaccineCircumstanceSuggester = useSuggester('vaccineCircumstance');
-  const [vaccineCircumstances, setVaccineCircumstances] = useState();
-
-  useEffect(() => {
+  const api = useApi();
+  const { data: { data: vaccineCircumstances } = {} } = useQuery({
+    queryKey: ['administeredVaccine', patientId, vaccineRecordId],
+    queryFn: () =>
+      api.get(`patient/${patientId}/administeredVaccine/${vaccineRecordId}/circumstances`),
     // to avoid unnecessary API calls, these are the conditions that will show circumstance
-    if (!editMode && givenElsewhere && circumstanceIds) {
-      const circumstanceIdValues = Array.isArray(circumstanceIds)
-        ? circumstanceIds
-        : String(circumstanceIds)?.split(',') || [];
-      Promise.all(
-        circumstanceIdValues.map(circumstanceId =>
-          vaccineCircumstanceSuggester.fetchCurrentOption(circumstanceId),
-        ),
-      ).then(circumstances => {
-        setVaccineCircumstances(circumstances?.map(circumstance => circumstance?.label));
-      });
-    }
-  }, [vaccineCircumstanceSuggester, circumstanceIds, editMode, givenElsewhere]);
+    enabled: Boolean(!editMode && givenElsewhere && circumstanceIds),
+  });
 
   if (!vaccineRecord) return null;
 
@@ -146,7 +139,13 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     },
     country: { label: 'Country', value: givenBy || '-' },
     reason: { label: 'Reason', value: notGivenReason?.name || '-' },
-    circumstance: { label: 'Circumstance', value: vaccineCircumstances?.join(', ') || '-' },
+    circumstance: {
+      label: 'Circumstance',
+      value:
+        vaccineCircumstances?.length > 0
+          ? vaccineCircumstances?.map(circumstance => circumstance?.name)?.join(', ')
+          : '-',
+    },
   };
 
   const modalVersions = [
@@ -307,7 +306,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
 export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) => {
   if (!vaccineRecord) return null;
   return (
-    <Modal title="View vaccine record" open={open} onClose={onClose} disableHeaderCloseIcon>
+    <Modal title="View vaccine record" open={open} onClose={onClose} cornerExitButton={false}>
       <ViewAdministeredVaccineContent vaccineRecord={vaccineRecord} />
       <ModalActionRow confirmText="Close" onConfirm={onClose} />
     </Modal>

@@ -1,21 +1,22 @@
 import { VisibilityStatus } from '~/visibilityStatuses';
 
 export enum ReferenceDataType {
-  ICD10 = 'icd10',
   Allergy = 'allergy',
   Condition = 'condition',
   Drug = 'drug',
-  TriageReason = 'triageReason',
-  ProcedureType = 'procedureType',
+  ICD10 = 'icd10',
   ImagingType = 'imagingType',
   LabTestCategory = 'labTestCategory',
-  LabTestType = 'labTestType',
   LabSampleSite = 'labSampleSite',
   LabTestPriority = 'labTestPriority',
-  Village = 'village',
-  Vaccine = 'vaccine',
+  LabTestType = 'labTestType',
   PatientIdType = 'patientIdType',
+  ProcedureType = 'procedureType',
+  SpecimenType = 'specimenType',
+  TriageReason = 'triageReason',
+  Vaccine = 'vaccine',
   VaccineNotGivenReason = 'vaccineNotGivenReason',
+  Village = 'village',
 }
 
 export interface IReferenceData {

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { runCalculations } from 'shared/utils/calculations';
+import { runCalculations } from '@tamanu/shared/utils/calculations';
 import styled from 'styled-components';
 import { checkVisibility } from '../../utils';
 import { FormGrid } from '../FormGrid';
@@ -56,7 +56,8 @@ const useScrollToFirstError = () => {
 };
 
 export const SurveyScreen = ({
-  components,
+  allComponents,
+  screenComponents = allComponents,
   values = {},
   setFieldValue,
   onStepForward,
@@ -67,18 +68,19 @@ export const SurveyScreen = ({
   validateForm,
   setErrors,
   errors,
+  status,
   setStatus,
 }) => {
   const { setQuestionToRef, scrollToQuestion } = useScrollToFirstError(errors);
-  useCalculatedFormValues(components, values, setFieldValue);
+  useCalculatedFormValues(allComponents, values, setFieldValue);
 
   const validateAndStep = async () => {
     const formErrors = await validateForm();
 
     // Only include visible elements
     const pageErrors = Object.keys(formErrors).filter(x =>
-      components
-        .filter(c => checkVisibility(c, values, components))
+      screenComponents
+        .filter(c => checkVisibility(c, values, allComponents))
         .map(c => c.dataElementId)
         .includes(x),
     );
@@ -86,13 +88,13 @@ export const SurveyScreen = ({
     if (pageErrors.length === 0) {
       setErrors({});
       onStepForward();
-      setStatus(null);
+      setStatus({});
     } else {
       // Use formik status prop to track if the user has attempted to submit the form. This is used in
       // Field.js to only show error messages once the user has attempted to submit the form
-      setStatus(FORM_STATUSES.SUBMIT_ATTEMPTED);
+      setStatus({ ...status, submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
 
-      const firstErroredQuestion = components.find(({ dataElementId }) =>
+      const firstErroredQuestion = screenComponents.find(({ dataElementId }) =>
         pageErrors.includes(dataElementId),
       );
       scrollToQuestion(firstErroredQuestion.dataElementId);
@@ -101,8 +103,8 @@ export const SurveyScreen = ({
 
   return (
     <FormGrid columns={cols}>
-      {components
-        .filter(c => checkVisibility(c, values, components))
+      {screenComponents
+        .filter(c => checkVisibility(c, values, allComponents))
         .map(c => (
           <SurveyQuestion
             component={c}

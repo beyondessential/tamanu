@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
 
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
   Form,
   Field,
@@ -12,13 +12,13 @@ import {
   CheckField,
   AutocompleteField,
   TextField,
-  FormGroup,
   LocationField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
 import { foreignKey, optionalForeignKey } from '../utils/validation';
+import { useLocalisedText } from '../components';
 
 const suggesterType = PropTypes.shape({
   fetchSuggestions: PropTypes.func,
@@ -33,22 +33,24 @@ export const ProcedureForm = React.memo(
     anaestheticSuggester,
     procedureSuggester,
     practitionerSuggester,
-  }) => (
-    <Form
-      onSubmit={onSubmit}
-      render={({ submitForm, values }) => {
-        const handleCancel = () => onCancel && onCancel();
-        const getButtonText = isCompleted => {
-          if (isCompleted) return 'Finalise';
-          if (editedObject?.id) return 'Update';
-          return 'Submit';
-        };
+  }) => {
+    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
-        const isCompleted = !!values.completed;
-        const buttonText = getButtonText(isCompleted);
-        return (
-          <div>
-            <FormGroup disabled={isCompleted}>
+    return (
+      <Form
+        onSubmit={onSubmit}
+        render={({ submitForm, values }) => {
+          const handleCancel = () => onCancel && onCancel();
+          const getButtonText = isCompleted => {
+            if (isCompleted) return 'Finalise';
+            if (editedObject?.id) return 'Update';
+            return 'Submit';
+          };
+
+          const isCompleted = !!values.completed;
+          const buttonText = getButtonText(isCompleted);
+          return (
+            <div>
               <FormGrid>
                 <div style={{ gridColumn: 'span 2' }}>
                   <Field
@@ -62,7 +64,7 @@ export const ProcedureForm = React.memo(
                 <FormGrid style={{ gridColumn: 'span 2' }}>
                   <Field
                     name="physicianId"
-                    label="Clinician"
+                    label={clinicianText}
                     required
                     component={AutocompleteField}
                     suggester={practitionerSuggester}
@@ -121,49 +123,47 @@ export const ProcedureForm = React.memo(
                   rows={4}
                   style={{ gridColumn: 'span 2' }}
                 />
-              </FormGrid>
-            </FormGroup>
-            <FormGrid>
-              <Field name="completed" label="Completed" component={CheckField} />
-              <Collapse in={isCompleted} style={{ gridColumn: 'span 2' }}>
-                <Field
-                  name="completedNote"
-                  label="Notes on completed procedure"
-                  component={TextField}
-                  multiline
-                  rows={4}
+                <Field name="completed" label="Completed" component={CheckField} />
+                <Collapse in={isCompleted} style={{ gridColumn: 'span 2' }}>
+                  <Field
+                    name="completedNote"
+                    label="Notes on completed procedure"
+                    component={TextField}
+                    multiline
+                    rows={4}
+                  />
+                </Collapse>
+                <ConfirmCancelRow
+                  onCancel={handleCancel}
+                  onConfirm={submitForm}
+                  confirmText={buttonText}
                 />
-              </Collapse>
-              <ConfirmCancelRow
-                onCancel={handleCancel}
-                onConfirm={submitForm}
-                confirmText={buttonText}
-              />
-            </FormGrid>
-          </div>
-        );
-      }}
-      initialValues={{
-        date: getCurrentDateTimeString(),
-        startTime: getCurrentDateTimeString(),
-        ...editedObject,
-      }}
-      validationSchema={yup.object().shape({
-        procedureTypeId: foreignKey('Procedure must be selected'),
-        locationId: foreignKey('Location must be selected'),
-        date: yup.date().required(),
-        startTime: yup.date(),
-        endTime: yup.date(),
-        physicianId: foreignKey('Clinician must be selected'),
-        assistantId: optionalForeignKey(),
-        anaesthetistId: optionalForeignKey(),
-        anaestheticId: optionalForeignKey(),
-        note: yup.string(),
-        completed: yup.boolean(),
-        completedNote: yup.string(),
-      })}
-    />
-  ),
+              </FormGrid>
+            </div>
+          );
+        }}
+        initialValues={{
+          date: getCurrentDateTimeString(),
+          startTime: getCurrentDateTimeString(),
+          ...editedObject,
+        }}
+        validationSchema={yup.object().shape({
+          procedureTypeId: foreignKey('Procedure must be selected'),
+          locationId: foreignKey('Location must be selected'),
+          date: yup.date().required(),
+          startTime: yup.date(),
+          endTime: yup.date(),
+          physicianId: foreignKey(`${clinicianText} must be selected`),
+          assistantId: optionalForeignKey(),
+          anaesthetistId: optionalForeignKey(),
+          anaestheticId: optionalForeignKey(),
+          note: yup.string(),
+          completed: yup.boolean(),
+          completedNote: yup.string(),
+        })}
+      />
+    );
+  },
 );
 
 ProcedureForm.propTypes = {

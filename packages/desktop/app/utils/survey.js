@@ -1,3 +1,4 @@
+// Much of this file is duplicated in `packages/mobile/App/ui/components/Forms/SurveyForm/helpers.ts`
 import React from 'react';
 import * as yup from 'yup';
 import { inRange } from 'lodash';
@@ -17,7 +18,8 @@ import {
   UnsupportedPhotoField,
   DateTimeField,
 } from 'desktop/app/components/Field';
-import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from 'shared/constants';
+import { ageInYears, ageInMonths, ageInWeeks } from '@tamanu/shared/utils/dateTime';
+import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { joinNames } from './user';
 
 const InstructionField = ({ label, helperText }) => (
@@ -185,8 +187,9 @@ export function getConfigObject(componentId, config) {
   }
 }
 
-function transformPatientData(patient, config) {
-  const { column = 'fullName' } = config;
+function transformPatientData(patient, additionalData, config) {
+  const { writeToPatient = {}, column = 'fullName' } = config;
+  const { isAdditionalDataField = false } = writeToPatient;
   const { dateOfBirth, firstName, lastName } = patient;
 
   const { months, years } = intervalToDuration({
@@ -208,11 +211,14 @@ function transformPatientData(patient, config) {
     case 'fullName':
       return joinNames({ firstName, lastName });
     default:
+      if (isAdditionalDataField) {
+        return additionalData ? additionalData[column] : undefined;
+      }
       return patient[column];
   }
 }
 
-export function getFormInitialValues(components, patient, currentUser = {}) {
+export function getFormInitialValues(components, patient, additionalData, currentUser = {}) {
   const initialValues = components.reduce((acc, { dataElement }) => {
     const initialValue = getInitialValue(dataElement);
     const propName = dataElement.id;
@@ -237,7 +243,7 @@ export function getFormInitialValues(components, patient, currentUser = {}) {
 
     // patient data
     if (component.dataElement.type === 'PatientData') {
-      const patientValue = transformPatientData(patient, config);
+      const patientValue = transformPatientData(patient, additionalData, config);
       if (patientValue !== undefined) initialValues[component.dataElement.id] = patientValue;
     }
   }
@@ -321,4 +327,35 @@ export const getValidationSchema = surveyData => {
     {},
   );
   return yup.object().shape(schema);
+};
+
+/*
+  Only applies to vitals survey components:
+  Validation criteria normal range can be different by age but we also need
+  to support the previous format where only one is specified.
+  This will also be on mobile in file /App/ui/components/VitalsTable/index.tsx
+  both should be changed together. Though note that the functions might not
+  be exactly the same because of different APIs.
+*/
+export const getNormalRangeByAge = (validationCriteria = {}, { dateOfBirth }) => {
+  const { normalRange = {} } = validationCriteria;
+  if (Array.isArray(normalRange) === false) {
+    return normalRange;
+  }
+
+  const age = {
+    years: ageInYears(dateOfBirth),
+    months: ageInMonths(dateOfBirth),
+    weeks: ageInWeeks(dateOfBirth),
+  };
+
+  const normalRangeByAge = normalRange.find(
+    ({ ageUnit = '', ageMin = -Infinity, ageMax = Infinity }) => {
+      if (['years', 'months', 'weeks'].includes(ageUnit) === false) return false;
+      const ageInUnit = age[ageUnit];
+      return ageInUnit >= ageMin && ageInUnit < ageMax;
+    },
+  );
+
+  return normalRangeByAge;
 };

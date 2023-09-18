@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
 import {
   useEncounterData,
-  usePatientAdditionalData,
+  usePatientAdditionalDataQuery,
   useLabRequestNotes,
 } from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
@@ -21,11 +21,12 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
     labRequest.encounterId,
   );
 
-  const { data: additionalData, isLoading: isAdditionalDataLoading } = usePatientAdditionalData(
-    patient.id,
-  );
+  const {
+    data: additionalData,
+    isLoading: isAdditionalDataLoading,
+  } = usePatientAdditionalDataQuery(patient.id);
 
-  const { data: notePages, isLoading: areNotesLoading } = useLabRequestNotes(labRequest.id);
+  const { data: notes, isLoading: areNotesLoading } = useLabRequestNotes(labRequest.id);
 
   const { data: testsData, isLoading: areTestsLoading } = useQuery(
     ['labRequest', labRequest.id, 'tests'],
@@ -59,7 +60,7 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
         <LoadingIndicator />
       ) : (
         <MultipleLabRequestsPrintout
-          labRequests={[{ ...labRequest, tests: testsData.data, notePages }]}
+          labRequests={[{ ...labRequest, tests: testsData.data, notes: notes?.data || [] }]}
           patient={patient}
           village={village}
           additionalData={additionalData}

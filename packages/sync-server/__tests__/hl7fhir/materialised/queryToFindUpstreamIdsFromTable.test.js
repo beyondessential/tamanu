@@ -7,11 +7,9 @@ If your PR is red because of this test, you likely need to either:
 */
 
 import util from 'util';
-import { FHIR_INTERACTIONS } from 'shared/constants';
+import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 import { createTestContext } from '../../utilities';
-
-const materialisableResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
 
 expect.extend({
   async toReturnTruthyUpstreamIdsQueryFor(Resource, upstreamTable, table) {
@@ -66,14 +64,19 @@ function isIgnored(upstreamTable, table) {
 
 describe('queryToFindUpstreamIdsFromTable', () => {
   let ctx;
+  let materialisableResources;
   beforeAll(async () => {
     ctx = await createTestContext();
+    materialisableResources = resourcesThatCanDo(
+      ctx.store.models,
+      FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
+    );
   });
   afterAll(() => ctx.close());
 
-  for (const Resource of materialisableResources) {
-    describe(Resource.name, () => {
-      it("shouldn't return null for a materialisable resource's upstream(s)", async () => {
+  describe('queryToFindUpstreamIds', () => {
+    it("shouldn't return null for a materialisable resource's upstream(s)", async () => {
+      for (const Resource of materialisableResources) {
         for (const DistantUpstreamModel of Resource.upstreams) {
           for (const UpstreamModel of Resource.UpstreamModels) {
             const upstreamTable = UpstreamModel.tableName;
@@ -83,7 +86,7 @@ describe('queryToFindUpstreamIdsFromTable', () => {
             }
           }
         }
-      });
+      }
     });
-  }
+  });
 });

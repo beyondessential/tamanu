@@ -4,6 +4,10 @@ import styled from 'styled-components';
 import { Typography, Toolbar } from '@material-ui/core';
 import { DateDisplay } from './DateDisplay';
 import { Colors } from '../constants';
+import { useLocalisedText } from './LocalisedText';
+
+// Default height of the top bar
+export const TOP_BAR_HEIGHT = 97;
 
 const TopBarHeading = styled(Typography)`
   flex-grow: 1;
@@ -30,6 +34,7 @@ const TopBarSubHeading = styled(Typography)`
 
 const AppBar = styled.div`
   position: sticky;
+  height: ${TOP_BAR_HEIGHT}px;
   top: 0;
   z-index: 9;
   flex-grow: 1;
@@ -128,25 +133,29 @@ const StaticTopBar = styled(TopBar)`
   z-index: 1;
 `;
 
-export const EncounterTopBar = ({ title, subTitle, encounter, children }) => (
-  <StaticTopBar title={title} subTitle={subTitle}>
-    <Container>
-      <div>
-        <Cell>
-          <Label>Arrival Date:</Label>
-          <Value>
-            <DateDisplay date={encounter.startDate} />
-          </Value>
-        </Cell>
-        <Cell>
-          <Label>Supervising clinician:</Label>
-          <Value>{encounter.examiner?.displayName || 'Unknown'}</Value>
-        </Cell>
-      </div>
-      {children}
-    </Container>
-  </StaticTopBar>
-);
+export const EncounterTopBar = ({ title, subTitle, encounter, children }) => {
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
+
+  return (
+    <StaticTopBar title={title} subTitle={subTitle}>
+      <Container>
+        <div>
+          <Cell>
+            <Label>Arrival Date:</Label>
+            <Value>
+              <DateDisplay date={encounter.startDate} />
+            </Value>
+          </Cell>
+          <Cell>
+            <Label>{`Supervising ${clinicianText.toLowerCase()}:`}</Label>
+            <Value>{encounter.examiner?.displayName || 'Unknown'}</Value>
+          </Cell>
+        </div>
+        {children}
+      </Container>
+    </StaticTopBar>
+  );
+};
 
 EncounterTopBar.propTypes = {
   title: PropTypes.string.isRequired,

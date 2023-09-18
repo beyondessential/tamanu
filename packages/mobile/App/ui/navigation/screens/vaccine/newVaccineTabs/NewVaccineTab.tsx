@@ -11,10 +11,12 @@ import { StyledSafeAreaView } from '/styled/common';
 import { VaccineForm, VaccineFormValues } from '/components/Forms/VaccineForms';
 import { VaccineDataProps } from '/components/VaccineCard';
 import { useBackend } from '~/ui/hooks';
-import { IPatient } from '~/types';
+import { IPatient, EncounterType } from '~/types';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { VaccineStatus } from '~/ui/helpers/patient';
 import { Routes } from '~/ui/helpers/routes';
+import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { VaccineCategory } from '../../../../helpers/patient';
 
 type NewVaccineTabProps = {
   route: Route & {
@@ -23,6 +25,18 @@ type NewVaccineTabProps = {
     vaccine: VaccineDataProps;
   };
   selectedPatient: IPatient;
+};
+
+const getVaccinationDescription = (vaccineData, scheduledVaccine): string => {
+  const prefixMessage =
+    vaccineData.status === VaccineStatus.GIVEN
+      ? 'Vaccination recorded for'
+      : 'Vaccination recorded as not given for';
+  const vaccineDetails =
+    scheduledVaccine.category === VaccineCategory.OTHER
+      ? [vaccineData.vaccineName]
+      : [scheduledVaccine?.vaccine?.name, scheduledVaccine?.schedule];
+  return [prefixMessage, ...vaccineDetails].filter(Boolean).join(' ');
 };
 
 export const NewVaccineTabComponent = ({
@@ -56,14 +70,6 @@ export const NewVaccineTabComponent = ({
         locationId,
         ...otherValues
       } = values;
-      const vaccineEncounter = await models.Encounter.getOrCreateCurrentEncounter(
-        selectedPatient.id,
-        user.id,
-        {
-          department: departmentId,
-          location: locationId,
-        },
-      );
 
       const vaccineData = {
         ...otherValues,
@@ -71,11 +77,27 @@ export const NewVaccineTabComponent = ({
         id: administeredVaccine?.id,
         scheduledVaccine: scheduledVaccineId,
         recorder: recorderId,
-        encounter: vaccineEncounter.id,
         notGivenReasonId,
         department: departmentId,
         location: locationId,
       };
+
+      const scheduledVaccineRecord = await models.ScheduledVaccine.findOne({
+        where: { id: scheduledVaccineId },
+      });
+      const vaccineEncounter = await models.Encounter.getOrCreateCurrentEncounter(
+        selectedPatient.id,
+        user.id,
+        {
+          department: departmentId,
+          location: locationId,
+          encounterType: EncounterType.Vaccination,
+          endDate: getCurrentDateTimeString(),
+          reasonForEncounter: getVaccinationDescription(vaccineData, scheduledVaccineRecord),
+        },
+      );
+
+      vaccineData.encounter = vaccineEncounter.id;
 
       // If id exists then it means user is updating an existing vaccine record
       if (administeredVaccine?.id) {
@@ -134,6 +156,7 @@ export const NewVaccineTabComponent = ({
       <VaccineForm
         onSubmit={recordVaccination}
         onCancel={onPressCancel}
+        patientId={selectedPatient.id}
         initialValues={{
           ...vaccineObject,
           date: vaccineObject.date ? parseISO(vaccineObject.date) : null,

@@ -1,8 +1,8 @@
 import React from 'react';
 import { PDFViewer } from '@react-pdf/renderer';
-import { HandoverNotesPDF } from 'shared/utils/handoverNotes';
+import { HandoverNotesPDF } from '@tamanu/shared/utils/handoverNotes';
 import styled from 'styled-components';
-import { createDummyPatient } from 'shared/demoData';
+import { createDummyPatient } from '@tamanu/shared/demoData';
 import { LabRequestNoteForm } from '../app/forms/LabRequestNoteForm';
 import Logo from './assets/tamanu-logo.png';
 import { MockedApi } from './utils/mockedApi';
@@ -14,8 +14,6 @@ const Container = styled.div`
 
 const getLocalisation = key => {
   const config = {
-    'templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
-    'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
     'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
     'templates.vaccineCertificate.contactNumber': '123456',
     'fields.firstName.longLabel': 'First Name',
@@ -25,6 +23,11 @@ const getLocalisation = key => {
     previewUvciFormat: 'tamanu',
   };
   return config[key];
+};
+
+const letterheadConfig = {
+  title: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
+  subTitle: 'PO Box 12345, Melbourne, Australia',
 };
 
 const handoverNotes = [
@@ -105,6 +108,7 @@ const PDFTemplate = args => (
       logoSrc={Logo}
       getLocalisation={getLocalisation}
       locationGroupName="A-Emergency Department"
+      letterheadConfig={letterheadConfig}
     />
   </PDFViewer>
 );

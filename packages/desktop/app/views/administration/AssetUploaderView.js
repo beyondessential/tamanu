@@ -1,7 +1,7 @@
 import React, { memo, useState, useCallback } from 'react';
 import * as yup from 'yup';
 
-import { ASSET_NAMES } from 'shared/constants/importable';
+import { ASSET_NAMES } from '@tamanu/constants/importable';
 import { useApi } from '../../api';
 import { useElectron } from '../../contexts/Electron';
 import { Form, Field, SelectField } from '../../components/Field';

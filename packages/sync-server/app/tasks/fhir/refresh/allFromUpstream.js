@@ -1,13 +1,15 @@
 import { Sequelize, Utils, QueryTypes } from 'sequelize';
-import { FHIR_INTERACTIONS, JOB_TOPICS } from 'shared/constants';
+import { FHIR_INTERACTIONS, JOB_TOPICS } from '@tamanu/constants';
 import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 
-const materialisableResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
-
-export async function allFromUpstream({ payload }, { log, sequelize }) {
+export async function allFromUpstream({ payload }, { log, sequelize, models }) {
   const { table, op, id, deletedRow = null } = payload;
   const [schema, tableName] = table.toLowerCase().split('.', 2);
 
+  const materialisableResources = resourcesThatCanDo(
+    models,
+    FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
+  );
   const resources = materialisableResources.filter(resource =>
     resource.upstreams.some(upstream => {
       const upstreamTable = upstream.getTableName();

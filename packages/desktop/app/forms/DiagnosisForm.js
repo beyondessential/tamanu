@@ -1,6 +1,6 @@
 import React from 'react';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import { diagnosisCertaintyOptions } from '../constants';
 
@@ -15,9 +15,12 @@ import {
   DateField,
 } from '../components/Field';
 import { useSuggester } from '../api';
+import { useLocalisation } from '../contexts/Localisation';
 
 export const DiagnosisForm = React.memo(
   ({ isTriage = false, onCancel, onSave, diagnosis, excludeDiagnoses }) => {
+    const { getLocalisation } = useLocalisation();
+
     // don't show the "ED Diagnosis" option if we're just on a regular encounter
     // (unless we're editing a diagnosis with ED certainty already set)
     const certaintyOptions = diagnosisCertaintyOptions.filter(x => {
@@ -53,7 +56,7 @@ export const DiagnosisForm = React.memo(
             <div style={{ gridColumn: '1 / -1' }}>
               <Field
                 name="diagnosisId"
-                label="ICD10 code"
+                label={getLocalisation(`fields.diagnosis.longLabel`)}
                 component={AutocompleteField}
                 suggester={icd10Suggester}
                 required

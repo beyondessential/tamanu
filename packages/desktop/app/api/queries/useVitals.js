@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { VITALS_DATA_ELEMENT_IDS } from 'shared/constants/surveys';
+import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
 import { useApi, isErrorUnknownAllow404s } from '../index';
-import { useVitalsSurvey } from './useVitalsSurvey';
+import { useVitalsSurveyQuery } from './useVitalsSurveyQuery';
 import { getConfigObject } from '../../utils';
 
 export const useVitals = encounterId => {
@@ -14,7 +14,7 @@ export const useVitals = encounterId => {
     ),
   );
 
-  const surveyQuery = useVitalsSurvey();
+  const surveyQuery = useVitalsSurveyQuery();
   const error = vitalsQuery.error || surveyQuery.error;
 
   let vitalsRecords = [];
@@ -35,7 +35,8 @@ export const useVitals = encounterId => {
 
     vitalsRecords = surveyData.components
       .filter(component => component.dataElementId !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
-      .map(({ id, config, validationCriteria, dataElement }) => {
+      .map(component => {
+        const { id, config, validationCriteria, dataElement } = component;
         const { records = {} } = elementIdToAnswer[dataElement.id] || {};
         const configs = {
           validationCriteria: getConfigObject(id, validationCriteria),
@@ -45,11 +46,16 @@ export const useVitals = encounterId => {
           (state, date) => ({
             ...state,
             [date]: {
-              value: records[date],
+              component,
+              recordedDate: date,
+              answerId: records[date]?.id,
+              value: records[date]?.body,
+              historyLogs: getSortedLogsByDate(records[date]?.logs),
               ...configs,
             },
           }),
           {
+            dataElementId: dataElement.id,
             value: dataElement.name,
             ...configs,
           },
@@ -64,3 +70,8 @@ export const useVitals = encounterId => {
     error,
   };
 };
+
+function getSortedLogsByDate(logs) {
+  if (!logs) return [];
+  return logs.slice().sort((a, b) => b.date.localeCompare(a.date));
+}

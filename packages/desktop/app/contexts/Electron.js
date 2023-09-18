@@ -25,11 +25,15 @@ export const DummyElectronProvider = ({ children }) => (
           filePath: 'dummyFile.txt',
         };
       },
+      openUrl: url => console.log('Opening url', url),
       openPath: path => console.log('Opening path', path),
       readFile: path => {
         console.log('Reading contents of', path);
         return path;
       },
+
+      // eslint-disable-next-line no-console
+      showItemInFolder: path => console.log('Showing item in folder', path),
 
       // print
       printPage: (options = {}) => console.log('Printing page', options),

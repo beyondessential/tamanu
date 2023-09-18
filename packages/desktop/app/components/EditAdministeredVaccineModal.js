@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react';
-
-import { VACCINE_STATUS, VACCINE_RECORDING_TYPES } from 'shared/constants';
+import { VACCINE_STATUS, VACCINE_RECORDING_TYPES } from '@tamanu/constants';
 import { useDispatch } from 'react-redux';
 import { Modal } from './Modal';
 import { useApi, useSuggester } from '../api';
@@ -41,7 +40,7 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
   const notGiven = VACCINE_STATUS.NOT_GIVEN === vaccineRecord?.status;
 
   return (
-    <Modal title="Edit vaccine record" open={open} onClose={onClose}>
+    <Modal title="Edit vaccine record" open={open} onClose={onClose} cornerExitButton={false}>
       <ViewAdministeredVaccineContent vaccineRecord={vaccineRecord} editMode />
       <VaccineForm
         onSubmit={handleUpdateVaccine}

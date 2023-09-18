@@ -1,5 +1,5 @@
 import config from 'config';
-import { LAB_REQUEST_STATUSES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
@@ -54,12 +54,19 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
           await test.update({
             labTestMethodId: resultData.labTestMethodId,
             result: resultData.result,
-            completedDate: new Date().toISOString(),
+            completedDate: labRequest.requestedDate,
           });
 
           // publish the lab request (where it will be picked up by certificate notification if relevant)
           await labRequest.update({
             status: LAB_REQUEST_STATUSES.PUBLISHED,
+          });
+
+          // Create a log entry for the lab request status
+          await this.models.LabRequestLog.create({
+            status: labRequest.status,
+            labRequestId: labRequest.id,
+            updatedById: labRequest.requestedById,
           });
 
           log.info(`Auto-published lab request ${labRequest.id} (${labRequest.displayId})`);

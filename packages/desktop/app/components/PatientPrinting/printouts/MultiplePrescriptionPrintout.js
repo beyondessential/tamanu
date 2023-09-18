@@ -4,14 +4,14 @@ import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import Divider from '@material-ui/core/Divider';
 
-import { getCurrentDateString } from 'shared/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 import { DateDisplay } from '../../DateDisplay';
 import { useAuth } from '../../../contexts/Auth';
 import { Colors, DRUG_ROUTE_VALUE_TO_LABEL } from '../../../constants';
 
 import { PatientDetailPrintout } from './reusable/PatientDetailPrintout';
-import { NotesSection } from './reusable/SimplePrintout';
+import { NoteContentSection } from './reusable/SimplePrintout';
 import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { ListTable } from './reusable/ListTable';
@@ -129,7 +129,7 @@ export const MultiplePrescriptionPrintout = React.memo(
 
         <ListTable data={prescriptions} columns={columns} />
         <StyledNotesSectionWrapper>
-          <NotesSection title="Notes" boldTitle />
+          <NoteContentSection title="Notes" boldTitle />
         </StyledNotesSectionWrapper>
         <SignatureText>Signed</SignatureText>
         <SignatureLine />

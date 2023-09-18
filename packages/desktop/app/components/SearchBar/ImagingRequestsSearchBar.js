@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { IMAGING_TABLE_VERSIONS, IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
 import {
   DateField,
   LocalisedField,
   SelectField,
   AutocompleteField,
-  DynamicSelectField,
   Field,
   CheckField,
   SearchField,
@@ -15,7 +14,8 @@ import {
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useSuggester } from '../../api';
-import { useImagingRequests, IMAGING_REQUEST_SEARCH_KEYS } from '../../contexts/ImagingRequests';
+import { useImagingRequests } from '../../contexts/ImagingRequests';
+import { useAdvancedFields } from './useAdvancedFields';
 
 const FacilityCheckbox = styled.div`
   display: flex;
@@ -27,37 +27,22 @@ const Spacer = styled.div`
   width: 100%;
 `;
 
-const ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'completedAt', 'allFacilities'];
-
-const useAdvancedFields = (advancedFields, completedStatus) => {
-  const { searchParameters, setSearchParameters } = useImagingRequests(
-    completedStatus ? IMAGING_REQUEST_SEARCH_KEYS.COMPLETED : IMAGING_REQUEST_SEARCH_KEYS.ALL,
-  );
-
-  // If one of the advanced fields is filled in when landing on the screen,
-  // show the advanced fields section
-  const defaultIsOpen = Object.keys(searchParameters).some(searchKey =>
-    advancedFields.includes(searchKey),
-  );
-  const [showAdvancedFields, setShowAdvancedFields] = useState(defaultIsOpen);
-  return { showAdvancedFields, setShowAdvancedFields, searchParameters, setSearchParameters };
-};
-
-export const ImagingRequestsSearchBar = ({ status = '' }) => {
+export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFields }) => {
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
   const imagingPriorities = getLocalisation('imagingPriorities') || [];
   const areaSuggester = useSuggester('locationGroup');
   const departmentSuggester = useSuggester('department');
   const requesterSuggester = useSuggester('practitioner');
-  const completedStatus = status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
-  const {
-    showAdvancedFields,
-    setShowAdvancedFields,
+  const isCompletedTable = memoryKey === IMAGING_TABLE_VERSIONS.COMPLETED.memoryKey;
+
+  const { searchParameters, setSearchParameters } = useImagingRequests(memoryKey);
+
+  const { showAdvancedFields, setShowAdvancedFields } = useAdvancedFields(
+    advancedFields,
     searchParameters,
-    setSearchParameters,
-  } = useAdvancedFields(ADVANCED_FIELDS, completedStatus);
-  const statusFilter = status ? { status } : {};
+  );
+  const statusFilter = statuses ? { status: statuses } : {};
 
   const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
     label: val.label,
@@ -71,26 +56,36 @@ export const ImagingRequestsSearchBar = ({ status = '' }) => {
       setIsExpanded={setShowAdvancedFields}
       title="Search imaging requests"
       onSearch={setSearchParameters}
-      initialValues={{ ...searchParameters, ...statusFilter }}
-      staticValues={{ displayIdExact: true }}
+      initialValues={{ ...statusFilter, ...searchParameters }}
       hiddenFields={
         <>
-          {status && (
+          {!isCompletedTable && (
             <>
               <LocalisedField
-                name="locationGroupId"
-                defaultLabel="Area"
+                name="requestedById"
+                defaultLabel="Requested by"
+                saveDateAsString
                 component={AutocompleteField}
-                suggester={areaSuggester}
-                size="small"
+                suggester={requesterSuggester}
               />
-              <LocalisedField
-                name="departmentId"
-                defaultLabel="Department"
-                component={AutocompleteField}
-                suggester={departmentSuggester}
-                size="small"
-              />
+            </>
+          )}
+          <LocalisedField
+            name="locationGroupId"
+            defaultLabel="Area"
+            component={AutocompleteField}
+            suggester={areaSuggester}
+            size="small"
+          />
+          <LocalisedField
+            name="departmentId"
+            defaultLabel="Department"
+            component={AutocompleteField}
+            suggester={departmentSuggester}
+            size="small"
+          />
+          {isCompletedTable && (
+            <>
               <LocalisedField
                 name="completedAt"
                 defaultLabel="Completed"
@@ -105,22 +100,22 @@ export const ImagingRequestsSearchBar = ({ status = '' }) => {
         </>
       }
     >
-      <LocalisedField name="displayId" component={SearchField} />
+      <LocalisedField useShortLabel keepLetterCase name="displayId" component={SearchField} />
       <LocalisedField name="firstName" component={SearchField} />
       <LocalisedField name="lastName" component={SearchField} />
-      <LocalisedField name="requestId" component={SearchField} defaultLabel="Request ID" />
-      {!status && (
-        <>
-          <LocalisedField
-            name="status"
-            defaultLabel="Status"
-            component={SelectField}
-            options={IMAGING_REQUEST_STATUS_OPTIONS}
-            size="small"
-          />
-        </>
+      <LocalisedField name="requestId" defaultLabel="Request ID" component={SearchField} />
+      {!isCompletedTable && (
+        <LocalisedField
+          name="status"
+          defaultLabel="Status"
+          component={SelectField}
+          options={IMAGING_REQUEST_STATUS_OPTIONS.filter(
+            ({ value }) => value !== IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+          )}
+          size="small"
+        />
       )}
-      {status && <Spacer />}
+      {isCompletedTable && <Spacer />}
       <LocalisedField
         name="imagingType"
         defaultLabel="Type"
@@ -140,19 +135,20 @@ export const ImagingRequestsSearchBar = ({ status = '' }) => {
         saveDateAsString
         component={DateField}
       />
-      {!status && (
+      {!isCompletedTable && (
         <LocalisedField
           name="priority"
           defaultLabel="Priority"
           component={SelectField}
           options={imagingPriorities}
+          size="small"
         />
       )}
-      {status && (
+      {isCompletedTable && (
         <LocalisedField
           name="requestedById"
           defaultLabel="Requested by"
-          component={DynamicSelectField}
+          component={AutocompleteField}
           suggester={requesterSuggester}
           size="small"
         />

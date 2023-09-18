@@ -1,5 +1,5 @@
 import React from 'react';
-import { INVOICE_LINE_TYPE_LABELS } from 'shared/constants';
+import { INVOICE_LINE_TYPE_LABELS } from '@tamanu/constants';
 import { useApi } from '../api';
 import { Modal } from './Modal';
 import { ConfirmCancelRow } from './ButtonRow';

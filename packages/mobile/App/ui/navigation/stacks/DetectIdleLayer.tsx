@@ -42,10 +42,10 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
   };
 
   const handleStateChange = (nextAppState: AppStateStatus): void => {
-   if (appState.current === 'active' && nextAppState.match(/inactive|background/)) {
+    if (appState.current === 'active' && nextAppState.match(/inactive|background/)) {
       // App has moved to the background
       setScreenOffTime(Date.now());
-   } else if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+    } else if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
       // App has moved to the foreground
       if (screenOffTime) {
         const timeDiff = Date.now() - screenOffTime;
@@ -56,13 +56,12 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
           handleIdleLogout();
         }
       }
-   }
+    }
     appState.current = nextAppState;
-  }
-
+  };
 
   useEffect(() => {
-    let intervalId: number;
+    let intervalId: NodeJS.Timer;
     let subscriptions: (EmitterSubscription|NativeEventSubscription)[] = [];
     if (signedIn) {
       subscriptions = [
@@ -85,7 +84,6 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
       subscriptions.forEach(subscription => subscription?.remove());
     };
   }, [idle, signedIn, screenOffTime]);
-
 
   const panResponder = useRef(
     PanResponder.create({

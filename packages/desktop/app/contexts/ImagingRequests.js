@@ -1,14 +1,15 @@
 import React, { useContext, createContext, useState, useCallback } from 'react';
+import { IMAGING_TABLE_VERSIONS } from '@tamanu/constants/imaging';
 
 const ImagingRequestsContext = createContext({});
 
-export const IMAGING_REQUEST_SEARCH_KEYS = {
-  ALL: 'ImagingRequestListingView',
-  COMPLETED: 'CompletedImagingRequestListingView',
+const IMAGING_REQUEST_SEARCH_KEYS = {
+  ACTIVE: IMAGING_TABLE_VERSIONS.ACTIVE.memoryKey,
+  COMPLETED: IMAGING_TABLE_VERSIONS.COMPLETED.memoryKey,
 };
 
 // This key is used to store seperate search parameters for the different kinds of imaging request tables
-export const useImagingRequests = (key = IMAGING_REQUEST_SEARCH_KEYS.ALL) => {
+export const useImagingRequests = (key = IMAGING_REQUEST_SEARCH_KEYS.ACTIVE) => {
   const {
     searchParameters: allSearchParameters,
     setSearchParameters: setAllSearchParameters,
@@ -31,7 +32,7 @@ export const useImagingRequests = (key = IMAGING_REQUEST_SEARCH_KEYS.ALL) => {
 
 export const ImagingRequestsProvider = ({ children }) => {
   const [searchParameters, setSearchParameters] = useState({
-    [IMAGING_REQUEST_SEARCH_KEYS.ALL]: {},
+    [IMAGING_REQUEST_SEARCH_KEYS.ACTIVE]: {},
     [IMAGING_REQUEST_SEARCH_KEYS.COMPLETED]: {},
   });
 

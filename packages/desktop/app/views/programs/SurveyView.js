@@ -17,9 +17,21 @@ export const SurveyPaneHeading = styled(ProgramsPaneHeading)`
   color: ${Colors.white};
 `;
 
-export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser }) => {
+export const SurveyView = ({
+  survey,
+  onSubmit,
+  onCancel,
+  patient,
+  patientAdditionalData,
+  currentUser,
+}) => {
   const { components } = survey;
-  const initialValues = getFormInitialValues(components, patient, currentUser);
+  const initialValues = getFormInitialValues(
+    components,
+    patient,
+    patientAdditionalData,
+    currentUser,
+  );
   const validationSchema = useMemo(() => getValidationSchema(survey), [survey]);
 
   const onSubmitSurvey = data => {
@@ -36,6 +48,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
       setErrors,
       errors,
       setStatus,
+      status,
     } = props;
 
     // 1. get a list of visible fields
@@ -67,6 +80,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
         setErrors={setErrors}
         errors={errors}
         setStatus={setStatus}
+        status={status}
       />
     );
   };

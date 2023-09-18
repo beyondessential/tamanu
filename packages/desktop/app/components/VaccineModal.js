@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { VACCINE_RECORDING_TYPES } from 'shared/constants';
+import { VACCINE_RECORDING_TYPES } from '@tamanu/constants';
 
 import { Modal } from './Modal';
 import { VaccineForm } from '../forms/VaccineForm';
@@ -79,7 +79,7 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
   ];
 
   return (
-    <Modal title="Record vaccine" open={open} onClose={onClose}>
+    <Modal title="Record vaccine" open={open} onClose={onClose} cornerExitButton={false}>
       <SegmentTabDisplay tabs={TABS} currentTabKey={currentTabKey} onTabSelect={setCurrentTabKey} />
     </Modal>
   );

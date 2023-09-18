@@ -4,7 +4,7 @@ import config from 'config';
 
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
-import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
+import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 
 import { QueryTypes } from 'sequelize';
 import {
@@ -167,10 +167,10 @@ export class PatientMergeMaintainer extends ScheduledTask {
     return records;
   }
 
-  async specificUpdate_NotePage() {
+  async specificUpdate_Note() {
     // uses a different field + additional search criteria
     const noteRecords = await this.mergeAllRecordsForModel(
-      this.models.NotePage,
+      this.models.Note,
       'record_id',
       `AND record_type = '${NOTE_RECORD_TYPES.PATIENT}'`,
     );

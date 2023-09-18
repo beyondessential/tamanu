@@ -1,21 +1,31 @@
+import { subWeeks, sub, addHours, formatISO9075 } from 'date-fns';
+import { isEqual } from 'lodash';
+
 import {
   createDummyPatient,
   createDummyEncounter,
   createDummyEncounterMedication,
 } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData';
-import { LAB_REQUEST_STATUSES, IMAGING_REQUEST_STATUS_TYPES, NOTE_TYPES } from 'shared/constants';
+import {
+  LAB_REQUEST_STATUSES,
+  IMAGING_REQUEST_STATUS_TYPES,
+  NOTE_TYPES,
+  VITALS_DATA_ELEMENT_IDS,
+  DOCUMENT_SOURCES,
+  NOTE_RECORD_TYPES,
+  EncounterChangeType,
+} from '@tamanu/constants';
 import { setupSurveyFromObject } from 'shared/demoData/surveys';
 import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';
-import { subWeeks } from 'date-fns';
-import { isEqual } from 'lodash';
 
 import { uploadAttachment } from '../../app/utils/uploadAttachment';
 import { createTestContext } from '../utilities';
 
 describe('Encounter', () => {
   let patient = null;
+  let user = null;
   let app = null;
   let baseApp = null;
   let models = null;
@@ -26,7 +36,8 @@ describe('Encounter', () => {
     baseApp = ctx.baseApp;
     models = ctx.models;
     patient = await models.Patient.create(await createDummyPatient(models));
-    app = await baseApp.asRole('practitioner');
+    user = await models.User.create({ ...fakeUser(), role: 'practitioner' });
+    app = await baseApp.asUser(user);
   });
   afterAll(() => ctx.close());
 
@@ -108,7 +119,7 @@ describe('Encounter', () => {
     });
   });
 
-  it('should get a list of notes', async () => {
+  it('should get a list of notes and pin treatment plan notes to the top', async () => {
     const encounter = await models.Encounter.create({
       ...(await createDummyEncounter(models)),
       patientId: patient.id,
@@ -118,16 +129,120 @@ describe('Encounter', () => {
       patientId: patient.id,
     });
     await Promise.all([
-      models.NotePage.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 1'),
-      models.NotePage.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 2'),
-      models.NotePage.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 3'),
-      models.NotePage.createForRecord(otherEncounter.id, 'Encounter', 'treatmentPlan', 'Fail'),
+      models.Note.createForRecord(
+        encounter.id,
+        'Encounter',
+        NOTE_TYPES.AREA_TO_BE_IMAGED,
+        'Test 1',
+      ),
+      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.TREATMENT_PLAN, 'Test 2'),
+      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.MEDICAL, 'Test 3'),
+      models.Note.createForRecord(
+        otherEncounter.id,
+        'Encounter',
+        NOTE_TYPES.TREATMENT_PLAN,
+        'Fail',
+      ),
     ]);
 
-    const result = await app.get(`/v1/encounter/${encounter.id}/notePages`);
+    const result = await app.get(`/v1/encounter/${encounter.id}/notes`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(3);
-    expect(result.body.data.every(x => x.noteItems[0].content.match(/^Test \d$/))).toEqual(true);
+    expect(result.body.data.every(x => x.content.match(/^Test \d$/))).toEqual(true);
+    expect(result.body.data[0].noteType).toEqual(NOTE_TYPES.TREATMENT_PLAN);
+  });
+
+  it('should get a list of notes filtered by noteType', async () => {
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+    await Promise.all([
+      models.Note.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 4'),
+      models.Note.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 5'),
+      models.Note.createForRecord(encounter.id, 'Encounter', 'admission', 'Test 6'),
+    ]);
+
+    const result = await app.get(`/v1/encounter/${encounter.id}/notes?noteType=treatmentPlan`);
+    expect(result).toHaveSucceeded();
+    expect(result.body.count).toEqual(2);
+    expect(result.body.data.every(x => x.noteType === 'treatmentPlan')).toEqual(true);
+  });
+
+  it('should get a list of changelog notes of a root note ordered DESC', async () => {
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+
+    const rootNote = await models.Note.create(
+      fake(models.Note, {
+        recordId: encounter.id,
+        recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+        content: 'Root note',
+        authorId: app.user.id,
+        date: toDateTimeString(sub(new Date(), { days: 8 })),
+      }),
+    );
+    const changelog1 = await models.Note.create(
+      fake(models.Note, {
+        recordId: encounter.id,
+        recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+        content: 'Changelog1',
+        authorId: app.user.id,
+        date: toDateTimeString(sub(new Date(), { days: 6 })),
+        revisedById: rootNote.id,
+      }),
+    );
+    const changelog2 = await models.Note.create(
+      fake(models.Note, {
+        recordId: encounter.id,
+        recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+        content: 'Changelog2',
+        authorId: app.user.id,
+        date: toDateTimeString(sub(new Date(), { days: 4 })),
+        revisedById: rootNote.id,
+      }),
+    );
+
+    const changelog3 = await models.Note.create(
+      fake(models.Note, {
+        recordId: encounter.id,
+        recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+        content: 'Changelog3',
+        authorId: app.user.id,
+        date: toDateTimeString(sub(new Date(), { days: 2 })),
+        revisedById: rootNote.id,
+      }),
+    );
+
+    const result = await app.get(`/v1/encounter/${encounter.id}/notes/${rootNote.id}/changelogs`);
+    expect(result).toHaveSucceeded();
+    expect(result.body.count).toEqual(4);
+    expect(result.body.data[0]).toMatchObject({
+      recordId: changelog3.recordId,
+      recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+      content: changelog3.content,
+      authorId: changelog3.authorId,
+      date: changelog3.date,
+      revisedById: rootNote.id,
+    });
+    expect(result.body.data[1]).toMatchObject({
+      recordId: changelog2.recordId,
+      recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+      content: changelog2.content,
+      authorId: changelog2.authorId,
+      date: changelog2.date,
+      revisedById: rootNote.id,
+    });
+    expect(result.body.data[2]).toMatchObject({
+      recordId: changelog1.recordId,
+      recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+      content: changelog1.content,
+      authorId: changelog1.authorId,
+      date: changelog1.date,
+      revisedById: rootNote.id,
+    });
   });
 
   test.todo('should get a list of procedures');
@@ -346,10 +461,8 @@ describe('Encounter', () => {
         })),
       });
 
-      const notePage = await labRequest1.createNotePage({
+      await labRequest1.createNote({
         noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
-      });
-      await notePage.createNoteItem({
         content: 'Testing lab request note',
         authorId: app.user.id,
       });
@@ -361,7 +474,7 @@ describe('Encounter', () => {
         data: expect.any(Array),
       });
       expect(labRequest1.id).toEqual(result.body.data[0].id);
-      expect(result.body.data[0].notePages).not.toBeDefined();
+      expect(result.body.data[0].notes).not.toBeDefined();
     });
 
     it('should get a list of lab requests including associated note pages if specified in query parameter', async () => {
@@ -378,24 +491,20 @@ describe('Encounter', () => {
         })),
       });
 
-      const notePage = await labRequest1.createNotePage({
+      const note = await labRequest1.createNote({
         noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
-      });
-      const noteItem = await notePage.createNoteItem({
         content: 'Testing lab request note',
         authorId: app.user.id,
       });
 
-      const result = await app.get(
-        `/v1/encounter/${encounter.id}/labRequests?includeNotePages=true`,
-      );
+      const result = await app.get(`/v1/encounter/${encounter.id}/labRequests?includeNotes=true`);
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
         count: 1,
         data: expect.any(Array),
       });
       expect(labRequest1.id).toEqual(result.body.data[0].id);
-      expect(result.body.data[0].notePages[0].noteItems[0].content).toEqual(noteItem.content);
+      expect(result.body.data[0].notes[0].content).toEqual(note.content);
     });
   });
 
@@ -605,11 +714,12 @@ describe('Encounter', () => {
         });
         expect(result).toHaveSucceeded();
 
-        const notePages = await v.getNotePages();
-        const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
-        const check = x => x.content.includes('triage') && x.content.includes('admission');
-        expect(noteItems.some(check)).toEqual(true);
-        expect(noteItems[0].authorId).toEqual(app.user.id);
+        const notes = await v.getNotes();
+        expect(notes).toHaveLength(1);
+        expect(
+          notes[0].content.includes('triage') && notes[0].content.includes('admission'),
+        ).toEqual(true);
+        expect(notes[0].authorId).toEqual(app.user.id);
       });
 
       it('should fail to change encounter type to an invalid type', async () => {
@@ -624,8 +734,8 @@ describe('Encounter', () => {
         });
         expect(result).toHaveRequestError();
 
-        const notePages = await v.getNotePages();
-        expect(notePages).toHaveLength(0);
+        const notes = await v.getNotes();
+        expect(notes).toHaveLength(0);
       });
 
       it('should change encounter department and add a note', async () => {
@@ -642,12 +752,13 @@ describe('Encounter', () => {
         });
         expect(result).toHaveSucceeded();
 
-        const notePages = await v.getNotePages();
-        const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
-        const check = x =>
-          x.content.includes(departments[0].name) && x.content.includes(departments[1].name);
-        expect(noteItems.some(check)).toEqual(true);
-        expect(noteItems[0].authorId).toEqual(app.user.id);
+        const notes = await v.getNotes();
+        expect(notes).toHaveLength(1);
+        expect(
+          notes[0].content.includes(departments[0].name) &&
+            notes[0].content.includes(departments[1].name),
+        ).toEqual(true);
+        expect(notes[0].authorId).toEqual(app.user.id);
       });
 
       it('should change encounter location and add a note', async () => {
@@ -664,12 +775,13 @@ describe('Encounter', () => {
         });
         expect(result).toHaveSucceeded();
 
-        const notePages = await v.getNotePages();
-        const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
-        const check = x =>
-          x.content.includes(fromLocation.name) && x.content.includes(toLocation.name);
-        expect(noteItems.some(check)).toEqual(true);
-        expect(noteItems[0].authorId).toEqual(app.user.id);
+        const notes = await v.getNotes();
+        expect(notes).toHaveLength(1);
+        expect(
+          notes[0].content.includes(fromLocation.name) &&
+            notes[0].content.includes(toLocation.name),
+        ).toEqual(true);
+        expect(notes[0].authorId).toEqual(app.user.id);
       });
 
       it('should include comma separated location_group and location name in created note on updating encounter location', async () => {
@@ -701,11 +813,10 @@ describe('Encounter', () => {
           locationId: location2.id,
         });
 
-        const [notePage] = await encounter.getNotePages();
-        const [noteItem] = await notePage.getNoteItems();
+        const [notes] = await encounter.getNotes();
 
         expect(result).toHaveSucceeded();
-        expect(noteItem.content).toEqual(
+        expect(notes.content).toEqual(
           `Changed location from ${locationGroup.name}, ${location.name} to ${locationGroup2.name}, ${location2.name}`,
         );
       });
@@ -730,12 +841,12 @@ describe('Encounter', () => {
         });
         expect(updatedEncounter.examinerId).toEqual(toClinician.id);
 
-        const notePages = await existingEncounter.getNotePages();
-        const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
-        expect(noteItems[0].content).toEqual(
+        const notes = await existingEncounter.getNotes();
+        expect(notes).toHaveLength(1);
+        expect(notes[0].content).toEqual(
           `Changed supervising clinician from ${fromClinician.displayName} to ${toClinician.displayName}`,
         );
-        expect(noteItems[0].authorId).toEqual(app.user.id);
+        expect(notes[0].authorId).toEqual(app.user.id);
       });
 
       it('should discharge a patient', async () => {
@@ -770,11 +881,10 @@ describe('Encounter', () => {
           dischargerId: app.user.id,
         });
 
-        const notePages = await v.getNotePages();
-        const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
-        const check = x => x.content.includes('Discharged');
-        expect(noteItems.some(check)).toEqual(true);
-        expect(noteItems[0].authorId).toEqual(app.user.id);
+        const notes = await v.getNotes();
+        expect(notes).toHaveLength(1);
+        expect(notes[0].content.includes('Patient discharged by')).toEqual(true);
+        expect(notes[0].authorId).toEqual(app.user.id);
       });
 
       it('should only update medications marked for discharge', async () => {
@@ -867,8 +977,8 @@ describe('Encounter', () => {
         expect(updatedEncounter).toHaveProperty('encounterType', 'clinic');
         expect(updatedEncounter).toHaveProperty('locationId', fromLocation.id);
 
-        const notePages = await v.getNotePages();
-        expect(notePages).toHaveLength(0);
+        const notes = await v.getNotes();
+        expect(notes).toHaveLength(0);
       });
 
       test.todo('should not admit a patient who is already in an encounter');
@@ -969,6 +1079,7 @@ describe('Encounter', () => {
     describe('vitals', () => {
       let vitalsEncounter = null;
       let vitalsPatient = null;
+      const surveyResponseId = 'vitals-survey-response';
 
       beforeAll(async () => {
         // The original patient may or may not have a current encounter
@@ -1005,13 +1116,31 @@ describe('Encounter', () => {
               name: 'PatientVitalsHeartRate',
               type: 'Number',
             },
+            {
+              name: 'PatientVitalsSBP',
+              type: 'Number',
+            },
           ],
+        });
+      });
+
+      afterEach(async () => {
+        await models.SurveyResponseAnswer.destroy({
+          where: {
+            response_id: surveyResponseId,
+          },
+        });
+        await models.SurveyResponse.destroy({
+          where: {
+            id: surveyResponseId,
+          },
         });
       });
 
       it('should record a new vitals reading', async () => {
         const submissionDate = getCurrentDateTimeString();
         const result = await app.post('/v1/surveyResponse').send({
+          id: surveyResponseId,
           surveyId: 'vitals-survey',
           patientId: vitalsPatient.id,
           startTime: submissionDate,
@@ -1037,6 +1166,7 @@ describe('Encounter', () => {
           'pde-PatientVitalsWeight': 789,
         };
         await app.post('/v1/surveyResponse').send({
+          id: surveyResponseId,
           surveyId: 'vitals-survey',
           patientId: vitalsPatient.id,
           startTime: submissionDate,
@@ -1055,12 +1185,148 @@ describe('Encounter', () => {
               expect.objectContaining({
                 dataElementId: key,
                 records: {
-                  [submissionDate]: value.toString(),
+                  [submissionDate]: expect.objectContaining({
+                    id: expect.any(String),
+                    body: value.toString(),
+                    logs: null,
+                  }),
                 },
               }),
             ),
           ),
         );
+      });
+
+      describe('vitals data by data element id', () => {
+        const nullAnswer = {
+          responseId: 'response_id_5',
+          submissionDate: formatISO9075(addHours(new Date(), -5)),
+          value: 'null', // null value exist on the databases for historical reasons
+        };
+        const answers = [
+          {
+            responseId: 'response_id_1',
+            submissionDate: formatISO9075(addHours(new Date(), -1)),
+            value: 122,
+          },
+          {
+            responseId: 'response_id_2',
+            submissionDate: formatISO9075(addHours(new Date(), -3)),
+            value: 155,
+          },
+          {
+            responseId: 'response_id_3',
+            submissionDate: formatISO9075(addHours(new Date(), -2)),
+            value: 133,
+          },
+          {
+            responseId: 'response_id_4',
+            submissionDate: formatISO9075(addHours(new Date(), -4)),
+            value: '',
+          },
+          nullAnswer,
+        ];
+        const patientVitalSbpKey = VITALS_DATA_ELEMENT_IDS.sbp;
+
+        beforeAll(async () => {
+          for (const answer of answers) {
+            const { submissionDate, value, responseId } = answer;
+            const surveyResponseAnswersBody = {
+              'pde-PatientVitalsDate': submissionDate,
+              [patientVitalSbpKey]: value,
+            };
+            await app.post('/v1/surveyResponse').send({
+              id: responseId,
+              surveyId: 'vitals-survey',
+              patientId: vitalsPatient.id,
+              startTime: submissionDate,
+              endTime: submissionDate,
+              answers: surveyResponseAnswersBody,
+            });
+          }
+
+          // Can't import null value by endpoint as it is prevented, so we have to update it manually
+          await models.SurveyResponseAnswer.update(
+            { body: null },
+            {
+              where: {
+                response_id: nullAnswer.responseId,
+                data_element_id: patientVitalSbpKey,
+              },
+            },
+          );
+        });
+
+        afterAll(async () => {
+          for (const answer of answers) {
+            await models.SurveyResponseAnswer.destroy({
+              where: {
+                response_id: answer.responseId,
+              },
+            });
+            await models.SurveyResponse.destroy({
+              where: {
+                id: answer.responseId,
+              },
+            });
+          }
+        });
+
+        it('should get vital data within time frame and filter out empty and null value', async () => {
+          const startDateString = formatISO9075(addHours(new Date(), -4));
+          const endDateString = formatISO9075(new Date());
+          const expectedAnswers = answers.filter(
+            answer => answer.value !== '' && answer.value !== nullAnswer.value,
+          );
+
+          const result = await app.get(
+            `/v1/encounter/${vitalsEncounter.id}/vitals/${patientVitalSbpKey}?startDate=${startDateString}&endDate=${endDateString}`,
+          );
+          expect(result).toHaveSucceeded();
+          const { body } = result;
+          expect(body).toHaveProperty('count');
+          expect(body.count).toEqual(expectedAnswers.length);
+          expect(body).toHaveProperty('data');
+          expect(body.data).toEqual(
+            expect.arrayContaining(
+              expectedAnswers.map(answer =>
+                expect.objectContaining({
+                  dataElementId: patientVitalSbpKey,
+                  body: answer.value.toString(),
+                  recordedDate: answer.submissionDate,
+                }),
+              ),
+            ),
+          );
+
+          const expectedRecordedDate = [...expectedAnswers]
+            .sort((a, b) => (a.submissionDate > b.submissionDate ? 1 : -1))
+            .map(answer => answer.submissionDate);
+          const resultRecordedDate = body.data.map(data => data.recordedDate);
+          expect(resultRecordedDate).toEqual(expectedRecordedDate);
+        });
+
+        it('should get vital data on the edge of time frame (equal to startdate)', async () => {
+          const startDateString = answers[0].submissionDate;
+          const endDateString = formatISO9075(new Date());
+          const result = await app.get(
+            `/v1/encounter/${vitalsEncounter.id}/vitals/${patientVitalSbpKey}?startDate=${startDateString}&endDate=${endDateString}`,
+          );
+          expect(result).toHaveSucceeded();
+          const { body } = result;
+          expect(body).toHaveProperty('count');
+          expect(body.count).toEqual(1);
+          expect(body).toHaveProperty('data');
+          expect(body.data).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                dataElementId: patientVitalSbpKey,
+                body: answers[0].value.toString(),
+                recordedDate: answers[0].submissionDate,
+              }),
+            ]),
+          );
+        });
       });
     });
 
@@ -1090,6 +1356,7 @@ describe('Encounter', () => {
         const result = await app.post(`/v1/encounter/${encounter.id}/documentMetadata`).send({
           name: 'test document',
           type: 'application/pdf',
+          source: DOCUMENT_SOURCES.PATIENT_LETTER,
           documentOwner: 'someone',
           note: 'some note',
         });
@@ -1098,6 +1365,436 @@ describe('Encounter', () => {
         const metadata = await models.DocumentMetadata.findByPk(result.body.id);
         expect(metadata).toBeDefined();
         expect(uploadAttachment.mock.calls.length).toBe(1);
+      });
+    });
+
+    describe('encounter history', () => {
+      describe('single change', () => {
+        it('should record an encounter history when an encounter is created', async () => {
+          const result = await app.post('/v1/encounter').send({
+            ...(await createDummyEncounter(models)),
+            patientId: patient.id,
+          });
+
+          expect(result).toHaveSucceeded();
+          const encounter = await models.Encounter.findByPk(result.body.id);
+
+          const encounterHistoryRecords = await models.EncounterHistory.findAll({
+            where: {
+              encounterId: encounter.id,
+            },
+          });
+
+          expect(encounterHistoryRecords).toHaveLength(1);
+          expect(encounterHistoryRecords[0]).toMatchObject({
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: encounter.locationId,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+            actorId: user.id,
+          });
+        });
+
+        it('should record an encounter history for a location change', async () => {
+          const [oldLocation, newLocation] = await models.Location.findAll({ limit: 2 });
+          const submittedTime = getCurrentDateTimeString();
+          const result = await app.post('/v1/encounter').send({
+            ...(await createDummyEncounter(models)),
+            patientId: patient.id,
+            locationId: oldLocation.id,
+          });
+
+          expect(result).toHaveSucceeded();
+          const encounter = await models.Encounter.findByPk(result.body.id);
+
+          const updateResult = await app.put(`/v1/encounter/${encounter.id}`).send({
+            locationId: newLocation.id,
+            submittedTime,
+          });
+
+          expect(updateResult).toHaveSucceeded();
+
+          const encounterHistoryRecords = await models.EncounterHistory.findAll({
+            where: {
+              encounterId: encounter.id,
+            },
+          });
+
+          expect(encounterHistoryRecords).toHaveLength(2);
+          expect(encounterHistoryRecords[0]).toMatchObject({
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: oldLocation.id,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+            actorId: user.id,
+          });
+
+          expect(encounterHistoryRecords[1]).toMatchObject({
+            date: submittedTime,
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: newLocation.id,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+            changeType: EncounterChangeType.Location,
+            actorId: user.id,
+          });
+        });
+
+        it('should record an encounter history for a department change', async () => {
+          const [oldDepartment, newDepartment] = await models.Department.findAll({ limit: 2 });
+          const submittedTime = getCurrentDateTimeString();
+          const result = await app.post('/v1/encounter').send({
+            ...(await createDummyEncounter(models)),
+            patientId: patient.id,
+            departmentId: oldDepartment.id,
+          });
+
+          expect(result).toHaveSucceeded();
+          const encounter = await models.Encounter.findByPk(result.body.id);
+
+          const updateResult = await app.put(`/v1/encounter/${encounter.id}`).send({
+            departmentId: newDepartment.id,
+            submittedTime,
+          });
+
+          expect(updateResult).toHaveSucceeded();
+
+          const encounterHistoryRecords = await models.EncounterHistory.findAll({
+            where: {
+              encounterId: encounter.id,
+            },
+          });
+
+          expect(encounterHistoryRecords).toHaveLength(2);
+          expect(encounterHistoryRecords[0]).toMatchObject({
+            encounterId: encounter.id,
+            departmentId: oldDepartment.id,
+            locationId: encounter.locationId,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+            actorId: user.id,
+          });
+          expect(encounterHistoryRecords[1]).toMatchObject({
+            date: submittedTime,
+            encounterId: encounter.id,
+            departmentId: newDepartment.id,
+            locationId: encounter.locationId,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+            changeType: EncounterChangeType.Department,
+            actorId: user.id,
+          });
+        });
+
+        it('should record an encounter history for a clinician change', async () => {
+          const [oldClinician, newClinician] = await models.User.findAll({ limit: 2 });
+          const submittedTime = getCurrentDateTimeString();
+
+          const result = await app.post('/v1/encounter').send({
+            ...(await createDummyEncounter(models)),
+            patientId: patient.id,
+            examinerId: oldClinician.id,
+          });
+
+          expect(result).toHaveSucceeded();
+          const encounter = await models.Encounter.findByPk(result.body.id);
+
+          const updateResult = await app.put(`/v1/encounter/${encounter.id}`).send({
+            examinerId: newClinician.id,
+            submittedTime,
+          });
+
+          expect(updateResult).toHaveSucceeded();
+
+          const encounterHistoryRecords = await models.EncounterHistory.findAll({
+            where: {
+              encounterId: encounter.id,
+            },
+          });
+
+          expect(encounterHistoryRecords).toHaveLength(2);
+          expect(encounterHistoryRecords[0]).toMatchObject({
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: encounter.locationId,
+            examinerId: oldClinician.id,
+            encounterType: encounter.encounterType,
+            actorId: user.id,
+          });
+          expect(encounterHistoryRecords[1]).toMatchObject({
+            date: submittedTime,
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: encounter.locationId,
+            examinerId: newClinician.id,
+            encounterType: encounter.encounterType,
+            changeType: EncounterChangeType.Examiner,
+            actorId: user.id,
+          });
+        });
+
+        it('should record an encounter history for an encounter type change', async () => {
+          const oldEncounterType = 'admission';
+          const newEncounterType = 'clinic';
+          const submittedTime = getCurrentDateTimeString();
+
+          const result = await app.post('/v1/encounter').send({
+            ...(await createDummyEncounter(models)),
+            patientId: patient.id,
+            encounterType: oldEncounterType,
+          });
+
+          expect(result).toHaveSucceeded();
+          const encounter = await models.Encounter.findByPk(result.body.id);
+
+          const updateResult = await app.put(`/v1/encounter/${encounter.id}`).send({
+            encounterType: newEncounterType,
+            submittedTime,
+          });
+
+          expect(updateResult).toHaveSucceeded();
+
+          const encounterHistoryRecords = await models.EncounterHistory.findAll({
+            where: {
+              encounterId: encounter.id,
+            },
+          });
+
+          expect(encounterHistoryRecords).toHaveLength(2);
+          expect(encounterHistoryRecords[0]).toMatchObject({
+            date: submittedTime,
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: encounter.locationId,
+            examinerId: encounter.examinerId,
+            encounterType: oldEncounterType,
+            actorId: user.id,
+          });
+          expect(encounterHistoryRecords[1]).toMatchObject({
+            date: submittedTime,
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: encounter.locationId,
+            examinerId: encounter.examinerId,
+            encounterType: newEncounterType,
+            changeType: EncounterChangeType.EncounterType,
+            actorId: user.id,
+          });
+        });
+      });
+
+      describe('multiple changes', () => {
+        it('should record an encounter history for mixed changes', async () => {
+          const [oldLocation, newLocation] = await models.Location.findAll({ limit: 2 });
+          const [oldDepartment, newDepartment] = await models.Department.findAll({ limit: 2 });
+          const [oldClinician, newClinician] = await models.User.findAll({ limit: 2 });
+
+          const result = await app.post('/v1/encounter').send({
+            ...(await createDummyEncounter(models)),
+            patientId: patient.id,
+            examinerId: oldClinician.id,
+            locationId: oldLocation.id,
+            departmentId: oldDepartment.id,
+          });
+
+          expect(result).toHaveSucceeded();
+          const encounter = await models.Encounter.findByPk(result.body.id);
+
+          const locationChangeSubmittedTime = getCurrentDateTimeString();
+
+          const updateResult = await app.put(`/v1/encounter/${encounter.id}`).send({
+            locationId: newLocation.id,
+            submittedTime: locationChangeSubmittedTime,
+          });
+          expect(updateResult).toHaveSucceeded();
+
+          let encounterHistoryRecords = await models.EncounterHistory.findAll({
+            where: {
+              encounterId: encounter.id,
+            },
+            order: [['date', 'ASC']],
+          });
+
+          expect(encounterHistoryRecords).toHaveLength(2);
+          expect(encounterHistoryRecords[0]).toMatchObject({
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: oldLocation.id,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+          });
+          expect(encounterHistoryRecords[1]).toMatchObject({
+            date: locationChangeSubmittedTime,
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: newLocation.id,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+          });
+
+          const departmentChangeSubmittedTime = getCurrentDateTimeString();
+          const updateResult2 = await app.put(`/v1/encounter/${encounter.id}`).send({
+            departmentId: newDepartment.id,
+            submittedTime: departmentChangeSubmittedTime,
+          });
+
+          expect(updateResult2).toHaveSucceeded();
+
+          encounterHistoryRecords = await models.EncounterHistory.findAll({
+            where: {
+              encounterId: encounter.id,
+            },
+            order: [['date', 'ASC']],
+          });
+
+          expect(encounterHistoryRecords).toHaveLength(3);
+          expect(encounterHistoryRecords[0]).toMatchObject({
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: encounter.locationId,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+            actorId: user.id,
+          });
+          expect(encounterHistoryRecords[1]).toMatchObject({
+            date: locationChangeSubmittedTime,
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: newLocation.id,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+            actorId: user.id,
+            changeType: EncounterChangeType.Location,
+          });
+          expect(encounterHistoryRecords[2]).toMatchObject({
+            date: departmentChangeSubmittedTime,
+            encounterId: encounter.id,
+            departmentId: newDepartment.id,
+            locationId: newLocation.id,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+            actorId: user.id,
+            changeType: EncounterChangeType.Department,
+          });
+
+          const clinicianChangeSubmittedTime = getCurrentDateTimeString();
+          const updateResult3 = await app.put(`/v1/encounter/${encounter.id}`).send({
+            examinerId: newClinician.id,
+            submittedTime: clinicianChangeSubmittedTime,
+          });
+
+          expect(updateResult3).toHaveSucceeded();
+
+          encounterHistoryRecords = await models.EncounterHistory.findAll({
+            where: {
+              encounterId: encounter.id,
+            },
+            order: [['date', 'ASC']],
+          });
+
+          expect(encounterHistoryRecords).toHaveLength(4);
+          expect(encounterHistoryRecords[0]).toMatchObject({
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: encounter.locationId,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+            actorId: user.id,
+          });
+          expect(encounterHistoryRecords[1]).toMatchObject({
+            date: locationChangeSubmittedTime,
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: newLocation.id,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+            actorId: user.id,
+            changeType: EncounterChangeType.Location,
+          });
+          expect(encounterHistoryRecords[2]).toMatchObject({
+            date: departmentChangeSubmittedTime,
+            encounterId: encounter.id,
+            departmentId: newDepartment.id,
+            locationId: newLocation.id,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+            actorId: user.id,
+            changeType: EncounterChangeType.Department,
+          });
+          expect(encounterHistoryRecords[3]).toMatchObject({
+            date: clinicianChangeSubmittedTime,
+            encounterId: encounter.id,
+            departmentId: newDepartment.id,
+            locationId: newLocation.id,
+            examinerId: newClinician.id,
+            encounterType: encounter.encounterType,
+            actorId: user.id,
+            changeType: EncounterChangeType.Examiner,
+          });
+        });
+      });
+
+      describe('multiple changes in 1 encounter update', () => {
+        it('throws an error if multiple changes happen in 1 encounter update', async () => {
+          const [oldLocation, newLocation] = await models.Location.findAll({ limit: 2 });
+          const [oldDepartment, newDepartment] = await models.Department.findAll({ limit: 2 });
+          const [clinician] = await models.User.findAll({ limit: 1 });
+
+          const result = await app.post('/v1/encounter').send({
+            ...(await createDummyEncounter(models)),
+            patientId: patient.id,
+            examinerId: clinician.id,
+            locationId: oldLocation.id,
+            departmentId: oldDepartment.id,
+          });
+
+          expect(result).toHaveSucceeded();
+          const encounter = await models.Encounter.findByPk(result.body.id);
+
+          const locationChangeSubmittedTime = getCurrentDateTimeString();
+          const updateResult = await app.put(`/v1/encounter/${encounter.id}`).send({
+            locationId: newLocation.id, // update new location
+            departmentId: newDepartment.id, // update new department
+            examinerId: clinician.id,
+            submittedTime: locationChangeSubmittedTime,
+          });
+
+          expect(updateResult).toHaveRequestError();
+          expect(updateResult.body.error.message).toEqual(
+            'Encounter type, department, location and clinician must be changed in separate operations',
+          );
+
+          const newEncounter = await models.Encounter.findByPk(result.body.id);
+
+          // Confirm that the encounter has not been changed if an error has been thrown
+          expect(newEncounter).toMatchObject({
+            patientId: patient.id,
+            examinerId: clinician.id,
+            locationId: oldLocation.id,
+            departmentId: oldDepartment.id,
+          });
+
+          const encounterHistoryRecords = await models.EncounterHistory.findAll({
+            where: {
+              encounterId: encounter.id,
+            },
+            order: [['date', 'ASC']],
+          });
+
+          // only 1 encounter history for initial encounter snapshot
+          expect(encounterHistoryRecords).toHaveLength(1);
+          expect(encounterHistoryRecords[0]).toMatchObject({
+            encounterId: encounter.id,
+            departmentId: encounter.departmentId,
+            locationId: encounter.locationId,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+            actorId: user.id,
+          });
+        });
       });
     });
 

@@ -1,6 +1,6 @@
 import { log } from 'shared/services/logging';
 import { QueryTypes } from 'sequelize';
-import { getQueryReplacementsFromParams } from 'shared/utils/getQueryReplacementsFromParams';
+import { getReportQueryReplacements } from '@tamanu/shared/utils/reports/getReportQueryReplacements';
 
 export async function findOrCreateDefinition(name, store) {
   const { ReportDefinition } = store.models;
@@ -21,10 +21,12 @@ export function getLatestVersion(versions, status) {
 
 export async function verifyQuery(query, paramDefinitions = [], store, verbose) {
   try {
+    const replacements = await getReportQueryReplacements(store, paramDefinitions);
+
     // use EXPLAIN instead of PREPARE because we don't want to stuff around deallocating the statement
     const results = await store.sequelize.query(`EXPLAIN ${query}`, {
       type: QueryTypes.SELECT,
-      replacements: getQueryReplacementsFromParams(paramDefinitions),
+      replacements,
     });
     if (verbose) {
       const formattedResults = results.reduce(
@@ -35,7 +37,6 @@ export async function verifyQuery(query, paramDefinitions = [], store, verbose) 
       log.info(formattedResults);
     }
   } catch (err) {
-    log.error(`Invalid query: ${err.message}`);
-    process.exit(1);
+    throw new Error(`Invalid query: ${err.message}`);
   }
 }

@@ -1,51 +1,20 @@
-import React, { useState, useCallback } from 'react';
-import { useLabRequest } from '../../../contexts/LabRequest';
-import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import { DataFetchingTable, Modal } from '../../../components';
-import { ManualLabResultForm } from '../../../forms/ManualLabResultForm';
+import React from 'react';
+import styled from 'styled-components';
+import { DataFetchingTable } from '../../../components';
+
 import { capitaliseFirstLetter } from '../../../utils/capitalise';
 import { getCompletedDate, getMethod } from '../../../utils/lab';
-import { LabTestResultModal } from '../LabTestResultModal';
 
-const ManualLabResultModal = React.memo(({ labTest, onClose, open, isReadOnly }) => {
-  const { updateLabTest, labRequest } = useLabRequest();
-  const { navigateToLabRequest } = usePatientNavigation();
-
-  const onSubmit = useCallback(
-    async ({ result, completedDate, laboratoryOfficer, labTestMethodId, verification }) => {
-      await updateLabTest(labRequest.id, labTest.id, {
-        result: `${result}`,
-        completedDate,
-        laboratoryOfficer,
-        verification,
-        labTestMethodId,
-      });
-      navigateToLabRequest(labRequest.id);
-      onClose();
-    },
-    [labRequest, labTest, onClose, updateLabTest, navigateToLabRequest],
-  );
-
-  if (isReadOnly) {
-    return <LabTestResultModal labTestId={labTest?.id} onClose={onClose} open={open} />;
+const StyledDataFetchingTable = styled(DataFetchingTable)`
+  table tbody tr:last-child td {
+    border-bottom: none;
   }
 
-  return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      title={`Enter result – ${labTest && labTest.labTestType.name} | Test ID ${labRequest &&
-        labRequest.displayId}`}
-    >
-      <ManualLabResultForm
-        labTest={labTest}
-        onSubmit={onSubmit}
-        onClose={onClose}
-        isReadOnly={isReadOnly}
-      />
-    </Modal>
-  );
-});
+  table thead tr th {
+    position: sticky;
+    top: 0;
+  }
+`;
 
 const makeRangeStringAccessor = sex => ({ labTestType }) => {
   const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
@@ -60,47 +29,40 @@ const makeRangeStringAccessor = sex => ({ labTestType }) => {
 };
 
 const columns = sex => [
-  { title: 'Test type', key: 'type', accessor: row => row.labTestType.name },
+  { title: 'Test type', key: 'labTestType.name', accessor: row => row.labTestType.name },
   {
     title: 'Result',
     key: 'result',
     accessor: ({ result }) => (result ? capitaliseFirstLetter(result) : ''),
   },
-  { title: 'Clinical range', key: 'reference', accessor: makeRangeStringAccessor(sex) },
+  {
+    title: 'Units',
+    key: 'labTestType.unit',
+    accessor: ({ labTestType }) => labTestType?.unit || 'N/A',
+  },
+  {
+    title: 'Reference',
+    key: 'reference',
+    accessor: makeRangeStringAccessor(sex),
+    sortable: false,
+  },
   { title: 'Method', key: 'labTestMethod', accessor: getMethod, sortable: false },
   { title: 'Lab officer', key: 'laboratoryOfficer' },
   { title: 'Verification', key: 'verification' },
   { title: 'Completed', key: 'completedDate', accessor: getCompletedDate, sortable: false },
 ];
 
-export const LabRequestResultsTable = React.memo(({ labRequest, patient, isReadOnly }) => {
-  const [activeTest, setActiveTest] = useState(null);
-  const [isModalOpen, setModalOpen] = useState(false);
-
-  const closeModal = () => setModalOpen(false);
-  const openModal = test => {
-    setActiveTest(test);
-    setModalOpen(true);
-  };
-
+export const LabRequestResultsTable = React.memo(({ labRequest, patient, refreshCount }) => {
   const sexAppropriateColumns = columns(patient.sex);
 
   return (
-    <>
-      <ManualLabResultModal
-        open={isModalOpen}
-        labRequest={labRequest}
-        labTest={activeTest}
-        onClose={closeModal}
-        isReadOnly={isReadOnly}
-      />
-      <DataFetchingTable
-        columns={sexAppropriateColumns}
-        endpoint={`labRequest/${labRequest.id}/tests`}
-        onRowClick={openModal}
-        initialSort={{ order: 'asc', orderBy: 'id' }}
-        elevated={false}
-      />
-    </>
+    <StyledDataFetchingTable
+      columns={sexAppropriateColumns}
+      endpoint={`labRequest/${labRequest.id}/tests`}
+      initialSort={{ order: 'asc', orderBy: 'id' }}
+      disablePagination
+      elevated={false}
+      refreshCount={refreshCount}
+    />
   );
 });

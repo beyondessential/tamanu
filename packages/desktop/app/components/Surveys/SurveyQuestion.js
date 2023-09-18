@@ -7,7 +7,7 @@ const Text = styled.div`
   margin-bottom: 10px;
 `;
 
-export const SurveyQuestion = ({ component, patient, inputRef }) => {
+export const SurveyQuestion = ({ component, patient, inputRef, disabled }) => {
   const {
     dataElement,
     detail,
@@ -25,6 +25,7 @@ export const SurveyQuestion = ({ component, patient, inputRef }) => {
   const validationCriteriaObject = getConfigObject(id, validationCriteria);
   const required = validationCriteriaObject?.mandatory || null;
 
+  if (component.dataElement.type === 'Result') return <Text>{`${text} ${component.detail}`}</Text>;
   if (!FieldComponent) return <Text>{text}</Text>;
 
   return (
@@ -38,6 +39,7 @@ export const SurveyQuestion = ({ component, patient, inputRef }) => {
       config={configObject}
       helperText={detail}
       required={required}
+      disabled={disabled}
     />
   );
 };

@@ -21,6 +21,8 @@ export interface DropdownProps extends BaseInputProps {
   onChange?: (items: string) => void;
   multiselect?: boolean;
   label?: string;
+  labelColor?: string;
+  fixedHeight: boolean;
   searchPlaceholderText?: string;
   selectPlaceholderText?: string;
   value?: string | string[];
@@ -30,33 +32,36 @@ export interface DropdownProps extends BaseInputProps {
   disabled?: boolean;
 }
 
+const baseStyleDropdownMenuSubsection = {
+  paddingTop: 9,
+  paddingBottom: 9,
+  paddingLeft: 12,
+  borderRadius: 5,
+};
+
 const STYLE_PROPS: Record<string, Partial<MultiSelectProps>> = {
   DEFAULT: {
-    styleDropdownMenuSubsection: {
-      paddingLeft: 12,
-      borderRadius: 5,
-    },
+    styleDropdownMenuSubsection: baseStyleDropdownMenuSubsection,
   },
   ERROR: {
     styleInputGroup: {
-      borderColor: theme.colors.ERROR,
+      borderColor: theme.colors.ALERT,
       borderWidth: 1,
+      borderRadius: 6,
     },
     styleDropdownMenuSubsection: {
-      paddingLeft: 12,
-      borderRadius: 5,
-      borderColor: theme.colors.ERROR,
+      ...baseStyleDropdownMenuSubsection,
+      borderColor: theme.colors.ALERT,
       borderWidth: 1,
     },
   },
   DISABLED: {
     textColor: theme.colors.DISABLED_GREY,
     styleDropdownMenuSubsection: {
+      ...baseStyleDropdownMenuSubsection,
       backgroundColor: theme.colors.BACKGROUND_GREY,
       borderWidth: 0.5,
       borderColor: theme.colors.DISABLED_GREY,
-      paddingLeft: 12,
-      borderRadius: 5,
     },
   },
 };
@@ -73,6 +78,8 @@ export const Dropdown = React.memo(
     onChange,
     multiselect = false,
     label = 'Select',
+    labelColor,
+    fixedHeight = false,
     searchPlaceholderText = 'Search Items...',
     selectPlaceholderText,
     value = [],
@@ -103,7 +110,7 @@ export const Dropdown = React.memo(
             fontSize={14}
             fontWeight={600}
             marginBottom={2}
-            color={theme.colors.TEXT_SUPER_DARK}
+            color={labelColor || theme.colors.TEXT_SUPER_DARK}
           >
             {label}
             {required && <StyledText color={theme.colors.ALERT}> *</StyledText>}
@@ -132,6 +139,7 @@ export const Dropdown = React.memo(
           submitButtonColor={theme.colors.SAFE}
           submitButtonText="Confirm selection"
           styleMainWrapper={{ zIndex: 999 }}
+          fixedHeight={fixedHeight}
           styleDropdownMenu={{
             height: screenPercentageToDP(6.8, Orientation.Height),
             marginBottom: 0,

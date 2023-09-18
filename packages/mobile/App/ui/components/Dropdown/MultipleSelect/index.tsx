@@ -5,6 +5,7 @@ import React, { Component } from 'react';
 import {
   Text,
   View,
+  ScrollView,
   TextInput,
   TouchableWithoutFeedback,
   TouchableOpacity,
@@ -608,7 +609,8 @@ export class MultiSelect extends Component {
         {selector && !disabled ? (
           <View
             style={[
-              styles.selectorView(fixedHeight),
+              // height should be dynamic when there is search text
+              styles.selectorView(fixedHeight && !searchTerm.length),
               styleSelectorContainer && styleSelectorContainer,
             ]}
           >
@@ -619,9 +621,7 @@ export class MultiSelect extends Component {
                 onChangeText={this._onChangeInput}
                 onSubmitEditing={this._addItem}
                 placeholder={selectedLabel || searchInputPlaceholderText}
-                placeholderTextColor={
-                  selectedLabel ? textColor : colorPack.placeholderTextColor
-                }
+                placeholderTextColor={selectedLabel ? textColor : colorPack.placeholderTextColor}
                 underlineColorAndroid="transparent"
                 style={[searchInputStyle, { flex: 1 }]}
                 value={searchTerm}

@@ -77,9 +77,9 @@ const SingleValue = ({ children, ...props }) => {
   );
 };
 
-const ClearIndicator = ({ innerProps }) => {
+const ClearIndicator = ({ innerProps, tabIndex = 0 }) => {
   return (
-    <StyledIconButton {...innerProps}>
+    <StyledIconButton {...innerProps} tabIndex={tabIndex}>
       <StyledClearIcon />
     </StyledIconButton>
   );
@@ -96,21 +96,22 @@ export const SelectInput = ({
   name,
   helperText,
   inputRef,
-  onClear,
+  form,
+  tabIndex,
+  inputProps = {},
+  isClearable = true,
   ...props
 }) => {
   const handleChange = useCallback(
     changedOption => {
-      if (!changedOption) {
-        onChange({ target: { value: '', name } });
-        if (onClear) {
-          onClear();
-        }
+      const userClickedClear = !changedOption;
+      if (userClickedClear) {
+        onChange({ target: { value: undefined, name } });
         return;
       }
       onChange({ target: { value: changedOption.value, name } });
     },
-    [onChange, name, onClear],
+    [onChange, name],
   );
 
   const customStyles = {
@@ -200,9 +201,17 @@ export const SelectInput = ({
           styles={customStyles}
           menuShouldBlockScroll="true"
           placeholder="Select"
-          isClearable={value !== ''}
+          isClearable={value !== '' && isClearable && !props.required && !disabled}
           isSearchable={false}
-          components={{ Option, SingleValue, ClearIndicator, DropdownIndicator: StyledChevronIcon }}
+          tabIndex={inputProps.tabIndex}
+          components={{
+            Option,
+            SingleValue,
+            ClearIndicator: innerProps => (
+              <ClearIndicator {...innerProps} tabIndex={inputProps.tabIndex} />
+            ),
+            DropdownIndicator: StyledChevronIcon,
+          }}
           {...props}
         />
         {helperText && <FormHelperText>{helperText}</FormHelperText>}

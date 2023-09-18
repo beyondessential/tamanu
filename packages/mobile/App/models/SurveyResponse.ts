@@ -14,6 +14,7 @@ import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import { Referral } from './Referral';
 import { Patient } from './Patient';
 import { PatientAdditionalData } from './PatientAdditionalData';
+import { VitalLog } from './VitalLog';
 import { SYNC_DIRECTIONS } from './types';
 import { DateTimeStringColumn } from './DateColumns';
 
@@ -127,6 +128,17 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       const isAdditionalDataField = questionConfig =>
         questionConfig.writeToPatient?.isAdditionalDataField;
 
+      // figure out if its a vital survey response
+      let vitalsSurvey;
+      try {
+        vitalsSurvey = await Survey.getVitalsSurvey();
+      } catch (e) {
+        console.error(`Errored while trying to get vitals survey: ${e}`);
+      }
+
+      // use optional chaining because vitals survey might not exist
+      const isVitalSurvey = surveyId === vitalsSurvey?.id;
+
       for (const a of Object.entries(finalValues)) {
         const [dataElementCode, value] = a;
         const component = components.find(c => c.dataElement.code === dataElementCode);
@@ -159,10 +171,19 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         const body = getStringValue(dataElement.type, value);
 
         setNote(`Attaching answer for ${dataElement.id}...`);
-        await SurveyResponseAnswer.createAndSaveOne({
+        const answerRecord = await SurveyResponseAnswer.createAndSaveOne({
           dataElement: dataElement.id,
           body,
           response: responseRecord.id,
+        });
+
+        if (!isVitalSurvey || body === '') continue;
+        setNote(`Attaching initial vital log for ${answerRecord.id}...`);
+        await VitalLog.createAndSaveOne({
+          date: responseRecord.endTime,
+          newValue: body,
+          recordedBy: userId,
+          answer: answerRecord.id,
         });
       }
       setNote('Done');

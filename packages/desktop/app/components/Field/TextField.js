@@ -52,12 +52,13 @@ export const StyledTextField = styled(MuiTextField)`
   }
 
   // Hover state
-  .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  .MuiOutlinedInput-root:not(.Mui-disabled):hover .MuiOutlinedInput-notchedOutline {
     border-color: ${props => props.theme.palette.grey['400']};
   }
 
   // Focused state
-  .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline,
+  .MuiOutlinedInput-root.Mui-focused:hover .MuiOutlinedInput-notchedOutline {
     border: 1px solid ${props => props.theme.palette.primary.main};
   }
 
@@ -102,6 +103,10 @@ export const MultilineTextField = ({ field, ...props }) => (
     onChange={field.onChange}
     {...props}
   />
+);
+
+export const TallMultilineTextField = props => (
+  <MultilineTextField style={{ minHeight: '156px' }} {...props} />
 );
 
 export const ReadOnlyTextField = ({ field, ...props }) => (

@@ -1,10 +1,18 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
-import { isAfter, isBefore, parse } from 'date-fns';
-import { toDateString, toDateTimeString, format as formatDate } from 'shared/utils/dateTime';
+import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
+import { Box } from '@material-ui/core';
+import { addDays, isAfter, isBefore, parse } from 'date-fns';
+import {
+  toDateString,
+  toDateTimeString,
+  format as formatDate,
+} from '@tamanu/shared/utils/dateTime';
 import PropTypes from 'prop-types';
 import { TextInput } from './TextField';
 import { Colors } from '../../constants';
+import { DefaultIconButton } from '../Button';
 
 // This component is pretty tricky! It has to keep track of two layers of state:
 //
@@ -52,6 +60,8 @@ export const DateInput = ({
   max = '9999-12-31',
   min,
   saveDateAsString = false,
+  arrows = false,
+  inputProps = {},
   ...props
 }) => {
   const [currentText, setCurrentText] = useState(fromRFC3339(value, format));
@@ -97,6 +107,13 @@ export const DateInput = ({
     [onChange, format, name, min, max, saveDateAsString, type],
   );
 
+  const onArrowChange = addDaysAmount => {
+    const date = parse(currentText, format, new Date());
+    const newDate = formatDate(addDays(date, addDaysAmount), format);
+
+    onValueChange({ target: { value: newDate } });
+  };
+
   useEffect(() => {
     const formattedValue = fromRFC3339(value, format);
     if (value && formattedValue) {
@@ -109,19 +126,33 @@ export const DateInput = ({
     };
   }, [value, format]);
 
-  return (
+  const defaultDateField = (
     <CustomIconTextInput
       type={type}
       value={currentText}
       onChange={onValueChange}
       InputProps={{
         // Set max property on HTML input element to force 4-digit year value (max year being 9999)
-        inputProps: { max, min },
+        inputProps: { max, min, ...inputProps },
       }}
       style={isPlaceholder ? { color: Colors.softText } : undefined}
       {...props}
     />
   );
+
+  const ContainerWithArrows = ({ children }) => (
+    <Box display="flex" alignContent="center">
+      <DefaultIconButton onClick={() => onArrowChange(-1)}>
+        <KeyboardArrowLeftIcon />
+      </DefaultIconButton>
+      {children}
+      <DefaultIconButton onClick={() => onArrowChange(1)}>
+        <KeyboardArrowRightIcon />
+      </DefaultIconButton>
+    </Box>
+  );
+
+  return arrows ? <ContainerWithArrows>{defaultDateField}</ContainerWithArrows> : defaultDateField;
 };
 
 export const TimeInput = props => <DateInput type="time" format="HH:mm" {...props} />;

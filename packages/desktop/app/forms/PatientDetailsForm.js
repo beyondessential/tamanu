@@ -3,9 +3,9 @@ import styled from 'styled-components';
 import { isEmpty, groupBy } from 'lodash';
 import { useQuery } from '@tanstack/react-query';
 
-import { getCurrentDateString } from 'shared/utils/dateTime';
-import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from 'shared/constants';
-import { PATIENT_FIELD_DEFINITION_TYPES } from 'shared/constants/patientFields';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
+import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
+import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 
 import { useSexValues } from '../hooks';
 import {
@@ -29,6 +29,7 @@ import {
   Button,
   ButtonRow,
   DateField,
+  DisplayIdField,
   Field,
   Form,
   FormGrid,
@@ -96,7 +97,7 @@ export const PrimaryDetailsGroup = () => {
 
 export const SecondaryDetailsGroup = ({ patientRegistryType, values = {}, isEdit = false }) => {
   const { getLocalisation } = useLocalisation();
-  const canEditDisplayId = isEdit && getLocalisation('features.editDisplayId');
+  const canEditDisplayId = isEdit && getLocalisation('features.editPatientDisplayId');
   const countrySuggester = useSuggester('country');
   const divisionSuggester = useSuggester('division');
   const ethnicitySuggester = useSuggester('ethnicity');
@@ -153,7 +154,7 @@ export const SecondaryDetailsGroup = ({ patientRegistryType, values = {}, isEdit
 
       <StyledHeading>Identification information</StyledHeading>
       <StyledFormGrid>
-        {canEditDisplayId && <LocalisedField name="displayId" component={TextField} />}
+        {canEditDisplayId && <DisplayIdField />}
         <LocalisedField name="birthCertificate" component={TextField} />
         {patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT && (
           <LocalisedField name="drivingLicense" component={TextField} />

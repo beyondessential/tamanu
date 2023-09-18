@@ -1,23 +1,25 @@
 import React, { useCallback } from 'react';
 
-import { VACCINATION_CERTIFICATE } from 'shared/constants';
-import { VaccineCertificate } from 'shared/utils/patientCertificates';
-import { getCurrentDateString } from 'shared/utils/dateTime';
+import { VACCINATION_CERTIFICATE, ASSET_NAMES } from '@tamanu/constants';
+import { VaccineCertificate } from '@tamanu/shared/utils/patientCertificates';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
 import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { usePatientAdditionalData, useAdministeredVaccines } from '../../../api/queries';
+import { usePatientAdditionalDataQuery, useAdministeredVaccines } from '../../../api/queries';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
 
 export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
   const { getLocalisation } = useLocalisation();
-  const { watermark, logo, footerImg, printedBy } = useCertificate();
-  const { data: additionalData } = usePatientAdditionalData(patient.id);
+  const { watermark, logo, footerImg, printedBy } = useCertificate({
+    footerAssetName: ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER,
+  });
+  const { data: additionalData } = usePatientAdditionalDataQuery(patient.id);
 
   const { data: vaccineData } = useAdministeredVaccines(patient.id, {
     orderBy: 'date',

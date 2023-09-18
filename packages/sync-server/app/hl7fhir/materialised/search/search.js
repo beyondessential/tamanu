@@ -1,6 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import { ValidationError } from 'yup';
-import { FHIR_BUNDLE_TYPES } from 'shared/constants';
+import { FHIR_BUNDLE_TYPES } from '@tamanu/constants';
 import { Invalid, OperationOutcome, Unsupported, normaliseParameters } from 'shared/utils/fhir';
 
 import { Bundle } from '../bundle';
@@ -15,13 +15,18 @@ export function searchHandler(FhirResource) {
 
     let includes = null;
     if (query.has('_include')) {
-      includes = resolveIncludes(query, parameters, FhirResource);
+      includes = resolveIncludes(req.store.models, query, parameters, FhirResource);
     }
 
     const sqlQuery = buildSearchQuery(query, parameters, FhirResource);
     const total = await FhirResource.count(sqlQuery);
     const records = await FhirResource.findAll(sqlQuery);
-    const { included, errors } = await retrieveIncludes(records, includes, FhirResource);
+    const { included, errors } = await retrieveIncludes(
+      req.store.models,
+      records,
+      includes,
+      FhirResource,
+    );
 
     const bundle = new Bundle(FHIR_BUNDLE_TYPES.SEARCHSET, records, {
       total,

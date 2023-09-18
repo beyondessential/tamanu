@@ -1,13 +1,12 @@
-import { FHIR_INTERACTIONS, FHIR_SEARCH_PARAMETERS } from 'shared/constants';
+import { FHIR_INTERACTIONS, FHIR_SEARCH_PARAMETERS } from '@tamanu/constants';
 import { FhirReference } from 'shared/services/fhirTypes/reference';
 import { FhirError, Processing, Unsupported } from 'shared/utils/fhir';
 import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 
-const materialisedResources = resourcesThatCanDo(FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
-
-export function resolveIncludes(query, parameters, FhirResource) {
+export function resolveIncludes(models, query, parameters, FhirResource) {
   const includes = new Map();
   const referenceParameters = invertReferenceParameters(parameters);
+  const materialisedResources = resourcesThatCanDo(models, FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
 
   for (const { modifier, resource, parameter, targetType } of flattenIncludes(
     query.get('_include'),
@@ -53,10 +52,11 @@ export function resolveIncludes(query, parameters, FhirResource) {
 // references in the initial query. However, Sequelize 6 doesn't support this
 // (the upcoming 7 mayyyyybe does), so we have to do it in separate queries.
 // It's only one additional query per resource type, so it's not too bad.
-export async function retrieveIncludes(records, includes, FhirResource) {
+export async function retrieveIncludes(models, records, includes, FhirResource) {
   if (!includes?.size) return { included: [], errors: [] };
 
   const [toFetch, errors] = findIncludesToFetch(records, includes, FhirResource);
+  const materialisedResources = resourcesThatCanDo(models, FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
 
   let included = [];
   for (const [resource, ids] of toFetch.entries()) {

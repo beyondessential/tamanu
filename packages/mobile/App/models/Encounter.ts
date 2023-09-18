@@ -25,12 +25,14 @@ import { Department } from './Department';
 import { Location } from './Location';
 import { Referral } from './Referral';
 import { LabRequest } from './LabRequest';
+import { EncounterHistory } from './EncounterHistory';
 import { readConfig } from '~/services/config';
 import { ReferenceData, ReferenceDataRelation } from '~/models/ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { DateTimeStringColumn } from './DateColumns';
-import { NotePage } from './NotePage';
+import { Note } from './Note';
+import { AfterInsert } from 'typeorm';
 
 const TIME_OFFSET = 3;
 
@@ -99,6 +101,12 @@ export class Encounter extends BaseModel implements IEncounter {
   labRequests: LabRequest[];
 
   @OneToMany(
+    () => EncounterHistory,
+    encounterHistory => encounterHistory.encounter,
+  )
+  encounterHistory: LabRequest[];
+
+  @OneToMany(
     () => Diagnosis,
     diagnosis => diagnosis.encounter,
     {
@@ -148,26 +156,37 @@ export class Encounter extends BaseModel implements IEncounter {
     await Patient.markForSync(this.patient);
   }
 
-  static async getOrCreateCurrentEncounter(
-    patientId: string,
-    userId: string,
-    createdEncounterOptions: any = {},
-  ): Promise<Encounter> {
+  @AfterInsert()
+  async snapshotEncounter(): Promise<void> {
+    await EncounterHistory.createSnapshot(this);
+  }
+
+  static async getCurrentEncounterForPatient(patientId: string): Promise<Encounter | undefined> {
     const repo = this.getRepository();
 
     // The 3 hour offset is a completely arbitrary time we decided would be safe to
     // close the previous days encounters at, rather than midnight.
     const date = addHours(startOfDay(new Date()), TIME_OFFSET);
 
-    const found = await repo
+    return repo
       .createQueryBuilder('encounter')
       .where('patientId = :patientId', { patientId })
       .andWhere("startDate >= datetime(:date, 'unixepoch')", {
         date: formatDateForQuery(date),
       })
       .getOne();
+  }
 
-    if (found) return found;
+  static async getOrCreateCurrentEncounter(
+    patientId: string,
+    userId: string,
+    createdEncounterOptions: any = {},
+  ): Promise<Encounter> {
+    const currentEncounter = await Encounter.getCurrentEncounterForPatient(patientId);
+
+    if (currentEncounter) {
+      return currentEncounter;
+    }
 
     // Read the selected facility for this client
     const facilityId = await readConfig('facilityId', '');
@@ -226,15 +245,14 @@ export class Encounter extends BaseModel implements IEncounter {
       order: { startDate: 'DESC' },
     });
 
-    const notes = await NotePage.find({
+    const notes = await Note.find({
       where: { recordId: In(encounters.map(({ id }) => id)) },
-      relations: ['noteItems'],
     });
 
     // Usually a patient won't have too many encounters, but if they do, this will be slow.
     return encounters.map(encounter => ({
       ...encounter,
-      notePages: notes.filter(note => note.recordId === encounter.id),
+      notes: notes.filter(note => note.recordId === encounter.id),
     }));
   }
 
@@ -266,20 +284,4 @@ export class Encounter extends BaseModel implements IEncounter {
 
     return query.getRawMany();
   }
-
-  static includedSyncRelations = [
-    'administeredVaccines',
-    'surveyResponses',
-    'surveyResponses.answers',
-    'diagnoses',
-    'medications',
-    'vitals',
-    'initiatedReferrals',
-    'completedReferrals',
-    'labRequests',
-    'labRequests.tests',
-    // Can't add these here as there's no ORM relation
-    // 'notePages',
-    // 'notePages.noteItems',
-  ];
 }

@@ -1,8 +1,8 @@
 import React, { memo, useCallback } from 'react';
 import { startCase } from 'lodash';
 import * as yup from 'yup';
+import { getCurrentCountryTimeZoneDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-import { getCurrentCountryTimeZoneDateTimeString } from 'shared/utils/dateTime';
 import { useApi } from '../../../api';
 import { Form, Field } from '../../../components/Field';
 import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';

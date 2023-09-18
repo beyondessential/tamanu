@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { VACCINE_STATUS } from 'shared/constants';
+import { VACCINE_STATUS } from '@tamanu/constants';
 import { useDispatch } from 'react-redux';
 import { useApi } from '../api';
 import { reloadPatient } from '../store/patient';

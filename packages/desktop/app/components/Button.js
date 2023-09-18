@@ -83,6 +83,9 @@ Button.defaultProps = {
 
 const StyledOutlinedButton = styled(StyledButton)`
   border-color: ${props => props.theme.palette.primary.main};
+  :disabled {
+    border-color: ${Colors.softText};
+  }
 `;
 
 export const OutlinedButton = props => (
@@ -92,6 +95,11 @@ export const OutlinedButton = props => (
 export const GreyOutlinedButton = styled(props => <StyledButton {...props} />)`
   border: 1px solid #dedede;
   color: ${props => props.theme.palette.text.secondary};
+`;
+
+export const RedOutlinedButton = styled(props => <StyledButton {...props} />)`
+  border: 1px solid ${Colors.alert};
+  color: ${Colors.alert};
 `;
 
 const StyledLargeButton = styled(StyledButton)`
@@ -180,6 +188,13 @@ export const RefreshIconButton = ({ ...props }) => (
     <Refresh fontSize="inherit" />
   </IconButton>
 );
+
+export const DefaultIconButton = styled(({ children, ...props }) => (
+  <IconButton {...props}>{children}</IconButton>
+))`
+  border-radius: 20%;
+  padding: 0px;
+`;
 
 const getLocationProps = ({ to }) => {
   if (to) {

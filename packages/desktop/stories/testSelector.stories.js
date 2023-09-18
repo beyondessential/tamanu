@@ -1,9 +1,11 @@
 import { action } from '@storybook/addon-actions';
 import React from 'react';
-import { LAB_REQUEST_FORM_TYPES } from 'shared/constants/labs';
+import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
+import { Box } from '@material-ui/core';
 import { TestSelectorInput } from '../app/views/labRequest/TestSelector';
 import { MockedApi } from './utils/mockedApi';
-import { mockLabTestTypes, mockTestSelectorEndpoints } from './utils/mockLabData';
+import { mockTestSelectorEndpoints } from './utils/mockLabData';
+import { FORM_TYPE_TO_FIELD_CONFIG } from '../app/forms/LabRequestForm/LabRequestFormScreen2';
 
 export default {
   argTypes: {
@@ -16,6 +18,7 @@ export default {
 };
 
 const Template = args => {
+  const { requestFormType } = args;
   const [selected, setSelected] = React.useState([]);
   const changeAction = action('change');
   const onChange = React.useCallback(
@@ -26,17 +29,16 @@ const Template = args => {
     },
     [setSelected, changeAction],
   );
-
   return (
     <MockedApi endpoints={mockTestSelectorEndpoints}>
-      <div style={{ width: 800, height: 500 }}>
+      <Box width={800} height={500}>
         <TestSelectorInput
           {...args}
-          testTypes={mockLabTestTypes}
+          labelConfig={FORM_TYPE_TO_FIELD_CONFIG[requestFormType]}
           value={selected}
           onChange={onChange}
         />
-      </div>
+      </Box>
     </MockedApi>
   );
 };

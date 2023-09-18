@@ -1,9 +1,12 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { VISIBILITY_STATUSES } from 'shared/constants';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { InvalidOperationError, NotFoundError } from 'shared/errors';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
-import * as yup from 'yup';
+import {
+  PATIENT_DEATH_PARTIAL_SCHEMA,
+  PATIENT_DEATH_FULL_SCHEMA,
+} from './patientDeathValidationSchema';
 
 export const patientDeath = express.Router();
 
@@ -157,54 +160,8 @@ patientDeath.post(
       params: { id: patientId },
     } = req;
 
-    const yesNoUnknown = yup
-      .string()
-      .lowercase()
-      .oneOf(['yes', 'no', 'unknown']);
-
-    const yesNo = yup
-      .string()
-      .lowercase()
-      .oneOf(['yes', 'no']);
-
-    const partialSchema = yup.object().shape({
-      clinicianId: yup.string().required(),
-      timeOfDeath: yup.date().required(),
-    });
-
-    const fullSchema = yup.object().shape({
-      ageOfMother: yup.number(),
-      antecedentCause1: yup.string(),
-      antecedentCause1Interval: yup.number().default(0),
-      antecedentCause2: yup.string(),
-      antecedentCause2Interval: yup.number().default(0),
-      birthWeight: yup.number(),
-      causeOfDeath: yup.string().required(),
-      causeOfDeathInterval: yup.number().default(0),
-      clinicianId: yup.string().required(),
-      deathWithin24HoursOfBirth: yesNo,
-      facilityId: yup.string(),
-      fetalOrInfant: yesNo.default('no'),
-      lastSurgeryDate: yup.date(),
-      lastSurgeryReason: yup.string(),
-      mannerOfDeath: yup.string().required(),
-      mannerOfDeathDate: yup.date(),
-      mannerOfDeathLocation: yup.string(), // actually "external cause"
-      mannerOfDeathOther: yup.string(),
-      motherExistingCondition: yup.string(),
-      numberOfCompletedPregnancyWeeks: yup.number(),
-      numberOfHoursSurvivedSinceBirth: yup.number(),
-      otherContributingConditions: yup.array().of(yup.object()),
-      outsideHealthFacility: yup.boolean().default(false),
-      pregnancyContribute: yesNoUnknown,
-      pregnant: yesNoUnknown,
-      stillborn: yesNoUnknown,
-      surgeryInLast4Weeks: yesNoUnknown,
-      timeOfDeath: yup.date().required(),
-    });
-
     const { isPartialWorkflow } = req.body;
-    const schema = isPartialWorkflow ? partialSchema : fullSchema;
+    const schema = isPartialWorkflow ? PATIENT_DEATH_PARTIAL_SCHEMA : PATIENT_DEATH_FULL_SCHEMA;
     const body = await schema.validate(req.body);
 
     const patient = await Patient.findByPk(patientId);
@@ -273,6 +230,7 @@ patientDeath.post(
         });
         for (const encounter of activeEncounters) {
           await encounter.update({
+            systemNote: 'Automatically discharged',
             endDate: body.timeOfDeath,
             discharge: {
               dischargerId: doc.id,

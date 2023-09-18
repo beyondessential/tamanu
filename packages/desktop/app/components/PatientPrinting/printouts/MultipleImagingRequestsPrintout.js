@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import { NOTE_TYPES } from 'shared/constants';
+import { NOTE_TYPES } from '@tamanu/constants';
 
 import { LoadingIndicator } from '../../LoadingIndicator';
 import { useCertificate } from '../../../utils/useCertificate';
@@ -13,7 +13,7 @@ import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { PatientDetailPrintout } from './reusable/PatientDetailPrintout';
 import { ListTable } from './reusable/ListTable';
-import { NotesPagesSection } from './reusable/NotesPagesSection';
+import { NotesSection } from './reusable/NotesSection';
 import { DateFacilitySection } from './reusable/DateFacilitySection';
 
 export const MultipleImagingRequestsPrintout = ({ encounter, imagingRequests }) => {
@@ -40,9 +40,9 @@ export const MultipleImagingRequestsPrintout = ({ encounter, imagingRequests }) 
   if (isLoading) {
     return <LoadingIndicator />;
   }
-  const idsAndNotePages = imagingRequests.map(ir => [
+  const idsAndNotes = imagingRequests.map(ir => [
     ir.displayId,
-    ir.notePages.filter(np => np.noteType === NOTE_TYPES.OTHER),
+    ir.notes.filter(note => note.noteType === NOTE_TYPES.OTHER),
   ]);
   return (
     <CertificateWrapper>
@@ -58,7 +58,7 @@ export const MultipleImagingRequestsPrintout = ({ encounter, imagingRequests }) 
       <DateFacilitySection encounter={encounter} />
 
       <ListTable data={imagingRequests} columns={PRINTOUT_COLUMNS} />
-      <NotesPagesSection idsAndNotePages={idsAndNotePages} />
+      <NotesSection idsAndNotes={idsAndNotes} />
     </CertificateWrapper>
   );
 };

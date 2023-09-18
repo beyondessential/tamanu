@@ -15,10 +15,9 @@ import { IDiagnosis } from '~/types';
 
 const DEFAULT_FIELD_VAL = 'N/A';
 
-const displayNotes = (notePages): string => notePages
-  .filter(notePage => notePage.noteType === NOTE_TYPES.CLINICAL_MOBILE)
-  // Note: There should only be one noteItem per notePage in production
-  .map(notePage => notePage.noteItems.map((noteItem) => noteItem.content).join('; '))
+const displayNotes = (notes): string => notes
+  .filter(note => note.noteType === NOTE_TYPES.CLINICAL_MOBILE)
+  .map(note => note.content)
   .join('\n\n')
   || DEFAULT_FIELD_VAL;
 
@@ -32,21 +31,13 @@ const visitsHistoryRows = {
     accessor: (diagnoses: IDiagnosis[]): string => diagnoses.map((d) => `${d.diagnosis?.name} (${d.certainty})`).join('\n\n')
       || DEFAULT_FIELD_VAL,
   },
-  notePages: {
+  notes: {
     name: 'Clinical Note',
     accessor: displayNotes,
   },
 };
 
 const DumbVisitsScreen = ({ selectedPatient }): ReactElement => {
-  const activeFilters = {
-    count: 0,
-  };
-
-  const navigateToHistoryFilters = useCallback(() => {
-    console.log('going to filters..');
-  }, []);
-
   const [data, error] = useBackendEffect(
     ({ models }) => models.Encounter.getForPatient(selectedPatient.id),
     [],
@@ -62,23 +53,6 @@ const DumbVisitsScreen = ({ selectedPatient }): ReactElement => {
         ) : (
           <LoadingScreen />
         )}
-        <StyledView position="absolute" zIndex={2} width="100%" alignItems="center" bottom={30}>
-          <Button
-            width={screenPercentageToDP(60.82, Orientation.Width)}
-            backgroundColor={`${theme.colors.MAIN_SUPER_DARK}`}
-            bordered
-            textColor={theme.colors.WHITE}
-            onPress={navigateToHistoryFilters}
-            buttonText={activeFilters.count ? `Filters: ${activeFilters.count}` : 'Filters'}
-          >
-            <StyledView marginRight={screenPercentageToDP(1.21, Orientation.Height)}>
-              <FilterIcon
-                fill={activeFilters.count > 0 ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE}
-                height={screenPercentageToDP(2.43, Orientation.Height)}
-              />
-            </StyledView>
-          </Button>
-        </StyledView>
       </FullView>
     </StyledSafeAreaView>
   );
