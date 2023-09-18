@@ -2,6 +2,7 @@ import React, { ReactElement, useMemo, useEffect, useCallback, useState } from '
 import { useSelector } from 'react-redux';
 import { getFormInitialValues, getFormSchema } from './helpers';
 import { ISurveyComponent, IPatientAdditionalData } from '~/types';
+import { ISurveyResponseValues, SubmitSurveyResponseFunc } from '~/types/ISurveyResponse';
 import { Form } from '../Form';
 import { FormFields } from './FormFields';
 import { shouldSaveComponent, checkVisibilityCriteria } from '/helpers/fields';
@@ -9,7 +10,7 @@ import { runCalculations } from '~/ui/helpers/calculations';
 import { authUserSelector } from '/helpers/selectors';
 
 export type SurveyFormProps = {
-  onSubmit: (values: any) => Promise<void>;
+  onSubmit: SubmitSurveyResponseFunc;
   components: ISurveyComponent[];
   patient: any;
   note: string;
@@ -37,7 +38,7 @@ export const SurveyForm = ({
   );
 
   const submitSaveableValues = useCallback(
-    (values: any) => {
+    (values: ISurveyResponseValues) => {
       // 1. get a list of saveable fields (visible and with config.omitFromResult)
       const saveableFields = new Set(
         components

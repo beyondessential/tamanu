@@ -30,3 +30,9 @@ export interface ISurveyResponseAnswer {
   name?: string;
   body?: string;
 }
+
+export interface ISurveyResponseValues {
+  [key: string]: string | number;
+};
+
+export type SubmitSurveyResponseFunc = (values: ISurveyResponseValues) => Promise<void>;

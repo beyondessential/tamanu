@@ -6,7 +6,8 @@ import { useBackend, useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '/components/ErrorScreen';
 import { LoadingScreen } from '/components/LoadingScreen';
 import { authUserSelector } from '/helpers/selectors';
-import { SurveyTypes } from '~/types';
+import { SurveyTypes } from '~/types/ISurvey';
+import { ISurveyResponseValues, SubmitSurveyResponseFunc } from '~/types/ISurveyResponse';
 import { getCurrentDateTimeString } from '/helpers/date';
 import { SurveyForm } from '/components/Forms/SurveyForm';
 import { VitalsDataElements } from '/helpers/constants';
@@ -53,7 +54,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
 
   const { id, name, components, dateComponent } = vitalsSurvey;
 
-  const onSubmit = async (values: any): Promise<void> => {
+  const onSubmit: SubmitSurveyResponseFunc = async (values: ISurveyResponseValues): Promise<void> => {
     const responseRecord = await models.SurveyResponse.submit(
       selectedPatient.id,
       user.id,

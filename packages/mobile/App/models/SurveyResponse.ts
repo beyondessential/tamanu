@@ -1,6 +1,8 @@
 import { Entity, Column, ManyToOne, OneToMany, RelationId } from 'typeorm/browser';
 
-import { ISurveyResponse, EncounterType, ICreateSurveyResponse } from '~/types';
+import { ISurveyResponse, ISurveyResponseValues, ICreateSurveyResponse } from '~/types/ISurveyResponse';
+import { EncounterType } from '~/types/IEncounter';
+import { SurveyScreenConfig } from '~/types/ISurvey'
 
 import { getStringValue, getResultValue, isCalculated, FieldTypes } from '~/ui/helpers/fields';
 
@@ -88,7 +90,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     patientId: string,
     userId: string,
     surveyData: ICreateSurveyResponse,
-    values: object,
+    values: ISurveyResponseValues,
     setNote: (note: string) => void = () => null,
   ): Promise<SurveyResponse> {
     const { surveyId, encounterReason, components, ...otherData } = surveyData;
@@ -125,7 +127,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       const patientAdditionalDataValues = {};
 
       // TODO: this should just look at the field name and decide; there will never be overlap
-      const isAdditionalDataField = questionConfig =>
+      const isAdditionalDataField = (questionConfig: SurveyScreenConfig) =>
         questionConfig.writeToPatient?.isAdditionalDataField;
 
       // figure out if its a vital survey response

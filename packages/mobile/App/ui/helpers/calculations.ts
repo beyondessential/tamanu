@@ -1,12 +1,13 @@
 import { create, all as allMath } from 'mathjs';
 import { ISurveyScreenComponent } from '~/types/ISurvey';
+import { ISurveyResponseValues } from '~/types/ISurveyResponse';
 
 // set up math context
 const math = create(allMath);
 
-export function runCalculations(components: ISurveyScreenComponent[], values: any): any {
+export function runCalculations(components: ISurveyScreenComponent[], values: ISurveyResponseValues): ISurveyResponseValues {
   const inputValues = { ...values };
-  const calculatedValues = {};
+  const calculatedValues: ISurveyResponseValues = {};
 
   for (const c of components) {
     if (c.calculation) {
