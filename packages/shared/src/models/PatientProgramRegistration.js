@@ -4,7 +4,7 @@ import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { Model } from './Model';
 
-export const GET_MOST_RECENT_REGISTRATIONS_QUERY = `
+const GET_MOST_RECENT_REGISTRATIONS_QUERY = `
   (
     SELECT id
     FROM (
@@ -87,10 +87,11 @@ export class PatientProgramRegistration extends Model {
         exclude: ['id', 'updatedAt', 'updatedAtSyncTick'],
       },
       where: {
-        id: { [Op.in]: Sequelize.literal(GET_MOST_RECENT_REGISTRATIONS_QUERY) },
         programRegistryId,
         patientId,
       },
+      order: [['date', 'DESC']],
+      limit: 1,
       raw: true,
     });
 
@@ -99,6 +100,16 @@ export class PatientProgramRegistration extends Model {
       programRegistryId,
       ...(existingRegistration ?? {}),
       ...restOfUpdates,
+    });
+  }
+
+  static async getMostRecentRegistrationsForPatient(patientId) {
+    return this.sequelize.models.PatientProgramRegistration.findAll({
+      where: {
+        id: { [Op.in]: Sequelize.literal(GET_MOST_RECENT_REGISTRATIONS_QUERY) },
+        patientId,
+      },
+      // Order: TODO
     });
   }
 }

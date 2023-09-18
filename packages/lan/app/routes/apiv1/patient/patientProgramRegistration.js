@@ -2,7 +2,6 @@ import { Op } from 'sequelize';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { NotFoundError } from '@tamanu/shared/errors';
-import { GET_MOST_RECENT_REGISTRATIONS_QUERY } from '@tamanu/shared/models/PatientProgramRegistration';
 
 export const patientProgramRegistration = express.Router();
 
@@ -15,13 +14,7 @@ patientProgramRegistration.get(
     req.checkPermission('read', 'PatientProgramRegistration');
     req.checkPermission('list', 'PatientProgramRegistration');
 
-    const registrationData = await models.PatientProgramRegistration.findAll({
-      where: {
-        id: { [Op.in]: db.literal(GET_MOST_RECENT_REGISTRATIONS_QUERY) },
-        patientId: params.id,
-      },
-      // order: TODO
-    });
+    const registrationData = await models.PatientProgramRegistration.getMostRecentRegistrationsForPatient(params.id);
 
     res.send({ data: registrationData });
   }),
