@@ -44,10 +44,9 @@ export class CentralServerConnection {
   // test mocks don't always apply properly - this ensures the mock will be used
   fetchImplementation = fetch;
 
-  constructor(ctx, syncConfig = { host: '', timeout: 0, channelBatchSize: 0 }) {
-    this.host = syncConfig.host.trim().replace(/\/*$/, '');
-    this.timeout = syncConfig.timeout;
-    this.batchSize = syncConfig.channelBatchSize;
+  constructor(ctx, { host, timeout }) {
+    this.host = host.trim().replace(/\/*$/, '');
+    this.timeout = timeout;
     this.deviceId = ctx?.deviceId;
     this.settings = ctx?.settings;
   }
