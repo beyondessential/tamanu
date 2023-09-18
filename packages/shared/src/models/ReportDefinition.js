@@ -28,4 +28,8 @@ export class ReportDefinition extends Model {
   static initRelations(models) {
     this.hasMany(models.ReportDefinitionVersion, { as: 'versions' });
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }

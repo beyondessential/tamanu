@@ -77,4 +77,8 @@ export class Permission extends Model {
       ...(objectId ? { objectId } : undefined),
     };
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }
