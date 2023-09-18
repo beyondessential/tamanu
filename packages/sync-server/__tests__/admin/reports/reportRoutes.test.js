@@ -1,8 +1,11 @@
 import path from 'path';
+import config from 'config';
 import { User } from 'shared/models/User';
-import { REPORT_VERSION_EXPORT_FORMATS, REPORT_DB_ROLES } from '@tamanu/constants/reports';
+import { REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
 import { createTestContext, withDate } from '../../utilities';
 import { readJSON, sanitizeFilename, verifyQuery } from '../../../app/admin/reports/utils';
+
+const { reportingRoles } = config.db;
 
 describe('reportRoutes', () => {
   let ctx;
@@ -11,15 +14,17 @@ describe('reportRoutes', () => {
   let adminApp;
   let testReport;
   let user;
+  let dbRole;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.store.models;
     adminApp = await baseApp.asRole('admin');
+    dbRole = reportingRoles.raw;
     testReport = await models.ReportDefinition.create({
       name: 'Test Report',
-      dbRole: REPORT_DB_ROLES.RAW,
+      dbRole,
     });
     user = await User.create({
       displayName: 'Test User',
@@ -119,7 +124,6 @@ describe('reportRoutes', () => {
   });
 
   describe('POST /reports', () => {
-    const dbRole = REPORT_DB_ROLES.RAW;
     it('should create a report', async () => {
       const name = 'Test Report 2';
       const { ReportDefinition, ReportDefinitionVersion } = models;
@@ -249,7 +253,6 @@ describe('reportRoutes', () => {
   });
 
   describe('POST /reports/import', () => {
-    const dbRole = REPORT_DB_ROLES.RAW;
     it('should not create a version if dry run', async () => {
       const res = await adminApp.post(`/v1/admin/reports/import`).send({
         file: path.join(__dirname, '/data/without-version-number.json'),

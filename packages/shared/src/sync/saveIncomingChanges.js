@@ -1,6 +1,9 @@
 import { Op } from 'sequelize';
 import config from 'config';
 import asyncPool from 'tiny-async-pool';
+
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
+
 import { sortInDependencyOrder } from '../models/sortInDependencyOrder';
 import { log } from '../services/logging/log';
 import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
@@ -8,8 +11,11 @@ import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
 import { mergeRecord } from './mergeRecord';
 import { SYNC_SESSION_DIRECTION } from './constants';
 
-const { persistedCacheBatchSize } = config.sync;
-const UPDATE_WORKER_POOL_SIZE = 100;
+const {
+  persistedCacheBatchSize,
+  pauseBetweenPersistedCacheBatchesInMilliseconds,
+  persistUpdateWorkerPoolSize,
+} = config.sync;
 
 const saveCreates = async (model, records) => {
   // can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
@@ -36,7 +42,7 @@ const saveUpdates = async (model, incomingRecords, idToExistingRecord, isCentral
       })
     : // on the facility server, trust the resolved central server version
       incomingRecords;
-  await asyncPool(UPDATE_WORKER_POOL_SIZE, recordsToSave, async r =>
+  await asyncPool(persistUpdateWorkerPoolSize, recordsToSave, async r =>
     model.update(r, { where: { id: r.id } }),
   );
 };
@@ -109,7 +115,14 @@ const saveChangesForModelInBatches = async (
     fromId = batchRecords[batchRecords.length - 1].id;
 
     try {
+      log.info('Sync: Persisting cache to table', {
+        table: model.tableName,
+        count: batchRecords.length,
+      });
+
       await saveChangesForModel(model, batchRecords, isCentralServer);
+
+      await sleepAsync(pauseBetweenPersistedCacheBatchesInMilliseconds);
     } catch (error) {
       log.error(`Failed to save changes for ${model.name}`);
       throw error;

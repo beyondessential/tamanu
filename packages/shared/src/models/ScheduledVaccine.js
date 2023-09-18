@@ -41,4 +41,8 @@ export class ScheduledVaccine extends Model {
       as: 'vaccine',
     });
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }

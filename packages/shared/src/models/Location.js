@@ -120,4 +120,8 @@ export class Location extends Model {
     }
     return LOCATION_AVAILABILITY_STATUS.AVAILABLE;
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }

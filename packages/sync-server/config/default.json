@@ -15,6 +15,10 @@
       // "idle": 10000,
       // "acquire": 60000,
       // "evict": 1000
+    },
+    "reportingRoles": {
+      "raw": "tamanu_raw_reporting",
+      "dataset": "tamanu_dataset_reporting"
     }
   },
   "updateUrls": {
@@ -35,9 +39,11 @@
   "sync": {
     "readOnly": false,
     "persistedCacheBatchSize": 20000,
+    "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "adjustDataBatchSize": 20000,
     "syncAllEncountersForTheseVaccines": [],
     "numberConcurrentPullSnapshots": 4,
+    "persistUpdateWorkerPoolSize": 5,
     // at its very large default, maxRecordsPerPullSnapshotChunk is essentially "off"
     // can be turned on by lowering to some amount that seems appropriate if snapshot performance is an issue
     "maxRecordsPerPullSnapshotChunk": 1000000000
@@ -649,6 +655,11 @@
         "onlyAllowLabPanels": false,
         "displayProcedureCodesInDischargeSummary": true,
         "displayIcd10CodesInDischargeSummary": true,
+        "tableAutoRefresh": {
+          "enabled": false,
+          // In Seconds
+          "interval": 300
+        },
         "mandatoryVitalEditReason": false,
         "enableVitalEdit": false
       },

@@ -1,5 +1,5 @@
+import { AsyncLocalStorage } from 'async_hooks';
 import { Sequelize } from 'sequelize';
-import { createNamespace } from 'cls-hooked';
 import pg from 'pg';
 import util from 'util';
 
@@ -16,10 +16,15 @@ createDateTypes();
 
 // this allows us to use transaction callbacks without manually managing a transaction handle
 // https://sequelize.org/master/manual/transactions.html#automatically-pass-transactions-to-all-queries
-// done once for all sequelize objects
-const namespace = createNamespace('sequelize-transaction-namespace');
+// done once for all sequelize objects. Instead of cls-hooked we use the built-in AsyncLocalStorage.
+const asyncLocalStorage = new AsyncLocalStorage();
 // eslint-disable-next-line react-hooks/rules-of-hooks
-Sequelize.useCLS(namespace);
+Sequelize.useCLS({
+  bind: () => {}, // compatibility with cls-hooked, not used by sequelize
+  get: id => asyncLocalStorage.getStore()?.get(id),
+  set: (id, value) => asyncLocalStorage.getStore()?.set(id, value),
+  run: callback => asyncLocalStorage.run(new Map(), callback),
+});
 
 // this is dangerous and should only be used in test mode
 const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
@@ -173,8 +178,8 @@ export async function initDatabase(dbOptions) {
     }
   });
 
-  // add isInsideTransaction helper to avoid exposing the namespace
-  sequelize.isInsideTransaction = () => !!namespace.get('transaction');
+  // add isInsideTransaction helper to avoid exposing the asynclocalstorage
+  sequelize.isInsideTransaction = () => !!asyncLocalStorage.getStore();
 
   return { sequelize, models };
 }

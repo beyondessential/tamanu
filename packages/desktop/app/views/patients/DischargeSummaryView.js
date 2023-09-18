@@ -20,7 +20,7 @@ import { getDisplayAge } from '../../utils/dateTime';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { useLocalisation } from '../../contexts/Localisation';
 import {
-  usePatientAdditionalData,
+  usePatientAdditionalDataQuery,
   usePatientConditions,
   useReferenceData,
 } from '../../api/queries';
@@ -165,7 +165,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
 
   const patient = useSelector(state => state.patient);
   const { data: village } = useReferenceData(patient.villageId);
-  const { data: patientAdditionalData, isLoading: isPADLoading } = usePatientAdditionalData(
+  const { data: patientAdditionalData, isLoading: isPADLoading } = usePatientAdditionalDataQuery(
     patient.id,
   );
   const { data: patientConditionsData } = usePatientConditions(patient.id);

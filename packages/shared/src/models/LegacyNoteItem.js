@@ -60,5 +60,5 @@ export class LegacyNoteItem extends Model {
     });
   }
 
-  static buildSyncFilter = buildNoteItemLinkedSyncFilter;
+  static buildPatientSyncFilter = buildNoteItemLinkedSyncFilter;
 }
