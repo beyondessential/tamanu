@@ -14,6 +14,5 @@ export const VersionInfo = ({ version }) => (
       )}`}
     />
     <InfoCardItem label="Created by" value={version.createdBy?.displayName} />
-    <InfoCardItem label="DB Role" value={version.reportDefinition.dbRole} />
   </InfoCard>
 );
