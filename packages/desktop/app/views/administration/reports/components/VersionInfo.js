@@ -1,4 +1,5 @@
 import React from 'react';
+import { capitalize } from 'lodash';
 import { DateDisplay, formatShortest, formatTime } from '../../../../components';
 import { InfoCard, InfoCardItem } from '../../../../components/InfoCard';
 
@@ -14,5 +15,6 @@ export const VersionInfo = ({ version }) => (
       )}`}
     />
     <InfoCardItem label="Created by" value={version.createdBy?.displayName} />
+    <InfoCardItem label="Db role" value={capitalize(version.reportDefinition?.dbRole)} />
   </InfoCard>
 );

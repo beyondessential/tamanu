@@ -19,6 +19,7 @@ reportsRouter.get(
       `SELECT rd.id,
         rd.name,
         rd.created_at AS "createdAt",
+        rd.db_role AS "dbRole",
         max(rdv.updated_at) AS "lastUpdated",
         max(rdv.version_number) AS "versionCount"
     FROM report_definitions rd

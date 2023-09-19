@@ -1,10 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
+import { REPORT_DB_ROLES } from '@tamanu/constants/reports';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import { useApi } from '../../../api';
 import { ReportTable, VersionTable } from './ReportTables';
+import { useAuth } from '../../../contexts/Auth';
 
 const FlexContainer = styled.div`
   padding: 20px;
@@ -19,6 +21,7 @@ const VersionsTableContainer = styled.div`
 export const SelectReportView = () => {
   const api = useApi();
   const dispatch = useDispatch();
+  const { ability } = useAuth();
 
   const [report, setReport] = useState(null);
 
@@ -26,7 +29,7 @@ export const SelectReportView = () => {
     dispatch(push(`/admin/reports/${report.id}/versions/${id}/edit`));
   };
 
-  const { data: reportData = [], isLoading: isReportLoading, error: reportError } = useQuery(
+  const { data: reportList = [], isLoading: isReportLoading, error: reportError } = useQuery(
     ['reportList'],
     () => api.get('admin/reports'),
   );
@@ -40,10 +43,15 @@ export const SelectReportView = () => {
     },
   );
 
+  const canEditRawReports = ability?.can('write', 'ReportDbRole');
+  const filteredReportList = canEditRawReports
+    ? reportList
+    : reportList.filter(reportData => reportData.dbRole !== REPORT_DB_ROLES.RAW);
+
   return (
     <FlexContainer>
       <ReportTable
-        data={reportData}
+        data={filteredReportList}
         selected={report?.id}
         onRowClick={setReport}
         loading={isReportLoading}
