@@ -69,7 +69,7 @@ const getFieldsToWrite = (models, questions, answers) => {
     }
 
     const value = answers[dataElement.id];
-    const { modelName, fieldName } = getDbLocation(models, configFieldName);
+    const { modelName, fieldName } = getDbLocation(configFieldName);
     if (!recordValuesByModel[modelName]) recordValuesByModel[modelName] = {};
     recordValuesByModel[modelName][fieldName] = value;
   }
