@@ -31,8 +31,7 @@ async function createPatientIssues(models, questions, patientId) {
   }
 }
 
-const getDbLocation = (models, fieldName) => {
-  // First check the manually defined fields
+const getDbLocation = fieldName => {
   for (const [modelName, fieldMappings] of Object.entries(PATIENT_DATA_FIELD_LOCATIONS)) {
     if (fieldMappings[fieldName])
       return {
@@ -40,14 +39,6 @@ const getDbLocation = (models, fieldName) => {
         fieldName: fieldMappings[fieldName],
       };
   }
-
-  // If not, assume that the field is on either of the "direct" patient data models
-  for (const modelName of ['Patient', 'PatientAdditionalData']) {
-    if (Object.keys(models[modelName].getAttributes()).includes(fieldName)) {
-      return { modelName, fieldName };
-    }
-  }
-
   throw new Error(`Unknown fieldName: ${fieldName}`);
 };
 
