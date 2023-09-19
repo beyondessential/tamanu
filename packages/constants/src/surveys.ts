@@ -85,6 +85,8 @@ export const VITAL_CHARTS = {
   [PDE_AVPU]: LINE,
 };
 
+// Note each 2nd level key should only appear once.
+// (i.e. don't add `LabTest.firstName`, because it conflicts with `Patient.firstName`)
 export const PATIENT_DATA_FIELD_LOCATIONS = {
   PatientProgramRegistration: {
     registrationClinicalStatus: 'clinicalStatusId',
