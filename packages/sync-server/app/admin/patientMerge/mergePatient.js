@@ -157,7 +157,7 @@ export async function mergePatientBirthData(models, keepPatientId, unwantedPatie
     where: { patientId: keepPatientId },
     raw: true,
   });
-  const mergedPAD = {
+  const mergedPatientBirthData = {
     ...getMergedFieldsForUpdate(existingKeepPatientBirthData, existingUnwantedPatientBirthData),
     patientId: keepPatientId,
   };
@@ -165,7 +165,7 @@ export async function mergePatientBirthData(models, keepPatientId, unwantedPatie
     where: { patientId: { [Op.in]: [keepPatientId, unwantedPatientId] } },
     force: true,
   });
-  return models.PatientBirthData.create(mergedPAD);
+  return models.PatientBirthData.create(mergedPatientBirthData);
 }
 
 export async function mergePatientFieldValues(models, keepPatientId, unwantedPatientId) {

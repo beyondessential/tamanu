@@ -449,13 +449,13 @@ describe('Patient merge', () => {
 
       await mergePatient(models, keep.id, merge.id);
 
-      const newKeepPatientPad = await PatientBirthData.findOne({
+      const newKeepPatientBirthData = await PatientBirthData.findOne({
         where: { patientId: keep.id },
         paranoid: false,
       });
 
-      expect(newKeepPatientPad).toHaveProperty('birthWeight', mergePatientBirthData.birthWeight);
-      expect(newKeepPatientPad).toHaveProperty('patientId', keep.id);
+      expect(newKeepPatientBirthData).toHaveProperty('birthWeight', mergePatientBirthData.birthWeight);
+      expect(newKeepPatientBirthData).toHaveProperty('patientId', keep.id);
     });
 
     it('keeps birth data from the keep patient and fill unknown values from merge patient', async () => {
