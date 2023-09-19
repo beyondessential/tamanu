@@ -49,6 +49,7 @@ export class CentralServerConnection {
     this.timeout = syncConfig.timeout;
     this.batchSize = syncConfig.channelBatchSize;
     this.deviceId = ctx?.deviceId;
+    this.settings = ctx?.settings;
   }
 
   async fetch(endpoint, params = {}) {
