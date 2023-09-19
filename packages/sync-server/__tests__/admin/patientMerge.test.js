@@ -434,7 +434,7 @@ describe('Patient merge', () => {
       );
     });
 
-    it('merges patient birth data even if the keep patient birth data is null', async () => {
+    it('merges Patient Birth Data even if the keep Patient Birth Data is null', async () => {
       const { PatientBirthData } = models;
       const [keep, merge] = await makeTwoPatients();
 
@@ -458,7 +458,7 @@ describe('Patient merge', () => {
       expect(newKeepPatientBirthData).toHaveProperty('patientId', keep.id);
     });
 
-    it('keeps birth data from the keep patient and fill unknown values from merge patient', async () => {
+    it('keeps Patient Birth Data from the keep patient and fill unknown values from merge patient', async () => {
       const { PatientBirthData } = models;
       const [keep, merge] = await makeTwoPatients();
 

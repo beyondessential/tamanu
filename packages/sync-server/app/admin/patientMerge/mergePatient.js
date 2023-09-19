@@ -161,6 +161,8 @@ export async function mergePatientBirthData(models, keepPatientId, unwantedPatie
     ...getMergedFieldsForUpdate(existingKeepPatientBirthData, existingUnwantedPatientBirthData),
     patientId: keepPatientId,
   };
+
+  // hard delete the old patient birth data, we're going to create a new one
   await models.PatientBirthData.destroy({
     where: { patientId: { [Op.in]: [keepPatientId, unwantedPatientId] } },
     force: true,
