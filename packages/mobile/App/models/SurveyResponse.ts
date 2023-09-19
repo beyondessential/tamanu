@@ -190,16 +190,18 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
           answer: answerRecord.id,
         });
       }
-      setNote('Done');
 
       // Save values to database records
       if (Object.keys(patientRecordValues).length) {
+        setNote('Saving patient record values (base)...');
         await Patient.updateValues(patientId, patientRecordValues);
       }
       if (Object.keys(patientAdditionalDataValues).length) {
+        setNote('Saving patient record values (additional data)...');
         await PatientAdditionalData.updateForPatient(patientId, patientAdditionalDataValues);
       }
 
+      setNote('Done');
       return responseRecord;
     } catch (e) {
       setNote(`Error: ${e.message} (${JSON.stringify(e)})`);
