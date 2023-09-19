@@ -107,6 +107,7 @@ jobs:
         with:
           name: ${{ env.BUILD_NAME }}
           path: '${{ env.BUILD_NAME }}.zip'
+          retention-days: 1
 
   windows-zip:
     needs: 
