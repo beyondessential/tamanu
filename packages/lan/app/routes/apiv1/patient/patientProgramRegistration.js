@@ -1,4 +1,3 @@
-import { Op } from 'sequelize';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { NotFoundError } from '@tamanu/shared/errors';
@@ -8,13 +7,15 @@ export const patientProgramRegistration = express.Router();
 patientProgramRegistration.get(
   '/:id/programRegistration',
   asyncHandler(async (req, res) => {
-    const { db, params, models } = req;
+    const { params, models } = req;
 
     req.checkPermission('read', 'Patient');
     req.checkPermission('read', 'PatientProgramRegistration');
     req.checkPermission('list', 'PatientProgramRegistration');
 
-    const registrationData = await models.PatientProgramRegistration.getMostRecentRegistrationsForPatient(params.id);
+    const registrationData = await models.PatientProgramRegistration.getMostRecentRegistrationsForPatient(
+      params.id,
+    );
 
     res.send({ data: registrationData });
   }),
