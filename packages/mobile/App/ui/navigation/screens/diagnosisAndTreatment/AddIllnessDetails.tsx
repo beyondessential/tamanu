@@ -8,8 +8,8 @@ import { Field } from '/components/Forms/FormField';
 import { Spacer } from '/components/Spacer';
 import { SectionHeader } from '/components/SectionHeader';
 import { FullView, StyledView } from '/styled/common';
+import { SubmitButton } from '/components/Forms/SubmitButton';
 import { TextField } from '/components/TextField/TextField';
-import { Button } from '/components/Button';
 import { theme } from '/styled/theme';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import * as Yup from 'yup';
@@ -137,12 +137,10 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                   <Field component={TextField} name="clinicalNote" multiline placeholder="Clinical Note" />
                   <Spacer height="24px" />
                   <CurrentUserField name="examiner" label="Recorded By" />
-                  <Button
+                  <SubmitButton
                     marginTop={screenPercentageToDP(1.22, Orientation.Height)}
                     marginBottom={screenPercentageToDP(1.22, Orientation.Height)}
-                    backgroundColor={theme.colors.PRIMARY_MAIN}
                     onPress={handleSubmit}
-                    buttonText="Submit"
                   />
                 </StyledView>
               </ScrollView>
