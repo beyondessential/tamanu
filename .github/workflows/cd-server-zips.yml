@@ -156,14 +156,9 @@ jobs:
           yarn install --frozen-lockfile --production
 
       - name: Prepare final output
-        shell: bash
-        run: |
-          set -ex
-          ls
-          command -v zip
-          command -v unzip
-          command -v tar
-          zip -r '${{ env.OUTPUT_NAME }}.zip' '${{ env.BUILD_NAME }}'
+        - run: |
+          dir
+          Compress-Archive -Path '${{ env.BUILD_NAME }}'/* -Destination '${{ env.OUTPUT_NAME }}.zip'
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
