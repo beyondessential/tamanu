@@ -54,7 +54,7 @@ jobs:
     name: Build ${{ matrix.package.name }} server zip
     runs-on: ubuntu-latest
     env:
-      OUTPUT_NAME: "test-${{ matrix.package.name }}-${{ needs.info.outputs.version }}-windows"
+      OUTPUT_NAME: "test-2-${{ matrix.package.name }}-${{ needs.info.outputs.version }}-windows"
       S3_PATH: s3://bes-tamanu-release-servers/test/${{ needs.info.outputs.version }}
 
     steps:
