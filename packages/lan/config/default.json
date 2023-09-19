@@ -53,9 +53,15 @@
     "password": "",
     "verbose": false,
     "migrateOnStartup": false,
-    "reportingRoles": {
-      "raw": "tamanu_raw_reporting",
-      "dataset": "tamanu_dataset_reporting"
+    "reportCredentials": {
+      "raw": {
+        "username": "",
+        "password": ""
+      },
+      "dataset": {
+        "username": "",
+        "password": ""
+      }
     }
   },
   "senaite": {
