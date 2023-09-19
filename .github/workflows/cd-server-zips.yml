@@ -145,9 +145,7 @@ jobs:
           
       - name: Unzip artifact for deployment
         shell: bash
-        run: |
-          unzip '${{ env.BUILD_NAME }}.zip'
-          ls
+        run: unzip '${{ env.BUILD_NAME }}.zip'
 
       - name: Reinstall dependencies
         working-directory: ${{ env.BUILD_NAME }}
