@@ -51,11 +51,10 @@ jobs:
           - name: facility
             path: lan
 
-    name: Build ${{ matrix.package.name }} server zip
+    name: Build ${{ matrix.package.name }}
     runs-on: ubuntu-latest
     env:
-      OUTPUT_NAME: "test-2-${{ matrix.package.name }}-${{ needs.info.outputs.version }}-windows"
-      S3_PATH: s3://bes-tamanu-release-servers/test/${{ needs.info.outputs.version }}
+      BUILD_NAME: "${{ matrix.package.name }}-${{ needs.info.outputs.version }}-build"
 
     steps:
       - name: Configure AWS Credentials
@@ -66,8 +65,6 @@ jobs:
           role-session-name: GHA@Tamanu=ServerZips
           mask-aws-account-id: false
 
-      # This is a workaround for https://github.com/aws-actions/amazon-ecr-login not working on windows
-      # Root cause seems to be https://github.com/docker/docker-credential-helpers/issues/190
       - name: Login to ECR
         uses: aws-actions/amazon-ecr-login@v1
 
@@ -83,14 +80,13 @@ jobs:
         run: docker create --name working --platform linux/amd64 ${{ needs.image.outputs.registry }}/tamanu/${{ matrix.package.name }}:${{ needs.info.outputs.version }}-serverzips
 
       - name: Copy files
-        run: docker cp working:/app $OUTPUT_NAME
+        run: docker cp working:/app $BUILD_NAME
 
-      - name: Reinstall dependencies
-        working-directory: ${{ env.OUTPUT_NAME }}
+      - name: Remove dependencies
+        working-directory: ${{ env.BUILD_NAME }}
         run: |
           set -ex
           rm -rf node_modules packages/*/node_modules
-          yarn install --frozen-lockfile --production
 
       - name: Delete container
         run: docker rm working
@@ -101,10 +97,64 @@ jobs:
           ls packages/${{ matrix.package.path }}/config
           sed -E \
             "s|cwd: '.',( //.*)?|cwd: 'packages/${{ matrix.package.path }}',|" \
-            packages/${{ matrix.package.path }}/pm2.config.js > ${{ env.OUTPUT_NAME }}/pm2.config.js
+            packages/${{ matrix.package.path }}/pm2.config.js > ${{ env.BUILD_NAME }}/pm2.config.js
 
       - name: Prepare final output
-        run: zip -r '${{ env.OUTPUT_NAME }}.zip' '${{ env.OUTPUT_NAME }}'
+        run: zip -r '${{ env.BUILD_NAME }}.zip' '${{ env.BUILD_NAME }}'
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.BUILD_NAME }}
+          path: '${{ env.BUILD_NAME }}.zip'
+
+  windows-zip:
+    needs: 
+      - info
+      - image
+      - build
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - name: central
+            path: sync-server
+          - name: facility
+            path: lan
+
+    name: Build ${{ matrix.package.name }} windows zip
+    runs-on: windows-latest
+    env:
+      BUILD_NAME: "${{ matrix.package.name }}-${{ needs.info.outputs.version }}-build"
+      OUTPUT_NAME: "test-2-${{ matrix.package.name }}-${{ needs.info.outputs.version }}-windows"
+      S3_PATH: s3://bes-tamanu-release-servers/test/${{ needs.info.outputs.version }}
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.BUILD_NAME }}
+          
+      - name: unzip artifact for deployment
+        shell: bash
+        run: unzip '${{ env.BUILD_NAME }}.zip'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+
+      - name: Reinstall dependencies
+        working-directory: ${{ env.BUILD_NAME }}
+        shell: bash
+        run: |
+          set -ex
+          yarn install --frozen-lockfile --production
+
+      - name: Prepare final output
+        shell: bash
+        run: zip -r '${{ env.OUTPUT_NAME }}.zip' '${{ env.BUILD_NAME }}'
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
