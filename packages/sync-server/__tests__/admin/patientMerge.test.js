@@ -484,10 +484,22 @@ describe('Patient merge', () => {
         paranoid: false,
       });
 
-      expect(newKeepPatientBirthData).toHaveProperty('birthWeight', keepPatientBirthData.birthWeight);
-      expect(newKeepPatientBirthData).toHaveProperty('apgarScoreOneMinute', mergePatientBirthData.apgarScoreOneMinute);
-      expect(newKeepPatientBirthData).toHaveProperty('apgarScoreFiveMinutes', mergePatientBirthData.apgarScoreFiveMinutes);
-      expect(newKeepPatientBirthData).toHaveProperty('apgarScoreTenMinutes', mergePatientBirthData.apgarScoreTenMinutes);
+      expect(newKeepPatientBirthData).toHaveProperty(
+        'birthWeight',
+        keepPatientBirthData.birthWeight,
+      );
+      expect(newKeepPatientBirthData).toHaveProperty(
+        'apgarScoreOneMinute',
+        mergePatientBirthData.apgarScoreOneMinute,
+      );
+      expect(newKeepPatientBirthData).toHaveProperty(
+        'apgarScoreFiveMinutes',
+        mergePatientBirthData.apgarScoreFiveMinutes,
+      );
+      expect(newKeepPatientBirthData).toHaveProperty(
+        'apgarScoreTenMinutes',
+        mergePatientBirthData.apgarScoreTenMinutes,
+      );
     });
   });
 

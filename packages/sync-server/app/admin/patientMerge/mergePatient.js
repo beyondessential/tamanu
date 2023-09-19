@@ -314,7 +314,11 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
     }
 
     // Only keep 1 PatientBirthData
-    const updatedPatientBirthData = await mergePatientBirthData(models, keepPatientId, unwantedPatientId);
+    const updatedPatientBirthData = await mergePatientBirthData(
+      models,
+      keepPatientId,
+      unwantedPatientId,
+    );
     if (updatedPatientBirthData) {
       updates.PatientBirthData = 1;
     }
