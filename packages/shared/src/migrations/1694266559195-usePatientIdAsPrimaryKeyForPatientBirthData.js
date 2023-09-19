@@ -26,6 +26,8 @@ export async function down(query) {
     defaultValue: Sequelize.fn('uuid_generate_v4'), // using uuid_generate_v4 here
   });
   await query.changeColumn('patient_birth_data', 'id', {
+    type: Sequelize.STRING,
+    allowNull: false,
     defaultValue: null,
   });
 
