@@ -44,10 +44,8 @@ export class CentralServerConnection {
   // test mocks don't always apply properly - this ensures the mock will be used
   fetchImplementation = fetch;
 
-  constructor(ctx, syncConfig = { host: '', timeout: 0, channelBatchSize: 0 }) {
-    this.host = syncConfig.host.trim().replace(/\/*$/, '');
-    this.timeout = syncConfig.timeout;
-    this.batchSize = syncConfig.channelBatchSize;
+  constructor(ctx, { host = '' }) {
+    this.host = host.trim().replace(/\/*$/, '');
     this.deviceId = ctx?.deviceId;
     this.settings = ctx?.settings;
   }
@@ -81,6 +79,9 @@ export class CentralServerConnection {
     const url = `${this.host}/${API_VERSION}/${endpoint}`;
     log.debug(`[sync] ${method} ${url}`);
 
+    const syncSettings = await this.settings.get('sync');
+    const backoffSettings = backoff || syncSettings.backoff;
+
     return callWithBackoff(async () => {
       if (config.debugging.requestFailureRate) {
         if (Math.random() < config.debugging.requestFailureRate) {
@@ -102,7 +103,7 @@ export class CentralServerConnection {
               ...headers,
             },
             body: body && JSON.stringify(body),
-            timeout: this.timeout,
+            timeout: syncSettings.timeout,
             ...otherParams,
           },
           this.fetchImplementation,
@@ -152,7 +153,7 @@ export class CentralServerConnection {
         }
         throw e;
       }
-    }, backoff);
+    }, backoffSettings);
   }
 
   async pollUntilTrue(endpoint) {
