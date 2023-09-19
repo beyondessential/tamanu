@@ -49,10 +49,10 @@ const DATE_RANGE_OPTIONS = REPORT_DEFAULT_DATE_RANGES_VALUES.map(value => ({
   value,
 }));
 
-const DB_ROLE_OPTIONS = [
-  { label: 'Dataset', value: REPORT_DB_ROLES.DATASET },
-  { label: 'Raw', value: REPORT_DB_ROLES.RAW },
-];
+const DB_ROLE_OPTIONS = Object.values(REPORT_DB_ROLES).map(value => ({
+  label: capitalize(value),
+  value,
+}));
 
 const generateDefaultParameter = () => ({
   id: Math.random(),
