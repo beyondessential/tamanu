@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, REPORT_DB_ROLES } from '@tamanu/constants';
 import { Model } from './Model';
 
 export class ReportDefinition extends Model {
@@ -15,6 +15,10 @@ export class ReportDefinition extends Model {
         dbRole: {
           type: Sequelize.STRING,
           allowNull: false,
+          defaultValue: REPORT_DB_ROLES.DATASET,
+          validate: {
+            isIn: [Object.values(REPORT_DB_ROLES)],
+          },
         },
       },
       {
