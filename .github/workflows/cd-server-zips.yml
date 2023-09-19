@@ -156,7 +156,7 @@ jobs:
           yarn install --frozen-lockfile --production
 
       - name: Prepare final output
-        - run: |
+        run: |
           dir
           Compress-Archive -Path '${{ env.BUILD_NAME }}'/* -Destination '${{ env.OUTPUT_NAME }}.zip'
 
