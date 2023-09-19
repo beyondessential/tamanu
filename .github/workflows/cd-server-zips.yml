@@ -139,6 +139,8 @@ jobs:
         shell: bash
         run: unzip '${{ env.BUILD_NAME }}.zip'
 
+      - uses: actions/checkout@v3
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
