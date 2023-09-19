@@ -158,7 +158,7 @@ jobs:
       - name: Prepare final output
         run: |
           dir
-          Compress-Archive -Path '${{ env.BUILD_NAME }}'/* -Destination '${{ env.OUTPUT_NAME }}.zip'
+          Compress-Archive -Path '${{ env.BUILD_NAME }}' -Destination '${{ env.OUTPUT_NAME }}.zip'
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
