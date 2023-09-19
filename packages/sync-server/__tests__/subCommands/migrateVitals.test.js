@@ -24,6 +24,9 @@ jest.mock('../../app/database', () => ({
       Survey: {
         findOne: jest.fn().mockResolvedValue({ dataValues: { id: 'vitals-survey' } }),
       },
+      Setting: {
+        get: jest.fn(),
+      },
       SurveyResponse: {
         bulkCreate: jest.fn(),
       },
