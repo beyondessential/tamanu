@@ -57,7 +57,7 @@ const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
       throw new Error('No fieldName defined for writeToPatient config');
     }
 
-    const value = answers[dataElement.id];
+    const value = answers[dataElement.code];
     const { modelName, fieldName } = getDbLocation(configFieldName);
     if (!recordValuesByModel[modelName]) recordValuesByModel[modelName] = {};
     recordValuesByModel[modelName][fieldName] = value;
@@ -69,7 +69,7 @@ const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
  * DUPLICATED IN shared/models/SurveyResponse.js
  * Please keep in sync
  */
-async function writeToPatientFields(questions, answers, patientId, surveyId) {
+async function writeToPatientFields(questions, answers, patientId) {
   const valuesByModel = getFieldsToWrite(questions, answers);
 
   if (valuesByModel.Patient) {
