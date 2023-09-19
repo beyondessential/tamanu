@@ -27,7 +27,7 @@ export async function down(query) {
   });
   await query.changeColumn('patient_birth_data', 'id', {
     defaultValue: null,
-});
+  });
 
   await query.sequelize.query(`
     ALTER TABLE patient_birth_data DROP CONSTRAINT patient_birth_data_pkey;
