@@ -1,6 +1,22 @@
 import Sequelize from 'sequelize';
+import config from 'config';
 import { InvalidOperationError } from '@tamanu/shared/errors';
+import { REPORT_DB_ROLES } from '@tamanu/constants/reports';
 import { verifyQuery } from './utils';
+
+const getConfigReportingRole = dbRole => {
+  const {
+    db: { reportingRoles },
+  } = config;
+  switch (dbRole) {
+    case REPORT_DB_ROLES.DATASET:
+      return reportingRoles.dataset;
+    case REPORT_DB_ROLES.RAW:
+      return reportingRoles.raw;
+    default:
+      return null;
+  }
+};
 
 export async function createReportDefinitionVersion(store, reportId, definition, userId) {
   const {
@@ -20,6 +36,7 @@ export async function createReportDefinitionVersion(store, reportId, definition,
     },
     async () => {
       const { name, dbRole, ...definitionVersion } = definition;
+      const configReportingRole = await getConfigReportingRole(dbRole);
       if (!reportId) {
         const existingDefinition = await ReportDefinition.findOne({
           where: { name },
@@ -29,7 +46,8 @@ export async function createReportDefinitionVersion(store, reportId, definition,
           throw new InvalidOperationError('Report name already exists');
         }
       }
-      const reportDefinitionId = reportId || (await ReportDefinition.create({ name, dbRole })).id;
+      const reportDefinitionId =
+        reportId || (await ReportDefinition.create({ name, dbRole: configReportingRole })).id;
       const latestVersion = await ReportDefinitionVersion.findOne({
         where: { reportDefinitionId: reportId },
         attributes: ['versionNumber'],
