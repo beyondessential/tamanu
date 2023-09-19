@@ -59,7 +59,7 @@ export class Survey extends BaseModel implements ISurvey {
 
     const repo = Database.models.SurveyScreenComponent.getRepository();
     const components = await repo.find({
-      where: { survey: { id: vitalsSurvey.id } },
+      where: { survey: { id: vitalsSurvey.id }, visibilityStatus: null },
       relations: ['dataElement'],
       order: { screenIndex: 'ASC', componentIndex: 'ASC' },
     });

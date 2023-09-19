@@ -9,6 +9,7 @@ export async function getAutocompleteDisplayAnswer(
   const autocompleteComponent = await models.SurveyScreenComponent.findOne({
     where: {
       dataElement: dataElementId,
+      visibilityStatus: null,
     },
   });
   const autocompleteConfig = autocompleteComponent?.getConfigObject();
