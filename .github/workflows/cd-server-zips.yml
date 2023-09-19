@@ -161,13 +161,6 @@ jobs:
           dir
           Compress-Archive -Path '${{ env.BUILD_NAME }}' -Destination '${{ env.OUTPUT_NAME }}.zip'
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: debug
-          path: '${{ env.OUTPUT_NAME }}.zip'
-          retention-days: 1
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
