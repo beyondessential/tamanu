@@ -130,15 +130,6 @@ jobs:
       S3_PATH: s3://bes-tamanu-release-servers/test/${{ needs.info.outputs.version }}
 
     steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ env.BUILD_NAME }}
-          
-      - name: unzip artifact for deployment
-        shell: bash
-        run: unzip '${{ env.BUILD_NAME }}.zip'
-
       - uses: actions/checkout@v3
 
       - name: Set up Node.js
@@ -147,11 +138,22 @@ jobs:
           node-version: 16
           cache: yarn
 
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.BUILD_NAME }}
+          
+      - name: Unzip artifact for deployment
+        shell: bash
+        run: |
+          unzip '${{ env.BUILD_NAME }}.zip'
+          ls
+
       - name: Reinstall dependencies
+        working-directory: ${{ env.BUILD_NAME }}
         shell: bash
         run: |
           set -ex
-          ls
           yarn install --frozen-lockfile --production
 
       - name: Prepare final output
