@@ -152,6 +152,7 @@ jobs:
         shell: bash
         run: |
           set -ex
+          ls
           yarn install --frozen-lockfile --production
 
       - name: Prepare final output
