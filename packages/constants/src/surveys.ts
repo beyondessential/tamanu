@@ -87,6 +87,8 @@ export const VITAL_CHARTS = {
 
 // Note each 2nd level key should only appear once.
 // (i.e. don't add `LabTest.firstName`, because it conflicts with `Patient.firstName`)
+// Please keep in sync with:
+// - mobile/App/constants/surveys
 export const PATIENT_DATA_FIELD_LOCATIONS = {
   PatientProgramRegistration: {
     registrationClinicalStatus: 'clinicalStatusId',

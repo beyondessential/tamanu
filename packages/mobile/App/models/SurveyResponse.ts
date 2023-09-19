@@ -2,9 +2,9 @@ import { Entity, Column, ManyToOne, OneToMany, RelationId } from 'typeorm/browse
 
 import { ISurveyResponse, EncounterType, ICreateSurveyResponse } from '~/types';
 
-import { PATIENT_DATA_FIELD_LOCATIONS } from '@tamanu/constants';
 import { getStringValue, getResultValue, isCalculated, FieldTypes } from '~/ui/helpers/fields';
 
+import { PATIENT_DATA_FIELD_LOCATIONS } from '~/constants';
 import { runCalculations } from '~/ui/helpers/calculations';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
@@ -19,19 +19,8 @@ import { VitalLog } from './VitalLog';
 import { SYNC_DIRECTIONS } from './types';
 import { DateTimeStringColumn } from './DateColumns';
 
-const PATIENT_DATA_FIELD_LOCATIONS = {
-  PatientProgramRegistration: {
-    registrationClinicalStatus: 'clinicalStatusId',
-    programRegistrationStatus: 'registrationStatus',
-    registrationClinician: 'clinicianId',
-    registeringFacility: 'registeringFacilityId',
-    registrationCurrentlyAtVillage: 'villageId',
-    registrationCurrentlyAtFacility: 'facilityId',
-  },
-};
 
 const getDbLocation = fieldName => {
-  // First check the manually defined fields
   for (const [modelName, fieldMappings] of Object.entries(PATIENT_DATA_FIELD_LOCATIONS)) {
     if (fieldMappings[fieldName])
       return {
@@ -39,40 +28,31 @@ const getDbLocation = fieldName => {
         fieldName: fieldMappings[fieldName],
       };
   }
-  
-  // If not, assume that the field is on either of the "direct" patient data models
-  if (Patient.getRepository().metadata.columns.includes(fieldName)) {
-    return { modelName: 'Patient', fieldName };
-  }
-  if (PatientAdditionalData.getRepository().metadata.columns.includes(fieldName)) {
-    return { modelName: 'PatientAdditionalData', fieldName };
-  }
-
   throw new Error(`Unknown fieldName: ${fieldName}`);
 };
 
-/**
- * DUPLICATED IN shared/models/SurveyResponse.js
- * Please keep in sync
- */
-async function writeToPatientFields(questions, answers, patientId) {
-  // these will store values to write to patient records following submission
+type RecordValuesByModel = {
+  Patient?: Record<string, string>,
+  PatientAdditionalData?: Record<string, string>,
+  PatientProgramRegistration?: Record<string, string>,
+}
+
+const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
   const recordValuesByModel = {};
 
   const patientDataQuestions = questions.filter(
     q => q.dataElement.type === FieldTypes.PATIENT_DATA,
   );
-
   for (const question of patientDataQuestions) {
-    const questionConfig = question.getConfigObject();
+    const config = question.getConfigObject();
     const { dataElement } = question;
 
-    if (!questionConfig.writeToPatient) {
+    if (!config.writeToPatient) {
       // this is just a question that's reading patient data, not writing it
       continue;
     }
 
-    const { fieldName: configFieldName } = questionConfig.writeToPatient || {};
+    const { fieldName: configFieldName } = config.writeToPatient || {};
     if (!configFieldName) {
       throw new Error('No fieldName defined for writeToPatient config');
     }
@@ -82,23 +62,26 @@ async function writeToPatientFields(questions, answers, patientId) {
     if (!recordValuesByModel[modelName]) recordValuesByModel[modelName] = {};
     recordValuesByModel[modelName][fieldName] = value;
   }
+  return recordValuesByModel;
+};
 
-  // Save values to database records
-  for (const [modelName, values] of Object.entries(recordValuesByModel)) {
-    switch (modelName) {
-      case 'Patient': {
-        await Patient.updateValues(patientId, values);
-        break;
-      }
-      case 'PatientAdditionalData': {
-        await PatientAdditionalData.updateForPatient(patientId, values);
-        break;
-      }
-      case 'PatientProgramRegistration':
-        throw new Error('Program registrations not yet implemented on mobile');
-      default:
-        throw new Error('Model not recognized');
-    }
+/**
+ * DUPLICATED IN shared/models/SurveyResponse.js
+ * Please keep in sync
+ */
+async function writeToPatientFields(questions, answers, patientId, surveyId) {
+  const valuesByModel = getFieldsToWrite(questions, answers);
+
+  if (valuesByModel.Patient) {
+    await Patient.updateValues(patientId, valuesByModel.Patient);
+  }
+
+  if (valuesByModel.PatientAdditionalData) {
+    await PatientAdditionalData.updateForPatient(patientId, valuesByModel.PatientAdditionalData);
+  }
+
+  if (valuesByModel.PatientProgramRegistration) {
+    throw new Error('Program registrations not yet implemented on mobile');
   }
 }
 
