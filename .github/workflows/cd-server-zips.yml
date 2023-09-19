@@ -165,6 +165,7 @@ jobs:
         with:
           name: debug
           path: '${{ env.OUTPUT_NAME }}.zip'
+          retention-days: 1
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
