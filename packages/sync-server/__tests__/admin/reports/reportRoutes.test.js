@@ -1,6 +1,6 @@
 import path from 'path';
 import { User } from 'shared/models/User';
-import { REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
+import { REPORT_VERSION_EXPORT_FORMATS, REPORT_DB_ROLES } from '@tamanu/constants/reports';
 import { createTestContext, withDate } from '../../utilities';
 import { readJSON, sanitizeFilename, verifyQuery } from '../../../app/admin/reports/utils';
 
@@ -18,7 +18,7 @@ describe('reportRoutes', () => {
     baseApp = ctx.baseApp;
     models = ctx.store.models;
     adminApp = await baseApp.asRole('admin');
-    dbRole = 'raw';
+    dbRole = REPORT_DB_ROLES.RAW;
     testReport = await models.ReportDefinition.create({
       name: 'Test Report',
       dbRole,
