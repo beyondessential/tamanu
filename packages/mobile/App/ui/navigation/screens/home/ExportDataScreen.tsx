@@ -15,7 +15,7 @@ import { Formik } from 'formik';
 import { TextField } from '/components/TextField/TextField';
 import { Checkbox } from '/components/Checkbox';
 import { Field } from '/components/Forms/FormField';
-import { Button } from '/components/Button';
+import { SubmitButton } from '/components/Forms/SubmitButton';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { ExportDataScreenProps } from '/interfaces/Screens/HomeStack/ExportDataScreenProps';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
@@ -81,7 +81,7 @@ export const ExportDataScreen = ({
           height={screenPercentageToDP(10.93, Orientation.Height)}
           background={theme.colors.WHITE}
         >
-          <Button
+          <SubmitButton
             backgroundColor={theme.colors.PRIMARY_MAIN}
             buttonText="Export"
             width={screenPercentageToDP(90.02, Orientation.Width)}
