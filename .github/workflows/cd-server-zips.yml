@@ -157,7 +157,13 @@ jobs:
 
       - name: Prepare final output
         shell: bash
-        run: zip -r '${{ env.OUTPUT_NAME }}.zip' '${{ env.BUILD_NAME }}'
+        run: |
+          set -ex
+          ls
+          command -v zip
+          command -v unzip
+          command -v tar
+          zip -r '${{ env.OUTPUT_NAME }}.zip' '${{ env.BUILD_NAME }}'
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
