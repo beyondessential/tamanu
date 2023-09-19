@@ -148,7 +148,6 @@ jobs:
           cache: yarn
 
       - name: Reinstall dependencies
-        working-directory: ${{ env.BUILD_NAME }}
         shell: bash
         run: |
           set -ex
