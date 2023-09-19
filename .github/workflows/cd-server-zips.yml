@@ -103,14 +103,14 @@ jobs:
             "s|cwd: '.',( //.*)?|cwd: 'packages/${{ matrix.package.path }}',|" \
             packages/${{ matrix.package.path }}/pm2.config.js > ${{ env.OUTPUT_NAME }}/pm2.config.js
 
+      - name: Prepare final output
+        run: zip -r '${{ env.OUTPUT_NAME }}.zip' '${{ env.OUTPUT_NAME }}'
+
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: debug
-          path: '${{ env.OUTPUT_NAME }}'
-
-      - name: Prepare final output
-        run: zip -r '${{ env.OUTPUT_NAME }}.zip' '${{ env.OUTPUT_NAME }}'
+          path: '${{ env.OUTPUT_NAME }}.zip'
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
