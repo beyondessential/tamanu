@@ -19,7 +19,11 @@ import {
   DateTimeField,
 } from 'desktop/app/components/Field';
 import { ageInYears, ageInMonths, ageInWeeks } from '@tamanu/shared/utils/dateTime';
-import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import {
+  PROGRAM_DATA_ELEMENT_TYPES,
+  ACTION_DATA_ELEMENT_TYPES,
+  MULTI_SELECT_FIELD_DELIMITER,
+} from '@tamanu/constants';
 import { joinNames } from './user';
 
 const InstructionField = ({ label, helperText }) => (
@@ -112,7 +116,9 @@ export function checkVisibility(component, values, allComponents) {
 
       if (Array.isArray(answersEnablingFollowUp)) {
         return isMultiSelect
-          ? (value?.split(';') || []).some(selected => answersEnablingFollowUp.includes(selected))
+          ? (value?.split(MULTI_SELECT_FIELD_DELIMITER) || []).some(selected =>
+              answersEnablingFollowUp.includes(selected),
+            )
           : answersEnablingFollowUp.includes(value);
       }
 

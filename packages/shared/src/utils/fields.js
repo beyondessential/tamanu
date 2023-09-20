@@ -1,5 +1,5 @@
 import { inRange } from 'lodash';
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, MULTI_SELECT_FIELD_DELIMITER } from '@tamanu/constants';
 import { log } from '../services/logging';
 
 export function getStringValue(type, value) {
@@ -31,7 +31,7 @@ function compareData(dataType, expected, given) {
       break;
     }
     case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
-      return given.split('; ').includes(expected);
+      return given.split(MULTI_SELECT_FIELD_DELIMITER).includes(expected);
     default:
       if (expected === given) return true;
       break;
@@ -72,7 +72,7 @@ function checkVisibilityCriteria(component, allComponents, values) {
 
       const matchingComponent = allComponents.find(x => x.dataElement?.code === questionCode);
       if (matchingComponent?.dataElement?.type === 'MultiSelect') {
-        const givenValues = values[questionCode].split('; ');
+        const givenValues = values[questionCode].split(MULTI_SELECT_FIELD_DELIMITER);
         return givenValues.includes(answersEnablingFollowUp);
       }
 
