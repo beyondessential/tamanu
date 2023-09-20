@@ -117,7 +117,7 @@ export class SurveyResponse extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds) {
+  static buildPatientSyncFilter(patientIds) {
     if (patientIds.length === 0) {
       return null;
     }
@@ -166,6 +166,7 @@ export class SurveyResponse extends Model {
       // Survey responses will usually have a startTime and endTime and we prefer to use that
       // for the encounter to ensure the times are set in the browser timezone
       startDate: responseData.startTime ? responseData.startTime : getCurrentDateTimeString(),
+      actorId: userId,
     });
 
     return newEncounter.update({
