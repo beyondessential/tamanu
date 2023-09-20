@@ -31,7 +31,6 @@ const TabNavigator = ({
       <Tabs.Navigator>
         <Tabs.Screen
           initialParams={{
-            // surveyId,
             selectedPatient,
           }}
           options={{
@@ -42,7 +41,6 @@ const TabNavigator = ({
         />
         <Tabs.Screen
           initialParams={{
-            // surveyId,
             selectedPatient,
           }}
           options={{
