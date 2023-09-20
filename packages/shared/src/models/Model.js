@@ -125,20 +125,4 @@ export class Model extends sequelize.Model {
   static getIsParanoid() {
     return this.options.paranoid;
   }
-
-  // 'deletedAt' field has became customisable, here manually defines this special column to filter out soft deleted records.
-  static async findAll(options) {
-    const { where = {} } = options || {};
-    // if paranoid is true, it means this model is initialised with 'paranoid = true'
-    if (this.getIsParanoid()) {
-      return super.findAll(options);
-    }
-
-    // null means not deleted.
-    if (!where.hasOwnProperty(this.deletedAtKey)) {
-      where[this.deletedAtKey] = null;
-    }
-
-    return super.findAll({ ...options, where });
-  }
 }

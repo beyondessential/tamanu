@@ -1,5 +1,5 @@
 import { Sequelize, Op } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { parseOrNull } from '../utils/parse-or-null';
 import { log } from '../services/logging';
 import { Model } from './Model';
@@ -84,5 +84,15 @@ export class SurveyScreenComponent extends Model {
       ...values,
       options: parseOrNull(options),
     };
+  }
+
+  // Manually defines the special column to filter out soft deleted records.
+  static async findAll(options) {
+    const { where = {} } = { ...options };
+
+    if (!where.hasOwnProperty(this.deletedAtKey)) {
+      where[this.deletedAtKey] = VISIBILITY_STATUSES.CURRENT;
+    }
+    return super.findAll({ ...options, where });
   }
 }
