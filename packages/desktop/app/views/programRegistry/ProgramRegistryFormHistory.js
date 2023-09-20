@@ -46,7 +46,7 @@ export const ProgramRegistryFormHistory = ({ patientProgramRegistration }) => {
   ];
   return (
     <DataFetchingTable
-      endpoint={`patient/${patientProgramRegistration.id}/programRegistration/${patientProgramRegistration.id}/surveyResponses`}
+      endpoint={`patient/${patientProgramRegistration.patientId}/programRegistration/${patientProgramRegistration.id}/surveyResponses`}
       columns={columns}
       initialSort={{
         orderBy: 'date',
@@ -58,16 +58,12 @@ export const ProgramRegistryFormHistory = ({ patientProgramRegistration }) => {
   );
 };
 
-ProgramRegistryFormHistory.prototype = {
-  patient: PropTypes.shape({
-    id: PropTypes.string,
-  }),
+ProgramRegistryFormHistory.propTypes = {
   patientProgramRegistration: PropTypes.shape({
     id: PropTypes.string,
   }),
 };
 
 ProgramRegistryFormHistory.defaultProps = {
-  patient: null,
   patientProgramRegistration: null,
 };
