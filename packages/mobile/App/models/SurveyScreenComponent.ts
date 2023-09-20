@@ -5,6 +5,7 @@ import { Survey } from './Survey';
 import { ProgramDataElement } from './ProgramDataElement';
 import { ISurveyScreenComponent, SurveyScreenValidationCriteria } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 @Entity('survey_screen_component')
 export class SurveyScreenComponent extends BaseModel implements ISurveyScreenComponent {
@@ -51,7 +52,7 @@ export class SurveyScreenComponent extends BaseModel implements ISurveyScreenCom
   @Column({ nullable: true })
   calculation?: string;
 
-  @Column({ type: 'text' })
+  @Column({ default: VisibilityStatus.Current })
   visibilityStatus: string;
 
   @RelationId(({ dataElement }) => dataElement)
