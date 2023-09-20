@@ -107,6 +107,11 @@ const programRegistry3 = {
 const programRegistries = [programRegistry1.data, programRegistry2.data, programRegistry3.data];
 const patientProgramRegistration = {
   id: 'program_registry_id',
+  patientId: 'patient_id',
+  patient: {
+    id: 'patient_id',
+    name: 'Tareq',
+  },
   date: '2023-08-28T02:40:16.237Z',
   name: 'Hepatitis B',
   programRegistryClinicalStatusId: '1',
@@ -127,7 +132,8 @@ const patientProgramRegistration = {
     code: 'registring_facitlity',
     name: 'Hospital 1',
   },
-  registrationStatus: 'removed',
+  registrationStatus: 'active',
+  // registrationStatus: 'removed',
   removedById: '213123',
   removedBy: {
     id: '213123',
@@ -138,7 +144,8 @@ const patientProgramRegistration = {
 const programRegistryStatusHistories = [
   {
     id: '1',
-    registrationStatus: 'active',
+    registrationStatus: 'removed',
+    // registrationStatus: 'active',
     programRegistryClinicalStatusId: '1',
     programRegistryClinicalStatus: {
       id: '1',
@@ -362,9 +369,11 @@ const dummyApi = {
     console.log(endpoint);
     await sleep(500);
     switch (endpoint) {
-      case 'programRegistration/program_registry_id/clinicalStatuses':
+      // case 'patient/patient_id/programRegistration/program_registry_id/clinicalStatuses':
+      case 'patient/undefined/programRegistration/program_registry_id/clinicalStatuses':
         return getSortedData(programRegistryStatusHistories, options);
-      case 'patient/patient_id/programRegistration/program_registry_id/surveyResponses':
+      // case 'patient/patient_id/programRegistration/program_registry_id/surveyResponses':
+      case 'patient/undefined/programRegistration/program_registry_id/surveyResponses':
         return getSortedData(programRegistryFormHistory, options);
       case 'suggestions/facility':
         return facilities;
@@ -382,7 +391,8 @@ const dummyApi = {
         return programRegistry3;
       case 'patient/patient_id/program-registry':
         return { data: programRegistriesForInfoPaneList };
-      case 'patient/patient_id/programRegistration/program_registry_id':
+      // case 'patient/patient_id/programRegistration/program_registry_id':
+      case 'patient/undefined/programRegistration/undefined':
         return patientProgramRegistration;
     }
   },
@@ -489,7 +499,7 @@ storiesOf('Program Registry', module).add('ProgramRegistryStatusHistory removed 
 
 storiesOf('Program Registry', module).add('ProgramRegistryFormHistory', () => (
   <ApiContext.Provider value={dummyApi}>
-    <ProgramRegistryFormHistory programRegistry={programRegistry1.data} patient={patient} />
+    <ProgramRegistryFormHistory programRegistry={programRegistry1.data} />
   </ApiContext.Provider>
 ));
 //#endregion ProgramRegistryFormHistory

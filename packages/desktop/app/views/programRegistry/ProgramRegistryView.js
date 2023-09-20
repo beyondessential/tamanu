@@ -6,7 +6,7 @@ import { Colors } from '../../constants';
 import { useUrlQueryParams } from '../../hooks';
 import { DisplayPatientRegDetails } from './DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from './ProgramRegistryStatusHistory';
-import { usePatientProgramRegistry } from '../../api/queries/usePatientProgramRegistry';
+import { usePatientProgramRegistration } from '../../api/queries/usePatientProgramRegistration';
 import { ProgramRegistryFormHistory } from './ProgramRegistryFormHistory';
 
 const ViewHeader = styled.div`
@@ -26,10 +26,6 @@ const ViewHeader = styled.div`
 
 const Container = styled.div`
   margin: 20px 20px;
-  // display: flex;
-  // flex-direction: column;
-  // justify-content: space-between;
-  // align-items: center;
 `;
 const Row = styled.div`
   margin: 20px 0px;
@@ -59,12 +55,10 @@ const getFirstCharUpperCase = str => str.charAt(0).toUpperCase() + str.slice(1);
 
 export const ProgramRegistryView = () => {
   const queryParams = useUrlQueryParams();
-  const params = useParams();
   const title = queryParams.get('title');
-  const patientId = params.patiendId || 'patient_id';
-  const programRegistryId = params.programRegistryId || 'program_registry_id';
+  const { patientId, programRegistryId } = useParams();
 
-  const { data, isLoading, isError } = usePatientProgramRegistry(patientId, programRegistryId);
+  const { data, isLoading, isError } = usePatientProgramRegistration(patientId, programRegistryId);
 
   if (isLoading) return <CircularProgress size="5rem" />;
   if (isError) return <p>Program registry &apos;{title || 'Unknown'}&apos; not found.</p>;
@@ -72,7 +66,7 @@ export const ProgramRegistryView = () => {
   return (
     <>
       <ViewHeader>
-        <h1>{title || data.name}</h1>
+        <h1>{data.name}</h1>
         <StatusDiv>
           {data.registrationStatus === 'active' ? <StatusActiveDot /> : <StatusInactiveDot />}
           <b>{getFirstCharUpperCase(data.registrationStatus)}</b>
@@ -86,7 +80,7 @@ export const ProgramRegistryView = () => {
           <ProgramRegistryStatusHistory programRegistry={data} />
         </Row>
         <Row>
-          <ProgramRegistryFormHistory programRegistry={data} patient={{ id: patientId }} />
+          <ProgramRegistryFormHistory programRegistry={data} />
         </Row>
       </Container>
     </>

@@ -76,7 +76,7 @@ export const usePatientNavigation = () => {
     const programRegistryRoute = `${generatePath(PATIENT_PATHS.PROGRAM_REGISTRY, {
       ...params,
       programRegistryId,
-    })}?title=${title}`;
+    })}?title=${encodeURIComponent(title)}`;
     navigate(programRegistryRoute);
   };
   return {
