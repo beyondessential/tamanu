@@ -153,6 +153,21 @@ describe('Programs import', () => {
     );
   });
 
+  it('should error on invalid calculations', async () => {
+    const { didntSendReason, errors, stats } = await doImport({
+      file: 'calculation-validation',
+      dryRun: true,
+    });
+    expect(didntSendReason).toEqual('validationFailed');
+    expect(stats).toMatchObject({
+      Program: { created: 1, updated: 0, errored: 0 },
+      Survey: { created: 1, updated: 0, errored: 0 },
+      ProgramDataElement: { created: 6, updated: 0, errored: 0 },
+      SurveyScreenComponent: { created: 4, updated: 0, errored: 2 }, // 2 invalid calculations
+    });
+    expect(errors.length).toEqual(2);
+  });
+
   it('run validation against question configs', async () => {
     const { didntSendReason, errors, stats } = await doImport({
       file: 'question-validation',

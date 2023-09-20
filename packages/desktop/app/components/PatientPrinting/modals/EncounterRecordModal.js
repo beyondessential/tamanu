@@ -16,7 +16,7 @@ import { useImagingRequests } from '../../../api/queries/useImagingRequests';
 import { useEncounterNotes } from '../../../api/queries/useEncounterNotes';
 import { useEncounterDischarge } from '../../../api/queries/useEncounterDischarge';
 import { useReferenceData } from '../../../api/queries/useReferenceData';
-import { usePatientAdditionalData } from '../../../api/queries/usePatientAdditionalData';
+import { usePatientAdditionalDataQuery } from '../../../api/queries/usePatientAdditionalDataQuery';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { LoadingIndicator } from '../../LoadingIndicator';
 import { Colors } from '../../../constants';
@@ -102,7 +102,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const patientQuery = usePatientData(encounter.patientId);
   const patient = patientQuery.data;
 
-  const padDataQuery = usePatientAdditionalData(patient?.id);
+  const padDataQuery = usePatientAdditionalDataQuery(patient?.id);
   const padData = padDataQuery.data;
 
   const labRequestsQuery = useLabRequests(encounter.id, {

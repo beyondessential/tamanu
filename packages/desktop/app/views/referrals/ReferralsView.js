@@ -1,19 +1,26 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { SURVEY_TYPES } from '@tamanu/constants';
+
 import { useApi } from 'desktop/app/api';
 import { reloadPatient } from 'desktop/app/store/patient';
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';
 import { PatientListingView } from 'desktop/app/views';
 import { FormGrid } from 'desktop/app/components/FormGrid';
-import { SURVEY_TYPES } from '@tamanu/constants';
-
-import { SurveySelector } from '../programs/SurveySelector';
-import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from '../programs/ProgramsPane';
-import { getCurrentUser } from '../../store';
-import { getAnswersFromData, getActionsFromData } from '../../utils';
-import { PATIENT_TABS } from '../../constants/patientPaths';
-import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { usePatientAdditionalDataQuery } from 'desktop/app/api/queries';
+import { ErrorMessage } from 'desktop/app/components/ErrorMessage';
+import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
+import { SurveySelector } from 'desktop/app/views/programs/SurveySelector';
+import {
+  ProgramsPane,
+  ProgramsPaneHeader,
+  ProgramsPaneHeading,
+} from 'desktop/app/views/programs/ProgramsPane';
+import { getCurrentUser } from 'desktop/app/store';
+import { getAnswersFromData, getActionsFromData } from 'desktop/app/utils';
+import { PATIENT_TABS } from 'desktop/app/constants/patientPaths';
+import { usePatientNavigation } from 'desktop/app/utils/usePatientNavigation';
 
 const ReferralFlow = ({ patient, currentUser }) => {
   const api = useApi();
@@ -56,6 +63,18 @@ const ReferralFlow = ({ patient, currentUser }) => {
     navigateToPatient(patient.id, { tab: PATIENT_TABS.REFERRALS });
   };
 
+  const { isLoading, data: patientAdditionalData, isError, error } = usePatientAdditionalDataQuery(
+    patient.id,
+  );
+
+  if (isLoading) {
+    return <LoadingIndicator />;
+  }
+
+  if (isError) {
+    return <ErrorMessage title="Error" error={error} />;
+  }
+
   if (!referralSurvey) {
     return (
       <ProgramsPane>
@@ -80,6 +99,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
       survey={referralSurvey}
       onCancel={unsetReferral}
       patient={patient}
+      patientAdditionalData={patientAdditionalData}
       currentUser={currentUser}
     />
   );

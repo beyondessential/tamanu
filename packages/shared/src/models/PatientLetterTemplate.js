@@ -44,4 +44,8 @@ export class PatientLetterTemplate extends Model {
   static getListReferenceAssociations() {
     return ['createdBy'];
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }
