@@ -26,10 +26,14 @@ const StatusBadge = styled.div`
   color: ${props => STATUS_COLOR[props.color].color};
 `;
 export const ProgramRegistryStatusHistory = ({ programRegistry }) => {
-  const { data, isLoading } = useProgramRegistryClinicalStatus(programRegistry.id, {
-    orderBy: 'date',
-    order: 'asc',
-  });
+  const { data, isLoading } = useProgramRegistryClinicalStatus(
+    programRegistry.patientId,
+    programRegistry.id,
+    {
+      orderBy: 'date',
+      order: 'asc',
+    },
+  );
 
   const columns = useMemo(() => {
     const removedOnce = (data ? data.data : []).some(

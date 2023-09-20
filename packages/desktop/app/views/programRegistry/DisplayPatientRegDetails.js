@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Avatar } from '@material-ui/core';
 import { Colors, STATUS_COLOR, PROGRAM_REGISTRATION_STATUSES } from '../../constants/index';
 import { DateDisplay } from '../../components/DateDisplay';
 import { programsIcon } from '../../constants/images';
-import { GreyOutlinedButton } from '../../components/Button';
+import { OutlinedButton } from '../../components/Button';
 import { MenuButton } from '../../components/MenuButton';
+import { ChangeStatusFormModal } from './ChangeStatusFormModal';
+import { ActivateProgramRegistryFormModal } from './ActivateProgramRegistryFormModal';
+import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
+import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 
 const DisplayContainer = styled.div`
   display: flex;
@@ -65,7 +69,7 @@ const MenuContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: end;
+  justify-content: flex-end;
   .menu {
     border-radius: 100px;
     background-color: ${Colors.hoverGrey};
@@ -89,6 +93,17 @@ const ValueDisplay = ({ label, value }) => (
 );
 
 export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
+  const [openChangeStatusFormModal, setOpenChangeStatusFormModal] = useState(false);
+  const [openDeleteProgramRegistryFormModal, setOpenDeleteProgramRegistryFormModal] = useState(
+    false,
+  );
+  const [openActivateProgramRegistryFormModal, setOpenActivateProgramRegistryFormModal] = useState(
+    false,
+  );
+  const [openRemoveProgramRegistryFormModal, setOpenRemoveProgramRegistryFormModal] = useState(
+    false,
+  );
+
   const isRemoved =
     patientProgramRegistration.registrationStatus === PROGRAM_REGISTRATION_STATUSES.REMOVED;
   return (
@@ -127,7 +142,20 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
         >
           {patientProgramRegistration.programRegistryClinicalStatus.name}
         </StatusBadge>
-        <GreyOutlinedButton>Change Status</GreyOutlinedButton>
+        <OutlinedButton onClick={() => setOpenChangeStatusFormModal(true)}>
+          Change Status
+        </OutlinedButton>
+        <ChangeStatusFormModal
+          onSubmit={() => {
+            // console.log(data);
+            setOpenChangeStatusFormModal(false);
+          }}
+          onCancel={() => {
+            setOpenChangeStatusFormModal(false);
+          }}
+          programRegistry={patientProgramRegistration}
+          open={openChangeStatusFormModal}
+        />
       </ChangeStatusContainer>
       <MenuContainer>
         <div className="menu">
@@ -135,17 +163,47 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
             actions={
               isRemoved
                 ? {
-                    Remove: () => {},
-                    Delete: () => {},
+                    Activate: () => setOpenActivateProgramRegistryFormModal(true),
+                    Delete: () => setOpenDeleteProgramRegistryFormModal(true),
                   }
                 : {
-                    Activate: () => {},
-                    Delete: () => {},
+                    Remove: () => setOpenRemoveProgramRegistryFormModal(true),
+                    Delete: () => setOpenDeleteProgramRegistryFormModal(true),
                   }
             }
           />
         </div>
       </MenuContainer>
+      <ActivateProgramRegistryFormModal
+        open={openActivateProgramRegistryFormModal}
+        programRegistry={patientProgramRegistration}
+        onSubmit={() => {
+          setOpenActivateProgramRegistryFormModal(false);
+        }}
+        onCancel={() => {
+          setOpenActivateProgramRegistryFormModal(false);
+        }}
+      />
+      <RemoveProgramRegistryFormModal
+        open={openRemoveProgramRegistryFormModal}
+        programRegistry={patientProgramRegistration}
+        onSubmit={() => {
+          setOpenRemoveProgramRegistryFormModal(false);
+        }}
+        onCancel={() => {
+          setOpenRemoveProgramRegistryFormModal(false);
+        }}
+      />
+      <DeleteProgramRegistryFormModal
+        open={openDeleteProgramRegistryFormModal}
+        programRegistry={patientProgramRegistration}
+        onSubmit={() => {
+          setOpenDeleteProgramRegistryFormModal(false);
+        }}
+        onCancel={() => {
+          setOpenDeleteProgramRegistryFormModal(false);
+        }}
+      />
     </DisplayContainer>
   );
 };

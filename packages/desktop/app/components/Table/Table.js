@@ -211,10 +211,7 @@ const StatusTableCell = styled(StyledTableCell)`
 const Row = React.memo(
   ({ rowIndex, columns, data, onClick, cellOnChange, lazyLoading, rowStyle, refreshTable }) => {
     const cells = columns.map(
-      (
-        { key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput },
-        cIndex,
-      ) => {
+      ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
         const onChange = cellOnChange ? event => cellOnChange(event, key, rowIndex, data) : null;
         const value = accessor
           ? React.createElement(accessor, { refreshTable, onChange, ...data, rowIndex })
@@ -223,7 +220,7 @@ const Row = React.memo(
         const backgroundColor = typeof cellColor === 'function' ? cellColor(data) : cellColor;
         return (
           <StyledTableCell
-            key={!!key ? key : cIndex}
+            key={key}
             onClick={dontCallRowInput ? preventInputCallback : undefined}
             background={backgroundColor}
             align={numeric ? 'right' : 'left'}
