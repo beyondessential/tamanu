@@ -11,6 +11,7 @@ import {
   SurveyTypes,
 } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 @Entity('survey')
 export class Survey extends BaseModel implements ISurvey {
@@ -59,7 +60,7 @@ export class Survey extends BaseModel implements ISurvey {
 
     const repo = Database.models.SurveyScreenComponent.getRepository();
     const components = await repo.find({
-      where: { survey: { id: vitalsSurvey.id }, visibilityStatus: null },
+      where: { survey: { id: vitalsSurvey.id }, visibilityStatus: VisibilityStatus.Current },
       relations: ['dataElement'],
       order: { screenIndex: 'ASC', componentIndex: 'ASC' },
     });

@@ -13,8 +13,7 @@ export class addVisibilityStatusToSurveyScreenComponents1695096053000
       new TableColumn({
         name: 'visibilityStatus',
         type: 'varchar',
-        isNullable: true,
-        default: null,
+        default: 'current',
       }),
     );
   }

@@ -2,6 +2,7 @@ import { camelCase, lowerCase, lowerFirst, startCase, upperFirst } from 'lodash'
 import { Op } from 'sequelize';
 import { ValidationError as YupValidationError } from 'yup';
 import config from 'config';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { ForeignkeyResolutionError, UpsertionError, ValidationError } from './errors';
 import { statkey, updateStat } from './stats';
@@ -38,6 +39,35 @@ function loadExisting(Model, id) {
 
   return Model.findByPk(id, { paranoid: false });
 }
+
+const destroyRecord = async (Model, record) => {
+  const isParanoid = Model.getIsParanoid();
+  if (isParanoid) {
+    await record.destroy();
+  } else {
+    await record.update({ [Model.deletedAtKey]: VISIBILITY_STATUSES.HISTORICAL });
+  }
+};
+
+const restoreRecord = async (Model, record) => {
+  const isParanoid = Model.getIsParanoid();
+  if (isParanoid) {
+    await record.restore();
+  } else {
+    await record.update({ [Model.deletedAtKey]: VISIBILITY_STATUSES.CURRENT });
+  }
+};
+
+const valuesIsHistorical = (Model, values) => {
+  const isParanoid = Model.getIsParanoid();
+  if (isParanoid) {
+    return !!values.deletedAt;
+  }
+
+  const { deletedAtKey } = Model;
+
+  return values[deletedAtKey] === VISIBILITY_STATUSES.HISTORICAL;
+};
 
 export async function importRows(
   { errors, log, models },
@@ -184,38 +214,19 @@ export async function importRows(
     return stats;
   }
 
-  const destroyRecord = async (Model, record) => {
-    const isParanoid = Model.getIsParanoid();
-    if (isParanoid) {
-      await record.destroy();
-    } else {
-      await record.update({ [Model.deletedAtKey]: 'historical' });
-    }
-  };
-
-  const restoreRecord = async (Model, record) => {
-    const isParanoid = Model.getIsParanoid();
-    if (isParanoid) {
-      await record.restore();
-    } else {
-      await record.update({ [Model.deletedAtKey]: null });
-    }
-  };
-
   log.debug('Upserting database rows', { rows: validRows.length });
   for (const { model, sheetRow, values } of validRows) {
     const Model = models[model];
     const primaryKey = getPrimaryKey(model, values);
     const existing = await loadExisting(Model, primaryKey);
-    const { deletedAtKey } = Model;
 
     try {
       if (existing) {
-        if (values[deletedAtKey]) {
+        if (valuesIsHistorical(Model, values)) {
           await destroyRecord(Model, existing);
           updateStat(stats, statkey(model, sheetName), 'deleted');
         } else {
-          if (existing[deletedAtKey]) {
+          if (valuesIsHistorical(Model, existing)) {
             await restoreRecord(Model, existing);
             updateStat(stats, statkey(model, sheetName), 'restored');
           }

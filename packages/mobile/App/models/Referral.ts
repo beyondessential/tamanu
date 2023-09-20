@@ -5,6 +5,7 @@ import { Encounter } from './Encounter';
 import { SurveyResponse } from './SurveyResponse';
 import { SYNC_DIRECTIONS } from './types';
 import { SurveyScreenComponent } from './SurveyScreenComponent';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 @Entity('referral')
 export class Referral extends BaseModel implements IReferral {
@@ -71,7 +72,9 @@ export class Referral extends BaseModel implements IReferral {
         'screenComponent.dataElementId = dataElement.id and screenComponent.surveyId = survey.id',
       )
       .where('initiatingEncounter.patientId = :patientId', { patientId })
-      .where('screenComponent.visibilityStatus IS NULL')
+      .where('screenComponent.visibilityStatus :visibilityStatus', {
+        visibilityStatus: VisibilityStatus.Current,
+      })
       .orderBy({
         'screenComponent.screenIndex': 'ASC',
         'screenComponent.componentIndex': 'ASC',

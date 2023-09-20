@@ -1,3 +1,5 @@
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
+
 const STATUSES_TO_DELETE = ['deleted', 'hidden', 'historical'];
 
 export function yesOrNo(value) {
@@ -39,8 +41,8 @@ function makeScreen(questions, componentData) {
     const dataElId = `pde-${elementData.code}`;
 
     const translatedVisibilityStatus = STATUSES_TO_DELETE.includes(visibilityStatus.toLowerCase())
-      ? 'historical'
-      : null;
+      ? VISIBILITY_STATUSES.HISTORICAL
+      : VISIBILITY_STATUSES.CURRENT;
 
     return [
       {

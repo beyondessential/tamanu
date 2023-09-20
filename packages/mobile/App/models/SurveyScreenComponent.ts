@@ -51,8 +51,8 @@ export class SurveyScreenComponent extends BaseModel implements ISurveyScreenCom
   @Column({ nullable: true })
   calculation?: string;
 
-  @Column({ nullable: true })
-  visibilityStatus: string | null;
+  @Column({ type: 'text' })
+  visibilityStatus: string;
 
   @RelationId(({ dataElement }) => dataElement)
   dataElementId: string;

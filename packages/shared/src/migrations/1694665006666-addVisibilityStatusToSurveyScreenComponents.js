@@ -3,7 +3,7 @@ import Sequelize from 'sequelize';
 export async function up(query) {
   await query.addColumn('survey_screen_components', 'visibility_status', {
     type: Sequelize.STRING,
-    defaultValue: null,
+    defaultValue: 'current',
   });
 }
 

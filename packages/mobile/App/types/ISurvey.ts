@@ -60,7 +60,7 @@ export interface ISurveyScreenComponent {
   detail?: string;
   options?: string;
   calculation?: string;
-  visibilityStatus?: string | null;
+  visibilityStatus?: string;
   source?: string;
   getConfigObject: () => SurveyScreenConfig;
   getValidationCriteriaObject: () => SurveyScreenValidationCriteria;
