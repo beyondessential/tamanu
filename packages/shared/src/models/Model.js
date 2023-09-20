@@ -28,16 +28,38 @@ export class Model extends sequelize.Model {
       );
     }
     this.syncDirection = syncDirection;
-    if (!timestamps && this.syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC) {
-      throw new Error(
-        'DEV: syncing models should all have createdAt, updatedAt, deletedAt, and updatedAtSyncTick timestamps turned on',
-      );
-    }
+    this.validateSync(timestamps);
     this.usesPublicSchema = schema === undefined || schema === 'public';
   }
 
   static generateId() {
     return Utils.toDefaultValue(this.defaultIdValue);
+  }
+
+  static validateSync(timestamps) {
+    // every syncing model should have timestamps turned on
+    if (!timestamps && this.syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC) {
+      throw new Error(
+        'DEV: syncing models should all have createdAt, updatedAt, deletedAt, and updatedAtSyncTick timestamps turned on',
+      );
+    }
+
+    // every model that syncs from central to facilities (i.e. PULL_FROM_CENTRAL or BIDRIRECTIONAL
+    // sync direction) must implement either buildSyncFilter or buildPatientSyncFilter, to make sure
+    // it is considered
+    // models that sync all records to all facilities (i.e. don't need a sync filter) should
+    // implement buildSyncFilter by returning null
+    if (
+      [SYNC_DIRECTIONS.BIDIRECTIONAL, SYNC_DIRECTIONS.PULL_FROM_CENTRAL].includes(
+        this.syncDirection,
+      ) &&
+      !this.buildSyncFilter &&
+      !this.buildPatientSyncFilter
+    ) {
+      throw new Error(
+        `DEV: ${this.name} syncs from central to facility, and must implement either buildSyncFilter or buildPatientSyncFilter. If it syncs everywhere, simply implement buildSyncFilter and return null.`,
+      );
+    }
   }
 
   forResponse() {

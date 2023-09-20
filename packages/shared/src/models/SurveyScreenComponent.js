@@ -95,4 +95,8 @@ export class SurveyScreenComponent extends Model {
     }
     return super.findAll({ ...options, where });
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }

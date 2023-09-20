@@ -54,9 +54,12 @@ export class Survey extends BaseModel implements ISurvey {
     return ability.can('submit', this);
   }
 
-  static async getVitalsSurvey(): Promise<IVitalsSurvey> {
+  static async getVitalsSurvey(): Promise<IVitalsSurvey | null> {
     const surveyRepo = Database.models.Survey.getRepository();
     const vitalsSurvey = await surveyRepo.findOne({ where: { surveyType: SurveyTypes.Vitals } });
+    if (!vitalsSurvey) {
+      return null;
+    }
 
     const repo = Database.models.SurveyScreenComponent.getRepository();
     const components = await repo.find({

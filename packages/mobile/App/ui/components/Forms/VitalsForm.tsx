@@ -32,13 +32,22 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
-  const [vitalsSurvey, error] = useBackendEffect(({ models: m }) => m.Survey.getVitalsSurvey());
+  const [vitalsSurvey, vitalsError, isVitalsLoading] = useBackendEffect(
+    ({ models: m }) => m.Survey.getVitalsSurvey(),
+  );
+  const [patientAdditionalData, padError, isPadLoading] = useBackendEffect(
+    ({ models: m }) => m.PatientAdditionalData.getRepository().findOne({
+      patient: selectedPatient.id,
+    }),
+    [selectedPatient.id],
+  );
 
+  const error = vitalsError || padError;
+  const isLoading = isVitalsLoading || isPadLoading;
   if (error) {
     return <ErrorScreen error={error} />;
   }
-
-  if (!vitalsSurvey) {
+  if (isLoading) {
     return <LoadingScreen />;
   }
 
@@ -71,6 +80,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   return (
     <SurveyForm
       patient={selectedPatient}
+      patientAdditionalData={patientAdditionalData}
       note={note}
       components={visibleComponents}
       onSubmit={onSubmit}

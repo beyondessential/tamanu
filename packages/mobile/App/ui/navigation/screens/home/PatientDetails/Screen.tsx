@@ -19,7 +19,6 @@ import { theme } from '~/ui/styled/theme';
 import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { UserAvatar } from '~/ui/components/UserAvatar';
-import { Button } from '~/ui/components/Button';
 import {
   GeneralInfo,
   HealthIdentificationRow,
@@ -28,20 +27,9 @@ import {
 } from './CustomComponents';
 
 const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => {
-  // const [reminders, setReminders] = useState(reminderWarnings);
-  // const [editField, setEditField] = useState(false);
-
-  // const changeReminder = useCallback((value: boolean) => {
-  //   setReminders(value);
-  // }, []);
-
   const onNavigateBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
-
-  // const onEditField = useCallback(() => {
-  //   setEditField(!editField);
-  // }, [editField]);
 
   const onEditPatient = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.EditPatient, {
@@ -63,10 +51,6 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
 
   const onEditPatientIssues = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
-  }, [navigation]);
-
-  const onRecordDeath = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.DeceasedStack.Index);
   }, [navigation]);
 
   return (
@@ -112,30 +96,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
         <StyledScrollView background={theme.colors.BACKGROUND_GREY}>
           <GeneralInfo patient={selectedPatient} onEdit={onEditPatient} />
           <AdditionalInfo patient={selectedPatient} onEdit={editPatientAdditionalData} />
-          {/* Not functional yet
-          <NotificationCheckbox value={reminders} onChange={changeReminder} />
-          <FamilyInformation
-            onEdit={onEditField}
-            parentsInfo={parentsInfo}
-          />
-          <OnGoingConditions
-            onEdit={onEditField}
-            ongoingConditions={ongoingConditions}
-          />
-          <FamilyHistory
-            onEdit={onEditField}
-            familyHistory={familyHistory}
-          />
-          <AllergiesList onEdit={onEditField} allergies={allergies} />
-          */}
           <PatientIssues onEdit={onEditPatientIssues} patientId={selectedPatient.id} />
-          <Button
-            paddingLeft={20}
-            paddingRight={20}
-            marginBottom={40}
-            onPress={onRecordDeath}
-            buttonText="Record patient death"
-          />
         </StyledScrollView>
       </FullView>
     </FullView>
