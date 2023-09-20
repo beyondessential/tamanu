@@ -4,7 +4,7 @@ import { DataFetchingTable } from '../../components/Table/DataFetchingTable';
 import { DateDisplay } from '../../components/DateDisplay';
 import { MenuButton } from '../../components/MenuButton';
 
-export const ProgramRegistryFormHistory = ({ patientProgramRegistration, patient }) => {
+export const ProgramRegistryFormHistory = ({ patientProgramRegistration }) => {
   const columns = [
     {
       key: 'date',
@@ -46,7 +46,7 @@ export const ProgramRegistryFormHistory = ({ patientProgramRegistration, patient
   ];
   return (
     <DataFetchingTable
-      endpoint={`patient/${patient.id}/programRegistration/${patientProgramRegistration.id}/surveyResponses`}
+      endpoint={`patient/${patientProgramRegistration.id}/programRegistration/${patientProgramRegistration.id}/surveyResponses`}
       columns={columns}
       initialSort={{
         orderBy: 'date',
@@ -58,7 +58,7 @@ export const ProgramRegistryFormHistory = ({ patientProgramRegistration, patient
   );
 };
 
-ProgramRegistryFormHistory.propTypes = {
+ProgramRegistryFormHistory.prototype = {
   patient: PropTypes.shape({
     id: PropTypes.string,
   }),

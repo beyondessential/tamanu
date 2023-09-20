@@ -29,4 +29,8 @@ export class Program extends Model {
       foreignKey: 'programId',
     });
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }

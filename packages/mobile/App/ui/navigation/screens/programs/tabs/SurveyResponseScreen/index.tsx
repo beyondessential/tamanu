@@ -27,13 +27,20 @@ export const SurveyResponseScreen = ({
 
   const [note, setNote] = useState('');
 
-  const [survey, surveyError] = useBackendEffect(
+  const [survey, surveyError, isSurveyLoading] = useBackendEffect(
     ({ models }) => models.Survey.getRepository().findOne(surveyId),
   );
 
-  const [components, componentsError] = useBackendEffect(
+  const [components, componentsError, areComponentsLoading] = useBackendEffect(
     () => survey && survey.getComponents(),
     [survey],
+  );
+
+  const [patientAdditionalData, padError, isPadLoading] = useBackendEffect(
+    ({ models }) => models.PatientAdditionalData.getRepository().findOne({
+      patient: selectedPatient.id,
+    }),
+    [selectedPatient.id],
   );
 
   const user = useSelector(authUserSelector);
@@ -78,15 +85,14 @@ export const SurveyResponseScreen = ({
     [survey, components],
   );
 
-  if (surveyError) {
-    return <ErrorScreen error={surveyError} />;
+  const error = surveyError || componentsError || padError;
+  // due to how useBackendEffect works we need to stay in the loading state for queries which depend
+  // on other data, like the query for components
+  const isLoading = !survey || isSurveyLoading || areComponentsLoading || isPadLoading;
+  if (error) {
+    return <ErrorScreen error={error} />;
   }
-
-  if (componentsError) {
-    return <ErrorScreen error={componentsError} />;
-  }
-
-  if (!survey || !components) {
+  if (isLoading) {
     return <LoadingScreen />;
   }
 
@@ -95,6 +101,7 @@ export const SurveyResponseScreen = ({
       <FullView>
         <SurveyForm
           patient={selectedPatient}
+          patientAdditionalData={patientAdditionalData}
           note={note}
           components={components}
           onSubmit={onSubmit}

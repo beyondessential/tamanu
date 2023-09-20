@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Avatar } from '@material-ui/core';
 import { Colors, STATUS_COLOR, PROGRAM_REGISTRATION_STATUSES } from '../../constants/index';
 import { DateDisplay } from '../../components/DateDisplay';
 import { programsIcon } from '../../constants/images';
+import { OutlinedButton } from '../../components/Button';
 import { MenuButton } from '../../components/MenuButton';
+import { ChangeStatusFormModal } from './ChangeStatusFormModal';
+import { ActivateProgramRegistryFormModal } from './ActivateProgramRegistryFormModal';
+import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
+import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import { ChangeStatusFormModal } from './ChangeStatusFormModal';
 import { ActivateProgramRegistryFormModal } from './ActivateProgramRegistryFormModal';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
@@ -68,6 +74,7 @@ const MenuContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: flex-end;
   justify-content: flex-end;
   .menu {
     border-radius: 100px;
@@ -151,8 +158,12 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
                 ? {
                     Activate: () => setOpenActivateProgramRegistryFormModal(true),
                     Delete: () => setOpenDeleteProgramRegistryFormModal(true),
+                    Activate: () => setOpenActivateProgramRegistryFormModal(true),
+                    Delete: () => setOpenDeleteProgramRegistryFormModal(true),
                   }
                 : {
+                    Remove: () => setOpenRemoveProgramRegistryFormModal(true),
+                    Delete: () => setOpenDeleteProgramRegistryFormModal(true),
                     Remove: () => setOpenRemoveProgramRegistryFormModal(true),
                     Delete: () => setOpenDeleteProgramRegistryFormModal(true),
                   }

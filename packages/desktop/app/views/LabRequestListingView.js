@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import {
   TopBar,
@@ -11,12 +12,16 @@ import { LabRequestsTable } from './LabRequestsTable';
 import { LabRequestSearchParamKeys, useLabRequest } from '../contexts/LabRequest';
 import { useEncounter } from '../contexts/Encounter';
 
+const StyledContentPane = styled(ContentPane)`
+  position: relative;
+`;
+
 const LabRequestListing = ({ status = '', searchParamKey = LabRequestSearchParamKeys.All }) => {
   const { loadEncounter } = useEncounter();
   const { loadLabRequest, searchParameters } = useLabRequest(searchParamKey);
 
   return (
-    <ContentPane>
+    <StyledContentPane>
       <SearchTableTitle>Lab request search</SearchTableTitle>
       <LabRequestsSearchBar status={status} />
       <LabRequestsTable
@@ -25,7 +30,7 @@ const LabRequestListing = ({ status = '', searchParamKey = LabRequestSearchParam
         searchParameters={searchParameters}
         status={status}
       />
-    </ContentPane>
+    </StyledContentPane>
   );
 };
 

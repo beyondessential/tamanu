@@ -66,4 +66,8 @@ export class Facility extends Model {
       as: 'markedForSyncPatients',
     });
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }

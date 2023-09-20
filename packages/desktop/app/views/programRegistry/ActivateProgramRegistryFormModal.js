@@ -11,7 +11,7 @@ import { useAuth } from '../../contexts/Auth';
 import { Modal } from '../../components/Modal';
 
 export const ActivateProgramRegistryFormModal = React.memo(
-  ({ onCancel, onSubmit, editedObject, patient, patientProgramRegistration, open }) => {
+  ({ onCancel, onSubmit, editedObject, patientProgramRegistration, open }) => {
     const { currentUser, facility } = useAuth();
     const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
       baseQueryParameters: { programId: patientProgramRegistration.id },
@@ -29,7 +29,7 @@ export const ActivateProgramRegistryFormModal = React.memo(
           onSubmit={data => {
             onSubmit({
               ...data,
-              patientId: patient.id,
+              patientId: patientProgramRegistration.patientId,
               programRegistryId: patientProgramRegistration.id,
             });
           }}
@@ -100,7 +100,6 @@ ActivateProgramRegistryFormModal.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
   editedObject: PropTypes.shape({}),
-  patient: PropTypes.shape({}).isRequired,
   patientProgramRegistration: PropTypes.shape({ id: PropTypes.string }).isRequired,
   open: PropTypes.bool.isRequired,
 };

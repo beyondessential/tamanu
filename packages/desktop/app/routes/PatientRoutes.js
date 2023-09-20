@@ -77,7 +77,7 @@ export const usePatientRoutes = () => {
           ],
         },
         {
-          path: `${PATIENT_PATHS.PROGRAM_REGISTRY}`,
+          path: PATIENT_PATHS.PROGRAM_REGISTRY,
           component: ProgramRegistryView,
           navigateTo: programRegistry => navigateToProgramRegistry(programRegistry.id),
           title: queryParams.get('title'),

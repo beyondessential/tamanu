@@ -23,7 +23,7 @@ const InfoDiv = styled.div`
   border-radius: 5px;
 `;
 
-const InfoColum = styled.div`
+const InfoColumn = styled.div`
   display: flex;
   width: 50%;
   flex-direction: column;
@@ -62,7 +62,7 @@ export const RemoveProgramRegistryFormModal = ({
         </WarningDiv>
 
         <InfoDiv>
-          <InfoColum>
+          <InfoColumn>
             <Info>
               <Label>Program registry</Label>
               <Value>{patientProgramRegistration.name}</Value>
@@ -77,8 +77,8 @@ export const RemoveProgramRegistryFormModal = ({
               <Label>Registering facility</Label>
               <Value>{patientProgramRegistration.registeringFacility.name}</Value>
             </Info>
-          </InfoColum>
-          <InfoColum>
+          </InfoColumn>
+          <InfoColumn>
             <Info>
               <Label>Status</Label>
               <Value>{patientProgramRegistration.programRegistryClinicalStatus.name}</Value>
@@ -87,7 +87,7 @@ export const RemoveProgramRegistryFormModal = ({
               <Label>Registered by</Label>
               <Value>{patientProgramRegistration.clinician.displayName}</Value>
             </Info>
-          </InfoColum>
+          </InfoColumn>
         </InfoDiv>
         <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />
         <ConfirmCancelRow onConfirm={onSubmit} onCancel={onCancel} />
