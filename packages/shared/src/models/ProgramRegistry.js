@@ -59,4 +59,7 @@ export class ProgramRegistry extends Model {
       as: 'patientProgramRegistrations',
     });
   }
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }
