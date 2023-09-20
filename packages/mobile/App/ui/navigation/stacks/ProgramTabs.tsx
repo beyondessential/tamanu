@@ -2,7 +2,7 @@ import React, { ReactElement, useCallback } from 'react';
 import { NavigationProp } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';
 import { compose } from 'redux';
-import { ProgramViewHistoryScreen } from '../screens/programs/tabs/ProgramViewHistoryScreen';
+import { ProgramViewHistoryScreen } from '../screens/programs/ProgramViewHistoryScreen';
 import { StackHeader } from '/components/StackHeader';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
 import { withPatient } from '/containers/Patient';

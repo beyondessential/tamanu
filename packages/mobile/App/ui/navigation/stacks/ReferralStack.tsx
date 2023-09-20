@@ -4,7 +4,7 @@ import { ReferralScreen } from './ReferralScreen';
 import { SurveyResponseDetailsScreen } from '../screens/programs/SurveyResponseDetailsScreen';
 import { Routes } from '/helpers/routes';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
-import { SurveyResponseScreen } from '../screens/programs/tabs/SurveyResponseScreen';
+import { SurveyResponseScreen } from '../screens/programs/SurveyResponseScreen';
 import { SurveyTypes } from '~/types';
 import { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
 import { PatientStateProps } from '~/ui/store/ducks/patient';

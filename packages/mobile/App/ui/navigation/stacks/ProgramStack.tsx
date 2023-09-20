@@ -5,7 +5,7 @@ import { Routes } from '/helpers/routes';
 import { ProgramTabs } from './ProgramTabs';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { SurveyListScreen } from '../screens/programs/SurveyListScreen';
-import { SurveyResponseScreen } from '../screens/programs/tabs/SurveyResponseScreen';
+import { SurveyResponseScreen } from '../screens/programs/SurveyResponseScreen';
 
 const Stack = createStackNavigator();
 
