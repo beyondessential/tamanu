@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { log } from 'shared/services/logging';
 import { initDatabase } from '../../database';
@@ -7,14 +8,23 @@ const camelToSnakeCase = str => str.replace(/[A-Z]/g, letter => `_${letter.toLow
 
 const fromSurveyScreenComponent = async () => {
   const store = await initDatabase({ testMode: false });
+  const deletedAtKey = camelToSnakeCase(store.models.SurveyScreenComponent.deletedAtKey);
 
   const response = await store.sequelize.query(
-    `UPDATE "survey_screen_components" SET "deleted_at" = NULL, "${camelToSnakeCase(
-      store.models.SurveyScreenComponent.deletedAtKey,
-    )}" = 'historical' WHERE "deleted_at" IS NOT NULL`,
+    `UPDATE "survey_screen_components" SET "deleted_at" = NULL, "${deletedAtKey}" = '${VISIBILITY_STATUSES.HISTORICAL}' WHERE "deleted_at" IS NOT NULL`,
   );
 
-  log.info(`${response[1].rowCount} records updated at survey_screen_components table`);
+  log.info(
+    `${response[1].rowCount} soft deleted records updated at survey_screen_components table`,
+  );
+
+  const response2 = await store.sequelize.query(
+    `UPDATE "survey_screen_components" SET "${deletedAtKey}" = '${VISIBILITY_STATUSES.CURRENT}' WHERE "deleted_at" IS NULL AND "${deletedAtKey}" IS NULL`,
+  );
+
+  log.info(
+    `${response2[1].rowCount} non soft deleted records updated at survey_screen_components table`,
+  );
 };
 
 const TABLE_TO_MIGRATION_MAPPING = {
