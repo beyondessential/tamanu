@@ -31,7 +31,7 @@ export const publicIntegrationRoutes = express.Router();
 
 export const initIntegrations = async ctx => {
   for (const [key, integration] of Object.entries(integrations)) {
-    if (ctx.settings.get(`integrations.${key}.enabled`)) {
+    if (await ctx.settings.get(`integrations.${key}.enabled`)) {
       log.info(`initIntegrations: ${key}: initialising`);
       const { routes, publicRoutes, initAppContext } = integration;
       if (initAppContext) {

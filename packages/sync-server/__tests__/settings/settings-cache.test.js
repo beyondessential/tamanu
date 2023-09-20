@@ -25,6 +25,10 @@ describe('Read Settings - Cache', () => {
 
   afterAll(() => ctx.close());
 
+  beforeEach(() => {
+    settingsCache.reset();
+  });
+
   afterEach(async () => {
     await models.Setting.destroy({ where: {}, force: true });
     settingsCache.reset();
