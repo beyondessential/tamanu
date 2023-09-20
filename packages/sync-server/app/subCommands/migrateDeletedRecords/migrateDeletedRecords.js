@@ -10,6 +10,12 @@ const fromSurveyScreenComponent = async () => {
   const store = await initDatabase({ testMode: false });
   const deletedAtKey = camelToSnakeCase(store.models.SurveyScreenComponent.deletedAtKey);
 
+  // If deleted_at column does not exist
+  if (!store.models.SurveyScreenComponent.rawAttributes.deleted_at) {
+    log.info(`Table 'survey_screen_components' does not have 'deleted_at' column`);
+    return;
+  }
+
   const response = await store.sequelize.query(
     `UPDATE "survey_screen_components" SET "deleted_at" = NULL, "${deletedAtKey}" = '${VISIBILITY_STATUSES.HISTORICAL}' WHERE "deleted_at" IS NOT NULL`,
   );
