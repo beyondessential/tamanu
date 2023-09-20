@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { MULTI_SELECT_FIELD_DELIMITER } from '@tamanu/constants';
 import { format, add, startOfDay, endOfDay } from 'date-fns';
 import { ButtonGroup, IconButton, Typography } from '@material-ui/core';
 import ArrowBackIcon from '@material-ui/icons/KeyboardArrowLeft';
@@ -170,7 +171,7 @@ export const AppointmentsCalendar = () => {
                   setAppointmentType([]);
                   return;
                 }
-                setAppointmentType(e.target.value.split('; '));
+                setAppointmentType(e.target.value.split(MULTI_SELECT_FIELD_DELIMITER));
               }}
               options={appointmentTypeOptions}
             />
