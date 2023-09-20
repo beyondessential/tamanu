@@ -9,7 +9,6 @@ import { verifyToken, stripUser, findUserById } from './utils';
 export const userMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
     const { store, headers } = req;
-
     const { canonicalHostName } = config;
 
     // get token

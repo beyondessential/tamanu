@@ -6,10 +6,10 @@ import {
 import { randomLabRequest } from 'shared/demoData/labRequests';
 import { fake } from 'shared/test-helpers/fake';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
+import { getCurrentDateString } from 'shared/utils/dateTime';
 import { makeVaccineCertificate, makeCovidCertificate } from '../app/utils/makePatientCertificate';
 
 import { createTestContext } from './utilities';
-import { getCurrentDateString } from 'shared/utils/dateTime';
 
 async function prepopulate(models) {
   const lab = await models.ReferenceData.create({
@@ -176,9 +176,12 @@ describe('Certificate', () => {
     await createLabTests();
     const patientRecord = await models.Patient.findByPk(patient.id);
     const printedBy = 'Initial Admin';
-    const result = await makeCovidCertificate('test', patientRecord, printedBy, models, [
-      { foo: 'bar' },
-    ]);
+    const result = await makeCovidCertificate(
+      { models, settings: ctx.settings },
+      'test',
+      patientRecord,
+      printedBy[{ foo: 'bar' }],
+    );
     expect(result.status).toEqual('success');
   });
 

@@ -29,14 +29,16 @@ export const publicIntegrationRoutes = express.Router();
 
 export const initIntegrations = async ctx => {
   for (const [key, integration] of Object.entries(integrations)) {
-    const { enabled, requireClientHeaders } = (await ctx.settings.get(`integrations.${key}`)) || {};
-    if (enabled) {
+    if (await ctx.settings.get(`integrations.${key}.enabled`)) {
       log.info(`initIntegrations: ${key}: initialising`);
       const { routes, publicRoutes, initAppContext } = integration;
       if (initAppContext) {
         await initAppContext(ctx);
       }
       if (routes) {
+        const requireClientHeaders = await ctx.settings.get(
+          `integrations.${key}.requireClientHeaders`,
+        );
         const isRouter = Object.getPrototypeOf(routes) === express.Router;
         const actualRoutes = isRouter ? routes : routes(ctx, requireClientHeaders);
         integrationRoutes.use(`/${key}`, actualRoutes);
