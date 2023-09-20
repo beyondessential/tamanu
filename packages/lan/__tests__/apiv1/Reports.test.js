@@ -1,4 +1,5 @@
 import { fake, disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
+import { REPORT_DB_ROLES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { testReportPermissions, setupReportPermissionsTest } from './reportsApiCommon';
 
@@ -33,6 +34,7 @@ describe('Reports', () => {
       await models.ReportDefinition.create({
         ...fake(models.ReportDefinition),
         name: 'test-report',
+        dbRole: REPORT_DB_ROLES.RAW,
       });
       reportDefinition = await models.ReportDefinitionVersion.create({
         versionNumber: 1,
