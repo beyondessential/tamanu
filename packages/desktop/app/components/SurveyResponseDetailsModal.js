@@ -109,7 +109,9 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
       return {
         id,
         type,
-        answer: isMultiSelectAnswer ? answer.replaceAll(MULTI_SELECT_FIELD_DELIMITER, ', ') : answer,
+        answer: isMultiSelectAnswer
+          ? answer.replaceAll(MULTI_SELECT_FIELD_DELIMITER, ', ')
+          : answer,
         name,
       };
     })

@@ -6,7 +6,7 @@ import {
   REPORT_STATUSES,
   REPORT_DATA_SOURCES,
   REPORT_DEFAULT_DATE_RANGES,
-  MULTI_SELECT_FIELD_DELIMITER
+  MULTI_SELECT_FIELD_DELIMITER,
 } from '@tamanu/constants';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
