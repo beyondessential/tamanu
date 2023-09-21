@@ -49,7 +49,7 @@ export const SyncStateProvider = ({ children }) => {
   // effect to poll sync status while there are pending patient syncs
   useEffect(() => {
     // don't poll if there are no syncing patients
-    if (currentSyncingPatients.length === 0) return null;
+    if (currentSyncingPatients.length === 0) return () => {};
 
     // poll every 2 seconds
     const pollInterval = setInterval(() => {
