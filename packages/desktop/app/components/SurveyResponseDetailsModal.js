@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { PROGRAM_DATA_ELEMENT_TYPES, MULTI_SELECT_FIELD_DELIMITER } from '@tamanu/constants';
 
 import { Modal } from './Modal';
 import { DateDisplay } from './DateDisplay';
@@ -103,11 +104,12 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
       const { dataElement, id } = component;
       const { type, name } = dataElement;
       const answerObject = answers.find(a => a.dataElementId === dataElement.id);
+      const isMultiSelectAnswer = type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
       const answer = answerObject?.body;
       return {
         id,
         type,
-        answer,
+        answer: isMultiSelectAnswer ? answer.replaceAll(MULTI_SELECT_FIELD_DELIMITER, ', ') : answer,
         name,
       };
     })
