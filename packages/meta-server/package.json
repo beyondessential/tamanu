@@ -1,6 +1,6 @@
 {
   "name": "meta-server",
-  "version": "1.33.0",
+  "version": "1.33.1",
   "private": true,
   "description": "Meta server for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
