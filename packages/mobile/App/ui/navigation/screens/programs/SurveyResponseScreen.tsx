@@ -80,6 +80,15 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
           latestResponseId: response.id,
         });
         return;
+      } else {
+        navigation.navigate(
+          Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.ViewHistory,
+          {
+            selectedPatient,
+            latestResponseId: response.id,
+          },
+        );
+        return;
       }
     },
     [survey, components],
