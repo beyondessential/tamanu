@@ -9,14 +9,15 @@ import {
   seedLocations,
   seedLocationGroups,
   seedLabTests,
+  seedSettings,
 } from 'shared/demoData';
+import { ReadSettings } from '@tamanu/settings';
 import { chance, fake, showError } from 'shared/test-helpers';
 
 import { createApp } from 'lan/app/createApp';
 import { initDatabase, closeDatabase } from 'lan/app/database';
 import { getToken } from 'lan/app/middleware/auth';
 
-import { ReadSettings } from '@tamanu/settings';
 import { toMatchTabularReport } from './toMatchTabularReport';
 import { allSeeds } from './seed';
 import { deleteAllTestIds } from './setupUtilities';
@@ -112,17 +113,6 @@ export async function createTestContext() {
   await showError(deleteAllTestIds(dbResult));
 
   // Special case for a global setting located in facility config
-  await models.Setting.create({
-    key: 'survey.defaultCodes.department',
-    value: 'Emergency',
-    scope: 'global',
-  });
-  await models.Setting.create({
-    key: 'survey.defaultCodes.location',
-    value: 'Bed 1',
-    scope: 'global',
-  });
-
   // populate with reference data
   const tasks = allSeeds
     .map(d => ({ code: d.name, ...d }))
@@ -135,6 +125,7 @@ export async function createTestContext() {
   await seedDepartments(models);
   await seedLocations(models);
   await seedLocationGroups(models);
+  await seedSettings(models);
 
   // Create the facility for the current config if it doesn't exist
   const [facility] = await models.Facility.findOrCreate({

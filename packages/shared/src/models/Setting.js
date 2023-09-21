@@ -140,7 +140,7 @@ export class Setting extends Model {
   }
 
   static async set(key, value, facilityId = null, scopeParam) {
-    const scope = scopeParam || facilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.GLOBAL;
+    const scope = scopeParam || (facilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.GLOBAL);
     const records = buildSettingsRecords(key, value, facilityId);
 
     // create or update records

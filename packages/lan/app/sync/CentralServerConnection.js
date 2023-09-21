@@ -57,7 +57,7 @@ export class CentralServerConnection {
       method = 'GET',
       retryAuth = true,
       awaitConnection = true,
-      backoff,
+      backoff: backoffParams,
       ...otherParams
     } = params;
 
@@ -79,12 +79,13 @@ export class CentralServerConnection {
     const url = `${this.host}/${API_VERSION}/${endpoint}`;
     log.debug(`[sync] ${method} ${url}`);
 
-    const syncSettings = await this.settings.get('sync');
-    const backoffSettings = backoff || syncSettings.backoff;
+    const { backoff, timeout } = await this.settings.get('sync');
+    const requestFailureRate = await this.settings.get('debugging.requestFailureRate');
+    const backoffSettings = backoffParams || backoff;
 
     return callWithBackoff(async () => {
-      if (config.debugging.requestFailureRate) {
-        if (Math.random() < config.debugging.requestFailureRate) {
+      if (requestFailureRate) {
+        if (Math.random() < requestFailureRate) {
           // intended to cause some % of requests to fail, to simulate a flaky connection
           throw new Error('Chaos: made your request fail');
         }
@@ -103,7 +104,7 @@ export class CentralServerConnection {
               ...headers,
             },
             body: body && JSON.stringify(body),
-            timeout: syncSettings.timeout,
+            timeout,
             ...otherParams,
           },
           this.fetchImplementation,

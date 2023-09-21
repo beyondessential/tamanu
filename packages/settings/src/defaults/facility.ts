@@ -19,9 +19,10 @@ export const facilityDefaults = {
     // in contrast, logs are always sent
   },
   log: {
-    color: true,
-    consoleLevel: 'http',
     path: '',
+    consoleLevel: 'http',
+    color: true,
+    enableAuditLog: false,
   },
   schedules: {
     medicationDiscontinuer: {

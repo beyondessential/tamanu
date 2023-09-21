@@ -1,5 +1,3 @@
-import config from 'config';
-
 import { log } from 'shared/services/logging';
 import { sleepAsync } from 'shared/utils';
 import { BadAuthenticationError, FacilityAndSyncVersionIncompatibleError } from 'shared/errors';
@@ -16,15 +14,7 @@ const isIrrecoverable = e => {
   );
 };
 
-export const callWithBackoff = async (
-  fn,
-  {
-    // TODO: use db fetcher config
-    maxAttempts = config.sync.backoff.maxAttempts,
-    maxWaitMs = config.sync.backoff.maxWaitMs,
-    multiplierMs = config.sync.backoff.multiplierMs,
-  } = {},
-) => {
+export const callWithBackoff = async (fn, { maxAttempts, maxWaitMs, multiplierMs } = {}) => {
   if (!Number.isFinite(maxAttempts) || maxAttempts < 1) {
     throw new Error(
       `callWithBackoff: maxAttempts must be a finite integer, instead got ${maxAttempts}`,
