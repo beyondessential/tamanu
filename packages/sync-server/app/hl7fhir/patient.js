@@ -1,4 +1,3 @@
-import config from 'config';
 import { format } from 'date-fns';
 import { Op } from 'sequelize';
 import { groupBy, keyBy } from 'lodash';
@@ -15,14 +14,14 @@ import {
 import { modifiers } from './hl7Parameters';
 import { hl7PatientFields } from './hl7PatientFields';
 
-function patientName(patient, additional) {
+function patientName(patient, additional, { nullLastNameValue }) {
   const official = {
     use: 'official',
     prefix: additional.title ? [additional.title] : [],
     // lastName is not a mandatory field in Tamanu, but is in HL7
     // Some patients genuinely do not have last names, so, just send
     // a preconfigured string in this circumstance.
-    family: patient.lastName || config.hl7.nullLastNameValue,
+    family: patient.lastName || nullLastNameValue,
     given: [patient.firstName, patient.middleName].filter(x => x),
   };
 
@@ -39,23 +38,23 @@ function patientName(patient, additional) {
   ];
 }
 
-function patientIds(patient, additional) {
+function patientIds(patient, additional, { assigners, dataDictionaries }) {
   return [
     {
       use: 'usual',
       value: patient.displayId,
       // TODO: use db config fetcher
-      assigner: config.hl7.assigners.patientDisplayId,
-      system: config.hl7.dataDictionaries.patientDisplayId,
+      assigner: assigners.patientDisplayId,
+      system: dataDictionaries.patientDisplayId,
     },
     {
       use: 'secondary',
-      assigner: config.hl7.assigners.patientPassport,
+      assigner: assigners.patientPassport,
       value: additional.passportNumber,
     },
     {
       use: 'secondary',
-      assigner: config.hl7.assigners.patientDrivingLicense,
+      assigner: assigners.patientDrivingLicense,
       value: additional.drivingLicense,
     },
   ].filter(x => x.value);
@@ -88,12 +87,12 @@ function isPatientActive(patient) {
   return false;
 }
 
-const convertPatientToHL7Patient = (patient, additional = {}) => ({
+const convertPatientToHL7Patient = (patient, hl7Settings, additional = {}) => ({
   resourceType: 'Patient',
   id: patient.id,
   active: isPatientActive(patient),
-  identifier: patientIds(patient, additional),
-  name: patientName(patient, additional),
+  identifier: patientIds(patient, additional, hl7Settings),
+  name: patientName(patient, additional, hl7Settings),
   birthDate: patient.dateOfBirth,
   gender: patient.sex,
   address: patientAddress(patient, additional),
@@ -255,8 +254,10 @@ const getPatientLinks = (
 };
 
 export const patientToHL7Patient = async (req, patient, additional = {}) => {
-  const { models } = req.store;
+  const { settings, store } = req;
+  const { models } = store;
   const baseUrl = getBaseUrl(req, false);
+  const hl7Settings = await settings.get('hl7');
   const mergedPatientsByMergedIntoId = await getMergedPatientByMergedIntoId(models);
   const patientById = await getPatientById(models);
   const isRootPatientActive = Boolean(!patient.mergedIntoId);
@@ -267,20 +268,26 @@ export const patientToHL7Patient = async (req, patient, additional = {}) => {
     mergedPatientsByMergedIntoId,
     isRootPatientActive,
   );
-  const hl7Patient = convertPatientToHL7Patient(patient, additional);
+  const hl7Patient = convertPatientToHL7Patient(patient, hl7Settings, additional);
 
   return { ...hl7Patient, ...(links.length ? { link: links } : {}) };
 };
 
 export const patientToHL7PatientList = async (req, patients) => {
-  const { models } = req.store;
+  const { store, settings } = req;
+  const { models } = store;
   const baseUrl = getBaseUrl(req, false);
   const mergedPatientsByMergedIntoId = await getMergedPatientByMergedIntoId(models);
   const patientById = await getPatientById(models);
   const hl7Patients = [];
+  const hl7Settings = await settings.get('hl7');
 
   for (const patient of patients) {
-    const hl7Patient = convertPatientToHL7Patient(patient, patient.additionalData?.[0]);
+    const hl7Patient = convertPatientToHL7Patient(
+      patient,
+      hl7Settings,
+      patient.additionalData?.[0],
+    );
     const isRootPatientActive = Boolean(!patient.mergedIntoId);
     const links = getPatientLinks(
       baseUrl,
