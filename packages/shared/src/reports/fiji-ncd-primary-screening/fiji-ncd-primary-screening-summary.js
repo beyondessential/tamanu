@@ -2,7 +2,6 @@
 
 import { endOfDay, format, parseISO, startOfDay } from 'date-fns';
 import { groupBy, keyBy } from 'lodash';
-import { MULTI_SELECT_FIELD_DELIMITER } from '@tamanu/constants';
 import { toDateTimeString } from '../../utils/dateTime';
 import { generateReportFromQueryData } from '../utilities';
 
@@ -217,11 +216,11 @@ const getData = async (sequelize, parameters) => {
     medicalArea,
     nursingZone,
     division,
-    surveyIds = Object.keys(REFERRAL_SCREENING_FORM_MAPPING).join(MULTI_SELECT_FIELD_DELIMITER),
+    surveyIds = Object.keys(REFERRAL_SCREENING_FORM_MAPPING),
   } = parameters;
 
   let results = [];
-  for (const surveyId of surveyIds.split(MULTI_SELECT_FIELD_DELIMITER)) {
+  for (const surveyId of surveyIds) {
     const resultsForSurvey = await sequelize.query(
       `
         SELECT
@@ -265,7 +264,7 @@ const getTotalPatientsScreened = async (sequelize, parameters) => {
     medicalArea,
     nursingZone,
     division,
-    surveyIds = Object.keys(REFERRAL_SCREENING_FORM_MAPPING).join(MULTI_SELECT_FIELD_DELIMITER),
+    surveyIds = Object.keys(REFERRAL_SCREENING_FORM_MAPPING),
   } = parameters;
 
   const queryFromDate = fromDate && toDateTimeString(startOfDay(parseISO(fromDate)));
@@ -287,7 +286,7 @@ const getTotalPatientsScreened = async (sequelize, parameters) => {
     {
       type: sequelize.QueryTypes.SELECT,
       replacements: {
-        screening_survey_ids: surveyIds.split(MULTI_SELECT_FIELD_DELIMITER),
+        screening_survey_ids: surveyIds,
         referral_survey_id: null,
         from_date: queryFromDate,
         to_date: queryToDate,

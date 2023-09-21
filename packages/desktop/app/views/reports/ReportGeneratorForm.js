@@ -9,6 +9,7 @@ import {
   REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
   REPORT_EXPORT_FORMATS,
+  MULTI_SELECT_FIELD_DELIMITER,
 } from '@tamanu/constants';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useApi } from '../../api';
@@ -130,10 +131,20 @@ export const ReportGeneratorForm = () => {
   const submitRequestReport = async formValues => {
     const { reportId, emails, ...filterValues } = formValues;
 
+    const updatedFilters = Object.fromEntries(
+      Object.entries(filterValues).map(([key, value]) => {
+        const isMultiSelectString = value.includes(MULTI_SELECT_FIELD_DELIMITER);
+        if (isMultiSelectString) {
+          return [key, value.split(MULTI_SELECT_FIELD_DELIMITER)];
+        }
+        return [key, value];
+      }),
+    );
+
     try {
       if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
         const excelData = await api.post(`reports/${reportId}`, {
-          parameters: filterValues,
+          parameters: updatedFilters,
         });
 
         const filterString = Object.entries(filterValues)
@@ -165,7 +176,7 @@ export const ReportGeneratorForm = () => {
       } else {
         await api.post(`reportRequest`, {
           reportId,
-          parameters: filterValues,
+          parameters: updatedFilters,
           emailList: parseEmails(formValues.emails),
           bookType,
         });

@@ -1,5 +1,5 @@
 import { subDays } from 'date-fns';
-import { IMAGING_REQUEST_STATUS_CONFIG, MULTI_SELECT_FIELD_DELIMITER } from '@tamanu/constants';
+import { IMAGING_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
@@ -118,8 +118,6 @@ const getData = async (sequelize, parameters) => {
     statuses,
   } = parameters;
 
-  const selectedStatuses = statuses?.split(MULTI_SELECT_FIELD_DELIMITER) ?? null;
-
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
     replacements: {
@@ -127,8 +125,8 @@ const getData = async (sequelize, parameters) => {
       to_date: toDate ?? null,
       requested_by_id: requestedById ?? null,
       imaging_type: imagingType ?? null,
-      statuses: selectedStatuses,
-      areStatuses: selectedStatuses ? 'true' : null,
+      statuses,
+      areStatuses: statuses ? 'true' : null,
     },
   });
 };
