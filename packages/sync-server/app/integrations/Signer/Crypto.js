@@ -41,7 +41,8 @@ setEngine(
  *
  * @returns The fields to use to create the Signer model.
  */
-export async function newKeypairAndCsr() {
+export async function newKeypairAndCsr(signerSettings) {
+  const { commonName } = signerSettings;
   const { publicKey, privateKey } = await webcrypto.subtle.generateKey(
     {
       name: 'ECDSA',
@@ -51,8 +52,7 @@ export async function newKeypairAndCsr() {
     ['sign', 'verify'],
   );
 
-  // TODO: use db config fetcher
-  const { keySecret, commonName, provider } = config.integrations.signer;
+  const { keySecret, provider } = config.integrations.signer;
 
   const countryCode = (await getLocalisation()).country['alpha-2'];
 
@@ -117,7 +117,12 @@ export async function newKeypairAndCsr() {
  * @param {string} certificate The signed certificate from the CSCA.
  * @returns {object} The fields to load into the relevant Signer.
  */
-export function loadCertificateIntoSigner(certificate, workingPeriod = {}) {
+export function loadCertificateIntoSigner(
+  certificate,
+  workingPeriod = {},
+  vdsNcEnabled = false,
+  euDccEnabled = false,
+) {
   let binCert;
   let txtCert;
   if (typeof certificate === 'string') {
@@ -143,11 +148,10 @@ export function loadCertificateIntoSigner(certificate, workingPeriod = {}) {
   const workingPeriodStart = workingPeriod.start ?? validityPeriodStart;
   let workingPeriodEnd = workingPeriod.end ?? validityPeriodEnd;
   if (!workingPeriod.end) {
-    // TODO: use db config fetcher
-    if (config.integrations.vdsNc?.enabled) {
+    if (vdsNcEnabled) {
       workingPeriodEnd = add(workingPeriodStart, { days: 96 });
     }
-    if (config.integrations.euDcc?.enabled) {
+    if (euDccEnabled) {
       workingPeriodEnd = add(workingPeriodStart, { days: 365 });
     }
   }

@@ -30,13 +30,16 @@ setEngine(
 // essential tool: https://lapo.it/asn1js/
 describe('VDS-NC: Signer cryptography', () => {
   let ctx;
+  let signerSettings;
   beforeAll(async () => {
     ctx = await createTestContext();
+    const { settings } = ctx;
+    signerSettings = await settings.get('integrations.signer');
   });
   afterAll(() => ctx.close());
 
   it('creates a well-formed keypair', async () => {
-    const { publicKey, privateKey } = await newKeypairAndCsr();
+    const { publicKey, privateKey } = await newKeypairAndCsr(signerSettings);
 
     // publicKey: Walk through the expected ASN.1 structure
     //
@@ -160,7 +163,7 @@ describe('VDS-NC: Signer cryptography', () => {
   });
 
   it('creates a well-formed CSR', async () => {
-    const { publicKey, request } = await newKeypairAndCsr();
+    const { publicKey, request } = await newKeypairAndCsr(signerSettings);
 
     // Check the PEM has the borders
     expect(request)
@@ -250,7 +253,8 @@ describe('VDS-NC: Signer cryptography', () => {
   it('saves a new signer in the db correctly', async () => {
     // Arrange
     const { Signer } = ctx.store.models;
-    const { publicKey, privateKey, request } = await newKeypairAndCsr();
+
+    const { publicKey, privateKey, request } = await newKeypairAndCsr(signerSettings);
 
     // Act
     const newSigner = await Signer.create({

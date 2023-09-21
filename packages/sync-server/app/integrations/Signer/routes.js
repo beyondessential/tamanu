@@ -37,10 +37,18 @@ routes.post(
   asyncHandler(async (req, res) => {
     // req.checkPermission('write', 'Signer');
     checkAdmin(req.user);
-    const { Signer } = req.store.models;
-    const { body } = req;
+    const { body, store, settings } = req;
+    const { Signer } = store.models;
 
-    const signerData = await loadCertificateIntoSigner(body.certificate, body.workingPeriod);
+    const vdsNcEnabled = await settings.get('integrations.vdsNc.enabled');
+    const euDccEnabled = await settings.get('integrations.euDcc.enabled');
+
+    const signerData = await loadCertificateIntoSigner(
+      body.certificate,
+      body.workingPeriod,
+      vdsNcEnabled,
+      euDccEnabled,
+    );
     const pending = await Signer.findPending();
 
     if (!pending) {

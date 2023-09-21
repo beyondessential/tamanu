@@ -18,7 +18,7 @@ class MockApplicationContext {
   async init() {
     this.store = await initDatabase({ testMode: true });
     this.settings = new ReadSettings(this.store.models);
-    // Settings must be seeding before integrations are initialised
+    // Settings must be seeded before integrations are initialised
     await seedSettings(this.store.models);
     this.emailService = {
       sendEmail: jest.fn().mockImplementation(() =>

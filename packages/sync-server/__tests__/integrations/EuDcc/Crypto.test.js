@@ -14,9 +14,14 @@ describe('EU DCC: HCERT Formatting', () => {
   let ctx;
   beforeAll(async () => {
     ctx = await createTestContext();
+    const { settings } = ctx;
     const testCSCA = await TestCSCA.generate();
 
-    const { publicKey, privateKey, request } = await newKeypairAndCsr();
+    const vdsNcEnabled = await settings.get('integrations.vdsNc.enabled');
+    const euDccEnabled = await settings.get('integrations.euDcc.enabled');
+    const signerSettings = await settings.get('integrations.signer');
+
+    const { publicKey, privateKey, request } = await newKeypairAndCsr(signerSettings);
 
     const { Signer } = ctx.store.models;
     const signer = await Signer.create({
@@ -26,7 +31,8 @@ describe('EU DCC: HCERT Formatting', () => {
       countryCode: (await getLocalisation()).country['alpha-3'],
     });
     const signerCert = await testCSCA.signCSR(request);
-    const signedCert = await loadCertificateIntoSigner(signerCert);
+
+    const signedCert = await loadCertificateIntoSigner(signerCert, {}, vdsNcEnabled, euDccEnabled);
     await signer.update(signedCert);
     expect(signer?.isActive()).to.be.true;
   });

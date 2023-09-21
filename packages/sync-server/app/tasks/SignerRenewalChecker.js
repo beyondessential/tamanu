@@ -20,7 +20,8 @@ export class SignerRenewalChecker extends ScheduledTask {
   }
 
   async run() {
-    const { Signer } = this.context.store.models;
+    const { settings, store } = this.context;
+    const { Signer } = store.models;
 
     const pending = await Signer.findAll({
       where: {
@@ -71,7 +72,8 @@ export class SignerRenewalChecker extends ScheduledTask {
       }
 
       log.info('Generating new signer CSR');
-      const { publicKey, privateKey, request } = await newKeypairAndCsr();
+      const signerSettings = await settings.get('integrations.signer');
+      const { publicKey, privateKey, request } = await newKeypairAndCsr(signerSettings);
       const newSigner = await Signer.create({
         publicKey: Buffer.from(publicKey),
         privateKey: Buffer.from(privateKey),

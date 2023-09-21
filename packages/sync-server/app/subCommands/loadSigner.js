@@ -4,14 +4,20 @@ import { Command } from 'commander';
 
 import { log } from 'shared/services/logging';
 import { Signer } from 'shared/models';
+import { SettingsReader } from '@tamanu/settings';
 
 import { loadCertificateIntoSigner } from '../integrations/Signer';
 import { initDatabase } from '../database';
 
 async function loadSigner({ signerCertificate }) {
-  await initDatabase({ testMode: false });
+  const { store } = await initDatabase({ testMode: false });
+  const settings = new SettingsReader(store.models);
+
+  const vdsNcEnabled = await settings.get('integrations.vdsNc.enabled');
+  const euDccEnabled = await settings.get('integrations.euDcc.enabled');
+
   const signerFile = await fs.readFile(signerCertificate, 'utf8');
-  const signerData = await loadCertificateIntoSigner(signerFile);
+  const signerData = await loadCertificateIntoSigner(signerFile, {}, vdsNcEnabled, euDccEnabled);
 
   const pending = await Signer.findPending();
 
