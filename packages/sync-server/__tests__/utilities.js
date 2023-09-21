@@ -18,6 +18,8 @@ class MockApplicationContext {
   async init() {
     this.store = await initDatabase({ testMode: true });
     this.settings = new ReadSettings(this.store.models);
+    // Settings must be seeding before integrations are initialised
+    await seedSettings(this.store.models);
     this.emailService = {
       sendEmail: jest.fn().mockImplementation(() =>
         Promise.resolve({
@@ -48,7 +50,6 @@ export async function createTestContext() {
   const expressApp = createApp(ctx);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest.agent(appServer);
-  await seedSettings(models);
   baseApp.set('X-Tamanu-Client', 'Tamanu Desktop');
 
   baseApp.asUser = async user => {
