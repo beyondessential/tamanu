@@ -10,7 +10,7 @@ describe('VRS integration - VRSActionRetrier', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
   });
-  afterAll(async () => ctx.close());
+  afterAll(() => ctx.close());
 
   beforeEach(() => {
     // clear token before each test case

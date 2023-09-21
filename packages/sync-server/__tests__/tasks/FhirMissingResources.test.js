@@ -43,9 +43,7 @@ describe('FhirMissingResources task', () => {
     await FhirServiceRequest.resolveUpstreams();
   });
 
-  afterAll(() => {
-    ctx.close();
-  });
+  afterAll(() => ctx.close());
 
   it('should create one FHIR fromUpstream job if a FHIR resource is missing', async () => {
     const { FhirServiceRequest, FhirJob } = ctx.store.models;
