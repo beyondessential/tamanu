@@ -32,7 +32,8 @@ export const MarkPatientForSync = ({ patient }) => {
   const onMarkPatientForSync = useCallback(async () => {
     const result = await api.post(`patientFacility`, { patientId });
     dispatch(reloadPatient(patientId));
-    syncState.addSyncingPatient(patientId, result.syncTick);
+    console.log(result, result.updatedAtSyncTick);
+    syncState.addSyncingPatient(patientId, result.updatedAtSyncTick);
   }, [patientId, dispatch, api, syncState]);
   return (
     <MarkPatientForSyncButton onClick={onMarkPatientForSync} variant="text" color="default">

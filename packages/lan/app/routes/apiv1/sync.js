@@ -43,7 +43,13 @@ sync.get(
 
     req.flagPermissionChecked(); // no particular permission check for checking sync status
 
-    const lastCompletedSyncTick = parseInt(await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY));
+    const [
+      lastCompletedPull,
+      lastCompletedPush
+     ] = (await Promise.all([
+      'lastSuccessfulSyncPull',
+      'lastSuccessfulSyncPush'
+     ]).map(key => models.LocalSystemFact.get(key))).map(num => parseInt(num));
     const lastCompletedDurationMs = syncManager.lastDurationMs;
     const { lastCompletedAt } = syncManager;
 
@@ -51,7 +57,8 @@ sync.get(
     const currentDuration = isSyncRunning ? new Date().getTime() - syncManager.currentStartTime : 0;
 
     res.send({
-      lastCompletedSyncTick,
+      lastCompletedPull,
+      lastCompletedPush,
       lastCompletedAt,
       lastCompletedDurationMs,
       currentDuration,
