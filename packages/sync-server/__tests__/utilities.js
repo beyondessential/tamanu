@@ -10,6 +10,7 @@ import { getToken } from 'sync-server/app/auth/utils';
 import { DEFAULT_JWT_SECRET } from 'sync-server/app/auth';
 import { initIntegrations } from 'sync-server/app/integrations';
 import { ReadSettings } from '@tamanu/settings';
+import { seedSettings } from '../../shared/src/demoData';
 
 class MockApplicationContext {
   closeHooks = [];
@@ -47,6 +48,7 @@ export async function createTestContext() {
   const expressApp = createApp(ctx);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest.agent(appServer);
+  await seedSettings(models);
   baseApp.set('X-Tamanu-Client', 'Tamanu Desktop');
 
   baseApp.asUser = async user => {
