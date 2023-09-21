@@ -111,6 +111,18 @@ export async function createTestContext() {
 
   await showError(deleteAllTestIds(dbResult));
 
+  // Special case for a global setting located in facility config
+  await models.Setting.create({
+    key: 'survey.defaultCodes.department',
+    value: 'Emergency',
+    scope: 'global',
+  });
+  await models.Setting.create({
+    key: 'survey.defaultCodes.location',
+    value: 'Bed 1',
+    scope: 'global',
+  });
+
   // populate with reference data
   const tasks = allSeeds
     .map(d => ({ code: d.name, ...d }))
