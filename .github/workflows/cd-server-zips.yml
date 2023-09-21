@@ -159,7 +159,7 @@ jobs:
       - name: Prepare final output
         run: |
           dir
-          New-Archive -Name '${{ env.OUTPUT_NAME }}.tar' -Path '${{ env.BUILD_NAME }}' -Format tar
+          tar -cvf '${{ env.OUTPUT_NAME }}.tar' '${{ env.BUILD_NAME }}'
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
