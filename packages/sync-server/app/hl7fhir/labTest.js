@@ -66,7 +66,7 @@ function labTestMethodToHL7Reference(labTestMethod) {
   };
 }
 
-function labTestMethodToHL7Extension(labTestMethod, dataDictionaries) {
+function labTestMethodToHL7Extension(labTestMethod, { dataDictionaries }) {
   const { testMethod } = dataDictionaries;
   if (!labTestMethod) {
     return [];
@@ -91,8 +91,8 @@ function labTestMethodToHL7Extension(labTestMethod, dataDictionaries) {
   ];
 }
 
-export function labTestToHL7DiagnosticReport(labTest, dataDictionaries) {
-  const { labRequestDisplayId } = dataDictionaries;
+export function labTestToHL7DiagnosticReport(labTest, hl7Settings) {
+  const { labRequestDisplayId } = hl7Settings.dataDictionaries;
   const { labTestType, labTestMethod, labRequest } = labTest;
   const { encounter, laboratory } = labRequest;
   const { patient, examiner } = encounter;
@@ -129,7 +129,7 @@ export function labTestToHL7DiagnosticReport(labTest, dataDictionaries) {
       }
       return [{ reference: `Observation/${labTest.id}` }];
     })(),
-    extension: labTestMethodToHL7Extension(labTestMethod, dataDictionaries),
+    extension: labTestMethodToHL7Extension(labTestMethod, hl7Settings),
   };
 }
 

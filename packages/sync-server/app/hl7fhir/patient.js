@@ -43,7 +43,6 @@ function patientIds(patient, additional, { assigners, dataDictionaries }) {
     {
       use: 'usual',
       value: patient.displayId,
-      // TODO: use db config fetcher
       assigner: assigners.patientDisplayId,
       system: dataDictionaries.patientDisplayId,
     },

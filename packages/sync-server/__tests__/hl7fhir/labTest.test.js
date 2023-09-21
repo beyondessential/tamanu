@@ -60,13 +60,13 @@ describe('HL7 Labs', () => {
   let ctx;
   let models;
   let createLabTest;
-  let dataDictionaries;
+  let hl7Settings;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
 
-    dataDictionaries = await ctx.settings.get('hl7.dataDictionaries');
+    hl7Settings = await ctx.settings.get('hl7');
 
     const { method, labTestType } = await prepopulate(models);
 
@@ -132,7 +132,7 @@ describe('HL7 Labs', () => {
 
   it('Should produce valid hl7 data for a DiagnosticReport', async () => {
     const labTest = await createLabTest({});
-    const hl7 = labTestToHL7DiagnosticReport(labTest, dataDictionaries);
+    const hl7 = labTestToHL7DiagnosticReport(labTest, hl7Settings);
     const { result, errors } = validate(hl7);
     expect(errors).toHaveLength(0);
     expect(result).toEqual(true);
@@ -147,7 +147,7 @@ describe('HL7 Labs', () => {
 
     it('Should produce a DiagnosticReport with an empty result', async () => {
       const labTest = await createLabTest({}, { status: LAB_REQUEST_STATUSES.RECEPTION_PENDING });
-      const hl7 = labTestToHL7DiagnosticReport(labTest, dataDictionaries);
+      const hl7 = labTestToHL7DiagnosticReport(labTest, hl7Settings);
       expect(hl7.result).toHaveLength(0);
     });
   });
@@ -185,7 +185,7 @@ describe('HL7 Labs', () => {
       },
     );
 
-    const hl7 = labTestToHL7DiagnosticReport(labTest, dataDictionaries);
+    const hl7 = labTestToHL7DiagnosticReport(labTest, hl7Settings);
     expect(hl7.performer[0]).toHaveProperty('display', 'Test Laboratory');
   });
 
