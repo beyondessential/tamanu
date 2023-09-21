@@ -31,7 +31,7 @@ const useLabRequests = labRequestIds => {
       };
     }),
   });
-  return combineQueries(queries);
+  return combineQueries(queries, { filterNoData: true });
 };
 
 export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {

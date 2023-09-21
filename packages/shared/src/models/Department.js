@@ -46,4 +46,8 @@ export class Department extends Model {
       foreignKey: 'facilityId',
     });
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }
