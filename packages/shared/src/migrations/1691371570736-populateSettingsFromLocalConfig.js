@@ -91,6 +91,8 @@ export async function up(query) {
   const { serverFacilityId = null } = config;
 
   // Tests seed settings after migrations
+  // This is so we don't have to keep config/test.json around to seed settings
+  // Test settings overrides are now defined in @tamanu/settings/test/{SETTINGS_SCOPE}
   if (process.env.NODE_ENV === 'test') return;
 
   // Merge env specific config -> local if exists
