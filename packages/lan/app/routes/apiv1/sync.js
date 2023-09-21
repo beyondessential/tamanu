@@ -49,7 +49,7 @@ sync.get(
      ] = (await Promise.all([
       'lastSuccessfulSyncPull',
       'lastSuccessfulSyncPush'
-     ]).map(key => models.LocalSystemFact.get(key))).map(num => parseInt(num));
+     ].map(key => models.LocalSystemFact.get(key)))).map(num => parseInt(num));
     const lastCompletedDurationMs = syncManager.lastDurationMs;
     const { lastCompletedAt } = syncManager;
 
