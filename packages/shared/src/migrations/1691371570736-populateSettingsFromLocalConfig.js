@@ -93,6 +93,7 @@ export async function up(query) {
   // In the case of facility ci migration test run-through
   // we need to skip this migration as it predates seeding
   // of initial facility and will fail foreign key constraint
+  let skipScoped = false;
   if (process.env.NODE_ENV === 'test' && serverFacilityId) {
     const facility = await query.sequelize.query(
       `
@@ -107,7 +108,9 @@ export async function up(query) {
         type: query.sequelize.QueryTypes.SELECT,
       },
     );
-    if (!facility.length) return;
+    if (!facility.length) {
+      skipScoped = true;
+    }
   }
 
   // Merge env specific config -> local if exists
@@ -127,26 +130,28 @@ export async function up(query) {
     Promise.resolve({}),
   );
 
-  const scopedSettingData = prepareReplacementsForInsert(
-    localConfig,
-    serverFacilityId,
-    serverFacilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.CENTRAL,
-  );
-
-  if (scopedSettingData.length) {
-    // Create the settings for either the facility or central scope
-    await query.sequelize.query(
-      `
-        INSERT INTO settings (key, value, facility_id, scope)
-        VALUES ${scopedSettingData.map(() => '(?)').join(', ')}
-      `,
-      {
-        replacements: scopedSettingData,
-      },
+  if (!skipScoped) {
+    const scopedSettingData = prepareReplacementsForInsert(
+      localConfig,
+      serverFacilityId,
+      serverFacilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.CENTRAL,
     );
+
+    if (scopedSettingData.length) {
+      // Create the settings for either the facility or central scope
+      await query.sequelize.query(
+        `
+          INSERT INTO settings (key, value, facility_id, scope)
+          VALUES ${scopedSettingData.map(() => '(?)').join(', ')}
+          `,
+        {
+          replacements: scopedSettingData,
+        },
+      );
+    }
   }
 
-  if (serverFacilityId) return;
+  if (serverFacilityId && !skipScoped) return;
 
   // Central server only
   // Create the settings for global scope
