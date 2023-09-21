@@ -34,15 +34,15 @@ export const SyncStateProvider = ({ children }) => {
 
   const clearSyncingPatients = useCallback(
     (lastPull, lastPush) => {
-      // To tell if a patient and all the relevant records have been synced, 
+      // To tell if a patient and all the relevant records have been synced,
       // there are 2 things we have to check:
-      // 
-      // 1. If patient_facility has been pushed to central successfully 
-      //    (we can check this by checking if lastPush > the patient_facility's 
+      //
+      // 1. If patient_facility has been pushed to central successfully
+      //    (we can check this by checking if lastPush > the patient_facility's
       //    sync tick, meaning that the patient_facility has been included in the push)
       //
-      // 2. If the pull in the same session as the push of patient_facility in the 
-      //    above point has also finished - meaning that all the records of that 
+      // 2. If the pull in the same session as the push of patient_facility in the
+      //    above point has also finished - meaning that all the records of that
       //    patient have been pulled down (we can check this by checking if
       //    lastSuccessfulSyncPull > lastSuccessfulSyncPush)
       const hasPushedAndPulled = p => lastPush > p.tick && lastPull > lastPush;

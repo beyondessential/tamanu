@@ -1,7 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
+import {
+  LAST_SUCCESSFUL_SYNC_PULL_KEY,
+  LAST_SUCCESSFUL_SYNC_PUSH_KEY,
+} from 'shared/sync/constants';
 
 export const sync = express.Router();
 
@@ -43,13 +46,13 @@ sync.get(
 
     req.flagPermissionChecked(); // no particular permission check for checking sync status
 
-    const [
-      lastCompletedPull,
-      lastCompletedPush
-     ] = (await Promise.all([
-      'lastSuccessfulSyncPull',
-      'lastSuccessfulSyncPush'
-     ].map(key => models.LocalSystemFact.get(key)))).map(num => parseInt(num));
+    const [lastCompletedPull, lastCompletedPush] = (
+      await Promise.all(
+        [LAST_SUCCESSFUL_SYNC_PULL_KEY, LAST_SUCCESSFUL_SYNC_PUSH_KEY].map(key =>
+          models.LocalSystemFact.get(key),
+        ),
+      )
+    ).map(num => parseInt(num));
     const lastCompletedDurationMs = syncManager.lastDurationMs;
     const { lastCompletedAt } = syncManager;
 
