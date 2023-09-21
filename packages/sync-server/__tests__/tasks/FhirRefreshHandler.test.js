@@ -34,6 +34,8 @@ describe('FHIR refresh handler', () => {
     await imagingRequest.setAreas([resources.area1.id, resources.area2.id]);
   });
 
+  afterAll(() => ctx.close());
+
   it('allFromUpstream', async () => {
     await allFromUpstream(
       {
