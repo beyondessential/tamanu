@@ -1,5 +1,5 @@
 import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
-import { LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
+import { LAB_REQUEST_STATUS_CONFIG, MULTI_SELECT_FIELD_DELIMITER } from '@tamanu/constants';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
@@ -154,8 +154,8 @@ const getData = async (sequelize, parameters) => {
     startOfDay(fromDate ? parseISO(fromDate) : subDays(new Date(), 30)),
   );
   const queryToDate = toDate && toDateTimeString(endOfDay(parseISO(toDate)));
-  const selectedStatuses = statuses?.split('; ') ?? null;
-  const selectedLabTestTypes = labTestTypeIds?.split('; ') ?? null;
+  const selectedStatuses = statuses?.split(MULTI_SELECT_FIELD_DELIMITER) ?? null;
+  const selectedLabTestTypes = labTestTypeIds?.split(MULTI_SELECT_FIELD_DELIMITER) ?? null;
 
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
