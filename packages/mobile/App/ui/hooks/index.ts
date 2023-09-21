@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { BackendManager } from '~/services/BackendManager';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 
-export type ResultArray<T> = [T | null, Error | null];
+export type ResultArray<T> = [T | null, Error | null, boolean];
 
 export const useCancelableEffect = <T>(
   fetcher: () => Promise<T> | T,

@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
+import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
@@ -36,5 +36,5 @@ export class PatientFamilyHistory extends Model {
     return ['diagnosis'];
   }
 
-  static buildSyncFilter = buildPatientLinkedSyncFilter;
+  static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
 }
