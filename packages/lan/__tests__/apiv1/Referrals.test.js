@@ -1,4 +1,3 @@
-import config from 'config';
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData';
 import { findOneOrCreate, chance } from 'shared/test-helpers';
 import { createTestContext } from '../utilities';
@@ -62,6 +61,7 @@ function getRandomAnswer(dataElement) {
 
 describe('Referrals', () => {
   let ctx = null;
+  let settings = null;
   let app = null;
   let patient = null;
   let encounter = null;
@@ -71,6 +71,7 @@ describe('Referrals', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
+    settings = ctx.settings;
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
@@ -121,8 +122,7 @@ describe('Referrals', () => {
   });
 
   it('should use the default department if one is not provided', async () => {
-    // Todo use db fetcher
-    const { department: departmentCode } = config.survey.defaultCodes;
+    const departmentCode = await settings.get('survey.defaultCodes.department');
     const department = await findOneOrCreate(ctx.models, ctx.models.Department, {
       code: departmentCode,
     });
@@ -145,8 +145,7 @@ describe('Referrals', () => {
   });
 
   it('should use the default location if one is not provided', async () => {
-    // Todo use db fetcher
-    const { location: locationCode } = config.survey.defaultCodes;
+    const locationCode = await settings.get('survey.defaultCodes.location');
     const location = await findOneOrCreate(ctx.models, ctx.models.Location, { code: locationCode });
 
     const { departmentId } = encounter;
