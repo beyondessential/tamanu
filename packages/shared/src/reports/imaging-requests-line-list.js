@@ -125,7 +125,7 @@ const getData = async (sequelize, parameters) => {
       to_date: toDate ?? null,
       requested_by_id: requestedById ?? null,
       imaging_type: imagingType ?? null,
-      statuses,
+      statuses: statuses ?? null,
       areStatuses: statuses ? 'true' : null,
     },
   });
