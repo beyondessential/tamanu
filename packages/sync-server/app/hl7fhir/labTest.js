@@ -67,13 +67,13 @@ function labTestMethodToHL7Reference(labTestMethod) {
   };
 }
 
-function labTestMethodToHL7Extension(labTestMethod) {
+function labTestMethodToHL7Extension(labTestMethod, dataDictionaries) {
+  const { testMethod } = dataDictionaries;
   if (!labTestMethod) {
     return [];
   }
 
-  // TODO: use db config fetcher
-  const groupNamespace = `${config.hl7.dataDictionaries.testMethod}/covid-test-methods`;
+  const groupNamespace = `${testMethod}/covid-test-methods`;
   const testsNamespace = `${groupNamespace}/rdt`;
 
   return [
@@ -92,7 +92,8 @@ function labTestMethodToHL7Extension(labTestMethod) {
   ];
 }
 
-export function labTestToHL7DiagnosticReport(labTest) {
+export function labTestToHL7DiagnosticReport(labTest, dataDictionaries) {
+  const { labRequestDisplayId } = dataDictionaries;
   const { labTestType, labTestMethod, labRequest } = labTest;
   const { encounter, laboratory } = labRequest;
   const { patient, examiner } = encounter;
@@ -103,8 +104,7 @@ export function labTestToHL7DiagnosticReport(labTest) {
     identifier: [
       {
         use: 'official',
-        // TODO: use db config fetcher
-        system: config.hl7.dataDictionaries.labRequestDisplayId,
+        system: labRequestDisplayId,
         value: labRequest.displayId,
       },
     ],
@@ -130,7 +130,7 @@ export function labTestToHL7DiagnosticReport(labTest) {
       }
       return [{ reference: `Observation/${labTest.id}` }];
     })(),
-    extension: labTestMethodToHL7Extension(labTestMethod),
+    extension: labTestMethodToHL7Extension(labTestMethod, dataDictionaries),
   };
 }
 
