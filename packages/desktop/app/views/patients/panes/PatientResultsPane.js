@@ -8,6 +8,7 @@ import { usePatientLabTestResults } from '../../../api/queries/usePatientLabTest
 import { Colors } from '../../../constants';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { usePatientSearchParameters } from '../../../contexts/PatientViewSearchParameters';
+import { useAuth } from '../../../contexts/Auth';
 
 const NoResultContainer = styled.div`
   padding: 30px;
@@ -29,6 +30,10 @@ const NoResultsInner = styled.div`
   padding: 70px 190px;
 `;
 
+const WrongPermissionInner = styled(NoResultsInner)`
+  color: ${Colors.alert};
+`;
+
 const NoResultsMessage = () => (
   <NoResultContainer>
     <NoResultsInner>
@@ -38,7 +43,14 @@ const NoResultsMessage = () => (
   </NoResultContainer>
 );
 
+const WrongPermissionMessage = () => (
+  <NoResultContainer>
+    <WrongPermissionInner>You do not have permission to view lab results</WrongPermissionInner>
+  </NoResultContainer>
+);
+
 export const PatientResultsPane = React.memo(({ patient }) => {
+  const { ability } = useAuth();
   const {
     labResultParameters: searchParameters,
     setLabResultParameters: setSearchParameters,
@@ -52,16 +64,19 @@ export const PatientResultsPane = React.memo(({ patient }) => {
   const isInitialLoad = isLoading && !dirty;
   const noResults = !isLoading && !dirty && data?.count === 0;
 
+  const canViewLabRequestResults = ability?.can('read', 'LabRequest');
+
   return (
     <>
       <ResultsSearchBar
-        disabled={noResults || isInitialLoad}
+        disabled={noResults || isInitialLoad || !canViewLabRequestResults}
         searchParameters={searchParameters}
         setSearchParameters={setSearchParameters}
         patientId={patient?.id}
       />
       <ContentPane>
         {noResults && <NoResultsMessage />}
+        {!canViewLabRequestResults && <WrongPermissionMessage />}
         {isInitialLoad && <LoadingIndicator height={400} />}
         {dirty && (
           <PatientLabTestsTable
