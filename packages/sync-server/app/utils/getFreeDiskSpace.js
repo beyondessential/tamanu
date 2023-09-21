@@ -1,17 +1,11 @@
-import config from 'config';
 import checkDiskSpace from 'check-disk-space';
 import { log } from 'shared/services/logging';
 
-// Convert value in config to bytes (prefer decimal over binary conversion)
-const FREE_SPACE_REQUIRED =
-  parseInt(config.disk.freeSpaceRequired.gigabytesForUploadingDocuments, 10) * 1000000000;
-
 // Wraps a module function and calls it with parameters from config.
 // Returns the available disk space in bytes.
-export const getFreeDiskSpace = async () => {
+export const getFreeDiskSpace = async diskPath => {
   try {
-    // TODO: Use db config fetcher
-    const diskStats = await checkDiskSpace(config.disk.diskPath);
+    const diskStats = await checkDiskSpace(diskPath);
     return diskStats.free;
   } catch (error) {
     log.error(`Unable to determine free disk space, got error: \n${error.message}`);
@@ -20,10 +14,14 @@ export const getFreeDiskSpace = async () => {
 };
 
 // Tries to read free disk space and compares it to minimum required from config.
-export const canUploadAttachment = async () => {
-  const freeDiskSpace = await getFreeDiskSpace();
+export const canUploadAttachment = async diskSettings => {
+  const { diskPath, freeSpaceRequired } = diskSettings;
+  const { gigabytesForUploadingDocuments } = freeSpaceRequired;
+  // Convert value in settings to bytes (prefer decimal over binary conversion)
+  const freeSpace = parseInt(gigabytesForUploadingDocuments, 10) * 1000000000;
+  const freeDiskSpace = await getFreeDiskSpace(diskPath);
 
-  if (!freeDiskSpace || freeDiskSpace < FREE_SPACE_REQUIRED) {
+  if (!freeDiskSpace || freeDiskSpace < freeSpace) {
     return false;
   }
 

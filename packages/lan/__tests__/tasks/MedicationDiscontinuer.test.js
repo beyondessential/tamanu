@@ -4,9 +4,7 @@ import {
   createDummyEncounterMedication,
 } from 'shared/demoData/patients';
 import { addDays, subDays } from 'date-fns';
-import config from 'config';
 import { getCurrentDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
-import { ReadSettings } from '@tamanu/settings';
 import { createTestContext } from '../utilities';
 import { MedicationDiscontinuer } from '../../app/tasks/MedicationDiscontinuer';
 
@@ -14,6 +12,7 @@ import { MedicationDiscontinuer } from '../../app/tasks/MedicationDiscontinuer';
 // It can't be done through test.json file in config because
 // local.json will have priority and will overwrite it.
 // Plus, it's better to have a unique facilityId to test this
+// TODO: DB defined
 jest.mock(
   'config',
   () => ({

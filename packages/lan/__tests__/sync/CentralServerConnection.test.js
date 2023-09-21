@@ -76,9 +76,7 @@ describe('CentralServerConnection', () => {
       ctx = await createTestContext();
     });
 
-    afterAll(async () => {
-      await ctx.close();
-    });
+    afterAll(() => ctx.close());
 
     beforeEach(async () => {
       const syncSettings = await ctx.settings.get('sync');

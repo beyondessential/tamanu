@@ -30,7 +30,9 @@ attachmentRoutes.get(
 attachmentRoutes.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const canUpload = await canUploadAttachment();
+    const { settings } = req;
+    const diskSettings = await settings.get('disk');
+    const canUpload = await canUploadAttachment(diskSettings);
 
     if (!canUpload) {
       throw new InsufficientStorageError(

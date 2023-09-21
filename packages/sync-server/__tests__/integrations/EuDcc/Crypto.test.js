@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-expressions */
 
 import { HCERTPack, HCERTVerify } from 'sync-server/app/integrations/EuDcc';
-import { createTestContext } from 'sync-server/__tests__/utilities';
 import {
   loadCertificateIntoSigner,
   newKeypairAndCsr,
@@ -9,6 +8,7 @@ import {
 } from 'sync-server/app/integrations/Signer';
 import { expect } from 'chai';
 import { getLocalisation } from 'sync-server/app/localisation';
+import { createTestContext } from '../../utilities';
 
 describe('EU DCC: HCERT Formatting', () => {
   let ctx;
