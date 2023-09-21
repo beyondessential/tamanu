@@ -127,7 +127,7 @@ jobs:
     runs-on: windows-latest
     env:
       BUILD_NAME: "${{ matrix.package.name }}-${{ needs.info.outputs.version }}-build"
-      OUTPUT_NAME: "test-2-${{ matrix.package.name }}-${{ needs.info.outputs.version }}-windows"
+      OUTPUT_NAME: "test-3-${{ matrix.package.name }}-${{ needs.info.outputs.version }}-windows"
       S3_PATH: s3://bes-tamanu-release-servers/test/${{ needs.info.outputs.version }}
 
     steps:
@@ -159,7 +159,7 @@ jobs:
       - name: Prepare final output
         run: |
           dir
-          Compress-Archive -Path '${{ env.BUILD_NAME }}' -Destination '${{ env.OUTPUT_NAME }}.zip'
+          New-Archive -Name '${{ env.OUTPUT_NAME }}.tar' -Path '${{ env.BUILD_NAME }}' -Format tar
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
