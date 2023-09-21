@@ -170,4 +170,4 @@ jobs:
           mask-aws-account-id: false
 
       - name: Push to S3
-        run: aws s3 cp '${{ env.OUTPUT_NAME }}.zip' '${{ env.S3_PATH }}/${{ env.OUTPUT_NAME }}.zip' --no-progress
+        run: aws s3 cp '${{ env.OUTPUT_NAME }}.tar' '${{ env.S3_PATH }}/${{ env.OUTPUT_NAME }}.tar' --no-progress
