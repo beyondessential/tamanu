@@ -8,7 +8,8 @@ import {
   REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
   REPORT_STATUSES_VALUES,
-} from '@tamanu/constants/reports';
+  MULTI_SELECT_FIELD_DELIMITER,
+} from '@tamanu/constants';
 import {
   Button,
   ButtonRow,
@@ -56,7 +57,7 @@ const schema = yup.object().shape({
   dataSources: yup
     .string()
     .test('test-data-sources', 'Select at least one data source', val => {
-      const values = val?.split('; ') || [];
+      const values = val?.split(MULTI_SELECT_FIELD_DELIMITER) || [];
       return values.length && values.every(v => REPORT_DATA_SOURCE_VALUES.includes(v));
     })
     .required('Data sources is a required field'),

@@ -6,7 +6,8 @@ import {
   REPORT_STATUSES,
   REPORT_DATA_SOURCES,
   REPORT_DEFAULT_DATE_RANGES,
-} from '@tamanu/constants/reports';
+  MULTI_SELECT_FIELD_DELIMITER
+} from '@tamanu/constants';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { useApi } from '../../../api';
@@ -30,7 +31,7 @@ export const CreateReportView = () => {
         status,
         queryOptions: {
           ...queryOptions,
-          dataSources: dataSources.split('; '),
+          dataSources: dataSources.split(MULTI_SELECT_FIELD_DELIMITER),
         },
       });
       queryClient.invalidateQueries(['reportList']);
