@@ -162,7 +162,7 @@ const getData = async (sequelize, parameters) => {
       to_date: queryToDate ?? null,
       requested_by_id: requestedById ?? null,
       lab_test_category_id: labTestCategoryId ?? null,
-      statuses,
+      statuses: statuses ?? null,
       are_statuses: statuses ? 'true' : null,
       lab_test_types: labTestTypeIds ?? null,
       are_lab_test_types: labTestTypeIds ? 'true' : null,
