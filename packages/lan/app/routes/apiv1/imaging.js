@@ -9,7 +9,6 @@ import {
   IMAGING_AREA_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
   VISIBILITY_STATUSES,
-  MULTI_SELECT_FIELD_DELIMITER,
 } from '@tamanu/constants';
 import { NotFoundError } from 'shared/errors';
 import { permissionCheckingRouter } from 'shared/utils/crudHelpers';

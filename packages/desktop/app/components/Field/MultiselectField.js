@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { MULTI_SELECT_FIELD_DELIMITER } from '@tamanu/constants';
 import PropTypes from 'prop-types';
 import Select, { components } from 'react-select';
 import styled from 'styled-components';
