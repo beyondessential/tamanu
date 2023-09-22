@@ -37,7 +37,7 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
         patientId,
         status: currentTabKey,
         recorderId: currentUser.id,
-        circumstanceIds: dataToSubmit.circumstanceIds?.split(MULTI_SELECT_FIELD_DELIMITER),
+        circumstanceIds: JSON.parse(dataToSubmit.circumstanceIds),
       });
       dispatch(reloadPatient(patientId));
     },
