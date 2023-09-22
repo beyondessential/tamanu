@@ -101,3 +101,5 @@ export * from './Note';
 export * from './SyncSession';
 
 export * from './fhir';
+
+export * from './LogSignature';

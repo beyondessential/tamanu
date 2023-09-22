@@ -4,6 +4,8 @@ import config from 'config';
 import { localTransport } from './console';
 import { honeycombTransport } from './honeycomb';
 
+export { honeycombTransport } from './honeycomb';
+
 // defensive destructure to allow for testing shared directly
 const { path } = config?.log || {};
 

@@ -1,7 +1,7 @@
 import config from 'config';
 import { Command } from 'commander';
 
-import { log } from 'shared/services/logging';
+import { log, honeycombTransport } from 'shared/services/logging';
 import { performTimeZoneChecks } from 'shared/utils/timeZoneCheck';
 
 import { provision } from './provision';
@@ -26,6 +26,8 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
   const { store } = context;
 
   await store.sequelize.assertUpToDate({ skipMigrationCheck });
+
+  await honeycombTransport.signatureCache.linkToDatabase(context.store.models);
 
   const app = createApp(context);
 
