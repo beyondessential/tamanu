@@ -117,7 +117,7 @@ describe('CentralServerConnection', () => {
     });
 
     // Any await that occurs before the mocked fetch call  will cause the test to fail
-    it.skip('throws a RemoteCallFailedError if any other server error is returned', async () => {
+    it('throws a RemoteCallFailedError if any other server error is returned', async () => {
       fetch.mockReturnValueOnce(authFailure);
       await expect(centralServer.connect()).rejects.toThrow(RemoteCallFailedError);
     });
@@ -138,13 +138,10 @@ describe('CentralServerConnection', () => {
       expect(await centralServer.whoami()).toMatchObject({ displayName: 'Fake User' });
     });
 
-    // Any await that occurs before the mocked fetch call  will cause the test to fail
-    it.skip('times out requests', async () => {
+    it('times out requests', async () => {
       jest.setTimeout(2000); // fail quickly
-      jest.useFakeTimers();
       fetch.mockImplementationOnce(fakeTimeout('fake timeout'));
       const connectPromise = centralServer.connect();
-      jest.runAllTimers();
       await await expect(connectPromise).rejects.toThrow('fake timeout');
     });
   });
