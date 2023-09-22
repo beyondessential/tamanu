@@ -6,8 +6,7 @@ import { DISCOVERY_MAGIC_STRING, DISCOVERY_PORT } from '@tamanu/constants';
 
 import { version } from './serverInfo';
 
-export function listenForServerQueries(discoverySettings) {
-  const { enabled, overrideAddress, overridePort, protocol } = discoverySettings;
+export function listenForServerQueries({ enabled, overrideAddress, overridePort, protocol }) {
   const serverPort = config.port;
   if (!enabled) {
     return;

@@ -13,7 +13,7 @@ export async function performDatabaseIntegrityChecks(context) {
 /*
  * ensureHostMatches
  */
-async function ensureHostMatches({ context }) {
+async function ensureHostMatches(context) {
   const { settings, models } = context;
   const { LocalSystemFact } = models;
   const syncConfig = await settings.get('sync');
