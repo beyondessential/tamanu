@@ -142,7 +142,7 @@ describe('CentralServerConnection', () => {
       jest.setTimeout(2000); // fail quickly
       fetch.mockImplementationOnce(fakeTimeout('fake timeout'));
       const connectPromise = centralServer.connect();
-      await await expect(connectPromise).rejects.toThrow('fake timeout');
+      await expect(connectPromise).rejects.toThrow('fake timeout');
     });
   });
 });

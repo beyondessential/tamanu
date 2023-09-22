@@ -3,5 +3,9 @@
     "name": "tamanu-lan-test",
     "migrateOnStartup": true
   },
+  // this will go soon
+  "log": {
+    "consoleLevel": null
+  },
   "serverFacilityId": "balwyn"
 }
