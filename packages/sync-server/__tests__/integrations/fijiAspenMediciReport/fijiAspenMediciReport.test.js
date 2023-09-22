@@ -8,6 +8,7 @@ import {
   ENCOUNTER_TYPES,
   IMAGING_TYPES,
   DIAGNOSIS_CERTAINTY,
+  SETTINGS_SCOPES,
 } from '@tamanu/constants';
 import { toDateTimeString } from 'shared/utils/dateTime';
 import { fake } from 'shared/test-helpers/fake';
@@ -312,6 +313,8 @@ describe('fijiAspenMediciReport', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
+    // Report used the localisation.timeZone config previously which was set to UTC for test env
+    await models.Setting.set('countryTimeZone', 'UTC', null, SETTINGS_SCOPES.CENTRAL);
     app = await ctx.baseApp.asRole('practitioner');
     fakedata = await fakeAllData(models);
   });

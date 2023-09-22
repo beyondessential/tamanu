@@ -56,8 +56,8 @@ describe('Read Settings', () => {
     settings = ctx.settings;
     models = ctx.store.models;
     jest.clearAllMocks();
+    // replace seeded settings for this test suite
     await seedMockSettings(models);
-    // clear seeded settings for this test suite
   });
 
   afterAll(() => ctx.close());
