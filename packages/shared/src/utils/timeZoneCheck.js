@@ -29,7 +29,7 @@ async function getRemoteTimeZone(remote, models) {
     await LocalSystemFact.set('lastCentralServerCountryTimeZone', countryTimeZone);
     return countryTimeZone;
   } catch (error) {
-    log.info('Unable to grab countryTimeZone from central server.');
+    log.warn('Unable to grab countryTimeZone from central server.');
   }
 
   const lastCentralServerCountryTimeZone = await LocalSystemFact.get(
