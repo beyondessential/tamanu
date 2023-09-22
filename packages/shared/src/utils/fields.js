@@ -1,5 +1,5 @@
 import { inRange } from 'lodash';
-import { PROGRAM_DATA_ELEMENT_TYPES, MULTI_SELECT_FIELD_DELIMITER } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { log } from '../services/logging';
 
 export function getStringValue(type, value) {
@@ -31,7 +31,7 @@ function compareData(dataType, expected, given) {
       break;
     }
     case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
-      return given.split(MULTI_SELECT_FIELD_DELIMITER).includes(expected);
+      return JSON.parse(given).includes(expected);
     default:
       if (expected === given) return true;
       break;
