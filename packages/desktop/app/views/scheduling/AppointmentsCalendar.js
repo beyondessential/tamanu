@@ -171,7 +171,7 @@ export const AppointmentsCalendar = () => {
                   setAppointmentType([]);
                   return;
                 }
-                setAppointmentType(e.target.value.split(MULTI_SELECT_FIELD_DELIMITER));
+                setAppointmentType(JSON.parse(e.target.value));
               }}
               options={appointmentTypeOptions}
             />
