@@ -78,4 +78,24 @@ describe('customYupMethods', () => {
     });
     expect(result).toEqual('res');
   });
+  it('should return correct error when child schema fails', async () => {
+    const schema = yup.string().whenSetting('key', {
+      is: 'value',
+      then: yup
+        .string()
+        .min(3, 'Must be at least 3 char long')
+        .required(),
+      otherwise: yup.number().required(),
+    });
+    const settings = {
+      get: jest.fn().mockResolvedValue('value'),
+    };
+    await expect(
+      schema.validate('he', {
+        context: {
+          settings,
+        },
+      }),
+    ).rejects.toThrow('Must be at least 3 char long');
+  });
 });
