@@ -24,7 +24,7 @@ async function getDatabaseTimeZone(sequelize) {
 async function getRemoteTimeZone(remote, models) {
   const { LocalSystemFact } = models;
   try {
-    const health = await remote.fetch('health', { backoff: { maxAttempts: 1 } });
+    const health = await remote.fetch('health', { timeout: 2000, backoff: { maxAttempts: 1 } });
     const { countryTimeZone } = health.config;
     await LocalSystemFact.set('lastCentralServerCountryTimeZone', countryTimeZone);
     return countryTimeZone;
