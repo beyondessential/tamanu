@@ -3,7 +3,6 @@ import { push } from 'connected-react-router';
 import React from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
-import { MULTI_SELECT_FIELD_DELIMITER } from '@tamanu/constants';
 import { Box } from '@material-ui/core';
 import { useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -34,7 +33,7 @@ const getInitialValues = (version, report) => {
     query,
     status,
     ...options,
-    dataSources: dataSources?.join(MULTI_SELECT_FIELD_DELIMITER),
+    dataSources: JSON.parse(dataSources),
   };
 };
 
@@ -62,7 +61,7 @@ export const EditReportView = () => {
     const payload = {
       queryOptions: {
         ...queryOptions,
-        dataSources: dataSources.split(MULTI_SELECT_FIELD_DELIMITER),
+        dataSources: JSON.parse(dataSources),
       },
       query,
       status,
