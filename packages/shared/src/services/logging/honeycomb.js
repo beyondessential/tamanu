@@ -19,7 +19,7 @@ class HoneycombTransport extends Transport {
   signatureCache = new LogSignatureCache();
 
   log(info, callback) {
-    const { message, level, ...data } = info;
+    const { message, level: _, ...data } = info;
     const safe = this.signatureCache.checkSignature(message, data);
     if (!safe) {
       // not sure what null represents here as the exact usage of callback
