@@ -14,7 +14,7 @@ export const ActivateProgramRegistryFormModal = React.memo(
   ({ onCancel, onSubmit, editedObject, patient, programRegistry, open }) => {
     const { currentUser, facility } = useAuth();
     const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
-      baseQueryParameters: { programId: programRegistry.id },
+      baseQueryParameters: { programRegistryId: programRegistry.id },
     });
     const registeredBySuggester = useSuggester('practitioner');
     const registeringFacilitySuggester = useSuggester('facility');

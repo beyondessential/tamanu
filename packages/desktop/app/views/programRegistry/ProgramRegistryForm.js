@@ -8,6 +8,7 @@ import {
   Field,
   DateField,
   AutocompleteField,
+  MultiselectField,
 } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
 import { ConfirmCancelRow } from '../../components/ButtonRow';
@@ -20,21 +21,29 @@ export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObjec
   const api = useApi();
   const { currentUser, facility } = useAuth();
   const [program, setProgram] = useState();
+  const [conditions, setConditions] = useState([]);
   const programRegistrySuggester = useSuggester('programRegistries', {
     baseQueryParameters: { patientId: patient.id },
   });
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
-    baseQueryParameters: { programId: program ? program.id : null },
+    baseQueryParameters: { programRegistryId: program ? program.id : null },
   });
   const registeredBySuggester = useSuggester('practitioner');
   const registeringFacilitySuggester = useSuggester('facility');
 
   const onProgramSelect = async id => {
     try {
-      const { data } = await api.get(`programRegistry/${id}`);
+      const responses = await Promise.all([
+        api.get(`programRegistry/${id}`),
+        api.get(`programRegistry/${id}/conditions`),
+      ]);
+
+      const [data, conditions] = responses;
       setProgram(data);
+      setConditions(conditions);
     } catch (error) {
       setProgram(undefined);
+      setConditions(undefined);
     }
   };
   return (
@@ -98,6 +107,14 @@ export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObjec
                   label="Registering facility"
                   component={AutocompleteField}
                   suggester={registeringFacilitySuggester}
+                />
+                <FieldWithTooltip
+                  tooltipText="Select a program registry to add conditions"
+                  name="conditions"
+                  label="Conditions"
+                  component={MultiselectField}
+                  options={conditions}
+                  disabled={!program}
                 />
               </FormGrid>
 

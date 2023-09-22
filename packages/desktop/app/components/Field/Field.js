@@ -8,6 +8,7 @@ import {
 } from 'formik';
 import MuiBox from '@material-ui/core/Box';
 import { FormTooltip } from '../FormTooltip';
+import { ThemedTooltip } from '../Tooltip';
 import { TextField } from './TextField';
 import { FORM_STATUSES } from '../../constants';
 
@@ -64,7 +65,17 @@ export const Field = formikConnect(
  */
 export const FieldWithTooltip = ({ tooltipText, muiTooltipProps, ...props }) => (
   <MuiBox position="relative">
-    <Field {...props} />
-    <FormTooltip title={tooltipText} {...muiTooltipProps} />
+    {props.disabled ? (
+      <ThemedTooltip title={tooltipText} arrow={true} placement="top" {...props}>
+        <div style={{ backgroundColor: 'transparent' }}>
+          <Field {...props} />
+        </div>
+      </ThemedTooltip>
+    ) : (
+      <>
+        <Field {...props} />
+        <FormTooltip title={tooltipText} {...muiTooltipProps} />
+      </>
+    )}
   </MuiBox>
 );
