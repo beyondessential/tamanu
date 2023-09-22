@@ -1,8 +1,6 @@
 import { Command } from 'commander';
 import { inRange } from 'lodash';
 
-import { MULTI_SELECT_FIELD_DELIMITER } from '@tamanu/constants';
-
 import { log } from 'shared/services/logging';
 
 import { initDatabase } from '../database';
@@ -42,7 +40,7 @@ const checkVisibilityCriteria = (component, allComponents, answerByCode) => {
 
       const matchingComponent = allComponents.find(x => x.code === questionCode);
       if (matchingComponent?.type === 'MultiSelect') {
-        const givenValues = answerByCode[questionCode].split(MULTI_SELECT_FIELD_DELIMITER);
+        const givenValues = JSON.parse(answerByCode[questionCode]);
         return givenValues.includes(answersEnablingFollowUp);
       }
 

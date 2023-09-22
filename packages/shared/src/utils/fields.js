@@ -72,7 +72,7 @@ function checkVisibilityCriteria(component, allComponents, values) {
 
       const matchingComponent = allComponents.find(x => x.dataElement?.code === questionCode);
       if (matchingComponent?.dataElement?.type === 'MultiSelect') {
-        const givenValues = values[questionCode].split(MULTI_SELECT_FIELD_DELIMITER);
+        const givenValues = JSON.parse(values[questionCode]);
         return givenValues.includes(answersEnablingFollowUp);
       }
 

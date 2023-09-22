@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { PROGRAM_DATA_ELEMENT_TYPES, MULTI_SELECT_FIELD_DELIMITER } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
 import { Modal } from './Modal';
 import { DateDisplay } from './DateDisplay';
@@ -109,9 +109,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
       return {
         id,
         type,
-        answer: isMultiSelectAnswer
-          ? answer.replaceAll(MULTI_SELECT_FIELD_DELIMITER, ', ')
-          : answer,
+        answer: isMultiSelectAnswer ? JSON.parse(answer).join(', ') : answer,
         name,
       };
     })
