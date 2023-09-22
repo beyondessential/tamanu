@@ -30,7 +30,7 @@ export const CreateReportView = () => {
         status,
         queryOptions: {
           ...queryOptions,
-          dataSources: JSON.parse(dataSources),
+          dataSources,
         },
       });
       queryClient.invalidateQueries(['reportList']);
@@ -46,7 +46,7 @@ export const CreateReportView = () => {
       <ReportEditor
         initialValues={{
           status: REPORT_STATUSES.PUBLISHED,
-          dataSources: REPORT_DATA_SOURCES.ALL_FACILITIES,
+          dataSources: [REPORT_DATA_SOURCES.ALL_FACILITIES],
           defaultDateRange: REPORT_DEFAULT_DATE_RANGES.THIRTY_DAYS,
           parameters: [],
         }}

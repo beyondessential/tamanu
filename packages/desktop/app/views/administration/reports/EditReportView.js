@@ -33,7 +33,7 @@ const getInitialValues = (version, report) => {
     query,
     status,
     ...options,
-    dataSources: JSON.parse(dataSources),
+    dataSources,
   };
 };
 
@@ -61,7 +61,7 @@ export const EditReportView = () => {
     const payload = {
       queryOptions: {
         ...queryOptions,
-        dataSources: JSON.parse(dataSources),
+        dataSources,
       },
       query,
       status,
