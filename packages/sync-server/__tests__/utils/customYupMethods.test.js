@@ -23,12 +23,12 @@ describe('customYupMethods', () => {
     const settings = {
       get: jest.fn().mockResolvedValue('value'),
     };
-    const result = await schema.validate('value', {
+    const result = await schema.validate('res', {
       context: {
         settings,
       },
     });
-    expect(result).toEqual('value');
+    expect(result).toEqual('res');
   });
   it('should validate when setting is not equal to value', async () => {
     const schema = yup.string().whenSetting('key', {
@@ -39,12 +39,12 @@ describe('customYupMethods', () => {
     const settings = {
       get: jest.fn().mockResolvedValue('not value'),
     };
-    const result = await schema.validate('value', {
+    const result = await schema.validate('res', {
       context: {
         settings,
       },
     });
-    expect(result).toEqual('value');
+    expect(result).toEqual('res');
   });
   it('should validate when setting is equal to value and value is a function', async () => {
     const schema = yup.string().whenSetting('key', {
@@ -55,12 +55,12 @@ describe('customYupMethods', () => {
     const settings = {
       get: jest.fn().mockResolvedValue('value'),
     };
-    const result = await schema.validate('value', {
+    const result = await schema.validate('res', {
       context: {
         settings,
       },
     });
-    expect(result).toEqual('value');
+    expect(result).toEqual('res');
   });
   it('should validate when setting is not equal to value and value is a function', async () => {
     const schema = yup.string().whenSetting('key', {
@@ -71,11 +71,11 @@ describe('customYupMethods', () => {
     const settings = {
       get: jest.fn().mockResolvedValue('not value'),
     };
-    const result = await schema.validate('value', {
+    const result = await schema.validate('res', {
       context: {
         settings,
       },
     });
-    expect(result).toEqual('value');
+    expect(result).toEqual('res');
   });
 });
