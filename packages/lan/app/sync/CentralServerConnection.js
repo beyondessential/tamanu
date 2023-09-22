@@ -168,7 +168,7 @@ export class CentralServerConnection {
     throw new Error(`Did not get a truthy response after ${maxAttempts} attempts for ${endpoint}`);
   }
 
-  async connect(backoff, timeout) {
+  async connect(backoff, timeout = this.timeout) {
     // if there's an ongoing connect attempt, reuse it
     if (this.connectionPromise) {
       return this.connectionPromise;
