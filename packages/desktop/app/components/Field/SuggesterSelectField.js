@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { unionBy } from 'lodash';
-import { MULTI_SELECT_FIELD_DELIMITER } from '@tamanu/constants';
 import { useApi } from '../../api';
 import { SelectInput } from './SelectField';
 import { MultiselectInput } from './MultiselectField';
@@ -19,9 +18,7 @@ export const SuggesterSelectField = React.memo(
       if (field.value) {
         let values;
         if (isMulti) {
-          values = Array.isArray(field.value)
-            ? field.value
-            : field.value.split(MULTI_SELECT_FIELD_DELIMITER);
+          values = Array.isArray(field.value) ? field.value : JSON.parse(field.value);
         } else {
           values = [field.value];
         }
