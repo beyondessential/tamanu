@@ -33,9 +33,14 @@ const StatusInactiveDot = styled.div`
 
 export const ProgramRegistryListItem = ({ item, ListItem }) => {
   const { id, name, status, clinicalStatus } = item;
-  const { navigateToProgramRegistry } = usePatientNavigation();
+  const { navigateToProgramRegistry, navigateToProgramRegistrySurvey } = usePatientNavigation();
   return (
-    <ListItem onClick={() => navigateToProgramRegistry(id, name)}>
+    <ListItem
+      onClick={() => {
+        // navigateToProgramRegistry(id, name);
+        navigateToProgramRegistrySurvey(id, name, 'CVD Primary Screening Form');
+      }}
+    >
       <Spacer>
         <RowContents>
           <Tooltip title={status} arrow placement="top-end">

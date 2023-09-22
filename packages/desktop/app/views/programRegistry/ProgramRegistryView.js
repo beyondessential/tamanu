@@ -1,7 +1,7 @@
+//@ts-check
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { CircularProgress } from '@material-ui/core';
 import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
 import { useUrlQueryParams } from '../../hooks';
 import { DisplayPatientRegDetails } from './DisplayPatientRegDetails';
@@ -9,6 +9,7 @@ import { ProgramRegistryStatusHistory } from './ProgramRegistryStatusHistory';
 import { usePatientProgramRegistration } from '../../api/queries/usePatientProgramRegistration';
 import { ProgramRegistryFormHistory } from './ProgramRegistryFormHistory';
 import { ProgramRegistrySelectSurvey } from './ProgramRegistrySelectSurvey';
+import { LoadingIndicator } from '../../components/LoadingIndicator';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
@@ -52,7 +53,7 @@ const StatusInactiveDot = styled.div`
   margin: 0px 5px;
 `;
 
-const getFirstCharUpperCase = str => str.charAt(0).toUpperCase() + str.slice(1);
+const getFirstCharUpperCase = str => (str ? str.charAt(0).toUpperCase() + str.slice(1) : str);
 
 export const ProgramRegistryView = () => {
   const queryParams = useUrlQueryParams();
@@ -60,7 +61,7 @@ export const ProgramRegistryView = () => {
   const { patientId, programRegistryId } = useParams();
   const { data, isLoading, isError } = usePatientProgramRegistration(patientId, programRegistryId);
 
-  if (isLoading) return <CircularProgress size="5rem" />;
+  if (isLoading) return <LoadingIndicator />;
   if (isError) return <p>Program registry &apos;{title || 'Unknown'}&apos; not found.</p>;
 
   return (

@@ -1,13 +1,16 @@
-import React from 'react';
+//@ts-check
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { useSuggester } from '../../api';
+import { useApi } from 'desktop/app/api';
 import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
 import { Heading3 } from '../../components/Typography';
 import { Button } from '../../components/Button';
-import { Form, Field, AutocompleteField } from '../../components/Field';
+import { Form, Field, SelectField } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
 import { foreignKey } from '../../utils/validation';
+import { SURVEY_TYPES } from '@tamanu/constants';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
 
 const DisplayContainer = styled.div`
   display: flex;
@@ -31,9 +34,20 @@ const StyledFormGrid = styled(FormGrid)`
 `;
 
 export const ProgramRegistrySelectSurvey = ({ patientProgramRegistration }) => {
-  const programRegistrySurveySuggester = useSuggester('survey', {
-    baseQueryParameters: { programRegistryId: patientProgramRegistration.id },
-  });
+  const api = useApi();
+  const { navigateToProgramRegistrySurvey } = usePatientNavigation();
+  const [surveys, setSurveys] = useState([]);
+  useEffect(() => {
+    (async () => {
+      const { data } = await api.get(`program/${patientProgramRegistration.programId}/surveys`);
+      setSurveys(
+        data
+          .filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS)
+          .map(x => ({ value: x.id, label: x.name })),
+      );
+    })();
+  }, []);
+
   return (
     <DisplayContainer>
       <Heading3>Select a {patientProgramRegistration.name} form below to complete</Heading3>
@@ -42,15 +56,15 @@ export const ProgramRegistrySelectSurvey = ({ patientProgramRegistration }) => {
         onSubmit={() => {
           // console.log({ ...data, patientId: patient.id });
         }}
-        render={value => {
-          // console.log(value);
+        render={({ submitForm, values }) => {
+          console.log(values);
           return (
             <StyledFormGrid>
               <Field
                 name="surveyId"
                 label="Select form"
-                component={AutocompleteField}
-                suggester={programRegistrySurveySuggester}
+                component={SelectField}
+                options={surveys}
                 disabled={
                   patientProgramRegistration.registrationStatus ===
                   PROGRAM_REGISTRATION_STATUSES.REMOVED
@@ -61,12 +75,13 @@ export const ProgramRegistrySelectSurvey = ({ patientProgramRegistration }) => {
                 variant="contained"
                 style={{ height: '44px' }}
                 onClick={() => {
-                  // console.log('clicked');
+                  navigateToProgramRegistrySurvey(patientProgramRegistration.id, values.surveyId);
                 }}
                 disabled={
                   patientProgramRegistration.registrationStatus ===
-                    PROGRAM_REGISTRATION_STATUSES.REMOVED || !value.values.surveyId
+                    PROGRAM_REGISTRATION_STATUSES.REMOVED || !values.surveyId
                 }
+                isSubmitting={false}
               >
                 Begin form
               </Button>

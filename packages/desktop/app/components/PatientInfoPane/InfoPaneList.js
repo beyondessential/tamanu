@@ -128,7 +128,7 @@ export const InfoPaneList = ({
   const EditForm = CustomEditForm || InfoPaneAddEditForm;
   const _items = [
     {
-      id: '1',
+      id: 'program_registry_id',
       name: 'Seasonal fever',
       status: 'Removed',
       clinicalStatus: 'Needs review',
@@ -152,8 +152,10 @@ export const InfoPaneList = ({
       <DataList>
         {error && error.message}
         {/* {!error && */}
-        {/* {(ListItemComponent ? _items : items).map(item => { */}
-        {items.map(item => {
+        {(ListItemComponent ? _items : items).map(item => {
+          {
+            /* {items.map(item => { */
+          }
           const { id } = item;
           const name = getName(item);
           if (behavior === 'collapse') {
