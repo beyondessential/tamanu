@@ -153,7 +153,7 @@ const getValues = value => {
     return null;
   }
 
-  return Array.isArray(value) ? value : value.split(MULTI_SELECT_FIELD_DELIMITER);
+  return Array.isArray(value) ? value : JSON.parse(value);
 };
 
 export const MultiselectInput = ({
@@ -179,7 +179,7 @@ export const MultiselectInput = ({
   const handleChange = useCallback(
     selectedOptions => {
       setSelected(selectedOptions);
-      const newValue = selectedOptions.map(x => x.value).join(MULTI_SELECT_FIELD_DELIMITER);
+      const newValue = JSON.stringify(selectedOptions.map(x => x.value));
       onChange({ target: { value: newValue, name } });
     },
     [onChange, name],
