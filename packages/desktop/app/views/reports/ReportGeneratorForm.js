@@ -9,7 +9,6 @@ import {
   REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
   REPORT_EXPORT_FORMATS,
-  MULTI_SELECT_FIELD_DELIMITER,
 } from '@tamanu/constants';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useApi } from '../../api';
@@ -81,6 +80,15 @@ const useFileName = () => {
   };
 };
 
+const isJsonString = str => {
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
+};
+
 export const ReportGeneratorForm = () => {
   const api = useApi();
   const getFileName = useFileName();
@@ -133,9 +141,8 @@ export const ReportGeneratorForm = () => {
 
     const updatedFilters = Object.fromEntries(
       Object.entries(filterValues).map(([key, value]) => {
-        const isMultiSelectString = value.includes(MULTI_SELECT_FIELD_DELIMITER);
-        if (isMultiSelectString) {
-          return [key, value.split(MULTI_SELECT_FIELD_DELIMITER)];
+        if (isJsonString(value)) {
+          return [key, JSON.parse(value)];
         }
         return [key, value];
       }),
