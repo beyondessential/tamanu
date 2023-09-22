@@ -67,6 +67,7 @@ describe('Referrals', () => {
   let encounter = null;
   let testProgram = null;
   let testSurvey = null;
+  let defaultCodes = null;
   const answers = {};
 
   beforeAll(async () => {
@@ -74,6 +75,7 @@ describe('Referrals', () => {
     settings = ctx.settings;
     baseApp = ctx.baseApp;
     models = ctx.models;
+    defaultCodes = await settings.get('survey.defaultCodes');
     app = await baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
     encounter = await models.Encounter.create({
@@ -122,9 +124,8 @@ describe('Referrals', () => {
   });
 
   it('should use the default department if one is not provided', async () => {
-    const departmentCode = await settings.get('survey.defaultCodes.department');
     const department = await findOneOrCreate(ctx.models, ctx.models.Department, {
-      code: departmentCode,
+      code: defaultCodes.department,
     });
 
     const { locationId } = encounter;
@@ -145,8 +146,9 @@ describe('Referrals', () => {
   });
 
   it('should use the default location if one is not provided', async () => {
-    const locationCode = await settings.get('survey.defaultCodes.location');
-    const location = await findOneOrCreate(ctx.models, ctx.models.Location, { code: locationCode });
+    const location = await findOneOrCreate(ctx.models, ctx.models.Location, {
+      code: defaultCodes.location,
+    });
 
     const { departmentId } = encounter;
     const result = await app.post('/v1/referral').send({

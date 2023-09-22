@@ -112,7 +112,6 @@ export async function createTestContext() {
 
   await showError(deleteAllTestIds(dbResult));
 
-  // Special case for a global setting located in facility config
   // populate with reference data
   const tasks = allSeeds
     .map(d => ({ code: d.name, ...d }))
