@@ -12,9 +12,10 @@ yup.addMethod(yup.mixed, 'whenSetting', function whenSetting(key, { is, then, ot
     const settingValue = await settings.get(key);
     const settingIs = typeof is === 'function' ? is(settingValue) : is === settingValue;
     const schema = settingIs ? then : otherwise;
+    const dynamicSchema = typeof schema === 'function' ? schema(this) : schema;
 
     try {
-      schema.validateSync(value);
+      await dynamicSchema.validate(value);
       return true;
     } catch ({ message, path, type, errors, inner }) {
       return context.createError({ message, path, type, errors, inner });

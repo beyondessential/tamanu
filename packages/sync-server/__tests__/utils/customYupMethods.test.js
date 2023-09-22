@@ -81,10 +81,7 @@ describe('customYupMethods', () => {
   it('should return correct error when child schema fails', async () => {
     const schema = yup.string().whenSetting('key', {
       is: 'value',
-      then: yup
-        .string()
-        .min(3, 'Must be at least 3 char long')
-        .required(),
+      then: yup.string().min(3, 'Must be at least 3 char long'),
       otherwise: yup.number().required(),
     });
     const settings = {
@@ -97,5 +94,22 @@ describe('customYupMethods', () => {
         },
       }),
     ).rejects.toThrow('Must be at least 3 char long');
+  });
+  it('should work for dynamic schemas', async () => {
+    const schema = yup.string().whenSetting('key', {
+      is: 'value',
+      then: ds => ds.max(2, 'Must be at most 2 char long'),
+      otherwise: ds => ds.max(4, 'Must be at most 4 char long'),
+    });
+    const settings = {
+      get: jest.fn().mockResolvedValue('value'),
+    };
+    await expect(
+      schema.validate('res', {
+        context: {
+          settings,
+        },
+      }),
+    ).rejects.toThrow('Must be at most 2 char long');
   });
 });
