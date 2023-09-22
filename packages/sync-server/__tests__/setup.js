@@ -1,4 +1,3 @@
-import '../app/utils/customYupMethods';
 // IMPORTANT NOTE!
 // This script is run _before_ the test environment is fully set up,
 // crucially the aliases defined in moduleNameMapper will not be available.
