@@ -57,4 +57,8 @@ export class Survey extends Model {
     }
     return 'SurveyResponse';
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }
