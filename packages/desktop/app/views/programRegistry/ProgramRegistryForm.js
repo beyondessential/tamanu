@@ -38,9 +38,9 @@ export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObjec
         api.get(`programRegistry/${id}/conditions`),
       ]);
 
-      const [data, conditions] = responses;
-      setProgram(data);
-      setConditions(conditions);
+      const [programData, conditionsData] = responses;
+      setProgram(programData);
+      setConditions(conditionsData);
     } catch (error) {
       setProgram(undefined);
       setConditions(undefined);

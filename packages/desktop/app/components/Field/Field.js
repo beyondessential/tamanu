@@ -66,7 +66,7 @@ export const Field = formikConnect(
 export const FieldWithTooltip = ({ tooltipText, muiTooltipProps, ...props }) => (
   <MuiBox position="relative">
     {props.disabled ? (
-      <ThemedTooltip title={tooltipText} arrow={true} placement="top" {...props}>
+      <ThemedTooltip title={tooltipText} arrow placement="top" {...props}>
         <div style={{ backgroundColor: 'transparent' }}>
           <Field {...props} />
         </div>
