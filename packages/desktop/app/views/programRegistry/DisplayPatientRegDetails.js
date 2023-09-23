@@ -4,7 +4,6 @@ import { Avatar } from '@material-ui/core';
 import { Colors, STATUS_COLOR, PROGRAM_REGISTRATION_STATUSES } from '../../constants/index';
 import { DateDisplay } from '../../components/DateDisplay';
 import { programsIcon } from '../../constants/images';
-import { OutlinedButton } from '../../components/Button';
 import { MenuButton } from '../../components/MenuButton';
 import { ChangeStatusFormModal } from './ChangeStatusFormModal';
 import { ActivateProgramRegistryFormModal } from './ActivateProgramRegistryFormModal';
@@ -153,12 +152,8 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
                 ? {
                     Activate: () => setOpenActivateProgramRegistryFormModal(true),
                     Delete: () => setOpenDeleteProgramRegistryFormModal(true),
-                    Activate: () => setOpenActivateProgramRegistryFormModal(true),
-                    Delete: () => setOpenDeleteProgramRegistryFormModal(true),
                   }
                 : {
-                    Remove: () => setOpenRemoveProgramRegistryFormModal(true),
-                    Delete: () => setOpenDeleteProgramRegistryFormModal(true),
                     Remove: () => setOpenRemoveProgramRegistryFormModal(true),
                     Delete: () => setOpenDeleteProgramRegistryFormModal(true),
                   }

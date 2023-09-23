@@ -126,14 +126,15 @@ export const InfoPaneList = ({
   );
 
   const EditForm = CustomEditForm || InfoPaneAddEditForm;
-  const _items = [
-    {
-      id: 'program_registry_id',
-      name: 'Seasonal fever',
-      status: 'Removed',
-      clinicalStatus: 'Needs review',
-    },
-  ];
+  // TODO: will be removed once api is integrated
+  // const _items = [
+  //   {
+  //     id: 'program_registry_id',
+  //     name: 'Seasonal fever',
+  //     status: 'Removed',
+  //     clinicalStatus: 'Needs review',
+  //   },
+  // ];
   return (
     <>
       {isIssuesPane && <PatientAlert alerts={warnings} />}
@@ -152,10 +153,8 @@ export const InfoPaneList = ({
       <DataList>
         {error && error.message}
         {/* {!error && */}
-        {(ListItemComponent ? _items : items).map(item => {
-          {
-            /* {items.map(item => { */
-          }
+        {/* {(ListItemComponent ? _items : items).map(item => { */}
+        {items.map(item => {
           const { id } = item;
           const name = getName(item);
           if (behavior === 'collapse') {

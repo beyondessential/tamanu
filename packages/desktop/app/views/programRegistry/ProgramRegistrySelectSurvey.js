@@ -1,7 +1,7 @@
-//@ts-check
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
+import { SURVEY_TYPES } from '@tamanu/constants';
 import { useApi } from 'desktop/app/api';
 import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
 import { Heading3 } from '../../components/Typography';
@@ -9,7 +9,6 @@ import { Button } from '../../components/Button';
 import { Form, Field, SelectField } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
 import { foreignKey } from '../../utils/validation';
-import { SURVEY_TYPES } from '@tamanu/constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 
 const DisplayContainer = styled.div`
@@ -46,6 +45,7 @@ export const ProgramRegistrySelectSurvey = ({ patientProgramRegistration }) => {
           .map(x => ({ value: x.id, label: x.name })),
       );
     })();
+    // eslint-disable-next-line
   }, []);
 
   return (
@@ -53,11 +53,7 @@ export const ProgramRegistrySelectSurvey = ({ patientProgramRegistration }) => {
       <Heading3>Select a {patientProgramRegistration.name} form below to complete</Heading3>
       <Form
         style={{ width: '100%', marginTop: '5px' }}
-        onSubmit={() => {
-          // console.log({ ...data, patientId: patient.id });
-        }}
-        render={({ submitForm, values }) => {
-          console.log(values);
+        render={({ values }) => {
           return (
             <StyledFormGrid>
               <Field
