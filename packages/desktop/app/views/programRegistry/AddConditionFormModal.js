@@ -31,7 +31,7 @@ export const AddConditionFormModal = ({ onSubmit, onCancel, programRegistry, ope
         onSubmit={data => {
           onSubmit(data);
         }}
-        render={({ submitForm, values }) => {
+        render={({ submitForm }) => {
           const handleCancel = () => onCancel();
           return (
             <div>

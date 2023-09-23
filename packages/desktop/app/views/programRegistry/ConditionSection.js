@@ -1,11 +1,10 @@
-//@ts-check
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import CloseIcon from '@material-ui/icons/Close';
+import { IconButton } from '@material-ui/core';
 import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
 import { Heading5 } from '../../components/Typography';
-import { IconButton } from '@material-ui/core';
-import { useApi } from '../../api';
+// import { useApi } from '../../api';
 import { usePatientProgramRegistryConditions } from '../../api/queries/usePatientProgramRegistryConditions';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RemoveConditionFormModal } from './RemoveConditionFormModal';
@@ -70,14 +69,14 @@ const AddConditionButton = styled.button`
 `;
 
 export const ConditionSection = ({ patientProgramRegistration }) => {
-  const api = useApi();
+  // const api = useApi();
   const { data, isLoading } = usePatientProgramRegistryConditions(
     patientProgramRegistration.programId,
   );
   const [conditionToRemove, setConditionToRemove] = useState();
   const [openAddCondition, setOpenAddCondition] = useState(false);
 
-  const removeCondition = conditionId => {
+  const removeCondition = () => {
     setConditionToRemove(undefined);
     // api.delete('/asdasdasdasd');
   };
