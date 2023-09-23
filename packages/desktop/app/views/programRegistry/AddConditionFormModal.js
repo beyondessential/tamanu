@@ -21,26 +21,27 @@ const StyledFormGrid = styled(FormGrid)`
   margin-top: 30px;
 `;
 
-export const ChangeStatusFormModal = ({ onSubmit, onCancel, programRegistry, open }) => {
-  const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
-    baseQueryParameters: { programRegistryId: programRegistry.id },
+export const AddConditionFormModal = ({ onSubmit, onCancel, programRegistry, open }) => {
+  const programRegistryConditionSuggester = useSuggester('programRegistryConditions', {
+    baseQueryParameters: { programRegistryId: programRegistry.programId },
   });
   return (
-    <Modal title="Change Status" open={open}>
+    <Modal title="Add condition" open={open}>
       <Form
         onSubmit={data => {
           onSubmit(data);
         }}
-        render={({ submitForm }) => {
+        render={({ submitForm, values }) => {
+          console.log(values);
           const handleCancel = () => onCancel();
           return (
             <div>
               <StyledFormGrid columns={1}>
                 <Field
-                  name="programRegistryClinicalStatusId"
-                  label="Status"
+                  name="programRegistryConditionId"
+                  label="Condition"
                   component={AutocompleteField}
-                  suggester={programRegistryStatusSuggester}
+                  suggester={programRegistryConditionSuggester}
                 />
               </StyledFormGrid>
               <FormSeparatorLine style={{ marginTop: '60px', marginBottom: '30px' }} />
@@ -48,11 +49,8 @@ export const ChangeStatusFormModal = ({ onSubmit, onCancel, programRegistry, ope
             </div>
           );
         }}
-        initialValues={{
-          programRegistryClinicalStatusId: programRegistry.programRegistryClinicalStatusId,
-        }}
         validationSchema={yup.object().shape({
-          programRegistryClinicalStatusId: foreignKey().required('Status must be selected'),
+          programRegistryConditionId: foreignKey().required('Condition must be selected'),
         })}
       />
     </Modal>

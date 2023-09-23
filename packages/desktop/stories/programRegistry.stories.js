@@ -24,6 +24,7 @@ import {
   programRegistry1,
 } from './utils/mockProgramRegistryData';
 import { ConditionSection } from '../app/views/programRegistry/ConditionSection';
+import { AddConditionFormModal } from '../app/views/programRegistry/AddConditionFormModal';
 
 //#region InfoPaneList
 storiesOf('Program Registry', module).add('ProgramRegistry Info Panlist', () => {
@@ -107,6 +108,20 @@ storiesOf('Program Registry', module).add('Condition Section', () => (
 ));
 
 //#endregion ConditionSection
+
+//#region AddConditionFormModal
+storiesOf('Program Registry', module).add('Add Condition', () => (
+  <ApiContext.Provider value={dummyApi}>
+    <AddConditionFormModal
+      programRegistry={patientProgramRegistration}
+      onSubmit={action('submit')}
+      onCancel={action('cancel')}
+      open
+    />
+  </ApiContext.Provider>
+));
+
+//#endregion AddConditionFormModal
 
 //#region ProgramRegistryStatusHistory
 

@@ -563,6 +563,11 @@ export const dummyApi = {
         return programRegistries;
       case 'suggestions/survey':
         return programRegistryFormHistory.map(x => ({ id: x.id.toString(), name: x.survey.name }));
+      case 'suggestions/programRegistryConditions':
+        return patientProgramRegistryConditions.map(x => ({
+          id: x.id,
+          name: x.name,
+        }));
       case 'programRegistry/1':
         return programRegistry1;
       case 'programRegistry/2':
