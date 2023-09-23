@@ -552,6 +552,7 @@ export const dummyApi = {
       case 'patient/undefined/programRegistration/1/surveyResponses':
         return getSortedData(programRegistryFormHistory, options);
       case `patient/programRegistration/program_registry_id/conditions`:
+      case `patient/programRegistration/program_id/conditions`:
         return patientProgramRegistryConditions;
       case 'suggestions/facility':
         return facilities;

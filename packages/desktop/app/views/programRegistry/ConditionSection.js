@@ -1,5 +1,5 @@
 //@ts-check
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import CloseIcon from '@material-ui/icons/Close';
 import { Colors } from '../../constants';
@@ -8,6 +8,8 @@ import { IconButton } from '@material-ui/core';
 import { useApi } from '../../api';
 import { usePatientProgramRegistryConditions } from '../../api/queries/usePatientProgramRegistryConditions';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { RemoveConditionFormModal } from './RemoveConditionFormModal';
+import { AddConditionFormModal } from './AddConditionFormModal';
 
 const Container = styled.div`
   background-color: ${Colors.white};
@@ -54,9 +56,11 @@ const AddConditionButton = styled.button`
   }
 `;
 
-export const ConditionSection = ({ patientProgramRegistryId }) => {
+export const ConditionSection = ({ patientProgramRegistry }) => {
   const api = useApi();
-  const { data, isLoading } = usePatientProgramRegistryConditions(patientProgramRegistryId);
+  const { data, isLoading } = usePatientProgramRegistryConditions(patientProgramRegistry.programId);
+  const [conditionToRemove, setConditionToRemove] = useState();
+  const [openAddCondition, setOpenAddCondition] = useState(false);
 
   const removeCondition = () => {
     api.delete('/asdasdasdasd');
@@ -67,16 +71,34 @@ export const ConditionSection = ({ patientProgramRegistryId }) => {
     <Container>
       <HeadingContainer>
         <Heading5>Conditions</Heading5>
-        <AddConditionButton>+ Add condition</AddConditionButton>
+        <AddConditionButton onClick={() => setOpenAddCondition(true)}>
+          + Add condition
+        </AddConditionButton>
       </HeadingContainer>
       {data.map(x => (
         <ConditionContainer>
           <span>{x.name}</span>
-          <IconButton style={{ padding: 0 }} onClick={removeCondition}>
+          <IconButton style={{ padding: 0 }} onClick={() => setConditionToRemove(x)}>
             <CloseIcon style={{ fontSize: '14px' }} />
           </IconButton>
         </ConditionContainer>
       ))}
+      {openAddCondition && (
+        <AddConditionFormModal
+          onSubmit={() => setOpenAddCondition(false)}
+          onCancel={() => setOpenAddCondition(false)}
+          programRegistry={patientProgramRegistry}
+          open
+        />
+      )}
+      {conditionToRemove && (
+        <RemoveConditionFormModal
+          condition={conditionToRemove}
+          onSubmit={() => setConditionToRemove(undefined)}
+          onCancel={() => setConditionToRemove(undefined)}
+          open
+        />
+      )}
     </Container>
   );
 };
