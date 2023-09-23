@@ -92,6 +92,15 @@ export const programRegistries = [
   programRegistry3.data,
 ];
 
+export const patientProgramRegistryConditions = [
+  { id: '1', name: 'Condition 1' },
+  { id: '2', name: 'Condition 2' },
+  { id: '3', name: 'Condition 3' },
+  { id: '4', name: 'Condition 4' },
+  { id: '5', name: 'Condition 5' },
+  { id: '6', name: 'Condition 6' },
+];
+
 export const programRegistryStatusHistories = [
   {
     id: '1',
@@ -542,6 +551,8 @@ export const dummyApi = {
       case 'patient/undefined/programRegistration/program_registry_id/surveyResponses':
       case 'patient/undefined/programRegistration/1/surveyResponses':
         return getSortedData(programRegistryFormHistory, options);
+      case `patient/programRegistration/program_registry_id/conditions`:
+        return patientProgramRegistryConditions;
       case 'suggestions/facility':
         return facilities;
       case 'suggestions/practitioner':

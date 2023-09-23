@@ -23,6 +23,7 @@ import {
   patientProgramRegistration,
   programRegistry1,
 } from './utils/mockProgramRegistryData';
+import { ConditionSection } from '../app/views/programRegistry/ConditionSection';
 
 //#region InfoPaneList
 storiesOf('Program Registry', module).add('ProgramRegistry Info Panlist', () => {
@@ -95,6 +96,17 @@ storiesOf('Program Registry', module).add('DisplayPatientRegDetails Needs review
   </div>
 ));
 //#endregion DisplayPatientRegDetails
+
+//#region ConditionSection
+storiesOf('Program Registry', module).add('Condition Section', () => (
+  <ApiContext.Provider value={dummyApi}>
+    <div style={{ width: '262px' }}>
+      <ConditionSection patientProgramRegistryId={patientProgramRegistration.id} />
+    </div>
+  </ApiContext.Provider>
+));
+
+//#endregion ConditionSection
 
 //#region ProgramRegistryStatusHistory
 

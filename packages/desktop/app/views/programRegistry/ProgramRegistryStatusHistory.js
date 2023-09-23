@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Table } from '../../components/Table/Table';
 import { DateDisplay } from '../../components/DateDisplay';
 import { Colors, STATUS_COLOR, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
-import { Heading3 } from '../../components/Typography';
+import { Heading5 } from '../../components/Typography';
 import { useProgramRegistryClinicalStatus } from '../../api/queries/useProgramRegistryClinicalStatus';
 
 const Container = styled.div`
@@ -79,7 +79,7 @@ export const ProgramRegistryStatusHistory = ({ programRegistry }) => {
 
   return (
     <Container>
-      <Heading3>Program Status History</Heading3>
+      <Heading5>Program Status History</Heading5>
       <br />
       <Table
         isBodyScrollable
