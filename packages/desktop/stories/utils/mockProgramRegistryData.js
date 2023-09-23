@@ -93,12 +93,12 @@ export const programRegistries = [
 ];
 
 export const patientProgramRegistryConditions = [
-  { id: '1', name: 'Condition 1' },
-  { id: '2', name: 'Condition 2' },
-  { id: '3', name: 'Condition 3' },
-  { id: '4', name: 'Condition 4' },
-  { id: '5', name: 'Condition 5' },
-  { id: '6', name: 'Condition 6' },
+  { id: '1', name: 'Diabetes' },
+  { id: '2', name: 'Hypertension' },
+  { id: '3', name: 'Low pressure' },
+  { id: '4', name: 'Migrain' },
+  { id: '5', name: 'Joint pain' },
+  { id: '6', name: 'Skin itching' },
 ];
 
 export const programRegistryStatusHistories = [
@@ -546,14 +546,16 @@ export const dummyApi = {
         return patientAdditionalData;
       case 'patient/patient_id/programRegistration/program_registry_id/clinicalStatuses':
       case 'patient/undefined/programRegistration/program_registry_id/clinicalStatuses':
-        return getSortedData(programRegistryStatusHistories, options);
+        return getSortedData(programRegistryStatusHistories.slice(0, 1), options);
+      // return getSortedData(programRegistryStatusHistories, options);
       case 'patient/patient_id/programRegistration/program_registry_id/surveyResponses':
       case 'patient/undefined/programRegistration/program_registry_id/surveyResponses':
       case 'patient/undefined/programRegistration/1/surveyResponses':
         return getSortedData(programRegistryFormHistory, options);
       case `patient/programRegistration/program_registry_id/conditions`:
       case `patient/programRegistration/program_id/conditions`:
-        return patientProgramRegistryConditions;
+        return [...patientProgramRegistryConditions, ...patientProgramRegistryConditions];
+      // return patientProgramRegistryConditions;
       case 'suggestions/facility':
         return facilities;
       case 'suggestions/practitioner':

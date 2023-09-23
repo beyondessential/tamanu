@@ -104,7 +104,7 @@ storiesOf('Program Registry', module).add('DisplayPatientRegDetails Needs review
 storiesOf('Program Registry', module).add('Condition Section', () => (
   <ApiContext.Provider value={dummyApi}>
     <div style={{ width: '262px' }}>
-      <ConditionSection patientProgramRegistry={patientProgramRegistration} />
+      <ConditionSection patientProgramRegistration={patientProgramRegistration} />
     </div>
   </ApiContext.Provider>
 ));

@@ -26,13 +26,12 @@ export const AddConditionFormModal = ({ onSubmit, onCancel, programRegistry, ope
     baseQueryParameters: { programRegistryId: programRegistry.programId },
   });
   return (
-    <Modal title="Add condition" open={open}>
+    <Modal title="Add condition" open={open} onClose={onCancel}>
       <Form
         onSubmit={data => {
           onSubmit(data);
         }}
         render={({ submitForm, values }) => {
-          console.log(values);
           const handleCancel = () => onCancel();
           return (
             <div>
