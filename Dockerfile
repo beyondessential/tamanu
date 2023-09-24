@@ -4,7 +4,7 @@
 
 ## Base images
 # The general concept is to build in build-base, then copy into a slimmer run-base
-FROM node:16-alpine AS base
+FROM node:20-alpine AS base
 WORKDIR /app
 ENV NODE_ENV=production
 COPY package.json license ./
