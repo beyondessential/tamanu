@@ -55,7 +55,7 @@ RUN scripts/docker-build.sh ${PACKAGE_PATH}
 
 ## Special target for packaging the desktop app
 # layer efficiency or size doesn't matter as this is not distributed
-FROM electronuserland/builder:16-wine AS build-desktop
+FROM electronuserland/builder:20-wine AS build-desktop
 RUN apt update && apt install -y jq
 COPY --from=build-base /app/ /app/
 WORKDIR /app
