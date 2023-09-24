@@ -56,7 +56,7 @@ jobs:
     - name: Setup Node.js 16
       uses: actions/setup-node@v3
       with:
-        node-version: 16.x
+        node-version: 20.x
         cache: yarn
 
     - uses: chainguard-dev/actions/setup-gitsign@main

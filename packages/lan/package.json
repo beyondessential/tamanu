@@ -10,7 +10,7 @@
   "main": "NODE_ENV='development' index.js",
   "bin": "dist/app.bundle.js",
   "engines": {
-    "node": "^16.16.0"
+    "node": "^20.7.0"
   },
   "scripts": {
     "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true app",

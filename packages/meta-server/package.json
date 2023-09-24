@@ -8,7 +8,7 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN license",
   "engines": {
-    "node": "^16.16.0"
+    "node": "^20.7.0"
   },
   "scripts": {
     "start": "node ./dist/app.bundle.js",
