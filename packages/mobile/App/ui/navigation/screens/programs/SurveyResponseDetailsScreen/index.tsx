@@ -43,6 +43,7 @@ function getAnswerText(question, answer): string | number {
     case FieldTypes.TEXT:
     case FieldTypes.SELECT:
     case FieldTypes.MULTI_SELECT:
+      return JSON.parse(answer).join(', ')
     case FieldTypes.RESULT:
     case FieldTypes.RADIO:
     case FieldTypes.CONDITION:
