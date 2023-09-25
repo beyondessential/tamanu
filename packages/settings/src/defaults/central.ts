@@ -171,6 +171,12 @@ export const centralDefaults = {
     // Report process timeout in 2 hours.
     timeOutDurationSeconds: 7200,
   },
+  // S3 Bucket used for upload of reports in ReportRunner.sendReportsToS3
+  reportUploadS3Bucket: {
+    name: null,
+    region: null,
+    path: null,
+  },
   scheduledReports: [],
   schedules: {
     // batchSize == run through them all in one run, in batches of N

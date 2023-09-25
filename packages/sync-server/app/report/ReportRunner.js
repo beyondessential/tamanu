@@ -1,4 +1,3 @@
-import config from 'config';
 import fs from 'fs';
 import path from 'path';
 import { format as formatDate } from 'date-fns';
@@ -15,27 +14,28 @@ import { getLocalisation } from '../localisation';
 const REPORT_RUNNER_LOG_NAME = 'ReportRunner';
 
 export class ReportRunner {
-  constructor(reportId, parameters, recipients, store, emailService, userId, exportFormat) {
+  constructor(context, runParameters) {
+    const { store, settings, emailService } = context;
+    const { reportId, userId, parameters, recipients } = runParameters;
+    this.log = createNamedLogger(REPORT_RUNNER_LOG_NAME, { reportId, userId });
+    this.settings = settings;
+    this.store = store;
+    this.emailService = emailService;
     this.reportId = reportId;
     this.parameters = parameters;
     this.recipients = recipients;
-    this.store = store;
-    this.emailService = emailService;
     this.userId = userId;
-    this.log = createNamedLogger(REPORT_RUNNER_LOG_NAME, { reportId, userId });
-    // Export format is only used for emailed recipients. Local reports have the export format
-    // defined in the recipients object and reports sent to s3 are always csv.
-    this.exportFormat = exportFormat;
   }
 
   async validate(reportModule, reportDataGenerator) {
-    const localisation = await getLocalisation();
+    const sender = await this.settings.get('mailgun.from');
 
-    if (this.recipients.email && !config.mailgun.from) {
+    if (this.recipients.email && !sender) {
       throw new Error('ReportRunner - Email config missing');
     }
 
-    const { disabledReports } = localisation;
+    const disabledReports = await this.settings.get('disabledReports');
+
     if (disabledReports.includes(this.reportId)) {
       throw new Error(`ReportRunner - Report "${this.reportId}" is disabled`);
     }
@@ -195,7 +195,7 @@ export class ReportRunner {
    */
   async sendReportToEmail(reportData) {
     const reportName = await this.getReportName();
-
+    const sender = await this.settings.get('mailgun.from');
     let zipFile;
     try {
       zipFile = await createZippedSpreadsheet(reportName, reportData, this.exportFormat);
@@ -207,7 +207,7 @@ export class ReportRunner {
       });
 
       const result = await this.emailService.sendEmail({
-        from: config.mailgun.from,
+        from: sender,
         to: recipients,
         subject: 'Report delivery',
         text: `Report requested: ${reportName}`,
@@ -231,11 +231,12 @@ export class ReportRunner {
   }
 
   async sendErrorToEmail(e) {
+    const sender = await this.settings.get('mailgun.from');
     try {
       const user = await this.getRequestedByUser();
       const reportName = await this.getReportName();
       this.emailService.sendEmail({
-        from: config.mailgun.from,
+        from: sender,
         to: user.email,
         subject: 'Failed to generate report',
         message: `Report requested: ${reportName} failed to generate with error: ${e.message}`,
@@ -253,9 +254,9 @@ export class ReportRunner {
    * @returns {Promise<void>}
    */
   async sendReportToS3(reportData) {
-    const { region, bucketName, bucketPath } = config.s3;
+    const bucket = await this.settings.get('reportUploadS3Bucket');
 
-    if (!bucketPath) {
+    if (!bucket.path) {
       throw new Error(`bucketPath must be set, e.g. 'au'`);
     }
 
@@ -265,10 +266,13 @@ export class ReportRunner {
       const reportName = await this.getReportName();
       zipFile = await createZippedSpreadsheet(reportName, reportData, bookType);
 
+      const { region, name } = bucket;
       const filename = path.basename(zipFile);
+      const key = `${bucket.path}/${filename}`;
 
       this.log.info('Uploading report to S3', {
-        path: `${bucketName}/${bucketPath}/${filename}`,
+        name,
+        key,
         region,
       });
 
@@ -278,8 +282,8 @@ export class ReportRunner {
 
       await client.send(
         new AWS.PutObjectCommand({
-          Bucket: bucketName,
-          Key: `${bucketPath}/${filename}`,
+          Bucket: name,
+          Key: key,
           Body: fileStream,
         }),
       );

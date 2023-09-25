@@ -111,19 +111,16 @@ export class ReportRequestProcessor extends ScheduledTask {
   };
 
   async runReportInTheSameProcess(request) {
-    log.info(
-      `Running report request "${
-        request.id
-      }" for report "${request.getReportId()}" in main process.`,
-    );
+    const reportId = request.getReportId();
+    log.info(`Running report request "${request.id}" for report "${reportId}" in main process.`);
     const reportRunner = new ReportRunner(
-      request.getReportId(),
-      request.getParameters(),
-      request.getRecipients(),
-      this.store,
-      this.emailService,
-      request.requestedByUserId,
-      request.exportFormat,
+      { store: this.store, emailService: this.emailService },
+      {
+        reportId,
+        userId: request.requestedByUserId,
+        parameters: request.getParameters(),
+        recipients: request.getRecipients(),
+      },
     );
 
     await reportRunner.run();
