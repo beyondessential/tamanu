@@ -561,7 +561,14 @@ describe('Patient merge', () => {
   describe('Maintainer task', () => {
     let maintainerTask;
     beforeAll(() => {
-      maintainerTask = new PatientMergeMaintainer(ctx);
+      maintainerTask = new PatientMergeMaintainer({
+        ...ctx,
+        schedules: {
+          patientMergeMaintainer: {
+            schedule: '',
+          },
+        },
+      });
     });
 
     it("Should make a fuss if a specificUpdateModel isn't covered", async () => {

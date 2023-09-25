@@ -19,6 +19,11 @@ describe('FhirMissingResources task', () => {
       FhirServiceRequest,
       FhirPractitioner,
     } = ctx.store.models;
+    ctx.schedules = {
+      fhirMissingResources: {
+        schedule: '',
+      },
+    };
 
     fhirMissingResourcesWorker = new FhirMissingResources(ctx);
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
