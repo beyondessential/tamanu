@@ -13,11 +13,8 @@ async function loadSigner({ signerCertificate }) {
   const { store } = await initDatabase({ testMode: false });
   const settings = new SettingsReader(store.models);
 
-  const vdsNcEnabled = await settings.get('integrations.vdsNc.enabled');
-  const euDccEnabled = await settings.get('integrations.euDcc.enabled');
-
   const signerFile = await fs.readFile(signerCertificate, 'utf8');
-  const signerData = await loadCertificateIntoSigner(signerFile, {}, vdsNcEnabled, euDccEnabled);
+  const signerData = await loadCertificateIntoSigner(signerFile, {}, { settings });
 
   const pending = await Signer.findPending();
 

@@ -23,12 +23,7 @@ describe('VDS-NC: Document cryptography', () => {
     const { settings } = ctx;
     const testCSCA = await TestCSCA.generate();
 
-    const vdsNcEnabled = await settings.get('integrations.vdsNc.enabled');
-    const euDccEnabled = await settings.get('integrations.euDcc.enabled');
-    const signerSettings = await settings.get('integrations.signer');
-    const countryCode = await settings.get('country.alpha-2');
-
-    const { publicKey, privateKey, request } = await newKeypairAndCsr(signerSettings, countryCode);
+    const { publicKey, privateKey, request } = await newKeypairAndCsr({ settings });
 
     const { Signer } = ctx.store.models;
     const signer = await Signer.create({
@@ -39,7 +34,7 @@ describe('VDS-NC: Document cryptography', () => {
     });
 
     const signerCert = await testCSCA.signCSR(request);
-    const signedCert = await loadCertificateIntoSigner(signerCert, {}, vdsNcEnabled, euDccEnabled);
+    const signedCert = await loadCertificateIntoSigner(signerCert, {}, { settings });
     await signer.update(signedCert);
     expect(signer?.isActive()).to.be.true;
   });

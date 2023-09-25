@@ -40,15 +40,9 @@ routes.post(
     const { body, store, settings } = req;
     const { Signer } = store.models;
 
-    const vdsNcEnabled = await settings.get('integrations.vdsNc.enabled');
-    const euDccEnabled = await settings.get('integrations.euDcc.enabled');
-
-    const signerData = await loadCertificateIntoSigner(
-      body.certificate,
-      body.workingPeriod,
-      vdsNcEnabled,
-      euDccEnabled,
-    );
+    const signerData = await loadCertificateIntoSigner(body.certificate, body.workingPeriod, {
+      settings,
+    });
     const pending = await Signer.findPending();
 
     if (!pending) {

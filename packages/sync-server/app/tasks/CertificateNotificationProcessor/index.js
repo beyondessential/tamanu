@@ -117,7 +117,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
                   settings: this.settings,
                 });
 
-                qrData = await HCERTPack(povData, { models: this.models });
+                qrData = await HCERTPack(povData, { models: this.models, settings: this.settings });
               } else if (vdsEnabled) {
                 sublog.debug('Generating VDS data for proof of vaccination', {
                   vax: latestCertifiableVax.id,

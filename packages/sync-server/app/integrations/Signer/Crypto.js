@@ -40,8 +40,10 @@ setEngine(
  *
  * @returns The fields to use to create the Signer model.
  */
-export async function newKeypairAndCsr(signerSettings, countryCode) {
-  const { commonName } = signerSettings;
+export async function newKeypairAndCsr({ settings }) {
+  const commonName = await settings.get('integrations.signer.commonName');
+  const countryCode = await settings.get('country.alpha-2');
+
   const { publicKey, privateKey } = await webcrypto.subtle.generateKey(
     {
       name: 'ECDSA',
@@ -114,12 +116,9 @@ export async function newKeypairAndCsr(signerSettings, countryCode) {
  * @param {string} certificate The signed certificate from the CSCA.
  * @returns {object} The fields to load into the relevant Signer.
  */
-export function loadCertificateIntoSigner(
-  certificate,
-  workingPeriod = {},
-  vdsNcEnabled = false,
-  euDccEnabled = false,
-) {
+export async function loadCertificateIntoSigner(certificate, workingPeriod = {}, { settings }) {
+  const vdsNcEnabled = await settings.get('integrations.vdsNc.enabled');
+  const euDccEnabled = await settings.get('integrations.euDcc.enabled');
   let binCert;
   let txtCert;
   if (typeof certificate === 'string') {
