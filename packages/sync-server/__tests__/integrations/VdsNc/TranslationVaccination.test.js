@@ -78,7 +78,7 @@ describe('VDS: Proof of Vaccination', () => {
     // Act
     const result = await createVdsNcVaccinationData(patient.id, {
       models: ctx.store.models,
-      countryCode: 'UTO',
+      settings: ctx.settings,
     }).then(
       resolved => ({ resolved }),
       rejected => ({ rejected }),
@@ -161,7 +161,7 @@ describe('VDS: Proof of Vaccination', () => {
     // Act
     const msg = await createVdsNcVaccinationData(patient.id, {
       models: ctx.store.models,
-      countryCode: 'UTO',
+      settings: ctx.settings,
     });
 
     // Assert
@@ -325,7 +325,7 @@ describe('VDS: Proof of Vaccination', () => {
     // Act
     const msg = await createVdsNcVaccinationData(patient.id, {
       models: ctx.store.models,
-      countryCode: 'UTO',
+      settings: ctx.settings,
     });
 
     // Assert

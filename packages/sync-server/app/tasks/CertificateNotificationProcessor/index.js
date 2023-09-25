@@ -127,6 +127,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
                 const povData = await createVdsNcVaccinationData(patient.id, {
                   models: this.models,
+                  settings: this.settings,
                 });
                 const vdsDoc = new VdsNcDocument(type, povData, uvci);
                 vdsDoc.models = this.models;

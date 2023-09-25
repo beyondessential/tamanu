@@ -27,7 +27,6 @@ import {
 } from 'pkijs';
 import { ICAO_DOCUMENT_TYPES, X502_OIDS } from '@tamanu/constants';
 import { depem, pem } from 'shared/utils';
-import { getLocalisation } from '../../localisation';
 
 const webcrypto = new Crypto();
 setEngine(
@@ -41,7 +40,7 @@ setEngine(
  *
  * @returns The fields to use to create the Signer model.
  */
-export async function newKeypairAndCsr(signerSettings) {
+export async function newKeypairAndCsr(signerSettings, countryCode) {
   const { commonName } = signerSettings;
   const { publicKey, privateKey } = await webcrypto.subtle.generateKey(
     {
@@ -53,8 +52,6 @@ export async function newKeypairAndCsr(signerSettings) {
   );
 
   const { keySecret, provider } = config.integrations.signer;
-
-  const countryCode = (await getLocalisation()).country['alpha-2'];
 
   const csr = new CertificationRequest();
   csr.version = 0;

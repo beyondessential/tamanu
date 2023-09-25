@@ -26,8 +26,9 @@ describe('VDS-NC: Document cryptography', () => {
     const vdsNcEnabled = await settings.get('integrations.vdsNc.enabled');
     const euDccEnabled = await settings.get('integrations.euDcc.enabled');
     const signerSettings = await settings.get('integrations.signer');
+    const countryCode = await settings.get('country.alpha-2');
 
-    const { publicKey, privateKey, request } = await newKeypairAndCsr(signerSettings);
+    const { publicKey, privateKey, request } = await newKeypairAndCsr(signerSettings, countryCode);
 
     const { Signer } = ctx.store.models;
     const signer = await Signer.create({

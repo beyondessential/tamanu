@@ -31,15 +31,17 @@ setEngine(
 describe('VDS-NC: Signer cryptography', () => {
   let ctx;
   let signerSettings;
+  let countryCode;
   beforeAll(async () => {
     ctx = await createTestContext();
     const { settings } = ctx;
     signerSettings = await settings.get('integrations.signer');
+    countryCode = await settings.get('country.alpha-2');
   });
   afterAll(() => ctx.close());
 
   it('creates a well-formed keypair', async () => {
-    const { publicKey, privateKey } = await newKeypairAndCsr(signerSettings);
+    const { publicKey, privateKey } = await newKeypairAndCsr(signerSettings, countryCode);
 
     // publicKey: Walk through the expected ASN.1 structure
     //
@@ -163,7 +165,7 @@ describe('VDS-NC: Signer cryptography', () => {
   });
 
   it('creates a well-formed CSR', async () => {
-    const { publicKey, request } = await newKeypairAndCsr(signerSettings);
+    const { publicKey, request } = await newKeypairAndCsr(signerSettings, countryCode);
 
     // Check the PEM has the borders
     expect(request)
@@ -254,7 +256,7 @@ describe('VDS-NC: Signer cryptography', () => {
     // Arrange
     const { Signer } = ctx.store.models;
 
-    const { publicKey, privateKey, request } = await newKeypairAndCsr(signerSettings);
+    const { publicKey, privateKey, request } = await newKeypairAndCsr(signerSettings, countryCode);
 
     // Act
     const newSigner = await Signer.create({
