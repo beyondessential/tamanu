@@ -40,6 +40,7 @@ export const centralDefaults = {
   },
   honeycomb: {
     enabled: true,
+    level: 'info',
     sampleRate: 100, // 100 = 1/100 = 1% of traces get sent to honeycomb
     // in contrast, logs are always sent
   },
@@ -156,11 +157,6 @@ export const centralDefaults = {
     // DESTROY sets deleted_at to a timestamp
     // NONE is a no-op and does nothing
     deletionAction: 'RENAME',
-  },
-  questionCodeIds: {
-    email: null,
-    nationalityId: null,
-    passport: null,
   },
   reportProcess: {
     // Provide an object {} for the env of child process
