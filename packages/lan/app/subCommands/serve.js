@@ -40,7 +40,6 @@ async function serve({ skipMigrationCheck }) {
   await performTimeZoneChecks({
     remote: context.centralServer,
     sequelize: context.sequelize,
-    models: context.models,
     config,
   });
 

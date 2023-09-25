@@ -20,26 +20,20 @@ async function getDatabaseTimeZone(sequelize) {
 }
 
 // Try to grab current remote time zone
-// otherwise default to the latest seen
-async function getRemoteTimeZone(remote, models) {
-  const { LocalSystemFact } = models;
+// otherwise ignore that one
+async function getRemoteTimeZone(remote) {
   try {
     const health = await remote.fetch('health', { timeout: 2000, backoff: { maxAttempts: 1 } });
     const { countryTimeZone } = health.config;
-    await LocalSystemFact.set('lastCentralServerCountryTimeZone', countryTimeZone);
     return countryTimeZone;
   } catch (error) {
     log.warn('Unable to grab countryTimeZone from central server.');
   }
 
-  const lastCentralServerCountryTimeZone = await LocalSystemFact.get(
-    'lastCentralServerCountryTimeZone',
-  );
-
-  return lastCentralServerCountryTimeZone;
+  return null;
 }
 
-export async function performTimeZoneChecks({ config, sequelize, remote, models }) {
+export async function performTimeZoneChecks({ config, sequelize, remote }) {
   const zones = {
     system: getSystemTimeZone(),
     config: getConfigTimeZone(config),
@@ -47,7 +41,7 @@ export async function performTimeZoneChecks({ config, sequelize, remote, models 
   };
 
   if (remote) {
-    zones.remoteConfig = await getRemoteTimeZone(remote, models);
+    zones.remoteConfig = await getRemoteTimeZone(remote);
   }
 
   /*
