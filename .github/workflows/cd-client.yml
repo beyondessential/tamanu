@@ -87,7 +87,7 @@ jobs:
           role-session-name: GHA@Tamanu=DesktopClients
           mask-aws-account-id: false
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           # in PRs, use the actual PR branch, not the merge branch
           ref: ${{ github.event.pull_request.head.ref || github.ref }}

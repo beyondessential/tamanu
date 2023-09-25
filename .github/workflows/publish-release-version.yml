@@ -20,7 +20,7 @@ jobs:
         echo "This workflow can only be run on a release branch"
         exit 1
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         token: ${{ secrets.TAMANU_RELEASE_PAT }}
 

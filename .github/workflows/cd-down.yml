@@ -39,10 +39,10 @@ jobs:
           mask-aws-account-id: false
 
       - name: Checkout this PR
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout ops
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: beyondessential/ops
           ssh-key: ${{ secrets.TAMANU_OPS_SSH }}

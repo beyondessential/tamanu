@@ -66,7 +66,7 @@ jobs:
       - name: Login to ECR
         uses: aws-actions/amazon-ecr-login@v1
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -130,7 +130,7 @@ jobs:
       S3_PATH: s3://bes-tamanu-release-servers/test/${{ needs.info.outputs.version }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v3

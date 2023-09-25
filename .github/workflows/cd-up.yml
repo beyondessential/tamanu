@@ -63,7 +63,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           # in PRs, use the actual PR branch, not the merge branch
           ref: ${{ needs.info.outputs.actual_ref }}
@@ -113,10 +113,10 @@ jobs:
           mask-aws-account-id: false
 
       - name: Checkout this PR
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout ops
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: beyondessential/ops
           ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
