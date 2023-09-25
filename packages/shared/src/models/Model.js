@@ -1,4 +1,6 @@
 import * as sequelize from 'sequelize';
+import * as yup from 'yup';
+
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
 const { Op, Utils, Sequelize } = sequelize;
@@ -6,8 +8,16 @@ const { Op, Utils, Sequelize } = sequelize;
 const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 
 export class Model extends sequelize.Model {
-  // Default deletedAt key
-  static deletedAtKey = 'deletedAt';
+  static deletedAtSchema = yup.object().shape({
+    key: yup.string().required(),
+    value: yup.object().shape({
+      softDeleted: yup.string().required(),
+      active: yup
+        .string()
+        .required()
+        .nullable(),
+    }),
+  });
 
   static init(modelAttributes, { syncDirection, timestamps = true, schema, ...options }) {
     const attributes = {
@@ -30,6 +40,11 @@ export class Model extends sequelize.Model {
     this.syncDirection = syncDirection;
     this.validateSync(timestamps);
     this.usesPublicSchema = schema === undefined || schema === 'public';
+
+    // To enable soft deletion, deletedAt is required for non paranoid models.
+    if (!this.getIsParanoid()) {
+      this.deletedAtSchema.validateSync(this.deletedAt);
+    }
   }
 
   static generateId() {
