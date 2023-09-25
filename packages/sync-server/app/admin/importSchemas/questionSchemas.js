@@ -1,5 +1,5 @@
 import * as yup from 'yup';
-import { PROGRAM_DATA_ELEMENT_TYPE_VALUES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPE_VALUES, PATIENT_DATA_FIELD_LOCATIONS } from '@tamanu/constants';
 import { SurveyScreenComponent, baseValidationShape, baseConfigShape } from './baseSchemas';
 import { configString, validationString, visualisationConfigString } from './jsonString';
 import { isNumberOrFloat } from '../../utils/numbers';
@@ -18,7 +18,10 @@ export const SSCPatientData = SurveyScreenComponent.shape({
       writeToPatient: yup
         .object()
         .shape({
-          fieldName: yup.string().required(),
+          fieldName: yup
+            .string()
+            .oneOf(Object.keys(PATIENT_DATA_FIELD_LOCATIONS))
+            .required(),
           isAdditionalData: yup.boolean(),
           fieldType: yup
             .string()
