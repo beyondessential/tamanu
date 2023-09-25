@@ -17,19 +17,18 @@ const fromSurveyScreenComponent = async () => {
   }
 
   const response = await store.sequelize.query(
-    `UPDATE "survey_screen_components" SET "deleted_at" = NULL, "${deletedAtKey}" = '${deletedAt.value.softDeleted}' WHERE "deleted_at" IS NOT NULL`,
+    `UPDATE "survey_screen_components" 
+      SET "deleted_at" = NULL, "${deletedAtKey}" = :historical
+      WHERE "deleted_at" IS NOT NULL`,
+    {
+      replacements: {
+        historical: deletedAt.value.softDeleted,
+      },
+    },
   );
 
   log.info(
     `${response[1].rowCount} soft deleted records updated at survey_screen_components table`,
-  );
-
-  const response2 = await store.sequelize.query(
-    `UPDATE "survey_screen_components" SET "${deletedAtKey}" = '${deletedAt.value.active}' WHERE "deleted_at" IS NULL AND "${deletedAtKey}" IS NULL`,
-  );
-
-  log.info(
-    `${response2[1].rowCount} non soft deleted records updated at survey_screen_components table`,
   );
 };
 
