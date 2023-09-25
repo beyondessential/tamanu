@@ -1,5 +1,6 @@
 import React from 'react';
 import * as yup from 'yup';
+import { format, endOfDay } from 'date-fns';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import { Box } from '@material-ui/core';
@@ -54,6 +55,7 @@ export const TriageForm = ({
           name="arrivalTime"
           label="Arrival date & time"
           component={DateTimeField}
+          max={format(endOfDay(new Date()), `yyyy-MM-dd'T'HH:mm`)} // Weird time picker behaviour with date.now(), so using end of day. It will be also validated on submit.
           helperText="If different from triage time"
           saveDateAsString
         />
@@ -61,6 +63,7 @@ export const TriageForm = ({
           name="triageTime"
           label="Triage date & time"
           required
+          max={format(endOfDay(new Date()), `yyyy-MM-dd'T'HH:mm`)} // Weird time picker behaviour with date.now(), so using end of day. It will be also validated on submit.
           component={DateTimeField}
           saveDateAsString
         />
@@ -162,7 +165,11 @@ export const TriageForm = ({
         ...editedObject,
       }}
       validationSchema={yup.object().shape({
-        triageTime: yup.date().required(),
+        arrivalTime: yup.date().max(new Date(), 'Arrival time cannot be in the future'),
+        triageTime: yup
+          .date()
+          .required()
+          .max(new Date(), 'Triage time cannot be in the future'),
         chiefComplaintId: foreignKey('Chief complaint must be selected'),
         practitionerId: foreignKey(`Triage ${clinicianText.toLowerCase()} must be selected`),
         locationId: foreignKey('Location must be selected'),

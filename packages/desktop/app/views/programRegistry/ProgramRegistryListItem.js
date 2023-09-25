@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Tooltip } from '@material-ui/core';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
 
 const Spacer = styled.div`
   display: flex;
@@ -30,10 +31,11 @@ const StatusInactiveDot = styled.div`
   margin: 0px 5px;
 `;
 
-export const ProgramRegistryListItem = ({ item, handleRowClick, ListItem }) => {
+export const ProgramRegistryListItem = ({ item, ListItem }) => {
   const { id, name, status, clinicalStatus } = item;
+  const { navigateToProgramRegistry } = usePatientNavigation();
   return (
-    <ListItem onClick={() => handleRowClick(id)}>
+    <ListItem onClick={() => navigateToProgramRegistry(id, name)}>
       <Spacer>
         <RowContents>
           <Tooltip title={status} arrow placement="top-end">

@@ -2,6 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { Switch, Route } from 'react-router-dom';
 import styled from 'styled-components';
+import { useUrlQueryParams } from '../hooks';
 import { PatientInfoPane } from '../components/PatientInfoPane';
 import { getPatientNameAsString } from '../components/PatientNameDisplay';
 import { PatientNavigation } from '../components/PatientNavigation';
@@ -19,11 +20,17 @@ import {
 import { getEncounterType } from '../views/patients/panes/EncounterInfoPane';
 import { ProgramsView } from '../views/programs/ProgramsView';
 import { ReferralsView } from '../views/referrals/ReferralsView';
+import { ProgramRegistryView } from '../views/programRegistry/ProgramRegistryView';
 
 export const usePatientRoutes = () => {
-  const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
+  const {
+    navigateToEncounter,
+    navigateToPatient,
+    navigateToProgramRegistry,
+  } = usePatientNavigation();
   const patient = useSelector(state => state.patient);
   const { encounter } = useEncounter();
+  const queryParams = useUrlQueryParams();
   return [
     {
       path: PATIENT_PATHS.PATIENT,
@@ -68,6 +75,12 @@ export const usePatientRoutes = () => {
               title: 'Imaging Request',
             },
           ],
+        },
+        {
+          path: PATIENT_PATHS.PROGRAM_REGISTRY,
+          component: ProgramRegistryView,
+          navigateTo: programRegistry => navigateToProgramRegistry(programRegistry.id),
+          title: queryParams.get('title'),
         },
       ],
     },
