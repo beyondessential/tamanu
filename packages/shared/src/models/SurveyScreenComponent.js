@@ -55,6 +55,7 @@ export class SurveyScreenComponent extends Model {
         surveyId: {
           [Op.in]: surveyIds,
         },
+        [this.deletedAt.key]: this.deletedAt.value.active,
       },
       include: this.getListReferenceAssociations(),
       order: [
@@ -90,16 +91,6 @@ export class SurveyScreenComponent extends Model {
       ...values,
       options: parseOrNull(options),
     };
-  }
-
-  // Manually defines the special column to filter out soft deleted records.
-  static async findAll(options) {
-    const { where = {} } = { ...options };
-
-    if (!where.hasOwnProperty(this.deletedAt.key)) {
-      where[this.deletedAt.key] = VISIBILITY_STATUSES.CURRENT;
-    }
-    return super.findAll({ ...options, where });
   }
 
   async destroy() {
