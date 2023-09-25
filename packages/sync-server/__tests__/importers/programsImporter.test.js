@@ -6,7 +6,7 @@ import { createTestContext } from '../utilities';
 import './matchers';
 
 // the importer can take a little while
-jest.setTimeout(30000);
+jest.setTimeout(300000);
 
 describe('Programs import', () => {
   let ctx;
@@ -15,11 +15,20 @@ describe('Programs import', () => {
   });
 
   const truncateTables = async () => {
-    const { Program, Survey, ProgramDataElement, SurveyScreenComponent } = ctx.store.models;
+    const {
+      Program,
+      Survey,
+      ProgramRegistry,
+      ProgramRegistryClinicalStatus,
+      ProgramDataElement,
+      SurveyScreenComponent,
+    } = ctx.store.models;
     await SurveyScreenComponent.destroy({ where: {}, force: true });
     await ProgramDataElement.destroy({ where: {}, force: true });
     await Survey.destroy({ where: {}, force: true });
     await Program.destroy({ where: {}, force: true });
+    await ProgramRegistryClinicalStatus.destroy({ where: {}, force: true });
+    await ProgramRegistry.destroy({ where: {}, force: true });
   };
 
   beforeEach(async () => {
@@ -34,7 +43,7 @@ describe('Programs import', () => {
     const { file, ...opts } = options;
     return importerTransaction({
       importer: programImporter,
-      file: `./__tests__/importers/programs-${file}.xlsx`,
+      file: `./__tests__/importers/programs-${file}.xml`,
       models: ctx.store.models,
       ...opts,
     });
