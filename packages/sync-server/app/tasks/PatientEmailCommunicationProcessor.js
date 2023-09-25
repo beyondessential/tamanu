@@ -11,11 +11,11 @@ const maskEmail = email => email.replace(/[^@]*/g, maskMiddle);
 
 export class PatientEmailCommunicationProcessor extends ScheduledTask {
   constructor(context) {
-    // TODO: Use db config fetcher (cannot use async on constructor)
-    const conf = config.schedules.patientEmailCommunicationProcessor;
-    super(conf.schedule, log);
-    this.config = conf;
-    this.context = context;
+    const { schedules, settings, store, emailService } = context;
+    super(schedules.patientEmailCommunicationProcessor.schedule, log);
+    this.models = store.models;
+    this.settings = settings;
+    this.emailService = emailService;
   }
 
   getName() {
@@ -23,7 +23,7 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
   }
 
   async countQueue() {
-    const { PatientCommunication } = this.context.store.models;
+    const { PatientCommunication } = this.models;
     return PatientCommunication.count({
       where: {
         status: COMMUNICATION_STATUSES.QUEUED,
@@ -33,7 +33,11 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
   }
 
   async run() {
-    const { Patient, PatientCommunication } = this.context.store.models;
+    const { Patient, PatientCommunication } = this.models;
+
+    const limit = await this.context.settings.get(
+      'schedules.patientEmailCommunicationProcessor.limit',
+    );
 
     const emailsToBeSent = await PatientCommunication.findAll({
       where: {
@@ -47,7 +51,7 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
         },
       ],
       order: [['createdAt', 'ASC']], // process in order received
-      limit: this.config.limit,
+      limit,
     });
 
     const sendEmails = emailsToBeSent.map(async email => {
@@ -64,7 +68,7 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
       });
 
       try {
-        const result = await this.context.emailService.sendEmail({
+        const result = await this.emailService.sendEmail({
           to: toAddress,
           from: config.mailgun.from,
           subject: emailPlain.subject,

@@ -17,17 +17,17 @@ const PATIENT_FIELDS = [
   { key: 'nationality', label: 'Nationality', accessor: getNationality },
 ];
 
-export const PatientDetailsSection = ({ patient, getLocalisation, extraFields = [] }) => {
+export const PatientDetailsSection = ({ patient, getSetting, extraFields = [] }) => {
   const detailsToDisplay = [...PATIENT_FIELDS, ...extraFields].filter(
-    ({ key }) => !getLocalisation(`fields.${key}.hidden`),
+    ({ key }) => !getSetting(`fields.${key}.hidden`),
   );
   return (
     <Row>
       <Col style={{ marginBottom: 5 }}>
         <Row>
           {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
-            const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
-            const label = getLocalisation(`fields.${key}.shortLabel`) || defaultLabel;
+            const value = (accessor ? accessor(patient, getSetting) : patient[key]) || '';
+            const label = getSetting(`fields.${key}.shortLabel`) || defaultLabel;
 
             return (
               <Col style={{ width: '33%' }} key={key}>

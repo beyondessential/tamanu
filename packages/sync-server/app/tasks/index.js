@@ -64,7 +64,13 @@ export async function startScheduledTasks(context) {
     ...taskClasses.map(Task => {
       try {
         log.debug(`Starting to initialise scheduled task ${Task.name}`);
-        return new Task(context);
+        return new Task({
+          ...context,
+          schedules: {
+            ...schedules,
+            vrsActionRetrier: { schedule: integrations.fijiVrs.retrySchedule },
+          },
+        });
       } catch (err) {
         log.warn('Failed to initialise scheduled task', { name: Task.name, err });
         return null;

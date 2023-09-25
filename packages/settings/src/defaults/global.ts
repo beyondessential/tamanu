@@ -4,6 +4,7 @@ export const globalDefaults = {
     'alpha-3': '',
     name: '',
   },
+  disabledReports: [],
   features: {
     displayIcd10CodesInDischargeSummary: true,
     displayProcedureCodesInDischargeSummary: true,

@@ -76,8 +76,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         const printedBy = notification.get('createdBy');
         const printedDate = notification.get('printedDate');
 
-        const { country } = await getLocalisation();
-        const countryCode = country['alpha-2'];
+        const countryCode = await settings.get('country.alpha-2');
 
         const sublog = log.child({
           id: notification.id,

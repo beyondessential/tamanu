@@ -1,20 +1,15 @@
-import config from 'config';
 import { format } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
-import { get } from 'lodash';
 
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 
-import { getLocalisation } from '../localisation';
-
 export class SignerRenewalSender extends ScheduledTask {
-  constructor(context) {
-    // TODO: Use db config fetcher (cannot use async on constructor)
-    const conf = config.schedules.signerRenewalSender;
-    super(conf.schedule, log);
-    this.config = conf;
-    this.context = context;
+  constructor({ store, settings, schedules, emailService }) {
+    super(schedules.signerRenewalSender.schedule, log);
+    this.emailService = emailService;
+    this.settings = settings;
+    this.models = store.models;
   }
 
   getName() {
@@ -22,8 +17,7 @@ export class SignerRenewalSender extends ScheduledTask {
   }
 
   async run() {
-    const { emailService } = this.context;
-    const { Signer } = this.context.store.models;
+    const { Signer } = this.models;
 
     const pending = await Signer.findAll({
       where: {
@@ -46,18 +40,18 @@ export class SignerRenewalSender extends ScheduledTask {
       );
     }
 
-    const localisation = await getLocalisation();
+    const sender = await this.settings.get('mailgun.from');
+    const recipient = await this.settings.get('integrations.signer.sendSignerRequestTo');
+    const { subject, body } = await this.settings.get('localisation.templates.signerRenewalEmail');
 
-    log.info(
-      `Emailing ${pending.length} CSR(s) to ${config.integrations.signer.sendSignerRequestTo}`,
-    );
+    log.info(`Emailing ${pending.length} CSR(s) to ${recipient}`);
     for (const signer of pending) {
       try {
-        await emailService.sendEmail({
-          to: config.integrations.signer.sendSignerRequestTo,
-          from: config.mailgun.from,
-          subject: get(localisation, 'signerRenewalEmail.subject'),
-          text: get(localisation, 'signerRenewalEmail.body'),
+        await this.emailService.sendEmail({
+          to: recipient,
+          from: sender,
+          subject,
+          text: body,
           attachment: {
             filename: `Tamanu_${format(signer.createdAt, 'yyyy-MM-dd')}.csr`,
             data: Buffer.from(signer.request),

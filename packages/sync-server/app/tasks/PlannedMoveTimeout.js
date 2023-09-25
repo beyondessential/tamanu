@@ -1,4 +1,3 @@
-import config from 'config';
 import { subHours } from 'date-fns';
 import { Op } from 'sequelize';
 
@@ -17,17 +16,18 @@ export class PlannedMoveTimeout extends ScheduledTask {
   }
 
   constructor(context, overrideConfig = null) {
-    // TODO: Use db config fetcher (cannot use async on constructor)
-    const conf = {
-      ...config.schedules.plannedMoveTimeout,
+    const { store, settings, schedules } = context;
+    const { schedule, suppressInitialRun } = {
+      ...schedules.plannedMoveTimeout,
       ...overrideConfig,
     };
-    super(conf.schedule, log);
-    this.config = conf;
-    this.models = context.store.models;
+    super(schedule, log);
+    this.overrides = overrideConfig;
+    this.models = store.models;
+    this.settings = settings;
 
     // Run once of startup (in case the server was down when it was scheduled)
-    if (!conf.suppressInitialRun) {
+    if (!suppressInitialRun) {
       this.runImmediately();
     }
   }
@@ -35,10 +35,14 @@ export class PlannedMoveTimeout extends ScheduledTask {
   async run() {
     const { Encounter, Location } = this.models;
 
+    const timeoutHours =
+      this.overrides?.timeoutHours ||
+      (await this.settings.get('schedules.plannedMoveTimeout.timeoutHours'));
+
     const query = {
       where: {
         plannedLocationStartTime: {
-          [Op.lt]: toCountryDateTimeString(subHours(new Date(), this.config.timeoutHours)),
+          [Op.lt]: toCountryDateTimeString(subHours(new Date(), timeoutHours)),
         },
       },
       include: [
@@ -53,7 +57,10 @@ export class PlannedMoveTimeout extends ScheduledTask {
     const toProcess = await Encounter.count(query);
     if (toProcess === 0) return;
 
-    const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
+    const { batchSize, batchSleepAsyncDurationInMilliseconds } = {
+      ...(await this.settings.get('schedules.plannedMoveTimeout')),
+      ...this.overrides,
+    };
 
     // Make sure these exist, else they will prevent the script from working
     if (!batchSize || !batchSleepAsyncDurationInMilliseconds) {
@@ -78,7 +85,7 @@ export class PlannedMoveTimeout extends ScheduledTask {
 
       for (const encounter of encounters) {
         await encounter.addSystemNote(
-          `Automatically cancelled planned move to ${encounter.plannedLocation.name} after ${this.config.timeoutHours} hours`,
+          `Automatically cancelled planned move to ${encounter.plannedLocation.name} after ${timeoutHours} hours`,
           getCurrentCountryTimeZoneDateTimeString(),
         );
         await encounter.update({

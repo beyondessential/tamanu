@@ -19,13 +19,13 @@ const PATIENT_FIELDS = [
 
 export const CovidPatientDetailsSection = ({
   patient,
-  getLocalisation,
+  getSetting,
   vdsSrc,
   extraFields = [],
   uvci,
 }) => {
   const detailsToDisplay = [...PATIENT_FIELDS, ...extraFields].filter(
-    ({ key }) => !getLocalisation(`fields.${key}.hidden`),
+    ({ key }) => !getSetting(`localisation.fields.${key}.hidden`),
   );
 
   const leftWidth = vdsSrc ? 68 : 80;
@@ -36,8 +36,8 @@ export const CovidPatientDetailsSection = ({
       <Col style={{ width: `${leftWidth}%` }}>
         <Row>
           {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
-            const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
-            const label = getLocalisation(`fields.${key}.shortLabel`) || defaultLabel;
+            const value = (accessor ? accessor(patient, getSetting) : patient[key]) || '';
+            const label = getSetting(`localisation.fields.${key}.shortLabel`) || defaultLabel;
 
             return (
               <Col key={key}>

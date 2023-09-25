@@ -33,6 +33,7 @@ async function serve({ skipMigrationCheck }) {
 
   const settings = new ReadSettings(context.models, config.serverFacilityId);
   context.settings = settings;
+
   const syncConfig = await settings.get('sync');
   const countryTimeZone = await settings.get('countryTimeZone');
   const discoverySettings = await settings.get('discovery');
@@ -64,7 +65,18 @@ async function serve({ skipMigrationCheck }) {
 
   listenForServerQueries(discoverySettings);
 
-  startScheduledTasks(context);
+  const syncSchedule = await settings.get('sync.schedule');
+  const schedules = await settings.get('schedules');
+
+  startScheduledTasks({
+    ...context,
+    schedules: {
+      ...schedules,
+      sync: {
+        schedule: syncSchedule,
+      },
+    },
+  });
 }
 
 export const serveCommand = new Command('serve')

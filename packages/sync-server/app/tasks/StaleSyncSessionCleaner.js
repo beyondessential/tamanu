@@ -1,4 +1,3 @@
-import config from 'config';
 import { Op } from 'sequelize';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
@@ -9,16 +8,13 @@ export class StaleSyncSessionCleaner extends ScheduledTask {
     return 'StaleSyncSessionCleaner';
   }
 
-  constructor(context) {
-    // TODO: Use db config fetcher (cannot use async on constructor)
-    const conf = config.schedules.staleSyncSessionCleaner;
-    super(conf.schedule, log);
-    this.config = conf;
-    this.store = context.store;
+  constructor({ schedules, store, settings }) {
+    super(schedules.staleSyncSessionCleaner.schedule, log);
+    this.store = store;
+    this.settings = settings;
   }
 
-  getWhere() {
-    const { staleSessionSeconds } = this.config;
+  getWhere(staleSessionSeconds) {
     return {
       lastConnectionTime: { [Op.lt]: Date.now() - staleSessionSeconds * 1000 },
       completedAt: { [Op.is]: null },
@@ -33,9 +29,12 @@ export class StaleSyncSessionCleaner extends ScheduledTask {
   }
 
   async run() {
+    const staleSessionSeconds = await this.setting.get(
+      'schedules.staleSyncSessionCleaner.staleSessionSeconds',
+    );
     const { SyncSession } = this.store.models;
     const staleSessions = await SyncSession.findAll({
-      where: this.getWhere(),
+      where: this.getWhere(staleSessionSeconds),
       select: ['id'],
       raw: true,
     });
