@@ -55,10 +55,14 @@ const FormSubmission = () => {
 
   useEffect(() => {
     setHasFormSubmission(true);
+    // we only want to flag this once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     setIsClosable(!isSubmitting);
+    // we only want to set isClosable when isSubmitting is changed
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSubmitting]);
 
   return null;
