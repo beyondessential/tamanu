@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import { DataFetchingTable } from '../../../components';
 
-import { capitaliseFirstLetter } from '../../../utils/capitalise';
 import { getCompletedDate, getMethod } from '../../../utils/lab';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
@@ -33,7 +32,7 @@ const columns = sex => [
   {
     title: 'Result',
     key: 'result',
-    accessor: ({ result }) => (result ? capitaliseFirstLetter(result) : ''),
+    accessor: ({ result }) => result ?? '',
   },
   {
     title: 'Units',
