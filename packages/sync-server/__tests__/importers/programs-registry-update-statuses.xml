@@ -13,7 +13,7 @@
   <Version>16.00</Version>
  </DocumentProperties>
  <Worksheet ss:Name="Metadata">
-  <Table x:FullColumns="1" x:FullRows="1" ss:DefaultColumnWidth="54" ss:DefaultRowHeight="15.75">
+  <Table x:FullColumns="1" x:FullRows="1" ss:DefaultColumnWidth="63.75" ss:DefaultRowHeight="15.75">
    <Column ss:Width="168.75"/>
    <Column ss:Width="149.25"/>
    <Column ss:Index="4" ss:Width="87"/>
@@ -131,19 +131,24 @@
     <Cell><Data ss:Type="String">ImportedDuringSetup</Data></Cell>
     <Cell><Data ss:Type="String">Imported During Setup</Data></Cell>
     <Cell><Data ss:Type="String">orange</Data></Cell>
+    <Cell><Data ss:Type="String">historical</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Deregistered</Data></Cell>
+    <Cell><Data ss:Type="String">Deregistered</Data></Cell>
+    <Cell><Data ss:Type="String">red</Data></Cell>
     <Cell><Data ss:Type="String">current</Data></Cell>
    </Row>
    <Row>
     <Cell><Data ss:Type="String">Inactive</Data></Cell>
     <Cell><Data ss:Type="String">Inactive</Data></Cell>
-    <Cell><Data ss:Type="String">red</Data></Cell>
+    <Cell><Data ss:Type="String">grey</Data></Cell>
     <Cell><Data ss:Type="String">current</Data></Cell>
    </Row>
   </Table>
  </Worksheet>
  <Worksheet ss:Name="Import Registry With Survey">
-  <Table x:FullColumns="1" x:FullRows="1" ss:DefaultColumnWidth="54" ss:DefaultRowHeight="15.75">
-
+  <Table  x:FullColumns="1" x:FullRows="1" ss:DefaultColumnWidth="63.75" ss:DefaultRowHeight="15.75">
    <Column ss:Width="147.75"/>
    <Column ss:Width="102.75"/>
    <Column ss:AutoFitWidth="0" ss:Width="212.25"/>

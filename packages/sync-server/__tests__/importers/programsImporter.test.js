@@ -40,10 +40,10 @@ describe('Programs import', () => {
   });
 
   function doImport(options) {
-    const { file, ...opts } = options;
+    const { file, xml = false, ...opts } = options;
     return importerTransaction({
       importer: programImporter,
-      file: `./__tests__/importers/programs-${file}.xml`,
+      file: `./__tests__/importers/programs-${file}${xml ? '.xml' : '.xlsx'}`,
       models: ctx.store.models,
       ...opts,
     });
@@ -299,6 +299,7 @@ describe('Programs import', () => {
     it('should import a valid registry', async () => {
       const { errors, stats, didntSendReason } = await doImport({
         file: 'registry-valid',
+        xml: true,
         dryRun: true,
       });
       expect(errors).toBeEmpty();
