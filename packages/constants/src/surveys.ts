@@ -26,9 +26,7 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
   USER_DATA: 'UserData',
   PATIENT_ISSUE: 'PatientIssue',
 };
-export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(
-  PROGRAM_DATA_ELEMENT_TYPES,
-);
+export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(PROGRAM_DATA_ELEMENT_TYPES);
 
 export const NON_ANSWERABLE_DATA_ELEMENT_TYPES = [
   PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION,
@@ -85,62 +83,62 @@ export const VITAL_CHARTS = {
   [PDE_AVPU]: LINE,
 };
 
-// Note each 2nd level key should only appear once.
-// (i.e. don't add `LabTest.firstName`, because it conflicts with `Patient.firstName`)
+// utility function for when a model's fields are all a direct match for their survey configs
+const makeLookupFields = (model: string, fields: string[]) =>
+  fields.map(f => [model, f]).reduce((state, c) => ({ ...state, [c[1]]: c }), {});
+
 // Please keep in sync with:
 // - mobile/App/constants/surveys
 export const PATIENT_DATA_FIELD_LOCATIONS = {
-  PatientProgramRegistration: {
-    registrationClinicalStatus: 'clinicalStatusId',
-    programRegistrationStatus: 'registrationStatus',
-    registrationClinician: 'clinicianId',
-    registeringFacility: 'registeringFacilityId',
-    registrationCurrentlyAtVillage: 'villageId',
-    registrationCurrentlyAtFacility: 'facilityId',
-  },
-  Patient: {
-    firstName: 'firstName',
-    middleName: 'middleName',
-    lastName: 'lastName',
-    culturalName: 'culturalName',
-    dateOfBirth: 'dateOfBirth',
-    dateOfDeath: 'dateOfDeath',
-    sex: 'sex',
-    email: 'email',
+  registrationClinicalStatus: ['PatientProgramRegistration', 'clinicalStatusId'],
+  programRegistrationStatus: ['PatientProgramRegistration', 'registrationStatus'],
+  registrationClinician: ['PatientProgramRegistration', 'clinicianId'],
+  registeringFacility: ['PatientProgramRegistration', 'registeringFacilityId'],
+  registrationCurrentlyAtVillage: ['PatientProgramRegistration', 'villageId'],
+  registrationCurrentlyAtFacility: ['PatientProgramRegistration', 'facilityId'],
+  ...makeLookupFields('Patient', [
+    'firstName',
+    'middleName',
+    'lastName',
+    'culturalName',
+    'dateOfBirth',
+    'dateOfDeath',
+    'sex',
+    'email',
 
-    villageId: 'villageId',
-  },
-  PatientAdditionalData: {
-    placeOfBirth: 'placeOfBirth',
-    bloodType: 'bloodType',
-    primaryContactNumber: 'primaryContactNumber',
-    secondaryContactNumber: 'secondaryContactNumber',
-    maritalStatus: 'maritalStatus',
-    cityTown: 'cityTown',
-    streetVillage: 'streetVillage',
-    educationalLevel: 'educationalLevel',
-    socialMedia: 'socialMedia',
-    title: 'title',
-    birthCertificate: 'birthCertificate',
-    drivingLicense: 'drivingLicense',
-    passport: 'passport',
-    emergencyContactName: 'emergencyContactName',
-    emergencyContactNumber: 'emergencyContactNumber',
+    'villageId',
+  ]),
+  ...makeLookupFields('PatientAdditionalData', [
+    'placeOfBirth',
+    'bloodType',
+    'primaryContactNumber',
+    'secondaryContactNumber',
+    'maritalStatus',
+    'cityTown',
+    'streetVillage',
+    'educationalLevel',
+    'socialMedia',
+    'title',
+    'birthCertificate',
+    'drivingLicense',
+    'passport',
+    'emergencyContactName',
+    'emergencyContactNumber',
 
-    registeredById: 'registeredById',
-    motherId: 'motherId',
-    fatherId: 'fatherId',
-    nationalityId: 'nationalityId',
-    countryId: 'countryId',
-    divisionId: 'divisionId',
-    subdivisionId: 'subdivisionId',
-    medicalAreaId: 'medicalAreaId',
-    nursingZoneId: 'nursingZoneId',
-    settlementId: 'settlementId',
-    ethnicityId: 'ethnicityId',
-    occupationId: 'occupationId',
-    religionId: 'religionId',
-    patientBillingTypeId: 'patientBillingTypeId',
-    countryOfBirthId: 'countryOfBirthId',
-  },
+    'registeredById',
+    'motherId',
+    'fatherId',
+    'nationalityId',
+    'countryId',
+    'divisionId',
+    'subdivisionId',
+    'medicalAreaId',
+    'nursingZoneId',
+    'settlementId',
+    'ethnicityId',
+    'occupationId',
+    'religionId',
+    'patientBillingTypeId',
+    'countryOfBirthId',
+  ]),
 };

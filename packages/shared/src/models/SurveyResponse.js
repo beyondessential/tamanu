@@ -32,12 +32,12 @@ async function createPatientIssues(models, questions, patientId) {
 }
 
 const getDbLocation = fieldName => {
-  for (const [modelName, fieldMappings] of Object.entries(PATIENT_DATA_FIELD_LOCATIONS)) {
-    if (fieldMappings[fieldName])
-      return {
-        modelName,
-        fieldName: fieldMappings[fieldName],
-      };
+  if (PATIENT_DATA_FIELD_LOCATIONS[fieldName]) {
+    const [modelName, columnName] = PATIENT_DATA_FIELD_LOCATIONS[fieldName];
+    return {
+      modelName,
+      fieldName: columnName,
+    };
   }
   throw new Error(`Unknown fieldName: ${fieldName}`);
 };
