@@ -340,7 +340,7 @@ describe('Programs import', () => {
       });
 
       expect(errors[0].message).toEqual(
-        'A registry name must be unique (name: Valid Registry) on Registry at row 0',
+        'A registry name must be unique (name: Valid Registry, conflicting code: ValidRegistry) on Registry at row 0',
       );
     });
 
