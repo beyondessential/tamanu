@@ -11,19 +11,23 @@ import { useAuth } from '../../contexts/Auth';
 import { Modal } from '../../components/Modal';
 
 export const ActivateProgramRegistryFormModal = React.memo(
-  ({ onCancel, onSubmit, editedObject, patient, program, open }) => {
+  ({ onCancel, onSubmit, editedObject, patient, programRegistry, open }) => {
     const { currentUser, facility } = useAuth();
     const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
-      baseQueryParameters: { programId: program.id },
+      baseQueryParameters: { programId: programRegistry.id },
     });
     const registeredBySuggester = useSuggester('practitioner');
     const registeringFacilitySuggester = useSuggester('facility');
 
     return (
-      <Modal title={`Activate ${program.name} program registry`} open={open}>
+      <Modal
+        title={`Activate ${programRegistry.name} program registry`}
+        open={open}
+        onClose={onCancel}
+      >
         <Form
           onSubmit={data => {
-            onSubmit({ ...data, patientId: patient.id, programId: program.id });
+            onSubmit({ ...data, patientId: patient.id, programRegistryId: programRegistry.id });
           }}
           render={({ submitForm }) => {
             const handleCancel = () => onCancel && onCancel();
@@ -41,24 +45,24 @@ export const ActivateProgramRegistryFormModal = React.memo(
                       name="date"
                       label="Date of registration"
                       saveDateAsString
-                      required
                       component={DateField}
+                      required
                     />
                   </FormGrid>
                   <FormGrid style={{ gridColumn: 'span 2' }}>
                     <Field
                       name="registeringClinicianId"
                       label="Registered by"
-                      required
                       component={AutocompleteField}
                       suggester={registeredBySuggester}
+                      required
                     />
                     <Field
                       name="facilityId"
                       label="Registering facility"
-                      required
                       component={AutocompleteField}
                       suggester={registeringFacilitySuggester}
+                      required
                     />
                   </FormGrid>
                   <ConfirmCancelRow
@@ -79,8 +83,8 @@ export const ActivateProgramRegistryFormModal = React.memo(
           validationSchema={yup.object().shape({
             programRegistryClinicalStatusId: optionalForeignKey(),
             date: yup.date().required('Date of registration must be selected'),
-            registeringClinicianId: foreignKey('Registered by must be selected'),
-            facilityId: foreignKey('Registering facility must be selected'),
+            registeringClinicianId: foreignKey().required('Registered by must be selected'),
+            facilityId: foreignKey().required('Registering facility must be selected'),
           })}
         />
       </Modal>
@@ -93,7 +97,7 @@ ActivateProgramRegistryFormModal.propTypes = {
   onCancel: PropTypes.func.isRequired,
   editedObject: PropTypes.shape({}),
   patient: PropTypes.shape({}).isRequired,
-  program: PropTypes.shape({ id: PropTypes.string }).isRequired,
+  programRegistry: PropTypes.shape({ id: PropTypes.string }).isRequired,
   open: PropTypes.bool.isRequired,
 };
 

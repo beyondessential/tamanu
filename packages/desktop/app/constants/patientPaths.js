@@ -18,6 +18,7 @@ const ENCOUNTER_PATH = `${PATIENT_PATH}/encounter/:encounterId`;
 const SUMMARY_PATH = `${ENCOUNTER_PATH}/summary`;
 const LAB_REQUEST_PATH = `${ENCOUNTER_PATH}/lab-request/:labRequestId`;
 const IMAGING_REQUEST_PATH = `${ENCOUNTER_PATH}/imaging-request/:imagingRequestId`;
+const PROGRAM_REGISTRY_PATH = `${PATIENT_PATH}/program-registry/:programRegistryId`;
 
 export const PATIENT_PATHS = {
   CATEGORY: CATEGORY_PATH,
@@ -26,6 +27,7 @@ export const PATIENT_PATHS = {
   SUMMARY: SUMMARY_PATH,
   LAB_REQUEST: LAB_REQUEST_PATH,
   IMAGING_REQUEST: IMAGING_REQUEST_PATH,
+  PROGRAM_REGISTRY: PROGRAM_REGISTRY_PATH,
 };
 
 export const PATIENT_TABS = {

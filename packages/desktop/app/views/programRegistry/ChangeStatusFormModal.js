@@ -11,7 +11,6 @@ import {
   Field,
 } from '../../components';
 import { useSuggester } from '../../api';
-import { useAuth } from '../../contexts/Auth';
 import { foreignKey } from '../../utils/validation';
 
 const StyledFormGrid = styled(FormGrid)`
@@ -22,21 +21,15 @@ const StyledFormGrid = styled(FormGrid)`
   margin-top: 30px;
 `;
 
-export const ChangeStatusFormModal = ({ onSubmit, onCancel, program, patient }) => {
-  const { currentUser } = useAuth();
+export const ChangeStatusFormModal = ({ onSubmit, onCancel, programRegistry, open }) => {
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
-    baseQueryParameters: { programId: program.id },
+    baseQueryParameters: { programRegistryId: programRegistry.id },
   });
   return (
-    <Modal title="Change Status" open>
+    <Modal title="Change Status" open={open}>
       <Form
         onSubmit={data => {
-          onSubmit({
-            ...data,
-            programId: program.id,
-            clinicianId: currentUser.id,
-            patientId: patient.id,
-          });
+          onSubmit(data);
         }}
         render={({ submitForm }) => {
           const handleCancel = () => onCancel();
@@ -56,10 +49,10 @@ export const ChangeStatusFormModal = ({ onSubmit, onCancel, program, patient }) 
           );
         }}
         initialValues={{
-          programRegistryClinicalStatusId: program.programRegistryClinicalStatusId,
+          programRegistryClinicalStatusId: programRegistry.programRegistryClinicalStatusId,
         }}
         validationSchema={yup.object().shape({
-          programRegistryClinicalStatusId: foreignKey('Status must be selected'),
+          programRegistryClinicalStatusId: foreignKey().required('Status must be selected'),
         })}
       />
     </Modal>
