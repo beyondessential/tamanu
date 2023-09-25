@@ -28,30 +28,60 @@ function readProgramRegistryData(workbook) {
   };
 }
 
-const nameIsNonUnique = (context, name, id) => {
-  return context.models.ProgramRegistry.count({
-    where: { name, id: { [Op.ne]: id }, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+const ensureUniqueName = async (context, registryName, registryId) => {
+  const conflictingRegistry = await context.models.ProgramRegistry.findOne({
+    where: {
+      name: registryName,
+      id: { [Op.ne]: registryId },
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+    },
   });
+  if (conflictingRegistry) {
+    throw new DataImportError(
+      'Registry',
+      -2,
+      `A registry name must be unique (name: ${registryName}, conflicting code: ${conflictingRegistry.code})`,
+    );
+  }
 };
 
-export async function importProgramRegistry(programRegistryContext, workbook, programId) {
+const ensureCurrentlyAtUpdateIsAllowed = async (context, currentlyAtType, registryId) => {
+  const existingRegistry = await context.models.ProgramRegistry.findByPk(registryId);
+  // No validation on first import
+  if (!existingRegistry) return;
+
+  // No validation if we aren't trying to change the currentlyAtType
+  if (!currentlyAtType || currentlyAtType === existingRegistry.currentlyAtType) return;
+
+  const existingData = context.models.PatientProgramRegistration.count({
+    where: {
+      registryId,
+    },
+  });
+
+  if (existingData) {
+    throw new DataImportError(
+      'Registry',
+      -2,
+      `Cannot update the currentlyAtType of a program registry with existing data`,
+    );
+  }
+};
+
+export async function importProgramRegistry(context, workbook, programId) {
   // There won't always be a program registry - that's fine
   log.debug('Checking for Registry sheet');
   if (!workbook.Sheets.Registry) return {};
 
   const { registryRecord, clinicalStatuses } = readProgramRegistryData(workbook);
+  const { registryName, currentlyAtType } = registryRecord;
   const registryId = `programRegistry-${registryRecord.registryCode}`;
 
-  if (await nameIsNonUnique(programRegistryContext, registryRecord.registryName, registryId)) {
-    throw new DataImportError(
-      'Registry',
-      -2,
-      `A registry name must be unique (name: ${registryRecord.registryName})`,
-    );
-  }
+  await ensureUniqueName(context, registryName, registryId);
+  await ensureCurrentlyAtUpdateIsAllowed(context, currentlyAtType, registryId);
 
   log.debug('Importing Program Registry');
-  const stats = await importRows(programRegistryContext, {
+  const stats = await importRows(context, {
     sheetName: 'Registry',
     rows: [
       {
@@ -70,7 +100,7 @@ export async function importProgramRegistry(programRegistryContext, workbook, pr
   });
 
   log.debug('Importing Patient Registry Clinical statuses');
-  return importRows(programRegistryContext, {
+  return importRows(context, {
     sheetName: 'Registry',
     rows: clinicalStatuses.map(row => ({
       model: 'ProgramRegistryClinicalStatus',
