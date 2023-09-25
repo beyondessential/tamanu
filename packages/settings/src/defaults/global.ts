@@ -612,6 +612,11 @@ export const globalDefaults = {
       rowTotal: 10,
     },
   },
+  questionCodeIds: {
+    email: null,
+    nationalityId: null,
+    passport: null,
+  },
   reportConfig: {
     'encounter-summary-line-list': {
       includedPatientFieldIds: [],

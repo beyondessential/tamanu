@@ -157,11 +157,6 @@ export const centralDefaults = {
     // NONE is a no-op and does nothing
     deletionAction: 'RENAME',
   },
-  questionCodeIds: {
-    email: null,
-    nationalityId: null,
-    passport: null,
-  },
   reportProcess: {
     // Provide an object {} for the env of child process
     childProcessEnv: null,
