@@ -156,9 +156,7 @@ jobs:
           yarn install --frozen-lockfile --production
 
       - name: Prepare final output
-        run: |
-          dir
-          tar -cvzf '${{ env.OUTPUT_NAME }}.tar.gz' '${{ env.BUILD_NAME }}'
+        run: tar -cvzf '${{ env.OUTPUT_NAME }}.tar.gz' '${{ env.BUILD_NAME }}'
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
