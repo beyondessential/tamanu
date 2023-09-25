@@ -92,7 +92,7 @@ describe('VDS: Proof of Test', () => {
     // Act
     const msg = await createVdsNcTestData(test.id, {
       models: ctx.store.models,
-      countryCode: 'UTO',
+      settings: ctx.settings,
     });
 
     // Assert

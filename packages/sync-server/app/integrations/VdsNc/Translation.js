@@ -192,7 +192,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
   };
 };
 
-export const createVdsNcTestData = async (labTestId, { models }) => {
+export const createVdsNcTestData = async (labTestId, { models, settings }) => {
   const {
     Patient,
     PatientAdditionalData,
@@ -203,8 +203,7 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
     Encounter,
   } = models;
 
-  const { country } = await getLocalisation();
-  const countryCode = country['alpha-3'];
+  const countryCode = await settings.get('country.alpha-3');
 
   const test = await LabTest.findOne({
     where: {

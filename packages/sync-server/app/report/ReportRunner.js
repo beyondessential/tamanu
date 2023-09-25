@@ -9,7 +9,6 @@ import { getReportModule } from 'shared/reports';
 import { createNamedLogger } from 'shared/services/logging/createNamedLogger';
 
 import { removeFile, createZippedSpreadsheet, writeToSpreadsheet } from '../utils/files';
-import { getLocalisation } from '../localisation';
 
 const REPORT_RUNNER_LOG_NAME = 'ReportRunner';
 
@@ -164,7 +163,7 @@ export class ReportRunner {
    * @returns {Promise<string>}
    */
   async getReportName() {
-    const { country } = await getLocalisation();
+    const countryName = await this.settings.get('country.name');
 
     let reportName = this.reportId;
 
@@ -179,7 +178,7 @@ export class ReportRunner {
 
     const date = formatDate(new Date(), 'ddMMyyyy');
 
-    const dashedName = `${reportName}-${country.name}`
+    const dashedName = `${reportName}-${countryName}`
       .trim()
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
