@@ -15,7 +15,7 @@ import {
   AutocompleteField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { ModalLoader } from '../components/Modal';
+import { ModalLoader } from '../components/BaseModal';
 import { OutlinedButton, Button } from '../components';
 import { PatientDetailsCard } from '../components/PatientDetailsCard';
 import { ModalGenericButtonRow } from '../components/ModalActionRow';

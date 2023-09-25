@@ -4,7 +4,7 @@ import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import styled from 'styled-components';
 import {
   FormGrid,
-  Modal,
+  FormModal,
   SuggesterSelectField,
   Form,
   Field,
@@ -20,7 +20,7 @@ const validationSchema = yup.object().shape({
   labSampleSiteId: yup.string(),
 });
 
-const StyledModal = styled(Modal)`
+const StyledModal = styled(FormModal)`
   .MuiPaper-root {
     max-width: 1000px;
   }

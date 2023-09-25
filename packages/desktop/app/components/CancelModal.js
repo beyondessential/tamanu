@@ -1,7 +1,7 @@
 import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { Modal } from './Modal';
+import { FormModal } from './FormModal';
 import { FormSubmitCancelRow } from './ButtonRow';
 import { SelectField, Form, Field } from './Field';
 import { BodyText } from './Typography';
@@ -23,7 +23,7 @@ const isReasonForDelete = reason => reason === 'duplicate' || reason === 'entere
 
 export const CancelModal = React.memo(
   ({ title, bodyText, onConfirm, options, helperText, open, onClose }) => (
-    <Modal width="sm" title={title} onClose={onClose} open={open}>
+    <FormModal width="sm" title={title} onClose={onClose} open={open}>
       <Form
         onSubmit={onConfirm}
         validationSchema={yup.object().shape({
@@ -46,6 +46,6 @@ export const CancelModal = React.memo(
           </ModalBody>
         )}
       />
-    </Modal>
+    </FormModal>
   ),
 );

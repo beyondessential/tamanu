@@ -7,7 +7,7 @@ import {
   Field,
   AutocompleteField,
   FormGrid,
-  Modal,
+  FormModal,
   ModalFormActionRow,
 } from '../../../components';
 
@@ -27,7 +27,7 @@ export const LabRequestChangeLabModal = React.memo(
     };
 
     return (
-      <Modal open={open} onClose={onClose} title="Change lab request laboratory">
+      <FormModal open={open} onClose={onClose} title="Change lab request laboratory">
         <Form
           onSubmit={updateLab}
           validationSchema={validationSchema}
@@ -47,7 +47,7 @@ export const LabRequestChangeLabModal = React.memo(
             </FormGrid>
           )}
         />
-      </Modal>
+      </FormModal>
     );
   },
 );

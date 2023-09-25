@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import { flattenObject } from '../../utils';
 import { Dialog } from '../Dialog';
 import { FORM_STATUSES, FORM_TYPES } from '../../constants';
+import { useFormSubmission } from '../../contexts/FormSubmission';
 
 const ErrorMessage = ({ error }) => `${JSON.stringify(error)}`;
 
@@ -193,6 +194,10 @@ export class Form extends React.PureComponent {
       values = newValues;
       originalSetValues(newValues);
     };
+
+    const { setIsClosable, setHasFormSubmission } = useFormSubmission();
+    setIsClosable(!isSubmitting);
+    setHasFormSubmission(true);
 
     const { render, style } = this.props;
     const { showWarningForNonAsyncSubmitHandler } = this.state;

@@ -3,7 +3,7 @@ import React from 'react';
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
 
-import { Modal } from './Modal';
+import { FormModal } from './FormModal';
 import { ProcedureForm } from '../forms/ProcedureForm';
 
 export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure }) => {
@@ -16,7 +16,7 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
   const anaestheticSuggester = new Suggester(api, 'drug');
 
   return (
-    <Modal
+    <FormModal
       width="md"
       title={`${editedProcedure?.id ? 'Edit' : 'New'} procedure`}
       open={!!editedProcedure}
@@ -41,6 +41,6 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
         procedureSuggester={procedureSuggester}
         anaestheticSuggester={anaestheticSuggester}
       />
-    </Modal>
+    </FormModal>
   );
 };

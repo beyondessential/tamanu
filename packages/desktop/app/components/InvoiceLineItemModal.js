@@ -4,7 +4,7 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
 import { foreignKey } from '../utils/validation';
-import { Modal } from './Modal';
+import { FormModal } from './FormModal';
 import { Form, Field, DateField, AutocompleteField, NumberField } from './Field';
 import { FormGrid } from './FormGrid';
 import { FormSubmitCancelRow } from './ButtonRow';
@@ -51,7 +51,7 @@ export const InvoiceLineItemModal = ({
       };
 
   return (
-    <Modal width="md" title={title} open={open} onClose={onClose}>
+    <FormModal width="md" title={title} open={open} onClose={onClose}>
       <Form
         onSubmit={createOrUpdateLineItem}
         render={({ submitForm }) => (
@@ -98,6 +98,6 @@ export const InvoiceLineItemModal = ({
           percentageChange: yup.number(),
         })}
       />
-    </Modal>
+    </FormModal>
   );
 };

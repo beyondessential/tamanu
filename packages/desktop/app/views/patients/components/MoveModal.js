@@ -1,7 +1,7 @@
 import React from 'react';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
-  Modal,
+  FormModal,
   FormGrid,
   FormSubmitCancelRow,
   Form,
@@ -14,7 +14,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   const { mutate: submit } = usePatientMove(encounter.id, onClose);
 
   return (
-    <Modal title="Move patient" open={open} onClose={onClose}>
+    <FormModal title="Move patient" open={open} onClose={onClose}>
       <Form
         initialValues={{
           // Used in creation of associated notes
@@ -33,6 +33,6 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
           </FormGrid>
         )}
       />
-    </Modal>
+    </FormModal>
   );
 });

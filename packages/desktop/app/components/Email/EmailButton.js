@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import EmailIcon from '@material-ui/icons/Email';
 import { EmailAddressConfirmationForm } from '../../forms/EmailAddressConfirmationForm';
-import { Button, Modal } from '..';
+import { Button } from '..';
+import { Modal } from '../Modal';
 
 export const EmailButton = ({ onEmail }) => {
   const [openModal, setOpenModal] = useState(false);

@@ -15,7 +15,7 @@ import { Form, Field, TextField, AutocompleteField } from '../components/Field';
 import { FileChooserField } from '../components/Field/FileChooserField';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow, FormSubmitCancelRow } from '../components/ButtonRow';
-import { ModalLoader } from '../components/Modal';
+import { ModalLoader } from '../components/BaseModal';
 
 const MessageContainer = styled.div`
   margin: 0 auto;

@@ -4,7 +4,7 @@ import { useEncounter } from '../contexts/Encounter';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 
 import { ChangeDepartmentForm } from '../forms/ChangeDepartmentForm';
-import { Modal } from './Modal';
+import { FormModal } from './FormModal';
 
 export const ChangeDepartmentModal = React.memo(({ open, onClose }) => {
   const { navigateToEncounter } = usePatientNavigation();
@@ -22,12 +22,12 @@ export const ChangeDepartmentModal = React.memo(({ open, onClose }) => {
   );
 
   return (
-    <Modal title="Change department" open={open} onClose={onClose}>
+    <FormModal title="Change department" open={open} onClose={onClose}>
       <ChangeDepartmentForm
         onSubmit={onSubmit}
         onCancel={onClose}
         departmentSuggester={departmentSuggester}
       />
-    </Modal>
+    </FormModal>
   );
 });
