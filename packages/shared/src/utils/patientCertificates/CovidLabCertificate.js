@@ -73,7 +73,7 @@ const CertificateTitle = {
 const getCertificateRemark = (patient, getSetting) => ({
   test: '',
   clearance: replaceInTemplate(
-    getSetting('templates.covidTestCertificate.clearanceCertRemark') ?? '',
+    getSetting('localisation.templates.covidTestCertificate.clearanceCertRemark') ?? '',
     patient,
   ),
 });

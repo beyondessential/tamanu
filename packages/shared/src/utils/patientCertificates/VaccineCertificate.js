@@ -65,9 +65,9 @@ export const VaccineCertificate = ({
   getSetting,
   extraPatientFields,
 }) => {
-  const contactEmail = getSetting('templates.vaccineCertificate.emailAddress');
-  const contactNumber = getSetting('templates.vaccineCertificate.contactNumber');
-  const healthFacility = getSetting('templates.vaccineCertificate.healthFacility');
+  const contactEmail = getSetting('localisation.templates.vaccineCertificate.emailAddress');
+  const contactNumber = getSetting('localisation.templates.vaccineCertificate.contactNumber');
+  const healthFacility = getSetting('localisation.templates.vaccineCertificate.healthFacility');
   const countryName = getSetting('country.name');
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));

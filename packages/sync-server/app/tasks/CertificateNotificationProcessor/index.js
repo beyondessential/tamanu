@@ -53,7 +53,6 @@ export class CertificateNotificationProcessor extends ScheduledTask {
     const { CertificateNotification, CertifiableVaccine, PatientCommunication, Patient } = models;
     const vdsEnabled = config.integrations.vdsNc.enabled;
     const euDccEnabled = config.integrations.euDcc.enabled;
-    const localisation = await getLocalisation();
 
     const certifiableVaccineIds = await CertifiableVaccine.allVaccineIds(euDccEnabled);
 
@@ -139,10 +138,10 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
             sublog.info('Generating vax certificate PDF', { uvci });
             pdf = await makeCovidVaccineCertificate(
+              { models, settings },
               patient,
               printedBy,
               printedDate,
-              models,
               uvci,
               qrData,
             );
@@ -189,20 +188,26 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
           case VACCINATION_CERTIFICATE:
             template = 'vaccineCertificateEmail';
-            pdf = await makeVaccineCertificate(patient, printedBy, printedDate, models);
+            pdf = await makeVaccineCertificate(
+              { models, settings },
+              patient,
+              printedBy,
+              printedDate,
+            );
             break;
 
           default:
             throw new Error(`Unknown certificate type ${type}`);
         }
+        const { subject, body } = await settings.get(`localisation.templates.${template}`);
 
         sublog.debug('Creating communication record');
         // build the email notification
         const comm = await PatientCommunication.create({
           type: PATIENT_COMMUNICATION_TYPES.CERTIFICATE,
           channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
-          subject: get(localisation, `templates.${template}.subject`),
-          content: get(localisation, `templates.${template}.body`),
+          subject,
+          content: body,
           status: COMMUNICATION_STATUSES.QUEUED,
           patientId,
           destination: notification.get('forwardAddress'),

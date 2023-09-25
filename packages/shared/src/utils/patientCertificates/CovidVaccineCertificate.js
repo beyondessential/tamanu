@@ -67,9 +67,9 @@ export const CovidVaccineCertificate = ({
   extraPatientFields,
   printedDate,
 }) => {
-  const contactEmail = getSetting('templates.vaccineCertificate.emailAddress');
-  const contactNumber = getSetting('templates.vaccineCertificate.contactNumber');
-  const healthFacility = getSetting('templates.vaccineCertificate.healthFacility');
+  const contactEmail = getSetting('localisation.templates.vaccineCertificate.emailAddress');
+  const contactNumber = getSetting('localisation.templates.vaccineCertificate.contactNumber');
+  const healthFacility = getSetting('localisation.templates.vaccineCertificate.healthFacility');
   const countryCode = getSetting('country.alpha-2');
   const countryName = getSetting('country.name');
   const uvciFormat = getSetting('previewUvciFormat');
