@@ -61,7 +61,7 @@ export interface ISurveyScreenComponent {
   detail?: string;
   options?: string;
   calculation?: string;
-  visibilityStatus: VisibilityStatus.Current;
+  visibilityStatus?: VisibilityStatus;
   source?: string;
   getConfigObject: () => SurveyScreenConfig;
   getValidationCriteriaObject: () => SurveyScreenValidationCriteria;
