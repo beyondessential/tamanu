@@ -71,7 +71,6 @@ const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
  */
 async function writeToPatientFields(questions, answers, patientId) {
   const valuesByModel = getFieldsToWrite(questions, answers);
-  console.log(valuesByModel, questions, answers, patientId);
 
   if (valuesByModel.Patient) {
     await Patient.updateValues(patientId, valuesByModel.Patient);
