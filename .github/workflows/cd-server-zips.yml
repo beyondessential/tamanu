@@ -97,7 +97,7 @@ jobs:
             "s|cwd: '.',( //.*)?|cwd: 'packages/${{ matrix.package.path }}',|" \
             packages/${{ matrix.package.path }}/pm2.config.js > ${{ env.BUILD_NAME }}/pm2.config.js
 
-      - name: Prepare final output
+      - name: Prepare artifact output
         run: zip -r '${{ env.BUILD_NAME }}.zip' '${{ env.BUILD_NAME }}'
 
       - name: Upload artifact
