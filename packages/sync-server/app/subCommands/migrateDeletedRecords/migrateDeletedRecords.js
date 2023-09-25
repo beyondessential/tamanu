@@ -1,5 +1,4 @@
 import { Command } from 'commander';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { log } from 'shared/services/logging';
 import { initDatabase } from '../../database';
@@ -8,7 +7,8 @@ const camelToSnakeCase = str => str.replace(/[A-Z]/g, letter => `_${letter.toLow
 
 const fromSurveyScreenComponent = async () => {
   const store = await initDatabase({ testMode: false });
-  const deletedAtKey = camelToSnakeCase(store.models.SurveyScreenComponent.deletedAtKey);
+  const { deletedAt } = store.models.SurveyScreenComponent;
+  const deletedAtKey = camelToSnakeCase(deletedAt.key);
 
   // If deleted_at column does not exist
   if (!store.models.SurveyScreenComponent.rawAttributes.deleted_at) {
@@ -17,7 +17,7 @@ const fromSurveyScreenComponent = async () => {
   }
 
   const response = await store.sequelize.query(
-    `UPDATE "survey_screen_components" SET "deleted_at" = NULL, "${deletedAtKey}" = '${VISIBILITY_STATUSES.HISTORICAL}' WHERE "deleted_at" IS NOT NULL`,
+    `UPDATE "survey_screen_components" SET "deleted_at" = NULL, "${deletedAtKey}" = '${deletedAt.value.softDeleted}' WHERE "deleted_at" IS NOT NULL`,
   );
 
   log.info(
@@ -25,7 +25,7 @@ const fromSurveyScreenComponent = async () => {
   );
 
   const response2 = await store.sequelize.query(
-    `UPDATE "survey_screen_components" SET "${deletedAtKey}" = '${VISIBILITY_STATUSES.CURRENT}' WHERE "deleted_at" IS NULL AND "${deletedAtKey}" IS NULL`,
+    `UPDATE "survey_screen_components" SET "${deletedAtKey}" = '${deletedAt.value.active}' WHERE "deleted_at" IS NULL AND "${deletedAtKey}" IS NULL`,
   );
 
   log.info(

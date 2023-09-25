@@ -5,7 +5,13 @@ import { log } from '../services/logging';
 import { Model } from './Model';
 
 export class SurveyScreenComponent extends Model {
-  static deletedAtKey = 'visibilityStatus';
+  static deletedAt = {
+    key: 'visibilityStatus',
+    value: {
+      softDeleted: VISIBILITY_STATUSES.HISTORICAL,
+      active: VISIBILITY_STATUSES.CURRENT,
+    },
+  };
 
   static init({ primaryKey, ...options }) {
     super.init(
@@ -20,7 +26,7 @@ export class SurveyScreenComponent extends Model {
         config: Sequelize.STRING,
         options: Sequelize.TEXT,
         calculation: Sequelize.STRING,
-        [this.deletedAtKey]: Sequelize.STRING,
+        [this.deletedAt.key]: Sequelize.STRING,
       },
       {
         ...options,
@@ -90,10 +96,36 @@ export class SurveyScreenComponent extends Model {
   static async findAll(options) {
     const { where = {} } = { ...options };
 
-    if (!where.hasOwnProperty(this.deletedAtKey)) {
-      where[this.deletedAtKey] = VISIBILITY_STATUSES.CURRENT;
+    if (!where.hasOwnProperty(this.deletedAt.key)) {
+      where[this.deletedAt.key] = VISIBILITY_STATUSES.CURRENT;
     }
     return super.findAll({ ...options, where });
+  }
+
+  async destroy() {
+    const id = await this.get('id');
+
+    return this.update(
+      {
+        [SurveyScreenComponent.deletedAt.key]: SurveyScreenComponent.deletedAt.value.softDeleted,
+      },
+      {
+        where: { id },
+      },
+    );
+  }
+
+  async restore() {
+    const id = await this.get('id');
+
+    return this.update(
+      {
+        [SurveyScreenComponent.deletedAt.key]: SurveyScreenComponent.deletedAt.value.active,
+      },
+      {
+        where: { id },
+      },
+    );
   }
 
   static buildSyncFilter() {

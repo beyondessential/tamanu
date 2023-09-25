@@ -2,7 +2,6 @@ import { camelCase, lowerCase, lowerFirst, startCase, upperFirst } from 'lodash'
 import { Op } from 'sequelize';
 import { ValidationError as YupValidationError } from 'yup';
 import config from 'config';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { ForeignkeyResolutionError, UpsertionError, ValidationError } from './errors';
 import { statkey, updateStat } from './stats';
@@ -40,33 +39,15 @@ function loadExisting(Model, id) {
   return Model.findByPk(id, { paranoid: false });
 }
 
-const destroyRecord = async (Model, record) => {
-  const isParanoid = Model.getIsParanoid();
-  if (isParanoid) {
-    await record.destroy();
-  } else {
-    await record.update({ [Model.deletedAtKey]: VISIBILITY_STATUSES.HISTORICAL });
-  }
-};
-
-const restoreRecord = async (Model, record) => {
-  const isParanoid = Model.getIsParanoid();
-  if (isParanoid) {
-    await record.restore();
-  } else {
-    await record.update({ [Model.deletedAtKey]: VISIBILITY_STATUSES.CURRENT });
-  }
-};
-
 const valuesIsHistorical = (Model, values) => {
   const isParanoid = Model.getIsParanoid();
   if (isParanoid) {
     return !!values.deletedAt;
   }
 
-  const { deletedAtKey } = Model;
+  const { deletedAt } = Model;
 
-  return values[deletedAtKey] === VISIBILITY_STATUSES.HISTORICAL;
+  return values[deletedAt.key] === deletedAt.value.softDeleted;
 };
 
 export async function importRows(
@@ -223,11 +204,11 @@ export async function importRows(
     try {
       if (existing) {
         if (valuesIsHistorical(Model, values)) {
-          await destroyRecord(Model, existing);
+          await existing.destroy();
           updateStat(stats, statkey(model, sheetName), 'deleted');
         } else {
           if (valuesIsHistorical(Model, existing)) {
-            await restoreRecord(Model, existing);
+            await existing.restore();
             updateStat(stats, statkey(model, sheetName), 'restored');
           }
           await existing.update(values);
