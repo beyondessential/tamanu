@@ -89,6 +89,8 @@ jobs:
       - name: Delete container
         run: docker rm working
 
+      # This will replace the line "cwd: '.'" for the appropriate package, i.e.
+      # "cwd: 'packages/lan'" in the new build folder for each pm2.config file.
       - name: Prepare production configuration
         run: |
           set -ex
