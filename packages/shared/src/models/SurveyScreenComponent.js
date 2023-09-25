@@ -55,7 +55,6 @@ export class SurveyScreenComponent extends Model {
         surveyId: {
           [Op.in]: surveyIds,
         },
-        [this.deletedAt.key]: this.deletedAt.value.active,
       },
       include: this.getListReferenceAssociations(),
       order: [
