@@ -77,12 +77,17 @@ describe('Programs import', () => {
   });
 
   it('should delete survey questions', async () => {
-    const { Survey } = ctx.store.models;
+    const { Survey, SurveyScreenComponent } = ctx.store.models;
 
     const getComponents = async () => {
       const survey = await Survey.findByPk('program-testprogram-deletion');
       expect(survey).toBeTruthy();
-      return survey.getComponents();
+      return SurveyScreenComponent.findAll({
+        where: {
+          surveyId: survey.id,
+          visibilityStatus: 'current',
+        },
+      });
     };
 
     {
@@ -272,12 +277,18 @@ describe('Programs import', () => {
     });
 
     it('should delete vital survey questions', async () => {
-      const { Survey } = ctx.store.models;
+      const { Survey, SurveyScreenComponent } = ctx.store.models;
 
       const getComponents = async () => {
         const survey = await Survey.findByPk('program-testvitals-vitalsgood');
         expect(survey).toBeTruthy();
-        return survey.getComponents();
+
+        return SurveyScreenComponent.findAll({
+          where: {
+            surveyId: survey.id,
+            visibilityStatus: 'current',
+          },
+        });
       };
 
       {
