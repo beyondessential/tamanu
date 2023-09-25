@@ -15,8 +15,8 @@ export const facilityDefaults = {
   },
   honeycomb: {
     enabled: true,
-    sampleRate: 100, // 100 = 1/100 = 1% of traces get sent to honeycomb
-    // in contrast, logs are always sent
+    level: 'info',
+    sampleRate: 1, // 5 = 1/5 = 20% of traces get sent to honeycomb
   },
   log: {
     path: '',
