@@ -2,8 +2,6 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { transliterate as tr } from 'transliteration';
 import { log } from 'shared/services/logging';
 
-import { getLocalisation } from '../../localisation';
-
 const SEX_TO_CHAR = {
   male: 'M',
   female: 'F',
@@ -32,7 +30,7 @@ const METHOD_CODE = {
 const DATE_FORMAT_ISODATE = 'yyyy-MM-dd';
 const DATE_FORMAT_RFC3339 = "yyyy-MM-dd'T'HH:mm:ssxxx";
 
-export const createVdsNcVaccinationData = async (patientId, { models }) => {
+export const createVdsNcVaccinationData = async (patientId, { models, settings }) => {
   const {
     Patient,
     PatientAdditionalData,
@@ -44,8 +42,8 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
     CertifiableVaccine,
   } = models;
 
-  const { country, timeZone } = await getLocalisation();
-  const countryCode = country['alpha-3'];
+  const countryCode = await settings.get('country.alpha-3');
+  const timeZone = await settings.get('countryTimeZone');
 
   const patient = await Patient.findOne({
     where: { id: patientId },
@@ -192,7 +190,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
   };
 };
 
-export const createVdsNcTestData = async (labTestId, { models }) => {
+export const createVdsNcTestData = async (labTestId, { models, settings }) => {
   const {
     Patient,
     PatientAdditionalData,
@@ -203,8 +201,7 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
     Encounter,
   } = models;
 
-  const { country } = await getLocalisation();
-  const countryCode = country['alpha-3'];
+  const countryCode = await settings.get('country.alpha-3');
 
   const test = await LabTest.findOne({
     where: {

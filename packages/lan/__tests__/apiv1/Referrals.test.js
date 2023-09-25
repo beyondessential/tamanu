@@ -61,7 +61,6 @@ function getRandomAnswer(dataElement) {
 
 describe('Referrals', () => {
   let ctx = null;
-  let settings = null;
   let app = null;
   let patient = null;
   let encounter = null;
@@ -72,10 +71,9 @@ describe('Referrals', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    settings = ctx.settings;
     baseApp = ctx.baseApp;
     models = ctx.models;
-    defaultCodes = await settings.get('survey.defaultCodes');
+    defaultCodes = await ctx.settings.get('survey.defaultCodes');
     app = await baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
     encounter = await models.Encounter.create({

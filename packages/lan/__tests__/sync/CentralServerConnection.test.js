@@ -116,7 +116,6 @@ describe('CentralServerConnection', () => {
       );
     });
 
-    // Any await that occurs before the mocked fetch call  will cause the test to fail
     it('throws a RemoteCallFailedError if any other server error is returned', async () => {
       fetch.mockReturnValueOnce(authFailure);
       await expect(centralServer.connect()).rejects.toThrow(RemoteCallFailedError);

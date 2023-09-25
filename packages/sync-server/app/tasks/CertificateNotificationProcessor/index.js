@@ -117,7 +117,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
                   settings: this.settings,
                 });
 
-                qrData = await HCERTPack(povData, { models: this.models });
+                qrData = await HCERTPack(povData, { models: this.models, settings: this.settings });
               } else if (vdsEnabled) {
                 sublog.debug('Generating VDS data for proof of vaccination', {
                   vax: latestCertifiableVax.id,
@@ -127,6 +127,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
                 const povData = await createVdsNcVaccinationData(patient.id, {
                   models: this.models,
+                  settings: this.settings,
                 });
                 const vdsDoc = new VdsNcDocument(type, povData, uvci);
                 vdsDoc.models = this.models;

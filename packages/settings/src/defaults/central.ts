@@ -40,6 +40,7 @@ export const centralDefaults = {
   },
   honeycomb: {
     enabled: true,
+    level: 'info',
     sampleRate: 100, // 100 = 1/100 = 1% of traces get sent to honeycomb
     // in contrast, logs are always sent
   },
