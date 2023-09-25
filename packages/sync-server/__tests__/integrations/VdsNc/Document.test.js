@@ -14,7 +14,6 @@ import crypto from 'crypto';
 import { expect } from 'chai';
 import { canonicalize } from 'json-canonicalize';
 import { base64UrlDecode } from 'shared/utils/encodings';
-import { getLocalisation } from 'sync-server/app/localisation';
 
 describe('VDS-NC: Document cryptography', () => {
   let ctx;
@@ -25,12 +24,14 @@ describe('VDS-NC: Document cryptography', () => {
 
     const { publicKey, privateKey, request } = await newKeypairAndCsr({ settings });
 
+    const countryCode = await settings.get('country.alpha-3');
+
     const { Signer } = ctx.store.models;
     const signer = await Signer.create({
       publicKey: Buffer.from(publicKey),
       privateKey: Buffer.from(privateKey),
       request,
-      countryCode: (await getLocalisation()).country['alpha-3'],
+      countryCode,
     });
 
     const signerCert = await testCSCA.signCSR(request);

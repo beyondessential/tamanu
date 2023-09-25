@@ -2,7 +2,6 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { transliterate as tr } from 'transliteration';
 import { EUDCC_CERTIFICATE_TYPES, EUDCC_SCHEMA_VERSION } from '@tamanu/constants';
 import { generateUVCI } from 'shared/utils/uvci';
-import { getLocalisation } from '../../localisation';
 
 const SCHEDULE_TO_SEQUENCE = {
   'Dose 1': 1,
@@ -117,7 +116,8 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
   if (!certVax) throw new Error('Vaccine is not certifiable');
   if (!certVax.usableForEuDcc()) throw new Error('Vaccination is not usable for EU DCC');
 
-  const { timeZone, country } = await getLocalisation();
+  const timeZone = await settings.get('countryTimeZone');
+  const countryCode = await settings.get('country.alpha-2');
 
   const dob = formatInTimeZone(patient.dateOfBirth, timeZone, FORMAT_ISODATE);
   const vaxDate = formatInTimeZone(date, timeZone, FORMAT_ISODATE);
@@ -135,9 +135,9 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
         dn: SCHEDULE_TO_SEQUENCE[schedule],
         sd: certVax.maximumDosage,
         dt: vaxDate,
-        co: country['alpha-2'],
+        co: countryCode,
         is: (await settings.get('integrations.euDcc.issuer')) ?? facilityName,
-        ci: generateUVCI(id, { format: 'eudcc', countryCode: country['alpha-2'] }),
+        ci: generateUVCI(id, { format: 'eudcc', countryCode }),
       },
     ],
   };

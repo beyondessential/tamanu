@@ -112,6 +112,7 @@ export const login = ({ secret, refreshSecret }) =>
         ? getRefreshToken(models, { refreshSecret, userId: user.id, deviceId })
         : undefined,
       models.Facility.findByPk(facilityId),
+      // TODO what we doing with localisation FE
       getLocalisation(),
       getPermissionsForRoles(models, user.role),
       models.Role.findByPk(user.role),
