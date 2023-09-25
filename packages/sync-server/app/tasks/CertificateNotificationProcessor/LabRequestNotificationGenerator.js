@@ -1,5 +1,3 @@
-import config from 'config';
-
 import { Op } from 'sequelize';
 import {
   ICAO_DOCUMENT_TYPES,
