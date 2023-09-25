@@ -52,7 +52,7 @@ jobs:
     name: Build ${{ matrix.package.name }}
     runs-on: ubuntu-latest
     env:
-      BUILD_NAME: "${{ matrix.package.name }}-${{ needs.info.outputs.version }}-build"
+      BUILD_NAME: "release-${{ needs.info.outputs.version }}"
 
     steps:
       - name: Configure AWS Credentials
@@ -125,7 +125,7 @@ jobs:
     name: Build ${{ matrix.package.name }} windows zip
     runs-on: windows-latest
     env:
-      BUILD_NAME: "${{ matrix.package.name }}-${{ needs.info.outputs.version }}-build"
+      BUILD_NAME: "release-${{ needs.info.outputs.version }}"
       OUTPUT_NAME: "${{ matrix.package.name }}-${{ needs.info.outputs.version }}-windows"
       S3_PATH: s3://bes-tamanu-release-servers/test/${{ needs.info.outputs.version }}
 
