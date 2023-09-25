@@ -1,13 +1,22 @@
 import { Database } from '~/infra/db';
 import { SurveyTypes } from '~/types';
-import { fakePatient, fakeEncounter, fakeUser, fake, createWithRelations } from '/root/tests/helpers/fake';
+import { fakePatient, fakeEncounter, fakeUser, fake } from '/root/tests/helpers/fake';
 import { FieldTypes } from '~/ui/helpers/fields';
 
-beforeAll(async () => {
-  await Database.connect();
-});
 
 describe('SurveyResponse', () => {
+  beforeAll(async () => {
+    await Database.connect();
+    await Database.models.SurveyResponseAnswer.clear();
+    await Database.models.SurveyResponse.clear();
+    await Database.models.SurveyScreenComponent.clear();
+    await Database.models.ProgramDataElement.clear();
+    await Database.models.Survey.clear();
+    await Database.models.Program.clear();
+    await Database.models.Encounter.clear();
+    await Database.models.Patient.clear();
+    await Database.models.User.clear();
+  });
   describe('submit', () => {
     it("Can change patient data", async () => {
       const patient = await Database.models.Patient.createAndSaveOne(fakePatient());
