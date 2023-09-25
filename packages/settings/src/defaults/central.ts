@@ -143,8 +143,8 @@ export const centralDefaults = {
     path: '',
   },
   mailgun: {
-    domain: 'tupaia.org',
-    from: 'tamanu@tupaia.org',
+    domain: '',
+    from: '',
   },
   notifications: {
     certificates: {
