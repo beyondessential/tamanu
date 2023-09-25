@@ -1,7 +1,3 @@
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
-
-const STATUSES_TO_DELETE = ['deleted', 'hidden', 'historical'];
-
 export function yesOrNo(value) {
   return !!(value && value.toLowerCase() === 'yes');
 }
@@ -32,17 +28,13 @@ function makeScreen(questions, componentData) {
       calculation = '',
       row,
       type,
-      visibilityStatus = '',
+      visibilityStatus,
       visualisationConfig = '',
       ...elementData
     } = component;
 
     const { surveyId, ...otherComponentData } = componentData;
     const dataElId = `pde-${elementData.code}`;
-
-    const translatedVisibilityStatus = STATUSES_TO_DELETE.includes(visibilityStatus.toLowerCase())
-      ? VISIBILITY_STATUSES.HISTORICAL
-      : VISIBILITY_STATUSES.CURRENT;
 
     return [
       {
@@ -75,7 +67,7 @@ function makeScreen(questions, componentData) {
           // different question types use different validation criteria
           type,
           ...otherComponentData,
-          visibilityStatus: translatedVisibilityStatus,
+          visibilityStatus,
         },
       },
     ];
