@@ -16,11 +16,10 @@ const FormModalComponent = memo(({ children, ...props }) => {
   return (
     <BaseModal {...props} isClosable={isClosable}>
       {showNotUsingFormWarning && (
-        <Alert
-          severity="warning"
-          onClose={() => setShowNotUsingFormWarning(false)}
-        >
-          <AlertTitle>DEV Warning: This Form Modal does not contain a Form. Please use generic Modal instead</AlertTitle>
+        <Alert severity="warning" onClose={() => setShowNotUsingFormWarning(false)}>
+          <AlertTitle>
+            DEV Warning: This Form Modal does not contain a Form. Please use generic Modal instead
+          </AlertTitle>
         </Alert>
       )}
       {children}

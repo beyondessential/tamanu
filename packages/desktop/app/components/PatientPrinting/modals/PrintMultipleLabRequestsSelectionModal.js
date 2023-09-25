@@ -6,7 +6,13 @@ import { PrintMultipleLabRequestsSelectionForm } from './PrintMultipleLabRequest
 
 export const PrintMultipleLabRequestsSelectionModal = ({ encounter, open, onClose }) => {
   return (
-    <FormModal title="Print lab requests" width="xl" open={open} onClose={onClose} fullWidth={false}>
+    <FormModal
+      title="Print lab requests"
+      width="xl"
+      open={open}
+      onClose={onClose}
+      fullWidth={false}
+    >
       <PrintMultipleLabRequestsSelectionForm encounter={encounter} onClose={onClose} />
     </FormModal>
   );

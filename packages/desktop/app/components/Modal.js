@@ -16,11 +16,10 @@ export const Modal = memo(({ children, ...props }) => {
   return (
     <BaseModal {...props}>
       {showUsingFormWarning && (
-        <Alert
-          severity="warning"
-          onClose={() => setShowUsingFormWarning(false)}
-        >
-          <AlertTitle>DEV Warning: This generic Modal contains a Form. Please use Form Modal instead</AlertTitle>
+        <Alert severity="warning" onClose={() => setShowUsingFormWarning(false)}>
+          <AlertTitle>
+            DEV Warning: This generic Modal contains a Form. Please use Form Modal instead
+          </AlertTitle>
         </Alert>
       )}
       {children}

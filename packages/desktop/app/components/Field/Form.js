@@ -49,6 +49,21 @@ const StyledForm = styled.form`
       : ''}
 `;
 
+const FormSubmission = () => {
+  const { isSubmitting } = useFormikContext();
+  const { setIsClosable, setHasFormSubmission } = useFormSubmission();
+
+  useEffect(() => {
+    setHasFormSubmission(true);
+  }, []);
+
+  useEffect(() => {
+    setIsClosable(!isSubmitting);
+  }, [isSubmitting]);
+
+  return null;
+};
+
 export class Form extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -224,6 +239,7 @@ export class Form extends React.PureComponent {
           })}
         </StyledForm>
         <ScrollToError />
+        <FormSubmission />
       </>
     );
   };
