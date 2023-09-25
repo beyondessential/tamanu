@@ -46,9 +46,11 @@ describe('Encounter', () => {
   beforeAll(async () => {
     context = await createTestContext();
     models = context.models;
-    // TODO come back to this
-    const contextConfig = await context.settings.get('');
-    context.config = contextConfig;
+    context.schedules = {
+      medicationDiscontinuer: {
+        schedule: '',
+      },
+    };
     await context.baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
 
