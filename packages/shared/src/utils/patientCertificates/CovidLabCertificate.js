@@ -108,7 +108,9 @@ export const CovidLabCertificate = ({
             <P>Printed by: {printedBy}</P>
           </Col>
           <Col>
-            <P>Printing date: {getDisplayDate(undefined, undefined, getSetting)}</P>
+            <P>
+              Printing date: {getDisplayDate(undefined, undefined, getSetting('countryTimeZone'))}
+            </P>
           </Col>
         </Row>
       </Box>

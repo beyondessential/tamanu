@@ -3,7 +3,7 @@ import { format as formatDate } from '../dateTime';
 
 const DEFAULT_DATE_FORMAT = 'dd/MM/yyyy';
 
-export const getDisplayDate = (date, format = DEFAULT_DATE_FORMAT, timeZone) => {
+export const getDisplayDate = (date, format = DEFAULT_DATE_FORMAT, timeZone = null) => {
   // Format the date if it's passed in
   if (date) {
     return formatDate(date, format);
