@@ -38,6 +38,8 @@ export async function programImporter({ errors, models, stats, file, whitelist =
     }),
   );
 
+  // Note - the program registry must be imported before the surveys
+  // in order to properly validate them.
   stats.push(
     await importProgramRegistry(createContext('ProgramRegistry'), workbook, programRecord.id),
   );
