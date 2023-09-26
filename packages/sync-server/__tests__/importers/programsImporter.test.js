@@ -7,7 +7,7 @@ import { createTestContext } from '../utilities';
 import './matchers';
 
 // the importer can take a little while
-jest.setTimeout(300000);
+jest.setTimeout(60000);
 
 describe('Programs import', () => {
   let ctx;
