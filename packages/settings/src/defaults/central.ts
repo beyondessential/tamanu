@@ -77,6 +77,7 @@ export const centralDefaults = {
     },
     fijiVrs: {
       enabled: false,
+      host: 'http://uat-vra.digitialfiji.gov.fj:8786',
       flagInsteadOfDeleting: true,
       requireClientHeaders: true,
       // don't retry pending records unless they're retryMinAgeMs old
