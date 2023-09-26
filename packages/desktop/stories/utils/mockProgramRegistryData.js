@@ -6371,8 +6371,8 @@ export const patientProgramRegistration = {
     code: 'registring_facitlity',
     name: 'Hospital 1',
   },
-  // registrationStatus: 'active',
-  registrationStatus: 'removed',
+  registrationStatus: 'active',
+  // registrationStatus: 'removed',
   removedById: '213123',
   removedBy: {
     id: '213123',

@@ -6,7 +6,7 @@ import { DateDisplay } from '../../components/DateDisplay';
 import { programsIcon } from '../../constants/images';
 import { MenuButton } from '../../components/MenuButton';
 import { ChangeStatusFormModal } from './ChangeStatusFormModal';
-import { ActivateProgramRegistryFormModal } from './ActivateProgramRegistryFormModal';
+import { ActivatePatientProgramRegistry } from './ActivatePatientProgramRegistry';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 
@@ -161,7 +161,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           />
         </div>
       </MenuContainer>
-      <ActivateProgramRegistryFormModal
+      <ActivatePatientProgramRegistry
         open={openActivateProgramRegistryFormModal}
         patientProgramRegistration={patientProgramRegistration}
         onSubmit={() => {

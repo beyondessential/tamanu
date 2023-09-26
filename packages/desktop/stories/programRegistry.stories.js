@@ -10,14 +10,14 @@ import { PROGRAM_REGISTRY } from '../app/components/PatientInfoPane/paneTitles';
 import { InfoPaneList } from '../app/components/PatientInfoPane/InfoPaneList';
 import { ProgramRegistryForm } from '../app/views/programRegistry/ProgramRegistryForm';
 import { ProgramRegistryListItem } from '../app/views/programRegistry/ProgramRegistryListItem';
-import { ProgramRegistryFormHistory } from '../app/views/programRegistry/ProgramRegistryFormHistory';
+import { PatientProgramRegistryFormHistory } from '../app/views/programRegistry/PatientProgramRegistryFormHistory';
 import { DisplayPatientRegDetails } from '../app/views/programRegistry/DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from '../app/views/programRegistry/ProgramRegistryStatusHistory';
 import { DeleteProgramRegistryFormModal } from '../app/views/programRegistry/DeleteProgramRegistryFormModal';
-import { ActivateProgramRegistryFormModal } from '../app/views/programRegistry/ActivateProgramRegistryFormModal';
+import { ActivatePatientProgramRegistry } from '../app/views/programRegistry/ActivatePatientProgramRegistry';
 import { ProgramRegistryView } from '../app/views/programRegistry/ProgramRegistryView';
 import { RemoveProgramRegistryFormModal } from '../app/views/programRegistry/RemoveProgramRegistryFormModal';
-import { ProgramRegistrySelectSurvey } from '../app/views/programRegistry/ProgramRegistrySelectSurvey';
+import { PatientProgramRegistrationSelectSurvey } from '../app/views/programRegistry/PatientProgramRegistrationSelectSurvey';
 import { ProgramRegistrySurveyView } from '../app/views/programRegistry/ProgramRegistrySurveyView';
 import { dummyApi, patient, patientProgramRegistration } from './utils/mockProgramRegistryData';
 
@@ -123,14 +123,14 @@ storiesOf('Program Registry', module).add('ProgramRegistryStatusHistory removed 
 
 //#endregion ProgramRegistryStatusHistory
 
-//#region ProgramRegistryFormHistory
+//#region PatientProgramRegistryFormHistory
 
-storiesOf('Program Registry', module).add('ProgramRegistryFormHistory', () => (
+storiesOf('Program Registry', module).add('PatientProgramRegistryFormHistory', () => (
   <ApiContext.Provider value={dummyApi}>
-    <ProgramRegistryFormHistory patientProgramRegistration={patientProgramRegistration} />
+    <PatientProgramRegistryFormHistory patientProgramRegistration={patientProgramRegistration} />
   </ApiContext.Provider>
 ));
-//#endregion ProgramRegistryFormHistory
+//#endregion PatientProgramRegistryFormHistory
 
 //#region ChangeStatusFormModal
 
@@ -164,9 +164,9 @@ storiesOf('Program Registry', module).add('ProgramRegistry Delete Modal', () => 
 
 //#region
 
-storiesOf('Program Registry', module).add('ActivateProgramRegistryFormModal', () => (
+storiesOf('Program Registry', module).add('ActivatePatientProgramRegistry', () => (
   <ApiContext.Provider value={dummyApi}>
-    <ActivateProgramRegistryFormModal
+    <ActivatePatientProgramRegistry
       onSubmit={action('submit')}
       onCancel={action('cancel')}
       patientProgramRegistration={patientProgramRegistration}
@@ -189,24 +189,24 @@ storiesOf('Program Registry', module).add('RemoveProgramRegistryFormModal', () =
 ));
 //#endregion RemoveProgramRegistryFormModal
 
-//#region ProgramRegistrySelectSurvey
-storiesOf('Program Registry', module).add('ProgramRegistrySelectSurvey', () => (
+//#region PatientProgramRegistrationSelectSurvey
+storiesOf('Program Registry', module).add('PatientProgramRegistrationSelectSurvey', () => (
   <ApiContext.Provider value={dummyApi}>
-    <ProgramRegistrySelectSurvey
+    <PatientProgramRegistrationSelectSurvey
       patientProgramRegistration={patientProgramRegistration}
       // patient={patient}
     />
   </ApiContext.Provider>
 ));
-//#endregion ProgramRegistrySelectSurvey
+//#endregion PatientProgramRegistrationSelectSurvey
 
-//#region ProgramRegistrySelectSurvey
+//#region PatientProgramRegistrationSelectSurvey
 storiesOf('Program Registry', module).add('ProgramRegistrySurveyView', () => (
   <ApiContext.Provider value={dummyApi}>
     <ProgramRegistrySurveyView />
   </ApiContext.Provider>
 ));
-//#endregion ProgramRegistrySelectSurvey
+//#endregion PatientProgramRegistrationSelectSurvey
 
 //#region ProgramRegistryView
 storiesOf('Program Registry', module).add('ProgramRegistryView', () => (

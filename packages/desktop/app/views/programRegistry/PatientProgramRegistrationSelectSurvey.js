@@ -32,7 +32,7 @@ const StyledFormGrid = styled(FormGrid)`
   align-items: flex-end;
 `;
 
-export const ProgramRegistrySelectSurvey = ({ patientProgramRegistration }) => {
+export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistration }) => {
   const api = useApi();
   const { navigateToProgramRegistrySurvey } = usePatientNavigation();
   const [surveys, setSurveys] = useState([]);

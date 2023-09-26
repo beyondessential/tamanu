@@ -10,11 +10,11 @@ import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { Modal } from '../../components/Modal';
 
-export const ActivateProgramRegistryFormModal = React.memo(
-  ({ onCancel, onSubmit, editedObject, patientProgramRegistration, open }) => {
+export const ActivatePatientProgramRegistry = React.memo(
+  ({ onCancel, onSubmit, patientProgramRegistration, open }) => {
     const { currentUser, facility } = useAuth();
     const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
-      baseQueryParameters: { programId: patientProgramRegistration.id },
+      baseQueryParameters: { programId: patientProgramRegistration.programId },
     });
     const registeredBySuggester = useSuggester('practitioner');
     const registeringFacilitySuggester = useSuggester('facility');
@@ -82,7 +82,7 @@ export const ActivateProgramRegistryFormModal = React.memo(
             date: getCurrentDateTimeString(),
             facilityId: facility.id,
             registeringClinicianId: currentUser.id,
-            ...editedObject,
+            ...patientProgramRegistration,
           }}
           validationSchema={yup.object().shape({
             programRegistryClinicalStatusId: optionalForeignKey(),
@@ -96,14 +96,9 @@ export const ActivateProgramRegistryFormModal = React.memo(
   },
 );
 
-ActivateProgramRegistryFormModal.propTypes = {
+ActivatePatientProgramRegistry.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
-  editedObject: PropTypes.shape({}),
   patientProgramRegistration: PropTypes.shape({ id: PropTypes.string }).isRequired,
   open: PropTypes.bool.isRequired,
-};
-
-ActivateProgramRegistryFormModal.defaultProps = {
-  editedObject: null,
 };

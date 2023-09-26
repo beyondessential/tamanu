@@ -4,7 +4,7 @@ import { DataFetchingTable } from '../../components/Table/DataFetchingTable';
 import { DateDisplay } from '../../components/DateDisplay';
 import { MenuButton } from '../../components/MenuButton';
 
-export const ProgramRegistryFormHistory = ({ patientProgramRegistration }) => {
+export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }) => {
   const columns = [
     {
       key: 'date',
@@ -58,12 +58,12 @@ export const ProgramRegistryFormHistory = ({ patientProgramRegistration }) => {
   );
 };
 
-ProgramRegistryFormHistory.propTypes = {
+PatientProgramRegistryFormHistory.propTypes = {
   patientProgramRegistration: PropTypes.shape({
     id: PropTypes.string,
-  }),
+  }).isRequired,
 };
 
-ProgramRegistryFormHistory.defaultProps = {
+PatientProgramRegistryFormHistory.defaultProps = {
   patientProgramRegistration: null,
 };

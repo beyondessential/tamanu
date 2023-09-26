@@ -6,8 +6,8 @@ import { useUrlQueryParams } from '../../hooks';
 import { DisplayPatientRegDetails } from './DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from './ProgramRegistryStatusHistory';
 import { usePatientProgramRegistration } from '../../api/queries/usePatientProgramRegistration';
-import { ProgramRegistryFormHistory } from './ProgramRegistryFormHistory';
-import { ProgramRegistrySelectSurvey } from './ProgramRegistrySelectSurvey';
+import { PatientProgramRegistryFormHistory } from './PatientProgramRegistryFormHistory';
+import { PatientProgramRegistrationSelectSurvey } from './PatientProgramRegistrationSelectSurvey';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 
 const ViewHeader = styled.div`
@@ -81,13 +81,13 @@ export const ProgramRegistryView = () => {
           <DisplayPatientRegDetails patientProgramRegistration={data} />
         </Row>
         <Row>
-          <ProgramRegistrySelectSurvey patientProgramRegistration={data} />
+          <PatientProgramRegistrationSelectSurvey patientProgramRegistration={data} />
         </Row>
         <Row>
           <ProgramRegistryStatusHistory patientProgramRegistration={data} />
         </Row>
         <Row>
-          <ProgramRegistryFormHistory patientProgramRegistration={data} />
+          <PatientProgramRegistryFormHistory patientProgramRegistration={data} />
         </Row>
       </Container>
     </>
