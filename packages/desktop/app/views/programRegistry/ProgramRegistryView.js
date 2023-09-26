@@ -81,10 +81,10 @@ export const ProgramRegistryView = () => {
           <DisplayPatientRegDetails patientProgramRegistration={data} />
         </Row>
         <Row>
-          <PatientProgramRegistrationSelectSurvey patientProgramRegistration={data} />
+          <ProgramRegistryStatusHistory patientProgramRegistration={data} />
         </Row>
         <Row>
-          <ProgramRegistryStatusHistory patientProgramRegistration={data} />
+          <PatientProgramRegistrationSelectSurvey patientProgramRegistration={data} />
         </Row>
         <Row>
           <PatientProgramRegistryFormHistory patientProgramRegistration={data} />
