@@ -105,7 +105,7 @@
    </Row>
    <Row>
     <Cell><Data ss:Type="String">currentlyAtType</Data></Cell>
-    <Cell><Data ss:Type="String">location</Data></Cell>
+    <Cell><Data ss:Type="String">facility</Data></Cell>
     <Cell/>
     <Cell/>
    </Row>

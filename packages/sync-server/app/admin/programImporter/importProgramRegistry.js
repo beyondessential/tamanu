@@ -53,9 +53,9 @@ const ensureCurrentlyAtUpdateIsAllowed = async (context, currentlyAtType, regist
   // No validation if we aren't trying to change the currentlyAtType
   if (!currentlyAtType || currentlyAtType === existingRegistry.currentlyAtType) return;
 
-  const existingData = context.models.PatientProgramRegistration.count({
+  const existingData = await context.models.PatientProgramRegistration.count({
     where: {
-      registryId,
+      programRegistryId: registryId,
     },
   });
 

@@ -52,7 +52,7 @@ describe('Programs import', () => {
     });
   }
 
-  it.skip('should succeed with valid data', async () => {
+  it('should succeed with valid data', async () => {
     const { didntSendReason, errors, stats } = await doImport({ file: 'valid', dryRun: true });
 
     expect(errors).toBeEmpty();
@@ -65,7 +65,7 @@ describe('Programs import', () => {
     });
   });
 
-  it.skip('should ignore obsolete surveys worksheets', async () => {
+  it('should ignore obsolete surveys worksheets', async () => {
     const { didntSendReason, errors, stats } = await doImport({ file: 'obsolete', dryRun: true });
 
     expect(errors).toBeEmpty();
@@ -76,7 +76,7 @@ describe('Programs import', () => {
     });
   });
 
-  it.skip('should properly update surveys as obsolete', async () => {
+  it('should properly update surveys as obsolete', async () => {
     await doImport({ file: 'valid', dryRun: false });
     const { didntSendReason, errors, stats } = await doImport({ file: 'obsolete', dryRun: true });
 
@@ -88,7 +88,7 @@ describe('Programs import', () => {
     });
   });
 
-  it.skip('should delete survey questions', async () => {
+  it('should delete survey questions', async () => {
     const { Survey } = ctx.store.models;
 
     const getComponents = async () => {
@@ -127,7 +127,7 @@ describe('Programs import', () => {
     expect(componentsAfter).toHaveLength(1);
   });
 
-  it.skip('should not write anything for a dry run', async () => {
+  it('should not write anything for a dry run', async () => {
     const { ProgramDataElement } = ctx.store.models;
     const beforeCount = await ProgramDataElement.count();
 
@@ -137,7 +137,7 @@ describe('Programs import', () => {
     expect(afterCount).toEqual(beforeCount);
   });
 
-  it.skip('should error on missing file', async () => {
+  it('should error on missing file', async () => {
     const { didntSendReason, errors } = await doImport({
       file: 'nofile',
       dryRun: true,
@@ -151,7 +151,7 @@ describe('Programs import', () => {
     );
   });
 
-  it.skip('should error on invalid import status', async () => {
+  it('should error on invalid import status', async () => {
     const { didntSendReason, errors } = await doImport({
       file: 'invalid-survey-status',
       dryRun: true,
@@ -165,7 +165,7 @@ describe('Programs import', () => {
     );
   });
 
-  it.skip('should error on invalid calculations', async () => {
+  it('should error on invalid calculations', async () => {
     const { didntSendReason, errors, stats } = await doImport({
       file: 'calculation-validation',
       dryRun: true,
@@ -180,7 +180,7 @@ describe('Programs import', () => {
     expect(errors.length).toEqual(2);
   });
 
-  it.skip('run validation against question configs', async () => {
+  it('run validation against question configs', async () => {
     const { didntSendReason, errors, stats } = await doImport({
       file: 'question-validation',
       xml: true,
@@ -235,7 +235,7 @@ describe('Programs import', () => {
   });
 
   describe('Vitals survey', () => {
-    it.skip('Should detect if the mandatory vitals questions are missing', async () => {
+    it('Should detect if the mandatory vitals questions are missing', async () => {
       const { errors } = await doImport({
         file: 'vitals-missing-qs',
         dryRun: true,
@@ -243,7 +243,7 @@ describe('Programs import', () => {
       expect(errors).toContainValidationError('Vitals', 0, 'Survey missing required questions');
     });
 
-    it.skip('Should refuse to import more than one vitals survey', async () => {
+    it('Should refuse to import more than one vitals survey', async () => {
       const { Program, Survey } = ctx.store.models;
       const program = await Program.create(fake(Program));
       await Survey.create({
@@ -259,7 +259,7 @@ describe('Programs import', () => {
       expect(errors).toContainValidationError('metadata', 0, 'Only one vitals survey');
     });
 
-    it.skip('Should reject a vitals survey with isSensitive set to true', async () => {
+    it('Should reject a vitals survey with isSensitive set to true', async () => {
       const { errors } = await doImport({
         file: 'vitals-sensitive-true',
         dryRun: true,
@@ -267,7 +267,7 @@ describe('Programs import', () => {
       expect(errors).toContainValidationError('metadata', 0, 'Vitals survey can not be sensitive');
     });
 
-    it.skip('Should validate normalRange in validation_criteria', async () => {
+    it('Should validate normalRange in validation_criteria', async () => {
       const { errors, stats } = await doImport({
         file: 'vitals-validate-normal-range-in-validation-criteria',
         dryRun: true,
@@ -293,7 +293,7 @@ describe('Programs import', () => {
       });
     });
 
-    it.skip('Should import a valid vitals survey', async () => {
+    it('Should import a valid vitals survey', async () => {
       const { errors, stats, didntSendReason } = await doImport({
         file: 'vitals-valid',
         dryRun: true,
@@ -308,7 +308,7 @@ describe('Programs import', () => {
       });
     });
 
-    it.skip('Should import a valid vitals survey and delete visualisationConfig', async () => {
+    it('Should import a valid vitals survey and delete visualisationConfig', async () => {
       const { ProgramDataElement } = ctx.store.models;
 
       const validateVisualisationConfig = async expectValue => {
@@ -337,7 +337,7 @@ describe('Programs import', () => {
   });
 
   describe('Program Registry', () => {
-    it.skip('should import a valid registry', async () => {
+    it('should import a valid registry', async () => {
       const { errors, stats, didntSendReason } = await doImport({
         file: 'registry-valid-village',
         xml: true,
@@ -355,7 +355,7 @@ describe('Programs import', () => {
       });
     });
 
-    it.skip('should properly update clinical statuses', async () => {
+    it('should properly update clinical statuses', async () => {
       await doImport({ file: 'registry-valid-village', xml: true, dryRun: false });
       const { didntSendReason, errors, stats } = await doImport({
         file: 'registry-update-statuses',
@@ -420,11 +420,13 @@ describe('Programs import', () => {
         programRegistryId: 'programRegistry-ValidRegistry',
       });
       const { errors } = await doImport({
-        file: 'registry-valid-location',
+        file: 'registry-valid-facility',
         xml: true,
         dryRun: false,
       });
-      expect(errors).not.toBeEmpty();
+      expect(errors[0].message).toEqual(
+        'Cannot update the currentlyAtType of a program registry with existing data on Registry at row 0',
+      );
     });
 
     it('should not prevent changing currentlyAtType if there is no existing data', async () => {
@@ -434,7 +436,7 @@ describe('Programs import', () => {
         dryRun: false,
       });
       const { errors } = await doImport({
-        file: 'registry-valid-location',
+        file: 'registry-valid-facility',
         xml: true,
         dryRun: false,
       });
