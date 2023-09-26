@@ -13,6 +13,8 @@ export const SSCUserData = SurveyScreenComponent.shape({
   config: configString(columnReferenceConfig),
 });
 export const SSCPatientData = SurveyScreenComponent.shape({
+  // just used for the when condition below, not imported.
+  currentlyAtType: yup.string().required().default(null),
   config: configString(
     columnReferenceConfig.shape({
       writeToPatient: yup
@@ -21,7 +23,15 @@ export const SSCPatientData = SurveyScreenComponent.shape({
           fieldName: yup
             .string()
             .oneOf(Object.keys(PATIENT_DATA_FIELD_LOCATIONS))
-            .required(),
+            .required()
+            .when('currentlyAtType', {
+              is: 'village',
+              then: yup.string().test(val => val !== 'registrationCurrentlyAtFacility'),
+            })
+            .when('currentlyAtType', {
+              is: 'facility',
+              then: yup.string().test(val => val !== 'registrationCurrentlyAtVillage'),
+            }),
           isAdditionalData: yup.boolean(),
           fieldType: yup
             .string()

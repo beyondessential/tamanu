@@ -19,6 +19,7 @@ describe('Programs import', () => {
     const {
       Program,
       Survey,
+      PatientProgramRegistration,
       ProgramRegistry,
       ProgramRegistryClinicalStatus,
       ProgramDataElement,
@@ -28,6 +29,7 @@ describe('Programs import', () => {
     await ProgramDataElement.destroy({ where: {}, force: true });
     await Survey.destroy({ where: {}, force: true });
     await Program.destroy({ where: {}, force: true });
+    await PatientProgramRegistration.destroy({ where: {}, force: true });
     await ProgramRegistryClinicalStatus.destroy({ where: {}, force: true });
     await ProgramRegistry.destroy({ where: {}, force: true });
   };

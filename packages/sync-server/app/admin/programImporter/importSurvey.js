@@ -8,7 +8,7 @@ import { readSurveyQuestions } from './readSurveyQuestions';
 import { ensureRequiredQuestionsPresent, validateCurrentlyAtQuestionsCorrectType } from './validation';
 import { validateProgramDataElementRecords, validateVitalsSurvey } from './vitalsValidation';
 
-function readSurveyInfo(workbook, surveyInfo) {
+function readSurveyInfo(workbook, surveyInfo, programRegistry) {
   const { sheetName, surveyType, code } = surveyInfo;
 
   const surveyRecord = {
@@ -35,7 +35,7 @@ function readSurveyInfo(workbook, surveyInfo) {
 
   const data = utils.sheet_to_json(worksheet);
 
-  const questionRecords = readSurveyQuestions(data, surveyInfo);
+  const questionRecords = readSurveyQuestions(data, surveyInfo, programRegistry);
   ensureRequiredQuestionsPresent(surveyInfo, questionRecords);
 
   return [surveyRecord, ...questionRecords];
