@@ -31,8 +31,9 @@ describe('FHIR refresh handler', () => {
     beforeEach(async () => {
       await ctx.store.models.FhirJob.destroy({ where: {} });
     });
+    afterAll(() => ctx.close());
 
-    it('finds all the FHIR resources that need to be updated', async () => {
+    it('allFromUpstream', async () => {
       await allFromUpstream(
         {
           payload: {
@@ -54,64 +55,87 @@ describe('FHIR refresh handler', () => {
         },
       });
 
-      expect(count).toEqual(2);
-      expect(rows).toEqual([
-        expect.objectContaining({
-          payload: expect.objectContaining({
-            op: 'UPDATE',
-            resource: 'Encounter',
-            table: 'public.encounters',
-            upstreamId: resources.encounter.id,
-          }),
-        }),
-        expect.objectContaining({
-          payload: expect.objectContaining({
-            op: 'UPDATE',
-            resource: 'ServiceRequest',
-            table: 'public.encounters',
-            upstreamId: imagingRequest.id,
-          }),
-        }),
-      ]);
-    });
-
-    it('does not create a job if the upstream do not meet the filter criteria', async () => {
-      const { Encounter } = ctx.store.models;
-
-      const encounter = await Encounter.create(
-        fake(Encounter, {
-          patientId: resources.patient.id,
-          locationId: resources.location.id,
-          departmentId: resources.department.id,
-          examinerId: resources.practitioner.id,
-          encounterType: 'surveyResponse',
-        }),
-      );
-
-      await allFromUpstream(
-        {
-          payload: {
-            op: 'UPDATE',
-            table: 'public.encounters',
-            id: encounter.id,
+      it('finds all the FHIR resources that need to be updated', async () => {
+        await allFromUpstream(
+          {
+            payload: {
+              op: 'UPDATE',
+              table: 'public.encounters',
+              id: resources.encounter.id,
+            },
           },
-        },
-        {
-          log,
-          sequelize: ctx.store.sequelize,
-          models: ctx.store.models,
-        },
-      );
+          {
+            log,
+            sequelize: ctx.store.sequelize,
+            models: ctx.store.models,
+          },
+        );
 
-      const { count, rows } = await ctx.store.models.FhirJob.findAndCountAll({
-        where: {
-          topic: 'fhir.refresh.fromUpstream',
-        },
+        const { count, rows } = await ctx.store.models.FhirJob.findAndCountAll({
+          where: {
+            topic: 'fhir.refresh.fromUpstream',
+          },
+        });
+
+        expect(count).toEqual(2);
+        expect(rows).toEqual([
+          expect.objectContaining({
+            payload: expect.objectContaining({
+              op: 'UPDATE',
+              resource: 'Encounter',
+              table: 'public.encounters',
+              upstreamId: resources.encounter.id,
+            }),
+          }),
+          expect.objectContaining({
+            payload: expect.objectContaining({
+              op: 'UPDATE',
+              resource: 'ServiceRequest',
+              table: 'public.encounters',
+              upstreamId: imagingRequest.id,
+            }),
+          }),
+        ]);
       });
 
-      expect(count).toEqual(0);
-      expect(rows).toEqual([]);
-      await encounter.destroy();
+      it('does not create a job if the upstream do not meet the filter criteria', async () => {
+        const { Encounter } = ctx.store.models;
+
+        const encounter = await Encounter.create(
+          fake(Encounter, {
+            patientId: resources.patient.id,
+            locationId: resources.location.id,
+            departmentId: resources.department.id,
+            examinerId: resources.practitioner.id,
+            encounterType: 'surveyResponse',
+          }),
+        );
+
+        await allFromUpstream(
+          {
+            payload: {
+              op: 'UPDATE',
+              table: 'public.encounters',
+              id: encounter.id,
+            },
+          },
+          {
+            log,
+            sequelize: ctx.store.sequelize,
+            models: ctx.store.models,
+          },
+        );
+
+        const { count, rows } = await ctx.store.models.FhirJob.findAndCountAll({
+          where: {
+            topic: 'fhir.refresh.fromUpstream',
+          },
+        });
+
+        expect(count).toEqual(0);
+        expect(rows).toEqual([]);
+        await encounter.destroy();
+      });
     });
   });
 });
