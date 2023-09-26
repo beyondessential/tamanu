@@ -176,6 +176,16 @@ export class FhirResource extends Model {
     return null;
   }
 
+  /** A query to exclude some Tamanu records from materialisation to prevent constant retries.
+   *
+   * @param {string} upstreamTable - the table name of the upstream model
+   * @returns {object|null} the argument to Sequelize#query, a query which will return the filtered upstreams, or null if the row is not relevant
+   */
+  // eslint-disable-next-line no-unused-vars
+  static async queryToFilterUpstream(upstreamTable) {
+    return null;
+  }
+
   formatFieldsAsFhir(fields) {
     return objectAsFhir(fields);
   }
