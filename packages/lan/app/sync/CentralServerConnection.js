@@ -68,8 +68,7 @@ export class CentralServerConnection {
     if (awaitConnection) {
       try {
         if (!this.token) {
-          // Deliberately use same backoff policy to avoid retrying in some places
-          await this.connect(backoff, otherParams.timeout);
+          await this.connect();
         } else {
           await this.connectionPromise;
         }
@@ -168,7 +167,7 @@ export class CentralServerConnection {
     throw new Error(`Did not get a truthy response after ${maxAttempts} attempts for ${endpoint}`);
   }
 
-  async connect(backoff, timeout = this.timeout) {
+  async connect() {
     // if there's an ongoing connect attempt, reuse it
     if (this.connectionPromise) {
       return this.connectionPromise;
@@ -190,8 +189,6 @@ export class CentralServerConnection {
         },
         awaitConnection: false,
         retryAuth: false,
-        backoff,
-        timeout,
       });
 
       if (!body.token || !body.user) {
