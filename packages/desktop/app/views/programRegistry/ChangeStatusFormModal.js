@@ -50,7 +50,7 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration }) => {
               <div>
                 <StyledFormGrid columns={1}>
                   <Field
-                    name="programRegistryClinicalStatusId"
+                    name="clinicalStatusId"
                     label="Status"
                     component={AutocompleteField}
                     suggester={programRegistryStatusSuggester}
@@ -65,11 +65,10 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration }) => {
             );
           }}
           initialValues={{
-            programRegistryClinicalStatusId:
-              patientProgramRegistration.programRegistryClinicalStatusId,
+            clinicalStatusId: patientProgramRegistration.clinicalStatusId,
           }}
           validationSchema={yup.object().shape({
-            programRegistryClinicalStatusId: foreignKey().required('Status must be selected'),
+            clinicalStatusId: foreignKey().required('Status must be selected'),
           })}
         />
       </Modal>

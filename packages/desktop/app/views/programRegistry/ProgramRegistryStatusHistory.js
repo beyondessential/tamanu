@@ -41,7 +41,7 @@ export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => 
     );
     return [
       {
-        key: 'programRegistryClinicalStatusId',
+        key: 'clinicalStatusId',
         title: 'Status',
         accessor: row => {
           return (

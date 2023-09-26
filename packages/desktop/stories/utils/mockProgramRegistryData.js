@@ -184,7 +184,7 @@ export const programRegistryStatusHistories = [
     id: '1',
     registrationStatus: 'removed',
     // registrationStatus: 'active',
-    programRegistryClinicalStatusId: '1',
+    clinicalStatusId: '1',
     programRegistryClinicalStatus: {
       id: '1',
       name: 'Low risk',
@@ -201,7 +201,7 @@ export const programRegistryStatusHistories = [
   {
     id: '2',
     registrationStatus: 'active',
-    programRegistryClinicalStatusId: '2',
+    clinicalStatusId: '2',
     programRegistryClinicalStatus: {
       id: '2',
       name: 'Needs review',
@@ -218,7 +218,7 @@ export const programRegistryStatusHistories = [
   {
     id: '3',
     registrationStatus: 'active',
-    programRegistryClinicalStatusId: '3',
+    clinicalStatusId: '3',
     programRegistryClinicalStatus: {
       id: '3',
       name: 'Critical',
@@ -235,7 +235,7 @@ export const programRegistryStatusHistories = [
   {
     id: '4',
     registrationStatus: 'active',
-    programRegistryClinicalStatusId: '4',
+    clinicalStatusId: '4',
     programRegistryClinicalStatus: {
       id: '4',
       name: 'Needs review',
@@ -252,7 +252,7 @@ export const programRegistryStatusHistories = [
   {
     id: '5',
     registrationStatus: 'active',
-    programRegistryClinicalStatusId: '5',
+    clinicalStatusId: '5',
     programRegistryClinicalStatus: {
       id: '5',
       name: 'Low risk',
@@ -269,7 +269,7 @@ export const programRegistryStatusHistories = [
   {
     id: '6',
     registrationStatus: 'active',
-    programRegistryClinicalStatusId: '6',
+    clinicalStatusId: '6',
     programRegistryClinicalStatus: {
       id: '6',
       name: 'Needs review',
@@ -584,7 +584,7 @@ export const patientProgramRegistration = {
   },
   date: '2023-08-28T02:40:16.237Z',
   name: 'Hepatitis B',
-  programRegistryClinicalStatusId: '1',
+  clinicalStatusId: '1',
   programRegistryClinicalStatus: {
     id: '1',
     code: 'low_risk',
@@ -691,7 +691,7 @@ export const dummyApi = {
 //   POST: /patient/patient_id/programRegistration/patient_program_registry_id
 //   data: {
 //     programRegistryId,
-//     programRegistryClinicalStatusId,
+//     clinicalStatusId,
 //     date,
 //     registeringClinicianId,
 //     facilityId,
@@ -727,7 +727,7 @@ export const dummyApi = {
 //     patient_program_registry_id,
 //     registration_status (active, delete)
 //     programRegistryId,
-//     programRegistryClinicalStatusId,
+//     clinicalStatusId,
 //     date,
 //     registeringClinicianId,
 //     facilityId,

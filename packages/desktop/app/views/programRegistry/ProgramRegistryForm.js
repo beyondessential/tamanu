@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
@@ -21,7 +21,7 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
   const api = useApi();
   const { currentUser, facility } = useAuth();
   const [program, setProgram] = useState();
-  const [conditions, setConditions] = useState([]);
+  const [conditions, setConditions] = useState(undefined);
   const programRegistrySuggester = useSuggester('programRegistries', {
     baseQueryParameters: { patientId: patient.id },
   });
@@ -51,7 +51,11 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
       onSubmit={data => {
         onSubmit({ ...data, patientId: patient.id });
       }}
-      render={({ submitForm, values }) => {
+      render={({ submitForm, values, setValues }) => {
+        useEffect(() => {
+          setValues({ ...values, clinicalStatusId: null });
+        }, [values.programRegistryId]);
+
         const handleCancel = () => onCancel && onCancel();
         const getButtonText = isCompleted => {
           if (isCompleted) return 'Finalise';
@@ -78,7 +82,7 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
 
                 <FieldWithTooltip
                   tooltipText="Select a program registry to set the status"
-                  name="programRegistryClinicalStatusId"
+                  name="clinicalStatusId"
                   label="Status"
                   component={AutocompleteField}
                   suggester={programRegistryStatusSuggester}
@@ -114,7 +118,7 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
                   label="Conditions"
                   component={MultiselectField}
                   options={conditions}
-                  disabled={!program}
+                  disabled={!conditions}
                 />
               </FormGrid>
 
@@ -135,7 +139,7 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
       }}
       validationSchema={yup.object().shape({
         programRegistryId: foreignKey('Program Registry must be selected'),
-        programRegistryClinicalStatusId: optionalForeignKey(),
+        clinicalStatusId: optionalForeignKey(),
         date: yup.date(),
         facilityId: optionalForeignKey(),
         registeringClinicianId: foreignKey('Registered by must be selected'),
