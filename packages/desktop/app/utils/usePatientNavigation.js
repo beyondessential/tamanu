@@ -79,6 +79,15 @@ export const usePatientNavigation = () => {
     })}?title=${encodeURIComponent(title)}`;
     navigate(programRegistryRoute);
   };
+
+  const navigateToProgramRegistrySurvey = (programRegistryId, surveyId, title) => {
+    const programRegistryRoute = `${generatePath(PATIENT_PATHS.PROGRAM_REGISTRY_SURVEY, {
+      ...params,
+      programRegistryId,
+      surveyId,
+    })}?title=${encodeURIComponent(title)}`;
+    navigate(programRegistryRoute);
+  };
   return {
     navigateToPatient,
     navigateToEncounter,
@@ -87,5 +96,6 @@ export const usePatientNavigation = () => {
     navigateToCategory,
     navigateToSummary,
     navigateToProgramRegistry,
+    navigateToProgramRegistrySurvey,
   };
 };

@@ -17,7 +17,7 @@ import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api/useApi';
 
-export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObject, patient }) => {
+export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient }) => {
   const api = useApi();
   const { currentUser, facility } = useAuth();
   const [program, setProgram] = useState();
@@ -142,7 +142,7 @@ export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObjec
       })}
     />
   );
-});
+};
 
 ProgramRegistryForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,

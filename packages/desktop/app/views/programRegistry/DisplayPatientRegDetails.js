@@ -4,10 +4,9 @@ import { Avatar } from '@material-ui/core';
 import { Colors, STATUS_COLOR, PROGRAM_REGISTRATION_STATUSES } from '../../constants/index';
 import { DateDisplay } from '../../components/DateDisplay';
 import { programsIcon } from '../../constants/images';
-import { OutlinedButton } from '../../components/Button';
 import { MenuButton } from '../../components/MenuButton';
 import { ChangeStatusFormModal } from './ChangeStatusFormModal';
-import { ActivateProgramRegistryFormModal } from './ActivateProgramRegistryFormModal';
+import { ActivatePatientProgramRegistry } from './ActivatePatientProgramRegistry';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 
@@ -70,6 +69,7 @@ const MenuContainer = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: flex-end;
+  justify-content: flex-end;
   .menu {
     border-radius: 100px;
     background-color: ${Colors.hoverGrey};
@@ -93,7 +93,6 @@ const ValueDisplay = ({ label, value }) => (
 );
 
 export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
-  const [openChangeStatusFormModal, setOpenChangeStatusFormModal] = useState(false);
   const [openDeleteProgramRegistryFormModal, setOpenDeleteProgramRegistryFormModal] = useState(
     false,
   );
@@ -142,20 +141,8 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
         >
           {patientProgramRegistration.programRegistryClinicalStatus.name}
         </StatusBadge>
-        <OutlinedButton onClick={() => setOpenChangeStatusFormModal(true)}>
-          Change Status
-        </OutlinedButton>
-        <ChangeStatusFormModal
-          onSubmit={() => {
-            // console.log(data);
-            setOpenChangeStatusFormModal(false);
-          }}
-          onCancel={() => {
-            setOpenChangeStatusFormModal(false);
-          }}
-          programRegistry={patientProgramRegistration}
-          open={openChangeStatusFormModal}
-        />
+
+        <ChangeStatusFormModal patientProgramRegistration={patientProgramRegistration} />
       </ChangeStatusContainer>
       <MenuContainer>
         <div className="menu">
@@ -174,23 +161,25 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           />
         </div>
       </MenuContainer>
-      <ActivateProgramRegistryFormModal
+      <ActivatePatientProgramRegistry
         open={openActivateProgramRegistryFormModal}
-        programRegistry={patientProgramRegistration}
+        patientProgramRegistration={patientProgramRegistration}
         onSubmit={() => {
           setOpenActivateProgramRegistryFormModal(false);
         }}
         onCancel={() => {
+          // console.log('canceled');
           setOpenActivateProgramRegistryFormModal(false);
         }}
       />
       <RemoveProgramRegistryFormModal
         open={openRemoveProgramRegistryFormModal}
-        programRegistry={patientProgramRegistration}
+        patientProgramRegistration={patientProgramRegistration}
         onSubmit={() => {
           setOpenRemoveProgramRegistryFormModal(false);
         }}
         onCancel={() => {
+          // console.log('canceled');
           setOpenRemoveProgramRegistryFormModal(false);
         }}
       />
@@ -201,6 +190,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           setOpenDeleteProgramRegistryFormModal(false);
         }}
         onCancel={() => {
+          // console.log('canceled');
           setOpenDeleteProgramRegistryFormModal(false);
         }}
       />
