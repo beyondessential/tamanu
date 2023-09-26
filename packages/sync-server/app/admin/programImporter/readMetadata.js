@@ -119,9 +119,7 @@ export function readMetadata(metadataSheet) {
         default:
           throw new ValidationError(
             'Metadata',
-            // ValidationError gives the index +1 for the header to find the sheet row,
-            // but we have the index of the sheet row already
-            rowIndex - 1,
+            rowIndex,
             `Survey ${name} has invalid status ${status}. Must be one of publish, draft, hidden.`,
           );
       }
