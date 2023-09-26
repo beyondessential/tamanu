@@ -1,17 +1,21 @@
 import * as yup from 'yup';
 
 export const jsonString = () =>
-  // The template curly two lines down is valid in a yup message
-  // eslint-disable-next-line no-template-curly-in-string
-  yup.string().test('is-json', '${path} is not valid JSON', value => {
-    if (!value) return true;
-    try {
-      JSON.parse(value);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  });
+  yup.string().test(
+    'is-json',
+    // The template curly two lines down is valid in a yup message
+    // eslint-disable-next-line no-template-curly-in-string
+    '${path} is not valid JSON - consider using an online JSON validator',
+    value => {
+      if (!value) return true;
+      try {
+        JSON.parse(value);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    },
+  );
 
 // Because jsonStringShape runs a new validation it runs at the root of the object
 // This means default yup errors won't give the field name by default, so we pass it in instead
