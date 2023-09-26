@@ -180,6 +180,7 @@ describe('Programs import', () => {
   it('run validation against question configs', async () => {
     const { didntSendReason, errors, stats } = await doImport({
       file: 'question-validation',
+      xml: true,
       dryRun: true,
     });
 
@@ -315,9 +316,10 @@ describe('Programs import', () => {
     });
 
     it('should properly update clinical statuses', async () => {
-      await doImport({ file: 'registry-valid', dryRun: false });
+      await doImport({ file: 'registry-valid', xml: true, dryRun: false });
       const { didntSendReason, errors, stats } = await doImport({
         file: 'registry-update-statuses',
+        xml: true,
         dryRun: true,
       });
 
@@ -334,6 +336,7 @@ describe('Programs import', () => {
     it('should error on invalid currentlyAtType', async () => {
       const { errors } = await doImport({
         file: 'registry-invalid-currently-at-type',
+        xml: true,
         dryRun: true,
       });
 
@@ -343,9 +346,10 @@ describe('Programs import', () => {
     });
 
     it('should enforce unique name', async () => {
-      await doImport({ file: 'registry-valid', dryRun: false });
+      await doImport({ file: 'registry-valid', xml: true, dryRun: false });
       const { errors } = await doImport({
         file: 'registry-duplicated-name',
+        xml: true,
         dryRun: true,
       });
 
@@ -359,6 +363,7 @@ describe('Programs import', () => {
       await doImport({ file: 'registry-make-historical', dryRun: false });
       const { errors } = await doImport({
         file: 'registry-duplicated-name',
+        xml: true,
         dryRun: true,
       });
       expect(errors).toBeEmpty();
