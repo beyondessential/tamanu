@@ -157,16 +157,27 @@ export const patientAdditionalDataValidationSchema = Yup.object().shape({
 });
 
 // Strip off unwanted fields from additional data and only keep specified ones
-export const getInitialValues = (data, fields, isCustomFields): {} => {
+export const getInitialCustomValues = (data, fields): {} => {
   if (!data) {
     return {};
   }
-
   // Copy values from data only in the specified fields
   const values = {};
-  (isCustomFields ? fields.map(({ id }) => id) : fields).forEach(fieldName => {
-    values[fieldName] = isCustomFields ? data[fieldName]?.[0]?.value : data[fieldName];
+  fields.map(({ id }) => id).forEach(fieldName => {
+    values[fieldName] = data[fieldName]?.[0]?.value;
   });
+  return values;
+}
 
+// Strip off unwanted fields from additional data and only keep specified ones
+export const getInitialAdditionalValues = (data, fields): {} => {
+  if (!data) {
+    return {};
+  }
+  // Copy values from data only in the specified fields
+  const values = {};
+  fields.forEach(fieldName => {
+    values[fieldName] = data[fieldName];
+  });
   return values;
 };

@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn, ManyToOne, RelationId } from 'typeorm/browser';
+import { BeforeInsert, Entity, Column, PrimaryColumn, ManyToOne, RelationId } from 'typeorm/browser';
 
 import { IPatientFieldValue } from '~/types';
 import { BaseModelWithoutId } from './BaseModel';
@@ -16,25 +16,30 @@ export class PatientFieldValue extends BaseModelWithoutId implements IPatientFie
   @Column({ nullable: true })
   id?: string;
 
-  @PrimaryColumn()
-  patientId: string;
   @ManyToOne(
     () => Patient,
     patient => patient.patientFieldValues,
   )
   patient: Patient;
+  @PrimaryColumn()
   @RelationId(({ patient }) => patient)
   patientId: string;
 
-  @PrimaryColumn()
-  definitionId: string;
   @ManyToOne(
     () => PatientFieldDefinition,
     patientFieldDefinition => patientFieldDefinition.patientFieldValues,
   )
   definition: PatientFieldDefinition;
+  @PrimaryColumn()
   @RelationId(({ definition }) => definition)
   definitionId: string;
+
+  @BeforeInsert()
+  async assignIdAsPatientIdDefinitionId(): Promise<void> {
+    // N.B. because ';' is used to join the two, we replace any actual occurrence of ';' with ':'
+    // to avoid clashes on the joined id
+    this.id = `${this.patient.replace(';', ':')};${this.definition.replace(';', ':')}`;
+  }
 
   static getTableNameForSync(): string {
     return 'patient_field_values';
@@ -53,7 +58,7 @@ export class PatientFieldValue extends BaseModelWithoutId implements IPatientFie
   static async updateOrCreateForPatientAndDefinition(patientId: string, definitionId: string, value: string): Promise<PatientFieldValue> {
     const existing = await PatientFieldValue.getForPatientAndDefinition(patientId, definitionId);
     if (existing) {
-      if (existing.value === value) return Promise.resolve(); // to avoid unnecessary updates
+      if (existing.value === value) return; // to avoid unnecessary updates
       existing.value = value ?? ''; // " ?? '' " since nullable is false
       return existing.save();
     }
@@ -65,7 +70,5 @@ export class PatientFieldValue extends BaseModelWithoutId implements IPatientFie
         value,
       });
     }
-
   }
-
 }
