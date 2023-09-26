@@ -102,7 +102,6 @@ export const SurveyResponseScreen = ({
         <SurveyForm
           patient={selectedPatient}
           patientAdditionalData={patientAdditionalData}
-          note={note}
           components={components}
           onSubmit={onSubmit}
         />

@@ -54,11 +54,10 @@ const SurveyQuestionErrorView = ({ error }): ReactElement => (
 interface FormFieldsProps {
   components: ISurveyScreenComponent[];
   patient: IPatient;
-  note: string;
   isSubmitting: boolean;
 }
 
-export const FormFields = ({ components, note, patient, isSubmitting }: FormFieldsProps): ReactElement => {
+export const FormFields = ({ components, patient, isSubmitting }: FormFieldsProps): ReactElement => {
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
   const scrollViewRef = useRef(null);
   const { errors, validateForm, setStatus, submitForm, values, resetForm } = useFormikContext<
@@ -181,11 +180,6 @@ export const FormFields = ({ components, note, patient, isSubmitting }: FormFiel
             <SubmitButton margin={5} onSubmit={onSubmit} />
           )}
         </RowView>
-        {currentScreenIndex === maxIndex && (
-          <StyledView margin={10}>
-            <StyledText color={theme.colors.TEXT_DARK}>{note}</StyledText>
-          </StyledView>
-        )}
       </FormScreenView>
     </FullView>
   );

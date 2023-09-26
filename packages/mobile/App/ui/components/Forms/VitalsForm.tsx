@@ -81,7 +81,6 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
     <SurveyForm
       patient={selectedPatient}
       patientAdditionalData={patientAdditionalData}
-      note={note}
       components={visibleComponents}
       onSubmit={onSubmit}
       validate={validate}

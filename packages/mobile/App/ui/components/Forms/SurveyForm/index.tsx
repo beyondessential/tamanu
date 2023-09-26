@@ -13,7 +13,6 @@ export type SurveyFormProps = {
   onSubmit: (values: any) => Promise<void>;
   components: ISurveyComponent[];
   patient: any;
-  note: string;
   validate: any;
   patientAdditionalData: IPatientAdditionalData[];
 };
@@ -21,7 +20,6 @@ export type SurveyFormProps = {
 export const SurveyForm = ({
   onSubmit,
   components,
-  note,
   patient,
   patientAdditionalData,
   validate,
@@ -84,7 +82,6 @@ export const SurveyForm = ({
         }, [values]);
         return <FormFields
           components={components}
-          note={note}
           patient={patient}
           isSubmitting={isSubmitting}
         />;
