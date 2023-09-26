@@ -6,6 +6,26 @@ const REQUIRED_QUESTION_IDS = {
   [SURVEY_TYPES.VITALS]: Object.values(VITALS_DATA_ELEMENT_IDS),
 };
 
+export function ensureRequiredQuestionsPresent(surveyInfo, questionRecords) {
+  const { surveyType, sheetName } = surveyInfo;
+
+  const requiredQuestions = REQUIRED_QUESTION_IDS[surveyType];
+  if (!requiredQuestions) {
+    return;
+  }
+
+  // check that each mandatory question ID has a corresponding row in the import sheet
+  const hasQuestion = id => questionRecords.some(q => q.values.id === id);
+  const missingQuestions = requiredQuestions.filter(rf => !hasQuestion(rf));
+  if (missingQuestions.length > 0) {
+    throw new ValidationError(
+      sheetName,
+      -2,
+      `Survey missing required questions: ${missingQuestions.join(', ')}`,
+    );
+  }
+}
+
 async function ensureOnlyOneVitalsSurveyExists({ models }, surveyInfo) {
   const vitalsCount = await models.Survey.count({
     where: {
@@ -29,24 +49,4 @@ function ensureVitalsSurveyNonSensitive(surveyInfo) {
 export async function validateVitalsSurvey(context, surveyInfo) {
   await ensureOnlyOneVitalsSurveyExists(context, surveyInfo);
   ensureVitalsSurveyNonSensitive(surveyInfo);
-}
-
-export function ensureRequiredQuestionsPresent(surveyInfo, questionRecords) {
-  const { surveyType, sheetName } = surveyInfo;
-
-  const requiredQuestions = REQUIRED_QUESTION_IDS[surveyType];
-  if (!requiredQuestions) {
-    return;
-  }
-
-  // check that each mandatory question ID has a corresponding row in the import sheet
-  const hasQuestion = id => questionRecords.some(q => q.values.id === id);
-  const missingQuestions = requiredQuestions.filter(rf => !hasQuestion(rf));
-  if (missingQuestions.length > 0) {
-    throw new ValidationError(
-      sheetName,
-      -2,
-      `Survey missing required questions: ${missingQuestions.join(', ')}`,
-    );
-  }
 }
