@@ -528,7 +528,6 @@ export const globalDefaults = {
         subTitle: 'PO Box 12345, Melbourne, Australia',
         title: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
       },
-      plannedMoveTimeoutHours: 24,
       signerRenewalEmail: {
         body:
           'Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team.',
@@ -610,6 +609,10 @@ export const globalDefaults = {
       rowGap: '0',
       rowHeight: '26.7mm',
       rowTotal: 10,
+    },
+    idCardPage: {
+      cardMarginTop: '1mm',
+      cardMarginLeft: '5mm',
     },
   },
   questionCodeIds: {
