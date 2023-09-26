@@ -55,14 +55,14 @@ export const ProgramViewHistoryScreen = ({
       showsVerticalScrollIndicator={false}
       data={responses}
       keyExtractor={(item): string => item.id}
-      renderItem={({ item, index }): ReactElement => (
+      renderItem={({ item }): ReactElement => (
         <SurveyResponseLink
-          backgroundColor={index % 2 ? theme.colors.BACKGROUND_GREY : theme.colors.WHITE}
+          backgroundColor={theme.colors.BACKGROUND_GREY}
           surveyResponse={item}
           detailsRouteName={Routes.HomeStack.ProgramStack.SurveyResponseDetailsScreen}
         />
       )}
-      ItemSeparatorComponent={Separator}
+      ItemSeparatorComponent={() => <Separator paddingLeft="5%" width="95%" />}
       ListFooterComponent={(): ReactElement => {
         if (responses.length > 80) {
           return (

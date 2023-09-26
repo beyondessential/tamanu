@@ -7,13 +7,9 @@ import { StyledView, StyledText, FullView } from '/styled/common';
 import { SurveyResultBadge } from '/components/SurveyResultBadge';
 import { ArrowForwardIcon } from '/components/Icons';
 import { DateFormats } from '~/ui/helpers/constants';
-
+ 
 const SensitiveResponseLabel = (): ReactElement => (
-  <StyledText
-    color={theme.colors.DISABLED_GREY}
-    fontSize={13}
-    fontWeight="bold"
-  >
+  <StyledText color={theme.colors.DISABLED_GREY} fontSize={14} fontWeight="500">
     Sensitive - not viewable
   </StyledText>
 );
@@ -31,28 +27,25 @@ export const SurveyResponseLink = ({
   const { survey, endTime = '', resultText } = surveyResponse;
   const { isSensitive } = survey;
 
-  const showResponseDetails = useCallback(
-    (): void => {
-      if (!isSensitive) {
-        navigation.navigate(detailsRouteName, {
-          surveyResponseId: surveyResponse.id,
-        });
-      }
-    },
-    [isSensitive, navigation, surveyResponse],
-  );
+  const showResponseDetails = useCallback((): void => {
+    if (!isSensitive) {
+      navigation.navigate(detailsRouteName, {
+        surveyResponseId: surveyResponse.id,
+      });
+    }
+  }, [isSensitive, navigation, surveyResponse]);
 
   return (
     <TouchableOpacity onPress={showResponseDetails}>
       <StyledView
-        height={60}
+        height={69}
         justifyContent="space-between"
         flexDirection="column"
         padding={8}
         background={backgroundColor}
       >
         <StyledView
-          minHeight={40}
+          minHeight={50}
           paddingLeft={16}
           paddingRight={16}
           justifyContent="space-between"
@@ -62,7 +55,8 @@ export const SurveyResponseLink = ({
           <FullView>
             <StyledText
               marginBottom="5"
-              fontWeight="bold"
+              fontWeight="500"
+              fontSize={14}
               color={isSensitive ? theme.colors.DISABLED_GREY : theme.colors.TEXT_SUPER_DARK}
             >
               {survey.name}
@@ -70,8 +64,8 @@ export const SurveyResponseLink = ({
             <StyledView justifyContent="space-between" alignItems="center" flexDirection="row">
               <StyledText
                 color={isSensitive ? theme.colors.DISABLED_GREY : theme.colors.TEXT_MID}
-                fontSize={13}
-                fontWeight="bold"
+                fontSize={14}
+                fontWeight="500"
               >
                 {formatStringDate(endTime, DateFormats.DATE_AND_TIME)}
               </StyledText>
