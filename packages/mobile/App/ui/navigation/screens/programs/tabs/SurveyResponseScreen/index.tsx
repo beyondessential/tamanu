@@ -88,7 +88,7 @@ export const SurveyResponseScreen = ({
   const error = surveyError || componentsError || padError;
   // due to how useBackendEffect works we need to stay in the loading state for queries which depend
   // on other data, like the query for components
-  const isLoading = !survey || isSurveyLoading || areComponentsLoading || isPadLoading;
+  const isLoading = !survey || isSurveyLoading || !components || areComponentsLoading || isPadLoading;
   if (error) {
     return <ErrorScreen error={error} />;
   }
