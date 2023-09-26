@@ -22,7 +22,6 @@ import { ProgramRegistrySurveyView } from '../app/views/programRegistry/ProgramR
 import { dummyApi, patient, patientProgramRegistration } from './utils/mockProgramRegistryData';
 
 //#region InfoPaneList
-
 storiesOf('Program Registry', module).add('ProgramRegistry Info Panlist', () => {
   return (
     <ApiContext.Provider value={dummyApi}>
