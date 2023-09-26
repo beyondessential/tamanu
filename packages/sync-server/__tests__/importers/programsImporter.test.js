@@ -1,10 +1,10 @@
-import { fake } from 'shared/test-helpers/fake';
+import { fake } from '@tamanu/shared/test-helpers/fake';
+import { findOneOrCreate } from '@tamanu/shared/test-helpers/factory';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { programImporter } from '../../app/admin/programImporter';
 import { createTestContext } from '../utilities';
 import './matchers';
-import { findOneOrCreate } from '../../../shared/src/test-helpers/factory';
 
 // the importer can take a little while
 jest.setTimeout(300000);
