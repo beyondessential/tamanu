@@ -1,5 +1,4 @@
 import { log } from '@tamanu/shared/services/logging';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { readFile } from 'xlsx';
 
 import { importRows } from '../importRows';
@@ -44,13 +43,6 @@ export async function programImporter({ errors, models, stats, file, whitelist =
   stats.push(
     await importProgramRegistry(createContext('ProgramRegistry'), workbook, programRecord.id),
   );
-  // get the attached programRegistry, whether it was just imported or not
-  const programRegistry = await models.ProgramRegistry.findOne({
-    where: {
-      programId: programRecord.id,
-      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-    },
-  });
 
   const surveysToImport = surveyMetadata.filter(({ name, code }) => {
     // check against whitelist
@@ -69,7 +61,7 @@ export async function programImporter({ errors, models, stats, file, whitelist =
   for (const surveyInfo of surveysToImport) {
     try {
       const context = createContext(surveyInfo.name);
-      const result = await importSurvey(context, workbook, surveyInfo, programRegistry);
+      const result = await importSurvey(context, workbook, surveyInfo);
       stats.push(result);
     } catch (e) {
       errors.push(e);

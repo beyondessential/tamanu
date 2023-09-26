@@ -5,13 +5,10 @@ import { ImporterMetadataError } from '../errors';
 import { importRows } from '../importRows';
 
 import { readSurveyQuestions } from './readSurveyQuestions';
-import {
-  ensureRequiredQuestionsPresent,
-  validateCurrentlyAtQuestionsCorrectType,
-} from './validation';
+import { ensureRequiredQuestionsPresent } from './validation';
 import { validateProgramDataElementRecords, validateVitalsSurvey } from './vitalsValidation';
 
-function readSurveyInfo(workbook, surveyInfo, programRegistry) {
+function readSurveyInfo(workbook, surveyInfo) {
   const { sheetName, surveyType, code } = surveyInfo;
 
   const surveyRecord = {
@@ -38,7 +35,7 @@ function readSurveyInfo(workbook, surveyInfo, programRegistry) {
 
   const data = utils.sheet_to_json(worksheet);
 
-  const questionRecords = readSurveyQuestions(data, surveyInfo, programRegistry);
+  const questionRecords = readSurveyQuestions(data, surveyInfo);
   ensureRequiredQuestionsPresent(surveyInfo, questionRecords);
 
   return [surveyRecord, ...questionRecords];
@@ -52,8 +49,7 @@ export async function importSurvey(context, workbook, surveyInfo) {
   }
 
   const records = readSurveyInfo(workbook, surveyInfo);
-  let stats = await validateCurrentlyAtQuestionsCorrectType(context, surveyInfo, records);
-  stats = validateProgramDataElementRecords(records, { context, sheetName, stats });
+  const stats = validateProgramDataElementRecords(records, { context, sheetName });
 
   return importRows(
     context,

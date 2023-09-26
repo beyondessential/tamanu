@@ -35,8 +35,6 @@ export const SSCUserData = SurveyScreenComponent.shape({
   config: configString(columnReferenceConfig),
 });
 export const SSCPatientData = SurveyScreenComponent.shape({
-  // just used for the when condition below, not imported.
-  // currentlyAtType: yup.string().nullable().default(null),
   config: configString(
     columnReferenceConfig.shape({
       writeToPatient: yup

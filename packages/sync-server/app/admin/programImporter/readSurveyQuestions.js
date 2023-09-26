@@ -20,7 +20,7 @@ function newlinesToArray(data) {
   return JSON.stringify(array);
 }
 
-function makeScreen(questions, componentData, programRegistry) {
+function makeScreen(questions, componentData) {
   return questions.flatMap((component, i) => {
     const {
       visibilityCriteria = '',
@@ -69,10 +69,9 @@ function makeScreen(questions, componentData, programRegistry) {
           detail,
           config: qConfig,
           calculation,
-          // Type and currentlyAtType won't be attached to the survey screen component but
-          // are used during the validation step
+          // Type won't be attached to the survey screen component but
+          // different question types use different validation criteria
           type,
-          currentlyAtType: programRegistry?.currentlyAtType,
           ...otherComponentData,
           deletedAt,
         },
@@ -111,19 +110,15 @@ function splitIntoScreens(questions) {
   });
 }
 
-export function readSurveyQuestions(data, survey, programRegistry) {
+export function readSurveyQuestions(data, survey) {
   const questions = data.map(importDataElement).filter(q => q.code);
   const screens = splitIntoScreens(questions);
 
   return screens.flatMap((x, i) =>
-    makeScreen(
-      x,
-      {
-        surveyId: survey.id,
-        sheet: survey.name,
-        screenIndex: i,
-      },
-      programRegistry,
-    ),
+    makeScreen(x, {
+      surveyId: survey.id,
+      sheet: survey.name,
+      screenIndex: i,
+    }),
   );
 }

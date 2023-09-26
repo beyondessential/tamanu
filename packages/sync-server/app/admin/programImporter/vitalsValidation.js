@@ -1,11 +1,8 @@
-import { Op } from 'sequelize';
 import * as yup from 'yup';
 import config from 'config';
 import { parseOrNull } from '@tamanu/shared/utils/parse-or-null';
-import { SURVEY_TYPES } from '@tamanu/constants';
 import { isNumberOrFloat } from '../../utils/numbers';
 import { statkey, updateStat } from '../stats';
-import { ImporterMetadataError } from '../errors';
 
 const checkIfWithinGraphRange = (normalRange, graphRange) => {
   if (isNumberOrFloat(normalRange.min) && normalRange.min < graphRange.min) {
@@ -101,29 +98,4 @@ export function validateProgramDataElementRecords(
   }
 
   return stats;
-}
-
-async function ensureOnlyOneVitalsSurveyExists({ models }, surveyInfo) {
-  const vitalsCount = await models.Survey.count({
-    where: {
-      id: {
-        [Op.not]: surveyInfo.id,
-      },
-      survey_type: SURVEY_TYPES.VITALS,
-    },
-  });
-  if (vitalsCount > 0) {
-    throw new ImporterMetadataError('Only one vitals survey may exist at a time');
-  }
-}
-
-function ensureVitalsSurveyNonSensitive(surveyInfo) {
-  if (surveyInfo.isSensitive) {
-    throw new ImporterMetadataError('Vitals survey can not be sensitive');
-  }
-}
-
-export async function validateVitalsSurvey(context, surveyInfo) {
-  await ensureOnlyOneVitalsSurveyExists(context, surveyInfo);
-  ensureVitalsSurveyNonSensitive(surveyInfo);
 }
