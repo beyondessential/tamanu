@@ -118,7 +118,7 @@
     <Cell><Data ss:Type="String">Succeed-PatientData</Data></Cell>
     <Cell><Data ss:Type="String">PatientData</Data></Cell>
     <Cell><Data ss:Type="String">PatientData: Full config</Data></Cell>
-    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;column&quot;: &quot;xyz&quot;, &quot;writeToPatient&quot;: { &quot;fieldName&quot;: &quot;abc&quot;, &quot;isAdditionalData&quot;: false, &quot;fieldType&quot;: &quot;FreeText&quot; } }</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;column&quot;: &quot;xyz&quot;, &quot;writeToPatient&quot;: { &quot;fieldName&quot;: &quot;email&quot;, &quot;fieldType&quot;: &quot;FreeText&quot; } }</Data></Cell>
    </Row>
    <Row>
     <Cell><Data ss:Type="String">Succeed-UserData</Data></Cell>
@@ -271,6 +271,12 @@
     <Cell><Data ss:Type="String">PatientData</Data></Cell>
     <Cell><Data ss:Type="String">PatientData: Incorrect field type in config</Data></Cell>
     <Cell ss:Index="16"><Data ss:Type="String">{ &quot;column&quot;: 24 }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-PatientDataConfIncorrectFieldName</Data></Cell>
+    <Cell><Data ss:Type="String">PatientData</Data></Cell>
+    <Cell><Data ss:Type="String">PatientData: Incorrect field name in config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;writeToPatient&quot;: { &quot;fieldName&quot;: &quot;abc&quot;, &quot;fieldType&quot;: &quot;FreeText&quot; }}</Data></Cell>
    </Row>
    <Row>
     <Cell><Data ss:Type="String">Fail-PatientDataConfMissingField</Data></Cell>

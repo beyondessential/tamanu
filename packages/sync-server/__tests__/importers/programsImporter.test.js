@@ -185,12 +185,49 @@ describe('Programs import', () => {
     });
 
     expect(didntSendReason).toEqual('validationFailed');
-    expect(errors.length).toEqual(31);
+    const expectedErrorMessages = [
+      'validationCriteria: this field has unspecified keys: foo on Question Validation Fail at row 3',
+      'validationCriteria: mandatory must be a `boolean` type, but the final value was: `"true"`. on Question Validation Fail at row 4',
+      'config: this field has unspecified keys: foo on Question Validation Fail at row 5',
+      'config: unit must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 6',
+      'validationCriteria: this field has unspecified keys: foo on Question Validation Fail at row 7',
+      'validationCriteria: mandatory must be a `boolean` type, but the final value was: `"true"`. on Question Validation Fail at row 8',
+      'config: this field has unspecified keys: foo on Question Validation Fail at row 9',
+      'config: unit must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 10',
+      'validationCriteria: this field has unspecified keys: foo on Question Validation Fail at row 11',
+      'validationCriteria: mandatory must be a `boolean` type, but the final value was: `"true"`. on Question Validation Fail at row 12',
+      'config: this field has unspecified keys: foo on Question Validation Fail at row 13',
+      'config: unit must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 14',
+      'config: this field has unspecified keys: foo on Question Validation Fail at row 15',
+      'config: column must be a `string` type, but the final value was: `24`. on Question Validation Fail at row 16',
+      'config: writeToPatient.fieldName must be one of the following values: registrationClinicalStatus, programRegistrationStatus, registrationClinician, registeringFacility, registrationCurrentlyAtVillage, registrationCurrentlyAtFacility, firstName, middleName, lastName, culturalName, dateOfBirth, dateOfDeath, sex, email, villageId, placeOfBirth, bloodType, primaryContactNumber, secondaryContactNumber, maritalStatus, cityTown, streetVillage, educationalLevel, socialMedia, title, birthCertificate, drivingLicense, passport, emergencyContactName, emergencyContactNumber, registeredById, motherId, fatherId, nationalityId, countryId, divisionId, subdivisionId, medicalAreaId, nursingZoneId, settlementId, ethnicityId, occupationId, religionId, patientBillingTypeId, countryOfBirthId on Question Validation Fail at row 17',
+      'config: writeToPatient.fieldType is a required field on Question Validation Fail at row 18',
+      'config: this field has unspecified keys: foo on Question Validation Fail at row 19',
+      'config: column must be a `string` type, but the final value was: `24`. on Question Validation Fail at row 20',
+      'config: column is a required field on Question Validation Fail at row 21',
+      'config: this field has unspecified keys: foo on Question Validation Fail at row 22',
+      'config: source must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 23',
+      'config: where is a required field on Question Validation Fail at row 24',
+      'config: source is a required field on Question Validation Fail at row 25',
+      'config: this field has unspecified keys: foo on Question Validation Fail at row 26',
+      'config: source must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 27',
+      'config: source is a required field on Question Validation Fail at row 28',
+      'config: this field has unspecified keys: foo on Question Validation Fail at row 29',
+      'config: source must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 30',
+      'config: source is a required field on Question Validation Fail at row 31',
+      'config: this field has unspecified keys: foo on Question Validation Fail at row 32',
+      'config: source must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 33',
+      'config: source is a required field on Question Validation Fail at row 34',
+    ];
+
+    errors.forEach((error, i) => {
+      expect(error.message).toEqual(expectedErrorMessages[i]);
+    });
     expect(stats).toMatchObject({
       Program: { created: 1, updated: 0, errored: 0 },
       Survey: { created: 2, updated: 0, errored: 0 },
-      ProgramDataElement: { created: 40, updated: 0, errored: 0 },
-      SurveyScreenComponent: { created: 9, updated: 0, errored: 31 }, // 31 fields in failure test, 9 in success test
+      ProgramDataElement: { created: 41, updated: 0, errored: 0 },
+      SurveyScreenComponent: { created: 9, updated: 0, errored: 32 }, // 32 fields in failure test, 9 in success test
     });
   });
 
