@@ -1,17 +1,33 @@
-import Sequelize from 'sequelize';
+import Sequelize, { DataTypes } from 'sequelize';
+
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { dateTimeType } from './dateTimeTypes';
 
 import { Model } from './Model';
-import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
+import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class PatientBirthData extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
-        id: primaryKey,
+        id: {
+          // patient birth data records use a patient_id as the primary key, acting as a
+          // db-level enforcement of one per patient, and simplifying sync
+          type: `TEXT GENERATED ALWAYS AS ("patient_id")`,
+          set() {
+            // any sets of the convenience generated "id" field can be ignored, so do nothing here
+          },
+        },
+        patientId: {
+          type: DataTypes.STRING,
+          primaryKey: true,
+          references: {
+            model: 'patients',
+            key: 'id',
+          },
+        },
         birthWeight: { type: Sequelize.DECIMAL },
         birthLength: { type: Sequelize.DECIMAL },
         birthDeliveryType: { type: Sequelize.STRING },
@@ -72,5 +88,5 @@ export class PatientBirthData extends Model {
     'registeredBirthPlace',
   ];
 
-  static buildSyncFilter = buildPatientLinkedSyncFilter;
+  static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
 }

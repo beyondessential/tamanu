@@ -86,7 +86,7 @@ export function administeredVaccineLoader(item) {
   ];
 }
 
-export function patientDataLoader(item) {
+export function patientDataLoader(item, models, foreignKeySchemata) {
   const { dateOfBirth, id: patientId, patientAdditionalData, ...otherFields } = item;
 
   const rows = [];
@@ -106,6 +106,30 @@ export function patientDataLoader(item) {
       values: {
         patientId,
         ...otherFields,
+      },
+    });
+  }
+
+  const predefinedPatientFields = [
+    ...(Object.keys(models.Patient.rawAttributes) || []),
+    ...(Object.keys(models.PatientAdditionalData.rawAttributes) || []),
+  ];
+
+  for (const definitionId of Object.keys(otherFields)) {
+    // Filter only custom fields that have a value assigned to them
+    // Foreign keys will not appear as they are under rawAttributes (i.e: village -> villageId)
+    if (
+      predefinedPatientFields.includes(definitionId) ||
+      foreignKeySchemata.Patient.find(schema => schema.field === definitionId) ||
+      !otherFields[definitionId]
+    )
+      continue;
+    rows.push({
+      model: 'PatientFieldValue',
+      values: {
+        patientId,
+        definitionId,
+        value: otherFields[definitionId],
       },
     });
   }

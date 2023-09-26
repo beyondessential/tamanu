@@ -1,6 +1,6 @@
 {
   "port": 3000,
-  // this should be set to the external address of the server, e.g. "https://central-dev.tamanu.io"
+  // this should be set to the external address of the server, e.g. "https://central.main.internal.tamanu.io"
   "canonicalHostName": "http://localhost:3000",
   "db": {
     "name": "tamanu-sync",
@@ -651,6 +651,11 @@
         "onlyAllowLabPanels": false,
         "displayProcedureCodesInDischargeSummary": true,
         "displayIcd10CodesInDischargeSummary": true,
+        "tableAutoRefresh": {
+          "enabled": false,
+          // In Seconds
+          "interval": 300
+        },
         "mandatoryVitalEditReason": false,
         "enableVitalEdit": false
       },

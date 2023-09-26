@@ -17,9 +17,21 @@ export const SurveyPaneHeading = styled(ProgramsPaneHeading)`
   color: ${Colors.white};
 `;
 
-export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser }) => {
+export const SurveyView = ({
+  survey,
+  onSubmit,
+  onCancel,
+  patient,
+  patientAdditionalData,
+  currentUser,
+}) => {
   const { components } = survey;
-  const initialValues = getFormInitialValues(components, patient, currentUser);
+  const initialValues = getFormInitialValues(
+    components,
+    patient,
+    patientAdditionalData,
+    currentUser,
+  );
   const validationSchema = useMemo(() => getValidationSchema(survey), [survey]);
 
   const renderSurvey = props => {

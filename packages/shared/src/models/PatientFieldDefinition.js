@@ -62,4 +62,8 @@ export class PatientFieldDefinition extends Model {
       as: 'values',
     });
   }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
+  }
 }

@@ -22,7 +22,7 @@
   },
   "sync": {
     "schedule": "*/1 * * * *",
-    "host": "https://central-dev.tamanu.io",
+    "host": "https://central.main.internal.tamanu.io",
     "email": "",
     "password": "",
     "timeout": 10000,
@@ -31,6 +31,7 @@
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "pauseBetweenCacheBatchInMilliseconds": 50,
     "persistUpdateWorkerPoolSize": 5,
+    "assertIfPulledRecordsUpdatedAfterPushSnapshot": true,
     "enabled": true,
     "backoff": {
       "multiplierMs": 300,
@@ -100,9 +101,7 @@
     //
     // As of 29/08/2022 all our deployments are behind a local nginx proxy and so
     // this shouldn't need to be changed.
-    "trusted": [
-      "loopback"
-    ]
+    "trusted": ["loopback"]
   },
   // this should be an IANA tzdata timezone
   // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
