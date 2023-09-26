@@ -2,7 +2,11 @@
 import _config from 'config';
 import { log } from 'shared/services/logging';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
+import {
+  CURRENT_SYNC_TIME_KEY,
+  LAST_SUCCESSFUL_SYNC_PULL_KEY,
+  LAST_SUCCESSFUL_SYNC_PUSH_KEY,
+} from 'shared/sync/constants';
 import {
   createSnapshotTable,
   dropSnapshotTable,
@@ -15,6 +19,7 @@ import {
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
+import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
 
 export class FacilitySyncManager {
   static config = _config;
@@ -134,7 +139,7 @@ export class FacilitySyncManager {
     // to be pushed, and then pushing those up in batches
     // this avoids any of the records to be pushed being changed during the push period and
     // causing data that isn't internally coherent from ending up on the sync server
-    const pushSince = (await this.models.LocalSystemFact.get('lastSuccessfulSyncPush')) || -1;
+    const pushSince = (await this.models.LocalSystemFact.get(LAST_SUCCESSFUL_SYNC_PUSH_KEY)) || -1;
     log.info('FacilitySyncManager.snapshottingOutgoingChanges', { pushSince });
     const outgoingChanges = await snapshotOutgoingChanges(
       this.sequelize,
@@ -150,7 +155,8 @@ export class FacilitySyncManager {
       }
       await pushOutgoingChanges(this.centralServer, sessionId, outgoingChanges);
     }
-    await this.models.LocalSystemFact.set('lastSuccessfulSyncPush', currentSyncClockTime);
+
+    await this.models.LocalSystemFact.set(LAST_SUCCESSFUL_SYNC_PUSH_KEY, currentSyncClockTime);
     log.debug('FacilitySyncManager.updatedLastSuccessfulPush', { currentSyncClockTime });
   }
 
@@ -158,7 +164,7 @@ export class FacilitySyncManager {
     // syncing incoming changes happens in two phases: pulling all the records from the server,
     // then saving all those records into the local database
     // this avoids a period of time where the the local database may be "partially synced"
-    const pullSince = (await this.models.LocalSystemFact.get('lastSuccessfulSyncPull')) || -1;
+    const pullSince = (await this.models.LocalSystemFact.get(LAST_SUCCESSFUL_SYNC_PULL_KEY)) || -1;
 
     // pull incoming changes also returns the sync tick that the central server considers this
     // session to have synced up to
@@ -169,6 +175,13 @@ export class FacilitySyncManager {
       sessionId,
       pullSince,
     );
+
+    if (this.constructor.config.sync.assertIfPulledRecordsUpdatedAfterPushSnapshot) {
+      await assertIfPulledRecordsUpdatedAfterPushSnapshot(
+        Object.values(getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL)),
+        sessionId,
+      );
+    }
 
     await this.sequelize.transaction(async () => {
       if (totalPulled > 0) {
@@ -184,7 +197,7 @@ export class FacilitySyncManager {
       // we want to roll back the rest of the saves so that we don't end up detecting them as
       // needing a sync up to the central server when we attempt to resync from the same old cursor
       log.debug('FacilitySyncManager.updatingLastSuccessfulSyncPull', { pullUntil });
-      await this.models.LocalSystemFact.set('lastSuccessfulSyncPull', pullUntil);
+      await this.models.LocalSystemFact.set(LAST_SUCCESSFUL_SYNC_PULL_KEY, pullUntil);
     });
   }
 }

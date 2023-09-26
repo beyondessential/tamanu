@@ -3,6 +3,7 @@ import { FHIR_INTERACTIONS, JOB_TOPICS } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
+import { prepareQuery } from '../utils/prepareQuery';
 
 export class FhirMissingResources extends ScheduledTask {
   constructor(context) {
@@ -29,10 +30,17 @@ export class FhirMissingResources extends ScheduledTask {
 
       for (const UpstreamModel of Resource.UpstreamModels) {
         const upstreamTable = UpstreamModel.tableName;
+        const queryToFilterUpstream = await Resource.queryToFilterUpstream(upstreamTable);
+        const sql = await prepareQuery(UpstreamModel, {
+          ...queryToFilterUpstream,
+          attributes: ['id'],
+        });
 
         const [[{ total }]] = await Resource.sequelize.query(
-          `SELECT COUNT(up.id) as total FROM "${upstreamTable}" up
-          LEFT JOIN fhir."${resourceTable}" r ON r.upstream_id = up.id
+          `
+          WITH upstream AS (${sql.replace(/;$/, '')})
+          SELECT COUNT(upstream.id) as total FROM upstream
+          LEFT JOIN fhir."${resourceTable}" r ON r.upstream_id = upstream.id
           WHERE r.id IS NULL`,
         );
 
@@ -48,10 +56,17 @@ export class FhirMissingResources extends ScheduledTask {
       const resourceTable = Resource.tableName;
       for (const UpstreamModel of Resource.UpstreamModels) {
         const upstreamTable = UpstreamModel.tableName;
+        const queryToFilterUpstream = await Resource.queryToFilterUpstream(upstreamTable);
+        const sql = await prepareQuery(UpstreamModel, {
+          ...queryToFilterUpstream,
+          attributes: ['id'],
+        });
 
         const [[{ total }]] = await Resource.sequelize.query(
-          `SELECT COUNT(up.id) as total FROM "${upstreamTable}" up
-          LEFT JOIN fhir."${resourceTable}" r ON r.upstream_id = up.id
+          `
+          WITH upstream AS (${sql.replace(/;$/, '')})
+          SELECT COUNT(upstream.id) as total FROM upstream
+          LEFT JOIN fhir."${resourceTable}" r ON r.upstream_id = upstream.id
           WHERE r.id IS NULL`,
         );
         if (total === 0) {
@@ -66,15 +81,17 @@ export class FhirMissingResources extends ScheduledTask {
         });
 
         await Resource.sequelize.query(
-          `INSERT INTO fhir.jobs (topic, payload)
+          `
+          WITH upstream AS (${sql.replace(/;$/, '')})
+          INSERT INTO fhir.jobs (topic, payload)
           SELECT
             $topic::text as topic,
             json_build_object(
               'resource', $resource::text,
-              'upstreamId', up.id
+              'upstreamId', upstream.id
             ) as payload
-          FROM "${upstreamTable}" up
-          LEFT JOIN fhir."${resourceTable}" r ON r.upstream_id = up.id
+          FROM upstream
+          LEFT JOIN fhir."${resourceTable}" r ON r.upstream_id = upstream.id
           WHERE r.id IS NULL`,
           {
             bind: {

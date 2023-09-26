@@ -2,10 +2,11 @@ import config from 'config';
 import { chunk } from 'lodash';
 import { log } from 'shared/services/logging';
 import { insertSnapshotRecords, SYNC_SESSION_DIRECTION } from 'shared/sync';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { calculatePageLimit } from './calculatePageLimit';
 // TODO: use db fetcher config
-const { persistedCacheBatchSize } = config.sync;
+const { persistedCacheBatchSize, pauseBetweenCacheBatchInMilliseconds } = config.sync;
 
 export const pullIncomingChanges = async (centralServer, sequelize, sessionId, since) => {
   // initiating pull also returns the sync tick (or point on the sync timeline) that the
@@ -53,6 +54,8 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
     // So store the data in a sync snapshot table instead and will persist it to the actual tables later
     for (const batchOfRows of chunk(recordsToSave, persistedCacheBatchSize)) {
       await insertSnapshotRecords(sequelize, sessionId, batchOfRows);
+
+      await sleepAsync(pauseBetweenCacheBatchInMilliseconds);
     }
 
     limit = calculatePageLimit(limit, pullTime);
