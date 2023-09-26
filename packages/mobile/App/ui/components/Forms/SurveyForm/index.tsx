@@ -14,7 +14,7 @@ export type SurveyFormProps = {
   patient: any;
   note: string;
   validate: any;
-  patientAdditionalData: IPatientAdditionalData[];
+  patientAdditionalData: IPatientAdditionalData;
 };
 
 export const SurveyForm = ({
