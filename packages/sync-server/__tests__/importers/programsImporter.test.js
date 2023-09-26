@@ -4,6 +4,7 @@ import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { programImporter } from '../../app/admin/programImporter';
 import { createTestContext } from '../utilities';
 import './matchers';
+import { findOneOrCreate } from '../../../shared/src/test-helpers/factory';
 
 // the importer can take a little while
 jest.setTimeout(300000);
@@ -336,7 +337,7 @@ describe('Programs import', () => {
   describe('Program Registry', () => {
     it('should import a valid registry', async () => {
       const { errors, stats, didntSendReason } = await doImport({
-        file: 'registry-valid',
+        file: 'registry-valid-village',
         xml: true,
         dryRun: true,
       });
@@ -353,7 +354,7 @@ describe('Programs import', () => {
     });
 
     it('should properly update clinical statuses', async () => {
-      await doImport({ file: 'registry-valid', xml: true, dryRun: false });
+      await doImport({ file: 'registry-valid-village', xml: true, dryRun: false });
       const { didntSendReason, errors, stats } = await doImport({
         file: 'registry-update-statuses',
         xml: true,
@@ -383,7 +384,7 @@ describe('Programs import', () => {
     });
 
     it('should enforce unique name', async () => {
-      await doImport({ file: 'registry-valid', xml: true, dryRun: false });
+      await doImport({ file: 'registry-valid-village', xml: true, dryRun: false });
       const { errors } = await doImport({
         file: 'registry-duplicated-name',
         xml: true,
@@ -396,14 +397,55 @@ describe('Programs import', () => {
     });
 
     it('should not enforce unique name for historical registries', async () => {
-      await doImport({ file: 'registry-valid', dryRun: false });
-      await doImport({ file: 'registry-make-historical', dryRun: false });
+      await doImport({ file: 'registry-valid-village', xml: true, dryRun: false });
+      await doImport({ file: 'registry-make-historical', xml: true, dryRun: false });
       const { errors } = await doImport({
         file: 'registry-duplicated-name',
         xml: true,
         dryRun: true,
       });
       expect(errors).toBeEmpty();
+    });
+
+    it('should prevent changing currentlyAtType if there is existing data', async () => {
+      const { PatientProgramRegistration } = ctx.store.models;
+      await doImport({
+        file: 'registry-valid-village',
+        xml: true,
+        dryRun: false,
+      });
+      await findOneOrCreate(ctx.store.models, PatientProgramRegistration, {
+        programRegistryId: 'programRegistry-ValidRegistry',
+      });
+      const { errors } = await doImport({
+        file: 'registry-valid-location',
+        xml: true,
+        dryRun: false,
+      });
+      expect(errors).not.toBeEmpty();
+    });
+
+    it('should not prevent changing currentlyAtType if there is no existing data', async () => {
+      await doImport({
+        file: 'registry-valid-village',
+        xml: true,
+        dryRun: false,
+      });
+      const { errors } = await doImport({
+        file: 'registry-valid-location',
+        xml: true,
+        dryRun: false,
+      });
+      expect(errors).toBeEmpty();
+    });
+
+    it('should validate survey patient data fieldType based on registry currentlyAtType', async () => {
+      const { errors } = await doImport({
+        file: 'registry-invalid-patient-data-q',
+        xml: true,
+        dryRun: false,
+      });
+      expect(errors).not.toBeEmpty();
     });
   });
 });
