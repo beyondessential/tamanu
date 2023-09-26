@@ -594,6 +594,12 @@ export const globalDefaults = {
       },
     ],
   },
+  // UVCI format for vaccine certificate *previews* on Desktop.
+  // This should match whichever of integrations.euDcc or .vdsNc is enabled, and
+  // does *not* affect which format is used for the actual PDF certificate when
+  // generated in the sync server. Can be `tamanu` or `icao` or `eudcc`.
+  // `tamanu` implies that the signing integrations are not enabled.
+  previewUvciFormat: 'tamanu',
   printMeasures: {
     labRequestPrintLabel: {
       width: 50.8,
