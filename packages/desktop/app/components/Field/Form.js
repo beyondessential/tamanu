@@ -49,7 +49,7 @@ const StyledForm = styled.form`
       : ''}
 `;
 
-const FormSubmission = () => {
+const FormSubmissionFlag = () => {
   const { isSubmitting } = useFormikContext();
   const { setIsClosable, setHasFormSubmission } = useFormSubmission();
 
@@ -214,10 +214,6 @@ export class Form extends React.PureComponent {
       originalSetValues(newValues);
     };
 
-    const { setIsClosable, setHasFormSubmission } = useFormSubmission();
-    setIsClosable(!isSubmitting);
-    setHasFormSubmission(true);
-
     const { render, style } = this.props;
     const { showWarningForNonAsyncSubmitHandler } = this.state;
 
@@ -243,7 +239,7 @@ export class Form extends React.PureComponent {
           })}
         </StyledForm>
         <ScrollToError />
-        <FormSubmission />
+        <FormSubmissionFlag />
       </>
     );
   };
