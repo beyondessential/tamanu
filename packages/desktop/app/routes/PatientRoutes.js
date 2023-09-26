@@ -21,6 +21,7 @@ import { getEncounterType } from '../views/patients/panes/EncounterInfoPane';
 import { ProgramsView } from '../views/programs/ProgramsView';
 import { ReferralsView } from '../views/referrals/ReferralsView';
 import { ProgramRegistryView } from '../views/programRegistry/ProgramRegistryView';
+import { ProgramRegistrySurveyView } from '../views/programRegistry/ProgramRegistrySurveyView';
 
 export const usePatientRoutes = () => {
   const {
@@ -81,6 +82,13 @@ export const usePatientRoutes = () => {
           component: ProgramRegistryView,
           navigateTo: programRegistry => navigateToProgramRegistry(programRegistry.id),
           title: queryParams.get('title'),
+          routes: [
+            {
+              path: PATIENT_PATHS.PROGRAM_REGISTRY_SURVEY,
+              component: ProgramRegistrySurveyView,
+              // title: 'Discharge Summary',
+            },
+          ],
         },
       ],
     },

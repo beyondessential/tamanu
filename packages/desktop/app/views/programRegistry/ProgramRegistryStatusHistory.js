@@ -28,10 +28,10 @@ const StatusBadge = styled.div`
   background-color: ${props => STATUS_COLOR[props.color].background};
   color: ${props => STATUS_COLOR[props.color].color};
 `;
-export const ProgramRegistryStatusHistory = ({ programRegistry }) => {
+export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => {
   const { data, isLoading } = useProgramRegistryClinicalStatus(
-    programRegistry.patientId,
-    programRegistry.id,
+    patientProgramRegistration.patientId,
+    patientProgramRegistration.id,
     {
       orderBy: 'date',
       order: 'asc',
@@ -44,7 +44,7 @@ export const ProgramRegistryStatusHistory = ({ programRegistry }) => {
     );
     return [
       {
-        key: 'programRegistryClinicalStatusId',
+        key: 'clinicalStatusId',
         title: 'Status',
         accessor: row => {
           return (

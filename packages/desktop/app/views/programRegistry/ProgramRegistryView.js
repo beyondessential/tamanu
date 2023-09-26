@@ -1,13 +1,14 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { CircularProgress } from '@material-ui/core';
-import { Colors } from '../../constants';
+import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
 import { useUrlQueryParams } from '../../hooks';
 import { DisplayPatientRegDetails } from './DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from './ProgramRegistryStatusHistory';
 import { usePatientProgramRegistration } from '../../api/queries/usePatientProgramRegistration';
-import { ProgramRegistryFormHistory } from './ProgramRegistryFormHistory';
+import { PatientProgramRegistryFormHistory } from './PatientProgramRegistryFormHistory';
+import { PatientProgramRegistrationSelectSurvey } from './PatientProgramRegistrationSelectSurvey';
+import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionSection } from './ConditionSection';
 
 const ViewHeader = styled.div`
@@ -61,16 +62,15 @@ const StatusInactiveDot = styled.div`
   margin: 0px 5px;
 `;
 
-const getFirstCharUpperCase = str => str.charAt(0).toUpperCase() + str.slice(1);
+const getFirstCharUpperCase = str => (str ? str.charAt(0).toUpperCase() + str.slice(1) : str);
 
 export const ProgramRegistryView = () => {
   const queryParams = useUrlQueryParams();
   const title = queryParams.get('title');
   const { patientId, programRegistryId } = useParams();
-
   const { data, isLoading, isError } = usePatientProgramRegistration(patientId, programRegistryId);
 
-  if (isLoading) return <CircularProgress size="5rem" />;
+  if (isLoading) return <LoadingIndicator />;
   if (isError) return <p>Program registry &apos;{title || 'Unknown'}&apos; not found.</p>;
 
   return (
@@ -78,7 +78,11 @@ export const ProgramRegistryView = () => {
       <ViewHeader>
         <h1>{data.name}</h1>
         <StatusDiv>
-          {data.registrationStatus === 'active' ? <StatusActiveDot /> : <StatusInactiveDot />}
+          {data.registrationStatus === PROGRAM_REGISTRATION_STATUSES.ACTIVE ? (
+            <StatusActiveDot />
+          ) : (
+            <StatusInactiveDot />
+          )}
           <b>{getFirstCharUpperCase(data.registrationStatus)}</b>
         </StatusDiv>
       </ViewHeader>
@@ -87,11 +91,15 @@ export const ProgramRegistryView = () => {
           <DisplayPatientRegDetails patientProgramRegistration={data} />
         </Row>
         <ProgramStatusAndConditionContainer>
-          <ProgramRegistryStatusHistory programRegistry={data} />
+          <ProgramRegistryStatusHistory patientProgramRegistration={data} />
           <ConditionSection patientProgramRegistration={data} />
         </ProgramStatusAndConditionContainer>
+
         <Row>
-          <ProgramRegistryFormHistory programRegistry={data} />
+          <PatientProgramRegistrationSelectSurvey patientProgramRegistration={data} />
+        </Row>
+        <Row>
+          <PatientProgramRegistryFormHistory patientProgramRegistration={data} />
         </Row>
       </Container>
     </>
