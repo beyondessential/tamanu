@@ -15,15 +15,11 @@ const Text = styled.div`
 export const RemoveConditionFormModal = ({ condition, onSubmit, onCancel, open }) => {
   return (
     <Modal title="Remove condition" open={open} onClose={onCancel}>
-      <div>
-        <Text>
-          <p>
-            {`Are you sure you would like to remove the condition of  ‘${condition.name}' from the patients program condition record?`}
-          </p>
-        </Text>
-        <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />
-        <ConfirmCancelRow onConfirm={onSubmit} onCancel={onCancel} />
-      </div>
+      <Text>
+        {`Are you sure you would like to remove the condition of ‘${condition.name}' from the patients program condition record?`}
+      </Text>
+      <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />
+      <ConfirmCancelRow onConfirm={onSubmit} onCancel={onCancel} />
     </Modal>
   );
 };

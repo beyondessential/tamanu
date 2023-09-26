@@ -63,7 +63,3 @@ PatientProgramRegistryFormHistory.propTypes = {
     id: PropTypes.string,
   }).isRequired,
 };
-
-PatientProgramRegistryFormHistory.defaultProps = {
-  patientProgramRegistration: null,
-};

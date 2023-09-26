@@ -9,7 +9,7 @@ import { usePatientProgramRegistryConditions } from '../../api/queries/usePatien
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RemoveConditionFormModal } from './RemoveConditionFormModal';
 import { AddConditionFormModal } from './AddConditionFormModal';
-import { ThemedTooltip } from '../../components/Tooltip';
+import { ThemedTooltip, ConditionalTooltip } from '../../components/Tooltip';
 
 const Container = styled.div`
   position: absolute;
@@ -48,6 +48,15 @@ const ConditionContainer = styled.div`
   margin-top: 5px;
 `;
 
+const ClippedConditionName = styled.span`
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-wrap: break-word;
+  width: 95%;
+`;
+
 const AddConditionButton = styled.button`
   display: inline-block;
   padding: 10px 20px;
@@ -82,39 +91,29 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
   };
 
   if (isLoading) return <LoadingIndicator />;
+
+  const isRemoved =
+    patientProgramRegistration.registrationStatus === PROGRAM_REGISTRATION_STATUSES.REMOVED;
   return (
     <Container>
       <HeadingContainer>
         <Heading5>Conditions</Heading5>
-        {patientProgramRegistration.registrationStatus === PROGRAM_REGISTRATION_STATUSES.REMOVED ? (
-          <ThemedTooltip title="Patient must be active">
-            <AddConditionButton disabled onClick={() => setOpenAddCondition(true)}>
-              + Add condition
-            </AddConditionButton>
-          </ThemedTooltip>
-        ) : (
-          <AddConditionButton onClick={() => setOpenAddCondition(true)}>
+        <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
+          <AddConditionButton disabled onClick={() => setOpenAddCondition(true)}>
             + Add condition
           </AddConditionButton>
-        )}
+        </ConditionalTooltip>
       </HeadingContainer>
       {data.map(x => (
-        <ConditionContainer>
-          <span>{x.name}</span>
-          {patientProgramRegistration.registrationStatus ===
-          PROGRAM_REGISTRATION_STATUSES.REMOVED ? (
-            <ThemedTooltip title="Patient must be active">
-              <div>
-                <IconButton disabled style={{ padding: 0 }} onClick={() => setConditionToRemove(x)}>
-                  <CloseIcon style={{ fontSize: '14px' }} />
-                </IconButton>
-              </div>
-            </ThemedTooltip>
-          ) : (
-            <IconButton style={{ padding: 0 }} onClick={() => setConditionToRemove(x)}>
+        <ConditionContainer key={x.id}>
+          <ConditionalTooltip title={x.name} visible={x.name.length > 30}>
+            <ClippedConditionName>{x.name}</ClippedConditionName>
+          </ConditionalTooltip>
+          <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
+            <IconButton disabled style={{ padding: 0 }} onClick={() => setConditionToRemove(x)}>
               <CloseIcon style={{ fontSize: '14px' }} />
             </IconButton>
-          )}
+          </ConditionalTooltip>
         </ConditionContainer>
       ))}
       {openAddCondition && (

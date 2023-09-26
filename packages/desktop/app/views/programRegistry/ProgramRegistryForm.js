@@ -54,6 +54,7 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
       render={({ submitForm, values, setValues }) => {
         useEffect(() => {
           setValues({ ...values, clinicalStatusId: null });
+          // eslint-disable-next-line
         }, [values.programRegistryId]);
 
         const handleCancel = () => onCancel && onCancel();

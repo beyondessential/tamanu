@@ -79,8 +79,8 @@ export const FieldWithTooltip = ({
         customCss="top: 30px !important;"
         {...props}
       >
-        {/* Below div with transparent background color is needed to make ThemedTooltip work  */}
-        <div style={{ backgroundColor: 'transparent' }}>
+        {/* Below div is needed to make ThemedTooltip work  */}
+        <div>
           <Field {...props} />
         </div>
       </ThemedTooltip>

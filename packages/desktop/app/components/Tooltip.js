@@ -19,3 +19,13 @@ export const ThemedTooltip = styled(props => {
     color: ${Colors.primaryDark};
   }
 `;
+
+export const ConditionalTooltip = props => {
+  if (!props.visible) return props.children;
+  return (
+    <ThemedTooltip {...props}>
+      {/* Below div is needed to make ThemedTooltip work  */}
+      <div>{props.children}</div>
+    </ThemedTooltip>
+  );
+};

@@ -186,6 +186,7 @@ export const patientProgramRegistryConditions = [
   { id: '4', name: 'Migrain' },
   { id: '5', name: 'Joint pain' },
   { id: '6', name: 'Skin itching' },
+  { id: '7', name: 'Tuberculosis of lung, bacteriologically and historically negative' },
 ];
 
 export const programRegistryStatusHistories = [
@@ -611,8 +612,8 @@ export const patientProgramRegistration = {
     code: 'registring_facitlity',
     name: 'Hospital 1',
   },
-  registrationStatus: 'active',
-  // registrationStatus: 'removed',
+  // registrationStatus: 'active',
+  registrationStatus: 'removed',
   removedById: '213123',
   removedBy: {
     id: '213123',
