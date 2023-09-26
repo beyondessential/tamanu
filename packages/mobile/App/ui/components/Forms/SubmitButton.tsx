@@ -2,6 +2,7 @@ import React, { useCallback, useState, ReactElement } from 'react';
 import { useFormikContext } from 'formik';
 import { theme } from '/styled/theme';
 import { Button, StyledButtonProps } from '/components/Button';
+import { sleepAsync } from '~/services/sync';
 
 interface SubmitButtonProps extends StyledButtonProps {
   onSubmit?: () => Promise<void>;
@@ -13,6 +14,8 @@ export const SubmitButton = ({ onSubmit, ...props }: SubmitButtonProps): ReactEl
   const handleOnPress = useCallback(async () => {
     setIsLoading(true);
     try {
+      // TODO: Remove this when testing is done
+      await sleepAsync(2000);
       if (typeof onSubmit === 'function') {
         await onSubmit();
       } else if (typeof submitForm === 'function') {
@@ -21,9 +24,7 @@ export const SubmitButton = ({ onSubmit, ...props }: SubmitButtonProps): ReactEl
     } catch (e) {
       throw e;
     } finally {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 2000);
+      setIsLoading(false);
     }
   }, [onSubmit, submitForm]);
   return (
