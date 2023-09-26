@@ -53,6 +53,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BUILD_NAME: "release-${{ needs.info.outputs.version }}"
+      ARTIFACT_NAME: "${{ matrix.package.name }}-${{ needs.info.outputs.version }}"
 
     steps:
       - name: Configure AWS Credentials
@@ -104,7 +105,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.BUILD_NAME }}
+          name: ${{ env.ARTIFACT_NAME }}
           path: '${{ env.BUILD_NAME }}.zip'
           retention-days: 1
 
@@ -126,6 +127,7 @@ jobs:
     runs-on: windows-latest
     env:
       BUILD_NAME: "release-${{ needs.info.outputs.version }}"
+      ARTIFACT_NAME: "${{ matrix.package.name }}-${{ needs.info.outputs.version }}"
       OUTPUT_NAME: "${{ matrix.package.name }}-${{ needs.info.outputs.version }}-windows"
       S3_PATH: s3://bes-tamanu-release-servers/test/${{ needs.info.outputs.version }}
 
@@ -141,8 +143,8 @@ jobs:
       - name: Download artifact from build job
         uses: actions/download-artifact@v3
         with:
-          name: ${{ env.BUILD_NAME }}
-          
+          name: ${{ env.ARTIFACT_NAME }}
+
       - name: Unzip artifact for deployment
         shell: bash
         run: unzip '${{ env.BUILD_NAME }}.zip'
