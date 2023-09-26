@@ -1,5 +1,5 @@
 import React, { useCallback, ReactElement } from 'react';
-import { FlatList, Text } from 'react-native';
+import { FlatList } from 'react-native';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { FullView, StyledText, StyledView } from '/styled/common';
 import { compose } from 'redux';
@@ -26,7 +26,6 @@ type SurveyListScreenParams = {
 
 type SurveyListScreenRouteProps = RouteProp<SurveyListScreenParams, 'SurveyListScreen'>;
 
-
 type SurveyListScreenProps = {
   route: SurveyListScreenRouteProps;
   selectedPatient: IPatient;
@@ -42,7 +41,7 @@ const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement
       relations: ['program'],
       where: {
         surveyType: SurveyTypes.Programs,
-        program: { id: programId }
+        program: { id: programId },
       },
       order: {
         name: 'ASC',
@@ -75,11 +74,12 @@ const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement
             paddingLeft={screenPercentageToDP('4.86', Orientation.Width)}
             paddingTop={screenPercentageToDP('1.76', Orientation.Height)}
             paddingBottom={screenPercentageToDP('1.76', Orientation.Height)}
+            minHeight={screenPercentageToDP('7.7', Orientation.Height)}
           >
             <StyledText
               fontWeight={500}
               color={theme.colors.TEXT_SUPER_DARK}
-              fontSize={screenPercentageToDP('2.5', Orientation.Height)}
+              fontSize={screenPercentageToDP('2.7', Orientation.Height)}
             >
               {programName}
             </StyledText>
@@ -105,7 +105,7 @@ const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement
                 arrowForwardIconProps={{ size: 16, fill: theme.colors.TEXT_DARK }}
               />
             )}
-            ItemSeparatorComponent={Separator}
+            ItemSeparatorComponent={() => <Separator paddingLeft="5%" width="95%" />}
           />
         </FullView>
       )}

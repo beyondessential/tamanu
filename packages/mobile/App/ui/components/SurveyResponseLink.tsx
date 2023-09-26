@@ -67,11 +67,7 @@ export const SurveyResponseLink = ({
             >
               {survey.name}
             </StyledText>
-            <StyledView
-              justifyContent="space-between"
-              alignItems="center"
-              flexDirection="row"
-            >
+            <StyledView justifyContent="space-between" alignItems="center" flexDirection="row">
               <StyledText
                 color={isSensitive ? theme.colors.DISABLED_GREY : theme.colors.TEXT_MID}
                 fontSize={13}
@@ -83,7 +79,7 @@ export const SurveyResponseLink = ({
             </StyledView>
           </FullView>
           {!isSensitive && resultText ? <SurveyResultBadge resultText={resultText} /> : null}
-          {!isSensitive ? <ArrowForwardIcon size={15} fill={theme.colors.TEXT_SOFT} /> : null}
+          {!isSensitive ? <ArrowForwardIcon size={15} fill={theme.colors.TEXT_SUPER_DARK} /> : null}
         </StyledView>
       </StyledView>
     </TouchableOpacity>
