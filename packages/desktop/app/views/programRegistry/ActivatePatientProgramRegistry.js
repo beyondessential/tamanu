@@ -40,7 +40,7 @@ export const ActivatePatientProgramRegistry = React.memo(
                 <FormGrid>
                   <FormGrid style={{ gridColumn: 'span 2' }}>
                     <Field
-                      name="programRegistryClinicalStatusId"
+                      name="clinicalStatusId"
                       label="Status"
                       component={AutocompleteField}
                       suggester={programRegistryStatusSuggester}
@@ -85,7 +85,7 @@ export const ActivatePatientProgramRegistry = React.memo(
             ...patientProgramRegistration,
           }}
           validationSchema={yup.object().shape({
-            programRegistryClinicalStatusId: optionalForeignKey(),
+            clinicalStatusId: optionalForeignKey(),
             date: yup.date().required('Date of registration must be selected'),
             registeringClinicianId: foreignKey().required('Registered by must be selected'),
             facilityId: foreignKey().required('Registering facility must be selected'),
