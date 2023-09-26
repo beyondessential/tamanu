@@ -282,7 +282,7 @@
     <Cell><Data ss:Type="String">Fail-PatientDataConfMissingField</Data></Cell>
     <Cell><Data ss:Type="String">PatientData</Data></Cell>
     <Cell><Data ss:Type="String">PatientData: Missing required field in config</Data></Cell>
-    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;writeToPatient&quot;: {} }</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;column&quot;: &quot;email&quot;, &quot;writeToPatient&quot;: {} }</Data></Cell>
    </Row>
    <Row>
     <Cell><Data ss:Type="String">Fail-UserDataConfUnknownField</Data></Cell>
