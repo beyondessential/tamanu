@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 import { IMAGING_TABLE_VERSIONS } from '@tamanu/constants/imaging';
 import {
   TopBar,
@@ -13,12 +14,16 @@ const BASE_ADVANCED_FIELDS = ['allFacilities', 'locationGroupId', 'departmentId'
 const ACTIVE_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'requestedById'];
 const COMPLETED_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'completedAt'];
 
+const StyledContentPane = styled(ContentPane)`
+  position: relative;
+`;
+
 const ImagingRequestListing = ({ tableVersion, advancedFields }) => {
   // Since we need to track the state of the search bar and table for each version of the Imaging request table,
   // We assign a memoryKey to each version of the based on the grouping of statuses it is displaying.
   const { memoryKey, statuses } = tableVersion;
   return (
-    <ContentPane>
+    <StyledContentPane>
       <SearchTableTitle>Imaging request search</SearchTableTitle>
       <ImagingRequestsSearchBar
         memoryKey={memoryKey}
@@ -26,7 +31,7 @@ const ImagingRequestListing = ({ tableVersion, advancedFields }) => {
         advancedFields={advancedFields}
       />
       <ImagingRequestsTable memoryKey={memoryKey} statuses={statuses} />
-    </ContentPane>
+    </StyledContentPane>
   );
 };
 
