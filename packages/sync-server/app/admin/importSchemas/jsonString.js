@@ -16,12 +16,16 @@ export const jsonString = () =>
 // Because jsonStringShape runs a new validation it runs at the root of the object
 // This means default yup errors won't give the field name by default, so we pass it in instead
 export const jsonStringShape = (name, objectShape) =>
-  yup.string().test('json-shape', (value, ctx) => {
+  yup.string().test('json-shape', async (value, ctx) => {
     let parsedObject = null;
     try {
       parsedObject = JSON.parse(value || '{}');
       // Will throw a validation error if shape doesn't match
-      return objectShape.validate(parsedObject, { strict: true, context: ctx.options.context });
+      const validationResult = await objectShape.validate(parsedObject, {
+        strict: true,
+        context: ctx.options.context,
+      });
+      return validationResult;
     } catch (e) {
       const errors = e.errors || [e.message];
       return new yup.ValidationError(errors.map(err => `${name}: ${err}`));

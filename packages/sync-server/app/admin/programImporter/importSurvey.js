@@ -5,8 +5,8 @@ import { ImporterMetadataError } from '../errors';
 import { importRows } from '../importRows';
 
 import { readSurveyQuestions } from './readSurveyQuestions';
-import { ensureRequiredQuestionsPresent } from './validation';
-import { validateProgramDataElementRecords, validateVitalsSurvey } from './vitalsValidation';
+import { ensureRequiredQuestionsPresent, validateVitalsSurvey } from './validation';
+import { validateProgramDataElementRecords } from './vitalsValidation';
 
 function readSurveyInfo(workbook, surveyInfo) {
   const { sheetName, surveyType, code } = surveyInfo;
