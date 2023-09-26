@@ -9,6 +9,7 @@ import { usePatientProgramRegistration } from '../../api/queries/usePatientProgr
 import { PatientProgramRegistryFormHistory } from './PatientProgramRegistryFormHistory';
 import { PatientProgramRegistrationSelectSurvey } from './PatientProgramRegistrationSelectSurvey';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { ConditionSection } from './ConditionSection';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
@@ -30,6 +31,15 @@ const Container = styled.div`
 `;
 const Row = styled.div`
   margin: 20px 0px;
+`;
+
+const ProgramStatusAndConditionContainer = styled.div`
+  margin: 20px 0px;
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  width: 100%;
+  position: relative;
 `;
 const StatusDiv = styled.div`
   display: flex;
@@ -80,9 +90,11 @@ export const ProgramRegistryView = () => {
         <Row>
           <DisplayPatientRegDetails patientProgramRegistration={data} />
         </Row>
-        <Row>
+        <ProgramStatusAndConditionContainer>
           <ProgramRegistryStatusHistory patientProgramRegistration={data} />
-        </Row>
+          <ConditionSection patientProgramRegistration={data} />
+        </ProgramStatusAndConditionContainer>
+
         <Row>
           <PatientProgramRegistrationSelectSurvey patientProgramRegistration={data} />
         </Row>

@@ -179,6 +179,15 @@ export const programRegistries = [
   programRegistry3.data,
 ];
 
+export const patientProgramRegistryConditions = [
+  { id: '1', name: 'Diabetes' },
+  { id: '2', name: 'Hypertension' },
+  { id: '3', name: 'Low pressure' },
+  { id: '4', name: 'Migrain' },
+  { id: '5', name: 'Joint pain' },
+  { id: '6', name: 'Skin itching' },
+];
+
 export const programRegistryStatusHistories = [
   {
     id: '1',
@@ -630,11 +639,16 @@ export const dummyApi = {
 
       case 'patient/patient_id/programRegistration/program_registry_id/clinicalStatuses':
       case 'patient/undefined/programRegistration/program_registry_id/clinicalStatuses':
-        return getSortedData(programRegistryStatusHistories, options);
+        return getSortedData(programRegistryStatusHistories.slice(0, 1), options);
+      // return getSortedData(programRegistryStatusHistories, options);
       case 'patient/patient_id/programRegistration/program_registry_id/surveyResponses':
       case 'patient/undefined/programRegistration/program_registry_id/surveyResponses':
       case 'patient/undefined/programRegistration/1/surveyResponses':
         return getSortedData(programRegistryFormHistory, options);
+      case `patient/programRegistration/program_registry_id/conditions`:
+      case `patient/programRegistration/program_id/conditions`:
+        return [...patientProgramRegistryConditions, ...patientProgramRegistryConditions];
+      // return patientProgramRegistryConditions;
       case 'patient/undefined/programRegistration/undefined/survey/undefined':
         return mockSurvey;
       // GET patientProgramRestration conditions
@@ -658,13 +672,11 @@ export const dummyApi = {
 
       case 'suggestions/survey':
         return programRegistryFormHistory.map(x => ({ id: x.id.toString(), name: x.survey.name }));
-
-      // case 'suggestions/programRegistryConditions':
-      //   return patientProgramRegistryConditions.map(x => ({
-      //     id: x.id,
-      //     name: x.name,
-      //   }));
-
+      case 'suggestions/programRegistryConditions':
+        return patientProgramRegistryConditions.map(x => ({
+          id: x.id,
+          name: x.name,
+        }));
       case 'programRegistry/1':
         return programRegistry1;
 

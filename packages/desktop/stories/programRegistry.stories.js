@@ -17,9 +17,17 @@ import { DeleteProgramRegistryFormModal } from '../app/views/programRegistry/Del
 import { ActivatePatientProgramRegistry } from '../app/views/programRegistry/ActivatePatientProgramRegistry';
 import { ProgramRegistryView } from '../app/views/programRegistry/ProgramRegistryView';
 import { RemoveProgramRegistryFormModal } from '../app/views/programRegistry/RemoveProgramRegistryFormModal';
+import {
+  dummyApi,
+  patient,
+  patientProgramRegistration,
+  patientProgramRegistryConditions,
+} from './utils/mockProgramRegistryData';
+import { ConditionSection } from '../app/views/programRegistry/ConditionSection';
+import { AddConditionFormModal } from '../app/views/programRegistry/AddConditionFormModal';
+import { RemoveConditionFormModal } from '../app/views/programRegistry/RemoveConditionFormModal';
 import { PatientProgramRegistrationSelectSurvey } from '../app/views/programRegistry/PatientProgramRegistrationSelectSurvey';
 import { ProgramRegistrySurveyView } from '../app/views/programRegistry/ProgramRegistrySurveyView';
-import { dummyApi, patient, patientProgramRegistration } from './utils/mockProgramRegistryData';
 
 //#region InfoPaneList
 storiesOf('Program Registry', module).add('ProgramRegistry Info Panlist', () => {
@@ -105,6 +113,45 @@ storiesOf('Program Registry', module).add('DisplayPatientRegDetails Needs review
   </div>
 ));
 //#endregion DisplayPatientRegDetails
+
+//#region ConditionSection
+storiesOf('Program Registry', module).add('Condition Section', () => (
+  <ApiContext.Provider value={dummyApi}>
+    <div style={{ width: '262px' }}>
+      <ConditionSection patientProgramRegistration={patientProgramRegistration} />
+    </div>
+  </ApiContext.Provider>
+));
+
+//#endregion ConditionSection
+
+//#region AddConditionFormModal
+storiesOf('Program Registry', module).add('Add Condition', () => (
+  <ApiContext.Provider value={dummyApi}>
+    <AddConditionFormModal
+      programRegistry={patientProgramRegistration}
+      onSubmit={action('submit')}
+      onCancel={action('cancel')}
+      open
+    />
+  </ApiContext.Provider>
+));
+
+//#endregion AddConditionFormModal
+
+//#region RemoveConditionFormModal
+storiesOf('Program Registry', module).add('Remove Condition', () => (
+  <ApiContext.Provider value={dummyApi}>
+    <RemoveConditionFormModal
+      condition={patientProgramRegistryConditions[0]}
+      onSubmit={action('submit')}
+      onCancel={action('cancel')}
+      open
+    />
+  </ApiContext.Provider>
+));
+
+//#endregion RemoveConditionFormModal
 
 //#region ProgramRegistryStatusHistory
 

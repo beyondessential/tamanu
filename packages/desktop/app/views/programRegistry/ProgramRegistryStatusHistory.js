@@ -3,16 +3,19 @@ import styled from 'styled-components';
 import { Table } from '../../components/Table/Table';
 import { DateDisplay } from '../../components/DateDisplay';
 import { Colors, STATUS_COLOR, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
-import { Heading3 } from '../../components/Typography';
+import { Heading5 } from '../../components/Typography';
 import { useProgramRegistryClinicalStatus } from '../../api/queries/useProgramRegistryClinicalStatus';
 
 const Container = styled.div`
+  width: 70%;
   background-color: ${Colors.white};
   padding: 15px 15px 30px 15px;
   display: flex;
   flex-direction: column;
   align-items: start;
   justify-content: center;
+  margin-right: 10px;
+  border-radius: 5px;
 `;
 
 const StatusBadge = styled.div`
@@ -79,15 +82,15 @@ export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => 
 
   return (
     <Container>
-      <Heading3>Program Status History</Heading3>
+      <Heading5>Program Status History</Heading5>
       <br />
       <Table
         isBodyScrollable
         data={data ? data.data : []}
         columns={columns}
         rowsPerPage={4}
-        rowStyle={() => `height: 82px;`}
-        containerStyle="height: 350px;"
+        rowStyle={() => `height: 50px; padding: 0px;`}
+        containerStyle="max-height: 320px;"
         allowExport={false}
         noDataMessage="No Program registry clinical status found"
         elevated={false}
