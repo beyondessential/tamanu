@@ -1,4 +1,4 @@
-import { capitalize, isNumber } from 'lodash';
+import { isNumber } from 'lodash';
 import React, { useRef, useState, useEffect, useMemo } from 'react';
 
 import styled from 'styled-components';
@@ -75,7 +75,7 @@ export const formatValue = (value, config) => {
   const float = parseFloat(value);
 
   if (isNaN(float)) {
-    return capitalize(value) || '-';
+    return value || '-';
   }
 
   const unitSuffix = unit && unit.length <= 2 ? unit : '';

@@ -1,3 +1,4 @@
+// Much of this file is duplicated in `packages/mobile/App/ui/components/Forms/SurveyForm/helpers.ts`
 import React from 'react';
 import * as yup from 'yup';
 import { inRange } from 'lodash';
@@ -74,6 +75,17 @@ export function mapOptionsToValues(options) {
   return options.map(x => ({ label: x, value: x }));
 }
 
+/**
+ * IMPORTANT: We have 4 other versions of this method:
+ *
+ * - mobile/App/ui/helpers/fields.ts
+ * - desktop/app/utils/survey.js
+ * - shared/src/utils/fields.js
+ * - sync-server/app/subCommands/calculateSurveyResults.js
+ *
+ * So if there is an update to this method, please make the same update
+ * in the other versions
+ */
 export function checkVisibility(component, values, allComponents) {
   const { visibilityCriteria } = component;
   // nothing set - show by default
@@ -111,7 +123,7 @@ export function checkVisibility(component, values, allComponents) {
 
       if (Array.isArray(answersEnablingFollowUp)) {
         return isMultiSelect
-          ? (value?.split(',') || []).some(selected => answersEnablingFollowUp.includes(selected))
+          ? (value?.split(', ') || []).some(selected => answersEnablingFollowUp.includes(selected))
           : answersEnablingFollowUp.includes(value);
       }
 
@@ -186,8 +198,9 @@ export function getConfigObject(componentId, config) {
   }
 }
 
-function transformPatientData(patient, config) {
-  const { column = 'fullName' } = config;
+function transformPatientData(patient, additionalData, config) {
+  const { writeToPatient = {}, column = 'fullName' } = config;
+  const { isAdditionalDataField = false } = writeToPatient;
   const { dateOfBirth, firstName, lastName } = patient;
 
   const { months, years } = intervalToDuration({
@@ -209,11 +222,14 @@ function transformPatientData(patient, config) {
     case 'fullName':
       return joinNames({ firstName, lastName });
     default:
+      if (isAdditionalDataField) {
+        return additionalData ? additionalData[column] : undefined;
+      }
       return patient[column];
   }
 }
 
-export function getFormInitialValues(components, patient, currentUser = {}) {
+export function getFormInitialValues(components, patient, additionalData, currentUser = {}) {
   const initialValues = components.reduce((acc, { dataElement }) => {
     const initialValue = getInitialValue(dataElement);
     const propName = dataElement.id;
@@ -238,7 +254,7 @@ export function getFormInitialValues(components, patient, currentUser = {}) {
 
     // patient data
     if (component.dataElement.type === 'PatientData') {
-      const patientValue = transformPatientData(patient, config);
+      const patientValue = transformPatientData(patient, additionalData, config);
       if (patientValue !== undefined) initialValues[component.dataElement.id] = patientValue;
     }
   }

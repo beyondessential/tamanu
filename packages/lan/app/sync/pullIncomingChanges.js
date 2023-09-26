@@ -1,6 +1,7 @@
 import { chunk } from 'lodash';
 import { log } from 'shared/services/logging';
 import { insertSnapshotRecords, SYNC_SESSION_DIRECTION } from 'shared/sync';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { calculatePageLimit } from './calculatePageLimit';
 
@@ -9,7 +10,11 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
   // central server considers this session will be up to after pulling all changes
   log.info('FacilitySyncManager.pull.waitingForCentral');
   const { totalToPull, pullUntil } = await centralServer.initiatePull(sessionId, since);
-  const { persistedCacheBatchSize, dynamicLimiter } = await centralServer.settings.get('sync');
+  const {
+    persistedCacheBatchSize,
+    pauseBetweenCacheBatchInMilliseconds,
+    dynamicLimiter,
+  } = await centralServer.settings.get('sync');
 
   log.info('FacilitySyncManager.pulling', { since, totalToPull });
   let fromId;
@@ -51,6 +56,8 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
     // So store the data in a sync snapshot table instead and will persist it to the actual tables later
     for (const batchOfRows of chunk(recordsToSave, persistedCacheBatchSize)) {
       await insertSnapshotRecords(sequelize, sessionId, batchOfRows);
+
+      await sleepAsync(pauseBetweenCacheBatchInMilliseconds);
     }
 
     limit = calculatePageLimit(dynamicLimiter, limit, pullTime);

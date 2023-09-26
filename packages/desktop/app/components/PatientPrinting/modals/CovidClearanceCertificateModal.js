@@ -8,7 +8,7 @@ import { useApi } from '../../../api';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
-import { usePatientAdditionalData } from '../../../api/queries';
+import { usePatientAdditionalDataQuery } from '../../../api/queries';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
 
@@ -20,7 +20,7 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
   const { watermark, logo, footerImg, printedBy } = useCertificate({
     footerAssetName: ASSET_NAMES.COVID_CLEARANCE_CERTIFICATE_FOOTER,
   });
-  const { data: additionalData } = usePatientAdditionalData(patient.id);
+  const { data: additionalData } = usePatientAdditionalDataQuery(patient.id);
 
   useEffect(() => {
     api

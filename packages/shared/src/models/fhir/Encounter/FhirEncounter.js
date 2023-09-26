@@ -6,6 +6,7 @@ import { getQueryOptions } from './getQueryOptions';
 import { getValues } from './getValues';
 import { fromEncounters } from './getQueryToFindUpstreamIds';
 import { searchParameters } from './searchParameters';
+import { filterFromEncounters } from './getQueryToFilterUpstream';
 
 export class FhirEncounter extends FhirResource {
   static init(options, models) {
@@ -51,6 +52,16 @@ export class FhirEncounter extends FhirResource {
     if (upstreamTable === Encounter.tableName) {
       return fromEncounters(this.sequelize.models, table, id, deletedRow);
     }
+    return null;
+  }
+
+  static async queryToFilterUpstream(upstreamTable) {
+    const { Encounter } = this.sequelize.models;
+
+    if (upstreamTable === Encounter.tableName) {
+      return filterFromEncounters(this.sequelize.models, upstreamTable);
+    }
+
     return null;
   }
 
