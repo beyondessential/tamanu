@@ -8,7 +8,7 @@ export const globalDefaults = {
   features: {
     displayIcd10CodesInDischargeSummary: true,
     displayProcedureCodesInDischargeSummary: true,
-    editDisplayId: false,
+    editPatientDisplayId: false,
     editPatientDetailsOnMobile: true,
     enableCovidClearanceCertificate: false,
     enableInvoicing: false,
