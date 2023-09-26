@@ -90,7 +90,7 @@ export async function importProgramRegistry(context, workbook, programId) {
     rows: [
       {
         model: 'ProgramRegistry',
-        sheetRow: -1,
+        sheetRow: -2,
         values: {
           id: registryId,
           programId,
@@ -109,7 +109,8 @@ export async function importProgramRegistry(context, workbook, programId) {
     rows: clinicalStatuses.map(row => ({
       model: 'ProgramRegistryClinicalStatus',
       // Note: __rowNum__ is a non-enumerable property, so needs to be accessed explicitly here
-      sheetRow: row.__rowNum__,
+      // -1 as it'll have 2 added to it later but it's only 1 off
+      sheetRow: row.__rowNum__ - 1,
       values: {
         id: `prClinicalStatus-${row.code}`,
         programRegistryId: registryId,
