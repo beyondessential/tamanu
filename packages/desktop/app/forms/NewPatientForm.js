@@ -85,7 +85,7 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
     return <pre>{error.stack}</pre>;
   }
 
-  const handleSubmit = data => {
+  const handleSubmit = async data => {
     const newData = { ...data };
     newData.patientRegistryType = patientRegistryType;
 
@@ -93,7 +93,7 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
       newData.birthFacilityId = null;
     }
 
-    onSubmit(newData);
+    await onSubmit(newData);
   };
 
   const renderForm = ({ submitForm, values, setValues }) => {
