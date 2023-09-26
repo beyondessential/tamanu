@@ -35,7 +35,11 @@ export const ProgramRegistryListItem = ({ item, ListItem }) => {
   const { id, name, status, clinicalStatus } = item;
   const { navigateToProgramRegistry } = usePatientNavigation();
   return (
-    <ListItem onClick={() => navigateToProgramRegistry(id, name)}>
+    <ListItem
+      onClick={() => {
+        navigateToProgramRegistry(id, name);
+      }}
+    >
       <Spacer>
         <RowContents>
           <Tooltip title={status} arrow placement="top-end">

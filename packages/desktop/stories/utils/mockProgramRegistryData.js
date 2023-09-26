@@ -1,5 +1,4 @@
 //@ts-check
-
 function sleep(milliseconds) {
   return new Promise(resolve => {
     setTimeout(resolve, milliseconds);
@@ -24,6 +23,84 @@ const getSortedData = (
     data: sortedData.slice(startIndex, endIndex),
     count: list.length,
   };
+};
+export const mockSurvey = {
+  id: 'program-demncdprimaryscreening-demcvdprimaryscreen2',
+  code: 'demcvdprimaryscreen2',
+  name: 'CVD Primary Screening Form',
+  surveyType: 'programs',
+  isSensitive: true,
+  updatedAtSyncTick: '-999',
+  createdAt: '2023-07-11T22:01:02.375Z',
+  updatedAt: '2023-07-11T22:01:02.375Z',
+  programId: 'program-demncdprimaryscreening',
+  components: [
+    {
+      id: 'program-demncdprimaryscreening-demcvdprimaryscreen2-DemCVD01',
+      screenIndex: 0,
+      componentIndex: 0,
+      text: '',
+      visibilityCriteria: '',
+      validationCriteria: '',
+      detail: '',
+      config: '',
+      calculation: '',
+      updatedAtSyncTick: '-999',
+      createdAt: '2023-07-11T22:01:02.409Z',
+      updatedAt: '2023-07-11T22:01:02.409Z',
+      surveyId: 'program-demncdprimaryscreening-demcvdprimaryscreen2',
+      dataElementId: 'pde-DemCVD01',
+      dataElement: {
+        id: 'pde-DemCVD01',
+        code: 'DemCVD01',
+        name: 'Section 1: Lifestyle Questions',
+        indicator: null,
+        defaultText: 'Section 1: Lifestyle Questions',
+        visualisationConfig: null,
+        type: 'Instruction',
+        updatedAtSyncTick: '-999',
+        createdAt: '2023-07-11T22:01:02.286Z',
+        updatedAt: '2023-07-11T22:01:02.286Z',
+        defaultOptions: null,
+      },
+      options: null,
+    },
+    {
+      id: 'program-demncdprimaryscreening-demcvdprimaryscreen2-DemCVD02',
+      screenIndex: 0,
+      componentIndex: 1,
+      text: '',
+      visibilityCriteria: '',
+      validationCriteria: '',
+      detail: '',
+      config: '',
+      calculation: '',
+      updatedAtSyncTick: '-999',
+      createdAt: '2023-07-11T22:01:02.409Z',
+      updatedAt: '2023-07-11T22:01:02.409Z',
+      surveyId: 'program-demncdprimaryscreening-demcvdprimaryscreen2',
+      dataElementId: 'pde-DemCVD02',
+      dataElement: {
+        id: 'pde-DemCVD02',
+        code: 'DemCVD02',
+        name: 'Exercise in an average week',
+        indicator: null,
+        defaultText:
+          'How often do you exercise in an average week? (Definition of exercise = 150 mins/week of moderate-vigorous intensity)',
+        visualisationConfig: null,
+        type: 'Select',
+        updatedAtSyncTick: '-999',
+        createdAt: '2023-07-11T22:01:02.286Z',
+        updatedAt: '2023-07-11T22:01:02.286Z',
+        defaultOptions: {
+          'More than five (30 min) sessions': 'More than five (30 min) sessions',
+          'Less than five (30 min) sessions': 'Less than five (30 min) sessions',
+          '0 hours': '0 hours',
+        },
+      },
+      options: null,
+    },
+  ],
 };
 export const programRegistriesForInfoPaneList = [
   {
@@ -515,8 +592,8 @@ export const patientProgramRegistration = {
     code: 'registring_facitlity',
     name: 'Hospital 1',
   },
-  // registrationStatus: 'active',
-  registrationStatus: 'removed',
+  registrationStatus: 'active',
+  // registrationStatus: 'removed',
   removedById: '213123',
   removedBy: {
     id: '213123',
@@ -537,6 +614,7 @@ export const dummyApi = {
       // GET patientAdditionalData
 
       case 'patient/patient_id/additionalData':
+      case 'patient/test-patient/additionalData':
         return patientAdditionalData;
       // GET patientProgramRestration Status change Histories
 
@@ -547,6 +625,8 @@ export const dummyApi = {
       case 'patient/undefined/programRegistration/program_registry_id/surveyResponses':
       case 'patient/undefined/programRegistration/1/surveyResponses':
         return getSortedData(programRegistryFormHistory, options);
+      case 'patient/undefined/programRegistration/undefined/survey/undefined':
+        return mockSurvey;
       // GET patientProgramRestration conditions
 
       // case `patient/programRegistration/program_registry_id/conditions`:
