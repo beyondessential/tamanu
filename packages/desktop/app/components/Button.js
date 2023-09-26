@@ -75,7 +75,9 @@ const BaseButton = ({
   const locationsProps = getLocationProps(props);
   const displayLock = !isSubmitting && !hasPermission;
   const buttonComponent = functionallyDisabled
-    ? // disable this lint because it should be safe to assume that the type is correct
+    ? // Workaround to display a disabled button with non-disabled styling. MaterialUI doesn't
+      // see the disabled prop so it won't add its own styling, but the underlying button element
+      // is still disabled.
       // eslint-disable-next-line react/button-has-type
       buttonProps => <button type={type} {...buttonProps} disabled />
     : undefined;
