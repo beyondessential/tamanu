@@ -15,7 +15,7 @@ import { referenceDataImporter } from '../admin/referenceDataImporter';
 import { getRandomBase64String } from '../auth/utils';
 import { programImporter } from '../admin/programImporter/programImporter';
 
-export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
+export async function provision(provisioningFile, { skipIfNotNeeded } = {}) {
   const store = await initDatabase({ testMode: false });
   const userCount = await store.models.User.count();
   if (userCount > 0) {
