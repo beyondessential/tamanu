@@ -529,12 +529,17 @@ export const dummyApi = {
     console.log(endpoint);
     await sleep(500);
     switch (endpoint) {
+      // GET patientProgramRestration
+
       case 'patient/undefined/programRegistration/undefined':
       case 'patient/patient_id/programRegistration/program_registry_id':
-        console.log('i should be printed');
         return patientProgramRegistration;
+      // GET patientAdditionalData
+
       case 'patient/patient_id/additionalData':
         return patientAdditionalData;
+      // GET patientProgramRestration Status change Histories
+
       case 'patient/patient_id/programRegistration/program_registry_id/clinicalStatuses':
       case 'patient/undefined/programRegistration/program_registry_id/clinicalStatuses':
         return getSortedData(programRegistryStatusHistories, options);
@@ -542,28 +547,98 @@ export const dummyApi = {
       case 'patient/undefined/programRegistration/program_registry_id/surveyResponses':
       case 'patient/undefined/programRegistration/1/surveyResponses':
         return getSortedData(programRegistryFormHistory, options);
+      // GET patientProgramRestration conditions
+
+      // case `patient/programRegistration/program_registry_id/conditions`:
+      // case `patient/programRegistration/program_id/conditions`:
+      //   return [...patientProgramRegistryConditions, ...patientProgramRegistryConditions];
+      // return patientProgramRegistryConditions;
+
       case 'suggestions/facility':
         return facilities;
+
       case 'suggestions/practitioner':
         return practitioners;
+
       case 'suggestions/programRegistryClinicalStatus':
         return programRegistryClinicalStatusList;
+
       case 'suggestions/programRegistries':
         return programRegistries;
+
       case 'suggestions/survey':
         return programRegistryFormHistory.map(x => ({ id: x.id.toString(), name: x.survey.name }));
+
+      // case 'suggestions/programRegistryConditions':
+      //   return patientProgramRegistryConditions.map(x => ({
+      //     id: x.id,
+      //     name: x.name,
+      //   }));
+
       case 'programRegistry/1':
         return programRegistry1;
+
       case 'programRegistry/2':
         return programRegistry2;
+
       case 'programRegistry/3':
         return programRegistry3;
+      // GET patients patientProgramRestration list
+
       case 'patient/patient_id/program-registry':
         return { data: programRegistriesForInfoPaneList };
-      // case 'patient/patient_id/programRegistration/program_registry_id':
+
       case 'program/program_id/surveys':
         return programRegistrysurveys;
-      // case 'programRegistration/program_registry_id/survey/survey_id':
     }
   },
 };
+
+// 1.Create/update PatientProgramRegistry
+//   POST: /patient/patient_id/programRegistration/patient_program_registry_id
+//   data: {
+//     programRegistryId,
+//     programRegistryClinicalStatusId,
+//     date,
+//     registeringClinicianId,
+//     facilityId,
+//     patientId,
+//     patient_program_registry_id??
+//     condition_ids
+//   }
+
+// 2. Add Condition
+//   POST: /patient/patient_id/programRegistration/patient_program_registry_id/condition
+//   data: {
+//     patient_program_registry_id,
+//     condition_id
+//   }
+
+// 3. Remove Condition
+//   DELETE: /patient/patient_id/programRegistration/patient_program_registry_id/condition
+//   data: {
+//     patient_program_registry_id,
+//     condition_id
+//   }
+
+// 4. PatientProgramRegistration change programRegistryClinicalStatus
+//   PUT: /patient/patient_id/programRegistration/patient_program_registry_id/programRegistryClinicalStatus
+//   data: {
+//     patient_program_registry_id,
+//     program_registry_clinical_status_id
+//   }
+
+// 6. PatientProgramRegistration change registrationStatus
+//   PUT: /patient/patient_id/programRegistration/patient_program_registry_id/registrationStatus
+//   data: {
+//     patient_program_registry_id,
+//     registration_status (active, delete)
+//     programRegistryId,
+//     programRegistryClinicalStatusId,
+//     date,
+//     registeringClinicianId,
+//     facilityId,
+//     patientId,
+//     patient_program_registry_id??
+//     condition_ids
+//   }
