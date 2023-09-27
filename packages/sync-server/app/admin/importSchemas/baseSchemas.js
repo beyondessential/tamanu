@@ -160,7 +160,9 @@ export const ProgramDataElement = Base.shape({
 export const baseValidationShape = yup
   .object()
   .shape({
-    mandatory: yup.boolean(),
+    mandatory: yup.lazy(value => {
+      return typeof value === 'boolean' ? yup.boolean() : jsonString();
+    }),
   })
   .noUnknown();
 
