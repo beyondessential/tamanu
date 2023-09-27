@@ -46,7 +46,7 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
   ];
   return (
     <DataFetchingTable
-      endpoint={`patient/${patientProgramRegistration.patientId}/programRegistration/${patientProgramRegistration.id}/surveyResponses`}
+      endpoint={`patient/${patientProgramRegistration.patientId}/programResponses?programId=${patientProgramRegistration.programRegistry.program.id}`}
       columns={columns}
       initialSort={{
         orderBy: 'date',

@@ -164,27 +164,18 @@ export const programRegistry3 = {
   },
 };
 
-export const programRegistryConditions = [
-  { label: 'Condition 1', value: 'nuansjdnasdjasd1' },
-  { label: 'Condition 2', value: 'nuansjdnasdjasd2' },
-  { label: 'Condition 3', value: 'nuansjdnasdjasd3' },
-  { label: 'Condition 4', value: 'nuansjdnasdjasd4' },
-  { label: 'Condition 5', value: 'nuansjdnasdjasd5' },
-  { label: 'Condition 6', value: 'nuansjdnasdjasd6' },
-];
-
 export const programRegistries = [
   programRegistry1.data,
   programRegistry2.data,
   programRegistry3.data,
 ];
 
-export const patientProgramRegistryConditions = [
+export const programRegistryConditions = [
   { id: '1', name: 'Diabetes' },
   { id: '2', name: 'Hypertension' },
+  { id: '5', name: 'Joint pain' },
   { id: '3', name: 'Low pressure' },
   { id: '4', name: 'Migrain' },
-  { id: '5', name: 'Joint pain' },
   { id: '6', name: 'Skin itching' },
   { id: '7', name: 'Tuberculosis of lung, bacteriologically and historically negative' },
 ];
@@ -192,10 +183,10 @@ export const patientProgramRegistryConditions = [
 export const programRegistryStatusHistories = [
   {
     id: '1',
-    registrationStatus: 'removed',
-    // registrationStatus: 'active',
+    // registrationStatus: 'removed',
+    registrationStatus: 'active',
     clinicalStatusId: '1',
-    programRegistryClinicalStatus: {
+    clinicalStatus: {
       id: '1',
       name: 'Low risk',
       color: 'green',
@@ -212,7 +203,7 @@ export const programRegistryStatusHistories = [
     id: '2',
     registrationStatus: 'active',
     clinicalStatusId: '2',
-    programRegistryClinicalStatus: {
+    clinicalStatus: {
       id: '2',
       name: 'Needs review',
       color: 'yellow',
@@ -229,7 +220,7 @@ export const programRegistryStatusHistories = [
     id: '3',
     registrationStatus: 'active',
     clinicalStatusId: '3',
-    programRegistryClinicalStatus: {
+    clinicalStatus: {
       id: '3',
       name: 'Critical',
       color: 'red',
@@ -246,7 +237,7 @@ export const programRegistryStatusHistories = [
     id: '4',
     registrationStatus: 'active',
     clinicalStatusId: '4',
-    programRegistryClinicalStatus: {
+    clinicalStatus: {
       id: '4',
       name: 'Needs review',
       color: 'yellow',
@@ -263,7 +254,7 @@ export const programRegistryStatusHistories = [
     id: '5',
     registrationStatus: 'active',
     clinicalStatusId: '5',
-    programRegistryClinicalStatus: {
+    clinicalStatus: {
       id: '5',
       name: 'Low risk',
       color: 'green',
@@ -280,7 +271,7 @@ export const programRegistryStatusHistories = [
     id: '6',
     registrationStatus: 'active',
     clinicalStatusId: '6',
-    programRegistryClinicalStatus: {
+    clinicalStatus: {
       id: '6',
       name: 'Needs review',
       color: 'yellow',
@@ -406,7 +397,7 @@ export const practitioners = [
   { id: '2', name: 'Test user id 2' },
 ];
 
-export const programRegistryClinicalStatusList = [
+export const clinicalStatusList = [
   { id: '1', name: 'Low risk', color: 'green' },
   { id: '2', name: 'Needs review', color: 'yellow' },
   { id: '3', name: 'Critical', color: 'red' },
@@ -581,11 +572,15 @@ export const patientAdditionalData = {
 };
 
 export const patientProgramRegistration = {
-  id: 'program_registry_id',
-  programId: 'program_id',
-  program: {
-    id: 'program_id',
+  id: 'patient_program_registry_id',
+  programRegistryId: 'program_registry_id',
+  programRegistry: {
+    id: 'program_registry_id',
     name: 'Hepatitis B',
+    program: {
+      id: 'program_id',
+      name: 'Hepatitis B',
+    },
   },
   patientId: 'patient_id',
   patient: {
@@ -595,7 +590,7 @@ export const patientProgramRegistration = {
   date: '2023-08-28T02:40:16.237Z',
   name: 'Hepatitis B',
   clinicalStatusId: '1',
-  programRegistryClinicalStatus: {
+  clinicalStatus: {
     id: '1',
     code: 'low_risk',
     name: 'Low risk',
@@ -612,9 +607,10 @@ export const patientProgramRegistration = {
     code: 'registring_facitlity',
     name: 'Hospital 1',
   },
-  // registrationStatus: 'active',
-  registrationStatus: 'removed',
+  registrationStatus: 'active',
+  // registrationStatus: 'removed',
   removedById: '213123',
+  dateRemoved: '2023-08-28T02:40:16.237Z',
   removedBy: {
     id: '213123',
     displayName: 'Alaister',
@@ -626,58 +622,6 @@ export const dummyApi = {
     console.log(endpoint);
     await sleep(500);
     switch (endpoint) {
-      // GET patientProgramRestration
-
-      case 'patient/undefined/programRegistration/undefined':
-      case 'patient/patient_id/programRegistration/program_registry_id':
-        return patientProgramRegistration;
-      // GET patientAdditionalData
-
-      case 'patient/patient_id/additionalData':
-      case 'patient/test-patient/additionalData':
-        return patientAdditionalData;
-      // GET patientProgramRestration Status change Histories
-
-      case 'patient/patient_id/programRegistration/program_registry_id/clinicalStatuses':
-      case 'patient/undefined/programRegistration/program_registry_id/clinicalStatuses':
-        return getSortedData(programRegistryStatusHistories.slice(0, 1), options);
-      // return getSortedData(programRegistryStatusHistories, options);
-      case 'patient/patient_id/programRegistration/program_registry_id/surveyResponses':
-      case 'patient/undefined/programRegistration/program_registry_id/surveyResponses':
-      case 'patient/undefined/programRegistration/1/surveyResponses':
-        return getSortedData(programRegistryFormHistory, options);
-      case `patient/programRegistration/program_registry_id/conditions`:
-      case `patient/programRegistration/program_id/conditions`:
-        return [...patientProgramRegistryConditions, ...patientProgramRegistryConditions];
-      // return patientProgramRegistryConditions;
-      case 'patient/undefined/programRegistration/undefined/survey/undefined':
-        return mockSurvey;
-      // GET patientProgramRestration conditions
-
-      // case `patient/programRegistration/program_registry_id/conditions`:
-      // case `patient/programRegistration/program_id/conditions`:
-      //   return [...patientProgramRegistryConditions, ...patientProgramRegistryConditions];
-      // return patientProgramRegistryConditions;
-
-      case 'suggestions/facility':
-        return facilities;
-
-      case 'suggestions/practitioner':
-        return practitioners;
-
-      case 'suggestions/programRegistryClinicalStatus':
-        return programRegistryClinicalStatusList;
-
-      case 'suggestions/programRegistries':
-        return programRegistries;
-
-      case 'suggestions/survey':
-        return programRegistryFormHistory.map(x => ({ id: x.id.toString(), name: x.survey.name }));
-      case 'suggestions/programRegistryConditions':
-        return patientProgramRegistryConditions.map(x => ({
-          id: x.id,
-          name: x.name,
-        }));
       case 'programRegistry/1':
         return programRegistry1;
 
@@ -686,65 +630,54 @@ export const dummyApi = {
 
       case 'programRegistry/3':
         return programRegistry3;
-      // GET patients patientProgramRestration list
+
       case 'programRegistry/1/conditions':
-      case 'programRegistry/1/conditions':
-      case 'programRegistry/1/conditions':
+      case 'programRegistry/program_registry_id/conditions':
         return programRegistryConditions;
-      case 'patient/patient_id/program-registry':
+
+      case 'patient/patient_id/additionalData':
+      case 'patient/test-patient/additionalData':
+        return patientAdditionalData;
+
+      // GET patientProgramRestration Status change Histories
+      case 'patient/patient_id/programRegistration/patient_program_registry_id/clinicalStatuses':
+        return getSortedData(programRegistryStatusHistories, options);
+
+      case 'patient/patient_id/programResponses?programId=program_id':
+        // try to reuse DataFetchingProgramsTable component
+        return getSortedData(programRegistryFormHistory, options);
+
+      case `patient/programRegistration/patient_program_registry_id/conditions`:
+        return [...programRegistryConditions, ...programRegistryConditions];
+
+      case 'patient/patient_id/patientRegistration':
         return { data: programRegistriesForInfoPaneList };
 
       case 'program/program_id/surveys':
         return programRegistrysurveys;
+
+      case 'suggestions/facility':
+        return facilities;
+
+      case 'suggestions/practitioner':
+        return practitioners;
+
+      case 'suggestions/clinicalStatus':
+        return clinicalStatusList;
+
+      case 'suggestions/programRegistries':
+        return programRegistries;
+
+      case 'suggestions/survey':
+        // this needs to be done in the backend
+        return programRegistryFormHistory.map(x => ({ id: x.id.toString(), name: x.survey.name }));
+
+      case 'patient/patient_id/programRegistration/patient_program_registry_id':
+      case 'patient/undefined/programRegistration/undefined':
+        return patientProgramRegistration;
+      case 'patient/undefined/programRegistration/undefined/survey/undefined':
+      case 'patient/patient_id/programRegistration/patient_program_registry_id/survey/survey_id':
+        return mockSurvey;
     }
   },
 };
-
-// 1.Create/update PatientProgramRegistry
-//   POST: /patient/patient_id/programRegistration/patient_program_registry_id
-//   data: {
-//     programRegistryId,
-//     clinicalStatusId,
-//     date,
-//     registeringClinicianId,
-//     facilityId,
-//     patientId,
-//     patient_program_registry_id??
-//     condition_ids
-//   }
-
-// 2. Add Condition
-//   POST: /patient/patient_id/programRegistration/patient_program_registry_id/condition
-//   data: {
-//     patient_program_registry_id,
-//     condition_id
-//   }
-
-// 3. Remove Condition
-//   DELETE: /patient/patient_id/programRegistration/patient_program_registry_id/condition
-//   data: {
-//     patient_program_registry_id,
-//     condition_id
-//   }
-
-// 4. PatientProgramRegistration change programRegistryClinicalStatus
-//   PUT: /patient/patient_id/programRegistration/patient_program_registry_id/programRegistryClinicalStatus
-//   data: {
-//     patient_program_registry_id,
-//     program_registry_clinical_status_id
-//   }
-
-// 6. PatientProgramRegistration change registrationStatus
-//   PUT: /patient/patient_id/programRegistration/patient_program_registry_id/registrationStatus
-//   data: {
-//     patient_program_registry_id,
-//     registration_status (active, delete)
-//     programRegistryId,
-//     clinicalStatusId,
-//     date,
-//     registeringClinicianId,
-//     facilityId,
-//     patientId,
-//     patient_program_registry_id??
-//     condition_ids
-//   }

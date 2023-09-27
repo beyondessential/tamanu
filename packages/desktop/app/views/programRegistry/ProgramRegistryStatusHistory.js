@@ -48,9 +48,7 @@ export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => 
         title: 'Status',
         accessor: row => {
           return (
-            <StatusBadge color={row.programRegistryClinicalStatus.color}>
-              {row.programRegistryClinicalStatus.name}
-            </StatusBadge>
+            <StatusBadge color={row.clinicalStatus.color}>{row.clinicalStatus.name}</StatusBadge>
           );
         },
         sortable: false,

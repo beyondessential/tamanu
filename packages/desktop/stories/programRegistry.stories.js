@@ -21,7 +21,7 @@ import {
   dummyApi,
   patient,
   patientProgramRegistration,
-  patientProgramRegistryConditions,
+  programRegistryConditions,
 } from './utils/mockProgramRegistryData';
 import { ConditionSection } from '../app/views/programRegistry/ConditionSection';
 import { AddConditionFormModal } from '../app/views/programRegistry/AddConditionFormModal';
@@ -39,7 +39,7 @@ storiesOf('Program Registry', module).add('ProgramRegistry Info Panlist', () => 
           readonly={false}
           title={PROGRAM_REGISTRY}
           endpoint="programRegistry"
-          getEndpoint={`patient/${patient.id}/program-registry`}
+          getEndpoint={`patient/${patient.id}/patientRegistration`}
           Form={ProgramRegistryForm}
           ListItemComponent={ProgramRegistryListItem}
           getName={programRegistry => programRegistry.name}
@@ -85,7 +85,7 @@ storiesOf('Program Registry', module).add('DisplayPatientRegDetails Critical', (
       patientProgramRegistration={{
         ...patientProgramRegistration,
         registrationStatus: 'removed',
-        programRegistryClinicalStatus: {
+        clinicalStatus: {
           id: '1',
           code: 'critical',
           name: 'Critical',
@@ -102,7 +102,7 @@ storiesOf('Program Registry', module).add('DisplayPatientRegDetails Needs review
       patientProgramRegistration={{
         ...patientProgramRegistration,
         registrationStatus: 'active',
-        programRegistryClinicalStatus: {
+        clinicalStatus: {
           id: '1',
           code: 'needs_review',
           name: 'Needs review',
@@ -129,7 +129,7 @@ storiesOf('Program Registry', module).add('Condition Section', () => (
 storiesOf('Program Registry', module).add('Add Condition', () => (
   <ApiContext.Provider value={dummyApi}>
     <AddConditionFormModal
-      programRegistry={patientProgramRegistration}
+      patientProgramRegistration={patientProgramRegistration}
       onSubmit={action('submit')}
       onCancel={action('cancel')}
       open
@@ -143,7 +143,7 @@ storiesOf('Program Registry', module).add('Add Condition', () => (
 storiesOf('Program Registry', module).add('Remove Condition', () => (
   <ApiContext.Provider value={dummyApi}>
     <RemoveConditionFormModal
-      condition={patientProgramRegistryConditions[0]}
+      condition={programRegistryConditions[0]}
       onSubmit={action('submit')}
       onCancel={action('cancel')}
       open
@@ -246,13 +246,13 @@ storiesOf('Program Registry', module).add('PatientProgramRegistrationSelectSurve
 ));
 //#endregion PatientProgramRegistrationSelectSurvey
 
-//#region PatientProgramRegistrationSelectSurvey
+//#region ProgramRegistrySurveyView
 storiesOf('Program Registry', module).add('ProgramRegistrySurveyView', () => (
   <ApiContext.Provider value={dummyApi}>
     <ProgramRegistrySurveyView />
   </ApiContext.Provider>
 ));
-//#endregion PatientProgramRegistrationSelectSurvey
+//#endregion ProgramRegistrySurveyView
 
 //#region ProgramRegistryView
 storiesOf('Program Registry', module).add('ProgramRegistryView', () => (

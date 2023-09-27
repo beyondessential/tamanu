@@ -124,7 +124,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
         <StatusContainer>
           <ValueDisplay
             label="Date removed"
-            value={<DateDisplay date={patientProgramRegistration.date} />}
+            value={<DateDisplay date={patientProgramRegistration.dateRemoved} />}
           />
           <ValueDisplay
             label="Removed by"
@@ -134,12 +134,10 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
       )}
       <ChangeStatusContainer extraWidth={!isRemoved}>
         <StatusBadge
-          color={STATUS_COLOR[patientProgramRegistration.programRegistryClinicalStatus.color].color}
-          backgroundColor={
-            STATUS_COLOR[patientProgramRegistration.programRegistryClinicalStatus.color].background
-          }
+          color={STATUS_COLOR[patientProgramRegistration.clinicalStatus.color].color}
+          backgroundColor={STATUS_COLOR[patientProgramRegistration.clinicalStatus.color].background}
         >
-          {patientProgramRegistration.programRegistryClinicalStatus.name}
+          {patientProgramRegistration.clinicalStatus.name}
         </StatusBadge>
 
         <ChangeStatusFormModal patientProgramRegistration={patientProgramRegistration} />

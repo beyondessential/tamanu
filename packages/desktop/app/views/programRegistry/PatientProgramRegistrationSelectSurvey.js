@@ -38,7 +38,9 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
   const [surveys, setSurveys] = useState([]);
   useEffect(() => {
     (async () => {
-      const { data } = await api.get(`program/${patientProgramRegistration.programId}/surveys`);
+      const { data } = await api.get(
+        `program/${patientProgramRegistration.programRegistry.program.id}/surveys`,
+      );
       setSurveys(
         data
           .filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS)

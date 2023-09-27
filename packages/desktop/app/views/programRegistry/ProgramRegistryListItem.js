@@ -18,17 +18,24 @@ const RowContents = styled.div`
 `;
 const StatusActiveDot = styled.div`
   background-color: green;
-  height: 10px;
-  width: 10px;
-  border-radius: 10px;
+  height: 7px;
+  width: 7px;
+  border-radius: 7px;
   margin: 0px 5px;
 `;
 const StatusInactiveDot = styled.div`
   background-color: lightGray;
-  height: 10px;
-  width: 10px;
-  border-radius: 10px;
+  height: 7px;
+  width: 7px;
+  border-radius: 7px;
   margin: 0px 5px;
+`;
+const NameContainer = styled.span`
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
+  letter-spacing: 0px;
+  text-align: left;
 `;
 
 export const ProgramRegistryListItem = ({ item, ListItem }) => {
@@ -46,9 +53,9 @@ export const ProgramRegistryListItem = ({ item, ListItem }) => {
             {status === 'Active' ? <StatusActiveDot /> : <StatusInactiveDot />}
           </Tooltip>
 
-          <span>{name}</span>
+          <NameContainer>{name}</NameContainer>
         </RowContents>
-        {clinicalStatus}
+        <NameContainer>{clinicalStatus}</NameContainer>
       </Spacer>
     </ListItem>
   );

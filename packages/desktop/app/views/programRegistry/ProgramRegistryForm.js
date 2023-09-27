@@ -25,13 +25,13 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
   const programRegistrySuggester = useSuggester('programRegistries', {
     baseQueryParameters: { patientId: patient.id },
   });
-  const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
+  const programRegistryStatusSuggester = useSuggester('clinicalStatus', {
     baseQueryParameters: { programRegistryId: program ? program.id : null },
   });
   const registeredBySuggester = useSuggester('practitioner');
   const registeringFacilitySuggester = useSuggester('facility');
 
-  const onProgramSelect = async id => {
+  const onProgramRegistrySelect = async id => {
     try {
       const responses = await Promise.all([
         api.get(`programRegistry/${id}`),
@@ -40,7 +40,8 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
 
       const [programData, conditionsData] = responses;
       setProgram(programData);
-      setConditions(conditionsData);
+      console.log(conditionsData);
+      setConditions(conditionsData.map(x => ({ label: x.name, value: x.id })));
     } catch (error) {
       setProgram(undefined);
       setConditions(undefined);
@@ -49,7 +50,7 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
   return (
     <Form
       onSubmit={data => {
-        onSubmit({ ...data, patientId: patient.id });
+        onSubmit({ ...data, conditions: data.conditions.split(','), patientId: patient.id });
       }}
       render={({ submitForm, values, setValues }) => {
         useEffect(() => {
@@ -77,7 +78,7 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
                   component={AutocompleteField}
                   suggester={programRegistrySuggester}
                   onChange={target => {
-                    onProgramSelect(target.target.value);
+                    onProgramRegistrySelect(target.target.value);
                   }}
                 />
 

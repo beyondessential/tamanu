@@ -79,9 +79,7 @@ const AddConditionButton = styled.button`
 
 export const ConditionSection = ({ patientProgramRegistration }) => {
   // const api = useApi();
-  const { data, isLoading } = usePatientProgramRegistryConditions(
-    patientProgramRegistration.programId,
-  );
+  const { data, isLoading } = usePatientProgramRegistryConditions(patientProgramRegistration.id);
   const [conditionToRemove, setConditionToRemove] = useState();
   const [openAddCondition, setOpenAddCondition] = useState(false);
 

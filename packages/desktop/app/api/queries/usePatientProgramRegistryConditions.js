@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 
-export const usePatientProgramRegistryConditions = (patientProgramRegistryId, fetchOptions) => {
+export const usePatientProgramRegistryConditions = (programRegistryId, fetchOptions) => {
   const api = useApi();
-  return useQuery(['PatientProgramRegistryConditions', patientProgramRegistryId], () =>
+  return useQuery(['PatientProgramRegistryConditions', programRegistryId], () =>
     api.get(
-      `patient/programRegistration/${encodeURIComponent(patientProgramRegistryId)}/conditions`,
+      `patient/programRegistration/${encodeURIComponent(programRegistryId)}/conditions`,
       fetchOptions,
     ),
   );

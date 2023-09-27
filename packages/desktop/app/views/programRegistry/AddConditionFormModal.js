@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import {
@@ -10,7 +10,7 @@ import {
   AutocompleteField,
   Field,
 } from '../../components';
-import { useSuggester } from '../../api';
+import { useApi, useSuggester } from '../../api';
 import { foreignKey } from '../../utils/validation';
 
 const StyledFormGrid = styled(FormGrid)`
@@ -21,10 +21,18 @@ const StyledFormGrid = styled(FormGrid)`
   margin-top: 30px;
 `;
 
-export const AddConditionFormModal = ({ onSubmit, onCancel, programRegistry, open }) => {
-  const programRegistryConditionSuggester = useSuggester('programRegistryConditions', {
-    baseQueryParameters: { programRegistryId: programRegistry.programId },
-  });
+export const AddConditionFormModal = ({ onSubmit, onCancel, patientProgramRegistration, open }) => {
+  const api = useApi();
+  const [options, setOptions] = useState([]);
+  useEffect(() => {
+    (async () => {
+      const response = await api.get(
+        `programRegistry/${patientProgramRegistration.programRegistryId}/conditions`,
+      );
+      setOptions(response.map(x => ({ label: x.name, value: x.id })));
+    })();
+  }, [patientProgramRegistration.programRegistryId]);
+
   return (
     <Modal title="Add condition" open={open} onClose={onCancel}>
       <Form
@@ -40,7 +48,7 @@ export const AddConditionFormModal = ({ onSubmit, onCancel, programRegistry, ope
                   name="programRegistryConditionId"
                   label="Condition"
                   component={AutocompleteField}
-                  suggester={programRegistryConditionSuggester}
+                  options={options}
                 />
               </StyledFormGrid>
               <FormSeparatorLine style={{ marginTop: '60px', marginBottom: '30px' }} />
