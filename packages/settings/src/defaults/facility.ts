@@ -53,5 +53,9 @@ export const facilityDefaults = {
     readOnly: false,
     schedule: '*/1 * * * *',
     timeout: 10000,
+    pauseBetweenPersistedBatchesInMilliseconds: 50,
+    pauseBetweenCacheBatchInMilliseconds: 50,
+    persistUpdateWorkerPoolSize: 5,
+    assertIfPulledRecordsUpdatedAfterPushSnapshot: true,
   },
 };
