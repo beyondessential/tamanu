@@ -194,7 +194,12 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
                 onPress={closeModalCallback}
                 {...buttonSharedStyles}
               />
-              <Button buttonText="Exit" onPress={onExit} {...buttonSharedStyles} />
+              <Button
+                buttonText="Exit"
+                onPress={onExit}
+                {...buttonSharedStyles}
+                backgroundColor={theme.colors.PRIMARY_MAIN}
+              />
             </RowView>
           </CenterView>
         </Modal>
