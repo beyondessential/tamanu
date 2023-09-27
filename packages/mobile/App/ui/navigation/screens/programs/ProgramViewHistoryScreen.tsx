@@ -74,7 +74,7 @@ export const ProgramViewHistoryScreen = ({
       )}
       ItemSeparatorComponent={() => <Separator paddingLeft="5%" width="95%" />}
       ListFooterComponent={(): ReactElement => {
-        // responses only contains the latest 80 responses, if it is 80 it means there are more
+        // responses only contain the latest 80 responses, exact 80 means there are more responses in the database, see SurveyResponse.getForPatient()
         if (responses.length === 80) {
           return (
             <StyledText paddingLeft={10}>
