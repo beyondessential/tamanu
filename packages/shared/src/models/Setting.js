@@ -85,10 +85,6 @@ export class Setting extends Model {
     });
   }
 
-  static buildSyncFilter() {
-    return `WHERE (facility_id = :facilityId OR :facilityId IS NULL) AND ${this.tableName}.updated_at_sync_tick > :since`;
-  }
-
   /**
    * IMPORTANT: Duplicated from mobile/models/Setting.ts
    * Please update both places when modify
