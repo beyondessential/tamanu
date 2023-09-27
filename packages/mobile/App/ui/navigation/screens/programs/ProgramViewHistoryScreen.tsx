@@ -74,10 +74,11 @@ export const ProgramViewHistoryScreen = ({
       )}
       ItemSeparatorComponent={() => <Separator paddingLeft="5%" width="95%" />}
       ListFooterComponent={(): ReactElement => {
+        // responses only contains the latest 80 responses, if it is 80 it means there are more
         if (responses.length === 80) {
           return (
             <StyledText paddingLeft={10}>
-              Pease view Tamanu Desktop for complete history of program form submissions.
+              Please view Tamanu Desktop for complete history of program form submissions.
             </StyledText>
           );
         }
