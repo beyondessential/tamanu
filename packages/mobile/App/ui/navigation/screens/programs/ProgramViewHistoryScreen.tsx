@@ -74,7 +74,7 @@ export const ProgramViewHistoryScreen = ({
       )}
       ItemSeparatorComponent={() => <Separator paddingLeft="5%" width="95%" />}
       ListFooterComponent={(): ReactElement => {
-        if (responses.length > 80) {
+        if (responses.length === 80) {
           return (
             <StyledText paddingLeft={10}>
               Pease view Tamanu Desktop for complete history of program form submissions.
