@@ -22,7 +22,7 @@ export const ProgramViewHistoryScreen = ({
   // a new survey is submitted (as this tab can be mounted while
   // it isn't active)
   const [responses, error] = useBackendEffect(
-    ({ models }) => {
+    async ({ models }) => {
       if (!navigation.isFocused) {
         // always show the loading screen when in background
         // (ie, it will be what's shown when the user navigates
@@ -31,7 +31,13 @@ export const ProgramViewHistoryScreen = ({
         return null;
       }
 
-      return models.SurveyResponse.getForPatient(selectedPatient.id);
+      const surveyResponses = await models.SurveyResponse.getForPatient(selectedPatient.id);
+      const vitalsSurvey = await models.Survey.getVitalsSurvey();
+      if (!vitalsSurvey) {
+        return surveyResponses;
+      }
+
+      return surveyResponses.filter(response => response.surveyId !== vitalsSurvey.id);
     },
     [navigation.isFocused, latestResponseId],
   );
