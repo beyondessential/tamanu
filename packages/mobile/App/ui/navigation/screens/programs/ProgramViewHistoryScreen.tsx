@@ -11,6 +11,7 @@ import { SurveyResponseLink } from '../../../components/SurveyResponseLink';
 
 import { useBackendEffect } from '../../../hooks';
 import { StyledText } from '~/ui/styled/common';
+import { SurveyTypes } from '~/types';
 
 export const ProgramViewHistoryScreen = ({
   route,
@@ -32,12 +33,15 @@ export const ProgramViewHistoryScreen = ({
       }
 
       const surveyResponses = await models.SurveyResponse.getForPatient(selectedPatient.id);
-      const vitalsSurvey = await models.Survey.getVitalsSurvey();
-      if (!vitalsSurvey) {
-        return surveyResponses;
-      }
+      const surveys = await models.Survey.find({
+        where: {
+          surveyType: SurveyTypes.Programs,
+        },
+      });
 
-      return surveyResponses.filter(response => response.surveyId !== vitalsSurvey.id);
+      const surveyIds = surveys.map(survey => survey.id);
+
+      return surveyResponses.filter(response => surveyIds.includes(response.surveyId));
     },
     [navigation.isFocused, latestResponseId],
   );

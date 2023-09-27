@@ -12,31 +12,36 @@ import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { Program } from '~/models/Program';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { SurveyTypes } from '~/types';
+import { In } from 'typeorm/browser';
 
 const Screen = (): ReactElement => {
   const navigation = useNavigation();
 
-  const [programs, programsError, programsIsLoading] = useBackendEffect(({ models }) =>
-    models.Program.find({
+  const [programs, programsError, programsIsLoading] = useBackendEffect(async ({ models }) => {
+    const surveys = await models.Survey.find({
+      where: {
+        surveyType: SurveyTypes.Programs,
+      },
+    });
+
+    return models.Program.find({
+      where: {
+        id: In(surveys.map(survey => survey.programId)),
+      },
       order: {
         name: 'ASC',
       },
-    }),
-  );
+    });
+  });
 
-  const [vitalsSurvey, vitalsError, isVitalsLoading] = useBackendEffect(({ models: m }) =>
-    m.Survey.getVitalsSurvey(),
-  );
-
-  if (programsIsLoading || isVitalsLoading) {
+  if (programsIsLoading) {
     return <LoadingScreen />;
   }
 
-  if (programsError || vitalsError) {
-    return <ErrorScreen error={programsError || vitalsError} />;
+  if (programsError) {
+    return <ErrorScreen error={programsError} />;
   }
-
-  const programsWithNoVital = programs.filter(program => program.id !== vitalsSurvey?.programId);
 
   const onNavigateToSurveyList = (program: Program): void => {
     navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.Index, {
@@ -56,7 +61,7 @@ const Screen = (): ReactElement => {
           paddingTop: 5,
         }}
         showsVerticalScrollIndicator={false}
-        data={programsWithNoVital}
+        data={programs}
         keyExtractor={(item): string => item.id}
         renderItem={({ item }): ReactElement => (
           <MenuOptionButton
