@@ -72,6 +72,7 @@ export class Survey extends BaseModel implements ISurvey {
       components,
       name: vitalsSurvey.name,
       id: vitalsSurvey.id,
+      programId: vitalsSurvey.programId,
     };
   }
 }
