@@ -190,6 +190,10 @@ export const globalDefaults = {
         longLabel: 'Country of birth',
         shortLabel: 'Country of birth',
       },
+      clinician: {
+        shortLabel: 'Clinician',
+        longLabel: 'Clinician',
+      },
       culturalName: {
         hidden: false,
         longLabel: 'Cultural/traditional name',
@@ -421,6 +425,10 @@ export const globalDefaults = {
         hidden: false,
         longLabel: 'Title',
         shortLabel: 'Title',
+      },
+      userDisplayId: {
+        longLabel: 'Registration number',
+        shortLabel: 'Registration number',
       },
       villageId: {
         hidden: false,
