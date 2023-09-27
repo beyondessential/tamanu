@@ -14,6 +14,7 @@ export const useCancelableEffect = <T>(
 
   useEffect(() => {
     let canceled = false;
+    setIsLoading(true);
     (async (): Promise<void> => {
       try {
         const result = await fetcher();
