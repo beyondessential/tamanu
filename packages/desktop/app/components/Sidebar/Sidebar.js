@@ -197,7 +197,24 @@ export const Sidebar = React.memo(({ items }) => {
       </HeaderContainer>
       <List component="nav">
         {items.map(item =>
-          item.children ? (
+          item.sidebarItemComponent ? (
+            item.sidebarItemComponent({
+              retracted: isRetracted,
+              icon: item.icon,
+              label: item.label,
+              divider: item.divider,
+              key: item.key,
+              path: item.path,
+              highlighted: isHighlighted(
+                currentPath,
+                item.path,
+                selectedParentItem === item.key,
+                isRetracted,
+              ),
+              selected: selectedParentItem === item.key,
+              onClick: () => clickedParentItem(item),
+            })
+          ) : item.children ? (
             <PrimarySidebarItem
               retracted={isRetracted}
               icon={item.icon}
