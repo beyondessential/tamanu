@@ -43,7 +43,7 @@ describe('reportRoutes', () => {
     query,
     reportDefinitionId: testReport.id,
     queryOptions: {
-      defaultDateRange: 'past30Days',
+      defaultDateRange: '30days',
       parameters: [
         {
           parameterField: 'test-field',

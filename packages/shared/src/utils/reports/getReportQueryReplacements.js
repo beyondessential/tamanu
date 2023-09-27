@@ -10,7 +10,7 @@ function getStartDate(dateRange, endDate) {
     case REPORT_DEFAULT_DATE_RANGES.PAST_THIRTY_DAYS:
       // If we have a toDate, but no fromDate, run 30 days prior to the toDate
       return startOfDay(subDays(endDate, 30));
-    case REPORT_DEFAULT_DATE_RANGES.FUTURE_THIRD_DAYS:
+    case REPORT_DEFAULT_DATE_RANGES.FUTURE_THIRTY_DAYS:
       // If we have a toDate, but no fromDate, run 30 days prior to the toDate
       return new Date();
     default:
@@ -23,7 +23,7 @@ function getEndDate(dateRange, fromDate) {
     case REPORT_DEFAULT_DATE_RANGES.ALL_TIME:
     case REPORT_DEFAULT_DATE_RANGES.PAST_THIRTY_DAYS:
       return new Date();
-    case REPORT_DEFAULT_DATE_RANGES.FUTURE_THIRD_DAYS:
+    case REPORT_DEFAULT_DATE_RANGES.FUTURE_THIRTY_DAYS:
       // If we have a toDate, but no fromDate, run 30 days prior to the toDate
       return endOfDay(addDays(fromDate || new Date(), 30));
     default:

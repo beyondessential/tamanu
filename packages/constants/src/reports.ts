@@ -30,8 +30,8 @@ export const REPORT_STATUSES_VALUES = Object.values(REPORT_STATUSES);
 
 export const REPORT_DEFAULT_DATE_RANGES = {
   ALL_TIME: 'allTime',
-  PAST_THIRTY_DAYS: 'past30Days',
-  FUTURE_THIRTY_DAYS: 'future30Days',
+  PAST_THIRTY_DAYS: '30days',
+  FUTURE_THIRTY_DAYS: 'future30days',
 };
 export const REPORT_DATE_RANGE_LABELS = {
   [REPORT_DEFAULT_DATE_RANGES.ALL_TIME]: 'Date range (or leave blank for all data)',
