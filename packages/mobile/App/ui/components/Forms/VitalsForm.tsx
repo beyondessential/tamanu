@@ -10,6 +10,7 @@ import { SurveyTypes } from '~/types';
 import { getCurrentDateTimeString } from '/helpers/date';
 import { SurveyForm } from '/components/Forms/SurveyForm';
 import { VitalsDataElements } from '/helpers/constants';
+import { useCurrentScreen } from '~/ui/hooks/useCurrentScreen';
 
 const validate = (values: object): object => {
   const errors: { form?: string } = {};
@@ -28,6 +29,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   const { models } = useBackend();
   const user = useSelector(authUserSelector);
   const [note, setNote] = useState('');
+  const { currentScreenIndex, setCurrentScreenIndex } = useCurrentScreen();
 
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
@@ -85,6 +87,8 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
       components={visibleComponents}
       onSubmit={onSubmit}
       validate={validate}
+      setCurrentScreenIndex={setCurrentScreenIndex}
+      currentScreenIndex={currentScreenIndex}
     />
   );
 };
