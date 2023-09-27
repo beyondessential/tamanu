@@ -3,7 +3,7 @@ export const centralDefaults = {
   cors: {
     allowedOrigin: '',
   },
-  countryTimeZone: 'Pacific/Auckland',
+  countryTimeZone: 'Australia/Melbourne',
   disk: {
     diskPath: 'C:/',
     freeSpaceRequired: {
