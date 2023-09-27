@@ -6,7 +6,7 @@ export const isReportEnabled = (localisation, reportId) => {
 };
 
 export const assertReportEnabled = async (settings, reportId) => {
-  const disabledReports = await settings.get('disabledReport');
+  const disabledReports = await settings.get('disabledReports');
   if (!disabledReports.includes(reportId)) {
     throw new ForbiddenError(`Report "${reportId}" is disabled`);
   }
