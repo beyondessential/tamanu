@@ -268,6 +268,8 @@ export const centralDefaults = {
     persistedCacheBatchSize: 20000,
     readOnly: false,
     syncAllEncountersForTheseVaccines: [],
+    pauseBetweenPersistedCacheBatchesInMilliseconds: 50,
+    persistUpdateWorkerPoolSize: 5,
   },
   updateUrls: {
     mobile: '',
