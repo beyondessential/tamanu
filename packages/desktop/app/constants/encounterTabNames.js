@@ -5,5 +5,5 @@ export const ENCOUNTER_TAB_NAMES = {
   LABS: 'labs',
   IMAGING: 'imaging',
   MEDICATION: 'medication',
-  PROGRAMS: 'programs',
+  FORMS: 'forms',
 };

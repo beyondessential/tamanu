@@ -17,7 +17,7 @@ const COMPLETE_MESSAGE = `
 const DefaultSummaryScreen = ({ onStepBack, submitForm }) => (
   <div>
     <Typography variant="h6" gutterBottom>
-      Survey complete
+      Form complete
     </Typography>
     <Typography>{COMPLETE_MESSAGE}</Typography>
     <div>

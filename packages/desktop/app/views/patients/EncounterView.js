@@ -68,8 +68,8 @@ const TABS = [
     render: props => <EncounterMedicationPane {...props} />,
   },
   {
-    label: 'Programs',
-    key: ENCOUNTER_TAB_NAMES.PROGRAMS,
+    label: 'Forms',
+    key: ENCOUNTER_TAB_NAMES.FORMS,
     render: props => <EncounterProgramsPane {...props} />,
   },
   {

@@ -22,7 +22,7 @@ const StyledButtonRow = styled(ButtonRow)`
 const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   <div>
     <Typography variant="h6" gutterBottom>
-      Survey complete
+      Form complete
     </Typography>
     <Text>{COMPLETE_MESSAGE}</Text>
     <div>

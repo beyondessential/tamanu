@@ -34,13 +34,14 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
-  const [vitalsSurvey, vitalsError, isVitalsLoading] = useBackendEffect(
-    ({ models: m }) => m.Survey.getVitalsSurvey(),
+  const [vitalsSurvey, vitalsError, isVitalsLoading] = useBackendEffect(({ models: m }) =>
+    m.Survey.getVitalsSurvey(),
   );
   const [patientAdditionalData, padError, isPadLoading] = useBackendEffect(
-    ({ models: m }) => m.PatientAdditionalData.getRepository().findOne({
-      patient: selectedPatient.id,
-    }),
+    ({ models: m }) =>
+      m.PatientAdditionalData.getRepository().findOne({
+        patient: selectedPatient.id,
+      }),
     [selectedPatient.id],
   );
 
@@ -63,7 +64,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
         surveyId: id,
         components,
         surveyType: SurveyTypes.Vitals,
-        encounterReason: `Survey response for ${name}`,
+        encounterReason: `Form response for ${name}`,
       },
       { ...values, [dateComponent.dataElement.code]: getCurrentDateTimeString() },
       setNote,

@@ -191,7 +191,7 @@ export const EncounterTypeNames = {
   emergency: 'Emergency',
   observation: 'Observation',
   triage: 'Triage',
-  surveyResponse: 'Survey response',
+  surveyResponse: 'Form response',
   vaccination: 'Vaccination record',
 };
 
