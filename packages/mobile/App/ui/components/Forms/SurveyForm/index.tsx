@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo, useEffect, useCallback, useState } from 'react';
+import React, { ReactElement, useMemo, useEffect, useCallback, useState, Dispatch, SetStateAction } from 'react';
 import { useSelector } from 'react-redux';
 import { getFormInitialValues, getFormSchema } from './helpers';
 import { ISurveyComponent, IPatientAdditionalData } from '~/types';
@@ -10,11 +10,16 @@ import { authUserSelector } from '/helpers/selectors';
 
 export type SurveyFormProps = {
   onSubmit: (values: any) => Promise<void>;
+  openExitModal: () => Promise<void>;
   components: ISurveyComponent[];
+  onCancel?: () => Promise<void>;
+  onGoBack?: () => void;
   patient: any;
   note: string;
-  validate: any;
+  validate?: any;
   patientAdditionalData: IPatientAdditionalData[];
+  setCurrentScreenIndex: Dispatch<SetStateAction<number>>;
+  currentScreenIndex: number;
 };
 
 export const SurveyForm = ({
@@ -24,6 +29,10 @@ export const SurveyForm = ({
   patient,
   patientAdditionalData,
   validate,
+  onCancel,
+  setCurrentScreenIndex,
+  currentScreenIndex,
+  onGoBack,
 }: SurveyFormProps): ReactElement => {
   const currentUser = useSelector(authUserSelector);
   const initialValues = useMemo(
@@ -81,7 +90,17 @@ export const SurveyForm = ({
             ...calculatedValues,
           });
         }, [values]);
-        return <FormFields components={components} note={note} patient={patient} />;
+        return (
+          <FormFields
+            components={components}
+            note={note}
+            patient={patient}
+            onCancel={onCancel}
+            setCurrentScreenIndex={setCurrentScreenIndex}
+            currentScreenIndex={currentScreenIndex}
+            onGoBack={onGoBack}
+          />
+        );
       }}
     </Form>
   );
