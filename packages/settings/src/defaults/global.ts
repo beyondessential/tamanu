@@ -30,6 +30,11 @@ export const globalDefaults = {
     patientPlannedMove: false,
     quickPatientGenerator: false,
     registerNewPatient: true,
+    tableAutoRefresh: {
+      enabled: false,
+      // In Seconds
+      interval: 300
+    },
   },
   imagingTypes: {
     // keys are taken from IMAGING_TYPES in shared/constants/imaging
