@@ -52,17 +52,9 @@ const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
   }
 };
 
-async function connectToDatabase(dbOptions) {
+async function connectToDatabase(dbOptions, { username, password }) {
   // connect to database
-  const {
-    username,
-    password,
-    testMode = false,
-    host = null,
-    port = null,
-    verbose = false,
-    pool,
-  } = dbOptions;
+  const { testMode = false, host = null, port = null, verbose = false, pool } = dbOptions;
   let { name } = dbOptions;
 
   // configure one test db per jest worker
@@ -122,9 +114,42 @@ export async function initDatabase(dbOptions) {
     saltRounds = null,
     primaryKeyDefault = Sequelize.UUIDV4,
     hackToSkipEncounterValidation = false, // TODO: remove once mobile implements all relationships
+    reportCredentials,
+    verbose,
+    migrateOnStartup,
+    testMode,
+    port,
+    name,
+    username,
+    password,
   } = dbOptions;
 
-  const sequelize = await connectToDatabase(dbOptions);
+  const options = {
+    makeEveryModelParanoid,
+    saltRounds,
+    primaryKeyDefault,
+    hackToSkipEncounterValidation,
+    verbose,
+    migrateOnStartup,
+    testMode,
+    port,
+    name,
+  };
+
+  const sequelize = await connectToDatabase(options, { username, password });
+
+  // instantiate reporting instances
+  const reporting = await Object.entries(reportCredentials).reduce(
+    async (accPromise, [roleType, credentials]) => {
+      const acc = await accPromise;
+      if (!credentials.username || !credentials.password) {
+        console.warn(`No credentials provided for ${roleType} reporting, skipping...`);
+        return acc;
+      }
+      return { ...acc, [roleType]: await connectToDatabase(options, credentials) };
+    },
+    Promise.resolve({}),
+  );
 
   // set configuration variables for individual models
   models.User.SALT_ROUNDS = saltRounds;
@@ -136,7 +161,7 @@ export async function initDatabase(dbOptions) {
     await migrate(log, sequelize, direction);
   };
 
-  sequelize.assertUpToDate = async options => assertUpToDate(log, sequelize, options);
+  sequelize.assertUpToDate = async seqOptions => assertUpToDate(log, sequelize, seqOptions);
 
   // init all models
   const modelClasses = Object.values(models);
@@ -181,5 +206,5 @@ export async function initDatabase(dbOptions) {
   // add isInsideTransaction helper to avoid exposing the asynclocalstorage
   sequelize.isInsideTransaction = () => !!asyncLocalStorage.getStore();
 
-  return { sequelize, models };
+  return { sequelize, reporting, models };
 }
