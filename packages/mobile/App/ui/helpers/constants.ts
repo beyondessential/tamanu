@@ -203,7 +203,7 @@ export const LabRequestStatus = {
   published: 'published',
 };
 
-// also update /packages/lan/app/routes/apiv1/surveyResponse.js when this changes
+// also update /packages/constants/src/surveys.ts when this changes
 export const AutocompleteSourceToColumnMap = {
   Department: 'name',
   Facility: 'name',

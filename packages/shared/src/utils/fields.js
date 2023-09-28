@@ -1,14 +1,62 @@
 import { inRange } from 'lodash';
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import {
+  PROGRAM_DATA_ELEMENT_TYPES,
+  MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE,
+} from '@tamanu/constants';
 import { log } from '../services/logging';
 
-export function getStringValue(type, value) {
+export function getBodyId(component, value) {
+  const { type } = component.dataElement;
+  if (type === PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE && typeof value === 'string') {
+    return value;
+  }
+  return null;
+}
+
+async function getAutocompleteQuestionBody(models, component, value) {
+  const config = component.getConfig();
+  let model;
+  let columnName;
+  try {
+    const { source } = config;
+    if (!source) throw new Error('missing config.source');
+    columnName = MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE[source];
+    if (!columnName) throw new Error('missing columnName mapping for config.source');
+    model = models[source];
+    if (!model) throw new Error('unable to find model from config.source');
+  } catch (e) {
+    throw new Error(
+      `Invalid configuration for component ${component.id}, please contact your helpdesk or system administrator\nOriginal: ${e.message}`,
+    );
+  }
+  if (!value) {
+    /*
+     * Check value after config validation so it's harder to miss an invalid
+     * survey config during testing.
+     */
+    return null;
+  }
+  const record = await model.findByPk(value);
+  if (!record) {
+    return null;
+  }
+  const name = record[columnName];
+  if (typeof name !== 'string') {
+    return null;
+  }
+  return name;
+}
+
+export async function getBodyValue(models, component, value) {
+  const { type } = component.dataElement;
   if (value === null) {
     return null;
   }
   switch (type) {
     case PROGRAM_DATA_ELEMENT_TYPES.CALCULATED:
       return value.toFixed(1);
+    case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
+      return getAutocompleteQuestionBody(models, component, value);
     default:
       return `${value}`;
   }

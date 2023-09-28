@@ -75,6 +75,21 @@ export class SurveyScreenComponent extends Model {
     }
   }
 
+  getConfig() {
+    if (!this.config) return {};
+
+    try {
+      const parsed = JSON.parse(this.config);
+      if (typeof parsed !== 'object') {
+        throw new Error("string wasn't a JSON object");
+      }
+      return parsed;
+    } catch (e) {
+      log.error(`Invalid config in survey screen component ${this.id}`);
+      return {};
+    }
+  }
+
   forResponse() {
     const { options, ...values } = this.dataValues;
     return {

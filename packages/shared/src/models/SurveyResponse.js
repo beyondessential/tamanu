@@ -4,7 +4,7 @@ import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { runCalculations } from '../utils/calculations';
-import { getStringValue, getResultValue } from '../utils/fields';
+import { getBodyValue, getBodyId, getResultValue } from '../utils/fields';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 
@@ -225,27 +225,23 @@ export class SurveyResponse extends Model {
       ...responseData,
     });
 
-    const findDataElement = id => {
-      const component = questions.find(c => c.dataElement.id === id);
-      if (!component) return null;
-      return component.dataElement;
-    };
-
     // create answer records
     for (const a of Object.entries(finalAnswers)) {
       const [dataElementId, value] = a;
-      const dataElement = findDataElement(dataElementId);
-      if (!dataElement) {
+      const component = questions.find(c => c.dataElement.id === dataElementId);
+      if (!component.dataElement) {
         throw new Error(`no data element for question: ${dataElementId}`);
       }
-      const body = getStringValue(dataElement.type, value);
+      const body = await getBodyValue(models, component, value);
+      const bodyId = getBodyId(component, value);
       // Don't create null answers
       if (body === null) {
         continue;
       }
       const answer = await models.SurveyResponseAnswer.create({
-        dataElementId: dataElement.id,
+        dataElementId,
         body,
+        bodyId,
         responseId: record.id,
       });
       if (!isVitalSurvey || body === '') continue;

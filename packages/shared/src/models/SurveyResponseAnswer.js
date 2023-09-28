@@ -5,7 +5,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { InvalidOperationError } from '../errors';
 import { runCalculations } from '../utils/calculations';
-import { getStringValue } from '../utils/fields';
+import { getBodyValue, getBodyId } from '../utils/fields';
 
 export class SurveyResponseAnswer extends Model {
   static init({ primaryKey, ...options }) {
@@ -119,11 +119,9 @@ export class SurveyResponseAnswer extends Model {
       }
 
       // Sanitize value
-      const stringValue = getStringValue(
-        component.dataElement.type,
-        calculatedValues[component.dataElement.id],
-      );
-      const newCalculatedValue = stringValue ?? '';
+      const value = calculatedValues[component.dataElement.id];
+      const body = (await getBodyValue(models, component, value)) ?? '';
+      const bodyId = getBodyId(component, value);
 
       // Check if the calculated answer was created or not. It might've been missed
       // if no values used in its calculation were registered the first time.
@@ -133,11 +131,12 @@ export class SurveyResponseAnswer extends Model {
       const previousCalculatedValue = existingCalculatedAnswer?.body;
       let newCalculatedAnswer;
       if (existingCalculatedAnswer) {
-        await existingCalculatedAnswer.update({ body: newCalculatedValue });
+        await existingCalculatedAnswer.update({ body, bodyId });
       } else {
         newCalculatedAnswer = await models.SurveyResponseAnswer.create({
           dataElementId: component.dataElement.id,
-          body: newCalculatedValue,
+          body,
+          bodyId,
           responseId: surveyResponse.id,
         });
       }
@@ -147,7 +146,7 @@ export class SurveyResponseAnswer extends Model {
         date,
         reasonForChange,
         previousValue: previousCalculatedValue || null,
-        newValue: newCalculatedValue,
+        newValue: body,
         recordedById: user.id,
         answerId: existingCalculatedAnswer?.id || newCalculatedAnswer.id,
       });

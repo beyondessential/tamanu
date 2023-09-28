@@ -82,3 +82,13 @@ export const VITAL_CHARTS = {
   [PDE_SPO2]: LINE,
   [PDE_AVPU]: LINE,
 };
+
+// also update /packages/mobile/App/ui/helpers/constants.js when this changes
+export const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
+  Department: 'name',
+  Facility: 'name',
+  Location: 'name',
+  LocationGroup: 'name',
+  ReferenceData: 'name',
+  User: 'displayName',
+};
