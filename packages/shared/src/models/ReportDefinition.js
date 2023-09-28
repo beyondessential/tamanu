@@ -15,7 +15,7 @@ export class ReportDefinition extends Model {
         dbRole: {
           type: Sequelize.STRING,
           allowNull: false,
-          defaultValue: REPORT_DB_ROLES.DATASET,
+          defaultValue: REPORT_DB_ROLES.REPORTING,
           validate: {
             isIn: [Object.values(REPORT_DB_ROLES)],
           },
