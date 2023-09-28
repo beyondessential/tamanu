@@ -37,6 +37,37 @@ export const getBodyId = (c: ISurveyScreenComponent, value: unknown): string | n
   return null;
 };
 
+const getAutocompleteQuestionBody = async (config: any, componentId: string, value: unknown): Promise<string | null> => {
+  let model: any;
+  let columnName: string;
+  try {
+    const { source } = config;
+    if (!source) throw new Error('missing config.source');
+    columnName = AutocompleteSourceToColumnMap[source];
+    if (!columnName) throw new Error('missing columnName mapping for config.source');
+    model = Database.models[source];
+    if (!model) throw new Error('unable to find model from config.source');
+  } catch (e) {
+    throw new Error(`Invalid configuration for component ${componentId}, please contact your helpdesk or system administrator\nOriginal: ${e.message}`);
+  }
+  if (!value) {
+    /*
+     * Check value after config validation so it's harder to miss an invalid
+     * survey config during testing.
+     */
+    return null;
+  }
+  const record = await model.findOne({ id: value });
+  if (!record) {
+    return null;
+  }
+  const name = record[columnName];
+  if (typeof name !== 'string') {
+    return null;
+  }
+  return name;
+}
+
 export const getBodyValue = async (c: ISurveyScreenComponent, value: unknown): Promise<string | null> => {
   const config = c.getConfigObject();
   let fieldType: string = c.dataElement.type;
@@ -69,34 +100,7 @@ export const getBodyValue = async (c: ISurveyScreenComponent, value: unknown): P
       }
       return `${value}`;
     case FieldTypes.AUTOCOMPLETE:
-      let model: any;
-      let columnName: string;
-      try {
-        const { source } = config;
-        if (!source) throw new Error('missing config.source');
-        columnName = AutocompleteSourceToColumnMap[source];
-        if (!columnName) throw new Error('missing columnName mapping for config.source');
-        model = Database.models[source];
-        if (!model) throw new Error('unable to find model from config.source');
-      } catch (e) {
-        throw new Error(`Invalid configuration for component ${c.id}, please contact your helpdesk or system administrator\n$Original: {e.message}`);
-      }
-      if (!value) {
-        /*
-         * Check value after config validation so it's harder to miss an invalid
-         * survey config during testing.
-         */
-        return null;
-      }
-      const record = await model.findOne({ id: value });
-      if (!record) {
-        return null;
-      }
-      const name = record[columnName];
-      if (typeof name !== 'string') {
-        return null;
-      }
-      return name;
+      return getAutocompleteQuestionBody(config, c.id, value);
     default:
       return `${value}`;
   }
