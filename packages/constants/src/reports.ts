@@ -40,7 +40,7 @@ export const REPORT_DATE_RANGE_LABELS = {
 
 export const REPORT_DEFAULT_DATE_RANGES_VALUES = Object.values(REPORT_DEFAULT_DATE_RANGES);
 
-export const REPORT_DB_ROLES = {
-  DATASET: 'dataset',
+export const REPORT_DB_SCHEMAS = {
+  REPORTING: 'reporting',
   RAW: 'raw',
 };

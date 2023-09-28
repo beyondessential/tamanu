@@ -1,10 +1,10 @@
 import Sequelize from 'sequelize';
 
 export async function up(query) {
-  await query.addColumn('report_definitions', 'db_role', {
+  await query.addColumn('report_definitions', 'db_schema', {
     type: Sequelize.STRING,
     allowNull: false,
-    defaultValue: 'dataset',
+    defaultValue: 'reporting',
   });
 
   await query.sequelize.query(`
@@ -14,5 +14,5 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.removeColumn('report_definitions', 'db_role');
+  await query.removeColumn('report_definitions', 'db_schema');
 }
