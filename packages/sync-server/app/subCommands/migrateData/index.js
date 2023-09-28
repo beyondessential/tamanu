@@ -1,0 +1,1 @@
+export { migrateDataCommand } from './migrateData';
