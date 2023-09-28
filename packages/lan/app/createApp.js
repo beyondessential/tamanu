@@ -14,7 +14,7 @@ import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { version } from './serverInfo';
 
-export function createApp({ sequelize, models, syncManager, deviceId }) {
+export function createApp({ sequelize, reporting, models, syncManager, deviceId }) {
   // Init our app
   const app = express();
   app.use(compression());
@@ -34,6 +34,7 @@ export function createApp({ sequelize, models, syncManager, deviceId }) {
   app.use((req, res, next) => {
     req.models = models;
     req.db = sequelize;
+    req.reporting = reporting;
     req.syncManager = syncManager;
     req.deviceId = deviceId;
 

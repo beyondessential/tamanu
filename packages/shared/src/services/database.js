@@ -143,7 +143,7 @@ export async function initDatabase(dbOptions) {
     async (accPromise, [roleType, credentials]) => {
       const acc = await accPromise;
       if (!credentials.username || !credentials.password) {
-        console.warn(`No credentials provided for ${roleType} reporting, skipping...`);
+        log.warn(`No credentials provided for ${roleType} reporting, skipping...`);
         return acc;
       }
       return { ...acc, [roleType]: await connectToDatabase(options, credentials) };

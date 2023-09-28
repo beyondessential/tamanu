@@ -119,7 +119,7 @@ export class ReportDefinitionVersion extends Model {
   }
 
   async dataGenerator(context, parameters) {
-    const { sequelize } = context;
+    const { reporting } = context;
     const reportQuery = this.get('query');
 
     const queryOptions = this.getQueryOptions();
@@ -131,7 +131,9 @@ export class ReportDefinitionVersion extends Model {
       queryOptions.defaultDateRange,
     );
 
-    const queryResults = await sequelize.query(reportQuery, {
+    const definition = await this.getReportDefinition();
+    const instance = reporting[definition.dbRole];
+    const queryResults = await instance.query(reportQuery, {
       type: QueryTypes.SELECT,
       replacements,
     });

@@ -25,12 +25,12 @@ reports.post(
   '/:reportId',
   asyncHandler(async (req, res) => {
     const {
-      db,
-      models,
       body: { parameters = {} },
       user,
       params,
       getLocalisation,
+      models,
+      reporting,
     } = req;
     const { reportId } = params;
     const facilityReportLog = createNamedLogger(FACILITY_REPORT_LOG_NAME, {
@@ -49,7 +49,7 @@ reports.post(
 
     try {
       facilityReportLog.info('Running report', { parameters });
-      const excelData = await reportModule.dataGenerator({ sequelize: db, models }, parameters);
+      const excelData = await reportModule.dataGenerator({ models, reporting }, parameters);
       facilityReportLog.info('Report run successfully');
       res.send(excelData);
     } catch (e) {
