@@ -133,6 +133,9 @@ export class ReportDefinitionVersion extends Model {
 
     const definition = await this.getReportDefinition();
     const instance = reporting[definition.dbRole];
+    if (!instance) {
+      throw new Error(`No reporting instance found for ${definition.dbRole}`);
+    }
     const queryResults = await instance.query(reportQuery, {
       type: QueryTypes.SELECT,
       replacements,

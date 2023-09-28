@@ -19,10 +19,6 @@
     "reports": {
       "pool": {
         "max": 5
-        // "min": 5,
-        // "idle": 10000,
-        // "acquire": 60000,
-        // "evict": 1000
       },
       "credentials": {
         "raw": {

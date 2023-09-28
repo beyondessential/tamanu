@@ -55,13 +55,13 @@ const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
 async function connectToDatabase(dbOptions) {
   // connect to database
   const {
+    username,
+    password,
     testMode = false,
     host = null,
     port = null,
     verbose = false,
     pool,
-    username,
-    password,
   } = dbOptions;
   let { name } = dbOptions;
 
@@ -115,9 +115,8 @@ async function connectToDatabase(dbOptions) {
   return sequelize;
 }
 
-export async function initReportingInstances(dbOptions, reportOptions) {
-  const { pool, credentials } = reportOptions;
-  // instantiate reporting instances
+export async function initReportingInstances(dbOptions) {
+  const { pool, credentials } = dbOptions.reports;
   return Object.entries(credentials).reduce(
     async (accPromise, [roleType, { username, password }]) => {
       const acc = await accPromise;
@@ -142,12 +141,12 @@ export async function initDatabase(dbOptions) {
     saltRounds = null,
     primaryKeyDefault = Sequelize.UUIDV4,
     hackToSkipEncounterValidation = false, // TODO: remove once mobile implements all relationships
-    reports,
   } = dbOptions;
 
   const sequelize = await connectToDatabase(dbOptions);
 
-  const reporting = enableReportInstances && (await initReportingInstances(dbOptions, reports));
+  const reporting = enableReportInstances && (await initReportingInstances(dbOptions));
+
   // set configuration variables for individual models
   models.User.SALT_ROUNDS = saltRounds;
 
