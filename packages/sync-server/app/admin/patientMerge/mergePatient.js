@@ -22,7 +22,6 @@ export const simpleUpdateModels = [
   'PatientCarePlan',
   'PatientCommunication',
   'PatientDeathData',
-  'PatientBirthData',
   'Appointment',
   'DocumentMetadata',
   'CertificateNotification',
@@ -36,6 +35,7 @@ export const simpleUpdateModels = [
 export const specificUpdateModels = [
   'Patient',
   'PatientAdditionalData',
+  'PatientBirthData',
   'Note',
   'PatientFacility',
   'PatientFieldValue',
@@ -145,6 +145,29 @@ export async function mergePatientAdditionalData(models, keepPatientId, unwanted
     force: true,
   });
   return models.PatientAdditionalData.create(mergedPAD);
+}
+
+export async function mergePatientBirthData(models, keepPatientId, unwantedPatientId) {
+  const existingUnwantedPatientBirthData = await models.PatientBirthData.findOne({
+    where: { patientId: unwantedPatientId },
+    raw: true,
+  });
+  if (!existingUnwantedPatientBirthData) return null;
+  const existingKeepPatientBirthData = await models.PatientBirthData.findOne({
+    where: { patientId: keepPatientId },
+    raw: true,
+  });
+  const mergedPatientBirthData = {
+    ...getMergedFieldsForUpdate(existingKeepPatientBirthData, existingUnwantedPatientBirthData),
+    patientId: keepPatientId,
+  };
+
+  // hard delete the old patient birth data, we're going to create a new one
+  await models.PatientBirthData.destroy({
+    where: { patientId: { [Op.in]: [keepPatientId, unwantedPatientId] } },
+    force: true,
+  });
+  return models.PatientBirthData.create(mergedPatientBirthData);
 }
 
 export async function mergePatientFieldValues(models, keepPatientId, unwantedPatientId) {
@@ -287,9 +310,19 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
 
     // Now reconcile patient additional data.
     // This is a special case as we want to just keep one, merged PAD record
-    const updated = await mergePatientAdditionalData(models, keepPatientId, unwantedPatientId);
-    if (updated) {
+    const updatedPAD = await mergePatientAdditionalData(models, keepPatientId, unwantedPatientId);
+    if (updatedPAD) {
       updates.PatientAdditionalData = 1;
+    }
+
+    // Only keep 1 PatientBirthData
+    const updatedPatientBirthData = await mergePatientBirthData(
+      models,
+      keepPatientId,
+      unwantedPatientId,
+    );
+    if (updatedPatientBirthData) {
+      updates.PatientBirthData = 1;
     }
 
     const fieldValueUpdates = await mergePatientFieldValues(
