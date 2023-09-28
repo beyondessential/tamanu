@@ -15,6 +15,5 @@ export const VersionInfo = ({ version }) => (
       )}`}
     />
     <InfoCardItem label="Created by" value={version.createdBy?.displayName} />
-    <InfoCardItem label="DB Schema" value={capitalize(version.reportDefinition?.dbSchema)} />
   </InfoCard>
 );
