@@ -194,8 +194,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
       );
       async function transform() {
         const resultResponse = surveyResponse;
-        resultResponse.initialSurveyResponseAnswers = await transformAnswers(
-          models,
+        resultResponse.initialSurveyResponseAnswers = transformAnswers(
           surveyResponse.answers.map(a => {
             // eslint-disable-next-line no-param-reassign
             a.surveyResponse = surveyResponse;
@@ -207,8 +206,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
           },
         );
         if (followUpSurvey) {
-          resultResponse.followUpSurveyResponseAnswers = await transformAnswers(
-            models,
+          resultResponse.followUpSurveyResponseAnswers = transformAnswers(
             followUpSurvey.answers.map(a => {
               // eslint-disable-next-line no-param-reassign
               a.surveyResponse = followUpSurvey;

@@ -187,7 +187,7 @@ const getFijiCovidAnswers = async (models, parameters, { surveyId, dateFormat })
 
   const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
 
-  const transformedAnswers = await transformAnswers(models, answers, components, {
+  const transformedAnswers = transformAnswers(answers, components, {
     dateFormat,
   });
 

@@ -165,7 +165,7 @@ export const dataGenerator = async (
 ) => {
   const answers = await getAnswers(models, parameters, surveyIds);
   const components = await models.SurveyScreenComponent.getComponentsForSurveys(surveyIds);
-  const transformedAnswers = await transformAnswers(models, answers, components);
+  const transformedAnswers = transformAnswers(answers, components);
   const answersForPerPatient = transformedAnswers.filter(a =>
     Object.values(surveyDataElementIdsLatestPerPatient).includes(a.dataElementId),
   );

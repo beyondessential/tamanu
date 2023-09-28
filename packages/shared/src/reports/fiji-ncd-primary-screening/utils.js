@@ -195,7 +195,7 @@ export const removeDuplicatedAnswersPerDate = answers => {
 export const transformAndRemoveDuplicatedAnswersPerDate = async (models, rawAnswers, surveyIds) => {
   const components = await models.SurveyScreenComponent.getComponentsForSurveys(surveyIds);
   const answersIncludingResults = [...rawAnswers, ...getSurveyResultsFromAnswers(rawAnswers)];
-  const transformedAnswers = await transformAnswers(models, answersIncludingResults, components);
+  const transformedAnswers = transformAnswers(answersIncludingResults, components);
   return removeDuplicatedAnswersPerDate(transformedAnswers);
 };
 

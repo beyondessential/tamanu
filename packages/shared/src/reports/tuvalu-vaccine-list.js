@@ -55,7 +55,7 @@ const getConsentSurveyDataByPatient = async (models, patientIds) => {
   };
   const rawAnswers = await getAnswers(models, where);
   const surveyComponents = await models.SurveyScreenComponent.getComponentsForSurvey(SURVEY_ID);
-  const transformedAnswers = await transformAnswers(models, rawAnswers, surveyComponents);
+  const transformedAnswers = transformAnswers(rawAnswers, surveyComponents);
   // Technically this filtering is not needed since answers are already sorted by date,
   // but I think this is safer and easier to read.
   const filteredAnswers = takeMostRecentAnswers(transformedAnswers);

@@ -2,11 +2,7 @@ import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
 import { keyBy } from 'lodash';
 import { NON_ANSWERABLE_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { toDateTimeString } from '../utils/dateTime';
-import {
-  generateReportFromQueryData,
-  getAnswerBody,
-  getAutocompleteComponentMap,
-} from './utilities';
+import { generateReportFromQueryData, getAnswerBody } from './utilities';
 
 const COMMON_FIELDS = [
   'Patient ID',
@@ -128,30 +124,22 @@ const getReportColumnTemplate = components => {
   ];
 };
 
-export const transformSingleResponse = async (
-  models,
-  result,
-  autocompleteComponentMap,
-  dataElementIdToComponent,
-) => {
+const transformSingleResponse = (result, dataElementIdToComponent) => {
   const answers = result.answers || {};
   const newAnswers = {};
 
-  await Promise.all(
-    Object.entries(answers).map(async ([key, body]) => {
-      if (key === 'Result') {
-        newAnswers[key] = body;
-      } else {
-        const dataElementId = key;
-        const type =
-          dataElementIdToComponent[dataElementId]?.dataElement?.dataValues?.type || 'unknown';
-        const componentConfig = autocompleteComponentMap.get(dataElementId);
-        newAnswers[key] = await getAnswerBody(models, componentConfig, type, body, {
-          dateFormat: 'yyyy-MM-dd',
-        });
-      }
-    }),
-  );
+  Object.entries(answers).forEach(([key, body]) => {
+    if (key === 'Result') {
+      newAnswers[key] = body;
+    } else {
+      const dataElementId = key;
+      const type =
+        dataElementIdToComponent[dataElementId]?.dataElement?.dataValues?.type || 'unknown';
+      newAnswers[key] = getAnswerBody(type, body, {
+        dateFormat: 'yyyy-MM-dd',
+      });
+    }
+  });
 
   return {
     ...result,
@@ -159,19 +147,13 @@ export const transformSingleResponse = async (
   };
 };
 
-export const transformAllResponses = async (models, results, surveyComponents) => {
-  const autocompleteComponentMap = getAutocompleteComponentMap(surveyComponents);
+export const transformAllResponses = (results, surveyComponents) => {
   const dataElementIdToComponent = keyBy(surveyComponents, component => component.dataElementId);
 
   const transformedResults = [];
   // Transforming results synchronously in order to avoid using too much memory
   for (const result of results) {
-    const transformedResult = await transformSingleResponse(
-      models,
-      result,
-      autocompleteComponentMap,
-      dataElementIdToComponent,
-    );
+    const transformedResult = transformSingleResponse(result, dataElementIdToComponent);
     transformedResults.push(transformedResult);
   }
   return transformedResults;
@@ -191,7 +173,7 @@ export const dataGenerator = async ({ sequelize, models }, parameters = {}) => {
   const reportColumnTemplate = getReportColumnTemplate(components);
 
   const rawData = await getData(sequelize, parameters);
-  const results = await transformAllResponses(models, rawData, components);
+  const results = transformAllResponses(rawData, components);
 
   return generateReportFromQueryData(results, reportColumnTemplate);
 };
