@@ -36,7 +36,7 @@ const COLUMNS = [
         case PROGRAM_DATA_ELEMENT_TYPES.RESULT:
           return <SurveyResultBadge resultText={answer} />;
         case PROGRAM_DATA_ELEMENT_TYPES.CALCULATED:
-          return parseFloat(answer).toFixed(1);
+          return typeof answer === 'number' ? answer.toFixed(1) : answer;
         case PROGRAM_DATA_ELEMENT_TYPES.PHOTO:
           return <ViewPhotoLink imageId={answer} />;
         case PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX:
