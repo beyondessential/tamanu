@@ -115,10 +115,30 @@ async function connectToDatabase(dbOptions) {
   return sequelize;
 }
 
+export async function initReportingInstances(dbOptions, reportOptions) {
+  const { pool, credentials } = reportOptions;
+  // instantiate reporting instances
+  return Object.entries(credentials).reduce(
+    async (accPromise, [roleType, { username, password }]) => {
+      const acc = await accPromise;
+      if (!username || !password) {
+        log.warn(`No credentials provided for ${roleType} reporting, skipping...`);
+        return acc;
+      }
+      return {
+        ...acc,
+        [roleType]: await connectToDatabase({ ...dbOptions, username, password, pool }),
+      };
+    },
+    Promise.resolve({}),
+  );
+}
+
 export async function initDatabase(dbOptions) {
   // connect to database
   const {
     makeEveryModelParanoid = false,
+    enableReportInstances = false,
     saltRounds = null,
     primaryKeyDefault = Sequelize.UUIDV4,
     hackToSkipEncounterValidation = false, // TODO: remove once mobile implements all relationships
@@ -127,23 +147,7 @@ export async function initDatabase(dbOptions) {
 
   const sequelize = await connectToDatabase(dbOptions);
 
-  const { pool, credentials } = reports;
-  // instantiate reporting instances
-  const reporting = await Object.entries(credentials).reduce(
-    async (accPromise, [roleType, roleCredentials]) => {
-      const acc = await accPromise;
-      if (!roleCredentials.username || !roleCredentials.password) {
-        log.warn(`No credentials provided for ${roleType} reporting, skipping...`);
-        return acc;
-      }
-      return {
-        ...acc,
-        [roleType]: await connectToDatabase({ ...dbOptions, ...roleCredentials, pool }),
-      };
-    },
-    Promise.resolve({}),
-  );
-
+  const reporting = enableReportInstances && (await initReportingInstances(dbOptions, reports));
   // set configuration variables for individual models
   models.User.SALT_ROUNDS = saltRounds;
 

@@ -15,6 +15,7 @@ export async function initDatabase() {
     ...config.db,
     testMode,
     primaryKeyDefault: testMode ? fakeUUID : undefined,
+    enableReportInstances: true,
   });
   return existingConnection;
 }
