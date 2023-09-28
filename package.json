@@ -43,6 +43,7 @@
   "engines": {
     "node": "^16.16.0"
   },
+  "packageManager": "yarn@1.22.19",
   "private": true,
   "workspaces": {
     "packages": [
