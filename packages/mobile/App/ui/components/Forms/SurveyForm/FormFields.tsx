@@ -1,4 +1,11 @@
-import React, { ReactElement, useCallback, useState, useRef, MutableRefObject } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useState,
+  useRef,
+  MutableRefObject,
+  useEffect,
+} from 'react';
 import { useFormikContext } from 'formik';
 import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { IPatient, ISurveyScreenComponent } from '../../../../types';
@@ -14,6 +21,7 @@ import { FullView, RowView, StyledText, StyledView } from '../../../styled/commo
 import { theme } from '../../../styled/theme';
 import { FORM_STATUSES } from '/helpers/constants';
 import { GenericFormValues } from '~/models/Forms';
+import { BackHandler } from 'react-native';
 
 interface UseScrollToFirstError {
   setQuestionPosition: (yPosition: string) => void;
@@ -55,10 +63,21 @@ interface FormFieldsProps {
   components: ISurveyScreenComponent[];
   patient: IPatient;
   note: string;
+  onCancel?: () => Promise<void>;
+  onGoBack?: () => void;
+  currentScreenIndex: number;
+  setCurrentScreenIndex: (index: number) => void;
 }
 
-export const FormFields = ({ components, note, patient }: FormFieldsProps): ReactElement => {
-  const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
+export const FormFields = ({
+  components,
+  currentScreenIndex,
+  setCurrentScreenIndex,
+  note,
+  patient,
+  onCancel,
+  onGoBack,
+}: FormFieldsProps): ReactElement => {
   const scrollViewRef = useRef(null);
   const { errors, validateForm, setStatus, submitForm, values, resetForm } = useFormikContext<
     GenericFormValues
@@ -109,14 +128,25 @@ export const FormFields = ({ components, note, patient }: FormFieldsProps): Reac
     });
   };
 
-  const onNavigatePrevious = (): void => {
-    setCurrentScreenIndex(Math.max(currentScreenIndex - 1, 0));
-  };
-
   const shouldShow = useCallback(
     (component: ISurveyScreenComponent) => checkVisibilityCriteria(component, components, values),
     [values],
   );
+
+  // Handle back button press or swipe right gesture
+  useEffect(() => {
+    const backAction = () => {
+      if (!onGoBack) {
+        return false;
+      }
+      onGoBack();
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+    return () => backHandler.remove();
+  }, [currentScreenIndex]); // Re-subscribe if screen index changes, otherwise onGoBack() won't work.
 
   // Note: we set the key on FullView so that React registers it as a whole
   // new component, rather than a component whose contents happen to have
@@ -166,16 +196,18 @@ export const FormFields = ({ components, note, patient }: FormFieldsProps): Reac
           </StyledText>
         )}
         <RowView width="68%" marginTop={25}>
-          {maxIndex > 1 && (
+          {onCancel && (
             <Button
+              outline
+              borderColor={theme.colors.MAIN_SUPER_DARK}
+              borderWidth={0.1}
               margin={5}
-              disabled={currentScreenIndex === 0}
-              buttonText="Previous Page"
-              onPress={onNavigatePrevious}
+              buttonText="Cancel"
+              onPress={onCancel}
             />
           )}
           {currentScreenIndex !== maxIndex ? (
-            <Button margin={5} buttonText="Next Page" onPress={onNavigateNext} />
+            <Button margin={5} buttonText="Next" onPress={onNavigateNext} />
           ) : (
             <SubmitButton margin={5} onSubmit={onSubmit} />
           )}
