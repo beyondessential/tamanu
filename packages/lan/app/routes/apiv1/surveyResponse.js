@@ -1,17 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE } from '@tamanu/constants';
 
 export const surveyResponse = express.Router();
-
-// also update /packages/mobile/App/ui/helpers/constants.js when this changes
-const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
-  User: 'displayName',
-  Department: 'name',
-  Facility: 'name',
-  Location: 'name',
-  LocationGroup: 'name',
-  ReferenceData: 'name',
-};
 
 const DEFAULT_DISPLAY_COLUMN = 'id';
 
