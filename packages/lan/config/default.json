@@ -53,14 +53,17 @@
     "password": "",
     "verbose": false,
     "migrateOnStartup": false,
-    "reportCredentials": {
-      "raw": {
-        "username": "",
-        "password": ""
-      },
-      "reporting": {
-        "username": "",
-        "password": ""
+    "reports": {
+      "pool": {},
+      "credentials": {
+        "raw": {
+          "username": "",
+          "password": ""
+        },
+        "reporting": {
+          "username": "",
+          "password": ""
+        }
       }
     }
   },

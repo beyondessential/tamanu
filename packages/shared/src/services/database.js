@@ -52,9 +52,17 @@ const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
   }
 };
 
-async function connectToDatabase(dbOptions, { username, password }) {
+async function connectToDatabase(dbOptions) {
   // connect to database
-  const { testMode = false, host = null, port = null, verbose = false, pool } = dbOptions;
+  const {
+    testMode = false,
+    host = null,
+    port = null,
+    verbose = false,
+    pool,
+    username,
+    password,
+  } = dbOptions;
   let { name } = dbOptions;
 
   // configure one test db per jest worker
@@ -114,39 +122,24 @@ export async function initDatabase(dbOptions) {
     saltRounds = null,
     primaryKeyDefault = Sequelize.UUIDV4,
     hackToSkipEncounterValidation = false, // TODO: remove once mobile implements all relationships
-    reportCredentials,
-    verbose,
-    migrateOnStartup,
-    testMode,
-    port,
-    name,
-    username,
-    password,
+    reports,
   } = dbOptions;
 
-  const options = {
-    makeEveryModelParanoid,
-    saltRounds,
-    primaryKeyDefault,
-    hackToSkipEncounterValidation,
-    verbose,
-    migrateOnStartup,
-    testMode,
-    port,
-    name,
-  };
+  const sequelize = await connectToDatabase(dbOptions);
 
-  const sequelize = await connectToDatabase(options, { username, password });
-
+  const { pool, credentials } = reports;
   // instantiate reporting instances
-  const reporting = await Object.entries(reportCredentials).reduce(
-    async (accPromise, [roleType, credentials]) => {
+  const reporting = await Object.entries(credentials).reduce(
+    async (accPromise, [roleType, roleCredentials]) => {
       const acc = await accPromise;
-      if (!credentials.username || !credentials.password) {
+      if (!roleCredentials.username || !roleCredentials.password) {
         log.warn(`No credentials provided for ${roleType} reporting, skipping...`);
         return acc;
       }
-      return { ...acc, [roleType]: await connectToDatabase(options, credentials) };
+      return {
+        ...acc,
+        [roleType]: await connectToDatabase({ ...dbOptions, ...roleCredentials, pool }),
+      };
     },
     Promise.resolve({}),
   );
