@@ -9,7 +9,7 @@ export async function up(query) {
 
   await query.sequelize.query(`
     UPDATE "report_definitions"
-    SET "db_role" = 'raw'
+    SET "db_schema" = 'raw'
   `);
 }
 
