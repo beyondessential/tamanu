@@ -1369,7 +1369,7 @@ describe('Encounter', () => {
         ]);
       });
 
-      it.only('should get a list of imaging requests ordered by joined column', async () => {
+      it('should get a list of imaging requests ordered by joined column', async () => {
         // arrange
 
         const practictionerB = await models.User.create({ ...fakeUser(), displayName: 'B' });
