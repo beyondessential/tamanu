@@ -1,8 +1,8 @@
-import React, { ReactElement, useMemo, useEffect, useCallback, useState } from 'react';
+import React, { ReactElement, useMemo, useEffect, useCallback, useState, Dispatch, SetStateAction } from 'react';
 import { useSelector } from 'react-redux';
 import { FormikHandlers } from 'formik';
 import { getFormInitialValues, getFormSchema } from './helpers';
-import { ISurveyComponent, IPatientAdditionalData } from '~/types';
+import { ISurveyScreenComponent, IPatientAdditionalData } from '~/types';
 import { Form } from '../Form';
 import { FormFields } from './FormFields';
 import { checkVisibilityCriteria } from '/helpers/fields';
@@ -11,10 +11,16 @@ import { authUserSelector } from '/helpers/selectors';
 
 export type SurveyFormProps = {
   onSubmit: (values: any) => Promise<void>;
-  components: ISurveyComponent[];
+  openExitModal: () => Promise<void>;
+  components: ISurveyScreenComponent[];
+  onCancel?: () => Promise<void>;
+  onGoBack?: () => void;
   patient: any;
-  validate: any;
-  patientAdditionalData: IPatientAdditionalData[];
+  note: string;
+  validate?: any;
+  patientAdditionalData: IPatientAdditionalData;
+  setCurrentScreenIndex: Dispatch<SetStateAction<number>>;
+  currentScreenIndex: number;
 };
 
 export const SurveyForm = ({
@@ -23,6 +29,10 @@ export const SurveyForm = ({
   patient,
   patientAdditionalData,
   validate,
+  onCancel,
+  setCurrentScreenIndex,
+  currentScreenIndex,
+  onGoBack,
 }: SurveyFormProps): ReactElement => {
   const currentUser = useSelector(authUserSelector);
   const initialValues = useMemo(
@@ -80,11 +90,18 @@ export const SurveyForm = ({
             ...calculatedValues,
           });
         }, [values]);
-        return <FormFields
-          components={components}
-          patient={patient}
-          isSubmitting={isSubmitting}
-        />;
+        return (
+          <FormFields
+            components={components}
+            note={note}
+            patient={patient}
+            isSubmitting={isSubmitting}
+            onCancel={onCancel}
+            setCurrentScreenIndex={setCurrentScreenIndex}
+            currentScreenIndex={currentScreenIndex}
+            onGoBack={onGoBack}
+          />
+        );
       }}
     </Form>
   );

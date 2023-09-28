@@ -41,6 +41,12 @@ $ pyenv global 2.7.18
 Put eval "$(pyenv init --path)" in ~/.zprofile (or ~/.bash_profile or ~/.zshrc)
 ```
 
+Enable corepack (once):
+
+```bash
+$ corepack enable
+```
+
 Install dependencies with yarn:
 
 ```bash
@@ -48,16 +54,21 @@ $ cd tamanu
 $ yarn
 ```
 
-Install docker, then use it to build and run the system:
+Build all packages:
 
 ```bash
-$ yarn build && docker compose up
+$ yarn build
 ```
+
+Run the Tamanu components (in different terminals):
+
 ```bash
+$ yarn sync-start-dev
+$ yarn lan-start-dev
 $ yarn desktop-start-dev
 ```
 
-You can also run `yarn sync-start-dev`, `yarn lan-start-dev`, and `yarn meta-start-dev` to run individual processes without docker. You'll need to install postgres and configure databases for lan and sync.
+You'll need to install postgres and configure databases for lan and sync.
 
 ## Configure
 
@@ -241,7 +252,7 @@ the API url and login credentials as well (see config/default.json for how this 
 
 #### Setting up a new Elastic Beanstalk application and environment:
 
-- add a certificate for a subdomain (e.g. [central-dev.tamanu.io](https://central-dev.tamanu.io)) using AWS's ACM
+- add a certificate for a subdomain (e.g. [central-dev.tamanu.io](https://central.main.internal.tamanu.io)) using AWS's ACM
 - configure the application and environment in AWS
   1. select "web server" when prompted
   2. fill out the basic details of your environment
