@@ -148,7 +148,9 @@ reportsRouter.post(
       sequelize,
     } = store;
 
-    const { name, dbSchema, file, dryRun, deleteFileAfterImport = true } = await getUploadedData(req);
+    const { name, dbSchema, file, dryRun, deleteFileAfterImport = true } = await getUploadedData(
+      req,
+    );
     const versionData = await readJSON(file);
 
     if (versionData.versionNumber)
