@@ -75,6 +75,17 @@ export function mapOptionsToValues(options) {
   return options.map(x => ({ label: x, value: x }));
 }
 
+/**
+ * IMPORTANT: We have 4 other versions of this method:
+ *
+ * - mobile/App/ui/helpers/fields.ts
+ * - desktop/app/utils/survey.js
+ * - shared/src/utils/fields.js
+ * - sync-server/app/subCommands/calculateSurveyResults.js
+ *
+ * So if there is an update to this method, please make the same update
+ * in the other versions
+ */
 export function checkVisibility(component, values, allComponents) {
   const { visibilityCriteria } = component;
   // nothing set - show by default
@@ -112,7 +123,7 @@ export function checkVisibility(component, values, allComponents) {
 
       if (Array.isArray(answersEnablingFollowUp)) {
         return isMultiSelect
-          ? (value?.split(',') || []).some(selected => answersEnablingFollowUp.includes(selected))
+          ? (value?.split(', ') || []).some(selected => answersEnablingFollowUp.includes(selected))
           : answersEnablingFollowUp.includes(value);
       }
 
