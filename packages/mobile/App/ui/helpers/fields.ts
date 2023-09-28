@@ -52,8 +52,9 @@ export const getBodyValue = async (c: ISurveyScreenComponent, value: unknown): P
       return null;
     case FieldTypes.DATE:
     case FieldTypes.SUBMISSION_DATE:
-      if (c.dataElement.type === FieldTypes.PATIENT_DATA && typeof value === 'string') {
-        return `${value}`; // TODO: PatientData relies on an exact being passed from the patient if there's nothing selected in the datepicker
+      if (typeof value === 'string') {
+        // TODO: PatientData relies on a string being passed from the patient if there's nothing selected in the datepicker
+        return `${value}`;
       }
       return value ? formatISO9075(value) : null;
     case FieldTypes.BINARY:
