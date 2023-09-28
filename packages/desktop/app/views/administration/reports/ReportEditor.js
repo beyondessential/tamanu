@@ -140,8 +140,8 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
         {canWriteRawReportUser && (
           <Grid item xs={4}>
             <StyledField
-              label="DB role"
-              name="dbRole"
+              label="DB schema"
+              name="dbSchema"
               component={SelectField}
               options={DB_SCHEMA_OPTIONS}
               disabled={isEdit}
