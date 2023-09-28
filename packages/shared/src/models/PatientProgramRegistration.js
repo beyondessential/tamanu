@@ -1,8 +1,21 @@
-import { Sequelize } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS, REGISTRATION_STATUSES } from '@tamanu/constants';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { Model } from './Model';
+
+const GET_MOST_RECENT_REGISTRATIONS_QUERY = `
+  (
+    SELECT id
+    FROM (
+      SELECT 
+        id,
+        ROW_NUMBER() OVER (PARTITION BY patient_id, program_registry_id ORDER BY date DESC, id DESC) AS row_num
+      FROM patient_program_registrations
+    ) n
+    WHERE n.row_num = 1
+  )
+`;
 
 export class PatientProgramRegistration extends Model {
   static init({ primaryKey, ...options }) {
@@ -63,6 +76,40 @@ export class PatientProgramRegistration extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'villageId',
       as: 'village',
+    });
+  }
+
+  static async create(values) {
+    const { programRegistryId, patientId, ...restOfUpdates } = values;
+    const existingRegistration = await this.sequelize.models.PatientProgramRegistration.findOne({
+      attributes: {
+        // We don't want to override the defaults for the new record.
+        exclude: ['id', 'updatedAt', 'updatedAtSyncTick'],
+      },
+      where: {
+        programRegistryId,
+        patientId,
+      },
+      order: [['date', 'DESC']],
+      limit: 1,
+      raw: true,
+    });
+
+    return super.create({
+      patientId,
+      programRegistryId,
+      ...(existingRegistration ?? {}),
+      ...restOfUpdates,
+    });
+  }
+
+  static async getMostRecentRegistrationsForPatient(patientId) {
+    return this.sequelize.models.PatientProgramRegistration.findAll({
+      where: {
+        id: { [Op.in]: Sequelize.literal(GET_MOST_RECENT_REGISTRATIONS_QUERY) },
+        patientId,
+      },
+      // Order: TODO
     });
   }
 

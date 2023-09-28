@@ -19,7 +19,7 @@ import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
 import { PatientListingView } from 'desktop/app/views';
 import { usePatientAdditionalDataQuery } from 'desktop/app/api/queries';
 import { ErrorMessage } from 'desktop/app/components/ErrorMessage';
-import { getAnswersFromData, getActionsFromData } from '../../utils';
+import { getAnswersFromData } from '../../utils';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useEncounter } from '../../contexts/Encounter';
 import { PATIENT_TABS } from '../../constants/patientPaths';
@@ -98,7 +98,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
       patientId: patient.id,
       endTime: getCurrentDateTimeString(),
       answers: getAnswersFromData(data, survey),
-      actions: getActionsFromData(data, survey),
     });
     if (params?.encounterId && encounter && !encounter.endDate) {
       navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.PROGRAMS });
