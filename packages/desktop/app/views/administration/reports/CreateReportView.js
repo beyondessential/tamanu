@@ -47,7 +47,7 @@ export const CreateReportView = () => {
         initialValues={{
           status: REPORT_STATUSES.PUBLISHED,
           dataSources: REPORT_DATA_SOURCES.ALL_FACILITIES,
-          defaultDateRange: REPORT_DEFAULT_DATE_RANGES.PAST_THIRTY_DAYS,
+          defaultDateRange: REPORT_DEFAULT_DATE_RANGES.THIRTY_DAYS,
           parameters: [],
         }}
         onSubmit={onSubmit}
