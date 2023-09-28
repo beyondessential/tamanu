@@ -7,6 +7,7 @@ import { log } from 'shared/services/logging';
 import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
 
 import { ApplicationContext } from '../ApplicationContext';
+import { prepareQuery } from '../utils/prepareQuery';
 
 async function showStatus() {
   const app = await new ApplicationContext().init();
@@ -39,7 +40,10 @@ async function showStatus() {
 
     log.info(
       // eslint-disable-next-line prettier/prettier
-      `${Resource.name}: ${count}/${upstreamCount} records/upstream, last updated ${latest}/${upstreamLatest || 'never'}`,
+      `${
+        Resource.name
+      }: ${count}/${upstreamCount} records/upstream, last updated ${latest}/${upstreamLatest ||
+        'never'}`,
     );
   }
 
@@ -66,28 +70,24 @@ async function doRefresh(resource, { existing, missing, since }) {
   );
   if (!Resource) throw new Error(`No such FHIR Resource: ${resource}`);
 
-  const tableNames = Resource.UpstreamModels.map(model => model.tableName);
+  const sql = (
+    await Promise.all(
+      Resource.UpstreamModels.map(async upstreamModel => {
+        const queryToFilterUpstream = await Resource.queryToFilterUpstream(upstreamModel.tableName);
+        const sqlToFilterUpstream = await prepareQuery(upstreamModel, {
+          attributes: ['id', 'deleted_at', 'updated_at'],
+          ...queryToFilterUpstream,
+        });
+
+        return sqlToFilterUpstream.replace(/;$/, '');
+      }),
+    )
+  ).join(' UNION ');
+
   const recordsToDo = (
     await Resource.sequelize.query(
       `
-      WITH upstream AS (
-        SELECT
-          coalesce(${tableNames.map(tableName => `${tableName}.id`).join(', ')}) as id,
-          coalesce(${tableNames
-            .map(tableName => `${tableName}.deleted_at`)
-            .join(', ')}) as deleted_at,
-          coalesce(${tableNames
-            .map(tableName => `${tableName}.updated_at`)
-            .join(', ')}) as updated_at
-        FROM ${tableNames
-          .map((tableName, i) => {
-            return i === 0
-              ? tableName
-              : `FULL OUTER JOIN ${tableName} ON ${tableNames[0]}.id = ${tableName}.id`;
-          })
-          .join(' ')}
-      )
-
+      WITH upstream AS (${sql})
       SELECT upstream.id AS id
       FROM upstream
       LEFT JOIN fhir.${Resource.tableName} downstream ON downstream.upstream_id = upstream.id

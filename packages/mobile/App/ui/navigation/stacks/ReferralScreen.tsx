@@ -5,15 +5,15 @@ import { StackHeader } from '/components/StackHeader';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
 import { BaseAppProps } from '/interfaces/BaseAppProps';
 import { joinNames } from '/helpers/user';
-import { ReferralFormStack } from './ReferralFormStack';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
 import { PatientStateProps } from '~/ui/store/ducks/patient';
 import { ReferralHistoryScreen } from '~/ui/navigation/screens/referrals/ReferralHistoryScreen';
+import { ReferralFormListScreen } from '../screens/referrals/ReferralFormListScreen';
 
 const Tabs = createTopTabNavigator();
 
-export const ReferralTabs = ({ navigation }: BaseAppProps): ReactElement => {
+export const ReferralScreen = ({ navigation }: BaseAppProps): ReactElement => {
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
@@ -33,7 +33,7 @@ export const ReferralTabs = ({ navigation }: BaseAppProps): ReactElement => {
             title: 'Refer patient',
           }}
           name={Routes.HomeStack.ReferralStack.ReferralList.Index}
-          component={ReferralFormStack}
+          component={ReferralFormListScreen}
         />
         <Tabs.Screen
           options={{

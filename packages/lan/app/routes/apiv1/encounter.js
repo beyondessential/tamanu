@@ -183,13 +183,13 @@ encounterRelations.get(
       where: {
         encounterId,
         status: status || {
-          [Op.and]: [
-            { [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.DELETED },
-            { [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR },
+          [Op.notIn]: [
+            IMAGING_REQUEST_STATUS_TYPES.DELETED,
+            IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
           ],
         },
       },
-      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
+      order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined,
       include: associations,
     };
 

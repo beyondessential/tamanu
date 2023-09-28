@@ -1,6 +1,6 @@
 import path from 'path';
 import { User } from 'shared/models/User';
-import { REPORT_VERSION_EXPORT_FORMATS, REPORT_DB_ROLES } from '@tamanu/constants/reports';
+import { REPORT_VERSION_EXPORT_FORMATS, REPORT_DB_SCHEMAS } from '@tamanu/constants/reports';
 import { createTestContext, withDate } from '../../utilities';
 import { readJSON, sanitizeFilename, verifyQuery } from '../../../app/admin/reports/utils';
 
@@ -11,17 +11,17 @@ describe('reportRoutes', () => {
   let adminApp;
   let testReport;
   let user;
-  let dbRole;
+  let dbSchema;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.store.models;
     adminApp = await baseApp.asRole('admin');
-    dbRole = REPORT_DB_ROLES.RAW;
+    dbSchema = REPORT_DB_SCHEMAS.RAW;
     testReport = await models.ReportDefinition.create({
       name: 'Test Report',
-      dbRole,
+      dbSchema,
     });
     user = await User.create({
       displayName: 'Test User',
@@ -128,7 +128,7 @@ describe('reportRoutes', () => {
         1,
         'select * from patients limit 1',
       );
-      const res = await adminApp.post('/v1/admin/reports').send({ name, dbRole, ...definition });
+      const res = await adminApp.post('/v1/admin/reports').send({ name, dbSchema, ...definition });
       expect(res).toHaveSucceeded();
       expect(res.body.query).toBe('select * from patients limit 1');
       expect(res.body.versionNumber).toBe(1);
@@ -153,7 +153,7 @@ describe('reportRoutes', () => {
       );
       const res = await adminApp
         .post('/v1/admin/reports')
-        .send({ name: 'Test Report 3', dbRole, ...definition });
+        .send({ name: 'Test Report 3', dbSchema, ...definition });
       expect(res).toHaveSucceeded();
       expect(Object.keys(res.body)).toEqual(
         expect.arrayContaining([
@@ -256,7 +256,7 @@ describe('reportRoutes', () => {
         name: 'Report Import Test Dry Run',
         dryRun: true,
         deleteFileAfterImport: false,
-        dbRole,
+        dbSchema,
       });
       expect(res).toHaveSucceeded();
       expect(res.body).toEqual({
@@ -277,7 +277,7 @@ describe('reportRoutes', () => {
         file: path.join(__dirname, '/data/without-version-number.json'),
         name: 'Report Import Test',
         deleteFileAfterImport: false,
-        dbRole,
+        dbSchema,
       });
       expect(res).toHaveSucceeded();
       const report = await models.ReportDefinition.findOne({
@@ -303,7 +303,7 @@ describe('reportRoutes', () => {
         file: path.join(__dirname, '/data/without-version-number.json'),
         name: testReport.name,
         deleteFileAfterImport: false,
-        dbRole,
+        dbSchema,
       });
       expect(res).toHaveSucceeded();
       const report = await models.ReportDefinition.findOne({

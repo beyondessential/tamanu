@@ -40,6 +40,17 @@ function compareData(dataType, expected, given) {
   return false;
 }
 
+/**
+ * IMPORTANT: We have 4 other versions of this method:
+ *
+ * - mobile/App/ui/helpers/fields.ts
+ * - desktop/app/utils/survey.js
+ * - shared/src/utils/fields.js
+ * - sync-server/app/subCommands/calculateSurveyResults.js
+ *
+ * So if there is an update to this method, please make the same update
+ * in the other versions
+ */
 function checkVisibilityCriteria(component, allComponents, values) {
   const { visibilityCriteria } = component;
   // nothing set - show by default
@@ -71,15 +82,18 @@ function checkVisibilityCriteria(component, allComponents, values) {
       }
 
       const matchingComponent = allComponents.find(x => x.dataElement?.code === questionCode);
-      if (matchingComponent?.dataElement?.type === 'MultiSelect') {
-        const givenValues = values[questionCode].split(', ');
-        return givenValues.includes(answersEnablingFollowUp);
-      }
+      const isMultiSelect =
+        matchingComponent?.dataElement?.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
 
       if (Array.isArray(answersEnablingFollowUp)) {
-        return answersEnablingFollowUp.includes(value);
+        return isMultiSelect
+          ? (value?.split(', ') || []).some(selected => answersEnablingFollowUp.includes(selected))
+          : answersEnablingFollowUp.includes(value);
       }
-      return answersEnablingFollowUp === value;
+
+      return isMultiSelect
+        ? value?.includes(answersEnablingFollowUp)
+        : answersEnablingFollowUp === value;
     };
 
     return conjunction === 'and'

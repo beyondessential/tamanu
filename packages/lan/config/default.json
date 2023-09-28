@@ -22,7 +22,7 @@
   },
   "sync": {
     "schedule": "*/1 * * * *",
-    "host": "https://central-dev.tamanu.io",
+    "host": "https://central.main.internal.tamanu.io",
     "email": "",
     "password": "",
     "timeout": 10000,
@@ -58,7 +58,7 @@
         "username": "",
         "password": ""
       },
-      "dataset": {
+      "reporting": {
         "username": "",
         "password": ""
       }
