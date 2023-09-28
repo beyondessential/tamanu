@@ -113,7 +113,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
   };
   const onParamsDelete = paramId => setParams(params.filter(p => p.id !== paramId));
 
-  const canWriteRawReportUser = ability?.can('write', 'ReportDbRole');
+  const canWriteRawReportUser = ability?.can('write', 'ReportDbSchema');
   const showDataSourceField = values.dbSchema === REPORT_DB_SCHEMAS.RAW;
 
   return (
