@@ -8,7 +8,7 @@ import {
   REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
   REPORT_STATUSES_VALUES,
-  REPORT_DB_ROLES,
+  REPORT_DB_SCHEMAS,
 } from '@tamanu/constants/reports';
 import {
   Button,
@@ -49,7 +49,7 @@ const DATE_RANGE_OPTIONS = REPORT_DEFAULT_DATE_RANGES_VALUES.map(value => ({
   value,
 }));
 
-const DB_ROLE_OPTIONS = Object.values(REPORT_DB_ROLES).map(value => ({
+const DB_SCHEMA_OPTIONS = Object.values(REPORT_DB_SCHEMAS).map(value => ({
   label: capitalize(value),
   value,
 }));
@@ -114,7 +114,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
   const onParamsDelete = paramId => setParams(params.filter(p => p.id !== paramId));
 
   const canWriteRawReportUser = ability?.can('write', 'ReportDbRole');
-  const showDataSourceField = values.dbRole === REPORT_DB_ROLES.RAW;
+  const showDataSourceField = values.dbSchema === REPORT_DB_SCHEMAS.RAW;
 
   return (
     <>
@@ -143,7 +143,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
               label="DB role"
               name="dbRole"
               component={SelectField}
-              options={DB_ROLE_OPTIONS}
+              options={DB_SCHEMA_OPTIONS}
               disabled={isEdit}
               isClearable={false}
             />

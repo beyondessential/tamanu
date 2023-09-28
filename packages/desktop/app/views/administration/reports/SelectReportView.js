@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { REPORT_DB_ROLES } from '@tamanu/constants/reports';
+import { REPORT_DB_SCHEMAS } from '@tamanu/constants/reports';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { push } from 'connected-react-router';
@@ -43,10 +43,10 @@ export const SelectReportView = () => {
     },
   );
 
-  const canEditRawReports = ability?.can('write', 'ReportDbRole');
+  const canEditRawReports = ability?.can('write', 'ReportDbSchema');
   const filteredReportList = canEditRawReports
     ? reportList
-    : reportList.filter(reportData => reportData.dbRole !== REPORT_DB_ROLES.RAW);
+    : reportList.filter(reportData => reportData.dbSchema !== REPORT_DB_SCHEMAS.RAW);
 
   return (
     <FlexContainer>
