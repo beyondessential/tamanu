@@ -6,7 +6,6 @@ import {
   REPORT_STATUSES_VALUES,
   REPORT_DEFAULT_DATE_RANGES_VALUES,
 } from '@tamanu/constants';
-import { isEmpty } from 'lodash';
 import { Model } from './Model';
 import { getReportQueryReplacements } from '../utils/reports/getReportQueryReplacements';
 
