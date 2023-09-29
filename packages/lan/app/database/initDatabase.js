@@ -1,7 +1,10 @@
 import config from 'config';
 
 import { fakeUUID } from '@tamanu/shared/utils/generateId';
-import { initDatabase as sharedInitDatabase } from '@tamanu/shared/services/database';
+import {
+  initDatabase as sharedInitDatabase,
+  initReportingInstances,
+} from '@tamanu/shared/services/database';
 
 let existingConnection = null;
 
@@ -15,7 +18,6 @@ export async function initDatabase() {
     ...config.db,
     testMode,
     primaryKeyDefault: testMode ? fakeUUID : undefined,
-    enableReportInstances: true,
   });
   return existingConnection;
 }
@@ -26,4 +28,12 @@ export async function closeDatabase() {
     existingConnection = null;
     await oldConnection.sequelize.close();
   }
+}
+
+export async function initReporting() {
+  const testMode = process.env.NODE_ENV === 'test';
+  return initReportingInstances({
+    ...config.db,
+    testMode,
+  });
 }

@@ -142,15 +142,12 @@ export async function initDatabase(dbOptions) {
   // connect to database
   const {
     makeEveryModelParanoid = false,
-    enableReportInstances = false,
     saltRounds = null,
     primaryKeyDefault = Sequelize.UUIDV4,
     hackToSkipEncounterValidation = false, // TODO: remove once mobile implements all relationships
   } = dbOptions;
 
   const sequelize = await connectToDatabase(dbOptions);
-
-  const reporting = enableReportInstances && (await initReportingInstances(dbOptions));
 
   // set configuration variables for individual models
   models.User.SALT_ROUNDS = saltRounds;
@@ -207,5 +204,5 @@ export async function initDatabase(dbOptions) {
   // add isInsideTransaction helper to avoid exposing the asynclocalstorage
   sequelize.isInsideTransaction = () => !!asyncLocalStorage.getStore();
 
-  return { sequelize, reporting, models };
+  return { sequelize, models };
 }

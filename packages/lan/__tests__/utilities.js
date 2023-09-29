@@ -13,7 +13,7 @@ import {
 import { chance, fake, showError } from 'shared/test-helpers';
 
 import { createApp } from 'lan/app/createApp';
-import { initDatabase, closeDatabase } from 'lan/app/database';
+import { initDatabase, closeDatabase, initReporting } from 'lan/app/database';
 import { getToken } from 'lan/app/middleware/auth';
 
 import { toMatchTabularReport } from './toMatchTabularReport';
@@ -99,9 +99,27 @@ export function extendExpect(expect) {
   });
 }
 
+export async function prepareReportingSchema({ sequelize }) {
+  const { raw, reporting } = config.db.reporting.credentials;
+  await sequelize.query(`
+    CREATE SCHEMA IF NOT EXISTS reporting;
+    CREATE ROLE ${reporting.username} with password ${reporting.password};
+    ALTER ROLE ${reporting.username} SET search_path TO reporting;
+    GRANT USAGE ON SCHEMA reporting TO ${reporting.username};
+    GRANT SELECT ON ALL TABLES IN SCHEMA reporting TO ${reporting.username};
+
+    CREATE ROLE ${raw.username} with password ${raw.password};
+    GRANT USAGE ON SCHEMA public TO ${raw.username};
+    GRANT SELECT ON ALL TABLES IN SCHEMA public TO ${raw.username};`);
+}
+
 export async function createTestContext() {
   const dbResult = await initDatabase();
-  const { models, sequelize } = dbResult;
+  await prepareReportingSchema(dbResult);
+  const reporting = await initReporting();
+
+  const context = { ...dbResult, reporting };
+  const { models, sequelize } = context;
 
   // do NOT time out during create context
   jest.setTimeout(1000 * 60 * 60 * 24);
@@ -137,7 +155,7 @@ export async function createTestContext() {
   // ensure there's a corresponding local system fact for it too
   await models.LocalSystemFact.set('facilityId', facility.id);
 
-  const expressApp = createApp(dbResult);
+  const expressApp = createApp(context);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest(appServer);
 
@@ -181,8 +199,6 @@ export async function createTestContext() {
 
   const centralServer = new CentralServerConnection({ deviceId: 'test' });
 
-  const context = { baseApp, sequelize, models, centralServer };
-
   context.syncManager = new FacilitySyncManager(context);
 
   const close = async () => {
@@ -190,5 +206,5 @@ export async function createTestContext() {
     await closeDatabase();
   };
 
-  return { ...context, close };
+  return { ...context, close, baseApp, centralServer };
 }
