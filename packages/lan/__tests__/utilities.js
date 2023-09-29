@@ -22,7 +22,6 @@ import { deleteAllTestIds } from './setupUtilities';
 
 import { FacilitySyncManager } from '../app/sync/FacilitySyncManager';
 import { CentralServerConnection } from '../app/sync/CentralServerConnection';
-import { QueryTypes } from 'sequelize';
 
 jest.mock('../app/sync/CentralServerConnection');
 jest.mock('../app/utils/uploadAttachment');
@@ -104,33 +103,28 @@ export async function prepareMockReportingSchema({ sequelize }) {
   const { raw, reporting } = config.db.reports.credentials;
   try {
     await sequelize.query(`
-    CREATE SCHEMA IF NOT EXISTS reporting;
-    -- create roles if they don't exist this can happen on local dev when running tests
-    DO $$
-    BEGIN
-    CREATE ROLE ${reporting.username} WITH PASSWORD '${reporting.password}';
-    CREATE ROLE ${raw.username} WITH PASSWORD '${raw.password}';
-    EXCEPTION WHEN duplicate_object THEN RAISE NOTICE '%, skipping', SQLERRM USING ERRCODE = SQLSTATE;
-    END
-    $$;
-    ALTER ROLE ${reporting.username} WITH LOGIN;
-    ALTER ROLE ${raw.username} WITH LOGIN;
-    ALTER ROLE ${reporting.username} SET search_path TO reporting;
-    GRANT USAGE ON SCHEMA reporting TO ${reporting.username};
-    GRANT USAGE ON SCHEMA public TO ${raw.username};
-    GRANT SELECT ON ALL TABLES IN SCHEMA reporting TO ${reporting.username};
-    GRANT SELECT ON ALL TABLES IN SCHEMA public TO ${raw.username};
+      CREATE SCHEMA IF NOT EXISTS reporting;
+      -- create roles if they don't exist this can happen on local dev when running tests
+      DO $$
+      BEGIN
+      CREATE ROLE ${reporting.username} WITH
+        LOGIN 
+        PASSWORD '${reporting.password}';
+      CREATE ROLE ${raw.username} WITH
+        LOGIN 
+        PASSWORD '${raw.password}';
+      EXCEPTION WHEN duplicate_object THEN RAISE NOTICE '%, skipping', SQLERRM USING ERRCODE = SQLSTATE;
+      END
+      $$;
+      ALTER ROLE ${reporting.username} SET search_path TO reporting;
+      GRANT USAGE ON SCHEMA reporting TO ${reporting.username};
+      GRANT USAGE ON SCHEMA public TO ${raw.username};
+      GRANT SELECT ON ALL TABLES IN SCHEMA reporting TO ${reporting.username};
+      GRANT SELECT ON ALL TABLES IN SCHEMA public TO ${raw.username};
+      );
     `);
-    const situWithRole = await sequelize.query(
-      `
-    SELECT * from pg_roles WHERE rolname in ('${reporting.username}', '${raw.username}');
-    `,
-      { type: QueryTypes.SELECT },
-    );
-    console.log('#DEBUG:', situWithRole);
   } catch (err) {
     console.log(err);
-    throw err;
   }
 }
 
