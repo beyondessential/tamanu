@@ -100,27 +100,39 @@ export function extendExpect(expect) {
 }
 
 export async function prepareMockReportingSchema({ sequelize }) {
-  const { raw, reporting } = config.db.reporting.credentials;
+  const { raw, reporting } = config.db.reports.credentials;
   await sequelize.query(`
     CREATE SCHEMA IF NOT EXISTS reporting;
-    CREATE ROLE ${reporting.username} with password ${reporting.password};
+    DO $$
+    BEGIN
+    CREATE ROLE ${reporting.username} with password '${reporting.password}';
+    EXCEPTION WHEN duplicate_object THEN RAISE NOTICE '%, skipping', SQLERRM USING ERRCODE = SQLSTATE;
+    END
+    $$;
     ALTER ROLE ${reporting.username} SET search_path TO reporting;
     GRANT USAGE ON SCHEMA reporting TO ${reporting.username};
     GRANT SELECT ON ALL TABLES IN SCHEMA reporting TO ${reporting.username};
-
-    CREATE ROLE ${raw.username} with password ${raw.password};
+    CREATE SCHEMA IF NOT EXISTS reporting;
+    DO $$
+    BEGIN
+    CREATE ROLE ${reporting.raw} with password '${reporting.raw}';
+    EXCEPTION WHEN duplicate_object THEN RAISE NOTICE '%, skipping', SQLERRM USING ERRCODE = SQLSTATE;
+    END
+    $$;
     GRANT USAGE ON SCHEMA public TO ${raw.username};
     GRANT SELECT ON ALL TABLES IN SCHEMA public TO ${raw.username};`);
 }
 
-export async function createTestContext() {
+export async function createTestContext(options = {}) {
   const dbResult = await initDatabase();
 
-  await prepareMockReportingSchema(dbResult);
-  const reporting = await initReporting();
+  const { mockReportingSchema } = options;
+  if (mockReportingSchema) {
+    await prepareMockReportingSchema(dbResult);
+    dbResult.reporting = await initReporting();
+  }
 
-  const context = { ...dbResult, reporting };
-  const { models, sequelize } = context;
+  const { models, sequelize } = dbResult;
 
   // do NOT time out during create context
   jest.setTimeout(1000 * 60 * 60 * 24);
@@ -156,7 +168,7 @@ export async function createTestContext() {
   // ensure there's a corresponding local system fact for it too
   await models.LocalSystemFact.set('facilityId', facility.id);
 
-  const expressApp = createApp(context);
+  const expressApp = createApp(dbResult);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest(appServer);
 
@@ -200,6 +212,8 @@ export async function createTestContext() {
 
   const centralServer = new CentralServerConnection({ deviceId: 'test' });
 
+  const context = { ...dbResult, models, centralServer, baseApp };
+
   context.syncManager = new FacilitySyncManager(context);
 
   const close = async () => {
@@ -207,5 +221,5 @@ export async function createTestContext() {
     await closeDatabase();
   };
 
-  return { ...context, close, baseApp, centralServer };
+  return { ...context, close };
 }
