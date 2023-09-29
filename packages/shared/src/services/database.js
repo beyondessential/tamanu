@@ -157,7 +157,7 @@ export async function initDatabase(dbOptions) {
     await migrate(log, sequelize, direction);
   };
 
-  sequelize.assertUpToDate = async seqOptions => assertUpToDate(log, sequelize, seqOptions);
+  sequelize.assertUpToDate = async options => assertUpToDate(log, sequelize, options);
 
   // init all models
   const modelClasses = Object.values(models);
