@@ -1,5 +1,5 @@
 import { inRange } from 'lodash';
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { log } from '../services/logging';
 
 export function getStringValue(type, value) {
@@ -153,6 +153,13 @@ function getValuesByCode(components, valuesById) {
   });
 
   return valuesByCode;
+}
+
+export function getActiveActionComponents(components, originalValues) {
+  const values = getValuesByCode(components, originalValues);
+  return components
+    .filter(c => ACTION_DATA_ELEMENT_TYPES.includes(c.dataElement.type))
+    .filter(c => checkVisibilityCriteria(c, components, values));
 }
 
 export function getResultValue(components, originalValues) {

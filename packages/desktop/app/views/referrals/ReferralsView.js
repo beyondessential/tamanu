@@ -18,7 +18,7 @@ import {
   ProgramsPaneHeading,
 } from 'desktop/app/views/programs/ProgramsPane';
 import { getCurrentUser } from 'desktop/app/store';
-import { getAnswersFromData, getActionsFromData } from 'desktop/app/utils';
+import { getAnswersFromData } from 'desktop/app/utils';
 import { PATIENT_TABS } from 'desktop/app/constants/patientPaths';
 import { usePatientNavigation } from 'desktop/app/utils/usePatientNavigation';
 
@@ -57,7 +57,6 @@ const ReferralFlow = ({ patient, currentUser }) => {
       patientId: patient.id,
       endTime: getCurrentDateTimeString(),
       answers: getAnswersFromData(data, referralSurvey),
-      actions: getActionsFromData(data, referralSurvey),
     });
 
     navigateToPatient(patient.id, { tab: PATIENT_TABS.REFERRALS });

@@ -19,7 +19,7 @@ import {
   DateTimeField,
 } from 'desktop/app/components/Field';
 import { ageInYears, ageInMonths, ageInWeeks } from '@tamanu/shared/utils/dateTime';
-import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { joinNames } from './user';
 
 const InstructionField = ({ label, helperText }) => (
@@ -268,17 +268,6 @@ export const getAnswersFromData = (data, survey) =>
       'PatientIssue'
     ) {
       acc[key] = val;
-    }
-    return acc;
-  }, {});
-
-export const getActionsFromData = (data, survey) =>
-  Object.entries(data).reduce((acc, [key]) => {
-    const component = survey.components.find(({ dataElement }) => dataElement.id === key);
-    if (ACTION_DATA_ELEMENT_TYPES.includes(component?.dataElement?.type)) {
-      if (checkVisibility(component, data, survey.components)) {
-        acc[key] = true;
-      }
     }
     return acc;
   }, {});
