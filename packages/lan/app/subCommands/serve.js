@@ -6,7 +6,7 @@ import { log } from 'shared/services/logging';
 import { performTimeZoneChecks } from 'shared/utils/timeZoneCheck';
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
-import { initDatabase, performDatabaseIntegrityChecks } from '../database';
+import { initDatabase, initReporting, performDatabaseIntegrityChecks } from '../database';
 import { FacilitySyncManager, CentralServerConnection } from '../sync';
 import { createApp } from '../createApp';
 import { startScheduledTasks } from '../tasks';
@@ -23,7 +23,11 @@ async function serve({ skipMigrationCheck }) {
     execArgs: process.execArgs || '<empty>',
   });
 
-  const context = await initDatabase();
+  const dbResult = await initDatabase();
+
+  const reports = await initReporting();
+  const context = { ...dbResult, reports };
+
   if (config.db.migrateOnStartup) {
     await context.sequelize.migrate('up');
   } else {

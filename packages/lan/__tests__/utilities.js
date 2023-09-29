@@ -99,7 +99,7 @@ export function extendExpect(expect) {
   });
 }
 
-export async function prepareReportingSchema({ sequelize }) {
+export async function prepareMockReportingSchema({ sequelize }) {
   const { raw, reporting } = config.db.reporting.credentials;
   await sequelize.query(`
     CREATE SCHEMA IF NOT EXISTS reporting;
@@ -115,7 +115,8 @@ export async function prepareReportingSchema({ sequelize }) {
 
 export async function createTestContext() {
   const dbResult = await initDatabase();
-  await prepareReportingSchema(dbResult);
+
+  await prepareMockReportingSchema(dbResult);
   const reporting = await initReporting();
 
   const context = { ...dbResult, reporting };
