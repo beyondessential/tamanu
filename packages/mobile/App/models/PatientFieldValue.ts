@@ -1,7 +1,7 @@
 import { BeforeInsert, Entity, Column, PrimaryColumn, ManyToOne, RelationId } from 'typeorm/browser';
 
 import { IPatientFieldValue } from '~/types';
-import { BaseModelWithoutId } from './BaseModel';
+import { BaseModelWithoutId } from './BaseModelWithoutId';
 import { Patient } from './Patient';
 import { PatientFieldDefinition } from './PatientFieldDefinition';
 import { SYNC_DIRECTIONS } from './types';
@@ -45,7 +45,7 @@ export class PatientFieldValue extends BaseModelWithoutId implements IPatientFie
     return 'patient_field_values';
   }
 
-  static async getForPatientAndDefinition(patientId: string, definitionId: string): Promise<PatientFieldValue> {
+  static async getForPatientAndDefinition(patientId: string, definitionId: string): Promise<PatientFieldValue?> {
     // use a query builder instead of find, as apparently there's some
     // misbehaviour around how typeorm traverses this relation
     return await PatientFieldValue.getRepository()
@@ -55,7 +55,7 @@ export class PatientFieldValue extends BaseModelWithoutId implements IPatientFie
       .getOne();
   }
 
-  static async updateOrCreateForPatientAndDefinition(patientId: string, definitionId: string, value: string): Promise<PatientFieldValue> {
+  static async updateOrCreateForPatientAndDefinition(patientId: string, definitionId: string, value: string): Promise<PatientFieldValue?> {
     const existing = await PatientFieldValue.getForPatientAndDefinition(patientId, definitionId);
     if (existing) {
       if (existing.value === value) return; // to avoid unnecessary updates
@@ -63,12 +63,11 @@ export class PatientFieldValue extends BaseModelWithoutId implements IPatientFie
       return existing.save();
     }
 
-    if (value) {  // to not create a null / empty string value entry
-      return PatientFieldValue.createAndSaveOne({
-        patientId,
-        definitionId,
-        value,
-      });
-    }
+    if (!value) return;  // to not create a null / empty string value entry
+    return PatientFieldValue.createAndSaveOne({
+      patientId,
+      definitionId,
+      value,
+    });
   }
 }
