@@ -1,7 +1,19 @@
 {
   "db": {
     "name": "tamanu-lan-test",
-    "migrateOnStartup": true
+    "migrateOnStartup": true,
+    "reports": {
+      "credentials": {
+        "reporting": {
+          "username": "tamanu_reporting",
+          "password": "test"
+        },
+        "raw": {
+          "username": "tamanu_raw",
+          "password": "test"
+        }
+      }
+    }
   },
   "log": {
     "consoleLevel": null,
