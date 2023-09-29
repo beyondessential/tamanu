@@ -6,6 +6,7 @@ import {
   REPORT_STATUSES_VALUES,
   REPORT_DEFAULT_DATE_RANGES_VALUES,
 } from '@tamanu/constants';
+import { isEmpty } from 'lodash';
 import { Model } from './Model';
 import { getReportQueryReplacements } from '../utils/reports/getReportQueryReplacements';
 
@@ -119,7 +120,7 @@ export class ReportDefinitionVersion extends Model {
   }
 
   async dataGenerator(context, parameters) {
-    const { reporting, sequelize, models } = context;
+    const { reporting, sequelize } = context;
     const reportQuery = this.get('query');
 
     const queryOptions = this.getQueryOptions();
@@ -132,15 +133,9 @@ export class ReportDefinitionVersion extends Model {
     );
 
     const definition = await this.getReportDefinition();
-    console.log(
-      '#DEBUG ReportDefinitionVersion.dataGenerator',
-      this,
-      definition,
-      await models.ReportDefinition.findOne({ where: { id: this.reportDefinitionId } }),
-    );
-    const instance = reporting ? reporting[definition.dbRole] : sequelize;
+    const instance = reporting ? reporting[definition.dbSchema] : sequelize;
     if (!instance) {
-      throw new Error(`No reporting instance found for ${definition.dbRole}`);
+      throw new Error(`No reporting instance found for ${definition.dbSchema}`);
     }
     const queryResults = await instance.query(reportQuery, {
       type: QueryTypes.SELECT,
