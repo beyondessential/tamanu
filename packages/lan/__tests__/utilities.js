@@ -101,8 +101,9 @@ export function extendExpect(expect) {
 
 export async function prepareMockReportingSchema({ sequelize }) {
   const { raw, reporting } = config.db.reports.credentials;
-  try {
-    await sequelize.query(`
+  await sequelize.transaction(async () => {
+    try {
+      await sequelize.query(`
       CREATE SCHEMA IF NOT EXISTS reporting;
       -- create roles if they don't exist this can happen on local dev when running tests
       DO $$
@@ -122,14 +123,21 @@ export async function prepareMockReportingSchema({ sequelize }) {
       GRANT SELECT ON ALL TABLES IN SCHEMA reporting TO ${reporting.username};
       GRANT SELECT ON ALL TABLES IN SCHEMA public TO ${raw.username};
     `);
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  });
+}
+
+export async function createTestContext(options = {}) {
+  let dbResult;
+  try {
+    dbResult = await initDatabase();
   } catch (err) {
     console.log(err);
     throw err;
   }
-}
-
-export async function createTestContext(options = {}) {
-  const dbResult = await initDatabase();
 
   const { mockReportingSchema } = options;
   if (mockReportingSchema) {
