@@ -1,5 +1,4 @@
 import React from 'react';
-import { capitalize } from 'lodash';
 import { DateDisplay, formatShortest, formatTime } from '../../../../components';
 import { InfoCard, InfoCardItem } from '../../../../components/InfoCard';
 
