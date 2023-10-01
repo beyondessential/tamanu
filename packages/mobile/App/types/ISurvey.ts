@@ -73,6 +73,7 @@ export interface IVitalsSurvey {
   name: string;
   components: ISurveyScreenComponent[];
   dateComponent: ISurveyScreenComponent;
+  programId: string;
 }
 
 export enum DataElementType {

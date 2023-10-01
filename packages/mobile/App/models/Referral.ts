@@ -72,6 +72,7 @@ export class Referral extends BaseModel implements IReferral {
       )
       .where('initiatingEncounter.patientId = :patientId', { patientId })
       .orderBy({
+        'surveyResponse.endTime': 'DESC',
         'screenComponent.screenIndex': 'ASC',
         'screenComponent.componentIndex': 'ASC',
       })
