@@ -1,13 +1,15 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { CircularProgress } from '@material-ui/core';
-import { Colors } from '../../constants';
+import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
 import { useUrlQueryParams } from '../../hooks';
 import { DisplayPatientRegDetails } from './DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from './ProgramRegistryStatusHistory';
 import { usePatientProgramRegistration } from '../../api/queries/usePatientProgramRegistration';
-import { ProgramRegistryFormHistory } from './ProgramRegistryFormHistory';
+import { PatientProgramRegistryFormHistory } from './PatientProgramRegistryFormHistory';
+import { PatientProgramRegistrationSelectSurvey } from './PatientProgramRegistrationSelectSurvey';
+import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { ConditionSection } from './ConditionSection';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
@@ -30,6 +32,15 @@ const Container = styled.div`
 const Row = styled.div`
   margin: 20px 0px;
 `;
+
+const ProgramStatusAndConditionContainer = styled.div`
+  margin: 20px 0px;
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  width: 100%;
+  position: relative;
+`;
 const StatusDiv = styled.div`
   display: flex;
   flex-direction: row;
@@ -51,16 +62,15 @@ const StatusInactiveDot = styled.div`
   margin: 0px 5px;
 `;
 
-const getFirstCharUpperCase = str => str.charAt(0).toUpperCase() + str.slice(1);
+const getFirstCharUpperCase = str => (str ? str.charAt(0).toUpperCase() + str.slice(1) : str);
 
 export const ProgramRegistryView = () => {
   const queryParams = useUrlQueryParams();
   const title = queryParams.get('title');
   const { patientId, programRegistryId } = useParams();
-
   const { data, isLoading, isError } = usePatientProgramRegistration(patientId, programRegistryId);
 
-  if (isLoading) return <CircularProgress size="5rem" />;
+  if (isLoading) return <LoadingIndicator />;
   if (isError) return <p>Program registry &apos;{title || 'Unknown'}&apos; not found.</p>;
 
   return (
@@ -68,7 +78,11 @@ export const ProgramRegistryView = () => {
       <ViewHeader>
         <h1>{data.name}</h1>
         <StatusDiv>
-          {data.registrationStatus === 'active' ? <StatusActiveDot /> : <StatusInactiveDot />}
+          {data.registrationStatus === PROGRAM_REGISTRATION_STATUSES.ACTIVE ? (
+            <StatusActiveDot />
+          ) : (
+            <StatusInactiveDot />
+          )}
           <b>{getFirstCharUpperCase(data.registrationStatus)}</b>
         </StatusDiv>
       </ViewHeader>
@@ -76,11 +90,16 @@ export const ProgramRegistryView = () => {
         <Row>
           <DisplayPatientRegDetails patientProgramRegistration={data} />
         </Row>
+        <ProgramStatusAndConditionContainer>
+          <ProgramRegistryStatusHistory patientProgramRegistration={data} />
+          <ConditionSection patientProgramRegistration={data} />
+        </ProgramStatusAndConditionContainer>
+
         <Row>
-          <ProgramRegistryStatusHistory programRegistry={data} />
+          <PatientProgramRegistrationSelectSurvey patientProgramRegistration={data} />
         </Row>
         <Row>
-          <ProgramRegistryFormHistory programRegistry={data} />
+          <PatientProgramRegistryFormHistory patientProgramRegistration={data} />
         </Row>
       </Container>
     </>

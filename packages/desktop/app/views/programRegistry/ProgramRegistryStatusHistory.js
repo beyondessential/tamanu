@@ -4,16 +4,19 @@ import { STATUS_COLOR } from '@tamanu/constants';
 import { Table } from '../../components/Table/Table';
 import { DateDisplay } from '../../components/DateDisplay';
 import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
-import { Heading3 } from '../../components/Typography';
+import { Heading5 } from '../../components/Typography';
 import { useProgramRegistryClinicalStatus } from '../../api/queries/useProgramRegistryClinicalStatus';
 
 const Container = styled.div`
+  width: 70%;
   background-color: ${Colors.white};
   padding: 15px 15px 30px 15px;
   display: flex;
   flex-direction: column;
   align-items: start;
   justify-content: center;
+  margin-right: 10px;
+  border-radius: 5px;
 `;
 
 const StatusBadge = styled.div`
@@ -26,10 +29,10 @@ const StatusBadge = styled.div`
   background-color: ${props => STATUS_COLOR[props.color].background};
   color: ${props => STATUS_COLOR[props.color].color};
 `;
-export const ProgramRegistryStatusHistory = ({ programRegistry }) => {
+export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => {
   const { data, isLoading } = useProgramRegistryClinicalStatus(
-    programRegistry.patientId,
-    programRegistry.id,
+    patientProgramRegistration.patientId,
+    patientProgramRegistration.id,
     {
       orderBy: 'date',
       order: 'asc',
@@ -42,13 +45,11 @@ export const ProgramRegistryStatusHistory = ({ programRegistry }) => {
     );
     return [
       {
-        key: 'programRegistryClinicalStatusId',
+        key: 'clinicalStatusId',
         title: 'Status',
         accessor: row => {
           return (
-            <StatusBadge color={row.programRegistryClinicalStatus.color}>
-              {row.programRegistryClinicalStatus.name}
-            </StatusBadge>
+            <StatusBadge color={row.clinicalStatus.color}>{row.clinicalStatus.name}</StatusBadge>
           );
         },
         sortable: false,
@@ -80,15 +81,15 @@ export const ProgramRegistryStatusHistory = ({ programRegistry }) => {
 
   return (
     <Container>
-      <Heading3>Program Status History</Heading3>
+      <Heading5>Program Status History</Heading5>
       <br />
       <Table
         isBodyScrollable
         data={data ? data.data : []}
         columns={columns}
         rowsPerPage={4}
-        rowStyle={() => `height: 82px;`}
-        containerStyle="height: 350px;"
+        rowStyle={() => `height: 50px; padding: 0px;`}
+        containerStyle="max-height: 320px;"
         allowExport={false}
         noDataMessage="No Program registry clinical status found"
         elevated={false}

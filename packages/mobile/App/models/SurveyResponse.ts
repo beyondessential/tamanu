@@ -4,6 +4,7 @@ import { ISurveyResponse, EncounterType, ICreateSurveyResponse } from '~/types';
 
 import { getStringValue, getResultValue, isCalculated, FieldTypes } from '~/ui/helpers/fields';
 
+import { PATIENT_DATA_FIELD_LOCATIONS } from '~/constants';
 import { runCalculations } from '~/ui/helpers/calculations';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
@@ -17,6 +18,72 @@ import { PatientAdditionalData } from './PatientAdditionalData';
 import { VitalLog } from './VitalLog';
 import { SYNC_DIRECTIONS } from './types';
 import { DateTimeStringColumn } from './DateColumns';
+
+
+const getDbLocation = fieldName => {
+  if (PATIENT_DATA_FIELD_LOCATIONS[fieldName]) {
+    const [modelName, columnName] = PATIENT_DATA_FIELD_LOCATIONS[fieldName];
+    return {
+      modelName,
+      fieldName: columnName,
+    };
+  }
+  throw new Error(`Unknown fieldName: ${fieldName}`);
+};
+
+type RecordValuesByModel = {
+  Patient?: Record<string, string>,
+  PatientAdditionalData?: Record<string, string>,
+  PatientProgramRegistration?: Record<string, string>,
+}
+
+const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
+  const recordValuesByModel = {};
+
+  const patientDataQuestions = questions.filter(
+    q => q.dataElement.type === FieldTypes.PATIENT_DATA,
+  );
+  for (const question of patientDataQuestions) {
+    const config = question.getConfigObject();
+    const { dataElement } = question;
+
+    if (!config.writeToPatient) {
+      // this is just a question that's reading patient data, not writing it
+      continue;
+    }
+
+    const { fieldName: configFieldName } = config.writeToPatient || {};
+    if (!configFieldName) {
+      throw new Error('No fieldName defined for writeToPatient config');
+    }
+
+    const value = answers[dataElement.code];
+    const { modelName, fieldName } = getDbLocation(configFieldName);
+    if (!recordValuesByModel[modelName]) recordValuesByModel[modelName] = {};
+    recordValuesByModel[modelName][fieldName] = value;
+  }
+  return recordValuesByModel;
+};
+
+/**
+ * DUPLICATED IN shared/models/SurveyResponse.js
+ * Please keep in sync
+ */
+async function writeToPatientFields(questions, answers, patientId) {
+  const valuesByModel = getFieldsToWrite(questions, answers);
+
+  if (valuesByModel.Patient) {
+    await Patient.updateValues(patientId, valuesByModel.Patient);
+  }
+
+  if (valuesByModel.PatientAdditionalData) {
+    await PatientAdditionalData.updateForPatient(patientId, valuesByModel.PatientAdditionalData);
+  }
+
+  if (valuesByModel.PatientProgramRegistration) {
+    throw new Error('Program registrations not yet implemented on mobile');
+  }
+}
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
@@ -120,14 +187,6 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
       setNote('Attaching answers...');
 
-      // these will store values to write to patient records following submission
-      const patientRecordValues = {};
-      const patientAdditionalDataValues = {};
-
-      // TODO: this should just look at the field name and decide; there will never be overlap
-      const isAdditionalDataField = questionConfig =>
-        questionConfig.writeToPatient?.isAdditionalDataField;
-
       // figure out if its a vital survey response
       let vitalsSurvey;
       try {
@@ -156,18 +215,6 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
           continue;
         }
 
-        if (dataElement.type === FieldTypes.PATIENT_DATA) {
-          const questionConfig = component.getConfigObject();
-          const fieldName = questionConfig.writeToPatient?.fieldName;
-          if (fieldName) {
-            if (isAdditionalDataField(questionConfig)) {
-              patientAdditionalDataValues[fieldName] = value;
-            } else {
-              patientRecordValues[fieldName] = value;
-            }
-          }
-        }
-
         const body = getStringValue(dataElement.type, value);
 
         setNote(`Attaching answer for ${dataElement.id}...`);
@@ -186,15 +233,10 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
           answer: answerRecord.id,
         });
       }
-      setNote('Done');
+      setNote('Writing patient data');
 
-      // Save values to database records
-      if (Object.keys(patientRecordValues).length) {
-        await Patient.updateValues(patientId, patientRecordValues);
-      }
-      if (Object.keys(patientAdditionalDataValues).length) {
-        await PatientAdditionalData.updateForPatient(patientId, patientAdditionalDataValues);
-      }
+      await writeToPatientFields(components, finalValues, patientId)
+      setNote('Done');
 
       return responseRecord;
     } catch (e) {
@@ -204,14 +246,19 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     }
   }
 
-  static async getForPatient(patientId: string, surveyId: string): Promise<SurveyResponse[]> {
-    return this.getRepository()
+  static async getForPatient(patientId: string, surveyId?: string): Promise<SurveyResponse[]> {
+    const query = this.getRepository()
       .createQueryBuilder('survey_response')
       .leftJoinAndSelect('survey_response.encounter', 'encounter')
       .leftJoinAndSelect('survey_response.survey', 'survey')
       .where('encounter.patientId = :patientId', { patientId })
-      .andWhere('survey.id = :surveyId', { surveyId: surveyId.toLowerCase() })
       .orderBy('survey_response.endTime', 'DESC')
-      .getMany();
+      .take(80);
+
+    if (surveyId) {
+      query.andWhere('survey.id = :surveyId', { surveyId: surveyId.toLowerCase() });
+    }
+
+    return query.getMany();
   }
 }

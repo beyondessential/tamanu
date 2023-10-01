@@ -352,11 +352,21 @@ const MODEL_SPECIFIC_OVERRIDES = {
     displayName: chance.name(),
     role: 'practitioner',
   }),
+  ReferenceData: () => ({
+    type: chance.pickone(REFERENCE_TYPE_VALUES),
+    visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+  }),
   Role: () => ({
     name: `${snakeCase(chance.profession())}_${chance.hash({ length: 8 })}`,
   }),
   Survey: () => ({
     isSensitive: false,
+  }),
+  SurveyScreenComponent: () => ({
+    calculation: null,
+    visibilityCriteria: null,
+    config: null,
+    options: null,
   }),
   Encounter: () => ({
     encounterType: chance.pickone(ENCOUNTER_TYPE_VALUES),

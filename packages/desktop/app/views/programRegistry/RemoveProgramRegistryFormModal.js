@@ -44,7 +44,12 @@ const Value = styled.p`
   line-height: 10px;
 `;
 
-export const RemoveProgramRegistryFormModal = ({ programRegistry, onSubmit, onCancel, open }) => {
+export const RemoveProgramRegistryFormModal = ({
+  patientProgramRegistration,
+  onSubmit,
+  onCancel,
+  open,
+}) => {
   return (
     <Modal title="Remove patient" open={open} onClose={onCancel}>
       <div>
@@ -60,27 +65,27 @@ export const RemoveProgramRegistryFormModal = ({ programRegistry, onSubmit, onCa
           <InfoColumn>
             <Info>
               <Label>Program registry</Label>
-              <Value>{programRegistry.name}</Value>
+              <Value>{patientProgramRegistration.name}</Value>
             </Info>
             <Info>
               <Label>Date of registration</Label>
               <Value>
-                <DateDisplay date={programRegistry.date} />
+                <DateDisplay date={patientProgramRegistration.date} />
               </Value>
             </Info>
             <Info>
               <Label>Registering facility</Label>
-              <Value>{programRegistry.registeringFacility.name}</Value>
+              <Value>{patientProgramRegistration.registeringFacility.name}</Value>
             </Info>
           </InfoColumn>
           <InfoColumn>
             <Info>
               <Label>Status</Label>
-              <Value>{programRegistry.programRegistryClinicalStatus.name}</Value>
+              <Value>{patientProgramRegistration.clinicalStatus.name}</Value>
             </Info>
             <Info>
               <Label>Registered by</Label>
-              <Value>{programRegistry.clinician.displayName}</Value>
+              <Value>{patientProgramRegistration.clinician.displayName}</Value>
             </Info>
           </InfoColumn>
         </InfoDiv>

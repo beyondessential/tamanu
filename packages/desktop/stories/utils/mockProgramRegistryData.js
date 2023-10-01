@@ -1,5 +1,4 @@
 //@ts-check
-
 function sleep(milliseconds) {
   return new Promise(resolve => {
     setTimeout(resolve, milliseconds);
@@ -24,6 +23,84 @@ const getSortedData = (
     data: sortedData.slice(startIndex, endIndex),
     count: list.length,
   };
+};
+export const mockSurvey = {
+  id: 'program-demncdprimaryscreening-demcvdprimaryscreen2',
+  code: 'demcvdprimaryscreen2',
+  name: 'CVD Primary Screening Form',
+  surveyType: 'programs',
+  isSensitive: true,
+  updatedAtSyncTick: '-999',
+  createdAt: '2023-07-11T22:01:02.375Z',
+  updatedAt: '2023-07-11T22:01:02.375Z',
+  programId: 'program-demncdprimaryscreening',
+  components: [
+    {
+      id: 'program-demncdprimaryscreening-demcvdprimaryscreen2-DemCVD01',
+      screenIndex: 0,
+      componentIndex: 0,
+      text: '',
+      visibilityCriteria: '',
+      validationCriteria: '',
+      detail: '',
+      config: '',
+      calculation: '',
+      updatedAtSyncTick: '-999',
+      createdAt: '2023-07-11T22:01:02.409Z',
+      updatedAt: '2023-07-11T22:01:02.409Z',
+      surveyId: 'program-demncdprimaryscreening-demcvdprimaryscreen2',
+      dataElementId: 'pde-DemCVD01',
+      dataElement: {
+        id: 'pde-DemCVD01',
+        code: 'DemCVD01',
+        name: 'Section 1: Lifestyle Questions',
+        indicator: null,
+        defaultText: 'Section 1: Lifestyle Questions',
+        visualisationConfig: null,
+        type: 'Instruction',
+        updatedAtSyncTick: '-999',
+        createdAt: '2023-07-11T22:01:02.286Z',
+        updatedAt: '2023-07-11T22:01:02.286Z',
+        defaultOptions: null,
+      },
+      options: null,
+    },
+    {
+      id: 'program-demncdprimaryscreening-demcvdprimaryscreen2-DemCVD02',
+      screenIndex: 0,
+      componentIndex: 1,
+      text: '',
+      visibilityCriteria: '',
+      validationCriteria: '',
+      detail: '',
+      config: '',
+      calculation: '',
+      updatedAtSyncTick: '-999',
+      createdAt: '2023-07-11T22:01:02.409Z',
+      updatedAt: '2023-07-11T22:01:02.409Z',
+      surveyId: 'program-demncdprimaryscreening-demcvdprimaryscreen2',
+      dataElementId: 'pde-DemCVD02',
+      dataElement: {
+        id: 'pde-DemCVD02',
+        code: 'DemCVD02',
+        name: 'Exercise in an average week',
+        indicator: null,
+        defaultText:
+          'How often do you exercise in an average week? (Definition of exercise = 150 mins/week of moderate-vigorous intensity)',
+        visualisationConfig: null,
+        type: 'Select',
+        updatedAtSyncTick: '-999',
+        createdAt: '2023-07-11T22:01:02.286Z',
+        updatedAt: '2023-07-11T22:01:02.286Z',
+        defaultOptions: {
+          'More than five (30 min) sessions': 'More than five (30 min) sessions',
+          'Less than five (30 min) sessions': 'Less than five (30 min) sessions',
+          '0 hours': '0 hours',
+        },
+      },
+      options: null,
+    },
+  ],
 };
 export const programRegistriesForInfoPaneList = [
   {
@@ -86,19 +163,30 @@ export const programRegistry3 = {
     currentlyAtType: 'village',
   },
 };
+
 export const programRegistries = [
   programRegistry1.data,
   programRegistry2.data,
   programRegistry3.data,
 ];
 
+export const programRegistryConditions = [
+  { id: '1', name: 'Diabetes' },
+  { id: '2', name: 'Hypertension' },
+  { id: '5', name: 'Joint pain' },
+  { id: '3', name: 'Low pressure' },
+  { id: '4', name: 'Migrain' },
+  { id: '6', name: 'Skin itching' },
+  { id: '7', name: 'Tuberculosis of lung, bacteriologically and historically negative' },
+];
+
 export const programRegistryStatusHistories = [
   {
     id: '1',
-    registrationStatus: 'removed',
-    // registrationStatus: 'active',
-    programRegistryClinicalStatusId: '1',
-    programRegistryClinicalStatus: {
+    // registrationStatus: 'removed',
+    registrationStatus: 'active',
+    clinicalStatusId: '1',
+    clinicalStatus: {
       id: '1',
       name: 'Low risk',
       color: 'green',
@@ -114,8 +202,8 @@ export const programRegistryStatusHistories = [
   {
     id: '2',
     registrationStatus: 'active',
-    programRegistryClinicalStatusId: '2',
-    programRegistryClinicalStatus: {
+    clinicalStatusId: '2',
+    clinicalStatus: {
       id: '2',
       name: 'Needs review',
       color: 'yellow',
@@ -131,8 +219,8 @@ export const programRegistryStatusHistories = [
   {
     id: '3',
     registrationStatus: 'active',
-    programRegistryClinicalStatusId: '3',
-    programRegistryClinicalStatus: {
+    clinicalStatusId: '3',
+    clinicalStatus: {
       id: '3',
       name: 'Critical',
       color: 'red',
@@ -148,8 +236,8 @@ export const programRegistryStatusHistories = [
   {
     id: '4',
     registrationStatus: 'active',
-    programRegistryClinicalStatusId: '4',
-    programRegistryClinicalStatus: {
+    clinicalStatusId: '4',
+    clinicalStatus: {
       id: '4',
       name: 'Needs review',
       color: 'yellow',
@@ -165,8 +253,8 @@ export const programRegistryStatusHistories = [
   {
     id: '5',
     registrationStatus: 'active',
-    programRegistryClinicalStatusId: '5',
-    programRegistryClinicalStatus: {
+    clinicalStatusId: '5',
+    clinicalStatus: {
       id: '5',
       name: 'Low risk',
       color: 'green',
@@ -182,8 +270,8 @@ export const programRegistryStatusHistories = [
   {
     id: '6',
     registrationStatus: 'active',
-    programRegistryClinicalStatusId: '6',
-    programRegistryClinicalStatus: {
+    clinicalStatusId: '6',
+    clinicalStatus: {
       id: '6',
       name: 'Needs review',
       color: 'yellow',
@@ -309,7 +397,7 @@ export const practitioners = [
   { id: '2', name: 'Test user id 2' },
 ];
 
-export const programRegistryClinicalStatusList = [
+export const clinicalStatusList = [
   { id: '1', name: 'Low risk', color: 'green' },
   { id: '2', name: 'Needs review', color: 'yellow' },
   { id: '3', name: 'Critical', color: 'red' },
@@ -484,11 +572,15 @@ export const patientAdditionalData = {
 };
 
 export const patientProgramRegistration = {
-  id: 'program_registry_id',
-  programId: 'program_id',
-  program: {
-    id: 'program_id',
+  id: 'patient_program_registry_id',
+  programRegistryId: 'program_registry_id',
+  programRegistry: {
+    id: 'program_registry_id',
     name: 'Hepatitis B',
+    program: {
+      id: 'program_id',
+      name: 'Hepatitis B',
+    },
   },
   patientId: 'patient_id',
   patient: {
@@ -497,8 +589,8 @@ export const patientProgramRegistration = {
   },
   date: '2023-08-28T02:40:16.237Z',
   name: 'Hepatitis B',
-  programRegistryClinicalStatusId: '1',
-  programRegistryClinicalStatus: {
+  clinicalStatusId: '1',
+  clinicalStatus: {
     id: '1',
     code: 'low_risk',
     name: 'Low risk',
@@ -515,9 +607,10 @@ export const patientProgramRegistration = {
     code: 'registring_facitlity',
     name: 'Hospital 1',
   },
-  // registrationStatus: 'active',
-  registrationStatus: 'removed',
+  registrationStatus: 'active',
+  // registrationStatus: 'removed',
   removedById: '213123',
+  dateRemoved: '2023-08-28T02:40:16.237Z',
   removedBy: {
     id: '213123',
     displayName: 'Alaister',
@@ -529,52 +622,6 @@ export const dummyApi = {
     console.log(endpoint);
     await sleep(500);
     switch (endpoint) {
-      // GET patientProgramRestration
-
-      case 'patient/undefined/programRegistration/undefined':
-      case 'patient/patient_id/programRegistration/program_registry_id':
-        return patientProgramRegistration;
-      // GET patientAdditionalData
-
-      case 'patient/patient_id/additionalData':
-        return patientAdditionalData;
-      // GET patientProgramRestration Status change Histories
-
-      case 'patient/patient_id/programRegistration/program_registry_id/clinicalStatuses':
-      case 'patient/undefined/programRegistration/program_registry_id/clinicalStatuses':
-        return getSortedData(programRegistryStatusHistories, options);
-      case 'patient/patient_id/programRegistration/program_registry_id/surveyResponses':
-      case 'patient/undefined/programRegistration/program_registry_id/surveyResponses':
-      case 'patient/undefined/programRegistration/1/surveyResponses':
-        return getSortedData(programRegistryFormHistory, options);
-      // GET patientProgramRestration conditions
-
-      // case `patient/programRegistration/program_registry_id/conditions`:
-      // case `patient/programRegistration/program_id/conditions`:
-      //   return [...patientProgramRegistryConditions, ...patientProgramRegistryConditions];
-      // return patientProgramRegistryConditions;
-
-      case 'suggestions/facility':
-        return facilities;
-
-      case 'suggestions/practitioner':
-        return practitioners;
-
-      case 'suggestions/programRegistryClinicalStatus':
-        return programRegistryClinicalStatusList;
-
-      case 'suggestions/programRegistries':
-        return programRegistries;
-
-      case 'suggestions/survey':
-        return programRegistryFormHistory.map(x => ({ id: x.id.toString(), name: x.survey.name }));
-
-      // case 'suggestions/programRegistryConditions':
-      //   return patientProgramRegistryConditions.map(x => ({
-      //     id: x.id,
-      //     name: x.name,
-      //   }));
-
       case 'programRegistry/1':
         return programRegistry1;
 
@@ -583,62 +630,54 @@ export const dummyApi = {
 
       case 'programRegistry/3':
         return programRegistry3;
-      // GET patients patientProgramRestration list
 
-      case 'patient/patient_id/program-registry':
+      case 'programRegistry/1/conditions':
+      case 'programRegistry/program_registry_id/conditions':
+        return programRegistryConditions;
+
+      case 'patient/patient_id/additionalData':
+      case 'patient/test-patient/additionalData':
+        return patientAdditionalData;
+
+      // GET patientProgramRestration Status change Histories
+      case 'patient/patient_id/programRegistration/patient_program_registry_id/clinicalStatuses':
+        return getSortedData(programRegistryStatusHistories, options);
+
+      case 'patient/patient_id/programResponses?programId=program_id':
+        // try to reuse DataFetchingProgramsTable component
+        return getSortedData(programRegistryFormHistory, options);
+
+      case `patient/programRegistration/patient_program_registry_id/conditions`:
+        return [...programRegistryConditions, ...programRegistryConditions];
+
+      case 'patient/patient_id/patientRegistration':
         return { data: programRegistriesForInfoPaneList };
 
       case 'program/program_id/surveys':
         return programRegistrysurveys;
+
+      case 'suggestions/facility':
+        return facilities;
+
+      case 'suggestions/practitioner':
+        return practitioners;
+
+      case 'suggestions/clinicalStatus':
+        return clinicalStatusList;
+
+      case 'suggestions/programRegistries':
+        return programRegistries;
+
+      case 'suggestions/survey':
+        // this needs to be done in the backend
+        return programRegistryFormHistory.map(x => ({ id: x.id.toString(), name: x.survey.name }));
+
+      case 'patient/patient_id/programRegistration/patient_program_registry_id':
+      case 'patient/undefined/programRegistration/undefined':
+        return patientProgramRegistration;
+      case 'patient/undefined/programRegistration/undefined/survey/undefined':
+      case 'patient/patient_id/programRegistration/patient_program_registry_id/survey/survey_id':
+        return mockSurvey;
     }
   },
 };
-
-// 1.Create/update PatientProgramRegistry
-//   POST: /patient/patient_id/programRegistration/patient_program_registry_id
-//   data: {
-//     programRegistryId,
-//     programRegistryClinicalStatusId,
-//     date,
-//     registeringClinicianId,
-//     facilityId,
-//     patientId,
-//     patient_program_registry_id??
-//     condition_ids
-//   }
-
-// 2. Add Condition
-//   POST: /patient/patient_id/programRegistration/patient_program_registry_id/condition
-//   data: {
-//     patient_program_registry_id,
-//     condition_id
-//   }
-
-// 3. Remove Condition
-//   DELETE: /patient/patient_id/programRegistration/patient_program_registry_id/condition
-//   data: {
-//     patient_program_registry_id,
-//     condition_id
-//   }
-
-// 4. PatientProgramRegistration change programRegistryClinicalStatus
-//   PUT: /patient/patient_id/programRegistration/patient_program_registry_id/programRegistryClinicalStatus
-//   data: {
-//     patient_program_registry_id,
-//     program_registry_clinical_status_id
-//   }
-
-// 6. PatientProgramRegistration change registrationStatus
-//   PUT: /patient/patient_id/programRegistration/patient_program_registry_id/registrationStatus
-//   data: {
-//     patient_program_registry_id,
-//     registration_status (active, delete)
-//     programRegistryId,
-//     programRegistryClinicalStatusId,
-//     date,
-//     registeringClinicianId,
-//     facilityId,
-//     patientId,
-//     patient_program_registry_id??
-//     condition_ids
-//   }

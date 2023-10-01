@@ -3,15 +3,29 @@ import styled from 'styled-components';
 import { Tooltip } from '@material-ui/core';
 import { Colors } from '../constants';
 
-export const ThemedTooltip = styled(props => (
-  <Tooltip classes={{ popper: props.className }} placement="top" arrow {...props} />
-))`
+export const ThemedTooltip = styled(props => {
+  return <Tooltip classes={{ popper: props.className }} placement="top" arrow {...props} />;
+})`
+  ${props => props.customCss}
   .MuiTooltip-tooltip {
     background-color: ${Colors.primaryDark};
     padding: 8px;
     font-size: 11px;
+    font-weight: 400;
+    width: 150px;
+    text-align: center;
   }
   .MuiTooltip-arrow {
     color: ${Colors.primaryDark};
   }
 `;
+
+export const ConditionalTooltip = props => {
+  if (!props.visible) return props.children;
+  return (
+    <ThemedTooltip {...props}>
+      {/* Below div is needed to make ThemedTooltip work  */}
+      <div>{props.children}</div>
+    </ThemedTooltip>
+  );
+};

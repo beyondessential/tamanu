@@ -26,9 +26,7 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
   USER_DATA: 'UserData',
   PATIENT_ISSUE: 'PatientIssue',
 };
-export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(
-  PROGRAM_DATA_ELEMENT_TYPES,
-);
+export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(PROGRAM_DATA_ELEMENT_TYPES);
 
 export const NON_ANSWERABLE_DATA_ELEMENT_TYPES = [
   PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION,
@@ -87,7 +85,7 @@ export const VITAL_CHARTS = {
 
 // utility function for when a model's fields are all a direct match for their survey configs
 const makeLookupFields = (model: string, fields: string[]) =>
-  fields.map(f => [model, f]).reduce((state, c) => ({ ...state, [c[1]]: c }), {});
+  Object.fromEntries(fields.map(f => [f, [model, f]]));
 
 // Please keep in sync with:
 // - mobile/App/constants/surveys

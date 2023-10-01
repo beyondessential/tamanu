@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
@@ -8,6 +8,7 @@ import {
   Field,
   DateField,
   AutocompleteField,
+  MultiselectField,
 } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
 import { ConfirmCancelRow } from '../../components/ButtonRow';
@@ -16,33 +17,47 @@ import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api/useApi';
 
-export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObject, patient }) => {
+export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient }) => {
   const api = useApi();
   const { currentUser, facility } = useAuth();
   const [program, setProgram] = useState();
+  const [conditions, setConditions] = useState(undefined);
   const programRegistrySuggester = useSuggester('programRegistries', {
     baseQueryParameters: { patientId: patient.id },
   });
-  const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
-    baseQueryParameters: { programId: program ? program.id : null },
+  const programRegistryStatusSuggester = useSuggester('clinicalStatus', {
+    baseQueryParameters: { programRegistryId: program ? program.id : null },
   });
   const registeredBySuggester = useSuggester('practitioner');
   const registeringFacilitySuggester = useSuggester('facility');
 
-  const onProgramSelect = async id => {
+  const onProgramRegistrySelect = async id => {
     try {
-      const { data } = await api.get(`programRegistry/${id}`);
-      setProgram(data);
+      const responses = await Promise.all([
+        api.get(`programRegistry/${id}`),
+        api.get(`programRegistry/${id}/conditions`),
+      ]);
+
+      const [programData, conditionsData] = responses;
+      setProgram(programData);
+      console.log(conditionsData);
+      setConditions(conditionsData.map(x => ({ label: x.name, value: x.id })));
     } catch (error) {
       setProgram(undefined);
+      setConditions(undefined);
     }
   };
   return (
     <Form
       onSubmit={data => {
-        onSubmit({ ...data, patientId: patient.id });
+        onSubmit({ ...data, conditions: data.conditions.split(','), patientId: patient.id });
       }}
-      render={({ submitForm, values }) => {
+      render={({ submitForm, values, setValues }) => {
+        useEffect(() => {
+          setValues({ ...values, clinicalStatusId: null });
+          // eslint-disable-next-line
+        }, [values.programRegistryId]);
+
         const handleCancel = () => onCancel && onCancel();
         const getButtonText = isCompleted => {
           if (isCompleted) return 'Finalise';
@@ -63,13 +78,13 @@ export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObjec
                   component={AutocompleteField}
                   suggester={programRegistrySuggester}
                   onChange={target => {
-                    onProgramSelect(target.target.value);
+                    onProgramRegistrySelect(target.target.value);
                   }}
                 />
 
                 <FieldWithTooltip
                   tooltipText="Select a program registry to set the status"
-                  name="programRegistryClinicalStatusId"
+                  name="clinicalStatusId"
                   label="Status"
                   component={AutocompleteField}
                   suggester={programRegistryStatusSuggester}
@@ -99,6 +114,14 @@ export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObjec
                   component={AutocompleteField}
                   suggester={registeringFacilitySuggester}
                 />
+                <FieldWithTooltip
+                  tooltipText="Select a program registry to add conditions"
+                  name="conditions"
+                  label="Conditions"
+                  component={MultiselectField}
+                  options={conditions}
+                  disabled={!conditions}
+                />
               </FormGrid>
 
               <ConfirmCancelRow
@@ -118,14 +141,14 @@ export const ProgramRegistryForm = React.memo(({ onCancel, onSubmit, editedObjec
       }}
       validationSchema={yup.object().shape({
         programRegistryId: foreignKey('Program Registry must be selected'),
-        programRegistryClinicalStatusId: optionalForeignKey(),
+        clinicalStatusId: optionalForeignKey(),
         date: yup.date(),
         facilityId: optionalForeignKey(),
         registeringClinicianId: foreignKey('Registered by must be selected'),
       })}
     />
   );
-});
+};
 
 ProgramRegistryForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
