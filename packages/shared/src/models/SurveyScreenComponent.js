@@ -1,18 +1,10 @@
 import { Sequelize, Op } from 'sequelize';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { parseOrNull } from '../utils/parse-or-null';
 import { log } from '../services/logging';
 import { Model } from './Model';
 
 export class SurveyScreenComponent extends Model {
-  static deletedAt = {
-    key: 'visibilityStatus',
-    value: {
-      softDeleted: VISIBILITY_STATUSES.HISTORICAL,
-      active: VISIBILITY_STATUSES.CURRENT,
-    },
-  };
-
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -26,7 +18,7 @@ export class SurveyScreenComponent extends Model {
         config: Sequelize.STRING,
         options: Sequelize.TEXT,
         calculation: Sequelize.STRING,
-        [this.deletedAt.key]: Sequelize.STRING,
+        visibilityStatus: Sequelize.STRING,
       },
       {
         ...options,
@@ -90,32 +82,6 @@ export class SurveyScreenComponent extends Model {
       ...values,
       options: parseOrNull(options),
     };
-  }
-
-  async destroy() {
-    const id = await this.get('id');
-
-    return this.update(
-      {
-        [SurveyScreenComponent.deletedAt.key]: SurveyScreenComponent.deletedAt.value.softDeleted,
-      },
-      {
-        where: { id },
-      },
-    );
-  }
-
-  async restore() {
-    const id = await this.get('id');
-
-    return this.update(
-      {
-        [SurveyScreenComponent.deletedAt.key]: SurveyScreenComponent.deletedAt.value.active,
-      },
-      {
-        where: { id },
-      },
-    );
   }
 
   static buildSyncFilter() {

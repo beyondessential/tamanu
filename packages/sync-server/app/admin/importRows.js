@@ -2,6 +2,7 @@ import { camelCase, lowerCase, lowerFirst, startCase, upperFirst } from 'lodash'
 import { Op } from 'sequelize';
 import { ValidationError as YupValidationError } from 'yup';
 import config from 'config';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { ForeignkeyResolutionError, UpsertionError, ValidationError } from './errors';
 import { statkey, updateStat } from './stats';
@@ -39,15 +40,26 @@ function loadExisting(Model, id) {
   return Model.findByPk(id, { paranoid: false });
 }
 
+const destroyRecord = async (Model, record) => {
+  if (Model.name === 'SurveyScreenComponent') {
+    return record.update({ visibilityStatus: VISIBILITY_STATUSES.HISTORICAL });
+  }
+  return record.destroy();
+};
+
+const restoreRecord = async (Model, record) => {
+  if (Model.name === 'SurveyScreenComponent') {
+    return record.update({ visibilityStatus: VISIBILITY_STATUSES.CURRENT });
+  }
+  return record.restore();
+};
+
 const valuesIsHistorical = (Model, values) => {
-  const isParanoid = Model.getIsParanoid();
-  if (isParanoid) {
-    return !!values.deletedAt;
+  if (Model.name === 'SurveyScreenComponent') {
+    return values.visibilityStatus === VISIBILITY_STATUSES.HISTORICAL;
   }
 
-  const { deletedAt } = Model;
-
-  return values[deletedAt.key] === deletedAt.value.softDeleted;
+  return !!values.deletedAt;
 };
 
 export async function importRows(
@@ -200,15 +212,14 @@ export async function importRows(
     const Model = models[model];
     const primaryKey = getPrimaryKey(model, values);
     const existing = await loadExisting(Model, primaryKey);
-
     try {
       if (existing) {
         if (valuesIsHistorical(Model, values)) {
-          await existing.destroy();
+          await destroyRecord(Model, existing);
           updateStat(stats, statkey(model, sheetName), 'deleted');
         } else {
           if (valuesIsHistorical(Model, existing)) {
-            await existing.restore();
+            await restoreRecord(Model, existing);
             updateStat(stats, statkey(model, sheetName), 'restored');
           }
           await existing.update(values);

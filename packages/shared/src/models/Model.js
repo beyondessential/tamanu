@@ -140,8 +140,4 @@ export class Model extends sequelize.Model {
     // implement on the specific model if needed
     return values;
   }
-
-  static getIsParanoid() {
-    return this.options.paranoid;
-  }
 }
