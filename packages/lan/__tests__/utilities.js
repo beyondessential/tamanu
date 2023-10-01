@@ -121,7 +121,6 @@ export async function prepareMockReportingSchema({ sequelize }) {
       GRANT USAGE ON SCHEMA public TO ${raw.username};
       GRANT SELECT ON ALL TABLES IN SCHEMA reporting TO ${reporting.username};
       GRANT SELECT ON ALL TABLES IN SCHEMA public TO ${raw.username};
-      );
     `);
   } catch (err) {
     console.log(err);
