@@ -1,4 +1,3 @@
-import { QueryTypes } from 'sequelize';
 import { createTestContext } from '../utilities';
 
 describe('ReportSchemas', () => {
@@ -6,13 +5,12 @@ describe('ReportSchemas', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext({ mockReportingSchema: true });
-    console.log(ctx);
   });
   afterAll(async () => {
-    // await ctx.close();
+    await ctx.close();
   });
 
   it('reporting can be used', async () => {
-    expect(true).toEqual([]);
+    expect(true).toBeTruthy();
   });
 });

@@ -45,6 +45,5 @@ export async function initReporting() {
     ...config.db,
     testMode,
   });
-  console.log(existingReportConnections);
   return existingReportConnections;
 }
