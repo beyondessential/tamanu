@@ -116,7 +116,15 @@ async function connectToDatabase(dbOptions) {
 }
 
 export async function initReportingInstances(dbOptions) {
+  const { testMode = false, sqlitePath, verbose, port } = dbOptions;
+  let { name } = dbOptions;
   const { pool, credentials } = dbOptions.reports;
+
+  const workerId = process.env.JEST_WORKER_ID;
+  if (testMode && workerId) {
+    name = `${name}-${workerId}`;
+  }
+
   return Object.entries(credentials).reduce(
     async (instancesPromise, [schemaName, { username, password }]) => {
       const instances = await instancesPromise;
@@ -129,9 +137,19 @@ export async function initReportingInstances(dbOptions) {
         log.warn(`No credentials provided for ${schemaName} reporting schema, skipping...`);
         return instances;
       }
+
       return {
         ...instances,
-        [schemaName]: await connectToDatabase({ ...dbOptions, username, password, pool }),
+        [schemaName]: await new Sequelize(name, username, password, {
+          testMode,
+          sqlitePath,
+          port,
+          pool,
+          verbose,
+          migrateOnStartup: false,
+          dialect: 'postgres',
+          dialectOptions: { application_name: serviceName(serviceContext()) ?? 'tamanu' },
+        }),
       };
     },
     Promise.resolve({}),
