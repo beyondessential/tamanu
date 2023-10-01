@@ -27,7 +27,7 @@ export async function closeDatabase() {
   if (existingReportConnections) {
     const oldConnections = existingReportConnections;
     existingReportConnections = null;
-    await Promise.all(Object.values(oldConnections).map(c => c.sequelize.close()));
+    await Promise.all(Object.values(oldConnections).map(c => c.close()));
   }
   if (existingConnection) {
     const oldConnection = existingConnection;
