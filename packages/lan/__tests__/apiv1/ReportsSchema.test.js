@@ -1,43 +1,70 @@
 import { QueryTypes } from 'sequelize';
+import config from 'config';
 import { createTestContext } from '../utilities';
 
 describe('ReportSchemas', () => {
   let ctx;
+  let raw;
+  let reporting;
 
   beforeAll(async () => {
     ctx = await createTestContext({ mockReportingSchema: true });
+    raw = ctx.reports.raw;
+    reporting = ctx.reports.reporting;
     await ctx.sequelize.query(`
-      CREATE TABLE "test-reporting-table" (
+      CREATE TABLE reporting.reporting_test_table (
         "id" integer NOT NULL,
         "name" varchar(255) NOT NULL,
-        "createdAt" timestamp with time zone NOT NULL,
-        "updatedAt" timestamp with time zone NOT NULL,
         PRIMARY KEY ("id")
-      );
-      INSERT INTO "test-reporting-table" ("id", "name", "createdAt", "updatedAt") VALUES ('1', 'test', '2020-01-01', '2020-01-01'), ('2', 'test2', '2020-01-01', '2020-01-01');
-    `);
+        );
+        CREATE TABLE raw_test_table (
+          "id" integer NOT NULL,
+          "name" varchar(255) NOT NULL,
+          PRIMARY KEY ("id")
+          );
+        GRANT SELECT ON reporting.reporting_test_table TO ${config.db.reports.credentials.reporting.username};
+        GRANT SELECT ON raw_test_table TO ${config.db.reports.credentials.raw.username};
+        INSERT INTO reporting.reporting_test_table ("id", "name") VALUES ('1', 'A'), ('2', 'B');
+        INSERT INTO raw_test_table ("id", "name") VALUES ('1', 'C'), ('2', 'D');
+        `);
   });
   afterAll(async () => {
-    await ctx.sequelize.query(`DROP TABLE "test-reporting-table";`);
+    await ctx.sequelize.query(`DROP TABLE reporting.reporting_test_table;`);
+    await ctx.sequelize.query(`DROP TABLE raw_test_table;`);
     await ctx.close();
   });
 
-  it('reporting can be used', async () => {
-    const result = await ctx.sequelize.query(`SELECT * FROM "test-reporting-table";`, {
+  it('public schema table can be accessed by raw user', async () => {
+    const result = await raw.query(`SELECT * FROM raw_test_table ORDER BY name;`, {
       type: QueryTypes.SELECT,
     });
     expect(result).toEqual([
       {
         id: 1,
-        name: 'test',
-        createdAt: '2020-01-01T00:00:00.000Z',
-        updatedAt: '2020-01-01T00:00:00.000Z',
+        name: 'C',
       },
       {
         id: 2,
-        name: 'test2',
-        createdAt: '2020-01-01T00:00:00.000Z',
-        updatedAt: '2020-01-01T00:00:00.000Z',
+        name: 'D',
+      },
+    ]);
+  });
+
+  it('reporting schema table can be accessed by reporting user', async () => {
+    const result = await reporting.query(
+      `SELECT * FROM reporting.reporting_test_table ORDER BY name;`,
+      {
+        type: QueryTypes.SELECT,
+      },
+    );
+    expect(result).toEqual([
+      {
+        id: 1,
+        name: 'A',
+      },
+      {
+        id: 2,
+        name: 'B',
       },
     ]);
   });

@@ -129,7 +129,7 @@ export async function createTestContext(options = {}) {
   const { mockReportingSchema } = options;
   if (mockReportingSchema) {
     await prepareMockReportingSchema(dbResult);
-    dbResult.reporting = await initReporting();
+    dbResult.reports = await initReporting();
   }
 
   const { models, sequelize } = dbResult;
