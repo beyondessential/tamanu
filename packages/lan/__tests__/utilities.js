@@ -125,6 +125,7 @@ export async function prepareMockReportingSchema({ sequelize }) {
     `);
   } catch (err) {
     console.log(err);
+    throw err;
   }
 }
 
