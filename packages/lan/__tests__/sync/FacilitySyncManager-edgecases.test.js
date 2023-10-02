@@ -143,6 +143,7 @@ describe('FacilitySyncManager edge cases', () => {
             sessionId: TEST_SESSION_ID,
             startedAtTick: NEW_SYNC_TICK,
           })),
+          settings,
           push: jest.fn(),
           pull: jest.fn().mockImplementation(async () => [
             {
