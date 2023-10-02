@@ -1,8 +1,8 @@
 import { QueryTypes } from 'sequelize';
 import { fake } from '@tamanu/shared/test-helpers';
 import config from 'config';
-import { createTestContext } from '../utilities';
 import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
+import { createTestContext } from '../utilities';
 
 describe('ReportSchemas', () => {
   let ctx;
@@ -11,8 +11,11 @@ describe('ReportSchemas', () => {
   let models;
   let raw;
   let reporting;
+  let rawDefinition;
+  let reportingDefinition;
 
   beforeAll(async () => {
+    const { credentials } = config.db.reports;
     ctx = await createTestContext({ mockReportingSchema: true });
     adminApp = await ctx.baseApp.asRole('admin');
     models = ctx.models;
@@ -29,14 +32,22 @@ describe('ReportSchemas', () => {
         "name" varchar(255) NOT NULL,
         PRIMARY KEY ("id")
       );
-      GRANT SELECT ON reporting.reporting_test_table TO ${config.db.reports.credentials.reporting.username};
-      GRANT SELECT ON raw_test_table TO ${config.db.reports.credentials.raw.username};
+      GRANT SELECT ON reporting.reporting_test_table TO ${credentials.reporting.username};
+      GRANT SELECT ON raw_test_table TO ${credentials.raw.username};
       INSERT INTO reporting.reporting_test_table ("id", "name") VALUES ('1', 'A'), ('2', 'B');
       INSERT INTO raw_test_table ("id", "name") VALUES ('1', 'C'), ('2', 'D');
     `);
     user = await models.User.create({
       ...fake(models.User),
       email: 'test@tamanu.io',
+    });
+    rawDefinition = await ctx.models.ReportDefinition.create({
+      name: 'test raw definition',
+      dbSchema: REPORT_DB_SCHEMAS.RAW,
+    });
+    reportingDefinition = await ctx.models.ReportDefinition.create({
+      name: 'test reporting definition',
+      dbSchema: REPORT_DB_SCHEMAS.REPORTING,
     });
   });
   afterAll(async () => {
@@ -45,6 +56,14 @@ describe('ReportSchemas', () => {
       DROP TABLE raw_test_table;
     `);
     await ctx.close();
+  });
+
+  beforeEach(async () => {
+    await models.ReportDefinitionVersion.destroy({
+      where: {
+        reportDefinitionId: [rawDefinition.id, reportingDefinition.id],
+      },
+    });
   });
 
   it('public schema table can be accessed by raw user', async () => {
@@ -83,12 +102,8 @@ describe('ReportSchemas', () => {
   });
 
   it('a report with db_schema=reporting can reference reporting schema tables without prefix', async () => {
-    const reportDefinition = await ctx.models.ReportDefinition.create({
-      name: 'test reporting definition',
-      dbSchema: REPORT_DB_SCHEMAS.REPORTING,
-    });
     const reportDefinitionVersion = await ctx.models.ReportDefinitionVersion.create({
-      reportDefinitionId: reportDefinition.id,
+      reportDefinitionId: reportingDefinition.id,
       query: 'SELECT * FROM reporting_test_table ORDER BY name;',
       queryOptions: `{"parameters": [], "defaultDateRange": "allTime"}`,
       versionNumber: 1,
@@ -103,12 +118,8 @@ describe('ReportSchemas', () => {
     ]);
   });
   it('a report with db_schema=raw can reference public schema tables', async () => {
-    const reportDefinition = await ctx.models.ReportDefinition.create({
-      name: 'test raw definition',
-      dbSchema: REPORT_DB_SCHEMAS.RAW,
-    });
     const reportDefinitionVersion = await ctx.models.ReportDefinitionVersion.create({
-      reportDefinitionId: reportDefinition.id,
+      reportDefinitionId: rawDefinition.id,
       query: 'SELECT * FROM raw_test_table ORDER BY name;',
       queryOptions: `{"parameters": [], "defaultDateRange": "allTime"}`,
       versionNumber: 1,
@@ -121,5 +132,17 @@ describe('ReportSchemas', () => {
       [1, 'C'],
       [2, 'D'],
     ]);
+  });
+  it('a report with db_schema=reporting cannot reference public schema tables', async () => {
+    const reportDefinitionVersion = await ctx.models.ReportDefinitionVersion.create({
+      reportDefinitionId: reportingDefinition.id,
+      query: 'SELECT * FROM public.raw_test_table ORDER BY name;',
+      queryOptions: `{"parameters": [], "defaultDateRange": "allTime"}`,
+      versionNumber: 1,
+      userId: user.id,
+    });
+    const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`);
+    expect(response).toHaveRequestError();
+    expect(response.body.error.message).toEqual('permission denied for table raw_test_table');
   });
 });
