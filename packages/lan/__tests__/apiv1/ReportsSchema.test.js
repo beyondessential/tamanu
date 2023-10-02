@@ -16,21 +16,23 @@ describe('ReportSchemas', () => {
         "id" integer NOT NULL,
         "name" varchar(255) NOT NULL,
         PRIMARY KEY ("id")
-        );
-        CREATE TABLE raw_test_table (
-          "id" integer NOT NULL,
-          "name" varchar(255) NOT NULL,
-          PRIMARY KEY ("id")
-          );
-        GRANT SELECT ON reporting.reporting_test_table TO ${config.db.reports.credentials.reporting.username};
-        GRANT SELECT ON raw_test_table TO ${config.db.reports.credentials.raw.username};
-        INSERT INTO reporting.reporting_test_table ("id", "name") VALUES ('1', 'A'), ('2', 'B');
-        INSERT INTO raw_test_table ("id", "name") VALUES ('1', 'C'), ('2', 'D');
+      );
+      CREATE TABLE raw_test_table (
+        "id" integer NOT NULL,
+        "name" varchar(255) NOT NULL,
+        PRIMARY KEY ("id")
+      );
+      GRANT SELECT ON reporting.reporting_test_table TO ${config.db.reports.credentials.reporting.username};
+      GRANT SELECT ON raw_test_table TO ${config.db.reports.credentials.raw.username};
+      INSERT INTO reporting.reporting_test_table ("id", "name") VALUES ('1', 'A'), ('2', 'B');
+      INSERT INTO raw_test_table ("id", "name") VALUES ('1', 'C'), ('2', 'D');
         `);
   });
   afterAll(async () => {
-    await ctx.sequelize.query(`DROP TABLE reporting.reporting_test_table;`);
-    await ctx.sequelize.query(`DROP TABLE raw_test_table;`);
+    await ctx.sequelize.query(`
+    DROP TABLE reporting.reporting_test_table;
+    DROP TABLE raw_test_table;
+    `);
     await ctx.close();
   });
 
