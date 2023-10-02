@@ -49,13 +49,12 @@ reports.post(
     }
     await checkReportModulePermissions(req, reportModule, reportId);
 
-    const reportSchemaRolesEnabled = !!localisation?.features?.reportSchemaRoles;
     try {
       facilityReportLog.info('Running report', { parameters });
       const excelData = await reportModule.dataGenerator(
         {
           models,
-          reports: reportSchemaRolesEnabled && reportInstances,
+          reports: reportInstances,
           sequelize: db,
         },
         parameters,

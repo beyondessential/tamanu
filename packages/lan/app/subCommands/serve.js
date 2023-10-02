@@ -23,10 +23,7 @@ async function serve({ skipMigrationCheck }) {
     execArgs: process.execArgs || '<empty>',
   });
 
-  const dbResult = await initDatabase();
-
-  const reports = await initReporting();
-  const context = { ...dbResult, reports };
+  const context = await initDatabase();
 
   if (config.db.migrateOnStartup) {
     await context.sequelize.migrate('up');
@@ -37,6 +34,10 @@ async function serve({ skipMigrationCheck }) {
   await initDeviceId(context);
   await checkConfig(config, context);
   await performDatabaseIntegrityChecks(context);
+
+  if (config.db.reports.enabled) {
+    context.reports = await initReporting();
+  }
 
   context.centralServer = new CentralServerConnection(context);
   context.syncManager = new FacilitySyncManager(context);

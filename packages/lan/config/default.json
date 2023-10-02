@@ -54,6 +54,7 @@
     "verbose": false,
     "migrateOnStartup": false,
     "reports": {
+      "enabled": false,
       "pool": {},
       "credentials": {
         "raw": {

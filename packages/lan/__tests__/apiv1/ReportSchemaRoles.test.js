@@ -4,7 +4,10 @@ import config from 'config';
 import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
-describe('ReportSchemas', () => {
+// Tests are against mocked reporting schema and roles defined in
+// packages/shared/src/demoData/createMockReportingSchemaAndRoles.js
+// and role config defined in db.reports.credentials config/test.json
+describe('ReportSchemaRoles', () => {
   let ctx;
   let adminApp;
   let user;
@@ -40,11 +43,6 @@ describe('ReportSchemas', () => {
     user = await models.User.create({
       ...fake(models.User),
       email: 'test@tamanu.io',
-    });
-    // TODO: db-settings?
-    await models.UserLocalisationCache.create({
-      userId: adminApp.user.id,
-      localisation: JSON.stringify({ features: { reportSchemaRoles: true } }),
     });
 
     rawDefinition = await models.ReportDefinition.create({
