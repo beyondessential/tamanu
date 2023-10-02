@@ -39,6 +39,7 @@ reports.post(
       reportId,
     });
     const localisation = await getLocalisation();
+
     assertReportEnabled(localisation, reportId);
 
     const reportModule = await reportUtils.getReportModule(reportId, models);
@@ -48,10 +49,15 @@ reports.post(
     }
     await checkReportModulePermissions(req, reportModule, reportId);
 
+    const reportSchemaRolesEnabled = !!localisation?.features?.reportSchemaRoles;
     try {
       facilityReportLog.info('Running report', { parameters });
       const excelData = await reportModule.dataGenerator(
-        { models, reports: reportInstances, sequelize: db },
+        {
+          models,
+          reports: reportSchemaRolesEnabled && reportInstances,
+          sequelize: db,
+        },
         parameters,
       );
       facilityReportLog.info('Report run successfully');

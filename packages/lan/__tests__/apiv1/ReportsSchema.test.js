@@ -41,11 +41,17 @@ describe('ReportSchemas', () => {
       ...fake(models.User),
       email: 'test@tamanu.io',
     });
-    rawDefinition = await ctx.models.ReportDefinition.create({
+    // TODO: db-settings?
+    await models.UserLocalisationCache.create({
+      userId: adminApp.user.id,
+      localisation: JSON.stringify({ features: { reportSchemaRoles: true } }),
+    });
+
+    rawDefinition = await models.ReportDefinition.create({
       name: 'test raw definition',
       dbSchema: REPORT_DB_SCHEMAS.RAW,
     });
-    reportingDefinition = await ctx.models.ReportDefinition.create({
+    reportingDefinition = await models.ReportDefinition.create({
       name: 'test reporting definition',
       dbSchema: REPORT_DB_SCHEMAS.REPORTING,
     });

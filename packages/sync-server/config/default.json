@@ -642,6 +642,7 @@
         "hideOtherSex": true,
         "enablePatientDeaths": false,
         "mergePopulatedPADRecords": true,
+        "reportSchemaRoles": true,
         "enableNoteBackdating": true,
         "enableCovidClearanceCertificate": false,
         "editPatientDisplayId": false,
