@@ -102,4 +102,24 @@ describe('ReportSchemas', () => {
       [2, 'B'],
     ]);
   });
+  it('a report with db_schema=raw can reference public schema tables', async () => {
+    const reportDefinition = await ctx.models.ReportDefinition.create({
+      name: 'test raw definition',
+      dbSchema: REPORT_DB_SCHEMAS.RAW,
+    });
+    const reportDefinitionVersion = await ctx.models.ReportDefinitionVersion.create({
+      reportDefinitionId: reportDefinition.id,
+      query: 'SELECT * FROM raw_test_table ORDER BY name;',
+      queryOptions: `{"parameters": [], "defaultDateRange": "allTime"}`,
+      versionNumber: 1,
+      userId: user.id,
+    });
+    const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`);
+    expect(response).toHaveSucceeded();
+    expect(response.body).toEqual([
+      ['id', 'name'],
+      [1, 'C'],
+      [2, 'D'],
+    ]);
+  });
 });
