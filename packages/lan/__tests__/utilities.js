@@ -104,6 +104,7 @@ export async function createTestContext(options = {}) {
   const dbResult = await initDatabase();
 
   const { mockReportingSchema } = options;
+  // create mock reporting schema and roles if test requires it
   if (mockReportingSchema) {
     await unsafeCreateMockReportingSchemaAndRoles(dbResult);
     dbResult.reports = await initReporting();
