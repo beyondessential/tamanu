@@ -4,7 +4,10 @@ import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import * as dataMigrations from './dataMigrations';
 import { initDatabase } from '../../database';
 
-const migrateData = async (name, { batchSize: batchSizeOverride, delay: delayOverrideMs }) => {
+export const migrateData = async (
+  name,
+  { batchSize: batchSizeOverride, delay: delayOverrideMs },
+) => {
   // setup
   const DataMigration = dataMigrations[name];
   if (!DataMigration) {
