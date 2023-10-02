@@ -6,7 +6,6 @@ import { List, Divider, Box, Typography, Button, IconButton } from '@material-ui
 import { NavigateBefore, NavigateNext } from '@material-ui/icons';
 import { TamanuLogoWhite, TamanuLogoWhiteNoText } from '../TamanuLogo';
 import { Colors } from '../../constants';
-import { Translated } from '../Translated';
 import { HiddenSyncAvatar } from '../HiddenSyncAvatar';
 import { TopLevelSidebarItem } from './TopLevelSidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
@@ -264,7 +263,7 @@ export const Sidebar = React.memo(({ items }) => {
                   id="logout"
                   data-test-id="siderbar-logout-item"
                 >
-                  <Translated id="logout" />
+                  Log out
                 </LogoutButton>
               </Box>
             </Box>
