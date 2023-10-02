@@ -3,7 +3,7 @@ import { Sequelize } from 'sequelize';
 import pg from 'pg';
 import util from 'util';
 
-import { SYNC_DIRECTIONS, REPORT_DB_SCHEMAS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from './logging';
 import { serviceContext, serviceName } from './logging/context';
 
@@ -118,46 +118,21 @@ async function connectToDatabase(dbOptions) {
   return sequelize;
 }
 
-export async function initReportingInstances(dbOptions) {
-  const { pool, credentials } = dbOptions.reports;
-  return Object.entries(credentials).reduce(
-    async (instancesPromise, [schemaName, { username, password }]) => {
-      const instances = await instancesPromise;
-
-      if (!Object.values(REPORT_DB_SCHEMAS).includes(schemaName)) {
-        log.warn(`Unknown reporting schema ${schemaName}, skipping...`);
-        return instances;
-      }
-      if (!username || !password) {
-        log.warn(`No credentials provided for ${schemaName} reporting schema, skipping...`);
-        return instances;
-      }
-      return {
-        ...instances,
-        [schemaName]: await connectToDatabase({
-          ...dbOptions,
-          initialConnection: false,
-          migrateOnStartup: false,
-          username,
-          password,
-          pool,
-        }),
-      };
-    },
-    Promise.resolve({}),
-  );
-}
-
 export async function initDatabase(dbOptions) {
   // connect to database
   const {
     makeEveryModelParanoid = false,
     saltRounds = null,
+    initialConnection = true,
     primaryKeyDefault = Sequelize.UUIDV4,
     hackToSkipEncounterValidation = false, // TODO: remove once mobile implements all relationships
   } = dbOptions;
 
   const sequelize = await connectToDatabase(dbOptions);
+
+  if (!initialConnection) {
+    return { sequelize };
+  }
 
   // set configuration variables for individual models
   models.User.SALT_ROUNDS = saltRounds;

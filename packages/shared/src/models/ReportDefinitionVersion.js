@@ -132,7 +132,7 @@ export class ReportDefinitionVersion extends Model {
     );
 
     const definition = await this.getReportDefinition();
-    const instance = reporting ? reporting[definition.dbSchema] : sequelize;
+    const instance = reporting ? reporting[definition.dbSchema]?.sequelize : sequelize;
     if (!instance) {
       throw new Error(`No reporting instance found for ${definition.dbSchema}`);
     }
