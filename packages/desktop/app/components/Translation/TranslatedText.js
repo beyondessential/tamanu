@@ -4,7 +4,7 @@ export const TranslatedText = ({ stringId, fallback }) => {
   const translation = null; // Placeholder for checking db for translation
 
   if (!translation && !fallback) {
-    return <>Unhandled translation</>;
+    return <>Unhandled translation for {stringId}</>;
   }
 
   if (!translation) {
@@ -12,5 +12,5 @@ export const TranslatedText = ({ stringId, fallback }) => {
     return <>{fallback}</>;
   }
 
-  return <>{stringId}</>;
+  return <>{translation}</>;
 };
