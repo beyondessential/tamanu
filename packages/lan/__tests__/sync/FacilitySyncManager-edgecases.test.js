@@ -1,6 +1,6 @@
 /* eslint-disable global-require */
 import config from 'config';
-
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patients';
@@ -30,8 +30,11 @@ describe('FacilitySyncManager edge cases', () => {
 
   afterAll(() => ctx.close());
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.resetModules();
+    await models.Setting.destroy({
+      where: {},
+    });
   });
 
   it('will not start snapshotting until all transactions started under the old sync tick have committed', async () => {
@@ -133,7 +136,7 @@ describe('FacilitySyncManager edge cases', () => {
         FacilitySyncManager: TestFacilitySyncManager,
       } = require('../../app/sync/FacilitySyncManager');
       if (configToOverride) {
-        TestFacilitySyncManager.overrideConfig(configToOverride);
+        // TestFacilitySyncManager.overrideConfig(configToOverride);
       }
       syncManager = new TestFacilitySyncManager({
         models,
@@ -276,6 +279,16 @@ describe('FacilitySyncManager edge cases', () => {
       const configToOverride = {
         sync: { enabled: false, assertIfPulledRecordsUpdatedAfterPushSnapshot: false },
       };
+
+      const { Setting } = models;
+      await Setting.set('sync.enabled', false, config.serverFacilityId, SETTINGS_SCOPES.FACILITY);
+      await Setting.set(
+        'sync.assertIfPulledRecordsUpdatedAfterPushSnapshot',
+        false,
+        config.serverFacilityId,
+        SETTINGS_SCOPES.FACILITY,
+      );
+
       initializeSyncManager(encounter, configToOverride);
 
       // start the sync

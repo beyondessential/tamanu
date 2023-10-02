@@ -60,7 +60,8 @@ export class FacilitySyncManager {
   }
 
   async triggerSync(reason) {
-    if (!this.constructor.config.sync.enabled) {
+    const syncEnabled = await this.centralServer.settings.get('sync.enabled');
+    if (!syncEnabled) {
       log.warn('FacilitySyncManager.triggerSync: sync is disabled');
       return;
     }
@@ -176,7 +177,9 @@ export class FacilitySyncManager {
       pullSince,
     );
 
-    if (this.constructor.config.sync.assertIfPulledRecordsUpdatedAfterPushSnapshot) {
+    if (
+      await this.centralServer.settings.get('sync.assertIfPulledRecordsUpdatedAfterPushSnapshot')
+    ) {
       await assertIfPulledRecordsUpdatedAfterPushSnapshot(
         Object.values(getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL)),
         sessionId,
