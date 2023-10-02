@@ -5,6 +5,7 @@ import { Box } from '@material-ui/core';
 import { Button, OutlinedButton } from '../components';
 import { getVisibleQuestions } from '../utils';
 import { SummaryScreenOne } from './DeathFormSummaryScreens';
+import { useEncounter } from '../contexts/Encounter';
 
 const Actions = styled(Box)`
   display: flex;
@@ -29,12 +30,13 @@ export const DeathFormScreen = ({
   setShowStepper,
   onCancel,
 }) => {
+  const { encounter } = useEncounter();
   const [showSummary, setShowSummary] = useState(false);
   const patient = useSelector(state => state.patient);
   const { children } = screenReactElement.props;
   const screenQuestionReactElements = React.Children.toArray(children);
   const visibleQuestions = getVisibleQuestions(
-    values,
+    { ...values, encounterType: encounter.type },
     allQuestionReactElements,
     screenQuestionReactElements,
   );

@@ -5,6 +5,7 @@ import { checkVisibility, getFormInitialValues, getValidationSchema } from 'desk
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { Colors } from '../../constants';
 import { SurveyScreenPaginator } from '../../components/Surveys';
+import { useEncounter } from '../../contexts/Encounter';
 
 export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
   background: ${props => props.theme.palette.primary.main};
@@ -25,6 +26,7 @@ export const SurveyView = ({
   patientAdditionalData,
   currentUser,
 }) => {
+  const { encounter } = useEncounter();
   const { components } = survey;
   const initialValues = getFormInitialValues(
     components,
@@ -54,7 +56,9 @@ export const SurveyView = ({
     // 1. get a list of visible fields
     const submitVisibleValues = event => {
       const visibleFields = new Set(
-        components.filter(c => checkVisibility(c, values, components)).map(x => x.dataElementId),
+        components
+          .filter(c => checkVisibility(c, { ...values, encounterType: encounter.type }, components))
+          .map(x => x.dataElementId),
       );
 
       // 2. Filter the form values to only include visible fields
