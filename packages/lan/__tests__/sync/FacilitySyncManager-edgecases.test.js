@@ -133,7 +133,7 @@ describe('FacilitySyncManager edge cases', () => {
         FacilitySyncManager: TestFacilitySyncManager,
       } = require('../../app/sync/FacilitySyncManager');
       if (configToOverride) {
-        // TestFacilitySyncManager.overrideConfig(configToOverride);
+        TestFacilitySyncManager.overrideConfig(configToOverride);
       }
       syncManager = new TestFacilitySyncManager({
         models,
