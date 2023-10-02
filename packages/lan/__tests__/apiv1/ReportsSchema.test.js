@@ -16,7 +16,7 @@ describe('ReportSchemas', () => {
 
   beforeAll(async () => {
     const { credentials } = config.db.reports;
-    ctx = await createTestContext({ mockReportingSchema: true });
+    ctx = await createTestContext({ enableReportInstances: true });
     adminApp = await ctx.baseApp.asRole('admin');
     models = ctx.models;
     raw = ctx.reports.raw.sequelize;
@@ -144,5 +144,20 @@ describe('ReportSchemas', () => {
     const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`);
     expect(response).toHaveRequestError();
     expect(response.body.error.message).toEqual('permission denied for table raw_test_table');
+  });
+  it('a report should not be able to run non-select queries', async () => {
+    await ctx.sequelize.query(`
+      INSERT INTO reporting.reporting_test_table ("id", "name") VALUES ('3', 'C');
+    `);
+    const reportDefinitionVersion = await ctx.models.ReportDefinitionVersion.create({
+      reportDefinitionId: reportingDefinition.id,
+      query: `DELETE FROM reporting_test_table where id = 3`,
+      queryOptions: `{"parameters": [], "defaultDateRange": "allTime"}`,
+      versionNumber: 1,
+      userId: user.id,
+    });
+    const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`);
+    expect(response).toHaveRequestError();
+    expect(response.body.error.message).toEqual('permission denied for table reporting_test_table');
   });
 });

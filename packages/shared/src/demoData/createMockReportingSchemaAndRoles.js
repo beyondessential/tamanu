@@ -1,7 +1,8 @@
 import config from 'config';
 
 // Create a mock reporting schema and reporting users for testing
-export async function unsafeCreateMockReportingSchemaAndRoles({ sequelize }) {
+// Relatively unsafe as creates roles and schemas in the database
+export async function createMockReportingSchemaAndRoles({ sequelize }) {
   const { raw, reporting } = config.db.reports.credentials;
   await sequelize.query(`
     CREATE SCHEMA IF NOT EXISTS reporting;

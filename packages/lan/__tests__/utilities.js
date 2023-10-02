@@ -9,9 +9,9 @@ import {
   seedLocations,
   seedLocationGroups,
   seedLabTests,
+  createMockReportingSchemaAndRoles,
 } from 'shared/demoData';
 import { chance, fake, showError } from 'shared/test-helpers';
-import { unsafeCreateMockReportingSchemaAndRoles } from '@tamanu/shared/reports/utilities';
 
 import { createApp } from 'lan/app/createApp';
 import { initDatabase, closeDatabase, initReporting } from 'lan/app/database';
@@ -100,13 +100,13 @@ export function extendExpect(expect) {
   });
 }
 
-export async function createTestContext(options = {}) {
+export async function createTestContext({ enableReportInstances } = {}) {
   const dbResult = await initDatabase();
 
-  const { mockReportingSchema } = options;
-  // create mock reporting schema and roles if test requires it
-  if (mockReportingSchema) {
-    await unsafeCreateMockReportingSchemaAndRoles(dbResult);
+  // create mock reporting schema + roles if test requires it
+  // init reporting instances for these roles
+  if (enableReportInstances) {
+    await createMockReportingSchemaAndRoles(dbResult);
     dbResult.reports = await initReporting();
   }
 
