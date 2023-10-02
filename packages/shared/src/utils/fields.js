@@ -127,11 +127,11 @@ function getValuesByCode(components, valuesById) {
   return valuesByCode;
 }
 
-export function getResultValue(components, originalValues) {
+export function getResultValue(components, originalValues, specialValues) {
   const values = getValuesByCode(components, originalValues);
   const resultComponents = components
     .filter(c => c.dataElement.type === 'Result')
-    .filter(c => checkVisibilityCriteria(c, components, values));
+    .filter(c => checkVisibilityCriteria(c, components, { ...values, ...specialValues }));
 
   const component = resultComponents.pop();
 

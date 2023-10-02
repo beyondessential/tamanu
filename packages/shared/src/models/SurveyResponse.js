@@ -204,13 +204,14 @@ export class SurveyResponse extends Model {
       ...calculatedAnswers,
     };
 
-    const { result, resultText } = getResultValue(questions, answers);
-
     const encounter = await this.getSurveyEncounter({
       encounterId,
       patientId,
       reasonForEncounter: `Survey response for ${survey.name}`,
       ...responseData,
+    });
+    const { result, resultText } = getResultValue(questions, answers, {
+      encounterType: encounter.type,
     });
     const record = await SurveyResponse.create({
       patientId,
