@@ -1,13 +1,13 @@
 import React from 'react';
 
 export const TranslatedText = ({ stringId, fallback }) => {
-  const translationExists = false; // Placeholder for checking db for translation
+  const translation = null; // Placeholder for checking db for translation
 
-  if (!translationExists && !fallback) {
+  if (!translation && !fallback) {
     return <>Unhandled translation</>;
   }
 
-  if (!translationExists) {
+  if (!translation) {
     // Register as untranslated in DB
     return <>{fallback}</>;
   }
