@@ -260,7 +260,9 @@ describe('Suggestions', () => {
       expect(body).toHaveProperty('name', record.name);
       expect(body).toHaveProperty('id', record.id);
     });
+  });
 
+  describe('Other suggesters', () => {
     it('should get suggestions for a medication', async () => {
       const result = await userApp.get('/v1/suggestions/drug?q=a');
       expect(result).toHaveSucceeded();
@@ -270,38 +272,50 @@ describe('Suggestions', () => {
     });
 
     it('should get suggestions for a survey', async () => {
-      const programId = 'all-survey-program-id';
+      const programId1 = 'all-survey-program-id';
+      const programId2 = 'alternative-program-id';
       const obsoleteSurveyId = 'obsolete-survey-id';
       await models.Program.create({
-        id: programId,
+        id: programId1,
+        name: 'Program',
+      });
+      await models.Program.create({
+        id: programId2,
         name: 'Program',
       });
 
       await models.Survey.bulkCreate([
         {
           id: obsoleteSurveyId,
-          programId,
+          programId: programId1,
           name: 'XX - Obsolete Survey',
           surveyType: SURVEY_TYPES.OBSOLETE,
         },
         {
           id: 'referral-survey-id',
-          programId,
+          programId: programId1,
           name: 'XX - Referral Survey',
         },
         {
           id: 'program-survey-id',
-          programId,
+          programId: programId1,
           name: 'XX - Program Survey',
         },
         {
           id: 'program-survey-id-2',
-          programId,
+          programId: programId1,
           name: 'ZZ - Program Survey',
+        },
+        {
+          id: 'program2-survey-id-2',
+          programId: programId2,
+          name: 'AA - Program Survey',
         },
       ]);
 
-      const result = await userApp.get('/v1/suggestions/survey?q=X');
+      const result = await userApp
+        .get('/v1/suggestions/survey')
+        .query({ q: 'X', programId: 'all-survey-program-id' });
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body).toBeInstanceOf(Array);
@@ -390,7 +404,7 @@ describe('Suggestions', () => {
 
   it('Should get all suggestions on the /all endpoint', async () => {
     await models.ReferenceData.truncate({ cascade: true });
-    const dummyRecords = (new Array(30)).fill(0).map((_, i) => ({
+    const dummyRecords = new Array(30).fill(0).map((_, i) => ({
       id: `diag-${i}`,
       type: 'icd10',
       name: `Diag ${i}`,

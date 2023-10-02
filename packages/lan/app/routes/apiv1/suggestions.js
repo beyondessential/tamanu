@@ -213,7 +213,7 @@ createNameSuggester('facilityLocationGroup', 'LocationGroup', (search, query) =>
 );
 
 createNameSuggester('survey', 'Survey', (search, { programId }) => ({
-  ...DEFAULT_WHERE_BUILDER(search),
+    name: { [Op.iLike]: search },
   ...(programId ? { programId } : programId),
   surveyType: {
     [Op.notIn]: [SURVEY_TYPES.OBSOLETE, SURVEY_TYPES.VITALS],
