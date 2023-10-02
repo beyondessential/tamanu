@@ -11,6 +11,7 @@ import {
   seedLabTests,
 } from 'shared/demoData';
 import { chance, fake, showError } from 'shared/test-helpers';
+import { unsafeCreateMockReportingSchemaAndRoles } from '@tamanu/shared/reports/utilities';
 
 import { createApp } from 'lan/app/createApp';
 import { initDatabase, closeDatabase, initReporting } from 'lan/app/database';
@@ -99,36 +100,12 @@ export function extendExpect(expect) {
   });
 }
 
-export async function prepareMockReportingSchema({ sequelize }) {
-  const { raw, reporting } = config.db.reports.credentials;
-  await sequelize.query(`
-      CREATE SCHEMA IF NOT EXISTS reporting;
-      -- create roles if they don't exist this can happen on local dev when running tests
-      DO $$
-      BEGIN
-      CREATE ROLE ${reporting.username} WITH
-        LOGIN 
-        PASSWORD '${reporting.password}';
-      CREATE ROLE ${raw.username} WITH
-        LOGIN 
-        PASSWORD '${raw.password}';
-      EXCEPTION WHEN duplicate_object THEN RAISE NOTICE '%, skipping', SQLERRM USING ERRCODE = SQLSTATE;
-      END
-      $$;
-      ALTER ROLE ${reporting.username} SET search_path TO reporting;
-      GRANT USAGE ON SCHEMA reporting TO ${reporting.username};
-      GRANT USAGE ON SCHEMA public TO ${raw.username};
-      GRANT SELECT ON ALL TABLES IN SCHEMA reporting TO ${reporting.username};
-      GRANT SELECT ON ALL TABLES IN SCHEMA public TO ${raw.username};
-    `);
-}
-
 export async function createTestContext(options = {}) {
   const dbResult = await initDatabase();
 
   const { mockReportingSchema } = options;
   if (mockReportingSchema) {
-    await prepareMockReportingSchema(dbResult);
+    await unsafeCreateMockReportingSchemaAndRoles(dbResult);
     dbResult.reports = await initReporting();
   }
 
@@ -212,7 +189,7 @@ export async function createTestContext(options = {}) {
 
   const centralServer = new CentralServerConnection({ deviceId: 'test' });
 
-  const context = { ...dbResult, models, centralServer, baseApp };
+  const context = { ...dbResult, centralServer, baseApp };
 
   context.syncManager = new FacilitySyncManager(context);
 

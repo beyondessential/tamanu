@@ -67,9 +67,7 @@ export async function initReporting() {
 export async function closeDatabase() {
   for (const key of Object.keys(existingConnections)) {
     const connection = existingConnections[key];
-    if (connection?.sequelize?.close) {
-      await connection.sequelize.close();
-    }
+    await connection.sequelize.close();
   }
   existingConnections = {};
 }
