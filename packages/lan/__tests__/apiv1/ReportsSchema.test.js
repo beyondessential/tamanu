@@ -1,16 +1,21 @@
 import { QueryTypes } from 'sequelize';
+import { fake } from '@tamanu/shared/test-helpers';
 import config from 'config';
 import { createTestContext } from '../utilities';
+import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
 
 describe('ReportSchemas', () => {
   let ctx;
   let adminApp;
+  let user;
+  let models;
   let raw;
   let reporting;
 
   beforeAll(async () => {
     ctx = await createTestContext({ mockReportingSchema: true });
     adminApp = await ctx.baseApp.asRole('admin');
+    models = ctx.models;
     raw = ctx.reports.raw.sequelize;
     reporting = ctx.reports.reporting.sequelize;
     await ctx.sequelize.query(`
@@ -29,6 +34,10 @@ describe('ReportSchemas', () => {
       INSERT INTO reporting.reporting_test_table ("id", "name") VALUES ('1', 'A'), ('2', 'B');
       INSERT INTO raw_test_table ("id", "name") VALUES ('1', 'C'), ('2', 'D');
     `);
+    user = await models.User.create({
+      ...fake(models.User),
+      email: 'test@tamanu.io',
+    });
   });
   afterAll(async () => {
     await ctx.sequelize.query(`
@@ -73,8 +82,24 @@ describe('ReportSchemas', () => {
     ]);
   });
 
-  it('a report with schema_name can be accessed by reporting user', async () => {
-    // const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`);
-    expect(true).toBeTruthy();
+  it('a report with db_schema=reporting can reference reporting schema tables without prefix', async () => {
+    const reportDefinition = await ctx.models.ReportDefinition.create({
+      name: 'test reporting definition',
+      dbSchema: REPORT_DB_SCHEMAS.REPORTING,
+    });
+    const reportDefinitionVersion = await ctx.models.ReportDefinitionVersion.create({
+      reportDefinitionId: reportDefinition.id,
+      query: 'SELECT * FROM reporting_test_table ORDER BY name;',
+      queryOptions: `{"parameters": [], "defaultDateRange": "allTime"}`,
+      versionNumber: 1,
+      userId: user.id,
+    });
+    const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`);
+    expect(response).toHaveSucceeded();
+    expect(response.body).toEqual([
+      ['id', 'name'],
+      [1, 'A'],
+      [2, 'B'],
+    ]);
   });
 });
