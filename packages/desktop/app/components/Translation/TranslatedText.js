@@ -12,10 +12,6 @@ export const TranslatedText = ({ stringId, fallback }) => {
 
   const TextWrapper = debugMode ? DebugHighlighed : React.Fragment;
 
-  if (!translation && !fallback) {
-    return <TextWrapper>Unhandled translation for {stringId}</TextWrapper>;
-  }
-
   if (!translation) {
     // Register as untranslated in DB
     return <TextWrapper>{fallback}</TextWrapper>;

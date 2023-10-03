@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { DynamicSelectField } from '../app/components';
 import { TranslatedText } from '../app/components/Translation/TranslatedText';
 
 const Container = styled.div`
@@ -31,20 +30,3 @@ Basic.args = {
   stringId: 'fruitBowl.banana',
   fallback: 'banana',
 };
-
-// export const MoreThanSevenItems = Template.bind({});
-// MoreThanSevenItems.args = {
-//   name: 'furniture',
-// };
-
-// export const SevenOrLessItemsWithSuggester = Template.bind({});
-// SevenOrLessItemsWithSuggester.args = {
-//   name: 'lessThanSevenCities',
-//   suggesterEndpoint: 'lessThanSevenCities',
-// };
-
-// export const MoreThanSevenItemsWithSuggester = Template.bind({});
-// MoreThanSevenItemsWithSuggester.args = {
-//   name: 'moreThanSevenCities',
-//   suggesterEndpoint: 'moreThanSevenCities',
-// };
