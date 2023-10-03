@@ -6,20 +6,25 @@ const DebugHighlighed = styled.span`
   color: white;
 `;
 
-export const TranslatedText = ({ stringId, fallback }) => {
+const replaceStringVariables = (templateString, replacements) => {
+  return templateString.replace(/:([a-zA-Z]+)/g, (match, variableName) => {
+    if (replacements.hasOwnProperty(variableName)) {
+      return replacements[variableName];
+    }
+    return match;
+  });
+}
+
+export const TranslatedText = ({ stringId, fallback, replacements }) => {
   const translation = null; // Placeholder for checking db for translation
+
   const debugMode = JSON.parse(localStorage.getItem('debugTranslation'));
-
   const TextWrapper = debugMode ? DebugHighlighed : React.Fragment;
-
-  if (!translation && !fallback) {
-    return <TextWrapper>Unhandled translation for {stringId}</TextWrapper>;
-  }
 
   if (!translation) {
     // Register as untranslated in DB
-    return <TextWrapper>{fallback}</TextWrapper>;
+    return <TextWrapper>{replaceStringVariables(fallback, replacements)}</TextWrapper>;
   }
 
-  return <TextWrapper>{translation}</TextWrapper>;
+  return <TextWrapper>{replaceStringVariables(translation, replacements)}</TextWrapper>;
 };
