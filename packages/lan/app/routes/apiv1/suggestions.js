@@ -347,7 +347,7 @@ createNameSuggester('programRegistry', 'ProgramRegistry', (search, query) => {
           WHERE
             ppr.patient_id = '${query.patientId}'
           AND
-            pr.registrationStatus != '${REGISTRATION_STATUSES.RECORDED_IN_ERROR}'
+            ppr.registrationStatus != '${REGISTRATION_STATUSES.RECORDED_IN_ERROR}'
         )`,
       ),
     },
