@@ -11,6 +11,7 @@ import {
   INVOICE_LINE_TYPES,
   VISIBILITY_STATUSES,
   SUGGESTER_ENDPOINTS,
+  REGISTRATION_STATUSES,
 } from '@tamanu/constants';
 
 export const suggestions = express.Router();
@@ -211,17 +212,13 @@ createNameSuggester('facilityLocationGroup', 'LocationGroup', (search, query) =>
   filterByFacilityWhereBuilder(search, { ...query, filterByFacility: true }),
 );
 
-createSuggester(
-  'survey',
-  'Survey',
-  search => ({
-    name: { [Op.iLike]: search },
-    surveyType: {
-      [Op.notIn]: [SURVEY_TYPES.OBSOLETE, SURVEY_TYPES.VITALS],
-    },
-  }),
-  ({ id, name }) => ({ id, name }),
-);
+createNameSuggester('survey', 'Survey', (search, { programId }) => ({
+  name: { [Op.iLike]: search },
+  ...(programId ? { programId } : programId),
+  surveyType: {
+    [Op.notIn]: [SURVEY_TYPES.OBSOLETE, SURVEY_TYPES.VITALS],
+  },
+}));
 
 createSuggester(
   'invoiceLineTypes',
@@ -315,6 +312,42 @@ createSuggester('patientLabTestPanelTypes', 'LabTestPanel', (search, query) => {
             encounters ON encounters.id = lab_requests.encounter_id
           WHERE lab_requests.status = '${status}'
             AND encounters.patient_id = '${query.patientId}'
+        )`,
+      ),
+    },
+  };
+});
+
+createNameSuggester(
+  'programRegistryClinicalStatus',
+  'ProgramRegistryClinicalStatus',
+  (search, { programRegistryId }) => ({
+    ...DEFAULT_WHERE_BUILDER(search),
+    ...(programRegistryId ? { programRegistryId } : {}),
+  }),
+);
+
+createNameSuggester('programRegistry', 'ProgramRegistry', (search, query) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER(search);
+
+  if (!query.patientId) {
+    return baseWhere;
+  }
+
+  return {
+    ...baseWhere,
+    // Only suggest program registries this patient isn't already part of
+    id: {
+      [Op.notIn]: Sequelize.literal(
+        `(
+          SELECT DISTINCT(pr.id)
+          FROM program_registries pr
+          INNER JOIN patient_program_registrations ppr
+          ON ppr.program_registry_id = pr.id
+          WHERE
+            ppr.patient_id = '${query.patientId}'
+          AND
+            ppr.registration_status != '${REGISTRATION_STATUSES.RECORDED_IN_ERROR}'
         )`,
       ),
     },

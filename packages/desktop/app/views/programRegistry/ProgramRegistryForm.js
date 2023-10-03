@@ -22,7 +22,7 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
   const { currentUser, facility } = useAuth();
   const [program, setProgram] = useState();
   const [conditions, setConditions] = useState(undefined);
-  const programRegistrySuggester = useSuggester('programRegistries', {
+  const programRegistrySuggester = useSuggester('programRegistry', {
     baseQueryParameters: { patientId: patient.id },
   });
   const programRegistryStatusSuggester = useSuggester('clinicalStatus', {

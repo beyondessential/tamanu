@@ -350,7 +350,6 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
   ReferenceData: () => ({
     type: chance.pickone(REFERENCE_TYPE_VALUES),
-    visibilityStatus: VISIBILITY_STATUSES.CURRENT,
   }),
   Role: () => ({
     name: `${snakeCase(chance.profession())}_${chance.hash({ length: 8 })}`,

@@ -99,7 +99,8 @@ export function readMetadata(metadataSheet) {
     .map(row => ({
       ...row,
       // Note: __rowNum__ is a non-enumerable property, so needs to be accessed explicitly here
-      rowIndex: row.__rowNum__,
+      // -1 as it'll have 2 added to it later but it's only 1 off
+      rowIndex: row.__rowNum__ - 1,
       sheetName: row.name,
       id: `${programId}-${idify(row.code)}`,
       name: `${prefix}${row.name}`,
@@ -118,9 +119,7 @@ export function readMetadata(metadataSheet) {
         default:
           throw new ValidationError(
             'Metadata',
-            // ValidationError gives the index +1 for the header to find the sheet row,
-            // but we have the index of the sheet row already
-            rowIndex - 1,
+            rowIndex,
             `Survey ${name} has invalid status ${status}. Must be one of publish, draft, hidden.`,
           );
       }
