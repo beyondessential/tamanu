@@ -28,6 +28,12 @@ function readProgramRegistryData(workbook) {
   };
 }
 
+function readProgramRegistryConditionData(workbook) {
+  log.debug('Reading Registry Condition data');
+  const worksheet = workbook.Sheets['Registry Conditions'];
+  return utils.sheet_to_json(worksheet);
+}
+
 const ensureUniqueName = async (context, registryName, registryId) => {
   const conflictingRegistry = await context.models.ProgramRegistry.findOne({
     where: {
@@ -85,7 +91,7 @@ export async function importProgramRegistry(context, workbook, programId) {
   await ensureCurrentlyAtUpdateIsAllowed(context, currentlyAtType, registryId);
 
   log.debug('Importing Program Registry');
-  const stats = await importRows(context, {
+  let stats = await importRows(context, {
     sheetName: 'Registry',
     rows: [
       {
@@ -104,7 +110,7 @@ export async function importProgramRegistry(context, workbook, programId) {
   });
 
   log.debug('Importing Patient Registry Clinical statuses');
-  return importRows(context, {
+  stats = importRows(context, {
     sheetName: 'Registry',
     rows: clinicalStatuses.map(row => ({
       model: 'ProgramRegistryClinicalStatus',
@@ -118,5 +124,23 @@ export async function importProgramRegistry(context, workbook, programId) {
       },
     })),
     stats,
+  });
+
+  const programRegistryConditions = readProgramRegistryConditionData(workbook);
+
+  log.debug('Importing Patient Registry Conditions');
+  return importRows(context, {
+    sheetName: 'Registry Conditions',
+    rows: programRegistryConditions.map(row => ({
+      model: 'ProgramRegistryCondition',
+      // Note: __rowNum__ is a non-enumerable property, so needs to be accessed explicitly here
+      // -1 as it'll have 2 added to it later but it's only 1 off
+      sheetRow: row.__rowNum__ - 1,
+      values: {
+        id: `prCondition-${row.code}`,
+        programRegistryId: registryId,
+        ...row,
+      },
+    })),
   });
 }
