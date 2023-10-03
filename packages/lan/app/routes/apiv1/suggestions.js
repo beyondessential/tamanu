@@ -342,8 +342,10 @@ createNameSuggester('programRegistry', 'ProgramRegistry', (search, query) => {
         `(
           SELECT DISTINCT(id)
           FROM program_registries pr
+          JOIN patient_program_registrations ppr
+          ON ppr.program_registry_id = pr.id
           WHERE
-            pr.patient_id = '${query.patientId}'
+            ppr.patient_id = '${query.patientId}'
           AND
             pr.registrationStatus != '${REGISTRATION_STATUSES.RECORDED_IN_ERROR}'
         )`,
