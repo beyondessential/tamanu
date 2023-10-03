@@ -34,7 +34,7 @@ export class ProgramRegistryClinicalStatus extends Model {
 
   static initRelations(models) {
     this.belongsTo(models.ProgramRegistry, {
-      foreignKey: 'programRegistryId',
+      foreignKey: { name: 'programRegistryId', allowNull: false },
       as: 'programRegistry',
     });
 
