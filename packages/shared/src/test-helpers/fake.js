@@ -264,10 +264,6 @@ const MODEL_SPECIFIC_OVERRIDES = {
       reasonForCancellation: isCancelled ? chance.pickone(['duplicate', 'entered-in-error']) : null,
     };
   },
-  ReferenceData: () => ({
-    type: chance.pickone(REFERENCE_TYPE_VALUES),
-    visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-  }),
   LabRequest: () => {
     const status = chance.pickone(Object.values(LAB_REQUEST_STATUSES));
     const isCancelled = status === LAB_REQUEST_STATUSES.CANCELLED;
@@ -354,7 +350,6 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
   ReferenceData: () => ({
     type: chance.pickone(REFERENCE_TYPE_VALUES),
-    visibilityStatus: VISIBILITY_STATUSES.CURRENT,
   }),
   Role: () => ({
     name: `${snakeCase(chance.profession())}_${chance.hash({ length: 8 })}`,
