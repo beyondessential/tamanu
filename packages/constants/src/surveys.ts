@@ -84,9 +84,8 @@ export const VITAL_CHARTS = {
 };
 
 // utility function for when a model's fields are all a direct match for their survey configs
-const makeLookupFields = (model: string, fields: string[]) => Object.fromEntries(
-  fields.map(f => [f, [model, f]])
-);
+const makeLookupFields = (model: string, fields: string[]) =>
+  Object.fromEntries(fields.map(f => [f, [model, f]]));
 
 // Please keep in sync with:
 // - mobile/App/constants/surveys
