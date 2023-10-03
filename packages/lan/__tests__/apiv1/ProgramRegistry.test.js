@@ -1,4 +1,3 @@
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 
