@@ -102,8 +102,12 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         reasonForEncounter: encounterReason,
       });
 
+      const encounterType =
+        typeof otherData?.encounter !== 'string'
+          ? otherData.encounter.encounterType
+          : encounter.encounterType;
       const calculatedValues = runCalculations(components, values);
-      const finalValues = { ...values, ...calculatedValues };
+      const finalValues = { ...values, ...calculatedValues, encounterType };
 
       const { result, resultText } = getResultValue(components, finalValues);
 

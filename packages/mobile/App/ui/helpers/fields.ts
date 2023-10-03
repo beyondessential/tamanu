@@ -103,7 +103,11 @@ function compareData(dataType: string, expected: string, given: any): boolean {
  * test surveys out there using our old system, we fall back to it if we can't parse the JSON.
  * TODO: Remove the fallback once we can guarantee that there's no surveys using it.
  */
-function fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponents): boolean {
+function fallbackParseVisibilityCriteria(
+  visibilityCriteria: string,
+  values: any,
+  allComponents: ISurveyScreenComponent[],
+): boolean {
   const [elementCode = '', expectedAnswer = ''] = visibilityCriteria.split(/\s*:\s*/);
 
   let givenAnswer = values[elementCode] || '';
@@ -188,7 +192,7 @@ export function checkVisibilityCriteria(
       ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
       : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
   } catch (error) {
-    console.warn(`Error parsing JSON visilbity criteria, using fallback.
+    console.warn(`Error parsing JSON visibility criteria, using fallback.
                   \nError message: ${error}`);
 
     return fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponents);
