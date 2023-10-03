@@ -340,7 +340,7 @@ createNameSuggester('programRegistry', 'ProgramRegistry', (search, query) => {
     id: {
       [Op.notIn]: Sequelize.literal(
         `(
-          SELECT DISTINCT(id)
+          SELECT DISTINCT(pr.id)
           FROM program_registries pr
           JOIN patient_program_registrations ppr
           ON ppr.program_registry_id = pr.id
