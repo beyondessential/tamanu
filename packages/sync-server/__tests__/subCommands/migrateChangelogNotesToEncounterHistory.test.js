@@ -13,7 +13,7 @@ import {
 import { sleepAsync } from '@tamanu/shared/utils';
 
 import { createTestContext } from '../utilities';
-import { migrateData } from '../../app/subCommands';
+import { migrateData } from '../../app/subCommands/migrateData/migrateData';
 
 const DEFAULT_USER_ID = 'DEFAULT_USER_ID';
 

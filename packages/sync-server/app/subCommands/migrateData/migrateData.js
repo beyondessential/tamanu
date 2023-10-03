@@ -40,6 +40,7 @@ export const migrateData = async (
 
   // done
   log.info('Completed data migration', { total });
+  process.exit(0);
 };
 
 const names = Object.keys(dataMigrations);
