@@ -342,7 +342,7 @@ createNameSuggester('programRegistry', 'ProgramRegistry', (search, query) => {
         `(
           SELECT DISTINCT(pr.id)
           FROM program_registries pr
-          JOIN patient_program_registrations ppr
+          INNER JOIN patient_program_registrations ppr
           ON ppr.program_registry_id = pr.id
           WHERE
             ppr.patient_id = '${query.patientId}'
