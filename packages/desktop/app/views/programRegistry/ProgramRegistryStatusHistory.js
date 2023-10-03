@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
+import { STATUS_COLOR } from '@tamanu/constants';
 import { Table } from '../../components/Table/Table';
 import { DateDisplay } from '../../components/DateDisplay';
-import { Colors, STATUS_COLOR, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
+import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
 import { Heading5 } from '../../components/Typography';
 import { useProgramRegistryClinicalStatus } from '../../api/queries/useProgramRegistryClinicalStatus';
 
