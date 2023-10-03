@@ -10,6 +10,7 @@ import { PatientProgramRegistryFormHistory } from './PatientProgramRegistryFormH
 import { PatientProgramRegistrationSelectSurvey } from './PatientProgramRegistrationSelectSurvey';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionSection } from './ConditionSection';
+import { capitaliseFirstLetter } from '../../utils/capitalise';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
@@ -62,8 +63,6 @@ const StatusInactiveDot = styled.div`
   margin: 0px 5px;
 `;
 
-const getFirstCharUpperCase = str => (str ? str.charAt(0).toUpperCase() + str.slice(1) : str);
-
 export const PatientProgramRegistryView = () => {
   const queryParams = useUrlQueryParams();
   const title = queryParams.get('title');
@@ -83,7 +82,7 @@ export const PatientProgramRegistryView = () => {
           ) : (
             <StatusInactiveDot />
           )}
-          <b>{getFirstCharUpperCase(data.registrationStatus)}</b>
+          <b>{capitaliseFirstLetter(data.registrationStatus)}</b>
         </StatusDiv>
       </ViewHeader>
       <Container>

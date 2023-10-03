@@ -166,7 +166,6 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           setOpenActivateProgramRegistryFormModal(false);
         }}
         onCancel={() => {
-          // console.log('canceled');
           setOpenActivateProgramRegistryFormModal(false);
         }}
       />
@@ -177,7 +176,6 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           setOpenRemoveProgramRegistryFormModal(false);
         }}
         onCancel={() => {
-          // console.log('canceled');
           setOpenRemoveProgramRegistryFormModal(false);
         }}
       />
@@ -188,7 +186,6 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
           setOpenDeleteProgramRegistryFormModal(false);
         }}
         onCancel={() => {
-          // console.log('canceled');
           setOpenDeleteProgramRegistryFormModal(false);
         }}
       />

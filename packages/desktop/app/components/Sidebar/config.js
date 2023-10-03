@@ -151,7 +151,7 @@ export const FACILITY_MENU_ITEMS = [
     label: 'Program registry',
     path: '/program-registry',
     icon: programsIcon,
-    sidebarItemComponent: ProgramRegistrySidebarItem,
+    component: ProgramRegistrySidebarItem,
     ability: { action: 'read', subject: 'programRegistry' },
     children: [],
   },

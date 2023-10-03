@@ -5,7 +5,6 @@ import { useApi } from '../../api';
 import { PrimarySidebarItem } from '../../components/Sidebar/PrimarySidebarItem';
 import { SecondarySidebarItem } from '../../components/Sidebar/SecondarySidebarItem';
 import { getCurrentRoute } from '../../store/router';
-import { programRegistriesForInfoPaneList } from '../../../stories/utils/mockProgramRegistryData';
 
 export const ProgramRegistrySidebarItem = ({
   icon,
@@ -29,8 +28,7 @@ export const ProgramRegistrySidebarItem = ({
       const response = await api.get('programRegistries');
       if (response.data.length > 0) setProgramRegistries(response.data);
     })();
-    // eslint-disable-next-line
-  }, []);
+  }, [api]);
 
   return (
     <>
@@ -38,14 +36,14 @@ export const ProgramRegistrySidebarItem = ({
         <PrimarySidebarItem
           {...{ icon, label, children, selected, highlighted, onClick, divider, retracted }}
         >
-          {programRegistries.map((x, i) => {
+          {programRegistries.map(x => {
             const secondaryPath = `${path}/${x.code}`;
             return (
               <SecondarySidebarItem
                 key={x.code}
                 path={secondaryPath}
                 isCurrent={currentPath.includes(secondaryPath)}
-                color={''}
+                color=""
                 label={x.name}
                 disabled={false}
                 onClick={() => onPathChanged(secondaryPath)}

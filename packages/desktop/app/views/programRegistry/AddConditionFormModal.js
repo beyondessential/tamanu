@@ -10,7 +10,7 @@ import {
   AutocompleteField,
   Field,
 } from '../../components';
-import { useApi, useSuggester } from '../../api';
+import { useApi } from '../../api';
 import { foreignKey } from '../../utils/validation';
 
 const StyledFormGrid = styled(FormGrid)`
@@ -31,7 +31,7 @@ export const AddConditionFormModal = ({ onSubmit, onCancel, patientProgramRegist
       );
       setOptions(response.map(x => ({ label: x.name, value: x.id })));
     })();
-  }, [patientProgramRegistration.programRegistryId]);
+  }, [patientProgramRegistration.programRegistryId, api]);
 
   return (
     <Modal title="Add condition" open={open} onClose={onCancel}>
