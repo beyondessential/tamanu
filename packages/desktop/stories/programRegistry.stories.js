@@ -15,7 +15,7 @@ import { DisplayPatientRegDetails } from '../app/views/programRegistry/DisplayPa
 import { ProgramRegistryStatusHistory } from '../app/views/programRegistry/ProgramRegistryStatusHistory';
 import { DeleteProgramRegistryFormModal } from '../app/views/programRegistry/DeleteProgramRegistryFormModal';
 import { ActivatePatientProgramRegistry } from '../app/views/programRegistry/ActivatePatientProgramRegistry';
-import { ProgramRegistryView } from '../app/views/programRegistry/ProgramRegistryView';
+import { PatientProgramRegistryView } from '../app/views/programRegistry/PatientProgramRegistryView';
 import { RemoveProgramRegistryFormModal } from '../app/views/programRegistry/RemoveProgramRegistryFormModal';
 import {
   dummyApi,
@@ -254,10 +254,10 @@ storiesOf('Program Registry', module).add('ProgramRegistrySurveyView', () => (
 ));
 //#endregion ProgramRegistrySurveyView
 
-//#region ProgramRegistryView
-storiesOf('Program Registry', module).add('ProgramRegistryView', () => (
+//#region PatientProgramRegistryView
+storiesOf('Program Registry', module).add('PatientProgramRegistryView', () => (
   <ApiContext.Provider value={dummyApi}>
-    <ProgramRegistryView />
+    <PatientProgramRegistryView />
   </ApiContext.Provider>
 ));
-//#endregion ProgramRegistryView
+//#endregion PatientProgramRegistryView

@@ -40,7 +40,6 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
 
       const [programData, conditionsData] = responses;
       setProgram(programData);
-      console.log(conditionsData);
       setConditions(conditionsData.map(x => ({ label: x.name, value: x.id })));
     } catch (error) {
       setProgram(undefined);
@@ -53,11 +52,6 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
         onSubmit({ ...data, conditions: data.conditions.split(','), patientId: patient.id });
       }}
       render={({ submitForm, values, setValues }) => {
-        useEffect(() => {
-          setValues({ ...values, clinicalStatusId: null });
-          // eslint-disable-next-line
-        }, [values.programRegistryId]);
-
         const handleCancel = () => onCancel && onCancel();
         const getButtonText = isCompleted => {
           if (isCompleted) return 'Finalise';
@@ -67,6 +61,13 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
 
         const isCompleted = !!values.completed;
         const buttonText = getButtonText(isCompleted);
+
+        // eslint-disable-next-line
+        useEffect(() => {
+          setValues({ ...values, clinicalStatusId: null, conditions: null });
+          // eslint-disable-next-line
+        }, [values.programRegistryId]);
+
         return (
           <div>
             <FormGrid>
