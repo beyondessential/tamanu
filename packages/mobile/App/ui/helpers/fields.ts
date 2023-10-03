@@ -202,7 +202,6 @@ export function shouldSaveComponent(
 ): boolean {
   const config = component.getConfigObject();
   const isVisible = checkVisibilityCriteria(component, allComponents, values);
-  // eslint-disable-next-line no-unneeded-ternary
   const shouldPersist = !config['omitFromResult'];
   return isVisible && shouldPersist;
 }
