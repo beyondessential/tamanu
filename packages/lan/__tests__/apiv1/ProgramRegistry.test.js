@@ -41,10 +41,9 @@ describe('ProgramRegistry', () => {
   
   describe('Listing (GET /v1/programRegistry)', () => {
     it('should list available program registries', async () => {
-      await models.ProgramRegistry.create({
-        ...fake(models.ProgramRegistry),
-        programId: testProgram.id,
-      });
+      await models.ProgramRegistry.create(
+        fake(models.ProgramRegistry, { programId: testProgram.id }),
+      );
       await models.ProgramRegistry.create({
         ...fake(models.ProgramRegistry),
         programId: testProgram.id,
