@@ -1,0 +1,187 @@
+<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
+  <Author>Ethan McQuarrie</Author>
+  <LastAuthor>Alastair Locke</LastAuthor>
+  <Created>2023-01-16T22:34:35Z</Created>
+  <LastSaved>2023-08-22T04:12:10Z</LastSaved>
+  <Version>16.00</Version>
+ </DocumentProperties>
+ <Worksheet ss:Name="Metadata">
+  <Table x:FullColumns="1" x:FullRows="1" ss:DefaultColumnWidth="54" ss:DefaultRowHeight="15.75">
+   <Column ss:Width="168.75"/>
+   <Column ss:Width="149.25"/>
+   <Column ss:Index="4" ss:Width="87"/>
+   <Column ss:Width="105.75"/>
+   <Row>
+    <Cell><Data ss:Type="String">programName</Data></Cell>
+    <Cell><Data ss:Type="String">Tamanu test suite program</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">programCode</Data></Cell>
+    <Cell><Data ss:Type="String">test-questions-program</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">country</Data></Cell>
+    <Cell><Data ss:Type="String">dev</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">homeServer</Data></Cell>
+   </Row>
+   <Row ss:Index="6">
+    <Cell><Data ss:Type="String">code</Data></Cell>
+    <Cell><Data ss:Type="String">name</Data></Cell>
+    <Cell><Data ss:Type="String">surveyType</Data></Cell>
+    <Cell><Data ss:Type="String">targetLocationId</Data></Cell>
+    <Cell><Data ss:Type="String">targetDepartmentId</Data></Cell>
+    <Cell><Data ss:Type="String">status</Data></Cell>
+    <Cell><Data ss:Type="String">isSensitive</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Test-ImportRegistryWithSurvey</Data></Cell>
+    <Cell><Data ss:Type="String">Import Registry With Survey</Data></Cell>
+    <Cell><Data ss:Type="String">programs</Data></Cell>
+    <Cell><Data ss:Type="String">Test-location-id</Data></Cell>
+    <Cell><Data ss:Type="String">Test-department-id</Data></Cell>
+    <Cell><Data ss:Type="String">publish</Data></Cell>
+    <Cell><Data ss:Type="Boolean">0</Data></Cell>
+   </Row>
+   <Row>
+    <Cell/>
+    <Cell/>
+    <Cell/>
+    <Cell/>
+    <Cell/>
+    <Cell/>
+    <Cell/>
+   </Row>
+  </Table>
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <PageSetup>
+    <Header x:Margin="0.3"/>
+    <Footer x:Margin="0.3"/>
+    <PageMargins x:Bottom="0.75" x:Left="0.7" x:Right="0.7" x:Top="0.75"/>
+   </PageSetup>
+   <Print>
+    <ValidPrinterInfo/>
+    <PaperSizeIndex>9</PaperSizeIndex>
+    <VerticalResolution>0</VerticalResolution>
+   </Print>
+   <Panes>
+    <Pane>
+     <Number>3</Number>
+     <ActiveRow>6</ActiveRow>
+     <ActiveCol>1</ActiveCol>
+    </Pane>
+   </Panes>
+  </WorksheetOptions>
+ </Worksheet>
+ <Worksheet ss:Name="Registry">
+  <Table x:FullColumns="1" x:FullRows="1" ss:DefaultColumnWidth="54" ss:DefaultRowHeight="15.75">
+   <Column ss:AutoFitWidth="0" ss:Width="126.75"/>
+   <Column ss:AutoFitWidth="0" ss:Width="114.75"/>
+   <Row>
+    <Cell><Data ss:Type="String">registryName</Data></Cell>
+    <Cell><Data ss:Type="String">Valid Registry</Data></Cell>
+    <Cell/>
+    <Cell/>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">registryCode</Data></Cell>
+    <Cell><Data ss:Type="String">ValidRegistry</Data></Cell>
+    <Cell/>
+    <Cell/>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">visibilityStatus</Data></Cell>
+    <Cell><Data ss:Type="String">historical</Data></Cell>
+    <Cell/>
+    <Cell/>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">currentlyAtType</Data></Cell>
+    <Cell><Data ss:Type="String">village</Data></Cell>
+    <Cell/>
+    <Cell/>
+   </Row>
+   <Row>
+    <Cell/>
+    <Cell/>
+    <Cell/>
+    <Cell/>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">code</Data></Cell>
+    <Cell><Data ss:Type="String">name</Data></Cell>
+    <Cell><Data ss:Type="String">color</Data></Cell>
+    <Cell><Data ss:Type="String">visibilityStatus</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Registered</Data></Cell>
+    <Cell><Data ss:Type="String">Registered</Data></Cell>
+    <Cell><Data ss:Type="String">green</Data></Cell>
+    <Cell><Data ss:Type="String">current</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">ImportedDuringSetup</Data></Cell>
+    <Cell><Data ss:Type="String">Imported During Setup</Data></Cell>
+    <Cell><Data ss:Type="String">orange</Data></Cell>
+    <Cell><Data ss:Type="String">current</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Inactive</Data></Cell>
+    <Cell><Data ss:Type="String">Inactive</Data></Cell>
+    <Cell><Data ss:Type="String">red</Data></Cell>
+    <Cell><Data ss:Type="String">current</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+ <Worksheet ss:Name="Import Registry With Survey">
+  <Table x:FullColumns="1" x:FullRows="1" ss:DefaultColumnWidth="54" ss:DefaultRowHeight="15.75">
+
+   <Column ss:Width="147.75"/>
+   <Column ss:Width="102.75"/>
+   <Column ss:AutoFitWidth="0" ss:Width="212.25"/>
+   <Column ss:Index="8" ss:Width="69"/>
+   <Column ss:Width="68.25"/>
+   <Column ss:Width="83.25"/>
+   <Column ss:Width="432.75"/>
+   <Column ss:Index="13" ss:Width="75"/>
+   <Column ss:Index="16" ss:Width="506.25"/>
+   <Row>
+    <Cell><Data ss:Type="String">code</Data></Cell>
+    <Cell><Data ss:Type="String">type</Data></Cell>
+    <Cell><Data ss:Type="String">name</Data></Cell>
+    <Cell><Data ss:Type="String">text</Data></Cell>
+    <Cell><Data ss:Type="String">detail</Data></Cell>
+    <Cell><Data ss:Type="String">newScreen</Data></Cell>
+    <Cell><Data ss:Type="String">options</Data></Cell>
+    <Cell><Data ss:Type="String">optionLabels</Data></Cell>
+    <Cell><Data ss:Type="String">optionColors</Data></Cell>
+    <Cell><Data ss:Type="String">visibilityCriteria</Data></Cell>
+    <Cell><Data ss:Type="String">validationCriteria</Data></Cell>
+    <Cell><Data ss:Type="String">optionSet</Data></Cell>
+    <Cell><Data ss:Type="String">questionLabel</Data></Cell>
+    <Cell><Data ss:Type="String">detailLabel</Data></Cell>
+    <Cell><Data ss:Type="String">calculation</Data></Cell>
+    <Cell><Data ss:Type="String">config</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Registry-Succeed-Number</Data></Cell>
+    <Cell><Data ss:Type="String">Number</Data></Cell>
+    <Cell><Data ss:Type="String">Number: Full config</Data></Cell>
+    <Cell ss:Index="11"><Data ss:Type="String">{ &quot;min&quot;: 0, &quot;max&quot;: 100, &quot;mandatory&quot;: true, &quot;normalRange&quot;: { &quot;min&quot;: 25, &quot;max&quot;: 75 } }</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;unit&quot;: &quot;kg&quot; }</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+ <Worksheet ss:Name="Ignore">
+  <Table x:FullColumns="1" x:FullRows="1" ss:DefaultColumnWidth="54" ss:DefaultRowHeight="15.75">
+  </Table>
+ </Worksheet>
+</Workbook>
