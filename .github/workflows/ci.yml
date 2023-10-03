@@ -94,7 +94,7 @@ jobs:
         node:
           - '16.x'
 
-    name: Test storybook node=${{ matrix.node }}
+    name: Test desktop node=${{ matrix.node }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -106,6 +106,7 @@ jobs:
       - run: yarn
       - run: yarn build-shared
       - run: yarn workspace desktop run verify-storybook
+      - run: yarn workspace desktop run test
 
   migrations:
     strategy:
