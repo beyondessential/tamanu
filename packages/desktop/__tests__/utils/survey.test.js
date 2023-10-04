@@ -79,4 +79,40 @@ describe('checkVisibility()', () => {
 
     expect(result).toBe(false);
   });
+
+  describe('Range type criteria', () => {
+    const allComponents = generateAllComponents([
+      {
+        code: 'TEST_RESULT',
+        type: 'Binary',
+        visibilityCriteria: JSON.stringify({
+          TEST_A: { type: 'range', start: 30 },
+          TEST_B: { type: 'range', end: 50 },
+          _conjunction: 'and',
+        }),
+      },
+      { code: 'TEST_A', type: 'Binary' },
+      { code: 'TEST_B', type: 'Binary' },
+    ]);
+
+    const testData = [
+      { TEST_A: 30, TEST_B: 40, expected: true },
+      { TEST_A: 30, TEST_B: 50, expected: false },
+      { TEST_A: 30, TEST_B: 51, expected: false },
+      { TEST_A: 29, TEST_B: 40, expected: false },
+    ];
+
+    it.each(testData)(
+      'should return $expected for TEST_A: $TEST_A and TEST_B: $TEST_B',
+      ({ TEST_A, TEST_B, expected }) => {
+        const result = checkVisibility(
+          allComponents[0],
+          { TEST_A, TEST_B, TEST_RESULT: 20 },
+          allComponents,
+        );
+
+        expect(result).toBe(expected);
+      },
+    );
+  });
 });
