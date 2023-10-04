@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { isNil } from 'lodash';
 import { REPORT_STATUSES } from '@tamanu/constants';
 import { DateDisplay, formatTime } from '../../../components';
 import { Table } from '../../../components/Table';
@@ -49,15 +50,19 @@ const useTableSorting = ({ initialSortKey, initialSortDirection }) => {
   const [order, setOrder] = useState(initialSortDirection);
 
   const customSort = (data = []) => {
-    const sortedData = data.sort((a, b) => {
-      if (typeof a[orderBy] === 'string') {
-        return order === 'asc'
-          ? a[orderBy].localeCompare(b[orderBy])
-          : b[orderBy].localeCompare(a[orderBy]);
+    const ascComparator = (aReport, bReport) => {
+      const a = aReport[orderBy];
+      const b = bReport[orderBy];
+      if (isNil(a) || isNil(b)) {
+        return (isNil(a) ? -1 : 1) - (isNil(b) ? -1 : 1);
       }
-      return order === 'asc' ? a[orderBy] - b[orderBy] : b[orderBy] - a[orderBy];
-    });
-    return sortedData;
+      if (typeof a === 'number' && typeof b === 'number') {
+        return a - b;
+      }
+      return `${a}`.localeCompare(`${b}`);
+    };
+    const descComparator = (a, b) => ascComparator(b, a);
+    return data.sort(order === 'asc' ? ascComparator : descComparator);
   };
 
   const onChangeOrderBy = sortKey => {
