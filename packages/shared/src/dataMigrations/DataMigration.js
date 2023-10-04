@@ -1,4 +1,4 @@
-export class Migration {
+export class DataMigration {
   store = null;
 
   log = null;
@@ -8,8 +8,8 @@ export class Migration {
   static defaultDelayMs = 0;
 
   constructor(store, log) {
-    if (this.constructor === Migration) {
-      throw new Error('Migration is abstract');
+    if (this.constructor === DataMigration) {
+      throw new Error('DataMigration is abstract');
     }
     this.store = store;
     this.log = log;

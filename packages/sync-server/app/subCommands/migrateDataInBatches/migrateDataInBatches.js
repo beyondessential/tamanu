@@ -4,7 +4,7 @@ import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import * as dataMigrations from './dataMigrations';
 import { initDatabase } from '../../database';
 
-export const migrateData = async (
+export const migrateDataInBatches = async (
   name,
   { batchSize: batchSizeOverride, delay: delayOverrideMs },
 ) => {
@@ -44,9 +44,11 @@ export const migrateData = async (
 };
 
 const names = Object.keys(dataMigrations);
-export const migrateDataCommand = new Command('migrateData')
-  .description('Runs data migrations in batches')
+export const migrateDataInBatchesCommand = new Command('migrateDataInBatches')
+  .description(
+    'Runs data migrations too big to be ordinary migrations; includes features that are necessary for long-running tasks, like batching and delays',
+  )
   .option('-b, --batchSize <number>', 'Batch size for migrating data')
   .option('-d, --delay <ms>', 'Delay in milliseconds between each batch')
   .addArgument(new Argument('<name>', 'Name of the data migration').choices(names))
-  .action(migrateData);
+  .action(migrateDataInBatches);

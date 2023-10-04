@@ -1,6 +1,6 @@
-import { CursorMigration } from './CursorMigration';
+import { CursorDataMigration } from '@tamanu/shared/dataMigrations';
 
-export class NotePagesToNotes extends CursorMigration {
+export class NotePagesToNotes extends CursorDataMigration {
   static defaultBatchSize = Number.MAX_SAFE_INTEGER;
 
   static defaultDelayMs = 50;

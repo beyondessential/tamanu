@@ -7,7 +7,7 @@ export * from './generateVaccineCertificate';
 export * from './importReport';
 export * from './loadSigner';
 export * from './migrate';
-export * from './migrateData';
+export * from './migrateDataInBatches';
 export * from './migrateImagingRequestsToLocationGroups';
 export * from './migrateVitals';
 export * from './printRoutes';

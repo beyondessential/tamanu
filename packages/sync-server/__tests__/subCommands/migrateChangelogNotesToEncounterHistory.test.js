@@ -13,7 +13,7 @@ import {
 import { sleepAsync } from '@tamanu/shared/utils';
 
 import { createTestContext } from '../utilities';
-import { migrateData } from '../../app/subCommands/migrateData/migrateData';
+import { migrateDataInBatches } from '../../app/subCommands/migrateDataInBatches/migrateDataInBatches';
 
 const DEFAULT_USER_ID = 'DEFAULT_USER_ID';
 
@@ -260,7 +260,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.locationId = newLocation.id;
       await encounter.save();
 
-      await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -312,7 +312,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.departmentId = newDepartment.id;
       await encounter.save();
 
-      await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -364,7 +364,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.examinerId = newClinician.id;
       await encounter.save();
 
-      await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -415,7 +415,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.encounterType = 'clinic';
       await encounter.save();
 
-      await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -468,7 +468,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.encounterType = 'clinic';
       await encounter.save();
 
-      await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -566,7 +566,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.encounterType = newEncounterType;
       await encounter.save();
 
-      await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -682,7 +682,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.locationId = location4.id;
       await encounter.save();
 
-      await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -786,7 +786,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.departmentId = department4.id;
       await encounter.save();
 
-      await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -890,7 +890,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.examinerId = clinician4.id;
       await encounter.save();
 
-      await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -994,7 +994,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.encounterType = encounterType4;
       await encounter.save();
 
-      await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -1153,7 +1153,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.encounterType = encounterType4;
       await encounter.save();
 
-      await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -1310,7 +1310,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.encounterType = encounterType4;
       await encounter.save();
 
-      await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -1419,7 +1419,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await encounter.save();
 
         // Migration
-        await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -1534,7 +1534,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await encounter.save();
 
         // Migration
-        await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -1640,7 +1640,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.locationId = location4.id;
         await encounter.save();
 
-        await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -1733,7 +1733,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.locationId = location4.id;
         await encounter.save();
 
-        await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -1828,7 +1828,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.locationId = location4.id;
         await encounter.save();
 
-        await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -1921,7 +1921,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         location2.name = 'Changed location 2';
         await location2.save();
 
-        await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -1997,7 +1997,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.departmentId = department3.id;
         await encounter.save();
 
-        await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -2094,7 +2094,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await location3.save();
 
         // Migration
-        await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -2190,7 +2190,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await encounter.save();
 
         // Migration
-        await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -2285,7 +2285,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await encounter.save();
 
         // Migration
-        await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -2380,7 +2380,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await encounter.save();
 
         // Migration
-        await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -2477,7 +2477,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await encounter.save();
 
         // Migration
-        await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -2571,7 +2571,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await department2.save();
 
         // Migration
-        await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -2653,7 +2653,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.locationId = location3.id;
         await encounter.save();
 
-        await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -2739,7 +2739,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await encounter.save();
 
         // Migration
-        await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -2826,7 +2826,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await clinician2.save();
 
         // Migration
-        await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -2906,7 +2906,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.locationId = location3.id;
         await encounter.save();
 
-        await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -2973,7 +2973,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       );
 
       // Migration
-      await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -3036,7 +3036,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       });
 
       // Migration
-      await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -3121,10 +3121,10 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       });
 
       // Migration 1
-      await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       // Migration 2
-      await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -3196,7 +3196,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       );
 
       // Migration
-      await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -3247,7 +3247,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       );
 
       // Migration
-      await migrateData(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 

@@ -1,14 +1,14 @@
-import { Migration } from './Migration';
+import { DataMigration } from './DataMigration';
 
-export class CursorMigration extends Migration {
+export class CursorDataMigration extends DataMigration {
   lastMaxId = null;
 
   started = false;
 
   constructor(...args) {
     super(...args);
-    if (this.constructor === CursorMigration) {
-      throw new Error('CursorMigration is abstract');
+    if (this.constructor === CursorDataMigration) {
+      throw new Error('CursorDataMigration is abstract');
     }
   }
 
@@ -19,14 +19,14 @@ export class CursorMigration extends Migration {
       store: { sequelize },
     } = this;
     this.started = true;
-    log.debug('CursorMigration batch started', { lastMaxId });
+    log.debug('CursorDataMigration batch started', { lastMaxId });
     const [[{ maxId }], { rowCount }] = await sequelize.query(await this.getQuery(), {
       replacements: {
         fromId: lastMaxId,
         limit,
       },
     });
-    log.debug('CursorMigration batch done', { lastMaxId, maxId });
+    log.debug('CursorDataMigration batch done', { lastMaxId, maxId });
     this.lastMaxId = maxId;
     return rowCount;
   }

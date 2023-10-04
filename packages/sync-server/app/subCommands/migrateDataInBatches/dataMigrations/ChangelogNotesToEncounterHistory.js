@@ -1,8 +1,8 @@
-import { CursorMigration } from './CursorMigration';
+import { CursorDataMigration } from '@tamanu/shared/dataMigrations';
 
 const LATEST_ENCOUNTER_FLAG = 'latest_encounter';
 
-export class ChangelogNotesToEncounterHistory extends CursorMigration {
+export class ChangelogNotesToEncounterHistory extends CursorDataMigration {
   static defaultBatchSize = Number.MAX_SAFE_INTEGER;
 
   static defaultDelayMs = 50;
