@@ -24,6 +24,10 @@ const Row = styled.div`
   }
 `;
 
+const ConfirmButton = styled(Button)`
+  min-width: 90px;
+`;
+
 export const ButtonRow = React.memo(({ children, ...props }) => (
   <Row items={Children.toArray(children).length || 1} {...props}>
     {children}
@@ -61,9 +65,9 @@ export const ConfirmCancelRow = React.memo(
   }) => (
     <ButtonRow {...props}>
       {onCancel && <OutlinedButton onClick={onCancel}>{cancelText}</OutlinedButton>}
-      <Button color={confirmColor} onSubmit={onConfirm} disabled={confirmDisabled}>
+      <ConfirmButton color={confirmColor} onClick={onConfirm} disabled={confirmDisabled}>
         {confirmText}
-      </Button>
+      </ConfirmButton>
     </ButtonRow>
   ),
 );
