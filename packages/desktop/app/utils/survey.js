@@ -92,7 +92,14 @@ export function checkVisibility(component, values, allComponents) {
   if (!visibilityCriteria) return true;
 
   try {
-    return checkJSONCriteria(visibilityCriteria, allComponents, values);
+    const valuesByCode = Object.entries(values).reduce((acc, [key, val]) => {
+      const matchingComponent = allComponents.find(x => x.dataElement.id === key);
+      if (matchingComponent) {
+        acc[matchingComponent.dataElement.code] = val;
+      }
+      return acc;
+    });
+    return checkJSONCriteria(visibilityCriteria, allComponents, valuesByCode);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.warn(`Error parsing visilbity criteria as JSON, using fallback.

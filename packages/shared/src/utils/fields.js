@@ -57,7 +57,7 @@ export function checkJSONCriteria(criteria, allComponents, values) {
 
   const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]) => {
     const matchingComponent = allComponents.find(x => x.dataElement?.code === questionCode);
-    const value = values[questionCode] || values[matchingComponent.dataElement.id]; // Usages: central, desktop, shared. Only desktop use dataElementId to fetch value.
+    const value = values[questionCode];
     if (answersEnablingFollowUp.type === 'range') {
       if (!value && value !== 0) return false;
       const { start, end } = answersEnablingFollowUp;
