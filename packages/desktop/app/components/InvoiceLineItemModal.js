@@ -30,9 +30,9 @@ export const InvoiceLineItemModal = ({
       };
 
       if (invoiceLineItem) {
-        api.put(`invoices/${invoiceId}/lineItems/${invoiceLineItem.id}`, invoiceLineItemData);
+        await api.put(`invoices/${invoiceId}/lineItems/${invoiceLineItem.id}`, invoiceLineItemData);
       } else {
-        api.post(`invoices/${invoiceId}/lineItems`, invoiceLineItemData);
+        await api.post(`invoices/${invoiceId}/lineItems`, invoiceLineItemData);
       }
       onSaved();
     },

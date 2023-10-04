@@ -76,15 +76,15 @@ export const OngoingConditionForm = ({
     );
   };
 
-  const onDataSubmit = data => {
+  const onDataSubmit = async data => {
     if (data.resolved) {
-      onSubmit(data);
+      await onSubmit(data);
       return;
     }
 
     // remove resolution-specific fields if not resolved
     const { resolutionDate, resolutionNote, resolutionPractitionerId, ...rest } = data;
-    onSubmit(rest);
+    await onSubmit(rest);
   };
 
   return (

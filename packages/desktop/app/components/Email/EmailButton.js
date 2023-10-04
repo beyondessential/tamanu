@@ -21,8 +21,8 @@ export const EmailButton = ({ onEmail }) => {
       </Button>
       <Modal title="Enter email address" open={openModal} onClose={() => setOpenModal(false)}>
         <EmailAddressConfirmationForm
-          onSubmit={data => {
-            onEmail(data);
+          onSubmit={async data => {
+            await onEmail(data);
             setOpenModal(false);
           }}
           onCancel={() => setOpenModal(false)}

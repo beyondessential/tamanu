@@ -96,15 +96,14 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
     api.get(`labRequest/${labRequestId}/notes`),
   );
 
-  const { mutate: saveNote, isLoading: isSavingNote } = useMutation(
-    ({ values }) => {
-      return api.post(`labRequest/${labRequestId}/notes`, {
+  const { mutateAsync: saveNote } = useMutation(
+    ({ values }) =>
+      api.post(`labRequest/${labRequestId}/notes`, {
         content: values.content?.trim(),
         authorId: api.user.id,
         noteType: NOTE_TYPES.OTHER,
         date: getCurrentDateTimeString(),
-      });
-    },
+      }),
     {
       onSuccess: (responseData, { formProps }) => {
         setActive(false);
@@ -131,11 +130,11 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
         </List>
         {!isReadOnly && (
           <Form
-            onSubmit={(values, formProps) => {
-              saveNote({ values, formProps });
+            onSubmit={async (values, formProps) => {
+              await saveNote({ values, formProps });
             }}
             render={({ values }) => {
-              const formSubmitIsDisabled = !values.content?.trim() || isSavingNote;
+              const formSubmitIsDisabled = !values.content?.trim();
               return active ? (
                 <Box display="flex" alignItems="center">
                   <NotesInput label="" name="content" component={TextField} autoFocus />

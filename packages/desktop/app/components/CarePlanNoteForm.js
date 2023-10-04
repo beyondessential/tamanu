@@ -5,7 +5,7 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi, useSuggester } from '../api';
 import { Colors } from '../constants';
 import { Button, FormSubmitButton } from './Button';
-import { ButtonRow } from './ButtonRow';
+import { ButtonRow, FormSubmitCancelRow } from './ButtonRow';
 import { Form, Field, TextField, DateTimeField, AutocompleteField } from './Field';
 import { FormGrid } from './FormGrid';
 
@@ -72,18 +72,10 @@ export function CarePlanNoteForm({
             />
           </FormGrid>
           <SubmitError>{submitError}</SubmitError>
-          <ButtonRow>
-            {note ? (
-              <Button variant="contained" onClick={onCancel}>
-                Cancel
-              </Button>
-            ) : (
-              <div />
-            )}
-            <FormSubmitButton variant="outlined" color="primary">
-              {note ? 'Save' : 'Add Note'}
-            </FormSubmitButton>
-          </ButtonRow>
+          <FormSubmitCancelRow
+            onCancel={note ? onCancel : null}
+            confirmText={note ? 'Save' : 'Add Note'}
+          />
         </>
       )}
     />

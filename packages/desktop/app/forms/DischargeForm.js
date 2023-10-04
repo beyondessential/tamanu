@@ -273,7 +273,7 @@ export const DischargeForm = ({
   const activeMedications = encounter.medications?.filter(medication => !medication.discontinued);
   const medicationInitialValues = getMedicationsInitialValues(activeMedications);
   const handleSubmit = useCallback(
-    ({ medications, ...data }) => {
+    async ({ medications, ...data }) => {
       // Filter out medications that weren't marked
       const filteredMedications = {};
       Object.keys(medications).forEach(id => {
@@ -281,7 +281,7 @@ export const DischargeForm = ({
         if (medication.isDischarge) filteredMedications[id] = medication;
       });
 
-      onSubmit({ ...data, medications: filteredMedications });
+      await onSubmit({ ...data, medications: filteredMedications });
     },
     [onSubmit],
   );
