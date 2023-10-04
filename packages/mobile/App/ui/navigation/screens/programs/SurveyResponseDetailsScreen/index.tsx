@@ -28,7 +28,11 @@ const AutocompleteAnswer = ({ question, answer }): ReactElement => {
     console.error(error);
     return <StyledText>{error.message}</StyledText>;
   }
-  return <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>{refData[columnName]}</StyledText>;
+  return (
+    <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>
+      {refData[columnName]}
+    </StyledText>
+  );
 };
 
 function getAnswerText(question, answer): string | number {
@@ -42,8 +46,6 @@ function getAnswerText(question, answer): string | number {
       return typeof answer === 'number' ? answer.toFixed(1) : answer;
     case FieldTypes.TEXT:
     case FieldTypes.SELECT:
-    case FieldTypes.MULTI_SELECT:
-      return JSON.parse(answer).join(', ')
     case FieldTypes.RESULT:
     case FieldTypes.RADIO:
     case FieldTypes.CONDITION:
@@ -58,6 +60,8 @@ function getAnswerText(question, answer): string | number {
       return formatStringDate(answer, DateFormats.DDMMYY);
     case FieldTypes.PATIENT_ISSUE_GENERATOR:
       return 'PATIENT_ISSUE_GENERATOR';
+    case FieldTypes.MULTI_SELECT:
+      return JSON.parse(answer).join(', ');
     default:
       console.warn(`Unknown field type: ${question.dataElement.type}`);
       return `?? ${question.dataElement.type}`;
@@ -130,9 +134,7 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
   const { patient } = encounter;
 
   const attachAnswer = (q): { answer: string; question: any } | null => {
-    const answerObject = answers.find(
-      (a) => a.dataElement.id === q.dataElement.id,
-    );
+    const answerObject = answers.find(a => a.dataElement.id === q.dataElement.id);
     return {
       question: q,
       answer: (answerObject || null) && answerObject.body,
@@ -140,18 +142,13 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
   };
 
   const questionToAnswerItem = ({ question, answer }, i): ReactElement => (
-    <AnswerItem
-      key={question.id}
-      index={i}
-      question={question}
-      answer={answer}
-    />
+    <AnswerItem key={question.id} index={i} question={question} answer={answer} />
   );
 
   const answerItems = questions
-    .filter((q) => q.dataElement.name)
+    .filter(q => q.dataElement.name)
     .map(attachAnswer)
-    .filter((q) => q.answer !== null && q.answer !== '')
+    .filter(q => q.answer !== null && q.answer !== '')
     .map(questionToAnswerItem);
 
   return (
