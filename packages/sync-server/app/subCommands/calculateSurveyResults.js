@@ -7,6 +7,17 @@ import { initDatabase } from '../database';
 
 const SURVEY_RESPONSE_BATCH_SIZE = 1000;
 
+/**
+ * IMPORTANT: We have 4 other versions of this method:
+ *
+ * - mobile/App/ui/helpers/fields.ts
+ * - desktop/app/utils/survey.js
+ * - shared/src/utils/fields.js
+ * - sync-server/app/subCommands/calculateSurveyResults.js
+ *
+ * So if there is an update to this method, please make the same update
+ * in the other versions
+ */
 const checkVisibilityCriteria = (component, allComponents, answerByCode) => {
   const { visibilityCriteria } = component;
   // nothing set - show by default
@@ -25,7 +36,10 @@ const checkVisibilityCriteria = (component, allComponents, answerByCode) => {
     }
 
     const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]) => {
-      const value = answerByCode[questionCode];
+      const isMultiSelect = matchingComponent?.type === 'MultiSelect';
+      const value = isMultiSelect
+        ? JSON.parse(answerByCode[questionCode])
+        : answerByCode[questionCode];
 
       if (answersEnablingFollowUp.type === 'range') {
         if (!value) return false;
@@ -39,15 +53,16 @@ const checkVisibilityCriteria = (component, allComponents, answerByCode) => {
       }
 
       const matchingComponent = allComponents.find(x => x.code === questionCode);
-      if (matchingComponent?.type === 'MultiSelect') {
-        const givenValues = JSON.parse(answerByCode[questionCode]);
-        return givenValues.includes(answersEnablingFollowUp);
-      }
 
       if (Array.isArray(answersEnablingFollowUp)) {
-        return answersEnablingFollowUp.includes(value);
+        return isMultiSelect
+          ? (value || []).some(selected => answersEnablingFollowUp.includes(selected))
+          : answersEnablingFollowUp.includes(value);
       }
-      return answersEnablingFollowUp === value;
+
+      return isMultiSelect
+        ? value?.includes(answersEnablingFollowUp)
+        : answersEnablingFollowUp === value;
     };
 
     return conjunction === 'and'

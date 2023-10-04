@@ -35,7 +35,6 @@ async function serve({ skipMigrationCheck }) {
   await performDatabaseIntegrityChecks(context);
 
   context.centralServer = new CentralServerConnection(context);
-  context.centralServer.connect(); // preemptively connect central server to speed up sync
   context.syncManager = new FacilitySyncManager(context);
 
   await performTimeZoneChecks({
