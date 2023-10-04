@@ -22,16 +22,17 @@ export async function reformatMultiSelectSurveyResponses() {
 
         try {
           JSON.parse(body);
-        } catch {
-          log.warn(`The following record body is not a valid JSON array: ${record.id}`);
-          return location;
+        } catch (error) {
+          log.info(`Skipping ${record.id} as it is already JSON array`);
+          return body;
         }
 
-        const parsedBody = JSON.parse(body);
-        await record.update({ body: parsedBody });
+        const answerArray = body.split(', ');
+        const arrayString = JSON.stringify(answerArray);
+        await record.update({ body: arrayString });
         migrated++;
 
-        return location;
+        return body;
       }),
     );
 
@@ -46,5 +47,5 @@ export async function reformatMultiSelectSurveyResponses() {
 export const migrateImagingRequestsToLocationGroupsCommand = new Command(
   'reformatMultiSelectSurveyResponses',
 )
-  .description('Reformats survey answers from comma seperated to JSON valid array')
+  .description('Reformats survey answers from comma seperated string to JSON valid array string')
   .action(reformatMultiSelectSurveyResponses);
