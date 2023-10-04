@@ -104,7 +104,7 @@ function checkVisibilityCriteria(component, allComponents, values) {
   const { visibilityCriteria } = component;
 
   try {
-    return checkJSONCriteria(component, allComponents, values);
+    return checkJSONCriteria(visibilityCriteria, allComponents, values);
   } catch (error) {
     log.warn(
       `Error parsing JSON visibility criteria for ${component.dataElement?.code}, using fallback.\nError message: ${error.message}`,
