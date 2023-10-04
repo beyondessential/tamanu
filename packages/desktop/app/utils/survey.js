@@ -1,7 +1,7 @@
 // Much of this file is duplicated in `packages/mobile/App/ui/components/Forms/SurveyForm/helpers.ts`
 import React from 'react';
 import * as yup from 'yup';
-import { checkJSONVisibilityCriteria } from '@tamanu/shared/utils';
+import { checkJSONCriteria } from '@tamanu/shared/utils';
 import { intervalToDuration, parseISO } from 'date-fns';
 
 import {
@@ -92,7 +92,7 @@ export function checkVisibility(component, values, allComponents) {
   if (!visibilityCriteria) return true;
 
   try {
-    return checkJSONVisibilityCriteria(component, allComponents, values);
+    return checkJSONCriteria(component, allComponents, values);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.warn(`Error parsing visilbity criteria as JSON, using fallback.

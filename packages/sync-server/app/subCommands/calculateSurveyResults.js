@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { checkJSONFormattedVisibilityCriteria } from '@tamanu/shared/utils';
+import { checkJSONCriteria } from '@tamanu/shared/utils';
 
 import { log } from 'shared/services/logging';
 
@@ -27,7 +27,7 @@ const checkVisibilityCriteria = (component, allComponentsFromQuery, values) => {
   }));
 
   try {
-    return checkJSONFormattedVisibilityCriteria(component, allComponents, values);
+    return checkJSONCriteria(component, allComponents, values);
   } catch (error) {
     log.error(`Error message: ${error}`);
 

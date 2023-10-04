@@ -40,7 +40,7 @@ function compareData(dataType, expected, given) {
   return false;
 }
 
-export function checkJSONVisibilityCriteria(component, allComponents, values) {
+export function checkJSONCriteria(component, allComponents, values) {
   const { visibilityCriteria } = component;
   // nothing set - show by default
   if (!visibilityCriteria) return true;
@@ -105,7 +105,7 @@ function checkVisibilityCriteria(component, allComponents, values) {
   const { visibilityCriteria } = component;
 
   try {
-    return checkJSONVisibilityCriteria(component, allComponents, values);
+    return checkJSONCriteria(component, allComponents, values);
   } catch (error) {
     log.warn(
       `Error parsing JSON visibility criteria for ${component.dataElement?.code}, using fallback.\nError message: ${error.message}`,
