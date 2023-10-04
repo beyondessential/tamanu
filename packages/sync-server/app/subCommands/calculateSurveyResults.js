@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import { inRange } from 'lodash';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
 import { log } from 'shared/services/logging';
 
@@ -18,7 +19,13 @@ const SURVEY_RESPONSE_BATCH_SIZE = 1000;
  * So if there is an update to this method, please make the same update
  * in the other versions
  */
-const checkVisibilityCriteria = (component, allComponents, answerByCode) => {
+const checkVisibilityCriteria = (component, allComponentsFromQuery, values) => {
+  const allComponents = allComponentsFromQuery.map(x => ({
+    dataElement: {
+      code: x.code,
+      type: x.type,
+    },
+  }));
   const { visibilityCriteria } = component;
   // nothing set - show by default
   if (!visibilityCriteria) return true;
@@ -36,8 +43,7 @@ const checkVisibilityCriteria = (component, allComponents, answerByCode) => {
     }
 
     const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]) => {
-      const value = answerByCode[questionCode];
-
+      const value = values[questionCode];
       if (answersEnablingFollowUp.type === 'range') {
         if (!value) return false;
         const { start, end } = answersEnablingFollowUp;
@@ -47,10 +53,12 @@ const checkVisibilityCriteria = (component, allComponents, answerByCode) => {
         if (inRange(value, parseFloat(start), parseFloat(end))) {
           return true;
         }
+        return false;
       }
 
-      const matchingComponent = allComponents.find(x => x.code === questionCode);
-      const isMultiSelect = matchingComponent?.type === 'MultiSelect';
+      const matchingComponent = allComponents.find(x => x.dataElement?.code === questionCode);
+      const isMultiSelect =
+        matchingComponent?.dataElement?.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
 
       if (Array.isArray(answersEnablingFollowUp)) {
         return isMultiSelect
