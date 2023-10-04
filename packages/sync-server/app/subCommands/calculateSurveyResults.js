@@ -27,7 +27,7 @@ const checkVisibilityCriteria = (component, allComponentsFromQuery, values) => {
   }));
 
   try {
-    return checkJSONCriteria(component, allComponents, values);
+    return checkJSONCriteria(component.visibilityCriteria, allComponents, values);
   } catch (error) {
     log.error(`Error message: ${error}`);
 

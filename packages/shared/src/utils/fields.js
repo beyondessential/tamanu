@@ -40,12 +40,11 @@ function compareData(dataType, expected, given) {
   return false;
 }
 
-export function checkJSONCriteria(component, allComponents, values) {
-  const { visibilityCriteria } = component;
+export function checkJSONCriteria(criteria, allComponents, values) {
   // nothing set - show by default
-  if (!visibilityCriteria) return true;
+  if (!criteria) return true;
 
-  const criteriaObject = JSON.parse(visibilityCriteria);
+  const criteriaObject = JSON.parse(criteria);
 
   if (!criteriaObject) {
     return true;
