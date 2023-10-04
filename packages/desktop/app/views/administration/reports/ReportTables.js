@@ -103,7 +103,6 @@ export const ReportTable = React.memo(({ data, selected, onRowClick, loading, er
           title: 'Version count',
           key: 'versionCount',
           numeric: true,
-          accessor: ({ versionCount }) => versionCount || 0,
         },
       ]}
       data={data}
