@@ -78,6 +78,20 @@ export class FhirJob extends Model {
     return Number(count);
   }
 
+  static async backlogUntilLimit(topic, limit, includeDropped = true) {
+    // Retrieving the size of the whole backlog can be expensive, and sometimes
+    // we only need to check how many records can be retrieved up to a limit of
+    // n, so this method returns the minimum of limit and backlog size
+    const [{ count }] = await this.sequelize.query(
+      `SELECT fhir.job_backlog_until_limit($topic, $limit, $includeDropped) as count`,
+      {
+        type: QueryTypes.SELECT,
+        bind: { topic, limit, includeDropped },
+      },
+    );
+    return count;
+  }
+
   static async grab(workerId, topic) {
     // We need to have strong isolation when grabbing, to avoid grabbing the
     // same job twice. But that runs the risk of failing due to serialization
