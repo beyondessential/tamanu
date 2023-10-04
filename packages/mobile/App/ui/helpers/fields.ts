@@ -159,7 +159,7 @@ export function checkVisibilityCriteria(
     const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]): boolean => {
       const value = values[questionCode];
       if (answersEnablingFollowUp.type === 'range') {
-        if (!value) return false;
+        if (!value && value !== 0) return false;
         const { start, end } = answersEnablingFollowUp;
 
         if (!start) return value < end;
@@ -167,6 +167,7 @@ export function checkVisibilityCriteria(
         if (inRange(value, parseFloat(start), parseFloat(end))) {
           return true;
         }
+        return false;
       }
 
       const matchingComponent = allComponents.find(x => x.dataElement?.code === questionCode);

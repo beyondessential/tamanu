@@ -39,7 +39,7 @@ const checkVisibilityCriteria = (component, allComponents, answerByCode) => {
       const value = answerByCode[questionCode];
 
       if (answersEnablingFollowUp.type === 'range') {
-        if (!value) return false;
+        if (!value && value !== 0) return false;
         const { start, end } = answersEnablingFollowUp;
 
         if (!start) return value < end;

@@ -71,7 +71,7 @@ function checkVisibilityCriteria(component, allComponents, values) {
     const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]) => {
       const value = values[questionCode];
       if (answersEnablingFollowUp.type === 'range') {
-        if (!value) return false;
+        if (!value && value !== 0) return false;
         const { start, end } = answersEnablingFollowUp;
 
         if (!start) return value < end;
@@ -79,6 +79,7 @@ function checkVisibilityCriteria(component, allComponents, values) {
         if (inRange(value, parseFloat(start), parseFloat(end))) {
           return true;
         }
+        return false;
       }
 
       const matchingComponent = allComponents.find(x => x.dataElement?.code === questionCode);
