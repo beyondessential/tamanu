@@ -1,6 +1,6 @@
-import { inRange } from 'lodash';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { log } from '../services/logging';
+import { checkJSONCriteria } from './criteria';
 
 export function getStringValue(type, value) {
   if (value === null) {
@@ -40,55 +40,6 @@ function compareData(dataType, expected, given) {
   return false;
 }
 
-export function checkJSONCriteria(criteria, allComponents, values) {
-  // nothing set - show by default
-  if (!criteria) return true;
-
-  const criteriaObject = JSON.parse(criteria);
-
-  if (!criteriaObject) {
-    return true;
-  }
-
-  const { _conjunction: conjunction, hidden: _, ...restOfCriteria } = criteriaObject;
-  if (Object.keys(restOfCriteria).length === 0) {
-    return true;
-  }
-
-  const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]) => {
-    const matchingComponent = allComponents.find(x => x.dataElement?.code === questionCode);
-    const value = values[questionCode];
-    if (answersEnablingFollowUp.type === 'range') {
-      if (!value && value !== 0) return false;
-      const { start, end } = answersEnablingFollowUp;
-
-      if (!start) return value < end;
-      if (!end) return value >= start;
-      if (inRange(parseFloat(value), parseFloat(start), parseFloat(end))) {
-        return true;
-      }
-      return false;
-    }
-
-    const isMultiSelect =
-      matchingComponent?.dataElement?.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
-
-    if (Array.isArray(answersEnablingFollowUp)) {
-      return isMultiSelect
-        ? (value?.split(', ') || []).some(selected => answersEnablingFollowUp.includes(selected))
-        : answersEnablingFollowUp.includes(value);
-    }
-
-    return isMultiSelect
-      ? value?.includes(answersEnablingFollowUp)
-      : answersEnablingFollowUp === value;
-  };
-
-  return conjunction === 'and'
-    ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
-    : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
-}
-
 /**
  * IMPORTANT: We have 4 other versions of this method:
  *
@@ -111,6 +62,21 @@ function checkVisibilityCriteria(component, allComponents, values) {
     );
 
     return fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponents);
+  }
+}
+
+export function checkValidationCriteria(validationCriteria, allComponents, values) {
+  if (!validationCriteria) {
+    return false;
+  }
+  if (typeof validationCriteria === 'boolean') {
+    return validationCriteria;
+  }
+
+  try {
+    return checkJSONCriteria(validationCriteria, allComponents, values);
+  } catch (error) {
+    return false;
   }
 }
 
