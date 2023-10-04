@@ -50,6 +50,7 @@ export * from './ImagingResult';
 export * from './Program';
 export * from './ProgramRegistry';
 export * from './ProgramRegistryClinicalStatus';
+export * from './ProgramRegistryCondition';
 export * from './PatientProgramRegistration';
 export * from './Survey';
 export * from './SurveyScreenComponent';

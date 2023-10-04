@@ -2,7 +2,7 @@ import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 
-export class ProgramRegistryClinicalStatus extends Model {
+export class ProgramRegistryCondition extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -13,10 +13,6 @@ export class ProgramRegistryClinicalStatus extends Model {
           unique: true,
         },
         name: {
-          type: Sequelize.TEXT,
-          allowNull: false,
-        },
-        color: {
           type: Sequelize.TEXT,
           allowNull: false,
         },
@@ -36,11 +32,6 @@ export class ProgramRegistryClinicalStatus extends Model {
     this.belongsTo(models.ProgramRegistry, {
       foreignKey: { name: 'programRegistryId', allowNull: false },
       as: 'programRegistry',
-    });
-
-    this.hasMany(models.PatientProgramRegistration, {
-      foreignKey: 'clinicalStatusId',
-      as: 'patientProgramRegistrations',
     });
   }
 

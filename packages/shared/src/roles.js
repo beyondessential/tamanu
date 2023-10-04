@@ -232,6 +232,9 @@ export const practitioner = [
   { verb: 'read', noun: 'ProgramRegistryClinicalStatus' },
   { verb: 'list', noun: 'ProgramRegistryClinicalStatus' },
 
+  { verb: 'read', noun: 'ProgramRegistryCondition' },
+  { verb: 'list', noun: 'ProgramRegistryCondition' },
+
   { verb: 'read', noun: 'PatientProgramRegistration' },
   { verb: 'list', noun: 'PatientProgramRegistration' },
   { verb: 'create', noun: 'PatientProgramRegistration' },
