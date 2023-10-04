@@ -1,7 +1,7 @@
 // Much of this file is duplicated in `packages/mobile/App/ui/components/Forms/SurveyForm/helpers.ts`
 import React from 'react';
 import * as yup from 'yup';
-import { inRange } from 'lodash';
+import { checkJSONVisibilityCriteria } from '@tamanu/shared/utils';
 import { intervalToDuration, parseISO } from 'date-fns';
 
 import {
@@ -92,49 +92,7 @@ export function checkVisibility(component, values, allComponents) {
   if (!visibilityCriteria) return true;
 
   try {
-    const criteriaObject = JSON.parse(visibilityCriteria);
-
-    if (!criteriaObject) {
-      return true;
-    }
-
-    const { _conjunction: conjunction, hidden, ...restOfCriteria } = criteriaObject;
-    if (Object.keys(restOfCriteria).length === 0) {
-      return true;
-    }
-
-    const checkIfQuestionMeetsCriteria = ([dataElementCode, answersEnablingFollowUp]) => {
-      const matchingComponent = allComponents.find(x => x.dataElement.code === dataElementCode);
-      const value = values[matchingComponent.dataElement.id];
-      if (answersEnablingFollowUp.type === 'range') {
-        if (!value) return false;
-        const { start, end } = answersEnablingFollowUp;
-
-        if (!start) return value < end;
-        if (!end) return value >= start;
-        if (inRange(parseFloat(value), parseFloat(start), parseFloat(end))) {
-          return true;
-        }
-        return false;
-      }
-
-      const isMultiSelect =
-        matchingComponent.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
-
-      if (Array.isArray(answersEnablingFollowUp)) {
-        return isMultiSelect
-          ? (value?.split(', ') || []).some(selected => answersEnablingFollowUp.includes(selected))
-          : answersEnablingFollowUp.includes(value);
-      }
-
-      return isMultiSelect
-        ? value?.includes(answersEnablingFollowUp)
-        : answersEnablingFollowUp === value;
-    };
-
-    return conjunction === 'and'
-      ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
-      : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
+    return checkJSONVisibilityCriteria(component, allComponents, values);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.warn(`Error parsing visilbity criteria as JSON, using fallback.
