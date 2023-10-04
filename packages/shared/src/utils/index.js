@@ -20,4 +20,3 @@ export * from './getCovidClearanceCertificateFilter';
 export * from './getLabTestsFromLabRequests';
 export { renameObjectKeys } from './renameObjectKeys';
 export * from './objectToCamelCase';
-export { checkJSONVisibilityCriteria } from './fields';
