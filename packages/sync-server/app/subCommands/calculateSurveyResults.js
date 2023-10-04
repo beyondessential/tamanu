@@ -1,5 +1,6 @@
 import { Command } from 'commander';
-import { checkJSONCriteria } from '@tamanu/shared/utils';
+import { inRange } from 'lodash';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
 import { log } from 'shared/services/logging';
 
@@ -25,9 +26,54 @@ const checkVisibilityCriteria = (component, allComponentsFromQuery, values) => {
       type: x.type,
     },
   }));
+  const { visibilityCriteria } = component;
+  // nothing set - show by default
+  if (!visibilityCriteria) return true;
 
   try {
-    return checkJSONCriteria(component.visibilityCriteria, allComponents, values);
+    const criteriaObject = JSON.parse(visibilityCriteria);
+
+    if (!criteriaObject) {
+      return true;
+    }
+
+    const { _conjunction: conjunction, hidden, ...restOfCriteria } = criteriaObject;
+    if (Object.keys(restOfCriteria).length === 0) {
+      return true;
+    }
+
+    const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]) => {
+      const value = values[questionCode];
+      if (answersEnablingFollowUp.type === 'range') {
+        if (isNil(value)) return false;
+        const { start, end } = answersEnablingFollowUp;
+
+        if (!start) return value < end;
+        if (!end) return value >= start;
+        if (inRange(value, parseFloat(start), parseFloat(end))) {
+          return true;
+        }
+        return false;
+      }
+
+      const matchingComponent = allComponents.find(x => x.dataElement?.code === questionCode);
+      const isMultiSelect =
+        matchingComponent?.dataElement?.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
+
+      if (Array.isArray(answersEnablingFollowUp)) {
+        return isMultiSelect
+          ? (value?.split(', ') || []).some(selected => answersEnablingFollowUp.includes(selected))
+          : answersEnablingFollowUp.includes(value);
+      }
+
+      return isMultiSelect
+        ? value?.includes(answersEnablingFollowUp)
+        : answersEnablingFollowUp === value;
+    };
+
+    return conjunction === 'and'
+      ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
+      : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
   } catch (error) {
     log.error(`Error message: ${error}`);
 
