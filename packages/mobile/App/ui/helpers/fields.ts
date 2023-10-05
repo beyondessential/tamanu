@@ -1,4 +1,4 @@
-import { inRange } from 'lodash';
+import { inRange, isNil } from 'lodash';
 import { isDate, formatISO9075 } from 'date-fns';
 import { ISurveyScreenComponent, DataElementType } from '~/types/ISurvey';
 
@@ -159,7 +159,7 @@ export function checkVisibilityCriteria(
     const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]): boolean => {
       const value = values[questionCode];
       if (answersEnablingFollowUp.type === 'range') {
-        if (!value && value !== 0) return false;
+        if (isNil(value)) return false;
         const { start, end } = answersEnablingFollowUp;
 
         if (!start) return value < end;

@@ -1,4 +1,4 @@
-import { inRange } from 'lodash';
+import { inRange, isNil } from 'lodash';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { log } from '../services/logging';
 
@@ -71,7 +71,7 @@ function checkVisibilityCriteria(component, allComponents, values) {
     const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]) => {
       const value = values[questionCode];
       if (answersEnablingFollowUp.type === 'range') {
-        if (!value && value !== 0) return false;
+        if (isNil(value)) return false;
         const { start, end } = answersEnablingFollowUp;
 
         if (!start) return value < end;

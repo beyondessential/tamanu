@@ -1,7 +1,7 @@
 // Much of this file is duplicated in `packages/mobile/App/ui/components/Forms/SurveyForm/helpers.ts`
 import React from 'react';
 import * as yup from 'yup';
-import { inRange } from 'lodash';
+import { inRange, isNil } from 'lodash';
 import { intervalToDuration, parseISO } from 'date-fns';
 
 import {
@@ -107,7 +107,7 @@ export function checkVisibility(component, values, allComponents) {
       const matchingComponent = allComponents.find(x => x.dataElement.code === dataElementCode);
       const value = values[matchingComponent.dataElement.id];
       if (answersEnablingFollowUp.type === 'range') {
-        if (!value && value !== 0) return false;
+        if (isNil(value)) return false;
         const { start, end } = answersEnablingFollowUp;
 
         if (!start) return value < end;
