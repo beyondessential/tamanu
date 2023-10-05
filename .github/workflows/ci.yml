@@ -82,7 +82,7 @@ jobs:
         env:
           CONTINUE_ON_ERROR: true
 
-  storybook:
+  desktop:
     # Workaround for define plugin conflict warning
     env:
       NODE_ENV: development
@@ -168,7 +168,7 @@ jobs:
       - test
       - build-all
       - lint
-      - storybook
+      - desktop
       - migrations
       - test-mobile
     runs-on: ubuntu-latest
