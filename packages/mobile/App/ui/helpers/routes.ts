@@ -58,12 +58,14 @@ export const Routes = {
     },
     ProgramStack: {
       Index: '',
-      ProgramListScreen: '',
       SurveyResponseDetailsScreen: '',
       ProgramTabs: {
         Index: '',
-        AddDetails: '',
-        ViewHistory: '',
+        SurveyTabs: {
+          Index: '',
+          AddDetails: '',
+          ViewHistory: '',
+        },
       },
     },
     ReferralStack: {

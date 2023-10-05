@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { inRange } from 'lodash';
+import { inRange, isNil } from 'lodash';
 
 import { log } from 'shared/services/logging';
 
@@ -7,6 +7,17 @@ import { initDatabase } from '../database';
 
 const SURVEY_RESPONSE_BATCH_SIZE = 1000;
 
+/**
+ * IMPORTANT: We have 4 other versions of this method:
+ *
+ * - mobile/App/ui/helpers/fields.ts
+ * - desktop/app/utils/survey.js
+ * - shared/src/utils/fields.js
+ * - sync-server/app/subCommands/calculateSurveyResults.js
+ *
+ * So if there is an update to this method, please make the same update
+ * in the other versions
+ */
 const checkVisibilityCriteria = (component, allComponents, answerByCode) => {
   const { visibilityCriteria } = component;
   // nothing set - show by default
@@ -28,7 +39,7 @@ const checkVisibilityCriteria = (component, allComponents, answerByCode) => {
       const value = answerByCode[questionCode];
 
       if (answersEnablingFollowUp.type === 'range') {
-        if (!value) return false;
+        if (isNil(value)) return false;
         const { start, end } = answersEnablingFollowUp;
 
         if (!start) return value < end;
@@ -39,15 +50,17 @@ const checkVisibilityCriteria = (component, allComponents, answerByCode) => {
       }
 
       const matchingComponent = allComponents.find(x => x.code === questionCode);
-      if (matchingComponent?.type === 'MultiSelect') {
-        const givenValues = answerByCode[questionCode].split(', ');
-        return givenValues.includes(answersEnablingFollowUp);
-      }
+      const isMultiSelect = matchingComponent?.type === 'MultiSelect';
 
       if (Array.isArray(answersEnablingFollowUp)) {
-        return answersEnablingFollowUp.includes(value);
+        return isMultiSelect
+          ? (value?.split(', ') || []).some(selected => answersEnablingFollowUp.includes(selected))
+          : answersEnablingFollowUp.includes(value);
       }
-      return answersEnablingFollowUp === value;
+
+      return isMultiSelect
+        ? value?.includes(answersEnablingFollowUp)
+        : answersEnablingFollowUp === value;
     };
 
     return conjunction === 'and'
