@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+// "stringId" is used in future functionality
+// eslint-disable-next-line no-unused-vars
 export const TranslatedText = ({ stringId, fallback }) => {
   const translation = null; // Placeholder for checking db for translation
 
