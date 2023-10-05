@@ -27,7 +27,7 @@ export class CursorDataMigration extends DataMigration {
     this.started = true;
     log.debug('CursorDataMigration batch started', { lastMaxId });
     const [[{ maxId }], { rowCount }] = await sequelize.query(await this.getQuery(), {
-      binds: {
+      bind: {
         fromId: lastMaxId,
         limit,
       },
