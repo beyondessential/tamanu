@@ -76,7 +76,7 @@ describe('Programs import', () => {
     });
   });
 
-  it('should delete survey questions', async () => {
+  it('should soft delete survey questions', async () => {
     const { Survey, SurveyScreenComponent } = ctx.store.models;
 
     const getComponents = async () => {
@@ -107,16 +107,15 @@ describe('Programs import', () => {
       const { errors, stats } = await doImport({ file: 'deleteQuestions-2' });
       expect(errors).toBeEmpty();
       expect(stats).toMatchObject({
-        ProgramDataElement: { updated: 3 }, // deleter should NOT delete underlying PDEs
-        SurveyScreenComponent: { deleted: 2, updated: 1 },
+        ProgramDataElement: { updated: 3 },
+        SurveyScreenComponent: { updated: 3 },
       });
     }
 
     const componentsAfter = await getComponents();
     // of the three in the import doc:
     //  - one is not deleted
-    //  - one is set to visibilityStatus = 'deleted'
-    //  - one is set to visibilityStatus = 'hidden' (should delete as wel)
+    //  - two is set to visibilityStatus = 'deleted'
     expect(componentsAfter).toHaveLength(1);
   });
 
@@ -276,7 +275,7 @@ describe('Programs import', () => {
       await validateVisualisationConfig('');
     });
 
-    it('should delete vital survey questions', async () => {
+    it('should soft delete vital survey questions', async () => {
       const { Survey, SurveyScreenComponent } = ctx.store.models;
 
       const getComponents = async () => {
@@ -311,7 +310,7 @@ describe('Programs import', () => {
         expect(errors).toBeEmpty();
         expect(stats).toMatchObject({
           ProgramDataElement: { updated: 16 }, // deleter should NOT delete underlying PDEs
-          SurveyScreenComponent: { deleted: 1 },
+          SurveyScreenComponent: { updated: 16 }, // won't check value is new, all we care about is that it's not deleted
         });
       }
 

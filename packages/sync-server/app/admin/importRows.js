@@ -2,7 +2,6 @@ import { camelCase, lowerCase, lowerFirst, startCase, upperFirst } from 'lodash'
 import { Op } from 'sequelize';
 import { ValidationError as YupValidationError } from 'yup';
 import config from 'config';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { ForeignkeyResolutionError, UpsertionError, ValidationError } from './errors';
 import { statkey, updateStat } from './stats';
@@ -39,28 +38,6 @@ function loadExisting(Model, values) {
   const loader = existingRecordLoaders[Model.name] || existingRecordLoaders.default;
   return loader(Model, values);
 }
-
-const destroyRecord = async (Model, record) => {
-  if (Model.name === 'SurveyScreenComponent') {
-    return record.update({ visibilityStatus: VISIBILITY_STATUSES.HISTORICAL });
-  }
-  return record.destroy();
-};
-
-const restoreRecord = async (Model, record) => {
-  if (Model.name === 'SurveyScreenComponent') {
-    return record.update({ visibilityStatus: VISIBILITY_STATUSES.CURRENT });
-  }
-  return record.restore();
-};
-
-const valuesIsHistorical = (Model, values) => {
-  if (Model.name === 'SurveyScreenComponent') {
-    return values.visibilityStatus === VISIBILITY_STATUSES.HISTORICAL;
-  }
-
-  return !!values.deletedAt;
-};
 
 export async function importRows(
   { errors, log, models },
@@ -213,12 +190,15 @@ export async function importRows(
     const existing = await loadExisting(Model, values);
     try {
       if (existing) {
-        if (valuesIsHistorical(Model, values)) {
-          await destroyRecord(Model, existing);
+        if (values.deletedAt) {
+          if (model !== 'Permission') {
+            throw new ValidationError(`Deleting ${model} via the importer is not supported`);
+          }
+          await existing.destroy();
           updateStat(stats, statkey(model, sheetName), 'deleted');
         } else {
-          if (valuesIsHistorical(Model, existing)) {
-            await restoreRecord(Model, existing);
+          if (existing.deletedAt) {
+            await existing.restore();
             updateStat(stats, statkey(model, sheetName), 'restored');
           }
           await existing.update(values);
