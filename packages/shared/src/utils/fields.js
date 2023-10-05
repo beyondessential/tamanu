@@ -65,21 +65,6 @@ function checkVisibilityCriteria(component, allComponents, values) {
   }
 }
 
-export function checkValidationCriteria(validationCriteria, allComponents, values) {
-  if (!validationCriteria) {
-    return false;
-  }
-  if (typeof validationCriteria === 'boolean') {
-    return validationCriteria;
-  }
-
-  try {
-    return checkJSONCriteria(validationCriteria, allComponents, values);
-  } catch (error) {
-    return false;
-  }
-}
-
 /**
  * Meditrak uses JSON for these fields now, whereas we have been using colon separated values.
  * Our goal is to have the same syntax as Meditrak for surveys, but since we already have some

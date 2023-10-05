@@ -49,3 +49,14 @@ export function checkJSONCriteria(criteria, allComponents, values) {
     ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
     : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
 }
+
+export function checkValidationCriteria(validationCriteria, allComponents, values) {
+  if (!validationCriteria) {
+    return false;
+  }
+  if (typeof validationCriteria === 'boolean') {
+    return validationCriteria;
+  }
+
+  return checkJSONCriteria(validationCriteria, allComponents, values);
+}

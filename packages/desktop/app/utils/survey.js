@@ -1,7 +1,10 @@
 // Much of this file is duplicated in `packages/mobile/App/ui/components/Forms/SurveyForm/helpers.ts`
 import React from 'react';
 import * as yup from 'yup';
-import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
+import {
+  checkJSONCriteria,
+  checkValidationCriteria as checkValidationCriteriaBase,
+} from '@tamanu/shared/utils/criteria';
 import { intervalToDuration, parseISO } from 'date-fns';
 
 import {
@@ -21,6 +24,7 @@ import {
 import { ageInYears, ageInMonths, ageInWeeks } from '@tamanu/shared/utils/dateTime';
 import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { joinNames } from './user';
+import { notifyError } from './utils';
 
 const InstructionField = ({ label, helperText }) => (
   <p>
@@ -334,4 +338,13 @@ export const getNormalRangeByAge = (validationCriteria = {}, { dateOfBirth }) =>
   );
 
   return normalRangeByAge;
+};
+
+export const checkValidationCriteria = (validationCriteria, allComponents, values) => {
+  try {
+    return checkValidationCriteriaBase(validationCriteria, allComponents, values);
+  } catch (error) {
+    notifyError(`Failed to use validationCriteria: ${validationCriteria}, error: ${error.message}`);
+    return false;
+  }
 };
