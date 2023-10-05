@@ -59,6 +59,7 @@ export class CentralServerConnection {
       retryAuth = true,
       awaitConnection = true,
       backoff,
+      query,
       ...otherParams
     } = params;
 
@@ -78,7 +79,8 @@ export class CentralServerConnection {
       }
     }
 
-    const url = `${this.host}/${API_VERSION}/${endpoint}`;
+    const queryString = query ? `?${objectToQueryString(query)}` : '';
+    const url = `${this.host}/${API_VERSION}/${endpoint}${queryString}`;
     log.debug(`[sync] ${method} ${url}`);
 
     return callWithBackoff(async () => {
@@ -213,66 +215,6 @@ export class CentralServerConnection {
     }
   }
 
-  async startSyncSession() {
-    const { sessionId } = await this.fetch('sync', {
-      method: 'POST',
-      body: {
-        facilityId: config.serverFacilityId,
-        deviceId: this.deviceId,
-      },
-    });
-
-    // then, poll the sync/:sessionId/ready endpoint until we get a valid response
-    // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked
-    // and take a while if the central server is concurrently persist records from another client
-    await this.pollUntilTrue(`sync/${sessionId}/ready`);
-
-    // finally, fetch the new tick from starting the session
-    const { startedAtTick } = await this.fetch(`sync/${sessionId}/metadata`);
-
-    return { sessionId, startedAtTick };
-  }
-
-  async endSyncSession(sessionId) {
-    return this.fetch(`sync/${sessionId}`, { method: 'DELETE' });
-  }
-
-  async initiatePull(sessionId, since) {
-    // first, set the pull filter on the central server, which will kick of a snapshot of changes
-    // to pull
-    const body = { since, facilityId: config.serverFacilityId };
-    await this.fetch(`sync/${sessionId}/pull/initiate`, { method: 'POST', body });
-
-    // then, poll the pull/ready endpoint until we get a valid response - it takes a while for
-    // pull/initiate to finish populating the snapshot of changes
-    await this.pollUntilTrue(`sync/${sessionId}/pull/ready`);
-
-    // finally, fetch the metadata for the changes we're about to pull
-    return this.fetch(`sync/${sessionId}/pull/metadata`);
-  }
-
-  async pull(sessionId, { limit = 100, fromId } = {}) {
-    const query = { limit };
-    if (fromId) {
-      query.fromId = fromId;
-    }
-    const path = `sync/${sessionId}/pull?${objectToQueryString(query)}`;
-    return this.fetch(path);
-  }
-
-  async push(sessionId, changes) {
-    const path = `sync/${sessionId}/push`;
-    return this.fetch(path, { method: 'POST', body: { changes } });
-  }
-
-  async completePush(sessionId) {
-    // first off, mark the push as complete on central
-    await this.fetch(`sync/${sessionId}/push/complete`, { method: 'POST' });
-
-    // now poll the complete check endpoint until we get a valid response - it takes a while for
-    // the pushed changes to finish persisting to the central database
-    await this.pollUntilTrue(`sync/${sessionId}/push/complete`);
-  }
 
   async whoami() {
     return this.fetch('whoami');

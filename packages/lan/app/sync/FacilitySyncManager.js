@@ -83,6 +83,66 @@ export class FacilitySyncManager {
     }
   }
 
+  async startSyncSession() {
+    const { sessionId } = await this.centralServer.fetch('sync', {
+      method: 'POST',
+      body: {
+        facilityId: this.constructor.config.serverFacilityId,
+        deviceId: this.centralServer.deviceId,
+      },
+    });
+
+    // then, poll the sync/:sessionId/ready endpoint until we get a valid response
+    // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked
+    // and take a while if the central server is concurrently persist records from another client
+    await this.centralServer.pollUntilTrue(`sync/${sessionId}/ready`);
+
+    // finally, fetch the new tick from starting the session
+    const { startedAtTick } = await this.centralServer.fetch(`sync/${sessionId}/metadata`);
+
+    return { sessionId, startedAtTick };
+  }
+
+  async endSyncSession(sessionId) {
+    return this.centralServer.fetch(`sync/${sessionId}`, { method: 'DELETE' });
+  }
+
+  async initiatePull(sessionId, since) {
+    // first, set the pull filter on the central server, which will kick of a snapshot of changes
+    // to pull
+    const body = { since, facilityId: this.constructor.config.serverFacilityId };
+    await this.centralServer.fetch(`sync/${sessionId}/pull/initiate`, { method: 'POST', body });
+
+    // then, poll the pull/ready endpoint until we get a valid response - it takes a while for
+    // pull/initiate to finish populating the snapshot of changes
+    await this.centralServer.pollUntilTrue(`sync/${sessionId}/pull/ready`);
+
+    // finally, fetch the metadata for the changes we're about to pull
+    return this.centralServer.fetch(`sync/${sessionId}/pull/metadata`);
+  }
+
+  async pull(sessionId, { limit = 100, fromId } = {}) {
+    const query = { limit };
+    if (fromId) {
+      query.fromId = fromId;
+    }
+    return this.centralServer.fetch(`sync/${sessionId}/pull`, { query });
+  }
+
+  async push(sessionId, changes) {
+    const path = `sync/${sessionId}/push`;
+    return this.centralServer.fetch(path, { method: 'POST', body: { changes } });
+  }
+
+  async completePush(sessionId) {
+    // first off, mark the push as complete on central
+    await this.centralServer.fetch(`sync/${sessionId}/push/complete`, { method: 'POST' });
+
+    // now poll the complete check endpoint until we get a valid response - it takes a while for
+    // the pushed changes to finish persisting to the central database
+    await this.centralServer.pollUntilTrue(`sync/${sessionId}/push/complete`);
+  }
+
   async runSync() {
     if (this.syncPromise) {
       throw new Error(
@@ -101,7 +161,7 @@ export class FacilitySyncManager {
     const {
       sessionId,
       startedAtTick: newSyncClockTime,
-    } = await this.centralServer.startSyncSession();
+    } = await this.startSyncSession();
 
     log.info('FacilitySyncManager.receivedSessionInfo', {
       sessionId,
@@ -111,7 +171,7 @@ export class FacilitySyncManager {
     await this.pushChanges(sessionId, newSyncClockTime);
     await this.pullChanges(sessionId);
 
-    await this.centralServer.endSyncSession(sessionId);
+    await this.endSyncSession(sessionId);
 
     const durationMs = Date.now() - startTime.getTime();
     log.info('FacilitySyncManager.completedSession', {
@@ -169,7 +229,7 @@ export class FacilitySyncManager {
     // session to have synced up to
     await createSnapshotTable(this.sequelize, sessionId);
     const { totalPulled, pullUntil } = await pullIncomingChanges(
-      this.centralServer,
+      this,
       this.sequelize,
       sessionId,
       pullSince,

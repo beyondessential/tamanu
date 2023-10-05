@@ -8,11 +8,11 @@ import { calculatePageLimit } from './calculatePageLimit';
 
 const { persistedCacheBatchSize, pauseBetweenCacheBatchInMilliseconds } = config.sync;
 
-export const pullIncomingChanges = async (centralServer, sequelize, sessionId, since) => {
+export const pullIncomingChanges = async (syncManager, sequelize, sessionId, since) => {
   // initiating pull also returns the sync tick (or point on the sync timeline) that the
   // central server considers this session will be up to after pulling all changes
   log.info('FacilitySyncManager.pull.waitingForCentral');
-  const { totalToPull, pullUntil } = await centralServer.initiatePull(sessionId, since);
+  const { totalToPull, pullUntil } = await syncManager.initiatePull(sessionId, since);
 
   log.info('FacilitySyncManager.pulling', { since, totalToPull });
   let fromId;
@@ -26,7 +26,7 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
       limit,
     });
     const startTime = Date.now();
-    const records = await centralServer.pull(sessionId, {
+    const records = await syncManager.pull(sessionId, {
       fromId,
       limit,
     });
