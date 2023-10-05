@@ -16,9 +16,9 @@ export class ChangelogNotesToEncounterHistory extends CursorDataMigration {
       -- For batching by encounters
       batch_encounters as (
           select * from encounters
-          where id > :fromId
+          where id > $fromId
           order by id
-          limit :limit
+          limit $limit
       ),
 
       -- Get all the changelog notes with content starts by 'Changed%'

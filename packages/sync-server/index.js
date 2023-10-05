@@ -14,6 +14,7 @@ import { closeDatabase } from './app/database';
 const hiddenCommands = [
   'migrateChangelogNotesToEncounterHistoryCommand',
   'migrateNotePagesToNotesCommand',
+  'removeDuplicatedDischargesCommand',
 ];
 
 async function run() {
