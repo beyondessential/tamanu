@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 
@@ -10,10 +10,23 @@ const DebugHighlighed = styled.span`
 // "stringId" is used in future functionality
 // eslint-disable-next-line no-unused-vars
 export const TranslatedText = ({ stringId, fallback }) => {
+  const [isDebugMode, setIsDebugMode] = useState(false);
   const translation = null; // Placeholder for checking db for translation
-  const debugMode = JSON.parse(localStorage.getItem('debugTranslation'));
 
-  const TextWrapper = debugMode ? DebugHighlighed : React.Fragment;
+  useEffect(() => {
+    const getDebugMode = async () => {
+      const debugMode = await JSON.parse(localStorage.getItem('debugTranslation'));
+      setIsDebugMode(debugMode);
+    };
+    getDebugMode();
+
+    window.addEventListener('debugTranslation', getDebugMode);
+    return () => {
+      window.removeEventListener('debugTranslation', getDebugMode);
+    };
+  }, []);
+
+  const TextWrapper = isDebugMode ? DebugHighlighed : React.Fragment;
 
   if (!translation) {
     // Register as untranslated in DB

@@ -337,6 +337,7 @@ export class TamanuApi {
   }
 }
 
-ipcRenderer.on('toggleDebug', () =>
-  localStorage.setItem('debugTranslation', !JSON.parse(localStorage.getItem('debugTranslation'))),
-);
+ipcRenderer.on('toggleDebug', () => {
+  localStorage.setItem('debugTranslation', !JSON.parse(localStorage.getItem('debugTranslation')));
+  window.dispatchEvent(new Event('debugTranslation'));
+});
