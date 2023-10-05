@@ -1,8 +1,7 @@
 import React from 'react';
 
 import { PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
-
-import { AutocompleteField, LocalisedField, SelectField, TextField, TimeField } from '..';
+import { AutocompleteField, SelectField, TextField, TimeField } from '..';
 import {
   ATTENDANT_OF_BIRTH_OPTIONS,
   BIRTH_DELIVERY_TYPE_OPTIONS,
@@ -12,7 +11,7 @@ import {
 import { useSuggester } from '../../api';
 import { ConfiguredMandatoryPatientFields } from './ConfiguredMandatoryPatientFields';
 
-export const BirthDetailsFields = ({ showMandatory }) => {
+export const BirthDetailsFields = ({ registeredBirthPlace, showMandatory }) => {
   const facilitySuggester = useSuggester('facility');
 
   const BIRTH_DETAILS_FIELDS_PROPS = {
@@ -21,8 +20,9 @@ export const BirthDetailsFields = ({ showMandatory }) => {
       saveDateAsString: true,
     },
     gestationalAgeEstimate: {
-      component: TimeField,
+      component: TextField,
       saveDateAsString: true,
+      type: 'number',
     },
     registeredBirthPlace: {
       component: SelectField,
@@ -31,6 +31,7 @@ export const BirthDetailsFields = ({ showMandatory }) => {
     birthFacilityId: {
       component: AutocompleteField,
       suggester: facilitySuggester,
+      condition: () => registeredBirthPlace === PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY,
     },
     attendantAtBirth: {
       component: SelectField,

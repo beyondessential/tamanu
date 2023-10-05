@@ -10,7 +10,7 @@ import {
   socialMediaOptions,
   titleOptions,
 } from '../../constants';
-import { useSuggester } from '../../api';
+import { useSuggester, usePatientSuggester } from '../../api';
 import { ConfiguredMandatoryPatientFields } from './ConfiguredMandatoryPatientFields';
 
 export const PersonalInformationFields = ({ patientRegistryType, showMandatory }) => {
@@ -19,8 +19,7 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
   const nationalitySuggester = useSuggester('nationality');
   const occupationSuggester = useSuggester('occupation');
   const religionSuggester = useSuggester('religion');
-
-  console.log('patientRegistryType1', patientRegistryType);
+  const patientSuggester = usePatientSuggester();
 
   const PERSONAL_INFORMATION_FIELDS = {
     title: {
@@ -76,11 +75,11 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
     },
     motherId: {
       component: AutocompleteField,
-      endpoint: 'patientSuggester',
+      suggester: patientSuggester,
     },
     fatherId: {
       component: AutocompleteField,
-      endpoint: 'patientSuggester',
+      suggester: patientSuggester,
     },
   };
 

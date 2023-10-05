@@ -54,7 +54,7 @@ const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
   margin-top: 70px;
 `;
 
-export const PrimaryDetailsGroup = ({ patientRegistryType }) => {
+export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
   const villageSuggester = useSuggester('village');
   const { getLocalisation } = useLocalisation();
   let filteredSexOptions = sexOptions;
@@ -67,9 +67,17 @@ export const PrimaryDetailsGroup = ({ patientRegistryType }) => {
       <StyledHeading>General information</StyledHeading>
       <FormGrid>
         <LocalisedField name="firstName" component={TextField} required />
-        <LocalisedField name="middleName" component={TextField} />
+        <LocalisedField
+          name="middleName"
+          component={TextField}
+          required={getLocalisation('fields.middleName')}
+        />
         <LocalisedField name="lastName" component={TextField} required />
-        <LocalisedField name="culturalName" component={TextField} />
+        <LocalisedField
+          name="culturalName"
+          component={TextField}
+          required={getLocalisation('fields.culturalName')}
+        />
         <LocalisedField
           name="dateOfBirth"
           max={getCurrentDateString()}
@@ -81,6 +89,7 @@ export const PrimaryDetailsGroup = ({ patientRegistryType }) => {
           name="villageId"
           component={AutocompleteField}
           suggester={villageSuggester}
+          required={getLocalisation('fields.villageId')}
         />
         <LocalisedField name="sex" component={RadioField} options={filteredSexOptions} required />
         <LocalisedField
@@ -88,8 +97,11 @@ export const PrimaryDetailsGroup = ({ patientRegistryType }) => {
           component={TextField}
           type="email"
           defaultLabel="Email address"
+          required={getLocalisation('fields.email')}
         />
-        {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && <BirthDetailsFields />}
+        {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
+          <BirthDetailsFields registeredBirthPlace={values.registeredBirthPlace} />
+        )}
         <IdentificationInformationFields patientRegistryType={patientRegistryType} />
         <ContactInformationFields />
         <PersonalInformationFields patientRegistryType={patientRegistryType} />
@@ -99,14 +111,17 @@ export const PrimaryDetailsGroup = ({ patientRegistryType }) => {
   );
 };
 
-export const SecondaryDetailsGroup = ({ patientRegistryType, isEdit = false }) => {
+export const SecondaryDetailsGroup = ({ values = {}, patientRegistryType, isEdit = false }) => {
   return (
     <StyledSecondaryDetailsGroup>
       {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
         <>
           <StyledHeading>Birth details</StyledHeading>
           <StyledFormGrid>
-            <BirthDetailsFields showMandatory={false} />
+            <BirthDetailsFields
+              registeredBirthPlace={values.registeredBirthPlace}
+              showMandatory={false}
+            />
           </StyledFormGrid>
         </>
       )}
@@ -275,7 +290,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
     <Form
       render={({ submitForm, values }) => (
         <>
-          <PrimaryDetailsGroup patientRegistryType={patientRegistryType} />
+          <PrimaryDetailsGroup values={values} patientRegistryType={patientRegistryType} />
           <StyledPatientDetailSecondaryDetailsGroupWrapper>
             <SecondaryDetailsGroup
               patientRegistryType={patientRegistryType}
