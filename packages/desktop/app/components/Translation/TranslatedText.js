@@ -8,12 +8,18 @@ const DebugHighlighed = styled.span`
 `;
 
 const replaceStringVariables = (templateString, replacements) => {
-  return templateString.replace(/:([a-zA-Z]+)/g, (match, variableName) => {
-    if (replacements.hasOwnProperty(variableName)) {
-      return replacements[variableName];
+  const colonReplacementRegex = /:([a-zA-Z]+)/g;
+  const stringParts = templateString.split(colonReplacementRegex)
+  const jsxElements = stringParts.map((part, index) => {
+    // Even indexes are the unchanged parts of the string
+    if (index % 2 === 0) {
+      return part;
     }
-    return match;
+
+    // Return the replacement if exists
+    return replacements[part] || `:${part}`;
   });
+  return jsxElements;
 };
 
 // "stringId" is used in future functionality
@@ -26,7 +32,11 @@ export const TranslatedText = ({ stringId, fallback, replacements }) => {
 
   if (!translation) {
     // Register as untranslated in DB
-    return <TextWrapper>{replaceStringVariables(fallback, replacements)}</TextWrapper>;
+    return (
+      <TextWrapper>
+        {replacements ? replaceStringVariables(fallback, replacements) : fallback}
+      </TextWrapper>
+    );
   }
 
   return <TextWrapper>{replaceStringVariables(translation, replacements)}</TextWrapper>;

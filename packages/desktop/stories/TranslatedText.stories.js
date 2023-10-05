@@ -25,8 +25,31 @@ const Template = args => {
   );
 };
 
-export const Basic = Template.bind({});
-Basic.args = {
+export const String = Template.bind({});
+String.args = {
   stringId: 'fruitBowl.banana',
   fallback: 'Banana',
+};
+
+export const StringWithReplacements = Template.bind({});
+StringWithReplacements.args = {
+  stringId: 'fruitBowl.sentence',
+  fallback: 'I have a :adjective :fruit that is :color',
+  replacements: {
+    adjective: (
+      <b>
+        <TranslatedText stringId="fruitBowl.adjective" fallback="sweet" />
+      </b>
+    ),
+    fruit: (
+      <b>
+        <TranslatedText stringId="fruitBowl.fruit" fallback="banana" />
+      </b>
+    ),
+    color: (
+      <b>
+        <TranslatedText stringId="fruitBowl.color" fallback="yellow" />
+      </b>
+    ),
+  },
 };
