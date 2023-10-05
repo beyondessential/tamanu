@@ -98,7 +98,7 @@ export function checkVisibility(component, values, allComponents) {
         acc[matchingComponent.dataElement.code] = val;
       }
       return acc;
-    });
+    }, {});
     return checkJSONCriteria(visibilityCriteria, allComponents, valuesByCode);
   } catch (error) {
     // eslint-disable-next-line no-console
