@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { TranslatedText } from '../app/components/Translation/TranslatedText';
+import { TextInput, Button } from '../app/components';
 
 const Container = styled.div`
   padding: 1rem;
@@ -17,7 +18,7 @@ export default {
   component: TranslatedText,
 };
 
-const Template = args => {
+const StringTemplate = args => {
   return (
     <Container>
       <TranslatedText {...args} />
@@ -25,13 +26,13 @@ const Template = args => {
   );
 };
 
-export const String = Template.bind({});
+export const String = StringTemplate.bind({});
 String.args = {
   stringId: 'fruitBowl.banana',
   fallback: 'Banana',
 };
 
-export const StringWithReplacements = Template.bind({});
+export const StringWithReplacements = StringTemplate.bind({});
 StringWithReplacements.args = {
   stringId: 'fruitBowl.sentence',
   fallback: 'I have a :adjective :fruit that is :color',
@@ -53,3 +54,23 @@ StringWithReplacements.args = {
     ),
   },
 };
+
+const InputTemplate = () => {
+  return (
+    <Container>
+      <TextInput label={<TranslatedText stringId="fields.textField" fallback="Text Field" />} />
+    </Container>
+  );
+};
+export const TranslatedInput = InputTemplate.bind({});
+
+const ButtonTemplate = () => {
+  return (
+    <Container>
+      <Button>
+        <TranslatedText stringId="button.label" fallback="Press here" />
+      </Button>
+    </Container>
+  );
+};
+export const TranslatedButton = ButtonTemplate.bind({});
