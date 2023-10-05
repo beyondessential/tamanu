@@ -115,7 +115,7 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
           options={PATIENT_REGISTRY_OPTIONS}
           style={{ gridColumn: '1 / -1' }}
         />
-        <PrimaryDetailsGroup />
+        <PrimaryDetailsGroup patientRegistryType={patientRegistryType} />
         <AdditionalInformationRow>
           <div>
             {isExpanded ? (

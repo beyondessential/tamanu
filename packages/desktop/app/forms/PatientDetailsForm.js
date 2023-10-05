@@ -8,28 +8,15 @@ import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants'
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 
 import { useSexValues } from '../hooks';
-import {
-  ATTENDANT_OF_BIRTH_OPTIONS,
-  BIRTH_DELIVERY_TYPE_OPTIONS,
-  BIRTH_TYPE_OPTIONS,
-  Colors,
-  PLACE_OF_BIRTH_OPTIONS,
-  bloodOptions,
-  educationalAttainmentOptions,
-  maritalStatusOptions,
-  sexOptions,
-  socialMediaOptions,
-  titleOptions,
-} from '../constants';
+import { Colors, sexOptions } from '../constants';
 import { useLocalisation } from '../contexts/Localisation';
-import { useApi, useSuggester, usePatientSuggester } from '../api';
+import { useApi, useSuggester } from '../api';
 import { getPatientDetailsValidation } from '../validations';
 import {
   AutocompleteField,
   Button,
   ButtonRow,
   DateField,
-  DisplayIdField,
   Field,
   Form,
   FormGrid,
@@ -37,11 +24,16 @@ import {
   NumberField,
   RadioField,
   SelectField,
-  SuggesterSelectField,
   TextField,
-  TimeField,
 } from '../components';
 import { LoadingIndicator } from '../components/LoadingIndicator';
+import {
+  BirthDetailsFields,
+  IdentificationInformationFields,
+  ContactInformationFields,
+  PersonalInformationFields,
+  LocationInformationFields,
+} from '../components/ConfiguredMandatoryPatientFields';
 
 const StyledHeading = styled.div`
   font-weight: 500;
@@ -62,7 +54,7 @@ const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
   margin-top: 70px;
 `;
 
-export const PrimaryDetailsGroup = () => {
+export const PrimaryDetailsGroup = ({ patientRegistryType }) => {
   const villageSuggester = useSuggester('village');
   const { getLocalisation } = useLocalisation();
   let filteredSexOptions = sexOptions;
@@ -91,188 +83,52 @@ export const PrimaryDetailsGroup = () => {
         type="email"
         defaultLabel="Email address"
       />
+      {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && <BirthDetailsFields />}
+      <IdentificationInformationFields patientRegistryType={patientRegistryType} />
+      <ContactInformationFields />
+      <PersonalInformationFields patientRegistryType={patientRegistryType} />
+      <LocationInformationFields />
     </FormGrid>
   );
 };
 
-export const SecondaryDetailsGroup = ({ patientRegistryType, values = {}, isEdit = false }) => {
-  const { getLocalisation } = useLocalisation();
-  const canEditDisplayId = isEdit && getLocalisation('features.editPatientDisplayId');
-  const countrySuggester = useSuggester('country');
-  const divisionSuggester = useSuggester('division');
-  const ethnicitySuggester = useSuggester('ethnicity');
-  const medicalAreaSuggester = useSuggester('medicalArea');
-  const nationalitySuggester = useSuggester('nationality');
-  const nursingZoneSuggester = useSuggester('nursingZone');
-  const occupationSuggester = useSuggester('occupation');
-  const settlementSuggester = useSuggester('settlement');
-  const subdivisionSuggester = useSuggester('subdivision');
-  const religionSuggester = useSuggester('religion');
-  const facilitySuggester = useSuggester('facility');
-  const patientSuggester = usePatientSuggester();
-
+export const SecondaryDetailsGroup = ({ patientRegistryType, isEdit = false }) => {
   return (
     <StyledSecondaryDetailsGroup>
       {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
         <>
           <StyledHeading>Birth details</StyledHeading>
           <StyledFormGrid>
-            <LocalisedField name="timeOfBirth" component={TimeField} saveDateAsString />
-            <LocalisedField name="gestationalAgeEstimate" component={TextField} type="number" />
-            <LocalisedField
-              name="registeredBirthPlace"
-              component={SelectField}
-              options={PLACE_OF_BIRTH_OPTIONS}
-            />
-            {values.registeredBirthPlace === PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY && (
-              <LocalisedField
-                name="birthFacilityId"
-                component={AutocompleteField}
-                suggester={facilitySuggester}
-              />
-            )}
-            <LocalisedField
-              name="attendantAtBirth"
-              component={SelectField}
-              options={ATTENDANT_OF_BIRTH_OPTIONS}
-            />
-            <LocalisedField name="nameOfAttendantAtBirth" component={TextField} type="text" />
-            <LocalisedField
-              name="birthDeliveryType"
-              component={SelectField}
-              options={BIRTH_DELIVERY_TYPE_OPTIONS}
-            />
-            <LocalisedField name="birthType" component={SelectField} options={BIRTH_TYPE_OPTIONS} />
-            <LocalisedField name="birthWeight" component={TextField} type="number" />
-            <LocalisedField name="birthLength" component={TextField} type="number" />
-            <LocalisedField name="apgarScoreOneMinute" component={TextField} type="number" />
-            <LocalisedField name="apgarScoreFiveMinutes" component={TextField} type="number" />
-            <LocalisedField name="apgarScoreTenMinutes" component={TextField} type="number" />
+            <BirthDetailsFields showMandatory={false} />
           </StyledFormGrid>
         </>
       )}
 
       <StyledHeading>Identification information</StyledHeading>
       <StyledFormGrid>
-        {canEditDisplayId && <DisplayIdField />}
-        <LocalisedField name="birthCertificate" component={TextField} />
-        {patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT && (
-          <LocalisedField name="drivingLicense" component={TextField} />
-        )}
-        <LocalisedField name="passport" component={TextField} />
+        <IdentificationInformationFields
+          isEdit={isEdit}
+          patientRegistryType={patientRegistryType}
+          showMandatory={false}
+        />
       </StyledFormGrid>
 
       <StyledHeading>Contact information</StyledHeading>
       <StyledFormGrid>
-        <LocalisedField name="primaryContactNumber" component={TextField} type="tel" />
-        <LocalisedField name="secondaryContactNumber" component={TextField} type="tel" />
-        <LocalisedField name="emergencyContactName" component={TextField} />
-        <LocalisedField name="emergencyContactNumber" component={TextField} type="tel" />
+        <ContactInformationFields showMandatory={false} />
       </StyledFormGrid>
 
       <StyledHeading>Personal information</StyledHeading>
       <StyledFormGrid>
-        <LocalisedField name="title" component={SelectField} options={titleOptions} />
-        {patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT && (
-          <LocalisedField
-            name="maritalStatus"
-            component={SelectField}
-            options={maritalStatusOptions}
-          />
-        )}
-        <LocalisedField name="bloodType" component={SelectField} options={bloodOptions} />
-        <LocalisedField name="placeOfBirth" component={TextField} />
-        <LocalisedField
-          name="countryOfBirthId"
-          component={AutocompleteField}
-          suggester={countrySuggester}
-        />
-        <LocalisedField
-          name="nationalityId"
-          component={AutocompleteField}
-          suggester={nationalitySuggester}
-        />
-        <LocalisedField
-          name="ethnicityId"
-          component={AutocompleteField}
-          suggester={ethnicitySuggester}
-        />
-        <LocalisedField
-          name="religionId"
-          component={AutocompleteField}
-          suggester={religionSuggester}
-        />
-        {patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT && (
-          <>
-            <LocalisedField
-              name="educationalLevel"
-              component={SelectField}
-              options={educationalAttainmentOptions}
-            />
-            <LocalisedField
-              name="occupationId"
-              component={AutocompleteField}
-              suggester={occupationSuggester}
-            />
-            <LocalisedField
-              name="socialMedia"
-              component={SelectField}
-              options={socialMediaOptions}
-            />
-          </>
-        )}
-        <LocalisedField
-          name="patientBillingTypeId"
-          endpoint="patientBillingType"
-          component={SuggesterSelectField}
-        />
-        <LocalisedField
-          name="motherId"
-          component={AutocompleteField}
-          suggester={patientSuggester}
-        />
-        <LocalisedField
-          name="fatherId"
-          component={AutocompleteField}
-          suggester={patientSuggester}
+        <PersonalInformationFields
+          patientRegistryType={patientRegistryType}
+          showMandatory={false}
         />
       </StyledFormGrid>
 
       <StyledHeading>Location information</StyledHeading>
       <StyledFormGrid>
-        <LocalisedField name="cityTown" component={TextField} />
-        <LocalisedField
-          name="subdivisionId"
-          component={AutocompleteField}
-          suggester={subdivisionSuggester}
-        />
-        <LocalisedField
-          name="divisionId"
-          component={AutocompleteField}
-          suggester={divisionSuggester}
-        />
-        <LocalisedField
-          name="countryId"
-          component={AutocompleteField}
-          suggester={countrySuggester}
-        />
-
-        <LocalisedField
-          name="settlementId"
-          component={AutocompleteField}
-          suggester={settlementSuggester}
-        />
-        <LocalisedField
-          name="medicalAreaId"
-          component={AutocompleteField}
-          suggester={medicalAreaSuggester}
-        />
-        <LocalisedField
-          name="nursingZoneId"
-          component={AutocompleteField}
-          suggester={nursingZoneSuggester}
-        />
-        <LocalisedField name="streetVillage" component={TextField} />
+        <LocationInformationFields showMandatory={false} />
       </StyledFormGrid>
     </StyledSecondaryDetailsGroup>
   );
@@ -410,7 +266,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
     <Form
       render={({ submitForm, values }) => (
         <>
-          <PrimaryDetailsGroup />
+          <PrimaryDetailsGroup patientRegistryType={patientRegistryType} />
           <StyledPatientDetailSecondaryDetailsGroupWrapper>
             <SecondaryDetailsGroup
               patientRegistryType={patientRegistryType}
