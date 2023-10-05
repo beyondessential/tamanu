@@ -17,7 +17,7 @@ export default {
   component: TranslatedText,
 };
 
-const Template = ({ name, suggesterEndpoint, ...args }) => {
+const Template = args => {
   return (
     <Container>
       <TranslatedText {...args} />
@@ -28,5 +28,5 @@ const Template = ({ name, suggesterEndpoint, ...args }) => {
 export const Basic = Template.bind({});
 Basic.args = {
   stringId: 'fruitBowl.banana',
-  fallback: 'banana',
+  fallback: 'Banana',
 };

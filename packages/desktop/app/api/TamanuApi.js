@@ -100,10 +100,6 @@ export function isErrorUnknownAllow404s(error, response) {
   return isErrorUnknownDefault(error, response);
 }
 
-ipcRenderer.on('toggleDebug', () =>
-  localStorage.setItem('debugTranslation', !JSON.parse(localStorage.getItem('debugTranslation'))),
-);
-
 export class TamanuApi {
   constructor(appVersion) {
     this.appVersion = appVersion;
@@ -182,6 +178,13 @@ export class TamanuApi {
     const user = await this.get('user/me');
     this.user = user;
     const ability = buildAbilityForUser(user, permissions);
+
+    ipcRenderer.on('toggleDebug', () =>
+      localStorage.setItem(
+        'debugTranslation',
+        !JSON.parse(localStorage.getItem('debugTranslation')),
+      ),
+    );
 
     return { user, token, localisation, server, ability, role };
   }
