@@ -1,47 +1,192 @@
 import * as yup from 'yup';
+import { isEqual } from 'lodash';
+
 import { BIRTH_DELIVERY_TYPES, BIRTH_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
 
-export const getPatientDetailsValidation = sexValues => {
-  return yup.object().shape({
+const requiredWhenConfiguredMandatory = (getLocalisation, name, baseType) => {
+  return baseType.when([], {
+    is: () => !!getLocalisation(`fields.${name}.requiredPatientData`),
+    then: baseType.required(`${getLocalisation(`fields.${name}.shortLabel`)} is required `),
+    otherwise: baseType,
+  });
+};
+
+export const getPatientDetailsValidation = (patientRegistryType, sexValues, getLocalisation) => {
+  const patientDetailsValidationSchema = yup.object().shape({
     firstName: yup.string().required(),
-    middleName: yup.string(),
+    middleName: requiredWhenConfiguredMandatory(getLocalisation, 'middleName', yup.string()),
     lastName: yup.string().required(),
-    culturalName: yup.string(),
+    culturalName: requiredWhenConfiguredMandatory(getLocalisation, 'culturalName', yup.string()),
     dateOfBirth: yup.date().required(),
     sex: yup
       .string()
       .oneOf(sexValues)
       .required(),
-    email: yup.string().email(),
-    religion: yup.string(),
-    occupation: yup.string(),
-    birthWeight: yup
-      .number()
-      .min(0)
-      .max(6),
-    birthLength: yup
-      .number()
-      .min(0)
-      .max(100),
-    birthDeliveryType: yup.string().oneOf(Object.values(BIRTH_DELIVERY_TYPES)),
-    gestationalAgeEstimate: yup
-      .number()
-      .min(1)
-      .max(45),
-    apgarScoreOneMinute: yup
-      .number()
-      .min(1)
-      .max(10),
-    apgarScoreFiveMinutes: yup
-      .number()
-      .min(1)
-      .max(10),
-    apgarScoreTenMinutes: yup
-      .number()
-      .min(1)
-      .max(10),
-    birthType: yup.string().oneOf(Object.values(BIRTH_TYPES)),
-    timeOfBirth: yup.string(),
-    registeredBirthPlace: yup.string().oneOf(Object.values(PLACE_OF_BIRTH_TYPES)),
+    email: requiredWhenConfiguredMandatory(getLocalisation, 'email', yup.string().email()),
+    birthFacilityId: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      'birthFacilityId',
+      yup.string().when('registeredBirthPlace', {
+        is: value => value === PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY,
+        then: yup.string().required,
+        otherwise: yup.string(),
+      }),
+    ),
+    attendantAtBirth: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      'attendantAtBirth',
+      yup.string(),
+    ),
+    nameOfAttendantAtBirth: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      'nameOfAttendantAtBirth',
+      yup.string(),
+    ),
+    religionId: requiredWhenConfiguredMandatory(getLocalisation, 'religionId', yup.string()),
+    birthWeight: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      'birthWeight',
+      yup
+        .number()
+        .min(0)
+        .max(6),
+    ),
+    birthLength: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      'birthLength',
+      yup
+        .number()
+        .min(0)
+        .max(100),
+    ),
+    birthDeliveryType: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      'birthDeliveryType',
+      yup.string().oneOf(Object.values(BIRTH_DELIVERY_TYPES)),
+    ),
+    gestationalAgeEstimate: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      'gestationalAgeEstimate',
+      yup
+        .number()
+        .min(1)
+        .max(45),
+    ),
+    apgarScoreOneMinute: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      'apgarScoreOneMinute',
+      yup
+        .number()
+        .min(1)
+        .max(10),
+    ),
+    apgarScoreFiveMinutes: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      'apgarScoreFiveMinutes',
+      yup
+        .number()
+        .min(1)
+        .max(10),
+    ),
+    apgarScoreTenMinutes: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      'apgarScoreTenMinutes',
+      yup
+        .number()
+        .min(1)
+        .max(10),
+    ),
+    birthType: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      'birthType',
+      yup.string().oneOf(Object.values(BIRTH_TYPES)),
+    ),
+    timeOfBirth: requiredWhenConfiguredMandatory(getLocalisation, 'timeOfBirth', yup.string()),
+    registeredBirthPlace: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      'registeredBirthPlace',
+      yup.string().oneOf(Object.values(PLACE_OF_BIRTH_TYPES)),
+    ),
+    birthCertificate: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      'birthCertificate',
+      yup.string(),
+    ),
+    passport: requiredWhenConfiguredMandatory(getLocalisation, 'passport', yup.string()),
+    primaryContactNumber: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      'primaryContactNumber',
+      yup.number(),
+    ),
+    secondaryContactNumber: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      'secondaryContactNumber',
+      yup.number(),
+    ),
+    emergencyContactName: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      'emergencyContactName',
+      yup.number(),
+    ),
+    emergencyContactNumber: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      'emergencyContactNumber',
+      yup.number(),
+    ),
+    title: requiredWhenConfiguredMandatory(getLocalisation, 'title', yup.string()),
+    bloodType: requiredWhenConfiguredMandatory(getLocalisation, 'bloodType', yup.string()),
+    placeOfBirth: requiredWhenConfiguredMandatory(getLocalisation, 'placeOfBirth', yup.string()),
+    countryOfBirthId: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      'countryOfBirthId',
+      yup.string(),
+    ),
+    nationalityId: requiredWhenConfiguredMandatory(getLocalisation, 'nationalityId', yup.string()),
+    ethnicityId: requiredWhenConfiguredMandatory(getLocalisation, 'ethnicityId', yup.string()),
+    patientBillingTypeId: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      'patientBillingTypeId',
+      yup.string(),
+    ),
+    motherId: requiredWhenConfiguredMandatory(getLocalisation, 'motherId', yup.string()),
+    fatherId: requiredWhenConfiguredMandatory(getLocalisation, 'fatherId', yup.string()),
+    subdivisionId: requiredWhenConfiguredMandatory(getLocalisation, 'subdivisionId', yup.string()),
+    divisionId: requiredWhenConfiguredMandatory(getLocalisation, 'divisionId', yup.string()),
+    countryId: requiredWhenConfiguredMandatory(getLocalisation, 'countryId', yup.string()),
+    settlementId: requiredWhenConfiguredMandatory(getLocalisation, 'settlementId', yup.string()),
+    medicalAreaId: requiredWhenConfiguredMandatory(getLocalisation, 'medicalAreaId', yup.string()),
+    nursingZoneId: requiredWhenConfiguredMandatory(getLocalisation, 'nursingZoneId', yup.string()),
+    streetVillage: requiredWhenConfiguredMandatory(getLocalisation, 'streetVillage', yup.string()),
+    drivingLicense: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      'drivingLicense',
+      yup.string(),
+    ),
+    maritalStatus: requiredWhenConfiguredMandatory(getLocalisation, 'maritalStatus', yup.string()),
+    occupationId: requiredWhenConfiguredMandatory(getLocalisation, 'occupationId', yup.string()),
+    educationalLevel: requiredWhenConfiguredMandatory(
+      getLocalisation,
+      'educationalLevel',
+      yup.string(),
+    ),
+    socialMedia: requiredWhenConfiguredMandatory(getLocalisation, 'socialMedia', yup.string()),
   });
+
+  const validatedProperties = Object.keys(patientDetailsValidationSchema.describe().fields);
+  const localisedFields = getLocalisation('fields');
+  const localisedPatientFields = Object.keys(localisedFields).filter(fieldName =>
+    localisedFields[fieldName].hasOwnProperty('requiredPatientData'),
+  );
+
+  // Validate if any localised patient fields are missing schema validation,
+  // so that we don't miss mandatory validation for any patient fields
+  if (!isEqual(validatedProperties.sort(), localisedPatientFields.sort())) {
+    const differences = localisedPatientFields.filter(item => !validatedProperties.includes(item));
+
+    throw new Error(
+      `Missing schema validation for these following localised patient fields: ${differences.toString()}`,
+    );
+  }
+
+  return patientDetailsValidationSchema;
 };

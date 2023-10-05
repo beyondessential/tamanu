@@ -39,7 +39,7 @@ const StyledHeading = styled.div`
   font-weight: 500;
   font-size: 16px;
   color: ${Colors.darkText};
-  margin-bottom: 10px;
+  margin-bottom: 30px;
 `;
 
 const StyledFormGrid = styled(FormGrid)`
@@ -63,32 +63,39 @@ export const PrimaryDetailsGroup = ({ patientRegistryType }) => {
   }
 
   return (
-    <FormGrid>
-      <LocalisedField name="firstName" component={TextField} required />
-      <LocalisedField name="middleName" component={TextField} />
-      <LocalisedField name="lastName" component={TextField} required />
-      <LocalisedField name="culturalName" component={TextField} />
-      <LocalisedField
-        name="dateOfBirth"
-        max={getCurrentDateString()}
-        component={DateField}
-        required
-        saveDateAsString
-      />
-      <LocalisedField name="villageId" component={AutocompleteField} suggester={villageSuggester} />
-      <LocalisedField name="sex" component={RadioField} options={filteredSexOptions} required />
-      <LocalisedField
-        name="email"
-        component={TextField}
-        type="email"
-        defaultLabel="Email address"
-      />
-      {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && <BirthDetailsFields />}
-      <IdentificationInformationFields patientRegistryType={patientRegistryType} />
-      <ContactInformationFields />
-      <PersonalInformationFields patientRegistryType={patientRegistryType} />
-      <LocationInformationFields />
-    </FormGrid>
+    <>
+      <StyledHeading>General information</StyledHeading>
+      <FormGrid>
+        <LocalisedField name="firstName" component={TextField} required />
+        <LocalisedField name="middleName" component={TextField} />
+        <LocalisedField name="lastName" component={TextField} required />
+        <LocalisedField name="culturalName" component={TextField} />
+        <LocalisedField
+          name="dateOfBirth"
+          max={getCurrentDateString()}
+          component={DateField}
+          required
+          saveDateAsString
+        />
+        <LocalisedField
+          name="villageId"
+          component={AutocompleteField}
+          suggester={villageSuggester}
+        />
+        <LocalisedField name="sex" component={RadioField} options={filteredSexOptions} required />
+        <LocalisedField
+          name="email"
+          component={TextField}
+          type="email"
+          defaultLabel="Email address"
+        />
+        {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && <BirthDetailsFields />}
+        <IdentificationInformationFields patientRegistryType={patientRegistryType} />
+        <ContactInformationFields />
+        <PersonalInformationFields patientRegistryType={patientRegistryType} />
+        <LocationInformationFields />
+      </FormGrid>
+    </>
   );
 };
 
@@ -240,6 +247,8 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
 
   const sexValues = useSexValues();
 
+  const { getLocalisation } = useLocalisation();
+
   const api = useApi();
   const {
     data: fieldDefinitionsResponse,
@@ -293,7 +302,11 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
         ),
       }}
       onSubmit={handleSubmit}
-      validationSchema={getPatientDetailsValidation(sexValues)}
+      validationSchema={getPatientDetailsValidation(
+        patientRegistryType,
+        sexValues,
+        getLocalisation,
+      )}
     />
   );
 };

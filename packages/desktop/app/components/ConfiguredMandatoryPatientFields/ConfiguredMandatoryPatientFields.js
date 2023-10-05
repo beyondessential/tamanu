@@ -10,10 +10,16 @@ export const ConfiguredMandatoryPatientFields = ({ fields, showMandatory = true 
   useEffect(() => {
     const configuredFieldsToShow = Object.keys(fields)
       // Check if fields are mandatory and if we want to show mandatory fields or not
-      .filter(fieldName => !!getLocalisation(`fields.${fieldName}.required`) === showMandatory)
+      .filter(
+        fieldName => !!getLocalisation(`fields.${fieldName}.requiredPatientData`) === showMandatory,
+      )
       // Check if any condition is there for vibisibility
       .filter(fieldName => (fields[fieldName].condition ? fields[fieldName].condition() : true))
-      .map(fieldName => ({ ...fields[fieldName], name: fieldName }));
+      .map(fieldName => ({
+        ...fields[fieldName],
+        name: fieldName,
+        required: showMandatory,
+      }));
 
     setFieldsToShow(configuredFieldsToShow);
 
