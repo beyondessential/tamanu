@@ -7,6 +7,8 @@ const DebugHighlighed = styled.span`
   color: white;
 `;
 
+// "stringId" is used in future functionality
+// eslint-disable-next-line no-unused-vars
 export const TranslatedText = ({ stringId, fallback }) => {
   const translation = null; // Placeholder for checking db for translation
   const debugMode = JSON.parse(localStorage.getItem('debugTranslation'));
