@@ -103,7 +103,6 @@ export default class MenuBuilder {
           accelerator: 'Alt+Command+F',
           click: async () => {
             this.mainWindow.webContents.send('toggleDebug');
-            this.mainWindow.webContents.reload();
           },
         },
       ],

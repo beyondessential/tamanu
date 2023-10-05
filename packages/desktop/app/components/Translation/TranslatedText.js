@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 
@@ -24,7 +24,21 @@ const replaceStringVariables = (templateString, replacements) => {
 // "stringId" is used in future functionality
 // eslint-disable-next-line no-unused-vars
 export const TranslatedText = ({ stringId, fallback, replacements }) => {
+  const [isDebugMode, setIsDebugMode] = useState(false);
   const translation = null; // Placeholder for checking db for translation
+
+  useEffect(() => {
+    const getDebugMode = async () => {
+      const debugMode = await JSON.parse(localStorage.getItem('debugTranslation'));
+      setIsDebugMode(debugMode);
+    };
+    getDebugMode();
+
+    window.addEventListener('debugTranslation', getDebugMode);
+    return () => {
+      window.removeEventListener('debugTranslation', getDebugMode);
+    };
+  }, []);
 
   if (!translation) {
     // Register as untranslated in DB
@@ -35,8 +49,7 @@ export const TranslatedText = ({ stringId, fallback, replacements }) => {
     ? replaceStringVariables(stringToReplace, replacements)
     : stringToReplace;
 
-  const debugMode = JSON.parse(localStorage.getItem('debugTranslation'));
-  const TextWrapper = debugMode ? DebugHighlighed : React.Fragment;
+  const TextWrapper = isDebugMode ? DebugHighlighed : React.Fragment;
 
   return <TextWrapper>{stringWithReplacements}</TextWrapper>;
 };
