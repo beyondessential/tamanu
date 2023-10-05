@@ -1,7 +1,12 @@
 import * as yup from 'yup';
 import { isEqual } from 'lodash';
 
-import { BIRTH_DELIVERY_TYPES, BIRTH_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
+import {
+  BIRTH_DELIVERY_TYPES,
+  BIRTH_TYPES,
+  PLACE_OF_BIRTH_TYPES,
+  PATIENT_REGISTRY_TYPES,
+} from '@tamanu/constants';
 
 const requiredWhenConfiguredMandatory = (getLocalisation, name, baseType) => {
   return baseType.when([], {
@@ -157,19 +162,32 @@ export const getPatientDetailsValidation = (patientRegistryType, sexValues, getL
     medicalAreaId: requiredWhenConfiguredMandatory(getLocalisation, 'medicalAreaId', yup.string()),
     nursingZoneId: requiredWhenConfiguredMandatory(getLocalisation, 'nursingZoneId', yup.string()),
     streetVillage: requiredWhenConfiguredMandatory(getLocalisation, 'streetVillage', yup.string()),
-    drivingLicense: requiredWhenConfiguredMandatory(
-      getLocalisation,
-      'drivingLicense',
-      yup.string(),
-    ),
-    maritalStatus: requiredWhenConfiguredMandatory(getLocalisation, 'maritalStatus', yup.string()),
-    occupationId: requiredWhenConfiguredMandatory(getLocalisation, 'occupationId', yup.string()),
-    educationalLevel: requiredWhenConfiguredMandatory(
-      getLocalisation,
-      'educationalLevel',
-      yup.string(),
-    ),
-    socialMedia: requiredWhenConfiguredMandatory(getLocalisation, 'socialMedia', yup.string()),
+    cityTown: requiredWhenConfiguredMandatory(getLocalisation, 'cityTown', yup.string()),
+    drivingLicense: yup.string().when({
+      is: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
+      then: requiredWhenConfiguredMandatory(getLocalisation, 'drivingLicense', yup.string()),
+      otherwise: yup.string(),
+    }),
+    maritalStatus: yup.string().when({
+      is: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
+      then: requiredWhenConfiguredMandatory(getLocalisation, 'maritalStatus', yup.string()),
+      otherwise: yup.string(),
+    }),
+    occupationId: yup.string().when({
+      is: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
+      then: requiredWhenConfiguredMandatory(getLocalisation, 'occupationId', yup.string()),
+      otherwise: yup.string(),
+    }),
+    educationalLevel: yup.string().when({
+      is: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
+      then: requiredWhenConfiguredMandatory(getLocalisation, 'educationalLevel', yup.string()),
+      otherwise: yup.string(),
+    }),
+    socialMedia: yup.string().when({
+      is: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
+      then: requiredWhenConfiguredMandatory(getLocalisation, 'socialMedia', yup.string()),
+      otherwise: yup.string(),
+    }),
   });
 
   const validatedProperties = Object.keys(patientDetailsValidationSchema.describe().fields);

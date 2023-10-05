@@ -20,6 +20,8 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
   const occupationSuggester = useSuggester('occupation');
   const religionSuggester = useSuggester('religion');
 
+  console.log('patientRegistryType1', patientRegistryType);
+
   const PERSONAL_INFORMATION_FIELDS = {
     title: {
       component: SelectField,
@@ -56,9 +58,18 @@ export const PersonalInformationFields = ({ patientRegistryType, showMandatory }
     educationalLevel: {
       component: SelectField,
       options: educationalAttainmentOptions,
+      condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
     },
-    occupationId: { component: AutocompleteField, suggester: occupationSuggester },
-    socialMedia: { component: SelectField, options: socialMediaOptions },
+    occupationId: {
+      component: AutocompleteField,
+      suggester: occupationSuggester,
+      condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
+    },
+    socialMedia: {
+      component: SelectField,
+      options: socialMediaOptions,
+      condition: () => patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT,
+    },
     patientBillingTypeId: {
       component: SuggesterSelectField,
       endpoint: 'patientBillingType',

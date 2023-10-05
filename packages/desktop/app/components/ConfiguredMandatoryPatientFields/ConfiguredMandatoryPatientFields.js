@@ -23,9 +23,9 @@ export const ConfiguredMandatoryPatientFields = ({ fields, showMandatory = true 
 
     setFieldsToShow(configuredFieldsToShow);
 
-    // We only need to work out which fields to show once
+    // We only need to work out which fields to show if fields are changed
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fields]);
 
   return fieldsToShow.length ? (
     <>
