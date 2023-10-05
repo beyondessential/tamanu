@@ -54,9 +54,9 @@ export const SurveyView = ({
     const submitSaveableValues = event => {
       // 1. get a list of saveable fields (visible and with !config.omitFromResult)
       const saveableFields = new Set(
-        components.filter(c =>
-          shouldSaveComponent(c, values, components).map(x => x.dataElementId),
-        ),
+        components
+          .filter(c => shouldSaveComponent(c, values, components))
+          .map(x => x.dataElementId),
       );
 
       // 2. Filter the form values to only include saveable fields
