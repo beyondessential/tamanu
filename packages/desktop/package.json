@@ -26,7 +26,7 @@
     "start-dev": "npm run dev",
     "start-main-dev": "cross-env HOT=1 NODE_ENV=development electron -r ./babel-register ./app/main.dev",
     "start-renderer-dev": "cross-env NODE_ENV=development node --trace-warnings -r ./babel-register ./node_modules/webpack-dev-server/bin/webpack-dev-server --config webpack.config.renderer.dev.js",
-    "test": "NODE_ENV=test jest",
+    "test": "NODE_ENV=test jest && NODE_ENV=development verify-storybook",
     "test-watch": "yarn test --watch",
     "reinstall": "rm -rf ../../**/node_modules && yarn",
     "storybook": "start-storybook -p 6006",
