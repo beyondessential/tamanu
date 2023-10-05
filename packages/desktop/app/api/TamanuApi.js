@@ -179,13 +179,6 @@ export class TamanuApi {
     this.user = user;
     const ability = buildAbilityForUser(user, permissions);
 
-    ipcRenderer.on('toggleDebug', () =>
-      localStorage.setItem(
-        'debugTranslation',
-        !JSON.parse(localStorage.getItem('debugTranslation')),
-      ),
-    );
-
     return { user, token, localisation, server, ability, role };
   }
 
@@ -343,3 +336,7 @@ export class TamanuApi {
     return this.fetch(endpoint, query, { method: 'DELETE', ...options });
   }
 }
+
+ipcRenderer.on('toggleDebug', () =>
+  localStorage.setItem('debugTranslation', !JSON.parse(localStorage.getItem('debugTranslation'))),
+);
