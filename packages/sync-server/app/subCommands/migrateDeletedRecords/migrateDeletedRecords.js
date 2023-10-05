@@ -1,14 +1,11 @@
 import { Command } from 'commander';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { log } from 'shared/services/logging';
 import { initDatabase } from '../../database';
 
-const camelToSnakeCase = str => str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
-
 const fromSurveyScreenComponent = async () => {
   const store = await initDatabase({ testMode: false });
-  const { deletedAt } = store.models.SurveyScreenComponent;
-  const deletedAtKey = camelToSnakeCase(deletedAt.key);
 
   // If deleted_at column does not exist
   if (!store.models.SurveyScreenComponent.rawAttributes.deleted_at) {
@@ -18,11 +15,11 @@ const fromSurveyScreenComponent = async () => {
 
   const response = await store.sequelize.query(
     `UPDATE "survey_screen_components" 
-      SET "deleted_at" = NULL, "${deletedAtKey}" = :historical
+      SET "deleted_at" = NULL, "visibility_status" = :historical
       WHERE "deleted_at" IS NOT NULL`,
     {
       replacements: {
-        historical: deletedAt.value.softDeleted,
+        historical: VISIBILITY_STATUSES.HISTORICAL,
       },
     },
   );
