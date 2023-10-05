@@ -64,7 +64,7 @@ export const PatientResultsPane = React.memo(({ patient }) => {
   const isInitialLoad = isLoading && !dirty;
   const noResults = !isLoading && !dirty && data?.count === 0;
 
-  const canViewLabRequestResults = ability?.can('read', 'LabRequest');
+  const canViewLabRequestResults = ability?.can('read', 'LabTestResult');
 
   return (
     <>
