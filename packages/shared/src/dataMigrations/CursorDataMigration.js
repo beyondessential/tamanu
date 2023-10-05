@@ -1,5 +1,11 @@
 import { DataMigration } from './DataMigration';
 
+/*
+ * CursorDataMigration is for SQL data migrations that can return the id of the
+ * last modified record. The user inherits from it and defines a query that
+ * takes `fromId` and returns `maxId`, as well as (optionally) initialising
+ * `lastMaxId`.
+ */
 export class CursorDataMigration extends DataMigration {
   lastMaxId = null;
 
