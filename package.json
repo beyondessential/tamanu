@@ -20,6 +20,8 @@
     "desktop-start-dev": "yarn workspace desktop run start-dev",
     "storybook": "yarn run watch-shared-and desktop storybook",
     "watch-shared-and": "node scripts/watch-shared-and.js",
+    "desktop-test": "yarn run build-shared && yarn workspace desktop run test",
+    "desktop-test-watch": "yarn run build-shared && yarn workspace desktop run test-watch",
     "lan-test": "yarn run build-shared && yarn workspace lan run test",
     "lan-start-dev": "yarn run build-shared && yarn run watch-shared-and lan start-dev",
     "lan-test-watch": "yarn run watch-shared-and lan test-watch",
