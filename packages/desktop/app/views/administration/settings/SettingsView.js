@@ -53,22 +53,17 @@ export const SettingsView = React.memo(() => {
   const hasSettingsChanged = settingsViewString !== settingsEditString;
   const scope = getScope(selectedFacility);
 
-  const turnOnEditMode = () => {
-    setJsonError(null);
-    setSettingsEditString(buildSettingsString(settings));
-  };
-  const turnOffEditMode = () => {
-    setSettingsEditString(null);
+  const updateSettingsEditString = value => {
+    setSettingsEditString(value);
     setJsonError(null);
   };
-  const onChangeSettings = newValue => {
-    setSettingsEditString(newValue);
-    setJsonError(null);
-  };
+
+  const turnOnEditMode = () => updateSettingsEditString(buildSettingsString(settings));
+  const turnOffEditMode = () => updateSettingsEditString(null);
+  const onChangeSettings = newValue => updateSettingsEditString(newValue);
   const onChangeFacility = event => {
     setSelectedFacility(event.target.value || null);
-    setSettingsEditString(null);
-    setJsonError(null);
+    updateSettingsEditString(null);
   };
 
   // Convert settings string from editor into object and post to backend
