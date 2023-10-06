@@ -12,6 +12,7 @@ import { ScopeSelector } from './ScopeSelector';
 import { DefaultSettingsModal } from './DefaultSettingsModal';
 import { useApi } from '../../../api';
 import { notifySuccess, notifyError } from '../../../utils';
+import { ErrorMessage } from '../../../components/ErrorMessage';
 
 const StyledTopBar = styled(TopBar)`
   padding: 0;
@@ -51,7 +52,7 @@ export const SettingsView = React.memo(() => {
 
   const scope = getScope(selectedFacility);
 
-  const { data: settings = {}, refetch: refetchSettings } = useQuery(
+  const { data: settings = {}, refetch: refetchSettings, error: settingsFetchError } = useQuery(
     ['scopedSettings', scope, selectedFacility],
     () => api.get('admin/settings', { scope, facilityId: selectedFacility }),
   );
@@ -125,14 +126,18 @@ export const SettingsView = React.memo(() => {
         </ButtonRow>
       </StyledTopBar>
       <ContentPane>
-        <JSONEditor
-          onChange={onChangeSettings}
-          value={editMode ? settingsEditString : settingsViewString}
-          editMode={editMode}
-          error={jsonError}
-          placeholderText="No settings found for this server/facility"
-          fontSize={14}
-        />
+        {settingsFetchError ? (
+          <ErrorMessage title="Settings fetch error" errorMessage={settingsFetchError.message} />
+        ) : (
+          <JSONEditor
+            onChange={onChangeSettings}
+            value={editMode ? settingsEditString : settingsViewString}
+            editMode={editMode}
+            error={jsonError}
+            placeholderText="No settings found for this server/facility"
+            fontSize={14}
+          />
+        )}
       </ContentPane>
       <DefaultSettingsModal
         open={isDefaultModalOpen}
