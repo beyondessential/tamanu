@@ -37,6 +37,7 @@ const getScope = selectedFacility => {
 };
 
 const buildSettingsString = settings => {
+  if (Object.keys(settings).length === 0) return '';
   return JSON.stringify(settings, null, 2);
 };
 
@@ -48,8 +49,7 @@ export const SettingsView = React.memo(() => {
   const [jsonError, setJsonError] = useState(null);
   const [isDefaultModalOpen, setIsDefaultModalOpen] = useState(false);
 
-  const areSettingsPresent = Object.keys(settings).length > 0;
-  const settingsViewString = areSettingsPresent ? buildSettingsString(settings) : '';
+  const settingsViewString = buildSettingsString(settings);
   const hasSettingsChanged = settingsViewString !== settingsEditString;
   const scope = getScope(selectedFacility);
 
