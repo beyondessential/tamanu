@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
+import { useQuery } from '@tanstack/react-query';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 import { useApi } from '../../../api';
@@ -53,25 +54,20 @@ const getHelperText = selectedFacility => {
 
 export const ScopeSelector = React.memo(({ selectedFacility, onChangeFacility }) => {
   const api = useApi();
-  const [facilityOptions, setFacilityOptions] = useState([]);
 
-  useEffect(() => {
-    const fetchFacilities = async () => {
-      const facilitiesArray = await api.get('admin/facilities');
-      setFacilityOptions(
-        facilitiesArray.map(facility => ({
-          label: facility.name,
-          value: facility.id,
-          tag: {
-            label: 'Facility',
-            background: Colors.blue,
-            color: Colors.white,
-          },
-        })),
-      );
-    };
-    fetchFacilities();
-  }, [api]);
+  const { data: facilitiesArray = [], error } = useQuery(['facilitiesList'], () =>
+    api.get('admin/facilities'),
+  );
+
+  const facilityOptions = facilitiesArray.map(facility => ({
+    label: facility.name,
+    value: facility.id,
+    tag: {
+      label: 'Facility',
+      background: Colors.blue,
+      color: Colors.white,
+    },
+  }));
 
   const helperText = getHelperText(selectedFacility);
 
@@ -82,6 +78,7 @@ export const ScopeSelector = React.memo(({ selectedFacility, onChangeFacility })
       options={BASIC_OPTIONS.concat(facilityOptions)}
       label="Select a facility/server to view and edit its settings"
       isClearable={false}
+      error={!!error}
       helperText={helperText}
     />
   );
