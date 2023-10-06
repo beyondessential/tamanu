@@ -14,7 +14,7 @@ const ScopeSelectorInput = styled(SelectInput)`
 `;
 
 const SCOPE_HELPERTEXT = {
-  CENTRAL: 'These settings stay on the central server and wont apply to any facilities',
+  CENTRAL: 'These settings will only apply to the central server',
   GLOBAL: 'These settings will apply to all servers/devices',
   FACILITY: `These settings will only apply to the facility/devices linked to it`,
 };
