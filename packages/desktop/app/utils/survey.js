@@ -79,6 +79,16 @@ export function mapOptionsToValues(options) {
   return options.map(x => ({ label: x, value: x }));
 }
 
+const swapValuesIdToCode = (values, allComponents) => {
+  return Object.entries(values).reduce((acc, [key, val]) => {
+    const matchingComponent = allComponents.find(x => x.dataElement.id === key);
+    if (matchingComponent) {
+      acc[matchingComponent.dataElement.code] = val;
+    }
+    return acc;
+  }, {});
+};
+
 /**
  * IMPORTANT: We have 4 other versions of this method:
  *
@@ -96,13 +106,7 @@ export function checkVisibility(component, values, allComponents) {
   if (!visibilityCriteria) return true;
 
   try {
-    const valuesByCode = Object.entries(values).reduce((acc, [key, val]) => {
-      const matchingComponent = allComponents.find(x => x.dataElement.id === key);
-      if (matchingComponent) {
-        acc[matchingComponent.dataElement.code] = val;
-      }
-      return acc;
-    }, {});
+    const valuesByCode = swapValuesIdToCode(values, allComponents);
     return checkJSONCriteria(visibilityCriteria, allComponents, valuesByCode);
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -342,7 +346,8 @@ export const getNormalRangeByAge = (validationCriteria = {}, { dateOfBirth }) =>
 
 export const checkValidationCriteria = (validationCriteria, allComponents, values) => {
   try {
-    return checkValidationCriteriaBase(validationCriteria, allComponents, values);
+    const valuesByCode = swapValuesIdToCode(values, allComponents);
+    return checkValidationCriteriaBase(validationCriteria, allComponents, valuesByCode);
   } catch (error) {
     notifyError(
       `Failed to use validationCriteria: ${JSON.stringify(validationCriteria)}, error: ${

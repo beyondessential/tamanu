@@ -1,4 +1,4 @@
-import { checkVisibility } from '../../app/utils';
+import { checkValidationCriteria, checkVisibility } from '../../app/utils';
 
 describe('checkVisibility()', () => {
   const generateAllComponents = components =>
@@ -125,6 +125,35 @@ describe('checkVisibility()', () => {
           allComponents[0],
           { TEST_A_ID, TEST_B_ID, TEST_RESULT: 20 },
           allComponents,
+        );
+
+        expect(result).toBe(expected);
+      },
+    );
+  });
+
+  describe('checkValidationCriteria()', () => {
+    const allComponents = generateAllComponents([
+      {
+        id: 'TEST_RESULT_ID',
+        code: 'TEST_RESULT_CODE',
+        type: 'Binary',
+      },
+      { id: 'TEST_A_ID', code: 'TEST_A_CODE', type: 'Binary' },
+      { id: 'TEST_B_ID', code: 'TEST_B_CODE', type: 'Binary' },
+    ]);
+    const testData = [
+      { TEST_A_ID: 30, expected: true },
+      { TEST_A_ID: 29, expected: false },
+    ];
+
+    it.each(testData)(
+      'should return $expected for TEST_A_ID: $TEST_A_ID',
+      ({ TEST_A_ID, expected }) => {
+        const result = checkValidationCriteria(
+          JSON.stringify({ TEST_A_CODE: { type: 'range', start: 30 } }),
+          allComponents,
+          { TEST_A_ID },
         );
 
         expect(result).toBe(expected);
