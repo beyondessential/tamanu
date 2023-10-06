@@ -171,7 +171,7 @@ const TitleCell = React.memo(({ value }) => {
 export const VitalsTable = React.memo(() => {
   const patient = useSelector(state => state.patient);
   const { encounter } = useEncounter();
-  const { data, recordedDates, error, isLoading } = useVitals(encounter.id);
+  const { data, components, recordedDates, error, isLoading } = useVitals(encounter.id);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedCell, setSelectedCell] = useState(null);
   const { getLocalisation } = useLocalisation();
@@ -233,6 +233,7 @@ export const VitalsTable = React.memo(() => {
       <EditVitalCellModal
         open={openEditModal}
         dataPoint={selectedCell}
+        components={components}
         onClose={() => {
           setOpenEditModal(false);
         }}

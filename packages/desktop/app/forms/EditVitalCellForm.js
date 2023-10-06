@@ -79,7 +79,7 @@ const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
   );
 };
 
-export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
+export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, components }) => {
   const [isDeleted, setIsDeleted] = useState(false);
   const api = useApi();
   const queryClient = useQueryClient();
@@ -139,7 +139,12 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
       validate={validateFn}
       render={({ setFieldValue, submitForm }) => (
         <FormGrid columns={4}>
-          <SurveyQuestion component={dataPoint.component} disabled={isDeleted} />
+          <SurveyQuestion
+            component={dataPoint.component}
+            disabled={isDeleted}
+            values={{ encounterType: encounter.type }}
+            components={components}
+          />
           {showDeleteEntryButton && (
             <DeleteEntryButton
               disabled={isDeleted}
