@@ -344,7 +344,11 @@ export const checkValidationCriteria = (validationCriteria, allComponents, value
   try {
     return checkValidationCriteriaBase(validationCriteria, allComponents, values);
   } catch (error) {
-    notifyError(`Failed to use validationCriteria: ${validationCriteria}, error: ${error.message}`);
+    notifyError(
+      `Failed to use validationCriteria: ${JSON.stringify(validationCriteria)}, error: ${
+        error.message
+      }`,
+    );
     return false;
   }
 };
