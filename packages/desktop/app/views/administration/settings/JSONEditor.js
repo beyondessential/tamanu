@@ -52,7 +52,7 @@ export const JSONEditor = React.memo(
     const [marker, setMarker] = useState(null);
 
     useEffect(() => {
-      if (!error?.message) {
+      if (!error) {
         setErrorAnnotation(null);
         setMarker([]);
       } else {
