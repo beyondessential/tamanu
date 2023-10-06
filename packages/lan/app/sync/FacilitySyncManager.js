@@ -90,18 +90,28 @@ export class FacilitySyncManager {
       );
     }
 
-    log.info('FacilitySyncManager.startSession', { reason: this.reason });
-
     // clear previous temp data, in case last session errored out or server was restarted
     await dropAllSnapshotTables(this.sequelize);
 
-    const startTime = new Date();
+    log.info('FacilitySyncManager.attemptStart', { reason: this.reason });
 
     // the first step of sync is to start a session and retrieve the session id
     const {
+      status,
       sessionId,
       startedAtTick: newSyncClockTime,
     } = await this.centralServer.startSyncSession();
+
+    if (status) {
+      // we're queued
+      // TODO: how to deal with this?
+      log.info('FacilitySyncManager.wasQueued', { status });
+      return;
+    }
+
+    const startTime = new Date();
+
+    log.info('FacilitySyncManager.startSession');
 
     log.info('FacilitySyncManager.receivedSessionInfo', {
       sessionId,

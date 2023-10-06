@@ -9,10 +9,63 @@ export const buildSyncRoutes = ctx => {
   const syncManager = new CentralSyncManager(ctx);
   const syncRoutes = express.Router();
 
+  async function pollSyncQueue({ models }, { facilityId, deviceId, urgent, lastSyncedTick }) {
+    const { SyncQueuedDevice } = models;
+
+    // TODO: remove dummy implementation
+    if (!SyncQueuedDevice) {
+      console.log("okoyo");
+      return Math.random() < 0.5;
+    }
+
+    // TODO: move to a function on SyncQueuedDevice
+    const nextDevice = await SyncQueuedDevice.getNextDevice();
+    if (nextDevice.id === deviceId) {
+      // it's us! let's start a sync
+      return true;
+    }
+
+    const queueRecord = await SyncQueuedDevice.findByPk(deviceId);
+
+    if (!queueRecord) {
+      // new entry in sync queue
+      return SyncQueuedDevice.create({
+        id: deviceId,
+        facilityId,
+        urgent,
+        lastSyncedTick,
+        lastSeen: (new Date()).now(),
+        status: SYNC_QUEUE_STATUSES.QUEUED,
+      });
+    }
+
+    // update with most recent info
+    await queueRecord.update({
+      urgent,
+      lastSyncedTick,
+      lastSeen: (new Date()).now(),
+    });
+
+    return false;
+  }
+
   // create new sync session
   syncRoutes.post(
     '/',
     asyncHandler(async (req, res) => {
+      const queueResult = await pollSyncQueue(req, req.body);
+      log.info("Dummy queue result:", { queueResult });
+
+      if (!queueResult) {
+        res.send({
+          status: 'waitingInQueue',
+        });
+        return;
+      }
+
+      // TODO: what should this action be? status = 'queued'? etc
+      // await queueResult.destroy();
+
       const { user, body } = req;
       const { facilityId, deviceId } = body;
       const { sessionId, tick } = await syncManager.startSession({
