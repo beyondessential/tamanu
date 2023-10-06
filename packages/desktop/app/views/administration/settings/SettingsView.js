@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Settings } from '@material-ui/icons';
+import { useQuery } from '@tanstack/react-query';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
@@ -43,22 +44,27 @@ const buildSettingsString = settings => {
 
 export const SettingsView = React.memo(() => {
   const api = useApi();
-  const [settings, setSettings] = useState({});
   const [settingsEditString, setSettingsEditString] = useState('');
   const [selectedFacility, setSelectedFacility] = useState(null);
   const [jsonError, setJsonError] = useState(null);
   const [isDefaultModalOpen, setIsDefaultModalOpen] = useState(false);
 
+  const scope = getScope(selectedFacility);
+
+  const { data: settings = {}, refetch: refetchSettings } = useQuery(
+    ['scopedSettings', scope, selectedFacility],
+    () => api.get('admin/settings', { scope, facilityId: selectedFacility }),
+  );
+
   const settingsViewString = buildSettingsString(settings);
   const hasSettingsChanged = settingsViewString !== settingsEditString;
-  const scope = getScope(selectedFacility);
 
   const updateSettingsEditString = value => {
     setSettingsEditString(value);
     setJsonError(null);
   };
 
-  const turnOnEditMode = () => updateSettingsEditString(buildSettingsString(settings));
+  const turnOnEditMode = () => updateSettingsEditString(buildSettingsString(settings) || '{}');
   const turnOffEditMode = () => updateSettingsEditString(null);
   const onChangeSettings = newValue => updateSettingsEditString(newValue);
   const onChangeFacility = event => {
@@ -77,13 +83,14 @@ export const SettingsView = React.memo(() => {
       return;
     }
     const settingsObject = JSON.parse(settingsEditString);
-    setSettings(settingsObject);
-    turnOffEditMode();
     const response = await api.put('admin/settings', {
       settings: settingsObject,
       facilityId: selectedFacility !== SETTINGS_SCOPES.CENTRAL ? selectedFacility : null,
       scope,
     });
+
+    await refetchSettings();
+    turnOffEditMode();
 
     if (response.code === 200) {
       notifySuccess('Settings saved');
@@ -91,17 +98,6 @@ export const SettingsView = React.memo(() => {
       notifyError(`Error while saving settings: ${response.message}`);
     }
   };
-
-  useEffect(() => {
-    const fetchSettings = async () => {
-      const settingsObject = await api.get('admin/settings', {
-        facilityId: selectedFacility,
-        scope,
-      });
-      setSettings(settingsObject);
-    };
-    fetchSettings();
-  }, [api, selectedFacility, scope]);
 
   const editMode = !!settingsEditString;
 
