@@ -12,9 +12,6 @@ import * as models from '../models';
 import { createDateTypes } from './createDateTypes';
 import { setupQuote } from '../utils/pgComposite';
 
-// These models should be able to do soft deletion on central and lan server, but not handled by the 'paranoid' option from sequelize.
-const NON_PARANOID_MODELS = [models.SurveyScreenComponent];
-
 createDateTypes();
 
 // this allows us to use transaction callbacks without manually managing a transaction handle
@@ -151,19 +148,16 @@ export async function initDatabase(dbOptions) {
   };
   log.info('registeringModels', { count: modelClasses.length });
   modelClasses.forEach(modelClass => {
-    const options = {
-      underscored: true,
-      primaryKey,
-      sequelize,
-      paranoid: makeEveryModelParanoid,
-      hackToSkipEncounterValidation,
-    };
-
-    if (NON_PARANOID_MODELS.map(m => m.name).includes(modelClass.name)) {
-      options.paranoid = false;
-    }
-
-    modelClass.init(options, models);
+    modelClass.init(
+      {
+        underscored: true,
+        primaryKey,
+        sequelize,
+        paranoid: makeEveryModelParanoid,
+        hackToSkipEncounterValidation,
+      },
+      models,
+    );
   });
 
   modelClasses.forEach(modelClass => {
