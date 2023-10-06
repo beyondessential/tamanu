@@ -27,34 +27,29 @@ const DefaultSettingsButton = styled(TextButton)`
   }
 `;
 
-const getScope = selectedFacility => {
-  switch (selectedFacility) {
-    case SETTINGS_SCOPES.CENTRAL:
-      return SETTINGS_SCOPES.CENTRAL;
-    case null:
-      return SETTINGS_SCOPES.GLOBAL;
-    default:
-      return SETTINGS_SCOPES.FACILITY;
-  }
-};
-
 const buildSettingsString = settings => {
   if (Object.keys(settings).length === 0) return '';
   return JSON.stringify(settings, null, 2);
 };
 
+const parseScopeCode = scopeCode => {
+  const scope = scopeCode?.split('#')[0];
+  const facilityId = scopeCode?.split('#')[1] || null;
+  return { scope, facilityId };
+};
+
 export const SettingsView = React.memo(() => {
   const api = useApi();
   const [settingsEditString, setSettingsEditString] = useState('');
-  const [selectedFacility, setSelectedFacility] = useState(null);
+  const [selectedScope, setSelectedScope] = useState(SETTINGS_SCOPES.GLOBAL);
   const [jsonError, setJsonError] = useState(null);
   const [isDefaultModalOpen, setIsDefaultModalOpen] = useState(false);
 
-  const scope = getScope(selectedFacility);
+  const { scope, facilityId } = parseScopeCode(selectedScope);
 
   const { data: settings = {}, refetch: refetchSettings, error: settingsFetchError } = useQuery(
-    ['scopedSettings', scope, selectedFacility],
-    () => api.get('admin/settings', { scope, facilityId: selectedFacility }),
+    ['scopedSettings', scope, facilityId],
+    () => api.get('admin/settings', { scope, facilityId }),
   );
 
   const settingsViewString = buildSettingsString(settings);
@@ -68,8 +63,8 @@ export const SettingsView = React.memo(() => {
   const turnOnEditMode = () => updateSettingsEditString(buildSettingsString(settings) || '{}');
   const turnOffEditMode = () => updateSettingsEditString(null);
   const onChangeSettings = newValue => updateSettingsEditString(newValue);
-  const onChangeFacility = event => {
-    setSelectedFacility(event.target.value || null);
+  const onChangeScope = event => {
+    setSelectedScope(event.target.value || null);
     updateSettingsEditString(null);
   };
 
@@ -86,7 +81,7 @@ export const SettingsView = React.memo(() => {
     const settingsObject = JSON.parse(settingsEditString);
     const response = await api.put('admin/settings', {
       settings: settingsObject,
-      facilityId: selectedFacility !== SETTINGS_SCOPES.CENTRAL ? selectedFacility : null,
+      facilityId: scope === SETTINGS_SCOPES.FACILITY ? facilityId : null,
       scope,
     });
 
@@ -105,7 +100,7 @@ export const SettingsView = React.memo(() => {
   return (
     <AdminViewContainer title="Settings">
       <StyledTopBar>
-        <ScopeSelector selectedFacility={selectedFacility} onChangeFacility={onChangeFacility} />
+        <ScopeSelector selectedScope={selectedScope} onChangeScope={onChangeScope} />
         <DefaultSettingsButton onClick={() => setIsDefaultModalOpen(true)}>
           <Settings />
           View default {scope} settings

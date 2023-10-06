@@ -15,9 +15,9 @@ const ScopeSelectorInput = styled(SelectInput)`
 `;
 
 const SCOPE_HELPERTEXT = {
-  CENTRAL: 'These settings will only apply to the central server',
-  GLOBAL: 'These settings will apply to all servers/devices',
-  FACILITY: `These settings will only apply to the facility/devices linked to it`,
+  [SETTINGS_SCOPES.CENTRAL]: 'These settings will only apply to the central server',
+  [SETTINGS_SCOPES.GLOBAL]: 'These settings will apply to all servers/devices',
+  [SETTINGS_SCOPES.FACILITY]: `These settings will only apply to the facility/devices linked to it`,
 };
 
 const BASIC_OPTIONS = [
@@ -32,7 +32,7 @@ const BASIC_OPTIONS = [
   },
   {
     label: 'Global Settings',
-    value: null, // null is equivalent to all faciliites in backend logic
+    value: SETTINGS_SCOPES.GLOBAL,
     tag: {
       label: 'Global',
       background: Colors.orange,
@@ -41,18 +41,7 @@ const BASIC_OPTIONS = [
   },
 ];
 
-const getHelperText = selectedFacility => {
-  switch (selectedFacility) {
-    case SETTINGS_SCOPES.CENTRAL:
-      return SCOPE_HELPERTEXT.CENTRAL;
-    case null:
-      return SCOPE_HELPERTEXT.GLOBAL;
-    default:
-      return SCOPE_HELPERTEXT.FACILITY;
-  }
-};
-
-export const ScopeSelector = React.memo(({ selectedFacility, onChangeFacility }) => {
+export const ScopeSelector = React.memo(({ selectedScope, onChangeScope }) => {
   const api = useApi();
 
   const { data: facilitiesArray = [], error } = useQuery(['facilitiesList'], () =>
@@ -61,7 +50,7 @@ export const ScopeSelector = React.memo(({ selectedFacility, onChangeFacility })
 
   const facilityOptions = facilitiesArray.map(facility => ({
     label: facility.name,
-    value: facility.id,
+    value: `${SETTINGS_SCOPES.FACILITY}#${facility.id}`,
     tag: {
       label: 'Facility',
       background: Colors.blue,
@@ -69,12 +58,12 @@ export const ScopeSelector = React.memo(({ selectedFacility, onChangeFacility })
     },
   }));
 
-  const helperText = getHelperText(selectedFacility);
+  const helperText = SCOPE_HELPERTEXT[selectedScope.split('#')[0]];
 
   return (
     <ScopeSelectorInput
-      value={selectedFacility}
-      onChange={onChangeFacility}
+      value={selectedScope}
+      onChange={onChangeScope}
       options={BASIC_OPTIONS.concat(facilityOptions)}
       label="Select a facility/server to view and edit its settings"
       isClearable={false}
