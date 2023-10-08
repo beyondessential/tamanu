@@ -108,14 +108,7 @@ export class Setting extends Model {
             }
           : {}),
         facilityId: {
-          ...(scope === SETTINGS_SCOPES.FACILITY
-            ? { [Op.eq]: facilityId }
-            : {
-                [Op.or]: {
-                  [Op.eq]: facilityId,
-                  [Op.is]: null,
-                },
-              }),
+          ...(facilityId ? { [Op.eq]: facilityId } : { [Op.is]: null }),
         },
       },
 
