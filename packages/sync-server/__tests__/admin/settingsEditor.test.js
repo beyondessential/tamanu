@@ -176,12 +176,18 @@ describe('Settings Editor', () => {
 
   it('Should fetch a list of facility names and ids linked to the central server', async () => {
     const { Facility } = models;
+    await Facility.truncate();
 
-    const facilityList = await Facility.findAll({ attributes: ['id', 'name'] });
-    const plainFacilityList = facilityList.map(facility => facility.get({ plain: true }));
+    const facility1 = await Facility.create(fake(models.Facility));
+    const facility2 = await Facility.create(fake(models.Facility));
 
     const endpointResponse = await adminApp.get('/v1/admin/facilities');
     expect(endpointResponse).toHaveSucceeded();
+
+    const plainFacilityList = [facility1, facility2].map(facility => {
+      const { id, name } = facility.get({ plain: true });
+      return { id, name };
+    });
 
     expect(endpointResponse.body).toEqual(plainFacilityList);
   });
