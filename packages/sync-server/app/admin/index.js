@@ -95,12 +95,8 @@ adminRoutes.put(
   '/settings',
   asyncHandler(async (req, res) => {
     const { Setting } = req.store.models;
-    try {
-      await Setting.set('', req.body.settings, req.body.facilityId, req.body.scope);
-      res.json({ code: 200 });
-    } catch (error) {
-      res.json({ code: 500, message: error.message });
-    }
+    await Setting.set('', req.body.settings, req.body.facilityId, req.body.scope);
+    res.json({ code: 200 });
   }),
 );
 
