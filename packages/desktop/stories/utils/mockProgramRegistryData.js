@@ -106,36 +106,42 @@ export const programRegistriesForInfoPaneList = [
   {
     id: '1',
     name: 'Seasonal fever',
+    code: 'Seasonalfever',
     status: 'Removed',
     clinicalStatus: 'Needs review',
   },
   {
     id: '12',
     name: 'Hepatities B',
+    code: 'HepatitiesB',
     status: 'Active',
     clinicalStatus: 'Low risk',
   },
   {
     id: '13',
     name: 'Covid',
+    code: 'Covid',
     status: 'Removed',
     clinicalStatus: 'Critical',
   },
   {
     id: '14',
     name: 'Dengue',
+    code: 'Dengue',
     status: 'Active',
     clinicalStatus: 'Needs review',
   },
   {
     id: '15',
     name: 'Diabetis',
+    code: 'Diabetis',
     status: 'Active',
     clinicalStatus: 'Critical',
   },
   {
     id: '16',
     name: 'Typhoid',
+    code: 'Typhoid',
     status: 'Removed',
     clinicalStatus: 'Low risk',
   },
@@ -173,9 +179,9 @@ export const programRegistries = [
 export const programRegistryConditions = [
   { id: '1', name: 'Diabetes' },
   { id: '2', name: 'Hypertension' },
-  { id: '5', name: 'Joint pain' },
   { id: '3', name: 'Low pressure' },
   { id: '4', name: 'Migrain' },
+  { id: '5', name: 'Joint pain' },
   { id: '6', name: 'Skin itching' },
   { id: '7', name: 'Tuberculosis of lung, bacteriologically and historically negative' },
 ];
@@ -673,7 +679,7 @@ export const dummyApi = {
         return programRegistryFormHistory.map(x => ({ id: x.id.toString(), name: x.survey.name }));
 
       case 'patient/patient_id/programRegistration/patient_program_registry_id':
-      case 'patient/undefined/programRegistration/undefined':
+      case 'patient/undefined/programRegistration/patient_program_registry_id':
         return patientProgramRegistration;
       case 'patient/undefined/programRegistration/undefined/survey/undefined':
       case 'patient/patient_id/programRegistration/patient_program_registry_id/survey/survey_id':

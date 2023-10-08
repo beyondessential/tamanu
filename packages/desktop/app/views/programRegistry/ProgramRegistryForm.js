@@ -25,39 +25,31 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
   const programRegistrySuggester = useSuggester('programRegistry', {
     baseQueryParameters: { patientId: patient.id },
   });
-  const programRegistryStatusSuggester = useSuggester('clinicalStatus', {
+  const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
     baseQueryParameters: { programRegistryId: program ? program.id : null },
   });
   const registeredBySuggester = useSuggester('practitioner');
   const registeringFacilitySuggester = useSuggester('facility');
 
-  const onProgramRegistrySelect = async id => {
-    try {
-      const responses = await Promise.all([
-        api.get(`programRegistry/${id}`),
-        api.get(`programRegistry/${id}/conditions`),
-      ]);
-
-      const [programData, conditionsData] = responses;
-      setProgram(programData);
-      console.log(conditionsData);
-      setConditions(conditionsData.map(x => ({ label: x.name, value: x.id })));
-    } catch (error) {
-      setProgram(undefined);
-      setConditions(undefined);
-    }
+  const onProgramRegistrySelect = id => {
+    api
+      .get(`programRegistry/${id}`)
+      .then(programData => setProgram(programData))
+      .catch(error => setProgram(undefined));
+    api
+      .get(`programRegistry/${id}/conditions`)
+      .then(conditionsData =>
+        setConditions(conditionsData.map(x => ({ label: x.name, value: x.id }))),
+      )
+      .catch(error => setConditions(undefined));
   };
+
   return (
     <Form
       onSubmit={data => {
         onSubmit({ ...data, conditions: data.conditions.split(','), patientId: patient.id });
       }}
       render={({ submitForm, values, setValues }) => {
-        useEffect(() => {
-          setValues({ ...values, clinicalStatusId: null });
-          // eslint-disable-next-line
-        }, [values.programRegistryId]);
-
         const handleCancel = () => onCancel && onCancel();
         const getButtonText = isCompleted => {
           if (isCompleted) return 'Finalise';
@@ -67,6 +59,13 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
 
         const isCompleted = !!values.completed;
         const buttonText = getButtonText(isCompleted);
+
+        // eslint-disable-next-line
+        useEffect(() => {
+          setValues({ ...values, clinicalStatusId: null, conditions: null });
+          // eslint-disable-next-line
+        }, [values.programRegistryId]);
+
         return (
           <div>
             <FormGrid>

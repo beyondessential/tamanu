@@ -213,7 +213,7 @@ createNameSuggester('facilityLocationGroup', 'LocationGroup', (search, query) =>
 );
 
 createNameSuggester('survey', 'Survey', (search, { programId }) => ({
-  ...DEFAULT_WHERE_BUILDER(search),
+  name: { [Op.iLike]: search },
   ...(programId ? { programId } : programId),
   surveyType: {
     [Op.notIn]: [SURVEY_TYPES.OBSOLETE, SURVEY_TYPES.VITALS],
@@ -330,7 +330,7 @@ createNameSuggester(
 createNameSuggester('programRegistry', 'ProgramRegistry', (search, query) => {
   const baseWhere = DEFAULT_WHERE_BUILDER(search);
 
-  if (!query.parentId) {
+  if (!query.patientId) {
     return baseWhere;
   }
 
@@ -340,12 +340,14 @@ createNameSuggester('programRegistry', 'ProgramRegistry', (search, query) => {
     id: {
       [Op.notIn]: Sequelize.literal(
         `(
-          SELECT DISTINCT(id)
+          SELECT DISTINCT(pr.id)
           FROM program_registries pr
+          INNER JOIN patient_program_registrations ppr
+          ON ppr.program_registry_id = pr.id
           WHERE
-            pr.patient_id = '${query.patientId}'
+            ppr.patient_id = '${query.patientId}'
           AND
-            pr.registrationStatus != '${REGISTRATION_STATUSES.RECORDED_IN_ERROR}'
+            ppr.registration_status != '${REGISTRATION_STATUSES.RECORDED_IN_ERROR}'
         )`,
       ),
     },

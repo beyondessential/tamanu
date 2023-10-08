@@ -20,7 +20,7 @@ import {
 import { getEncounterType } from '../views/patients/panes/EncounterInfoPane';
 import { ProgramsView } from '../views/programs/ProgramsView';
 import { ReferralsView } from '../views/referrals/ReferralsView';
-import { ProgramRegistryView } from '../views/programRegistry/ProgramRegistryView';
+import { PatientProgramRegistryView } from '../views/programRegistry/PatientProgramRegistryView';
 import { ProgramRegistrySurveyView } from '../views/programRegistry/ProgramRegistrySurveyView';
 
 export const usePatientRoutes = () => {
@@ -79,7 +79,7 @@ export const usePatientRoutes = () => {
         },
         {
           path: PATIENT_PATHS.PROGRAM_REGISTRY,
-          component: ProgramRegistryView,
+          component: PatientProgramRegistryView,
           navigateTo: programRegistry => navigateToProgramRegistry(programRegistry.id),
           title: queryParams.get('title'),
           routes: [

@@ -4,12 +4,11 @@ import CloseIcon from '@material-ui/icons/Close';
 import { IconButton } from '@material-ui/core';
 import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
 import { Heading5 } from '../../components/Typography';
-// import { useApi } from '../../api';
 import { usePatientProgramRegistryConditions } from '../../api/queries/usePatientProgramRegistryConditions';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RemoveConditionFormModal } from './RemoveConditionFormModal';
 import { AddConditionFormModal } from './AddConditionFormModal';
-import { ThemedTooltip, ConditionalTooltip } from '../../components/Tooltip';
+import { ConditionalTooltip } from '../../components/Tooltip';
 
 const Container = styled.div`
   position: absolute;

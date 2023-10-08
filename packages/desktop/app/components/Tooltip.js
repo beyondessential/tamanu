@@ -20,12 +20,12 @@ export const ThemedTooltip = styled(props => {
   }
 `;
 
-export const ConditionalTooltip = props => {
-  if (!props.visible) return props.children;
+export const ConditionalTooltip = ({ visible, children, ...restProps }) => {
+  if (!visible) return children;
   return (
-    <ThemedTooltip {...props}>
-      {/* Below div is needed to make ThemedTooltip work  */}
-      <div>{props.children}</div>
+    //  Below div is needed to make ThemedTooltip work
+    <ThemedTooltip {...restProps}>
+      <div>{children}</div>
     </ThemedTooltip>
   );
 };

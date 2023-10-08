@@ -196,50 +196,58 @@ export const Sidebar = React.memo(({ items }) => {
         )}
       </HeaderContainer>
       <List component="nav">
-        {items.map(item =>
-          item.children ? (
-            <PrimarySidebarItem
-              retracted={isRetracted}
-              icon={item.icon}
-              label={item.label}
-              divider={item.divider}
-              key={item.key}
-              highlighted={isHighlighted(
-                currentPath,
-                item.path,
-                selectedParentItem === item.key,
-                isRetracted,
-              )}
-              selected={selectedParentItem === item.key}
-              onClick={() => clickedParentItem(item)}
-            >
-              {!isRetracted &&
-                item.children.map(child => (
-                  <SecondarySidebarItem
-                    key={child.path}
-                    path={child.path}
-                    isCurrent={currentPath.includes(child.path)}
-                    color={child.color}
-                    label={child.label}
-                    disabled={!permissionCheck(child, item)}
-                    onClick={() => onPathChanged(child.path)}
-                  />
-                ))}
+        {items.map(item => {
+          const commonProps = {
+            retracted: isRetracted,
+            icon: item.icon,
+            label: item.label,
+            divider: item.divider,
+            key: item.key,
+            path: item.path,
+            highlighted: isHighlighted(
+              currentPath,
+              item.path,
+              selectedParentItem === item.key,
+              isRetracted,
+            ),
+            selected: selectedParentItem === item.key,
+            onClick: () => clickedParentItem(item),
+          };
+
+          if (item.component) {
+            return item.component(commonProps);
+          }
+
+          if (!item.children) {
+            return (
+              <TopLevelSidebarItem
+                {...commonProps}
+                isCurrent={currentPath.includes(item.path)}
+                disabled={!permissionCheck(item)}
+                onClick={isRetracted ? extendSidebar : () => onPathChanged(item.path)}
+              />
+            );
+          }
+
+          if (isRetracted) {
+            return <PrimarySidebarItem {...commonProps} />;
+          }
+          return (
+            <PrimarySidebarItem {...commonProps}>
+              {item.children.map(child => (
+                <SecondarySidebarItem
+                  key={child.path}
+                  path={child.path}
+                  isCurrent={currentPath.includes(child.path)}
+                  color={child.color}
+                  label={child.label}
+                  disabled={!permissionCheck(child, item)}
+                  onClick={() => onPathChanged(child.path)}
+                />
+              ))}
             </PrimarySidebarItem>
-          ) : (
-            <TopLevelSidebarItem
-              retracted={isRetracted}
-              icon={item.icon}
-              path={item.path}
-              label={item.label}
-              divider={item.divider}
-              key={item.key}
-              isCurrent={currentPath.includes(item.path)}
-              disabled={!permissionCheck(item)}
-              onClick={isRetracted ? extendSidebar : () => onPathChanged(item.path)}
-            />
-          ),
-        )}
+          );
+        })}
       </List>
       <Footer $retracted={isRetracted}>
         <StyledDivider $invisible={isRetracted} />

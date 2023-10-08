@@ -30,8 +30,8 @@ export class ProgramRegistryCondition extends Model {
 
   static initRelations(models) {
     this.belongsTo(models.ProgramRegistry, {
-      foreignKey: 'programRegistryId',
-      as: 'programRegistryConditions',
+      foreignKey: { name: 'programRegistryId', allowNull: false },
+      as: 'programRegistry',
     });
   }
 
