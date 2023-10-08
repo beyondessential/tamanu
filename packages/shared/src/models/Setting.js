@@ -89,7 +89,7 @@ export class Setting extends Model {
    * IMPORTANT: Duplicated from mobile/models/Setting.ts
    * Please update both places when modify
    */
-  static async get(key = '', facilityId = null, scope = '') {
+  static async get(key = '', facilityId = null, scope = null) {
     const settings = await Setting.findAll({
       where: {
         ...(key
@@ -143,8 +143,7 @@ export class Setting extends Model {
     return getAtPath(settingsObject, key);
   }
 
-  static async set(key, value, facilityId = null, scopeParam) {
-    const scope = scopeParam || (facilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.GLOBAL);
+  static async set(key, value, facilityId = null, scope) {
     const records = buildSettingsRecords(key, value, facilityId);
 
     // create or update records
