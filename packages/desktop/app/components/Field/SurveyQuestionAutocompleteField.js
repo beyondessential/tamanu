@@ -14,6 +14,8 @@ const getSuggesterEndpointForConfig = config => {
   if (config?.source === 'LocationGroup') {
     return config.scope === 'allFacilities' ? 'locationGroup' : 'facilityLocationGroup';
   }
+  if (config?.source === 'Village') return 'village';
+  if (config?.source === 'ProgramRegistryClinicalStatus') return 'programRegistryClinicalStatus';
 
   // autocomplete component won't crash when given an invalid endpoint, it just logs an error.
   return null;

@@ -66,6 +66,36 @@ const mockSurvey = {
       options: null,
     },
     {
+      id: 'program-tbprogram-tbfollowup-PHTBFU0001a',
+      screenIndex: 0,
+      componentIndex: 0,
+      text: '',
+      visibilityCriteria: '',
+      validationCriteria: '',
+      detail: '',
+      config: '{"source": "program-samoapubhealth-phtbcasesurvey2"}',
+      calculation: '',
+      updatedAtSyncTick: '-999',
+      createdAt: '2023-09-27T22:21:03.178Z',
+      updatedAt: '2023-09-27T22:21:03.178Z',
+      surveyId: 'program-tbprogram-tbfollowup',
+      dataElementId: 'pde-PHTBFU001a',
+      dataElement: {
+        id: 'pde-PHTBFU001a',
+        code: 'PHTBFU001a',
+        name: 'Registration status',
+        indicator: null,
+        defaultText: 'Registration status',
+        visualisationConfig: '',
+        type: 'Select',
+        updatedAtSyncTick: '-999',
+        createdAt: '2023-09-27T22:21:02.898Z',
+        updatedAt: '2023-09-27T22:21:02.898Z',
+        defaultOptions: { active: 'active', inactive: 'inactive' },
+      },
+      options: null,
+    },
+    {
       id: 'program-tbprogram-tbfollowup-PHTBFU0010',
       screenIndex: 0,
       componentIndex: 0,
@@ -105,7 +135,7 @@ const mockSurvey = {
       validationCriteria: '',
       detail: '',
       config:
-        '{"column": "registrationCurrentlyAtVillage", "writeToPatient": { "fieldName": "registrationCurrentlyAtVillage" }}',
+        '{"source":"Village", "column": "registrationCurrentlyAtVillage", "writeToPatient": { "fieldName": "registrationCurrentlyAtVillage", "isProgramRegistration": true }}',
       calculation: '',
       updatedAtSyncTick: '-999',
       createdAt: '2023-09-27T22:21:03.178Z',
@@ -119,7 +149,7 @@ const mockSurvey = {
         indicator: null,
         defaultText: 'Current village',
         visualisationConfig: '',
-        type: 'PatientProgramRegistration',
+        type: 'Autocomplete',
         updatedAtSyncTick: '-999',
         createdAt: '2023-09-27T22:21:02.898Z',
         updatedAt: '2023-09-27T22:21:02.898Z',
@@ -136,7 +166,7 @@ const mockSurvey = {
       validationCriteria: '',
       detail: '',
       config:
-        '{"column": "registrationClinicalStatus", "writeToPatient": { "fieldName": "registrationClinicalStatus" }}',
+        '{"source":"ProgramRegistryClinicalStatus","column": "registrationClinicalStatus", "writeToPatient": { "fieldName": "registrationClinicalStatus","isProgramRegistration": true }}',
       calculation: '',
       updatedAtSyncTick: '-999',
       createdAt: '2023-09-27T22:21:03.178Z',
@@ -150,7 +180,7 @@ const mockSurvey = {
         indicator: null,
         defaultText: 'Clinical status',
         visualisationConfig: '',
-        type: 'PatientProgramRegistration',
+        type: 'Autocomplete',
         updatedAtSyncTick: '-999',
         createdAt: '2023-09-27T22:21:02.898Z',
         updatedAt: '2023-09-27T22:21:02.898Z',
@@ -486,6 +516,11 @@ export const facilities = [
   { id: '2', name: 'Hospital 2' },
 ];
 
+export const villages = [
+  { id: 'village-1', name: 'Village 1' },
+  { id: 'village-2', name: 'Village 2' },
+];
+
 export const practitioners = [
   { id: 'test-user-id', name: 'Test user id' },
   { id: '2', name: 'Test user id 2' },
@@ -655,8 +690,8 @@ export const patientProgramRegistration = {
   },
   villageId: 'villageId',
   village: {
-    id: 'villageId',
-    name: 'Village A',
+    id: 'village-1',
+    name: 'Village 1',
   },
   clinicalStatusId: '1',
   clinicalStatus: {
@@ -714,19 +749,22 @@ export const dummyApi = {
           ...programRegistryConditions.map(x => ({ ...x, id: x.id + 1 })),
         ];
 
-      case 'patient/patient_id/patientRegistration':
-        return { data: programRegistriesForInfoPaneList };
-
       case 'program/program_id/surveys':
         return programRegistrysurveys;
+
+      case 'suggestions/programRegistryClinicalStatus':
+        return clinicalStatusList;
 
       case 'suggestions/facility':
         return facilities;
 
+      case 'suggestions/village':
+        return villages;
+
       case 'suggestions/practitioner':
         return practitioners;
 
-      case 'suggestions/clinicalStatus':
+      case 'suggestions/programRegistryClinicalStatus':
         return clinicalStatusList;
 
       case 'suggestions/programRegistry':

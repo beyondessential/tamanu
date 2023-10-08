@@ -229,7 +229,8 @@ function transformPatientData(patient, additionalData, config) {
   }
 }
 function transformPatientProgramRegistrationData(patientProgramRegistration, config) {
-  const { column = 'fullName' } = config;
+  const { column = 'fullName', writeToPatient = {} } = config;
+  const { isProgramRegistration = false } = writeToPatient;
   const {
     clinicalStatus,
     registrationStatus,
@@ -238,22 +239,24 @@ function transformPatientProgramRegistrationData(patientProgramRegistration, con
     village,
     facitlity,
   } = patientProgramRegistration;
-  switch (column) {
-    case 'registrationClinicalStatus':
-      return clinicalStatus.name;
-    case 'programRegistrationStatus':
-      return registrationStatus;
-    case 'registrationClinician':
-      return clinician.displayName;
-    case 'registeringFacility':
-      return registeringFacility.name;
-    case 'registrationCurrentlyAtVillage':
-      return village?.name;
-    case 'registrationCurrentlyAtFacility':
-      return facitlity?.name;
-    default:
-      return '';
-  }
+  if (isProgramRegistration)
+    switch (column) {
+      case 'registrationClinicalStatus':
+        return clinicalStatus.id;
+      case 'programRegistrationStatus':
+        return registrationStatus;
+      case 'registrationClinician':
+        return clinician.id;
+      case 'registeringFacility':
+        return registeringFacility.id;
+      case 'registrationCurrentlyAtVillage':
+        return village?.id;
+      case 'registrationCurrentlyAtFacility':
+        return facitlity?.id;
+      default:
+        return undefined;
+    }
+  return undefined;
 }
 
 export function getFormInitialValues(
@@ -292,7 +295,7 @@ export function getFormInitialValues(
     }
 
     // patient program registration data
-    if (patientProgramRegistration && component.dataElement.type === 'PatientProgramRegistration') {
+    if (patientProgramRegistration) {
       const patientValue = transformPatientProgramRegistrationData(
         patientProgramRegistration,
         config,
