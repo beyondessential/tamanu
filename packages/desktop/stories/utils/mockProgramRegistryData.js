@@ -267,32 +267,22 @@ export const programRegistriesForInfoPaneList = [
 
 export const patient = { id: 'patient_id' };
 export const programRegistry1 = {
-  data: {
-    id: '1',
-    name: 'Hepatitis B',
-    currentlyAtType: 'facility',
-  },
+  id: '1',
+  name: 'Hepatitis B',
+  currentlyAtType: 'facility',
 };
 export const programRegistry2 = {
-  data: {
-    id: '2',
-    name: 'Pneomonia',
-    currentlyAtType: 'facility',
-  },
+  id: '2',
+  name: 'Pneomonia',
+  currentlyAtType: 'facility',
 };
 export const programRegistry3 = {
-  data: {
-    id: '3',
-    name: 'Diabetis',
-    currentlyAtType: 'village',
-  },
+  id: '3',
+  name: 'Diabetis',
+  currentlyAtType: 'village',
 };
 
-export const programRegistries = [
-  programRegistry1.data,
-  programRegistry2.data,
-  programRegistry3.data,
-];
+export const programRegistries = [programRegistry1, programRegistry2, programRegistry3];
 
 export const programRegistryConditions = [
   { id: '1', name: 'Diabetes' },
@@ -715,7 +705,7 @@ export const patientProgramRegistration = {
 
 export const dummyApi = {
   get: async (endpoint, options) => {
-    console.log(endpoint);
+    console.log(endpoint, options);
     await sleep(500);
     switch (endpoint) {
       case 'programRegistry/1':

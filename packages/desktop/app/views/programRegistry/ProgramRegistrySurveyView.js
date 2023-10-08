@@ -7,6 +7,7 @@ import { useUrlQueryParams } from '../../hooks';
 import { useAuth } from '../../contexts/Auth';
 import { usePatientAdditionalDataQuery, usePatientProgramRegistration } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { ProgramRegistryProvider } from '../../contexts/ProgramRegistry';
 
 export const ProgramRegistrySurveyView = () => {
   const queryParams = useUrlQueryParams();
@@ -34,14 +35,16 @@ export const ProgramRegistrySurveyView = () => {
   if (isError) return <p>{title || 'Unknown'}&apos; not found.</p>;
 
   return (
-    <SurveyView
-      onSubmit={() => {}}
-      survey={survey}
-      onCancel={() => {}}
-      patient={patient}
-      patientAdditionalData={additionalData}
-      patientProgramRegistration={patientProgramRegistration}
-      currentUser={currentUser}
-    />
+    <ProgramRegistryProvider value={{ programRegistryId: 'programRegistryId' }}>
+      <SurveyView
+        onSubmit={() => {}}
+        survey={survey}
+        onCancel={() => {}}
+        patient={patient}
+        patientAdditionalData={additionalData}
+        patientProgramRegistration={patientProgramRegistration}
+        currentUser={currentUser}
+      />
+    </ProgramRegistryProvider>
   );
 };

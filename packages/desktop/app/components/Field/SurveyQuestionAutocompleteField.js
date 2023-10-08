@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSuggester } from '../../api';
 import { AutocompleteField } from './AutocompleteField';
+import { useProgramRegistry } from '../../contexts/ProgramRegistry';
 
 // Required due to desktop/mobile using different implementations for
 // suggesters (due to using different db's). Mobile has the more generic
@@ -23,6 +24,11 @@ const getSuggesterEndpointForConfig = config => {
 
 export const SurveyQuestionAutocompleteField = ({ config, ...props }) => {
   const endpoint = getSuggesterEndpointForConfig(config);
-  const suggester = useSuggester(endpoint);
+  const { programRegistryId } = useProgramRegistry();
+  const suggester = useSuggester(
+    endpoint,
+    programRegistryId ? { baseQueryParameters: { programRegistryId } } : {},
+  );
+
   return <AutocompleteField suggester={suggester} {...props} />;
 };
