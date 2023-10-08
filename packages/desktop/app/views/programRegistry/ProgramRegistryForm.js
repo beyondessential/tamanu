@@ -35,13 +35,13 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
     api
       .get(`programRegistry/${id}`)
       .then(programData => setProgram(programData))
-      .catch(error => setProgram(undefined));
+      .catch(() => setProgram(undefined));
     api
       .get(`programRegistry/${id}/conditions`)
       .then(conditionsData =>
         setConditions(conditionsData.map(x => ({ label: x.name, value: x.id }))),
       )
-      .catch(error => setConditions(undefined));
+      .catch(() => setConditions(undefined));
   };
 
   return (
