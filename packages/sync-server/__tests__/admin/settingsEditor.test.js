@@ -71,8 +71,7 @@ describe('Settings Editor', () => {
     const saveResponses = await Promise.all(
       Object.values(SETTINGS_SCOPES).map(async scope => {
         const facilityId = scope === SETTINGS_SCOPES.FACILITY ? facility.id : null;
-        const putResponse = await saveSettings(scopeTestJsons[scope], scope, facilityId);
-        return putResponse;
+        return saveSettings(scopeTestJsons[scope], scope, facilityId);
       }),
     );
 
