@@ -41,7 +41,15 @@ const BASIC_OPTIONS = [
   },
 ];
 
-export const ScopeSelector = React.memo(({ selectedScope, onChangeScope }) => {
+const SCOPE_CODE_DELIMITER = '#!@';
+
+export const parseScopeCode = scopeCode => {
+  const scope = scopeCode?.split(SCOPE_CODE_DELIMITER)[0];
+  const facilityId = scopeCode?.split(SCOPE_CODE_DELIMITER)[1] || null;
+  return { scope, facilityId };
+};
+
+export const ScopeSelector = React.memo(({ selectedScopeCode, onChangeScopeCode }) => {
   const api = useApi();
 
   const { data: facilitiesArray = [], error } = useQuery(['facilitiesList'], () =>
@@ -50,7 +58,7 @@ export const ScopeSelector = React.memo(({ selectedScope, onChangeScope }) => {
 
   const facilityOptions = facilitiesArray.map(facility => ({
     label: facility.name,
-    value: `${SETTINGS_SCOPES.FACILITY}#${facility.id}`,
+    value: SETTINGS_SCOPES.FACILITY + SCOPE_CODE_DELIMITER + facility.id,
     tag: {
       label: 'Facility',
       background: Colors.blue,
@@ -58,12 +66,13 @@ export const ScopeSelector = React.memo(({ selectedScope, onChangeScope }) => {
     },
   }));
 
-  const helperText = SCOPE_HELPERTEXT[selectedScope.split('#')[0]];
+  const { scope } = parseScopeCode(selectedScopeCode);
+  const helperText = SCOPE_HELPERTEXT[scope];
 
   return (
     <ScopeSelectorInput
-      value={selectedScope}
-      onChange={onChangeScope}
+      value={selectedScopeCode}
+      onChange={onChangeScopeCode}
       options={BASIC_OPTIONS.concat(facilityOptions)}
       label="Select a facility/server to view and edit its settings"
       isClearable={false}

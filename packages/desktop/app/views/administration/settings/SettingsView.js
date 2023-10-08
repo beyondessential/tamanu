@@ -8,7 +8,7 @@ import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { LargeButton, TextButton, ContentPane, ButtonRow, TopBar } from '../../../components';
 import { AdminViewContainer } from '../components/AdminViewContainer';
 import { JSONEditor } from './JSONEditor';
-import { ScopeSelector } from './ScopeSelector';
+import { ScopeSelector, parseScopeCode } from './ScopeSelector';
 import { DefaultSettingsModal } from './DefaultSettingsModal';
 import { useApi } from '../../../api';
 import { notifySuccess, notifyError } from '../../../utils';
@@ -32,20 +32,14 @@ const buildSettingsString = settings => {
   return JSON.stringify(settings, null, 2);
 };
 
-const parseScopeCode = scopeCode => {
-  const scope = scopeCode?.split('#')[0];
-  const facilityId = scopeCode?.split('#')[1] || null;
-  return { scope, facilityId };
-};
-
 export const SettingsView = React.memo(() => {
   const api = useApi();
   const [settingsEditString, setSettingsEditString] = useState('');
-  const [selectedScope, setSelectedScope] = useState(SETTINGS_SCOPES.GLOBAL);
+  const [selectedScopeCode, setSelectedScopeCode] = useState(SETTINGS_SCOPES.GLOBAL);
   const [jsonError, setJsonError] = useState(null);
   const [isDefaultModalOpen, setIsDefaultModalOpen] = useState(false);
 
-  const { scope, facilityId } = parseScopeCode(selectedScope);
+  const { scope, facilityId } = parseScopeCode(selectedScopeCode);
 
   const { data: settings = {}, refetch: refetchSettings, error: settingsFetchError } = useQuery(
     ['scopedSettings', scope, facilityId],
@@ -63,8 +57,8 @@ export const SettingsView = React.memo(() => {
   const turnOnEditMode = () => updateSettingsEditString(buildSettingsString(settings) || '{}');
   const turnOffEditMode = () => updateSettingsEditString(null);
   const onChangeSettings = newValue => updateSettingsEditString(newValue);
-  const onChangeScope = event => {
-    setSelectedScope(event.target.value || null);
+  const onChangeScopeCode = event => {
+    setSelectedScopeCode(event.target.value || null);
     updateSettingsEditString(null);
   };
 
@@ -100,7 +94,10 @@ export const SettingsView = React.memo(() => {
   return (
     <AdminViewContainer title="Settings">
       <StyledTopBar>
-        <ScopeSelector selectedScope={selectedScope} onChangeScope={onChangeScope} />
+        <ScopeSelector
+          selectedScopeCode={selectedScopeCode}
+          onChangeScopeCode={onChangeScopeCode}
+        />
         <DefaultSettingsButton onClick={() => setIsDefaultModalOpen(true)}>
           <Settings />
           View default {scope} settings
