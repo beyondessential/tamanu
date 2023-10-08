@@ -6,6 +6,7 @@ import {
   VISIBILITY_STATUSES,
   REFERENCE_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
+  SETTINGS_SCOPES,
 } from '@tamanu/constants';
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
@@ -377,16 +378,21 @@ describe('Imaging requests', () => {
     });
 
     const settings = await models.Setting.get('integrations.imaging');
-    await models.Setting.set('integrations.imaging', {
-      enabled: true,
-      provider: 'test',
-    });
+    await models.Setting.set(
+      'integrations.imaging',
+      {
+        enabled: true,
+        provider: 'test',
+      },
+      null,
+      SETTINGS_SCOPES.FACILITY,
+    );
 
     // act
     const result = await app.get(`/v1/imagingRequest/${ir.id}`);
 
     // reset settings
-    await models.Setting.set('integrations.imaging', settings);
+    await models.Setting.set('integrations.imaging', settings, null, SETTINGS_SCOPES.FACILITY);
 
     // assert
     expect(result).toHaveSucceeded();
