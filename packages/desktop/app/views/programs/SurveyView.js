@@ -24,6 +24,7 @@ export const SurveyView = ({
   patient,
   patientAdditionalData,
   currentUser,
+  patientProgramRegistration,
 }) => {
   const { components } = survey;
   const initialValues = getFormInitialValues(
@@ -31,6 +32,7 @@ export const SurveyView = ({
     patient,
     patientAdditionalData,
     currentUser,
+    patientProgramRegistration,
   );
   const validationSchema = useMemo(() => getValidationSchema(survey), [survey]);
 

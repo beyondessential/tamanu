@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import { usePatientProgramRegistrySurveys } from '../../api/queries/usePatientProgramRegistrySurveys';
 import { useUrlQueryParams } from '../../hooks';
 import { useAuth } from '../../contexts/Auth';
-import { usePatientAdditionalDataQuery } from '../../api/queries';
+import { usePatientAdditionalDataQuery, usePatientProgramRegistration } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 
 export const ProgramRegistrySurveyView = () => {
@@ -17,26 +17,30 @@ export const ProgramRegistrySurveyView = () => {
   const { data: additionalData, isLoading: additionalDataLoading } = usePatientAdditionalDataQuery(
     patient.id,
   );
+
+  const {
+    data: patientProgramRegistration,
+    isLoading: patientProgramRegistrationLoading,
+  } = usePatientProgramRegistration(patient.id, programRegistryId);
+
   const { data: survey, isLoading, isError } = usePatientProgramRegistrySurveys(
     patientId,
     programRegistryId,
     surveyId,
   );
 
-  if (isLoading || additionalDataLoading) return <LoadingIndicator />;
+  if (isLoading || additionalDataLoading || patientProgramRegistrationLoading)
+    return <LoadingIndicator />;
   if (isError) return <p>{title || 'Unknown'}&apos; not found.</p>;
 
   return (
     <SurveyView
-      onSubmit={() => {
-        // console.log('onSubmit ', param);
-      }}
+      onSubmit={() => {}}
       survey={survey}
-      onCancel={() => {
-        // console.log('onCancel ', param);
-      }}
+      onCancel={() => {}}
       patient={patient}
       patientAdditionalData={additionalData}
+      patientProgramRegistration={patientProgramRegistration}
       currentUser={currentUser}
     />
   );

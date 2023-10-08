@@ -228,8 +228,41 @@ function transformPatientData(patient, additionalData, config) {
       return patient[column];
   }
 }
+function transformPatientProgramRegistrationData(patientProgramRegistration, config) {
+  const { column = 'fullName' } = config;
+  const {
+    clinicalStatus,
+    registrationStatus,
+    clinician,
+    registeringFacility,
+    village,
+    facitlity,
+  } = patientProgramRegistration;
+  switch (column) {
+    case 'registrationClinicalStatus':
+      return clinicalStatus.name;
+    case 'programRegistrationStatus':
+      return registrationStatus;
+    case 'registrationClinician':
+      return clinician.displayName;
+    case 'registeringFacility':
+      return registeringFacility.name;
+    case 'registrationCurrentlyAtVillage':
+      return village?.name;
+    case 'registrationCurrentlyAtFacility':
+      return facitlity?.name;
+    default:
+      return '';
+  }
+}
 
-export function getFormInitialValues(components, patient, additionalData, currentUser = {}) {
+export function getFormInitialValues(
+  components,
+  patient,
+  additionalData,
+  currentUser = {},
+  patientProgramRegistration,
+) {
   const initialValues = components.reduce((acc, { dataElement }) => {
     const initialValue = getInitialValue(dataElement);
     const propName = dataElement.id;
@@ -255,6 +288,15 @@ export function getFormInitialValues(components, patient, additionalData, curren
     // patient data
     if (component.dataElement.type === 'PatientData') {
       const patientValue = transformPatientData(patient, additionalData, config);
+      if (patientValue !== undefined) initialValues[component.dataElement.id] = patientValue;
+    }
+
+    // patient program registration data
+    if (patientProgramRegistration && component.dataElement.type === 'PatientProgramRegistration') {
+      const patientValue = transformPatientProgramRegistrationData(
+        patientProgramRegistration,
+        config,
+      );
       if (patientValue !== undefined) initialValues[component.dataElement.id] = patientValue;
     }
   }
