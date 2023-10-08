@@ -3,7 +3,7 @@ import React from 'react';
 import * as yup from 'yup';
 import {
   checkJSONCriteria,
-  checkValidationCriteria as checkValidationCriteriaBase,
+  checkMandatory as checkMandatoryBase,
 } from '@tamanu/shared/utils/criteria';
 import { intervalToDuration, parseISO } from 'date-fns';
 
@@ -344,13 +344,13 @@ export const getNormalRangeByAge = (validationCriteria = {}, { dateOfBirth }) =>
   return normalRangeByAge;
 };
 
-export const checkValidationCriteria = (validationCriteria, allComponents, values) => {
+export const checkMandatory = (mandatory, allComponents, values) => {
   try {
     const valuesByCode = swapValuesIdToCode(values, allComponents);
-    return checkValidationCriteriaBase(validationCriteria, allComponents, valuesByCode);
+    return checkMandatoryBase(JSON.stringify(mandatory), allComponents, valuesByCode);
   } catch (error) {
     notifyError(
-      `Failed to use validationCriteria: ${JSON.stringify(validationCriteria)}, error: ${
+      `Failed to use mandatory in validationCriteria: ${JSON.stringify(mandatory)}, error: ${
         error.message
       }`,
     );

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import {
-  checkValidationCriteria,
+  checkMandatory,
   getComponentForQuestionType,
   getConfigObject,
   mapOptionsToValues,
@@ -35,7 +35,7 @@ export const SurveyQuestion = ({
   const FieldComponent = getComponentForQuestionType(type, configObject);
 
   const validationCriteriaObject = getConfigObject(id, validationCriteria);
-  const required = checkValidationCriteria(
+  const required = checkMandatory(
     validationCriteriaObject?.mandatory,
     components,
     valuesToCheckMandatory,

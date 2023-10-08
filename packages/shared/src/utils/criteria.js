@@ -50,13 +50,13 @@ export function checkJSONCriteria(criteria, allComponents, values) {
     : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
 }
 
-export function checkValidationCriteria(validationCriteria, allComponents, values) {
-  if (!validationCriteria) {
+export function checkMandatory(mandatory, allComponents, values) {
+  if (!mandatory) {
     return false;
   }
-  if (typeof validationCriteria === 'boolean') {
-    return validationCriteria;
+  if (typeof mandatory === 'boolean') {
+    return mandatory;
   }
 
-  return checkJSONCriteria(validationCriteria, allComponents, values);
+  return checkJSONCriteria(mandatory, allComponents, values);
 }

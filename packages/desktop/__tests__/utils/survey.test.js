@@ -1,4 +1,4 @@
-import { checkValidationCriteria, checkVisibility } from '../../app/utils';
+import { checkMandatory, checkVisibility } from '../../app/utils';
 
 describe('checkVisibility()', () => {
   const generateAllComponents = components =>
@@ -132,7 +132,7 @@ describe('checkVisibility()', () => {
     );
   });
 
-  describe('checkValidationCriteria()', () => {
+  describe('checkMandatory()', () => {
     const allComponents = generateAllComponents([
       {
         id: 'TEST_RESULT_ID',
@@ -150,7 +150,7 @@ describe('checkVisibility()', () => {
     it.each(testData)(
       'should return $expected for TEST_A_ID: $TEST_A_ID',
       ({ TEST_A_ID, expected }) => {
-        const result = checkValidationCriteria(
+        const result = checkMandatory(
           JSON.stringify({ TEST_A_CODE: { type: 'range', start: 30 } }),
           allComponents,
           { TEST_A_ID },
