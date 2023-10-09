@@ -384,7 +384,6 @@ describe('Imaging requests', () => {
         enabled: true,
         provider: 'test',
       },
-      null,
       SETTINGS_SCOPES.GLOBAL,
     );
 
@@ -392,7 +391,7 @@ describe('Imaging requests', () => {
     const result = await app.get(`/v1/imagingRequest/${ir.id}`);
 
     // reset settings
-    await models.Setting.set('integrations.imaging', settings, null, SETTINGS_SCOPES.GLOBAL);
+    await models.Setting.set('integrations.imaging', settings, SETTINGS_SCOPES.GLOBAL);
 
     // assert
     expect(result).toHaveSucceeded();
