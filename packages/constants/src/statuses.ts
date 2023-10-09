@@ -90,3 +90,9 @@ export const PATIENT_MERGE_DELETION_ACTIONS = {
   DESTROY: 'DESTROY',
   NONE: 'NONE',
 };
+
+// TODO: This will be merged with the statuses created as part of
+//  
+export const DELETION_STATUSES = {
+  DELETED: 'deleted',
+};
