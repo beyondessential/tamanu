@@ -41,14 +41,15 @@ export class PatientProgramRegistration extends Model {
 
   static initRelations(models) {
     this.belongsTo(models.Patient, {
-      foreignKey: 'patientId',
+      foreignKey: { name: 'patientId', allowNull: false },
       as: 'patient',
     });
 
     this.belongsTo(models.ProgramRegistry, {
-      foreignKey: 'programRegistryId',
+      foreignKey: { name: 'programRegistryId', allowNull: false },
       as: 'programRegistry',
     });
+
     this.belongsTo(models.ProgramRegistryClinicalStatus, {
       foreignKey: 'clinicalStatusId',
       as: 'clinicalStatus',

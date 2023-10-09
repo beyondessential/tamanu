@@ -111,6 +111,10 @@ export class User extends Model {
       foreignKey: 'clinicianId',
     });
 
+    this.hasMany(models.PatientProgramRegistrationCondition, {
+      foreignKey: 'clinicianId',
+    });
+
     this.hasMany(models.UserPreference, {
       foreignKey: 'userId',
     });
