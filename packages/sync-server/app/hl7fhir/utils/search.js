@@ -1,15 +1,14 @@
-import config from 'config';
 import { Sequelize, Op } from 'sequelize';
 import { FHIR_SEARCH_PARAMETERS } from '@tamanu/constants';
 import { jsonFromBase64, jsonToBase64 } from 'shared/utils/encodings';
 import { InvalidParameterError } from 'shared/errors';
 import { toDateString } from 'shared/utils/dateTime';
-import { zonedTimeToUtc } from 'date-fns-tz';
+
 import {
   endOfDay,
   endOfMonth,
   endOfYear,
-  parseISO,
+  isMatch,
   startOfDay,
   startOfMonth,
   startOfYear,
@@ -78,9 +77,12 @@ export function getQueryObject(columnName, value, operator, modifier, parameterT
 
 // The date string will be parsed in UTC and return a date
 export function parseHL7Date(dateString) {
-  // Only these formats should be valid for a date in HL7 FHIR:
+  // Only  yyyy, yyyy-MM, or yyyy-MM-dd formats should be valid for a date in HL7 FHIR:
   // https://www.hl7.org/fhir/datatypes.html#date
-  return zonedTimeToUtc(parseISO(dateString), config.countryTimeZone);
+  if (isMatch(dateString, 'yyyy') || isMatch('yyyy-MM') || isMatch('yyyy-MM-dd')) {
+    return new Date(dateString);
+  }
+  return NaN;
 }
 
 // Returns the smallest time unit used on the date string format.
