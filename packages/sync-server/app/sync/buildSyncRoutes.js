@@ -2,6 +2,8 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { log } from 'shared/services/logging';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { SYNC_QUEUE_STATUSES } from '@tamanu/constants';
 
 import { CentralSyncManager } from './CentralSyncManager';
 
@@ -12,48 +14,57 @@ export const buildSyncRoutes = ctx => {
   async function pollSyncQueue({ models }, { facilityId, deviceId, urgent, lastSyncedTick }) {
     const { SyncQueuedDevice } = models;
 
-    // TODO: remove dummy implementation
-    if (!SyncQueuedDevice) {
-      console.log("okoyo");
-      return Math.random() < 0.5;
-    }
-
     // TODO: move to a function on SyncQueuedDevice
     const nextDevice = await SyncQueuedDevice.getNextDevice();
-    if (nextDevice.id === deviceId) {
+    if (nextDevice?.id === deviceId) {
       // it's us! let's start a sync
-      return true;
+      return nextDevice;
     }
 
     const queueRecord = await SyncQueuedDevice.findByPk(deviceId);
 
     if (!queueRecord) {
       // new entry in sync queue
-      return SyncQueuedDevice.create({
+      await SyncQueuedDevice.create({
         id: deviceId,
         facilityId,
         urgent,
         lastSyncedTick,
-        lastSeen: (new Date()).now(),
+        lastSeenTime: getCurrentDateTimeString(),
         status: SYNC_QUEUE_STATUSES.QUEUED,
       });
+      return null;
     }
 
     // update with most recent info
     await queueRecord.update({
       urgent,
       lastSyncedTick,
-      lastSeen: (new Date()).now(),
+      lastSeenTime: getCurrentDateTimeString(),
     });
 
-    return false;
+    return null;
   }
+
+  // TODO: scheduled task
+  setInterval(async () => {
+    log.info("processSyncQueue");
+    try {
+      ctx.store.models.SyncQueuedDevice.processQueue();
+    } catch (e) {
+      log.error(e);
+    }
+  }, 5000);
 
   // create new sync session
   syncRoutes.post(
     '/',
     asyncHandler(async (req, res) => {
-      const queueResult = await pollSyncQueue(req, req.body);
+      const queueResult = await pollSyncQueue(req, {
+        lastSyncedTick: 0,
+        urgent: false,
+        ...req.body
+      });
       log.info("Dummy queue result:", { queueResult });
 
       if (!queueResult) {
@@ -64,7 +75,8 @@ export const buildSyncRoutes = ctx => {
       }
 
       // TODO: what should this action be? status = 'queued'? etc
-      // await queueResult.destroy();
+      console.log("destroying", queueResult);
+      await queueResult.destroy();
 
       const { user, body } = req;
       const { facilityId, deviceId } = body;

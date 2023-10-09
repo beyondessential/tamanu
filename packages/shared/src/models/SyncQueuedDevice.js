@@ -1,22 +1,23 @@
 import { DataTypes, Op } from 'sequelize';
 import { subMinutes } from 'date-fns';
 
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+
+import { SYNC_DIRECTIONS, SYNC_QUEUE_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 
 // TODO: config?
 const SYNC_QUEUE_WINDOW_MINUTES = 5;  // you're welcome window minutes 
 
-const SYNC_QUEUE_STATUSES = {
-  QUEUED: 'queued',
-  READY: 'ready',
-};
-
 export class SyncQueuedDevice extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
-        id: primaryKey,
+        id: {
+          type: DataTypes.TEXT,
+          allowNull: false,
+          primaryKey: true,
+        },
         lastSeenTime: { type: DataTypes.DATE },
         facilityId: { type: DataTypes.TEXT },
         lastSyncedTick: { type: DataTypes.BIGINT },
@@ -26,29 +27,38 @@ export class SyncQueuedDevice extends Model {
           default: SYNC_QUEUE_STATUSES.QUEUED,
         },
       },
-      { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC },
+      {
+        ...options, 
+        syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
+        paranoid: false,
+      },
     );
   }
 
   static async getNextDevice() {
-    const now = toDateTimeString(subMinutes(new Date(), SYNC_QUEUE_WINDOW_MINUTES));
-    return this.find({
-      limit: 1,
+    const windowStart = toDateTimeString(subMinutes(new Date(), SYNC_QUEUE_WINDOW_MINUTES));
+    console.log("now", windowStart);
+    const foundDevice = await this.findOne({
       where: {
         lastSeenTime: {
-          [Op.gt]: now,
-          status: SYNC_QUEUE_STATUSES.READY,
+          [Op.gt]: windowStart,
         },
+        status: SYNC_QUEUE_STATUSES.READY,
       },
       orderBy: [
         ['urgent', 'DESC'], // trues first
         ['lastSyncedTick', 'ASC'], // oldest sync first
       ],
     });
+    return foundDevice;
   }
 
   static async processQueue() {
-    if (await this.getNextDevice()) return;
+    if (await this.getNextDevice()) {
+      // TODO: expire old devices
+      console.log("Still devices ready");
+      return;
+    }
 
     return this.update({
       status: SYNC_QUEUE_STATUSES.READY,
