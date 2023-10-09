@@ -85,6 +85,9 @@ describe('PatientProgramRegistration', () => {
       const programRegistry1 = await models.ProgramRegistry.create(
         fake(models.ProgramRegistry, { programId: program1.id }),
       );
+      const programRegistryCondition = await models.ProgramRegistryCondition.create(
+        fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry1.id }),
+      );
       const result = await app
         .post(`/v1/patient/${patient.id}/programRegistration/${programRegistry1.id}`)
         .send({
@@ -92,6 +95,7 @@ describe('PatientProgramRegistration', () => {
           clinicianId: clinician.id,
           patientId: patient.id,
           date: '2023-09-02 08:00:00',
+          conditions: [programRegistryCondition.id],
         });
 
       expect(result).toHaveSucceeded();
@@ -103,6 +107,18 @@ describe('PatientProgramRegistration', () => {
         clinicianId: clinician.id,
         patientId: patient.id,
         date: '2023-09-02 08:00:00',
+      });
+
+      const createdRegistrationCondition = await models.PatientProgramRegistrationCondition.findByPk(
+        result.body.conditions[0].id,
+      );
+
+      expect(createdRegistrationCondition).toMatchObject({
+        programRegistryId: programRegistry1.id,
+        clinicianId: clinician.id,
+        patientId: patient.id,
+        date: '2023-09-02 08:00:00',
+        programRegistryConditionId: programRegistryCondition.id,
       });
     });
 

@@ -24,7 +24,7 @@ patientProgramRegistration.get(
 patientProgramRegistration.post(
   '/:patientId/programRegistration/:programRegistryId',
   asyncHandler(async (req, res) => {
-    const { models, params, body } = req;
+    const { db, models, params, body } = req;
     const { patientId, programRegistryId } = params;
 
     req.checkPermission('read', 'Patient');
@@ -48,12 +48,38 @@ patientProgramRegistration.post(
       req.checkPermission('create', 'PatientProgramRegistration', { programRegistryId });
     }
 
-    const registration = await models.PatientProgramRegistration.create({
-      patientId,
-      programRegistryId,
-      ...body,
+    const { conditions: conditionIds = [], ...registrationData } = body;
+
+    if (conditionIds.length > 0) {
+      req.checkPermission('create', 'PatientProgramRegistrationCondition', { programRegistryId });
+    }
+
+    let registration;
+    let conditions;
+    // Run in a transaction so it either fails or succeeds together
+    await db.transaction(async () => {
+      registration = await models.PatientProgramRegistration.create({
+        patientId,
+        programRegistryId,
+        ...registrationData,
+      });
+      conditions = await models.PatientProgramRegistrationCondition.bulkCreate(
+        conditionIds.map(conditionId => ({
+          patientId,
+          programRegistryId,
+          clinicianId: registrationData.clinicianId,
+          date: registrationData.date,
+          programRegistryConditionId: conditionId,
+        })),
+      );
     });
 
-    res.send(registration);
+    // Convert Sequelize model to use a custom object as response
+    const responseObject = {
+      ...registration.get({ plain: true }),
+      conditions,
+    };
+
+    res.send(responseObject);
   }),
 );
