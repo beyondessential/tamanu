@@ -385,14 +385,14 @@ describe('Imaging requests', () => {
         provider: 'test',
       },
       null,
-      SETTINGS_SCOPES.FACILITY,
+      SETTINGS_SCOPES.GLOBAL,
     );
 
     // act
     const result = await app.get(`/v1/imagingRequest/${ir.id}`);
 
     // reset settings
-    await models.Setting.set('integrations.imaging', settings, null, SETTINGS_SCOPES.FACILITY);
+    await models.Setting.set('integrations.imaging', settings, null, SETTINGS_SCOPES.GLOBAL);
 
     // assert
     expect(result).toHaveSucceeded();
