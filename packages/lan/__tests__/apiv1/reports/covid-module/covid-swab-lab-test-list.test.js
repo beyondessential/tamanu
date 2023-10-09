@@ -1,4 +1,3 @@
-import moment from 'moment';
 import {
   createDummyEncounter,
   createDummyPatient,
@@ -6,6 +5,7 @@ import {
 } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { format } from 'date-fns';
 import { createTestContext } from '../../../utilities';
 
 const PROGRAM_ID = 'program-fijicovid19';
@@ -484,7 +484,7 @@ describe('Covid swab lab test list', () => {
       const expectedDetails1 = {
         firstName: expectedPatient1.firstName,
         lastName: expectedPatient1.lastName,
-        dob: moment(expectedPatient1.dateOfBirth).format('YYYY/MM/DD'),
+        dob: format(expectedPatient1.dateOfBirth, 'YYYY/MM/DD'),
         sex: expectedPatient1.sex,
         patientId: expectedPatient1.displayId,
         labRequestId: labRequest1.displayId,
@@ -510,7 +510,7 @@ describe('Covid swab lab test list', () => {
       const expectedDetails2 = {
         firstName: expectedPatient1.firstName,
         lastName: expectedPatient1.lastName,
-        dob: moment(expectedPatient1.dateOfBirth).format('YYYY/MM/DD'),
+        dob: format(expectedPatient1.dateOfBirth, 'YYYY/MM/DD'),
         sex: expectedPatient1.sex,
         patientId: expectedPatient1.displayId,
         labRequestId: labRequest2.displayId,
@@ -535,7 +535,7 @@ describe('Covid swab lab test list', () => {
       const expectedDetails3 = {
         firstName: expectedPatient2.firstName,
         lastName: expectedPatient2.lastName,
-        dob: moment(expectedPatient2.dateOfBirth).format('YYYY/MM/DD'),
+        dob: format(expectedPatient2.dateOfBirth, 'YYYY/MM/DD'),
         sex: expectedPatient2.sex,
         patientId: expectedPatient2.displayId,
         labRequestId: labRequest3.displayId,
@@ -559,7 +559,7 @@ describe('Covid swab lab test list', () => {
       const expectedDetails4 = {
         firstName: expectedPatient2.firstName,
         lastName: expectedPatient2.lastName,
-        dob: moment(expectedPatient2.dateOfBirth).format('YYYY/MM/DD'),
+        dob: format(expectedPatient2.dateOfBirth, 'YYYY/MM/DD'),
         sex: expectedPatient2.sex,
         patientId: expectedPatient2.displayId,
         labRequestId: labRequest4.displayId,

@@ -1,12 +1,11 @@
-import moment from 'moment';
 import {
   createDummyEncounter,
   createDummyPatient,
   randomReferenceId,
 } from 'shared/demoData/patients';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
+import { format, parseISO } from 'date-fns';
 import { createTestContext } from '../../utilities';
-import { parseISO } from 'date-fns';
 
 describe('Vaccine list report', () => {
   let baseApp = null;
@@ -87,7 +86,7 @@ describe('Vaccine list report', () => {
       expect(result.body).toHaveLength(2);
       expect(result.body[1][0]).toBe(`${expectedPatient.firstName} ${expectedPatient.lastName}`);
       expect(result.body[1][1]).toBe(expectedPatient.displayId);
-      expect(result.body[1][2]).toBe(moment(expectedPatient.dateOfBirth).format('DD-MM-YYYY'));
+      expect(result.body[1][2]).toBe(format(expectedPatient.dateOfBirth, 'DD-MM-YYYY'));
       expect(result.body[1][3]).toBe(expectedPatient.sex);
       expect(result.body[1][5]).toBe(scheduledVaccine2.label);
       expect(result.body[1][6]).toBe('Yes');
@@ -113,7 +112,7 @@ describe('Vaccine list report', () => {
       expect(result.body).toHaveLength(2);
       expect(result.body[1][0]).toBe(`${expectedPatient.firstName} ${expectedPatient.lastName}`);
       expect(result.body[1][1]).toBe(expectedPatient.displayId);
-      expect(result.body[1][2]).toBe(moment(expectedPatient.dateOfBirth).format('DD-MM-YYYY'));
+      expect(result.body[1][2]).toBe(format(expectedPatient.dateOfBirth, 'DD-MM-YYYY'));
       expect(result.body[1][3]).toBe(expectedPatient.sex);
       expect(result.body[1][5]).toBe(scheduledVaccine1.label);
       expect(result.body[1][6]).toBe('Yes');

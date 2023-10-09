@@ -45,7 +45,6 @@
     "express-validator": "^6.5.0",
     "follow": "^1.1.0",
     "lodash": "^4.17.5",
-    "moment": "^2.21.0",
     "morgan": "^1.10.0",
     "node-fetch": "^2.6.1",
     "prompts": "^2.0.0",
