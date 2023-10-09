@@ -8,6 +8,7 @@ import {
   REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
   REPORT_STATUSES_VALUES,
+  REPORT_DB_SCHEMAS,
 } from '@tamanu/constants/reports';
 import {
   Button,
@@ -23,6 +24,7 @@ import {
   FIELD_TYPES_WITH_PREDEFINED_OPTIONS,
   FIELD_TYPES_WITH_SUGGESTERS,
 } from '../../reports/ParameterField';
+import { useAuth } from '../../../contexts/Auth';
 
 const StyledField = styled(Field)`
   flex-grow: 1;
@@ -44,6 +46,11 @@ const DATA_SOURCE_OPTIONS = [
 
 const DATE_RANGE_OPTIONS = REPORT_DEFAULT_DATE_RANGES_VALUES.map(value => ({
   label: value,
+  value,
+}));
+
+const DB_SCHEMA_OPTIONS = Object.values(REPORT_DB_SCHEMAS).map(value => ({
+  label: capitalize(value),
   value,
 }));
 
@@ -93,6 +100,7 @@ const schema = yup.object().shape({
 });
 
 const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) => {
+  const { ability } = useAuth();
   const setQuery = query => setValues({ ...values, query });
   const params = values.parameters || [];
   const setParams = newParams => setValues({ ...values, parameters: newParams });
@@ -104,6 +112,9 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
     setParams(newParams);
   };
   const onParamsDelete = paramId => setParams(params.filter(p => p.id !== paramId));
+
+  const canWriteRawReportUser = Boolean(ability?.can('write', 'ReportDbSchema'));
+  const showDataSourceField = values.dbSchema === REPORT_DB_SCHEMAS.RAW;
 
   return (
     <>
@@ -119,20 +130,35 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
         </Grid>
         <Grid item xs={4}>
           <StyledField
-            label="Can be run on"
-            name="dataSources"
-            component={MultiselectField}
-            options={DATA_SOURCE_OPTIONS}
-          />
-        </Grid>
-        <Grid item xs={4}>
-          <StyledField
             label="Default date range"
             name="defaultDateRange"
             component={SelectField}
+            isClearable={false}
             options={DATE_RANGE_OPTIONS}
           />
         </Grid>
+        {canWriteRawReportUser && (
+          <Grid item xs={4}>
+            <StyledField
+              label="DB schema"
+              name="dbSchema"
+              component={SelectField}
+              options={DB_SCHEMA_OPTIONS}
+              disabled={isEdit}
+              isClearable={false}
+            />
+          </Grid>
+        )}
+        {showDataSourceField && (
+          <Grid item xs={4}>
+            <StyledField
+              label="Can be run on"
+              name="dataSources"
+              component={MultiselectField}
+              options={DATA_SOURCE_OPTIONS}
+            />
+          </Grid>
+        )}
       </Grid>
       <Accordion defaultExpanded>
         <AccordionSummary>
