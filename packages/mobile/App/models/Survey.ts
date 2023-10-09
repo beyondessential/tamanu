@@ -39,10 +39,15 @@ export class Survey extends BaseModel implements ISurvey {
   @Column({ nullable: false, default: false })
   isSensitive: boolean;
 
-  getComponents(): Promise<ISurveyScreenComponent[]> {
+  getComponents(conditions: Record<string, any> = {}): Promise<ISurveyScreenComponent[]> {
     const repo = Database.models.SurveyScreenComponent.getRepository();
     return repo.find({
-      where: { survey: { id: this.id } },
+      where: {
+        survey: {
+          id: this.id,
+        },
+        ...conditions,
+      },
       relations: ['dataElement'],
       order: { screenIndex: 'ASC', componentIndex: 'ASC' },
     });
