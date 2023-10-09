@@ -4,20 +4,20 @@ const requiredWhenConfiguredMandatory = (getBool, getString, name, baseType) => 
   return baseType.when([], {
     is: () => !!getBool(`fields.${name}.requiredPatientData`),
     then: baseType.required(`${getString(`fields.${name}.shortLabel`)} is required `),
-    otherwise: baseType,
+    otherwise: baseType.nullable(),
   });
 };
 
 export const getPatientDetailsValidation = (getBool, getString) => {
   return Yup.object().shape({
     firstName: Yup.string().required('First name is a required field'),
-    middleName: Yup.string().nullable(),
+    middleName: requiredWhenConfiguredMandatory(getBool, getString, 'middleName', Yup.string()),
     lastName: Yup.string().required('Last name is a required field'),
-    culturalName: Yup.string().nullable(),
+    culturalName: requiredWhenConfiguredMandatory(getBool, getString, 'culturalName', Yup.string()),
     dateOfBirth: Yup.date().required('Date of birth is a required field'),
-    email: Yup.string().nullable(),
+    email: requiredWhenConfiguredMandatory(getBool, getString, 'email', Yup.string()),
     sex: Yup.string().required('Sex is a required field'),
-    village: Yup.string().nullable(),
+    village: requiredWhenConfiguredMandatory(getBool, getString, 'village', Yup.string()),
     religionId: requiredWhenConfiguredMandatory(getBool, getString, 'religionId', Yup.string()),
     birthCertificate: requiredWhenConfiguredMandatory(
       getBool,
@@ -42,7 +42,7 @@ export const getPatientDetailsValidation = (getBool, getString) => {
       getBool,
       getString,
       'emergencyContactName',
-      Yup.number(),
+      Yup.string(),
     ),
     emergencyContactNumber: requiredWhenConfiguredMandatory(
       getBool,

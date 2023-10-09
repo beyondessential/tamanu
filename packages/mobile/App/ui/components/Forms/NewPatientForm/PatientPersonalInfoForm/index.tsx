@@ -55,12 +55,9 @@ const getPatientInitialValues = (isEdit: boolean, patient, patientAdditionalData
     true,
     getBool,
   );
-  const initialPatientAdditionalDataValues = getInitialValues(
-    patientAdditionalData,
-    requiredPADFields,
-  );
+  const initialPatientAdditionalDataValues = getInitialValues(patientAdditionalData, requiredPADFields);
 
-  return {
+  const initialPatientValues = {
     firstName,
     middleName,
     lastName,
@@ -71,6 +68,10 @@ const getPatientInitialValues = (isEdit: boolean, patient, patientAdditionalData
     villageId,
     ...initialPatientAdditionalDataValues,
   };
+
+  return Object.fromEntries(
+    Object.entries(initialPatientValues).filter(([_, value]) => value != null),
+  );
 };
 
 const containsAdditionalData = values =>

@@ -15,7 +15,7 @@ export const usePatientAdditionalData = patientId => {
       (async (): Promise<void> => {
         const { models } = backend;
         try {
-          if (!patientId) {
+          if (patientId) {
             const record = await models.PatientAdditionalData.find({
               where: { patient: { id: patientId } },
             });
