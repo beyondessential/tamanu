@@ -10,14 +10,14 @@ import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { usePatientSearchParameters } from '../../../contexts/PatientViewSearchParameters';
 import { useAuth } from '../../../contexts/Auth';
 
-const NoResultContainer = styled.div`
+const MessageContainer = styled.div`
   padding: 30px;
   background: ${Colors.white};
   border: 1px solid ${Colors.outline};
   border-radius: 5px;
 `;
 
-const NoResultsInner = styled.div`
+const MessageInner = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -30,23 +30,23 @@ const NoResultsInner = styled.div`
   padding: 70px 190px;
 `;
 
-const WrongPermissionInner = styled(NoResultsInner)`
+const WrongPermissionInner = styled(MessageInner)`
   color: ${Colors.alert};
 `;
 
 const NoResultsMessage = () => (
-  <NoResultContainer>
-    <NoResultsInner>
+  <MessageContainer>
+    <MessageInner>
       This patient has no lab results to display. Once lab results are available they will be
       displayed here.
-    </NoResultsInner>
-  </NoResultContainer>
+    </MessageInner>
+  </MessageContainer>
 );
 
 const WrongPermissionMessage = () => (
-  <NoResultContainer>
+  <MessageContainer>
     <WrongPermissionInner>You do not have permission to view lab results</WrongPermissionInner>
-  </NoResultContainer>
+  </MessageContainer>
 );
 
 export const PatientResultsPane = React.memo(({ patient }) => {
