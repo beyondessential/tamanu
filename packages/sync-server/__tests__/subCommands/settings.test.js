@@ -5,6 +5,7 @@ import { fake } from 'shared/test-helpers/fake';
 import { Op } from 'sequelize';
 import { listSettings, getSetting, setSetting, loadSettings } from '../../app/subCommands/settings';
 import { createTestContext } from '../utilities';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 describe('settings', () => {
   let ctx;
@@ -27,15 +28,19 @@ describe('settings', () => {
       },
     });
 
-    await Setting.set('test', {
-      value: 'test',
-      tree: {
-        flower: ['flower', 'girl'],
-        branch: {
-          leaf: 'leaf',
+    await Setting.set(
+      'test',
+      {
+        value: 'test',
+        tree: {
+          flower: ['flower', 'girl'],
+          branch: {
+            leaf: 'leaf',
+          },
         },
       },
-    });
+      SETTINGS_SCOPES.GLOBAL,
+    );
 
     await Setting.set(
       'test.tree.branch',
@@ -43,6 +48,7 @@ describe('settings', () => {
         leaf: 'weed',
         root: 'root',
       },
+      SETTINGS_SCOPES.FACILITY,
       facility,
     );
   });

@@ -6,6 +6,7 @@ import { buildSettingsRecords } from 'shared/models/Setting';
 
 import { initDatabase } from '../database';
 import { loadSettingFile } from '../utils/loadSettingFile';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 export async function listSettings(filter = '', { facility } = {}) {
   const {
@@ -74,7 +75,8 @@ export async function setSetting(key, value, { facility } = {}) {
       : 'no current value\n';
 
   const newValue = JSON.parse(value);
-  await Setting.set(key, newValue, facility);
+  const scope = facility ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.GLOBAL;
+  await Setting.set(key, newValue, scope, facility);
   return `${preValue}\nnew value set`;
 }
 
@@ -92,7 +94,8 @@ export async function loadSettings(key, filepath, { facility, preview } = {}) {
     return JSON.stringify(value, null, 2);
   }
 
-  await Setting.set(key, value, facility);
+  const scope = facility ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.GLOBAL;
+  await Setting.set(key, value, scope, facility);
 
   const currentValue = await Setting.get(key, facility);
   return JSON.stringify(currentValue, null, 2);
