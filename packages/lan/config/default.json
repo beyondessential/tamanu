@@ -52,7 +52,17 @@
     "username": "",
     "password": "",
     "verbose": false,
-    "migrateOnStartup": false
+    "migrateOnStartup": false,
+    "reportCredentials": {
+      "raw": {
+        "username": "",
+        "password": ""
+      },
+      "reporting": {
+        "username": "",
+        "password": ""
+      }
+    }
   },
   "senaite": {
     "enabled": false,

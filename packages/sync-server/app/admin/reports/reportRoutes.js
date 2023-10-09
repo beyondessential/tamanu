@@ -147,7 +147,9 @@ reportsRouter.post(
       sequelize,
     } = store;
 
-    const { name, file, dryRun, deleteFileAfterImport = true } = await getUploadedData(req);
+    const { name, dbSchema, file, dryRun, deleteFileAfterImport = true } = await getUploadedData(
+      req,
+    );
     const versionData = await readJSON(file);
 
     if (versionData.versionNumber)
@@ -166,6 +168,7 @@ reportsRouter.post(
           const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
             where: {
               name,
+              dbSchema,
             },
             include: [
               {

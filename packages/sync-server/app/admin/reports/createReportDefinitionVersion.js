@@ -19,7 +19,7 @@ export async function createReportDefinitionVersion(store, reportId, definition,
       isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
     },
     async () => {
-      const { name, ...definitionVersion } = definition;
+      const { name, dbSchema, ...definitionVersion } = definition;
       if (!reportId) {
         const existingDefinition = await ReportDefinition.findOne({
           where: { name },
@@ -29,7 +29,7 @@ export async function createReportDefinitionVersion(store, reportId, definition,
           throw new InvalidOperationError('Report name already exists');
         }
       }
-      const reportDefinitionId = reportId || (await ReportDefinition.create({ name })).id;
+      const reportDefinitionId = reportId || (await ReportDefinition.create({ name, dbSchema })).id;
       const latestVersion = await ReportDefinitionVersion.findOne({
         where: { reportDefinitionId: reportId },
         attributes: ['versionNumber'],
