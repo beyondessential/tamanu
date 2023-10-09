@@ -80,8 +80,8 @@ reportsRouter.get(
 reportsRouter.post(
   '/',
   asyncHandler(async (req, res) => {
-    const { store, body, user } = req;
-    const version = await createReportDefinitionVersion(store, null, body, user.id);
+    const { store, body, user, reports } = req;
+    const version = await createReportDefinitionVersion({ store, reports }, null, body, user.id);
     res.send(version);
   }),
 );
@@ -89,9 +89,14 @@ reportsRouter.post(
 reportsRouter.post(
   '/:reportId/versions',
   asyncHandler(async (req, res) => {
-    const { store, params, body, user } = req;
+    const { store, params, body, user, reports } = req;
     const { reportId } = params;
-    const version = await createReportDefinitionVersion(store, reportId, body, user.id);
+    const version = await createReportDefinitionVersion(
+      { store, reports },
+      reportId,
+      body,
+      user.id,
+    );
     res.send(version);
   }),
 );
@@ -141,7 +146,7 @@ reportsRouter.get(
 reportsRouter.post(
   '/import',
   asyncHandler(async (req, res) => {
-    const { store, user } = req;
+    const { store, user, reports } = req;
     const {
       models: { ReportDefinition, ReportDefinitionVersion },
       sequelize,
@@ -151,11 +156,12 @@ reportsRouter.post(
       req,
     );
     const versionData = await readJSON(file);
+    console.log('QUERY OOPTIONS', versionData.queryOptions);
 
     if (versionData.versionNumber)
       throw new InvalidOperationError('Cannot import a report with a version number');
 
-    await verifyQuery(versionData.query, versionData.queryOptions?.parameters, store);
+    await verifyQuery(versionData.query, versionData.queryOptions, { store, reports });
 
     const feedback = {};
     try {
@@ -168,7 +174,6 @@ reportsRouter.post(
           const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
             where: {
               name,
-              dbSchema,
             },
             include: [
               {
@@ -235,7 +240,7 @@ reportsRouter.get(
         {
           model: store.models.ReportDefinition,
           as: 'reportDefinition',
-          attributes: ['name', 'id'],
+          attributes: ['name', 'id', 'dbSchema'],
         },
       ],
     });

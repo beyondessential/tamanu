@@ -8,6 +8,7 @@ import { provision } from './provision';
 import { createApp } from '../createApp';
 import { ApplicationContext } from '../ApplicationContext';
 import { version } from '../serverInfo';
+import { initReporting } from '../database';
 
 const { port } = config;
 
@@ -26,6 +27,9 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
   const { store } = context;
 
   await store.sequelize.assertUpToDate({ skipMigrationCheck });
+  if (config.db.reports.enabled) {
+    context.reports = await initReporting();
+  }
 
   const app = createApp(context);
 
