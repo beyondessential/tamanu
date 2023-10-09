@@ -8,7 +8,7 @@ import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { LargeButton, TextButton, ContentPane, ButtonRow, TopBar } from '../../../components';
 import { AdminViewContainer } from '../components/AdminViewContainer';
 import { JSONEditor } from './JSONEditor';
-import { ScopeSelector, parseScopeCode } from './ScopeSelector';
+import { ScopeSelector } from './ScopeSelector';
 import { DefaultSettingsModal } from './DefaultSettingsModal';
 import { useApi } from '../../../api';
 import { notifySuccess, notifyError } from '../../../utils';
@@ -16,15 +16,19 @@ import { ErrorMessage } from '../../../components/ErrorMessage';
 
 const StyledTopBar = styled(TopBar)`
   padding: 0;
+  .MuiToolbar-root {
+    align-items: flex-end;
+  }
 `;
 
 const DefaultSettingsButton = styled(TextButton)`
   font-size: 14px;
   white-space: nowrap;
-  margin-left: 10px;
+  margin-left: 5px;
   .MuiSvgIcon-root {
     margin-right: 5px;
   }
+  margin-bottom: 12px;
 `;
 
 const buildSettingsString = settings => {
@@ -35,11 +39,10 @@ const buildSettingsString = settings => {
 export const SettingsView = React.memo(() => {
   const api = useApi();
   const [settingsEditString, setSettingsEditString] = useState('');
-  const [selectedScopeCode, setSelectedScopeCode] = useState(SETTINGS_SCOPES.GLOBAL);
+  const [scope, setScope] = useState(SETTINGS_SCOPES.GLOBAL);
+  const [facilityId, setFacilityId] = useState(null);
   const [jsonError, setJsonError] = useState(null);
   const [isDefaultModalOpen, setIsDefaultModalOpen] = useState(false);
-
-  const { scope, facilityId } = parseScopeCode(selectedScopeCode);
 
   const { data: settings = {}, refetch: refetchSettings, error: settingsFetchError } = useQuery(
     ['scopedSettings', scope, facilityId],
@@ -57,8 +60,13 @@ export const SettingsView = React.memo(() => {
   const turnOnEditMode = () => updateSettingsEditString(buildSettingsString(settings) || '{}');
   const turnOffEditMode = () => updateSettingsEditString(null);
   const onChangeSettings = newValue => updateSettingsEditString(newValue);
-  const onChangeScopeCode = event => {
-    setSelectedScopeCode(event.target.value || null);
+  const onChangeScope = event => {
+    setScope(event.target.value || null);
+    setFacilityId(null);
+    updateSettingsEditString(null);
+  };
+  const onChangeFacility = event => {
+    setFacilityId(event.target.value || null);
     updateSettingsEditString(null);
   };
 
@@ -90,13 +98,16 @@ export const SettingsView = React.memo(() => {
   };
 
   const editMode = !!settingsEditString;
+  const isEditorVisible = scope !== SETTINGS_SCOPES.FACILITY || facilityId;
 
   return (
     <AdminViewContainer title="Settings">
       <StyledTopBar>
         <ScopeSelector
-          selectedScopeCode={selectedScopeCode}
-          onChangeScopeCode={onChangeScopeCode}
+          selectedScope={scope}
+          onChangeScope={onChangeScope}
+          selectedFacility={facilityId}
+          onChangeFacility={onChangeFacility}
         />
         <DefaultSettingsButton onClick={() => setIsDefaultModalOpen(true)}>
           <Settings />
@@ -113,14 +124,17 @@ export const SettingsView = React.memo(() => {
               </LargeButton>
             </>
           ) : (
-            <LargeButton onClick={turnOnEditMode}>Edit</LargeButton>
+            <LargeButton onClick={turnOnEditMode} disabled={!isEditorVisible}>
+              Edit
+            </LargeButton>
           )}
         </ButtonRow>
       </StyledTopBar>
       <ContentPane>
-        {settingsFetchError ? (
+        {settingsFetchError && (
           <ErrorMessage title="Settings fetch error" errorMessage={settingsFetchError.message} />
-        ) : (
+        )}
+        {isEditorVisible && (
           <JSONEditor
             onChange={onChangeSettings}
             value={editMode ? settingsEditString : settingsViewString}
