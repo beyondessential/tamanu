@@ -34,7 +34,10 @@ export const SurveyView = ({
     patientAdditionalData,
     currentUser,
   );
-  const validationSchema = useMemo(() => getValidationSchema(survey), [survey]);
+  const validationSchema = useMemo(
+    () => getValidationSchema(survey, { encounterType: encounter.type }),
+    [survey, encounter?.type],
+  );
 
   const onSubmitSurvey = data => {
     onSubmit(data);

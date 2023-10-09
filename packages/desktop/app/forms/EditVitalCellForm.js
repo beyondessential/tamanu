@@ -91,7 +91,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, componen
   const showDeleteEntryButton = ['', undefined].includes(initialValue) === false;
   const valueName = dataPoint.component.dataElement.id;
   const editVitalData = getEditVitalData(dataPoint.component, mandatoryVitalEditReason);
-  const validationSchema = getValidationSchema(editVitalData);
+  const validationSchema = getValidationSchema(editVitalData, { encounterType: encounter.type });
   const handleDeleteEntry = useCallback(
     setFieldValue => {
       setFieldValue(valueName, '');

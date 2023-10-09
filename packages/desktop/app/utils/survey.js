@@ -256,7 +256,7 @@ export const getActionsFromData = (data, survey) =>
     return acc;
   }, {});
 
-export const getValidationSchema = surveyData => {
+export const getValidationSchema = (surveyData, valuesToCheckMandatory) => {
   if (!surveyData) return {};
   const { components } = surveyData;
   const schema = components.reduce(
@@ -272,9 +272,13 @@ export const getValidationSchema = surveyData => {
       },
     ) => {
       const { unit = '' } = getConfigObject(componentId, config);
-      const { min, max, mandatory } = getConfigObject(componentId, validationCriteria);
+      const { min, max, mandatory: mandatoryConfig } = getConfigObject(
+        componentId,
+        validationCriteria,
+      );
       const { type, defaultText } = dataElement;
       const text = componentText || defaultText;
+      const mandatory = checkMandatory(mandatoryConfig, components, valuesToCheckMandatory);
       let valueSchema;
       switch (type) {
         case PROGRAM_DATA_ELEMENT_TYPES.NUMBER: {

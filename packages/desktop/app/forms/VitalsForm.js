@@ -11,6 +11,7 @@ import { ForbiddenErrorModalContents } from '../components/ForbiddenErrorModal';
 import { Modal } from '../components/Modal';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
+import { useEncounter } from '../contexts/Encounter';
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
   const {
@@ -19,7 +20,11 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
     isError,
     error,
   } = combineQueries([useVitalsSurveyQuery(), usePatientAdditionalDataQuery()]);
-  const validationSchema = useMemo(() => getValidationSchema(vitalsSurvey), [vitalsSurvey]);
+  const { encounter } = useEncounter();
+  const validationSchema = useMemo(
+    () => getValidationSchema(vitalsSurvey, { encounterType: encounter.type }),
+    [vitalsSurvey, encounter?.type],
+  );
   const { ability } = useAuth();
   const canCreateVitals = ability.can('create', 'Vitals');
 
