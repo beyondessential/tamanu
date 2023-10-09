@@ -1,5 +1,7 @@
 import { Op } from 'sequelize';
-import { log } from 'shared/services/logging';
+import { utils } from 'xlsx';
+
+import { log } from '@tamanu/shared/services/logging';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { DataImportError } from '../errors';
@@ -142,5 +144,6 @@ export async function importProgramRegistry(context, workbook, programId) {
         ...row,
       },
     })),
+    stats,
   });
 }

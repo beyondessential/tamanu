@@ -160,9 +160,14 @@
         <Cell>visibilityStatus</Cell>
       </Row>
       <Row>
-        <Cell>Registry-Succeed-Number</Cell>
-        <Cell>Number</Cell>
-        <Cell>Number: Full config</Cell>
+        <Cell>Diabetes</Cell>
+        <Cell>Diabetes</Cell>
+        <Cell>current</Cell>
+      </Row>
+      <Row>
+        <Cell>Hypertension</Cell>
+        <Cell>Hypertension</Cell>
+        <Cell>current</Cell>
       </Row>
     </Table>
   </Worksheet>

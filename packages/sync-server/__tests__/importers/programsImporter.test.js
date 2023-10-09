@@ -469,5 +469,23 @@ describe('Programs import', () => {
       });
       expect(errors).not.toBeEmpty();
     });
+
+    describe('conditions', () => {
+      it('should import valid conditions', async () => {
+        const { errors, stats } = await doImport({
+          file: 'registry-valid-with-conditions',
+          xml: true,
+          dryRun: false,
+        });
+        expect(errors).toBeEmpty();
+        expect(stats).toMatchObject({
+          Program: { created: 0, updated: 1, errored: 0 },
+          Survey: { created: 0, updated: 1, errored: 0 },
+          ProgramRegistry: { created: 0, updated: 1, errored: 0 },
+          ProgramRegistryClinicalStatus: { created: 1, updated: 3, errored: 0 },
+          ProgramRegistryCondition: { created: 2, updated: 0, errored: 0 },
+        });
+      });
+    });
   });
 });
