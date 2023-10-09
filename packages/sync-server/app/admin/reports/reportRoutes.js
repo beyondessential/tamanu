@@ -19,6 +19,7 @@ reportsRouter.get(
       `SELECT rd.id,
         rd.name,
         rd.created_at AS "createdAt",
+        rd.db_schema AS "dbSchema",
         max(rdv.updated_at) AS "lastUpdated",
         max(rdv.version_number) AS "versionCount"
     FROM report_definitions rd
@@ -174,6 +175,7 @@ reportsRouter.post(
           const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
             where: {
               name,
+              dbSchema,
             },
             include: [
               {

@@ -6,6 +6,7 @@ import {
   REPORT_STATUSES,
   REPORT_DATA_SOURCES,
   REPORT_DEFAULT_DATE_RANGES,
+  REPORT_DB_SCHEMAS,
 } from '@tamanu/constants/reports';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
@@ -21,13 +22,14 @@ export const CreateReportView = () => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
 
-  const onSubmit = async ({ name, query, status, options, ...queryOptions }) => {
+  const onSubmit = async ({ name, query, status, dbSchema, options, ...queryOptions }) => {
     const { dataSources } = queryOptions;
     try {
       const { reportDefinitionId, id } = await api.post('admin/reports', {
         name,
         query,
         status,
+        dbSchema,
         queryOptions: {
           ...queryOptions,
           dataSources: dataSources.split(', '),
@@ -48,6 +50,7 @@ export const CreateReportView = () => {
           status: REPORT_STATUSES.PUBLISHED,
           dataSources: REPORT_DATA_SOURCES.ALL_FACILITIES,
           defaultDateRange: REPORT_DEFAULT_DATE_RANGES.THIRTY_DAYS,
+          dbSchema: REPORT_DB_SCHEMAS.REPORTING,
           parameters: [],
         }}
         onSubmit={onSubmit}

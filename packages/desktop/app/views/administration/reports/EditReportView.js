@@ -27,11 +27,12 @@ const StyledButton = styled(OutlinedButton)`
 const getInitialValues = (version, report) => {
   const { query, status, queryOptions } = version;
   const { dataSources, ...options } = queryOptions;
-  const { name } = report;
+  const { name, dbSchema } = report;
   return {
     name,
     query,
     status,
+    dbSchema,
     ...options,
     dataSources: dataSources?.join(', '),
   };
