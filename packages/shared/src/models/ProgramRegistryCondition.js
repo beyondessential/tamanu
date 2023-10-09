@@ -34,7 +34,7 @@ export class ProgramRegistryCondition extends Model {
       as: 'programRegistry',
     });
 
-    this.belongsTo(models.PatientProgramRegistrationCondition, {
+    this.hasMany(models.PatientProgramRegistrationCondition, {
       foreignKey: 'programRegistryConditionId',
       as: 'patientProgramRegistrationConditions',
     });
