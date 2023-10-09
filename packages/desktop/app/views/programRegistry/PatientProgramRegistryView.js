@@ -2,7 +2,6 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
-import { useUrlQueryParams } from '../../hooks';
 import { DisplayPatientRegDetails } from './DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from './ProgramRegistryStatusHistory';
 import { usePatientProgramRegistration } from '../../api/queries/usePatientProgramRegistration';
@@ -11,6 +10,7 @@ import { PatientProgramRegistrationSelectSurvey } from './PatientProgramRegistra
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionSection } from './ConditionSection';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
+import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
@@ -64,7 +64,7 @@ const StatusInactiveDot = styled.div`
 `;
 
 export const PatientProgramRegistryView = () => {
-  const queryParams = useUrlQueryParams();
+  const queryParams = useUrlSearchParams();
   const title = queryParams.get('title');
   const { patientId, programRegistryId } = useParams();
   const { data, isLoading, isError } = usePatientProgramRegistration(patientId, programRegistryId);
