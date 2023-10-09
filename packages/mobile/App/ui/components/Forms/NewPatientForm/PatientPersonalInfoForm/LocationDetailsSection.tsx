@@ -20,14 +20,12 @@ export const LocationDetailsSection = (): ReactElement => {
   });
 
   return (
-    <>
-      <LocalisedField
-        component={AutocompleteModalField}
-        placeholder={`Search for ${getString('fields.villageId.longLabel', 'Village')}`}
-        navigation={navigation}
-        suggester={villageSuggester}
-        name="villageId"
-      />
-    </>
+    <LocalisedField
+      component={AutocompleteModalField}
+      placeholder={`Search for ${getString('fields.villageId.longLabel', 'Village')}`}
+      navigation={navigation}
+      suggester={villageSuggester}
+      name="villageId"
+    />
   );
 };

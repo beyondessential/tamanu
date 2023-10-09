@@ -7,7 +7,6 @@ import { PatientAdditionalDataFields } from './PatientAdditionalDataFields';
 import { patientAdditionalDataValidationSchema, getInitialValues } from './helpers';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { Routes } from '~/ui/helpers/routes';
-import { FormSectionHeading } from '../FormSectionHeading';
 import { additionalDataSections } from '~/ui/helpers/additionalData';
 import { Button } from '../../Button';
 
