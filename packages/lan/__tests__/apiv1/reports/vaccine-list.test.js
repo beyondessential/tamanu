@@ -86,7 +86,7 @@ describe('Vaccine list report', () => {
       expect(result.body).toHaveLength(2);
       expect(result.body[1][0]).toBe(`${expectedPatient.firstName} ${expectedPatient.lastName}`);
       expect(result.body[1][1]).toBe(expectedPatient.displayId);
-      expect(result.body[1][2]).toBe(format(expectedPatient.dateOfBirth, 'DD-MM-YYYY'));
+      expect(result.body[1][2]).toBe(format(parseISO(expectedPatient.dateOfBirth), 'dd-MM-yyyy'));
       expect(result.body[1][3]).toBe(expectedPatient.sex);
       expect(result.body[1][5]).toBe(scheduledVaccine2.label);
       expect(result.body[1][6]).toBe('Yes');
@@ -112,7 +112,7 @@ describe('Vaccine list report', () => {
       expect(result.body).toHaveLength(2);
       expect(result.body[1][0]).toBe(`${expectedPatient.firstName} ${expectedPatient.lastName}`);
       expect(result.body[1][1]).toBe(expectedPatient.displayId);
-      expect(result.body[1][2]).toBe(format(expectedPatient.dateOfBirth, 'DD-MM-YYYY'));
+      expect(result.body[1][2]).toBe(format(parseISO(expectedPatient.dateOfBirth), 'dd-MM-yyyy'));
       expect(result.body[1][3]).toBe(expectedPatient.sex);
       expect(result.body[1][5]).toBe(scheduledVaccine1.label);
       expect(result.body[1][6]).toBe('Yes');

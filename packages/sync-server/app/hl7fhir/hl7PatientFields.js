@@ -63,7 +63,7 @@ export const hl7PatientFields = {
       // eslint-disable-next-line no-template-curly-in-string
       .test('is-valid-date', 'Invalid date/time format: ${value}', value => {
         if (!value) return true;
-        return parseHL7Date(value).isValid();
+        return !isNaN(parseHL7Date(value));
       }),
     sortable: true,
   },
