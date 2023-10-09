@@ -2,7 +2,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { DataTypes } from 'sequelize';
 import { Model } from './Model';
 
-export class TranslatedStrings extends Model {
+export class TranslatedString extends Model {
   static init(options) {
     super.init(
       {
@@ -12,6 +12,7 @@ export class TranslatedStrings extends Model {
           set() {
             // any sets of the convenience generated "id" field can be ignored
           },
+          primaryKey: true
         },
         stringId: {
           type: DataTypes.TEXT,
@@ -46,5 +47,9 @@ export class TranslatedStrings extends Model {
         ],
       },
     );
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 }
