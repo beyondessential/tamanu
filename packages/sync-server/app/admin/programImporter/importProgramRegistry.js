@@ -33,6 +33,10 @@ function readProgramRegistryData(workbook) {
 function readProgramRegistryConditionData(workbook) {
   log.debug('Reading Registry Condition data');
   const worksheet = workbook.Sheets['Registry Conditions'];
+  if (!worksheet) {
+    log.debug('No Registry Conditions sheet - skipping');
+    return [];
+  }
   return utils.sheet_to_json(worksheet);
 }
 
@@ -112,7 +116,7 @@ export async function importProgramRegistry(context, workbook, programId) {
   });
 
   log.debug('Importing Patient Registry Clinical statuses');
-  stats = importRows(context, {
+  stats = await importRows(context, {
     sheetName: 'Registry',
     rows: clinicalStatuses.map(row => ({
       model: 'ProgramRegistryClinicalStatus',
