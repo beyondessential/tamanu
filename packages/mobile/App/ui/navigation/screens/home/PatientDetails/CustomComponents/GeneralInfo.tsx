@@ -36,7 +36,6 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
 
   const { patientAdditionalData, loading, error } = usePatientAdditionalData(patient.id);
 
-  console.log('loading', loading);
   const patientAdditionalDataFields = allAdditionalDataFields
     .filter(fieldName => getBool(`fields.${fieldName}.requiredPatientData`))
     .map(fieldName => [fieldName, getFieldData(patientAdditionalData, fieldName)]);

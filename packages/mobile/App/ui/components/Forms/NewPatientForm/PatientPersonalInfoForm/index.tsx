@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
   ScrollViewContentContainer: { padding: 20 },
 });
 
-const getPatientInitialValues = (isEdit: boolean, patient, patientAdditionalData): {} => {
+const getPatientInitialValues = (isEdit: boolean, patient, patientAdditionalData, getBool): {} => {
   if (!isEdit || !patient) {
     return {};
   }
@@ -50,6 +50,16 @@ const getPatientInitialValues = (isEdit: boolean, patient, patientAdditionalData
     villageId,
   } = patient;
 
+  const requiredPADFields = getConfiguredPatientAdditionalDataFields(
+    allAdditionalDataFields,
+    true,
+    getBool,
+  );
+  const initialPatientAdditionalDataValues = getInitialValues(
+    patientAdditionalData,
+    requiredPADFields,
+  );
+
   return {
     firstName,
     middleName,
@@ -59,12 +69,16 @@ const getPatientInitialValues = (isEdit: boolean, patient, patientAdditionalData
     email,
     sex,
     villageId,
+    ...initialPatientAdditionalDataValues,
   };
 };
 
+const containsAdditionalData = values =>
+  allAdditionalDataFields.some(fieldName => Object.keys(values).includes(fieldName));
+
 export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): ReactElement => {
   const navigation = useNavigation();
-  const { patientAdditionalData, loading } = usePatientAdditionalData(selectedPatient.id);
+  const { patientAdditionalData, loading } = usePatientAdditionalData(selectedPatient?.id);
   const onCreateNewPatient = useCallback(async values => {
     // submit form to server for new patient
     const { dateOfBirth, ...otherValues } = values;
@@ -74,11 +88,7 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
       displayId: generateId(),
     });
 
-    const containsAdditionalData = allAdditionalDataFields.some(fieldName =>
-      Object.keys(values).includes(fieldName),
-    );
-    console.log('containsAdditionalData', containsAdditionalData);
-    if (containsAdditionalData) {
+    if (containsAdditionalData(values)) {
       await PatientAdditionalData.updateForPatient(selectedPatient.id, values);
     }
 
@@ -101,11 +111,7 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
         ...otherValues,
       });
 
-      const containsAdditionalData = allAdditionalDataFields.some(fieldName =>
-        Object.keys(values).includes(fieldName),
-      );
-      console.log('containsAdditionalData', containsAdditionalData);
-      if (containsAdditionalData) {
+      if (containsAdditionalData(values)) {
         await PatientAdditionalData.updateForPatient(selectedPatient.id, values);
       }
 
@@ -126,16 +132,6 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
 
   const { getBool, getString } = useLocalisation();
 
-  const requiredPADFields = getConfiguredPatientAdditionalDataFields(
-    allAdditionalDataFields,
-    true,
-    getBool,
-  );
-  const initialPatientAdditionalDataValues = getInitialValues(
-    patientAdditionalData,
-    requiredPADFields,
-  );
-
   return loading ? (
     <LoadingScreen />
   ) : (
@@ -143,10 +139,12 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
       <Formik
         onSubmit={isEdit ? onEditPatient : onCreateNewPatient}
         validationSchema={getPatientDetailsValidation(getBool, getString)}
-        initialValues={{
-          ...getPatientInitialValues(isEdit, selectedPatient, patientAdditionalData),
-          ...initialPatientAdditionalDataValues,
-        }}
+        initialValues={getPatientInitialValues(
+          isEdit,
+          selectedPatient,
+          patientAdditionalData,
+          getBool,
+        )}
       >
         {({ handleSubmit }): JSX.Element => (
           <KeyboardAvoidingView style={styles.KeyboardAvoidingView} behavior="padding">

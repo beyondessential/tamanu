@@ -42,7 +42,6 @@ export const PatientAdditionalDataForm = ({
     >
       {({ handleSubmit, isSubmitting }): ReactElement => (
         <FormScreenView scrollViewRef={scrollViewRef}>
-          <FormSectionHeading text={sectionTitle} />
           <StyledView justifyContent="space-between">
             <PatientAdditionalDataFields fields={fields} showMandatory={false} />
             <Button

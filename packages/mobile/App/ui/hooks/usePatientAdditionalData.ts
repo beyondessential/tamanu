@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { useBackend } from '.';
@@ -15,14 +15,16 @@ export const usePatientAdditionalData = patientId => {
       (async (): Promise<void> => {
         const { models } = backend;
         try {
-          const record = await models.PatientAdditionalData.find({
-            where: { patient: { id: patientId } },
-          });
-          const result = record && record[0];
-          if (!mounted) {
-            return;
+          if (!patientId) {
+            const record = await models.PatientAdditionalData.find({
+              where: { patient: { id: patientId } },
+            });
+            const result = record && record[0];
+            if (!mounted) {
+              return;
+            }
+            setPatientAdditionalData(result);
           }
-          setPatientAdditionalData(result);
         } catch (err) {
           if (!mounted) {
             return;
@@ -38,6 +40,5 @@ export const usePatientAdditionalData = patientId => {
     }, [backend, patientId]),
   );
 
-  console.log('patientAdditionalData', patientAdditionalData);
   return { patientAdditionalData, loading, error };
 };
