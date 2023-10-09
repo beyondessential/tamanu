@@ -12,6 +12,8 @@ import { theme } from '/styled/theme';
 import { SexSection, DateSection, NameSection, VillageSection } from './CustomComponents';
 import SubmitSection from './CustomComponents/SubmitSection';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { PatientAdditionalDataFields } from '~/ui/components/Forms/PatientAdditionalDataForm/PatientAdditionalDataFields';
+import { allAdditionalDataFields } from '~/ui/helpers/additionalData';
 
 interface ScreenProps {
   onCancel: () => void;
