@@ -115,6 +115,10 @@ export class User extends Model {
       foreignKey: 'clinicianId',
     });
 
+    this.hasMany(models.PatientProgramRegistrationCondition, {
+      foreignKey: 'deletionClinicianId',
+    });
+
     this.hasMany(models.UserPreference, {
       foreignKey: 'userId',
     });

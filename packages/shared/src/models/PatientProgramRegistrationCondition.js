@@ -17,6 +17,9 @@ export class PatientProgramRegistrationCondition extends Model {
           type: Sequelize.TEXT,
           defaultValue: null,
         },
+        deletionDate: dateTimeType('date', {
+          defaultValue: null,
+        }),
       },
       {
         ...options,
@@ -44,6 +47,11 @@ export class PatientProgramRegistrationCondition extends Model {
     this.belongsTo(models.User, {
       foreignKey: 'clinicianId',
       as: 'clinician',
+    });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'deletionClinicianId',
+      as: 'deletionClinician',
     });
   }
 
