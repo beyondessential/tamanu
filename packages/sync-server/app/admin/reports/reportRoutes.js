@@ -179,6 +179,7 @@ reportsRouter.post(
           isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
         },
         async () => {
+          // TODO: Stop this from trying to create a new definition if dbSchema changes. Should validate properly
           const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
             where: {
               name,
