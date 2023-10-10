@@ -92,8 +92,8 @@ function createAllRecordsSuggesterRoute(
         order: [[Sequelize.literal(orderColumn), 'ASC']],
       });
 
-      const listing = results.map(mapper);
-      res.send(listing);
+      // Allow for async mapping functions (currently only used by location suggester)
+      res.send(await Promise.all(results.map(mapper)));
     }),
   );
 }
