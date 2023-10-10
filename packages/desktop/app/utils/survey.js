@@ -76,16 +76,6 @@ export function mapOptionsToValues(options) {
   return options.map(x => ({ label: x, value: x }));
 }
 
-const swapValuesIdToCode = (values, allComponents) => {
-  return Object.entries(values).reduce((acc, [key, val]) => {
-    const matchingComponent = allComponents.find(x => x.dataElement.id === key);
-    if (matchingComponent) {
-      acc[matchingComponent.dataElement.code] = val;
-    }
-    return acc;
-  }, {});
-};
-
 /**
  * IMPORTANT: We have 4 other versions of this method:
  *
@@ -103,7 +93,13 @@ export function checkVisibility(component, values, allComponents) {
   if (!visibilityCriteria) return true;
 
   try {
-    const valuesByCode = swapValuesIdToCode(values, allComponents);
+    const valuesByCode = Object.entries(values).reduce((acc, [key, val]) => {
+      const matchingComponent = allComponents.find(x => x.dataElement.id === key);
+      if (matchingComponent) {
+        acc[matchingComponent.dataElement.code] = val;
+      }
+      return acc;
+    }, {});
     return checkJSONCriteria(visibilityCriteria, allComponents, valuesByCode);
   } catch (error) {
     // eslint-disable-next-line no-console

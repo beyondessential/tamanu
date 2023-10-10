@@ -98,7 +98,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       patientId: patient.id,
       endTime: getCurrentDateTimeString(),
       answers: getAnswersFromData(data, survey),
-      actions: getActionsFromData({ ...data, encounterType: encounter.type }, survey),
+      actions: getActionsFromData(data, survey),
     });
     if (params?.encounterId && encounter && !encounter.endDate) {
       navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.PROGRAMS });

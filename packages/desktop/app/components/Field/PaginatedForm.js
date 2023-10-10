@@ -8,7 +8,6 @@ import { Form } from './Form';
 import { ButtonRow } from '../ButtonRow';
 import { getVisibleQuestions, getInvisibleQuestions } from '../../utils';
 import { FormStepper } from './FormStepper';
-import { useEncounter } from '../../contexts/Encounter';
 
 const COMPLETE_MESSAGE = `
   Press "Complete" to submit your response,
@@ -57,11 +56,10 @@ export const DefaultFormScreen = ({
   screenIndex,
   customBottomRow,
 }) => {
-  const { encounter } = useEncounter();
   const { children } = screenReactElement.props;
   const screenQuestionReactElements = React.Children.toArray(children);
   const visibleQuestions = getVisibleQuestions(
-    { encounterType: encounter.type, ...values },
+    values,
     allQuestionReactElements,
     screenQuestionReactElements,
   );
@@ -129,7 +127,6 @@ export const PaginatedForm = ({
   initialValues,
   formProps,
 }) => {
-  const { encounter } = useEncounter();
   const [formState, setFormState] = useState(FORM_STATES.IDLE);
   const [showStepper, setShowStepper] = useState(true);
   const { onStepBack, onStepForward, handleStep, screenIndex } = usePaginatedForm();
@@ -191,10 +188,7 @@ export const PaginatedForm = ({
 
         const submitVisibleValues = event => {
           const invisibleFields = new Set(
-            getInvisibleQuestions(
-              { ...values, encounterType: encounter.type },
-              allQuestionReactElements,
-            ).map(q => q.props.name),
+            getInvisibleQuestions(values, allQuestionReactElements).map(q => q.props.name),
           );
           const visibleValues = omit({ ...values }, invisibleFields);
 

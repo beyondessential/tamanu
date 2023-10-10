@@ -131,7 +131,7 @@ export const TriageForm = ({
         endTime: getCurrentDateTimeString(),
         patientId: patient.id,
         answers: getAnswersFromData(data, survey),
-        actions: getActionsFromData({ ...data, encounterType: 'surveyResponse' }, survey),
+        actions: getActionsFromData(data, survey),
       };
     }
 

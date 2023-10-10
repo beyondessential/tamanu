@@ -79,7 +79,7 @@ const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
   );
 };
 
-export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, components }) => {
+export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
   const [isDeleted, setIsDeleted] = useState(false);
   const api = useApi();
   const queryClient = useQueryClient();
@@ -142,7 +142,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, componen
           <SurveyQuestion
             component={dataPoint.component}
             disabled={isDeleted}
-            values={{ encounterType: encounter.type }}
+            valuesToCheckMandatory={{ encounterType: encounter.type }}
           />
           {showDeleteEntryButton && (
             <DeleteEntryButton

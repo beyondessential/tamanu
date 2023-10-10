@@ -7,7 +7,6 @@ import { Button, OutlinedButton } from '../Button';
 import { SurveyQuestion } from './SurveyQuestion';
 import { ButtonRow } from '../ButtonRow';
 import { FORM_STATUSES } from '../../constants';
-import { useEncounter } from '../../contexts/Encounter';
 
 const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
@@ -72,20 +71,18 @@ export const SurveyScreen = ({
   status,
   setStatus,
 }) => {
-  const { encounter } = useEncounter();
   const { setQuestionToRef, scrollToQuestion } = useScrollToFirstError(errors);
   useCalculatedFormValues(allComponents, values, setFieldValue);
-
-  const visibleScreenComponents = screenComponents.filter(c =>
-    checkVisibility(c, { ...values, encounterType: encounter.type }, allComponents),
-  );
 
   const validateAndStep = async () => {
     const formErrors = await validateForm();
 
     // Only include visible elements
     const pageErrors = Object.keys(formErrors).filter(x =>
-      visibleScreenComponents.map(c => c.dataElementId).includes(x),
+      screenComponents
+        .filter(c => checkVisibility(c, values, allComponents))
+        .map(c => c.dataElementId)
+        .includes(x),
     );
 
     if (pageErrors.length === 0) {
@@ -106,14 +103,16 @@ export const SurveyScreen = ({
 
   return (
     <FormGrid columns={cols}>
-      {visibleScreenComponents.map(c => (
-        <SurveyQuestion
-          component={c}
-          patient={patient}
-          key={c.id}
-          inputRef={setQuestionToRef(c.dataElementId)}
-        />
-      ))}
+      {screenComponents
+        .filter(c => checkVisibility(c, values, allComponents))
+        .map(c => (
+          <SurveyQuestion
+            component={c}
+            patient={patient}
+            key={c.id}
+            inputRef={setQuestionToRef(c.dataElementId)}
+          />
+        ))}
       <StyledButtonRow>
         {submitButton || (
           <>

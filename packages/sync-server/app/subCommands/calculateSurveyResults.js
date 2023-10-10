@@ -64,30 +64,10 @@ const calculateSurveyResult = async (store, surveyResponseId, surveyComponents) 
     },
   );
 
-  const [[encounter]] = await store.sequelize.query(
-    `
-    SELECT encounters.encounter_type AS "encounterType"
-    FROM survey_responses
-    JOIN encounters
-    ON survey_responses.encounter_id = encounters.id
-    WHERE survey_responses.id = :surveyResponseId
-  `,
-    {
-      replacements: {
-        surveyResponseId,
-      },
-    },
-  );
-
   const answerByCode = getAnswerByCode(answerRows);
   const visibleResultComponents = surveyComponents
     .filter(component => component.type === 'Result')
-    .filter(component =>
-      checkVisibilityCriteria(component, surveyComponents, {
-        ...answerByCode,
-        encounterType: encounter?.encounterType,
-      }),
-    );
+    .filter(component => checkVisibilityCriteria(component, surveyComponents, answerByCode));
 
   // use the last visible component in the array
   const finalResultComponent = visibleResultComponents[visibleResultComponents.length - 1];
