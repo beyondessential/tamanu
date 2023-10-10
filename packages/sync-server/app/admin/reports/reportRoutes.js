@@ -125,7 +125,10 @@ reportsRouter.get(
     if (!version) {
       throw new NotFoundError(`No version found with id ${versionId}`);
     }
-    const versionWithoutMetadata = version.forResponse(true);
+    const versionWithoutMetadata = {
+      ...version.forResponse(true),
+      dbSchema: reportDefinition.dbSchema,
+    };
     const filename = sanitizeFilename(
       reportDefinition.name,
       versionWithoutMetadata.versionNumber,
@@ -137,6 +140,7 @@ reportsRouter.get(
     } else if (format === REPORT_VERSION_EXPORT_FORMATS.SQL) {
       data = versionWithoutMetadata.query;
     }
+
     res.send({
       filename,
       data: Buffer.from(data),
