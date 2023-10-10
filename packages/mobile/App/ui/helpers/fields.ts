@@ -253,3 +253,14 @@ export function getResultValue(allComponents: ISurveyScreenComponent[], values: 
     resultText: `${rawValue.toFixed(0)}%`,
   };
 }
+
+export function checkMandatory(mandatory: boolean | Record<string, any>, values: any) {
+  if (!mandatory) {
+    return false;
+  }
+  if (typeof mandatory === 'boolean') {
+    return mandatory;
+  }
+
+  return checkJSONCriteria(JSON.stringify(mandatory), [], values);
+}

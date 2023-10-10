@@ -2,7 +2,7 @@
 import * as Yup from 'yup';
 
 import { getAgeFromDate, getAgeWithMonthsFromDate } from '~/ui/helpers/date';
-import { FieldTypes } from '~/ui/helpers/fields';
+import { FieldTypes, checkMandatory } from '~/ui/helpers/fields';
 import { joinNames } from '~/ui/helpers/user';
 import {
   IPatient,
@@ -118,7 +118,10 @@ function getFieldValidator(
   }
 }
 
-export function getFormSchema(components: ISurveyScreenComponent[]): Yup.ObjectSchema {
+export function getFormSchema(
+  components: ISurveyScreenComponent[],
+  valuesToCheckMandatory: { [key: string]: any },
+): Yup.ObjectSchema {
   const objectShapeSchema = components.reduce<{ [key: string]: any }>((acc, component) => {
     const { dataElement } = component;
     const propName = dataElement.code;
@@ -126,7 +129,8 @@ export function getFormSchema(components: ISurveyScreenComponent[]): Yup.ObjectS
     const validator = getFieldValidator(dataElement, validationCriteria);
 
     if (!validator) return acc;
-    if (validationCriteria.mandatory) {
+    const mandatory = checkMandatory(validationCriteria.mandatory, valuesToCheckMandatory);
+    if (mandatory) {
       acc[propName] = validator.required('Required');
     } else {
       acc[propName] = validator.nullable();

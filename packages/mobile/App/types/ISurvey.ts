@@ -30,7 +30,7 @@ export type ValidationCriteriaNormalRange = {
 export type SurveyScreenValidationCriteria = {
   min?: number;
   max?: number;
-  mandatory?: boolean;
+  mandatory?: boolean | Record<string, any>;
   normalRange?: ValidationCriteriaNormalRange | ValidationCriteriaNormalRange[];
 };
 
