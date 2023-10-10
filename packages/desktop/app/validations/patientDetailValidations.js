@@ -131,7 +131,7 @@ export const getPatientDetailsValidation = (patientRegistryType, sexValues, getL
     emergencyContactName: requiredWhenConfiguredMandatory(
       getLocalisation,
       'emergencyContactName',
-      yup.number(),
+      yup.string(),
     ),
     emergencyContactNumber: requiredWhenConfiguredMandatory(
       getLocalisation,
