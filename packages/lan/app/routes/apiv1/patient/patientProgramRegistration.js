@@ -74,12 +74,13 @@ patientProgramRegistration.delete(
     if (!programRegistry) throw new NotFoundError();
 
     req.checkPermission('delete', 'PatientProgramRegistrationCondition', { programRegistryId });
-    const existingCondition = await models.PatientProgramRegistration.findOne({
+    const existingCondition = await models.PatientProgramRegistrationCondition.findOne({
       where: {
         programRegistryId,
         patientId,
       },
     });
+    if (!existingCondition) throw new NotFoundError();
 
     const condition = await existingCondition.update({
       deletionStatus: DELETION_STATUSES.DELETED,
