@@ -60,5 +60,42 @@ describe('ProgramRegistry', () => {
       expect(body.count).toEqual(2);
       expect(body.data.length).toEqual(2);
     });
+
+    it('should filter by excludePatientId', async () => {
+      const testPatient = await models.Patient.create(fake(models.Patient));
+
+      // Should show:
+      await models.ProgramRegistry.create({
+        ...fake(models.ProgramRegistry),
+        programId: testProgram.id,
+      });
+      await models.ProgramRegistry.create({
+        ...fake(models.ProgramRegistry),
+        programId: testProgram.id,
+      });
+
+      // Should not show (historical):
+      await models.ProgramRegistry.create({
+        ...fake(models.ProgramRegistry),
+        programId: testProgram.id,
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      });
+      // Should not show (patient already has registration):
+      const { id: existingRegistrationId } = await models.ProgramRegistry.create({
+        ...fake(models.ProgramRegistry),
+        programId: testProgram.id,
+      });
+      await models.PatientProgramRegistration.create({
+        ...fake(models.PatientProgramRegistration),
+        patientId: testPatient.id,
+        programRegistryId: existingRegistrationId,
+      });
+
+      const result = await app
+        .get('/v1/programRegistry')
+        .query({ excludePatientId: testPatient.id });
+      expect(result).toHaveSucceeded();
+      expect(result.body.length).toBe(2);
+    });
   });
 });
