@@ -169,7 +169,9 @@ describe('PatientProgramRegistration', () => {
         }),
       );
       const result = await app
-        .delete(`/v1/patient/${patient.id}/programRegistration/${programRegistry1.id}/condition`)
+        .delete(
+          `/v1/patient/${patient.id}/programRegistration/${programRegistry1.id}/condition/${programRegistryCondition.id}`,
+        )
         .send({
           programRegistryConditionId: programRegistryCondition.id,
           deletionClinicianId: clinician.id,

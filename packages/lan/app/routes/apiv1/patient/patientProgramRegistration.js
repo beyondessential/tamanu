@@ -60,10 +60,10 @@ patientProgramRegistration.post(
 );
 
 patientProgramRegistration.delete(
-  '/:patientId/programRegistration/:programRegistryId/condition',
+  '/:patientId/programRegistration/:programRegistryId/condition/:conditionId',
   asyncHandler(async (req, res) => {
     const { models, params, body } = req;
-    const { patientId, programRegistryId } = params;
+    const { patientId, programRegistryId, conditionId } = params;
 
     req.checkPermission('read', 'Patient');
     const patient = await models.Patient.findByPk(patientId);
@@ -78,6 +78,7 @@ patientProgramRegistration.delete(
       where: {
         programRegistryId,
         patientId,
+        programRegistryConditionId: conditionId,
       },
     });
     if (!existingCondition) throw new NotFoundError();
