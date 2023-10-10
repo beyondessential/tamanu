@@ -15,6 +15,7 @@
             }
         ]
     },
+    "dbSchema": "raw",
     "status": "published",
     "notes": "Report doing absolutely nothing"
 }
