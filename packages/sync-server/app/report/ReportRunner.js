@@ -15,11 +15,21 @@ import { getLocalisation } from '../localisation';
 const REPORT_RUNNER_LOG_NAME = 'ReportRunner';
 
 export class ReportRunner {
-  constructor(reportId, parameters, recipients, store, emailService, userId, exportFormat) {
+  constructor(
+    reportId,
+    parameters,
+    recipients,
+    store,
+    reports,
+    emailService,
+    userId,
+    exportFormat,
+  ) {
     this.reportId = reportId;
     this.parameters = parameters;
     this.recipients = recipients;
     this.store = store;
+    this.reports = reports;
     this.emailService = emailService;
     this.userId = userId;
     this.log = createNamedLogger(REPORT_RUNNER_LOG_NAME, { reportId, userId });
@@ -85,8 +95,11 @@ export class ReportRunner {
     let metadata = [];
     try {
       this.log.info('Running report', { parameters: this.parameters });
+      reportData = await reportModule.dataGenerator(
+        { ...this.store, reports: this.reports },
+        this.parameters,
+      );
 
-      reportData = await reportModule.dataGenerator(this.store, this.parameters);
       metadata = await this.getMetadata();
 
       this.log.info('Running report finished', {

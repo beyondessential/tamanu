@@ -16,8 +16,12 @@ export async function createReportDefinitionVersion(
   if (definition.versionNumber) {
     throw new InvalidOperationError('Cannot create a report with a version number');
   }
-
-  await verifyQuery(definition.query, definition.queryOptions, { reports, store });
+  const { parameters } = definition.queryOptions;
+  await verifyQuery(
+    definition.query,
+    { parameters, dbSchema: definition.dbSchema },
+    { reports, store },
+  );
   return sequelize.transaction(
     {
       // Prevents race condition when determining the next version number

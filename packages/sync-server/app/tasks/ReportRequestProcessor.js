@@ -124,6 +124,7 @@ export class ReportRequestProcessor extends ScheduledTask {
       request.getParameters(),
       request.getRecipients(),
       this.context.store,
+      this.context.reports,
       this.context.emailService,
       request.requestedByUserId,
       request.exportFormat,
