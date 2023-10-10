@@ -60,7 +60,7 @@ patientProgramRegistration.post(
 );
 
 patientProgramRegistration.delete(
-  '/:patientId/programRegistration/:programRegistryId',
+  '/:patientId/programRegistration/:programRegistryId/condition',
   asyncHandler(async (req, res) => {
     const { models, params, body } = req;
     const { patientId, programRegistryId } = params;
