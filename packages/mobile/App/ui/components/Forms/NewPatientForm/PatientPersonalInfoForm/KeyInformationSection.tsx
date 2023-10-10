@@ -22,7 +22,11 @@ export const KeyInformationSection = (): ReactElement => {
         required
       />
       <LocalisedField name="dateOfBirth" max={new Date()} component={DateField} required />
-      <LocalisedField name="email" component={TextField} />
+      <LocalisedField
+        name="email"
+        component={TextField}
+        required={getBool('fields.email.requiredPatientData')}
+      />
     </>
   );
 };

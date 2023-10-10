@@ -11,7 +11,7 @@ import { useBackend } from '~/ui/hooks';
 export const LocationDetailsSection = (): ReactElement => {
   const navigation = useNavigation();
   const { models } = useBackend();
-  const { getString } = useLocalisation();
+  const { getString, getBool } = useLocalisation();
 
   const villageSuggester = new Suggester(models.ReferenceData, {
     where: {
@@ -26,6 +26,7 @@ export const LocationDetailsSection = (): ReactElement => {
       navigation={navigation}
       suggester={villageSuggester}
       name="villageId"
+      required={getBool('fields.villageId.requiredPatientData')}
     />
   );
 };
