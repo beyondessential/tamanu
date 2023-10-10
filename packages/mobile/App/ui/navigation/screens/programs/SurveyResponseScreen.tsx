@@ -44,7 +44,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   );
 
   const [components, componentsError, areComponentsLoading] = useBackendEffect(
-    () => survey && survey.getComponents({ visibilityStatus: VisibilityStatus.Current }),
+    () => survey && survey.getComponents(),
     [survey],
   );
 

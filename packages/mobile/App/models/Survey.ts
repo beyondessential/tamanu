@@ -12,6 +12,7 @@ import {
 } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';
+import { In } from 'typeorm/browser';
 
 @Entity('survey')
 export class Survey extends BaseModel implements ISurvey {
@@ -39,15 +40,22 @@ export class Survey extends BaseModel implements ISurvey {
   @Column({ nullable: false, default: false })
   isSensitive: boolean;
 
-  getComponents(conditions: Record<string, any> = {}): Promise<ISurveyScreenComponent[]> {
+  getComponents(options: { includeAllVitals?: boolean } = {}): Promise<ISurveyScreenComponent[]> {
+    const where = {
+      survey: {
+        id: this.id,
+      },
+      visibilityStatus: In([VisibilityStatus.Current]),
+    };
+
+    const { includeAllVitals } = options;
+    if (includeAllVitals) {
+      where.visibilityStatus = In([VisibilityStatus.Current, VisibilityStatus.Historical]);
+    }
+    console.log(where);
     const repo = Database.models.SurveyScreenComponent.getRepository();
     return repo.find({
-      where: {
-        survey: {
-          id: this.id,
-        },
-        ...conditions,
-      },
+      where,
       relations: ['dataElement'],
       order: { screenIndex: 'ASC', componentIndex: 'ASC' },
     });
