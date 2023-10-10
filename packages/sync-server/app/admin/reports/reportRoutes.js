@@ -153,16 +153,19 @@ reportsRouter.post(
       sequelize,
     } = store;
 
-    const { name, dbSchema, file, dryRun, deleteFileAfterImport = true } = await getUploadedData(
-      req,
-    );
+    const { name, file, dryRun, deleteFileAfterImport = true } = await getUploadedData(req);
+
     const versionData = await readJSON(file);
-    console.log('QUERY OOPTIONS', versionData.queryOptions);
 
     if (versionData.versionNumber)
       throw new InvalidOperationError('Cannot import a report with a version number');
 
-    await verifyQuery(versionData.query, versionData.queryOptions, { store, reports });
+    await verifyQuery(
+      versionData.query,
+      versionData.queryOptions,
+      { store, reports },
+      versionData.dbSchema,
+    );
 
     const feedback = {};
     try {
@@ -175,7 +178,7 @@ reportsRouter.post(
           const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
             where: {
               name,
-              dbSchema,
+              dbSchema: versionData.dbSchema,
             },
             include: [
               {

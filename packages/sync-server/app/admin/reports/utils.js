@@ -28,7 +28,7 @@ export const readJSON = async path => {
   });
 };
 
-export async function verifyQuery(query, { parameters = [], dbSchema }, { store, reports }) {
+export async function verifyQuery(query, { parameters = [] }, { store, reports }, dbSchema) {
   try {
     const replacements = await getReportQueryReplacements(store, parameters);
     const instance = reports ? reports[dbSchema]?.sequelize : store.sequelize;
