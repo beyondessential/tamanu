@@ -2,25 +2,24 @@ import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 
-let baseApp = null;
-let models = null;
-
 describe('ProgramRegistry', () => {
+  let models;
   let app;
   let testProgram;
   let ctx;
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    baseApp = ctx.baseApp;
     models = ctx.models;
-    app = await baseApp.asRole('admin');
+    app = await ctx.baseApp.asRole('practitioner');
 
     testProgram = await models.Program.create(fake(models.Program));
   });
   afterAll(() => ctx.close());
   afterEach(async () => {
+    await models.PatientProgramRegistration.truncate();
     await models.ProgramRegistry.truncate();
+    await models.Patient.truncate({ cascade: true });
   });
 
   describe('Getting (GET /v1/programRegistry/:id)', () => {
@@ -95,7 +94,15 @@ describe('ProgramRegistry', () => {
         .get('/v1/programRegistry')
         .query({ excludePatientId: testPatient.id });
       expect(result).toHaveSucceeded();
-      expect(result.body.length).toBe(2);
+      expect(result.body.data.length).toBe(2);
+    });
+
+    it('should escape the excludePatientId parameter', async () => {
+      const result = await app
+        .get('/v1/programRegistry')
+        .query({ excludePatientId: "'bobby tables" });
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.length).toBe(0);
     });
   });
 });

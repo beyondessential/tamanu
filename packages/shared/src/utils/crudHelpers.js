@@ -89,7 +89,7 @@ export const getResourceList = async (req, modelName, foreignKey = '', options =
   const baseQueryOptions = {
     where: {
       ...(foreignKey && { [foreignKey]: params.id }),
-      ...additionalFilters,
+      ...(typeof additionalFilters === 'function' ? additionalFilters(req) : additionalFilters),
     },
     // ['association', 'column', 'direction'] is the sequlize format to sort by foreign column
     // allow 'association.column' as a valid sort query
