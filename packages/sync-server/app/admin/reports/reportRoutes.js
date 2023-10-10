@@ -125,7 +125,10 @@ reportsRouter.get(
     if (!version) {
       throw new NotFoundError(`No version found with id ${versionId}`);
     }
-    const versionWithoutMetadata = version.forResponse(true);
+    const versionWithoutMetadata = {
+      ...version.forResponse(true),
+      dbSchema: reportDefinition.dbSchema,
+    };
     const filename = sanitizeFilename(
       reportDefinition.name,
       versionWithoutMetadata.versionNumber,
@@ -137,6 +140,7 @@ reportsRouter.get(
     } else if (format === REPORT_VERSION_EXPORT_FORMATS.SQL) {
       data = versionWithoutMetadata.query;
     }
+
     res.send({
       filename,
       data: Buffer.from(data),
@@ -153,16 +157,19 @@ reportsRouter.post(
       sequelize,
     } = store;
 
-    const { name, dbSchema, file, dryRun, deleteFileAfterImport = true } = await getUploadedData(
-      req,
-    );
+    const { name, file, dryRun, deleteFileAfterImport = true } = await getUploadedData(req);
+
     const versionData = await readJSON(file);
-    console.log('QUERY OOPTIONS', versionData.queryOptions);
 
     if (versionData.versionNumber)
       throw new InvalidOperationError('Cannot import a report with a version number');
 
-    await verifyQuery(versionData.query, versionData.queryOptions, { store, reports });
+    await verifyQuery(
+      versionData.query,
+      versionData.queryOptions,
+      { store, reports },
+      versionData.dbSchema,
+    );
 
     const feedback = {};
     try {
@@ -172,10 +179,11 @@ reportsRouter.post(
           isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
         },
         async () => {
+          // TODO: Stop this from trying to create a new definition if dbSchema changes. Should validate properly
           const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
             where: {
               name,
-              dbSchema,
+              dbSchema: versionData.dbSchema,
             },
             include: [
               {
