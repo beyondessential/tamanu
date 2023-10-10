@@ -17,7 +17,6 @@ export const SurveyQuestion = ({
   patient,
   inputRef,
   disabled,
-  components,
   valuesToCheckMandatory,
 }) => {
   const {
@@ -35,11 +34,7 @@ export const SurveyQuestion = ({
   const FieldComponent = getComponentForQuestionType(type, configObject);
 
   const validationCriteriaObject = getConfigObject(id, validationCriteria);
-  const required = checkMandatory(
-    validationCriteriaObject?.mandatory,
-    components,
-    valuesToCheckMandatory,
-  );
+  const required = checkMandatory(validationCriteriaObject?.mandatory, valuesToCheckMandatory);
 
   if (component.dataElement.type === 'Result') return <Text>{`${text} ${component.detail}`}</Text>;
   if (!FieldComponent) return <Text>{text}</Text>;

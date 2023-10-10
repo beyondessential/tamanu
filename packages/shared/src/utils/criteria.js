@@ -49,14 +49,3 @@ export function checkJSONCriteria(criteria, allComponents, values) {
     ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
     : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
 }
-
-export function checkMandatory(mandatory, allComponents, values) {
-  if (!mandatory) {
-    return false;
-  }
-  if (typeof mandatory === 'boolean') {
-    return mandatory;
-  }
-
-  return checkJSONCriteria(mandatory, allComponents, values);
-}

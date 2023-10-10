@@ -1,10 +1,7 @@
 // Much of this file is duplicated in `packages/mobile/App/ui/components/Forms/SurveyForm/helpers.ts`
 import React from 'react';
 import * as yup from 'yup';
-import {
-  checkJSONCriteria,
-  checkMandatory as checkMandatoryBase,
-} from '@tamanu/shared/utils/criteria';
+import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
 import { intervalToDuration, parseISO } from 'date-fns';
 
 import {
@@ -278,7 +275,7 @@ export const getValidationSchema = (surveyData, valuesToCheckMandatory) => {
       );
       const { type, defaultText } = dataElement;
       const text = componentText || defaultText;
-      const mandatory = checkMandatory(mandatoryConfig, components, valuesToCheckMandatory);
+      const mandatory = checkMandatory(mandatoryConfig, valuesToCheckMandatory);
       let valueSchema;
       switch (type) {
         case PROGRAM_DATA_ELEMENT_TYPES.NUMBER: {
@@ -348,10 +345,16 @@ export const getNormalRangeByAge = (validationCriteria = {}, { dateOfBirth }) =>
   return normalRangeByAge;
 };
 
-export const checkMandatory = (mandatory, allComponents, values) => {
+export const checkMandatory = (mandatory, values) => {
   try {
-    const valuesByCode = swapValuesIdToCode(values, allComponents);
-    return checkMandatoryBase(JSON.stringify(mandatory), allComponents, valuesByCode);
+    if (!mandatory) {
+      return false;
+    }
+    if (typeof mandatory === 'boolean') {
+      return mandatory;
+    }
+
+    return checkJSONCriteria(JSON.stringify(mandatory), [], values);
   } catch (error) {
     notifyError(
       `Failed to use mandatory in validationCriteria: ${JSON.stringify(mandatory)}, error: ${

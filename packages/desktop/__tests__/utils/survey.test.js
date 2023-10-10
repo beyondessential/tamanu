@@ -133,27 +133,23 @@ describe('checkVisibility()', () => {
   });
 
   describe('checkMandatory()', () => {
-    const allComponents = generateAllComponents([
-      {
-        id: 'TEST_RESULT_ID',
-        code: 'TEST_RESULT_CODE',
-        type: 'Binary',
-      },
-      { id: 'TEST_A_ID', code: 'TEST_A_CODE', type: 'Binary' },
-      { id: 'TEST_B_ID', code: 'TEST_B_CODE', type: 'Binary' },
-    ]);
+    it('should support mandatory in Boolean type', () => {
+      const result = checkMandatory(true);
+      expect(result).toBe(true);
+    });
+
     const testData = [
-      { TEST_A_ID: 30, expected: true },
-      { TEST_A_ID: 29, expected: false },
+      { encounterType: 'Admission', expected: true },
+      { encounterType: 'SurveyResponse', expected: true },
+      { encounterType: 'Clinic', expected: false },
     ];
 
     it.each(testData)(
-      'should return $expected for TEST_A_ID: $TEST_A_ID',
-      ({ TEST_A_ID, expected }) => {
+      'should return $expected for encounterType: $encounterType',
+      ({ encounterType, expected }) => {
         const result = checkMandatory(
-          JSON.stringify({ TEST_A_CODE: { type: 'range', start: 30 } }),
-          allComponents,
-          { TEST_A_ID },
+          { encounterType: ['Admission', 'SurveyResponse'] },
+          { encounterType },
         );
 
         expect(result).toBe(expected);

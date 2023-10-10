@@ -143,7 +143,6 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, componen
             component={dataPoint.component}
             disabled={isDeleted}
             values={{ encounterType: encounter.type }}
-            components={components}
           />
           {showDeleteEntryButton && (
             <DeleteEntryButton

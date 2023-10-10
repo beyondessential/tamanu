@@ -19,7 +19,6 @@ export const useVitals = encounterId => {
 
   let vitalsRecords = [];
   let recordedDates = [];
-  let components = [];
   const vitalsData = vitalsQuery?.data?.data || [];
   const surveyData = surveyQuery?.data;
 
@@ -62,13 +61,10 @@ export const useVitals = encounterId => {
           },
         );
       });
-
-    components = surveyData.components;
   }
 
   return {
     ...vitalsQuery,
-    components,
     data: vitalsRecords,
     recordedDates,
     error,
