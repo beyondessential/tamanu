@@ -5,19 +5,8 @@
  xmlns:x="urn:schemas-microsoft-com:office:excel"
  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
  xmlns:html="http://www.w3.org/TR/REC-html40">
- <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
-  <Author>Ethan McQuarrie</Author>
-  <LastAuthor>Alastair Locke</LastAuthor>
-  <Created>2023-01-16T22:34:35Z</Created>
-  <LastSaved>2023-07-21T06:19:23Z</LastSaved>
-  <Version>16.00</Version>
- </DocumentProperties>
  <Worksheet ss:Name="Metadata">
-  <Table x:FullColumns="1" x:FullRows="1" ss:DefaultColumnWidth="66" ss:DefaultRowHeight="15.75">
-   <Column ss:Width="168.75"/>
-   <Column ss:Width="149.25"/>
-   <Column ss:Index="4" ss:Width="87"/>
-   <Column ss:Width="105.75"/>
+  <Table x:FullColumns="1" x:FullRows="1">
    <Row>
     <Cell><Data ss:Type="String">programName</Data></Cell>
     <Cell><Data ss:Type="String">Tamanu test suite program</Data></Cell>
@@ -63,16 +52,7 @@
   </Table>
  </Worksheet>
  <Worksheet ss:Name="Question Validation Succeed">
-  <Table x:FullColumns="1" x:FullRows="1" ss:DefaultColumnWidth="66" ss:DefaultRowHeight="15.75">
-   <Column ss:Width="147.75"/>
-   <Column ss:Width="102.75"/>
-   <Column ss:AutoFitWidth="0" ss:Width="212.25"/>
-   <Column ss:Index="8" ss:Width="69"/>
-   <Column ss:Width="68.25"/>
-   <Column ss:Width="83.25"/>
-   <Column ss:Width="432.75"/>
-   <Column ss:Index="13" ss:Width="75"/>
-   <Column ss:Index="16" ss:Width="506.25"/>
+  <Table x:FullColumns="1" x:FullRows="1">
    <Row>
     <Cell><Data ss:Type="String">code</Data></Cell>
     <Cell><Data ss:Type="String">type</Data></Cell>
@@ -153,15 +133,7 @@
   </Table>
  </Worksheet>
  <Worksheet ss:Name="Question Validation Fail">
-  <Table x:FullColumns="1" x:FullRows="1" ss:DefaultColumnWidth="66" ss:DefaultRowHeight="15.75">
-   <Column ss:Width="182.25"/>
-   <Column ss:Width="102.75"/>
-   <Column ss:AutoFitWidth="0" ss:Width="306"/>
-   <Column ss:Index="8" ss:AutoFitWidth="0" ss:Width="72.75"/>
-   <Column ss:Width="68.25"/>
-   <Column ss:Width="83.25"/>
-   <Column ss:Width="90.75"/>
-   <Column ss:Index="13" ss:Width="75"/>
+  <Table x:FullColumns="1" x:FullRows="1">
    <Row>
     <Cell><Data ss:Type="String">code</Data></Cell>
     <Cell><Data ss:Type="String">type</Data></Cell>

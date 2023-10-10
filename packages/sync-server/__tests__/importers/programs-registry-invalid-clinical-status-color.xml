@@ -5,19 +5,8 @@
  xmlns:x="urn:schemas-microsoft-com:office:excel"
  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
  xmlns:html="http://www.w3.org/TR/REC-html40">
- <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
-  <Author>Ethan McQuarrie</Author>
-  <LastAuthor>Alastair Locke</LastAuthor>
-  <Created>2023-01-16T22:34:35Z</Created>
-  <LastSaved>2023-08-22T04:12:10Z</LastSaved>
-  <Version>16.00</Version>
- </DocumentProperties>
  <Worksheet ss:Name="Metadata">
-  <Table x:FullColumns="1" x:FullRows="1" ss:DefaultColumnWidth="54" ss:DefaultRowHeight="15.75">
-   <Column ss:Width="168.75"/>
-   <Column ss:Width="149.25"/>
-   <Column ss:Index="4" ss:Width="87"/>
-   <Column ss:Width="105.75"/>
+  <Table x:FullColumns="1" x:FullRows="1">
    <Row>
     <Cell><Data ss:Type="String">programName</Data></Cell>
     <Cell><Data ss:Type="String">Tamanu test suite program</Data></Cell>
@@ -51,70 +40,27 @@
     <Cell><Data ss:Type="String">publish</Data></Cell>
     <Cell><Data ss:Type="Boolean">0</Data></Cell>
    </Row>
-   <Row>
-    <Cell/>
-    <Cell/>
-    <Cell/>
-    <Cell/>
-    <Cell/>
-    <Cell/>
-    <Cell/>
-   </Row>
   </Table>
-  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
-   <PageSetup>
-    <Header x:Margin="0.3"/>
-    <Footer x:Margin="0.3"/>
-    <PageMargins x:Bottom="0.75" x:Left="0.7" x:Right="0.7" x:Top="0.75"/>
-   </PageSetup>
-   <Print>
-    <ValidPrinterInfo/>
-    <PaperSizeIndex>9</PaperSizeIndex>
-    <VerticalResolution>0</VerticalResolution>
-   </Print>
-   <Panes>
-    <Pane>
-     <Number>3</Number>
-     <ActiveRow>6</ActiveRow>
-     <ActiveCol>1</ActiveCol>
-    </Pane>
-   </Panes>
-  </WorksheetOptions>
  </Worksheet>
  <Worksheet ss:Name="Registry">
-  <Table x:FullColumns="1" x:FullRows="1" ss:DefaultColumnWidth="54" ss:DefaultRowHeight="15.75">
-   <Column ss:AutoFitWidth="0" ss:Width="126.75"/>
-   <Column ss:AutoFitWidth="0" ss:Width="114.75"/>
+  <Table x:FullColumns="1" x:FullRows="1">
    <Row>
     <Cell><Data ss:Type="String">registryName</Data></Cell>
     <Cell><Data ss:Type="String">Valid Registry</Data></Cell>
-    <Cell/>
-    <Cell/>
    </Row>
    <Row>
     <Cell><Data ss:Type="String">registryCode</Data></Cell>
     <Cell><Data ss:Type="String">ValidRegistry</Data></Cell>
-    <Cell/>
-    <Cell/>
    </Row>
    <Row>
     <Cell><Data ss:Type="String">visibilityStatus</Data></Cell>
     <Cell><Data ss:Type="String">current</Data></Cell>
-    <Cell/>
-    <Cell/>
    </Row>
    <Row>
     <Cell><Data ss:Type="String">currentlyAtType</Data></Cell>
     <Cell><Data ss:Type="String">facility</Data></Cell>
-    <Cell/>
-    <Cell/>
    </Row>
-   <Row>
-    <Cell/>
-    <Cell/>
-    <Cell/>
-    <Cell/>
-   </Row>
+   <Row/>
    <Row>
     <Cell><Data ss:Type="String">code</Data></Cell>
     <Cell><Data ss:Type="String">name</Data></Cell>
@@ -142,17 +88,7 @@
   </Table>
  </Worksheet>
  <Worksheet ss:Name="Import Registry With Survey">
-  <Table x:FullColumns="1" x:FullRows="1" ss:DefaultColumnWidth="54" ss:DefaultRowHeight="15.75">
-
-   <Column ss:Width="147.75"/>
-   <Column ss:Width="102.75"/>
-   <Column ss:AutoFitWidth="0" ss:Width="212.25"/>
-   <Column ss:Index="8" ss:Width="69"/>
-   <Column ss:Width="68.25"/>
-   <Column ss:Width="83.25"/>
-   <Column ss:Width="432.75"/>
-   <Column ss:Index="13" ss:Width="75"/>
-   <Column ss:Index="16" ss:Width="506.25"/>
+  <Table x:FullColumns="1" x:FullRows="1">
    <Row>
     <Cell><Data ss:Type="String">code</Data></Cell>
     <Cell><Data ss:Type="String">type</Data></Cell>
@@ -181,7 +117,7 @@
   </Table>
  </Worksheet>
  <Worksheet ss:Name="Ignore">
-  <Table x:FullColumns="1" x:FullRows="1" ss:DefaultColumnWidth="54" ss:DefaultRowHeight="15.75">
+  <Table x:FullColumns="1" x:FullRows="1">
   </Table>
  </Worksheet>
 </Workbook>
