@@ -1,5 +1,5 @@
 import { fake } from 'shared/test-helpers/fake';
-import { REGISTRATION_STATUSES } from '@tamanu/constants';
+import { REGISTRATION_STATUSES, DELETION_STATUSES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
 jest.setTimeout(1000000);
@@ -187,7 +187,7 @@ describe('PatientProgramRegistration', () => {
         patientId: patient.id,
         programRegistryConditionId: programRegistryCondition.id,
         date: '2023-09-02 08:00:00',
-        deletionStatus: 
+        deletionStatus: DELETION_STATUSES.DELETED,
       });
     });
   });

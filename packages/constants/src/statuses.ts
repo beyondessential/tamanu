@@ -81,9 +81,7 @@ export const JOB_QUEUE_STATUSES = {
   ERRORED: 'Errored',
 };
 
-export const COMMUNICATION_STATUSES_VALUES = Object.values(
-  COMMUNICATION_STATUSES,
-);
+export const COMMUNICATION_STATUSES_VALUES = Object.values(COMMUNICATION_STATUSES);
 
 export const PATIENT_MERGE_DELETION_ACTIONS = {
   RENAME: 'RENAME',
@@ -92,7 +90,7 @@ export const PATIENT_MERGE_DELETION_ACTIONS = {
 };
 
 // TODO: This will be merged with the statuses created as part of
-//  
+// https://linear.app/bes/issue/EPI-565/data-deletion-tasks-clinical-features
 export const DELETION_STATUSES = {
   DELETED: 'deleted',
 };
