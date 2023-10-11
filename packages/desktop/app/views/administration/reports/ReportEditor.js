@@ -71,6 +71,10 @@ const schema = yup.object().shape({
     .string()
     .oneOf(DATE_RANGE_OPTIONS.map(o => o.value))
     .required('Default date range is a required field'),
+  dbSchema: yup
+    .string()
+    .oneOf(DB_SCHEMA_OPTIONS.map(o => o.value))
+    .required('DB Schema is a required field'),
   parameters: yup.array().of(
     yup.object().shape({
       name: yup.string().required('Parameter name is a required field'),
