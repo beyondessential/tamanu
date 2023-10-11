@@ -7,7 +7,7 @@ export class ReformatMultiSelectSurveyResponses extends CursorDataMigration {
 
   lastMaxId = '00000000-0000-0000-0000-000000000000';
 
-  async getQuery() { // TODO: THIS NEEDS TO SKIP ROWS ALREADY IN ARRAY FORM
+  async getQuery() {
     return `
       WITH updated AS (
         UPDATE survey_response_answers as sra
@@ -18,6 +18,7 @@ export class ReformatMultiSelectSurveyResponses extends CursorDataMigration {
             JOIN program_data_elements ON survey_response_answers.data_element_id = program_data_elements.id
             WHERE program_data_elements.type = 'MultiSelect'
             AND survey_response_answers.id > $fromId
+            AND NOT LIKE (sra.body, '["%"]')
             ORDER BY survey_response_answers.id
             LIMIT $limit
         )
