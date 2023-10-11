@@ -7,18 +7,13 @@ import {
   mapOptionsToValues,
 } from '../../utils';
 import { Field } from '../Field';
+import { useEncounter } from '../../contexts/Encounter';
 
 const Text = styled.div`
   margin-bottom: 10px;
 `;
 
-export const SurveyQuestion = ({
-  component,
-  patient,
-  inputRef,
-  disabled,
-  valuesToCheckMandatory,
-}) => {
+export const SurveyQuestion = ({ component, patient, inputRef, disabled }) => {
   const {
     dataElement,
     detail,
@@ -27,6 +22,7 @@ export const SurveyQuestion = ({
     text: componentText,
     validationCriteria,
   } = component;
+  const { encounter } = useEncounter();
   const { defaultText, type, defaultOptions, id } = dataElement;
   const configObject = getConfigObject(id, componentConfig);
   const text = componentText || defaultText;
@@ -34,7 +30,9 @@ export const SurveyQuestion = ({
   const FieldComponent = getComponentForQuestionType(type, configObject);
 
   const validationCriteriaObject = getConfigObject(id, validationCriteria);
-  const required = checkMandatory(validationCriteriaObject?.mandatory, valuesToCheckMandatory);
+  const required = checkMandatory(validationCriteriaObject?.mandatory, {
+    encounterType: encounter.encounterType,
+  });
 
   if (component.dataElement.type === 'Result') return <Text>{`${text} ${component.detail}`}</Text>;
   if (!FieldComponent) return <Text>{text}</Text>;
