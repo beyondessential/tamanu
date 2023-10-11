@@ -179,7 +179,11 @@ reportsRouter.post(
           isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
         },
         async () => {
-          // TODO: Stop this from trying to create a new definition if dbSchema changes. Should validate properly
+          const existingDefinition = await ReportDefinition.findOne({ where: { name } });
+          if (existingDefinition && existingDefinition.dbSchema !== versionData.dbSchema) {
+            throw new InvalidOperationError('Cannot change a reporting schema for existing report');
+          }
+
           const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
             where: {
               name,
