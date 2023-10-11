@@ -20,7 +20,6 @@ import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { theme } from '~/ui/styled/theme';
 import { Button } from '~/ui/components/Button';
 import { useCurrentScreen } from '~/ui/hooks/useCurrentScreen';
-import { VisibilityStatus } from '~/visibilityStatuses';
 
 const buttonSharedStyles = {
   width: screenPercentageToDP('25', Orientation.Width),

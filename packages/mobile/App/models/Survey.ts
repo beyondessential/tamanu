@@ -52,7 +52,6 @@ export class Survey extends BaseModel implements ISurvey {
     if (includeAllVitals) {
       where.visibilityStatus = In([VisibilityStatus.Current, VisibilityStatus.Historical]);
     }
-    console.log(where);
     const repo = Database.models.SurveyScreenComponent.getRepository();
     return repo.find({
       where,
