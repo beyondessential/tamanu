@@ -164,6 +164,11 @@ reportsRouter.post(
     if (versionData.versionNumber)
       throw new InvalidOperationError('Cannot import a report with a version number');
 
+    const existingDefinition = await ReportDefinition.findOne({ where: { name } });
+    if (existingDefinition && existingDefinition.dbSchema !== versionData.dbSchema) {
+      throw new InvalidOperationError('Cannot change a reporting schema for existing report');
+    }
+
     await verifyQuery(
       versionData.query,
       versionData.queryOptions,
@@ -179,11 +184,6 @@ reportsRouter.post(
           isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
         },
         async () => {
-          const existingDefinition = await ReportDefinition.findOne({ where: { name } });
-          if (existingDefinition && existingDefinition.dbSchema !== versionData.dbSchema) {
-            throw new InvalidOperationError('Cannot change a reporting schema for existing report');
-          }
-
           const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
             where: {
               name,
