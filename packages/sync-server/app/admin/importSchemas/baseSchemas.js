@@ -179,6 +179,7 @@ export const SurveyScreenComponent = Base.shape({
   surveyId: yup.string().required(),
   detail: yup.string().max(255),
   dataElementId: yup.string().required(),
+  visibilityStatus,
 });
 
 export const ScheduledVaccine = Base.shape({

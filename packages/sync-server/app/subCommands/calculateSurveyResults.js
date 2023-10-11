@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { inRange } from 'lodash';
+import { inRange, isNil } from 'lodash';
 
 import { log } from 'shared/services/logging';
 
@@ -42,7 +42,7 @@ const checkVisibilityCriteria = (component, allComponents, answerByCode) => {
         : answerByCode[questionCode];
 
       if (answersEnablingFollowUp.type === 'range') {
-        if (!value) return false;
+        if (isNil(value)) return false;
         const { start, end } = answersEnablingFollowUp;
 
         if (!start) return value < end;

@@ -1,4 +1,4 @@
-import { inRange } from 'lodash';
+import { inRange, isNil } from 'lodash';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { log } from '../services/logging';
 
@@ -73,7 +73,7 @@ function checkVisibilityCriteria(component, allComponents, values) {
         matchingComponent?.dataElement?.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
       const value = isMultiSelect ? JSON.parse(values[questionCode]) : values[questionCode];
       if (answersEnablingFollowUp.type === 'range') {
-        if (!value) return false;
+        if (isNil(value)) return false;
         const { start, end } = answersEnablingFollowUp;
 
         if (!start) return value < end;
@@ -81,6 +81,7 @@ function checkVisibilityCriteria(component, allComponents, values) {
         if (inRange(value, parseFloat(start), parseFloat(end))) {
           return true;
         }
+        return false;
       }
 
       const matchingComponent = allComponents.find(x => x.dataElement?.code === questionCode);
