@@ -5,7 +5,7 @@ import http from 'http';
 import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers';
 import { createApp } from 'sync-server/app/createApp';
-import { initDatabase, closeDatabase } from 'sync-server/app/database';
+import { initDatabase, closeDatabase, initReporting } from 'sync-server/app/database';
 import { getToken } from 'sync-server/app/auth/utils';
 import { DEFAULT_JWT_SECRET } from 'sync-server/app/auth';
 import { initIntegrations } from 'sync-server/app/integrations';
@@ -15,6 +15,9 @@ class MockApplicationContext {
 
   async init() {
     this.store = await initDatabase({ testMode: true });
+    if (config.db.reports?.enabled) {
+      this.reports = await initReporting();
+    }
     this.emailService = {
       sendEmail: jest.fn().mockImplementation(() =>
         Promise.resolve({

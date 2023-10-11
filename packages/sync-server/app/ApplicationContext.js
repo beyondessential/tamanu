@@ -1,3 +1,4 @@
+import config from 'config';
 import { EmailService } from './services/EmailService';
 import { closeDatabase, initDatabase, initReporting } from './database';
 import { initIntegrations } from './integrations';
@@ -16,7 +17,9 @@ export class ApplicationContext {
   async init({ testMode } = {}) {
     this.emailService = new EmailService();
     this.store = await initDatabase({ testMode });
-    this.reports = await initReporting();
+    if (config.db.reports?.enabled) {
+      this.reports = await initReporting();
+    }
     this.closePromise = new Promise(resolve => {
       this.onClose(resolve);
     });

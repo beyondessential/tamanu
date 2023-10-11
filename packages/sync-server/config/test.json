@@ -1,7 +1,20 @@
 // For running unit tests, defined values in 'local.json' have priority and will overwrite config here.
 {
   "db": {
-    "name": "tamanu-sync-test"
+    "name": "tamanu-sync-test",
+    "reports": {
+      "enabled": true,
+      "credentials": {
+        "reporting": {
+          "username": "tamanu_reporting",
+          "password": "test"
+        },
+        "raw": {
+          "username": "tamanu_raw",
+          "password": "test"
+        }
+      }
+    }
   },
   "auth": {
     "secret": "secret",
