@@ -8,6 +8,8 @@ import { checkVisibilityCriteria } from '/helpers/fields';
 import { runCalculations } from '~/ui/helpers/calculations';
 import { authUserSelector } from '/helpers/selectors';
 import { useBackendEffect } from '~/ui/hooks';
+import { ErrorScreen } from '../../ErrorScreen';
+import { LoadingScreen } from '../../LoadingScreen';
 
 export type SurveyFormProps = {
   onSubmit: (values: any) => Promise<void>;
@@ -40,7 +42,7 @@ export const SurveyForm = ({
     () => getFormInitialValues(components, currentUser, patient, patientAdditionalData),
     [components, currentUser, patient, patientAdditionalData],
   );
-  const [result] = useBackendEffect(
+  const [encounterResult, encounterError, isEncounterLoading] = useBackendEffect(
     async ({ models }) => {
       const encounter = await models.Encounter.getCurrentEncounterForPatient(patient.id);
       return {
@@ -50,7 +52,7 @@ export const SurveyForm = ({
     [patient.id],
   );
 
-  const { encounter } = result || {};
+  const { encounter } = encounterResult || {};
   const [formValues, setFormValues] = useState(initialValues);
   const formValidationSchema = useMemo(
     () =>
@@ -80,6 +82,14 @@ export const SurveyForm = ({
     },
     [components, onSubmit],
   );
+
+  if (encounterError) {
+    return <ErrorScreen error={encounterError} />;
+  }
+
+  if (!encounter || isEncounterLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <Form

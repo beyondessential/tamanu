@@ -23,6 +23,8 @@ import { FORM_STATUSES } from '/helpers/constants';
 import { GenericFormValues } from '~/models/Forms';
 import { BackHandler } from 'react-native';
 import { useBackendEffect } from '~/ui/hooks';
+import { LoadingScreen } from '../../LoadingScreen';
+import { ErrorScreen } from '../../ErrorScreen';
 
 interface UseScrollToFirstError {
   setQuestionPosition: (yPosition: string) => void;
@@ -84,7 +86,7 @@ export const FormFields = ({
     GenericFormValues
   >();
   const { setQuestionPosition, scrollToQuestion } = useScrollToFirstError();
-  const [result] = useBackendEffect(
+  const [encounterResult, encounterError, isEncounterLoading] = useBackendEffect(
     async ({ models }) => {
       const encounter = await models.Encounter.getCurrentEncounterForPatient(patient.id);
       return {
@@ -94,7 +96,7 @@ export const FormFields = ({
     [patient.id],
   );
 
-  const { encounter } = result || {};
+  const { encounter } = encounterResult || {};
   const maxIndex = components
     .map(x => x.screenIndex)
     .reduce((max, current) => Math.max(max, current), 0);
@@ -158,6 +160,14 @@ export const FormFields = ({
 
     return () => backHandler.remove();
   }, [currentScreenIndex]); // Re-subscribe if screen index changes, otherwise onGoBack() won't work.
+
+  if (encounterError) {
+    return <ErrorScreen error={encounterError} />;
+  }
+
+  if (!encounter || isEncounterLoading) {
+    return <LoadingScreen />;
+  }
 
   // Note: we set the key on FullView so that React registers it as a whole
   // new component, rather than a component whose contents happen to have
