@@ -4,6 +4,7 @@ import path from 'path';
 import { log } from 'shared/services/logging';
 import { REPORT_DEFINITIONS } from 'shared/reports';
 import { REPORT_EXPORT_FORMATS } from '@tamanu/constants';
+import config from 'config';
 import { EmailService } from '../services/EmailService';
 import { ReportRunner } from '../report/ReportRunner';
 import { initDatabase, initReporting } from '../database';
@@ -40,7 +41,7 @@ async function report(options) {
   }
 
   const store = await initDatabase({ testMode: false });
-  const reports = await initReporting();
+  const reports = config.db.reports?.enabled ? await initReporting() : null;
   setupEnv();
   try {
     const { reportId, parameters, recipients, userId, format } = options;

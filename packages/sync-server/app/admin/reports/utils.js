@@ -31,7 +31,7 @@ export const readJSON = async path => {
 export async function verifyQuery(query, { parameters = [] }, { store, reports }, dbSchema) {
   try {
     const replacements = await getReportQueryReplacements(store, parameters);
-    const instance = reports ? reports[dbSchema]?.sequelize : store.sequelize;
+    const instance = reports?.[dbSchema] ? reports[dbSchema]?.sequelize : store.sequelize;
     // use EXPLAIN instead of PREPARE because we don't want to stuff around deallocating the statement
     await instance.query(`EXPLAIN ${query}`, {
       type: QueryTypes.SELECT,

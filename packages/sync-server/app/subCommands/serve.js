@@ -27,7 +27,7 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
   const { store } = context;
 
   await store.sequelize.assertUpToDate({ skipMigrationCheck });
-  if (config.db.reports.enabled) {
+  if (config.db.reports?.enabled) {
     context.reports = await initReporting();
   }
 
