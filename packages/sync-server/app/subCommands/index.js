@@ -22,3 +22,4 @@ export * from './generateInitialVitalLogs';
 export * from './migrateChangelogNotesToEncounterHistory';
 export * from './removeDuplicatedDischarges';
 export * from './migrateNotePagesToNotes';
+export * from './migrateDeletedRecords';
