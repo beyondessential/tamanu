@@ -6,8 +6,4 @@ export const ProgramRegistryContext = createContext({
 
 export const useProgramRegistry = () => useContext(ProgramRegistryContext);
 
-export const ProgramRegistryProvider = ({ value, children }) => {
-  return (
-    <ProgramRegistryContext.Provider value={value}>{children}</ProgramRegistryContext.Provider>
-  );
-};
+export const ProgramRegistryProvider = ProgramRegistryContext.Provider;

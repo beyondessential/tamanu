@@ -229,17 +229,17 @@ function transformPatientData(patient, additionalData, config) {
   }
 }
 function transformPatientProgramRegistrationData(patientProgramRegistration, config) {
-  const { column = 'fullName', writeToPatient = {} } = config;
-  const { isProgramRegistration = false } = writeToPatient;
+  const { writeToPatient = {}, column } = config;
+  const { isProgramRegistrationField = false } = writeToPatient;
   const {
     clinicalStatus,
     registrationStatus,
     clinician,
     registeringFacility,
     village,
-    facitlity,
+    facility,
   } = patientProgramRegistration;
-  if (isProgramRegistration)
+  if (isProgramRegistrationField)
     switch (column) {
       case 'registrationClinicalStatus':
         return clinicalStatus.id;
@@ -252,7 +252,7 @@ function transformPatientProgramRegistrationData(patientProgramRegistration, con
       case 'registrationCurrentlyAtVillage':
         return village?.id;
       case 'registrationCurrentlyAtFacility':
-        return facitlity?.id;
+        return facility?.id;
       default:
         return undefined;
     }

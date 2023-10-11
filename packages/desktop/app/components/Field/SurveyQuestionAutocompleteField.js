@@ -24,7 +24,7 @@ const getSuggesterEndpointForConfig = config => {
 
 export const SurveyQuestionAutocompleteField = ({ config, ...props }) => {
   const endpoint = getSuggesterEndpointForConfig(config);
-  const { programRegistryId } = useProgramRegistry();
+  const { programRegistryId } = useProgramRegistry(); // this will be null for normal surveys
   const suggester = useSuggester(
     endpoint,
     programRegistryId ? { baseQueryParameters: { programRegistryId } } : {},
