@@ -93,14 +93,9 @@ export const ResetPasswordForm = React.memo(
             <strong>{resetPasswordEmail}</strong>
             . If you do not receive this email within a few minutes please try again.
           </SuccessMessage>
-          <StyledPrimarySubmitButton
-            fullWidth
-            variant="contained"
-            color="primary"
-            onClick={onNavToChangePassword}
-          >
+          <Button fullWidth variant="contained" color="primary" onClick={onNavToChangePassword}>
             Continue
-          </StyledPrimarySubmitButton>
+          </Button>
           <Button onClick={onRestartFlow}>Resend password reset email</Button>
           <Button onClick={onNavToLogin}>Back</Button>
         </FormGrid>

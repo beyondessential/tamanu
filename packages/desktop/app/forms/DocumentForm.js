@@ -15,7 +15,6 @@ import { Form, Field, TextField, AutocompleteField } from '../components/Field';
 import { FileChooserField } from '../components/Field/FileChooserField';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow, FormSubmitCancelRow } from '../components/ButtonRow';
-import { ModalLoader } from '../components/BaseModal';
 
 const MessageContainer = styled.div`
   margin: 0 auto;
@@ -135,10 +134,7 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
     [api, endpoint, getFileStatus, setError, onStart, onError, onSubmit],
   );
 
-  const renderForm = ({ submitForm, isSubmitting }) => {
-    if (isSubmitting) {
-      return <ModalLoader loadingText="Please wait while we upload your document" />;
-    }
+  const renderForm = ({ submitForm }) => {
     if (error) return <ErrorMessageContents error={error} onCancel={onCancel} />;
     return (
       <DocumentFormContents

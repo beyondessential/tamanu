@@ -85,14 +85,9 @@ export const ChangePasswordForm = React.memo(
         <FormGrid columns={1}>
           <h3>Reset Password</h3>
           <SuccessMessage>Your password has been updated</SuccessMessage>
-          <StyledPrimarySubmitButton
-            fullWidth
-            variant="contained"
-            color="primary"
-            onClick={onNavToLogin}
-          >
+          <Button fullWidth variant="contained" color="primary" onClick={onNavToLogin}>
             Login
-          </StyledPrimarySubmitButton>
+          </Button>
         </FormGrid>
       );
     }
