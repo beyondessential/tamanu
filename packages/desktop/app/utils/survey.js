@@ -249,7 +249,7 @@ export const getActionsFromData = (data, survey) =>
     return acc;
   }, {});
 
-export const getValidationSchema = (surveyData, valuesToCheckMandatory) => {
+export const getValidationSchema = (surveyData, valuesToCheckMandatory = {}) => {
   if (!surveyData) return {};
   const { components } = surveyData;
   const schema = components.reduce(
