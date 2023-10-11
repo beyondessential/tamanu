@@ -24,6 +24,7 @@ export const CreateReportView = () => {
 
   const onSubmit = async ({ name, query, status, dbSchema, options, ...queryOptions }) => {
     const { dataSources } = queryOptions;
+    const isRawReport = dbSchema === REPORT_DB_SCHEMAS.RAW;
     try {
       const { reportDefinitionId, id } = await api.post('admin/reports', {
         name,
@@ -32,7 +33,7 @@ export const CreateReportView = () => {
         dbSchema,
         queryOptions: {
           ...queryOptions,
-          dataSources: dataSources.split(', '),
+          dataSources: isRawReport ? dataSources.split(', ') : [REPORT_DATA_SOURCES.ALL_FACILITIES],
         },
       });
       queryClient.invalidateQueries(['reportList']);
