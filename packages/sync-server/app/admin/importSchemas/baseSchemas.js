@@ -163,11 +163,9 @@ export const baseValidationShape = yup
     mandatory: yup.lazy(value => {
       return typeof value === 'boolean'
         ? yup.boolean()
-        : configString(
-            yup.object().shape({
-              encounterType: baseConfigShape,
-            }),
-          );
+        : yup.object().shape({
+            encounterType: yup.mixed(),
+          });
     }),
   })
   .noUnknown();
