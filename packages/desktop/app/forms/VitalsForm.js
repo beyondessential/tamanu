@@ -22,8 +22,8 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
   } = combineQueries([useVitalsSurveyQuery(), usePatientAdditionalDataQuery()]);
   const { encounter } = useEncounter();
   const validationSchema = useMemo(
-    () => getValidationSchema(vitalsSurvey, { encounterType: encounter.type }),
-    [vitalsSurvey, encounter?.type],
+    () => getValidationSchema(vitalsSurvey, { encounterType: encounter.encounterType }),
+    [vitalsSurvey, encounter?.encounterType],
   );
   const { ability } = useAuth();
   const canCreateVitals = ability.can('create', 'Vitals');

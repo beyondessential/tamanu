@@ -211,7 +211,7 @@ export class SurveyResponse extends Model {
       ...responseData,
     });
     const { result, resultText } = getResultValue(questions, answers, {
-      encounterType: encounter.type,
+      encounterType: encounter.encounterType,
     });
     const record = await SurveyResponse.create({
       patientId,
