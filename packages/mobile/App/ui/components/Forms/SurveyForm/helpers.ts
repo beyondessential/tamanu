@@ -120,7 +120,7 @@ function getFieldValidator(
 
 export function getFormSchema(
   components: ISurveyScreenComponent[],
-  valuesToCheckMandatory: { [key: string]: any },
+  valuesToCheckMandatory: { [key: string]: any } = {},
 ): Yup.ObjectSchema {
   const objectShapeSchema = components.reduce<{ [key: string]: any }>((acc, component) => {
     const { dataElement } = component;

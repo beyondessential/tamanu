@@ -165,7 +165,7 @@ export const FormFields = ({
     return <ErrorScreen error={encounterError} />;
   }
 
-  if (!encounter || isEncounterLoading) {
+  if (isEncounterLoading) {
     return <LoadingScreen />;
   }
 

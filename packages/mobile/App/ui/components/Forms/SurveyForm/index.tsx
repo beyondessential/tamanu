@@ -87,7 +87,7 @@ export const SurveyForm = ({
     return <ErrorScreen error={encounterError} />;
   }
 
-  if (!encounter || isEncounterLoading) {
+  if (isEncounterLoading) {
     return <LoadingScreen />;
   }
 
