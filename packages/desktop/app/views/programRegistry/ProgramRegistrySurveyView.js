@@ -3,14 +3,14 @@ import { SurveyView } from 'desktop/app/views/programs/SurveyView';
 import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { usePatientProgramRegistrySurveys } from '../../api/queries/usePatientProgramRegistrySurveys';
-import { useUrlQueryParams } from '../../hooks';
 import { useAuth } from '../../contexts/Auth';
 import { usePatientAdditionalDataQuery, usePatientProgramRegistration } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ProgramRegistryProvider } from '../../contexts/ProgramRegistry';
+import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 
 export const ProgramRegistrySurveyView = () => {
-  const queryParams = useUrlQueryParams();
+  const queryParams = useUrlSearchParams();
   const title = queryParams.get('title');
   const { currentUser } = useAuth();
   const { patientId, programRegistryId, surveyId } = useParams();
