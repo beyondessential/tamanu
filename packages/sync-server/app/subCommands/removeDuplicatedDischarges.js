@@ -12,7 +12,9 @@ export async function removeDuplicatedDischarges({
 }
 
 export const removeDuplicatedDischargesCommand = new Command('removeDuplicatedDischarges')
-  .description('Remove duplicated discharges')
+  .description(
+    "[Deprecated] Remove duplicated discharges (use migrateDataInBatches instead, it's identical but has standardised options)",
+  )
   .option('-b, --batchSize <number>', 'Batching size for number of encounters')
   .option(
     '-s, --sleepAsyncDuration <number>',
