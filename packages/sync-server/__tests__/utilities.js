@@ -1,13 +1,14 @@
 import config from 'config';
-import supertest from 'supertest';
 import http from 'http';
+import supertest from 'supertest';
 
 import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers';
-import { createApp } from 'sync-server/app/createApp';
-import { initDatabase, closeDatabase, initReporting } from 'sync-server/app/database';
-import { getToken } from 'sync-server/app/auth/utils';
+import { createMockReportingSchemaAndRoles } from 'shared/demoData';
 import { DEFAULT_JWT_SECRET } from 'sync-server/app/auth';
+import { getToken } from 'sync-server/app/auth/utils';
+import { createApp } from 'sync-server/app/createApp';
+import { closeDatabase, initDatabase, initReporting } from 'sync-server/app/database';
 import { initIntegrations } from 'sync-server/app/integrations';
 
 class MockApplicationContext {
@@ -16,6 +17,7 @@ class MockApplicationContext {
   async init() {
     this.store = await initDatabase({ testMode: true });
     if (config.db.reports?.enabled) {
+      await createMockReportingSchemaAndRoles({ sequelize: this.store.sequelize });
       this.reports = await initReporting();
     }
     this.emailService = {
