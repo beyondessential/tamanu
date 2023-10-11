@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { checkJSONCriteria } from '@tamanu/shared/utils';
+import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
 
 import { log } from 'shared/services/logging';
 

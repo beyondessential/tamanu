@@ -91,7 +91,9 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
   const showDeleteEntryButton = ['', undefined].includes(initialValue) === false;
   const valueName = dataPoint.component.dataElement.id;
   const editVitalData = getEditVitalData(dataPoint.component, mandatoryVitalEditReason);
-  const validationSchema = getValidationSchema(editVitalData);
+  const validationSchema = getValidationSchema(editVitalData, {
+    encounterType: encounter.encounterType,
+  });
   const handleDeleteEntry = useCallback(
     setFieldValue => {
       setFieldValue(valueName, '');
@@ -139,7 +141,11 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
       validate={validateFn}
       render={({ setFieldValue, submitForm }) => (
         <FormGrid columns={4}>
-          <SurveyQuestion component={dataPoint.component} disabled={isDeleted} />
+          <SurveyQuestion
+            component={dataPoint.component}
+            disabled={isDeleted}
+            valuesToCheckMandatory={{ encounterType: encounter.encounterType }}
+          />
           {showDeleteEntryButton && (
             <DeleteEntryButton
               disabled={isDeleted}

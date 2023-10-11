@@ -65,21 +65,6 @@ function checkVisibilityCriteria(component, allComponents, values) {
   }
 }
 
-export function checkValidationCriteria(validationCriteria, allComponents, values) {
-  if (!validationCriteria) {
-    return false;
-  }
-  if (typeof validationCriteria === 'boolean') {
-    return validationCriteria;
-  }
-
-  try {
-    return checkJSONCriteria(validationCriteria, allComponents, values);
-  } catch (error) {
-    return false;
-  }
-}
-
 /**
  * Meditrak uses JSON for these fields now, whereas we have been using colon separated values.
  * Our goal is to have the same syntax as Meditrak for surveys, but since we already have some
@@ -127,11 +112,11 @@ function getValuesByCode(components, valuesById) {
   return valuesByCode;
 }
 
-export function getResultValue(components, originalValues) {
+export function getResultValue(components, originalValues, specialValues) {
   const values = getValuesByCode(components, originalValues);
   const resultComponents = components
     .filter(c => c.dataElement.type === 'Result')
-    .filter(c => checkVisibilityCriteria(c, components, values));
+    .filter(c => checkVisibilityCriteria(c, components, { ...values, ...specialValues }));
 
   const component = resultComponents.pop();
 

@@ -165,8 +165,8 @@ describe('Programs import', () => {
     expect(stats).toMatchObject({
       Program: { created: 1, updated: 0, errored: 0 },
       Survey: { created: 2, updated: 0, errored: 0 },
-      ProgramDataElement: { created: 40, updated: 0, errored: 0 },
-      SurveyScreenComponent: { created: 9, updated: 0, errored: 31 }, // 31 fields in failure test, 9 in success test
+      ProgramDataElement: { created: 42, updated: 0, errored: 0 },
+      SurveyScreenComponent: { created: 11, updated: 0, errored: 31 }, // 31 fields in failure test, 11 in success test
     });
   });
 
