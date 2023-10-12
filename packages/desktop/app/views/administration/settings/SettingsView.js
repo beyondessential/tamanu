@@ -81,19 +81,18 @@ export const SettingsView = React.memo(() => {
       return;
     }
     const settingsObject = JSON.parse(settingsEditString);
-    const response = await api.put('admin/settings', {
-      settings: settingsObject,
-      facilityId,
-      scope,
-    });
 
-    await refetchSettings();
-    turnOffEditMode();
-
-    if (response.code === 200) {
+    try {
+      await api.put('admin/settings', {
+        settings: settingsObject,
+        facilityId,
+        scope,
+      });
       notifySuccess('Settings saved');
-    } else {
-      notifyError(`Error while saving settings: ${response.message}`);
+      await refetchSettings();
+      turnOffEditMode();
+    } catch (error) {
+      notifyError(`Error while saving settings: ${error.message}`);
     }
   };
 
