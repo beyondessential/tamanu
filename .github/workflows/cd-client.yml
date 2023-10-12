@@ -115,7 +115,7 @@ jobs:
             docker run -dit --rm --name working \
               -v $PWD/release:/app/packages/desktop/release \
               working
-            sleep 2
+            sleep 10
             docker exec working echo "Container started"
           }
 
