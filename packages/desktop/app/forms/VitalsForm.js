@@ -86,6 +86,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
           submitButton={
             <ConfirmCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onClose} />
           }
+          encounterType={encounterType}
         />
       )}
     />
