@@ -8,8 +8,16 @@ const DebugHighlighed = styled.span`
   color: white;
 `;
 
+const safeGetIsDebugMode = () => {
+  try {
+    return JSON.parse(localStorage.getItem('debugTranslation'));
+  } catch (e) {
+    return false;
+  }
+};
+
 ipcRenderer.on('toggleTranslationDebug', () => {
-  localStorage.setItem('debugTranslation', !JSON.parse(localStorage.getItem('debugTranslation')));
+  localStorage.setItem('debugTranslation', !safeGetIsDebugMode());
   window.dispatchEvent(new Event('debugTranslation'));
 });
 
