@@ -12,8 +12,6 @@ import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { useApi } from '../../../api';
 import { ReportEditor } from './ReportEditor';
-import { useAuth } from '../../../contexts/Auth';
-import { useLocalisation } from '../../../contexts/Localisation';
 
 const Container = styled.div`
   padding: 20px;
@@ -23,25 +21,16 @@ export const CreateReportView = () => {
   const api = useApi();
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
-  const { ability } = useAuth();
-  const { getLocalisation } = useLocalisation();
-  
-  const isReportingSchemaEnabled = getLocalisation('features.enableReportingSchema');
-  const canWriteDbSchema = Boolean(ability?.can('write', 'ReportDbSchema'));
-  const defaultSchema = isReportingSchemaEnabled
-    ? REPORT_DB_SCHEMAS.REPORTING
-    : REPORT_DB_SCHEMAS.RAW;
 
   const onSubmit = async ({ name, query, status, dbSchema, options, ...queryOptions }) => {
     const { dataSources } = queryOptions;
     const isRawReport = dbSchema === REPORT_DB_SCHEMAS.RAW;
-
     try {
       const { reportDefinitionId, id } = await api.post('admin/reports', {
         name,
         query,
         status,
-        dbSchema: canWriteDbSchema && isReportingSchemaEnabled ? dbSchema : defaultSchema,
+        dbSchema,
         queryOptions: {
           ...queryOptions,
           dataSources: isRawReport ? dataSources.split(', ') : [REPORT_DATA_SOURCES.ALL_FACILITIES],

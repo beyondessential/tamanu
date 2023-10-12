@@ -663,8 +663,7 @@
           "interval": 300
         },
         "mandatoryVitalEditReason": false,
-        "enableVitalEdit": false,
-        "enableReportingSchema": false
+        "enableVitalEdit": false
       },
       "templates": {
         "letterhead": {
