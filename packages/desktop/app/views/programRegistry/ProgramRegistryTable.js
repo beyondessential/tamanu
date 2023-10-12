@@ -31,12 +31,6 @@ const StatusBadge = styled.div`
   background-color: ${props => props.backgroundColor};
 `;
 
-const Text = styled.div`
-  color: ${props => {
-    return props.isDeceased ? '#ff0000' : 'inherit';
-  }};
-`;
-
 export const ProgramRegistryTable = ({ searchParameters }) => {
   const params = useParams();
   const [openModal, setOpenModal] = useState();
@@ -44,63 +38,47 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
     return [
       {
         key: 'displayId',
-        accessor: ({ patientDisplayId, isDeceased }) => {
-          return <Text isDeceased={isDeceased}>{patientDisplayId || 'Unknown'}</Text>;
-        },
+        accessor: ({ patientDisplayId }) => patientDisplayId || 'Unknown',
       },
       {
         key: 'firstName',
         title: 'First name',
-        accessor: ({ patient, isDeceased }) => (
-          <Text isDeceased={isDeceased}>{patient.firstName} </Text>
-        ),
+        accessor: ({ patient }) => patient.firstName,
         maxWidth: 200,
       },
       {
         key: 'lastName',
         title: 'Last name',
-        accessor: ({ patient, isDeceased }) => (
-          <Text isDeceased={isDeceased}>{patient.lastName} </Text>
-        ),
+        accessor: ({ patient }) => patient.lastName,
         maxWidth: 200,
       },
       {
         key: 'dateOfBirth',
         title: 'DOB',
-        accessor: ({ isDeceased, patient }) => (
-          <Text isDeceased={isDeceased}>
-            <DateDisplay date={patient.dateOfBirth} />
-          </Text>
-        ),
+        accessor: ({ isDeceased, patient }) => <DateDisplay date={patient.dateOfBirth} />,
       },
       {
         key: 'sex',
         title: 'Sex',
-        accessor: ({ patient, isDeceased }) => <Text isDeceased={isDeceased}>{patient.sex}</Text>,
+        accessor: ({ patient }) => patient.sex,
         sortable: false,
       },
       {
         key: 'homeVillage',
         title: 'Home village',
-        accessor: ({ patient, isDeceased }) => (
-          <Text isDeceased={isDeceased}>{patient.village}</Text>
-        ),
+        accessor: ({ patient }) => patient.village,
       },
       {
         key: 'registeringFacility',
         title: 'Registering facility',
-        accessor: ({ registeringFacility, isDeceased }) => (
-          <Text isDeceased={isDeceased}>{registeringFacility.name}</Text>
-        ),
+        accessor: ({ registeringFacility }) => registeringFacility.name,
       },
       {
         key: 'currentlyIn',
         title: 'Currently in',
         accessor: row => {
-          if (row.programRegistry.currentlyAt === 'village')
-            return <Text isDeceased={row.isDeceased}>{row.village.name}</Text>;
-          if (row.programRegistry.currentlyAt === 'facility')
-            return <Text isDeceased={row.isDeceased}>{row.facility.name}</Text>;
+          if (row.programRegistry.currentlyAt === 'village') return row.village.name;
+          if (row.programRegistry.currentlyAt === 'facility') return row.facility.name;
           return '';
         },
       },
@@ -110,11 +88,9 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         accessor: row => {
           const conditions = row.conditions.map(x => ` ${x.name}`).toString();
           return (
-            <Text isDeceased={row.isDeceased}>
-              <ConditionalTooltip title={conditions} visible={conditions.length > 30}>
-                <ClippedConditionName>{conditions}</ClippedConditionName>
-              </ConditionalTooltip>
-            </Text>
+            <ConditionalTooltip title={conditions} visible={conditions.length > 30}>
+              <ClippedConditionName>{conditions}</ClippedConditionName>
+            </ConditionalTooltip>
           );
         },
         maxWidth: 200,
@@ -169,6 +145,9 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         noDataMessage="No Program registry found"
         onRowClick={selectLab}
         fetchOptions={searchParameters}
+        rowStyle={({ isDeceased }) => {
+          return isDeceased ? '& > td { color: #ed333a; }' : '';
+        }}
         initialSort={{
           order: 'desc',
           orderBy: 'patientDisplayId',
