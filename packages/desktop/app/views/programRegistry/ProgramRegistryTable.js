@@ -49,19 +49,35 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         },
       },
       {
-        key: 'patientName',
-        title: 'Patient name',
-        accessor: row => <Text isDeceased={row.isDeceased}>{PatientNameDisplay(row)} </Text>,
+        key: 'firstName',
+        title: 'First name',
+        accessor: ({ patient, isDeceased }) => (
+          <Text isDeceased={isDeceased}>{patient.firstName} </Text>
+        ),
+        maxWidth: 200,
+      },
+      {
+        key: 'lastName',
+        title: 'Last name',
+        accessor: ({ patient, isDeceased }) => (
+          <Text isDeceased={isDeceased}>{patient.lastName} </Text>
+        ),
         maxWidth: 200,
       },
       {
         key: 'dateOfBirth',
         title: 'DOB',
-        accessor: row => (
-          <Text isDeceased={row.isDeceased}>
-            <DateDisplay date={row.patient.dateOfBirth} />
+        accessor: ({ isDeceased, patient }) => (
+          <Text isDeceased={isDeceased}>
+            <DateDisplay date={patient.dateOfBirth} />
           </Text>
         ),
+      },
+      {
+        key: 'sex',
+        title: 'Sex',
+        accessor: ({ patient, isDeceased }) => <Text isDeceased={isDeceased}>{patient.sex}</Text>,
+        sortable: false,
       },
       {
         key: 'homeVillage',
@@ -119,8 +135,6 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         maxWidth: 200,
       },
       {
-        key: 'id',
-        title: '',
         accessor: row => {
           return (
             <MenuButton
@@ -132,7 +146,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
             />
           );
         },
-        maxWidth: 200,
+        sortable: false,
       },
     ];
   }, []);

@@ -608,6 +608,7 @@ export const patientProgramRegistration = {
     lastName: 'Aziz',
     dateOfBirth: '1989-11-09T02:40:16.237Z',
     village: 'Village 1',
+    sex: 'M',
   },
   date: '2023-08-28T02:40:16.237Z',
   name: 'Hepatitis B',
@@ -704,7 +705,14 @@ export const dummyApi = {
         return mockSurvey;
       case 'patientProgramRegistration':
         return {
-          data: [patientProgramRegistration, { ...patientProgramRegistration, isDeceased: true }],
+          data: [
+            patientProgramRegistration,
+            {
+              ...patientProgramRegistration,
+              isDeceased: true,
+              id: patientProgramRegistration.id + 1,
+            },
+          ],
         };
     }
   },
