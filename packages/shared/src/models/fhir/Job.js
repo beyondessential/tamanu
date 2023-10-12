@@ -1,6 +1,6 @@
 import { trace } from '@opentelemetry/api';
 import ms from 'ms';
-import Sequelize, { DataTypes, QueryTypes, Transaction } from 'sequelize';
+import Sequelize, { DataTypes, QueryTypes } from 'sequelize';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from '../Model';
