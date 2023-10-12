@@ -35,6 +35,39 @@ export class SyncQueuedDevice extends Model {
     );
   }
 
+  static async getNextReadyDevice() {
+    const windowStart = toDateTimeString(subMinutes(new Date(), SYNC_QUEUE_WINDOW_MINUTES));
+    const foundDevice = await this.findOne({
+      where: {
+        lastSeenTime: {
+          [Op.gt]: windowStart,
+        },
+        status: SYNC_QUEUE_STATUSES.READY,
+      },
+      orderBy: [
+        ['urgent', 'DESC'], // trues first
+        ['lastSyncedTick', 'ASC'], // oldest sync first
+      ],
+    });
+    return foundDevice;
+  }
+
+  static async processQueue() {
+    if (await this.getNextReadyDevice()) {
+      // There are still devices waiting in the ready zone, so don't 
+      // promote any devices from the queued zone into to the ready zone yet.
+      return;
+    }
+
+    return this.update({
+      status: SYNC_QUEUE_STATUSES.READY,
+    }, {
+      where: {
+        status: SYNC_QUEUE_STATUSES.QUEUED,
+      },
+    });
+  }
+
   static async checkSyncRequest({ facilityId, deviceId, urgent, lastSyncedTick }) {
     // first, update our own entry in the sync queue
     const queueRecord = await this.findByPk(deviceId);
@@ -61,7 +94,7 @@ export class SyncQueuedDevice extends Model {
     }
 
     // now check our position in the queue - if we're at the top, start a sync
-    const nextDevice = await this.getNextDevice();
+    const nextDevice = await this.getNextReadyDevice();
     if (nextDevice?.id !== deviceId) {
       // someone else is in the queue before us, report back with a "wait" signal
       return false;
@@ -77,37 +110,4 @@ export class SyncQueuedDevice extends Model {
     return true;
   }
 
-  static async getNextDevice() {
-    const windowStart = toDateTimeString(subMinutes(new Date(), SYNC_QUEUE_WINDOW_MINUTES));
-    console.log("now", windowStart);
-    const foundDevice = await this.findOne({
-      where: {
-        lastSeenTime: {
-          [Op.gt]: windowStart,
-        },
-        status: SYNC_QUEUE_STATUSES.READY,
-      },
-      orderBy: [
-        ['urgent', 'DESC'], // trues first
-        ['lastSyncedTick', 'ASC'], // oldest sync first
-      ],
-    });
-    return foundDevice;
-  }
-
-  static async processQueue() {
-    if (await this.getNextDevice()) {
-      // TODO: expire old devices
-      console.log("Still devices ready");
-      return;
-    }
-
-    return this.update({
-      status: SYNC_QUEUE_STATUSES.READY,
-    }, {
-      where: {
-        status: SYNC_QUEUE_STATUSES.QUEUED,
-      },
-    });
-  }
 }

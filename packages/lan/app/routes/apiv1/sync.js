@@ -16,7 +16,12 @@ sync.post(
     }
 
     const completeSync = async () => {
-      await syncManager.triggerSync(`requested by ${user.email}`);
+      await syncManager.triggerSync({
+        urgent: true,
+        type: 'userRequested',
+        userId: user.id,
+        userEmail: user.email,
+      });
       return 'Completed sync';
     };
 
