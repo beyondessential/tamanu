@@ -370,3 +370,9 @@ export const getNormalRangeByAge = (validationCriteria = {}, { dateOfBirth }) =>
 
   return normalRangeByAge;
 };
+
+// Re-use getNormalRangeByAge logic - needs to change the shape of the objects to work
+export const getGraphRangeByAge = (visualisationConfig, patientData) => {
+  const mockedValidationCriteria = { normalRange: visualisationConfig.yAxis.graphRange };
+  return getNormalRangeByAge(mockedValidationCriteria, patientData);
+};
