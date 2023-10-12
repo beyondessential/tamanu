@@ -94,13 +94,17 @@ export class FacilitySyncManager {
     await dropAllSnapshotTables(this.sequelize);
 
     log.info('FacilitySyncManager.attemptStart', { reason: this.reason });
-
+  
     // the first step of sync is to start a session and retrieve the session id
     const {
       status,
       sessionId,
       startedAtTick: newSyncClockTime,
-    } = await this.centralServer.startSyncSession();
+    } = await this.centralServer.startSyncSession({
+      // TODO: populate these
+      urgent: true,
+      lastSyncedTick: 0,
+    });
 
     if (status) {
       // we're queued

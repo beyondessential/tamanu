@@ -213,12 +213,14 @@ export class CentralServerConnection {
     }
   }
 
-  async startSyncSession(urgent) {
+  async startSyncSession({ urgent, lastSyncedTick }) {
     const { sessionId, status } = await this.fetch('sync', {
       method: 'POST',
       body: {
         facilityId: config.serverFacilityId,
         deviceId: this.deviceId,
+        urgent,
+        lastSyncedTick,
       },
     });
 

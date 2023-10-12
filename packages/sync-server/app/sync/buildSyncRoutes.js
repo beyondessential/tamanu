@@ -11,41 +11,6 @@ export const buildSyncRoutes = ctx => {
   const syncManager = new CentralSyncManager(ctx);
   const syncRoutes = express.Router();
 
-  async function pollSyncQueue({ models }, { facilityId, deviceId, urgent, lastSyncedTick }) {
-    const { SyncQueuedDevice } = models;
-
-    // TODO: move to a function on SyncQueuedDevice
-    const nextDevice = await SyncQueuedDevice.getNextDevice();
-    if (nextDevice?.id === deviceId) {
-      // it's us! let's start a sync
-      return nextDevice;
-    }
-
-    const queueRecord = await SyncQueuedDevice.findByPk(deviceId);
-
-    if (!queueRecord) {
-      // new entry in sync queue
-      await SyncQueuedDevice.create({
-        id: deviceId,
-        facilityId,
-        urgent,
-        lastSyncedTick,
-        lastSeenTime: getCurrentDateTimeString(),
-        status: SYNC_QUEUE_STATUSES.QUEUED,
-      });
-      return null;
-    }
-
-    // update with most recent info
-    await queueRecord.update({
-      urgent,
-      lastSyncedTick,
-      lastSeenTime: getCurrentDateTimeString(),
-    });
-
-    return null;
-  }
-
   // TODO: scheduled task
   setInterval(async () => {
     log.info("processSyncQueue");
@@ -60,7 +25,8 @@ export const buildSyncRoutes = ctx => {
   syncRoutes.post(
     '/',
     asyncHandler(async (req, res) => {
-      const queueResult = await pollSyncQueue(req, {
+      const { SyncQueuedDevice } = req.models;
+      const queueResult = await SyncQueuedDevice.checkSyncRequest({
         lastSyncedTick: 0,
         urgent: false,
         ...req.body
@@ -73,10 +39,6 @@ export const buildSyncRoutes = ctx => {
         });
         return;
       }
-
-      // TODO: what should this action be? status = 'queued'? etc
-      console.log("destroying", queueResult);
-      await queueResult.destroy();
 
       const { user, body } = req;
       const { facilityId, deviceId } = body;
