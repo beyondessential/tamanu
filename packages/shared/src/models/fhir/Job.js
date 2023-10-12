@@ -67,17 +67,6 @@ export class FhirJob extends Model {
     );
   }
 
-  static async backlog(topic, includeDropped = true) {
-    const [{ count }] = await this.sequelize.query(
-      'SELECT fhir.job_backlog($topic, $includeDropped) as count',
-      {
-        type: QueryTypes.SELECT,
-        bind: { topic, includeDropped },
-      },
-    );
-    return Number(count);
-  }
-
   static async backlogUntilLimit(topic, limit, includeDropped = true) {
     // Retrieving the size of the whole backlog can be expensive, and sometimes
     // we only need to check how many records can be retrieved up to a limit of
