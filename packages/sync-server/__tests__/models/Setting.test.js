@@ -159,7 +159,12 @@ describe('Setting', () => {
     ];
     await Promise.all(
       inputs.map(([key, value, facilityId]) =>
-        Setting.set(key, value, SETTINGS_SCOPES.FACILITY, facilityId),
+        Setting.set(
+          key,
+          value,
+          facilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.GLOBAL,
+          facilityId,
+        ),
       ),
     );
 
@@ -223,7 +228,12 @@ describe('Setting', () => {
     ];
     await Promise.all(
       inputs.map(([key, value, facilityId]) =>
-        Setting.set(key, value, SETTINGS_SCOPES.FACILITY, facilityId),
+        Setting.set(
+          key,
+          value,
+          facilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.GLOBAL,
+          facilityId,
+        ),
       ),
     );
 
