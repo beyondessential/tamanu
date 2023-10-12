@@ -336,8 +336,3 @@ export class TamanuApi {
     return this.fetch(endpoint, query, { method: 'DELETE', ...options });
   }
 }
-
-ipcRenderer.on('toggleTranslationDebug', () => {
-  localStorage.setItem('debugTranslation', !JSON.parse(localStorage.getItem('debugTranslation')));
-  window.dispatchEvent(new Event('debugTranslation'));
-});
