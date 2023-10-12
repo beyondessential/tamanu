@@ -22,7 +22,7 @@ export const CreateReportView = () => {
   const api = useApi();
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
-  const {ability} = useAuth();
+  const { ability } = useAuth();
 
   const onSubmit = async ({ name, query, status, dbSchema, options, ...queryOptions }) => {
     const { dataSources } = queryOptions;
