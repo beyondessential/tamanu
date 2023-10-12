@@ -13,8 +13,8 @@ import { Modal } from '../../components/Modal';
 export const ActivatePatientProgramRegistry = React.memo(
   ({ onCancel, onSubmit, patientProgramRegistration, open }) => {
     const { currentUser, facility } = useAuth();
-    const programRegistryStatusSuggester = useSuggester('clinicalStatus', {
-      baseQueryParameters: { programId: patientProgramRegistration.programId },
+    const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
+      baseQueryParameters: { programRegistryId: patientProgramRegistration.programRegistryId },
     });
     const registeredBySuggester = useSuggester('practitioner');
     const registeringFacilitySuggester = useSuggester('facility');
