@@ -20,8 +20,9 @@ describe('Programs import', () => {
       Program,
       Survey,
       PatientProgramRegistration,
-      ProgramRegistry,
       ProgramRegistryClinicalStatus,
+      ProgramRegistryCondition,
+      ProgramRegistry,
       ProgramDataElement,
       SurveyScreenComponent,
     } = ctx.store.models;
@@ -31,6 +32,7 @@ describe('Programs import', () => {
     await Program.destroy({ where: {}, force: true });
     await PatientProgramRegistration.destroy({ where: {}, force: true });
     await ProgramRegistryClinicalStatus.destroy({ where: {}, force: true });
+    await ProgramRegistryCondition.destroy({ where: {}, force: true });
     await ProgramRegistry.destroy({ where: {}, force: true });
   };
 
@@ -468,6 +470,48 @@ describe('Programs import', () => {
         dryRun: false,
       });
       expect(errors).not.toBeEmpty();
+    });
+
+    describe('conditions', () => {
+      it('should import valid conditions', async () => {
+        const { errors, stats } = await doImport({
+          file: 'registry-valid-with-conditions',
+          xml: true,
+          dryRun: false,
+        });
+        expect(errors).toBeEmpty();
+        expect(stats).toMatchObject({
+          Program: { created: 1, updated: 0, errored: 0 },
+          ProgramRegistry: { created: 1, updated: 0, errored: 0 },
+          ProgramRegistryClinicalStatus: { created: 3, updated: 0, errored: 0 },
+          ProgramRegistryCondition: { created: 2, updated: 0, errored: 0 },
+        });
+      });
+
+      it('should validate conditions', async () => {
+        const { errors, stats } = await doImport({
+          file: 'registry-invalid-conditions',
+          xml: true,
+          dryRun: false,
+        });
+
+        const errorMessages = [
+          'visibilityStatus must be one of the following values: current, historical, merged on Registry Conditions at row 2',
+          'id must not have spaces or punctuation other than - on Registry Conditions at row 3',
+          'code must not have spaces or punctuation other than -./ on Registry Conditions at row 3',
+          'name is a required field on Registry Conditions at row 3',
+        ];
+        expect(errors.length).toBe(4);
+        errors.forEach((error, i) => {
+          expect(error.message).toEqual(errorMessages[i]);
+        });
+        expect(stats).toMatchObject({
+          Program: { created: 1, updated: 0, errored: 0 },
+          ProgramRegistry: { created: 1, updated: 0, errored: 0 },
+          ProgramRegistryClinicalStatus: { created: 3, updated: 0, errored: 0 },
+          ProgramRegistryCondition: { created: 0, updated: 0, errored: 2 },
+        });
+      });
     });
   });
 });
