@@ -1,10 +1,16 @@
 import express from 'express';
+import config from 'config';
 import { promises as fs } from 'fs';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Sequelize } from 'sequelize';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { NotFoundError, InvalidOperationError } from '@tamanu/shared/errors';
-import { REPORT_VERSION_EXPORT_FORMATS, REPORT_STATUSES } from '@tamanu/constants';
+import { capitalize } from 'lodash';
+import {
+  REPORT_VERSION_EXPORT_FORMATS,
+  REPORT_STATUSES,
+  REPORT_DB_SCHEMAS,
+} from '@tamanu/constants';
 import { readJSON, sanitizeFilename, verifyQuery } from './utils';
 import { createReportDefinitionVersion } from './createReportDefinitionVersion';
 import { DryRun } from '../errors';
@@ -259,5 +265,17 @@ reportsRouter.get(
       ],
     });
     res.send(version);
+  }),
+);
+
+reportsRouter.get(
+  '/dbSchemaOptions',
+  asyncHandler(async (req, res) => {
+    if (!config.db.reports.enabled) return [];
+    const DB_SCHEMA_OPTIONS = Object.values(REPORT_DB_SCHEMAS).map(value => ({
+      label: capitalize(value),
+      value,
+    }));
+    return res.send(DB_SCHEMA_OPTIONS);
   }),
 );
