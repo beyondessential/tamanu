@@ -2,9 +2,9 @@ import React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 
 import { ReportAdminRoutes } from './ReportAdminRoutes';
+import { FhirAdminRoutes } from './FhirAdminRoutes';
 import {
   AssetUploaderView,
-  FhirJobStatsView,
   PatientMergeView,
   PermissionsAdminView,
   ProgramsAdminView,
@@ -23,7 +23,7 @@ export const AdministrationRoutes = React.memo(({ match }) => (
     <Route path={`${match.path}/patientMerge`} component={PatientMergeView} />
     <Route path={`${match.path}/sync`} component={SyncView} />
     <Route path={`${match.path}/reports`} component={ReportAdminRoutes} />
-    <Route path={`${match.path}/fhir/jobStats`} component={FhirJobStatsView} />
+    <Route path={`${match.path}/fhir`} component={FhirAdminRoutes} />
     <Redirect to={`${match.path}/referenceData`} />
   </Switch>
 ));
