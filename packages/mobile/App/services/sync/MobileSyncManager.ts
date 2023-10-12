@@ -148,7 +148,6 @@ export class MobileSyncManager {
     console.log('MobileSyncManager.runSync(): Began sync run');
 
     this.isSyncing = true;
-    this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
 
     // clear persisted cache from last session
     await clearPersistedSyncSessionRecords();
@@ -157,7 +156,17 @@ export class MobileSyncManager {
     const {
       sessionId,
       startedAtTick: newSyncClockTime,
+      status,
     } = await this.centralServer.startSyncSession();
+
+    if (status) {
+      this.isSyncing = false;
+      return;
+    }
+
+    console.log('MobileSyncManager.runSync(): Began sync run');
+
+    this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
 
     console.log('MobileSyncManager.runSync(): Sync started');
 
