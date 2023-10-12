@@ -88,7 +88,19 @@ reportsRouter.post(
   '/',
   asyncHandler(async (req, res) => {
     const { store, body, user, reports } = req;
-    const version = await createReportDefinitionVersion({ store, reports }, null, body, user.id);
+    const isReportingSchemaEnabled = config.db.reports.enabled;
+    const defaultReportingSchema = isReportingSchemaEnabled
+      ? REPORT_DB_SCHEMAS.REPORTING
+      : REPORT_DB_SCHEMAS.RAW;
+
+    const transformedBody = !body.dbSchema ? { ...body, dbSchema: defaultReportingSchema } : body;
+
+    const version = await createReportDefinitionVersion(
+      { store, reports },
+      null,
+      transformedBody,
+      user.id,
+    );
     res.send(version);
   }),
 );
