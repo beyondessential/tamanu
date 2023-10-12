@@ -141,9 +141,14 @@ export class CentralServerConnection {
     throw new Error(`Did not get a truthy response after ${maxAttempts} attempts for ${endpoint}`);
   }
 
-  async startSyncSession() {
+  async startSyncSession({ urgent, lastSyncedTick }) {
     const facilityId = await readConfig('facilityId', '');
-    const { sessionId, status } = await this.post('sync', {}, { facilityId });
+    const { sessionId, status } = await this.post('sync', {}, { 
+      urgent,
+      lastSyncedTick,
+      facilityId,
+      deviceId: this.deviceId,
+    });
 
     if (status === 'waitingInQueue') {
       return { status };

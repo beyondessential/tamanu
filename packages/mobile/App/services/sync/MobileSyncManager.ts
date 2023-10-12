@@ -152,12 +152,17 @@ export class MobileSyncManager {
     // clear persisted cache from last session
     await clearPersistedSyncSessionRecords();
 
+    const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
+
     // the first step of sync is to start a session and retrieve the session id
     const {
       sessionId,
       startedAtTick: newSyncClockTime,
       status,
-    } = await this.centralServer.startSyncSession();
+    } = await this.centralServer.startSyncSession({
+      urgent: false,
+      lastSyncedTick: pullSince,
+    });
 
     if (status) {
       this.isSyncing = false;
