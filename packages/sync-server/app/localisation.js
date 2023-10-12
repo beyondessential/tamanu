@@ -465,6 +465,7 @@ const rootLocalisationSchema = yup
           enabled: yup.boolean().required(),
           interval: yup.number().required(),
         }),
+        enableReportingSchema: yup.boolean().required(),
         mandatoryVitalEditReason: yup.boolean().required(),
         enableVitalEdit: yup.boolean().required(),
       })

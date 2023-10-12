@@ -25,6 +25,7 @@ import {
   FIELD_TYPES_WITH_SUGGESTERS,
 } from '../../reports/ParameterField';
 import { useAuth } from '../../../contexts/Auth';
+import { useLocalisation } from '../../../contexts/Localisation';
 
 const StyledField = styled(Field)`
   flex-grow: 1;
@@ -105,6 +106,7 @@ const schema = yup.object().shape({
 
 const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) => {
   const { ability } = useAuth();
+  const { getLocalisation } = useLocalisation();
   const setQuery = query => setValues({ ...values, query });
   const params = values.parameters || [];
   const setParams = newParams => setValues({ ...values, parameters: newParams });
@@ -117,6 +119,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
   };
   const onParamsDelete = paramId => setParams(params.filter(p => p.id !== paramId));
 
+  const isReportingSchemaEnabled = getLocalisation('features.enableReportingSchema');
   const canWriteRawReportUser = Boolean(ability?.can('write', 'ReportDbSchema'));
   const showDataSourceField = values.dbSchema === REPORT_DB_SCHEMAS.RAW;
 
@@ -141,7 +144,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
             options={DATE_RANGE_OPTIONS}
           />
         </Grid>
-        {canWriteRawReportUser && (
+        {isReportingSchemaEnabled && canWriteRawReportUser && (
           <Grid item xs={4}>
             <StyledField
               label="DB schema"
