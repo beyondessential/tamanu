@@ -266,7 +266,6 @@ export const centralDefaults = {
     maxRecordsPerPullSnapshotChunk: 1000000000,
     numberConcurrentPullSnapshots: 4,
     persistedCacheBatchSize: 20000,
-    readOnly: false,
     syncAllEncountersForTheseVaccines: [],
     pauseBetweenPersistedCacheBatchesInMilliseconds: 50,
     persistUpdateWorkerPoolSize: 5,

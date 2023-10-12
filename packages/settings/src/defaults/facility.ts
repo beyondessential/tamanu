@@ -50,7 +50,6 @@ export const facilityDefaults = {
     enabled: true,
     host: 'https://central-dev.tamanu.io',
     persistedCacheBatchSize: 10000,
-    readOnly: false,
     schedule: '*/1 * * * *',
     timeout: 10000,
     pauseBetweenPersistedBatchesInMilliseconds: 50,
