@@ -83,7 +83,7 @@ export const SettingsView = React.memo(() => {
     const settingsObject = JSON.parse(settingsEditString);
     const response = await api.put('admin/settings', {
       settings: settingsObject,
-      facilityId: scope === SETTINGS_SCOPES.FACILITY ? facilityId : null,
+      facilityId,
       scope,
     });
 
