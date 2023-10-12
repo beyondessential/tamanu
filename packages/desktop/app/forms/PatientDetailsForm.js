@@ -62,6 +62,9 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
     filteredSexOptions = filteredSexOptions.filter(s => s.value !== 'other');
   }
 
+  const isRequiredPatientData = fieldName =>
+    getLocalisation(`fields.${fieldName}.requiredPatientData`);
+
   return (
     <>
       <StyledHeading>General information</StyledHeading>
@@ -70,13 +73,13 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
         <LocalisedField
           name="middleName"
           component={TextField}
-          required={getLocalisation('fields.middleName')}
+          required={isRequiredPatientData('middleName')}
         />
         <LocalisedField name="lastName" component={TextField} required />
         <LocalisedField
           name="culturalName"
           component={TextField}
-          required={getLocalisation('fields.culturalName')}
+          required={isRequiredPatientData('culturalName')}
         />
         <LocalisedField
           name="dateOfBirth"
@@ -89,7 +92,7 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
           name="villageId"
           component={AutocompleteField}
           suggester={villageSuggester}
-          required={getLocalisation('fields.villageId')}
+          required={isRequiredPatientData('villageId')}
         />
         <LocalisedField name="sex" component={RadioField} options={filteredSexOptions} required />
         <LocalisedField
@@ -97,7 +100,7 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
           component={TextField}
           type="email"
           defaultLabel="Email address"
-          required={getLocalisation('fields.email')}
+          required={isRequiredPatientData('email')}
         />
         {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
           <BirthDetailsFields registeredBirthPlace={values.registeredBirthPlace} />
