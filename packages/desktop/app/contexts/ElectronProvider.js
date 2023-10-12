@@ -1,15 +1,10 @@
 import React from 'react';
-import { remote, shell, ipcRenderer } from 'electron';
+import { remote, shell } from 'electron';
 import { readFile, writeFile, stat } from 'fs/promises';
 
 import { ElectronContext } from './Electron';
 
 import { printPage } from '../print';
-
-ipcRenderer.on('toggleTranslationDebug', () => {
-  localStorage.setItem('debugTranslation', !JSON.parse(localStorage.getItem('debugTranslation')));
-  window.dispatchEvent(new Event('debugTranslation'));
-});
 
 export const ElectronProvider = ({ children }) => {
   // just pass directly to electron

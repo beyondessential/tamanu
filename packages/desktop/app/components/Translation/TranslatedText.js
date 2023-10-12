@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
+import { ipcRenderer } from 'electron';
 
 const DebugHighlighed = styled.span`
   background-color: red;
   color: white;
 `;
+
+ipcRenderer.on('toggleTranslationDebug', () => {
+  localStorage.setItem('debugTranslation', !JSON.parse(localStorage.getItem('debugTranslation')));
+  window.dispatchEvent(new Event('debugTranslation'));
+});
 
 // "stringId" is used in future functionality
 // eslint-disable-next-line no-unused-vars
