@@ -90,7 +90,7 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
     });
 
     if (containsAdditionalData(values)) {
-      await PatientAdditionalData.updateForPatient(selectedPatient.id, values);
+      await PatientAdditionalData.updateForPatient(newPatient.id, values);
     }
 
     await Patient.markForSync(newPatient.id);
