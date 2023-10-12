@@ -1,7 +1,7 @@
 import { DataTypes, Op } from 'sequelize';
 import { subMinutes } from 'date-fns';
 
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { SYNC_DIRECTIONS, SYNC_QUEUE_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
@@ -33,6 +33,48 @@ export class SyncQueuedDevice extends Model {
         paranoid: false,
       },
     );
+  }
+
+  static async checkSyncRequest({ facilityId, deviceId, urgent, lastSyncedTick }) {
+    // first, update our own entry in the sync queue
+    const queueRecord = await this.findByPk(deviceId);
+
+    if (!queueRecord) {
+      // new entry in sync queue
+      await this.create({
+        id: deviceId,
+        facilityId,
+        status: SYNC_QUEUE_STATUSES.QUEUED,
+        lastSeenTime: getCurrentDateTimeString(),
+        urgent,
+        lastSyncedTick,
+      });
+    } else {
+      // update with most recent info
+      // (always go with most urgent request - this way a user-requested urgent 
+      // sync won't be overwritten to non-urgent by a scheduled sync)
+      await queueRecord.update({
+        lastSeenTime: getCurrentDateTimeString(),
+        urgent: urgent || queueRecord.urgent,
+        lastSyncedTick,
+      });
+    }
+
+    // now check our position in the queue - if we're at the top, start a sync
+    const nextDevice = await this.getNextDevice();
+    if (nextDevice?.id !== deviceId) {
+      // someone else is in the queue before us, report back with a "wait" signal
+      return false;
+    }
+
+    // it's our turn! remove our record from the queue and tell the sync system that
+    // we're ready to go!
+    // (if the resulting sync has an error, we'll be knocked to the back of the queue
+    // but that's fine, it will leave some room for non-errored devices to sync, and 
+    // our requests will get priority once our error resolves as we'll have an older
+    // lastSyncedTick)
+    queueRecord.destroy();
+    return true;
   }
 
   static async getNextDevice() {

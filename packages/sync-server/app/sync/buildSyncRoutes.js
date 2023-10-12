@@ -2,9 +2,6 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { log } from 'shared/services/logging';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { SYNC_QUEUE_STATUSES } from '@tamanu/constants';
-
 import { CentralSyncManager } from './CentralSyncManager';
 
 export const buildSyncRoutes = ctx => {
