@@ -101,23 +101,18 @@ export class FhirJob extends Model {
     const GRAB_RETRY = 10;
     for (let i = 0; i < GRAB_RETRY; i += 1) {
       try {
-        return await this.sequelize.transaction(
-          {
-            isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ,
-          },
-          async () => {
-            const [{ id }] = await this.sequelize.query(
-              'SELECT (fhir.job_grab($workerId, $topic)).job_id as id',
-              {
-                type: QueryTypes.SELECT,
-                bind: { workerId, topic },
-              },
-            );
+        return await this.sequelize.transaction(async () => {
+          const [{ id }] = await this.sequelize.query(
+            'SELECT (fhir.job_grab($workerId, $topic)).job_id as id',
+            {
+              type: QueryTypes.SELECT,
+              bind: { workerId, topic },
+            },
+          );
 
-            if (!id) return null;
-            return FhirJob.findByPk(id);
-          },
-        );
+          if (!id) return null;
+          return FhirJob.findByPk(id);
+        });
       } catch (err) {
         log.debug(`Failed to grab job`, err);
 
