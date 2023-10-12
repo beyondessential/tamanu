@@ -1,17 +1,53 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
 import PropTypes from 'prop-types';
+import { ipcRenderer } from 'electron';
+
+const DebugHighlighed = styled.span`
+  background-color: red;
+  color: white;
+`;
+
+const safeGetIsDebugMode = () => {
+  try {
+    return JSON.parse(localStorage.getItem('debugTranslation'));
+  } catch (e) {
+    return false;
+  }
+};
+
+ipcRenderer.on('toggleTranslationDebug', () => {
+  localStorage.setItem('debugTranslation', !safeGetIsDebugMode());
+  window.dispatchEvent(new Event('debugTranslation'));
+});
 
 // "stringId" is used in future functionality
 // eslint-disable-next-line no-unused-vars
 export const TranslatedText = ({ stringId, fallback }) => {
+  const [isDebugMode, setIsDebugMode] = useState(false);
   const translation = null; // Placeholder for checking db for translation
+
+  useEffect(() => {
+    const getDebugMode = async () => {
+      const debugMode = await JSON.parse(localStorage.getItem('debugTranslation'));
+      setIsDebugMode(debugMode);
+    };
+    getDebugMode();
+
+    window.addEventListener('debugTranslation', getDebugMode);
+    return () => {
+      window.removeEventListener('debugTranslation', getDebugMode);
+    };
+  }, []);
+
+  const TextWrapper = isDebugMode ? DebugHighlighed : React.Fragment;
 
   if (!translation) {
     // Register as untranslated in DB
-    return <>{fallback}</>;
+    return <TextWrapper>{fallback}</TextWrapper>;
   }
 
-  return <>{translation}</>;
+  return <TextWrapper>{translation}</TextWrapper>;
 };
 
 TranslatedText.propTypes = {

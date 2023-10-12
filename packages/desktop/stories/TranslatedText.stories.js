@@ -8,11 +8,6 @@ const Container = styled.div`
 `;
 
 export default {
-  argTypes: {
-    text: {
-      control: 'text',
-    },
-  },
   title: 'Translation/TranslatedText',
   component: TranslatedText,
 };

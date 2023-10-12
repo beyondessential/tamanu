@@ -9,6 +9,7 @@ export const remote = {
 
 export const ipcRenderer = {
   invoke: () => true,
+  on: () => true,
 };
 
 export default {
