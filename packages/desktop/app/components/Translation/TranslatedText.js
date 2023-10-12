@@ -1,11 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
+import { ipcRenderer } from 'electron';
 
 const DebugHighlighed = styled.span`
   background-color: red;
   color: white;
 `;
+
+const safeGetIsDebugMode = () => {
+  try {
+    return JSON.parse(localStorage.getItem('debugTranslation'));
+  } catch (e) {
+    return false;
+  }
+};
+
+ipcRenderer.on('toggleTranslationDebug', () => {
+  localStorage.setItem('debugTranslation', !safeGetIsDebugMode());
+  window.dispatchEvent(new Event('debugTranslation'));
+});
 
 const replaceStringVariables = (templateString, replacements) => {
   const colonReplacementRegex = /:([a-zA-Z]+)/g;

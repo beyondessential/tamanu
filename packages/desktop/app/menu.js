@@ -102,7 +102,7 @@ export default class MenuBuilder {
           label: 'Toggle Translation Debug',
           accelerator: 'Alt+Command+F',
           click: async () => {
-            this.mainWindow.webContents.send('toggleDebug');
+            this.mainWindow.webContents.send('toggleTranslationDebug');
           },
         },
       ],
