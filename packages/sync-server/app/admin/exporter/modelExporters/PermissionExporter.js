@@ -1,4 +1,16 @@
+import { DELETION_STATUSES } from '@tamanu/constants';
 import { ModelExporter } from './ModelExporter';
+
+const mapDeletionStatus = deletionStatus => {
+  switch (deletionStatus) {
+    case DELETION_STATUSES.CURRENT:
+      return 'y';
+    case DELETION_STATUSES.REVOKED:
+      return 'n';
+    default:
+      return 'y';
+  }
+};
 
 export class PermissionExporter extends ModelExporter {
   async getData() {
@@ -15,14 +27,14 @@ export class PermissionExporter extends ModelExporter {
     permissions.forEach(({ dataValues: permission }) => {
       const key = `${permission.verb}#${permission.noun}`;
       if (data[key]) {
-        data[key][permission.roleId] = permission.deletedAt ? 'n' : 'y';
+        data[key][permission.roleId] = mapDeletionStatus(permission.deletionStatus);
       } else {
         data[key] = {
           verb: permission.verb,
           noun: permission.noun,
           objectId: permission.objectId,
           ...roles,
-          [permission.roleId]: permission.deletedAt ? 'n' : 'y',
+          [permission.roleId]: mapDeletionStatus(permission.deletionStatus),
         };
       }
     });

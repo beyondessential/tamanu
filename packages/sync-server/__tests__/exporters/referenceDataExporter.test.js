@@ -1,4 +1,4 @@
-import { REFERENCE_TYPES } from '@tamanu/constants';
+import { REFERENCE_TYPES, DELETION_STATUSES } from '@tamanu/constants';
 import { createDummyPatient } from 'shared/demoData/patients';
 import { parseDate } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
@@ -516,7 +516,7 @@ describe('Permission and Roles exporter', () => {
     );
   });
 
-  it('Should export permissions with one aditional column for admin Role', async () => {
+  it('Should export permissions with one additional column for admin Role', async () => {
     await createRole(models, { id: 'admin', name: 'Admin' });
     await createPermission(models, { verb: 'list', noun: 'User', roleId: 'admin' });
     await createPermission(models, { verb: 'list', noun: 'ReferenceData', roleId: 'admin' });
@@ -553,11 +553,16 @@ describe('Permission and Roles exporter', () => {
     );
   });
 
-  it('Should export permissions with two aditional columns for admin/reception Role', async () => {
+  it('Should export permissions with two additional columns for admin/reception Role', async () => {
     await createRole(models, { id: 'admin', name: 'Admin' });
     await createRole(models, { id: 'reception', name: 'Reception' });
     await createPermission(models, { verb: 'list', noun: 'User', roleId: 'reception' });
-    await createPermission(models, { verb: 'list', noun: 'ReferenceData', roleId: 'reception' });
+    await createPermission(models, {
+      verb: 'list',
+      noun: 'ReferenceData',
+      roleId: 'reception',
+      deletionStatus: DELETION_STATUSES.REVOKED,
+    });
 
     await createPermission(models, { verb: 'list', noun: 'User', roleId: 'admin' });
     await createPermission(models, { verb: 'list', noun: 'ReferenceData', roleId: 'admin' });
@@ -577,7 +582,7 @@ describe('Permission and Roles exporter', () => {
           data: [
             ['verb', 'noun', 'objectId', 'reception', 'admin'],
             ['list', 'User', null, 'y', 'y'],
-            ['list', 'ReferenceData', null, 'y', 'y'],
+            ['list', 'ReferenceData', null, 'n', 'y'],
             ['write', 'User', null, '', 'y'],
             ['write', 'ReferenceData', null, '', 'y'],
             ['read', 'Report', 'new-patients', '', 'y'],

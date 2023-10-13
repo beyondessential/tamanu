@@ -1,7 +1,7 @@
 import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patients';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
-import { VACCINE_CATEGORIES } from '@tamanu/constants';
+import { VACCINE_CATEGORIES, DELETION_STATUSES } from '@tamanu/constants';
 
 export async function createDiagnosis(models) {
   await models.ReferenceData.create({
@@ -91,12 +91,16 @@ export async function createAllergy(models) {
   });
 }
 
-export async function createPermission(models, { verb, noun, objectId, roleId }) {
+export async function createPermission(
+  models,
+  { verb, noun, objectId, roleId, deletionStatus = DELETION_STATUSES.CURRENT },
+) {
   await models.Permission.create({
     verb,
     noun,
     objectId,
     roleId,
+    deletionStatus,
   });
 }
 
