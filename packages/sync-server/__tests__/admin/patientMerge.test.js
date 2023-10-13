@@ -1,3 +1,5 @@
+import { Op } from 'sequelize';
+
 import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
@@ -9,7 +11,6 @@ import {
 } from '../../app/admin/patientMerge/mergePatient';
 import { PatientMergeMaintainer } from '../../app/tasks/PatientMergeMaintainer';
 import { createTestContext } from '../utilities';
-import { Op } from 'sequelize';
 
 describe('Patient merge', () => {
   let ctx;
