@@ -22,7 +22,7 @@ ipcRenderer.on('toggleTranslationDebug', () => {
 });
 
 const replaceStringVariables = (templateString, replacements) => {
-  if (!replacements) return templateString
+  if (!replacements) return templateString;
   const colonReplacementRegex = /:([a-zA-Z]+)/g;
   const stringParts = templateString.split(colonReplacementRegex);
   const jsxElements = stringParts.map((part, index) => {
