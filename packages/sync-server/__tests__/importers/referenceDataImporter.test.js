@@ -1,9 +1,11 @@
 import { Op } from 'sequelize';
-import { fake } from 'shared/test-helpers/fake';
+import { fake } from '@tamanu/shared/test-helpers';
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
+  DELETION_STATUSES,
 } from '@tamanu/constants/importable';
+import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { createDummyPatient } from 'shared/demoData/patients';
 import { REFERENCE_TYPES } from '@tamanu/constants';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
@@ -398,30 +400,43 @@ describe('Permissions import', () => {
   it('should revoke (and reinstate) a permission', async () => {
     const { Permission } = ctx.store.models;
 
-    const where = {
+    const toFindCurrent = {
       noun: 'RevokeTest',
+      deletionStatus: DELETION_STATUSES.CURRENT,
     };
 
-    const beforeImport = await Permission.findOne({ where });
+    const toFindRevoked = {
+      noun: 'RevokeTest',
+      deletionStatus: DELETION_STATUSES.REVOKED,
+    };
+
+    const checkIfPermissionExists = async () => {
+      const permissions = await getPermissionsForRoles(ctx.store.models, 'reception');
+      expect(permissions).toEqual(expect.arrayContaining([{ noun: 'RevokeTest', verb: 'read' }]));
+      expect(permissions.length).toBe(1);
+    };
+
+    const checkIfPermissionRevoked = async () => {
+      const afterImport = await Permission.findOne({ where: toFindRevoked });
+      expect(afterImport).toBeTruthy();
+      const permissions = await getPermissionsForRoles(ctx.store.models, 'reception');
+      expect(permissions).toEqual(
+        expect.not.arrayContaining([{ noun: 'RevokeTest', verb: 'read' }]),
+      );
+      expect(permissions.length).toBe(0);
+    };
+
+    const beforeImport = await Permission.findOne({ where: toFindCurrent });
     expect(beforeImport).toBeFalsy();
 
     await doImport({ file: 'revoke-a' });
-
-    const afterImport = await Permission.findOne({ where });
-    expect(afterImport).toBeTruthy();
-    expect(afterImport.deletedAt).toEqual(null);
+    await checkIfPermissionExists();
 
     await doImport({ file: 'revoke-b' });
-
-    const afterRevoke = await Permission.findOne({ where, paranoid: false });
-    expect(afterRevoke).toBeTruthy();
-    expect(afterRevoke.deletedAt).toBeTruthy();
+    await checkIfPermissionRevoked();
 
     await doImport({ file: 'revoke-a' });
-
-    const afterReinstate = await Permission.findOne({ where, paranoid: false });
-    expect(afterReinstate).toBeTruthy();
-    expect(afterReinstate.deletedAt).toEqual(null);
+    await checkIfPermissionExists();
   });
 
   it('should not import rows specified in pages other than "Permissions"', async () => {

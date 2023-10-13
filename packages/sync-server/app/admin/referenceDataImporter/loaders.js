@@ -1,6 +1,6 @@
 import { endOfDay, startOfDay } from 'date-fns';
 import { getJsDateFromExcel } from 'excel-date-to-js';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, DELETION_STATUSES } from '@tamanu/constants';
 
 export const loaderFactory = model => ({ note, ...values }) => [{ model, values }];
 
@@ -148,7 +148,7 @@ export function permissionLoader(item) {
       const id = `${role}-${verb}-${noun}-${objectId || 'any'}`.toLowerCase();
 
       // set deletedAt if the cell is marked N
-      const deletedAt = yCell === 'n' ? new Date() : null;
+      const deletionStatus = yCell === 'n' ? DELETION_STATUSES.REVOKED : DELETION_STATUSES.CURRENT;
 
       return {
         model: 'Permission',
@@ -159,7 +159,7 @@ export function permissionLoader(item) {
           noun,
           objectId,
           role,
-          deletedAt,
+          deletionStatus,
         },
       };
     });
