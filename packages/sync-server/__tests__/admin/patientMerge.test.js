@@ -9,6 +9,7 @@ import {
 } from '../../app/admin/patientMerge/mergePatient';
 import { PatientMergeMaintainer } from '../../app/tasks/PatientMergeMaintainer';
 import { createTestContext } from '../utilities';
+import { Op } from 'sequelize';
 
 describe('Patient merge', () => {
   let ctx;
@@ -152,30 +153,6 @@ describe('Patient merge', () => {
     expect(allergy).toHaveProperty('patientId', keep.id);
     await issue.reload();
     expect(issue).toHaveProperty('patientId', keep.id);
-  });
-
-  it('Should merge death data cleanly', async () => {
-    // Theoretically this should behave the same as other records but I (@mclean)
-    // encountered a validation issue* during dev, so I'm just including this
-    // additional test to be safe.
-    // *complaints of a missing clinicianId despite not updating any records
-    const [keep, merge] = await makeTwoPatients();
-
-    const clinician = await models.User.create(fake(models.User));
-    const death = await models.PatientDeathData.create({
-      ...fake(models.PatientDeathData),
-      patientId: merge.id,
-      clinicianId: clinician.id,
-    });
-
-    const { updates } = await mergePatient(models, keep.id, merge.id);
-    expect(updates).toEqual({
-      Patient: 2,
-      PatientDeathData: 1,
-    });
-
-    await death.reload();
-    expect(death).toHaveProperty('patientId', keep.id);
   });
 
   it('Should throw if the keep patient and merge patient are the same', async () => {
@@ -454,7 +431,10 @@ describe('Patient merge', () => {
         paranoid: false,
       });
 
-      expect(newKeepPatientBirthData).toHaveProperty('birthWeight', mergePatientBirthData.birthWeight);
+      expect(newKeepPatientBirthData).toHaveProperty(
+        'birthWeight',
+        mergePatientBirthData.birthWeight,
+      );
       expect(newKeepPatientBirthData).toHaveProperty('patientId', keep.id);
     });
 
@@ -500,6 +480,129 @@ describe('Patient merge', () => {
         'apgarScoreTenMinutes',
         mergePatientBirthData.apgarScoreTenMinutes,
       );
+    });
+  });
+
+  describe('PatientDeathData', () => {
+    it('appends PatientDeathData of merged patient into keep patient WITHOUT death record, and switch the status to MERGED', async () => {
+      const { PatientDeathData, User } = models;
+      const [keep, merge] = await makeTwoPatients();
+      const clinician = await User.create(fakeUser());
+
+      const oldMergePatientDeathData = await PatientDeathData.create({
+        patientId: merge.id,
+        clinicianId: clinician.id,
+        carrierAge: 25,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+
+      const { updates } = await mergePatient(models, keep.id, merge.id);
+      expect(updates).toEqual({
+        Patient: 2,
+        PatientDeathData: 1,
+      });
+
+      const keepPatientDeathDataRows = await PatientDeathData.findAll({
+        where: { patientId: keep.id },
+        paranoid: false,
+      });
+      const newMergePatientDeathData = await PatientDeathData.findOne({
+        where: { id: oldMergePatientDeathData.id },
+        paranoid: false,
+      });
+
+      expect(keepPatientDeathDataRows).toHaveLength(1);
+      expect(newMergePatientDeathData).toHaveProperty(
+        'visibilityStatus',
+        VISIBILITY_STATUSES.MERGED,
+      );
+    });
+
+    it('appends PatientDeathData of merged patient into keep patient WITH death record, and switch the status to MERGED', async () => {
+      const { PatientDeathData, User } = models;
+      const [keep, merge] = await makeTwoPatients();
+      const clinician = await User.create(fakeUser());
+
+      await PatientDeathData.create({
+        patientId: keep.id,
+        clinicianId: clinician.id,
+        carrierAge: 27,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+      const oldMergePatientDeathData = await PatientDeathData.create({
+        patientId: merge.id,
+        clinicianId: clinician.id,
+        carrierAge: 25,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+
+      const { updates } = await mergePatient(models, keep.id, merge.id);
+      expect(updates).toEqual({
+        Patient: 2,
+        PatientDeathData: 1,
+      });
+
+      const keepPatientDeathDataRows = await PatientDeathData.findAll({
+        where: { patientId: keep.id },
+        paranoid: false,
+      });
+      const newMergePatientDeathData = await PatientDeathData.findOne({
+        where: { id: oldMergePatientDeathData.id },
+        paranoid: false,
+      });
+
+      expect(keepPatientDeathDataRows).toHaveLength(2);
+      expect(newMergePatientDeathData).toHaveProperty(
+        'visibilityStatus',
+        VISIBILITY_STATUSES.MERGED,
+      );
+    });
+
+    it('append HISTORICAL and MERGED PatientDeathData into keep patient', async () => {
+      const { PatientDeathData, User } = models;
+      const [keep, merge] = await makeTwoPatients();
+
+      const clinician = await User.create(fakeUser());
+
+      // keep patient historical data
+      await PatientDeathData.create({
+        patientId: keep.id,
+        clinicianId: clinician.id,
+        carrierAge: 27,
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      });
+
+      // merged patient historical data 1
+      await PatientDeathData.create({
+        patientId: merge.id,
+        clinicianId: clinician.id,
+        carrierAge: 25,
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      });
+
+      // merged patient historical merged data 2
+      await PatientDeathData.create({
+        patientId: merge.id,
+        clinicianId: clinician.id,
+        carrierAge: 29,
+        visibilityStatus: VISIBILITY_STATUSES.MERGED,
+      });
+
+      const { updates } = await mergePatient(models, keep.id, merge.id);
+      expect(updates).toEqual({
+        Patient: 2,
+        PatientDeathData: 2,
+      });
+
+      const newKeepPatientDeathDataRows = await PatientDeathData.findAll({
+        where: {
+          patientId: keep.id,
+          visibilityStatus: { [Op.not]: VISIBILITY_STATUSES.CURRENT },
+        },
+        paranoid: false,
+      });
+
+      expect(newKeepPatientDeathDataRows).toHaveLength(3);
     });
   });
 
