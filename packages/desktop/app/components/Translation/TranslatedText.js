@@ -22,6 +22,7 @@ ipcRenderer.on('toggleTranslationDebug', () => {
 });
 
 const replaceStringVariables = (templateString, replacements) => {
+  if (!replacements) return templateString
   const colonReplacementRegex = /:([a-zA-Z]+)/g;
   const stringParts = templateString.split(colonReplacementRegex);
   const jsxElements = stringParts.map((part, index) => {
@@ -59,9 +60,7 @@ export const TranslatedText = ({ stringId, fallback, replacements }) => {
   }
 
   const stringToReplace = translation || fallback;
-  const stringWithReplacements = replacements
-    ? replaceStringVariables(stringToReplace, replacements)
-    : stringToReplace;
+  const stringWithReplacements = replaceStringVariables(stringToReplace, replacements);
 
   const TextWrapper = isDebugMode ? DebugHighlighed : React.Fragment;
 
