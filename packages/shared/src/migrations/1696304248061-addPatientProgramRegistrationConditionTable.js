@@ -30,6 +30,9 @@ export async function up(query) {
     deletion_status: {
       type: Sequelize.TEXT,
     },
+    deletion_date: {
+      type: DataTypes.DATETIMESTRING,
+    },
 
     patient_id: {
       type: Sequelize.STRING,
@@ -43,6 +46,9 @@ export async function up(query) {
       type: Sequelize.STRING,
     },
     clinician_id: {
+      type: Sequelize.STRING,
+    },
+    deletion_clinician_id: {
       type: Sequelize.STRING,
     },
   });
