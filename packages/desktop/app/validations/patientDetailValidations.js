@@ -16,6 +16,18 @@ const requiredWhenConfiguredMandatory = (getLocalisation, name, baseType) => {
   });
 };
 
+const requiredBirthFieldWhenConfiguredMandatory = (
+  getLocalisation,
+  patientRegistryType,
+  name,
+  baseType,
+) =>
+  baseType.when([], {
+    is: () => patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY,
+    then: requiredWhenConfiguredMandatory(getLocalisation, name, baseType),
+    otherwise: baseType,
+  });
+
 export const getPatientDetailsValidation = (patientRegistryType, sexValues, getLocalisation) => {
   const patientDetailsValidationSchema = yup.object().shape({
     firstName: yup.string().required(),
@@ -28,8 +40,11 @@ export const getPatientDetailsValidation = (patientRegistryType, sexValues, getL
       .oneOf(sexValues)
       .required(),
     email: requiredWhenConfiguredMandatory(getLocalisation, 'email', yup.string().email()),
-    birthFacilityId: requiredWhenConfiguredMandatory(
+
+    /* --- PATIENT BIRTH FIELDS START --- */
+    birthFacilityId: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      patientRegistryType,
       'birthFacilityId',
       yup.string().when('registeredBirthPlace', {
         is: value => value === PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY,
@@ -37,81 +52,99 @@ export const getPatientDetailsValidation = (patientRegistryType, sexValues, getL
         otherwise: yup.string(),
       }),
     ),
-    attendantAtBirth: requiredWhenConfiguredMandatory(
+    attendantAtBirth: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      patientRegistryType,
       'attendantAtBirth',
       yup.string(),
     ),
-    nameOfAttendantAtBirth: requiredWhenConfiguredMandatory(
+    nameOfAttendantAtBirth: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      patientRegistryType,
       'nameOfAttendantAtBirth',
       yup.string(),
     ),
-    religionId: requiredWhenConfiguredMandatory(getLocalisation, 'religionId', yup.string()),
-    birthWeight: requiredWhenConfiguredMandatory(
+    birthWeight: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      patientRegistryType,
       'birthWeight',
       yup
         .number()
         .min(0)
         .max(6),
     ),
-    birthLength: requiredWhenConfiguredMandatory(
+    birthLength: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      patientRegistryType,
       'birthLength',
       yup
         .number()
         .min(0)
         .max(100),
     ),
-    birthDeliveryType: requiredWhenConfiguredMandatory(
+    birthDeliveryType: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      patientRegistryType,
       'birthDeliveryType',
       yup.string().oneOf(Object.values(BIRTH_DELIVERY_TYPES)),
     ),
-    gestationalAgeEstimate: requiredWhenConfiguredMandatory(
+    gestationalAgeEstimate: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      patientRegistryType,
       'gestationalAgeEstimate',
       yup
         .number()
         .min(1)
         .max(45),
     ),
-    apgarScoreOneMinute: requiredWhenConfiguredMandatory(
+    apgarScoreOneMinute: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      patientRegistryType,
       'apgarScoreOneMinute',
       yup
         .number()
         .min(1)
         .max(10),
     ),
-    apgarScoreFiveMinutes: requiredWhenConfiguredMandatory(
+    apgarScoreFiveMinutes: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      patientRegistryType,
       'apgarScoreFiveMinutes',
       yup
         .number()
         .min(1)
         .max(10),
     ),
-    apgarScoreTenMinutes: requiredWhenConfiguredMandatory(
+    apgarScoreTenMinutes: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      patientRegistryType,
       'apgarScoreTenMinutes',
       yup
         .number()
         .min(1)
         .max(10),
     ),
-    birthType: requiredWhenConfiguredMandatory(
+    birthType: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      patientRegistryType,
       'birthType',
       yup.string().oneOf(Object.values(BIRTH_TYPES)),
     ),
-    timeOfBirth: requiredWhenConfiguredMandatory(getLocalisation, 'timeOfBirth', yup.string()),
-    registeredBirthPlace: requiredWhenConfiguredMandatory(
+    timeOfBirth: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
+      patientRegistryType,
+      'timeOfBirth',
+      yup.string(),
+    ),
+    registeredBirthPlace: requiredBirthFieldWhenConfiguredMandatory(
+      getLocalisation,
+      patientRegistryType,
       'registeredBirthPlace',
       yup.string().oneOf(Object.values(PLACE_OF_BIRTH_TYPES)),
     ),
+    /* --- PATIENT BIRTH FIELDS END--- */
+
+    religionId: requiredWhenConfiguredMandatory(getLocalisation, 'religionId', yup.string()),
     birthCertificate: requiredWhenConfiguredMandatory(
       getLocalisation,
       'birthCertificate',
