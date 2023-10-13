@@ -58,6 +58,17 @@ export class CentralSyncManager {
 
   close = () => clearInterval(this.purgeInterval);
 
+  async getIsSyncUnderway() {
+    const MAX_SYNC_SESSIONS = 1; // TODO: configurable? or maybe this doesn't matter
+    const activeSyncs = await this.store.models.SyncSessions.findAll({
+      where: {
+        completedAt: null,
+        error: null,
+      },
+    });
+    return activeSyncs.length >= MAX_SYNC_SESSIONS;
+  }
+
   async tickTockGlobalClock() {
     // rather than just incrementing by one tick, we "tick, tock" the clock so we guarantee the
     // "tick" part to be unique to the requesting client, and any changes made directly on the

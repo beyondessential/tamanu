@@ -18,24 +18,44 @@ export const buildSyncRoutes = ctx => {
     }
   }, 5000);
 
-  // create new sync session
+  // create new sync session or join/update the queue for one
   syncRoutes.post(
     '/',
     asyncHandler(async (req, res) => {
       const { SyncQueuedDevice } = req.models;
-      const queueResult = await SyncQueuedDevice.checkSyncRequest({
+      
+      // update our position in the queue and check if we're at the front of it
+      const queueRecord = await SyncQueuedDevice.checkSyncRequest({
         lastSyncedTick: 0,
         urgent: false,
         ...req.body
       });
-      log.info("Dummy queue result:", { queueResult });
+      log.info("Dummy queue result:", { queueRecord });
 
-      if (!queueResult) {
+      // if we're not at the front of the queue, we're waiting
+      if (!queueRecord) {
         res.send({
           status: 'waitingInQueue',
         });
         return;
       }
+
+      // we're at the front of the queue, but if the previous device's sync is still
+      // underway we need to wait for that
+      const isSyncUnderway = await syncManager.getIsSyncUnderway();
+      if (isSyncUnderway) {
+        res.send({
+          status: 'activeSync',
+        });
+        return;
+      }
+
+      // remove our place in the queue before starting sync 
+      // (if the resulting sync has an error, we'll be knocked to the back of the queue
+      // but that's fine. It will leave some room for non-errored devices to sync, and 
+      // our requests will get priority once our error resolves as we'll have an older
+      // lastSyncedTick)
+      queueRecord.destroy();
 
       const { user, body } = req;
       const { facilityId, deviceId } = body;

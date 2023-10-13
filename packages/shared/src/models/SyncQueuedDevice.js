@@ -97,17 +97,11 @@ export class SyncQueuedDevice extends Model {
     const nextDevice = await this.getNextReadyDevice();
     if (nextDevice?.id !== deviceId) {
       // someone else is in the queue before us, report back with a "wait" signal
-      return false;
+      return null;
     }
 
-    // it's our turn! remove our record from the queue and tell the sync system that
-    // we're ready to go!
-    // (if the resulting sync has an error, we'll be knocked to the back of the queue
-    // but that's fine, it will leave some room for non-errored devices to sync, and 
-    // our requests will get priority once our error resolves as we'll have an older
-    // lastSyncedTick)
-    queueRecord.destroy();
-    return true;
+    // it's our turn! tell the sync system that we're ready to go!
+    return queueRecord;
   }
 
 }
