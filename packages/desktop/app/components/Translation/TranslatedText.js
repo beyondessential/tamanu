@@ -44,8 +44,7 @@ export const TranslatedText = ({ stringId, fallback, replacements }) => {
 
   useEffect(() => {
     const getDebugMode = async () => {
-      const debugMode = await JSON.parse(localStorage.getItem('debugTranslation'));
-      setIsDebugMode(debugMode);
+      setIsDebugMode(safeGetIsDebugMode());
     };
     getDebugMode();
 
