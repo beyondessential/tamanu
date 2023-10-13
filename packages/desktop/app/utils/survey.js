@@ -1,7 +1,7 @@
 // Much of this file is duplicated in `packages/mobile/App/ui/components/Forms/SurveyForm/helpers.ts`
 import React from 'react';
 import * as yup from 'yup';
-import { inRange, isNil } from 'lodash';
+import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
 import { intervalToDuration, parseISO } from 'date-fns';
 
 import {
@@ -21,6 +21,7 @@ import {
 import { ageInYears, ageInMonths, ageInWeeks } from '@tamanu/shared/utils/dateTime';
 import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { joinNames } from './user';
+import { notifyError } from './utils';
 
 const InstructionField = ({ label, helperText }) => (
   <p>
@@ -92,49 +93,14 @@ export function checkVisibility(component, values, allComponents) {
   if (!visibilityCriteria) return true;
 
   try {
-    const criteriaObject = JSON.parse(visibilityCriteria);
-
-    if (!criteriaObject) {
-      return true;
-    }
-
-    const { _conjunction: conjunction, hidden, ...restOfCriteria } = criteriaObject;
-    if (Object.keys(restOfCriteria).length === 0) {
-      return true;
-    }
-
-    const checkIfQuestionMeetsCriteria = ([dataElementCode, answersEnablingFollowUp]) => {
-      const matchingComponent = allComponents.find(x => x.dataElement.code === dataElementCode);
-      const value = values[matchingComponent.dataElement.id];
-      if (answersEnablingFollowUp.type === 'range') {
-        if (isNil(value)) return false;
-        const { start, end } = answersEnablingFollowUp;
-
-        if (!start) return value < end;
-        if (!end) return value >= start;
-        if (inRange(parseFloat(value), parseFloat(start), parseFloat(end))) {
-          return true;
-        }
-        return false;
+    const valuesByCode = Object.entries(values).reduce((acc, [key, val]) => {
+      const matchingComponent = allComponents.find(x => x.dataElement.id === key);
+      if (matchingComponent) {
+        acc[matchingComponent.dataElement.code] = val;
       }
-
-      const isMultiSelect =
-        matchingComponent.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
-
-      if (Array.isArray(answersEnablingFollowUp)) {
-        return isMultiSelect
-          ? (value?.split(', ') || []).some(selected => answersEnablingFollowUp.includes(selected))
-          : answersEnablingFollowUp.includes(value);
-      }
-
-      return isMultiSelect
-        ? value?.includes(answersEnablingFollowUp)
-        : answersEnablingFollowUp === value;
-    };
-
-    return conjunction === 'and'
-      ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
-      : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
+      return acc;
+    }, {});
+    return checkJSONCriteria(visibilityCriteria, allComponents, valuesByCode);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.warn(`Error parsing visilbity criteria as JSON, using fallback.
@@ -283,7 +249,7 @@ export const getActionsFromData = (data, survey) =>
     return acc;
   }, {});
 
-export const getValidationSchema = surveyData => {
+export const getValidationSchema = (surveyData, valuesToCheckMandatory = {}) => {
   if (!surveyData) return {};
   const { components } = surveyData;
   const schema = components.reduce(
@@ -299,9 +265,13 @@ export const getValidationSchema = surveyData => {
       },
     ) => {
       const { unit = '' } = getConfigObject(componentId, config);
-      const { min, max, mandatory } = getConfigObject(componentId, validationCriteria);
+      const { min, max, mandatory: mandatoryConfig } = getConfigObject(
+        componentId,
+        validationCriteria,
+      );
       const { type, defaultText } = dataElement;
       const text = componentText || defaultText;
+      const mandatory = checkMandatory(mandatoryConfig, valuesToCheckMandatory);
       let valueSchema;
       switch (type) {
         case PROGRAM_DATA_ELEMENT_TYPES.NUMBER: {
@@ -369,4 +339,24 @@ export const getNormalRangeByAge = (validationCriteria = {}, { dateOfBirth }) =>
   );
 
   return normalRangeByAge;
+};
+
+export const checkMandatory = (mandatory, values) => {
+  try {
+    if (!mandatory) {
+      return false;
+    }
+    if (typeof mandatory === 'boolean') {
+      return mandatory;
+    }
+
+    return checkJSONCriteria(JSON.stringify(mandatory), [], values);
+  } catch (error) {
+    notifyError(
+      `Failed to use mandatory in validationCriteria: ${JSON.stringify(mandatory)}, error: ${
+        error.message
+      }`,
+    );
+    return false;
+  }
 };
