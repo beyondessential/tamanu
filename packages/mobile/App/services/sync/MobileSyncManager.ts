@@ -165,11 +165,11 @@ export class MobileSyncManager {
     });
 
     if (status) {
+      console.log(`MobileSyncManager.runSync(): Sync queue status: ${status}`);
       this.isSyncing = false;
       return;
     }
 
-    console.log('MobileSyncManager.runSync(): Began sync run');
 
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
 
