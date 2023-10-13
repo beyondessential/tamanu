@@ -107,9 +107,8 @@ export class FacilitySyncManager {
       lastSyncedTick: pullSince,
     });
 
-    if (status) {
+    if (!sessionId) {
       // we're queued
-      // TODO: how to deal with this?
       log.info('FacilitySyncManager.wasQueued', { status });
       return;
     }

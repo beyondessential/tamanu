@@ -143,6 +143,8 @@ export class CentralServerConnection {
 
   async startSyncSession({ urgent, lastSyncedTick }) {
     const facilityId = await readConfig('facilityId', '');
+
+    // start a sync session (or refresh our position in the queue)
     const { sessionId, status } = await this.post('sync', {}, { 
       urgent,
       lastSyncedTick,
@@ -150,7 +152,8 @@ export class CentralServerConnection {
       deviceId: this.deviceId,
     });
 
-    if (status === 'waitingInQueue') {
+    if (!sessionId) {
+      // we're waiting in a queue
       return { status };
     }
 

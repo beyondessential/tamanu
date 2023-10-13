@@ -164,12 +164,11 @@ export class MobileSyncManager {
       lastSyncedTick: pullSince,
     });
 
-    if (status) {
+    if (!sessionId) {
       console.log(`MobileSyncManager.runSync(): Sync queue status: ${status}`);
       this.isSyncing = false;
       return;
     }
-
 
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
 

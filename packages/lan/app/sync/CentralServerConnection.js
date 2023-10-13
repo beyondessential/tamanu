@@ -224,7 +224,8 @@ export class CentralServerConnection {
       },
     });
 
-    if (status === 'waitingInQueue') {
+    if (!sessionId) {
+      // we're waiting in a queue
       return { status };
     }
 
