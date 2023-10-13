@@ -15,7 +15,7 @@ export const rangeObjectSchema = yup
   })
   .noUnknown()
   .test({
-    name: 'range',
+    name: 'is-min-and-max-valid',
     message: ctx => `${ctx.path} should have either min or max, got ${JSON.stringify(ctx.value)}`,
     test: value => {
       if (!value) {
