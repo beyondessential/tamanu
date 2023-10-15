@@ -36,7 +36,7 @@ export function checkJSONCriteria(criteria, allComponents, values) {
 
     if (Array.isArray(answersEnablingFollowUp)) {
       return isMultiSelect
-        ? (value?.split(', ') || []).some(selected => answersEnablingFollowUp.includes(selected))
+        ? (JSON.parse(value) || []).some(selected => answersEnablingFollowUp.includes(selected))
         : answersEnablingFollowUp.includes(value);
     }
 
