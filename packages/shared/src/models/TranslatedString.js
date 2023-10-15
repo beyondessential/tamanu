@@ -12,15 +12,16 @@ export class TranslatedString extends Model {
           set() {
             // any sets of the convenience generated "id" field can be ignored
           },
-          primaryKey: true,
         },
         stringId: {
           type: DataTypes.TEXT,
           allowNull: false,
+          primaryKey: true,
         },
         language: {
           type: DataTypes.TEXT,
           allowNull: false,
+          primaryKey: true,
         },
         text: {
           type: DataTypes.TEXT,
