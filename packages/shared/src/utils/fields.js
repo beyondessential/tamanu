@@ -1,6 +1,6 @@
-import { inRange, isNil } from 'lodash';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { log } from '../services/logging';
+import { checkJSONCriteria } from './criteria';
 
 export function getStringValue(type, value) {
   if (value === null) {
@@ -53,53 +53,9 @@ function compareData(dataType, expected, given) {
  */
 function checkVisibilityCriteria(component, allComponents, values) {
   const { visibilityCriteria } = component;
-  // nothing set - show by default
-  if (!visibilityCriteria) return true;
 
   try {
-    const criteriaObject = JSON.parse(visibilityCriteria);
-
-    if (!criteriaObject) {
-      return true;
-    }
-
-    const { _conjunction: conjunction, hidden: _, ...restOfCriteria } = criteriaObject;
-    if (Object.keys(restOfCriteria).length === 0) {
-      return true;
-    }
-
-    const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]) => {
-      const isMultiSelect =
-        matchingComponent?.dataElement?.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
-      const value = isMultiSelect ? JSON.parse(values[questionCode]) : values[questionCode];
-      if (answersEnablingFollowUp.type === 'range') {
-        if (isNil(value)) return false;
-        const { start, end } = answersEnablingFollowUp;
-
-        if (!start) return value < end;
-        if (!end) return value >= start;
-        if (inRange(value, parseFloat(start), parseFloat(end))) {
-          return true;
-        }
-        return false;
-      }
-
-      const matchingComponent = allComponents.find(x => x.dataElement?.code === questionCode);
-
-      if (Array.isArray(answersEnablingFollowUp)) {
-        return isMultiSelect
-          ? (value || []).some(selected => answersEnablingFollowUp.includes(selected))
-          : answersEnablingFollowUp.includes(value);
-      }
-
-      return isMultiSelect
-        ? value?.includes(answersEnablingFollowUp)
-        : answersEnablingFollowUp === value;
-    };
-
-    return conjunction === 'and'
-      ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
-      : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
+    return checkJSONCriteria(visibilityCriteria, allComponents, values);
   } catch (error) {
     log.warn(
       `Error parsing JSON visibility criteria for ${component.dataElement?.code}, using fallback.\nError message: ${error.message}`,
@@ -156,11 +112,11 @@ function getValuesByCode(components, valuesById) {
   return valuesByCode;
 }
 
-export function getResultValue(components, originalValues) {
+export function getResultValue(components, originalValues, specialValues) {
   const values = getValuesByCode(components, originalValues);
   const resultComponents = components
     .filter(c => c.dataElement.type === 'Result')
-    .filter(c => checkVisibilityCriteria(c, components, values));
+    .filter(c => checkVisibilityCriteria(c, components, { ...values, ...specialValues }));
 
   const component = resultComponents.pop();
 
