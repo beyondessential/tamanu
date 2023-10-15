@@ -8,7 +8,8 @@ export const translation = express.Router();
 translation.post(
   '/',
   asyncHandler(async (req, res) => {
-    // Don't need a write permission here, just need to be logged in
+    // Don't need a write permission here, requirements
+    // are basically that user is logged in
     req.checkPermission('list', 'Translation');
 
     const {
@@ -18,7 +19,7 @@ translation.post(
 
     const translatedString = await TranslatedString.create({
       stringId,
-      fallback,
+      text: fallback,
       language: LANGUAGE_CODES.ENGLISH,
     });
 
