@@ -1,9 +1,30 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-
-import { LANGUAGE_NAMES } from '@tamanu/constants';
+import { LANGUAGE_NAMES, LANGUAGE_CODES } from '@tamanu/constants';
 
 export const translation = express.Router();
+
+// Register a new string for translation
+translation.post(
+  '/',
+  asyncHandler(async (req, res) => {
+    // Don't need a write permission here, just need to be logged in
+    req.checkPermission('list', 'Translation');
+
+    const {
+      models: { TranslatedString },
+      body: { stringId, fallback },
+    } = req;
+
+    const translatedString = await TranslatedString.create({
+      stringId,
+      fallback,
+      language: LANGUAGE_CODES.ENGLISH,
+    });
+
+    res.send(translatedString);
+  }),
+);
 
 translation.get(
   '/preLogin',
