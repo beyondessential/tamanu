@@ -189,6 +189,10 @@
       "enabled": true,
       "schedule": "* * * * *",
       "staleSessionSeconds": 3600
+    },
+    "processSyncQueue": {
+      "enabled": true,
+      "schedule": "* * * * *"
     }
   },
   "integrations": {

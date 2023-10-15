@@ -35,37 +35,24 @@ export class SyncQueuedDevice extends Model {
     );
   }
 
-  static async getNextReadyDevice() {
-    const windowStart = toDateTimeString(subMinutes(new Date(), SYNC_QUEUE_WINDOW_MINUTES));
-    const foundDevice = await this.findOne({
-      where: {
-        lastSeenTime: {
-          [Op.gt]: windowStart,
-        },
-        status: SYNC_QUEUE_STATUSES.READY,
+  static getQueueWhereClause() {
+    return {
+      lastSeenTime: {
+        [Op.gt]: toDateTimeString(subMinutes(new Date(), SYNC_QUEUE_WINDOW_MINUTES)),
       },
+      status: SYNC_QUEUE_STATUSES.READY,
+    };
+  }
+
+  static async getNextReadyDevice() {
+    const foundDevice = await this.findOne({
+      where: this.getQueueWhereClause(),
       orderBy: [
         ['urgent', 'DESC'], // trues first
         ['lastSyncedTick', 'ASC'], // oldest sync first
       ],
     });
     return foundDevice;
-  }
-
-  static async processQueue() {
-    if (await this.getNextReadyDevice()) {
-      // There are still devices waiting in the ready zone, so don't 
-      // promote any devices from the queued zone into to the ready zone yet.
-      return;
-    }
-
-    return this.update({
-      status: SYNC_QUEUE_STATUSES.READY,
-    }, {
-      where: {
-        status: SYNC_QUEUE_STATUSES.QUEUED,
-      },
-    });
   }
 
   static async checkSyncRequest({ facilityId, deviceId, urgent, lastSyncedTick }) {

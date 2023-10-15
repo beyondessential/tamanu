@@ -8,16 +8,6 @@ export const buildSyncRoutes = ctx => {
   const syncManager = new CentralSyncManager(ctx);
   const syncRoutes = express.Router();
 
-  // TODO: scheduled task
-  setInterval(async () => {
-    log.info("processSyncQueue");
-    try {
-      ctx.store.models.SyncQueuedDevice.processQueue();
-    } catch (e) {
-      log.error(e);
-    }
-  }, 5000);
-
   // create new sync session or join/update the queue for one
   syncRoutes.post(
     '/',
