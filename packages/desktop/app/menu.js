@@ -98,6 +98,13 @@ export default class MenuBuilder {
             this.mainWindow.toggleDevTools();
           },
         },
+        {
+          label: 'Toggle Translation Debug',
+          accelerator: 'Alt+Command+F',
+          click: async () => {
+            this.mainWindow.webContents.send('toggleTranslationDebug');
+          },
+        },
       ],
     };
     const subMenuViewProd = {
