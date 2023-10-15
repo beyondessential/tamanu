@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { mapValues, keyBy } from 'lodash';
 
 import { LANGUAGE_NAMES } from '@tamanu/constants';
 
@@ -11,24 +12,16 @@ translation.get(
     // No permission needed when on login screen
     req.flagPermissionChecked();
 
-    const {
-      models: { TranslatedString },
-    } = req;
+    const languageArray = await req.db.query(
+      'SELECT language FROM translated_strings GROUP BY language',
+    );
 
-    const translatedStringRecords = await TranslatedString.findAll({
-      attributes: ['language'],
-      distinct: true,
+    const languageOptions = languageArray[0].map(({ language }) => {
+      return {
+        label: LANGUAGE_NAMES[language],
+        value: language,
+      };
     });
-
-    const languageOptions = translatedStringRecords
-      .map(obj => obj.language)
-      .filter((value, index, self) => {
-        return self.indexOf(value) === index;
-      })
-      .map(languageCode => ({
-        label: LANGUAGE_NAMES[languageCode],
-        value: languageCode,
-      }));
 
     res.send(languageOptions);
   }),
@@ -49,10 +42,6 @@ translation.get(
       attributes: ['stringId', 'text'],
     });
 
-    const translationDictionary = Object.fromEntries(
-      translatedStringRecords.map(obj => [obj.stringId, obj.text]),
-    );
-
-    res.send(translationDictionary);
+    res.send(mapValues(keyBy(translatedStringRecords, 'stringId'), 'text'));
   }),
 );
