@@ -29,7 +29,7 @@ describe('Template', () => {
 
     it('fetches a template record within a facility', async () => {
       const facility = await models.Facility.create(fake(models.Facility));
-      await Setting.set(TEST_KEY, TEST_VALUE, facility.id, SETTINGS_SCOPES.FACILITY);
+      await Setting.set(TEST_KEY, TEST_VALUE, SETTINGS_SCOPES.FACILITY, facility.id);
 
       const result = await app.get(`/v1/template/${TEST_KEY}?facilityId=${facility.id}`).send({});
 
@@ -40,7 +40,7 @@ describe('Template', () => {
     it('does not fetch a template record within a different facility', async () => {
       const facility1 = await models.Facility.create(fake(models.Facility));
       const facility2 = await models.Facility.create(fake(models.Facility));
-      await Setting.set(TEST_KEY, TEST_VALUE, facility1.id, SETTINGS_SCOPES.FACILITY);
+      await Setting.set(TEST_KEY, TEST_VALUE, SETTINGS_SCOPES.FACILITY, facility1.id);
 
       const result = await app.get(`/v1/template/${TEST_KEY}?facilityId=${facility2.id}`).send({});
 

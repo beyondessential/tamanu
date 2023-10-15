@@ -89,7 +89,7 @@ export class Setting extends Model {
    * IMPORTANT: Duplicated from mobile/models/Setting.ts
    * Please update both places when modify
    */
-  static async get(key = '', facilityId = null, scope = '') {
+  static async get(key = '', facilityId = null, scope = null) {
     const settings = await Setting.findAll({
       where: {
         ...(key
@@ -108,10 +108,7 @@ export class Setting extends Model {
             }
           : {}),
         facilityId: {
-          [Op.or]: {
-            [Op.eq]: facilityId,
-            [Op.is]: null,
-          },
+          ...(facilityId ? { [Op.eq]: facilityId } : { [Op.is]: null }),
         },
       },
 
@@ -139,8 +136,7 @@ export class Setting extends Model {
     return getAtPath(settingsObject, key);
   }
 
-  static async set(key, value, facilityId = null, scopeParam) {
-    const scope = scopeParam || facilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.GLOBAL;
+  static async set(key, value, scope, facilityId = null) {
     const records = buildSettingsRecords(key, value, facilityId);
 
     // create or update records
@@ -159,6 +155,15 @@ export class Setting extends Model {
       }),
     );
 
+    const keyWhere = key
+      ? {
+          [Op.or]: {
+            [Op.eq]: key,
+            [Op.like]: `${key}.%`,
+          },
+        }
+      : {};
+
     // delete any records that are no longer needed
     await this.update(
       {
@@ -168,15 +173,12 @@ export class Setting extends Model {
         where: {
           key: {
             [Op.and]: {
-              [Op.or]: {
-                [Op.eq]: key,
-                [Op.like]: `${key}.%`,
-              },
+              ...keyWhere,
               [Op.notIn]: records.map(r => r.key),
             },
           },
-          facilityId,
           scope,
+          facilityId,
         },
       },
     );
@@ -187,11 +189,11 @@ export class Setting extends Model {
   }
 }
 
-export function buildSettingsRecords(keyPrefix, value, facilityId) {
+export function buildSettingsRecords(keyPrefix, value, facilityId, scope) {
   if (isPlainObject(value)) {
     return Object.entries(value).flatMap(([k, v]) =>
-      buildSettingsRecords([keyPrefix, k].filter(Boolean).join('.'), v, facilityId),
+      buildSettingsRecords([keyPrefix, k].filter(Boolean).join('.'), v, facilityId, scope),
     );
   }
-  return [{ key: keyPrefix, value, facilityId }];
+  return [{ key: keyPrefix, value, facilityId, scope }];
 }

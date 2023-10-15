@@ -36,7 +36,7 @@ describe('Vaccination Settings', () => {
       const TEST_KEY = 'vaccinations.test.key';
       const TEST_VALUE = 'test-value';
 
-      await Setting.set(TEST_KEY, TEST_VALUE, config.serverFacilityId, SETTINGS_SCOPES.FACILITY);
+      await Setting.set(TEST_KEY, TEST_VALUE, SETTINGS_SCOPES.FACILITY, config.serverFacilityId);
 
       const result = await app.get(`/v1/vaccinationSettings/${TEST_KEY}`).send({});
 
@@ -50,7 +50,7 @@ describe('Vaccination Settings', () => {
       const TEST_KEY = 'vaccinations.test.key2';
       const TEST_VALUE = 'test-value';
 
-      await Setting.set(TEST_KEY, TEST_VALUE, anotherFacility.id, SETTINGS_SCOPES.FACILITY);
+      await Setting.set(TEST_KEY, TEST_VALUE, SETTINGS_SCOPES.FACILITY, anotherFacility.id);
 
       const result = await app.get(`/v1/vaccinationSettings/${TEST_KEY}`).send({});
 

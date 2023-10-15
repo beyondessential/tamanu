@@ -6900,6 +6900,11 @@ ace-builds@^1.4.14:
   resolved "https://registry.yarnpkg.com/ace-builds/-/ace-builds-1.23.4.tgz#4f2c813bbdc886a67224be255ab32a280f779a9a"
   integrity sha512-a4hKAT2T7KNUQC4LQPW2peuoEsZmLYTn4Dwjkh26A3Z+fQ8/fA2JZNs3V6CqvivhbyMQXQJD1u/0qTCoSS6deA==
 
+ace-builds@^1.23.4, ace-builds@^1.4.14:
+  version "1.24.0"
+  resolved "https://registry.yarnpkg.com/ace-builds/-/ace-builds-1.24.0.tgz#2e30b3530d486ac3cee6e5531c4b3d34baa382b3"
+  integrity sha512-PdM2yG0zK4KBndvZw0Nc0wRLv/U0/HVVzyC9GpZNgsAaNokbcFQYtMIl3lLtkAxXa+fuePyEaFySNQej+WYEFg==
+
 acorn-import-assertions@^1.7.6:
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/acorn-import-assertions/-/acorn-import-assertions-1.8.0.tgz#ba2b5939ce62c238db6d93d81c9b111b29b855e9"

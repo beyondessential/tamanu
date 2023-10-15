@@ -8,6 +8,7 @@ import {
   SETTING_KEYS,
   ENCOUNTER_TYPES,
   REFERENCE_TYPES,
+  SETTINGS_SCOPES,
 } from '@tamanu/constants';
 import { fake } from 'shared/test-helpers/fake';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
@@ -243,11 +244,13 @@ describe('PatientVaccine', () => {
       await models.Setting.set(
         SETTING_KEYS.VACCINATION_DEFAULTS,
         { locationId: location.id, departmentId: department.id },
+        SETTINGS_SCOPES.FACILITY,
         facility.id,
       );
       await models.Setting.set(
         SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS,
         { locationId: location2.id, departmentId: department2.id },
+        SETTINGS_SCOPES.FACILITY,
         facility.id,
       );
     });

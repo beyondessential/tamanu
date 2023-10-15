@@ -13,7 +13,6 @@ export * from './report';
 export * from './saveCertificateRequest';
 export * from './serve';
 export * from './serveAll';
-export * from './settings';
 export * from './shell';
 export * from './tasks';
 export * from './user';
