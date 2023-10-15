@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/shared",
-  "version": "1.35.0",
+  "version": "1.36.0",
   "description": "Common code across Tamanu packages",
   "exports": {
     ".": "./dist/index.js",
@@ -50,7 +50,7 @@
     "@opentelemetry/semantic-conventions": "^1.9.1",
     "@react-pdf/renderer": "^3.1.3",
     "@tamanu/constants": "*",
-    "bcrypt": "^3.0.1",
+    "bcrypt": "^5.0.1",
     "calculate-luhn-mod-n": "^2.0.12",
     "chance": "^1.1.8",
     "config": "3.0.1",
