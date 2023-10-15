@@ -37,7 +37,12 @@ const replaceStringVariables = (templateString, replacements) => {
 // eslint-disable-next-line no-unused-vars
 export const TranslatedText = ({ stringId, fallback, replacements }) => {
   const [isDebugMode, setIsDebugMode] = useState(false);
-  const translation = null; // Placeholder for checking db for translation
+  // "setTranslation" is used in future functionality
+  // eslint-disable-next-line no-unused-vars
+  const [translation, setTranslation] = useState(fallback);
+  const [displayElements, setDisplayElements] = useState(fallback);
+
+  // TODO: Useeffect or useQuery that fetches the translation from the backend and registers if not existing
 
   useEffect(() => {
     const getDebugMode = async () => {
@@ -51,16 +56,14 @@ export const TranslatedText = ({ stringId, fallback, replacements }) => {
     };
   }, []);
 
-  if (!translation) {
-    // Register as untranslated in DB
-  }
-
-  const stringToReplace = translation || fallback;
-  const stringWithReplacements = replaceStringVariables(stringToReplace, replacements);
+  useEffect(() => {
+    if (!replacements) setDisplayElements(translation);
+    setDisplayElements(replaceStringVariables(translation, replacements));
+  }, [translation, replacements]);
 
   const TextWrapper = isDebugMode ? DebugHighlighed : React.Fragment;
 
-  return <TextWrapper>{stringWithReplacements}</TextWrapper>;
+  return <TextWrapper>{displayElements}</TextWrapper>;
 };
 
 TranslatedText.propTypes = {
