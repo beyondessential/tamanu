@@ -23,16 +23,13 @@ ipcRenderer.on('toggleTranslationDebug', () => {
 
 const replaceStringVariables = (templateString, replacements) => {
   if (!replacements) return templateString;
-  const colonReplacementRegex = /:([a-zA-Z]+)/g;
-  const stringParts = templateString.split(colonReplacementRegex);
-  const jsxElements = stringParts.map((part, index) => {
+  const jsxElements = templateString.split(/(:[a-zA-Z]+)/g).map((part, index) => {
     // Even indexes are the unchanged parts of the string
-    if (index % 2 === 0) {
-      return part;
-    }
+    if (index % 2 === 0) return part;
     // Return the replacement if exists
-    return replacements[part] || `:${part}`;
+    return replacements[part.slice(1)] || part;
   });
+
   return jsxElements;
 };
 
