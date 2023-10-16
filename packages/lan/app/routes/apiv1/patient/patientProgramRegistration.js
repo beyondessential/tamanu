@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { Op } from 'sequelize';
+import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
 import { DELETION_STATUSES } from '@tamanu/constants';
 
 export const patientProgramRegistration = express.Router();
@@ -73,6 +74,19 @@ patientProgramRegistration.post(
     req.checkPermission('read', 'ProgramRegistry', { id: programRegistryId });
     const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
     if (!programRegistry) throw new NotFoundError();
+
+    req.checkPermission('read', 'PatientProgramRegistrationCondition', { programRegistryId });
+    const existingCondition = await models.ProgramRegistry.count({
+      where: {
+        programRegistryId,
+        patientId,
+        programRegistryConditionId: body.programRegistryConditionId,
+        deletionStatus: { [Op.ne]: DELETION_STATUSES.DELETED },
+      },
+    });
+    if (existingCondition) {
+      throw new ValidationError("Can't create a duplicate condition for the same patient");
+    }
 
     req.checkPermission('create', 'PatientProgramRegistrationCondition', { programRegistryId });
     const condition = await models.PatientProgramRegistrationCondition.create({
