@@ -3,7 +3,7 @@
     "name": "tamanu-lan-test",
     "migrateOnStartup": true,
     "reports": {
-      "enabled": true,
+      "enabled": false,
       "credentials": {
         "reporting": {
           "username": "tamanu_reporting",
