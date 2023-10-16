@@ -1,10 +1,16 @@
 import express from 'express';
+import config from 'config';
 import { promises as fs } from 'fs';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Sequelize } from 'sequelize';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { NotFoundError, InvalidOperationError } from '@tamanu/shared/errors';
-import { REPORT_VERSION_EXPORT_FORMATS, REPORT_STATUSES } from '@tamanu/constants';
+import { capitalize } from 'lodash';
+import {
+  REPORT_VERSION_EXPORT_FORMATS,
+  REPORT_STATUSES,
+  REPORT_DB_SCHEMAS,
+} from '@tamanu/constants';
 import { readJSON, sanitizeFilename, verifyQuery } from './utils';
 import { createReportDefinitionVersion } from './createReportDefinitionVersion';
 import { DryRun } from '../errors';
@@ -82,7 +88,19 @@ reportsRouter.post(
   '/',
   asyncHandler(async (req, res) => {
     const { store, body, user, reports } = req;
-    const version = await createReportDefinitionVersion({ store, reports }, null, body, user.id);
+    const isReportingSchemaEnabled = config.db.reports.enabled;
+    const defaultReportingSchema = isReportingSchemaEnabled
+      ? REPORT_DB_SCHEMAS.REPORTING
+      : REPORT_DB_SCHEMAS.RAW;
+
+    const transformedBody = !body.dbSchema ? { ...body, dbSchema: defaultReportingSchema } : body;
+
+    const version = await createReportDefinitionVersion(
+      { store, reports },
+      null,
+      transformedBody,
+      user.id,
+    );
     res.send(version);
   }),
 );
@@ -164,6 +182,11 @@ reportsRouter.post(
     if (versionData.versionNumber)
       throw new InvalidOperationError('Cannot import a report with a version number');
 
+    const existingDefinition = await ReportDefinition.findOne({ where: { name } });
+    if (existingDefinition && existingDefinition.dbSchema !== versionData.dbSchema) {
+      throw new InvalidOperationError('Cannot change a reporting schema for existing report');
+    }
+
     await verifyQuery(
       versionData.query,
       versionData.queryOptions,
@@ -179,7 +202,6 @@ reportsRouter.post(
           isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
         },
         async () => {
-          // TODO: Stop this from trying to create a new definition if dbSchema changes. Should validate properly
           const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
             where: {
               name,
@@ -255,5 +277,17 @@ reportsRouter.get(
       ],
     });
     res.send(version);
+  }),
+);
+
+reportsRouter.get(
+  '/dbSchemaOptions',
+  asyncHandler(async (req, res) => {
+    if (!config.db.reports.enabled) return [];
+    const DB_SCHEMA_OPTIONS = Object.values(REPORT_DB_SCHEMAS).map(value => ({
+      label: capitalize(value),
+      value,
+    }));
+    return res.send(DB_SCHEMA_OPTIONS);
   }),
 );
