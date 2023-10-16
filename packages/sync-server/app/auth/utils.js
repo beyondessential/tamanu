@@ -3,7 +3,7 @@ import { sign as signCallback, verify as verifyCallback } from 'jsonwebtoken';
 import { randomBytes, randomInt } from 'crypto';
 import { promisify } from 'util';
 
-import { VISIBILITY_STATUSES } from '@tamanu/shared/constants';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 const sign = promisify(signCallback);
 const verify = promisify(verifyCallback);
