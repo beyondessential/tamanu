@@ -60,6 +60,30 @@ patientProgramRegistration.post(
   }),
 );
 
+patientProgramRegistration.post(
+  '/:patientId/programRegistration/:programRegistryId/condition',
+  asyncHandler(async (req, res) => {
+    const { models, params, body } = req;
+    const { patientId, programRegistryId } = params;
+
+    req.checkPermission('read', 'Patient');
+    const patient = await models.Patient.findByPk(patientId);
+    if (!patient) throw new NotFoundError();
+
+    req.checkPermission('read', 'ProgramRegistry', { id: programRegistryId });
+    const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
+    if (!programRegistry) throw new NotFoundError();
+
+    req.checkPermission('create', 'PatientProgramRegistrationCondition', { programRegistryId });
+    const condition = await models.PatientProgramRegistrationCondition.create({
+      patientId,
+      programRegistryId,
+      ...body,
+    });
+
+    res.send(condition);
+  }),
+);
 
 patientProgramRegistration.delete(
   '/:patientId/programRegistration/:programRegistryId/condition/:conditionId',
@@ -87,31 +111,6 @@ patientProgramRegistration.delete(
       deletionStatus: DELETION_STATUSES.DELETED,
       deletionClinicianId: body.deletionClinicianId,
       deletionDate: body.deletionDate,
-    });
-
-    res.send(condition);
-  }),
-);
-
-patientProgramRegistration.post(
-  '/:patientId/programRegistration/:programRegistryId/condition',
-  asyncHandler(async (req, res) => {
-    const { models, params, body } = req;
-    const { patientId, programRegistryId } = params;
-
-    req.checkPermission('read', 'Patient');
-    const patient = await models.Patient.findByPk(patientId);
-    if (!patient) throw new NotFoundError();
-
-    req.checkPermission('read', 'ProgramRegistry', { id: programRegistryId });
-    const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
-    if (!programRegistry) throw new NotFoundError();
-
-    req.checkPermission('create', 'PatientProgramRegistrationCondition', { programRegistryId });
-    const condition = await models.PatientProgramRegistrationCondition.create({
-      patientId,
-      programRegistryId,
-      ...body,
     });
 
     res.send(condition);
