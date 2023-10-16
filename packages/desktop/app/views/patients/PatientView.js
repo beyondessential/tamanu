@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { TabDisplay } from '../../components/TabDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientAlert } from '../../components/PatientAlert';
@@ -94,6 +94,7 @@ const TABS = [
 ];
 
 export const PatientView = () => {
+  const queryClient = useQueryClient();
   const { getLocalisation } = useLocalisation();
   const query = useUrlSearchParams();
   const patient = useSelector(state => state.patient);
@@ -112,6 +113,17 @@ export const PatientView = () => {
   useEffect(() => {
     api.post(`user/recently-viewed-patients/${patient.id}`);
   }, [api, patient.id]);
+
+  useEffect(() => {
+    if (!patient.syncing) {
+      queryClient.invalidateQueries(['additionalData', patient.id]);
+      queryClient.invalidateQueries(['birthData', patient.id]);
+      queryClient.invalidateQueries(['patientFields', patient.id]);
+    }
+
+    // invalidate queries
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [patient.syncing]);
 
   if (patient.loading || isLoadingAdditionalData || isLoadingBirthData) {
     return <LoadingIndicator />;
