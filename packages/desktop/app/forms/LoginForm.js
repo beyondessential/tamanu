@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Collapse from '@material-ui/core/Collapse';
 import * as yup from 'yup';
 import styled from 'styled-components';
+import { LANGUAGE_CODES } from '@tamanu/constants';
 import { FormGrid } from '../components/FormGrid';
 import {
   Button,
@@ -43,16 +44,11 @@ const ErrorMessage = styled.div`
 export const LoginForm = React.memo(
   ({ onSubmit, errorMessage, rememberEmail, onNavToResetPassword }) => {
     const [isAdvancedExpanded, setAdvancedExpanded] = useState(false);
-    const [language, setLanguage] = useState('en');
 
     const onError = errors => {
       if (errors.host) {
         setAdvancedExpanded(true);
       }
-    };
-
-    const onChangeLanguage = event => {
-      setLanguage(event.target.value);
     };
 
     const renderForm = ({ setFieldValue, isSubmitting }) => (
@@ -89,7 +85,7 @@ export const LoginForm = React.memo(
         <Button onClick={onNavToResetPassword} color="default" variant="text">
           Forgot your password?
         </Button>
-        <LanguageSelector selectedLanguage={language} onChange={onChangeLanguage} />
+        <LanguageSelector setFieldValue={setFieldValue} />
       </FormGrid>
     );
 
@@ -110,6 +106,10 @@ export const LoginForm = React.memo(
             .nullable()
             .required(),
           password: yup.string().required(),
+          language: yup
+            .string()
+            .oneOf(Object.values(LANGUAGE_CODES))
+            .required('Must select a language'),
         })}
       />
     );

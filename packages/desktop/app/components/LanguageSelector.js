@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { Colors } from '../constants';
@@ -49,23 +49,41 @@ const customStyles = {
   }),
 };
 
-export const LanguageSelector = ({ selectedLanguage, onChange }) => {
+export const LanguageSelector = ({ setFieldValue }) => {
   const api = useApi();
+  const [selectedLanguage, setSelectedLanguage] = useState(null);
+
+  const onChangeLanguage = event => {
+    setSelectedLanguage(event.target.value);
+    setFieldValue('language', event.target.value);
+  };
 
   const { data: languageOptions = [], error } = useQuery(['languageList'], () =>
     api.get('translation/preLogin'),
   );
 
+  // TODO: Default to last picked language OR get default from localisation/config
+
+  const singleOption = languageOptions.length === 1;
+  useEffect(() => {
+    if (singleOption) {
+      setFieldValue('language', languageOptions[0].value);
+    }
+  }, [singleOption, languageOptions, setFieldValue]);
+
   return (
     <LanguageSelectorContainer>
       <SelectInput
-        value={selectedLanguage}
-        onChange={onChange}
+        value={singleOption ? languageOptions[0].value : selectedLanguage}
+        onChange={onChangeLanguage}
         options={languageOptions}
         label="Language"
+        name="languageCode"
         isClearable={false}
         error={!!error}
         customStyleObject={customStyles}
+        readonly={singleOption}
+        variant="filled"
       />
     </LanguageSelectorContainer>
   );
