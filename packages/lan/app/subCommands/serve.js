@@ -6,13 +6,14 @@ import { log } from 'shared/services/logging';
 import { performTimeZoneChecks } from 'shared/utils/timeZoneCheck';
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
-import { initDatabase, initReporting, performDatabaseIntegrityChecks } from '../database';
+import { performDatabaseIntegrityChecks } from '../database';
 import { FacilitySyncManager, CentralServerConnection } from '../sync';
 import { createApp } from '../createApp';
 import { startScheduledTasks } from '../tasks';
 import { listenForServerQueries } from '../discovery';
 
 import { version } from '../serverInfo';
+import { ApplicationContext } from '../ApplicationContext';
 
 async function serve({ skipMigrationCheck }) {
   log.info(`Starting facility server version ${version}`, {
@@ -23,7 +24,7 @@ async function serve({ skipMigrationCheck }) {
     execArgs: process.execArgs || '<empty>',
   });
 
-  const context = await initDatabase();
+  const context = await new ApplicationContext().init();
 
   if (config.db.migrateOnStartup) {
     await context.sequelize.migrate('up');
@@ -34,10 +35,6 @@ async function serve({ skipMigrationCheck }) {
   await initDeviceId(context);
   await checkConfig(config, context);
   await performDatabaseIntegrityChecks(context);
-
-  if (config.db.reports.enabled) {
-    context.reports = await initReporting();
-  }
 
   context.centralServer = new CentralServerConnection(context);
   context.syncManager = new FacilitySyncManager(context);

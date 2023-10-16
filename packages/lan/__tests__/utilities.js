@@ -14,7 +14,7 @@ import {
 import { chance, fake, showError } from 'shared/test-helpers';
 
 import { createApp } from 'lan/app/createApp';
-import { initDatabase, closeDatabase, initReporting } from 'lan/app/database';
+import { initReporting } from 'lan/app/database';
 import { getToken } from 'lan/app/middleware/auth';
 
 import { toMatchTabularReport } from './toMatchTabularReport';
@@ -23,6 +23,7 @@ import { deleteAllTestIds } from './setupUtilities';
 
 import { FacilitySyncManager } from '../app/sync/FacilitySyncManager';
 import { CentralServerConnection } from '../app/sync/CentralServerConnection';
+import { ApplicationContext } from '../app/ApplicationContext';
 
 jest.mock('../app/sync/CentralServerConnection');
 jest.mock('../app/utils/uploadAttachment');
@@ -101,23 +102,22 @@ export function extendExpect(expect) {
 }
 
 export async function createTestContext({ enableReportInstances } = {}) {
-  const dbResult = await initDatabase();
-
+  const context = await new ApplicationContext().init();
   // create mock reporting schema + roles if test requires it
   // init reporting instances for these roles
   if (enableReportInstances) {
-    await createMockReportingSchemaAndRoles(dbResult);
-    dbResult.reports = await initReporting();
+    await createMockReportingSchemaAndRoles(context);
+    context.reports = await initReporting();
   }
 
-  const { models, sequelize } = dbResult;
+  const { models, sequelize } = context;
 
   // do NOT time out during create context
   jest.setTimeout(1000 * 60 * 60 * 24);
 
   await sequelize.migrate('up');
 
-  await showError(deleteAllTestIds(dbResult));
+  await showError(deleteAllTestIds(context));
 
   // populate with reference data
   const tasks = allSeeds
@@ -146,7 +146,7 @@ export async function createTestContext({ enableReportInstances } = {}) {
   // ensure there's a corresponding local system fact for it too
   await models.LocalSystemFact.set('facilityId', facility.id);
 
-  const expressApp = createApp(dbResult);
+  const expressApp = createApp(context);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest(appServer);
 
@@ -190,14 +190,13 @@ export async function createTestContext({ enableReportInstances } = {}) {
 
   const centralServer = new CentralServerConnection({ deviceId: 'test' });
 
-  const context = { ...dbResult, centralServer, baseApp };
+  context.onClose(async () => {
+    await new Promise(resolve => appServer.close(resolve));
+  });
 
+  context.centralServer = centralServer;
+  context.baseApp = baseApp;
   context.syncManager = new FacilitySyncManager(context);
 
-  const close = async () => {
-    await new Promise(resolve => appServer.close(resolve));
-    await closeDatabase();
-  };
-
-  return { ...context, close };
+  return context;
 }
