@@ -47,7 +47,11 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
   return (
     <Form
       onSubmit={data => {
-        onSubmit({ ...data, conditions: data.conditions.split(','), patientId: patient.id });
+        onSubmit({
+          ...data,
+          conditions: data.conditions ? data.conditions.split(',') : [],
+          patientId: patient.id,
+        });
       }}
       render={({ submitForm, values, setValues }) => {
         const handleCancel = () => onCancel && onCancel();
@@ -99,7 +103,7 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
                   component={DateField}
                 />
                 <Field
-                  name="registeringClinicianId"
+                  name="clinicianId"
                   label="Registered by"
                   required
                   component={AutocompleteField}
@@ -135,7 +139,7 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
       initialValues={{
         date: getCurrentDateTimeString(),
         facilityId: facility.id,
-        registeringClinicianId: currentUser.id,
+        clinicianId: currentUser.id,
         ...editedObject,
       }}
       validationSchema={yup.object().shape({
@@ -143,7 +147,7 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
         clinicalStatusId: optionalForeignKey(),
         date: yup.date(),
         facilityId: optionalForeignKey(),
-        registeringClinicianId: foreignKey('Registered by must be selected'),
+        clinicianId: foreignKey('Registered by must be selected'),
       })}
     />
   );

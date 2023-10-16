@@ -1,4 +1,4 @@
-import { checkVisibility } from '../../app/utils';
+import { checkMandatory, checkVisibility } from '../../app/utils';
 
 describe('checkVisibility()', () => {
   const generateAllComponents = components =>
@@ -119,12 +119,37 @@ describe('checkVisibility()', () => {
     ];
 
     it.each(testData)(
-      'should return $expected for TEST_A: $TEST_A and TEST_B: $TEST_B',
+      'should return $expected for TEST_A_ID: $TEST_A_ID and TEST_B_ID: $TEST_B_ID',
       ({ TEST_A_ID, TEST_B_ID, expected }) => {
         const result = checkVisibility(
           allComponents[0],
           { TEST_A_ID, TEST_B_ID, TEST_RESULT: 20 },
           allComponents,
+        );
+
+        expect(result).toBe(expected);
+      },
+    );
+  });
+
+  describe('checkMandatory()', () => {
+    it('should support mandatory in Boolean type', () => {
+      const result = checkMandatory(true);
+      expect(result).toBe(true);
+    });
+
+    const testData = [
+      { encounterType: 'Admission', expected: true },
+      { encounterType: 'SurveyResponse', expected: true },
+      { encounterType: 'Clinic', expected: false },
+    ];
+
+    it.each(testData)(
+      'should return $expected for encounterType: $encounterType',
+      ({ encounterType, expected }) => {
+        const result = checkMandatory(
+          { encounterType: ['Admission', 'SurveyResponse'] },
+          { encounterType },
         );
 
         expect(result).toBe(expected);

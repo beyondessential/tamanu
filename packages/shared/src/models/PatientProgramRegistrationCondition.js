@@ -17,6 +17,9 @@ export class PatientProgramRegistrationCondition extends Model {
           type: Sequelize.TEXT,
           defaultValue: null,
         },
+        deletionDate: dateTimeType('date', {
+          defaultValue: null,
+        }),
       },
       {
         ...options,
@@ -45,9 +48,17 @@ export class PatientProgramRegistrationCondition extends Model {
       foreignKey: 'clinicianId',
       as: 'clinician',
     });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'deletionClinicianId',
+      as: 'deletionClinician',
+    });
   }
 
+  // syncs everywhere because for the pilot program,
+  // the number of patients is guaranteed to be low.
+  // https://github.com/beyondessential/tamanu/pull/4773#discussion_r1356087015
   static buildSyncFilter() {
-    return null; // syncs everywhere
+    return null;
   }
 }
