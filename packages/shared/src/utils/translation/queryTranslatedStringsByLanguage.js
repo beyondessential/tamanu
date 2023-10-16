@@ -17,7 +17,9 @@ export const queryTranslatedStringsByLanguage = async sequelize => {
       FROM
           translated_strings
       GROUP BY
-          string_id;
+          string_id
+      ORDER BY
+          string_id
       `,
     {
       type: QueryTypes.SELECT,

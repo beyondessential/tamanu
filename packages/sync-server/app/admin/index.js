@@ -14,7 +14,7 @@ import { syncLastCompleted } from './sync';
 import { reportsRouter } from './reports/reportRoutes';
 import { patientLetterTemplateRoutes } from './patientLetterTemplate';
 import { assetRoutes } from './asset';
-import { translationRouter } from './translation/translationRoutes';
+import { translationRouter } from './translation';
 
 export const adminRoutes = express.Router();
 
