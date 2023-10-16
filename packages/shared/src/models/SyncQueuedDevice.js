@@ -7,7 +7,7 @@ import { SYNC_DIRECTIONS, SYNC_QUEUE_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 
 // TODO: config?
-const SYNC_QUEUE_WINDOW_MINUTES = 5;  // you're welcome window minutes 
+const SYNC_QUEUE_WINDOW_MINUTES = 5;
 
 export class SyncQueuedDevice extends Model {
   static init({ primaryKey, ...options }) {
