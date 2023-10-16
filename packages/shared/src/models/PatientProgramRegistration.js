@@ -113,12 +113,9 @@ export class PatientProgramRegistration extends Model {
       },
       include: ['clinicalStatus', 'programRegistry'],
       order: [
+        // "active" > "removed"
         ['registrationStatus', 'ASC'],
-        [
-          this.sequelize.models.PatientProgramRegistration.associations.ProgramRegistry,
-          'name',
-          'ASC',
-        ],
+        [Sequelize.col('program_registry.name'), 'ASC'],
       ],
     });
   }
