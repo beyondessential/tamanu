@@ -13,6 +13,7 @@ import {
   TextField,
 } from '../components';
 import { ServerDetectingField } from '../components/Field/ServerDetectingField';
+import { LanguageSelector } from '../components/LanguageSelector';
 
 const LoginButton = styled(Button)`
   font-size: 16px;
@@ -83,6 +84,7 @@ export const LoginForm = React.memo(
         <Button onClick={onNavToResetPassword} color="default" variant="text">
           Forgot your password?
         </Button>
+        <LanguageSelector />
       </FormGrid>
     );
 
