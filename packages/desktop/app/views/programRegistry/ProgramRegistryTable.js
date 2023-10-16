@@ -6,7 +6,6 @@ import { useParams } from 'react-router-dom';
 import { STATUS_COLOR } from '@tamanu/constants';
 import { reloadPatient } from '../../store';
 import { SearchTable, DateDisplay, MenuButton } from '../../components';
-import { PatientNameDisplay } from '../../components/PatientNameDisplay';
 import { ConditionalTooltip } from '../../components/Tooltip';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
@@ -55,7 +54,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       {
         key: 'dateOfBirth',
         title: 'DOB',
-        accessor: ({ isDeceased, patient }) => <DateDisplay date={patient.dateOfBirth} />,
+        accessor: ({ patient }) => <DateDisplay date={patient.dateOfBirth} />,
       },
       {
         key: 'sex',
