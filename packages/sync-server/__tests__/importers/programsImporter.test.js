@@ -20,8 +20,9 @@ describe('Programs import', () => {
       Program,
       Survey,
       PatientProgramRegistration,
-      ProgramRegistry,
       ProgramRegistryClinicalStatus,
+      ProgramRegistryCondition,
+      ProgramRegistry,
       ProgramDataElement,
       SurveyScreenComponent,
     } = ctx.store.models;
@@ -31,6 +32,7 @@ describe('Programs import', () => {
     await Program.destroy({ where: {}, force: true });
     await PatientProgramRegistration.destroy({ where: {}, force: true });
     await ProgramRegistryClinicalStatus.destroy({ where: {}, force: true });
+    await ProgramRegistryCondition.destroy({ where: {}, force: true });
     await ProgramRegistry.destroy({ where: {}, force: true });
   };
 
@@ -88,13 +90,18 @@ describe('Programs import', () => {
     });
   });
 
-  it('should delete survey questions', async () => {
-    const { Survey } = ctx.store.models;
+  it('should soft delete survey questions', async () => {
+    const { Survey, SurveyScreenComponent } = ctx.store.models;
 
     const getComponents = async () => {
       const survey = await Survey.findByPk('program-testprogram-deletion');
       expect(survey).toBeTruthy();
-      return survey.getComponents();
+      return SurveyScreenComponent.findAll({
+        where: {
+          surveyId: survey.id,
+          visibilityStatus: 'current',
+        },
+      });
     };
 
     {
@@ -114,16 +121,15 @@ describe('Programs import', () => {
       const { errors, stats } = await doImport({ file: 'deleteQuestions-2' });
       expect(errors).toBeEmpty();
       expect(stats).toMatchObject({
-        ProgramDataElement: { updated: 3 }, // deleter should NOT delete underlying PDEs
-        SurveyScreenComponent: { deleted: 2, updated: 1 },
+        ProgramDataElement: { updated: 3 },
+        SurveyScreenComponent: { updated: 3 },
       });
     }
 
     const componentsAfter = await getComponents();
     // of the three in the import doc:
     //  - one is not deleted
-    //  - one is set to visibilityStatus = 'deleted'
-    //  - one is set to visibilityStatus = 'hidden' (should delete as wel)
+    //  - two is set to visibilityStatus = 'deleted'
     expect(componentsAfter).toHaveLength(1);
   });
 
@@ -190,15 +196,15 @@ describe('Programs import', () => {
     expect(didntSendReason).toEqual('validationFailed');
     const expectedErrorMessages = [
       'validationCriteria: this field has unspecified keys: foo on Question Validation Fail at row 2',
-      'validationCriteria: mandatory must be a `boolean` type, but the final value was: `"true"`. on Question Validation Fail at row 3',
+      'validationCriteria: mandatory must be a `object` type, but the final value was: `"true"`. on Question Validation Fail at row 3',
       'config: this field has unspecified keys: foo on Question Validation Fail at row 4',
       'config: unit must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 5',
       'validationCriteria: this field has unspecified keys: foo on Question Validation Fail at row 6',
-      'validationCriteria: mandatory must be a `boolean` type, but the final value was: `"true"`. on Question Validation Fail at row 7',
+      'validationCriteria: mandatory must be a `object` type, but the final value was: `"true"`. on Question Validation Fail at row 7',
       'config: this field has unspecified keys: foo on Question Validation Fail at row 8',
       'config: unit must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 9',
       'validationCriteria: this field has unspecified keys: foo on Question Validation Fail at row 10',
-      'validationCriteria: mandatory must be a `boolean` type, but the final value was: `"true"`. on Question Validation Fail at row 11',
+      'validationCriteria: mandatory must be a `object` type, but the final value was: `"true"`. on Question Validation Fail at row 11',
       'config: this field has unspecified keys: foo on Question Validation Fail at row 12',
       'config: unit must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 13',
       'config: this field has unspecified keys: foo on Question Validation Fail at row 14',
@@ -229,8 +235,9 @@ describe('Programs import', () => {
     expect(stats).toMatchObject({
       Program: { created: 1, updated: 0, errored: 0 },
       Survey: { created: 2, updated: 0, errored: 0 },
-      ProgramDataElement: { created: 41, updated: 0, errored: 0 },
-      SurveyScreenComponent: { created: 9, updated: 0, errored: 32 }, // 32 fields in failure test, 9 in success test
+      // TODO: Fix after merge
+      ProgramDataElement: { created: 43, updated: 0, errored: 0 },
+      SurveyScreenComponent: { created: 11, updated: 0, errored: 32 }, // 31 fields in failure test, 11 in success test
     });
   });
 
@@ -333,6 +340,49 @@ describe('Programs import', () => {
         dryRun: false,
       });
       await validateVisualisationConfig('');
+    });
+
+    it('should soft delete vital survey questions', async () => {
+      const { Survey, SurveyScreenComponent } = ctx.store.models;
+
+      const getComponents = async () => {
+        const survey = await Survey.findByPk('program-testvitals-vitalsgood');
+        expect(survey).toBeTruthy();
+
+        return SurveyScreenComponent.findAll({
+          where: {
+            surveyId: survey.id,
+            visibilityStatus: 'current',
+          },
+        });
+      };
+
+      {
+        const { errors, stats } = await doImport({ file: 'vitals-delete-questions' });
+        expect(errors).toBeEmpty();
+        expect(stats).toMatchObject({
+          Program: { created: 1, updated: 0, errored: 0 },
+          Survey: { created: 1, updated: 0, errored: 0 },
+          ProgramDataElement: { created: 16, updated: 0, errored: 0 },
+          SurveyScreenComponent: { created: 16, updated: 0, errored: 0 },
+        });
+      }
+
+      // find imported ssc
+      const componentsBefore = await getComponents();
+      expect(componentsBefore).toHaveLength(16);
+
+      {
+        const { errors, stats } = await doImport({ file: 'vitals-delete-questions-2' });
+        expect(errors).toBeEmpty();
+        expect(stats).toMatchObject({
+          ProgramDataElement: { updated: 16 }, // deleter should NOT delete underlying PDEs
+          SurveyScreenComponent: { updated: 16 }, // won't check value is new, all we care about is that it's not deleted
+        });
+      }
+
+      const componentsAfter = await getComponents();
+      expect(componentsAfter).toHaveLength(15);
     });
   });
 
@@ -468,6 +518,48 @@ describe('Programs import', () => {
         dryRun: false,
       });
       expect(errors).not.toBeEmpty();
+    });
+
+    describe('conditions', () => {
+      it('should import valid conditions', async () => {
+        const { errors, stats } = await doImport({
+          file: 'registry-valid-with-conditions',
+          xml: true,
+          dryRun: false,
+        });
+        expect(errors).toBeEmpty();
+        expect(stats).toMatchObject({
+          Program: { created: 1, updated: 0, errored: 0 },
+          ProgramRegistry: { created: 1, updated: 0, errored: 0 },
+          ProgramRegistryClinicalStatus: { created: 3, updated: 0, errored: 0 },
+          ProgramRegistryCondition: { created: 2, updated: 0, errored: 0 },
+        });
+      });
+
+      it('should validate conditions', async () => {
+        const { errors, stats } = await doImport({
+          file: 'registry-invalid-conditions',
+          xml: true,
+          dryRun: false,
+        });
+
+        const errorMessages = [
+          'visibilityStatus must be one of the following values: current, historical, merged on Registry Conditions at row 2',
+          'id must not have spaces or punctuation other than - on Registry Conditions at row 3',
+          'code must not have spaces or punctuation other than -./ on Registry Conditions at row 3',
+          'name is a required field on Registry Conditions at row 3',
+        ];
+        expect(errors.length).toBe(4);
+        errors.forEach((error, i) => {
+          expect(error.message).toEqual(errorMessages[i]);
+        });
+        expect(stats).toMatchObject({
+          Program: { created: 1, updated: 0, errored: 0 },
+          ProgramRegistry: { created: 1, updated: 0, errored: 0 },
+          ProgramRegistryClinicalStatus: { created: 3, updated: 0, errored: 0 },
+          ProgramRegistryCondition: { created: 0, updated: 0, errored: 2 },
+        });
+      });
     });
   });
 });

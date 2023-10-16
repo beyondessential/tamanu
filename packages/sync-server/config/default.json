@@ -33,7 +33,6 @@
     "level": "info"
   },
   "sync": {
-    "readOnly": false,
     "persistedCacheBatchSize": 20000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "adjustDataBatchSize": 20000,
@@ -625,7 +624,7 @@
         },
         "userDisplayId": {
           "shortLabel": "Registration number",
-          "longLabel": "Registration number",
+          "longLabel": "Registration number"
         }
       },
       "features": {

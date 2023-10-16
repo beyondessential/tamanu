@@ -107,7 +107,7 @@ const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
     patient={patient}
     readonly={readonly}
     title={PROGRAM_REGISTRY}
-    endpoint="programRegistry"
+    endpoint={`patient/${patient.id}/programRegistration`}
     getEndpoint={`patient/${patient.id}/programRegistration`}
     Form={ProgramRegistryForm}
     ListItemComponent={ProgramRegistryListItem}

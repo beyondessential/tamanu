@@ -1,6 +1,6 @@
 {
   "name": "lan",
-  "version": "1.35.0",
+  "version": "1.36.0",
   "private": true,
   "description": "Facility server for Tamanu desktop app",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -41,7 +41,7 @@
     "@tamanu/shared": "*",
     "abort-controller": "^3.0.0",
     "basic-auth": "^2.0.1",
-    "bcrypt": "^4.0.1",
+    "bcrypt": "^5.0.1",
     "body-parser": "^1.18.3",
     "case": "^1.6.3",
     "chalk": "^5.0.1",

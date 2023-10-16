@@ -41,14 +41,15 @@ export class PatientProgramRegistration extends Model {
 
   static initRelations(models) {
     this.belongsTo(models.Patient, {
-      foreignKey: 'patientId',
+      foreignKey: { name: 'patientId', allowNull: false },
       as: 'patient',
     });
 
     this.belongsTo(models.ProgramRegistry, {
-      foreignKey: 'programRegistryId',
+      foreignKey: { name: 'programRegistryId', allowNull: false },
       as: 'programRegistry',
     });
+
     this.belongsTo(models.ProgramRegistryClinicalStatus, {
       foreignKey: 'clinicalStatusId',
       as: 'clinicalStatus',
@@ -122,7 +123,10 @@ export class PatientProgramRegistration extends Model {
     });
   }
 
+  // syncs everywhere because for the pilot program,
+  // the number of patients is guaranteed to be low.
+  // https://github.com/beyondessential/tamanu/pull/4773#discussion_r1356087015
   static buildSyncFilter() {
-    return null; // syncs everywhere
+    return null;
   }
 }
