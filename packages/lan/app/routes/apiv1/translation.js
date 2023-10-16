@@ -30,7 +30,8 @@ translation.get(
 translation.get(
   '/:language',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'Translation');
+    // Everyone can access translations
+    req.flagPermissionChecked();
 
     const {
       models: { TranslatedString },
