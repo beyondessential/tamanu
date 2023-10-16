@@ -14,6 +14,7 @@ import { syncLastCompleted } from './sync';
 import { reportsRouter } from './reports/reportRoutes';
 import { patientLetterTemplateRoutes } from './patientLetterTemplate';
 import { assetRoutes } from './asset';
+import { translationRouter } from './translation/translationRoutes';
 
 export const adminRoutes = express.Router();
 
@@ -35,6 +36,7 @@ adminRoutes.use(
 );
 
 adminRoutes.use('/reports', reportsRouter);
+adminRoutes.use('/translation', translationRouter);
 adminRoutes.post('/mergePatient', mergePatientHandler);
 
 // A temporary lookup-patient-by-displayId endpoint, just to
