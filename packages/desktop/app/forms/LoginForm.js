@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import Collapse from '@material-ui/core/Collapse';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { LANGUAGE_CODES } from '@tamanu/constants';
 import { FormGrid } from '../components/FormGrid';
 import {
   Button,

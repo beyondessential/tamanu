@@ -64,22 +64,21 @@ export const LanguageSelector = ({ setFieldValue }) => {
 
   // TODO: Default to last picked language OR get default from localisation/config
 
-  const singleOption = languageOptions.length === 1;
   useEffect(() => {
-    if (singleOption) {
+    if (languageOptions.length === 1) {
       setFieldValue('language', languageOptions[0].value);
     }
-  }, [singleOption, languageOptions, setFieldValue]);
+  }, [languageOptions, setFieldValue]);
 
   // If translations not implemented, no need for this component to show
-  if (languageOptions.length === 0) {
+  if (languageOptions.length <= 1) {
     return null;
   }
 
   return (
     <LanguageSelectorContainer>
       <SelectInput
-        value={singleOption ? languageOptions[0].value : selectedLanguage}
+        value={selectedLanguage}
         onChange={onChangeLanguage}
         options={languageOptions}
         label="Language"
@@ -87,8 +86,6 @@ export const LanguageSelector = ({ setFieldValue }) => {
         isClearable={false}
         error={!!error}
         customStyleObject={customStyles}
-        readonly={singleOption}
-        variant="filled"
       />
     </LanguageSelectorContainer>
   );
