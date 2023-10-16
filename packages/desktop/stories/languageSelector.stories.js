@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { LANGUAGE_CODES, LANGUAGE_NAMES } from '@tamanu/constants';
 import { LanguageSelector } from '../app/components/LanguageSelector';
@@ -30,10 +30,16 @@ export default {
 };
 
 const Template = args => {
+  const [selectedOption, setSelectedOption] = useState(null);
+
+  const onChangeOption = event => {
+    setSelectedOption(event.target.value);
+  };
+
   return (
     <ApiContext.Provider value={dummyApi}>
       <Container>
-        <LanguageSelector {...args} />
+        <LanguageSelector selectedOption={selectedOption} onChange={onChangeOption} {...args} />
       </Container>
     </ApiContext.Provider>
   );
