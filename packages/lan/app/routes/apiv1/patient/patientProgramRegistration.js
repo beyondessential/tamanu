@@ -54,24 +54,24 @@ patientProgramRegistration.post(
       req.checkPermission('create', 'PatientProgramRegistrationCondition', { programRegistryId });
     }
 
-    let registration;
-    let conditions;
     // Run in a transaction so it either fails or succeeds together
-    await db.transaction(async () => {
-      registration = await models.PatientProgramRegistration.create({
-        patientId,
-        programRegistryId,
-        ...registrationData,
-      });
-      conditions = await models.PatientProgramRegistrationCondition.bulkCreate(
-        conditionIds.map(conditionId => ({
+    const [registration, conditions] = await db.transaction(async () => {
+      return Promise.all([
+        models.PatientProgramRegistration.create({
           patientId,
           programRegistryId,
-          clinicianId: registrationData.clinicianId,
-          date: registrationData.date,
-          programRegistryConditionId: conditionId,
-        })),
-      );
+          ...registrationData,
+        }),
+        models.PatientProgramRegistrationCondition.bulkCreate(
+          conditionIds.map(conditionId => ({
+            patientId,
+            programRegistryId,
+            clinicianId: registrationData.clinicianId,
+            date: registrationData.date,
+            programRegistryConditionId: conditionId,
+          })),
+        ),
+      ]);
     });
 
     // Convert Sequelize model to use a custom object as response
