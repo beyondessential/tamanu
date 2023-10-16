@@ -263,7 +263,10 @@ export const Encounter = Base.shape({
   patientId: yup.string().required(),
 });
 
-export const TranslatedString = Base.shape({
+export const TranslatedString = yup.object().shape({
   stringId: yup.string().required(),
-  ..._.mapValues(LANGUAGE_CODES, () => yup.string()),
+  ...Object.values(LANGUAGE_CODES).reduce((schemas, code) => ({
+    ...schemas,
+    [code]: yup.string(),
+  }), {}),
 });
