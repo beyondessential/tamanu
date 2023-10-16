@@ -13,10 +13,12 @@ export async function up(query) {
       string_id: {
         type: DataTypes.TEXT,
         required: true,
+        primaryKey: true,
       },
       language: {
         type: DataTypes.TEXT,
         required: true,
+        primaryKey: true,
       },
       text: {
         type: DataTypes.TEXT,
