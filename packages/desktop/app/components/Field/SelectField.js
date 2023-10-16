@@ -100,6 +100,7 @@ export const SelectInput = ({
   tabIndex,
   inputProps = {},
   isClearable = true,
+  customStyleObject,
   ...props
 }) => {
   const handleChange = useCallback(
@@ -114,7 +115,7 @@ export const SelectInput = ({
     [onChange, name],
   );
 
-  const customStyles = {
+  const defaultStyles = {
     control: (provided, state) => {
       const mainBorderColor = state.isFocused ? Colors.primary : Colors.outline;
       const borderColor = props.error ? Colors.alert : mainBorderColor;
@@ -175,7 +176,7 @@ export const SelectInput = ({
       <OuterLabelFieldWrapper label={label} {...props}>
         <StyledTextField
           value={valueText}
-          styles={customStyles}
+          styles={defaultStyles}
           variant="outlined"
           classes={classes}
           disabled={disabled}
@@ -198,7 +199,7 @@ export const SelectInput = ({
           options={options.filter(option => option.value !== '')}
           menuPlacement="auto"
           menuPosition="fixed"
-          styles={customStyles}
+          styles={customStyleObject || defaultStyles}
           menuShouldBlockScroll="true"
           placeholder="Select"
           isClearable={value !== '' && isClearable && !props.required && !disabled}
