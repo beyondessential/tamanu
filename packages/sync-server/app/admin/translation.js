@@ -13,3 +13,13 @@ translationRouter.get(
     res.send(await queryTranslatedStringsByLanguage(sequelize));
   }),
 );
+
+translationRouter.post(
+  '/',
+  asyncHandler(async (req, res) => {
+    const { store, body } = req;
+    const {
+      models: { TranslatedString },
+    } = store;
+  }),
+);
