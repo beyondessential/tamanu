@@ -195,6 +195,7 @@ export const SYNC_MENU_ITEMS = [
     key: 'translation',
     label: 'Translation',
     path: '/admin/translation',
+    ability: { action: 'write', subject: 'translation' },
   },
   {
     key: 'assets',
