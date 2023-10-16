@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { NotFoundError } from '@tamanu/shared/errors';
+import { DELETION_STATUSES } from '@tamanu/constants';
 
 export const patientProgramRegistration = express.Router();
 
@@ -25,7 +26,8 @@ patientProgramRegistration.post(
   '/:patientId/programRegistration/:programRegistryId',
   asyncHandler(async (req, res) => {
     const { models, params, body } = req;
-    const { patientId, programRegistryId } = params;
+    const { patientId } = params;
+    const { programRegistryId } = body;
 
     req.checkPermission('read', 'Patient');
     const patient = await models.Patient.findByPk(patientId);
@@ -58,11 +60,19 @@ patientProgramRegistration.post(
   }),
 );
 
+<<<<<<< HEAD
 patientProgramRegistration.post(
   '/:patientId/programRegistration/:programRegistryId/condition',
   asyncHandler(async (req, res) => {
     const { models, params, body } = req;
     const { patientId, programRegistryId } = params;
+=======
+patientProgramRegistration.delete(
+  '/:patientId/programRegistration/:programRegistryId/condition/:conditionId',
+  asyncHandler(async (req, res) => {
+    const { models, params, body } = req;
+    const { patientId, programRegistryId, conditionId } = params;
+>>>>>>> feature/tan-2415-add-patient-program-registration-condition-model
 
     req.checkPermission('read', 'Patient');
     const patient = await models.Patient.findByPk(patientId);
@@ -72,11 +82,28 @@ patientProgramRegistration.post(
     const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
     if (!programRegistry) throw new NotFoundError();
 
+<<<<<<< HEAD
     req.checkPermission('create', 'PatientProgramRegistrationCondition', { programRegistryId });
     const condition = await models.PatientProgramRegistrationCondition.create({
       patientId,
       programRegistryId,
       ...body,
+=======
+    req.checkPermission('delete', 'PatientProgramRegistrationCondition', { programRegistryId });
+    const existingCondition = await models.PatientProgramRegistrationCondition.findOne({
+      where: {
+        programRegistryId,
+        patientId,
+        programRegistryConditionId: conditionId,
+      },
+    });
+    if (!existingCondition) throw new NotFoundError();
+
+    const condition = await existingCondition.update({
+      deletionStatus: DELETION_STATUSES.DELETED,
+      deletionClinicianId: body.deletionClinicianId,
+      deletionDate: body.deletionDate,
+>>>>>>> feature/tan-2415-add-patient-program-registration-condition-model
     });
 
     res.send(condition);

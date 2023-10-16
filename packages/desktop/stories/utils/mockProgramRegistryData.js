@@ -680,6 +680,7 @@ export const dummyApi = {
 
       case 'patient/patient_id/programRegistration/patient_program_registry_id':
       case 'patient/undefined/programRegistration/patient_program_registry_id':
+      case 'patient/undefined/programRegistration/undefined':
         return patientProgramRegistration;
       case 'patient/undefined/programRegistration/undefined/survey/undefined':
       case 'patient/patient_id/programRegistration/patient_program_registry_id/survey/survey_id':
