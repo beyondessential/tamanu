@@ -196,15 +196,15 @@ describe('Programs import', () => {
     expect(didntSendReason).toEqual('validationFailed');
     const expectedErrorMessages = [
       'validationCriteria: this field has unspecified keys: foo on Question Validation Fail at row 2',
-      'validationCriteria: mandatory must be a `boolean` type, but the final value was: `"true"`. on Question Validation Fail at row 3',
+      'validationCriteria: mandatory must be a `object` type, but the final value was: `"true"`. on Question Validation Fail at row 3',
       'config: this field has unspecified keys: foo on Question Validation Fail at row 4',
       'config: unit must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 5',
       'validationCriteria: this field has unspecified keys: foo on Question Validation Fail at row 6',
-      'validationCriteria: mandatory must be a `boolean` type, but the final value was: `"true"`. on Question Validation Fail at row 7',
+      'validationCriteria: mandatory must be a `object` type, but the final value was: `"true"`. on Question Validation Fail at row 7',
       'config: this field has unspecified keys: foo on Question Validation Fail at row 8',
       'config: unit must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 9',
       'validationCriteria: this field has unspecified keys: foo on Question Validation Fail at row 10',
-      'validationCriteria: mandatory must be a `boolean` type, but the final value was: `"true"`. on Question Validation Fail at row 11',
+      'validationCriteria: mandatory must be a `object` type, but the final value was: `"true"`. on Question Validation Fail at row 11',
       'config: this field has unspecified keys: foo on Question Validation Fail at row 12',
       'config: unit must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 13',
       'config: this field has unspecified keys: foo on Question Validation Fail at row 14',
@@ -236,8 +236,8 @@ describe('Programs import', () => {
       Program: { created: 1, updated: 0, errored: 0 },
       Survey: { created: 2, updated: 0, errored: 0 },
       // TODO: Fix after merge
-      ProgramDataElement: { created: 42, updated: 0, errored: 0 },
-      SurveyScreenComponent: { created: 11, updated: 0, errored: 31 }, // 31 fields in failure test, 11 in success test
+      ProgramDataElement: { created: 43, updated: 0, errored: 0 },
+      SurveyScreenComponent: { created: 11, updated: 0, errored: 32 }, // 31 fields in failure test, 11 in success test
     });
   });
 
