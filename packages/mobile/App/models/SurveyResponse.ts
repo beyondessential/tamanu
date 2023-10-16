@@ -136,7 +136,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     const response = await repo.findOne(surveyId, {
       relations: ['survey', 'encounter', 'encounter.patient'],
     });
-    const questions = await response.survey.getComponents();
+    const questions = await response.survey.getComponents({ includeAllVitals: true });
     const answers = await SurveyResponseAnswer.getRepository().find({
       where: {
         response: response.id,
