@@ -17,7 +17,6 @@ import { patientRelations } from './patientRelations';
 import { patientBirthData } from './patientBirthData';
 import { patientLocations } from './patientLocations';
 import { patientProgramRegistration } from './patientProgramRegistration';
-import { activeCovid19PatientsHandler } from '../../../routeHandlers';
 import { getOrderClause } from '../../../database/utils';
 import { requestBodyToRecord, dbRecordToResponse, pickPatientBirthData } from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
@@ -468,8 +467,6 @@ patientRoute.get(
     res.json({ data: labTests, count: labTests.length });
   }),
 );
-
-patientRoute.get('/program/activeCovid19Patients', asyncHandler(activeCovid19PatientsHandler));
 
 patientRoute.use(patientRelations);
 patientRoute.use(patientVaccineRoutes);
