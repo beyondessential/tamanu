@@ -72,7 +72,7 @@ function createSuggesterLookupRoute(endpoint, modelName, mapper = defaultMapper)
   );
 }
 
-function createAllRecordsSuggesterRoute(
+function createAllRecordsRoute(
   endpoint,
   modelName,
   whereBuilder,
@@ -103,8 +103,10 @@ function createAllRecordsSuggesterRoute(
 // will be passed to the sql query as ":search" - see the existing suggestion
 // endpoints for usage examples.
 function createSuggester(endpoint, modelName, whereBuilder, mapper, searchColumn) {
+  // Note: createAllRecordsRoute and createSuggesterLookupRoute must
+  // be added in this order otherwise the :id param will match all
+  createAllRecordsRoute(endpoint, modelName, whereBuilder, mapper, searchColumn);
   createSuggesterLookupRoute(endpoint, modelName, mapper);
-  createAllRecordsSuggesterRoute(endpoint, modelName, whereBuilder, mapper, searchColumn);
   createSuggesterRoute(endpoint, modelName, whereBuilder, mapper, searchColumn);
 }
 
