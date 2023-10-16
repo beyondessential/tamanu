@@ -42,6 +42,7 @@ async function initReportingInstance(schemaName, credentials) {
     log.warn(`Unknown reporting schema ${schemaName}, skipping...`);
     return null;
   }
+
   if (!username || !password) {
     log.warn(`No credentials provided for ${schemaName} reporting schema, skipping...`);
     return null;
@@ -51,17 +52,14 @@ async function initReportingInstance(schemaName, credentials) {
 
 export async function initReporting() {
   const { credentials } = config.db.reports;
-  return Object.entries(credentials).reduce(
-    async (accPromise, [schemaName, { username, password }]) => {
-      const instance = await initReportingInstance(schemaName, {
-        username,
-        password,
-      });
-      if (!instance) return accPromise;
-      return { ...(await accPromise), [schemaName]: instance };
-    },
-    Promise.resolve({}),
-  );
+  return Object.entries(credentials).reduce(async (acc, [schemaName, { username, password }]) => {
+    const instance = await initReportingInstance(schemaName, {
+      username,
+      password,
+    });
+    if (!instance) return acc;
+    return { ...(await acc), [schemaName]: instance };
+  }, {});
 }
 
 export async function closeDatabase() {
