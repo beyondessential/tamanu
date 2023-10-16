@@ -5,18 +5,18 @@ import { Colors } from '../constants';
 import { useApi } from '../api';
 import { SelectInput } from './Field';
 
-const LanguageSelectInput = styled(SelectInput)`
+const LanguageSelectorContainer = styled.div`
+  position: absolute;
+  bottom: 17px;
+  left: 17px;
+  border-bottom: 0.1px solid ${Colors.primary};
   width: 143px;
   .label-field {
-    font-family: Roboto;
     font-size: 11px;
     font-weight: 400;
     line-height: 15px;
-    letter-spacing: 0px;
-    text-align: left;
-    color: #888888;
+    color: ${Colors.midText}};
   }
-  border-bottom: 0.1px solid ${Colors.primary};
 `;
 
 const customStyles = {
@@ -49,7 +49,7 @@ const customStyles = {
   }),
 };
 
-export const LanguageSelector = ({ selectedOption, onChange }) => {
+export const LanguageSelector = ({ selectedLanguage, onChange }) => {
   const api = useApi();
 
   const { data: languageOptions = [], error } = useQuery(['languageList'], () =>
@@ -57,14 +57,16 @@ export const LanguageSelector = ({ selectedOption, onChange }) => {
   );
 
   return (
-    <LanguageSelectInput
-      value={selectedOption}
-      onChange={onChange}
-      options={languageOptions}
-      label="Language"
-      isClearable={false}
-      error={!!error}
-      customStyleObject={customStyles}
-    />
+    <LanguageSelectorContainer>
+      <SelectInput
+        value={selectedLanguage}
+        onChange={onChange}
+        options={languageOptions}
+        label="Language"
+        isClearable={false}
+        error={!!error}
+        customStyleObject={customStyles}
+      />
+    </LanguageSelectorContainer>
   );
 };

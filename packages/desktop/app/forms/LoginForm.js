@@ -43,11 +43,16 @@ const ErrorMessage = styled.div`
 export const LoginForm = React.memo(
   ({ onSubmit, errorMessage, rememberEmail, onNavToResetPassword }) => {
     const [isAdvancedExpanded, setAdvancedExpanded] = useState(false);
+    const [language, setLanguage] = useState('en');
 
     const onError = errors => {
       if (errors.host) {
         setAdvancedExpanded(true);
       }
+    };
+
+    const onChangeLanguage = event => {
+      setLanguage(event.target.value);
     };
 
     const renderForm = ({ setFieldValue, isSubmitting }) => (
@@ -84,7 +89,7 @@ export const LoginForm = React.memo(
         <Button onClick={onNavToResetPassword} color="default" variant="text">
           Forgot your password?
         </Button>
-        <LanguageSelector />
+        <LanguageSelector selectedLanguage={language} onChange={onChangeLanguage} />
       </FormGrid>
     );
 

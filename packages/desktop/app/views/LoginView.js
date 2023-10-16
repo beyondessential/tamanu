@@ -37,6 +37,7 @@ const Grid = styled.div`
 const LoginContainer = styled(Paper)`
   padding: 30px 60px 70px 60px;
   width: 480px;
+  position: relative;
 `;
 
 const LogoContainer = styled.div`
