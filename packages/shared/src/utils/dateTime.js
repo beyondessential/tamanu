@@ -149,6 +149,27 @@ export function compareDateStrings(key = 'desc') {
   };
 }
 
+export function doAgeRangesOverlap(rangeA, rangeB) {
+  function getAgeRangeInMinutes({ ageMin = -Infinity, ageMax = Infinity, ageUnit }) {
+    const timeUnit = TIME_UNIT_OPTIONS.find(option => option.unit === ageUnit);
+    const conversionValue = timeUnit.minutes;
+    return { ageMin: ageMin * conversionValue, ageMax: ageMax * conversionValue };
+  }
+
+  // Get both values into same time unit
+  const aInMinutes = getAgeRangeInMinutes(rangeA);
+  const bInMinutes = getAgeRangeInMinutes(rangeB);
+
+  // Figure out the lowest min range
+  const lowestMin = aInMinutes.ageMin < bInMinutes.ageMin ? aInMinutes : bInMinutes;
+  const highestMin = aInMinutes.ageMin < bInMinutes.ageMin ? bInMinutes : aInMinutes;
+  const lowestAgeMax = lowestMin.ageMax;
+  const highestAgeMin = highestMin.ageMin;
+
+  // Min inclusive - max exclusive: only overlaps if its less than
+  return highestAgeMin < lowestAgeMax;
+}
+
 /*
  * date-fns wrappers
  * Wrapper functions around date-fns functions that parse date_string and date_time_string types
