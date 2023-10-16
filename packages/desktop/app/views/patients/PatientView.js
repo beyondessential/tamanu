@@ -121,7 +121,7 @@ export const PatientView = () => {
       queryClient.invalidateQueries(['patientFields', patient.id]);
     }
 
-    // invalidate queries
+    // invalidate queries only when syncing is done (changed from true to false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [patient.syncing]);
 
