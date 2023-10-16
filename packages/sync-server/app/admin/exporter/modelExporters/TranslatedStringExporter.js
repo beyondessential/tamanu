@@ -1,16 +1,15 @@
+import { QueryTypes } from 'sequelize';
 import { DefaultDataExporter } from './DefaultDataExporter';
 import { LANGUAGE_CODES } from '@tamanu/constants';
+
 export class TranslatedStringExporter extends DefaultDataExporter {
   async getData() {
-    const translations = await this.sequelize.query(`
+    const translations = await this.sequelize.query(
+      `
     SELECT
         string_id as stringId,
         ${Object.values(LANGUAGE_CODES)
-          .map(
-            languageCode => `
-            MAX(CASE WHEN language = '${languageCode}' THEN text END) AS ${languageCode}
-        `,
-          )
+          .map(code => `MAX(text) FILTER(WHERE language = '${code}') AS ${code}`)
           .join(',')}
     FROM
         translated_strings
@@ -18,7 +17,7 @@ export class TranslatedStringExporter extends DefaultDataExporter {
         string_id;
     `,
       {
-        type: this.sequelize.QueryTypes.SELECT,
+        type: QueryTypes.SELECT,
       },
     );
     return translations;
