@@ -1,4 +1,4 @@
-import { REFERENCE_TYPES } from '@tamanu/constants';
+import { REFERENCE_TYPES, LANGUAGE_CODES } from '@tamanu/constants';
 import { createDummyPatient } from 'shared/demoData/patients';
 import { parseDate } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
@@ -32,10 +32,12 @@ jest.mock('../../app/admin/exporter/excelUtils', () => {
 describe('Reference data exporter', () => {
   let ctx;
   let models;
+  let store;
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    models = ctx.store.models;
+    store = ctx.store;
+    models = store.models;
   });
 
   afterAll(() => ctx.close());
@@ -57,6 +59,7 @@ describe('Reference data exporter', () => {
       'PatientFieldDefinitionCategory',
       'Location',
       'Department',
+      'TranslatedString'
     ];
     for (const model of modelsToDestroy) {
       await ctx.store.models[model].destroy({ where: {}, force: true });
@@ -64,12 +67,12 @@ describe('Reference data exporter', () => {
   });
 
   it('Should export empty data if no data type selected', async () => {
-    await exporter(models);
+    await exporter(store);
     expect(writeExcelFile).toBeCalledWith([], '');
   });
 
   it('Should export a file with no data if there is no reference data for the selected type', async () => {
-    await exporter(models, { 1: REFERENCE_TYPES.ICD10, 2: REFERENCE_TYPES.ALLERGY });
+    await exporter(store, { 1: REFERENCE_TYPES.ICD10, 2: REFERENCE_TYPES.ALLERGY });
     expect(writeExcelFile).toBeCalledWith(
       [
         {
@@ -87,7 +90,7 @@ describe('Reference data exporter', () => {
 
   it('Should export a tab with name "Patient Field Def Category" for "patientFieldDefinitionCategory"', async () => {
     await createPatientFieldDefCategory(models);
-    await exporter(models, { 1: 'patientFieldDefinitionCategory' });
+    await exporter(store, { 1: 'patientFieldDefinitionCategory' });
     expect(writeExcelFile).toBeCalledWith(
       [
         {
@@ -107,7 +110,7 @@ describe('Reference data exporter', () => {
     await createPatientFieldDefCategory(models);
     await createPatientFieldDefinitions(models);
 
-    await exporter(models, { 1: 'patientFieldDefinition' });
+    await exporter(store, { 1: 'patientFieldDefinition' });
     expect(writeExcelFile).toBeCalledWith(
       [
         {
@@ -132,7 +135,7 @@ describe('Reference data exporter', () => {
 
   it('Should export a tab "Diagnosis" and uses all Reference Data where type equals "icd10"', async () => {
     await createDiagnosis(models);
-    await exporter(models, { 1: 'diagnosis' });
+    await exporter(store, { 1: 'diagnosis' });
     expect(writeExcelFile).toBeCalledWith(
       [
         {
@@ -150,7 +153,7 @@ describe('Reference data exporter', () => {
 
   it('Should not export reference data types that are not included in the whitelist', async () => {
     await createDiagnosis(models);
-    await exporter(models, { 1: REFERENCE_TYPES.ALLERGY });
+    await exporter(store, { 1: REFERENCE_TYPES.ALLERGY });
     expect(writeExcelFile).toBeCalledWith(
       [
         {
@@ -165,7 +168,7 @@ describe('Reference data exporter', () => {
   it('Should export allergy only', async () => {
     await createDiagnosis(models);
     await createAllergy(models);
-    await exporter(models, { 1: REFERENCE_TYPES.ALLERGY });
+    await exporter(store, { 1: REFERENCE_TYPES.ALLERGY });
     expect(writeExcelFile).toBeCalledWith(
       [
         {
@@ -206,7 +209,7 @@ describe('Reference data exporter', () => {
       code: 'panel-with-two-types',
       labTestTypesIds: [testType1.id, testType2.id],
     });
-    await exporter(models, { 1: 'labTestPanel' });
+    await exporter(store, { 1: 'labTestPanel' });
 
     expect(writeExcelFile).toBeCalledWith(
       [
@@ -241,7 +244,7 @@ describe('Reference data exporter', () => {
   it('Should export both Diagnosis and Allergy', async () => {
     await createDiagnosis(models);
     await createAllergy(models);
-    await exporter(models, { 1: REFERENCE_TYPES.ALLERGY, 2: 'diagnosis' });
+    await exporter(store, { 1: REFERENCE_TYPES.ALLERGY, 2: 'diagnosis' });
     expect(writeExcelFile).toBeCalledWith(
       [
         {
@@ -268,7 +271,7 @@ describe('Reference data exporter', () => {
   it('Should export data from other tables besides Reference data', async () => {
     const patientData = createDummyPatient(models);
     const patient = await models.Patient.create(patientData);
-    await exporter(models, { 1: 'patient' });
+    await exporter(store, { 1: 'patient' });
     expect(writeExcelFile).toBeCalledWith(
       [
         {
@@ -316,7 +319,7 @@ describe('Reference data exporter', () => {
     const patient = await models.Patient.create(patientData);
     await createDiagnosis(models);
     await createAllergy(models);
-    await exporter(models, {
+    await exporter(store, {
       1: 'patient',
       2: REFERENCE_TYPES.ALLERGY,
       3: 'diagnosis',
@@ -388,7 +391,7 @@ describe('Reference data exporter', () => {
       encounter: encounter2,
     } = await createAdministeredVaccineData(models, vaccine);
 
-    await exporter(models, {
+    await exporter(store, {
       1: 'administeredVaccine',
     });
     expect(writeExcelFile).toBeCalledWith(
@@ -477,30 +480,64 @@ describe('Reference data exporter', () => {
 
   it('Should throw an error when passing an wrong data type', async () => {
     await createPatientFieldDefCategory(models);
-    await expect(exporter(models, { 1: 'wrongDataType' })).rejects.toThrow();
+    await expect(exporter(store, { 1: 'wrongDataType' })).rejects.toThrow();
+  });
+
+  it('Should export translated strings with a single row for each stringId with columns for each languages text', async () => {
+    await models.TranslatedString.create(
+      {
+        stringId: 'test-string',
+        language: LANGUAGE_CODES.ENGLISH,
+        text: 'test',
+      },
+    )
+    await models.TranslatedString.create(
+      {
+        stringId: 'test-string',
+        language: LANGUAGE_CODES.KHMER,
+        text: 'សាកល្បង',
+      }
+    )
+
+    await exporter(store, { 1: 'translatedString' });
+  
+    expect(writeExcelFile).toBeCalledWith(
+      [
+        {
+          data: [
+            ['stringId', 'en', 'km'],
+            ['test-string', 'test', 'សាកល្បង'],
+          ],
+          name: 'Translated String',
+        },
+      ],
+      '',
+    );
   });
 });
 
 describe('Permission and Roles exporter', () => {
   let ctx;
+  let store;
   let models;
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    models = ctx.store.models;
+    store = ctx.store;
+    models = store.models;
   });
 
   afterAll(() => ctx.close());
 
   afterEach(async () => {
-    const { Permission, Role } = ctx.store.models;
+    const { Permission, Role } = models;
     jest.clearAllMocks();
     await Permission.destroy({ where: {}, force: true });
     await Role.destroy({ where: {}, force: true });
   });
 
   it('Should export a file with no data if there is no permission and roles', async () => {
-    await exporter(models, { 1: 'permission', 2: 'role' });
+    await exporter(store, { 1: 'permission', 2: 'role' });
     expect(writeExcelFile).toBeCalledWith(
       [
         {
@@ -528,7 +565,7 @@ describe('Permission and Roles exporter', () => {
       roleId: 'admin',
     });
 
-    await exporter(models, { 1: 'permission', 2: 'role' });
+    await exporter(store, { 1: 'permission', 2: 'role' });
     expect(writeExcelFile).toBeCalledWith(
       [
         {
@@ -570,7 +607,7 @@ describe('Permission and Roles exporter', () => {
       roleId: 'admin',
     });
 
-    await exporter(models, { 1: 'permission', 2: 'role' });
+    await exporter(store, { 1: 'permission', 2: 'role' });
     expect(writeExcelFile).toBeCalledWith(
       [
         {

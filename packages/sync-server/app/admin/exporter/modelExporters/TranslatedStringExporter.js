@@ -7,7 +7,7 @@ export class TranslatedStringExporter extends DefaultDataExporter {
     const translations = await this.sequelize.query(
       `
     SELECT
-        string_id as stringId,
+        string_id as "stringId",
         ${Object.values(LANGUAGE_CODES)
           .map(code => `MAX(text) FILTER(WHERE language = '${code}') AS ${code}`)
           .join(',')}
