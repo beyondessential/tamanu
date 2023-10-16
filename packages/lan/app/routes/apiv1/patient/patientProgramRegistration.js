@@ -22,7 +22,7 @@ patientProgramRegistration.get(
 );
 
 patientProgramRegistration.post(
-  '/:patientId/programRegistration/:programRegistryId',
+  '/:patientId/programRegistration',
   asyncHandler(async (req, res) => {
     const { models, params, body } = req;
     const { patientId } = params;
