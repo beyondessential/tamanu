@@ -56,6 +56,7 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
   'specimenType',
   'stressTestImagingArea',
   'subdivision',
+  'translatedString',
   'triageReason',
   'ultrasoundImagingArea',
   'user',

@@ -66,4 +66,6 @@ export default {
   },
 
   imagingAreaExternalCode: {},
+
+  translatedString: {}
 };
