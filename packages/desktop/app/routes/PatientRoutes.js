@@ -2,7 +2,6 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { Switch, Route } from 'react-router-dom';
 import styled from 'styled-components';
-import { useUrlQueryParams } from '../hooks';
 import { PatientInfoPane } from '../components/PatientInfoPane';
 import { getPatientNameAsString } from '../components/PatientNameDisplay';
 import { PatientNavigation } from '../components/PatientNavigation';
@@ -22,6 +21,7 @@ import { ProgramsView } from '../views/programs/ProgramsView';
 import { ReferralsView } from '../views/referrals/ReferralsView';
 import { PatientProgramRegistryView } from '../views/programRegistry/PatientProgramRegistryView';
 import { ProgramRegistrySurveyView } from '../views/programRegistry/ProgramRegistrySurveyView';
+import { useUrlSearchParams } from '../utils/useUrlSearchParams';
 
 export const usePatientRoutes = () => {
   const {
@@ -31,7 +31,7 @@ export const usePatientRoutes = () => {
   } = usePatientNavigation();
   const patient = useSelector(state => state.patient);
   const { encounter } = useEncounter();
-  const queryParams = useUrlQueryParams();
+  const queryParams = useUrlSearchParams();
   return [
     {
       path: PATIENT_PATHS.PATIENT,
