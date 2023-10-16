@@ -76,15 +76,15 @@ patientProgramRegistration.post(
     if (!programRegistry) throw new NotFoundError();
 
     req.checkPermission('read', 'PatientProgramRegistrationCondition', { programRegistryId });
-    const existingCondition = await models.ProgramRegistry.count({
+    const conditionExists = await models.PatientProgramRegistrationCondition.count({
       where: {
         programRegistryId,
         patientId,
         programRegistryConditionId: body.programRegistryConditionId,
-        deletionStatus: { [Op.ne]: DELETION_STATUSES.DELETED },
+        deletionStatus: null,
       },
     });
-    if (existingCondition) {
+    if (conditionExists) {
       throw new ValidationError("Can't create a duplicate condition for the same patient");
     }
 
