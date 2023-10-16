@@ -9,7 +9,7 @@ import {
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import config from 'config';
-import { doAgeRangesOverlap } from '@tamanu/shared/utils/dateTime';
+import { doAgeRangesOverlap, doAgeRangesHaveGaps } from '@tamanu/shared/utils/dateTime';
 import {
   jsonString,
   validationString,
@@ -160,7 +160,7 @@ const graphRangeArraySchema = yup
   .of(rangeObjectSchema)
   .test({
     name: 'is-range-by-age-valid',
-    message: 'Age ranges overlap each other',
+    message: 'Age ranges overlap or have gaps',
     test: value => {
       const areOverlapping = value.some((a, aIndex) => {
         return value.some((b, bIndex) => {
@@ -168,7 +168,8 @@ const graphRangeArraySchema = yup
           return doAgeRangesOverlap(a, b);
         });
       });
-      return areOverlapping === false;
+      const haveGaps = doAgeRangesHaveGaps(value);
+      return areOverlapping === false && haveGaps === false;
     },
   });
 

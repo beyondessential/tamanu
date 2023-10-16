@@ -150,13 +150,27 @@ export function compareDateStrings(key = 'desc') {
   };
 }
 
-export function doAgeRangesOverlap(rangeA, rangeB) {
-  function getAgeRangeInMinutes({ ageMin = -Infinity, ageMax = Infinity, ageUnit }) {
-    const timeUnit = TIME_UNIT_OPTIONS.find(option => option.unit === ageUnit);
-    const conversionValue = timeUnit.minutes;
-    return { ageMin: ageMin * conversionValue, ageMax: ageMax * conversionValue };
-  }
+function getAgeRangeInMinutes({ ageMin = -Infinity, ageMax = Infinity, ageUnit }) {
+  const timeUnit = TIME_UNIT_OPTIONS.find(option => option.unit === ageUnit);
+  const conversionValue = timeUnit.minutes;
+  return { ageMin: ageMin * conversionValue, ageMax: ageMax * conversionValue };
+}
 
+export function doAgeRangesHaveGaps(rangesArray) {
+  // Get all values into same time unit and sort by ageMin low to high
+  const normalized = rangesArray.map(getAgeRangeInMinutes);
+  normalized.sort((a, b) => a.ageMin - b.ageMin);
+
+  return normalized.some((rangeA, i) => {
+    const rangeB = normalized[i + 1];
+    // This means we reached the last item, nothing more to compare
+    if (!rangeB) return false;
+    // These have to forcefully match, otherwise a gap exists
+    return rangeA.max !== rangeB.min;
+  });
+}
+
+export function doAgeRangesOverlap(rangeA, rangeB) {
   // Get both values into same time unit
   const aInMinutes = getAgeRangeInMinutes(rangeA);
   const bInMinutes = getAgeRangeInMinutes(rangeB);
