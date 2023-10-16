@@ -1,4 +1,4 @@
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { log } from '../services/logging';
 import { checkJSONCriteria } from './criteria';
 
