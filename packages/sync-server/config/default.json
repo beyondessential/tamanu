@@ -1,6 +1,6 @@
 {
   "port": 3000,
-  // this should be set to the external address of the server, e.g. "https://central-dev.tamanu.io"
+  // this should be set to the external address of the server, e.g. "https://central.main.internal.tamanu.io"
   "canonicalHostName": "http://localhost:3000",
   "db": {
     "name": "tamanu-sync",
@@ -33,7 +33,6 @@
     "level": "info"
   },
   "sync": {
-    "readOnly": false,
     "persistedCacheBatchSize": 20000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "adjustDataBatchSize": 20000,
@@ -625,7 +624,7 @@
         },
         "userDisplayId": {
           "shortLabel": "Registration number",
-          "longLabel": "Registration number",
+          "longLabel": "Registration number"
         }
       },
       "features": {

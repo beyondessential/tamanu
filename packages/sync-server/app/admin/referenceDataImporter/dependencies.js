@@ -22,7 +22,7 @@ export default {
 
   patient: {
     loader: patientDataLoader,
-    needs: ['user'],
+    needs: ['user', 'patientFieldDefinition'],
   },
 
   facility: {},

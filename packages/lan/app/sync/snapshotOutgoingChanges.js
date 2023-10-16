@@ -32,11 +32,7 @@ const snapshotChangesForModel = async (model, since, transaction) => {
   }));
 };
 
-export const snapshotOutgoingChanges = withConfig(async (sequelize, models, since, config) => {
-  if (config.sync.readOnly) {
-    return [];
-  }
-
+export const snapshotOutgoingChanges = withConfig(async (sequelize, models, since) => {
   const invalidModelNames = Object.values(models)
     .filter(
       m =>
