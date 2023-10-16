@@ -668,10 +668,10 @@ export const dummyApi = {
       case 'suggestions/practitioner':
         return practitioners;
 
-      case 'suggestions/clinicalStatus':
+      case 'suggestions/programRegistryClinicalStatus':
         return clinicalStatusList;
 
-      case 'suggestions/programRegistries':
+      case 'suggestions/programRegistry':
         return programRegistries;
 
       case 'suggestions/survey':

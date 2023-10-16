@@ -25,7 +25,7 @@ const StyledFormGrid = styled(FormGrid)`
 
 export const ChangeStatusFormModal = ({ patientProgramRegistration }) => {
   const [openChangeStatusFormModal, setOpenChangeStatusFormModal] = useState(false);
-  const programRegistryStatusSuggester = useSuggester('clinicalStatus', {
+  const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
     baseQueryParameters: { programId: patientProgramRegistration.programId },
   });
   const isRemoved =

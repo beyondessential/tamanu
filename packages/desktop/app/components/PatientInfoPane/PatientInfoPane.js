@@ -13,7 +13,7 @@ import {
   PatientCarePlanForm,
   PatientIssueForm,
 } from '../../forms';
-import { ProgramRegistryForm } from '../../views/programRegistry/ProgramRegistryForm';
+import { PatientProgramRegistryForm } from '../../views/programRegistry/PatientProgramRegistryForm';
 import { ProgramRegistryListItem } from '../../views/programRegistry/ProgramRegistryListItem';
 import { DeathModal } from '../DeathModal';
 import { Colors } from '../../constants';
@@ -109,7 +109,7 @@ const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
     title={PROGRAM_REGISTRY}
     endpoint={`patient/${patient.id}/programRegistration`}
     getEndpoint={`patient/${patient.id}/programRegistration`}
-    Form={ProgramRegistryForm}
+    Form={PatientProgramRegistryForm}
     ListItemComponent={ProgramRegistryListItem}
     getName={programRegistry => programRegistry.name}
     behavior="modal"
