@@ -179,8 +179,8 @@ async function getUserFromToken(request) {
 
   const token = bearer[1];
   try {
-    const { userId } = decodeToken(token);
-    const user = models.User.findByPk(userId);
+    const { userId } = await decodeToken(token);
+    const user = await models.User.findByPk(userId);
     if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
       throw new Error(); // will be caught immediately
     }

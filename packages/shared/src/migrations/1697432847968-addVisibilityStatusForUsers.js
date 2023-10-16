@@ -5,7 +5,6 @@ export async function up(query) {
     type: Sequelize.STRING,
     defaultValue: 'current',
   });
-  // write your up migration here
 }
 
 export async function down(query) {
