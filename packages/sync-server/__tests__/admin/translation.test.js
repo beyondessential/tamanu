@@ -7,9 +7,9 @@ describe('Translation', () => {
   let baseApp;
   let adminApp;
 
-  const mockTranslatedString = async (id, text, language) => {
+  const mockTranslatedString = async (stringId, text, language) => {
     await models.TranslatedString.create({
-      stringId: id,
+      stringId,
       text,
       language,
     });
