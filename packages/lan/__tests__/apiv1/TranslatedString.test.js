@@ -53,7 +53,7 @@ describe('TranslatedString', () => {
     expect(result.body).toEqual(expectedResult);
   });
 
-  it('Should recieve a list of all translations for selected language in an object with format [stringId]: text', async () => {
+  it('Should recieve a list of all translations for selected language in an object with format { [stringId]: text, ... }', async () => {
     const englishTranslations = await seedTranslationsForLanguage(LANGUAGE_CODES.ENGLISH);
     const khmerTranslations = await seedTranslationsForLanguage(LANGUAGE_CODES.KHMER);
 
