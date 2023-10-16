@@ -33,7 +33,8 @@ const existingRecordLoaders = {
   PatientFieldValue: (PFV, { patientId, definitionId }) =>
     PFV.findOne({ where: { patientId, definitionId } }, { paranoid: false }),
   // TranslatedString model has a composite PK that uses stringId & language
-  TranslatedString: (TS, { stringId, language }) => TS.findOne({ where: { stringId, language } }, { paranoid: false }),
+  TranslatedString: (TS, { stringId, language }) =>
+    TS.findOne({ where: { stringId, language } }, { paranoid: false }),
 };
 
 function loadExisting(Model, values) {

@@ -14,7 +14,7 @@ const CustomExportersByDataType = {
   administeredVaccine: AdministeredVaccineExporter,
   labTestPanel: LabTestPanelExporter,
   patientFieldDefinition: PatientFieldDefinitionExporter,
-  translatedString: TranslatedStringExporter
+  translatedString: TranslatedStringExporter,
 };
 export const createModelExporter = (context, dataType) => {
   const referenceDataTypes = [...REFERENCE_TYPE_VALUES, 'diagnosis'];

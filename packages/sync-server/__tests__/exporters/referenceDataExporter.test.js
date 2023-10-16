@@ -59,7 +59,7 @@ describe('Reference data exporter', () => {
       'PatientFieldDefinitionCategory',
       'Location',
       'Department',
-      'TranslatedString'
+      'TranslatedString',
     ];
     for (const model of modelsToDestroy) {
       await ctx.store.models[model].destroy({ where: {}, force: true });
@@ -484,23 +484,19 @@ describe('Reference data exporter', () => {
   });
 
   it('Should export translated strings with a single row for each stringId with columns for each languages text', async () => {
-    await models.TranslatedString.create(
-      {
-        stringId: 'test-string',
-        language: LANGUAGE_CODES.ENGLISH,
-        text: 'test',
-      },
-    )
-    await models.TranslatedString.create(
-      {
-        stringId: 'test-string',
-        language: LANGUAGE_CODES.KHMER,
-        text: 'សាកល្បង',
-      }
-    )
+    await models.TranslatedString.create({
+      stringId: 'test-string',
+      language: LANGUAGE_CODES.ENGLISH,
+      text: 'test',
+    });
+    await models.TranslatedString.create({
+      stringId: 'test-string',
+      language: LANGUAGE_CODES.KHMER,
+      text: 'សាកល្បង',
+    });
 
     await exporter(store, { 1: 'translatedString' });
-  
+
     expect(writeExcelFile).toBeCalledWith(
       [
         {

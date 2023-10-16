@@ -22,18 +22,20 @@ describe('TranslatedString', () => {
 
   describe('POST /', () => {
     it('should create a new translated string', async () => {
-      const stringId = 'test-string'
+      const stringId = 'test-string';
       const result = await app.post('/v1/translation').send({
         stringId,
         fallback: 'test-fallback',
       });
       expect(result).toHaveSucceeded();
-      expect(result.body).toEqual(expect.objectContaining({
-        id: `${stringId};${LANGUAGE_CODES.ENGLISH}`,
-        stringId,
-        text: 'test-fallback',
-        language: LANGUAGE_CODES.ENGLISH,
-      }));
+      expect(result.body).toEqual(
+        expect.objectContaining({
+          id: `${stringId};${LANGUAGE_CODES.ENGLISH}`,
+          stringId,
+          text: 'test-fallback',
+          language: LANGUAGE_CODES.ENGLISH,
+        }),
+      );
     });
   });
 });

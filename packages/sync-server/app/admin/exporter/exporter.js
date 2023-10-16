@@ -7,7 +7,7 @@ async function buildSheetDataForDataType(context, dataType) {
   const modelExporter = createModelExporter(context, dataType);
   const tabName = modelExporter.getTabName();
   const data = await modelExporter.getData();
-  
+
   if (!data || data.length === 0) {
     return { tabName, data: [] };
   }

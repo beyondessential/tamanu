@@ -17,14 +17,14 @@ const ColorText = styled.span`
 `;
 
 const ERROR_COLUMNS = [
-  { key: 'sheet', title: 'Sheet', width: 1, sortable: false  },
-  { key: 'row', title: 'Row', sortable: false  },
-  { key: 'kind', title: 'Error', sortable: false  },
+  { key: 'sheet', title: 'Sheet', width: 1, sortable: false },
+  { key: 'row', title: 'Row', sortable: false },
+  { key: 'kind', title: 'Error', sortable: false },
   {
     key: 'error',
     title: 'Message',
     accessor: data => <ColorText color="red">{data.message}</ColorText>,
-    sortable: false
+    sortable: false,
   },
 ];
 
@@ -34,15 +34,15 @@ const ImportErrorsTable = ({ errors }) => (
 
 const STATS_COLUMNS = [
   { key: 'key', title: 'Table', sortable: false },
-  { key: 'created', title: 'Created', sortable: false  },
-  { key: 'updated', title: 'Updated', sortable: false  },
+  { key: 'created', title: 'Created', sortable: false },
+  { key: 'updated', title: 'Updated', sortable: false },
   {
     key: 'errored',
     title: 'Errored',
     accessor: ({ errored }) => (
       <ColorText color={errored > 0 ? 'red' : 'green'}>{errored}</ColorText>
     ),
-    sortable: false
+    sortable: false,
   },
 ];
 
