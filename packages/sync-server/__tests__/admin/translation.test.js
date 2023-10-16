@@ -1,5 +1,5 @@
-import { createTestContext } from '../utilities';
 import { LANGUAGE_CODES } from '@tamanu/constants';
+import { createTestContext } from '../utilities';
 
 describe('Translation', () => {
   let ctx;

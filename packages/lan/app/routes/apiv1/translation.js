@@ -8,9 +8,7 @@ export const translation = express.Router();
 translation.post(
   '/',
   asyncHandler(async (req, res) => {
-    // Don't need a write permission here, requirements
-    // are basically that user is logged in
-    req.checkPermission('list', 'Translation');
+    req.flagPermissionChecked();
 
     const {
       models: { TranslatedString },
