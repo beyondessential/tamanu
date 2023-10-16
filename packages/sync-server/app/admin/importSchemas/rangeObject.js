@@ -23,4 +23,26 @@ export const rangeObjectSchema = yup
       }
       return isNumberOrFloat(value.min) || isNumberOrFloat(value.max);
     },
+  })
+  .test({
+    name: 'is-age-range-valid',
+    message: ctx => `${ctx.path} should have a valid age range.`,
+    test: value => {
+      if (!value) {
+        return true;
+      }
+      const { ageMin, ageMax } = value;
+
+      // Given we need to support the old format, these could be undefined
+      if (ageMin === undefined && ageMax === undefined) {
+        return true;
+      }
+
+      const atLeastOne = isNumberOrFloat(ageMin) || isNumberOrFloat(ageMax);
+      // Ensure both are not zero (comparison below won't work for that scenario)
+      const notEqual = ageMin !== ageMax;
+      // Min inclusive - max exclusive: cannot be the same
+      const minLessThanMax = (ageMin || -Infinity) < (ageMax || Infinity);
+      return atLeastOne && notEqual && minLessThanMax;
+    },
   });
