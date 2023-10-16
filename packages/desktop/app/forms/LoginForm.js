@@ -106,10 +106,7 @@ export const LoginForm = React.memo(
             .nullable()
             .required(),
           password: yup.string().required(),
-          language: yup
-            .string()
-            .oneOf(Object.values(LANGUAGE_CODES))
-            .required('Must select a language'),
+          language: yup.string(),
         })}
       />
     );

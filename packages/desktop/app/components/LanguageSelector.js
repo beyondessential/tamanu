@@ -71,6 +71,11 @@ export const LanguageSelector = ({ setFieldValue }) => {
     }
   }, [singleOption, languageOptions, setFieldValue]);
 
+  // If translations not implemented, no need for this component to show
+  if (languageOptions.length === 0) {
+    return null;
+  }
+
   return (
     <LanguageSelectorContainer>
       <SelectInput
