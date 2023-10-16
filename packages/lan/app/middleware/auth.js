@@ -5,6 +5,7 @@ import config from 'config';
 import { v4 as uuid } from 'uuid';
 import { promisify } from 'util';
 
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { BadAuthenticationError } from 'shared/errors';
 import { log } from 'shared/services/logging';
 import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
@@ -81,7 +82,9 @@ export async function centralServerLogin(models, email, password, deviceId) {
 
 async function localLogin(models, email, password) {
   // some other error in communicating with sync server, revert to local login
-  const user = await models.User.scope('withPassword').findOne({ where: { email } });
+  const user = await models.User.scope('withPassword').findOne({
+    where: { email, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+  });
   const passwordMatch = await comparePassword(user, password);
 
   if (!passwordMatch) {
@@ -176,8 +179,12 @@ async function getUserFromToken(request) {
 
   const token = bearer[1];
   try {
-    const { userId } = await decodeToken(token);
-    return models.User.findByPk(userId);
+    const { userId } = decodeToken(token);
+    const user = models.User.findByPk(userId);
+    if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+      throw new Error(); // will be caught immediately
+    }
+    return user;
   } catch (e) {
     throw new BadAuthenticationError(
       'Your session has expired or is invalid. Please log in again.',
