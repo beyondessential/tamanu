@@ -48,7 +48,7 @@ patientProgramRegistration.post(
       req.checkPermission('create', 'PatientProgramRegistration', { programRegistryId });
     }
 
-    const { conditions: conditionIds = [], ...registrationData } = body;
+    const { conditionIds = [], ...registrationData } = body;
 
     if (conditionIds.length > 0) {
       req.checkPermission('create', 'PatientProgramRegistrationCondition', { programRegistryId });
