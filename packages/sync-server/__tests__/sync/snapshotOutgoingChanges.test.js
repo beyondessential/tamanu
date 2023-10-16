@@ -16,8 +16,6 @@ import { fakeUUID } from 'shared/utils/generateId';
 import { createTestContext } from '../utilities';
 import { snapshotOutgoingChanges } from '../../app/sync/snapshotOutgoingChanges';
 
-const syncConfig = readOnly => ({ sync: { readOnly, maxRecordsPerPullSnapshotChunk: 1000 } });
-
 describe('snapshotOutgoingChanges', () => {
   let ctx;
   let models;
@@ -35,33 +33,6 @@ describe('snapshotOutgoingChanges', () => {
   });
 
   afterAll(() => ctx.close());
-
-  it(
-    'if in readOnly mode returns 0',
-    withErrorShown(async () => {
-      const { SyncSession, LocalSystemFact, ReferenceData } = models;
-      const startTime = new Date();
-      const syncSession = await SyncSession.create({
-        startTime,
-        lastConnectionTime: startTime,
-      });
-      await createSnapshotTable(ctx.store.sequelize, syncSession.id);
-      await ReferenceData.create(fakeReferenceData());
-      const tock = await LocalSystemFact.increment('currentSyncTick', 2);
-
-      const result = await snapshotOutgoingChanges.overrideConfig(
-        outgoingModels,
-        tock - 1,
-        [],
-        syncSession.id,
-        '',
-        simplestSessionConfig,
-        syncConfig(true),
-      );
-
-      expect(result).toEqual(0);
-    }),
-  );
 
   it(
     'if nothing changed returns 0',
