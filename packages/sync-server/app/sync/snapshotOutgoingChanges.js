@@ -129,10 +129,6 @@ const snapshotChangesForModel = async (
 
 export const snapshotOutgoingChanges = withConfig(
   async (outgoingModels, since, patientIds, sessionId, facilityId, sessionConfig, config) => {
-    if (config.sync.readOnly) {
-      return 0;
-    }
-
     const invalidModelNames = Object.values(outgoingModels)
       .filter(
         m =>
