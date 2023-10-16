@@ -3,10 +3,11 @@ import config from 'config';
 import { writeExcelFile } from './excelUtils';
 import { createModelExporter } from './modelExporters/createModelExporter';
 
-async function buildSheetDataForDataType(models, dataType) {
-  const modelExporter = createModelExporter(models, dataType);
+async function buildSheetDataForDataType(context, dataType) {
+  const modelExporter = createModelExporter(context, dataType);
   const tabName = modelExporter.getTabName();
   const data = await modelExporter.getData();
+  
   if (!data || data.length === 0) {
     return { tabName, data: [] };
   }
@@ -40,10 +41,10 @@ async function validateFileSize(fileName, maxSizeInMb) {
   }
 }
 
-export async function exporter(models, includedDataTypes = {}, fileName = '') {
+export async function exporter(context, includedDataTypes = {}, fileName = '') {
   const sheets = await Promise.all(
     Object.values(includedDataTypes).map(async dataType => {
-      const { data, tabName } = await buildSheetDataForDataType(models, dataType);
+      const { data, tabName } = await buildSheetDataForDataType(context, dataType);
       return {
         name: tabName,
         data,

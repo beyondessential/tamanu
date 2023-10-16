@@ -9,8 +9,9 @@ const METADATA_COLUMNS = [
 ];
 
 export class ModelExporter {
-  constructor(models, dataType) {
+  constructor({ models, sequelize }, dataType) {
     this.models = models;
+    this.sequelize = sequelize;
     this.dataType = dataType;
   }
 

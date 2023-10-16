@@ -6,6 +6,7 @@ import { LabTestPanelExporter } from './LabTestPanelExporter';
 import { PermissionExporter } from './PermissionExporter';
 import { PatientFieldDefinitionExporter } from './PatientFieldDefinitionExporter';
 import { ReferenceDataExporter } from './ReferenceDataExporter';
+import { TranslatedStringExporter } from './TranslatedStringExporter';
 
 const CustomExportersByDataType = {
   permission: PermissionExporter,
@@ -13,16 +14,17 @@ const CustomExportersByDataType = {
   administeredVaccine: AdministeredVaccineExporter,
   labTestPanel: LabTestPanelExporter,
   patientFieldDefinition: PatientFieldDefinitionExporter,
+  translatedString: TranslatedStringExporter
 };
-export const createModelExporter = (models, dataType) => {
+export const createModelExporter = (context, dataType) => {
   const referenceDataTypes = [...REFERENCE_TYPE_VALUES, 'diagnosis'];
   const CustomExporterClass = CustomExportersByDataType[dataType];
   if (CustomExporterClass) {
-    return new CustomExporterClass(models, dataType);
+    return new CustomExporterClass(context, dataType);
   }
   if (referenceDataTypes.includes(dataType)) {
-    return new ReferenceDataExporter(models, dataType);
+    return new ReferenceDataExporter(context, dataType);
   }
 
-  return new DefaultDataExporter(models, dataType);
+  return new DefaultDataExporter(context, dataType);
 };
