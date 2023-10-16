@@ -88,7 +88,7 @@ export function administeredVaccineLoader(item) {
 
 export function translatedStringLoader({ stringId, ...languages }) {
   return Object.entries(languages)
-    .filter(([_, text]) => text.trim())
+    .filter(([, text]) => text.trim())
     .map(([language, text]) => ({
       model: 'TranslatedString',
       values: {
