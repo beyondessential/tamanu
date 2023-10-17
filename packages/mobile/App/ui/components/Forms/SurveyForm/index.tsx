@@ -7,6 +7,9 @@ import { FormFields } from './FormFields';
 import { shouldSaveComponent, checkVisibilityCriteria } from '/helpers/fields';
 import { runCalculations } from '~/ui/helpers/calculations';
 import { authUserSelector } from '/helpers/selectors';
+import { useBackendEffect } from '~/ui/hooks';
+import { ErrorScreen } from '../../ErrorScreen';
+import { LoadingScreen } from '../../LoadingScreen';
 
 export type SurveyFormProps = {
   onSubmit: (values: any) => Promise<void>;
@@ -39,10 +42,25 @@ export const SurveyForm = ({
     () => getFormInitialValues(components, currentUser, patient, patientAdditionalData),
     [components, currentUser, patient, patientAdditionalData],
   );
+  const [encounterResult, encounterError, isEncounterLoading] = useBackendEffect(
+    async ({ models }) => {
+      const encounter = await models.Encounter.getCurrentEncounterForPatient(patient.id);
+      return {
+        encounter,
+      };
+    },
+    [patient.id],
+  );
+
+  const { encounter } = encounterResult || {};
   const [formValues, setFormValues] = useState(initialValues);
   const formValidationSchema = useMemo(
-    () => getFormSchema(components.filter(c => checkVisibilityCriteria(c, components, formValues))),
-    [checkVisibilityCriteria, components, formValues],
+    () =>
+      getFormSchema(
+        components.filter(c => checkVisibilityCriteria(c, components, formValues)),
+        { encounterType: encounter?.encounterType },
+      ),
+    [encounter?.encounterType, checkVisibilityCriteria, components, formValues],
   );
 
   const submitSaveableValues = useCallback(
@@ -64,6 +82,14 @@ export const SurveyForm = ({
     },
     [components, onSubmit],
   );
+
+  if (encounterError) {
+    return <ErrorScreen error={encounterError} />;
+  }
+
+  if (isEncounterLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <Form

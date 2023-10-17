@@ -185,7 +185,9 @@ const getFijiCovidAnswers = async (models, parameters, { surveyId, dateFormat })
     nest: true,
   });
 
-  const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
+  const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId, {
+    includeAllVitals: true,
+  });
 
   const transformedAnswers = await transformAnswers(models, answers, components, {
     dateFormat,
