@@ -67,7 +67,13 @@ export const TranslationForm = () => {
             <Box display="flex" alignItems="center">
               <AccessorField id={placeholderId} name="stringId" component={TextField} />
               <StyledIconButton>
-                <DeleteIcon />
+                <DeleteIcon
+                  onClick={() => {
+                    setAdditionalColumns(
+                      additionalColumns.filter(column => column.placeholderId !== placeholderId),
+                    );
+                  }}
+                />
               </StyledIconButton>
             </Box>
           ),
