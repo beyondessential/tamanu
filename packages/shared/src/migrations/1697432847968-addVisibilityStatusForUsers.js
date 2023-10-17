@@ -3,6 +3,7 @@ import Sequelize from 'sequelize';
 export async function up(query) {
   await query.addColumn('users', 'visibility_status', {
     type: Sequelize.STRING,
+    allowNull: false,
     defaultValue: 'current',
   });
 }

@@ -9,7 +9,7 @@ export class addVisibilityStatusForUsers1697499690000 implements MigrationInterf
       tableObject,
       new TableColumn({
         name: 'visibility_status',
-        isNullable: true,
+        isNullable: false,
         type: 'varchar',
         default: 'current',
       }),
