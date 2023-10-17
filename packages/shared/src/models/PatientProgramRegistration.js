@@ -115,7 +115,7 @@ export class PatientProgramRegistration extends Model {
       order: [
         // "active" > "removed"
         ['registrationStatus', 'ASC'],
-        [Sequelize.col('program_registry.name'), 'ASC'],
+        [Sequelize.col('programRegistry.name'), 'ASC'],
       ],
     });
   }

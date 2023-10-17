@@ -29,15 +29,22 @@ describe('PatientProgramRegistration', () => {
       const program1 = await models.Program.create(fake(models.Program));
       const program2 = await models.Program.create(fake(models.Program));
       const programRegistry1 = await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: program1.id }),
+        fake(models.ProgramRegistry, { programId: program1.id, name: 'a' }),
+      );
+      const programRegistryClinicalStatus = await models.ProgramRegistryClinicalStatus.create(
+        fake(models.ProgramRegistryClinicalStatus, {
+          programRegistryId: programRegistry1.id,
+          name: 'aa',
+        }),
       );
       const programRegistry2 = await models.ProgramRegistry.create(
-        fake(models.ProgramRegistry, { programId: program2.id }),
+        fake(models.ProgramRegistry, { programId: program2.id, name: 'b' }),
       );
       await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           programRegistryId: programRegistry1.id,
           clinicianId: clinician.id,
+          clinicalStatusId: programRegistryClinicalStatus.id,
           patientId: patient.id,
           date: '2023-09-02 08:00:00',
         }),
@@ -67,6 +74,12 @@ describe('PatientProgramRegistration', () => {
           date: '2023-09-04 08:00:00',
           patientId: patient.id,
           programRegistryId: programRegistry1.id,
+          programRegistry: {
+            name: 'a',
+          },
+          clinicalStatus: {
+            name: 'aa',
+          },
         },
         {
           clinicianId: clinician.id,
