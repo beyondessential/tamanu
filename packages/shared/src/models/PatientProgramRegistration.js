@@ -108,9 +108,15 @@ export class PatientProgramRegistration extends Model {
     return this.sequelize.models.PatientProgramRegistration.findAll({
       where: {
         id: { [Op.in]: Sequelize.literal(GET_MOST_RECENT_REGISTRATIONS_QUERY) },
+        registrationStatus: { [Op.ne]: REGISTRATION_STATUSES.RECORDED_IN_ERROR },
         patientId,
       },
-      // Order: TODO
+      include: ['clinicalStatus', 'programRegistry'],
+      order: [
+        // "active" > "removed"
+        ['registrationStatus', 'ASC'],
+        [Sequelize.col('programRegistry.name'), 'ASC'],
+      ],
     });
   }
 
