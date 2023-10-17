@@ -149,13 +149,6 @@ export const LabTestPanelLabTestTypes = yup.object().shape({
   labTestTypeId: yup.string().required(),
 });
 
-export const ProgramRegistryClinicalStatus = Base.shape({
-  color: yup
-    .string()
-    .required()
-    .oneOf(Object.keys(STATUS_COLOR)),
-});
-
 export const ProgramDataElement = Base.shape({
   indicator: yup.string(),
   type: yup
@@ -168,7 +161,13 @@ export const ProgramDataElement = Base.shape({
 export const baseValidationShape = yup
   .object()
   .shape({
-    mandatory: yup.boolean(),
+    mandatory: yup.lazy(value => {
+      return typeof value === 'boolean'
+        ? yup.boolean()
+        : yup.object().shape({
+            encounterType: yup.mixed(),
+          });
+    }),
   })
   .noUnknown();
 
@@ -187,6 +186,7 @@ export const SurveyScreenComponent = Base.shape({
   surveyId: yup.string().required(),
   detail: yup.string().max(255),
   dataElementId: yup.string().required(),
+  visibilityStatus,
 });
 
 export const ScheduledVaccine = Base.shape({
@@ -239,6 +239,28 @@ export const Survey = Base.shape({
     .required()
     .oneOf(['programs', 'referral', 'obsolete', 'vitals']),
   isSensitive: yup.boolean().required(),
+});
+
+export const ProgramRegistry = Base.shape({
+  code: fieldTypes.code.required(),
+  name: yup.string().required(),
+  visibilityStatus,
+});
+
+export const ProgramRegistryClinicalStatus = Base.shape({
+  code: fieldTypes.code.required(),
+  name: yup.string().required(),
+  color: yup
+    .string()
+    .required()
+    .oneOf(Object.keys(STATUS_COLOR)),
+  visibilityStatus,
+});
+
+export const ProgramRegistryCondition = Base.shape({
+  code: fieldTypes.code.required(),
+  name: yup.string().required(),
+  visibilityStatus,
 });
 
 export const AdministeredVaccine = Base.shape({

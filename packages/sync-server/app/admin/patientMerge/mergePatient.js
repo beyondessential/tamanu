@@ -28,6 +28,7 @@ export const simpleUpdateModels = [
   'DeathRevertLog',
   'UserRecentlyViewedPatient',
   'PatientProgramRegistration',
+  'PatientProgramRegistrationCondition',
 ];
 
 // These ones need a little more attention.

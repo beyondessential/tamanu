@@ -121,6 +121,11 @@ describe('Survey calculations', () => {
         { code: 'TEST_ALWAYS', type: 'Result' },
         { code: 'REF', type: 'Binary' },
         { code: 'TEST_CHECK', type: 'Result', visibilityCriteria: 'REF: Yes' },
+        {
+          code: 'TEST_CHECK_2',
+          type: 'Result',
+          visibilityCriteria: '{"encounterType": "admission"}',
+        },
       ]);
 
       it('should use a visible result field', () => {
@@ -141,6 +146,18 @@ describe('Survey calculations', () => {
         });
         expect(result).toEqual(100);
         expect(resultText).toEqual('100%');
+      });
+
+      it('should check visibility with add on value', () => {
+        const { result, resultText } = getResultValue(visibilitySurvey, {
+          TEST_CHECK: 0,
+          TEST_ALWAYS: 100,
+          REF: false,
+          TEST_CHECK_2: 200,
+          encounterType: 'admission',
+        });
+        expect(result).toEqual(200);
+        expect(resultText).toEqual('200%');
       });
 
       const multiVisibilitySurvey = makeDummySurvey([

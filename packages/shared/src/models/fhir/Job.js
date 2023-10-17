@@ -1,6 +1,6 @@
 import { trace } from '@opentelemetry/api';
 import ms from 'ms';
-import Sequelize, { DataTypes, QueryTypes, Transaction } from 'sequelize';
+import Sequelize, { DataTypes, QueryTypes } from 'sequelize';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from '../Model';
@@ -67,15 +67,18 @@ export class FhirJob extends Model {
     );
   }
 
-  static async backlog(topic, includeDropped = true) {
+  static async backlogUntilLimit(topic, limit, includeDropped = true) {
+    // Retrieving the size of the whole backlog can be expensive, and sometimes
+    // we only need to check how many records can be retrieved up to a limit of
+    // n, so this method returns the minimum of limit and backlog size
     const [{ count }] = await this.sequelize.query(
-      'SELECT fhir.job_backlog($topic, $includeDropped) as count',
+      `SELECT fhir.job_backlog_until_limit($topic, $limit, $includeDropped) as count`,
       {
         type: QueryTypes.SELECT,
-        bind: { topic, includeDropped },
+        bind: { topic, limit, includeDropped },
       },
     );
-    return Number(count);
+    return count;
   }
 
   static async grab(workerId, topic) {
@@ -87,23 +90,18 @@ export class FhirJob extends Model {
     const GRAB_RETRY = 10;
     for (let i = 0; i < GRAB_RETRY; i += 1) {
       try {
-        return await this.sequelize.transaction(
-          {
-            isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ,
-          },
-          async () => {
-            const [{ id }] = await this.sequelize.query(
-              'SELECT (fhir.job_grab($workerId, $topic)).job_id as id',
-              {
-                type: QueryTypes.SELECT,
-                bind: { workerId, topic },
-              },
-            );
+        return await this.sequelize.transaction(async () => {
+          const [{ id }] = await this.sequelize.query(
+            'SELECT (fhir.job_grab($workerId, $topic)).job_id as id',
+            {
+              type: QueryTypes.SELECT,
+              bind: { workerId, topic },
+            },
+          );
 
-            if (!id) return null;
-            return FhirJob.findByPk(id);
-          },
-        );
+          if (!id) return null;
+          return FhirJob.findByPk(id);
+        });
       } catch (err) {
         log.debug(`Failed to grab job`, err);
 

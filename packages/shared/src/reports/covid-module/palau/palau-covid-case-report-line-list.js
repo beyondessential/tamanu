@@ -169,10 +169,16 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
 
   const initialSurveyComponents = await models.SurveyScreenComponent.getComponentsForSurvey(
     INITIAL_SURVEY_ID,
+    {
+      includeAllVitals: true,
+    },
   );
 
   const followUpSurveyComponents = await models.SurveyScreenComponent.getComponentsForSurvey(
     FOLLOW_UP_SURVEY_ID,
+    {
+      includeAllVitals: true,
+    },
   );
 
   const followupSurveyResponses = await getSurveyResponses(models, parameters, FOLLOW_UP_SURVEY_ID);
