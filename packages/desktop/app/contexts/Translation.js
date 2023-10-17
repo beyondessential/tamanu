@@ -19,7 +19,7 @@ export const TranslationProvider = ({ children }) => {
     <TranslationContext.Provider
       value={{
         setLanguage,
-        getTranslations: stringId => get(translations, stringId),
+        getTranslation: stringId => get(translations, stringId),
       }}
     >
       {children}

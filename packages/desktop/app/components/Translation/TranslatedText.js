@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { ipcRenderer } from 'electron';
+import { useTranslation } from '../../contexts/Translation';
 
 const DebugHighlighed = styled.span`
   background-color: red;
@@ -25,7 +26,9 @@ ipcRenderer.on('toggleTranslationDebug', () => {
 // eslint-disable-next-line no-unused-vars
 export const TranslatedText = ({ stringId, fallback }) => {
   const [isDebugMode, setIsDebugMode] = useState(false);
-  const translation = null; // Placeholder for checking db for translation
+
+  const { getTranslation } = useTranslation();
+  const translation = getTranslation(stringId);
 
   useEffect(() => {
     const getDebugMode = async () => {
