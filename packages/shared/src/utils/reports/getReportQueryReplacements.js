@@ -12,7 +12,7 @@ function getStartDate(dateRange, endDate) {
       return startOfDay(subDays(endDate, 30));
     case REPORT_DEFAULT_DATE_RANGES.FUTURE_THIRTY_DAYS:
       // If we have a toDate, but no fromDate, run 30 days prior to the toDate
-      return new Date();
+      return startOfDay(new Date());
     default:
       throw new Error('Unknown date range for report generation');
   }
@@ -22,7 +22,7 @@ function getEndDate(dateRange, fromDate) {
   switch (dateRange) {
     case REPORT_DEFAULT_DATE_RANGES.ALL_TIME:
     case REPORT_DEFAULT_DATE_RANGES.PAST_THIRTY_DAYS:
-      return new Date();
+      return endOfDay(new Date());
     case REPORT_DEFAULT_DATE_RANGES.FUTURE_THIRTY_DAYS:
       // If we have a toDate, but no fromDate, run 30 days prior to the toDate
       return endOfDay(addDays(fromDate || new Date(), 30));
