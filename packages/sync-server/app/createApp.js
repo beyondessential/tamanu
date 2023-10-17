@@ -3,8 +3,8 @@ import compression from 'compression';
 import config from 'config';
 import express from 'express';
 
-import { getLoggingMiddleware } from 'shared/services/logging';
-import { constructPermission } from 'shared/permissions/middleware';
+import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
+import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { SERVER_TYPES } from '@tamanu/constants';
 
 import { buildRoutes } from './buildRoutes';
