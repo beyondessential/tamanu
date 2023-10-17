@@ -4,7 +4,7 @@ import config from 'config';
 import express from 'express';
 
 import { getLoggingMiddleware } from 'shared/services/logging';
-import { constructPermission } from 'shared/permissions/middleware';
+import { constructPermission, ensurePermissionCheck } from 'shared/permissions/middleware';
 import { SERVER_TYPES } from '@tamanu/constants';
 
 import { buildRoutes } from './buildRoutes';
@@ -60,6 +60,8 @@ export function createApp(ctx) {
   app.use('/v1/public', publicRoutes);
   app.use('/v1', authModule);
   app.use('/v1', constructPermission);
+  app.use('/v1', ensurePermissionCheck);
+
   app.use('/v1', buildRoutes(ctx));
 
   // Dis-allow all other routes
