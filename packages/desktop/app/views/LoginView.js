@@ -75,6 +75,7 @@ export const LoginView = () => {
       localStorage.removeItem(REMEMBER_EMAIL);
     }
 
+    localStorage.setItem('language', language);
     setLanguage(language);
 
     // The await is necessary to prevent redux-form unlocking submission
