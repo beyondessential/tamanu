@@ -5,6 +5,7 @@ import {
   getAbilityForUser,
 } from 'shared/permissions/rolesToPermissions';
 import { permissionCache } from 'shared/permissions/cache';
+import { DELETION_STATUSES } from '@tamanu/constants/importable';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 
@@ -35,6 +36,12 @@ describe('Permissions', () => {
       makeRoleWithPermissions('reader', [
         { verb: 'read', noun: 'Patient' },
         { verb: 'run', noun: 'Report', objectId: 'report-allowed' },
+        {
+          verb: 'run',
+          noun: 'Report',
+          objectId: 'report-allowed-but-revoked',
+          deletionStatus: DELETION_STATUSES.REVOKED,
+        },
       ]),
       makeRoleWithPermissions('writer', [{ verb: 'write', noun: 'Patient' }]),
     ]);
@@ -75,6 +82,7 @@ describe('Permissions', () => {
       expect(ability.cannot('write', { type: 'Patient' }));
       expect(ability.can('run', { type: 'Report', id: 'report-allowed' }));
       expect(ability.cannot('run', { type: 'Report', id: 'report-forbidden' }));
+      expect(ability.cannot('run', { type: 'Report', id: 'report-allowed-but-revoked' }));
     });
 
     it('should read a permission definition object across multiple roles', async () => {
@@ -83,6 +91,7 @@ describe('Permissions', () => {
       expect(ability.can('write', { type: 'Patient' }));
       expect(ability.can('run', { type: 'Report', id: 'report-allowed' }));
       expect(ability.cannot('run', { type: 'Report', id: 'report-forbidden' }));
+      expect(ability.cannot('run', { type: 'Report', id: 'report-allowed-but-revoked' }));
     });
   });
 

@@ -1,4 +1,5 @@
 import config from 'config';
+import { DELETION_STATUSES } from '@tamanu/constants';
 import { buildAbility, buildAbilityForUser } from './buildAbility';
 import { permissionCache } from './cache';
 
@@ -28,13 +29,15 @@ export async function queryPermissionsForRoles({ Permission }, roleString) {
     `
     SELECT * 
       FROM permissions
-      WHERE permissions.role_id IN (:roleIds)
+      WHERE permissions.role_id IN (:roleIds) 
+      AND permissions.deletion_status = :deletionStatus
   `,
     {
       model: Permission,
       mapToModel: true,
       replacements: {
         roleIds,
+        deletionStatus: DELETION_STATUSES.CURRENT,
       },
     },
   );
