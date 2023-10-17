@@ -23,6 +23,7 @@ import { PATIENT_TABS } from '../../constants/patientPaths';
 import { NAVIGATION_CONTAINER_HEIGHT } from '../../components/PatientNavigation';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { PatientSearchParametersProvider } from '../../contexts/PatientViewSearchParameters';
+import { invalidatePatientDataQueries } from '../../utils';
 
 const StyledDisplayTabs = styled(TabDisplay)`
   overflow: initial;
@@ -116,9 +117,8 @@ export const PatientView = () => {
 
   useEffect(() => {
     if (!patient.syncing) {
-      queryClient.invalidateQueries(['additionalData', patient.id]);
-      queryClient.invalidateQueries(['birthData', patient.id]);
-      queryClient.invalidateQueries(['patientFields', patient.id]);
+      // invalidate the cache of patient data queries to reload the patient data
+      invalidatePatientDataQueries(queryClient, patient.id);
     }
 
     // invalidate queries only when syncing is done (changed from true to false)
