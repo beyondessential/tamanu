@@ -19,6 +19,7 @@ import {
   clearPatient,
 } from '../store';
 import { useApi } from '../api';
+import { useTranslation } from '../contexts/Translation';
 
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
 
@@ -47,6 +48,7 @@ const LogoContainer = styled.div`
 export const LoginView = () => {
   const api = useApi();
   const dispatch = useDispatch();
+  const { setLanguage } = useTranslation();
   const loginError = useSelector(state => state.auth.error);
   const requestPasswordResetError = useSelector(state => state.auth.resetPassword.error);
   const requestPasswordResetSuccess = useSelector(state => state.auth.resetPassword.success);
@@ -59,7 +61,7 @@ export const LoginView = () => {
   const [screen, setScreen] = useState('login');
 
   const submitLogin = async data => {
-    const { host, email, password, rememberMe } = data;
+    const { host, email, password, rememberMe, language } = data;
 
     // If a different user logs in, reset patient state and navigate to index
     if (email !== api.user?.email) {
@@ -72,6 +74,8 @@ export const LoginView = () => {
     } else {
       localStorage.removeItem(REMEMBER_EMAIL);
     }
+
+    setLanguage(language);
 
     // The await is necessary to prevent redux-form unlocking submission
     // redux-thunk definitely returns a promise, and this works
