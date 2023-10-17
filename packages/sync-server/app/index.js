@@ -20,7 +20,7 @@ const hiddenCommands = [
 async function run() {
   program
     .version(version)
-    .description('Tamanu sync-server')
+    .description('Tamanu Central server')
     .name('node dist');
 
   for (const [key, command] of Object.entries(cmd).filter(([k]) => /^\w+Command$/.test(k))) {
