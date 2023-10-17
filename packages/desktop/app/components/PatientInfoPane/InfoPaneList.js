@@ -166,7 +166,6 @@ export const InfoPaneList = ({
                       item={item}
                       handleRowClick={handleRowClick}
                       ListItem={ListItem}
-                      getName={getName}
                     />
                   ) : (
                     <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
@@ -194,7 +193,6 @@ export const InfoPaneList = ({
                   item={item}
                   handleRowClick={handleRowClick}
                   ListItem={ListItem}
-                  getName={getName}
                 />
               ) : (
                 <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
