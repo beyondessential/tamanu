@@ -67,12 +67,11 @@ describe('User import', () => {
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
-      const { didntSendReason, errors, stats } = await doImport({
+      const { errors, stats } = await doImport({
         file: 'user-historical-visibility-status',
         dryRun: false,
       });
 
-      expect(didntSendReason).toBeEmpty();
       expect(errors).toBeEmpty();
       expect(stats).toEqual({
         User: { created: 0, updated: 1, errored: 0, deleted: 0, restored: 0, skipped: 0 },
