@@ -189,4 +189,11 @@ describe('SurveyResponse', () => {
       });
     });
   });
+
+  describe('creating a new survey response', () => {
+    it.todo('creates a survey response with answers');
+    it.todo('calculates answers');
+    it.todo('skips empty bodies');
+    it.todo('skips answers with omitData set');
+  });
 });
