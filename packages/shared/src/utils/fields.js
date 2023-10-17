@@ -105,7 +105,11 @@ function getValuesByCode(components, valuesById) {
   const valuesByCode = {};
 
   Object.entries(valuesById).forEach(([id, value]) => {
-    const { dataElement } = components.find(c => c.dataElement.id === id);
+    const component = components.find(c => c.dataElement.id === id);
+    if (!component) {
+      throw new Error(`could not find component with data element of id: ${id}`);
+    }
+    const { dataElement } = component;
     valuesByCode[dataElement.code] = value;
   });
 

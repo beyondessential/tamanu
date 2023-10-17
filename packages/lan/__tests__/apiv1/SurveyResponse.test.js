@@ -1,3 +1,4 @@
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 
@@ -191,9 +192,101 @@ describe('SurveyResponse', () => {
   });
 
   describe('creating a new survey response', () => {
-    it.todo('creates a survey response with answers');
-    it.todo('calculates answers');
-    it.todo('skips empty bodies');
-    it.todo('skips answers with omitData set');
+    let response;
+    let answers;
+
+    beforeAll(async () => {
+      // arrange survey
+      const { Program, Survey, SurveyScreenComponent, ProgramDataElement } = models;
+      const program = await Program.create(fake(Program));
+      const survey = await Survey.create(fake(Survey, { programId: program.id }));
+      await Promise.all(
+        [
+          ['TstNum', { type: PROGRAM_DATA_ELEMENT_TYPES.NUMBER }, { calculation: null }],
+          [
+            'TstCalc',
+            { type: PROGRAM_DATA_ELEMENT_TYPES.CALCULATED },
+            { calculation: 'TstNum * TstNumOmitted' },
+          ],
+          [
+            'TstNumOmitted',
+            { type: PROGRAM_DATA_ELEMENT_TYPES.NUMBER },
+            { calculation: null, config: '{"omitData":true}' },
+          ],
+          ['TstEmpty', { type: PROGRAM_DATA_ELEMENT_TYPES.TEXT }, { calculation: null }],
+        ].map(async ([code, pdeData, sscData]) => {
+          const pde = await ProgramDataElement.create(
+            fake(ProgramDataElement, {
+              id: `pde-${code}`,
+              code,
+              ...pdeData,
+            }),
+          );
+          await SurveyScreenComponent.create(
+            fake(SurveyScreenComponent, {
+              id: `ssc-${code}`,
+              surveyId: survey.id,
+              dataElementId: pde.id,
+              ...sscData,
+            }),
+          );
+        }),
+      );
+
+      // arrange other requirements to populate an answer
+      const { Patient, Encounter, Facility, Department, Location } = models;
+      const facility = await Facility.create(fake(Facility));
+      const department = await Department.create(fake(Department, { facilityId: facility.id }));
+      const location = await Location.create(
+        fake(Location, { departmentId: department.id, facilityId: facility.id }),
+      );
+      const patient = await Patient.create(fake(Patient));
+      const encounter = await Encounter.create(
+        fake(Encounter, {
+          patientId: patient.id,
+          departmentId: department.id,
+          locationId: location.id,
+          examinerId: app.user.id,
+        }),
+      );
+
+      // act
+      response = await app.post(`/v1/surveyResponse`).send({
+        answers: {
+          'pde-TstNum': 2,
+          'pde-TstNumOmitted': 3,
+          'pde-TstEmpty': null,
+        },
+        surveyId: survey.id,
+        patientId: patient.id,
+        encounterId: encounter.id,
+        userId: app.user.id,
+      });
+      const { SurveyResponseAnswer } = models;
+      answers = await SurveyResponseAnswer.findAll({ where: { responseId: response.body.id } });
+    });
+
+    it('succeeds', () => {
+      expect(response).toHaveSucceeded();
+    });
+
+    it('creates 2 answers', () => {
+      expect(answers).toHaveLength(2);
+    });
+
+    it.each([
+      ['pde-TstNum', '2'],
+      ['pde-TstCalc', '6.0'],
+      ['pde-TstNumOmitted', null],
+      ['pde-TstEmpty', null],
+    ])('creates an answer for %s', (dataElementId, body) => {
+      // assert
+      const answer = answers.find(a => a.dataElementId === dataElementId);
+      if (!body) {
+        expect(answer).toBeUndefined();
+      } else {
+        expect(answer).toHaveProperty('body', body);
+      }
+    });
   });
 });

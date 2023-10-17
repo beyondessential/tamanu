@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, PROGRAM_DATA_ELEMENT_TYPE_VALUES } from '@tamanu/constants';
 import { parseOrNull } from '../utils/parse-or-null';
 import { Model } from './Model';
 
@@ -17,6 +17,9 @@ export class ProgramDataElement extends Model {
         type: {
           type: Sequelize.STRING(31),
           allowNull: false,
+          validate: {
+            isIn: [PROGRAM_DATA_ELEMENT_TYPE_VALUES],
+          },
         },
       },
       {

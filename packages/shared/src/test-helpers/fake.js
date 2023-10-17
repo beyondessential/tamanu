@@ -9,6 +9,7 @@ import {
   ENCOUNTER_TYPE_VALUES,
   IMAGING_REQUEST_STATUS_TYPES,
   NOTE_TYPE_VALUES,
+  PROGRAM_DATA_ELEMENT_TYPES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
   VISIBILITY_STATUSES,
@@ -367,6 +368,16 @@ const MODEL_SPECIFIC_OVERRIDES = {
   Location: () => ({
     maxOccupancy: 1,
   }),
+  ProgramDataElement: ({ type = chance.pickone(PROGRAM_DATA_ELEMENT_TYPE_VALUES) } = {}) => {
+    const isCalculated = [
+      PROGRAM_DATA_ELEMENT_TYPES.CALCULATED,
+      PROGRAM_DATA_ELEMENT_TYPES.RESULT,
+    ].includes(type);
+    return {
+      type,
+      calculation: isCalculated ? '1 + 1' : null,
+    };
+  },
 };
 
 const FHIR_MODELS_HANDLERS = {
