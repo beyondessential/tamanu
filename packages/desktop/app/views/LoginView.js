@@ -76,11 +76,10 @@ export const LoginView = () => {
     }
 
     localStorage.setItem('language', language);
-    setLanguage(language);
 
     // The await is necessary to prevent redux-form unlocking submission
     // redux-thunk definitely returns a promise, and this works
-    await dispatch(login(host, email, password));
+    await dispatch(login(host, email, password, language));
   };
 
   return (

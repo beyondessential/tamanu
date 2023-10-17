@@ -145,7 +145,7 @@ export class TamanuApi {
     return { user, token, localisation, server, ability, role };
   }
 
-  async login(host, email, password) {
+  async login(host, email, password, languageCode) {
     this.setHost(host);
     const response = await this.post(
       'login',
@@ -179,7 +179,9 @@ export class TamanuApi {
     this.user = user;
     const ability = buildAbilityForUser(user, permissions);
 
-    return { user, token, localisation, server, ability, role };
+    const translations = await this.get(`translation/${languageCode}`);
+
+    return { user, token, localisation, server, ability, role, translations };
   }
 
   async requestPasswordReset(host, email) {

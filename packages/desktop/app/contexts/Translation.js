@@ -1,24 +1,23 @@
-import React, { useState, useContext } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState, useContext, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { get } from 'lodash';
-import { useApi } from '../api';
 
 const TranslationContext = React.createContext();
 
 export const useTranslation = () => useContext(TranslationContext);
 
 export const TranslationProvider = ({ children }) => {
-  const api = useApi();
-  const [language, setLanguage] = useState('en');
+  const [translations, setTranslations] = useState({});
 
-  const { data: translations = {} } = useQuery(['languageList', language], () =>
-    api.get(`translation/${language}`),
-  );
+  const reduxTranslations = useSelector(state => state.auth.translations);
+
+  useEffect(() => {
+    setTranslations(reduxTranslations);
+  }, [reduxTranslations]);
 
   return (
     <TranslationContext.Provider
       value={{
-        setLanguage,
         getTranslation: stringId => get(translations, stringId),
       }}
     >
