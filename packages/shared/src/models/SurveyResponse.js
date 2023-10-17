@@ -3,7 +3,7 @@ import { PROGRAM_DATA_ELEMENT_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
-import { runCalculations } from '../utils/calculations';
+import { runCalculations, getConfigObject } from '../utils/calculations';
 import { getStringValue, getResultValue } from '../utils/fields';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
@@ -226,21 +226,23 @@ export class SurveyResponse extends Model {
       ...responseData,
     });
 
-    const findDataElement = id => {
-      const component = questions.find(c => c.dataElement.id === id);
-      if (!component) return null;
-      return component.dataElement;
-    };
-
     // create answer records
     for (const a of Object.entries(finalAnswers)) {
       const [dataElementId, value] = a;
-      const dataElement = findDataElement(dataElementId);
+      const component = questions.find(c => c.dataElement.id === dataElementId);
+      const dataElement = component?.dataElement;
       if (!dataElement) {
         throw new Error(`no data element for question: ${dataElementId}`);
       }
-      const body = getStringValue(dataElement.type, value);
+
+      // omit data from some questions
+      const { omitData } = getConfigObject(component.id, component.config);
+      if (omitData) {
+        continue;
+      }
+
       // Don't create null answers
+      const body = getStringValue(dataElement.type, value);
       if (body === null) {
         continue;
       }
@@ -250,6 +252,7 @@ export class SurveyResponse extends Model {
         responseId: record.id,
       });
       if (!isVitalSurvey || body === '') continue;
+
       // Generate initial vital log
       await models.VitalLog.create({
         date: record.endTime || getCurrentDateTimeString(),

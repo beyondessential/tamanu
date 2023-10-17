@@ -3,7 +3,7 @@ import { create, all as allMath } from 'mathjs';
 // set up math context
 const math = create(allMath);
 
-function getConfigObject(componentId, config) {
+export function getConfigObject(componentId, config) {
   if (!config) return {};
   try {
     return JSON.parse(config);

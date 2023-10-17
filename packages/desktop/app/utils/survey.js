@@ -164,14 +164,6 @@ export function getConfigObject(componentId, config) {
   }
 }
 
-// also exists on mobile
-export function shouldSaveComponent(component, values, components) {
-  const config = getConfigObject(component.id, component.config);
-  const isVisible = checkVisibility(component, values, components);
-  const shouldPersist = !config.omitFromResult;
-  return isVisible && shouldPersist;
-}
-
 function transformPatientData(patient, additionalData, config) {
   const { writeToPatient = {}, column = 'fullName' } = config;
   const { isAdditionalDataField = false } = writeToPatient;
