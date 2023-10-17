@@ -39,7 +39,7 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
       .catch(error => setProgram(undefined));
     api
       .get(`programRegistry/${id}/conditions`)
-      .then(conditionsData =>
+      .then(({ data: conditionsData }) =>
         setConditions(conditionsData.map(x => ({ label: x.name, value: x.id }))),
       )
       .catch(error => setConditions(undefined));
