@@ -22,6 +22,10 @@ const StyledIconButton = styled(IconButton)`
   color: #2f4358;
 `;
 
+const StyledAccessorField = styled(AccessorField)`
+  flex-grow: 1;
+`;
+
 const useTranslationQuery = () => {
   const api = useApi();
   return useQuery(['translation'], () => api.get(`admin/translation`));
@@ -40,7 +44,7 @@ const StringIdField = ({ placeholderId, stringId, onClick }) => {
   if (!placeholderId) return stringId;
   return (
     <Box display="flex" alignItems="center">
-      <AccessorField id={placeholderId} name="stringId" component={TextField} />
+      <StyledAccessorField id={placeholderId} name="stringId" component={TextField} />
       <StyledIconButton>
         <DeleteIcon onClick={onClick} />
       </StyledIconButton>
@@ -54,7 +58,7 @@ const TranslationField = ({ placeholderId, stringId, code }) => {
   return <AccessorField id={id} name={code} component={TextField} />;
 };
 
-export const FormContents = ({ data, setFieldValue, values }) => {
+export const FormContents = ({ data, setFieldValue }) => {
   const [additionalColumns, setAdditionalColumns] = useState([]);
 
   const handleAddColumn = () => {
@@ -68,7 +72,6 @@ export const FormContents = ({ data, setFieldValue, values }) => {
     ]);
   };
 
-  console.log(values);
   const handleRemoveColumn = placeholderId => {
     setAdditionalColumns(
       additionalColumns.filter(column => column.placeholderId !== placeholderId),
