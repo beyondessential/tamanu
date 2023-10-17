@@ -3,12 +3,12 @@ import { LANGUAGE_CODES, LANGUAGE_NAMES_IN_ENGLISH } from '@tamanu/constants';
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { keyBy, mapValues, omit } from 'lodash';
+import { Box, IconButton } from '@material-ui/core';
+import { AddCircle as AddCircleIcon, Delete as DeleteIcon } from '@material-ui/icons';
+import shortid from 'shortid';
 import { useApi } from '../../../api';
 import { Form, TableFormFields, TextField } from '../../../components';
 import { AccessorField } from '../../patients/components/AccessorField';
-import { Box, IconButton } from '@material-ui/core';
-import { AddCircle } from '@material-ui/icons';
-import shortid from 'shortid';
 
 const StyledTableFormFields = styled(TableFormFields)`
   thead tr th {
@@ -18,7 +18,7 @@ const StyledTableFormFields = styled(TableFormFields)`
 
 const StyledIconButton = styled(IconButton)`
   padding: 3px;
-  margin-left: 10px;
+  margin-left: 5px;
   color: #2f4358;
 `;
 
@@ -58,12 +58,19 @@ export const TranslationForm = () => {
                 ]);
               }}
             >
-              <AddCircle />
+              <AddCircleIcon />
             </StyledIconButton>
           </Box>
         ),
-        accessor: ({ stringId }) =>
-          stringId || <AccessorField name="stringId" component={TextField} />,
+        accessor: ({ stringId, placeholderId }) =>
+          stringId || (
+            <Box display="flex" alignItems="center">
+              <AccessorField id={placeholderId} name="stringId" component={TextField} />
+              <StyledIconButton>
+                <DeleteIcon />
+              </StyledIconButton>
+            </Box>
+          ),
       },
       ...Object.values(LANGUAGE_CODES).map(code => ({
         key: code,
