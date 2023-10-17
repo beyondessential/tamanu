@@ -1,7 +1,10 @@
 import config from 'config';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
-import { getPatientSurveyResponseAnswer, getCovidClearanceCertificateFilter } from '@tamanu/shared/utils';
+import {
+  getPatientSurveyResponseAnswer,
+  getCovidClearanceCertificateFilter,
+} from '@tamanu/shared/utils';
 import {
   COVID_19_CLEARANCE_CERTIFICATE,
   CERTIFICATE_NOTIFICATION_STATUSES,

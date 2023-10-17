@@ -15,7 +15,11 @@ import {
 } from '@tamanu/constants';
 import { keyBy } from 'lodash';
 import { renameObjectKeys } from '@tamanu/shared/utils';
-import { simpleGet, simpleGetList, permissionCheckingRouter } from '@tamanu/shared/utils/crudHelpers';
+import {
+  simpleGet,
+  simpleGetList,
+  permissionCheckingRouter,
+} from '@tamanu/shared/utils/crudHelpers';
 import {
   makeFilter,
   makeSimpleTextFilterFactory,

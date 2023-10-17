@@ -1,9 +1,9 @@
 // serverInfo must be imported before any shared modules
 // so that it can set globals
-import { version } from './serverInfo';
 
 import { program } from 'commander';
 import { log } from '@tamanu/shared/services/logging';
+import { version } from './serverInfo';
 
 import {
   serveCommand,
