@@ -33,3 +33,12 @@ programRegistry.get(
     }),
   }),
 );
+
+programRegistry.get(
+  '/:id/conditions',
+  simpleGetList('ProgramRegistryClinicalStatus', {
+    additionalFilters: {
+      programRegistryId: 
+    },
+  }),
+);

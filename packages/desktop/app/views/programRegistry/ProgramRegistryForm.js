@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
   Form,
@@ -50,7 +51,7 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
         onSubmit({
           ...data,
           conditions: data.conditions ? data.conditions.split(',') : [],
-          patientId: patient.id,
+          registrationStatus: REGISTRATION_STATUSES.ACTIVE,
         });
       }}
       render={({ submitForm, values, setValues }) => {
