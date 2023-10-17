@@ -136,7 +136,7 @@ describe('PatientProgramRegistration', () => {
     });
   });
 
-  describe('POST patient/:patientId/programRegistration/:programRegistryId', () => {
+  describe('POST patient/:patientId/programRegistration', () => {
     it('creates a new program registration', async () => {
       const clinician = await models.User.create(fake(models.User));
       const patient = await models.Patient.create(fake(models.Patient));
@@ -147,15 +147,13 @@ describe('PatientProgramRegistration', () => {
       const programRegistryCondition = await models.ProgramRegistryCondition.create(
         fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry1.id }),
       );
-      const result = await app
-        .post(`/v1/patient/${patient.id}/programRegistration/${programRegistry1.id}`)
-        .send({
-          programRegistryId: programRegistry1.id,
-          clinicianId: clinician.id,
-          patientId: patient.id,
-          date: '2023-09-02 08:00:00',
-          conditions: [programRegistryCondition.id],
-        });
+      const result = await app.post(`/v1/patient/${patient.id}/programRegistration`).send({
+        programRegistryId: programRegistry1.id,
+        clinicianId: clinician.id,
+        patientId: patient.id,
+        date: '2023-09-02 08:00:00',
+        conditionIds: [programRegistryCondition.id],
+      });
 
       expect(result).toHaveSucceeded();
 
@@ -200,15 +198,13 @@ describe('PatientProgramRegistration', () => {
       // Add a small delay so the registrations are definitely created at distinctly different times.
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      const result = await app
-        .post(`/v1/patient/${patient.id}/programRegistration/${programRegistry1.id}`)
-        .send({
-          // clinicianId: Should come from existing registration
-          patientId: patient.id,
-          programRegistryId: programRegistry1.id,
-          registrationStatus: REGISTRATION_STATUSES.INACTIVE,
-          date: '2023-09-02 09:00:00',
-        });
+      const result = await app.post(`/v1/patient/${patient.id}/programRegistration`).send({
+        // clinicianId: Should come from existing registration
+        patientId: patient.id,
+        programRegistryId: programRegistry1.id,
+        registrationStatus: REGISTRATION_STATUSES.INACTIVE,
+        date: '2023-09-02 09:00:00',
+      });
 
       expect(result).toHaveSucceeded();
 
