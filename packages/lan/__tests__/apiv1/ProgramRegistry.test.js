@@ -105,4 +105,25 @@ describe('ProgramRegistry', () => {
       expect(result.body.data.length).toBe(0);
     });
   });
+
+  describe('Listing conditions (GET /v1/programRegistry/:id/conditions)', () => {
+    it('should list available conditions', async () => {
+      const { id: programRegistryId } = await models.ProgramRegistry.create(
+        fake(models.ProgramRegistry, { programId: testProgram.id }),
+      );
+      await models.ProgramRegistryCondition.create(
+        fake(models.ProgramRegistryCondition, { programRegistryId }),
+      );
+      await models.ProgramRegistryCondition.create(
+        fake(models.ProgramRegistryCondition, { programRegistryId }),
+      );
+
+      const result = await app.get('/v1/programRegistry');
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body.count).toEqual(2);
+      expect(body.data.length).toEqual(2);
+    });
+  });
 });
