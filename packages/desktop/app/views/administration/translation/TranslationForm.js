@@ -48,7 +48,13 @@ const StringIdField = ({ placeholderId, stringId, onClick }) => {
   );
 };
 
-export const FormContents = ({ data, setFieldValue }) => {
+const TranslationField = ({ placeholderId, stringId, code }) => {
+  // This format is necissary to avoid formik nesting at dot delimiters
+  const id = `['${stringId || placeholderId}']`;
+  return <AccessorField id={id} name={code} component={TextField} />;
+};
+
+export const FormContents = ({ data, setFieldValue, values }) => {
   const [additionalColumns, setAdditionalColumns] = useState([]);
 
   const handleAddColumn = () => {
@@ -62,6 +68,7 @@ export const FormContents = ({ data, setFieldValue }) => {
     ]);
   };
 
+  console.log(values);
   const handleRemoveColumn = placeholderId => {
     setAdditionalColumns(
       additionalColumns.filter(column => column.placeholderId !== placeholderId),
@@ -84,10 +91,7 @@ export const FormContents = ({ data, setFieldValue }) => {
     ...Object.values(LANGUAGE_CODES).map(code => ({
       key: code,
       title: LANGUAGE_NAMES_IN_ENGLISH[code],
-      accessor: ({ stringId, placeholderId }) => (
-        // If you don't pass the id like this the values will be nested on dot delimiter
-        <AccessorField id={`['${stringId || placeholderId}']`} name={code} component={TextField} />
-      ),
+      accessor: row => <TranslationField code={code} {...row} />,
     })),
   ];
 
