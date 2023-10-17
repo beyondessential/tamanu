@@ -7,6 +7,7 @@ import {
   LAB_TEST_RESULT_TYPES,
   VISIBILITY_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
+  USER_VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import config from 'config';
 import { jsonString, validationString, configString } from './jsonString';
@@ -76,6 +77,10 @@ export const User = Base.shape({
   displayId: yup.string(),
   displayName: yup.string().required(),
   password: yup.string(),
+  visibilityStatus: yup
+    .string()
+    .default(USER_VISIBILITY_STATUSES.CURRENT)
+    .oneOf(Object.values(USER_VISIBILITY_STATUSES)),
 });
 
 export const Facility = Base.shape({
