@@ -16,7 +16,7 @@
       // "acquire": 60000,
       // "evict": 1000
     },
-    "reports": {
+    "reportSchemas": {
       "pool": {
         "max": 5
       },

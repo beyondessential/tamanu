@@ -6,7 +6,7 @@ import { initIntegrations } from './integrations';
 export class ApplicationContext {
   store = null;
 
-  reports = null;
+  reportSchemaStores = null;
 
   emailService = null;
 
@@ -17,8 +17,8 @@ export class ApplicationContext {
   async init({ testMode } = {}) {
     this.emailService = new EmailService();
     this.store = await initDatabase({ testMode });
-    if (config.db.reports?.enabled) {
-      this.reports = await initReporting();
+    if (config.db.reportSchemas?.enabled) {
+      this.reportSchemaStores = await initReporting();
     }
     this.closePromise = new Promise(resolve => {
       this.onClose(resolve);

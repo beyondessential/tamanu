@@ -2,7 +2,7 @@
 {
   "db": {
     "name": "tamanu-sync-test",
-    "reports": {
+    "reportSchemas": {
       "enabled": false,
       "credentials": {
         "reporting": {

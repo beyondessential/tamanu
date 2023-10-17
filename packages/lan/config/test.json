@@ -2,7 +2,7 @@
   "db": {
     "name": "tamanu-lan-test",
     "migrateOnStartup": true,
-    "reports": {
+    "reportSchemas": {
       "enabled": false,
       "credentials": {
         "reporting": {

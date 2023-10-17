@@ -41,7 +41,7 @@ async function report(options) {
   }
 
   const store = await initDatabase({ testMode: false });
-  const reports = config.db.reports?.enabled ? await initReporting() : null;
+  const reportSchemaStores = config.db.reportSchemas?.enabled ? await initReporting() : null;
   setupEnv();
   try {
     const { reportId, parameters, recipients, userId, format } = options;
@@ -72,7 +72,7 @@ async function report(options) {
       reportParameters,
       reportRecipients,
       store,
-      reports,
+      reportSchemaStores,
       emailService,
       userId,
       format,

@@ -30,7 +30,7 @@ export async function initDatabase() {
 
 async function initReportingInstance(schemaName, credentials) {
   const { username, password } = credentials;
-  const { pool } = config.db.reports;
+  const { pool } = config.db.reportSchemas;
   const overrides = {
     initialConnection: false,
     migrateOnStartup: false,
@@ -51,7 +51,7 @@ async function initReportingInstance(schemaName, credentials) {
 }
 
 export async function initReporting() {
-  const { credentials } = config.db.reports;
+  const { credentials } = config.db.reportSchemas;
   return Object.entries(credentials).reduce(async (acc, [schemaName, { username, password }]) => {
     const instance = await initReportingInstance(schemaName, {
       username,
@@ -63,9 +63,8 @@ export async function initReporting() {
 }
 
 export async function closeDatabase() {
-  for (const key of Object.keys(existingConnections)) {
-    const connection = existingConnections[key];
-    await connection.sequelize.close();
-  }
+  await Promise.all(
+    Object.keys(existingConnections).map(k => existingConnections[k].sequelize.close()),
+  );
   existingConnections = {};
 }

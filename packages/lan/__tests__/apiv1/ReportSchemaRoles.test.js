@@ -18,12 +18,12 @@ describe('ReportSchemaRoles', () => {
   let reportingDefinition;
 
   beforeAll(async () => {
-    const { credentials } = config.db.reports;
+    const { credentials } = config.db.reportSchemas;
     ctx = await createTestContext({ enableReportInstances: true });
     adminApp = await ctx.baseApp.asRole('admin');
     models = ctx.models;
-    raw = ctx.reports.raw.sequelize;
-    reporting = ctx.reports.reporting.sequelize;
+    raw = ctx.reportSchemaStores.raw.sequelize;
+    reporting = ctx.reportSchemaStores.reporting.sequelize;
     await ctx.sequelize.query(`
       CREATE TABLE reporting.reporting_test_table (
         "id" integer NOT NULL,

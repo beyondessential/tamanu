@@ -16,9 +16,9 @@ class MockApplicationContext {
 
   async init() {
     this.store = await initDatabase({ testMode: true });
-    if (config.db.reports?.enabled) {
+    if (config.db.reportSchemas?.enabled) {
       await createMockReportingSchemaAndRoles({ sequelize: this.store.sequelize });
-      this.reports = await initReporting();
+      this.reportSchemaStores = await initReporting();
     }
     this.emailService = {
       sendEmail: jest.fn().mockImplementation(() =>

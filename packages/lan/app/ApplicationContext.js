@@ -6,7 +6,7 @@ export class ApplicationContext {
 
   models = null;
 
-  reports = null;
+  reportSchemaStores = null;
 
   closeHooks = [];
 
@@ -15,8 +15,8 @@ export class ApplicationContext {
     this.sequelize = database.sequelize;
     this.models = database.models;
 
-    if (config.db.reports?.enabled) {
-      this.reports = await initReporting();
+    if (config.db.reportSchemas?.enabled) {
+      this.reportSchemaStores = await initReporting();
     }
     return this;
   }

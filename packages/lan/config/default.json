@@ -53,7 +53,7 @@
     "password": "",
     "verbose": false,
     "migrateOnStartup": false,
-    "reports": {
+    "reportSchemas": {
       "enabled": false,
       "pool": {},
       "credentials": {

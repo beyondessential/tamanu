@@ -107,7 +107,7 @@ export async function createTestContext({ enableReportInstances } = {}) {
   // init reporting instances for these roles
   if (enableReportInstances) {
     await createMockReportingSchemaAndRoles(context);
-    context.reports = await initReporting();
+    context.reportSchemaStores = await initReporting();
   }
 
   const { models, sequelize } = context;

@@ -20,7 +20,7 @@ export class ReportRunner {
     parameters,
     recipients,
     store,
-    reports,
+    reportSchemaStores,
     emailService,
     userId,
     exportFormat,
@@ -29,7 +29,7 @@ export class ReportRunner {
     this.parameters = parameters;
     this.recipients = recipients;
     this.store = store;
-    this.reports = reports;
+    this.reportSchemaStores = reportSchemaStores;
     this.emailService = emailService;
     this.userId = userId;
     this.log = createNamedLogger(REPORT_RUNNER_LOG_NAME, { reportId, userId });
@@ -96,7 +96,7 @@ export class ReportRunner {
     try {
       this.log.info('Running report', { parameters: this.parameters });
       reportData = await reportModule.dataGenerator(
-        { ...this.store, reports: this.reports },
+        { ...this.store, reportSchemaStores: this.reportSchemaStores },
         this.parameters,
       );
 

@@ -88,7 +88,7 @@ reportsRouter.post(
   '/',
   asyncHandler(async (req, res) => {
     const { store, body, user, reports } = req;
-    const isReportingSchemaEnabled = config.db.reports.enabled;
+    const isReportingSchemaEnabled = config.db.reportSchemas.enabled;
     const defaultReportingSchema = isReportingSchemaEnabled
       ? REPORT_DB_SCHEMAS.REPORTING
       : REPORT_DB_SCHEMAS.RAW;
@@ -283,7 +283,7 @@ reportsRouter.get(
 reportsRouter.get(
   '/dbSchemaOptions',
   asyncHandler(async (req, res) => {
-    if (!config.db.reports.enabled) return [];
+    if (!config.db.reportSchemas.enabled) return [];
     const DB_SCHEMA_OPTIONS = Object.values(REPORT_DB_SCHEMAS).map(value => ({
       label: capitalize(value),
       value,
