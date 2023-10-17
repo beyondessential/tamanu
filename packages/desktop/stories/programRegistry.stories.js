@@ -42,7 +42,6 @@ storiesOf('Program Registry', module).add('ProgramRegistry Info Panlist', () => 
           getEndpoint={`patient/${patient.id}/patientRegistration`}
           Form={ProgramRegistryForm}
           ListItemComponent={ProgramRegistryListItem}
-          getName={programRegistry => programRegistry.name}
           behavior="modal"
           itemTitle="Add program registry"
           getEditFormName={programRegistry => `Program registry: ${programRegistry.name}`}
