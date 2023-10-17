@@ -50,7 +50,7 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
       onSubmit={data => {
         onSubmit({
           ...data,
-          conditions: data.conditions ? data.conditions.split(',') : [],
+          conditionIds: data.conditionIds ? data.conditionIds.split(',') : [],
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
         });
       }}
@@ -67,7 +67,7 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
 
         // eslint-disable-next-line
         useEffect(() => {
-          setValues({ ...values, clinicalStatusId: null, conditions: null });
+          setValues({ ...values, clinicalStatusId: null, conditionIds: null });
           // eslint-disable-next-line
         }, [values.programRegistryId]);
 
@@ -120,7 +120,7 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
                 />
                 <FieldWithTooltip
                   tooltipText="Select a program registry to add conditions"
-                  name="conditions"
+                  name="conditionIds"
                   label="Conditions"
                   component={MultiselectField}
                   options={conditions}
