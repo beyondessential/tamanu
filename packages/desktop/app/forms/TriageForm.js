@@ -1,6 +1,7 @@
 import React from 'react';
 import * as yup from 'yup';
 import { format, endOfDay } from 'date-fns';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import { Box } from '@material-ui/core';
@@ -105,7 +106,12 @@ export const TriageForm = ({
             suggester={triageReasonSuggester}
           />
           <Box mt={1} mb={2}>
-            <Field name="vitals" patient={patient} component={NestedVitalsModal} />
+            <Field
+              name="vitals"
+              patient={patient}
+              component={NestedVitalsModal}
+              encounterType={ENCOUNTER_TYPES.TRIAGE}
+            />
           </Box>
         </FormGrid>
         <Field
