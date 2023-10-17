@@ -36,7 +36,7 @@ programRegistry.get(
 
 programRegistry.get(
   '/:id/conditions',
-  simpleGetList('ProgramRegistryClinicalStatus', 'programRegistryId', {
+  simpleGetList('ProgramRegistryCondition', 'programRegistryId', {
     additionalFilters: {
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     },

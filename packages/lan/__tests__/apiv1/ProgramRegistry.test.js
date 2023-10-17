@@ -118,7 +118,7 @@ describe('ProgramRegistry', () => {
         fake(models.ProgramRegistryCondition, { programRegistryId }),
       );
 
-      const result = await app.get('/v1/programRegistry');
+      const result = await app.get(`/v1/programRegistry/${programRegistryId}/conditions`);
       expect(result).toHaveSucceeded();
 
       const { body } = result;
