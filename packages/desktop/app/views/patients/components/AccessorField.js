@@ -33,9 +33,10 @@ function getResultOptions(options) {
     }));
 }
 
-export const AccessorField = ({ id, name, tabIndex, ...props }) => (
-  <StyledField {...props} inputProps={{ tabIndex }} name={`${id}.${name}`} />
-);
+export const AccessorField = ({ id, name, tabIndex, ...props }) => {
+  console.log(`AccessorField: ${id}.${name}`);
+  return <StyledField {...props} inputProps={{ tabIndex }} name={`${id}.${name}`} />;
+};
 
 export const LabResultAccessorField = ({ resultType, options, ...props }) => (
   <AccessorField

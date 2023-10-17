@@ -2,9 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import { LANGUAGE_CODES, LANGUAGE_NAMES_IN_ENGLISH } from '@tamanu/constants';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import { keyBy } from 'lodash';
+import { keyBy, mapValues, omit } from 'lodash';
 import { useApi } from '../../../api';
-import { Form, TableFormFields } from '../../../components';
+import { Form, TableFormFields, TextField } from '../../../components';
+import { AccessorField } from '../../patients/components/AccessorField';
 
 const StyledTableFormFields = styled(TableFormFields)`
   thead tr th {
@@ -21,7 +22,8 @@ const columns = [
   ...Object.values(LANGUAGE_CODES).map(code => ({
     key: code,
     title: LANGUAGE_NAMES_IN_ENGLISH[code],
-    accessor: values => values[code],
+    // If you don't pass the id like this the values will be nested on dot delimiter
+    accessor: row => <AccessorField id={`['${row.stringId}']`} name={code} component={TextField} />,
   })),
 ];
 
@@ -36,7 +38,11 @@ const renderForm = ({ data = [] }) => {
 
 export const TranslationForm = () => {
   const { data, error, isLoading } = useTranslationQuery();
-  const initialValues = useMemo(() => keyBy(data, 'stringId'), [data]);
+  const initialValues = useMemo(
+    () => mapValues(keyBy(data, 'stringId'), val => omit(val, 'stringId')),
+    [data],
+  );
+
   return (
     <Form
       initialValues={initialValues}
