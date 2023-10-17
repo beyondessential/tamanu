@@ -127,7 +127,7 @@ export class MobileSyncManager {
 
     try {
       await this.runSync();
-      this.lastSuccessfulSyncTick = formatDate(new Date(), DateFormats.DATE_AND_TIME);
+      this.lastSuccessfulSyncTick = formatDate(new Date(), DateFormats.DATE_AND_TIME_HHMMSS);
       this.setProgress(0, '');
     } catch (error) {
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ERROR, { error });
