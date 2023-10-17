@@ -3,7 +3,7 @@
 import { version } from './app/serverInfo';
 
 import { program } from 'commander';
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 
 import {
   serveCommand,
