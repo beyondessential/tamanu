@@ -61,9 +61,9 @@ describe('User import', () => {
     it('succeeds with update an existing current user with valid historical visibility status', async () => {
       const { id: userId } = await models.User.create({
         ...fake(models.User),
-        id: 'users-SepidehDehghani',
-        email: 'sepideh@bes.au',
-        displayName: 'Sepideh Dehghani',
+        id: 'users-test',
+        email: 'test@bes.au',
+        displayName: 'Test Test',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 

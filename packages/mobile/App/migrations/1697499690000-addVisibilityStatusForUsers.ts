@@ -8,10 +8,10 @@ export class addVisibilityStatusForUsers1697499690000 implements MigrationInterf
     await queryRunner.addColumn(
       tableObject,
       new TableColumn({
-        name: 'visibility_status',
+        name: 'visibilityStatus',
         isNullable: false,
         type: 'varchar',
-        default: 'current',
+        default: "'current'",
       }),
     );
   }
