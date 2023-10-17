@@ -40,7 +40,7 @@ const NameContainer = styled.span`
 `;
 
 export const ProgramRegistryListItem = ({ item, ListItem }) => {
-  const { programRegistry, status, clinicalStatus } = item;
+  const { programRegistry, registrationStatus, clinicalStatus } = item;
   const { navigateToProgramRegistry } = usePatientNavigation();
   return (
     <ListItem
@@ -50,8 +50,12 @@ export const ProgramRegistryListItem = ({ item, ListItem }) => {
     >
       <Spacer>
         <RowContents>
-          <Tooltip title={status} arrow placement="top-end">
-            {status === REGISTRATION_STATUSES.ACTIVE ? <StatusActiveDot /> : <StatusInactiveDot />}
+          <Tooltip title={registrationStatus} arrow placement="top-end">
+            {registrationStatus === REGISTRATION_STATUSES.ACTIVE ? (
+              <StatusActiveDot />
+            ) : (
+              <StatusInactiveDot />
+            )}
           </Tooltip>
 
           <NameContainer>{programRegistry.name}</NameContainer>
