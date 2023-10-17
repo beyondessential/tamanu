@@ -8,6 +8,8 @@ export const attachmentRoutes = express.Router();
 attachmentRoutes.get(
   '/:id',
   asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Attachment');
+
     const { query, params } = req;
     const { base64 } = query;
     const { id } = params;
@@ -30,6 +32,8 @@ attachmentRoutes.get(
 attachmentRoutes.post(
   '/$',
   asyncHandler(async (req, res) => {
+    req.checkPermission('create', 'Attachment');
+
     const canUpload = await canUploadAttachment();
 
     if (!canUpload) {
