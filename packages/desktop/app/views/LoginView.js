@@ -48,7 +48,7 @@ const LogoContainer = styled.div`
 export const LoginView = () => {
   const api = useApi();
   const dispatch = useDispatch();
-  const { setTranslations } = useTranslation();
+  const { fetchTranslations } = useTranslation();
   const loginError = useSelector(state => state.auth.error);
   const requestPasswordResetError = useSelector(state => state.auth.resetPassword.error);
   const requestPasswordResetSuccess = useSelector(state => state.auth.resetPassword.success);
@@ -79,9 +79,8 @@ export const LoginView = () => {
     // redux-thunk definitely returns a promise, and this works
     await dispatch(login(host, email, password));
 
+    fetchTranslations(language);
     localStorage.setItem('language', language);
-    const translations = await api.get(`translation/${language}`);
-    setTranslations(translations);
   };
 
   return (
