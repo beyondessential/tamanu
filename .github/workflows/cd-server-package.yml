@@ -24,7 +24,7 @@ jobs:
 
   desktop:
     name: Desktop client
-    uses: ./.github/workflows/cd-desktop.yml
+    uses: ./.github/workflows/cd-client.yml
 
   image:
     needs: info
