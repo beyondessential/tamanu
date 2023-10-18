@@ -69,85 +69,109 @@ describe('ReportSchemaRoles', () => {
       },
     });
   });
-
-  it('public schema table can be accessed by raw user', async () => {
-    const result = await raw.query('SELECT * FROM raw_test_table ORDER BY name', {
-      type: QueryTypes.SELECT,
-    });
-    expect(result).toEqual([
-      {
-        id: 1,
-        name: 'C',
-      },
-      {
-        id: 2,
-        name: 'D',
-      },
-    ]);
-  });
-
-  it('reporting schema table can be accessed by reporting user', async () => {
-    const result = await reporting.query(
-      `SELECT * FROM reporting.reporting_test_table ORDER BY name;`,
-      {
+  describe('a public schema table', () => {
+    it('can be accessed by raw user', async () => {
+      const result = await raw.query('SELECT * FROM raw_test_table ORDER BY name', {
         type: QueryTypes.SELECT,
-      },
-    );
-    expect(result).toEqual([
-      {
-        id: 1,
-        name: 'A',
-      },
-      {
-        id: 2,
-        name: 'B',
-      },
-    ]);
+      });
+      expect(result).toEqual([
+        {
+          id: 1,
+          name: 'C',
+        },
+        {
+          id: 2,
+          name: 'D',
+        },
+      ]);
+    });
+  });
+  describe('a reporting schema table', () => {
+    it('can be accessed by reporting user', async () => {
+      const result = await reporting.query(
+        `SELECT * FROM reporting.reporting_test_table ORDER BY name;`,
+        {
+          type: QueryTypes.SELECT,
+        },
+      );
+      expect(result).toEqual([
+        {
+          id: 1,
+          name: 'A',
+        },
+        {
+          id: 2,
+          name: 'B',
+        },
+      ]);
+    });
+  });
+  describe('a report with db_schema=reporting', () => {
+    it('can reference reporting schema tables without prefix', async () => {
+      const reportDefinitionVersion = await ctx.models.ReportDefinitionVersion.create({
+        reportDefinitionId: reportingDefinition.id,
+        query: 'SELECT * FROM reporting_test_table ORDER BY name;',
+        queryOptions: `{"parameters": [], "defaultDateRange": "allTime"}`,
+        versionNumber: 1,
+        userId: user.id,
+      });
+      const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`);
+      expect(response).toHaveSucceeded();
+      expect(response.body).toEqual([
+        ['id', 'name'],
+        [1, 'A'],
+        [2, 'B'],
+      ]);
+    });
+
+    it('cannot reference public schema tables', async () => {
+      const reportDefinitionVersion = await ctx.models.ReportDefinitionVersion.create({
+        reportDefinitionId: reportingDefinition.id,
+        query: 'SELECT * FROM public.raw_test_table ORDER BY name;',
+        queryOptions: `{"parameters": [], "defaultDateRange": "allTime"}`,
+        versionNumber: 1,
+        userId: user.id,
+      });
+      const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`);
+      expect(response).toHaveRequestError();
+      expect(response.body.error.message).toEqual('permission denied for table raw_test_table');
+    });
   });
 
-  it('a report with db_schema=reporting can reference reporting schema tables without prefix', async () => {
-    const reportDefinitionVersion = await ctx.models.ReportDefinitionVersion.create({
-      reportDefinitionId: reportingDefinition.id,
-      query: 'SELECT * FROM reporting_test_table ORDER BY name;',
-      queryOptions: `{"parameters": [], "defaultDateRange": "allTime"}`,
-      versionNumber: 1,
-      userId: user.id,
+  describe('a report with db_schema=raw', () => {
+    it('can reference public schema tables', async () => {
+      const reportDefinitionVersion = await ctx.models.ReportDefinitionVersion.create({
+        reportDefinitionId: rawDefinition.id,
+        query: 'SELECT * FROM raw_test_table ORDER BY name;',
+        queryOptions: `{"parameters": [], "defaultDateRange": "allTime"}`,
+        versionNumber: 1,
+        userId: user.id,
+      });
+      const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`);
+      expect(response).toHaveSucceeded();
+      expect(response.body).toEqual([
+        ['id', 'name'],
+        [1, 'C'],
+        [2, 'D'],
+      ]);
     });
-    const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`);
-    expect(response).toHaveSucceeded();
-    expect(response.body).toEqual([
-      ['id', 'name'],
-      [1, 'A'],
-      [2, 'B'],
-    ]);
-  });
-  it('a report with db_schema=raw can reference public schema tables', async () => {
-    const reportDefinitionVersion = await ctx.models.ReportDefinitionVersion.create({
-      reportDefinitionId: rawDefinition.id,
-      query: 'SELECT * FROM raw_test_table ORDER BY name;',
-      queryOptions: `{"parameters": [], "defaultDateRange": "allTime"}`,
-      versionNumber: 1,
-      userId: user.id,
+
+    it('can reference reporting schema tables', async () => {
+      const reportDefinitionVersion = await ctx.models.ReportDefinitionVersion.create({
+        reportDefinitionId: reportingDefinition.id,
+        query: 'SELECT * FROM reporting.reporting_test_table ORDER BY name;',
+        queryOptions: `{"parameters": [], "defaultDateRange": "allTime"}`,
+        versionNumber: 1,
+        userId: user.id,
+      });
+      const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`);
+      expect(response).toHaveSucceeded();
+      expect(response.body).toEqual([
+        ['id', 'name'],
+        [1, 'A'],
+        [2, 'B'],
+      ]);
     });
-    const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`);
-    expect(response).toHaveSucceeded();
-    expect(response.body).toEqual([
-      ['id', 'name'],
-      [1, 'C'],
-      [2, 'D'],
-    ]);
-  });
-  it('a report with db_schema=reporting cannot reference public schema tables', async () => {
-    const reportDefinitionVersion = await ctx.models.ReportDefinitionVersion.create({
-      reportDefinitionId: reportingDefinition.id,
-      query: 'SELECT * FROM public.raw_test_table ORDER BY name;',
-      queryOptions: `{"parameters": [], "defaultDateRange": "allTime"}`,
-      versionNumber: 1,
-      userId: user.id,
-    });
-    const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`);
-    expect(response).toHaveRequestError();
-    expect(response.body.error.message).toEqual('permission denied for table raw_test_table');
   });
   it('a report should not be able to run non-select queries', async () => {
     await ctx.sequelize.query(`
