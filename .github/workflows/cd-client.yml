@@ -25,7 +25,7 @@ on:
       - v*.*.*
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.pull_request.id || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.pull_request.id || github.ref }}
   cancel-in-progress: true
 
 permissions:
