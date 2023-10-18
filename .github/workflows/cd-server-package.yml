@@ -186,7 +186,7 @@ jobs:
           echo "$MINISIGN_KEY" > minisign.key
           set -x
           choco install minisign
-          ./minisign -S \
+          minisign -S \
             -s minisign.key \
             -m '${{ env.OUTPUT_NAME }}.tar.zst' \
             -x '${{ env.OUTPUT_NAME }}.tar.zst.sig' \
