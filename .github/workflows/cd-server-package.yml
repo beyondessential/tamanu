@@ -1,4 +1,4 @@
-name: CD Server Zips
+name: CD Server Package
 
 on:
   workflow_dispatch:
