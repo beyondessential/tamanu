@@ -1,14 +1,16 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
 import { LANGUAGE_CODES, LANGUAGE_NAMES_IN_ENGLISH } from '@tamanu/constants';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { keyBy, mapValues, omit } from 'lodash';
+import { keyBy } from 'lodash';
 import { Box, IconButton } from '@material-ui/core';
 import { Add as AddIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import shortid from 'shortid';
+import { Alert, AlertTitle } from '@material-ui/lab';
 import { useApi } from '../../../api';
-import { Form, TableFormFields, TextField } from '../../../components';
+import { Form, OutlinedButton, TableFormFields, TextField } from '../../../components';
 import { AccessorField } from '../../patients/components/AccessorField';
+import { LoadingIndicator } from '../../../components/LoadingIndicator';
 
 const StyledTableFormFields = styled(TableFormFields)`
   thead tr th {
@@ -29,6 +31,17 @@ const StyledAccessorField = styled(AccessorField)`
 const useTranslationQuery = () => {
   const api = useApi();
   return useQuery(['translation'], () => api.get(`admin/translation`));
+};
+
+const ErrorMessage = ({ error }) => {
+  return (
+    <Box p={5}>
+      <Alert severity="error">
+        <AlertTitle>Error: Could not load translations:</AlertTitle>
+        {error}
+      </Alert>
+    </Box>
+  );
 };
 
 const StringIdHeadCell = ({ onClick }) => (
@@ -98,25 +111,58 @@ export const FormContents = ({ data, setFieldValue }) => {
     })),
   ];
 
-  return <StyledTableFormFields columns={columns} data={[...data, ...additionalColumns]} />;
+  return (
+    <>
+      <StyledTableFormFields columns={columns} data={[...data, ...additionalColumns]} />
+      <Box display="flex" justifyContent="flex-end" mt={2}>
+        <OutlinedButton type="submit">Save</OutlinedButton>
+      </Box>
+    </>
+  );
 };
 
 export const TranslationForm = () => {
+  const api = useApi();
+  const queryClient = useQueryClient();
   const { data = [], error, isLoading } = useTranslationQuery();
 
-  const initialValues = useMemo(
-    () => mapValues(keyBy(data, 'stringId'), val => omit(val, 'stringId')),
-    [data],
+  const { mutate: saveTranslations, isLoading: isSavingTranslations } = useMutation(
+    payload => api.put('v1/admin/translation', payload),
+    {
+      onSuccess: (responseData, { formProps }) => {
+        queryClient.invalidateQueries(['translation']);
+      },
+    },
   );
 
+  const initialValues = data.reduce(
+    (acc, { stringId, ...rest }) => ({
+      ...acc,
+      [stringId]: rest,
+    }),
+    {},
+  );
+
+  const handleSubmit = async payload => {
+    // Swap temporary id out for stringId
+    const submitData = Object.fromEntries(
+      Object.entries(payload).map(([key, { stringId, ...rest }]) => [stringId || key, rest]),
+    );
+    await saveTranslations(submitData);
+  };
+
   return (
-    <Form
-      initialValues={initialValues}
-      enableReinitialize
-      onSubmit={() => {
-        console.log('submit');
-      }}
-      render={props => <FormContents {...props} data={data} />}
-    />
+    <>
+      {error && <ErrorMessage error={error} />}
+      {isLoading && <LoadingIndicator />}
+      {!error && !isLoading && (
+        <Form
+          initialValues={initialValues}
+          enableReinitialize
+          onSubmit={handleSubmit}
+          render={props => <FormContents {...props} data={data} />}
+        />
+      )}
+    </>
   );
 };
