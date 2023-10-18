@@ -12,11 +12,16 @@ translation.get(
     // No permission needed when on login screen
     req.flagPermissionChecked();
 
-    const queryResponse = await req.db.query(
-      'SELECT language FROM translated_strings GROUP BY language',
-    );
+    const {
+      models: { TranslatedString },
+    } = req;
 
-    const languageOptions = queryResponse[0].map(({ language }) => {
+    const queryResponse = await TranslatedString.findAll({
+      attributes: ['language'],
+      group: 'language',
+    });
+
+    const languageOptions = queryResponse.map(({ language }) => {
       return {
         label: LANGUAGE_NAMES[language],
         value: language,
