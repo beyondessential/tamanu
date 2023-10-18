@@ -177,20 +177,22 @@ jobs:
           tar -cf '${{ env.OUTPUT_NAME }}.tar' '${{ env.BUILD_NAME }}'
           zstd --rm --adapt -T0 -10 '${{ env.OUTPUT_NAME }}.tar' -o '${{ env.OUTPUT_NAME }}.tar.zst'
 
+      - uses: cargo-bins/cargo-binstall@main
       - name: Sign build
         shell: bash
         env:
           MINISIGN_KEY: ${{ secrets.SIGNING_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
           echo "$MINISIGN_KEY" > minisign.key
           set -x
-          choco install minisign
-          minisign -S \
+          cargo binstall -y --only-signed rsign2
+          rsign sign -W \
             -s minisign.key \
-            -m '${{ env.OUTPUT_NAME }}.tar.zst' \
             -x '${{ env.OUTPUT_NAME }}.tar.zst.sig' \
-            -t "ts=$(date +%s) repo=${{ github.repository }} commit=${{ needs.info.outputs.actual_ref }} gharun=${{ github.run_id }}"
+            -t "ts=$(date +%s) repo=${{ github.repository }} commit=${{ needs.info.outputs.actual_ref }} gharun=${{ github.run_id }}" \
+            '${{ env.OUTPUT_NAME }}.tar.zst'
           rm minisign.*
 
       - name: Configure AWS Credentials
