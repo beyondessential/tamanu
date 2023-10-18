@@ -321,7 +321,7 @@ export class Encounter extends Model {
     const { EncounterHistory } = this.sequelize.models;
     await EncounterHistory.createSnapshot(encounter, {
       actorId: actorId || encounter.examinerId,
-      submittedTime: getCurrentDateTimeString(),
+      submittedTime: encounter.startDate,
     });
 
     return encounter;
