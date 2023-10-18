@@ -195,7 +195,7 @@ export const TranslationForm = () => {
     <Form
       initialValues={initialValues}
       enableReinitialize
-      // showInlineErrorsOnly
+      showInlineErrorsOnly
       onSubmit={handleSubmit}
       validationSchema={validationSchema}
       render={props => <FormContents {...props} data={data} />}
