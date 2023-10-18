@@ -32,15 +32,7 @@ export const login = (host, email, password) => async (dispatch, getState, { api
       email,
       password,
     );
-    dispatch({
-      type: LOGIN_SUCCESS,
-      user,
-      token,
-      localisation,
-      server,
-      ability,
-      role,
-    });
+    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server, ability, role });
   } catch (error) {
     dispatch({ type: LOGIN_FAILURE, error: error.message });
   }
