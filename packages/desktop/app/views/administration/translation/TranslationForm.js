@@ -113,8 +113,6 @@ export const FormContents = ({ data, setFieldValue, isSubmitting, values }) => {
       ...additionalColumns,
       {
         placeholderId,
-        stringId: '',
-        ...Object.values(LANGUAGE_CODES).reduce((acc, code) => ({ ...acc, [code]: '' }), {}),
       },
     ]);
     // Initialize stringId so it can be validated if empty
