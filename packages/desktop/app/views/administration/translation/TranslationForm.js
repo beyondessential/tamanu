@@ -8,6 +8,7 @@ import { Box, IconButton } from '@material-ui/core';
 import { Add as AddIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import shortid from 'shortid';
 import { Alert, AlertTitle } from '@material-ui/lab';
+import { toast } from 'react-toastify';
 import { useApi } from '../../../api';
 import { Form, OutlinedButton, TableFormFields, TextField } from '../../../components';
 import { AccessorField } from '../../patients/components/AccessorField';
@@ -25,10 +26,6 @@ const StyledIconButton = styled(IconButton)`
   color: #2f4358;
 `;
 
-const StyledAccessorField = styled(AccessorField)`
-  flex-grow: 1;
-`;
-
 const validationSchema = yup.lazy(values => {
   const baseSchema = Object.values(LANGUAGE_CODES).reduce(
     (schema, code) => ({
@@ -40,10 +37,10 @@ const validationSchema = yup.lazy(values => {
   const newEntrySchema = {
     stringId: yup
       .string()
-      .required('String ID is required')
+      .required('Required')
       .test(
         'isUnique',
-        'String ID must be unique',
+        'Must be unique',
         value =>
           Object.entries(values).filter(([k, v]) => k === value || v.stringId === value).length ===
           1,
@@ -71,10 +68,13 @@ const useTranslationQuery = () => {
 const useTranslationMutation = () => {
   const api = useApi();
   const queryClient = useQueryClient();
-  return useMutation(payload => api.put('v1/admin/translation', payload), {
-    onSuccess: (responseData, { formProps }) => {
+  return useMutation(payload => api.put('admin/translation', payload), {
+    onSuccess: () => {
+      toast.success('Translations saved');
       queryClient.invalidateQueries(['translation']);
-      formProps.resetForm();
+    },
+    onError: err => {
+      toast.error(`Error saving translations: ${err.message}`);
     },
   });
 };
@@ -90,23 +90,19 @@ const ErrorMessage = ({ error }) => {
   );
 };
 
-const IconButtonCell = ({ children, icon, onClick }) => (
-  <Box display="flex" alignItems="center">
-    {children}
-    <StyledIconButton onClick={onClick}>{icon}</StyledIconButton>
-  </Box>
-);
-
-// This format is necissary to avoid formik nesting at dot delimiters
-const getValueKey = key => `['${key}']`;
-
 const TranslationField = ({ placeholderId, stringId, code }) => (
-  <AccessorField id={getValueKey(stringId || placeholderId)} name={code} component={TextField} />
+  // This id format is necessary to avoid formik nesting at . delimiters
+  <AccessorField id={`['${placeholderId || stringId}']`} name={code} component={TextField} />
 );
 
-export const FormContents = ({ data, setFieldValue, isSubmitting, values }) => {
-  const [additionalColumns, setAdditionalColumns] = useState([]);
-
+export const FormContents = ({
+  data,
+  setFieldValue,
+  isSubmitting,
+  dirty,
+  additionalColumns,
+  setAdditionalColumns,
+}) => {
   const handleAddColumn = () => {
     const placeholderId = shortid();
     setAdditionalColumns([
@@ -130,16 +126,28 @@ export const FormContents = ({ data, setFieldValue, isSubmitting, values }) => {
     {
       key: 'stringId',
       title: (
-        <IconButtonCell onClick={handleAddColumn} icon={<AddIcon />}>
-          String Id
-        </IconButtonCell>
+        <Box display="flex" alignItems="center">
+          Translation ID
+          <StyledIconButton onClick={handleAddColumn}>
+            <AddIcon />
+          </StyledIconButton>
+        </Box>
       ),
       accessor: ({ stringId, placeholderId }) => {
         if (!placeholderId) return stringId;
         return (
-          <IconButtonCell onClick={() => handleRemoveColumn(placeholderId)} icon={<DeleteIcon />}>
-            <StyledAccessorField id={placeholderId} name="stringId" component={TextField} />
-          </IconButtonCell>
+          <AccessorField
+            id={placeholderId}
+            name="stringId"
+            component={TextField}
+            InputProps={{
+              endAdornment: (
+                <StyledIconButton onClick={() => handleRemoveColumn(placeholderId)}>
+                  <DeleteIcon />
+                </StyledIconButton>
+              ),
+            }}
+          />
         );
       },
     },
@@ -154,7 +162,7 @@ export const FormContents = ({ data, setFieldValue, isSubmitting, values }) => {
     <>
       <StyledTableFormFields columns={columns} data={[...data, ...additionalColumns]} />
       <Box display="flex" justifyContent="flex-end" mt={2}>
-        <OutlinedButton disabled={isSubmitting} type="submit">
+        <OutlinedButton disabled={isSubmitting || !dirty} type="submit">
           Save
         </OutlinedButton>
       </Box>
@@ -163,6 +171,7 @@ export const FormContents = ({ data, setFieldValue, isSubmitting, values }) => {
 };
 
 export const TranslationForm = () => {
+  const [additionalColumns, setAdditionalColumns] = useState([]);
   const { data = [], error, isLoading } = useTranslationQuery();
   const { mutate: saveTranslations, isLoading: isSaving } = useTranslationMutation();
 
@@ -184,6 +193,7 @@ export const TranslationForm = () => {
       Object.entries(payload).map(([key, { stringId, ...rest }]) => [stringId || key, rest]),
     );
     await saveTranslations(submitData);
+    setAdditionalColumns([]);
   };
 
   if (isLoading) return <LoadingIndicator />;
@@ -196,7 +206,14 @@ export const TranslationForm = () => {
       showInlineErrorsOnly
       onSubmit={handleSubmit}
       validationSchema={validationSchema}
-      render={props => <FormContents {...props} data={data} />}
+      render={props => (
+        <FormContents
+          {...props}
+          data={data}
+          setAdditionalColumns={setAdditionalColumns}
+          additionalColumns={additionalColumns}
+        />
+      )}
     />
   );
 };
