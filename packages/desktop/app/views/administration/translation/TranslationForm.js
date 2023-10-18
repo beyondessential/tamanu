@@ -1,8 +1,7 @@
 import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
 import { LANGUAGE_CODES, LANGUAGE_NAMES_IN_ENGLISH } from '@tamanu/constants';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { keyBy } from 'lodash';
 import { Box, IconButton } from '@material-ui/core';
 import { Add as AddIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import shortid from 'shortid';
@@ -31,6 +30,17 @@ const StyledAccessorField = styled(AccessorField)`
 const useTranslationQuery = () => {
   const api = useApi();
   return useQuery(['translation'], () => api.get(`admin/translation`));
+};
+
+const useTranslationMutation = () => {
+  const api = useApi();
+  const queryClient = useQueryClient();
+  return useMutation(payload => api.put('v1/admin/translation', payload), {
+    onSuccess: (responseData, { formProps }) => {
+      queryClient.invalidateQueries(['translation']);
+      formProps.resetForm();
+    },
+  });
 };
 
 const ErrorMessage = ({ error }) => {
@@ -122,25 +132,19 @@ export const FormContents = ({ data, setFieldValue }) => {
 };
 
 export const TranslationForm = () => {
-  const api = useApi();
-  const queryClient = useQueryClient();
   const { data = [], error, isLoading } = useTranslationQuery();
+  const { mutate: saveTranslations, isLoading: isSaving } = useTranslationMutation();
 
-  const { mutate: saveTranslations, isLoading: isSavingTranslations } = useMutation(
-    payload => api.put('v1/admin/translation', payload),
-    {
-      onSuccess: (responseData, { formProps }) => {
-        queryClient.invalidateQueries(['translation']);
-      },
-    },
-  );
-
-  const initialValues = data.reduce(
-    (acc, { stringId, ...rest }) => ({
-      ...acc,
-      [stringId]: rest,
-    }),
-    {},
+  const initialValues = useMemo(
+    () =>
+      data.reduce(
+        (acc, { stringId, ...rest }) => ({
+          ...acc,
+          [stringId]: rest,
+        }),
+        {},
+      ),
+    [data],
   );
 
   const handleSubmit = async payload => {
