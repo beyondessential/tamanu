@@ -171,7 +171,7 @@ jobs:
 
       - name: Move desktop client in place
         shell: bash
-        run: mv upgrade ${{ env.BUILD_NAME }}/packages/${{ matrix.package.path }}/
+        run: ls -shal; mv upgrade ${{ env.BUILD_NAME }}/packages/${{ matrix.package.path }}/
 
       - name: Prepare final output
         run: tar -caf '${{ env.OUTPUT_NAME }}.tar.gz' '${{ env.BUILD_NAME }}'
