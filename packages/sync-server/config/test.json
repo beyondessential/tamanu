@@ -6,10 +6,16 @@
       "enabled": false,
       "connections": {
         "reporting": {
+          "pool": {
+            "max": 5
+          },
           "username": "tamanu_reporting",
           "password": "test"
         },
         "raw": {
+          "pool": {
+            "max": 5
+          },
           "username": "tamanu_raw",
           "password": "test"
         }

@@ -55,13 +55,18 @@
     "migrateOnStartup": false,
     "reportSchemas": {
       "enabled": false,
-      "pool": {},
       "connections": {
         "raw": {
+          "pool": {
+            "max": 5
+          },
           "username": "",
           "password": ""
         },
         "reporting": {
+          "pool": {
+            "max": 5
+          },
           "username": "",
           "password": ""
         }

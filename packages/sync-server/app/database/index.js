@@ -40,8 +40,7 @@ export async function initDatabase({ testMode = false }) {
 }
 
 async function initReportingInstance(schemaName, credentials) {
-  const { username, password } = credentials;
-  const { pool } = config.db.reportSchemas;
+  const { username, password, pool } = credentials;
   const overrides = {
     initialConnection: false,
     migrateOnStartup: false,

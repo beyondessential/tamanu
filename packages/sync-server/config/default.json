@@ -17,15 +17,18 @@
       // "evict": 1000
     },
     "reportSchemas": {
-      "pool": {
-        "max": 5
-      },
       "connections": {
         "raw": {
+          "pool": {
+            "max": 5
+          },
           "username": "",
           "password": ""
         },
         "reporting": {
+          "pool": {
+            "max": 5
+          },
           "username": "",
           "password": ""
         }

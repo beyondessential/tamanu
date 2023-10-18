@@ -47,7 +47,15 @@ async function initReportingInstance(schemaName, credentials) {
     log.warn(`No credentials provided for ${schemaName} reporting schema, skipping...`);
     return null;
   }
-  return getOrCreateConnection(overrides, `reporting-${schemaName}`);
+  try {
+    const connection = getOrCreateConnection(overrides, `reporting-${schemaName}`);
+    return connection;
+  } catch (e) {
+    log.warn(
+      `It was not possible to establish a connection with the report schema ${schemaName}. Please check the credentials on config file`,
+    );
+    return null;
+  }
 }
 
 export async function initReporting() {
