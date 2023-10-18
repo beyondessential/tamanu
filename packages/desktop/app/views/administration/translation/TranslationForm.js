@@ -118,14 +118,14 @@ export const FormContents = ({ data, setFieldValue, isSubmitting, values }) => {
       },
     ]);
     // Initialize stringId so it can be validated if empty
-    setFieldValue(`${getValueKey(placeholderId)}.stringId`, '');
+    setFieldValue(`${placeholderId}.stringId`, '');
   };
 
   const handleRemoveColumn = placeholderId => {
     setAdditionalColumns(
       additionalColumns.filter(column => column.placeholderId !== placeholderId),
     );
-    setFieldValue(placeholderId, undefined);
+    setFieldValue(`${placeholderId}.stringId`, undefined);
   };
 
   const columns = [
