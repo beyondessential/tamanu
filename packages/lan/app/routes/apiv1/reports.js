@@ -33,7 +33,6 @@ reports.post(
       models,
       reportSchemaStores: reportInstances,
     } = req;
-    console.log({ req });
     const { reportId } = params;
     const facilityReportLog = createNamedLogger(FACILITY_REPORT_LOG_NAME, {
       userId: user.id,

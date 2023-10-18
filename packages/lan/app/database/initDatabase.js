@@ -51,8 +51,8 @@ async function initReportingInstance(schemaName, credentials) {
 }
 
 export async function initReporting() {
-  const { credentials } = config.db.reportSchemas;
-  return Object.entries(credentials).reduce(async (acc, [schemaName, { username, password }]) => {
+  const { connections } = config.db.reportSchemas;
+  return Object.entries(connections).reduce(async (acc, [schemaName, { username, password }]) => {
     const instance = await initReportingInstance(schemaName, {
       username,
       password,

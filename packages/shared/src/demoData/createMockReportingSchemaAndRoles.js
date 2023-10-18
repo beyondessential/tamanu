@@ -3,7 +3,7 @@ import config from 'config';
 // Create a mock reporting schema and reporting users for testing
 // Relatively unsafe as creates roles and schemas in the database
 export async function createMockReportingSchemaAndRoles({ sequelize }) {
-  const { raw, reporting } = config.db.reportSchemas.credentials;
+  const { raw, reporting } = config.db.reportSchemas.connections;
   await sequelize.query(`
     CREATE SCHEMA IF NOT EXISTS reporting;
     -- create roles if they don't exist this can happen on local dev when running tests

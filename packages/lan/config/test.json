@@ -4,7 +4,7 @@
     "migrateOnStartup": true,
     "reportSchemas": {
       "enabled": false,
-      "credentials": {
+      "connections": {
         "reporting": {
           "username": "tamanu_reporting",
           "password": "test"

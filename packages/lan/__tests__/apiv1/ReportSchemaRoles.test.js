@@ -18,7 +18,7 @@ describe('ReportSchemaRoles', () => {
   let reportingDefinition;
 
   beforeAll(async () => {
-    const { credentials } = config.db.reportSchemas;
+    const { connections } = config.db.reportSchemas;
     ctx = await createTestContext({ enableReportInstances: true });
     adminApp = await ctx.baseApp.asRole('admin');
     models = ctx.models;
@@ -35,8 +35,8 @@ describe('ReportSchemaRoles', () => {
         "name" varchar(255) NOT NULL,
         PRIMARY KEY ("id")
       );
-      GRANT SELECT ON reporting.reporting_test_table TO ${credentials.reporting.username};
-      GRANT SELECT ON raw_test_table TO ${credentials.raw.username};
+      GRANT SELECT ON reporting.reporting_test_table TO ${connections.reporting.username};
+      GRANT SELECT ON raw_test_table TO ${connections.raw.username};
       INSERT INTO reporting.reporting_test_table ("id", "name") VALUES ('1', 'A'), ('2', 'B');
       INSERT INTO raw_test_table ("id", "name") VALUES ('1', 'C'), ('2', 'D');
     `);

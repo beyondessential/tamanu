@@ -20,7 +20,7 @@
       "pool": {
         "max": 5
       },
-      "credentials": {
+      "connections": {
         "raw": {
           "username": "",
           "password": ""

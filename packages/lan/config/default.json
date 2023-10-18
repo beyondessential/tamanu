@@ -56,7 +56,7 @@
     "reportSchemas": {
       "enabled": false,
       "pool": {},
-      "credentials": {
+      "connections": {
         "raw": {
           "username": "",
           "password": ""
