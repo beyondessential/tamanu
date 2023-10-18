@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
+import { LANGUAGE_CODES } from '@tamanu/constants';
 import { Colors } from '../constants';
 import { useApi } from '../api';
 import { SelectInput } from './Field';
@@ -63,13 +64,14 @@ export const LanguageSelector = ({ setFieldValue }) => {
   );
 
   const storedLanguage = localStorage.getItem('language') || null;
+  const initialLanguage = storedLanguage || LANGUAGE_CODES.ENGLISH;
 
   useEffect(() => {
     if (languageOptions.length > 0) {
-      setFieldValue('language', storedLanguage || languageOptions[0]?.value);
-      setSelectedLanguage(storedLanguage || languageOptions[0]?.value);
+      setFieldValue('language', initialLanguage);
+      setSelectedLanguage(initialLanguage);
     }
-  }, [languageOptions, setFieldValue, storedLanguage]);
+  }, [languageOptions, setFieldValue, initialLanguage]);
 
   // If translations not implemented, no need for this component to show
   if (languageOptions.length <= 1) {
