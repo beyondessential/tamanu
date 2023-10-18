@@ -6,6 +6,8 @@ import { useQuery } from '@tanstack/react-query';
 
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
 
+import { useLocalisation } from '../contexts/Localisation';
+
 import { Form, Field } from '../components/Field';
 import { IdField } from '../components/Field/IdField';
 import { ModalFormActionRow } from '../components/ModalActionRow';
@@ -81,6 +83,8 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
   );
   const sexValues = useSexValues();
 
+  const { getLocalisation } = useLocalisation();
+
   if (error) {
     return <pre>{error.stack}</pre>;
   }
@@ -115,7 +119,7 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
           options={PATIENT_REGISTRY_OPTIONS}
           style={{ gridColumn: '1 / -1' }}
         />
-        <PrimaryDetailsGroup />
+        <PrimaryDetailsGroup values={values} patientRegistryType={patientRegistryType} />
         <AdditionalInformationRow>
           <div>
             {isExpanded ? (
@@ -152,7 +156,11 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
         displayId: generateId(),
         ...editedObject,
       }}
-      validationSchema={getPatientDetailsValidation(sexValues)}
+      validationSchema={getPatientDetailsValidation(
+        patientRegistryType,
+        sexValues,
+        getLocalisation,
+      )}
     />
   );
 });

@@ -1,5 +1,6 @@
 // serverInfo must be imported before any shared modules
 // so that it can set globals
+// eslint-disable-next-line import/order
 import { version } from './app/serverInfo';
 
 import { program } from 'commander';
@@ -9,14 +10,22 @@ import * as cmd from './app/subCommands';
 import { setupEnv } from './app/env';
 import { closeDatabase } from './app/database';
 
+// allow commands to be hidden if e.g. they're deprecated
+const hiddenCommands = [
+  'migrateChangelogNotesToEncounterHistoryCommand',
+  'migrateNotePagesToNotesCommand',
+  'removeDuplicatedDischargesCommand',
+];
+
 async function run() {
   program
     .version(version)
     .description('Tamanu sync-server')
     .name('node app.bundle.js');
 
-  for (const [key, command] of Object.entries(cmd).filter(([key, _]) => /^\w+Command$/.test(key))) {
-    program.addCommand(command, { isDefault: key === 'serveAllCommand' });
+  for (const [key, command] of Object.entries(cmd).filter(([k]) => /^\w+Command$/.test(k))) {
+    const hidden = hiddenCommands.includes(key);
+    program.addCommand(command, { hidden, isDefault: key === 'serveAllCommand' });
   }
 
   setupEnv();
