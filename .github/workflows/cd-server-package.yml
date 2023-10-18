@@ -177,20 +177,15 @@ jobs:
           tar -cf '${{ env.OUTPUT_NAME }}.tar' '${{ env.BUILD_NAME }}'
           zstd --rm --adapt -T0 -10 '${{ env.OUTPUT_NAME }}.tar' -o '${{ env.OUTPUT_NAME }}.tar.zst'
 
-      - name: Get minisign
-        run: |
-          set -ex
-          curl --proto '=https' --tlsv1.2 -LO https://github.com/jedisct1/minisign/releases/download/0.11/minisign-0.11-linux.tar.gz
-          echo 'f0a0954413df8531befed169e447a66da6868d79052ed7e892e50a4291af7ae0  minisign-0.11-linux.tar.gz' | sha256sum -c
-          tar -xvf minisign-0.11-linux.tar.gz
-          mv minisign-linux/x86_64/minisign .
       - name: Sign build
+        shell: bash
         env:
           MINISIGN_KEY: ${{ secrets.SIGNING_KEY }}
         run: |
           set -e
           echo "$MINISIGN_KEY" > minisign.key
           set -x
+          choco install minisign
           ./minisign -R \
             -s minisign.key \
             -p minisign.pub
@@ -198,7 +193,7 @@ jobs:
             -s minisign.key \
             -m '${{ env.OUTPUT_NAME }}.tar.zst' \
             -x '${{ env.OUTPUT_NAME }}.tar.zst.sig' \
-            -t "built on $(date --iso-8601=seconds) from tamanu/$(git rev-parse HEAD)"
+            -t "ts=$(date +%s) repo=${{ github.repository }} commit=${{ needs.info.outputs.actual_ref }} gharun=${{ github.run_id }}"
           rm minisign.*
 
       - name: Configure AWS Credentials
