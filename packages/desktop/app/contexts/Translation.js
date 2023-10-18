@@ -1,5 +1,4 @@
 import React, { useState, useContext } from 'react';
-import { get } from 'lodash';
 import { useApi } from '../api';
 
 const TranslationContext = React.createContext();
@@ -26,7 +25,7 @@ export const TranslationProvider = ({ children }) => {
     <TranslationContext.Provider
       value={{
         fetchTranslations,
-        getTranslation: stringId => get(translations, stringId),
+        getTranslation: stringId => translations[stringId],
       }}
     >
       {children}
