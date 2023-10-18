@@ -62,12 +62,12 @@ export const LanguageSelector = ({ setFieldValue }) => {
     api.get('translation/preLogin'),
   );
 
-  const storedLanguage = localStorage.getItem('language');
+  const storedLanguage = localStorage.getItem('language') || null;
 
   useEffect(() => {
     if (languageOptions.length > 0) {
-      setFieldValue('language', storedLanguage || languageOptions[0].value);
-      setSelectedLanguage(storedLanguage || languageOptions[0].value);
+      setFieldValue('language', storedLanguage || languageOptions[0]?.value);
+      setSelectedLanguage(storedLanguage || languageOptions[0]?.value);
     }
   }, [languageOptions, setFieldValue, storedLanguage]);
 

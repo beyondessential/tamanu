@@ -48,6 +48,7 @@ const LogoContainer = styled.div`
 export const LoginView = () => {
   const api = useApi();
   const dispatch = useDispatch();
+  const { setTranslations } = useTranslation();
   const loginError = useSelector(state => state.auth.error);
   const requestPasswordResetError = useSelector(state => state.auth.resetPassword.error);
   const requestPasswordResetSuccess = useSelector(state => state.auth.resetPassword.success);
@@ -74,11 +75,13 @@ export const LoginView = () => {
       localStorage.removeItem(REMEMBER_EMAIL);
     }
 
-    localStorage.setItem('language', language);
-
     // The await is necessary to prevent redux-form unlocking submission
     // redux-thunk definitely returns a promise, and this works
     await dispatch(login(host, email, password));
+
+    localStorage.setItem('language', language);
+    const translations = await api.get(`translation/${language}`);
+    setTranslations(translations);
   };
 
   return (
