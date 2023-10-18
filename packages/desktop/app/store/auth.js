@@ -23,19 +23,14 @@ export const restoreSession = () => async (dispatch, getState, { api }) => {
   }
 };
 
-export const login = (host, email, password, languageCode) => async (
-  dispatch,
-  getState,
-  { api },
-) => {
+export const login = (host, email, password) => async (dispatch, getState, { api }) => {
   dispatch({ type: LOGIN_START });
 
   try {
-    const { user, token, localisation, server, ability, role, translations } = await api.login(
+    const { user, token, localisation, server, ability, role } = await api.login(
       host,
       email,
       password,
-      languageCode,
     );
     dispatch({
       type: LOGIN_SUCCESS,
@@ -45,7 +40,6 @@ export const login = (host, email, password, languageCode) => async (
       server,
       ability,
       role,
-      translations,
     });
   } catch (error) {
     dispatch({ type: LOGIN_FAILURE, error: error.message });
@@ -142,7 +136,6 @@ const actionHandlers = {
     error: defaultState.error,
     token: action.token,
     localisation: action.localisation,
-    translations: action.translations,
     server: action.server,
     role: action.role,
     resetPassword: defaultState.resetPassword,

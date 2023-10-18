@@ -78,7 +78,7 @@ export const LoginView = () => {
 
     // The await is necessary to prevent redux-form unlocking submission
     // redux-thunk definitely returns a promise, and this works
-    await dispatch(login(host, email, password, language));
+    await dispatch(login(host, email, password));
   };
 
   return (
