@@ -13,8 +13,8 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
-  pull-requests: write
+  contents: write # for cd-client workflow, unused
+  pull-requests: write # for cd-client workflow, unused
   id-token: write # OIDC token for AWS
 
 jobs:
