@@ -5,6 +5,8 @@ on:
   push:
     tags:
       - v*.*.*
+    branches:
+      - fix/bundle-desktop-with-release
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
