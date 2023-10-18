@@ -169,11 +169,9 @@ jobs:
         with:
           name: desktop-client
 
-      - name: Pack desktop client
+      - name: Move desktop client in place
         shell: bash
-        run: |
-          set -ex
-          mv release ${{ env.BUILD_NAME }}/packages/${{ matrix.package.path }}/upgrade
+        run: mv upgrade ${{ env.BUILD_NAME }}/packages/${{ matrix.package.path }}/
 
       - name: Prepare final output
         run: tar -caf '${{ env.OUTPUT_NAME }}.tar.gz' '${{ env.BUILD_NAME }}'
