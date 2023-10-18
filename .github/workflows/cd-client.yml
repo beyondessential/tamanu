@@ -11,6 +11,11 @@ on:
         options:
           - release
           - dev or rc
+  workflow_call:
+    inputs:
+      bucket:
+        type: string
+        default: artifact
   pull_request:
   push:
     branches:
@@ -121,33 +126,53 @@ jobs:
 
           tryonce || tryonce || tryonce
 
+      - name: Package for Windows (artifact for bundling)
+        if: inputs.bucket == 'artifact'
+        run: docker exec working yarn run package-only --x64 --win
+
       - name: Package for Linux, Mac, Windows
+        if: inputs.bucket != 'artifact'
         run: |
           docker exec working mv /package-mac.json package.json
           docker exec working yarn run package-only --x64 --linux --mac --win
 
       - name: Switch to AppData NSIS-only build
+        if: inputs.bucket != 'artifact'
         run: docker exec working mv /package-appdata.json package.json
 
       - name: Package for Windows (AppData NSIS)
+        if: inputs.bucket != 'artifact'
         run: docker exec working yarn run package-only --win --x64
 
       - name: Switch to MSI build
+        if: inputs.bucket != 'artifact'
         run: docker exec working mv /package-msi.json package.json
 
       - name: Package for Windows (MSI)
+        if: inputs.bucket != 'artifact'
         run: docker exec working yarn run package-only --win --x64
 
       - name: Switch to Aspen build
+        if: inputs.bucket != 'artifact'
         run: docker exec working mv /package-aspen.json package.json
 
       - name: Package for Windows (Aspen)
+        if: inputs.bucket != 'artifact'
         run: docker exec working yarn run package-only --win --x64
 
       - name: Stop container
         run: docker kill working
 
+      - name: Upload to artifact
+        if: inputs.bucket == 'artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: desktop-client
+          path: release
+          retention-days: 1
+
       - name: Prepare final outputs
+        if: inputs.bucket != 'artifact'
         run: |
           sudo chown -R $USER:$USER release
           mkdir -p ops/{linux,mac,windows-{appdata,msi,system,aspen}} artifacts
@@ -174,11 +199,12 @@ jobs:
           echo "S3_URL=https://s3.console.aws.amazon.com/s3/object/bes-tamanu-dev-desktop-clients?region=ap-southeast-2&prefix=${{ needs.info.outputs.branch }}" >> $GITHUB_ENV
 
       - name: Push to S3
+        if: inputs.bucket != 'artifact'
         working-directory: ops
         run: aws s3 sync . s3://${{ env.S3_BUCKET }} --no-progress
 
       - name: Prepare comment
-        if: github.event_name == 'pull_request' || github.ref_type == 'tag'
+        if: (github.event_name == 'pull_request' || github.ref_type == 'tag') && inputs.bucket != 'release'
         id: comment
         uses: actions/github-script@v6
         env:
@@ -224,7 +250,7 @@ jobs:
             }
 
       - name: Push to release
-        if: github.ref_type == 'tag'
+        if: github.ref_type == 'tag' && inputs.bucket != 'release'
         uses: actions/github-script@v6
         env:
           RELEASE_SECTION: ${{ steps.comment.outputs.result }}

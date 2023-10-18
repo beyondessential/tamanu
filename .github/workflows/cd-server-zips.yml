@@ -20,6 +20,10 @@ jobs:
     name: Branch info
     uses: ./.github/workflows/branch-info.yml
 
+  desktop:
+    name: Desktop client
+    uses: ./.github/workflows/cd-desktop.yml
+
   image:
     needs: info
     uses: ./.github/workflows/build-image.yml
@@ -114,6 +118,7 @@ jobs:
       - info
       - image
       - build
+      - desktop
     strategy:
       fail-fast: false
       matrix:
@@ -156,6 +161,16 @@ jobs:
           set -ex
           yarn config set network-timeout 600000 -g
           yarn install --frozen-lockfile --production
+
+      - name: Download desktop client artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: desktop-client
+
+      - name: Pack desktop client
+        run: |
+          set -euxo pipefail
+          mv release ${{ env.BUILD_NAME }}/packages/${{ matrix.package.path }}/upgrade
 
       - name: Prepare final output
         run: tar -cvzf '${{ env.OUTPUT_NAME }}.tar.gz' '${{ env.BUILD_NAME }}'
