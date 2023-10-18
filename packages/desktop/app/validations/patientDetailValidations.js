@@ -42,16 +42,17 @@ export const getPatientDetailsValidation = (patientRegistryType, sexValues, getL
     email: requiredWhenConfiguredMandatory(getLocalisation, 'email', yup.string().email()),
 
     /* --- PATIENT BIRTH FIELDS START --- */
-    birthFacilityId: requiredBirthFieldWhenConfiguredMandatory(
-      getLocalisation,
-      patientRegistryType,
-      'birthFacilityId',
-      yup.string().when('registeredBirthPlace', {
-        is: value => value === PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY,
-        then: yup.string().required,
-        otherwise: yup.string(),
-      }),
-    ),
+    birthFacilityId: yup.string().when('registeredBirthPlace', {
+      is: value => value === PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY,
+      then: requiredBirthFieldWhenConfiguredMandatory(
+        getLocalisation,
+        patientRegistryType,
+        'birthFacilityId',
+        yup.string(),
+      ),
+      otherwise: yup.string(),
+    }),
+
     attendantAtBirth: requiredBirthFieldWhenConfiguredMandatory(
       getLocalisation,
       patientRegistryType,
