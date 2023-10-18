@@ -2,8 +2,6 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { mapValues, keyBy } from 'lodash';
 
-import { LANGUAGE_NAMES } from '@tamanu/constants';
-
 export const translation = express.Router();
 
 translation.get(
@@ -16,14 +14,21 @@ translation.get(
       models: { TranslatedString },
     } = req;
 
-    const queryResponse = await TranslatedString.findAll({
+    const languagesInDb = await TranslatedString.findAll({
       attributes: ['language'],
       group: 'language',
     });
 
-    const languageOptions = queryResponse.map(({ language }) => {
+    const languageNames = await TranslatedString.findAll({
+      where: {
+        stringId: 'languageName',
+      },
+    });
+
+    const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
+    const languageOptions = languagesInDb.map(({ language }) => {
       return {
-        label: LANGUAGE_NAMES[language],
+        label: languageDisplayNames[language],
         value: language,
       };
     });
