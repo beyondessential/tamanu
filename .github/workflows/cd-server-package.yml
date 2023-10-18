@@ -171,13 +171,11 @@ jobs:
           path: ${{ env.BUILD_NAME }}/packages/${{ matrix.package.path }}/upgrade
 
       - name: Prepare final output
-        run: tar -caf '${{ env.OUTPUT_NAME }}.tar.gz' '${{ env.BUILD_NAME }}'
-
-      - name: Prepare final output (xz)
-        run: tar -caf '${{ env.OUTPUT_NAME }}.tar.xz' '${{ env.BUILD_NAME }}'
-
-      - name: Prepare final output (zstd)
-        run: tar -caf '${{ env.OUTPUT_NAME }}.tar.zst' '${{ env.BUILD_NAME }}'
+        shell: bash
+        run: |
+          set -ex
+          tar -cf '${{ env.OUTPUT_NAME }}.tar' '${{ env.BUILD_NAME }}'
+          zstd --rm --adapt -T0 -10 '${{ env.OUTPUT_NAME }}.tar' -o '${{ env.OUTPUT_NAME }}.tar.zst'
 
       - name: Get minisign
         run: |
@@ -211,10 +209,6 @@ jobs:
           role-session-name: GHA@Tamanu=ServerZips
           mask-aws-account-id: false
 
-      - name: Push to S3
-        run: aws s3 cp '${{ env.OUTPUT_NAME }}.tar.gz' '${{ env.S3_PATH }}/${{ env.OUTPUT_NAME }}.tar.gz' --no-progress
-      - name: Push to S3
-        run: aws s3 cp '${{ env.OUTPUT_NAME }}.tar.xz' '${{ env.S3_PATH }}/${{ env.OUTPUT_NAME }}.tar.xz' --no-progress
       - name: Push to S3
         run: |
           aws s3 cp '${{ env.OUTPUT_NAME }}.tar.zst' '${{ env.S3_PATH }}/${{ env.OUTPUT_NAME }}.tar.zst' --no-progress
