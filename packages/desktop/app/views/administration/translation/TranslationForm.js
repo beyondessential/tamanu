@@ -1,4 +1,6 @@
 import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
+import * as yup from 'yup';
+import { has } from 'lodash';
 import { LANGUAGE_CODES, LANGUAGE_NAMES_IN_ENGLISH } from '@tamanu/constants';
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
@@ -26,6 +28,40 @@ const StyledIconButton = styled(IconButton)`
 const StyledAccessorField = styled(AccessorField)`
   flex-grow: 1;
 `;
+
+const validationSchema = yup.lazy(values => {
+  const baseSchema = Object.values(LANGUAGE_CODES).reduce(
+    (schema, code) => ({
+      ...schema,
+      [code]: yup.string().nullable(),
+    }),
+    {},
+  );
+  const newEntrySchema = {
+    stringId: yup
+      .string()
+      .required('String ID is required')
+      .test(
+        'isUnique',
+        'String ID must be unique',
+        value =>
+          Object.entries(values).filter(([k, v]) => k === value || v.stringId === value).length ===
+          1,
+      ),
+  };
+  return yup.object().shape(
+    Object.keys(values).reduce(
+      (acc, key) => ({
+        ...acc,
+        [key]: yup.object({
+          ...baseSchema,
+          ...(has(values[key], 'stringId') && newEntrySchema),
+        }),
+      }),
+      {},
+    ),
+  );
+});
 
 const useTranslationQuery = () => {
   const api = useApi();
@@ -61,24 +97,28 @@ const IconButtonCell = ({ children, icon, onClick }) => (
   </Box>
 );
 
-const TranslationField = ({ placeholderId, stringId, code }) => {
-  // This format is necissary to avoid formik nesting at dot delimiters
-  const id = `['${stringId || placeholderId}']`;
-  return <AccessorField id={id} name={code} component={TextField} />;
-};
+// This format is necissary to avoid formik nesting at dot delimiters
+const getValueKey = key => `['${key}']`;
 
-export const FormContents = ({ data, setFieldValue, isSubmitting }) => {
+const TranslationField = ({ placeholderId, stringId, code }) => (
+  <AccessorField id={getValueKey(stringId || placeholderId)} name={code} component={TextField} />
+);
+
+export const FormContents = ({ data, setFieldValue, isSubmitting, values }) => {
   const [additionalColumns, setAdditionalColumns] = useState([]);
 
   const handleAddColumn = () => {
+    const placeholderId = shortid();
     setAdditionalColumns([
       ...additionalColumns,
       {
-        placeholderId: shortid(),
+        placeholderId,
         stringId: '',
         ...Object.values(LANGUAGE_CODES).reduce((acc, code) => ({ ...acc, [code]: '' }), {}),
       },
     ]);
+    // Initialize stringId so it can be validated if empty
+    setFieldValue(`${getValueKey(placeholderId)}.stringId`, '');
   };
 
   const handleRemoveColumn = placeholderId => {
@@ -155,7 +195,9 @@ export const TranslationForm = () => {
     <Form
       initialValues={initialValues}
       enableReinitialize
+      // showInlineErrorsOnly
       onSubmit={handleSubmit}
+      validationSchema={validationSchema}
       render={props => <FormContents {...props} data={data} />}
     />
   );
