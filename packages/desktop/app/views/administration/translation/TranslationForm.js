@@ -54,26 +54,12 @@ const ErrorMessage = ({ error }) => {
   );
 };
 
-const StringIdHeadCell = ({ onClick }) => (
+const IconButtonCell = ({ children, icon, onClick }) => (
   <Box display="flex" alignItems="center">
-    String ID
-    <StyledIconButton onClick={onClick}>
-      <AddIcon />
-    </StyledIconButton>
+    {children}
+    <StyledIconButton onClick={onClick}>{icon}</StyledIconButton>
   </Box>
 );
-
-const StringIdField = ({ placeholderId, stringId, onClick }) => {
-  if (!placeholderId) return stringId;
-  return (
-    <Box display="flex" alignItems="center">
-      <StyledAccessorField id={placeholderId} name="stringId" component={TextField} />
-      <StyledIconButton>
-        <DeleteIcon onClick={onClick} />
-      </StyledIconButton>
-    </Box>
-  );
-};
 
 const TranslationField = ({ placeholderId, stringId, code }) => {
   // This format is necissary to avoid formik nesting at dot delimiters
@@ -81,7 +67,7 @@ const TranslationField = ({ placeholderId, stringId, code }) => {
   return <AccessorField id={id} name={code} component={TextField} />;
 };
 
-export const FormContents = ({ data, setFieldValue }) => {
+export const FormContents = ({ data, setFieldValue, isSubmitting }) => {
   const [additionalColumns, setAdditionalColumns] = useState([]);
 
   const handleAddColumn = () => {
@@ -105,14 +91,19 @@ export const FormContents = ({ data, setFieldValue }) => {
   const columns = [
     {
       key: 'stringId',
-      title: <StringIdHeadCell onClick={handleAddColumn} />,
-      accessor: ({ stringId, placeholderId }) => (
-        <StringIdField
-          placeholderId={placeholderId}
-          stringId={stringId}
-          onClick={() => handleRemoveColumn(placeholderId)}
-        />
+      title: (
+        <IconButtonCell onClick={handleAddColumn} icon={<AddIcon />}>
+          String Id
+        </IconButtonCell>
       ),
+      accessor: ({ stringId, placeholderId }) => {
+        if (!placeholderId) return stringId;
+        return (
+          <IconButtonCell onClick={() => handleRemoveColumn(placeholderId)} icon={<DeleteIcon />}>
+            <StyledAccessorField id={placeholderId} name="stringId" component={TextField} />
+          </IconButtonCell>
+        );
+      },
     },
     ...Object.values(LANGUAGE_CODES).map(code => ({
       key: code,
@@ -125,7 +116,9 @@ export const FormContents = ({ data, setFieldValue }) => {
     <>
       <StyledTableFormFields columns={columns} data={[...data, ...additionalColumns]} />
       <Box display="flex" justifyContent="flex-end" mt={2}>
-        <OutlinedButton type="submit">Save</OutlinedButton>
+        <OutlinedButton disabled={isSubmitting} type="submit">
+          Save
+        </OutlinedButton>
       </Box>
     </>
   );
@@ -155,18 +148,15 @@ export const TranslationForm = () => {
     await saveTranslations(submitData);
   };
 
+  if (isLoading) return <LoadingIndicator />;
+  if (error) return <ErrorMessage error={error} />;
+
   return (
-    <>
-      {error && <ErrorMessage error={error} />}
-      {isLoading && <LoadingIndicator />}
-      {!error && !isLoading && (
-        <Form
-          initialValues={initialValues}
-          enableReinitialize
-          onSubmit={handleSubmit}
-          render={props => <FormContents {...props} data={data} />}
-        />
-      )}
-    </>
+    <Form
+      initialValues={initialValues}
+      enableReinitialize
+      onSubmit={handleSubmit}
+      render={props => <FormContents {...props} data={data} />}
+    />
   );
 };
