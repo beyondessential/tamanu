@@ -179,6 +179,30 @@ jobs:
       - name: Prepare final output (zstd)
         run: tar -caf '${{ env.OUTPUT_NAME }}.tar.zst' '${{ env.BUILD_NAME }}'
 
+      - name: Get minisign
+        run: |
+          set -ex
+          curl --proto '=https' --tlsv1.2 -LO https://github.com/jedisct1/minisign/releases/download/0.11/minisign-0.11-linux.tar.gz
+          echo 'f0a0954413df8531befed169e447a66da6868d79052ed7e892e50a4291af7ae0  minisign-0.11-linux.tar.gz' | sha256sum -c
+          tar -xvf minisign-0.11-linux.tar.gz
+          mv minisign-linux/x86_64/minisign .
+      - name: Sign build
+        env:
+          MINISIGN_KEY: ${{ secrets.SIGNING_KEY }}
+        run: |
+          set -e
+          echo "$MINISIGN_KEY" > minisign.key
+          set -x
+          ./minisign -R \
+            -s minisign.key \
+            -p minisign.pub
+          ./minisign -S \
+            -s minisign.key \
+            -m '${{ env.OUTPUT_NAME }}.tar.zst' \
+            -x '${{ env.OUTPUT_NAME }}.tar.zst.sig' \
+            -t "built on $(date --iso-8601=seconds) from tamanu/$(git rev-parse HEAD)"
+          rm minisign.*
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -192,4 +216,6 @@ jobs:
       - name: Push to S3
         run: aws s3 cp '${{ env.OUTPUT_NAME }}.tar.xz' '${{ env.S3_PATH }}/${{ env.OUTPUT_NAME }}.tar.xz' --no-progress
       - name: Push to S3
-        run: aws s3 cp '${{ env.OUTPUT_NAME }}.tar.zst' '${{ env.S3_PATH }}/${{ env.OUTPUT_NAME }}.tar.zst' --no-progress
+        run: |
+          aws s3 cp '${{ env.OUTPUT_NAME }}.tar.zst' '${{ env.S3_PATH }}/${{ env.OUTPUT_NAME }}.tar.zst' --no-progress
+          aws s3 cp '${{ env.OUTPUT_NAME }}.tar.zst.sig' '${{ env.S3_PATH }}/${{ env.OUTPUT_NAME }}.tar.zst.sig' --no-progress
