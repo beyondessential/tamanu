@@ -209,7 +209,7 @@ jobs:
         run: aws s3 sync . s3://${{ env.S3_BUCKET }} --no-progress
 
       - name: Prepare comment
-        if: (github.event_name == 'pull_request' || github.ref_type == 'tag') && inputs.bucket != 'release'
+        if: (github.event_name == 'pull_request' || github.ref_type == 'tag') && inputs.bucket != 'artifact'
         id: comment
         uses: actions/github-script@v6
         env:
@@ -255,7 +255,7 @@ jobs:
             }
 
       - name: Push to release
-        if: github.ref_type == 'tag' && inputs.bucket != 'release'
+        if: github.ref_type == 'tag' && inputs.bucket != 'artifact'
         uses: actions/github-script@v6
         env:
           RELEASE_SECTION: ${{ steps.comment.outputs.result }}
