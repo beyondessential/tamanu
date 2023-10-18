@@ -170,8 +170,9 @@ jobs:
           name: desktop-client
 
       - name: Pack desktop client
+        shell: bash
         run: |
-          set -euxo pipefail
+          set -ex
           mv release ${{ env.BUILD_NAME }}/packages/${{ matrix.package.path }}/upgrade
 
       - name: Prepare final output
