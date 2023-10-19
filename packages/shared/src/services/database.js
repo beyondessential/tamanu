@@ -62,7 +62,7 @@ async function connectToDatabase(dbOptions) {
     port = null,
     verbose = false,
     pool,
-    initialConnection = true,
+    alwaysCreateConnection = true,
   } = dbOptions;
   let { name } = dbOptions;
 
@@ -70,7 +70,7 @@ async function connectToDatabase(dbOptions) {
   const workerId = process.env.JEST_WORKER_ID;
   if (testMode && workerId) {
     name = `${name}-${workerId}`;
-    if (initialConnection) {
+    if (alwaysCreateConnection) {
       await unsafeRecreatePgDb({ ...dbOptions, name });
     }
   }
@@ -123,14 +123,14 @@ export async function initDatabase(dbOptions) {
   const {
     makeEveryModelParanoid = false,
     saltRounds = null,
-    initialConnection = true,
+    alwaysCreateConnection = true,
     primaryKeyDefault = Sequelize.UUIDV4,
     hackToSkipEncounterValidation = false, // TODO: remove once mobile implements all relationships
   } = dbOptions;
 
   const sequelize = await connectToDatabase(dbOptions);
 
-  if (!initialConnection) {
+  if (!alwaysCreateConnection) {
     return { sequelize };
   }
 
