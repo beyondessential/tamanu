@@ -21,16 +21,31 @@ ipcRenderer.on('toggleTranslationDebug', () => {
   window.dispatchEvent(new Event('debugTranslation'));
 });
 
+const replaceStringVariables = (templateString, replacements) => {
+  const jsxElements = templateString.split(/(:[a-zA-Z]+)/g).map((part, index) => {
+    // Even indexes are the unchanged parts of the string
+    if (index % 2 === 0) return part;
+    // Return the replacement if exists
+    return replacements[part.slice(1)] || part;
+  });
+
+  return jsxElements;
+};
+
 // "stringId" is used in future functionality
 // eslint-disable-next-line no-unused-vars
-export const TranslatedText = ({ stringId, fallback }) => {
+export const TranslatedText = ({ stringId, fallback, replacements }) => {
   const [isDebugMode, setIsDebugMode] = useState(false);
-  const translation = null; // Placeholder for checking db for translation
+  // "setTranslation" is used in future functionality
+  // eslint-disable-next-line no-unused-vars
+  const [translation, setTranslation] = useState(fallback);
+  const [displayElements, setDisplayElements] = useState(fallback);
+
+  // TODO: Useeffect or useQuery that fetches the translation from the backend and registers if not existing
 
   useEffect(() => {
     const getDebugMode = async () => {
-      const debugMode = await JSON.parse(localStorage.getItem('debugTranslation'));
-      setIsDebugMode(debugMode);
+      setIsDebugMode(safeGetIsDebugMode());
     };
     getDebugMode();
 
@@ -40,14 +55,14 @@ export const TranslatedText = ({ stringId, fallback }) => {
     };
   }, []);
 
+  useEffect(() => {
+    if (!replacements) setDisplayElements(translation);
+    setDisplayElements(replaceStringVariables(translation, replacements));
+  }, [translation, replacements]);
+
   const TextWrapper = isDebugMode ? DebugHighlighed : React.Fragment;
 
-  if (!translation) {
-    // Register as untranslated in DB
-    return <TextWrapper>{fallback}</TextWrapper>;
-  }
-
-  return <TextWrapper>{translation}</TextWrapper>;
+  return <TextWrapper>{displayElements}</TextWrapper>;
 };
 
 TranslatedText.propTypes = {
