@@ -79,7 +79,7 @@ export const LoginView = () => {
     // redux-thunk definitely returns a promise, and this works
     await dispatch(login(host, email, password));
 
-    fetchTranslations(language);
+    await fetchTranslations(language);
     localStorage.setItem('language', language);
   };
 
