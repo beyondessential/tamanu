@@ -166,7 +166,7 @@ export function doAgeRangesHaveGaps(rangesArray) {
     // This means we reached the last item, nothing more to compare
     if (!rangeB) return false;
     // These have to forcefully match, otherwise a gap exists
-    return rangeA.max !== rangeB.min;
+    return rangeA.ageMax !== rangeB.ageMin;
   });
 }
 
