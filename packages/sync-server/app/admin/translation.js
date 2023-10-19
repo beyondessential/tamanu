@@ -23,27 +23,21 @@ translationRouter.put(
   '/',
   asyncHandler(async (req, res) => {
     const { store, body } = req;
-    req.checkPermission('translation', 'write');
     const {
       models: { TranslatedString },
+      sequelize,
     } = store;
-    await store.sequelize.transaction(async () => {
+    req.checkPermission('translation', 'write');
+    const upsertTranslation = async data =>
+      TranslatedString.upsert(data, {
+        conflictFields: ['string_id', 'language'],
+      });
+    await sequelize.transaction(async () => {
       // Convert FE representation of translation data (grouped by stringId with keys for each languages text) to upsertable entries.
       await Promise.all(
         Object.entries(body).flatMap(([stringId, languages]) =>
-          Object.entries(languages).map(
-            ([code, text]) =>
-              isString(text) &&
-              TranslatedString.upsert(
-                {
-                  stringId,
-                  language: code,
-                  text,
-                },
-                {
-                  conflictFields: ['string_id', 'language'],
-                },
-              ),
+          Object.entries(languages).map(([language, text]) =>
+            upsertTranslation({ stringId, language, text }),
           ),
         ),
       );
