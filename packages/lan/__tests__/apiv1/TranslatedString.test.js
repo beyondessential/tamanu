@@ -37,13 +37,13 @@ describe('TranslatedString', () => {
     const { TranslatedString } = models;
     const createdTranslations = [];
 
+    // Need this initial languageName translation to be able to check the language select options endpoint
     const languageNameTranslation = await TranslatedString.create({
       ...fake(TranslatedString),
       stringId: `languageName`,
       text: LANGUAGE_NAMES[language],
       language,
     });
-
     createdTranslations.push(languageNameTranslation.get({ plain: true }));
 
     for (let i = 0; i < count; i++) {

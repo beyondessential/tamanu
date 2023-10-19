@@ -1,17 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
-import { LANGUAGE_CODES, LANGUAGE_NAMES } from '@tamanu/constants';
 import { LanguageSelector } from '../app/components/LanguageSelector';
 import { ApiContext } from '../app/api';
 
 const exampleOptions = [
   {
-    label: LANGUAGE_NAMES[LANGUAGE_CODES.ENGLISH],
-    value: LANGUAGE_CODES.ENGLISH,
+    label: '🇬🇧 English',
+    value: 'en',
   },
   {
-    label: LANGUAGE_NAMES[LANGUAGE_CODES.KHMER],
-    value: LANGUAGE_CODES.KHMER,
+    label: '🇰🇭 ភាសាខ្មែរ',
+    value: 'km',
   },
 ];
 
