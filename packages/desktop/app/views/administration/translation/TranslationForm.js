@@ -10,7 +10,14 @@ import shortid from 'shortid';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import { toast } from 'react-toastify';
 import { useApi } from '../../../api';
-import { Form, OutlinedButton, TableFormFields, TextField } from '../../../components';
+import {
+  Field,
+  Form,
+  OutlinedButton,
+  SearchField,
+  TableFormFields,
+  TextField,
+} from '../../../components';
 import { AccessorField } from '../../patients/components/AccessorField';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 
@@ -26,14 +33,11 @@ const StyledIconButton = styled(IconButton)`
   color: #2f4358;
 `;
 
-const validationSchema = yup.lazy(values => {
-  const baseSchema = Object.values(LANGUAGE_CODES).reduce(
-    (schema, code) => ({
-      ...schema,
-      [code]: yup.string().nullable(),
-    }),
-    {},
-  );
+const validationSchema = yup.lazy(({ search, ...values }) => {
+  const baseSchema = Object.values(LANGUAGE_CODES).reduce((schema, code) => ({
+    ...schema,
+    [code]: yup.string().nullable(),
+  }));
   const newEntrySchema = {
     stringId: yup
       .string()
@@ -104,30 +108,45 @@ export const FormContents = ({
   data,
   setFieldValue,
   isSaving,
+  submitForm,
   dirty,
-  additionalColumns,
-  setAdditionalColumns,
+  additionalRows,
+  setAdditionalRows,
+  values,
 }) => {
+  const handleSave = event => {
+    // Reset search so any validation errors are visible
+    setFieldValue('search', '');
+    submitForm(event);
+  };
+
   const handleAddColumn = useCallback(() => {
     const placeholderId = shortid();
-    setAdditionalColumns([
-      ...additionalColumns,
+    setAdditionalRows([
+      ...additionalRows,
       {
         placeholderId,
       },
     ]);
     // Initialize stringId so it can be validated if empty
     setFieldValue(`${placeholderId}.stringId`, '');
-  }, [additionalColumns, setAdditionalColumns, setFieldValue]);
+  }, [additionalRows, setAdditionalRows, setFieldValue]);
 
   const handleRemoveColumn = useCallback(
     placeholderId => {
-      setAdditionalColumns(
-        additionalColumns.filter(column => column.placeholderId !== placeholderId),
-      );
+      setAdditionalRows(additionalRows.filter(column => column.placeholderId !== placeholderId));
       setFieldValue(placeholderId, undefined);
     },
-    [additionalColumns, setAdditionalColumns, setFieldValue],
+    [additionalRows, setAdditionalRows, setFieldValue],
+  );
+
+  const tableRows = useMemo(
+    () =>
+      [...data, ...additionalRows].filter(
+        row =>
+          row.placeholderId || row.stringId.split('.').some(part => part.startsWith(values.search)),
+      ),
+    [data, additionalRows, values.search],
   );
 
   const columns = useMemo(
@@ -171,18 +190,21 @@ export const FormContents = ({
 
   return (
     <>
-      <StyledTableFormFields columns={columns} data={[...data, ...additionalColumns]} />
-      <Box display="flex" justifyContent="flex-end" mt={2}>
-        <OutlinedButton disabled={isSaving || !dirty} type="submit">
+      <Box display="flex" alignItems="flex-end" mb={2}>
+        <Box mr={2} width="250px">
+          <Field label="Search" name="search" component={SearchField} />
+        </Box>
+        <OutlinedButton disabled={isSaving || !dirty} onClick={handleSave}>
           Save
         </OutlinedButton>
       </Box>
+      <StyledTableFormFields columns={columns} data={tableRows} />
     </>
   );
 };
 
 export const TranslationForm = () => {
-  const [additionalColumns, setAdditionalColumns] = useState([]);
+  const [additionalRows, setAdditionalRows] = useState([]);
   const { data = [], error, isLoading } = useTranslationQuery();
   const { mutate: saveTranslations, isLoading: isSaving } = useTranslationMutation();
 
@@ -193,18 +215,18 @@ export const TranslationForm = () => {
           ...acc,
           [stringId]: rest,
         }),
-        {},
+        { search: '' },
       ),
     [data],
   );
 
-  const handleSubmit = async payload => {
+  const handleSubmit = async ({ search, ...payload }) => {
     // Swap temporary id out for stringId
     const submitData = Object.fromEntries(
       Object.entries(payload).map(([key, { stringId, ...rest }]) => [stringId || key, rest]),
     );
     await saveTranslations(submitData);
-    setAdditionalColumns([]);
+    setAdditionalRows([]);
   };
 
   if (isLoading) return <LoadingIndicator />;
@@ -222,8 +244,8 @@ export const TranslationForm = () => {
           {...props}
           data={data}
           isSaving={isSaving}
-          setAdditionalColumns={setAdditionalColumns}
-          additionalColumns={additionalColumns}
+          setAdditionalRows={setAdditionalRows}
+          additionalRows={additionalRows}
         />
       )}
     />
