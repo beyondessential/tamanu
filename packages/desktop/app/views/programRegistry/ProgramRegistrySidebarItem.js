@@ -25,7 +25,7 @@ export const ProgramRegistrySidebarItem = ({
   const [programRegistries, setProgramRegistries] = useState([]);
   useEffect(() => {
     (async () => {
-      const response = await api.get('ProgramRegistry');
+      const response = await api.get('programRegistry');
       if (response.data.length > 0) setProgramRegistries(response.data);
     })();
   }, [api]);

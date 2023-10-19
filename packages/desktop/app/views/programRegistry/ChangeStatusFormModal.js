@@ -29,9 +29,7 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onSubmit, on
     <>
       <Modal title="Change Status" open={open} onClose={() => onCancel()}>
         <Form
-          onSubmit={data => {
-            onSubmit(data);
-          }}
+          onSubmit={onSubmit}
           render={({ submitForm }) => {
             return (
               <div>

@@ -10,6 +10,7 @@ import { ConditionalTooltip } from '../../components/Tooltip';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import { ChangeStatusFormModal } from './ChangeStatusFormModal';
+import { Colors } from '../../constants';
 
 const ClippedConditionName = styled.span`
   overflow: hidden;
@@ -145,7 +146,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         onRowClick={selectLab}
         fetchOptions={searchParameters}
         rowStyle={({ isDeceased }) => {
-          return isDeceased ? '& > td { color: #ed333a; }' : '';
+          return isDeceased ? `& > td { color: ${Colors.alert}; }` : '';
         }}
         initialSort={{
           order: 'desc',

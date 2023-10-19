@@ -12,8 +12,10 @@ import {
   SearchField,
   SelectField,
 } from '../../components';
-import { useProgramRegistry } from '../../api/queries/useProgramRegistry';
+import { useProgramRegistryQuery } from '../../api/queries/useProgramRegistryQuery';
 import { useProgramRegistryConditions } from '../../api/queries/useProgramRegistryConditions';
+import { sexOptions } from '../../constants';
+import { useLocalisation } from '../../contexts/Localisation';
 
 const FacilityCheckbox = styled.div`
   display: flex;
@@ -30,8 +32,13 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
   const [isExpanded, setIsExpanded] = useState(false);
   const facilitySuggester = useSuggester('facility');
   const villageSuggester = useSuggester('village');
+  const { getLocalisation } = useLocalisation();
+  let filteredSexOptions = sexOptions;
+  if (getLocalisation('features.hideOtherSex') === true) {
+    filteredSexOptions = filteredSexOptions.filter(s => s.value !== 'other');
+  }
 
-  const { data: programRegistry } = useProgramRegistry(params.programRegistryId);
+  const { data: programRegistry } = useProgramRegistryQuery(params.programRegistryId);
 
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
     baseQueryParameters: { programRegistryId: params.programRegistryId },
@@ -52,10 +59,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
             name="sex"
             defaultLabel="Sex"
             component={SelectField}
-            options={[
-              { label: 'Male', value: 'M' },
-              { label: 'Female', value: 'F' },
-            ]}
+            options={filteredSexOptions}
           />
           <LocalisedField
             name="registeringFacilityId"
