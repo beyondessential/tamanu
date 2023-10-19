@@ -28,7 +28,7 @@
     "setup-dev": "node dist setup",
     "shell": "yarn build && node dist shell",
 
-    "start-watch": "chokidar \"dist/**/*.js\" -c \"yarn run start\"",
+    "start-watch": "chokidar --initial \"dist/**/*.js\" -c \"yarn run start\"",
     "test-watch": "yarn test --watch",
     "build-watch": "yarn run build --watch",
     "start-dev": "concurrently npm:build-watch npm:start-watch"
