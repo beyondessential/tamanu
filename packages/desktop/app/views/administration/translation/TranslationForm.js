@@ -2,7 +2,7 @@ import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
 import * as yup from 'yup';
 import { has } from 'lodash';
 import { LANGUAGE_CODES, LANGUAGE_NAMES_IN_ENGLISH } from '@tamanu/constants';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Box, IconButton } from '@material-ui/core';
 import { Add as AddIcon, Delete as DeleteIcon } from '@material-ui/icons';
@@ -108,7 +108,7 @@ export const FormContents = ({
   additionalColumns,
   setAdditionalColumns,
 }) => {
-  const handleAddColumn = () => {
+  const handleAddColumn = useCallback(() => {
     const placeholderId = shortid();
     setAdditionalColumns([
       ...additionalColumns,
@@ -118,50 +118,56 @@ export const FormContents = ({
     ]);
     // Initialize stringId so it can be validated if empty
     setFieldValue(`${placeholderId}.stringId`, '');
-  };
+  }, [additionalColumns, setAdditionalColumns, setFieldValue]);
 
-  const handleRemoveColumn = placeholderId => {
-    setAdditionalColumns(
-      additionalColumns.filter(column => column.placeholderId !== placeholderId),
-    );
-    setFieldValue(`${placeholderId}.stringId`, undefined);
-  };
-
-  const columns = [
-    {
-      key: 'stringId',
-      title: (
-        <Box display="flex" alignItems="center">
-          Translation ID
-          <StyledIconButton onClick={handleAddColumn}>
-            <AddIcon />
-          </StyledIconButton>
-        </Box>
-      ),
-      accessor: ({ stringId, placeholderId }) => {
-        if (!placeholderId) return stringId;
-        return (
-          <AccessorField
-            id={placeholderId}
-            name="stringId"
-            component={TextField}
-            InputProps={{
-              endAdornment: (
-                <StyledIconButton onClick={() => handleRemoveColumn(placeholderId)}>
-                  <DeleteIcon />
-                </StyledIconButton>
-              ),
-            }}
-          />
-        );
-      },
+  const handleRemoveColumn = useCallback(
+    placeholderId => {
+      setAdditionalColumns(
+        additionalColumns.filter(column => column.placeholderId !== placeholderId),
+      );
+      setFieldValue(placeholderId, undefined);
     },
-    ...Object.values(LANGUAGE_CODES).map(code => ({
-      key: code,
-      title: LANGUAGE_NAMES_IN_ENGLISH[code],
-      accessor: row => <TranslationField code={code} {...row} />,
-    })),
-  ];
+    [additionalColumns, setAdditionalColumns, setFieldValue],
+  );
+
+  const columns = useMemo(
+    () => [
+      {
+        key: 'stringId',
+        title: (
+          <Box display="flex" alignItems="center">
+            Translation ID
+            <StyledIconButton onClick={handleAddColumn}>
+              <AddIcon />
+            </StyledIconButton>
+          </Box>
+        ),
+        accessor: ({ stringId, placeholderId }) => {
+          if (!placeholderId) return stringId;
+          return (
+            <AccessorField
+              id={placeholderId}
+              name="stringId"
+              component={TextField}
+              InputProps={{
+                endAdornment: (
+                  <StyledIconButton onClick={() => handleRemoveColumn(placeholderId)}>
+                    <DeleteIcon />
+                  </StyledIconButton>
+                ),
+              }}
+            />
+          );
+        },
+      },
+      ...Object.values(LANGUAGE_CODES).map(code => ({
+        key: code,
+        title: LANGUAGE_NAMES_IN_ENGLISH[code],
+        accessor: row => <TranslationField code={code} {...row} />,
+      })),
+    ],
+    [handleAddColumn, handleRemoveColumn],
+  );
 
   return (
     <>
