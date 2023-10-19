@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { queryTranslatedStringsByLanguage } from '@tamanu/shared/utils/translation/queryTranslatedStringsByLanguage';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
-import { isNull, mapValues, omitBy } from 'lodash';
+import { isString } from 'lodash';
 
 export const translationRouter = express.Router();
 
@@ -28,11 +28,12 @@ translationRouter.put(
       models: { TranslatedString },
     } = store;
     await store.sequelize.transaction(async () => {
+      // Convert FE representation of translation data (grouped by stringId with keys for each languages text) to upsertable entries.
       await Promise.all(
         Object.entries(body).flatMap(([stringId, languages]) =>
           Object.entries(languages).map(
             ([code, text]) =>
-              text &&
+              isString(text) &&
               TranslatedString.upsert(
                 {
                   stringId,
