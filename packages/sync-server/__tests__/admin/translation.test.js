@@ -69,5 +69,35 @@ describe('Translation', () => {
         ]),
       );
     });
+    it('should update translated strings if existing', async () => {
+      await models.TranslatedString.create({
+        stringId: 'general.back',
+        text: 'ត្រឡប់មកវិញ',
+        language: LANGUAGE_CODES.KHMER,
+      });
+      await models.TranslatedString.create({
+        stringId: 'general.submit',
+        text: 'Submit',
+        language: LANGUAGE_CODES.ENGLISH,
+      });
+      const result = await adminApp.put('/v1/admin/translation').send({
+        'general.submit': { en: 'Confirm' },
+        'general.back': { km: 'ត្រឡប់មកវិញ' },
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.status).toEqual(200);
+      expect(result.body).toEqual({ ok: 'ok' });
+      const updatedTranslatedStrings = await models.TranslatedString.findAll({
+        where: { stringId: ['general.submit', 'general.back'] },
+        order: [['stringId', 'ASC']],
+        attributes: ['stringId', 'text', 'language'],
+      });
+      expect(
+        updatedTranslatedStrings.map(translatedString => translatedString.get({ plain: true })),
+      ).toEqual([
+        { stringId: 'general.back', text: 'ត្រឡប់មកវិញ', language: LANGUAGE_CODES.KHMER },
+        { stringId: 'general.submit', text: 'Confirm', language: LANGUAGE_CODES.ENGLISH },
+      ]);
+    });
   });
 });
