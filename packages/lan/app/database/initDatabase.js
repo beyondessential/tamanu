@@ -32,7 +32,7 @@ async function initReportingInstance(schemaName, credentials) {
   const { username, password } = credentials;
   const { pool } = config.db.reportSchemas;
   const overrides = {
-    initialConnection: false,
+    alwaysCreateConnection: false,
     migrateOnStartup: false,
     pool,
     username,
