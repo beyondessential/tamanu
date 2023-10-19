@@ -148,6 +148,11 @@ describe('Survey calculations', () => {
         { code: 'TEST_ALWAYS', type: 'Result' },
         { code: 'REF', type: 'Binary' },
         { code: 'TEST_CHECK', type: 'Result', visibilityCriteria: 'REF: Yes' },
+        {
+          code: 'TEST_CHECK_SPECIAL',
+          type: 'Result',
+          visibilityCriteria: '{"encounterType": "clinical"}',
+        },
       ]);
 
       it('should use a visible result field', () => {
@@ -176,6 +181,45 @@ describe('Survey calculations', () => {
         { code: 'REF', type: 'Binary' },
         { code: 'TEST_C', type: 'Result' },
       ]);
+
+      it('should ignore a non-visible result field using special values', () => {
+        const { result, resultText } = getResultValue(
+          visibilitySurvey,
+          {
+            TEST_CHECK_SPECIAL: 0,
+            TEST_ALWAYS: 100,
+            REF: false,
+          },
+          { encounterType: 'admission' },
+        );
+        expect(result).toEqual(100);
+        expect(resultText).toEqual('100%');
+      });
+
+      const visibilitySurvey2 = makeDummySurvey([
+        { code: 'TEST_ALWAYS', type: 'Result' },
+        { code: 'REF', type: 'Binary' },
+        { code: 'TEST_CHECK', type: 'Result', visibilityCriteria: 'REF: Yes' },
+        {
+          code: 'TEST_CHECK_SPECIAL',
+          type: 'Result',
+          visibilityCriteria: '{"encounterType": "admission"}',
+        },
+      ]);
+
+      it('should not ignore a visible result field using special values', () => {
+        const { result, resultText } = getResultValue(
+          visibilitySurvey2,
+          {
+            TEST_CHECK_SPECIAL: 0,
+            TEST_ALWAYS: 100,
+            REF: false,
+          },
+          { encounterType: 'admission' },
+        );
+        expect(result).toEqual(0);
+        expect(resultText).toEqual('0%');
+      });
 
       it('should use the last result field if multiple are visible', () => {
         const { result, resultText } = getResultValue(multiVisibilitySurvey, {

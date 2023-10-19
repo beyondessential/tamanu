@@ -191,6 +191,9 @@ export async function importRows(
     try {
       if (existing) {
         if (values.deletedAt) {
+          if (model !== 'Permission') {
+            throw new ValidationError(`Deleting ${model} via the importer is not supported`);
+          }
           await existing.destroy();
           updateStat(stats, statkey(model, sheetName), 'deleted');
         } else {

@@ -54,7 +54,9 @@ const getConsentSurveyDataByPatient = async (models, patientIds) => {
     '$surveyResponse.survey_id$': SURVEY_ID,
   };
   const rawAnswers = await getAnswers(models, where);
-  const surveyComponents = await models.SurveyScreenComponent.getComponentsForSurvey(SURVEY_ID);
+  const surveyComponents = await models.SurveyScreenComponent.getComponentsForSurvey(SURVEY_ID, {
+    includeAllVitals: true,
+  });
   const transformedAnswers = await transformAnswers(models, rawAnswers, surveyComponents);
   // Technically this filtering is not needed since answers are already sorted by date,
   // but I think this is safer and easier to read.
