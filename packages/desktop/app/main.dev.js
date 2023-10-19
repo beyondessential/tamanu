@@ -13,6 +13,7 @@ import installExtension, {
   REDUX_DEVTOOLS,
   REACT_DEVELOPER_TOOLS,
 } from 'electron-devtools-installer';
+import electronLog from 'electron-log';
 
 import { findCountryLocales } from 'iso-lang-codes';
 
@@ -94,6 +95,8 @@ app.on('ready', async () => {
       provider: 'generic',
       url: `${host}/upgrade`,
     });
+    autoUpdater.logger = electronLog;
+    autoUpdater.logger.transports.file.level = 'debug';
     const notificationDetails = {
       title: 'A new update is ready to install',
       body: `To update to {version}, please close {appName} and wait for 30 seconds before re-opening.`,
