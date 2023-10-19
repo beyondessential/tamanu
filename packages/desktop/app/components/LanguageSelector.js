@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
-import { LANGUAGE_CODES } from '@tamanu/constants';
 import { Colors } from '../constants';
 import { useApi } from '../api';
 import { SelectInput } from './Field';
