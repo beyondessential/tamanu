@@ -1,6 +1,5 @@
 import { writeFile, readFile, cp } from 'fs/promises';
 import { createInterface } from 'readline';
-import { parseDocument } from 'yaml';
 
 const PKG_PATH = './package.json';
 
