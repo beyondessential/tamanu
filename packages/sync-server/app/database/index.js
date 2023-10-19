@@ -39,7 +39,7 @@ export async function initDatabase({ testMode = false }) {
   });
 }
 
-async function initReportingInstance(schemaName, credentials) {
+async function initReportStore(schemaName, credentials) {
   const { username, password, pool } = credentials;
   const overrides = {
     alwaysCreateConnection: false,
@@ -63,7 +63,7 @@ export async function initReporting() {
   const { credentials } = config.db.reportSchemas;
   return Object.entries(credentials).reduce(
     async (accPromise, [schemaName, { username, password }]) => {
-      const instance = await initReportingInstance(schemaName, {
+      const instance = await initReportStore(schemaName, {
         username,
         password,
       });

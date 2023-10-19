@@ -28,9 +28,8 @@ export async function initDatabase() {
   });
 }
 
-async function initReportingInstance(schemaName, credentials) {
-  const { username, password } = credentials;
-  const { pool } = config.db.reportSchemas;
+async function initReportStore(schemaName, credentials) {
+  const { username, password, pool } = credentials;
   const overrides = {
     alwaysCreateConnection: false,
     migrateOnStartup: false,
@@ -61,7 +60,7 @@ async function initReportingInstance(schemaName, credentials) {
 export async function initReporting() {
   const { connections } = config.db.reportSchemas;
   return Object.entries(connections).reduce(async (acc, [schemaName, { username, password }]) => {
-    const instance = await initReportingInstance(schemaName, {
+    const instance = await initReportStore(schemaName, {
       username,
       password,
     });
