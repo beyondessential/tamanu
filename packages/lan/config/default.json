@@ -26,7 +26,6 @@
     "email": "",
     "password": "",
     "timeout": 10000,
-    "readOnly": false,
     "persistedCacheBatchSize": 10000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "pauseBetweenCacheBatchInMilliseconds": 50,
