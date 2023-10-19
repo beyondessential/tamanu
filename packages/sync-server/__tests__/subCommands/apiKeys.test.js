@@ -15,8 +15,11 @@ describe('apiKeys issue', () => {
     const { User } = ctx.store.models;
     const user = await User.create(fake(User));
     const token = await genToken('default', user.email, { expiresIn: '1 day' });
-    expect(await verifyToken(token, DEFAULT_JWT_SECRET)).toMatchObject({
-      exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
-    });
+    const result = await verifyToken(token, DEFAULT_JWT_SECRET);
+
+    // handle off-by-one error when the second ticks over
+    const expectedExp = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
+    expect(result.exp).toBeLessThanOrEqual(expectedExp);
+    expect(result.exp).toBeGreaterThanOrEqual(expectedExp - 1);
   });
 });
