@@ -2,6 +2,39 @@ import { CursorDataMigration } from '@tamanu/shared/dataMigrations';
 
 const LATEST_ENCOUNTER_FLAG = 'latest_encounter';
 
+const NOTE_PAGE_SUB_QUERY = `
+    select
+        np.id,
+        np.record_id,
+        np.note_type,
+        ni.author_id as actor_id,
+        ni.date,
+        ni.content
+    from note_pages np
+    left join note_items ni on ni.note_page_id = np.id
+    join batch_encounters e on np.record_id = e.id
+    where note_type = 'system'
+    and record_type = 'Encounter'
+    order by np.record_id, ni.date
+`;
+
+const NOTE_SUB_QUERY = `
+    select
+        n.id,
+        n.record_id,
+        n.note_type,
+        n.author_id as actor_id,
+        n.date,
+        n.content
+    from notes n
+    join batch_encounters e on n.record_id = e.id
+    where note_type = 'system'
+    and record_type = 'Encounter'
+    order by n.record_id, n.date
+`;
+
+const NOTE_SCHEMAS = ['note_page', 'note'];
+
 export class ChangelogNotesToEncounterHistory extends CursorDataMigration {
   static defaultBatchSize = Number.MAX_SAFE_INTEGER;
 
@@ -9,7 +42,14 @@ export class ChangelogNotesToEncounterHistory extends CursorDataMigration {
 
   lastMaxId = '';
 
-  async getQuery() {
+  async getQuery({ noteSchema }) {
+    if (!NOTE_SCHEMAS.includes(noteSchema)) {
+      throw new Error(`Note schema should be one of: ${NOTE_SCHEMAS.toString()}`);
+    }
+
+    const allEncounterNotesSystemSubQuery =
+      noteSchema === 'note_page' ? NOTE_PAGE_SUB_QUERY : NOTE_SUB_QUERY;
+
     return `
       with
 
@@ -23,19 +63,7 @@ export class ChangelogNotesToEncounterHistory extends CursorDataMigration {
 
       -- Get all the changelog notes with content starts by 'Changed%'
       all_encounter_notes_system as (
-          select
-              np.id,
-              np.record_id,
-              np.note_type,
-              ni.author_id as actor_id,
-              ni.date,
-              ni.content
-          from note_pages np
-          left join note_items ni on ni.note_page_id = np.id
-          join batch_encounters e on np.record_id = e.id
-          where note_type = 'system'
-          and record_type = 'Encounter'
-          order by np.record_id, ni.date
+          ${allEncounterNotesSystemSubQuery}
       ),
 
       encounter_changed_notes_system as (
@@ -318,7 +346,7 @@ export class ChangelogNotesToEncounterHistory extends CursorDataMigration {
           select
               DISTINCT ON(e.id)
               e.id as record_id,
-              start_date as date,
+              start_date as date, -- the date of first encounter_history of every encounter should always be the encounter.start_date
               department_id,
               location_id,
               examiner_id,
