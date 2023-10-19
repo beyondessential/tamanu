@@ -62,13 +62,14 @@ export const LanguageSelector = ({ setFieldValue }) => {
     api.get('translation/preLogin'),
   );
 
-  // TODO: Default to last picked language OR get default from localisation/config
+  const storedLanguage = localStorage.getItem('language') || null;
+  const initialLanguage = storedLanguage || 'en';
 
   useEffect(() => {
     if (languageOptions.length === 1) {
-      setFieldValue('language', languageOptions[0].value);
+      setFieldValue('language', initialLanguage);
     }
-  }, [languageOptions, setFieldValue]);
+  }, [languageOptions, setFieldValue, initialLanguage]);
 
   // If translations not implemented, no need for this component to show
   if (languageOptions.length <= 1) {
