@@ -17,12 +17,13 @@ const fetchServers = async (): Promise<SelectOption[]> => {
   // To use a local server, just edit this and select it.
   // The sync server config is sticky, so you can safely revert it after
   // the first sync begins and it'll stay connecting to your local server.
-  return [
-    {
-      label: 'Local',
-      value: 'https://central.feature-sav-444-ability-to-make-pad-fields-ma.internal.tamanu.io',
-    },
-  ];
+  // return [
+  //   {
+  //     label: 'Local',
+  //     value: 'https://central.feature-sav-444-ability-to-make-pad-fields-ma.internal.tamanu.io',
+  //   },
+  // ];
+  return [{ label: 'Local', value: 'http://10.0.0.4:3000' }];
 
   // allows overriding the central server list or meta server in builds
   const { metaServer: metaServerOverride, centralServers: centralServerOverrides } = overrides;
@@ -49,6 +50,7 @@ export const ServerSelector = ({ onChange, label, value, error }): ReactElement 
     (async (): Promise<void> => {
       if (!value && netInfo.isInternetReachable) {
         const servers = await fetchServers();
+        console.log(servers);
         setOptions(servers);
       }
     })();

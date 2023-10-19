@@ -12,6 +12,7 @@ import { VitalsStack } from './VitalsStack';
 import { DiagnosisAndTreatmentTabs } from './DiagnosisAndTreatmentTabs';
 import { ReferralStack } from './ReferralStack';
 import { HistoryVitalsStack } from './HistoryVitalsStack';
+import { PatientSummaryStack } from './PatientSummaryStack';
 import { ExportDataScreen } from '../screens/home/ExportDataScreen';
 import { LabRequestStack } from './LabRequestStack';
 // Helpers
@@ -59,6 +60,10 @@ export const HomeStack = (): ReactElement => {
       <Stack.Screen
         name={Routes.HomeStack.HistoryVitalsStack.Index}
         component={HistoryVitalsStack}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.PatientSummaryStack.Index}
+        component={PatientSummaryStack}
       />
       <Stack.Screen
         name={Routes.HomeStack.SearchPatientStack.Index}

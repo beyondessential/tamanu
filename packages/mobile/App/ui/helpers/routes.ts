@@ -110,6 +110,9 @@ export const Routes = {
         Vaccines: '',
       },
     },
+    PatientSummaryStack: {
+      Index: '',
+    },
     RegisterPatientStack: {
       Index: '',
       PatientPersonalInfo: '',
