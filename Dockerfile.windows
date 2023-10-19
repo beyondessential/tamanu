@@ -1,6 +1,5 @@
-### This is the production-grade Linux container. You may be looking for:
-### - the CodeShip containers, at Dockerfile.codeship and Dockerfile.deploy
-### - the Windows container, at Dockerfile.windows
+### This is the production-grade Windows container. You may be looking for:
+### - the Linux container, at Dockerfile
 
 ## Base images
 # The general concept is to build in build-base, then copy into a slimmer run-base
