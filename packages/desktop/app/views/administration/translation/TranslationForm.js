@@ -69,8 +69,13 @@ const useTranslationMutation = () => {
   const api = useApi();
   const queryClient = useQueryClient();
   return useMutation(payload => api.put('admin/translation', payload), {
-    onSuccess: () => {
-      toast.success('Translations saved');
+    onSuccess: response => {
+      const newStringIds = response?.data?.length;
+      toast.success(
+        `Translations saved${
+          newStringIds ? `, Created ${newStringIds} new translated string entries` : ''
+        }`,
+      );
       queryClient.invalidateQueries(['translation']);
     },
     onError: err => {
@@ -98,7 +103,7 @@ const TranslationField = ({ placeholderId, stringId, code }) => (
 export const FormContents = ({
   data,
   setFieldValue,
-  isSubmitting,
+  isSaving,
   dirty,
   additionalColumns,
   setAdditionalColumns,
@@ -162,7 +167,7 @@ export const FormContents = ({
     <>
       <StyledTableFormFields columns={columns} data={[...data, ...additionalColumns]} />
       <Box display="flex" justifyContent="flex-end" mt={2}>
-        <OutlinedButton disabled={isSubmitting || !dirty} type="submit">
+        <OutlinedButton disabled={isSaving || !dirty} type="submit">
           Save
         </OutlinedButton>
       </Box>
@@ -210,6 +215,7 @@ export const TranslationForm = () => {
         <FormContents
           {...props}
           data={data}
+          isSaving={isSaving}
           setAdditionalColumns={setAdditionalColumns}
           additionalColumns={additionalColumns}
         />
