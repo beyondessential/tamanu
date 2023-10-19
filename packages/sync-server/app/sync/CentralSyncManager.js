@@ -60,7 +60,7 @@ export class CentralSyncManager {
 
   async getIsSyncUnderway() {
     const MAX_SYNC_SESSIONS = 1; // TODO: configurable? or maybe this doesn't matter
-    const activeSyncs = await this.store.models.SyncSessions.findAll({
+    const activeSyncs = await this.store.models.SyncSession.findAll({
       where: {
         completedAt: null,
         error: null,
