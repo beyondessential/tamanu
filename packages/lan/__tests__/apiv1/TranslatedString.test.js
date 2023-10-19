@@ -1,9 +1,18 @@
-import { LANGUAGE_CODES, LANGUAGE_NAMES } from '@tamanu/constants';
 import { fake } from 'shared/test-helpers/fake';
 import Chance from 'chance';
 import { createTestContext } from '../utilities';
 
 const chance = new Chance();
+
+const LANGUAGE_CODES = {
+  ENGLISH: 'en',
+  KHMER: 'km',
+};
+
+const LANGUAGE_NAMES = {
+  [LANGUAGE_CODES.ENGLISH]: '🇬🇧 English',
+  [LANGUAGE_CODES.KHMER]: '🇰🇭 ភាសាខ្មែរ',
+};
 
 describe('TranslatedString', () => {
   let ctx = null;
@@ -27,6 +36,16 @@ describe('TranslatedString', () => {
   const seedTranslationsForLanguage = async (language, count = 5) => {
     const { TranslatedString } = models;
     const createdTranslations = [];
+
+    const languageNameTranslation = await TranslatedString.create({
+      ...fake(TranslatedString),
+      stringId: `languageName`,
+      text: LANGUAGE_NAMES[language],
+      language,
+    });
+
+    createdTranslations.push(languageNameTranslation.get({ plain: true }));
+
     for (let i = 0; i < count; i++) {
       const translation = await TranslatedString.create({
         ...fake(TranslatedString),
