@@ -20,7 +20,6 @@ describe('Translation', () => {
     baseApp = ctx.baseApp;
     models = ctx.store.models;
     adminApp = await baseApp.asRole('admin');
-
     await models.TranslatedString.truncate();
 
     // Create a stringId with both languages, and two stringIds with only one language
@@ -30,7 +29,10 @@ describe('Translation', () => {
     await mockTranslatedString('login.password', 'អ៊ីមែល', LANGUAGE_CODES.KHMER);
   });
 
-  afterAll(() => ctx.close());
+  afterAll(async () => {
+    await models.TranslatedString.truncate();
+    await ctx.close();
+  });
 
   describe('GET /', () => {
     it('should return all translated strings', async () => {
@@ -41,6 +43,31 @@ describe('Translation', () => {
         { stringId: 'login.password', en: 'Password', km: 'អ៊ីមែល' },
         { stringId: 'login.register', en: null, km: 'ចុះ​ឈ្មោះ' },
       ]);
+    });
+  });
+
+  describe('PUT /', () => {
+    it('should create new translated strings if not existing', async () => {
+      const result = await adminApp.put('/v1/admin/translation').send({
+        'login.email': { km: 'អ៊ីមែល' },
+        'login.register': { en: 'Register' },
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.status).toEqual(201);
+      expect(result.body.data).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            stringId: 'login.email',
+            text: 'អ៊ីមែល',
+            language: LANGUAGE_CODES.KHMER,
+          }),
+          expect.objectContaining({
+            stringId: 'login.register',
+            text: 'Register',
+            language: LANGUAGE_CODES.ENGLISH,
+          }),
+        ]),
+      );
     });
   });
 });
