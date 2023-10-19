@@ -119,37 +119,3 @@ patientProgramRegistration.delete(
     res.send(condition);
   }),
 );
-
-patientProgramRegistration.delete(
-  '/:patientId/programRegistration/:programRegistryId/condition/:conditionId',
-  asyncHandler(async (req, res) => {
-    const { models, params, body } = req;
-    const { patientId, programRegistryId, conditionId } = params;
-
-    req.checkPermission('read', 'Patient');
-    const patient = await models.Patient.findByPk(patientId);
-    if (!patient) throw new NotFoundError();
-
-    req.checkPermission('read', 'ProgramRegistry', { id: programRegistryId });
-    const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
-    if (!programRegistry) throw new NotFoundError();
-
-    req.checkPermission('delete', 'PatientProgramRegistrationCondition', { programRegistryId });
-    const existingCondition = await models.PatientProgramRegistrationCondition.findOne({
-      where: {
-        programRegistryId,
-        patientId,
-        programRegistryConditionId: conditionId,
-      },
-    });
-    if (!existingCondition) throw new NotFoundError();
-
-    const condition = await existingCondition.update({
-      deletionStatus: DELETION_STATUSES.DELETED,
-      deletionClinicianId: body.deletionClinicianId,
-      deletionDate: body.deletionDate,
-    });
-
-    res.send(condition);
-  }),
-);

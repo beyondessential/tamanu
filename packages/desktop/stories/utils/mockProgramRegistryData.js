@@ -104,46 +104,16 @@ export const mockSurvey = {
 };
 export const programRegistriesForInfoPaneList = [
   {
-    id: '1',
-    name: 'Seasonal fever',
-    code: 'Seasonalfever',
-    status: 'Removed',
-    clinicalStatus: 'Needs review',
-  },
-  {
-    id: '12',
-    name: 'Hepatities B',
-    code: 'HepatitiesB',
-    status: 'Active',
-    clinicalStatus: 'Low risk',
-  },
-  {
-    id: '13',
-    name: 'Covid',
-    code: 'Covid',
-    status: 'Removed',
-    clinicalStatus: 'Critical',
-  },
-  {
-    id: '14',
-    name: 'Dengue',
-    code: 'Dengue',
-    status: 'Active',
-    clinicalStatus: 'Needs review',
-  },
-  {
-    id: '15',
-    name: 'Diabetis',
-    code: 'Diabetis',
-    status: 'Active',
-    clinicalStatus: 'Critical',
-  },
-  {
-    id: '16',
-    name: 'Typhoid',
-    code: 'Typhoid',
-    status: 'Removed',
-    clinicalStatus: 'Low risk',
+    id: '1e25e8d1-a2b4-4bfa-9670-9f6b689e8af7',
+    registrationStatus: 'active',
+    clinicalStatus: {
+      name: 'Low risk',
+      color: 'green',
+    },
+    programRegistry: {
+      id: 'programRegistry-HepatitisBProgramRegistry',
+      name: 'Hepatitis B',
+    },
   },
 ];
 
