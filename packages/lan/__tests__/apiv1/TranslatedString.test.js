@@ -39,7 +39,7 @@ describe('TranslatedString', () => {
     return createdTranslations;
   };
 
-  it('Should recieve a list of languages stored in the DB in the format of select options', async () => {
+  it('Should receive a list of languages stored in the DB in the format of select options', async () => {
     await seedTranslationsForLanguage(LANGUAGE_CODES.ENGLISH);
     await seedTranslationsForLanguage(LANGUAGE_CODES.KHMER);
 
