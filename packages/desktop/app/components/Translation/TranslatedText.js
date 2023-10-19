@@ -22,7 +22,6 @@ ipcRenderer.on('toggleTranslationDebug', () => {
 });
 
 const replaceStringVariables = (templateString, replacements) => {
-  if (!replacements) return templateString;
   const jsxElements = templateString.split(/(:[a-zA-Z]+)/g).map((part, index) => {
     // Even indexes are the unchanged parts of the string
     if (index % 2 === 0) return part;
