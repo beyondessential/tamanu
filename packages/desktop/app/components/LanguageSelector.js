@@ -64,19 +64,29 @@ export const LanguageSelector = ({ setFieldValue }) => {
   );
 
   const storedLanguage = localStorage.getItem('language') || null;
-  const initialLanguage = storedLanguage || LANGUAGE_CODES.ENGLISH;
+
+  const localeLanguageCode = navigator.language;
+  const isLocaleLanguageCodeInOptions = languageOptions.some(
+    ({ value }) => value === localeLanguageCode,
+  );
+  const genericLanguageCode = localeLanguageCode.split('-')[0];
+  const isGenericLanguageCodeInOptions = languageOptions.some(
+    ({ value }) => value === genericLanguageCode,
+  );
+
+  const initialLanguage =
+    storedLanguage ||
+    (isLocaleLanguageCodeInOptions && localeLanguageCode) ||
+    (isGenericLanguageCodeInOptions && genericLanguageCode) ||
+    'en';
 
   useEffect(() => {
-    if (languageOptions.length > 0) {
-      setFieldValue('language', initialLanguage);
-      setSelectedLanguage(initialLanguage);
-    }
+    setFieldValue('language', initialLanguage);
+    setSelectedLanguage(initialLanguage);
   }, [languageOptions, setFieldValue, initialLanguage]);
 
   // If translations not implemented, no need for this component to show
-  if (languageOptions.length <= 1) {
-    return null;
-  }
+  if (languageOptions.length <= 1) return null;
 
   return (
     <LanguageSelectorContainer>
