@@ -231,6 +231,7 @@ describe('reportRoutes', () => {
         ...versionData,
         id: v1.id,
         createdAt: v1.createdAt.toISOString(),
+        dbSchema: 'raw',
         updatedAt: v1.updatedAt.toISOString(),
         deletedAt: null,
       });
@@ -383,6 +384,7 @@ describe('reportRoutes', () => {
               },
             ],
           },
+          dbSchema: 'raw',
           status: 'published',
           notes: 'Report doing absolutely nothing',
         });
@@ -397,19 +399,21 @@ describe('reportRoutes', () => {
     describe('verifyQuery', () => {
       it('should return true if query is valid', async () => {
         const query = 'select * from patients limit 1';
-        expect(verifyQuery(query, [], ctx.store)).resolves.not.toThrow();
+        expect(verifyQuery(query, { parameters: [] }, { store: ctx.store })).resolves.not.toThrow();
       });
       it('should return true if query is valid with paramDefinition', async () => {
         const query = 'select * from patients where id = :test limit 1';
         expect(
           verifyQuery(
             query,
-            [
-              {
-                name: 'test',
-              },
-            ],
-            ctx.store,
+            {
+              parameters: [
+                {
+                  name: 'test',
+                },
+              ],
+            },
+            { store: ctx.store },
           ),
         ).resolves.not.toThrow();
       });

@@ -52,14 +52,23 @@
     "password": "",
     "verbose": false,
     "migrateOnStartup": false,
-    "reportCredentials": {
-      "raw": {
-        "username": "",
-        "password": ""
-      },
-      "reporting": {
-        "username": "",
-        "password": ""
+    "reportSchemas": {
+      "enabled": false,
+      "connections": {
+        "raw": {
+          "pool": {
+            "max": 5
+          },
+          "username": "",
+          "password": ""
+        },
+        "reporting": {
+          "pool": {
+            "max": 5
+          },
+          "username": "",
+          "password": ""
+        }
       }
     }
   },

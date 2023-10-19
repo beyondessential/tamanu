@@ -2,7 +2,12 @@ import Sequelize from 'sequelize';
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import { verifyQuery } from './utils';
 
-export async function createReportDefinitionVersion(store, reportId, definition, userId) {
+export async function createReportDefinitionVersion(
+  { store, reports },
+  reportId,
+  definition,
+  userId,
+) {
   const {
     models: { ReportDefinition, ReportDefinitionVersion },
     sequelize,
@@ -11,8 +16,8 @@ export async function createReportDefinitionVersion(store, reportId, definition,
   if (definition.versionNumber) {
     throw new InvalidOperationError('Cannot create a report with a version number');
   }
-
-  await verifyQuery(definition.query, definition.queryOptions.parameters, store);
+  const { parameters } = definition.queryOptions;
+  await verifyQuery(definition.query, { parameters }, { reports, store }, definition.dbSchema);
   return sequelize.transaction(
     {
       // Prevents race condition when determining the next version number

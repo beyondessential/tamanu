@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useQuery } from '@tanstack/react-query';
 import { capitalize } from 'lodash';
 import * as yup from 'yup';
 import { Accordion, AccordionDetails, AccordionSummary, Grid } from '@material-ui/core';
@@ -25,6 +26,7 @@ import {
   FIELD_TYPES_WITH_SUGGESTERS,
 } from '../../reports/ParameterField';
 import { useAuth } from '../../../contexts/Auth';
+import { useApi } from '../../../api';
 
 const StyledField = styled(Field)`
   flex-grow: 1;
@@ -71,6 +73,10 @@ const schema = yup.object().shape({
     .string()
     .oneOf(DATE_RANGE_OPTIONS.map(o => o.value))
     .required('Default date range is a required field'),
+  dbSchema: yup
+    .string()
+    .nullable()
+    .oneOf([...DB_SCHEMA_OPTIONS.map(o => o.value), null]),
   parameters: yup.array().of(
     yup.object().shape({
       name: yup.string().required('Parameter name is a required field'),
@@ -101,6 +107,7 @@ const schema = yup.object().shape({
 
 const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) => {
   const { ability } = useAuth();
+  const api = useApi();
   const setQuery = query => setValues({ ...values, query });
   const params = values.parameters || [];
   const setParams = newParams => setValues({ ...values, parameters: newParams });
@@ -115,6 +122,10 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
 
   const canWriteRawReportUser = Boolean(ability?.can('write', 'ReportDbSchema'));
   const showDataSourceField = values.dbSchema === REPORT_DB_SCHEMAS.RAW;
+
+  const { data: schemaOptions } = useQuery(['dbSchemaOptions'], () =>
+    api.get(`admin/reports/dbSchemaOptions`),
+  );
 
   return (
     <>
@@ -137,13 +148,13 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
             options={DATE_RANGE_OPTIONS}
           />
         </Grid>
-        {canWriteRawReportUser && (
+        {canWriteRawReportUser && schemaOptions?.length > 0 && (
           <Grid item xs={4}>
             <StyledField
               label="DB schema"
               name="dbSchema"
               component={SelectField}
-              options={DB_SCHEMA_OPTIONS}
+              options={schemaOptions}
               disabled={isEdit}
               isClearable={false}
             />

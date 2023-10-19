@@ -16,14 +16,22 @@
       // "acquire": 60000,
       // "evict": 1000
     },
-    "reportCredentials": {
-      "raw": {
-        "username": "",
-        "password": ""
-      },
-      "reporting": {
-        "username": "",
-        "password": ""
+    "reportSchemas": {
+      "connections": {
+        "raw": {
+          "pool": {
+            "max": 5
+          },
+          "username": "",
+          "password": ""
+        },
+        "reporting": {
+          "pool": {
+            "max": 5
+          },
+          "username": "",
+          "password": ""
+        }
       }
     }
   },
@@ -37,8 +45,8 @@
   },
   "honeycomb": {
     "apiKey": "",
-    "sampleRate": 100,  // 100 = 1/100 = 1% of traces get sent to honeycomb
-                        // in contrast, logs are always sent
+    "sampleRate": 100, // 100 = 1/100 = 1% of traces get sent to honeycomb
+    // in contrast, logs are always sent
     "enabled": true,
     "level": "info"
   },
@@ -67,10 +75,7 @@
       // (defaults to shedding requests for sync or attachments earlier than other requests)
       {
         "name": "low_priority",
-        "prefixes": [
-          "/v1/sync",
-          "/v1/attachment"
-        ],
+        "prefixes": ["/v1/sync", "/v1/attachment"],
         "maxActiveRequests": 4,
         "maxQueuedRequests": 8,
         "queueTimeout": 7500
@@ -79,9 +84,7 @@
       // (defaults to queueing more requests than sync/attachments and them shedding much later)
       {
         "name": "high_priority",
-        "prefixes": [
-          "/"
-        ],
+        "prefixes": ["/"],
         "maxActiveRequests": 8,
         "maxQueuedRequests": 32,
         "queueTimeout": 7500
@@ -107,7 +110,7 @@
       "tokenExpiry": 20
     }
   },
-  "export": { 
+  "export": {
     "maxFileSizeInMB": 50
   },
   "mailgun": {
@@ -280,12 +283,8 @@
     // the labResultWidget and timeZone keys are here for legacy reasons
     // don't put anything else in the top level of localisation unless it relates to localisation itself
     "labResultWidget": {
-      "categoryWhitelist": [
-        "labTestCategory-COVID"
-      ],
-      "testTypeWhitelist": [
-        "labTestType-COVID"
-      ]
+      "categoryWhitelist": ["labTestCategory-COVID"],
+      "testTypeWhitelist": ["labTestType-COVID"]
     },
     "data": {
       // To do: review this section when implementing the patient charts feature
@@ -776,44 +775,58 @@
           "label": "STAT"
         }
       ],
-      "imagingCancellationReasons": [{
-        "value": "clinical",
-        "label": "Clinical reason"
-      },{
-        "value": "duplicate",
-        "label": "Duplicate"
-      },{
-        "value": "entered-in-error",
-        "label": "Entered in error"
-      },{
-        "value": "patient-discharged",
-        "label": "Patient discharged"
-      },{
-        "value": "patient-refused",
-        "label": "Patient refused"
-      },{
-        "value": "other",
-        "label": "Other"
-      }],
-      "labsCancellationReasons": [{
-        "value": "clinical",
-        "label": "Clinical reason"
-      },{
-        "value": "duplicate",
-        "label": "Duplicate"
-      },{
-        "value": "entered-in-error",
-        "label": "Entered in error"
-      },{
-        "value": "patient-discharged",
-        "label": "Patient discharged"
-      },{
-        "value": "patient-refused",
-        "label": "Patient refused"
-      },{
-        "value": "other",
-        "label": "Other"
-      }],
+      "imagingCancellationReasons": [
+        {
+          "value": "clinical",
+          "label": "Clinical reason"
+        },
+        {
+          "value": "duplicate",
+          "label": "Duplicate"
+        },
+        {
+          "value": "entered-in-error",
+          "label": "Entered in error"
+        },
+        {
+          "value": "patient-discharged",
+          "label": "Patient discharged"
+        },
+        {
+          "value": "patient-refused",
+          "label": "Patient refused"
+        },
+        {
+          "value": "other",
+          "label": "Other"
+        }
+      ],
+      "labsCancellationReasons": [
+        {
+          "value": "clinical",
+          "label": "Clinical reason"
+        },
+        {
+          "value": "duplicate",
+          "label": "Duplicate"
+        },
+        {
+          "value": "entered-in-error",
+          "label": "Entered in error"
+        },
+        {
+          "value": "patient-discharged",
+          "label": "Patient discharged"
+        },
+        {
+          "value": "patient-refused",
+          "label": "Patient refused"
+        },
+        {
+          "value": "other",
+          "label": "Other"
+        }
+      ],
       "printMeasures": {
         "labRequestPrintLabel": {
           "width": 50.8
@@ -889,7 +902,7 @@
           "value": "other",
           "label": "Other"
         }
-      ],      
+      ],
       "ageDisplayFormat": [
         {
           "as": "days",
@@ -986,9 +999,7 @@
     //
     // As of 29/08/2022 all our deployments are behind a local nginx proxy and so
     // this shouldn't need to be changed.
-    "trusted": [
-      "loopback"
-    ]
+    "trusted": ["loopback"]
   },
   "patientMerge": {
     // can be one of "RENAME", "DESTROY", or "NONE"

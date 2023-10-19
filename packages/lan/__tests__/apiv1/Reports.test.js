@@ -21,7 +21,7 @@ describe('Reports', () => {
 
   describe('database defined reports', () => {
     let adminApp = null;
-    let reportDefinition = null;
+    let reportDefinitionVersion = null;
     let user = null;
 
     beforeAll(async () => {
@@ -31,13 +31,14 @@ describe('Reports', () => {
         ...fake(models.User),
         email: 'test@tamanu.io',
       });
-      await models.ReportDefinition.create({
+      const definition = await models.ReportDefinition.create({
         ...fake(models.ReportDefinition),
         name: 'test-report',
         dbSchema: REPORT_DB_SCHEMAS.RAW,
       });
-      reportDefinition = await models.ReportDefinitionVersion.create({
+      reportDefinitionVersion = await models.ReportDefinitionVersion.create({
         versionNumber: 1,
+        reportDefinitionId: definition.id,
         status: 'published',
         userId: user.id,
         queryOptions: JSON.stringify({
@@ -50,14 +51,14 @@ describe('Reports', () => {
     });
 
     it('should run a simple database defined report', async () => {
-      const response = await adminApp.post(`/v1/reports/${reportDefinition.id}`);
+      const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`);
       expect(response).toHaveSucceeded();
       // There will be more than one user because of the app context
       expect(response.body.length).toBeGreaterThan(1);
     });
 
     it('should apply filters on a database defined report', async () => {
-      const response = await adminApp.post(`/v1/reports/${reportDefinition.id}`).send({
+      const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`).send({
         parameters: {
           email: user.email,
         },
@@ -81,7 +82,7 @@ describe('Reports', () => {
           defaultDateRange: 'allTime',
           parameters: [{ parameterField: 'DummyField', name: 'dummy' }],
         }),
-        query: 'SELECT id FROM facilities WHERE id = :currentFacilityId'
+        query: 'SELECT id FROM facilities WHERE id = :currentFacilityId',
       });
       const report = await def.dataGenerator(ctx, {});
       expect(report).toEqual([['id'], [facilityId]]);
