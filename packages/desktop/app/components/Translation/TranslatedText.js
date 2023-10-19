@@ -41,15 +41,11 @@ export const TranslatedText = ({ stringId, fallback, replacements }) => {
   const translation = getTranslation(stringId);
 
   useEffect(() => {
-    const getDebugMode = async () => {
-      setIsDebugMode(safeGetIsDebugMode());
-    };
+    const getDebugMode = async () => setIsDebugMode(safeGetIsDebugMode());
     getDebugMode();
 
     window.addEventListener('debugTranslation', getDebugMode);
-    return () => {
-      window.removeEventListener('debugTranslation', getDebugMode);
-    };
+    return () => window.removeEventListener('debugTranslation', getDebugMode);
   }, []);
 
   useEffect(() => {
