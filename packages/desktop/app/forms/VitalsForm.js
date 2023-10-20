@@ -56,6 +56,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
   const handleSubmit = data => {
     onSubmit({ survey: vitalsSurvey, ...data });
   };
+  const currentComponents = vitalsSurvey.components.filter(c => c.visibilityStatus === 'current');
 
   return (
     <Form
@@ -66,7 +67,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
       validationSchema={validationSchema}
       initialValues={{
         [VITALS_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTimeString(),
-        ...getFormInitialValues(vitalsSurvey.components, patient, patientAdditionalData),
+        ...getFormInitialValues(currentComponents, patient, patientAdditionalData),
       }}
       validate={({ [VITALS_DATA_ELEMENT_IDS.dateRecorded]: date, ...values }) => {
         const errors = {};
@@ -78,7 +79,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
       }}
       render={({ submitForm, values, setFieldValue }) => (
         <SurveyScreen
-          allComponents={vitalsSurvey.components}
+          allComponents={currentComponents}
           patient={patient}
           cols={2}
           values={values}
