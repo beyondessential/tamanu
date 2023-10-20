@@ -35,7 +35,6 @@ const replaceStringVariables = (templateString, replacements) => {
 
 export const TranslatedText = ({ stringId, fallback, replacements }) => {
   const [isDebugMode, setIsDebugMode] = useState(false);
-  const [displayElements, setDisplayElements] = useState(null);
 
   const { getTranslation } = useTranslation();
   const translation = getTranslation(stringId) || fallback;
@@ -48,15 +47,10 @@ export const TranslatedText = ({ stringId, fallback, replacements }) => {
     return () => window.removeEventListener('debugTranslation', getDebugMode);
   }, []);
 
-  useEffect(() => {
-    if (!replacements) {
-      setDisplayElements(translation);
-      return;
-    }
-    setDisplayElements(replaceStringVariables(translation, replacements));
-  }, [translation, replacements]);
-
   const TextWrapper = isDebugMode ? DebugHighlighed : React.Fragment;
+  const displayElements = replacements
+    ? replaceStringVariables(translation, replacements)
+    : translation;
 
   return <TextWrapper>{displayElements}</TextWrapper>;
 };
