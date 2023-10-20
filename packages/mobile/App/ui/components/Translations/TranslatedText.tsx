@@ -7,27 +7,31 @@ type TranslatedTextProps = {
 };
 
 // Duplicated from TranslatedText.js on desktop
-const replaceStringVariables = (templateString, replacements) => {
-    const jsxElements = templateString.split(/(:[a-zA-Z]+)/g).map((part, index) => {
-      // Even indexes are the unchanged parts of the string
-      if (index % 2 === 0) return part;
-      return replacements[part.slice(1)] || part;
-    });
-  
-    return jsxElements;
-  };
+const replaceStringVariables = (templateString: string, replacements: object) => {
+  const jsxElements = templateString.split(/(:[a-zA-Z]+)/g).map((part, index) => {
+    // Even indexes are the unchanged parts of the string
+    if (index % 2 === 0) return part;
+    return replacements[part.slice(1)] || part;
+  });
 
-export const TranslatedText = ({ stringId, fallback, replacements }: TranslatedTextProps): ReactElement => {
+  return jsxElements;
+};
+
+export const TranslatedText = ({
+  stringId,
+  fallback,
+  replacements,
+}: TranslatedTextProps): ReactElement => {
   const [displayElements, setDisplayElements] = useState(fallback);
   // Placeholder for fetching translation from context
-  const translation = 'My name is :name';
+  const translation = null;
 
   const stringToDisplay = translation || fallback;
 
   useEffect(() => {
     if (!replacements) {
-        setDisplayElements(stringToDisplay);
-        return;
+      setDisplayElements(stringToDisplay);
+      return;
     }
     setDisplayElements(replaceStringVariables(stringToDisplay, replacements));
   }, [translation]);
