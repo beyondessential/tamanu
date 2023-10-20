@@ -60,8 +60,8 @@ async function initReportStore(schemaName, credentials) {
 }
 
 export async function initReporting() {
-  const { credentials } = config.db.reportSchemas;
-  return Object.entries(credentials).reduce(
+  const { connections } = config.db.reportSchemas;
+  return Object.entries(connections).reduce(
     async (accPromise, [schemaName, { username, password }]) => {
       const instance = await initReportStore(schemaName, {
         username,
