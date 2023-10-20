@@ -18,7 +18,9 @@ survey.get(
       where: { surveyType: 'vitals' },
     });
     if (!surveyRecord) throw new NotFoundError();
-    const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyRecord.id);
+    const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyRecord.id, {
+      includeAllVitals: true,
+    });
     res.send({
       ...surveyRecord.forResponse(),
       components,
