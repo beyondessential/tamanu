@@ -83,8 +83,15 @@ export async function centralServerLogin(models, email, password, deviceId) {
 async function localLogin(models, email, password) {
   // some other error in communicating with sync server, revert to local login
   const user = await models.User.scope('withPassword').findOne({
-    where: { email, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    where: { email },
   });
+
+  if (user && user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+    throw new BadAuthenticationError(
+      'User account deactivated. Please contact your system administrator if assistance is required.',
+    );
+  }
+
   const passwordMatch = await comparePassword(user, password);
 
   if (!passwordMatch) {
