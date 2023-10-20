@@ -8,7 +8,7 @@ const mapDeletionStatus = deletionStatus => {
     case DELETION_STATUSES.REVOKED:
       return 'n';
     default:
-      return 'y';
+      return 'n';
   }
 };
 
