@@ -1,8 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { ForbiddenError, NotFoundError } from 'shared/errors';
-import { constructPermission } from 'shared/permissions/middleware';
+import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
+import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { createDataImporterEndpoint } from './importerEndpoint';
 
 import { programImporter } from './programImporter';
