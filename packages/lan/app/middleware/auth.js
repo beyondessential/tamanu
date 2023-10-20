@@ -182,7 +182,7 @@ async function getUserFromToken(request) {
     const { userId } = await decodeToken(token);
     const user = await models.User.findByPk(userId);
     if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
-      throw new Error(); // will be caught immediately
+      throw new Error('User is not visible to the system'); // will be caught immediately
     }
     return user;
   } catch (e) {

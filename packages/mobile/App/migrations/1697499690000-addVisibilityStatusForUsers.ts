@@ -18,6 +18,6 @@ export class addVisibilityStatusForUsers1697499690000 implements MigrationInterf
 
   async down(queryRunner: QueryRunner): Promise<void> {
     const tableObject = await getTable(queryRunner, 'user');
-    await queryRunner.dropColumn(tableObject, 'visibility_status');
+    await queryRunner.dropColumn(tableObject, 'visibilityStatus');
   }
 }
