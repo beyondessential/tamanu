@@ -34,7 +34,9 @@ export const useVitals = encounterId => {
     );
 
     vitalsRecords = surveyData.components
+      // Remove the date recorded element
       .filter(component => component.dataElementId !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
+      // Show current components or ones that have historical data in them
       .filter(
         component =>
           component.visibilityStatus === 'current' || elementIdToAnswer[component.dataElement.id],
