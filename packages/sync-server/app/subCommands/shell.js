@@ -4,7 +4,7 @@ import { join } from 'path';
 
 import { Command } from 'commander';
 
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 
 import { ApplicationContext } from '../ApplicationContext';
 import pkg from '../../package.json';

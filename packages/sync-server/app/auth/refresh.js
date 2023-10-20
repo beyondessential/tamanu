@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
-import { BadAuthenticationError } from 'shared/errors';
+import { BadAuthenticationError } from '@tamanu/shared/errors';
 
 import {
   getToken,

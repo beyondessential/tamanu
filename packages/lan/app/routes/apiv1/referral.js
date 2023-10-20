@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { simpleGet, simplePut, permissionCheckingRouter } from 'shared/utils/crudHelpers';
+import { simpleGet, simplePut, permissionCheckingRouter } from '@tamanu/shared/utils/crudHelpers';
 
 export const referral = express.Router();
 

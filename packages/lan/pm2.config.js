@@ -5,7 +5,7 @@ module.exports = {
       exec_mode: 'fork',
       instances: 1,
       cwd: '.', // IMPORTANT: Leave this as-is, for production build
-      script: './dist/app.bundle.js',
+      script: './dist/index.js',
       env: {
         NODE_ENV: 'production',
       },

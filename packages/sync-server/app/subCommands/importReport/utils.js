@@ -1,4 +1,4 @@
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 import { QueryTypes } from 'sequelize';
 import { getReportQueryReplacements } from '@tamanu/shared/utils/reports/getReportQueryReplacements';
 

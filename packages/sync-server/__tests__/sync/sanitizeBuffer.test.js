@@ -2,8 +2,8 @@ import { beforeAll, describe, it } from '@jest/globals';
 import * as fc from 'fast-check';
 import { Transaction } from 'sequelize';
 
-import { fake } from 'shared/test-helpers/fake';
-import { createSnapshotTable, findSyncSnapshotRecords, SYNC_SESSION_DIRECTION } from 'shared/sync';
+import { fake } from '@tamanu/shared/test-helpers/fake';
+import { createSnapshotTable, findSyncSnapshotRecords, SYNC_SESSION_DIRECTION } from '@tamanu/shared/sync';
 
 import { createTestContext } from '../utilities';
 import { snapshotOutgoingChanges } from '../../app/sync/snapshotOutgoingChanges';
