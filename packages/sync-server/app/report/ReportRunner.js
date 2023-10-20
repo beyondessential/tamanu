@@ -6,8 +6,8 @@ import * as AWS from '@aws-sdk/client-s3';
 import mkdirp from 'mkdirp';
 
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
-import { getReportModule } from 'shared/reports';
-import { createNamedLogger } from 'shared/services/logging/createNamedLogger';
+import { getReportModule } from '@tamanu/shared/reports';
+import { createNamedLogger } from '@tamanu/shared/services/logging/createNamedLogger';
 
 import { removeFile, createZippedSpreadsheet, writeToSpreadsheet } from '../utils/files';
 import { getLocalisation } from '../localisation';

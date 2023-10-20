@@ -3,8 +3,8 @@ import { Op, Transaction } from 'sequelize';
 import _config from 'config';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
-import { log } from 'shared/services/logging';
+import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
+import { log } from '@tamanu/shared/services/logging';
 import {
   createSnapshotTable,
   insertSnapshotRecords,
@@ -19,8 +19,8 @@ import {
   waitForPendingEditsUsingSyncTick,
   getSyncTicksOfPendingEdits,
   SYNC_SESSION_DIRECTION,
-} from 'shared/sync';
-import { uuidToFairlyUniqueInteger } from 'shared/utils';
+} from '@tamanu/shared/sync';
+import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 
 import { getPatientLinkedModels } from './getPatientLinkedModels';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';

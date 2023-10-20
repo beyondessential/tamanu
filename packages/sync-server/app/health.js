@@ -3,8 +3,8 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 import { isObject } from 'lodash';
 
-import { log } from 'shared/services/logging';
-import { createMigrationInterface } from 'shared/services/migrations';
+import { log } from '@tamanu/shared/services/logging';
+import { createMigrationInterface } from '@tamanu/shared/services/migrations';
 
 import { version } from './serverInfo';
 import { canUploadAttachment } from './utils/getFreeDiskSpace';

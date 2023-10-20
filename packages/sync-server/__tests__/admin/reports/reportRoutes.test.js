@@ -1,5 +1,5 @@
 import path from 'path';
-import { User } from 'shared/models/User';
+import { User } from '@tamanu/shared/models/User';
 import { REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
 import { createTestContext, withDate } from '../../utilities';
 import { readJSON, sanitizeFilename, verifyQuery } from '../../../app/admin/reports/utils';

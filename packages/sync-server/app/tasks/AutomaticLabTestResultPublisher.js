@@ -1,8 +1,8 @@
 import config from 'config';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 
-import { ScheduledTask } from 'shared/tasks';
-import { log } from 'shared/services/logging';
+import { ScheduledTask } from '@tamanu/shared/tasks';
+import { log } from '@tamanu/shared/services/logging';
 
 export class AutomaticLabTestResultPublisher extends ScheduledTask {
   getName() {
