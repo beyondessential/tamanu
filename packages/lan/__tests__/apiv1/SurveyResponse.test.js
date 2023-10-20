@@ -1,5 +1,5 @@
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { fake } from 'shared/test-helpers/fake';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 
 describe('SurveyResponse', () => {

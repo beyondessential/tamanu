@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { v4 as uuid } from 'uuid';
 import config from 'config';
 
-import { getPermissions } from 'shared/permissions/middleware';
+import { getPermissions } from '@tamanu/shared/permissions/middleware';
 
 import { convertFromDbRecord } from '../convertDbRecord';
 import { changePassword } from './changePassword';

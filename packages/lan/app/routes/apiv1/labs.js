@@ -14,8 +14,12 @@ import {
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { keyBy } from 'lodash';
-import { renameObjectKeys } from 'shared/utils';
-import { simpleGet, simpleGetList, permissionCheckingRouter } from 'shared/utils/crudHelpers';
+import { renameObjectKeys } from '@tamanu/shared/utils';
+import {
+  simpleGet,
+  simpleGetList,
+  permissionCheckingRouter,
+} from '@tamanu/shared/utils/crudHelpers';
 import {
   makeFilter,
   makeSimpleTextFilterFactory,

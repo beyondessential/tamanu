@@ -1,7 +1,7 @@
 import { createTestContext } from './utilities';
-import { fake } from 'shared/test-helpers';
+import { fake } from '@tamanu/shared/test-helpers';
 import { AuditLogItem } from '../app/middleware/auditLog';
-import { createDummyPatient } from 'shared/demoData/patients';
+import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 
 describe('Audit log', () => {
   let ctx = null;
