@@ -476,7 +476,7 @@ describe('Import from an exported file', () => {
     await createDiagnosis(models);
     await createAllergy(models);
     const fileName = await exporter(
-      models,
+      { models },
       {
         1: 'patient',
         2: REFERENCE_TYPES.ALLERGY,

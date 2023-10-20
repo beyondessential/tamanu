@@ -34,10 +34,13 @@ const StyledIconButton = styled(IconButton)`
 `;
 
 const validationSchema = yup.lazy(({ search, ...values }) => {
-  const baseSchema = Object.values(LANGUAGE_CODES).reduce((schema, code) => ({
-    ...schema,
-    [code]: yup.string().nullable(),
-  }));
+  const baseSchema = Object.values(LANGUAGE_CODES).reduce(
+    (schema, code) => ({
+      ...schema,
+      [code]: yup.string().nullable(),
+    }),
+    {},
+  );
   const newEntrySchema = {
     stringId: yup
       .string()
@@ -140,15 +143,6 @@ export const FormContents = ({
     [additionalRows, setAdditionalRows, setFieldValue],
   );
 
-  const tableRows = useMemo(
-    () =>
-      [...data, ...additionalRows].filter(
-        row =>
-          row.placeholderId || row.stringId.split('.').some(part => part.startsWith(values.search)),
-      ),
-    [data, additionalRows, values.search],
-  );
-
   const columns = useMemo(
     () => [
       {
@@ -186,6 +180,15 @@ export const FormContents = ({
       })),
     ],
     [handleAddColumn, handleRemoveColumn],
+  );
+
+  const tableRows = useMemo(
+    () =>
+      [...data, ...additionalRows].filter(
+        row =>
+          row.placeholderId || row.stringId.split('.').some(part => part.startsWith(values.search)),
+      ),
+    [data, additionalRows, values.search],
   );
 
   return (
