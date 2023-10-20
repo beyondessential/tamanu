@@ -117,6 +117,7 @@ const updateClinician = async (
     submittedTime,
     user,
   ];
+
   return newNoteSchema ? addSystemNote(...args) : addLegacySystemNote(...args);
 };
 
@@ -136,6 +137,7 @@ const onEncounterProgression = async (
     submittedTime,
     user,
   ];
+
   return newNoteSchema ? addSystemNote(...args) : addLegacySystemNote(...args);
 };
 
@@ -211,6 +213,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
     });
     await models.LegacyNoteItem.truncate({ cascade: true, force: true });
     await models.LegacyNotePage.truncate({ cascade: true, force: true });
+    await models.Note.truncate({ cascade: true, force: true });
     await models.User.destroy({
       cascade: true,
       force: true,
@@ -3347,6 +3350,10 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
   });
 
   describe('with new note schema', () => {
+    beforeEach(async () => {
+      await clearTestData();
+    });
+
     it('migrates Notes to EncounterHistory properly with single change', async () => {
       const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
       const oldLocation = await createLocation('oldLocation');
@@ -3367,6 +3374,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         oldLocation.id,
         newLocation.id,
         locationChangeNoteDate,
+        null,
         true,
       );
       encounter.locationId = newLocation.id;
@@ -3429,6 +3437,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         oldLocation.id,
         newLocation.id,
         getDateSubtractedFromNow(6),
+        null,
         true, // new note schema
       );
       encounter.locationId = newLocation.id;
@@ -3441,6 +3450,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         oldDepartment.id,
         newDepartment.id,
         getDateSubtractedFromNow(5),
+        null,
         true, // new note schema
       );
       encounter.departmentId = newDepartment.id;
@@ -3453,6 +3463,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         oldUser.id,
         newUser.id,
         getDateSubtractedFromNow(4),
+        null,
         true, // new note schema
       );
       encounter.examinerId = newUser.id;
@@ -3465,6 +3476,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         oldEncounterType,
         newEncounterType,
         getDateSubtractedFromNow(3),
+        null,
         true, // new note schema
       );
       encounter.encounterType = newEncounterType;
