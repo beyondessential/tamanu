@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
 
 type TranslatedTextProps = {
   stringId: string;
@@ -22,7 +22,7 @@ export const TranslatedText = ({
   fallback,
   replacements,
 }: TranslatedTextProps): ReactElement => {
-  const [displayElements, setDisplayElements] = useState(fallback);
+  const [displayElements, setDisplayElements] = useState<ReactNode>(fallback);
   // Placeholder for fetching translation from context
   const translation = null;
 
