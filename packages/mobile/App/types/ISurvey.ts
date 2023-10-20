@@ -41,7 +41,9 @@ export type SurveyScreenConfig = {
   source?: string;
   scope?: string;
   writeToPatient?: {
-    fieldType: string;
+    fieldType: DataElementType;
+    fieldName: string;
+    isAdditionalDataField?: boolean;
   };
 };
 

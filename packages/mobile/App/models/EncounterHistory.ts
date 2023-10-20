@@ -58,8 +58,8 @@ export class EncounterHistory extends BaseModel {
   @Column({ type: 'varchar', nullable: false })
   encounterType: EncounterType;
 
-  @Column({ type: 'varchar' })
-  changeType: EncounterChangeType;
+  @Column({ type: 'varchar', nullable: true })
+  changeType?: EncounterChangeType;
 
   static async createSnapshot(encounter) {
     return EncounterHistory.createAndSaveOne({

@@ -162,6 +162,7 @@ export const fakeProgram = (): IProgram => {
 
 type FakeOptions = {
   relations?: string[];
+  fields?: object;
 };
 
 const fakeDate = () => new Date(random(0, Date.now()));
@@ -180,7 +181,7 @@ const FIELD_HANDLERS = {
 };
 
 // uses model metadata to generate a fake
-export const fake = (model: typeof BaseModel, { relations = [] }: FakeOptions = {}) => {
+export const fake = (model: typeof BaseModel, { relations = [], fields }: FakeOptions = {}) => {
   const { metadata } = model.getRepository();
 
   const record: any = {};
@@ -200,6 +201,7 @@ export const fake = (model: typeof BaseModel, { relations = [] }: FakeOptions = 
       throw new Error(`Could not fake field ${model.name}.${column.propertyName} of type ${typeId}`);
     }
   }
+  Object.assign(record, fields);
 
   // assign chosen relations
   const rootRelationNames = relations.filter(rn => !rn.includes('.')); // e.g. ['surveyResponse', 'administeredVaccines']

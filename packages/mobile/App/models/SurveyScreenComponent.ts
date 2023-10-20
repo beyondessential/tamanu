@@ -3,7 +3,7 @@ import { BaseModel } from './BaseModel';
 
 import { Survey } from './Survey';
 import { ProgramDataElement } from './ProgramDataElement';
-import { ISurveyScreenComponent, SurveyScreenValidationCriteria } from '~/types';
+import { ISurveyScreenComponent, SurveyScreenValidationCriteria, SurveyScreenConfig } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';
 
@@ -72,7 +72,7 @@ export class SurveyScreenComponent extends BaseModel implements ISurveyScreenCom
     }
   }
 
-  getConfigObject(): object {
+  getConfigObject(): SurveyScreenConfig {
     if (!this.config) return {};
 
     try {
@@ -80,7 +80,7 @@ export class SurveyScreenComponent extends BaseModel implements ISurveyScreenCom
       if (typeof parsed !== 'object') {
         throw new Error("string wasn't a JSON object");
       }
-      return parsed;
+      return parsed as SurveyScreenConfig; // trust JSON was validated on import
     } catch (e) {
       // eslint-disable-next-line no-console
       console.warn(`Invalid config in survey screen component ${this.id}`);

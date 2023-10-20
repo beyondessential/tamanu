@@ -1,6 +1,8 @@
 import { Entity, Column, ManyToOne, OneToMany, RelationId } from 'typeorm/browser';
 
-import { ISurveyResponse, EncounterType, ICreateSurveyResponse } from '~/types';
+import { ISurveyResponse, ICreateSurveyResponse } from '~/types/ISurveyResponse';
+import { SurveyScreenConfig } from '~/types/ISurvey';
+import { EncounterType } from '~/types/IEncounter';
 
 import { getStringValue, getResultValue, isCalculated, FieldTypes } from '~/ui/helpers/fields';
 
@@ -90,7 +92,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     surveyData: ICreateSurveyResponse,
     values: object,
     setNote: (note: string) => void = () => null,
-  ): Promise<SurveyResponse> {
+  ): Promise<SurveyResponse | null> {
     const { surveyId, encounterReason, components, ...otherData } = surveyData;
 
     try {
@@ -125,8 +127,8 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       const patientAdditionalDataValues = {};
 
       // TODO: this should just look at the field name and decide; there will never be overlap
-      const isAdditionalDataField = questionConfig =>
-        questionConfig.writeToPatient?.isAdditionalDataField;
+      const isAdditionalDataField = (questionConfig: SurveyScreenConfig) =>
+        Boolean(questionConfig.writeToPatient?.isAdditionalDataField);
 
       // figure out if its a vital survey response
       let vitalsSurvey;
@@ -168,9 +170,8 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
           }
         }
 
-        const body = getStringValue(dataElement.type, value);
-
         setNote(`Attaching answer for ${dataElement.id}...`);
+        const body = getStringValue(dataElement.type, value);
         const answerRecord = await SurveyResponseAnswer.createAndSaveOne({
           dataElement: dataElement.id,
           body,
@@ -198,7 +199,9 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
       return responseRecord;
     } catch (e) {
-      setNote(`Error: ${e.message} (${JSON.stringify(e)})`);
+      const msg = `Error: ${e.message} (${JSON.stringify(e)})`;
+      console.error(msg);
+      setNote(msg);
 
       return null;
     }
