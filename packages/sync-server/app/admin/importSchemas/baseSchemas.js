@@ -162,12 +162,7 @@ const graphRangeArraySchema = yup
     name: 'is-range-by-age-valid',
     message: 'Age ranges overlap or have gaps',
     test: value => {
-      const areOverlapping = value.some((a, aIndex) => {
-        return value.some((b, bIndex) => {
-          if (aIndex >= bIndex) return false;
-          return doAgeRangesOverlap(a, b);
-        });
-      });
+      const areOverlapping = doAgeRangesOverlap(value);
       const haveGaps = doAgeRangesHaveGaps(value);
       return areOverlapping === false && haveGaps === false;
     },

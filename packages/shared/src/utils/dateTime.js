@@ -170,19 +170,26 @@ export function doAgeRangesHaveGaps(rangesArray) {
   });
 }
 
-export function doAgeRangesOverlap(rangeA, rangeB) {
-  // Get both values into same time unit
-  const aInMinutes = getAgeRangeInMinutes(rangeA);
-  const bInMinutes = getAgeRangeInMinutes(rangeB);
+export function doAgeRangesOverlap(rangesArray) {
+  return rangesArray.some((rangeA, aIndex) => {
+    return rangesArray.some((rangeB, bIndex) => {
+      // Only compare once between two ranges
+      if (aIndex >= bIndex) return false;
 
-  // Figure out the lowest min range
-  const lowestMin = aInMinutes.ageMin < bInMinutes.ageMin ? aInMinutes : bInMinutes;
-  const highestMin = aInMinutes.ageMin < bInMinutes.ageMin ? bInMinutes : aInMinutes;
-  const lowestAgeMax = lowestMin.ageMax;
-  const highestAgeMin = highestMin.ageMin;
+      // Get both values into same time unit
+      const aInMinutes = getAgeRangeInMinutes(rangeA);
+      const bInMinutes = getAgeRangeInMinutes(rangeB);
 
-  // Min inclusive - max exclusive: only overlaps if its less than
-  return highestAgeMin < lowestAgeMax;
+      // Figure out the lowest min range
+      const lowestMin = aInMinutes.ageMin < bInMinutes.ageMin ? aInMinutes : bInMinutes;
+      const highestMin = aInMinutes.ageMin < bInMinutes.ageMin ? bInMinutes : aInMinutes;
+      const lowestAgeMax = lowestMin.ageMax;
+      const highestAgeMin = highestMin.ageMin;
+
+      // Min inclusive - max exclusive: only overlaps if its less than
+      return highestAgeMin < lowestAgeMax;
+    });
+  });
 }
 
 /*

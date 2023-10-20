@@ -37,7 +37,7 @@ describe('doAgeRangesOverlap', () => {
       { ageMin: 20, ageMax: 30, ageUnit: 'years' },
       { ageMin: 25, ageMax: 35, ageUnit: 'years' },
     ];
-    expect(doAgeRangesOverlap(ranges[0], ranges[1])).toBe(true);
+    expect(doAgeRangesOverlap(ranges)).toBe(true);
   });
 
   it('should return true if ranges match', () => {
@@ -45,7 +45,7 @@ describe('doAgeRangesOverlap', () => {
       { ageMin: 20, ageMax: 30, ageUnit: 'years' },
       { ageMin: 20, ageMax: 30, ageUnit: 'years' },
     ];
-    expect(doAgeRangesOverlap(ranges[0], ranges[1])).toBe(true);
+    expect(doAgeRangesOverlap(ranges)).toBe(true);
   });
 
   it('should return false if ranges do not overlap', () => {
@@ -53,6 +53,6 @@ describe('doAgeRangesOverlap', () => {
       { ageMin: 20, ageMax: 30, ageUnit: 'years' },
       { ageMin: 30, ageMax: 35, ageUnit: 'years' },
     ];
-    expect(doAgeRangesOverlap(ranges[0], ranges[1])).toBe(false);
+    expect(doAgeRangesOverlap(ranges)).toBe(false);
   });
 });
