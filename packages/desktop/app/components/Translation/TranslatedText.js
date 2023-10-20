@@ -35,10 +35,10 @@ const replaceStringVariables = (templateString, replacements) => {
 
 export const TranslatedText = ({ stringId, fallback, replacements }) => {
   const [isDebugMode, setIsDebugMode] = useState(false);
-  const [displayElements, setDisplayElements] = useState(fallback);
+  const [displayElements, setDisplayElements] = useState(null);
 
   const { getTranslation } = useTranslation();
-  const translation = getTranslation(stringId);
+  const translation = getTranslation(stringId) || fallback;
 
   useEffect(() => {
     const getDebugMode = async () => setIsDebugMode(safeGetIsDebugMode());
@@ -49,7 +49,6 @@ export const TranslatedText = ({ stringId, fallback, replacements }) => {
   }, []);
 
   useEffect(() => {
-    if (!translation) return;
     if (!replacements) {
       setDisplayElements(translation);
       return;
