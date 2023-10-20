@@ -36,6 +36,7 @@ describe('doAgeRangesOverlap', () => {
     const ranges = [
       { ageMin: 20, ageMax: 30, ageUnit: 'years' },
       { ageMin: 25, ageMax: 35, ageUnit: 'years' },
+      { ageMin: 35, ageMax: 40, ageUnit: 'years' },
     ];
     expect(doAgeRangesOverlap(ranges)).toBe(true);
   });
@@ -44,6 +45,7 @@ describe('doAgeRangesOverlap', () => {
     const ranges = [
       { ageMin: 20, ageMax: 30, ageUnit: 'years' },
       { ageMin: 20, ageMax: 30, ageUnit: 'years' },
+      { ageMin: 30, ageMax: 40, ageUnit: 'years' },
     ];
     expect(doAgeRangesOverlap(ranges)).toBe(true);
   });
@@ -52,6 +54,7 @@ describe('doAgeRangesOverlap', () => {
     const ranges = [
       { ageMin: 20, ageMax: 30, ageUnit: 'years' },
       { ageMin: 30, ageMax: 35, ageUnit: 'years' },
+      { ageMin: 35, ageMax: 40, ageUnit: 'years' },
     ];
     expect(doAgeRangesOverlap(ranges)).toBe(false);
   });
