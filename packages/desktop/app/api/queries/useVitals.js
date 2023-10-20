@@ -35,6 +35,10 @@ export const useVitals = encounterId => {
 
     vitalsRecords = surveyData.components
       .filter(component => component.dataElementId !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
+      .filter(
+        component =>
+          component.visibilityStatus === 'current' || elementIdToAnswer[component.dataElement.id],
+      )
       .map(component => {
         const { id, config, validationCriteria, dataElement } = component;
         const { records = {} } = elementIdToAnswer[dataElement.id] || {};
@@ -62,6 +66,8 @@ export const useVitals = encounterId => {
         );
       });
   }
+
+  console.log(vitalsRecords);
 
   return {
     ...vitalsQuery,
