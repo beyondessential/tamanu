@@ -1,7 +1,7 @@
 import config from 'config';
 
-import { fakeUUID } from 'shared/utils/generateId';
-import { initDatabase as sharedInitDatabase } from 'shared/services/database';
+import { fakeUUID } from '@tamanu/shared/utils/generateId';
+import { initDatabase as sharedInitDatabase } from '@tamanu/shared/services/database';
 
 let existingConnection = null;
 

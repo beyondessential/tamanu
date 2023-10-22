@@ -5,9 +5,9 @@ import config from 'config';
 import { v4 as uuid } from 'uuid';
 import { promisify } from 'util';
 
-import { BadAuthenticationError } from 'shared/errors';
-import { log } from 'shared/services/logging';
-import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
+import { BadAuthenticationError } from '@tamanu/shared/errors';
+import { log } from '@tamanu/shared/services/logging';
+import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 
 import { CentralServerConnection } from '../sync';
 
