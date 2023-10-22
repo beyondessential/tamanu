@@ -230,7 +230,7 @@ export async function importSurveyResponses(workbook, { errors, log, models }) {
 
       let dateSubmittedString;
       if (dateSubmitted) {
-        dateSubmittedString = toDateString(getJsDateFromExcel(dateSubmitted)); // throws error if invalid
+        dateSubmittedString = toDateTimeString(getJsDateFromExcel(dateSubmitted)); // throws error if invalid
       }
 
       const [patient, examiner, user, department, location] = await Promise.all([
