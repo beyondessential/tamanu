@@ -1,12 +1,12 @@
-import { buildAbilityForTests } from 'shared/permissions/buildAbility';
+import { buildAbilityForTests } from '@tamanu/shared/permissions/buildAbility';
 import {
   getPermissionsForRoles,
   queryPermissionsForRoles,
   getAbilityForUser,
-} from 'shared/permissions/rolesToPermissions';
-import { permissionCache } from 'shared/permissions/cache';
+} from '@tamanu/shared/permissions/rolesToPermissions';
+import { permissionCache } from '@tamanu/shared/permissions/cache';
 import { DELETION_STATUSES } from '@tamanu/constants/importable';
-import { fake } from 'shared/test-helpers/fake';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 
 async function getAbilityForRoles(models, roleString) {

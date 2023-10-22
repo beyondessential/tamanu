@@ -3,13 +3,13 @@ import {
   createDummyPatient,
   randomReferenceId,
   randomReferenceData,
-} from 'shared/demoData/patients';
-import { randomLabRequest, randomDate } from 'shared/demoData';
+} from '@tamanu/shared/demoData/patients';
+import { randomLabRequest, randomDate } from '@tamanu/shared/demoData';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { Chance } from 'chance';
-import { fake } from 'shared/test-helpers/fake';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { fake } from '@tamanu/shared/test-helpers/fake';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 const chance = new Chance();

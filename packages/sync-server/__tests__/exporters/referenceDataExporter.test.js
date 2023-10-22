@@ -1,6 +1,6 @@
 import { REFERENCE_TYPES, DELETION_STATUSES } from '@tamanu/constants';
-import { createDummyPatient } from 'shared/demoData/patients';
-import { parseDate } from 'shared/utils/dateTime';
+import { createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { parseDate } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { exporter } from '../../app/admin/exporter';
 import { writeExcelFile } from '../../app/admin/exporter/excelUtils';

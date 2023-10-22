@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import { VISIBILITY_STATUSES, DELETION_STATUSES } from '@tamanu/constants';
 
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 import { initDatabase } from '../../database';
 
 const fromSurveyScreenComponent = async () => {

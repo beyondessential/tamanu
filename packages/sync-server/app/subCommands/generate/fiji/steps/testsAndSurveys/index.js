@@ -1,6 +1,6 @@
 import { addDays, addHours } from 'date-fns';
 
-import { parseDate } from 'shared/utils/dateTime';
+import { parseDate } from '@tamanu/shared/utils/dateTime';
 import { chance } from '../../../chance';
 import { insertEncounter } from '../../insertEncounter';
 import { insertSurveyResponse } from './insertSurveyResponse';
