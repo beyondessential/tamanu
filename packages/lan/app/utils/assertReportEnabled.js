@@ -1,4 +1,4 @@
-import { ForbiddenError } from 'shared/errors';
+import { ForbiddenError } from '@tamanu/shared/errors';
 
 export const isReportEnabled = (localisation, reportId) => {
   const disabledReports = localisation?.disabledReports || [];

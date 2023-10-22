@@ -7,9 +7,9 @@ import {
   COVID_19_CLEARANCE_CERTIFICATE,
   CERTIFICATE_NOTIFICATION_STATUSES,
 } from '@tamanu/constants';
-import { log } from 'shared/services/logging';
-import { ScheduledTask } from 'shared/tasks';
-import { getPatientSurveyResponseAnswer } from 'shared/utils';
+import { log } from '@tamanu/shared/services/logging';
+import { ScheduledTask } from '@tamanu/shared/tasks';
+import { getPatientSurveyResponseAnswer } from '@tamanu/shared/utils';
 
 export class LabRequestNotificationGenerator extends ScheduledTask {
   constructor(context) {

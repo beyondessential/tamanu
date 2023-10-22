@@ -3,8 +3,8 @@ import { format } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
 import { get } from 'lodash';
 
-import { ScheduledTask } from 'shared/tasks';
-import { log } from 'shared/services/logging';
+import { ScheduledTask } from '@tamanu/shared/tasks';
+import { log } from '@tamanu/shared/services/logging';
 
 import { getLocalisation } from '../localisation';
 
