@@ -1,4 +1,4 @@
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 
 export function statkey(model, sheetName) {
   return model === 'ReferenceData' ? `${model}/${sheetName}` : model;

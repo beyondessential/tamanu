@@ -1,4 +1,4 @@
-import { fake } from 'shared/test-helpers';
+import { fake } from '@tamanu/shared/test-helpers';
 import { chance } from '../../chance';
 
 export default {
