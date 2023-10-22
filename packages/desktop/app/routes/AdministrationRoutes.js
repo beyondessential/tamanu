@@ -8,6 +8,7 @@ import {
   PatientMergeView,
   PermissionsAdminView,
   ProgramsAdminView,
+  SurveyResponsesAdminView,
   ReferenceDataAdminView,
   SyncView,
   TemplateView,
@@ -19,6 +20,7 @@ export const AdministrationRoutes = React.memo(({ match }) => (
     <Route path={`${match.path}/referenceData`} component={ReferenceDataAdminView} />
     <Route path={`${match.path}/permissions`} component={PermissionsAdminView} />
     <Route path={`${match.path}/programs`} component={ProgramsAdminView} />
+    <Route path={`${match.path}/surveyResponses`} component={SurveyResponsesAdminView} />
     <Route path={`${match.path}/assets`} component={AssetUploaderView} />
     <Route path={`${match.path}/patientMerge`} component={PatientMergeView} />
     <Route path={`${match.path}/sync`} component={SyncView} />

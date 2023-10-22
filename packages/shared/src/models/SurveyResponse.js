@@ -124,7 +124,13 @@ export class SurveyResponse extends Model {
     return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
   }
 
-  static async getSurveyEncounter({ encounterId, patientId, reasonForEncounter, ...responseData }) {
+  static async getSurveyEncounter({
+    encounterId,
+    patientId,
+    createNewEncounter,
+    reasonForEncounter,
+    ...responseData
+  }) {
     if (!this.sequelize.isInsideTransaction()) {
       throw new Error('SurveyResponse.getSurveyEncounter must always run inside a transaction!');
     }
@@ -141,19 +147,20 @@ export class SurveyResponse extends Model {
       );
     }
 
-    // find open encounter
-    const openEncounter = await Encounter.findOne({
-      where: {
-        patientId,
-        endDate: null,
-      },
-    });
-
-    if (openEncounter) {
-      return openEncounter;
+    if (!createNewEncounter) {
+      // find open encounter
+      const openEncounter = await Encounter.findOne({
+        where: {
+          patientId,
+          endDate: null,
+        },
+      });
+      if (openEncounter) {
+        return openEncounter;
+      }
     }
 
-    const { departmentId, userId, locationId } = responseData;
+    const { departmentId, examinerId, userId, locationId } = responseData;
 
     // need to create a new encounter with examiner set as the user who submitted the survey.
     const newEncounter = await Encounter.create({
@@ -161,7 +168,7 @@ export class SurveyResponse extends Model {
       encounterType: 'surveyResponse',
       reasonForEncounter,
       departmentId,
-      examinerId: userId,
+      examinerId: examinerId || userId,
       locationId,
       // Survey responses will usually have a startTime and endTime and we prefer to use that
       // for the encounter to ensure the times are set in the browser timezone
@@ -183,7 +190,15 @@ export class SurveyResponse extends Model {
       throw new Error('SurveyResponse.createWithAnswers must always run inside a transaction!');
     }
     const { models } = this.sequelize;
-    const { answers, actions = {}, surveyId, patientId, encounterId, ...responseData } = data;
+    const {
+      answers,
+      actions = {},
+      surveyId,
+      patientId,
+      encounterId,
+      createNewEncounter,
+      ...responseData
+    } = data;
 
     // ensure survey exists
     const survey = await models.Survey.findByPk(surveyId);
@@ -207,6 +222,7 @@ export class SurveyResponse extends Model {
     const encounter = await this.getSurveyEncounter({
       encounterId,
       patientId,
+      createNewEncounter,
       reasonForEncounter: `Survey response for ${survey.name}`,
       ...responseData,
     });
