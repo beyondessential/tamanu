@@ -1,10 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import * as reportUtils from 'shared/reports';
-import { checkReportModulePermissions } from 'shared/reports/utilities/checkReportModulePermissions';
-import { createNamedLogger } from 'shared/services/logging/createNamedLogger';
-import { getAvailableReports } from 'shared/reports/utilities/getAvailableReports';
-import { NotFoundError } from 'shared/errors';
+import * as reportUtils from '@tamanu/shared/reports';
+import { checkReportModulePermissions } from '@tamanu/shared/reports/utilities/checkReportModulePermissions';
+import { createNamedLogger } from '@tamanu/shared/services/logging/createNamedLogger';
+import { getAvailableReports } from '@tamanu/shared/reports/utilities/getAvailableReports';
+import { NotFoundError } from '@tamanu/shared/errors';
 import { assertReportEnabled } from '../../utils/assertReportEnabled';
 
 const FACILITY_REPORT_LOG_NAME = 'FacilityReport';

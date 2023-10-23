@@ -3,10 +3,10 @@ import {
   getSnapshotTableName,
   SYNC_SESSION_DIRECTION,
   COLUMNS_EXCLUDED_FROM_SYNC,
-} from 'shared/sync';
+} from '@tamanu/shared/sync';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { log } from 'shared/services/logging/log';
-import { withConfig } from 'shared/utils/withConfig';
+import { log } from '@tamanu/shared/services/logging/log';
+import { withConfig } from '@tamanu/shared/utils/withConfig';
 
 const snapshotChangesForModel = async (
   model,
