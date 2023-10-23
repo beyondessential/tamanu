@@ -1,4 +1,4 @@
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES, REGISTRATION_STATUSES } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 
@@ -58,6 +58,72 @@ describe('ProgramRegistry', () => {
 
       const { body } = result;
       expect(body.count).toEqual(2);
+      expect(body.data.length).toEqual(2);
+    });
+  });
+
+  describe('Listing registrations (GET /v1/programRegistry/:id/registrations)', () => {
+    it('should list available program registries', async () => {
+      const { id: programRegistryId } = await models.ProgramRegistry.create(
+        fake(models.ProgramRegistry, { programId: testProgram.id }),
+      );
+      const programRegistryClinicalStatus = await models.ProgramRegistryClinicalStatus.create(
+        fake(models.ProgramRegistryClinicalStatus, {
+          programRegistryId,
+          name: 'aa',
+        }),
+      );
+
+      const clinician = await models.User.create(fake(models.User, { displayName: 'Lucy' }));
+
+      const baseRegistrationData = {
+        programRegistryId,
+        registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+        date: '2023-09-04 08:00:00',
+      };
+
+      // Patient 1: Should pull all required data
+      await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          ...baseRegistrationData,
+          patientId: (await models.Patient.create(fake(models.Patient, { displayId: '1' }))).id,
+          clinicianId: clinician.id,
+          clinicalStatusId: programRegistryClinicalStatus.id,
+          registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+        }),
+      );
+
+      // Patient 2: Should show most recent registration only
+      const patient2 = await models.Patient.create(fake(models.Patient, { displayId: '2' }));
+      await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          ...baseRegistrationData,
+          patientId: patient2.id,
+          date: '2023-09-04 08:00:00',
+        }),
+      );
+      await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          ...baseRegistrationData,
+          patientId: patient2.id,
+          date: '2023-09-05 08:00:00',
+        }),
+      );
+
+      // Patient 3: Should be filtered out (registrationStatus = removed)
+      await models.PatientProgramRegistration.create(
+        fake(models.PatientProgramRegistration, {
+          ...baseRegistrationData,
+          patientId: (await models.Patient.create(fake(models.Patient, { displayId: '3' }))).id,
+          registrationStatus: REGISTRATION_STATUSES.REMOVED,
+        }),
+      );
+
+      const result = await app.get(`/v1/programRegistry/${programRegistryId}/registrations`);
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body.data).toEqual(2);
       expect(body.data.length).toEqual(2);
     });
   });

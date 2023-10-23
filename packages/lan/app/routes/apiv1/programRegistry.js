@@ -25,7 +25,7 @@ programRegistry.get(
 );
 
 programRegistry.get(
-  '/:id/registrations/$',
+  '/:id/registrations',
   asyncHandler(async (req, res) => {
     const {
       models: { PatientProgramRegistration },
@@ -48,8 +48,7 @@ programRegistry.get(
       makePartialTextFilter('displayId', 'patient.display_id'),
       makeSimpleTextFilter('firstName', 'patient.first_name'),
       makeSimpleTextFilter('lastName', 'patient.last_name'),
-      makeSimpleTextFilter('patientId', 'patient.id'),
-      makeFilter(filterParams.requestedById, 'lab_requests.requested_by_id = :requestedById'),
+      // makeSimpleTextFilter('patientId', 'patient.id'),
       makeFilter(filterParams.departmentId, 'lab_requests.department_id = :departmentId'),
       makeFilter(filterParams.locationGroupId, 'location.location_group_id = :locationGroupId'),
       makeSimpleTextFilter('labTestPanelId', 'lab_test_panel.id'),
@@ -115,19 +114,6 @@ programRegistry.get(
         filterParams,
       );
 
-    const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
-      replacements: filterReplacements,
-      type: QueryTypes.SELECT,
-    });
-
-    const count = parseInt(countResult[0].count, 10);
-
-    if (count === 0) {
-      // save ourselves a query
-      res.send({ data: [], count });
-      return;
-    }
-
     const sortKeys = {
       displayId: 'patient.display_id',
       patientName: 'UPPER(patient.last_name)',
@@ -140,30 +126,54 @@ programRegistry.get(
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
     const nullPosition = sortDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST';
 
+    
+  //   SELECT
+  //   lab_requests.*,
+  //   patient.display_id AS patient_display_id,
+  //   patient.id AS patient_id,
+  //   patient.first_name AS first_name,
+  //   patient.last_name AS last_name,
+  //   examiner.display_name AS examiner,
+  //   requester.display_name AS requested_by,
+  //   encounter.id AS encounter_id,
+  //   category.id AS category_id,
+  //   category.name AS category_name,
+  //   priority.id AS priority_id,
+  //   priority.name AS priority_name,
+  //   lab_test_panel.name as lab_test_panel_name,
+  //   laboratory.id AS laboratory_id,
+  //   laboratory.name AS laboratory_name,
+  //   location.facility_id AS facility_id
+  // ${from}
+
+  // ORDER BY ${sortKey} ${sortDirection}${nullPosition ? ` ${nullPosition}` : ''}
+  // LIMIT :limit
+  // OFFSET :offset
     const result = await req.db.query(
       `
-        SELECT
-          lab_requests.*,
-          patient.display_id AS patient_display_id,
-          patient.id AS patient_id,
-          patient.first_name AS first_name,
-          patient.last_name AS last_name,
-          examiner.display_name AS examiner,
-          requester.display_name AS requested_by,
-          encounter.id AS encounter_id,
-          category.id AS category_id,
-          category.name AS category_name,
-          priority.id AS priority_id,
-          priority.name AS priority_name,
-          lab_test_panel.name as lab_test_panel_name,
-          laboratory.id AS laboratory_id,
-          laboratory.name AS laboratory_name,
-          location.facility_id AS facility_id
-        ${from}
-
-        ORDER BY ${sortKey} ${sortDirection}${nullPosition ? ` ${nullPosition}` : ''}
-        LIMIT :limit
-        OFFSET :offset
+      with 
+        most_recent_registrations as (
+          SELECT *
+          FROM (
+            SELECT 
+              *,
+              ROW_NUMBER() OVER (PARTITION BY patient_id, program_registry_id ORDER BY date DESC, id DESC) AS row_num
+            FROM patient_program_registrations
+          ) n
+          WHERE n.row_num = 1
+        )
+      select
+        mrr.*,
+        patient.display_id AS "patient.display_id",
+        patient.id AS "patient.id",
+          patient.first_name AS "patient.first_name",
+          patient.last_name AS "patient.last_name",
+          clinician.display_name as "patient.display_name"
+      FROM most_recent_registrations mrr
+      left join patients patient
+      on patient.id = mrr.patient_id
+      left join users clinician
+      on clinician.id = mrr.clinician_id;
       `,
       {
         replacements: {
@@ -182,7 +192,7 @@ programRegistry.get(
     const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
     res.send({
       data: forResponse,
-      count,
+      count: 20008,
     });
   }),
 );
