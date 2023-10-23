@@ -557,11 +557,28 @@ export const patientProgramRegistration = {
       id: 'program_id',
       name: 'Hepatitis B',
     },
+    currentlyAt: 'facility',
   },
+  facilityId: 'Facility1',
+  facility: {
+    id: 'Facility1',
+    name: 'Facility 1',
+  },
+  villageId: 'Village1',
+  village: {
+    id: 'Village1',
+    name: 'Village 1',
+  },
+  patientDisplayId: '12341341',
   patientId: 'patient_id',
   patient: {
     id: 'patient_id',
     name: 'Tareq',
+    firstName: 'Tareq',
+    lastName: 'Aziz',
+    dateOfBirth: '1989-11-09T02:40:16.237Z',
+    village: 'Village 1',
+    sex: 'M',
   },
   date: '2023-08-28T02:40:16.237Z',
   name: 'Hepatitis B',
@@ -591,6 +608,7 @@ export const patientProgramRegistration = {
     id: '213123',
     displayName: 'Alaister',
   },
+  conditions: programRegistryConditions,
 };
 
 export const dummyApi = {
@@ -638,7 +656,7 @@ export const dummyApi = {
       case 'suggestions/practitioner':
         return practitioners;
 
-      case 'suggestions/clinicalStatus':
+      case 'suggestions/programRegistryClinicalStatus':
         return clinicalStatusList;
 
       case 'suggestions/programRegistries':
@@ -655,6 +673,17 @@ export const dummyApi = {
       case 'patient/undefined/programRegistration/undefined/survey/undefined':
       case 'patient/patient_id/programRegistration/patient_program_registry_id/survey/survey_id':
         return mockSurvey;
+      case 'patientProgramRegistration':
+        return {
+          data: [
+            patientProgramRegistration,
+            {
+              ...patientProgramRegistration,
+              isDeceased: true,
+              id: patientProgramRegistration.id + 1,
+            },
+          ],
+        };
     }
   },
 };
