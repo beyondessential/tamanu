@@ -3,7 +3,6 @@ import { DevSettings } from 'react-native';
 
 interface TranslationContextData {
   getDebugMode: () => boolean;
-  toggleDebugMode: () => void;
 }
 
 const TranslationContext = createContext<TranslationContextData>({} as TranslationContextData);
@@ -11,20 +10,14 @@ const TranslationContext = createContext<TranslationContextData>({} as Translati
 export const TranslationProvider = ({ children }: PropsWithChildren<object>): ReactElement => {
   const [isDebugMode, setIsDebugMode] = useState(false);
 
-  const toggleDebugMode = () => setIsDebugMode(!isDebugMode);
-
   if (__DEV__) {
-    DevSettings.addMenuItem('Toggle translation highlighting', async () => {
-      setIsDebugMode(!isDebugMode);
-      console.log(isDebugMode)
-    });
+    DevSettings.addMenuItem('Toggle translation highlighting', async () => setIsDebugMode(!isDebugMode));
   }
 
   return (
     <TranslationContext.Provider
       value={{
         getDebugMode: () => isDebugMode,
-        toggleDebugMode,
       }}
     >
       {children}
