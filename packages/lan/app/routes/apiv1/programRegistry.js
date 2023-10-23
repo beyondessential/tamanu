@@ -48,61 +48,16 @@ programRegistry.get(
       makePartialTextFilter('displayId', 'patient.display_id'),
       makeSimpleTextFilter('firstName', 'patient.first_name'),
       makeSimpleTextFilter('lastName', 'patient.last_name'),
-      // makeSimpleTextFilter('patientId', 'patient.id'),
-      makeFilter(filterParams.departmentId, 'lab_requests.department_id = :departmentId'),
-      makeFilter(filterParams.locationGroupId, 'location.location_group_id = :locationGroupId'),
-      makeSimpleTextFilter('labTestPanelId', 'lab_test_panel.id'),
-      makeFilter(
-        filterParams.requestedDateFrom,
-        'lab_requests.requested_date >= :requestedDateFrom',
-        ({ requestedDateFrom }) => ({
-          requestedDateFrom: toDateTimeString(startOfDay(new Date(requestedDateFrom))),
-        }),
-      ),
-      makeFilter(
-        filterParams.requestedDateTo,
-        'lab_requests.requested_date <= :requestedDateTo',
-        ({ requestedDateTo }) => ({
-          requestedDateTo: toDateTimeString(endOfDay(new Date(requestedDateTo))),
-        }),
-      ),
-      makeFilter(
-        filterParams.status !== LAB_REQUEST_STATUSES.PUBLISHED,
-        'lab_requests.status != :published',
-        () => ({
-          published: LAB_REQUEST_STATUSES.PUBLISHED,
-        }),
-      ),
+      // makeFilter(
+      //   filterParams.status !== LAB_REQUEST_STATUSES.PUBLISHED,
+      //   'lab_requests.status != :published',
+      //   () => ({
+      //     published: LAB_REQUEST_STATUSES.PUBLISHED,
+      //   }),
+      // ),
     ].filter(f => f);
 
     const whereClauses = filters.map(f => f.sql).join(' AND ');
-
-    const from = `
-      FROM lab_requests
-        LEFT JOIN encounters AS encounter
-          ON (encounter.id = lab_requests.encounter_id)
-        LEFT JOIN locations AS location
-          ON (encounter.location_id = location.id)
-        LEFT JOIN reference_data AS category
-          ON (category.type = 'labTestCategory' AND lab_requests.lab_test_category_id = category.id)
-        LEFT JOIN reference_data AS priority
-          ON (priority.type = 'labTestPriority' AND lab_requests.lab_test_priority_id = priority.id)
-        LEFT JOIN reference_data AS laboratory
-          ON (laboratory.type = 'labTestLaboratory' AND lab_requests.lab_test_laboratory_id = laboratory.id)
-        LEFT JOIN reference_data AS site
-          ON (site.type = 'labSampleSite' AND lab_requests.lab_sample_site_id = site.id)
-        LEFT JOIN lab_test_panel_requests AS lab_test_panel_requests
-          ON (lab_test_panel_requests.id = lab_requests.lab_test_panel_request_id)
-        LEFT JOIN lab_test_panels AS lab_test_panel
-          ON (lab_test_panel.id = lab_test_panel_requests.lab_test_panel_id)
-        LEFT JOIN patients AS patient
-          ON (patient.id = encounter.patient_id)
-        LEFT JOIN users AS examiner
-          ON (examiner.id = encounter.examiner_id)
-        LEFT JOIN users AS requester
-          ON (requester.id = lab_requests.requested_by_id)
-        ${whereClauses && `WHERE ${whereClauses}`}
-    `;
 
     const filterReplacements = filters
       .filter(f => f.transform)
@@ -117,38 +72,18 @@ programRegistry.get(
     const sortKeys = {
       displayId: 'patient.display_id',
       patientName: 'UPPER(patient.last_name)',
-      requestedDate: 'requested_date',
-      requestedBy: 'examiner.display_name',
-      status: 'status',
+      dob: 'patient.date_of_birth',
+      homeVillage: 'UPPER(patient.village.name)',
+      registeringFacility: 'registering_facility.name',
+      currentlyAtVillage: 'UPPER(village.name)',
+      currentlyAtFacility: 'UPPER(facility.name)',
+      clinicalStatus: 'clinical_status',
     };
 
     const sortKey = sortKeys[orderBy];
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
     const nullPosition = sortDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST';
 
-    
-  //   SELECT
-  //   lab_requests.*,
-  //   patient.display_id AS patient_display_id,
-  //   patient.id AS patient_id,
-  //   patient.first_name AS first_name,
-  //   patient.last_name AS last_name,
-  //   examiner.display_name AS examiner,
-  //   requester.display_name AS requested_by,
-  //   encounter.id AS encounter_id,
-  //   category.id AS category_id,
-  //   category.name AS category_name,
-  //   priority.id AS priority_id,
-  //   priority.name AS priority_name,
-  //   lab_test_panel.name as lab_test_panel_name,
-  //   laboratory.id AS laboratory_id,
-  //   laboratory.name AS laboratory_name,
-  //   location.facility_id AS facility_id
-  // ${from}
-
-  // ORDER BY ${sortKey} ${sortDirection}${nullPosition ? ` ${nullPosition}` : ''}
-  // LIMIT :limit
-  // OFFSET :offset
     const result = await req.db.query(
       `
       with 
@@ -161,19 +96,53 @@ programRegistry.get(
             FROM patient_program_registrations
           ) n
           WHERE n.row_num = 1
+        ),
+        conditions as (
+          SELECT pprc.program_registry_id, patient_id, jsonb_agg(prc."name") condition_list  FROM patient_program_registration_conditions pprc
+        join program_registry_conditions prc
+        on pprc.program_registry_condition_id = prc.id
+        group by pprc.program_registry_id, patient_id
         )
       select
-        mrr.*,
-        patient.display_id AS "patient.display_id",
         patient.id AS "patient.id",
-          patient.first_name AS "patient.first_name",
-          patient.last_name AS "patient.last_name",
-          clinician.display_name as "patient.display_name"
+        --
+        -- Details for the table
+        patient.display_id AS "patient.display_id",
+        patient.first_name AS "patient.first_name",
+        patient.last_name AS "patient.last_name",
+        patient.date_of_birth AS "patient.date_of_birth",
+        patient.sex AS "patient.sex",
+        patient_village.name AS "patient.village.name",
+        currently_at_village.name as "village.name",
+        currently_at_facility.name as "facility.name",
+        registering_facility.name as "registering_facility.name",
+        conditions.condition_list as "conditions",
+        status.name as "clinical_status.name",
+        --
+        -- Details for filtering/ordering
+        patient.date_of_death as "patient.date_of_death",
+        mrr.registration_status as "registration_status"
       FROM most_recent_registrations mrr
       left join patients patient
       on patient.id = mrr.patient_id
-      left join users clinician
-      on clinician.id = mrr.clinician_id;
+      left join reference_data patient_village
+      on patient.village_id = patient_village.id
+      left join reference_data currently_at_village
+      on mrr.village_id = currently_at_village.id
+      left join facilities currently_at_facility
+      on mrr.facility_id = currently_at_facility.id
+      left join facilities registering_facility
+      on mrr.registering_facility_id = registering_facility.id
+      left join conditions
+      on conditions.patient_id = mrr.patient_id
+      and conditions.program_registry_id = mrr.program_registry_id
+      left join program_registry_clinical_statuses status
+      on mrr.clinical_status_id = status.id
+      ${whereClauses && `WHERE ${whereClauses}`}
+
+      ORDER BY ${sortKey} ${sortDirection}${nullPosition ? ` ${nullPosition}` : ''}
+      LIMIT :limit
+      OFFSET :offset
       `,
       {
         replacements: {
@@ -183,15 +152,19 @@ programRegistry.get(
           sortKey,
           sortDirection,
         },
+        // The combination of these four parameters allow mapping the query results
+        // to nested models
         model: PatientProgramRegistration,
-        type: QueryTypes.SELECT,
         mapToModel: true,
+        nest: true,
+        raw: true,
+        type: QueryTypes.SELECT,
       },
     );
 
-    const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
+    // const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
     res.send({
-      data: forResponse,
+      data: result,
       count: 20008,
     });
   }),
