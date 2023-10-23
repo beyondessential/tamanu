@@ -4,7 +4,7 @@ import supertest from 'supertest';
 
 import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers';
-import { createMockReportingSchemaAndRoles } from 'shared/demoData';
+import { createMockReportingSchemaAndRoles } from '@tamanu/shared/demoData';
 import { DEFAULT_JWT_SECRET } from 'sync-server/app/auth';
 import { getToken } from 'sync-server/app/auth/utils';
 import { createApp } from 'sync-server/app/createApp';
