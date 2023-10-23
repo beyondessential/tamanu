@@ -1,6 +1,5 @@
 import config from 'config';
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
-import { DELETION_STATUSES } from '@tamanu/constants';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
@@ -169,7 +168,7 @@ const getData = async (sequelize, parameters) => {
     replacements: {
       from_date: queryFromDate ?? null,
       to_date: queryToDate ?? null,
-      deletionStatus: DELETION_STATUSES.CURRENT,
+      deletionStatus: null,
     },
   });
 };

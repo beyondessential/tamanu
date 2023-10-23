@@ -1,5 +1,4 @@
 import { CursorDataMigration } from '@tamanu/shared/dataMigrations';
-import { DELETION_STATUSES } from '@tamanu/constants';
 
 export class RemoveDuplicatedDischarges extends CursorDataMigration {
   static defaultBatchSize = Number.MAX_SAFE_INTEGER;
@@ -17,7 +16,7 @@ export class RemoveDuplicatedDischarges extends CursorDataMigration {
           SELECT * FROM encounters
           WHERE id > $fromId
           AND deleted_at IS NULL
-          OR deletion_status = '${DELETION_STATUSES.CURRENT}'
+          OR deletion_status IS NULL
           ORDER BY id
           LIMIT $limit
       ),

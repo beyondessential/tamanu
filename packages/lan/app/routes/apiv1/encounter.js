@@ -11,7 +11,6 @@ import {
   NOTE_RECORD_TYPES,
   VITALS_DATA_ELEMENT_IDS,
   IMAGING_REQUEST_STATUS_TYPES,
-  DELETION_STATUSES,
 } from '@tamanu/constants';
 
 import {
@@ -247,7 +246,7 @@ encounterRelations.get(
   simpleGetHasOne('Invoice', 'encounterId', {
     additionalFilters: {
       status: { [Op.ne]: INVOICE_STATUSES.CANCELLED },
-      deletionStatus: DELETION_STATUSES.CURRENT,
+      deletionStatus: null,
     },
   }),
 );
@@ -313,7 +312,7 @@ encounterRelations.get(
           encounters.deletion_status = :deletionStatus
         ORDER BY ${sortKey} ${sortDirection}
       `,
-      { encounterId, deletionStatus: DELETION_STATUSES.CURRENT },
+      { encounterId, deletionStatus: null },
       query,
     );
 

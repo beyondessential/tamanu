@@ -1,6 +1,6 @@
 import config from 'config';
 import { endOfDay, startOfDay, parseISO } from 'date-fns';
-import { LAB_REQUEST_STATUSES, DELETION_STATUSES } from '@tamanu/constants';
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
@@ -472,7 +472,7 @@ const getData = async (sequelize, parameters, includedPatientFieldIds) => {
         LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
         LAB_REQUEST_STATUSES.CANCELLED,
       ],
-      deletionStatus: DELETION_STATUSES.CURRENT,
+      deletionStatus: null,
     },
   });
 };

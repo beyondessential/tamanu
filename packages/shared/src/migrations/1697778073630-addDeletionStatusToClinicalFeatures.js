@@ -19,7 +19,8 @@ export async function up(query) {
   for (const table of tables) {
     await query.addColumn(table, 'deletion_status', {
       type: Sequelize.STRING,
-      defaultValue: 'current',
+      defaultValue: null,
+      allowNull: true,
     });
   }
 }

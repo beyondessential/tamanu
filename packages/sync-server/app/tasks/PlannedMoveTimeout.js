@@ -1,7 +1,6 @@
 import config from 'config';
 import { subHours } from 'date-fns';
 import { Op } from 'sequelize';
-import { DELETION_STATUSES } from '@tamanu/constants';
 
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
@@ -40,7 +39,7 @@ export class PlannedMoveTimeout extends ScheduledTask {
         plannedLocationStartTime: {
           [Op.lt]: toCountryDateTimeString(subHours(new Date(), this.config.timeoutHours)),
         },
-        deletionStatus: DELETION_STATUSES.CURRENT,
+        deletionStatus: null,
       },
       include: [
         {

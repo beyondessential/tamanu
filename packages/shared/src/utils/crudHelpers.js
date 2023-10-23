@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { DELETION_STATUSES } from '@tamanu/constants';
+
 import { QueryTypes } from 'sequelize';
 
 import { NotFoundError } from '../errors';
@@ -45,7 +45,7 @@ export const simpleGet = modelName =>
 export const currentRecordsGet = modelName =>
   asyncHandler(async (req, res) => {
     const object = await findRouteObject(req, modelName, {
-      deletionStatus: DELETION_STATUSES.CURRENT,
+      deletionStatus: null,
     });
     res.send(object);
   });

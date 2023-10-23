@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
 import { InvalidParameterError } from 'shared/errors';
-import { NOTE_TYPES, ENCOUNTER_TYPES, DELETION_STATUSES } from '@tamanu/constants';
+import { NOTE_TYPES, ENCOUNTER_TYPES } from '@tamanu/constants';
 
 import { renameObjectKeys } from 'shared/utils';
 
@@ -134,7 +134,7 @@ triage.get(
             ENCOUNTER_TYPES.EMERGENCY,
           ],
           seenEncounterTypes: [ENCOUNTER_TYPES.OBSERVATION, ENCOUNTER_TYPES.EMERGENCY],
-          deletionStatus: DELETION_STATUSES.CURRENT,
+          deletionStatus: null,
         },
       },
     );

@@ -2,7 +2,6 @@ import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
-import { DELETION_STATUSES } from '@tamanu/constants';
 import { BadAuthenticationError } from 'shared/errors';
 import { getPermissions } from 'shared/permissions/middleware';
 import { simpleGet, paginatedGetList, permissionCheckingRouter } from 'shared/utils/crudHelpers';
@@ -58,7 +57,7 @@ user.get(
         encounterType: query.encounterType,
       })),
       makeFilter(true, `encounters.deletion_status = :deletionStatus`, () => ({
-        deletionStatus: DELETION_STATUSES.CURRENT,
+        deletionStatus: null,
       })),
       makeFilter(true, `user_recently_viewed_patients.user_id = :userId`, () => ({
         userId: currentUser.id,
@@ -68,7 +67,7 @@ user.get(
     const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
       filters,
       {
-        deletionStatus: DELETION_STATUSES.CURRENT,
+        deletionStatus: null,
       },
     );
 

@@ -1,6 +1,6 @@
 import { sub } from 'date-fns';
 import { toDateString } from 'shared/utils/dateTime';
-import { ENCOUNTER_TYPES, DELETION_STATUSES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 
 import { makeFilter } from './query';
 
@@ -71,7 +71,7 @@ export const createPatientFilters = filterParams => {
       }),
     ),
     makeFilter(true, `encounters.deletion_status = :deletionStatus`, () => ({
-      deletionStatus: DELETION_STATUSES.CURRENT,
+      deletionStatus: null,
     })),
   ].filter(f => f);
 

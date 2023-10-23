@@ -3,11 +3,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { objectToCamelCase } from 'shared/utils';
-import {
-  LOCATION_AVAILABILITY_STATUS,
-  VISIBILITY_STATUSES,
-  DELETION_STATUSES,
-} from '@tamanu/constants';
+import { LOCATION_AVAILABILITY_STATUS, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 const patientsLocationSelect = (planned, encountersWhereAndClauses) => `
   SELECT
@@ -44,7 +40,7 @@ patientLocations.get(
       `,
       {
         type: QueryTypes.SELECT,
-        replacements: { deletionStatus: DELETION_STATUSES.CURRENT },
+        replacements: { deletionStatus: null },
       },
     );
 
@@ -76,7 +72,7 @@ patientLocations.get(
         bind: {
           facilityId: config.serverFacilityId,
         },
-        replacements: { deletionStatus: DELETION_STATUSES.CURRENT },
+        replacements: { deletionStatus: null },
       },
     );
 
@@ -130,7 +126,7 @@ patientLocations.get(
         bind: {
           facilityId: config.serverFacilityId,
         },
-        replacements: { deletionStatus: DELETION_STATUSES.CURRENT },
+        replacements: { deletionStatus: null },
       },
     );
 
@@ -161,7 +157,7 @@ patientLocations.get(
       `,
       {
         type: QueryTypes.SELECT,
-        replacements: { deletionStatus: DELETION_STATUSES.CURRENT },
+        replacements: { deletionStatus: null },
       },
     );
 
@@ -175,7 +171,7 @@ patientLocations.get(
       `,
       {
         type: QueryTypes.SELECT,
-        replacements: { deletionStatus: DELETION_STATUSES.CURRENT },
+        replacements: { deletionStatus: null },
       },
     );
 
@@ -362,7 +358,7 @@ patientLocations.get(
           limit,
           offset,
         },
-        replacements: { deletionStatus: DELETION_STATUSES.CURRENT },
+        replacements: { deletionStatus: null },
       },
     );
 

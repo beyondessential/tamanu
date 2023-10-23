@@ -1,6 +1,5 @@
 import { endOfDay, parseISO } from 'date-fns';
 import { Op } from 'sequelize';
-import { DELETION_STATUSES } from '@tamanu/constants';
 
 import { getCurrentDateString } from './dateTime';
 import { log } from '../services/logging';
@@ -15,7 +14,7 @@ export const getDischargeOutPatientEncountersWhereClause = () => {
     startDate: {
       [Op.lt]: today,
     },
-    deletionStatus: DELETION_STATUSES.CURRENT,
+    deletionStatus: null,
   };
 };
 

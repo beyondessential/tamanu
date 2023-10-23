@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
-import { DOCUMENT_SIZE_LIMIT, DOCUMENT_SOURCES, DELETION_STATUSES } from '@tamanu/constants';
+import { DOCUMENT_SIZE_LIMIT, DOCUMENT_SOURCES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { NotFoundError } from 'shared/errors';
 import { uploadAttachment } from '../../../utils/uploadAttachment';
@@ -35,7 +35,7 @@ patientDocumentMetadataRoutes.get(
     const patientEncounters = await models.Encounter.findAll({
       where: {
         patientId,
-        deletionStatus: DELETION_STATUSES.CURRENT,
+        deletionStatus: null,
       },
       attributes: ['id'],
     });

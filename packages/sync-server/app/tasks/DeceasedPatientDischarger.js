@@ -1,6 +1,5 @@
 import config from 'config';
 import { Op } from 'sequelize';
-import { DELETION_STATUSES } from '@tamanu/constants';
 
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
@@ -26,7 +25,7 @@ export class DeceasedPatientDischarger extends ScheduledTask {
       where: {
         endDate: null,
         '$patient.date_of_death$': { [Op.not]: null },
-        deletionStatus: DELETION_STATUSES.CURRENT,
+        deletionStatus: null,
       },
       include: [
         {

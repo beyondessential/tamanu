@@ -7,7 +7,6 @@ import {
   DIAGNOSIS_CERTAINTY,
   NOTE_TYPES,
   VISIBILITY_STATUSES,
-  DELETION_STATUSES,
 } from '@tamanu/constants';
 import { Location } from '../models/Location';
 import { ageInYears, toDateTimeString, format } from '../utils/dateTime';
@@ -219,7 +218,7 @@ async function queryAdmissionsData(models, parameters) {
           include: ['Diagnosis'],
         },
       ],
-      where: { deletionStatus: DELETION_STATUSES.CURRENT, ...parametersToSqlWhere(parameters) },
+      where: { deletionStatus: null, ...parametersToSqlWhere(parameters) },
     })
   ).map(x => x.get({ plain: true }));
 

@@ -11,7 +11,6 @@ import {
   INVOICE_LINE_TYPES,
   VISIBILITY_STATUSES,
   SUGGESTER_ENDPOINTS,
-  DELETION_STATUSES,
 } from '@tamanu/constants';
 
 export const suggestions = express.Router();
@@ -278,7 +277,7 @@ createSuggester('patientLabTestCategories', 'ReferenceData', (search, query) => 
             encounters ON encounters.id = lab_requests.encounter_id
           WHERE lab_requests.status = '${status}'
             AND encounters.patient_id = '${query.patientId}'
-            AND encounters.deletion_status = '${DELETION_STATUSES.CURRENT}}'
+            AND encounters.deletion_status is null
         )`,
       ),
     },
@@ -311,7 +310,7 @@ createSuggester('patientLabTestPanelTypes', 'LabTestPanel', (search, query) => {
             encounters ON encounters.id = lab_requests.encounter_id
           WHERE lab_requests.status = '${status}'
             AND encounters.patient_id = '${query.patientId}'
-            AND encounters.deletion_status = '${DELETION_STATUSES.CURRENT}}'
+            AND encounters.deletion_status is null
         )`,
       ),
     },

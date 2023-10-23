@@ -5,7 +5,6 @@ import { upperFirst } from 'lodash';
 import { parseISO } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
-import { DELETION_STATUSES } from '@tamanu/constants';
 import { parseDateTime, formatFhirDate } from 'shared/utils/fhir/datetime';
 import config from 'config';
 
@@ -430,7 +429,7 @@ routes.get(
         offset, // Should still be able to offset even with no limit
         timezone_string: COUNTRY_TIMEZONE,
       },
-      replacements: { deletionStatus: DELETION_STATUSES.CURRENT },
+      replacements: { deletionStatus: null },
     });
 
     const mapNotes = notes =>

@@ -12,7 +12,6 @@ import {
   NOTE_RECORD_TYPES,
   VISIBILITY_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
-  DELETION_STATUSES,
 } from '@tamanu/constants';
 import { keyBy } from 'lodash';
 import { renameObjectKeys } from 'shared/utils';
@@ -157,7 +156,7 @@ labRequest.get(
         }),
       ),
       makeFilter(true, 'encounter.deletion_status = :deletionStatus', () => ({
-        deletionStatus: DELETION_STATUSES.CURRENT,
+        deletionStatus: null,
       })),
     ].filter(f => f);
 

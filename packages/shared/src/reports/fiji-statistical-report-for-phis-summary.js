@@ -8,7 +8,6 @@ import {
   subDays,
   parseISO,
 } from 'date-fns';
-import { DELETION_STATUSES } from '@tamanu/constants';
 import { groupBy } from 'lodash';
 import { toDateTimeString } from '../utils/dateTime';
 
@@ -346,7 +345,7 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
       village: village ?? null,
       from_date: queryFromDate,
       to_date: queryToDate ?? null,
-      deletionStatus: DELETION_STATUSES.CURRENT,
+      deletionStatus: null,
     },
   });
 

@@ -1,5 +1,5 @@
 import { subDays } from 'date-fns';
-import { IMAGING_REQUEST_STATUS_CONFIG, DELETION_STATUSES } from '@tamanu/constants';
+import { IMAGING_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
@@ -130,7 +130,7 @@ const getData = async (sequelize, parameters) => {
       imaging_type: imagingType ?? null,
       statuses: selectedStatuses,
       areStatuses: selectedStatuses ? 'true' : null,
-      deletionStatus: DELETION_STATUSES.CURRENT,
+      deletionStatus: null,
     },
   });
 };

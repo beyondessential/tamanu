@@ -1,5 +1,5 @@
 import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
-import { LAB_REQUEST_STATUS_CONFIG, DELETION_STATUSES } from '@tamanu/constants';
+import { LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
@@ -169,7 +169,7 @@ const getData = async (sequelize, parameters) => {
       are_statuses: selectedStatuses ? 'true' : null,
       lab_test_types: selectedLabTestTypes ?? null,
       are_lab_test_types: selectedLabTestTypes ? 'true' : null,
-      deletionStatus: DELETION_STATUSES.CURRENT,
+      deletionStatus: null,
     },
   });
 };

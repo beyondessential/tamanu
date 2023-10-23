@@ -1,10 +1,6 @@
 import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
 import { keyBy } from 'lodash';
-import {
-  NON_ANSWERABLE_DATA_ELEMENT_TYPES,
-  PROGRAM_DATA_ELEMENT_TYPES,
-  DELETION_STATUSES,
-} from '@tamanu/constants';
+import { NON_ANSWERABLE_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { toDateTimeString } from '../utils/dateTime';
 import {
   generateReportFromQueryData,
@@ -106,7 +102,7 @@ const getData = async (sequelize, parameters) => {
       from_date: queryFromDate ?? null,
       to_date: queryToDate ?? null,
       village_id: village ?? null,
-      deletionStatus: DELETION_STATUSES.CURRENT,
+      deletionStatus: null,
     },
   });
 };

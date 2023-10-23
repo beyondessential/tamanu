@@ -2,7 +2,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes, Sequelize } from 'sequelize';
 
 import { getPatientAdditionalData } from 'shared/utils';
-import { HIDDEN_VISIBILITY_STATUSES, DELETION_STATUSES } from '@tamanu/constants/importable';
+import { HIDDEN_VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 
 import { renameObjectKeys } from '@tamanu/shared/utils/renameObjectKeys';
 import {
@@ -71,7 +71,7 @@ patientRelations.get(
           ${open ? 'AND end_date IS NULL' : ''}
         ${sortKey ? `ORDER BY ${sortKey} ${sortDirection}` : ''}
       `,
-      { patientId: params.id, deletionStatus: DELETION_STATUSES.current },
+      { patientId: params.id, deletionStatus: null },
       query,
     );
 

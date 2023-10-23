@@ -1,7 +1,7 @@
 import config from 'config';
 import { Sequelize, Op } from 'sequelize';
 
-import { ENCOUNTER_TYPES, SYNC_DIRECTIONS, DELETION_STATUSES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 
 import { Model } from './Model';
@@ -72,7 +72,7 @@ export class Triage extends Model {
           [Op.is]: null,
         },
         patientId: data.patientId,
-        deletionStatus: DELETION_STATUSES.CURRENT,
+        deletionStatus: null,
       },
     });
 

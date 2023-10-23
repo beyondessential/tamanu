@@ -3,7 +3,6 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { simpleGet, simplePut, simplePost } from 'shared/utils/crudHelpers';
-import { DELETION_STATUSES } from '@tamanu/constants';
 
 export const locationGroup = express.Router();
 
@@ -161,7 +160,7 @@ locationGroup.get(
         replacements: {
           id: req.params.id,
           facilityId: config.serverFacilityId,
-          deletionStatus: DELETION_STATUSES.CURRENT,
+          deletionStatus: null,
         },
         type: QueryTypes.SELECT,
       },

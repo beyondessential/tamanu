@@ -1,6 +1,6 @@
 import { QueryTypes } from 'sequelize';
 import { arrayToDbString, renameObjectKeys } from 'shared/utils';
-import { DIAGNOSIS_CERTAINTY, ENCOUNTER_TYPES, DELETION_STATUSES } from '@tamanu/constants';
+import { DIAGNOSIS_CERTAINTY, ENCOUNTER_TYPES } from '@tamanu/constants';
 import { getWhereClausesAndReplacementsFromFilters, makeFilter } from '../../utils/query';
 import { createPatientFilters } from '../../utils/patientFilters';
 
@@ -44,7 +44,7 @@ export const activeCovid19PatientsHandler = async (req, res) => {
     filterReplacements,
   } = getWhereClausesAndReplacementsFromFilters(filters, {
     ...filterParams,
-    deletionStatus: DELETION_STATUSES.CURRENT,
+    deletionStatus: null,
   });
 
   const result = await db.query(

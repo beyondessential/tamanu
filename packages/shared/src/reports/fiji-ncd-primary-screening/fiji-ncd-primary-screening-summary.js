@@ -1,7 +1,6 @@
 /* eslint-disable no-param-reassign */
 
 import { endOfDay, format, parseISO, startOfDay } from 'date-fns';
-import { DELETION_STATUSES } from '@tamanu/constants';
 import { groupBy, keyBy } from 'lodash';
 import { toDateTimeString } from '../../utils/dateTime';
 import { generateReportFromQueryData } from '../utilities';
@@ -247,7 +246,7 @@ const getData = async (sequelize, parameters) => {
           medical_area_id: medicalArea,
           nursing_zone_id: nursingZone,
           division_id: division,
-          deletionStatus: DELETION_STATUSES.CURRENT,
+          deletionStatus: null,
         },
       },
     );

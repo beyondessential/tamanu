@@ -106,14 +106,18 @@ export class Location extends Model {
     if (this.maxOccupancy === null) return LOCATION_AVAILABILITY_STATUS.AVAILABLE;
 
     const openEncounters = await Encounter.count({
-      where: { locationId: this.id, endDate: null },
+      where: { locationId: this.id, endDate: null, deletionStatus: null },
     });
     if (openEncounters > 0) {
       return LOCATION_AVAILABILITY_STATUS.OCCUPIED;
     }
 
     const plannedEncounters = await Encounter.count({
-      where: { plannedLocationId: this.id, endDate: null },
+      where: {
+        plannedLocationId: this.id,
+        endDate: null,
+        deletionStatus: null,
+      },
     });
     if (plannedEncounters > 0) {
       return LOCATION_AVAILABILITY_STATUS.RESERVED;
