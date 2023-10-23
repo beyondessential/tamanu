@@ -90,9 +90,6 @@ export class FacilitySyncManager {
       );
     }
 
-    // clear previous temp data, in case last session errored out or server was restarted
-    await dropAllSnapshotTables(this.sequelize);
-
     log.info('FacilitySyncManager.attemptStart', { reason: this.reason });
   
     const pullSince = (await this.models.LocalSystemFact.get(LAST_SUCCESSFUL_SYNC_PULL_KEY)) || -1;
@@ -113,9 +110,12 @@ export class FacilitySyncManager {
       return;
     }
 
-    const startTime = new Date();
-
     log.info('FacilitySyncManager.startSession');
+
+    // clear previous temp data, in case last session errored out or server was restarted
+    await dropAllSnapshotTables(this.sequelize);
+
+    const startTime = new Date();
 
     log.info('FacilitySyncManager.receivedSessionInfo', {
       sessionId,
