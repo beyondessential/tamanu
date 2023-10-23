@@ -1,5 +1,6 @@
 import config from 'config';
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
+import { DELETION_STATUSES } from '@tamanu/constants';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
@@ -45,7 +46,9 @@ with
       join departments d on e.department_id = d.id
       join facilities f on d.facility_id = f.id
     where
-      e.encounter_type = 'admission' and e.patient_id != '5d9043ff-6745-4bca-b1c7-1c7751bad1f0'
+      e.encounter_type = 'admission' 
+      and e.patient_id != '5d9043ff-6745-4bca-b1c7-1c7751bad1f0'
+      and e.deletion_status = :deletionStatus
       and f.id = '${config.serverFacilityId}'
   ),
   admissions as (
@@ -166,6 +169,7 @@ const getData = async (sequelize, parameters) => {
     replacements: {
       from_date: queryFromDate ?? null,
       to_date: queryToDate ?? null,
+      deletionStatus: DELETION_STATUSES.CURRENT,
     },
   });
 };

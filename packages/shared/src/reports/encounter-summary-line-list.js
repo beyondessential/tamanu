@@ -1,6 +1,6 @@
 import config from 'config';
 import { endOfDay, startOfDay, parseISO } from 'date-fns';
-import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { LAB_REQUEST_STATUSES, DELETION_STATUSES } from '@tamanu/constants';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
@@ -444,6 +444,7 @@ ${includedPatientFieldIds
   )
   .join('\n')}
 where e.end_date is not null
+and e.deletion_status = :deletionStatus
 and coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
 and case when :department_id is not null then di2.place_id_list::jsonb ? :department_id else true end 
 and case when :location_group_id is not null then li.place_id_list::jsonb ?| (select array_append(array_agg(id), :location_group_id) from area_locations) else true end 
@@ -471,6 +472,7 @@ const getData = async (sequelize, parameters, includedPatientFieldIds) => {
         LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
         LAB_REQUEST_STATUSES.CANCELLED,
       ],
+      deletionStatus: DELETION_STATUSES.CURRENT,
     },
   });
 };

@@ -1,5 +1,5 @@
 import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
-import { LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
+import { LAB_REQUEST_STATUS_CONFIG, DELETION_STATUSES } from '@tamanu/constants';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
@@ -137,6 +137,7 @@ where p.id not in (
   and case when :lab_test_category_id is not null then rd_request_type.id = :lab_test_category_id else true end
   and case when :are_lab_test_types is not null then lt.lab_test_type_id IN(:lab_test_types) else true end
   and case when :are_statuses is not null then lr.status IN(:statuses) else true end
+  and e.deletion_status = :deletionStatus
 order by lr.requested_date;
 `;
 
@@ -168,6 +169,7 @@ const getData = async (sequelize, parameters) => {
       are_statuses: selectedStatuses ? 'true' : null,
       lab_test_types: selectedLabTestTypes ?? null,
       are_lab_test_types: selectedLabTestTypes ? 'true' : null,
+      deletionStatus: DELETION_STATUSES.CURRENT,
     },
   });
 };

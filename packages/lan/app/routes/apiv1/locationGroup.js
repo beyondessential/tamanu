@@ -3,6 +3,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { simpleGet, simplePut, simplePost } from 'shared/utils/crudHelpers';
+import { DELETION_STATUSES } from '@tamanu/constants';
 
 export const locationGroup = express.Router();
 
@@ -139,8 +140,10 @@ locationGroup.get(
           GROUP BY encounter_id
           ) AS diagnosis ON encounters.id = diagnosis.encounter_id
 		    LEFT JOIN latest_handover_notes ON encounters.id = latest_handover_notes.record_id
-        WHERE location_groups.id = :id and locations.max_occupancy = 1
+        WHERE location_groups.id = :id 
+        AND locations.max_occupancy = 1
         AND locations.facility_id = :facilityId
+        AND encounters.deletion_status = :deletionStatus
         GROUP BY location_groups.name,
           locations.name,
           patients.display_id,
@@ -158,6 +161,7 @@ locationGroup.get(
         replacements: {
           id: req.params.id,
           facilityId: config.serverFacilityId,
+          deletionStatus: DELETION_STATUSES.CURRENT,
         },
         type: QueryTypes.SELECT,
       },

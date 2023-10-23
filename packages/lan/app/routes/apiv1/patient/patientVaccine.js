@@ -239,6 +239,7 @@ patientVaccineRoutes.post(
             AND administered_vaccines.status = :status
             AND administered_vaccines.scheduled_vaccine_id = :scheduledVaccineId
             AND encounters.patient_id = :patientId
+            AND encounters.deletion_status = :deletionStatus
         `,
           {
             replacements: {
@@ -246,6 +247,7 @@ patientVaccineRoutes.post(
               status: VACCINE_STATUS.NOT_GIVEN,
               scheduledVaccineId: vaccineData.scheduledVaccineId,
               patientId,
+              deletionStatus: DELETION_STATUSES.CURRENT,
             },
           },
         );

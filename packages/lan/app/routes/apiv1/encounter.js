@@ -280,10 +280,12 @@ encounterRelations.get(
             ON (survey_responses.encounter_id = encounters.id)
           LEFT JOIN surveys
             ON (survey_responses.survey_id = surveys.id)
-        WHERE
+        WHERE 
           survey_responses.encounter_id = :encounterId
-        AND
+        AND 
           surveys.survey_type = 'programs'
+        AND 
+          encounters.deletion_status = :deletionStatus
       `,
       `
         SELECT
@@ -303,13 +305,15 @@ encounterRelations.get(
             ON (encounter_user.id = encounters.examiner_id)
           LEFT JOIN users survey_user
             ON (survey_user.id = survey_responses.user_id)
-        WHERE
+        WHERE 
           survey_responses.encounter_id = :encounterId
-        AND
+        AND 
           surveys.survey_type = 'programs'
+        AND 
+          encounters.deletion_status = :deletionStatus
         ORDER BY ${sortKey} ${sortDirection}
       `,
-      { encounterId },
+      { encounterId, deletionStatus: DELETION_STATUSES.CURRENT },
       query,
     );
 

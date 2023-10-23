@@ -1,5 +1,5 @@
 import { subDays } from 'date-fns';
-import { IMAGING_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
+import { IMAGING_REQUEST_STATUS_CONFIG, DELETION_STATUSES } from '@tamanu/constants';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
@@ -106,6 +106,7 @@ where
   and case when :requested_by_id is not null then ir.requested_by_id = :requested_by_id else true end
   and case when :imaging_type is not null then ir.imaging_type = :imaging_type else true end
   and case when :areStatuses is not null then ir.status IN(:statuses) else true end
+  and e.deletion_status = :deletionStatus
 order by ir.requested_date;
 `;
 
@@ -129,6 +130,7 @@ const getData = async (sequelize, parameters) => {
       imaging_type: imagingType ?? null,
       statuses: selectedStatuses,
       areStatuses: selectedStatuses ? 'true' : null,
+      deletionStatus: DELETION_STATUSES.CURRENT,
     },
   });
 };

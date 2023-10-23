@@ -3,7 +3,11 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { objectToCamelCase } from 'shared/utils';
-import { LOCATION_AVAILABILITY_STATUS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  LOCATION_AVAILABILITY_STATUS,
+  VISIBILITY_STATUSES,
+  DELETION_STATUSES,
+} from '@tamanu/constants';
 
 const patientsLocationSelect = (planned, encountersWhereAndClauses) => `
   SELECT
@@ -14,6 +18,7 @@ const patientsLocationSelect = (planned, encountersWhereAndClauses) => `
   	SELECT ${planned ? 'planned_' : ''}location_id
   	FROM encounters
   	WHERE end_date IS NULL
+    AND deletion_status = :deletionStatus
     ${encountersWhereAndClauses ? `AND ${encountersWhereAndClauses}` : ''}
   ) open_encounters
   ON locations.id = open_encounters.${planned ? 'planned_' : ''}location_id
@@ -39,6 +44,7 @@ patientLocations.get(
       `,
       {
         type: QueryTypes.SELECT,
+        replacements: { deletionStatus: DELETION_STATUSES.CURRENT },
       },
     );
 
@@ -63,12 +69,14 @@ patientLocations.get(
         WHERE end_date::date > now() - '30 days'::interval
         AND encounters.encounter_type = 'admission'
         AND locations.facility_id = $facilityId
+        AND encounters.deletion_status = :deletionStatus
       `,
       {
         type: QueryTypes.SELECT,
         bind: {
           facilityId: config.serverFacilityId,
         },
+        replacements: { deletionStatus: DELETION_STATUSES.CURRENT },
       },
     );
 
@@ -100,6 +108,7 @@ patientLocations.get(
               encounter_type,
               end_date
             FROM encounters
+            AND deletion_status = :deletionStatus
           ) previous_encounters
           ON encounters.patient_id = previous_encounters.patient_id
           AND encounters.start_date::date - '30 days'::interval < previous_encounters.end_date::date
@@ -111,6 +120,7 @@ patientLocations.get(
           AND previous_encounters.encounter_type = 'admission'
           AND previous_encounter_id IS NOT NULL
           AND locations.facility_id = $facilityId
+          AND encounters.deletion_status = :deletionStatus
           GROUP BY encounters.patient_id
           ORDER BY encounters.patient_id
           ) readmitted_patients
@@ -120,6 +130,7 @@ patientLocations.get(
         bind: {
           facilityId: config.serverFacilityId,
         },
+        replacements: { deletionStatus: DELETION_STATUSES.CURRENT },
       },
     );
 
@@ -150,6 +161,7 @@ patientLocations.get(
       `,
       {
         type: QueryTypes.SELECT,
+        replacements: { deletionStatus: DELETION_STATUSES.CURRENT },
       },
     );
 
@@ -163,6 +175,7 @@ patientLocations.get(
       `,
       {
         type: QueryTypes.SELECT,
+        replacements: { deletionStatus: DELETION_STATUSES.CURRENT },
       },
     );
 
@@ -203,6 +216,7 @@ patientLocations.get(
           planned_location_id
         FROM encounters
         WHERE end_date IS NULL
+        AND deletion_status = :deletionStatus
         ), open_encounters_with_patient_information AS (
         SELECT
           open_encounters.*,
@@ -237,6 +251,7 @@ patientLocations.get(
         FROM encounters
         WHERE end_date::date > now() - '30 days'::interval
         AND encounters.encounter_type = 'admission'
+        AND encounters.deletion_status = :deletionStatus
         GROUP BY location_id
       ) last_30_days_closed_encounters
       ON locations.id = last_30_days_closed_encounters.location_id
@@ -252,6 +267,7 @@ patientLocations.get(
       	LEFT JOIN locations ON locations.id = encounters.location_id
       	WHERE (end_date::date > now() - '30 days'::interval OR end_date IS NULL)
       	AND locations.max_occupancy = 1
+        AND encounters.deletion_status = :deletionStatus
       	GROUP BY location_id
       ) last_30_days_encounters
       ON locations.id = last_30_days_encounters.location_id
@@ -346,6 +362,7 @@ patientLocations.get(
           limit,
           offset,
         },
+        replacements: { deletionStatus: DELETION_STATUSES.CURRENT },
       },
     );
 

@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { DELETION_STATUSES } from '@tamanu/constants';
 import { QueryTypes } from 'sequelize';
 import { CentralServerConnection } from '../../../sync';
 
@@ -32,12 +33,14 @@ patientProfilePicture.get(
           WHERE
             encounters.patient_id = :patientId
             AND program_data_elements.code = :photoCode
+            AND encounters.deletion_status = :deletionStatus
         LIMIT 1
       `,
       {
         replacements: {
           patientId,
           photoCode,
+          deletionStatus: DELETION_STATUSES.CURRENT,
         },
         type: QueryTypes.SELECT,
       },

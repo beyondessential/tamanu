@@ -1,5 +1,5 @@
 import { subDays } from 'date-fns';
-import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
+import { TIME_UNIT_OPTIONS, DELETION_STATUSES } from '@tamanu/constants';
 import { generateReportFromQueryData } from './utilities';
 
 // Creates a string with the time unit that it was added
@@ -181,6 +181,7 @@ where
   and case when :antecedent_cause is not null then (rd5.id = :antecedent_cause OR rd6.id = :antecedent_cause) else true end
   and case when :other_contributing_condition is not null then os.condition_id = :other_contributing_condition else true end
   and case when :manner_of_death is not null then pdd.manner = :manner_of_death else true end
+  and encounters.deletion_status = :deletionStatus
 order by p.date_of_death, p.id, e.end_date;
 `;
 
@@ -203,6 +204,7 @@ const getData = async (sequelize, parameters) => {
       antecedent_cause: antecedentCause ?? null,
       other_contributing_condition: otherContributingCondition ?? null,
       manner_of_death: mannerOfDeath ?? null,
+      deletionStatus: DELETION_STATUSES.CURRENT,
     },
   });
 };

@@ -5,6 +5,7 @@ import { upperFirst } from 'lodash';
 import { parseISO } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
+import { DELETION_STATUSES } from '@tamanu/constants';
 import { parseDateTime, formatFhirDate } from 'shared/utils/fhir/datetime';
 import config from 'config';
 
@@ -230,7 +231,8 @@ department_info as (
     order by date
     limit 1
   ) first_from
-  on e.id = first_from.enc_id
+  on e.id = first_from.enc_id  
+  where e.deletion_status = :deletionStatus
   group by e.id, d.name, e.start_date, first_from
 ),
 
@@ -253,6 +255,7 @@ location_info as (
   left join location_groups lg on l.location_group_id = lg.id
   left join note_history nh
   on nh.encounter_id = e.id and nh.place = 'location'
+  where e.deletion_status = :deletionStatus
   group by e.id, l.name, lg.name, e.start_date
 ),
 
@@ -287,6 +290,7 @@ discharge_disposition_info as (
         order by updated_at desc
         LIMIT 1)
   join reference_data disposition on disposition.id = d.disposition_id
+  where e.deletion_status = :deletionStatus
 ),
 
 encounter_history_info as (
@@ -388,6 +392,7 @@ WHERE true
   ELSE
     true
   END
+  AND e.deletion_status = :deletionStatus
 
 ORDER BY e.end_date DESC
 LIMIT $limit OFFSET $offset;
@@ -425,6 +430,7 @@ routes.get(
         offset, // Should still be able to offset even with no limit
         timezone_string: COUNTRY_TIMEZONE,
       },
+      replacements: { deletionStatus: DELETION_STATUSES.CURRENT },
     });
 
     const mapNotes = notes =>

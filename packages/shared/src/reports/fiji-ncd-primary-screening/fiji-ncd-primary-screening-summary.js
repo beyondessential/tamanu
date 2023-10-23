@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 
 import { endOfDay, format, parseISO, startOfDay } from 'date-fns';
+import { DELETION_STATUSES } from '@tamanu/constants';
 import { groupBy, keyBy } from 'lodash';
 import { toDateTimeString } from '../../utils/dateTime';
 import { generateReportFromQueryData } from '../utilities';
@@ -179,6 +180,7 @@ const getJoinClauses = () => {
         JOIN surveys s2 ON s2.id = sr2.survey_id
         JOIN encounters e2 ON e2.id = sr2.encounter_id
         WHERE e2.patient_id = patient.id
+        AND e2.deletion_status = :deletionStatus
         AND sr2.survey_id = :referral_survey_id
         AND sr.end_time < sr2.end_time
         AND sr2.end_time::timestamp < sr.end_time::timestamp + interval '24 hours'
@@ -229,6 +231,7 @@ const getData = async (sequelize, parameters) => {
           ${getJoinClauses()}
         WHERE sr.survey_id = :screening_survey_id
         AND (eligibilityAnswer.body != 'Ineligible' or eligibilityAnswer.body is null)
+        AND sr_encounter.deletion_status = :deletionStatus
           ${parametersToSqlWhereClause(nonEmptyParameterKeys)}
         GROUP BY date
         ORDER BY date desc;
@@ -244,6 +247,7 @@ const getData = async (sequelize, parameters) => {
           medical_area_id: medicalArea,
           nursing_zone_id: nursingZone,
           division_id: division,
+          deletionStatus: DELETION_STATUSES.CURRENT,
         },
       },
     );

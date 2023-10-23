@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
 import { InvalidParameterError } from 'shared/errors';
-import { NOTE_TYPES, ENCOUNTER_TYPES } from '@tamanu/constants';
+import { NOTE_TYPES, ENCOUNTER_TYPES, DELETION_STATUSES } from '@tamanu/constants';
 
 import { renameObjectKeys } from 'shared/utils';
 
@@ -119,6 +119,7 @@ triage.get(
           AND encounters.end_date IS NULL
           AND location.facility_id = :facility
           AND encounters.encounter_type IN (:triageEncounterTypes)
+          AND encounters.deletion_status = :deletionStatus
         ORDER BY encounter_type IN (:seenEncounterTypes) ASC, ${sortKey} ${sortDirection} NULLS LAST, Coalesce(arrival_time,triage_time) ASC 
       `,
       {
@@ -133,6 +134,7 @@ triage.get(
             ENCOUNTER_TYPES.EMERGENCY,
           ],
           seenEncounterTypes: [ENCOUNTER_TYPES.OBSERVATION, ENCOUNTER_TYPES.EMERGENCY],
+          deletionStatus: DELETION_STATUSES.CURRENT,
         },
       },
     );
