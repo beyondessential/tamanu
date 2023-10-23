@@ -213,7 +213,7 @@ describe('Programs import', () => {
       'config: this field has unspecified keys: foo on Question Validation Fail at row 12',
       'config: unit must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 13',
       'config: this field has unspecified keys: foo on Question Validation Fail at row 14',
-      'config: column must be a `string` type, but the final value was: `24`. on Question Validation Fail at row 15',
+      'config: column must be one of the following values: registrationClinicalStatus, programRegistrationStatus, registrationClinician, registeringFacility, registrationCurrentlyAtVillage, registrationCurrentlyAtFacility, firstName, middleName, lastName, culturalName, dateOfBirth, dateOfDeath, sex, email, villageId, placeOfBirth, bloodType, primaryContactNumber, secondaryContactNumber, maritalStatus, cityTown, streetVillage, educationalLevel, socialMedia, title, birthCertificate, drivingLicense, passport, emergencyContactName, emergencyContactNumber, registeredById, motherId, fatherId, nationalityId, countryId, divisionId, subdivisionId, medicalAreaId, nursingZoneId, settlementId, ethnicityId, occupationId, religionId, patientBillingTypeId, countryOfBirthId on Question Validation Fail at row 15',
       'config: writeToPatient.fieldName must be one of the following values: registrationClinicalStatus, programRegistrationStatus, registrationClinician, registeringFacility, registrationCurrentlyAtVillage, registrationCurrentlyAtFacility, firstName, middleName, lastName, culturalName, dateOfBirth, dateOfDeath, sex, email, villageId, placeOfBirth, bloodType, primaryContactNumber, secondaryContactNumber, maritalStatus, cityTown, streetVillage, educationalLevel, socialMedia, title, birthCertificate, drivingLicense, passport, emergencyContactName, emergencyContactNumber, registeredById, motherId, fatherId, nationalityId, countryId, divisionId, subdivisionId, medicalAreaId, nursingZoneId, settlementId, ethnicityId, occupationId, religionId, patientBillingTypeId, countryOfBirthId on Question Validation Fail at row 16',
       'config: writeToPatient.fieldType is a required field on Question Validation Fail at row 17',
       'config: this field has unspecified keys: foo on Question Validation Fail at row 18',
@@ -524,9 +524,18 @@ describe('Programs import', () => {
       expect(errors).toBeEmpty();
     });
 
-    it('should validate survey patient data fieldType based on registry currentlyAtType', async () => {
+    it('should validate survey patient data fieldName based on registry currentlyAtType', async () => {
       const { errors } = await doImport({
-        file: 'registry-invalid-patient-data-q',
+        file: 'registry-invalid-patient-data-q-wrong-fieldName',
+        xml: true,
+        dryRun: false,
+      });
+      expect(errors).not.toBeEmpty();
+    });
+
+    it('should validate survey patient data fieldName based on if a registry exists', async () => {
+      const { errors } = await doImport({
+        file: 'registry-invalid-patient-data-q-no-registry',
         xml: true,
         dryRun: false,
       });
