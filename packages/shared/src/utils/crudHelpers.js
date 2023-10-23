@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-
+import { DELETION_STATUSES } from '@tamanu/constants';
 import { QueryTypes } from 'sequelize';
 
 import { NotFoundError } from '../errors';
@@ -19,8 +19,9 @@ export const permissionCheckingRouter = (action, subject) => {
   return router;
 };
 
-export const findRouteObject = async (req, modelName) => {
+export const findRouteObject = async (req, modelName, options = {}) => {
   const { models, params } = req;
+  const { additionalFilters = {} } = options;
   const model = models[modelName];
   // check the user can read this model type before searching for it
   // (otherwise, they can see if they get a "not permitted" or a
@@ -28,6 +29,7 @@ export const findRouteObject = async (req, modelName) => {
   req.checkPermission('read', modelName);
   const object = await model.findByPk(params.id, {
     include: model.getFullReferenceAssociations(),
+    where: { ...additionalFilters },
   });
   if (!object) throw new NotFoundError();
   req.checkPermission('read', object);
@@ -37,6 +39,14 @@ export const findRouteObject = async (req, modelName) => {
 export const simpleGet = modelName =>
   asyncHandler(async (req, res) => {
     const object = await findRouteObject(req, modelName);
+    res.send(object);
+  });
+
+export const currentRecordsGet = modelName =>
+  asyncHandler(async (req, res) => {
+    const object = await findRouteObject(req, modelName, {
+      deletionStatus: DELETION_STATUSES.CURRENT,
+    });
     res.send(object);
   });
 
@@ -168,6 +178,7 @@ export const paginatedGetList = (modelName, foreignKey = '', options = {}) => {
     });
   });
 };
+
 export async function runPaginatedQuery(db, model, countQuery, selectQuery, params, pagination) {
   const countResult = await db.query(countQuery, {
     replacements: params,

@@ -14,7 +14,7 @@ import {
 } from '@tamanu/constants';
 
 import {
-  simpleGet,
+  currentRecordsGet,
   simpleGetHasOne,
   simpleGetList,
   permissionCheckingRouter,
@@ -29,7 +29,7 @@ import { getLabRequestList } from '../../routeHandlers/labs';
 
 export const encounter = express.Router();
 
-encounter.get('/:id', simpleGet('Encounter'));
+encounter.get('/:id', currentRecordsGet('Encounter'));
 encounter.post(
   '/$',
   asyncHandler(async (req, res) => {
