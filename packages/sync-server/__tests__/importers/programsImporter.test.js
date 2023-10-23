@@ -248,8 +248,8 @@ describe('Programs import', () => {
       expect(stats).toMatchObject({
         Program: { created: 1, updated: 0, errored: 0 },
         Survey: { created: 2, updated: 0, errored: 0 },
-        ProgramDataElement: { created: 43, updated: 0, errored: 0 },
-        SurveyScreenComponent: { created: 11, updated: 0, errored: 32 }, // 31 fields in failure test, 11 in success test
+        ProgramDataElement: { created: 44, updated: 0, errored: 0 },
+        SurveyScreenComponent: { created: 12, updated: 0, errored: 32 }, // 31 fields in failure test, 11 in success test
       });
     });
   });
@@ -531,6 +531,10 @@ describe('Programs import', () => {
         dryRun: false,
       });
       expect(errors).not.toBeEmpty();
+      expect(errors.length).toEqual(1);
+      expect(errors[0].message).toEqual(
+        'config: column=registrationCurrentlyAtFacility but program registry configured for village on Import Registry With Survey at row 3',
+      );
     });
 
     it('should validate survey patient data fieldName based on if a registry exists', async () => {
@@ -540,6 +544,10 @@ describe('Programs import', () => {
         dryRun: false,
       });
       expect(errors).not.toBeEmpty();
+      expect(errors.length).toEqual(1);
+      expect(errors[0].message).toEqual(
+        'config: column=registrationClinicalStatus but no program registry configured on Import Registry With Survey at row 3',
+      );
     });
 
     describe('conditions', () => {
