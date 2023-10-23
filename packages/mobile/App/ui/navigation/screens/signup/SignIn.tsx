@@ -20,7 +20,6 @@ import { authSelector } from '/helpers/selectors';
 import { OutdatedVersionError } from '~/services/error';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 interface ModalContent {
   message: string;
@@ -30,7 +29,6 @@ interface ModalContent {
 
 export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   const authState = useSelector(authSelector);
-  const { toggleDebugMode, getDebugMode } = useTranslation();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalContent, setModalContent] = useState<ModalContent>({ message: '' });
@@ -57,7 +55,6 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
 
   return (
     <FullView background={theme.colors.PRIMARY_MAIN}>
-      {__DEV__ && <StyledTouchableOpacity onPress={() => toggleDebugMode()}><StyledText color="white" >Translation Debug: {getDebugMode() ? 'ON' : 'OFF'}</StyledText></StyledTouchableOpacity>}
       <StatusBar barStyle="light-content" />
       <ModalInfo
         onVisibilityChange={onChangeModalVisibility}
@@ -100,7 +97,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
           </StyledView>
           <StyledView marginLeft={screenPercentageToDP(2.43, Orientation.Width)}>
             <StyledText fontSize={30} fontWeight="bold" marginBottom={5} color={theme.colors.WHITE}>
-              <TranslatedText fallback="mate" />
+              Log in
             </StyledText>
             <StyledText fontSize={14} color={theme.colors.WHITE}>
               Enter your details below to log in
