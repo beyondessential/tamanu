@@ -16,7 +16,7 @@ describe('PatientProgramRegistration', () => {
     app = await baseApp.asRole('practitioner');
   });
 
-  beforeEach(async () => {
+  afterEach(async () => {
     await models.PatientProgramRegistration.truncate({ cascade: true });
   });
 
@@ -218,6 +218,74 @@ describe('PatientProgramRegistration', () => {
         date: '2023-09-02 09:00:00',
       });
       expect(createdRegistration.updatedAt).not.toEqual(existingRegistration.updatedAt);
+    });
+  });
+
+  describe('POST patient/:patientId/programRegistration/:programRegistryId/condition', () => {
+    let patient;
+    let programRegistry;
+    let programRegistryCondition;
+
+    beforeEach(async () => {
+      patient = await models.Patient.create(fake(models.Patient));
+      const program1 = await models.Program.create(fake(models.Program));
+      programRegistry = await models.ProgramRegistry.create(
+        fake(models.ProgramRegistry, { programId: program1.id }),
+      );
+      programRegistryCondition = await models.ProgramRegistryCondition.create(
+        fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry.id }),
+      );
+    });
+
+    afterEach(async () => {
+      await models.PatientProgramRegistrationCondition.truncate({ cascade: true, force: true });
+      await models.ProgramRegistryCondition.truncate({ cascade: true, force: true });
+      await models.Patient.truncate({ cascade: true, force: true });
+      await models.ProgramRegistry.truncate({ cascade: true, force: true });
+      await models.Program.truncate({ cascade: true, force: true });
+    });
+
+    it('creates a new condition', async () => {
+      const result = await app
+        .post(`/v1/patient/${patient.id}/programRegistration/${programRegistry.id}/condition`)
+        .send({
+          programRegistryConditionId: programRegistryCondition.id,
+          date: '2023-09-02 08:00:00',
+          // clinicianId: clinician.id, // No clinician, just to switch it up
+        });
+
+      expect(result).toHaveSucceeded();
+
+      const createdCondition = await models.PatientProgramRegistrationCondition.findByPk(
+        result.body.id,
+      );
+
+      expect(createdCondition).toMatchObject({
+        programRegistryId: programRegistry.id,
+        patientId: patient.id,
+        programRegistryConditionId: programRegistryCondition.id,
+        date: '2023-09-02 08:00:00',
+      });
+    });
+
+    it('Will not post duplicate conditions', async () => {
+      await models.PatientProgramRegistrationCondition.create(
+        fake(models.PatientProgramRegistrationCondition, {
+          patientId: patient.id,
+          programRegistryId: programRegistry.id,
+          programRegistryConditionId: programRegistryCondition.id,
+          deletionStatus: null,
+        }),
+      );
+      const result = await app
+        .post(`/v1/patient/${patient.id}/programRegistration/${programRegistry.id}/condition`)
+        .send({
+          programRegistryConditionId: programRegistryCondition.id,
+          date: '2023-09-02 08:00:00',
+          // clinicianId: clinician.id, // No clinician, just to switch it up
+        });
+
+      expect(result).not.toHaveSucceeded();
     });
   });
 
