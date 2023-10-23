@@ -283,7 +283,7 @@ reportsRouter.get(
 reportsRouter.get(
   '/dbSchemaOptions',
   asyncHandler(async (req, res) => {
-    if (!config.db.reportSchemas.enabled) return [];
+    if (!config.db.reportSchemas.enabled) return res.send([]);
     const DB_SCHEMA_OPTIONS = Object.values(REPORT_DB_SCHEMAS).map(value => ({
       label: capitalize(value),
       value,
