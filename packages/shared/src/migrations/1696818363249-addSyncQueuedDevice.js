@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 
 const TABLE = 'sync_queued_devices';
 
@@ -16,13 +16,17 @@ export async function up(query) {
     facility_id: { 
       type: DataTypes.TEXT,
       allowNull: false,
+      references: {
+        model: 'facilities',
+        key: 'id',
+      },
     },
     last_synced_tick: { 
       type: DataTypes.BIGINT,
       allowNull: false,
     },
     urgent: { 
-      type: DataTypes.TEXT,
+      type: DataTypes.BOOLEAN,
       allowNull: false,
     },
     status: { 
@@ -32,12 +36,12 @@ export async function up(query) {
 
     created_at: {
       type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
+      defaultValue: Sequelize.fn('now'),
       allowNull: false,
     },
     updated_at: {
       type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
+      defaultValue: Sequelize.fn('now'),
       allowNull: false,
     },
     deleted_at: {

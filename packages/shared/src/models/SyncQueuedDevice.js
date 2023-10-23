@@ -19,9 +19,8 @@ export class SyncQueuedDevice extends Model {
           primaryKey: true,
         },
         lastSeenTime: { type: DataTypes.DATE },
-        facilityId: { type: DataTypes.TEXT },
         lastSyncedTick: { type: DataTypes.BIGINT },
-        urgent: { type: DataTypes.TEXT },
+        urgent: { type: DataTypes.BOOLEAN },
         status: { 
           type: DataTypes.TEXT,
           default: SYNC_QUEUE_STATUSES.QUEUED,
@@ -35,6 +34,13 @@ export class SyncQueuedDevice extends Model {
     );
   }
 
+  static initRelations(models) {
+    this.belongsTo(models.Facility, {
+      foreignKey: 'facilityId',
+      as: 'facility',
+    });
+  }
+
   static getQueueWhereClause() {
     return {
       lastSeenTime: {
@@ -45,14 +51,13 @@ export class SyncQueuedDevice extends Model {
   }
 
   static async getNextReadyDevice() {
-    const foundDevice = await this.findOne({
+    return this.findOne({
       where: this.getQueueWhereClause(),
       orderBy: [
         ['urgent', 'DESC'], // trues first
         ['lastSyncedTick', 'ASC'], // oldest sync first
       ],
     });
-    return foundDevice;
   }
 
   static async checkSyncRequest({ facilityId, deviceId, urgent, lastSyncedTick }) {
