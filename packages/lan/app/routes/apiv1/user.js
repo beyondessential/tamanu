@@ -2,10 +2,11 @@ import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
-
+import { DELETION_STATUSES } from '@tamanu/constants';
 import { BadAuthenticationError } from 'shared/errors';
 import { getPermissions } from 'shared/permissions/middleware';
 import { simpleGet, paginatedGetList, permissionCheckingRouter } from 'shared/utils/crudHelpers';
+import { getWhereClausesAndReplacementsFromFilters, makeFilter } from '../../utils/query';
 
 export const user = express.Router();
 
@@ -52,11 +53,24 @@ user.get(
     req.checkPermission('read', currentUser);
     req.checkPermission('list', 'Patient');
 
-    let andClauses = '';
+    const filters = [
+      makeFilter(query.encounterType, 'encounters.encounter_type = :encounterType', () => ({
+        encounterType: query.encounterType,
+      })),
+      makeFilter(true, `encounters.deletion_status = :deletionStatus`, () => ({
+        deletionStatus: DELETION_STATUSES.CURRENT,
+      })),
+      makeFilter(true, `user_recently_viewed_patients.user_id = :userId`, () => ({
+        userId: currentUser.id,
+      })),
+    ];
 
-    if (query.encounterType) {
-      andClauses = 'AND encounters.encounter_type = :encounterType';
-    }
+    const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
+      filters,
+      {
+        deletionStatus: DELETION_STATUSES.CURRENT,
+      },
+    );
 
     const recentlyViewedPatients = await req.db.query(
       `
@@ -77,10 +91,10 @@ user.get(
             SELECT *, ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY start_date DESC, id DESC) AS row_num
             FROM encounters
             WHERE end_date IS NULL
+            AND deletion_status = :deletionStatus
             ) encounters
             ON (patients.id = encounters.patient_id AND encounters.row_num = 1)
-        WHERE user_recently_viewed_patients.user_id = :userId
-        ${andClauses}
+        ${whereClauses && `WHERE ${whereClauses}`}
         ORDER BY last_accessed_on DESC
         LIMIT 12
       `,
@@ -88,10 +102,7 @@ user.get(
         model: Patient,
         type: QueryTypes.SELECT,
         mapToModel: true,
-        replacements: {
-          userId: currentUser.id,
-          encounterType: query.encounterType,
-        },
+        replacements: filterReplacements,
       },
     );
 

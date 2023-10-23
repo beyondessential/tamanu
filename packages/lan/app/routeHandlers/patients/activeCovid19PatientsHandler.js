@@ -1,7 +1,7 @@
 import { QueryTypes } from 'sequelize';
 import { arrayToDbString, renameObjectKeys } from 'shared/utils';
-import { DIAGNOSIS_CERTAINTY, ENCOUNTER_TYPES } from '@tamanu/constants';
-import { makeFilter } from '../../utils/query';
+import { DIAGNOSIS_CERTAINTY, ENCOUNTER_TYPES, DELETION_STATUSES } from '@tamanu/constants';
+import { getWhereClausesAndReplacementsFromFilters, makeFilter } from '../../utils/query';
 import { createPatientFilters } from '../../utils/patientFilters';
 
 const sortKeys = {
@@ -39,16 +39,13 @@ export const activeCovid19PatientsHandler = async (req, res) => {
   if (clinicalStatusFilter) {
     filters.push(clinicalStatusFilter);
   }
-  const patientFilterWhereClauses = filters.map(f => f.sql).join(' AND ');
-  const filterReplacements = filters
-    .filter(f => f.transform)
-    .reduce(
-      (current, { transform }) => ({
-        ...current,
-        ...transform(current),
-      }),
-      filterParams,
-    );
+  const {
+    whereClauses: patientFilterWhereClauses,
+    filterReplacements,
+  } = getWhereClausesAndReplacementsFromFilters(filters, {
+    ...filterParams,
+    deletionStatus: DELETION_STATUSES.CURRENT,
+  });
 
   const result = await db.query(
     `
@@ -66,6 +63,7 @@ export const activeCovid19PatientsHandler = async (req, res) => {
       SELECT *, ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY start_date DESC, id DESC) AS row_num
       FROM encounters
       WHERE end_date IS NULL
+      AND deletion_status = :deletionStatus
       ) encounters
       ON (patients.id = encounters.patient_id AND encounters.row_num = 1)
     LEFT JOIN reference_data AS village
@@ -86,6 +84,7 @@ export const activeCovid19PatientsHandler = async (req, res) => {
         LEFT JOIN encounters 
   		    ON encounters.id = survey_responses.encounter_id
         WHERE survey_id = '${SURVEY_ID}'
+          AND encounters.deletion_status = :deletionStatus
         GROUP BY patient_id
       ) AS recent_survey_response_by_patient
         ON patients.id = recent_survey_response_by_patient.patient_id

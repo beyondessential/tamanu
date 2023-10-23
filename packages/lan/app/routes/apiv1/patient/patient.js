@@ -20,6 +20,7 @@ import { activeCovid19PatientsHandler } from '../../../routeHandlers';
 import { getOrderClause } from '../../../database/utils';
 import { requestBodyToRecord, dbRecordToResponse, pickPatientBirthData } from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
+import { getWhereClausesAndReplacementsFromFilters } from '../../../utils/query';
 
 const patientRoute = express.Router();
 
@@ -305,7 +306,14 @@ patientRoute.get(
     // clauses to improve query speed by removing unused joins
     const { isAllPatientsListing = false } = filterParams;
     const filters = createPatientFilters(filterParams);
-    const whereClauses = filters.map(f => f.sql).join(' AND ');
+    const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
+      filters,
+      {
+        ...filterParams,
+        facilityId: config.serverFacilityId,
+        deletionStatus: DELETION_STATUSES.CURRENT,
+      },
+    );
 
     const from = isAllPatientsListing
       ? `
@@ -314,6 +322,7 @@ patientRoute.get(
           SELECT *, ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY start_date DESC, id DESC) AS row_num
           FROM encounters
           WHERE end_date IS NULL
+          AND deletion_status = :deletionStatus
         ) encounters
           ON (patients.id = encounters.patient_id AND encounters.row_num = 1)
         LEFT JOIN reference_data AS village
@@ -336,6 +345,7 @@ patientRoute.get(
             SELECT *, ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY start_date DESC, id DESC) AS row_num
             FROM encounters
             WHERE end_date IS NULL
+            AND deletion_status = :deletionStatus
           ) encounters
           ON (patients.id = encounters.patient_id AND encounters.row_num = 1)
         LEFT JOIN users AS clinician 
@@ -364,17 +374,6 @@ patientRoute.get(
           ON (patient_facilities.patient_id = patients.id AND patient_facilities.facility_id = :facilityId)
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
-
-    const filterReplacements = filters
-      .filter(f => f.transform)
-      .reduce(
-        (current, { transform }) => ({
-          ...current,
-          ...transform(current),
-        }),
-        filterParams,
-      );
-    filterReplacements.facilityId = config.serverFacilityId;
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
       replacements: filterReplacements,

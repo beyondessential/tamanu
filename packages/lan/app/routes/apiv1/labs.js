@@ -12,11 +12,13 @@ import {
   NOTE_RECORD_TYPES,
   VISIBILITY_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
+  DELETION_STATUSES,
 } from '@tamanu/constants';
 import { keyBy } from 'lodash';
 import { renameObjectKeys } from 'shared/utils';
 import { simpleGet, simpleGetList, permissionCheckingRouter } from 'shared/utils/crudHelpers';
 import {
+  getWhereClausesAndReplacementsFromFilters,
   makeFilter,
   makeSimpleTextFilterFactory,
   makeSubstringTextFilterFactory,
@@ -154,9 +156,15 @@ labRequest.get(
           published: LAB_REQUEST_STATUSES.PUBLISHED,
         }),
       ),
+      makeFilter(true, 'encounter.deletion_status = :deletionStatus', () => ({
+        deletionStatus: DELETION_STATUSES.CURRENT,
+      })),
     ].filter(f => f);
 
-    const whereClauses = filters.map(f => f.sql).join(' AND ');
+    const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
+      filters,
+      {},
+    );
 
     const from = `
       FROM lab_requests
@@ -184,16 +192,6 @@ labRequest.get(
           ON (requester.id = lab_requests.requested_by_id)
         ${whereClauses && `WHERE ${whereClauses}`}
     `;
-
-    const filterReplacements = filters
-      .filter(f => f.transform)
-      .reduce(
-        (current, { transform }) => ({
-          ...current,
-          ...transform(current),
-        }),
-        filterParams,
-      );
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
       replacements: filterReplacements,
