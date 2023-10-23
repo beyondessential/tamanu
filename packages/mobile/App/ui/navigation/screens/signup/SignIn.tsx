@@ -19,7 +19,6 @@ import { ModalInfo } from '/components/ModalInfo';
 import { authSelector } from '/helpers/selectors';
 import { OutdatedVersionError } from '~/services/error';
 import { useFacility } from '~/ui/contexts/FacilityContext';
-import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 interface ModalContent {
   message: string;
