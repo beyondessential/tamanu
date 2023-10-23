@@ -1,5 +1,5 @@
 import { FHIR_INTERACTIONS, JOB_TOPICS } from '@tamanu/constants';
-import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
+import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 
 export async function fromUpstream({ payload: { resource, upstreamId } }, { log, models }) {
   const materialisableResources = resourcesThatCanDo(

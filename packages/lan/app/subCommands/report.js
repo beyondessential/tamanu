@@ -7,7 +7,7 @@ async function report({ reportId }) {
   const context = await new ApplicationContext().init();
   // going via inline import rather than top-level just to keep diff footprint small during a hotfix
   // should be fine to pull to the top level
-  const { getReportModule } = await import('shared/reports');
+  const { getReportModule } = await import('@tamanu/shared/reports');
 
   const module = await getReportModule(reportId, context.models);
   log.info(`Running report ${reportId} (with empty parameters)`);

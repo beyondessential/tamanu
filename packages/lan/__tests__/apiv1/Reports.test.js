@@ -5,7 +5,7 @@ import { testReportPermissions, setupReportPermissionsTest } from './reportsApiC
 
 const reportsUtils = {
   __esModule: true,
-  ...jest.requireActual('shared/reports'),
+  ...jest.requireActual('@tamanu/shared/reports'),
 };
 
 describe('Reports', () => {

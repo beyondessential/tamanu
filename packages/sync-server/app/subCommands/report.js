@@ -1,8 +1,8 @@
 import { Command } from 'commander';
 import path from 'path';
 
-import { log } from 'shared/services/logging';
-import { REPORT_DEFINITIONS } from 'shared/reports';
+import { log } from '@tamanu/shared/services/logging';
+import { REPORT_DEFINITIONS } from '@tamanu/shared/reports';
 import { REPORT_EXPORT_FORMATS } from '@tamanu/constants';
 import config from 'config';
 import { EmailService } from '../services/EmailService';

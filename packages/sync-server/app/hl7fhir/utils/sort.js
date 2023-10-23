@@ -1,4 +1,4 @@
-import { InvalidParameterError } from 'shared/errors';
+import { InvalidParameterError } from '@tamanu/shared/errors';
 
 import { hl7PatientFields, sortableHL7PatientFields } from '../hl7PatientFields';
 
