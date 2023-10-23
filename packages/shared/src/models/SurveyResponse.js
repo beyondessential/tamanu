@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { PROGRAM_DATA_ELEMENT_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, SYNC_DIRECTIONS, DELETION_STATUSES } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
@@ -146,6 +146,7 @@ export class SurveyResponse extends Model {
       where: {
         patientId,
         endDate: null,
+        deletionStatus: DELETION_STATUSES.CURRENT,
       },
     });
 

@@ -9,6 +9,7 @@ import {
   VACCINE_STATUS,
   SETTING_KEYS,
   VISIBILITY_STATUSES,
+  DELETION_STATUSES,
 } from '@tamanu/constants';
 import { NotFoundError } from 'shared/errors';
 import { getCurrentDateString } from 'shared/utils/dateTime';
@@ -179,6 +180,7 @@ patientVaccineRoutes.post(
           [Op.is]: null,
         },
         patientId,
+        deletionStatus: DELETION_STATUSES.CURRENT,
       },
     });
 

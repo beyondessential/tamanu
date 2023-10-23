@@ -1,6 +1,7 @@
 import config from 'config';
 import { startOfDay } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
+import { DELETION_STATUSES } from '@tamanu/constants';
 
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
@@ -30,6 +31,7 @@ export class MedicationDiscontinuer extends ScheduledTask {
     // (found in the config). Note that the facility will be read from
     // the department associated to each encounter.
     const encounters = await this.models.Encounter.findAll({
+      where: { deletionStatus: DELETION_STATUSES.CURRENT },
       include: [
         {
           association: 'department',

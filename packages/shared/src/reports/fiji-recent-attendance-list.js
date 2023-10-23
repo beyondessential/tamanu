@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 import { startOfDay, endOfDay, parseISO } from 'date-fns';
-import { DIAGNOSIS_CERTAINTY } from '@tamanu/constants';
+import { DIAGNOSIS_CERTAINTY, DELETION_STATUSES } from '@tamanu/constants';
 import { toDateTimeString, ageInYears, format } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
@@ -105,7 +105,10 @@ const getEncounters = async (models, parameters) => {
       'examiner',
       'department',
     ],
-    where: parametersToEncounterSqlWhere(parameters),
+    where: {
+      deletionStatus: DELETION_STATUSES.CURRENT,
+      ...parametersToEncounterSqlWhere(parameters),
+    },
     order: [['startDate', 'ASC']],
   });
 
