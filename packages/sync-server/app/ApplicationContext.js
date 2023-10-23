@@ -20,6 +20,7 @@ export class ApplicationContext {
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();
     }
+
     this.closePromise = new Promise(resolve => {
       this.onClose(resolve);
     });

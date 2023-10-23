@@ -87,7 +87,7 @@ reportsRouter.get(
 reportsRouter.post(
   '/',
   asyncHandler(async (req, res) => {
-    const { store, body, user, reports } = req;
+    const { store, body, user, reportSchemaStores } = req;
     const isReportingSchemaEnabled = config.db.reportSchemas.enabled;
     const defaultReportingSchema = isReportingSchemaEnabled
       ? REPORT_DB_SCHEMAS.REPORTING
@@ -96,7 +96,7 @@ reportsRouter.post(
     const transformedBody = !body.dbSchema ? { ...body, dbSchema: defaultReportingSchema } : body;
 
     const version = await createReportDefinitionVersion(
-      { store, reports },
+      { store, reportSchemaStores },
       null,
       transformedBody,
       user.id,
@@ -108,10 +108,10 @@ reportsRouter.post(
 reportsRouter.post(
   '/:reportId/versions',
   asyncHandler(async (req, res) => {
-    const { store, params, body, user, reports } = req;
+    const { store, params, body, user, reportSchemaStores } = req;
     const { reportId } = params;
     const version = await createReportDefinitionVersion(
-      { store, reports },
+      { store, reportSchemaStores },
       reportId,
       body,
       user.id,
@@ -169,7 +169,7 @@ reportsRouter.get(
 reportsRouter.post(
   '/import',
   asyncHandler(async (req, res) => {
-    const { store, user, reports } = req;
+    const { store, user, reportSchemaStores } = req;
     const {
       models: { ReportDefinition, ReportDefinitionVersion },
       sequelize,
@@ -190,7 +190,7 @@ reportsRouter.post(
     await verifyQuery(
       versionData.query,
       versionData.queryOptions,
-      { store, reports },
+      { store, reportSchemaStores },
       versionData.dbSchema,
     );
 
