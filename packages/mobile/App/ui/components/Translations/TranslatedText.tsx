@@ -3,7 +3,7 @@ import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
 type TranslatedTextProps = {
   stringId: string;
   fallback: string;
-  replacements?: object;
+  replacements?: {[key: string]: ReactNode};
 };
 
 // Duplicated from TranslatedText.js on desktop
