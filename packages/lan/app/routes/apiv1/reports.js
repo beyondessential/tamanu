@@ -31,7 +31,7 @@ reports.post(
       db,
       getLocalisation,
       models,
-      reportSchemaStores: reportInstances,
+      reportSchemaStores,
     } = req;
     const { reportId } = params;
     const facilityReportLog = createNamedLogger(FACILITY_REPORT_LOG_NAME, {
@@ -54,7 +54,7 @@ reports.post(
       const excelData = await reportModule.dataGenerator(
         {
           models,
-          reports: reportInstances,
+          reportSchemaStores,
           sequelize: db,
         },
         parameters,

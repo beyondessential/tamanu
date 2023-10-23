@@ -118,7 +118,7 @@ export class ReportDefinitionVersion extends Model {
     return options.parameters;
   }
 
-  async dataGenerator({ models, sequelize, reports }, parameters) {
+  async dataGenerator({ models, sequelize, reportSchemaStores }, parameters) {
     const reportQuery = this.get('query');
 
     const queryOptions = this.getQueryOptions();
@@ -132,7 +132,9 @@ export class ReportDefinitionVersion extends Model {
 
     const definition = await this.getReportDefinition();
 
-    const instance = reports ? reports[definition.dbSchema]?.sequelize : sequelize;
+    const instance = reportSchemaStores
+      ? reportSchemaStores[definition.dbSchema]?.sequelize
+      : sequelize;
     if (!instance) {
       throw new Error(`No reporting instance found for ${definition.dbSchema}`);
     }
