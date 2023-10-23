@@ -1,56 +1,7 @@
-import { CursorDataMigration } from '@tamanu/shared/dataMigrations';
-
 const LATEST_ENCOUNTER_FLAG = 'latest_encounter';
 
-const NOTE_PAGE_SUB_QUERY = `
-    select
-        np.id,
-        np.record_id,
-        np.note_type,
-        ni.author_id as actor_id,
-        ni.date,
-        ni.content
-    from note_pages np
-    left join note_items ni on ni.note_page_id = np.id
-    join batch_encounters e on np.record_id = e.id
-    where note_type = 'system'
-    and record_type = 'Encounter'
-    order by np.record_id, ni.date
-`;
-
-const NOTE_SUB_QUERY = `
-    select
-        n.id,
-        n.record_id,
-        n.note_type,
-        n.author_id as actor_id,
-        n.date,
-        n.content
-    from notes n
-    join batch_encounters e on n.record_id = e.id
-    where note_type = 'system'
-    and record_type = 'Encounter'
-    order by n.record_id, n.date
-`;
-
-const NOTE_SCHEMAS = ['note_page', 'note'];
-
-export class ChangelogNotesToEncounterHistory extends CursorDataMigration {
-  static defaultBatchSize = Number.MAX_SAFE_INTEGER;
-
-  static defaultDelayMs = 50;
-
-  lastMaxId = '';
-
-  async getQuery({ noteSchema }) {
-    if (!NOTE_SCHEMAS.includes(noteSchema)) {
-      throw new Error(`Note schema should be one of: ${NOTE_SCHEMAS.toString()}`);
-    }
-
-    const allEncounterNotesSystemSubQuery =
-      noteSchema === 'note_page' ? NOTE_PAGE_SUB_QUERY : NOTE_SUB_QUERY;
-
-    return `
+export const getChangelogToEncounterHistoryQuery = allEncounterNotesSystemSubQuery =>
+  `
       with
 
       -- For batching by encounters
@@ -469,5 +420,3 @@ export class ChangelogNotesToEncounterHistory extends CursorDataMigration {
       select max(encounter_id) as "maxId"
       from inserted;
     `;
-  }
-}
