@@ -1,6 +1,5 @@
 import { writeFile, readFile, cp } from 'fs/promises';
 import { createInterface } from 'readline';
-import { parseDocument } from 'yaml';
 
 const PKG_PATH = './package.json';
 
@@ -26,7 +25,7 @@ async function createPackage(name) {
   pkg.workspaces.packages.push(`packages/${name}`);
   await writeFile(PKG_PATH, JSON.stringify(pkg, null, 2) + '\n');
 
-  console.log("All done! Don't forget to run yarn and yarn build-shared, and add to Dockerfile if needed");
+  console.log("All done! Don't forget to run yarn and yarn build-shared.");
   process.exit(0);
 }
 

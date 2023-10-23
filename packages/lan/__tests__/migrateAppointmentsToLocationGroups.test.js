@@ -1,5 +1,5 @@
-import { fake } from 'shared/test-helpers/fake';
-import { createDummyPatient } from 'shared/demoData/patients';
+import { fake } from '@tamanu/shared/test-helpers/fake';
+import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { createTestContext } from './utilities';
 import { migrateAppointments } from '../app/subCommands';
 

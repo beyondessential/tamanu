@@ -1,5 +1,5 @@
-import { createDummyPatient, randomUser, randomReferenceId } from 'shared/demoData/patients';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { createDummyPatient, randomUser, randomReferenceId } from '@tamanu/shared/demoData/patients';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 describe('PatientCarePlan', () => {

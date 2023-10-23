@@ -5,10 +5,10 @@ import {
   createDummyTriage,
   randomRecordId,
   randomReferenceId,
-} from 'shared/demoData';
-import { fake } from 'shared/test-helpers';
+} from '@tamanu/shared/demoData';
+import { fake } from '@tamanu/shared/test-helpers';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 describe('Triage', () => {

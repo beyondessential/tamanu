@@ -3,9 +3,9 @@ import sequelize from 'sequelize';
 import { spawn } from 'child_process';
 
 import { REPORT_REQUEST_STATUSES } from '@tamanu/constants';
-import { getReportModule } from 'shared/reports';
-import { ScheduledTask } from 'shared/tasks';
-import { log } from 'shared/services/logging';
+import { getReportModule } from '@tamanu/shared/reports';
+import { ScheduledTask } from '@tamanu/shared/tasks';
+import { log } from '@tamanu/shared/services/logging';
 
 import { ReportRunner } from '../report/ReportRunner';
 import { getLocalisation } from '../localisation';

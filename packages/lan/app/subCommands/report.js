@@ -1,13 +1,13 @@
 import { Command } from 'commander';
 
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 import { initDatabase } from '../database';
 
 async function report({ reportId }) {
   const context = await initDatabase();
   // going via inline import rather than top-level just to keep diff footprint small during a hotfix
   // should be fine to pull to the top level
-  const { getReportModule } = await import('shared/reports');
+  const { getReportModule } = await import('@tamanu/shared/reports');
 
   const module = await getReportModule(reportId, context.models);
   log.info(`Running report ${reportId} (with empty parameters)`);
