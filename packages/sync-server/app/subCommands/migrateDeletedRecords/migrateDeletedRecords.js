@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES, DELETION_STATUSES } from '@tamanu/constants';
 
 import { log } from 'shared/services/logging';
 import { initDatabase } from '../../database';
@@ -29,8 +29,43 @@ const fromSurveyScreenComponent = async () => {
   );
 };
 
+const fromClinicalFeatures = async table => {
+  const store = await initDatabase({ testMode: false });
+
+  // If deleted_at column does not exist
+  if (!store.models[table].rawAttributes.deleted_at) {
+    log.info(`Table '${table}' does not have 'deleted_at' column`);
+    return;
+  }
+
+  const response = await store.sequelize.query(
+    `UPDATE "${table}" 
+      SET "deleted_at" = NULL, "deletion_status" = :historical
+      WHERE "deleted_at" IS NOT NULL`,
+    {
+      replacements: {
+        historical: DELETION_STATUSES.RECORDED_IN_ERROR,
+      },
+    },
+  );
+
+  log.info(`${response[1].rowCount} soft deleted records updated at ${table} table`);
+};
+
 const TABLE_TO_MIGRATION_MAPPING = {
-  SurveyScreenComponent: fromSurveyScreenComponent,
+  survey_screen_components: fromSurveyScreenComponent,
+  encounters: fromClinicalFeatures,
+  document_metadata: fromClinicalFeatures,
+  referrals: fromClinicalFeatures,
+  notes: fromClinicalFeatures,
+  encounter_medications: fromClinicalFeatures,
+  invoices: fromClinicalFeatures,
+  vitals: fromClinicalFeatures,
+  procedures: fromClinicalFeatures,
+  lab_requests: fromClinicalFeatures,
+  imaging_requests: fromClinicalFeatures,
+  medications: fromClinicalFeatures,
+  survey_responses: fromClinicalFeatures,
 };
 
 export const runMigrate = async (migration, Resource) => {
@@ -40,7 +75,7 @@ export const runMigrate = async (migration, Resource) => {
   }
 
   log.info(`Starting Deleted records migration for ${Resource}...`);
-  await migration();
+  await migration(Resource);
   log.info(`Deleted records migration is done`);
 };
 
