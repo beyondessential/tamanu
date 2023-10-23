@@ -1,0 +1,209 @@
+name: CD Server Package
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - v*.*.*
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write # for cd-client workflow, unused
+  pull-requests: write # for cd-client workflow, unused
+  id-token: write # OIDC token for AWS
+
+jobs:
+  info:
+    name: Branch info
+    uses: ./.github/workflows/branch-info.yml
+
+  desktop:
+    name: Desktop client
+    uses: ./.github/workflows/cd-client.yml
+
+  image:
+    needs: info
+    uses: ./.github/workflows/build-image.yml
+    strategy:
+      matrix:
+        package:
+          - name: central
+            path: sync-server
+          - name: facility
+            path: lan
+    with:
+      package-name: ${{ matrix.package.name }}
+      package-path: ${{ matrix.package.path }}
+      image-shatag: false
+      image-tags: ${{ needs.info.outputs.version }}-serverzips
+
+  build:
+    needs:
+      - info
+      - image
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - name: central
+            path: sync-server
+          - name: facility
+            path: lan
+
+    name: Build ${{ matrix.package.name }}
+    runs-on: ubuntu-latest
+    env:
+      BUILD_NAME: "release-v${{ needs.info.outputs.version }}"
+      ARTIFACT_NAME: "${{ matrix.package.name }}-${{ needs.info.outputs.version }}"
+
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: ap-southeast-2
+          role-to-assume: arn:aws:iam::143295493206:role/gha-image-pull
+          role-session-name: GHA@Tamanu=ServerZips
+          mask-aws-account-id: false
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+
+      - name: Create container
+        run: docker create --name working --platform linux/amd64 ${{ needs.image.outputs.registry }}/tamanu/${{ matrix.package.name }}:${{ needs.info.outputs.version }}-serverzips
+
+      - name: Copy files
+        run: docker cp working:/app $BUILD_NAME
+
+      - name: Remove dependencies
+        working-directory: ${{ env.BUILD_NAME }}
+        run: |
+          set -ex
+          rm -rf node_modules packages/*/node_modules
+
+      - name: Delete container
+        run: docker rm working
+
+      # This will replace the line "cwd: '.'" for the appropriate package, i.e.
+      # "cwd: 'packages/lan'" in the new build folder for each pm2.config file.
+      - name: Prepare production configuration
+        run: |
+          set -ex
+          sed -E \
+            "s|cwd: '.',( //.*)?|cwd: 'packages/${{ matrix.package.path }}',|" \
+            packages/${{ matrix.package.path }}/pm2.config.js > ${{ env.BUILD_NAME }}/pm2.config.js
+
+      - name: Prepare artifact output
+        run: zip -r '${{ env.BUILD_NAME }}.zip' '${{ env.BUILD_NAME }}'
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: '${{ env.BUILD_NAME }}.zip'
+          retention-days: 1
+
+  windows-zip:
+    needs:
+      - info
+      - image
+      - build
+      - desktop
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - name: central
+            path: sync-server
+          - name: facility
+            path: lan
+
+    name: Build ${{ matrix.package.name }} windows zip
+    runs-on: windows-latest
+    env:
+      BUILD_NAME: "release-v${{ needs.info.outputs.version }}"
+      ARTIFACT_NAME: "${{ matrix.package.name }}-${{ needs.info.outputs.version }}"
+      OUTPUT_NAME: "${{ matrix.package.name }}-${{ needs.info.outputs.version }}-windows"
+      S3_PATH: s3://bes-tamanu-release-servers/${{ needs.info.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+
+      - name: Unzip artifact for deployment
+        shell: bash
+        run: unzip '${{ env.BUILD_NAME }}.zip'
+
+      - name: Reinstall dependencies
+        working-directory: ${{ env.BUILD_NAME }}
+        shell: bash
+        run: |
+          set -ex
+          yarn config set network-timeout 600000 -g
+          yarn install --frozen-lockfile --production
+
+      - name: Download desktop client artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: desktop-client
+          path: ${{ env.BUILD_NAME }}/packages/${{ matrix.package.path }}/upgrade
+
+      - name: Prepare final output
+        shell: bash
+        run: |
+          set -ex
+          tar -cf '${{ env.OUTPUT_NAME }}.tar' '${{ env.BUILD_NAME }}'
+          zstd --rm --adapt -T0 -10 '${{ env.OUTPUT_NAME }}.tar' -o '${{ env.OUTPUT_NAME }}.tar.zst'
+
+      - uses: cargo-bins/cargo-binstall@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Sign build
+        shell: bash
+        env:
+          MINISIGN_KEY: ${{ secrets.SIGNING_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          echo "$MINISIGN_KEY" > minisign.key
+          set -x
+          cargo binstall -y --only-signed rsign2
+          rsign sign -W \
+            -s minisign.key \
+            -x '${{ env.OUTPUT_NAME }}.tar.zst.sig' \
+            -t "ts=$(date +%s) repo=${{ github.repository }} commit=${{ needs.info.outputs.actual_ref }} gharun=${{ github.run_id }}" \
+            '${{ env.OUTPUT_NAME }}.tar.zst'
+          rm minisign.*
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: ap-southeast-2
+          role-to-assume: arn:aws:iam::143295493206:role/gha-server-s3
+          role-session-name: GHA@Tamanu=ServerZips
+          mask-aws-account-id: false
+
+      - name: Push to S3
+        run: |
+          aws s3 cp '${{ env.OUTPUT_NAME }}.tar.zst' '${{ env.S3_PATH }}/${{ env.OUTPUT_NAME }}.tar.zst' --no-progress
+          aws s3 cp '${{ env.OUTPUT_NAME }}.tar.zst.sig' '${{ env.S3_PATH }}/${{ env.OUTPUT_NAME }}.tar.zst.sig' --no-progress

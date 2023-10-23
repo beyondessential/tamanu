@@ -2,20 +2,21 @@
 
 import { addDays, formatRFC7231 } from 'date-fns';
 
-import { fake } from 'shared/test-helpers';
+import { fake } from '@tamanu/shared/test-helpers';
 import {
   FHIR_DATETIME_PRECISION,
   IMAGING_REQUEST_STATUS_TYPES,
   NOTE_TYPES,
   VISIBILITY_STATUSES,
-  LAB_REQUEST_STATUSES,
 } from '@tamanu/constants';
-import { randomLabRequest } from '@tamanu/shared/demoData';
-import { fakeUUID } from 'shared/utils/generateId';
-import { formatFhirDate } from 'shared/utils/fhir/datetime';
+import { fakeUUID } from '@tamanu/shared/utils/generateId';
+import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 
 import { createTestContext } from '../../utilities';
-import { fakeResourcesOfFhirServiceRequest } from '../../fake/fhir';
+import {
+  fakeResourcesOfFhirServiceRequest,
+  fakeResourcesOfFhirServiceRequestWithLabRequest,
+} from '../../fake/fhir';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
@@ -204,38 +205,12 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('fetches a service request by materialised ID (lab request)', async () => {
       // arrange
-      const {
-        FhirServiceRequest,
-        LabRequest,
-        ReferenceData,
-        LabTestPanel,
-        LabTestPanelRequest,
-      } = ctx.store.models;
-      const category = await ReferenceData.create({
-        id: 'test1',
-        type: 'labTestCategory',
-        code: 'test1',
-        name: 'Test 1',
-      });
-      const labTestPanel = await LabTestPanel.create({
-        ...fake(LabTestPanel),
-        categoryId: category.id,
-      });
-      const labTestPanelRequest = await LabTestPanelRequest.create({
-        ...fake(LabTestPanelRequest),
-        labTestPanelId: labTestPanel.id,
-        encounterId: resources.encounter.id,
-      });
-      const labRequestData = await randomLabRequest(ctx.store.models, {
-        requestedById: resources.practitioner.id,
-        patientId: resources.patient.id,
-        encounterId: resources.encounter.id,
-        status: LAB_REQUEST_STATUSES.PUBLISHED,
-        labTestPanelRequestId: labTestPanelRequest.id, // make one of them part of a panel
-        requestedDate: '2022-07-27 16:30:00',
-      });
-      const lr = await LabRequest.create(labRequestData);
-      const mat = await FhirServiceRequest.materialiseFromUpstream(lr.id);
+      const { FhirServiceRequest } = ctx.store.models;
+      const { labTestPanel, labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
       await FhirServiceRequest.resolveUpstreams();
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`;
@@ -258,11 +233,11 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         identifier: [
           {
             system: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-labrequest.html',
-            value: lr.id,
+            value: labRequest.id,
           },
           {
             system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-labrequest.html',
-            value: lr.displayId,
+            value: labRequest.displayId,
           },
         ],
         status: 'completed',

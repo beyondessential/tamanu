@@ -1,8 +1,8 @@
 import { REPORT_REQUEST_STATUSES } from '@tamanu/constants';
-import { ScheduledTask } from 'shared/tasks';
-import { log } from 'shared/services/logging';
+import { ScheduledTask } from '@tamanu/shared/tasks';
+import { log } from '@tamanu/shared/services/logging';
 
-import { ReportRequest } from 'shared/models';
+import { ReportRequest } from '@tamanu/shared/models';
 
 /**
  * Adds ReportRequests to the queue to be processed

@@ -1,6 +1,6 @@
-import { FhirWorker } from 'shared/tasks';
+import { FhirWorker } from '@tamanu/shared/tasks';
 import { JOB_TOPICS } from '@tamanu/constants';
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 
 import { allFromUpstream } from './refresh/allFromUpstream';
 import { entireResource } from './refresh/entireResource';

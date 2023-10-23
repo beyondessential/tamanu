@@ -1,7 +1,7 @@
-import { fake, fakeUser } from 'shared/test-helpers/fake';
+import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { InvalidParameterError } from 'shared/errors';
+import { InvalidParameterError } from '@tamanu/shared/errors';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import {
   mergePatient,
@@ -354,7 +354,7 @@ describe('Patient merge', () => {
       const systemFact = await LocalSystemFact.findOne({ where: { key: 'currentSyncTick' } });
       await systemFact.update({ value: 2 });
 
-     // Create merge PAD second, so it would be preferred under sync logic (but NOT under merge logic)
+      // Create merge PAD second, so it would be preferred under sync logic (but NOT under merge logic)
       await PatientAdditionalData.create({
         patientId: merge.id,
         passport: 'merge-passport',
@@ -366,6 +366,140 @@ describe('Patient merge', () => {
         paranoid: false,
       });
       expect(newKeepPatientPad).toHaveProperty('passport', 'keep-passport');
+    });
+  });
+
+  describe('PatientBirthData', () => {
+    it('deletes both PatientBirthData records and generate a new one', async () => {
+      const { PatientBirthData } = models;
+      const [keep, merge] = await makeTwoPatients();
+      const oldKeepPatientBirthData = await PatientBirthData.create({
+        patientId: keep.id,
+        birthWeight: 5,
+      });
+      await PatientBirthData.create({
+        patientId: merge.id,
+        birthWeight: 7,
+      });
+      const oldKeepPatientBirthDataCreatedAt = oldKeepPatientBirthData.createdAt;
+
+      const { updates } = await mergePatient(models, keep.id, merge.id);
+      expect(updates).toEqual({
+        Patient: 2,
+        PatientBirthData: 1,
+      });
+
+      const newKeepPatientBirthData = await PatientBirthData.findOne({
+        where: { patientId: keep.id },
+        paranoid: false,
+      });
+      const newMergePatientPa = await PatientBirthData.findOne({
+        where: { patientId: merge.id },
+        paranoid: false,
+      });
+
+      expect(newMergePatientPa).toEqual(null);
+      expect(newKeepPatientBirthData.createdAt).not.toBe(oldKeepPatientBirthDataCreatedAt);
+      expect(newKeepPatientBirthData).toHaveProperty('deletedAt', null);
+    });
+
+    it('merges Patient Birth Data cleanly', async () => {
+      const { PatientBirthData } = models;
+      const [keep, merge] = await makeTwoPatients();
+
+      const keepPatientBirthData = await PatientBirthData.create({
+        patientId: keep.id,
+        birthWeight: 5,
+      });
+
+      const mergePatientBirthData = await PatientBirthData.create({
+        patientId: merge.id,
+        birthLength: 6,
+      });
+
+      await mergePatient(models, keep.id, merge.id);
+
+      const newKeepPatientBirthData = await PatientBirthData.findOne({
+        where: { patientId: keep.id },
+        paranoid: false,
+      });
+
+      expect(newKeepPatientBirthData).toHaveProperty(
+        'birthWeight',
+        keepPatientBirthData.birthWeight,
+      );
+      expect(newKeepPatientBirthData).toHaveProperty(
+        'birthLength',
+        mergePatientBirthData.birthLength,
+      );
+    });
+
+    it('merges Patient Birth Data even if the keep Patient Birth Data is null', async () => {
+      const { PatientBirthData } = models;
+      const [keep, merge] = await makeTwoPatients();
+
+      await PatientBirthData.create({
+        patientId: keep.id,
+      });
+
+      const mergePatientBirthData = await PatientBirthData.create({
+        patientId: merge.id,
+        birthWeight: 5,
+      });
+
+      await mergePatient(models, keep.id, merge.id);
+
+      const newKeepPatientBirthData = await PatientBirthData.findOne({
+        where: { patientId: keep.id },
+        paranoid: false,
+      });
+
+      expect(newKeepPatientBirthData).toHaveProperty('birthWeight', mergePatientBirthData.birthWeight);
+      expect(newKeepPatientBirthData).toHaveProperty('patientId', keep.id);
+    });
+
+    it('keeps Patient Birth Data from the keep patient and fill unknown values from merge patient', async () => {
+      const { PatientBirthData } = models;
+      const [keep, merge] = await makeTwoPatients();
+
+      const keepPatientBirthData = await PatientBirthData.create({
+        patientId: keep.id,
+        birthWeight: 3,
+        birthLength: 20,
+        gestationalAgeEstimate: 6,
+      });
+
+      const mergePatientBirthData = await PatientBirthData.create({
+        patientId: merge.id,
+        birthWeight: 4,
+        apgarScoreOneMinute: 3,
+        apgarScoreFiveMinutes: 4,
+        apgarScoreTenMinutes: 5,
+      });
+
+      await mergePatient(models, keep.id, merge.id);
+
+      const newKeepPatientBirthData = await PatientBirthData.findOne({
+        where: { patientId: keep.id },
+        paranoid: false,
+      });
+
+      expect(newKeepPatientBirthData).toHaveProperty(
+        'birthWeight',
+        keepPatientBirthData.birthWeight,
+      );
+      expect(newKeepPatientBirthData).toHaveProperty(
+        'apgarScoreOneMinute',
+        mergePatientBirthData.apgarScoreOneMinute,
+      );
+      expect(newKeepPatientBirthData).toHaveProperty(
+        'apgarScoreFiveMinutes',
+        mergePatientBirthData.apgarScoreFiveMinutes,
+      );
+      expect(newKeepPatientBirthData).toHaveProperty(
+        'apgarScoreTenMinutes',
+        mergePatientBirthData.apgarScoreTenMinutes,
+      );
     });
   });
 

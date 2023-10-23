@@ -1,58 +1,33 @@
 import { Command } from 'commander';
-import { inRange } from 'lodash';
+import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
 
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 
 import { initDatabase } from '../database';
 
 const SURVEY_RESPONSE_BATCH_SIZE = 1000;
 
-const checkVisibilityCriteria = (component, allComponents, answerByCode) => {
-  const { visibilityCriteria } = component;
-  // nothing set - show by default
-  if (!visibilityCriteria) return true;
+/**
+ * IMPORTANT: We have 4 other versions of this method:
+ *
+ * - mobile/App/ui/helpers/fields.ts
+ * - desktop/app/utils/survey.js
+ * - shared/src/utils/fields.js
+ * - sync-server/app/subCommands/calculateSurveyResults.js
+ *
+ * So if there is an update to this method, please make the same update
+ * in the other versions
+ */
+const checkVisibilityCriteria = (component, allComponentsFromQuery, values) => {
+  const allComponents = allComponentsFromQuery.map(x => ({
+    dataElement: {
+      code: x.code,
+      type: x.type,
+    },
+  }));
 
   try {
-    const criteriaObject = JSON.parse(visibilityCriteria);
-
-    if (!criteriaObject) {
-      return true;
-    }
-
-    const { _conjunction: conjunction, hidden, ...restOfCriteria } = criteriaObject;
-    if (Object.keys(restOfCriteria).length === 0) {
-      return true;
-    }
-
-    const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]) => {
-      const value = answerByCode[questionCode];
-
-      if (answersEnablingFollowUp.type === 'range') {
-        if (!value) return false;
-        const { start, end } = answersEnablingFollowUp;
-
-        if (!start) return value < end;
-        if (!end) return value >= start;
-        if (inRange(value, parseFloat(start), parseFloat(end))) {
-          return true;
-        }
-      }
-
-      const matchingComponent = allComponents.find(x => x.code === questionCode);
-      if (matchingComponent?.type === 'MultiSelect') {
-        const givenValues = answerByCode[questionCode].split(', ');
-        return givenValues.includes(answersEnablingFollowUp);
-      }
-
-      if (Array.isArray(answersEnablingFollowUp)) {
-        return answersEnablingFollowUp.includes(value);
-      }
-      return answersEnablingFollowUp === value;
-    };
-
-    return conjunction === 'and'
-      ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
-      : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
+    return checkJSONCriteria(component.visibilityCriteria, allComponents, values);
   } catch (error) {
     log.error(`Error message: ${error}`);
 

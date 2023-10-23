@@ -1,9 +1,9 @@
 import config from 'config';
 import { Command } from 'commander';
 
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 
-import { performTimeZoneChecks } from 'shared/utils/timeZoneCheck';
+import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
 import { initDatabase, performDatabaseIntegrityChecks } from '../database';
@@ -35,7 +35,6 @@ async function serve({ skipMigrationCheck }) {
   await performDatabaseIntegrityChecks(context);
 
   context.centralServer = new CentralServerConnection(context);
-  context.centralServer.connect(); // preemptively connect central server to speed up sync
   context.syncManager = new FacilitySyncManager(context);
 
   await performTimeZoneChecks({

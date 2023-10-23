@@ -1,13 +1,25 @@
 import React, { ReactElement } from 'react';
 import { TextField } from '../../../TextField/TextField';
-import { FormGroup } from '../FormGroup';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 
-export const NameSection = (): ReactElement => (
-  <FormGroup sectionName="NAME">
-    <LocalisedField name="firstName" component={TextField} required />
-    <LocalisedField name="middleName" component={TextField} />
-    <LocalisedField name="lastName" component={TextField} required />
-    <LocalisedField name="culturalName" component={TextField} />
-  </FormGroup>
-);
+export const NameSection = (): ReactElement => {
+  const { getBool } = useLocalisation();
+
+  return (
+    <>
+      <LocalisedField name="firstName" component={TextField} required />
+      <LocalisedField
+        name="middleName"
+        component={TextField}
+        required={getBool('fields.middleName.requiredPatientData')}
+      />
+      <LocalisedField name="lastName" component={TextField} required />
+      <LocalisedField
+        name="culturalName"
+        component={TextField}
+        required={getBool('fields.culturalName.requiredPatientData')}
+      />
+    </>
+  );
+};

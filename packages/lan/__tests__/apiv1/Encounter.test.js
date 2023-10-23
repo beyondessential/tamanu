@@ -5,8 +5,8 @@ import {
   createDummyPatient,
   createDummyEncounter,
   createDummyEncounterMedication,
-} from 'shared/demoData/patients';
-import { randomLabRequest } from 'shared/demoData';
+} from '@tamanu/shared/demoData/patients';
+import { randomLabRequest } from '@tamanu/shared/demoData';
 import {
   LAB_REQUEST_STATUSES,
   IMAGING_REQUEST_STATUS_TYPES,
@@ -16,9 +16,9 @@ import {
   NOTE_RECORD_TYPES,
   EncounterChangeType,
 } from '@tamanu/constants';
-import { setupSurveyFromObject } from 'shared/demoData/surveys';
-import { fake, fakeUser } from 'shared/test-helpers/fake';
-import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { setupSurveyFromObject } from '@tamanu/shared/demoData/surveys';
+import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
+import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { uploadAttachment } from '../../app/utils/uploadAttachment';
 import { createTestContext } from '../utilities';
@@ -247,53 +247,6 @@ describe('Encounter', () => {
 
   test.todo('should get a list of procedures');
   test.todo('should get a list of prescriptions');
-
-  it('should get a list of imaging requests', async () => {
-    // arrange
-    const encounter = await models.Encounter.create({
-      ...(await createDummyEncounter(models)),
-      patientId: patient.id,
-    });
-
-    const imagingRequest = await models.ImagingRequest.create(
-      fake(models.ImagingRequest, {
-        patientId: patient.id,
-        encounterId: encounter.id,
-        requestedById: app.user.id,
-        status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
-      }),
-    );
-
-    const areaRefData = await models.ReferenceData.create(
-      fake(models.ReferenceData, { type: 'xRayImagingArea' }),
-    );
-
-    const area = await models.ImagingRequestArea.create(
-      fake(models.ImagingRequestArea, {
-        areaId: areaRefData.id,
-        imagingRequestId: imagingRequest.id,
-      }),
-    );
-
-    // act
-    const result = await app.get(
-      `/v1/encounter/${encodeURIComponent(encounter.id)}/imagingRequests`,
-    );
-
-    // assert
-    expect(result).toHaveSucceeded();
-    expect(result.body).toMatchObject({
-      count: 1,
-      data: expect.any(Array),
-    });
-    const resultLabReq = result.body.data[0];
-    expect(resultLabReq.areas).toEqual([
-      expect.objectContaining({
-        id: areaRefData.id,
-        ImagingRequestArea: expect.objectContaining({ id: area.id }),
-      }),
-    ]);
-  });
 
   describe('GET encounter lab requests', () => {
     it('should get a list of lab requests', async () => {
@@ -1365,6 +1318,101 @@ describe('Encounter', () => {
         const metadata = await models.DocumentMetadata.findByPk(result.body.id);
         expect(metadata).toBeDefined();
         expect(uploadAttachment.mock.calls.length).toBe(1);
+      });
+    });
+
+    describe('imaging request', () => {
+      it('should get a list of imaging requests', async () => {
+        // arrange
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+        });
+
+        const imagingRequest = await models.ImagingRequest.create(
+          fake(models.ImagingRequest, {
+            patientId: patient.id,
+            encounterId: encounter.id,
+            requestedById: app.user.id,
+            status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+          }),
+        );
+
+        const areaRefData = await models.ReferenceData.create(
+          fake(models.ReferenceData, { type: 'xRayImagingArea' }),
+        );
+
+        const area = await models.ImagingRequestArea.create(
+          fake(models.ImagingRequestArea, {
+            areaId: areaRefData.id,
+            imagingRequestId: imagingRequest.id,
+          }),
+        );
+
+        // act
+        const result = await app.get(
+          `/v1/encounter/${encodeURIComponent(encounter.id)}/imagingRequests`,
+        );
+
+        // assert
+        expect(result).toHaveSucceeded();
+        expect(result.body).toMatchObject({
+          count: 1,
+          data: expect.any(Array),
+        });
+        const resultLabReq = result.body.data[0];
+        expect(resultLabReq.areas).toEqual([
+          expect.objectContaining({
+            id: areaRefData.id,
+            ImagingRequestArea: expect.objectContaining({ id: area.id }),
+          }),
+        ]);
+      });
+
+      it('should get a list of imaging requests ordered by joined column', async () => {
+        // arrange
+
+        const practictionerB = await models.User.create({ ...fakeUser(), displayName: 'B' });
+        const practictionerA = await models.User.create({ ...fakeUser(), displayName: 'A' });
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+        });
+
+        const imagingRequestB = await models.ImagingRequest.create(
+          fake(models.ImagingRequest, {
+            patientId: patient.id,
+            encounterId: encounter.id,
+            requestedById: practictionerB.id,
+            status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+          }),
+        );
+
+        const imagingRequestA = await models.ImagingRequest.create(
+          fake(models.ImagingRequest, {
+            patientId: patient.id,
+            encounterId: encounter.id,
+            requestedById: practictionerA.id,
+            status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+          }),
+        );
+
+        // act
+        const result = await app.get(
+          `/v1/encounter/${encodeURIComponent(
+            encounter.id,
+          )}/imagingRequests?orderBy=requestedBy.displayName&order=asc`,
+        );
+
+        // assert
+        expect(result).toHaveSucceeded();
+        expect(result.body).toMatchObject({
+          count: 2,
+          data: [
+            expect.objectContaining({ id: imagingRequestA.id }),
+            expect.objectContaining({ id: imagingRequestB.id }),
+          ],
+        });
       });
     });
 

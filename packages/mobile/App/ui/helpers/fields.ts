@@ -1,4 +1,4 @@
-import { inRange } from 'lodash';
+import { inRange, isNil } from 'lodash';
 import { isDate, formatISO9075 } from 'date-fns';
 import { ISurveyScreenComponent, DataElementType } from '~/types/ISurvey';
 
@@ -103,7 +103,11 @@ function compareData(dataType: string, expected: string, given: any): boolean {
  * test surveys out there using our old system, we fall back to it if we can't parse the JSON.
  * TODO: Remove the fallback once we can guarantee that there's no surveys using it.
  */
-function fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponents): boolean {
+function fallbackParseVisibilityCriteria(
+  visibilityCriteria: string,
+  values: any,
+  allComponents: ISurveyScreenComponent[],
+): boolean {
   const [elementCode = '', expectedAnswer = ''] = visibilityCriteria.split(/\s*:\s*/);
 
   let givenAnswer = values[elementCode] || '';
@@ -124,13 +128,68 @@ function fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponen
   return compareData(comparisonDataType, expectedTrimmed, givenAnswer);
 }
 
+export function checkJSONCriteria(
+  criteria: string,
+  allComponents: ISurveyScreenComponent[],
+  values: any,
+) {
+  // nothing set - show by default
+  if (!criteria) return true;
+
+  const criteriaObject = JSON.parse(criteria);
+
+  if (!criteriaObject) {
+    return true;
+  }
+
+  const { _conjunction: conjunction, ...restOfCriteria } = criteriaObject;
+  if (Object.keys(restOfCriteria).length === 0) {
+    return true;
+  }
+
+  const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]): boolean => {
+    const value = values[questionCode];
+    if (answersEnablingFollowUp.type === 'range') {
+      if (isNil(value)) return false;
+      const { start, end } = answersEnablingFollowUp;
+
+      if (!start) return value < end;
+      if (!end) return value >= start;
+      if (inRange(value, parseFloat(start), parseFloat(end))) {
+        return true;
+      }
+      return false;
+    }
+
+    const matchingComponent = allComponents.find(x => x.dataElement?.code === questionCode);
+    const isMultiSelect = matchingComponent?.dataElement?.type === DataElementType.MultiSelect;
+
+    if (Array.isArray(answersEnablingFollowUp)) {
+      return isMultiSelect
+        ? (value?.split(', ') || []).some(selected => answersEnablingFollowUp.includes(selected))
+        : answersEnablingFollowUp.includes(value);
+    }
+
+    return isMultiSelect
+      ? value?.includes(answersEnablingFollowUp)
+      : answersEnablingFollowUp === value;
+  };
+
+  return conjunction === 'and'
+    ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
+    : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
+}
+
 /**
- * IMPORTANT: We also have another version of this method in sync-server
- * sub commands 'calculateSurveyResults'.
- * The sub command is for recalculate survey results due to an issue that
- * resultText was not synced properly to sync-server before.
+ * IMPORTANT: We have 4 other versions of this method:
+ *
+ * - mobile/App/ui/helpers/fields.ts
+ * - desktop/app/utils/survey.js
+ * - shared/src/utils/fields.js
+ * - sync-server/app/subCommands/calculateSurveyResults.js
+ *
  * So if there is an update to this method, please make the same update
- * in the other version in sync-server
+ * in the other versions
  */
 export function checkVisibilityCriteria(
   component: ISurveyScreenComponent,
@@ -138,51 +197,11 @@ export function checkVisibilityCriteria(
   values: any,
 ): boolean {
   const { visibilityCriteria } = component;
-  // nothing set - show by default
-  if (!visibilityCriteria) return true;
 
   try {
-    const criteriaObject = JSON.parse(visibilityCriteria);
-
-    if (!criteriaObject) {
-      return true;
-    }
-
-    const { _conjunction: conjunction, ...restOfCriteria } = criteriaObject;
-    if (Object.keys(restOfCriteria).length === 0) {
-      return true;
-    }
-
-    const checkIfQuestionMeetsCriteria = ([questionCode, answersEnablingFollowUp]): boolean => {
-      const value = values[questionCode];
-      if (answersEnablingFollowUp.type === 'range') {
-        if (!value) return false;
-        const { start, end } = answersEnablingFollowUp;
-
-        if (!start) return value < end;
-        if (!end) return value >= start;
-        if (inRange(value, parseFloat(start), parseFloat(end))) {
-          return true;
-        }
-      }
-
-      const matchingComponent = allComponents.find(x => x.dataElement?.code === questionCode);
-      if (matchingComponent?.dataElement?.type === DataElementType.MultiSelect) {
-        const givenValues = values[questionCode].split(', ');
-        return givenValues.includes(answersEnablingFollowUp);
-      }
-
-      if (Array.isArray(answersEnablingFollowUp)) {
-        return answersEnablingFollowUp.includes(value);
-      }
-      return answersEnablingFollowUp === value;
-    };
-
-    return conjunction === 'and'
-      ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
-      : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
+    return checkJSONCriteria(visibilityCriteria, allComponents, values);
   } catch (error) {
-    console.warn(`Error parsing JSON visilbity criteria, using fallback.
+    console.warn(`Error parsing JSON visibility criteria, using fallback.
                   \nError message: ${error}`);
 
     return fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponents);
@@ -233,4 +252,15 @@ export function getResultValue(allComponents: ISurveyScreenComponent[], values: 
     result: rawValue,
     resultText: `${rawValue.toFixed(0)}%`,
   };
+}
+
+export function checkMandatory(mandatory: boolean | Record<string, any>, values: any) {
+  if (!mandatory) {
+    return false;
+  }
+  if (typeof mandatory === 'boolean') {
+    return mandatory;
+  }
+
+  return checkJSONCriteria(JSON.stringify(mandatory), [], values);
 }

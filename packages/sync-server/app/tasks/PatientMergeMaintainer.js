@@ -2,13 +2,14 @@
 
 import config from 'config';
 
-import { ScheduledTask } from 'shared/tasks';
-import { log } from 'shared/services/logging';
+import { ScheduledTask } from '@tamanu/shared/tasks';
+import { log } from '@tamanu/shared/services/logging';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 
 import { QueryTypes } from 'sequelize';
 import {
   mergePatientAdditionalData,
+  mergePatientBirthData,
   mergePatientFieldValues,
   reconcilePatientFacilities,
   simpleUpdateModels,
@@ -129,6 +130,24 @@ export class PatientMergeMaintainer extends ScheduledTask {
       );
       if (mergedPad) {
         records.push(mergedPad);
+      }
+    }
+    return records;
+  }
+
+  async specificUpdate_PatientBirthData() {
+    const { PatientBirthData } = this.models;
+    const patientBirthDataMerges = await this.findPendingMergePatients(PatientBirthData);
+
+    const records = [];
+    for (const { keepPatientId, mergedPatientId } of patientBirthDataMerges) {
+      const mergedPatientBirthData = await mergePatientBirthData(
+        this.models,
+        keepPatientId,
+        mergedPatientId,
+      );
+      if (mergedPatientBirthData) {
+        records.push(mergedPatientBirthData);
       }
     }
     return records;

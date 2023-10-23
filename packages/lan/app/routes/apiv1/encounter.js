@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes } from 'sequelize';
-import { NotFoundError, InvalidParameterError } from 'shared/errors';
+import { NotFoundError, InvalidParameterError } from '@tamanu/shared/errors';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
   LAB_REQUEST_STATUSES,
@@ -20,7 +20,7 @@ import {
   permissionCheckingRouter,
   runPaginatedQuery,
   paginatedGetList,
-} from 'shared/utils/crudHelpers';
+} from '@tamanu/shared/utils/crudHelpers';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
@@ -183,13 +183,13 @@ encounterRelations.get(
       where: {
         encounterId,
         status: status || {
-          [Op.and]: [
-            { [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.DELETED },
-            { [Op.ne]: IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR },
+          [Op.notIn]: [
+            IMAGING_REQUEST_STATUS_TYPES.DELETED,
+            IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
           ],
         },
       },
-      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
+      order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined,
       include: associations,
     };
 

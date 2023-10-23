@@ -22,11 +22,10 @@
   },
   "sync": {
     "schedule": "*/1 * * * *",
-    "host": "https://central-dev.tamanu.io",
+    "host": "https://central.main.internal.tamanu.io",
     "email": "",
     "password": "",
     "timeout": 10000,
-    "readOnly": false,
     "persistedCacheBatchSize": 10000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "pauseBetweenCacheBatchInMilliseconds": 50,
