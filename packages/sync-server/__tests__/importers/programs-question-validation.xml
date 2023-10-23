@@ -98,13 +98,13 @@
     <Cell><Data ss:Type="String">Succeed-PatientData</Data></Cell>
     <Cell><Data ss:Type="String">PatientData</Data></Cell>
     <Cell><Data ss:Type="String">PatientData: Full config</Data></Cell>
-    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;column&quot;: &quot;xyz&quot;, &quot;writeToPatient&quot;: { &quot;fieldName&quot;: &quot;email&quot;, &quot;fieldType&quot;: &quot;FreeText&quot; } }</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;column&quot;: &quot;email&quot;, &quot;writeToPatient&quot;: { &quot;fieldName&quot;: &quot;email&quot;, &quot;fieldType&quot;: &quot;FreeText&quot; } }</Data></Cell>
    </Row>
    <Row>
     <Cell><Data ss:Type="String">Succeed-UserData</Data></Cell>
     <Cell><Data ss:Type="String">UserData</Data></Cell>
     <Cell><Data ss:Type="String">UserData: Full config</Data></Cell>
-    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;column&quot;: &quot;xyz&quot; }</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;column&quot;: &quot;email&quot; }</Data></Cell>
    </Row>
    <Row>
     <Cell><Data ss:Type="String">Succeed-Autocomplete</Data></Cell>

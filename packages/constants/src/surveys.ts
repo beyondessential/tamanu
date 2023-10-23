@@ -142,3 +142,8 @@ export const PATIENT_DATA_FIELD_LOCATIONS = {
     'countryOfBirthId',
   ]),
 };
+
+export const PROGRAM_REGISTRY_FIELD_LOCATIONS = Object.keys(PATIENT_DATA_FIELD_LOCATIONS).filter(
+  // @ts-ignore Should be able to make this work, but I can't figure out how
+  key => PATIENT_DATA_FIELD_LOCATIONS[key][0] === 'PatientProgramRegistration',
+);

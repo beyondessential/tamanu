@@ -186,14 +186,19 @@ describe('Programs import', () => {
     expect(errors.length).toEqual(2);
   });
 
-  it('run validation against question configs', async () => {
-    const { didntSendReason, errors, stats } = await doImport({
-      file: 'question-validation',
-      xml: true,
-      dryRun: true,
+  describe('run validation against question configs', () => {
+    let didntSendReason;
+    let errors;
+    let stats;
+
+    beforeAll(async () => {
+      ({ didntSendReason, errors, stats } = await doImport({
+        file: 'question-validation',
+        xml: true,
+        dryRun: true,
+      }));
     });
 
-    expect(didntSendReason).toEqual('validationFailed');
     const expectedErrorMessages = [
       'validationCriteria: this field has unspecified keys: foo on Question Validation Fail at row 2',
       'validationCriteria: mandatory must be a `object` type, but the final value was: `"true"`. on Question Validation Fail at row 3',
@@ -229,15 +234,23 @@ describe('Programs import', () => {
       'config: source is a required field on Question Validation Fail at row 33',
     ];
 
-    errors.forEach((error, i) => {
-      expect(error.message).toEqual(expectedErrorMessages[i]);
+    expectedErrorMessages.forEach((message, i) => {
+      test(`Error at row: ${i + 1}`, () => {
+        expect(errors[i].message).toEqual(message);
+      });
     });
-    expect(stats).toMatchObject({
-      Program: { created: 1, updated: 0, errored: 0 },
-      Survey: { created: 2, updated: 0, errored: 0 },
-      // TODO: Fix after merge
-      ProgramDataElement: { created: 43, updated: 0, errored: 0 },
-      SurveyScreenComponent: { created: 11, updated: 0, errored: 32 }, // 31 fields in failure test, 11 in success test
+
+    test('didntSendReason matches', () => {
+      expect(didntSendReason).toEqual('validationFailed');
+    });
+
+    test('Stats matches correctly', () => {
+      expect(stats).toMatchObject({
+        Program: { created: 1, updated: 0, errored: 0 },
+        Survey: { created: 2, updated: 0, errored: 0 },
+        ProgramDataElement: { created: 43, updated: 0, errored: 0 },
+        SurveyScreenComponent: { created: 11, updated: 0, errored: 32 }, // 31 fields in failure test, 11 in success test
+      });
     });
   });
 
