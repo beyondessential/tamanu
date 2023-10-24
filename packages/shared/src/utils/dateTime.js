@@ -153,7 +153,11 @@ export function compareDateStrings(key = 'desc') {
 function getAgeRangeInMinutes({ ageMin = -Infinity, ageMax = Infinity, ageUnit }) {
   const timeUnit = TIME_UNIT_OPTIONS.find(option => option.unit === ageUnit);
   const conversionValue = timeUnit.minutes;
-  return { ageMin: ageMin * conversionValue, ageMax: ageMax * conversionValue };
+  return {
+    ageMin: ageMin * conversionValue,
+    ageMax: ageMax * conversionValue,
+    previousAgeUnit: ageUnit,
+  };
 }
 
 export function doAgeRangesHaveGaps(rangesArray) {
