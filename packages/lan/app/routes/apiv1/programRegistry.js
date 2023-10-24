@@ -113,6 +113,7 @@ programRegistry.get(
         conditions.condition_list as "conditions",
         status.name as "clinical_status.name",
         status.color as "clinical_status.color",
+        program_registry.currently_at_type as "program_registry.currently_at_type",
         --
         -- Details for filtering/ordering
         patient.date_of_death as "patient.date_of_death",
@@ -133,6 +134,8 @@ programRegistry.get(
       and conditions.program_registry_id = mrr.program_registry_id
       left join program_registry_clinical_statuses status
       on mrr.clinical_status_id = status.id
+      left join program_registries program_registry
+      on mrr.program_registry_id = program_registry.id
       ${whereClauses && `WHERE ${whereClauses}`}
 
       ORDER BY ${sortKey} ${sortDirection}${nullPosition ? ` ${nullPosition}` : ''}

@@ -38,7 +38,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
     return [
       {
         key: 'displayId',
-        accessor: ({ patientDisplayId }) => patientDisplayId || 'Unknown',
+        accessor: ({ patient }) => patient.displayId || 'Unknown',
       },
       {
         key: 'firstName',
@@ -60,7 +60,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       {
         key: 'sex',
         title: 'Sex',
-        accessor: ({ patient }) => patient.sex,
+        accessor: ({ patient }) => patient.sex && patient.sex.slice(0, 1).toUpperCase(),
         sortable: false,
       },
       {
@@ -77,8 +77,8 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         key: 'currentlyIn',
         title: 'Currently in',
         accessor: row => {
-          if (row.programRegistry.currentlyAt === 'village') return row.village.name;
-          if (row.programRegistry.currentlyAt === 'facility') return row.facility.name;
+          if (row.programRegistry.currentlyAtType === 'village') return row.village.name;
+          if (row.programRegistry.currentlyAtType === 'facility') return row.facility.name;
           return '';
         },
       },
