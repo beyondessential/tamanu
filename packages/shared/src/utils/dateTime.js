@@ -161,6 +161,28 @@ function getAgeRangeInMinutes({ ageMin = -Infinity, ageMax = Infinity, ageUnit }
 }
 
 export function doAgeRangesHaveGaps(rangesArray) {
+  const conversions = {
+    weeks: {
+      months: (a, b) => {
+        const weeks = a.ageMax / 60 / 24 / 7;
+        const months = b.ageMin / 60 / 24 / 30;
+        return weeks / 4 !== months;
+      },
+      years: (a, b) => {
+        const weeks = a.ageMax / 60 / 24 / 7;
+        const years = b.ageMin / 60 / 24 / 365;
+        return weeks / 52 !== years;
+      },
+    },
+    months: {
+      years: (a, b) => {
+        const months = a.ageMax / 60 / 24 / 30;
+        const years = b.ageMin / 60 / 24 / 365;
+        return months / 12 !== years;
+      },
+    },
+  };
+
   // Get all values into same time unit and sort by ageMin low to high
   const normalized = rangesArray.map(getAgeRangeInMinutes);
   normalized.sort((a, b) => a.ageMin - b.ageMin);
@@ -169,6 +191,14 @@ export function doAgeRangesHaveGaps(rangesArray) {
     const rangeB = normalized[i + 1];
     // This means we reached the last item, nothing more to compare
     if (!rangeB) return false;
+
+    if (rangeA.previousAgeUnit !== rangeB.previousAgeUnit) {
+      // No conversion means that minute comparison is good
+      const conversion = conversions[rangeA.previousAgeUnit]?.[rangeB.previousAgeUnit];
+      if (conversion) {
+        return conversion(rangeA, rangeB);
+      }
+    }
     // These have to forcefully match, otherwise a gap exists
     return rangeA.ageMax !== rangeB.ageMin;
   });
