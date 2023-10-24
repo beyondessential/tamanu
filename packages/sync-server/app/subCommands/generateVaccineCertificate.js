@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 import { initDatabase } from '../database';
 import { makeVaccineCertificate } from '../utils/makePatientCertificate';
 
