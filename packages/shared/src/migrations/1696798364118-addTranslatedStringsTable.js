@@ -14,6 +14,13 @@ export async function up(query) {
         type: DataTypes.TEXT,
         required: true,
         primaryKey: true,
+        validate: {
+          doesNotContainIdDelimiter: value => {
+            if (value.includes('\u001F')) {
+              throw new Error('Translation ID cannot contain "\u001F"');
+            }
+          },
+        },
       },
       language: {
         type: DataTypes.TEXT,
@@ -23,6 +30,13 @@ export async function up(query) {
       text: {
         type: DataTypes.TEXT,
         required: true,
+        validate: {
+          doesNotContainIdDelimiter: value => {
+            if (value.includes('\u001F')) {
+              throw new Error('Text cannot contain "\u001F"');
+            }
+          },
+        },
       },
       created_at: {
         type: DataTypes.DATE,
