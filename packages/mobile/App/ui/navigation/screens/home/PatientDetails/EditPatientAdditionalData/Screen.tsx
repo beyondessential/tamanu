@@ -4,6 +4,7 @@ import { FullView } from '/styled/common';
 import { StackHeader } from '~/ui/components/StackHeader';
 import { PatientAdditionalDataForm } from '/components/Forms/PatientAdditionalDataForm';
 import { theme } from '/styled/theme';
+import { PatientSectionHeader } from '~/ui/components/Forms/NewPatientForm/PatientSectionHeader';
 
 export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactElement => {
   const {
@@ -31,6 +32,7 @@ export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactEle
         subtitle={patientName}
         onGoBack={onGoBack}
       />
+      <PatientSectionHeader name={sectionTitle} />
       <PatientAdditionalDataForm
         patientId={patientId}
         additionalData={additionalData}

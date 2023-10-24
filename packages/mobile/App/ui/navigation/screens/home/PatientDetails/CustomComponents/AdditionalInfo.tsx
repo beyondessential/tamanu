@@ -1,6 +1,4 @@
-import React, { ReactElement, useState, useCallback } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
-import { groupBy } from 'lodash';
+import React, { ReactElement } from 'react';
 
 import { FieldRowDisplay } from '../../../../../components/FieldRowDisplay';
 import { ErrorScreen } from '../../../../../components/ErrorScreen';
@@ -8,8 +6,8 @@ import { LoadingScreen } from '../../../../../components/LoadingScreen';
 import { PatientSection } from './PatientSection';
 import { useLocalisation } from '../../../../../contexts/LocalisationContext';
 import { IPatient, IPatientAdditionalData } from '../../../../../../types';
-import { useBackend } from '../../../../../hooks';
 import { additionalDataSections } from '../../../../../helpers/additionalData';
+import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 
 interface AdditionalInfoProps {
   onEdit: (additionalInfo: IPatientAdditionalData, sectionTitle: string) => void;
@@ -28,51 +26,13 @@ function getFieldData(data: IPatientAdditionalData, fieldName: string): string {
 }
 
 export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactElement => {
-  const backend = useBackend();
-  const [customPatientSections, setCustomPatientSections] = useState([]);
-  const [customPatientFieldValues, setCustomPatientFieldValues] = useState([]);
-  const [additionalDataRecord, setAdditionalDataRecord] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  useFocusEffect(
-    useCallback(() => {
-      let mounted = true;
-      (async (): Promise<void> => {
-        const { models } = backend;
-        try {
-          const [record, fieldDefinitions, fieldValues] = await Promise.all([
-            models.PatientAdditionalData.find({
-              where: { patient: { id: patient.id } },
-            }),
-            models.PatientFieldDefinition.findVisible({
-              relations: [ 'category' ],
-            }),
-            models.PatientFieldValue.find({
-              where: { patient: { id: patient.id } },
-            }),
-          ]);
-          const result = record && record[0];
-          if (!mounted) {
-            return;
-          }
-          setCustomPatientSections(Object.entries(groupBy(fieldDefinitions, 'categoryId')));
-          setCustomPatientFieldValues(groupBy(fieldValues, 'definitionId'));
-          setAdditionalDataRecord(result);
-          setLoading(false);
-        } catch (err) {
-          if (!mounted) {
-            return;
-          }
-          setError(err);
-          setLoading(false);
-        }
-      })();
-      return (): void => {
-        mounted = false;
-      };
-    }, [backend, patient.id]),
-  );
-
+  const {
+    customPatientSections,
+    customPatientFieldValues,
+    patientAdditionalData,
+    loading,
+    error
+  } = usePatientAdditionalData(patient.id);
   // Display general error
   if (error) {
     return <ErrorScreen error={error} />;
@@ -84,8 +44,10 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
 
   // Add edit callback and map the inner 'fields' array
   const additionalSections = additionalDataSections.map(({ title, fields }) => {
-    const onEditCallback = (): void => onEdit(additionalDataRecord, title, false);
-    const mappedFields = fields.map(fieldName => ([fieldName, getFieldData(additionalDataRecord, fieldName)]));
+    const onEditCallback = (): void => onEdit(patientAdditionalData, title, false);
+    const mappedFields = fields
+      .filter(fieldName => !getBool(`fields.${fieldName}.requiredPatientData`))
+      .map(fieldName => [fieldName, getFieldData(patientAdditionalData, fieldName)]);
     return { title, fields: mappedFields, onEditCallback };
   });
 

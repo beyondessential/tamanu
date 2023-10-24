@@ -1,9 +1,9 @@
-import { randomLabRequest } from 'shared/demoData/labRequests';
+import { randomLabRequest } from '@tamanu/shared/demoData/labRequests';
 import {
   createDummyEncounter,
   createDummyPatient,
   randomReferenceId,
-} from 'shared/demoData/patients';
+} from '@tamanu/shared/demoData/patients';
 import { formatISO } from 'date-fns';
 
 export const LAB_CATEGORY_ID = 'labTestCategory-COVID';

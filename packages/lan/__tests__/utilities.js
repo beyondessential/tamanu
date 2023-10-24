@@ -9,8 +9,8 @@ import {
   seedLocations,
   seedLocationGroups,
   seedLabTests,
-} from 'shared/demoData';
-import { chance, fake, showError } from 'shared/test-helpers';
+} from '@tamanu/shared/demoData';
+import { chance, fake, showError } from '@tamanu/shared/test-helpers';
 
 import { createApp } from 'lan/app/createApp';
 import { initDatabase, closeDatabase } from 'lan/app/database';

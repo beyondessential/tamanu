@@ -1,4 +1,6 @@
 import React, { ReactElement, useCallback, useRef } from 'react';
+import { theme } from '/styled/theme';
+import { StyledView } from '/styled/common';
 import { Form } from '../Form';
 import { FormScreenView } from '/components/Forms/FormScreenView';
 import { PatientAdditionalDataFields } from './PatientAdditionalDataFields';
@@ -10,8 +12,8 @@ import {
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { PatientFieldValue } from '~/models/PatientFieldValue';
 import { Routes } from '~/ui/helpers/routes';
-import { FormSectionHeading } from '../FormSectionHeading';
 import { additionalDataSections } from '~/ui/helpers/additionalData';
+import { Button } from '../../Button';
 
 export const PatientAdditionalDataForm = ({
   patientId,
@@ -63,13 +65,20 @@ export const PatientAdditionalDataForm = ({
     >
       {({ handleSubmit, isSubmitting }): ReactElement => (
         <FormScreenView scrollViewRef={scrollViewRef}>
-          <FormSectionHeading text={sectionTitle} />
-          <PatientAdditionalDataFields
-            handleSubmit={handleSubmit}
-            isSubmitting={isSubmitting}
-            fields={fields}
-            isCustomFields={isCustomFields}
-          />
+          <StyledView justifyContent="space-between">
+            <PatientAdditionalDataFields
+              fields={fields}
+              isCustomFields={isCustomFields}
+              showMandatory={false}
+            />
+            <Button
+              backgroundColor={theme.colors.PRIMARY_MAIN}
+              onPress={handleSubmit}
+              loadingAction={isSubmitting}
+              buttonText="Save"
+              marginTop={10}
+            />
+          </StyledView>
         </FormScreenView>
       )}
     </Form>

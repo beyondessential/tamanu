@@ -6,12 +6,12 @@ import {
   FacilityAndSyncVersionIncompatibleError,
   RemoteTimeoutError,
   RemoteCallFailedError,
-} from 'shared/errors';
+} from '@tamanu/shared/errors';
 import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
-import { getResponseJsonSafely } from 'shared/utils';
-import { log } from 'shared/services/logging';
-import { fetchWithTimeout } from 'shared/utils/fetchWithTimeout';
-import { sleepAsync } from 'shared/utils/sleepAsync';
+import { getResponseJsonSafely } from '@tamanu/shared/utils';
+import { log } from '@tamanu/shared/services/logging';
+import { fetchWithTimeout } from '@tamanu/shared/utils/fetchWithTimeout';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { version } from '../serverInfo';
 import { callWithBackoff } from './callWithBackoff';
