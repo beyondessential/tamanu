@@ -13,7 +13,12 @@ describe('doAgeRangesHaveGaps', () => {
 
   it('should return false for ranges without gaps', () => {
     const ranges = [
-      { ageMin: 0, ageMax: 10, ageUnit: 'years' },
+      { ageMin: 0, ageMax: 120, ageUnit: 'minutes' },
+      { ageMin: 2, ageMax: 24, ageUnit: 'hours' },
+      { ageMin: 1, ageMax: 14, ageUnit: 'days' },
+      { ageMin: 2, ageMax: 8, ageUnit: 'weeks' },
+      { ageMin: 2, ageMax: 24, ageUnit: 'months' },
+      { ageMin: 2, ageMax: 10, ageUnit: 'years' },
       { ageMin: 10, ageMax: 20, ageUnit: 'years' },
       { ageMin: 20, ageMax: 30, ageUnit: 'years' },
     ];
