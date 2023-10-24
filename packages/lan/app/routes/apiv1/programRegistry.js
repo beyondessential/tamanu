@@ -1,12 +1,9 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import config from 'config';
-import { startOfDay, endOfDay } from 'date-fns';
 import { QueryTypes } from 'sequelize';
 
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { LAB_REQUEST_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { renameObjectKeys } from '@tamanu/shared/utils';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { deepRenameObjectKeys } from '@tamanu/shared/utils';
 import { simpleGet, simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 import {
   makeFilter,
@@ -76,7 +73,7 @@ programRegistry.get(
       clinicalStatus: 'clinical_status',
     };
 
-    const sortKey = sortKeys[orderBy];
+    const sortKey = sortKeys[orderBy] ?? sortKeys.displayId;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
     const nullPosition = sortDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST';
 
@@ -107,6 +104,7 @@ programRegistry.get(
         patient.first_name AS "patient.first_name",
         patient.last_name AS "patient.last_name",
         patient.date_of_birth AS "patient.date_of_birth",
+        patient.date_of_death AS "patient.date_of_death",
         patient.sex AS "patient.sex",
         patient_village.name AS "patient.village.name",
         currently_at_village.name as "village.name",
@@ -159,7 +157,7 @@ programRegistry.get(
       },
     );
 
-    const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
+    const forResponse = result.map(deepRenameObjectKeys);
     res.send({
       data: forResponse,
       count: 20008,

@@ -146,15 +146,8 @@ describe('ProgramRegistry', () => {
           facility: {
             name: null,
           },
-          hi: 'wrong',
           patient: {
-            date_of_birth: '2088-02-06',
-            date_of_death: null,
             display_id: '1',
-            first_name: 'Clifford',
-            id: '24c7ed5c-c1be-0000-844e-85cab9e7f252',
-            last_name: 'van Boven',
-            sex: 'male',
             village: {
               name: null,
             },
@@ -168,32 +161,8 @@ describe('ProgramRegistry', () => {
           },
         },
         {
-          clinical_status: {
-            color: null,
-            name: null,
-          },
-          conditions: null,
-          facility: {
-            name: null,
-          },
           patient: {
-            date_of_birth: '2035-12-12',
-            date_of_death: null,
             display_id: '2',
-            first_name: 'Nell',
-            id: '13d38138-627f-0000-97a2-15edd80c2d53',
-            last_name: 'Goodwin',
-            sex: 'female',
-            village: {
-              name: null,
-            },
-          },
-          registering_facility: {
-            name: null,
-          },
-          registrationStatus: 'active',
-          village: {
-            name: null,
           },
         },
       ]);

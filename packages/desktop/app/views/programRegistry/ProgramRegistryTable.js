@@ -128,7 +128,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
   }, []);
 
   const dispatch = useDispatch();
-  const selectLab = async registration => {
+  const selectRegistration = async registration => {
     const { patientId } = registration;
     if (patientId) {
       await dispatch(reloadPatient(patientId));
@@ -140,17 +140,17 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
     <>
       <SearchTable
         autoRefresh
-        endpoint={`programRegistry/${useParams.programRegistryId}/registrations`}
+        endpoint={`programRegistry/${params.programRegistryId}/registrations`}
         columns={columns}
         noDataMessage="No Program registry found"
-        onRowClick={selectLab}
+        onRowClick={selectRegistration}
         fetchOptions={searchParameters}
-        rowStyle={({ isDeceased }) => {
-          return isDeceased ? `& > td { color: ${Colors.alert}; }` : '';
+        rowStyle={({ patient }) => {
+          return patient.dateOfDeath ? `& > td { color: ${Colors.alert}; }` : '';
         }}
         initialSort={{
           order: 'desc',
-          orderBy: 'patientDisplayId',
+          orderBy: 'displayId',
         }}
       />
       {openModal && openModal.data && openModal.action === 'ChangeStatus' && (
