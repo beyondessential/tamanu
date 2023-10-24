@@ -48,13 +48,9 @@ programRegistry.get(
       makePartialTextFilter('displayId', 'patient.display_id'),
       makeSimpleTextFilter('firstName', 'patient.first_name'),
       makeSimpleTextFilter('lastName', 'patient.last_name'),
-      // makeFilter(
-      //   filterParams.status !== LAB_REQUEST_STATUSES.PUBLISHED,
-      //   'lab_requests.status != :published',
-      //   () => ({
-      //     published: LAB_REQUEST_STATUSES.PUBLISHED,
-      //   }),
-      // ),
+      makeFilter(true, 'mrr.program_registry_id = :program_registry_id', () => ({
+        program_registry_id: programRegistryId,
+      })),
     ].filter(f => f);
 
     const whereClauses = filters.map(f => f.sql).join(' AND ');
@@ -118,6 +114,7 @@ programRegistry.get(
         registering_facility.name as "registering_facility.name",
         conditions.condition_list as "conditions",
         status.name as "clinical_status.name",
+        status.color as "clinical_status.color",
         --
         -- Details for filtering/ordering
         patient.date_of_death as "patient.date_of_death",
@@ -152,7 +149,7 @@ programRegistry.get(
           sortKey,
           sortDirection,
         },
-        // The combination of these four parameters allow mapping the query results
+        // The combination of these two parameters allow mapping the query results
         // to nested models
         model: PatientProgramRegistration,
         mapToModel: true,
@@ -162,9 +159,9 @@ programRegistry.get(
       },
     );
 
-    // const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
+    const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
     res.send({
-      data: result,
+      data: forResponse,
       count: 20008,
     });
   }),

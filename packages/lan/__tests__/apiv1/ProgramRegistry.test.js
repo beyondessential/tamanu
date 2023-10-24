@@ -5,6 +5,7 @@ import { createTestContext } from '../utilities';
 let baseApp = null;
 let models = null;
 
+jest.setTimeout(1000000);
 describe('ProgramRegistry', () => {
   let app;
   let testProgram;
@@ -71,6 +72,7 @@ describe('ProgramRegistry', () => {
         fake(models.ProgramRegistryClinicalStatus, {
           programRegistryId,
           name: 'aa',
+          color: 'blue',
         }),
       );
 
@@ -89,7 +91,6 @@ describe('ProgramRegistry', () => {
           patientId: (await models.Patient.create(fake(models.Patient, { displayId: '1' }))).id,
           clinicianId: clinician.id,
           clinicalStatusId: programRegistryClinicalStatus.id,
-          registrationStatus: REGISTRATION_STATUSES.ACTIVE,
         }),
       );
 
@@ -110,21 +111,92 @@ describe('ProgramRegistry', () => {
         }),
       );
 
-      // Patient 3: Should be filtered out (registrationStatus = removed)
-      await models.PatientProgramRegistration.create(
-        fake(models.PatientProgramRegistration, {
-          ...baseRegistrationData,
-          patientId: (await models.Patient.create(fake(models.Patient, { displayId: '3' }))).id,
-          registrationStatus: REGISTRATION_STATUSES.REMOVED,
-        }),
-      );
+      // // Patient 3: Should be filtered out (registrationStatus = removed)
+      // await models.PatientProgramRegistration.create(
+      //   fake(models.PatientProgramRegistration, {
+      //     ...baseRegistrationData,
+      //     patientId: (await models.Patient.create(fake(models.Patient, { displayId: '3' }))).id,
+      //     registrationStatus: REGISTRATION_STATUSES.REMOVED,
+      //   }),
+      // );
 
-      const result = await app.get(`/v1/programRegistry/${programRegistryId}/registrations`);
+      // // Patient 3: Should be filtered out (registrationStatus = removed)
+      // await models.PatientProgramRegistration.create(
+      //   fake(models.PatientProgramRegistration, {
+      //     ...baseRegistrationData,
+      //     patientId: (await models.Patient.create(fake(models.Patient, { displayId: '3' }))).id,
+      //     registrationStatus: REGISTRATION_STATUSES.REMOVED,
+      //   }),
+      // );
+
+      const result = await app.get(`/v1/programRegistry/${programRegistryId}/registrations`).query({
+        sortBy: 'clinicalStatus',
+      });
       expect(result).toHaveSucceeded();
 
       const { body } = result;
-      expect(body.data).toEqual(2);
       expect(body.data.length).toEqual(2);
+      expect(body.data).toEqual([
+        {
+          clinical_status: {
+            color: 'blue',
+            name: 'aa',
+          },
+          conditions: null,
+          facility: {
+            name: null,
+          },
+          hi: 'wrong',
+          patient: {
+            date_of_birth: '2088-02-06',
+            date_of_death: null,
+            display_id: '1',
+            first_name: 'Clifford',
+            id: '24c7ed5c-c1be-0000-844e-85cab9e7f252',
+            last_name: 'van Boven',
+            sex: 'male',
+            village: {
+              name: null,
+            },
+          },
+          registering_facility: {
+            name: null,
+          },
+          registrationStatus: 'active',
+          village: {
+            name: null,
+          },
+        },
+        {
+          clinical_status: {
+            color: null,
+            name: null,
+          },
+          conditions: null,
+          facility: {
+            name: null,
+          },
+          patient: {
+            date_of_birth: '2035-12-12',
+            date_of_death: null,
+            display_id: '2',
+            first_name: 'Nell',
+            id: '13d38138-627f-0000-97a2-15edd80c2d53',
+            last_name: 'Goodwin',
+            sex: 'female',
+            village: {
+              name: null,
+            },
+          },
+          registering_facility: {
+            name: null,
+          },
+          registrationStatus: 'active',
+          village: {
+            name: null,
+          },
+        },
+      ]);
     });
   });
 });

@@ -66,7 +66,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       {
         key: 'homeVillage',
         title: 'Home village',
-        accessor: ({ patient }) => patient.village,
+        accessor: ({ patient }) => patient.village.name,
       },
       {
         key: 'registeringFacility',
@@ -140,7 +140,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
     <>
       <SearchTable
         autoRefresh
-        endpoint="patientProgramRegistration"
+        endpoint={`programRegistry/${useParams.programRegistryId}/registrations`}
         columns={columns}
         noDataMessage="No Program registry found"
         onRowClick={selectLab}
