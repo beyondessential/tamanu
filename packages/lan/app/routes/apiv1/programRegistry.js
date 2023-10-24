@@ -62,6 +62,59 @@ programRegistry.get(
         filterParams,
       );
 
+    const withClause = `
+      with
+        most_recent_registrations as (
+          SELECT *
+          FROM (
+            SELECT 
+              *,
+              ROW_NUMBER() OVER (PARTITION BY patient_id, program_registry_id ORDER BY date DESC, id DESC) AS row_num
+            FROM patient_program_registrations
+          ) n
+          WHERE n.row_num = 1
+        ),
+        conditions as (
+          SELECT pprc.program_registry_id, patient_id, jsonb_agg(prc."name") condition_list  FROM patient_program_registration_conditions pprc
+        join program_registry_conditions prc
+        on pprc.program_registry_condition_id = prc.id
+        group by pprc.program_registry_id, patient_id
+        )
+    `;
+    const from = `
+      FROM most_recent_registrations mrr
+      left join patients patient
+      on patient.id = mrr.patient_id
+      left join reference_data patient_village
+      on patient.village_id = patient_village.id
+      left join reference_data currently_at_village
+      on mrr.village_id = currently_at_village.id
+      left join facilities currently_at_facility
+      on mrr.facility_id = currently_at_facility.id
+      left join facilities registering_facility
+      on mrr.registering_facility_id = registering_facility.id
+      left join conditions
+      on conditions.patient_id = mrr.patient_id
+      and conditions.program_registry_id = mrr.program_registry_id
+      left join program_registry_clinical_statuses status
+      on mrr.clinical_status_id = status.id
+      left join program_registries program_registry
+      on mrr.program_registry_id = program_registry.id
+      ${whereClauses && `WHERE ${whereClauses}`}
+    `;
+
+    const countResult = await req.db.query(`${withClause} SELECT COUNT(1) AS count ${from}`, {
+      replacements: filterReplacements,
+      type: QueryTypes.SELECT,
+    });
+
+    const count = parseInt(countResult[0].count, 10);
+
+    if (count === 0) {
+      // save ourselves a query
+      res.send({ data: [], count });
+      return;
+    }
     const sortKeys = {
       displayId: 'patient.display_id',
       patientName: 'UPPER(patient.last_name)',
@@ -79,23 +132,7 @@ programRegistry.get(
 
     const result = await req.db.query(
       `
-      with 
-        most_recent_registrations as (
-          SELECT *
-          FROM (
-            SELECT 
-              *,
-              ROW_NUMBER() OVER (PARTITION BY patient_id, program_registry_id ORDER BY date DESC, id DESC) AS row_num
-            FROM patient_program_registrations
-          ) n
-          WHERE n.row_num = 1
-        ),
-        conditions as (
-          SELECT pprc.program_registry_id, patient_id, jsonb_agg(prc."name") condition_list  FROM patient_program_registration_conditions pprc
-        join program_registry_conditions prc
-        on pprc.program_registry_condition_id = prc.id
-        group by pprc.program_registry_id, patient_id
-        )
+      ${withClause}
       select
         patient.id AS "patient.id",
         --
@@ -118,25 +155,7 @@ programRegistry.get(
         -- Details for filtering/ordering
         patient.date_of_death as "patient.date_of_death",
         mrr.registration_status as "registration_status"
-      FROM most_recent_registrations mrr
-      left join patients patient
-      on patient.id = mrr.patient_id
-      left join reference_data patient_village
-      on patient.village_id = patient_village.id
-      left join reference_data currently_at_village
-      on mrr.village_id = currently_at_village.id
-      left join facilities currently_at_facility
-      on mrr.facility_id = currently_at_facility.id
-      left join facilities registering_facility
-      on mrr.registering_facility_id = registering_facility.id
-      left join conditions
-      on conditions.patient_id = mrr.patient_id
-      and conditions.program_registry_id = mrr.program_registry_id
-      left join program_registry_clinical_statuses status
-      on mrr.clinical_status_id = status.id
-      left join program_registries program_registry
-      on mrr.program_registry_id = program_registry.id
-      ${whereClauses && `WHERE ${whereClauses}`}
+      ${from}
 
       ORDER BY ${sortKey} ${sortDirection}${nullPosition ? ` ${nullPosition}` : ''}
       LIMIT :limit

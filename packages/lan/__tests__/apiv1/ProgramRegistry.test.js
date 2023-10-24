@@ -135,6 +135,7 @@ describe('ProgramRegistry', () => {
       expect(result).toHaveSucceeded();
 
       const { body } = result;
+      expect(body.count).toEqual(2);
       expect(body.data.length).toEqual(2);
       expect(body.data).toEqual([
         {
