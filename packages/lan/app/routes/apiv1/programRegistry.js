@@ -182,7 +182,7 @@ programRegistry.get(
     const forResponse = result.map(deepRenameObjectKeys);
     res.send({
       data: forResponse,
-      count: 20008,
+      count,
     });
   }),
 );
