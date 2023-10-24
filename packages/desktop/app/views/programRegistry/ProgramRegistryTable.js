@@ -85,11 +85,11 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       {
         key: 'conditions',
         title: 'Conditions',
-        accessor: row => {
-          const conditions = row.conditions.map(x => ` ${x.name}`).toString();
+        accessor: ({ conditions = [] }) => {
+          const conditionsText = conditions.map(x => ` ${x.name}`).toString();
           return (
-            <ConditionalTooltip title={conditions} visible={conditions.length > 30}>
-              <ClippedConditionName>{conditions}</ClippedConditionName>
+            <ConditionalTooltip title={conditionsText} visible={conditionsText.length > 30}>
+              <ClippedConditionName>{conditionsText}</ClippedConditionName>
             </ConditionalTooltip>
           );
         },
