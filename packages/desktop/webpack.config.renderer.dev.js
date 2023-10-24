@@ -14,7 +14,7 @@ const publicPath = `http://localhost:${port}/dist`;
 
 export default merge.smart(baseConfig, {
   // https://webpack.js.org/configuration/devtool/
-  devtool: 'eval',
+  devtool: 'eval-cheap-module-source-map',
 
   mode: 'development',
 
