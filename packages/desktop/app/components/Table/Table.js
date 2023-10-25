@@ -24,6 +24,7 @@ import { Colors } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Paginator } from './Paginator';
+import { MenuButton } from '../MenuButton';
 
 const preventInputCallback = e => {
   e.stopPropagation();
@@ -200,7 +201,18 @@ const StatusTableCell = styled(StyledTableCell)`
 `;
 
 const Row = React.memo(
-  ({ rowIndex, columns, data, onClick, cellOnChange, lazyLoading, rowStyle, refreshTable }) => {
+  ({
+    rowIndex,
+    columns,
+    data,
+    onClick,
+    cellOnChange,
+    lazyLoading,
+    rowStyle,
+    refreshTable,
+    ActiveMenuModal,
+    activeMenuModalProps,
+  }) => {
     const cells = columns.map(
       ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
         const onChange = cellOnChange ? event => cellOnChange(event, key, rowIndex, data) : null;
@@ -228,6 +240,7 @@ const Row = React.memo(
         );
       },
     );
+
     return (
       <RowContainer
         onClick={onClick && (() => onClick(data))}
@@ -235,6 +248,7 @@ const Row = React.memo(
         lazyLoading={lazyLoading}
       >
         {cells}
+        {ActiveMenuModal && <ActiveMenuModal {...activeMenuModalProps} data={data} />}
       </RowContainer>
     );
   },
@@ -360,8 +374,9 @@ class TableComponent extends React.Component {
       rowStyle,
       refreshTable,
       isLoadingMore,
+      ActiveMenuModal,
+      activeMenuModalProps,
     } = this.props;
-
     const status = this.getStatusMessage();
     if (status) {
       return (
@@ -372,6 +387,7 @@ class TableComponent extends React.Component {
     }
     // Ignore frontend sorting if lazyLoading as it causes a terrible UX
     const sortedData = customSort && !lazyLoading ? customSort(data) : data;
+
     return (
       <>
         {sortedData.map((rowData, rowIndex) => {
@@ -387,6 +403,8 @@ class TableComponent extends React.Component {
               refreshTable={refreshTable}
               rowStyle={rowStyle}
               lazyLoading={lazyLoading}
+              ActiveMenuModal={ActiveMenuModal}
+              activeMenuModalProps={activeMenuModalProps}
             />
           );
         })}
