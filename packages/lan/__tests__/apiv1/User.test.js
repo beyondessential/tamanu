@@ -3,7 +3,7 @@ import { getToken, centralServerLogin } from 'lan/app/middleware/auth';
 import { pick } from 'lodash';
 import { fake, chance, disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { addHours } from 'date-fns';
-import { createDummyEncounter } from 'shared/demoData/patients';
+import { createDummyEncounter } from '@tamanu/shared/demoData/patients';
 
 import { CentralServerConnection } from '../../app/sync/CentralServerConnection';
 import { createTestContext } from '../utilities';
