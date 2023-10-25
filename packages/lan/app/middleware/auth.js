@@ -5,7 +5,7 @@ import config from 'config';
 import { v4 as uuid } from 'uuid';
 import { promisify } from 'util';
 
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES, USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
 import { BadAuthenticationError } from 'shared/errors';
 import { log } from 'shared/services/logging';
 import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
@@ -87,9 +87,7 @@ async function localLogin(models, email, password) {
   });
 
   if (user && user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
-    throw new BadAuthenticationError(
-      'User account deactivated. Please contact your system administrator if assistance is required.',
-    );
+    throw new BadAuthenticationError(USER_DEACTIVATED_ERROR_MESSAGE);
   }
 
   const passwordMatch = await comparePassword(user, password);
@@ -118,6 +116,11 @@ async function centralServerLoginWithLocalFallback(models, email, password, devi
     if (e.name === 'BadAuthenticationError') {
       // actual bad credentials server-side
       throw new BadAuthenticationError('Incorrect username or password, please try again');
+    }
+
+    // if it is forbidden, throw the error instead of proceeding to local login
+    if (e.centralServerResponse.status === 403) {
+      throw e.centralServerResponse.body.error;
     }
 
     log.warn(`centralServerLoginWithLocalFallback: central server login failed: ${e}`);

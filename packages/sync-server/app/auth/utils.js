@@ -3,8 +3,8 @@ import { sign as signCallback, verify as verifyCallback } from 'jsonwebtoken';
 import { randomBytes, randomInt } from 'crypto';
 import { promisify } from 'util';
 
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { BadAuthenticationError } from 'shared/errors';
+import { VISIBILITY_STATUSES, USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
+import { ForbiddenError } from 'shared/errors';
 
 const sign = promisify(signCallback);
 const verify = promisify(verifyCallback);
@@ -47,9 +47,7 @@ export const findUser = async (models, email) => {
   }
 
   if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
-    throw new BadAuthenticationError(
-      'User account deactivated. Please contact your system administrator if assistance is required.',
-    );
+    throw new ForbiddenError(USER_DEACTIVATED_ERROR_MESSAGE);
   }
 
   return user.get({ plain: true });
