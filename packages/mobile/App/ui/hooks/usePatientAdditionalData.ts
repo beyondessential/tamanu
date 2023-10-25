@@ -41,7 +41,14 @@ export const usePatientAdditionalData = patientId => {
             }
             // Since nested ordering does not  work on typeorm version < 0.3.0
             // we sort the categories on the frontend using .sort()
-            setCustomPatientSections(Object.entries(groupBy(fieldDefinitions.sort((a, b) => a.categoryId > b.categoryId), 'categoryId')));
+            setCustomPatientSections(
+              Object.entries(
+                groupBy(
+                  fieldDefinitions.sort((a, b) => a.categoryId > b.categoryId),
+                  'categoryId',
+                )
+              )
+            );
             setCustomPatientFieldValues(groupBy(fieldValues, 'definitionId'));
             setPatientAdditionalData(result);
           }
