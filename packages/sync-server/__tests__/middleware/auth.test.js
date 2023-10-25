@@ -199,7 +199,7 @@ describe('Auth', () => {
         password: TEST_PASSWORD,
         deviceId: TEST_DEVICE_ID,
       });
-      expect(response).toHaveRequestError();
+      expect(response).toBeForbidden();
     });
   });
 
