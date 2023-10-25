@@ -4,7 +4,7 @@ import { randomBytes, randomInt } from 'crypto';
 import { promisify } from 'util';
 
 import { VISIBILITY_STATUSES, USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
-import { ForbiddenError } from 'shared/errors';
+import { ForbiddenError } from '@tamanu/shared/errors';
 
 const sign = promisify(signCallback);
 const verify = promisify(verifyCallback);
