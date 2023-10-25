@@ -1,7 +1,7 @@
-import { fake, fakeUser } from 'shared/test-helpers/fake';
+import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { InvalidParameterError } from 'shared/errors';
+import { InvalidParameterError } from '@tamanu/shared/errors';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import {
   mergePatient,

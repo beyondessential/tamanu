@@ -73,7 +73,7 @@ const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialV
         )
       : getCurrentDateTimeString(),
     discharge: {
-      note: dischargeNotes.map(n => n.content).join('\n'),
+      note: dischargeNotes.map(n => n.content).join('\n\n'),
     },
     medications: medicationInitialValues,
     // Used in creation of associated notes
@@ -289,7 +289,7 @@ export const DischargeForm = ({
   useEffect(() => {
     (async () => {
       const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
-      setDischargeNotes(notes.filter(n => n.noteType === 'discharge'));
+      setDischargeNotes(notes.filter(n => n.noteType === 'discharge').reverse()); // reverse order of array to sort by oldest first
     })();
   }, [api, encounter.id]);
 

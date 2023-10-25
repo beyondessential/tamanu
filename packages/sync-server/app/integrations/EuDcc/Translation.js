@@ -2,7 +2,7 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { transliterate as tr } from 'transliteration';
 import config from 'config';
 import { EUDCC_CERTIFICATE_TYPES, EUDCC_SCHEMA_VERSION } from '@tamanu/constants';
-import { generateUVCI } from 'shared/utils/uvci';
+import { generateUVCI } from '@tamanu/shared/utils/uvci';
 import { getLocalisation } from '../../localisation';
 
 const SCHEDULE_TO_SEQUENCE = {
