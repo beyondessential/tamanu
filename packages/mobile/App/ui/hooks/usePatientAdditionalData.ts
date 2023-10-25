@@ -21,13 +21,13 @@ export const usePatientAdditionalData = patientId => {
           if (patientId) {
             const [record, fieldDefinitions, fieldValues] = await Promise.all([
               models.PatientAdditionalData.find({
-                where: { patient: { id: patient.id } },
+                where: { patient: { id: patientId } },
               }),
               models.PatientFieldDefinition.findVisible({
                 relations: [ 'category' ],
               }),
               models.PatientFieldValue.find({
-                where: { patient: { id: patient.id } },
+                where: { patient: { id: patientId } },
               }),
             ]);
             const result = record && record[0];
