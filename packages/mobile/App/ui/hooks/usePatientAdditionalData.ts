@@ -25,6 +25,11 @@ export const usePatientAdditionalData = patientId => {
               }),
               models.PatientFieldDefinition.findVisible({
                 relations: [ 'category' ],
+                order: {
+                  // Nested ordering only works with typeorm version > 0.3.0
+                  // category: { name: 'ASC' },
+                  name: 'ASC',
+                },
               }),
               models.PatientFieldValue.find({
                 where: { patient: { id: patientId } },
@@ -34,7 +39,9 @@ export const usePatientAdditionalData = patientId => {
             if (!mounted) {
               return;
             }
-            setCustomPatientSections(Object.entries(groupBy(fieldDefinitions, 'categoryId')));
+            // Since nested ordering does not  work on typeorm version < 0.3.0
+            // we sort the categories on the frontend using .sort()
+            setCustomPatientSections(Object.entries(groupBy(fieldDefinitions.sort((a, b) => a.categoryId > b.categoryId), 'categoryId')));
             setCustomPatientFieldValues(groupBy(fieldValues, 'definitionId'));
             setPatientAdditionalData(result);
           }
