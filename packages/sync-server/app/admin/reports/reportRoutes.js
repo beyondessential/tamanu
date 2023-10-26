@@ -21,6 +21,10 @@ reportsRouter.get(
   '/',
   asyncHandler(async (req, res) => {
     const { store } = req;
+
+    const canEditSchema = req.ability.can('write', 'ReportDbSchema');
+    const isReportingSchemaEnabled = config.db.reportSchemas.enabled;
+
     const result = await store.sequelize.query(
       `SELECT rd.id,
         rd.name,
@@ -30,6 +34,11 @@ reportsRouter.get(
         max(rdv.version_number) AS "versionCount"
     FROM report_definitions rd
         LEFT JOIN report_definition_versions rdv ON rd.id = rdv.report_definition_id
+    ${
+      isReportingSchemaEnabled && !canEditSchema
+        ? `WHERE rd.db_schema = '${REPORT_DB_SCHEMAS.REPORTING}'`
+        : ''
+    }
     GROUP BY rd.id
     HAVING max(rdv.version_number) > 0
     ORDER BY rd.name

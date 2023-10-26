@@ -43,15 +43,10 @@ export const SelectReportView = () => {
     },
   );
 
-  const canEditRawReports = ability?.can('write', 'ReportDbSchema');
-  const filteredReportList = canEditRawReports
-    ? reportList
-    : reportList.filter(reportData => reportData.dbSchema !== REPORT_DB_SCHEMAS.RAW);
-
   return (
     <FlexContainer>
       <ReportTable
-        data={filteredReportList}
+        data={reportList}
         selected={report?.id}
         onRowClick={setReport}
         loading={isReportLoading}

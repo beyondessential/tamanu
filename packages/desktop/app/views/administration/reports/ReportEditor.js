@@ -121,12 +121,14 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
   const onParamsDelete = paramId => setParams(params.filter(p => p.id !== paramId));
 
   const canWriteRawReportUser = Boolean(ability?.can('write', 'ReportDbSchema'));
-  // Show data source field if user is writing a raw report OR if reporting schema is disabled.
-  const showDataSourceField = values.dbSchema === REPORT_DB_SCHEMAS.RAW || values.dbSchema === null;
 
-  const { data: schemaOptions } = useQuery(['dbSchemaOptions'], () =>
+  const { data: schemaOptions = [] } = useQuery(['dbSchemaOptions'], () =>
     api.get(`admin/reports/dbSchemaOptions`),
   );
+
+  // Show data source field if user is writing a raw report OR if reporting schema is disabled.
+  const showDataSourceField =
+    values.dbSchema === REPORT_DB_SCHEMAS.RAW || schemaOptions.length === 0;
 
   return (
     <>
