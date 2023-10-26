@@ -28,6 +28,7 @@ import { addVitalLogs1690236942000 } from './1690236942000-addVitalLogs';
 import { migrateNotePagesToNotes1688950151000 } from './1688950151000-migrateNotePagesToNotes';
 import { addEncounterHistoryTable1693484817000 } from './1693484817000-addEncounterHistoryTable';
 import { addVisibilityStatusToSurveyScreenComponents1695096053000 } from './1695096053000-addVisibilityStatusToSurveyScreenComponents';
+import { addDeletionStatusToClinicalFeatures1698040379000 } from './1698040379000-addDeletionStatusToClinicalFeatures';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -59,4 +60,5 @@ export const migrationList = [
   migrateNotePagesToNotes1688950151000,
   addEncounterHistoryTable1693484817000,
   addVisibilityStatusToSurveyScreenComponents1695096053000,
+  addDeletionStatusToClinicalFeatures1698040379000,
 ];

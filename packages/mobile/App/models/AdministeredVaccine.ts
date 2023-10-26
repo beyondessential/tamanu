@@ -116,6 +116,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
       .leftJoinAndSelect('location.locationGroup', 'locationGroup')
       .leftJoinAndSelect('scheduledVaccine.vaccine', 'vaccine')
       .where('encounter.patient.id = :patient', { patient: patientId })
+      .andWhere('encounter.deletionStatus IS NULL')
       .andWhere('administered_vaccine.status IN (:...status)', {
         status: [VaccineStatus.GIVEN, VaccineStatus.NOT_GIVEN],
       })

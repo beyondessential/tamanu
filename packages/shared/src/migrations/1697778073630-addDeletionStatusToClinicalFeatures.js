@@ -11,7 +11,6 @@ const tables = [
   'procedures',
   'lab_requests',
   'imaging_requests',
-  'medications',
   'survey_responses',
 ];
 
