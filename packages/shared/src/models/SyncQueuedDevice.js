@@ -7,7 +7,7 @@ import { SYNC_DIRECTIONS, SYNC_QUEUE_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 
 // TODO: config?
-const SYNC_QUEUE_WINDOW_MINUTES = 5;
+const SYNC_READY_WINDOW_MINUTES = 5;
 
 export class SyncQueuedDevice extends Model {
   static init({ primaryKey, ...options }) {
@@ -41,10 +41,10 @@ export class SyncQueuedDevice extends Model {
     });
   }
 
-  static getQueueWhereClause() {
+  static getReadyDevicesWhereClause() {
     return {
       lastSeenTime: {
-        [Op.gt]: toDateTimeString(subMinutes(new Date(), SYNC_QUEUE_WINDOW_MINUTES)),
+        [Op.gt]: toDateTimeString(subMinutes(new Date(), SYNC_READY_WINDOW_MINUTES)),
       },
       status: SYNC_QUEUE_STATUSES.READY,
     };
@@ -52,7 +52,7 @@ export class SyncQueuedDevice extends Model {
 
   static async getNextReadyDevice() {
     return this.findOne({
-      where: this.getQueueWhereClause(),
+      where: this.getReadyDevicesWhereClause(),
       orderBy: [
         ['urgent', 'DESC'], // trues first
         ['lastSyncedTick', 'ASC'], // oldest sync first

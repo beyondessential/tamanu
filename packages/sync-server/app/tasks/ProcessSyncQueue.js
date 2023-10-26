@@ -18,12 +18,12 @@ export class ProcessSyncQueue extends ScheduledTask {
   async run() {
     const { SyncQueuedDevice } = this.store.models;
 
-    const waitingInQueue = await SyncQueuedDevice.count({
-      where: SyncQueuedDevice.getQueueWhereClause(),
+    const readyDevices = await SyncQueuedDevice.count({
+      where: SyncQueuedDevice.getReadyDevicesWhereClause(),
     });
 
-    if (waitingInQueue > 0) {
-      log.info('ProcessSyncQueue.waitingInQueue', { count: waitingInQueue });
+    if (readyDevices > 0) {
+      log.info('ProcessSyncQueue.devicesReady', { count: readyDevices });
       return;
     }
 
