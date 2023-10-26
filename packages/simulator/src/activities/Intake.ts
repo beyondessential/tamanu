@@ -1,6 +1,6 @@
 import { Nurse } from '../players/Nurse.js';
 import { AdmitPatient } from './AdmitPatient.js';
-import { Activity, Player, Role, chance, optionally, upto } from './prelude.js';
+import { Activity, Player, Role, chance, possibly, upto } from './prelude.js';
 import { differenceInYears, formatISO } from 'date-fns';
 
 export class Intake extends Activity {
@@ -19,7 +19,7 @@ export class Intake extends Activity {
         lastName: chance.last(),
         culturalName: chance.name(),
         dateOfBirth: formatISO(dateOfBirth, { representation: 'date' }),
-        sex: optionally('other', 1, chance.pickone(['male', 'female'])),
+        sex: possibly('other', 1, chance.pickone(['male', 'female'])),
 
         // PAD
         primaryContactNumber: chance.phone(),
