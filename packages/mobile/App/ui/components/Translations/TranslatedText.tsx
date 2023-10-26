@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
+import React, { ReactElement, ReactNode, useMemo } from 'react';
 
 type Replacements = {[key: string]: ReactNode};
 interface TranslatedTextProps {
@@ -23,19 +23,17 @@ export const TranslatedText = ({
   fallback,
   replacements,
 }: TranslatedTextProps): ReactElement => {
-  const [displayElements, setDisplayElements] = useState<ReactNode>(fallback);
   // Placeholder for fetching translation from context
   const translation = null;
 
   const stringToDisplay = translation || fallback;
 
-  useEffect(() => {
+  const displayElements = useMemo(() => {
     if (!replacements) {
-      setDisplayElements(stringToDisplay);
-      return;
+      return stringToDisplay;
     }
-    setDisplayElements(replaceStringVariables(stringToDisplay, replacements));
-  }, [translation]);
+    return replaceStringVariables(stringToDisplay, replacements);
+  }, [translation, replacements]);
 
   return <>{displayElements}</>;
 };
