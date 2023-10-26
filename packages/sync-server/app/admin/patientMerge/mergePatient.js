@@ -57,6 +57,7 @@ const omittedColumns = [
   'visibilityStatus',
   'dateOfBirthLegacy',
   'dateOfDeathLegacy',
+  'dateOfDeath',
 
   // pad
   'updatedAtByField',
