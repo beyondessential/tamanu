@@ -5,7 +5,7 @@ module.exports = {
     {
       name: 'tamanu-sync-server',
       cwd: '.', // IMPORTANT: Leave this as-is, for production build
-      script: './dist/app.bundle.js',
+      script: './dist/index.js',
       args: 'serve',
       interpreter_args: `--max_old_space_size=${memory}`,
       instances: 'max',
@@ -17,7 +17,7 @@ module.exports = {
     {
       name: 'tamanu-tasks-runner',
       cwd: '.', // IMPORTANT: Leave this as-is, for production build
-      script: './dist/app.bundle.js',
+      script: './dist/index.js',
       args: 'tasks',
       interpreter_args: `--max_old_space_size=${memory}`,
       instances: 1,

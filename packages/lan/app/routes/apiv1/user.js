@@ -2,9 +2,14 @@ import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
-import { BadAuthenticationError } from 'shared/errors';
-import { getPermissions } from 'shared/permissions/middleware';
-import { simpleGet, paginatedGetList, permissionCheckingRouter } from 'shared/utils/crudHelpers';
+
+import { BadAuthenticationError } from '@tamanu/shared/errors';
+import { getPermissions } from '@tamanu/shared/permissions/middleware';
+import {
+  simpleGet,
+  paginatedGetList,
+  permissionCheckingRouter,
+} from '@tamanu/shared/utils/crudHelpers';
 import { getWhereClausesAndReplacementsFromFilters, makeFilter } from '../../utils/query';
 
 export const user = express.Router();
