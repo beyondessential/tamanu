@@ -249,3 +249,9 @@ export const NOTE_TYPES = {
 export const FORM_STATUSES = {
   SUBMIT_SCREEN_ATTEMPTED: 'SUBMIT_SCREEN_ATTEMPTED',
 };
+
+export const CLINICAL_STATUS_COLOR = {
+  LowRisk: theme.colors.SAFE,
+  Critical: theme.colors.ALERT,
+  NeedsReview: theme.colors.SECONDARY_MAIN,
+};

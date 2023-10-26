@@ -70,3 +70,33 @@ export const StackHeader = ({
     </RowView>
   </StyledSafeAreaView>
 );
+
+export const EmptyStackHeader = ({ title, onGoBack }): ReactElement => (
+  <StyledSafeAreaView background={theme.colors.WHITE} borderColor={theme.colors.LIGHT_GREY}>
+    <StyledTouchableOpacity
+      accessibilityLabel="back"
+      paddingTop={'25'}
+      paddingLeft={'25'}
+      paddingRight={'25'}
+      paddingBottom={'25'}
+      onPress={onGoBack}
+    >
+      <ArrowLeftIcon
+        size={screenPercentageToDP(4.86, Orientation.Height)}
+        fill={theme.colors.PRIMARY_MAIN}
+      />
+    </StyledTouchableOpacity>
+
+    <StyledText
+      paddingLeft={'25'}
+      paddingRight={'25'}
+      paddingBottom={'25'}
+      color={theme.colors.TEXT_DARK}
+      fontSize={24}
+      fontWeight={500}
+    >
+      {title}
+    </StyledText>
+  </StyledSafeAreaView>
+);
+
