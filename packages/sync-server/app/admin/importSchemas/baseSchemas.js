@@ -76,6 +76,10 @@ export const User = Base.shape({
   displayId: yup.string(),
   displayName: yup.string().required(),
   password: yup.string(),
+  visibilityStatus: yup
+    .string()
+    .default(VISIBILITY_STATUSES.CURRENT)
+    .oneOf([VISIBILITY_STATUSES.CURRENT, VISIBILITY_STATUSES.HISTORICAL]),
 });
 
 export const Facility = Base.shape({
