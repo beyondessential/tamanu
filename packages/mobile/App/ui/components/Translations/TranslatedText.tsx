@@ -1,13 +1,14 @@
 import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
 
+type Replacements = {[key: string]: ReactNode};
 interface TranslatedTextProps {
   stringId: string;
   fallback: string;
-  replacements?: {[key: string]: ReactNode};
+  replacements?: Replacements;
 };
 
 // Duplicated from TranslatedText.js on desktop
-const replaceStringVariables = (templateString: string, replacements: object) => {
+const replaceStringVariables = (templateString: string, replacements: Replacements) => {
   const jsxElements = templateString.split(/(:[a-zA-Z]+)/g).map((part, index) => {
     // Even indexes are the unchanged parts of the string
     if (index % 2 === 0) return part;
