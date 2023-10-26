@@ -121,7 +121,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
   const onParamsDelete = paramId => setParams(params.filter(p => p.id !== paramId));
 
   const canWriteRawReportUser = Boolean(ability?.can('write', 'ReportDbSchema'));
-  const showDataSourceField = values.dbSchema === REPORT_DB_SCHEMAS.RAW;
+  const showDataSourceField = values.dbSchema === REPORT_DB_SCHEMAS.RAW || values.dbSchema === null;
 
   const { data: schemaOptions } = useQuery(['dbSchemaOptions'], () =>
     api.get(`admin/reports/dbSchemaOptions`),
