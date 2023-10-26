@@ -158,6 +158,7 @@ export async function up(query) {
     $$
   `);
 
+  // `job_backlog` has been removed from the application, but we've left the function for on-calls to use for debugging
   await query.sequelize.query(`
     CREATE OR REPLACE FUNCTION fhir.job_backlog(
       IN for_topic TEXT,

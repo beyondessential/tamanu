@@ -1,6 +1,6 @@
 import config from 'config';
 
-import { createDummyEncounter, createDummyPatient, randomVitals } from 'shared/demoData/patients';
+import { createDummyEncounter, createDummyPatient, randomVitals } from '@tamanu/shared/demoData/patients';
 import {
   VACCINE_CATEGORIES,
   VACCINE_RECORDING_TYPES,
@@ -8,8 +8,8 @@ import {
   SETTING_KEYS,
   ENCOUNTER_TYPES,
 } from '@tamanu/constants';
-import { fake } from 'shared/test-helpers/fake';
-import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
+import { fake } from '@tamanu/shared/test-helpers/fake';
+import { createAdministeredVaccine, createScheduledVaccine } from '@tamanu/shared/demoData/vaccines';
 import { createTestContext } from '../utilities';
 import { REFERENCE_TYPES } from '@tamanu/constants';
 

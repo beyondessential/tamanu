@@ -180,7 +180,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
                 color: theme.colors.BLACK,
               }}
             >
-              Are you sure you want to exit the form? You will loose any information currently
+              Are you sure you want to exit the form? You will lose any information currently
               entered.
             </Text>
             <RowView flexDirection="row" justifyContent="space-between" width="95%" marginTop={10}>

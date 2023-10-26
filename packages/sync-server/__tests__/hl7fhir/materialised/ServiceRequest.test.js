@@ -2,15 +2,15 @@
 
 import { addDays, formatRFC7231 } from 'date-fns';
 
-import { fake } from 'shared/test-helpers';
+import { fake } from '@tamanu/shared/test-helpers';
 import {
   FHIR_DATETIME_PRECISION,
   IMAGING_REQUEST_STATUS_TYPES,
   NOTE_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { fakeUUID } from 'shared/utils/generateId';
-import { formatFhirDate } from 'shared/utils/fhir/datetime';
+import { fakeUUID } from '@tamanu/shared/utils/generateId';
+import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 
 import { createTestContext } from '../../utilities';
 import {

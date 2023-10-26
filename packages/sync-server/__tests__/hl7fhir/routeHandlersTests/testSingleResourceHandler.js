@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 
-import { fake } from 'shared/test-helpers/fake';
-import { getCurrentDateString } from 'shared/utils/dateTime';
+import { fake } from '@tamanu/shared/test-helpers/fake';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 
 export function testSingleResourceHandler(integrationName, requestHeaders = {}) {

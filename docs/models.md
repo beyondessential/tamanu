@@ -1,6 +1,9 @@
 # Models
 
 Models implementations can be found in: `packages/shared/src/models`
+> [!WARNING]
+> # OUTDATED
+> Please see https://beyond-essential.slab.com/posts/tamanu-db-schema-documentation-7lexbq64 if you have access to BES's internal documentation
 
 ### AdministeredVaccine
 
