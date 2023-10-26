@@ -1,12 +1,13 @@
-import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
+import React, { ReactElement, ReactNode, useMemo } from 'react';
 import styled from 'styled-components';
 import { StyledText } from '~/ui/styled/common';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
-type TranslatedTextProps = {
+type Replacements = {[key: string]: ReactNode};
+interface TranslatedTextProps {
   stringId: string;
   fallback: string;
-  replacements?: object;
+  replacements?: Replacements;
 };
 
 const DebugHighlighted = styled(StyledText)`
@@ -15,7 +16,7 @@ const DebugHighlighted = styled(StyledText)`
 `;
 
 // Duplicated from TranslatedText.js on desktop
-const replaceStringVariables = (templateString: string, replacements: object) => {
+const replaceStringVariables = (templateString: string, replacements: Replacements) => {
   const jsxElements = templateString.split(/(:[a-zA-Z]+)/g).map((part, index) => {
     // Even indexes are the unchanged parts of the string
     if (index % 2 === 0) return part;
@@ -31,19 +32,17 @@ export const TranslatedText = ({
   replacements,
 }: TranslatedTextProps): ReactElement => {
   const { getDebugMode } = useTranslation();
-  const [displayElements, setDisplayElements] = useState<ReactNode>(fallback);
   // Placeholder for fetching translation from context
   const translation = null;
 
   const stringToDisplay = translation || fallback;
 
-  useEffect(() => {
+  const displayElements = useMemo(() => {
     if (!replacements) {
-      setDisplayElements(stringToDisplay);
-      return;
+      return stringToDisplay;
     }
-    setDisplayElements(replaceStringVariables(stringToDisplay, replacements));
-  }, [translation]);
+    return replaceStringVariables(stringToDisplay, replacements);
+  }, [translation, replacements]);
 
   const isDebugMode = __DEV__ && getDebugMode();
   const TextWrapper = isDebugMode ? DebugHighlighted : React.Fragment;
