@@ -4,6 +4,11 @@ const TABLE_NAME = 'translated_string';
 
 const BaseColumns = [
   new TableColumn({
+    name: 'id',
+    type: 'varchar',
+    isPrimary: true,
+  }),
+  new TableColumn({
     name: 'createdAt',
     type: 'datetime',
     default: "datetime('now')",
@@ -29,11 +34,6 @@ const TranslatedStringTable = new Table({
   name: TABLE_NAME,
   columns: [
     ...BaseColumns,
-    new TableColumn({
-      name: 'id',
-      type: 'varchar',
-      isNullable: false,
-    }),
     new TableColumn({
       name: 'stringId',
       type: 'varchar',
@@ -68,7 +68,7 @@ const TranslatedStringTable = new Table({
   ],
 });
 
-export class addTranslatedStringsTable1698353903000 implements MigrationInterface {
+export class addTranslatedStringTable1698353903000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(TranslatedStringTable, true);
   }
