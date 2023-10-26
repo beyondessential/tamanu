@@ -6,7 +6,30 @@ import {
   TableForeignKey,
   TableIndex,
 } from 'typeorm';
-import { BaseColumns, baseIndex } from './utils/baseColumns';
+
+const BaseColumns = [
+  new TableColumn({
+    name: 'id',
+    type: 'varchar',
+    isPrimary: true,
+  }),
+  new TableColumn({
+    name: 'createdAt',
+    type: 'datetime',
+    default: "datetime('now')",
+  }),
+  new TableColumn({
+    name: 'updatedAt',
+    type: 'datetime',
+    default: "datetime('now')",
+  }),
+  new TableColumn({
+    name: 'updatedAtSyncTick',
+    type: 'bigint',
+    isNullable: false,
+    default: -999,
+  }),
+];
 
 const LocationGroupTable = new Table({
   name: 'locationGroup',
@@ -40,15 +63,21 @@ const LocationGroupTable = new Table({
       referencedColumnNames: ['id'],
     }),
   ],
-  indices: [baseIndex],
 });
 
 const ifNotExist = true;
+
+const updatedAtSyncTickIndex = {
+  columnNames: ['updatedAtSyncTick'],
+};
 
 export class addLocationGroupTable1673396917000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     // Add locationGroup Table
     await queryRunner.createTable(LocationGroupTable, ifNotExist);
+
+    await queryRunner.createIndex('locationGroup', new TableIndex(updatedAtSyncTickIndex));
+
     // Add relation from location to locationGroup
     await queryRunner.addColumn(
       'location',

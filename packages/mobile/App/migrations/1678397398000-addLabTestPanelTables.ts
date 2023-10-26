@@ -6,7 +6,30 @@ import {
   TableForeignKey,
   TableIndex,
 } from 'typeorm';
-import { BaseColumns } from './utils/baseColumns';
+
+const BaseColumns = [
+  new TableColumn({
+    name: 'id',
+    type: 'varchar',
+    isPrimary: true,
+  }),
+  new TableColumn({
+    name: 'createdAt',
+    type: 'datetime',
+    default: "datetime('now')",
+  }),
+  new TableColumn({
+    name: 'updatedAt',
+    type: 'datetime',
+    default: "datetime('now')",
+  }),
+  new TableColumn({
+    name: 'updatedAtSyncTick',
+    type: 'bigint',
+    isNullable: false,
+    default: -999,
+  }),
+];
 
 const LabTestPanel = new Table({
   name: 'lab_test_panel',

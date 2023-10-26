@@ -1,9 +1,32 @@
 import { MigrationInterface, QueryRunner, Table, TableColumn, TableForeignKey } from 'typeorm';
-import { BaseColumns, baseIndex } from './utils/baseColumns';
 
 const TABLE_NAME = 'encounter_history';
 const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
+
+const BaseColumns = [
+  new TableColumn({
+    name: 'id',
+    type: 'varchar',
+    isPrimary: true,
+  }),
+  new TableColumn({
+    name: 'createdAt',
+    type: 'datetime',
+    default: "datetime('now')",
+  }),
+  new TableColumn({
+    name: 'updatedAt',
+    type: 'datetime',
+    default: "datetime('now')",
+  }),
+  new TableColumn({
+    name: 'updatedAtSyncTick',
+    type: 'bigint',
+    isNullable: false,
+    default: -999,
+  }),
+];
 
 const EncounterHistory = new Table({
   name: TABLE_NAME,
@@ -79,7 +102,6 @@ const EncounterHistory = new Table({
       referencedColumnNames: ['id'],
     }),
   ],
-  indices: [baseIndex],
 });
 
 export class addEncounterHistoryTable1693484817000 implements MigrationInterface {
