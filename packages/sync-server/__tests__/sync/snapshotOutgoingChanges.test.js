@@ -1,17 +1,17 @@
 import { expect, beforeAll, describe, it } from '@jest/globals';
 import { Transaction } from 'sequelize';
 
-import { fake, fakeReferenceData, withErrorShown } from 'shared/test-helpers';
+import { fake, fakeReferenceData, withErrorShown } from '@tamanu/shared/test-helpers';
 import {
   getModelsForDirection,
   createSnapshotTable,
   findSyncSnapshotRecords,
   COLUMNS_EXCLUDED_FROM_SYNC,
   SYNC_SESSION_DIRECTION,
-} from 'shared/sync';
+} from '@tamanu/shared/sync';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { sleepAsync } from 'shared/utils/sleepAsync';
-import { fakeUUID } from 'shared/utils/generateId';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
+import { fakeUUID } from '@tamanu/shared/utils/generateId';
 
 import { createTestContext } from '../utilities';
 import { snapshotOutgoingChanges } from '../../app/sync/snapshotOutgoingChanges';

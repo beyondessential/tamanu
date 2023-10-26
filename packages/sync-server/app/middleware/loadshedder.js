@@ -1,8 +1,8 @@
 import config from 'config';
 import asyncHandler from 'express-async-handler';
 
-import { log } from 'shared/services/logging';
-import { RequestQueueTimeoutError, RequestQueueExceededError } from 'shared/errors';
+import { log } from '@tamanu/shared/services/logging';
+import { RequestQueueTimeoutError, RequestQueueExceededError } from '@tamanu/shared/errors';
 
 // helper class which defines a queue of requests and can shed load if the queue
 // grows too large

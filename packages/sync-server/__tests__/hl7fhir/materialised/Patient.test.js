@@ -1,9 +1,9 @@
 import { formatRFC7231 } from 'date-fns';
 
-import { fake } from 'shared/test-helpers/fake';
-import { getCurrentDateString } from 'shared/utils/dateTime';
-import { fakeUUID } from 'shared/utils/generateId';
-import { formatFhirDate } from 'shared/utils/fhir/datetime';
+import { fake } from '@tamanu/shared/test-helpers/fake';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
+import { fakeUUID } from '@tamanu/shared/utils/generateId';
+import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
 
 import { createTestContext } from '../../utilities';
