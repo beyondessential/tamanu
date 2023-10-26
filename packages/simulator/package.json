@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/simulator",
-  "version": "1.30.0",
+  "version": "1.36.0",
   "private": true,
   "description": "Simulation tooling to generate lots of fake data for testing",
   "exports": {

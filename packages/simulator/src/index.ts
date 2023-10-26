@@ -33,10 +33,15 @@ class MakePatientsGame extends Game {
   }
 }
 
+const args = process.argv.slice(2);
+const target = args[0] ? parseInt(args[0], 10) : null;
+const central = args[1] ?? null;
+const facility = args[2] ?? null;
+
 (async () => {
   const game = new MakePatientsGame(
-    8000,
-    makeContext({ api: new ApiFactory('http://localhost:3000', 'http://localhost:4000') }),
+    target ?? 1000,
+    makeContext({ api: new ApiFactory(central ?? 'http://localhost:3000', facility ?? 'http://localhost:4000') }),
   );
   await game.run();
   console.log('Made', requestCounter, 'requests');
