@@ -1,4 +1,6 @@
-import { MigrationInterface, QueryRunner, Table, TableColumn } from 'typeorm';
+import { MigrationInterface, QueryRunner, Table, TableColumn, TableIndex } from 'typeorm';
+
+const TABLE_NAME = 'translated_string';
 
 const BaseColumns = [
   new TableColumn({
@@ -19,9 +21,12 @@ const BaseColumns = [
   }),
 ];
 
+const baseIndex = new TableIndex({
+  columnNames: ['updatedAtSyncTick'],
+});
+
 const TranslatedStringTable = new Table({
-  name: 'translated_string',
-  // Use all except the first column (id)
+  name: TABLE_NAME,
   columns: [
     ...BaseColumns,
     new TableColumn({
@@ -30,7 +35,7 @@ const TranslatedStringTable = new Table({
       isNullable: false,
     }),
     new TableColumn({
-      name: 'key',
+      name: 'stringId',
       type: 'varchar',
       isNullable: false,
     }),
@@ -40,15 +45,35 @@ const TranslatedStringTable = new Table({
       isNullable: false,
     }),
     new TableColumn({
-      name: 'value',
+      name: 'text',
       type: 'varchar',
       isNullable: false,
+    }),
+  ],
+  indices: [
+    baseIndex,
+    new TableIndex({
+      name: 'stringId_language_unique',
+      columnNames: ['stringId', 'language'],
+      isUnique: true,
+    }),
+    new TableIndex({
+      name: 'stringId_index',
+      columnNames: ['stringId'],
+    }),
+    new TableIndex({
+      name: 'language_index',
+      columnNames: ['language'],
     }),
   ],
 });
 
 export class addTranslatedStringsTable1698353903000 implements MigrationInterface {
-  async up(queryRunner: QueryRunner): Promise<void> {}
+  async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.createTable(TranslatedStringTable, true);
+  }
 
-  async down(queryRunner: QueryRunner): Promise<void> {}
+  async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.dropTable(TABLE_NAME, true);
+  }
 }
