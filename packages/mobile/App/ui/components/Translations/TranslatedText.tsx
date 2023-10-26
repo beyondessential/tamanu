@@ -1,6 +1,6 @@
 import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
 
-type TranslatedTextProps = {
+interface TranslatedTextProps {
   stringId: string;
   fallback: string;
   replacements?: {[key: string]: ReactNode};
