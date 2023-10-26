@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FormModal } from './FormModal';
+import { Modal } from './Modal';
 import { OutlinedButton } from './Button';
 import { VitalsForm } from '../forms';
 
@@ -15,14 +15,14 @@ export const NestedVitalsModal = React.memo(({ field, patient, encounterType }) 
   return (
     <>
       <OutlinedButton onClick={openModal}>Record vitals</OutlinedButton>
-      <FormModal open={isOpen} onClose={closeModal} title="Record vitals">
+      <Modal open={isOpen} onClose={closeModal} title="Record vitals">
         <VitalsForm
           patient={patient}
           onSubmit={onSubmit}
           onClose={closeModal}
           encounterType={encounterType}
         />
-      </FormModal>
+      </Modal>
     </>
   );
 });
