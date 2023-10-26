@@ -9,11 +9,11 @@ export async function up(query) {
       allowNull: false,
       primaryKey: true,
     },
-    last_seen_time: { 
+    last_seen_time: {
       type: DataTypes.DATE,
       allowNull: false,
     },
-    facility_id: { 
+    facility_id: {
       type: DataTypes.TEXT,
       allowNull: false,
       references: {
@@ -21,15 +21,15 @@ export async function up(query) {
         key: 'id',
       },
     },
-    last_synced_tick: { 
+    last_synced_tick: {
       type: DataTypes.BIGINT,
       allowNull: false,
     },
-    urgent: { 
+    urgent: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
     },
-    status: { 
+    status: {
       type: DataTypes.TEXT,
       defaultValue: 'queued',
     },

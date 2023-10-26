@@ -91,7 +91,7 @@ export class FacilitySyncManager {
     }
 
     log.info('FacilitySyncManager.attemptStart', { reason: this.reason });
-  
+
     const pullSince = (await this.models.LocalSystemFact.get(LAST_SUCCESSFUL_SYNC_PULL_KEY)) || -1;
 
     // the first step of sync is to start a session and retrieve the session id
