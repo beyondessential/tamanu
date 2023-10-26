@@ -69,14 +69,14 @@ export class ApiFactory {
       const api = this.#makeApi('central');
       await api.login(this.#central, ADMIN.email, ADMIN.password);
 
-      const email = `${this.deviceId}-${role}@tamanu.io`;
-      const password = chance.string({ length: 12, alpha: true, numeric: true });
+      const email = `simulator-${role}@tamanu.io`;
+      const password = 'password'; // chance.string({ length: 12, alpha: true, numeric: true });
       await api.post('admin/user', {
         email,
         password,
         displayName: chance.name(),
         displayId: chance.string({ length: 6, alpha: true, numeric: true }),
-        role,
+        role: 'admin',
       });
 
       const user = { email, password, role };
