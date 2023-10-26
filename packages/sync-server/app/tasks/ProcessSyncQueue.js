@@ -23,17 +23,20 @@ export class ProcessSyncQueue extends ScheduledTask {
     });
 
     if (waitingInQueue > 0) {
-      log.info("ProcessSyncQueue.waitingInQueue", { count: waitingInQueue });
+      log.info('ProcessSyncQueue.waitingInQueue', { count: waitingInQueue });
       return;
     }
 
-    const updated = await SyncQueuedDevice.update({
-      status: SYNC_QUEUE_STATUSES.READY,
-    }, {
-      where: {
-        status: SYNC_QUEUE_STATUSES.QUEUED,
+    const updated = await SyncQueuedDevice.update(
+      {
+        status: SYNC_QUEUE_STATUSES.READY,
       },
-    });
-    log.info("ProcessSyncQueue.movedQueuedToReady", { count: updated });
+      {
+        where: {
+          status: SYNC_QUEUE_STATUSES.QUEUED,
+        },
+      },
+    );
+    log.info('ProcessSyncQueue.movedQueuedToReady', { count: updated });
   }
 }

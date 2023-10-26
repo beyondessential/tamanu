@@ -13,14 +13,14 @@ export const buildSyncRoutes = ctx => {
     '/',
     asyncHandler(async (req, res) => {
       const { SyncQueuedDevice } = req.models;
-      
+
       // update our position in the queue and check if we're at the front of it
       const queueRecord = await SyncQueuedDevice.checkSyncRequest({
         lastSyncedTick: 0,
         urgent: false,
-        ...req.body
+        ...req.body,
       });
-      log.info("Dummy queue result:", { queueRecord });
+      log.info('Dummy queue result:', { queueRecord });
 
       // if we're not at the front of the queue, we're waiting
       if (!queueRecord) {
@@ -40,9 +40,9 @@ export const buildSyncRoutes = ctx => {
         return;
       }
 
-      // remove our place in the queue before starting sync 
+      // remove our place in the queue before starting sync
       // (if the resulting sync has an error, we'll be knocked to the back of the queue
-      // but that's fine. It will leave some room for non-errored devices to sync, and 
+      // but that's fine. It will leave some room for non-errored devices to sync, and
       // our requests will get priority once our error resolves as we'll have an older
       // lastSyncedTick)
       queueRecord.destroy();

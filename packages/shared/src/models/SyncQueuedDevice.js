@@ -21,13 +21,13 @@ export class SyncQueuedDevice extends Model {
         lastSeenTime: { type: DataTypes.DATE },
         lastSyncedTick: { type: DataTypes.BIGINT },
         urgent: { type: DataTypes.BOOLEAN },
-        status: { 
+        status: {
           type: DataTypes.TEXT,
           default: SYNC_QUEUE_STATUSES.QUEUED,
         },
       },
       {
-        ...options, 
+        ...options,
         syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
         paranoid: false,
       },
@@ -76,7 +76,7 @@ export class SyncQueuedDevice extends Model {
       });
     } else {
       // update with most recent info
-      // (always go with most urgent request - this way a user-requested urgent 
+      // (always go with most urgent request - this way a user-requested urgent
       // sync won't be overwritten to non-urgent by a scheduled sync)
       await queueRecord.update({
         lastSeenTime: getCurrentDateTimeString(),
@@ -95,5 +95,4 @@ export class SyncQueuedDevice extends Model {
     // it's our turn! tell the sync system that we're ready to go!
     return queueRecord;
   }
-
 }
