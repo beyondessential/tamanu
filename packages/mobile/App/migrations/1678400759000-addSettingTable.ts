@@ -1,35 +1,5 @@
-import {
-  MigrationInterface,
-  QueryRunner,
-  Table,
-  TableColumn,
-  TableForeignKey,
-  TableIndex,
-} from 'typeorm';
-
-const BaseColumns = [
-  new TableColumn({
-    name: 'id',
-    type: 'varchar',
-    isPrimary: true,
-  }),
-  new TableColumn({
-    name: 'createdAt',
-    type: 'datetime',
-    default: "datetime('now')",
-  }),
-  new TableColumn({
-    name: 'updatedAt',
-    type: 'datetime',
-    default: "datetime('now')",
-  }),
-  new TableColumn({
-    name: 'updatedAtSyncTick',
-    type: 'bigint',
-    isNullable: false,
-    default: -999,
-  }),
-];
+import { MigrationInterface, QueryRunner, Table, TableColumn, TableForeignKey } from 'typeorm';
+import { BaseColumns, baseIndex } from './utils/baseColumns';
 
 const SettingTable = new Table({
   name: 'setting',
@@ -58,20 +28,16 @@ const SettingTable = new Table({
       referencedColumnNames: ['id'],
     }),
   ],
+  indices: [baseIndex],
 });
 
 const ifNotExist = true;
-
-const updatedAtSyncTickIndex = {
-  columnNames: ['updatedAtSyncTick'],
-};
 
 export class addSettingTable1678400759000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(SettingTable, ifNotExist);
 
-    await queryRunner.createIndex(SettingTable, new TableIndex(updatedAtSyncTickIndex));
-
+    await queryRunner.createIndex(SettingTable, baseIndex);
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {

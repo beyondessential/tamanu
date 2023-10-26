@@ -6,34 +6,11 @@ import {
   TableForeignKey,
   TableIndex,
 } from 'typeorm';
+import { BaseColumns } from './utils/baseColumns';
 
 const TABLE_NAME = 'vital_log';
 const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
-
-const BaseColumns = [
-  new TableColumn({
-    name: 'id',
-    type: 'varchar',
-    isPrimary: true,
-  }),
-  new TableColumn({
-    name: 'createdAt',
-    type: 'datetime',
-    default: "datetime('now')",
-  }),
-  new TableColumn({
-    name: 'updatedAt',
-    type: 'datetime',
-    default: "datetime('now')",
-  }),
-  new TableColumn({
-    name: 'updatedAtSyncTick',
-    type: 'bigint',
-    isNullable: false,
-    default: -999,
-  }),
-];
 
 const VitalLog = new Table({
   name: TABLE_NAME,
