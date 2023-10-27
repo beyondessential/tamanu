@@ -186,7 +186,9 @@ reportsRouter.post(
       throw new InvalidOperationError('Cannot import a report with a version number');
 
     if (reportSchemas.enabled && !canEditSchema && versionData.dbSchema === REPORT_DB_SCHEMAS.RAW) {
-      throw new InvalidOperationError('You do not have permission to create raw reports');
+      throw new InvalidOperationError(
+        'You do not have permission to import reports using the raw schema',
+      );
     }
 
     const existingDefinition = await ReportDefinition.findOne({ where: { name } });
