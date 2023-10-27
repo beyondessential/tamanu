@@ -205,7 +205,9 @@ reportsRouter.post(
           const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
             where: {
               name,
-              dbSchema: versionData.dbSchema,
+              dbSchema: config.db.reportSchemas.enabled
+                ? versionData.dbSchema
+                : REPORT_DB_SCHEMAS.RAW,
             },
             include: [
               {
