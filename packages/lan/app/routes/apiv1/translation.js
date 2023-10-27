@@ -1,4 +1,5 @@
 import express from 'express';
+import { QueryTypes } from 'sequelize';
 import asyncHandler from 'express-async-handler';
 import { mapValues, keyBy } from 'lodash';
 
@@ -50,9 +51,10 @@ translation.get(
 
     const eTagData = await req.db.query(
       `SELECT uuid_generate_v5(uuid_nil(), string_agg(id, ':') || string_agg(updated_at::text, ':')) AS hash FROM translated_strings WHERE language = '${language}'`,
+      { type: QueryTypes.SELECT },
     );
 
-    const eTag = eTagData[0][0].hash;
+    const eTag = eTagData[0].hash;
 
     if (req.headers['if-none-match'] === eTag) {
       res.sendStatus(304);
