@@ -19,8 +19,8 @@ export const DeleteEncounterModal = ({ open, onClose, deleteEncounter, data }) =
   };
 
   return (
-    <Modal width="md" title="Delete encounter record" onClose={onClose} open>
-      <DeleteEncounterForm data={data} />
+    <Modal width="md" title="Delete encounter record" onClose={onClose} open={open}>
+      <DeleteEncounterForm data={data} onCancel={onClose} />
     </Modal>
   );
 };

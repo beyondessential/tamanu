@@ -8,7 +8,6 @@ import { ConfirmCancelRow } from '../components/ButtonRow';
 
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 import { DateDisplay } from '../components/DateDisplay';
-import { Divider } from '@material-ui/core';
 
 const Label = styled.div`
   font-size: 14px;
@@ -101,7 +100,7 @@ export const DeleteEncounterForm = ({ data, onSubmit, onCancel, encounter, initi
                 helperText="Enter the NHN for this patient to confirm deletion"
               />
             </WarningWrapper>
-            <ConfirmCancelRow onCancel={() => {}} onConfirm={submitForm} />
+            <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} />
           </div>
         );
       }}

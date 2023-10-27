@@ -52,6 +52,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
   const [refreshCount, setRefreshCount] = useState(0);
   const [modalId, setModalId] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [selectedEncounterData, setSelectedEncounterData] = useState(null);
 
   const handleChangeModalId = id => {
     setModalId(id);
@@ -91,8 +92,12 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       title: '',
       sortable: false,
       dontCallRowInput: true,
-      CellComponent: () => {
-        return <MenuButton actions={menuActions} />;
+      CellComponent: ({ data }) => {
+        return (
+          <div onMouseEnter={() => setSelectedEncounterData(data)}>
+            <MenuButton actions={menuActions} />
+          </div>
+        );
       },
     },
   ];
@@ -118,9 +123,16 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         endpoint={`patient/${patient.id}/encounters`}
         initialSort={{ orderBy: 'startDate', order: 'desc' }}
         refreshCount={refreshCount}
-        ActiveMenuModal={ActiveModal}
-        activeMenuModalProps={{ open: modalOpen }}
       />
+      {ActiveModal && (
+        <ActiveModal
+          open={modalOpen}
+          data={selectedEncounterData}
+          onClose={() => {
+            setModalOpen(false);
+          }}
+        />
+      )}
     </>
   );
 };
