@@ -39,6 +39,7 @@ const servers = [
   { name: 'Demo (Solomons)', type: 'demo', host: 'https://sync-demo.tamanu-solomons.org' },
   { name: 'Demo (Tonga)', type: 'demo', host: 'https://central-demo.tonga-dev.tamanu.io' },
   { name: 'Demo (Tuvalu)', type: 'demo', host: 'https://central-demo.tuvalu-dev.tamanu.io' },
+  { name: 'International Summary Central Demo Server', type: 'dev', host: 'https://is-central.internal.tamanu.io' },
 
   // test servers
   { name: 'Test (Aspen)', type: 'demo', host: 'https://central-clone.aspen-dev.tamanu.io' },
