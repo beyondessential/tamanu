@@ -31,7 +31,8 @@ const servers = [
   { name: 'Demo 2', type: 'demo', host: 'https://central-demo2.internal.tamanu.io' },
   { name: 'Demo (Aspen)', type: 'demo', host: 'https://central-demo.aspen-dev.tamanu.io' },
   { name: 'Demo (Fiji)', type: 'demo', host: 'https://central-demo.fiji-dev.tamanu.io' },
-   { name: 'Demo (Honduras)', type: 'demo', host: 'https://central-demo.honduras-dev.tamanu.io' },
+  { name: 'Demo (Honduras)', type: 'demo', host: 'https://central-demo.honduras-dev.tamanu.io' },
+  { name: 'Demo (International Summary)', type: 'dev', host: 'https://is-central.internal.tamanu.io' },
   { name: 'Demo (Kiribati)', type: 'demo', host: 'https://central-demo.kiribati-dev.tamanu.io' },
   { name: 'Demo (Nauru)', type: 'demo', host: 'https://central-demo.nauru-dev.tamanu.io' },
   { name: 'Demo (Palau)', type: 'demo', host: 'https://central-demo.palau-dev.tamanu.io' },
@@ -39,7 +40,6 @@ const servers = [
   { name: 'Demo (Solomons)', type: 'demo', host: 'https://sync-demo.tamanu-solomons.org' },
   { name: 'Demo (Tonga)', type: 'demo', host: 'https://central-demo.tonga-dev.tamanu.io' },
   { name: 'Demo (Tuvalu)', type: 'demo', host: 'https://central-demo.tuvalu-dev.tamanu.io' },
-  { name: 'International Summary Central Demo Server', type: 'dev', host: 'https://is-central.internal.tamanu.io' },
 
   // test servers
   { name: 'Test (Aspen)', type: 'demo', host: 'https://central-clone.aspen-dev.tamanu.io' },
