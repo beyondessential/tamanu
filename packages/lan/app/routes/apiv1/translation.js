@@ -42,9 +42,6 @@ translation.get(
   asyncHandler(async (req, res) => {
     // Everyone can access translations
     req.flagPermissionChecked();
-    res.setHeader('Cache-Control', 'public, max-age=2628288');
-
-    console.log('hello')
 
     const {
       models: { TranslatedString },
@@ -55,10 +52,10 @@ translation.get(
       `SELECT uuid_generate_v5(uuid_nil(), string_agg(id, ':') || string_agg(updated_at::text, ':')) AS hash FROM translated_strings WHERE language = '${language}'`,
     );
 
-    const eTag = eTagData[0].hash;
+    const eTag = eTagData[0][0].hash;
 
     if (req.headers['if-none-match'] === eTag) {
-      res.status(304).send();
+      res.sendStatus(304);
       return;
     }
 
