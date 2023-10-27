@@ -8,7 +8,7 @@ export async function up(query) {
       // N.B. because ';' is used to join the two, we replace any actual occurrence of ';' with ':'
       // to avoid clashes on the joined id
       id: {
-        type: `TEXT GENERATED ALWAYS AS (REPLACE("string_id", ';', ':') || ';' || REPLACE("language", ';', ':')) STORED`,
+        type: `TEXT GENERATED ALWAYS AS ("string_id" || ';' || "language") STORED`,
       },
       string_id: {
         type: DataTypes.TEXT,
