@@ -2,7 +2,7 @@
 
 import { Command } from 'commander';
 import { canonicalize } from 'json-canonicalize';
-import { buildSettingsRecords } from 'shared/models/Setting';
+import { buildSettingsRecords } from '@tamanu/shared/models/Setting';
 
 import { initDatabase } from '../database';
 import { loadSettingFile } from '../utils/loadSettingFile';

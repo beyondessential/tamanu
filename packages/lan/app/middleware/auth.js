@@ -5,9 +5,10 @@ import config from 'config';
 import { v4 as uuid } from 'uuid';
 import { promisify } from 'util';
 
-import { BadAuthenticationError } from 'shared/errors';
-import { log } from 'shared/services/logging';
-import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
+import { VISIBILITY_STATUSES, USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
+import { BadAuthenticationError } from '@tamanu/shared/errors';
+import { log } from '@tamanu/shared/services/logging';
+import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 
 import { CentralServerConnection } from '../sync';
 
@@ -81,7 +82,14 @@ export async function centralServerLogin(models, email, password, deviceId) {
 
 async function localLogin(models, email, password) {
   // some other error in communicating with sync server, revert to local login
-  const user = await models.User.scope('withPassword').findOne({ where: { email } });
+  const user = await models.User.scope('withPassword').findOne({
+    where: { email },
+  });
+
+  if (user && user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+    throw new BadAuthenticationError(USER_DEACTIVATED_ERROR_MESSAGE);
+  }
+
   const passwordMatch = await comparePassword(user, password);
 
   if (!passwordMatch) {
@@ -108,6 +116,11 @@ async function centralServerLoginWithLocalFallback(models, email, password, devi
     if (e.name === 'BadAuthenticationError') {
       // actual bad credentials server-side
       throw new BadAuthenticationError('Incorrect username or password, please try again');
+    }
+
+    // if it is forbidden, throw the error instead of proceeding to local login
+    if (e.centralServerResponse.status === 403) {
+      throw e.centralServerResponse.body.error;
     }
 
     log.warn(`centralServerLoginWithLocalFallback: central server login failed: ${e}`);
@@ -177,7 +190,11 @@ async function getUserFromToken(request) {
   const token = bearer[1];
   try {
     const { userId } = await decodeToken(token);
-    return models.User.findByPk(userId);
+    const user = await models.User.findByPk(userId);
+    if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+      throw new Error('User is not visible to the system'); // will be caught immediately
+    }
+    return user;
   } catch (e) {
     throw new BadAuthenticationError(
       'Your session has expired or is invalid. Please log in again.',
