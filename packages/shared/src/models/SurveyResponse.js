@@ -127,7 +127,7 @@ export class SurveyResponse extends Model {
   static async getSurveyEncounter({
     encounterId,
     patientId,
-    createNewEncounter,
+    forceNewEncounter,
     reasonForEncounter,
     ...responseData
   }) {
@@ -147,7 +147,7 @@ export class SurveyResponse extends Model {
       );
     }
 
-    if (!createNewEncounter) {
+    if (!forceNewEncounter) {
       // find open encounter
       const openEncounter = await Encounter.findOne({
         where: {
@@ -196,7 +196,7 @@ export class SurveyResponse extends Model {
       surveyId,
       patientId,
       encounterId,
-      createNewEncounter,
+      forceNewEncounter,
       ...responseData
     } = data;
 
@@ -222,7 +222,7 @@ export class SurveyResponse extends Model {
     const encounter = await this.getSurveyEncounter({
       encounterId,
       patientId,
-      createNewEncounter,
+      forceNewEncounter,
       reasonForEncounter: `Survey response for ${survey.name}`,
       ...responseData,
     });

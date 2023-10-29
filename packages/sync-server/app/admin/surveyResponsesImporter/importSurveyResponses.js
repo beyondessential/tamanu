@@ -202,24 +202,29 @@ export async function importSurveyResponses(workbook, { errors, log, models }) {
     } = trimmed;
 
     try {
+
+      let initialValidationErrors = [];
+      
       if (!surveyCode)
         throw new ValidationError(
           sheetName,
           sheetRow,
-          `Must specify "surveyCode", no column "surveyCode" found in sheet`,
+          `Must specify "surveyCode"`,
         );
       const survey = await models.Survey.findOne(
         { where: { code: surveyCode } },
         { paranoid: false },
       );
       if (!survey)
-        throw new ValidationError(
-          sheetName,
-          sheetRow,
-          `Survey with code "${surveyCode}" does not exist`,
+        initialValidationErrors.push(
+          new ValidationError(
+            sheetName,
+            sheetRow,
+            `Survey with code "${surveyCode}" does not exist`,
+          )
         );
 
-      if (!surveyScreenComponents[surveyCode]) {
+      if (survey && !surveyScreenComponents[surveyCode]) {
         log.debug(`Loading survey screen components from DB for survey with code "${surveyCode}"`);
         surveyScreenComponents[
           surveyCode
@@ -234,45 +239,55 @@ export async function importSurveyResponses(workbook, { errors, log, models }) {
       }
 
       const [patient, examiner, user, department, location] = await Promise.all([
-        models.Patient.findByPk(patientId, { paranoid: false }),
-        examinerId
-          ? models.User.scope('withPassword').findByPk(examinerId, { paranoid: false })
-          : Promise.resolve(),
-        models.User.scope('withPassword').findByPk(submittedById, { paranoid: false }),
-        models.Department.findByPk(departmentId, { paranoid: false }),
-        models.Location.findByPk(locationId, { paranoid: false }),
+        models.Patient.findByPk(patientId),
+        examinerId && models.User.findByPk(examinerId),
+        models.User.findByPk(submittedById),
+        models.Department.findByPk(departmentId),
+        models.Location.findByPk(locationId),
       ]);
 
       if (!patient)
-        throw new ValidationError(
-          sheetName,
-          sheetRow,
-          `Patient with ID "${patientId}" does not exist`,
+        initialValidationErrors.push(
+          new ValidationError(
+            sheetName,
+            sheetRow,
+            `Patient with ID "${patientId}" does not exist`,
+          )
         );
       if (examinerId && !examiner)
-        throw new ValidationError(
-          sheetName,
-          sheetRow,
-          `Examiner (User) with ID "${examinerId}" does not exist`,
+        initialValidationErrors.push(
+          new ValidationError(
+            sheetName,
+            sheetRow,
+            `Examiner (User) with ID "${examinerId}" does not exist`,
+          )
         );
       if (!user)
-        throw new ValidationError(
-          sheetName,
-          sheetRow,
-          `Submitting User with ID "${submittedById}" does not exist`,
+        initialValidationErrors.push(
+          new ValidationError(
+            sheetName,
+            sheetRow,
+            `Submitting User with ID "${submittedById}" does not exist`,
+          )
         );
       if (!department)
-        throw new ValidationError(
-          sheetName,
-          sheetRow,
-          `Department with ID "${departmentId}" does not exist`,
+        initialValidationErrors.push(
+          new ValidationError(
+            sheetName,
+            sheetRow,
+            `Department with ID "${departmentId}" does not exist`,
+          )
         );
       if (!location)
-        throw new ValidationError(
-          sheetName,
-          sheetRow,
-          `Location with ID "${locationId}" does not exist`,
+        initialValidationErrors.push(
+          new ValidationError(
+            sheetName,
+            sheetRow,
+            `Location with ID "${locationId}" does not exist`,
+          )
         );
+
+      if (initialValidationErrors.length) throw initialValidationErrors;
 
       const answers = {};
       const actions = {};
@@ -310,7 +325,7 @@ export async function importSurveyResponses(workbook, { errors, log, models }) {
           startTime: dateSubmittedString,
           endTime: dateSubmittedString,
         }),
-        createNewEncounter: true,
+        forceNewEncounter: true,
       });
       updateStat(stats, statkey('SurveyResponse', sheetName), 'created');
       updateStat(
