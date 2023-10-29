@@ -20,6 +20,8 @@ import { Routes } from '/helpers/routes';
 import { RegisterPatientStack } from './RegisterPatientStack';
 import { PatientDetailsStack } from './PatientDetailsStack';
 import { useAuth } from '~/ui/contexts/AuthContext';
+import { PatientProgramRegistryStack } from './PatientProgramRegistryStack';
+import { PatientSummaryStack } from './PatientSummaryStack';
 
 const Stack = createStackNavigator();
 
@@ -59,6 +61,14 @@ export const HomeStack = (): ReactElement => {
       <Stack.Screen
         name={Routes.HomeStack.HistoryVitalsStack.Index}
         component={HistoryVitalsStack}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.PatientSummaryStack.Index}
+        component={PatientSummaryStack}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.PatientProgramRegistryStack.Index}
+        component={PatientProgramRegistryStack}
       />
       <Stack.Screen
         name={Routes.HomeStack.SearchPatientStack.Index}
