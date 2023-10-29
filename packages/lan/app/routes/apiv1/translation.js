@@ -50,16 +50,19 @@ translation.get(
     } = req;
 
     const eTagData = await req.db.query(
-      `SELECT uuid_generate_v5(uuid_nil(), string_agg(id, ':') || string_agg(updated_at::text, ':')) AS hash FROM translated_strings WHERE language = '${language}'`,
+      `SELECT max(updated_at_sync_tick) FROM translated_strings WHERE language = '${language}'`,
       { type: QueryTypes.SELECT },
     );
 
-    const eTag = eTagData[0].hash;
+    const eTag = eTagData[0].max;
 
     if (req.headers['if-none-match'] === eTag) {
       res.sendStatus(304);
+      console.log('CACHED DATA')
       return;
     }
+
+    console.log('GETTING NEW DATA')
 
     res.setHeader('ETag', eTag);
 
