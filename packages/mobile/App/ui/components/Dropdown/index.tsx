@@ -98,7 +98,7 @@ export const Dropdown = React.memo(
     const onSelectedItemsChange = useCallback(
       items => {
         setSelectedItems(items);
-        onChange(JSON.stringify(items)); // Form submits selected items as JSON array string
+        onChange(multiselect ? JSON.stringify(items) : items[0]); // Form submits multiselect items as JSON array string OR single item as value string
       },
       [selectedItems],
     );
