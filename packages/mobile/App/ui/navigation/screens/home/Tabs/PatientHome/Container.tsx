@@ -112,6 +112,10 @@ const PatientHomeContainer = ({
         title: 'View history',
         onPress: (): void => navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index),
       },
+      {
+        title: 'Patient summary',
+        onPress: (): void => navigation.navigate(Routes.HomeStack.PatientSummaryStack.Index),
+      },
     ],
     [],
   );
