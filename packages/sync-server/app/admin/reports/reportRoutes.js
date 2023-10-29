@@ -183,6 +183,9 @@ reportsRouter.post(
       models: { ReportDefinition, ReportDefinitionVersion },
       sequelize,
     } = store;
+    const { reportSchemas } = config.db;
+
+    const canEditSchema = req.ability.can('write', 'ReportDbSchema');
 
     const { name, file, dryRun, deleteFileAfterImport = true } = await getUploadedData(req);
 
@@ -190,6 +193,12 @@ reportsRouter.post(
 
     if (versionData.versionNumber)
       throw new InvalidOperationError('Cannot import a report with a version number');
+
+    if (reportSchemas.enabled && !canEditSchema && versionData.dbSchema === REPORT_DB_SCHEMAS.RAW) {
+      throw new InvalidOperationError(
+        'You do not have permission to import reports using the raw schema',
+      );
+    }
 
     const existingDefinition = await ReportDefinition.findOne({ where: { name } });
     if (existingDefinition && existingDefinition.dbSchema !== versionData.dbSchema) {
@@ -214,9 +223,7 @@ reportsRouter.post(
           const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
             where: {
               name,
-              dbSchema: config.db.reportSchemas.enabled
-                ? versionData.dbSchema
-                : REPORT_DB_SCHEMAS.RAW,
+              dbSchema: reportSchemas.enabled ? versionData.dbSchema : REPORT_DB_SCHEMAS.RAW,
             },
             include: [
               {
