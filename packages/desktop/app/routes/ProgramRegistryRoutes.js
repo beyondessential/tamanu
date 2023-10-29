@@ -5,7 +5,7 @@ import { ProgramRegistryView } from '../views/programRegistry/ProgramRegistryVie
 export const ProgramRegistryRoutes = React.memo(({ match }) => {
   return (
     <Switch>
-      <Route path={`${match.path}/:programRegistryCode`} component={ProgramRegistryView} />
+      <Route path={`${match.path}/:programRegistryId`} component={ProgramRegistryView} />
       <Redirect to={`${match.path}`} />
     </Switch>
   );
