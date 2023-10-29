@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
 import { Modal } from './Modal';
 import { DateDisplay } from './DateDisplay';
@@ -56,6 +55,13 @@ const COLUMNS = [
               />
             </>
           );
+        case 'MultiSelect':
+          return JSON.parse(answer).map(element => (
+            <>
+              {element}
+              <br />
+            </>
+          ));
         default:
           return answer;
       }
@@ -104,12 +110,11 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
       const { dataElement, id } = component;
       const { type, name } = dataElement;
       const answerObject = answers.find(a => a.dataElementId === dataElement.id);
-      const isMultiSelectAnswer = type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
       const answer = answerObject?.body;
       return {
         id,
         type,
-        answer: isMultiSelectAnswer ? JSON.parse(answer).join(', ') : answer,
+        answer,
         name,
       };
     })
