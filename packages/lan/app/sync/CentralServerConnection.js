@@ -6,12 +6,12 @@ import {
   FacilityAndSyncVersionIncompatibleError,
   RemoteTimeoutError,
   RemoteCallFailedError,
-} from 'shared/errors';
+} from '@tamanu/shared/errors';
 import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
-import { getResponseJsonSafely } from 'shared/utils';
-import { log } from 'shared/services/logging';
-import { fetchWithTimeout } from 'shared/utils/fetchWithTimeout';
-import { sleepAsync } from 'shared/utils/sleepAsync';
+import { getResponseJsonSafely } from '@tamanu/shared/utils';
+import { log } from '@tamanu/shared/services/logging';
+import { fetchWithTimeout } from '@tamanu/shared/utils/fetchWithTimeout';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { version } from '../serverInfo';
 import { callWithBackoff } from './callWithBackoff';
@@ -68,7 +68,8 @@ export class CentralServerConnection {
     if (awaitConnection) {
       try {
         if (!this.token) {
-          await this.connect();
+          // Deliberately use same backoff policy to avoid retrying in some places
+          await this.connect(backoff, otherParams.timeout);
         } else {
           await this.connectionPromise;
         }
@@ -167,7 +168,7 @@ export class CentralServerConnection {
     throw new Error(`Did not get a truthy response after ${maxAttempts} attempts for ${endpoint}`);
   }
 
-  async connect() {
+  async connect(backoff, timeout = this.timeout) {
     // if there's an ongoing connect attempt, reuse it
     if (this.connectionPromise) {
       return this.connectionPromise;
@@ -189,6 +190,8 @@ export class CentralServerConnection {
         },
         awaitConnection: false,
         retryAuth: false,
+        backoff,
+        timeout,
       });
 
       if (!body.token || !body.user) {

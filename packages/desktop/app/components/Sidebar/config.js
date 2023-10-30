@@ -208,6 +208,11 @@ export const SYNC_MENU_ITEMS = [
     ability: { action: 'write', subject: 'settings' },
   },
   {
+    key: 'fhirJobStats',
+    label: 'FHIR job stats',
+    path: '/admin/fhir/jobStats',
+  },
+  {
     key: 'reports',
     label: 'Reports',
     path: '/admin/reports',

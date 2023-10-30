@@ -15,6 +15,24 @@
       // "idle": 10000,
       // "acquire": 60000,
       // "evict": 1000
+    },
+    "reportSchemas": {
+      "connections": {
+        "raw": {
+          "pool": {
+            "max": 5
+          },
+          "username": "",
+          "password": ""
+        },
+        "reporting": {
+          "pool": {
+            "max": 5
+          },
+          "username": "",
+          "password": ""
+        }
+      }
     }
   },
   "updateUrls": {
@@ -27,13 +45,12 @@
   },
   "honeycomb": {
     "apiKey": "",
-    "sampleRate": 100,  // 100 = 1/100 = 1% of traces get sent to honeycomb
-                        // in contrast, logs are always sent
+    "sampleRate": 100, // 100 = 1/100 = 1% of traces get sent to honeycomb
+    // in contrast, logs are always sent
     "enabled": true,
     "level": "info"
   },
   "sync": {
-    "readOnly": false,
     "persistedCacheBatchSize": 20000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "adjustDataBatchSize": 20000,
@@ -58,10 +75,7 @@
       // (defaults to shedding requests for sync or attachments earlier than other requests)
       {
         "name": "low_priority",
-        "prefixes": [
-          "/v1/sync",
-          "/v1/attachment"
-        ],
+        "prefixes": ["/v1/sync", "/v1/attachment"],
         "maxActiveRequests": 4,
         "maxQueuedRequests": 8,
         "queueTimeout": 7500
@@ -70,9 +84,7 @@
       // (defaults to queueing more requests than sync/attachments and them shedding much later)
       {
         "name": "high_priority",
-        "prefixes": [
-          "/"
-        ],
+        "prefixes": ["/"],
         "maxActiveRequests": 8,
         "maxQueuedRequests": 32,
         "queueTimeout": 7500
@@ -98,7 +110,7 @@
       "tokenExpiry": 20
     }
   },
-  "export": { 
+  "export": {
     "maxFileSizeInMB": 50
   },
   "mailgun": {
@@ -271,12 +283,8 @@
     // the labResultWidget and timeZone keys are here for legacy reasons
     // don't put anything else in the top level of localisation unless it relates to localisation itself
     "labResultWidget": {
-      "categoryWhitelist": [
-        "labTestCategory-COVID"
-      ],
-      "testTypeWhitelist": [
-        "labTestType-COVID"
-      ]
+      "categoryWhitelist": ["labTestCategory-COVID"],
+      "testTypeWhitelist": ["labTestType-COVID"]
     },
     "data": {
       // To do: review this section when implementing the patient charts feature
@@ -296,11 +304,13 @@
         },
         "emergencyContactName": {
           "shortLabel": "Emergency contact name",
-          "longLabel": "Emergency contact name"
+          "longLabel": "Emergency contact name",
+          "requiredPatientData": false
         },
         "emergencyContactNumber": {
           "shortLabel": "Emergency contact number",
-          "longLabel": "Emergency contact number"
+          "longLabel": "Emergency contact number",
+          "requiredPatientData": false
         },
         "markedForSync": {
           "shortLabel": "Sync",
@@ -313,35 +323,42 @@
         },
         "firstName": {
           "shortLabel": "First name",
-          "longLabel": "First name"
+          "longLabel": "First name",
+          "requiredPatientData": false
         },
         "middleName": {
           "shortLabel": "Middle name",
           "longLabel": "Middle name",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "lastName": {
           "shortLabel": "Last name",
-          "longLabel": "Last name"
+          "longLabel": "Last name",
+          "requiredPatientData": false
         },
         "culturalName": {
           "shortLabel": "Cultural name",
           "longLabel": "Cultural/traditional name",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "sex": {
           "shortLabel": "Sex",
           "longLabel": "Sex",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "email": {
           "shortLabel": "Email",
           "longLabel": "Email",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "dateOfBirth": {
           "shortLabel": "DOB",
-          "longLabel": "Date of birth"
+          "longLabel": "Date of birth",
+          "requiredPatientData": false
         },
         "dateOfBirthFrom": {
           "shortLabel": "DOB from",
@@ -362,102 +379,122 @@
         "bloodType": {
           "shortLabel": "Blood type",
           "longLabel": "Blood type",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "title": {
           "shortLabel": "Title",
           "longLabel": "Title",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "placeOfBirth": {
           "shortLabel": "Birth location",
           "longLabel": "Birth location",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "countryOfBirthId": {
           "shortLabel": "Country of birth",
           "longLabel": "Country of birth",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "maritalStatus": {
           "shortLabel": "Marital status",
           "longLabel": "Marital status",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "primaryContactNumber": {
           "shortLabel": "Primary contact number",
           "longLabel": "Primary contact number",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "secondaryContactNumber": {
           "shortLabel": "Secondary contact number",
           "longLabel": "Secondary contact number",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "socialMedia": {
           "shortLabel": "Social media",
           "longLabel": "Social media",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "settlementId": {
           "shortLabel": "Settlement",
           "longLabel": "Settlement",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "streetVillage": {
           "shortLabel": "Residential landmark",
           "longLabel": "Residential landmark",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "cityTown": {
           "shortLabel": "City/town",
           "longLabel": "City/town",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "subdivisionId": {
           "shortLabel": "Sub division",
           "longLabel": "Sub division",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "divisionId": {
           "shortLabel": "Division",
           "longLabel": "Division",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "countryId": {
           "shortLabel": "Country",
           "longLabel": "Country",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "medicalAreaId": {
           "shortLabel": "Medical area",
           "longLabel": "Medical area",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "nursingZoneId": {
           "shortLabel": "Nursing zone",
           "longLabel": "Nursing zone",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "nationalityId": {
           "shortLabel": "Nationality",
           "longLabel": "Nationality",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "ethnicityId": {
           "shortLabel": "Ethnicity",
           "longLabel": "Ethnicity",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "occupationId": {
           "shortLabel": "Occupation",
           "longLabel": "Occupation",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "educationalLevel": {
           "shortLabel": "Educational attainment",
           "longLabel": "Educational attainment",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "villageName": {
           "shortLabel": "Village",
@@ -472,27 +509,32 @@
         "birthCertificate": {
           "shortLabel": "Birth certificate",
           "longLabel": "Birth certificate number",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "drivingLicense": {
           "shortLabel": "Driving license",
           "longLabel": "Driving license number",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "passport": {
           "shortLabel": "Passport",
           "longLabel": "Passport number",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "religionId": {
           "shortLabel": "Religion",
           "longLabel": "Religion",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "patientBillingTypeId": {
           "shortLabel": "Type",
           "longLabel": "Patient type",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "ageRange": {
           "shortLabel": "Age range",
@@ -505,77 +547,92 @@
         "motherId": {
           "shortLabel": "Mother",
           "longLabel": "Mother",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "fatherId": {
           "shortLabel": "Father",
           "longLabel": "Father",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "birthWeight": {
           "shortLabel": "Birth weight (kg)",
           "longLabel": "Birth weight (kg)",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "birthLength": {
           "shortLabel": "Birth length (cm)",
           "longLabel": "Birth length (cm)",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "birthDeliveryType": {
           "shortLabel": "Delivery type",
           "longLabel": "Delivery type",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "gestationalAgeEstimate": {
           "shortLabel": "Gestational age (weeks)",
           "longLabel": "Gestational age (weeks)",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "apgarScoreOneMinute": {
           "shortLabel": "Apgar score at 1 min",
           "longLabel": "Apgar score at 1 min",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "apgarScoreFiveMinutes": {
           "shortLabel": "Apgar score at 5 min",
           "longLabel": "Apgar score at 5 min",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "apgarScoreTenMinutes": {
           "shortLabel": "Apgar score at 10 min",
           "longLabel": "Apgar score at 10 min",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "timeOfBirth": {
           "shortLabel": "Time of birth",
           "longLabel": "Time of birth",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "attendantAtBirth": {
           "shortLabel": "Attendant at birth",
           "longLabel": "Attendant at birth",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "nameOfAttendantAtBirth": {
           "shortLabel": "Name of attendant",
           "longLabel": "Name of attendant",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "birthType": {
           "shortLabel": "Single/Plural birth",
           "longLabel": "Single/Plural birth",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "birthFacilityId": {
           "shortLabel": "Name of health facility (if applicable)",
           "longLabel": "Name of health facility (if applicable)",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "registeredBirthPlace": {
           "shortLabel": "Place of birth",
           "longLabel": "Place of birth",
-          "hidden": false
+          "hidden": false,
+          "requiredPatientData": false
         },
         "referralSourceId": {
           "shortLabel": "Referral source",
@@ -718,44 +775,58 @@
           "label": "STAT"
         }
       ],
-      "imagingCancellationReasons": [{
-        "value": "clinical",
-        "label": "Clinical reason"
-      },{
-        "value": "duplicate",
-        "label": "Duplicate"
-      },{
-        "value": "entered-in-error",
-        "label": "Entered in error"
-      },{
-        "value": "patient-discharged",
-        "label": "Patient discharged"
-      },{
-        "value": "patient-refused",
-        "label": "Patient refused"
-      },{
-        "value": "other",
-        "label": "Other"
-      }],
-      "labsCancellationReasons": [{
-        "value": "clinical",
-        "label": "Clinical reason"
-      },{
-        "value": "duplicate",
-        "label": "Duplicate"
-      },{
-        "value": "entered-in-error",
-        "label": "Entered in error"
-      },{
-        "value": "patient-discharged",
-        "label": "Patient discharged"
-      },{
-        "value": "patient-refused",
-        "label": "Patient refused"
-      },{
-        "value": "other",
-        "label": "Other"
-      }],
+      "imagingCancellationReasons": [
+        {
+          "value": "clinical",
+          "label": "Clinical reason"
+        },
+        {
+          "value": "duplicate",
+          "label": "Duplicate"
+        },
+        {
+          "value": "entered-in-error",
+          "label": "Entered in error"
+        },
+        {
+          "value": "patient-discharged",
+          "label": "Patient discharged"
+        },
+        {
+          "value": "patient-refused",
+          "label": "Patient refused"
+        },
+        {
+          "value": "other",
+          "label": "Other"
+        }
+      ],
+      "labsCancellationReasons": [
+        {
+          "value": "clinical",
+          "label": "Clinical reason"
+        },
+        {
+          "value": "duplicate",
+          "label": "Duplicate"
+        },
+        {
+          "value": "entered-in-error",
+          "label": "Entered in error"
+        },
+        {
+          "value": "patient-discharged",
+          "label": "Patient discharged"
+        },
+        {
+          "value": "patient-refused",
+          "label": "Patient refused"
+        },
+        {
+          "value": "other",
+          "label": "Other"
+        }
+      ],
       "printMeasures": {
         "labRequestPrintLabel": {
           "width": 50.8
@@ -831,7 +902,7 @@
           "value": "other",
           "label": "Other"
         }
-      ],      
+      ],
       "ageDisplayFormat": [
         {
           "as": "days",
@@ -928,9 +999,7 @@
     //
     // As of 29/08/2022 all our deployments are behind a local nginx proxy and so
     // this shouldn't need to be changed.
-    "trusted": [
-      "loopback"
-    ]
+    "trusted": ["loopback"]
   },
   "patientMerge": {
     // can be one of "RENAME", "DESTROY", or "NONE"

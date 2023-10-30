@@ -6,4 +6,9 @@ export interface MenuOptionButtonProps {
   title: string;
   onPress: () => void;
   fontWeight?: number;
+  arrowForwardIconProps?: IconWithSizeProps
+  textProps?: {
+    fontWeight: number;
+    color: string;
+  }
 }

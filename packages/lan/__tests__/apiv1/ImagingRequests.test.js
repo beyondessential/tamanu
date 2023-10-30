@@ -8,9 +8,9 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   SETTINGS_SCOPES,
 } from '@tamanu/constants';
-import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
-import { fake } from 'shared/test-helpers/fake';
+import { createDummyPatient, createDummyEncounter } from '@tamanu/shared/demoData/patients';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 
 import { createTestContext } from '../utilities';
 

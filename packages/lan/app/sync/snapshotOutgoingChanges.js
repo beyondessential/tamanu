@@ -1,8 +1,8 @@
 import { Op, Transaction } from 'sequelize';
 
-import { log } from 'shared/services/logging/log';
-import { COLUMNS_EXCLUDED_FROM_SYNC, SYNC_SESSION_DIRECTION } from 'shared/sync';
-import { withConfig } from 'shared/utils/withConfig';
+import { log } from '@tamanu/shared/services/logging/log';
+import { COLUMNS_EXCLUDED_FROM_SYNC, SYNC_SESSION_DIRECTION } from '@tamanu/shared/sync';
+import { withConfig } from '@tamanu/shared/utils/withConfig';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
 const sanitizeRecord = record =>
@@ -32,11 +32,7 @@ const snapshotChangesForModel = async (model, since, transaction) => {
   }));
 };
 
-export const snapshotOutgoingChanges = withConfig(async (sequelize, models, since, config) => {
-  if (config.sync.readOnly) {
-    return [];
-  }
-
+export const snapshotOutgoingChanges = withConfig(async (sequelize, models, since) => {
   const invalidModelNames = Object.values(models)
     .filter(
       m =>

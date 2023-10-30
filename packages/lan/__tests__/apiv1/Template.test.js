@@ -1,6 +1,6 @@
-import { Setting } from 'shared/models/Setting';
-import { fake } from 'shared/test-helpers/fake';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
+import { Setting } from '@tamanu/shared/models/Setting';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 
 describe('Template', () => {

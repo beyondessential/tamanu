@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 
-import { showError } from 'shared/test-helpers';
+import { showError } from '@tamanu/shared/test-helpers';
 
 import { createTestContext } from '../../utilities';
 

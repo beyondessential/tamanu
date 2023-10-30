@@ -69,7 +69,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     const response = await repo.findOne(surveyId, {
       relations: ['survey', 'encounter', 'encounter.patient'],
     });
-    const questions = await response.survey.getComponents();
+    const questions = await response.survey.getComponents({ includeAllVitals: true });
     const answers = await SurveyResponseAnswer.getRepository().find({
       where: {
         response: response.id,
@@ -204,14 +204,19 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     }
   }
 
-  static async getForPatient(patientId: string, surveyId: string): Promise<SurveyResponse[]> {
-    return this.getRepository()
+  static async getForPatient(patientId: string, surveyId?: string): Promise<SurveyResponse[]> {
+    const query = this.getRepository()
       .createQueryBuilder('survey_response')
       .leftJoinAndSelect('survey_response.encounter', 'encounter')
       .leftJoinAndSelect('survey_response.survey', 'survey')
       .where('encounter.patientId = :patientId', { patientId })
-      .andWhere('survey.id = :surveyId', { surveyId: surveyId.toLowerCase() })
       .orderBy('survey_response.endTime', 'DESC')
-      .getMany();
+      .take(80);
+
+    if (surveyId) {
+      query.andWhere('survey.id = :surveyId', { surveyId: surveyId.toLowerCase() });
+    }
+
+    return query.getMany();
   }
 }
