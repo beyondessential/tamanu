@@ -13,8 +13,8 @@ import { Modal } from '../../components/Modal';
 export const ActivatePatientProgramRegistry = React.memo(
   ({ onCancel, onSubmit, patientProgramRegistration, open }) => {
     const { currentUser, facility } = useAuth();
-    const programRegistryStatusSuggester = useSuggester('clinicalStatus', {
-      baseQueryParameters: { programId: patientProgramRegistration.programId },
+    const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
+      baseQueryParameters: { programRegistryId: patientProgramRegistration.programRegistryId },
     });
     const registeredBySuggester = useSuggester('practitioner');
     const registeringFacilitySuggester = useSuggester('facility');
@@ -55,7 +55,7 @@ export const ActivatePatientProgramRegistry = React.memo(
                   </FormGrid>
                   <FormGrid style={{ gridColumn: 'span 2' }}>
                     <Field
-                      name="registeringClinicianId"
+                      name="clinicianId"
                       label="Registered by"
                       component={AutocompleteField}
                       suggester={registeredBySuggester}
@@ -81,13 +81,13 @@ export const ActivatePatientProgramRegistry = React.memo(
           initialValues={{
             date: getCurrentDateTimeString(),
             facilityId: facility.id,
-            registeringClinicianId: currentUser.id,
+            clinicianId: currentUser.id,
             ...patientProgramRegistration,
           }}
           validationSchema={yup.object().shape({
             clinicalStatusId: optionalForeignKey(),
             date: yup.date().required('Date of registration must be selected'),
-            registeringClinicianId: foreignKey().required('Registered by must be selected'),
+            clinicianId: foreignKey().required('Registered by must be selected'),
             facilityId: foreignKey().required('Registering facility must be selected'),
           })}
         />

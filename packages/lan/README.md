@@ -1,4 +1,4 @@
-# Tamanu LAN server
+# Tamanu Facility server
 
 This is the main server that the Tamanu desktop app communicates with. It stores data in a local
 filesystem which syncs to a remote server.

@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { constructPermission } from 'shared/permissions/middleware';
+import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { loginHandler, refreshHandler, authMiddleware } from '../../middleware/auth';
 
 import { allergy } from './allergy';

@@ -77,6 +77,10 @@ export const User = Base.shape({
   displayId: yup.string(),
   displayName: yup.string().required(),
   password: yup.string(),
+  visibilityStatus: yup
+    .string()
+    .default(VISIBILITY_STATUSES.CURRENT)
+    .oneOf([VISIBILITY_STATUSES.CURRENT, VISIBILITY_STATUSES.HISTORICAL]),
 });
 
 export const Facility = Base.shape({
@@ -161,7 +165,13 @@ export const ProgramDataElement = Base.shape({
 export const baseValidationShape = yup
   .object()
   .shape({
-    mandatory: yup.boolean(),
+    mandatory: yup.lazy(value => {
+      return typeof value === 'boolean'
+        ? yup.boolean()
+        : yup.object().shape({
+            encounterType: yup.mixed(),
+          });
+    }),
   })
   .noUnknown();
 
@@ -180,6 +190,7 @@ export const SurveyScreenComponent = Base.shape({
   surveyId: yup.string().required(),
   detail: yup.string().max(255),
   dataElementId: yup.string().required(),
+  visibilityStatus,
 });
 
 export const ScheduledVaccine = Base.shape({

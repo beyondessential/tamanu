@@ -222,46 +222,16 @@ const mockSurvey = {
 };
 export const programRegistriesForInfoPaneList = [
   {
-    id: '1',
-    name: 'Seasonal fever',
-    code: 'Seasonalfever',
-    status: 'Removed',
-    clinicalStatus: 'Needs review',
-  },
-  {
-    id: '12',
-    name: 'Hepatities B',
-    code: 'HepatitiesB',
-    status: 'Active',
-    clinicalStatus: 'Low risk',
-  },
-  {
-    id: '13',
-    name: 'Covid',
-    code: 'Covid',
-    status: 'Removed',
-    clinicalStatus: 'Critical',
-  },
-  {
-    id: '14',
-    name: 'Dengue',
-    code: 'Dengue',
-    status: 'Active',
-    clinicalStatus: 'Needs review',
-  },
-  {
-    id: '15',
-    name: 'Diabetis',
-    code: 'Diabetis',
-    status: 'Active',
-    clinicalStatus: 'Critical',
-  },
-  {
-    id: '16',
-    name: 'Typhoid',
-    code: 'Typhoid',
-    status: 'Removed',
-    clinicalStatus: 'Low risk',
+    id: '1e25e8d1-a2b4-4bfa-9670-9f6b689e8af7',
+    registrationStatus: 'active',
+    clinicalStatus: {
+      name: 'Low risk',
+      color: 'green',
+    },
+    programRegistry: {
+      id: 'programRegistry-HepatitisBProgramRegistry',
+      name: 'Hepatitis B',
+    },
   },
 ];
 
@@ -656,11 +626,28 @@ export const patientProgramRegistration = {
       id: 'program_id',
       name: 'Hepatitis B',
     },
+    currentlyAt: 'facility',
   },
+  facilityId: 'Facility1',
+  facility: {
+    id: 'Facility1',
+    name: 'Facility 1',
+  },
+  villageId: 'Village1',
+  village: {
+    id: 'Village1',
+    name: 'Village 1',
+  },
+  patientDisplayId: '12341341',
   patientId: 'patient_id',
   patient: {
     id: 'patient_id',
     name: 'Tareq',
+    firstName: 'Tareq',
+    lastName: 'Aziz',
+    dateOfBirth: '1989-11-09T02:40:16.237Z',
+    village: 'Village 1',
+    sex: 'M',
   },
   clinicianId: '213123',
   clinician: {
@@ -701,6 +688,7 @@ export const patientProgramRegistration = {
     id: '213123',
     displayName: 'Alaister',
   },
+  conditions: programRegistryConditions,
 };
 
 export const dummyApi = {
@@ -774,6 +762,17 @@ export const dummyApi = {
       case 'patient/undefined/programRegistration/undefined/survey/undefined':
       case 'patient/patient_id/programRegistration/patient_program_registry_id/survey/survey_id':
         return mockSurvey;
+      case 'patientProgramRegistration':
+        return {
+          data: [
+            patientProgramRegistration,
+            {
+              ...patientProgramRegistration,
+              isDeceased: true,
+              id: patientProgramRegistration.id + 1,
+            },
+          ],
+        };
     }
   },
 };
