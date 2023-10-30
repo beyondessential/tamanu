@@ -18,7 +18,7 @@ export class CursorDataMigration extends DataMigration {
     }
   }
 
-  async doBatch(limit, parameters) {
+  async doBatch(limit) {
     const {
       lastMaxId,
       log,
@@ -42,7 +42,7 @@ export class CursorDataMigration extends DataMigration {
   }
 
   // eslint-disable-next-line no-unused-vars
-  async getQuery(parameters) {
+  async getQuery() {
     throw new Error('you should extend getQuery');
   }
 }
