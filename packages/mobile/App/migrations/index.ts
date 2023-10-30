@@ -29,6 +29,7 @@ import { migrateNotePagesToNotes1688950151000 } from './1688950151000-migrateNot
 import { addEncounterHistoryTable1693484817000 } from './1693484817000-addEncounterHistoryTable';
 import { addVisibilityStatusToSurveyScreenComponents1695096053000 } from './1695096053000-addVisibilityStatusToSurveyScreenComponents';
 import { addVisibilityStatusForUsers1697499690000 } from './1697499690000-addVisibilityStatusForUsers';
+import { addDeletedAtToAllTables1698626272000 } from './1698626272000-addDeletedAtToAllTables';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -61,4 +62,5 @@ export const migrationList = [
   addEncounterHistoryTable1693484817000,
   addVisibilityStatusToSurveyScreenComponents1695096053000,
   addVisibilityStatusForUsers1697499690000,
+  addDeletedAtToAllTables1698626272000,
 ];

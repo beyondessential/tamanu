@@ -5,6 +5,7 @@ import {
   Generated,
   UpdateDateColumn,
   CreateDateColumn,
+  DeleteDateColumn,
   Column,
   BeforeInsert,
   BeforeUpdate,
@@ -92,6 +93,9 @@ export abstract class BaseModel extends BaseEntity {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 
   @Column({ nullable: false, default: -999 })
   updatedAtSyncTick: number;
