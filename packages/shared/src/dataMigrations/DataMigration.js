@@ -36,7 +36,7 @@ export class DataMigration {
   }
 
   // eslint-disable-next-line no-unused-vars
-  async doBatch(limit, parameters) {
+  async doBatch(limit) {
     throw new Error('you should extend doBatch');
   }
 

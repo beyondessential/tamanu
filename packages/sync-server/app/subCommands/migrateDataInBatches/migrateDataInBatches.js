@@ -6,7 +6,7 @@ import { initDatabase } from '../../database';
 
 export const migrateDataInBatches = async (
   name,
-  { batchSize: batchSizeOverride, delay: delayOverrideMs, ...parameters },
+  { batchSize: batchSizeOverride, delay: delayOverrideMs },
 ) => {
   // setup
   const DataMigration = dataMigrations[name];
@@ -24,7 +24,7 @@ export const migrateDataInBatches = async (
   let total = 0;
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    const num = await dm.doBatch(batchSize, parameters);
+    const num = await dm.doBatch(batchSize);
     if (typeof num !== 'number') {
       throw new Error('doBatch must return a number');
     }
