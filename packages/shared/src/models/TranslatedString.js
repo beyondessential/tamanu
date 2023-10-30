@@ -45,6 +45,10 @@ export class TranslatedString extends Model {
             name: 'language_index',
             fields: ['language'],
           },
+          {
+            name: 'updated_at_sync_tick_index',
+            fields: ['language', 'updated_at_sync_tick'],
+          },
         ],
       },
     );
