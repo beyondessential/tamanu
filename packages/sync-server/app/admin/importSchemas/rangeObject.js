@@ -1,4 +1,5 @@
 import * as yup from 'yup';
+import { doAgeRangesOverlap, doAgeRangesHaveGaps } from '@tamanu/shared/utils/dateTime';
 import { isNumberOrFloat } from '../../utils/numbers';
 
 // Applies to:
@@ -44,5 +45,18 @@ export const rangeObjectSchema = yup
       // Min inclusive - max exclusive: cannot be the same
       const minLessThanMax = (ageMin || -Infinity) < (ageMax || Infinity);
       return atLeastOne && notEqual && minLessThanMax;
+    },
+  });
+
+export const rangeArraySchema = yup
+  .array()
+  .of(rangeObjectSchema)
+  .test({
+    name: 'is-range-by-age-valid',
+    message: 'Age ranges overlap or have gaps',
+    test: value => {
+      const areOverlapping = doAgeRangesOverlap(value);
+      const haveGaps = doAgeRangesHaveGaps(value);
+      return areOverlapping === false && haveGaps === false;
     },
   });

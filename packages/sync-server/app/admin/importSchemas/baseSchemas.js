@@ -9,14 +9,13 @@ import {
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import config from 'config';
-import { doAgeRangesOverlap, doAgeRangesHaveGaps } from '@tamanu/shared/utils/dateTime';
 import {
   jsonString,
   validationString,
   configString,
   visualisationConfigString,
 } from './jsonString';
-import { rangeObjectSchema } from './rangeObject';
+import { rangeObjectSchema, rangeArraySchema } from './rangeObject';
 
 const visibilityStatus = yup
   .string()
@@ -155,24 +154,9 @@ export const LabTestPanelLabTestTypes = yup.object().shape({
   labTestTypeId: yup.string().required(),
 });
 
-const graphRangeArraySchema = yup
-  .array()
-  .of(rangeObjectSchema)
-  .test({
-    name: 'is-range-by-age-valid',
-    message: 'Age ranges overlap or have gaps',
-    test: value => {
-      const areOverlapping = doAgeRangesOverlap(value);
-      const haveGaps = doAgeRangesHaveGaps(value);
-      return areOverlapping === false && haveGaps === false;
-    },
-  });
-
 const visualisationConfigSchema = yup.object().shape({
   yAxis: yup.object().shape({
-    graphRange: yup.lazy(value =>
-      Array.isArray(value) ? graphRangeArraySchema : rangeObjectSchema,
-    ),
+    graphRange: yup.lazy(value => (Array.isArray(value) ? rangeArraySchema : rangeObjectSchema)),
     interval: yup.number().required(),
   }),
 });
