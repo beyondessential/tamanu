@@ -195,8 +195,7 @@ function transformPatientData(patient, additionalData, config) {
   }
 }
 function transformPatientProgramRegistrationData(patientProgramRegistration, config) {
-  const { writeToPatient = {}, column } = config;
-  const { isProgramRegistrationField = false } = writeToPatient;
+  const { column } = config;
   const {
     clinicalStatus,
     registrationStatus,
@@ -205,24 +204,22 @@ function transformPatientProgramRegistrationData(patientProgramRegistration, con
     village,
     facility,
   } = patientProgramRegistration;
-  if (isProgramRegistrationField)
-    switch (column) {
-      case 'registrationClinicalStatus':
-        return clinicalStatus.id;
-      case 'programRegistrationStatus':
-        return registrationStatus;
-      case 'registrationClinician':
-        return clinician.id;
-      case 'registeringFacility':
-        return registeringFacility.id;
-      case 'registrationCurrentlyAtVillage':
-        return village?.id;
-      case 'registrationCurrentlyAtFacility':
-        return facility?.id;
-      default:
-        return undefined;
-    }
-  return undefined;
+  switch (column) {
+    case 'registrationClinicalStatus':
+      return clinicalStatus.id;
+    case 'programRegistrationStatus':
+      return registrationStatus;
+    case 'registrationClinician':
+      return clinician.id;
+    case 'registeringFacility':
+      return registeringFacility.id;
+    case 'registrationCurrentlyAtVillage':
+      return village?.id;
+    case 'registrationCurrentlyAtFacility':
+      return facility?.id;
+    default:
+      return undefined;
+  }
 }
 
 export function getFormInitialValues(
@@ -257,7 +254,9 @@ export function getFormInitialValues(
     // patient data
     if (component.dataElement.type === 'PatientData') {
       const patientValue = transformPatientData(patient, additionalData, config);
-      if (patientValue !== undefined) initialValues[component.dataElement.id] = patientValue;
+      if (patientValue !== undefined) {
+        initialValues[component.dataElement.id] = patientValue;
+      }
     }
 
     // patient program registration data
@@ -266,7 +265,9 @@ export function getFormInitialValues(
         patientProgramRegistration,
         config,
       );
-      if (patientValue !== undefined) initialValues[component.dataElement.id] = patientValue;
+      if (patientValue !== undefined) {
+        initialValues[component.dataElement.id] = patientValue;
+      }
     }
   }
   return initialValues;

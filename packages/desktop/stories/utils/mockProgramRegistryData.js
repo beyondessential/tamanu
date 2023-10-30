@@ -135,7 +135,7 @@ const mockSurvey = {
       validationCriteria: '',
       detail: '',
       config:
-        '{"source":"Village", "column": "registrationCurrentlyAtVillage", "writeToPatient": { "fieldName": "registrationCurrentlyAtVillage", "isProgramRegistrationField": true }}',
+        '{"source":"Village", "column": "registrationCurrentlyAtVillage", "writeToPatient": { "fieldName": "registrationCurrentlyAtVillage" }}',
       calculation: '',
       updatedAtSyncTick: '-999',
       createdAt: '2023-09-27T22:21:03.178Z',
@@ -166,7 +166,7 @@ const mockSurvey = {
       validationCriteria: '',
       detail: '',
       config:
-        '{"source":"ProgramRegistryClinicalStatus","column": "registrationClinicalStatus", "writeToPatient": { "fieldName": "registrationClinicalStatus","isProgramRegistrationField": true }}',
+        '{"source":"ProgramRegistryClinicalStatus","column": "registrationClinicalStatus", "writeToPatient": { "fieldName": "registrationClinicalStatus" }}',
       calculation: '',
       updatedAtSyncTick: '-999',
       createdAt: '2023-09-27T22:21:03.178Z',
