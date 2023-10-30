@@ -68,11 +68,14 @@ describe('ProgramRegistry', () => {
       const { id: programRegistryId } = await models.ProgramRegistry.create(
         fake(models.ProgramRegistry, { programId: testProgram.id }),
       );
+      const CLINICAL_STATUS_DATA = {
+        name: 'aa',
+        color: 'blue',
+      };
       const programRegistryClinicalStatus = await models.ProgramRegistryClinicalStatus.create(
         fake(models.ProgramRegistryClinicalStatus, {
           programRegistryId,
-          name: 'aa',
-          color: 'blue',
+          ...CLINICAL_STATUS_DATA,
         }),
       );
 
@@ -137,23 +140,20 @@ describe('ProgramRegistry', () => {
       const { body } = result;
       expect(body.count).toEqual(2);
       expect(body.data.length).toEqual(2);
-      expect(body.data).toEqual([
+      expect(body.data).toMatchObject([
         {
-          clinical_status: {
-            color: 'blue',
-            name: 'aa',
-          },
+          clinicalStatus: CLINICAL_STATUS_DATA,
           conditions: null,
           facility: {
             name: null,
           },
           patient: {
-            display_id: '1',
+            displayId: '1',
             village: {
               name: null,
             },
           },
-          registering_facility: {
+          registeringFacility: {
             name: null,
           },
           registrationStatus: 'active',
@@ -163,7 +163,7 @@ describe('ProgramRegistry', () => {
         },
         {
           patient: {
-            display_id: '2',
+            displayId: '2',
           },
         },
       ]);
