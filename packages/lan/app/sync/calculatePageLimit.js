@@ -1,13 +1,7 @@
 // File is mirrored on mobile; if you change this, change mobile too
-import config from 'config';
 
 // Set the current page limit based on how long the previous page took to complete.
-export const calculatePageLimit = (
-  currentLimit,
-  lastPageTime,
-  // TODO: use db fetcher config
-  dynamicLimiter = config.sync.dynamicLimiter,
-) => {
+export const calculatePageLimit = (dynamicLimiter, currentLimit, lastPageTime) => {
   const {
     initialLimit,
     minLimit,

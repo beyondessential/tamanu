@@ -1,6 +1,4 @@
 import express from 'express';
-// import config from 'config';
-
 import { log } from 'shared/services/logging';
 
 import * as fijiVrs from './fiji-vrs';
@@ -38,8 +36,11 @@ export const initIntegrations = async ctx => {
         await initAppContext(ctx);
       }
       if (routes) {
+        const requireClientHeaders = await ctx.settings.get(
+          `integrations.${key}.requireClientHeaders`,
+        );
         const isRouter = Object.getPrototypeOf(routes) === express.Router;
-        const actualRoutes = isRouter ? routes : routes(ctx);
+        const actualRoutes = isRouter ? routes : routes(ctx, requireClientHeaders);
         integrationRoutes.use(`/${key}`, actualRoutes);
       }
       if (publicRoutes) {
@@ -52,20 +53,20 @@ export const initIntegrations = async ctx => {
 };
 
 export async function checkIntegrationsConfig(settings) {
+  const integrationSettings = await settings.get('integrations');
   await checkEuDccConfig(settings);
   await checkSignerConfig(settings);
   await checkVdsNcConfig(settings);
   await checkFhirConfig(settings);
 
-  const integrationsSettings = await settings.get('integrations');
   if (
-    (integrationsSettings?.euDcc?.enabled || integrationsSettings?.vdsNc?.enabled) &&
-    !integrationsSettings?.signer?.enabled
+    (integrationSettings?.euDcc?.enabled || integrationSettings?.vdsNc?.enabled) &&
+    !integrationSettings?.signer?.enabled
   ) {
     throw new Error('euDcc and vdsNc integrations require the signer integration to be enabled');
   }
 
-  if (integrationsSettings?.euDcc?.enabled && integrationsSettings?.vdsNc?.enabled) {
+  if (integrationSettings?.euDcc?.enabled && integrationSettings?.vdsNc?.enabled) {
     throw new Error('Cannot enable both euDcc and vdsNc integrations at the same time');
   }
 }

@@ -11,6 +11,7 @@ import { log } from 'shared/services/logging';
 const SENAITE_ERROR_STATUS = 'manual';
 
 const TARGET_STATES = ['verified', 'published', 'invalid', SENAITE_ERROR_STATUS];
+
 const BASE_URL = config.senaite.server;
 
 function formatForSenaite(datetime) {
@@ -79,7 +80,6 @@ export class SenaitePoller extends ScheduledTask {
 
   login() {
     if (!this.loginTask) {
-      // TODO: use db fetcher config
       const { username, password } = config.senaite;
       this.loginTask = (async () => {
         const body = await this.apiRequest(`login?__ac_name=${username}&__ac_password=${password}`);

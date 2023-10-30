@@ -10,13 +10,14 @@ vaccinationSettings.get(
 
     const {
       params: { key },
+      settings,
     } = req;
 
     if (!key.startsWith('vaccinations.')) {
       throw new Error('Invalid vaccinations key');
     }
 
-    const defaults = await req.settings.get(key);
+    const defaults = await settings.get(key);
 
     res.send({ data: defaults || null });
   }),

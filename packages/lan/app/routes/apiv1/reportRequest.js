@@ -14,7 +14,7 @@ const REPORT_REQUEST_LOG_NAME = 'ReportRequest';
 reportRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, body, user, getLocalisation } = req;
+    const { models, body, user, settings } = req;
     const { ReportRequest, ReportDefinitionVersion } = models;
     const { reportId } = body;
     const reportRequestLog = createNamedLogger(REPORT_REQUEST_LOG_NAME, {
@@ -26,8 +26,7 @@ reportRequest.post(
       throw new NotFoundError('Report id not specified');
     }
 
-    const localisation = await getLocalisation();
-    assertReportEnabled(localisation, reportId);
+    await assertReportEnabled(settings, reportId);
 
     const reportModule = await getReportModule(reportId, models);
 

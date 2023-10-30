@@ -39,8 +39,8 @@ describe('Audit log', () => {
     );
     app = await baseApp.asRole('practitioner');
   });
-  afterAll(() => {
-    ctx.close();
+  afterAll(async () => {
+    await ctx.close();
     jest.restoreAllMocks();
   });
 

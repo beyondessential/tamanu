@@ -31,20 +31,25 @@ async function serve({ skipMigrationCheck }) {
     await context.sequelize.assertUpToDate({ skipMigrationCheck });
   }
 
+  const settings = new ReadSettings(context.models, config.serverFacilityId);
+  context.settings = settings;
+
+  const syncConfig = await settings.get('sync');
+  const countryTimeZone = await settings.get('countryTimeZone');
+  const discoverySettings = await settings.get('discovery');
+
   await initDeviceId(context);
   await checkConfig(config, context);
   await performDatabaseIntegrityChecks(context);
-  const settings = new ReadSettings(context.models, config.serverFacilityId);
-  const syncConfig = await settings.get('sync');
+
   context.centralServer = new CentralServerConnection(context, syncConfig);
   context.centralServer.connect(); // preemptively connect central server to speed up sync
   context.syncManager = new FacilitySyncManager(context);
-  context.config = await settings.get();
 
   await performTimeZoneChecks({
     remote: context.centralServer,
     sequelize: context.sequelize,
-    config,
+    countryTimeZone,
   });
 
   const app = createApp(context);
@@ -58,9 +63,20 @@ async function serve({ skipMigrationCheck }) {
     server.close();
   });
 
-  listenForServerQueries();
+  listenForServerQueries(discoverySettings);
 
-  startScheduledTasks(context);
+  const syncSchedule = await settings.get('sync.schedule');
+  const schedules = await settings.get('schedules');
+
+  startScheduledTasks({
+    ...context,
+    schedules: {
+      ...schedules,
+      sync: {
+        schedule: syncSchedule,
+      },
+    },
+  });
 }
 
 export const serveCommand = new Command('serve')

@@ -122,7 +122,7 @@ describe('AEFI report', () => {
   describe('returns data based on parameters', () => {
     it('should return data for patients of the right village', async () => {
       const result = await app.post('/v1/reports/aefi').send({
-        parameters: { village: village, fromDate: '2021-03-15' },
+        parameters: { village, fromDate: '2021-03-15' },
       });
 
       expect(result).toHaveSucceeded();

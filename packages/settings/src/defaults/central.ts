@@ -40,6 +40,7 @@ export const centralDefaults = {
   },
   honeycomb: {
     enabled: true,
+    level: 'info',
     sampleRate: 100, // 100 = 1/100 = 1% of traces get sent to honeycomb
     // in contrast, logs are always sent
   },
@@ -76,6 +77,7 @@ export const centralDefaults = {
     },
     fijiVrs: {
       enabled: false,
+      host: 'http://uat-vra.digitialfiji.gov.fj:8786',
       flagInsteadOfDeleting: true,
       requireClientHeaders: true,
       // don't retry pending records unless they're retryMinAgeMs old
@@ -142,8 +144,8 @@ export const centralDefaults = {
     path: '',
   },
   mailgun: {
-    domain: 'tupaia.org',
-    from: 'tamanu@tupaia.org',
+    domain: '',
+    from: '',
   },
   notifications: {
     certificates: {
@@ -157,11 +159,6 @@ export const centralDefaults = {
     // NONE is a no-op and does nothing
     deletionAction: 'RENAME',
   },
-  questionCodeIds: {
-    email: null,
-    nationalityId: null,
-    passport: null,
-  },
   reportProcess: {
     // Provide an object {} for the env of child process
     childProcessEnv: null,
@@ -170,6 +167,12 @@ export const centralDefaults = {
     runInChildProcess: true,
     // Report process timeout in 2 hours.
     timeOutDurationSeconds: 7200,
+  },
+  // S3 Bucket used for upload of reports in ReportRunner.sendReportsToS3
+  reportUploadS3Bucket: {
+    name: null,
+    region: null,
+    path: null,
   },
   scheduledReports: [],
   schedules: {
@@ -263,8 +266,9 @@ export const centralDefaults = {
     maxRecordsPerPullSnapshotChunk: 1000000000,
     numberConcurrentPullSnapshots: 4,
     persistedCacheBatchSize: 20000,
-    readOnly: false,
     syncAllEncountersForTheseVaccines: [],
+    pauseBetweenPersistedCacheBatchesInMilliseconds: 50,
+    persistUpdateWorkerPoolSize: 5,
   },
   updateUrls: {
     mobile: '',

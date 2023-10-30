@@ -1,4 +1,3 @@
-import config from 'config';
 import { upperFirst } from 'lodash';
 import { utcToZonedTime } from 'date-fns-tz';
 import {
@@ -13,9 +12,8 @@ import { toDateTimeString } from 'shared/utils/dateTime';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 
-const COUNTRY_TIMEZONE = config?.countryTimeZone;
-
 const createLocalDateTimeStringFromUTC = (
+  timezone,
   year,
   month,
   day,
@@ -27,11 +25,11 @@ const createLocalDateTimeStringFromUTC = (
   // Interprets inputs AS utc, and "utcTime" is the **local** version of that time
   // ie. 2022-02-03 2:30 -> 2022-02-03 4:30 (+02:00 (implied by local timezone))
   const utcTime = Date.UTC(year, month, day, hour, minute, second, millisecond);
-  const localTimeWithoutTimezone = toDateTimeString(utcToZonedTime(utcTime, COUNTRY_TIMEZONE));
+  const localTimeWithoutTimezone = toDateTimeString(utcToZonedTime(utcTime, timezone));
   return localTimeWithoutTimezone;
 };
 
-const fakeAllData = async models => {
+const fakeAllData = async (models, timezone) => {
   const { id: userId } = await models.User.create(fake(models.User));
   const { id: examinerId } = await models.User.create(fake(models.User));
   const { id: facilityId } = await models.Facility.create(fake(models.Facility));
@@ -129,7 +127,7 @@ const fakeAllData = async models => {
   await models.Encounter.create(
     fake(models.Encounter, {
       patientId: patient.id,
-      startDate: createLocalDateTimeStringFromUTC(2022, 6 - 1, 15, 0, 2, 54, 225),
+      startDate: createLocalDateTimeStringFromUTC(timezone, 2022, 6 - 1, 15, 0, 2, 54, 225),
       encounterType: ENCOUNTER_TYPES.ADMISSION,
       reasonForEncounter: 'Severe Migrane',
       patientBillingTypeId,
@@ -142,8 +140,8 @@ const fakeAllData = async models => {
   const { id: encounterId } = await models.Encounter.create(
     fake(models.Encounter, {
       patientId: patient.id,
-      startDate: createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 0, 2, 54, 225),
-      endDate: createLocalDateTimeStringFromUTC(2022, 6 - 1, 12, 0, 2, 54, 225), // Make sure this works
+      startDate: createLocalDateTimeStringFromUTC(timezone, 2022, 6 - 1, 9, 0, 2, 54, 225),
+      endDate: createLocalDateTimeStringFromUTC(timezone, 2022, 6 - 1, 12, 0, 2, 54, 225), // Make sure this works
       encounterType: ENCOUNTER_TYPES.ADMISSION,
       reasonForEncounter: 'Severe Migrane',
       patientBillingTypeId,
@@ -217,7 +215,7 @@ const fakeAllData = async models => {
       encounterId,
       procedureTypeId,
       locationId: location1Id,
-      date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 11, 1, 20, 54),
+      date: createLocalDateTimeStringFromUTC(timezone, 2022, 6 - 1, 11, 1, 20, 54),
       note: 'All ready for procedure here',
       completedNote: 'Everything went smoothly, no issues',
     }),
@@ -249,7 +247,7 @@ const fakeAllData = async models => {
       noteType: NOTE_TYPES.OTHER,
       recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
       content: 'Check for fractured knees please',
-      date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 10, 6, 4, 54),
+      date: createLocalDateTimeStringFromUTC(timezone, 2022, 6 - 1, 10, 6, 4, 54),
     }),
   );
 
@@ -263,7 +261,7 @@ const fakeAllData = async models => {
       noteType: NOTE_TYPES.OTHER,
       recordType: NOTE_RECORD_TYPES.LAB_REQUEST,
       content: 'Please perform this lab test very carefully',
-      date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 2, 4, 54),
+      date: createLocalDateTimeStringFromUTC(timezone, 2022, 6 - 1, 9, 2, 4, 54),
     }),
   );
 
@@ -281,7 +279,7 @@ const fakeAllData = async models => {
       noteType: NOTE_TYPES.NURSING,
       recordType: NOTE_RECORD_TYPES.ENCOUNTER,
       content: 'A\nB\nC\nD\nE\nF\nG\n',
-      date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 10, 3, 39, 57),
+      date: createLocalDateTimeStringFromUTC(timezone, 2022, 6 - 1, 10, 3, 39, 57),
     }),
   );
 
@@ -297,7 +295,7 @@ const fakeAllData = async models => {
     },
   });
 
-  systemNote.date = createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 8, 4, 54);
+  systemNote.date = createLocalDateTimeStringFromUTC(timezone, 2022, 6 - 1, 9, 8, 4, 54);
   await systemNote.save();
 
   return { patient, encounterId };
@@ -308,12 +306,14 @@ describe('fijiAspenMediciReport', () => {
   let app;
   let models;
   let fakedata;
+  let timezone;
 
   beforeAll(async () => {
     ctx = await createTestContext();
+    timezone = await ctx.settings.get('countryTimeZone');
     models = ctx.store.models;
     app = await ctx.baseApp.asRole('practitioner');
-    fakedata = await fakeAllData(models);
+    fakedata = await fakeAllData(models, timezone);
   });
 
   afterAll(() => ctx.close());
@@ -329,14 +329,24 @@ describe('fijiAspenMediciReport', () => {
       [1, '2022-06-12T00:02:55+01:00', '2022-10-09'],
       [0, '2022-06-12T00:02:53-01:00', '2022-10-09'],
       // Dates/times input without timezone will be server timezone
-      [0, createLocalDateTimeStringFromUTC(2022, 6 - 1, 12, 0, 2, 55).replace(' ', 'T'), '2023'],
-      [1, createLocalDateTimeStringFromUTC(2022, 6 - 1, 12, 0, 2, 53).replace(' ', 'T'), '2023'],
+      [
+        0,
+        tz => createLocalDateTimeStringFromUTC(tz, 2022, 6 - 1, 12, 0, 2, 55).replace(' ', 'T'),
+        '2023',
+      ],
+      [
+        1,
+        tz => createLocalDateTimeStringFromUTC(tz, 2022, 6 - 1, 12, 0, 2, 53).replace(' ', 'T'),
+        '2023',
+      ],
     ])(
       'Date filtering: Should return %p result(s) between %p and %s',
       async (expectedResults, start, end) => {
-        const query = `period.start=${encodeURIComponent(start)}&period.end=${encodeURIComponent(
-          end,
-        )}`;
+        // Get around it.each params not being able to use async initalized variables
+        const startDate = typeof start === 'function' ? start(timezone) : start;
+        const query = `period.start=${encodeURIComponent(
+          startDate,
+        )}&period.end=${encodeURIComponent(end)}`;
         const response = await app
           .get(`/v1/integration/fijiAspenMediciReport?${query}`)
           .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });

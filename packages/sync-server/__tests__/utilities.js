@@ -10,12 +10,16 @@ import { getToken } from 'sync-server/app/auth/utils';
 import { DEFAULT_JWT_SECRET } from 'sync-server/app/auth';
 import { initIntegrations } from 'sync-server/app/integrations';
 import { ReadSettings } from '@tamanu/settings';
+import { seedSettings } from '../../shared/src/demoData';
 
 class MockApplicationContext {
   closeHooks = [];
 
   async init() {
     this.store = await initDatabase({ testMode: true });
+    this.settings = new ReadSettings(this.store.models);
+    // Settings must be seeded before integrations are initialised
+    await seedSettings(this.store.models);
     this.emailService = {
       sendEmail: jest.fn().mockImplementation(() =>
         Promise.resolve({
@@ -24,7 +28,6 @@ class MockApplicationContext {
         }),
       ),
     };
-    this.settings = new ReadSettings(this.store.models);
     await initIntegrations(this);
     return this;
   }

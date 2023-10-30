@@ -15,13 +15,14 @@ export const facilityDefaults = {
   },
   honeycomb: {
     enabled: true,
-    sampleRate: 100, // 100 = 1/100 = 1% of traces get sent to honeycomb
-    // in contrast, logs are always sent
+    level: 'info',
+    sampleRate: 1, // 5 = 1/5 = 20% of traces get sent to honeycomb
   },
   log: {
-    color: true,
-    consoleLevel: 'http',
     path: '',
+    consoleLevel: 'http',
+    color: true,
+    enableAuditLog: false,
   },
   schedules: {
     medicationDiscontinuer: {
@@ -49,8 +50,11 @@ export const facilityDefaults = {
     enabled: true,
     host: 'https://central-dev.tamanu.io',
     persistedCacheBatchSize: 10000,
-    readOnly: false,
     schedule: '*/1 * * * *',
     timeout: 10000,
+    pauseBetweenPersistedBatchesInMilliseconds: 50,
+    pauseBetweenCacheBatchInMilliseconds: 50,
+    persistUpdateWorkerPoolSize: 5,
+    assertIfPulledRecordsUpdatedAfterPushSnapshot: true,
   },
 };

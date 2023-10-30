@@ -1,6 +1,6 @@
 /* eslint-disable global-require */
 import config from 'config';
-
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patients';
@@ -15,6 +15,7 @@ import { createTestContext } from '../utilities';
 describe('FacilitySyncManager edge cases', () => {
   let ctx;
   let models;
+  let settings;
   let sequelize;
   const TEST_SESSION_ID = 'sync123';
   const LAST_SUCCESSFUL_SYNC_PUSH = '2';
@@ -24,12 +25,16 @@ describe('FacilitySyncManager edge cases', () => {
     ctx = await createTestContext();
     models = ctx.models;
     sequelize = ctx.sequelize;
+    settings = ctx.settings;
   });
 
   afterAll(() => ctx.close());
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.resetModules();
+    await models.Setting.destroy({
+      where: {},
+    });
   });
 
   it('will not start snapshotting until all transactions started under the old sync tick have committed', async () => {
@@ -45,10 +50,12 @@ describe('FacilitySyncManager edge cases', () => {
     const {
       FacilitySyncManager: TestFacilitySyncManager,
     } = require('../../app/sync/FacilitySyncManager');
+
     const syncManager = new TestFacilitySyncManager({
       models,
       sequelize,
       centralServer: {
+        settings,
         startSyncSession: jest.fn().mockImplementation(async () => ({
           sessionId: TEST_SESSION_ID,
           startedAtTick: newSyncTick,
@@ -129,7 +136,7 @@ describe('FacilitySyncManager edge cases', () => {
         FacilitySyncManager: TestFacilitySyncManager,
       } = require('../../app/sync/FacilitySyncManager');
       if (configToOverride) {
-        TestFacilitySyncManager.overrideConfig(configToOverride);
+        // TestFacilitySyncManager.overrideConfig(configToOverride);
       }
       syncManager = new TestFacilitySyncManager({
         models,
@@ -139,6 +146,7 @@ describe('FacilitySyncManager edge cases', () => {
             sessionId: TEST_SESSION_ID,
             startedAtTick: NEW_SYNC_TICK,
           })),
+          settings,
           push: jest.fn(),
           pull: jest.fn().mockImplementation(async () => [
             {
@@ -271,6 +279,16 @@ describe('FacilitySyncManager edge cases', () => {
       const configToOverride = {
         sync: { enabled: false, assertIfPulledRecordsUpdatedAfterPushSnapshot: false },
       };
+
+      const { Setting } = models;
+      await Setting.set('sync.enabled', false, config.serverFacilityId, SETTINGS_SCOPES.FACILITY);
+      await Setting.set(
+        'sync.assertIfPulledRecordsUpdatedAfterPushSnapshot',
+        false,
+        config.serverFacilityId,
+        SETTINGS_SCOPES.FACILITY,
+      );
+
       initializeSyncManager(encounter, configToOverride);
 
       // start the sync

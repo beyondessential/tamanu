@@ -255,6 +255,7 @@ export class CentralSyncManager {
         // for facilities with a lab, need ongoing lab requests
         // no need for historical ones on initial sync, and no need on mobile
         syncAllLabRequests: syncAllLabRequests && !isMobile && since > -1,
+        // TODO db config fetcher
         syncAllEncountersForTheseVaccines: isMobile
           ? this.constructor.config.sync.syncAllEncountersForTheseVaccines
           : [],

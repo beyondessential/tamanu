@@ -33,7 +33,6 @@
     "level": "info"
   },
   "sync": {
-    "readOnly": false,
     "persistedCacheBatchSize": 20000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "adjustDataBatchSize": 20000,

@@ -1,9 +1,9 @@
 import { MerlinProvider } from './MerlinProvider';
 import { TestProvider } from './TestProvider';
 
-export async function getImagingProvider(models) {
-  const { Setting } = models;
-  const config = await Setting.get('integrations.imaging');
+export async function getImagingProvider({ models, settings }) {
+  const config = await settings.get('integrations.imaging');
+
   if (!config || !config.enabled) return false;
 
   switch (config.provider) {

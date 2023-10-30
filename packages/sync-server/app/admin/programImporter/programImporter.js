@@ -1,7 +1,7 @@
 import { log } from 'shared/services/logging';
 import { readFile } from 'xlsx';
 
-import { ReadSettings } from '@tamanu/settings';
+import config from 'config';
 import { importRows } from '../importRows';
 
 import { readMetadata } from './readMetadata';
@@ -24,8 +24,7 @@ export async function programImporter({ errors, models, stats, file, whitelist =
 
   const workbook = readFile(file);
 
-  const readSettings = new ReadSettings(models);
-  const canonicalHostName = await readSettings.get('canonicalHostName');
+  const { canonicalHostName } = config;
   const { programRecord, surveyMetadata } = await readMetadata(
     workbook.Sheets.Metadata,
     canonicalHostName,

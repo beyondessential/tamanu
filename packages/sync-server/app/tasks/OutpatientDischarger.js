@@ -1,5 +1,3 @@
-import config from 'config';
-
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 import {
@@ -15,17 +13,18 @@ export class OutpatientDischarger extends ScheduledTask {
   }
 
   constructor(context, overrideConfig = null) {
-    // TODO: Use db config fetcher (cannot use async on constructor)
-    const conf = {
-      ...config.schedules.outpatientDischarger,
+    const { schedules, settings } = context;
+    const { schedule, suppressInitialRun } = {
+      ...schedules.outpatientDischarger,
       ...overrideConfig,
     };
-    super(conf.schedule, log);
-    this.config = conf;
+    super(schedule, log);
+    this.settings = settings;
+    this.overrides = overrideConfig;
     this.models = context.store.models;
 
     // run once on startup (in case the server was down when it was scheduled)
-    if (!conf.suppressInitialRun) {
+    if (!suppressInitialRun) {
       this.runImmediately();
     }
   }
@@ -37,10 +36,10 @@ export class OutpatientDischarger extends ScheduledTask {
   }
 
   async run() {
-    const {
-      batchSize,
-      batchSleepAsyncDurationInMilliseconds,
-    } = config.schedules.outpatientDischarger;
+    const { batchSize, batchSleepAsyncDurationInMilliseconds } = {
+      ...(await this.settings.get('schedules.outpatientDischarger')),
+      ...this.overrides,
+    };
 
     await dischargeOutpatientEncounters(
       this.models,

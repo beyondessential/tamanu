@@ -1,13 +1,15 @@
+import './utils/customYupMethods';
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import config from 'config';
+
 import express from 'express';
 
 import { getLoggingMiddleware } from 'shared/services/logging';
 import { constructPermission } from 'shared/permissions/middleware';
 import { SERVER_TYPES } from '@tamanu/constants';
 
-import { buildSettingsReader } from 'shared/settings/middleware';
+import { buildSettingsReader } from '@tamanu/shared/settings/middleware';
 
 import { buildRoutes } from './buildRoutes';
 import { authModule } from './auth';

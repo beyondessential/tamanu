@@ -30,15 +30,14 @@ reports.post(
       body: { parameters = {} },
       user,
       params,
-      getLocalisation,
+      settings,
     } = req;
     const { reportId } = params;
     const facilityReportLog = createNamedLogger(FACILITY_REPORT_LOG_NAME, {
       userId: user.id,
       reportId,
     });
-    const localisation = await getLocalisation();
-    assertReportEnabled(localisation, reportId);
+    await assertReportEnabled(settings, reportId);
 
     const reportModule = await reportUtils.getReportModule(reportId, models);
 

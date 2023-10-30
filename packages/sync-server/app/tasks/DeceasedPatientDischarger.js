@@ -1,4 +1,3 @@
-import config from 'config';
 import { Op } from 'sequelize';
 
 import { ScheduledTask } from 'shared/tasks';
@@ -12,10 +11,9 @@ export class DeceasedPatientDischarger extends ScheduledTask {
   }
 
   constructor(context) {
-    // TODO: Use db config fetcher( Constructor cannot be async)
-    const conf = config.schedules.deceasedPatientDischarger;
-    super(conf.schedule, log);
-    this.config = conf;
+    const { settings, schedules } = context;
+    super(schedules.deceasedPatientDischarger.schedule, log);
+    this.settings = settings;
     this.models = context.store.models;
   }
 
@@ -38,8 +36,9 @@ export class DeceasedPatientDischarger extends ScheduledTask {
     const toProcess = await Encounter.count(query);
     if (toProcess === 0) return;
 
-    const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
-
+    const { batchSize, batchSleepAsyncDurationInMilliseconds } = await this.settings.get(
+      'schedules.deceasedPatientDischarger',
+    );
     // Make sure these exist, else they will prevent the script from working
     if (!batchSize || !batchSleepAsyncDurationInMilliseconds) {
       throw new InvalidConfigError(

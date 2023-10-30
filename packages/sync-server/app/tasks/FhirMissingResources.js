@@ -1,4 +1,3 @@
-import config from 'config';
 import { FHIR_INTERACTIONS, JOB_TOPICS } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
@@ -7,10 +6,9 @@ import { prepareQuery } from '../utils/prepareQuery';
 
 export class FhirMissingResources extends ScheduledTask {
   constructor(context) {
-    // TODO: Use db config fetcher( Constructor cannot be async)
-    const conf = config.schedules.fhirMissingResources;
-    super(conf.schedule, log.child({ task: 'FhirMissingResources' }));
-    this.config = conf;
+    const { schedules, settings } = context;
+    super(schedules.fhirMissingResources.schedule, log.child({ task: 'FhirMissingResources' }));
+    this.settings = settings;
     this.context = context;
     this.materialisableResources = resourcesThatCanDo(
       this.context.store.models,

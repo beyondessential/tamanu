@@ -1,15 +1,11 @@
-import config from 'config';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 import { Op, Sequelize } from 'sequelize';
 
 export class SignerWorkingPeriodChecker extends ScheduledTask {
-  constructor(context) {
-    // TODO: Use db config fetcher (cannot use async on constructor)
-    const conf = config.schedules.signerWorkingPeriodChecker;
-    super(conf.schedule, log);
-    this.config = conf;
-    this.context = context;
+  constructor({ store, schedules }) {
+    super(schedules.signerWorkingPeriodChecker.schedule, log);
+    this.models = store.models;
   }
 
   getName() {
@@ -17,7 +13,7 @@ export class SignerWorkingPeriodChecker extends ScheduledTask {
   }
 
   async run() {
-    const { Signer } = this.context.store.models;
+    const { Signer } = this.models;
     const expired = await Signer.findAll({
       where: {
         workingPeriodEnd: { [Op.lt]: Sequelize.NOW },

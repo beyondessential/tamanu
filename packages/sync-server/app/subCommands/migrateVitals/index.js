@@ -21,9 +21,8 @@ export const COLUMNS_TO_DATA_ELEMENT_ID = {
 };
 
 const conversionFunctions = {
-  temperature: (config, value) => {
-    // TODO: use db config fetcher
-    if (value && config.localisation.data.units.temperature === 'fahrenheit') {
+  temperature: (value, unit) => {
+    if (value && unit === 'fahrenheit') {
       // Do this the hard way so we don't need to add a conversion lib to sync
       return (value * (9 / 5) + 32).toFixed(1);
     }
@@ -34,6 +33,8 @@ const conversionFunctions = {
 export async function migrateVitals() {
   const store = await initDatabase({ testMode: false });
   const { models, sequelize } = store;
+
+  const settings = new ReadSettings(models);
 
   const vitalsSurvey = await models.Survey.findOne({
     where: {
@@ -86,9 +87,8 @@ export async function migrateVitals() {
         }));
         await models.SurveyResponse.bulkCreate(newResponses);
 
-        const settings = new ReadSettings(models);
-        // get all settings
-        const config = await settings.get();
+        const units = await settings.get('units');
+
         // Each survey response generates many answer, map them to an array of arrays then flatten
         const answerData = vitalsChunk.map(vital =>
           Object.entries(vital.dataValues)
@@ -96,7 +96,7 @@ export async function migrateVitals() {
             .map(([key, value]) => ({
               dataElementId: COLUMNS_TO_DATA_ELEMENT_ID[key],
               responseId: idMap.get(vital.dataValues.id),
-              body: conversionFunctions[key] ? conversionFunctions[key](config, value) : value,
+              body: conversionFunctions[key] ? conversionFunctions[key](value, units[key]) : value,
             })),
         );
         await models.SurveyResponseAnswer.bulkCreate(answerData.flat());

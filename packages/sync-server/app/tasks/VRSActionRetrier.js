@@ -1,5 +1,3 @@
-import config from 'config';
-
 import { log } from 'shared/services/logging';
 import { ScheduledTask } from 'shared/tasks';
 
@@ -8,13 +6,12 @@ export class VRSActionRetrier extends ScheduledTask {
     return 'VRSActionRetrier';
   }
 
-  constructor(context) {
-    // TODO: Use db config fetcher (cannot use async on constructor)
-    super(config.integrations.fijiVrs.retrySchedule, log);
-    this.context = context;
+  constructor({ schedules, integrations }) {
+    super(schedules.vrsActionRetrier.schedule, log);
+    this.vrsIntegration = integrations.fijiVrs;
   }
 
   async run() {
-    await this.context.integrations.fijiVrs.actionHandler.retryPendingActions();
+    await this.vrsIntegration.actionHandler.retryPendingActions();
   }
 }

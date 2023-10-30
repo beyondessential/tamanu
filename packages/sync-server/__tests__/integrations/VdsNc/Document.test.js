@@ -14,25 +14,28 @@ import crypto from 'crypto';
 import { expect } from 'chai';
 import { canonicalize } from 'json-canonicalize';
 import { base64UrlDecode } from 'shared/utils/encodings';
-import { getLocalisation } from 'sync-server/app/localisation';
 
 describe('VDS-NC: Document cryptography', () => {
   let ctx;
   beforeAll(async () => {
     ctx = await createTestContext();
+    const { settings } = ctx;
     const testCSCA = await TestCSCA.generate();
 
-    const { publicKey, privateKey, request } = await newKeypairAndCsr();
+    const { publicKey, privateKey, request } = await newKeypairAndCsr({ settings });
+
+    const countryCode = await settings.get('country.alpha-3');
 
     const { Signer } = ctx.store.models;
     const signer = await Signer.create({
       publicKey: Buffer.from(publicKey),
       privateKey: Buffer.from(privateKey),
       request,
-      countryCode: (await getLocalisation()).country['alpha-3'],
+      countryCode,
     });
+
     const signerCert = await testCSCA.signCSR(request);
-    const signedCert = await loadCertificateIntoSigner(signerCert);
+    const signedCert = await loadCertificateIntoSigner(signerCert, {}, { settings });
     await signer.update(signedCert);
     expect(signer?.isActive()).to.be.true;
   });

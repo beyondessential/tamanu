@@ -1,5 +1,3 @@
-import config from 'config';
-
 import { Op } from 'sequelize';
 import {
   ICAO_DOCUMENT_TYPES,
@@ -12,12 +10,10 @@ import { ScheduledTask } from 'shared/tasks';
 import { getPatientSurveyResponseAnswer } from 'shared/utils';
 
 export class LabRequestNotificationGenerator extends ScheduledTask {
-  constructor(context) {
-    // TODO: Use db config fetcher (cannot use async on constructor)
-    const conf = config.schedules.certificateNotificationProcessor;
+  constructor({ settings, store }) {
     super(null, log);
-    this.config = conf;
-    this.context = context;
+    this.settings = settings;
+    this.models = store.models;
   }
 
   getName() {
@@ -25,7 +21,7 @@ export class LabRequestNotificationGenerator extends ScheduledTask {
   }
 
   async countQueue() {
-    const { CertificateNotification, LabRequest } = this.context.store.models;
+    const { CertificateNotification, LabRequest } = this.models;
     return LabRequest.count({
       where: {
         status: LAB_REQUEST_STATUSES.PUBLISHED,
@@ -47,10 +43,9 @@ export class LabRequestNotificationGenerator extends ScheduledTask {
   }
 
   async run() {
-    const { models } = this.context.store;
-    const { CertificateNotification, Encounter, LabRequest } = models;
-    const categories = config.notifications.certificates.labTestCategoryIds;
-    const questionId = config.questionCodeIds?.email;
+    const { CertificateNotification, Encounter, LabRequest } = this.models;
+    const categories = await this.settings.get('notifications.certificates.labTestCategoryIds');
+    const questionId = await this.settings.get('questionCodeIds.email');
 
     // Find all published requests that don't have associated certificate notifications
     const newlyPublished = await LabRequest.findAll({
@@ -75,7 +70,7 @@ export class LabRequestNotificationGenerator extends ScheduledTask {
     // Create a certificate notification for each
     for (const labRequest of newlyPublished) {
       const emailAddress = await getPatientSurveyResponseAnswer(
-        models,
+        this.models,
         labRequest.encounter.patientId,
         questionId,
       );

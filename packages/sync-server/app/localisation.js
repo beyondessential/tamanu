@@ -516,6 +516,7 @@ const rootLocalisationSchema = yup
   .noUnknown();
 
 // TODO: once localisation is persisted in the db, dynamically reload this
+// TODO: db config
 const unvalidatedLocalisation = defaultsDeep(config.localisation.data);
 const localisationPromise = rootLocalisationSchema
   .validate(unvalidatedLocalisation, { strict: true, abortEarly: false })
