@@ -4,9 +4,7 @@ export async function up(query) {
   await query.createTable(
     'translated_strings',
     {
-      // For translated_strings, we use a composite primary key of string_id plus language,
-      // N.B. because ';' is used to join the two, we replace any actual occurrence of ';' with ':'
-      // to avoid clashes on the joined id
+      // For translated_strings, we use a composite primary key of string_id plus language
       id: {
         type: `TEXT GENERATED ALWAYS AS ("string_id" || ';' || "language") STORED`,
       },
