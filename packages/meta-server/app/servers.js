@@ -30,6 +30,7 @@ const servers = [
   { name: 'Demo', type: 'demo', host: 'https://sync-demo.tamanu.io' },
   { name: 'Demo 2', type: 'demo', host: 'https://central-demo2.internal.tamanu.io' },
   { name: 'Demo (Aspen)', type: 'demo', host: 'https://central-demo.aspen-dev.tamanu.io' },
+  { name: 'Demo (Cambodia)', type: 'demo', host: 'https://central-demo.cambodia-dev.tamanu.io' },
   { name: 'Demo (Fiji)', type: 'demo', host: 'https://central-demo.fiji-dev.tamanu.io' },
   { name: 'Demo (Honduras)', type: 'demo', host: 'https://central-demo.honduras-dev.tamanu.io' },
   { name: 'Demo (International Summary)', type: 'dev', host: 'https://is-central.internal.tamanu.io' },
