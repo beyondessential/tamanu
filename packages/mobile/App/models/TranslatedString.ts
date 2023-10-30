@@ -1,7 +1,6 @@
-import { BeforeInsert, Entity, PrimaryColumn } from 'typeorm/browser';
+import { BeforeInsert, Entity, PrimaryColumn, BeforeUpdate, Column } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
-import { Column } from 'typeorm';
 
 @Entity('translated_string')
 export class TranslatedString extends BaseModel {
@@ -24,6 +23,16 @@ export class TranslatedString extends BaseModel {
     // For translated_string, we use a composite primary key of stringId plus language,
     // N.B. because ';' is used to join the two, we replace any actual occurrence of ';' with ':'
     // to avoid clashes on the joined id
-    this.id = `${this.stringId.replace(';', ':')};${this.language.replace(';', ':')}`;
+    this.id = `${this.stringId};${this.language}`;
+  }
+
+  @BeforeUpdate()
+  validate(): void {
+    if (this.stringId.includes(';')) {
+      throw new Error('stringId cannot contain a ";"');
+    }
+    if (this.language.includes(';')) {
+      throw new Error('language cannot contain a ";"');
+    }
   }
 }
