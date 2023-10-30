@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
@@ -16,6 +16,7 @@ import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { Modal } from '../../components/Modal';
 import { useApi } from '../../api/useApi';
+import { useQuery } from '@tanstack/react-query';
 
 export const ActivatePatientProgramRegistry = React.memo(
   ({ onCancel, onSubmit, patientProgramRegistration, open }) => {
@@ -25,22 +26,15 @@ export const ActivatePatientProgramRegistry = React.memo(
       baseQueryParameters: { programRegistryId: patientProgramRegistration.programRegistryId },
     });
     const registeredBySuggester = useSuggester('practitioner');
+    const { data: conditions } = useQuery(
+      ['programRegistryConditions', patientProgramRegistration.id],
+      () => api.get(`programRegistry/${patientProgramRegistration.id}/conditions`),
+    );
     const registeringFacilitySuggester = useSuggester('facility');
-    const [conditions, setConditions] = useState(undefined);
-
-    useEffect(() => {
-      api
-        .get(`programRegistry/${patientProgramRegistration.programRegistryId}/conditions`)
-        .then(conditionsData =>
-          setConditions(conditionsData.map(x => ({ label: x.name, value: x.id }))),
-        )
-        .catch(() => setConditions(undefined));
-      // eslint-disable-next-line
-    }, []);
 
     return (
       <Modal
-        title={`Activate ${patientProgramRegistration.name} program registry`}
+        title={`Activate ${patientProgramRegistration.programRegistry.name} program registry`}
         open={open}
         onClose={onCancel}
       >

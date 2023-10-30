@@ -65,7 +65,7 @@ export const RemoveProgramRegistryFormModal = ({
           <InfoColumn>
             <Info>
               <Label>Program registry</Label>
-              <Value>{patientProgramRegistration.name}</Value>
+              <Value>{patientProgramRegistration.programRegistry.name}</Value>
             </Info>
             <Info>
               <Label>Registered by</Label>

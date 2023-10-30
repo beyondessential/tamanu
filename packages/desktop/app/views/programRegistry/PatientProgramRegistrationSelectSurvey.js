@@ -52,7 +52,9 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
 
   return (
     <DisplayContainer>
-      <Heading3>Select a {patientProgramRegistration.name} form below to complete</Heading3>
+      <Heading3>
+        Select a {patientProgramRegistration.programRegistry.name} form below to complete
+      </Heading3>
       <Form
         style={{ width: '100%', marginTop: '5px' }}
         render={({ values }) => {

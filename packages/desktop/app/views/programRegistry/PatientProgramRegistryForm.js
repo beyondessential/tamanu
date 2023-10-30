@@ -21,14 +21,14 @@ import { useQuery } from '@tanstack/react-query';
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient }) => {
   const api = useApi();
   const { currentUser, facility } = useAuth();
-  const [setselectedProgramRegistryId, setSetselectedProgramRegistryId] = useState();
+  const [selectedProgramRegistryId, setselectedProgramRegistryId] = useState();
 
-  const { data: program } = useQuery(['programRegistry', setselectedProgramRegistryId], () =>
-    api.get(`programRegistry/${setselectedProgramRegistryId}`),
+  const { data: program } = useQuery(['programRegistry', selectedProgramRegistryId], () =>
+    api.get(`programRegistry/${selectedProgramRegistryId}`),
   );
   const { data: conditions } = useQuery(
-    ['programRegistryConditions', setselectedProgramRegistryId],
-    () => api.get(`programRegistry/${setselectedProgramRegistryId}/conditions`),
+    ['programRegistryConditions', selectedProgramRegistryId],
+    () => api.get(`programRegistry/${selectedProgramRegistryId}/conditions`),
   );
   const programRegistrySuggester = useSuggester('programRegistry', {
     baseQueryParameters: { patientId: patient.id },
@@ -70,9 +70,9 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
                   component={AutocompleteField}
                   suggester={programRegistrySuggester}
                   onChange={target => {
-                    if (setselectedProgramRegistryId !== target.target.value) {
+                    if (selectedProgramRegistryId !== target.target.value) {
                       setValues({ ...values, clinicalStatusId: null, conditions: null });
-                      setSetselectedProgramRegistryId(target.target.value);
+                      setselectedProgramRegistryId(target.target.value);
                     }
                   }}
                 />
