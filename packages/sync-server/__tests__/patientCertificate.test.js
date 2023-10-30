@@ -2,14 +2,14 @@ import {
   createDummyPatient,
   createDummyEncounter,
   createDummyPatientAdditionalData,
-} from 'shared/demoData/patients';
-import { randomLabRequest } from 'shared/demoData/labRequests';
-import { fake } from 'shared/test-helpers/fake';
+} from '@tamanu/shared/demoData/patients';
+import { randomLabRequest } from '@tamanu/shared/demoData/labRequests';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
 import { makeVaccineCertificate, makeCovidCertificate } from '../app/utils/makePatientCertificate';
 
 import { createTestContext } from './utilities';
-import { getCurrentDateString } from 'shared/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 async function prepopulate(models) {
   const lab = await models.ReferenceData.create({

@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Tooltip } from '@material-ui/core';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 
 const Spacer = styled.div`
@@ -39,23 +40,27 @@ const NameContainer = styled.span`
 `;
 
 export const ProgramRegistryListItem = ({ item, ListItem }) => {
-  const { id, name, status, clinicalStatus } = item;
+  const { programRegistry, registrationStatus, clinicalStatus } = item;
   const { navigateToProgramRegistry } = usePatientNavigation();
   return (
     <ListItem
       onClick={() => {
-        navigateToProgramRegistry(id, name);
+        navigateToProgramRegistry(programRegistry.id, programRegistry.name);
       }}
     >
       <Spacer>
         <RowContents>
-          <Tooltip title={status} arrow placement="top-end">
-            {status === 'Active' ? <StatusActiveDot /> : <StatusInactiveDot />}
+          <Tooltip title={registrationStatus} arrow placement="top-end">
+            {registrationStatus === REGISTRATION_STATUSES.ACTIVE ? (
+              <StatusActiveDot />
+            ) : (
+              <StatusInactiveDot />
+            )}
           </Tooltip>
 
-          <NameContainer>{name}</NameContainer>
+          <NameContainer>{programRegistry.name}</NameContainer>
         </RowContents>
-        <NameContainer>{clinicalStatus}</NameContainer>
+        <NameContainer>{clinicalStatus.name}</NameContainer>
       </Spacer>
     </ListItem>
   );

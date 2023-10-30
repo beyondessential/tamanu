@@ -1,6 +1,6 @@
 import Table from 'cli-table3';
-import { log } from 'shared/services/logging';
-import { spyOnModule } from 'shared/test-helpers/spyOn';
+import { log } from '@tamanu/shared/services/logging';
+import { spyOnModule } from '@tamanu/shared/test-helpers/spyOn';
 import { initDatabase } from '../../../app/database';
 import {
   createVersion,
@@ -27,7 +27,7 @@ const baseVersionData = {
   }
 };
 
-jest.mock('shared/services/logging', () => ({
+jest.mock('@tamanu/shared/services/logging', () => ({
   log: {
     info: jest.fn(),
     warn: jest.fn(),

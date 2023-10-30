@@ -1,6 +1,6 @@
 import { add } from 'date-fns';
-import { fake, fakeUser, fakeReferenceData } from 'shared/test-helpers/fake';
-import { fakeUUID } from 'shared/utils/generateId';
+import { fake, fakeUser, fakeReferenceData } from '@tamanu/shared/test-helpers/fake';
+import { fakeUUID } from '@tamanu/shared/utils/generateId';
 
 import { createTestContext } from '../utilities';
 
