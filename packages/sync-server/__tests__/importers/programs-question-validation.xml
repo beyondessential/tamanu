@@ -1,0 +1,371 @@
+<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <Worksheet ss:Name="Metadata">
+  <Table x:FullColumns="1" x:FullRows="1">
+   <Row>
+    <Cell><Data ss:Type="String">programName</Data></Cell>
+    <Cell><Data ss:Type="String">Tamanu test suite program</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">programCode</Data></Cell>
+    <Cell><Data ss:Type="String">test-questions-program</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">country</Data></Cell>
+    <Cell><Data ss:Type="String">dev</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">homeServer</Data></Cell>
+   </Row>
+   <Row ss:Index="6">
+    <Cell><Data ss:Type="String">code</Data></Cell>
+    <Cell><Data ss:Type="String">name</Data></Cell>
+    <Cell><Data ss:Type="String">surveyType</Data></Cell>
+    <Cell><Data ss:Type="String">targetLocationId</Data></Cell>
+    <Cell><Data ss:Type="String">targetDepartmentId</Data></Cell>
+    <Cell><Data ss:Type="String">status</Data></Cell>
+    <Cell><Data ss:Type="String">isSensitive</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Test-QuestionValidationSucceed</Data></Cell>
+    <Cell><Data ss:Type="String">Question Validation Succeed</Data></Cell>
+    <Cell><Data ss:Type="String">programs</Data></Cell>
+    <Cell><Data ss:Type="String">Test-location-id</Data></Cell>
+    <Cell><Data ss:Type="String">Test-department-id</Data></Cell>
+    <Cell><Data ss:Type="String">publish</Data></Cell>
+    <Cell><Data ss:Type="Boolean">0</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Test-QuestionValidationFail</Data></Cell>
+    <Cell><Data ss:Type="String">Question Validation Fail</Data></Cell>
+    <Cell><Data ss:Type="String">programs</Data></Cell>
+    <Cell><Data ss:Type="String">Test-location-id</Data></Cell>
+    <Cell><Data ss:Type="String">Test-department-id</Data></Cell>
+    <Cell><Data ss:Type="String">publish</Data></Cell>
+    <Cell><Data ss:Type="Boolean">0</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+ <Worksheet ss:Name="Question Validation Succeed">
+  <Table x:FullColumns="1" x:FullRows="1">
+   <Row>
+    <Cell><Data ss:Type="String">code</Data></Cell>
+    <Cell><Data ss:Type="String">type</Data></Cell>
+    <Cell><Data ss:Type="String">name</Data></Cell>
+    <Cell><Data ss:Type="String">text</Data></Cell>
+    <Cell><Data ss:Type="String">detail</Data></Cell>
+    <Cell><Data ss:Type="String">newScreen</Data></Cell>
+    <Cell><Data ss:Type="String">options</Data></Cell>
+    <Cell><Data ss:Type="String">optionLabels</Data></Cell>
+    <Cell><Data ss:Type="String">optionColors</Data></Cell>
+    <Cell><Data ss:Type="String">visibilityCriteria</Data></Cell>
+    <Cell><Data ss:Type="String">validationCriteria</Data></Cell>
+    <Cell><Data ss:Type="String">optionSet</Data></Cell>
+    <Cell><Data ss:Type="String">questionLabel</Data></Cell>
+    <Cell><Data ss:Type="String">detailLabel</Data></Cell>
+    <Cell><Data ss:Type="String">calculation</Data></Cell>
+    <Cell><Data ss:Type="String">config</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Succeed-Number</Data></Cell>
+    <Cell><Data ss:Type="String">Number</Data></Cell>
+    <Cell><Data ss:Type="String">Number: Full config</Data></Cell>
+    <Cell ss:Index="11"><Data ss:Type="String">{ &quot;min&quot;: 0, &quot;max&quot;: 100, &quot;mandatory&quot;: true, &quot;normalRange&quot;: { &quot;min&quot;: 25, &quot;max&quot;: 75 } }</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;unit&quot;: &quot;kg&quot; }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Succeed-CalculatedQuestion</Data></Cell>
+    <Cell><Data ss:Type="String">CalculatedQuestion</Data></Cell>
+    <Cell><Data ss:Type="String">CalculatedQuestion: Full config</Data></Cell>
+    <Cell ss:Index="11"><Data ss:Type="String">{ &quot;min&quot;: 0, &quot;max&quot;: 100, &quot;mandatory&quot;: true, &quot;normalRange&quot;: { &quot;min&quot;: 25, &quot;max&quot;: 75 } }</Data></Cell>
+    <Cell ss:Index="15"><Data ss:Type="String">1+1</Data></Cell>
+    <Cell><Data ss:Type="String">{ &quot;unit&quot;: &quot;kg&quot; }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Succeed-Result</Data></Cell>
+    <Cell><Data ss:Type="String">Result</Data></Cell>
+    <Cell><Data ss:Type="String">Result: Full config</Data></Cell>
+    <Cell ss:Index="11"><Data ss:Type="String">{ &quot;min&quot;: 0, &quot;max&quot;: 100, &quot;mandatory&quot;: true, &quot;normalRange&quot;: { &quot;min&quot;: 25, &quot;max&quot;: 75 } }</Data></Cell>
+    <Cell ss:Index="15"><Data ss:Type="String">2+2</Data></Cell>
+    <Cell><Data ss:Type="String">{ &quot;unit&quot;: &quot;kg&quot; }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Succeed-PatientData</Data></Cell>
+    <Cell><Data ss:Type="String">PatientData</Data></Cell>
+    <Cell><Data ss:Type="String">PatientData: Full config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;column&quot;: &quot;xyz&quot;, &quot;writeToPatient&quot;: { &quot;fieldName&quot;: &quot;email&quot;, &quot;fieldType&quot;: &quot;FreeText&quot; } }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Succeed-UserData</Data></Cell>
+    <Cell><Data ss:Type="String">UserData</Data></Cell>
+    <Cell><Data ss:Type="String">UserData: Full config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;column&quot;: &quot;xyz&quot; }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Succeed-Autocomplete</Data></Cell>
+    <Cell><Data ss:Type="String">Autocomplete</Data></Cell>
+    <Cell><Data ss:Type="String">Autocomplete: Full config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;source&quot;: &quot;ReferenceData&quot;, &quot;where&quot;: { &quot;type&quot;: &quot;xyz&quot; } }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Succeed-SurveyLink</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyLink</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyLink: Full config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;source&quot;: &quot;xyz&quot; }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Succeed-SurveyResult</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyResult</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyResult: Full config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;source&quot;: &quot;xyz&quot; }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Succeed-SurveyAnswer</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyAnswer</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyAnswer: Full config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;source&quot;: &quot;xyz&quot; }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Succeed-validationCriteria-mandatory-1</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyAnswer</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyAnswer: Full config</Data></Cell>
+    <Cell ss:Index="11"><Data ss:Type="String">{ &quot;mandatory&quot;: {&quot;encounterType&quot;:&quot;admission&quot;} }</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;source&quot;: &quot;xyz&quot; }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Succeed-validationCriteria-mandatory-2</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyAnswer</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyAnswer: Full config</Data></Cell>
+    <Cell ss:Index="11"><Data ss:Type="String">{ &quot;mandatory&quot;: {&quot;encounterType&quot;:[&quot;admission&quot;,&quot;surveyResponse&quot;]} }</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;source&quot;: &quot;xyz&quot; }</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+ <Worksheet ss:Name="Question Validation Fail">
+  <Table x:FullColumns="1" x:FullRows="1">
+   <Row>
+    <Cell><Data ss:Type="String">code</Data></Cell>
+    <Cell><Data ss:Type="String">type</Data></Cell>
+    <Cell><Data ss:Type="String">name</Data></Cell>
+    <Cell><Data ss:Type="String">text</Data></Cell>
+    <Cell><Data ss:Type="String">detail</Data></Cell>
+    <Cell><Data ss:Type="String">newScreen</Data></Cell>
+    <Cell><Data ss:Type="String">options</Data></Cell>
+    <Cell><Data ss:Type="String">optionLabels</Data></Cell>
+    <Cell><Data ss:Type="String">optionColors</Data></Cell>
+    <Cell><Data ss:Type="String">visibilityCriteria</Data></Cell>
+    <Cell><Data ss:Type="String">validationCriteria</Data></Cell>
+    <Cell><Data ss:Type="String">optionSet</Data></Cell>
+    <Cell><Data ss:Type="String">questionLabel</Data></Cell>
+    <Cell><Data ss:Type="String">detailLabel</Data></Cell>
+    <Cell><Data ss:Type="String">calculation</Data></Cell>
+    <Cell><Data ss:Type="String">config</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-NumVCUnknownField</Data></Cell>
+    <Cell><Data ss:Type="String">Number</Data></Cell>
+    <Cell><Data ss:Type="String">Number: Unknown field in validationCriteria</Data></Cell>
+    <Cell ss:Index="11"><Data ss:Type="String">{ &quot;foo&quot;: &quot;bar&quot; }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-NumberVCIncorrectType</Data></Cell>
+    <Cell><Data ss:Type="String">Number</Data></Cell>
+    <Cell><Data ss:Type="String">Number: Incorrect field type in validationCriteria</Data></Cell>
+    <Cell ss:Index="11"><Data ss:Type="String">{ &quot;mandatory&quot;: &quot;true&quot; }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-NumConfUnknownField</Data></Cell>
+    <Cell><Data ss:Type="String">Number</Data></Cell>
+    <Cell><Data ss:Type="String">Number: Unknown field in config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;foo&quot;: &quot;bar&quot; }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-NumConfIncorrectType</Data></Cell>
+    <Cell><Data ss:Type="String">Number</Data></Cell>
+    <Cell><Data ss:Type="String">Number: Incorrect field type in config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;unit&quot;: true }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-CalcQVCUnknownField</Data></Cell>
+    <Cell><Data ss:Type="String">CalculatedQuestion</Data></Cell>
+    <Cell><Data ss:Type="String">CalculatedQuestion: Unknown field in validationCriteria</Data></Cell>
+    <Cell ss:Index="11"><Data ss:Type="String">{ &quot;foo&quot;: &quot;bar&quot; }</Data></Cell>
+    <Cell ss:Index="15"><Data ss:Type="String">1+1</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-CalcQVCIncorrectType</Data></Cell>
+    <Cell><Data ss:Type="String">CalculatedQuestion</Data></Cell>
+    <Cell><Data ss:Type="String">CalculatedQuestion: Incorrect field type in validationCriteria</Data></Cell>
+    <Cell ss:Index="11"><Data ss:Type="String">{ &quot;mandatory&quot;: &quot;true&quot; }</Data></Cell>
+    <Cell ss:Index="15"><Data ss:Type="String">2+2</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-CalcQConfUnknownField</Data></Cell>
+    <Cell><Data ss:Type="String">CalculatedQuestion</Data></Cell>
+    <Cell><Data ss:Type="String">CalculatedQuestion: Unknown field in config</Data></Cell>
+    <Cell ss:Index="15"><Data ss:Type="String">1+1</Data></Cell>
+    <Cell><Data ss:Type="String">{ &quot;foo&quot;: &quot;bar&quot; }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-CalcQConfIncorrectType</Data></Cell>
+    <Cell><Data ss:Type="String">CalculatedQuestion</Data></Cell>
+    <Cell><Data ss:Type="String">CalculatedQuestion: Incorrect field type in config</Data></Cell>
+    <Cell ss:Index="15"><Data ss:Type="String">2+2</Data></Cell>
+    <Cell><Data ss:Type="String">{ &quot;unit&quot;: true }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-ResVCUnknownField</Data></Cell>
+    <Cell><Data ss:Type="String">Result</Data></Cell>
+    <Cell><Data ss:Type="String">Result: Unknown field in validationCriteria</Data></Cell>
+    <Cell ss:Index="11"><Data ss:Type="String">{ &quot;foo&quot;: &quot;bar&quot; }</Data></Cell>
+    <Cell ss:Index="15"><Data ss:Type="String">1+1</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-ResVCIncorrectType</Data></Cell>
+    <Cell><Data ss:Type="String">Result</Data></Cell>
+    <Cell><Data ss:Type="String">Result: Incorrect field type in validationCriteria</Data></Cell>
+    <Cell ss:Index="11"><Data ss:Type="String">{ &quot;mandatory&quot;: &quot;true&quot; }</Data></Cell>
+    <Cell ss:Index="15"><Data ss:Type="String">2+2</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-ResConfUnknownField</Data></Cell>
+    <Cell><Data ss:Type="String">Result</Data></Cell>
+    <Cell><Data ss:Type="String">Result: Unknown field in config</Data></Cell>
+    <Cell ss:Index="15"><Data ss:Type="String">1+1</Data></Cell>
+    <Cell><Data ss:Type="String">{ &quot;foo&quot;: &quot;bar&quot; }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-ResConfIncorrectType</Data></Cell>
+    <Cell><Data ss:Type="String">Result</Data></Cell>
+    <Cell><Data ss:Type="String">Result: Incorrect field type in config</Data></Cell>
+    <Cell ss:Index="15"><Data ss:Type="String">2+2</Data></Cell>
+    <Cell><Data ss:Type="String">{ &quot;unit&quot;: true }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-PatientDataConfUnknownField</Data></Cell>
+    <Cell><Data ss:Type="String">PatientData</Data></Cell>
+    <Cell><Data ss:Type="String">PatientData: Unknown field in config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;foo&quot;: &quot;bar&quot; }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-PatientDataConfIncorrectType</Data></Cell>
+    <Cell><Data ss:Type="String">PatientData</Data></Cell>
+    <Cell><Data ss:Type="String">PatientData: Incorrect field type in config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;column&quot;: 24 }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-PatientDataConfIncorrectFieldName</Data></Cell>
+    <Cell><Data ss:Type="String">PatientData</Data></Cell>
+    <Cell><Data ss:Type="String">PatientData: Incorrect field name in config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;column&quot;: &quot;email&quot;, &quot;writeToPatient&quot;: { &quot;fieldName&quot;: &quot;abc&quot;, &quot;fieldType&quot;: &quot;FreeText&quot; }}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-PatientDataConfMissingField</Data></Cell>
+    <Cell><Data ss:Type="String">PatientData</Data></Cell>
+    <Cell><Data ss:Type="String">PatientData: Missing required field in config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;column&quot;: &quot;email&quot;, &quot;writeToPatient&quot;: {} }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-UserDataConfUnknownField</Data></Cell>
+    <Cell><Data ss:Type="String">UserData</Data></Cell>
+    <Cell><Data ss:Type="String">UserData: Unknown field in config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;foo&quot;: &quot;bar&quot; }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-UserDataConfIncorrectType</Data></Cell>
+    <Cell><Data ss:Type="String">UserData</Data></Cell>
+    <Cell><Data ss:Type="String">UserData: Incorrect field type in config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;column&quot;: 24 }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-UserDataConfMissingField</Data></Cell>
+    <Cell><Data ss:Type="String">UserData</Data></Cell>
+    <Cell><Data ss:Type="String">UserData: Missing required field in config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-AutocompConfUnknownField</Data></Cell>
+    <Cell><Data ss:Type="String">Autocomplete</Data></Cell>
+    <Cell><Data ss:Type="String">Autocomplete: Unknown field in config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;foo&quot;: &quot;bar&quot; }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-AutocompConfIncorrectType</Data></Cell>
+    <Cell><Data ss:Type="String">Autocomplete</Data></Cell>
+    <Cell><Data ss:Type="String">Autocomplete: Incorrect field type in config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;source&quot;: true }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-AutocompConfRefData</Data></Cell>
+    <Cell><Data ss:Type="String">Autocomplete</Data></Cell>
+    <Cell><Data ss:Type="String">Autocomplete: ReferenceData source requires where</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;source&quot;: &quot;ReferenceData&quot; }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-AutocompConfMissingField</Data></Cell>
+    <Cell><Data ss:Type="String">Autocomplete</Data></Cell>
+    <Cell><Data ss:Type="String">Autocomplete: Missing required field in config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-SurvLinkConfUnknownField</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyLink</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyLink: Unknown field in config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;foo&quot;: &quot;bar&quot; }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-SurvLinkConfIncorrectType</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyLink</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyLink: Incorrect field type in config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;source&quot;: true }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-SurvLinkConfMissingField</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyLink</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyLink: Missing required field in config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-SurvResConfUnknownField</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyResult</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyResult: Unknown field in config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;foo&quot;: &quot;bar&quot; }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-SurvResConfIncorrectType</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyResult</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyResult: Incorrect field type in config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;source&quot;: true }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-SurvResConfMissingField</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyResult</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyResult: Missing required field in config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-SurvAnsConfUnknownField</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyAnswer</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyAnswer: Unknown field in config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;foo&quot;: &quot;bar&quot; }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-SurvAnsConfIncorrectType</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyAnswer</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyAnswer: Incorrect field type in config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{ &quot;source&quot;: true }</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Fail-SurvAnsConfMissingField</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyAnswer</Data></Cell>
+    <Cell><Data ss:Type="String">SurveyAnswer: Missing required field in config</Data></Cell>
+    <Cell ss:Index="16"><Data ss:Type="String">{}</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+</Workbook>

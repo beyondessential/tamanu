@@ -8,6 +8,7 @@ import {
   vaccineIcon,
 } from '../../constants/images';
 import { Colors } from '../../constants';
+import { ProgramRegistrySidebarItem } from '../../views/programRegistry/ProgramRegistrySidebarItem';
 
 export const FACILITY_MENU_ITEMS = [
   {
@@ -144,6 +145,15 @@ export const FACILITY_MENU_ITEMS = [
         path: `/programs/active-covid-19-patients`,
       },
     ],
+  },
+  {
+    key: 'programRegistry',
+    label: 'Program registry',
+    path: '/program-registry',
+    icon: programsIcon,
+    component: ProgramRegistrySidebarItem,
+    ability: { action: 'read', subject: 'programRegistry' },
+    children: [],
   },
   {
     key: 'facilityAdmin',

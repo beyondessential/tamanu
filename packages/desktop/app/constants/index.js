@@ -486,3 +486,9 @@ export const NOTE_FORM_MODES = {
   EDIT_NOTE: 'editNote',
   VIEW_NOTE: 'viewNote',
 };
+
+export const PROGRAM_REGISTRATION_STATUSES = {
+  REMOVED: 'removed',
+  ACTIVE: 'active',
+  ENTERED_IN_ERROR: 'entered-in-error',
+};

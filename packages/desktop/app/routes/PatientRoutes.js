@@ -19,11 +19,19 @@ import {
 import { getEncounterType } from '../views/patients/panes/EncounterInfoPane';
 import { ProgramsView } from '../views/programs/ProgramsView';
 import { ReferralsView } from '../views/referrals/ReferralsView';
+import { PatientProgramRegistryView } from '../views/programRegistry/PatientProgramRegistryView';
+import { ProgramRegistrySurveyView } from '../views/programRegistry/ProgramRegistrySurveyView';
+import { useUrlSearchParams } from '../utils/useUrlSearchParams';
 
 export const usePatientRoutes = () => {
-  const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
+  const {
+    navigateToEncounter,
+    navigateToPatient,
+    navigateToProgramRegistry,
+  } = usePatientNavigation();
   const patient = useSelector(state => state.patient);
   const { encounter } = useEncounter();
+  const queryParams = useUrlSearchParams();
   return [
     {
       path: PATIENT_PATHS.PATIENT,
@@ -66,6 +74,19 @@ export const usePatientRoutes = () => {
               path: `${PATIENT_PATHS.IMAGING_REQUEST}/:modal?`,
               component: ImagingRequestView,
               title: 'Imaging Request',
+            },
+          ],
+        },
+        {
+          path: PATIENT_PATHS.PROGRAM_REGISTRY,
+          component: PatientProgramRegistryView,
+          navigateTo: programRegistry => navigateToProgramRegistry(programRegistry.id),
+          title: queryParams.get('title'),
+          routes: [
+            {
+              path: PATIENT_PATHS.PROGRAM_REGISTRY_SURVEY,
+              component: ProgramRegistrySurveyView,
+              // title: 'Discharge Summary',
             },
           ],
         },

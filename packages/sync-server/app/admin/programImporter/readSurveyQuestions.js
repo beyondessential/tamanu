@@ -82,7 +82,9 @@ function importDataElement(row) {
     defaultOptions: options,
     optionLabels: newlinesToArray(optionLabels),
     defaultText: text,
-    row: row.__rowNum__,
+    // Note: __rowNum__ is a non-enumerable property, so needs to be accessed explicitly here
+    // -1 as it'll have 2 added to it later but it's only 1 off
+    row: row.__rowNum__ - 1,
     ...rest,
   };
 }

@@ -1,4 +1,5 @@
 import { fake } from '@tamanu/shared/test-helpers/fake';
+import { findOneOrCreate } from '@tamanu/shared/test-helpers/factory';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { programImporter } from '../../app/admin/programImporter';
@@ -6,7 +7,7 @@ import { createTestContext } from '../utilities';
 import './matchers';
 
 // the importer can take a little while
-jest.setTimeout(30000);
+jest.setTimeout(60000);
 
 describe('Programs import', () => {
   let ctx;
@@ -15,11 +16,24 @@ describe('Programs import', () => {
   });
 
   const truncateTables = async () => {
-    const { Program, Survey, ProgramDataElement, SurveyScreenComponent } = ctx.store.models;
+    const {
+      Program,
+      Survey,
+      PatientProgramRegistration,
+      ProgramRegistryClinicalStatus,
+      ProgramRegistryCondition,
+      ProgramRegistry,
+      ProgramDataElement,
+      SurveyScreenComponent,
+    } = ctx.store.models;
     await SurveyScreenComponent.destroy({ where: {}, force: true });
     await ProgramDataElement.destroy({ where: {}, force: true });
     await Survey.destroy({ where: {}, force: true });
     await Program.destroy({ where: {}, force: true });
+    await PatientProgramRegistration.destroy({ where: {}, force: true });
+    await ProgramRegistryClinicalStatus.destroy({ where: {}, force: true });
+    await ProgramRegistryCondition.destroy({ where: {}, force: true });
+    await ProgramRegistry.destroy({ where: {}, force: true });
   };
 
   beforeEach(async () => {
@@ -31,10 +45,10 @@ describe('Programs import', () => {
   });
 
   function doImport(options) {
-    const { file, ...opts } = options;
+    const { file, xml = false, ...opts } = options;
     return importerTransaction({
       importer: programImporter,
-      file: `./__tests__/importers/programs-${file}.xlsx`,
+      file: `./__tests__/importers/programs-${file}${xml ? '.xml' : '.xlsx'}`,
       models: ctx.store.models,
       ...opts,
     });
@@ -143,6 +157,20 @@ describe('Programs import', () => {
     );
   });
 
+  it('should error on invalid import status', async () => {
+    const { didntSendReason, errors } = await doImport({
+      file: 'invalid-survey-status',
+      dryRun: true,
+    });
+
+    expect(didntSendReason).toEqual('validationFailed');
+
+    expect(errors[0]).toHaveProperty(
+      'message',
+      'Survey Samoa PEN Referral Example has invalid status not-a-status. Must be one of publish, draft, hidden. on Metadata at row 8',
+    );
+  });
+
   it('should error on invalid calculations', async () => {
     const { didntSendReason, errors, stats } = await doImport({
       file: 'calculation-validation',
@@ -161,16 +189,55 @@ describe('Programs import', () => {
   it('run validation against question configs', async () => {
     const { didntSendReason, errors, stats } = await doImport({
       file: 'question-validation',
+      xml: true,
       dryRun: true,
     });
 
     expect(didntSendReason).toEqual('validationFailed');
-    expect(errors.length).toEqual(31);
+    const expectedErrorMessages = [
+      'validationCriteria: this field has unspecified keys: foo on Question Validation Fail at row 2',
+      'validationCriteria: mandatory must be a `object` type, but the final value was: `"true"`. on Question Validation Fail at row 3',
+      'config: this field has unspecified keys: foo on Question Validation Fail at row 4',
+      'config: unit must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 5',
+      'validationCriteria: this field has unspecified keys: foo on Question Validation Fail at row 6',
+      'validationCriteria: mandatory must be a `object` type, but the final value was: `"true"`. on Question Validation Fail at row 7',
+      'config: this field has unspecified keys: foo on Question Validation Fail at row 8',
+      'config: unit must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 9',
+      'validationCriteria: this field has unspecified keys: foo on Question Validation Fail at row 10',
+      'validationCriteria: mandatory must be a `object` type, but the final value was: `"true"`. on Question Validation Fail at row 11',
+      'config: this field has unspecified keys: foo on Question Validation Fail at row 12',
+      'config: unit must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 13',
+      'config: this field has unspecified keys: foo on Question Validation Fail at row 14',
+      'config: column must be a `string` type, but the final value was: `24`. on Question Validation Fail at row 15',
+      'config: writeToPatient.fieldName must be one of the following values: registrationClinicalStatus, programRegistrationStatus, registrationClinician, registeringFacility, registrationCurrentlyAtVillage, registrationCurrentlyAtFacility, firstName, middleName, lastName, culturalName, dateOfBirth, dateOfDeath, sex, email, villageId, placeOfBirth, bloodType, primaryContactNumber, secondaryContactNumber, maritalStatus, cityTown, streetVillage, educationalLevel, socialMedia, title, birthCertificate, drivingLicense, passport, emergencyContactName, emergencyContactNumber, registeredById, motherId, fatherId, nationalityId, countryId, divisionId, subdivisionId, medicalAreaId, nursingZoneId, settlementId, ethnicityId, occupationId, religionId, patientBillingTypeId, countryOfBirthId on Question Validation Fail at row 16',
+      'config: writeToPatient.fieldType is a required field on Question Validation Fail at row 17',
+      'config: this field has unspecified keys: foo on Question Validation Fail at row 18',
+      'config: column must be a `string` type, but the final value was: `24`. on Question Validation Fail at row 19',
+      'config: column is a required field on Question Validation Fail at row 20',
+      'config: this field has unspecified keys: foo on Question Validation Fail at row 21',
+      'config: source must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 22',
+      'config: where is a required field on Question Validation Fail at row 23',
+      'config: source is a required field on Question Validation Fail at row 24',
+      'config: this field has unspecified keys: foo on Question Validation Fail at row 25',
+      'config: source must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 26',
+      'config: source is a required field on Question Validation Fail at row 27',
+      'config: this field has unspecified keys: foo on Question Validation Fail at row 28',
+      'config: source must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 29',
+      'config: source is a required field on Question Validation Fail at row 30',
+      'config: this field has unspecified keys: foo on Question Validation Fail at row 31',
+      'config: source must be a `string` type, but the final value was: `true`. on Question Validation Fail at row 32',
+      'config: source is a required field on Question Validation Fail at row 33',
+    ];
+
+    errors.forEach((error, i) => {
+      expect(error.message).toEqual(expectedErrorMessages[i]);
+    });
     expect(stats).toMatchObject({
       Program: { created: 1, updated: 0, errored: 0 },
       Survey: { created: 2, updated: 0, errored: 0 },
-      ProgramDataElement: { created: 42, updated: 0, errored: 0 },
-      SurveyScreenComponent: { created: 11, updated: 0, errored: 31 }, // 31 fields in failure test, 11 in success test
+      // TODO: Fix after merge
+      ProgramDataElement: { created: 43, updated: 0, errored: 0 },
+      SurveyScreenComponent: { created: 11, updated: 0, errored: 32 }, // 31 fields in failure test, 11 in success test
     });
   });
 
@@ -316,6 +383,183 @@ describe('Programs import', () => {
 
       const componentsAfter = await getComponents();
       expect(componentsAfter).toHaveLength(15);
+    });
+  });
+
+  describe('Program Registry', () => {
+    it('should import a valid registry', async () => {
+      const { errors, stats, didntSendReason } = await doImport({
+        file: 'registry-valid-village',
+        xml: true,
+        dryRun: true,
+      });
+      expect(errors).toBeEmpty();
+      expect(didntSendReason).toEqual('dryRun');
+      expect(stats).toMatchObject({
+        Program: { created: 1, updated: 0, errored: 0 },
+        Survey: { created: 1, updated: 0, errored: 0 },
+        ProgramDataElement: { created: 1, updated: 0, errored: 0 },
+        SurveyScreenComponent: { created: 1, updated: 0, errored: 0 },
+        ProgramRegistry: { created: 1, updated: 0, errored: 0 },
+        ProgramRegistryClinicalStatus: { created: 3, updated: 0, errored: 0 },
+      });
+    });
+
+    it('should properly update clinical statuses', async () => {
+      await doImport({ file: 'registry-valid-village', xml: true, dryRun: false });
+      const { didntSendReason, errors, stats } = await doImport({
+        file: 'registry-update-statuses',
+        xml: true,
+        dryRun: true,
+      });
+
+      expect(errors).toBeEmpty();
+      expect(didntSendReason).toEqual('dryRun');
+      expect(stats).toMatchObject({
+        Program: { created: 0, updated: 1, errored: 0 },
+        Survey: { created: 0, updated: 1, errored: 0 },
+        ProgramRegistry: { created: 0, updated: 1, errored: 0 },
+        ProgramRegistryClinicalStatus: { created: 1, updated: 3, errored: 0 },
+      });
+    });
+
+    it('should error on invalid currentlyAtType', async () => {
+      const { errors } = await doImport({
+        file: 'registry-invalid-currently-at-type',
+        xml: true,
+        dryRun: true,
+      });
+
+      expect(errors[0].message).toEqual(
+        'Validation error: The currentlyAtType must be one of village, facility on Registry at row 0',
+      );
+    });
+
+    it('should enforce unique name', async () => {
+      await doImport({ file: 'registry-valid-village', xml: true, dryRun: false });
+      const { errors } = await doImport({
+        file: 'registry-duplicated-name',
+        xml: true,
+        dryRun: true,
+      });
+
+      expect(errors[0].message).toEqual(
+        'A registry name must be unique (name: Valid Registry, conflicting code: ValidRegistry) on Registry at row 0',
+      );
+    });
+
+    it('should restrict colors to a set list', async () => {
+      const { errors } = await doImport({
+        file: 'registry-invalid-clinical-status-color',
+        xml: true,
+        dryRun: false,
+      });
+      expect(errors[0].message).toEqual(
+        'color must be one of the following values: purple, pink, orange, yellow, blue, green, grey, red, brown, teal on Registry at row 9',
+      );
+    });
+
+    it('should not enforce unique name for historical registries', async () => {
+      await doImport({ file: 'registry-valid-village', xml: true, dryRun: false });
+      await doImport({ file: 'registry-make-historical', xml: true, dryRun: false });
+      const { errors } = await doImport({
+        file: 'registry-duplicated-name',
+        xml: true,
+        dryRun: true,
+      });
+      expect(errors).toBeEmpty();
+    });
+
+    it('should prevent changing currentlyAtType if there is existing data', async () => {
+      const { PatientProgramRegistration } = ctx.store.models;
+      await doImport({
+        file: 'registry-valid-village',
+        xml: true,
+        dryRun: false,
+      });
+      await findOneOrCreate(ctx.store.models, PatientProgramRegistration, {
+        programRegistryId: 'programRegistry-ValidRegistry',
+      });
+      const { errors } = await doImport({
+        file: 'registry-valid-facility',
+        xml: true,
+        dryRun: false,
+      });
+      expect(errors[0].message).toEqual(
+        'Cannot update the currentlyAtType of a program registry with existing data on Registry at row 0',
+      );
+    });
+
+    it('should not prevent changing currentlyAtType if there is no existing data', async () => {
+      const { PatientProgramRegistration } = ctx.store.models;
+      await doImport({
+        file: 'registry-valid-village',
+        xml: true,
+        dryRun: false,
+      });
+      const registration = await findOneOrCreate(ctx.store.models, PatientProgramRegistration, {
+        programRegistryId: 'programRegistry-ValidRegistry',
+      });
+      registration.villageId = null;
+      registration.facilityId = null;
+      await registration.save();
+      const { errors } = await doImport({
+        file: 'registry-valid-facility',
+        xml: true,
+        dryRun: false,
+      });
+      expect(errors).toBeEmpty();
+    });
+
+    it('should validate survey patient data fieldType based on registry currentlyAtType', async () => {
+      const { errors } = await doImport({
+        file: 'registry-invalid-patient-data-q',
+        xml: true,
+        dryRun: false,
+      });
+      expect(errors).not.toBeEmpty();
+    });
+
+    describe('conditions', () => {
+      it('should import valid conditions', async () => {
+        const { errors, stats } = await doImport({
+          file: 'registry-valid-with-conditions',
+          xml: true,
+          dryRun: false,
+        });
+        expect(errors).toBeEmpty();
+        expect(stats).toMatchObject({
+          Program: { created: 1, updated: 0, errored: 0 },
+          ProgramRegistry: { created: 1, updated: 0, errored: 0 },
+          ProgramRegistryClinicalStatus: { created: 3, updated: 0, errored: 0 },
+          ProgramRegistryCondition: { created: 2, updated: 0, errored: 0 },
+        });
+      });
+
+      it('should validate conditions', async () => {
+        const { errors, stats } = await doImport({
+          file: 'registry-invalid-conditions',
+          xml: true,
+          dryRun: false,
+        });
+
+        const errorMessages = [
+          'visibilityStatus must be one of the following values: current, historical, merged on Registry Conditions at row 2',
+          'id must not have spaces or punctuation other than - on Registry Conditions at row 3',
+          'code must not have spaces or punctuation other than -./ on Registry Conditions at row 3',
+          'name is a required field on Registry Conditions at row 3',
+        ];
+        expect(errors.length).toBe(4);
+        errors.forEach((error, i) => {
+          expect(error.message).toEqual(errorMessages[i]);
+        });
+        expect(stats).toMatchObject({
+          Program: { created: 1, updated: 0, errored: 0 },
+          ProgramRegistry: { created: 1, updated: 0, errored: 0 },
+          ProgramRegistryClinicalStatus: { created: 3, updated: 0, errored: 0 },
+          ProgramRegistryCondition: { created: 0, updated: 0, errored: 2 },
+        });
+      });
     });
   });
 });

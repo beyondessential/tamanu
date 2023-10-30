@@ -236,7 +236,13 @@ patientRelations.get(
     const { db, models, params, query } = req;
     req.checkPermission('list', 'SurveyResponse');
     const patientId = params.id;
-    const { surveyId, surveyType = 'programs', order = 'asc', orderBy = 'endTime' } = query;
+    const {
+      surveyId,
+      programId,
+      surveyType = 'programs',
+      order = 'asc',
+      orderBy = 'endTime',
+    } = query;
     const sortKey = PROGRAM_RESPONSE_SORT_KEYS[orderBy] || PROGRAM_RESPONSE_SORT_KEYS.endTime;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
     const { count, data } = await runPaginatedQuery(
@@ -279,9 +285,10 @@ patientRelations.get(
           encounters.patient_id = :patientId
           AND surveys.survey_type = :surveyType
           ${surveyId ? 'AND surveys.id = :surveyId' : ''}
+          ${programId ? 'AND programs.id = :programId' : ''}
         ORDER BY ${sortKey} ${sortDirection}
       `,
-      { patientId, surveyId, surveyType },
+      { patientId, surveyId, programId, surveyType },
       query,
     );
 

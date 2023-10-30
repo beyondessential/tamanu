@@ -1,9 +1,31 @@
 import * as yup from 'yup';
-import { PROGRAM_DATA_ELEMENT_TYPE_VALUES } from '@tamanu/constants';
+import {
+  PROGRAM_DATA_ELEMENT_TYPE_VALUES,
+  PATIENT_DATA_FIELD_LOCATIONS,
+  VISIBILITY_STATUSES,
+  CURRENTLY_AT_TYPES,
+} from '@tamanu/constants';
 import { SurveyScreenComponent, baseValidationShape, baseConfigShape } from './baseSchemas';
 import { configString, validationString, visualisationConfigString } from './jsonString';
 import { isNumberOrFloat } from '../../utils/numbers';
 import { mathjsString } from './mathjsString';
+
+const testIncompatibleCurrentlyAtType = async (fieldName, ctx) => {
+  const { models, programId } = ctx.options.context;
+  const programRegistry = await models.ProgramRegistry.findOne({
+    where: {
+      programId,
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+    },
+  });
+  if (!programRegistry) return true;
+
+  if (programRegistry?.currentlyAtType === CURRENTLY_AT_TYPES.VILLAGE)
+    return fieldName !== 'registrationCurrentlyAtFacility';
+  if (programRegistry?.currentlyAtType === CURRENTLY_AT_TYPES.FACILITY)
+    return fieldName !== 'registrationCurrentlyAtVillage';
+  return true;
+};
 
 const columnReferenceConfig = baseConfigShape.shape({
   column: yup.string().required(),
@@ -18,7 +40,19 @@ export const SSCPatientData = SurveyScreenComponent.shape({
       writeToPatient: yup
         .object()
         .shape({
-          fieldName: yup.string().required(),
+          fieldName: yup
+            .string()
+            .oneOf(Object.keys(PATIENT_DATA_FIELD_LOCATIONS))
+            .required()
+            .test(
+              'incompatible-currently-at-type',
+              ({ value }) => {
+                const inferredCurrentlyAtType =
+                  value === 'registrationCurrentlyAtFacility' ? 'village' : 'facility';
+                return `fieldName=${value} but program registry configured for ${inferredCurrentlyAtType}`;
+              },
+              testIncompatibleCurrentlyAtType,
+            ),
           isAdditionalData: yup.boolean(),
           fieldType: yup
             .string()

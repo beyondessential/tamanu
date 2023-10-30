@@ -6,7 +6,7 @@ import {
   createDummyEncounter,
   randomRecords,
 } from '@tamanu/shared/demoData';
-import { findOneOrCreate } from '@tamanu/shared/test-helpers';
+import { findOneOrCreate, fake } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
 
@@ -260,6 +260,57 @@ describe('Suggestions', () => {
       expect(body).toHaveProperty('name', record.name);
       expect(body).toHaveProperty('id', record.id);
     });
+  });
+
+  describe('Other suggesters', () => {
+    it('should get suggestions for a program registration', async () => {
+      const testProgram = await models.Program.create(fake(models.Program));
+      const testPatient = await models.Patient.create(fake(models.Patient));
+
+      // Should show:
+      await models.ProgramRegistry.create({
+        ...fake(models.ProgramRegistry),
+        name: 'a1',
+        programId: testProgram.id,
+      });
+      await models.ProgramRegistry.create({
+        ...fake(models.ProgramRegistry),
+        name: 'a2',
+        programId: testProgram.id,
+      });
+
+      // Should not show (historical):
+      await models.ProgramRegistry.create({
+        ...fake(models.ProgramRegistry),
+        name: 'a3',
+        programId: testProgram.id,
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      });
+      // Should not show (name = b):
+      await models.ProgramRegistry.create({
+        ...fake(models.ProgramRegistry),
+        name: 'b',
+        programId: testProgram.id,
+      });
+      // Should not show (patient already has registration):
+      const { id: existingRegistrationId } = await models.ProgramRegistry.create({
+        ...fake(models.ProgramRegistry),
+        name: 'a4',
+        programId: testProgram.id,
+      });
+      await models.PatientProgramRegistration.create({
+        ...fake(models.PatientProgramRegistration),
+        patientId: testPatient.id,
+        programRegistryId: existingRegistrationId,
+      });
+
+      const result = await userApp.get('/v1/suggestions/programRegistry').query({
+        q: 'a',
+        patientId: testPatient.id,
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body.length).toBe(2);
+    });
 
     it('should get suggestions for a medication', async () => {
       const result = await userApp.get('/v1/suggestions/drug?q=a');
@@ -270,38 +321,50 @@ describe('Suggestions', () => {
     });
 
     it('should get suggestions for a survey', async () => {
-      const programId = 'all-survey-program-id';
+      const programId1 = 'all-survey-program-id';
+      const programId2 = 'alternative-program-id';
       const obsoleteSurveyId = 'obsolete-survey-id';
       await models.Program.create({
-        id: programId,
+        id: programId1,
+        name: 'Program',
+      });
+      await models.Program.create({
+        id: programId2,
         name: 'Program',
       });
 
       await models.Survey.bulkCreate([
         {
           id: obsoleteSurveyId,
-          programId,
+          programId: programId1,
           name: 'XX - Obsolete Survey',
           surveyType: SURVEY_TYPES.OBSOLETE,
         },
         {
           id: 'referral-survey-id',
-          programId,
+          programId: programId1,
           name: 'XX - Referral Survey',
         },
         {
           id: 'program-survey-id',
-          programId,
+          programId: programId1,
           name: 'XX - Program Survey',
         },
         {
           id: 'program-survey-id-2',
-          programId,
+          programId: programId1,
           name: 'ZZ - Program Survey',
+        },
+        {
+          id: 'program2-survey-id-2',
+          programId: programId2,
+          name: 'AA - Program Survey',
         },
       ]);
 
-      const result = await userApp.get('/v1/suggestions/survey?q=X');
+      const result = await userApp
+        .get('/v1/suggestions/survey')
+        .query({ q: 'X', programId: 'all-survey-program-id' });
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body).toBeInstanceOf(Array);
@@ -390,7 +453,7 @@ describe('Suggestions', () => {
 
   it('Should get all suggestions on the /all endpoint', async () => {
     await models.ReferenceData.truncate({ cascade: true });
-    const dummyRecords = (new Array(30)).fill(0).map((_, i) => ({
+    const dummyRecords = new Array(30).fill(0).map((_, i) => ({
       id: `diag-${i}`,
       type: 'icd10',
       name: `Diag ${i}`,

@@ -43,6 +43,7 @@ function loadExisting(Model, values) {
 export async function importRows(
   { errors, log, models },
   { rows, sheetName, stats: previousStats = {}, foreignKeySchemata = {} },
+  validationContext = {},
 ) {
   const stats = { ...previousStats };
 
@@ -168,7 +169,7 @@ export async function importRows(
       validRows.push({
         model,
         sheetRow,
-        values: await schema.validate(values, { abortEarly: false }),
+        values: await schema.validate(values, { abortEarly: false, context: validationContext }),
       });
     } catch (err) {
       updateStat(stats, statkey(model, sheetName), 'errored');
