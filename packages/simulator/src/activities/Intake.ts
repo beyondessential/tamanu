@@ -1,5 +1,6 @@
 import { Nurse } from '../players/Nurse.js';
-import { AdmitPatient } from './AdmitPatient.js';
+// import { AdmitPatient } from './AdmitPatient.js';
+import { GiveVaccine } from './GiveVaccine.js';
 import { Activity, Player, Role, chance, possibly, upto } from './prelude.js';
 import { differenceInYears, formatISO } from 'date-fns';
 
@@ -39,10 +40,14 @@ export class Intake extends Activity {
       //   return;
       // }
 
-      player.sendToOne(Nurse, AdmitPatient, {
-        patientId: id,
-        admissionType: chance.bool() ? 'hospital' : 'clinic',
-      });
+      // player.sendToOne(Nurse, AdmitPatient, {
+      //   patientId: id,
+      //   admissionType: chance.bool() ? 'hospital' : 'clinic',
+      // });
+
+      for (const _ of upto(5)) {
+        player.sendToOne(Nurse, GiveVaccine, { patientId: id });
+      }
     }
   }
 }
