@@ -8,7 +8,7 @@ export class TranslatedString extends Model {
       {
         id: {
           // translated_string records use a generated primary key that enforces one per string and language,
-          type: `TEXT GENERATED ALWAYS AS (REPLACE("string_id", ';', ':') || ';' || REPLACE("language", ';', ':')) STORED`,
+          type: `TEXT GENERATED ALWAYS AS ("string_id" || ';' || "language") STORED`,
           set() {
             // any sets of the convenience generated "id" field can be ignored
           },
@@ -17,11 +17,25 @@ export class TranslatedString extends Model {
           type: DataTypes.TEXT,
           allowNull: false,
           primaryKey: true,
+          validate: {
+            doesNotContainIdDelimiter: value => {
+              if (value.includes(';')) {
+                throw new Error('Translation ID cannot contain ";"');
+              }
+            },
+          },
         },
         language: {
           type: DataTypes.TEXT,
           allowNull: false,
           primaryKey: true,
+          validate: {
+            doesNotContainIdDelimiter: value => {
+              if (value.includes(';')) {
+                throw new Error('Language cannot contain ";"');
+              }
+            },
+          },
         },
         text: {
           type: DataTypes.TEXT,
