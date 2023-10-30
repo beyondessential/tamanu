@@ -2,26 +2,39 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { Form, Field, DateField, AutocompleteField } from '../../components/Field';
+import {
+  Form,
+  Field,
+  DateField,
+  AutocompleteField,
+  MultiselectField,
+} from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
 import { ConfirmCancelRow } from '../../components/ButtonRow';
 import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { Modal } from '../../components/Modal';
+import { useApi } from '../../api/useApi';
+import { useQuery } from '@tanstack/react-query';
 
 export const ActivatePatientProgramRegistry = React.memo(
   ({ onCancel, onSubmit, patientProgramRegistration, open }) => {
+    const api = useApi();
     const { currentUser, facility } = useAuth();
     const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
       baseQueryParameters: { programRegistryId: patientProgramRegistration.programRegistryId },
     });
     const registeredBySuggester = useSuggester('practitioner');
+    const { data: conditions } = useQuery(
+      ['programRegistryConditions', patientProgramRegistration.id],
+      () => api.get(`programRegistry/${patientProgramRegistration.id}/conditions`),
+    );
     const registeringFacilitySuggester = useSuggester('facility');
 
     return (
       <Modal
-        title={`Activate ${patientProgramRegistration.name} program registry`}
+        title={`Activate ${patientProgramRegistration.programRegistry.name} program registry`}
         open={open}
         onClose={onCancel}
       >
@@ -31,6 +44,7 @@ export const ActivatePatientProgramRegistry = React.memo(
               ...data,
               patientId: patientProgramRegistration.patientId,
               programRegistryId: patientProgramRegistration.id,
+              conditions: data.conditions ? data.conditions.split(',') : [],
             });
           }}
           render={({ submitForm }) => {
@@ -40,20 +54,12 @@ export const ActivatePatientProgramRegistry = React.memo(
                 <FormGrid>
                   <FormGrid style={{ gridColumn: 'span 2' }}>
                     <Field
-                      name="clinicalStatusId"
-                      label="Status"
-                      component={AutocompleteField}
-                      suggester={programRegistryStatusSuggester}
-                    />
-                    <Field
                       name="date"
                       label="Date of registration"
                       saveDateAsString
                       component={DateField}
                       required
                     />
-                  </FormGrid>
-                  <FormGrid style={{ gridColumn: 'span 2' }}>
                     <Field
                       name="clinicianId"
                       label="Registered by"
@@ -61,12 +67,30 @@ export const ActivatePatientProgramRegistry = React.memo(
                       suggester={registeredBySuggester}
                       required
                     />
+                  </FormGrid>
+                  <FormGrid style={{ gridColumn: 'span 2' }}>
                     <Field
                       name="facilityId"
                       label="Registering facility"
                       component={AutocompleteField}
                       suggester={registeringFacilitySuggester}
                       required
+                    />
+                    <Field
+                      name="clinicalStatusId"
+                      label="Status"
+                      component={AutocompleteField}
+                      suggester={programRegistryStatusSuggester}
+                    />
+                  </FormGrid>
+                  <FormGrid style={{ gridColumn: 'span 2' }}>
+                    <Field
+                      tooltipText="Select a program registry to add conditions"
+                      name="conditions"
+                      label="Conditions"
+                      component={MultiselectField}
+                      options={conditions}
+                      disabled={!conditions}
                     />
                   </FormGrid>
                   <ConfirmCancelRow
@@ -89,6 +113,7 @@ export const ActivatePatientProgramRegistry = React.memo(
             date: yup.date().required('Date of registration must be selected'),
             clinicianId: foreignKey().required('Registered by must be selected'),
             facilityId: foreignKey().required('Registering facility must be selected'),
+            conditions: yup.array().of(yup.string()),
           })}
         />
       </Modal>

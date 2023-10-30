@@ -665,11 +665,6 @@ export const patientProgramRegistration = {
     id: 'facitliId',
     name: 'Facility A',
   },
-  villageId: 'villageId',
-  village: {
-    id: 'village-1',
-    name: 'Village 1',
-  },
   clinicalStatusId: '1',
   clinicalStatus: {
     id: '1',
@@ -694,7 +689,7 @@ export const patientProgramRegistration = {
 export const dummyApi = {
   get: async (endpoint, options) => {
     console.log(endpoint, options);
-    await sleep(500);
+    // await sleep(500);
     switch (endpoint) {
       case 'programRegistry/1':
         return programRegistry1;
