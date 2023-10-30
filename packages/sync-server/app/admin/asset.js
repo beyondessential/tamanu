@@ -39,10 +39,13 @@ assetRoutes.put(
     const existing = await Asset.findOne({ where: { name } });
 
     if (existing) {
+      req.checkPermission('write', existing);
       await existing.update(record);
       res.send({ action: 'updated', id: existing.id, name, type });
       return;
     }
+
+    req.checkPermission('create', 'Asset');
 
     const created = await Asset.create(record);
     res.send({ action: 'created', id: created.id, name, type });

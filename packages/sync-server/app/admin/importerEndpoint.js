@@ -2,12 +2,13 @@ import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { promises as fs } from 'fs';
 import { singularize } from 'inflection';
-import { camelCase, lowerCase } from 'lodash';
+import { camelCase, lowerCase, upperFirst } from 'lodash';
 import { Sequelize } from 'sequelize';
 
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { log } from '@tamanu/shared/services/logging/log';
 import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
+import { REFERENCE_TYPE_VALUES } from '@tamanu/constants';
 
 import { DryRun, DataImportError } from './errors';
 import { coalesceStats } from './stats';

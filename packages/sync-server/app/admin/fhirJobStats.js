@@ -2,6 +2,8 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
 export const fhirJobStats = asyncHandler(async (req, res) => {
+  req.flagPermissionChecked();
+
   const { store, query } = req;
   const { order: orderUnsafe, orderBy: orderByUnsafe } = query;
   const order = orderUnsafe === 'desc' ? 'desc' : 'asc';

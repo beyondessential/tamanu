@@ -8,7 +8,17 @@ import { importSurvey } from './importSurvey';
 
 export const PERMISSIONS = ['Program', 'Survey'];
 
-export async function programImporter({ errors, models, stats, file, whitelist = [] }) {
+export async function programImporter({
+  errors,
+  models,
+  stats,
+  file,
+  whitelist = [],
+  checkPermission,
+}) {
+  checkPermission('create', 'Program');
+  checkPermission('write', 'Program');
+
   const createContext = sheetName => ({
     errors,
     log: log.child({
@@ -52,6 +62,9 @@ export async function programImporter({ errors, models, stats, file, whitelist =
 
   // then loop over each survey defined in metadata and import it
   for (const surveyInfo of surveysToImport) {
+    checkPermission('create', 'Survey');
+    checkPermission('write', 'Survey');
+
     try {
       const context = createContext(surveyInfo.name);
       const result = await importSurvey(context, workbook, surveyInfo);

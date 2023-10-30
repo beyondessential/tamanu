@@ -1,6 +1,8 @@
 import asyncHandler from 'express-async-handler';
 
 export const syncLastCompleted = asyncHandler(async (req, res) => {
+  req.flagPermissionChecked();
+
   const { store } = req;
   const {
     models: { SyncSession },

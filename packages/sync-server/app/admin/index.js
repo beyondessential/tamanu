@@ -18,17 +18,6 @@ import { assetRoutes } from './asset';
 
 export const adminRoutes = express.Router();
 
-adminRoutes.use(
-  asyncHandler((req, res, next) => {
-    if (!req.ability.can('write', 'ReferenceData') || !req.ability.can('write', 'User')) {
-      throw new ForbiddenError(
-        'You do not have permission to access the central server admin panel.',
-      );
-    }
-    next();
-  }),
-);
-
 adminRoutes.use('/reports', reportsRouter);
 adminRoutes.post('/mergePatient', mergePatientHandler);
 
@@ -41,8 +30,8 @@ adminRoutes.post('/mergePatient', mergePatientHandler);
 adminRoutes.get(
   '/lookup/patient/:displayId',
   asyncHandler(async (req, res) => {
-    // Note there is no permission check for this endpoint as it's mounted under the
-    // admin routes
+    req.checkPermission('read', 'Patient');
+
     const { Patient } = req.store.models;
     const { displayId } = req.params;
     const patient = await Patient.findOne({
