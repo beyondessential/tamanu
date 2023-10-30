@@ -15,6 +15,21 @@ translation.get(
       models: { TranslatedString },
     } = req;
 
+    const eTagData = await req.db.query(
+      `SELECT uuid_generate_v5(uuid_nil(), string_agg(id, ':') || string_agg(updated_at::text, ':')) AS hash FROM translated_strings WHERE string_id = 'languageName'`,
+      { type: QueryTypes.SELECT },
+    );
+
+    const eTag = eTagData[0].hash;
+
+    if (req.headers['if-none-match'] === eTag) {
+      res.status(304).end();
+      return;
+    }
+
+    res.setHeader('Cache-Control', 'max-age=3600');
+    res.setHeader('ETag', eTag);
+
     const languagesInDb = await TranslatedString.findAll({
       attributes: ['language'],
       group: 'language',
@@ -57,13 +72,11 @@ translation.get(
     const eTag = eTagData[0].max;
 
     if (req.headers['if-none-match'] === eTag) {
-      res.sendStatus(304);
-      console.log('CACHED DATA')
+      res.status(304).end();
       return;
     }
 
-    console.log('GETTING NEW DATA')
-
+    res.setHeader('Cache-Control', 'max-age=3600');
     res.setHeader('ETag', eTag);
 
     const translatedStringRecords = await TranslatedString.findAll({
