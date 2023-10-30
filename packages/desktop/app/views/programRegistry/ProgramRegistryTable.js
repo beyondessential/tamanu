@@ -38,7 +38,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
     return [
       {
         key: 'displayId',
-        accessor: ({ patientDisplayId }) => patientDisplayId || 'Unknown',
+        accessor: ({ patient }) => patient.displayId || 'Unknown',
       },
       {
         key: 'firstName',
@@ -60,13 +60,13 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       {
         key: 'sex',
         title: 'Sex',
-        accessor: ({ patient }) => patient.sex,
+        accessor: ({ patient }) => patient.sex && patient.sex.slice(0, 1).toUpperCase(),
         sortable: false,
       },
       {
         key: 'homeVillage',
         title: 'Home village',
-        accessor: ({ patient }) => patient.village,
+        accessor: ({ patient }) => patient.village.name,
       },
       {
         key: 'registeringFacility',
@@ -77,19 +77,19 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         key: 'currentlyIn',
         title: 'Currently in',
         accessor: row => {
-          if (row.programRegistry.currentlyAt === 'village') return row.village.name;
-          if (row.programRegistry.currentlyAt === 'facility') return row.facility.name;
+          if (row.programRegistry.currentlyAtType === 'village') return row.village.name;
+          if (row.programRegistry.currentlyAtType === 'facility') return row.facility.name;
           return '';
         },
       },
       {
         key: 'conditions',
         title: 'Conditions',
-        accessor: row => {
-          const conditions = row.conditions.map(x => ` ${x.name}`).toString();
+        accessor: ({ conditions = [] }) => {
+          const conditionsText = conditions.map(x => ` ${x.name}`).toString();
           return (
-            <ConditionalTooltip title={conditions} visible={conditions.length > 30}>
-              <ClippedConditionName>{conditions}</ClippedConditionName>
+            <ConditionalTooltip title={conditionsText} visible={conditionsText.length > 30}>
+              <ClippedConditionName>{conditionsText}</ClippedConditionName>
             </ConditionalTooltip>
           );
         },
@@ -128,7 +128,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
   }, []);
 
   const dispatch = useDispatch();
-  const selectLab = async registration => {
+  const selectRegistration = async registration => {
     const { patientId } = registration;
     if (patientId) {
       await dispatch(reloadPatient(patientId));
@@ -140,17 +140,17 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
     <>
       <SearchTable
         autoRefresh
-        endpoint="patientProgramRegistration"
+        endpoint={`programRegistry/${params.programRegistryId}/registrations`}
         columns={columns}
         noDataMessage="No Program registry found"
-        onRowClick={selectLab}
+        onRowClick={selectRegistration}
         fetchOptions={searchParameters}
-        rowStyle={({ isDeceased }) => {
-          return isDeceased ? `& > td { color: ${Colors.alert}; }` : '';
+        rowStyle={({ patient }) => {
+          return patient.dateOfDeath ? `& > td { color: ${Colors.alert}; }` : '';
         }}
         initialSort={{
           order: 'desc',
-          orderBy: 'patientDisplayId',
+          orderBy: 'displayId',
         }}
       />
       {openModal && openModal.data && openModal.action === 'ChangeStatus' && (
