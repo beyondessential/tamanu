@@ -16,3 +16,4 @@ export * from './settings';
 export * from './users';
 export * from './villages';
 export * from './utilities';
+export * from './createMockReportingSchemaAndRoles';

@@ -2,7 +2,7 @@
 
 import { Command } from 'commander';
 import { canonicalize } from 'json-canonicalize';
-import { buildSettingsRecords } from 'shared/models/Setting';
+import { buildSettingsRecords } from '@tamanu/shared/models/Setting';
 
 import { initDatabase } from '../database';
 import { loadSettingFile } from '../utils/loadSettingFile';
@@ -74,7 +74,7 @@ export async function setSetting(key, value, { facility } = {}) {
       : 'no current value\n';
 
   const newValue = JSON.parse(value);
-  await Setting.set(key, newValue, facility);
+  await Setting.set(key, newValue, null, facility);
   return `${preValue}\nnew value set`;
 }
 

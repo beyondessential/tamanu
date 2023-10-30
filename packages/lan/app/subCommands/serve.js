@@ -1,19 +1,20 @@
 import config from 'config';
 import { Command } from 'commander';
 
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 
-import { performTimeZoneChecks } from 'shared/utils/timeZoneCheck';
+import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 import { ReadSettings } from '@tamanu/settings';
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
-import { initDatabase, performDatabaseIntegrityChecks } from '../database';
+import { performDatabaseIntegrityChecks } from '../database';
 import { FacilitySyncManager, CentralServerConnection } from '../sync';
 import { createApp } from '../createApp';
 import { startScheduledTasks } from '../tasks';
 import { listenForServerQueries } from '../discovery';
 
 import { version } from '../serverInfo';
+import { ApplicationContext } from '../ApplicationContext';
 
 async function serve({ skipMigrationCheck }) {
   log.info(`Starting facility server version ${version}`, {
@@ -24,7 +25,8 @@ async function serve({ skipMigrationCheck }) {
     execArgs: process.execArgs || '<empty>',
   });
 
-  const context = await initDatabase();
+  const context = await new ApplicationContext().init();
+
   if (config.db.migrateOnStartup) {
     await context.sequelize.migrate('up');
   } else {
@@ -42,8 +44,9 @@ async function serve({ skipMigrationCheck }) {
   await checkConfig(config, context);
   await performDatabaseIntegrityChecks(context);
 
+
   context.centralServer = new CentralServerConnection(context, syncConfig);
-  context.centralServer.connect(); // preemptively connect central server to speed up sync
+
   context.syncManager = new FacilitySyncManager(context);
 
   await performTimeZoneChecks({

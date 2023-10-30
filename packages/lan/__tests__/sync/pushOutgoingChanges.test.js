@@ -1,7 +1,7 @@
 import * as fc from 'fast-check';
 import { expect, describe, it } from '@jest/globals';
 
-import { withErrorShown } from 'shared/test-helpers';
+import { withErrorShown } from '@tamanu/shared/test-helpers';
 
 const limitConfig = fc.record({
   initialLimit: fc.integer({ min: 1, max: 1000 }),

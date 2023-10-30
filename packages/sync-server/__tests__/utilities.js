@@ -1,13 +1,14 @@
 import config from 'config';
-import supertest from 'supertest';
 import http from 'http';
+import supertest from 'supertest';
 
 import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers';
-import { createApp } from 'sync-server/app/createApp';
-import { initDatabase, closeDatabase } from 'sync-server/app/database';
-import { getToken } from 'sync-server/app/auth/utils';
+import { createMockReportingSchemaAndRoles } from '@tamanu/shared/demoData';
 import { DEFAULT_JWT_SECRET } from 'sync-server/app/auth';
+import { getToken } from 'sync-server/app/auth/utils';
+import { createApp } from 'sync-server/app/createApp';
+import { closeDatabase, initDatabase, initReporting } from 'sync-server/app/database';
 import { initIntegrations } from 'sync-server/app/integrations';
 import { ReadSettings } from '@tamanu/settings';
 import { seedSettings } from '../../shared/src/demoData';
@@ -20,6 +21,11 @@ class MockApplicationContext {
     this.settings = new ReadSettings(this.store.models);
     // Settings must be seeded before integrations are initialised
     await seedSettings(this.store.models);
+
+    if (config.db.reportSchemas?.enabled) {
+      await createMockReportingSchemaAndRoles({ sequelize: this.store.sequelize });
+      this.reportSchemaStores = await initReporting();
+    }
     this.emailService = {
       sendEmail: jest.fn().mockImplementation(() =>
         Promise.resolve({

@@ -1,10 +1,13 @@
-import { ScheduledTask } from 'shared/tasks';
-import { getPatientSurveyResponseAnswer, getCovidClearanceCertificateFilter } from 'shared/utils';
+import { ScheduledTask } from '@tamanu/shared/tasks';
+import {
+  getPatientSurveyResponseAnswer,
+  getCovidClearanceCertificateFilter,
+} from '@tamanu/shared/utils';
 import {
   COVID_19_CLEARANCE_CERTIFICATE,
   CERTIFICATE_NOTIFICATION_STATUSES,
 } from '@tamanu/constants';
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 
 export class CovidClearanceCertificatePublisher extends ScheduledTask {
   getName() {

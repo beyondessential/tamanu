@@ -1,4 +1,4 @@
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 
 export async function checkConfig(config, context) {
   // check surveys

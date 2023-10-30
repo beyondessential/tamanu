@@ -1,8 +1,8 @@
 import { get, post, jar } from 'request';
 import config from 'config';
 import { format } from 'date-fns';
-import { ScheduledTask } from 'shared/tasks';
-import { log } from 'shared/services/logging';
+import { ScheduledTask } from '@tamanu/shared/tasks';
+import { log } from '@tamanu/shared/services/logging';
 
 // if there's an error creating a lab request in senaite
 // set it to "manual" status (indicating 'you'll need to do this manually')

@@ -8,8 +8,8 @@ import {
   IMAGING_TYPES,
   DIAGNOSIS_CERTAINTY,
 } from '@tamanu/constants';
-import { toDateTimeString } from 'shared/utils/dateTime';
-import { fake } from 'shared/test-helpers/fake';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 
 const createLocalDateTimeStringFromUTC = (

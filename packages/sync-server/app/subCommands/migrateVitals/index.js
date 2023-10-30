@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import { Sequelize } from 'sequelize';
 import { SURVEY_TYPES } from '@tamanu/constants';
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 import { v4 as generateId } from 'uuid';
 import { ReadSettings } from '@tamanu/settings';
 import { initDatabase } from '../../database';

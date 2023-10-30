@@ -1,7 +1,7 @@
-import { fake } from 'shared/test-helpers';
-import { createDummyPatient } from 'shared/demoData/patients';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import config from 'config';
+import { fake } from '@tamanu/shared/test-helpers';
+import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { createTestContext } from './utilities';
 import { AuditLogItem } from '../app/middleware/auditLog';
 

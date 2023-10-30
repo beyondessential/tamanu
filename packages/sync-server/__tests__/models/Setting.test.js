@@ -1,5 +1,6 @@
-import { fake } from 'shared/test-helpers/fake';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 // the test cases in here ignore the way the data is stored (which is currently with a record per
 // leaf value, and dot notation keys) in favour of testing that setting then getting a setting
@@ -33,7 +34,7 @@ describe('Setting', () => {
     ];
 
     const testSetThenGet = async ([key, value]) => {
-      await Setting.set(key, value);
+      await Setting.set(key, value, SETTINGS_SCOPES.GLOBAL);
       const output = await Setting.get(key);
       expect(output).toEqual(value);
     };
@@ -51,7 +52,7 @@ describe('Setting', () => {
     ];
 
     const testSetThenGet = async ([key, value]) => {
-      await Setting.set(key, value);
+      await Setting.set(key, value, SETTINGS_SCOPES.GLOBAL);
       const output = await Setting.get(key);
       expect(output).toEqual(value);
     };
@@ -83,7 +84,9 @@ describe('Setting', () => {
         },
       ],
     ];
-    await Promise.all(inputs.map(([key, value]) => Setting.set(key, value)));
+    await Promise.all(
+      inputs.map(([key, value]) => Setting.set(key, value, SETTINGS_SCOPES.GLOBAL)),
+    );
 
     const testCases = [
       [
@@ -155,7 +158,14 @@ describe('Setting', () => {
       ],
     ];
     await Promise.all(
-      inputs.map(([key, value, facilityId]) => Setting.set(key, value, facilityId)),
+      inputs.map(([key, value, facilityId]) =>
+        Setting.set(
+          key,
+          value,
+          facilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.GLOBAL,
+          facilityId,
+        ),
+      ),
     );
 
     const testCases = [
@@ -217,20 +227,27 @@ describe('Setting', () => {
       ],
     ];
     await Promise.all(
-      inputs.map(([key, value, facilityId]) => Setting.set(key, value, facilityId)),
+      inputs.map(([key, value, facilityId]) =>
+        Setting.set(
+          key,
+          value,
+          facilityId ? SETTINGS_SCOPES.FACILITY : SETTINGS_SCOPES.GLOBAL,
+          facilityId,
+        ),
+      ),
     );
 
     // Act
 
     // add another key to a nested object
-    await Setting.set('cats.breeds.siamese', { include: false });
+    await Setting.set('cats.breeds.siamese', { include: false }, SETTINGS_SCOPES.GLOBAL);
 
     // alter an existing key for a facility
-    await Setting.set('timezone.offset.hours', 10, facilityA);
+    await Setting.set('timezone.offset.hours', 10, SETTINGS_SCOPES.FACILITY, facilityA);
 
     // add new settings separate to the facility specific one
-    await Setting.set('timezone.name', 'Australia/Sydney');
-    await Setting.set('timezone.offset.hours', 14);
+    await Setting.set('timezone.name', 'Australia/Sydney', SETTINGS_SCOPES.GLOBAL);
+    await Setting.set('timezone.offset.hours', 14, SETTINGS_SCOPES.GLOBAL);
 
     // Assert
 
@@ -263,18 +280,26 @@ describe('Setting', () => {
 
   it('updates settings with deletions', async () => {
     // Arrange
-    await Setting.set('testing.key', {
-      a: 'stays identical',
-      b: 'gets updated',
-      c: 'gets deleted',
-    });
+    await Setting.set(
+      'testing.key',
+      {
+        a: 'stays identical',
+        b: 'gets updated',
+        c: 'gets deleted',
+      },
+      SETTINGS_SCOPES.GLOBAL,
+    );
 
     // Act
-    await Setting.set('testing.key', {
-      a: 'stays identical',
-      b: 'gets updated here',
-      d: 'gets added',
-    });
+    await Setting.set(
+      'testing.key',
+      {
+        a: 'stays identical',
+        b: 'gets updated here',
+        d: 'gets added',
+      },
+      SETTINGS_SCOPES.GLOBAL,
+    );
 
     // Assert
     expect(await Setting.get('testing.key')).toEqual({

@@ -28,6 +28,8 @@ import { addVitalLogs1690236942000 } from './1690236942000-addVitalLogs';
 import { addScopeToSettingsTable1691115215000 } from './1691115215000-addScopeToSettingsTable';
 import { migrateNotePagesToNotes1688950151000 } from './1688950151000-migrateNotePagesToNotes';
 import { addEncounterHistoryTable1693484817000 } from './1693484817000-addEncounterHistoryTable';
+import { addVisibilityStatusToSurveyScreenComponents1695096053000 } from './1695096053000-addVisibilityStatusToSurveyScreenComponents';
+import { addVisibilityStatusForUsers1697499690000 } from './1697499690000-addVisibilityStatusForUsers';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -59,4 +61,6 @@ export const migrationList = [
   addScopeToSettingsTable1691115215000,
   migrateNotePagesToNotes1688950151000,
   addEncounterHistoryTable1693484817000,
+  addVisibilityStatusToSurveyScreenComponents1695096053000,
+  addVisibilityStatusForUsers1697499690000,
 ];

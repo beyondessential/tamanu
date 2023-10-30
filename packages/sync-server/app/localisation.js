@@ -2,7 +2,7 @@ import config from 'config';
 import * as yup from 'yup';
 import { defaultsDeep } from 'lodash';
 
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 import { IMAGING_TYPES } from '@tamanu/constants';
 
 const fieldSchema = yup
@@ -17,6 +17,7 @@ const fieldSchema = yup
     }),
     hidden: yup.boolean().required(),
     required: yup.boolean(),
+    requiredPatientData: yup.boolean(),
     pattern: yup.string(),
   })
   .default({}) // necessary to stop yup throwing hard-to-debug errors
@@ -28,6 +29,7 @@ const unhideableFieldSchema = yup
     shortLabel: yup.string().required(),
     longLabel: yup.string().required(),
     required: yup.boolean(),
+    requiredPatientData: yup.boolean(),
     pattern: yup.string(),
   })
   .required()

@@ -1,5 +1,4 @@
-import { log } from 'shared/services/logging';
-// import config from 'config';
+import { log } from '@tamanu/shared/services/logging';
 import { utils } from 'xlsx';
 
 import { ImporterMetadataError, ValidationError } from '../errors';

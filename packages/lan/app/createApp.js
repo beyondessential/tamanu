@@ -5,8 +5,9 @@ import express from 'express';
 import path from 'path';
 
 import { SERVER_TYPES } from '@tamanu/constants';
-import { getLoggingMiddleware } from 'shared/services/logging';
-import { buildSettingsReader } from 'shared/settings/middleware';
+
+import { buildSettingsReader } from '@tamanu/shared/settings/middleware';
+import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
 import { getAuditMiddleware } from './middleware/auditLog';
 
 import routes from './routes';
@@ -14,7 +15,7 @@ import errorHandler from './middleware/errorHandler';
 import { versionCompatibility } from './middleware/versionCompatibility';
 import { version } from './serverInfo';
 
-export function createApp({ sequelize, models, syncManager, deviceId }) {
+export function createApp({ sequelize, reportSchemaStores, models, syncManager, deviceId }) {
   // Init our app
   const app = express();
   app.use(compression());
@@ -34,6 +35,7 @@ export function createApp({ sequelize, models, syncManager, deviceId }) {
   app.use((req, res, next) => {
     req.models = models;
     req.db = sequelize;
+    req.reportSchemaStores = reportSchemaStores;
     req.syncManager = syncManager;
     req.deviceId = deviceId;
 

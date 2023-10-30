@@ -1,4 +1,4 @@
-import { ForbiddenError } from 'shared/errors';
+import { ForbiddenError } from '@tamanu/shared/errors';
 
 export const assertReportEnabled = async (settings, reportId) => {
   const disabledReports = await settings.get('disabledReports');

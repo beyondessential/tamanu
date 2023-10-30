@@ -24,6 +24,7 @@ surveyResponse.get(
     const surveyResponseRecord = await models.SurveyResponse.findByPk(params.id);
     const components = await models.SurveyScreenComponent.getComponentsForSurvey(
       surveyResponseRecord.surveyId,
+      { includeAllVitals: true },
     );
     const answers = await models.SurveyResponseAnswer.findAll({
       where: { responseId: params.id },

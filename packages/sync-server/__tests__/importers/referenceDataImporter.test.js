@@ -1,5 +1,5 @@
 import { GENERAL_IMPORTABLE_DATA_TYPES } from '@tamanu/constants/importable';
-import { fake } from 'shared/test-helpers/fake';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
 import { createTestContext } from '../utilities';

@@ -1,6 +1,6 @@
 import { formatInTimeZone } from 'date-fns-tz';
 import { transliterate as tr } from 'transliteration';
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 
 const SEX_TO_CHAR = {
   male: 'M',

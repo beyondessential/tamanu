@@ -2,9 +2,9 @@ import { promises as fs } from 'fs';
 import { format } from 'date-fns';
 import { Command } from 'commander';
 
-import { log } from 'shared/services/logging';
-import { Signer } from 'shared/models';
 import { SettingsReader } from '@tamanu/settings';
+import { log } from '@tamanu/shared/services/logging';
+import { Signer } from '@tamanu/shared/models';
 
 import { loadCertificateIntoSigner } from '../integrations/Signer';
 import { initDatabase } from '../database';

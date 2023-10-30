@@ -1,5 +1,5 @@
-import { log } from 'shared/services/logging';
-import { ScheduledTask } from 'shared/tasks';
+import { log } from '@tamanu/shared/services/logging';
+import { ScheduledTask } from '@tamanu/shared/tasks';
 
 export class VRSActionRetrier extends ScheduledTask {
   getName() {

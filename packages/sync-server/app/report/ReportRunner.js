@@ -5,8 +5,8 @@ import * as AWS from '@aws-sdk/client-s3';
 import mkdirp from 'mkdirp';
 
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
-import { getReportModule } from 'shared/reports';
-import { createNamedLogger } from 'shared/services/logging/createNamedLogger';
+import { getReportModule } from '@tamanu/shared/reports';
+import { createNamedLogger } from '@tamanu/shared/services/logging/createNamedLogger';
 
 import { removeFile, createZippedSpreadsheet, writeToSpreadsheet } from '../utils/files';
 
@@ -14,8 +14,8 @@ const REPORT_RUNNER_LOG_NAME = 'ReportRunner';
 
 export class ReportRunner {
   constructor(context, runParameters) {
-    const { store, settings, emailService } = context;
-    const { reportId, userId, parameters, recipients } = runParameters;
+    const { store, settings, emailService, reportSchemaStores } = context;
+    const { reportId, userId, parameters, recipients, exportFormat } = runParameters;
     this.log = createNamedLogger(REPORT_RUNNER_LOG_NAME, { reportId, userId });
     this.settings = settings;
     this.store = store;
@@ -23,6 +23,9 @@ export class ReportRunner {
     this.reportId = reportId;
     this.parameters = parameters;
     this.recipients = recipients;
+    this.reportSchemaStores = reportSchemaStores;
+    this.exportFormat = exportFormat;
+
     this.userId = userId;
   }
 
@@ -84,8 +87,11 @@ export class ReportRunner {
     let metadata = [];
     try {
       this.log.info('Running report', { parameters: this.parameters });
+      reportData = await reportModule.dataGenerator(
+        { ...this.store, reportSchemaStores: this.reportSchemaStores },
+        this.parameters,
+      );
 
-      reportData = await reportModule.dataGenerator(this.store, this.parameters);
       metadata = await this.getMetadata();
 
       this.log.info('Running report finished', {

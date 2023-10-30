@@ -3,9 +3,9 @@ import sequelize from 'sequelize';
 import { spawn } from 'child_process';
 
 import { REPORT_REQUEST_STATUSES } from '@tamanu/constants';
-import { getReportModule } from 'shared/reports';
-import { ScheduledTask } from 'shared/tasks';
-import { log } from 'shared/services/logging';
+import { getReportModule } from '@tamanu/shared/reports';
+import { ScheduledTask } from '@tamanu/shared/tasks';
+import { log } from '@tamanu/shared/services/logging';
 
 import { ReportRunner } from '../report/ReportRunner';
 
@@ -14,11 +14,12 @@ export class ReportRequestProcessor extends ScheduledTask {
     return 'ReportRequestProcessor';
   }
 
-  constructor({ schedules, settings, store, emailService }) {
+  constructor({ schedules, settings, store, emailService, reportsSchemasStore }) {
     super(schedules.reportRequestProcessor.schedule, log);
     this.settings = settings;
     this.store = store;
     this.emailService = emailService;
+    this.reportsSchemasStore = reportsSchemasStore;
   }
 
   spawnReportProcess = async request => {
@@ -114,12 +115,17 @@ export class ReportRequestProcessor extends ScheduledTask {
     const reportId = request.getReportId();
     log.info(`Running report request "${request.id}" for report "${reportId}" in main process.`);
     const reportRunner = new ReportRunner(
-      { store: this.store, emailService: this.emailService },
+      {
+        store: this.store,
+        emailService: this.emailService,
+        reportSchemaStores: this.reportSchemaStores,
+      },
       {
         reportId,
         userId: request.requestedByUserId,
         parameters: request.getParameters(),
         recipients: request.getRecipients(),
+        exportFormat: request.exportFormat,
       },
     );
 

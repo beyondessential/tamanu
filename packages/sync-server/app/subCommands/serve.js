@@ -2,8 +2,8 @@ import config from 'config';
 import { Command } from 'commander';
 
 import { ReadSettings } from '@tamanu/settings';
-import { log } from 'shared/services/logging';
-import { performTimeZoneChecks } from 'shared/utils/timeZoneCheck';
+import { log } from '@tamanu/shared/services/logging';
+import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 
 import { provision } from './provision';
 import { createApp } from '../createApp';

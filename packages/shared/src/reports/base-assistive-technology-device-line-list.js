@@ -164,7 +164,9 @@ export const dataGenerator = async (
   reportColumnTemplate,
 ) => {
   const answers = await getAnswers(models, parameters, surveyIds);
-  const components = await models.SurveyScreenComponent.getComponentsForSurveys(surveyIds);
+  const components = await models.SurveyScreenComponent.getComponentsForSurveys(surveyIds, {
+    includeAllVitals: true,
+  });
   const transformedAnswers = await transformAnswers(models, answers, components);
   const answersForPerPatient = transformedAnswers.filter(a =>
     Object.values(surveyDataElementIdsLatestPerPatient).includes(a.dataElementId),

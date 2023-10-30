@@ -1,6 +1,6 @@
 // import config from 'config';
 import * as yup from 'yup';
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 
 const SCHEMA = yup.object().shape({
   enabled: yup.boolean().default(false),

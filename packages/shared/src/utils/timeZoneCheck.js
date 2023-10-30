@@ -15,10 +15,18 @@ async function getDatabaseTimeZone(sequelize) {
   return rows[0].setting;
 }
 
+// Try to grab current remote time zone
+// otherwise ignore that one
 async function getRemoteTimeZone(remote) {
-  const health = await remote.fetch('health');
-  const { countryTimeZone } = health.config;
-  return countryTimeZone;
+  try {
+    const health = await remote.fetch('health', { timeout: 2000, backoff: { maxAttempts: 1 } });
+    const { countryTimeZone } = health.config;
+    return countryTimeZone;
+  } catch (error) {
+    log.warn('Unable to grab countryTimeZone from central server.');
+  }
+
+  return null;
 }
 
 export async function performTimeZoneChecks({ countryTimeZone, sequelize, remote }) {

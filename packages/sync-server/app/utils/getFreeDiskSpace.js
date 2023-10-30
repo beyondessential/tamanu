@@ -1,5 +1,5 @@
 import checkDiskSpace from 'check-disk-space';
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 
 // Wraps a module function and calls it with parameters from config.
 // Returns the available disk space in bytes.

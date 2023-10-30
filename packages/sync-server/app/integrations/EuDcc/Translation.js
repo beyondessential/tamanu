@@ -1,7 +1,7 @@
 import { formatInTimeZone } from 'date-fns-tz';
 import { transliterate as tr } from 'transliteration';
 import { EUDCC_CERTIFICATE_TYPES, EUDCC_SCHEMA_VERSION } from '@tamanu/constants';
-import { generateUVCI } from 'shared/utils/uvci';
+import { generateUVCI } from '@tamanu/shared/utils/uvci';
 
 const SCHEDULE_TO_SEQUENCE = {
   'Dose 1': 1,

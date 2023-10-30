@@ -202,6 +202,17 @@ export const SYNC_MENU_ITEMS = [
     path: '/admin/sync',
   },
   {
+    key: 'settings',
+    label: 'Settings',
+    path: '/admin/settings',
+    ability: { action: 'write', subject: 'settings' },
+  },
+  {
+    key: 'fhirJobStats',
+    label: 'FHIR job stats',
+    path: '/admin/fhir/jobStats',
+  },
+  {
     key: 'reports',
     label: 'Reports',
     path: '/admin/reports',

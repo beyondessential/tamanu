@@ -1,6 +1,9 @@
-import { log } from 'shared/services/logging';
-import { sleepAsync } from 'shared/utils';
-import { BadAuthenticationError, FacilityAndSyncVersionIncompatibleError } from 'shared/errors';
+import { log } from '@tamanu/shared/services/logging';
+import { sleepAsync } from '@tamanu/shared/utils';
+import {
+  BadAuthenticationError,
+  FacilityAndSyncVersionIncompatibleError,
+} from '@tamanu/shared/errors';
 
 const IRRECOVERABLE_ERRORS = [BadAuthenticationError, FacilityAndSyncVersionIncompatibleError];
 const isErrorOnIrrecoverableList = e =>

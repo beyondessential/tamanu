@@ -42,26 +42,14 @@ RUN git log -1 --pretty=%ct         | tee /meta/SOURCE_DATE_EPOCH
 RUN git log -1 --pretty=%cI         | tee /meta/SOURCE_DATE_ISO
 
 
-## Build the shared packages and get their dependencies
-FROM build-base as shared
-COPY packages/build-tooling/ packages/build-tooling/
-COPY packages/constants/ packages/constants/
-COPY packages/settings/ packages/settings/
-COPY packages/shared/ packages/shared/
-RUN scripts/docker-build.sh shared
-
-
 ## Build the target server
 FROM build-base as build-server
 ARG PACKAGE_PATH
 
-# copy the shared packages and their deps (+ build tooling)
-COPY --from=shared /app/packages/ packages/
+# copy all packages
+COPY packages/ packages/
 
-# copy sources only for the target server
-COPY packages/${PACKAGE_PATH}/ packages/${PACKAGE_PATH}/
-
-# do the build
+# do the build, which will also reduce to just the target package
 RUN scripts/docker-build.sh ${PACKAGE_PATH}
 
 
@@ -70,9 +58,8 @@ RUN scripts/docker-build.sh ${PACKAGE_PATH}
 FROM electronuserland/builder:16-wine AS build-desktop
 RUN apt update && apt install -y jq
 COPY --from=build-base /app/ /app/
-COPY --from=shared /app/packages/ /app/packages/
-COPY packages/desktop/ /app/packages/desktop/
 WORKDIR /app
+COPY packages/ packages/
 RUN scripts/docker-build.sh desktop
 ENV NODE_ENV=production
 WORKDIR /app/packages/desktop

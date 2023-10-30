@@ -1,8 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { ForbiddenError, NotFoundError } from 'shared/errors';
-import { constructPermission } from 'shared/permissions/middleware';
+import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
+import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { createDataImporterEndpoint } from './importerEndpoint';
 
 import { programImporter } from './programImporter';
@@ -11,6 +11,7 @@ import { exporter } from './exporter';
 
 import { mergePatientHandler } from './patientMerge';
 import { syncLastCompleted } from './sync';
+import { fhirJobStats } from './fhirJobStats';
 import { reportsRouter } from './reports/reportRoutes';
 import { patientLetterTemplateRoutes } from './patientLetterTemplate';
 import { assetRoutes } from './asset';
@@ -76,6 +77,37 @@ adminRoutes.get(
 
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
 
+adminRoutes.get('/fhir/jobStats', fhirJobStats);
+
 adminRoutes.use('/patientLetterTemplate', patientLetterTemplateRoutes);
 
 adminRoutes.use('/asset', assetRoutes);
+
+// These settings endpoints are setup for viewing and saving the settings in the JSON editor in the admin panel.
+// We can only view/save settings by scope as a whole object and dont edit by key like you do in the subcommand
+adminRoutes.get(
+  '/settings',
+  asyncHandler(async (req, res) => {
+    const { Setting } = req.store.models;
+    const data = await Setting.get('', req.query.facilityId, req.query.scope);
+    res.send(data);
+  }),
+);
+
+adminRoutes.put(
+  '/settings',
+  asyncHandler(async (req, res) => {
+    const { Setting } = req.store.models;
+    await Setting.set('', req.body.settings, req.body.scope, req.body.facilityId);
+    res.json({ code: 200 });
+  }),
+);
+
+adminRoutes.get(
+  '/facilities',
+  asyncHandler(async (req, res) => {
+    const { Facility } = req.store.models;
+    const data = await Facility.findAll({ attributes: ['id', 'name'] });
+    res.send(data);
+  }),
+);

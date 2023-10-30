@@ -5,6 +5,7 @@ import {
   SYSTEM_USER_UUID,
   GENERAL_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
+  SETTINGS_SCOPES,
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 
@@ -95,13 +96,13 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
 
   for (const [key, value] of Object.entries(globalSettings)) {
     log.info('Installing global setting', { key });
-    await store.models.Setting.set(key, value);
+    await store.models.Setting.set(key, value, SETTINGS_SCOPES.GLOBAL);
   }
 
   for (const [id, { settings = {} }] of Object.entries(facilities)) {
     for (const [key, value] of Object.entries(settings)) {
       log.info('Installing facility setting', { key, facility: id });
-      await store.models.Setting.set(key, value, id);
+      await store.models.Setting.set(key, value, SETTINGS_SCOPES.FACILITY, id);
     }
   }
 

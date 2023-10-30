@@ -1,4 +1,4 @@
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 import { readFile } from 'xlsx';
 
 import config from 'config';

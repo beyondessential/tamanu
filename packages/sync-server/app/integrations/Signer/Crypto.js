@@ -26,7 +26,7 @@ import {
   AuthorityKeyIdentifier,
 } from 'pkijs';
 import { ICAO_DOCUMENT_TYPES, X502_OIDS } from '@tamanu/constants';
-import { depem, pem } from 'shared/utils';
+import { depem, pem } from '@tamanu/shared/utils';
 
 const webcrypto = new Crypto();
 setEngine(

@@ -1,5 +1,6 @@
 import { camelCase, lowerCase, lowerFirst, startCase, upperFirst } from 'lodash';
 import { Op } from 'sequelize';
+import { permissionCache } from '@tamanu/shared/permissions/cache';
 import { ValidationError as YupValidationError } from 'yup';
 // import config from 'config';
 
@@ -23,21 +24,21 @@ function findFieldName(values, fkField) {
   return null;
 }
 
-function getPrimaryKey(model, values) {
-  if (model === 'PatientAdditionalData') {
-    return values.patientId;
-  }
+// Some models require special logic to fetch find the existing record for a given set of values
+const existingRecordLoaders = {
+  // most models can just do a simple ID lookup
+  default: (Model, { id }) => Model.findByPk(id, { paranoid: false }),
+  // User requires the password field to be explicitly scoped in
+  User: (User, { id }) => User.scope('withPassword').findByPk(id, { paranoid: false }),
+  PatientAdditionalData: (PAD, { patientId }) => PAD.findByPk(patientId, { paranoid: false }),
+  // PatientFieldValue model has a composite PK that uses patientId & definitionId
+  PatientFieldValue: (PFV, { patientId, definitionId }) =>
+    PFV.findOne({ where: { patientId, definitionId } }, { paranoid: false }),
+};
 
-  return values.id;
-}
-
-function loadExisting(Model, id) {
-  if (!id) return null;
-
-  // user model needs to have access to password to hash it
-  if (Model.name === 'User') return Model.scope('withPassword').findByPk(id, { paranoid: false });
-
-  return Model.findByPk(id, { paranoid: false });
+function loadExisting(Model, values) {
+  const loader = existingRecordLoaders[Model.name] || existingRecordLoaders.default;
+  return loader(Model, values);
 }
 
 export async function importRows(
@@ -60,8 +61,8 @@ export async function importRows(
   } of rows) {
     if (!id) continue;
     const kind = model === 'ReferenceData' ? type : model;
-    lookup.set({ kind, id }, null);
-    if (name) lookup.set({ kind, name: name.toLowerCase() }, id);
+    lookup.set(`kind.${kind}-id.${id}`, null);
+    if (name) lookup.set(`kind.${kind}-name.${name.toLowerCase()}`, id);
   }
 
   log.debug('Resolving foreign keys', { rows: rows.length });
@@ -74,11 +75,11 @@ export async function importRows(
           const fkFieldValue = values[fkFieldName];
           const fkNameLowerId = `${lowerFirst(fkSchema.field)}Id`;
 
-          const hasLocalId = lookup.has({ kind: fkSchema.field, id: fkFieldValue });
-          const idByLocalName = lookup.get({
-            kind: fkSchema.field,
-            name: fkFieldValue.toLowerCase(),
-          });
+          // This will never return a value since a set's has() shallow compares keys and objects will never be equal in this case
+          const hasLocalId = lookup.has(`kind.${fkSchema.field}-id.${fkFieldValue}`);
+          const idByLocalName = lookup.get(
+            `kind.${fkSchema.field}-name.${fkFieldValue.toLowerCase()}`,
+          );
 
           if (hasLocalId) {
             delete values[fkFieldName];
@@ -195,11 +196,13 @@ export async function importRows(
   log.debug('Upserting database rows', { rows: validRows.length });
   for (const { model, sheetRow, values } of validRows) {
     const Model = models[model];
-    const primaryKey = getPrimaryKey(model, values);
-    const existing = await loadExisting(Model, primaryKey);
+    const existing = await loadExisting(Model, values);
     try {
       if (existing) {
         if (values.deletedAt) {
+          if (model !== 'Permission') {
+            throw new ValidationError(`Deleting ${model} via the importer is not supported`);
+          }
           await existing.destroy();
           updateStat(stats, statkey(model, sheetName), 'deleted');
         } else {
@@ -218,6 +221,12 @@ export async function importRows(
       updateStat(stats, statkey(model, sheetName), 'errored');
       errors.push(new UpsertionError(sheetName, sheetRow, err));
     }
+  }
+
+  // You can't use hooks with instances. Hooks are used with models only.
+  // https://sequelize.org/docs/v6/other-topics/hooks/
+  if (validRows.some(({ model }) => model === 'Permission')) {
+    permissionCache.reset();
   }
 
   log.debug('Done with these rows');

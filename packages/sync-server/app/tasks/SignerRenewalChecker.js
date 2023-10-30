@@ -1,5 +1,5 @@
-import { ScheduledTask } from 'shared/tasks';
-import { log } from 'shared/services/logging';
+import { ScheduledTask } from '@tamanu/shared/tasks';
+import { log } from '@tamanu/shared/services/logging';
 import { Op } from 'sequelize';
 import { newKeypairAndCsr } from '../integrations/Signer';
 

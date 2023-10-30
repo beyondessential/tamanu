@@ -1,4 +1,4 @@
-import { fake } from 'shared/test-helpers/fake';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { programImporter } from '../../app/admin/programImporter';
@@ -77,13 +77,18 @@ describe('Programs import', () => {
     });
   });
 
-  it('should delete survey questions', async () => {
-    const { Survey } = ctx.store.models;
+  it('should soft delete survey questions', async () => {
+    const { Survey, SurveyScreenComponent } = ctx.store.models;
 
     const getComponents = async () => {
       const survey = await Survey.findByPk('program-testprogram-deletion');
       expect(survey).toBeTruthy();
-      return survey.getComponents();
+      return SurveyScreenComponent.findAll({
+        where: {
+          surveyId: survey.id,
+          visibilityStatus: 'current',
+        },
+      });
     };
 
     {
@@ -103,16 +108,15 @@ describe('Programs import', () => {
       const { errors, stats } = await doImport({ file: 'deleteQuestions-2' });
       expect(errors).toBeEmpty();
       expect(stats).toMatchObject({
-        ProgramDataElement: { updated: 3 }, // deleter should NOT delete underlying PDEs
-        SurveyScreenComponent: { deleted: 2, updated: 1 },
+        ProgramDataElement: { updated: 3 },
+        SurveyScreenComponent: { updated: 3 },
       });
     }
 
     const componentsAfter = await getComponents();
     // of the three in the import doc:
     //  - one is not deleted
-    //  - one is set to visibilityStatus = 'deleted'
-    //  - one is set to visibilityStatus = 'hidden' (should delete as wel)
+    //  - two is set to visibilityStatus = 'deleted'
     expect(componentsAfter).toHaveLength(1);
   });
 
@@ -166,8 +170,8 @@ describe('Programs import', () => {
     expect(stats).toMatchObject({
       Program: { created: 1, updated: 0, errored: 0 },
       Survey: { created: 2, updated: 0, errored: 0 },
-      ProgramDataElement: { created: 40, updated: 0, errored: 0 },
-      SurveyScreenComponent: { created: 9, updated: 0, errored: 31 }, // 31 fields in failure test, 9 in success test
+      ProgramDataElement: { created: 42, updated: 0, errored: 0 },
+      SurveyScreenComponent: { created: 11, updated: 0, errored: 31 }, // 31 fields in failure test, 11 in success test
     });
   });
 
@@ -270,6 +274,49 @@ describe('Programs import', () => {
         dryRun: false,
       });
       await validateVisualisationConfig('');
+    });
+
+    it('should soft delete vital survey questions', async () => {
+      const { Survey, SurveyScreenComponent } = ctx.store.models;
+
+      const getComponents = async () => {
+        const survey = await Survey.findByPk('program-testvitals-vitalsgood');
+        expect(survey).toBeTruthy();
+
+        return SurveyScreenComponent.findAll({
+          where: {
+            surveyId: survey.id,
+            visibilityStatus: 'current',
+          },
+        });
+      };
+
+      {
+        const { errors, stats } = await doImport({ file: 'vitals-delete-questions' });
+        expect(errors).toBeEmpty();
+        expect(stats).toMatchObject({
+          Program: { created: 1, updated: 0, errored: 0 },
+          Survey: { created: 1, updated: 0, errored: 0 },
+          ProgramDataElement: { created: 16, updated: 0, errored: 0 },
+          SurveyScreenComponent: { created: 16, updated: 0, errored: 0 },
+        });
+      }
+
+      // find imported ssc
+      const componentsBefore = await getComponents();
+      expect(componentsBefore).toHaveLength(16);
+
+      {
+        const { errors, stats } = await doImport({ file: 'vitals-delete-questions-2' });
+        expect(errors).toBeEmpty();
+        expect(stats).toMatchObject({
+          ProgramDataElement: { updated: 16 }, // deleter should NOT delete underlying PDEs
+          SurveyScreenComponent: { updated: 16 }, // won't check value is new, all we care about is that it's not deleted
+        });
+      }
+
+      const componentsAfter = await getComponents();
+      expect(componentsAfter).toHaveLength(15);
     });
   });
 });
