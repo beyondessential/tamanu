@@ -6,4 +6,3 @@ export { ImagingRequestView } from './imagingRequest';
 export { DischargeSummaryView } from './DischargeSummaryView';
 export { ImmunisationsView } from './ImmunisationsView';
 export { CovidCampaignView } from './CovidCampaignView';
-export { ActiveCovid19PatientsView } from './ActiveCovid19PatientsView';
