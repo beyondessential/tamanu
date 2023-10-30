@@ -24,51 +24,174 @@ const getSortedData = (
     count: list.length,
   };
 };
-export const mockSurvey = {
-  id: 'program-demncdprimaryscreening-demcvdprimaryscreen2',
-  code: 'demcvdprimaryscreen2',
-  name: 'CVD Primary Screening Form',
+const mockSurvey = {
+  id: 'program-tbprogram-tbfollowup',
+  code: 'tbfollowup',
+  name: 'TB Follow Up',
   surveyType: 'programs',
-  isSensitive: true,
+  isSensitive: false,
   updatedAtSyncTick: '-999',
-  createdAt: '2023-07-11T22:01:02.375Z',
-  updatedAt: '2023-07-11T22:01:02.375Z',
-  programId: 'program-demncdprimaryscreening',
+  createdAt: '2023-09-27T22:21:03.107Z',
+  updatedAt: '2023-09-27T22:21:03.107Z',
+  programId: 'program-tbprogram',
   components: [
     {
-      id: 'program-demncdprimaryscreening-demcvdprimaryscreen2-DemCVD01',
+      id: 'program-tbprogram-tbfollowup-PHTBFU001',
       screenIndex: 0,
       componentIndex: 0,
       text: '',
       visibilityCriteria: '',
       validationCriteria: '',
       detail: '',
-      config: '',
+      config: '{"source": "program-samoapubhealth-phtbcasesurvey"}',
       calculation: '',
       updatedAtSyncTick: '-999',
-      createdAt: '2023-07-11T22:01:02.409Z',
-      updatedAt: '2023-07-11T22:01:02.409Z',
-      surveyId: 'program-demncdprimaryscreening-demcvdprimaryscreen2',
-      dataElementId: 'pde-DemCVD01',
+      createdAt: '2023-09-27T22:21:03.178Z',
+      updatedAt: '2023-09-27T22:21:03.178Z',
+      surveyId: 'program-tbprogram-tbfollowup',
+      dataElementId: 'pde-PHTBFU001',
       dataElement: {
-        id: 'pde-DemCVD01',
-        code: 'DemCVD01',
-        name: 'Section 1: Lifestyle Questions',
+        id: 'pde-PHTBFU001',
+        code: 'PHTBFU001',
+        name: 'Initial screening survey',
         indicator: null,
-        defaultText: 'Section 1: Lifestyle Questions',
-        visualisationConfig: null,
-        type: 'Instruction',
+        defaultText: 'Initial screening survey',
+        visualisationConfig: '',
+        type: 'SurveyLink',
         updatedAtSyncTick: '-999',
-        createdAt: '2023-07-11T22:01:02.286Z',
-        updatedAt: '2023-07-11T22:01:02.286Z',
+        createdAt: '2023-09-27T22:21:02.898Z',
+        updatedAt: '2023-09-27T22:21:02.898Z',
         defaultOptions: null,
       },
       options: null,
     },
     {
-      id: 'program-demncdprimaryscreening-demcvdprimaryscreen2-DemCVD02',
+      id: 'program-tbprogram-tbfollowup-PHTBFU0001a',
+      screenIndex: 0,
+      componentIndex: 0,
+      text: '',
+      visibilityCriteria: '',
+      validationCriteria: '',
+      detail: '',
+      config: '{"source": "program-samoapubhealth-phtbcasesurvey2"}',
+      calculation: '',
+      updatedAtSyncTick: '-999',
+      createdAt: '2023-09-27T22:21:03.178Z',
+      updatedAt: '2023-09-27T22:21:03.178Z',
+      surveyId: 'program-tbprogram-tbfollowup',
+      dataElementId: 'pde-PHTBFU001a',
+      dataElement: {
+        id: 'pde-PHTBFU001a',
+        code: 'PHTBFU001a',
+        name: 'Registration status',
+        indicator: null,
+        defaultText: 'Registration status',
+        visualisationConfig: '',
+        type: 'Select',
+        updatedAtSyncTick: '-999',
+        createdAt: '2023-09-27T22:21:02.898Z',
+        updatedAt: '2023-09-27T22:21:02.898Z',
+        defaultOptions: { active: 'active', inactive: 'inactive' },
+      },
+      options: null,
+    },
+    {
+      id: 'program-tbprogram-tbfollowup-PHTBFU0010',
+      screenIndex: 0,
+      componentIndex: 0,
+      text: '',
+      visibilityCriteria: '',
+      validationCriteria: '',
+      detail: '',
+      config:
+        '{"column": "educationalLevel", "writeToPatient": { "fieldName": "educationalLevel","isAdditionalDataField": true }}',
+      calculation: '',
+      updatedAtSyncTick: '-999',
+      createdAt: '2023-09-27T22:21:03.178Z',
+      updatedAt: '2023-09-27T22:21:03.178Z',
+      surveyId: 'program-tbprogram-tbfollowup',
+      dataElementId: 'pde-PHTBFU001',
+      dataElement: {
+        id: 'pde-PHTBFU001',
+        code: 'PHTBFU001',
+        name: 'Educational Level',
+        indicator: null,
+        defaultText: 'Educational Level',
+        visualisationConfig: '',
+        type: 'PatientData',
+        updatedAtSyncTick: '-999',
+        createdAt: '2023-09-27T22:21:02.898Z',
+        updatedAt: '2023-09-27T22:21:02.898Z',
+        defaultOptions: null,
+      },
+      options: null,
+    },
+    {
+      id: 'program-tbprogram-tbfollowup-PHTBFU001a',
       screenIndex: 0,
       componentIndex: 1,
+      text: '',
+      visibilityCriteria: '',
+      validationCriteria: '',
+      detail: '',
+      config:
+        '{"source":"Village", "column": "registrationCurrentlyAtVillage", "writeToPatient": { "fieldName": "registrationCurrentlyAtVillage" }}',
+      calculation: '',
+      updatedAtSyncTick: '-999',
+      createdAt: '2023-09-27T22:21:03.178Z',
+      updatedAt: '2023-09-27T22:21:03.178Z',
+      surveyId: 'program-tbprogram-tbfollowup',
+      dataElementId: 'pde-PHTBFU001a',
+      dataElement: {
+        id: 'pde-PHTBFU001a',
+        code: 'PHTBFU001a',
+        name: 'Current village',
+        indicator: null,
+        defaultText: 'Current village',
+        visualisationConfig: '',
+        type: 'Autocomplete',
+        updatedAtSyncTick: '-999',
+        createdAt: '2023-09-27T22:21:02.898Z',
+        updatedAt: '2023-09-27T22:21:02.898Z',
+        defaultOptions: null,
+      },
+      options: null,
+    },
+    {
+      id: 'program-tbprogram-tbfollowup-PHTBFU013a',
+      screenIndex: 0,
+      componentIndex: 18,
+      text: '',
+      visibilityCriteria: '',
+      validationCriteria: '',
+      detail: '',
+      config:
+        '{"source":"ProgramRegistryClinicalStatus","column": "registrationClinicalStatus", "writeToPatient": { "fieldName": "registrationClinicalStatus" }}',
+      calculation: '',
+      updatedAtSyncTick: '-999',
+      createdAt: '2023-09-27T22:21:03.178Z',
+      updatedAt: '2023-09-27T22:21:03.178Z',
+      surveyId: 'program-tbprogram-tbfollowup',
+      dataElementId: 'pde-PHTBFU013a',
+      dataElement: {
+        id: 'pde-PHTBFU013a',
+        code: 'PHTBFU013a',
+        name: 'Clinical status',
+        indicator: null,
+        defaultText: 'Clinical status',
+        visualisationConfig: '',
+        type: 'Autocomplete',
+        updatedAtSyncTick: '-999',
+        createdAt: '2023-09-27T22:21:02.898Z',
+        updatedAt: '2023-09-27T22:21:02.898Z',
+        defaultOptions: null,
+      },
+      options: null,
+    },
+    {
+      id: 'program-tbprogram-tbfollowup-PHTBFU014',
+      screenIndex: 0,
+      componentIndex: 19,
       text: '',
       visibilityCriteria: '',
       validationCriteria: '',
@@ -76,27 +199,22 @@ export const mockSurvey = {
       config: '',
       calculation: '',
       updatedAtSyncTick: '-999',
-      createdAt: '2023-07-11T22:01:02.409Z',
-      updatedAt: '2023-07-11T22:01:02.409Z',
-      surveyId: 'program-demncdprimaryscreening-demcvdprimaryscreen2',
-      dataElementId: 'pde-DemCVD02',
+      createdAt: '2023-09-27T22:21:03.178Z',
+      updatedAt: '2023-09-27T22:21:03.178Z',
+      surveyId: 'program-tbprogram-tbfollowup',
+      dataElementId: 'pde-PHTBFU014',
       dataElement: {
-        id: 'pde-DemCVD02',
-        code: 'DemCVD02',
-        name: 'Exercise in an average week',
+        id: 'pde-PHTBFU014',
+        code: 'PHTBFU014',
+        name: 'Comments',
         indicator: null,
-        defaultText:
-          'How often do you exercise in an average week? (Definition of exercise = 150 mins/week of moderate-vigorous intensity)',
-        visualisationConfig: null,
-        type: 'Select',
+        defaultText: 'Comments',
+        visualisationConfig: '',
+        type: 'FreeText',
         updatedAtSyncTick: '-999',
-        createdAt: '2023-07-11T22:01:02.286Z',
-        updatedAt: '2023-07-11T22:01:02.286Z',
-        defaultOptions: {
-          'More than five (30 min) sessions': 'More than five (30 min) sessions',
-          'Less than five (30 min) sessions': 'Less than five (30 min) sessions',
-          '0 hours': '0 hours',
-        },
+        createdAt: '2023-09-27T22:21:02.898Z',
+        updatedAt: '2023-09-27T22:21:02.898Z',
+        defaultOptions: null,
       },
       options: null,
     },
@@ -104,77 +222,37 @@ export const mockSurvey = {
 };
 export const programRegistriesForInfoPaneList = [
   {
-    id: '1',
-    name: 'Seasonal fever',
-    code: 'Seasonalfever',
-    status: 'Removed',
-    clinicalStatus: 'Needs review',
-  },
-  {
-    id: '12',
-    name: 'Hepatities B',
-    code: 'HepatitiesB',
-    status: 'Active',
-    clinicalStatus: 'Low risk',
-  },
-  {
-    id: '13',
-    name: 'Covid',
-    code: 'Covid',
-    status: 'Removed',
-    clinicalStatus: 'Critical',
-  },
-  {
-    id: '14',
-    name: 'Dengue',
-    code: 'Dengue',
-    status: 'Active',
-    clinicalStatus: 'Needs review',
-  },
-  {
-    id: '15',
-    name: 'Diabetis',
-    code: 'Diabetis',
-    status: 'Active',
-    clinicalStatus: 'Critical',
-  },
-  {
-    id: '16',
-    name: 'Typhoid',
-    code: 'Typhoid',
-    status: 'Removed',
-    clinicalStatus: 'Low risk',
+    id: '1e25e8d1-a2b4-4bfa-9670-9f6b689e8af7',
+    registrationStatus: 'active',
+    clinicalStatus: {
+      name: 'Low risk',
+      color: 'green',
+    },
+    programRegistry: {
+      id: 'programRegistry-HepatitisBProgramRegistry',
+      name: 'Hepatitis B',
+    },
   },
 ];
 
 export const patient = { id: 'patient_id' };
 export const programRegistry1 = {
-  data: {
-    id: '1',
-    name: 'Hepatitis B',
-    currentlyAtType: 'facility',
-  },
+  id: '1',
+  name: 'Hepatitis B',
+  currentlyAtType: 'facility',
 };
 export const programRegistry2 = {
-  data: {
-    id: '2',
-    name: 'Pneomonia',
-    currentlyAtType: 'facility',
-  },
+  id: '2',
+  name: 'Pneomonia',
+  currentlyAtType: 'facility',
 };
 export const programRegistry3 = {
-  data: {
-    id: '3',
-    name: 'Diabetis',
-    currentlyAtType: 'village',
-  },
+  id: '3',
+  name: 'Diabetis',
+  currentlyAtType: 'village',
 };
 
-export const programRegistries = [
-  programRegistry1.data,
-  programRegistry2.data,
-  programRegistry3.data,
-];
+export const programRegistries = [programRegistry1, programRegistry2, programRegistry3];
 
 export const programRegistryConditions = [
   { id: '1', name: 'Diabetes' },
@@ -398,6 +476,11 @@ export const facilities = [
   { id: '2', name: 'Hospital 2' },
 ];
 
+export const villages = [
+  { id: 'village-1', name: 'Village 1' },
+  { id: 'village-2', name: 'Village 2' },
+];
+
 export const practitioners = [
   { id: 'test-user-id', name: 'Test user id' },
   { id: '2', name: 'Test user id 2' },
@@ -410,73 +493,29 @@ export const clinicalStatusList = [
 ];
 
 export const programRegistrysurveys = {
-  count: 6,
+  count: 2,
   data: [
     {
-      id: 'program-samoancdscreening-sampensnpref',
-      code: 'sampensnpREF',
-      name: 'School Nurse Program Referral',
-      surveyType: 'referral',
-      isSensitive: false,
-      updatedAtSyncTick: '-999',
-      createdAt: '2023-08-15T03:03:04.026Z',
-      updatedAt: '2023-08-15T03:03:04.026Z',
-      programId: 'program-samoancdscreening',
-    },
-    {
-      id: 'program-samoancdscreening-sampenkapsur',
-      code: 'sampenkapSUR',
-      name: 'Knowledge, Awareness and Practices Survey',
+      id: 'program-tbprogram-tbfollowup',
+      code: 'tbfollowup',
+      name: 'TB Follow Up',
       surveyType: 'programs',
       isSensitive: false,
       updatedAtSyncTick: '-999',
-      createdAt: '2023-08-15T03:03:04.026Z',
-      updatedAt: '2023-08-15T03:03:04.026Z',
-      programId: 'program-samoancdscreening',
+      createdAt: '2023-09-27T22:21:03.107Z',
+      updatedAt: '2023-09-27T22:21:03.107Z',
+      programId: 'program-tbprogram',
     },
     {
-      id: 'program-samoancdscreening-sampensnpass',
-      code: 'sampensnpASS',
-      name: 'School Nurse Program Assessment',
+      id: 'program-tbprogram-tbcaseform',
+      code: 'tbcaseform',
+      name: 'Confirmed TB Form',
       surveyType: 'programs',
       isSensitive: false,
       updatedAtSyncTick: '-999',
-      createdAt: '2023-08-15T03:03:04.026Z',
-      updatedAt: '2023-08-15T03:03:04.026Z',
-      programId: 'program-samoancdscreening',
-    },
-    {
-      id: 'program-samoancdscreening-sampensnpcon',
-      code: 'sampensnpCON',
-      name: 'School Nurse Program Consent',
-      surveyType: 'programs',
-      isSensitive: false,
-      updatedAtSyncTick: '-999',
-      createdAt: '2023-08-15T03:03:04.026Z',
-      updatedAt: '2023-08-15T03:03:04.026Z',
-      programId: 'program-samoancdscreening',
-    },
-    {
-      id: 'program-samoancdscreening-sampenvilfrm',
-      code: 'sampenvilFRM',
-      name: 'Village Screening Form',
-      surveyType: 'programs',
-      isSensitive: false,
-      updatedAtSyncTick: '-999',
-      createdAt: '2023-08-15T03:03:04.026Z',
-      updatedAt: '2023-08-15T03:03:04.026Z',
-      programId: 'program-samoancdscreening',
-    },
-    {
-      id: 'program-samoancdscreening-sampenvillref',
-      code: 'sampenvillref',
-      name: 'Village Screening Referral',
-      surveyType: 'referral',
-      isSensitive: false,
-      updatedAtSyncTick: '-999',
-      createdAt: '2023-08-15T03:03:04.026Z',
-      updatedAt: '2023-08-15T03:03:04.026Z',
-      programId: 'program-samoancdscreening',
+      createdAt: '2023-09-27T22:21:03.107Z',
+      updatedAt: '2023-09-27T22:21:03.107Z',
+      programId: 'program-tbprogram',
     },
   ],
 };
@@ -587,20 +626,28 @@ export const patientProgramRegistration = {
       id: 'program_id',
       name: 'Hepatitis B',
     },
+    currentlyAt: 'facility',
   },
+  facilityId: 'Facility1',
+  facility: {
+    id: 'Facility1',
+    name: 'Facility 1',
+  },
+  villageId: 'Village1',
+  village: {
+    id: 'Village1',
+    name: 'Village 1',
+  },
+  patientDisplayId: '12341341',
   patientId: 'patient_id',
   patient: {
     id: 'patient_id',
     name: 'Tareq',
-  },
-  date: '2023-08-28T02:40:16.237Z',
-  name: 'Hepatitis B',
-  clinicalStatusId: '1',
-  clinicalStatus: {
-    id: '1',
-    code: 'low_risk',
-    name: 'Low risk',
-    color: 'green',
+    firstName: 'Tareq',
+    lastName: 'Aziz',
+    dateOfBirth: '1989-11-09T02:40:16.237Z',
+    village: 'Village 1',
+    sex: 'M',
   },
   clinicianId: '213123',
   clinician: {
@@ -613,7 +660,27 @@ export const patientProgramRegistration = {
     code: 'registring_facitlity',
     name: 'Hospital 1',
   },
+  facitlityId: 'facitliId',
+  facitlity: {
+    id: 'facitliId',
+    name: 'Facility A',
+  },
+  villageId: 'villageId',
+  village: {
+    id: 'village-1',
+    name: 'Village 1',
+  },
+  clinicalStatusId: '1',
+  clinicalStatus: {
+    id: '1',
+    code: 'low_risk',
+    name: 'Low risk',
+    color: 'green',
+  },
+
   registrationStatus: 'active',
+  date: '2023-08-28T02:40:16.237Z',
+  // name: 'Hepatitis B',
   // registrationStatus: 'removed',
   removedById: '213123',
   dateRemoved: '2023-08-28T02:40:16.237Z',
@@ -621,11 +688,12 @@ export const patientProgramRegistration = {
     id: '213123',
     displayName: 'Alaister',
   },
+  conditions: programRegistryConditions,
 };
 
 export const dummyApi = {
   get: async (endpoint, options) => {
-    console.log(endpoint);
+    console.log(endpoint, options);
     await sleep(500);
     switch (endpoint) {
       case 'programRegistry/1':
@@ -650,20 +718,26 @@ export const dummyApi = {
         return getSortedData(programRegistryStatusHistories, options);
 
       case 'patient/patient_id/programResponses?programId=program_id':
-        // try to reuse DataFetchingProgramsTable component
+      case '/patient/test-patient/programResponses':
         return getSortedData(programRegistryFormHistory, options);
 
       case `patient/programRegistration/patient_program_registry_id/conditions`:
-        return [...programRegistryConditions, ...programRegistryConditions];
-
-      case 'patient/patient_id/patientRegistration':
-        return { data: programRegistriesForInfoPaneList };
+        return [
+          ...programRegistryConditions,
+          ...programRegistryConditions.map(x => ({ ...x, id: x.id + 1 })),
+        ];
 
       case 'program/program_id/surveys':
         return programRegistrysurveys;
 
+      case 'suggestions/programRegistryClinicalStatus':
+        return clinicalStatusList;
+
       case 'suggestions/facility':
         return facilities;
+
+      case 'suggestions/village':
+        return villages;
 
       case 'suggestions/practitioner':
         return practitioners;
@@ -678,13 +752,27 @@ export const dummyApi = {
         // this needs to be done in the backend
         return programRegistryFormHistory.map(x => ({ id: x.id.toString(), name: x.survey.name }));
 
+      // TEMP: below there are undefined parameters because this api sometimes depends
+      // on browser query params, this is temporary for testing purpose
       case 'patient/patient_id/programRegistration/patient_program_registry_id':
       case 'patient/undefined/programRegistration/patient_program_registry_id':
+      case 'patient/test-patient/programRegistration/undefined':
       case 'patient/undefined/programRegistration/undefined':
         return patientProgramRegistration;
       case 'patient/undefined/programRegistration/undefined/survey/undefined':
       case 'patient/patient_id/programRegistration/patient_program_registry_id/survey/survey_id':
         return mockSurvey;
+      case 'patientProgramRegistration':
+        return {
+          data: [
+            patientProgramRegistration,
+            {
+              ...patientProgramRegistration,
+              isDeceased: true,
+              id: patientProgramRegistration.id + 1,
+            },
+          ],
+        };
     }
   },
 };

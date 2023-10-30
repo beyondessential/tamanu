@@ -4,11 +4,11 @@ import config from 'config';
 import { QueryTypes, Op } from 'sequelize';
 import { snakeCase } from 'lodash';
 
-import { NotFoundError } from 'shared/errors';
+import { NotFoundError } from '@tamanu/shared/errors';
 import { PATIENT_REGISTRY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { isGeneratedDisplayId } from 'shared/utils/generateId';
+import { isGeneratedDisplayId } from '@tamanu/shared/utils/generateId';
 
-import { renameObjectKeys } from 'shared/utils';
+import { renameObjectKeys } from '@tamanu/shared/utils';
 import { createPatientFilters } from '../../../utils/patientFilters';
 import { patientVaccineRoutes } from './patientVaccine';
 import { patientDocumentMetadataRoutes } from './patientDocumentMetadata';
@@ -17,7 +17,6 @@ import { patientRelations } from './patientRelations';
 import { patientBirthData } from './patientBirthData';
 import { patientLocations } from './patientLocations';
 import { patientProgramRegistration } from './patientProgramRegistration';
-import { activeCovid19PatientsHandler } from '../../../routeHandlers';
 import { getOrderClause } from '../../../database/utils';
 import { requestBodyToRecord, dbRecordToResponse, pickPatientBirthData } from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
@@ -468,8 +467,6 @@ patientRoute.get(
     res.json({ data: labTests, count: labTests.length });
   }),
 );
-
-patientRoute.get('/program/activeCovid19Patients', asyncHandler(activeCovid19PatientsHandler));
 
 patientRoute.use(patientRelations);
 patientRoute.use(patientVaccineRoutes);

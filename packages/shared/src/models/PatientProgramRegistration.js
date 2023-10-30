@@ -41,14 +41,15 @@ export class PatientProgramRegistration extends Model {
 
   static initRelations(models) {
     this.belongsTo(models.Patient, {
-      foreignKey: 'patientId',
+      foreignKey: { name: 'patientId', allowNull: false },
       as: 'patient',
     });
 
     this.belongsTo(models.ProgramRegistry, {
-      foreignKey: 'programRegistryId',
+      foreignKey: { name: 'programRegistryId', allowNull: false },
       as: 'programRegistry',
     });
+
     this.belongsTo(models.ProgramRegistryClinicalStatus, {
       foreignKey: 'clinicalStatusId',
       as: 'clinicalStatus',
@@ -66,8 +67,6 @@ export class PatientProgramRegistration extends Model {
 
     // 1. Note that only one of facilityId or villageId will usually be set,
     // depending on the currentlyAtType of the related programRegistry.
-    // 2. The first entry in a patient's registration list for a given program
-    // registry may have both facilityId and villageId - for the registering facility
     this.belongsTo(models.Facility, {
       foreignKey: 'facilityId',
       as: 'facility',
@@ -107,13 +106,22 @@ export class PatientProgramRegistration extends Model {
     return this.sequelize.models.PatientProgramRegistration.findAll({
       where: {
         id: { [Op.in]: Sequelize.literal(GET_MOST_RECENT_REGISTRATIONS_QUERY) },
+        registrationStatus: { [Op.ne]: REGISTRATION_STATUSES.RECORDED_IN_ERROR },
         patientId,
       },
-      // Order: TODO
+      include: ['clinicalStatus', 'programRegistry'],
+      order: [
+        // "active" > "removed"
+        ['registrationStatus', 'ASC'],
+        [Sequelize.col('programRegistry.name'), 'ASC'],
+      ],
     });
   }
 
+  // syncs everywhere because for the pilot program,
+  // the number of patients is guaranteed to be low.
+  // https://github.com/beyondessential/tamanu/pull/4773#discussion_r1356087015
   static buildSyncFilter() {
-    return null; // syncs everywhere
+    return null;
   }
 }

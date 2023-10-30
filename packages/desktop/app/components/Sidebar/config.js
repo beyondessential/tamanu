@@ -134,19 +134,6 @@ export const FACILITY_MENU_ITEMS = [
     ],
   },
   {
-    key: 'programs',
-    label: 'Programs',
-    path: '/programs',
-    icon: programsIcon,
-    ability: { action: 'read', subject: 'program' },
-    children: [
-      {
-        label: 'Active COVID-19 patients',
-        path: `/programs/active-covid-19-patients`,
-      },
-    ],
-  },
-  {
     key: 'programRegistry',
     label: 'Program registry',
     path: '/program-registry',
@@ -210,6 +197,11 @@ export const SYNC_MENU_ITEMS = [
     key: 'sync',
     label: 'Sync status',
     path: '/admin/sync',
+  },
+  {
+    key: 'fhirJobStats',
+    label: 'FHIR job stats',
+    path: '/admin/fhir/jobStats',
   },
   {
     key: 'reports',

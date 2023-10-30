@@ -22,7 +22,7 @@ export const ActivatePatientProgramRegistry = React.memo(
     const api = useApi();
     const { currentUser, facility } = useAuth();
     const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
-      baseQueryParameters: { programId: patientProgramRegistration.programId },
+      baseQueryParameters: { programRegistryId: patientProgramRegistration.programRegistryId },
     });
     const registeredBySuggester = useSuggester('practitioner');
     const registeringFacilitySuggester = useSuggester('facility');

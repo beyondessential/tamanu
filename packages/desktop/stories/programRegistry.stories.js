@@ -28,6 +28,7 @@ import { AddConditionFormModal } from '../app/views/programRegistry/AddCondition
 import { RemoveConditionFormModal } from '../app/views/programRegistry/RemoveConditionFormModal';
 import { PatientProgramRegistrationSelectSurvey } from '../app/views/programRegistry/PatientProgramRegistrationSelectSurvey';
 import { ProgramRegistrySurveyView } from '../app/views/programRegistry/ProgramRegistrySurveyView';
+import { ProgramRegistryView } from '../app/views/programRegistry/ProgramRegistryView';
 
 //#region InfoPaneList
 storiesOf('Program Registry', module).add('ProgramRegistry Info Panlist', () => {
@@ -42,7 +43,6 @@ storiesOf('Program Registry', module).add('ProgramRegistry Info Panlist', () => 
           getEndpoint={`patient/${patient.id}/patientRegistration`}
           Form={PatientProgramRegistryForm}
           ListItemComponent={ProgramRegistryListItem}
-          getName={programRegistry => programRegistry.name}
           behavior="modal"
           itemTitle="Add program registry"
           getEditFormName={programRegistry => `Program registry: ${programRegistry.name}`}
@@ -184,10 +184,10 @@ storiesOf('Program Registry', module).add('ProgramRegistry Status Change', () =>
   return (
     <ApiContext.Provider value={dummyApi}>
       <ChangeStatusFormModal
-        // onSubmit={action('submit')}
-        // onCancel={action('cancel')}
         patientProgramRegistration={patientProgramRegistration}
-        // open
+        onSubmit={action('submit')}
+        onCancel={action('cancel')}
+        open
       />
     </ApiContext.Provider>
   );
@@ -260,4 +260,11 @@ storiesOf('Program Registry', module).add('PatientProgramRegistryView', () => (
     <PatientProgramRegistryView />
   </ApiContext.Provider>
 ));
+
+storiesOf('Program Registry', module).add('ProgramRegistryView', () => (
+  <ApiContext.Provider value={dummyApi}>
+    <ProgramRegistryView />
+  </ApiContext.Provider>
+));
+
 //#endregion PatientProgramRegistryView

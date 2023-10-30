@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import {
@@ -10,10 +10,8 @@ import {
   AutocompleteField,
   Field,
 } from '../../components';
-import { PROGRAM_REGISTRATION_STATUSES } from '../../constants';
 import { useSuggester } from '../../api';
 import { foreignKey } from '../../utils/validation';
-import { OutlinedButton } from '../../components/Button';
 
 const StyledFormGrid = styled(FormGrid)`
   grid-column: 1 / -1;
@@ -23,28 +21,15 @@ const StyledFormGrid = styled(FormGrid)`
   margin-top: 30px;
 `;
 
-export const ChangeStatusFormModal = ({ patientProgramRegistration }) => {
-  const [openChangeStatusFormModal, setOpenChangeStatusFormModal] = useState(false);
+export const ChangeStatusFormModal = ({ patientProgramRegistration, onSubmit, onCancel, open }) => {
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
-    baseQueryParameters: { programId: patientProgramRegistration.programId },
+    baseQueryParameters: { programRegistryId: patientProgramRegistration.programRegistryId },
   });
-  const isRemoved =
-    patientProgramRegistration.registrationStatus === PROGRAM_REGISTRATION_STATUSES.REMOVED;
   return (
     <>
-      <OutlinedButton onClick={() => setOpenChangeStatusFormModal(true)} disabled={isRemoved}>
-        Change Status
-      </OutlinedButton>
-      <Modal
-        title="Change Status"
-        open={openChangeStatusFormModal}
-        onClose={() => setOpenChangeStatusFormModal(false)}
-      >
+      <Modal title="Change Status" open={open} onClose={() => onCancel()}>
         <Form
-          onSubmit={() => {
-            // console.log(data);
-            setOpenChangeStatusFormModal(false);
-          }}
+          onSubmit={onSubmit}
           render={({ submitForm }) => {
             return (
               <div>
@@ -57,10 +42,7 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration }) => {
                   />
                 </StyledFormGrid>
                 <FormSeparatorLine style={{ marginTop: '60px', marginBottom: '30px' }} />
-                <ConfirmCancelRow
-                  onConfirm={submitForm}
-                  onCancel={() => setOpenChangeStatusFormModal(false)}
-                />
+                <ConfirmCancelRow onConfirm={submitForm} onCancel={() => onCancel()} />
               </div>
             );
           }}

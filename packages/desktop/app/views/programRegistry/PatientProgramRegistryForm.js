@@ -16,12 +16,20 @@ import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api/useApi';
+import { useQuery } from '@tanstack/react-query';
 
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient }) => {
   const api = useApi();
   const { currentUser, facility } = useAuth();
-  const [program, setProgram] = useState();
-  const [conditions, setConditions] = useState(undefined);
+  const [setselectedProgramRegistryId, setSetselectedProgramRegistryId] = useState();
+
+  const { data: program } = useQuery(['programRegistry', setselectedProgramRegistryId], () =>
+    api.get(`programRegistry/${setselectedProgramRegistryId}`),
+  );
+  const { data: conditions } = useQuery(
+    ['programRegistryConditions', setselectedProgramRegistryId],
+    () => api.get(`programRegistry/${setselectedProgramRegistryId}/conditions`),
+  );
   const programRegistrySuggester = useSuggester('programRegistry', {
     baseQueryParameters: { patientId: patient.id },
   });
@@ -31,25 +39,12 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
   const registeredBySuggester = useSuggester('practitioner');
   const registeringFacilitySuggester = useSuggester('facility');
 
-  const onProgramRegistrySelect = id => {
-    api
-      .get(`programRegistry/${id}`)
-      .then(programData => setProgram(programData))
-      .catch(() => setProgram(undefined));
-    api
-      .get(`programRegistry/${id}/conditions`)
-      .then(conditionsData =>
-        setConditions(conditionsData.map(x => ({ label: x.name, value: x.id }))),
-      )
-      .catch(() => setConditions(undefined));
-  };
-
   return (
     <Form
       onSubmit={data => {
         onSubmit({
           ...data,
-          conditions: data.conditions ? data.conditions.split(',') : [],
+          conditions: Array.isArray(data.conditions) ? data.conditions.split(',') : [],
           patientId: patient.id,
         });
       }}
@@ -75,8 +70,10 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
                   component={AutocompleteField}
                   suggester={programRegistrySuggester}
                   onChange={target => {
-                    onProgramRegistrySelect(target.target.value);
-                    setValues({ ...values, clinicalStatusId: null, conditions: null });
+                    if (setselectedProgramRegistryId !== target.target.value) {
+                      setValues({ ...values, clinicalStatusId: null, conditions: null });
+                      setSetselectedProgramRegistryId(target.target.value);
+                    }
                   }}
                 />
 
