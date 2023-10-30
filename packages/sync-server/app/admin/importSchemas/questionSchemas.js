@@ -3,7 +3,7 @@ import { PROGRAM_DATA_ELEMENT_TYPE_VALUES } from '@tamanu/constants';
 import { SurveyScreenComponent, baseValidationShape, baseConfigShape } from './baseSchemas';
 import { configString, validationString } from './jsonString';
 import { mathjsString } from './mathjsString';
-import { rangeObjectSchema } from './rangeObject';
+import { rangeObjectSchema, rangeArraySchema } from './rangeObject';
 
 const columnReferenceConfig = baseConfigShape.shape({
   column: yup.string().required(),
@@ -83,9 +83,7 @@ const numberConfig = baseConfigShape.shape({
 const numberValidationCriteria = baseValidationShape.shape({
   min: yup.number(),
   max: yup.number(),
-  normalRange: yup.lazy(value =>
-    Array.isArray(value) ? yup.array().of(rangeObjectSchema) : rangeObjectSchema,
-  ),
+  normalRange: yup.lazy(value => (Array.isArray(value) ? rangeArraySchema : rangeObjectSchema)),
 });
 
 export const SSCNumber = SurveyScreenComponent.shape({
