@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSuggester } from '../../api';
 import { AutocompleteField } from './AutocompleteField';
+import { useProgramRegistry } from '../../contexts/ProgramRegistry';
 
 // Required due to desktop/mobile using different implementations for
 // suggesters (due to using different db's). Mobile has the more generic
@@ -14,6 +15,8 @@ const getSuggesterEndpointForConfig = config => {
   if (config?.source === 'LocationGroup') {
     return config.scope === 'allFacilities' ? 'locationGroup' : 'facilityLocationGroup';
   }
+  if (config?.source === 'Village') return 'village';
+  if (config?.source === 'ProgramRegistryClinicalStatus') return 'programRegistryClinicalStatus';
 
   // autocomplete component won't crash when given an invalid endpoint, it just logs an error.
   return null;
@@ -21,6 +24,11 @@ const getSuggesterEndpointForConfig = config => {
 
 export const SurveyQuestionAutocompleteField = ({ config, ...props }) => {
   const endpoint = getSuggesterEndpointForConfig(config);
-  const suggester = useSuggester(endpoint);
+  const { programRegistryId } = useProgramRegistry(); // this will be null for normal surveys
+  const suggester = useSuggester(
+    endpoint,
+    programRegistryId ? { baseQueryParameters: { programRegistryId } } : {},
+  );
+
   return <AutocompleteField suggester={suggester} {...props} />;
 };

@@ -194,8 +194,41 @@ function transformPatientData(patient, additionalData, config) {
       return patient[column];
   }
 }
+function transformPatientProgramRegistrationData(patientProgramRegistration, config) {
+  const { column } = config;
+  const {
+    clinicalStatus,
+    registrationStatus,
+    clinician,
+    registeringFacility,
+    village,
+    facility,
+  } = patientProgramRegistration;
+  switch (column) {
+    case 'registrationClinicalStatus':
+      return clinicalStatus.id;
+    case 'programRegistrationStatus':
+      return registrationStatus;
+    case 'registrationClinician':
+      return clinician.id;
+    case 'registeringFacility':
+      return registeringFacility.id;
+    case 'registrationCurrentlyAtVillage':
+      return village?.id;
+    case 'registrationCurrentlyAtFacility':
+      return facility?.id;
+    default:
+      return undefined;
+  }
+}
 
-export function getFormInitialValues(components, patient, additionalData, currentUser = {}) {
+export function getFormInitialValues(
+  components,
+  patient,
+  additionalData,
+  currentUser = {},
+  patientProgramRegistration,
+) {
   const initialValues = components.reduce((acc, { dataElement }) => {
     const initialValue = getInitialValue(dataElement);
     const propName = dataElement.id;
@@ -221,7 +254,20 @@ export function getFormInitialValues(components, patient, additionalData, curren
     // patient data
     if (component.dataElement.type === 'PatientData') {
       const patientValue = transformPatientData(patient, additionalData, config);
-      if (patientValue !== undefined) initialValues[component.dataElement.id] = patientValue;
+      if (patientValue !== undefined) {
+        initialValues[component.dataElement.id] = patientValue;
+      }
+    }
+
+    // patient program registration data
+    if (patientProgramRegistration) {
+      const patientValue = transformPatientProgramRegistrationData(
+        patientProgramRegistration,
+        config,
+      );
+      if (patientValue !== undefined) {
+        initialValues[component.dataElement.id] = patientValue;
+      }
     }
   }
   return initialValues;

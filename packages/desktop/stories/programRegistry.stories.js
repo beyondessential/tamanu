@@ -8,7 +8,7 @@ import { ApiContext } from '../app/api';
 import { Modal } from '../app/components/Modal';
 import { PROGRAM_REGISTRY } from '../app/components/PatientInfoPane/paneTitles';
 import { InfoPaneList } from '../app/components/PatientInfoPane/InfoPaneList';
-import { ProgramRegistryForm } from '../app/views/programRegistry/ProgramRegistryForm';
+import { PatientProgramRegistryForm } from '../app/views/programRegistry/PatientProgramRegistryForm';
 import { ProgramRegistryListItem } from '../app/views/programRegistry/ProgramRegistryListItem';
 import { PatientProgramRegistryFormHistory } from '../app/views/programRegistry/PatientProgramRegistryFormHistory';
 import { DisplayPatientRegDetails } from '../app/views/programRegistry/DisplayPatientRegDetails';
@@ -41,7 +41,7 @@ storiesOf('Program Registry', module).add('ProgramRegistry Info Panlist', () => 
           title={PROGRAM_REGISTRY}
           endpoint="programRegistry"
           getEndpoint={`patient/${patient.id}/patientRegistration`}
-          Form={ProgramRegistryForm}
+          Form={PatientProgramRegistryForm}
           ListItemComponent={ProgramRegistryListItem}
           behavior="modal"
           itemTitle="Add program registry"
@@ -54,14 +54,14 @@ storiesOf('Program Registry', module).add('ProgramRegistry Info Panlist', () => 
 });
 //#endregion InfoPaneList
 
-//#region ProgramRegistryForm
+//#region PatientProgramRegistryForm
 
-storiesOf('Program Registry', module).add('ProgramRegistryFrom', () => (
+storiesOf('Program Registry', module).add('PatientProgramRegistryForm', () => (
   // <MockedApi endpoints={mockProgramRegistrytFormEndpoints}>
   //     </MockedApi>
   <ApiContext.Provider value={dummyApi}>
     <Modal width="md" title="Add program registry" open>
-      <ProgramRegistryForm
+      <PatientProgramRegistryForm
         onSubmit={action('submit')}
         onCancel={action('cancel')}
         patient={patient}
@@ -70,7 +70,7 @@ storiesOf('Program Registry', module).add('ProgramRegistryFrom', () => (
   </ApiContext.Provider>
 ));
 
-//#endregion ProgramRegistryForm
+//#endregion PatientProgramRegistryForm
 
 //#region DisplayPatientRegDetails
 storiesOf('Program Registry', module).add('DisplayPatientRegDetails Low risk', () => (
