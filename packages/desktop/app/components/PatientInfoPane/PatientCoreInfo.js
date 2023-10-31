@@ -87,7 +87,7 @@ const DeceasedText = styled.div`
 const DeceasedIndicator = ({ death }) => (
   <DeceasedText>
     <span>
-      <TranslatedText stringId="patientDetailsPane.deceasedIndicator" fallback="Deceased" />,
+      <TranslatedText stringId="patient.detailsSidebar.deceasedIndicator" fallback="Deceased" />,
     </span>
     <DateDisplay date={death.date} />
   </DeceasedText>
@@ -142,7 +142,7 @@ export const CoreInfoDisplay = memo(({ patient }) => {
     <>
       <PatientButton onClick={() => navigateToPatient(patient.id)}>
         <NameHeader>
-          <TranslatedText stringId="patientDetailsPane.title" fallback="Patient Details" />
+          <TranslatedText stringId="patient.detailsSidebar.title" fallback="Patient Details" />
         </NameHeader>
         <NameContainer>
           <div>

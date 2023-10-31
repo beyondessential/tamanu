@@ -19,7 +19,7 @@ const ForbiddenMessage = () => (
     </Typography>
     <Typography variant="body2">
       <TranslatedText
-        stringId="patientDetailsPane.forbidden" // #TODO this could be better
+        stringId="patient.detailsSidebar.forbidden" // #TODO this could be better
         fallback="You do not have permission to read, create or write patient data."
       />
     </Typography>

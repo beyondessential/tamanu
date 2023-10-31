@@ -259,7 +259,12 @@ export const SecondaryDetailsGroup = ({ patientRegistryType, values = {}, isEdit
         />
       </StyledFormGrid>
 
-      <StyledHeading>Location information</StyledHeading>
+      <StyledHeading>
+        <TranslatedText
+          stringId="patient.details.subheading.locationInformation"
+          fallback="Location information"
+        />
+      </StyledHeading>
       <StyledFormGrid>
         <LocalisedField name="cityTown" component={TextField} />
         <LocalisedField
