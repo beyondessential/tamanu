@@ -7,16 +7,14 @@ import { initDatabase } from '../../database';
 const fromSurveyScreenComponent = async () => {
   const store = await initDatabase({ testMode: false });
 
-  // If deleted_at column does not exist
-  if (!store.models.SurveyScreenComponent.rawAttributes.deleted_at) {
-    log.info(`Table 'survey_screen_components' does not have 'deleted_at' column`);
-    return;
-  }
-
   const response = await store.sequelize.query(
-    `UPDATE "survey_screen_components" 
-      SET "deleted_at" = NULL, "visibility_status" = :historical
-      WHERE "deleted_at" IS NOT NULL`,
+    `UPDATE "survey_screen_components"
+      SET "visibility_status" = :historical
+      WHERE "deleted_at" IS NOT NULL and "visibility_status" != :historical;
+      
+      UPDATE "survey_screen_components" 
+      SET "deleted_at" = CURRENT_TIMESTAMP
+      WHERE "visibility_status" = :historical AND "deleted_at" IS NULL;`,
     {
       replacements: {
         historical: VISIBILITY_STATUSES.HISTORICAL,
