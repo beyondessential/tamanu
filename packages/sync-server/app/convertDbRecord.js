@@ -20,6 +20,7 @@ export const convertFromDbRecord = dbRecord => {
   const { id, updatedAt, createdAt, deletedAt, updatedAtSyncTick, password, ...data } = dbRecord;
 
   return {
+    ...(deletedAt ? { isDeleted: true } : {}),
     data: {
       id,
       ...(deletedAt ? {} : mapRelations(data, convertFromDbRecord)),

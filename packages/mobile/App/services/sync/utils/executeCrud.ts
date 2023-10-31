@@ -1,5 +1,7 @@
+import { chunk } from 'lodash';
+
 import { DataToPersist } from '../types';
-import { chunkRows } from '../../../infra/db/helpers';
+import { chunkRows, SQLITE_MAX_PARAMETERS } from '../../../infra/db/helpers';
 import { BaseModel } from '../../../models/BaseModel';
 
 export const executeInserts = async (
@@ -60,5 +62,42 @@ export const executeUpdates = async (
         }),
       );
     }
+  }
+};
+
+export const executeDeletes = async (model: typeof BaseModel, rowIds: string[]): Promise<void> => {
+  for (const batchOfIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
+    try {
+      const entities = await model.findByIds(batchOfIds);
+      await model.softRemove(entities);
+    } catch (e) {
+      // try records individually, some may succeed and we want to capture the
+      // specific one with the error
+      await Promise.all(
+        batchOfIds.map(async id => {
+          try {
+            const entity = await model.findOne({ where: { id } });
+            await entity.softRemove();
+          } catch (error) {
+            throw new Error(`Delete failed with '${error.message}', recordId: ${id}`);
+          }
+        }),
+      );
+    }
+  }
+};
+
+export const executeRestores = async (model: typeof BaseModel, rowIds: string[]): Promise<void> => {
+  for (const batchOfIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
+    await Promise.all(
+      batchOfIds.map(async id => {
+        try {
+          const entity = await model.findOne({ where: { id }, withDeleted: true });
+          await entity.recover();
+        } catch (error) {
+          throw new Error(`Restore failed with '${error.message}', recordId: ${id}`);
+        }
+      }),
+    );
   }
 };
