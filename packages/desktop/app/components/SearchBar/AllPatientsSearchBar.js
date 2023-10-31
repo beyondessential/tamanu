@@ -15,6 +15,7 @@ import { useSuggester } from '../../api';
 import { DateField } from '../Field/DateField';
 import { useSexOptions } from '../../hooks';
 import { SearchBarCheckField } from './SearchBarCheckField';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const TwoColumnsField = styled(Box)`
   grid-column: span 2;
@@ -61,7 +62,15 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
             suggester={villageSuggester}
             size="small"
           />
-          <SearchBarCheckField name="deceased" label="Include deceased patients" />
+          <SearchBarCheckField
+            name="deceased"
+            label={
+              <TranslatedText
+                stringId="patientListing.includeDeceasedLabel"
+                fallback="Include deceased patients"
+              />
+            }
+          />
         </>
       }
     >
@@ -72,7 +81,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
         name="dateOfBirthExact"
         component={DateField}
         saveDateAsString
-        label="DOB"
+        label={<TranslatedText stringId="patientListing.dateOfBirthLabel" fallback="DOB" />}
         max={getCurrentDateString()}
       />
     </CustomisableSearchBar>

@@ -7,6 +7,7 @@ import doubleUp from '../../assets/images/double_up.svg';
 import { Button, TextButton } from '../Button';
 import { Form } from '../Field';
 import { Colors, FORM_TYPES } from '../../constants';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const Container = styled.div`
   border: 1px solid ${Colors.outline};
@@ -104,7 +105,9 @@ export const CustomisableSearchBar = ({
                   />
                 </IconButton>
               )}
-              <SearchButton type="submit">Search</SearchButton>
+              <SearchButton type="submit">
+                <TranslatedText stringId="patientListing.searchButton" fallback="Search" />
+              </SearchButton>
               <ClearButton
                 onClick={() => {
                   // Cant check for dirty as form is reinitialized with persisted values
@@ -115,7 +118,7 @@ export const CustomisableSearchBar = ({
                   setTimeout(() => clearForm(), 0);
                 }}
               >
-                Clear
+                <TranslatedText stringId="patientListing.clearButton" fallback="Clear" />
               </ClearButton>
             </ActionsContainer>
           </CustomisableSearchBarGrid>
