@@ -30,6 +30,7 @@ import {
 } from './columns';
 import { useAuth } from '../../contexts/Auth';
 import { usePatientSearch, PatientSearchKeys } from '../../contexts/PatientSearch';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -135,12 +136,14 @@ export const PatientListingView = ({ onViewPatient }) => {
 
   return (
     <PageContainer>
-      <TopBar title="Patient listing">
+      <TopBar title={<TranslatedText stringId="patientListing.title" fallback="Patient listing" />}>
         <NewPatientButton onCreateNewPatient={onViewPatient} />
       </TopBar>
       <RecentlyViewedPatientsList />
       <ContentPane>
-        <SearchTableTitle>Patient search</SearchTableTitle>
+        <SearchTableTitle>
+          <TranslatedText stringId="patientListing.tableTitle" fallback="Patient search" />
+        </SearchTableTitle>
         <AllPatientsSearchBar onSearch={setSearchParameters} />
         <PatientTable
           onViewPatient={onViewPatient}
@@ -161,10 +164,19 @@ export const AdmittedPatientsView = () => {
 
   return (
     <PageContainer>
-      <TopBar title="Admitted patient listing" />
+      <TopBar
+        title={
+          <TranslatedText
+            stringId="patientListing.outpatientTitle"
+            fallback="Admitted patient listing"
+          />
+        }
+      />
       <RecentlyViewedPatientsList encounterType="admission" />
       <ContentPane>
-        <SearchTableTitle>Patient search</SearchTableTitle>
+        <SearchTableTitle>
+          <TranslatedText stringId="patientListing.tableTitle" fallback="Patient search" />
+        </SearchTableTitle>
         <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
         <PatientTable
           fetchOptions={{ inpatient: 1 }}
@@ -184,10 +196,16 @@ export const OutpatientsView = () => {
 
   return (
     <PageContainer>
-      <TopBar title="Outpatient listing" />
+      <TopBar
+        title={
+          <TranslatedText stringId="patientListing.outpatientTitle" fallback="Outpatient listing" />
+        }
+      />
       <RecentlyViewedPatientsList encounterType="clinic" />
       <ContentPane>
-        <SearchTableTitle>Patient search</SearchTableTitle>
+        <SearchTableTitle>
+          <TranslatedText stringId="patientListing.tableTitle" fallback="Patient search" />
+        </SearchTableTitle>
         <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
         <PatientTable
           fetchOptions={{ outpatient: 1 }}
