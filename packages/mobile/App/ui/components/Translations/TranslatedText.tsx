@@ -3,16 +3,22 @@ import styled from 'styled-components';
 import { StyledText } from '~/ui/styled/common';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
-type Replacements = {[key: string]: ReactNode};
+type Replacements = { [key: string]: ReactNode };
 interface TranslatedTextProps {
   stringId: string;
   fallback: string;
   replacements?: Replacements;
-};
+}
 
-const DebugHighlighted = styled(StyledText)`
-  background-color: red;
-  color: white;
+const TextWrapper = styled(StyledText)<{
+  $isDebugMode: boolean;
+}>`
+  ${props =>
+    props.$isDebugMode &&
+    `
+    background-color: red;
+    color: white;
+  `};
 `;
 
 // Duplicated from TranslatedText.js on desktop
@@ -31,7 +37,7 @@ export const TranslatedText = ({
   fallback,
   replacements,
 }: TranslatedTextProps): ReactElement => {
-  const { getDebugMode } = useTranslation();
+  const { debugMode } = useTranslation();
   // Placeholder for fetching translation from context
   const translation = null;
 
@@ -44,8 +50,7 @@ export const TranslatedText = ({
     return replaceStringVariables(stringToDisplay, replacements);
   }, [translation, replacements]);
 
-  const isDebugMode = __DEV__ && getDebugMode();
-  const TextWrapper = isDebugMode ? DebugHighlighted : React.Fragment;
+  const isDebugMode = __DEV__ && debugMode;
 
-  return <TextWrapper>{displayElements}</TextWrapper>;
+  return <TextWrapper $isDebugMode={isDebugMode}>{displayElements}</TextWrapper>;
 };
