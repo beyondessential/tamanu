@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Modal } from './Modal';
 import { ButtonRow } from './ButtonRow';
 import { Button } from './Button';
+import { TranslatedText } from './Translation/TranslatedText';
 
 export const PatientAlert = React.memo(({ alerts = [] }) => {
   const [alertVisible, setAlertVisible] = useState(true);
@@ -10,7 +11,11 @@ export const PatientAlert = React.memo(({ alerts = [] }) => {
   const close = () => setAlertVisible(false);
 
   return (
-    <Modal title="Patient warnings" open={alertVisible} onClose={close}>
+    <Modal
+      title={<TranslatedText stringId="patient.warning.title" fallback="Patient warnings" />}
+      open={alertVisible}
+      onClose={close}
+    >
       <ul>
         {alerts.map(a => (
           <li key={a.id}>{a.note}</li>
@@ -18,7 +23,7 @@ export const PatientAlert = React.memo(({ alerts = [] }) => {
       </ul>
       <ButtonRow>
         <Button variant="contained" color="primary" onClick={close}>
-          OK
+          <TranslatedText stringId="general.actions.ok" fallback="Ok" />
         </Button>
       </ButtonRow>
     </Modal>

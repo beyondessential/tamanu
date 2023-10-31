@@ -15,6 +15,7 @@ import { getFullLocationName } from '../../../utils/location';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { usePatientCurrentEncounter } from '../../../api/queries';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const PATIENT_STATUS_COLORS = {
   [PATIENT_STATUS.INPATIENT]: Colors.safe, // Green
@@ -175,7 +176,11 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
   }
 
   if (isLoading) {
-    return <DataStatusMessage message="Loading..." />;
+    return (
+      <DataStatusMessage
+        message={<TranslatedText stringId="general.status.loading" fallback="Loading..." />}
+      />
+    );
   }
 
   if (error) {
@@ -185,10 +190,18 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
   if (!encounter) {
     return (
       <NoVisitContainer>
-        <NoVisitTitle variant="h2">No Current Visit</NoVisitTitle>
+        <NoVisitTitle variant="h2">
+          <TranslatedText
+            stringId="patient.encounterSummary.noCurrentVisit"
+            fallback="No Current Visit"
+          />
+        </NoVisitTitle>
         <ButtonRow>
           <ButtonWithPermissionCheck onClick={openCheckin} verb="create" noun="Encounter">
-            Admit or check-in
+            <TranslatedText
+              stringId="patient.encounterSummary.adminOrCheckIn"
+              fallback="Admit or check-in"
+            />
           </ButtonWithPermissionCheck>
         </ButtonRow>
       </NoVisitContainer>
