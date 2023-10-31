@@ -8,14 +8,20 @@ import { ContentPane } from '../../../components';
 import { PatientDetailsForm } from '../../../forms/PatientDetailsForm';
 import { reloadPatient } from '../../../store/patient';
 import { notifyError } from '../../../utils';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 // Momentary component to just display a message, will need design and
 // refactor later.
 const ForbiddenMessage = () => (
   <ContentPane>
-    <Typography variant="h4">Forbidden</Typography>
+    <Typography variant="h4">
+      <TranslatedText stringId="error.forbidden" fallback="Forbidden" />
+    </Typography>
     <Typography variant="body2">
-      You do not have permission to read, create or write patient data.
+      <TranslatedText
+        stringId="patientDetails.forbidden" // #TODO this could be better
+        fallback="You do not have permission to read, create or write patient data."
+      />
     </Typography>
   </ContentPane>
 );

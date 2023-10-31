@@ -17,13 +17,7 @@ import { DeathModal } from '../DeathModal';
 import { Colors } from '../../constants';
 import { PatientCarePlanDetails } from './PatientCarePlanNotes';
 import { useLocalisation } from '../../contexts/Localisation';
-import {
-  CONDITIONS_TITLE,
-  ALLERGIES_TITLE,
-  FAMILY_HISTORY_TITLE,
-  ISSUES_TITLE,
-  CARE_PLANS_TITLE,
-} from './paneTitles';
+import { PANE_SECTION_IDS } from './paneSections';
 import { useApi, isErrorUnknownAllow404s } from '../../api';
 import { RecordDeathSection } from '../RecordDeathSection';
 
@@ -31,7 +25,7 @@ const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
     patient={patient}
     readonly={readonly}
-    title={CONDITIONS_TITLE}
+    id={PANE_SECTION_IDS.CONDITIONS}
     endpoint="ongoingCondition"
     getEndpoint={`patient/${patient.id}/conditions`}
     Form={OngoingConditionForm}
@@ -46,7 +40,7 @@ const AllergyDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
     patient={patient}
     readonly={readonly}
-    title={ALLERGIES_TITLE}
+    id={PANE_SECTION_IDS.ALLERGIES}
     endpoint="allergy"
     getEndpoint={`patient/${patient.id}/allergies`}
     Form={AllergyForm}
@@ -58,7 +52,7 @@ const FamilyHistoryDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
     patient={patient}
     readonly={readonly}
-    title={FAMILY_HISTORY_TITLE}
+    id={PANE_SECTION_IDS.FAMILY_HISTORY}
     endpoint="familyHistory"
     getEndpoint={`patient/${patient.id}/familyHistory`}
     Form={FamilyHistoryForm}
@@ -75,7 +69,7 @@ const PatientIssuesDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
     patient={patient}
     readonly={readonly}
-    title={ISSUES_TITLE}
+    id={PANE_SECTION_IDS.ISSUES}
     endpoint="patientIssue"
     getEndpoint={`patient/${patient.id}/issues`}
     Form={PatientIssueForm}
@@ -87,7 +81,7 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
     patient={patient}
     readonly={readonly}
-    title={CARE_PLANS_TITLE}
+    id={PANE_SECTION_IDS.CARE_PLANS}
     endpoint="patientCarePlan"
     getEndpoint={`patient/${patient.id}/carePlans`}
     Form={PatientCarePlanForm}

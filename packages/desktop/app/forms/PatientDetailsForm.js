@@ -42,6 +42,7 @@ import {
   TimeField,
 } from '../components';
 import { LoadingIndicator } from '../components/LoadingIndicator';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const StyledHeading = styled.div`
   font-weight: 500;
@@ -89,7 +90,7 @@ export const PrimaryDetailsGroup = () => {
         name="email"
         component={TextField}
         type="email"
-        defaultLabel="Email address"
+        defaultLabel={<TranslatedText stringId="fields.email" fallback="Email Address" />}
       />
     </FormGrid>
   );

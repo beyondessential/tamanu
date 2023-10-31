@@ -4,6 +4,7 @@ import { Box } from '@material-ui/core';
 
 import { Colors, SEX_VALUE_INDEX } from '../constants';
 import { DateDisplay } from '.';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const Card = styled(Box)`
   background: white;
@@ -54,7 +55,10 @@ const CardItem = ({ label, value, ...props }) => (
 export const PatientDetailsCard = ({ patient }) => (
   <Card mb={4}>
     <Column>
-      <CardItem label="Patient ID" value={patient?.displayId} />
+      <CardItem
+        label={<TranslatedText stringId="patientDetails.id" fallback="Patient ID" />}
+        value={patient?.displayId}
+      />
       <CardItem label="First name" value={patient?.firstName} />
       <CardItem label="Last name" value={patient?.lastName} />
     </Column>
