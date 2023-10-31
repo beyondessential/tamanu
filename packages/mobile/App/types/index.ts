@@ -3,6 +3,8 @@ export * from './SyncConnectionParameters';
 
 export * from './IPatient';
 export * from './IPatientIssue';
+export * from './IPatientProgramRegistration';
+export * from './IPatientProgramRegistrationCondition';
 export * from './IPatientSecondaryId';
 export * from './IEncounter';
 export * from './ILabRequest';
@@ -12,6 +14,9 @@ export * from './ILabTestPanel';
 export * from './ILabTestPanelRequest';
 export * from './IUser';
 export * from './IProgram';
+export * from './IProgramRegistry';
+export * from './IProgramRegistryClinicalStatus';
+export * from './IProgramRegistryCondition';
 export * from './ISurvey';
 export * from './ISurveyResponse';
 export * from './IReferenceData';
