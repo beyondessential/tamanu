@@ -11,6 +11,7 @@ import {
 } from '../../../components/PatientPrinting';
 import { ImmunisationsTable } from '../../../components/ImmunisationsTable';
 import { useAdministeredVaccines } from '../../../api/queries/useAdministeredVaccines';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const CovidCertificateButton = styled(Button)`
   margin-left: 0;
@@ -82,7 +83,10 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
               variant="text"
             >
               <CovidCertificateIcon style={{ marginRight: 4 }} className="fa fa-clipboard-list" />
-              COVID-19 certificate
+              <TranslatedText
+                stringId="vaccinePane.covidVaccineCertificate"
+                fallback="COVID-19 certificate"
+              />
             </CovidCertificateButton>
           )}
           <Button
@@ -90,10 +94,13 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
             variant="outlined"
             disabled={!vaccinations.length}
           >
-            Vaccine certificate
+            <TranslatedText
+              stringId="vaccinePane.allVaccineCertificate"
+              fallback="Vaccine certificate"
+            />
           </Button>
           <Button onClick={() => setIsAdministerModalOpen(true)} disabled={readonly}>
-            Record vaccine
+            <TranslatedText stringId="vaccinePane.recordVaccineButton" fallback="Record vaccine" />
           </Button>
         </TableButtonRow>
         <ImmunisationsTable

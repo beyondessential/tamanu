@@ -9,6 +9,7 @@ import { DateDisplay } from './DateDisplay';
 import { StatusTag } from './Tag';
 import { CheckInput } from './Field';
 import { Colors } from '../constants';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const getSchedule = record => record.scheduledVaccine?.schedule || 'N/A';
 const getVaccineName = record => record.vaccineName || record.scheduledVaccine?.label || 'Unknown';
@@ -44,7 +45,9 @@ const MarginedMenuButton = styled(MenuButton)`
 const getActionButtons = ({ onItemClick, onItemEditClick, onItemDeleteClick }) => record => {
   return (
     <ActionButtonsContainer>
-      <OutlinedButton onClick={() => onItemClick(record)}>View</OutlinedButton>
+      <OutlinedButton onClick={() => onItemClick(record)}>
+        <TranslatedText stringId="vaccinePane.viewButton" fallback="View" />
+      </OutlinedButton>
       <MarginedMenuButton
         iconColor={Colors.primary}
         actions={{
@@ -77,7 +80,12 @@ export const ImmunisationsTable = React.memo(
 
     const notGivenCheckBox = (
       <TableHeaderCheckbox
-        label="Include vaccines not given"
+        label={
+          <TranslatedText
+            stringId="vaccinePane.notGivenCheckbox"
+            fallback="Include vaccines not given"
+          />
+        }
         value={includeNotGiven}
         onClick={() => setIncludeNotGiven(!includeNotGiven)}
       />
@@ -85,16 +93,45 @@ export const ImmunisationsTable = React.memo(
 
     const COLUMNS = useMemo(
       () => [
-        { key: 'vaccineDisplayName', title: 'Vaccine', accessor: getVaccineName },
-        { key: 'schedule', title: 'Schedule', accessor: getSchedule, sortable: false },
-        { key: 'date', title: 'Date', accessor: getDate },
-        { key: 'givenBy', title: 'Given by', accessor: getGiver, sortable: false },
-        { key: 'displayLocation', title: 'Facility/Country', accessor: getFacility },
+        {
+          key: 'vaccineDisplayName',
+          title: <TranslatedText stringId="vaccinePane.vaccineColumnLabel" fallback="Vaccine" />,
+          accessor: getVaccineName,
+        },
+        {
+          key: 'schedule',
+          title: <TranslatedText stringId="vaccinePane.scheduleColumnLabel" fallback="Schedule" />,
+          accessor: getSchedule,
+          sortable: false,
+        },
+        {
+          key: 'date',
+          title: <TranslatedText stringId="vaccinePane.dateColumnLabel" fallback="Date" />,
+          accessor: getDate,
+        },
+        {
+          key: 'givenBy',
+          title: <TranslatedText stringId="vaccinePane.givenByColumnLabel" fallback="Given by" />,
+          accessor: getGiver,
+          sortable: false,
+        },
+        {
+          key: 'displayLocation',
+          title: (
+            <TranslatedText
+              stringId="vaccinePane.facilityCountryColumnLabel"
+              fallback="Facility/Country"
+            />
+          ),
+          accessor: getFacility,
+        },
         ...(!viewOnly
           ? [
               {
                 key: 'action',
-                title: 'Action',
+                title: (
+                  <TranslatedText stringId="vaccinePane.actionColumnLabel" fallback="Action" />
+                ),
                 accessor: getActionButtons({ onItemClick, onItemEditClick, onItemDeleteClick }),
                 sortable: false,
                 isExportable: false,
