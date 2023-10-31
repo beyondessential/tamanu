@@ -10,6 +10,7 @@ import { useApi } from '../api';
 import { Colors } from '../constants';
 import { DateDisplay } from './DateDisplay';
 import { ThemedTooltip } from './Tooltip';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const colorFromEncounterType = {
   admission: Colors.green,
@@ -144,7 +145,8 @@ const Card = ({ patient, handleClick }) => {
         <CardText>{patient.displayId}</CardText>
         <CapitalizedCardText>{patient.sex}</CapitalizedCardText>
         <CardText>
-          DOB: <DateDisplay date={patient.dateOfBirth} shortYear />
+          <TranslatedText stringId="recentlyViewedPatients.dateOfBirthLabel" fallback="DOB" />:{' '}
+          <DateDisplay date={patient.dateOfBirth} shortYear />
         </CardText>
       </CardComponentContent>
     </CardComponent>
@@ -182,7 +184,9 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
   return (
     <Container>
       <ContainerTitle onClick={() => setIsExpanded(!isExpanded)}>
-        <SectionLabel>Recently Viewed</SectionLabel>
+        <SectionLabel>
+          <TranslatedText stringId="recentlyViewedPatients.title" fallback="Recently Viewed" />
+        </SectionLabel>
         {isExpanded ? <ExpandLess /> : <ExpandMore />}
       </ContainerTitle>
       <Collapse in={isExpanded} timeout="auto" unmountOnExit>
