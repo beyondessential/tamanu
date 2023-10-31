@@ -223,19 +223,30 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
   return (
     <Container patientStatus={patientStatus}>
       <Header patientStatus={patientStatus}>
-        <BoldTitle variant="h3">Type:</BoldTitle>
+        <BoldTitle variant="h3">
+          <TranslatedText stringId="patient.encounterSummary.type" fallback="Type" />:
+        </BoldTitle>
         <Title variant="h3">
           {ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label}
           {location?.facility?.name ? ` | ${location?.facility?.name}` : ''}
         </Title>
         <div style={{ flexGrow: 1 }} />
         <Button onClick={() => viewEncounter(id)} size="small">
-          View encounter
+          <TranslatedText
+            stringId="patient.encounterSummary.viewEncounter"
+            fallback="View encounter"
+          />
         </Button>
       </Header>
       <Content>
         <ContentItem>
-          <ContentLabel>Current admission:</ContentLabel>
+          <ContentLabel>
+            <TranslatedText
+              stringId="patient.encounterSummary.currentAdmission"
+              fallback="Current Admission"
+            />
+            :
+          </ContentLabel>
           <ContentText>{patientStatus}</ContentText>
         </ContentItem>
         <ContentItem>
@@ -243,7 +254,9 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
           <ContentText>{examiner?.displayName || '-'}</ContentText>
         </ContentItem>
         <ContentItem>
-          <ContentLabel>Location:</ContentLabel>
+          <ContentLabel>
+            <TranslatedText stringId="patient.encounterSummary.location" fallback="Location" />:
+          </ContentLabel>
           <ContentText>{getFullLocationName(location)}</ContentText>
         </ContentItem>
         {!getLocalisation(`${referralSourcePath}.hidden`) && (
@@ -253,13 +266,24 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
           </ContentItem>
         )}
         <ContentItem>
-          <ContentLabel>Arrival date:</ContentLabel>
+          <ContentLabel>
+            <TranslatedText
+              stringId="patient.encounterSummary.arrivalDate"
+              fallback="Arrival date"
+            />
+          </ContentLabel>
           <ContentText>
             <DateDisplay date={startDate} />
           </ContentText>
         </ContentItem>
         <ContentItem>
-          <ContentLabel>Reason for encounter:</ContentLabel>
+          <ContentLabel>
+            <TranslatedText
+              stringId="patient.encounterSummary.reasonForEncounter"
+              fallback="Reason for encounter"
+            />
+            :
+          </ContentLabel>
           <ContentText>{reasonForEncounter}</ContentText>
         </ContentItem>
       </Content>
