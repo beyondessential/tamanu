@@ -12,6 +12,7 @@ import { PatientStickerLabelPage } from './PatientStickerLabelPage';
 import { CovidTestCertificateModal } from './CovidTestCertificateModal';
 import { CovidClearanceCertificateModal } from './CovidClearanceCertificateModal';
 import { BirthNotificationCertificateModal } from './BirthNotificationCertificateModal';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 const PRINT_OPTIONS = {
   barcode: {
@@ -146,7 +147,9 @@ export const PrintPatientDetailsModal = ({ patient }) => {
       if (!imageData) {
         return (
           <Modal title="Working" open>
-            <div>Preparing ID card...</div>
+            <div>
+              <TranslatedText stringId="print.idForms.submitting" fallback="Preparing ID card..." />
+            </div>
           </Modal>
         );
       }
@@ -158,7 +161,7 @@ export const PrintPatientDetailsModal = ({ patient }) => {
   return (
     <>
       <Button size="small" onClick={openModal}>
-        Print ID forms
+        <TranslatedText stringId="print.idForms.button" fallback="Print ID forms" />
       </Button>
       {mainComponent}
     </>

@@ -8,6 +8,7 @@ import { Colors } from '../../constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { getDisplayAge } from '../../utils/dateTime';
 import { useLocalisation } from '../../contexts/Localisation';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const PatientButton = styled(Button)`
   display: block;
@@ -85,7 +86,9 @@ const DeceasedText = styled.div`
 
 const DeceasedIndicator = ({ death }) => (
   <DeceasedText>
-    <span>Deceased, </span>
+    <span>
+      <TranslatedText stringId="patientDetailsPane.deceasedIndicator" fallback="Deceased" />,
+    </span>
     <DateDisplay date={death.date} />
   </DeceasedText>
 );
@@ -138,7 +141,9 @@ export const CoreInfoDisplay = memo(({ patient }) => {
   return (
     <>
       <PatientButton onClick={() => navigateToPatient(patient.id)}>
-        <NameHeader>Patient Details</NameHeader>
+        <NameHeader>
+          <TranslatedText stringId="patientDetailsPane.title" fallback="Patient Details" />
+        </NameHeader>
         <NameContainer>
           <div>
             <NameText data-test-id="core-info-patient-first-name">{patient.firstName}</NameText>

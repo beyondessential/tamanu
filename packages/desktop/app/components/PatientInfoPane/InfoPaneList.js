@@ -11,6 +11,7 @@ import { PatientAlert } from '../PatientAlert';
 import { InfoPaneAddEditForm } from './InfoPaneAddEditForm';
 import { PANE_SECTION_IDS, PANE_SECTION_TITLES } from './paneSections';
 import { useApi } from '../../api';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const TitleContainer = styled.div`
   color: ${Colors.primary};
@@ -144,7 +145,7 @@ export const InfoPaneList = memo(
               endIcon={<AddCircleIcon />}
               data-test-class="add-button-section"
             >
-              Add
+              <TranslatedText stringId="general.actions.add" fallback="Add" />
             </AddButton>
           )}
         </TitleContainer>
