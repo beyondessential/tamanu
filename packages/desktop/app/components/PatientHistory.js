@@ -8,6 +8,7 @@ import { MarkPatientForSync } from './MarkPatientForSync';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 import { LocationGroupCell } from './LocationCell';
 import { LimitedLinesCell } from './FormattedTableCell';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const DateWrapper = styled.div`
   min-width: 90px;
@@ -21,7 +22,11 @@ const getDate = ({ startDate, endDate }) => (
   <DateWrapper>
     <DateDisplay date={startDate} />
     {' - '}
-    {endDate ? <DateDisplay date={endDate} /> : 'Current'}
+    {endDate ? (
+      <DateDisplay date={endDate} />
+    ) : (
+      <TranslatedText stringId="general.date.current" fallback="Current" />
+    )}
   </DateWrapper>
 );
 const getType = ({ encounterType }) => ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label;
@@ -29,23 +34,37 @@ const getReasonForEncounter = ({ reasonForEncounter }) => <div>{reasonForEncount
 const getFacility = ({ facilityName }) => <FacilityWrapper>{facilityName}</FacilityWrapper>;
 
 const columns = [
-  { key: 'startDate', title: 'Date', accessor: getDate },
-  { key: 'encounterType', title: 'Type', accessor: getType, sortable: false },
+  {
+    key: 'startDate',
+    title: <TranslatedText stringId="forms.general.date" fallback="Date" />,
+    accessor: getDate,
+  },
+  {
+    key: 'encounterType',
+    title: <TranslatedText stringId="forms.general.type" fallback="Type" />,
+    accessor: getType,
+    sortable: false,
+  },
   {
     key: 'facilityName',
-    title: 'Facility',
+    title: <TranslatedText stringId="forms.general.facilityName" fallback="Facility" />,
     accessor: getFacility,
     CellComponent: LimitedLinesCell,
   },
   {
     key: 'locationGroupName',
-    title: 'Area',
+    title: <TranslatedText stringId="forms.general.area" fallback="Area" />,
     accessor: LocationGroupCell,
     CellComponent: LimitedLinesCell,
   },
   {
     key: 'reasonForEncounter',
-    title: 'Reason for encounter',
+    title: (
+      <TranslatedText
+        stringId="forms.encounter.reasonForEncounter"
+        fallback="Reason for encounter"
+      />
+    ),
     accessor: getReasonForEncounter,
     sortable: false,
     CellComponent: LimitedLinesCell,
@@ -70,8 +89,14 @@ export const PatientHistory = ({ patient, onItemClick }) => {
     <>
       {patient.syncing && (
         <SyncWarning>
-          Patient is being synced, so records might not be fully updated.
-          <RefreshButton onClick={() => setRefreshCount(refreshCount + 1)}>Refresh</RefreshButton>
+          <TranslatedText
+            stringId="patient.history.syncWarning"
+            fallback="Patient is being synced, so records might not be fully updated."
+          />
+
+          <RefreshButton onClick={() => setRefreshCount(refreshCount + 1)}>
+            <TranslatedText stringId="general.actions.refresh" fallback="Refresh" />
+          </RefreshButton>
         </SyncWarning>
       )}
       <DataFetchingTable

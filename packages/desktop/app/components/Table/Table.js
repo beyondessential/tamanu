@@ -24,6 +24,7 @@ import { Colors } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Paginator } from './Paginator';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const preventInputCallback = e => {
   e.stopPropagation();
@@ -266,7 +267,8 @@ const StatusRow = React.memo(({ colSpan, children, textColor }) => (
 class TableComponent extends React.Component {
   getStatusMessage() {
     const { isLoading, errorMessage, data, noDataMessage } = this.props;
-    if (isLoading) return 'Loading...';
+    if (isLoading)
+      return <TranslatedText stringId="general.status.loading" fallback="Loading..." />;
     if (errorMessage) return errorMessage;
     if (!data.length) return noDataMessage;
     return null;
