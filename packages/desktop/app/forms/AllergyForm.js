@@ -8,6 +8,7 @@ import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { useLocalisedText } from '../components/LocalisedText';
 import { foreignKey } from '../utils/validation';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const AllergyForm = ({
   onSubmit,
@@ -25,14 +26,18 @@ export const AllergyForm = ({
         <FormGrid columns={1}>
           <Field
             name="allergyId"
-            label="Allergy name"
+            label={
+              <TranslatedText stringId="forms.allergies.allergyName" fallback="Allergy name" />
+            }
             component={AutocompleteField}
             suggester={allergySuggester}
             required
           />
           <Field
             name="recordedDate"
-            label="Date recorded"
+            label={
+              <TranslatedText stringId="forms.general.dateRecorded" fallback="Date recorded" />
+            }
             component={DateField}
             saveDateAsString
             required
@@ -43,11 +48,21 @@ export const AllergyForm = ({
             component={AutocompleteField}
             suggester={practitionerSuggester}
           />
-          <Field name="note" label="Notes" component={TextField} />
+          <Field
+            name="note"
+            label={<TranslatedText stringId="forms.general.note" fallback="Note" />}
+            component={TextField}
+          />
           <ConfirmCancelRow
             onCancel={onCancel}
             onConfirm={submitForm}
-            confirmText={editedObject ? 'Save' : 'Add'}
+            confirmText={
+              editedObject ? (
+                <TranslatedText stringId="general.actions.save" fallback="Save" />
+              ) : (
+                <TranslatedText stringId="general.actions.add" fallback="Add" />
+              )
+            }
           />
         </FormGrid>
       )}

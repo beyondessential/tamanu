@@ -15,6 +15,7 @@ import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { foreignKey } from '../utils/validation';
 import { useLocalisedText } from '../components';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const OngoingConditionForm = ({
   onSubmit,
@@ -27,12 +28,18 @@ export const OngoingConditionForm = ({
 
   const RenderForm = ({ submitForm, values }) => {
     const resolving = values.resolved;
-    const buttonText = editedObject ? 'Save' : 'Add';
+    const buttonText = editedObject ? (
+      <TranslatedText stringId="general.actions.save" fallback="Save" />
+    ) : (
+      <TranslatedText stringId="general.actions.add" fallback="Add" />
+    );
     return (
       <FormGrid columns={1}>
         <Field
           name="conditionId"
-          label="Condition name"
+          label={
+            <TranslatedText stringId="forms.conditions.conditionName" fallback="Condition name" />
+          }
           component={AutocompleteField}
           suggester={icd10Suggester}
           disabled={resolving}
@@ -40,7 +47,7 @@ export const OngoingConditionForm = ({
         />
         <Field
           name="recordedDate"
-          label="Date recorded"
+          label={<TranslatedText stringId="forms.general.dateRecorded" fallback="Date recorded" />}
           saveDateAsString
           component={DateField}
           disabled={resolving}
@@ -52,8 +59,17 @@ export const OngoingConditionForm = ({
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field name="note" label="Notes" component={TextField} disabled={resolving} />
-        <Field name="resolved" label="Resolved" component={CheckField} />
+        <Field
+          name="note"
+          label={<TranslatedText stringId="forms.general.note" fallback="Note" />}
+          component={TextField}
+          disabled={resolving}
+        />
+        <Field
+          name="resolved"
+          label={<TranslatedText stringId="forms.conditions.resolved" fallback="Resolved" />}
+          component={CheckField}
+        />
         <Collapse in={resolving}>
           <FormGrid columns={1}>
             <Field
