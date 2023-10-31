@@ -36,7 +36,7 @@ export const AllergyForm = ({
           <Field
             name="recordedDate"
             label={
-              <TranslatedText stringId="forms.general.dateRecorded" fallback="Date recorded" />
+              <TranslatedText stringId="forms.general.recordedDate" fallback="Date recorded" />
             }
             component={DateField}
             saveDateAsString
@@ -50,7 +50,7 @@ export const AllergyForm = ({
           />
           <Field
             name="note"
-            label={<TranslatedText stringId="forms.general.note" fallback="Note" />}
+            label={<TranslatedText stringId="forms.general.notes" fallback="Notes" />}
             component={TextField}
           />
           <ConfirmCancelRow

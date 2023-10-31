@@ -47,7 +47,7 @@ export const OngoingConditionForm = ({
         />
         <Field
           name="recordedDate"
-          label={<TranslatedText stringId="forms.general.dateRecorded" fallback="Date recorded" />}
+          label={<TranslatedText stringId="forms.general.recordedDate" fallback="Date recorded" />}
           saveDateAsString
           component={DateField}
           disabled={resolving}
@@ -61,7 +61,7 @@ export const OngoingConditionForm = ({
         />
         <Field
           name="note"
-          label={<TranslatedText stringId="forms.general.note" fallback="Note" />}
+          label={<TranslatedText stringId="forms.general.notes" fallback="Notes" />}
           component={TextField}
           disabled={resolving}
         />
