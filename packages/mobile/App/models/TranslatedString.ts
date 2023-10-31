@@ -35,4 +35,19 @@ export class TranslatedString extends BaseModel {
       throw new Error('language cannot contain a ";"');
     }
   }
+
+  static async getForLanguage(language: string): Promise<{ [key: string]: string }> {
+    const translatedStrings = await this.getRepository().find({
+      where: {
+        language,
+      },
+    });
+    return translatedStrings.reduce(
+      (acc, translatedString) => ({
+        ...acc,
+        [translatedString.stringId]: translatedString.text,
+      }),
+      {},
+    );
+  }
 }
