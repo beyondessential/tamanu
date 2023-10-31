@@ -29,6 +29,7 @@ import {
   DiseaseField,
 } from '../components/VaccineCommonFields';
 import { Field, CheckField, SuggesterSelectField } from '../components/Field';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const VACCINE_GIVEN_INITIAL_VALUES = {
   givenElsewhere: false,
@@ -78,7 +79,12 @@ export const VaccineGivenForm = ({
           <FullWidthCol>
             <Field
               name="givenElsewhere"
-              label="Given elsewhere (e.g overseas)"
+              label={
+                <TranslatedText
+                  stringId="vaccinePane.givenElsewhereCheckbox"
+                  fallback="Given elsewhere (e.g overseas)"
+                />
+              }
               component={CheckField}
               onChange={(_e, value) => {
                 setErrors({});
@@ -101,7 +107,9 @@ export const VaccineGivenForm = ({
           <FullWidthCol>
             <Field
               name="circumstanceIds"
-              label="Circumstances"
+              label={
+                <TranslatedText stringId="vaccinePane.circumstanceLabel" fallback="Circumstances" />
+              }
               component={SuggesterSelectField}
               endpoint="vaccineCircumstance"
               isMulti
@@ -135,7 +143,10 @@ export const VaccineGivenForm = ({
         <AdministeredVaccineScheduleField schedules={schedules} />
       ) : null}
 
-      <VaccineDateField label="Date given" required={!values.givenElsewhere} />
+      <VaccineDateField
+        label={<TranslatedText stringId="vaccinePane.dateGiven" fallback="Date given" />}
+        required={!values.givenElsewhere}
+      />
 
       <InjectionSiteField />
 
@@ -160,9 +171,17 @@ export const VaccineGivenForm = ({
 
       <ConsentField
         label={
-          values.givenElsewhere
-            ? 'Do you have consent to record in Tamanu?'
-            : 'Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?'
+          values.givenElsewhere ? (
+            <TranslatedText
+              stringId="vaccinePane.consentGivenElsewhere"
+              fallback="Do you have consent to record in Tamanu?"
+            />
+          ) : (
+            <TranslatedText
+              stringId="vaccinePane.consent"
+              fallback="Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?"
+            />
+          )
         }
       />
 
