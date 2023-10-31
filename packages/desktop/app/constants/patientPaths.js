@@ -1,3 +1,6 @@
+import React from 'react';
+import { TranslatedText } from '../components/Translation/TranslatedText';
+
 export const PATIENT_CATEGORIES = {
   ALL: 'all',
   EMERGENCY: 'emergency',
@@ -6,10 +9,18 @@ export const PATIENT_CATEGORIES = {
 };
 
 export const PATIENT_CATEGORY_TO_TITLE = {
-  [PATIENT_CATEGORIES.ALL]: 'All Patients',
-  [PATIENT_CATEGORIES.EMERGENCY]: 'Emergency Patients',
-  [PATIENT_CATEGORIES.OUTPATIENT]: 'Outpatients',
-  [PATIENT_CATEGORIES.INPATIENT]: 'Inpatients',
+  [PATIENT_CATEGORIES.ALL]: (
+    <TranslatedText stringId="sidebar.patients.all" fallback="All Patients" />
+  ),
+  [PATIENT_CATEGORIES.EMERGENCY]: (
+    <TranslatedText stringId="sidebar.patients.emergency" fallback="Emergency Patients" />
+  ),
+  [PATIENT_CATEGORIES.OUTPATIENT]: (
+    <TranslatedText stringId="sidebar.patients.outpatients" fallback="Outpatients" />
+  ),
+  [PATIENT_CATEGORIES.INPATIENT]: (
+    <TranslatedText stringId="sidebar.patients.inpatients" fallback="Inpatients" />
+  ),
 };
 
 const CATEGORY_PATH = `/patients/:category(${Object.values(PATIENT_CATEGORIES).join('|')})`;
