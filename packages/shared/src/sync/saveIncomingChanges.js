@@ -1,4 +1,3 @@
-import { Op } from 'sequelize';
 import config from 'config';
 import asyncPool from 'tiny-async-pool';
 
@@ -43,13 +42,8 @@ const saveUpdates = async (model, incomingRecords, idToExistingRecord, isCentral
     : // on the facility server, trust the resolved central server version
       incomingRecords;
   await asyncPool(persistUpdateWorkerPoolSize, recordsToSave, async r =>
-    model.update(r, { where: { id: r.id } }),
+    model.update(r, { where: { id: r.id }, paranoid: false }),
   );
-};
-
-const saveDeletes = async (model, recordIds) => {
-  if (recordIds.length === 0) return;
-  await model.destroy({ where: { id: { [Op.in]: recordIds } } });
 };
 
 const saveChangesForModel = async (model, changes, isCentralServer) => {
@@ -57,20 +51,20 @@ const saveChangesForModel = async (model, changes, isCentralServer) => {
     isCentralServer ? model.sanitizeForCentralServer(d) : model.sanitizeForFacilityServer(d);
 
   // split changes into create, update, delete
-  const idsForDelete = changes.filter(c => c.isDeleted).map(c => c.data.id);
-  const idsForUpsert = changes.filter(c => !c.isDeleted && c.data.id).map(c => c.data.id);
-  const existingRecords = await model.findByIds(idsForUpsert);
+  const idsForUpsert = changes.filter(c => c.data.id).map(c => c.data.id);
+  const existingRecords = await model.findByIds(idsForUpsert, false);
   const idToExistingRecord = Object.fromEntries(
     existingRecords.map(e => [e.id, e.get({ plain: true })]),
   );
+
   const recordsForCreate = changes
-    .filter(c => !c.isDeleted && idToExistingRecord[c.data.id] === undefined)
+    .filter(c => idToExistingRecord[c.data.id] === undefined)
     .map(({ data }) => {
       // validateRecord(data, null); TODO add in validation
       return sanitizeData(data);
     });
   const recordsForUpdate = changes
-    .filter(r => !r.isDeleted && !!idToExistingRecord[r.data.id])
+    .filter(r => !!idToExistingRecord[r.data.id])
     .map(({ data }) => {
       // validateRecord(data, null); TODO add in validation
       return sanitizeData(data);
@@ -81,8 +75,6 @@ const saveChangesForModel = async (model, changes, isCentralServer) => {
   await saveCreates(model, recordsForCreate);
   log.debug(`saveIncomingChanges: Updating ${recordsForUpdate.length} existing records`);
   await saveUpdates(model, recordsForUpdate, idToExistingRecord, isCentralServer);
-  log.debug(`saveIncomingChanges: Deleting ${idsForDelete.length} old records`);
-  await saveDeletes(model, idsForDelete);
 };
 
 const saveChangesForModelInBatches = async (

@@ -17,7 +17,6 @@ export interface SyncRecord {
   recordId: string;
   recordType: string;
   data: SyncRecordData;
-  isDeleted?: boolean;
 }
 
 export type PersistResult = {

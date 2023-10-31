@@ -13,7 +13,6 @@ const buildToSyncRecord = (model: typeof BaseModel, record: object): SyncRecord 
 
   return {
     recordId: data.id,
-    isDeleted: !!data.deletedAt,
     recordType: model.getTableNameForSync(),
     data,
   };

@@ -4,12 +4,7 @@ import { BaseModel } from './BaseModel';
 import { Program } from './Program';
 import { Database } from '~/infra/db';
 import { VitalsDataElements } from '/helpers/constants';
-import {
-  ISurvey,
-  ISurveyScreenComponent,
-  IVitalsSurvey,
-  SurveyTypes,
-} from '~/types';
+import { ISurvey, ISurveyScreenComponent, IVitalsSurvey, SurveyTypes } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { In } from 'typeorm/browser';
@@ -45,18 +40,19 @@ export class Survey extends BaseModel implements ISurvey {
       survey: {
         id: this.id,
       },
-      visibilityStatus: In([VisibilityStatus.Current]),
     };
 
     const { includeAllVitals } = options;
-    if (includeAllVitals) {
-      where.visibilityStatus = In([VisibilityStatus.Current, VisibilityStatus.Historical]);
-    }
+
     const repo = Database.models.SurveyScreenComponent.getRepository();
     return repo.find({
       where,
       relations: ['dataElement'],
-      order: { screenIndex: 'ASC', componentIndex: 'ASC' },
+      order: {
+        screenIndex: 'ASC',
+        componentIndex: 'ASC',
+      },
+      withDeleted: includeAllVitals,
     });
   }
 
