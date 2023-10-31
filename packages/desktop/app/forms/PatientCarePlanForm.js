@@ -8,6 +8,7 @@ import { ConfirmCancelRow } from '../components/ButtonRow';
 
 import { foreignKey } from '../utils/validation';
 import { LocalisedText } from '../components';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const PatientCarePlanForm = ({
   practitionerSuggester,
@@ -22,13 +23,20 @@ export const PatientCarePlanForm = ({
       <FormGrid columns={1}>
         <Field
           name="carePlanId"
-          label="Care plan"
+          label={<TranslatedText stringId="forms.carePlan.plan" fallback="Care plan" />}
           component={AutocompleteField}
           suggester={carePlanSuggester}
           required
         />
         <FormGrid columns={2}>
-          <Field name="date" label="Date recorded" component={DateTimeField} saveDateAsString />
+          <Field
+            name="date"
+            label={
+              <TranslatedText stringId="forms.general.recordedDate" fallback="Date recorded" />
+            }
+            component={DateTimeField}
+            saveDateAsString
+          />
           <Field
             name="examinerId"
             label={<LocalisedText path="fields.clinician.shortLabel" />}
@@ -38,7 +46,7 @@ export const PatientCarePlanForm = ({
         </FormGrid>
         <Field
           name="content"
-          label="Main care plan"
+          label={<TranslatedText path="forms.carePlan.content" fallback="Main care plan" />}
           required
           component={TextField}
           multiline
@@ -47,7 +55,13 @@ export const PatientCarePlanForm = ({
         <ConfirmCancelRow
           onCancel={onCancel}
           onConfirm={submitForm}
-          confirmText={editedObject ? 'Save' : 'Add'}
+          confirmText={
+            editedObject ? (
+              <TranslatedText stringId="general.actions.save" fallback="Save" />
+            ) : (
+              <TranslatedText stringId="general.actions.add" fallback="Add" />
+            )
+          }
         />
       </FormGrid>
     )}

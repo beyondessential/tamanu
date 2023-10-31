@@ -20,6 +20,7 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { PANE_SECTION_IDS } from './paneSections';
 import { useApi, isErrorUnknownAllow404s } from '../../api';
 import { RecordDeathSection } from '../RecordDeathSection';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
@@ -87,9 +88,23 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
     Form={PatientCarePlanForm}
     getName={({ carePlan }) => carePlan.name}
     behavior="modal"
-    itemTitle="Add care plan"
+    itemTitle={
+      <TranslatedText
+        stringId="patientDetailsPane.carePlan.createModalTitle"
+        fallback="Add care plan"
+      />
+    }
     CustomEditForm={PatientCarePlanDetails}
-    getEditFormName={({ carePlan }) => `Care plan: ${carePlan.name}`}
+    // #TODO translation a little weird
+    getEditFormName={({ carePlan }) => (
+      <>
+        <TranslatedText
+          stringId="patientDetailsPane.carePlan.editModalTitle"
+          fallback="Care plan"
+        />
+        : ${carePlan.name}
+      </>
+    )}
   />
 ));
 
