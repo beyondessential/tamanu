@@ -2,13 +2,12 @@ import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { promises as fs } from 'fs';
 import { singularize } from 'inflection';
-import { camelCase, lowerCase, upperFirst } from 'lodash';
+import { camelCase, lowerCase } from 'lodash';
 import { Sequelize } from 'sequelize';
 
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { log } from '@tamanu/shared/services/logging/log';
 import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
-import { REFERENCE_TYPE_VALUES } from '@tamanu/constants';
 
 import { DryRun, DataImportError } from './errors';
 import { coalesceStats } from './stats';
@@ -37,6 +36,7 @@ export async function importerTransaction({
   file,
   dryRun = false,
   includedDataTypes = [],
+  checkPermission,
 }) {
   const errors = [];
   const stats = [];
@@ -62,7 +62,7 @@ export async function importerTransaction({
         });
 
         try {
-          await importer({ errors, models, stats, file, includedDataTypes });
+          await importer({ errors, models, stats, file, includedDataTypes, checkPermission });
         } catch (err) {
           errors.push(err);
         }
@@ -101,7 +101,7 @@ export async function importerTransaction({
 export function createDataImporterEndpoint(importer) {
   return asyncHandler(async (req, res) => {
     const start = Date.now();
-    const { store } = req;
+    const { store, checkPermission } = req;
 
     // read uploaded data
     const {
@@ -117,6 +117,7 @@ export function createDataImporterEndpoint(importer) {
       models: store.models,
       dryRun,
       includedDataTypes,
+      checkPermission,
     });
 
     // we don't need the file any more

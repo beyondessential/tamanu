@@ -29,8 +29,9 @@ export async function referenceDataImporter({
       continue;
     }
 
-    checkPermission('create', 'ReferenceData');
-    checkPermission('write', upperFirst(dataType));
+    const nonReferenceDataModalName = upperFirst(dataType);
+    checkPermission('create', nonReferenceDataModalName);
+    checkPermission('write', nonReferenceDataModalName);
   }
 
   log.debug('Parse XLSX workbook');

@@ -1,14 +1,13 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { upperCase } from 'lodash';
 
-import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/shared/errors';
 
 import { createDataImporterEndpoint } from './importerEndpoint';
-
 import { programImporter } from './programImporter';
 import { referenceDataImporter } from './referenceDataImporter';
 import { exporter } from './exporter';
-
 import { mergePatientHandler } from './patientMerge';
 import { syncLastCompleted } from './sync';
 import { fhirJobStats } from './fhirJobStats';
@@ -53,6 +52,11 @@ adminRoutes.get(
   '/export/referenceData',
   asyncHandler(async (req, res) => {
     const { store, query } = req;
+
+    Object.values(query.includedDataTypes).map(async dataType => {
+      req.checkPermission('list', upperCase(dataType));
+    });
+
     const filename = await exporter(store.models, query.includedDataTypes);
     res.download(filename);
   }),
