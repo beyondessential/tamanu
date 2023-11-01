@@ -63,9 +63,9 @@ const generateDefaultParameter = () => ({
 const schema = yup.object().shape({
   name: yup.string().required('Report name is a required field'),
   dataSources: yup
-    .string()
+    .array()
     .test('test-data-sources', 'Select at least one data source', val => {
-      const values = val?.split(', ') || [];
+      const values = val || [];
       return values.length && values.every(v => REPORT_DATA_SOURCE_VALUES.includes(v));
     })
     .required('Data sources is a required field'),
@@ -121,11 +121,14 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
   const onParamsDelete = paramId => setParams(params.filter(p => p.id !== paramId));
 
   const canWriteRawReportUser = Boolean(ability?.can('write', 'ReportDbSchema'));
-  const showDataSourceField = values.dbSchema === REPORT_DB_SCHEMAS.RAW;
 
-  const { data: schemaOptions } = useQuery(['dbSchemaOptions'], () =>
+  const { data: schemaOptions = [] } = useQuery(['dbSchemaOptions'], () =>
     api.get(`admin/reports/dbSchemaOptions`),
   );
+
+  // Show data source field if user is writing a raw report OR if reporting schema is disabled.
+  const showDataSourceField =
+    values.dbSchema === REPORT_DB_SCHEMAS.RAW || schemaOptions.length === 0;
 
   return (
     <>
