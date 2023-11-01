@@ -1,6 +1,9 @@
 import { Op } from 'sequelize';
 import { VISIBILITY_STATUSES, FHIR_PATIENT_LINK_TYPES } from '@tamanu/constants';
-import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/shared/demoData/patients';
+import {
+  createDummyPatient,
+  createDummyPatientAdditionalData,
+} from '@tamanu/shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
 import {

@@ -60,11 +60,13 @@ export async function programImporter({
     count: surveysToImport.length,
   });
 
-  // then loop over each survey defined in metadata and import it
-  for (const surveyInfo of surveysToImport) {
+  if (surveysToImport.length) {
     checkPermission('create', 'Survey');
     checkPermission('write', 'Survey');
+  }
 
+  // then loop over each survey defined in metadata and import it
+  for (const surveyInfo of surveysToImport) {
     try {
       const context = createContext(surveyInfo.name);
       const result = await importSurvey(context, workbook, surveyInfo);

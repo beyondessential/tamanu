@@ -12,6 +12,7 @@ import { createTestContext } from '../utilities';
 import './matchers';
 import { exporter } from '../../app/admin/exporter/exporter';
 import { createAllergy, createDiagnosis } from '../exporters/referenceDataUtils';
+import { makeRoleWithPermissions } from '../permissions';
 
 // the importer can take a little while
 jest.setTimeout(30000);
@@ -20,11 +21,17 @@ const BAD_ID_ERROR_MESSAGE = 'id must not have spaces or punctuation other than 
 const BAD_CODE_ERROR_MESSAGE = 'code must not have spaces or punctuation other than -./';
 const BAD_VIS_ERROR_MESSAGE = `visibilityStatus must be one of the following values:`;
 
-describe('Data definition import', () => {
+describe('Reference data import', () => {
   let ctx;
+  let app;
+  let models;
+
   beforeAll(async () => {
     ctx = await createTestContext();
+    app = await ctx.baseApp.asRole('practitioner');
+    models = ctx.store.models;
   });
+
   afterAll(async () => {
     await ctx.close();
   });
@@ -36,9 +43,55 @@ describe('Data definition import', () => {
       file: `./__tests__/importers/refdata-${file}.xlsx`,
       models: ctx.store.models,
       includedDataTypes: GENERAL_IMPORTABLE_DATA_TYPES,
+      checkPermission: () => true,
       ...opts,
     });
   }
+
+  describe('Permissions check', () => {
+    beforeEach(async () => {
+      const { Permission, Role } = ctx.store.models;
+      await Permission.destroy({ where: {}, force: true });
+      await Role.destroy({ where: {}, force: true });
+    });
+
+    it('forbids import if having insufficient permission for reference data', async () => {
+      await makeRoleWithPermissions(models, 'practitioner', [
+        { verb: 'write', noun: 'EncounterDiagnosis' },
+      ]);
+
+      const result = await app
+        .post('/v1/admin/import/referenceData')
+        .attach(`./__tests__/importers/refdata-valid.xlsx`)
+        .field('includedDataTypes', 'allergy');
+
+      const { didntSendReason, errors } = result.body;
+
+      expect(didntSendReason).toEqual('validationFailed');
+      expect(errors[0]).toHaveProperty(
+        'message',
+        `ForbiddenError: Cannot perform action "create" on ReferenceData.`,
+      );
+    });
+
+    it('allows import if having sufficient permission for reference data', async () => {
+      await makeRoleWithPermissions(models, 'practitioner', [
+        { verb: 'write', noun: 'ReferenceData' },
+        { verb: 'create', noun: 'ReferenceData' },
+      ]);
+
+      const result = await app
+        .post('/v1/admin/import/referenceData')
+        .attach('file', './__tests__/importers/refdata-valid.xlsx')
+        .field('includedDataTypes', 'allergy')
+        .field('dryRun', true);
+
+      const { didntSendReason, errors } = result.body;
+
+      expect(didntSendReason).toEqual('dryRun');
+      expect(errors).toBeEmpty();
+    });
+  });
 
   it('should succeed with valid data', async () => {
     const { didntSendReason, errors, stats } = await doImport({ file: 'valid', dryRun: true });
@@ -277,14 +330,6 @@ describe('Data definition import', () => {
     expect(password).not.toEqual(passwordPre); // make sure it's updated
   });
 
-  it('should forbid an import by a non-admin', async () => {
-    const { baseApp } = ctx;
-    const nonAdminApp = await baseApp.asRole('practitioner');
-
-    const response = await nonAdminApp.post('/v1/admin/importRefData');
-    expect(response).toBeForbidden();
-  });
-
   it('should import patient field definition categories with a tab named "Patient Field Def Category"', async () => {
     const { errors, stats } = await doImport({ file: 'patient-field-definition-categories' });
     expect(errors).toBeEmpty();
@@ -318,6 +363,7 @@ describe('Permissions import', () => {
       file: `./__tests__/importers/permissions-${file}.xlsx`,
       models: ctx.store.models,
       includedDataTypes: PERMISSION_IMPORTABLE_DATA_TYPES,
+      checkPermission: () => true,
       ...opts,
     });
   }
@@ -452,6 +498,7 @@ describe('Import from an exported file', () => {
       file: `${file}`,
       models: ctx.store.models,
       includedDataTypes: GENERAL_IMPORTABLE_DATA_TYPES,
+      checkPermission: () => true,
       ...opts,
     });
   }
