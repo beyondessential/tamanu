@@ -94,6 +94,10 @@ const patientProgramRegistries = {
       programRegistryId: 'programRegistry-HepatitisBProgramRegistry',
       clinicalStatusId: 'prClinicalStatus-LowRisk',
       facilityId: 'facility-ColonialWarMemorialDivisionalHospital',
+      clinician: {
+        id: '213123',
+        displayName: 'Alaister',
+      },
       clinicalStatus: {
         id: 'prClinicalStatus-LowRisk',
         code: 'Critical',

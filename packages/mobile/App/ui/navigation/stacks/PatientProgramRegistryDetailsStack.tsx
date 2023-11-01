@@ -4,7 +4,7 @@ import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { EmptyStackHeader } from '~/ui/components/StackHeader';
 import { withPatient } from '~/ui/containers/Patient';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
-import { FullView, RowView, StyledView } from '~/ui/styled/common';
+import { FullView } from '~/ui/styled/common';
 import { Routes } from '~/ui/helpers/routes';
 import { createStackNavigator } from '@react-navigation/stack';
 import { PatientProgramRegistryDetails } from '../screens/patientProgramRegistry/PatientProgramRegistryDetails';

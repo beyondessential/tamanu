@@ -69,8 +69,16 @@ export const PatientProgramRegistryDetails = ({ route }) => {
         label="Registration facility"
         value={patientProgramRegistry.registeringFacility.name}
       />
-      <DataRow label="Status" value={patientProgramRegistry.clinicalStatus.name} />
-      <DataRow label="Conditions" value={patientProgramRegistry.conditions.map(x => x.name)} />
+      <DataRow label="Status" value={patientProgramRegistry.clinicalStatus.name || '-'} />
+      <DataRow
+        label="Conditions"
+        value={
+          Array.isArray(patientProgramRegistry.conditions) &&
+          patientProgramRegistry.conditions.length > 0
+            ? patientProgramRegistry.conditions.map(x => x.name)
+            : '-'
+        }
+      />
     </FullView>
   );
 };
