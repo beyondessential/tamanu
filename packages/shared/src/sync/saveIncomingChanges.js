@@ -75,13 +75,17 @@ const saveChangesForModel = async (model, changes, isCentralServer) => {
       return sanitizeData(data);
     });
   const recordsForUpdate = changes
-    .filter(r => !r.isDeleted && !idToExistingRecord[r.data.id].deletedAt)
+    .filter(
+      r =>
+        !r.isDeleted && !!idToExistingRecord[r.data.id] && !idToExistingRecord[r.data.id].deletedAt,
+    )
     .map(({ data }) => {
       // validateRecord(data, null); TODO add in validation
       return sanitizeData(data);
     });
   const idsForRestore = changes.filter(
-    r => !r.isDeleted && !!idToExistingRecord[r.data.id].deletedAt,
+    r =>
+      !r.isDeleted && !!idToExistingRecord[r.data.id] && !!idToExistingRecord[r.data.id].deletedAt,
   );
 
   // run each import process
