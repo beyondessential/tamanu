@@ -38,7 +38,7 @@ export const OngoingConditionForm = ({
         <Field
           name="conditionId"
           label={
-            <TranslatedText stringId="forms.conditions.conditionName" fallback="Condition name" />
+            <TranslatedText stringId="form.conditions.conditionName" fallback="Condition name" />
           }
           component={AutocompleteField}
           suggester={icd10Suggester}
@@ -47,7 +47,9 @@ export const OngoingConditionForm = ({
         />
         <Field
           name="recordedDate"
-          label={<TranslatedText stringId="forms.general.recordedDate" fallback="Date recorded" />}
+          label={
+            <TranslatedText stringId="form.general.recordedDate.label" fallback="Date recorded" />
+          }
           saveDateAsString
           component={DateField}
           disabled={resolving}
@@ -61,13 +63,13 @@ export const OngoingConditionForm = ({
         />
         <Field
           name="note"
-          label={<TranslatedText stringId="forms.general.notes" fallback="Notes" />}
+          label={<TranslatedText stringId="form.general.notes.label" fallback="Notes" />}
           component={TextField}
           disabled={resolving}
         />
         <Field
           name="resolved"
-          label={<TranslatedText stringId="forms.conditions.resolved" fallback="Resolved" />}
+          label={<TranslatedText stringId="form.conditions.resolved" fallback="Resolved" />}
           component={CheckField}
         />
         <Collapse in={resolving}>

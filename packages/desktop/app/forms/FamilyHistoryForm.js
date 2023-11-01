@@ -23,14 +23,16 @@ export const FamilyHistoryForm = ({
       <FormGrid columns={1}>
         <Field
           name="diagnosisId"
-          label={<TranslatedText stringId="forms.general.diagnosis" fallback="Diagnosis" />}
+          label={<TranslatedText stringId="form.general.diagnosis.label" fallback="Diagnosis" />}
           required
           component={AutocompleteField}
           suggester={icd10Suggester}
         />
         <Field
           name="recordedDate"
-          label={<TranslatedText stringId="forms.general.recordedDate" fallback="Date recorded" />}
+          label={
+            <TranslatedText stringId="form.general.recordedDate.label" fallback="Date recorded" />
+          }
           required
           component={DateField}
           saveDateAsString
@@ -39,7 +41,7 @@ export const FamilyHistoryForm = ({
           name="relationship"
           label={
             <TranslatedText
-              stringId="forms.familyHistory.relationship"
+              stringId="form.familyHistory.relationship"
               fallback="Relationship to patient"
             />
           }
@@ -53,7 +55,7 @@ export const FamilyHistoryForm = ({
         />
         <Field
           name="note"
-          label={<TranslatedText stringId="forms.general.notes" fallback="Notes" />}
+          label={<TranslatedText stringId="form.general.notes.label" fallback="Notes" />}
           component={TextField}
           multiline
           rows={2}

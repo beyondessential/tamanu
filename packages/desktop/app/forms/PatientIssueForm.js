@@ -19,21 +19,23 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
       <FormGrid columns={1}>
         <Field
           name="type"
-          label={<TranslatedText stringId="forms.general.type" fallback="Type" />}
+          label={<TranslatedText stringId="form.general.type.label" fallback="Type" />}
           component={SelectField}
           options={ISSUE_TYPES}
           required
         />
         <Field
           name="note"
-          label={<TranslatedText stringId="forms.general.notes" fallback="Notes" />}
+          label={<TranslatedText stringId="form.general.notes.label" fallback="Notes" />}
           component={TextField}
           multiline
           rows={2}
         />
         <Field
           name="recordedDate"
-          label={<TranslatedText stringId="forms.general.recordedDate" fallback="Date recorded" />}
+          label={
+            <TranslatedText stringId="form.general.recordedDate.label" fallback="Date recorded" />
+          }
           component={DateField}
           saveDateAsString
           required

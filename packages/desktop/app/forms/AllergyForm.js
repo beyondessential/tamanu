@@ -26,9 +26,7 @@ export const AllergyForm = ({
         <FormGrid columns={1}>
           <Field
             name="allergyId"
-            label={
-              <TranslatedText stringId="forms.allergies.allergyName" fallback="Allergy name" />
-            }
+            label={<TranslatedText stringId="form.allergies.allergyName" fallback="Allergy name" />}
             component={AutocompleteField}
             suggester={allergySuggester}
             required
@@ -36,7 +34,7 @@ export const AllergyForm = ({
           <Field
             name="recordedDate"
             label={
-              <TranslatedText stringId="forms.general.recordedDate" fallback="Date recorded" />
+              <TranslatedText stringId="form.general.recordedDate.label" fallback="Date recorded" />
             }
             component={DateField}
             saveDateAsString
@@ -50,7 +48,7 @@ export const AllergyForm = ({
           />
           <Field
             name="note"
-            label={<TranslatedText stringId="forms.general.notes" fallback="Notes" />}
+            label={<TranslatedText stringId="form.general.notes.label" fallback="Notes" />}
             component={TextField}
           />
           <ConfirmCancelRow

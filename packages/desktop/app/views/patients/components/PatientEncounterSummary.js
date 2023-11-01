@@ -224,7 +224,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
     <Container patientStatus={patientStatus}>
       <Header patientStatus={patientStatus}>
         <BoldTitle variant="h3">
-          <TranslatedText stringId="forms.general.type" fallback="Type" />:
+          <TranslatedText stringId="form.general.type.label" fallback="Type" />:
         </BoldTitle>
         <Title variant="h3">
           {ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label}
@@ -251,7 +251,10 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
         </ContentItem>
         <ContentItem>
           <ContentLabel>
-            <TranslatedText stringId="forms.encounterSummary.supervising" fallback="Supervising" />{' '}
+            <TranslatedText
+              stringId="patient.encounterSummary.supervising"
+              fallback="Supervising"
+            />{' '}
             {clinicianText.toLowerCase()}:
           </ContentLabel>
           <ContentText>{examiner?.displayName || '-'}</ContentText>

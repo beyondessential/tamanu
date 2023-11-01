@@ -23,7 +23,7 @@ export const PatientCarePlanForm = ({
       <FormGrid columns={1}>
         <Field
           name="carePlanId"
-          label={<TranslatedText stringId="forms.carePlan.plan" fallback="Care plan" />}
+          label={<TranslatedText stringId="form.carePlan.plan" fallback="Care plan" />}
           component={AutocompleteField}
           suggester={carePlanSuggester}
           required
@@ -32,7 +32,7 @@ export const PatientCarePlanForm = ({
           <Field
             name="date"
             label={
-              <TranslatedText stringId="forms.general.recordedDate" fallback="Date recorded" />
+              <TranslatedText stringId="form.general.recordedDate.label" fallback="Date recorded" />
             }
             component={DateTimeField}
             saveDateAsString
@@ -46,7 +46,7 @@ export const PatientCarePlanForm = ({
         </FormGrid>
         <Field
           name="content"
-          label={<TranslatedText path="forms.carePlan.content" fallback="Main care plan" />}
+          label={<TranslatedText stringId="form.carePlan.content" fallback="Main care plan" />}
           required
           component={TextField}
           multiline
