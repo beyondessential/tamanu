@@ -5,6 +5,7 @@ import { useApi } from '../api';
 import { reloadPatient } from '../store/patient';
 import { DeleteButton } from './Button';
 import { ConfirmModal } from './ConfirmModal';
+import { TranslatedText } from './Translation/TranslatedText';
 
 export const DeleteAdministeredVaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
   const api = useApi();
@@ -21,15 +22,30 @@ export const DeleteAdministeredVaccineModal = ({ open, onClose, patientId, vacci
 
   return (
     <ConfirmModal
-      title="Delete vaccination record"
-      text="WARNING: This action is irreversible!"
-      subText="Are you sure you want to delete this vaccination record?"
+      title={
+        <TranslatedText
+          stringId="vaccinePane.deleteModal.title"
+          fallback="Delete vaccination record"
+        />
+      }
+      text={
+        <TranslatedText
+          stringId="vaccinePane.deleteModal.text"
+          fallback="WARNING: This action is irreversible!"
+        />
+      }
+      subText={
+        <TranslatedText
+          stringId="vaccinePane.deleteModal.subText"
+          fallback="Are you sure you want to delete this vaccination record?"
+        />
+      }
       open={open}
       onCancel={onClose}
       onConfirm={onMarkRecordedInError}
       ConfirmButton={DeleteButton}
-      cancelButtonText="No"
-      confirmButtonText="Yes"
+      cancelButtonText={<TranslatedText stringId="form.general.no" fallback="No" />}
+      confirmButtonText={<TranslatedText stringId="form.general.yes" fallback="Yes" />}
     />
   );
 };

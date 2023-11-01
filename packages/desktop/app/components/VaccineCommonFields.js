@@ -43,7 +43,7 @@ const VACCINE_FIELD_CATEGORY_OPTIONS = [
   ...VACCINE_CATEGORY_OPTIONS.filter(o => o.value !== VACCINE_CATEGORIES.OTHER),
   {
     value: VACCINE_CATEGORIES.OTHER,
-    label: <TranslatedText stringId="vaccinePane.categoryOther" fallback="Other" />,
+    label: <TranslatedText stringId="form.vaccines.categoryOther" fallback="Other" />,
     leftOptionalElement: <VerticalDivider orientation="vertical" />,
     style: { marginLeft: '15px' },
   },
@@ -53,7 +53,7 @@ export const CategoryField = ({ setCategory, setVaccineLabel, resetForm }) => (
   <FullWidthCol>
     <Field
       name="category"
-      label={<TranslatedText stringId="vaccinePane.categoryLabel" fallback="Category" />}
+      label={<TranslatedText stringId="form.vaccines.category" fallback="Category" />}
       component={RadioField}
       options={VACCINE_FIELD_CATEGORY_OPTIONS}
       onChange={e => {
@@ -69,7 +69,7 @@ export const CategoryField = ({ setCategory, setVaccineLabel, resetForm }) => (
 export const VaccineLabelField = ({ vaccineOptions, setVaccineLabel }) => (
   <Field
     name="vaccineLabel"
-    label={<TranslatedText stringId="vaccinePane.vaccineLabel" fallback="Vaccine" />}
+    label={<TranslatedText stringId="form.vaccines.vaccine" fallback="Vaccine" />}
     component={SelectField}
     options={vaccineOptions}
     onChange={e => setVaccineLabel(e.target.value)}
@@ -80,7 +80,7 @@ export const VaccineLabelField = ({ vaccineOptions, setVaccineLabel }) => (
 export const BatchField = () => (
   <Field
     name="batch"
-    label={<TranslatedText stringId="vaccinePane.batchLabel" fallback="Batch" />}
+    label={<TranslatedText stringId="form.vaccines.batch" fallback="Batch" />}
     component={TextField}
   />
 );
@@ -92,7 +92,7 @@ export const VaccineDateField = ({ label, required = true }) => (
 export const InjectionSiteField = () => (
   <Field
     name="injectionSite"
-    label={<TranslatedText stringId="vaccinePane.injectionSiteLabel" fallback="Injection Site" />}
+    label={<TranslatedText stringId="form.vaccines.injectionSite" fallback="Injection Site" />}
     component={SelectField}
     options={Object.values(INJECTION_SITE_OPTIONS).map(site => ({
       label: site,
@@ -117,7 +117,7 @@ export const DepartmentField = () => {
   return (
     <Field
       name="departmentId"
-      label={<TranslatedText stringId="vaccinePane.departmentLabel" fallback="Department" />}
+      label={<TranslatedText stringId="form.vaccines.department" fallback="Department" />}
       required
       component={AutocompleteField}
       suggester={departmentSuggester}
@@ -126,7 +126,7 @@ export const DepartmentField = () => {
 };
 
 export const GivenByField = ({
-  label = <TranslatedText stringId="vaccinePane.givenByLabel" fallback="Given by" />,
+  label = <TranslatedText stringId="form.vaccines.givenBy" fallback="Given by" />,
 }) => <Field name="givenBy" label={label} component={TextField} />;
 
 export const GivenByCountryField = () => {
@@ -135,7 +135,7 @@ export const GivenByCountryField = () => {
   return (
     <Field
       name="givenBy"
-      label={<TranslatedText stringId="vaccinePane.countryLabel" fallback="Country" />}
+      label={<TranslatedText stringId="form.vaccines.country" fallback="Country" />}
       component={AutocompleteField}
       suggester={countrySuggester}
       required
@@ -151,7 +151,7 @@ export const RecordedByField = () => {
     <Field
       disabled
       name="recorderId"
-      label={<TranslatedText stringId="vaccinePane.recordedByLabel" fallback="Recorded by" />}
+      label={<TranslatedText stringId="form.vaccines.recordedBy" fallback="Recorded by" />}
       component={SelectField}
       options={[
         {
@@ -167,7 +167,7 @@ export const RecordedByField = () => {
 export const ConsentField = ({ label }) => (
   <FullWidthCol>
     <OuterLabelFieldWrapper
-      label={<TranslatedText stringId="vaccinePane.consentLabel" fallback="Consent" />}
+      label={<TranslatedText stringId="form.vaccines.consent" fallback="Consent" />}
       style={{ marginBottom: '5px' }}
       required
     />
@@ -178,9 +178,7 @@ export const ConsentField = ({ label }) => (
 export const ConsentGivenByField = () => (
   <Field
     name="consentGivenBy"
-    label={
-      <TranslatedText stringId="vaccinePane.consentGivenByLabel" fallback="Consent given by" />
-    }
+    label={<TranslatedText stringId="form.vaccines.consentGivenBy" fallback="Consent given by" />}
     component={TextField}
   />
 );
@@ -203,7 +201,7 @@ export const AdministeredVaccineScheduleField = ({ schedules }) => {
       <FullWidthCol>
         <Field
           name="scheduledVaccineId"
-          label={<TranslatedText stringId="vaccinePane.scheduleLabel" fallback="Schedule" />}
+          label={<TranslatedText stringId="form.vaccines.schedule" fallback="Schedule" />}
           component={RadioField}
           options={scheduleOptions}
           required
@@ -217,7 +215,7 @@ export const AdministeredVaccineScheduleField = ({ schedules }) => {
 export const VaccineNameField = () => (
   <Field
     name="vaccineName"
-    label={<TranslatedText stringId="vaccinePane.vaccineNameLabel" fallback="Vaccine name" />}
+    label={<TranslatedText stringId="form.vaccines.vaccineName" fallback="Vaccine name" />}
     component={TextField}
     required
   />
@@ -226,7 +224,7 @@ export const VaccineNameField = () => (
 export const VaccineBrandField = () => (
   <Field
     name="vaccineBrand"
-    label={<TranslatedText stringId="vaccinePane.vaccineBrandLabel" fallback="Vaccine brand" />}
+    label={<TranslatedText stringId="form.vaccines.vaccineBrand" fallback="Vaccine brand" />}
     component={TextField}
   />
 );
@@ -234,7 +232,7 @@ export const VaccineBrandField = () => (
 export const DiseaseField = () => (
   <Field
     name="disease"
-    label={<TranslatedText stringId="vaccinePane.diseaseLabel" fallback="Disease" />}
+    label={<TranslatedText stringId="form.vaccines.disease" fallback="Disease" />}
     component={TextField}
   />
 );
@@ -243,6 +241,8 @@ export const ConfirmCancelRowField = ({ onConfirm, onCancel, editMode = false })
   <ConfirmCancelRow
     onConfirm={onConfirm}
     onCancel={onCancel}
-    confirmText={editMode ? 'Save' : undefined}
+    confirmText={
+      editMode ? <TranslatedText stringId="forms.vaccines.saveButton" fallback="Save" /> : undefined
+    }
   />
 );

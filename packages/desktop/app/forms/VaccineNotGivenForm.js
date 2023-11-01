@@ -67,13 +67,13 @@ export const VaccineNotGivenForm = ({
 
     <Field
       name="notGivenReasonId"
-      label={<TranslatedText stringId="vaccinePane.notGivenReasonLabel" fallback="Reason" />}
+      label={<TranslatedText stringId="form.vaccines.notGivenReason" fallback="Reason" />}
       component={SuggesterSelectField}
       endpoint="vaccineNotGivenReason"
     />
 
     <VaccineDateField
-      label={<TranslatedText stringId="vaccinePane.dateRecordedLabel" fallback="Date recorded" />}
+      label={<TranslatedText stringId="form.vaccines.dateRecorded" fallback="Date recorded" />}
     />
 
     <StyledDivider />
@@ -86,7 +86,7 @@ export const VaccineNotGivenForm = ({
     <GivenByField
       label={
         <TranslatedText
-          stringId="vaccinePane.supervisingClinicianLabel"
+          stringId="form.vaccines.supervisingClinician"
           fallback="Supervising clinician"
         />
       }

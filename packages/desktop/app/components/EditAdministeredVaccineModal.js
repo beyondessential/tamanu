@@ -6,6 +6,7 @@ import { useApi, useSuggester } from '../api';
 import { reloadPatient } from '../store/patient';
 import { ViewAdministeredVaccineContent } from './ViewAdministeredVaccineModal';
 import { VaccineForm } from '../forms/VaccineForm';
+import { TranslatedText } from './Translation/TranslatedText';
 
 export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
   const api = useApi();
@@ -40,7 +41,14 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
   const notGiven = VACCINE_STATUS.NOT_GIVEN === vaccineRecord?.status;
 
   return (
-    <Modal title="Edit vaccine record" open={open} onClose={onClose} cornerExitButton={false}>
+    <Modal
+      title={
+        <TranslatedText stringId="forms.vaccines.editVaccineTitle" fallback="Edit vaccine record" />
+      }
+      open={open}
+      onClose={onClose}
+      cornerExitButton={false}
+    >
       <ViewAdministeredVaccineContent vaccineRecord={vaccineRecord} editMode />
       <VaccineForm
         onSubmit={handleUpdateVaccine}

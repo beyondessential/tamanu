@@ -370,7 +370,10 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
       cornerExitButton={false}
     >
       <ViewAdministeredVaccineContent vaccineRecord={vaccineRecord} />
-      <ModalActionRow confirmText="Close" onConfirm={onClose} />
+      <ModalActionRow
+        confirmText={<TranslatedText stringId="actionRow.cancel" fallback="Cancel" />}
+        onConfirm={onClose}
+      />
     </Modal>
   );
 };
