@@ -160,7 +160,7 @@ imagingRequest.put(
 
     // Updates the reference data associations for the areas to be imaged
     if (areas) {
-      await imagingRequestObject.setAreas(areas.split(/,\s/));
+      await imagingRequestObject.setAreas(JSON.parse(areas));
     }
 
     // Get related notes (general, area to be imaged)
@@ -248,7 +248,7 @@ imagingRequest.post(
 
       // Creates the reference data associations for the areas to be imaged
       if (areas) {
-        await newImagingRequest.setAreas(areas.split(/,\s/));
+        await newImagingRequest.setAreas(JSON.parse(areas));
       }
 
       if (note) {
