@@ -30,7 +30,7 @@ function makeScreen(questions, componentData) {
       calculation = '',
       row,
       type,
-      visibilityStatus,
+      visibilityStatus = VISIBILITY_STATUSES.CURRENT,
       visualisationConfig = '',
       ...elementData
     } = component;
