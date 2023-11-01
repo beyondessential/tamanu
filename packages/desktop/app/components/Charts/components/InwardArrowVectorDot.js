@@ -18,9 +18,10 @@ export const InwardArrowVectorDot = props => {
   const { yAxis } = visualisationConfig;
   const { interval, graphRange } = yAxis;
 
+  const clampedTop = Math.min(top, graphRange.max);
   const clampedBottom = Math.max(bottom, graphRange.min);
   const heightPerInterval = getHeightPerYAxisInterval(yAxis, tableHeight);
-  const vectorHeight = ((top - clampedBottom) / interval) * heightPerInterval;
+  const vectorHeight = ((clampedTop - clampedBottom) / interval) * heightPerInterval;
   const clampedVectorHeight = Math.min(vectorHeight, tableHeight);
 
   const verticalLine = {
