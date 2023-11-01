@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/shared",
-  "version": "1.33.2",
+  "version": "1.33.3",
   "description": "Common code across Tamanu packages",
   "exports": {
     ".": "./dist/index.js",
