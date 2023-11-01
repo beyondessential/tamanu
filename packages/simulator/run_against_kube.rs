@@ -69,22 +69,32 @@ async fn main() -> Result<()> {
     )
     .await?;
 
-    let mut facilities = HashMap::new();
     let mut resources = facility_api_resource_names(client.clone(), &args).await?;
     let chosen_resources = if let Some(n) = args.facilities {
         resources.partial_shuffle(&mut thread_rng(), n).0.to_vec()
     } else {
         resources
     };
-    for resource in chosen_resources {
-        let fwd = PortForward::create(&args, &resource, 3000).await?;
-        facilities.insert(resource, fwd);
+
+    let mut fwd_tasks = JoinSet::<Result<_>>::new();
+    for resource in &chosen_resources {
+        let resource = resource.clone();
+        let args = args.clone();
+        fwd_tasks.spawn(async move {
+            let fwd = PortForward::create(&args, &resource, 3000).await?;
+            Ok((resource, fwd))
+        });
     }
 
-    let mut tasks = JoinSet::<Result<_>>::new();
-    for (name, fwd) in facilities {
+    let mut facilities = HashMap::new();
+    while let Some(task) = fwd_tasks.join_next().await {
+        let (resource, fwd) = task.into_diagnostic()??;
+        facilities.insert(resource.clone(), fwd);
+    }
+
+    let mut todo = facilities.into_iter().map(|(name, fwd)| {
         let cmd = args.command.clone();
-        tasks.spawn(async move {
+        async move {
             let mut command = Command::new("/bin/sh");
             command
                 .arg("-c")
@@ -107,10 +117,29 @@ async fn main() -> Result<()> {
             child.wait().await.into_diagnostic()?;
             info!(%name, "done with facility");
             Ok(fwd)
-        });
+        }
+    });
+    let size = todo.size_hint();
+    let size = size.0.max(size.1.unwrap_or(1));
+
+    let mut tasks = JoinSet::<Result<_>>::new();
+    let threads = size.min(
+        std::thread::available_parallelism()
+            .into_diagnostic()?
+            .get(),
+    );
+    info!("starting up to {threads} tasks");
+
+    for _ in 0..threads {
+        let Some(task) = todo.next() else { break };
+        tasks.spawn(task);
     }
 
     while let Some(task) = tasks.join_next().await {
+        if let Some(task) = todo.next() {
+            tasks.spawn(task);
+        }
+
         match task {
             Err(err) => error!("task join failed: {err}"),
             Ok(Err(err)) => error!("task work failed: {err}"),
