@@ -69,8 +69,6 @@ export const useVitals = encounterId => {
       });
   }
 
-  console.log(vitalsRecords);
-
   return {
     ...vitalsQuery,
     data: vitalsRecords,
