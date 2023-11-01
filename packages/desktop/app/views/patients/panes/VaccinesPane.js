@@ -84,7 +84,7 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
             >
               <CovidCertificateIcon style={{ marginRight: 4 }} className="fa fa-clipboard-list" />
               <TranslatedText
-                stringId="vaccinePane.covidVaccineCertificate"
+                stringId="vaccine.covidVaccineCertificate.label"
                 fallback="COVID-19 certificate"
               />
             </CovidCertificateButton>
@@ -95,12 +95,12 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
             disabled={!vaccinations.length}
           >
             <TranslatedText
-              stringId="vaccinePane.allVaccineCertificate"
+              stringId="vaccine.allVaccineCertificate.label"
               fallback="Vaccine certificate"
             />
           </Button>
           <Button onClick={() => setIsAdministerModalOpen(true)} disabled={readonly}>
-            <TranslatedText stringId="vaccinePane.recordVaccineButton" fallback="Record vaccine" />
+            <TranslatedText stringId="vaccine.recordVaccine.label" fallback="Record vaccine" />
           </Button>
         </TableButtonRow>
         <ImmunisationsTable

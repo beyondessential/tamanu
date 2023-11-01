@@ -81,7 +81,7 @@ export const VaccineGivenForm = ({
               name="givenElsewhere"
               label={
                 <TranslatedText
-                  stringId="form.vaccines.givenElsewhereCheckbox"
+                  stringId="form.vaccines.givenElsewhereCheckbox.label"
                   fallback="Given elsewhere (e.g overseas)"
                 />
               }
@@ -108,7 +108,7 @@ export const VaccineGivenForm = ({
             <Field
               name="circumstanceIds"
               label={
-                <TranslatedText stringId="form.vaccines.circumstance" fallback="Circumstances" />
+                <TranslatedText stringId="form.vaccines.circumstance.label" fallback="Circumstances" />
               }
               component={SuggesterSelectField}
               endpoint="vaccineCircumstance"
@@ -144,7 +144,7 @@ export const VaccineGivenForm = ({
       ) : null}
 
       <VaccineDateField
-        label={<TranslatedText stringId="form.vaccines.dateGiven" fallback="Date given" />}
+        label={<TranslatedText stringId="form.vaccines.dateGiven.label" fallback="Date given" />}
         required={!values.givenElsewhere}
       />
 
@@ -173,12 +173,12 @@ export const VaccineGivenForm = ({
         label={
           values.givenElsewhere ? (
             <TranslatedText
-              stringId="form.vaccines.consentGivenElsewhereMessage"
+              stringId="form.vaccines.consentGivenElsewhere.label"
               fallback="Do you have consent to record in Tamanu?"
             />
           ) : (
             <TranslatedText
-              stringId="form.vaccines.consentMessage"
+              stringId="form.vaccines.consent.label"
               fallback="Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?"
             />
           )
