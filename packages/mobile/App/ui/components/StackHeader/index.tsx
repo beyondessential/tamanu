@@ -6,9 +6,12 @@ import {
   StyledSafeAreaView,
   StyledTouchableOpacity,
   RowView,
+  StyledView,
 } from '/styled/common';
 import { ArrowLeftIcon, KebabIcon } from '../Icons';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Row } from '~/ui/navigation/screens/home/Tabs/PatientHome/ReportScreen/RecentPatientSurveyReportStyled';
+import styled from 'styled-components/native';
 
 type HeaderTitleProps = {
   title: string;
@@ -40,7 +43,7 @@ export const StackHeader = ({
   onRightSideIconTap,
 }: StackHeaderProps): ReactElement => (
   <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
-    <RowView background={theme.colors.PRIMARY_MAIN} height={70} justifyContent="space-between">
+    <RowView background={theme.colors.PRIMARY_MAIN} height={70}>
       <StyledTouchableOpacity
         accessibilityLabel="back"
         paddingTop={25}
@@ -71,8 +74,21 @@ export const StackHeader = ({
   </StyledSafeAreaView>
 );
 
+interface IEmptyStackHeader {
+  title: string;
+  onGoBack: () => void;
+  status?: React.ReactNode;
+}
 
-export const EmptyStackHeader = ({ title, onGoBack }): ReactElement => (
+export const EmptyStackHeaderRow = styled.View`
+  max-width: 100%;
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+  align-items: baseline;
+`;
+
+export const EmptyStackHeader = ({ title, onGoBack, status }: IEmptyStackHeader): ReactElement => (
   <StyledSafeAreaView background={theme.colors.WHITE} borderColor={theme.colors.LIGHT_GREY}>
     <StyledTouchableOpacity
       accessibilityLabel="back"
@@ -88,15 +104,18 @@ export const EmptyStackHeader = ({ title, onGoBack }): ReactElement => (
       />
     </StyledTouchableOpacity>
 
-    <StyledText
-      paddingLeft={'25'}
-      paddingRight={'25'}
-      paddingBottom={'25'}
-      color={theme.colors.TEXT_DARK}
-      fontSize={24}
-      fontWeight={500}
-    >
-      {title}
-    </StyledText>
+    <EmptyStackHeaderRow>
+      <StyledText
+        paddingLeft={'25'}
+        paddingRight={'25'}
+        paddingBottom={'25'}
+        color={theme.colors.TEXT_DARK}
+        fontSize={24}
+        fontWeight={500}
+      >
+        {title}
+      </StyledText>
+      <StyledView paddingRight={'25'}>{status}</StyledView>
+    </EmptyStackHeaderRow>
   </StyledSafeAreaView>
 );

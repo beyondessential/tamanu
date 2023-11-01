@@ -11,7 +11,7 @@ import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { createStackNavigator } from '@react-navigation/stack';
 import { PatientProgramRegistrySummary } from '../screens/patientProgramRegistry/PatientProgramRegistrySummary';
 
-export const Stack = createStackNavigator();
+const Stack = createStackNavigator();
 interface PatientSummaryStackProps extends BaseAppProps {
   navigation: NavigationProp<any>;
 }

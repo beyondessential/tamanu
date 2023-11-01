@@ -113,7 +113,10 @@ export const Routes = {
            PatientSummaryStack: {
              Index: '',
            },
-           PatientProgramRegistryStack: {
+           PatientProgramRegistryFormStack: {
+             Index: '',
+           },
+           PatientProgramRegistryDetailsStack: {
              Index: '',
            },
            RegisterPatientStack: {
