@@ -80,6 +80,15 @@ const useFileName = () => {
   };
 };
 
+const isJsonString = str => {
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
+};
+
 export const ReportGeneratorForm = () => {
   const api = useApi();
   const getFileName = useFileName();
@@ -130,10 +139,19 @@ export const ReportGeneratorForm = () => {
   const submitRequestReport = async formValues => {
     const { reportId, emails, ...filterValues } = formValues;
 
+    const updatedFilters = Object.fromEntries(
+      Object.entries(filterValues).map(([key, value]) => {
+        if (isJsonString(value)) {
+          return [key, JSON.parse(value)];
+        }
+        return [key, value];
+      }),
+    );
+
     try {
       if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
         const excelData = await api.post(`reports/${reportId}`, {
-          parameters: filterValues,
+          parameters: updatedFilters,
         });
 
         const filterString = Object.entries(filterValues)
@@ -165,7 +183,7 @@ export const ReportGeneratorForm = () => {
       } else {
         await api.post(`reportRequest`, {
           reportId,
-          parameters: filterValues,
+          parameters: updatedFilters,
           emailList: parseEmails(formValues.emails),
           bookType,
         });
