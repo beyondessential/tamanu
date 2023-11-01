@@ -1,6 +1,6 @@
 {
   "name": "lan",
-  "version": "1.36.1",
+  "version": "1.36.2",
   "private": true,
   "description": "Facility server for Tamanu desktop app",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
