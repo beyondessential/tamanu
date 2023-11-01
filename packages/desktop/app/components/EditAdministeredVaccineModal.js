@@ -42,9 +42,7 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
 
   return (
     <Modal
-      title={
-        <TranslatedText stringId="forms.vaccines.editVaccineTitle" fallback="Edit vaccine record" />
-      }
+      title={<TranslatedText stringId="form.vaccines.editTitle" fallback="Edit vaccine record" />}
       open={open}
       onClose={onClose}
       cornerExitButton={false}
