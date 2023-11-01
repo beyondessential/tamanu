@@ -21,7 +21,6 @@ export const simpleUpdateModels = [
   'PatientSecondaryId',
   'PatientCarePlan',
   'PatientCommunication',
-  'PatientDeathData',
   'Appointment',
   'DocumentMetadata',
   'CertificateNotification',
@@ -36,6 +35,7 @@ export const specificUpdateModels = [
   'Patient',
   'PatientAdditionalData',
   'PatientBirthData',
+  'PatientDeathData',
   'Note',
   'PatientFacility',
   'PatientFieldValue',
@@ -57,6 +57,7 @@ const omittedColumns = [
   'visibilityStatus',
   'dateOfBirthLegacy',
   'dateOfDeathLegacy',
+  'dateOfDeath',
 
   // pad
   'updatedAtByField',
@@ -168,6 +169,44 @@ export async function mergePatientBirthData(models, keepPatientId, unwantedPatie
     force: true,
   });
   return models.PatientBirthData.create(mergedPatientBirthData);
+}
+
+export async function mergePatientDeathData(models, keepPatientId, unwantedPatientId) {
+  const existingUnwantedDeathDataRows = await models.PatientDeathData.findAll({
+    where: { patientId: unwantedPatientId },
+  });
+
+  if (!existingUnwantedDeathDataRows.length) {
+    return [];
+  }
+
+  const results = [];
+
+  for (const unwantedDeathData of existingUnwantedDeathDataRows) {
+    switch (unwantedDeathData.visibilityStatus) {
+      // If merged patient has CURRENT death data, switch the status to MERGED and append it to the keep patient
+      case VISIBILITY_STATUSES.CURRENT: {
+        await unwantedDeathData.update({
+          patientId: keepPatientId,
+          visibilityStatus: VISIBILITY_STATUSES.MERGED,
+        });
+        results.push(unwantedDeathData);
+        break;
+      }
+      // If merged patient has HISTORICAL death data, append it to the keep patient
+      case VISIBILITY_STATUSES.HISTORICAL:
+      case VISIBILITY_STATUSES.MERGED:
+      default: {
+        await unwantedDeathData.update({
+          patientId: keepPatientId,
+        });
+        results.push(unwantedDeathData);
+        break;
+      }
+    }
+  }
+
+  return results;
 }
 
 export async function mergePatientFieldValues(models, keepPatientId, unwantedPatientId) {
@@ -323,6 +362,15 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
     );
     if (updatedPatientBirthData) {
       updates.PatientBirthData = 1;
+    }
+
+    const updatedPatientDeathDataRows = await mergePatientDeathData(
+      models,
+      keepPatientId,
+      unwantedPatientId,
+    );
+    if (updatedPatientDeathDataRows.length > 0) {
+      updates.PatientDeathData = updatedPatientDeathDataRows.length;
     }
 
     const fieldValueUpdates = await mergePatientFieldValues(
