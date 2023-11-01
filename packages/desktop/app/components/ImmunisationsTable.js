@@ -46,7 +46,7 @@ const getActionButtons = ({ onItemClick, onItemEditClick, onItemDeleteClick }) =
   return (
     <ActionButtonsContainer>
       <OutlinedButton onClick={() => onItemClick(record)}>
-        <TranslatedText stringId="vaccinePane.viewButton" fallback="View" />
+        <TranslatedText stringId="table.vaccines.action.view" fallback="View" />
       </OutlinedButton>
       <MarginedMenuButton
         iconColor={Colors.primary}
@@ -82,7 +82,7 @@ export const ImmunisationsTable = React.memo(
       <TableHeaderCheckbox
         label={
           <TranslatedText
-            stringId="vaccinePane.notGivenCheckbox"
+            stringId="table.vaccines.notGivenCheckbox"
             fallback="Include vaccines not given"
           />
         }
@@ -95,23 +95,23 @@ export const ImmunisationsTable = React.memo(
       () => [
         {
           key: 'vaccineDisplayName',
-          title: <TranslatedText stringId="vaccinePane.vaccineColumnLabel" fallback="Vaccine" />,
+          title: <TranslatedText stringId="table.vaccines.column.vaccine" fallback="Vaccine" />,
           accessor: getVaccineName,
         },
         {
           key: 'schedule',
-          title: <TranslatedText stringId="vaccinePane.scheduleColumnLabel" fallback="Schedule" />,
+          title: <TranslatedText stringId="table.vaccines.column.schedule" fallback="Schedule" />,
           accessor: getSchedule,
           sortable: false,
         },
         {
           key: 'date',
-          title: <TranslatedText stringId="vaccinePane.dateColumnLabel" fallback="Date" />,
+          title: <TranslatedText stringId="table.vaccines.column.date" fallback="Date" />,
           accessor: getDate,
         },
         {
           key: 'givenBy',
-          title: <TranslatedText stringId="vaccinePane.givenByColumnLabel" fallback="Given by" />,
+          title: <TranslatedText stringId="table.vaccines.column.givenBy" fallback="Given by" />,
           accessor: getGiver,
           sortable: false,
         },
@@ -119,7 +119,7 @@ export const ImmunisationsTable = React.memo(
           key: 'displayLocation',
           title: (
             <TranslatedText
-              stringId="vaccinePane.facilityCountryColumnLabel"
+              stringId="table.vaccines.column.facilityCountry"
               fallback="Facility/Country"
             />
           ),
@@ -129,9 +129,7 @@ export const ImmunisationsTable = React.memo(
           ? [
               {
                 key: 'action',
-                title: (
-                  <TranslatedText stringId="vaccinePane.actionColumnLabel" fallback="Action" />
-                ),
+                title: <TranslatedText stringId="table.vaccines.column.action" fallback="Action" />,
                 accessor: getActionButtons({ onItemClick, onItemEditClick, onItemDeleteClick }),
                 sortable: false,
                 isExportable: false,
