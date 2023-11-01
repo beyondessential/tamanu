@@ -547,8 +547,8 @@ describe('Patient relations', () => {
       // Arrange
       const { PatientFieldDefinitionCategory, PatientFieldDefinition } = models;
       await Promise.all([
-        PatientFieldDefinitionCategory.truncate({ cascade: true }),
-        PatientFieldDefinition.truncate({ cascade: true }),
+        PatientFieldDefinitionCategory.truncate({ cascade: true, force: true }),
+        PatientFieldDefinition.truncate({ cascade: true, force: true }),
       ]);
       const category1 = await PatientFieldDefinitionCategory.create({
         name: 'Test Category 1',

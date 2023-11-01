@@ -117,8 +117,7 @@ describe('Patient search', () => {
           await createDummyEncounter(models, {
             ...encounterData,
             patientId: patient.id,
-            departmentId:
-              departments[encounterData.departmentIndex || i % departments.length].id,
+            departmentId: departments[encounterData.departmentIndex || i % departments.length].id,
             locationId: locations[encounterData.locationIndex || i % locations.length].id,
           }),
         );
@@ -614,7 +613,6 @@ describe('Patient search', () => {
   });
 
   describe('Filtering sort', () => {
-
     const filterSortPatients = [
       { displayId: 'sort-test-1', firstName: 'Mike', lastName: 'Jordan' },
       { displayId: 'sort-test-1A', firstName: 'Mike', lastName: 'Jo' },
@@ -630,7 +628,7 @@ describe('Patient search', () => {
 
     beforeAll(async () => {
       // use a separate list of patients here
-      await models.Patient.truncate({ cascade: true });
+      await models.Patient.truncate({ cascade: true, force: true });
       await Promise.all(filterSortPatients.map(createTestPatient));
     });
 

@@ -1082,11 +1082,13 @@ describe('Encounter', () => {
           where: {
             response_id: surveyResponseId,
           },
+          force: true,
         });
         await models.SurveyResponse.destroy({
           where: {
             id: surveyResponseId,
           },
+          force: true,
         });
       });
 

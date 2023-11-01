@@ -321,7 +321,7 @@ describe('SurveyResponseAnswer', () => {
       });
 
       it('should return error if feature flag does not exist', async () => {
-        await models.UserLocalisationCache.truncate({ cascade: true });
+        await models.UserLocalisationCache.truncate({ cascade: true, force: true });
 
         const result = await app.put(`/v1/surveyResponseAnswer/vital/nonImportantID`).send({
           reasonForChange: 'test8',
@@ -353,7 +353,7 @@ describe('SurveyResponseAnswer', () => {
         // Currently we don't have a way of accessing the central server config
         // from facility server tests. This feature needs to read that config.
         const mockLocalisation = { features: { enableVitalEdit: true } };
-        await models.UserLocalisationCache.create({
+        await models.UserLocalisationCache.upsert({
           userId: app.user.id,
           localisation: JSON.stringify(mockLocalisation),
         });
@@ -422,7 +422,7 @@ describe('SurveyResponseAnswer', () => {
       });
 
       it('should return error if feature flag does not exist', async () => {
-        await models.UserLocalisationCache.truncate({ cascade: true });
+        await models.UserLocalisationCache.truncate({ cascade: true, force: true });
 
         const result = await app.post('/v1/surveyResponseAnswer/vital').send({
           reasonForChange: 'another-test4',
