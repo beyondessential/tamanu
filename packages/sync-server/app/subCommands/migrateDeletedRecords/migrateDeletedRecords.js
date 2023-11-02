@@ -32,15 +32,9 @@ const fromSurveyScreenComponent = async () => {
 const fromPermission = async () => {
   const store = await initDatabase({ testMode: false });
 
-  // If deleted_at column does not exist
-  if (!store.models.Permission.rawAttributes.deleted_at) {
-    log.info(`Table 'permissions' does not have 'deleted_at' column`);
-    return;
-  }
-
   const response = await store.sequelize.query(
     `UPDATE "permissions" 
-      SET "deleted_at" = NULL, "deletion_status" = :historical
+      SET "deletion_status" = :historical
       WHERE "deleted_at" IS NOT NULL`,
     {
       replacements: {

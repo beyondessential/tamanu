@@ -3,7 +3,6 @@ import { fake } from '@tamanu/shared/test-helpers/fake';
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
-  DELETION_STATUSES,
 } from '@tamanu/constants/importable';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { createDummyPatient } from '@tamanu/shared/demoData/patients';
@@ -400,16 +399,6 @@ describe('Permissions import', () => {
   it('should revoke (and reinstate) a permission', async () => {
     const { Permission } = ctx.store.models;
 
-    const toFindCurrent = {
-      noun: 'RevokeTest',
-      deletionStatus: DELETION_STATUSES.CURRENT,
-    };
-
-    const toFindRevoked = {
-      noun: 'RevokeTest',
-      deletionStatus: DELETION_STATUSES.REVOKED,
-    };
-
     const checkIfPermissionExists = async () => {
       const permissions = await getPermissionsForRoles(ctx.store.models, 'reception');
       expect(permissions).toEqual(expect.arrayContaining([{ noun: 'RevokeTest', verb: 'read' }]));
@@ -417,7 +406,10 @@ describe('Permissions import', () => {
     };
 
     const checkIfPermissionRevoked = async () => {
-      const afterImport = await Permission.findOne({ where: toFindRevoked });
+      const afterImport = await Permission.findOne({
+        where: { noun: 'RevokeTest' },
+        paranoid: false,
+      });
       expect(afterImport).toBeTruthy();
       const permissions = await getPermissionsForRoles(ctx.store.models, 'reception');
       expect(permissions).toEqual(
@@ -426,7 +418,7 @@ describe('Permissions import', () => {
       expect(permissions.length).toBe(0);
     };
 
-    const beforeImport = await Permission.findOne({ where: toFindCurrent });
+    const beforeImport = await Permission.findOne({ where: { noun: 'RevokeTest' } });
     expect(beforeImport).toBeFalsy();
 
     await doImport({ file: 'revoke-a' });
