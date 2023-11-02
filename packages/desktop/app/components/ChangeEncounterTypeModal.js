@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { useEncounter } from '../contexts/Encounter';
-import { Modal } from './Modal';
+import { FormModal } from './FormModal';
 import { ChangeEncounterTypeForm } from '../forms/ChangeEncounterTypeForm';
 
 export const ChangeEncounterTypeModal = React.memo(({ open, encounter, onClose, newType }) => {
@@ -21,13 +21,13 @@ export const ChangeEncounterTypeModal = React.memo(({ open, encounter, onClose, 
   );
 
   return (
-    <Modal title="Change encounter type" open={open} onClose={onClose}>
+    <FormModal title="Change encounter type" open={open} onClose={onClose}>
       <ChangeEncounterTypeForm
         onSubmit={changeEncounterType}
         onCancel={onClose}
         encounter={encounter}
         initialNewType={newType}
       />
-    </Modal>
+    </FormModal>
   );
 });
