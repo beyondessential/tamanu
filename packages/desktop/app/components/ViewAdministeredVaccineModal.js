@@ -136,7 +136,9 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
       value: <DateDisplay date={date} />,
     },
     injectionSite: {
-      label: <TranslatedText stringId="vaccine.form.injectionSite.label" fallback="Injection site" />,
+      label: (
+        <TranslatedText stringId="vaccine.form.injectionSite.label" fallback="Injection site" />
+      ),
       value: injectionSite || '-',
     },
     area: {

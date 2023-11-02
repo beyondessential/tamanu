@@ -52,11 +52,11 @@ const getActionButtons = ({ onItemClick, onItemEditClick, onItemDeleteClick }) =
         iconColor={Colors.primary}
         actions={[
           {
-            label: 'Edit',
+            label: <TranslatedText stringId="vaccine.action.edit" fallback="Edit" />,
             action: () => onItemEditClick(record),
           },
           {
-            label: 'Delete',
+            label: <TranslatedText stringId="vaccine.action.delete" fallback="Delete" />,
             action: () => onItemDeleteClick(record),
           },
         ]}
