@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 
 import { QueryTypes } from 'sequelize';
 
-import { NotFoundError } from '../errors';
+import { InvalidOperationError, NotFoundError } from '../errors';
 import { renameObjectKeys } from './renameObjectKeys';
 
 // utility function for creating a subroute that all checks the same
@@ -63,6 +63,12 @@ export const simplePut = modelName =>
     req.checkPermission('read', modelName);
     const object = await models[modelName].findByPk(params.id);
     if (!object) throw new NotFoundError();
+    if (object.deletedAt)
+      throw new InvalidOperationError(
+        `Cannot update deleted object with id (${params.id}), you need to restore it first`,
+      );
+    if (req.body.hasOwnProperty('deletedAt'))
+      throw new InvalidOperationError('Cannot update deletedAt field');
     req.checkPermission('write', object);
     await object.update(req.body);
     res.send(object);
@@ -71,8 +77,26 @@ export const simplePut = modelName =>
 export const simplePost = modelName =>
   asyncHandler(async (req, res) => {
     const { models } = req;
+    let object;
     req.checkPermission('create', modelName);
-    const object = await models[modelName].create(req.body);
+
+    if (req.body?.id) {
+      object = await models[modelName].findByPk(req.body.id, {
+        paranoid: false,
+      });
+      if (object && object.deletedAt) {
+        await object.restore();
+        await object.update(req.body);
+      }
+      if (object && !object.deletedAt) {
+        throw new InvalidOperationError(
+          `Cannot create object with id (${req.body.id}), it already exists`,
+        );
+      }
+    } else {
+      object = await models[modelName].create(req.body);
+    }
+
     res.send(object);
   });
 
