@@ -41,6 +41,6 @@ export const FieldByType = {
 
 export const PatientFieldDefinitionComponents = {
   [PatientFieldDefinitionTypes.STRING]: FieldByType[FieldTypes.TEXT],
-  [PatientFieldDefinitionTypes.NUMBER]: [FieldTypes.NUMBER],
-  [PatientFieldDefinitionTypes.SELECT]: [FieldTypes.SELECT],
+  [PatientFieldDefinitionTypes.NUMBER]: FieldByType[FieldTypes.NUMBER],
+  [PatientFieldDefinitionTypes.SELECT]: FieldByType[FieldTypes.SELECT],
 };
