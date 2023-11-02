@@ -5,7 +5,6 @@ import { ipcRenderer } from 'electron';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from '@tamanu/constants';
 import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
-import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { getDeviceId, notifyError } from '../utils';
