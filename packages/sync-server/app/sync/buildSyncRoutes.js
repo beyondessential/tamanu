@@ -16,7 +16,7 @@ export const buildSyncRoutes = ctx => {
     '/',
     asyncHandler(async (req, res) => {
       const { SyncQueuedDevice, SyncSession } = req.models;
-      
+
       // check if our device has a stale session and kill it if so
       // TODO: where does this go??
       const staleSessions = await SyncSession.findAll({
