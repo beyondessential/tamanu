@@ -14,7 +14,7 @@ import { useApi, useSuggester } from '../api';
 import { getPatientDetailsValidation } from '../validations';
 import {
   AutocompleteField,
-  Button,
+  FormSubmitButton,
   ButtonRow,
   DateField,
   Field,
@@ -253,14 +253,14 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
     ? PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY
     : PATIENT_REGISTRY_TYPES.NEW_PATIENT;
 
-  const handleSubmit = data => {
+  const handleSubmit = async data => {
     const newData = { ...data };
 
     if (newData.registeredBirthPlace !== PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY) {
       newData.birthFacilityId = null;
     }
 
-    onSubmit(newData);
+    await onSubmit(newData);
   };
 
   const sexValues = useSexValues();
@@ -291,7 +291,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
 
   return (
     <Form
-      render={({ submitForm, values }) => (
+      render={({ values }) => (
         <>
           <PrimaryDetailsGroup values={values} patientRegistryType={patientRegistryType} />
           <StyledPatientDetailSecondaryDetailsGroupWrapper>
@@ -306,9 +306,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
             fieldValues={fieldValuesResponse?.data}
           />
           <ButtonRow>
-            <Button variant="contained" color="primary" onClick={submitForm}>
-              Save
-            </Button>
+            <FormSubmitButton variant="contained" color="primary" text="Save" />
           </ButtonRow>
         </>
       )}

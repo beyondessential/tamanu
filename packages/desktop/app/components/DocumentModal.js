@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-import { Modal } from './Modal';
+import { FormModal } from './FormModal';
 import { DocumentForm } from '../forms/DocumentForm';
 
 export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable }) => {
@@ -41,7 +41,7 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
   }, [preventClose]);
 
   return (
-    <Modal width="md" title="Add document" open={open} onClose={handleClose}>
+    <FormModal width="md" title="Add document" open={open} onClose={handleClose}>
       <DocumentForm
         onSubmit={onSubmit}
         onStart={onStart}
@@ -50,7 +50,7 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
         editedObject={document}
         endpoint={endpoint}
       />
-    </Modal>
+    </FormModal>
   );
 });
 

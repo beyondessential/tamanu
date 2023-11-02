@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { VACCINE_STATUS, VACCINE_RECORDING_TYPES } from '@tamanu/constants';
 import { useDispatch } from 'react-redux';
-import { Modal } from './Modal';
+import { FormModal } from './FormModal';
 import { useApi, useSuggester } from '../api';
 import { reloadPatient } from '../store/patient';
 import { ViewAdministeredVaccineContent } from './ViewAdministeredVaccineModal';
@@ -40,7 +40,7 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
   const notGiven = VACCINE_STATUS.NOT_GIVEN === vaccineRecord?.status;
 
   return (
-    <Modal title="Edit vaccine record" open={open} onClose={onClose} cornerExitButton={false}>
+    <FormModal title="Edit vaccine record" open={open} onClose={onClose} cornerExitButton={false}>
       <ViewAdministeredVaccineContent vaccineRecord={vaccineRecord} editMode />
       <VaccineForm
         onSubmit={handleUpdateVaccine}
@@ -52,6 +52,6 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
           notGiven ? VACCINE_RECORDING_TYPES.NOT_GIVEN : VACCINE_RECORDING_TYPES.GIVEN
         }
       />
-    </Modal>
+    </FormModal>
   );
 };
