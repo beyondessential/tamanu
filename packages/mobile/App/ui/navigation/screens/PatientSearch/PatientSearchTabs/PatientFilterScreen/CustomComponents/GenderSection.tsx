@@ -20,6 +20,7 @@ export const SexSection = (): ReactElement => (
            <LocalisedField
              localisationPath="fields.sex"
              component={RadioButtonGroup}
+             value="all"
              name="sex"
              options={options}
            />
