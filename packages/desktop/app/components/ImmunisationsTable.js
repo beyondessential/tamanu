@@ -50,10 +50,16 @@ const getActionButtons = ({ onItemClick, onItemEditClick, onItemDeleteClick }) =
       </OutlinedButton>
       <MarginedMenuButton
         iconColor={Colors.primary}
-        actions={{
-          Edit: () => onItemEditClick(record),
-          Delete: () => onItemDeleteClick(record),
-        }}
+        actions={[
+          {
+            label: 'Edit',
+            action: () => onItemEditClick(record),
+          },
+          {
+            label: 'Delete',
+            action: () => onItemDeleteClick(record),
+          },
+        ]}
       />
     </ActionButtonsContainer>
   );
