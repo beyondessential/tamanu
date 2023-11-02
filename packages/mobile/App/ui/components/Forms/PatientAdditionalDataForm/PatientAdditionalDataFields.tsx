@@ -82,7 +82,7 @@ const getCustomFieldComponent = ({ id, name, options, fieldType }) => {
     name={id}
     label={name}
     component={PatientFieldDefinitionComponents[fieldType]}
-    options={options?.split(',')?.map(option => ({ label: option, value: option )}
+    options={options?.split(',')?.map(option => ({ label: option, value: option })}
   />;
 }
 
