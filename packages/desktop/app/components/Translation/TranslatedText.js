@@ -59,7 +59,7 @@ const DebugTooltip = React.memo(({ children, stringId, replacements, fallback })
                   </li>
                 ))}
               </StyledList>
-              {/* <br /> */}
+              {/** TODO: This will be the translated_string text value || fallback */}
               <b>template:</b> {fallback}
             </>
           )}
