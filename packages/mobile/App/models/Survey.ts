@@ -73,12 +73,7 @@ export class Survey extends BaseModel implements ISurvey {
       return null;
     }
 
-    const repo = Database.models.SurveyScreenComponent.getRepository();
-    const components = await repo.find({
-      where: { survey: { id: vitalsSurvey.id }, visibilityStatus: VisibilityStatus.Current },
-      relations: ['dataElement'],
-      order: { screenIndex: 'ASC', componentIndex: 'ASC' },
-    });
+    const components = await vitalsSurvey.getComponents({ includeAllVitals: true });
 
     return {
       dateComponent: components.find(c => c.dataElementId === VitalsDataElements.dateRecorded),
