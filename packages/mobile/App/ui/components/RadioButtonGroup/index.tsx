@@ -47,10 +47,19 @@ export const RadioButtonGroup = ({
   return (
     <>
       {Boolean(label) && (
-        <Label>
+        // <Label fontSize={14} fontWeight={500}>
+        //   {label}
+        //   {required && <RequiredIndicator />}
+        // </Label>
+        <StyledText
+          fontSize={14}
+          fontWeight={500}
+          marginBottom={2}
+          color={theme.colors.TEXT_SUPER_DARK}
+        >
           {label}
           {required && <RequiredIndicator />}
-        </Label>
+        </StyledText>
       )}
       <RowView>
         {options.map((option, index) => (

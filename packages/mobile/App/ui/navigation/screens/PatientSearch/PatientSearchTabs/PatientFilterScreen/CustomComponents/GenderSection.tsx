@@ -1,28 +1,27 @@
 import React, { ReactElement } from 'react';
 // Components
 import { RadioButtonGroup } from '/components/RadioButtonGroup';
-import { Section } from './Section';
-import { SelectButton } from './SelectButton';
-import { Field } from '/components/Forms/FormField';
 // Helpers
 import { MaleGender, FemaleGender } from '/helpers/constants';
+import { StyledView } from '~/ui/styled/common';
+import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 
 const options = [
+  MaleGender,
+  FemaleGender,
   {
     label: 'All',
     value: 'all',
   },
-  MaleGender,
-  FemaleGender,
 ];
 
 export const SexSection = (): ReactElement => (
-  <Section localisationPath="fields.sex">
-    <Field
-      component={RadioButtonGroup}
-      name="sex"
-      options={options}
-      CustomComponent={SelectButton}
-    />
-  </Section>
-);
+         <StyledView marginLeft={20} marginRight={20}>
+           <LocalisedField
+             localisationPath="fields.sex"
+             component={RadioButtonGroup}
+             name="sex"
+             options={options}
+           />
+         </StyledView>
+       );

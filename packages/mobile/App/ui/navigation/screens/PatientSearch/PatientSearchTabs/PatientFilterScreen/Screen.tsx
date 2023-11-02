@@ -20,52 +20,49 @@ interface ScreenProps {
 }
 
 export const Screen = ({ onSubmit, onClear, onCancel }: ScreenProps): ReactElement => (
-  <FullView>
-    <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
-      <RowView
-        background={theme.colors.PRIMARY_MAIN}
-        height={70}
-        justifyContent="space-between"
-        alignItems="center"
-      >
-        <Button
-          flex={1}
-          justifyContent="flex-start"
-          onPress={onCancel}
-          backgroundColor="transparent"
-        >
-          <StyledText
-            marginLeft={screenPercentageToDP(4.86, Orientation.Width)}
-            color={theme.colors.BOX_OUTLINE}
-            fontSize={12}
-          >
-            Cancel
-          </StyledText>
-        </Button>
-        <StyledView position="absolute" width="100%" alignItems="center" zIndex={-1}>
-          <StyledText fontSize={18} color={theme.colors.WHITE}>
-            Filter Search
-          </StyledText>
-        </StyledView>
-        <Button flex={1} onPress={onClear} justifyContent="flex-end" backgroundColor="transparent">
-          <StyledText
-            marginRight={screenPercentageToDP(4.86, Orientation.Width)}
-            fontSize={12}
-            color={theme.colors.BOX_OUTLINE}
-          >
-            Clear Filters
-          </StyledText>
-        </Button>
-      </RowView>
-    </StyledSafeAreaView>
-    <StyledScrollView keyboardShouldPersistTaps="never">
-      <FullView background={theme.colors.BACKGROUND_GREY}>
-        <SexSection />
-        <DateSection />
-        <NameSection />
-        <VillageSection />
-        <SubmitSection onSubmit={onSubmit} />
-      </FullView>
-    </StyledScrollView>
-  </FullView>
-);
+         <FullView>
+           <StyledSafeAreaView>
+             <RowView
+               background={theme.colors.PRIMARY_MAIN}
+               height={70}
+               justifyContent="space-between"
+               alignItems="center"
+             >
+               <Button
+                 onPress={onCancel}
+                 backgroundColor="transparent"
+                 width={screenPercentageToDP(10, Orientation.Width)}
+                 marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
+               >
+                 <StyledText color={theme.colors.BOX_OUTLINE} fontSize={12}>
+                   Cancel
+                 </StyledText>
+               </Button>
+
+               <StyledText fontSize={18} color={theme.colors.WHITE}>
+                 Filter Search
+               </StyledText>
+
+               <Button
+                 onPress={onClear}
+                 backgroundColor="transparent"
+                 width={screenPercentageToDP(20, Orientation.Width)}
+                 marginRight={screenPercentageToDP(2.43, Orientation.Width)}
+               >
+                 <StyledText color={theme.colors.BOX_OUTLINE} fontSize={12}>
+                   Clear Filters
+                 </StyledText>
+               </Button>
+             </RowView>
+           </StyledSafeAreaView>
+           <StyledScrollView keyboardShouldPersistTaps="never">
+             <FullView background={theme.colors.WHITE}>
+               <NameSection />
+               <DateSection />
+               <VillageSection />
+               <SexSection />
+               <SubmitSection onSubmit={onSubmit} />
+             </FullView>
+           </StyledScrollView>
+         </FullView>
+       );

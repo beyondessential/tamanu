@@ -63,7 +63,7 @@ export const AutocompleteModalField = ({
       {!!fieldLabel && (
         <StyledText
           fontSize={14}
-          fontWeight={600}
+          fontWeight={500}
           marginBottom={2}
           color={theme.colors.TEXT_SUPER_DARK}
         >
@@ -74,7 +74,9 @@ export const AutocompleteModalField = ({
       <Button
         marginTop={marginTop}
         backgroundColor={theme.colors.WHITE}
-        textColor={label ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_SOFT}
+        textColor={
+          !!suggester && !!placeholder ? theme.colors.TEXT_SOFT : theme.colors.TEXT_SUPER_DARK
+        }
         buttonText={label || placeholder || 'Select'}
         height={screenPercentageToDP(6.68, Orientation.Height)}
         justifyContent="flex-start"
