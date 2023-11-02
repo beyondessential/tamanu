@@ -12,25 +12,11 @@ export async function up(query) {
         type: DataTypes.TEXT,
         required: true,
         primaryKey: true,
-        validate: {
-          doesNotContainIdDelimiter: value => {
-            if (value.includes(';')) {
-              throw new Error('Translation ID cannot contain ";"');
-            }
-          },
-        },
       },
       language: {
         type: DataTypes.TEXT,
         required: true,
         primaryKey: true,
-        validate: {
-          doesNotContainIdDelimiter: value => {
-            if (value.includes(';')) {
-              throw new Error('Language code cannot contain ";"');
-            }
-          },
-        },
       },
       text: {
         type: DataTypes.TEXT,
