@@ -82,7 +82,7 @@ export const ImmunisationsTable = React.memo(
       <TableHeaderCheckbox
         label={
           <TranslatedText
-            stringId="table.vaccines.notGivenCheckbox"
+            stringId="vaccine.table.notGivenCheckbox"
             fallback="Include vaccines not given"
           />
         }
@@ -95,23 +95,23 @@ export const ImmunisationsTable = React.memo(
       () => [
         {
           key: 'vaccineDisplayName',
-          title: <TranslatedText stringId="table.vaccines.column.vaccine" fallback="Vaccine" />,
+          title: <TranslatedText stringId="vaccine.table.column.vaccine" fallback="Vaccine" />,
           accessor: getVaccineName,
         },
         {
           key: 'schedule',
-          title: <TranslatedText stringId="table.vaccines.column.schedule" fallback="Schedule" />,
+          title: <TranslatedText stringId="vaccine.table.column.schedule" fallback="Schedule" />,
           accessor: getSchedule,
           sortable: false,
         },
         {
           key: 'date',
-          title: <TranslatedText stringId="table.vaccines.column.date" fallback="Date" />,
+          title: <TranslatedText stringId="vaccine.table.column.date" fallback="Date" />,
           accessor: getDate,
         },
         {
           key: 'givenBy',
-          title: <TranslatedText stringId="table.vaccines.column.givenBy" fallback="Given by" />,
+          title: <TranslatedText stringId="vaccine.table.column.givenBy" fallback="Given by" />,
           accessor: getGiver,
           sortable: false,
         },
@@ -119,7 +119,7 @@ export const ImmunisationsTable = React.memo(
           key: 'displayLocation',
           title: (
             <TranslatedText
-              stringId="table.vaccines.column.facilityCountry"
+              stringId="vaccine.table.column.facilityCountry"
               fallback="Facility/Country"
             />
           ),
@@ -129,7 +129,7 @@ export const ImmunisationsTable = React.memo(
           ? [
               {
                 key: 'action',
-                title: <TranslatedText stringId="table.vaccines.column.action" fallback="Action" />,
+                title: <TranslatedText stringId="vaccine.table.column.action" fallback="Action" />,
                 accessor: getActionButtons({ onItemClick, onItemEditClick, onItemDeleteClick }),
                 sortable: false,
                 isExportable: false,
