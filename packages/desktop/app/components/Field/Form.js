@@ -280,6 +280,7 @@ export class Form extends React.PureComponent {
           isVisible={displayErrorDialog}
           onClose={this.hideErrorDialog}
           headerTitle="Please fix below errors to continue"
+          disableDevWarning
           contentText={<FormErrors errors={validationErrors} />}
         />
       </>

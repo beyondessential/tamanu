@@ -4,14 +4,15 @@ import { Alert, AlertTitle } from '@material-ui/lab';
 import { BaseModal } from './BaseModal';
 import { useFormSubmission } from '../contexts/FormSubmission';
 
-export const Modal = memo(({ children, ...props }) => {
+export const Modal = memo(({ children, disableDevWarning, ...props }) => {
   const { hasFormSubmission } = useFormSubmission();
   const [showUsingFormWarning, setShowUsingFormWarning] = useState(false);
 
   useEffect(() => {
-    const usingForm = process.env.NODE_ENV === 'development' && hasFormSubmission;
+    const usingForm =
+      process.env.NODE_ENV === 'development' && hasFormSubmission && !disableDevWarning;
     setShowUsingFormWarning(usingForm);
-  }, [hasFormSubmission]);
+  }, [hasFormSubmission, disableDevWarning]);
 
   return (
     <BaseModal {...props}>

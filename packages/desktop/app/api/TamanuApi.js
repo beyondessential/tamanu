@@ -293,8 +293,6 @@ export class TamanuApi {
   }
 
   async postWithFileUpload(endpoint, filePath, body, options = {}) {
-    // TODO: Adding delay for testing only, remove when testing pass
-    await sleepAsync(2000);
     const fileData = await promises.readFile(filePath);
     const blob = new Blob([fileData]);
 
@@ -315,8 +313,6 @@ export class TamanuApi {
   }
 
   async post(endpoint, body, options = {}) {
-    // TODO: Adding delay for testing only, remove when testing pass
-    await sleepAsync(2000);
     return this.fetch(endpoint, null, {
       method: 'POST',
       body: body && JSON.stringify(body),
@@ -328,8 +324,6 @@ export class TamanuApi {
   }
 
   async put(endpoint, body, options = {}) {
-    // TODO: Adding delay for testing only, remove when testing pass
-    await sleepAsync(2000);
     return this.fetch(endpoint, null, {
       method: 'PUT',
       body: body && JSON.stringify(body),
