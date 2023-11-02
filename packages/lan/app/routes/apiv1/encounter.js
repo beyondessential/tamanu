@@ -20,6 +20,7 @@ import {
   permissionCheckingRouter,
   runPaginatedQuery,
   paginatedGetList,
+  simpleDelete,
 } from '@tamanu/shared/utils/crudHelpers';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
@@ -137,6 +138,8 @@ encounter.post(
 );
 
 encounter.post('/:id/createPatientLetter', createPatientLetter('Encounter', 'encounterId'));
+
+encounter.delete('/:id', simpleDelete('Encounter'));
 
 const encounterRelations = permissionCheckingRouter('read', 'Encounter');
 encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));

@@ -64,6 +64,40 @@ export class Encounter extends Model {
         ...options,
         validate,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        hooks: {
+          async beforeDestroy(encounter) {
+            // sequelize is going to work on cascade for paranoid table in the future.
+            // There is an open issue for this: https://github.com/sequelize/sequelize/issues/2586
+            const vitals = await encounter.getVitals();
+            const notes = await encounter.getNotes();
+            const procedures = await encounter.getProcedures();
+            const labRequests = await encounter.getLabRequests();
+            const imagingRequests = await encounter.getImagingRequests();
+            const medications = await encounter.getMedications();
+            const surveyResponses = await encounter.getSurveyResponses();
+            const documents = await encounter.getDocuments();
+            const invoices = await encounter.getInvoice();
+            const initiatedReferrals = await encounter.getInitiatedReferrals();
+            const completedReferrals = await encounter.getCompletedReferrals();
+            await Promise.all(
+              [
+                vitals,
+                notes,
+                procedures,
+                labRequests,
+                imagingRequests,
+                medications,
+                surveyResponses,
+                documents,
+                invoices,
+                initiatedReferrals,
+                completedReferrals,
+              ].map(async records => {
+                await Promise.all(records.map(record => record.destroy()));
+              }),
+            );
+          },
+        },
       },
     );
     onSaveMarkPatientForSync(this);

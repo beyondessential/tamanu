@@ -171,6 +171,14 @@ export const paginatedGetList = (modelName, foreignKey = '', options = {}) => {
   });
 };
 
+export const simpleDelete = modelName =>
+  asyncHandler(async req => {
+    req.checkPermission('delete', modelName);
+    const { models, params } = req;
+    const model = models[modelName];
+    return model.destroy({ where: { id: params.id } });
+  });
+
 export async function runPaginatedQuery(db, model, countQuery, selectQuery, params, pagination) {
   const countResult = await db.query(countQuery, {
     replacements: params,
