@@ -76,7 +76,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
 
   // On mobile, date is programmatically submitted
   const visibleComponents = components.filter(
-    c => c.dataElementId !== VitalsDataElements.dateRecorded,
+    c => c.dataElementId !== VitalsDataElements.dateRecorded && c.visibilityStatus === 'current',
   );
 
   return (
