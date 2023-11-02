@@ -71,8 +71,16 @@ const ErrorMessage = () => {
   return (
     <Box p={5}>
       <Alert severity="error">
-        <AlertTitle>Error: Cannot load view modal for this vaccine</AlertTitle>
-        Please contact Tamanu administrator
+        <AlertTitle>
+          <TranslatedText
+            stringId="vaccine.error.cantLoadVaccine.title"
+            fallback="Error: Cannot load view modal for this vaccine"
+          />
+        </AlertTitle>
+        <TranslatedText
+          stringId="vaccine.error.cantLoadVaccine.subTitle"
+          fallback="Please contact Tamanu administrator"
+        />
       </Alert>
     </Box>
   );

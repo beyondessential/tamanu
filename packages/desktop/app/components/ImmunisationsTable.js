@@ -18,14 +18,16 @@ const getGiver = record => {
   if (record.status === VACCINE_STATUS.NOT_GIVEN) {
     return (
       <StatusTag $background="#4444441a" $color={Colors.darkestText}>
-        Not given
+        <TranslatedText stringId="vaccine.table.status.notGiven" fallback="Not given" />
       </StatusTag>
     );
   }
   if (record.givenElsewhere) {
-    return 'Given elsewhere';
+    return (
+      <TranslatedText stringId="vaccine.table.status.givenElsewhere" fallback="Given elsewhere" />
+    );
   }
-  return record.givenBy || 'Unknown';
+  return record.givenBy || <TranslatedText stringId="general.unknown" fallback="Given elsewhere" />;
 };
 const getFacility = record => {
   const facility = record.givenElsewhere ? record.givenBy : record.location?.facility?.name;
