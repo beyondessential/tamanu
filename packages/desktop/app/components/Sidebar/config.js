@@ -66,7 +66,7 @@ export const FACILITY_MENU_ITEMS = [
       },
       {
         label: (
-          <TranslatedText stringId="sidebar.scheduling.calender" fallback="Appointments calender" />
+          <TranslatedText stringId="sidebar.scheduling.calendar" fallback="Appointments calendar" />
         ),
         path: '/appointments/calendar',
         ability: { action: 'read' },
