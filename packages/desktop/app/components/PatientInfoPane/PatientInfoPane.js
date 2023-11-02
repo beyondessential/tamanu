@@ -88,11 +88,11 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
     Form={PatientCarePlanForm}
     getName={({ carePlan }) => carePlan.name}
     behavior="modal"
-    itemTitle={<TranslatedText stringId="carePlan.model.create.title" fallback="Add care plan" />}
+    itemTitle={<TranslatedText stringId="carePlan.modal.create.title" fallback="Add care plan" />}
     CustomEditForm={PatientCarePlanDetails}
     getEditFormName={({ carePlan }) => (
       <>
-        <TranslatedText stringId="carePlan.model.edit.title" fallback="Care plan" />:{' '}
+        <TranslatedText stringId="carePlan.modal.edit.title" fallback="Care plan" />:{' '}
         {carePlan.name}
       </>
     )}

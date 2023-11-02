@@ -146,9 +146,15 @@ export const PrintPatientDetailsModal = ({ patient }) => {
       // (triggered in the callback above)
       if (!imageData) {
         return (
-          <Modal title="Working" open>
+          <Modal
+            title={<TranslatedText stringId="print.idForms.modal.title" fallback="Working" />}
+            open
+          >
             <div>
-              <TranslatedText stringId="print.idForms.submitting" fallback="Preparing ID card..." />
+              <TranslatedText
+                stringId="print.idForms.modal.submitting"
+                fallback="Preparing ID card..."
+              />
             </div>
           </Modal>
         );
