@@ -11,6 +11,7 @@ import { getCurrentDateTimeString } from '/helpers/date';
 import { SurveyForm } from '/components/Forms/SurveyForm';
 import { VitalsDataElements } from '/helpers/constants';
 import { useCurrentScreen } from '~/ui/hooks/useCurrentScreen';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 const validate = (values: object): object => {
   const errors: { form?: string } = {};
@@ -76,7 +77,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
 
   // On mobile, date is programmatically submitted
   const visibleComponents = components.filter(
-    c => c.dataElementId !== VitalsDataElements.dateRecorded && c.visibilityStatus === 'current',
+    c => c.dataElementId !== VitalsDataElements.dateRecorded && c.visibilityStatus === VisibilityStatus.Current,
   );
 
   return (

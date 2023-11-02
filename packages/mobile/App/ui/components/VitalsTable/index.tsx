@@ -17,6 +17,7 @@ import { SurveyScreenValidationCriteria } from '~/types';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { ValidationCriteriaNormalRange } from '../../../types/ISurvey';
 import { useSelector } from 'react-redux';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 interface VitalsTableProps {
   data: TableCells<any>;
@@ -101,7 +102,7 @@ export const VitalsTable = memo(
     // Show current components or ones that have historical data in them
     .filter(
       component =>
-        component.visibilityStatus === 'current' || hasHistoricalAnswer[component.dataElementId],
+        component.visibilityStatus === VisibilityStatus.Current || hasHistoricalAnswer[component.dataElementId],
     );
 
     return (
