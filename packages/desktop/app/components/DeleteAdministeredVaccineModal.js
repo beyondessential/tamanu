@@ -41,8 +41,8 @@ export const DeleteAdministeredVaccineModal = ({ open, onClose, patientId, vacci
       onCancel={onClose}
       onConfirm={onMarkRecordedInError}
       ConfirmButton={DeleteButton}
-      cancelButtonText={<TranslatedText stringId="form.general.no" fallback="No" />}
-      confirmButtonText={<TranslatedText stringId="form.general.yes" fallback="Yes" />}
+      cancelButtonText={<TranslatedText stringId="general.form.no" fallback="No" />}
+      confirmButtonText={<TranslatedText stringId="general.form.yes" fallback="Yes" />}
     />
   );
 };
