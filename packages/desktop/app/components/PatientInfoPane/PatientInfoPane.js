@@ -90,14 +90,10 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
     behavior="modal"
     itemTitle={<TranslatedText stringId="carePlan.model.create.title" fallback="Add care plan" />}
     CustomEditForm={PatientCarePlanDetails}
-    // #TODO translation a little weird
     getEditFormName={({ carePlan }) => (
       <>
-        <TranslatedText
-          stringId="patient.detailsSidebar.carePlan.editModalTitle"
-          fallback="Care plan"
-        />
-        : ${carePlan.name}
+        <TranslatedText stringId="carePlan.model.edit.title" fallback="Care plan" />:{' '}
+        {carePlan.name}
       </>
     )}
   />
