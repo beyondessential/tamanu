@@ -85,9 +85,24 @@ export const VitalsTable = memo(
       return <ErrorScreen error={error} />;
     }
 
+    // Create object that checks if a question has historical answers
+    const hasHistoricalAnswer = Object.values(data).reduce((dict, entries) => {
+      const mapped = { ...dict };
+      entries.forEach(entry => {
+        const { dataElementId, body } = entry;
+        mapped[dataElementId] = mapped[dataElementId] || Boolean(body);
+      });
+      return mapped;
+    }, {});
+
     // Date is the column so remove it from rows
     const components = vitalsSurvey.components.filter(
       c => c.dataElementId !== VitalsDataElements.dateRecorded,
+    )
+    // Show current components or ones that have historical data in them
+    .filter(
+      component =>
+        component.visibilityStatus === 'current' || hasHistoricalAnswer[component.dataElementId],
     );
 
     return (
