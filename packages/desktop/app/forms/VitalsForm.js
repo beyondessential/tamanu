@@ -53,7 +53,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
     );
   }
 
-  const handleSubmit = data => onSubmit({ survey: vitalsSurvey, ...data });
+  const handleSubmit = async data => onSubmit({ survey: vitalsSurvey, ...data });
 
   return (
     <Form

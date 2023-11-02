@@ -226,7 +226,9 @@ export class Form extends React.PureComponent {
               severity="warning"
               onClose={() => this.setState({ showWarningForNonAsyncSubmitHandler: false })}
             >
-              <AlertTitle>DEV Warning: this form does not have async onSubmit</AlertTitle>
+              <AlertTitle>
+                DEV Warning: this form does not have async onSubmit (ignore if intentional)
+              </AlertTitle>
             </Alert>
           )}
           {render({
