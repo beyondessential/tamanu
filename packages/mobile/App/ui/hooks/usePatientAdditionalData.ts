@@ -44,7 +44,7 @@ export const usePatientAdditionalData = patientId => {
             setCustomPatientSections(
               Object.entries(
                 groupBy(
-                  fieldDefinitions.sort((a, b) => a.categoryId > b.categoryId),
+                  fieldDefinitions.sort((a, b) => a.category?.name > b.category?.name),
                   'categoryId',
                 )
               )
