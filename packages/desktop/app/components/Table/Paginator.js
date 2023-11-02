@@ -123,7 +123,6 @@ export const Paginator = React.memo(
     return (
       <PaginatorWrapper colSpan={colSpan}>
         <FooterContent>
-          {/* TODO: replacement one */}
           <PageRecordCount>
             <TranslatedText
               stringId="general.table.pageRecordCount"
