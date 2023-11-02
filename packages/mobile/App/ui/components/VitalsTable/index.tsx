@@ -1,6 +1,5 @@
 import React, { memo, useState } from 'react';
 import { differenceInYears, differenceInMonths, differenceInWeeks, parseISO } from 'date-fns';
-import { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
 import { ReduxStoreProps } from '../../interfaces/ReduxStoreProps';
 import { PatientStateProps } from '../../store/ducks/patient';
 import { Table, TableCells } from '../Table';
@@ -20,7 +19,7 @@ import { ValidationCriteriaNormalRange } from '../../../types/ISurvey';
 import { useSelector } from 'react-redux';
 
 interface VitalsTableProps {
-  data: TableCells<PatientVitalsProps>;
+  data: TableCells<any>;
   columns: string[];
 }
 
