@@ -8,6 +8,7 @@ import { Button } from '../Button';
 import { Routes } from '~/ui/helpers/routes';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
+import { SearchIcon } from '../Icons';
 
 interface AutocompleteModalFieldProps {
   value?: string;
@@ -41,10 +42,11 @@ export const AutocompleteModalField = ({
     setLabel(selectedItem.label);
   };
 
-  const openModal = (): void => navigation.navigate(modalRoute, {
-    callback: onPress,
-    suggester,
-  });
+  const openModal = (): void =>
+    navigation.navigate(modalRoute, {
+      callback: onPress,
+      suggester,
+    });
 
   useEffect(() => {
     if (!suggester) return;
@@ -85,10 +87,15 @@ export const AutocompleteModalField = ({
         borderColor={error ? theme.colors.ERROR : '#EBEBEB'}
         borderWidth={1}
         fontWeight={400}
-        fontSize={15}
+        fontSize={16}
         padding={10}
         onPress={openModal}
         disabled={disabled}
+        children={
+          <StyledView marginRight={5}>
+            <SearchIcon fill={theme.colors.TEXT_SOFT} />
+          </StyledView>
+        }
       />
       {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
     </StyledView>
