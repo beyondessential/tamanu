@@ -5,7 +5,7 @@ import { keyBy, pick } from 'lodash';
 import { Alert, AlertTitle, Skeleton } from '@material-ui/lab';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
-import { Modal } from '../../../components/Modal';
+import { FormModal } from '../../../components/FormModal';
 import { BodyText, Heading4, SmallBodyText } from '../../../components/Typography';
 import { DateTimeField, Form, SuggesterSelectField, TextField } from '../../../components/Field';
 import { TableFormFields } from '../../../components/Table';
@@ -22,7 +22,7 @@ const TableContainer = styled.div`
   margin: 0px 30px;
 `;
 
-const StyledModal = styled(Modal)`
+const StyledModal = styled(FormModal)`
   .MuiDialogActions-root {
     display: none;
   }
