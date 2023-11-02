@@ -65,9 +65,7 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
       ),
     },
     {
-      label: (
-        <TranslatedText stringId="vaccine.form.notGivenCategory.label" fallback="Not Given" />
-      ),
+      label: <TranslatedText stringId="vaccine.form.notGivenCategory.label" fallback="Not Given" />,
       key: VACCINE_RECORDING_TYPES.NOT_GIVEN,
       render: () => (
         <VaccineForm
@@ -83,7 +81,7 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
 
   return (
     <Modal
-      title={<TranslatedText stringId="vaccine.modal.new.title" fallback="Record vaccine" />}
+      title={<TranslatedText stringId="vaccine.modal.create.title" fallback="Record vaccine" />}
       open={open}
       onClose={onClose}
       cornerExitButton={false}
