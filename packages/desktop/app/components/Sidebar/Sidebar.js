@@ -134,17 +134,20 @@ const LogoutButton = styled(Button)`
   padding-right: 0;
 `;
 
-const SupportDeskButton = styled(Button)`
+const SupportDesktopLink = styled.a`
+  margin-top: 4px;
   font-weight: 400;
   font-size: 11px;
   line-height: 15px;
-  text-transform: none;
   text-decoration: underline;
   color: ${Colors.white};
-  min-height: 0;
-  min-width: 0;
-  padding-left: 0;
-  padding-right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const StyledMetadataBox = styled(Box)`
+  margin-bottom: 5px;
 `;
 
 const getInitials = string =>
@@ -299,14 +302,13 @@ export const Sidebar = React.memo(({ items }) => {
         {!isRetracted && (
           <>
             <StyledDivider $invisible={isRetracted} />
-            <Box display="flex" justifyContent="space-between">
-              <a href={supportUrl} target="_blank" rel="noreferrer">
-                <SupportDeskButton type="button" id="logout" data-test-id="siderbar-logout-item">
-                  Support centre <Launch style={{ marginLeft: '5px', fontSize: '12px' }} />
-                </SupportDeskButton>
-              </a>
+            <StyledMetadataBox display="flex" justifyContent="space-between">
+              <SupportDesktopLink href={supportUrl} target="_blank" rel="noreferrer">
+                Support centre
+                <Launch style={{ marginLeft: '5px', fontSize: '12px' }} />
+              </SupportDesktopLink>
               <Version>Version {appVersion}</Version>
-            </Box>
+            </StyledMetadataBox>
           </>
         )}
       </Footer>
