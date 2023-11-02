@@ -242,7 +242,7 @@ export const ConfirmCancelRowField = ({ onConfirm, onCancel, editMode = false })
     onConfirm={onConfirm}
     onCancel={onCancel}
     confirmText={
-      editMode ? <TranslatedText stringId="general.actions.save" fallback="Save" /> : undefined
+      editMode ? <TranslatedText stringId="general.action.save" fallback="Save" /> : undefined
     }
   />
 );

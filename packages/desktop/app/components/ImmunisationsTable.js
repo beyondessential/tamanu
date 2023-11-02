@@ -46,7 +46,7 @@ const getActionButtons = ({ onItemClick, onItemEditClick, onItemDeleteClick }) =
   return (
     <ActionButtonsContainer>
       <OutlinedButton onClick={() => onItemClick(record)}>
-        <TranslatedText stringId="general.actions.view" fallback="View" />
+        <TranslatedText stringId="general.action.view" fallback="View" />
       </OutlinedButton>
       <MarginedMenuButton
         iconColor={Colors.primary}

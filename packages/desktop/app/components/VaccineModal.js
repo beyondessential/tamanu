@@ -83,7 +83,7 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
 
   return (
     <Modal
-      title={<TranslatedText stringId="vaccine.new.title" fallback="Record vaccine" />}
+      title={<TranslatedText stringId="vaccine.newModal.title" fallback="Record vaccine" />}
       open={open}
       onClose={onClose}
       cornerExitButton={false}

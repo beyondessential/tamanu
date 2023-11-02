@@ -23,17 +23,17 @@ export const DeleteAdministeredVaccineModal = ({ open, onClose, patientId, vacci
   return (
     <ConfirmModal
       title={
-        <TranslatedText stringId="vaccine.delete.title" fallback="Delete vaccination record" />
+        <TranslatedText stringId="vaccine.deleteModal.title" fallback="Delete vaccination record" />
       }
       text={
         <TranslatedText
-          stringId="vaccine.delete.text"
+          stringId="vaccine.deleteModal.text"
           fallback="WARNING: This action is irreversible!"
         />
       }
       subText={
         <TranslatedText
-          stringId="vaccine.delete.subText"
+          stringId="vaccine.deleteModal.subText"
           fallback="Are you sure you want to delete this vaccination record?"
         />
       }

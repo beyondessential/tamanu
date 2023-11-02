@@ -39,9 +39,9 @@ export const ConfirmCancelRow = React.memo(
   ({
     onCancel,
     onConfirm,
-    confirmText = <TranslatedText stringId="general.actions.confirm" fallback="Confirm" />,
+    confirmText = <TranslatedText stringId="general.action.confirm" fallback="Confirm" />,
     confirmColor = 'primary',
-    cancelText = <TranslatedText stringId="general.actions.cancel" fallback="Cancel" />,
+    cancelText = <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
     confirmDisabled,
     ...props
   }) => (

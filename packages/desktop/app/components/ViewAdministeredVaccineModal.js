@@ -364,14 +364,14 @@ export const ViewAdministeredVaccineModal = ({ open, onClose, vaccineRecord }) =
   if (!vaccineRecord) return null;
   return (
     <Modal
-      title={<TranslatedText stringId="vaccine.view.title" fallback="View vaccine record" />}
+      title={<TranslatedText stringId="vaccine.viewModal.title" fallback="View vaccine record" />}
       open={open}
       onClose={onClose}
       cornerExitButton={false}
     >
       <ViewAdministeredVaccineContent vaccineRecord={vaccineRecord} />
       <ModalActionRow
-        confirmText={<TranslatedText stringId="general.actions.cancel" fallback="Cancel" />}
+        confirmText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
         onConfirm={onClose}
       />
     </Modal>
