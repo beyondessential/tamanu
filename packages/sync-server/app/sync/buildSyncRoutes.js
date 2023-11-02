@@ -1,7 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
+import { Op } from 'sequelize';
 import { log } from 'shared/services/logging';
+import { completeSyncSession } from 'shared/sync/completeSyncSession';
+
 import { CentralSyncManager } from './CentralSyncManager';
 
 export const buildSyncRoutes = ctx => {
@@ -12,7 +15,32 @@ export const buildSyncRoutes = ctx => {
   syncRoutes.post(
     '/',
     asyncHandler(async (req, res) => {
-      const { SyncQueuedDevice } = req.models;
+      const { SyncQueuedDevice, SyncSession } = req.models;
+      
+      // check if our device has a stale session and kill it if so
+      // TODO: where does this go??
+      const staleSessions = await SyncSession.findAll({
+        where: {
+          completedAt: { [Op.is]: null },
+          debugInfo: {
+            deviceId: req.body.deviceId,
+          },
+        },
+      });
+      for (const session of staleSessions) {
+        await completeSyncSession(
+          req.store,
+          session.id,
+          'Session marked as completed due to its device reconnecting',
+        );
+        const durationMs = Date.now() - session.startTime;
+        log.info('StaleSyncSessionCleaner.closedReconnectedSession', {
+          sessionId: session.id,
+          durationMs,
+          facilityId: session.debugInfo.facilityId,
+          deviceId: session.debugInfo.deviceId,
+        });
+      }
 
       // update our position in the queue and check if we're at the front of it
       const queueRecord = await SyncQueuedDevice.checkSyncRequest({
@@ -23,9 +51,10 @@ export const buildSyncRoutes = ctx => {
       log.info('Dummy queue result:', { queueRecord });
 
       // if we're not at the front of the queue, we're waiting
-      if (!queueRecord) {
+      if (queueRecord.id !== req.body.deviceId) {
         res.send({
           status: 'waitingInQueue',
+          behind: queueRecord,
         });
         return;
       }

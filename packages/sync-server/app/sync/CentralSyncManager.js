@@ -59,14 +59,14 @@ export class CentralSyncManager {
   close = () => clearInterval(this.purgeInterval);
 
   async getIsSyncCapacityFull() {
-    const MAX_SYNC_SESSIONS = 1; // TODO: configurable? or maybe this doesn't matter
+    const { maxConcurrentSessions } = this.constructor.config.sync;
     const activeSyncs = await this.store.models.SyncSession.findAll({
       where: {
         completedAt: null,
         error: null,
       },
     });
-    return activeSyncs.length >= MAX_SYNC_SESSIONS;
+    return activeSyncs.length >= maxConcurrentSessions;
   }
 
   async tickTockGlobalClock() {
@@ -93,7 +93,13 @@ export class CentralSyncManager {
     // no await as prepare session (especially the tickTockGlobalClock action) might get blocked
     // and take a while if the central server is concurrently persisting records from another client.
     // Client should poll for the result later.
-    this.prepareSession(syncSession);
+    const preparation = this.prepareSession(syncSession);
+
+    // ...but in unit tests, the tests interfere with each other if we leave prepares running in the
+    // background! So, allow overriding the above behaviour. 
+    if (this.constructor.config.sync.awaitPreparation) {
+      await preparation;
+    }
 
     log.info('CentralSyncManager.startSession', {
       sessionId: syncSession.id,

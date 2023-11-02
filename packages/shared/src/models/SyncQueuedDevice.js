@@ -13,6 +13,7 @@ export class SyncQueuedDevice extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
+        // this represents the deviceId of the queued device (ie it's not randomly generated)
         id: {
           type: DataTypes.TEXT,
           allowNull: false,
@@ -46,14 +47,13 @@ export class SyncQueuedDevice extends Model {
       lastSeenTime: {
         [Op.gt]: toDateTimeString(subMinutes(new Date(), SYNC_READY_WINDOW_MINUTES)),
       },
-      status: SYNC_QUEUE_STATUSES.READY,
     };
   }
 
   static async getNextReadyDevice() {
     return this.findOne({
       where: this.getReadyDevicesWhereClause(),
-      orderBy: [
+      order: [
         ['urgent', 'DESC'], // trues first
         ['lastSyncedTick', 'ASC'], // oldest sync first
       ],
@@ -85,14 +85,8 @@ export class SyncQueuedDevice extends Model {
       });
     }
 
-    // now check our position in the queue - if we're at the top, start a sync
-    const nextDevice = await this.getNextReadyDevice();
-    if (nextDevice?.id !== deviceId) {
-      // someone else is in the queue before us, report back with a "wait" signal
-      return null;
-    }
-
-    // it's our turn! tell the sync system that we're ready to go!
-    return queueRecord;
+    // now check the queue and return the top device - if it's us, the handler will
+    // start a sync (otherwise it'll get used in a "waiting behind device X" response
+    return await this.getNextReadyDevice();
   }
 }

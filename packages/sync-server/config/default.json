@@ -33,6 +33,7 @@
     "level": "info"
   },
   "sync": {
+    "maxConcurrentSessions": 1,
     "persistedCacheBatchSize": 20000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "adjustDataBatchSize": 20000,
