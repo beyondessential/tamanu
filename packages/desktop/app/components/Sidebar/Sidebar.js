@@ -258,7 +258,7 @@ export const Sidebar = React.memo(({ items }) => {
               </ConnectedTo>
               <Box display="flex" justifyContent="space-between">
                 <Version>
-                  <TranslatedText stringId="meta.version" fallback="Version" /> {appVersion}
+                  <TranslatedText stringId="general.meta.version" fallback="Version" /> {appVersion}
                 </Version>
                 <LogoutButton
                   type="button"

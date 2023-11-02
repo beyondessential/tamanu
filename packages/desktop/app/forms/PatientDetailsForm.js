@@ -450,7 +450,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
           />
           <ButtonRow>
             <Button variant="contained" color="primary" onClick={submitForm}>
-              <TranslatedText stringId="general.actions.save" fallback="Save" />
+              <TranslatedText stringId="general.action.save" fallback="Save" />
             </Button>
           </ButtonRow>
         </>

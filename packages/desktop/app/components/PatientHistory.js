@@ -36,24 +36,24 @@ const getFacility = ({ facilityName }) => <FacilityWrapper>{facilityName}</Facil
 const columns = [
   {
     key: 'startDate',
-    title: <TranslatedText stringId="form.general.date.label" fallback="Date" />,
+    title: <TranslatedText stringId="general.form.date.label" fallback="Date" />,
     accessor: getDate,
   },
   {
     key: 'encounterType',
-    title: <TranslatedText stringId="form.general.type.label" fallback="Type" />,
+    title: <TranslatedText stringId="general.form.type.label" fallback="Type" />,
     accessor: getType,
     sortable: false,
   },
   {
     key: 'facilityName',
-    title: <TranslatedText stringId="form.general.facilityName.label" fallback="Facility" />,
+    title: <TranslatedText stringId="general.form.facilityName.label" fallback="Facility" />,
     accessor: getFacility,
     CellComponent: LimitedLinesCell,
   },
   {
     key: 'locationGroupName',
-    title: <TranslatedText stringId="form.general.area.label" fallback="Area" />,
+    title: <TranslatedText stringId="general.form.area.label" fallback="Area" />,
     accessor: LocationGroupCell,
     CellComponent: LimitedLinesCell,
   },
@@ -61,7 +61,7 @@ const columns = [
     key: 'reasonForEncounter',
     title: (
       <TranslatedText
-        stringId="form.encounter.reasonForEncounter"
+        stringId="encounter.form.reasonForEncounter.label"
         fallback="Reason for encounter"
       />
     ),
@@ -95,7 +95,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
           />
 
           <RefreshButton onClick={() => setRefreshCount(refreshCount + 1)}>
-            <TranslatedText stringId="general.actions.refresh" fallback="Refresh" />
+            <TranslatedText stringId="general.action.refresh" fallback="Refresh" />
           </RefreshButton>
         </SyncWarning>
       )}

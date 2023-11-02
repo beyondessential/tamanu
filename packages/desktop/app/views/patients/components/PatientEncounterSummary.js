@@ -224,7 +224,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
     <Container patientStatus={patientStatus}>
       <Header patientStatus={patientStatus}>
         <BoldTitle variant="h3">
-          <TranslatedText stringId="form.general.type.label" fallback="Type" />:
+          <TranslatedText stringId="general.form.type.label" fallback="Type" />:
         </BoldTitle>
         <Title variant="h3">
           {ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label}

@@ -23,7 +23,7 @@ export const FamilyHistoryForm = ({
       <FormGrid columns={1}>
         <Field
           name="diagnosisId"
-          label={<TranslatedText stringId="form.general.diagnosis.label" fallback="Diagnosis" />}
+          label={<TranslatedText stringId="general.form.diagnosis.label" fallback="Diagnosis" />}
           required
           component={AutocompleteField}
           suggester={icd10Suggester}
@@ -31,7 +31,7 @@ export const FamilyHistoryForm = ({
         <Field
           name="recordedDate"
           label={
-            <TranslatedText stringId="form.general.recordedDate.label" fallback="Date recorded" />
+            <TranslatedText stringId="general.form.recordedDate.label" fallback="Date recorded" />
           }
           required
           component={DateField}
@@ -41,7 +41,7 @@ export const FamilyHistoryForm = ({
           name="relationship"
           label={
             <TranslatedText
-              stringId="form.familyHistory.relationship"
+              stringId="familyHistory.form.relationship.label"
               fallback="Relationship to patient"
             />
           }
@@ -55,7 +55,7 @@ export const FamilyHistoryForm = ({
         />
         <Field
           name="note"
-          label={<TranslatedText stringId="form.general.notes.label" fallback="Notes" />}
+          label={<TranslatedText stringId="general.form.notes.label" fallback="Notes" />}
           component={TextField}
           multiline
           rows={2}
@@ -65,9 +65,9 @@ export const FamilyHistoryForm = ({
           onCancel={onCancel}
           confirmText={
             editedObject ? (
-              <TranslatedText stringId="general.actions.save" fallback="Save" />
+              <TranslatedText stringId="general.action.save" fallback="Save" />
             ) : (
-              <TranslatedText stringId="general.actions.add" fallback="Add" />
+              <TranslatedText stringId="general.action.add" fallback="Add" />
             )
           }
         />

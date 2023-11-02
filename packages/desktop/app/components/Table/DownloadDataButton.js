@@ -92,7 +92,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
       data-test-class="download-data-button"
       startIcon={<GetAppIcon />}
     >
-      <TranslatedText stringId="general.actions.export" fallback="Export" />
+      <TranslatedText stringId="general.action.export" fallback="Export" />
     </GreyOutlinedButton>
   );
 }

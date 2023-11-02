@@ -29,16 +29,19 @@ export const OngoingConditionForm = ({
   const RenderForm = ({ submitForm, values }) => {
     const resolving = values.resolved;
     const buttonText = editedObject ? (
-      <TranslatedText stringId="general.actions.save" fallback="Save" />
+      <TranslatedText stringId="general.action.save" fallback="Save" />
     ) : (
-      <TranslatedText stringId="general.actions.add" fallback="Add" />
+      <TranslatedText stringId="general.action.add" fallback="Add" />
     );
     return (
       <FormGrid columns={1}>
         <Field
           name="conditionId"
           label={
-            <TranslatedText stringId="form.conditions.conditionName" fallback="Condition name" />
+            <TranslatedText
+              stringId="conditions.form.conditionName.label"
+              fallback="Condition name"
+            />
           }
           component={AutocompleteField}
           suggester={icd10Suggester}
@@ -48,7 +51,7 @@ export const OngoingConditionForm = ({
         <Field
           name="recordedDate"
           label={
-            <TranslatedText stringId="form.general.recordedDate.label" fallback="Date recorded" />
+            <TranslatedText stringId="general.form.recordedDate.label" fallback="Date recorded" />
           }
           saveDateAsString
           component={DateField}
@@ -63,13 +66,13 @@ export const OngoingConditionForm = ({
         />
         <Field
           name="note"
-          label={<TranslatedText stringId="form.general.notes.label" fallback="Notes" />}
+          label={<TranslatedText stringId="general.form.notes.label" fallback="Notes" />}
           component={TextField}
           disabled={resolving}
         />
         <Field
           name="resolved"
-          label={<TranslatedText stringId="form.conditions.resolved" fallback="Resolved" />}
+          label={<TranslatedText stringId="conditions.form.resolved.label" fallback="Resolved" />}
           component={CheckField}
         />
         <Collapse in={resolving}>
@@ -77,7 +80,12 @@ export const OngoingConditionForm = ({
             <Field
               name="resolutionDate"
               saveDateAsString
-              label="Date resolved"
+              label={
+                <TranslatedText
+                  stringId="conditions.form.resolutionDate.label"
+                  fallback="Date resolved"
+                />
+              }
               component={DateField}
             />
             <Field
@@ -86,7 +94,16 @@ export const OngoingConditionForm = ({
               component={AutocompleteField}
               suggester={practitionerSuggester}
             />
-            <Field name="resolutionNote" label="Notes on resolution" component={TextField} />
+            <Field
+              name="resolutionNote"
+              label={
+                <TranslatedText
+                  stringId="conditions.form.resolutionNote.label"
+                  fallback="Notes on resolution"
+                />
+              }
+              component={TextField}
+            />
           </FormGrid>
         </Collapse>
         <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText={buttonText} />

@@ -171,7 +171,7 @@ export const BackButton = ({ to, text = true, ...props }) => (
     {text && (
       <>
         {' '}
-        <TranslatedText stringId="general.actions.back" fallback="Back" />
+        <TranslatedText stringId="general.action.back" fallback="Back" />
       </>
     )}
   </StyledNavButton>

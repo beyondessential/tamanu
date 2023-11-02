@@ -32,9 +32,16 @@ const replaceStringVariables = (templateString, replacements) => {
   return jsxElements;
 };
 
+const stringIds = [];
+
 // "stringId" is used in future functionality
 // eslint-disable-next-line no-unused-vars
 export const TranslatedText = ({ stringId, fallback, replacements }) => {
+  if (!stringIds.includes(stringId)) {
+    stringIds.push(stringId);
+    if (!stringId) console.log(fallback);
+    console.log(stringIds.sort((a, b) => a.localeCompare(b)));
+  }
   const [isDebugMode, setIsDebugMode] = useState(false);
   // "setTranslation" is used in future functionality
   // eslint-disable-next-line no-unused-vars

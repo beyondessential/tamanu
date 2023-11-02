@@ -145,7 +145,7 @@ export const InfoPaneList = memo(
               endIcon={<AddCircleIcon />}
               data-test-class="add-button-section"
             >
-              <TranslatedText stringId="general.actions.add" fallback="Add" />
+              <TranslatedText stringId="general.action.add" fallback="Add" />
             </AddButton>
           )}
         </TitleContainer>

@@ -23,7 +23,7 @@ export const PatientAlert = React.memo(({ alerts = [] }) => {
       </ul>
       <ButtonRow>
         <Button variant="contained" color="primary" onClick={close}>
-          <TranslatedText stringId="general.actions.ok" fallback="Ok" />
+          <TranslatedText stringId="general.action.ok" fallback="Ok" />
         </Button>
       </ButtonRow>
     </Modal>
