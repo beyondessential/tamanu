@@ -1,4 +1,5 @@
 import React, { memo, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { differenceInYears, differenceInMonths, differenceInWeeks, parseISO } from 'date-fns';
 import { ReduxStoreProps } from '../../interfaces/ReduxStoreProps';
 import { PatientStateProps } from '../../store/ducks/patient';
@@ -16,7 +17,6 @@ import { VitalsTableCell } from './VitalsTableCell';
 import { SurveyScreenValidationCriteria } from '~/types';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { ValidationCriteriaNormalRange } from '../../../types/ISurvey';
-import { useSelector } from 'react-redux';
 import { VisibilityStatus } from '~/visibilityStatuses';
 
 interface VitalsTableProps {
