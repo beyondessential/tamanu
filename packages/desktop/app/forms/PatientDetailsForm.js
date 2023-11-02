@@ -90,7 +90,7 @@ export const PrimaryDetailsGroup = () => {
         name="email"
         component={TextField}
         type="email"
-        defaultLabel={<TranslatedText stringId="fields.email" fallback="Email Address" />}
+        defaultLabel={<TranslatedText stringId="general.form.email" fallback="Email Address" />}
       />
     </FormGrid>
   );

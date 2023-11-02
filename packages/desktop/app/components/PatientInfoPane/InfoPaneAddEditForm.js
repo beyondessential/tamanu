@@ -13,13 +13,13 @@ const getSuggesters = (id, items) => {
   switch (id) {
     case PANE_SECTION_IDS.CONDITIONS:
       return { practitioner: {}, icd10: {} };
-    case PANE_SECTION_IDS.ALLERGIES_TITLE:
+    case PANE_SECTION_IDS.ALLERGIES:
       return { practitioner: {}, allergy: {} };
-    case PANE_SECTION_IDS.FAMILY_HISTORY_TITLE:
+    case PANE_SECTION_IDS.FAMILY_HISTORY:
       return { practitioner: {}, icd10: {} };
-    case PANE_SECTION_IDS.ISSUES_TITLE:
+    case PANE_SECTION_IDS.ISSUES:
       return {};
-    case PANE_SECTION_IDS.CARE_PLANS_TITLE:
+    case PANE_SECTION_IDS.CARE_PLANS:
       return {
         practitioner: {},
         carePlan: {

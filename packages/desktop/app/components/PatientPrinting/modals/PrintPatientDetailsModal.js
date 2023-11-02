@@ -148,7 +148,7 @@ export const PrintPatientDetailsModal = ({ patient }) => {
         return (
           <Modal title="Working" open>
             <div>
-              <TranslatedText stringId="print.idform.submitting" fallback="Preparing ID card..." />
+              <TranslatedText stringId="print.idForms.submitting" fallback="Preparing ID card..." />
             </div>
           </Modal>
         );
