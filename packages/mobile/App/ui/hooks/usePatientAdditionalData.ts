@@ -27,8 +27,8 @@ export const usePatientAdditionalData = patientId => {
                 relations: [ 'category' ],
                 order: {
                   // Nested ordering only works with typeorm version > 0.3.0
-                  // category: { name: 'ASC' },
-                  name: 'ASC',
+                  // category: { name: 'DESC' },
+                  name: 'DESC',
                 },
               }),
               models.PatientFieldValue.find({
