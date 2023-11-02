@@ -4,7 +4,7 @@ import {
   createAdministeredVaccine,
   createScheduledVaccine,
 } from '@tamanu/shared/demoData/vaccines';
-import { VACCINE_CATEGORIES, DELETION_STATUSES } from '@tamanu/constants';
+import { VACCINE_CATEGORIES } from '@tamanu/constants';
 
 export async function createDiagnosis(models) {
   await models.ReferenceData.create({
@@ -96,7 +96,7 @@ export async function createAllergy(models) {
 
 export async function createPermission(
   models,
-  { verb, noun, objectId, roleId, deletionStatus = DELETION_STATUSES.CURRENT },
+  { verb, noun, objectId, roleId, deletionStatus = null },
 ) {
   await models.Permission.create({
     verb,

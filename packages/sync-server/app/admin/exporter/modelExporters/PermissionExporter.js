@@ -3,7 +3,7 @@ import { ModelExporter } from './ModelExporter';
 
 const mapDeletionStatus = deletionStatus => {
   switch (deletionStatus) {
-    case DELETION_STATUSES.CURRENT:
+    case null:
       return 'y';
     case DELETION_STATUSES.REVOKED:
       return 'n';
