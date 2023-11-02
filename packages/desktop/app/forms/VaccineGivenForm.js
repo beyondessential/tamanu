@@ -108,7 +108,10 @@ export const VaccineGivenForm = ({
             <Field
               name="circumstanceIds"
               label={
-                <TranslatedText stringId="vaccine.form.circumstance.label" fallback="Circumstances" />
+                <TranslatedText
+                  stringId="vaccine.form.circumstance.label"
+                  fallback="Circumstances"
+                />
               }
               component={SuggesterSelectField}
               endpoint="vaccineCircumstance"

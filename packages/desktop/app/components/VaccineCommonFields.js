@@ -3,11 +3,7 @@ import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
 import { CheckCircleRounded } from '@material-ui/icons';
 
-import {
-  INJECTION_SITE_OPTIONS,
-  VACCINE_CATEGORY_OPTIONS,
-  VACCINE_CATEGORIES,
-} from '@tamanu/constants';
+import { INJECTION_SITE_OPTIONS, VACCINE_CATEGORIES } from '@tamanu/constants';
 
 import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
 import {
@@ -40,10 +36,21 @@ export const VerticalDivider = styled(Divider)`
 `;
 
 const VACCINE_FIELD_CATEGORY_OPTIONS = [
-  ...VACCINE_CATEGORY_OPTIONS.filter(o => o.value !== VACCINE_CATEGORIES.OTHER),
+  {
+    value: VACCINE_CATEGORIES.ROUTINE,
+    label: <TranslatedText stringId="vaccine.form.category.option.routine" fallback="Routine" />,
+  },
+  {
+    value: VACCINE_CATEGORIES.CATCHUP,
+    label: <TranslatedText stringId="vaccine.form.category.option.catchUp" fallback="Catch-up" />,
+  },
+  {
+    value: VACCINE_CATEGORIES.CAMPAIGN,
+    label: <TranslatedText stringId="vaccine.form.category.option.campaign" fallback="Campaign" />,
+  },
   {
     value: VACCINE_CATEGORIES.OTHER,
-    label: <TranslatedText stringId="vaccine.form.categoryOther.label" fallback="Other" />,
+    label: <TranslatedText stringId="vaccine.form.category.option.other" fallback="Other" />,
     leftOptionalElement: <VerticalDivider orientation="vertical" />,
     style: { marginLeft: '15px' },
   },
@@ -178,7 +185,9 @@ export const ConsentField = ({ label }) => (
 export const ConsentGivenByField = () => (
   <Field
     name="consentGivenBy"
-    label={<TranslatedText stringId="vaccine.form.consentGivenBy.label" fallback="Consent given by" />}
+    label={
+      <TranslatedText stringId="vaccine.form.consentGivenBy.label" fallback="Consent given by" />
+    }
     component={TextField}
   />
 );
