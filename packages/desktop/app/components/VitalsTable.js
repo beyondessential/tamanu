@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
 import { Box, CircularProgress, IconButton as IconButtonComponent } from '@material-ui/core';
 import { useSelector } from 'react-redux';
@@ -210,7 +210,9 @@ export const VitalsTable = React.memo(() => {
             setOpenEditModal(true);
             setSelectedCell(cells[date]);
           };
-          const shouldBeClickable = isVitalEditEnabled && isCalculatedQuestion === false;
+          const isCurrent = component.visibilityStatus === VISIBILITY_STATUSES.CURRENT;
+          const isValid = isCurrent ? true : Boolean(value);
+          const shouldBeClickable = isVitalEditEnabled && isCalculatedQuestion === false && isValid;
           return (
             <RangeValidatedCell
               value={value}
