@@ -15,14 +15,11 @@ translation.get(
       models: { TranslatedString },
     } = req;
 
-    const eTagData = await req.db.query(
-      `SELECT uuid_generate_v5(uuid_nil(), string_agg(id, ':') || string_agg(updated_at::text, ':')) AS hash FROM translated_strings WHERE string_id = 'languageName'`,
-      { type: QueryTypes.SELECT },
-    );
+    const eTag = await TranslatedString.max('updated_at_sync_tick', {
+      where: { stringId: 'languageName' },
+    });
 
-    const eTag = eTagData[0].hash;
-
-    if (req.headers['if-none-match'] === eTag) {
+    if (req.headers['if-none-match'] === eTag.toString()) {
       res.status(304).end();
       return;
     }
@@ -36,9 +33,7 @@ translation.get(
     });
 
     const languageNames = await TranslatedString.findAll({
-      where: {
-        stringId: 'languageName',
-      },
+      where: { stringId: 'languageName' },
     });
 
     const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
@@ -64,14 +59,11 @@ translation.get(
       params: { language },
     } = req;
 
-    const eTagData = await req.db.query(
-      `SELECT max(updated_at_sync_tick) FROM translated_strings WHERE language = '${language}'`,
-      { type: QueryTypes.SELECT },
-    );
+    const eTag = await TranslatedString.max('updated_at_sync_tick', {
+      where: { language },
+    });
 
-    const eTag = eTagData[0].max;
-
-    if (req.headers['if-none-match'] === eTag) {
+    if (req.headers['if-none-match'] === eTag.toString()) {
       res.status(304).end();
       return;
     }
