@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
 import { useApi, isErrorUnknownAllow404s } from '../index';
 import { useVitalsSurveyQuery } from './useVitalsSurveyQuery';
@@ -39,7 +40,8 @@ export const useVitals = encounterId => {
       // Show current components or ones that have historical data in them
       .filter(
         component =>
-          component.visibilityStatus === 'current' || elementIdToAnswer[component.dataElement.id],
+          component.visibilityStatus === VISIBILITY_STATUSES.CURRENT ||
+          elementIdToAnswer[component.dataElement.id],
       )
       .map(component => {
         const { id, config, validationCriteria, dataElement } = component;

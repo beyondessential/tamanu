@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
+import { VITALS_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { ModalLoader, ConfirmCancelRow, Form } from '../components';
 import { SurveyScreen } from '../components/Surveys';
@@ -56,7 +56,9 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
   const handleSubmit = data => {
     onSubmit({ survey: vitalsSurvey, ...data });
   };
-  const currentComponents = vitalsSurvey.components.filter(c => c.visibilityStatus === 'current');
+  const currentComponents = vitalsSurvey.components.filter(
+    c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
+  );
 
   return (
     <Form
