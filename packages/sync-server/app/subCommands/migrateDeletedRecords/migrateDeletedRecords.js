@@ -40,7 +40,7 @@ const fromClinicalFeatures = async table => {
 
   const response = await store.sequelize.query(
     `UPDATE "${table}" 
-      SET "deleted_at" = NULL, "deletion_status" = :historical
+      SET "deletion_status" = :historical
       WHERE "deleted_at" IS NOT NULL`,
     {
       replacements: {

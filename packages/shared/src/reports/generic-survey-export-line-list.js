@@ -68,7 +68,6 @@ where sr.survey_id  = :survey_id
 and CASE WHEN :village_id IS NOT NULL THEN p.village_id = :village_id ELSE true end
 and CASE WHEN :from_date IS NOT NULL THEN sr.end_time::date >= :from_date::date ELSE true END
 and CASE WHEN :to_date IS NOT NULL THEN sr.end_time::date <= :to_date::date ELSE true END
-and e.deletion_status = :deletionStatus
 order by sr.end_time desc
 --and sr.deleted_at is null
 `;
@@ -102,7 +101,6 @@ const getData = async (sequelize, parameters) => {
       from_date: queryFromDate ?? null,
       to_date: queryToDate ?? null,
       village_id: village ?? null,
-      deletionStatus: null,
     },
   });
 };

@@ -32,14 +32,13 @@ patientProfilePicture.get(
           WHERE
             encounters.patient_id = :patientId
             AND program_data_elements.code = :photoCode
-            AND encounters.deletion_status = :deletionStatus
+            AND encounters.deleted_at is null
         LIMIT 1
       `,
       {
         replacements: {
           patientId,
           photoCode,
-          deletionStatus: null,
         },
         type: QueryTypes.SELECT,
       },

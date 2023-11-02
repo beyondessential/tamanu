@@ -33,9 +33,7 @@ with
     FROM (
       select
         (select min(sr.end_time) from survey_responses sr) oldest_sr,
-        (select min(e.start_date) from encounters e
-         where e.deletion_status = :deletionStatus
-        ) oldest_encounter
+        (select min(e.start_date) from encounters e) oldest_encounter
     ) old_date_options_table
   ),
   cte_newest_date as (
@@ -89,7 +87,6 @@ with
           survey_responses sr4
       join encounters e on e.id = sr4.encounter_id
       where survey_id = 'program-fijincdprimaryscreening-fijicvdprimaryscreen2'
-      AND e.deletion_status = :deletionStatus
       GROUP by e.patient_id, date_group
     ) max_time_per_group_table
     JOIN survey_responses AS sr
@@ -100,7 +97,6 @@ with
     on sr_encounter.id = sr.encounter_id and sr_encounter.patient_id = max_time_per_group_table.patient_id
     join cte_patient cp on cp.id = sr_encounter.patient_id
     where sra.body is null or sra.body <> 'Ineligible'
-    and sr_encounter.deletion_status = :deletionStatus
     group by ethnicity_id, under_30, sr.end_time::date
   ),
   cte_snaps as (
@@ -118,7 +114,6 @@ with
     join cte_patient cp on cp.id = sr_encounter.patient_id
     where sra.data_element_id in ('pde-FijCVD038', 'pde-FijSNAP13')
     and sra.body = 'Yes'
-    and sr_encounter.deletion_status = :deletionStatus
     group by ethnicity_id, under_30, date
   ),
   cte_diabetes_diagnoses as (
@@ -127,9 +122,7 @@ with
       on rd."type" = 'icd10' and rd.id = ed.diagnosis_id
       join encounters diagnosis_encounter
       on ed.encounter_id = diagnosis_encounter.id
-      WHERE rd.code IN ('icd10-E11') 
-      AND certainty not in ('disproven','error')
-      AND diagnosis_encounter.deletion_status = :deletionStatus
+      WHERE rd.code IN ('icd10-E11') and certainty not in ('disproven','error')
   ),
   cte_hypertension_diagnoses as (
     select 1 as exist, diagnosis_encounter.start_date::date as diagnosis_date, patient_id from encounter_diagnoses ed
@@ -137,9 +130,7 @@ with
       on rd."type" = 'icd10' and rd.id = ed.diagnosis_id
       join encounters diagnosis_encounter
       on ed.encounter_id = diagnosis_encounter.id
-      WHERE rd.code in ('icd10-I10') 
-      AND certainty not in ('disproven','error')
-      AND diagnosis_encounter.deletion_status = :deletionStatus
+      WHERE rd.code in ('icd10-I10') and certainty not in ('disproven','error')
   ),
   cte_diagnoses as (
     select
@@ -345,7 +336,6 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
       village: village ?? null,
       from_date: queryFromDate,
       to_date: queryToDate ?? null,
-      deletionStatus: null,
     },
   });
 

@@ -142,7 +142,7 @@ locationGroup.get(
         WHERE location_groups.id = :id 
         AND locations.max_occupancy = 1
         AND locations.facility_id = :facilityId
-        AND encounters.deletion_status = :deletionStatus
+        AND encounters.deleted_at is null
         GROUP BY location_groups.name,
           locations.name,
           patients.display_id,
@@ -160,7 +160,6 @@ locationGroup.get(
         replacements: {
           id: req.params.id,
           facilityId: config.serverFacilityId,
-          deletionStatus: null,
         },
         type: QueryTypes.SELECT,
       },

@@ -157,7 +157,6 @@ patientRoute.get(
       where: {
         patientId: params.id,
         endDate: null,
-        deletionStatus: null,
       },
       include: Encounter.getFullReferenceAssociations(),
     });
@@ -186,7 +185,6 @@ patientRoute.get(
       where: {
         patientId: params.id,
         endDate: { [Op.not]: null },
-        deletionStatus: null,
       },
       order: [['endDate', 'DESC']],
     });
@@ -311,7 +309,6 @@ patientRoute.get(
       {
         ...filterParams,
         facilityId: config.serverFacilityId,
-        deletionStatus: null,
       },
     );
 
@@ -322,7 +319,7 @@ patientRoute.get(
           SELECT *, ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY start_date DESC, id DESC) AS row_num
           FROM encounters
           WHERE end_date IS NULL
-          AND deletion_status = :deletionStatus
+          AND deleted_at is null
         ) encounters
           ON (patients.id = encounters.patient_id AND encounters.row_num = 1)
         LEFT JOIN reference_data AS village
@@ -345,7 +342,7 @@ patientRoute.get(
             SELECT *, ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY start_date DESC, id DESC) AS row_num
             FROM encounters
             WHERE end_date IS NULL
-            AND deletion_status = :deletionStatus
+            AND deleted_at is null
           ) encounters
           ON (patients.id = encounters.patient_id AND encounters.row_num = 1)
         LEFT JOIN users AS clinician 

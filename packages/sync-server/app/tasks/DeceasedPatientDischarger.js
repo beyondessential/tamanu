@@ -25,7 +25,6 @@ export class DeceasedPatientDischarger extends ScheduledTask {
       where: {
         endDate: null,
         '$patient.date_of_death$': { [Op.not]: null },
-        deletionStatus: null,
       },
       include: [
         {

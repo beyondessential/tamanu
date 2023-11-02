@@ -42,14 +42,6 @@ export const simpleGet = modelName =>
     res.send(object);
   });
 
-export const currentRecordsGet = modelName =>
-  asyncHandler(async (req, res) => {
-    const object = await findRouteObject(req, modelName, {
-      deletionStatus: null,
-    });
-    res.send(object);
-  });
-
 export const simpleGetHasOne = (modelName, foreignKey, options = {}) =>
   asyncHandler(async (req, res) => {
     const { models, params } = req;

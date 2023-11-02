@@ -16,7 +16,6 @@ export class RemoveDuplicatedDischarges extends CursorDataMigration {
           SELECT * FROM encounters
           WHERE id > $fromId
           AND deleted_at IS NULL
-          OR deletion_status IS NULL
           ORDER BY id
           LIMIT $limit
       ),

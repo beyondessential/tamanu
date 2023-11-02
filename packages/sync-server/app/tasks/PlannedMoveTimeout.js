@@ -39,7 +39,6 @@ export class PlannedMoveTimeout extends ScheduledTask {
         plannedLocationStartTime: {
           [Op.lt]: toCountryDateTimeString(subHours(new Date(), this.config.timeoutHours)),
         },
-        deletionStatus: null,
       },
       include: [
         {

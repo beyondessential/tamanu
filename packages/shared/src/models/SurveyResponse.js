@@ -146,7 +146,6 @@ export class SurveyResponse extends Model {
       where: {
         patientId,
         endDate: null,
-        deletionStatus: null,
       },
     });
 

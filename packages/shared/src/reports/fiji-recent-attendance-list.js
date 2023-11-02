@@ -105,10 +105,7 @@ const getEncounters = async (models, parameters) => {
       'examiner',
       'department',
     ],
-    where: {
-      deletionStatus: null,
-      ...parametersToEncounterSqlWhere(parameters),
-    },
+    where: parametersToEncounterSqlWhere(parameters),
     order: [['startDate', 'ASC']],
   });
 

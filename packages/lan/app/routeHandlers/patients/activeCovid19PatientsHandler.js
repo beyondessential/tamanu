@@ -43,8 +43,7 @@ export const activeCovid19PatientsHandler = async (req, res) => {
     whereClauses: patientFilterWhereClauses,
     filterReplacements,
   } = getWhereClausesAndReplacementsFromFilters(filters, {
-    ...filterParams,
-    deletionStatus: null,
+    filterParams,
   });
 
   const result = await db.query(
@@ -63,7 +62,7 @@ export const activeCovid19PatientsHandler = async (req, res) => {
       SELECT *, ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY start_date DESC, id DESC) AS row_num
       FROM encounters
       WHERE end_date IS NULL
-      AND deletion_status = :deletionStatus
+      AND deleted_at is null
       ) encounters
       ON (patients.id = encounters.patient_id AND encounters.row_num = 1)
     LEFT JOIN reference_data AS village
@@ -84,7 +83,7 @@ export const activeCovid19PatientsHandler = async (req, res) => {
         LEFT JOIN encounters 
   		    ON encounters.id = survey_responses.encounter_id
         WHERE survey_id = '${SURVEY_ID}'
-          AND encounters.deletion_status = :deletionStatus
+          AND encounters.deleted_at is null
         GROUP BY patient_id
       ) AS recent_survey_response_by_patient
         ON patients.id = recent_survey_response_by_patient.patient_id

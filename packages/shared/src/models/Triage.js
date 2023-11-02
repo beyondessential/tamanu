@@ -72,7 +72,6 @@ export class Triage extends Model {
           [Op.is]: null,
         },
         patientId: data.patientId,
-        deletionStatus: null,
       },
     });
 

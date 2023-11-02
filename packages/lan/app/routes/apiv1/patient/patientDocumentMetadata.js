@@ -35,7 +35,6 @@ patientDocumentMetadataRoutes.get(
     const patientEncounters = await models.Encounter.findAll({
       where: {
         patientId,
-        deletionStatus: null,
       },
       attributes: ['id'],
     });

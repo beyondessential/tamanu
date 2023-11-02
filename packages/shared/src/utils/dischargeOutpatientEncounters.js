@@ -14,7 +14,6 @@ export const getDischargeOutPatientEncountersWhereClause = () => {
     startDate: {
       [Op.lt]: today,
     },
-    deletionStatus: null,
   };
 };
 

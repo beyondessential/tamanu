@@ -45,9 +45,7 @@ with
       join departments d on e.department_id = d.id
       join facilities f on d.facility_id = f.id
     where
-      e.encounter_type = 'admission' 
-      and e.patient_id != '5d9043ff-6745-4bca-b1c7-1c7751bad1f0'
-      and e.deletion_status = :deletionStatus
+      e.encounter_type = 'admission' and e.patient_id != '5d9043ff-6745-4bca-b1c7-1c7751bad1f0'
       and f.id = '${config.serverFacilityId}'
   ),
   admissions as (
@@ -168,7 +166,6 @@ const getData = async (sequelize, parameters) => {
     replacements: {
       from_date: queryFromDate ?? null,
       to_date: queryToDate ?? null,
-      deletionStatus: null,
     },
   });
 };

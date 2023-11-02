@@ -70,9 +70,7 @@ export const createPatientFilters = filterParams => {
         ],
       }),
     ),
-    makeFilter(true, `encounters.deletion_status = :deletionStatus`, () => ({
-      deletionStatus: null,
-    })),
+    makeFilter(true, `encounters.deletedAt is null`),
   ].filter(f => f);
 
   return filters;

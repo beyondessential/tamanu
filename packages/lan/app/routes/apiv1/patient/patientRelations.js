@@ -48,7 +48,7 @@ patientRelations.get(
           encounters
         WHERE
           patient_id = :patientId
-          AND deletion_status = :deletionStatus
+          AND deleted_at is null
           ${open ? 'AND end_date IS NULL' : ''}
       `,
       `
@@ -67,11 +67,11 @@ patientRelations.get(
             ON location_groups.id = locations.location_group_id
         WHERE
           patient_id = :patientId
-          AND deletion_status = :deletionStatus
+          AND deleted_at is null
           ${open ? 'AND end_date IS NULL' : ''}
         ${sortKey ? `ORDER BY ${sortKey} ${sortDirection}` : ''}
       `,
-      { patientId: params.id, deletionStatus: null },
+      { patientId: params.id },
       query,
     );
 

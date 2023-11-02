@@ -159,9 +159,7 @@ labRequest.get(
           published: LAB_REQUEST_STATUSES.PUBLISHED,
         }),
       ),
-      makeFilter(true, 'encounter.deletion_status = :deletionStatus', () => ({
-        deletionStatus: null,
-      })),
+      makeFilter(true, 'encounter.deleted_at is null'),
     ].filter(f => f);
 
     const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(

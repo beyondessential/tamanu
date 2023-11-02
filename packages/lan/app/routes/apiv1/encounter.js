@@ -14,7 +14,7 @@ import {
 } from '@tamanu/constants';
 
 import {
-  currentRecordsGet,
+  simpleGet,
   simpleGetHasOne,
   simpleGetList,
   permissionCheckingRouter,
@@ -29,7 +29,7 @@ import { getLabRequestList } from '../../routeHandlers/labs';
 
 export const encounter = express.Router();
 
-encounter.get('/:id', currentRecordsGet('Encounter'));
+encounter.get('/:id', simpleGet('Encounter'));
 encounter.post(
   '/$',
   asyncHandler(async (req, res) => {
@@ -246,7 +246,6 @@ encounterRelations.get(
   simpleGetHasOne('Invoice', 'encounterId', {
     additionalFilters: {
       status: { [Op.ne]: INVOICE_STATUSES.CANCELLED },
-      deletionStatus: null,
     },
   }),
 );
@@ -284,7 +283,7 @@ encounterRelations.get(
         AND 
           surveys.survey_type = 'programs'
         AND 
-          encounters.deletion_status = :deletionStatus
+          encounters.deleted_at is null
       `,
       `
         SELECT
@@ -309,10 +308,10 @@ encounterRelations.get(
         AND 
           surveys.survey_type = 'programs'
         AND 
-          encounters.deletion_status = :deletionStatus
+          encounters.deleted_at is null
         ORDER BY ${sortKey} ${sortDirection}
       `,
-      { encounterId, deletionStatus: null },
+      { encounterId },
       query,
     );
 

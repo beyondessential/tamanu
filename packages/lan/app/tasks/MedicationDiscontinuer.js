@@ -30,7 +30,6 @@ export class MedicationDiscontinuer extends ScheduledTask {
     // (found in the config). Note that the facility will be read from
     // the department associated to each encounter.
     const encounters = await this.models.Encounter.findAll({
-      where: { deletionStatus: null },
       include: [
         {
           association: 'department',

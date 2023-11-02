@@ -61,7 +61,7 @@ user.get(
       makeFilter(query.encounterType, 'encounters.encounter_type = :encounterType', () => ({
         encounterType: query.encounterType,
       })),
-      makeFilter(true, `encounters.deletion_status = :deletionStatus`, () => ({
+      makeFilter(true, `encounters.deleted_at is null`, () => ({
         deletionStatus: null,
       })),
       makeFilter(true, `user_recently_viewed_patients.user_id = :userId`, () => ({
@@ -95,7 +95,7 @@ user.get(
             SELECT *, ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY start_date DESC, id DESC) AS row_num
             FROM encounters
             WHERE end_date IS NULL
-            AND deletion_status = :deletionStatus
+            AND deleted_at IS NULL
             ) encounters
             ON (patients.id = encounters.patient_id AND encounters.row_num = 1)
         ${whereClauses && `WHERE ${whereClauses}`}

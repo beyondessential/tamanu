@@ -218,7 +218,7 @@ async function queryAdmissionsData(models, parameters) {
           include: ['Diagnosis'],
         },
       ],
-      where: { deletionStatus: null, ...parametersToSqlWhere(parameters) },
+      where: parametersToSqlWhere(parameters),
     })
   ).map(x => x.get({ plain: true }));
 
