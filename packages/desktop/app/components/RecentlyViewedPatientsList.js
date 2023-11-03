@@ -11,6 +11,7 @@ import { Colors } from '../constants';
 import { DateDisplay } from './DateDisplay';
 import { ThemedTooltip } from './Tooltip';
 import { TranslatedText } from './Translation/TranslatedText';
+import { SexDisplay } from './Translation/SexDisplay';
 
 const colorFromEncounterType = {
   admission: Colors.green,
@@ -143,7 +144,9 @@ const Card = ({ patient, handleClick }) => {
           </CardTitle>
         </ThemedTooltip>
         <CardText>{patient.displayId}</CardText>
-        <CapitalizedCardText>{patient.sex}</CapitalizedCardText>
+        <CapitalizedCardText>
+          <SexDisplay sex={patient.sex} />
+        </CapitalizedCardText>
         <CardText>
           <TranslatedText stringId="recentlyViewedPatients.dateOfBirthLabel" fallback="DOB" />:{' '}
           <DateDisplay date={patient.dateOfBirth} shortYear />
