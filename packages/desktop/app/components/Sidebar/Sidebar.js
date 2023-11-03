@@ -266,7 +266,7 @@ export const Sidebar = React.memo(({ items }) => {
                   id="logout"
                   data-test-id="siderbar-logout-item"
                 >
-                  <TranslatedText stringId="auth.logout" fallback="Log out" />
+                  <TranslatedText stringId="auth.action.logout" fallback="Log out" />
                 </LogoutButton>
               </Box>
             </Box>
