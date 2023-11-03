@@ -15,7 +15,7 @@ translation.get(
       models: { TranslatedString },
     } = req;
 
-    const eTag = (await TranslatedString.etagForLanguageOptions()).toString();
+    const eTag = await TranslatedString.etagForLanguageOptions();
 
     if (req.headers['if-none-match'] === eTag) {
       res.status(304).end();
@@ -57,7 +57,7 @@ translation.get(
       params: { language },
     } = req;
 
-    const eTag = (await TranslatedString.etagForLanguage(language)).toString();
+    const eTag = await TranslatedString.etagForLanguage(language);
 
     if (req.headers['if-none-match'] === eTag) {
       res.status(304).end();

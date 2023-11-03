@@ -72,15 +72,19 @@ export class TranslatedString extends Model {
     return null; // syncs everywhere
   }
 
-  static etagForLanguage(language) {
-    return this.max('updated_at_sync_tick', {
-      where: { language },
-    });
-  }
+  static etagForLanguage = async language => {
+    return (
+      await this.max('updated_at_sync_tick', {
+        where: { language },
+      })
+    ).toString();
+  };
 
-  static etagForLanguageOptions() {
-    return this.max('updated_at_sync_tick', {
-      where: { stringId: 'languageName' },
-    });
-  }
+  static etagForLanguageOptions = async () => {
+    return (
+      await this.max('updated_at_sync_tick', {
+        where: { stringId: 'languageName' },
+      })
+    ).toString();
+  };
 }
