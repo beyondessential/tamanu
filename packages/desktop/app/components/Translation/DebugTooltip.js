@@ -8,9 +8,6 @@ const StyledTooltip = styled(props => (
     {props.children}
   </Tooltip>
 ))`
-  z-index: 1500;
-  pointer-events: auto;
-
   & .MuiTooltip-tooltip {
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
     background-color: ${Colors.white};
