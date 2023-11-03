@@ -538,7 +538,7 @@ describe('Permission and Roles exporter', () => {
           data: [
             ['verb', 'noun', 'objectId', 'reception'],
             ['run', 'Report', 'new-patients', 'y'],
-            ['run', 'Report', 'new-encounter', 'y'],
+            ['run', 'Report', 'new-encounters', 'y'],
           ],
           name: 'Permission',
         },
