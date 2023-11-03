@@ -71,4 +71,16 @@ export class TranslatedString extends Model {
   static buildSyncFilter() {
     return null; // syncs everywhere
   }
+
+  static etagForLanguage(language) {
+    return this.max('updated_at_sync_tick', {
+      where: { language },
+    });
+  }
+
+  static etagForLanguageOptions() {
+    return this.max('updated_at_sync_tick', {
+      where: { stringId: 'languageName' },
+    });
+  }
 }

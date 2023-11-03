@@ -15,11 +15,7 @@ translation.get(
       models: { TranslatedString },
     } = req;
 
-    const eTag = (
-      await TranslatedString.max('updated_at_sync_tick', {
-        where: { stringId: 'languageName' },
-      })
-    ).toString();
+    const eTag = (await TranslatedString.etagForLanguageOptions()).toString();
 
     if (req.headers['if-none-match'] === eTag) {
       res.status(304).end();
@@ -61,11 +57,7 @@ translation.get(
       params: { language },
     } = req;
 
-    const eTag = (
-      await TranslatedString.max('updated_at_sync_tick', {
-        where: { language },
-      })
-    ).toString();
+    const eTag = (await TranslatedString.etagForLanguage(language)).toString();
 
     if (req.headers['if-none-match'] === eTag) {
       res.status(304).end();
