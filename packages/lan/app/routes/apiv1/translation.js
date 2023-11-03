@@ -1,5 +1,4 @@
 import express from 'express';
-import { QueryTypes } from 'sequelize';
 import asyncHandler from 'express-async-handler';
 import { mapValues, keyBy } from 'lodash';
 
