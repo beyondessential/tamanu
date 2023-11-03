@@ -67,7 +67,10 @@ patientRelations.get(
             ON location_groups.id = locations.location_group_id
         WHERE
           patient_id = :patientId
-          AND deleted_at is null
+          AND encounters.deleted_at is null
+          AND locations.deleted_at is null
+          AND facilities.deleted_at is null
+          AND location_groups.deleted_at is null
           ${open ? 'AND end_date IS NULL' : ''}
         ${sortKey ? `ORDER BY ${sortKey} ${sortDirection}` : ''}
       `,

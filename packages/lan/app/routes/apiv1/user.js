@@ -61,9 +61,7 @@ user.get(
       makeFilter(query.encounterType, 'encounters.encounter_type = :encounterType', () => ({
         encounterType: query.encounterType,
       })),
-      makeFilter(true, `encounters.deleted_at is null`, () => ({
-        deletionStatus: null,
-      })),
+      makeFilter(true, `encounters.deleted_at is null`),
       makeFilter(true, `user_recently_viewed_patients.user_id = :userId`, () => ({
         userId: currentUser.id,
       })),

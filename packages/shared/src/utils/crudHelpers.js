@@ -200,6 +200,7 @@ export const simpleDelete = modelName =>
     req.checkPermission('delete', modelName);
     const { models, params } = req;
     const model = models[modelName];
+    console.log('is paranoid', model.options.paranoid);
     return model.destroy({ where: { id: params.id } });
   });
 

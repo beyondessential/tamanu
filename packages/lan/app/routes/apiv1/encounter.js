@@ -15,12 +15,12 @@ import {
 
 import {
   simpleGet,
+  simpleDelete,
   simpleGetHasOne,
   simpleGetList,
   permissionCheckingRouter,
   runPaginatedQuery,
   paginatedGetList,
-  simpleDelete,
 } from '@tamanu/shared/utils/crudHelpers';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
@@ -139,7 +139,18 @@ encounter.post(
 
 encounter.post('/:id/createPatientLetter', createPatientLetter('Encounter', 'encounterId'));
 
-encounter.delete('/:id', simpleDelete('Encounter'));
+encounter.delete(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    req.checkPermission('delete', 'Encounter');
+
+    const model = models.Encounter;
+    await model.destroy({ where: { id: params.id } });
+
+    res.send({ message: 'Encounter deleted successfully' });
+  }),
+);
 
 const encounterRelations = permissionCheckingRouter('read', 'Encounter');
 encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));
