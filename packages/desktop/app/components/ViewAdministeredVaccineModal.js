@@ -150,19 +150,19 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
       value: injectionSite || '-',
     },
     area: {
-      label: <TranslatedText stringId="vaccine.form.area.label" fallback="Area" />,
+      label: <TranslatedText stringId="general.form.area.label" fallback="Area" />,
       value: location?.locationGroup?.name || '-',
     },
     location: {
-      label: <TranslatedText stringId="vaccine.form.location.label" fallback="Location" />,
+      label: <TranslatedText stringId="general.form.location.label" fallback="Location" />,
       value: location?.name || '-',
     },
     department: {
-      label: <TranslatedText stringId="vaccine.form.department.label" fallback="Department" />,
+      label: <TranslatedText stringId="general.form.department.label" fallback="Department" />,
       value: department?.name || '-',
     },
     facility: {
-      label: <TranslatedText stringId="vaccine.form.facility.label" fallback="Facility" />,
+      label: <TranslatedText stringId="general.form.facility.label" fallback="Facility" />,
       value: location?.facility.name || encounter.location.facility.name || '-',
     },
     givenBy: {

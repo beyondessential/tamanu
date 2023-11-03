@@ -109,7 +109,7 @@ export const VaccineGivenForm = ({
               name="circumstanceIds"
               label={
                 <TranslatedText
-                  stringId="vaccine.form.circumstance.label"
+                  stringId="vaccine.form.circumstances.label"
                   fallback="Circumstances"
                 />
               }
