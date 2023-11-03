@@ -154,8 +154,8 @@ export const LocationField = React.memo(({ field, error, ...props }) => (
 
 export const LocalisedLocationField = React.memo(
   ({
-    defaultGroupLabel = <TranslatedText stringId="vaccine.form.area.label" fallback="Area" />,
-    defaultLabel = <TranslatedText stringId="vaccine.form.location.label" fallback="Location" />,
+    defaultGroupLabel = <TranslatedText stringId="general.form.area.label" fallback="Area" />,
+    defaultLabel = <TranslatedText stringId="general.form.location.label" fallback="Location" />,
     ...props
   }) => {
     const { getLocalisation } = useLocalisation();

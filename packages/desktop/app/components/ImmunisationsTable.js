@@ -90,7 +90,7 @@ export const ImmunisationsTable = React.memo(
       <TableHeaderCheckbox
         label={
           <TranslatedText
-            stringId="vaccine.table.notGivenCheckbox"
+            stringId="vaccine.table.notGivenCheckbox.label"
             fallback="Include vaccines not given"
           />
         }

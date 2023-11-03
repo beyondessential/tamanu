@@ -124,7 +124,7 @@ export const DepartmentField = () => {
   return (
     <Field
       name="departmentId"
-      label={<TranslatedText stringId="vaccine.form.department.label" fallback="Department" />}
+      label={<TranslatedText stringId="general.form.department.label" fallback="Department" />}
       required
       component={AutocompleteField}
       suggester={departmentSuggester}
