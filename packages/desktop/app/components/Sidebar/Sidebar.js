@@ -144,6 +144,10 @@ const SupportDesktopLink = styled.a`
   display: flex;
   align-items: center;
   justify-content: center;
+
+  :hover {
+    font-weight: bold;
+  }
 `;
 
 const StyledMetadataBox = styled(Box)`
