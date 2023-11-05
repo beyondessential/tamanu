@@ -6,10 +6,8 @@ export const getLanguageOptions = async (models, storedEtag) => {
   const eTag = await TranslatedString.etagForLanguageOptions();
 
   if (storedEtag === eTag) {
-    console.log('304')
     return 304;
   }
-  console.log('200')
 
   const languagesInDb = await TranslatedString.findAll({
     attributes: ['language'],
