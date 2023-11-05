@@ -84,17 +84,18 @@ describe('TranslatedString', () => {
   });
   describe('/ POST', () => {
     it('should create a new translated string', async () => {
+      const mockText = 'test-fallback';
       const stringId = 'test-string';
       const result = await app.post('/v1/translation').send({
         stringId,
-        fallback: 'test-fallback',
+        fallback: mockText,
       });
       expect(result).toHaveSucceeded();
       expect(result.body).toEqual(
         expect.objectContaining({
           id: `${stringId};${LANGUAGE_CODES.ENGLISH}`,
           stringId,
-          text: 'test-fallback',
+          text: mockText,
           language: LANGUAGE_CODES.ENGLISH,
         }),
       );

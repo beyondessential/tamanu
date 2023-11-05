@@ -2,14 +2,15 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { mapValues, keyBy } from 'lodash';
 
+const ENGLISH_LANGUAGE_CODE = 'en';
+
 export const translation = express.Router();
 
 // Register a new string for translation
 translation.post(
   '/',
   asyncHandler(async (req, res) => {
-    // Don't need a write permission here, requirements
-    // are basically that user is logged in
+    // Everyone can interact with translations as long as logged in
     req.flagPermissionChecked();
 
     const {
@@ -20,7 +21,7 @@ translation.post(
     const translatedString = await TranslatedString.create({
       stringId,
       text: fallback,
-      language: 'en',
+      language: ENGLISH_LANGUAGE_CODE,
     });
 
     res.send(translatedString);
