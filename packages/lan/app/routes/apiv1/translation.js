@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { mapValues, keyBy } from 'lodash';
+import { getLanguageOptions } from '@tamanu/shared/utils/translation/getLanguageOptions';
 
 export const translation = express.Router();
 
@@ -10,38 +11,14 @@ translation.get(
     // No permission needed when on login screen
     req.flagPermissionChecked();
 
-    const {
-      models: { TranslatedString },
-    } = req;
-
-    const eTag = await TranslatedString.etagForLanguageOptions();
-
-    if (req.headers['if-none-match'] === eTag) {
+    const response = await getLanguageOptions(req.models, req.headers['if-none-match']);
+    if (response === 304) {
       res.status(304).end();
       return;
     }
-
     res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('ETag', eTag);
-
-    const languagesInDb = await TranslatedString.findAll({
-      attributes: ['language'],
-      group: 'language',
-    });
-
-    const languageNames = await TranslatedString.findAll({
-      where: { stringId: 'languageName' },
-    });
-
-    const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
-    const languageOptions = languagesInDb.map(({ language }) => {
-      return {
-        label: languageDisplayNames[language],
-        value: language,
-      };
-    });
-
-    res.send(languageOptions);
+    res.setHeader('ETag', response.eTag);
+    res.send(response.languageOptions);
   }),
 );
 
