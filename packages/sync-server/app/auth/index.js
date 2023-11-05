@@ -39,6 +39,7 @@ authModule.get(
     res.send(convertFromDbRecord(req.user).data);
   }),
 );
+
 authModule.get('/translation/preLogin', async (req, res) => {
   const response = await getLanguageOptions(req.models, req.headers['if-none-match']);
   if (response === 304) {
