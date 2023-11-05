@@ -1,14 +1,14 @@
 import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
 import * as yup from 'yup';
-import { has } from 'lodash';
-import { LANGUAGE_CODES, LANGUAGE_NAMES_IN_ENGLISH } from '@tamanu/constants';
+import { has, omit } from 'lodash';
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { Box, IconButton } from '@material-ui/core';
+import { Box, IconButton, Tooltip } from '@material-ui/core';
 import { Add as AddIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import shortid from 'shortid';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import { toast } from 'react-toastify';
+import HelpIcon from '@material-ui/icons/HelpOutlined';
 import { useApi } from '../../../api';
 import {
   Field,
@@ -20,6 +20,7 @@ import {
 } from '../../../components';
 import { AccessorField } from '../../patients/components/AccessorField';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
+import { Colors } from '../../../constants';
 
 const StyledTableFormFields = styled(TableFormFields)`
   thead tr th {
@@ -33,14 +34,14 @@ const StyledIconButton = styled(IconButton)`
   color: #2f4358;
 `;
 
+const ReservedText = styled.p`
+  color: ${Colors.primary};
+  margin-right: 6px;
+  font-weight: 500;
+  font-size: 14px;
+`;
+
 const validationSchema = yup.lazy(({ search, ...values }) => {
-  const baseSchema = Object.values(LANGUAGE_CODES).reduce(
-    (schema, code) => ({
-      ...schema,
-      [code]: yup.string().nullable(),
-    }),
-    {},
-  );
   const newEntrySchema = {
     stringId: yup
       .string()
@@ -58,7 +59,6 @@ const validationSchema = yup.lazy(({ search, ...values }) => {
       (acc, key) => ({
         ...acc,
         [key]: yup.object({
-          ...baseSchema,
           ...(has(values[key], 'stringId') && newEntrySchema),
         }),
       }),
@@ -109,6 +109,7 @@ const TranslationField = ({ placeholderId, stringId, code }) => (
 
 export const FormContents = ({
   data,
+  languageNames,
   setFieldValue,
   isSaving,
   submitForm,
@@ -156,6 +157,15 @@ export const FormContents = ({
           </Box>
         ),
         accessor: ({ stringId, placeholderId }) => {
+          if (stringId === 'languageName')
+            return (
+              <Box display="flex" alignItems="center">
+                <ReservedText>{stringId}</ReservedText>
+                <Tooltip title="Language name is a reserved translation ID used for displaying language in selector">
+                  <HelpIcon style={{ color: Colors.primary }} />
+                </Tooltip>
+              </Box>
+            );
           if (!placeholderId) return stringId;
           return (
             <AccessorField
@@ -173,13 +183,13 @@ export const FormContents = ({
           );
         },
       },
-      ...Object.values(LANGUAGE_CODES).map(code => ({
+      ...Object.keys(omit(data[0], ['stringId'])).map(code => ({
         key: code,
-        title: LANGUAGE_NAMES_IN_ENGLISH[code],
+        title: languageNames[code],
         accessor: row => <TranslationField code={code} {...row} />,
       })),
     ],
-    [handleAddColumn, handleRemoveColumn],
+    [handleAddColumn, handleRemoveColumn, data, languageNames],
   );
 
   const tableRows = useMemo(
@@ -208,19 +218,20 @@ export const FormContents = ({
 
 export const TranslationForm = () => {
   const [additionalRows, setAdditionalRows] = useState([]);
-  const { data = [], error, isLoading } = useTranslationQuery();
+  const { data = {}, error, isLoading } = useTranslationQuery();
+  const { translations = [], languageNames = {} } = data;
   const { mutate: saveTranslations, isLoading: isSaving } = useTranslationMutation();
 
   const initialValues = useMemo(
     () =>
-      data.reduce(
+      translations.reduce(
         (acc, { stringId, ...rest }) => ({
           ...acc,
           [stringId]: rest,
         }),
         { search: '' },
       ),
-    [data],
+    [translations],
   );
 
   const handleSubmit = async ({ search, ...payload }) => {
@@ -245,7 +256,8 @@ export const TranslationForm = () => {
       render={props => (
         <FormContents
           {...props}
-          data={data}
+          data={translations}
+          languageNames={languageNames}
           isSaving={isSaving}
           setAdditionalRows={setAdditionalRows}
           additionalRows={additionalRows}

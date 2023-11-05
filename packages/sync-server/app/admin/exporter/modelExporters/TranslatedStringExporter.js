@@ -3,7 +3,7 @@ import { DefaultDataExporter } from './DefaultDataExporter';
 
 export class TranslatedStringExporter extends DefaultDataExporter {
   async getData() {
-    return queryTranslatedStringsByLanguage(this.sequelize);
+    return queryTranslatedStringsByLanguage(this);
   }
 
   getHeadersFromData(data) {

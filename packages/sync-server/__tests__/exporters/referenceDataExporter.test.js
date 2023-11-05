@@ -1,4 +1,4 @@
-import { REFERENCE_TYPES, LANGUAGE_CODES } from '@tamanu/constants';
+import { REFERENCE_TYPES } from '@tamanu/constants';
 import { createDummyPatient } from 'shared/demoData/patients';
 import { parseDate } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
@@ -486,12 +486,12 @@ describe('Reference data exporter', () => {
   it('Should export translated strings with a single row for each stringId with columns for each languages text', async () => {
     await models.TranslatedString.create({
       stringId: 'test-string',
-      language: LANGUAGE_CODES.ENGLISH,
+      language: 'en',
       text: 'test',
     });
     await models.TranslatedString.create({
       stringId: 'test-string',
-      language: LANGUAGE_CODES.KHMER,
+      language: 'km',
       text: 'សាកល្បង',
     });
 

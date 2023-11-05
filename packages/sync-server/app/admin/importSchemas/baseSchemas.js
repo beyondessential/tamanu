@@ -7,7 +7,6 @@ import {
   LAB_TEST_RESULT_TYPES,
   VISIBILITY_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
-  LANGUAGE_CODES,
 } from '@tamanu/constants';
 import config from 'config';
 import { jsonString, validationString, configString } from './jsonString';
@@ -264,11 +263,4 @@ export const Encounter = Base.shape({
 
 export const TranslatedString = yup.object().shape({
   stringId: yup.string().required(),
-  ...Object.values(LANGUAGE_CODES).reduce(
-    (schemas, code) => ({
-      ...schemas,
-      [code]: yup.string(),
-    }),
-    {},
-  ),
 });

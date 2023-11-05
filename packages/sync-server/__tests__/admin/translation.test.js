@@ -1,5 +1,9 @@
-import { LANGUAGE_CODES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
+
+const LANGUAGE_CODES = {
+  ENGLISH: 'en',
+  KHMER: 'km',
+};
 
 describe('Translation', () => {
   let ctx;
@@ -27,6 +31,8 @@ describe('Translation', () => {
     await mockTranslatedString('login.register', 'ចុះ​ឈ្មោះ', LANGUAGE_CODES.KHMER);
     await mockTranslatedString('login.password', 'Password', LANGUAGE_CODES.ENGLISH);
     await mockTranslatedString('login.password', 'អ៊ីមែល', LANGUAGE_CODES.KHMER);
+    await mockTranslatedString('languageName', 'English', LANGUAGE_CODES.ENGLISH);
+    await mockTranslatedString('languageName', 'ខ្មែរ', LANGUAGE_CODES.KHMER);
   });
 
   afterAll(async () => {
@@ -38,11 +44,15 @@ describe('Translation', () => {
     it('should return all translated strings', async () => {
       const result = await adminApp.get('/v1/admin/translation');
       expect(result).toHaveSucceeded();
-      expect(result.body).toEqual([
-        { stringId: 'login.email', en: 'Email', km: null },
-        { stringId: 'login.password', en: 'Password', km: 'អ៊ីមែល' },
-        { stringId: 'login.register', en: null, km: 'ចុះ​ឈ្មោះ' },
-      ]);
+      expect(result.body).toEqual({
+        translations: [
+          { stringId: 'languageName', en: 'English', km: 'ខ្មែរ' },
+          { stringId: 'login.email', en: 'Email', km: null },
+          { stringId: 'login.password', en: 'Password', km: 'អ៊ីមែល' },
+          { stringId: 'login.register', en: null, km: 'ចុះ​ឈ្មោះ' },
+        ],
+        languageNames: { en: 'English', km: 'ខ្មែរ' },
+      });
     });
   });
 

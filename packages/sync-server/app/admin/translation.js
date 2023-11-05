@@ -11,11 +11,20 @@ translationRouter.use(ensurePermissionCheck);
 translationRouter.get(
   '/',
   asyncHandler(async (req, res) => {
-    const {
-      store: { sequelize },
-    } = req;
+    const { store } = req;
     req.flagPermissionChecked();
-    res.send(await queryTranslatedStringsByLanguage(sequelize));
+    const languageNames = await store.models.TranslatedString.findAll({
+      attributes: ['language', 'text'],
+      where: { stringId: 'languageName' },
+    });
+    const translations = await queryTranslatedStringsByLanguage(store);
+    res.send({
+      translations,
+      languageNames: (languageNames || []).reduce(
+        (acc, { language, text }) => ({ ...acc, [language]: text }),
+        {},
+      ),
+    });
   }),
 );
 
