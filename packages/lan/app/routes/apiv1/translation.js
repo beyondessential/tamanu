@@ -14,15 +14,23 @@ translation.get(
       models: { TranslatedString },
     } = req;
 
+    const eTag = await TranslatedString.etagForLanguageOptions();
+
+    if (req.headers['if-none-match'] === eTag) {
+      res.status(304).end();
+      return;
+    }
+
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('ETag', eTag);
+
     const languagesInDb = await TranslatedString.findAll({
       attributes: ['language'],
       group: 'language',
     });
 
     const languageNames = await TranslatedString.findAll({
-      where: {
-        stringId: 'languageName',
-      },
+      where: { stringId: 'languageName' },
     });
 
     const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
@@ -47,6 +55,16 @@ translation.get(
       models: { TranslatedString },
       params: { language },
     } = req;
+
+    const eTag = await TranslatedString.etagForLanguage(language);
+
+    if (req.headers['if-none-match'] === eTag) {
+      res.status(304).end();
+      return;
+    }
+
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('ETag', eTag);
 
     const translatedStringRecords = await TranslatedString.findAll({
       where: { language },
