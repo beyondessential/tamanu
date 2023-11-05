@@ -21,7 +21,7 @@ translation.get(
       return;
     }
 
-    res.setHeader('Cache-Control', 'max-age=3600');
+    res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('ETag', eTag);
 
     const languagesInDb = await TranslatedString.findAll({
@@ -63,7 +63,7 @@ translation.get(
       return;
     }
 
-    res.setHeader('Cache-Control', 'max-age=3600');
+    res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('ETag', eTag);
 
     const translatedStringRecords = await TranslatedString.findAll({
