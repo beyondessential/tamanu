@@ -1,5 +1,18 @@
-import { LANGUAGE_CODES } from '@tamanu/constants';
+import { fake } from 'shared/test-helpers/fake';
+import Chance from 'chance';
 import { createTestContext } from '../utilities';
+
+const chance = new Chance();
+
+const LANGUAGE_CODES = {
+  ENGLISH: 'en',
+  KHMER: 'km',
+};
+
+const LANGUAGE_NAMES = {
+  [LANGUAGE_CODES.ENGLISH]: '🇬🇧 English',
+  [LANGUAGE_CODES.KHMER]: '🇰🇭 ភាសាខ្មែរ',
+};
 
 describe('TranslatedString', () => {
   let ctx = null;
@@ -20,22 +33,50 @@ describe('TranslatedString', () => {
 
   afterAll(() => ctx.close());
 
-  describe('POST /', () => {
-    it('should create a new translated string', async () => {
-      const stringId = 'test-string';
-      const result = await app.post('/v1/translation').send({
-        stringId,
-        fallback: 'test-fallback',
-      });
-      expect(result).toHaveSucceeded();
-      expect(result.body).toEqual(
-        expect.objectContaining({
-          id: `${stringId};${LANGUAGE_CODES.ENGLISH}`,
-          stringId,
-          text: 'test-fallback',
-          language: LANGUAGE_CODES.ENGLISH,
+  const seedTranslationsForLanguage = async (language, count = 5) => {
+    const { TranslatedString } = models;
+    const tStrings = await Promise.all(
+      Array.from({ length: count }).map(async (value, i) =>
+        (
+          await TranslatedString.create({
+            ...fake(TranslatedString),
+            stringId: i === 0 ? 'languageName' : `${chance.word()}.${chance.word()}`,
+            text: i === 0 ? LANGUAGE_NAMES[language] : chance.sentence(),
+            language,
+          })
+        ).get({
+          plain: true,
         }),
-      );
-    });
+      ),
+    );
+    // Return a translation dictionary used in the app
+    return Object.fromEntries(tStrings.map(({ stringId, text }) => [stringId, text]));
+  };
+
+  it('Should receive a list of languages stored in the DB in the format of select options', async () => {
+    await seedTranslationsForLanguage(LANGUAGE_CODES.ENGLISH);
+    await seedTranslationsForLanguage(LANGUAGE_CODES.KHMER);
+
+    const result = await app.get('/v1/translation/preLogin');
+    expect(result).toHaveSucceeded();
+
+    const expectedResult = [
+      { label: LANGUAGE_NAMES[LANGUAGE_CODES.ENGLISH], value: LANGUAGE_CODES.ENGLISH },
+      { label: LANGUAGE_NAMES[LANGUAGE_CODES.KHMER], value: LANGUAGE_CODES.KHMER },
+    ];
+    expect(result.body).toEqual(expectedResult);
+  });
+
+  it('Should receive a dictionary of all translated text for selected language keyed by stringId', async () => {
+    const englishTranslations = await seedTranslationsForLanguage(LANGUAGE_CODES.ENGLISH);
+    const khmerTranslations = await seedTranslationsForLanguage(LANGUAGE_CODES.KHMER);
+
+    const englishResult = await app.get('/v1/translation/en');
+    expect(englishResult).toHaveSucceeded();
+    expect(englishResult.body).toEqual(englishTranslations);
+
+    const khmerResult = await app.get('/v1/translation/km');
+    expect(khmerResult).toHaveSucceeded();
+    expect(khmerResult.body).toEqual(khmerTranslations);
   });
 });

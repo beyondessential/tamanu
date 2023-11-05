@@ -1,29 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { LANGUAGE_NAMES, LANGUAGE_CODES } from '@tamanu/constants';
+import { mapValues, keyBy } from 'lodash';
 
 export const translation = express.Router();
-
-// Register a new string for translation
-translation.post(
-  '/',
-  asyncHandler(async (req, res) => {
-    req.flagPermissionChecked();
-
-    const {
-      models: { TranslatedString },
-      body: { stringId, fallback },
-    } = req;
-
-    const translatedString = await TranslatedString.create({
-      stringId,
-      text: fallback,
-      language: LANGUAGE_CODES.ENGLISH,
-    });
-
-    res.send(translatedString);
-  }),
-);
 
 translation.get(
   '/preLogin',
@@ -35,20 +14,32 @@ translation.get(
       models: { TranslatedString },
     } = req;
 
-    const translatedStringRecords = await TranslatedString.findAll({
+    const eTag = await TranslatedString.etagForLanguageOptions();
+
+    if (req.headers['if-none-match'] === eTag) {
+      res.status(304).end();
+      return;
+    }
+
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('ETag', eTag);
+
+    const languagesInDb = await TranslatedString.findAll({
       attributes: ['language'],
-      distinct: true,
+      group: 'language',
     });
 
-    const languageOptions = translatedStringRecords
-      .map(obj => obj.language)
-      .filter((value, index, self) => {
-        return self.indexOf(value) === index;
-      })
-      .map(languageCode => ({
-        label: LANGUAGE_NAMES[languageCode],
-        value: languageCode,
-      }));
+    const languageNames = await TranslatedString.findAll({
+      where: { stringId: 'languageName' },
+    });
+
+    const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
+    const languageOptions = languagesInDb.map(({ language }) => {
+      return {
+        label: languageDisplayNames[language],
+        value: language,
+      };
+    });
 
     res.send(languageOptions);
   }),
@@ -57,22 +48,29 @@ translation.get(
 translation.get(
   '/:language',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'Translation');
+    // Everyone can access translations
+    req.flagPermissionChecked();
 
     const {
       models: { TranslatedString },
       params: { language },
     } = req;
 
+    const eTag = await TranslatedString.etagForLanguage(language);
+
+    if (req.headers['if-none-match'] === eTag) {
+      res.status(304).end();
+      return;
+    }
+
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('ETag', eTag);
+
     const translatedStringRecords = await TranslatedString.findAll({
       where: { language },
       attributes: ['stringId', 'text'],
     });
 
-    const translationDictionary = Object.fromEntries(
-      translatedStringRecords.map(obj => [obj.stringId, obj.text]),
-    );
-
-    res.send(translationDictionary);
+    res.send(mapValues(keyBy(translatedStringRecords, 'stringId'), 'text'));
   }),
 );
