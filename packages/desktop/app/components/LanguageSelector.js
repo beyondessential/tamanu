@@ -62,6 +62,8 @@ export const LanguageSelector = ({ setFieldValue }) => {
     api.get('translation/preLogin'),
   );
 
+  console.log(languageOptions)
+
   const storedLanguage = localStorage.getItem('language') || null;
 
   const localeLanguageCode = navigator.language;
@@ -82,9 +84,9 @@ export const LanguageSelector = ({ setFieldValue }) => {
   useEffect(() => {
     setFieldValue('language', initialLanguage);
     setSelectedLanguage(initialLanguage);
-  }, [languageOptions, setFieldValue, initialLanguage]);
+  }, [setFieldValue, initialLanguage]);
 
-  // If translations not implemented, no need for this component to show
+  // If multiple languages not implemented, no need for this component to show
   if (languageOptions.length <= 1) return null;
 
   return (
