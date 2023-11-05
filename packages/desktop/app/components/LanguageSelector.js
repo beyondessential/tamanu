@@ -58,11 +58,15 @@ export const LanguageSelector = ({ setFieldValue }) => {
     setFieldValue('language', event.target.value);
   };
 
-  const { data: languageOptions = [], error } = useQuery(['languageList'], () =>
-    api.get('translation/preLogin'),
-  );
+  const storedHost = localStorage.getItem('host') || null;
 
-  console.log(languageOptions)
+  const { data: languageOptions = [], error } = useQuery(
+    ['languageList'],
+    () => api.get('translation/preLogin'),
+    {
+      enabled: !!storedHost,
+    },
+  );
 
   const storedLanguage = localStorage.getItem('language') || null;
 
