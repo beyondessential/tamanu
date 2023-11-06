@@ -553,13 +553,54 @@ export const INVOICE_PAYMENT_STATUS_OPTIONS = [
 ];
 
 export const BIRTH_DELIVERY_TYPE_OPTIONS = [
-  { value: BIRTH_DELIVERY_TYPES.NORMAL_VAGINAL_DELIVERY, label: 'Normal vaginal delivery' },
-  { value: BIRTH_DELIVERY_TYPES.BREECH, label: 'Breech' },
-  { value: BIRTH_DELIVERY_TYPES.EMERGENCY_C_SECTION, label: 'Emergency C-section' },
-  { value: BIRTH_DELIVERY_TYPES.ELECTIVE_C_SECTION, label: 'Elective C-section' },
-  { value: BIRTH_DELIVERY_TYPES.VACUUM_EXTRACTION, label: 'Vacuum extraction' },
-  { value: BIRTH_DELIVERY_TYPES.FORCEPS, label: 'Forceps' },
-  { value: BIRTH_DELIVERY_TYPES.OTHER, label: 'Other' },
+  {
+    value: BIRTH_DELIVERY_TYPES.NORMAL_VAGINAL_DELIVERY,
+    label: (
+      <TranslatedText
+        stringId="birth.form.deliveryType.options.normalVaginalDelivery"
+        fallback="Normal vaginal delivery"
+      />
+    ),
+  },
+  {
+    value: BIRTH_DELIVERY_TYPES.BREECH,
+    label: <TranslatedText stringId="birth.form.deliveryType.options.breech" fallback="Breech" />,
+  },
+  {
+    value: BIRTH_DELIVERY_TYPES.EMERGENCY_C_SECTION,
+    label: (
+      <TranslatedText
+        stringId="birth.form.deliveryType.options.emergencyCSection"
+        fallback="Emergency C-section"
+      />
+    ),
+  },
+  {
+    value: BIRTH_DELIVERY_TYPES.ELECTIVE_C_SECTION,
+    label: (
+      <TranslatedText
+        stringId="birth.form.deliveryType.options.electiveCSection"
+        fallback="Elective C-section"
+      />
+    ),
+  },
+  {
+    value: BIRTH_DELIVERY_TYPES.VACUUM_EXTRACTION,
+    label: (
+      <TranslatedText
+        stringId="birth.form.deliveryType.options.vacuumExtraction"
+        fallback="Vacuum extraction"
+      />
+    ),
+  },
+  {
+    value: BIRTH_DELIVERY_TYPES.FORCEPS,
+    label: <TranslatedText stringId="birth.form.deliveryType.options.forceps" fallback="Forceps" />,
+  },
+  {
+    value: BIRTH_DELIVERY_TYPES.OTHER,
+    label: <TranslatedText stringId="birth.form.deliveryType.options.other" fallback="Other" />,
+  },
 ];
 
 export const BIRTH_TYPE_OPTIONS = [
