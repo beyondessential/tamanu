@@ -121,6 +121,7 @@ async function connectToDatabase(dbOptions) {
 export async function initDatabase(dbOptions) {
   // connect to database
   const {
+    makeEveryModelParanoid = true,
     saltRounds = null,
     alwaysCreateConnection = true,
     primaryKeyDefault = Sequelize.UUIDV4,
@@ -160,7 +161,7 @@ export async function initDatabase(dbOptions) {
         underscored: true,
         primaryKey,
         sequelize,
-        paranoid: true,
+        paranoid: makeEveryModelParanoid,
         hackToSkipEncounterValidation,
       },
       models,
