@@ -1,12 +1,18 @@
 import { Entity, ManyToOne, RelationId, Column, OneToMany } from 'typeorm/browser';
 
-import { IProgramRegistry, IPatientProgramRegistration } from '~/types';
+import {
+  IProgramRegistry,
+  IPatientProgramRegistration,
+  IPatientProgramRegistrationCondition,
+  ID,
+} from '~/types';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { Program } from './Program';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
 import { ProgramRegistryClinicalStatus } from './ProgramRegistryClinicalStatus';
+import { PatientProgramRegistrationCondition } from './PatientProgramRegistrationCondition';
 
 @Entity('lab_test_panel_request')
 export class ProgramRegistry extends BaseModel implements IProgramRegistry {
@@ -36,43 +42,14 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
   )
   patientProgramRegistrations: IPatientProgramRegistration[];
 
-  // patientProgramRegistrations: IPatientProgramRegistration[];
-
-  // patientProgramRegistrationConditions: IPatientProgramRegistrationCondition[];
+  @OneToMany<PatientProgramRegistrationCondition>(
+    () => PatientProgramRegistrationCondition,
+    ({ programRegistry }) => programRegistry,
+  )
+  patientProgramRegistrationConditions: IPatientProgramRegistrationCondition[];
 
   @ManyToOne(() => Program)
   program: Program;
   @RelationId<ProgramRegistry>(({ program }) => program)
-  programId: string;
+  programId: ID;
 }
-
-// // type hi = string | ((object: unknown) => any);
-// type hi2 = typeof RelationId; //(param: unknown) => string;
-// const myFn2: hi2 = (x) => '';
-// // type hi = (object: unknown) => any;
-
-// function myFn<T>(param: string | ((object: T) => any)) {
-//   console.log(param);
-// }
-
-// interface XX {
-//   x: string;
-// }
-// myFn<XX>(({ x }) => x);
-
-// function myDec<T>(param: string | ((object: T) => any)) {
-//   console.log("first(): factory evaluated", param);
-//   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-//     console.log("first(): called", param);
-//   };
-// }
-// function myDec(target: Object, propertyKey: string | symbol, parameterIndex: number) {
-//   let existingRequiredParameters: number[] = Reflect.getOwnMetadata(requiredMetadataKey, target, propertyKey) || [];
-//   existingRequiredParameters.push(parameterIndex);
-//   Reflect.defineMetadata( requiredMetadataKey, existingRequiredParameters, target, propertyKey);
-// }
-
-// class Testing {
-//   @myDec<XX>(({ x }) => x)
-//   hello: string;
-// }
