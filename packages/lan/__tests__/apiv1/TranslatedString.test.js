@@ -35,27 +35,22 @@ describe('TranslatedString', () => {
 
   const seedTranslationsForLanguage = async (language, count = 5) => {
     const { TranslatedString } = models;
-    const createdTranslations = [];
-
-    const languageNameTranslation = await TranslatedString.create({
-      ...fake(TranslatedString),
-      stringId: `languageName`,
-      text: LANGUAGE_NAMES[language],
-      language,
-    });
-
-    createdTranslations.push(languageNameTranslation.get({ plain: true }));
-
-    for (let i = 0; i < count; i++) {
-      const translation = await TranslatedString.create({
-        ...fake(TranslatedString),
-        stringId: `${chance.word()}.${chance.word()}`,
-        text: chance.sentence(),
-        language,
-      });
-      createdTranslations.push(translation.get({ plain: true }));
-    }
-    return createdTranslations;
+    const tStrings = await Promise.all(
+      Array.from({ length: count }).map(async (value, i) =>
+        (
+          await TranslatedString.create({
+            ...fake(TranslatedString),
+            stringId: i === 0 ? 'languageName' : `${chance.word()}.${chance.word()}`,
+            text: i === 0 ? LANGUAGE_NAMES[language] : chance.sentence(),
+            language,
+          })
+        ).get({
+          plain: true,
+        }),
+      ),
+    );
+    // Return a translation dictionary used in the app
+    return Object.fromEntries(tStrings.map(({ stringId, text }) => [stringId, text]));
   };
 
   it('Should receive a list of languages stored in the DB in the format of select options', async () => {
@@ -72,24 +67,16 @@ describe('TranslatedString', () => {
     expect(result.body).toEqual(expectedResult);
   });
 
-  it('Should recieve a list of all translations for selected language in an object with format { [stringId]: text, ... }', async () => {
+  it('Should receive a dictionary of all translated text for selected language keyed by stringId', async () => {
     const englishTranslations = await seedTranslationsForLanguage(LANGUAGE_CODES.ENGLISH);
     const khmerTranslations = await seedTranslationsForLanguage(LANGUAGE_CODES.KHMER);
 
     const englishResult = await app.get('/v1/translation/en');
     expect(englishResult).toHaveSucceeded();
-
-    const expectedEnglishTranslationObject = Object.fromEntries(
-      englishTranslations.map(({ stringId, text }) => [stringId, text]),
-    );
-    expect(englishResult.body).toEqual(expectedEnglishTranslationObject);
+    expect(englishResult.body).toEqual(englishTranslations);
 
     const khmerResult = await app.get('/v1/translation/km');
     expect(khmerResult).toHaveSucceeded();
-
-    const expectedKhmerTranslationObject = Object.fromEntries(
-      khmerTranslations.map(({ stringId, text }) => [stringId, text]),
-    );
-    expect(khmerResult.body).toEqual(expectedKhmerTranslationObject);
+    expect(khmerResult.body).toEqual(khmerTranslations);
   });
 });

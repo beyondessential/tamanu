@@ -4,23 +4,14 @@ export async function up(query) {
   await query.createTable(
     'translated_strings',
     {
-      // For translated_strings, we use a composite primary key of string_id plus language,
-      // N.B. because ';' is used to join the two, we replace any actual occurrence of ';' with ':'
-      // to avoid clashes on the joined id
+      // For translated_strings, we use a composite primary key of string_id plus language
       id: {
-        type: `TEXT GENERATED ALWAYS AS (REPLACE("string_id", ';', ':') || ';' || REPLACE("language", ';', ':')) STORED`,
+        type: `TEXT GENERATED ALWAYS AS ("string_id" || ';' || "language") STORED`,
       },
       string_id: {
         type: DataTypes.TEXT,
         required: true,
         primaryKey: true,
-        validate: {
-          doesNotContainIdDelimiter: value => {
-            if (value.includes('\u001F')) {
-              throw new Error('Translation ID cannot contain "\u001F"');
-            }
-          },
-        },
       },
       language: {
         type: DataTypes.TEXT,
@@ -30,13 +21,6 @@ export async function up(query) {
       text: {
         type: DataTypes.TEXT,
         required: true,
-        validate: {
-          doesNotContainIdDelimiter: value => {
-            if (value.includes('\u001F')) {
-              throw new Error('Text cannot contain "\u001F"');
-            }
-          },
-        },
       },
       created_at: {
         type: DataTypes.DATE,
@@ -67,6 +51,10 @@ export async function up(query) {
         {
           name: 'language_index',
           fields: ['language'],
+        },
+        {
+          name: 'updated_at_sync_tick_index',
+          fields: ['language', 'updated_at_sync_tick'],
         },
       ],
     },
