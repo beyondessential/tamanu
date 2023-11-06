@@ -87,7 +87,10 @@ export const executeDeletes = async (model: typeof BaseModel, rowIds: string[]):
   }
 };
 
-export const executeRestores = async (model: typeof BaseModel, rowIds: string[]): Promise<void> => {
+export const executeRestores = async (
+  model: typeof BaseModel,
+  rowIds: unknown[],
+): Promise<void> => {
   for (const batchOfIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
     await Promise.all(
       batchOfIds.map(async id => {
