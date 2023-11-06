@@ -106,7 +106,7 @@ export const CustomisableSearchBar = ({
                 </IconButton>
               )}
               <SearchButton type="submit">
-                <TranslatedText stringId="patientListing.searchButton" fallback="Search" />
+                <TranslatedText stringId="general.action.search" fallback="Search" />
               </SearchButton>
               <ClearButton
                 onClick={() => {
@@ -118,7 +118,7 @@ export const CustomisableSearchBar = ({
                   setTimeout(() => clearForm(), 0);
                 }}
               >
-                <TranslatedText stringId="patientListing.clearButton" fallback="Clear" />
+                <TranslatedText stringId="general.action.clear" fallback="Clear" />
               </ClearButton>
             </ActionsContainer>
           </CustomisableSearchBarGrid>
