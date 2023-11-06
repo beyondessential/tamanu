@@ -3,7 +3,8 @@ import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { ipcRenderer } from 'electron';
 import { useTranslation } from '../../contexts/Translation';
-import { useApi } from '../../api';
+
+const DEBUG_TRANSLATION_STORAGE_KEY = 'debugTranslation';
 
 const DebugHighlighed = styled.span`
   background-color: red;
@@ -12,15 +13,15 @@ const DebugHighlighed = styled.span`
 
 const safeGetIsDebugMode = () => {
   try {
-    return JSON.parse(localStorage.getItem('debugTranslation'));
+    return JSON.parse(localStorage.getItem(DEBUG_TRANSLATION_STORAGE_KEY));
   } catch (e) {
     return false;
   }
 };
 
 ipcRenderer.on('toggleTranslationDebug', () => {
-  localStorage.setItem('debugTranslation', !safeGetIsDebugMode());
-  window.dispatchEvent(new Event('debugTranslation'));
+  localStorage.setItem(DEBUG_TRANSLATION_STORAGE_KEY, !safeGetIsDebugMode());
+  window.dispatchEvent(new Event(DEBUG_TRANSLATION_STORAGE_KEY));
 });
 
 const replaceStringVariables = (templateString, replacements) => {
@@ -43,8 +44,8 @@ export const TranslatedText = ({ stringId, fallback, replacements }) => {
   useEffect(() => {
     const getDebugMode = async () => setIsDebugMode(safeGetIsDebugMode());
     getDebugMode();
-    window.addEventListener('debugTranslation', getDebugMode);
-    return () => window.removeEventListener('debugTranslation', getDebugMode);
+    window.addEventListener(DEBUG_TRANSLATION_STORAGE_KEY, getDebugMode);
+    return () => window.removeEventListener(DEBUG_TRANSLATION_STORAGE_KEY, getDebugMode);
   }, []);
 
   const displayElements = useMemo(() => {
