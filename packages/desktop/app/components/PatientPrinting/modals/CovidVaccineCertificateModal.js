@@ -30,7 +30,7 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
   const vaccinations = vaccineData?.data.filter(vaccine => vaccine.certifiable) || [];
 
   const createCovidVaccineCertificateNotification = useCallback(
-    data => {
+    data =>
       api.post('certificateNotification', {
         type: ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON,
         requireSigning: true,
@@ -38,8 +38,7 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
         forwardAddress: data.email,
         createdBy: printedBy,
         printedDate: getCurrentDateString(),
-      });
-    },
+      }),
     [api, patient.id, printedBy],
   );
 

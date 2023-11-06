@@ -2,7 +2,12 @@ import Sequelize from 'sequelize';
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import { verifyQuery } from './utils';
 
-export async function createReportDefinitionVersion(store, reportId, definition, userId) {
+export async function createReportDefinitionVersion(
+  { store, reportSchemaStores },
+  reportId,
+  definition,
+  userId,
+) {
   const {
     models: { ReportDefinition, ReportDefinitionVersion },
     sequelize,
@@ -11,15 +16,20 @@ export async function createReportDefinitionVersion(store, reportId, definition,
   if (definition.versionNumber) {
     throw new InvalidOperationError('Cannot create a report with a version number');
   }
-
-  await verifyQuery(definition.query, definition.queryOptions.parameters, store);
+  const { parameters } = definition.queryOptions;
+  await verifyQuery(
+    definition.query,
+    { parameters },
+    { reportSchemaStores, store },
+    definition.dbSchema,
+  );
   return sequelize.transaction(
     {
       // Prevents race condition when determining the next version number
       isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
     },
     async () => {
-      const { name, ...definitionVersion } = definition;
+      const { name, dbSchema, ...definitionVersion } = definition;
       if (!reportId) {
         const existingDefinition = await ReportDefinition.findOne({
           where: { name },
@@ -29,7 +39,7 @@ export async function createReportDefinitionVersion(store, reportId, definition,
           throw new InvalidOperationError('Report name already exists');
         }
       }
-      const reportDefinitionId = reportId || (await ReportDefinition.create({ name })).id;
+      const reportDefinitionId = reportId || (await ReportDefinition.create({ name, dbSchema })).id;
       const latestVersion = await ReportDefinitionVersion.findOne({
         where: { reportDefinitionId: reportId },
         attributes: ['versionNumber'],

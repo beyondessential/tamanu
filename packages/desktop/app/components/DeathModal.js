@@ -2,7 +2,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
 import { reloadPatient } from '../store/patient';
-import { Modal } from './Modal';
+import { FormModal } from './FormModal';
 import { DeathForm } from '../forms/DeathForm';
 import { useApi, useSuggester } from '../api';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
@@ -28,7 +28,7 @@ export const DeathModal = React.memo(({ open, onClose, deathData }) => {
   };
 
   return (
-    <Modal title="Record patient death" open={open} onClose={onClose}>
+    <FormModal title="Record patient death" open={open} onClose={onClose}>
       <DeathForm
         onSubmit={recordPatientDeath}
         onCancel={onClose}
@@ -38,6 +38,6 @@ export const DeathModal = React.memo(({ open, onClose, deathData }) => {
         practitionerSuggester={practitionerSuggester}
         facilitySuggester={facilitySuggester}
       />
-    </Modal>
+    </FormModal>
   );
 });
