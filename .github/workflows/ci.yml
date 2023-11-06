@@ -44,7 +44,8 @@ jobs:
 
       - name: Install and start postgres if needed
         if: matrix.postgres
-        run: .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }} ${{ matrix.package }}
+        run: .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
+        run: .github/scripts/setup-postgres-one.sh ${{ matrix.package }}
 
       - name: Run tests
         env:
@@ -108,7 +109,7 @@ jobs:
 
       - name: Install and start postgres ${{ matrix.postgres }}
         run: .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
-          migrations
+        run: .github/scripts/setup-postgres-one.sh migrations
 
       - run: scripts/apply_and_revert_server_migrations.sh ${{ matrix.server }}
 
@@ -134,6 +135,20 @@ jobs:
 
       - run: yarn test
         working-directory: packages/mobile
+
+  test-facility-offline:
+    name: Test the facility server with the central server being down
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+
+      - name: Install and start postgres
+        run: github/scripts/install-postgres-ubuntu.sh 14
+      - run: github/scripts/test-facility-offline.sh
 
   # Dummy job to have a stable name for PR requirements
   tests-pass:
