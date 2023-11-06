@@ -97,7 +97,12 @@ export const MenuButton = React.memo(
 );
 
 MenuButton.propTypes = {
-  actions: PropTypes.objectOf(PropTypes.func).isRequired,
+  actions: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.node.isRequired,
+      action: PropTypes.func.isRequired,
+    }),
+  ).isRequired,
   iconDirection: PropTypes.string,
   iconColor: PropTypes.string,
 };
