@@ -683,6 +683,18 @@
         "userDisplayId": {
           "shortLabel": "Registration number",
           "longLabel": "Registration number"
+        },
+        "date": {
+          "shortLabel": "Date",
+          "longLabel": "Date"
+        },
+        "registeredBy": {
+          "shortLabel": "Registered by",
+          "longLabel": "Registered by"
+        },
+        "status": {
+          "shortLabel": "Status",
+          "longLabel": "Status"
         }
       },
       "features": {
@@ -974,7 +986,7 @@
     }
   },
   // Note: this config should be duplicated on the lan server if the same behavior is
-  // desired for "this facility" and "all facilities"
+  // desired for "this facility" and "all facility"
   "reportConfig": {
     "encounter-summary-line-list": {
       "includedPatientFieldIds": []

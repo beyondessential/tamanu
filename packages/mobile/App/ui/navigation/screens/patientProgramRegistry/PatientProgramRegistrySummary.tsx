@@ -30,20 +30,14 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
           width={32}
           height={32}
           onPress={() => {
-            navigation.navigate(Routes.HomeStack.PatientProgramRegistryStack.Index);
+            navigation.navigate(Routes.HomeStack.PatientProgramRegistryFormStack.Index);
           }}
         >
           <CircleAdd size={32} />
         </Button>
       </RowView>
       <StyledView borderColor={theme.colors.BOX_OUTLINE} height={1} />
-      <StyledView
-        paddingLeft={20}
-        paddingRight={20}
-        // paddingTop={10}
-        // paddingBottom={10}
-        background={theme.colors.WHITE}
-      >
+      <StyledView paddingLeft={20} paddingRight={20} background={theme.colors.WHITE}>
         <PatientProgramRegistryList selectedPatient={selectedPatient} />
       </StyledView>
     </StyledView>
