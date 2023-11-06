@@ -428,11 +428,6 @@ export const ATTENDANT_OF_BIRTH_OPTIONS = [
   { value: ATTENDANT_OF_BIRTH_TYPES.OTHER, label: 'Other' },
 ];
 
-export const PATIENT_REGISTRY_OPTIONS = [
-  { value: PATIENT_REGISTRY_TYPES.NEW_PATIENT, label: 'Create new patient' },
-  { value: PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY, label: 'Register birth' },
-];
-
 export const TEMPLATE_TYPE_OPTIONS = [
   { value: TEMPLATE_TYPES.PATIENT_LETTER, label: 'Patient Letter' },
 ];
