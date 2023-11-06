@@ -36,8 +36,6 @@ export const TranslatedText = ({ stringId, fallback, replacements }) => {
   const [translation, setTranslation] = useState(fallback);
   const [displayElements, setDisplayElements] = useState(fallback);
 
-  // TODO: Useeffect or useQuery that fetches the translation from the backend and registers if not existing
-
   useEffect(() => {
     const getDebugMode = async () => {
       setIsDebugMode(safeGetIsDebugMode());

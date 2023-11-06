@@ -19,6 +19,7 @@ import {
   DiseaseField,
 } from '../components/VaccineCommonFields';
 import { Field, SuggesterSelectField } from '../components/Field';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const VaccineNotGivenForm = ({
   vaccineLabel,
@@ -66,12 +67,14 @@ export const VaccineNotGivenForm = ({
 
     <Field
       name="notGivenReasonId"
-      label="Reason"
+      label={<TranslatedText stringId="vaccine.form.notGivenReason.label" fallback="Reason" />}
       component={SuggesterSelectField}
       endpoint="vaccineNotGivenReason"
     />
 
-    <VaccineDateField label="Date recorded" />
+    <VaccineDateField
+      label={<TranslatedText stringId="vaccine.form.dateRecorded.label" fallback="Date recorded" />}
+    />
 
     <StyledDivider />
 
@@ -80,7 +83,14 @@ export const VaccineNotGivenForm = ({
 
     <StyledDivider />
 
-    <GivenByField label="Supervising clinician" />
+    <GivenByField
+      label={
+        <TranslatedText
+          stringId="vaccine.form.supervisingClinician.label"
+          fallback="Supervising clinician"
+        />
+      }
+    />
 
     {!editMode && <RecordedByField />}
 
