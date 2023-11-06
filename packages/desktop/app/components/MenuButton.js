@@ -79,7 +79,7 @@ export const MenuButton = React.memo(
                 <List>
                   {actions.map(({ label, action }) => (
                     <Item
-                      key={label}
+                      key={label.props.fallback}
                       disabled={!action}
                       onClick={event => handleClick(event, action)}
                     >
