@@ -11,9 +11,21 @@ import { CheckInput } from './Field';
 import { Colors } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
 
-const getSchedule = record => record.scheduledVaccine?.schedule || 'N/A';
-const getVaccineName = record => record.vaccineName || record.scheduledVaccine?.label || 'Unknown';
-const getDate = ({ date }) => (date ? <DateDisplay date={date} /> : 'Unknown');
+const getSchedule = record =>
+  record.scheduledVaccine?.schedule || (
+    <TranslatedText stringId="general.notApplicable" fallback="N/A" />
+  );
+const getVaccineName = record =>
+  record.vaccineName ||
+  record.scheduledVaccine?.label || (
+    <TranslatedText stringId="general.unknown" fallback="Unknown" />
+  );
+const getDate = ({ date }) =>
+  date ? (
+    <DateDisplay date={date} />
+  ) : (
+    <TranslatedText stringId="general.unknown" fallback="Unknown" />
+  );
 const getGiver = record => {
   if (record.status === VACCINE_STATUS.NOT_GIVEN) {
     return (
