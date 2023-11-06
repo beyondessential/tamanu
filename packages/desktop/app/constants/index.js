@@ -635,14 +635,35 @@ export const PLACE_OF_BIRTH_OPTIONS = [
 ];
 
 export const ATTENDANT_OF_BIRTH_OPTIONS = [
-  { value: ATTENDANT_OF_BIRTH_TYPES.DOCTOR, label: 'Doctor' },
-  { value: ATTENDANT_OF_BIRTH_TYPES.MIDWIFE, label: 'Midwife' },
-  { value: ATTENDANT_OF_BIRTH_TYPES.NURSE, label: 'Nurse' },
+  {
+    value: ATTENDANT_OF_BIRTH_TYPES.DOCTOR,
+    label: (
+      <TranslatedText stringId="birth.form.attendantOfBirth.options.doctor" fallback="Doctor" />
+    ),
+  },
+  {
+    value: ATTENDANT_OF_BIRTH_TYPES.MIDWIFE,
+    label: (
+      <TranslatedText stringId="birth.form.attendantOfBirth.options.midwife" fallback="Midwife" />
+    ),
+  },
+  {
+    value: ATTENDANT_OF_BIRTH_TYPES.NURSE,
+    label: <TranslatedText stringId="birth.form.attendantOfBirth.options.nurse" fallback="Nurse" />,
+  },
   {
     value: ATTENDANT_OF_BIRTH_TYPES.TRADITIONAL_BIRTH_ATTENDANT,
-    label: 'Traditional birth attendant',
+    label: (
+      <TranslatedText
+        stringId="birth.form.attendantOfBirth.options.traditionalBirthAttendant"
+        fallback="Traditional birth attendant"
+      />
+    ),
   },
-  { value: ATTENDANT_OF_BIRTH_TYPES.OTHER, label: 'Other' },
+  {
+    value: ATTENDANT_OF_BIRTH_TYPES.OTHER,
+    label: <TranslatedText stringId="birth.form.attendantOfBirth.options.other" fallback="Other" />,
+  },
 ];
 
 export const TEMPLATE_TYPE_OPTIONS = [
