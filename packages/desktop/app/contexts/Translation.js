@@ -1,4 +1,5 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
+import { isEmpty } from 'lodash';
 import { useApi } from '../api';
 
 const TranslationContext = React.createContext();
@@ -16,11 +17,22 @@ export const TranslationProvider = ({ children }) => {
 
   const getTranslation = (stringId, fallback) => {
     if (translations[stringId]) return translations[stringId];
+    // This section here is a dev tool to help populate the db with the translation ids we have defined
+    // in components. It will only populate the db with English strings, so that we can then translate them.
     if (translations.languageCode === 'en') {
       api.post('translation', { stringId, fallback, text: fallback });
     }
     return fallback;
   };
+
+  // This likely shouldnt be needed in prod? This is to help with development with lots of autorefeshing
+  // which interferres with the workflow of login fetching language and storing to context
+  useEffect(() => {
+    const storedLanguage = localStorage.getItem('language');
+    if (isEmpty(translations) && storedLanguage) {
+      fetchTranslations(storedLanguage);
+    }
+  }, [translations]);
 
   return (
     <TranslationContext.Provider
