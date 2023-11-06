@@ -8,24 +8,27 @@ export const useTranslation = () => useContext(TranslationContext);
 export const TranslationProvider = ({ children }) => {
   const api = useApi();
   const [translations, setTranslations] = useState({});
+  const [isTranslationsLoaded, setIsTranslationsLoaded] = useState(false);
 
   const fetchTranslations = async language => {
-    const storedLanguage = localStorage.getItem('language');
-    const storedTranslations = localStorage.getItem('translations');
-    if (storedTranslations && storedLanguage === language) {
-      setTranslations(JSON.parse(storedTranslations));
-      return;
-    }
     const recievedTranslations = await api.get(`translation/${language}`);
     setTranslations(recievedTranslations);
-    localStorage.setItem('translations', JSON.stringify(recievedTranslations));
+    setIsTranslationsLoaded(true);
+  };
+
+  const getTranslation = (stringId, fallback) => {
+    if (!isTranslationsLoaded) return 'loading...';
+    if (translations[stringId]) return translations[stringId];
+    // TODO: Should only do this when english
+    api.post('translation', { stringId, fallback, text: fallback });
+    return fallback;
   };
 
   return (
     <TranslationContext.Provider
       value={{
         fetchTranslations,
-        getTranslation: stringId => translations[stringId],
+        getTranslation,
       }}
     >
       {children}

@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { ipcRenderer } from 'electron';
 import { useTranslation } from '../../contexts/Translation';
+import { useApi } from '../../api';
 
 const DebugHighlighed = styled.span`
   background-color: red;
@@ -34,26 +35,21 @@ const replaceStringVariables = (templateString, replacements) => {
 };
 
 export const TranslatedText = ({ stringId, fallback, replacements }) => {
-  const [isDebugMode, setIsDebugMode] = useState(false);
-  const [displayElements, setDisplayElements] = useState(fallback);
-
   const { getTranslation } = useTranslation();
-  const translation = getTranslation(stringId) || fallback;
+  const [isDebugMode, setIsDebugMode] = useState(false);
+
+  const translation = getTranslation(stringId, fallback);
 
   useEffect(() => {
     const getDebugMode = async () => setIsDebugMode(safeGetIsDebugMode());
     getDebugMode();
-
     window.addEventListener('debugTranslation', getDebugMode);
     return () => window.removeEventListener('debugTranslation', getDebugMode);
   }, []);
 
-  useEffect(() => {
-    if (!replacements) {
-      setDisplayElements(translation);
-      return;
-    }
-    setDisplayElements(replaceStringVariables(translation, replacements));
+  const displayElements = useMemo(() => {
+    if (!replacements) return translation;
+    return replaceStringVariables(translation, replacements);
   }, [translation, replacements]);
 
   const TextWrapper = isDebugMode ? DebugHighlighed : React.Fragment;
