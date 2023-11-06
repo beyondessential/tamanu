@@ -36,6 +36,7 @@ import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
 import { Colors } from '../../constants';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const Container = styled.div`
   display: flex;
@@ -99,14 +100,16 @@ const MODALS = {
 const Menu = ({ setModal, status, disabled }) => {
   const menuActions = [
     {
-      label: 'Print label',
+      label: <TranslatedText stringId="labRequest.action.printLabel" fallback="Print label" />,
       action: () => setModal(MODAL_IDS.LABEL_PRINT),
     },
   ];
 
   if (status !== LAB_REQUEST_STATUSES.PUBLISHED) {
     menuActions.push({
-      label: 'Cancel request',
+      label: (
+        <TranslatedText stringId="labRequest.action.cancelRequest" fallback="Cancel request" />
+      ),
       action: () => setModal(MODAL_IDS.CANCEL),
     });
   }
@@ -169,14 +172,23 @@ export const LabRequestView = () => {
 
   const actions =
     labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
-      ? [{ label: 'Record sample', action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE) }]
+      ? [
+          {
+            label: (
+              <TranslatedText stringId="labRequest.action.recordSample" fallback="Record sample" />
+            ),
+            action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+          },
+        ]
       : [
           {
-            label: 'Edit',
+            label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
             action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
           },
           {
-            label: 'View Details',
+            label: (
+              <TranslatedText stringId="labRequest.action.viewDetails" fallback="View details" />
+            ),
             action: () => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS),
           },
         ];
@@ -220,11 +232,21 @@ export const LabRequestView = () => {
             actions={[
               ...(!areLabRequestsReadOnly &&
                 canWriteLabRequestStatus && {
-                  label: 'Change status',
+                  label: (
+                    <TranslatedText
+                      stringId="labRequest.action.changeStatus"
+                      fallback="Change status"
+                    />
+                  ),
                   action: () => handleChangeModalId(MODAL_IDS.CHANGE_STATUS),
                 }),
               {
-                label: 'View status log',
+                label: (
+                  <TranslatedText
+                    stringId="labRequest.action.viewStatusLog"
+                    fallback="View status log"
+                  />
+                ),
                 action: () => handleChangeModalId(MODAL_IDS.VIEW_STATUS_LOG),
               },
             ]}
@@ -251,7 +273,12 @@ export const LabRequestView = () => {
             isReadOnly={areLabRequestsReadOnly}
             actions={[
               {
-                label: 'Change laboratory',
+                label: (
+                  <TranslatedText
+                    stringId="labRequest.action.changeLaboratory"
+                    fallback="Change laboratory"
+                  />
+                ),
                 action: () => handleChangeModalId(MODAL_IDS.CHANGE_LABORATORY),
               },
             ]}
@@ -263,7 +290,12 @@ export const LabRequestView = () => {
             isReadOnly={areLabRequestsReadOnly}
             actions={[
               {
-                label: 'Change priority',
+                label: (
+                  <TranslatedText
+                    stringId="labRequest.action.changePriority"
+                    fallback="Change priority"
+                  />
+                ),
                 action: () => handleChangeModalId(MODAL_IDS.CHANGE_PRIORITY),
               },
             ]}
