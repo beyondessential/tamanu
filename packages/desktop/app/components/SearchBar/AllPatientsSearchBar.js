@@ -66,7 +66,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
             name="deceased"
             label={
               <TranslatedText
-                stringId="patient.table.includeDeceasedCheckbox.label"
+                stringId="patientList.table.includeDeceasedCheckbox.label"
                 fallback="Include deceased patients"
               />
             }
