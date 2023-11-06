@@ -97,9 +97,6 @@ export class AuthService {
     // kick off a local save
     const userData = await this.saveLocalUser(user, params.password);
 
-    const translations = await this.models.TranslatedString.getForLanguage('en');
-    console.log(translations);
-
     const result = { user: userData, token, refreshToken, localisation, permissions };
     this.emitter.emit('remoteSignIn', result);
     return result;

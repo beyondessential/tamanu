@@ -18,6 +18,7 @@ import { Field } from './FormField';
 import { TextField } from '../TextField/TextField';
 import { Button } from '../Button';
 import { ServerSelector } from '../ServerSelectorField/ServerSelector';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 interface SignInFormModelValues {
   email: string;
@@ -42,8 +43,10 @@ const ServerInfo = __DEV__
 export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
   const [existingHost, setExistingHost] = useState('');
   const passwordRef = useRef(null);
-  const authCtx = useAuth();
-  const signIn = useCallback(
+  const { signIn } = useAuth();
+  const { fetchTranslations } = useTranslation();
+
+  const handleSignIn = useCallback(
     async (values: SignInFormModelValues) => {
       try {
         if (!existingHost && !values.server) {
@@ -51,7 +54,8 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
           onError(new Error('Please select a server to connect to'));
           return;
         }
-        await authCtx.signIn(values);
+        await signIn(values);
+        await fetchTranslations();
 
         onSuccess();
       } catch (error) {
@@ -85,7 +89,7 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
         password: Yup.string().required(REQUIRED_VALIDATION_MESSAGE),
         server: existingHost ? Yup.string() : Yup.string().required(REQUIRED_VALIDATION_MESSAGE),
       })}
-      onSubmit={signIn}
+      onSubmit={handleSignIn}
     >
       {({ handleSubmit, isSubmitting }): ReactElement => (
         <StyledView

@@ -114,7 +114,6 @@ const Provider = ({
     } else {
       await localSignIn(params);
     }
-
     // When user first sign in and has not chosen a facility, don't start the sync service yet
     const facilityId = await readConfig('facilityId', '');
     if (facilityId) {
@@ -140,12 +139,14 @@ const Provider = ({
     if (!signUpRoutes.includes(currentRoute)) {
       navRef.current?.reset({
         index: 0,
-        routes: [{
-          name: Routes.SignUpStack.Index,
-          params: {
-            signedOutFromInactivity,
+        routes: [
+          {
+            name: Routes.SignUpStack.Index,
+            params: {
+              signedOutFromInactivity,
+            },
           },
-        }],
+        ],
       });
     }
   };
@@ -161,7 +162,6 @@ const Provider = ({
 
   // start a session if there's a stored token
   useEffect(() => {
-
     if (props.token && props.user) {
       backend.auth.startSession(props.token, props.refreshToken);
     } else {
@@ -183,7 +183,7 @@ const Provider = ({
       if (preventSignOutOnFailure) {
         // reset flag to prevent sign out being
         // skipped on subsequent failed authentications
-        setPreventSignOutOnFailure(true)
+        setPreventSignOutOnFailure(true);
       } else {
         signOut();
       }
