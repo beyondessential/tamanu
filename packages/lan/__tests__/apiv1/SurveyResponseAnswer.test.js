@@ -321,7 +321,7 @@ describe('SurveyResponseAnswer', () => {
       });
 
       it('should return error if feature flag does not exist', async () => {
-        await models.UserLocalisationCache.truncate({ cascade: true, force: true });
+        await models.UserLocalisationCache.truncate({ cascade: true });
 
         const result = await app.put(`/v1/surveyResponseAnswer/vital/nonImportantID`).send({
           reasonForChange: 'test8',
@@ -356,6 +356,7 @@ describe('SurveyResponseAnswer', () => {
         await models.UserLocalisationCache.upsert({
           userId: app.user.id,
           localisation: JSON.stringify(mockLocalisation),
+          deletedAt: null,
         });
       });
 

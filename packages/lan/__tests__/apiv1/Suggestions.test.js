@@ -160,7 +160,7 @@ describe('Suggestions', () => {
     });
 
     it('should filter locations by location group', async () => {
-      await models.Location.truncate({ cascade: true, force: true });
+      await models.Location.truncate({ cascade: true });
 
       const locationGroup = await findOneOrCreate(models, models.LocationGroup, {
         id: 'test-area',
