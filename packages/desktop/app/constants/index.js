@@ -604,8 +604,14 @@ export const BIRTH_DELIVERY_TYPE_OPTIONS = [
 ];
 
 export const BIRTH_TYPE_OPTIONS = [
-  { value: BIRTH_TYPES.SINGLE, label: 'Single' },
-  { value: BIRTH_TYPES.PLURAL, label: 'Plural' },
+  {
+    value: BIRTH_TYPES.SINGLE,
+    label: <TranslatedText stringId="birth.form.birthType.options.single" fallback="Single" />,
+  },
+  {
+    value: BIRTH_TYPES.PLURAL,
+    label: <TranslatedText stringId="birth.form.birthType.options.plural" fallback="Plural" />,
+  },
 ];
 
 export const PLACE_OF_BIRTH_OPTIONS = [
