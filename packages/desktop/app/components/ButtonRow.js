@@ -66,7 +66,11 @@ const GoBackButtonContainer = styled(ButtonRow)`
   }
 `;
 
-export const ConfirmCancelBackRow = ({ onBack, backButtonText = 'Back', ...props }) => (
+export const ConfirmCancelBackRow = ({
+  onBack,
+  backButtonText = <TranslatedText stringId="general.action.back" fallback="Back" />,
+  ...props
+}) => (
   <FlexSpaceBetween>
     {onBack && (
       <GoBackButtonContainer>

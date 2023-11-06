@@ -9,6 +9,7 @@ import { ConfirmModal } from './ConfirmModal';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { reloadPatient } from '../store/patient';
 import { MODAL_PADDING_LEFT_AND_RIGHT, MODAL_PADDING_TOP_AND_BOTTOM } from './Modal';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const TypographyLink = styled(Typography)`
   color: ${Colors.primary};
@@ -65,7 +66,11 @@ export const RecordDeathSection = memo(({ patient, openDeathModal }) => {
   };
 
   const isPatientDead = Boolean(patient.dateOfDeath);
-  const actionText = isPatientDead ? 'Revert death record' : 'Record death';
+  const actionText = isPatientDead ? (
+    <TranslatedText stringId="patient.detailsSidebar.revertDeath" fallback="Revert death record" />
+  ) : (
+    <TranslatedText stringId="patient.detailsSidebar.recordDeath" fallback="Record death" />
+  );
 
   return (
     <>
