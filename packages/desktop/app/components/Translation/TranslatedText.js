@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { ipcRenderer } from 'electron';
-
-const DebugHighlighed = styled.span`
-  background-color: red;
-  color: white;
-`;
+import { DebugTooltip } from './DebugTooltip';
 
 const safeGetIsDebugMode = () => {
   try {
@@ -41,8 +36,6 @@ export const TranslatedText = ({ stringId, fallback, replacements }) => {
   const [translation, setTranslation] = useState(fallback);
   const [displayElements, setDisplayElements] = useState(fallback);
 
-  // TODO: Useeffect or useQuery that fetches the translation from the backend and registers if not existing
-
   useEffect(() => {
     const getDebugMode = async () => {
       setIsDebugMode(safeGetIsDebugMode());
@@ -60,9 +53,13 @@ export const TranslatedText = ({ stringId, fallback, replacements }) => {
     setDisplayElements(replaceStringVariables(translation, replacements));
   }, [translation, replacements]);
 
-  const TextWrapper = isDebugMode ? DebugHighlighed : React.Fragment;
-
-  return <TextWrapper>{displayElements}</TextWrapper>;
+  if (isDebugMode)
+    return (
+      <DebugTooltip stringId={stringId} replacements={replacements} fallback={fallback}>
+        {displayElements}
+      </DebugTooltip>
+    );
+  return displayElements;
 };
 
 TranslatedText.propTypes = {

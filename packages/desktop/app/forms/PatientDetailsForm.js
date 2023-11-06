@@ -42,6 +42,7 @@ import {
   TimeField,
 } from '../components';
 import { LoadingIndicator } from '../components/LoadingIndicator';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const StyledHeading = styled.div`
   font-weight: 500;
@@ -89,7 +90,7 @@ export const PrimaryDetailsGroup = () => {
         name="email"
         component={TextField}
         type="email"
-        defaultLabel="Email address"
+        defaultLabel={<TranslatedText stringId="general.form.email" fallback="Email Address" />}
       />
     </FormGrid>
   );
@@ -115,7 +116,12 @@ export const SecondaryDetailsGroup = ({ patientRegistryType, values = {}, isEdit
     <StyledSecondaryDetailsGroup>
       {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
         <>
-          <StyledHeading>Birth details</StyledHeading>
+          <StyledHeading>
+            <TranslatedText
+              stringId="patient.details.subheading.birthDetails"
+              fallback="Birth details"
+            />
+          </StyledHeading>
           <StyledFormGrid>
             <LocalisedField name="timeOfBirth" component={TimeField} saveDateAsString />
             <LocalisedField name="gestationalAgeEstimate" component={TextField} type="number" />
@@ -152,7 +158,12 @@ export const SecondaryDetailsGroup = ({ patientRegistryType, values = {}, isEdit
         </>
       )}
 
-      <StyledHeading>Identification information</StyledHeading>
+      <StyledHeading>
+        <TranslatedText
+          stringId="patient.details.subheading.identificationInformation"
+          fallback="Identification information"
+        />
+      </StyledHeading>
       <StyledFormGrid>
         {canEditDisplayId && <DisplayIdField />}
         <LocalisedField name="birthCertificate" component={TextField} />
@@ -162,7 +173,12 @@ export const SecondaryDetailsGroup = ({ patientRegistryType, values = {}, isEdit
         <LocalisedField name="passport" component={TextField} />
       </StyledFormGrid>
 
-      <StyledHeading>Contact information</StyledHeading>
+      <StyledHeading>
+        <TranslatedText
+          stringId="patient.details.subheading.contactInformation"
+          fallback="Contact information"
+        />
+      </StyledHeading>
       <StyledFormGrid>
         <LocalisedField name="primaryContactNumber" component={TextField} type="tel" />
         <LocalisedField name="secondaryContactNumber" component={TextField} type="tel" />
@@ -170,7 +186,12 @@ export const SecondaryDetailsGroup = ({ patientRegistryType, values = {}, isEdit
         <LocalisedField name="emergencyContactNumber" component={TextField} type="tel" />
       </StyledFormGrid>
 
-      <StyledHeading>Personal information</StyledHeading>
+      <StyledHeading>
+        <TranslatedText
+          stringId="patient.details.subheading.personalInformation"
+          fallback="Personal information"
+        />
+      </StyledHeading>
       <StyledFormGrid>
         <LocalisedField name="title" component={SelectField} options={titleOptions} />
         {patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT && (
@@ -238,7 +259,12 @@ export const SecondaryDetailsGroup = ({ patientRegistryType, values = {}, isEdit
         />
       </StyledFormGrid>
 
-      <StyledHeading>Location information</StyledHeading>
+      <StyledHeading>
+        <TranslatedText
+          stringId="patient.details.subheading.locationInformation"
+          fallback="Location information"
+        />
+      </StyledHeading>
       <StyledFormGrid>
         <LocalisedField name="cityTown" component={TextField} />
         <LocalisedField
@@ -424,7 +450,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
           />
           <ButtonRow>
             <Button variant="contained" color="primary" onClick={submitForm}>
-              Save
+              <TranslatedText stringId="general.action.save" fallback="Save" />
             </Button>
           </ButtonRow>
         </>

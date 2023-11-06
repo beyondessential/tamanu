@@ -95,11 +95,20 @@ WithTooltip.args = {
   },
 };
 
-const actions = {
-  Etendre: () => {},
-  Relever: () => {},
-  Glisser: () => {},
-};
+const actions = [
+  {
+    label: 'Etendre',
+    action: () => {},
+  },
+  {
+    label: 'Relever',
+    action: () => {},
+  },
+  {
+    label: 'Glisser',
+    action: () => {},
+  },
+];
 const Template2 = () => (
   <TileContainer>
     <Tile Icon={Timelapse} text="Test Category" main="FBC" actions={actions} />

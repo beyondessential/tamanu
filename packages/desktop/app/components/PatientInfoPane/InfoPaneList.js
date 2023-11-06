@@ -9,8 +9,9 @@ import { Colors } from '../../constants';
 import { Modal } from '../Modal';
 import { PatientAlert } from '../PatientAlert';
 import { InfoPaneAddEditForm } from './InfoPaneAddEditForm';
-import { ISSUES_TITLE } from './paneTitles';
+import { PANE_SECTION_IDS, PANE_SECTION_TITLES } from './paneSections';
 import { useApi } from '../../api';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const TitleContainer = styled.div`
   color: ${Colors.primary};
@@ -79,7 +80,7 @@ export const InfoPaneList = memo(
   ({
     patient,
     readonly,
-    title,
+    id,
     Form,
     endpoint,
     getEndpoint,
@@ -92,17 +93,21 @@ export const InfoPaneList = memo(
     const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
     const { adding, editKey } = addEditState;
     const api = useApi();
-    const { data, error } = useQuery([`infoPaneListItem-${title}`, patient.id], () =>
+    const { data, error } = useQuery([`infoPaneListItem-${id}`, patient.id], () =>
       api.get(getEndpoint),
     );
-    const isIssuesPane = title === ISSUES_TITLE;
+    const isIssuesPane = id === PANE_SECTION_IDS.ISSUES;
     const { items, warnings } = getItems(isIssuesPane, data);
+    const title = PANE_SECTION_TITLES[id];
 
     const handleAddButtonClick = useCallback(
       () => setAddEditState({ adding: !adding, editKey: null }),
       [adding],
     );
-    const handleRowClick = useCallback(id => setAddEditState({ adding: false, editKey: id }), []);
+    const handleRowClick = useCallback(
+      rowId => setAddEditState({ adding: false, editKey: rowId }),
+      [],
+    );
     const handleCloseForm = useCallback(
       () => setAddEditState({ adding: false, editKey: null }),
       [],
@@ -122,7 +127,7 @@ export const InfoPaneList = memo(
           Form={Form}
           endpoint={endpoint}
           onClose={handleCloseForm}
-          title={title}
+          id={id}
           items={items}
         />
       </Wrapper>
@@ -132,7 +137,7 @@ export const InfoPaneList = memo(
     return (
       <>
         {isIssuesPane && <PatientAlert alerts={warnings} />}
-        <TitleContainer data-test-id={`info-pane-${kebabCase(title)}`}>
+        <TitleContainer data-test-id={`info-pane-${kebabCase(id)}`}>
           <TitleText>{title}</TitleText>
           {!readonly && (
             <AddButton
@@ -140,7 +145,7 @@ export const InfoPaneList = memo(
               endIcon={<AddCircleIcon />}
               data-test-class="add-button-section"
             >
-              Add
+              <TranslatedText stringId="general.action.add" fallback="Add" />
             </AddButton>
           )}
         </TitleContainer>
@@ -148,20 +153,20 @@ export const InfoPaneList = memo(
           {error && error.message}
           {!error &&
             items.map(item => {
-              const { id } = item;
               const name = getName(item);
               if (behavior === 'collapse') {
                 return (
-                  <React.Fragment key={id}>
-                    <Collapse in={editKey !== id}>
-                      <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
+                  <React.Fragment key={item.id}>
+                    <Collapse in={editKey !== item.id}>
+                      <ListItem onClick={() => handleRowClick(item.id)}>{name}</ListItem>
                     </Collapse>
-                    <Collapse in={editKey === id}>
+                    <Collapse in={editKey === item.id}>
                       <EditForm
                         patient={patient}
                         Form={Form}
                         endpoint={endpoint}
                         item={item}
+                        id={id}
                         onClose={handleCloseForm}
                         title={title}
                         items={items}
@@ -172,12 +177,12 @@ export const InfoPaneList = memo(
               }
 
               return (
-                <React.Fragment key={id}>
-                  <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
+                <React.Fragment key={item.id}>
+                  <ListItem onClick={() => handleRowClick(item.id)}>{name}</ListItem>
                   <Modal
                     width="md"
                     title={getEditFormName(item)}
-                    open={editKey === id}
+                    open={editKey === item.id}
                     onClose={handleCloseForm}
                   >
                     <EditForm
@@ -185,6 +190,7 @@ export const InfoPaneList = memo(
                       Form={Form}
                       endpoint={endpoint}
                       item={item}
+                      id={id}
                       onClose={handleCloseForm}
                       title={title}
                       items={items}
