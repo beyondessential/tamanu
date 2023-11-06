@@ -238,145 +238,145 @@ export const operativePlanStatusList = Object.values(operativePlanStatuses).map(
 export const bloodOptions = [
   {
     value: 'A+',
-    label: <TranslatedText stringId="patient.form.bloodType.option.a+" fallback="A+" />,
+    label: <TranslatedText stringId="patient.property.bloodType.a+" fallback="A+" />,
   },
   {
     value: 'A-',
-    label: <TranslatedText stringId="patient.form.bloodType.option.a-" fallback="A-" />,
+    label: <TranslatedText stringId="patient.property.bloodType.a-" fallback="A-" />,
   },
   {
     value: 'AB-',
-    label: <TranslatedText stringId="patient.form.bloodType.option.ab-" fallback="AB-" />,
+    label: <TranslatedText stringId="patient.property.bloodType.ab-" fallback="AB-" />,
   },
   {
     value: 'AB+',
-    label: <TranslatedText stringId="patient.form.bloodType.option.ab+" fallback="AB+" />,
+    label: <TranslatedText stringId="patient.property.bloodType.ab+" fallback="AB+" />,
   },
   {
     value: 'B+',
-    label: <TranslatedText stringId="patient.form.bloodType.option.b+" fallback="B+" />,
+    label: <TranslatedText stringId="patient.property.bloodType.b+" fallback="B+" />,
   },
   {
     value: 'B-',
-    label: <TranslatedText stringId="patient.form.bloodType.option.b-" fallback="B-" />,
+    label: <TranslatedText stringId="patient.property.bloodType.b-" fallback="B-" />,
   },
   {
     value: 'O+',
-    label: <TranslatedText stringId="patient.form.bloodType.option.o+" fallback="O+" />,
+    label: <TranslatedText stringId="patient.property.bloodType.o+" fallback="O+" />,
   },
   {
     value: 'O-',
-    label: <TranslatedText stringId="patient.form.bloodType.option.o-" fallback="O-" />,
+    label: <TranslatedText stringId="patient.property.bloodType.o-" fallback="O-" />,
   },
 ];
 
 export const sexOptions = [
   {
     value: 'male',
-    label: <TranslatedText stringId="patient.form.sex.option.male" fallback="Male" />,
+    label: <TranslatedText stringId="patient.property.sex.male" fallback="Male" />,
   },
   {
     value: 'female',
-    label: <TranslatedText stringId="patient.form.sex.option.female" fallback="Female" />,
+    label: <TranslatedText stringId="patient.property.sex.female" fallback="Female" />,
   },
   {
     value: 'other',
-    label: <TranslatedText stringId="patient.form.sex.option.other" fallback="Other" />,
+    label: <TranslatedText stringId="patient.property.sex.other" fallback="Other" />,
   },
 ];
 
 export const titleOptions = [
   {
     value: 'Mr',
-    label: <TranslatedText stringId="patient.form.title.option.mr" fallback="Mr" />,
+    label: <TranslatedText stringId="patient.property.title.mr" fallback="Mr" />,
   },
   {
     value: 'Mrs',
-    label: <TranslatedText stringId="patient.form.title.option.mr" fallback="Mrs" />,
+    label: <TranslatedText stringId="patient.property.title.mr" fallback="Mrs" />,
   },
-  { value: 'Ms', label: <TranslatedText stringId="patient.form.title.option.ms" fallback="Ms" /> },
+  {
+    value: 'Ms',
+    label: <TranslatedText stringId="patient.property.title.ms" fallback="Ms" />,
+  },
   {
     value: 'Miss',
-    label: <TranslatedText stringId="patient.form.title.option.miss" fallback="Miss" />,
+    label: <TranslatedText stringId="patient.property.title.miss" fallback="Miss" />,
   },
-  { value: 'Dr', label: <TranslatedText stringId="patient.form.title.option.dr" fallback="Dr" /> },
-  { value: 'Sr', label: <TranslatedText stringId="patient.form.title.option.sr" fallback="Sr" /> },
-  { value: 'Sn', label: <TranslatedText stringId="patient.form.title.option.sn" fallback="Sn" /> },
+  {
+    value: 'Dr',
+    label: <TranslatedText stringId="patient.property.title.dr" fallback="Dr" />,
+  },
+  {
+    value: 'Sr',
+    label: <TranslatedText stringId="patient.property.title.sr" fallback="Sr" />,
+  },
+  {
+    value: 'Sn',
+    label: <TranslatedText stringId="patient.property.title.sn" fallback="Sn" />,
+  },
 ];
 
 export const socialMediaOptions = [
   {
     value: 'Facebook',
-    label: (
-      <TranslatedText stringId="patient.form.socialMedia.option.facebook" fallback="Facebook" />
-    ),
+    label: <TranslatedText stringId="patient.property.socialMedia.facebook" fallback="Facebook" />,
   },
   {
     value: 'Instagram',
     label: (
-      <TranslatedText stringId="patient.form.socialMedia.option.instagram" fallback="Instagram" />
+      <TranslatedText stringId="patient.property.socialMedia.instagram" fallback="Instagram" />
     ),
   },
   {
     value: 'LinkedIn',
-    label: (
-      <TranslatedText stringId="patient.form.socialMedia.option.linkedIn" fallback="LinkedIn" />
-    ),
+    label: <TranslatedText stringId="patient.property.socialMedia.linkedIn" fallback="LinkedIn" />,
   },
   {
     value: 'Twitter',
-    label: <TranslatedText stringId="patient.form.socialMedia.option.twitter" fallback="Twitter" />,
+    label: <TranslatedText stringId="patient.property.socialMedia.twitter" fallback="Twitter" />,
   },
   {
     value: 'Viber',
-    label: <TranslatedText stringId="patient.form.socialMedia.option.viber" fallback="Viber" />,
+    label: <TranslatedText stringId="patient.property.socialMedia.viber" fallback="Viber" />,
   },
   {
     value: 'WhatsApp',
-    label: (
-      <TranslatedText stringId="patient.form.socialMedia.option.whatsApp" fallback="WhatsApp" />
-    ),
+    label: <TranslatedText stringId="patient.property.socialMedia.whatsApp" fallback="WhatsApp" />,
   },
 ];
 
 export const maritalStatusOptions = [
   {
     value: 'Defacto',
-    label: (
-      <TranslatedText stringId="patient.form.maritalStatus.option.defacto" fallback="De facto" />
-    ),
+    label: <TranslatedText stringId="patient.property.maritalStatus.defacto" fallback="De facto" />,
   },
   {
     value: 'Married',
-    label: (
-      <TranslatedText stringId="patient.form.maritalStatus.option.married" fallback="Married" />
-    ),
+    label: <TranslatedText stringId="patient.property.maritalStatus.married" fallback="Married" />,
   },
   {
     value: 'Single',
-    label: <TranslatedText stringId="patient.form.maritalStatus.option.single" fallback="Single" />,
+    label: <TranslatedText stringId="patient.property.maritalStatus.single" fallback="Single" />,
   },
   {
     value: 'Widow',
-    label: <TranslatedText stringId="patient.form.maritalStatus.option.widow" fallback="Widow" />,
+    label: <TranslatedText stringId="patient.property.maritalStatus.widow" fallback="Widow" />,
   },
   {
     value: 'Divorced',
     label: (
-      <TranslatedText stringId="patient.form.maritalStatus.option.divorced" fallback="Divorced" />
+      <TranslatedText stringId="patient.property.maritalStatus.divorced" fallback="Divorced" />
     ),
   },
   {
     value: 'Separated',
     label: (
-      <TranslatedText stringId="patient.form.maritalStatus.option.separated" fallback="Separated" />
+      <TranslatedText stringId="patient.property.maritalStatus.separated" fallback="Separated" />
     ),
   },
   {
     value: 'Unknown',
-    label: (
-      <TranslatedText stringId="patient.form.maritalStatus.option.unknown" fallback="Unknown" />
-    ),
+    label: <TranslatedText stringId="patient.property.maritalStatus.unknown" fallback="Unknown" />,
   },
 ];
 
@@ -385,7 +385,7 @@ export const educationalAttainmentOptions = [
     value: 'No formal schooling',
     label: (
       <TranslatedText
-        stringId="patient.form.educationalAttainment.option.noFormalSchooling"
+        stringId="patient.property.educationalAttainment.noFormalSchooling"
         fallback="No formal schooling"
       />
     ),
@@ -394,7 +394,7 @@ export const educationalAttainmentOptions = [
     value: 'Less than primary school',
     label: (
       <TranslatedText
-        stringId="patient.form.educationalAttainment.option.lessThanPrimary"
+        stringId="patient.property.educationalAttainment.lessThanPrimary"
         fallback="Less than primary"
       />
     ),
@@ -403,7 +403,7 @@ export const educationalAttainmentOptions = [
     value: 'Primary school completed',
     label: (
       <TranslatedText
-        stringId="patient.form.educationalAttainment.option.primaryCompleted"
+        stringId="patient.property.educationalAttainment.primaryCompleted"
         fallback="Primary school completed"
       />
     ),
@@ -412,7 +412,7 @@ export const educationalAttainmentOptions = [
     value: 'Sec school completed',
     label: (
       <TranslatedText
-        stringId="patient.form.educationalAttainment.option.secSchoolCompleted"
+        stringId="patient.property.educationalAttainment.secSchoolCompleted"
         fallback="Sec school completed"
       />
     ),
@@ -421,7 +421,7 @@ export const educationalAttainmentOptions = [
     value: 'High school completed',
     label: (
       <TranslatedText
-        stringId="patient.form.educationalAttainment.option.highSchoolCompleted"
+        stringId="patient.property.educationalAttainment.highSchoolCompleted"
         fallback="High school completed"
       />
     ),
@@ -430,7 +430,7 @@ export const educationalAttainmentOptions = [
     value: 'University completed',
     label: (
       <TranslatedText
-        stringId="patient.form.educationalAttainment.option.universityCompleted"
+        stringId="patient.property.educationalAttainment.universityCompleted"
         fallback="University completed"
       />
     ),
@@ -439,7 +439,7 @@ export const educationalAttainmentOptions = [
     value: 'Post grad completed',
     label: (
       <TranslatedText
-        stringId="patient.form.educationalAttainment.option.postGradCompleted"
+        stringId="patient.property.educationalAttainment.postGradCompleted"
         fallback="Post grad completed"
       />
     ),
@@ -453,17 +453,14 @@ export const pregnancyOutcomes = [
   {
     value: 'liveBirth',
     label: (
-      <TranslatedText
-        stringId="birth.form.pregnancyOutcome.option.liveBirth"
-        fallback="Live birth"
-      />
+      <TranslatedText stringId="birth.property.pregnancyOutcome.liveBirth" fallback="Live birth" />
     ),
   },
   {
     value: 'stillBirth',
     label: (
       <TranslatedText
-        stringId="birth.form.pregnancyOutcome.option.stillBirth"
+        stringId="birth.property.pregnancyOutcome.stillBirth"
         fallback="Still birth"
       />
     ),
@@ -472,7 +469,7 @@ export const pregnancyOutcomes = [
     value: 'fetalDeath',
     label: (
       <TranslatedText
-        stringId="birth.form.pregnancyOutcome.option.fetalDeath"
+        stringId="birth.property.pregnancyOutcome.fetalDeath"
         fallback="Fetal death"
       />
     ),
@@ -581,20 +578,20 @@ export const BIRTH_DELIVERY_TYPE_OPTIONS = [
     value: BIRTH_DELIVERY_TYPES.NORMAL_VAGINAL_DELIVERY,
     label: (
       <TranslatedText
-        stringId="birth.form.deliveryType.option.normalVaginalDelivery"
+        stringId="birth.property.deliveryType.normalVaginalDelivery"
         fallback="Normal vaginal delivery"
       />
     ),
   },
   {
     value: BIRTH_DELIVERY_TYPES.BREECH,
-    label: <TranslatedText stringId="birth.form.deliveryType.option.breech" fallback="Breech" />,
+    label: <TranslatedText stringId="birth.property.deliveryType.breech" fallback="Breech" />,
   },
   {
     value: BIRTH_DELIVERY_TYPES.EMERGENCY_C_SECTION,
     label: (
       <TranslatedText
-        stringId="birth.form.deliveryType.option.emergencyCSection"
+        stringId="birth.property.deliveryType.emergencyCSection"
         fallback="Emergency C-section"
       />
     ),
@@ -603,7 +600,7 @@ export const BIRTH_DELIVERY_TYPE_OPTIONS = [
     value: BIRTH_DELIVERY_TYPES.ELECTIVE_C_SECTION,
     label: (
       <TranslatedText
-        stringId="birth.form.deliveryType.option.electiveCSection"
+        stringId="birth.property.deliveryType.electiveCSection"
         fallback="Elective C-section"
       />
     ),
@@ -612,29 +609,29 @@ export const BIRTH_DELIVERY_TYPE_OPTIONS = [
     value: BIRTH_DELIVERY_TYPES.VACUUM_EXTRACTION,
     label: (
       <TranslatedText
-        stringId="birth.form.deliveryType.option.vacuumExtraction"
+        stringId="birth.property.deliveryType.vacuumExtraction"
         fallback="Vacuum extraction"
       />
     ),
   },
   {
     value: BIRTH_DELIVERY_TYPES.FORCEPS,
-    label: <TranslatedText stringId="birth.form.deliveryType.option.forceps" fallback="Forceps" />,
+    label: <TranslatedText stringId="birth.property.deliveryType.forceps" fallback="Forceps" />,
   },
   {
     value: BIRTH_DELIVERY_TYPES.OTHER,
-    label: <TranslatedText stringId="birth.form.deliveryType.option.other" fallback="Other" />,
+    label: <TranslatedText stringId="birth.property.deliveryType.other" fallback="Other" />,
   },
 ];
 
 export const BIRTH_TYPE_OPTIONS = [
   {
     value: BIRTH_TYPES.SINGLE,
-    label: <TranslatedText stringId="birth.form.birthType.option.single" fallback="Single" />,
+    label: <TranslatedText stringId="birth.property.birthType.single" fallback="Single" />,
   },
   {
     value: BIRTH_TYPES.PLURAL,
-    label: <TranslatedText stringId="birth.form.birthType.option.plural" fallback="Plural" />,
+    label: <TranslatedText stringId="birth.property.birthType.plural" fallback="Plural" />,
   },
 ];
 
@@ -643,50 +640,46 @@ export const PLACE_OF_BIRTH_OPTIONS = [
     value: PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY,
     label: (
       <TranslatedText
-        stringId="birth.form.placeOfBirth.option.healthFacility"
+        stringId="birth.property.placeOfBirth.healthFacility"
         fallback="Health facility"
       />
     ),
   },
   {
     value: PLACE_OF_BIRTH_TYPES.HOME,
-    label: <TranslatedText stringId="birth.form.placeOfBirth.option.home" fallback="Home" />,
+    label: <TranslatedText stringId="birth.property.placeOfBirth.home" fallback="Home" />,
   },
   {
     value: PLACE_OF_BIRTH_TYPES.OTHER,
-    label: <TranslatedText stringId="birth.form.placeOfBirth.option.other" fallback="Other" />,
+    label: <TranslatedText stringId="birth.property.placeOfBirth.other" fallback="Other" />,
   },
 ];
 
 export const ATTENDANT_OF_BIRTH_OPTIONS = [
   {
     value: ATTENDANT_OF_BIRTH_TYPES.DOCTOR,
-    label: (
-      <TranslatedText stringId="birth.form.attendantOfBirth.option.doctor" fallback="Doctor" />
-    ),
+    label: <TranslatedText stringId="birth.property.attendantOfBirth.doctor" fallback="Doctor" />,
   },
   {
     value: ATTENDANT_OF_BIRTH_TYPES.MIDWIFE,
-    label: (
-      <TranslatedText stringId="birth.form.attendantOfBirth.option.midwife" fallback="Midwife" />
-    ),
+    label: <TranslatedText stringId="birth.property.attendantOfBirth.midwife" fallback="Midwife" />,
   },
   {
     value: ATTENDANT_OF_BIRTH_TYPES.NURSE,
-    label: <TranslatedText stringId="birth.form.attendantOfBirth.option.nurse" fallback="Nurse" />,
+    label: <TranslatedText stringId="birth.property.attendantOfBirth.nurse" fallback="Nurse" />,
   },
   {
     value: ATTENDANT_OF_BIRTH_TYPES.TRADITIONAL_BIRTH_ATTENDANT,
     label: (
       <TranslatedText
-        stringId="birth.form.attendantOfBirth.option.traditionalBirthAttendant"
+        stringId="birth.property.attendantOfBirth.traditionalBirthAttendant"
         fallback="Traditional birth attendant"
       />
     ),
   },
   {
     value: ATTENDANT_OF_BIRTH_TYPES.OTHER,
-    label: <TranslatedText stringId="birth.form.attendantOfBirth.option.other" fallback="Other" />,
+    label: <TranslatedText stringId="birth.property.attendantOfBirth.other" fallback="Other" />,
   },
 ];
 
