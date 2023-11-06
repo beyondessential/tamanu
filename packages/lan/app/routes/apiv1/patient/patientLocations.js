@@ -14,11 +14,13 @@ const patientsLocationSelect = (planned, encountersWhereAndClauses) => `
   	SELECT ${planned ? 'planned_' : ''}location_id
   	FROM encounters
   	WHERE end_date IS NULL
+    AND deleted_at IS NULL
     ${encountersWhereAndClauses ? `AND ${encountersWhereAndClauses}` : ''}
   ) open_encounters
   ON locations.id = open_encounters.${planned ? 'planned_' : ''}location_id
   WHERE locations.facility_id = '${config.serverFacilityId}'
   AND locations.max_occupancy = 1
+  AND locations.deleted_at IS NULL
   GROUP BY locations.id
 `;
 
@@ -63,6 +65,8 @@ patientLocations.get(
         WHERE end_date::date > now() - '30 days'::interval
         AND encounters.encounter_type = 'admission'
         AND locations.facility_id = $facilityId
+        AND locations.deleted_at IS NULL
+        AND encounters.deleted_at IS NULL
       `,
       {
         type: QueryTypes.SELECT,
@@ -203,6 +207,7 @@ patientLocations.get(
           planned_location_id
         FROM encounters
         WHERE end_date IS NULL
+        AND deleted_at IS NULL
         ), open_encounters_with_patient_information AS (
         SELECT
           open_encounters.*,
@@ -227,7 +232,9 @@ patientLocations.get(
         FROM locations
         LEFT JOIN location_groups ON locations.location_group_id = location_groups.id
         LEFT JOIN open_encounters ON locations.id = open_encounters.location_id
-        WHERE locations.facility_id = $facilityId AND locations.visibility_status = $visibilityStatusCurrent
+        WHERE locations.facility_id = $facilityId 
+        AND locations.visibility_status = $visibilityStatusCurrent
+        AND locations.deleted_at IS NULL
         GROUP BY locations.id, location_groups.id
       ) locations
       LEFT JOIN (
@@ -237,6 +244,7 @@ patientLocations.get(
         FROM encounters
         WHERE end_date::date > now() - '30 days'::interval
         AND encounters.encounter_type = 'admission'
+        AND encounters.deleted_at IS NULL
         GROUP BY location_id
       ) last_30_days_closed_encounters
       ON locations.id = last_30_days_closed_encounters.location_id
@@ -252,6 +260,8 @@ patientLocations.get(
       	LEFT JOIN locations ON locations.id = encounters.location_id
       	WHERE (end_date::date > now() - '30 days'::interval OR end_date IS NULL)
       	AND locations.max_occupancy = 1
+        AND encounters.deleted_at IS NULL
+        AND locations.deleted_at IS NULL
       	GROUP BY location_id
       ) last_30_days_encounters
       ON locations.id = last_30_days_encounters.location_id

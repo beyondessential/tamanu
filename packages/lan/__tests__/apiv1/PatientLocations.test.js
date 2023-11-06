@@ -28,7 +28,6 @@ describe('PatientLocations', () => {
     app = await baseApp.asRole('practitioner');
     await models.Location.truncate({
       cascade: true,
-      force: true,
     });
     patient = await models.Patient.create(await createDummyPatient(models));
     locations = await models.Location.bulkCreate([
@@ -42,7 +41,6 @@ describe('PatientLocations', () => {
   beforeEach(async () => {
     await models.Encounter.truncate({
       cascade: true,
-      force: true,
     });
     encounter = await models.Encounter.create({
       ...(await createDummyEncounter(models)),
