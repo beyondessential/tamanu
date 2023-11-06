@@ -12,15 +12,16 @@ export const TranslationProvider = ({ children }) => {
 
   const fetchTranslations = async language => {
     const recievedTranslations = await api.get(`translation/${language}`);
-    setTranslations(recievedTranslations);
+    setTranslations({ languageCode: language, ...recievedTranslations });
     setIsTranslationsLoaded(true);
   };
 
   const getTranslation = (stringId, fallback) => {
     if (!isTranslationsLoaded) return 'loading...';
     if (translations[stringId]) return translations[stringId];
-    // TODO: Should only do this when english
-    api.post('translation', { stringId, fallback, text: fallback });
+    if (translations.languageCode === 'en') {
+      api.post('translation', { stringId, fallback, text: fallback });
+    }
     return fallback;
   };
 
