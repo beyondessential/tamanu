@@ -277,6 +277,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
               stringId="patient.encounterSummary.arrivalDate"
               fallback="Arrival date"
             />
+            :
           </ContentLabel>
           <ContentText>
             <DateDisplay date={startDate} />
