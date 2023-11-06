@@ -54,7 +54,7 @@ provisioning {
 EOF
 # specify ports for consistency
 yarn workspace sync-server start migrate # provisioning happens before migration at `serveAll.js` `serveAll` function. Is there any reason?
-yarn workspace sync-server start --provisioning provisioning.kdl > ./sync.log &
+yarn workspace sync-server start --provisioning provisioning.kdl &
 sync_pid=$!
 curl --retry 8 --retry-connrefused localhost:3000
 
@@ -79,7 +79,7 @@ cat << EOF > packages/lan/config/local.json
     }
 }
 EOF
-yarn workspace lan start > ./lan1.log &
+yarn workspace lan start &
 lan_pid=$!
 curl --retry 8 --retry-connrefused localhost:4000
 
@@ -90,6 +90,6 @@ wait $sync_pid
 wait $lan_pid
 
 # Start the facility server again.
-yarn workspace lan start > ./lan2.log &
+yarn workspace lan start &
 curl --retry 8 --retry-connrefused localhost:4000
 kill -2 -$!
