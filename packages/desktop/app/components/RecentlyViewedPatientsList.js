@@ -148,8 +148,8 @@ const Card = ({ patient, handleClick }) => {
           <SexDisplay sex={patient.sex} />
         </CapitalizedCardText>
         <CardText>
-          <TranslatedText stringId="recentlyViewedPatients.dateOfBirthLabel" fallback="DOB" />:{' '}
-          <DateDisplay date={patient.dateOfBirth} shortYear />
+          <TranslatedText stringId="general.form.dateOfBirth.label" fallback="DOB" />
+          : <DateDisplay date={patient.dateOfBirth} shortYear />
         </CardText>
       </CardComponentContent>
     </CardComponent>
@@ -188,7 +188,7 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
     <Container>
       <ContainerTitle onClick={() => setIsExpanded(!isExpanded)}>
         <SectionLabel>
-          <TranslatedText stringId="recentlyViewedPatients.title" fallback="Recently Viewed" />
+          <TranslatedText stringId="patient.recentlyViewed.title" fallback="Recently Viewed" />
         </SectionLabel>
         {isExpanded ? <ExpandLess /> : <ExpandMore />}
       </ContainerTitle>
