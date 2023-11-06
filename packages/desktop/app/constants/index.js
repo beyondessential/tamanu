@@ -615,9 +615,23 @@ export const BIRTH_TYPE_OPTIONS = [
 ];
 
 export const PLACE_OF_BIRTH_OPTIONS = [
-  { value: PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY, label: 'Health facility' },
-  { value: PLACE_OF_BIRTH_TYPES.HOME, label: 'Home' },
-  { value: PLACE_OF_BIRTH_TYPES.OTHER, label: 'Other' },
+  {
+    value: PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY,
+    label: (
+      <TranslatedText
+        stringId="birth.form.placeOfBirth.options.healthFacility"
+        fallback="Health facility"
+      />
+    ),
+  },
+  {
+    value: PLACE_OF_BIRTH_TYPES.HOME,
+    label: <TranslatedText stringId="birth.form.placeOfBirth.options.home" fallback="Home" />,
+  },
+  {
+    value: PLACE_OF_BIRTH_TYPES.OTHER,
+    label: <TranslatedText stringId="birth.form.placeOfBirth.options.other" fallback="Other" />,
+  },
 ];
 
 export const ATTENDANT_OF_BIRTH_OPTIONS = [
