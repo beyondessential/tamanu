@@ -14,6 +14,7 @@ import { getCurrentRoute } from '../../store/router';
 import { checkAbility } from '../../utils/ability';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const Container = styled.div`
   display: flex;
@@ -256,14 +257,16 @@ export const Sidebar = React.memo(({ items }) => {
                 {roleName} | {facility?.name ? facility.name : centralHost}
               </ConnectedTo>
               <Box display="flex" justifyContent="space-between">
-                <Version>Version {appVersion}</Version>
+                <Version>
+                  <TranslatedText stringId="general.meta.version" fallback="Version" /> {appVersion}
+                </Version>
                 <LogoutButton
                   type="button"
                   onClick={onLogout}
                   id="logout"
                   data-test-id="siderbar-logout-item"
                 >
-                  Log out
+                  <TranslatedText stringId="auth.action.logout" fallback="Log out" />
                 </LogoutButton>
               </Box>
             </Box>

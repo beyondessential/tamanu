@@ -8,6 +8,7 @@ import { Button } from './Button';
 import { ButtonRow } from './ButtonRow';
 import { Form, Field, TextField, DateTimeField, AutocompleteField } from './Field';
 import { FormGrid } from './FormGrid';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const SubmitError = styled.div`
   color: ${Colors.alert};
@@ -55,11 +56,26 @@ export function CarePlanNoteForm({
           <FormGrid columns={2}>
             <Field
               name="onBehalfOfId"
-              label="On Behalf Of"
+              label={
+                <TranslatedText
+                  stringId="carePlan.form.noteOnBehalfOf.label"
+                  fallback="On Behalf Of"
+                />
+              }
               component={AutocompleteField}
               suggester={practitionerSuggester}
             />
-            <Field name="date" label="Date recorded" component={DateTimeField} saveDateAsString />
+            <Field
+              name="date"
+              label={
+                <TranslatedText
+                  stringId="carePlan.form.noteDateRecorded.label"
+                  fallback="Date Recorded"
+                />
+              }
+              component={DateTimeField}
+              saveDateAsString
+            />
           </FormGrid>
           <FormGrid columns={1}>
             <Field
@@ -75,13 +91,17 @@ export function CarePlanNoteForm({
           <ButtonRow>
             {note ? (
               <Button variant="contained" onClick={onCancel}>
-                Cancel
+                <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
               </Button>
             ) : (
               <div />
             )}
             <Button variant="outlined" color="primary" type="submit">
-              {note ? 'Save' : 'Add Note'}
+              {note ? (
+                <TranslatedText stringId="general.action.save" fallback="Save" />
+              ) : (
+                <TranslatedText stringId="carePlan.action.addNote" fallback="Add Note" />
+              )}
             </Button>
           </ButtonRow>
         </>

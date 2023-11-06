@@ -5,6 +5,7 @@ import { Colors } from '../constants';
 import { MenuButton } from './MenuButton';
 import { useApi } from '../api';
 import { DateDisplay } from './DateDisplay';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const NoteContainer = styled.div`
   border: 1px solid ${Colors.outline};
@@ -64,10 +65,18 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
           {note.onBehalfOf && note.onBehalfOf.displayName ? (
             <NoteOnBehalfOf>
               &nbsp;&nbsp;|&nbsp;&nbsp;
-              {`On behalf of ${note.onBehalfOf.displayName}`}
+              <TranslatedText stringId="carePlan.modal.onBehalfOf" fallback="On behalf of" />{' '}
+              {note.onBehalfOf.displayName}
             </NoteOnBehalfOf>
           ) : null}
-          {isMainCarePlan ? <MainCarePlanIndicator>Main care plan</MainCarePlanIndicator> : null}
+          {isMainCarePlan ? (
+            <MainCarePlanIndicator>
+              <TranslatedText
+                stringId="carePlan.modal.mainCarePlanIndicator"
+                fallback="Main care plan"
+              />
+            </MainCarePlanIndicator>
+          ) : null}
         </VerticalCenter>
         <VerticalCenter>
           <Timestamp>
@@ -75,17 +84,21 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
           </Timestamp>
           <MenuButton
             iconColor={Colors.midText}
-            actions={{
-              Edit: () => {
-                onEditClicked();
+            actions={[
+              {
+                label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
+                action: () => {
+                  onEditClicked();
+                },
               },
               ...(!isMainCarePlan && {
-                Delete: async () => {
+                label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+                action: async () => {
                   await deleteNote(note.id);
                   onNoteDeleted();
                 },
               }),
-            }}
+            ]}
           />
         </VerticalCenter>
       </NoteHeaderContainer>

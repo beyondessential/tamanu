@@ -8,6 +8,7 @@ import { ConfirmCancelRow } from '../components/ButtonRow';
 
 import { foreignKey, optionalForeignKey } from '../utils/validation';
 import { LocalisedText } from '../components';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const FamilyHistoryForm = ({
   onCancel,
@@ -22,30 +23,53 @@ export const FamilyHistoryForm = ({
       <FormGrid columns={1}>
         <Field
           name="diagnosisId"
-          label="Diagnosis"
+          label={<TranslatedText stringId="general.form.diagnosis.label" fallback="Diagnosis" />}
           required
           component={AutocompleteField}
           suggester={icd10Suggester}
         />
         <Field
           name="recordedDate"
-          label="Date recorded"
+          label={
+            <TranslatedText stringId="general.form.recordedDate.label" fallback="Date recorded" />
+          }
           required
           component={DateField}
           saveDateAsString
         />
-        <Field name="relationship" label="Relation to patient" component={TextField} />
+        <Field
+          name="relationship"
+          label={
+            <TranslatedText
+              stringId="familyHistory.form.relationship.label"
+              fallback="Relationship to patient"
+            />
+          }
+          component={TextField}
+        />
         <Field
           name="practitionerId"
           label={<LocalisedText path="fields.clinician.shortLabel" />}
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field name="note" label="Notes" component={TextField} multiline rows={2} />
+        <Field
+          name="note"
+          label={<TranslatedText stringId="general.form.notes.label" fallback="Notes" />}
+          component={TextField}
+          multiline
+          rows={2}
+        />
         <ConfirmCancelRow
           onConfirm={submitForm}
           onCancel={onCancel}
-          confirmText={editedObject ? 'Save' : 'Add'}
+          confirmText={
+            editedObject ? (
+              <TranslatedText stringId="general.action.save" fallback="Save" />
+            ) : (
+              <TranslatedText stringId="general.action.add" fallback="Add" />
+            )
+          }
         />
       </FormGrid>
     )}

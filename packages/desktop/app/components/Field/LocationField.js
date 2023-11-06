@@ -9,6 +9,7 @@ import { Suggester } from '../../utils/suggester';
 import { useLocalisation } from '../../contexts/Localisation';
 import { BodyText } from '../Typography';
 import { useAuth } from '../../contexts/Auth';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const locationSuggester = (api, groupValue, enableLocationStatus) => {
   return new Suggester(api, 'location', {
@@ -152,7 +153,11 @@ export const LocationField = React.memo(({ field, error, ...props }) => (
 ));
 
 export const LocalisedLocationField = React.memo(
-  ({ defaultGroupLabel = 'Area', defaultLabel = 'Location', ...props }) => {
+  ({
+    defaultGroupLabel = <TranslatedText stringId="general.form.area.label" fallback="Area" />,
+    defaultLabel = <TranslatedText stringId="general.form.location.label" fallback="Location" />,
+    ...props
+  }) => {
     const { getLocalisation } = useLocalisation();
 
     const locationGroupIdPath = 'fields.locationGroupId';
