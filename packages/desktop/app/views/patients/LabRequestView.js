@@ -36,6 +36,7 @@ import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
 import { Colors } from '../../constants';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const Container = styled.div`
   display: flex;
@@ -97,16 +98,20 @@ const MODALS = {
 };
 
 const Menu = ({ setModal, status, disabled }) => {
-  const menuActions = {
-    'Print label': () => {
-      setModal(MODAL_IDS.LABEL_PRINT);
+  const menuActions = [
+    {
+      label: <TranslatedText stringId="labRequest.action.printLabel" fallback="Print label" />,
+      action: () => setModal(MODAL_IDS.LABEL_PRINT),
     },
-  };
+  ];
 
   if (status !== LAB_REQUEST_STATUSES.PUBLISHED) {
-    menuActions['Cancel request'] = () => {
-      setModal(MODAL_IDS.CANCEL);
-    };
+    menuActions.push({
+      label: (
+        <TranslatedText stringId="labRequest.action.cancelRequest" fallback="Cancel request" />
+      ),
+      action: () => setModal(MODAL_IDS.CANCEL),
+    });
   }
   return <MenuButton disabled={disabled} status={status} actions={menuActions} />;
 };
@@ -164,13 +169,29 @@ export const LabRequestView = () => {
   const displayStatus = areLabRequestsReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
 
   const ActiveModal = MODALS[modalId] || null;
+
   const actions =
     labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
-      ? { 'Record sample': () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE) }
-      : {
-          Edit: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
-          'View Details': () => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS),
-        };
+      ? [
+          {
+            label: (
+              <TranslatedText stringId="labRequest.action.recordSample" fallback="Record sample" />
+            ),
+            action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+          },
+        ]
+      : [
+          {
+            label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
+            action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+          },
+          {
+            label: (
+              <TranslatedText stringId="labRequest.action.viewDetails" fallback="View details" />
+            ),
+            action: () => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS),
+          },
+        ];
 
   return (
     <Container>
@@ -208,17 +229,27 @@ export const LabRequestView = () => {
                 {LAB_REQUEST_STATUS_CONFIG[displayStatus]?.label || 'Unknown'}
               </TileTag>
             }
-            actions={{
+            actions={[
               ...(!areLabRequestsReadOnly &&
                 canWriteLabRequestStatus && {
-                  'Change status': () => {
-                    handleChangeModalId(MODAL_IDS.CHANGE_STATUS);
-                  },
+                  label: (
+                    <TranslatedText
+                      stringId="labRequest.action.changeStatus"
+                      fallback="Change status"
+                    />
+                  ),
+                  action: () => handleChangeModalId(MODAL_IDS.CHANGE_STATUS),
                 }),
-              'View status log': () => {
-                handleChangeModalId(MODAL_IDS.VIEW_STATUS_LOG);
+              {
+                label: (
+                  <TranslatedText
+                    stringId="labRequest.action.viewStatusLog"
+                    fallback="View status log"
+                  />
+                ),
+                action: () => handleChangeModalId(MODAL_IDS.VIEW_STATUS_LOG),
               },
-            }}
+            ]}
           />
           <Tile
             Icon={() => <img src={BeakerIcon} alt="beaker" />}
@@ -240,22 +271,34 @@ export const LabRequestView = () => {
             text="Laboratory"
             main={labRequest.laboratory?.name || '-'}
             isReadOnly={areLabRequestsReadOnly}
-            actions={{
-              'Change laboratory': () => {
-                handleChangeModalId(MODAL_IDS.CHANGE_LABORATORY);
+            actions={[
+              {
+                label: (
+                  <TranslatedText
+                    stringId="labRequest.action.changeLaboratory"
+                    fallback="Change laboratory"
+                  />
+                ),
+                action: () => handleChangeModalId(MODAL_IDS.CHANGE_LABORATORY),
               },
-            }}
+            ]}
           />
           <Tile
             Icon={AssignmentLate}
             text="Priority"
             main={labRequest.priority?.name || '-'}
             isReadOnly={areLabRequestsReadOnly}
-            actions={{
-              'Change priority': () => {
-                handleChangeModalId(MODAL_IDS.CHANGE_PRIORITY);
+            actions={[
+              {
+                label: (
+                  <TranslatedText
+                    stringId="labRequest.action.changePriority"
+                    fallback="Change priority"
+                  />
+                ),
+                action: () => handleChangeModalId(MODAL_IDS.CHANGE_PRIORITY),
               },
-            }}
+            ]}
           />
         </FixedTileRow>
       </TopContainer>

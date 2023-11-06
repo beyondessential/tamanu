@@ -3,11 +3,7 @@ import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
 import { CheckCircleRounded } from '@material-ui/icons';
 
-import {
-  INJECTION_SITE_OPTIONS,
-  VACCINE_CATEGORY_OPTIONS,
-  VACCINE_CATEGORIES,
-} from '@tamanu/constants';
+import { INJECTION_SITE_OPTIONS, VACCINE_CATEGORIES } from '@tamanu/constants';
 
 import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
 import {
@@ -24,6 +20,7 @@ import { ConfirmCancelRow } from './ButtonRow';
 import { useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';
 import { Colors } from '../constants';
+import { TranslatedText } from './Translation/TranslatedText';
 
 export const FullWidthCol = styled.div`
   grid-column: 1/-1;
@@ -39,10 +36,21 @@ export const VerticalDivider = styled(Divider)`
 `;
 
 const VACCINE_FIELD_CATEGORY_OPTIONS = [
-  ...VACCINE_CATEGORY_OPTIONS.filter(o => o.value !== VACCINE_CATEGORIES.OTHER),
+  {
+    value: VACCINE_CATEGORIES.ROUTINE,
+    label: <TranslatedText stringId="vaccine.form.category.option.routine" fallback="Routine" />,
+  },
+  {
+    value: VACCINE_CATEGORIES.CATCHUP,
+    label: <TranslatedText stringId="vaccine.form.category.option.catchUp" fallback="Catch-up" />,
+  },
+  {
+    value: VACCINE_CATEGORIES.CAMPAIGN,
+    label: <TranslatedText stringId="vaccine.form.category.option.campaign" fallback="Campaign" />,
+  },
   {
     value: VACCINE_CATEGORIES.OTHER,
-    label: 'Other',
+    label: <TranslatedText stringId="vaccine.form.category.option.other" fallback="Other" />,
     leftOptionalElement: <VerticalDivider orientation="vertical" />,
     style: { marginLeft: '15px' },
   },
@@ -52,7 +60,7 @@ export const CategoryField = ({ setCategory, setVaccineLabel, resetForm }) => (
   <FullWidthCol>
     <Field
       name="category"
-      label="Category"
+      label={<TranslatedText stringId="vaccine.form.category.label" fallback="Category" />}
       component={RadioField}
       options={VACCINE_FIELD_CATEGORY_OPTIONS}
       onChange={e => {
@@ -68,7 +76,7 @@ export const CategoryField = ({ setCategory, setVaccineLabel, resetForm }) => (
 export const VaccineLabelField = ({ vaccineOptions, setVaccineLabel }) => (
   <Field
     name="vaccineLabel"
-    label="Vaccine"
+    label={<TranslatedText stringId="vaccine.form.vaccine.label" fallback="Vaccine" />}
     component={SelectField}
     options={vaccineOptions}
     onChange={e => setVaccineLabel(e.target.value)}
@@ -76,7 +84,13 @@ export const VaccineLabelField = ({ vaccineOptions, setVaccineLabel }) => (
   />
 );
 
-export const BatchField = () => <Field name="batch" label="Batch" component={TextField} />;
+export const BatchField = () => (
+  <Field
+    name="batch"
+    label={<TranslatedText stringId="vaccine.form.batch.label" fallback="Batch" />}
+    component={TextField}
+  />
+);
 
 export const VaccineDateField = ({ label, required = true }) => (
   <Field name="date" label={label} component={DateField} required={required} saveDateAsString />
@@ -85,7 +99,7 @@ export const VaccineDateField = ({ label, required = true }) => (
 export const InjectionSiteField = () => (
   <Field
     name="injectionSite"
-    label="Injection site"
+    label={<TranslatedText stringId="vaccine.form.injectionSite.label" fallback="Injection Site" />}
     component={SelectField}
     options={Object.values(INJECTION_SITE_OPTIONS).map(site => ({
       label: site,
@@ -110,7 +124,7 @@ export const DepartmentField = () => {
   return (
     <Field
       name="departmentId"
-      label="Department"
+      label={<TranslatedText stringId="general.form.department.label" fallback="Department" />}
       required
       component={AutocompleteField}
       suggester={departmentSuggester}
@@ -118,9 +132,9 @@ export const DepartmentField = () => {
   );
 };
 
-export const GivenByField = ({ label = 'Given by' }) => (
-  <Field name="givenBy" label={label} component={TextField} />
-);
+export const GivenByField = ({
+  label = <TranslatedText stringId="vaccine.form.givenBy.label" fallback="Given by" />,
+}) => <Field name="givenBy" label={label} component={TextField} />;
 
 export const GivenByCountryField = () => {
   const countrySuggester = useSuggester('country');
@@ -128,7 +142,7 @@ export const GivenByCountryField = () => {
   return (
     <Field
       name="givenBy"
-      label="Country"
+      label={<TranslatedText stringId="vaccine.form.country.label" fallback="Country" />}
       component={AutocompleteField}
       suggester={countrySuggester}
       required
@@ -144,7 +158,7 @@ export const RecordedByField = () => {
     <Field
       disabled
       name="recorderId"
-      label="Recorded by"
+      label={<TranslatedText stringId="vaccine.form.recordedBy.label" fallback="Recorded by" />}
       component={SelectField}
       options={[
         {
@@ -159,13 +173,23 @@ export const RecordedByField = () => {
 
 export const ConsentField = ({ label }) => (
   <FullWidthCol>
-    <OuterLabelFieldWrapper label="Consent" style={{ marginBottom: '5px' }} required />
+    <OuterLabelFieldWrapper
+      label={<TranslatedText stringId="vaccine.form.consent.label" fallback="Consent" />}
+      style={{ marginBottom: '5px' }}
+      required
+    />
     <Field name="consent" label={label} component={CheckField} required />
   </FullWidthCol>
 );
 
 export const ConsentGivenByField = () => (
-  <Field name="consentGivenBy" label="Consent given by" component={TextField} />
+  <Field
+    name="consentGivenBy"
+    label={
+      <TranslatedText stringId="vaccine.form.consentGivenBy.label" fallback="Consent given by" />
+    }
+    component={TextField}
+  />
 );
 
 export const AdministeredVaccineScheduleField = ({ schedules }) => {
@@ -186,7 +210,7 @@ export const AdministeredVaccineScheduleField = ({ schedules }) => {
       <FullWidthCol>
         <Field
           name="scheduledVaccineId"
-          label="Schedule"
+          label={<TranslatedText stringId="vaccine.form.schedule.label" fallback="Schedule" />}
           component={RadioField}
           options={scheduleOptions}
           required
@@ -198,19 +222,36 @@ export const AdministeredVaccineScheduleField = ({ schedules }) => {
 };
 
 export const VaccineNameField = () => (
-  <Field name="vaccineName" label="Vaccine name" component={TextField} required />
+  <Field
+    name="vaccineName"
+    label={<TranslatedText stringId="vaccine.form.vaccineName.label" fallback="Vaccine name" />}
+    component={TextField}
+    required
+  />
 );
 
 export const VaccineBrandField = () => (
-  <Field name="vaccineBrand" label="Vaccine brand" component={TextField} />
+  <Field
+    name="vaccineBrand"
+    label={<TranslatedText stringId="vaccine.form.vaccineBrand.label" fallback="Vaccine brand" />}
+    component={TextField}
+  />
 );
 
-export const DiseaseField = () => <Field name="disease" label="Disease" component={TextField} />;
+export const DiseaseField = () => (
+  <Field
+    name="disease"
+    label={<TranslatedText stringId="vaccine.form.disease.label" fallback="Disease" />}
+    component={TextField}
+  />
+);
 
 export const ConfirmCancelRowField = ({ onConfirm, onCancel, editMode = false }) => (
   <ConfirmCancelRow
     onConfirm={onConfirm}
     onCancel={onCancel}
-    confirmText={editMode ? 'Save' : undefined}
+    confirmText={
+      editMode ? <TranslatedText stringId="general.action.save" fallback="Save" /> : undefined
+    }
   />
 );
