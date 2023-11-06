@@ -66,7 +66,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
             name="deceased"
             label={
               <TranslatedText
-                stringId="patientListing.includeDeceasedLabel"
+                stringId="patient.table.includeDeceasedCheckbox.label"
                 fallback="Include deceased patients"
               />
             }
@@ -81,7 +81,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
         name="dateOfBirthExact"
         component={DateField}
         saveDateAsString
-        label={<TranslatedText stringId="patientListing.dateOfBirthLabel" fallback="DOB" />}
+        label={<TranslatedText stringId="general.form.dateOfBirth.label" fallback="DOB" />}
         max={getCurrentDateString()}
       />
     </CustomisableSearchBar>
