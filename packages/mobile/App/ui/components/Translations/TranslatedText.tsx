@@ -37,11 +37,11 @@ export const TranslatedText = ({
   fallback,
   replacements,
 }: TranslatedTextProps): ReactElement => {
-  const { debugMode } = useTranslation();
+  const { debugMode, getTranslation } = useTranslation();
   // Placeholder for fetching translation from context
   const translation = null;
 
-  const stringToDisplay = translation || fallback;
+  const stringToDisplay = getTranslation(stringId) || fallback;
 
   const displayElements = useMemo(() => {
     if (!replacements) {

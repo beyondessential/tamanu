@@ -13,7 +13,7 @@ const TranslationContext = createContext<TranslationContextData>({} as Translati
 export const TranslationProvider = ({ children }: PropsWithChildren<object>): ReactElement => {
   const { models } = useBackend();
   const [isDebugMode, setIsDebugMode] = useState(false);
-  const [translations, setTranslations] = useState({} as object);
+  const [translations, setTranslations] = useState({});
 
   if (__DEV__) {
     DevSettings.addMenuItem('Toggle translation highlighting', () => setIsDebugMode(!isDebugMode));
