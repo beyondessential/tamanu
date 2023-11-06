@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# Enable Bash job-control to handle process trees easily.
+# (Commands will have different process group ids from the process for this shell script itself.)
+set -m
+
 # create tamanu database and user for the package being tested
 createuser --superuser "admin"
 createdb -O "admin" "sync-server"
