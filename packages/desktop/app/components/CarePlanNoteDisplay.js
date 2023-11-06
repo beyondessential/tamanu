@@ -5,6 +5,7 @@ import { Colors } from '../constants';
 import { MenuButton } from './MenuButton';
 import { useApi } from '../api';
 import { DateDisplay } from './DateDisplay';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const NoteContainer = styled.div`
   border: 1px solid ${Colors.outline};
@@ -75,17 +76,21 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
           </Timestamp>
           <MenuButton
             iconColor={Colors.midText}
-            actions={{
-              Edit: () => {
-                onEditClicked();
+            actions={[
+              {
+                label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
+                action: () => {
+                  onEditClicked();
+                },
               },
               ...(!isMainCarePlan && {
-                Delete: async () => {
+                label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+                action: async () => {
                   await deleteNote(note.id);
                   onNoteDeleted();
                 },
               }),
-            }}
+            ]}
           />
         </VerticalCenter>
       </NoteHeaderContainer>
