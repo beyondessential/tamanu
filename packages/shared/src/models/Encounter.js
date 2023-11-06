@@ -65,9 +65,8 @@ export class Encounter extends Model {
         validate,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         hooks: {
-          async beforeUpdate(encounter) {
-            console.log('start destroying reference data');
-            // sequelize is going to work on cascade for paranoid table in the future.
+          async beforeDestroy(encounter) {
+            // Sequelize is going to work on cascade for paranoid table in the future.
             // There is an open issue for this: https://github.com/sequelize/sequelize/issues/2586
             const vitals = await encounter.getVitals();
             const notes = await encounter.getNotes();
@@ -97,7 +96,9 @@ export class Encounter extends Model {
                 completedReferrals,
                 encounterHistories,
               ].map(async records => {
-                await Promise.all(records.map(record => record.destroy()));
+                if (records && Array.isArray(records)) {
+                  await Promise.all(records.map(record => record.destroy()));
+                }
               }),
             );
           },
@@ -206,6 +207,7 @@ export class Encounter extends Model {
     this.hasMany(models.Vitals, {
       foreignKey: 'encounterId',
       as: 'vitals',
+      onDelete: 'CASCADE',
     });
 
     this.hasMany(models.Triage, {

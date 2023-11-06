@@ -145,7 +145,10 @@ encounter.delete(
     req.checkPermission('delete', 'Encounter');
 
     const model = models.Encounter;
-    await model.destroy({ where: { id: params.id } });
+    const object = await model.findByPk(params.id);
+    if (object) {
+      await object.destroy();
+    }
 
     res.send({ message: 'Encounter deleted successfully' });
   }),
