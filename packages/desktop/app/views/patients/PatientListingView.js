@@ -119,7 +119,7 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
         noun="Patient"
         onClick={showNewPatient}
       >
-        <TranslatedText stringId="patientListing.newPatientButton" fallback="+ Add new patient" />
+        <TranslatedText stringId="patient.action.add" fallback="+ Add new patient" />
       </ButtonWithPermissionCheck>
       <NewPatientModal
         title="New patient"
@@ -136,13 +136,15 @@ export const PatientListingView = ({ onViewPatient }) => {
 
   return (
     <PageContainer>
-      <TopBar title={<TranslatedText stringId="patientListing.title" fallback="Patient listing" />}>
+      <TopBar
+        title={<TranslatedText stringId="patientList.default.title" fallback="Patient listing" />}
+      >
         <NewPatientButton onCreateNewPatient={onViewPatient} />
       </TopBar>
       <RecentlyViewedPatientsList />
       <ContentPane>
         <SearchTableTitle>
-          <TranslatedText stringId="patientListing.tableTitle" fallback="Patient search" />
+          <TranslatedText stringId="patientList.table.title" fallback="Patient search" />
         </SearchTableTitle>
         <AllPatientsSearchBar onSearch={setSearchParameters} />
         <PatientTable
@@ -167,7 +169,7 @@ export const AdmittedPatientsView = () => {
       <TopBar
         title={
           <TranslatedText
-            stringId="patientListing.outpatientTitle"
+            stringId="patientList.inpatient.title"
             fallback="Admitted patient listing"
           />
         }
@@ -175,7 +177,7 @@ export const AdmittedPatientsView = () => {
       <RecentlyViewedPatientsList encounterType="admission" />
       <ContentPane>
         <SearchTableTitle>
-          <TranslatedText stringId="patientListing.tableTitle" fallback="Patient search" />
+          <TranslatedText stringId="patientList.table.title" fallback="Patient search" />
         </SearchTableTitle>
         <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
         <PatientTable
@@ -198,13 +200,13 @@ export const OutpatientsView = () => {
     <PageContainer>
       <TopBar
         title={
-          <TranslatedText stringId="patientListing.outpatientTitle" fallback="Outpatient listing" />
+          <TranslatedText stringId="patientList.outpatient.title" fallback="Outpatient listing" />
         }
       />
       <RecentlyViewedPatientsList encounterType="clinic" />
       <ContentPane>
         <SearchTableTitle>
-          <TranslatedText stringId="patientListing.tableTitle" fallback="Patient search" />
+          <TranslatedText stringId="patientList.table.title" fallback="Patient search" />
         </SearchTableTitle>
         <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
         <PatientTable
