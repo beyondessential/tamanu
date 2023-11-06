@@ -45,7 +45,7 @@ jobs:
       - name: Install and start postgres if needed
         if: matrix.postgres
         run: |
-          .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
+          source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
           .github/scripts/setup-postgres-one.sh ${{ matrix.package }}
 
       - name: Run tests
@@ -110,7 +110,7 @@ jobs:
 
       - name: Install and start postgres ${{ matrix.postgres }}
         run: |
-          .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
+          source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
           .github/scripts/setup-postgres-one.sh migrations
 
       - run: scripts/apply_and_revert_server_migrations.sh ${{ matrix.server }}
