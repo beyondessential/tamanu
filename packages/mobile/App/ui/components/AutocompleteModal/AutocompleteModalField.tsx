@@ -41,10 +41,11 @@ export const AutocompleteModalField = ({
     setLabel(selectedItem.label);
   };
 
-  const openModal = (): void => navigation.navigate(modalRoute, {
-    callback: onPress,
-    suggester,
-  });
+  const openModal = (): void =>
+    navigation.navigate(modalRoute, {
+      callback: onPress,
+      suggester,
+    });
 
   useEffect(() => {
     if (!suggester) return;

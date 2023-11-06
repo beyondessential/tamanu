@@ -8,6 +8,7 @@ import { compose } from 'redux';
 import { withPatient } from '~/ui/containers/Patient';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { createStackNavigator } from '@react-navigation/stack';
+import { ConditionMultiselect } from '../screens/patientProgramRegistry/ConditionMultiselect';
 
 export const Stack = createStackNavigator();
 
@@ -36,6 +37,11 @@ const PatientProgramRegistryForm = ({ selectedPatient }: PatientProgramRegistryP
         <Stack.Screen
           name={Routes.HomeStack.PatientProgramRegistryFormStack.PatientProgramRegistryForm}
           component={PatientProgramRegistryForm2}
+          initialParams={{ selectedPatient }}
+        />
+        <Stack.Screen
+          name={Routes.HomeStack.PatientProgramRegistryFormStack.ConditionMultiselect}
+          component={ConditionMultiselect}
           initialParams={{ selectedPatient }}
         />
       </Stack.Navigator>

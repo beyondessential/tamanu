@@ -18,6 +18,7 @@ import { Form } from '~/ui/components/Forms/Form';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { IPatientProgramRegistryForm } from '../../stacks/PatientProgramRegistryForm';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { Routes } from '~/ui/helpers/routes';
 
 export const PatientProgramRegistryForm2 = ({ route }: BaseAppProps) => {
   const navigation = useNavigation();
@@ -38,85 +39,98 @@ export const PatientProgramRegistryForm2 = ({ route }: BaseAppProps) => {
   };
   const { user } = useAuth();
   return (
-    <Form
-      initialValues={{
-        date: getCurrentDateTimeString(),
-        clinicianId: user.id,
-        ...editedObject,
-      }}
-      validationSchema={yup.object().shape({
-        // programRegistryId: yup.string().required('Program Registry must be selected'),
-        clinicalStatusId: yup.string(),
-        date: yup.date(),
-        facilityId: yup.string(),
-        clinicianId: yup.string().required('Registered by must be selected'),
-        // conditions: yup.array().of(yup.string()),
-      })}
-      onSubmit={submitPatientProgramRegistration}
-    >
-      {({ errors, handleSubmit }): ReactElement => {
-        console.log(errors);
-        return (
-          <FullView>
-            <EmptyStackHeader
-              title={programRegistry.name}
-              onGoBack={() => {
-                navigation.goBack();
-              }}
-            />
-            <StyledView marginTop={20} marginLeft={20} marginRight={20}>
-              <LocalisedField
-                localisationPath="fields.date"
-                labelFontSize={14}
-                component={DateField}
-                min={new Date()}
-                name="date"
+    <FullView>
+      <EmptyStackHeader
+        title={programRegistry.name}
+        onGoBack={() => {
+          navigation.goBack();
+        }}
+      />
+      <Form
+        initialValues={{
+          date: getCurrentDateTimeString(),
+          clinicianId: user.id,
+          ...editedObject,
+        }}
+        validationSchema={yup.object().shape({
+          // programRegistryId: yup.string().required('Program Registry must be selected'),
+          clinicalStatusId: yup.string(),
+          date: yup.date(),
+          facilityId: yup.string(),
+          clinicianId: yup.string().required('Registered by must be selected'),
+          conditions: yup.string(),
+        })}
+        onSubmit={submitPatientProgramRegistration}
+      >
+        {({ errors, handleSubmit }): ReactElement => {
+          console.log(errors);
+          return (
+            <>
+              <StyledView marginTop={20} marginLeft={20} marginRight={20}>
+                <LocalisedField
+                  localisationPath="fields.date"
+                  labelFontSize={14}
+                  component={DateField}
+                  min={new Date()}
+                  name="date"
+                />
+              </StyledView>
+              <StyledView marginLeft={20} marginRight={20}>
+                <LocalisedField
+                  localisationPath="fields.registeredBy"
+                  labelFontSize={14}
+                  component={AutocompleteModalField}
+                  placeholder={`Search`}
+                  navigation={navigation}
+                  suggester={practitionerSuggester}
+                  name="clinicianId"
+                />
+              </StyledView>
+              <StyledView marginLeft={20} marginRight={20}>
+                <LocalisedField
+                  localisationPath="fields.facility"
+                  labelFontSize={14}
+                  component={AutocompleteModalField}
+                  placeholder={`Search`}
+                  navigation={navigation}
+                  suggester={facilitySuggester}
+                  name="facilityId"
+                />
+              </StyledView>
+              <StyledView marginLeft={20} marginRight={20}>
+                <LocalisedField
+                  localisationPath="fields.status"
+                  labelFontSize={14}
+                  component={Dropdown}
+                  name="clinicalStatusId"
+                  options={[
+                    { label: 'Active', value: 'active' },
+                    { label: 'Removed', value: 'removed' },
+                  ]}
+                />
+              </StyledView>
+              <StyledView marginLeft={20} marginRight={20}>
+                <LocalisedField
+                  localisationPath="fields.conditions"
+                  labelFontSize={14}
+                  component={AutocompleteModalField}
+                  placeholder={`Search`}
+                  navigation={navigation}
+                  modalRoute={Routes.HomeStack.PatientProgramRegistryFormStack.ConditionMultiselect}
+                  name="conditions"
+                />
+              </StyledView>
+              <Button
+                buttonText="Confifrm"
+                backgroundColor={theme.colors.PRIMARY_MAIN}
+                marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
+                marginRight={screenPercentageToDP(7, Orientation.Width)}
+                onPress={handleSubmit}
               />
-            </StyledView>
-            <StyledView marginLeft={20} marginRight={20}>
-              <LocalisedField
-                localisationPath="fields.registeredBy"
-                labelFontSize={14}
-                component={AutocompleteModalField}
-                placeholder={`Search`}
-                navigation={navigation}
-                suggester={practitionerSuggester}
-                name="clinicianId"
-              />
-            </StyledView>
-            <StyledView marginLeft={20} marginRight={20}>
-              <LocalisedField
-                localisationPath="fields.facility"
-                labelFontSize={14}
-                component={AutocompleteModalField}
-                placeholder={`Search`}
-                navigation={navigation}
-                suggester={facilitySuggester}
-                name="facilityId"
-              />
-            </StyledView>
-            <StyledView marginLeft={20} marginRight={20}>
-              <LocalisedField
-                localisationPath="fields.status"
-                labelFontSize={14}
-                component={Dropdown}
-                name="clinicalStatusId"
-                options={[
-                  { label: 'Active', value: 'active' },
-                  { label: 'Removed', value: 'removed' },
-                ]}
-              />
-            </StyledView>
-            <Button
-              buttonText="Confifrm"
-              backgroundColor={theme.colors.PRIMARY_MAIN}
-              marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
-              marginRight={screenPercentageToDP(7, Orientation.Width)}
-              onPress={handleSubmit}
-            />
-          </FullView>
-        );
-      }}
-    </Form>
+            </>
+          );
+        }}
+      </Form>
+    </FullView>
   );
 };
