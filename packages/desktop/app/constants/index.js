@@ -262,11 +262,11 @@ export const bloodOptions = [
   },
   {
     value: 'O+',
-    label: <TranslatedText stringId="patient.form.bloodType.option.o+" faloback="O+" />,
+    label: <TranslatedText stringId="patient.form.bloodType.option.o+" fallback="O+" />,
   },
   {
     value: 'O-',
-    label: <TranslatedText stringId="patient.form.bloodType.option.o-" faloback="O-" />,
+    label: <TranslatedText stringId="patient.form.bloodType.option.o-" fallback="O-" />,
   },
 ];
 
