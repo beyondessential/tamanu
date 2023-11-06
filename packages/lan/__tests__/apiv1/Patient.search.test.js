@@ -628,7 +628,7 @@ describe('Patient search', () => {
 
     beforeAll(async () => {
       // use a separate list of patients here
-      await models.Patient.truncate({ cascade: true, force: true });
+      await models.Patient.truncate({ cascade: true });
       await Promise.all(filterSortPatients.map(createTestPatient));
     });
 
