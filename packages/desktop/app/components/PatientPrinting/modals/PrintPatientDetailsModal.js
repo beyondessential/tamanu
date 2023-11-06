@@ -16,17 +16,17 @@ import { TranslatedText } from '../../Translation/TranslatedText';
 
 const PRINT_OPTIONS = {
   barcode: {
-    label: <TranslatedText stringId="print.patientDetails.action.idLabels" fallback="ID Labels" />,
+    label: <TranslatedText stringId="patientDetails.print.action.idLabels" fallback="ID Labels" />,
     component: PatientStickerLabelPage,
   },
   idcard: {
-    label: <TranslatedText stringId="print.patientDetails.action.idCard" fallback="ID Card" />,
+    label: <TranslatedText stringId="patientDetails.print.action.idCard" fallback="ID Card" />,
     component: PatientIDCardPage,
   },
   covidTestCert: {
     label: (
       <TranslatedText
-        stringId="print.patientDetails.action.covid19TestCertificate"
+        stringId="patientDetails.print.action.covid19TestCertificate"
         fallback="COVID-19 test certificate"
       />
     ),
@@ -35,7 +35,7 @@ const PRINT_OPTIONS = {
   covidClearanceCert: {
     label: (
       <TranslatedText
-        stringId="print.patientDetails.action.covid19ClearanceCertificate"
+        stringId="patientDetails.print.action.covid19ClearanceCertificate"
         fallback="COVID-19 clearance certificate"
       />
     ),
@@ -45,7 +45,7 @@ const PRINT_OPTIONS = {
   birthNotification: {
     label: (
       <TranslatedText
-        stringId="print.patientDetails.action.birthNotification"
+        stringId="patientDetails.print.action.birthNotification"
         fallback="Birth notification"
       />
     ),
@@ -164,7 +164,7 @@ export const PrintPatientDetailsModal = ({ patient }) => {
           <Modal
             title={
               <TranslatedText
-                stringId="print.patientDetails.idCard.modal.submitting.title"
+                stringId="patientDetails.print.idCard.modal.submitting.title"
                 fallback="Working"
               />
             }
@@ -172,7 +172,7 @@ export const PrintPatientDetailsModal = ({ patient }) => {
           >
             <div>
               <TranslatedText
-                stringId="print.patientDetails.idCard.modal.submitting.loading"
+                stringId="patientDetails.print.idCard.modal.submitting.loading"
                 fallback="Preparing ID card..."
               />
             </div>
