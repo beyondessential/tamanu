@@ -38,16 +38,13 @@ export const TranslatedText = ({
   replacements,
 }: TranslatedTextProps): ReactElement => {
   const { debugMode, getTranslation } = useTranslation();
-  // Placeholder for fetching translation from context
-  const translation = null;
-
-  const stringToDisplay = getTranslation(stringId) || fallback;
+  const translation = getTranslation(stringId) || fallback;
 
   const displayElements = useMemo(() => {
     if (!replacements) {
-      return stringToDisplay;
+      return translation;
     }
-    return replaceStringVariables(stringToDisplay, replacements);
+    return replaceStringVariables(translation, replacements);
   }, [translation, replacements]);
 
   const isDebugMode = __DEV__ && debugMode;
