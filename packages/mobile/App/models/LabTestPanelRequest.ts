@@ -10,16 +10,12 @@ import { LabTestPanel } from './LabTestPanel';
 export class LabTestPanelRequest extends BaseModel implements ILabTestPanelRequest {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
-  @ManyToOne(
-    () => Encounter,
-  )
+  @ManyToOne(() => Encounter)
   encounter: Encounter;
   @RelationId(({ encounter }) => encounter)
   encounterId: string;
 
-  @ManyToOne(
-    () => LabTestPanel,
-  )
+  @ManyToOne(() => LabTestPanel)
   labTestPanel: LabTestPanel;
   @RelationId(({ labTestPanel }) => labTestPanel)
   labTestPanelId: string;
