@@ -385,7 +385,7 @@ export const educationalAttainmentOptions = [
     value: 'No formal schooling',
     label: (
       <TranslatedText
-        stringId="patient.form.educationalAttainments.option.noFormalSchooling"
+        stringId="patient.form.educationalAttainment.option.noFormalSchooling"
         fallback="No formal schooling"
       />
     ),
@@ -394,7 +394,7 @@ export const educationalAttainmentOptions = [
     value: 'Less than primary school',
     label: (
       <TranslatedText
-        stringId="patient.form.educationalAttainments.option.lessThanPrimary"
+        stringId="patient.form.educationalAttainment.option.lessThanPrimary"
         fallback="Less than primary"
       />
     ),
@@ -403,7 +403,7 @@ export const educationalAttainmentOptions = [
     value: 'Primary school completed',
     label: (
       <TranslatedText
-        stringId="patient.form.educationalAttainments.option.primaryCompleted"
+        stringId="patient.form.educationalAttainment.option.primaryCompleted"
         fallback="Primary school completed"
       />
     ),
@@ -412,7 +412,7 @@ export const educationalAttainmentOptions = [
     value: 'Sec school completed',
     label: (
       <TranslatedText
-        stringId="patient.form.educationalAttainments.option.secSchoolCompleted"
+        stringId="patient.form.educationalAttainment.option.secSchoolCompleted"
         fallback="Sec school completed"
       />
     ),
@@ -421,7 +421,7 @@ export const educationalAttainmentOptions = [
     value: 'High school completed',
     label: (
       <TranslatedText
-        stringId="patient.form.educationalAttainments.option.highSchoolCompleted"
+        stringId="patient.form.educationalAttainment.option.highSchoolCompleted"
         fallback="High school completed"
       />
     ),
@@ -430,7 +430,7 @@ export const educationalAttainmentOptions = [
     value: 'University completed',
     label: (
       <TranslatedText
-        stringId="patient.form.educationalAttainments.option.universityCompleted"
+        stringId="patient.form.educationalAttainment.option.universityCompleted"
         fallback="University completed"
       />
     ),
@@ -439,7 +439,7 @@ export const educationalAttainmentOptions = [
     value: 'Post grad completed',
     label: (
       <TranslatedText
-        stringId="patient.form.educationalAttainments.option.postGradCompleted"
+        stringId="patient.form.educationalAttainment.option.postGradCompleted"
         fallback="Post grad completed"
       />
     ),
@@ -450,9 +450,33 @@ export const SEX_VALUE_INDEX = createValueIndex(sexOptions);
 
 export const pregnancyOutcomes = [
   { value: '', label: 'N/A' },
-  { value: 'liveBirth', label: 'Live Birth' },
-  { value: 'stillBirth', label: 'Still Birth' },
-  { value: 'fetalDeath', label: 'Fetal Death' },
+  {
+    value: 'liveBirth',
+    label: (
+      <TranslatedText
+        stringId="birth.form.pregnancyOutcome.option.liveBirth"
+        fallback="Live birth"
+      />
+    ),
+  },
+  {
+    value: 'stillBirth',
+    label: (
+      <TranslatedText
+        stringId="birth.form.pregnancyOutcome.option.stillBirth"
+        fallback="Still birth"
+      />
+    ),
+  },
+  {
+    value: 'fetalDeath',
+    label: (
+      <TranslatedText
+        stringId="birth.form.pregnancyOutcome.option.fetalDeath"
+        fallback="Fetal death"
+      />
+    ),
+  },
 ];
 
 export const REPORT_TYPES = {
@@ -557,20 +581,20 @@ export const BIRTH_DELIVERY_TYPE_OPTIONS = [
     value: BIRTH_DELIVERY_TYPES.NORMAL_VAGINAL_DELIVERY,
     label: (
       <TranslatedText
-        stringId="birth.form.deliveryType.options.normalVaginalDelivery"
+        stringId="birth.form.deliveryType.option.normalVaginalDelivery"
         fallback="Normal vaginal delivery"
       />
     ),
   },
   {
     value: BIRTH_DELIVERY_TYPES.BREECH,
-    label: <TranslatedText stringId="birth.form.deliveryType.options.breech" fallback="Breech" />,
+    label: <TranslatedText stringId="birth.form.deliveryType.option.breech" fallback="Breech" />,
   },
   {
     value: BIRTH_DELIVERY_TYPES.EMERGENCY_C_SECTION,
     label: (
       <TranslatedText
-        stringId="birth.form.deliveryType.options.emergencyCSection"
+        stringId="birth.form.deliveryType.option.emergencyCSection"
         fallback="Emergency C-section"
       />
     ),
@@ -579,7 +603,7 @@ export const BIRTH_DELIVERY_TYPE_OPTIONS = [
     value: BIRTH_DELIVERY_TYPES.ELECTIVE_C_SECTION,
     label: (
       <TranslatedText
-        stringId="birth.form.deliveryType.options.electiveCSection"
+        stringId="birth.form.deliveryType.option.electiveCSection"
         fallback="Elective C-section"
       />
     ),
@@ -588,29 +612,29 @@ export const BIRTH_DELIVERY_TYPE_OPTIONS = [
     value: BIRTH_DELIVERY_TYPES.VACUUM_EXTRACTION,
     label: (
       <TranslatedText
-        stringId="birth.form.deliveryType.options.vacuumExtraction"
+        stringId="birth.form.deliveryType.option.vacuumExtraction"
         fallback="Vacuum extraction"
       />
     ),
   },
   {
     value: BIRTH_DELIVERY_TYPES.FORCEPS,
-    label: <TranslatedText stringId="birth.form.deliveryType.options.forceps" fallback="Forceps" />,
+    label: <TranslatedText stringId="birth.form.deliveryType.option.forceps" fallback="Forceps" />,
   },
   {
     value: BIRTH_DELIVERY_TYPES.OTHER,
-    label: <TranslatedText stringId="birth.form.deliveryType.options.other" fallback="Other" />,
+    label: <TranslatedText stringId="birth.form.deliveryType.option.other" fallback="Other" />,
   },
 ];
 
 export const BIRTH_TYPE_OPTIONS = [
   {
     value: BIRTH_TYPES.SINGLE,
-    label: <TranslatedText stringId="birth.form.birthType.options.single" fallback="Single" />,
+    label: <TranslatedText stringId="birth.form.birthType.option.single" fallback="Single" />,
   },
   {
     value: BIRTH_TYPES.PLURAL,
-    label: <TranslatedText stringId="birth.form.birthType.options.plural" fallback="Plural" />,
+    label: <TranslatedText stringId="birth.form.birthType.option.plural" fallback="Plural" />,
   },
 ];
 
@@ -619,18 +643,18 @@ export const PLACE_OF_BIRTH_OPTIONS = [
     value: PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY,
     label: (
       <TranslatedText
-        stringId="birth.form.placeOfBirth.options.healthFacility"
+        stringId="birth.form.placeOfBirth.option.healthFacility"
         fallback="Health facility"
       />
     ),
   },
   {
     value: PLACE_OF_BIRTH_TYPES.HOME,
-    label: <TranslatedText stringId="birth.form.placeOfBirth.options.home" fallback="Home" />,
+    label: <TranslatedText stringId="birth.form.placeOfBirth.option.home" fallback="Home" />,
   },
   {
     value: PLACE_OF_BIRTH_TYPES.OTHER,
-    label: <TranslatedText stringId="birth.form.placeOfBirth.options.other" fallback="Other" />,
+    label: <TranslatedText stringId="birth.form.placeOfBirth.option.other" fallback="Other" />,
   },
 ];
 
@@ -638,31 +662,31 @@ export const ATTENDANT_OF_BIRTH_OPTIONS = [
   {
     value: ATTENDANT_OF_BIRTH_TYPES.DOCTOR,
     label: (
-      <TranslatedText stringId="birth.form.attendantOfBirth.options.doctor" fallback="Doctor" />
+      <TranslatedText stringId="birth.form.attendantOfBirth.option.doctor" fallback="Doctor" />
     ),
   },
   {
     value: ATTENDANT_OF_BIRTH_TYPES.MIDWIFE,
     label: (
-      <TranslatedText stringId="birth.form.attendantOfBirth.options.midwife" fallback="Midwife" />
+      <TranslatedText stringId="birth.form.attendantOfBirth.option.midwife" fallback="Midwife" />
     ),
   },
   {
     value: ATTENDANT_OF_BIRTH_TYPES.NURSE,
-    label: <TranslatedText stringId="birth.form.attendantOfBirth.options.nurse" fallback="Nurse" />,
+    label: <TranslatedText stringId="birth.form.attendantOfBirth.option.nurse" fallback="Nurse" />,
   },
   {
     value: ATTENDANT_OF_BIRTH_TYPES.TRADITIONAL_BIRTH_ATTENDANT,
     label: (
       <TranslatedText
-        stringId="birth.form.attendantOfBirth.options.traditionalBirthAttendant"
+        stringId="birth.form.attendantOfBirth.option.traditionalBirthAttendant"
         fallback="Traditional birth attendant"
       />
     ),
   },
   {
     value: ATTENDANT_OF_BIRTH_TYPES.OTHER,
-    label: <TranslatedText stringId="birth.form.attendantOfBirth.options.other" fallback="Other" />,
+    label: <TranslatedText stringId="birth.form.attendantOfBirth.option.other" fallback="Other" />,
   },
 ];
 
