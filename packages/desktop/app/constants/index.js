@@ -1,4 +1,5 @@
 import { capitalize } from 'lodash';
+import React from 'react';
 
 import { createValueIndex } from '@tamanu/shared/utils/valueIndex';
 import {
@@ -9,7 +10,6 @@ import {
   REFERRAL_STATUSES,
   INVOICE_STATUSES,
   INVOICE_PAYMENT_STATUSES,
-  PATIENT_REGISTRY_TYPES,
   BIRTH_DELIVERY_TYPES,
   BIRTH_TYPES,
   PLACE_OF_BIRTH_TYPES,
@@ -32,6 +32,7 @@ import {
   patientIcon,
   vaccineIcon,
 } from './images';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const MUI_SPACING_UNIT = 8;
 
@@ -235,49 +236,148 @@ export const operativePlanStatusList = Object.values(operativePlanStatuses).map(
 }));
 
 export const bloodOptions = [
-  { value: 'A+', label: 'A+' },
-  { value: 'A-', label: 'A-' },
-  { value: 'AB-', label: 'AB-' },
-  { value: 'AB+', label: 'AB+' },
-  { value: 'B+', label: 'B+' },
-  { value: 'B-', label: 'B-' },
-  { value: 'O+', label: 'O+' },
-  { value: 'O-', label: 'O-' },
+  {
+    value: 'A+',
+    label: <TranslatedText stringId="patient.form.bloodType.option.a+" fallback="A+" />,
+  },
+  {
+    value: 'A-',
+    label: <TranslatedText stringId="patient.form.bloodType.option.a-" fallback="A-" />,
+  },
+  {
+    value: 'AB-',
+    label: <TranslatedText stringId="patient.form.bloodType.option.ab-" fallback="AB-" />,
+  },
+  {
+    value: 'AB+',
+    label: <TranslatedText stringId="patient.form.bloodType.option.ab+" fallback="AB+" />,
+  },
+  {
+    value: 'B+',
+    label: <TranslatedText stringId="patient.form.bloodType.option.b+" fallback="B+" />,
+  },
+  {
+    value: 'B-',
+    label: <TranslatedText stringId="patient.form.bloodType.option.b-" fallback="B-" />,
+  },
+  {
+    value: 'O+',
+    label: <TranslatedText stringId="patient.form.bloodType.option.o+" faloback="O+" />,
+  },
+  {
+    value: 'O-',
+    label: <TranslatedText stringId="patient.form.bloodType.option.o-" faloback="O-" />,
+  },
 ];
 
 export const sexOptions = [
-  { value: 'male', label: 'Male' },
-  { value: 'female', label: 'Female' },
-  { value: 'other', label: 'Other' },
+  {
+    value: 'male',
+    label: <TranslatedText stringId="patient.form.sex.option.male" fallback="Male" />,
+  },
+  {
+    value: 'female',
+    label: <TranslatedText stringId="patient.form.sex.option.female" fallback="Female" />,
+  },
+  {
+    value: 'other',
+    label: <TranslatedText stringId="patient.form.sex.option.other" fallback="Other" />,
+  },
 ];
 
 export const titleOptions = [
-  { value: 'Mr', label: 'Mr' },
-  { value: 'Mrs', label: 'Mrs' },
-  { value: 'Ms', label: 'Ms' },
-  { value: 'Miss', label: 'Miss' },
-  { value: 'Dr', label: 'Dr' },
-  { value: 'Sr', label: 'Sr' },
-  { value: 'Sn', label: 'Sn' },
+  {
+    value: 'Mr',
+    label: <TranslatedText stringId="patient.form.title.option.mr" fallback="Mr" />,
+  },
+  {
+    value: 'Mrs',
+    label: <TranslatedText stringId="patient.form.title.option.mr" fallback="Mrs" />,
+  },
+  { value: 'Ms', label: <TranslatedText stringId="patient.form.title.option.ms" fallback="Ms" /> },
+  {
+    value: 'Miss',
+    label: <TranslatedText stringId="patient.form.title.option.miss" fallback="Miss" />,
+  },
+  { value: 'Dr', label: <TranslatedText stringId="patient.form.title.option.dr" fallback="Dr" /> },
+  { value: 'Sr', label: <TranslatedText stringId="patient.form.title.option.sr" fallback="Sr" /> },
+  { value: 'Sn', label: <TranslatedText stringId="patient.form.title.option.sn" fallback="Sn" /> },
 ];
 
 export const socialMediaOptions = [
-  { value: 'Facebook', label: 'Facebook' },
-  { value: 'Instagram', label: 'Instagram' },
-  { value: 'LinkedIn', label: 'LinkedIn' },
-  { value: 'Twitter', label: 'Twitter' },
-  { value: 'Viber', label: 'Viber' },
-  { value: 'WhatsApp', label: 'WhatsApp' },
+  {
+    value: 'Facebook',
+    label: (
+      <TranslatedText stringId="patient.form.socialMedia.option.facebook" fallback="Facebook" />
+    ),
+  },
+  {
+    value: 'Instagram',
+    label: (
+      <TranslatedText stringId="patient.form.socialMedia.option.instagram" fallback="Instagram" />
+    ),
+  },
+  {
+    value: 'LinkedIn',
+    label: (
+      <TranslatedText stringId="patient.form.socialMedia.option.linkedIn" fallback="LinkedIn" />
+    ),
+  },
+  {
+    value: 'Twitter',
+    label: <TranslatedText stringId="patient.form.socialMedia.option.twitter" fallback="Twitter" />,
+  },
+  {
+    value: 'Viber',
+    label: <TranslatedText stringId="patient.form.socialMedia.option.viber" fallback="Viber" />,
+  },
+  {
+    value: 'WhatsApp',
+    label: (
+      <TranslatedText stringId="patient.form.socialMedia.option.whatsApp" fallback="WhatsApp" />
+    ),
+  },
 ];
 
 export const maritalStatusOptions = [
-  { value: 'Defacto', label: 'De facto' },
-  { value: 'Married', label: 'Married' },
-  { value: 'Single', label: 'Single' },
-  { value: 'Widow', label: 'Widow' },
-  { value: 'Divorced', label: 'Divorced' },
-  { value: 'Separated', label: 'Separated' },
-  { value: 'Unknown', label: 'Unknown' },
+  {
+    value: 'Defacto',
+    label: (
+      <TranslatedText stringId="patient.form.maritalStatus.option.defacto" fallback="De facto" />
+    ),
+  },
+  {
+    value: 'Married',
+    label: (
+      <TranslatedText stringId="patient.form.maritalStatus.option.married" fallback="Married" />
+    ),
+  },
+  {
+    value: 'Single',
+    label: <TranslatedText stringId="patient.form.maritalStatus.option.single" fallback="Single" />,
+  },
+  {
+    value: 'Widow',
+    label: <TranslatedText stringId="patient.form.maritalStatus.option.widow" fallback="Widow" />,
+  },
+  {
+    value: 'Divorced',
+    label: (
+      <TranslatedText stringId="patient.form.maritalStatus.option.divorced" fallback="Divorced" />
+    ),
+  },
+  {
+    value: 'Separated',
+    label: (
+      <TranslatedText stringId="patient.form.maritalStatus.option.separated" fallback="Separated" />
+    ),
+  },
+  {
+    value: 'Unknown',
+    label: (
+      <TranslatedText stringId="patient.form.maritalStatus.option.unknown" fallback="Unknown" />
+    ),
+  },
 ];
 
 export const educationalAttainmentOptions = [
