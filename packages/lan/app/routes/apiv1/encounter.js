@@ -15,7 +15,6 @@ import {
 
 import {
   simpleGet,
-  simpleDelete,
   simpleGetHasOne,
   simpleGetList,
   permissionCheckingRouter,
