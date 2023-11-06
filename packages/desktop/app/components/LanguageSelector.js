@@ -58,8 +58,14 @@ export const LanguageSelector = ({ setFieldValue }) => {
     setFieldValue('language', event.target.value);
   };
 
-  const { data: languageOptions = [], error } = useQuery(['languageList'], () =>
-    api.get('translation/preLogin'),
+  const storedHost = localStorage.getItem('host') || null;
+
+  const { data: languageOptions = [], error } = useQuery(
+    ['languageList'],
+    () => api.get('translation/preLogin'),
+    {
+      enabled: !!storedHost,
+    },
   );
 
   const storedLanguage = localStorage.getItem('language') || null;
@@ -82,9 +88,9 @@ export const LanguageSelector = ({ setFieldValue }) => {
   useEffect(() => {
     setFieldValue('language', initialLanguage);
     setSelectedLanguage(initialLanguage);
-  }, [languageOptions, setFieldValue, initialLanguage]);
+  }, [setFieldValue, initialLanguage]);
 
-  // If translations not implemented, no need for this component to show
+  // If multiple languages not implemented, no need for this component to show
   if (languageOptions.length <= 1) return null;
 
   return (

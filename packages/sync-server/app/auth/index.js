@@ -2,6 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { v4 as uuid } from 'uuid';
 import config from 'config';
+import { getLanguageOptions } from '@tamanu/shared/utils/translation/getLanguageOptions';
 
 import { getPermissions } from 'shared/permissions/middleware';
 
@@ -38,3 +39,14 @@ authModule.get(
     res.send(convertFromDbRecord(req.user).data);
   }),
 );
+
+authModule.get('/translation/preLogin', async (req, res) => {
+  const response = await getLanguageOptions(req.models, req.headers['if-none-match']);
+  if (response === 304) {
+    res.status(304).end();
+    return;
+  }
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('ETag', response.eTag);
+  res.send(response.languageOptions);
+});
