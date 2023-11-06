@@ -5,6 +5,7 @@ import { Modal } from '../../../components';
 import { NewPatientForm } from '../../../forms';
 import { useApi } from '../../../api';
 import { notifyError } from '../../../utils';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formProps }) => {
   const api = useApi();
@@ -20,7 +21,11 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
     [api, onCreateNewPatient],
   );
   return (
-    <Modal title="Add new patient" onClose={onCancel} open={open}>
+    <Modal
+      title={<TranslatedText stringId="patient.modal.create.title" fallback="Add new patient" />}
+      onClose={onCancel}
+      open={open}
+    >
       <NewPatientForm
         generateId={generateId}
         onCancel={onCancel}

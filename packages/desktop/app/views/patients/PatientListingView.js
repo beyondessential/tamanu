@@ -30,6 +30,7 @@ import {
 } from './columns';
 import { useAuth } from '../../contexts/Auth';
 import { usePatientSearch, PatientSearchKeys } from '../../contexts/PatientSearch';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -118,10 +119,9 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
         noun="Patient"
         onClick={showNewPatient}
       >
-        + Add new patient
+        + <TranslatedText stringId="patient.action.addNewPatient" fallback="Add new patient" />
       </ButtonWithPermissionCheck>
       <NewPatientModal
-        title="New patient"
         open={isCreatingPatient}
         onCancel={hideModal}
         onCreateNewPatient={handleCreateNewPatient}

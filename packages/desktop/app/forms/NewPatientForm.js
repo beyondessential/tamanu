@@ -11,7 +11,7 @@ import { IdField } from '../components/Field/IdField';
 import { ModalActionRow } from '../components/ModalActionRow';
 import { RadioField } from '../components';
 import { IdBanner } from '../components/IdBanner';
-import { Colors, PATIENT_REGISTRY_OPTIONS } from '../constants';
+import { Colors } from '../constants';
 import { getPatientDetailsValidation } from '../validations';
 import {
   PrimaryDetailsGroup,
@@ -25,6 +25,7 @@ import { LoadingIndicator } from '../components/LoadingIndicator';
 import plusCircle from '../assets/images/plus_circle.svg';
 import minusCircle from '../assets/images/minus_circle.svg';
 import { RandomPatientButton } from '../views/patients/components/RandomPatientButton';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const StyledImageButton = styled(Button)`
   min-width: 30px;
@@ -112,7 +113,26 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
             value: patientRegistryType,
             onChange: event => setPatientRegistryType(event.target?.value),
           }}
-          options={PATIENT_REGISTRY_OPTIONS}
+          options={[
+            {
+              value: PATIENT_REGISTRY_TYPES.NEW_PATIENT,
+              label: (
+                <TranslatedText
+                  stringId="patient.form.newPatientAction.option.newPatient"
+                  fallback="Create new patient"
+                />
+              ),
+            },
+            {
+              value: PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY,
+              label: (
+                <TranslatedText
+                  stringId="patient.form.newPatientAction.option.birthRegistry"
+                  fallback="Register birth"
+                />
+              ),
+            },
+          ]}
           style={{ gridColumn: '1 / -1' }}
         />
         <PrimaryDetailsGroup />
@@ -127,8 +147,17 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
                 <img alt="Plus button" src={plusCircle} />
               </StyledImageButton>
             )}
-            Add additional information
-            <span> (religion, occupation, blood type...)</span>
+            <TranslatedText
+              stringId="patient.form.additionalInformation.label"
+              fallback="Add additional information"
+            />
+            <span>
+              {' '}
+              <TranslatedText
+                stringId="patient.form.additionalInformation.exampleText"
+                fallback="(religion, occupation, blood type...)"
+              />
+            </span>
           </div>
         </AdditionalInformationRow>
         <Collapse in={isExpanded} style={{ gridColumn: 'span 2' }}>
@@ -139,7 +168,7 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
             <PatientFieldsGroup fieldDefinitions={fieldDefinitions?.data} />
           )}
         </Collapse>
-        <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onCancel} />
+        <ModalActionRow onConfirm={submitForm} onCancel={onCancel} />
       </>
     );
   };

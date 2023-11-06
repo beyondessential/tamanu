@@ -1,7 +1,6 @@
 import { Tooltip } from '@material-ui/core';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Colors } from '../../constants';
 
 const StyledTooltip = styled(props => (
   <Tooltip classes={{ popper: props.className }} {...props}>
@@ -10,11 +9,11 @@ const StyledTooltip = styled(props => (
 ))`
   & .MuiTooltip-tooltip {
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-    background-color: ${Colors.white};
+    background-color: white;
     color: red;
   }
   & .MuiTooltip-arrow {
-    color: ${Colors.white};
+    color: white;
   }
 `;
 
@@ -26,7 +25,7 @@ const StyledList = styled.ul`
 
 const DebugHighlighted = styled.span`
   background-color: red;
-  color: ${Colors.white};
+  color: white;
 `;
 
 export const DebugTooltip = React.memo(({ children, stringId, replacements, fallback }) => {
