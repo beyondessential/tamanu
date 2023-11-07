@@ -1,11 +1,11 @@
 import React from 'react';
 import { CloudDownload, CloudOff } from '@material-ui/icons';
 import { DateDisplay } from '../../components';
-import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { getPatientStatus } from '../../utils/getPatientStatus';
+import { SexDisplay } from '../../components/Translation/SexDisplay';
 
 const DateCell = React.memo(({ value }) => <DateDisplay date={value} />);
-const SexCell = React.memo(({ value = '' }) => <span>{capitaliseFirstLetter(value)}</span>);
+const SexCell = React.memo(({ value }) => <SexDisplay sex={value} />);
 const SyncedCell = React.memo(({ value }) => (value === true ? <CloudDownload /> : <CloudOff />));
 
 export const markedForSync = {
