@@ -2,9 +2,9 @@
 
 ## Test that the facility server starts without any central server running
 
-# Enable Bash job-control to handle process trees easily.
+# Use `set -m` to enable Bash job-control to handle process trees easily.
 # (Commands will have different process group ids from the process for this shell script itself.)
-set -m
+set -euxmo pipefail
 
 # Create tamanu database and user for testing the facility server working offline
 test_facility_offline_setup_postgre() {
@@ -97,8 +97,6 @@ test_facility_offline_facility_start() {
 test_facility_offline_stop_and_print() {
 	kill -2 -$CENTRAL_SERVER_PID
 	kill -2 -$FACILITY_SERVER_PID
-	wait $CENTRAL_SERVER_PID
-	wait $FACILITY_SERVER_PID
 	cat central-server.out
 	cat facility-server.out
 }
