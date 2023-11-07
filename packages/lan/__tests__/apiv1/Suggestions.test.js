@@ -5,8 +5,8 @@ import {
   createDummyPatient,
   createDummyEncounter,
   randomRecords,
-} from 'shared/demoData';
-import { findOneOrCreate } from 'shared/test-helpers';
+} from '@tamanu/shared/demoData';
+import { findOneOrCreate } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
 

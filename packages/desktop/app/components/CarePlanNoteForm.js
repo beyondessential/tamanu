@@ -4,8 +4,7 @@ import styled from 'styled-components';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi, useSuggester } from '../api';
 import { Colors } from '../constants';
-import { Button } from './Button';
-import { ButtonRow } from './ButtonRow';
+import { FormSubmitCancelRow } from './ButtonRow';
 import { Form, Field, TextField, DateTimeField, AutocompleteField } from './Field';
 import { FormGrid } from './FormGrid';
 import { TranslatedText } from './Translation/TranslatedText';
@@ -88,22 +87,16 @@ export function CarePlanNoteForm({
             />
           </FormGrid>
           <SubmitError>{submitError}</SubmitError>
-          <ButtonRow>
-            {note ? (
-              <Button variant="contained" onClick={onCancel}>
-                <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
-              </Button>
-            ) : (
-              <div />
-            )}
-            <Button variant="outlined" color="primary" type="submit">
-              {note ? (
+          <FormSubmitCancelRow
+            onCancel={note ? onCancel : null}
+            confirmText={
+              note ? (
                 <TranslatedText stringId="general.action.save" fallback="Save" />
               ) : (
                 <TranslatedText stringId="carePlan.action.addNote" fallback="Add Note" />
-              )}
-            </Button>
-          </ButtonRow>
+              )
+            }
+          />
         </>
       )}
     />

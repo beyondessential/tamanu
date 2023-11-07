@@ -6,7 +6,7 @@ import { Collapse, Button, Typography } from '@material-ui/core';
 import { kebabCase } from 'lodash';
 import { PATIENT_ISSUE_TYPES } from '@tamanu/constants';
 import { Colors } from '../../constants';
-import { Modal } from '../Modal';
+import { FormModal } from '../FormModal';
 import { PatientAlert } from '../PatientAlert';
 import { InfoPaneAddEditForm } from './InfoPaneAddEditForm';
 import { PANE_SECTION_IDS, PANE_SECTION_TITLES } from './paneSections';
@@ -117,7 +117,13 @@ export const InfoPaneList = memo(
       behavior === 'collapse' ? (
         <Collapse in={adding} {...props} />
       ) : (
-        <Modal width="md" title={itemTitle} open={adding} onClose={handleCloseForm} {...props} />
+        <FormModal
+          width="md"
+          title={itemTitle}
+          open={adding}
+          onClose={handleCloseForm}
+          {...props}
+        />
       );
 
     const addForm = (
@@ -178,8 +184,8 @@ export const InfoPaneList = memo(
 
               return (
                 <React.Fragment key={item.id}>
-                  <ListItem onClick={() => handleRowClick(item.id)}>{name}</ListItem>
-                  <Modal
+                  <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
+                  <FormModal
                     width="md"
                     title={getEditFormName(item)}
                     open={editKey === item.id}
@@ -195,7 +201,7 @@ export const InfoPaneList = memo(
                       title={title}
                       items={items}
                     />
-                  </Modal>
+                  </FormModal>
                 </React.Fragment>
               );
             })}

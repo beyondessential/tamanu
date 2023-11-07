@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { generateId } from '@tamanu/shared/utils/generateId';
 
-import { Modal } from '../../../components';
+import { FormModal } from '../../../components';
 import { NewPatientForm } from '../../../forms';
 import { useApi } from '../../../api';
 import { notifyError } from '../../../utils';
@@ -21,7 +21,7 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
     [api, onCreateNewPatient],
   );
   return (
-    <Modal
+    <FormModal
       title={<TranslatedText stringId="patient.modal.create.title" fallback="Add new patient" />}
       onClose={onCancel}
       open={open}
@@ -32,6 +32,6 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
         onSubmit={onSubmit}
         {...formProps}
       />
-    </Modal>
+    </FormModal>
   );
 };

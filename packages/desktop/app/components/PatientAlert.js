@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Modal } from './Modal';
 import { ButtonRow } from './ButtonRow';
 import { Button } from './Button';
 import { TranslatedText } from './Translation/TranslatedText';
+import { Modal } from './Modal';
 
 export const PatientAlert = React.memo(({ alerts = [] }) => {
   const [alertVisible, setAlertVisible] = useState(true);

@@ -4,7 +4,7 @@ import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { Form, Field, DateField, AutocompleteField, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { ConfirmCancelRow } from '../components/ButtonRow';
+import { FormSubmitCancelRow } from '../components/ButtonRow';
 
 import { foreignKey, optionalForeignKey } from '../utils/validation';
 import { LocalisedText } from '../components';
@@ -60,7 +60,7 @@ export const FamilyHistoryForm = ({
           multiline
           rows={2}
         />
-        <ConfirmCancelRow
+        <FormSubmitCancelRow
           onConfirm={submitForm}
           onCancel={onCancel}
           confirmText={

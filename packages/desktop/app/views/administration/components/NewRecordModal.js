@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 
-import { Modal } from '../../../components';
+import { FormModal } from '../../../components/FormModal';
 import { useApi } from '../../../api';
 
 export const NewRecordModal = ({ endpoint, title, open, Form, onCancel }) => {
@@ -13,8 +13,8 @@ export const NewRecordModal = ({ endpoint, title, open, Form, onCancel }) => {
     [api, endpoint, onCancel],
   );
   return (
-    <Modal title={title} open={open} onClose={onCancel}>
+    <FormModal title={title} open={open} onClose={onCancel}>
       <Form onSubmit={onSubmit} onCancel={onCancel} />
-    </Modal>
+    </FormModal>
   );
 };
