@@ -1,4 +1,4 @@
-import { resolve } from 'path';
+import { resolve, dirname } from 'path';
 import { Command } from 'commander';
 
 import {
@@ -49,7 +49,7 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
       throw new Error(`Unknown reference data import with keys ${Object.keys(rest).join(', ')}`);
     }
 
-    const realpath = resolve(provisioningFile, referenceDataFile);
+    const realpath = resolve(provisioningFile, dirname(referenceDataFile));
     log.info('Importing reference data file', { file: realpath });
     await referenceDataImporter({
       errors,
@@ -157,7 +157,7 @@ export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
       throw new Error(`Unknown program import with keys ${Object.keys(rest).join(', ')}`);
     }
 
-    const realpath = resolve(provisioningFile, programFile);
+    const realpath = resolve(provisioningFile, dirname(programFile));
     log.info('Importing program from file', { file: realpath });
     await programImporter({
       errors,

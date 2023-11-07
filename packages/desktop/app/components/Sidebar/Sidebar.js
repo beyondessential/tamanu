@@ -3,7 +3,8 @@ import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import { List, Divider, Box, Typography, Button, IconButton } from '@material-ui/core';
-import { NavigateBefore, NavigateNext } from '@material-ui/icons';
+import { NavigateBefore, NavigateNext, Launch } from '@material-ui/icons';
+
 import { TamanuLogoWhite, TamanuLogoWhiteNoText } from '../TamanuLogo';
 import { Colors } from '../../constants';
 import { HiddenSyncAvatar } from '../HiddenSyncAvatar';
@@ -15,6 +16,7 @@ import { checkAbility } from '../../utils/ability';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { useLocalisation } from '../../contexts/Localisation';
 
 const Container = styled.div`
   display: flex;
@@ -67,30 +69,34 @@ const RetractedLogo = styled(TamanuLogoWhiteNoText)``;
 
 const Footer = styled.div`
   margin-top: auto;
-  padding-bottom: 20px;
-  padding-right: ${props => (props.$retracted ? '0' : '18px')};
+  padding-bottom: 3px;
+  padding-right: ${props => (props.$retracted ? '0' : '10px')};
 `;
 
-const FooterContent = styled.div`
+const UserInfo = styled.div`
   display: flex;
   color: white;
   min-height: 65px;
   align-items: center;
   justify-content: ${props => (props.$retracted ? 'center' : 'default')};
   transition: ${props => props.theme.transitions.create('justify-content')};
+  margin-top: 5px;
+  margin-bottom: 5px;
+`;
+
+const StyledUserInfoContent = styled(Box)`
+  margin-top: 8px;
 `;
 
 const StyledDivider = styled(Divider)`
   background-color: ${props => (props.$invisible ? 'transparent' : 'rgba(255, 255, 255, 0.2)')};
   transition: ${props => props.theme.transitions.create('background-color')};
-  margin-bottom: 14px;
-  margin-left: 16px;
+  margin-left: 5px;
 `;
 
 const UserName = styled(Typography)`
   font-weight: 500;
   font-size: 14px;
-  margin-bottom: 5px;
   line-height: 18px;
 `;
 
@@ -120,6 +126,32 @@ const LogoutButton = styled(Button)`
   text-transform: none;
   text-decoration: underline;
   color: ${Colors.white};
+  margin-top: 8px;
+  margin-left: 10px;
+  min-height: 0;
+  min-width: 0;
+  padding-left: 0;
+  padding-right: 0;
+`;
+
+const SupportDesktopLink = styled.a`
+  margin-top: 4px;
+  font-weight: 400;
+  font-size: 11px;
+  line-height: 15px;
+  text-decoration: underline;
+  color: ${Colors.white};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  :hover {
+    font-weight: bold;
+  }
+`;
+
+const StyledMetadataBox = styled(Box)`
+  margin-bottom: 5px;
 `;
 
 const getInitials = string =>
@@ -153,6 +185,7 @@ export const Sidebar = React.memo(({ items }) => {
   const { facility, centralHost, currentUser, onLogout, currentRole } = useAuth();
   const currentPath = useSelector(getCurrentRoute);
   const dispatch = useDispatch();
+  const { getLocalisation } = useLocalisation();
 
   const extendSidebar = () => setIsRetracted(false);
 
@@ -175,6 +208,7 @@ export const Sidebar = React.memo(({ items }) => {
 
   const initials = getInitials(currentUser.displayName);
   const roleName = currentRole?.name ?? currentUser?.role;
+  const supportUrl = getLocalisation('supportDeskUrl');
 
   return (
     <Container $retracted={isRetracted}>
@@ -243,7 +277,7 @@ export const Sidebar = React.memo(({ items }) => {
       </List>
       <Footer $retracted={isRetracted}>
         <StyledDivider $invisible={isRetracted} />
-        <FooterContent $retracted={isRetracted}>
+        <UserInfo $retracted={isRetracted}>
           <StyledHiddenSyncAvatar
             $retracted={isRetracted}
             onClick={isRetracted ? extendSidebar : undefined}
@@ -251,15 +285,12 @@ export const Sidebar = React.memo(({ items }) => {
             {initials}
           </StyledHiddenSyncAvatar>
           {!isRetracted && (
-            <Box flex={1}>
+            <StyledUserInfoContent flex={1}>
               <UserName>{currentUser?.displayName}</UserName>
-              <ConnectedTo>
-                {roleName} | {facility?.name ? facility.name : centralHost}
-              </ConnectedTo>
               <Box display="flex" justifyContent="space-between">
-                <Version>
-                  <TranslatedText stringId="general.meta.version" fallback="Version" /> {appVersion}
-                </Version>
+                <ConnectedTo>
+                  {roleName} <br /> {facility?.name ? facility.name : centralHost}
+                </ConnectedTo>
                 <LogoutButton
                   type="button"
                   onClick={onLogout}
@@ -269,9 +300,21 @@ export const Sidebar = React.memo(({ items }) => {
                   <TranslatedText stringId="auth.action.logout" fallback="Log out" />
                 </LogoutButton>
               </Box>
-            </Box>
+            </StyledUserInfoContent>
           )}
-        </FooterContent>
+        </UserInfo>
+        {!isRetracted && (
+          <>
+            <StyledDivider $invisible={isRetracted} />
+            <StyledMetadataBox display="flex" justifyContent="space-between">
+              <SupportDesktopLink href={supportUrl} target="_blank" rel="noreferrer">
+                Support centre
+                <Launch style={{ marginLeft: '5px', fontSize: '12px' }} />
+              </SupportDesktopLink>
+              <Version>Version {appVersion}</Version>
+            </StyledMetadataBox>
+          </>
+        )}
       </Footer>
     </Container>
   );

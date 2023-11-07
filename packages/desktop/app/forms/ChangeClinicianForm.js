@@ -6,7 +6,7 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { Form, Field, AutocompleteField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { ConfirmCancelRow } from '../components/ButtonRow';
+import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { useLocalisedText } from '../components';
 
 export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) => {
@@ -21,7 +21,7 @@ export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) 
         required
         suggester={clinicianSuggester}
       />
-      <ConfirmCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onCancel} />
+      <FormSubmitCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onCancel} />
     </FormGrid>
   );
 

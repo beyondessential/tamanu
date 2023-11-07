@@ -9,7 +9,7 @@ import React, {
 import { useFormikContext } from 'formik';
 import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { IPatient, ISurveyScreenComponent } from '../../../../types';
-import { checkVisibilityCriteria } from '../../../helpers/fields';
+import { checkMandatory, checkVisibilityCriteria } from '../../../helpers/fields';
 import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 import { SurveyQuestion } from './SurveyQuestion';
 import { FormScreenView } from '../FormScreenView';
@@ -22,6 +22,9 @@ import { theme } from '../../../styled/theme';
 import { FORM_STATUSES } from '/helpers/constants';
 import { GenericFormValues } from '~/models/Forms';
 import { BackHandler } from 'react-native';
+import { useBackendEffect } from '~/ui/hooks';
+import { LoadingScreen } from '../../LoadingScreen';
+import { ErrorScreen } from '../../ErrorScreen';
 
 interface UseScrollToFirstError {
   setQuestionPosition: (yPosition: string) => void;
@@ -83,7 +86,17 @@ export const FormFields = ({
     GenericFormValues
   >();
   const { setQuestionPosition, scrollToQuestion } = useScrollToFirstError();
+  const [encounterResult, encounterError, isEncounterLoading] = useBackendEffect(
+    async ({ models }) => {
+      const encounter = await models.Encounter.getCurrentEncounterForPatient(patient.id);
+      return {
+        encounter,
+      };
+    },
+    [patient.id],
+  );
 
+  const { encounter } = encounterResult || {};
   const maxIndex = components
     .map(x => x.screenIndex)
     .reduce((max, current) => Math.max(max, current), 0);
@@ -148,6 +161,14 @@ export const FormFields = ({
     return () => backHandler.remove();
   }, [currentScreenIndex]); // Re-subscribe if screen index changes, otherwise onGoBack() won't work.
 
+  if (encounterError) {
+    return <ErrorScreen error={encounterError} />;
+  }
+
+  if (isEncounterLoading) {
+    return <LoadingScreen />;
+  }
+
   // Note: we set the key on FullView so that React registers it as a whole
   // new component, rather than a component whose contents happen to have
   // changed. This means that each new page will start at the top, rather than
@@ -157,13 +178,16 @@ export const FormFields = ({
       <FormScreenView scrollViewRef={scrollViewRef}>
         {screenComponents.filter(shouldShow).map((component, index) => {
           const validationCriteria = component && component.getValidationCriteriaObject();
+          const mandatory = checkMandatory(validationCriteria.mandatory, {
+            encounterType: encounter?.encounterType,
+          });
           return (
             <React.Fragment key={component.id}>
               <StyledView marginTop={index === 0 ? 0 : 20} flexDirection="row" alignItems="center">
                 <SectionHeader h3>
                   {component.text || component.dataElement.defaultText || ''}
                 </SectionHeader>
-                {validationCriteria.mandatory && (
+                {mandatory && (
                   <StyledText
                     marginLeft={screenPercentageToDP(0.5, Orientation.Width)}
                     fontSize={screenPercentageToDP(1.6, Orientation.Height)}

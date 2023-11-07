@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { TabDisplay } from '../../components/TabDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientAlert } from '../../components/PatientAlert';
@@ -24,6 +24,7 @@ import { NAVIGATION_CONTAINER_HEIGHT } from '../../components/PatientNavigation'
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { PatientSearchParametersProvider } from '../../contexts/PatientViewSearchParameters';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { invalidatePatientDataQueries } from '../../utils';
 
 const StyledDisplayTabs = styled(TabDisplay)`
   overflow: initial;
@@ -95,6 +96,7 @@ const TABS = [
 ];
 
 export const PatientView = () => {
+  const queryClient = useQueryClient();
   const { getLocalisation } = useLocalisation();
   const query = useUrlSearchParams();
   const patient = useSelector(state => state.patient);
@@ -113,6 +115,16 @@ export const PatientView = () => {
   useEffect(() => {
     api.post(`user/recently-viewed-patients/${patient.id}`);
   }, [api, patient.id]);
+
+  useEffect(() => {
+    if (!patient.syncing) {
+      // invalidate the cache of patient data queries to reload the patient data
+      invalidatePatientDataQueries(queryClient, patient.id);
+    }
+
+    // invalidate queries only when syncing is done (changed from true to false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [patient.syncing]);
 
   if (patient.loading || isLoadingAdditionalData || isLoadingBirthData) {
     return <LoadingIndicator />;

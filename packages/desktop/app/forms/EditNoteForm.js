@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ConfirmCancelRow } from '../components/ButtonRow';
+import { FormSubmitCancelRow } from '../components/ButtonRow';
 import {
   NoteContentField,
   NoteInfoSection,
@@ -33,7 +33,7 @@ export const EditNoteForm = ({ note, onNoteContentChange, onSubmit, onCancel }) 
       <br />
       <NoteContentField onChange={onNoteContentChange} />
       <StyledDivider />
-      <ConfirmCancelRow
+      <FormSubmitCancelRow
         onConfirm={onSubmit}
         confirmText="Save"
         cancelText="Cancel"

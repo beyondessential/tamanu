@@ -230,6 +230,11 @@ export const SYNC_MENU_ITEMS = [
     path: '/admin/sync',
   },
   {
+    key: 'fhirJobStats',
+    label: 'FHIR job stats',
+    path: '/admin/fhir/jobStats',
+  },
+  {
     key: 'reports',
     label: <TranslatedText stringId="adminSidebar.reports" fallback="Reports" />,
     path: '/admin/reports',

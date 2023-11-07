@@ -12,7 +12,7 @@ import {
   CheckField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { ConfirmCancelRow } from '../components/ButtonRow';
+import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { foreignKey } from '../utils/validation';
 import { useLocalisedText } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -106,20 +106,20 @@ export const OngoingConditionForm = ({
             />
           </FormGrid>
         </Collapse>
-        <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText={buttonText} />
+        <FormSubmitCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText={buttonText} />
       </FormGrid>
     );
   };
 
-  const onDataSubmit = data => {
+  const onDataSubmit = async data => {
     if (data.resolved) {
-      onSubmit(data);
+      await onSubmit(data);
       return;
     }
 
     // remove resolution-specific fields if not resolved
     const { resolutionDate, resolutionNote, resolutionPractitionerId, ...rest } = data;
-    onSubmit(rest);
+    await onSubmit(rest);
   };
 
   return (

@@ -1,7 +1,7 @@
 import React, { Children } from 'react';
 import styled from 'styled-components';
 
-import { Button, OutlinedButton } from './Button';
+import { FormCancelButton, FormSubmitButton, Button, OutlinedButton } from './Button';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const FlexSpaceBetween = styled.div`
@@ -25,15 +25,34 @@ const Row = styled.div`
   }
 `;
 
+const ConfirmButton = styled(Button)`
+  min-width: 90px;
+`;
+
 export const ButtonRow = React.memo(({ children, ...props }) => (
   <Row items={Children.toArray(children).length || 1} {...props}>
     {children}
   </Row>
 ));
 
-const ConfirmButton = styled(Button)`
-  min-width: 90px;
-`;
+export const FormSubmitCancelRow = React.memo(
+  ({
+    onCancel,
+    onConfirm,
+    confirmText = <TranslatedText stringId="general.action.confirm" fallback="Confirm" />,
+    confirmColor = 'primary',
+    cancelText = <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
+    confirmDisabled,
+    ...props
+  }) => (
+    <ButtonRow {...props}>
+      {onCancel && <FormCancelButton onClick={onCancel}>{cancelText}</FormCancelButton>}
+      <FormSubmitButton color={confirmColor} onSubmit={onConfirm} disabled={confirmDisabled}>
+        {confirmText}
+      </FormSubmitButton>
+    </ButtonRow>
+  ),
+);
 
 export const ConfirmCancelRow = React.memo(
   ({
@@ -47,11 +66,9 @@ export const ConfirmCancelRow = React.memo(
   }) => (
     <ButtonRow {...props}>
       {onCancel && <OutlinedButton onClick={onCancel}>{cancelText}</OutlinedButton>}
-      {onConfirm && (
-        <ConfirmButton color={confirmColor} onClick={onConfirm} disabled={confirmDisabled}>
-          {confirmText}
-        </ConfirmButton>
-      )}
+      <ConfirmButton color={confirmColor} onClick={onConfirm} disabled={confirmDisabled}>
+        {confirmText}
+      </ConfirmButton>
     </ButtonRow>
   ),
 );
@@ -66,7 +83,7 @@ const GoBackButtonContainer = styled(ButtonRow)`
   }
 `;
 
-export const ConfirmCancelBackRow = ({
+export const FormConfirmCancelBackRow = ({
   onBack,
   backButtonText = <TranslatedText stringId="general.action.back" fallback="Back" />,
   ...props
@@ -77,6 +94,6 @@ export const ConfirmCancelBackRow = ({
         <OutlinedButton onClick={onBack}>{backButtonText}</OutlinedButton>
       </GoBackButtonContainer>
     )}
-    <ConfirmCancelRow {...props} />
+    <FormSubmitCancelRow {...props} />
   </FlexSpaceBetween>
 );

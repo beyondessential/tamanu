@@ -2,7 +2,7 @@ import React from 'react';
 import * as Yup from 'yup';
 import { useSelector } from 'react-redux';
 
-import { ConfirmCancelRow } from '../components/ButtonRow';
+import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { Form, Field, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 
@@ -25,7 +25,7 @@ export const EmailAddressConfirmationForm = React.memo(({ onCancel, onSubmit }) 
         <FormGrid columns={1}>
           <Field name="email" label="Patient Email" component={TextField} required />
           <Field name="confirmEmail" label="Confirm Patient Email" component={TextField} required />
-          <ConfirmCancelRow onConfirm={submitForm} onCancel={onCancel} />
+          <FormSubmitCancelRow onConfirm={submitForm} onCancel={onCancel} />
         </FormGrid>
       )}
     />

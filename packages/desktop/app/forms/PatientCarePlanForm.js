@@ -4,7 +4,7 @@ import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { DateTimeField, Form, Field, AutocompleteField, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { ConfirmCancelRow } from '../components/ButtonRow';
+import { FormSubmitCancelRow } from '../components/ButtonRow';
 
 import { foreignKey } from '../utils/validation';
 import { LocalisedText } from '../components';
@@ -54,7 +54,7 @@ export const PatientCarePlanForm = ({
           multiline
           rows={6}
         />
-        <ConfirmCancelRow
+        <FormSubmitCancelRow
           onCancel={onCancel}
           onConfirm={submitForm}
           confirmText={

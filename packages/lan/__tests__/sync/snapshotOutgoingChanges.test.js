@@ -1,14 +1,12 @@
 import { expect, beforeAll, describe, it } from '@jest/globals';
 
-import { fakeReferenceData, withErrorShown } from 'shared/test-helpers';
-import { SYNC_SESSION_DIRECTION, getModelsForDirection } from 'shared/sync';
+import { fakeReferenceData, withErrorShown } from '@tamanu/shared/test-helpers';
+import { SYNC_SESSION_DIRECTION, getModelsForDirection } from '@tamanu/shared/sync';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { sleepAsync } from 'shared/utils/sleepAsync';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { createTestContext } from '../utilities';
 import { snapshotOutgoingChanges } from '../../app/sync/snapshotOutgoingChanges';
-
-const readOnlyConfig = readOnly => ({ sync: { readOnly } });
 
 describe('snapshotOutgoingChanges', () => {
   let ctx;
@@ -22,23 +20,6 @@ describe('snapshotOutgoingChanges', () => {
   });
 
   afterAll(() => ctx.close());
-
-  it(
-    'if in readOnly mode returns empty array',
-    withErrorShown(async () => {
-      const { LocalSystemFact } = models;
-      const tick = await LocalSystemFact.increment('currentSyncTick');
-
-      const result = await snapshotOutgoingChanges.overrideConfig(
-        ctx.sequelize,
-        models,
-        tick - 1,
-        readOnlyConfig(true),
-      );
-
-      expect(result).toEqual([]);
-    }),
-  );
 
   it(
     'if nothing changed returns empty array',
