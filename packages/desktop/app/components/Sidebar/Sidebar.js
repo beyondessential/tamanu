@@ -308,10 +308,15 @@ export const Sidebar = React.memo(({ items }) => {
             <StyledDivider $invisible={isRetracted} />
             <StyledMetadataBox display="flex" justifyContent="space-between">
               <SupportDesktopLink href={supportUrl} target="_blank" rel="noreferrer">
-                Support centre
+                <TranslatedText
+                  stringId="sidebar.externalLink.supportCentre"
+                  fallback="Support centre"
+                />
                 <Launch style={{ marginLeft: '5px', fontSize: '12px' }} />
               </SupportDesktopLink>
-              <Version>Version {appVersion}</Version>
+              <Version>
+                <TranslatedText stringId="general.meta.version" fallback="Version" /> {appVersion}
+              </Version>
             </StyledMetadataBox>
           </>
         )}
