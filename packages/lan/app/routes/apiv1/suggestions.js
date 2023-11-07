@@ -3,7 +3,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Sequelize, Op, literal } from 'sequelize';
 import config from 'config';
-import { NotFoundError } from 'shared/errors';
+import { NotFoundError } from '@tamanu/shared/errors';
 import {
   SURVEY_TYPES,
   REFERENCE_TYPE_VALUES,
@@ -232,6 +232,7 @@ createSuggester(
   'User',
   search => ({
     displayName: { [Op.iLike]: search },
+    ...VISIBILITY_CRITERIA,
   }),
   ({ id, displayName }) => ({
     id,

@@ -1,6 +1,6 @@
 {
   "name": "meta-server",
-  "version": "1.36.0",
+  "version": "1.37.0",
   "private": true,
   "description": "Meta server for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -54,8 +54,5 @@
     "sanitize-html": "^2.4.0",
     "sequelize": "^6.23.2",
     "winston": "^3.2.1"
-  },
-  "imports": {
-    "shared": "@tamanu/shared"
   }
 }

@@ -3,8 +3,8 @@ import asyncHandler from 'express-async-handler';
 import { Op, ValidationError } from 'sequelize';
 
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { ensurePermissionCheck } from 'shared/permissions/middleware';
-import { simpleGetList, simplePost, simplePut } from 'shared/utils/crudHelpers';
+import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
+import { simpleGetList, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 
 export const patientLetterTemplateRoutes = express.Router();
 

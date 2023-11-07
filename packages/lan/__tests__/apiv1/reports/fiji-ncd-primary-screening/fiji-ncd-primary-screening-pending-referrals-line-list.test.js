@@ -1,4 +1,4 @@
-import { createDummyPatient, randomReferenceDataObjects } from 'shared/demoData/patients';
+import { createDummyPatient, randomReferenceDataObjects } from '@tamanu/shared/demoData/patients';
 import { REFERENCE_TYPES } from '@tamanu/constants';
 import { createTestContext } from '../../../utilities';
 import {

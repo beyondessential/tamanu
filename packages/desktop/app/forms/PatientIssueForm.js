@@ -4,7 +4,7 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { PATIENT_ISSUE_TYPES } from '@tamanu/constants';
 import { Form, Field, DateField, SelectField, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { ConfirmCancelRow } from '../components/ButtonRow';
+import { FormSubmitCancelRow } from '../components/ButtonRow';
 
 const ISSUE_TYPES = [
   { value: PATIENT_ISSUE_TYPES.ISSUE, label: 'Issue' },
@@ -25,7 +25,7 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
           saveDateAsString
           required
         />
-        <ConfirmCancelRow
+        <FormSubmitCancelRow
           onCancel={onCancel}
           onConfirm={submitForm}
           confirmText={editedObject ? 'Save' : 'Add'}

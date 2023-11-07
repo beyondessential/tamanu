@@ -1,9 +1,9 @@
 import { Sequelize, Op } from 'sequelize';
 import moment from 'moment';
 import { FHIR_SEARCH_PARAMETERS } from '@tamanu/constants';
-import { jsonFromBase64, jsonToBase64 } from 'shared/utils/encodings';
-import { InvalidParameterError } from 'shared/errors';
-import { toDateString } from 'shared/utils/dateTime';
+import { jsonFromBase64, jsonToBase64 } from '@tamanu/shared/utils/encodings';
+import { InvalidParameterError } from '@tamanu/shared/errors';
+import { toDateString } from '@tamanu/shared/utils/dateTime';
 
 export function toSearchId({ after, ...params }) {
   const result = { ...params };

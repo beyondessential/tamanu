@@ -31,7 +31,7 @@ function compareData(dataType, expected, given) {
       break;
     }
     case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
-      return given.split(', ').includes(expected);
+      return JSON.parse(given).includes(expected);
     default:
       if (expected === given) return true;
       break;
