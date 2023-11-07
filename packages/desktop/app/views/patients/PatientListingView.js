@@ -119,10 +119,9 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
         noun="Patient"
         onClick={showNewPatient}
       >
-        + <TranslatedText stringId="patient.action.add" fallback="Add new patient" />
+        + <TranslatedText stringId="patient.action.addNewPatient" fallback="Add new patient" />
       </ButtonWithPermissionCheck>
       <NewPatientModal
-        title="New patient"
         open={isCreatingPatient}
         onCancel={hideModal}
         onCreateNewPatient={handleCreateNewPatient}
