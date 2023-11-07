@@ -11,13 +11,14 @@ import {
   CheckField,
   Field,
   Form,
+  FormSubmitButton,
   MinusIconButton,
   PlusIconButton,
   TextField,
 } from '../components';
 import { ServerDetectingField } from '../components/Field/ServerDetectingField';
 
-const LoginButton = styled(Button)`
+const LoginButton = styled(FormSubmitButton)`
   font-size: 16px;
   line-height: 18px;
   padding-top: 16px;
@@ -47,7 +48,6 @@ const LoginFormComponent = ({
   isAdvancedExpanded,
   setAdvancedExpanded,
   setFieldValue,
-  isSubmitting,
   onNavToResetPassword,
   setFieldError,
 }) => {
@@ -92,9 +92,7 @@ const LoginFormComponent = ({
           setFieldValue={setFieldValue}
         />
       </Collapse>
-      <LoginButton type="submit" isSubmitting={isSubmitting}>
-        Login to your account
-      </LoginButton>
+      <LoginButton text="Login to your account" />
       <Button onClick={onNavToResetPassword} color="default" variant="text">
         Forgot your password?
       </Button>
@@ -112,13 +110,12 @@ export const LoginForm = React.memo(
       }
     };
 
-    const renderForm = ({ setFieldValue, isSubmitting, setFieldError }) => (
+    const renderForm = ({ setFieldValue, setFieldError }) => (
       <LoginFormComponent
         errorMessage={errorMessage}
         isAdvancedExpanded={isAdvancedExpanded}
         setAdvancedExpanded={setAdvancedExpanded}
         setFieldValue={setFieldValue}
-        isSubmitting={isSubmitting}
         onNavToResetPassword={onNavToResetPassword}
         setFieldError={setFieldError}
       />

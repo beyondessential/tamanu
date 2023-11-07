@@ -13,8 +13,14 @@ export const Dialog = memo(
     onConfirm,
     okText = 'OK',
     cancelText = 'Cancel',
+    disableDevWarning = false,
   }) => (
-    <Modal open={isVisible} onClose={onClose} title={headerTitle}>
+    <Modal
+      open={isVisible}
+      onClose={onClose}
+      title={headerTitle}
+      disableDevWarning={disableDevWarning}
+    >
       <>
         {contentText}
         <ButtonRow>
