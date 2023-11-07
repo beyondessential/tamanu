@@ -119,7 +119,7 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
         noun="Patient"
         onClick={showNewPatient}
       >
-        <TranslatedText stringId="patient.action.add" fallback="+ Add new patient" />
+        + <TranslatedText stringId="patient.action.add" fallback="Add new patient" />
       </ButtonWithPermissionCheck>
       <NewPatientModal
         title="New patient"
@@ -144,7 +144,7 @@ export const PatientListingView = ({ onViewPatient }) => {
       <RecentlyViewedPatientsList />
       <ContentPane>
         <SearchTableTitle>
-          <TranslatedText stringId="patientList.table.title" fallback="Patient search" />
+          <TranslatedText stringId="patientList.table.search.title" fallback="Patient search" />
         </SearchTableTitle>
         <AllPatientsSearchBar onSearch={setSearchParameters} />
         <PatientTable
@@ -177,7 +177,7 @@ export const AdmittedPatientsView = () => {
       <RecentlyViewedPatientsList encounterType="admission" />
       <ContentPane>
         <SearchTableTitle>
-          <TranslatedText stringId="patientList.table.title" fallback="Patient search" />
+          <TranslatedText stringId="patientList.table.search.title" fallback="Patient search" />
         </SearchTableTitle>
         <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
         <PatientTable
@@ -206,7 +206,7 @@ export const OutpatientsView = () => {
       <RecentlyViewedPatientsList encounterType="clinic" />
       <ContentPane>
         <SearchTableTitle>
-          <TranslatedText stringId="patientList.table.title" fallback="Patient search" />
+          <TranslatedText stringId="patientList.table.search.title" fallback="Patient search" />
         </SearchTableTitle>
         <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
         <PatientTable
