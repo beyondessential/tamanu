@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { PageContainer, TopBar, ContentPane } from '../../components';
 import { Colors } from '../../constants';
 import { ReportGeneratorForm } from './ReportGeneratorForm';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const ContentContainer = styled.div`
   padding: 32px 30px;
@@ -13,7 +14,9 @@ const ContentContainer = styled.div`
 
 export const ReportGenerator = () => (
   <PageContainer>
-    <TopBar title="Report generator" />
+    <TopBar
+      title={<TranslatedText stringId="reportGenerator.title" fallback="Report generator" />}
+    />
     <ContentPane>
       <ContentContainer>
         <ReportGeneratorForm />

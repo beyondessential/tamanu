@@ -1,6 +1,7 @@
 import React from 'react';
 import * as Yup from 'yup';
 import { Field, TextField } from '../../components';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 export const parseEmails = commaSeparatedEmails =>
   commaSeparatedEmails
@@ -33,7 +34,12 @@ const validateCommaSeparatedEmails = async emails => {
 export const EmailField = () => (
   <Field
     name="emails"
-    label="Email to (separate emails with a comma)"
+    label={
+      <TranslatedText
+        stringId="reportGenerator.form.email.label"
+        fallback="Email to (seperate emails with a comma)"
+      />
+    }
     component={TextField}
     placeholder="example@example.com"
     multiline

@@ -28,6 +28,7 @@ import { saveExcelFile } from '../../utils/saveExcelFile';
 import { EmailField, parseEmails } from './EmailField';
 import { ParameterField } from './ParameterField';
 import { useLocalisation } from '../../contexts/Localisation';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const Spacer = styled.div`
   padding-top: 30px;
@@ -112,7 +113,9 @@ export const ReportGeneratorForm = () => {
 
   const {
     parameters = [],
-    dateRangeLabel = 'Date range',
+    dateRangeLabel = (
+      <TranslatedText stringId="reportGenerator.form.dateRange.label" fallback="Date range" />
+    ),
     dataSourceOptions = REPORT_DATA_SOURCE_VALUES,
     filterDateRangeAsStrings = false,
   } = reportsById[selectedReportId] || {};
@@ -131,7 +134,14 @@ export const ReportGeneratorForm = () => {
         const reports = await api.get('reports');
         setAvailableReports(reports);
       } catch (error) {
-        setRequestError(`Unable to load available reports - ${error.message}`);
+        setRequestError(
+          `${(
+            <TranslatedText
+              stringId="reportGenerator.error.cantLoad"
+              fallback="Unable to load available reports"
+            />
+          )} - ${error.message}`,
+        );
       }
     })();
   }, [api]);
@@ -178,7 +188,14 @@ export const ReportGeneratorForm = () => {
           },
         );
         if (filePath) {
-          setSuccessMessage(`Report successfully exported. File saved at: ${filePath}.`);
+          setSuccessMessage(
+            `${(
+              <TranslatedText
+                stringId="reportGenerator.message.export.success"
+                fallback="Report successfully exported. File saved at"
+              />
+            )}: ${filePath}.`,
+          );
         }
       } else {
         await api.post(`reportRequest`, {
@@ -187,10 +204,22 @@ export const ReportGeneratorForm = () => {
           emailList: parseEmails(formValues.emails),
           bookType,
         });
-        setSuccessMessage('Report successfully requested. You will receive an email soon.');
+        setSuccessMessage(
+          <TranslatedText
+            stringId="reportGenerator.message.request.success"
+            fallback="Report successfully requested. You will receive an email soon."
+          />,
+        );
       }
     } catch (e) {
-      setRequestError(`Unable to submit report request - ${e.message}`);
+      setRequestError(
+        `${(
+          <TranslatedText
+            stringId="reportGenerator.error.cantSubmitRequest"
+            fallback="Unable to submit report request"
+          />
+        )} - ${e.message}`,
+      );
     }
   };
 
@@ -210,7 +239,10 @@ export const ReportGeneratorForm = () => {
       onSubmit={submitRequestReport}
       validationSchema={Yup.object().shape({
         reportId: Yup.string().required(
-          "Report id is required. A report must be selected from the dropdown; just entering a report name will not work. If you can't see a specific report, please contact your system administrator.",
+          <TranslatedText
+            stringId="reportGenerator.form.validation.reportId.required"
+            fallback="Report id is required. A report must be selected from the dropdown; just entering a report name will not work. If you can't see a specific report, please contact your system administrator."
+          />,
         ),
         ...parameters.reduce(
           (schema, field) => ({
@@ -225,7 +257,9 @@ export const ReportGeneratorForm = () => {
           <FormGrid columns={2}>
             <Field
               name="reportId"
-              label="Report"
+              label={
+                <TranslatedText stringId="reportGenerator.form.report.label" fallback="Report" />
+              }
               component={ReportIdField}
               options={reportOptions}
               required
@@ -242,8 +276,24 @@ export const ReportGeneratorForm = () => {
                 setDataSource(e.target.value);
               }}
               options={[
-                { label: 'This facility', value: REPORT_DATA_SOURCES.THIS_FACILITY },
-                { label: 'All facilities', value: REPORT_DATA_SOURCES.ALL_FACILITIES },
+                {
+                  label: (
+                    <TranslatedText
+                      stringId="reportGenerator.form.dataSource.option.thisFacility"
+                      fallback="This facility"
+                    />
+                  ),
+                  value: REPORT_DATA_SOURCES.THIS_FACILITY,
+                },
+                {
+                  label: (
+                    <TranslatedText
+                      stringId="reportGenerator.form.dataSource.option.allFacilities"
+                      fallback="All facilities"
+                    />
+                  ),
+                  value: REPORT_DATA_SOURCES.ALL_FACILITIES,
+                },
               ]}
               component={RadioField}
               disabled={isDataSourceFieldDisabled}
@@ -273,13 +323,20 @@ export const ReportGeneratorForm = () => {
           <FormGrid columns={2} style={{ marginBottom: 30 }}>
             <Field
               name="fromDate"
-              label="From date"
+              label={
+                <TranslatedText
+                  stringId="reportGenerator.form.fromDate.label"
+                  fallback="From date"
+                />
+              }
               component={DateField}
               saveDateAsString={filterDateRangeAsStrings}
             />
             <Field
               name="toDate"
-              label="To date"
+              label={
+                <TranslatedText stringId="reportGenerator.form.toDate.label" fallback="To date" />
+              }
               component={DateField}
               saveDateAsString={filterDateRangeAsStrings}
             />
@@ -317,14 +374,24 @@ export const ReportGeneratorForm = () => {
               size="large"
               actions={[
                 {
-                  label: 'Generate XLSX',
+                  label: (
+                    <TranslatedText
+                      stringId="reportGenerator.action.generateXlsx"
+                      fallback="Generate XLSX"
+                    />
+                  ),
                   onClick: event => {
                     setBookFormat(REPORT_EXPORT_FORMATS.XLSX);
                     submitForm(event);
                   },
                 },
                 {
-                  label: 'Generate CSV',
+                  label: (
+                    <TranslatedText
+                      stringId="reportGenerator.action.generateCsv"
+                      fallback="Generate CSV"
+                    />
+                  ),
                   onClick: event => {
                     setBookFormat(REPORT_EXPORT_FORMATS.CSV);
                     submitForm(event);
