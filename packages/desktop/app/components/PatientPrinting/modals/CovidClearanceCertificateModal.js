@@ -31,15 +31,14 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
   }, [api, patient.id]);
 
   const createCovidTestCertNotification = useCallback(
-    data => {
+    data =>
       api.post('certificateNotification', {
         type: COVID_19_CLEARANCE_CERTIFICATE,
         requireSigning: false,
         patientId: patient.id,
         forwardAddress: data.email,
         createdBy: printedBy,
-      });
-    },
+      }),
     [api, patient.id, printedBy],
   );
 

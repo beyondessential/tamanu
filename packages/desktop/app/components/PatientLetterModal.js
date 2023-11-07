@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 
-import { Modal } from './Modal';
+import { FormModal } from './FormModal';
 import { PatientLetterForm } from '../forms/PatientLetterForm';
 
 export const PatientLetterModal = React.memo(
@@ -18,14 +18,14 @@ export const PatientLetterModal = React.memo(
     );
 
     return (
-      <Modal width="sm" title="Patient letter" open={open} onClose={onClose}>
+      <FormModal width="sm" title="Patient letter" open={open} onClose={onClose}>
         <PatientLetterForm
           patient={patient}
           onSubmit={onSubmit}
           onCancel={onClose}
           endpoint={endpoint}
         />
-      </Modal>
+      </FormModal>
     );
   },
 );

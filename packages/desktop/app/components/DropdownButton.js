@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import {
-  Button,
+  Button as MuiButton,
   ButtonGroup,
   ClickAwayListener,
   Paper,
@@ -12,7 +12,9 @@ import {
   MenuList as MuiMenuList,
 } from '@material-ui/core';
 import LockIcon from '@material-ui/icons/Lock';
+
 import { Colors } from '../constants';
+import { FormSubmitButton, Button } from './Button';
 import { withPermissionCheck } from './withPermissionCheck';
 import { withPermissionTooltip } from './withPermissionTooltip';
 
@@ -21,7 +23,7 @@ const Container = styled.div`
   display: inline-block;
 `;
 
-const MainButton = styled(Button)`
+const mainButtonStyles = `
   border-radius: 3px;
   text-transform: none;
   font-size: 14px;
@@ -58,8 +60,15 @@ const MainButton = styled(Button)`
     margin-right: 10px;
   }
 `;
+const FormMainButton = styled(FormSubmitButton)`
+  ${mainButtonStyles}
+`;
 
-const MenuButton = styled(Button)`
+const MainButton = styled(Button)`
+  ${mainButtonStyles}
+`;
+
+const MenuButton = styled(MuiButton)`
   padding: 9px 7px 9px 0;
   border-radius: 3px;
 
@@ -116,7 +125,15 @@ const MenuList = styled(MuiMenuList)`
 `;
 
 export const DropdownButton = React.memo(
-  ({ variant, size, actions, style, className, hasPermission = true }) => {
+  ({
+    variant,
+    size,
+    actions,
+    style,
+    className,
+    hasPermission = true,
+    MainButtonComponent = MainButton,
+  }) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const anchorRef = useRef(null);
 
@@ -137,7 +154,7 @@ export const DropdownButton = React.memo(
 
     if (otherActions.length === 0) {
       return (
-        <MainButton
+        <MainButtonComponent
           variant={variant}
           size={size}
           color="primary"
@@ -147,7 +164,7 @@ export const DropdownButton = React.memo(
         >
           {!hasPermission && <LockIcon />}
           {mainAction.label}
-        </MainButton>
+        </MainButtonComponent>
       );
     }
 
@@ -163,10 +180,10 @@ export const DropdownButton = React.memo(
           style={{ width: '100%' }}
           disabled={!hasPermission}
         >
-          <MainButton onClick={event => handleClick(event, 0)}>
+          <MainButtonComponent onClick={event => handleClick(event, 0)}>
             {!hasPermission && <LockIcon />}
             {mainAction.label}
-          </MainButton>
+          </MainButtonComponent>
           <MenuButton onClick={handleToggle}>
             <KeyboardArrowDownIcon />
           </MenuButton>
@@ -192,6 +209,10 @@ export const DropdownButton = React.memo(
     );
   },
 );
+
+export const FormSubmitDropdownButton = ({ ...props }) => {
+  return <DropdownButton MainButtonComponent={FormMainButton} {...props} />;
+};
 
 DropdownButton.propTypes = {
   actions: PropTypes.arrayOf(
