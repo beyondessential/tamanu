@@ -41,7 +41,6 @@ export class CursorDataMigration extends DataMigration {
     return Boolean(this.started && !this.lastMaxId);
   }
 
-  // eslint-disable-next-line no-unused-vars
   async getQuery() {
     throw new Error('you should extend getQuery');
   }
