@@ -3,7 +3,7 @@ import { INVOICE_STATUS_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi } from '../api';
 import { getInvoiceTotal, calculateInvoiceTotal } from '../utils';
-import { Modal } from './Modal';
+import { FormModal } from './FormModal';
 import { InvoiceDetailForm } from '../forms/InvoiceDetailForm';
 
 export const InvoiceDetailModal = ({ title, open, onClose, onUpdated, invoiceId }) => {
@@ -59,7 +59,7 @@ export const InvoiceDetailModal = ({ title, open, onClose, onUpdated, invoiceId 
   }, [api, invoiceId]);
 
   return (
-    <Modal width="md" title={title} open={open} onClose={onClose}>
+    <FormModal width="md" title={title} open={open} onClose={onClose}>
       <InvoiceDetailForm
         onSubmit={updateInvoice}
         onFinaliseInvoice={finaliseInvoice}
@@ -67,6 +67,6 @@ export const InvoiceDetailModal = ({ title, open, onClose, onUpdated, invoiceId 
         onCancel={onClose}
         invoice={invoice}
       />
-    </Modal>
+    </FormModal>
   );
 };

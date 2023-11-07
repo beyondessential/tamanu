@@ -55,6 +55,13 @@ const COLUMNS = [
               />
             </>
           );
+        case 'MultiSelect':
+          return JSON.parse(answer).map(element => (
+            <>
+              {element}
+              <br />
+            </>
+          ));
         default:
           return answer;
       }

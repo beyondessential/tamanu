@@ -1,5 +1,5 @@
 import { addMinutes } from 'date-fns';
-import { toDateTimeString } from 'shared/utils/dateTime';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { chance } from '../../../chance';
 
 export const insertSurveyResponse = async (

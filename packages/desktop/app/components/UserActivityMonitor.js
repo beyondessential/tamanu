@@ -13,8 +13,8 @@ import { useLocalisation } from '../contexts/Localisation';
 import { useAuth } from '../contexts/Auth';
 import { checkIsLoggedIn } from '../store/auth';
 
-import { Modal } from './Modal';
 import { ModalActionRow } from './ModalActionRow';
+import { Modal } from './Modal';
 
 const WarningModalContainer = styled.div`
   padding-top: 2rem;

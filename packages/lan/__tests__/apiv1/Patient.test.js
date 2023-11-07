@@ -6,13 +6,13 @@ import {
   createDummyEncounterMedication,
   createDummyPatient,
   randomReferenceId,
-} from 'shared/demoData/patients';
+} from '@tamanu/shared/demoData/patients';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
-import { fake } from 'shared/test-helpers/fake';
-import { randomLabRequest } from 'shared/demoData/labRequests';
+import { fake } from '@tamanu/shared/test-helpers/fake';
+import { randomLabRequest } from '@tamanu/shared/demoData/labRequests';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
-import { getCurrentDateString, toDateTimeString } from 'shared/utils/dateTime';
-import { CertificateTypes } from 'shared/utils/patientCertificates';
+import { getCurrentDateString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
 
 import { createTestContext } from '../utilities';
 

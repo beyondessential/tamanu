@@ -22,9 +22,13 @@ const AceEditor = styled(BaseAceEditor)`
   }
 `;
 
+const IGNORED_MESSAGES = ['$01 is not defined'];
 export const SQLQueryEditor = props => {
   const [originalHighlightList, setOriginalHighlightList] = useState([]);
   const [annotations, setAnnotations] = useState({});
+  const shouldIgnoreErrorMesssage = errorMessage => {
+    return IGNORED_MESSAGES.includes(errorMessage);
+  };
   const validateQuery = query => {
     // need to do this to add nextline \n
     const queryArray = query.replaceAll(':', '-').split('\n');
@@ -33,6 +37,13 @@ export const SQLQueryEditor = props => {
       parser.parse(sqlQuery);
       setAnnotations({});
     } catch (e) {
+      // js-sql-parser is throwing errors for some valid queries.
+      // see: https://linear.app/bes/issue/NASS-877/bug-in-query-box-in-reports-modal
+      // So we are ignoring some of them and let the backend do the validation in some scenarios
+      if (shouldIgnoreErrorMesssage(e.message)) {
+        setAnnotations({});
+        return;
+      }
       // errors will be:
       // [
       //   'Parse error on line 2:',
