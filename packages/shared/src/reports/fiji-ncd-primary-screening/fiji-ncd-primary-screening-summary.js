@@ -216,11 +216,11 @@ const getData = async (sequelize, parameters) => {
     medicalArea,
     nursingZone,
     division,
-    surveyIds = Object.keys(REFERRAL_SCREENING_FORM_MAPPING).join(', '),
+    surveyIds = Object.keys(REFERRAL_SCREENING_FORM_MAPPING),
   } = parameters;
 
   let results = [];
-  for (const surveyId of surveyIds.split(', ')) {
+  for (const surveyId of surveyIds) {
     const resultsForSurvey = await sequelize.query(
       `
         SELECT
@@ -264,7 +264,7 @@ const getTotalPatientsScreened = async (sequelize, parameters) => {
     medicalArea,
     nursingZone,
     division,
-    surveyIds = Object.keys(REFERRAL_SCREENING_FORM_MAPPING).join(', '),
+    surveyIds = Object.keys(REFERRAL_SCREENING_FORM_MAPPING),
   } = parameters;
 
   const queryFromDate = fromDate && toDateTimeString(startOfDay(parseISO(fromDate)));
@@ -286,7 +286,7 @@ const getTotalPatientsScreened = async (sequelize, parameters) => {
     {
       type: sequelize.QueryTypes.SELECT,
       replacements: {
-        screening_survey_ids: surveyIds.split(', '),
+        screening_survey_ids: surveyIds,
         referral_survey_id: null,
         from_date: queryFromDate,
         to_date: queryToDate,

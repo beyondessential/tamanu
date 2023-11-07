@@ -19,7 +19,7 @@ import {
   LocationAvailabilityWarningMessage,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { ModalActionRow } from '../components/ModalActionRow';
+import { ModalFormActionRow } from '../components/ModalActionRow';
 import { NestedVitalsModal } from '../components/NestedVitalsModal';
 import { useApi, useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
@@ -121,7 +121,7 @@ export const TriageForm = ({
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <ModalActionRow confirmText="Submit" onConfirm={submitForm} onCancel={onCancel} />
+        <ModalFormActionRow confirmText="Submit" onConfirm={submitForm} onCancel={onCancel} />
       </FormGrid>
     );
   };

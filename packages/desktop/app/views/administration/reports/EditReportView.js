@@ -34,7 +34,7 @@ const getInitialValues = (version, report) => {
     status,
     dbSchema,
     ...options,
-    dataSources: dataSources?.join(', '),
+    dataSources,
   };
 };
 
@@ -62,7 +62,7 @@ export const EditReportView = () => {
     const payload = {
       queryOptions: {
         ...queryOptions,
-        dataSources: dataSources.split(', '),
+        dataSources,
       },
       query,
       status,

@@ -5,7 +5,7 @@ import * as yup from 'yup';
 
 import { Form, Field, AutocompleteField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { ConfirmCancelRow } from '../components/ButtonRow';
+import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { useEncounter } from '../contexts/Encounter';
 
 export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }) => {
@@ -19,7 +19,7 @@ export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }
         suggester={departmentSuggester}
         required
       />
-      <ConfirmCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onCancel} />
+      <FormSubmitCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onCancel} />
     </FormGrid>
   );
 
