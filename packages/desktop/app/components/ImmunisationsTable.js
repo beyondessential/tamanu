@@ -39,7 +39,9 @@ const getGiver = record => {
       <TranslatedText stringId="vaccine.table.status.givenElsewhere" fallback="Given elsewhere" />
     );
   }
-  return record.givenBy || <TranslatedText stringId="general.unknown" fallback="Unknown" />;
+  return (
+    record.givenBy || <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />
+  );
 };
 const getFacility = record => {
   const facility = record.givenElsewhere ? record.givenBy : record.location?.facility?.name;
