@@ -12,7 +12,7 @@ const ENCOUNTER_TYPE_TO_STATUS = {
   [ENCOUNTER_TYPES.TRIAGE]: PATIENT_STATUS.EMERGENCY,
 };
 
-const STATUS_TO_TRANSLATION = {
+const STATUS_TO_LABEL = {
   [PATIENT_STATUS.INPATIENT]: (
     <TranslatedText stringId="patient.table.status.inpatient" fallback="Inpatient" />
   ),
@@ -28,5 +28,5 @@ export const getPatientStatus = encounterType => {
   if (!encounterType) {
     return '';
   }
-  return STATUS_TO_TRANSLATION[ENCOUNTER_TYPE_TO_STATUS[encounterType]];
+  return STATUS_TO_LABEL[ENCOUNTER_TYPE_TO_STATUS[encounterType]];
 };
