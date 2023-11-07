@@ -33,7 +33,7 @@ const saveChangesForModel = async (
       select: ['id', 'deletedAt'],
       withDeleted: true,
     });
-    batchOfExisting.map(e => {
+    batchOfExisting.forEach(e => {
       if (e.deletedAt) {
         idsForRestore.add(e.id);
       } else {
