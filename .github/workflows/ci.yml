@@ -149,8 +149,19 @@ jobs:
           cache: yarn
 
       - name: Install and start postgres
-        run: .github/scripts/install-postgres-ubuntu.sh 14
-      - run: .github/scripts/test-facility-offline.sh
+        run: |
+          source .github/scripts/install-postgres-ubuntu.sh 14
+          .github/scripts/test-facility-offline.sh setup-postgre
+      - name: Build central and facility servers
+        run: .github/scripts/test-facility-offline.sh build
+      - name: Start a central server
+        run: .github/scripts/test-facility-offline.sh central-start
+      - name: Start a facility server
+        run: .github/scripts/test-facility-offline.sh facility-start
+      - name: Stop the servers and print logs
+        run: .github/scripts/test-facility-offline.sh stop-and-print
+      - name: Start a facility server again without a central one
+        run: .github/scripts/test-facility-offline.sh facility-start-again
 
   # Dummy job to have a stable name for PR requirements
   tests-pass:
