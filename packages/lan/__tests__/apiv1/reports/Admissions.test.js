@@ -4,11 +4,11 @@ import {
   createDummyEncounterDiagnosis,
   randomRecord,
   randomReferenceData,
-} from 'shared/demoData';
+} from '@tamanu/shared/demoData';
 import { subDays } from 'date-fns';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { findOneOrCreate } from 'shared/test-helpers';
-import { format } from 'shared/utils/dateTime';
+import { findOneOrCreate } from '@tamanu/shared/test-helpers';
+import { format } from '@tamanu/shared/utils/dateTime';
 import { Op } from 'sequelize';
 import { createTestContext } from '../../utilities';
 

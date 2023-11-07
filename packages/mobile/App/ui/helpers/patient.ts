@@ -1,4 +1,5 @@
 import { differenceInWeeks, parseISO } from 'date-fns';
+import { IPatientAdditionalData } from '~/types';
 
 export enum VaccineStatus {
   UNKNOWN = 'UNKNOWN',
@@ -129,3 +130,21 @@ function createIdGenerator(format): () => {} {
 }
 
 export const generateId = createIdGenerator('AAAA000000');
+
+export const getFieldData = (data: IPatientAdditionalData, fieldName: string): string => {
+  // Field is reference data
+  if (fieldName.slice(-2) === 'Id') {
+    const actualName = fieldName.slice(0, -2);
+    return data?.[actualName]?.name;
+  }
+
+  // Field is a string field
+  return data?.[fieldName];
+};
+
+export const getConfiguredPatientAdditionalDataFields = (fields, showMandatory, getBool) => {
+  return fields.filter(fieldName => {
+    const requiredPatientData = getBool(`fields.${fieldName}.requiredPatientData`);
+    return !!requiredPatientData === showMandatory;
+  });
+};

@@ -5,7 +5,7 @@ import { NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
 
-import { Modal } from './Modal';
+import { FormModal } from './FormModal';
 import { NoteForm } from '../forms/NoteForm';
 import { ConfirmModal } from './ConfirmModal';
 import { useAuth } from '../contexts/Auth';
@@ -95,7 +95,7 @@ export const NoteModal = ({
         }}
         customContent={<p>Are you sure you want to remove any changes you have made?</p>}
       />
-      <Modal
+      <FormModal
         title={title}
         open={open}
         width="lg"
@@ -125,7 +125,7 @@ export const NoteModal = ({
           noteContent={noteContent}
           setNoteContent={setNoteContent}
         />
-      </Modal>
+      </FormModal>
     </>
   );
 };
