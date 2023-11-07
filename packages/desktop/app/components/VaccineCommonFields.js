@@ -59,41 +59,33 @@ const VACCINE_FIELD_CATEGORY_OPTIONS = [
 const VACCINE_FIELD_INJECTION_SITE_OPTIONS = [
   {
     value: INJECTION_SITE_OPTIONS.LEFT_ARM,
-    label: (
-      <TranslatedText stringId="vaccine.form.injectionSite.option.leftArm" fallback="Left arm" />
-    ),
+    label: <TranslatedText stringId="vaccine.property.injectionSite.leftArm" fallback="Left arm" />,
   },
   {
     value: INJECTION_SITE_OPTIONS.RIGHT_ARM,
     label: (
-      <TranslatedText stringId="vaccine.form.injectionSite.option.rightArm" fallback="Right arm" />
+      <TranslatedText stringId="vaccine.property.injectionSite.rightArm" fallback="Right arm" />
     ),
   },
   {
     value: INJECTION_SITE_OPTIONS.LEFT_THIGH,
     label: (
-      <TranslatedText
-        stringId="vaccine.form.injectionSite.option.leftThigh"
-        fallback="Left thigh"
-      />
+      <TranslatedText stringId="vaccine.property.injectionSite.leftThigh" fallback="Left thigh" />
     ),
   },
   {
     value: INJECTION_SITE_OPTIONS.RIGHT_THIGH,
     label: (
-      <TranslatedText
-        stringId="vaccine.form.injectionSite.option.rightThigh"
-        fallback="Right thigh"
-      />
+      <TranslatedText stringId="vaccine.property.injectionSite.rightThigh" fallback="Right thigh" />
     ),
   },
   {
     value: INJECTION_SITE_OPTIONS.ORAL,
-    label: <TranslatedText stringId="vaccine.form.injectionSite.option.oral" fallback="Oral" />,
+    label: <TranslatedText stringId="vaccine.property.injectionSite.oral" fallback="Oral" />,
   },
   {
     value: INJECTION_SITE_OPTIONS.OTHER,
-    label: <TranslatedText stringId="vaccine.form.injectionSite.option.Other" fallback="Other" />,
+    label: <TranslatedText stringId="vaccine.property.injectionSite.Other" fallback="Other" />,
   },
 ];
 
