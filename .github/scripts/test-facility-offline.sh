@@ -16,7 +16,7 @@ test_facility_offline_setup_postgre() {
 	psql -c "ALTER USER \"admin\" PASSWORD 'lan';" lan
 }
 
-# Build both the facility and central servers.
+# Build both the facility Testnd central servers.
 test_facility_offline_build() {
 	yarn
 	yarn build-shared
@@ -60,7 +60,7 @@ test_facility_offline_central_start() {
 	}
 	EOF
 	# specify ports for consistency
-	yarn workspace sync-server start migrate
+	yarn workspace sync-server start migrate # provisioning happens before migration at `serveAll.js` `serveAll` function. Is there any reason?
 	nohup yarn workspace sync-server start --provisioning provisioning.kdl > central-server.out &
 	echo "CENTRAL_SERVER_PID=$!" >> $GITHUB_ENV
 	curl --retry 8 --retry-connrefused localhost:3000
@@ -95,8 +95,8 @@ test_facility_offline_facility_start() {
 }
 
 test_facility_offline_stop_and_print() {
-	kill -SIGINT -$CENTRAL_SERVER_PID
-	kill -SIGINT -$FACILITY_SERVER_PID
+	kill -2 -$CENTRAL_SERVER_PID
+	kill -2 -$FACILITY_SERVER_PID
 	cat central-server.out
 	cat facility-server.out
 }
@@ -104,7 +104,7 @@ test_facility_offline_stop_and_print() {
 test_facility_offline_facility_start_again() {
 	yarn workspace lan start &
 	curl --retry 8 --retry-connrefused localhost:4000
-	kill -SIGINT -$!
+	kill -2 -$!
 }
 
 test_facility_offline_$( echo $1 | sed "s/-/_/g" )
