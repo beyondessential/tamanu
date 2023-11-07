@@ -46,7 +46,7 @@ jobs:
         if: matrix.postgres
         run: |
           source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
-          .github/scripts/setup-postgres-one.sh ${{ matrix.package }}
+          .github/scripts/setup-postgres-for-one-package.sh ${{ matrix.package }}
 
       - name: Run tests
         env:
@@ -111,7 +111,7 @@ jobs:
       - name: Install and start postgres ${{ matrix.postgres }}
         run: |
           source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
-          .github/scripts/setup-postgres-one.sh migrations
+          .github/scripts/setup-postgres-for-one-package.sh migrations
 
       - run: scripts/apply_and_revert_server_migrations.sh ${{ matrix.server }}
 
@@ -173,6 +173,7 @@ jobs:
       - lint
       - migrations
       - test-mobile
+      - test-facility-offline
     runs-on: ubuntu-latest
     steps:
       # fail if ANY dependency has failed or been skipped or cancelled
