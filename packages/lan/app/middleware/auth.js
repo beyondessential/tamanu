@@ -119,7 +119,7 @@ async function centralServerLoginWithLocalFallback(models, email, password, devi
     }
 
     // if it is forbidden, throw the error instead of proceeding to local login
-    if (e.centralServerResponse.status === 403) {
+    if (e.centralServerResponse?.status === 403) {
       throw e.centralServerResponse.body.error;
     }
 
