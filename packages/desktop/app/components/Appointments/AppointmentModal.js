@@ -1,12 +1,12 @@
 import React from 'react';
 
-import { Modal } from '../Modal';
+import { FormModal } from '../FormModal';
 import { AppointmentForm } from './AppointmentForm';
 
 export const AppointmentModal = ({ open, onClose, onSuccess, appointment }) => {
   const isUpdating = !!appointment;
   return (
-    <Modal
+    <FormModal
       width="md"
       title={isUpdating ? 'Update appointment' : 'Create new appointment'}
       open={open}
@@ -20,6 +20,6 @@ export const AppointmentModal = ({ open, onClose, onSuccess, appointment }) => {
           onSuccess();
         }}
       />
-    </Modal>
+    </FormModal>
   );
 };

@@ -2,7 +2,7 @@ import config from 'config';
 import * as yup from 'yup';
 import { defaultsDeep } from 'lodash';
 
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 import { IMAGING_TYPES } from '@tamanu/constants';
 
 const fieldSchema = yup
@@ -474,6 +474,7 @@ const rootLocalisationSchema = yup
       .noUnknown(),
     printMeasures: printMeasuresSchema,
     disabledReports: yup.array(yup.string().required()).defined(),
+    supportDeskUrl: yup.string().required(),
     ageDisplayFormat: yup
       .array(
         yup.object({

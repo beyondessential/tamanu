@@ -1,5 +1,5 @@
 import config from 'config';
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 import { CentralServerConnection } from '../sync';
 
 export async function performDatabaseIntegrityChecks(context) {

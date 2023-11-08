@@ -16,7 +16,7 @@ import { useLocalisation } from '../../../contexts/Localisation';
 import { useElectron } from '../../../contexts/Electron';
 import { useApi, useSuggester } from '../../../api';
 
-import { Button } from '../../../components/Button';
+import { Button, FormSubmitButton } from '../../../components/Button';
 import { ContentPane } from '../../../components/ContentPane';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { ButtonRow } from '../../../components/ButtonRow';
@@ -235,7 +235,7 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
             <h4>{imagingRequest.results.length > 0 ? 'Add additional result' : 'Add result'}</h4>
             <NewResultSection disabled={!canAddResult} />
             <ButtonRow style={{ marginTop: 20 }}>
-              {!isCancelled && <Button type="submit">Save</Button>}
+              {!isCancelled && <FormSubmitButton text="Save" />}
             </ButtonRow>
           </>
         );

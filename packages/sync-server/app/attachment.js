@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { ForbiddenError, InsufficientStorageError } from 'shared/errors';
+import { ForbiddenError, InsufficientStorageError } from '@tamanu/shared/errors';
 import { canUploadAttachment } from './utils/getFreeDiskSpace';
 
 export const attachmentRoutes = express.Router();

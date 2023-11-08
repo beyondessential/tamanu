@@ -1,4 +1,4 @@
-import { fake } from 'shared/test-helpers/fake';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { DEFAULT_JWT_SECRET } from '../../app/auth';
 import { verifyToken } from '../../app/auth/utils';
 import { genToken } from '../../app/subCommands/apiKeys/issue';

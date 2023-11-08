@@ -6,10 +6,10 @@ import {
   randomReferenceData,
   randomRecordId,
   randomReferenceIds,
-} from 'shared/demoData';
+} from '@tamanu/shared/demoData';
 import { subDays } from 'date-fns';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { toDateTimeString } from 'shared/utils/dateTime';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../../utilities';
 
 describe('Recent Diagnoses report', () => {

@@ -75,17 +75,22 @@ export const PatientResultsPane = React.memo(({ patient }) => {
         patientId={patient?.id}
       />
       <ContentPane>
-        {!canViewLabRequestResults && <WrongPermissionMessage />}
-        {noResults && <NoResultsMessage />}
-        {isInitialLoad && <LoadingIndicator height={400} />}
-        {dirty && (
-          <PatientLabTestsTable
-            patient={patient}
-            searchParameters={searchParameters}
-            labTests={data?.data}
-            count={data?.count}
-            isLoading={isLoading}
-          />
+        {!canViewLabRequestResults ? (
+          <WrongPermissionMessage />
+        ) : (
+          <>
+            {noResults && <NoResultsMessage />}
+            {isInitialLoad && <LoadingIndicator height={400} />}
+            {dirty && (
+              <PatientLabTestsTable
+                patient={patient}
+                searchParameters={searchParameters}
+                labTests={data?.data}
+                count={data?.count}
+                isLoading={isLoading}
+              />
+            )}
+          </>
         )}
       </ContentPane>
     </>

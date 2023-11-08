@@ -1,5 +1,5 @@
 import { REFERENCE_TYPES } from '@tamanu/constants';
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 
 export class VRSPatientAdapter {
   store = null;

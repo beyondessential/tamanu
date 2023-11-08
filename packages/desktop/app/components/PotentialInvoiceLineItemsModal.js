@@ -1,10 +1,10 @@
 import React from 'react';
 import { INVOICE_LINE_TYPE_LABELS } from '@tamanu/constants';
 import { useApi } from '../api';
-import { Modal } from './Modal';
 import { ConfirmCancelRow } from './ButtonRow';
 import { DateDisplay } from './DateDisplay';
 import { DataFetchingTable } from './Table';
+import { Modal } from './Modal';
 
 const COLUMNS = [
   { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} /> },

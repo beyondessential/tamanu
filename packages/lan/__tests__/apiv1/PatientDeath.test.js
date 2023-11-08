@@ -1,6 +1,6 @@
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
-import { fake } from 'shared/test-helpers/fake';
-import { toDateString } from 'shared/utils/dateTime';
+import { fake } from '@tamanu/shared/test-helpers/fake';
+import { toDateString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 describe('PatientDeath', () => {
