@@ -36,24 +36,24 @@ const getFacility = ({ facilityName }) => <FacilityWrapper>{facilityName}</Facil
 const columns = [
   {
     key: 'startDate',
-    title: <TranslatedText stringId="general.form.date.label" fallback="Date" />,
+    title: <TranslatedText stringId="patientHistory.table.column.startDate" fallback="Date" />,
     accessor: getDate,
   },
   {
     key: 'encounterType',
-    title: <TranslatedText stringId="general.form.type.label" fallback="Type" />,
+    title: <TranslatedText stringId="patientHistory.table.column.encounterType" fallback="Type" />,
     accessor: getType,
     sortable: false,
   },
   {
     key: 'facilityName',
-    title: <TranslatedText stringId="general.form.facilityName.label" fallback="Facility" />,
+    title: <TranslatedText stringId="general.table.column.facilityName" fallback="Facility" />,
     accessor: getFacility,
     CellComponent: LimitedLinesCell,
   },
   {
     key: 'locationGroupName',
-    title: <TranslatedText stringId="general.form.area.label" fallback="Area" />,
+    title: <TranslatedText stringId="general.table.column.area" fallback="Area" />,
     accessor: LocationGroupCell,
     CellComponent: LimitedLinesCell,
   },
@@ -61,7 +61,7 @@ const columns = [
     key: 'reasonForEncounter',
     title: (
       <TranslatedText
-        stringId="encounter.form.reasonForEncounter.label"
+        stringId="patientHistory.table.column.reasonForEncounter"
         fallback="Reason for encounter"
       />
     ),

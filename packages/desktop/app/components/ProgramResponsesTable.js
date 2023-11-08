@@ -4,6 +4,7 @@ import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { SurveyResultBadge } from './SurveyResultBadge';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const getDate = ({ endTime }) => <DateDisplay date={endTime} />;
 const getSubmittedBy = ({ submittedBy }) => submittedBy;
@@ -12,11 +13,33 @@ const getSurveyName = ({ surveyName }) => surveyName;
 const getResults = ({ resultText }) => <SurveyResultBadge resultText={resultText} />;
 
 const columns = [
-  { key: 'endTime', title: 'Date submitted', accessor: getDate },
-  { key: 'submittedBy', title: 'Submitted by', accessor: getSubmittedBy },
-  { key: 'programName', title: 'Program', accessor: getProgramName },
-  { key: 'surveyName', title: 'Survey', accessor: getSurveyName },
-  { key: 'resultText', title: 'Results', accessor: getResults },
+  {
+    key: 'endTime',
+    title: (
+      <TranslatedText stringId="program.table.column.submittedDate" fallback="Date submitted" />
+    ),
+    accessor: getDate,
+  },
+  {
+    key: 'submittedBy',
+    title: <TranslatedText stringId="program.table.column.submittedBy" fallback="Submitted by" />,
+    accessor: getSubmittedBy,
+  },
+  {
+    key: 'programName',
+    title: <TranslatedText stringId="program.table.column.programName" fallback="Program" />,
+    accessor: getProgramName,
+  },
+  {
+    key: 'surveyName',
+    title: <TranslatedText stringId="program.table.column.surveyName" fallback="Survey" />,
+    accessor: getSurveyName,
+  },
+  {
+    key: 'resultText',
+    title: <TranslatedText stringId="program.table.column.resultText" fallback="Results" />,
+    accessor: getResults,
+  },
 ];
 
 export const DataFetchingProgramsTable = ({ endpoint }) => {
