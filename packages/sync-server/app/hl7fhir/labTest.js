@@ -1,6 +1,6 @@
 import config from 'config';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
-import { convertISO9075toRFC3339 } from 'shared/utils/dateTime';
+import { convertISO9075toRFC3339 } from '@tamanu/shared/utils/dateTime';
 
 import { labTestTypeToLOINCCode } from './loinc';
 

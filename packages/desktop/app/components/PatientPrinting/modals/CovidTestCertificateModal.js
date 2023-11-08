@@ -30,15 +30,14 @@ export const CovidTestCertificateModal = React.memo(({ patient }) => {
   }, [api, patient.id]);
 
   const createCovidTestCertNotification = useCallback(
-    data => {
+    data =>
       api.post('certificateNotification', {
         type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
         requireSigning: false,
         patientId: patient.id,
         forwardAddress: data.email,
         createdBy: printedBy,
-      });
-    },
+      }),
     [api, patient.id, printedBy],
   );
 

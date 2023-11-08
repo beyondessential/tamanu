@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useLocalisation } from '../contexts/Localisation';
-import { Modal } from './Modal';
+import { FormModal } from './FormModal';
 import { Colors } from '../constants';
 import { TriageForm } from '../forms/TriageForm';
 import { DateDisplay } from './DateDisplay';
@@ -68,7 +68,7 @@ export const TriageModal = React.memo(
     ));
 
     return (
-      <Modal title="New emergency triage" open={open} width="md" onClose={onClose}>
+      <FormModal title="New emergency triage" open={open} width="md" onClose={onClose}>
         <Header>Patient details</Header>
         <PatientDetails>
           <Grid>{detailsFields}</Grid>
@@ -80,7 +80,7 @@ export const TriageModal = React.memo(
           onCancel={onClose}
           patient={patient}
         />
-      </Modal>
+      </FormModal>
     );
   },
 );

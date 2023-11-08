@@ -1,5 +1,5 @@
 import { sub } from 'date-fns';
-import { toDateString } from 'shared/utils/dateTime';
+import { toDateString } from '@tamanu/shared/utils/dateTime';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 
 import { makeFilter } from './query';

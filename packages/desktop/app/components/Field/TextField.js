@@ -111,11 +111,11 @@ export const TallMultilineTextField = props => (
 
 export const ReadOnlyTextField = ({ field, ...props }) => (
   <TextInput
-    disabled
     name={field.name}
     value={field.value || ''}
     onChange={field.onChange}
     {...props}
+    disabled
   />
 );
 

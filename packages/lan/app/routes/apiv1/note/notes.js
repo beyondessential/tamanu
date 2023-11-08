@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { NotFoundError, ForbiddenError } from 'shared/errors';
+import { NotFoundError, ForbiddenError } from '@tamanu/shared/errors';
 import { NOTE_RECORD_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { checkNotePermission } from '../../../utils/checkNotePermission';

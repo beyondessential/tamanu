@@ -3,8 +3,8 @@ import {
   createDummyEncounter,
   createDummyPatient,
   randomReferenceId,
-} from 'shared/demoData/patients';
-import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
+} from '@tamanu/shared/demoData/patients';
+import { createAdministeredVaccine, createScheduledVaccine } from '@tamanu/shared/demoData/vaccines';
 import { createTestContext } from '../../utilities';
 import { parseISO } from 'date-fns';
 

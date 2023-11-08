@@ -1,6 +1,6 @@
 import { REFERENCE_TYPES } from '@tamanu/constants';
-import { createDummyPatient } from 'shared/demoData/patients';
-import { parseDate } from 'shared/utils/dateTime';
+import { createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { parseDate } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { exporter } from '../../app/admin/exporter';
 import { writeExcelFile } from '../../app/admin/exporter/excelUtils';
@@ -509,6 +509,44 @@ describe('Permission and Roles exporter', () => {
         },
         {
           data: [],
+          name: 'Role',
+        },
+      ],
+      '',
+    );
+  });
+
+  it('Should have a single row for each object id', async () => {
+    await createRole(models, { id: 'reception', name: 'Reception' });
+    await createPermission(models, {
+      verb: 'run',
+      noun: 'Report',
+      objectId: 'new-patients',
+      roleId: 'reception',
+    });
+    await createPermission(models, {
+      verb: 'run',
+      noun: 'Report',
+      objectId: 'new-encounters',
+      roleId: 'reception',
+    });
+
+    await exporter(models, { 1: 'permission', 2: 'role' });
+    expect(writeExcelFile).toBeCalledWith(
+      [
+        {
+          data: [
+            ['verb', 'noun', 'objectId', 'reception'],
+            ['run', 'Report', 'new-patients', 'y'],
+            ['run', 'Report', 'new-encounters', 'y'],
+          ],
+          name: 'Permission',
+        },
+        {
+          data: [
+            ['id', 'name'],
+            ['reception', 'Reception'],
+          ],
           name: 'Role',
         },
       ],

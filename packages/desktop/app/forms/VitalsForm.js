@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { ModalLoader, ConfirmCancelRow, Form } from '../components';
+import { ModalLoader, FormSubmitCancelRow, Form } from '../components';
 import { SurveyScreen } from '../components/Surveys';
 import { combineQueries } from '../api/combineQueries';
 import { useVitalsSurveyQuery, usePatientAdditionalDataQuery } from '../api/queries';
@@ -11,15 +11,23 @@ import { ForbiddenErrorModalContents } from '../components/ForbiddenErrorModal';
 import { Modal } from '../components/Modal';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
+import { useEncounter } from '../contexts/Encounter';
 
-export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
+export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterType }) => {
   const {
     data: [vitalsSurvey, patientAdditionalData],
     isLoading,
     isError,
     error,
   } = combineQueries([useVitalsSurveyQuery(), usePatientAdditionalDataQuery()]);
-  const validationSchema = useMemo(() => getValidationSchema(vitalsSurvey), [vitalsSurvey]);
+  const { encounter } = useEncounter();
+  const validationSchema = useMemo(
+    () =>
+      getValidationSchema(vitalsSurvey, {
+        encounterType: encounterType || encounter?.encounterType,
+      }),
+    [vitalsSurvey, encounter?.encounterType, encounterType],
+  );
   const { ability } = useAuth();
   const canCreateVitals = ability.can('create', 'Vitals');
 
@@ -45,9 +53,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
     );
   }
 
-  const handleSubmit = data => {
-    onSubmit({ survey: vitalsSurvey, ...data });
-  };
+  const handleSubmit = async data => onSubmit({ survey: vitalsSurvey, ...data });
 
   return (
     <Form
@@ -76,8 +82,9 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
           values={values}
           setFieldValue={setFieldValue}
           submitButton={
-            <ConfirmCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onClose} />
+            <FormSubmitCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onClose} />
           }
+          encounterType={encounterType}
         />
       )}
     />

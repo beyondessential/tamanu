@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { simpleGet, simplePut, simplePost } from 'shared/utils/crudHelpers';
+import { simpleGet, simplePut, simplePost } from '@tamanu/shared/utils/crudHelpers';
 
 export const diagnosis = express.Router();
 

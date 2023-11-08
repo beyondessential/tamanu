@@ -5,7 +5,7 @@ import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { useQueryClient } from '@tanstack/react-query';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { ConfirmCancelRow } from '../components/ButtonRow';
+import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { SelectField, Form, Field, OuterLabelFieldWrapper } from '../components/Field';
 import { useLocalisation } from '../contexts/Localisation';
 import { FormGrid } from '../components/FormGrid';
@@ -91,7 +91,9 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
   const showDeleteEntryButton = ['', undefined].includes(initialValue) === false;
   const valueName = dataPoint.component.dataElement.id;
   const editVitalData = getEditVitalData(dataPoint.component, mandatoryVitalEditReason);
-  const validationSchema = getValidationSchema(editVitalData);
+  const validationSchema = getValidationSchema(editVitalData, {
+    encounterType: encounter.encounterType,
+  });
   const handleDeleteEntry = useCallback(
     setFieldValue => {
       setFieldValue(valueName, '');
@@ -174,7 +176,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
               ))}
             </Box>
           </OuterLabelFieldWrapper>
-          <ConfirmCancelRow onCancel={handleClose} onConfirm={submitForm} confirmText="Save" />
+          <FormSubmitCancelRow onCancel={handleClose} onConfirm={submitForm} confirmText="Save" />
         </FormGrid>
       )}
     />

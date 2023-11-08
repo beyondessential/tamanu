@@ -7,5 +7,5 @@ export interface ILocation {
   code: string;
   name: string;
   facility?: IFacility;
-  visibilityStatus: VisibilityStatus.Current,
+  visibilityStatus: VisibilityStatus.Current;
 }

@@ -1,5 +1,5 @@
-import { format } from 'shared/utils/dateTime';
-import { createDummyPatient, randomReferenceIds } from 'shared/demoData/patients';
+import { format } from '@tamanu/shared/utils/dateTime';
+import { createDummyPatient, randomReferenceIds } from '@tamanu/shared/demoData/patients';
 import { createTestContext } from '../../utilities';
 
 const PROGRAM_ID = 'program-assistivetechnologyproject';

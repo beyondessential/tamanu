@@ -10,6 +10,8 @@ export * from './FormSeparatorLine';
 export * from './FormGrid';
 export * from './FormTooltip';
 export * from './Layout';
+export * from './BaseModal';
+export * from './FormModal';
 export * from './Modal';
 export * from './ModalActionRow';
 export * from './MenuButton';
