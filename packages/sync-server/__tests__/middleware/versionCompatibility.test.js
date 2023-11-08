@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
+import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { SUPPORTED_CLIENT_VERSIONS } from '../../app/middleware/versionCompatibility';
 

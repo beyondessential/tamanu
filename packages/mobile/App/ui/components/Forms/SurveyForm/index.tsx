@@ -1,18 +1,28 @@
-import React, { ReactElement, useMemo, useEffect, useCallback, useState } from 'react';
+import React, { ReactElement, useMemo, useEffect, useCallback, useState, Dispatch, SetStateAction } from 'react';
 import { useSelector } from 'react-redux';
 import { getFormInitialValues, getFormSchema } from './helpers';
+import { ISurveyScreenComponent, IPatientAdditionalData } from '~/types';
 import { Form } from '../Form';
 import { FormFields } from './FormFields';
 import { checkVisibilityCriteria } from '/helpers/fields';
 import { runCalculations } from '~/ui/helpers/calculations';
 import { authUserSelector } from '/helpers/selectors';
+import { useBackendEffect } from '~/ui/hooks';
+import { ErrorScreen } from '../../ErrorScreen';
+import { LoadingScreen } from '../../LoadingScreen';
 
 export type SurveyFormProps = {
   onSubmit: (values: any) => Promise<void>;
-  components: any;
+  openExitModal: () => Promise<void>;
+  components: ISurveyScreenComponent[];
+  onCancel?: () => Promise<void>;
+  onGoBack?: () => void;
   patient: any;
   note: string;
-  validate: any;
+  validate?: any;
+  patientAdditionalData: IPatientAdditionalData;
+  setCurrentScreenIndex: Dispatch<SetStateAction<number>>;
+  currentScreenIndex: number;
 };
 
 export const SurveyForm = ({
@@ -20,19 +30,39 @@ export const SurveyForm = ({
   components,
   note,
   patient,
+  patientAdditionalData,
   validate,
+  onCancel,
+  setCurrentScreenIndex,
+  currentScreenIndex,
+  onGoBack,
 }: SurveyFormProps): ReactElement => {
   const currentUser = useSelector(authUserSelector);
-  const initialValues = useMemo(() => getFormInitialValues(components, currentUser, patient), [
-    components,
-  ]);
+  const initialValues = useMemo(
+    () => getFormInitialValues(components, currentUser, patient, patientAdditionalData),
+    [components, currentUser, patient, patientAdditionalData],
+  );
+  const [encounterResult, encounterError, isEncounterLoading] = useBackendEffect(
+    async ({ models }) => {
+      const encounter = await models.Encounter.getCurrentEncounterForPatient(patient.id);
+      return {
+        encounter,
+      };
+    },
+    [patient.id],
+  );
+
+  const { encounter } = encounterResult || {};
   const [formValues, setFormValues] = useState(initialValues);
-  const formValidationSchema = useMemo(() => getFormSchema(components.filter(c => checkVisibilityCriteria(c, components, formValues))), [
-    checkVisibilityCriteria,
-    components,
-    formValues,
-  ]);
-  
+  const formValidationSchema = useMemo(
+    () =>
+      getFormSchema(
+        components.filter(c => checkVisibilityCriteria(c, components, formValues)),
+        { encounterType: encounter?.encounterType },
+      ),
+    [encounter?.encounterType, checkVisibilityCriteria, components, formValues],
+  );
+
   const submitVisibleValues = useCallback(
     (values: any) => {
       // 1. get a list of visible fields
@@ -52,6 +82,14 @@ export const SurveyForm = ({
     },
     [components, onSubmit],
   );
+
+  if (encounterError) {
+    return <ErrorScreen error={encounterError} />;
+  }
+
+  if (isEncounterLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <Form
@@ -77,9 +115,18 @@ export const SurveyForm = ({
             ...values,
             ...calculatedValues,
           });
-
         }, [values]);
-        return <FormFields components={components} note={note} patient={patient} />;
+        return (
+          <FormFields
+            components={components}
+            note={note}
+            patient={patient}
+            onCancel={onCancel}
+            setCurrentScreenIndex={setCurrentScreenIndex}
+            currentScreenIndex={currentScreenIndex}
+            onGoBack={onGoBack}
+          />
+        );
       }}
     </Form>
   );

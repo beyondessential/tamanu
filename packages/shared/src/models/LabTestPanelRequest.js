@@ -1,4 +1,4 @@
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
@@ -26,7 +26,7 @@ export class LabTestPanelRequest extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds, sessionConfig) {
+  static buildPatientSyncFilter(patientIds, sessionConfig) {
     if (sessionConfig.syncAllLabRequests) {
       return ''; // include all lab panel requests
     }

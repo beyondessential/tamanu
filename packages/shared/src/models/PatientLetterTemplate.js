@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '../constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateType } from './dateTimeTypes';
 import { getCurrentDateString } from '../utils/dateTime';
@@ -43,5 +43,9 @@ export class PatientLetterTemplate extends Model {
 
   static getListReferenceAssociations() {
     return ['createdBy'];
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 }

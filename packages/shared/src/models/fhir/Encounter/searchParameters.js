@@ -2,7 +2,7 @@ import {
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_TOKEN_TYPES,
   FHIR_DATETIME_PRECISION,
-} from '../../../constants';
+} from '@tamanu/constants';
 
 export const searchParameters = {
   class: {

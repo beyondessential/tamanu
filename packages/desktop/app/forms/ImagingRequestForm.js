@@ -24,11 +24,11 @@ import {
   SelectField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { OutlinedButton } from '../components/Button';
+import { FormCancelButton } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
-import { DropdownButton } from '../components/DropdownButton';
+import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import { useLocalisedText } from '../components';
 
 function getEncounterTypeLabel(type) {
@@ -36,7 +36,7 @@ function getEncounterTypeLabel(type) {
 }
 
 function getEncounterLabel(encounter) {
-  const encounterDate = DateDisplay.rawFormat(encounter.startDate);
+  const encounterDate = DateDisplay.stringFormat(encounter.startDate);
   const encounterTypeLabel = getEncounterTypeLabel(encounter.encounterType);
   return `${encounterDate} (${encounterTypeLabel})`;
 }
@@ -72,7 +72,7 @@ const FormSubmitActionDropdown = React.memo(({ requestId, encounter, submitForm 
     { label: 'Finalise & print', onClick: finaliseAndPrint },
   ];
 
-  return <DropdownButton actions={actions} />;
+  return <FormSubmitDropdownButton actions={actions} />;
 });
 
 export const ImagingRequestForm = React.memo(
@@ -174,7 +174,7 @@ export const ImagingRequestForm = React.memo(
                 rows={3}
               />
               <ButtonRow>
-                <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
+                <FormCancelButton onClick={onCancel}>Cancel</FormCancelButton>
                 <FormSubmitActionDropdown
                   requestId={requestId}
                   encounter={encounter}

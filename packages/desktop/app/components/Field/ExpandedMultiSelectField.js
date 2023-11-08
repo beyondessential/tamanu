@@ -34,6 +34,7 @@ export const ExpandedMultiSelectField = ({
   label,
   value: propsValue,
   onChange: propsOnChange,
+  selectAllOptionLabel = 'Select all',
   ...props
 }) => {
   const { name: fieldName } = field;
@@ -55,7 +56,7 @@ export const ExpandedMultiSelectField = ({
       <ScrollingContainer>
         <MultiSelectItem key="select_all">
           <CheckInput
-            label="Select all"
+            label={selectAllOptionLabel}
             value={currentList.length === options.length}
             onChange={e => {
               const { checked } = e.target;

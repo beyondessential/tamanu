@@ -1,5 +1,5 @@
-import { VISIBILITY_STATUSES } from 'shared/constants';
-import { fake } from 'shared/test-helpers/fake';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 
 import { createTestContext } from '../../utilities';
 

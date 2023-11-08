@@ -5,7 +5,7 @@ import {
   REPORT_STATUSES,
   REPORT_STATUSES_VALUES,
   REPORT_DEFAULT_DATE_RANGES_VALUES,
-} from '../constants';
+} from '@tamanu/constants';
 import { Model } from './Model';
 import { getReportQueryReplacements } from '../utils/reports/getReportQueryReplacements';
 
@@ -118,20 +118,27 @@ export class ReportDefinitionVersion extends Model {
     return options.parameters;
   }
 
-  async dataGenerator(context, parameters) {
-    const { sequelize } = context;
+  async dataGenerator({ models, sequelize, reportSchemaStores }, parameters) {
     const reportQuery = this.get('query');
 
     const queryOptions = this.getQueryOptions();
 
     const replacements = await getReportQueryReplacements(
-      context,
+      { models },
       queryOptions.parameters,
       parameters,
       queryOptions.defaultDateRange,
     );
 
-    const queryResults = await sequelize.query(reportQuery, {
+    const definition = await this.getReportDefinition();
+
+    const instance = reportSchemaStores
+      ? reportSchemaStores[definition.dbSchema]?.sequelize
+      : sequelize;
+    if (!instance) {
+      throw new Error(`No reporting instance found for ${definition.dbSchema}`);
+    }
+    const queryResults = await instance.query(reportQuery, {
       type: QueryTypes.SELECT,
       replacements,
     });
@@ -153,5 +160,9 @@ export class ReportDefinitionVersion extends Model {
         userId,
       }),
     };
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 }

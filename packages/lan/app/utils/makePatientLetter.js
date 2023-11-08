@@ -5,10 +5,11 @@ import { get } from 'lodash';
 import { v4 as uuid } from 'uuid';
 import { tmpdir, PatientLetter } from '@tamanu/shared/utils';
 
-export const makePatientLetter = async (req, { id, ...data }) => {
+export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
   const { getLocalisation, models } = req;
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
+  const letterheadConfig = await models.Setting.get('templates.letterhead', facilityId);
 
   const logo = await models.Asset.findOne({
     raw: true,
@@ -22,7 +23,12 @@ export const makePatientLetter = async (req, { id, ...data }) => {
   const filePath = path.join(folder, fileName);
 
   await ReactPDF.render(
-    <PatientLetter getLocalisation={getLocalisationData} data={data} logoSrc={logo?.data} />,
+    <PatientLetter
+      getLocalisation={getLocalisationData}
+      data={data}
+      logoSrc={logo?.data}
+      letterheadConfig={letterheadConfig}
+    />,
     filePath,
   );
 

@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '../constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 
@@ -45,5 +45,9 @@ export class Department extends Model {
     this.belongsTo(models.Facility, {
       foreignKey: 'facilityId',
     });
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 }

@@ -1,5 +1,5 @@
-import { join } from 'path';
 import { numberToBuffer, padBufferStart, truncateToSeconds } from '../utils';
+import { join } from 'path';
 
 import AuthenticatedFile from './AuthenticatedFile';
 import Certificate from './Certificate';

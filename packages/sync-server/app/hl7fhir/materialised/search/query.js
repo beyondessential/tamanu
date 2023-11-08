@@ -1,6 +1,6 @@
 import { last } from 'lodash';
 
-import { FHIR_COUNT_CONFIG_DEFAULT } from 'shared/utils/fhir/parameters';
+import { FHIR_COUNT_CONFIG_DEFAULT } from '@tamanu/shared/utils/fhir/parameters';
 
 import { pushToQuery } from './common';
 import { generateWhereClause } from './where';

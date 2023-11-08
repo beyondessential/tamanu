@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@material-ui/lab';
 import styled from 'styled-components';
-import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
+import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { Field, OuterLabelFieldWrapper, RadioField } from '../../components';
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';

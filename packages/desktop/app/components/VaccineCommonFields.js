@@ -7,7 +7,7 @@ import {
   INJECTION_SITE_OPTIONS,
   VACCINE_CATEGORY_OPTIONS,
   VACCINE_CATEGORIES,
-} from '@tamanu/shared/constants';
+} from '@tamanu/constants';
 
 import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
 import {
@@ -20,7 +20,7 @@ import {
   CheckField,
   LocalisedLocationField,
 } from './Field';
-import { ConfirmCancelRow } from './ButtonRow';
+import { FormSubmitCancelRow } from './ButtonRow';
 import { useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';
 import { Colors } from '../constants';
@@ -208,7 +208,7 @@ export const VaccineBrandField = () => (
 export const DiseaseField = () => <Field name="disease" label="Disease" component={TextField} />;
 
 export const ConfirmCancelRowField = ({ onConfirm, onCancel, editMode = false }) => (
-  <ConfirmCancelRow
+  <FormSubmitCancelRow
     onConfirm={onConfirm}
     onCancel={onCancel}
     confirmText={editMode ? 'Save' : undefined}

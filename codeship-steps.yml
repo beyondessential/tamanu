@@ -8,7 +8,7 @@
       command: /pre/scripts/copy_files.sh
     - name: install dependencies
       service: build
-      command: scripts/build_shared.sh
+      command: scripts/build_common_packages.sh
     - name: build packages
       exclude: ^release-desktop-
       service: build

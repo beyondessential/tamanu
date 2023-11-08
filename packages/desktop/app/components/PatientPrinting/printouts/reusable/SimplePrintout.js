@@ -23,7 +23,7 @@ const NotesBox = styled(Box)`
   overflow: hidden;
 `;
 
-export const NotesSection = ({
+export const NoteContentSection = ({
   notes = [],
   title = 'Notes:',
   height,
@@ -54,7 +54,7 @@ export const SimplePrintout = React.memo(
           additionalData={additionalData}
         />
         <GridTable data={tableData} />
-        <NotesSection notes={notes} />
+        <NoteContentSection notes={notes} />
       </CertificateWrapper>
     );
   },

@@ -1,9 +1,9 @@
 import { formatRFC7231 } from 'date-fns';
 
-import { fake, chance } from 'shared/test-helpers';
-import { convertISO9075toRFC3339 } from 'shared/utils/dateTime';
-import { fakeUUID } from 'shared/utils/generateId';
-import { formatFhirDate } from 'shared/utils/fhir/datetime';
+import { fake, chance } from '@tamanu/shared/test-helpers';
+import { convertISO9075toRFC3339 } from '@tamanu/shared/utils/dateTime';
+import { fakeUUID } from '@tamanu/shared/utils/generateId';
+import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 
 import { createTestContext } from '../../utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';

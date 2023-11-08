@@ -3,14 +3,15 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Sequelize, Op, literal } from 'sequelize';
 import config from 'config';
-import { NotFoundError } from 'shared/errors';
+import { NotFoundError } from '@tamanu/shared/errors';
 import {
   SURVEY_TYPES,
   REFERENCE_TYPE_VALUES,
   REFERENCE_TYPES,
   INVOICE_LINE_TYPES,
   VISIBILITY_STATUSES,
-} from 'shared/constants';
+  SUGGESTER_ENDPOINTS,
+} from '@tamanu/constants';
 
 export const suggestions = express.Router();
 
@@ -71,10 +72,10 @@ function createSuggesterLookupRoute(endpoint, modelName, mapper = defaultMapper)
   );
 }
 
-function createAllRecordsSuggesterRoute(
+function createAllRecordsRoute(
   endpoint,
   modelName,
-  baseWhere,
+  whereBuilder,
   mapper = defaultMapper,
   orderColumn = 'name',
 ) {
@@ -85,15 +86,14 @@ function createAllRecordsSuggesterRoute(
       const { models, query } = req;
 
       const model = models[modelName];
+      const where = whereBuilder('%', query);
       const results = await model.findAll({
-        where: query.filterByFacility
-          ? { ...baseWhere, facilityId: config.serverFacilityId }
-          : baseWhere,
+        where,
         order: [[Sequelize.literal(orderColumn), 'ASC']],
       });
 
-      const listing = results.map(mapper);
-      res.send(listing);
+      // Allow for async mapping functions (currently only used by location suggester)
+      res.send(await Promise.all(results.map(mapper)));
     }),
   );
 }
@@ -103,22 +103,20 @@ function createAllRecordsSuggesterRoute(
 // will be passed to the sql query as ":search" - see the existing suggestion
 // endpoints for usage examples.
 function createSuggester(endpoint, modelName, whereBuilder, mapper, searchColumn) {
+  // Note: createAllRecordsRoute and createSuggesterLookupRoute must
+  // be added in this order otherwise the :id param will match all
+  createAllRecordsRoute(endpoint, modelName, whereBuilder, mapper, searchColumn);
   createSuggesterLookupRoute(endpoint, modelName, mapper);
   createSuggesterRoute(endpoint, modelName, whereBuilder, mapper, searchColumn);
 }
 
 // this should probably be changed to a `visibility_criteria IN ('list', 'of', 'statuses')`
-// once there's more than one status that we're checking agains
+// once there's more than one status that we're checking against
 const VISIBILITY_CRITERIA = {
   visibilityStatus: VISIBILITY_STATUSES.CURRENT,
 };
 
 REFERENCE_TYPE_VALUES.forEach(typeName => {
-  createAllRecordsSuggesterRoute(typeName, 'ReferenceData', {
-    type: typeName,
-    ...VISIBILITY_CRITERIA,
-  });
-
   createSuggester(typeName, 'ReferenceData', search => ({
     name: { [Op.iLike]: search },
     type: typeName,
@@ -126,10 +124,10 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
   }));
 });
 
-createAllRecordsSuggesterRoute(
+createSuggester(
   'labTestType',
   'LabTestType',
-  VISIBILITY_CRITERIA,
+  () => VISIBILITY_CRITERIA,
   ({ name, code, id, labTestCategoryId }) => ({ name, code, id, labTestCategoryId }),
 );
 
@@ -198,10 +196,7 @@ createSuggester(
       ...(locationGroup && { locationGroup }),
     };
   },
-  'name',
 );
-
-createAllRecordsSuggesterRoute('locationGroup', 'LocationGroup', VISIBILITY_CRITERIA);
 
 createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
 
@@ -237,6 +232,7 @@ createSuggester(
   'User',
   search => ({
     displayName: { [Op.iLike]: search },
+    ...VISIBILITY_CRITERIA,
   }),
   ({ id, displayName }) => ({
     id,
@@ -321,7 +317,25 @@ createSuggester('patientLabTestPanelTypes', 'LabTestPanel', (search, query) => {
 });
 
 // TODO: Use generic LabTest permissions for this suggester
-createAllRecordsSuggesterRoute('labTestPanel', 'LabTestPanel', VISIBILITY_CRITERIA);
 createNameSuggester('labTestPanel', 'LabTestPanel');
 
 createNameSuggester('patientLetterTemplate', 'PatientLetterTemplate');
+
+const routerEndpoints = suggestions.stack.map(layer => {
+  const path = layer.route.path.replace('/', '').replaceAll('$', '');
+  const root = path.split('/')[0];
+  return root;
+});
+const rootElements = [...new Set(routerEndpoints)];
+SUGGESTER_ENDPOINTS.forEach(endpoint => {
+  if (!rootElements.includes(endpoint)) {
+    throw new Error(
+      `Suggester endpoint exists in shared constant but not included in router: ${endpoint}`,
+    );
+  }
+});
+rootElements.forEach(endpoint => {
+  if (!SUGGESTER_ENDPOINTS.includes(endpoint)) {
+    throw new Error(`Suggester endpoint not added to shared constant: ${endpoint}`);
+  }
+});

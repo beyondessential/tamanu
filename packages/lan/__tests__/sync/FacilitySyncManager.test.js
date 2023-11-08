@@ -171,20 +171,24 @@ describe('FacilitySyncManager', () => {
     it("pull changes with current 'lastSuccessfulSyncPull'", async () => {
       await ctx.models.LocalSystemFact.set('lastSuccessfulSyncPull', '10');
 
-      jest.doMock('shared/sync', () => ({
-        ...jest.requireActual('shared/sync'),
+      jest.doMock('@tamanu/shared/sync', () => ({
+        ...jest.requireActual('@tamanu/shared/sync'),
         createSnapshotTable: jest.fn(),
       }));
       jest.doMock('../../app/sync/pullIncomingChanges', () => ({
         ...jest.requireActual('../../app/sync/pullIncomingChanges'),
         pullIncomingChanges: jest.fn().mockImplementation(() => []),
       }));
+      jest.doMock('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot', () => ({
+        ...jest.requireActual('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot'),
+        assertIfPulledRecordsUpdatedAfterPushSnapshot: jest.fn(),
+      }));
 
       // Have to load test function within test scope so that we can mock dependencies per test case
       const {
         FacilitySyncManager: TestFacilitySyncManager,
       } = require('../../app/sync/FacilitySyncManager');
-      const { createSnapshotTable } = require('shared/sync');
+      const { createSnapshotTable } = require('@tamanu/shared/sync');
 
       const syncManager = new TestFacilitySyncManager({
         models,
@@ -205,8 +209,8 @@ describe('FacilitySyncManager', () => {
     it('save changes with current sessionId', async () => {
       await ctx.models.LocalSystemFact.set('currentSyncTick', '10');
 
-      jest.doMock('shared/sync', () => ({
-        ...jest.requireActual('shared/sync'),
+      jest.doMock('@tamanu/shared/sync', () => ({
+        ...jest.requireActual('@tamanu/shared/sync'),
         createSnapshotTable: jest.fn(),
         saveIncomingChanges: jest.fn(),
       }));
@@ -214,12 +218,16 @@ describe('FacilitySyncManager', () => {
         ...jest.requireActual('../../app/sync/pullIncomingChanges'),
         pullIncomingChanges: jest.fn().mockImplementation(() => ({ totalPulled: 3, tick: 1 })),
       }));
+      jest.doMock('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot', () => ({
+        ...jest.requireActual('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot'),
+        assertIfPulledRecordsUpdatedAfterPushSnapshot: jest.fn(),
+      }));
 
       // Have to load test function within test scope so that we can mock dependencies per test case
       const {
         FacilitySyncManager: TestFacilitySyncManager,
       } = require('../../app/sync/FacilitySyncManager');
-      const { saveIncomingChanges } = require('shared/sync');
+      const { saveIncomingChanges } = require('@tamanu/shared/sync');
 
       const syncManager = new TestFacilitySyncManager({
         models,

@@ -1,7 +1,7 @@
 import React from 'react';
 import { PropTypes } from 'prop-types';
 
-import { VACCINE_CATEGORIES } from '@tamanu/shared/constants';
+import { VACCINE_CATEGORIES } from '@tamanu/constants';
 
 import { TwoTwoGrid } from '../components/TwoTwoGrid';
 import {

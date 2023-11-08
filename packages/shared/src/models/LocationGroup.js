@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '../constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 
@@ -51,5 +51,9 @@ export class LocationGroup extends Model {
     this.hasMany(models.Location, {
       foreignKey: 'locationGroupId',
     });
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 }

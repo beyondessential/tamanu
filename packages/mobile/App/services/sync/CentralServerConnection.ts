@@ -142,7 +142,8 @@ export class CentralServerConnection {
   }
 
   async startSyncSession() {
-    const { sessionId } = await this.post('sync', {}, {});
+    const facilityId = await readConfig('facilityId', '');
+    const { sessionId } = await this.post('sync', {}, { facilityId });
 
     // then, poll the sync/:sessionId/ready endpoint until we get a valid response
     // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked

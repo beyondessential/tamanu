@@ -1,11 +1,11 @@
 import config from 'config';
 
-import { ScheduledTask } from 'shared/tasks';
-import { log } from 'shared/services/logging';
+import { ScheduledTask } from '@tamanu/shared/tasks';
+import { log } from '@tamanu/shared/services/logging';
 import {
   dischargeOutpatientEncounters,
   getDischargeOutPatientEncountersWhereClause,
-} from 'shared/utils';
+} from '@tamanu/shared/utils';
 
 // As well as the sync import auto-discharging old encounters on the way in, we also need a daily
 // task to clean up any that synced in on the same day as they were created

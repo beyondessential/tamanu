@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import * as yup from 'yup';
-import { LAB_REQUEST_FORM_TYPES } from '@tamanu/shared/constants/labs';
+import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import PropTypes from 'prop-types';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useAuth } from '../../contexts/Auth';

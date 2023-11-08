@@ -27,7 +27,7 @@ describe('Patients import', () => {
       importer: referenceDataImporter,
       file: `./__tests__/importers/patient/${file}.xlsx`,
       models: ctx.store.models,
-      includedDataTypes: ['patient'],
+      includedDataTypes: ['patient', 'patientFieldDefinition', 'patientFieldDefinitionCategory'],
       ...opts,
     });
   }
@@ -37,7 +37,6 @@ describe('Patients import', () => {
       file: 'valid-patient',
       dryRun: true,
     });
-
     expect(didntSendReason).toEqual('dryRun');
     expect(errors).toBeEmpty();
     expect(stats).toEqual({
@@ -132,7 +131,7 @@ describe('Patients import', () => {
 
   it('should not create PatientAdditionalData when patientAdditionalData field does not exist', async () => {
     const { didntSendReason, errors, stats } = await doImport({
-      file: 'ignore-pad',
+      file: 'no-pad-column',
       dryRun: true,
     });
 
@@ -142,4 +141,46 @@ describe('Patients import', () => {
       Patient: { created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 },
     });
   });
+
+  it('should create PatientFieldValue when a valid custom field is set (corresponds to valid PatientFieldDefinition)', async () => {
+    const { didntSendReason, errors, stats } = await doImport({
+      file: 'valid-custom-field',
+      dryRun: true,
+    });
+
+    expect(didntSendReason).toEqual('dryRun');
+    expect(errors).toBeEmpty();
+    expect(stats.Patient).toEqual({ created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 });
+    expect(stats.PatientFieldValue).toEqual({ created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 });
+  });
+
+  it('should throw an error when an undefined custom field is specified in the columns (column name does not correspond to a valid PatientFieldDefinition)', async () => {
+    const { didntSendReason, errors, stats } = await doImport({
+      file: 'invalid-custom-field',
+      dryRun: true,
+    });
+
+    expect(didntSendReason).toEqual('validationFailed');
+
+    expect(errors).toContainValidationError(
+      'patient',
+      2,
+      'No such patient field definition: patientFieldDef2',
+    );
+
+  });
+
+  it('should create PatientFieldValue when a valid custom field is set (corresponds to valid PatientFieldDefinition) and patientAdditionalData field is TRUE', async () => {
+    const { didntSendReason, errors, stats } = await doImport({
+      file: 'valid-custom-field-with-pad',
+      dryRun: true,
+    });
+
+    expect(didntSendReason).toEqual('dryRun');
+    expect(errors).toBeEmpty();
+    expect(stats.Patient).toEqual({ created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 });
+    expect(stats.PatientAdditionalData).toEqual({ created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 });
+    expect(stats.PatientFieldValue).toEqual({ created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 });
+  });
+
 });

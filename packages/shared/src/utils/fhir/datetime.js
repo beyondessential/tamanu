@@ -15,7 +15,7 @@ import { getTimezoneOffset, zonedTimeToUtc } from 'date-fns-tz';
 import { pick } from 'lodash';
 import { date as yupDate, number, object, string } from 'yup';
 
-import { FHIR_DATETIME_PRECISION } from '../../constants';
+import { FHIR_DATETIME_PRECISION } from '@tamanu/constants';
 import { parseDate } from '../dateTime';
 import { Exception } from './errors';
 

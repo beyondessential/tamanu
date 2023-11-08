@@ -1,7 +1,7 @@
 import express from 'express';
 import config from 'config';
 
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 
 import * as fijiVrs from './fiji-vrs';
 import * as fijiVps from './fiji-vps';

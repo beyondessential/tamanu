@@ -1,5 +1,5 @@
 import { subDays, startOfDay } from 'date-fns';
-import { REPORT_DEFAULT_DATE_RANGES } from '../../constants';
+import { REPORT_DEFAULT_DATE_RANGES } from '@tamanu/constants';
 
 const CATCH_ALL_FROM_DATE = '1970-01-01';
 
@@ -16,12 +16,12 @@ function getStartDate(dateRange, endDate) {
 }
 
 export const getReportQueryReplacements = async (
-  context,
+  { models },
   paramDefinitions,
   params = {},
   dateRange = REPORT_DEFAULT_DATE_RANGES.ALL_TIME,
 ) => {
-  const { LocalSystemFact } = context.models;
+  const { LocalSystemFact } = models;
   const currentFacilityId = (await LocalSystemFact.get('facilityId')) || null;
 
   const toDate = params.toDate ? new Date(params.toDate) : new Date();

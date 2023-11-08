@@ -28,7 +28,7 @@ const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
 export const formatShortest = date =>
   intlFormatDate(date, { month: '2-digit', day: '2-digit', year: '2-digit' }, '--/--'); // 12/04/20
 
-export const formatShort = date =>
+const formatShort = date =>
   intlFormatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' }, '--/--/----'); // 12/04/2020
 
 export const formatTime = date =>
@@ -179,7 +179,22 @@ export const MultilineDatetimeDisplay = React.memo(
   },
 );
 
-DateDisplay.rawFormat = dateValue => {
+const VALID_FORMAT_FUNCTIONS = [
+  formatShortest,
+  formatShort,
+  formatTime,
+  formatTimeWithSeconds,
+  formatShortExplicit,
+  formatShortestExplicit,
+  formatLong,
+];
+
+DateDisplay.stringFormat = (dateValue, formatFn = formatShort) => {
+  if (VALID_FORMAT_FUNCTIONS.includes(formatFn) === false) {
+    // If you're seeing this error, you probably need to move your format function to this file and add it to VALID_FORMAT_FUNCTIONS
+    // This is done to ensure our date formats live in one central place in the code
+    throw new Error('Invalid format function used, check DateDisplay component for options');
+  }
   const dateObj = parseDate(dateValue);
-  return formatShort(dateObj);
+  return formatFn(dateObj);
 };

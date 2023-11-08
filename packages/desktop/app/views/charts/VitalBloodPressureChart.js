@@ -1,5 +1,5 @@
 import React from 'react';
-import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/shared/constants';
+import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
 import { LineChart } from '../../components/Charts/LineChart';
 import { useEncounter } from '../../contexts/Encounter';
 import { useVitalQuery } from '../../api/queries/useVitalQuery';
@@ -34,10 +34,12 @@ export const VitalBloodPressureChart = props => {
     const relatedDbpChartData = dbpChartData.find(
       ({ name: dbpRecordedDate }) => dbpRecordedDate === recordedDate,
     );
+    const parsedTop = parseFloat(value);
+    const parsedBottom = parseFloat(relatedDbpChartData?.value);
     return {
       name: recordedDate,
-      value,
-      inwardArrowVector: { top: value, bottom: relatedDbpChartData?.value },
+      value: parsedTop,
+      inwardArrowVector: { top: parsedTop, bottom: parsedBottom },
     };
   });
 

@@ -11,6 +11,8 @@ import {
   SurveyTypes,
 } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
+import { VisibilityStatus } from '~/visibilityStatuses';
+import { In } from 'typeorm/browser';
 
 @Entity('survey')
 export class Survey extends BaseModel implements ISurvey {
@@ -38,10 +40,21 @@ export class Survey extends BaseModel implements ISurvey {
   @Column({ nullable: false, default: false })
   isSensitive: boolean;
 
-  getComponents(): Promise<ISurveyScreenComponent[]> {
+  getComponents(options: { includeAllVitals?: boolean } = {}): Promise<ISurveyScreenComponent[]> {
+    const where = {
+      survey: {
+        id: this.id,
+      },
+      visibilityStatus: In([VisibilityStatus.Current]),
+    };
+
+    const { includeAllVitals } = options;
+    if (includeAllVitals) {
+      where.visibilityStatus = In([VisibilityStatus.Current, VisibilityStatus.Historical]);
+    }
     const repo = Database.models.SurveyScreenComponent.getRepository();
     return repo.find({
-      where: { survey: { id: this.id } },
+      where,
       relations: ['dataElement'],
       order: { screenIndex: 'ASC', componentIndex: 'ASC' },
     });
@@ -53,13 +66,16 @@ export class Survey extends BaseModel implements ISurvey {
     return ability.can('submit', this);
   }
 
-  static async getVitalsSurvey(): Promise<IVitalsSurvey> {
+  static async getVitalsSurvey(): Promise<IVitalsSurvey | null> {
     const surveyRepo = Database.models.Survey.getRepository();
     const vitalsSurvey = await surveyRepo.findOne({ where: { surveyType: SurveyTypes.Vitals } });
+    if (!vitalsSurvey) {
+      return null;
+    }
 
     const repo = Database.models.SurveyScreenComponent.getRepository();
     const components = await repo.find({
-      where: { survey: { id: vitalsSurvey.id } },
+      where: { survey: { id: vitalsSurvey.id }, visibilityStatus: VisibilityStatus.Current },
       relations: ['dataElement'],
       order: { screenIndex: 'ASC', componentIndex: 'ASC' },
     });
@@ -69,6 +85,7 @@ export class Survey extends BaseModel implements ISurvey {
       components,
       name: vitalsSurvey.name,
       id: vitalsSurvey.id,
+      programId: vitalsSurvey.programId,
     };
   }
 }

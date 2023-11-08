@@ -1,4 +1,4 @@
-import { createDummyPatient } from 'shared/demoData/patients';
+import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { createTestContext } from '../../../utilities';
 import {
   setupProgramAndSurvey,

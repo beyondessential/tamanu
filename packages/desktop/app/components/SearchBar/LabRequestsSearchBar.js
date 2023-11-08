@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants';
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
 import {
   DateField,

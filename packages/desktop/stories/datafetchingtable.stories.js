@@ -1,12 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import styled from 'styled-components';
 import { storiesOf } from '@storybook/react';
 import Chance from 'chance';
 
 import { ApiContext } from '../app/api';
 import { DataFetchingTable } from '../app/components/Table';
 import { CheckInput } from '../app/components/Field';
+import { DateDisplay } from '../app/components';
 
 const chance = new Chance();
+
+const Container = styled.div`
+  position: relative;
+  padding-top: 20px;
+  margin-top: 75px;
+`;
 
 function fakePatient() {
   const gender = chance.pick(['male', 'female']);
@@ -14,6 +22,7 @@ function fakePatient() {
     name: chance.name({ gender }),
     age: chance.age(),
     location: chance.address(),
+    date: Date.now(),
   };
 }
 
@@ -33,7 +42,6 @@ function sleep(milliseconds) {
 
 const dummyApi = {
   get: async (endpoint, { order, orderBy, page, rowsPerPage }) => {
-    await sleep(1000);
     const sortedData = dummyData.sort(({ [orderBy]: a }, { [orderBy]: b }) => {
       if (typeof a === 'string') {
         return order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
@@ -48,6 +56,9 @@ const dummyApi = {
       count: dummyData.length,
     };
   },
+  addPatient: newPatient => {
+    dummyData.unshift(newPatient); // Add the new patient at the beginning of the array
+  },
 };
 
 const paginationErrorApi = {
@@ -55,6 +66,39 @@ const paginationErrorApi = {
     if (query.page) throw new Error('Hardcoded pagination error.');
     return dummyApi.get(endpoint, query);
   },
+};
+
+const TableWithDynamicData = () => {
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const newPatient = fakePatient();
+      dummyApi.addPatient(newPatient);
+    }, chance.integer({ min: 1000, max: 1000 })); // Add a new patient every second
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
+  const dateColumn = {
+    key: 'date',
+    title: 'Date',
+    accessor: ({ date }) => <DateDisplay date={date} timeOnlyTooltip />,
+  };
+
+  return (
+    <ApiContext.Provider value={dummyApi}>
+      <Container>
+        <DataFetchingTable
+          endpoint="ages"
+          overrideLocalisationForStorybook={{ enabled: true, interval: 5 }} // Mock autorefresh config for every 5 seconds
+          columns={dummyColumns.concat(dateColumn)}
+          initialSort={{ order: 'desc', orderBy: 'date' }}
+          autoRefresh
+        />
+      </Container>
+    </ApiContext.Provider>
+  );
 };
 
 storiesOf('DataFetchingTable', module)
@@ -65,15 +109,21 @@ storiesOf('DataFetchingTable', module)
   ))
   .add('With optionRow', () => (
     <ApiContext.Provider value={dummyApi}>
-      <DataFetchingTable 
-        endpoint="ages" 
+      <DataFetchingTable
+        endpoint="ages"
         columns={dummyColumns}
-        optionRow={<CheckInput label={<small>Dummy checkbox</small>} />} 
+        optionRow={<CheckInput label={<small>Dummy checkbox</small>} />}
       />
     </ApiContext.Provider>
   ))
   .add('With pagination error', () => (
     <ApiContext.Provider value={paginationErrorApi}>
       <DataFetchingTable endpoint="ages" columns={dummyColumns} />
+    </ApiContext.Provider>
+  ))
+  .add('With autorefresh enabled', () => TableWithDynamicData())
+  .add('With lazy loading', () => (
+    <ApiContext.Provider value={dummyApi}>
+      <DataFetchingTable lazyLoading endpoint="ages" columns={dummyColumns} />
     </ApiContext.Provider>
   ));

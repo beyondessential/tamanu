@@ -2,8 +2,8 @@ import config from 'config';
 import * as yup from 'yup';
 import { defaultsDeep } from 'lodash';
 
-import { log } from 'shared/services/logging';
-import { IMAGING_TYPES } from 'shared/constants';
+import { log } from '@tamanu/shared/services/logging';
+import { IMAGING_TYPES } from '@tamanu/constants';
 
 const fieldSchema = yup
   .object({
@@ -17,6 +17,7 @@ const fieldSchema = yup
     }),
     hidden: yup.boolean().required(),
     required: yup.boolean(),
+    requiredPatientData: yup.boolean(),
     pattern: yup.string(),
   })
   .default({}) // necessary to stop yup throwing hard-to-debug errors
@@ -28,6 +29,7 @@ const unhideableFieldSchema = yup
     shortLabel: yup.string().required(),
     longLabel: yup.string().required(),
     required: yup.boolean(),
+    requiredPatientData: yup.boolean(),
     pattern: yup.string(),
   })
   .required()
@@ -326,6 +328,10 @@ const printMeasuresSchema = yup
       rowHeight: validCssAbsoluteLength,
       rowGap: validCssAbsoluteLength,
     }),
+    idCardPage: yup.object({
+      cardMarginTop: validCssAbsoluteLength,
+      cardMarginLeft: validCssAbsoluteLength,
+    }),
   })
   .required()
   .noUnknown();
@@ -457,6 +463,10 @@ const rootLocalisationSchema = yup
         onlyAllowLabPanels: yup.boolean().required(),
         displayProcedureCodesInDischargeSummary: yup.boolean().required(),
         displayIcd10CodesInDischargeSummary: yup.boolean().required(),
+        tableAutoRefresh: yup.object().shape({
+          enabled: yup.boolean().required(),
+          interval: yup.number().required(),
+        }),
         mandatoryVitalEditReason: yup.boolean().required(),
         enableVitalEdit: yup.boolean().required(),
       })
@@ -464,6 +474,7 @@ const rootLocalisationSchema = yup
       .noUnknown(),
     printMeasures: printMeasuresSchema,
     disabledReports: yup.array(yup.string().required()).defined(),
+    supportDeskUrl: yup.string().required(),
     ageDisplayFormat: yup
       .array(
         yup.object({

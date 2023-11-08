@@ -1,7 +1,7 @@
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
-import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
+import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
@@ -28,9 +28,9 @@ export class PatientCarePlan extends Model {
     this.belongsTo(models.ReferenceData, { foreignKey: 'carePlanId', as: 'carePlan' });
     this.belongsTo(models.User, { foreignKey: 'examinerId', as: 'examiner' });
 
-    this.hasMany(models.NotePage, {
+    this.hasMany(models.Note, {
       foreignKey: 'recordId',
-      as: 'notePages',
+      as: 'notes',
       constraints: false,
       scope: {
         recordType: this.name,
@@ -42,5 +42,5 @@ export class PatientCarePlan extends Model {
     return ['carePlan', 'examiner'];
   }
 
-  static buildSyncFilter = buildPatientLinkedSyncFilter;
+  static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
 }

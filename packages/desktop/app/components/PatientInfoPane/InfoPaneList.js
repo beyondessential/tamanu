@@ -4,9 +4,9 @@ import { useQuery } from '@tanstack/react-query';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { Collapse, Button, Typography } from '@material-ui/core';
 import { kebabCase } from 'lodash';
-import { PATIENT_ISSUE_TYPES } from '@tamanu/shared/constants';
+import { PATIENT_ISSUE_TYPES } from '@tamanu/constants';
 import { Colors } from '../../constants';
-import { Modal } from '../Modal';
+import { FormModal } from '../FormModal';
 import { PatientAlert } from '../PatientAlert';
 import { InfoPaneAddEditForm } from './InfoPaneAddEditForm';
 import { ISSUES_TITLE } from './paneTitles';
@@ -112,7 +112,13 @@ export const InfoPaneList = memo(
       behavior === 'collapse' ? (
         <Collapse in={adding} {...props} />
       ) : (
-        <Modal width="md" title={itemTitle} open={adding} onClose={handleCloseForm} {...props} />
+        <FormModal
+          width="md"
+          title={itemTitle}
+          open={adding}
+          onClose={handleCloseForm}
+          {...props}
+        />
       );
 
     const addForm = (
@@ -174,7 +180,7 @@ export const InfoPaneList = memo(
               return (
                 <React.Fragment key={id}>
                   <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
-                  <Modal
+                  <FormModal
                     width="md"
                     title={getEditFormName(item)}
                     open={editKey === id}
@@ -189,7 +195,7 @@ export const InfoPaneList = memo(
                       title={title}
                       items={items}
                     />
-                  </Modal>
+                  </FormModal>
                 </React.Fragment>
               );
             })}

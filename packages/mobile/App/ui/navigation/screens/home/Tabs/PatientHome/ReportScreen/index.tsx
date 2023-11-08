@@ -100,7 +100,9 @@ export const ReportScreen = ({ navigation }: ReportScreenProps): ReactElement =>
   );
 
   const [surveys] = useBackendEffect(({ models }) => models.Survey.find({
-    surveyType: SurveyTypes.Programs,
+    where: {
+      surveyType: SurveyTypes.Programs,
+    },
   }));
 
   useEffect(() => {

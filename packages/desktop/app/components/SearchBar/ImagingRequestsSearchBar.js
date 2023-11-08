@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { IMAGING_TABLE_VERSIONS, IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/shared/constants';
+import { IMAGING_TABLE_VERSIONS, IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
 import {
   DateField,

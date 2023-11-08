@@ -1,4 +1,4 @@
-import { ASSET_NAMES } from 'shared/constants/importable';
+import { ASSET_NAMES } from '@tamanu/constants/importable';
 import { createTestContext } from '../utilities';
 
 // doesn't really matter which name it is as long is it's consistent

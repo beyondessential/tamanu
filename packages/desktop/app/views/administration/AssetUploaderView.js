@@ -1,7 +1,7 @@
 import React, { memo, useState, useCallback } from 'react';
 import * as yup from 'yup';
 
-import { ASSET_NAMES } from '@tamanu/shared/constants/importable';
+import { ASSET_NAMES } from '@tamanu/constants/importable';
 import { useApi } from '../../api';
 import { useElectron } from '../../contexts/Electron';
 import { Form, Field, SelectField } from '../../components/Field';
@@ -9,7 +9,7 @@ import { FileChooserField, FILTER_IMAGES } from '../../components/Field/FileChoo
 import { ContentPane } from '../../components/ContentPane';
 import { FormGrid } from '../../components/FormGrid';
 import { ButtonRow } from '../../components/ButtonRow';
-import { LargeButton } from '../../components/Button';
+import { LargeSubmitButton } from '../../components/Button';
 import { AdminViewContainer } from './components/AdminViewContainer';
 
 const ResultDisplay = ({ result }) => {
@@ -68,7 +68,7 @@ export const AssetUploaderView = memo(() => {
         name: yup.string().required(),
         filename: yup.string().required(),
       })}
-      render={({ isSubmitting, submitForm }) => (
+      render={({ isSubmitting }) => (
         <AdminViewContainer title="Asset upload" showLoadingIndicator={isSubmitting}>
           <ContentPane>
             <FormGrid columns={1}>
@@ -87,15 +87,7 @@ export const AssetUploaderView = memo(() => {
                 required
               />
               <ButtonRow>
-                <LargeButton
-                  disabled={isSubmitting}
-                  size="large"
-                  onClick={event => {
-                    submitForm(event);
-                  }}
-                >
-                  Import
-                </LargeButton>
+                <LargeSubmitButton text="Import" />
               </ButtonRow>
               <ResultDisplay result={result} />
             </FormGrid>

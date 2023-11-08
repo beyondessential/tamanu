@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Divider as DividerBase } from '@material-ui/core';
+import { Box, Divider as DividerBase } from '@material-ui/core';
 
 import { useVitalChartData } from '../../contexts/VitalChartData';
 import { CHART_MARGIN, Y_AXIS_WIDTH } from '../../components/Charts/constants';
@@ -24,14 +24,14 @@ export const MultiVitalChartsView = () => {
   const { visualisationConfigs, chartKeys, dateRange } = useVitalChartData();
 
   return (
-    <>
+    <Box minHeight="80vh" maxHeight="80vh">
       {chartKeys.map(chartKey => {
         const VitalChartComponent = getVitalChartComponent(chartKey);
         const visualisationConfig = visualisationConfigs.find(config => config.key === chartKey);
 
         return (
           <div key={chartKey}>
-            <Divider />
+            <Divider style={{ marginRight: 0 }} />
             <TitleContainer>
               <span>{visualisationConfigs.find(config => config.key === chartKey)?.name}</span>
             </TitleContainer>
@@ -44,6 +44,6 @@ export const MultiVitalChartsView = () => {
           </div>
         );
       })}
-    </>
+    </Box>
   );
 };

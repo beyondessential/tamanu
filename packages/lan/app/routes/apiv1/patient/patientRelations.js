@@ -1,15 +1,15 @@
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Sequelize } from 'sequelize';
 
-import { getPatientAdditionalData } from 'shared/utils';
-import { HIDDEN_VISIBILITY_STATUSES } from 'shared/constants/importable';
+import { getPatientAdditionalData } from '@tamanu/shared/utils';
+import { HIDDEN_VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 
 import { renameObjectKeys } from '@tamanu/shared/utils/renameObjectKeys';
 import {
   simpleGetList,
   permissionCheckingRouter,
   runPaginatedQuery,
-} from 'shared/utils/crudHelpers';
+} from '@tamanu/shared/utils/crudHelpers';
 import { patientSecondaryIdRoutes } from './patientSecondaryId';
 import { patientDeath } from './patientDeath';
 import { patientProfilePicture } from './patientProfilePicture';

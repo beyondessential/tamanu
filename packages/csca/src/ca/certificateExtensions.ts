@@ -7,14 +7,14 @@ import {
   DistributionPoint,
   DistributionPointName,
   GeneralName,
-  id_ce_cRLDistributionPoints,
-  id_ce_issuerAltName,
-  id_ce_privateKeyUsagePeriod,
-  id_ce_subjectAltName,
   IssueAlternativeName,
   Name,
   PrivateKeyUsagePeriod,
   RelativeDistinguishedName,
+  id_ce_cRLDistributionPoints,
+  id_ce_issuerAltName,
+  id_ce_privateKeyUsagePeriod,
+  id_ce_subjectAltName,
 } from '@peculiar/asn1-x509';
 import {
   AuthorityKeyIdentifierExtension,
@@ -26,15 +26,15 @@ import {
   SubjectKeyIdentifierExtension,
 } from '@peculiar/x509';
 
-import Certificate, { CertificateCreateParams } from './Certificate';
-import { id_icao_mrtd_security_extensions_documentTypeList } from './constants';
 import crypto from '../crypto';
 import { DocumentTypeList } from '../ext/DocumentType';
+import Certificate, { CertificateCreateParams } from './Certificate';
+import { id_icao_mrtd_security_extensions_documentTypeList } from './constants';
 
 export interface Extension {
   name: ExtensionName;
   critical: boolean;
-  value: 'computed' | any[];
+  value: 'computed' | (string | object | boolean | number)[];
 }
 
 // For extension reference/docs, look at each method below. Referenced documents:
@@ -116,10 +116,10 @@ async function aki(
   }
 
   if (issuer instanceof Certificate) {
-    return AuthorityKeyIdentifierExtension.create(issuer.x509, critical, crypto);
+    return AuthorityKeyIdentifierExtension.create(issuer.x509, critical, crypto as Crypto);
   }
 
-  return AuthorityKeyIdentifierExtension.create(publicKey, critical, crypto);
+  return AuthorityKeyIdentifierExtension.create(publicKey, critical, crypto as Crypto);
 }
 
 // SubjectKeyIdentifier (SKI): a standard (X.509) extension that contains the
@@ -142,7 +142,7 @@ async function ski({ critical, value }: Extension, publicKey: CryptoKey): Promis
     throw new Error('SubjectKeyIdentifier must be computed');
   }
 
-  return SubjectKeyIdentifierExtension.create(publicKey, critical, crypto);
+  return SubjectKeyIdentifierExtension.create(publicKey, critical, crypto as Crypto);
 }
 
 // OIDs (Object Identifiers) are used to identify almost every named item in an
@@ -178,8 +178,8 @@ const NAME_OIDS = new Map(
 );
 
 enum AltVariant {
-  Subject,
-  Issuer,
+  Subject = 0,
+  Issuer = 1,
 }
 
 // SubjectAltName (SAN) and IssuerAltName (IAN): two standard (X.509) extensions
@@ -201,9 +201,10 @@ enum AltVariant {
 // thus both these extensions are required.
 function altName({ critical, value }: Extension, alt: AltVariant): X509Extension {
   if (value === ComputedExtension) throw new Error('SubjectKeyIdentifier cannot be computed');
-  if (value.length !== 1 && typeof value[0] !== 'object') throw new Error('Invalid altName value: expected an array of a single object');
+  if (value.length !== 1 && typeof value[0] !== 'object')
+    throw new Error('Invalid altName value: expected an array of a single object');
 
-  const values: object = value[0];
+  const values: object = value[0] as object;
 
   const rdn = new RelativeDistinguishedName();
   for (const [type, value] of Object.entries(values)) {
@@ -268,10 +269,10 @@ function pkup({ critical, value }: Extension, params: CertificateCreateParams): 
     if (value.length !== 2) throw new Error('Invalid pkup value: expected two dates');
     const [notBeforeStr, notAfterStr] = value;
 
-    const notBefore = new Date(notBeforeStr);
+    const notBefore = new Date(notBeforeStr as string);
     if (notBefore.getTime() === 0) throw new Error('Invalid pkup value: notBefore: not a date');
 
-    const notAfter = new Date(notAfterStr);
+    const notAfter = new Date(notAfterStr as string);
     if (notAfter.getTime() === 0) throw new Error('Invalid pkup value: notAfter: not a date');
 
     out = new PrivateKeyUsagePeriod({
@@ -306,9 +307,10 @@ function pkup({ critical, value }: Extension, params: CertificateCreateParams): 
 // thus this extension is required.
 function ku({ critical, value }: Extension): X509Extension {
   if (value === ComputedExtension) throw new Error('KeyUsage cannot be computed');
-  if (value.some(s => typeof s !== 'string')) throw new Error('Invalid keyUsage value: expected an array of strings');
+  if (value.some((s) => typeof s !== 'string'))
+    throw new Error('Invalid keyUsage value: expected an array of strings');
 
-  let keyUsage: KeyUsageFlags = 0;
+  let keyUsage = 0;
   for (const usage of value) {
     switch (usage) {
       case 'cRLSign':
@@ -374,9 +376,10 @@ function ku({ critical, value }: Extension): X509Extension {
 // to be able to issue ANY kind of document.
 function eku({ critical, value }: Extension): X509Extension {
   if (value === ComputedExtension) throw new Error('ExtendedKeyUsage cannot be computed');
-  if (value.some(s => typeof s !== 'string')) throw new Error('Invalid eku value: expected an array of strings');
+  if (value.some((s) => typeof s !== 'string'))
+    throw new Error('Invalid eku value: expected an array of strings');
 
-  return new ExtendedKeyUsageExtension(value, critical);
+  return new ExtendedKeyUsageExtension(value as string[], critical);
 }
 
 function urlToDispPoint(url: string): DistributionPoint {
@@ -411,13 +414,13 @@ function urlToDispPoint(url: string): DistributionPoint {
 // thus this extension is required.
 function crl({ critical, value }: Extension, issuer?: Certificate): X509Extension | undefined {
   if (value === ComputedExtension) {
-    const icdp = issuer?.x509.extensions.find(e => e.type === id_ce_cRLDistributionPoints);
+    const icdp = issuer?.x509.extensions.find((e) => e.type === id_ce_cRLDistributionPoints);
     if (!icdp) return undefined;
 
     return new X509Extension(id_ce_cRLDistributionPoints, critical, icdp.value);
   }
 
-  if (value.some(s => typeof s !== 'string')) {
+  if (value.some((s) => typeof s !== 'string')) {
     throw new Error('Invalid crl value: expected an array of strings');
   }
 
@@ -451,11 +454,13 @@ function crl({ critical, value }: Extension, issuer?: Certificate): X509Extensio
 // is not used.
 function docType({ critical, value }: Extension): X509Extension {
   if (value === ComputedExtension) throw new Error('ExtendedKeyUsage cannot be computed');
-  if (value.some(s => typeof s !== 'string')) throw new Error('Invalid eku value: expected an array of strings');
+  if (value.some((s) => typeof s !== 'string'))
+    throw new Error('Invalid eku value: expected an array of strings');
 
   const dtv = new DocumentTypeList();
   for (const val of value) {
-    dtv.docTypeList.push(val);
+    // rome-ignore lint/suspicious/noExplicitAny: the typings for asn1-x509 are incomplete
+    dtv.docTypeList.push(val as any);
   }
 
   return new X509Extension(

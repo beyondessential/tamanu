@@ -1,4 +1,4 @@
-import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/shared/constants/surveys';
+import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
 import { Colors } from '../../../constants';
 
 const getDotColor = ({ isInsideNormalRange, isOutsideGraphRange, useInwardArrowVector }) => {

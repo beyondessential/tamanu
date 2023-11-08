@@ -1,6 +1,6 @@
-import { ComputedExtension, Extension, ExtensionName } from './certificateExtensions';
 import { Country } from './Config';
-import { EKU_VDS_NC, EKU_DCC_TEST, EKU_DCC_VACCINATION, EKU_DCC_RECOVERY } from './constants';
+import { ComputedExtension, Extension, ExtensionName } from './certificateExtensions';
+import { EKU_DCC_RECOVERY, EKU_DCC_TEST, EKU_DCC_VACCINATION, EKU_VDS_NC } from './constants';
 
 export enum Profile {
   VDS = 'vds',

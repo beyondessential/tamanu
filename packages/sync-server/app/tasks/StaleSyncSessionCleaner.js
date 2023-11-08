@@ -1,8 +1,8 @@
 import config from 'config';
 import { Op } from 'sequelize';
-import { ScheduledTask } from 'shared/tasks';
-import { log } from 'shared/services/logging';
-import { completeSyncSession } from 'shared/sync/completeSyncSession';
+import { ScheduledTask } from '@tamanu/shared/tasks';
+import { log } from '@tamanu/shared/services/logging';
+import { completeSyncSession } from '@tamanu/shared/sync/completeSyncSession';
 
 export class StaleSyncSessionCleaner extends ScheduledTask {
   getName() {
@@ -38,12 +38,19 @@ export class StaleSyncSessionCleaner extends ScheduledTask {
       select: ['id'],
       raw: true,
     });
-    for (const { id: sessionId } of staleSessions) {
+    for (const session of staleSessions) {
       await completeSyncSession(
         this.store,
-        sessionId,
+        session.id,
         'Session marked as completed due to inactivity',
       );
+      const durationMs = Date.now() - session.startTime;
+      log.info('StaleSyncSessionCleaner.closedStaleSession', {
+        sessionId: session.id,
+        durationMs,
+        facilityId: session.debugInfo.facilityId,
+        deviceId: session.debugInfo.deviceId,
+      });
     }
   }
 }

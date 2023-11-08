@@ -6,12 +6,12 @@ import {
   FacilityAndSyncVersionIncompatibleError,
   RemoteTimeoutError,
   RemoteCallFailedError,
-} from 'shared/errors';
-import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
-import { getResponseJsonSafely } from 'shared/utils';
-import { log } from 'shared/services/logging';
-import { fetchWithTimeout } from 'shared/utils/fetchWithTimeout';
-import { sleepAsync } from 'shared/utils/sleepAsync';
+} from '@tamanu/shared/errors';
+import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
+import { getResponseJsonSafely } from '@tamanu/shared/utils';
+import { log } from '@tamanu/shared/services/logging';
+import { fetchWithTimeout } from '@tamanu/shared/utils/fetchWithTimeout';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { version } from '../serverInfo';
 import { callWithBackoff } from './callWithBackoff';
@@ -44,11 +44,11 @@ export class CentralServerConnection {
   // test mocks don't always apply properly - this ensures the mock will be used
   fetchImplementation = fetch;
 
-  constructor(ctx) {
+  constructor({ deviceId }) {
     this.host = config.sync.host.trim().replace(/\/*$/, '');
     this.timeout = config.sync.timeout;
     this.batchSize = config.sync.channelBatchSize;
-    this.deviceId = ctx?.deviceId;
+    this.deviceId = deviceId;
   }
 
   async fetch(endpoint, params = {}) {
@@ -68,7 +68,8 @@ export class CentralServerConnection {
     if (awaitConnection) {
       try {
         if (!this.token) {
-          await this.connect();
+          // Deliberately use same backoff policy to avoid retrying in some places
+          await this.connect(backoff, otherParams.timeout);
         } else {
           await this.connectionPromise;
         }
@@ -167,7 +168,7 @@ export class CentralServerConnection {
     throw new Error(`Did not get a truthy response after ${maxAttempts} attempts for ${endpoint}`);
   }
 
-  async connect() {
+  async connect(backoff, timeout = this.timeout) {
     // if there's an ongoing connect attempt, reuse it
     if (this.connectionPromise) {
       return this.connectionPromise;
@@ -189,6 +190,8 @@ export class CentralServerConnection {
         },
         awaitConnection: false,
         retryAuth: false,
+        backoff,
+        timeout,
       });
 
       if (!body.token || !body.user) {
@@ -211,7 +214,13 @@ export class CentralServerConnection {
   }
 
   async startSyncSession() {
-    const { sessionId } = await this.fetch('sync', { method: 'POST' });
+    const { sessionId } = await this.fetch('sync', {
+      method: 'POST',
+      body: {
+        facilityId: config.serverFacilityId,
+        deviceId: this.deviceId,
+      },
+    });
 
     // then, poll the sync/:sessionId/ready endpoint until we get a valid response
     // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked

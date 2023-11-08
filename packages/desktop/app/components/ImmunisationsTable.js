@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import { VACCINE_STATUS } from '@tamanu/shared/constants/vaccines';
+import { VACCINE_STATUS } from '@tamanu/constants/vaccines';
 import { OutlinedButton } from './Button';
 import { MenuButton } from './MenuButton';
 import { DataFetchingTable } from './Table';

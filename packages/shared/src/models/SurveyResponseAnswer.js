@@ -1,7 +1,7 @@
 import config from 'config';
 import { upperFirst } from 'lodash';
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { InvalidOperationError } from '../errors';
 import { runCalculations } from '../utils/calculations';
@@ -30,7 +30,7 @@ export class SurveyResponseAnswer extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds, sessionConfig) {
+  static buildPatientSyncFilter(patientIds, sessionConfig) {
     if (patientIds.length === 0) {
       return null;
     }
@@ -100,6 +100,7 @@ export class SurveyResponseAnswer extends Model {
     // Get necessary info and data shapes for running calculations
     const screenComponents = await models.SurveyScreenComponent.getComponentsForSurvey(
       surveyResponse.surveyId,
+      { includeAllVitals: true },
     );
     const calculatedScreenComponents = screenComponents.filter(c => c.calculation);
     const updatedAnswerDataElement = await this.getProgramDataElement();

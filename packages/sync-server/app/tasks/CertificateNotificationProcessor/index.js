@@ -9,11 +9,11 @@ import {
   CERTIFICATE_NOTIFICATION_STATUSES,
   COVID_19_CLEARANCE_CERTIFICATE,
   VACCINATION_CERTIFICATE,
-} from 'shared/constants';
-import { log } from 'shared/services/logging';
-import { ScheduledTask } from 'shared/tasks';
-import { generateUVCI } from 'shared/utils/uvci';
-import { CertificateTypes } from 'shared/utils/patientCertificates';
+} from '@tamanu/constants';
+import { log } from '@tamanu/shared/services/logging';
+import { ScheduledTask } from '@tamanu/shared/tasks';
+import { generateUVCI } from '@tamanu/shared/utils/uvci';
+import { CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
 import {
   makeVaccineCertificate,
   makeCovidVaccineCertificate,

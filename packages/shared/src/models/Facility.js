@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '../constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 
 export class Facility extends Model {
@@ -59,5 +59,9 @@ export class Facility extends Model {
       through: 'PatientFacility',
       as: 'markedForSyncPatients',
     });
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 }

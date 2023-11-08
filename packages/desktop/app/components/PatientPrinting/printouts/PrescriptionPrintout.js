@@ -4,7 +4,7 @@ import { Typography, Box } from '@material-ui/core';
 
 import { DateDisplay } from '../../DateDisplay';
 
-import { NotesSection } from './reusable/SimplePrintout';
+import { NoteContentSection } from './reusable/SimplePrintout';
 import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { GridTable } from './reusable/GridTable';
@@ -51,7 +51,7 @@ export const PrescriptionPrintout = React.memo(
             Repeats: '', // There isn't a separate saved value for repeats currently
           }}
         />
-        <NotesSection notes={[{ content: note }]} />
+        <NoteContentSection notes={[{ content: note }]} />
         <Text>Signed:</Text>
         <SignatureBox />
       </CertificateWrapper>

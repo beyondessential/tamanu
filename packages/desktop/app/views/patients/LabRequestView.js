@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { Timelapse, Business, AssignmentLate } from '@material-ui/icons';
-import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/shared/constants';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
 import { useAuth } from '../../contexts/Auth';
 import BeakerIcon from '../../assets/images/beaker.svg';
 import TestCategoryIcon from '../../assets/images/testCategory.svg';

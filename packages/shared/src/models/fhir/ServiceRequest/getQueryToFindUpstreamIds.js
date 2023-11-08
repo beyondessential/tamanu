@@ -225,35 +225,17 @@ export function fromLabRequests(models, table, id) {
 }
 
 function fromBoth(models, table, id) {
-  const { NotePage, NoteItem, Encounter, Patient } = models;
+  const { Note, Encounter, Patient } = models;
 
   switch (table) {
-    case NotePage.tableName:
+    case Note.tableName:
       return {
         include: [
           {
-            model: NotePage,
-            as: 'notePages',
+            model: Note,
+            as: 'notes',
             required: true,
             where: { id },
-          },
-        ],
-      };
-    case NoteItem.tableName:
-      return {
-        include: [
-          {
-            model: NotePage,
-            as: 'notePages',
-            required: true,
-            include: [
-              {
-                model: NoteItem,
-                as: 'noteItems',
-                required: true,
-                where: { id },
-              },
-            ],
           },
         ],
       };

@@ -196,10 +196,6 @@ export abstract class BaseModel extends BaseEntity {
   // May be columns or relationIds
   static excludedSyncColumns: string[] = ['createdAt', 'updatedAt', 'updatedAtSyncTick'];
 
-  // Include these relations on uploaded model
-  // Does not currently handle lazy or embedded relations
-  static includedSyncRelations: string[] = [];
-
   static getTableNameForSync(): string {
     // most tables in the wider sync universe are the same as the name on mobile, but pluralised
     // specific plural handling, and a couple of other unique cases, are handled on the relevant
