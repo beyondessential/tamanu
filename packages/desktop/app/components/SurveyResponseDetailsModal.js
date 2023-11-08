@@ -8,25 +8,32 @@ import { SurveyResultBadge } from './SurveyResultBadge';
 import { ViewPhotoLink } from './ViewPhotoLink';
 import { useApi } from '../api';
 import { Button } from './Button';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const convertBinaryToYesNo = value => {
   switch (value) {
     case 'true':
     case '1':
-      return 'Yes';
+      return <TranslatedText stringId="general.action.yes" fallback="Yes" />;
     case 'false':
     case '0':
-      return 'No';
+      return <TranslatedText stringId="general.action.no" fallback="No" />;
     default:
       return value;
   }
 };
 
 const COLUMNS = [
-  { key: 'text', title: 'Indicator', accessor: ({ name }) => name },
+  {
+    key: 'text',
+    title: (
+      <TranslatedText stringId="program.modal.view.table.column.indicator" fallback="Indicator" />
+    ),
+    accessor: ({ name }) => name,
+  },
   {
     key: 'value',
-    title: 'Value',
+    title: <TranslatedText stringId="program.modal.view.table.column.value" fallback="Value" />,
     accessor: ({ answer, type }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const [surveyLink, setSurveyLink] = useState(null);
@@ -47,7 +54,10 @@ const COLUMNS = [
           return (
             <>
               <Button onClick={() => setSurveyLink(answer)} variant="contained" color="primary">
-                Show Survey
+                <TranslatedText
+                  stringId="program.modal.view.action.surveyLink"
+                  fallback="Show Survey"
+                />
               </Button>
               <SurveyResponseDetailsModal
                 surveyResponseId={surveyLink}
@@ -88,8 +98,17 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
 
   if (error) {
     return (
-      <Modal title="Survey response" open={!!surveyResponseId} onClose={onClose}>
-        <h3>Error fetching response details</h3>
+      <Modal
+        title={<TranslatedText stringId="program.modal.view.title" fallback="Survey response" />}
+        open={!!surveyResponseId}
+        onClose={onClose}
+      >
+        <h3>
+          <TranslatedText
+            stringId="program.modal.view.error.fetch"
+            fallback="Error fetching response details"
+          />
+        </h3>
         <pre>{error.stack}</pre>
       </Modal>
     );
@@ -97,8 +116,12 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
 
   if (isLoading || !surveyDetails) {
     return (
-      <Modal title="Survey response" open={!!surveyResponseId} onClose={onClose}>
-        Loading...
+      <Modal
+        title={<TranslatedText stringId="program.modal.view.title" fallback="Survey response" />}
+        open={!!surveyResponseId}
+        onClose={onClose}
+      >
+        <TranslatedText stringId="general.table.loading" fallback="Loading..." />
       </Modal>
     );
   }
@@ -121,7 +144,11 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
     .filter(r => r.answer !== undefined);
 
   return (
-    <Modal title="Survey response" open={!!surveyResponseId} onClose={onClose}>
+    <Modal
+      title={<TranslatedText stringId="program.modal.view.title" fallback="Survey response" />}
+      open={!!surveyResponseId}
+      onClose={onClose}
+    >
       <Table data={answerRows} columns={COLUMNS} allowExport={false} />
     </Modal>
   );

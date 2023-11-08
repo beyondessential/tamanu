@@ -24,6 +24,7 @@ import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useEncounter } from '../../contexts/Encounter';
 import { PATIENT_TABS } from '../../constants/patientPaths';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
@@ -123,7 +124,9 @@ const SurveyFlow = ({ patient, currentUser }) => {
     return (
       <ProgramsPane>
         <ProgramsPaneHeader>
-          <ProgramsPaneHeading variant="h6">Select survey</ProgramsPaneHeading>
+          <ProgramsPaneHeading variant="h6">
+            <TranslatedText stringId="program.modal.selectSurvey.title" fallback="Select survey" />
+          </ProgramsPaneHeading>
         </ProgramsPaneHeader>
         <FormGrid columns={1}>
           <SelectInput
@@ -137,7 +140,12 @@ const SurveyFlow = ({ patient, currentUser }) => {
             onChange={setSelectedSurveyId}
             value={selectedSurveyId}
             surveys={surveys}
-            buttonText="Begin survey"
+            buttonText={
+              <TranslatedText
+                stringId="program.modal.selectSurvey.action.begin"
+                fallback="Begin survey"
+              />
+            }
           />
         </FormGrid>
       </ProgramsPane>
