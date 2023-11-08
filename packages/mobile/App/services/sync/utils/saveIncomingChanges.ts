@@ -4,12 +4,14 @@ import { chunk } from 'lodash';
 import { SyncRecord } from '../types';
 import { sortInDependencyOrder } from './sortInDependencyOrder';
 import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/helpers';
-import { buildFromSyncRecord } from './buildFromSyncRecord';
+import { buildFromSyncRecord, getRelationIdsFieldMapping } from './buildFromSyncRecord';
 import { executeInserts, executeUpdates, executeDeletes } from './executeCrud';
 import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
 import { readFileInDocuments } from '../../../ui/helpers/file';
 import { getDirPath } from './getFilePath';
+import { Encounter } from '~/models/Encounter';
+import { Database } from '~/infra/db';
 
 /**
  * Save changes for a single model in batch because SQLite only support limited number of parameters

@@ -105,18 +105,16 @@ const PatientFieldValueTable = new Table({
       name: 'patientId',
       type: 'varchar',
       isNullable: false,
-      isPrimary: true,
     }),
     new TableColumn({
       name: 'definitionId',
       type: 'varchar',
       isNullable: false,
-      isPrimary: true,
     }),
     new TableColumn({
       name: 'id',
       type: 'text',
-      isNullable: true,
+      isPrimary: true,
     }),
   ],
   foreignKeys: [

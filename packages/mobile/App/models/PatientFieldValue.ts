@@ -2,33 +2,29 @@ import {
   BeforeInsert,
   Entity,
   Column,
-  PrimaryColumn,
   ManyToOne,
   RelationId,
 } from 'typeorm/browser';
 
 import { IPatientFieldValue } from '~/types';
-import { BaseModelWithoutId } from './BaseModelWithoutId';
 import { Patient } from './Patient';
 import { PatientFieldDefinition } from './PatientFieldDefinition';
 import { SYNC_DIRECTIONS } from './types';
+import { BaseModel } from './BaseModel';
 
 @Entity('patient_field_value')
-export class PatientFieldValue extends BaseModelWithoutId implements IPatientFieldValue {
+export class PatientFieldValue extends BaseModel implements IPatientFieldValue {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   @Column({ nullable: false })
   value: string;
-
-  @Column({ nullable: true })
-  id?: string;
 
   @ManyToOne(
     () => Patient,
     patient => patient.patientFieldValues,
   )
   patient: Patient;
-  @PrimaryColumn()
+
   @RelationId(({ patient }) => patient)
   patientId: string;
 
@@ -37,7 +33,7 @@ export class PatientFieldValue extends BaseModelWithoutId implements IPatientFie
     patientFieldDefinition => patientFieldDefinition.patientFieldValues,
   )
   definition: PatientFieldDefinition;
-  @PrimaryColumn()
+
   @RelationId(({ definition }) => definition)
   definitionId: string;
 
@@ -45,7 +41,7 @@ export class PatientFieldValue extends BaseModelWithoutId implements IPatientFie
   async assignIdAsPatientIdDefinitionId(): Promise<void> {
     // N.B. because ';' is used to join the two, we replace any actual occurrence of ';' with ':'
     // to avoid clashes on the joined id
-    this.id = `${this.patientId.replace(';', ':')};${this.definitionId.replace(';', ':')}`;
+    this.id = `${this.patient.replace(';', ':')};${this.definition.replace(';', ':')}`;
   }
 
   static getTableNameForSync(): string {
@@ -77,10 +73,13 @@ export class PatientFieldValue extends BaseModelWithoutId implements IPatientFie
       return existing.save();
     }
 
-    if (!value) return; // to not create a null / empty string value entry
+    if (!value) {
+      return; // to not create a null / empty string value entry
+    }
+
     return PatientFieldValue.createAndSaveOne({
-      patientId,
-      definitionId,
+      patient: patientId,
+      definition: definitionId,
       value,
     });
   }
