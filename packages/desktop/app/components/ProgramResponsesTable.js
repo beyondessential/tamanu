@@ -59,7 +59,9 @@ export const DataFetchingProgramsTable = ({ endpoint }) => {
           orderBy: 'endTime',
           order: 'asc',
         }}
-        noDataMessage="No program responses found"
+        noDataMessage={
+          <TranslatedText stringId="program.table.noData" fallback="No program responses found" />
+        }
         onRowClick={onSelectResponse}
         elevated={false}
       />

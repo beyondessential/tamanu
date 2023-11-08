@@ -102,7 +102,12 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       <DataFetchingTable
         columns={columns}
         onRowClick={row => onItemClick(row.id)}
-        noDataMessage="No historical records for this patient."
+        noDataMessage={
+          <TranslatedText
+            stringId="patientHistory.table.noData"
+            fallback="No historical records for this patient."
+          />
+        }
         endpoint={`patient/${patient.id}/encounters`}
         initialSort={{ orderBy: 'startDate', order: 'desc' }}
         refreshCount={refreshCount}
