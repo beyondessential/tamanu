@@ -1,8 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { ForbiddenError, NotFoundError } from 'shared/errors';
-import { constructPermission } from 'shared/permissions/middleware';
+import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
+import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { createDataImporterEndpoint } from './importerEndpoint';
 
 import { programImporter } from './programImporter';
@@ -11,6 +11,7 @@ import { exporter } from './exporter';
 
 import { mergePatientHandler } from './patientMerge';
 import { syncLastCompleted } from './sync';
+import { fhirJobStats } from './fhirJobStats';
 import { reportsRouter } from './reports/reportRoutes';
 import { patientLetterTemplateRoutes } from './patientLetterTemplate';
 import { assetRoutes } from './asset';
@@ -77,6 +78,8 @@ adminRoutes.get(
 );
 
 adminRoutes.get('/sync/lastCompleted', syncLastCompleted);
+
+adminRoutes.get('/fhir/jobStats', fhirJobStats);
 
 adminRoutes.use('/patientLetterTemplate', patientLetterTemplateRoutes);
 

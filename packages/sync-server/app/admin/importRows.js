@@ -1,5 +1,6 @@
 import { camelCase, lowerCase, lowerFirst, startCase, upperFirst } from 'lodash';
 import { Op } from 'sequelize';
+import { permissionCache } from '@tamanu/shared/permissions/cache';
 import { ValidationError as YupValidationError } from 'yup';
 import config from 'config';
 
@@ -194,6 +195,9 @@ export async function importRows(
     try {
       if (existing) {
         if (values.deletedAt) {
+          if (model !== 'Permission') {
+            throw new ValidationError(`Deleting ${model} via the importer is not supported`);
+          }
           await existing.destroy();
           updateStat(stats, statkey(model, sheetName), 'deleted');
         } else {
@@ -212,6 +216,12 @@ export async function importRows(
       updateStat(stats, statkey(model, sheetName), 'errored');
       errors.push(new UpsertionError(sheetName, sheetRow, err));
     }
+  }
+
+  // You can't use hooks with instances. Hooks are used with models only.
+  // https://sequelize.org/docs/v6/other-topics/hooks/
+  if (validRows.some(({ model }) => model === 'Permission')) {
+    permissionCache.reset();
   }
 
   log.debug('Done with these rows');

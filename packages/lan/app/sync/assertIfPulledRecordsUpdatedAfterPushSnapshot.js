@@ -1,5 +1,5 @@
-import { getSnapshotTableName, SYNC_SESSION_DIRECTION } from 'shared/sync';
-import { LAST_SUCCESSFUL_SYNC_PUSH_KEY } from 'shared/sync/constants';
+import { getSnapshotTableName, SYNC_SESSION_DIRECTION } from '@tamanu/shared/sync';
+import { LAST_SUCCESSFUL_SYNC_PUSH_KEY } from '@tamanu/shared/sync/constants';
 
 /**
  * If a pulled record was also updated between push and pull, it would get overwritten by pullings if we proceed.

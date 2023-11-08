@@ -26,7 +26,6 @@
     "email": "",
     "password": "",
     "timeout": 10000,
-    "readOnly": false,
     "persistedCacheBatchSize": 10000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "pauseBetweenCacheBatchInMilliseconds": 50,
@@ -52,7 +51,26 @@
     "username": "",
     "password": "",
     "verbose": false,
-    "migrateOnStartup": false
+    "migrateOnStartup": false,
+    "reportSchemas": {
+      "enabled": false,
+      "connections": {
+        "raw": {
+          "pool": {
+            "max": 5
+          },
+          "username": "",
+          "password": ""
+        },
+        "reporting": {
+          "pool": {
+            "max": 5
+          },
+          "username": "",
+          "password": ""
+        }
+      }
+    }
   },
   "senaite": {
     "enabled": false,

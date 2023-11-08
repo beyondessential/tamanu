@@ -10,7 +10,7 @@ import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMult
 import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { Table } from '../../../components/Table';
-import { LargeButton, LargeOutlineButton } from '../../../components/Button';
+import { LargeSubmitButton, LargeOutlinedSubmitButton } from '../../../components/Button';
 
 const ColorText = styled.span`
   color: ${props => props.color};
@@ -55,7 +55,7 @@ const ImportStatsDisplay = ({ stats }) => (
   />
 );
 
-const ImportForm = ({ isSubmitting, submitForm, dataTypes, dataTypesSelectable }) => (
+const ImportForm = ({ submitForm, dataTypes, dataTypesSelectable }) => (
   <FormGrid columns={1}>
     <Field
       component={FileChooserField}
@@ -73,24 +73,11 @@ const ImportForm = ({ isSubmitting, submitForm, dataTypes, dataTypesSelectable }
       />
     )}
     <ButtonRow>
-      <LargeOutlineButton
-        disabled={isSubmitting}
-        size="large"
-        onClick={event => {
-          submitForm(event, { dryRun: true });
-        }}
-      >
-        Test import
-      </LargeOutlineButton>
-      <LargeButton
-        disabled={isSubmitting}
-        size="large"
-        onClick={event => {
-          submitForm(event);
-        }}
-      >
-        Import
-      </LargeButton>
+      <LargeOutlinedSubmitButton
+        text="Test import"
+        onSubmit={event => submitForm(event, { dryRun: true })}
+      />
+      <LargeSubmitButton text="Import" />
     </ButtonRow>
   </FormGrid>
 );

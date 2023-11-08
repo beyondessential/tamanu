@@ -1,11 +1,12 @@
 import React, { useCallback } from 'react';
 import { VACCINE_STATUS, VACCINE_RECORDING_TYPES } from '@tamanu/constants';
 import { useDispatch } from 'react-redux';
-import { Modal } from './Modal';
+import { FormModal } from './FormModal';
 import { useApi, useSuggester } from '../api';
 import { reloadPatient } from '../store/patient';
 import { ViewAdministeredVaccineContent } from './ViewAdministeredVaccineModal';
 import { VaccineForm } from '../forms/VaccineForm';
+import { TranslatedText } from './Translation/TranslatedText';
 
 export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
   const api = useApi();
@@ -28,7 +29,7 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
         ...newData,
         circumstanceIds: Array.isArray(newData.circumstanceIds)
           ? newData.circumstanceIds
-          : newData.circumstanceIds?.split(',').map(c => c.trim()),
+          : JSON.parse(newData.circumstanceIds),
       });
       dispatch(reloadPatient(patientId));
     },
@@ -40,7 +41,12 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
   const notGiven = VACCINE_STATUS.NOT_GIVEN === vaccineRecord?.status;
 
   return (
-    <Modal title="Edit vaccine record" open={open} onClose={onClose} cornerExitButton={false}>
+    <FormModal
+      title={<TranslatedText stringId="vaccine.modal.edit.title" fallback="Edit vaccine record" />}
+      open={open}
+      onClose={onClose}
+      cornerExitButton={false}
+    >
       <ViewAdministeredVaccineContent vaccineRecord={vaccineRecord} editMode />
       <VaccineForm
         onSubmit={handleUpdateVaccine}
@@ -52,6 +58,6 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
           notGiven ? VACCINE_RECORDING_TYPES.NOT_GIVEN : VACCINE_RECORDING_TYPES.GIVEN
         }
       />
-    </Modal>
+    </FormModal>
   );
 };

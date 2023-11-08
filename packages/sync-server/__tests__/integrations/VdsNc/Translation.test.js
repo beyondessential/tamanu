@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fake, fakeUser } from 'shared/test-helpers/fake';
+import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { createVdsNcTestData, createVdsNcVaccinationData } from '../../../app/integrations/VdsNc';
 

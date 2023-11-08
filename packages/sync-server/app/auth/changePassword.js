@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 import * as yup from 'yup';
 import { ValidationError } from 'yup';
 import { findUser } from './utils';

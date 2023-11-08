@@ -9,7 +9,13 @@ import {
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import config from 'config';
-import { jsonString, validationString, configString } from './jsonString';
+import {
+  jsonString,
+  validationString,
+  configString,
+  visualisationConfigString,
+} from './jsonString';
+import { rangeObjectSchema, rangeArraySchema } from './rangeObject';
 
 const visibilityStatus = yup
   .string()
@@ -76,6 +82,10 @@ export const User = Base.shape({
   displayId: yup.string(),
   displayName: yup.string().required(),
   password: yup.string(),
+  visibilityStatus: yup
+    .string()
+    .default(VISIBILITY_STATUSES.CURRENT)
+    .oneOf([VISIBILITY_STATUSES.CURRENT, VISIBILITY_STATUSES.HISTORICAL]),
 });
 
 export const Facility = Base.shape({
@@ -148,6 +158,13 @@ export const LabTestPanelLabTestTypes = yup.object().shape({
   labTestTypeId: yup.string().required(),
 });
 
+const visualisationConfigSchema = yup.object().shape({
+  yAxis: yup.object().shape({
+    graphRange: yup.lazy(value => (Array.isArray(value) ? rangeArraySchema : rangeObjectSchema)),
+    interval: yup.number().required(),
+  }),
+});
+
 export const ProgramDataElement = Base.shape({
   indicator: yup.string(),
   type: yup
@@ -155,12 +172,19 @@ export const ProgramDataElement = Base.shape({
     .required()
     .oneOf(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
   defaultOptions: jsonString(),
+  visualisationConfig: visualisationConfigString(visualisationConfigSchema),
 });
 
 export const baseValidationShape = yup
   .object()
   .shape({
-    mandatory: yup.boolean(),
+    mandatory: yup.lazy(value => {
+      return typeof value === 'boolean'
+        ? yup.boolean()
+        : yup.object().shape({
+            encounterType: yup.mixed(),
+          });
+    }),
   })
   .noUnknown();
 
@@ -179,6 +203,7 @@ export const SurveyScreenComponent = Base.shape({
   surveyId: yup.string().required(),
   detail: yup.string().max(255),
   dataElementId: yup.string().required(),
+  visibilityStatus,
 });
 
 export const ScheduledVaccine = Base.shape({

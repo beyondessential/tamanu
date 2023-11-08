@@ -6,6 +6,7 @@ export { PermissionsAdminView } from './PermissionsAdminView';
 export { ReferenceDataAdminView } from './ReferenceDataAdminView';
 export { PatientMergeView } from './patientMerge';
 export { SyncView } from './SyncView';
+export { FhirJobStatsView } from './FhirJobStatsView';
 export { ReportsAdminView } from './reports/ReportsAdminView';
 export { TranslationAdminView } from './translation/TranslationAdminView';
 export { TemplateView } from './templates';

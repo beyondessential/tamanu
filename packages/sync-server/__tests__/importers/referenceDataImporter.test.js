@@ -1,10 +1,10 @@
 import { Op } from 'sequelize';
-import { fake } from 'shared/test-helpers/fake';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
 } from '@tamanu/constants/importable';
-import { createDummyPatient } from 'shared/demoData/patients';
+import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { REFERENCE_TYPES } from '@tamanu/constants';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { referenceDataImporter } from '../../app/admin/referenceDataImporter';

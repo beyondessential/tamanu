@@ -1,7 +1,7 @@
 import { join } from 'path';
 import { mkdtemp, writeFile, rmdir } from 'fs/promises';
 import { tmpdir } from 'os';
-import { fake } from 'shared/test-helpers/fake';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { Op } from 'sequelize';
 import { listSettings, getSetting, setSetting, loadSettings } from '../../app/subCommands/settings';
 import { createTestContext } from '../utilities';

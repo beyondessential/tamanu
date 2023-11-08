@@ -100,6 +100,7 @@ export class SurveyResponseAnswer extends Model {
     // Get necessary info and data shapes for running calculations
     const screenComponents = await models.SurveyScreenComponent.getComponentsForSurvey(
       surveyResponse.surveyId,
+      { includeAllVitals: true },
     );
     const calculatedScreenComponents = screenComponents.filter(c => c.calculation);
     const updatedAnswerDataElement = await this.getProgramDataElement();

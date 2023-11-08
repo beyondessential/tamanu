@@ -3,7 +3,7 @@ import { Modal } from './Modal';
 import { OutlinedButton } from './Button';
 import { VitalsForm } from '../forms';
 
-export const NestedVitalsModal = React.memo(({ field, patient }) => {
+export const NestedVitalsModal = React.memo(({ field, patient, encounterType }) => {
   const [isOpen, setModalOpen] = useState(false);
   const openModal = () => setModalOpen(true);
   const closeModal = () => setModalOpen(false);
@@ -16,7 +16,12 @@ export const NestedVitalsModal = React.memo(({ field, patient }) => {
     <>
       <OutlinedButton onClick={openModal}>Record vitals</OutlinedButton>
       <Modal open={isOpen} onClose={closeModal} title="Record vitals">
-        <VitalsForm patient={patient} onSubmit={onSubmit} onClose={closeModal} />
+        <VitalsForm
+          patient={patient}
+          onSubmit={onSubmit}
+          onClose={closeModal}
+          encounterType={encounterType}
+        />
       </Modal>
     </>
   );

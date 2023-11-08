@@ -118,8 +118,6 @@ const getData = async (sequelize, parameters) => {
     statuses,
   } = parameters;
 
-  const selectedStatuses = statuses?.split(', ') ?? null;
-
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
     replacements: {
@@ -127,8 +125,8 @@ const getData = async (sequelize, parameters) => {
       to_date: toDate ?? null,
       requested_by_id: requestedById ?? null,
       imaging_type: imagingType ?? null,
-      statuses: selectedStatuses,
-      areStatuses: selectedStatuses ? 'true' : null,
+      statuses: statuses ?? null,
+      areStatuses: statuses ? 'true' : null,
     },
   });
 };

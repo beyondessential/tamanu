@@ -26,6 +26,8 @@ export const practitioner = [
   { verb: 'create', noun: 'LabRequest' },
 
   { verb: 'write', noun: 'LabRequestStatus' },
+
+  { verb: 'read', noun: 'LabTestResult' },
   { verb: 'write', noun: 'LabTestResult' },
 
   { verb: 'list', noun: 'LabRequestLog' },
@@ -134,6 +136,8 @@ export const practitioner = [
   { verb: 'read', noun: 'ReportDefinitionVersion' },
   { verb: 'write', noun: 'ReportDefinitionVersion' },
   { verb: 'create', noun: 'ReportDefinitionVersion' },
+
+  { verb: 'write', noun: 'ReportDbSchema' },
 
   { verb: 'list', noun: 'PatientCarePlan' },
   { verb: 'read', noun: 'PatientCarePlan' },

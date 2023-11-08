@@ -8,7 +8,7 @@ If your PR is red because of this test, you likely need to either:
 
 import util from 'util';
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
-import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
+import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 import { createTestContext } from '../../utilities';
 
 expect.extend({

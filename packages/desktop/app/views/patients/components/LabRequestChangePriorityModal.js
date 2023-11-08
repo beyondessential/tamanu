@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSuggester } from '../../../api';
-import { AutocompleteInput, FormGrid, Modal, ModalActionRow } from '../../../components';
+import { AutocompleteInput, FormGrid, FormModal, ModalActionRow } from '../../../components';
 
 export const LabRequestChangePriorityModal = React.memo(
   ({ labRequest, updateLabReq, open, onClose }) => {
@@ -15,7 +15,7 @@ export const LabRequestChangePriorityModal = React.memo(
     };
 
     return (
-      <Modal open={open} onClose={onClose} title="Change priority">
+      <FormModal open={open} onClose={onClose} title="Change priority">
         <FormGrid columns={1}>
           <AutocompleteInput
             label="Priority"
@@ -28,7 +28,7 @@ export const LabRequestChangePriorityModal = React.memo(
           />
           <ModalActionRow confirmText="Confirm" onConfirm={updateLab} onCancel={onClose} />
         </FormGrid>
-      </Modal>
+      </FormModal>
     );
   },
 );
