@@ -10,7 +10,11 @@ import {
   paginatedGetList,
   permissionCheckingRouter,
 } from '@tamanu/shared/utils/crudHelpers';
-import { getWhereClausesAndReplacementsFromFilters, makeFilter } from '../../utils/query';
+import {
+  getWhereClausesAndReplacementsFromFilters,
+  makeDeletedAtIsNullFilter,
+  makeFilter,
+} from '../../utils/query';
 
 export const user = express.Router();
 
@@ -61,7 +65,7 @@ user.get(
       makeFilter(query.encounterType, 'encounters.encounter_type = :encounterType', () => ({
         encounterType: query.encounterType,
       })),
-      makeFilter(true, `encounters.deleted_at is null`),
+      makeDeletedAtIsNullFilter('encounters'),
       makeFilter(true, `user_recently_viewed_patients.user_id = :userId`, () => ({
         userId: currentUser.id,
       })),

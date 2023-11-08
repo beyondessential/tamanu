@@ -22,6 +22,7 @@ import {
 } from '@tamanu/shared/utils/crudHelpers';
 import {
   getWhereClausesAndReplacementsFromFilters,
+  makeDeletedAtIsNullFilter,
   makeFilter,
   makeSimpleTextFilterFactory,
   makeSubstringTextFilterFactory,
@@ -108,6 +109,7 @@ labRequest.get(
       makeFilter(true, `lab_requests.status != :cancelled`, () => ({
         cancelled: LAB_REQUEST_STATUSES.CANCELLED,
       })),
+      makeDeletedAtIsNullFilter('lab_requests'),
       makeFilter(true, `lab_requests.status != :enteredInError`, () => ({
         enteredInError: LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
       })),
@@ -159,7 +161,7 @@ labRequest.get(
           published: LAB_REQUEST_STATUSES.PUBLISHED,
         }),
       ),
-      makeFilter(true, 'encounter.deleted_at is null'),
+      makeDeletedAtIsNullFilter('encounter'),
     ].filter(f => f);
 
     const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
