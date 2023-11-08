@@ -6,8 +6,8 @@ import { Modal } from '../../../components/Modal';
 export const DeleteEncounterModal = ({ open, onClose, encounterToDelete, patient }) => {
   const api = useApi();
 
-  const onConfirmCancel = async () => {
-    api.delete(`encounter/${encounterToDelete.id}`);
+  const onSubmit = async () => {
+    await api.delete(`encounter/${encounterToDelete.id}`);
     onClose();
   };
 
@@ -16,7 +16,7 @@ export const DeleteEncounterModal = ({ open, onClose, encounterToDelete, patient
       <DeleteEncounterForm
         encounterToDelete={encounterToDelete}
         onCancel={onClose}
-        onSubmit={onConfirmCancel}
+        onSubmit={onSubmit}
         patient={patient}
       />
     </Modal>

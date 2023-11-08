@@ -66,7 +66,7 @@ export const DeleteEncounterForm = ({
         // Used in creation of associated notes
         submittedTime: getCurrentDateTimeString(),
       }}
-      render={({ submitForm, values }) => {
+      render={({ submitForm }) => {
         return (
           <div>
             <FormGrid columns={2} $color="white">

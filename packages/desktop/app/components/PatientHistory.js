@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { OutlinedButton } from './Button';
 import { DataFetchingTable } from './Table';
@@ -9,7 +10,6 @@ import { ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 import { LocationGroupCell } from './LocationCell';
 import { LimitedLinesCell } from './FormattedTableCell';
 import { MenuButton } from './MenuButton';
-import { useUrlSearchParams } from '../utils/useUrlSearchParams';
 import { DeleteEncounterModal } from '../views/patients/components/DeleteEncounterModal';
 
 const DateWrapper = styled.div`
@@ -48,7 +48,7 @@ const MODALS = {
 };
 
 export const PatientHistory = ({ patient, onItemClick }) => {
-  const query = useUrlSearchParams();
+  const queryClient = useQueryClient();
   const [refreshCount, setRefreshCount] = useState(0);
   const [modalId, setModalId] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -131,6 +131,8 @@ export const PatientHistory = ({ patient, onItemClick }) => {
           patient={patient}
           onClose={() => {
             setModalOpen(false);
+            queryClient.invalidateQueries(['patientCurrentEncounter', patient.id]);
+            setRefreshCount(refreshCount + 1);
           }}
         />
       )}
