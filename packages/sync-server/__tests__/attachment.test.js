@@ -19,7 +19,6 @@ describe('Attachment (sync-server)', () => {
     baseApp = ctx.baseApp;
     models = ctx.store.models;
     app = await baseApp.asRole('practitioner');
-    role = await models.Role.create({ id: 'practitioner', name: 'practitioner' });
     attachment = await models.Attachment.create({
       type: 'image/jpeg',
       size: 1002,
@@ -30,10 +29,13 @@ describe('Attachment (sync-server)', () => {
   beforeEach(async () => {
     await models.Permission.truncate({ force: true });
 
-    await makePermissionsForRole(models, role.id, [
-      { verb: 'read', noun: 'Attachment' },
-      { verb: 'create', noun: 'Attachment' },
-    ]);
+    app = await baseApp.asNewRole(
+      [
+        ['read', 'Attachment'],
+        ['create', 'Attachment'],
+      ],
+      { id: 'practitioner' },
+    );
   });
 
   afterAll(async () => ctx.close());
@@ -94,14 +96,16 @@ describe('Attachment (sync-server)', () => {
     });
 
     it('gets an attachment if there is sufficient read Attachment permission', async () => {
-      await makePermissionsForRole(models, role.id, [{ verb: 'read', noun: 'Attachment' }]);
+      app = await baseApp.asNewRole([['read', 'Attachment']], { id: 'practitioner' });
 
       const result = await app.get(`/v1/attachment/${attachment.id}?base64=true`);
       expect(result).toHaveSucceeded();
     });
 
     it('creates an attachment if there is sufficient create Attachment permission', async () => {
-      await makePermissionsForRole(models, role.id, [{ verb: 'create', noun: 'Attachment' }]);
+      app = await baseApp.asNewRole([['create', 'Attachment']], {
+        id: 'practitioner',
+      });
 
       canUploadAttachment.mockImplementationOnce(async () => true);
       const result = await app.post('/v1/attachment').send({
@@ -113,14 +117,16 @@ describe('Attachment (sync-server)', () => {
     });
 
     it('rejects getting an attachment if there is no read Attachment permission', async () => {
-      await makePermissionsForRole(models, role.id, [{ verb: 'create', noun: 'Attachment' }]);
+      app = await baseApp.asNewRole([['create', 'Attachment']], {
+        id: 'practitioner',
+      });
 
       const result = await app.get(`/v1/attachment/${attachment.id}?base64=true`);
       expect(result).toBeForbidden();
     });
 
     it('rejects getting an attachment if there is no create Attachment permission', async () => {
-      await makePermissionsForRole(models, role.id, [{ verb: 'read', noun: 'Attachment' }]);
+      app = await baseApp.asNewRole([['read', 'Attachment']], { id: 'practitioner' });
 
       canUploadAttachment.mockImplementationOnce(async () => true);
       const result = await app.post('/v1/attachment').send({
