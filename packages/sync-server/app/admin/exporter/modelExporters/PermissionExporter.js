@@ -25,7 +25,9 @@ export class PermissionExporter extends ModelExporter {
 
     const data = {};
     permissions.forEach(({ dataValues: permission }) => {
-      const key = `${permission.verb}#${permission.noun}`;
+      const key = `${permission.verb}#${permission.noun}${
+        permission.objectId ? `#${permission.objectId}` : ''
+      }`;
       if (data[key]) {
         data[key][permission.roleId] = mapDeletionStatus(permission.deletionStatus);
       } else {

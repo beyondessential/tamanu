@@ -19,7 +19,7 @@ import { versionCompatibility } from './middleware/versionCompatibility';
 import { version } from './serverInfo';
 
 export function createApp(ctx) {
-  const { store, emailService } = ctx;
+  const { store, emailService, reportSchemaStores } = ctx;
 
   // Init our app
   const app = express();
@@ -45,8 +45,8 @@ export function createApp(ctx) {
     req.store = store;
     req.models = store.models;
     req.emailService = emailService;
+    req.reportSchemaStores = reportSchemaStores;
     req.ctx = ctx;
-
     next();
   });
 

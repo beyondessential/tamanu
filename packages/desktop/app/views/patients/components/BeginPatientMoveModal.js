@@ -7,7 +7,7 @@ import {
   BodyText,
   Field,
   Form,
-  Modal,
+  FormModal,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
   RadioField,
@@ -47,7 +47,7 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
     return submit({ locationId, ...rest });
   };
   return (
-    <Modal title="Move patient" open={open} onClose={onClose}>
+    <FormModal title="Move patient" open={open} onClose={onClose}>
       <Form
         initialValues={{ plannedLocationId: encounter.plannedLocationId, action: 'plan' }}
         onSubmit={onSubmit}
@@ -81,7 +81,7 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
           );
         }}
       />
-    </Modal>
+    </FormModal>
   );
 });
 

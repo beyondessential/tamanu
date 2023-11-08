@@ -3,9 +3,13 @@ import { Formik, useFormikContext } from 'formik';
 import PropTypes from 'prop-types';
 import { ValidationError } from 'yup';
 import { Typography } from '@material-ui/core';
+import { Alert, AlertTitle } from '@material-ui/lab';
+import styled from 'styled-components';
+
 import { flattenObject } from '../../utils';
 import { Dialog } from '../Dialog';
 import { FORM_STATUSES, FORM_TYPES } from '../../constants';
+import { useFormSubmission } from '../../contexts/FormSubmission';
 
 const ErrorMessage = ({ error }) => `${JSON.stringify(error)}`;
 
@@ -34,11 +38,49 @@ const ScrollToError = () => {
   return null;
 };
 
+const StyledForm = styled.form`
+  ${props =>
+    !props.$clickable
+      ? `
+      .MuiFormControl-root {
+        pointer-events: none;
+      }
+    `
+      : ''}
+`;
+
+const FormSubmissionFlag = () => {
+  const { isSubmitting } = useFormikContext();
+  const { setIsClosable, setHasFormSubmission } = useFormSubmission();
+
+  useEffect(() => {
+    setHasFormSubmission(true);
+    // we only want to flag this once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    setIsClosable(!isSubmitting);
+    // we only want to set isClosable when isSubmitting is changed
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSubmitting]);
+
+  return null;
+};
+
 export class Form extends React.PureComponent {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+
+    const { onSubmit, formType = FORM_TYPES.DATA_FORM } = props;
+    const hasNonAsyncSubmitHandler =
+      process.env.NODE_ENV === 'development' &&
+      formType === FORM_TYPES.DATA_FORM &&
+      onSubmit.constructor.name !== 'AsyncFunction';
+
     this.state = {
       validationErrors: {},
+      showWarningForNonAsyncSubmitHandler: hasNonAsyncSubmitHandler,
     };
   }
 
@@ -173,10 +215,22 @@ export class Form extends React.PureComponent {
     };
 
     const { render, style } = this.props;
+    const { showWarningForNonAsyncSubmitHandler } = this.state;
 
     return (
       <>
-        <form style={style} onSubmit={submitForm} noValidate>
+        {/* do not allow editing fields when form is being submitted */}
+        <StyledForm style={style} onSubmit={submitForm} noValidate $clickable={!isSubmitting}>
+          {showWarningForNonAsyncSubmitHandler && (
+            <Alert
+              severity="warning"
+              onClose={() => this.setState({ showWarningForNonAsyncSubmitHandler: false })}
+            >
+              <AlertTitle>
+                DEV Warning: this form does not have async onSubmit (ignore if intentional)
+              </AlertTitle>
+            </Alert>
+          )}
           {render({
             ...formProps,
             setValues,
@@ -185,8 +239,9 @@ export class Form extends React.PureComponent {
             submitForm,
             clearForm: () => formProps.resetForm({}),
           })}
-        </form>
+        </StyledForm>
         <ScrollToError />
+        <FormSubmissionFlag />
       </>
     );
   };
@@ -227,6 +282,7 @@ export class Form extends React.PureComponent {
           isVisible={displayErrorDialog}
           onClose={this.hideErrorDialog}
           headerTitle="Please fix below errors to continue"
+          disableDevWarning
           contentText={<FormErrors errors={validationErrors} />}
         />
       </>

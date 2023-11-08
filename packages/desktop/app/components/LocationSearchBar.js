@@ -1,7 +1,7 @@
 import React, { memo, useCallback } from 'react';
 import styled from 'styled-components';
 import SearchIcon from '@material-ui/icons/Search';
-import { Button } from './Button';
+import { FormSubmitButton } from './Button';
 import { Form, Field, TextField } from './Field';
 import { Colors } from '../constants';
 
@@ -49,10 +49,10 @@ const PaddedSearchIcon = styled(SearchIcon)`
 const renderSearchBar = ({ placeholder, submitForm }) => (
   <SearchInputContainer>
     <Field component={TextField} placeholder={placeholder} name="name" />
-    <Button color="primary" variant="contained" onClick={submitForm}>
+    <FormSubmitButton color="primary" variant="contained" onClick={submitForm}>
       <PaddedSearchIcon />
       Search
-    </Button>
+    </FormSubmitButton>
   </SearchInputContainer>
 );
 

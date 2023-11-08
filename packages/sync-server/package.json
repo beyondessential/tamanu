@@ -1,6 +1,6 @@
 {
   "name": "sync-server",
-  "version": "1.36.0",
+  "version": "1.37.0",
   "private": true,
   "description": "Sync server for Tamanu desktop app",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -21,13 +21,10 @@
   "scripts": {
     "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true app",
     "start": "node dist",
-
     "test": "NODE_ENV=test jest",
     "lint": "eslint app",
-
     "setup-dev": "node dist setup",
     "shell": "yarn build && node dist shell",
-
     "start-watch": "chokidar --initial \"dist/**/*.js\" -c \"yarn run start\"",
     "test-watch": "yarn test --watch",
     "build-watch": "yarn run build --watch",

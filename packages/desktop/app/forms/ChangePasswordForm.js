@@ -3,15 +3,16 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import Collapse from '@material-ui/core/Collapse';
 import { FormGrid } from '../components/FormGrid';
-import { Button, Field, Form, MinusIconButton, PlusIconButton, TextField } from '../components';
+import {
+  Button,
+  Field,
+  Form,
+  MinusIconButton,
+  PlusIconButton,
+  TextField,
+  StyledPrimarySubmitButton,
+} from '../components';
 import { ServerDetectingField, getSavedServer } from '../components/Field/ServerDetectingField';
-
-const PrimaryButton = styled(Button)`
-  font-size: 16px;
-  line-height: 18px;
-  padding-top: 16px;
-  padding-bottom: 16px;
-`;
 
 const AdvancedRow = styled.div`
   display: flex;
@@ -72,7 +73,7 @@ export const ChangePasswordForm = React.memo(
             setFieldValue={setFieldValue}
           />
         </Collapse>
-        <PrimaryButton type="submit">Change Password</PrimaryButton>
+        <StyledPrimarySubmitButton type="submit">Change Password</StyledPrimarySubmitButton>
         <Button onClick={onNavToResetPassword} color="default" variant="text">
           Back
         </Button>
@@ -84,9 +85,9 @@ export const ChangePasswordForm = React.memo(
         <FormGrid columns={1}>
           <h3>Reset Password</h3>
           <SuccessMessage>Your password has been updated</SuccessMessage>
-          <PrimaryButton fullWidth variant="contained" color="primary" onClick={onNavToLogin}>
+          <Button fullWidth variant="contained" color="primary" onClick={onNavToLogin}>
             Login
-          </PrimaryButton>
+          </Button>
         </FormGrid>
       );
     }

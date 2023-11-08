@@ -26,7 +26,13 @@ function getFieldData(data: IPatientAdditionalData, fieldName: string): string {
 }
 
 export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactElement => {
-  const { patientAdditionalData, loading, error } = usePatientAdditionalData(patient.id);
+  const {
+    customPatientSections,
+    customPatientFieldValues,
+    patientAdditionalData,
+    loading,
+    error
+  } = usePatientAdditionalData(patient.id);
   // Display general error
   if (error) {
     return <ErrorScreen error={error} />;
@@ -37,24 +43,36 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   // Add edit callback and map the inner 'fields' array
-  const sections = additionalDataSections.map(({ title, fields }) => {
-    const onEditCallback = (): void => onEdit(patientAdditionalData, title);
+  const additionalSections = additionalDataSections.map(({ title, fields }) => {
+    const onEditCallback = (): void => onEdit(patientAdditionalData, title, false);
     const mappedFields = fields
       .filter(fieldName => !getBool(`fields.${fieldName}.requiredPatientData`))
       .map(fieldName => [fieldName, getFieldData(patientAdditionalData, fieldName)]);
     return { title, fields: mappedFields, onEditCallback };
   });
 
+  const customSections = customPatientSections.map(([categoryId, fields]) => {
+    const title = fields[0].category.name;
+    const onEditCallback = (): void => onEdit(null, title, true, fields, customPatientFieldValues);
+    const mappedFields = fields.map(field => ([field.name, customPatientFieldValues[field.id]?.[0]?.value]));
+    return { title, fields: mappedFields, onEditCallback, isCustomFields: true };
+  });
+
+  const sections = [
+    ...(additionalSections || []),
+    ...(customSections || []),
+  ];
+
   return (
     <>
-      {sections.map(({ title, fields, onEditCallback }) => (
+      {sections.map(({ title, fields, onEditCallback, isCustomFields }) => (
         <PatientSection
           key={title}
           title={title}
           onEdit={isEditable ? onEditCallback : undefined}
           isClosable
         >
-          {loading ? <LoadingScreen /> : <FieldRowDisplay fields={fields} />}
+          {loading ? <LoadingScreen /> : <FieldRowDisplay fields={fields} isCustomFields={isCustomFields} />}
         </PatientSection>
       ))}
     </>

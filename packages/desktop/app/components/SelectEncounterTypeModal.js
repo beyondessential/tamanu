@@ -2,8 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import Avatar from '@material-ui/core/Avatar';
 import { encounterOptions, Colors } from '../constants';
-import { Modal } from './Modal';
 import { Button } from './Button';
+import { Modal } from './Modal';
 
 const SelectorGrid = styled.div`
   display: grid;
