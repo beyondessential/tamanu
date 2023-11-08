@@ -5,7 +5,7 @@ import express from 'express';
 import path from 'path';
 
 import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
-import { constructPermission } from '@tamanu/shared/permissions/middleware';
+import { constructPermission, ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { SERVER_TYPES } from '@tamanu/constants';
 
 import { buildRoutes } from './buildRoutes';
@@ -61,6 +61,8 @@ export function createApp(ctx) {
   app.use('/v1/public', publicRoutes);
   app.use('/v1', authModule);
   app.use('/v1', constructPermission);
+  app.use('/v1', ensurePermissionCheck);
+
   app.use('/v1', buildRoutes(ctx));
 
   // Serve the latest desktop in upgrade folder so that desktops with lower versions
