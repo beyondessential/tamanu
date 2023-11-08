@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { FormGrid } from '../components/FormGrid';
-import { ConfirmCancelRow } from '../components/ButtonRow';
+import { FormSubmitCancelRow } from '../components/ButtonRow';
 import {
   NoteContentField,
   NoteDateTimeField,
@@ -43,7 +43,7 @@ export const EditTreatmentPlanNoteForm = ({ note, onNoteContentChange, onSubmit,
 
       <NoteContentField label="Update treatment plan" onChange={onNoteContentChange} />
       <StyledDivider />
-      <ConfirmCancelRow
+      <FormSubmitCancelRow
         onConfirm={onSubmit}
         confirmText="Save"
         cancelText="Cancel"

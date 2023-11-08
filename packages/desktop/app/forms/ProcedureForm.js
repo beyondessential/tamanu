@@ -15,7 +15,7 @@ import {
   LocationField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { ConfirmCancelRow } from '../components/ButtonRow';
+import { FormSubmitCancelRow } from '../components/ButtonRow';
 
 import { foreignKey, optionalForeignKey } from '../utils/validation';
 import { useLocalisedText } from '../components';
@@ -133,7 +133,7 @@ export const ProcedureForm = React.memo(
                     rows={4}
                   />
                 </Collapse>
-                <ConfirmCancelRow
+                <FormSubmitCancelRow
                   onCancel={handleCancel}
                   onConfirm={submitForm}
                   confirmText={buttonText}

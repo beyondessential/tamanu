@@ -24,11 +24,6 @@ common() {
   yarn install --non-interactive --frozen-lockfile
 }
 
-build_shared() {
-  yarn clean
-  yarn build-shared
-}
-
 remove_irrelevant_packages() {
   # remove from yarn workspace list all packages that aren't the ones we're building
   cp package.json{,.working}
@@ -102,9 +97,6 @@ package="${1:?Expected target or package path}"
 common
 
 case "$package" in
-  shared)
-    build_shared
-    ;;
   desktop)
     build_desktop
     ;;

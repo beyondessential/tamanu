@@ -1,7 +1,7 @@
 import config from 'config';
 
-import { Setting } from 'shared/models/Setting';
-import { fake } from 'shared/test-helpers/fake';
+import { Setting } from '@tamanu/shared/models/Setting';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 
 describe('Vaccination Settings', () => {

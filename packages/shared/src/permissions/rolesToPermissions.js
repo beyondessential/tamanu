@@ -29,6 +29,7 @@ export async function queryPermissionsForRoles({ Permission }, roleString) {
     SELECT * 
       FROM permissions
       WHERE permissions.role_id IN (:roleIds)
+      AND permissions.deleted_at IS NULL
   `,
     {
       model: Permission,

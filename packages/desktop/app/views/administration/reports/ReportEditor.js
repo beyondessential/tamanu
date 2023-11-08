@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useQuery } from '@tanstack/react-query';
 import { capitalize } from 'lodash';
 import * as yup from 'yup';
 import { Accordion, AccordionDetails, AccordionSummary, Grid } from '@material-ui/core';
@@ -8,6 +9,7 @@ import {
   REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
   REPORT_STATUSES_VALUES,
+  REPORT_DB_SCHEMAS,
 } from '@tamanu/constants/reports';
 import {
   Button,
@@ -23,6 +25,8 @@ import {
   FIELD_TYPES_WITH_PREDEFINED_OPTIONS,
   FIELD_TYPES_WITH_SUGGESTERS,
 } from '../../reports/ParameterField';
+import { useAuth } from '../../../contexts/Auth';
+import { useApi } from '../../../api';
 
 const StyledField = styled(Field)`
   flex-grow: 1;
@@ -47,6 +51,11 @@ const DATE_RANGE_OPTIONS = REPORT_DEFAULT_DATE_RANGES_VALUES.map(value => ({
   value,
 }));
 
+const DB_SCHEMA_OPTIONS = Object.values(REPORT_DB_SCHEMAS).map(value => ({
+  label: capitalize(value),
+  value,
+}));
+
 const generateDefaultParameter = () => ({
   id: Math.random(),
 });
@@ -54,9 +63,9 @@ const generateDefaultParameter = () => ({
 const schema = yup.object().shape({
   name: yup.string().required('Report name is a required field'),
   dataSources: yup
-    .string()
+    .array()
     .test('test-data-sources', 'Select at least one data source', val => {
-      const values = val?.split(', ') || [];
+      const values = val || [];
       return values.length && values.every(v => REPORT_DATA_SOURCE_VALUES.includes(v));
     })
     .required('Data sources is a required field'),
@@ -64,6 +73,10 @@ const schema = yup.object().shape({
     .string()
     .oneOf(DATE_RANGE_OPTIONS.map(o => o.value))
     .required('Default date range is a required field'),
+  dbSchema: yup
+    .string()
+    .nullable()
+    .oneOf([...DB_SCHEMA_OPTIONS.map(o => o.value), null]),
   parameters: yup.array().of(
     yup.object().shape({
       name: yup.string().required('Parameter name is a required field'),
@@ -93,6 +106,8 @@ const schema = yup.object().shape({
 });
 
 const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) => {
+  const { ability } = useAuth();
+  const api = useApi();
   const setQuery = query => setValues({ ...values, query });
   const params = values.parameters || [];
   const setParams = newParams => setValues({ ...values, parameters: newParams });
@@ -104,6 +119,16 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
     setParams(newParams);
   };
   const onParamsDelete = paramId => setParams(params.filter(p => p.id !== paramId));
+
+  const canWriteRawReportUser = Boolean(ability?.can('write', 'ReportDbSchema'));
+
+  const { data: schemaOptions = [] } = useQuery(['dbSchemaOptions'], () =>
+    api.get(`admin/reports/dbSchemaOptions`),
+  );
+
+  // Show data source field if user is writing a raw report OR if reporting schema is disabled.
+  const showDataSourceField =
+    values.dbSchema === REPORT_DB_SCHEMAS.RAW || schemaOptions.length === 0;
 
   return (
     <>
@@ -119,20 +144,35 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
         </Grid>
         <Grid item xs={4}>
           <StyledField
-            label="Can be run on"
-            name="dataSources"
-            component={MultiselectField}
-            options={DATA_SOURCE_OPTIONS}
-          />
-        </Grid>
-        <Grid item xs={4}>
-          <StyledField
             label="Default date range"
             name="defaultDateRange"
             component={SelectField}
+            isClearable={false}
             options={DATE_RANGE_OPTIONS}
           />
         </Grid>
+        {canWriteRawReportUser && schemaOptions?.length > 0 && (
+          <Grid item xs={4}>
+            <StyledField
+              label="DB schema"
+              name="dbSchema"
+              component={SelectField}
+              options={schemaOptions}
+              disabled={isEdit}
+              isClearable={false}
+            />
+          </Grid>
+        )}
+        {showDataSourceField && (
+          <Grid item xs={4}>
+            <StyledField
+              label="Can be run on"
+              name="dataSources"
+              component={MultiselectField}
+              options={DATA_SOURCE_OPTIONS}
+            />
+          </Grid>
+        )}
       </Grid>
       <Accordion defaultExpanded>
         <AccordionSummary>

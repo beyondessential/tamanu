@@ -1,7 +1,7 @@
 import React, { Children } from 'react';
 import styled from 'styled-components';
 
-import { Button, OutlinedButton } from './Button';
+import { FormCancelButton, FormSubmitButton, OutlinedButton, Button } from './Button';
 
 const FlexSpaceBetween = styled.div`
   display: flex;
@@ -24,15 +24,34 @@ const Row = styled.div`
   }
 `;
 
+const ConfirmButton = styled(Button)`
+  min-width: 90px;
+`;
+
 export const ButtonRow = React.memo(({ children, ...props }) => (
   <Row items={Children.toArray(children).length || 1} {...props}>
     {children}
   </Row>
 ));
 
-const ConfirmButton = styled(Button)`
-  min-width: 90px;
-`;
+export const FormSubmitCancelRow = React.memo(
+  ({
+    onCancel,
+    onConfirm,
+    confirmText = 'Confirm',
+    confirmColor = 'primary',
+    cancelText = 'Cancel',
+    confirmDisabled,
+    ...props
+  }) => (
+    <ButtonRow {...props}>
+      {onCancel && <FormCancelButton onClick={onCancel}>{cancelText}</FormCancelButton>}
+      <FormSubmitButton color={confirmColor} onSubmit={onConfirm} disabled={confirmDisabled}>
+        {confirmText}
+      </FormSubmitButton>
+    </ButtonRow>
+  ),
+);
 
 export const ConfirmCancelRow = React.memo(
   ({
@@ -46,11 +65,9 @@ export const ConfirmCancelRow = React.memo(
   }) => (
     <ButtonRow {...props}>
       {onCancel && <OutlinedButton onClick={onCancel}>{cancelText}</OutlinedButton>}
-      {onConfirm && (
-        <ConfirmButton color={confirmColor} onClick={onConfirm} disabled={confirmDisabled}>
-          {confirmText}
-        </ConfirmButton>
-      )}
+      <ConfirmButton color={confirmColor} onClick={onConfirm} disabled={confirmDisabled}>
+        {confirmText}
+      </ConfirmButton>
     </ButtonRow>
   ),
 );
@@ -65,13 +82,13 @@ const GoBackButtonContainer = styled(ButtonRow)`
   }
 `;
 
-export const ConfirmCancelBackRow = ({ onBack, backButtonText = 'Back', ...props }) => (
+export const FormConfirmCancelBackRow = ({ onBack, backButtonText = 'Back', ...props }) => (
   <FlexSpaceBetween>
     {onBack && (
       <GoBackButtonContainer>
         <OutlinedButton onClick={onBack}>{backButtonText}</OutlinedButton>
       </GoBackButtonContainer>
     )}
-    <ConfirmCancelRow {...props} />
+    <FormSubmitCancelRow {...props} />
   </FlexSpaceBetween>
 );

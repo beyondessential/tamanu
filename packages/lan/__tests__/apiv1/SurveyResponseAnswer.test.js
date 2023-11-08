@@ -1,11 +1,11 @@
 import Chance from 'chance';
-import { fake } from 'shared/test-helpers/fake';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import {
   SURVEY_TYPES,
   PROGRAM_DATA_ELEMENT_TYPES,
   VITALS_DATA_ELEMENT_IDS,
 } from '@tamanu/constants/surveys';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 const chance = new Chance();

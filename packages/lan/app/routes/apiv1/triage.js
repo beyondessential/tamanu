@@ -3,12 +3,12 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
-import { InvalidParameterError } from 'shared/errors';
+import { InvalidParameterError } from '@tamanu/shared/errors';
 import { NOTE_TYPES, ENCOUNTER_TYPES } from '@tamanu/constants';
 
-import { renameObjectKeys } from 'shared/utils';
+import { renameObjectKeys } from '@tamanu/shared/utils';
 
-import { simpleGet, simplePut } from 'shared/utils/crudHelpers';
+import { simpleGet, simplePut } from '@tamanu/shared/utils/crudHelpers';
 
 export const triage = express.Router();
 
