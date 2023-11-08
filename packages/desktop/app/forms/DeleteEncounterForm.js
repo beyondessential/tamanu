@@ -1,4 +1,5 @@
 import React from 'react';
+import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import styled from 'styled-components';
 
@@ -48,8 +49,14 @@ const NHNField = styled(Field)`
   width: 300px;
 `;
 
-export const DeleteEncounterForm = ({ data, onSubmit, onCancel, encounter, initialNewType }) => {
-  const { encounterType, facilityName, startDate, endDate, reasonForEncounter } = data;
+export const DeleteEncounterForm = ({
+  onSubmit,
+  onCancel,
+  encounterToDelete,
+  initialNewType,
+  patient,
+}) => {
+  const { encounterType, facilityName, startDate, endDate, reasonForEncounter } = encounterToDelete;
   const currentType = ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label;
 
   return (
@@ -76,7 +83,7 @@ export const DeleteEncounterForm = ({ data, onSubmit, onCancel, encounter, initi
               <GridItem>
                 <div>
                   <Label>Facility</Label>
-                  <Value>${facilityName}</Value>
+                  <Value>{facilityName}</Value>
                   <Label>Reason for encounter</Label>
                   <Value>{reasonForEncounter}</Value>
                 </div>
@@ -93,17 +100,20 @@ export const DeleteEncounterForm = ({ data, onSubmit, onCancel, encounter, initi
                 This action is irreversible - to make sure you have selected the correct encounter,
                 please enter the NHN for this patient to confirm deletion.
               </Paragraph>
-              <NHNField
-                required
-                label="NHN"
-                name="patientDisplayId"
-                helperText="Enter the NHN for this patient to confirm deletion"
-              />
+              <NHNField required label="NHN" name="patientDisplayId" />
             </WarningWrapper>
             <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} />
           </div>
         );
       }}
+      validationSchema={yup.object().shape({
+        patientDisplayId: yup
+          .string()
+          .matches(`^${patient.displayId}$`, {
+            message: 'NHN does not match patient record',
+          })
+          .required('NHN is required'),
+      })}
       onSubmit={onSubmit}
     />
   );

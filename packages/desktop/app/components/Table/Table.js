@@ -228,7 +228,6 @@ const Row = React.memo(
         );
       },
     );
-
     return (
       <RowContainer
         onClick={onClick && (() => onClick(data))}
@@ -372,7 +371,6 @@ class TableComponent extends React.Component {
     }
     // Ignore frontend sorting if lazyLoading as it causes a terrible UX
     const sortedData = customSort && !lazyLoading ? customSort(data) : data;
-
     return (
       <>
         {sortedData.map((rowData, rowIndex) => {

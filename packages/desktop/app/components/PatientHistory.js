@@ -127,7 +127,8 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       {ActiveModal && (
         <ActiveModal
           open={modalOpen}
-          data={selectedEncounterData}
+          encounterToDelete={selectedEncounterData}
+          patient={patient}
           onClose={() => {
             setModalOpen(false);
           }}
