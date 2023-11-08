@@ -189,12 +189,11 @@ export const ReportGeneratorForm = () => {
         );
         if (filePath) {
           setSuccessMessage(
-            `${(
-              <TranslatedText
-                stringId="reportGenerator.message.export.success"
-                fallback="Report successfully exported. File saved at"
-              />
-            )}: ${filePath}.`,
+            <TranslatedText
+              stringId="reportGenerator.message.export.success"
+              fallback="Report successfully exported. File saved at: :filePath"
+              replacements={{ filePath }}
+            />,
           );
         }
       } else {
@@ -213,12 +212,11 @@ export const ReportGeneratorForm = () => {
       }
     } catch (e) {
       setRequestError(
-        `${(
-          <TranslatedText
-            stringId="reportGenerator.error.cantSubmitRequest"
-            fallback="Unable to submit report request"
-          />
-        )} - ${e.message}`,
+        <TranslatedText
+          stringId="reportGenerator.error.cantSubmitRequest"
+          fallback="Unable to submit report request - :errorMessage"
+          replacements={{ errorMessage: e.message }}
+        />,
       );
     }
   };
