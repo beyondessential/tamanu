@@ -1,4 +1,4 @@
-import { setupSurveyFromObject } from 'shared/demoData/surveys';
+import { setupSurveyFromObject } from '@tamanu/shared/demoData/surveys';
 import { createTestContext } from '../utilities';
 
 describe('Survey', () => {

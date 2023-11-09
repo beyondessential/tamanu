@@ -7,15 +7,21 @@ import { useAuth } from '../../../contexts/Auth';
 import { ContentPane } from '../../../components';
 import { PatientDetailsForm } from '../../../forms/PatientDetailsForm';
 import { reloadPatient } from '../../../store/patient';
-import { notifyError } from '../../../utils';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { notifyError, invalidatePatientDataQueries } from '../../../utils';
 
 // Momentary component to just display a message, will need design and
 // refactor later.
 const ForbiddenMessage = () => (
   <ContentPane>
-    <Typography variant="h4">Forbidden</Typography>
+    <Typography variant="h4">
+      <TranslatedText stringId="general.error.forbidden" fallback="Forbidden" />
+    </Typography>
     <Typography variant="body2">
-      You do not have permission to read, create or write patient data.
+      <TranslatedText
+        stringId="patient.detailsSidebar.error.forbiddenMessage"
+        fallback="You do not have permission to read, create or write patient data."
+      />
     </Typography>
   </ContentPane>
 );
@@ -35,9 +41,8 @@ export const PatientDetailsPane = React.memo(
         return;
       }
 
-      queryClient.invalidateQueries(['additionalData', patient.id]);
-      queryClient.invalidateQueries(['birthData', patient.id]);
-      queryClient.invalidateQueries(['patientFields', patient.id]);
+      // invalidate the cache of patient data queries to reload the patient data
+      invalidatePatientDataQueries(queryClient, patient.id);
       dispatch(reloadPatient(patient.id));
     };
 

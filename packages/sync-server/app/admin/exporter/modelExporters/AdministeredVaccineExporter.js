@@ -1,4 +1,4 @@
-import { parseDate } from 'shared/utils/dateTime';
+import { parseDate } from '@tamanu/shared/utils/dateTime';
 import { DefaultDataExporter } from './DefaultDataExporter';
 
 export class AdministeredVaccineExporter extends DefaultDataExporter {

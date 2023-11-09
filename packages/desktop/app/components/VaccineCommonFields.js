@@ -16,7 +16,7 @@ import {
   CheckField,
   LocalisedLocationField,
 } from './Field';
-import { ConfirmCancelRow } from './ButtonRow';
+import { FormSubmitCancelRow } from './ButtonRow';
 import { useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';
 import { Colors } from '../constants';
@@ -53,6 +53,39 @@ const VACCINE_FIELD_CATEGORY_OPTIONS = [
     label: <TranslatedText stringId="vaccine.form.category.option.other" fallback="Other" />,
     leftOptionalElement: <VerticalDivider orientation="vertical" />,
     style: { marginLeft: '15px' },
+  },
+];
+
+const VACCINE_FIELD_INJECTION_SITE_OPTIONS = [
+  {
+    value: INJECTION_SITE_OPTIONS.LEFT_ARM,
+    label: <TranslatedText stringId="vaccine.property.injectionSite.leftArm" fallback="Left arm" />,
+  },
+  {
+    value: INJECTION_SITE_OPTIONS.RIGHT_ARM,
+    label: (
+      <TranslatedText stringId="vaccine.property.injectionSite.rightArm" fallback="Right arm" />
+    ),
+  },
+  {
+    value: INJECTION_SITE_OPTIONS.LEFT_THIGH,
+    label: (
+      <TranslatedText stringId="vaccine.property.injectionSite.leftThigh" fallback="Left thigh" />
+    ),
+  },
+  {
+    value: INJECTION_SITE_OPTIONS.RIGHT_THIGH,
+    label: (
+      <TranslatedText stringId="vaccine.property.injectionSite.rightThigh" fallback="Right thigh" />
+    ),
+  },
+  {
+    value: INJECTION_SITE_OPTIONS.ORAL,
+    label: <TranslatedText stringId="vaccine.property.injectionSite.oral" fallback="Oral" />,
+  },
+  {
+    value: INJECTION_SITE_OPTIONS.OTHER,
+    label: <TranslatedText stringId="vaccine.property.injectionSite.Other" fallback="Other" />,
   },
 ];
 
@@ -101,10 +134,7 @@ export const InjectionSiteField = () => (
     name="injectionSite"
     label={<TranslatedText stringId="vaccine.form.injectionSite.label" fallback="Injection Site" />}
     component={SelectField}
-    options={Object.values(INJECTION_SITE_OPTIONS).map(site => ({
-      label: site,
-      value: site,
-    }))}
+    options={VACCINE_FIELD_INJECTION_SITE_OPTIONS}
   />
 );
 
@@ -247,7 +277,7 @@ export const DiseaseField = () => (
 );
 
 export const ConfirmCancelRowField = ({ onConfirm, onCancel, editMode = false }) => (
-  <ConfirmCancelRow
+  <FormSubmitCancelRow
     onConfirm={onConfirm}
     onCancel={onCancel}
     confirmText={

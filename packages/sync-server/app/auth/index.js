@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid';
 import config from 'config';
 import { getLanguageOptions } from '@tamanu/shared/utils/translation/getLanguageOptions';
 
-import { getPermissions } from 'shared/permissions/middleware';
+import { getPermissions } from '@tamanu/shared/permissions/middleware';
 
 import { convertFromDbRecord } from '../convertDbRecord';
 import { changePassword } from './changePassword';

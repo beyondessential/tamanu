@@ -1,7 +1,7 @@
 {
   "name": "desktop",
   "productName": "Tamanu",
-  "version": "1.35.0",
+  "version": "1.37.0",
   "description": "Tamanu Desktop application",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -26,10 +26,12 @@
     "start-dev": "npm run dev",
     "start-main-dev": "cross-env HOT=1 NODE_ENV=development electron -r ./babel-register ./app/main.dev",
     "start-renderer-dev": "cross-env NODE_ENV=development node --trace-warnings -r ./babel-register ./node_modules/webpack-dev-server/bin/webpack-dev-server --config webpack.config.renderer.dev.js",
-    "test": "echo 'No tests on desktop'",
+    "test": "yarn verify-storybook && yarn unit-test",
+    "unit-test": "NODE_ENV=test jest",
+    "unit-test-watch": "yarn unit-test --watch",
     "reinstall": "rm -rf ../../**/node_modules && yarn",
     "storybook": "start-storybook -p 6006",
-    "verify-storybook": "start-storybook --ci --smoke-test",
+    "verify-storybook": "NODE_ENV=development start-storybook --ci --smoke-test",
     "build-storybook": "build-storybook"
   },
   "browserslist": "electron 1.6",
@@ -104,7 +106,9 @@
     "testURL": "http://localhost/",
     "moduleNameMapper": {
       "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/internals/mocks/fileMock.js",
-      "\\.(css|less|sass|scss)$": "identity-obj-proxy"
+      "\\.(css|less|sass|scss)$": "identity-obj-proxy",
+      "\\.\\./sync-server/config/default\\.json$": "<rootDir>/internals/mocks/test.json",
+      "^redux-persist/lib/storage": "<rootDir>/internals/mocks/fileMock.js"
     },
     "moduleFileExtensions": [
       "js"
@@ -115,10 +119,7 @@
     ],
     "transform": {
       "^.+\\.js$": "babel-jest"
-    },
-    "setupFiles": [
-      "./internals/scripts/CheckBuiltsExist.js"
-    ]
+    }
   },
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.18.9",
@@ -162,6 +163,7 @@
     "file-loader": "^1.1.11",
     "husky": "^0.14.3",
     "identity-obj-proxy": "^3.0.0",
+    "jest": "^29.3.1",
     "json5-loader": "^1.0.1",
     "js-sql-parser": "^1.4.1",
     "lint-staged": "^7.2.0",

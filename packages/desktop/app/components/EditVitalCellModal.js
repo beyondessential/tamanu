@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Modal } from './Modal';
+import { FormModal } from './FormModal';
 import { formatShortest, formatTime } from './DateDisplay';
 import { EditVitalCellForm } from '../forms/EditVitalCellForm';
 
@@ -13,8 +13,8 @@ export const EditVitalCellModal = ({ open, dataPoint, onClose }) => {
   }, [onClose]);
 
   return (
-    <Modal width="sm" title={title} onClose={handleClose} open={open}>
+    <FormModal width="sm" title={title} onClose={handleClose} open={open}>
       <EditVitalCellForm vitalLabel={vitalLabel} dataPoint={dataPoint} handleClose={handleClose} />
-    </Modal>
+    </FormModal>
   );
 };

@@ -1,7 +1,7 @@
 import { formatRFC7231 } from 'date-fns';
 import asyncHandler from 'express-async-handler';
 
-import { NotFound } from 'shared/utils/fhir';
+import { NotFound } from '@tamanu/shared/utils/fhir';
 
 export function readHandler(FhirResource) {
   return asyncHandler(async (req, res) => {

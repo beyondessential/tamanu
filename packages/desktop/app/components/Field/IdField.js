@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { Autorenew } from '@material-ui/icons';
 import { Colors } from '../../constants';
 import { InvertedDisplayIdLabel } from '../DisplayIdLabel';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const IdControl = styled.div`
   display: flex;
@@ -43,7 +44,9 @@ export const IdInput = ({ value, name, onChange, regenerateId }) => (
     <Id data-test-class="id-field-div">{value || ''}</Id>
     <RegenerateId onClick={() => onChange({ target: { value: regenerateId(), name } })}>
       <Autorenew />
-      <Text>Regenerate</Text>
+      <Text>
+        <TranslatedText stringId="patient.form.id.regenerate" fallback="Regenerate" />
+      </Text>
     </RegenerateId>
   </IdControl>
 );

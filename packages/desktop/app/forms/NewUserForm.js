@@ -3,7 +3,7 @@ import * as yup from 'yup';
 
 import { Form, Field, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { ModalActionRow } from '../components/ModalActionRow';
+import { ModalFormActionRow } from '../components/ModalActionRow';
 
 export const NewUserForm = memo(({ editedObject, onSubmit, onCancel }) => {
   const renderForm = ({ submitForm }) => (
@@ -12,7 +12,7 @@ export const NewUserForm = memo(({ editedObject, onSubmit, onCancel }) => {
       <Field name="displayName" label="Display name" component={TextField} required />
       <Field name="password" label="Password" type="password" component={TextField} required />
       <Field name="email" label="Email address" component={TextField} required />
-      <ModalActionRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
+      <ModalFormActionRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
     </FormGrid>
   );
 

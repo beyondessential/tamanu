@@ -1,4 +1,4 @@
-import { createDummyEncounter } from 'shared/demoData/patients';
+import { createDummyEncounter } from '@tamanu/shared/demoData/patients';
 import { createTestContext } from '../../../utilities';
 import { MATCH_ANY } from '../../../toMatchTabularReport';
 import { createPatient } from './covid-swab-lab-test-report-utils';

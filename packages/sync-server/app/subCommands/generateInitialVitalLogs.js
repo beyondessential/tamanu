@@ -1,7 +1,7 @@
 import { Command } from 'commander';
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { initDatabase } from '../database';
 
 const SURVEY_RESPONSE_BATCH_SIZE = 1000;

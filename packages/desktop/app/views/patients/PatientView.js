@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { TabDisplay } from '../../components/TabDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientAlert } from '../../components/PatientAlert';
@@ -23,6 +23,8 @@ import { PATIENT_TABS } from '../../constants/patientPaths';
 import { NAVIGATION_CONTAINER_HEIGHT } from '../../components/PatientNavigation';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { PatientSearchParametersProvider } from '../../contexts/PatientViewSearchParameters';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
+import { invalidatePatientDataQueries } from '../../utils';
 
 const StyledDisplayTabs = styled(TabDisplay)`
   overflow: initial;
@@ -36,31 +38,31 @@ const StyledDisplayTabs = styled(TabDisplay)`
 
 const TABS = [
   {
-    label: 'History',
+    label: <TranslatedText stringId="patient.tabs.history" fallback="History" />,
     key: PATIENT_TABS.HISTORY,
     icon: 'fa fa-calendar-day',
     render: props => <HistoryPane {...props} />,
   },
   {
-    label: 'Details',
+    label: <TranslatedText stringId="patient.tabs.details" fallback="Details" />,
     key: PATIENT_TABS.DETAILS,
     icon: 'fa fa-info-circle',
     render: props => <PatientDetailsPane {...props} />,
   },
   {
-    label: 'Results',
+    label: <TranslatedText stringId="patient.tabs.results" fallback="Results" />,
     key: PATIENT_TABS.RESULTS,
     icon: 'fa fa-file-alt',
     render: props => <PatientResultsPane {...props} />,
   },
   {
-    label: 'Referrals',
+    label: <TranslatedText stringId="patient.tabs.referrals" fallback="Referrals" />,
     key: PATIENT_TABS.REFERRALS,
     icon: 'fa fa-hospital',
     render: props => <ReferralPane {...props} />,
   },
   {
-    label: 'Programs',
+    label: <TranslatedText stringId="patient.tabs.programs" fallback="Programs" />,
     key: PATIENT_TABS.PROGRAMS,
     icon: 'fa fa-hospital',
     render: ({ patient, ...props }) => (
@@ -68,25 +70,25 @@ const TABS = [
     ),
   },
   {
-    label: 'Documents',
+    label: <TranslatedText stringId="patient.tabs.documents" fallback="Documents" />,
     key: PATIENT_TABS.DOCUMENTS,
     icon: 'fa fa-file-medical-alt',
     render: props => <DocumentsPane {...props} />,
   },
   {
-    label: 'Vaccines',
+    label: <TranslatedText stringId="patient.tabs.vaccines" fallback="Vaccines" />,
     key: PATIENT_TABS.VACCINES,
     icon: 'fa fa-syringe',
     render: props => <VaccinesPane {...props} />,
   },
   {
-    label: 'Medication',
+    label: <TranslatedText stringId="patient.tabs.medication" fallback="Medication" />,
     key: PATIENT_TABS.MEDICATION,
     icon: 'fa fa-medkit',
     render: props => <PatientMedicationPane {...props} />,
   },
   {
-    label: 'Invoices',
+    label: <TranslatedText stringId="patient.tabs.invoices" fallback="Invoices" />,
     key: PATIENT_TABS.INVOICES,
     icon: 'fa fa-cash-register',
     render: props => <InvoicesPane {...props} />,
@@ -94,6 +96,7 @@ const TABS = [
 ];
 
 export const PatientView = () => {
+  const queryClient = useQueryClient();
   const { getLocalisation } = useLocalisation();
   const query = useUrlSearchParams();
   const patient = useSelector(state => state.patient);
@@ -112,6 +115,16 @@ export const PatientView = () => {
   useEffect(() => {
     api.post(`user/recently-viewed-patients/${patient.id}`);
   }, [api, patient.id]);
+
+  useEffect(() => {
+    if (!patient.syncing) {
+      // invalidate the cache of patient data queries to reload the patient data
+      invalidatePatientDataQueries(queryClient, patient.id);
+    }
+
+    // invalidate queries only when syncing is done (changed from true to false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [patient.syncing]);
 
   if (patient.loading || isLoadingAdditionalData || isLoadingBirthData) {
     return <LoadingIndicator />;

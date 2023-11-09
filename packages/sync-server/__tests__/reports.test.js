@@ -1,5 +1,5 @@
 import { createTestContext } from './utilities';
-import { fake } from 'shared/test-helpers';
+import { fake } from '@tamanu/shared/test-helpers';
 
 describe('Reports', () => {
   let ctx;

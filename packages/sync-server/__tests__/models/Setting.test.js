@@ -1,4 +1,4 @@
-import { fake } from 'shared/test-helpers/fake';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 
 // the test cases in here ignore the way the data is stored (which is currently with a record per

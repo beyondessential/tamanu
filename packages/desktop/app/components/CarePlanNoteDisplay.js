@@ -65,10 +65,18 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
           {note.onBehalfOf && note.onBehalfOf.displayName ? (
             <NoteOnBehalfOf>
               &nbsp;&nbsp;|&nbsp;&nbsp;
-              {`On behalf of ${note.onBehalfOf.displayName}`}
+              <TranslatedText stringId="carePlan.modal.onBehalfOf" fallback="On behalf of" />{' '}
+              {note.onBehalfOf.displayName}
             </NoteOnBehalfOf>
           ) : null}
-          {isMainCarePlan ? <MainCarePlanIndicator>Main care plan</MainCarePlanIndicator> : null}
+          {isMainCarePlan ? (
+            <MainCarePlanIndicator>
+              <TranslatedText
+                stringId="carePlan.modal.mainCarePlanIndicator"
+                fallback="Main care plan"
+              />
+            </MainCarePlanIndicator>
+          ) : null}
         </VerticalCenter>
         <VerticalCenter>
           <Timestamp>

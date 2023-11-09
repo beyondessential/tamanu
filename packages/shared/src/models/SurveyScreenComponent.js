@@ -1,5 +1,5 @@
 import { Sequelize, Op } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { parseOrNull } from '../utils/parse-or-null';
 import { log } from '../services/logging';
 import { Model } from './Model';
@@ -18,6 +18,7 @@ export class SurveyScreenComponent extends Model {
         config: Sequelize.STRING,
         options: Sequelize.TEXT,
         calculation: Sequelize.STRING,
+        visibilityStatus: Sequelize.STRING,
       },
       {
         ...options,
@@ -40,13 +41,23 @@ export class SurveyScreenComponent extends Model {
     });
   }
 
-  static async getComponentsForSurveys(surveyIds) {
-    const components = await this.findAll({
-      where: {
-        surveyId: {
-          [Op.in]: surveyIds,
-        },
+  static async getComponentsForSurveys(surveyIds, options = {}) {
+    const { includeAllVitals } = options;
+    const where = {
+      surveyId: {
+        [Op.in]: surveyIds,
       },
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+    };
+
+    if (includeAllVitals) {
+      where.visibilityStatus = {
+        [Op.in]: [VISIBILITY_STATUSES.CURRENT, VISIBILITY_STATUSES.HISTORICAL],
+      };
+    }
+
+    const components = await this.findAll({
+      where,
       include: this.getListReferenceAssociations(),
       order: [
         ['screen_index', 'ASC'],
@@ -57,8 +68,8 @@ export class SurveyScreenComponent extends Model {
     return components.map(c => c.forResponse());
   }
 
-  static getComponentsForSurvey(surveyId) {
-    return this.getComponentsForSurveys([surveyId]);
+  static getComponentsForSurvey(surveyId, options = {}) {
+    return this.getComponentsForSurveys([surveyId], options);
   }
 
   getOptions() {

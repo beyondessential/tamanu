@@ -11,9 +11,21 @@ import { CheckInput } from './Field';
 import { Colors } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
 
-const getSchedule = record => record.scheduledVaccine?.schedule || 'N/A';
-const getVaccineName = record => record.vaccineName || record.scheduledVaccine?.label || 'Unknown';
-const getDate = ({ date }) => (date ? <DateDisplay date={date} /> : 'Unknown');
+const getSchedule = record =>
+  record.scheduledVaccine?.schedule || (
+    <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />
+  );
+const getVaccineName = record =>
+  record.vaccineName ||
+  record.scheduledVaccine?.label || (
+    <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />
+  );
+const getDate = ({ date }) =>
+  date ? (
+    <DateDisplay date={date} />
+  ) : (
+    <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />
+  );
 const getGiver = record => {
   if (record.status === VACCINE_STATUS.NOT_GIVEN) {
     return (
@@ -27,7 +39,9 @@ const getGiver = record => {
       <TranslatedText stringId="vaccine.table.status.givenElsewhere" fallback="Given elsewhere" />
     );
   }
-  return record.givenBy || <TranslatedText stringId="general.unknown" fallback="Given elsewhere" />;
+  return (
+    record.givenBy || <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />
+  );
 };
 const getFacility = record => {
   const facility = record.givenElsewhere ? record.givenBy : record.location?.facility?.name;

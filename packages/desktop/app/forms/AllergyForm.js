@@ -5,9 +5,10 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { Form, Field, DateField, AutocompleteField, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { ConfirmCancelRow } from '../components/ButtonRow';
+import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { useLocalisedText } from '../components/LocalisedText';
 import { foreignKey } from '../utils/validation';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const AllergyForm = ({
   onSubmit,
@@ -25,14 +26,18 @@ export const AllergyForm = ({
         <FormGrid columns={1}>
           <Field
             name="allergyId"
-            label="Allergy name"
+            label={
+              <TranslatedText stringId="allergies.form.allergyName.label" fallback="Allergy name" />
+            }
             component={AutocompleteField}
             suggester={allergySuggester}
             required
           />
           <Field
             name="recordedDate"
-            label="Date recorded"
+            label={
+              <TranslatedText stringId="general.form.recordedDate.label" fallback="Date recorded" />
+            }
             component={DateField}
             saveDateAsString
             required
@@ -43,11 +48,21 @@ export const AllergyForm = ({
             component={AutocompleteField}
             suggester={practitionerSuggester}
           />
-          <Field name="note" label="Notes" component={TextField} />
-          <ConfirmCancelRow
+          <Field
+            name="note"
+            label={<TranslatedText stringId="general.form.notes.label" fallback="Notes" />}
+            component={TextField}
+          />
+          <FormSubmitCancelRow
             onCancel={onCancel}
             onConfirm={submitForm}
-            confirmText={editedObject ? 'Save' : 'Add'}
+            confirmText={
+              editedObject ? (
+                <TranslatedText stringId="general.action.save" fallback="Save" />
+              ) : (
+                <TranslatedText stringId="general.action.add" fallback="Add" />
+              )
+            }
           />
         </FormGrid>
       )}

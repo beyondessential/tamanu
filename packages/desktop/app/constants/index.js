@@ -1,4 +1,5 @@
 import { capitalize } from 'lodash';
+import React from 'react';
 
 import { createValueIndex } from '@tamanu/shared/utils/valueIndex';
 import {
@@ -9,7 +10,6 @@ import {
   REFERRAL_STATUSES,
   INVOICE_STATUSES,
   INVOICE_PAYMENT_STATUSES,
-  PATIENT_REGISTRY_TYPES,
   BIRTH_DELIVERY_TYPES,
   BIRTH_TYPES,
   PLACE_OF_BIRTH_TYPES,
@@ -32,6 +32,7 @@ import {
   patientIcon,
   vaccineIcon,
 } from './images';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const MUI_SPACING_UNIT = 8;
 
@@ -235,68 +236,244 @@ export const operativePlanStatusList = Object.values(operativePlanStatuses).map(
 }));
 
 export const bloodOptions = [
-  { value: 'A+', label: 'A+' },
-  { value: 'A-', label: 'A-' },
-  { value: 'AB-', label: 'AB-' },
-  { value: 'AB+', label: 'AB+' },
-  { value: 'B+', label: 'B+' },
-  { value: 'B-', label: 'B-' },
-  { value: 'O+', label: 'O+' },
-  { value: 'O-', label: 'O-' },
+  {
+    value: 'A+',
+    label: <TranslatedText stringId="patient.property.bloodType.a+" fallback="A+" />,
+  },
+  {
+    value: 'A-',
+    label: <TranslatedText stringId="patient.property.bloodType.a-" fallback="A-" />,
+  },
+  {
+    value: 'AB-',
+    label: <TranslatedText stringId="patient.property.bloodType.ab-" fallback="AB-" />,
+  },
+  {
+    value: 'AB+',
+    label: <TranslatedText stringId="patient.property.bloodType.ab+" fallback="AB+" />,
+  },
+  {
+    value: 'B+',
+    label: <TranslatedText stringId="patient.property.bloodType.b+" fallback="B+" />,
+  },
+  {
+    value: 'B-',
+    label: <TranslatedText stringId="patient.property.bloodType.b-" fallback="B-" />,
+  },
+  {
+    value: 'O+',
+    label: <TranslatedText stringId="patient.property.bloodType.o+" fallback="O+" />,
+  },
+  {
+    value: 'O-',
+    label: <TranslatedText stringId="patient.property.bloodType.o-" fallback="O-" />,
+  },
 ];
 
 export const sexOptions = [
-  { value: 'male', label: 'Male' },
-  { value: 'female', label: 'Female' },
-  { value: 'other', label: 'Other' },
+  {
+    value: 'male',
+    label: <TranslatedText stringId="patient.property.sex.male" fallback="Male" />,
+  },
+  {
+    value: 'female',
+    label: <TranslatedText stringId="patient.property.sex.female" fallback="Female" />,
+  },
+  {
+    value: 'other',
+    label: <TranslatedText stringId="patient.property.sex.other" fallback="Other" />,
+  },
 ];
 
 export const titleOptions = [
-  { value: 'Mr', label: 'Mr' },
-  { value: 'Mrs', label: 'Mrs' },
-  { value: 'Ms', label: 'Ms' },
-  { value: 'Miss', label: 'Miss' },
-  { value: 'Dr', label: 'Dr' },
-  { value: 'Sr', label: 'Sr' },
-  { value: 'Sn', label: 'Sn' },
+  {
+    value: 'Mr',
+    label: <TranslatedText stringId="patient.property.title.mr" fallback="Mr" />,
+  },
+  {
+    value: 'Mrs',
+    label: <TranslatedText stringId="patient.property.title.mr" fallback="Mrs" />,
+  },
+  {
+    value: 'Ms',
+    label: <TranslatedText stringId="patient.property.title.ms" fallback="Ms" />,
+  },
+  {
+    value: 'Miss',
+    label: <TranslatedText stringId="patient.property.title.miss" fallback="Miss" />,
+  },
+  {
+    value: 'Dr',
+    label: <TranslatedText stringId="patient.property.title.dr" fallback="Dr" />,
+  },
+  {
+    value: 'Sr',
+    label: <TranslatedText stringId="patient.property.title.sr" fallback="Sr" />,
+  },
+  {
+    value: 'Sn',
+    label: <TranslatedText stringId="patient.property.title.sn" fallback="Sn" />,
+  },
 ];
 
 export const socialMediaOptions = [
-  { value: 'Facebook', label: 'Facebook' },
-  { value: 'Instagram', label: 'Instagram' },
-  { value: 'LinkedIn', label: 'LinkedIn' },
-  { value: 'Twitter', label: 'Twitter' },
-  { value: 'Viber', label: 'Viber' },
-  { value: 'WhatsApp', label: 'WhatsApp' },
+  {
+    value: 'Facebook',
+    label: <TranslatedText stringId="patient.property.socialMedia.facebook" fallback="Facebook" />,
+  },
+  {
+    value: 'Instagram',
+    label: (
+      <TranslatedText stringId="patient.property.socialMedia.instagram" fallback="Instagram" />
+    ),
+  },
+  {
+    value: 'LinkedIn',
+    label: <TranslatedText stringId="patient.property.socialMedia.linkedIn" fallback="LinkedIn" />,
+  },
+  {
+    value: 'Twitter',
+    label: <TranslatedText stringId="patient.property.socialMedia.twitter" fallback="Twitter" />,
+  },
+  {
+    value: 'Viber',
+    label: <TranslatedText stringId="patient.property.socialMedia.viber" fallback="Viber" />,
+  },
+  {
+    value: 'WhatsApp',
+    label: <TranslatedText stringId="patient.property.socialMedia.whatsApp" fallback="WhatsApp" />,
+  },
 ];
 
 export const maritalStatusOptions = [
-  { value: 'Defacto', label: 'De facto' },
-  { value: 'Married', label: 'Married' },
-  { value: 'Single', label: 'Single' },
-  { value: 'Widow', label: 'Widow' },
-  { value: 'Divorced', label: 'Divorced' },
-  { value: 'Separated', label: 'Separated' },
-  { value: 'Unknown', label: 'Unknown' },
+  {
+    value: 'Defacto',
+    label: <TranslatedText stringId="patient.property.maritalStatus.defacto" fallback="De facto" />,
+  },
+  {
+    value: 'Married',
+    label: <TranslatedText stringId="patient.property.maritalStatus.married" fallback="Married" />,
+  },
+  {
+    value: 'Single',
+    label: <TranslatedText stringId="patient.property.maritalStatus.single" fallback="Single" />,
+  },
+  {
+    value: 'Widow',
+    label: <TranslatedText stringId="patient.property.maritalStatus.widow" fallback="Widow" />,
+  },
+  {
+    value: 'Divorced',
+    label: (
+      <TranslatedText stringId="patient.property.maritalStatus.divorced" fallback="Divorced" />
+    ),
+  },
+  {
+    value: 'Separated',
+    label: (
+      <TranslatedText stringId="patient.property.maritalStatus.separated" fallback="Separated" />
+    ),
+  },
+  {
+    value: 'Unknown',
+    label: <TranslatedText stringId="patient.property.maritalStatus.unknown" fallback="Unknown" />,
+  },
 ];
 
 export const educationalAttainmentOptions = [
-  { value: 'No formal schooling', label: 'No formal schooling' },
-  { value: 'Less than primary school', label: 'Less than primary school' },
-  { value: 'Primary school completed', label: 'Primary school completed' },
-  { value: 'Sec school completed', label: 'Sec school completed' },
-  { value: 'High school completed', label: 'High school completed' },
-  { value: 'University completed', label: 'University completed' },
-  { value: 'Post grad completed', label: 'Post grad completed' },
+  {
+    value: 'No formal schooling',
+    label: (
+      <TranslatedText
+        stringId="patient.property.educationalAttainment.noFormalSchooling"
+        fallback="No formal schooling"
+      />
+    ),
+  },
+  {
+    value: 'Less than primary school',
+    label: (
+      <TranslatedText
+        stringId="patient.property.educationalAttainment.lessThanPrimary"
+        fallback="Less than primary"
+      />
+    ),
+  },
+  {
+    value: 'Primary school completed',
+    label: (
+      <TranslatedText
+        stringId="patient.property.educationalAttainment.primaryCompleted"
+        fallback="Primary school completed"
+      />
+    ),
+  },
+  {
+    value: 'Sec school completed',
+    label: (
+      <TranslatedText
+        stringId="patient.property.educationalAttainment.secSchoolCompleted"
+        fallback="Sec school completed"
+      />
+    ),
+  },
+  {
+    value: 'High school completed',
+    label: (
+      <TranslatedText
+        stringId="patient.property.educationalAttainment.highSchoolCompleted"
+        fallback="High school completed"
+      />
+    ),
+  },
+  {
+    value: 'University completed',
+    label: (
+      <TranslatedText
+        stringId="patient.property.educationalAttainment.universityCompleted"
+        fallback="University completed"
+      />
+    ),
+  },
+  {
+    value: 'Post grad completed',
+    label: (
+      <TranslatedText
+        stringId="patient.property.educationalAttainment.postGradCompleted"
+        fallback="Post grad completed"
+      />
+    ),
+  },
 ];
 
 export const SEX_VALUE_INDEX = createValueIndex(sexOptions);
 
 export const pregnancyOutcomes = [
   { value: '', label: 'N/A' },
-  { value: 'liveBirth', label: 'Live Birth' },
-  { value: 'stillBirth', label: 'Still Birth' },
-  { value: 'fetalDeath', label: 'Fetal Death' },
+  {
+    value: 'liveBirth',
+    label: (
+      <TranslatedText stringId="birth.property.pregnancyOutcome.liveBirth" fallback="Live birth" />
+    ),
+  },
+  {
+    value: 'stillBirth',
+    label: (
+      <TranslatedText
+        stringId="birth.property.pregnancyOutcome.stillBirth"
+        fallback="Still birth"
+      />
+    ),
+  },
+  {
+    value: 'fetalDeath',
+    label: (
+      <TranslatedText
+        stringId="birth.property.pregnancyOutcome.fetalDeath"
+        fallback="Fetal death"
+      />
+    ),
+  },
 ];
 
 export const REPORT_TYPES = {
@@ -397,40 +574,113 @@ export const INVOICE_PAYMENT_STATUS_OPTIONS = [
 ];
 
 export const BIRTH_DELIVERY_TYPE_OPTIONS = [
-  { value: BIRTH_DELIVERY_TYPES.NORMAL_VAGINAL_DELIVERY, label: 'Normal vaginal delivery' },
-  { value: BIRTH_DELIVERY_TYPES.BREECH, label: 'Breech' },
-  { value: BIRTH_DELIVERY_TYPES.EMERGENCY_C_SECTION, label: 'Emergency C-section' },
-  { value: BIRTH_DELIVERY_TYPES.ELECTIVE_C_SECTION, label: 'Elective C-section' },
-  { value: BIRTH_DELIVERY_TYPES.VACUUM_EXTRACTION, label: 'Vacuum extraction' },
-  { value: BIRTH_DELIVERY_TYPES.FORCEPS, label: 'Forceps' },
-  { value: BIRTH_DELIVERY_TYPES.OTHER, label: 'Other' },
+  {
+    value: BIRTH_DELIVERY_TYPES.NORMAL_VAGINAL_DELIVERY,
+    label: (
+      <TranslatedText
+        stringId="birth.property.deliveryType.normalVaginalDelivery"
+        fallback="Normal vaginal delivery"
+      />
+    ),
+  },
+  {
+    value: BIRTH_DELIVERY_TYPES.BREECH,
+    label: <TranslatedText stringId="birth.property.deliveryType.breech" fallback="Breech" />,
+  },
+  {
+    value: BIRTH_DELIVERY_TYPES.EMERGENCY_C_SECTION,
+    label: (
+      <TranslatedText
+        stringId="birth.property.deliveryType.emergencyCSection"
+        fallback="Emergency C-section"
+      />
+    ),
+  },
+  {
+    value: BIRTH_DELIVERY_TYPES.ELECTIVE_C_SECTION,
+    label: (
+      <TranslatedText
+        stringId="birth.property.deliveryType.electiveCSection"
+        fallback="Elective C-section"
+      />
+    ),
+  },
+  {
+    value: BIRTH_DELIVERY_TYPES.VACUUM_EXTRACTION,
+    label: (
+      <TranslatedText
+        stringId="birth.property.deliveryType.vacuumExtraction"
+        fallback="Vacuum extraction"
+      />
+    ),
+  },
+  {
+    value: BIRTH_DELIVERY_TYPES.FORCEPS,
+    label: <TranslatedText stringId="birth.property.deliveryType.forceps" fallback="Forceps" />,
+  },
+  {
+    value: BIRTH_DELIVERY_TYPES.OTHER,
+    label: <TranslatedText stringId="birth.property.deliveryType.other" fallback="Other" />,
+  },
 ];
 
 export const BIRTH_TYPE_OPTIONS = [
-  { value: BIRTH_TYPES.SINGLE, label: 'Single' },
-  { value: BIRTH_TYPES.PLURAL, label: 'Plural' },
+  {
+    value: BIRTH_TYPES.SINGLE,
+    label: <TranslatedText stringId="birth.property.birthType.single" fallback="Single" />,
+  },
+  {
+    value: BIRTH_TYPES.PLURAL,
+    label: <TranslatedText stringId="birth.property.birthType.plural" fallback="Plural" />,
+  },
 ];
 
 export const PLACE_OF_BIRTH_OPTIONS = [
-  { value: PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY, label: 'Health facility' },
-  { value: PLACE_OF_BIRTH_TYPES.HOME, label: 'Home' },
-  { value: PLACE_OF_BIRTH_TYPES.OTHER, label: 'Other' },
+  {
+    value: PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY,
+    label: (
+      <TranslatedText
+        stringId="birth.property.placeOfBirth.healthFacility"
+        fallback="Health facility"
+      />
+    ),
+  },
+  {
+    value: PLACE_OF_BIRTH_TYPES.HOME,
+    label: <TranslatedText stringId="birth.property.placeOfBirth.home" fallback="Home" />,
+  },
+  {
+    value: PLACE_OF_BIRTH_TYPES.OTHER,
+    label: <TranslatedText stringId="birth.property.placeOfBirth.other" fallback="Other" />,
+  },
 ];
 
 export const ATTENDANT_OF_BIRTH_OPTIONS = [
-  { value: ATTENDANT_OF_BIRTH_TYPES.DOCTOR, label: 'Doctor' },
-  { value: ATTENDANT_OF_BIRTH_TYPES.MIDWIFE, label: 'Midwife' },
-  { value: ATTENDANT_OF_BIRTH_TYPES.NURSE, label: 'Nurse' },
+  {
+    value: ATTENDANT_OF_BIRTH_TYPES.DOCTOR,
+    label: <TranslatedText stringId="birth.property.attendantOfBirth.doctor" fallback="Doctor" />,
+  },
+  {
+    value: ATTENDANT_OF_BIRTH_TYPES.MIDWIFE,
+    label: <TranslatedText stringId="birth.property.attendantOfBirth.midwife" fallback="Midwife" />,
+  },
+  {
+    value: ATTENDANT_OF_BIRTH_TYPES.NURSE,
+    label: <TranslatedText stringId="birth.property.attendantOfBirth.nurse" fallback="Nurse" />,
+  },
   {
     value: ATTENDANT_OF_BIRTH_TYPES.TRADITIONAL_BIRTH_ATTENDANT,
-    label: 'Traditional birth attendant',
+    label: (
+      <TranslatedText
+        stringId="birth.property.attendantOfBirth.traditionalBirthAttendant"
+        fallback="Traditional birth attendant"
+      />
+    ),
   },
-  { value: ATTENDANT_OF_BIRTH_TYPES.OTHER, label: 'Other' },
-];
-
-export const PATIENT_REGISTRY_OPTIONS = [
-  { value: PATIENT_REGISTRY_TYPES.NEW_PATIENT, label: 'Create new patient' },
-  { value: PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY, label: 'Register birth' },
+  {
+    value: ATTENDANT_OF_BIRTH_TYPES.OTHER,
+    label: <TranslatedText stringId="birth.property.attendantOfBirth.other" fallback="Other" />,
+  },
 ];
 
 export const TEMPLATE_TYPE_OPTIONS = [
