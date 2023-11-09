@@ -1,16 +1,4 @@
-import { DELETION_STATUSES } from '@tamanu/constants';
 import { ModelExporter } from './ModelExporter';
-
-const mapDeletionStatus = deletionStatus => {
-  switch (deletionStatus) {
-    case null:
-      return 'y';
-    case DELETION_STATUSES.REVOKED:
-      return 'n';
-    default:
-      return 'n';
-  }
-};
 
 export class PermissionExporter extends ModelExporter {
   async getData() {
@@ -29,14 +17,14 @@ export class PermissionExporter extends ModelExporter {
         permission.objectId ? `#${permission.objectId}` : ''
       }`;
       if (data[key]) {
-        data[key][permission.roleId] = mapDeletionStatus(permission.deletionStatus);
+        data[key][permission.roleId] = permission.deletedAt ? 'n' : 'y';
       } else {
         data[key] = {
           verb: permission.verb,
           noun: permission.noun,
           objectId: permission.objectId,
           ...roles,
-          [permission.roleId]: mapDeletionStatus(permission.deletionStatus),
+          [permission.roleId]: permission.deletedAt ? 'n' : 'y',
         };
       }
     });
