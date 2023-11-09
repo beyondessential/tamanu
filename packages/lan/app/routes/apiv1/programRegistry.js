@@ -13,6 +13,8 @@ import {
 export const programRegistry = express.Router();
 
 programRegistry.get('/:id', simpleGet('ProgramRegistry'));
+
+// TODO: TAN-2357: reimplement as standalone handler rather than simpleGetList 
 programRegistry.get(
   '/$',
   simpleGetList('ProgramRegistry', '', {
