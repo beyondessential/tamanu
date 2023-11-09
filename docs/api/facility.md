@@ -1,4 +1,4 @@
-# LAN server API Endpoint Docs
+# Facility server API Endpoint Docs
 
 Route implementations can be found in: `packages/lan/app/routes`
 
