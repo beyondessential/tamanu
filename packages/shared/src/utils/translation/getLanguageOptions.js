@@ -1,4 +1,5 @@
 import { keyBy, mapValues } from 'lodash';
+import { NOT_MODIFIED_STATUS_CODE } from '@tamanu/constants';
 
 export const getLanguageOptions = async (models, storedEtag) => {
   const { TranslatedString } = models;
@@ -6,7 +7,7 @@ export const getLanguageOptions = async (models, storedEtag) => {
   const eTag = await TranslatedString.etagForLanguageOptions();
 
   if (storedEtag === eTag) {
-    return 304;
+    return NOT_MODIFIED_STATUS_CODE;
   }
 
   const languagesInDb = await TranslatedString.findAll({
