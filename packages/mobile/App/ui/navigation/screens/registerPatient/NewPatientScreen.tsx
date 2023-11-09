@@ -26,12 +26,14 @@ const Screen = ({
   }, []);
 
   const onAddAnotherPatient = useCallback(() => {
-    navigation.navigate(Routes.HomeStack.Index, {
-      screen: Routes.HomeStack.RegisterPatientStack.Index,
-      params: {
-        screen: Routes.HomeStack.RegisterPatientStack.PatientPersonalInfo,
-      },
-    });
+    navigation.navigate(Routes.HomeStack.HomeTabs.Index);
+    navigation.navigate(Routes.HomeStack.RegisterPatientStack.Index);
+    // navigation.navigate(Routes.HomeStack.Index, {
+    //   screen: Routes.HomeStack.RegisterPatientStack.Index,
+    //   params: {
+    //     screen: Routes.HomeStack.RegisterPatientStack.PatientPersonalInfo,
+    //   },
+    // });
   }, []);
 
   const onStartVisit = useCallback(() => {
