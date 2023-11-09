@@ -1,58 +1,52 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FullView, StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 import { SearchInput } from '~/ui/components/SearchInput';
 import { FlatList } from 'react-native';
 import { Separator } from '~/ui/components/Separator';
 import { EmptyStackHeader } from '~/ui/components/StackHeader';
-import { Row } from '../home/Tabs/PatientHome/ReportScreen/RecentPatientSurveyReportStyled';
 import { GreenTickIcon } from '~/ui/components/Icons';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { Row } from '~/ui/navigation/screens/home/Tabs/PatientHome/ReportScreen/RecentPatientSurveyReportStyled';
+import { Suggester, BaseModelSubclass } from '~/ui/helpers/suggester';
 
-interface IConditionMultiSelect {
+interface IMultiSelectModalScreen {
   navigation;
   route: {
     params: {
-      options: { label: string; value: string };
       callback: (item: any) => any;
+      suggester: Suggester<BaseModelSubclass>;
+      modalTitle: string;
+      suggesterParams?: { [key: string]: any };
+      value: { label: string; value: string }[];
     };
   };
 }
-export const ConditionMultiselect = (props: IConditionMultiSelect) => {
-  const { callback } = props.route.params;
+export const MultiSelectModalScreen = (props: IMultiSelectModalScreen) => {
+  const { callback, modalTitle, suggesterParams, suggester, value } = props.route.params;
   const [searchValue, setSearchValue] = useState('');
-  const [options, setOptions] = useState<{ value: string; label: string; selected: boolean }[]>([
-    { value: '1', label: 'Acute bronchitis', selected: false },
-    { value: '2', label: 'Acute colitis', selected: false },
-    { value: '3', label: 'Asthma', selected: false },
-    { value: '4', label: 'Cancer', selected: false },
-    { value: '5', label: 'Chronic kidney disease', selected: false },
-    { value: '6', label: 'Ebola', selected: false },
-    { value: '7', label: 'Giardiasis', selected: false },
-    { value: '8', label: 'Infection', selected: false },
-    { value: '9', label: 'Meningitis', selected: false },
-    { value: '10', label: 'Salmonellosis', selected: false },
-    { value: '11', label: 'Tuberculosis', selected: false },
-    { value: '12', label: 'UTI', selected: false },
-    { value: '13', label: 'Vascular disease', selected: false },
-  ]);
+  const [options, setOptions] = useState<{ value: string; label: string; selected: boolean }[]>([]);
 
+  useEffect(() => {
+    (async (): Promise<void> => {
+      const data = await suggester.fetch(suggesterParams);
+      setOptions(
+        data.map((x: any) => {
+          const selected = Array.isArray(value) && !!value.find(v => v.value === x.id);
+          return { label: x.name, value: x.id, selected };
+        }),
+      );
+    })();
+  }, []);
+
+  console.log(callback, modalTitle, suggesterParams, suggester, value);
   return (
     <FullView background={theme.colors.WHITE}>
       <EmptyStackHeader
-        title="Conditions"
+        title={modalTitle}
         onGoBack={() => {
           props.navigation.goBack();
-          callback({
-            value: options
-              .filter(x => x.selected)
-              .map(x => x.value)
-              .toString(),
-            label: options
-              .filter(x => ` ${x.selected}`)
-              .map(x => x.label)
-              .toString(),
-          });
+          callback(options.filter(x => x.selected));
         }}
       />
       <StyledView borderColor={theme.colors.BOX_OUTLINE} borderBottomWidth={1}></StyledView>

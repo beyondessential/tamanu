@@ -18,7 +18,7 @@ import { Form } from '~/ui/components/Forms/Form';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { IPatientProgramRegistryForm } from '../../stacks/PatientProgramRegistryForm';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
-import { Routes } from '~/ui/helpers/routes';
+import { MultiSelectModalField } from '~/ui/components/MultiSelectModal/MultiSelectModalField';
 
 export const PatientProgramRegistryForm2 = ({ route }: BaseAppProps) => {
   const navigation = useNavigation();
@@ -32,6 +32,11 @@ export const PatientProgramRegistryForm2 = ({ route }: BaseAppProps) => {
   const facilitySuggester = new Suggester(models.ReferenceData, {
     where: {
       type: ReferenceDataType.Facility,
+    },
+  });
+  const conditionSuggester = new Suggester(models.ReferenceData, {
+    where: {
+      type: ReferenceDataType.Condition,
     },
   });
   const submitPatientProgramRegistration = async (formData: IPatientProgramRegistryForm) => {
@@ -62,8 +67,8 @@ export const PatientProgramRegistryForm2 = ({ route }: BaseAppProps) => {
         })}
         onSubmit={submitPatientProgramRegistration}
       >
-        {({ errors, handleSubmit }): ReactElement => {
-          console.log(errors);
+        {({ errors, handleSubmit, values }): ReactElement => {
+          console.log(values);
           return (
             <>
               <StyledView marginTop={20} marginLeft={20} marginRight={20}>
@@ -113,11 +118,14 @@ export const PatientProgramRegistryForm2 = ({ route }: BaseAppProps) => {
                 <LocalisedField
                   localisationPath="fields.conditions"
                   labelFontSize={14}
-                  component={AutocompleteModalField}
+                  component={MultiSelectModalField}
+                  modalTitle="Conditions"
+                  suggester={conditionSuggester}
+                  suggesterParams={{ programRegistryId: programRegistry.id }}
                   placeholder={`Search`}
                   navigation={navigation}
-                  modalRoute={Routes.HomeStack.PatientProgramRegistryFormStack.ConditionMultiselect}
                   name="conditions"
+                  value={values.conditions}
                 />
               </StyledView>
               <Button
