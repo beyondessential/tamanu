@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Paper from '@material-ui/core/Paper';
 import { push } from 'connected-react-router';
+import { LANGUAGE_LOCAL_STORAGE_KEY } from '@tamanu/constants';
 
 import { TamanuLogo } from '../components';
 import { LOCAL_STORAGE_KEYS } from '../constants';
@@ -37,6 +38,7 @@ const Grid = styled.div`
 const LoginContainer = styled(Paper)`
   padding: 30px 60px 70px 60px;
   width: 480px;
+  position: relative;
 `;
 
 const LogoContainer = styled.div`
@@ -58,7 +60,7 @@ export const LoginView = () => {
   const [screen, setScreen] = useState('login');
 
   const submitLogin = async data => {
-    const { host, email, password, rememberMe } = data;
+    const { host, email, password, rememberMe, language } = data;
 
     // If a different user logs in, reset patient state and navigate to index
     if (email !== api.user?.email) {
@@ -75,6 +77,8 @@ export const LoginView = () => {
     // The await is necessary to prevent redux-form unlocking submission
     // redux-thunk definitely returns a promise, and this works
     await dispatch(login(host, email, password));
+
+    localStorage.setItem(LANGUAGE_LOCAL_STORAGE_KEY, language);
   };
 
   return (

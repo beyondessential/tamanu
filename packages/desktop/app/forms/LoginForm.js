@@ -17,6 +17,7 @@ import {
   TextField,
 } from '../components';
 import { ServerDetectingField } from '../components/Field/ServerDetectingField';
+import { LanguageSelector } from '../components/LanguageSelector';
 
 const LoginButton = styled(FormSubmitButton)`
   font-size: 16px;
@@ -96,6 +97,7 @@ const LoginFormComponent = ({
       <Button onClick={onNavToResetPassword} color="default" variant="text">
         Forgot your password?
       </Button>
+      <LanguageSelector setFieldValue={setFieldValue} />
     </FormGrid>
   );
 };
@@ -138,6 +140,7 @@ export const LoginForm = React.memo(
             .nullable()
             .required(),
           password: yup.string().required(),
+          language: yup.string(),
         })}
       />
     );
