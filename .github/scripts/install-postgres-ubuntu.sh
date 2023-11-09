@@ -7,7 +7,6 @@
 set -euxo pipefail
 
 pgversion="${1:?version must be provided}"
-package="${2:?package must be provided}"
 
 # configure official upstream apt repo
 # from https://wiki.postgresql.org/wiki/Apt
@@ -46,12 +45,3 @@ echo "PGPORT=$PGPORT" >> $GITHUB_ENV
 
 # wait for postgresql to be ready to accept connections
 .github/scripts/wait-for-it.sh localhost:5432
-
-# configure tamanu (tests) to use this database
-name=$(sed 's/-server$//' <<< "tamanu-$package")
-echo "NODE_CONFIG=$(jq -Rc '{db:{host:"127.0.0.1",name:.,username:.,password:.}}' <<< $name)" >> $GITHUB_ENV
-
-# create tamanu database and user for the package being tested
-createuser --superuser "$name"
-createdb -O "$name" "$name"
-psql -c "ALTER USER \"$name\" PASSWORD '$name';" $name
