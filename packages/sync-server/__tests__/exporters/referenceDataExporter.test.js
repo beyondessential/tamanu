@@ -1,4 +1,4 @@
-import { REFERENCE_TYPES, DELETION_STATUSES } from '@tamanu/constants';
+import { REFERENCE_TYPES } from '@tamanu/constants';
 import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { parseDate } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../utilities';
