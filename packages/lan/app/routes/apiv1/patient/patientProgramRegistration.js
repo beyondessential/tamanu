@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
 import { DELETION_STATUSES } from '@tamanu/constants';
 
 export const patientProgramRegistration = express.Router();
@@ -86,11 +86,11 @@ patientProgramRegistration.post(
   }),
 );
 
-patientProgramRegistration.delete(
-  '/:patientId/programRegistration/:programRegistryId/condition/:conditionId',
+patientProgramRegistration.post(
+  '/:patientId/programRegistration/:programRegistryId/condition',
   asyncHandler(async (req, res) => {
     const { models, params, body } = req;
-    const { patientId, programRegistryId, conditionId } = params;
+    const { patientId, programRegistryId } = params;
 
     req.checkPermission('read', 'Patient');
     const patient = await models.Patient.findByPk(patientId);
@@ -100,20 +100,24 @@ patientProgramRegistration.delete(
     const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
     if (!programRegistry) throw new NotFoundError();
 
-    req.checkPermission('delete', 'PatientProgramRegistrationCondition', { programRegistryId });
-    const existingCondition = await models.PatientProgramRegistrationCondition.findOne({
+    req.checkPermission('read', 'PatientProgramRegistrationCondition', { programRegistryId });
+    const conditionExists = await models.PatientProgramRegistrationCondition.count({
       where: {
         programRegistryId,
         patientId,
-        programRegistryConditionId: conditionId,
+        programRegistryConditionId: body.programRegistryConditionId,
+        deletionStatus: null,
       },
     });
-    if (!existingCondition) throw new NotFoundError();
+    if (conditionExists) {
+      throw new ValidationError("Can't create a duplicate condition for the same patient");
+    }
 
-    const condition = await existingCondition.update({
-      deletionStatus: DELETION_STATUSES.DELETED,
-      deletionClinicianId: body.deletionClinicianId,
-      deletionDate: body.deletionDate,
+    req.checkPermission('create', 'PatientProgramRegistrationCondition', { programRegistryId });
+    const condition = await models.PatientProgramRegistrationCondition.create({
+      patientId,
+      programRegistryId,
+      ...body,
     });
 
     res.send(condition);
@@ -129,7 +133,6 @@ patientProgramRegistration.delete(
     req.checkPermission('read', 'Patient');
     const patient = await models.Patient.findByPk(patientId);
     if (!patient) throw new NotFoundError();
-
     req.checkPermission('read', 'ProgramRegistry', { id: programRegistryId });
     const programRegistry = await models.ProgramRegistry.findByPk(programRegistryId);
     if (!programRegistry) throw new NotFoundError();
@@ -143,13 +146,11 @@ patientProgramRegistration.delete(
       },
     });
     if (!existingCondition) throw new NotFoundError();
-
     const condition = await existingCondition.update({
       deletionStatus: DELETION_STATUSES.DELETED,
       deletionClinicianId: body.deletionClinicianId,
       deletionDate: body.deletionDate,
     });
-
     res.send(condition);
   }),
 );

@@ -1,4 +1,4 @@
-import { LocalSystemFact } from 'shared/models/LocalSystemFact';
+import { LocalSystemFact } from '@tamanu/shared/models/LocalSystemFact';
 import { initDeviceId } from '../../app/sync/initDeviceId';
 import { createTestContext } from '../utilities';
 

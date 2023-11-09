@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
-import { NotFoundError, InvalidOperationError, InvalidParameterError } from 'shared/errors';
+import { NotFoundError, InvalidOperationError, InvalidParameterError } from '@tamanu/shared/errors';
 import {
   SURVEY_TYPES,
   PROGRAM_DATA_ELEMENT_TYPES,

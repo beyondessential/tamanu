@@ -67,8 +67,6 @@ export class PatientProgramRegistration extends Model {
 
     // 1. Note that only one of facilityId or villageId will usually be set,
     // depending on the currentlyAtType of the related programRegistry.
-    // 2. The first entry in a patient's registration list for a given program
-    // registry may have both facilityId and villageId - for the registering facility
     this.belongsTo(models.Facility, {
       foreignKey: 'facilityId',
       as: 'facility',

@@ -1,7 +1,7 @@
 import { Op, Sequelize } from 'sequelize';
 import { FHIR_INTERACTIONS } from '@tamanu/constants/fhir';
-import { sortInDependencyOrder } from 'shared/models/sortInDependencyOrder';
-import { FAKE_UUID_PATTERN } from 'shared/utils/generateId';
+import { sortInDependencyOrder } from '@tamanu/shared/models/sortInDependencyOrder';
+import { FAKE_UUID_PATTERN } from '@tamanu/shared/utils/generateId';
 
 export function deleteAllTestIds({ models }) {
   const sortedModels = sortInDependencyOrder(models).reverse();

@@ -3,7 +3,7 @@ import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 
-import { getResourceList } from 'shared/utils/crudHelpers';
+import { getResourceList } from '@tamanu/shared/utils/crudHelpers';
 
 export const getLabRequestList = (foreignKey = '', options = {}) =>
   asyncHandler(async (req, res) => {

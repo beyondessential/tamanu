@@ -1,4 +1,4 @@
-import { fake } from 'shared/test-helpers';
+import { fake } from '@tamanu/shared/test-helpers';
 import { NUM_FACILITIES, REF_ID_PREFIX } from '../constants';
 
 export default {

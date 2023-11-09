@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
@@ -17,12 +17,20 @@ import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api/useApi';
+import { useQuery } from '@tanstack/react-query';
 
-export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient }) => {
+export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient }) => {
   const api = useApi();
   const { currentUser, facility } = useAuth();
-  const [program, setProgram] = useState();
-  const [conditions, setConditions] = useState(undefined);
+  const [selectedProgramRegistryId, setSelectedProgramRegistryId] = useState();
+
+  const { data: program } = useQuery(['programRegistry', selectedProgramRegistryId], () =>
+    api.get(`programRegistry/${selectedProgramRegistryId}`),
+  );
+  const { data: conditions } = useQuery(
+    ['programRegistryConditions', selectedProgramRegistryId],
+    () => api.get(`programRegistry/${selectedProgramRegistryId}/conditions`),
+  );
   const programRegistrySuggester = useSuggester('programRegistry', {
     baseQueryParameters: { patientId: patient.id },
   });
@@ -32,19 +40,6 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
   const registeredBySuggester = useSuggester('practitioner');
   const registeringFacilitySuggester = useSuggester('facility');
 
-  const onProgramRegistrySelect = id => {
-    api
-      .get(`programRegistry/${id}`)
-      .then(programData => setProgram(programData))
-      .catch(error => setProgram(undefined));
-    api
-      .get(`programRegistry/${id}/conditions`)
-      .then(({ data: conditionsData }) =>
-        setConditions(conditionsData.map(x => ({ label: x.name, value: x.id }))),
-      )
-      .catch(error => setConditions(undefined));
-  };
-
   return (
     <Form
       onSubmit={data => {
@@ -52,6 +47,7 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
           ...data,
           conditionIds: data.conditionIds ? data.conditionIds.split(',') : [],
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+          patientId: patient.id,
         });
       }}
       render={({ submitForm, values, setValues }) => {
@@ -65,12 +61,6 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
         const isCompleted = !!values.completed;
         const buttonText = getButtonText(isCompleted);
 
-        // eslint-disable-next-line
-        useEffect(() => {
-          setValues({ ...values, clinicalStatusId: null, conditionIds: null });
-          // eslint-disable-next-line
-        }, [values.programRegistryId]);
-
         return (
           <div>
             <FormGrid>
@@ -81,21 +71,14 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
                   required
                   component={AutocompleteField}
                   suggester={programRegistrySuggester}
-                  onChange={target => {
-                    onProgramRegistrySelect(target.target.value);
+                  onChange={event => {
+                    if (selectedProgramRegistryId !== event.target.value) {
+                      setValues({ ...values, clinicalStatusId: null, conditions: null });
+                      setSelectedProgramRegistryId(event.target.value);
+                    }
                   }}
                 />
 
-                <FieldWithTooltip
-                  tooltipText="Select a program registry to set the status"
-                  name="clinicalStatusId"
-                  label="Status"
-                  component={AutocompleteField}
-                  suggester={programRegistryStatusSuggester}
-                  disabled={!program}
-                />
-              </FormGrid>
-              <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
                   name="date"
                   label="Date of registration"
@@ -103,6 +86,8 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
                   required
                   component={DateField}
                 />
+              </FormGrid>
+              <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
                   name="clinicianId"
                   label="Registered by"
@@ -110,13 +95,21 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
                   component={AutocompleteField}
                   suggester={registeredBySuggester}
                 />
-              </FormGrid>
-              <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
                   name="facilityId"
                   label="Registering facility"
                   component={AutocompleteField}
                   suggester={registeringFacilitySuggester}
+                />
+              </FormGrid>
+              <FormGrid style={{ gridColumn: 'span 2' }}>
+                <FieldWithTooltip
+                  tooltipText="Select a program registry to set the status"
+                  name="clinicalStatusId"
+                  label="Status"
+                  component={AutocompleteField}
+                  suggester={programRegistryStatusSuggester}
+                  disabled={!program}
                 />
                 <FieldWithTooltip
                   tooltipText="Select a program registry to add conditions"
@@ -149,17 +142,18 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
         date: yup.date(),
         facilityId: optionalForeignKey(),
         clinicianId: foreignKey('Registered by must be selected'),
+        conditions: yup.array().of(yup.string()),
       })}
     />
   );
 };
 
-ProgramRegistryForm.propTypes = {
+PatientProgramRegistryForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
   editedObject: PropTypes.shape({}),
 };
 
-ProgramRegistryForm.defaultProps = {
+PatientProgramRegistryForm.defaultProps = {
   editedObject: null,
 };

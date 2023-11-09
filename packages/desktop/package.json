@@ -1,7 +1,7 @@
 {
   "name": "desktop",
   "productName": "Tamanu",
-  "version": "1.36.0",
+  "version": "1.37.0",
   "description": "Tamanu Desktop application",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",

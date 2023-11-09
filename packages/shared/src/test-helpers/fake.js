@@ -14,6 +14,7 @@ import {
   VISIBILITY_STATUSES,
   LAB_REQUEST_STATUSES,
   CURRENTLY_AT_TYPES,
+  REGISTRATION_STATUSES,
 } from '@tamanu/constants';
 import { toDateTimeString, toDateString } from '../utils/dateTime';
 import { fakeUUID } from '../utils/generateId';
@@ -342,6 +343,9 @@ const MODEL_SPECIFIC_OVERRIDES = {
       stillborn: chance.pickone(options),
     };
   },
+  PatientProgramRegistration: () => ({
+    registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+  }),
   User: () => ({
     email: chance.email(),
     displayId: chance.hash({ length: 5 }),

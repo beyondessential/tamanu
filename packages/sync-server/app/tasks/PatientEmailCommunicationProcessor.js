@@ -1,7 +1,7 @@
 import config from 'config';
 import { PATIENT_COMMUNICATION_CHANNELS, COMMUNICATION_STATUSES } from '@tamanu/constants';
-import { ScheduledTask } from 'shared/tasks';
-import { log } from 'shared/services/logging';
+import { ScheduledTask } from '@tamanu/shared/tasks';
+import { log } from '@tamanu/shared/services/logging';
 
 // turns 'hello there' into 'h*********e'
 const maskMiddle = s => s.slice(0, 1) + s.slice(1, -1).replace(/./g, '*') + s.slice(-1);

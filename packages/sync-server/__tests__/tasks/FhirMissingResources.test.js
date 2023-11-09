@@ -1,4 +1,4 @@
-import { fake } from 'shared/test-helpers';
+import { fake } from '@tamanu/shared/test-helpers';
 import { Op } from 'sequelize';
 import { createTestContext } from '../utilities';
 import {

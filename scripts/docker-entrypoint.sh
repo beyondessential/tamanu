@@ -40,5 +40,5 @@ elif which "$1" >/dev/null; then
   exec $*
 else
   # otherwise, run the app
-  exec node dist/app.bundle.js $*
+  exec node dist $*
 fi

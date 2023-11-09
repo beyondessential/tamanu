@@ -1,5 +1,5 @@
-import { getCodeForErrorName } from 'shared/errors';
-import { log } from 'shared/services/logging';
+import { getCodeForErrorName } from '@tamanu/shared/errors';
+import { log } from '@tamanu/shared/services/logging';
 
 // eslint-disable-next-line no-unused-vars
 export const buildErrorHandler = getResponse => (error, req, res, next) => {

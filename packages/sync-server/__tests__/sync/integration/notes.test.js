@@ -1,7 +1,7 @@
-import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
-import { fake, fakeUser } from 'shared/test-helpers/fake';
-import { createDummyEncounter } from 'shared/demoData/patients';
-import { sleepAsync } from 'shared/utils/sleepAsync';
+import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
+import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
+import { createDummyEncounter } from '@tamanu/shared/demoData/patients';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import {
   IMAGING_TYPES,
   LAB_REQUEST_STATUSES,

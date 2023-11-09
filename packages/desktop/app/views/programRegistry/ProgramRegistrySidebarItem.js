@@ -37,10 +37,10 @@ export const ProgramRegistrySidebarItem = ({
           {...{ icon, label, children, selected, highlighted, onClick, divider, retracted }}
         >
           {programRegistries.map(x => {
-            const secondaryPath = `${path}/${x.code}`;
+            const secondaryPath = `${path}/${x.id}?name=${x.name}`;
             return (
               <SecondarySidebarItem
-                key={x.code}
+                key={x.id}
                 path={secondaryPath}
                 isCurrent={currentPath.includes(secondaryPath)}
                 color=""

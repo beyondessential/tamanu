@@ -10,10 +10,10 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { NotFoundError } from 'shared/errors';
-import { permissionCheckingRouter } from 'shared/utils/crudHelpers';
-import { toDateTimeString, toDateString } from 'shared/utils/dateTime';
-import { getNoteWithType } from 'shared/utils/notes';
+import { NotFoundError } from '@tamanu/shared/errors';
+import { permissionCheckingRouter } from '@tamanu/shared/utils/crudHelpers';
+import { toDateTimeString, toDateString } from '@tamanu/shared/utils/dateTime';
+import { getNoteWithType } from '@tamanu/shared/utils/notes';
 import { mapQueryFilters } from '../../database/utils';
 import { getImagingProvider } from '../../integrations/imaging';
 

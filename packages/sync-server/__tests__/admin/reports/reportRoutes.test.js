@@ -1,6 +1,6 @@
 import path from 'path';
-import { User } from 'shared/models/User';
-import { REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
+import { User } from '@tamanu/shared/models/User';
+import { REPORT_VERSION_EXPORT_FORMATS, REPORT_DB_SCHEMAS } from '@tamanu/constants/reports';
 import { createTestContext, withDate } from '../../utilities';
 import { readJSON, sanitizeFilename, verifyQuery } from '../../../app/admin/reports/utils';
 
@@ -11,14 +11,17 @@ describe('reportRoutes', () => {
   let adminApp;
   let testReport;
   let user;
+  let dbSchema;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.store.models;
     adminApp = await baseApp.asRole('admin');
+    dbSchema = REPORT_DB_SCHEMAS.RAW;
     testReport = await models.ReportDefinition.create({
       name: 'Test Report',
+      dbSchema,
     });
     user = await User.create({
       displayName: 'Test User',
@@ -125,7 +128,7 @@ describe('reportRoutes', () => {
         1,
         'select * from patients limit 1',
       );
-      const res = await adminApp.post('/v1/admin/reports').send({ name, ...definition });
+      const res = await adminApp.post('/v1/admin/reports').send({ name, dbSchema, ...definition });
       expect(res).toHaveSucceeded();
       expect(res.body.query).toBe('select * from patients limit 1');
       expect(res.body.versionNumber).toBe(1);
@@ -150,7 +153,7 @@ describe('reportRoutes', () => {
       );
       const res = await adminApp
         .post('/v1/admin/reports')
-        .send({ name: 'Test Report 3', ...definition });
+        .send({ name: 'Test Report 3', dbSchema, ...definition });
       expect(res).toHaveSucceeded();
       expect(Object.keys(res.body)).toEqual(
         expect.arrayContaining([
@@ -228,6 +231,7 @@ describe('reportRoutes', () => {
         ...versionData,
         id: v1.id,
         createdAt: v1.createdAt.toISOString(),
+        dbSchema: 'raw',
         updatedAt: v1.updatedAt.toISOString(),
         deletedAt: null,
       });
@@ -253,6 +257,7 @@ describe('reportRoutes', () => {
         name: 'Report Import Test Dry Run',
         dryRun: true,
         deleteFileAfterImport: false,
+        dbSchema,
       });
       expect(res).toHaveSucceeded();
       expect(res.body).toEqual({
@@ -273,6 +278,7 @@ describe('reportRoutes', () => {
         file: path.join(__dirname, '/data/without-version-number.json'),
         name: 'Report Import Test',
         deleteFileAfterImport: false,
+        dbSchema,
       });
       expect(res).toHaveSucceeded();
       const report = await models.ReportDefinition.findOne({
@@ -298,6 +304,7 @@ describe('reportRoutes', () => {
         file: path.join(__dirname, '/data/without-version-number.json'),
         name: testReport.name,
         deleteFileAfterImport: false,
+        dbSchema,
       });
       expect(res).toHaveSucceeded();
       const report = await models.ReportDefinition.findOne({
@@ -377,6 +384,7 @@ describe('reportRoutes', () => {
               },
             ],
           },
+          dbSchema: 'raw',
           status: 'published',
           notes: 'Report doing absolutely nothing',
         });
@@ -391,19 +399,21 @@ describe('reportRoutes', () => {
     describe('verifyQuery', () => {
       it('should return true if query is valid', async () => {
         const query = 'select * from patients limit 1';
-        expect(verifyQuery(query, [], ctx.store)).resolves.not.toThrow();
+        expect(verifyQuery(query, { parameters: [] }, { store: ctx.store })).resolves.not.toThrow();
       });
       it('should return true if query is valid with paramDefinition', async () => {
         const query = 'select * from patients where id = :test limit 1';
         expect(
           verifyQuery(
             query,
-            [
-              {
-                name: 'test',
-              },
-            ],
-            ctx.store,
+            {
+              parameters: [
+                {
+                  name: 'test',
+                },
+              ],
+            },
+            { store: ctx.store },
           ),
         ).resolves.not.toThrow();
       });
