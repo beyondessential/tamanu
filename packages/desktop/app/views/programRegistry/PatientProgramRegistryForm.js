@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
   Form,
@@ -21,7 +22,7 @@ import { useQuery } from '@tanstack/react-query';
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient }) => {
   const api = useApi();
   const { currentUser, facility } = useAuth();
-  const [selectedProgramRegistryId, setselectedProgramRegistryId] = useState();
+  const [selectedProgramRegistryId, setSelectedProgramRegistryId] = useState();
 
   const { data: program } = useQuery(['programRegistry', selectedProgramRegistryId], () =>
     api.get(`programRegistry/${selectedProgramRegistryId}`),
@@ -44,7 +45,8 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
       onSubmit={data => {
         onSubmit({
           ...data,
-          conditions: Array.isArray(data.conditions) ? data.conditions.split(',') : [],
+          conditionIds: data.conditionIds ? data.conditionIds.split(',') : [],
+          registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           patientId: patient.id,
         });
       }}
@@ -69,10 +71,10 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
                   required
                   component={AutocompleteField}
                   suggester={programRegistrySuggester}
-                  onChange={target => {
-                    if (selectedProgramRegistryId !== target.target.value) {
+                  onChange={event => {
+                    if (selectedProgramRegistryId !== event.target.value) {
                       setValues({ ...values, clinicalStatusId: null, conditions: null });
-                      setselectedProgramRegistryId(target.target.value);
+                      setSelectedProgramRegistryId(event.target.value);
                     }
                   }}
                 />
@@ -111,7 +113,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
                 />
                 <FieldWithTooltip
                   tooltipText="Select a program registry to add conditions"
-                  name="conditions"
+                  name="conditionIds"
                   label="Conditions"
                   component={MultiselectField}
                   options={conditions}

@@ -1,8 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes } from 'sequelize';
+import { Sequelize, Op, QueryTypes } from 'sequelize';
 
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { deepRenameObjectKeys } from '@tamanu/shared/utils';
 import { simpleGet, simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 import {
@@ -14,10 +13,41 @@ import {
 export const programRegistry = express.Router();
 
 programRegistry.get('/:id', simpleGet('ProgramRegistry'));
+
+// TODO: TAN-2357: reimplement as standalone handler rather than simpleGetList 
 programRegistry.get(
   '/$',
   simpleGetList('ProgramRegistry', '', {
-    additionalFilters: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    additionalFilters: ({ db, query }) => ({
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      ...(query.excludePatientId
+        ? {
+            id: {
+              [Op.notIn]: Sequelize.literal(
+                `(
+                    SELECT DISTINCT(pr.id)
+                    FROM program_registries pr
+                    INNER JOIN patient_program_registrations ppr
+                    ON ppr.program_registry_id = pr.id
+                    WHERE
+                      ppr.patient_id = ${db.escape(query.excludePatientId)}
+                    AND
+                      ppr.registration_status != '${REGISTRATION_STATUSES.RECORDED_IN_ERROR}'
+                  )`,
+              ),
+            },
+          }
+        : {}),
+    }),
+  }),
+);
+
+programRegistry.get(
+  '/:id/conditions',
+  simpleGetList('ProgramRegistryCondition', 'programRegistryId', {
+    additionalFilters: {
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+    },
   }),
 );
 
