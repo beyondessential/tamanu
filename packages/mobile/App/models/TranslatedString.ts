@@ -35,4 +35,11 @@ export class TranslatedString extends BaseModel {
       throw new Error('language cannot contain a ";"');
     }
   }
+
+  static async getLanguageOptions() {
+    return [
+      { label: 'English', value: 'en' },
+      { label: 'Spanish', value: 'es' },
+    ];
+  }
 }

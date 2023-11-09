@@ -1,4 +1,11 @@
-import React, { FunctionComponent, ReactElement, useCallback, useEffect, useState } from 'react';
+import React, {
+  FunctionComponent,
+  ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { KeyboardAvoidingView, StatusBar } from 'react-native';
 import {
   StyledView,
@@ -13,22 +20,31 @@ import { Routes } from '/helpers/routes';
 import { ModalInfo } from '/components/ModalInfo';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { writeConfig, readConfig } from '~/services/config';
-import { useBackendEffect } from '~/ui/hooks';
+import { useBackend } from '~/ui/hooks';
 
 export const LanguageSelect: FunctionComponent<any> = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const [language, setLanguage] = useState('en');
+  const [language, setLanguage] = useState(null);
+  const [languageOptions, setLanguageOptions] = useState([]);
 
-  const [languageOptions, setLanguageOptions] = useBackendEffect(async ({ models }) => {
-    const surveys = await models.TranslatedString.findAll({
-      attributes: ['language'],
-      group: 'language',
-    });
+  const {
+    models: { TranslatedString },
+  } = useBackend();
 
-    console.log(surveys)
-  });
+  // TODO: Is there a way to useMemo this
+  useEffect(() => {
+    const getLanguageOptions = async () => {
+      const languageOptions = await TranslatedString.getLanguageOptions();
+      if (languageOptions.length === 0) {
+          setModalError('Cant load language list');
+          return;
+      }
+      setLanguageOptions(languageOptions);
+    };
+    getLanguageOptions();
+  }, []);
 
   const onChangeLanguage = async languageCode => {
     await writeConfig('language', languageCode);
@@ -47,6 +63,7 @@ export const LanguageSelect: FunctionComponent<any> = ({ navigation }) => {
     setErrorMessage(message);
     onChangeModalVisibility(true);
   }, []);
+
 
   return (
     <FullView background={theme.colors.PRIMARY_MAIN}>
@@ -81,10 +98,7 @@ export const LanguageSelect: FunctionComponent<any> = ({ navigation }) => {
           >
             <Dropdown
               value={language}
-              options={[
-                { label: 'English', value: 'en' },
-                { label: 'French', value: 'fr' },
-              ]}
+              options={languageOptions}
               onChange={onChangeLanguage}
               label="Language"
               fixedHeight
