@@ -75,7 +75,6 @@ app.on('ready', async () => {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
-      sandbox: false,
     },
   });
 
