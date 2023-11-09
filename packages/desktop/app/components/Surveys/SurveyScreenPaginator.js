@@ -5,11 +5,7 @@ import { usePaginatedForm } from '../Field';
 import { SurveyScreen } from './SurveyScreen';
 import { FormSubmitButton, OutlinedButton } from '../Button';
 import { ButtonRow } from '../ButtonRow';
-
-const COMPLETE_MESSAGE = `
-  Press "Complete" to submit your response,
-  or use the Back button to review answers.
-`;
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const Text = styled.div`
   margin-bottom: 10px;
@@ -22,14 +18,21 @@ const StyledButtonRow = styled(ButtonRow)`
 const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
   <div>
     <Typography variant="h6" gutterBottom>
-      Survey complete
+      <TranslatedText stringId="program.modal.surveyResponse.complete" fallback="Survey complete" />
     </Typography>
-    <Text>{COMPLETE_MESSAGE}</Text>
+    <Text>
+      <TranslatedText
+        stringId="program.modal.surveyResponse.completeMessage"
+        fallback='Press "Complete" to submit your response, or use the Back button to review answers.'
+      />
+    </Text>
     <div>
       <StyledButtonRow>
-        <OutlinedButton onClick={onStepBack}>Prev</OutlinedButton>
+        <OutlinedButton onClick={onStepBack}>
+          <TranslatedText stringId="general.action.prev" fallback="Prev" />
+        </OutlinedButton>
         <FormSubmitButton color="primary" variant="contained" onClick={onSurveyComplete}>
-          Complete
+          <TranslatedText stringId="general.action.complete" fallback="Complete" />
         </FormSubmitButton>
       </StyledButtonRow>
     </div>

@@ -8,6 +8,7 @@ import { Form } from './Form';
 import { ButtonRow } from '../ButtonRow';
 import { getVisibleQuestions, getInvisibleQuestions } from '../../utils';
 import { FormStepper } from './FormStepper';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const COMPLETE_MESSAGE = `
   Press "Complete" to submit your response,
@@ -22,7 +23,9 @@ const DefaultSummaryScreen = ({ onStepBack, submitForm }) => (
     <Typography>{COMPLETE_MESSAGE}</Typography>
     <div>
       <ButtonRow>
-        <OutlinedButton onClick={onStepBack}>Prev</OutlinedButton>
+        <OutlinedButton onClick={onStepBack}>
+          <TranslatedText stringId="general.action.prev" fallback="Prev" />
+        </OutlinedButton>
         <Button color="primary" variant="contained" onClick={submitForm}>
           Complete
         </Button>
