@@ -4,9 +4,18 @@ import { FullView } from '/styled/common';
 import { StackHeader } from '~/ui/components/StackHeader';
 import { PatientAdditionalDataForm } from '/components/Forms/PatientAdditionalDataForm';
 import { theme } from '/styled/theme';
+import { PatientSectionHeader } from '~/ui/components/Forms/NewPatientForm/PatientSectionHeader';
 
 export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactElement => {
-  const { patientId, patientName, additionalDataJSON, sectionTitle } = route.params;
+  const {
+    patientId,
+    patientName,
+    additionalDataJSON,
+    sectionTitle,
+    isCustomFields,
+    customSectionFields,
+    customPatientFieldValues,
+  } = route.params;
   // additionalDataJSON might be undefined if record doesn't exist,
   // JSON.parse will break if it doesn't get a JSON object
   const additionalData = additionalDataJSON && JSON.parse(additionalDataJSON);
@@ -23,11 +32,15 @@ export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactEle
         subtitle={patientName}
         onGoBack={onGoBack}
       />
+      <PatientSectionHeader name={sectionTitle} />
       <PatientAdditionalDataForm
         patientId={patientId}
         additionalData={additionalData}
         navigation={navigation}
         sectionTitle={sectionTitle}
+        isCustomFields={isCustomFields}
+        customSectionFields={customSectionFields}
+        customPatientFieldValues={customPatientFieldValues}
       />
     </FullView>
   );

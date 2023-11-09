@@ -1,13 +1,14 @@
 import config from 'config';
-import supertest from 'supertest';
 import http from 'http';
+import supertest from 'supertest';
 
-import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES } from '@tamanu/shared/constants';
-import { chance } from '@tamanu/shared/test-helpers';
-import { createApp } from 'sync-server/app/createApp';
-import { initDatabase, closeDatabase } from 'sync-server/app/database';
-import { getToken } from 'sync-server/app/auth/utils';
+import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES } from '@tamanu/constants';
+import { fake } from '@tamanu/shared/test-helpers';
+import { createMockReportingSchemaAndRoles } from '@tamanu/shared/demoData';
 import { DEFAULT_JWT_SECRET } from 'sync-server/app/auth';
+import { getToken } from 'sync-server/app/auth/utils';
+import { createApp } from 'sync-server/app/createApp';
+import { closeDatabase, initDatabase, initReporting } from 'sync-server/app/database';
 import { initIntegrations } from 'sync-server/app/integrations';
 
 class MockApplicationContext {
@@ -15,6 +16,10 @@ class MockApplicationContext {
 
   async init() {
     this.store = await initDatabase({ testMode: true });
+    if (config.db.reportSchemas?.enabled) {
+      await createMockReportingSchemaAndRoles({ sequelize: this.store.sequelize });
+      this.reportSchemaStores = await initReporting();
+    }
     this.emailService = {
       sendEmail: jest.fn().mockImplementation(() =>
         Promise.resolve({
@@ -41,6 +46,7 @@ class MockApplicationContext {
 
 export async function createTestContext() {
   const ctx = await new MockApplicationContext().init();
+  const { models } = ctx.store;
   const expressApp = createApp(ctx);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest.agent(appServer);
@@ -60,12 +66,7 @@ export async function createTestContext() {
   };
 
   baseApp.asRole = async role => {
-    const newUser = await ctx.store.models.User.create({
-      email: chance.email(),
-      displayName: chance.name(),
-      password: chance.string(),
-      role,
-    });
+    const newUser = await models.User.create(fake(models.User, { role }));
 
     return baseApp.asUser(newUser);
   };

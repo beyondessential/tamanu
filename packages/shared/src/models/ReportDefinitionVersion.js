@@ -5,9 +5,9 @@ import {
   REPORT_STATUSES,
   REPORT_STATUSES_VALUES,
   REPORT_DEFAULT_DATE_RANGES_VALUES,
-} from '../constants';
+} from '@tamanu/constants';
 import { Model } from './Model';
-import { getQueryReplacementsFromParams } from '../utils/getQueryReplacementsFromParams';
+import { getReportQueryReplacements } from '../utils/reports/getReportQueryReplacements';
 
 const optionsValidator = yup.object({
   parameters: yup
@@ -99,6 +99,7 @@ export class ReportDefinitionVersion extends Model {
 
     this.belongsTo(models.User, {
       foreignKey: { name: 'userId', allowNull: false },
+      as: 'createdBy',
     });
 
     this.hasMany(models.ReportRequest);
@@ -117,22 +118,51 @@ export class ReportDefinitionVersion extends Model {
     return options.parameters;
   }
 
-  async dataGenerator(context, parameters) {
-    const { sequelize } = context;
+  async dataGenerator({ models, sequelize, reportSchemaStores }, parameters) {
     const reportQuery = this.get('query');
 
     const queryOptions = this.getQueryOptions();
-    const replacements = getQueryReplacementsFromParams(
+
+    const replacements = await getReportQueryReplacements(
+      { models },
       queryOptions.parameters,
       parameters,
       queryOptions.defaultDateRange,
     );
 
-    const queryResults = await sequelize.query(reportQuery, {
+    const definition = await this.getReportDefinition();
+
+    const instance = reportSchemaStores
+      ? reportSchemaStores[definition.dbSchema]?.sequelize
+      : sequelize;
+    if (!instance) {
+      throw new Error(`No reporting instance found for ${definition.dbSchema}`);
+    }
+    const queryResults = await instance.query(reportQuery, {
       type: QueryTypes.SELECT,
       replacements,
     });
-
     return generateReportFromQueryData(queryResults);
+  }
+
+  forResponse(includeRelationIds = false) {
+    const {
+      updatedAtSyncTick,
+      reportDefinitionId,
+      ReportDefinitionId,
+      userId,
+      ...rest
+    } = this.get();
+    return {
+      ...rest,
+      ...(includeRelationIds && {
+        reportDefinitionId,
+        userId,
+      }),
+    };
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 }

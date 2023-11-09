@@ -1,6 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { isPlainObject, get as getAtPath, set as setAtPath } from 'lodash';
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 
 /**
@@ -67,6 +67,10 @@ export class Setting extends Model {
       foreignKey: 'facilityId',
       as: 'facility',
     });
+  }
+
+  static buildSyncFilter() {
+    return `WHERE (facility_id = :facilityId OR :facilityId IS NULL) AND ${this.tableName}.updated_at_sync_tick > :since`;
   }
 
   /**

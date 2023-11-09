@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { VACCINE_RECORDING_TYPES } from '@tamanu/shared/constants';
+import { VACCINE_RECORDING_TYPES } from '@tamanu/constants';
 
-import { Modal } from './Modal';
+import { FormModal } from './FormModal';
 import { VaccineForm } from '../forms/VaccineForm';
 import { SegmentTabDisplay } from './SegmentTabDisplay';
 import { useApi, useSuggester } from '../api';
@@ -37,7 +37,7 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
         patientId,
         status: currentTabKey,
         recorderId: currentUser.id,
-        circumstanceIds: dataToSubmit.circumstanceIds?.split(',').map(c => c.trim()),
+        circumstanceIds: JSON.parse(dataToSubmit.circumstanceIds),
       });
       dispatch(reloadPatient(patientId));
     },
@@ -79,8 +79,8 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
   ];
 
   return (
-    <Modal title="Record vaccine" open={open} onClose={onClose} cornerExitButton={false}>
+    <FormModal title="Record vaccine" open={open} onClose={onClose}>
       <SegmentTabDisplay tabs={TABS} currentTabKey={currentTabKey} onTabSelect={setCurrentTabKey} />
-    </Modal>
+    </FormModal>
   );
 };

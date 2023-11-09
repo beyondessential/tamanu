@@ -5,4 +5,4 @@ export * from './LetterheadSection';
 export * from './Layout';
 export * from './Typography';
 export * from './Table';
-export * from './accessors';
+export * from './labRequestAccessors';

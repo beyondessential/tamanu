@@ -18,7 +18,7 @@ async function getDataOrDefaultOnError(getDataFn, defaultData) {
   }
 }
 
-const EncounterContext = React.createContext({
+export const EncounterContext = React.createContext({
   encounter: null,
   setEncounterData: () => {},
   isLoadingEncounter: false,

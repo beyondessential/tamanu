@@ -2,13 +2,15 @@
 
 import config from 'config';
 
-import { ScheduledTask } from 'shared/tasks';
-import { log } from 'shared/services/logging';
-import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
+import { ScheduledTask } from '@tamanu/shared/tasks';
+import { log } from '@tamanu/shared/services/logging';
+import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 
 import { QueryTypes } from 'sequelize';
 import {
   mergePatientAdditionalData,
+  mergePatientBirthData,
+  mergePatientDeathData,
   mergePatientFieldValues,
   reconcilePatientFacilities,
   simpleUpdateModels,
@@ -134,6 +136,42 @@ export class PatientMergeMaintainer extends ScheduledTask {
     return records;
   }
 
+  async specificUpdate_PatientBirthData() {
+    const { PatientBirthData } = this.models;
+    const patientBirthDataMerges = await this.findPendingMergePatients(PatientBirthData);
+
+    const records = [];
+    for (const { keepPatientId, mergedPatientId } of patientBirthDataMerges) {
+      const mergedPatientBirthData = await mergePatientBirthData(
+        this.models,
+        keepPatientId,
+        mergedPatientId,
+      );
+      if (mergedPatientBirthData) {
+        records.push(mergedPatientBirthData);
+      }
+    }
+    return records;
+  }
+
+  async specificUpdate_PatientDeathData() {
+    const { PatientDeathData } = this.models;
+    const patientDeathDataMerges = await this.findPendingMergePatients(PatientDeathData);
+
+    const records = [];
+    for (const { keepPatientId, mergedPatientId } of patientDeathDataMerges) {
+      const mergedPatientDeathData = await mergePatientDeathData(
+        this.models,
+        keepPatientId,
+        mergedPatientId,
+      );
+      if (mergedPatientDeathData) {
+        records.push(mergedPatientDeathData);
+      }
+    }
+    return records;
+  }
+
   async specificUpdate_PatientFieldValue() {
     const { PatientFieldValue } = this.models;
     const fieldValueMerges = await this.findPendingMergePatients(PatientFieldValue);
@@ -167,10 +205,10 @@ export class PatientMergeMaintainer extends ScheduledTask {
     return records;
   }
 
-  async specificUpdate_NotePage() {
+  async specificUpdate_Note() {
     // uses a different field + additional search criteria
     const noteRecords = await this.mergeAllRecordsForModel(
-      this.models.NotePage,
+      this.models.Note,
       'record_id',
       `AND record_type = '${NOTE_RECORD_TYPES.PATIENT}'`,
     );

@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { ForbiddenError, InsufficientStorageError } from 'shared/errors';
+import { ForbiddenError, InsufficientStorageError } from '@tamanu/shared/errors';
 import { canUploadAttachment } from './utils/getFreeDiskSpace';
 
 export const attachmentRoutes = express.Router();
@@ -39,7 +39,7 @@ attachmentRoutes.post(
     }
 
     const { Attachment } = req.store.models;
-    const { type, size, data } = Attachment.sanitizeForCentralServer(req.body);
+    const { type, size, data } = Attachment.sanitizeForDatabase(req.body);
     const attachment = await Attachment.create({
       type,
       size,

@@ -6,6 +6,7 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { BaseInputProps } from '/interfaces/BaseInputProps';
 import { CheckboxMarkIcon } from '../Icons';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
+import { RequiredIndicator } from '../RequiredIndicator';
 
 interface OvalCheckboxProps extends BaseInputProps {
   onChange: Function;
@@ -88,7 +89,7 @@ export const OvalCheckbox = ({
         {text && (
           <StyledText style={styles.text}>
             {text}
-            {required && <StyledText color={theme.colors.ALERT}> *</StyledText>}
+            {required && <RequiredIndicator />}
           </StyledText>
         )}
       </RowView>

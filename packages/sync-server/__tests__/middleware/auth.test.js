@@ -2,10 +2,15 @@ import { v4 as uuid } from 'uuid';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import config from 'config';
+
+import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
+import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
+import { fake, disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { createTestContext, withDate } from '../utilities';
-import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
 
 const TEST_EMAIL = 'test@beyondessential.com.au';
+const TEST_ROLE_EMAIL = 'testrole@bes.au';
+const TEST_ROLE_ID = 'test-role-id';
 const TEST_PASSWORD = '1Q2Q3Q4Q';
 const TEST_DEVICE_ID = 'test-device-id';
 const TEST_FACILITY = {
@@ -20,29 +25,58 @@ const USERS = [
     password: TEST_PASSWORD,
     displayName: 'Test Beyond',
   },
+  {
+    email: TEST_ROLE_EMAIL,
+    password: TEST_PASSWORD,
+    displayName: 'Role Test BES',
+    role: TEST_ROLE_ID,
+  },
 ];
 
 describe('Auth', () => {
   let baseApp;
-  let app;
   let store;
   let close;
   let emailService;
+  let deactivatedUser;
+
   beforeAll(async () => {
     const ctx = await createTestContext();
     baseApp = ctx.baseApp;
     close = ctx.close;
     store = ctx.store;
     emailService = ctx.emailService;
-    app = await baseApp.asRole('practitioner');
-
+    const { Role, User, Facility } = store.models;
     await Promise.all([
-      ...USERS.map(r => ctx.store.models.User.create(r)),
-      ctx.store.models.Facility.create(TEST_FACILITY),
+      Role.create(fake(Role, { id: TEST_ROLE_ID })),
+      ...USERS.map(r => User.create(r)),
+      Facility.create(TEST_FACILITY),
     ]);
+    deactivatedUser = await User.create(
+      fake(User, {
+        password: TEST_PASSWORD,
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      }),
+    );
   });
 
   afterAll(async () => close());
+
+  describe('auth with db-defined permissions', () => {
+    disableHardcodedPermissionsForSuite();
+
+    it('should include role in the data returned by a successful login', async () => {
+      const result = await baseApp.post('/v1/login').send({
+        email: TEST_ROLE_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body.role).toMatchObject({
+        id: TEST_ROLE_ID,
+      });
+    });
+  });
 
   describe('Logging in', () => {
     it('Should get a valid access token for correct credentials', async () => {
@@ -157,6 +191,15 @@ describe('Auth', () => {
         deviceId: TEST_DEVICE_ID,
       });
       expect(response).toHaveRequestError();
+    });
+
+    it('Should reject a deactivated user', async () => {
+      const response = await baseApp.post('/v1/login').send({
+        email: deactivatedUser.email,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(response).toBeForbidden();
     });
   });
 
@@ -306,6 +349,31 @@ describe('Auth', () => {
       const refreshResponse = await baseApp.post('/v1/refresh').send({
         refreshToken,
         deviceId: 'different-device',
+      });
+      expect(refreshResponse).toHaveRequestError();
+    });
+
+    it('Should fail if refresh token requested from deactivated user', async () => {
+      const freshUser = await store.models.User.create(
+        fake(store.models.User, {
+          password: TEST_PASSWORD,
+        }),
+      );
+      const loginResponse = await baseApp.post('/v1/login').send({
+        email: freshUser.email,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(loginResponse).toHaveSucceeded();
+      const { refreshToken } = loginResponse.body;
+
+      await freshUser.update({
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      });
+
+      const refreshResponse = await baseApp.post('/v1/refresh').send({
+        refreshToken,
+        deviceId: TEST_DEVICE_ID,
       });
       expect(refreshResponse).toHaveRequestError();
     });

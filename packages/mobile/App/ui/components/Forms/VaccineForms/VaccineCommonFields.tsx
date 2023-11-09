@@ -89,7 +89,6 @@ export const DepartmentField = ({ navigation }: NavigationFieldProps): JSX.Eleme
       component={AutocompleteModalField}
       navigation={navigation}
       suggester={departmentSuggester}
-      modalRoute={Routes.Autocomplete.Modal}
       name="departmentId"
       label="Department"
       placeholder="Search..."

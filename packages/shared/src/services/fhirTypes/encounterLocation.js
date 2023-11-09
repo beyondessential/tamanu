@@ -1,7 +1,7 @@
 import { sample } from 'lodash';
 import * as yup from 'yup';
 
-import { FHIR_ENCOUNTER_LOCATION_STATUS } from '../../constants';
+import { FHIR_ENCOUNTER_LOCATION_STATUS } from '@tamanu/constants';
 
 import { FhirBaseType } from './baseType';
 import { FhirCodeableConcept } from './codeableConcept';

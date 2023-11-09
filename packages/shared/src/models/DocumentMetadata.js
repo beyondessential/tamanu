@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS, DOCUMENT_SOURCES } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
@@ -18,6 +18,11 @@ export class DocumentMetadata extends Model {
         type: {
           type: Sequelize.TEXT,
           allowNull: false,
+        },
+        source: {
+          type: Sequelize.STRING,
+          allowNull: false,
+          defaultValue: DOCUMENT_SOURCES.UPLOADED,
         },
         documentCreatedAt: dateTimeType('documentCreatedAt'),
         documentUploadedAt: dateTimeType('documentUploadedAt', {
@@ -64,7 +69,7 @@ export class DocumentMetadata extends Model {
     return ['department'];
   }
 
-  static buildSyncFilter(patientIds) {
+  static buildPatientSyncFilter(patientIds) {
     if (patientIds.length === 0) {
       return null;
     }

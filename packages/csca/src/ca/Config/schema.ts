@@ -1,40 +1,24 @@
-import * as yup from 'yup';
 import { ConfigFile } from './types';
+import * as yup from 'yup';
 
 const SCHEMA = yup.object({
-  name: yup
-    .string()
-    .required()
-    .min(1)
-    .matches(/^[a-zA-Z0-9_-]+$/),
+  name: yup.string().required().min(1).matches(/^[a-zA-Z0-9_-]+$/),
 
   country: yup
     .object({
       name: yup.string().min(1),
 
-      alpha2: yup
-        .string()
-        .required()
-        .length(2),
+      alpha2: yup.string().required().length(2),
 
-      alpha3: yup
-        .string()
-        .required()
-        .length(3),
+      alpha3: yup.string().required().length(3),
     })
     .required(),
 
   subject: yup
     .object({
-      country: yup
-        .string()
-        .required()
-        .min(1),
+      country: yup.string().required().min(1),
 
-      commonName: yup
-        .string()
-        .required()
-        .min(1),
+      commonName: yup.string().required().min(1),
 
       organisation: yup.string().min(1),
 
@@ -44,32 +28,15 @@ const SCHEMA = yup.object({
 
   crl: yup
     .object({
-      filename: yup
-        .string()
-        .required()
-        .min(1),
+      filename: yup.string().required().min(1),
 
-      distribution: yup
-        .array()
-        .of(
-          yup
-            .string()
-            .required()
-            .min(1)
-        )
-        .default([]),
+      distribution: yup.array().of(yup.string().required().min(1)).default([]),
 
       bucket: yup
         .object({
-          region: yup
-            .string()
-            .required()
-            .min(1),
+          region: yup.string().required().min(1),
 
-          name: yup
-            .string()
-            .required()
-            .min(1),
+          name: yup.string().required().min(1),
         })
         .required(),
     })
@@ -94,30 +61,23 @@ const SCHEMA = yup.object({
       extensions: yup.array().of(
         yup
           .object({
-            name: yup
-              .string()
-              .required()
-              .min(1),
+            name: yup.string().required().min(1),
 
             critical: yup.boolean().default(false),
 
-            value: yup.lazy((value: any) => (typeof value === 'string' && value === 'computed'
-              ? yup.string().matches(/^computed$/)
-              : yup.array()
-            ).required()),
+            value: yup.lazy((value: 'computed' | object[]) =>
+              (typeof value === 'string' && value === 'computed'
+                ? yup.string().matches(/^computed$/)
+                : yup.array()
+              ).required(),
+            ),
           })
-          .required()
+          .required(),
       ),
 
-      validityPeriodDays: yup
-        .number()
-        .required()
-        .min(1),
+      validityPeriodDays: yup.number().required().min(1),
 
-      workingPeriodDays: yup
-        .number()
-        .required()
-        .min(1),
+      workingPeriodDays: yup.number().required().min(1),
     })
     .required(),
 });

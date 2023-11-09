@@ -1,5 +1,5 @@
-import { fake } from 'shared/test-helpers/fake';
-import { SURVEY_TYPES } from 'shared/constants';
+import { fake } from '@tamanu/shared/test-helpers/fake';
+import { SURVEY_TYPES } from '@tamanu/constants';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { programImporter } from '../../app/admin/programImporter';
 import { createTestContext } from '../utilities';
@@ -13,14 +13,20 @@ describe('Programs import', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
   });
-  beforeEach(async () => {
+
+  const truncateTables = async () => {
     const { Program, Survey, ProgramDataElement, SurveyScreenComponent } = ctx.store.models;
     await SurveyScreenComponent.destroy({ where: {}, force: true });
     await ProgramDataElement.destroy({ where: {}, force: true });
     await Survey.destroy({ where: {}, force: true });
     await Program.destroy({ where: {}, force: true });
+  };
+
+  beforeEach(async () => {
+    await truncateTables();
   });
   afterAll(async () => {
+    await truncateTables();
     await ctx.close();
   });
 
@@ -70,13 +76,18 @@ describe('Programs import', () => {
     });
   });
 
-  it('should delete survey questions', async () => {
-    const { Survey } = ctx.store.models;
+  it('should soft delete survey questions', async () => {
+    const { Survey, SurveyScreenComponent } = ctx.store.models;
 
     const getComponents = async () => {
       const survey = await Survey.findByPk('program-testprogram-deletion');
       expect(survey).toBeTruthy();
-      return await survey.getComponents();
+      return SurveyScreenComponent.findAll({
+        where: {
+          surveyId: survey.id,
+          visibilityStatus: 'current',
+        },
+      });
     };
 
     {
@@ -96,16 +107,15 @@ describe('Programs import', () => {
       const { errors, stats } = await doImport({ file: 'deleteQuestions-2' });
       expect(errors).toBeEmpty();
       expect(stats).toMatchObject({
-        ProgramDataElement: { updated: 3 }, // deleter should NOT delete underlying PDEs
-        SurveyScreenComponent: { deleted: 2, updated: 1 },
+        ProgramDataElement: { updated: 3 },
+        SurveyScreenComponent: { updated: 3 },
       });
     }
 
     const componentsAfter = await getComponents();
     // of the three in the import doc:
     //  - one is not deleted
-    //  - one is set to visibilityStatus = 'deleted'
-    //  - one is set to visibilityStatus = 'hidden' (should delete as wel)
+    //  - two is set to visibilityStatus = 'deleted'
     expect(componentsAfter).toHaveLength(1);
   });
 
@@ -133,6 +143,21 @@ describe('Programs import', () => {
     );
   });
 
+  it('should error on invalid calculations', async () => {
+    const { didntSendReason, errors, stats } = await doImport({
+      file: 'calculation-validation',
+      dryRun: true,
+    });
+    expect(didntSendReason).toEqual('validationFailed');
+    expect(stats).toMatchObject({
+      Program: { created: 1, updated: 0, errored: 0 },
+      Survey: { created: 1, updated: 0, errored: 0 },
+      ProgramDataElement: { created: 6, updated: 0, errored: 0 },
+      SurveyScreenComponent: { created: 4, updated: 0, errored: 2 }, // 2 invalid calculations
+    });
+    expect(errors.length).toEqual(2);
+  });
+
   it('run validation against question configs', async () => {
     const { didntSendReason, errors, stats } = await doImport({
       file: 'question-validation',
@@ -144,8 +169,8 @@ describe('Programs import', () => {
     expect(stats).toMatchObject({
       Program: { created: 1, updated: 0, errored: 0 },
       Survey: { created: 2, updated: 0, errored: 0 },
-      ProgramDataElement: { created: 40, updated: 0, errored: 0 },
-      SurveyScreenComponent: { created: 9, updated: 0, errored: 31 }, // 31 fields in failure test, 9 in success test
+      ProgramDataElement: { created: 42, updated: 0, errored: 0 },
+      SurveyScreenComponent: { created: 11, updated: 0, errored: 31 }, // 31 fields in failure test, 11 in success test
     });
   });
 
@@ -182,6 +207,32 @@ describe('Programs import', () => {
       expect(errors).toContainValidationError('metadata', 0, 'Vitals survey can not be sensitive');
     });
 
+    it('Should validate normalRange in validation_criteria', async () => {
+      const { errors, stats } = await doImport({
+        file: 'vitals-validate-normal-range-in-validation-criteria',
+        dryRun: true,
+      });
+
+      const errorMessages = [
+        'sheetName: Vitals, code: \'PatientVitalsSBP\', normalRange must be within graphRange, got normalRange: {"min":30,"max":120}, graphRange: {"min":40,"max":240}}',
+        'sheetName: Vitals, code: \'PatientVitalsDBP\', normalRange must be within graphRange, got normalRange: {"min":60,"max":250}, graphRange: {"min":40,"max":240}}',
+        "sheetName: Vitals, code: 'PatientVitalsHeartRate', validationCriteria must be specified if visualisationConfig is presented",
+        "sheetName: Vitals, code: 'PatientVitalsRespiratoryRate', validationCriteria must have normalRange",
+        'sheetName: Vitals, code: \'PatientVitalsTemperature\', normalRange must be within graphRange, got normalRange: {"min":120,"max":185,"ageUnit":"months","ageMin":0,"ageMax":3}, graphRange: {"min":33.5,"max":41.5}}', // Validate array type normalRange
+      ];
+
+      errors.forEach((error, i) => {
+        expect(error.message).toEqual(errorMessages[i]);
+      });
+
+      expect(stats).toMatchObject({
+        Program: { created: 1, updated: 0, errored: 0 },
+        Survey: { created: 1, updated: 0, errored: 0 },
+        ProgramDataElement: { created: 16, updated: 0, errored: errorMessages.length },
+        SurveyScreenComponent: { created: 16, updated: 0, errored: 0 },
+      });
+    });
+
     it('Should import a valid vitals survey', async () => {
       const { errors, stats, didntSendReason } = await doImport({
         file: 'vitals-valid',
@@ -195,6 +246,76 @@ describe('Programs import', () => {
         ProgramDataElement: { created: 16, updated: 0, errored: 0 },
         SurveyScreenComponent: { created: 16, updated: 0, errored: 0 },
       });
+    });
+
+    it('Should import a valid vitals survey and delete visualisationConfig', async () => {
+      const { ProgramDataElement } = ctx.store.models;
+
+      const validateVisualisationConfig = async expectValue => {
+        const { visualisationConfig } = await ProgramDataElement.findOne({
+          where: {
+            code: 'PatientVitalsHeartRate',
+          },
+        });
+        expect(visualisationConfig).toEqual(expectValue);
+      };
+
+      await doImport({
+        file: 'vitals-valid',
+        dryRun: false,
+      });
+      await validateVisualisationConfig(
+        '{"yAxis":{"graphRange":{"min":30,"max":300}, "interval":10}}',
+      );
+
+      await doImport({
+        file: 'vitals-delete-visualisation-config',
+        dryRun: false,
+      });
+      await validateVisualisationConfig('');
+    });
+
+    it('should soft delete vital survey questions', async () => {
+      const { Survey, SurveyScreenComponent } = ctx.store.models;
+
+      const getComponents = async () => {
+        const survey = await Survey.findByPk('program-testvitals-vitalsgood');
+        expect(survey).toBeTruthy();
+
+        return SurveyScreenComponent.findAll({
+          where: {
+            surveyId: survey.id,
+            visibilityStatus: 'current',
+          },
+        });
+      };
+
+      {
+        const { errors, stats } = await doImport({ file: 'vitals-delete-questions' });
+        expect(errors).toBeEmpty();
+        expect(stats).toMatchObject({
+          Program: { created: 1, updated: 0, errored: 0 },
+          Survey: { created: 1, updated: 0, errored: 0 },
+          ProgramDataElement: { created: 16, updated: 0, errored: 0 },
+          SurveyScreenComponent: { created: 16, updated: 0, errored: 0 },
+        });
+      }
+
+      // find imported ssc
+      const componentsBefore = await getComponents();
+      expect(componentsBefore).toHaveLength(16);
+
+      {
+        const { errors, stats } = await doImport({ file: 'vitals-delete-questions-2' });
+        expect(errors).toBeEmpty();
+        expect(stats).toMatchObject({
+          ProgramDataElement: { updated: 16 }, // deleter should NOT delete underlying PDEs
+          SurveyScreenComponent: { updated: 16 }, // won't check value is new, all we care about is that it's not deleted
+        });
+      }
+
+      const componentsAfter = await getComponents();
+      expect(componentsAfter).toHaveLength(15);
     });
   });
 });

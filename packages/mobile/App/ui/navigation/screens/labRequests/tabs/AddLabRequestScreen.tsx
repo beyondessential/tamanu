@@ -17,20 +17,21 @@ import { ID } from '~/types/ID';
 import { LabRequestForm } from '~/ui/components/Forms/LabRequestForm';
 import { getCombinedDateString } from '/helpers/date';
 
-const ALPHABET_FOR_ID =
-  'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';
+const ALPHABET_FOR_ID = 'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';
 
 interface LabRequestFormData {
   displayId: ID;
   requestedDate: Date;
   requestedTime: Date;
-  requestedBy: string;
+  requestedById: string;
   sampleDate: Date;
   sampleTime: Date;
+  specimenTypeId: string;
+  collectedById: string;
   categoryId: string;
   priorityId: string;
-  labSampleSite: string;
-  labTestTypes: string[];
+  labSampleSiteId: string;
+  labTestTypeIds: string[];
 }
 
 const validationSchema = Yup.object().shape({
@@ -39,7 +40,7 @@ const validationSchema = Yup.object().shape({
   sampleDate: Yup.date().required(),
   sampleTime: Yup.date().required(),
   categoryId: Yup.string().required('Required'),
-  requestedBy: Yup.string().required('Required'),
+  requestedById: Yup.string().required('Required'),
   priorityId: Yup.string(),
 });
 
@@ -66,10 +67,10 @@ export const DumbAddLabRequestScreen = ({
   const { models } = useBackend();
 
   const validate = useCallback(values => {
-    const { categoryId, labTestTypes = [] } = values;
+    const { categoryId, labTestTypeIds = [] } = values;
 
     if (categoryId) {
-      if (!labTestTypes || labTestTypes.length === 0) {
+      if (!labTestTypeIds || labTestTypeIds.length === 0) {
         return {
           form: 'At least one lab test type must be selected',
         };
@@ -97,27 +98,30 @@ export const DumbAddLabRequestScreen = ({
       requestedTime,
       sampleDate,
       sampleTime,
-      labSampleSite,
-      requestedBy,
+      labSampleSiteId,
+      requestedById,
+      collectedById,
+      specimenTypeId,
+      labTestTypeIds,
       displayId: generatedDisplayId,
     } = values;
 
     // Convert requestedDate and sampleTime to strings
     const requestedDateString = getCombinedDateString(requestedDate, requestedTime);
     const sampleTimeString = getCombinedDateString(sampleDate, sampleTime);
-
     await models.LabRequest.createWithTests({
       displayId: generatedDisplayId,
       requestedDate: requestedDateString,
-      requestedBy,
+      requestedBy: requestedById,
       encounter: encounter.id,
       labTestCategory: values.categoryId,
       labTestPriority: values.priorityId,
       sampleTime: sampleTimeString,
-      labTestTypeIds: values.labTestTypes,
-      labSampleSite,
+      labTestTypeIds,
+      labSampleSite: labSampleSiteId,
+      collectedBy: collectedById,
+      specimenType: specimenTypeId,
     });
-
     navigateToHistory();
   }, []);
 
@@ -126,6 +130,7 @@ export const DumbAddLabRequestScreen = ({
     sampleDate: new Date(),
     requestedDate: new Date(),
     requestedTime: new Date(),
+    requestedById: user.id,
     displayId,
   };
 

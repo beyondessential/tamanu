@@ -1,5 +1,5 @@
 @token=fake-token
-@server=https://central-dev.tamanu.io
+@server=https://central.main.internal.tamanu.io
 
 ### Delete a survey screen component
 DELETE {{server}}/v1/sync/surveyScreenComponent/program-snap-fiji-2%2Fsurvey-snap-fiji-2%2Fcomponent-FijSNAP_18  HTTP/1.1

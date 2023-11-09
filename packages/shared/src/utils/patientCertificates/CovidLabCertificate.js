@@ -14,7 +14,7 @@ import {
   getRequestId,
   getDateOfSwab,
   getTimeOfSwab,
-} from './accessors';
+} from './labRequestAccessors';
 import { getDisplayDate } from './getDisplayDate';
 
 const columns = [

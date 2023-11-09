@@ -1,11 +1,12 @@
 import { utils } from 'xlsx';
-import { SURVEY_TYPES } from 'shared/constants';
+import { SURVEY_TYPES } from '@tamanu/constants';
 
 import { ImporterMetadataError } from '../errors';
 import { importRows } from '../importRows';
 
 import { readSurveyQuestions } from './readSurveyQuestions';
 import { ensureRequiredQuestionsPresent, validateVitalsSurvey } from './validation';
+import { validateProgramDataElementRecords } from './vitalsValidation';
 
 function readSurveyInfo(workbook, surveyInfo) {
   const { sheetName, surveyType, code } = surveyInfo;
@@ -48,9 +49,11 @@ export async function importSurvey(context, workbook, surveyInfo) {
   }
 
   const records = readSurveyInfo(workbook, surveyInfo);
+  const stats = validateProgramDataElementRecords(records, { context, sheetName });
 
   return importRows(context, {
     sheetName,
     rows: records,
+    stats,
   });
 }

@@ -1,0 +1,24 @@
+@lanserver=http://localhost:4000
+@token={{login.response.body.token}}
+@encounterId = 4c4cdb09-a9f9-401e-b3d9-07738d8a54cf
+@vitalDataElementId = pde-PatientVitalsTemperature
+@startDate = 2023-01-24 12:06:00
+@endDate = 2023-08-02 12:06:00
+
+### ----------------------------------------
+# Obtain a token
+# @name login
+POST {{lanserver}}/v1/login
+Content-Type: application/json
+
+{
+    "email": "admin@tamanu.io",
+    "password": "admin"
+}
+
+### ----------------------------------------
+# get vitals by vital data element id
+
+GET {{lanserver}}/v1/encounter/{{encounterId}}/vitals/{{vitalDataElementId}}?startDate={{startDate}}&endDate={{endDate}}
+Authorization: Bearer {{token}}
+ 

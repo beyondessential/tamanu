@@ -17,7 +17,8 @@ const Actions = styled(Box)`
 `;
 
 export const DeathFormScreen = ({
-  screenComponent,
+  screenReactElement,
+  allQuestionReactElements,
   values,
   setValues,
   submitForm,
@@ -30,16 +31,19 @@ export const DeathFormScreen = ({
 }) => {
   const [showSummary, setShowSummary] = useState(false);
   const patient = useSelector(state => state.patient);
-  const { children } = screenComponent.props;
-  const questionComponents = React.Children.toArray(children);
-  const visibleQuestions = getVisibleQuestions(questionComponents, values);
+  const { children } = screenReactElement.props;
+  const screenQuestionReactElements = React.Children.toArray(children);
+  const visibleQuestions = getVisibleQuestions(
+    values,
+    allQuestionReactElements,
+    screenQuestionReactElements,
+  );
   const showBackButton = screenIndex > 0;
   const showSaveAndClose = screenIndex === 0 && !patient.dateOfDeath;
 
-  // screenComponent is a react element (not a component) so we have to attach the new children manually
-  const updatedScreenComponent = {
-    ...screenComponent,
-    props: { ...screenComponent.props, children: visibleQuestions },
+  const updatedScreenReactElement = {
+    ...screenReactElement,
+    props: { ...screenReactElement.props, children: visibleQuestions },
   };
 
   // Inject special value to be used in form validation and only keep specific fields
@@ -62,7 +66,7 @@ export const DeathFormScreen = ({
 
   return (
     <>
-      {updatedScreenComponent}
+      {updatedScreenReactElement}
       <Actions mt={4}>
         <Box>
           {showSaveAndClose && (

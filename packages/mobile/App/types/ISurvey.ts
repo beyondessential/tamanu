@@ -1,3 +1,4 @@
+import { VisibilityStatus } from '~/visibilityStatuses';
 import { ID } from './ID';
 
 export interface ISurvey {
@@ -19,11 +20,19 @@ export enum SurveyTypes {
   Vitals = 'vitals',
 }
 
+export type ValidationCriteriaNormalRange = {
+  min: number;
+  max: number;
+  ageUnit?: string;
+  ageMin?: number;
+  ageMax?: number;
+};
+
 export type SurveyScreenValidationCriteria = {
   min?: number;
   max?: number;
-  mandatory?: boolean;
-  normalRange?: { min: number; max: number };
+  mandatory?: boolean | Record<string, any>;
+  normalRange?: ValidationCriteriaNormalRange | ValidationCriteriaNormalRange[];
 };
 
 export type SurveyScreenConfig = {
@@ -33,7 +42,7 @@ export type SurveyScreenConfig = {
   scope?: string;
   writeToPatient?: {
     fieldType: string;
-  }
+  };
 };
 
 export interface ISurveyScreenComponent {
@@ -52,6 +61,7 @@ export interface ISurveyScreenComponent {
   detail?: string;
   options?: string;
   calculation?: string;
+  visibilityStatus?: VisibilityStatus;
   source?: string;
   getConfigObject: () => SurveyScreenConfig;
   getValidationCriteriaObject: () => SurveyScreenValidationCriteria;
@@ -63,6 +73,7 @@ export interface IVitalsSurvey {
   name: string;
   components: ISurveyScreenComponent[];
   dateComponent: ISurveyScreenComponent;
+  programId: string;
 }
 
 export enum DataElementType {

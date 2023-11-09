@@ -62,8 +62,8 @@ export const PatientStickerLabelPage = ({ patient }) => {
   const { getLocalisation } = useLocalisation();
   const measures = getLocalisation('printMeasures.stickerLabelPage');
   useEffect(() => {
-    window.print(); // TODO(web)
-  });
+    printPage();
+  }, [printPage]);
 
   return (
     <PrintPortal>

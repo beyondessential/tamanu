@@ -1,7 +1,7 @@
 import { subDays, startOfDay } from 'date-fns';
 import { Op } from 'sequelize';
 
-import { LAB_REQUEST_STATUSES } from '../constants';
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 
 import { toDateTimeString } from './dateTime';
 

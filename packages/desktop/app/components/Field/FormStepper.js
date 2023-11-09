@@ -45,9 +45,9 @@ const StyledStepButton = styled(StepButton)`
   }
 `;
 
-export const FormStepper = ({ screenIndex, handleStep, screens }) => (
+export const FormStepper = ({ screenIndex, handleStep, screenReactElements }) => (
   <StyledStepper nonLinear activeStep={screenIndex} connector={null}>
-    {screens.map(({ key }, index) => (
+    {screenReactElements.map(({ key }, index) => (
       <StyledStep key={key}>
         <StyledStepButton
           onClick={handleStep(index)}

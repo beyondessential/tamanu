@@ -1,6 +1,8 @@
 import { hash } from 'bcrypt';
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, SYSTEM_USER_UUID } from '../constants';
+
+import { SYNC_DIRECTIONS, SYSTEM_USER_UUID, VISIBILITY_STATUSES } from '@tamanu/constants';
+
 import { Model } from './Model';
 
 const DEFAULT_SALT_ROUNDS = 10;
@@ -56,6 +58,7 @@ export class User extends Model {
     super.init(
       {
         id: primaryKey,
+        displayId: Sequelize.STRING,
         email: {
           type: Sequelize.STRING,
           allowNull: false,
@@ -70,6 +73,10 @@ export class User extends Model {
           type: Sequelize.STRING,
           defaultValue: 'practitioner',
           allowNull: false,
+        },
+        visibilityStatus: {
+          type: Sequelize.STRING,
+          defaultValue: VISIBILITY_STATUSES.CURRENT,
         },
       },
       {
@@ -106,8 +113,20 @@ export class User extends Model {
       foreignKey: 'completedById',
     });
 
+    this.hasMany(models.UserPreference, {
+      foreignKey: 'userId',
+    });
+
+    this.hasMany(models.UserFacility, {
+      foreignKey: 'facilityId',
+    });
+
     this.belongsToMany(models.Facility, {
       through: 'UserFacility',
     });
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 }

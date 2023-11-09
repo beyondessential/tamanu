@@ -20,100 +20,70 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          # - macos
-          - ubuntu
-          # - windows
-        node:
-          - '16.x'
-        postgres:
-          # - '12'
-          - '14'
-        package:
-          - lan
-          - meta-server
-          - "@tamanu/shared"
-          - sync-server
+        include:
+          - { package: lan,         shard: 1/3, postgres: 14 }
+          - { package: lan,         shard: 2/3, postgres: 14 }
+          - { package: lan,         shard: 3/3, postgres: 14 }
+          - { package: sync-server, shard: 1/3, postgres: 14 }
+          - { package: sync-server, shard: 2/3, postgres: 14 }
+          - { package: sync-server, shard: 3/3, postgres: 14 }
+          - { package: meta-server }
+          - { package: "@tamanu/shared" }
+          - { package: "desktop" }
 
-    name: Test ${{ matrix.package }} os=${{ matrix.os }} node=${{ matrix.node }} pg=${{ matrix.postgres }}
-    runs-on: ${{ matrix.os }}-latest
+    name: Test ${{ matrix.package }} ${{ matrix.shard }}
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node }}
-        cache: yarn
-    - run: yarn
-    - run: yarn build-shared
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+      - run: yarn
+      - run: yarn build-shared
 
-    - name: Install and start postgres ${{ matrix.postgres }} if needed
-      if: matrix.package == 'sync-server' || matrix.package == 'lan'
-      run: .github/scripts/install-postgres-${{ matrix.os }}.sh ${{ matrix.postgres }} ${{ matrix.package }}
+      - name: Install and start postgres if needed
+        if: matrix.postgres
+        run: |
+          source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
+          .github/scripts/setup-postgres-for-one-package.sh ${{ matrix.package }}
 
-    - if: matrix.package == 'sync-server' || matrix.package == 'lan'
-      run: yarn workspace ${{ matrix.package }} run test --shard 1/3
-    - if: matrix.package == 'sync-server' || matrix.package == 'lan'
-      run: yarn workspace ${{ matrix.package }} run test --shard 2/3
-    - if: matrix.package == 'sync-server' || matrix.package == 'lan'
-      run: yarn workspace ${{ matrix.package }} run test --shard 3/3
+      - name: Run tests
+        env:
+          package: ${{ matrix.package }}
+          shard: ${{ matrix.shard }}
+        run: |
+          [[ -z "$shard" ]] || shard="--shard $shard"
+          yarn workspace "$package" run test $shard
 
-    - if: "!(matrix.package == 'sync-server' || matrix.package == 'lan')"
-      run: yarn workspace ${{ matrix.package }} run test
+  build-all:
+    name: Build all packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+      - run: yarn
+      - run: yarn build
 
   lint:
-    continue-on-error: true
-
-    strategy:
-      fail-fast: false
-      matrix:
-        node:
-          - '16.x'
-        package:
-          - desktop
-          - lan
-          - meta-server
-          - "@tamanu/shared"
-          - sync-server
-
-    name: Lint ${{ matrix.package }} node=${{ matrix.node }}
+    name: Lint packages
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node }}
-        cache: yarn
-    - run: yarn
-    - run: yarn build-shared
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+      - run: yarn
+      - run: yarn build-shared
 
-    - run: yarn workspace ${{ matrix.package }} run lint
-
-  storybook:
-    # Workaround for define plugin conflict warning
-    env:
-        NODE_ENV: development
-    continue-on-error: true
-
-    strategy:
-      fail-fast: false
-      matrix:
-        node:
-          - '16.x'
-
-    name: Test storybook node=${{ matrix.node }}
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node }}
-        cache: yarn
-    - run: yarn
-    - run: yarn build-shared
-    - run: yarn workspace desktop run verify-storybook
+      - run: yarn lint-all
+        env:
+          CONTINUE_ON_ERROR: true
 
   migrations:
     strategy:
@@ -130,18 +100,20 @@ jobs:
     name: Test migrations server=${{ matrix.server }} pg=${{ matrix.postgres }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 16
-        cache: yarn
-    - run: yarn
-    - run: yarn build-shared
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+      - run: yarn
+      - run: yarn build-shared
 
-    - name: Install and start postgres ${{ matrix.postgres }}
-      run: .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }} migrations
+      - name: Install and start postgres ${{ matrix.postgres }}
+        run: |
+          source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
+          .github/scripts/setup-postgres-for-one-package.sh migrations
 
-    - run: scripts/apply_and_revert_server_migrations.sh ${{ matrix.server }}
+      - run: scripts/apply_and_revert_server_migrations.sh ${{ matrix.server }}
 
   test-mobile:
     strategy:
@@ -153,18 +125,43 @@ jobs:
     name: Test mobile node=${{ matrix.node }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node }}
-        cache: yarn
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+          cache: yarn
 
-    - run: yarn install --frozen-lockfile
-      working-directory: packages/mobile
+      - run: yarn install --frozen-lockfile
+        working-directory: packages/mobile
 
-    - run: yarn test
-      working-directory: packages/mobile
+      - run: yarn test
+        working-directory: packages/mobile
+
+  test-facility-offline:
+    name: Test the facility server with the central server being down
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+
+      - name: Install and start postgres
+        run: |
+          source .github/scripts/install-postgres-ubuntu.sh 14
+          .github/scripts/test-facility-offline.sh setup-postgre
+      - name: Build central and facility servers
+        run: .github/scripts/test-facility-offline.sh build
+      - name: Start a central server
+        run: .github/scripts/test-facility-offline.sh central-start
+      - name: Start a facility server
+        run: .github/scripts/test-facility-offline.sh facility-start
+      - name: Stop the servers and print logs
+        run: .github/scripts/test-facility-offline.sh stop-and-print
+      - name: Start a facility server again without a central one
+        run: .github/scripts/test-facility-offline.sh facility-start-again
 
   # Dummy job to have a stable name for PR requirements
   tests-pass:
@@ -172,12 +169,14 @@ jobs:
     name: Tests pass
     needs:
       - test
+      - build-all
       - lint
-      - storybook
       - migrations
       - test-mobile
+      - test-facility-offline
     runs-on: ubuntu-latest
     steps:
-    # fail if ANY dependency has failed or been skipped or cancelled
-    - if: "contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled')"
-      run: exit 1
+      # fail if ANY dependency has failed or been skipped or cancelled
+      - if: "contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped')
+          || contains(needs.*.result, 'cancelled')"
+        run: exit 1

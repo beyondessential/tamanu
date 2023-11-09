@@ -1,6 +1,6 @@
 
 @token=fake-token
-@server=https://central-dev.tamanu.io
+@server=https://central.main.internal.tamanu.io
 
 ### Get a list of reference data
 GET {{server}}/v1/sync/reference?since=0  HTTP/1.1

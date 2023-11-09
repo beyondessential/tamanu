@@ -8,8 +8,8 @@ const getCodeLabel = ({ procedureType }) => procedureType.code;
 
 const COLUMNS = [
   { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} /> },
-  { key: 'code', title: 'Code', accessor: getCodeLabel },
-  { key: 'type', title: 'Procedure', accessor: getProcedureLabel },
+  { key: 'ProcedureType.code', title: 'Code', accessor: getCodeLabel },
+  { key: 'ProcedureType.name', title: 'Procedure', accessor: getProcedureLabel },
 ];
 
 export const ProcedureTable = React.memo(({ encounterId, onItemClick }) => (

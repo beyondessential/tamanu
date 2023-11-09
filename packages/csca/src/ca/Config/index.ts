@@ -1,8 +1,8 @@
 import { join } from 'path';
 
 import AuthenticatedFile from '../AuthenticatedFile';
-import { ConfigFile, Country, Issuance, S3Bucket } from './types';
 import { validate } from './schema';
+import { ConfigFile, Country, Issuance, S3Bucket } from './types';
 
 export * from './types';
 export { validate } from './schema';
@@ -54,7 +54,7 @@ export default class Config extends AuthenticatedFile {
     return this.load();
   }
 
-  public async validateAndImport(config: any): Promise<void> {
+  public async validateAndImport(config: object): Promise<void> {
     return this.write(await validate(config));
   }
 }

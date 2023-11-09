@@ -29,6 +29,7 @@ export async function queryPermissionsForRoles({ Permission }, roleString) {
     SELECT * 
       FROM permissions
       WHERE permissions.role_id IN (:roleIds)
+      AND permissions.deleted_at IS NULL
   `,
     {
       model: Permission,
@@ -43,7 +44,7 @@ export async function queryPermissionsForRoles({ Permission }, roleString) {
 
 // these functions allow testing permissions in isolation
 // they should ONLY be used in tests
-let { useHardcodedPermissions } = config.auth;
+let useHardcodedPermissions = Boolean(config?.auth?.useHardcodedPermissions);
 export function setHardcodedPermissionsUseForTestsOnly(val) {
   useHardcodedPermissions = Boolean(val);
   permissionCache.reset();

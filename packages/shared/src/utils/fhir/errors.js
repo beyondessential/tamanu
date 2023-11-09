@@ -1,4 +1,4 @@
-import { FHIR_ISSUE_SEVERITY, FHIR_ISSUE_TYPE } from '../../constants/fhir';
+import { FHIR_ISSUE_SEVERITY, FHIR_ISSUE_TYPE } from '@tamanu/constants';
 
 export class FhirError extends Error {
   constructor(

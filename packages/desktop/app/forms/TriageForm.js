@@ -1,5 +1,7 @@
 import React from 'react';
 import * as yup from 'yup';
+import { format, endOfDay } from 'date-fns';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import { Box } from '@material-ui/core';
@@ -17,11 +19,12 @@ import {
   LocationAvailabilityWarningMessage,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { ModalActionRow } from '../components/ModalActionRow';
+import { ModalFormActionRow } from '../components/ModalActionRow';
 import { NestedVitalsModal } from '../components/NestedVitalsModal';
 import { useApi, useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
 import { getActionsFromData, getAnswersFromData } from '../utils';
+import { useLocalisedText } from '../components';
 
 const InfoPopupLabel = React.memo(() => (
   <span>
@@ -40,6 +43,7 @@ export const TriageForm = ({
 }) => {
   const api = useApi();
   const dispatch = useDispatch();
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
   const { getLocalisation } = useLocalisation();
   const triageCategories = getLocalisation('triageCategories');
   const practitionerSuggester = useSuggester('practitioner');
@@ -52,6 +56,7 @@ export const TriageForm = ({
           name="arrivalTime"
           label="Arrival date & time"
           component={DateTimeField}
+          max={format(endOfDay(new Date()), `yyyy-MM-dd'T'HH:mm`)} // Weird time picker behaviour with date.now(), so using end of day. It will be also validated on submit.
           helperText="If different from triage time"
           saveDateAsString
         />
@@ -59,6 +64,7 @@ export const TriageForm = ({
           name="triageTime"
           label="Triage date & time"
           required
+          max={format(endOfDay(new Date()), `yyyy-MM-dd'T'HH:mm`)} // Weird time picker behaviour with date.now(), so using end of day. It will be also validated on submit.
           component={DateTimeField}
           saveDateAsString
         />
@@ -100,17 +106,22 @@ export const TriageForm = ({
             suggester={triageReasonSuggester}
           />
           <Box mt={1} mb={2}>
-            <Field name="vitals" patient={patient} component={NestedVitalsModal} />
+            <Field
+              name="vitals"
+              patient={patient}
+              component={NestedVitalsModal}
+              encounterType={ENCOUNTER_TYPES.TRIAGE}
+            />
           </Box>
         </FormGrid>
         <Field
           name="practitionerId"
-          label="Triage clinician"
+          label={`Triage ${clinicianText.toLowerCase()}`}
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <ModalActionRow confirmText="Submit" onConfirm={submitForm} onCancel={onCancel} />
+        <ModalFormActionRow confirmText="Submit" onConfirm={submitForm} onCancel={onCancel} />
       </FormGrid>
     );
   };
@@ -161,9 +172,13 @@ export const TriageForm = ({
         ...editedObject,
       }}
       validationSchema={yup.object().shape({
-        triageTime: yup.date().required(),
+        arrivalTime: yup.date().max(new Date(), 'Arrival time cannot be in the future'),
+        triageTime: yup
+          .date()
+          .required()
+          .max(new Date(), 'Triage time cannot be in the future'),
         chiefComplaintId: foreignKey('Chief complaint must be selected'),
-        practitionerId: foreignKey('Triage clinician must be selected'),
+        practitionerId: foreignKey(`Triage ${clinicianText.toLowerCase()} must be selected`),
         locationId: foreignKey('Location must be selected'),
         score: yup.string().required(),
       })}

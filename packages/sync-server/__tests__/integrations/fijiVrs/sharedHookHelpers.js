@@ -1,5 +1,5 @@
-import { REFERENCE_TYPES } from 'shared/constants';
-import { chance } from 'shared/test-helpers';
+import { REFERENCE_TYPES } from '@tamanu/constants';
+import { chance } from '@tamanu/shared/test-helpers';
 
 export const fakeVRSPatient = async ({ ReferenceData }) => {
   const village = await ReferenceData.create(fakeVillage());

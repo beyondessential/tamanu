@@ -160,7 +160,11 @@ export const BedManagement = () => {
     data: { count: totalCurrentPatientsCount } = {},
     isLoading: totalCurrentPatientsCountLoading,
   } = useQuery(['totalCurrentPatientsCount'], () =>
-    api.get('patient', { countOnly: true, currentPatient: true, facilityId: ':local' }),
+    api.get('patient', {
+      countOnly: true,
+      currentPatient: true,
+      facilityId: facility.id,
+    }),
   );
 
   const {
@@ -171,7 +175,7 @@ export const BedManagement = () => {
       countOnly: true,
       currentPatient: true,
       inpatient: true,
-      facilityId: ':local',
+      facilityId: facility.id,
     }),
   );
 

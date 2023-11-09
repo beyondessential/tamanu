@@ -89,7 +89,6 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                   placeholder="Search"
                   navigation={navigation}
                   suggester={medicationSuggester}
-                  modalRoute={Routes.Autocomplete.Modal}
                   name="medication"
                 />
                 <StyledView

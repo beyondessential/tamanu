@@ -1,32 +1,33 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Alert, AlertTitle } from '@material-ui/lab';
-import { Box } from '@material-ui/core';
-import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/shared/constants';
+import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { ModalLoader, ConfirmCancelRow, Form } from '../components';
+import { ModalLoader, FormSubmitCancelRow, Form } from '../components';
 import { SurveyScreen } from '../components/Surveys';
-import { useVitalsSurvey } from '../api/queries';
+import { combineQueries } from '../api/combineQueries';
+import { useVitalsSurveyQuery, usePatientAdditionalDataQuery } from '../api/queries';
 import { getFormInitialValues, getValidationSchema } from '../utils';
-import { ForbiddenError } from '../components/ForbiddenErrorModal';
+import { ForbiddenErrorModalContents } from '../components/ForbiddenErrorModal';
 import { Modal } from '../components/Modal';
+import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
+import { useEncounter } from '../contexts/Encounter';
 
-// eslint-disable-next-line no-unused-vars
-const ErrorMessage = ({ error }) => {
-  return (
-    <Box p={5} mb={4}>
-      <Alert severity="error">
-        <AlertTitle>Error: Cannot load vitals form</AlertTitle>
-        Please contact a Tamanu Administrator to ensure the Vitals form is configured correctly.
-      </Alert>
-    </Box>
+export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterType }) => {
+  const {
+    data: [vitalsSurvey, patientAdditionalData],
+    isLoading,
+    isError,
+    error,
+  } = combineQueries([useVitalsSurveyQuery(), usePatientAdditionalDataQuery()]);
+  const { encounter } = useEncounter();
+  const validationSchema = useMemo(
+    () =>
+      getValidationSchema(vitalsSurvey, {
+        encounterType: encounterType || encounter?.encounterType,
+      }),
+    [vitalsSurvey, encounter?.encounterType, encounterType],
   );
-};
-
-export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
-  const { data: vitalsSurvey, isLoading, isError, error } = useVitalsSurvey();
-  const validationSchema = useMemo(() => getValidationSchema(vitalsSurvey), [vitalsSurvey]);
   const { ability } = useAuth();
   const canCreateVitals = ability.can('create', 'Vitals');
 
@@ -37,18 +38,22 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
   if (!canCreateVitals) {
     return (
       <Modal title="Permission required" open onClose={onClose}>
-        <ForbiddenError onConfirm={onClose} confirmText="Close" />
+        <ForbiddenErrorModalContents onConfirm={onClose} confirmText="Close" />
       </Modal>
     );
   }
 
   if (isError) {
-    return <ErrorMessage error={error} />;
+    return (
+      <ErrorMessage
+        title="Error: Cannot load vitals form"
+        errorMessage="Please contact a Tamanu Administrator to ensure the Vitals form is configured correctly."
+        error={error}
+      />
+    );
   }
 
-  const handleSubmit = data => {
-    onSubmit({ survey: vitalsSurvey, ...data });
-  };
+  const handleSubmit = async data => onSubmit({ survey: vitalsSurvey, ...data });
 
   return (
     <Form
@@ -59,7 +64,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
       validationSchema={validationSchema}
       initialValues={{
         [VITALS_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTimeString(),
-        ...getFormInitialValues(vitalsSurvey.components, patient),
+        ...getFormInitialValues(vitalsSurvey.components, patient, patientAdditionalData),
       }}
       validate={({ [VITALS_DATA_ELEMENT_IDS.dateRecorded]: date, ...values }) => {
         const errors = {};
@@ -71,14 +76,15 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose }) => {
       }}
       render={({ submitForm, values, setFieldValue }) => (
         <SurveyScreen
-          components={vitalsSurvey.components}
+          allComponents={vitalsSurvey.components}
           patient={patient}
           cols={2}
           values={values}
           setFieldValue={setFieldValue}
           submitButton={
-            <ConfirmCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onClose} />
+            <FormSubmitCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onClose} />
           }
+          encounterType={encounterType}
         />
       )}
     />

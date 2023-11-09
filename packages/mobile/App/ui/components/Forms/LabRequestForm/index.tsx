@@ -7,7 +7,6 @@ import { MultiCheckbox } from '~/ui/components/MultiCheckbox';
 import { DateField } from '~/ui/components/DateField/DateField';
 import { AutocompleteModalField } from '../../AutocompleteModal/AutocompleteModalField';
 import { SubmitButton } from '../SubmitButton';
-import { Routes } from '~/ui/helpers/routes';
 import { OptionType, Suggester } from '~/ui/helpers/suggester';
 import { ReferenceDataType } from '~/types';
 import { useBackend } from '~/ui/hooks';
@@ -29,9 +28,15 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
   });
   const labSampleSiteSuggester = new Suggester(models.ReferenceData, {
     where: {
-      type: ReferenceDataType.labSampleSite,
+      type: ReferenceDataType.LabSampleSite,
     },
   });
+  const specimenTypeSuggester = new Suggester(models.ReferenceData, {
+    where: {
+      type: ReferenceDataType.SpecimenType,
+    },
+  });
+
   const practitionerSuggester = new Suggester(
     models.User,
     { column: 'displayName' },
@@ -54,33 +59,42 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
   return (
     <FormScreenView paddingRight={20} paddingLeft={20} paddingTop={20}>
       <Field component={ReadOnlyBanner} label="Test ID" name="displayId" disabled />
-      <Field component={DateField} label="Request date" mode="date" name="requestedDate" />
+      <Field component={DateField} label="Request date" required mode="date" name="requestedDate" />
       <Field component={DateField} label="Request time" mode="time" name="requestedTime" />
       <Field
         component={AutocompleteModalField}
         label="Requesting clinician"
-        name="requestedBy"
+        name="requestedById"
         required
         suggester={practitionerSuggester}
-        modalRoute={Routes.Autocomplete.Modal}
       />
       <Field
         component={AutocompleteModalField}
         label="Priority"
         navigation={navigation}
         suggester={labRequestPrioritySuggester}
-        modalRoute={Routes.Autocomplete.Modal}
         name="priorityId"
       />
-      <Field component={DateField} label="Sample date" mode="date" name="sampleDate" />
-      <Field component={DateField} label="Sample time" mode="time" name="sampleTime" />
+      <Field component={DateField} label="Sample date" required mode="date" name="sampleDate" />
+      <Field component={DateField} label="Sample time" required mode="time" name="sampleTime" />
+      <Field
+        component={AutocompleteModalField}
+        label="Collected by"
+        name="collectedById"
+        suggester={practitionerSuggester}
+      />
+      <Field
+        component={AutocompleteModalField}
+        label="Specimen type"
+        name="specimenTypeId"
+        suggester={specimenTypeSuggester}
+      />
       <Field
         component={AutocompleteModalField}
         label="Site"
         navigation={navigation}
         suggester={labSampleSiteSuggester}
-        modalRoute={Routes.Autocomplete.Modal}
-        name="labSampleSite"
+        name="labSampleSiteId"
       />
       <Field
         component={AutocompleteModalField}
@@ -89,11 +103,10 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
         placeholder="Test category"
         navigation={navigation}
         suggester={labRequestCategorySuggester}
-        modalRoute={Routes.Autocomplete.Modal}
         name="categoryId"
         onChange={handleLabRequestTypeSelected}
       />
-      <Field name="labTestTypes" component={MultiCheckbox} options={labTestTypes} />
+      <Field name="labTestTypeIds" component={MultiCheckbox} options={labTestTypes} />
       <FormValidationMessage message={errors.form} />
       <SubmitButton marginTop={15} onSubmit={handleSubmit} />
     </FormScreenView>

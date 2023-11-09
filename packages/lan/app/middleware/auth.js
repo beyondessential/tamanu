@@ -1,12 +1,14 @@
 import { trace, propagation, context } from '@opentelemetry/api';
-import { sign, verify } from 'jsonwebtoken';
+import { sign as signCallback, verify as verifyCallback } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
 import config from 'config';
 import { v4 as uuid } from 'uuid';
+import { promisify } from 'util';
 
-import { BadAuthenticationError } from 'shared/errors';
-import { log } from 'shared/services/logging';
-import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
+import { VISIBILITY_STATUSES, USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
+import { BadAuthenticationError } from '@tamanu/shared/errors';
+import { log } from '@tamanu/shared/services/logging';
+import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 
 import { CentralServerConnection } from '../sync';
 
@@ -15,8 +17,10 @@ const { tokenDuration, secret } = config.auth;
 // regenerate the secret key whenever the server restarts.
 // this will invalidate all current tokens, but they're meant to expire fairly quickly anyway.
 const jwtSecretKey = secret || uuid();
+const sign = promisify(signCallback);
+const verify = promisify(verifyCallback);
 
-export function getToken(user, expiresIn = tokenDuration) {
+export async function getToken(user, expiresIn = tokenDuration) {
   return sign(
     {
       userId: user.id,
@@ -73,19 +77,19 @@ export async function centralServerLogin(models, email, password, deviceId) {
     });
   });
 
-  const token = getToken(user);
-  const permissions = await getPermissionsForRoles(models, user.role);
-  return {
-    token,
-    central: true,
-    localisation,
-    permissions,
-  };
+  return { central: true, user, localisation };
 }
 
 async function localLogin(models, email, password) {
   // some other error in communicating with sync server, revert to local login
-  const user = await models.User.scope('withPassword').findOne({ where: { email } });
+  const user = await models.User.scope('withPassword').findOne({
+    where: { email },
+  });
+
+  if (user && user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+    throw new BadAuthenticationError(USER_DEACTIVATED_ERROR_MESSAGE);
+  }
+
   const passwordMatch = await comparePassword(user, password);
 
   if (!passwordMatch) {
@@ -97,9 +101,7 @@ async function localLogin(models, email, password) {
     order: [['createdAt', 'DESC']],
   });
 
-  const token = getToken(user);
-  const permissions = await getPermissionsForRoles(models, user.role);
-  return { token, central: false, localisation, permissions };
+  return { central: false, user, localisation };
 }
 
 async function centralServerLoginWithLocalFallback(models, email, password, deviceId) {
@@ -116,6 +118,12 @@ async function centralServerLoginWithLocalFallback(models, email, password, devi
       throw new BadAuthenticationError('Incorrect username or password, please try again');
     }
 
+    // if it is forbidden error when login to central server,
+    // throw the error instead of proceeding to local login
+    if (e.centralServerResponse?.status === 403 && e.centralServerResponse?.body?.error) {
+      throw e.centralServerResponse.body.error;
+    }
+
     log.warn(`centralServerLoginWithLocalFallback: central server login failed: ${e}`);
     return localLogin(models, email, password);
   }
@@ -129,17 +137,26 @@ export async function loginHandler(req, res, next) {
   req.flagPermissionChecked();
 
   try {
-    const responseData = await centralServerLoginWithLocalFallback(
+    const { central, user, localisation } = await centralServerLoginWithLocalFallback(
       models,
       email,
       password,
       deviceId,
     );
-    const facility = await models.Facility.findByPk(config.serverFacilityId);
+    const [facility, permissions, token, role] = await Promise.all([
+      models.Facility.findByPk(config.serverFacilityId),
+      getPermissionsForRoles(models, user.role),
+      getToken(user),
+      models.Role.findByPk(user.role),
+    ]);
     res.send({
-      ...responseData,
+      token,
+      central,
+      localisation,
+      permissions,
+      role: role?.forResponse() ?? null,
       server: {
-        facility: facility && facility.forResponse(),
+        facility: facility?.forResponse() ?? null,
       },
     });
   } catch (e) {
@@ -153,7 +170,7 @@ export async function refreshHandler(req, res) {
   // Run after auth middleware, requires valid token but no other permission
   req.flagPermissionChecked();
 
-  const token = getToken(user);
+  const token = await getToken(user);
   res.send({ token });
 }
 
@@ -173,8 +190,12 @@ async function getUserFromToken(request) {
 
   const token = bearer[1];
   try {
-    const { userId } = decodeToken(token);
-    return models.User.findByPk(userId);
+    const { userId } = await decodeToken(token);
+    const user = await models.User.findByPk(userId);
+    if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+      throw new Error('User is not visible to the system'); // will be caught immediately
+    }
+    return user;
   } catch (e) {
     throw new BadAuthenticationError(
       'Your session has expired or is invalid. Please log in again.',

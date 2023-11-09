@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { usePatientMove } from '../../../api/mutations';
-import { Modal, LargeBodyText } from '../../../components';
+import { LargeBodyText, Modal } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
 
 const Container = styled.div`

@@ -1,13 +1,13 @@
 import { checkVisibility } from './survey';
 
-const isVisible = (values, questionComponents) => component => {
+const isVisible = (values, allQuestionReactElements, reactElement) => {
   const result = checkVisibility(
     {
-      visibilityCriteria: JSON.stringify(component.props.visibilityCriteria),
+      visibilityCriteria: JSON.stringify(reactElement.props.visibilityCriteria),
       dataElement: {},
     },
     values,
-    questionComponents.map(x => ({
+    allQuestionReactElements.map(x => ({
       dataElement: { id: x.props.name, name: x.props.name, code: x.props.name },
     })),
   );
@@ -16,14 +16,22 @@ const isVisible = (values, questionComponents) => component => {
 };
 
 // Used with PaginatedForm
-export const getVisibleQuestions = (questionComponents, values) =>
-  // Adapt the questionComponents from react elements to the survey config objects which the
+export const getVisibleQuestions = (
+  values,
+  allQuestionReactElements,
+  screenQuestionReactElements = allQuestionReactElements,
+) =>
+  // Adapt the questionReactElements from react elements to the survey config objects which the
   // checkVisibility util expects
-  questionComponents
-    .filter(component => isVisible(values, questionComponents)(component))
+  screenQuestionReactElements
+    .filter(reactElement => isVisible(values, allQuestionReactElements, reactElement))
     .map(x => ({ ...x, props: { ...x.props, key: x.props.name } }));
 
-export const getInvisibleQuestions = (questionComponents, values) =>
-  questionComponents
-    .filter(component => !isVisible(values, questionComponents)(component))
+export const getInvisibleQuestions = (
+  values,
+  allQuestionReactElements,
+  screenQuestionReactElements = allQuestionReactElements,
+) =>
+  screenQuestionReactElements
+    .filter(reactElement => !isVisible(values, allQuestionReactElements, reactElement))
     .map(x => ({ ...x, props: { ...x.props, key: x.props.name } }));

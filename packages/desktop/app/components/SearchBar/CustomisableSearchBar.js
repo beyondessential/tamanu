@@ -71,7 +71,6 @@ export const CustomisableSearchBar = ({
   isExpanded,
   setIsExpanded,
   initialValues = {},
-  staticValues = {},
   hiddenFields,
 }) => {
   const switchExpandValue = useCallback(() => {
@@ -81,7 +80,7 @@ export const CustomisableSearchBar = ({
   }, [setIsExpanded]);
 
   const handleSubmit = values => {
-    onSearch({ ...values, ...staticValues });
+    onSearch({ ...values });
   };
 
   return (

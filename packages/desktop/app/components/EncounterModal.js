@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { ENCOUNTER_TYPES } from '@tamanu/shared/constants';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 
 import { CheckInModal } from './CheckInModal';
 import { TriageModal } from './TriageModal';

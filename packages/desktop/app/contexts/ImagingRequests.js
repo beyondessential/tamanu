@@ -1,5 +1,5 @@
 import React, { useContext, createContext, useState, useCallback } from 'react';
-import { IMAGING_TABLE_VERSIONS } from '@tamanu/shared/constants/imaging';
+import { IMAGING_TABLE_VERSIONS } from '@tamanu/constants/imaging';
 
 const ImagingRequestsContext = createContext({});
 

@@ -1,9 +1,9 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '../constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { dateType } from './dateTimeTypes';
 import { Model } from './Model';
-import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
+import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class PatientDeathData extends Model {
@@ -31,7 +31,10 @@ export class PatientDeathData extends Model {
         antecedentCause1TimeAfterOnset: Sequelize.INTEGER, // minutes
         antecedentCause2TimeAfterOnset: Sequelize.INTEGER, // minutes
         isFinal: Sequelize.BOOLEAN,
-        visibilityStatus: { type: Sequelize.TEXT, defaultValue: VISIBILITY_STATUSES.CURRENT },
+        visibilityStatus: {
+          type: Sequelize.TEXT,
+          defaultValue: VISIBILITY_STATUSES.CURRENT,
+        },
       },
       {
         ...options,
@@ -114,5 +117,5 @@ export class PatientDeathData extends Model {
     });
   }
 
-  static buildSyncFilter = buildPatientLinkedSyncFilter;
+  static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
 }

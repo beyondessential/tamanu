@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { permissionCache } from '../permissions/cache';
 import { Model } from './Model';
 
@@ -21,6 +21,8 @@ export class Permission extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        // You can't use hooks with instances. Hooks are used with models.
+        // https://sequelize.org/docs/v6/other-topics/hooks/
         hooks: {
           afterSave() {
             permissionCache.reset();
@@ -76,5 +78,9 @@ export class Permission extends Model {
       noun,
       ...(objectId ? { objectId } : undefined),
     };
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 }

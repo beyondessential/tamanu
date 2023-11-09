@@ -1,13 +1,13 @@
 import fs, { promises as asyncFs } from 'fs';
-import { InvalidParameterError, RemoteCallFailedError } from 'shared/errors';
-import { getUploadedData } from 'shared/utils/getUploadedData';
+import { InvalidParameterError, RemoteCallFailedError } from '@tamanu/shared/errors';
+import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { CentralServerConnection } from '../sync';
 
 // Helper function for uploading one file to the sync server
 // req: express request, maxFileSize: integer (size in bytes)
 export const uploadAttachment = async (req, maxFileSize) => {
   // TODO: Figure out permission management for writing
-  // an Attachment (this will be stored only in the sync server)
+  // an Attachment
   // req.checkPermission('write', 'Attachment'); ??
 
   // Read request and extract file, stats and metadata

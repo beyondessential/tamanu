@@ -187,6 +187,11 @@ export const SYNC_MENU_ITEMS = [
     path: '/admin/patientMerge',
   },
   {
+    key: 'templates',
+    label: 'Templates',
+    path: '/admin/templates',
+  },
+  {
     key: 'assets',
     label: 'Asset upload',
     path: '/admin/assets',
@@ -195,5 +200,15 @@ export const SYNC_MENU_ITEMS = [
     key: 'sync',
     label: 'Sync status',
     path: '/admin/sync',
+  },
+  {
+    key: 'fhirJobStats',
+    label: 'FHIR job stats',
+    path: '/admin/fhir/jobStats',
+  },
+  {
+    key: 'reports',
+    label: 'Reports',
+    path: '/admin/reports',
   },
 ];

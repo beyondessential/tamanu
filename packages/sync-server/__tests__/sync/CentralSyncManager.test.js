@@ -1,14 +1,14 @@
 import { sub, endOfDay, parseISO } from 'date-fns';
 import { v4 as uuid } from 'uuid';
 
-import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
-import { SYNC_SESSION_DIRECTION } from 'shared/sync';
-import { fake, fakeUser, fakeSurvey, fakeReferenceData } from 'shared/test-helpers/fake';
-import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patients';
-import { randomLabRequest } from 'shared/demoData';
-import { sleepAsync } from 'shared/utils/sleepAsync';
-import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
-import { toDateTimeString } from 'shared/utils/dateTime';
+import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
+import { SYNC_SESSION_DIRECTION } from '@tamanu/shared/sync';
+import { fake, fakeUser, fakeSurvey, fakeReferenceData } from '@tamanu/shared/test-helpers/fake';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { randomLabRequest } from '@tamanu/shared/demoData';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
+import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { createTestContext } from '../utilities';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
@@ -373,6 +373,7 @@ describe('CentralSyncManager', () => {
               return mockedModelSnapshotOutgoingChangesQueryPromise;
             },
           },
+          buildSyncFilter: () => null,
         };
 
         return {
@@ -606,13 +607,24 @@ describe('CentralSyncManager', () => {
     describe('handles sync special case configurations', () => {
       describe('syncAllLabRequests', () => {
         let facility;
+        let encounter1;
+        let encounter2;
+        let labTestPanelRequest1;
         let labRequest1;
         let labRequest2;
+        let labRequest1Tests;
+        let labRequest2Tests;
+        let fullSyncedPatientEncounter;
+        let fullSyncedPatientLabRequest;
+        let fullSyncedPatientLabRequestTests;
 
         beforeEach(async () => {
           await models.Facility.truncate({ cascade: true, force: true });
           await models.Program.truncate({ cascade: true, force: true });
-          await models.ReferenceData.truncate({ cascade: true, force: true });
+          await models.ReferenceData.truncate({
+            cascade: true,
+            force: true,
+          });
           await models.User.truncate({ cascade: true, force: true });
           await models.Patient.truncate({ cascade: true, force: true });
           await models.Encounter.truncate({ cascade: true, force: true });
@@ -635,33 +647,89 @@ describe('CentralSyncManager', () => {
           const patient2 = await models.Patient.create({
             ...fake(models.Patient),
           });
-          const encounter1 = await models.Encounter.create({
+          encounter1 = await models.Encounter.create({
             ...(await createDummyEncounter(models)),
             patientId: patient1.id,
           });
-          const encounter2 = await models.Encounter.create({
+          encounter2 = await models.Encounter.create({
             ...(await createDummyEncounter(models)),
             patientId: patient2.id,
           });
-          await models.ReferenceData.create({
+          const category = await models.ReferenceData.create({
             id: 'test1',
             type: 'labTestCategory',
             code: 'test1',
             name: 'Test 1',
           });
-          labRequest1 = await models.LabRequest.create({
-            ...(await randomLabRequest(models, {
-              patientId: patient1.id,
-              encounterId: encounter1.id,
-              status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
-            })),
+          const labTestPanel = await models.LabTestPanel.create({
+            ...fake(models.LabTestPanel),
+            categoryId: category.id,
           });
-          labRequest2 = await models.LabRequest.create({
-            ...(await randomLabRequest(models, {
-              patientId: patient2.id,
-              encounterId: encounter2.id,
-              status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
-            })),
+          labTestPanelRequest1 = await models.LabTestPanelRequest.create({
+            ...fake(models.LabTestPanelRequest),
+            labTestPanelId: labTestPanel.id,
+            encounterId: encounter1.id,
+          });
+          const labRequest1Data = await randomLabRequest(models, {
+            patientId: patient1.id,
+            encounterId: encounter1.id,
+            status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+            labTestPanelRequestId: labTestPanelRequest1.id, // make one of them part of a panel
+          });
+          labRequest1 = await models.LabRequest.create(labRequest1Data);
+          const labRequest1TestsData = labRequest1Data.labTestTypeIds.map(labTestTypeId => ({
+            ...fake(models.LabTest),
+            labRequestId: labRequest1.id,
+            labTestTypeId,
+          }));
+          labRequest1Tests = await Promise.all(
+            labRequest1TestsData.map(lt => models.LabTest.create(lt)),
+          );
+          const labRequest2Data = await randomLabRequest(models, {
+            patientId: patient2.id,
+            encounterId: encounter2.id,
+            status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+          });
+          labRequest2 = await models.LabRequest.create(labRequest2Data);
+          const labRequest2TestsData = labRequest2Data.labTestTypeIds.map(labTestTypeId => ({
+            ...fake(models.LabTest),
+            labRequestId: labRequest2.id,
+            labTestTypeId,
+          }));
+          labRequest2Tests = await Promise.all(
+            labRequest2TestsData.map(lt => models.LabTest.create(lt)),
+          );
+
+          // Create marked for sync patient to test if lab request still sync through normal full sync
+          const fullSyncedPatient = await models.Patient.create({
+            ...fake(models.Patient),
+          });
+          fullSyncedPatientEncounter = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: fullSyncedPatient.id,
+          });
+          const fullSyncedPatientLabRequestData = await randomLabRequest(models, {
+            patientId: fullSyncedPatientEncounter.id,
+            encounterId: fullSyncedPatientEncounter.id,
+            status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+          });
+          fullSyncedPatientLabRequest = await models.LabRequest.create(
+            fullSyncedPatientLabRequestData,
+          );
+          const fullSyncedPatientLabRequestTestsData = fullSyncedPatientLabRequestData.labTestTypeIds.map(
+            labTestTypeId => ({
+              ...fake(models.LabTest),
+              labRequestId: fullSyncedPatientLabRequest.id,
+              labTestTypeId,
+            }),
+          );
+          fullSyncedPatientLabRequestTests = await Promise.all(
+            fullSyncedPatientLabRequestTestsData.map(lt => models.LabTest.create(lt)),
+          );
+          await models.PatientFacility.create({
+            id: models.PatientFacility.generateId(),
+            patientId: fullSyncedPatient.id,
+            facilityId: facility.id,
           });
         });
 
@@ -689,9 +757,24 @@ describe('CentralSyncManager', () => {
 
           const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
 
-          // Test if the outgoingChanges contain the lab requests
+          // Test if the outgoingChanges contain all the lab requests, and their associated records
           expect(outgoingChanges.map(r => r.recordId)).toEqual(
-            expect.arrayContaining([labRequest1.id, labRequest2.id]),
+            expect.arrayContaining([
+              encounter1.id,
+              labTestPanelRequest1.id,
+              labRequest1.id,
+              ...labRequest1Tests.map(lt => lt.id),
+              encounter2.id,
+              labRequest2.id,
+              ...labRequest2Tests.map(lt => lt.id),
+              fullSyncedPatientEncounter.id,
+              fullSyncedPatientLabRequest.id,
+              ...fullSyncedPatientLabRequestTests.map(lt => lt.id),
+            ]),
+          );
+          // Test that the outgoingChanges also contains the lab requests of the patients that are marked for sync
+          expect(outgoingChanges.map(r => r.recordId)).toEqual(
+            expect.arrayContaining([fullSyncedPatientEncounter.id, fullSyncedPatientLabRequest.id]),
           );
         });
 
@@ -701,27 +784,6 @@ describe('CentralSyncManager', () => {
             facilityId: facility.id,
             key: 'syncAllLabRequests',
             value: false,
-          });
-
-          // Create marked for sync patient to test if lab request still sync through normal full sync
-          const fullSyncedPatient = await models.Patient.create({
-            ...fake(models.Patient),
-          });
-          const fullSyncedPatientEncounter = await models.Encounter.create({
-            ...(await createDummyEncounter(models)),
-            patientId: fullSyncedPatient.id,
-          });
-          const fullSyncedPatientLabRequest = await models.LabRequest.create({
-            ...(await randomLabRequest(models, {
-              patientId: fullSyncedPatientEncounter.id,
-              encounterId: fullSyncedPatientEncounter.id,
-              status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
-            })),
-          });
-          await models.PatientFacility.create({
-            id: models.PatientFacility.generateId(),
-            patientId: fullSyncedPatient.id,
-            facilityId: facility.id,
           });
 
           const centralSyncManager = initializeCentralSyncManager();
@@ -740,13 +802,21 @@ describe('CentralSyncManager', () => {
 
           const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
 
-          // Test if the outgoingChanges dont contain the lab requests of the patients that are not marked for synced
+          // Test that the outgoingChanges don't contain the lab requests of the patients that are not marked for sync
           expect(outgoingChanges.map(r => r.recordId)).not.toEqual(
-            expect.arrayContaining([labRequest1.id, labRequest2.id]),
+            expect.arrayContaining([
+              encounter1.id,
+              labTestPanelRequest1.id,
+              labRequest1.id,
+              ...labRequest1Tests.map(lt => lt.id),
+              encounter2.id,
+              labRequest2.id,
+              ...labRequest2Tests.map(lt => lt.id),
+            ]),
           );
-          // Test if the outgoingChanges contain the lab requests of the patients that are marked for synced
+          // Test that the outgoingChanges contain the lab requests of the patients that are marked for sync
           expect(outgoingChanges.map(r => r.recordId)).toEqual(
-            expect.arrayContaining([fullSyncedPatientLabRequest.id]),
+            expect.arrayContaining([fullSyncedPatientEncounter.id, fullSyncedPatientLabRequest.id]),
           );
         });
       });
@@ -1098,12 +1168,11 @@ describe('CentralSyncManager', () => {
         expect(insertedEncounter.endDate).toBe(expectedDischargedEndDate);
 
         // outgoingChanges should contain:
-        // 1 encounter, 1 note_page, 1 note_item (system generated note for discharge), and 1 discharge
-        expect(outgoingChanges).toHaveLength(4);
+        // 1 encounter, 1 note (system generated note for discharge), and 1 discharge
+        expect(outgoingChanges).toHaveLength(3);
         expect(returnedEncounter.data.id).toBe(encounterData.id);
         expect(returnedEncounter.data.endDate).toBe(expectedDischargedEndDate);
-        expect(outgoingChanges.find(c => c.recordType === 'note_pages')).toBeDefined();
-        expect(outgoingChanges.find(c => c.recordType === 'note_items')).toBeDefined();
+        expect(outgoingChanges.find(c => c.recordType === 'notes')).toBeDefined();
         expect(outgoingChanges.find(c => c.recordType === 'discharges')).toBeDefined();
       });
     });
@@ -1125,14 +1194,14 @@ describe('CentralSyncManager', () => {
         data: r.dataValues,
       }));
 
-      jest.doMock('shared/sync', () => ({
-        ...jest.requireActual('shared/sync'),
+      jest.doMock('@tamanu/shared/sync', () => ({
+        ...jest.requireActual('@tamanu/shared/sync'),
         insertSnapshotRecords: jest.fn(),
       }));
 
       const centralSyncManager = initializeCentralSyncManager();
 
-      const { insertSnapshotRecords } = require('shared/sync');
+      const { insertSnapshotRecords } = require('@tamanu/shared/sync');
       const { sessionId } = await centralSyncManager.startSession();
       await waitForSession(centralSyncManager, sessionId);
 

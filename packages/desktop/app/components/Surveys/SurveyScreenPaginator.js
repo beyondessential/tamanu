@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { usePaginatedForm } from '../Field';
 import { SurveyScreen } from './SurveyScreen';
-import { Button, OutlinedButton } from '../Button';
+import { FormSubmitButton, OutlinedButton } from '../Button';
 import { ButtonRow } from '../ButtonRow';
 
 const COMPLETE_MESSAGE = `
@@ -28,9 +28,9 @@ const SurveySummaryScreen = ({ onStepBack, onSurveyComplete }) => (
     <div>
       <StyledButtonRow>
         <OutlinedButton onClick={onStepBack}>Prev</OutlinedButton>
-        <Button color="primary" variant="contained" onClick={onSurveyComplete}>
+        <FormSubmitButton color="primary" variant="contained" onClick={onSurveyComplete}>
           Complete
-        </Button>
+        </FormSubmitButton>
       </StyledButtonRow>
     </div>
   </div>
@@ -64,7 +64,8 @@ export const SurveyScreenPaginator = ({
         values={values}
         setFieldValue={setFieldValue}
         patient={patient}
-        components={screenComponents}
+        allComponents={components}
+        screenComponents={screenComponents}
         onStepForward={onStepForward}
         onStepBack={screenIndex > 0 ? onStepBack : onCancel}
         validateForm={validateForm}

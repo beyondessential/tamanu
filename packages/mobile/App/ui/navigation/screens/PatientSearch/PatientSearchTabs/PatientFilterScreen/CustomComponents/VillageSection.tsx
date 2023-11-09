@@ -37,7 +37,6 @@ export const VillageSection = (): ReactElement => {
           placeholder={`Search for ${getString('fields.villageId.longLabel', 'Village')}`}
           navigation={navigation}
           suggester={villageSuggester}
-          modalRoute={Routes.Autocomplete.Modal}
           name="villageId"
         />
       </StyledView>

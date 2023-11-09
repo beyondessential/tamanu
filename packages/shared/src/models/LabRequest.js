@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
+import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
-import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from '../constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
@@ -63,8 +63,8 @@ export class LabRequest extends Model {
       if (!labTestTypeIds.length) {
         throw new InvalidOperationError('A request must have at least one test');
       }
-      const { LabTest, LabTestPanelRequest } = this.sequelize.models;
-      const { labTest, labTestPanelId, ...requestData } = data;
+      const { LabTest, LabTestPanelRequest, LabRequestLog } = this.sequelize.models;
+      const { labTest, labTestPanelId, userId, ...requestData } = data;
       let newLabRequest;
 
       if (labTestPanelId) {
@@ -76,6 +76,12 @@ export class LabRequest extends Model {
       } else {
         newLabRequest = await this.create(requestData);
       }
+
+      await LabRequestLog.create({
+        status: newLabRequest.status,
+        labRequestId: newLabRequest.id,
+        updatedById: userId,
+      });
 
       // then create tests
       await Promise.all(
@@ -97,6 +103,12 @@ export class LabRequest extends Model {
       foreignKey: 'departmentId',
       as: 'department',
     });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'collectedById',
+      as: 'collectedBy',
+    });
+
     this.belongsTo(models.User, {
       foreignKey: 'requestedById',
       as: 'requestedBy',
@@ -127,6 +139,11 @@ export class LabRequest extends Model {
       as: 'laboratory',
     });
 
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'specimenTypeId',
+      as: 'specimenType',
+    });
+
     this.belongsTo(models.LabTestPanelRequest, {
       foreignKey: 'labTestPanelRequestId',
       as: 'labTestPanelRequest',
@@ -142,9 +159,9 @@ export class LabRequest extends Model {
       as: 'certificate_notification',
     });
 
-    this.hasMany(models.NotePage, {
+    this.hasMany(models.Note, {
       foreignKey: 'recordId',
-      as: 'notePages',
+      as: 'notes',
       constraints: false,
       scope: {
         recordType: this.name,
@@ -165,7 +182,11 @@ export class LabRequest extends Model {
     ];
   }
 
-  static buildSyncFilter(patientIds, sessionConfig) {
+  static getFullReferenceAssociations() {
+    return [...LabRequest.getListReferenceAssociations(), 'collectedBy', 'specimenType'];
+  }
+
+  static buildPatientSyncFilter(patientIds, sessionConfig) {
     if (sessionConfig.syncAllLabRequests) {
       return ''; // include all lab requests
     }

@@ -51,7 +51,6 @@ export const SurveyQuestionAutocomplete = (props): JSX.Element => {
       placeholder="Search..."
       suggester={suggester}
       onChange={props.onChange}
-      modalRoute={Routes.Autocomplete.Modal}
       {...props}
     />
   );

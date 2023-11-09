@@ -1,13 +1,20 @@
 import { Sequelize } from 'sequelize';
 import { endOfDay, isBefore, parseISO, startOfToday } from 'date-fns';
 
-import { ENCOUNTER_TYPES, ENCOUNTER_TYPE_VALUES, NOTE_TYPES, SYNC_DIRECTIONS } from '../constants';
+import {
+  ENCOUNTER_TYPES,
+  ENCOUNTER_TYPE_VALUES,
+  NOTE_TYPES,
+  SYNC_DIRECTIONS,
+  EncounterChangeType,
+} from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { dateTimeType } from './dateTimeTypes';
 
 import { Model } from './Model';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 import { dischargeOutpatientEncounters } from '../utils/dischargeOutpatientEncounters';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class Encounter extends Model {
   static init({ primaryKey, hackToSkipEncounterValidation, ...options }) {
@@ -188,9 +195,9 @@ export class Encounter extends Model {
       as: 'referralSource',
     });
 
-    this.hasMany(models.NotePage, {
+    this.hasMany(models.Note, {
       foreignKey: 'recordId',
-      as: 'notePages',
+      as: 'notes',
       constraints: false,
       scope: {
         recordType: this.name,
@@ -201,7 +208,7 @@ export class Encounter extends Model {
     // this.hasMany(models.Report);
   }
 
-  static buildSyncFilter(patientIds, sessionConfig) {
+  static buildPatientSyncFilter(patientIds, sessionConfig) {
     const { syncAllLabRequests, syncAllEncountersForTheseVaccines } = sessionConfig;
     const joins = [];
     const encountersToIncludeClauses = [];
@@ -307,25 +314,61 @@ export class Encounter extends Model {
     await dischargeOutpatientEncounters(this.sequelize.models, recordIds);
   }
 
-  async addLocationChangeNote(contentPrefix, fromLocation, toLocation, submittedTime, user) {
+  static async create(data, ...args) {
+    const { actorId, ...encounterData } = data;
+    const encounter = await super.create(encounterData, ...args);
+
+    const { EncounterHistory } = this.sequelize.models;
+    await EncounterHistory.createSnapshot(encounter, {
+      actorId: actorId || encounter.examinerId,
+      submittedTime: getCurrentDateTimeString(),
+    });
+
+    return encounter;
+  }
+
+  async addLocationChangeNote(contentPrefix, newLocationId, submittedTime, user) {
     const { Location } = this.sequelize.models;
+    const oldLocation = await Location.findOne({
+      where: { id: this.locationId },
+      include: 'locationGroup',
+    });
+    const newLocation = await Location.findOne({
+      where: { id: newLocationId },
+      include: 'locationGroup',
+    });
+    if (!newLocation) {
+      throw new InvalidOperationError('Invalid location specified');
+    }
+
     await this.addSystemNote(
       `${contentPrefix} from ${Location.formatFullLocationName(
-        fromLocation,
-      )} to ${Location.formatFullLocationName(toLocation)}`,
+        oldLocation,
+      )} to ${Location.formatFullLocationName(newLocation)}`,
+      submittedTime,
+      user,
+    );
+  }
+
+  async addDepartmentChangeNote(toDepartmentId, submittedTime, user) {
+    const { Department } = this.sequelize.models;
+    const oldDepartment = await Department.findOne({ where: { id: this.departmentId } });
+    const newDepartment = await Department.findOne({ where: { id: toDepartmentId } });
+    if (!newDepartment) {
+      throw new InvalidOperationError('Invalid department specified');
+    }
+    await this.addSystemNote(
+      `Changed department from ${oldDepartment.name} to ${newDepartment.name}`,
       submittedTime,
       user,
     );
   }
 
   async addSystemNote(content, date, user) {
-    const notePage = await this.createNotePage({
+    return this.createNote({
       noteType: NOTE_TYPES.SYSTEM,
       date,
-    });
-    await notePage.createNoteItem({
       content,
-      date,
       ...(user?.id && { authorId: user?.id }),
     });
   }
@@ -361,17 +404,18 @@ export class Encounter extends Model {
 
   async closeTriage(endDate) {
     const triage = await this.getLinkedTriage();
-    if (triage) {
-      await triage.update({
-        closedTime: endDate,
-      });
-    }
+    if (!triage) return;
+    if (triage.closedTime) return; // already closed
+
+    await triage.update({
+      closedTime: endDate,
+    });
   }
 
-  async updateClinician(data, user) {
+  async updateClinician(newClinicianId, submittedTime, user) {
     const { User } = this.sequelize.models;
     const oldClinician = await User.findOne({ where: { id: this.examinerId } });
-    const newClinician = await User.findOne({ where: { id: data.examinerId } });
+    const newClinician = await User.findOne({ where: { id: newClinicianId } });
 
     if (!newClinician) {
       throw new InvalidOperationError('Invalid clinician specified');
@@ -379,13 +423,14 @@ export class Encounter extends Model {
 
     await this.addSystemNote(
       `Changed supervising clinician from ${oldClinician.displayName} to ${newClinician.displayName}`,
-      data.submittedTime,
+      submittedTime,
       user,
     );
   }
 
   async update(data, user) {
-    const { Department, Location } = this.sequelize.models;
+    const { Location, EncounterHistory } = this.sequelize.models;
+    let changeType;
 
     const updateEncounter = async () => {
       const additionalChanges = {};
@@ -397,26 +442,19 @@ export class Encounter extends Model {
         throw new InvalidOperationError("An encounter's patient cannot be changed");
       }
 
-      if (data.encounterType && data.encounterType !== this.encounterType) {
+      const isEncounterTypeChanged =
+        data.encounterType && data.encounterType !== this.encounterType;
+      if (isEncounterTypeChanged) {
+        changeType = EncounterChangeType.EncounterType;
         await this.onEncounterProgression(data.encounterType, data.submittedTime, user);
       }
 
-      if (data.locationId && data.locationId !== this.locationId) {
-        const oldLocation = await Location.findOne({
-          where: { id: this.locationId },
-          include: 'locationGroup',
-        });
-        const newLocation = await Location.findOne({
-          where: { id: data.locationId },
-          include: 'locationGroup',
-        });
-        if (!newLocation) {
-          throw new InvalidOperationError('Invalid location specified');
-        }
+      const isLocationChanged = data.locationId && data.locationId !== this.locationId;
+      if (isLocationChanged) {
+        changeType = EncounterChangeType.Location;
         await this.addLocationChangeNote(
           'Changed location',
-          oldLocation,
-          newLocation,
+          data.locationId,
           data.submittedTime,
           user,
         );
@@ -448,23 +486,9 @@ export class Encounter extends Model {
           );
         }
 
-        const currentLocation = await Location.findOne({
-          where: { id: this.locationId },
-          include: 'locationGroup',
-        });
-        const plannedLocation = await Location.findOne({
-          where: { id: data.plannedLocationId },
-          include: 'locationGroup',
-        });
-
-        if (!plannedLocation) {
-          throw new InvalidOperationError('Invalid location specified');
-        }
-
         await this.addLocationChangeNote(
           'Added a planned location change',
-          currentLocation,
-          plannedLocation,
+          data.plannedLocationId,
           data.submittedTime,
           user,
         );
@@ -472,25 +496,45 @@ export class Encounter extends Model {
         additionalChanges.plannedLocationStartTime = data.submittedTime;
       }
 
-      if (data.departmentId && data.departmentId !== this.departmentId) {
-        const oldDepartment = await Department.findOne({ where: { id: this.departmentId } });
-        const newDepartment = await Department.findOne({ where: { id: data.departmentId } });
-        if (!newDepartment) {
-          throw new InvalidOperationError('Invalid department specified');
-        }
-        await this.addSystemNote(
-          `Changed department from ${oldDepartment.name} to ${newDepartment.name}`,
-          data.submittedTime,
-          user,
-        );
+      const isDepartmentChanged = data.departmentId && data.departmentId !== this.departmentId;
+      if (isDepartmentChanged) {
+        changeType = EncounterChangeType.Department;
+        await this.addDepartmentChangeNote(data.departmentId, data.submittedTime, user);
       }
 
-      if (data.examinerId && data.examinerId !== this.examinerId) {
-        await this.updateClinician(data, user);
+      const isClinicianChanged = data.examinerId && data.examinerId !== this.examinerId;
+      if (isClinicianChanged) {
+        changeType = EncounterChangeType.Examiner;
+        await this.updateClinician(data.examinerId, data.submittedTime, user);
       }
 
       const { submittedTime, ...encounterData } = data;
-      return super.update({ ...encounterData, ...additionalChanges }, user);
+      const updatedEncounter = await super.update({ ...encounterData, ...additionalChanges }, user);
+
+      const snapshotChanges = [
+        isEncounterTypeChanged,
+        isDepartmentChanged,
+        isLocationChanged,
+        isClinicianChanged,
+      ].filter(Boolean);
+
+      if (snapshotChanges.length > 1) {
+        // Will revert all the changes above if error is thrown as this is in a transaction
+        throw new InvalidOperationError(
+          'Encounter type, department, location and clinician must be changed in separate operations',
+        );
+      }
+
+      // multiple changes in 1 update transaction is not supported at the moment
+      if (snapshotChanges.length === 1) {
+        await EncounterHistory.createSnapshot(updatedEncounter, {
+          actorId: user?.id,
+          changeType,
+          submittedTime: data.submittedTime,
+        });
+      }
+
+      return updatedEncounter;
     };
 
     if (this.sequelize.isInsideTransaction()) {

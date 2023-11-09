@@ -31,3 +31,5 @@ export const jsonStringShape = (name, objectShape) =>
 // SurveyScreenComponent field types
 export const configString = objectShape => jsonStringShape('config', objectShape);
 export const validationString = objectShape => jsonStringShape('validationCriteria', objectShape);
+export const visualisationConfigString = objectShape =>
+  jsonStringShape('visualisationConfig', objectShape);

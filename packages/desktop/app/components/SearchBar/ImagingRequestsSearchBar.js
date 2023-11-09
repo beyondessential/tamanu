@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { IMAGING_TABLE_VERSIONS, IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/shared/constants';
+import { IMAGING_TABLE_VERSIONS, IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
 import {
   DateField,
@@ -27,16 +27,7 @@ const Spacer = styled.div`
   width: 100%;
 `;
 
-const BASE_ADVANCED_FIELDS = ['allFacilities'];
-const COMPLETED_ADVANCED_FIELDS = [
-  ...BASE_ADVANCED_FIELDS,
-  'locationGroupId',
-  'departmentId',
-  'completedAt',
-];
-const ALL_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS];
-
-export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
+export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFields }) => {
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
   const imagingPriorities = getLocalisation('imagingPriorities') || [];
@@ -48,7 +39,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
   const { searchParameters, setSearchParameters } = useImagingRequests(memoryKey);
 
   const { showAdvancedFields, setShowAdvancedFields } = useAdvancedFields(
-    isCompletedTable ? COMPLETED_ADVANCED_FIELDS : ALL_ADVANCED_FIELDS,
+    advancedFields,
     searchParameters,
   );
   const statusFilter = statuses ? { status: statuses } : {};
@@ -66,7 +57,6 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
       title="Search imaging requests"
       onSearch={setSearchParameters}
       initialValues={{ ...statusFilter, ...searchParameters }}
-      staticValues={{ displayIdExact: true }}
       hiddenFields={
         <>
           {!isCompletedTable && (
@@ -110,7 +100,7 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [] }) => {
         </>
       }
     >
-      <LocalisedField name="displayId" component={SearchField} />
+      <LocalisedField useShortLabel keepLetterCase name="displayId" component={SearchField} />
       <LocalisedField name="firstName" component={SearchField} />
       <LocalisedField name="lastName" component={SearchField} />
       <LocalisedField name="requestId" defaultLabel="Request ID" component={SearchField} />

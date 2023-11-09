@@ -86,8 +86,6 @@ const RouteWithSubRoutes = ({ path, component, routes }) => (
 );
 
 const PatientPane = styled.div`
-  // contain size needs to be set for the tabs to work correctly
-  contain: size;
   overflow: auto;
 `;
 

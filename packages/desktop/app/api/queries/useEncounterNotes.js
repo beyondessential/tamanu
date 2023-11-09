@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 
-export const useEncounterNotes = encounterId => {
+export const useEncounterNotes = (encounterId, query) => {
   const api = useApi();
 
-  return useQuery(['encounterNotePages', encounterId], () =>
-    api.get(`encounter/${encodeURIComponent(encounterId)}/notePages`),
+  return useQuery(['encounterNotes', encounterId], () =>
+    api.get(`encounter/${encodeURIComponent(encounterId)}/notes`, query),
   );
 };

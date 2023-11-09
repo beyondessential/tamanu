@@ -74,7 +74,6 @@ export const TileContainer = styled.div`
   display: flex;
   align-items: stretch;
   overflow: auto;
-  padding-bottom: 20px;
 
   > div {
     flex: 1;

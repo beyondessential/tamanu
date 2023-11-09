@@ -77,9 +77,9 @@ const SingleValue = ({ children, ...props }) => {
   );
 };
 
-const ClearIndicator = ({ innerProps }) => {
+const ClearIndicator = ({ innerProps, tabIndex = 0 }) => {
   return (
-    <StyledIconButton {...innerProps}>
+    <StyledIconButton {...innerProps} tabIndex={tabIndex}>
       <StyledClearIcon />
     </StyledIconButton>
   );
@@ -97,6 +97,8 @@ export const SelectInput = ({
   helperText,
   inputRef,
   form,
+  tabIndex,
+  inputProps = {},
   isClearable = true,
   ...props
 }) => {
@@ -201,7 +203,15 @@ export const SelectInput = ({
           placeholder="Select"
           isClearable={value !== '' && isClearable && !props.required && !disabled}
           isSearchable={false}
-          components={{ Option, SingleValue, ClearIndicator, DropdownIndicator: StyledChevronIcon }}
+          tabIndex={inputProps.tabIndex}
+          components={{
+            Option,
+            SingleValue,
+            ClearIndicator: innerProps => (
+              <ClearIndicator {...innerProps} tabIndex={inputProps.tabIndex} />
+            ),
+            DropdownIndicator: StyledChevronIcon,
+          }}
           {...props}
         />
         {helperText && <FormHelperText>{helperText}</FormHelperText>}

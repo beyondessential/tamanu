@@ -1,7 +1,12 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { getFilteredListByPermission } from 'shared/utils/getFilteredListByPermission';
-import { simpleGet, simplePut, simplePost, permissionCheckingRouter } from './crudHelpers';
+import { getFilteredListByPermission } from '@tamanu/shared/utils/getFilteredListByPermission';
+import {
+  simpleGet,
+  simplePut,
+  simplePost,
+  permissionCheckingRouter,
+} from '@tamanu/shared/utils/crudHelpers';
 
 export const program = express.Router();
 

@@ -19,7 +19,8 @@ RUN apk add --no-cache \
     jq \
     make \
     python3
-COPY yarn.lock .yarnrc common.* babel.config.js scripts/docker-build-server.sh ./
+COPY yarn.lock .yarnrc common.* babel.config.js ./
+COPY scripts/ scripts/
 
 FROM base AS run-base
 RUN apk add --no-cache bash curl jq
@@ -41,25 +42,15 @@ RUN git log -1 --pretty=%ct         | tee /meta/SOURCE_DATE_EPOCH
 RUN git log -1 --pretty=%cI         | tee /meta/SOURCE_DATE_ISO
 
 
-## Build the shared packages and get their dependencies
-FROM build-base as shared
-COPY packages/build-tooling/ packages/build-tooling/
-COPY packages/shared/ packages/shared/
-RUN ./docker-build-server.sh
-
-
 ## Build the target server
 FROM build-base as build-server
 ARG PACKAGE_PATH
 
-# copy the shared packages and their deps (+ build tooling)
-COPY --from=shared /app/packages/ packages/
+# copy all packages
+COPY packages/ packages/
 
-# copy sources only for the target server
-COPY packages/${PACKAGE_PATH}/ packages/${PACKAGE_PATH}/
-
-# do the build
-RUN ./docker-build-server.sh ${PACKAGE_PATH}
+# do the build, which will also reduce to just the target package
+RUN scripts/docker-build.sh ${PACKAGE_PATH}
 
 
 ## Normal final target for servers

@@ -18,10 +18,7 @@ export const getRelationIdsFieldMapping = (model: typeof BaseModel) =>
  *      Input: [['fooId', 'foo']], { fooId: '123abc' }
  *      Ouput: { foo: '123abc' }
  */
-export const mapFields = (
-  mapping: [string, string][],
-  obj: { [key: string]: unknown },
-): DataToPersist => {
+const mapFields = (mapping: [string, string][], obj: { [key: string]: unknown }): DataToPersist => {
   const newObj = { ...obj };
   for (const [fromKey, toKey] of mapping) {
     delete newObj[fromKey];

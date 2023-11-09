@@ -1,11 +1,11 @@
-import { REFERENCE_TYPES } from 'shared/constants';
+import { REFERENCE_TYPES } from '@tamanu/constants';
 import {
   createDummyEncounter,
   createDummyEncounterDiagnosis,
   createDummyPatient,
   randomReferenceId,
-} from 'shared/demoData/patients';
-import { toDateTimeString } from 'shared/utils/dateTime';
+} from '@tamanu/shared/demoData/patients';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../../utilities';
 import {
   setupProgramAndSurvey,

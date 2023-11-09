@@ -1,11 +1,11 @@
 import {
-  AsnType,
-  AsnTypeTypes,
-  AsnProp,
-  AsnPropTypes,
+  AsnConvert,
   AsnIntegerArrayBufferConverter,
   AsnParser,
-  AsnConvert,
+  AsnProp,
+  AsnPropTypes,
+  AsnType,
+  AsnTypeTypes,
 } from '@peculiar/asn1-schema';
 
 /**

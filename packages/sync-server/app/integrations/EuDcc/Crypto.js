@@ -1,13 +1,13 @@
 import config from 'config';
 import cbor from 'cbor';
 import cose from 'cose-js';
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 import { fromBER } from 'asn1js';
 import { deflate as deflateCallback, inflate as inflateCallback } from 'zlib';
 import { promisify } from 'util';
 import base45 from 'base45-js';
 import { Certificate } from 'pkijs';
-import { depem } from 'shared/utils';
+import { depem } from '@tamanu/shared/utils';
 import { add, getUnixTime } from 'date-fns';
 import { fakeABtoRealAB } from '../Signer';
 import { getLocalisation } from '../../localisation';

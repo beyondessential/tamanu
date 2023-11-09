@@ -1,9 +1,12 @@
+import config from 'config';
 import { EmailService } from './services/EmailService';
-import { closeDatabase, initDatabase } from './database';
+import { closeDatabase, initDatabase, initReporting } from './database';
 import { initIntegrations } from './integrations';
 
 export class ApplicationContext {
   store = null;
+
+  reportSchemaStores = null;
 
   emailService = null;
 
@@ -14,6 +17,10 @@ export class ApplicationContext {
   async init({ testMode } = {}) {
     this.emailService = new EmailService();
     this.store = await initDatabase({ testMode });
+    if (config.db.reportSchemas?.enabled) {
+      this.reportSchemaStores = await initReporting();
+    }
+
     this.closePromise = new Promise(resolve => {
       this.onClose(resolve);
     });
@@ -25,12 +32,12 @@ export class ApplicationContext {
     this.closeHooks.push(hook);
   }
 
-  close = async () => {
+  async close() {
     for (const hook of this.closeHooks) {
       await hook();
     }
     await closeDatabase();
-  };
+  }
 
   async waitForClose() {
     return this.closePromise;

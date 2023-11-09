@@ -7,7 +7,7 @@ import {
   simplePost,
   paginatedGetList,
   permissionCheckingRouter,
-} from './crudHelpers';
+} from '@tamanu/shared/utils/crudHelpers';
 
 export const medication = express.Router();
 

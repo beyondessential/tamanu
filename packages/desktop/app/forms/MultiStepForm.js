@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import {
-  Button,
   ButtonRow,
+  FormSubmitCancelRow,
   Form,
   FormGrid,
   FormSeparatorLine,
@@ -20,14 +20,7 @@ const StyledBackButton = styled(OutlinedButton)`
 // incomplete data. A snapshot of form state is used as initialValues after each
 // transition. Each page has an optional submit handler, and the top-level
 // submit is called when the final page is submitted.
-export const MultiStepForm = ({
-  children,
-  initialValues,
-  onSubmit,
-  onCancel,
-  onChangeStep,
-  isSubmitting,
-}) => {
+export const MultiStepForm = ({ children, initialValues, onSubmit, onCancel, onChangeStep }) => {
   const [stepNumber, setStepNumber] = useState(0);
   const steps = React.Children.toArray(children);
   const [snapshot, setSnapshot] = useState(initialValues);
@@ -38,16 +31,19 @@ export const MultiStepForm = ({
 
   const next = values => {
     setSnapshot(values);
-    const nextStep = stepNumber + 1;
+    const nextStep = Math.min(stepNumber + 1, totalSteps - 1);
     if (onChangeStep) {
       onChangeStep(nextStep, values);
     }
-    setStepNumber(Math.min(nextStep, totalSteps - 1));
+    setStepNumber(nextStep);
   };
 
   const previous = values => {
-    setSnapshot(values);
-    setStepNumber(Math.max(stepNumber - 1, 0));
+    const prevStep = Math.max(stepNumber - 1, 0);
+    if (onChangeStep) {
+      onChangeStep(prevStep, values);
+    }
+    setStepNumber(prevStep);
   };
 
   const handleSubmit = async (values, bag) => {
@@ -77,10 +73,10 @@ export const MultiStepForm = ({
               {stepNumber > 0 && (
                 <StyledBackButton onClick={() => previous(props.values)}>Back</StyledBackButton>
               )}
-              <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
-              <Button isSubmitting={props.isSubmitting || isSubmitting} type="submit">
-                {step.props.submitButtonText || 'Next'}
-              </Button>
+              <FormSubmitCancelRow
+                confirmText={step.props.submitButtonText || 'Next'}
+                onCancel={onCancel}
+              />
             </ButtonRow>
           </FormGrid>
         );

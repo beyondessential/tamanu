@@ -1,6 +1,6 @@
 import config from 'config';
 import checkDiskSpace from 'check-disk-space';
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 
 // Convert value in config to bytes (prefer decimal over binary conversion)
 const FREE_SPACE_REQUIRED =

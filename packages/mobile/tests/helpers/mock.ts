@@ -29,6 +29,7 @@ export function makeDummySurvey(parts: any[]): ISurveyScreenComponent[] {
 export function mockDummyUser(overrides = {}): IUser {
   return {
     id: '',
+    displayId: 'displayId',
     email: 'user@example.com',
     displayName: 'displayName',
     role: 'practitioner',

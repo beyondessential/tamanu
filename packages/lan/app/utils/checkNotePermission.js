@@ -1,4 +1,4 @@
-import { NOTE_RECORD_TYPES } from 'shared/constants';
+import { NOTE_TYPES, NOTE_RECORD_TYPES, NOTE_PERMISSION_TYPES } from '@tamanu/constants';
 
 function getParentRecordVerb(verb) {
   switch (verb) {
@@ -15,13 +15,45 @@ function getParentRecordVerb(verb) {
 
 // Encounter notes have their own permission checks, every other type
 // of note should simply check permissions against their parent record.
-export async function checkNotePermission(req, notePage, verb) {
-  const { recordType, recordId } = notePage;
+export async function checkNotePermission(req, note, verb) {
+  const { models, user } = req;
+  const { noteType, recordType, recordId } = note;
+  const parentRecordVerb = getParentRecordVerb(verb);
+
   if (recordType === NOTE_RECORD_TYPES.ENCOUNTER) {
     req.checkPermission(verb, 'EncounterNote');
+
+    let rootNote;
+    if (note.revisedById) {
+      rootNote = await models.Note.findByPk(note.revisedById);
+    }
+
+    // if rootNote is not available, it means that the current user is creating the root note.
+    // then no need to check for special write permissions
+    const isCurrentUserEdittingOtherPeopleNote = rootNote && user.id !== rootNote.authorId;
+
+    // Check if user has permission to edit other people's treatment plan notes
+    if (
+      isCurrentUserEdittingOtherPeopleNote && // check if current user is not the person who created the note originally
+      noteType === NOTE_TYPES.TREATMENT_PLAN &&
+      parentRecordVerb === 'write'
+    ) {
+      req.checkPermission(parentRecordVerb, NOTE_PERMISSION_TYPES.TREATMENT_PLAN_NOTE);
+      return;
+    }
+
+    // Check if user has permission to edit other people's notes
+    if (isCurrentUserEdittingOtherPeopleNote && parentRecordVerb === 'write') {
+      req.checkPermission(
+        parentRecordVerb,
+        NOTE_PERMISSION_TYPES.OTHER_PRACTITIONER_ENCOUNTER_NOTE,
+      );
+      return;
+    }
+
     return;
   }
 
   const parent = await req.models[recordType].findByPk(recordId);
-  req.checkPermission(getParentRecordVerb(verb), parent);
+  req.checkPermission(parentRecordVerb, parent);
 }

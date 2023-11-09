@@ -1,8 +1,11 @@
 import config from 'config';
 import { upperFirst } from 'lodash';
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
+import { InvalidOperationError } from '../errors';
+import { runCalculations } from '../utils/calculations';
+import { getStringValue } from '../utils/fields';
 
 export class SurveyResponseAnswer extends Model {
   static init({ primaryKey, ...options }) {
@@ -27,7 +30,7 @@ export class SurveyResponseAnswer extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds, sessionConfig) {
+  static buildPatientSyncFilter(patientIds, sessionConfig) {
     if (patientIds.length === 0) {
       return null;
     }
@@ -77,4 +80,76 @@ export class SurveyResponseAnswer extends Model {
     }
     return record.id;
   };
+
+  // To be called after creating/updating a vitals survey response answer. Checks if
+  // said answer is used in calculated questions and updates them accordingly.
+  async upsertCalculatedQuestions(data) {
+    if (!this.sequelize.isInsideTransaction()) {
+      throw new Error('upsertCalculatedQuestions must always run inside a transaction!');
+    }
+    const { models } = this.sequelize;
+    const surveyResponse = await this.getSurveyResponse();
+    const vitalsSurvey = await models.Survey.getVitalsSurvey();
+    const isVitalSurvey = surveyResponse.surveyId === vitalsSurvey?.id;
+    if (isVitalSurvey === false) {
+      throw new InvalidOperationError(
+        'upsertCalculatedQuestions must only be called with vitals answers',
+      );
+    }
+
+    // Get necessary info and data shapes for running calculations
+    const screenComponents = await models.SurveyScreenComponent.getComponentsForSurvey(
+      surveyResponse.surveyId,
+      { includeAllVitals: true },
+    );
+    const calculatedScreenComponents = screenComponents.filter(c => c.calculation);
+    const updatedAnswerDataElement = await this.getProgramDataElement();
+    const answers = await surveyResponse.getAnswers();
+    const values = {};
+    answers.forEach(answer => {
+      values[answer.dataElementId] = answer.body;
+    });
+    const calculatedValues = runCalculations(screenComponents, values);
+
+    for (const component of calculatedScreenComponents) {
+      if (component.calculation.includes(updatedAnswerDataElement.code) === false) {
+        continue;
+      }
+
+      // Sanitize value
+      const stringValue = getStringValue(
+        component.dataElement.type,
+        calculatedValues[component.dataElement.id],
+      );
+      const newCalculatedValue = stringValue ?? '';
+
+      // Check if the calculated answer was created or not. It might've been missed
+      // if no values used in its calculation were registered the first time.
+      const existingCalculatedAnswer = answers.find(
+        answer => answer.dataElementId === component.dataElement.id,
+      );
+      const previousCalculatedValue = existingCalculatedAnswer?.body;
+      let newCalculatedAnswer;
+      if (existingCalculatedAnswer) {
+        await existingCalculatedAnswer.update({ body: newCalculatedValue });
+      } else {
+        newCalculatedAnswer = await models.SurveyResponseAnswer.create({
+          dataElementId: component.dataElement.id,
+          body: newCalculatedValue,
+          responseId: surveyResponse.id,
+        });
+      }
+
+      const { date, reasonForChange, user } = data;
+      await models.VitalLog.create({
+        date,
+        reasonForChange,
+        previousValue: previousCalculatedValue || null,
+        newValue: newCalculatedValue,
+        recordedById: user.id,
+        answerId: existingCalculatedAnswer?.id || newCalculatedAnswer.id,
+      });
+    }
+    return this;
+  }
 }

@@ -4,6 +4,7 @@ const prehashed12345Password = '$2b$10$HViO/gGVnhXT/pKmWoleBe6kRIiN0vXnNKGvgdRq5
 
 const buildUser = u => ({
   ...u,
+  displayId: '12345',
   displayName: u.name,
   email: `${u.id}@xyz.com`,
   password: prehashed12345Password,

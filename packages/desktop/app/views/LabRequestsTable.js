@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
-import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants';
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { SearchTable } from '../components';
 import { reloadPatient } from '../store/patient';
 import {
@@ -65,6 +65,7 @@ export const LabRequestsTable = React.memo(
 
     return (
       <SearchTable
+        autoRefresh
         endpoint="labRequest"
         columns={columns}
         noDataMessage="No lab requests found"

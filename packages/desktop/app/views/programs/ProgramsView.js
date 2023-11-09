@@ -2,17 +2,22 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { SURVEY_TYPES } from '@tamanu/shared/constants';
-import { useApi } from '../../api';
-import { reloadPatient } from '../../store/patient';
-import { getCurrentUser } from '../../store/auth';
-import { SurveyView } from './SurveyView';
-import { SurveySelector } from './SurveySelector';
-import { FormGrid } from '../../components/FormGrid';
-import { SelectInput } from '../../components/Field/SelectField';
-import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
-import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { PatientListingView } from '../patients';
+import { SURVEY_TYPES } from '@tamanu/constants';
+import { reloadPatient } from 'desktop/app/store/patient';
+import { getCurrentUser } from 'desktop/app/store/auth';
+import { SurveyView } from 'desktop/app/views/programs/SurveyView';
+import { SurveySelector } from 'desktop/app/views/programs/SurveySelector';
+import { FormGrid } from 'desktop/app/components/FormGrid';
+import { SelectInput } from 'desktop/app/components/Field/SelectField';
+import {
+  ProgramsPane,
+  ProgramsPaneHeader,
+  ProgramsPaneHeading,
+} from 'desktop/app/views/programs/ProgramsPane';
+import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
+import { PatientListingView } from 'desktop/app/views';
+import { usePatientAdditionalDataQuery } from 'desktop/app/api/queries';
+import { ErrorMessage } from 'desktop/app/components/ErrorMessage';
 import { getAnswersFromData, getActionsFromData } from '../../utils';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useEncounter } from '../../contexts/Encounter';
@@ -101,8 +106,16 @@ const SurveyFlow = ({ patient, currentUser }) => {
     }
   };
 
-  if (!programs) {
+  const { isLoading, data: patientAdditionalData, isError, error } = usePatientAdditionalDataQuery(
+    patient.id,
+  );
+
+  if (isLoading || !programs) {
     return <LoadingIndicator />;
+  }
+
+  if (isError) {
+    return <ErrorMessage title="Error" error={error} />;
   }
 
   if (!survey) {
@@ -136,6 +149,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       survey={survey}
       onCancel={unsetSurvey}
       patient={patient}
+      patientAdditionalData={patientAdditionalData}
       currentUser={currentUser}
     />
   );

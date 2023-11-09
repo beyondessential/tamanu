@@ -1,6 +1,13 @@
 import Sequelize from 'sequelize';
-import jwt from 'jsonwebtoken';
+import { sign as signCallback, verify as verifyCallback } from 'jsonwebtoken';
 import { randomBytes, randomInt } from 'crypto';
+import { promisify } from 'util';
+
+import { VISIBILITY_STATUSES, USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
+import { ForbiddenError } from '@tamanu/shared/errors';
+
+const sign = promisify(signCallback);
+const verify = promisify(verifyCallback);
 
 const MAX_U32_VALUE = 2 ** 32 - 1;
 
@@ -9,7 +16,7 @@ export const stripUser = user => {
   return userData;
 };
 
-export const getToken = (data, secret, options) => jwt.sign(data, secret, options);
+export const getToken = async (data, secret, options) => sign(data, secret, options);
 
 export const getRandomBase64String = async length => {
   return new Promise((resolve, reject) => {
@@ -24,7 +31,7 @@ export const getRandomU32 = () => {
   return randomInt(0, MAX_U32_VALUE);
 };
 
-export const verifyToken = (token, secret, options) => jwt.verify(token, secret, options);
+export const verifyToken = async (token, secret, options) => verify(token, secret, options);
 
 export const findUser = async (models, email) => {
   const user = await models.User.scope('withPassword').findOne({
@@ -34,9 +41,15 @@ export const findUser = async (models, email) => {
       Sequelize.fn('lower', email),
     ),
   });
+
   if (!user) {
     return null;
   }
+
+  if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+    throw new ForbiddenError(USER_DEACTIVATED_ERROR_MESSAGE);
+  }
+
   return user.get({ plain: true });
 };
 

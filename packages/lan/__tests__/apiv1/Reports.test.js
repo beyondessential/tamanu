@@ -1,10 +1,11 @@
-import { fake } from 'shared/test-helpers';
-import { createTestContext, disableHardcodedPermissionsForSuite } from '../utilities';
+import { fake, disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
+import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
+import { createTestContext } from '../utilities';
 import { testReportPermissions, setupReportPermissionsTest } from './reportsApiCommon';
 
 const reportsUtils = {
   __esModule: true,
-  ...jest.requireActual('shared/reports'),
+  ...jest.requireActual('@tamanu/shared/reports'),
 };
 
 describe('Reports', () => {
@@ -20,8 +21,9 @@ describe('Reports', () => {
 
   describe('database defined reports', () => {
     let adminApp = null;
-    let reportDefinition = null;
+    let reportDefinitionVersion = null;
     let user = null;
+
     beforeAll(async () => {
       adminApp = await baseApp.asRole('admin');
       const { models } = ctx;
@@ -29,12 +31,14 @@ describe('Reports', () => {
         ...fake(models.User),
         email: 'test@tamanu.io',
       });
-      await models.ReportDefinition.create({
+      const definition = await models.ReportDefinition.create({
         ...fake(models.ReportDefinition),
         name: 'test-report',
+        dbSchema: REPORT_DB_SCHEMAS.RAW,
       });
-      reportDefinition = await models.ReportDefinitionVersion.create({
+      reportDefinitionVersion = await models.ReportDefinitionVersion.create({
         versionNumber: 1,
+        reportDefinitionId: definition.id,
         status: 'published',
         userId: user.id,
         queryOptions: JSON.stringify({
@@ -45,14 +49,16 @@ describe('Reports', () => {
           'SELECT id, email from users WHERE CASE WHEN :email IS NOT NULL THEN email = :email ELSE TRUE END;',
       });
     });
+
     it('should run a simple database defined report', async () => {
-      const response = await adminApp.post(`/v1/reports/${reportDefinition.id}`);
+      const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`);
       expect(response).toHaveSucceeded();
       // There will be more than one user because of the app context
       expect(response.body.length).toBeGreaterThan(1);
     });
+
     it('should apply filters on a database defined report', async () => {
-      const response = await adminApp.post(`/v1/reports/${reportDefinition.id}`).send({
+      const response = await adminApp.post(`/v1/reports/${reportDefinitionVersion.id}`).send({
         parameters: {
           email: user.email,
         },
@@ -64,6 +70,22 @@ describe('Reports', () => {
       expect(headerRow[0]).toEqual('id');
       expect(headerRow[1]).toEqual('email');
       expect(firstRow[1]).toEqual(user.email);
+    });
+
+    it('should include the currentFacilityId parameter', async () => {
+      const facilityId = await ctx.models.LocalSystemFact.get('facilityId');
+      const def = await ctx.models.ReportDefinitionVersion.create({
+        versionNumber: 1,
+        status: 'published',
+        userId: user.id,
+        queryOptions: JSON.stringify({
+          defaultDateRange: 'allTime',
+          parameters: [{ parameterField: 'DummyField', name: 'dummy' }],
+        }),
+        query: 'SELECT id FROM facilities WHERE id = :currentFacilityId',
+      });
+      const report = await def.dataGenerator(ctx, {});
+      expect(report).toEqual([['id'], [facilityId]]);
     });
   });
 
@@ -99,6 +121,7 @@ describe('Reports', () => {
       const result = await app.post('/v1/reports/incomplete-referrals', {});
       expect(result).toBeForbidden();
     });
+
     it('should fail with 404 and message if report module is not found', async () => {
       jest.spyOn(reportsUtils, 'getReportModule').mockResolvedValue(null);
       const app = await baseApp.asRole('practitioner');
@@ -106,6 +129,7 @@ describe('Reports', () => {
       expect(res).toHaveStatus(404);
       expect(res.body).toMatchObject({ error: { message: 'Report module not found' } });
     });
+
     it('should fail with 400 and error message if dataGenerator encounters error', async () => {
       const app = await baseApp.asNewRole([['run', 'StaticReport', 'incomplete-referrals']]);
       const res = await app.post('/v1/reports/incomplete-referrals').send({

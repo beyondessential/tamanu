@@ -12,12 +12,20 @@ import {
   CheckField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { ConfirmCancelRow } from '../components/ButtonRow';
+import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { foreignKey } from '../utils/validation';
+import { useLocalisedText } from '../components';
 
-export class OngoingConditionForm extends React.PureComponent {
-  renderForm = ({ submitForm, values }) => {
-    const { editedObject, onCancel, practitionerSuggester, icd10Suggester } = this.props;
+export const OngoingConditionForm = ({
+  onSubmit,
+  editedObject,
+  onCancel,
+  practitionerSuggester,
+  icd10Suggester,
+}) => {
+  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
+
+  const RenderForm = ({ submitForm, values }) => {
     const resolving = values.resolved;
     const buttonText = editedObject ? 'Save' : 'Add';
     return (
@@ -39,7 +47,7 @@ export class OngoingConditionForm extends React.PureComponent {
         />
         <Field
           name="examinerId"
-          label="Doctor/nurse"
+          label={clinicianText}
           disabled={resolving}
           component={AutocompleteField}
           suggester={practitionerSuggester}
@@ -56,57 +64,53 @@ export class OngoingConditionForm extends React.PureComponent {
             />
             <Field
               name="resolutionPractitionerId"
-              label="Doctor/nurse confirming resolution"
+              label={`${clinicianText} confirming resolution`}
               component={AutocompleteField}
               suggester={practitionerSuggester}
             />
             <Field name="resolutionNote" label="Notes on resolution" component={TextField} />
           </FormGrid>
         </Collapse>
-        <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText={buttonText} />
+        <FormSubmitCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText={buttonText} />
       </FormGrid>
     );
   };
 
-  onSubmit = data => {
-    const { onSubmit } = this.props;
+  const onDataSubmit = async data => {
     if (data.resolved) {
-      onSubmit(data);
+      await onSubmit(data);
       return;
     }
 
     // remove resolution-specific fields if not resolved
     const { resolutionDate, resolutionNote, resolutionPractitionerId, ...rest } = data;
-    onSubmit(rest);
+    await onSubmit(rest);
   };
 
-  render() {
-    const { editedObject } = this.props;
-    return (
-      <Form
-        onSubmit={this.onSubmit}
-        render={this.renderForm}
-        initialValues={{
-          recordedDate: getCurrentDateTimeString(),
-          resolutionDate: getCurrentDateTimeString(),
-          resolved: false,
-          ...editedObject,
-        }}
-        validationSchema={yup.object().shape({
-          conditionId: foreignKey('Condition is a required field'),
-          recordedDate: yup.date(),
-          examinerId: yup.string(),
-          note: yup.string(),
+  return (
+    <Form
+      onSubmit={onDataSubmit}
+      render={RenderForm}
+      initialValues={{
+        recordedDate: getCurrentDateTimeString(),
+        resolutionDate: getCurrentDateTimeString(),
+        resolved: false,
+        ...editedObject,
+      }}
+      validationSchema={yup.object().shape({
+        conditionId: foreignKey('Condition is a required field'),
+        recordedDate: yup.date(),
+        examinerId: yup.string(),
+        note: yup.string(),
 
-          resolved: yup.boolean(),
-          resolutionDate: yup.date(),
-          resolutionPractitionerId: yup.string(),
-          resolutionNote: yup.string(),
-        })}
-      />
-    );
-  }
-}
+        resolved: yup.boolean(),
+        resolutionDate: yup.date(),
+        resolutionPractitionerId: yup.string(),
+        resolutionNote: yup.string(),
+      })}
+    />
+  );
+};
 
 OngoingConditionForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,

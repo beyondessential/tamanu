@@ -1,7 +1,7 @@
 import Chance from 'chance';
 import { addHours, subMinutes } from 'date-fns';
 
-import { ENCOUNTER_TYPES } from '../constants';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { generateId } from '../utils/generateId';
 import { TIME_INTERVALS, randomDate, randomRecordId } from './utilities';
 import { getCurrentDateTimeString, toDateString, toDateTimeString } from '../utils/dateTime';

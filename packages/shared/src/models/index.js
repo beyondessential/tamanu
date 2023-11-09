@@ -1,5 +1,6 @@
 export * from './User';
 export * from './UserRecentlyViewedPatient';
+export * from './UserPreference';
 export * from './LocalSystemFact';
 
 export * from './Patient';
@@ -22,11 +23,14 @@ export * from './ContributingDeathCause';
 export * from './DeathRevertLog';
 
 export * from './Encounter';
+export * from './EncounterHistory';
+
 export * from './Discharge';
 export * from './Triage';
 
 export * from './ReferenceData';
 
+export * from './VitalLog';
 export * from './Vitals';
 export * from './Procedure';
 export * from './EncounterDiagnosis';
@@ -73,6 +77,7 @@ export * from './UserLocalisationCache';
 export * from './Asset';
 export * from './Appointment';
 export * from './DocumentMetadata';
+export * from './PatientLetterTemplate';
 
 export * from './OneTimeLogin';
 export * from './RefreshToken';
@@ -89,8 +94,9 @@ export * from './Signer';
 
 export * from './CertificateNotification';
 
-export * from './NotePage';
-export * from './NoteItem';
+export * from './LegacyNotePage';
+export * from './LegacyNoteItem';
+export * from './Note';
 
 export * from './SyncSession';
 

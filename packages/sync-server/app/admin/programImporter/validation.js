@@ -1,6 +1,5 @@
 import { Op } from 'sequelize';
-import { VITALS_DATA_ELEMENT_IDS, SURVEY_TYPES } from 'shared/constants';
-
+import { VITALS_DATA_ELEMENT_IDS, SURVEY_TYPES } from '@tamanu/constants';
 import { ImporterMetadataError, ValidationError } from '../errors';
 
 const REQUIRED_QUESTION_IDS = {

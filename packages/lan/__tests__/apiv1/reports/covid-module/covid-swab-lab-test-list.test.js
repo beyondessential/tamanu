@@ -3,9 +3,9 @@ import {
   createDummyEncounter,
   createDummyPatient,
   randomReferenceIds,
-} from 'shared/demoData/patients';
-import { randomLabRequest } from 'shared/demoData';
-import { LAB_REQUEST_STATUSES } from 'shared/constants';
+} from '@tamanu/shared/demoData/patients';
+import { randomLabRequest } from '@tamanu/shared/demoData';
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { createTestContext } from '../../../utilities';
 
 const PROGRAM_ID = 'program-fijicovid19';

@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
+import { PROGRAM_DATA_ELEMENT_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
-import { PROGRAM_DATA_ELEMENT_TYPES, SYNC_DIRECTIONS } from '../constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { runCalculations } from '../utils/calculations';
@@ -117,7 +117,7 @@ export class SurveyResponse extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds) {
+  static buildPatientSyncFilter(patientIds) {
     if (patientIds.length === 0) {
       return null;
     }
@@ -166,6 +166,7 @@ export class SurveyResponse extends Model {
       // Survey responses will usually have a startTime and endTime and we prefer to use that
       // for the encounter to ensure the times are set in the browser timezone
       startDate: responseData.startTime ? responseData.startTime : getCurrentDateTimeString(),
+      actorId: userId,
     });
 
     return newEncounter.update({
@@ -190,6 +191,11 @@ export class SurveyResponse extends Model {
       throw new InvalidOperationError(`Invalid survey ID: ${surveyId}`);
     }
 
+    // figure out if its a vital survey response
+    const vitalsSurvey = await models.Survey.getVitalsSurvey();
+    // use optional chaining because vitals survey might not exist
+    const isVitalSurvey = surveyId === vitalsSurvey?.id;
+
     const questions = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
 
     const calculatedAnswers = runCalculations(questions, answers);
@@ -198,13 +204,14 @@ export class SurveyResponse extends Model {
       ...calculatedAnswers,
     };
 
-    const { result, resultText } = getResultValue(questions, answers);
-
     const encounter = await this.getSurveyEncounter({
       encounterId,
       patientId,
       reasonForEncounter: `Survey response for ${survey.name}`,
       ...responseData,
+    });
+    const { result, resultText } = getResultValue(questions, answers, {
+      encounterType: encounter.encounterType,
     });
     const record = await SurveyResponse.create({
       patientId,
@@ -237,10 +244,18 @@ export class SurveyResponse extends Model {
       if (body === null) {
         continue;
       }
-      await models.SurveyResponseAnswer.create({
+      const answer = await models.SurveyResponseAnswer.create({
         dataElementId: dataElement.id,
         body,
         responseId: record.id,
+      });
+      if (!isVitalSurvey || body === '') continue;
+      // Generate initial vital log
+      await models.VitalLog.create({
+        date: record.endTime || getCurrentDateTimeString(),
+        newValue: body,
+        recordedById: responseData.userId,
+        answerId: answer.id,
       });
     }
 

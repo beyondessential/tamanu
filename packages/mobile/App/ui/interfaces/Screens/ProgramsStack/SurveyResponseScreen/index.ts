@@ -1,12 +1,12 @@
 import { RouteProp, NavigationProp } from '@react-navigation/native';
-import { IProgram, SurveyTypes } from '~/types';
+import { IPatient, IProgram, SurveyTypes } from '~/types';
 
 type SurveyResponseScreenParams = {
   SurveyResponseScreen: {
     program: IProgram;
     surveyId: string;
     latestResponseId: string;
-    selectedPatient: { id: string };
+    selectedPatient: IPatient;
     encounterType: string;
     surveyType: SurveyTypes;
   };

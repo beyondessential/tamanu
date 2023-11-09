@@ -10,8 +10,8 @@ import {
 } from 'date-fns';
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
 import { differenceInMilliseconds, format } from '../../utils/dateTime';
-import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from '../../constants';
 import { generateReportFromQueryData } from '../utilities';
 import { transformAnswers } from '../utilities/transformAnswers';
 
@@ -185,7 +185,9 @@ const getFijiCovidAnswers = async (models, parameters, { surveyId, dateFormat })
     nest: true,
   });
 
-  const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
+  const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId, {
+    includeAllVitals: true,
+  });
 
   const transformedAnswers = await transformAnswers(models, answers, components, {
     dateFormat,

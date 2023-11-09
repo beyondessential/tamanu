@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useLabTest } from '../../api/queries/useLabTest';
 
 import { Colors } from '../../constants';
-import { formatShort } from '../../components/DateDisplay';
+import { DateDisplay } from '../../components/DateDisplay';
 import { Modal } from '../../components/Modal';
 import { ModalActionRow } from '../../components/ModalActionRow';
 import { BodyText } from '../../components/Typography';
@@ -57,7 +57,7 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
       }
       open={open}
       onClose={onClose}
-      disableHeaderCloseIcon
+      cornerExitButton={false}
     >
       <ModalBody>
         <div>
@@ -67,7 +67,10 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
         </div>
         <VerticalDivider />
         <div>
-          <ValueDisplay title="Completed" value={formatShort(labTest?.completedDate)} />
+          <ValueDisplay
+            title="Completed"
+            value={DateDisplay.stringFormat(labTest?.completedDate)}
+          />
           <ValueDisplay title="Test Method" value={labTest?.labTestMethod?.name} />
         </div>
       </ModalBody>

@@ -1,5 +1,5 @@
 import config from 'config';
-import { nzEthnicity } from 'shared/models/fhir/extensions';
+import { nzEthnicity } from '@tamanu/shared/models/fhir/extensions';
 
 describe('New Zealand ethnicity extension', () => {
   const patient = {

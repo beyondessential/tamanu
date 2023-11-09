@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { Op } from 'sequelize';
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 import { initDatabase } from '../database';
 
 export async function migrateAppointments() {
@@ -31,7 +31,7 @@ export async function migrateAppointments() {
       }),
     );
 
-    log.info(`Sucessfully migrated ${migrated} appointments`);
+    log.info(`Successfully migrated ${migrated} appointments`);
     process.exit(0);
   } catch (error) {
     log.info(`Command failed: ${error.stack}\n`);

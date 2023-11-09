@@ -75,7 +75,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
       }
 
       if (clinicalNote) {
-        await models.NotePage.createForRecord({
+        await models.Note.createForRecord({
           recordId: encounter.id,
           recordType: NOTE_RECORD_TYPES.ENCOUNTER,
           noteType: NOTE_TYPES.CLINICAL_MOBILE,
@@ -123,7 +123,6 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     placeholder="Diagnosis"
                     navigation={navigation}
                     suggester={icd10Suggester}
-                    modalRoute={Routes.Autocomplete.Modal}
                     name="diagnosis"
                   />
                   <Spacer height="24px" />

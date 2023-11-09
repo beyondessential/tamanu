@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '../constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 
 export class LabTestPanel extends Model {
@@ -28,11 +28,24 @@ export class LabTestPanel extends Model {
     );
   }
 
+  static getListReferenceAssociations() {
+    return ['category'];
+  }
+
   static initRelations(models) {
     this.belongsToMany(models.LabTestType, {
       through: models.LabTestPanelLabTestTypes,
       as: 'labTestTypes',
       foreignKey: 'labTestPanelId',
     });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'categoryId',
+      as: 'category',
+    });
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 }

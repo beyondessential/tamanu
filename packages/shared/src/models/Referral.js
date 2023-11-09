@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { REFERRAL_STATUSES, SYNC_DIRECTIONS } from '../constants';
+import { REFERRAL_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 
 export class Referral extends Model {
@@ -37,7 +37,7 @@ export class Referral extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds) {
+  static buildPatientSyncFilter(patientIds) {
     if (patientIds.length === 0) {
       return null;
     }

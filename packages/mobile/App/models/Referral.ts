@@ -65,15 +65,17 @@ export class Referral extends BaseModel implements IReferral {
       .leftJoinAndSelect('surveyResponse.survey', 'survey')
       .leftJoinAndSelect('surveyResponse.answers', 'answers')
       .leftJoinAndSelect('answers.dataElement', 'dataElement')
-      .leftJoinAndSelect(SurveyScreenComponent, 'screenComponent',
-        'screenComponent.dataElementId = dataElement.id and screenComponent.surveyId = survey.id')
-      .where('initiatingEncounter.patientId = :patientId', { patientId })
-      .orderBy(
-        {
-          'screenComponent.screenIndex': 'ASC',
-          'screenComponent.componentIndex': 'ASC',
-        },
+      .leftJoinAndSelect(
+        SurveyScreenComponent,
+        'screenComponent',
+        'screenComponent.dataElementId = dataElement.id and screenComponent.surveyId = survey.id',
       )
+      .where('initiatingEncounter.patientId = :patientId', { patientId })
+      .orderBy({
+        'surveyResponse.endTime': 'DESC',
+        'screenComponent.screenIndex': 'ASC',
+        'screenComponent.componentIndex': 'ASC',
+      })
       .getMany();
   }
 }

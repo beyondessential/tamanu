@@ -3,13 +3,12 @@ import asyncHandler from 'express-async-handler';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
-import { BadAuthenticationError } from 'shared/errors';
+import { VISIBILITY_STATUSES, JWT_TOKEN_TYPES } from '@tamanu/constants';
+import { BadAuthenticationError } from '@tamanu/shared/errors';
 
 import {
   getToken,
   verifyToken,
-  findUserById,
   getRandomU32,
   getRandomBase64String,
   isInternalClient,
@@ -33,7 +32,7 @@ export const refresh = ({ secret, refreshSecret }) =>
 
     let contents = null;
     try {
-      contents = verifyToken(refreshToken, refreshSecret, {
+      contents = await verifyToken(refreshToken, refreshSecret, {
         audience: JWT_TOKEN_TYPES.REFRESH,
         issuer: canonicalHostName,
       });
@@ -43,7 +42,13 @@ export const refresh = ({ secret, refreshSecret }) =>
 
     const { userId, refreshId } = contents;
 
-    const user = await findUserById(store.models, userId);
+    const user = await store.models.User.findOne({
+      where: { id: userId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    });
+
+    if (!user) {
+      throw new BadAuthenticationError('Invalid token');
+    }
 
     const dbEntry = await store.models.RefreshToken.findOne({
       where: {
@@ -68,7 +73,7 @@ export const refresh = ({ secret, refreshSecret }) =>
 
     // issue new access token
     const accessTokenJwtId = getRandomU32();
-    const token = getToken(
+    const token = await getToken(
       {
         userId: user.id,
         deviceId,
@@ -87,7 +92,7 @@ export const refresh = ({ secret, refreshSecret }) =>
     const refreshTokenJwtId = getRandomU32();
     const hashedRefreshId = await bcrypt.hash(newRefreshId, saltRounds);
 
-    const newRefreshToken = getToken(
+    const newRefreshToken = await getToken(
       {
         userId: user.id,
         refreshId: newRefreshId,

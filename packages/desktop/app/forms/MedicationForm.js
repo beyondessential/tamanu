@@ -5,7 +5,7 @@ import { Box } from '@material-ui/core';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import { PrintPrescriptionModal } from '../components/PatientPrinting';
-import { DropdownButton } from '../components/DropdownButton';
+import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import {
   FormGrid,
   Button,
@@ -18,6 +18,8 @@ import {
   NumberField,
   DateField,
   DateDisplay,
+  FormSubmitButton,
+  FormCancelButton,
 } from '../components';
 
 const drugRouteOptions = [
@@ -118,6 +120,8 @@ export const MedicationForm = React.memo(
             }
           }}
           initialValues={{
+            medicationId: medication?.medication?.id,
+            prescriberId: medication?.prescriberId,
             note: medication?.note ?? '',
             route: medication?.route ?? '',
             prescription: medication?.prescription ?? '',
@@ -139,7 +143,6 @@ export const MedicationForm = React.memo(
                   component={AutocompleteField}
                   suggester={drugSuggester}
                   disabled={readOnly}
-                  value={medication?.medication?.id}
                   required={!readOnly}
                 />
               </div>
@@ -181,7 +184,6 @@ export const MedicationForm = React.memo(
                 suggester={practitionerSuggester}
                 required={!readOnly}
                 disabled={readOnly}
-                value={medication?.prescriberId}
               />
               <Field
                 name="note"
@@ -264,11 +266,9 @@ export const MedicationForm = React.memo(
               </div>
               {shouldShowSubmitButton && (
                 <ButtonRow>
-                  <Button variant="outlined" color="primary" onClick={onCancel}>
-                    Cancel
-                  </Button>
+                  <FormCancelButton onClick={onCancel}>Cancel</FormCancelButton>
                   {shouldDiscontinue ? (
-                    <Button
+                    <FormSubmitButton
                       color="primary"
                       onClick={data => {
                         setAwaitingPrint(false);
@@ -276,9 +276,9 @@ export const MedicationForm = React.memo(
                       }}
                     >
                       Finalise
-                    </Button>
+                    </FormSubmitButton>
                   ) : (
-                    <DropdownButton
+                    <FormSubmitDropdownButton
                       actions={[
                         {
                           label: 'Finalise',

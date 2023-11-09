@@ -37,5 +37,5 @@ export async function down(query) {
       CALL fhir.service_requests_resolve_upstream_subject();
     $$
   `);
-  await query.sequelize.query('DROP PROCEDURE fhir.service_requests_resolve_upstream_subject');
+  await query.sequelize.query('DROP PROCEDURE fhir.encounters_resolve_upstream_subject');
 }

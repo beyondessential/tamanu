@@ -8,9 +8,9 @@ import {
 export const ImagingRoutes = React.memo(({ match }) => (
   <div>
     <Switch>
-      <Route path={`${match.path}/all`} component={ImagingRequestListingView} />
+      <Route path={`${match.path}/active`} component={ImagingRequestListingView} />
       <Route path={`${match.path}/completed`} component={CompletedImagingRequestListingView} />
-      <Redirect to={`${match.path}/all`} />
+      <Redirect to={`${match.path}/active`} />
     </Switch>
   </div>
 ));

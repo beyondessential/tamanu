@@ -1,9 +1,9 @@
-import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
+import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import {
   FacilityAndSyncVersionIncompatibleError,
   RemoteCallFailedError,
   BadAuthenticationError,
-} from 'shared/errors';
+} from '@tamanu/shared/errors';
 
 const { CentralServerConnection } = jest.requireActual('../../app/sync/CentralServerConnection');
 
@@ -31,7 +31,7 @@ const fakeTimeout = message => (url, opts) =>
 const fetch = jest.fn();
 
 const createCentralServerConnection = () => {
-  const centralServer = new CentralServerConnection();
+  const centralServer = new CentralServerConnection({ deviceId: 'test' });
   centralServer.fetchImplementation = fetch;
   return centralServer;
 };

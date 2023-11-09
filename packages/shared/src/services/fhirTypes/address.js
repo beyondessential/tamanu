@@ -28,9 +28,9 @@ export class FhirAddress extends FhirBaseType {
           .default(null),
         line: yup
           .array()
-          .of(yup.string())
+          .of(yup.string().nullable())
           .nullable()
-          .default([]),
+          .default([null]),
         city: yup
           .string()
           .nullable()

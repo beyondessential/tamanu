@@ -30,6 +30,8 @@ const FRUITS = [
   { value: 'dragonfruit', label: 'Dragonfruit' },
   { value: 'tomatoes', label: 'Tomatoes' },
   { value: 'cherries', label: 'Cherries' },
+  { value: 'fruit salad, 500g', label: 'Fruit salad, 500g' },
+  { value: 'fruit salad, 250g', label: 'Fruit salad, 250g' },
 ];
 
 const Container = styled.div`
@@ -181,6 +183,12 @@ addStories('DateInput', props => (
     value="2019-10-04T08:30:56.200Z"
     {...props}
   />
+));
+
+addStories('DateInput', props => (
+  <StoryControlWrapper Component={DateInput} label="Date of birth" {...props} />
+)).add('With arrows', props => (
+  <StoryControlWrapper Component={DateInput} value="2019-10-04T08:30:56.200Z" arrows {...props} />
 ));
 
 addStories('DateTimeInput', props => (

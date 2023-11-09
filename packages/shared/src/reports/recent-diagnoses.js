@@ -24,7 +24,7 @@ const reportColumnTemplate = [
     },
   },
   { title: 'Village', accessor: data => data.encounter.patient.ReferenceDatum.name },
-  { title: 'Doctor/Nurse', accessor: data => data.encounter.examiner?.displayName || '' },
+  { title: 'Clinician', accessor: data => data.encounter.examiner?.displayName || '' },
   { title: 'Department', accessor: data => data.encounter.department?.name || '' },
   { title: 'Certainty', accessor: data => data.certainty },
   { title: 'Is Primary', accessor: data => (data.isPrimary ? 'yes' : 'no') },

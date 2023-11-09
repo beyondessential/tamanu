@@ -4,7 +4,7 @@ import {
   VISIBILITY_STATUSES,
   VISIBILITY_STATUS_VALUES,
   SYNC_DIRECTIONS,
-} from '../constants';
+} from '@tamanu/constants';
 import { Model } from './Model';
 
 const FIELD_TYPE_ERR_MSG = `fieldType must be one of ${JSON.stringify(
@@ -61,5 +61,9 @@ export class PatientFieldDefinition extends Model {
       foreignKey: 'definitionId',
       as: 'values',
     });
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 }

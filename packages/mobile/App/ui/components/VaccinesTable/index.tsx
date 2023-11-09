@@ -13,6 +13,7 @@ import { VaccineTableCell, VaccineTableCellData } from './VaccinesTableCell';
 import { IScheduledVaccine } from '~/types';
 import { ScrollView } from 'react-native-gesture-handler';
 import { StyledView } from '~/ui/styled/common';
+import { VisibilityStatus } from '~/visibilityStatuses';
 interface VaccinesTableProps {
   selectedPatient: any;
   categoryName: string;
@@ -52,7 +53,43 @@ export const VaccinesTable = ({
   if (error || administeredError) return <ErrorScreen error={error || administeredError} />;
   if (!scheduledVaccines || !patientAdministeredVaccines) return <LoadingScreen />;
 
-  const uniqueByVaccine = uniqBy(scheduledVaccines, 'label');
+  const cells: { [schedule: string]: VaccineTableCellData[] } = {};
+  const nonHistoricalOrAdministeredScheduledVaccines = scheduledVaccines.filter(scheduledVaccine => {
+    const administeredVaccine = patientAdministeredVaccines.find(v => {
+      if (typeof v.scheduledVaccine === 'string') {
+        throw new Error('VaccinesTable: administeredVaccine did not embed scheduledVaccine');
+      }
+      return v.scheduledVaccine.id === scheduledVaccine.id;
+    });
+
+    const shouldDisplayVaccine = scheduledVaccine.visibilityStatus === VisibilityStatus.Current || administeredVaccine;
+
+    if (shouldDisplayVaccine) {
+
+      const vaccineStatus = administeredVaccine
+        ? administeredVaccine.status
+        : VaccineStatus.SCHEDULED;
+
+      cells[scheduledVaccine.schedule] = [
+        ...(cells[scheduledVaccine.schedule] || []),
+        {
+          scheduledVaccine: scheduledVaccine as IScheduledVaccine,
+          // TODO: why doesn't ScheduledVaccine fulfill IScheduledVaccine?
+          vaccineStatus,
+          administeredVaccine,
+          patientAdministeredVaccines,
+          patient: selectedPatient,
+          label: scheduledVaccine.label,
+        },
+      ];
+
+    }
+
+    return shouldDisplayVaccine;
+
+  });
+
+  const uniqueByVaccine = uniqBy(nonHistoricalOrAdministeredScheduledVaccines, 'label');
   const rows = uniqueByVaccine.map(scheduledVaccine => ({
     rowTitle: scheduledVaccine.label,
     rowKey: 'label',
@@ -68,35 +105,8 @@ export const VaccinesTable = ({
     ),
   }));
 
-  const uniqueBySchedule = uniqBy(scheduledVaccines, 'schedule');
+  const uniqueBySchedule = uniqBy(nonHistoricalOrAdministeredScheduledVaccines, 'schedule');
   const columns = uniqueBySchedule.map(scheduledVaccine => scheduledVaccine.schedule);
-
-  const cells: { [schedule: string]: VaccineTableCellData[] } = {};
-  scheduledVaccines.forEach(scheduledVaccine => {
-    const administeredVaccine = patientAdministeredVaccines.find(v => {
-      if (typeof v.scheduledVaccine === 'string') {
-        throw new Error('VaccinesTable: administeredVaccine did not embed scheduledVaccine');
-      }
-      return v.scheduledVaccine.id === scheduledVaccine.id;
-    });
-
-    const vaccineStatus = administeredVaccine
-      ? administeredVaccine.status
-      : VaccineStatus.SCHEDULED;
-
-    cells[scheduledVaccine.schedule] = [
-      ...(cells[scheduledVaccine.schedule] || []),
-      {
-        scheduledVaccine: scheduledVaccine as IScheduledVaccine,
-        // TODO: why doesn't ScheduledVaccine fulfill IScheduledVaccine?
-        vaccineStatus,
-        administeredVaccine,
-        patientAdministeredVaccines,
-        patient: selectedPatient,
-        label: scheduledVaccine.label,
-      },
-    ];
-  });
 
   return (
     <ScrollView bounces={false} stickyHeaderIndices={[0]}>

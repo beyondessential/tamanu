@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { parseOrNull } from '../utils/parse-or-null';
 import { Model } from './Model';
 
@@ -13,6 +13,7 @@ export class ProgramDataElement extends Model {
         indicator: Sequelize.STRING,
         defaultText: Sequelize.STRING,
         defaultOptions: Sequelize.TEXT,
+        visualisationConfig: Sequelize.TEXT,
         type: {
           type: Sequelize.STRING(31),
           allowNull: false,
@@ -32,5 +33,9 @@ export class ProgramDataElement extends Model {
       ...values,
       defaultOptions: parseOrNull(defaultOptions),
     };
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 }

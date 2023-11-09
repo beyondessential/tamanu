@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 
@@ -81,5 +81,9 @@ export class CertifiableVaccine extends Model {
 
   usableForEuDcc() {
     return this.euProductCode !== null && this.targetCode !== null && this.manufacturerId !== null;
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 }

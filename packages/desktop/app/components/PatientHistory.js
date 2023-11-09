@@ -6,23 +6,50 @@ import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { MarkPatientForSync } from './MarkPatientForSync';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
+import { LocationGroupCell } from './LocationCell';
+import { LimitedLinesCell } from './FormattedTableCell';
+
+const DateWrapper = styled.div`
+  min-width: 90px;
+`;
+
+const FacilityWrapper = styled.div`
+  min-width: 200px;
+`;
 
 const getDate = ({ startDate, endDate }) => (
-  <>
+  <DateWrapper>
     <DateDisplay date={startDate} />
     {' - '}
     {endDate ? <DateDisplay date={endDate} /> : 'Current'}
-  </>
+  </DateWrapper>
 );
 const getType = ({ encounterType }) => ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label;
-const getDescription = ({ reasonForEncounter }) => <div>{reasonForEncounter}</div>;
-const getFacility = ({ facilityName }) => <div>{facilityName}</div>;
+const getReasonForEncounter = ({ reasonForEncounter }) => <div>{reasonForEncounter}</div>;
+const getFacility = ({ facilityName }) => <FacilityWrapper>{facilityName}</FacilityWrapper>;
 
 const columns = [
   { key: 'startDate', title: 'Date', accessor: getDate },
   { key: 'encounterType', title: 'Type', accessor: getType, sortable: false },
-  { key: 'facilityName', title: 'Facility', accessor: getFacility },
-  { key: 'reasonForEncounter', title: 'Description', accessor: getDescription, sortable: false },
+  {
+    key: 'facilityName',
+    title: 'Facility',
+    accessor: getFacility,
+    CellComponent: LimitedLinesCell,
+  },
+  {
+    key: 'locationGroupName',
+    title: 'Area',
+    accessor: LocationGroupCell,
+    CellComponent: LimitedLinesCell,
+  },
+  {
+    key: 'reasonForEncounter',
+    title: 'Reason for encounter',
+    accessor: getReasonForEncounter,
+    sortable: false,
+    CellComponent: LimitedLinesCell,
+  },
 ];
 
 const SyncWarning = styled.p`
