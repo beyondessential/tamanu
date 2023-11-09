@@ -34,7 +34,7 @@ function getResultOptions(options) {
 }
 
 export const AccessorField = ({ id, name, tabIndex, ...props }) => (
-   <StyledField {...props} inputProps={{ tabIndex }} name={`${id}.${name}`} />;
+  <StyledField {...props} inputProps={{ tabIndex }} name={`${id}.${name}`} />
 );
 
 export const LabResultAccessorField = ({ resultType, options, ...props }) => (
