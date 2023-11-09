@@ -9,7 +9,7 @@ import * as overrides from '/root/serverOverrides.json';
 
 type Server = {
   name: string;
-  type: string;
+  type: string; 
   host: string;
 };
 

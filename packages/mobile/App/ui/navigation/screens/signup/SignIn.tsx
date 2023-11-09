@@ -1,6 +1,7 @@
 import React, { FunctionComponent, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { KeyboardAvoidingView, StatusBar, Linking } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   StyledView,
   StyledSafeAreaView,
@@ -19,6 +20,7 @@ import { ModalInfo } from '/components/ModalInfo';
 import { authSelector } from '/helpers/selectors';
 import { OutdatedVersionError } from '~/services/error';
 import { useFacility } from '~/ui/contexts/FacilityContext';
+import { writeConfig } from '~/services/config';
 
 interface ModalContent {
   message: string;
@@ -35,6 +37,11 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   const onNavigateToForgotPassword = useCallback(() => {
     console.log('onNavigateToForgotPassword...');
     navigation.navigate(Routes.SignUpStack.ResetPassword);
+  }, []);
+
+  const onNavigateToLanguageSelect = useCallback(() => {
+    console.log('onNavigateToLanguageSelect...');
+    navigation.navigate(Routes.SignUpStack.LanguageSelect);
   }, []);
 
   const onChangeModalVisibility = useCallback((isVisible: boolean) => {
@@ -124,6 +131,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
                   screen: Routes.HomeStack.HomeTabs.Index,
                 });
               }
+              writeConfig('language', 'en')
             }}
           />
           <StyledTouchableOpacity onPress={onNavigateToForgotPassword}>
@@ -131,12 +139,23 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
               width="100%"
               textAlign="center"
               marginTop={screenPercentageToDP('2.43', Orientation.Height)}
-              marginBottom={screenPercentageToDP('4.86', Orientation.Height)}
               fontSize={screenPercentageToDP('1.57', Orientation.Height)}
               color={theme.colors.WHITE}
               textDecorationLine="underline"
             >
               Forgot password?
+            </StyledText>
+          </StyledTouchableOpacity>
+          <StyledTouchableOpacity onPress={onNavigateToLanguageSelect}>
+            <StyledText
+              width="100%"
+              textAlign="center"
+              marginBottom={screenPercentageToDP('4.86', Orientation.Height)}
+              fontSize={screenPercentageToDP('1.57', Orientation.Height)}
+              color={theme.colors.WHITE}
+              textDecorationLine="underline"
+            >
+              Language
             </StyledText>
           </StyledTouchableOpacity>
         </KeyboardAvoidingView>

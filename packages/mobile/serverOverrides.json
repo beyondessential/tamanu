@@ -1,4 +1,4 @@
 {
-  "centralServers": null,
+  "centralServers": [{ "label": "Local", "value": "http://192.168.178.95:3000" }],
   "metaServer": null
 }

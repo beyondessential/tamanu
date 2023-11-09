@@ -15,6 +15,7 @@ import { ChangePassword } from '../screens/signup/ChangePassword';
 
 // Contexts
 import { RegisterAccountProvider } from '../../contexts/RegisterAccountContext';
+import { LanguageSelect } from '../screens/signup/LanguageSelect';
 
 const Stack = createStackNavigator();
 
@@ -56,6 +57,11 @@ export const SignUpStack = ({ route }: IndexStackProps): ReactElement => {
         <Stack.Screen
           name={Routes.SignUpStack.ChangePassword}
           component={ChangePassword}
+          options={TransitionStyle}
+        />
+        <Stack.Screen
+          name={Routes.SignUpStack.LanguageSelect}
+          component={LanguageSelect}
           options={TransitionStyle}
         />
       </Stack.Navigator>
