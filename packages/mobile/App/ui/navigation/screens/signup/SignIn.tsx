@@ -1,7 +1,6 @@
 import React, { FunctionComponent, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { KeyboardAvoidingView, StatusBar, Linking } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   StyledView,
   StyledSafeAreaView,
@@ -20,7 +19,6 @@ import { ModalInfo } from '/components/ModalInfo';
 import { authSelector } from '/helpers/selectors';
 import { OutdatedVersionError } from '~/services/error';
 import { useFacility } from '~/ui/contexts/FacilityContext';
-import { writeConfig } from '~/services/config';
 
 interface ModalContent {
   message: string;
@@ -131,7 +129,6 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
                   screen: Routes.HomeStack.HomeTabs.Index,
                 });
               }
-              writeConfig('language', 'en')
             }}
           />
           <StyledTouchableOpacity onPress={onNavigateToForgotPassword}>
