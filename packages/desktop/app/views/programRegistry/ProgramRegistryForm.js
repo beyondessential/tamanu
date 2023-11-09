@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
   Form,
@@ -38,7 +39,7 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
       .catch(error => setProgram(undefined));
     api
       .get(`programRegistry/${id}/conditions`)
-      .then(conditionsData =>
+      .then(({ data: conditionsData }) =>
         setConditions(conditionsData.map(x => ({ label: x.name, value: x.id }))),
       )
       .catch(error => setConditions(undefined));
@@ -49,8 +50,8 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
       onSubmit={data => {
         onSubmit({
           ...data,
-          conditions: data.conditions ? data.conditions.split(',') : [],
-          patientId: patient.id,
+          conditionIds: data.conditionIds ? data.conditionIds.split(',') : [],
+          registrationStatus: REGISTRATION_STATUSES.ACTIVE,
         });
       }}
       render={({ submitForm, values, setValues }) => {
@@ -66,7 +67,7 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
 
         // eslint-disable-next-line
         useEffect(() => {
-          setValues({ ...values, clinicalStatusId: null, conditions: null });
+          setValues({ ...values, clinicalStatusId: null, conditionIds: null });
           // eslint-disable-next-line
         }, [values.programRegistryId]);
 
@@ -119,7 +120,7 @@ export const ProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient 
                 />
                 <FieldWithTooltip
                   tooltipText="Select a program registry to add conditions"
-                  name="conditions"
+                  name="conditionIds"
                   label="Conditions"
                   component={MultiselectField}
                   options={conditions}

@@ -33,3 +33,12 @@ programRegistry.get(
     }),
   }),
 );
+
+programRegistry.get(
+  '/:id/conditions',
+  simpleGetList('ProgramRegistryCondition', 'programRegistryId', {
+    additionalFilters: {
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+    },
+  }),
+);
