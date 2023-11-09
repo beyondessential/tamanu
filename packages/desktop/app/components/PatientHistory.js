@@ -11,6 +11,7 @@ import { LocationGroupCell } from './LocationCell';
 import { LimitedLinesCell } from './FormattedTableCell';
 import { MenuButton } from './MenuButton';
 import { DeleteEncounterModal } from '../views/patients/components/DeleteEncounterModal';
+import { useAuth } from '../contexts/Auth';
 
 const DateWrapper = styled.div`
   min-width: 90px;
@@ -49,21 +50,38 @@ const MODALS = {
 
 export const PatientHistory = ({ patient, onItemClick }) => {
   const queryClient = useQueryClient();
+  const { ability } = useAuth();
   const [refreshCount, setRefreshCount] = useState(0);
   const [modalId, setModalId] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEncounterData, setSelectedEncounterData] = useState(null);
+
+  const ACTION_PERMISSION_CHECKS = {
+    [MODAL_IDS.DELETE]: () => {
+      return ability?.can('delete', 'Encounter');
+    },
+  };
 
   const handleChangeModalId = id => {
     setModalId(id);
     setModalOpen(true);
   };
 
-  const menuActions = {
-    Delete: () => {
-      handleChangeModalId(MODAL_IDS.DELETE);
-    },
-  };
+  const allMenuActions = [
+    { id: MODAL_IDS.DELETE, label: 'Delete', action: () => handleChangeModalId(MODAL_IDS.DELETE) },
+  ];
+
+  const actions = allMenuActions
+    .filter(({ id }) => {
+      const permissionCheck = ACTION_PERMISSION_CHECKS[id];
+      return permissionCheck ? permissionCheck() : true;
+    })
+    .reduce((acc, { label, action }) => {
+      acc[label] = action;
+      return acc;
+    }, {});
+
+  const isAllActionsDeniedDueToPerm = Object.keys(actions).length === 0;
 
   const columns = [
     { key: 'startDate', title: 'Date', accessor: getDate },
@@ -93,11 +111,14 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       sortable: false,
       dontCallRowInput: true,
       CellComponent: ({ data }) => {
-        return (
-          <div onMouseEnter={() => setSelectedEncounterData(data)}>
-            <MenuButton actions={menuActions} />
-          </div>
-        );
+        if (!isAllActionsDeniedDueToPerm) {
+          return (
+            <div onMouseEnter={() => setSelectedEncounterData(data)}>
+              <MenuButton actions={actions} />
+            </div>
+          );
+        }
+        return <></>;
       },
     },
   ];
