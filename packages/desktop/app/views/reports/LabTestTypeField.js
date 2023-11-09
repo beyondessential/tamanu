@@ -2,6 +2,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../api';
 import { Field, MultiselectField } from '../../components';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 export const useLabTestTypes = labTestCategoryId => {
   const api = useApi();
@@ -25,7 +26,9 @@ export const LabTestTypeField = ({ name = 'labTestTypeIds', required, parameterV
   return (
     <Field
       name={name}
-      label="Test type"
+      label={
+        <TranslatedText stringId="report.parameter.labTestType.label" fallback="Lab Test Type" />
+      }
       component={MultiselectField}
       required={required}
       options={data.map(type => ({ value: type.id, label: type.name }))}

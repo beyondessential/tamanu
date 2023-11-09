@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApi } from '../../api';
 import { SelectField, Field, Dialog } from '../../components';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 export const VaccineField = ({ name = 'vaccine', required, parameterValues }) => {
   const api = useApi();
@@ -39,13 +40,13 @@ export const VaccineField = ({ name = 'vaccine', required, parameterValues }) =>
     <>
       <Field
         name={name}
-        label="Vaccine"
+        label={<TranslatedText stringId="report.parameter.vaccine.label" fallback="Vaccine" />}
         component={SelectField}
         required={required}
         options={vaccineOptions}
       />
       <Dialog
-        headerTitle="Error"
+        headerTitle={<TranslatedText stringId="report.parameter.vaccine.error" fallback="Error" />}
         isVisible={isErrorDialogVisible}
         onClose={() => setIsErrorDialogVisible(false)}
         contentText={`Error occurred when fetching vaccine types: ${error}`}
