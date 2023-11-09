@@ -115,7 +115,7 @@ export class MobileSyncManager {
    * Trigger syncing and send through the sync errors if there is any
    * @returns
    */
-  async triggerSync(): Promise<void> {
+  async triggerSync(urgent: boolean): Promise<void> {
     if (this.isSyncing) {
       console.warn(
         'MobileSyncManager.triggerSync(): Tried to start syncing while sync in progress',
@@ -126,7 +126,7 @@ export class MobileSyncManager {
     const startTime = Date.now();
 
     try {
-      await this.runSync();
+      await this.runSync(urgent);
       this.lastSuccessfulSyncTick = formatDate(new Date(), DateFormats.DATE_AND_TIME);
       this.setProgress(0, '');
     } catch (error) {
@@ -140,7 +140,7 @@ export class MobileSyncManager {
     }
   }
 
-  async runSync(): Promise<void> {
+  async runSync(urgent: boolean = false): Promise<void> {
     if (this.isSyncing) {
       throw new Error('MobileSyncManager.runSync(): Tried to start syncing while sync in progress');
     }
@@ -160,7 +160,7 @@ export class MobileSyncManager {
       startedAtTick: newSyncClockTime,
       status,
     } = await this.centralServer.startSyncSession({
-      urgent: false,
+      urgent,
       lastSyncedTick: pullSince,
     });
 
