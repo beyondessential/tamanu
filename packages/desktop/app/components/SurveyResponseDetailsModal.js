@@ -14,10 +14,10 @@ const convertBinaryToYesNo = value => {
   switch (value) {
     case 'true':
     case '1':
-      return <TranslatedText stringId="general.action.yes" fallback="Yes" />;
+      return 'Yes';
     case 'false':
     case '0':
-      return <TranslatedText stringId="general.action.no" fallback="No" />;
+      return 'No';
     default:
       return value;
   }

@@ -10,24 +10,24 @@ import { getVisibleQuestions, getInvisibleQuestions } from '../../utils';
 import { FormStepper } from './FormStepper';
 import { TranslatedText } from '../Translation/TranslatedText';
 
-const COMPLETE_MESSAGE = `
-  Press "Complete" to submit your response,
-  or use the Back button to review answers.
-`;
-
 const DefaultSummaryScreen = ({ onStepBack, submitForm }) => (
   <div>
     <Typography variant="h6" gutterBottom>
-      Survey complete
+      <TranslatedText stringId="program.modal.surveyResponse.complete" fallback="Survey complete" />
     </Typography>
-    <Typography>{COMPLETE_MESSAGE}</Typography>
+    <Typography>
+      <TranslatedText
+        stringId="program.modal.surveyResponse.completeMessage"
+        fallback='Press "Complete" to submit your response, or use the Back button to review answers.'
+      />
+    </Typography>
     <div>
       <ButtonRow>
         <OutlinedButton onClick={onStepBack}>
           <TranslatedText stringId="general.action.prev" fallback="Prev" />
         </OutlinedButton>
         <Button color="primary" variant="contained" onClick={submitForm}>
-          Complete
+          <TranslatedText stringId="general.action.complete" fallback="Complete" />
         </Button>
       </ButtonRow>
     </div>
@@ -40,10 +40,12 @@ const StyledAlert = styled(Alert)`
 
 const DefaultSuccessScreen = ({ onClose }) => (
   <div>
-    <StyledAlert severity="success">Your response has been successfully submitted.</StyledAlert>
+    <StyledAlert severity="success">
+      <TranslatedText stringId="" fallback="Your response has been successfully submitted." />
+    </StyledAlert>
     <ButtonRow>
       <Button variant="contained" color="primary" onClick={onClose}>
-        Ok
+        <TranslatedText stringId="general.action.ok" fallback="Ok" />
       </Button>
     </ButtonRow>
   </div>
@@ -79,10 +81,14 @@ export const DefaultFormScreen = ({
       {customBottomRow || (
         <Box mt={4} display="flex" justifyContent="space-between">
           <OutlinedButton onClick={hasStepBack ? onStepBack : undefined} disabled={!hasStepBack}>
-            Back
+            <TranslatedText stringId="general.action.back" fallback="Back" />
           </OutlinedButton>
           <Button color="primary" variant="contained" onClick={onStepForward}>
-            {isLast ? 'Submit' : 'Continue'}
+            {isLast ? (
+              <TranslatedText stringId="general.action.submit" fallback="Submit" />
+            ) : (
+              <TranslatedText stringId="general.action.continue" fallback="Continue" />
+            )}
           </Button>
         </Box>
       )}
