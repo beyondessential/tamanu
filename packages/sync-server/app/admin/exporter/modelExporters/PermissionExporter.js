@@ -2,7 +2,7 @@ import { ModelExporter } from './ModelExporter';
 
 export class PermissionExporter extends ModelExporter {
   async getData() {
-    const permissions = await this.models.Permission.findAll();
+    const permissions = await this.models.Permission.findAll({ paranoid: false });
     const roles = permissions.reduce((acc, { dataValues: permission }) => {
       const { roleId } = permission;
       if (!acc[roleId]) {

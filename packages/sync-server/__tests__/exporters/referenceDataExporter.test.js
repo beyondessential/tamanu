@@ -17,6 +17,7 @@ import {
   createLabTestPanel,
   createLabTestCategory,
   createPatientFieldDefinitions,
+  destroyPermission,
 } from './referenceDataUtils';
 
 jest.mock('../../app/admin/exporter/excelUtils', () => {
@@ -530,6 +531,14 @@ describe('Permission and Roles exporter', () => {
       objectId: 'new-encounters',
       roleId: 'reception',
     });
+    const testForSoftDeletion = {
+      verb: 'run',
+      noun: 'Report',
+      objectId: 'test-for-soft-deletion',
+      roleId: 'reception',
+    };
+    await createPermission(models, testForSoftDeletion);
+    await destroyPermission(models, testForSoftDeletion);
 
     await exporter(models, { 1: 'permission', 2: 'role' });
     expect(writeExcelFile).toBeCalledWith(
@@ -539,6 +548,7 @@ describe('Permission and Roles exporter', () => {
             ['verb', 'noun', 'objectId', 'reception'],
             ['run', 'Report', 'new-patients', 'y'],
             ['run', 'Report', 'new-encounters', 'y'],
+            ['run', 'Report', 'test-for-soft-deletion', 'n'],
           ],
           name: 'Permission',
         },
@@ -600,9 +610,12 @@ describe('Permission and Roles exporter', () => {
       verb: 'read',
       noun: 'ReferenceData',
       roleId: 'reception',
-      deletionStatus: DELETION_STATUSES.REVOKED,
     });
-
+    await destroyPermission(models, {
+      verb: 'read',
+      noun: 'ReferenceData',
+      roleId: 'reception',
+    });
     await createPermission(models, { verb: 'list', noun: 'User', roleId: 'admin' });
     await createPermission(models, { verb: 'list', noun: 'ReferenceData', roleId: 'admin' });
     await createPermission(models, { verb: 'write', noun: 'User', roleId: 'admin' });

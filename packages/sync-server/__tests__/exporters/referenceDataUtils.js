@@ -107,6 +107,12 @@ export async function createPermission(
   });
 }
 
+export async function destroyPermission(models, where) {
+  await models.Permission.destroy({
+    where,
+  });
+}
+
 export async function createRole(models, { id, name }) {
   await models.Role.create({
     id,
