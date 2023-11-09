@@ -32,7 +32,14 @@ const OngoingConditionDisplay = memo(({ patient, readonly }) => (
     Form={OngoingConditionForm}
     getName={({ condition, resolved }) => {
       const { name } = condition;
-      return resolved ? `${name} (resolved)` : name;
+      if (!resolved) return name;
+      return (
+        <TranslatedText
+          stringId="ongoingCondition.resolved"
+          fallback=":name (resolved)"
+          replacements={{ name }}
+        />
+      );
     }}
   />
 ));

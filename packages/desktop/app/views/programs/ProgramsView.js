@@ -117,7 +117,14 @@ const SurveyFlow = ({ patient, currentUser }) => {
   }
 
   if (isError) {
-    return <ErrorMessage title="Error" error={error} />;
+    return (
+      <ErrorMessage
+        title={
+          <TranslatedText stringId="program.modal.selectSurvey.error.title" fallback="Error" />
+        }
+        error={error}
+      />
+    );
   }
 
   if (!survey) {
@@ -133,7 +140,12 @@ const SurveyFlow = ({ patient, currentUser }) => {
             options={programs.map(p => ({ value: p.id, label: p.name }))}
             value={selectedProgramId}
             onChange={selectProgram}
-            label="Select program"
+            label={
+              <TranslatedText
+                stringId="program.modal.selectSurvey.form.selectProgram.label"
+                fallback="Select program"
+              />
+            }
           />
           <SurveySelector
             onSubmit={setSelectedSurvey}
