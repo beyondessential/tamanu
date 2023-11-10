@@ -81,32 +81,98 @@ describe('Translation', () => {
     });
     it('should update translated strings if existing', async () => {
       await models.TranslatedString.create({
-        stringId: 'general.back',
+        stringId: 'general.action.back',
         text: 'ត្រឡប់មកវិញ',
         language: LANGUAGE_CODES.KHMER,
       });
       await models.TranslatedString.create({
-        stringId: 'general.submit',
+        stringId: 'general.action.submit',
         text: 'Submit',
         language: LANGUAGE_CODES.ENGLISH,
       });
       const result = await adminApp.put('/v1/admin/translation').send({
-        'general.submit': { en: 'Confirm' },
-        'general.back': { km: 'ត្រឡប់មកវិញ' },
+        'general.action.submit': { en: 'Confirm' },
+        'general.action.back': { km: 'ត្រឡប់មកវិញ' },
       });
       expect(result).toHaveSucceeded();
       expect(result.status).toEqual(200);
       expect(result.body).toEqual({ ok: 'ok' });
       const updatedTranslatedStrings = await models.TranslatedString.findAll({
-        where: { stringId: ['general.submit', 'general.back'] },
+        where: { stringId: ['general.action.submit', 'general.action.back'] },
         order: [['stringId', 'ASC']],
         attributes: ['stringId', 'text', 'language'],
       });
       expect(
         updatedTranslatedStrings.map(translatedString => translatedString.get({ plain: true })),
       ).toEqual([
-        { stringId: 'general.back', text: 'ត្រឡប់មកវិញ', language: LANGUAGE_CODES.KHMER },
-        { stringId: 'general.submit', text: 'Confirm', language: LANGUAGE_CODES.ENGLISH },
+        { stringId: 'general.action.back', text: 'ត្រឡប់មកវិញ', language: LANGUAGE_CODES.KHMER },
+        { stringId: 'general.action.submit', text: 'Confirm', language: LANGUAGE_CODES.ENGLISH },
+      ]);
+    });
+    it('should update one language with two existing and single language in body', async () => {
+      await models.TranslatedString.create({
+        stringId: 'general.action.save',
+        text: 'រក្សាទុក',
+        language: LANGUAGE_CODES.KHMER,
+      });
+      await models.TranslatedString.create({
+        stringId: 'general.action.save',
+        text: 'Save',
+        language: LANGUAGE_CODES.ENGLISH,
+      });
+      const result = await adminApp.put('/v1/admin/translation').send({
+        'general.action.save': { en: 'Finalise' },
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.status).toEqual(200);
+      expect(result.body).toEqual({ ok: 'ok' });
+      const updatedTranslatedStrings = await models.TranslatedString.findAll({
+        where: { stringId: 'general.action.save' },
+        order: [['stringId', 'ASC']],
+        attributes: ['stringId', 'text', 'language'],
+      });
+      expect(
+        updatedTranslatedStrings.map(translatedString => translatedString.get({ plain: true })),
+      ).toEqual([
+        { stringId: 'general.action.save', text: 'រក្សាទុក', language: LANGUAGE_CODES.KHMER },
+        { stringId: 'general.action.save', text: 'Finalise', language: LANGUAGE_CODES.ENGLISH },
+      ]);
+    });
+    it('should update two languages with two existing and two languages in body', async () => {
+      await models.TranslatedString.create({
+        stringId: 'general.action.print',
+        text: 'បោះពុម្ព',
+        language: LANGUAGE_CODES.KHMER,
+      });
+      await models.TranslatedString.create({
+        stringId: 'general.action.print',
+        text: 'Print',
+        language: LANGUAGE_CODES.ENGLISH,
+      });
+      const result = await adminApp.put('/v1/admin/translation').send({
+        'general.action.print': { en: 'Send to printer', km: 'ផ្ញើទៅម៉ាស៊ីនបោះពុម្ព' },
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.status).toEqual(200);
+      expect(result.body).toEqual({ ok: 'ok' });
+      const updatedTranslatedStrings = await models.TranslatedString.findAll({
+        where: { stringId: 'general.action.print' },
+        order: [['stringId', 'ASC']],
+        attributes: ['stringId', 'text', 'language'],
+      });
+      expect(
+        updatedTranslatedStrings.map(translatedString => translatedString.get({ plain: true })),
+      ).toEqual([
+        {
+          stringId: 'general.action.print',
+          text: 'ផ្ញើទៅម៉ាស៊ីនបោះពុម្ព',
+          language: LANGUAGE_CODES.KHMER,
+        },
+        {
+          stringId: 'general.action.print',
+          text: 'Send to printer',
+          language: LANGUAGE_CODES.ENGLISH,
+        },
       ]);
     });
   });
