@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
-import { Colors, LOCAL_STORAGE_KEYS } from '../constants';
+import { Colors, LOCAL_STORAGE_KEYS } from '../constants/localStorageKeys';
 import { useApi } from '../api';
 import { SelectInput } from './Field';
 

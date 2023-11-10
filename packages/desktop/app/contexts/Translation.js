@@ -1,7 +1,7 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
 import { isEmpty } from 'lodash';
 import { useApi } from '../api/useApi';
-import { LOCAL_STORAGE_KEYS } from '../constants';
+import { LOCAL_STORAGE_KEYS } from '../constants/localStorageKeys';
 
 const TranslationContext = React.createContext();
 
@@ -11,10 +11,13 @@ export const TranslationProvider = ({ children }) => {
   const api = useApi();
   const [translations, setTranslations] = useState({});
 
-  const fetchTranslations = async language => {
-    const recievedTranslations = await api.get(`translation/${language}`);
-    setTranslations({ languageCode: language, ...recievedTranslations });
-  };
+  const fetchTranslations = useCallback(
+    async language => {
+      const recievedTranslations = await api.get(`translation/${language}`);
+      setTranslations({ languageCode: language, ...recievedTranslations });
+    },
+    [api],
+  );
 
   const getTranslation = (stringId, fallback) => {
     if (translations[stringId]) return translations[stringId];
@@ -33,7 +36,7 @@ export const TranslationProvider = ({ children }) => {
     if (isEmpty(translations) && storedLanguage) {
       fetchTranslations(storedLanguage);
     }
-  }, [translations]);
+  }, [translations, fetchTranslations]);
 
   return (
     <TranslationContext.Provider

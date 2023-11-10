@@ -5,7 +5,7 @@ import Paper from '@material-ui/core/Paper';
 import { push } from 'connected-react-router';
 
 import { TamanuLogo } from '../components';
-import { LOCAL_STORAGE_KEYS } from '../constants';
+import { LOCAL_STORAGE_KEYS } from '../constants/localStorageKeys';
 import { splashImages } from '../constants/images';
 
 import { LoginForm } from '../forms/LoginForm';
