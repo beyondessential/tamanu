@@ -197,6 +197,7 @@ export const FormContents = ({
       [...data, ...additionalRows].filter(
         row =>
           row.placeholderId ||
+          // Search from start of stringId or after a . delimiter
           row.stringId.match(new RegExp(`(?:^|\\.)${values.search.replace('.', '\\.')}`, 'i')),
       ),
     [data, additionalRows, values.search],
