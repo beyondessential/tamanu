@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Paper from '@material-ui/core/Paper';
 import { push } from 'connected-react-router';
-import { LANGUAGE_LOCAL_STORAGE_KEY } from '@tamanu/constants';
 
 import { TamanuLogo } from '../components';
 import { LOCAL_STORAGE_KEYS } from '../constants';
@@ -24,7 +23,7 @@ import { useTranslation } from '../contexts/Translation';
 
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
 
-const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
+const { REMEMBER_EMAIL, LANGUAGE } = LOCAL_STORAGE_KEYS;
 
 const Grid = styled.div`
   display: grid;
@@ -81,7 +80,7 @@ export const LoginView = () => {
     await dispatch(login(host, email, password));
 
     await fetchTranslations(language);
-    localStorage.setItem(LANGUAGE_LOCAL_STORAGE_KEY, language);
+    localStorage.setItem(LANGUAGE, language);
   };
 
   return (

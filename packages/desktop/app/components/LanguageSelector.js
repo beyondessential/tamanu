@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
-import { ENGLISH_LANGUAGE_CODE, LANGUAGE_LOCAL_STORAGE_KEY } from '@tamanu/constants';
-import { Colors } from '../constants';
+import { ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
+import { Colors, LOCAL_STORAGE_KEYS } from '../constants';
 import { useApi } from '../api';
 import { SelectInput } from './Field';
 
@@ -53,7 +53,7 @@ const customStyles = {
 const LANGUAGE_FIELD_NAME = 'language';
 
 const getInitialLanguage = languageOptions => {
-  const storedLanguage = localStorage.getItem(LANGUAGE_LOCAL_STORAGE_KEY) || null;
+  const storedLanguage = localStorage.getItem(LOCAL_STORAGE_KEYS.LANGUAGE) || null;
   const localeLanguageCode = navigator.language;
   const isLocaleLanguageCodeInOptions = languageOptions.some(
     ({ value }) => value === localeLanguageCode,
@@ -75,7 +75,7 @@ export const LanguageSelector = ({ setFieldValue }) => {
   const api = useApi();
   const [selectedLanguage, setSelectedLanguage] = useState(null);
 
-  const storedHost = localStorage.getItem('host') || null;
+  const storedHost = localStorage.getItem(LOCAL_STORAGE_KEYS.HOST) || null;
 
   const { data: languageOptions = [], error } = useQuery(
     ['languageList'],
