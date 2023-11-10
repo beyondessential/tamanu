@@ -28,6 +28,10 @@ const STAGE_MAX_PROGRESS = {
   3: 100,
 };
 
+type SyncOptions = {
+  urgent: boolean;
+};
+
 export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS).length;
 
 export class MobileSyncManager {
@@ -115,7 +119,7 @@ export class MobileSyncManager {
    * Trigger syncing and send through the sync errors if there is any
    * @returns
    */
-  async triggerSync(urgent: boolean): Promise<void> {
+  async triggerSync({ urgent }: SyncOptions): Promise<void> {
     if (this.isSyncing) {
       console.warn(
         'MobileSyncManager.triggerSync(): Tried to start syncing while sync in progress',
@@ -126,7 +130,7 @@ export class MobileSyncManager {
     const startTime = Date.now();
 
     try {
-      await this.runSync(urgent);
+      await this.runSync({ urgent });
       this.lastSuccessfulSyncTick = formatDate(new Date(), DateFormats.DATE_AND_TIME);
       this.setProgress(0, '');
     } catch (error) {
@@ -140,7 +144,7 @@ export class MobileSyncManager {
     }
   }
 
-  async runSync(urgent: boolean = false): Promise<void> {
+  async runSync({ urgent = false }: SyncOptions): Promise<void> {
     if (this.isSyncing) {
       throw new Error('MobileSyncManager.runSync(): Tried to start syncing while sync in progress');
     }
