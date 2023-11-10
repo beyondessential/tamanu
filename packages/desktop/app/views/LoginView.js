@@ -23,7 +23,7 @@ import { useTranslation } from '../contexts/Translation';
 
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
 
-const { REMEMBER_EMAIL, LANGUAGE } = LOCAL_STORAGE_KEYS;
+const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
 
 const Grid = styled.div`
   display: grid;
@@ -75,12 +75,11 @@ export const LoginView = () => {
       localStorage.removeItem(REMEMBER_EMAIL);
     }
 
+    await fetchTranslations(language);
+
     // The await is necessary to prevent redux-form unlocking submission
     // redux-thunk definitely returns a promise, and this works
     await dispatch(login(host, email, password));
-
-    await fetchTranslations(language);
-    localStorage.setItem(LANGUAGE, language);
   };
 
   return (

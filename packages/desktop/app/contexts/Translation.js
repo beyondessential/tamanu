@@ -13,17 +13,19 @@ export const TranslationProvider = ({ children }) => {
 
   const fetchTranslations = useCallback(
     async language => {
+      localStorage.setItem(LOCAL_STORAGE_KEYS.LANGUAGE, language);
       const recievedTranslations = await api.get(`translation/${language}`);
-      setTranslations({ languageCode: language, ...recievedTranslations });
+      setTranslations(recievedTranslations);
     },
     [api],
   );
 
   const getTranslation = (stringId, fallback) => {
+    const storedLanguage = localStorage.getItem(LOCAL_STORAGE_KEYS.LANGUAGE);
     if (translations[stringId]) return translations[stringId];
     // This section here is a dev tool to help populate the db with the translation ids we have defined
     // in components. It will only populate the db with English strings, so that we can then translate them.
-    if (process.env.NODE_ENV === 'development' && translations.languageCode === 'en') {
+    if (process.env.NODE_ENV === 'development' && storedLanguage === 'en') {
       api.post('translation', { stringId, fallback, text: fallback });
     }
     return fallback;
