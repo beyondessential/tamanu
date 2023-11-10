@@ -483,7 +483,36 @@ describe('Reference data exporter', () => {
     await expect(exporter(store, { 1: 'wrongDataType' })).rejects.toThrow();
   });
 
-  it('Should export translated strings with a single row for each stringId with columns for each languages text', async () => {
+  it('Should export translated strings with a single row for each stringId with columns for a single language', async () => {
+    await models.TranslatedString.create({
+      stringId: 'test-string',
+      language: 'en',
+      text: 'test',
+    });
+    await models.TranslatedString.create({
+      stringId: 'test-string2',
+      language: 'km',
+      text: 'សាកល្បង',
+    });
+
+    await exporter(store, { 1: 'translatedString' });
+
+    expect(writeExcelFile).toBeCalledWith(
+      [
+        {
+          data: [
+            ['stringId', 'en', 'km'],
+            ['test-string', 'test', null],
+            ['test-string2', null, 'សាកល្បង'],
+          ],
+          name: 'Translated String',
+        },
+      ],
+      '',
+    );
+  });
+
+  it('Should export translated strings with a single row for each stringId with columns for multiple languages', async () => {
     await models.TranslatedString.create({
       stringId: 'test-string',
       language: 'en',
