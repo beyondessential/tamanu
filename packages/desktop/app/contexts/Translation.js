@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { isEmpty } from 'lodash';
-import { useApi } from '../api';
+import { useApi } from '../api/useApi';
+import { LOCAL_STORAGE_KEYS } from '../constants';
 
 const TranslationContext = React.createContext();
 
@@ -28,7 +29,7 @@ export const TranslationProvider = ({ children }) => {
   // This likely shouldnt be needed in prod? This is to help with development with lots of autorefeshing
   // which interferres with the workflow of login fetching language and storing to context
   useEffect(() => {
-    const storedLanguage = localStorage.getItem('language');
+    const storedLanguage = localStorage.getItem(LOCAL_STORAGE_KEYS.LANGUAGE);
     if (isEmpty(translations) && storedLanguage) {
       fetchTranslations(storedLanguage);
     }
