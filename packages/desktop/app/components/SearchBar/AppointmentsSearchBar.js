@@ -8,6 +8,7 @@ import {
   SelectField,
   SearchField,
 } from '../Field';
+import { TranslatedText } from '../Translation/TranslatedText';
 import { appointmentTypeOptions, appointmentStatusOptions } from '../../constants';
 import { useSuggester } from '../../api';
 import { useLocalisedText } from '../LocalisedText';
@@ -34,7 +35,13 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         after: startOfDay(new Date()),
       }}
     >
-      <LocalisedField name="firstName" component={SearchField} />
+      <LocalisedField
+        name="firstName"
+        label={
+          <TranslatedText stringId="general.localisedFields.firstName.label" fallback="TODO" />
+        }
+        component={SearchField}
+      />
       <LocalisedField name="lastName" component={SearchField} />
       <LocalisedField
         name="clinicianId"

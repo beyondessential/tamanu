@@ -4,6 +4,7 @@ import { AutocompleteField, LocalisedField, SearchField } from '../Field';
 import { useSuggester } from '../../api';
 import { useLocalisedText } from '../LocalisedText';
 import { useAdvancedFields } from './useAdvancedFields';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const ADVANCED_FIELDS = ['departmentId', 'clinicianId'];
 
@@ -35,6 +36,12 @@ export const PatientSearchBar = React.memo(
           <>
             <LocalisedField
               name="departmentId"
+              label={
+                <TranslatedText
+                  stringId="general.localisedFields.departmentId.label"
+                  fallback="TODO"
+                />
+              }
               defaultLabel="Department"
               size="small"
               component={AutocompleteField}
@@ -42,6 +49,12 @@ export const PatientSearchBar = React.memo(
             />
             <LocalisedField
               name="clinicianId"
+              label={
+                <TranslatedText
+                  stringId="general.localisedFields.clinicianId.label"
+                  fallback="TODO"
+                />
+              }
               defaultLabel={clinicianText}
               component={AutocompleteField}
               size="small"
@@ -50,11 +63,37 @@ export const PatientSearchBar = React.memo(
           </>
         }
       >
-        <LocalisedField useShortLabel component={SearchField} name="displayId" keepLetterCase />
-        <LocalisedField name="firstName" component={SearchField} />
-        <LocalisedField name="lastName" component={SearchField} />
+        <LocalisedField
+          useShortLabel
+          component={SearchField}
+          name="displayId"
+          label={
+            <TranslatedText stringId="general.localisedFields.displayId.label" fallback="TODO" />
+          }
+          keepLetterCase
+        />
+        <LocalisedField
+          name="firstName"
+          label={
+            <TranslatedText stringId="general.localisedFields.firstName.label" fallback="TODO" />
+          }
+          component={SearchField}
+        />
+        <LocalisedField
+          name="lastName"
+          label={
+            <TranslatedText stringId="general.localisedFields.lastName.label" fallback="TODO" />
+          }
+          component={SearchField}
+        />
         <LocalisedField
           name="locationGroupId"
+          label={
+            <TranslatedText
+              stringId="general.localisedFields.locationGroupId.label"
+              fallback="TODO"
+            />
+          }
           defaultLabel="Location"
           component={AutocompleteField}
           size="small"

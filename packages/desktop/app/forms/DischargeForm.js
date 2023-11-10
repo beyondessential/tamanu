@@ -36,6 +36,7 @@ import {
   MODAL_PADDING_TOP_AND_BOTTOM,
   useLocalisedText,
 } from '../components';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -337,6 +338,12 @@ export const DischargeForm = ({
         />
         <LocalisedField
           name="discharge.dispositionId"
+          label={
+            <TranslatedText
+              stringId="general.localisedFields.discharge.dispositionId.label"
+              fallback="TODO"
+            />
+          }
           path="fields.dischargeDisposition"
           component={AutocompleteField}
           suggester={dispositionSuggester}

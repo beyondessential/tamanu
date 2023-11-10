@@ -8,6 +8,7 @@ import { AutocompleteField, LocalisedField, SelectField } from '../Field';
 import { HandoverNotesModal } from '../BedManagement/HandoverNotesModal';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { ThemedTooltip } from '../Tooltip';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const HandoverNotesButton = styled(Button)`
   font-weight: 500;
@@ -70,6 +71,7 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
         <EmptyGridItem />
         <LocalisedField
           name="area"
+          label={<TranslatedText stringId="general.localisedFields.area.label" fallback="TODO" />}
           defaultLabel="Area"
           component={AutocompleteField}
           size="small"
@@ -77,6 +79,7 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
         />
         <LocalisedField
           name="status"
+          label={<TranslatedText stringId="general.localisedFields.status.label" fallback="TODO" />}
           defaultLabel="Status"
           size="small"
           component={SelectField}

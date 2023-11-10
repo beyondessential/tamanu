@@ -16,6 +16,7 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { useSuggester } from '../../api';
 import { useImagingRequests } from '../../contexts/ImagingRequests';
 import { useAdvancedFields } from './useAdvancedFields';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const FacilityCheckbox = styled.div`
   display: flex;
@@ -63,6 +64,12 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
             <>
               <LocalisedField
                 name="requestedById"
+                label={
+                  <TranslatedText
+                    stringId="general.localisedFields.requestedById.label"
+                    fallback="TODO"
+                  />
+                }
                 defaultLabel="Requested by"
                 saveDateAsString
                 component={AutocompleteField}
@@ -72,6 +79,12 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
           )}
           <LocalisedField
             name="locationGroupId"
+            label={
+              <TranslatedText
+                stringId="general.localisedFields.locationGroupId.label"
+                fallback="TODO"
+              />
+            }
             defaultLabel="Area"
             component={AutocompleteField}
             suggester={areaSuggester}
@@ -79,6 +92,12 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
           />
           <LocalisedField
             name="departmentId"
+            label={
+              <TranslatedText
+                stringId="general.localisedFields.departmentId.label"
+                fallback="TODO"
+              />
+            }
             defaultLabel="Department"
             component={AutocompleteField}
             suggester={departmentSuggester}
@@ -88,6 +107,12 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
             <>
               <LocalisedField
                 name="completedAt"
+                label={
+                  <TranslatedText
+                    stringId="general.localisedFields.completedAt.label"
+                    fallback="TODO"
+                  />
+                }
                 defaultLabel="Completed"
                 saveDateAsString
                 component={DateField}
@@ -100,13 +125,43 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
         </>
       }
     >
-      <LocalisedField useShortLabel keepLetterCase name="displayId" component={SearchField} />
-      <LocalisedField name="firstName" component={SearchField} />
-      <LocalisedField name="lastName" component={SearchField} />
-      <LocalisedField name="requestId" defaultLabel="Request ID" component={SearchField} />
+      <LocalisedField
+        useShortLabel
+        keepLetterCase
+        name="displayId"
+        label={
+          <TranslatedText stringId="general.localisedFields.displayId.label" fallback="TODO" />
+        }
+        component={SearchField}
+      />
+      <LocalisedField
+        name="firstName"
+        label={
+          <TranslatedText stringId="general.localisedFields.firstName.label" fallback="TODO" />
+        }
+        component={SearchField}
+      />
+      <LocalisedField
+        name="lastName"
+        label={<TranslatedText stringId="general.localisedFields.lastName.label" fallback="TODO" />}
+        component={SearchField}
+      />
+      <LocalisedField
+        name="requestId"
+        defaultLabel="Request ID"
+        label={
+          <TranslatedText
+            stringId="general.localisedFields.requestId"
+            defaultLabel="Request ID.label"
+            fallback="TODO"
+          />
+        }
+        component={SearchField}
+      />
       {!isCompletedTable && (
         <LocalisedField
           name="status"
+          label={<TranslatedText stringId="general.localisedFields.status.label" fallback="TODO" />}
           defaultLabel="Status"
           component={SelectField}
           options={IMAGING_REQUEST_STATUS_OPTIONS.filter(
@@ -118,6 +173,9 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
       {isCompletedTable && <Spacer />}
       <LocalisedField
         name="imagingType"
+        label={
+          <TranslatedText stringId="general.localisedFields.imagingType.label" fallback="TODO" />
+        }
         defaultLabel="Type"
         component={SelectField}
         options={imagingTypeOptions}
@@ -125,12 +183,24 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
       />
       <LocalisedField
         name="requestedDateFrom"
+        label={
+          <TranslatedText
+            stringId="general.localisedFields.requestedDateFrom.label"
+            fallback="TODO"
+          />
+        }
         defaultLabel="Requested from"
         saveDateAsString
         component={DateField}
       />
       <LocalisedField
         name="requestedDateTo"
+        label={
+          <TranslatedText
+            stringId="general.localisedFields.requestedDateTo.label"
+            fallback="TODO"
+          />
+        }
         defaultLabel="Requested to"
         saveDateAsString
         component={DateField}
@@ -138,6 +208,9 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
       {!isCompletedTable && (
         <LocalisedField
           name="priority"
+          label={
+            <TranslatedText stringId="general.localisedFields.priority.label" fallback="TODO" />
+          }
           defaultLabel="Priority"
           component={SelectField}
           options={imagingPriorities}
@@ -147,6 +220,12 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
       {isCompletedTable && (
         <LocalisedField
           name="requestedById"
+          label={
+            <TranslatedText
+              stringId="general.localisedFields.requestedById.label"
+              fallback="TODO"
+            />
+          }
           defaultLabel="Requested by"
           component={AutocompleteField}
           suggester={requesterSuggester}

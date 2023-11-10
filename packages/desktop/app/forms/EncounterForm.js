@@ -20,6 +20,7 @@ import {
 } from '../components';
 import { encounterOptions } from '../constants';
 import { useSuggester } from '../api';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const EncounterForm = React.memo(
   ({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {
@@ -75,11 +76,23 @@ export const EncounterForm = React.memo(
           />
           <LocalisedField
             name="referralSourceId"
+            label={
+              <TranslatedText
+                stringId="general.localisedFields.referralSourceId.label"
+                fallback="TODO"
+              />
+            }
             suggester={referralSourceSuggester}
             component={AutocompleteField}
           />
           <LocalisedField
             name="patientBillingTypeId"
+            label={
+              <TranslatedText
+                stringId="general.localisedFields.patientBillingTypeId.label"
+                fallback="TODO"
+              />
+            }
             endpoint="patientBillingType"
             component={SuggesterSelectField}
           />

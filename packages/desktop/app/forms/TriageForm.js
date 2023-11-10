@@ -25,6 +25,7 @@ import { useApi, useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
 import { getActionsFromData, getAnswersFromData } from '../utils';
 import { useLocalisedText } from '../components';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const InfoPopupLabel = React.memo(() => (
   <span>
@@ -80,6 +81,12 @@ export const TriageForm = ({
         />
         <LocalisedField
           name="arrivalModeId"
+          label={
+            <TranslatedText
+              stringId="general.localisedFields.arrivalModeId.label"
+              fallback="TODO"
+            />
+          }
           component={SuggesterSelectField}
           endpoint="arrivalMode"
         />

@@ -70,20 +70,43 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
     <>
       <StyledHeading>General information</StyledHeading>
       <FormGrid>
-        <LocalisedField name="firstName" component={TextField} required />
+        <LocalisedField
+          name="firstName"
+          label={
+            <TranslatedText stringId="general.localisedFields.firstName.label" fallback="TODO" />
+          }
+          component={TextField}
+          required
+        />
         <LocalisedField
           name="middleName"
+          label={
+            <TranslatedText stringId="general.localisedFields.middleName.label" fallback="TODO" />
+          }
           component={TextField}
           required={isRequiredPatientData('middleName')}
         />
-        <LocalisedField name="lastName" component={TextField} required />
+        <LocalisedField
+          name="lastName"
+          label={
+            <TranslatedText stringId="general.localisedFields.lastName.label" fallback="TODO" />
+          }
+          component={TextField}
+          required
+        />
         <LocalisedField
           name="culturalName"
+          label={
+            <TranslatedText stringId="general.localisedFields.culturalName.label" fallback="TODO" />
+          }
           component={TextField}
           required={isRequiredPatientData('culturalName')}
         />
         <LocalisedField
           name="dateOfBirth"
+          label={
+            <TranslatedText stringId="general.localisedFields.dateOfBirth.label" fallback="TODO" />
+          }
           max={getCurrentDateString()}
           component={DateField}
           required
@@ -91,13 +114,23 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
         />
         <LocalisedField
           name="villageId"
+          label={
+            <TranslatedText stringId="general.localisedFields.villageId.label" fallback="TODO" />
+          }
           component={AutocompleteField}
           suggester={villageSuggester}
           required={isRequiredPatientData('villageId')}
         />
-        <LocalisedField name="sex" component={RadioField} options={filteredSexOptions} required />
+        <LocalisedField
+          name="sex"
+          label={<TranslatedText stringId="general.localisedFields.sex.label" fallback="TODO" />}
+          component={RadioField}
+          options={filteredSexOptions}
+          required
+        />
         <LocalisedField
           name="email"
+          label={<TranslatedText stringId="general.localisedFields.email.label" fallback="TODO" />}
           component={TextField}
           type="email"
           defaultLabel={

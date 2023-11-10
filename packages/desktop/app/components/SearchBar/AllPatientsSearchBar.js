@@ -46,7 +46,17 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
       initialValues={searchParameters}
       hiddenFields={
         <>
-          <LocalisedField component={SearchField} name="culturalName" useShortLabel />
+          <LocalisedField
+            component={SearchField}
+            name="culturalName"
+            label={
+              <TranslatedText
+                stringId="general.localisedFields.culturalName.label"
+                fallback="TODO"
+              />
+            }
+            useShortLabel
+          />
           <TwoColumnsField>
             <DOBFields showExactBirth={false} />
             <SexLocalisedField
@@ -74,9 +84,27 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
         </>
       }
     >
-      <LocalisedField useShortLabel keepLetterCase component={SearchField} name="displayId" />
-      <LocalisedField component={SearchField} name="firstName" />
-      <LocalisedField component={SearchField} name="lastName" />
+      <LocalisedField
+        useShortLabel
+        keepLetterCase
+        component={SearchField}
+        name="displayId"
+        label={
+          <TranslatedText stringId="general.localisedFields.displayId.label" fallback="TODO" />
+        }
+      />
+      <LocalisedField
+        component={SearchField}
+        name="firstName"
+        label={
+          <TranslatedText stringId="general.localisedFields.firstName.label" fallback="TODO" />
+        }
+      />
+      <LocalisedField
+        component={SearchField}
+        name="lastName"
+        label={<TranslatedText stringId="general.localisedFields.lastName.label" fallback="TODO" />}
+      />
       <Field
         name="dateOfBirthExact"
         component={DateField}
