@@ -68,21 +68,30 @@ export const PatientSearchBar = React.memo(
           component={SearchField}
           name="displayId"
           label={
-            <TranslatedText stringId="general.localisedFields.displayId.label" fallback="TODO" />
+            <TranslatedText
+              stringId="general.localisedFields.displayId.label.short"
+              fallback="NHN"
+            />
           }
           keepLetterCase
         />
         <LocalisedField
           name="firstName"
           label={
-            <TranslatedText stringId="general.localisedFields.firstName.label" fallback="TODO" />
+            <TranslatedText
+              stringId="general.localisedFields.firstName.label"
+              fallback="First name"
+            />
           }
           component={SearchField}
         />
         <LocalisedField
           name="lastName"
           label={
-            <TranslatedText stringId="general.localisedFields.lastName.label" fallback="TODO" />
+            <TranslatedText
+              stringId="general.localisedFields.lastName.label"
+              fallback="Last name"
+            />
           }
           component={SearchField}
         />

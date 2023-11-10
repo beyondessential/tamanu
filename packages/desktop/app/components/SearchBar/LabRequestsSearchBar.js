@@ -78,10 +78,9 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
                 label={
                   <TranslatedText
                     stringId="general.localisedFields.laboratory.label"
-                    fallback="TODO"
+                    fallback="Laboratory"
                   />
                 }
-                defaultLabel="Laboratory"
                 component={SuggesterSelectField}
                 endpoint="labTestLaboratory"
                 size="small"
@@ -91,10 +90,9 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
                 label={
                   <TranslatedText
                     stringId="general.localisedFields.priority.label"
-                    fallback="TODO"
+                    fallback="Priority"
                   />
                 }
-                defaultLabel="Priority"
                 component={SuggesterSelectField}
                 endpoint="labTestPriority"
                 size="small"
@@ -113,21 +111,30 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
           keepLetterCase
           name="displayId"
           label={
-            <TranslatedText stringId="general.localisedFields.displayId.label" fallback="TODO" />
+            <TranslatedText
+              stringId="general.localisedFields.displayId.label.short"
+              fallback="NHN"
+            />
           }
           component={SearchField}
         />
         <LocalisedField
           name="firstName"
           label={
-            <TranslatedText stringId="general.localisedFields.firstName.label" fallback="TODO" />
+            <TranslatedText
+              stringId="general.localisedFields.firstName.label"
+              fallback="First name"
+            />
           }
           component={SearchField}
         />
         <LocalisedField
           name="lastName"
           label={
-            <TranslatedText stringId="general.localisedFields.lastName.label" fallback="TODO" />
+            <TranslatedText
+              stringId="general.localisedFields.lastName.label"
+              fallback="Last name"
+            />
           }
           component={SearchField}
         />
@@ -151,10 +158,9 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
           label={
             <TranslatedText
               stringId="general.localisedFields.requestedDateFrom.label"
-              fallback="TODO"
+              fallback="Requested from"
             />
           }
-          label="Requested from"
           saveDateAsString
           component={DateField}
           $joined
@@ -175,9 +181,11 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
           <LocalisedField
             name="laboratory"
             label={
-              <TranslatedText stringId="general.localisedFields.laboratory.label" fallback="TODO" />
+              <TranslatedText
+                stringId="general.localisedFields.laboratory.label"
+                fallback="Laboratory"
+              />
             }
-            defaultLabel="Laboratory"
             component={SuggesterSelectField}
             endpoint="labTestLaboratory"
             size="small"
@@ -186,9 +194,8 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
           <LocalisedField
             name="status"
             label={
-              <TranslatedText stringId="general.localisedFields.status.label" fallback="TODO" />
+              <TranslatedText stringId="general.localisedFields.status.label" fallback="Status" />
             }
-            defaultLabel="Status"
             component={SelectField}
             options={LAB_REQUEST_STATUS_OPTIONS.filter(
               option => option.value !== LAB_REQUEST_STATUSES.PUBLISHED,

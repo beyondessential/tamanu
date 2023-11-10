@@ -71,7 +71,7 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
         <EmptyGridItem />
         <LocalisedField
           name="area"
-          label={<TranslatedText stringId="general.localisedFields.area.label" fallback="TODO" />}
+          label={<TranslatedText stringId="general.localisedFields.area.label" fallback="Area" />}
           defaultLabel="Area"
           component={AutocompleteField}
           size="small"
@@ -79,8 +79,9 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
         />
         <LocalisedField
           name="status"
-          label={<TranslatedText stringId="general.localisedFields.status.label" fallback="TODO" />}
-          defaultLabel="Status"
+          label={
+            <TranslatedText stringId="general.localisedFields.status.label" fallback="Status" />
+          }
           size="small"
           component={SelectField}
           options={locationAvailabilityOptions}

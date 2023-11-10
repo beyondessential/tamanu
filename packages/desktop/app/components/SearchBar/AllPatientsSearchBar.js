@@ -51,8 +51,8 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
             name="culturalName"
             label={
               <TranslatedText
-                stringId="general.localisedFields.culturalName.label"
-                fallback="TODO"
+                stringId="general.localisedFields.culturalName.label.short"
+                fallback="Cultural name"
               />
             }
             useShortLabel
@@ -90,20 +90,25 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
         component={SearchField}
         name="displayId"
         label={
-          <TranslatedText stringId="general.localisedFields.displayId.label" fallback="TODO" />
+          <TranslatedText stringId="general.localisedFields.displayId.label.short" fallback="NHN" />
         }
       />
       <LocalisedField
         component={SearchField}
         name="firstName"
         label={
-          <TranslatedText stringId="general.localisedFields.firstName.label" fallback="TODO" />
+          <TranslatedText
+            stringId="general.localisedFields.firstName.label"
+            fallback="First name"
+          />
         }
       />
       <LocalisedField
         component={SearchField}
         name="lastName"
-        label={<TranslatedText stringId="general.localisedFields.lastName.label" fallback="TODO" />}
+        label={
+          <TranslatedText stringId="general.localisedFields.lastName.label" fallback="Last name" />
+        }
       />
       <Field
         name="dateOfBirthExact"
