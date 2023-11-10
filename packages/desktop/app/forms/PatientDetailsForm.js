@@ -73,7 +73,10 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
         <LocalisedField
           name="firstName"
           label={
-            <TranslatedText stringId="general.localisedFields.firstName.label" fallback="TODO" />
+            <TranslatedText
+              stringId="general.localisedFields.firstName.label"
+              fallback="First name"
+            />
           }
           component={TextField}
           required
@@ -81,7 +84,10 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
         <LocalisedField
           name="middleName"
           label={
-            <TranslatedText stringId="general.localisedFields.middleName.label" fallback="TODO" />
+            <TranslatedText
+              stringId="general.localisedFields.middleName.label"
+              fallback="Middle name"
+            />
           }
           component={TextField}
           required={isRequiredPatientData('middleName')}
@@ -89,7 +95,10 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
         <LocalisedField
           name="lastName"
           label={
-            <TranslatedText stringId="general.localisedFields.lastName.label" fallback="TODO" />
+            <TranslatedText
+              stringId="general.localisedFields.lastName.label"
+              fallback="Last name"
+            />
           }
           component={TextField}
           required
@@ -97,7 +106,10 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
         <LocalisedField
           name="culturalName"
           label={
-            <TranslatedText stringId="general.localisedFields.culturalName.label" fallback="TODO" />
+            <TranslatedText
+              stringId="general.localisedFields.culturalName.label"
+              fallback="Cultural/traditional name"
+            />
           }
           component={TextField}
           required={isRequiredPatientData('culturalName')}
@@ -105,7 +117,10 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
         <LocalisedField
           name="dateOfBirth"
           label={
-            <TranslatedText stringId="general.localisedFields.dateOfBirth.label" fallback="TODO" />
+            <TranslatedText
+              stringId="general.localisedFields.dateOfBirth.label"
+              fallback="Date of birth"
+            />
           }
           max={getCurrentDateString()}
           component={DateField}
@@ -115,7 +130,7 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
         <LocalisedField
           name="villageId"
           label={
-            <TranslatedText stringId="general.localisedFields.villageId.label" fallback="TODO" />
+            <TranslatedText stringId="general.localisedFields.villageId.label" fallback="Village" />
           }
           component={AutocompleteField}
           suggester={villageSuggester}
@@ -123,19 +138,21 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
         />
         <LocalisedField
           name="sex"
-          label={<TranslatedText stringId="general.localisedFields.sex.label" fallback="TODO" />}
+          label={<TranslatedText stringId="general.localisedFields.sex.label" fallback="Sex" />}
           component={RadioField}
           options={filteredSexOptions}
           required
         />
         <LocalisedField
           name="email"
-          label={<TranslatedText stringId="general.localisedFields.email.label" fallback="TODO" />}
+          label={
+            <TranslatedText
+              stringId="general.localisedFields.email.label"
+              fallback="Email address"
+            />
+          }
           component={TextField}
           type="email"
-          defaultLabel={
-            <TranslatedText stringId="general.form.email.label" fallback="Email Address" />
-          }
           required={isRequiredPatientData('email')}
         />
         {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
