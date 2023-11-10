@@ -2,9 +2,9 @@ import {
   createDummyPatient,
   createDummyEncounter,
   randomReferenceId,
-} from 'shared/demoData/patients';
+} from '@tamanu/shared/demoData/patients';
 import { NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
-import { chance } from 'shared/test-helpers';
+import { chance } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 
 const randomLabTests = (models, labTestCategoryId, amount) =>

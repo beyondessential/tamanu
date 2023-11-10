@@ -57,6 +57,9 @@ lints.md
 # Output
 /packages/sync-server/tamanu-reports/
 
+# Env
+/packages/mobile/.envrc
+
 # cd-up and cd-down workflows
 /ops
 

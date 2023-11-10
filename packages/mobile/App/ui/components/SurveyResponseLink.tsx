@@ -7,7 +7,7 @@ import { StyledView, StyledText, FullView } from '/styled/common';
 import { SurveyResultBadge } from '/components/SurveyResultBadge';
 import { ArrowForwardIcon } from '/components/Icons';
 import { DateFormats } from '~/ui/helpers/constants';
- 
+
 const SensitiveResponseLabel = (): ReactElement => (
   <StyledText color={theme.colors.DISABLED_GREY} fontSize={14} fontWeight="500">
     Sensitive - not viewable
@@ -67,7 +67,7 @@ export const SurveyResponseLink = ({
                 fontSize={14}
                 fontWeight="500"
               >
-                {formatStringDate(endTime, DateFormats.DATE_AND_TIME)}
+                {formatStringDate(endTime, DateFormats.DATE_AND_TIME_HHMM)}
               </StyledText>
               {isSensitive ? <SensitiveResponseLabel /> : null}
             </StyledView>

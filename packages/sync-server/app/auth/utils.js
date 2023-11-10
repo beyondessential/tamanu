@@ -3,6 +3,9 @@ import { sign as signCallback, verify as verifyCallback } from 'jsonwebtoken';
 import { randomBytes, randomInt } from 'crypto';
 import { promisify } from 'util';
 
+import { VISIBILITY_STATUSES, USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
+import { ForbiddenError } from '@tamanu/shared/errors';
+
 const sign = promisify(signCallback);
 const verify = promisify(verifyCallback);
 
@@ -38,9 +41,15 @@ export const findUser = async (models, email) => {
       Sequelize.fn('lower', email),
     ),
   });
+
   if (!user) {
     return null;
   }
+
+  if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+    throw new ForbiddenError(USER_DEACTIVATED_ERROR_MESSAGE);
+  }
+
   return user.get({ plain: true });
 };
 

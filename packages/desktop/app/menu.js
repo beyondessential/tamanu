@@ -129,7 +129,7 @@ export default class MenuBuilder {
       ],
     };
     const subMenuHelp = {
-      label: 'Help',
+      label: 'About us',
       submenu: [
         {
           label: 'Learn More',
@@ -201,7 +201,7 @@ export default class MenuBuilder {
               ],
       },
       {
-        label: 'Help',
+        label: 'About us',
         submenu: [
           {
             label: 'Learn More',

@@ -1,7 +1,7 @@
 import config from 'config';
 import { Command } from 'commander';
 
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 
 import pkg from '../../package.json';
 import { ApplicationContext } from '../ApplicationContext';

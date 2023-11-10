@@ -4,13 +4,13 @@ import { Alert, AlertTitle } from '@material-ui/lab';
 import { Box } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
 import { VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/constants';
-import { Modal } from './Modal';
 import { ModalActionRow } from './ModalActionRow';
 import { Colors } from '../constants';
 import { useApi } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
 
 import { DateDisplay } from './DateDisplay';
+import { Modal } from './Modal';
 
 const Container = styled.div`
   display: flex;

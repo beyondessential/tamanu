@@ -1,4 +1,4 @@
-import { buildAbilityForTests } from 'shared/permissions/buildAbility';
+import { buildAbilityForTests } from '@tamanu/shared/permissions/buildAbility';
 
 describe('build Ability from permission definition', () => {
 

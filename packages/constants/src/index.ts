@@ -25,3 +25,5 @@ export * from './templates';
 export * from './vaccines';
 export * from './settings';
 export * from './encounterHistory';
+export * from './user';
+export * from './translations'

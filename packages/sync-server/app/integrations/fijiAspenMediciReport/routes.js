@@ -5,7 +5,7 @@ import { upperFirst } from 'lodash';
 import { parseISO } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
-import { parseDateTime, formatFhirDate } from 'shared/utils/fhir/datetime';
+import { parseDateTime, formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 import config from 'config';
 
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';

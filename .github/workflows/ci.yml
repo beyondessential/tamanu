@@ -29,6 +29,7 @@ jobs:
           - { package: sync-server, shard: 3/3, postgres: 14 }
           - { package: meta-server }
           - { package: "@tamanu/shared" }
+          - { package: "desktop" }
 
     name: Test ${{ matrix.package }} ${{ matrix.shard }}
     runs-on: ubuntu-latest
@@ -81,31 +82,6 @@ jobs:
       - run: yarn lint-all
         env:
           CONTINUE_ON_ERROR: true
-
-  storybook:
-    # Workaround for define plugin conflict warning
-    env:
-      NODE_ENV: development
-    continue-on-error: true
-
-    strategy:
-      fail-fast: false
-      matrix:
-        node:
-          - '16.x'
-
-    name: Test storybook node=${{ matrix.node }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
-          cache: yarn
-      - run: yarn
-      - run: yarn build-shared
-      - run: yarn workspace desktop run verify-storybook
 
   migrations:
     strategy:
@@ -167,7 +143,6 @@ jobs:
       - test
       - build-all
       - lint
-      - storybook
       - migrations
       - test-mobile
     runs-on: ubuntu-latest

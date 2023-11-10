@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
+import { ENGLISH_LANGUAGE_CODE, LANGUAGE_LOCAL_STORAGE_KEY } from '@tamanu/constants';
 import { Colors } from '../constants';
 import { useApi } from '../api';
 import { SelectInput } from './Field';
@@ -49,14 +50,30 @@ const customStyles = {
   }),
 };
 
+const LANGUAGE_FIELD_NAME = 'language';
+
+const getInitialLanguage = languageOptions => {
+  const storedLanguage = localStorage.getItem(LANGUAGE_LOCAL_STORAGE_KEY) || null;
+  const localeLanguageCode = navigator.language;
+  const isLocaleLanguageCodeInOptions = languageOptions.some(
+    ({ value }) => value === localeLanguageCode,
+  );
+  const genericLanguageCode = localeLanguageCode.split('-')[0];
+  const isGenericLanguageCodeInOptions = languageOptions.some(
+    ({ value }) => value === genericLanguageCode,
+  );
+
+  return (
+    storedLanguage ||
+    (isLocaleLanguageCodeInOptions && localeLanguageCode) ||
+    (isGenericLanguageCodeInOptions && genericLanguageCode) ||
+    ENGLISH_LANGUAGE_CODE
+  );
+};
+
 export const LanguageSelector = ({ setFieldValue }) => {
   const api = useApi();
   const [selectedLanguage, setSelectedLanguage] = useState(null);
-
-  const onChangeLanguage = event => {
-    setSelectedLanguage(event.target.value);
-    setFieldValue('language', event.target.value);
-  };
 
   const storedHost = localStorage.getItem('host') || null;
 
@@ -68,27 +85,17 @@ export const LanguageSelector = ({ setFieldValue }) => {
     },
   );
 
-  const storedLanguage = localStorage.getItem('language') || null;
-
-  const localeLanguageCode = navigator.language;
-  const isLocaleLanguageCodeInOptions = languageOptions.some(
-    ({ value }) => value === localeLanguageCode,
-  );
-  const genericLanguageCode = localeLanguageCode.split('-')[0];
-  const isGenericLanguageCodeInOptions = languageOptions.some(
-    ({ value }) => value === genericLanguageCode,
-  );
-
-  const initialLanguage =
-    storedLanguage ||
-    (isLocaleLanguageCodeInOptions && localeLanguageCode) ||
-    (isGenericLanguageCodeInOptions && genericLanguageCode) ||
-    'en';
+  const initialLanguage = getInitialLanguage(languageOptions);
 
   useEffect(() => {
-    setFieldValue('language', initialLanguage);
+    setFieldValue(LANGUAGE_FIELD_NAME, initialLanguage);
     setSelectedLanguage(initialLanguage);
   }, [setFieldValue, initialLanguage]);
+
+  const onChangeLanguage = event => {
+    setSelectedLanguage(event.target.value);
+    setFieldValue(LANGUAGE_FIELD_NAME, event.target.value);
+  };
 
   // If multiple languages not implemented, no need for this component to show
   if (languageOptions.length <= 1) return null;

@@ -88,3 +88,5 @@ export const additionalDataSections = [
   { title: 'Personal information', fields: additionalDataFields.personal },
   { title: 'Other information', fields: additionalDataFields.other },
 ];
+
+export const allAdditionalDataFields = Object.values(additionalDataFields).flat();

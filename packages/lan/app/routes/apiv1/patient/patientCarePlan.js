@@ -1,9 +1,9 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { NOTE_TYPES, NOTE_RECORD_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { InvalidParameterError } from 'shared/errors';
+import { InvalidParameterError } from '@tamanu/shared/errors';
 
-import { simpleGet, simplePut } from 'shared/utils/crudHelpers';
+import { simpleGet, simplePut } from '@tamanu/shared/utils/crudHelpers';
 
 export const patientCarePlan = express.Router();
 

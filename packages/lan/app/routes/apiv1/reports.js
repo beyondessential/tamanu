@@ -1,10 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import * as reportUtils from 'shared/reports';
-import { checkReportModulePermissions } from 'shared/reports/utilities/checkReportModulePermissions';
-import { createNamedLogger } from 'shared/services/logging/createNamedLogger';
-import { getAvailableReports } from 'shared/reports/utilities/getAvailableReports';
-import { NotFoundError } from 'shared/errors';
+import * as reportUtils from '@tamanu/shared/reports';
+import { checkReportModulePermissions } from '@tamanu/shared/reports/utilities/checkReportModulePermissions';
+import { createNamedLogger } from '@tamanu/shared/services/logging/createNamedLogger';
+import { getAvailableReports } from '@tamanu/shared/reports/utilities/getAvailableReports';
+import { NotFoundError } from '@tamanu/shared/errors';
 import { assertReportEnabled } from '../../utils/assertReportEnabled';
 
 const FACILITY_REPORT_LOG_NAME = 'FacilityReport';
@@ -25,12 +25,13 @@ reports.post(
   '/:reportId',
   asyncHandler(async (req, res) => {
     const {
-      db,
-      models,
       body: { parameters = {} },
       user,
       params,
+      db,
       getLocalisation,
+      models,
+      reportSchemaStores,
     } = req;
     const { reportId } = params;
     const facilityReportLog = createNamedLogger(FACILITY_REPORT_LOG_NAME, {
@@ -38,6 +39,7 @@ reports.post(
       reportId,
     });
     const localisation = await getLocalisation();
+
     assertReportEnabled(localisation, reportId);
 
     const reportModule = await reportUtils.getReportModule(reportId, models);
@@ -49,7 +51,14 @@ reports.post(
 
     try {
       facilityReportLog.info('Running report', { parameters });
-      const excelData = await reportModule.dataGenerator({ sequelize: db, models }, parameters);
+      const excelData = await reportModule.dataGenerator(
+        {
+          models,
+          reportSchemaStores,
+          sequelize: db,
+        },
+        parameters,
+      );
       facilityReportLog.info('Report run successfully');
       res.send(excelData);
     } catch (e) {

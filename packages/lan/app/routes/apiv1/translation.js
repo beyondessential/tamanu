@@ -2,8 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { mapValues, keyBy } from 'lodash';
 import { getLanguageOptions } from '@tamanu/shared/utils/translation/getLanguageOptions';
-
-const ENGLISH_LANGUAGE_CODE = 'en';
+import { NOT_MODIFIED_STATUS_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 
 export const translation = express.Router();
 
@@ -36,8 +35,8 @@ translation.get(
     req.flagPermissionChecked();
 
     const response = await getLanguageOptions(req.models, req.headers['if-none-match']);
-    if (response === 304) {
-      res.status(304).end();
+    if (response === NOT_MODIFIED_STATUS_CODE) {
+      res.status(NOT_MODIFIED_STATUS_CODE).end();
       return;
     }
     res.setHeader('Cache-Control', 'no-cache');
@@ -60,7 +59,7 @@ translation.get(
     const eTag = await TranslatedString.etagForLanguage(language);
 
     if (req.headers['if-none-match'] === eTag) {
-      res.status(304).end();
+      res.status(NOT_MODIFIED_STATUS_CODE).end();
       return;
     }
 

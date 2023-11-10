@@ -1,15 +1,10 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { ipcRenderer } from 'electron';
 import { useTranslation } from '../../contexts/Translation';
+import { DebugTooltip } from './DebugTooltip';
 
 const DEBUG_TRANSLATION_STORAGE_KEY = 'debugTranslation';
-
-const DebugHighlighed = styled.span`
-  background-color: red;
-  color: white;
-`;
 
 const safeGetIsDebugMode = () => {
   try {
@@ -53,9 +48,13 @@ export const TranslatedText = ({ stringId, fallback, replacements }) => {
     return replaceStringVariables(translation, replacements);
   }, [translation, replacements]);
 
-  const TextWrapper = isDebugMode ? DebugHighlighed : React.Fragment;
-
-  return <TextWrapper>{displayElements}</TextWrapper>;
+  if (isDebugMode)
+    return (
+      <DebugTooltip stringId={stringId} replacements={replacements} fallback={fallback}>
+        {displayElements}
+      </DebugTooltip>
+    );
+  return displayElements;
 };
 
 TranslatedText.propTypes = {

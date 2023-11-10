@@ -1,4 +1,4 @@
-import { InvalidClientHeadersError } from 'shared/errors';
+import { InvalidClientHeadersError } from '@tamanu/shared/errors';
 
 export const requireClientHeaders = (req, res, next) => {
   const client = req.header('X-Tamanu-Client');

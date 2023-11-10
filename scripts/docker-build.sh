@@ -24,11 +24,6 @@ common() {
   yarn install --non-interactive --frozen-lockfile
 }
 
-build_shared() {
-  yarn clean
-  yarn build-shared
-}
-
 remove_irrelevant_packages() {
   # remove from yarn workspace list all packages that aren't the ones we're building
   cp package.json{,.working}
@@ -91,7 +86,7 @@ build_desktop() {
     package.json > /package-appdata.json
   jq '.build.win.target = ["msi"] | .build.msi.shortcutName = "Tamanu \(.version)"' \
     package.json > /package-msi.json
-  jq '.build.productName = "Tamanu Fiji" | .build.appId = "org.beyondessential.TamanuFiji" | .build.directories.output = "release/aspen"' \
+  jq '.build.productName = "Tamanu \(.version | split(".") | "\(.[0]).\(.[1])")" | .build.appId = "org.beyondessential.TamanuFiji\(.version | split(".") | "\(.[0])\(.[1])")" | .build.directories.output = "release/aspen"' \
     /package-msi.json > /package-aspen.json
   jq '.build.mac.target = "tar.xz"' \
     package.json > /package-mac.json
@@ -102,9 +97,6 @@ package="${1:?Expected target or package path}"
 common
 
 case "$package" in
-  shared)
-    build_shared
-    ;;
   desktop)
     build_desktop
     ;;
