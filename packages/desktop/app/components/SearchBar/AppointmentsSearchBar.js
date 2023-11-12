@@ -38,36 +38,48 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
       <LocalisedField
         name="firstName"
         label={
-          <TranslatedText
-            stringId="general.localisedFields.firstName.label"
-            fallback="First name"
-          />
+          <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />
         }
         component={SearchField}
       />
       <LocalisedField name="lastName" component={SearchField} />
       <LocalisedField
         name="clinicianId"
+        label={
+          <TranslatedText stringId="general.localisedField.clinicianId.label" fallback="TODO" />
+        }
         defaultLabel={clinicianText}
         component={AutocompleteField}
         suggester={practitionerSuggester}
       />
       <LocalisedField
-        defaultLabel="Area"
         name="locationGroupId"
+        label={
+          <TranslatedText stringId="general.localisedField.locationGroupId.label" fallback="Area" />
+        }
         component={AutocompleteField}
         suggester={locationGroupSuggester}
       />
       <LocalisedField
         name="type"
-        defaultLabel="Appointment Type"
+        label={
+          <TranslatedText
+            stringId="general.localisedField.type.label"
+            fallback="Appointment Type"
+          />
+        }
         component={SelectField}
         options={appointmentTypeOptions}
         size="small"
       />
       <LocalisedField
         name="status"
-        defaultLabel="Appointment Status"
+        label={
+          <TranslatedText
+            stringId="general.localisedField.status.label"
+            fallback="Appointment Status"
+          />
+        }
         component={SelectField}
         options={appointmentStatusOptions}
         size="small"
@@ -75,16 +87,25 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
       <LocalisedField
         saveDateAsString
         name="after"
-        defaultLabel="Start from"
+        label={
+          <TranslatedText stringId="general.localisedField.after.label" fallback="Start from" />
+        }
         component={DateTimeField}
       />
       <LocalisedField
         saveDateAsString
         name="before"
-        defaultLabel="Until"
+        label={<TranslatedText stringId="general.localisedField.before.label" fallback="Until" />}
         component={DateTimeField}
       />
-      <LocalisedField useShortLabel keepLetterCase name="displayId" component={SearchField} />
+      <LocalisedField
+        keepLetterCase
+        label={
+          <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
+        }
+        name="displayId"
+        component={SearchField}
+      />
     </CustomisableSearchBar>
   );
 };
