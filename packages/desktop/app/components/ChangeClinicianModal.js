@@ -1,22 +1,16 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 
-import styled from 'styled-components';
 import { useSuggester } from '../api';
 import { useEncounter } from '../contexts/Encounter';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 
 import { ChangeClinicianForm } from '../forms/ChangeClinicianForm';
 import { FormModal } from './FormModal';
-import { useLocalisedText } from './LocalisedText';
 import { TranslatedText } from './Translation/TranslatedText';
-
-const LowerCase = styled.span`
-  text-transform: lowercase;
-`;
+import { LowerCase } from './Typography';
 
 export const ChangeClinicianModal = React.memo(({ open, onClose }) => {
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
   const { navigateToEncounter } = usePatientNavigation();
   const { encounter, writeAndViewEncounter } = useEncounter();
   const clinicianSuggester = useSuggester('practitioner');
@@ -37,7 +31,7 @@ export const ChangeClinicianModal = React.memo(({ open, onClose }) => {
           replacements={{
             clinician: (
               <LowerCase>
-                <TranslatedText stringId="general.clinician.shortLabel" fallback={clinicianText} />
+                <TranslatedText stringId="general.clinician.shortLabel" fallback="Clinician" />
               </LowerCase>
             ),
           }}

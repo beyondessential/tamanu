@@ -38,3 +38,7 @@ export const Heading4 = styled(Typography)`
   font-size: 16px;
   line-height: 21px;
 `;
+
+export const LowerCase = styled.span`
+  text-transform: lowercase;
+`;
