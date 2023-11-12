@@ -11,6 +11,7 @@ import {
   ReferenceDataAdminView,
   SyncView,
   TemplateView,
+  TranslationAdminView,
 } from '../views';
 
 export const AdministrationRoutes = React.memo(({ match }) => (
@@ -23,6 +24,7 @@ export const AdministrationRoutes = React.memo(({ match }) => (
     <Route path={`${match.path}/patientMerge`} component={PatientMergeView} />
     <Route path={`${match.path}/sync`} component={SyncView} />
     <Route path={`${match.path}/reports`} component={ReportAdminRoutes} />
+    <Route path={`${match.path}/translation`} component={TranslationAdminView} />
     <Route path={`${match.path}/fhir`} component={FhirAdminRoutes} />
     <Redirect to={`${match.path}/referenceData`} />
   </Switch>
