@@ -1,4 +1,4 @@
-# Sync server API docs
+# Central server API docs
 
 ## Application routes
 

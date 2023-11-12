@@ -8,8 +8,10 @@ import {
   OneToMany,
   RelationId,
 } from 'typeorm/browser';
+import { AfterInsert } from 'typeorm';
 import { startOfDay, addHours, subDays } from 'date-fns';
 import { getUniqueId } from 'react-native-device-info';
+
 import { BaseModel, IdRelation } from './BaseModel';
 import { IEncounter, EncounterType } from '~/types';
 import { Patient } from './Patient';
@@ -32,7 +34,6 @@ import { SYNC_DIRECTIONS } from './types';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { DateTimeStringColumn } from './DateColumns';
 import { Note } from './Note';
-import { AfterInsert } from 'typeorm';
 
 const TIME_OFFSET = 3;
 
@@ -158,7 +159,7 @@ export class Encounter extends BaseModel implements IEncounter {
 
   @AfterInsert()
   async snapshotEncounter(): Promise<void> {
-    await EncounterHistory.createSnapshot(this);
+    await EncounterHistory.createSnapshot(this, { date: this.startDate });
   }
 
   static async getCurrentEncounterForPatient(patientId: string): Promise<Encounter | undefined> {
