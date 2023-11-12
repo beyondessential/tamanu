@@ -6,7 +6,6 @@ export { MedicationRoutes } from './MedicationRoutes';
 export { LabsRoutes } from './LabsRoutes';
 export { BillingRoutes } from './BillingRoutes';
 export { AdministrationRoutes } from './AdministrationRoutes';
-export { ProgramsRoutes } from './ProgramsRoutes';
 export { ProgramRegistryRoutes } from './ProgramRegistryRoutes';
 export { ImmunisationRoutes } from './ImmunisationRoutes';
 export { FacilityAdminRoutes } from './FacilityAdminRoutes';

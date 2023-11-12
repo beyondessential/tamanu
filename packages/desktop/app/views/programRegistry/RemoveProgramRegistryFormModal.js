@@ -65,8 +65,18 @@ export const RemoveProgramRegistryFormModal = ({
           <InfoColumn>
             <Info>
               <Label>Program registry</Label>
-              <Value>{patientProgramRegistration.name}</Value>
+              <Value>{patientProgramRegistration.programRegistry.name}</Value>
             </Info>
+            <Info>
+              <Label>Registered by</Label>
+              <Value>{patientProgramRegistration.clinician.displayName}</Value>
+            </Info>
+            <Info>
+              <Label>Status</Label>
+              <Value>{patientProgramRegistration.clinicalStatus.name}</Value>
+            </Info>
+          </InfoColumn>
+          <InfoColumn>
             <Info>
               <Label>Date of registration</Label>
               <Value>
@@ -76,16 +86,6 @@ export const RemoveProgramRegistryFormModal = ({
             <Info>
               <Label>Registering facility</Label>
               <Value>{patientProgramRegistration.registeringFacility.name}</Value>
-            </Info>
-          </InfoColumn>
-          <InfoColumn>
-            <Info>
-              <Label>Status</Label>
-              <Value>{patientProgramRegistration.clinicalStatus.name}</Value>
-            </Info>
-            <Info>
-              <Label>Registered by</Label>
-              <Value>{patientProgramRegistration.clinician.displayName}</Value>
             </Info>
           </InfoColumn>
         </InfoDiv>

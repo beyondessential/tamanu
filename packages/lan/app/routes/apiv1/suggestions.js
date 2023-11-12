@@ -229,6 +229,7 @@ createSuggester(
   'User',
   search => ({
     displayName: { [Op.iLike]: search },
+    ...VISIBILITY_CRITERIA,
   }),
   ({ id, displayName }) => ({
     id,
