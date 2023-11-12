@@ -333,7 +333,12 @@ export const DischargeForm = ({
               stringId="discharge.form.discharger.label"
               fallback="Discharging :clinician"
               replacements={{
-                clinician: <TranslatedText stringId="general.localisedField.clinician.label" />,
+                clinician: (
+                  <TranslatedText
+                    stringId="general.localisedField.clinician.label"
+                    fallback="Clinician"
+                  />
+                ),
               }}
             />
           }

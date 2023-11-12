@@ -40,7 +40,13 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         }
         component={SearchField}
       />
-      <LocalisedField name="lastName" component={SearchField} />
+      <LocalisedField
+        name="lastName"
+        label={
+          <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
+        }
+        component={SearchField}
+      />
       <LocalisedField
         name="clinicianId"
         label={

@@ -60,6 +60,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
             <DOBFields showExactBirth={false} />
             <SexLocalisedField
               name="sex"
+              label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
               component={SelectField}
               options={sexOptions}
               size="small"
@@ -67,6 +68,12 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
           </TwoColumnsField>
           <VillageLocalisedField
             name="villageId"
+            label={
+              <TranslatedText
+                stringId="general.localisedField.villageId.label"
+                fallback="Village"
+              />
+            }
             component={AutocompleteField}
             suggester={villageSuggester}
             size="small"
