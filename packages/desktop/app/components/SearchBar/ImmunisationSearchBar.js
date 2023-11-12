@@ -13,7 +13,7 @@ export const ImmunisationSearchBar = ({ onSearch }) => {
         name="displayId"
         label={
           <TranslatedText
-            stringId="general.localisedFields.displayId.label"
+            stringId="general.localisedField.displayId.label"
             fallback="National Health Number"
           />
         }
@@ -21,22 +21,19 @@ export const ImmunisationSearchBar = ({ onSearch }) => {
       <LocalisedField
         name="firstName"
         label={
-          <TranslatedText
-            stringId="general.localisedFields.firstName.label"
-            fallback="First name"
-          />
+          <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />
         }
       />
       <LocalisedField
         name="lastName"
         label={
-          <TranslatedText stringId="general.localisedFields.lastName.label" fallback="Last name" />
+          <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
         }
       />
       <LocalisedField
         name="villageId"
         label={
-          <TranslatedText stringId="general.localisedFields.villageId.label" fallback="Village" />
+          <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
         }
         component={AutocompleteField}
         suggester={villageSuggester}
@@ -46,9 +43,8 @@ export const ImmunisationSearchBar = ({ onSearch }) => {
         defaultLabel="Vaccination Status"
         label={
           <TranslatedText
-            stringId="general.localisedFields.vaccinationStatus"
-            defaultLabel="Vaccination Status.label"
-            fallback="TODO"
+            stringId="general.localisedField.vaccinationStatus"
+            fallback="Vaccination Status"
           />
         }
       />

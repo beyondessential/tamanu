@@ -11,26 +11,20 @@ export const InvoicesSearchBar = React.memo(({ onSearch }) => (
       defaultLabel="Invoice number"
       label={
         <TranslatedText
-          stringId="general.localisedFields.invoiceDisplayId"
-          defaultLabel="Invoice number.label"
-          fallback="TODO"
+          stringId="general.localisedField.invoiceDisplayId"
+          fallback="Invoice number"
         />
       }
     />
     <LocalisedField
       name="receiptNumber"
-      defaultLabel="Receipt number"
       label={
-        <TranslatedText
-          stringId="general.localisedFields.receiptNumber"
-          defaultLabel="Receipt number.label"
-          fallback="TODO"
-        />
+        <TranslatedText stringId="general.localisedField.receiptNumber" fallback="Receipt number" />
       }
     />
     <LocalisedField
       name="status"
-      label={<TranslatedText stringId="general.localisedFields.status.label" fallback="Status" />}
+      label={<TranslatedText stringId="general.localisedField.status.label" fallback="Status" />}
       component={SelectField}
       options={INVOICE_STATUS_OPTIONS}
     />
@@ -38,7 +32,7 @@ export const InvoicesSearchBar = React.memo(({ onSearch }) => (
       name="paymentStatus"
       label={
         <TranslatedText
-          stringId="general.localisedFields.paymentStatus.label"
+          stringId="general.localisedField.paymentStatus.label"
           fallback="Payment status"
         />
       }

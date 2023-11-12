@@ -13,34 +13,30 @@ export const CovidPatientsSearchBar = React.memo(({ onSearch }) => {
       <LocalisedField
         name="firstName"
         label={
-          <TranslatedText
-            stringId="general.localisedFields.firstName.label"
-            fallback="First name"
-          />
+          <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />
         }
         component={SearchField}
       />
       <LocalisedField
         name="lastName"
         label={
-          <TranslatedText stringId="general.localisedFields.lastName.label" fallback="Last name" />
+          <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
         }
         component={SearchField}
       />
       <LocalisedField
         name="villageId"
         label={
-          <TranslatedText stringId="general.localisedFields.villageId.label" fallback="Village" />
+          <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
         }
         component={AutocompleteField}
         suggester={villageSuggester}
       />
       <LocalisedField
-        useShortLabel
         keepLetterCase
         name="displayId"
         label={
-          <TranslatedText stringId="general.localisedFields.displayId.label.short" fallback="NHN" />
+          <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
         }
         component={SearchField}
       />

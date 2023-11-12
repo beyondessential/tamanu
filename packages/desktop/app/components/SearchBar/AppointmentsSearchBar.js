@@ -11,12 +11,10 @@ import {
 import { TranslatedText } from '../Translation/TranslatedText';
 import { appointmentTypeOptions, appointmentStatusOptions } from '../../constants';
 import { useSuggester } from '../../api';
-import { useLocalisedText } from '../LocalisedText';
 
 export const AppointmentsSearchBar = ({ onSearch }) => {
   const practitionerSuggester = useSuggester('practitioner');
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
   return (
     <CustomisableSearchBar
@@ -46,9 +44,8 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
       <LocalisedField
         name="clinicianId"
         label={
-          <TranslatedText stringId="general.localisedField.clinicianId.label" fallback="TODO" />
+          <TranslatedText stringId="general.localisedField.clinician.label" fallback="Clinician" />
         }
-        defaultLabel={clinicianText}
         component={AutocompleteField}
         suggester={practitionerSuggester}
       />

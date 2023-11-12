@@ -38,11 +38,10 @@ export const PatientSearchBar = React.memo(
               name="departmentId"
               label={
                 <TranslatedText
-                  stringId="general.localisedFields.departmentId.label"
-                  fallback="TODO"
+                  stringId="general.localisedField.departmentId.label"
+                  fallback="Department"
                 />
               }
-              defaultLabel="Department"
               size="small"
               component={AutocompleteField}
               suggester={departmentSuggester}
@@ -51,8 +50,8 @@ export const PatientSearchBar = React.memo(
               name="clinicianId"
               label={
                 <TranslatedText
-                  stringId="general.localisedFields.clinicianId.label"
-                  fallback="TODO"
+                  stringId="general.localisedField.clinicianId.label"
+                  fallback="Clinician"
                 />
               }
               defaultLabel={clinicianText}
@@ -64,12 +63,11 @@ export const PatientSearchBar = React.memo(
         }
       >
         <LocalisedField
-          useShortLabel
           component={SearchField}
           name="displayId"
           label={
             <TranslatedText
-              stringId="general.localisedFields.displayId.label.short"
+              stringId="general.localisedField.displayId.label.short"
               fallback="NHN"
             />
           }
@@ -79,7 +77,7 @@ export const PatientSearchBar = React.memo(
           name="firstName"
           label={
             <TranslatedText
-              stringId="general.localisedFields.firstName.label"
+              stringId="general.localisedField.firstName.label"
               fallback="First name"
             />
           }
@@ -88,10 +86,7 @@ export const PatientSearchBar = React.memo(
         <LocalisedField
           name="lastName"
           label={
-            <TranslatedText
-              stringId="general.localisedFields.lastName.label"
-              fallback="Last name"
-            />
+            <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
           }
           component={SearchField}
         />
@@ -99,11 +94,10 @@ export const PatientSearchBar = React.memo(
           name="locationGroupId"
           label={
             <TranslatedText
-              stringId="general.localisedFields.locationGroupId.label"
-              fallback="TODO"
+              stringId="general.localisedField.locationGroupId.label"
+              fallback="Area"
             />
           }
-          defaultLabel="Location"
           component={AutocompleteField}
           size="small"
           suggester={locationGroupSuggester}

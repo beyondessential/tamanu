@@ -83,8 +83,8 @@ export const TriageForm = ({
           name="arrivalModeId"
           label={
             <TranslatedText
-              stringId="general.localisedFields.arrivalModeId.label"
-              fallback="TODO"
+              stringId="general.localisedField.arrivalModeId.label"
+              fallback="Arrival mode"
             />
           }
           component={SuggesterSelectField}

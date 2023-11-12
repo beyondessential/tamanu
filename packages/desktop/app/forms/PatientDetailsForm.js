@@ -74,7 +74,7 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
           name="firstName"
           label={
             <TranslatedText
-              stringId="general.localisedFields.firstName.label"
+              stringId="general.localisedField.firstName.label"
               fallback="First name"
             />
           }
@@ -85,7 +85,7 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
           name="middleName"
           label={
             <TranslatedText
-              stringId="general.localisedFields.middleName.label"
+              stringId="general.localisedField.middleName.label"
               fallback="Middle name"
             />
           }
@@ -95,10 +95,7 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
         <LocalisedField
           name="lastName"
           label={
-            <TranslatedText
-              stringId="general.localisedFields.lastName.label"
-              fallback="Last name"
-            />
+            <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
           }
           component={TextField}
           required
@@ -107,7 +104,7 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
           name="culturalName"
           label={
             <TranslatedText
-              stringId="general.localisedFields.culturalName.label"
+              stringId="general.localisedField.culturalName.label"
               fallback="Cultural/traditional name"
             />
           }
@@ -118,7 +115,7 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
           name="dateOfBirth"
           label={
             <TranslatedText
-              stringId="general.localisedFields.dateOfBirth.label"
+              stringId="general.localisedField.dateOfBirth.label"
               fallback="Date of birth"
             />
           }
@@ -130,7 +127,7 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
         <LocalisedField
           name="villageId"
           label={
-            <TranslatedText stringId="general.localisedFields.villageId.label" fallback="Village" />
+            <TranslatedText stringId="general.localisedField.villageId.label" fallback="Village" />
           }
           component={AutocompleteField}
           suggester={villageSuggester}
@@ -138,7 +135,7 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
         />
         <LocalisedField
           name="sex"
-          label={<TranslatedText stringId="general.localisedFields.sex.label" fallback="Sex" />}
+          label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
           component={RadioField}
           options={filteredSexOptions}
           required
@@ -147,7 +144,7 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
           name="email"
           label={
             <TranslatedText
-              stringId="general.localisedFields.email.label"
+              stringId="general.localisedField.email.label"
               fallback="Email address"
             />
           }

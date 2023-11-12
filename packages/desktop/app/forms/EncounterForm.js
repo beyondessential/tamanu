@@ -78,8 +78,8 @@ export const EncounterForm = React.memo(
             name="referralSourceId"
             label={
               <TranslatedText
-                stringId="general.localisedFields.referralSourceId.label"
-                fallback="TODO"
+                stringId="general.localisedField.referralSourceId.label"
+                fallback="Referral source"
               />
             }
             suggester={referralSourceSuggester}
@@ -89,8 +89,8 @@ export const EncounterForm = React.memo(
             name="patientBillingTypeId"
             label={
               <TranslatedText
-                stringId="general.localisedFields.patientBillingTypeId.label"
-                fallback="TODO"
+                stringId="general.localisedField.patientBillingTypeId.label"
+                fallback="Patient type"
               />
             }
             endpoint="patientBillingType"

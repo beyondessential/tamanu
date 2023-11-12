@@ -264,7 +264,6 @@ export const DischargeForm = ({
   onSubmit,
 }) => {
   const { encounter } = useEncounter();
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
   const [dischargeNotes, setDischargeNotes] = useState([]);
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
@@ -306,9 +305,7 @@ export const DischargeForm = ({
         discharge: yup
           .object()
           .shape({
-            dischargerId: foreignKey(
-              `Discharging ${clinicianText.toLowerCase()} is a required field'`,
-            ),
+            dischargerId: foreignKey('Required'),
           })
           .shape({
             dispositionId: getLocalisedSchema({
@@ -331,7 +328,15 @@ export const DischargeForm = ({
         />
         <Field
           name="discharge.dischargerId"
-          label={`Discharging ${clinicianText.toLowerCase()}`}
+          label={
+            <TranslatedText
+              stringId="discharge.form.discharger.label"
+              fallback="Discharging :clinician"
+              replacements={{
+                clinician: <TranslatedText stringId="general.localisedField.clinician.label" />,
+              }}
+            />
+          }
           component={AutocompleteField}
           suggester={practitionerSuggester}
           required
@@ -340,8 +345,8 @@ export const DischargeForm = ({
           name="discharge.dispositionId"
           label={
             <TranslatedText
-              stringId="general.localisedFields.discharge.dispositionId.label"
-              fallback="TODO"
+              stringId="general.localisedField.discharge.dischargeDisposition.label"
+              fallback="Discharge disposition"
             />
           }
           path="fields.dischargeDisposition"
