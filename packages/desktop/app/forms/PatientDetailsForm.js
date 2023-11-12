@@ -68,7 +68,12 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
 
   return (
     <>
-      <StyledHeading>General information</StyledHeading>
+      <StyledHeading>
+        <TranslatedText
+          stringId="patient.details.subheading.general"
+          fallback="General information"
+        />
+      </StyledHeading>
       <FormGrid>
         <LocalisedField
           name="firstName"
