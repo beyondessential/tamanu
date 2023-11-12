@@ -64,7 +64,9 @@ export const SearchField = ({ keepLetterCase = false, ...props }) => {
           </StyledIconButton>
         ),
       }}
-      placeholder={label ? `Search ${keepLetterCase ? label : label.toLowerCase()}` : ''}
+      // TODO: Hook up to translation context or some solution for strict strings
+      // placeholder={label ? `Search ${keepLetterCase ? label : label.toLowerCase()}` : ''}
+      placeholder={label ? `Search` : ''}
       {...props}
       value={searchValue}
     />
