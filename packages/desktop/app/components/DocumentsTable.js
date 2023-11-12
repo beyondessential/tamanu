@@ -3,11 +3,12 @@ import styled from 'styled-components';
 import { extension } from 'mime-types';
 
 import GetAppIcon from '@material-ui/icons/GetApp';
-import { IconButton } from '@material-ui/core';
+import { IconButton, TableRow } from '@material-ui/core';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { Button } from './Button';
+import { ThemedTooltip } from './Tooltip';
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -38,6 +39,15 @@ const ActionButtons = React.memo(({ row, onDownload, onClickView }) => (
   </ActionsContainer>
 ));
 
+const TextDisplay = React.memo(({ text: textContent }) => {
+  // const displayText = textContent;
+  return (
+    <ThemedTooltip title={textContent}>
+      <span>{textContent}</span>
+    </ThemedTooltip>
+  );
+});
+
 const getAttachmentType = ({ type }) => {
   // Note that this may not be the actual extension of the file uploaded.
   // Instead, its the default extension for the mime-type of the file uploaded.
@@ -50,6 +60,8 @@ const getAttachmentType = ({ type }) => {
 const getUploadedDate = ({ documentUploadedAt }) =>
   documentUploadedAt ? <DateDisplay date={documentUploadedAt} /> : '';
 const getDepartmentName = ({ department }) => department?.name || '';
+
+const getNote = ({ note }) => (note ? <TextDisplay text={note} /> : '');
 
 export const DocumentsTable = React.memo(
   ({ endpoint, searchParameters, refreshCount, onDownload, openDocumentPreview }) => {
@@ -66,7 +78,12 @@ export const DocumentsTable = React.memo(
           accessor: getDepartmentName,
           sortable: false,
         },
-        { key: 'note', title: 'Comments', sortable: false },
+        {
+          key: 'note',
+          title: 'Comments',
+          sortable: false,
+          accessor: getNote,
+        },
         {
           key: 'actions',
           title: 'Actions',
