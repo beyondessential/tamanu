@@ -8,16 +8,15 @@ import {
   ContentPane,
   SearchTableTitle,
   SearchTable,
-  useLocalisedText,
 } from '../../components';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const CapitalisedValue = styled.span`
   text-transform: capitalize;
 `;
 
 export const AppointmentListingView = () => {
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
   const COLUMNS = [
     {
       key: 'startTime',
@@ -43,7 +42,9 @@ export const AppointmentListingView = () => {
     },
     {
       key: 'clinicianId',
-      title: clinicianText,
+      title: (
+        <TranslatedText stringId="general.localisedField.clinician.label" fallback="Clinician" />
+      ),
       accessor: row => `${row.clinician && row.clinician.displayName}`,
     },
     {

@@ -31,7 +31,7 @@ const StyledClearIcon = styled(ClearIcon)`
   color: ${Colors.darkText};
 `;
 
-export const SearchField = ({ keepLetterCase = false, ...props }) => {
+export const SearchField = props => {
   const {
     field: { value, name },
     form: { setFieldValue } = {},

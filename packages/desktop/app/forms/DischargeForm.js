@@ -32,11 +32,7 @@ import { LowerCase } from '../components/Typography';
 import { FormConfirmCancelBackRow, FormSubmitCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
-import {
-  MODAL_PADDING_LEFT_AND_RIGHT,
-  MODAL_PADDING_TOP_AND_BOTTOM,
-  useLocalisedText,
-} from '../components';
+import { MODAL_PADDING_LEFT_AND_RIGHT, MODAL_PADDING_TOP_AND_BOTTOM } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const Divider = styled(BaseDivider)`

@@ -31,7 +31,10 @@ export const ChangeClinicianModal = React.memo(({ open, onClose }) => {
           replacements={{
             clinician: (
               <LowerCase>
-                <TranslatedText stringId="general.clinician.shortLabel" fallback="Clinician" />
+                <TranslatedText
+                  stringId="general.localisedField.clinician.label"
+                  fallback="Clinician"
+                />
               </LowerCase>
             ),
           }}

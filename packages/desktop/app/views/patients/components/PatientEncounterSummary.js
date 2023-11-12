@@ -3,12 +3,7 @@ import styled, { css } from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, PATIENT_STATUS } from '../../../constants';
-import {
-  DateDisplay,
-  Button,
-  ButtonWithPermissionCheck,
-  useLocalisedText,
-} from '../../../components';
+import { DateDisplay, Button, ButtonWithPermissionCheck, LowerCase } from '../../../components';
 import { DeathCertificateModal } from '../../../components/PatientPrinting';
 import { useApi } from '../../../api';
 import { getFullLocationName } from '../../../utils/location';
@@ -115,7 +110,6 @@ const DataStatusMessage = ({ message }) => (
 
 const PatientDeathSummary = React.memo(({ patient }) => {
   const api = useApi();
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
   const { data: deathData, error, isLoading } = useQuery(['patientDeathSummary', patient.id], () =>
     api.get(`patient/${patient.id}/death`, {}, { showUnknownErrorToast: false }),
@@ -147,7 +141,13 @@ const PatientDeathSummary = React.memo(({ patient }) => {
           </ContentText>
         </ContentItem>
         <ContentItem>
-          <ContentLabel>{clinicianText}:</ContentLabel>
+          <ContentLabel>
+            <TranslatedText
+              stringId="general.localisedField.clinician.label"
+              fallback="Clinician"
+            />
+            :
+          </ContentLabel>
           <ContentText>{deathData?.clinician?.displayName}</ContentText>
         </ContentItem>
         <ContentItem style={{ gridColumn: '1/-1' }}>
@@ -167,7 +167,6 @@ const PatientDeathSummary = React.memo(({ patient }) => {
 
 export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin }) => {
   const { getLocalisation } = useLocalisation();
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
   const { data: encounter, error, isLoading } = usePatientCurrentEncounter(patient.id);
   const referralSourcePath = 'fields.referralSourceId';
 
@@ -254,8 +253,10 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
             <TranslatedText
               stringId="patient.encounterSummary.supervising"
               fallback="Supervising"
-            />{' '}
-            {clinicianText.toLowerCase()}:
+            />
+            <LowerCase>
+              <TranslatedText stringId="patient.encounterSummary.clinician" fallback="Clinician" />
+            </LowerCase>
           </ContentLabel>
           <ContentText>{examiner?.displayName || '-'}</ContentText>
         </ContentItem>
