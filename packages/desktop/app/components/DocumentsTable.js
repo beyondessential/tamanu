@@ -28,6 +28,16 @@ const StyledIconButton = styled(IconButton)`
   padding-right: 10px;
 `;
 
+const TwoLineTextWrapper = styled.div`
+  max-height: 35px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  white-space: pre-wrap;
+`;
+
 const ActionButtons = React.memo(({ row, onDownload, onClickView }) => (
   <ActionsContainer>
     <Action variant="outlined" size="small" onClick={() => onClickView(row)} key="view">
@@ -43,7 +53,7 @@ const TextDisplay = React.memo(({ text: textContent }) => {
   // const displayText = textContent;
   return (
     <ThemedTooltip title={textContent}>
-      <span>{textContent}</span>
+      <TwoLineTextWrapper>{textContent}</TwoLineTextWrapper>
     </ThemedTooltip>
   );
 });
