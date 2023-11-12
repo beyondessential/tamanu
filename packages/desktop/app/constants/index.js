@@ -210,7 +210,7 @@ export const encounterOptions = [
   },
   {
     value: ENCOUNTER_TYPES.SURVEY_RESPONSE,
-    label: 'Survey response',
+    label: 'Form response',
     image: patientIcon,
     hideFromMenu: true,
   },
