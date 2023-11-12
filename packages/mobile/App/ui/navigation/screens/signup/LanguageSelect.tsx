@@ -33,17 +33,16 @@ export const LanguageSelect: FunctionComponent<any> = ({ navigation }) => {
     models: { TranslatedString },
   } = useBackend();
 
-  // TODO: Is there a way to useMemo this
   useEffect(() => {
-    const getLanguageOptions = async () => {
+    (async () => {
       const languageOptions = await TranslatedString.getLanguageOptions();
       if (languageOptions.length === 0) {
-          setModalError('Cant load language list');
-          return;
+        setModalError('Cant load language list');
+        return;
       }
       setLanguageOptions(languageOptions);
-    };
-    getLanguageOptions();
+      setLanguage(await readConfig('language'));
+    })();
   }, []);
 
   const onChangeLanguage = async languageCode => {
@@ -64,6 +63,9 @@ export const LanguageSelect: FunctionComponent<any> = ({ navigation }) => {
     onChangeModalVisibility(true);
   }, []);
 
+  if (!language) {
+    return <StyledText>Loading languages...</StyledText>;
+  }
 
   return (
     <FullView background={theme.colors.PRIMARY_MAIN}>
