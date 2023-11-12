@@ -63,12 +63,14 @@ const getDepartmentName = ({ department }) => department?.name || '';
 
 const getNote = ({ note }) => (note ? <TextDisplay text={note} /> : '');
 
+const getName = ({ name }) => <TextDisplay text={name} />;
+
 export const DocumentsTable = React.memo(
   ({ endpoint, searchParameters, refreshCount, onDownload, openDocumentPreview }) => {
     // Define columns inside component to pass callbacks to getActions
     const COLUMNS = useMemo(
       () => [
-        { key: 'name', title: 'Name' },
+        { key: 'name', title: 'Name', accessor: getName },
         { key: 'type', title: 'Type', accessor: getAttachmentType },
         { key: 'documentUploadedAt', title: 'Upload', accessor: getUploadedDate },
         { key: 'documentOwner', title: 'Owner' },
