@@ -113,6 +113,7 @@ export const AppointmentsCalendar = () => {
       ),
     },
     clinician: {
+      // TODO translation: plural solution
       label: `${clinicianText}s`,
       component: (
         <AutocompleteInput
