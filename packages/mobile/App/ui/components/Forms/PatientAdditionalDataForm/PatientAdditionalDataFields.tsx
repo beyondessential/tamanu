@@ -5,7 +5,9 @@ import { TextField } from '../../TextField/TextField';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
+import { Field } from '~/ui/components/Forms/FormField';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
+import { PatientFieldDefinitionComponents } from '~/ui/helpers/fieldComponents';
 import { useBackend } from '~/ui/hooks';
 
 import {
@@ -70,8 +72,29 @@ function getComponentForField(fieldName: string): React.FC<{ fieldName: string }
   throw new Error(`Unexpected field ${fieldName} for patient additional data.`);
 }
 
-export const PatientAdditionalDataFields = ({ fields, showMandatory = true }): ReactElement => {
+const getFieldComponent = fieldName => {
+  const Component = getComponentForField(fieldName);
+  return <Component fieldName={fieldName} key={fieldName} />;
+}
+
+const getCustomFieldComponent = ({ id, name, options, fieldType }) => {
+  return <Field
+    name={id}
+    label={name}
+    component={PatientFieldDefinitionComponents[fieldType]}
+    options={options?.split(',')?.map(option => ({ label: option, value: option }))}
+  />;
+}
+
+export const PatientAdditionalDataFields = ({
+  fields,
+  isCustomFields,
+  showMandatory = true,
+}): ReactElement => {
+
   const { getBool } = useLocalisation();
+
+  if (isCustomFields) return fields.map(getCustomFieldComponent);
 
   const nonRequiredPADFields = getConfiguredPatientAdditionalDataFields(
     fields,
@@ -79,8 +102,5 @@ export const PatientAdditionalDataFields = ({ fields, showMandatory = true }): R
     getBool,
   );
 
-  return nonRequiredPADFields.map(fieldName => {
-    const Component = getComponentForField(fieldName);
-    return <Component fieldName={fieldName} key={fieldName} required={showMandatory} />;
-  });
+  return nonRequiredPADFields.map(getFieldComponent);
 };

@@ -220,6 +220,12 @@ export const SYNC_MENU_ITEMS = [
     path: '/admin/templates',
   },
   {
+    key: 'translation',
+    label: 'Translation',
+    path: '/admin/translation',
+    ability: { action: 'write', subject: 'translation' },
+  },
+  {
     key: 'assets',
     label: <TranslatedText stringId="adminSidebar.assetUpload" fallback="Asset upload" />,
     path: '/admin/assets',

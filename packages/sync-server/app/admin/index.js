@@ -15,6 +15,7 @@ import { fhirJobStats } from './fhirJobStats';
 import { reportsRouter } from './reports/reportRoutes';
 import { patientLetterTemplateRoutes } from './patientLetterTemplate';
 import { assetRoutes } from './asset';
+import { translationRouter } from './translation';
 
 export const adminRoutes = express.Router();
 
@@ -36,6 +37,7 @@ adminRoutes.use(
 );
 
 adminRoutes.use('/reports', reportsRouter);
+adminRoutes.use('/translation', translationRouter);
 adminRoutes.post('/mergePatient', mergePatientHandler);
 
 // A temporary lookup-patient-by-displayId endpoint, just to
@@ -70,7 +72,7 @@ adminRoutes.get(
   '/export/referenceData',
   asyncHandler(async (req, res) => {
     const { store, query } = req;
-    const filename = await exporter(store.models, query.includedDataTypes);
+    const filename = await exporter(store, query.includedDataTypes);
     res.download(filename);
   }),
 );

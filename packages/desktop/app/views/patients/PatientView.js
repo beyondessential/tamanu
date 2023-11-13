@@ -62,7 +62,7 @@ const TABS = [
     render: props => <ReferralPane {...props} />,
   },
   {
-    label: <TranslatedText stringId="patient.tabs.programs" fallback="Programs" />,
+    label: <TranslatedText stringId="patient.tabs.forms" fallback="Forms" />,
     key: PATIENT_TABS.PROGRAMS,
     icon: 'fa fa-hospital',
     render: ({ patient, ...props }) => (
