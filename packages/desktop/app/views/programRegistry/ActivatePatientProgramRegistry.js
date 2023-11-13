@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { useQuery } from '@tanstack/react-query';
 import {
   Form,
   Field,
@@ -16,7 +17,6 @@ import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { Modal } from '../../components/Modal';
 import { useApi } from '../../api/useApi';
-import { useQuery } from '@tanstack/react-query';
 
 export const ActivatePatientProgramRegistry = React.memo(
   ({ onCancel, onSubmit, patientProgramRegistration, open }) => {

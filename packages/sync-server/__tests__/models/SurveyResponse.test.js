@@ -143,15 +143,17 @@ describe('SurveyResponse.createWithAnswers', () => {
 
   it('creates patient program registration from actions', async () => {
     const survey = await createDummySurvey(models);
-    const registry = await models.ProgramRegistry.create({
-      ...fake(models.ProgramRegistry),
-      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-      programId: survey.programId,
-    });
-    const clinicalStatus = await models.ProgramRegistryClinicalStatus.create({
-      ...fake(models.ProgramRegistryClinicalStatus),
-      programRegistryId: registry.id,
-    });
+    const registry = await models.ProgramRegistry.create(
+      fake(models.ProgramRegistry, {
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        programId: survey.programId,
+      })
+    );
+    const clinicalStatus = await models.ProgramRegistryClinicalStatus.create(
+      fake(models.ProgramRegistryClinicalStatus, {
+        programRegistryId: registry.id,
+      })
+    );
     const { dataElement } = await createDummyDataElement(models, survey, {
       type: PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
       config: {
