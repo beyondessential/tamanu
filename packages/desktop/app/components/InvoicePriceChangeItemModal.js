@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
 import { useApi } from '../api';
-import { Modal } from './Modal';
+import { FormModal } from './FormModal';
 import { InvoicePriceChangeItemForm } from '../forms/InvoicePriceChangeItemForm';
 
 const PRICE_CHANGE_ITEM_INITIAL_VALUES = {
@@ -26,12 +26,12 @@ export const InvoicePriceChangeItemModal = ({
     async data => {
       const convertedPriceChange = data.percentageChange / 100;
       if (invoicePriceChangeItemId) {
-        api.put(`invoices/${invoiceId}/priceChangeItems/${invoicePriceChangeItemId}`, {
+        await api.put(`invoices/${invoiceId}/priceChangeItems/${invoicePriceChangeItemId}`, {
           ...data,
           percentageChange: convertedPriceChange,
         });
       } else {
-        api.post(`invoices/${invoiceId}/priceChangeItems`, {
+        await api.post(`invoices/${invoiceId}/priceChangeItems`, {
           ...data,
           percentageChange: convertedPriceChange,
         });
@@ -56,7 +56,7 @@ export const InvoicePriceChangeItemModal = ({
   }, [api, invoiceId, invoicePriceChangeItemId]);
 
   return (
-    <Modal width="md" title={title} open={open} onClose={onClose}>
+    <FormModal width="md" title={title} open={open} onClose={onClose}>
       <InvoicePriceChangeItemForm
         actionText={actionText}
         onSubmit={handleSubmit}
@@ -64,6 +64,6 @@ export const InvoicePriceChangeItemModal = ({
         invoiceId={invoiceId}
         invoicePriceChangeItem={invoicePriceChangeItem}
       />
-    </Modal>
+    </FormModal>
   );
 };

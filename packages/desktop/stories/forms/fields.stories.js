@@ -30,6 +30,8 @@ const FRUITS = [
   { value: 'dragonfruit', label: 'Dragonfruit' },
   { value: 'tomatoes', label: 'Tomatoes' },
   { value: 'cherries', label: 'Cherries' },
+  { value: 'fruit salad, 500g', label: 'Fruit salad, 500g' },
+  { value: 'fruit salad, 250g', label: 'Fruit salad, 250g' },
 ];
 
 const Container = styled.div`

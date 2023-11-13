@@ -474,6 +474,7 @@ const rootLocalisationSchema = yup
       .noUnknown(),
     printMeasures: printMeasuresSchema,
     disabledReports: yup.array(yup.string().required()).defined(),
+    supportDeskUrl: yup.string().required(),
     ageDisplayFormat: yup
       .array(
         yup.object({

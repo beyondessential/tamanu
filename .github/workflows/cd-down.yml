@@ -6,10 +6,6 @@ on:
     types:
       - closed
 
-concurrency:
-  # only one build or destroy at a time, per PR/branch, but don't cancel existing runs
-  group: cd-${{ github.pull_request.id || github.ref }}
-
 permissions:
   contents: read
   pull-requests: write

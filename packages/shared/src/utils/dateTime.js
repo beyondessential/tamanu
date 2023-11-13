@@ -13,6 +13,7 @@ import {
 } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import config from 'config';
+import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
 
 const ISO9075_DATE_FORMAT = 'yyyy-MM-dd';
 const ISO9075_DATETIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
@@ -147,6 +148,82 @@ export function compareDateStrings(key = 'desc') {
     if (key.toLowerCase() === 'desc') return parseISO(b.date) - parseISO(a.date);
     return 0;
   };
+}
+
+function getAgeRangeInMinutes({ ageMin = -Infinity, ageMax = Infinity, ageUnit }) {
+  const timeUnit = TIME_UNIT_OPTIONS.find(option => option.unit === ageUnit);
+  const conversionValue = timeUnit.minutes;
+  return {
+    ageMin: ageMin * conversionValue,
+    ageMax: ageMax * conversionValue,
+    previousAgeUnit: ageUnit,
+  };
+}
+
+export function doAgeRangesHaveGaps(rangesArray) {
+  const conversions = {
+    weeks: {
+      months: (a, b) => {
+        const weeks = a.ageMax / 60 / 24 / 7;
+        const months = b.ageMin / 60 / 24 / 30;
+        return weeks / 4 !== months;
+      },
+      years: (a, b) => {
+        const weeks = a.ageMax / 60 / 24 / 7;
+        const years = b.ageMin / 60 / 24 / 365;
+        return weeks / 52 !== years;
+      },
+    },
+    months: {
+      years: (a, b) => {
+        const months = a.ageMax / 60 / 24 / 30;
+        const years = b.ageMin / 60 / 24 / 365;
+        return months / 12 !== years;
+      },
+    },
+  };
+
+  // Get all values into same time unit and sort by ageMin low to high
+  const normalized = rangesArray.map(getAgeRangeInMinutes);
+  normalized.sort((a, b) => a.ageMin - b.ageMin);
+
+  return normalized.some((rangeA, i) => {
+    const rangeB = normalized[i + 1];
+    // This means we reached the last item, nothing more to compare
+    if (!rangeB) return false;
+
+    if (rangeA.previousAgeUnit !== rangeB.previousAgeUnit) {
+      // No conversion means that minute comparison is good
+      const conversion = conversions[rangeA.previousAgeUnit]?.[rangeB.previousAgeUnit];
+      if (conversion) {
+        return conversion(rangeA, rangeB);
+      }
+    }
+    // These have to forcefully match, otherwise a gap exists
+    return rangeA.ageMax !== rangeB.ageMin;
+  });
+}
+
+export function doAgeRangesOverlap(rangesArray) {
+  return rangesArray.some((rangeA, aIndex) => {
+    return rangesArray.some((rangeB, bIndex) => {
+      // Only compare once between two ranges
+      if (aIndex >= bIndex) return false;
+
+      // Get both values into same time unit
+      const aInMinutes = getAgeRangeInMinutes(rangeA);
+      const bInMinutes = getAgeRangeInMinutes(rangeB);
+
+      // Figure out the lowest min range
+      const lowestMin = aInMinutes.ageMin < bInMinutes.ageMin ? aInMinutes : bInMinutes;
+      const highestMin = aInMinutes.ageMin < bInMinutes.ageMin ? bInMinutes : aInMinutes;
+      const lowestAgeMax = lowestMin.ageMax;
+      const highestAgeMin = highestMin.ageMin;
+
+      // Min inclusive - max exclusive: only overlaps if its less than
+      return highestAgeMin < lowestAgeMax;
+    });
+  });
 }
 
 /*
