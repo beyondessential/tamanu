@@ -23,7 +23,9 @@ const saveChangesForModel = async (
   changes: SyncRecord[],
 ): Promise<void> => {
   // split changes into create, update, delete
-  const idsForDelete = changes.filter(c => c.isDeleted).map(c => c.data.id);
+  const recordsForDelete = changes
+    .filter(c => c.isDeleted)
+    .map(({ data }) => buildFromSyncRecord(model, data));
   const idsForUpsert = changes.filter(c => !c.isDeleted && c.data.id).map(c => c.data.id);
   const idsForUpdate = new Set();
   const idsForRestore = new Set();
@@ -50,11 +52,15 @@ const saveChangesForModel = async (
     .filter(c => !c.isDeleted && idsForUpdate.has(c.recordId))
     .map(({ data }) => buildFromSyncRecord(model, data));
 
+  const recordsForRestore = changes
+    .filter(c => !c.isDeleted && idsForRestore.has(c.recordId))
+    .map(({ data }) => buildFromSyncRecord(model, data));
+
   // run each import process
   await executeInserts(model, recordsForCreate);
   await executeUpdates(model, recordsForUpdate);
-  await executeDeletes(model, idsForDelete);
-  await executeRestores(model, Array.from(idsForRestore));
+  await executeDeletes(model, recordsForDelete);
+  await executeRestores(model, recordsForRestore);
 };
 
 /**

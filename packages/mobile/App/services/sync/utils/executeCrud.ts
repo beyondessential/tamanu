@@ -65,7 +65,11 @@ export const executeUpdates = async (
   }
 };
 
-export const executeDeletes = async (model: typeof BaseModel, rowIds: string[]): Promise<void> => {
+export const executeDeletes = async (
+  model: typeof BaseModel,
+  recordsForDelete: DataToPersist[],
+): Promise<void> => {
+  const rowIds = recordsForDelete.map(({ id }) => id);
   for (const batchOfIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
     try {
       const entities = await model.findByIds(batchOfIds);
@@ -85,12 +89,16 @@ export const executeDeletes = async (model: typeof BaseModel, rowIds: string[]):
       );
     }
   }
+
+  await executeUpdates(model, recordsForDelete);
 };
 
 export const executeRestores = async (
   model: typeof BaseModel,
-  rowIds: unknown[],
+  recordsForRestore: DataToPersist[],
 ): Promise<void> => {
+  const rowIds = recordsForRestore.map(({ id }) => id);
+
   for (const batchOfIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
     await Promise.all(
       batchOfIds.map(async id => {
@@ -103,4 +111,6 @@ export const executeRestores = async (
       }),
     );
   }
+
+  await executeUpdates(model, recordsForRestore);
 };
