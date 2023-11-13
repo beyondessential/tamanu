@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useState, createRef, useLayoutEffect } from 'react';
 import styled from 'styled-components';
 import { extension } from 'mime-types';
 
 import GetAppIcon from '@material-ui/icons/GetApp';
-import { IconButton, TableRow } from '@material-ui/core';
+import { IconButton } from '@material-ui/core';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -35,7 +35,6 @@ const TwoLineTextWrapper = styled.div`
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
-  white-space: pre-wrap;
 `;
 
 const ActionButtons = React.memo(({ row, onDownload, onClickView }) => (
@@ -50,11 +49,25 @@ const ActionButtons = React.memo(({ row, onDownload, onClickView }) => (
 ));
 
 const TextDisplay = React.memo(({ text: textContent }) => {
-  // const displayText = textContent;
+  const textWrapperRef = useRef();
+  const [contentIsOverflow, setContentIsOverflow] = useState(false);
+  const MAX_CELL_HEIGHT = 40;
+
   return (
-    <ThemedTooltip title={textContent}>
-      <TwoLineTextWrapper>{textContent}</TwoLineTextWrapper>
-    </ThemedTooltip>
+    <TwoLineTextWrapper
+      ref={el => {
+        textWrapperRef.current = el;
+        setContentIsOverflow(el?.scrollHeight > MAX_CELL_HEIGHT);
+      }}
+    >
+      {contentIsOverflow ? (
+        <ThemedTooltip title={textContent}>
+          <span>{textContent}</span>
+        </ThemedTooltip>
+      ) : (
+        <span>{textContent}</span>
+      )}
+    </TwoLineTextWrapper>
   );
 });
 
@@ -71,7 +84,9 @@ const getUploadedDate = ({ documentUploadedAt }) =>
   documentUploadedAt ? <DateDisplay date={documentUploadedAt} /> : '';
 const getDepartmentName = ({ department }) => department?.name || '';
 
-const getNote = ({ note }) => (note ? <TextDisplay text={note} /> : '');
+const getNote = ({ note }) => {
+  return note ? <TextDisplay text={note} /> : '';
+};
 
 const getName = ({ name }) => <TextDisplay text={name} />;
 
