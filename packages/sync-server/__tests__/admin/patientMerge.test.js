@@ -369,7 +369,7 @@ describe('Patient merge', () => {
       });
       const oldKeepPatientBirthDataCreatedAt = oldKeepPatientBirthData.createdAt;
 
-      const { updates } = await mergePatient(models, keep.id, merge.id);
+      const { updates } = await mergePatient({ models, settings }, keep.id, merge.id);
       expect(updates).toEqual({
         Patient: 2,
         PatientBirthData: 1,
@@ -403,7 +403,7 @@ describe('Patient merge', () => {
         birthLength: 6,
       });
 
-      await mergePatient(models, keep.id, merge.id);
+      await mergePatient({ models, settings }, keep.id, merge.id);
 
       const newKeepPatientBirthData = await PatientBirthData.findOne({
         where: { patientId: keep.id },
@@ -433,7 +433,7 @@ describe('Patient merge', () => {
         birthWeight: 5,
       });
 
-      await mergePatient(models, keep.id, merge.id);
+      await mergePatient({ models, settings }, keep.id, merge.id);
 
       const newKeepPatientBirthData = await PatientBirthData.findOne({
         where: { patientId: keep.id },
@@ -466,7 +466,7 @@ describe('Patient merge', () => {
         apgarScoreTenMinutes: 5,
       });
 
-      await mergePatient(models, keep.id, merge.id);
+      await mergePatient({ models, settings }, keep.id, merge.id);
 
       const newKeepPatientBirthData = await PatientBirthData.findOne({
         where: { patientId: keep.id },
@@ -505,7 +505,7 @@ describe('Patient merge', () => {
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
-      const { updates } = await mergePatient(models, keep.id, merge.id);
+      const { updates } = await mergePatient({ models, settings }, keep.id, merge.id);
       expect(updates).toEqual({
         Patient: 2,
         PatientDeathData: 1,
@@ -545,7 +545,7 @@ describe('Patient merge', () => {
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
-      const { updates } = await mergePatient(models, keep.id, merge.id);
+      const { updates } = await mergePatient({ models, settings }, keep.id, merge.id);
       expect(updates).toEqual({
         Patient: 2,
         PatientDeathData: 1,
@@ -597,7 +597,7 @@ describe('Patient merge', () => {
         visibilityStatus: VISIBILITY_STATUSES.MERGED,
       });
 
-      const { updates } = await mergePatient(models, keep.id, merge.id);
+      const { updates } = await mergePatient({ models, settings }, keep.id, merge.id);
       expect(updates).toEqual({
         Patient: 2,
         PatientDeathData: 2,
