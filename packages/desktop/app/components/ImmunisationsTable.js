@@ -168,7 +168,9 @@ export const ImmunisationsTable = React.memo(
         initialSort={{ orderBy: 'date', order: 'desc' }}
         fetchOptions={{ includeNotGiven }}
         columns={COLUMNS}
-        noDataMessage="No vaccinations found"
+        noDataMessage={
+          <TranslatedText stringId="vaccine.table.noDataMessage" fallback="No vaccinations found" />
+        }
         allowExport={!viewOnly}
         optionRow={!viewOnly && notGivenCheckBox}
         disablePagination={disablePagination}
