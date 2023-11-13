@@ -6,9 +6,9 @@ export async function seedSettings(models) {
   const { serverFacilityId } = config;
   const { Setting } = models;
   if (serverFacilityId) {
-    await Setting.set('', facilityTestSettings, serverFacilityId, SETTINGS_SCOPES.FACILITY);
+    await Setting.set('', facilityTestSettings, SETTINGS_SCOPES.FACILITY, serverFacilityId);
   } else {
-    await Setting.set('', centralTestSettings, null, SETTINGS_SCOPES.CENTRAL);
+    await Setting.set('', centralTestSettings, SETTINGS_SCOPES.CENTRAL);
   }
-  await Setting.set('', globalTestSettings, null, SETTINGS_SCOPES.GLOBAL);
+  await Setting.set('', globalTestSettings, SETTINGS_SCOPES.GLOBAL);
 }

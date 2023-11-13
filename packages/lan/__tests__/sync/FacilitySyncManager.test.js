@@ -32,8 +32,8 @@ describe('FacilitySyncManager', () => {
       await models.Setting.set(
         'sync.enabled',
         false,
-        config.serverFacilityId,
         SETTINGS_SCOPES.FACILITY,
+        config.serverFacilityId,
       );
 
       const syncManager = new FacilitySyncManager({
@@ -51,8 +51,8 @@ describe('FacilitySyncManager', () => {
       await models.Setting.set(
         'sync.enabled',
         true,
-        config.serverFacilityId,
         SETTINGS_SCOPES.FACILITY,
+        config.serverFacilityId,
       );
 
       const syncManager = new FacilitySyncManager({

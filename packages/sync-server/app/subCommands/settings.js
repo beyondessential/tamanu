@@ -92,7 +92,7 @@ export async function loadSettings(key, filepath, { facility, preview } = {}) {
     return JSON.stringify(value, null, 2);
   }
 
-  await Setting.set(key, value, facility);
+  await Setting.set(key, value, null, facility);
 
   const currentValue = await Setting.get(key, facility);
   return JSON.stringify(currentValue, null, 2);

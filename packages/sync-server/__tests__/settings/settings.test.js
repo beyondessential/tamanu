@@ -41,8 +41,8 @@ const mockGlobalSettings = {
 };
 
 const seedMockSettings = async models => {
-  await models.Setting.set('', mockCentralSettings, null, SETTINGS_SCOPES.CENTRAL);
-  await models.Setting.set('', mockGlobalSettings, null, SETTINGS_SCOPES.GLOBAL);
+  await models.Setting.set('', mockCentralSettings, SETTINGS_SCOPES.CENTRAL);
+  await models.Setting.set('', mockGlobalSettings, SETTINGS_SCOPES.GLOBAL);
   settingsCache.reset();
 };
 

@@ -3,6 +3,7 @@ import { mkdtemp, writeFile, rmdir } from 'fs/promises';
 import { tmpdir } from 'os';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { Op } from 'sequelize';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { listSettings, getSetting, setSetting, loadSettings } from '../../app/subCommands/settings';
 import { createTestContext } from '../utilities';
 
@@ -43,6 +44,7 @@ describe('settings', () => {
         leaf: 'weed',
         root: 'root',
       },
+      SETTINGS_SCOPES.FACILITY,
       facility,
     );
   });

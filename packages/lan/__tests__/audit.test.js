@@ -34,8 +34,8 @@ describe('Audit log', () => {
     await Setting.set(
       ENABLE_AUDIT_LOG_SETTINGS_KEY,
       true,
-      config.serverFacilityId,
       SETTINGS_SCOPES.FACILITY,
+      config.serverFacilityId,
     );
     app = await baseApp.asRole('practitioner');
   });

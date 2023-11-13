@@ -281,12 +281,12 @@ describe('FacilitySyncManager edge cases', () => {
       };
 
       const { Setting } = models;
-      await Setting.set('sync.enabled', false, config.serverFacilityId, SETTINGS_SCOPES.FACILITY);
+      await Setting.set('sync.enabled', false, SETTINGS_SCOPES.FACILITY, config.serverFacilityId);
       await Setting.set(
         'sync.assertIfPulledRecordsUpdatedAfterPushSnapshot',
         false,
-        config.serverFacilityId,
         SETTINGS_SCOPES.FACILITY,
+        config.serverFacilityId,
       );
 
       initializeSyncManager(encounter, configToOverride);
