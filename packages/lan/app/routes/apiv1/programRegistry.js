@@ -60,10 +60,7 @@ programRegistry.get(
       },
     };
 
-    const count = await ProgramRegistry.count({
-      ...baseQueryOptions,
-      distinct: true,
-    });
+    const count = await ProgramRegistry.count(baseQueryOptions);
 
     const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page } = query;
     const objects = await ProgramRegistry.findAll({
