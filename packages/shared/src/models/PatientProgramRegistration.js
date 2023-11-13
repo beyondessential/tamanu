@@ -51,7 +51,7 @@ export class PatientProgramRegistration extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['clinicalStatus'];
+    return ['clinicalStatus', 'clinician'];
   }
 
   static initRelations(models) {

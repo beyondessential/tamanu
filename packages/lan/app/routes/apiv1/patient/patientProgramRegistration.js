@@ -87,7 +87,7 @@ patientProgramRegistration.post(
 );
 
 patientProgramRegistration.get(
-  '/:patientId/programRegistration/:programRegistryId$',
+  '/:patientId/programRegistration/:programRegistryId',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const { patientId, programRegistryId } = params;
@@ -100,8 +100,13 @@ patientProgramRegistration.get(
         patientId,
         programRegistryId,
       },
-      include: PatientProgramRegistration.getFullAssociations(),
+      include: PatientProgramRegistration.getFullReferenceAssociations(),
+      order: [['date', 'DESC']],
     });
+
+    if (!registration) {
+      throw new NotFoundError();
+    }
 
     res.send(registration);
   }),
@@ -121,7 +126,8 @@ patientProgramRegistration.get(
         patientId,
         programRegistryId,
       },
-      include: PatientProgramRegistration.getListAssociations(),
+      include: PatientProgramRegistration.getListReferenceAssociations(),
+      order: [['date', 'DESC']],
     });
 
     res.send({

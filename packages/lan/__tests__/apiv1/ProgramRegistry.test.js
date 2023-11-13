@@ -44,13 +44,13 @@ describe('ProgramRegistry', () => {
         fake(models.ProgramRegistry, { programId: testProgram.id }),
       );
       await models.ProgramRegistry.create(
-        ...fake(models.ProgramRegistry, {
+        fake(models.ProgramRegistry, {
           programId: testProgram.id,
           visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
         }),
       );
       await models.ProgramRegistry.create(
-        ...fake(models.ProgramRegistry, { programId: testProgram.id }),
+        fake(models.ProgramRegistry, { programId: testProgram.id }),
       );
 
       const result = await app.get('/v1/programRegistry');
@@ -66,25 +66,25 @@ describe('ProgramRegistry', () => {
 
       // Should show:
       await models.ProgramRegistry.create(
-        ...fake(models.ProgramRegistry, { programId: testProgram.id }),
+        fake(models.ProgramRegistry, { programId: testProgram.id }),
       );
       await models.ProgramRegistry.create(
-        ...fake(models.ProgramRegistry, { programId: testProgram.id }),
+        fake(models.ProgramRegistry, { programId: testProgram.id }),
       );
 
       // Should not show (historical):
       await models.ProgramRegistry.create(
-        ...fake(models.ProgramRegistry, {
+        fake(models.ProgramRegistry, {
           programId: testProgram.id,
           visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
         }),
       );
       // Should not show (patient already has registration):
       const { id: existingRegistrationId } = await models.ProgramRegistry.create(
-        ...fake(models.ProgramRegistry, { programId: testProgram.id }),
+        fake(models.ProgramRegistry, { programId: testProgram.id }),
       );
       await models.PatientProgramRegistration.create(
-        ...fake(models.PatientProgramRegistration, {
+        fake(models.PatientProgramRegistration, {
           patientId: testPatient.id,
           programRegistryId: existingRegistrationId,
         }),
@@ -233,4 +233,5 @@ describe('ProgramRegistry', () => {
       ]);
     });
   });
+
 });
