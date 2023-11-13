@@ -64,7 +64,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
         surveyId: id,
         components,
         surveyType: SurveyTypes.Vitals,
-        encounterReason: `Survey response for ${name}`,
+        encounterReason: `Form response for ${name}`,
       },
       { ...values, [dateComponent.dataElement.code]: getCurrentDateTimeString() },
       setNote,

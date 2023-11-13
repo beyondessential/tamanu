@@ -38,8 +38,8 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   const [note, setNote] = useState('');
   const [showModal, setShowModal] = useState(false);
 
-  const [survey, surveyError, isSurveyLoading] = useBackendEffect(
-    ({ models }) => models.Survey.getRepository().findOne(surveyId),
+  const [survey, surveyError, isSurveyLoading] = useBackendEffect(({ models }) =>
+    models.Survey.getRepository().findOne(surveyId),
   );
 
   const [components, componentsError, areComponentsLoading] = useBackendEffect(
@@ -48,9 +48,10 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   );
 
   const [patientAdditionalData, padError, isPadLoading] = useBackendEffect(
-    ({ models }) => models.PatientAdditionalData.getRepository().findOne({
-      patient: selectedPatient.id,
-    }),
+    ({ models }) =>
+      models.PatientAdditionalData.getRepository().findOne({
+        patient: selectedPatient.id,
+      }),
     [selectedPatient.id],
   );
 
@@ -67,7 +68,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
           surveyId,
           components,
           surveyType,
-          encounterReason: `Survey response for ${survey.name}`,
+          encounterReason: `Form response for ${survey.name}`,
         },
         values,
         setNote,
@@ -81,13 +82,10 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
         });
         return;
       } else {
-        navigation.navigate(
-          Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.ViewHistory,
-          {
-            selectedPatient,
-            latestResponseId: response.id,
-          },
-        );
+        navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.ViewHistory, {
+          selectedPatient,
+          latestResponseId: response.id,
+        });
         return;
       }
     },
