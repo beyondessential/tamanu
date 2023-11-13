@@ -43,18 +43,21 @@ const saveUpdates = async (model, incomingRecords, idToExistingRecord, isCentral
     : // on the facility server, trust the resolved central server version
       incomingRecords;
   await asyncPool(persistUpdateWorkerPoolSize, recordsToSave, async r =>
-    model.update(r, { where: { id: r.id }, paranoid: false }),
+    model.update(r, { where: { id: r.id } }),
   );
 };
 
-const saveDeletes = async (model, recordIds) => {
-  if (recordIds.length === 0) return;
-  await model.destroy({ where: { id: { [Op.in]: recordIds } } });
+// model.update cannot update deleted_at field, so we need to do destroy and restore
+const saveDeletes = async (model, recordsForDelete, idToExistingRecord, isCentralServer) => {
+  if (recordsForDelete.length === 0) return;
+  await saveUpdates(model, recordsForDelete, idToExistingRecord, isCentralServer);
+  await model.destroy({ where: { id: { [Op.in]: recordsForDelete.map(r => r.id) } } });
 };
 
-const saveRestores = async (model, recordIds) => {
-  if (recordIds.length === 0) return;
-  await model.restore({ where: { id: { [Op.in]: recordIds } } });
+const saveRestores = async (model, recordsForRestore, idToExistingRecord, isCentralServer) => {
+  if (recordsForRestore.length === 0) return;
+  await model.restore({ where: { id: { [Op.in]: recordsForRestore.map(r => r.id) } } });
+  await saveUpdates(model, recordsForRestore, idToExistingRecord, isCentralServer);
 };
 
 const saveChangesForModel = async (model, changes, isCentralServer) => {
@@ -62,7 +65,12 @@ const saveChangesForModel = async (model, changes, isCentralServer) => {
     isCentralServer ? model.sanitizeForCentralServer(d) : model.sanitizeForFacilityServer(d);
 
   // split changes into create, update, delete
-  const idsForDelete = changes.filter(c => c.isDeleted).map(c => c.data.id);
+  const recordsForDelete = changes
+    .filter(c => c.isDeleted)
+    .map(({ data }) => {
+      // validateRecord(data, null); TODO add in validation
+      return sanitizeData(data);
+    });
   const idsForUpsert = changes.filter(c => !c.isDeleted && c.data.id).map(c => c.data.id);
   const existingRecords = await model.findByIds(idsForUpsert, false);
   const idToExistingRecord = Object.fromEntries(
@@ -83,20 +91,27 @@ const saveChangesForModel = async (model, changes, isCentralServer) => {
       // validateRecord(data, null); TODO add in validation
       return sanitizeData(data);
     });
-  const idsForRestore = changes.filter(
-    r =>
-      !r.isDeleted && !!idToExistingRecord[r.data.id] && !!idToExistingRecord[r.data.id].deletedAt,
-  );
+  const recordsForRestore = changes
+    .filter(
+      r =>
+        !r.isDeleted &&
+        !!idToExistingRecord[r.data.id] &&
+        !!idToExistingRecord[r.data.id].deletedAt,
+    )
+    .map(({ data }) => {
+      // validateRecord(data, null); TODO add in validation
+      return sanitizeData(data);
+    });
 
   // run each import process
   log.debug(`saveIncomingChanges: Creating ${recordsForCreate.length} new records`);
   await saveCreates(model, recordsForCreate);
   log.debug(`saveIncomingChanges: Updating ${recordsForUpdate.length} existing records`);
   await saveUpdates(model, recordsForUpdate, idToExistingRecord, isCentralServer);
-  log.debug(`saveIncomingChanges: Soft deleting ${idsForDelete.length} old records`);
-  await saveDeletes(model, idsForDelete);
-  log.debug(`saveIncomingChanges: Restoring ${idsForRestore.length} deleted records`);
-  await saveRestores(model, idsForRestore);
+  log.debug(`saveIncomingChanges: Soft deleting ${recordsForDelete.length} old records`);
+  await saveDeletes(model, recordsForDelete, idToExistingRecord, isCentralServer);
+  log.debug(`saveIncomingChanges: Restoring ${recordsForRestore.length} deleted records`);
+  await saveRestores(model, recordsForRestore, idToExistingRecord, isCentralServer);
 };
 
 const saveChangesForModelInBatches = async (
