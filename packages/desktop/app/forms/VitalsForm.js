@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
+import { VITALS_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { ModalLoader, FormSubmitCancelRow, Form } from '../components';
 import { SurveyScreen } from '../components/Surveys';
@@ -54,6 +54,9 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
   }
 
   const handleSubmit = async data => onSubmit({ survey: vitalsSurvey, ...data });
+  const currentComponents = vitalsSurvey.components.filter(
+    c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
+  );
 
   return (
     <Form
@@ -64,7 +67,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
       validationSchema={validationSchema}
       initialValues={{
         [VITALS_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTimeString(),
-        ...getFormInitialValues(vitalsSurvey.components, patient, patientAdditionalData),
+        ...getFormInitialValues(currentComponents, patient, patientAdditionalData),
       }}
       validate={({ [VITALS_DATA_ELEMENT_IDS.dateRecorded]: date, ...values }) => {
         const errors = {};
@@ -76,7 +79,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
       }}
       render={({ submitForm, values, setFieldValue }) => (
         <SurveyScreen
-          allComponents={vitalsSurvey.components}
+          allComponents={currentComponents}
           patient={patient}
           cols={2}
           values={values}

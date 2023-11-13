@@ -34,13 +34,14 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
-  const [vitalsSurvey, vitalsError, isVitalsLoading] = useBackendEffect(
-    ({ models: m }) => m.Survey.getVitalsSurvey(),
+  const [vitalsSurvey, vitalsError, isVitalsLoading] = useBackendEffect(({ models: m }) =>
+    m.Survey.getVitalsSurvey({ includeAllVitals: false }),
   );
   const [patientAdditionalData, padError, isPadLoading] = useBackendEffect(
-    ({ models: m }) => m.PatientAdditionalData.getRepository().findOne({
-      patient: selectedPatient.id,
-    }),
+    ({ models: m }) =>
+      m.PatientAdditionalData.getRepository().findOne({
+        patient: selectedPatient.id,
+      }),
     [selectedPatient.id],
   );
 
