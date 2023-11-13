@@ -40,14 +40,3 @@ authModule.get(
     res.send(convertFromDbRecord(req.user).data);
   }),
 );
-
-authModule.get('/translation/preLogin', async (req, res) => {
-  const response = await getLanguageOptions(req.models, req.headers['if-none-match']);
-  if (response === NOT_MODIFIED_STATUS_CODE) {
-    res.status(NOT_MODIFIED_STATUS_CODE).end();
-    return;
-  }
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('ETag', response.eTag);
-  res.send(response.languageOptions);
-});
