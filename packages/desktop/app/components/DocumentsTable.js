@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState, createRef, useLayoutEffect } from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { extension } from 'mime-types';
 
@@ -8,7 +8,7 @@ import { IconButton } from '@material-ui/core';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { Button } from './Button';
-import { ThemedTooltip } from './Tooltip';
+import { LimitedLinesCell } from './FormattedTableCell';
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -28,15 +28,6 @@ const StyledIconButton = styled(IconButton)`
   padding-right: 10px;
 `;
 
-const TwoLineTextWrapper = styled.div`
-  max-height: 35px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-`;
-
 const ActionButtons = React.memo(({ row, onDownload, onClickView }) => (
   <ActionsContainer>
     <Action variant="outlined" size="small" onClick={() => onClickView(row)} key="view">
@@ -47,29 +38,6 @@ const ActionButtons = React.memo(({ row, onDownload, onClickView }) => (
     </StyledIconButton>
   </ActionsContainer>
 ));
-
-const TextDisplay = React.memo(({ text: textContent }) => {
-  const textWrapperRef = useRef();
-  const [contentIsOverflow, setContentIsOverflow] = useState(false);
-  const MAX_CELL_HEIGHT = 40;
-
-  return (
-    <TwoLineTextWrapper
-      ref={el => {
-        textWrapperRef.current = el;
-        setContentIsOverflow(el?.scrollHeight > MAX_CELL_HEIGHT);
-      }}
-    >
-      {contentIsOverflow ? (
-        <ThemedTooltip title={textContent}>
-          <span>{textContent}</span>
-        </ThemedTooltip>
-      ) : (
-        <span>{textContent}</span>
-      )}
-    </TwoLineTextWrapper>
-  );
-});
 
 const getAttachmentType = ({ type }) => {
   // Note that this may not be the actual extension of the file uploaded.
@@ -84,32 +52,27 @@ const getUploadedDate = ({ documentUploadedAt }) =>
   documentUploadedAt ? <DateDisplay date={documentUploadedAt} /> : '';
 const getDepartmentName = ({ department }) => department?.name || '';
 
-const getNote = ({ note }) => {
-  return note ? <TextDisplay text={note} /> : '';
-};
-
-const getName = ({ name }) => <TextDisplay text={name} />;
-
 export const DocumentsTable = React.memo(
   ({ endpoint, searchParameters, refreshCount, onDownload, openDocumentPreview }) => {
     // Define columns inside component to pass callbacks to getActions
     const COLUMNS = useMemo(
       () => [
-        { key: 'name', title: 'Name', accessor: getName },
+        { key: 'name', title: 'Name', CellComponent: LimitedLinesCell },
         { key: 'type', title: 'Type', accessor: getAttachmentType },
         { key: 'documentUploadedAt', title: 'Upload', accessor: getUploadedDate },
-        { key: 'documentOwner', title: 'Owner' },
+        { key: 'documentOwner', title: 'Owner', CellComponent: LimitedLinesCell },
         {
           key: 'department.name',
           title: 'Department',
           accessor: getDepartmentName,
+          CellComponent: LimitedLinesCell,
           sortable: false,
         },
         {
           key: 'note',
           title: 'Comments',
           sortable: false,
-          accessor: getNote,
+          CellComponent: LimitedLinesCell,
         },
         {
           key: 'actions',
