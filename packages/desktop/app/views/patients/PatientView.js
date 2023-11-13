@@ -61,7 +61,7 @@ const TABS = [
     render: props => <ReferralPane {...props} />,
   },
   {
-    label: 'Programs',
+    label: 'Forms',
     key: PATIENT_TABS.PROGRAMS,
     icon: 'fa fa-hospital',
     render: ({ patient, ...props }) => (

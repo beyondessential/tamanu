@@ -4,7 +4,7 @@ import { customAlphabet } from 'nanoid';
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
 
-import { Modal } from './Modal';
+import { FormModal } from './FormModal';
 import { ImagingRequestForm } from '../forms/ImagingRequestForm';
 import { ALPHABET_FOR_ID } from '../constants';
 
@@ -19,7 +19,7 @@ export const ImagingRequestModal = ({ open, onClose, encounter }) => {
   const [requestId, setRequestId] = useState();
 
   return (
-    <Modal width="md" title="New imaging request" open={open} onClose={onClose}>
+    <FormModal width="md" title="New imaging request" open={open} onClose={onClose}>
       <ImagingRequestForm
         onSubmit={async data => {
           const newRequest = await api.post(`imagingRequest`, {
@@ -35,6 +35,6 @@ export const ImagingRequestModal = ({ open, onClose, encounter }) => {
         practitionerSuggester={practitionerSuggester}
         generateId={generateDisplayId}
       />
-    </Modal>
+    </FormModal>
   );
 };

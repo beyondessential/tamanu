@@ -8,7 +8,13 @@ import {
   VISIBILITY_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { jsonString, validationString, configString } from './jsonString';
+import {
+  jsonString,
+  validationString,
+  configString,
+  visualisationConfigString,
+} from './jsonString';
+import { rangeObjectSchema, rangeArraySchema } from './rangeObject';
 
 const visibilityStatus = yup
   .string()
@@ -151,6 +157,13 @@ export const LabTestPanelLabTestTypes = yup.object().shape({
   labTestTypeId: yup.string().required(),
 });
 
+const visualisationConfigSchema = yup.object().shape({
+  yAxis: yup.object().shape({
+    graphRange: yup.lazy(value => (Array.isArray(value) ? rangeArraySchema : rangeObjectSchema)),
+    interval: yup.number().required(),
+  }),
+});
+
 export const ProgramDataElement = Base.shape({
   indicator: yup.string(),
   type: yup
@@ -158,6 +171,7 @@ export const ProgramDataElement = Base.shape({
     .required()
     .oneOf(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
   defaultOptions: jsonString(),
+  visualisationConfig: visualisationConfigString(visualisationConfigSchema),
 });
 
 export const baseValidationShape = yup

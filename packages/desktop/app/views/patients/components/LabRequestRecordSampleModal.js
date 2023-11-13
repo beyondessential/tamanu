@@ -4,7 +4,7 @@ import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import styled from 'styled-components';
 import {
   FormGrid,
-  Modal,
+  FormModal,
   SuggesterSelectField,
   Form,
   Field,
@@ -13,14 +13,14 @@ import {
 } from '../../../components';
 import { Colors } from '../../../constants';
 import { useSuggester } from '../../../api';
-import { ModalActionRow } from '../../../components/ModalActionRow';
+import { ModalFormActionRow } from '../../../components/ModalActionRow';
 
 const validationSchema = yup.object().shape({
   sampleTime: yup.date().required(),
   labSampleSiteId: yup.string(),
 });
 
-const StyledModal = styled(Modal)`
+const StyledModal = styled(FormModal)`
   .MuiPaper-root {
     max-width: 1000px;
   }
@@ -103,7 +103,7 @@ const LabRequestRecordSampleForm = ({ submitForm, values, onClose }) => {
           />
         </FormGrid>
       </FieldContainer>
-      <ModalActionRow onConfirm={submitForm} confirmText="Confirm" onCancel={onClose} />
+      <ModalFormActionRow onConfirm={submitForm} confirmText="Confirm" onCancel={onClose} />
     </>
   );
 };

@@ -3,7 +3,7 @@ import { ENCOUNTER_TYPES, REFERRAL_STATUSES } from '@tamanu/constants';
 import { useDispatch } from 'react-redux';
 import { useApi } from '../api';
 
-import { Modal } from './Modal';
+import { FormModal } from './FormModal';
 import { reloadPatient } from '../store/patient';
 import { EncounterForm } from '../forms/EncounterForm';
 import { useEncounter } from '../contexts/Encounter';
@@ -16,7 +16,6 @@ export const CheckInModal = React.memo(
 
     const onCreateEncounter = useCallback(
       async data => {
-        onClose();
         const newEncounter = {
           patientId,
           referralId: referral?.id,
@@ -32,13 +31,15 @@ export const CheckInModal = React.memo(
           onSubmitEncounter(newEncounter);
         }
 
+        onClose();
+
         dispatch(reloadPatient(patientId));
       },
       [dispatch, patientId, api, createEncounter, onSubmitEncounter, onClose, referral],
     );
 
     return (
-      <Modal
+      <FormModal
         title={`Admit or check-in | ${
           props?.encounterType === ENCOUNTER_TYPES.ADMISSION ? 'Hospital admission' : ''
         }${props?.encounterType === ENCOUNTER_TYPES.CLINIC ? 'Clinic' : ''}`}
@@ -51,7 +52,7 @@ export const CheckInModal = React.memo(
           patientBillingTypeId={patientBillingTypeId}
           {...props}
         />
-      </Modal>
+      </FormModal>
     );
   },
 );

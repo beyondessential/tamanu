@@ -17,6 +17,7 @@
       // "evict": 1000
     },
     "reportSchemas": {
+      "enabled": false,
       "connections": {
         "raw": {
           "pool": {
@@ -931,7 +932,8 @@
             "min": { "duration": { "years": 2 } }
           }
         }
-      ]
+      ],
+      "supportDeskUrl": "https://bes-support.zendesk.com/hc/en-us"
     }
   },
   "reportProcess": {

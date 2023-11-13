@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
-import { Modal } from './Modal';
+import { FormModal } from './FormModal';
 import { MedicationForm } from '../forms/MedicationForm';
 import { getCurrentDateString } from '../utils/dateTime';
 
@@ -47,7 +47,7 @@ export const MedicationModal = ({ open, onClose, onSaved, encounterId, medicatio
   };
 
   return (
-    <Modal
+    <FormModal
       title={!readOnly ? 'Prescribe medication' : 'Medication details'}
       open={open}
       onClose={onClose}
@@ -67,6 +67,6 @@ export const MedicationModal = ({ open, onClose, onSaved, encounterId, medicatio
         shouldDiscontinue={shouldDiscontinue}
         drugSuggester={drugSuggester}
       />
-    </Modal>
+    </FormModal>
   );
 };
