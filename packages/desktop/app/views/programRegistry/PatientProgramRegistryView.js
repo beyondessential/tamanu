@@ -75,7 +75,7 @@ export const PatientProgramRegistryView = () => {
   return (
     <>
       <ViewHeader>
-        <h1>{data.name}</h1>
+        <h1>{data.programRegistry.name}</h1>
         <StatusDiv>
           {data.registrationStatus === PROGRAM_REGISTRATION_STATUSES.ACTIVE ? (
             <StatusActiveDot />

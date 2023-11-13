@@ -25,11 +25,16 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
   const [selectedProgramRegistryId, setSelectedProgramRegistryId] = useState();
 
   const { data: program } = useQuery(['programRegistry', selectedProgramRegistryId], () =>
-    api.get(`programRegistry/${selectedProgramRegistryId}`),
+    selectedProgramRegistryId ? api.get(`programRegistry/${selectedProgramRegistryId}`) : null,
   );
   const { data: conditions } = useQuery(
     ['programRegistryConditions', selectedProgramRegistryId],
-    () => api.get(`programRegistry/${selectedProgramRegistryId}/conditions`),
+    () =>
+      selectedProgramRegistryId
+        ? api
+            .get(`programRegistry/${selectedProgramRegistryId}/conditions`)
+            .then(response => response.data.map(x => ({ label: x.name, value: x.id })))
+        : undefined,
   );
   const programRegistrySuggester = useSuggester('programRegistry', {
     baseQueryParameters: { patientId: patient.id },
@@ -142,7 +147,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
         date: yup.date(),
         facilityId: optionalForeignKey(),
         clinicianId: foreignKey('Registered by must be selected'),
-        conditions: yup.array().of(yup.string()),
+        // conditionIds: yup.array().of(yup.string()),
       })}
     />
   );

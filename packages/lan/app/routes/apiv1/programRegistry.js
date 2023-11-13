@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Sequelize, Op, QueryTypes } from 'sequelize';
-
+import { VISIBILITY_STATUSES, REGISTRATION_STATUSES } from '@tamanu/constants';
 import { deepRenameObjectKeys } from '@tamanu/shared/utils';
 import { simpleGet, simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 import {
@@ -14,7 +14,7 @@ export const programRegistry = express.Router();
 
 programRegistry.get('/:id', simpleGet('ProgramRegistry'));
 
-// TODO: TAN-2357: reimplement as standalone handler rather than simpleGetList 
+// TODO: TAN-2357: reimplement as standalone handler rather than simpleGetList
 programRegistry.get(
   '/$',
   simpleGetList('ProgramRegistry', '', {
