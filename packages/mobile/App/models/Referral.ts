@@ -70,6 +70,7 @@ export class Referral extends BaseModel implements IReferral {
         'screenComponent',
         'screenComponent.dataElementId = dataElement.id and screenComponent.surveyId = survey.id',
       )
+      .withDeleted() // 'withDeleted() after the join: Include soft-deleted 'screenComponent':
       .where('initiatingEncounter.patientId = :patientId', { patientId })
       .orderBy({
         'surveyResponse.endTime': 'DESC',
