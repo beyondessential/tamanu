@@ -9,7 +9,7 @@ syncHealth.get(
   asyncHandler(async (req, res) => {
     const { deviceId } = req;
     req.flagPermissionChecked();
-    const centralServer = new CentralServerConnection({ deviceId });
+    const centralServer = new CentralServerConnection({ deviceId }, await req.settings.get('sync'));
 
     // The desktop client and lan server should still work without
     // a connected sync server, we just want to notify the user they aren't

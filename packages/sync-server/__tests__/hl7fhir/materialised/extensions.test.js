@@ -17,6 +17,7 @@ describe('New Zealand ethnicity extension', () => {
   it('returns a fhir extension when feature flag is on', () => {
     const mockConfig = {
       hl7: config.hl7,
+      // TODO db config
       localisation: { data: { features: { fhirNewZealandEthnicity: true } } },
     };
     const extension = nzEthnicity.overrideConfig(patient, mockConfig);

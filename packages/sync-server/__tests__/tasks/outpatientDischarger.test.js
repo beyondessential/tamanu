@@ -32,6 +32,11 @@ describe('Outpatient discharger', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
+    ctx.schedules = {
+      outpatientDischarger: {
+        schedule: '',
+      },
+    };
     models = ctx.store.models;
     const patient = await models.Patient.create(fake(models.Patient));
     const examiner = await models.User.create(fakeUser());

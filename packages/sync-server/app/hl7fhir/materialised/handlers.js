@@ -12,7 +12,7 @@ import { readHandler } from './read';
 import { searchHandler } from './search';
 import { createHandler } from './create';
 
-export function fhirRoutes(ctx, { requireClientHeaders } = {}) {
+export function fhirRoutes(ctx, requireClientHeaders) {
   const routes = Router();
 
   routes.use((req, res, next) => {

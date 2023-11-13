@@ -1,21 +1,15 @@
 import { Op } from 'sequelize';
-import config from 'config';
 import asyncPool from 'tiny-async-pool';
 
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
+import { ReadSettings } from '@tamanu/settings';
 import { sortInDependencyOrder } from '../models/sortInDependencyOrder';
 import { log } from '../services/logging/log';
 import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
 import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
 import { mergeRecord } from './mergeRecord';
 import { SYNC_SESSION_DIRECTION } from './constants';
-
-const {
-  persistedCacheBatchSize,
-  pauseBetweenPersistedCacheBatchesInMilliseconds,
-  persistUpdateWorkerPoolSize,
-} = config.sync;
 
 const saveCreates = async (model, records) => {
   // can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
@@ -33,7 +27,13 @@ const saveCreates = async (model, records) => {
   return model.bulkCreate(deduplicated);
 };
 
-const saveUpdates = async (model, incomingRecords, idToExistingRecord, isCentralServer) => {
+const saveUpdates = async (
+  model,
+  incomingRecords,
+  idToExistingRecord,
+  isCentralServer,
+  { persistUpdateWorkerPoolSize },
+) => {
   const recordsToSave = isCentralServer
     ? // on the central server, merge the records coming in from different clients
       incomingRecords.map(incoming => {
@@ -52,7 +52,12 @@ const saveDeletes = async (model, recordIds) => {
   await model.destroy({ where: { id: { [Op.in]: recordIds } } });
 };
 
-const saveChangesForModel = async (model, changes, isCentralServer) => {
+const saveChangesForModel = async (
+  model,
+  changes,
+  isCentralServer,
+  { persistUpdateWorkerPoolSize },
+) => {
   const sanitizeData = d =>
     isCentralServer ? model.sanitizeForCentralServer(d) : model.sanitizeForFacilityServer(d);
 
@@ -80,7 +85,9 @@ const saveChangesForModel = async (model, changes, isCentralServer) => {
   log.debug(`saveIncomingChanges: Creating ${recordsForCreate.length} new records`);
   await saveCreates(model, recordsForCreate);
   log.debug(`saveIncomingChanges: Updating ${recordsForUpdate.length} existing records`);
-  await saveUpdates(model, recordsForUpdate, idToExistingRecord, isCentralServer);
+  await saveUpdates(model, recordsForUpdate, idToExistingRecord, isCentralServer, {
+    persistUpdateWorkerPoolSize,
+  });
   log.debug(`saveIncomingChanges: Deleting ${idsForDelete.length} old records`);
   await saveDeletes(model, idsForDelete);
 };
@@ -91,6 +98,11 @@ const saveChangesForModelInBatches = async (
   sessionId,
   recordType,
   isCentralServer,
+  {
+    persistedCacheBatchSize,
+    pauseBetweenPersistedCacheBatchesInMilliseconds,
+    persistUpdateWorkerPoolSize,
+  },
 ) => {
   const syncRecordsCount = await countSyncSnapshotRecords(
     sequelize,
@@ -120,7 +132,9 @@ const saveChangesForModelInBatches = async (
         count: batchRecords.length,
       });
 
-      await saveChangesForModel(model, batchRecords, isCentralServer);
+      await saveChangesForModel(model, batchRecords, isCentralServer, {
+        persistUpdateWorkerPoolSize,
+      });
 
       await sleepAsync(pauseBetweenPersistedCacheBatchesInMilliseconds);
     } catch (error) {
@@ -137,7 +151,8 @@ export const saveIncomingChanges = async (
   isCentralServer = false,
 ) => {
   const sortedModels = sortInDependencyOrder(pulledModels);
-
+  const settings = new ReadSettings(sequelize.models);
+  const syncSettings = await settings.get('sync');
   for (const model of sortedModels) {
     await saveChangesForModelInBatches(
       model,
@@ -145,6 +160,7 @@ export const saveIncomingChanges = async (
       sessionId,
       model.tableName,
       isCentralServer,
+      syncSettings,
     );
   }
 };

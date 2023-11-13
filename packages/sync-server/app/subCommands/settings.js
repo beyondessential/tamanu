@@ -74,7 +74,7 @@ export async function setSetting(key, value, { facility } = {}) {
       : 'no current value\n';
 
   const newValue = JSON.parse(value);
-  await Setting.set(key, newValue, facility);
+  await Setting.set(key, newValue, null, facility);
   return `${preValue}\nnew value set`;
 }
 

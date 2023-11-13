@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import { format } from 'date-fns';
 import { Command } from 'commander';
 
+import { SettingsReader } from '@tamanu/settings';
 import { log } from '@tamanu/shared/services/logging';
 import { Signer } from '@tamanu/shared/models';
 
@@ -9,9 +10,11 @@ import { loadCertificateIntoSigner } from '../integrations/Signer';
 import { initDatabase } from '../database';
 
 async function loadSigner({ signerCertificate }) {
-  await initDatabase({ testMode: false });
+  const { store } = await initDatabase({ testMode: false });
+  const settings = new SettingsReader(store.models);
+
   const signerFile = await fs.readFile(signerCertificate, 'utf8');
-  const signerData = await loadCertificateIntoSigner(signerFile);
+  const signerData = await loadCertificateIntoSigner(signerFile, {}, { settings });
 
   const pending = await Signer.findPending();
 

@@ -16,13 +16,13 @@ describe('calculatePageLimit', () => {
   it('accepts two numeric inputs and returns a number', () => {
     fc.assert(
       fc.property(fc.integer(), fc.integer(), (a, b) => {
-        expect(calculatePageLimit(a, b)).toEqual(expect.any(Number));
+        expect(calculatePageLimit(defaultConfig, a, b)).toEqual(expect.any(Number));
       }),
       fc.property(fc.float(), fc.float(), (a, b) => {
-        expect(calculatePageLimit(a, b)).toEqual(expect.any(Number));
+        expect(calculatePageLimit(defaultConfig, a, b)).toEqual(expect.any(Number));
       }),
       fc.property(fc.double({ noNaN: true }), fc.double({ noNaN: true }), (a, b) => {
-        expect(calculatePageLimit(a, b)).toEqual(expect.any(Number));
+        expect(calculatePageLimit(defaultConfig, a, b)).toEqual(expect.any(Number));
       }),
     );
   });
@@ -30,7 +30,7 @@ describe('calculatePageLimit', () => {
   it('with currentLimit = 0, outputs the initial limit', () => {
     fc.assert(
       fc.property(fc.nat(), fc.integer(), (initialLimit, time) => {
-        expect(calculatePageLimit(0, time, makeConfig({ initialLimit }))).toEqual(initialLimit);
+        expect(calculatePageLimit(makeConfig({ initialLimit }), 0, time)).toEqual(initialLimit);
       }),
     );
   });
@@ -39,7 +39,7 @@ describe('calculatePageLimit', () => {
     fc.assert(
       fc.property(fc.nat(), fc.integer(), (minLimit, time) => {
         expect(
-          calculatePageLimit(minLimit, time, makeConfig({ minLimit, maxLimit: minLimit + 1 })),
+          calculatePageLimit(makeConfig({ minLimit, maxLimit: minLimit + 1 }), minLimit, time),
         ).toBeGreaterThanOrEqual(minLimit);
       }),
     );
@@ -49,7 +49,7 @@ describe('calculatePageLimit', () => {
     fc.assert(
       fc.property(fc.integer({ min: 20, max: 10000 }), fc.integer(), (maxLimit, time) => {
         expect(
-          calculatePageLimit(maxLimit, time, makeConfig({ maxLimit, minLimit: maxLimit - 1 })),
+          calculatePageLimit(makeConfig({ maxLimit, minLimit: maxLimit - 1 }), maxLimit, time),
         ).toBeLessThanOrEqual(maxLimit);
       }),
     );
@@ -58,7 +58,7 @@ describe('calculatePageLimit', () => {
   it('treats negative times as invalid and returns the input', () => {
     fc.assert(
       fc.property(fc.integer({ min: 1 }), fc.integer({ max: -1 }), (limit, time) => {
-        expect(calculatePageLimit(limit, time)).toEqual(limit);
+        expect(calculatePageLimit(defaultConfig, limit, time)).toEqual(limit);
       }),
     );
   });

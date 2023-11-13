@@ -4,10 +4,11 @@ export const globalDefaults = {
     'alpha-3': '',
     name: '',
   },
+  disabledReports: [],
   features: {
     displayIcd10CodesInDischargeSummary: true,
     displayProcedureCodesInDischargeSummary: true,
-    editDisplayId: false,
+    editPatientDisplayId: false,
     editPatientDetailsOnMobile: true,
     enableCovidClearanceCertificate: false,
     enableInvoicing: false,
@@ -29,6 +30,11 @@ export const globalDefaults = {
     patientPlannedMove: false,
     quickPatientGenerator: false,
     registerNewPatient: true,
+    tableAutoRefresh: {
+      enabled: false,
+      // In Seconds
+      interval: 300
+    },
   },
   imagingTypes: {
     // keys are taken from IMAGING_TYPES in shared/constants/imaging
@@ -188,6 +194,10 @@ export const globalDefaults = {
         hidden: false,
         longLabel: 'Country of birth',
         shortLabel: 'Country of birth',
+      },
+      clinician: {
+        shortLabel: 'Clinician',
+        longLabel: 'Clinician',
       },
       culturalName: {
         hidden: false,
@@ -421,6 +431,10 @@ export const globalDefaults = {
         longLabel: 'Title',
         shortLabel: 'Title',
       },
+      userDisplayId: {
+        longLabel: 'Registration number',
+        shortLabel: 'Registration number',
+      },
       villageId: {
         hidden: false,
         longLabel: 'Village',
@@ -527,7 +541,6 @@ export const globalDefaults = {
         subTitle: 'PO Box 12345, Melbourne, Australia',
         title: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
       },
-      plannedMoveTimeoutHours: 24,
       signerRenewalEmail: {
         body:
           'Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team.',
@@ -594,6 +607,12 @@ export const globalDefaults = {
       },
     ],
   },
+  // UVCI format for vaccine certificate *previews* on Desktop.
+  // This should match whichever of integrations.euDcc or .vdsNc is enabled, and
+  // does *not* affect which format is used for the actual PDF certificate when
+  // generated in the sync server. Can be `tamanu` or `icao` or `eudcc`.
+  // `tamanu` implies that the signing integrations are not enabled.
+  previewUvciFormat: 'tamanu',
   printMeasures: {
     labRequestPrintLabel: {
       width: 50.8,
@@ -610,6 +629,15 @@ export const globalDefaults = {
       rowHeight: '26.7mm',
       rowTotal: 10,
     },
+    idCardPage: {
+      cardMarginTop: '1mm',
+      cardMarginLeft: '5mm',
+    },
+  },
+  questionCodeIds: {
+    email: null,
+    nationalityId: null,
+    passport: null,
   },
   reportConfig: {
     'encounter-summary-line-list': {

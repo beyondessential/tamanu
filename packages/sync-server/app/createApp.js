@@ -1,12 +1,16 @@
+import './utils/customYupMethods';
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import config from 'config';
+
 import express from 'express';
 import path from 'path';
 
 import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { SERVER_TYPES } from '@tamanu/constants';
+
+import { buildSettingsReader } from '@tamanu/shared/settings/middleware';
 
 import { buildRoutes } from './buildRoutes';
 import { authModule } from './auth';
@@ -59,6 +63,7 @@ export function createApp(ctx) {
 
   // API v1
   app.use('/v1/public', publicRoutes);
+  app.use('/v1', buildSettingsReader);
   app.use('/v1', authModule);
   app.use('/v1', constructPermission);
   app.use('/v1', buildRoutes(ctx));
