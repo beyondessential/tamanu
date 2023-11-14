@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { Button } from './Button';
 import { Colors } from '../constants';
 import { syncPatient } from '../store/patient';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const MarkPatientForSyncButton = styled(Button)`
   background: ${Colors.white};
@@ -26,7 +27,7 @@ export const MarkPatientForSync = ({ patient }) => {
   return (
     <MarkPatientForSyncButton onClick={onMarkPatientForSync} variant="text" color="default">
       <MarkPatientForSyncIcon />
-      Sync patient records
+      <TranslatedText stringId="patient.action.markForSync" fallback="Sync patient records" />
     </MarkPatientForSyncButton>
   );
 };

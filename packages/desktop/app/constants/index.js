@@ -186,37 +186,50 @@ export const NOTE_TYPE_LABELS = Object.fromEntries(
 );
 
 export const encounterOptions = [
-  { value: ENCOUNTER_TYPES.ADMISSION, label: 'Hospital admission', image: medicationIcon },
+  {
+    value: ENCOUNTER_TYPES.ADMISSION,
+    label: <TranslatedText stringId="encounter.type.admission" fallback="Hospital admission" />,
+    image: medicationIcon,
+  },
   {
     value: ENCOUNTER_TYPES.TRIAGE,
-    label: 'Triage',
+    label: <TranslatedText stringId="encounter.type.triage" fallback="Triage" />,
     image: patientIcon,
     triageFlowOnly: true,
   },
-  { value: ENCOUNTER_TYPES.CLINIC, label: 'Clinic', image: administrationIcon },
-  { value: ENCOUNTER_TYPES.IMAGING, label: 'Imaging', image: radiologyIcon, hideFromMenu: true },
+  {
+    value: ENCOUNTER_TYPES.CLINIC,
+    label: <TranslatedText stringId="encounter.type.clinic" fallback="Clinic" />,
+    image: administrationIcon,
+  },
+  {
+    value: ENCOUNTER_TYPES.IMAGING,
+    label: <TranslatedText stringId="encounter.type.imaging" fallback="Imaging" />,
+    image: radiologyIcon,
+    hideFromMenu: true,
+  },
   {
     value: ENCOUNTER_TYPES.EMERGENCY,
-    label: 'Emergency short stay',
+    label: <TranslatedText stringId="encounter.type.emergency" fallback="Emergency short stay" />,
     image: scheduleIcon,
     hideFromMenu: true,
   },
   {
     value: ENCOUNTER_TYPES.OBSERVATION,
-    label: 'Active ED patient',
+    label: <TranslatedText stringId="encounter.type.observation" fallback="Active ED patient" />,
     image: patientIcon,
     triageFlowOnly: true,
     hideFromMenu: true,
   },
   {
     value: ENCOUNTER_TYPES.SURVEY_RESPONSE,
-    label: 'Form response',
+    label: <TranslatedText stringId="encounter.type.formResponse" fallback="Form response" />,
     image: patientIcon,
     hideFromMenu: true,
   },
   {
     value: ENCOUNTER_TYPES.VACCINATION,
-    label: 'Vaccination record',
+    label: <TranslatedText stringId="encounter.type.vaccination" fallback="Vaccination Record" />,
     image: vaccineIcon,
     hideFromMenu: true,
   },
