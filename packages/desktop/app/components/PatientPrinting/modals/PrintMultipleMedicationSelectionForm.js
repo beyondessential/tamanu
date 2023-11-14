@@ -112,10 +112,10 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
   );
 
   const handlePrintConfirm = useCallback(() => {
-    if (selectedRows.length > 0) {
+    if (selectedRows.length > 0 && prescriberId !== undefined) {
       setOpenPrintoutModal(true);
     }
-  }, [selectedRows]);
+  }, [prescriberId, selectedRows]);
 
   return (
     <>
@@ -135,6 +135,8 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
           suggester={practitionerSuggester}
           onChange={event => setPrescriberId(event.target.value)}
           value={currentUser.id}
+          required
+          error={prescriberId === undefined}
         />
       </PrescriberWrapper>
 
