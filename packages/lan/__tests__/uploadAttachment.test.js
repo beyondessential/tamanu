@@ -3,6 +3,7 @@ import { InvalidParameterError, RemoteCallFailedError } from '@tamanu/shared/err
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 
 import { CentralServerConnection } from '../app/sync/CentralServerConnection';
+import path from 'path';
 // Get the unmocked function to be able to test it
 const { uploadAttachment } = jest.requireActual('../app/utils/uploadAttachment');
 
@@ -16,7 +17,7 @@ const FILEDATA =
 jest.mock('@tamanu/shared/utils/getUploadedData');
 getUploadedData.mockImplementation(async req => {
   // Create a file that can be used with the FS module, return path
-  const fileName = 'test-file.jpeg';
+  const fileName = path.resolve(__dirname, 'test-file.jpeg');
   writeFileSync(fileName, FILEDATA, { encoding: 'base64' });
   return {
     file: fileName,
