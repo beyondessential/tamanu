@@ -1,9 +1,9 @@
+import path from 'path';
 import { writeFileSync } from 'fs';
 import { InvalidParameterError, RemoteCallFailedError } from '@tamanu/shared/errors';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 
 import { CentralServerConnection } from '../app/sync/CentralServerConnection';
-import path from 'path';
 // Get the unmocked function to be able to test it
 const { uploadAttachment } = jest.requireActual('../app/utils/uploadAttachment');
 
