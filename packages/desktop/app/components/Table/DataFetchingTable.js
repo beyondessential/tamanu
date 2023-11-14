@@ -261,16 +261,15 @@ export const DataFetchingTable = memo(
     ]);
 
     useEffect(() => {
+      setPage(0);
+      setFetchState(initialiseFetchState());
       /**
        * As we don't want to include fetchOption string in the dependency of the effect with the fetch call,
        * we need to manually trigger a fetch when the fetchOptions change.
        * also skip when page is 0, as changing fetch options on page 0 will not trigger refresh
        */
       if (page === 0 && fetchState.lastUpdatedAt) {
-        setForcedRefreshCount(prevCount => prevCount + 1);
-      } else {
-        setPage(0);
-        setFetchState(initialiseFetchState());
+        fetchData();
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fetchOptionsString]);
