@@ -101,7 +101,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
                   suggester={registeredBySuggester}
                 />
                 <Field
-                  name="facilityId"
+                  name="registeringFacilityId"
                   label="Registering facility"
                   component={AutocompleteField}
                   suggester={registeringFacilitySuggester}
@@ -137,7 +137,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
       }}
       initialValues={{
         date: getCurrentDateTimeString(),
-        facilityId: facility.id,
+        registeringFacilityId: facility.id,
         clinicianId: currentUser.id,
         ...editedObject,
       }}
@@ -145,7 +145,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
         programRegistryId: foreignKey('Program Registry must be selected'),
         clinicalStatusId: optionalForeignKey(),
         date: yup.date(),
-        facilityId: optionalForeignKey(),
+        registeringFacilityId: optionalForeignKey(),
         clinicianId: foreignKey('Registered by must be selected'),
         // conditionIds: yup.array().of(yup.string()),
       })}
