@@ -156,7 +156,9 @@ export const VaccineForm = ({
             }
           : {
               ...currentVaccineRecordValues,
-              circumstanceIds: JSON.stringify(currentVaccineRecordValues.circumstanceIds),
+              ...(currentVaccineRecordValues.circumstanceIds
+                ? { circumstanceIds: JSON.stringify(currentVaccineRecordValues.circumstanceIds) }
+                : {}),
             }
       }
       validationSchema={baseSchemeValidation.shape({
