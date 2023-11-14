@@ -106,6 +106,8 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
+          cache-from: type=gha,scope=${{ needs.info.outputs.branch }}-desktop
+          cache-to: type=gha,mode=max,scope=${{ needs.info.outputs.branch }}-desktop
           target: build-desktop
           push: false
           load: true
