@@ -19,17 +19,17 @@ import { ProgramRegistryClinicalStatus } from './ProgramRegistryClinicalStatus';
 import { NullableReferenceDataRelation } from './ReferenceData';
 import { Facility } from './Facility';
 import { User } from './User';
+import { RegistrationStatus } from '~/constants/programRegistries';
+import { DateTimeStringColumn } from './DateColumns';
 
 @Entity('patient_program_registration')
 export class PatientProgramRegistration extends BaseModel implements IPatientProgramRegistration {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
-  // TODO: emum
-  // @Column({ default: VisibilityStatus.Current, nullable: true })
-  // visibilityStatus: VisibilityStatus;
-  @Column({ nullable: false })
-  registrationStatus: string;
+  @Column({ nullable: false, default: RegistrationStatus.Active })
+  registrationStatus: RegistrationStatus;
 
+  @DateTimeStringColumn()
   date: DateTimeString;
 
   // Relations
