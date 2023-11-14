@@ -123,6 +123,14 @@
     "testPathIgnorePatterns" : [
       "<rootDir>/stories",
       "<rootDir>/.storybook"
+    ],
+    "modulePathIgnorePatterns" : [
+      "<rootDir>/stories",
+      "<rootDir>/.storybook"
+    ],
+    "transformIgnorePatterns" : [
+      "<rootDir>/stories",
+      "<rootDir>/.storybook"
     ]
   },
   "devDependencies": {
