@@ -265,8 +265,10 @@ export const DataFetchingTable = memo(
       setFetchState(initialiseFetchState());
       /**
        * As we don't want to include fetchOption string in the dependency of the effect with the fetch call,
-       * we need to manually trigger a fetch when the fetchOptions change.
-       * also skip when page is 0, as changing fetch options on page 0 will not trigger refresh
+       * we need to rely on the useEffect above being triggered.
+       * If the changing fetchOptions but on page 0, we need to manually trigger update
+       * This is because the page will be unchanged after resetting to 0
+       * We can skip the force fetch in the case of a null lastUpdatedAt for initial load
        */
       if (page === 0 && fetchState.lastUpdatedAt) {
         fetchData();
