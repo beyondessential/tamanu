@@ -3,7 +3,7 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { Form } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { ConfirmCancelRow } from '../components/ButtonRow';
+import { FormSubmitCancelRow } from '../components/ButtonRow';
 
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 
@@ -26,7 +26,7 @@ export const ChangeEncounterTypeForm = ({ onSubmit, onCancel, encounter, initial
               <span> to </span>
               <b>{newType}</b>
             </div>
-            <ConfirmCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onCancel} />
+            <FormSubmitCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onCancel} />
           </FormGrid>
         );
       }}

@@ -3,8 +3,8 @@ import { QueryTypes } from 'sequelize';
 import * as yup from 'yup';
 
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
-import { log } from 'shared/services/logging';
-import { resourcesThatCanDo } from 'shared/utils/fhir/resources';
+import { log } from '@tamanu/shared/services/logging';
+import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 
 import { ApplicationContext } from '../ApplicationContext';
 import { prepareQuery } from '../utils/prepareQuery';

@@ -1,7 +1,7 @@
-import { randomReferenceDataObjects } from 'shared/demoData/patients';
+import { randomReferenceDataObjects } from '@tamanu/shared/demoData/patients';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { fake } from 'shared/test-helpers';
-import { toDateTimeString, format } from 'shared/utils/dateTime';
+import { fake } from '@tamanu/shared/test-helpers';
+import { toDateTimeString, format } from '@tamanu/shared/utils/dateTime';
 import { subDays } from 'date-fns';
 import { createTestContext } from '../../utilities';
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { VitalsTable } from '../../../components/VitalsTable';
-import { TableButtonRow, Button, Modal } from '../../../components';
+import { TableButtonRow, Button, FormModal } from '../../../components';
 import { TabPane } from '../components';
 import { useApi } from '../../../api';
 import { VitalsForm } from '../../../forms';
@@ -35,9 +35,9 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
   return (
     <TabPane>
       <VitalChartDataProvider>
-        <Modal title="Record vitals" open={modalOpen} onClose={handleClose}>
+        <FormModal title="Record vitals" open={modalOpen} onClose={handleClose}>
           <VitalsForm onClose={handleClose} onSubmit={submitVitals} patient={patient} />
-        </Modal>
+        </FormModal>
         <VitalChartsModal />
         <TableButtonRow variant="small">
           <Button onClick={() => setModalOpen(true)} disabled={readonly}>

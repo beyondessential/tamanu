@@ -2,7 +2,7 @@ import {
   createDummyPatient,
   randomReferenceId,
   randomUser,
-} from 'shared/demoData/patients';
+} from '@tamanu/shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
 

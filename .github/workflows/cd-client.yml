@@ -100,7 +100,7 @@ jobs:
       - name: Setup buildkit
         uses: docker/setup-buildx-action@v2
         with:
-          driver: docker
+          driver: docker-container
 
       - name: Build container
         uses: docker/build-push-action@v4
@@ -120,7 +120,7 @@ jobs:
             docker run -dit --rm --name working \
               -v $PWD/release:/app/packages/desktop/release \
               working
-            sleep 1
+            sleep 10
             docker exec working echo "Container started"
           }
 
@@ -224,7 +224,6 @@ jobs:
               `- :window: **[Windows (System)](${S3_URL}/windows-system/Tamanu+Setup+${VERSION}.exe)**`,
               `- :window:   [Windows (AppData)](${S3_URL}/windows-appdata/Tamanu+Setup+${VERSION}.exe)`,
               `- :window:   [Windows (MSI)](${S3_URL}/windows-msi/Tamanu+${VERSION}.msi)`,
-              `- :window:   [Windows (Aspen)](${S3_URL}/windows-aspen/Tamanu+${VERSION}.msi)`,
               `- :apple:    [macOS (Tar)](${S3_URL}/mac/Tamanu-${VERSION}-mac.tar.xz)`,
               `- :penguin:  [Linux (AppImage)](${S3_URL}/linux/Tamanu-${VERSION}.AppImage)`,
             ].join('\n');

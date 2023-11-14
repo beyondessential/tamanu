@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import { FHIR_BUNDLE_TYPES } from '@tamanu/constants';
-import { formatFhirDate, OperationOutcome } from 'shared/utils/fhir';
+import { formatFhirDate, OperationOutcome } from '@tamanu/shared/utils/fhir';
 
 import { getBaseUrl, getHL7Link } from '../utils';
 

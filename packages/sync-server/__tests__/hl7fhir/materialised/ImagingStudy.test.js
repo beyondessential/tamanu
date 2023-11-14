@@ -1,9 +1,9 @@
 import { Op } from 'sequelize';
 
-import { fake, fakeReferenceData, showError } from 'shared/test-helpers';
+import { fake, fakeReferenceData, showError } from '@tamanu/shared/test-helpers';
 import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
-import { fakeUUID } from 'shared/utils/generateId';
-import { sleepAsync } from 'shared/utils/sleepAsync';
+import { fakeUUID } from '@tamanu/shared/utils/generateId';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { createTestContext } from '../../utilities';
 

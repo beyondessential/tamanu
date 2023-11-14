@@ -70,6 +70,7 @@ export const SurveyScreen = ({
   errors,
   status,
   setStatus,
+  encounterType,
 }) => {
   const { setQuestionToRef, scrollToQuestion } = useScrollToFirstError(errors);
   useCalculatedFormValues(allComponents, values, setFieldValue);
@@ -111,6 +112,7 @@ export const SurveyScreen = ({
             patient={patient}
             key={c.id}
             inputRef={setQuestionToRef(c.dataElementId)}
+            encounterType={encounterType}
           />
         ))}
       <StyledButtonRow>
