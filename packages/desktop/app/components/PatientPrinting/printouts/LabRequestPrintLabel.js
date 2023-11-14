@@ -29,7 +29,7 @@ const TextContainer = styled.div`
 
   text {
     color: #000;
-    font-size: 11px;
+    font-size: 10px;
     line-height: 1.1;
   }
 
@@ -73,18 +73,27 @@ const BarcodeContainer = styled.div`
  * why the whole component is made with svgs
  */
 export const LabRequestPrintLabel = React.memo(({ data, printWidth }) => {
-  const { patientId, patientName, patientDateOfBirth, testId, labCategory, date } = data;
+  const {
+    patientId,
+    patientName,
+    patientDateOfBirth,
+    testId,
+    labCategory,
+    date,
+    specimenType,
+  } = data;
   return (
     <Container $printWidth={printWidth}>
       <FlexContainer>
         <TextContainer>
           <svg viewBox="0 0 200 120">
-            <Item x="0" y="10" label="Patient Name" value={patientName} />
+            <Item x="0" y="15" label="Patient Name" value={patientName} />
             <Item x="0" y="30" label="Patient ID" value={patientId} />
-            <Item x="0" y="50" label="DOB" value={DateDisplay.stringFormat(patientDateOfBirth)} />
-            <Item x="0" y="70" label="Test ID" value={testId} />
-            <Item x="0" y="90" label="Date collected" value={DateDisplay.stringFormat(date)} />
-            <Item x="0" y="110" label="Lab category" value={labCategory} />
+            <Item x="0" y="45" label="DOB" value={DateDisplay.stringFormat(patientDateOfBirth)} />
+            <Item x="0" y="60" label="Test ID" value={testId} />
+            <Item x="0" y="75" label="Date collected" value={DateDisplay.stringFormat(date)} />
+            <Item x="0" y="90" label="Lab category" value={labCategory} />
+            <Item x="0" y="105" label="Specimen type" value={specimenType} />
           </svg>
         </TextContainer>
         <BarcodeContainer>
