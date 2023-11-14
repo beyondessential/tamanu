@@ -1,7 +1,6 @@
-import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes } from 'sequelize';
-import { NotFoundError, InvalidParameterError } from '@tamanu/shared/errors';
+import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/shared/errors';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
   LAB_REQUEST_STATUSES,
@@ -20,6 +19,7 @@ import {
   permissionCheckingRouter,
   runPaginatedQuery,
   paginatedGetList,
+  recordIsSoftDeletedCheckingRouter,
 } from '@tamanu/shared/utils/crudHelpers';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
@@ -27,7 +27,7 @@ import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
 
 import { getLabRequestList } from '../../routeHandlers/labs';
 
-export const encounter = express.Router();
+export const encounter = recordIsSoftDeletedCheckingRouter('Encounter');
 
 encounter.get('/:id', simpleGet('Encounter'));
 encounter.post(
@@ -80,7 +80,9 @@ encounter.put(
       }
 
       if (referralId) {
-        const referral = await models.Referral.findByPk(referralId);
+        const referral = await models.Referral.findByPk(referralId, { paranoid: false });
+        if (referral && referral.deletedAt)
+          throw new InvalidOperationError('Cannot update a deleted referral.');
         await referral.update({ encounterId: id });
       }
       await encounterObject.update({ ...req.body, systemNote }, user);

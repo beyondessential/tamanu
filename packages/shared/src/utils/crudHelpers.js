@@ -19,6 +19,23 @@ export const permissionCheckingRouter = (action, subject) => {
   return router;
 };
 
+export const recordIsSoftDeletedCheckingRouter = tableName => {
+  const router = express.Router();
+
+  router.use(async (req, res, next) => {
+    const { models, body, params } = req;
+    const id = params.id || body.id;
+    const object = await models[tableName].findByPk(id, { paranoid: false });
+    if (object && object.deletedAt)
+      throw new InvalidOperationError(
+        `Invalid Operation Error: Cannot update a deleted ${tableName}, id: ${id}.`,
+      );
+    next();
+  });
+
+  return router;
+};
+
 export const findRouteObject = async (req, modelName, options = {}) => {
   const { models, params } = req;
   const { additionalFilters = {} } = options;
