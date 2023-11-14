@@ -264,6 +264,7 @@ export const DataFetchingTable = memo(
       /**
        * As we don't want to include fetchOption string in the dependency of the effect with the fetch call,
        * we need to manually trigger a fetch when the fetchOptions change.
+       * also skip when page is 0, as changing fetch options on page 0 will not trigger refresh
        */
       if (page === 0 && fetchState.lastUpdatedAt) {
         setForcedRefreshCount(prevCount => prevCount + 1);
