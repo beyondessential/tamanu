@@ -137,6 +137,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
           value={currentUser.id}
           required
           error={prescriberId === undefined}
+          helperText={prescriberId === undefined && "Please select a prescriber"}
         />
       </PrescriberWrapper>
 
