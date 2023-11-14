@@ -16,7 +16,7 @@ const initialiseFetchState = () => ({
   page: 0,
   count: 0,
   data: [],
-  lastUpdatedAt: getCurrentDateTimeString(),
+  lastUpdatedAt: null,
   sorting: DEFAULT_SORT,
   fetchOptions: {},
 });
@@ -253,7 +253,6 @@ export const DataFetchingTable = memo(
       page,
       rowsPerPage,
       sorting,
-      fetchOptionsString,
       refreshCount,
       forcedRefreshCount,
       transformRow,
@@ -262,8 +261,17 @@ export const DataFetchingTable = memo(
     ]);
 
     useEffect(() => {
-      setPage(0);
-      setFetchState(initialiseFetchState());
+      /**
+       * As we don't want to include fetchOption string in the dependency of the effect with the fetch call,
+       * we need to manually trigger a fetch when the fetchOptions change.
+       */
+      if (page === 0 && fetchState.lastUpdatedAt) {
+        setForcedRefreshCount(prevCount => prevCount + 1);
+      } else {
+        setPage(0);
+        setFetchState(initialiseFetchState());
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fetchOptionsString]);
 
     const { data, count, lastUpdatedAt } = fetchState;
