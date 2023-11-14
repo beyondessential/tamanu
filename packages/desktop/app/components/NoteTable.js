@@ -125,7 +125,6 @@ const getIndividualNotePermissionCheck = (ability, currentUser, note) => {
 
 const rowStyle = () =>
   `.MuiTableCell-root{
-    color: red;
     border-bottom: 1px solid ${Colors.outline};
 
     &:first-child {
