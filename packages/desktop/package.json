@@ -119,7 +119,11 @@
     ],
     "transform": {
       "^.+\\.js$": "babel-jest"
-    }
+    },
+    "testPathIgnorePatterns" : [
+      "<rootDir>/stories",
+      "<rootDir>/.storybook"
+    ]
   },
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.18.9",

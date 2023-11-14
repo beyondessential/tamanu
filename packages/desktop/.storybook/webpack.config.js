@@ -43,7 +43,7 @@ module.exports = async ({ config }) => {
 
   // Allow reading in of config json with comments
   config.module.rules.push({
-    test: /\.json5$/i,
+    test: /\.json5?$/i,
     loader: 'json5-loader',
     options: {
       esModule: false,
