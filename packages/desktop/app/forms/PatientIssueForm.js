@@ -8,8 +8,14 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 
 const ISSUE_TYPES = [
-  { value: PATIENT_ISSUE_TYPES.ISSUE, label: 'Issue' },
-  { value: PATIENT_ISSUE_TYPES.WARNING, label: 'Warning' },
+  {
+    value: PATIENT_ISSUE_TYPES.ISSUE,
+    label: <TranslatedText stringId="issues.form.option.issue" fallback="Issue" />,
+  },
+  {
+    value: PATIENT_ISSUE_TYPES.WARNING,
+    label: <TranslatedText stringId="issues.form.option.warning" fallback="Warning" />,
+  },
 ];
 
 export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
