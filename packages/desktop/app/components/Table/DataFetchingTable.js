@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef, memo } from 'react';
-import { isEqual } from 'lodash';
+import { isEqual, set } from 'lodash';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { useApi } from '../../api';
@@ -48,6 +48,8 @@ export const DataFetchingTable = memo(
     const [showNotification, setShowNotification] = useState(false);
     const [isNotificationMuted, setIsNotificationMuted] = useState(false);
 
+    const [isFetching, setIsFetching] = useState(false);
+
     const tableRef = useRef(null);
     const api = useApi();
 
@@ -78,6 +80,7 @@ export const DataFetchingTable = memo(
     );
 
     const fetchData = async () => {
+      console.log('fetching', page);
       const { data, count } = await api.get(
         endpoint,
         {
@@ -119,14 +122,21 @@ export const DataFetchingTable = memo(
       [fetchOptions, page, sorting],
     );
 
+    const updateLoadingState = () => {
+      if (fetchState.data?.length > 0 && lazyLoading) {
+        setIsLoadingMoreData(true);
+      } else {
+        setIsLoading(true);
+      }
+    };
+
     const loadingIndicatorDelay = () => {
-      return setTimeout(() => {
-        if (fetchState.data?.length > 0 && lazyLoading) {
-          setIsLoadingMoreData(true);
-        } else {
-          setIsLoading(true);
-        }
-      }, 1000);
+      return setTimeout(
+        () => {
+          updateLoadingState();
+        },
+        lazyLoading ? 0 : 1000,
+      );
     };
 
     const clearLoadingIndicators = () => {
@@ -272,6 +282,9 @@ export const DataFetchingTable = memo(
     const notificationMessage = `${newRowCount} new record${
       newRowCount > 1 ? 's' : ''
     } available to view`;
+
+    console.log(data.length);
+
     return (
       <>
         {!isNotificationMuted && showNotification && (
