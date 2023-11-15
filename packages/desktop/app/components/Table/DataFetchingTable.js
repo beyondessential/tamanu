@@ -119,10 +119,10 @@ export const DataFetchingTable = memo(
       [fetchOptions, page, sorting],
     );
 
-    const loadingIndicatorDelay = () =>
-      setTimeout(() => {
-        setIsLoading(true);
-      }, 1000);
+    const loadingIndicatorDelay = () => setTimeout(() => {
+          setIsLoading(true);
+        }, 1000);
+    })
 
     const clearLoadingIndicators = () => {
       setIsLoading(false);
@@ -210,10 +210,11 @@ export const DataFetchingTable = memo(
     };
 
     useEffect(() => {
-      const loadingDelay = !fetchState.data?.length && loadingIndicatorDelay();
-      if (!loadingDelay && lazyLoading) {
-        setIsLoadingMoreData(true);
-      }
+      const shouldLoadMoreData = fetchState.data?.length > 0 && lazyLoading;
+      if (shouldLoadMoreData) setIsLoadingMoreData(true);
+
+      const loadingDelay = !shouldLoadMoreData && loadingIndicatorDelay();
+
       (async () => {
         try {
           if (!endpoint) {
