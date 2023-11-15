@@ -6,8 +6,3 @@ export const SYNC_DIRECTIONS = {
 };
 
 export const SYNC_DIRECTIONS_VALUES = Object.values(SYNC_DIRECTIONS);
-
-export const SYNC_QUEUE_STATUSES = {
-  QUEUED: 'queued',
-  READY: 'ready',
-};

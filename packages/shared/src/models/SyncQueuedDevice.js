@@ -3,7 +3,7 @@ import { subMinutes } from 'date-fns';
 
 import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-import { SYNC_DIRECTIONS, SYNC_QUEUE_STATUSES } from '@tamanu/constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 
 // TODO: config?
@@ -22,10 +22,6 @@ export class SyncQueuedDevice extends Model {
         lastSeenTime: { type: DataTypes.DATE },
         lastSyncedTick: { type: DataTypes.BIGINT },
         urgent: { type: DataTypes.BOOLEAN },
-        status: {
-          type: DataTypes.TEXT,
-          default: SYNC_QUEUE_STATUSES.QUEUED,
-        },
       },
       {
         ...options,
@@ -69,7 +65,6 @@ export class SyncQueuedDevice extends Model {
       await this.create({
         id: deviceId,
         facilityId,
-        status: SYNC_QUEUE_STATUSES.QUEUED,
         lastSeenTime: getCurrentDateTimeString(),
         urgent,
         lastSyncedTick,

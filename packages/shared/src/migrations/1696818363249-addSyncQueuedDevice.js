@@ -29,10 +29,6 @@ export async function up(query) {
       type: DataTypes.BOOLEAN,
       allowNull: false,
     },
-    status: {
-      type: DataTypes.TEXT,
-      defaultValue: 'queued',
-    },
 
     created_at: {
       type: DataTypes.DATE,
