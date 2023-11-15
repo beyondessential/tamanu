@@ -7,9 +7,6 @@
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN license",
-  "engines": {
-    "node": "^20.7.0"
-  },
   "scripts": {
     "start": "node ./dist/app.bundle.js",
     "start-dev": "rm -rf ./dist/ && webpack --config webpack.config.dev.mjs",

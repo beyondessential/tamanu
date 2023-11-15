@@ -15,9 +15,6 @@
       "node_modules/config"
     ]
   },
-  "engines": {
-    "node": "^20.7.0"
-  },
   "scripts": {
     "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true app",
     "start": "node dist",
