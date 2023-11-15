@@ -13,6 +13,9 @@ module.exports = api => {
     '@babel/plugin-proposal-optional-chaining',
     '@babel/plugin-transform-private-methods',
   );
+
+  // Solves spurious "loose option must be the same across plugins X Y and Z" errors
+  // ...even though we don't set loose anywhere ourselves, apparently the preset does
   config.plugins = config.plugins.map(name => [name, { loose: true }]);
   return config;
 };
