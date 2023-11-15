@@ -53,7 +53,7 @@ const CellError = React.memo(({ error }) => {
 const DEFAULT_ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
 const CenteredLoadingIndicatorContainer = styled.div`
-  width: 100%;
+  width: fit-content;
   margin: 1rem auto 0.5rem;
 `;
 
