@@ -43,7 +43,7 @@
     "build-report": "yarn build-shared && yarn workspace sync-server build && yarn workspace sync-server start report"
   },
   "engines": {
-    "node": "^20.7.0"
+    "node": "^20.7.0 || ^16.16.0"
   },
   "packageManager": "yarn@1.22.19",
   "private": true,
