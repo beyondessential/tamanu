@@ -7,6 +7,7 @@ module.exports = api => {
   config.plugins = plugins.concat([
     '@babel/plugin-transform-classes',
     '@babel/plugin-proposal-optional-chaining',
+    '@babel/plugin-transform-private-methods',
   ]);
   return config;
 };

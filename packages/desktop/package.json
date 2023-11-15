@@ -135,6 +135,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.18.9",
+    "@babel/plugin-transform-private-methods": "^7.23.3",
     "@beyondessential/eslint-config-js": "^1.1.0",
     "@emotion/core": "^10.0.9",
     "@storybook/addon-controls": "^6.5.16",
