@@ -91,7 +91,7 @@ describe('Version compatibility', () => {
 
   describe('Other client version checking', () => {
     it.each(['0.0.1', '1.0.0', '1.0.9', '999.999.999'])(
-      'Should allow version of an unspecified client (so that tests work)',
+      'Should allow version %s of an unspecified client (so that tests work)',
       async version => {
         const response = await app
           .get('/')
@@ -105,7 +105,7 @@ describe('Version compatibility', () => {
     );
 
     it.each(['0.0.1', '1.0.0', '1.0.9', '999.999.999'])(
-      'Should deny version of an an unknown client type of any version',
+      'Should deny version %s of an an unknown client type of any version',
       async version => {
         const response = await app.get('/').set({
           'X-Tamanu-Client': 'Unknown Client',
