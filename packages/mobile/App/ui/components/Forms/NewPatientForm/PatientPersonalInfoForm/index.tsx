@@ -80,7 +80,7 @@ const containsAdditionalData = values =>
 export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): ReactElement => {
   const navigation = useNavigation();
   const { patientAdditionalData, loading } = usePatientAdditionalData(selectedPatient?.id);
-  const onCreateNewPatient = useCallback(async values => {
+  const onCreateNewPatient = useCallback(async (values, { resetForm }) => {
     // submit form to server for new patient
     const { dateOfBirth, ...otherValues } = values;
     const newPatient = await Patient.createAndSaveOne({
@@ -99,6 +99,7 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
     // (related fields won't display all info otherwise)
     const reloadedPatient = await Patient.findOne(newPatient.id);
     setSelectedPatient(reloadedPatient);
+    resetForm();
     navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
   }, []);
 
