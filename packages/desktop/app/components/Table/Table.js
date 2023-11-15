@@ -465,9 +465,9 @@ class TableComponent extends React.Component {
         className={className}
         $elevated={elevated}
         $borderColor={
-          noDataBackgroundColor !== Colors.white && (data?.length || isLoading)
-            ? Colors.outline
-            : noDataBackgroundColor
+          noDataBackgroundColor !== Colors.white && !(data?.length || isLoading)
+            ? noDataBackgroundColor
+            : Colors.outline
         }
       >
         {optionRow && <OptionRow>{optionRow}</OptionRow>}
