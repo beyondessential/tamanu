@@ -89,6 +89,7 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
       title={<TranslatedText stringId="vaccine.modal.create.title" fallback="Record vaccine" />}
       open={open}
       onClose={onClose}
+      width="md"
     >
       <SegmentTabDisplay tabs={TABS} currentTabKey={currentTabKey} onTabSelect={setCurrentTabKey} />
     </FormModal>
