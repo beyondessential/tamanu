@@ -48,8 +48,6 @@ export const DataFetchingTable = memo(
     const [showNotification, setShowNotification] = useState(false);
     const [isNotificationMuted, setIsNotificationMuted] = useState(false);
 
-    const [isFetching, setIsFetching] = useState(false);
-
     const tableRef = useRef(null);
     const api = useApi();
 
@@ -121,24 +119,10 @@ export const DataFetchingTable = memo(
       [fetchOptions, page, sorting],
     );
 
-    const updateLoadingState = () => {
-      if (fetchState.data?.length > 0 && lazyLoading) {
-        setIsLoadingMoreData(true);
-      } else {
+    const loadingIndicatorDelay = () =>
+      setTimeout(() => {
         setIsLoading(true);
-      }
-    };
-
-    const loadingIndicatorDelay = () => {
-      return setTimeout(
-        () => {
-          updateLoadingState();
-        },
-        // Lazy loading relies on the loading state as source of truth for in process fetching and
-        // cannot be delayed
-        lazyLoading ? 0 : 1000,
-      );
-    };
+      }, 1000);
 
     const clearLoadingIndicators = () => {
       setIsLoading(false);
@@ -226,14 +210,18 @@ export const DataFetchingTable = memo(
     };
 
     useEffect(() => {
-      const loadingDelay = loadingIndicatorDelay();
+      const loadingDelay = !fetchState.data?.length && loadingIndicatorDelay();
+      if (!loadingDelay && lazyLoading) {
+        setIsLoadingMoreData(true);
+      }
       (async () => {
         try {
           if (!endpoint) {
             throw new Error('Missing endpoint to fetch data.');
           }
+
           const { data, count } = await fetchData();
-          clearTimeout(loadingDelay); // Clear the loading indicator timeout if data fetched before 1 second passes (stops flash from short loading time)
+          if (loadingDelay) clearTimeout(loadingDelay); // Clear the loading indicator timeout if data fetched before 1 second passes (stops flash from short loading time)
 
           const transformedData = transformData(data, count); // Transform the data before updating the table rows
           updateTableWithData(transformedData, count); // Set the data for table rows and update the previous fetch state
