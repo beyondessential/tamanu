@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef, memo } from 'react';
-import { isEqual, set } from 'lodash';
+import { isEqual } from 'lodash';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { useApi } from '../../api';
@@ -80,7 +80,6 @@ export const DataFetchingTable = memo(
     );
 
     const fetchData = async () => {
-      console.log('fetching', page);
       const { data, count } = await api.get(
         endpoint,
         {
@@ -135,6 +134,8 @@ export const DataFetchingTable = memo(
         () => {
           updateLoadingState();
         },
+        // Lazy loading relies on the loading state as source of truth for in process fetching and
+        // cannot be delayed
         lazyLoading ? 0 : 1000,
       );
     };
@@ -282,8 +283,6 @@ export const DataFetchingTable = memo(
     const notificationMessage = `${newRowCount} new record${
       newRowCount > 1 ? 's' : ''
     } available to view`;
-
-    console.log(data.length);
 
     return (
       <>
