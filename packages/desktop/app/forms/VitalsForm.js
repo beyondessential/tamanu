@@ -21,12 +21,19 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
     error,
   } = combineQueries([useVitalsSurveyQuery(), usePatientAdditionalDataQuery()]);
   const { encounter } = useEncounter();
+  const { components = [] } = vitalsSurvey || {};
+  const currentComponents = components.filter(
+    c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
+  );
   const validationSchema = useMemo(
     () =>
-      getValidationSchema(vitalsSurvey, {
-        encounterType: encounterType || encounter?.encounterType,
-      }),
-    [vitalsSurvey, encounter?.encounterType, encounterType],
+      getValidationSchema(
+        { components: currentComponents },
+        {
+          encounterType: encounterType || encounter?.encounterType,
+        },
+      ),
+    [currentComponents, encounter?.encounterType, encounterType],
   );
   const { ability } = useAuth();
   const canCreateVitals = ability.can('create', 'Vitals');
@@ -54,9 +61,6 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
   }
 
   const handleSubmit = async data => onSubmit({ survey: vitalsSurvey, ...data });
-  const currentComponents = vitalsSurvey.components.filter(
-    c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
-  );
 
   return (
     <Form
