@@ -49,11 +49,11 @@ const saveChangesForModel = async (
     .map(({ data }) => buildFromSyncRecord(model, data));
 
   const recordsForUpdate = changes
-    .filter(c => !c.isDeleted && idsForUpdate.has(c.recordId))
+    .filter(c => idsForUpdate.has(c.recordId))
     .map(({ data }) => buildFromSyncRecord(model, data));
 
   const recordsForRestore = changes
-    .filter(c => !c.isDeleted && idsForRestore.has(c.recordId))
+    .filter(c => idsForRestore.has(c.recordId))
     .map(({ data }) => buildFromSyncRecord(model, data));
 
   // run each import process
