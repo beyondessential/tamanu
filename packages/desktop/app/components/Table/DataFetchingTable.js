@@ -271,7 +271,6 @@ export const DataFetchingTable = memo(
     const notificationMessage = `${newRowCount} new record${
       newRowCount > 1 ? 's' : ''
     } available to view`;
-
     return (
       <>
         {!isNotificationMuted && showNotification && (
