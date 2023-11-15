@@ -80,7 +80,7 @@ export const LabRequestPrintLabel = React.memo(({ data, printWidth }) => {
     testId,
     labCategory,
     date,
-    specimenType,
+    specimenType = null,
   } = data;
   return (
     <Container $printWidth={printWidth}>
