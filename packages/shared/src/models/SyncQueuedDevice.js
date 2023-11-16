@@ -6,7 +6,6 @@ import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/shared/utils
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 
-// TODO: config?
 const SYNC_READY_WINDOW_MINUTES = 5;
 
 export class SyncQueuedDevice extends Model {
