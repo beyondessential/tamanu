@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/constants",
-  "version": "1.33.3",
+  "version": "1.33.4",
   "private": true,
   "description": "Shared constants",
   "exports": {
