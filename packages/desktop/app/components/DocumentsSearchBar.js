@@ -34,8 +34,8 @@ const CustomFormGrid = styled(FormGrid)`
 
 const ClearButton = styled(TextButton)`
   text-decoration: underline;
-  padding-bottom: 10px;
   width: auto;
+  margin-bottom: 10px;
 `;
 
 const SubmitButton = styled(FormSubmitButton)`
