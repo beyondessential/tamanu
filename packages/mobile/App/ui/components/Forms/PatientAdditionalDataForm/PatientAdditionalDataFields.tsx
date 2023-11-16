@@ -91,13 +91,13 @@ export const PatientAdditionalDataFields = ({
 
   if (isCustomFields) return fields.map(getCustomFieldComponent);
 
-  const nonRequiredPADFields = getConfiguredPatientAdditionalDataFields(
+  const padFields = getConfiguredPatientAdditionalDataFields(
     fields,
     showMandatory,
     getBool,
   );
 
-  return nonRequiredPADFields.map(fieldName => {
+  return padFields.map(fieldName => {
     const Component = getComponentForField(fieldName);
     return <Component fieldName={fieldName} key={fieldName} required={showMandatory} />;
   });
