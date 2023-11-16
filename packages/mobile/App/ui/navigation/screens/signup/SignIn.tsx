@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback, useState } from 'react';
+import React, { FunctionComponent, useCallback, useState, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { KeyboardAvoidingView, StatusBar, Linking } from 'react-native';
 import {
@@ -19,7 +19,7 @@ import { ModalInfo } from '/components/ModalInfo';
 import { authSelector } from '/helpers/selectors';
 import { OutdatedVersionError } from '~/services/error';
 import { useFacility } from '~/ui/contexts/FacilityContext';
-
+import { LanguageSelectButton } from './LanguageSelectButton';
 interface ModalContent {
   message: string;
   buttonPrompt?: string;
@@ -143,19 +143,8 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
               Forgot password?
             </StyledText>
           </StyledTouchableOpacity>
-          <StyledTouchableOpacity onPress={onNavigateToLanguageSelect}>
-            <StyledText
-              width="100%"
-              textAlign="center"
-              marginBottom={screenPercentageToDP('4.86', Orientation.Height)}
-              fontSize={screenPercentageToDP('1.57', Orientation.Height)}
-              color={theme.colors.WHITE}
-              textDecorationLine="underline"
-            >
-              Language
-            </StyledText>
-          </StyledTouchableOpacity>
         </KeyboardAvoidingView>
+        <LanguageSelectButton navigate={onNavigateToLanguageSelect} />
       </StyledSafeAreaView>
     </FullView>
   );

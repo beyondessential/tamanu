@@ -39,8 +39,8 @@ export class TranslatedString extends BaseModel {
   static async getLanguageOptions() {
     // TODO: Need to access db for languages
     return [
-      { label: 'English', value: 'en' },
-      { label: 'Spanish', value: 'es' },
+      { label: '🇬🇧 English', value: 'en' },
+      { label: '🇰🇭 Khmer', value: 'km' },
     ];
   }
 }

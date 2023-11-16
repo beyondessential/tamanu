@@ -1,9 +1,7 @@
 import React, {
   FunctionComponent,
-  ReactElement,
   useCallback,
   useEffect,
-  useMemo,
   useState,
 } from 'react';
 import { KeyboardAvoidingView, StatusBar } from 'react-native';
@@ -22,7 +20,7 @@ import { Dropdown } from '~/ui/components/Dropdown';
 import { writeConfig, readConfig } from '~/services/config';
 import { useBackend } from '~/ui/hooks';
 
-export const LanguageSelect: FunctionComponent<any> = ({ navigation }) => {
+export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -37,11 +35,12 @@ export const LanguageSelect: FunctionComponent<any> = ({ navigation }) => {
     (async () => {
       const languageOptions = await TranslatedString.getLanguageOptions();
       if (languageOptions.length === 0) {
-        setModalError('Cant load language list');
+        setModalError('Error loading language list');
         return;
       }
       setLanguageOptions(languageOptions);
-      setLanguage(await readConfig('language'));
+      const language = await readConfig('language');
+      setLanguage(language);
     })();
   }, []);
 
