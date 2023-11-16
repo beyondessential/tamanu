@@ -25,7 +25,7 @@ const Screen = ({
     navigation.navigate(Routes.HomeStack.HomeTabs.Index);
   }, []);
 
-  const onAddAnotherPatient = useCallback(() => { 
+  const onAddAnotherPatient = useCallback(() => {
     navigation.navigate(Routes.HomeStack.Index, {
       screen: Routes.HomeStack.RegisterPatientStack.Index,
       params: {

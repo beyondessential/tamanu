@@ -55,7 +55,10 @@ const getPatientInitialValues = (isEdit: boolean, patient, patientAdditionalData
     true,
     getBool,
   );
-  const initialPatientAdditionalDataValues = getInitialValues(patientAdditionalData, requiredPADFields);
+  const initialPatientAdditionalDataValues = getInitialValues(
+    patientAdditionalData,
+    requiredPADFields,
+  );
 
   const initialPatientValues = {
     firstName,
