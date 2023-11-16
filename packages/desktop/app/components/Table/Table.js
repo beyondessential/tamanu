@@ -485,7 +485,7 @@ class TableComponent extends React.Component {
           )}
           <StyledTableBody
             onScroll={lazyLoading ? this.handleScroll : undefined}
-            $lazyLoading={this.getStatusMessage() ? false : lazyLoading}
+            $lazyLoading={!this.getStatusMessage() && lazyLoading}
             ref={tableRef}
           >
             {this.renderBodyContent()}
