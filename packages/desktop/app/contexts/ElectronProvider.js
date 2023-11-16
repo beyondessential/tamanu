@@ -1,5 +1,6 @@
 import React from 'react';
-import { remote, shell } from 'electron';
+import { shell } from 'electron';
+import remote from '@electron/remote';
 import { readFile, writeFile, stat } from 'fs/promises';
 
 import { ElectronContext } from './Electron';

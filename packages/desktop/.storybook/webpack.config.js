@@ -59,6 +59,7 @@ module.exports = async ({ config }) => {
     sequelize: path.resolve(__dirname, './__mocks__/sequelize.js'),
     config: path.resolve(__dirname, './__mocks__/config.js'),
     electron: require.resolve('./__mocks__/electron.js'),
+    '@electron/remote': require.resolve('./__mocks__/electronRemote.js'),
     yargs: path.resolve(__dirname, './__mocks__/module.js'),
     child_process: path.resolve(__dirname, './__mocks__/module.js'),
   };

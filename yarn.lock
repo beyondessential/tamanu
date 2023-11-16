@@ -1967,6 +1967,11 @@
     tar "^6.0.5"
     yargs "^17.0.1"
 
+"@electron/remote@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@electron/remote/-/remote-2.1.0.tgz#7f3980840b5f4f3058ac7fd1da7a1167d10a9eaf"
+  integrity sha512-38jzz2beoYTo0DNS+aoaGyLS/fHeNTAc1Aom6HlYsxKnvVWjcg4xriC7J2IUkYSEDHGKX/D7jUst+mH4dHR6QA==
+
 "@electron/universal@1.4.1":
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/@electron/universal/-/universal-1.4.1.tgz#3fbda2a5ed9ff9f3304c8e8316b94c1e3a7b3785"

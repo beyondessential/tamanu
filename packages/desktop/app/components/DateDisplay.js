@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { remote } from 'electron';
+import remote from '@electron/remote';
 import { format } from 'date-fns';
 import { parseDate } from '@tamanu/shared/utils/dateTime';
 import { Typography, Box } from '@material-ui/core';
