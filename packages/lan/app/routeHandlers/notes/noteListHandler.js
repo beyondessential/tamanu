@@ -43,32 +43,28 @@ export const noteListHandler = recordType =>
     // 1- (1st notIn) Notes that have another more recent note with the same root (revisedById)
     // 2- (2nd notIn) Root notes that have been revised by another note
     const baseWhere = {
-      id: {
-        [Op.and]: [
-          {
-            [Op.notIn]: db.literal(`
-              (
-                SELECT id
-                FROM (
-                  SELECT id, revised_by_id, ROW_NUMBER() OVER (PARTITION BY revised_by_id ORDER BY date DESC, id DESC) AS row_num
-                  FROM notes
-                  WHERE revised_by_id IS NOT NULL
-                ) n
-                WHERE n.row_num != 1
-              )
-            `),
-          },
-          {
-            [Op.notIn]: db.literal(`
-              (
-                SELECT revised_by_id
-                FROM notes
-                WHERE revised_by_id IS NOT NULL
-              )
-            `),
-          },
-        ],
-      },
+      [Op.and]: [
+        Sequelize.literal(`
+          NOT EXISTS (
+            SELECT id
+            FROM (
+              SELECT id, revised_by_id, ROW_NUMBER() OVER (PARTITION BY revised_by_id ORDER BY date DESC, id DESC) AS row_num
+              FROM notes
+              WHERE revised_by_id IS NOT NULL
+            ) n
+            WHERE n.row_num != 1
+            AND id = "Note"."id"
+          )
+        `),
+        Sequelize.literal(`
+          NOT EXISTS (
+            SELECT revised_by_id
+            FROM notes
+            WHERE revised_by_id IS NOT NULL
+            AND revised_by_id = "Note"."id"
+          )
+        `),
+      ],
       recordType,
       recordId,
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
