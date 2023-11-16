@@ -1,11 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
-
 import { Form, Field, SearchField } from './Field';
 import { FormGrid } from './FormGrid';
-import { LargeSubmitButton, LargeOutlinedSubmitButton } from './Button';
+import { FormSubmitButton, TextButton } from './Button';
 import { Colors } from '../constants';
 
 const Container = styled.div`
@@ -29,29 +27,56 @@ const HeaderBar = styled.div`
   }
 `;
 
-const renderSearchBar = ({ submitForm, clearForm }) => (
-  <>
-    <FormGrid columns={3}>
-      <Field name="type" label="Type" component={SearchField} />
-      <Field name="documentOwner" label="Owner" component={SearchField} />
-      <Field name="departmentName" label="Department" component={SearchField} />
-    </FormGrid>
-    <Box display="flex" alignItems="center" justifyContent="flex-end" mt={2}>
-      <LargeOutlinedSubmitButton onClick={clearForm} style={{ marginRight: 12 }}>
-        Clear search
-      </LargeOutlinedSubmitButton>
-      <LargeSubmitButton onClick={submitForm} type="submit">
-        Search
-      </LargeSubmitButton>
-    </Box>
-  </>
-);
+const CustomFormGrid = styled(FormGrid)`
+  grid-template-columns: repeat(3, 1fr) auto auto;
+  align-items: end;
+`;
 
-export const DocumentsSearchBar = ({ setSearchParameters }) => (
-  <Container>
-    <HeaderBar>
-      <Typography variant="h3">Documents</Typography>
-    </HeaderBar>
-    <Form onSubmit={values => setSearchParameters(values)} render={renderSearchBar} />
-  </Container>
-);
+const ClearButton = styled(TextButton)`
+  text-decoration: underline;
+  padding-bottom: 10px;
+  width: auto;
+`;
+
+const SubmitButton = styled(FormSubmitButton)`
+  width: auto; /* Set width to auto */
+`;
+
+export const DocumentsSearchBar = ({ setSearchParameters }) => {
+  const handleSubmit = values => {
+    setSearchParameters(values);
+  };
+
+  return (
+    <Container>
+      <HeaderBar>
+        <Typography variant="h3">Documents</Typography>
+      </HeaderBar>
+      <Form
+        onSubmit={handleSubmit}
+        render={({ clearForm, values }) => (
+          <CustomFormGrid columns={5}>
+            <Field name="type" label="Type" component={SearchField} size="small" />
+            <Field name="documentOwner" label="Owner" component={SearchField} size="small" />
+            <Field name="departmentName" label="Department" component={SearchField} size="small" />
+            <SubmitButton type="submit" size="small">
+              Search
+            </SubmitButton>
+            <ClearButton
+              onClick={() => {
+                if (Object.keys(values).length === 0) return;
+                setSearchParameters({});
+                setTimeout(() => {
+                  clearForm();
+                }, 0);
+              }}
+              size="small"
+            >
+              Clear
+            </ClearButton>
+          </CustomFormGrid>
+        )}
+      />
+    </Container>
+  );
+};
