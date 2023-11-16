@@ -3,8 +3,8 @@ import {
   createDummyEncounter,
   createDummyPatient,
   randomReferenceIds,
-} from 'shared/demoData/patients';
-import { randomLabRequest } from 'shared/demoData';
+} from '@tamanu/shared/demoData/patients';
+import { randomLabRequest } from '@tamanu/shared/demoData';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { createTestContext } from '../../../utilities';
 

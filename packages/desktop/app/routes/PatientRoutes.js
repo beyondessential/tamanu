@@ -34,7 +34,7 @@ export const usePatientRoutes = () => {
         {
           path: `${PATIENT_PATHS.PATIENT}/programs/new`,
           component: ProgramsView,
-          title: 'New Survey',
+          title: 'New Form',
         },
         {
           path: `${PATIENT_PATHS.PATIENT}/referrals/new`,
@@ -55,7 +55,7 @@ export const usePatientRoutes = () => {
             {
               path: `${PATIENT_PATHS.ENCOUNTER}/programs/new`,
               component: ProgramsView,
-              title: 'New Survey',
+              title: 'New Form',
             },
             {
               path: `${PATIENT_PATHS.LAB_REQUEST}/:modal?`,

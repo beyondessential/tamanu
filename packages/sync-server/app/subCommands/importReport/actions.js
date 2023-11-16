@@ -1,4 +1,4 @@
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 import Table from 'cli-table3';
 import { REPORT_STATUSES } from '@tamanu/constants';
 import { format } from 'date-fns';

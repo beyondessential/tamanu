@@ -1,6 +1,6 @@
 import { beforeAll, describe, it } from '@jest/globals';
 
-import { fake, fakeReferenceData } from 'shared/test-helpers/fake';
+import { fake, fakeReferenceData } from '@tamanu/shared/test-helpers/fake';
 
 import { createTestContext } from '../utilities';
 

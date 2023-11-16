@@ -11,8 +11,8 @@ import {
   VaccineCertificate,
   getPatientSurveyResponseAnswer,
   CovidVaccineCertificate,
-} from 'shared/utils';
-import { CovidLabCertificate, CertificateTypes } from 'shared/utils/patientCertificates';
+} from '@tamanu/shared/utils';
+import { CovidLabCertificate, CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
 
 import { getLocalisation } from '../localisation';
 

@@ -1,8 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { log } from 'shared/services/logging';
-
+import { log } from '@tamanu/shared/services/logging';
 import { CentralSyncManager } from './CentralSyncManager';
 
 export const buildSyncRoutes = ctx => {

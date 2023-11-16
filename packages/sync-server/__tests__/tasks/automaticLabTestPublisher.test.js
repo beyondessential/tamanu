@@ -1,6 +1,6 @@
-import { createDummyPatient } from 'shared/demoData/patients';
+import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { LAB_REQUEST_STATUSES, ENCOUNTER_TYPES } from '@tamanu/constants';
-import { fake, chance, fakeUser } from 'shared/test-helpers';
+import { fake, chance, fakeUser } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 import { AutomaticLabTestResultPublisher } from '../../app/tasks/AutomaticLabTestResultPublisher';
 

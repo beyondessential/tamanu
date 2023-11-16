@@ -187,7 +187,9 @@ export const dataGenerator = async ({ sequelize, models }, parameters = {}) => {
     throw new Error('Cannot export a survey marked as "sensitive"');
   }
 
-  const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
+  const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId, {
+    includeAllVitals: true,
+  });
   const reportColumnTemplate = getReportColumnTemplate(components);
 
   const rawData = await getData(sequelize, parameters);

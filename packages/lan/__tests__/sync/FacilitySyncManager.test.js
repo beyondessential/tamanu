@@ -171,8 +171,8 @@ describe('FacilitySyncManager', () => {
     it("pull changes with current 'lastSuccessfulSyncPull'", async () => {
       await ctx.models.LocalSystemFact.set('lastSuccessfulSyncPull', '10');
 
-      jest.doMock('shared/sync', () => ({
-        ...jest.requireActual('shared/sync'),
+      jest.doMock('@tamanu/shared/sync', () => ({
+        ...jest.requireActual('@tamanu/shared/sync'),
         createSnapshotTable: jest.fn(),
       }));
       jest.doMock('../../app/sync/pullIncomingChanges', () => ({
@@ -188,7 +188,7 @@ describe('FacilitySyncManager', () => {
       const {
         FacilitySyncManager: TestFacilitySyncManager,
       } = require('../../app/sync/FacilitySyncManager');
-      const { createSnapshotTable } = require('shared/sync');
+      const { createSnapshotTable } = require('@tamanu/shared/sync');
 
       const syncManager = new TestFacilitySyncManager({
         models,
@@ -209,8 +209,8 @@ describe('FacilitySyncManager', () => {
     it('save changes with current sessionId', async () => {
       await ctx.models.LocalSystemFact.set('currentSyncTick', '10');
 
-      jest.doMock('shared/sync', () => ({
-        ...jest.requireActual('shared/sync'),
+      jest.doMock('@tamanu/shared/sync', () => ({
+        ...jest.requireActual('@tamanu/shared/sync'),
         createSnapshotTable: jest.fn(),
         saveIncomingChanges: jest.fn(),
       }));
@@ -227,7 +227,7 @@ describe('FacilitySyncManager', () => {
       const {
         FacilitySyncManager: TestFacilitySyncManager,
       } = require('../../app/sync/FacilitySyncManager');
-      const { saveIncomingChanges } = require('shared/sync');
+      const { saveIncomingChanges } = require('@tamanu/shared/sync');
 
       const syncManager = new TestFacilitySyncManager({
         models,

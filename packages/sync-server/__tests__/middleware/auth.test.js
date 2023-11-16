@@ -2,7 +2,9 @@ import { v4 as uuid } from 'uuid';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import config from 'config';
+
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
+import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { fake, disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { createTestContext, withDate } from '../utilities';
 
@@ -36,6 +38,8 @@ describe('Auth', () => {
   let store;
   let close;
   let emailService;
+  let deactivatedUser;
+
   beforeAll(async () => {
     const ctx = await createTestContext();
     baseApp = ctx.baseApp;
@@ -48,6 +52,12 @@ describe('Auth', () => {
       ...USERS.map(r => User.create(r)),
       Facility.create(TEST_FACILITY),
     ]);
+    deactivatedUser = await User.create(
+      fake(User, {
+        password: TEST_PASSWORD,
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      }),
+    );
   });
 
   afterAll(async () => close());
@@ -181,6 +191,15 @@ describe('Auth', () => {
         deviceId: TEST_DEVICE_ID,
       });
       expect(response).toHaveRequestError();
+    });
+
+    it('Should reject a deactivated user', async () => {
+      const response = await baseApp.post('/v1/login').send({
+        email: deactivatedUser.email,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(response).toBeForbidden();
     });
   });
 
@@ -330,6 +349,31 @@ describe('Auth', () => {
       const refreshResponse = await baseApp.post('/v1/refresh').send({
         refreshToken,
         deviceId: 'different-device',
+      });
+      expect(refreshResponse).toHaveRequestError();
+    });
+
+    it('Should fail if refresh token requested from deactivated user', async () => {
+      const freshUser = await store.models.User.create(
+        fake(store.models.User, {
+          password: TEST_PASSWORD,
+        }),
+      );
+      const loginResponse = await baseApp.post('/v1/login').send({
+        email: freshUser.email,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(loginResponse).toHaveSucceeded();
+      const { refreshToken } = loginResponse.body;
+
+      await freshUser.update({
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      });
+
+      const refreshResponse = await baseApp.post('/v1/refresh').send({
+        refreshToken,
+        deviceId: TEST_DEVICE_ID,
       });
       expect(refreshResponse).toHaveRequestError();
     });

@@ -6,9 +6,11 @@ import { useQuery } from '@tanstack/react-query';
 
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
 
+import { useLocalisation } from '../contexts/Localisation';
+
 import { Form, Field } from '../components/Field';
 import { IdField } from '../components/Field/IdField';
-import { ModalActionRow } from '../components/ModalActionRow';
+import { ModalFormActionRow } from '../components/ModalActionRow';
 import { RadioField } from '../components';
 import { IdBanner } from '../components/IdBanner';
 import { Colors, PATIENT_REGISTRY_OPTIONS } from '../constants';
@@ -81,11 +83,13 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
   );
   const sexValues = useSexValues();
 
+  const { getLocalisation } = useLocalisation();
+
   if (error) {
     return <pre>{error.stack}</pre>;
   }
 
-  const handleSubmit = data => {
+  const handleSubmit = async data => {
     const newData = { ...data };
     newData.patientRegistryType = patientRegistryType;
 
@@ -93,7 +97,7 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
       newData.birthFacilityId = null;
     }
 
-    onSubmit(newData);
+    await onSubmit(newData);
   };
 
   const renderForm = ({ submitForm, values, setValues }) => {
@@ -115,7 +119,7 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
           options={PATIENT_REGISTRY_OPTIONS}
           style={{ gridColumn: '1 / -1' }}
         />
-        <PrimaryDetailsGroup />
+        <PrimaryDetailsGroup values={values} patientRegistryType={patientRegistryType} />
         <AdditionalInformationRow>
           <div>
             {isExpanded ? (
@@ -139,7 +143,7 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
             <PatientFieldsGroup fieldDefinitions={fieldDefinitions?.data} />
           )}
         </Collapse>
-        <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onCancel} />
+        <ModalFormActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onCancel} />
       </>
     );
   };
@@ -152,7 +156,11 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
         displayId: generateId(),
         ...editedObject,
       }}
-      validationSchema={getPatientDetailsValidation(sexValues)}
+      validationSchema={getPatientDetailsValidation(
+        patientRegistryType,
+        sexValues,
+        getLocalisation,
+      )}
     />
   );
 });
