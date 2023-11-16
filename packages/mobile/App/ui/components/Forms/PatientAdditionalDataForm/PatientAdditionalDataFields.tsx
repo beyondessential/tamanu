@@ -72,11 +72,6 @@ function getComponentForField(fieldName: string): React.FC<{ fieldName: string }
   throw new Error(`Unexpected field ${fieldName} for patient additional data.`);
 }
 
-const getFieldComponent = fieldName => {
-  const Component = getComponentForField(fieldName);
-  return <Component fieldName={fieldName} key={fieldName} />;
-}
-
 const getCustomFieldComponent = ({ id, name, options, fieldType }) => {
   return <Field
     name={id}
@@ -102,5 +97,8 @@ export const PatientAdditionalDataFields = ({
     getBool,
   );
 
-  return nonRequiredPADFields.map(getFieldComponent);
+  return nonRequiredPADFields.map(fieldName => {
+    const Component = getComponentForField(fieldName);
+    return <Component fieldName={fieldName} key={fieldName} required={showMandatory} />;
+  });
 };
