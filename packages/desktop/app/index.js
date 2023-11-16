@@ -1,3 +1,5 @@
+import 'core-js/features/array/at';
+
 import React from 'react';
 import { render } from 'react-dom';
 import { persistStore } from 'redux-persist';
