@@ -6,7 +6,7 @@ import { checkNotePermission } from '../../utils/checkNotePermission';
 
 export const noteListHandler = recordType =>
   asyncHandler(async (req, res) => {
-    const { db, models, params, query } = req;
+    const { models, params, query } = req;
     const { order = 'ASC', orderBy, noteType, rowsPerPage, page } = query;
 
     const recordId = params.id;
