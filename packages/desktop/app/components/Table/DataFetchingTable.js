@@ -119,15 +119,10 @@ export const DataFetchingTable = memo(
       [fetchOptions, page, sorting],
     );
 
-    const loadingIndicatorDelay = () => {
-      return setTimeout(() => {
-        if (fetchState.data?.length > 0 && lazyLoading) {
-          setIsLoadingMoreData(true);
-        } else {
-          setIsLoading(true);
-        }
+    const loadingIndicatorDelay = () =>
+      setTimeout(() => {
+        setIsLoading(true);
       }, 1000);
-    };
 
     const clearLoadingIndicators = () => {
       setIsLoading(false);
@@ -215,14 +210,18 @@ export const DataFetchingTable = memo(
     };
 
     useEffect(() => {
-      const loadingDelay = loadingIndicatorDelay();
+      const shouldLoadMoreData = fetchState.data?.length > 0 && lazyLoading;
+      if (shouldLoadMoreData) setIsLoadingMoreData(true);
+      const loadingDelay = !shouldLoadMoreData && loadingIndicatorDelay();
+
       (async () => {
         try {
           if (!endpoint) {
             throw new Error('Missing endpoint to fetch data.');
           }
+
           const { data, count } = await fetchData();
-          clearTimeout(loadingDelay); // Clear the loading indicator timeout if data fetched before 1 second passes (stops flash from short loading time)
+          if (loadingDelay) clearTimeout(loadingDelay); // Clear the loading indicator timeout if data fetched before 1 second passes (stops flash from short loading time)
 
           const transformedData = transformData(data, count); // Transform the data before updating the table rows
           updateTableWithData(transformedData, count); // Set the data for table rows and update the previous fetch state
