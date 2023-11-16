@@ -48,7 +48,6 @@ export async function up(query) {
 
   await query.addIndex(TABLE, ['id']);
   await query.addIndex(TABLE, ['last_seen_time']);
-  await query.addIndex(TABLE, ['status']);
   await query.addIndex(TABLE, ['urgent']);
 }
 
