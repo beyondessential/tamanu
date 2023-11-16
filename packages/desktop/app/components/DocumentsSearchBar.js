@@ -50,7 +50,7 @@ const renderSearchBar = ({ submitForm, clearForm }) => (
 export const DocumentsSearchBar = ({ setSearchParameters }) => (
   <Container>
     <HeaderBar>
-      <Typography variant="h3">Documents search</Typography>
+      <Typography variant="h3">Documents</Typography>
     </HeaderBar>
     <Form onSubmit={values => setSearchParameters(values)} render={renderSearchBar} />
   </Container>
