@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import remote from '@electron/remote';
+import { app, getGlobal } from '@electron/remote';
 import { format } from 'date-fns';
 import { parseDate } from '@tamanu/shared/utils/dateTime';
 import { Typography, Box } from '@material-ui/core';
@@ -18,7 +18,7 @@ const SoftText = styled(Text)`
   color: ${Colors.midText};
 `;
 
-const getLocale = () => remote.getGlobal('osLocales') || remote.app.getLocale() || 'default';
+const getLocale = () => getGlobal('osLocales') || app.getLocale() || 'default';
 
 const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
   if (!date) return fallback;
