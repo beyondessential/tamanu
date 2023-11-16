@@ -95,7 +95,7 @@ export class CentralSyncManager {
     // Client should poll for the result later.
     const preparation = this.prepareSession(syncSession);
 
-    // ...but in unit tests, the tests interfere with each other if we leave prepares running 
+    // ...but in unit tests, the tests interfere with each other if we leave prepares running
     // in the background! So, allow overriding the above behaviour.
     if (this.constructor.config.sync.awaitPreparation) {
       await preparation;
