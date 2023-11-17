@@ -559,7 +559,7 @@ describe('Covid swab lab test list', () => {
       const expectedDetails4 = {
         firstName: expectedPatient2.firstName,
         lastName: expectedPatient2.lastName,
-        dob: format(parseISO(expectedPatient2.dateOfBirth), 'yyyy/MM/d'),
+        dob: format(parseISO(expectedPatient2.dateOfBirth), 'yyyy/MM/dd'),
         sex: expectedPatient2.sex,
         patientId: expectedPatient2.displayId,
         labRequestId: labRequest4.displayId,
