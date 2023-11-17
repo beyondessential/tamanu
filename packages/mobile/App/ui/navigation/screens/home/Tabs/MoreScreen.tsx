@@ -17,6 +17,7 @@ import { useAuth } from '~/ui/contexts/AuthContext';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { authUserSelector } from '/helpers/selectors';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 
 const CameraInCircle = (
   <StyledView position="absolute" right="-20%" bottom={0} zIndex={2}>
@@ -49,30 +50,23 @@ const Footer = ({ version, deviceId }: FooterProps): ReactElement => (
     color={theme.colors.TEXT_MID}
     fontSize={screenPercentageToDP(1.45, Orientation.Height)}
   >
-    Tamanu Version {version}{'\n'}Device ID mobile-{deviceId}
+    Tamanu Version {version}
+    {'\n'}Device ID mobile-{deviceId}
   </StyledText>
 );
 
 export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
+  const { getLocalisation } = useLocalisation();
+  const supportDeskUrl = getLocalisation('supportDeskUrl');
   const authCtx = useAuth();
   const user = useSelector(authUserSelector);
   const { facilityName } = useFacility();
   const settings = useMemo(
     () => [
       {
-        title: 'Feedback',
-        Icon: FeedbackIcon,
-        onPress: (): Promise<void> => Linking.openURL('mailto: support@tamanu.io'),
-      },
-      {
-        title: 'FAQs',
-        Icon: QuestionIcon,
-        onPress: (): Promise<void> => Linking.openURL('https://www.tamanu.io'),
-      },
-      {
-        title: 'Notifications',
+        title: 'Support centre',
         Icon: RingIcon,
-        onPress: (): void => console.log('Notification'),
+        onPress: (): Promise<void> => Linking.openURL(supportDeskUrl),
       },
     ],
     [],
