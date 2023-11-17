@@ -16,7 +16,7 @@ import {
 
 import { getBundleEntryFromResource, getPatientDisplayName } from './utils';
 
-export const generateIPSBundle = async (fhirPatient, user, models) => {
+export const generateIPSBundle = async (fhirPatientId, user, models) => {
 
   const dataDictionariesIps = config.hl7.dataDictionaries.ips;
   const integrationsIps = config.integrations.ips;
@@ -32,7 +32,7 @@ export const generateIPSBundle = async (fhirPatient, user, models) => {
 
   // We set this to an ID independent of the DB ecosystem
   // Alternatively, we could fetch the patient from the fhir schema in the DB
-  patient.id = uuidv4();
+  patient.id = fhirPatientId;
   patient.displayName = getPatientDisplayName(patient);
 
   const [
