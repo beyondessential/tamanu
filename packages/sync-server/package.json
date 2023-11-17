@@ -1,6 +1,6 @@
 {
   "name": "sync-server",
-  "version": "1.36.8",
+  "version": "1.36.9",
   "private": true,
   "description": "Sync server for Tamanu desktop app",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
