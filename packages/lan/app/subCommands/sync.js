@@ -13,7 +13,10 @@ async function sync() {
   context.centralServer.connect(); // preemptively connect central server to speed up sync
   context.syncManager = new FacilitySyncManager(context);
 
-  await context.syncManager.triggerSync('subcommand');
+  await context.syncManager.triggerSync({
+    type: 'subcommand',
+    urgent: true,
+  });
 }
 
 export const syncCommand = new Command('sync').description('Sync with central server').action(sync);

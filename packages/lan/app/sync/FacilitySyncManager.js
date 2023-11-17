@@ -46,7 +46,7 @@ export class FacilitySyncManager {
 
   syncPromise = null;
 
-  reason = '';
+  reason = null;
 
   constructor({ models, sequelize, centralServer }) {
     this.models = models;
@@ -79,7 +79,7 @@ export class FacilitySyncManager {
       await this.syncPromise;
     } finally {
       this.syncPromise = null;
-      this.reason = '';
+      this.reason = null;
     }
   }
 
@@ -90,18 +90,32 @@ export class FacilitySyncManager {
       );
     }
 
-    log.info('FacilitySyncManager.startSession', { reason: this.reason });
+    log.info('FacilitySyncManager.attemptStart', { reason: this.reason });
+
+    const pullSince = (await this.models.LocalSystemFact.get(LAST_SUCCESSFUL_SYNC_PULL_KEY)) || -1;
+
+    // the first step of sync is to start a session and retrieve the session id
+    const {
+      status,
+      sessionId,
+      startedAtTick: newSyncClockTime,
+    } = await this.centralServer.startSyncSession({
+      urgent: this.reason?.urgent,
+      lastSyncedTick: pullSince,
+    });
+
+    if (!sessionId) {
+      // we're queued
+      log.info('FacilitySyncManager.wasQueued', { status });
+      return;
+    }
+
+    log.info('FacilitySyncManager.startSession');
 
     // clear previous temp data, in case last session errored out or server was restarted
     await dropAllSnapshotTables(this.sequelize);
 
     const startTime = new Date();
-
-    // the first step of sync is to start a session and retrieve the session id
-    const {
-      sessionId,
-      startedAtTick: newSyncClockTime,
-    } = await this.centralServer.startSyncSession();
 
     log.info('FacilitySyncManager.receivedSessionInfo', {
       sessionId,

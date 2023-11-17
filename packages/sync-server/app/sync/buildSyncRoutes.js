@@ -1,7 +1,9 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
+import { Op } from 'sequelize';
 import { log } from 'shared/services/logging';
+import { completeSyncSession } from 'shared/sync/completeSyncSession';
 
 import { CentralSyncManager } from './CentralSyncManager';
 
@@ -9,10 +11,73 @@ export const buildSyncRoutes = ctx => {
   const syncManager = new CentralSyncManager(ctx);
   const syncRoutes = express.Router();
 
-  // create new sync session
+  // create new sync session or join/update the queue for one
   syncRoutes.post(
     '/',
     asyncHandler(async (req, res) => {
+      const { SyncQueuedDevice, SyncSession } = req.models;
+
+      // first check if our device has any stale sessions...
+      const staleSessions = await SyncSession.findAll({
+        where: {
+          completedAt: { [Op.is]: null },
+          debugInfo: {
+            deviceId: req.body.deviceId,
+          },
+        },
+      });
+
+      // ... and close them out if so
+      // (highly likely 0 or 1, but still loop as multiples are still theoretically possible)
+      for (const session of staleSessions) {
+        await completeSyncSession(
+          req.store,
+          session.id,
+          'Session marked as completed due to its device reconnecting',
+        );
+        const durationMs = Date.now() - session.startTime;
+        log.info('StaleSyncSessionCleaner.closedReconnectedSession', {
+          sessionId: session.id,
+          durationMs,
+          facilityId: session.debugInfo.facilityId,
+          deviceId: session.debugInfo.deviceId,
+        });
+      }
+
+      // now update our position in the queue and check if we're at the front of it
+      const queueRecord = await SyncQueuedDevice.checkSyncRequest({
+        lastSyncedTick: 0,
+        urgent: false,
+        ...req.body,
+      });
+      log.info('Dummy queue result:', { queueRecord });
+
+      // if we're not at the front of the queue, we're waiting
+      if (queueRecord.id !== req.body.deviceId) {
+        res.send({
+          status: 'waitingInQueue',
+          behind: queueRecord,
+        });
+        return;
+      }
+
+      // we're at the front of the queue, but if the previous device's sync is still
+      // underway we need to wait for that
+      const isSyncCapacityFull = await syncManager.getIsSyncCapacityFull();
+      if (isSyncCapacityFull) {
+        res.send({
+          status: 'activeSync',
+        });
+        return;
+      }
+
+      // remove our place in the queue before starting sync
+      // (if the resulting sync has an error, we'll be knocked to the back of the queue
+      // but that's fine. It will leave some room for non-errored devices to sync, and
+      // our requests will get priority once our error resolves as we'll have an older
+      // lastSyncedTick)
+      queueRecord.destroy();
+
       const { user, body } = req;
       const { facilityId, deviceId } = body;
       const { sessionId, tick } = await syncManager.startSession({
