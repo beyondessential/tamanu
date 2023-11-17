@@ -6,6 +6,7 @@ import { StyledText, StyledView, StyledTouchableOpacity } from '~/ui/styled/comm
 import { readConfig } from '~/services/config';
 import { useBackend } from '~/ui/hooks';
 import { Routes } from '~/ui/helpers/routes';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export const LanguageSelectButton = ({ navigation }): ReactElement => {
   const [language, setLanguage] = useState(null);
@@ -18,7 +19,7 @@ export const LanguageSelectButton = ({ navigation }): ReactElement => {
   const getLanguageFromConfig = useCallback(async () => {
     const language = await readConfig('language');
     setLanguage(language);
-  }, [])
+  }, []);
 
   const onNavigateToLanguageSelect = useCallback(() => {
     console.log('onNavigateToLanguageSelect...');
@@ -27,9 +28,9 @@ export const LanguageSelectButton = ({ navigation }): ReactElement => {
 
   useEffect(() => {
     const focusListener = navigation.addListener('focus', () => getLanguageFromConfig());
-    console.log('focused')
-    return () => focusListener()
-  }, [navigation]); 
+    console.log('focused');
+    return () => focusListener();
+  }, [navigation]);
 
   useEffect(() => {
     (async () => {
@@ -46,15 +47,17 @@ export const LanguageSelectButton = ({ navigation }): ReactElement => {
       <StyledView
         borderColor="white"
         borderBottomWidth={1}
-        width={screenPercentageToDP('20', Orientation.Width)}
+        width={screenPercentageToDP('25', Orientation.Width)}
         marginLeft={screenPercentageToDP('2.43', Orientation.Width)}
-        marginBottom={screenPercentageToDP('5.86', Orientation.Height)}
+        marginBottom={screenPercentageToDP('2.43', Orientation.Height)}
       >
         <StyledText fontSize={12} color={theme.colors.TEXT_SOFT}>
           Language
         </StyledText>
         <StyledText fontWeight="bold" color={theme.colors.WHITE}>
-          {languageLabels[language]}
+          {languageLabels[language]}<Icon name="chevron-down" style={{
+            fontSize: 18,
+          }} />
         </StyledText>
       </StyledView>
     </StyledTouchableOpacity>

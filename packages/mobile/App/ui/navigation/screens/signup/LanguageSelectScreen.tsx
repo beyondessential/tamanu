@@ -19,6 +19,7 @@ import { ModalInfo } from '/components/ModalInfo';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { writeConfig, readConfig } from '~/services/config';
 import { useBackend } from '~/ui/hooks';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
 
 export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -63,7 +64,7 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
   }, []);
 
   if (!language) {
-    return <StyledText>Loading languages...</StyledText>;
+    return <LoadingScreen />;
   }
 
   return (
@@ -101,7 +102,7 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
               value={language}
               options={languageOptions}
               onChange={onChangeLanguage}
-              label="Language"
+              label=""
               fixedHeight
               selectPlaceholderText="Select"
               labelColor="white"
