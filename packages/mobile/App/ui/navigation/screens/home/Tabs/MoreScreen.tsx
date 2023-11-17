@@ -10,7 +10,7 @@ import { Button } from '/components/Button';
 import { MenuOptionButton } from '/components/MenuOptionButton';
 import { Separator } from '/components/Separator';
 import { FlatList } from 'react-native-gesture-handler';
-import { CameraOutlineIcon, FeedbackIcon, QuestionIcon, RingIcon, LaunchIcon } from '/components/Icons';
+import { CameraOutlineIcon, LaunchIcon } from '/components/Icons';
 import { version as AppVersion } from '/root/package.json';
 import { Linking } from 'react-native';
 import { useAuth } from '~/ui/contexts/AuthContext';
@@ -102,21 +102,7 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
             fontSize={screenPercentageToDP(1.7, Orientation.Height)}
             color={theme.colors.TEXT_SUPER_DARK}
           >
-            {user.role}
-          </StyledText>
-          <StyledView
-            height={screenPercentageToDP(0.486, Orientation.Height)}
-            width={screenPercentageToDP(0.486, Orientation.Height)}
-            borderRadius={50}
-            background={theme.colors.TEXT_SUPER_DARK}
-            marginLeft={screenPercentageToDP(0.72, Orientation.Width)}
-            marginRight={screenPercentageToDP(0.72, Orientation.Width)}
-          />
-          <StyledText
-            fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-            color={theme.colors.TEXT_SUPER_DARK}
-          >
-            {facilityName}
+            {user.role} | {facilityName}
           </StyledText>
         </RowView>
         <Button
