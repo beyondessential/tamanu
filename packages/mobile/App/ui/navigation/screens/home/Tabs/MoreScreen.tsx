@@ -10,7 +10,7 @@ import { Button } from '/components/Button';
 import { MenuOptionButton } from '/components/MenuOptionButton';
 import { Separator } from '/components/Separator';
 import { FlatList } from 'react-native-gesture-handler';
-import { CameraOutlineIcon, FeedbackIcon, QuestionIcon, RingIcon } from '/components/Icons';
+import { CameraOutlineIcon, FeedbackIcon, QuestionIcon, RingIcon, LaunchIcon } from '/components/Icons';
 import { version as AppVersion } from '/root/package.json';
 import { Linking } from 'react-native';
 import { useAuth } from '~/ui/contexts/AuthContext';
@@ -65,7 +65,7 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
     () => [
       {
         title: 'Support centre',
-        Icon: RingIcon,
+        Icon: LaunchIcon,
         onPress: (): Promise<void> => Linking.openURL(supportDeskUrl),
       },
     ],
@@ -120,6 +120,7 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
           </StyledText>
         </RowView>
         <Button
+          marginBottom={screenPercentageToDP(1.21, Orientation.Height)}
           marginTop={screenPercentageToDP(1.21, Orientation.Height)}
           width={screenPercentageToDP(29.19, Orientation.Width)}
           height={screenPercentageToDP(6.07, Orientation.Height)}
