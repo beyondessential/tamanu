@@ -207,7 +207,7 @@ export class SurveyResponse extends Model {
     const encounter = await this.getSurveyEncounter({
       encounterId,
       patientId,
-      reasonForEncounter: `Survey response for ${survey.name}`,
+      reasonForEncounter: `Form response for ${survey.name}`,
       ...responseData,
     });
     const { result, resultText } = getResultValue(questions, answers, {
