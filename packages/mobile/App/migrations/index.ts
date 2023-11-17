@@ -30,6 +30,7 @@ import { addEncounterHistoryTable1693484817000 } from './1693484817000-addEncoun
 import { addTranslatedStringTable1698353903000 } from './1698353903000-addTranslatedStringTable';
 import { addVisibilityStatusToSurveyScreenComponents1695096053000 } from './1695096053000-addVisibilityStatusToSurveyScreenComponents';
 import { addVisibilityStatusForUsers1697499690000 } from './1697499690000-addVisibilityStatusForUsers';
+import { addPatientCustomFieldsTables1694090332843 } from './1694090332843-addPatientCustomFieldsTables';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -63,4 +64,5 @@ export const migrationList = [
   addTranslatedStringTable1698353903000,
   addVisibilityStatusToSurveyScreenComponents1695096053000,
   addVisibilityStatusForUsers1697499690000,
+  addPatientCustomFieldsTables1694090332843,
 ];

@@ -1,8 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { mapValues, keyBy } from 'lodash';
-
-const ENGLISH_LANGUAGE_CODE = 'en';
+import { getLanguageOptions } from '@tamanu/shared/utils/translation/getLanguageOptions';
+import { NOT_MODIFIED_STATUS_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 
 export const translation = express.Router();
 
@@ -34,38 +34,14 @@ translation.get(
     // No permission needed when on login screen
     req.flagPermissionChecked();
 
-    const {
-      models: { TranslatedString },
-    } = req;
-
-    const eTag = await TranslatedString.etagForLanguageOptions();
-
-    if (req.headers['if-none-match'] === eTag) {
-      res.status(304).end();
+    const response = await getLanguageOptions(req.models, req.headers['if-none-match']);
+    if (response === NOT_MODIFIED_STATUS_CODE) {
+      res.status(NOT_MODIFIED_STATUS_CODE).end();
       return;
     }
-
     res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('ETag', eTag);
-
-    const languagesInDb = await TranslatedString.findAll({
-      attributes: ['language'],
-      group: 'language',
-    });
-
-    const languageNames = await TranslatedString.findAll({
-      where: { stringId: 'languageName' },
-    });
-
-    const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
-    const languageOptions = languagesInDb.map(({ language }) => {
-      return {
-        label: languageDisplayNames[language],
-        value: language,
-      };
-    });
-
-    res.send(languageOptions);
+    res.setHeader('ETag', response.eTag);
+    res.send(response.languageOptions);
   }),
 );
 
@@ -83,7 +59,7 @@ translation.get(
     const eTag = await TranslatedString.etagForLanguage(language);
 
     if (req.headers['if-none-match'] === eTag) {
-      res.status(304).end();
+      res.status(NOT_MODIFIED_STATUS_CODE).end();
       return;
     }
 
