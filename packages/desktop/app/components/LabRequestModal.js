@@ -4,12 +4,12 @@ import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import styled from 'styled-components';
 import { useApi, useSuggester, combineQueries } from '../api';
-import { Modal } from './Modal';
+import { FormModal } from './FormModal';
 import { LabRequestMultiStepForm } from '../forms/LabRequestForm/LabRequestMultiStepForm';
 import { LabRequestSummaryPane } from '../views/patients/components/LabRequestSummaryPane';
 import { useEncounter } from '../contexts/Encounter';
 
-const StyledModal = styled(Modal)`
+const StyledModal = styled(FormModal)`
   .MuiDialog-paper {
     max-width: 1200px;
   }

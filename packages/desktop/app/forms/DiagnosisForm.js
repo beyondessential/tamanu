@@ -4,7 +4,7 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import { diagnosisCertaintyOptions } from '../constants';
 
-import { ConfirmCancelRow } from '../components/ButtonRow';
+import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';
 import {
   Form,
@@ -76,7 +76,7 @@ export const DiagnosisForm = React.memo(
               required
             />
             <Field name="date" label="Date" component={DateField} required saveDateAsString />
-            <ConfirmCancelRow onConfirm={submitForm} onCancel={onCancel} />
+            <FormSubmitCancelRow onConfirm={submitForm} onCancel={onCancel} />
           </FormGrid>
         )}
       />

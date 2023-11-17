@@ -5,9 +5,9 @@ import { singularize } from 'inflection';
 import { camelCase, lowerCase } from 'lodash';
 import { Sequelize } from 'sequelize';
 
-import { getUploadedData } from 'shared/utils/getUploadedData';
-import { log } from 'shared/services/logging/log';
-import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
+import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
+import { log } from '@tamanu/shared/services/logging/log';
+import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
 
 import { DryRun, DataImportError } from './errors';
 import { coalesceStats } from './stats';

@@ -3,13 +3,12 @@ import asyncHandler from 'express-async-handler';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
-import { BadAuthenticationError } from 'shared/errors';
+import { VISIBILITY_STATUSES, JWT_TOKEN_TYPES } from '@tamanu/constants';
+import { BadAuthenticationError } from '@tamanu/shared/errors';
 
 import {
   getToken,
   verifyToken,
-  findUserById,
   getRandomU32,
   getRandomBase64String,
   isInternalClient,
@@ -43,7 +42,13 @@ export const refresh = ({ secret, refreshSecret }) =>
 
     const { userId, refreshId } = contents;
 
-    const user = await findUserById(store.models, userId);
+    const user = await store.models.User.findOne({
+      where: { id: userId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    });
+
+    if (!user) {
+      throw new BadAuthenticationError('Invalid token');
+    }
 
     const dbEntry = await store.models.RefreshToken.findOne({
       where: {

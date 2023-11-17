@@ -1,9 +1,9 @@
 import { expect, beforeAll, describe, it } from '@jest/globals';
 
-import { fakeReferenceData, withErrorShown } from 'shared/test-helpers';
-import { SYNC_SESSION_DIRECTION, getModelsForDirection } from 'shared/sync';
+import { fakeReferenceData, withErrorShown } from '@tamanu/shared/test-helpers';
+import { SYNC_SESSION_DIRECTION, getModelsForDirection } from '@tamanu/shared/sync';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { sleepAsync } from 'shared/utils/sleepAsync';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { createTestContext } from '../utilities';
 import { snapshotOutgoingChanges } from '../../app/sync/snapshotOutgoingChanges';

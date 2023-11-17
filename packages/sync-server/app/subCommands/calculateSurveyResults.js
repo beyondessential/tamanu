@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
 
-import { log } from 'shared/services/logging';
+import { log } from '@tamanu/shared/services/logging';
 
 import { initDatabase } from '../database';
 

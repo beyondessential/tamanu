@@ -5,8 +5,8 @@ import {
   createDummyPatient,
   createDummyEncounter,
   createDummyEncounterMedication,
-} from 'shared/demoData/patients';
-import { randomLabRequest } from 'shared/demoData';
+} from '@tamanu/shared/demoData/patients';
+import { randomLabRequest } from '@tamanu/shared/demoData';
 import {
   LAB_REQUEST_STATUSES,
   IMAGING_REQUEST_STATUS_TYPES,
@@ -16,9 +16,9 @@ import {
   NOTE_RECORD_TYPES,
   EncounterChangeType,
 } from '@tamanu/constants';
-import { setupSurveyFromObject } from 'shared/demoData/surveys';
-import { fake, fakeUser } from 'shared/test-helpers/fake';
-import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { setupSurveyFromObject } from '@tamanu/shared/demoData/surveys';
+import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
+import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { uploadAttachment } from '../../app/utils/uploadAttachment';
 import { createTestContext } from '../utilities';
@@ -1441,6 +1441,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
+            date: encounter.startDate,
           });
         });
 
@@ -1477,6 +1478,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
+            date: encounter.startDate,
           });
 
           expect(encounterHistoryRecords[1]).toMatchObject({
@@ -1524,6 +1526,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
+            date: encounter.startDate,
           });
           expect(encounterHistoryRecords[1]).toMatchObject({
             date: submittedTime,
@@ -1571,6 +1574,7 @@ describe('Encounter', () => {
             examinerId: oldClinician.id,
             encounterType: encounter.encounterType,
             actorId: user.id,
+            date: encounter.startDate,
           });
           expect(encounterHistoryRecords[1]).toMatchObject({
             date: submittedTime,
@@ -1613,13 +1617,13 @@ describe('Encounter', () => {
 
           expect(encounterHistoryRecords).toHaveLength(2);
           expect(encounterHistoryRecords[0]).toMatchObject({
-            date: submittedTime,
             encounterId: encounter.id,
             departmentId: encounter.departmentId,
             locationId: encounter.locationId,
             examinerId: encounter.examinerId,
             encounterType: oldEncounterType,
             actorId: user.id,
+            date: encounter.startDate,
           });
           expect(encounterHistoryRecords[1]).toMatchObject({
             date: submittedTime,
@@ -1673,6 +1677,7 @@ describe('Encounter', () => {
             locationId: oldLocation.id,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
+            date: encounter.startDate,
           });
           expect(encounterHistoryRecords[1]).toMatchObject({
             date: locationChangeSubmittedTime,
@@ -1706,6 +1711,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
+            date: encounter.startDate,
           });
           expect(encounterHistoryRecords[1]).toMatchObject({
             date: locationChangeSubmittedTime,
@@ -1751,6 +1757,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
+            date: encounter.startDate,
           });
           expect(encounterHistoryRecords[1]).toMatchObject({
             date: locationChangeSubmittedTime,

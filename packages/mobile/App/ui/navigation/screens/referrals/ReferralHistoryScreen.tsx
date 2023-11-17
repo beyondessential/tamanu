@@ -77,6 +77,9 @@ export const ReferralHistoryScreen = (): ReactElement => {
                       },
                       [body],
                     );
+                    if (dataElement.type === FieldTypes.MULTI_SELECT) {
+                      return <StyledText color={theme.colors.TEXT_DARK}>{JSON.parse(body).join(', ')}</StyledText>;
+                    }
                     if (dataElement.type !== FieldTypes.SURVEY_LINK) {
                       return <StyledText color={theme.colors.TEXT_DARK}>{body}</StyledText>;
                     }

@@ -5,7 +5,7 @@ import {
   createDummyEncounter,
   randomLabRequest,
 } from '@tamanu/shared/demoData';
-import { fake, chance } from 'shared/test-helpers';
+import { fake, chance } from '@tamanu/shared/test-helpers';
 import { createLabTestTypes } from '@tamanu/shared/demoData/labRequests';
 import { createTestContext } from '../utilities';
 

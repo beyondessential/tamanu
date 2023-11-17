@@ -2,11 +2,11 @@
 
 import { addDays, getYear } from 'date-fns';
 
-import { fake, chance } from 'shared/test-helpers';
-import { fakeUUID } from 'shared/utils/generateId';
+import { fake, chance } from '@tamanu/shared/test-helpers';
+import { fakeUUID } from '@tamanu/shared/utils/generateId';
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants';
-import { formatFhirDate } from 'shared/utils/fhir/datetime';
-import { toDateTimeString } from 'shared/utils/dateTime';
+import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { createTestContext } from '../../utilities';
 

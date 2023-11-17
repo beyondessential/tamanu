@@ -17,7 +17,7 @@ import { migrateDataInBatches } from '../../app/subCommands/migrateDataInBatches
 
 const DEFAULT_USER_ID = 'DEFAULT_USER_ID';
 
-const addSystemNote = async (models, recordId, content, date, user) => {
+const addLegacySystemNote = async (models, recordId, content, date, user) => {
   const notePage = await models.LegacyNotePage.create({
     recordId,
     recordType: NOTE_RECORD_TYPES.ENCOUNTER,
@@ -25,13 +25,23 @@ const addSystemNote = async (models, recordId, content, date, user) => {
     noteType: NOTE_TYPES.SYSTEM,
   });
 
-  await models.LegacyNoteItem.create({
+  return models.LegacyNoteItem.create({
     notePageId: notePage.id,
     date,
     content,
     authorId: user?.id || DEFAULT_USER_ID,
   });
 };
+
+const addSystemNote = async (models, recordId, content, date, user) =>
+  models.Note.create({
+    recordId,
+    recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+    date,
+    noteType: NOTE_TYPES.SYSTEM,
+    content,
+    authorId: user?.id || DEFAULT_USER_ID,
+  });
 
 const addLocationChangeNote = async (
   models,
@@ -40,6 +50,7 @@ const addLocationChangeNote = async (
   newLocationId,
   submittedTime,
   user,
+  newNoteSchema = false,
 ) => {
   const { Location } = models;
   const oldLocation = await Location.findOne({
@@ -51,7 +62,7 @@ const addLocationChangeNote = async (
     include: 'locationGroup',
   });
 
-  await addSystemNote(
+  const args = [
     models,
     recordId,
     `Changed location from ${Location.formatFullLocationName(
@@ -59,7 +70,9 @@ const addLocationChangeNote = async (
     )} to ${Location.formatFullLocationName(newLocation)}`,
     submittedTime,
     user,
-  );
+  ];
+
+  return newNoteSchema ? addSystemNote(...args) : addLegacySystemNote(...args);
 };
 
 const addDepartmentChangeNote = async (
@@ -69,17 +82,20 @@ const addDepartmentChangeNote = async (
   toDepartmentId,
   submittedTime,
   user,
+  newNoteSchema = false,
 ) => {
   const { Department } = models;
   const oldDepartment = await Department.findOne({ where: { id: fromDepartmentId } });
   const newDepartment = await Department.findOne({ where: { id: toDepartmentId } });
-  await addSystemNote(
+  const args = [
     models,
     recordId,
     `Changed department from ${oldDepartment.name} to ${newDepartment.name}`,
     submittedTime,
     user,
-  );
+  ];
+
+  return newNoteSchema ? addSystemNote(...args) : addLegacySystemNote(...args);
 };
 
 const updateClinician = async (
@@ -89,17 +105,20 @@ const updateClinician = async (
   newClinicianId,
   submittedTime,
   user,
+  newNoteSchema = false,
 ) => {
   const { User } = models;
   const oldClinician = await User.findOne({ where: { id: oldClinicianId } });
   const newClinician = await User.findOne({ where: { id: newClinicianId } });
-  await addSystemNote(
+  const args = [
     models,
     recordId,
     `Changed supervising clinician from ${oldClinician.displayName} to ${newClinician.displayName}`,
     submittedTime,
     user,
-  );
+  ];
+
+  return newNoteSchema ? addSystemNote(...args) : addLegacySystemNote(...args);
 };
 
 const onEncounterProgression = async (
@@ -109,14 +128,17 @@ const onEncounterProgression = async (
   newEncounterType,
   submittedTime,
   user,
+  newNoteSchema = false,
 ) => {
-  await addSystemNote(
+  const args = [
     models,
     recordId,
     `Changed type from ${oldEncounterType} to ${newEncounterType}`,
     submittedTime,
     user,
-  );
+  ];
+
+  return newNoteSchema ? addSystemNote(...args) : addLegacySystemNote(...args);
 };
 
 describe('migrateChangelogNotesToEncounterHistory', () => {
@@ -129,8 +151,9 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
   let locationGroup2;
   let defaultUser;
 
-  const SUB_COMMAND_NAME = 'ChangelogNotesToEncounterHistory';
-  const SUB_COMMAND_OPTIONS = { batchSize: 1, delay: 0 };
+  const NOTE_SUB_COMMAND_NAME = 'ChangelogNotesToEncounterHistory';
+  const NOTE_PAGE_SUB_COMMAND_NAME = 'ChangelogNotePagesToEncounterHistory';
+  const SUB_COMMAND_OPTIONS = { batchSize: 1, delay: 0, noteSchema: 'note_page' };
 
   const getDateSubtractedFromNow = daysToSubtract =>
     toDateTimeString(sub(new Date(), { days: daysToSubtract }));
@@ -191,6 +214,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
     });
     await models.LegacyNoteItem.truncate({ cascade: true, force: true });
     await models.LegacyNotePage.truncate({ cascade: true, force: true });
+    await models.Note.truncate({ cascade: true, force: true });
     await models.User.destroy({
       cascade: true,
       force: true,
@@ -237,6 +261,61 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       await clearTestData();
     });
 
+    it('uses encounter.start_date for the first encounter_history of every encounter', async () => {
+      const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+      const oldLocation = await createLocation('oldLocation');
+      const newLocation = await createLocation('newLocation');
+      const department = await createDepartment('department');
+      const clinician = await createUser('testUser');
+      const locationChangeNoteDate = getCurrentDateTimeString();
+      const encounter = await createEncounter(patient, {
+        departmentId: department.id,
+        locationId: oldLocation.id,
+        examinerId: clinician.id,
+        encounterType: 'admission',
+        startDate: getDateSubtractedFromNow(6),
+      });
+      await addLocationChangeNote(
+        models,
+        encounter.id,
+        oldLocation.id,
+        newLocation.id,
+        locationChangeNoteDate,
+      );
+      encounter.locationId = newLocation.id;
+      await encounter.save();
+
+      await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+
+      expect(exitSpy).toBeCalledWith(0);
+
+      const encounterHistoryRecords = await models.EncounterHistory.findAll({
+        order: [['date', 'ASC']],
+      });
+
+      expect(encounterHistoryRecords[0]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: oldLocation.id,
+        examinerId: clinician.id,
+        encounterType: 'admission',
+        changeType: null,
+        actorId: null,
+        date: encounter.startDate,
+      });
+
+      expect(encounterHistoryRecords[1]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: newLocation.id,
+        examinerId: clinician.id,
+        encounterType: 'admission',
+        changeType: EncounterChangeType.Location,
+        actorId: defaultUser.id,
+        date: locationChangeNoteDate,
+      });
+    });
+
     it('migrates changelog with location change', async () => {
       const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
       const oldLocation = await createLocation('oldLocation');
@@ -260,7 +339,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.locationId = newLocation.id;
       await encounter.save();
 
-      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -312,7 +391,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.departmentId = newDepartment.id;
       await encounter.save();
 
-      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -364,7 +443,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.examinerId = newClinician.id;
       await encounter.save();
 
-      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -415,7 +494,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.encounterType = 'clinic';
       await encounter.save();
 
-      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -468,7 +547,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.encounterType = 'clinic';
       await encounter.save();
 
-      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -566,7 +645,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.encounterType = newEncounterType;
       await encounter.save();
 
-      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -682,7 +761,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.locationId = location4.id;
       await encounter.save();
 
-      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -786,7 +865,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.departmentId = department4.id;
       await encounter.save();
 
-      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -890,7 +969,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.examinerId = clinician4.id;
       await encounter.save();
 
-      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -994,7 +1073,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.encounterType = encounterType4;
       await encounter.save();
 
-      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -1153,7 +1232,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.encounterType = encounterType4;
       await encounter.save();
 
-      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -1310,7 +1389,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       encounter.encounterType = encounterType4;
       await encounter.save();
 
-      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -1419,7 +1498,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await encounter.save();
 
         // Migration
-        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -1534,7 +1613,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await encounter.save();
 
         // Migration
-        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -1640,7 +1719,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.locationId = location4.id;
         await encounter.save();
 
-        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -1733,7 +1812,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.locationId = location4.id;
         await encounter.save();
 
-        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -1828,7 +1907,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.locationId = location4.id;
         await encounter.save();
 
-        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -1921,7 +2000,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         location2.name = 'Changed location 2';
         await location2.save();
 
-        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -1997,7 +2076,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.departmentId = department3.id;
         await encounter.save();
 
-        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -2094,7 +2173,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await location3.save();
 
         // Migration
-        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -2190,7 +2269,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await encounter.save();
 
         // Migration
-        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -2285,7 +2364,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await encounter.save();
 
         // Migration
-        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -2380,7 +2459,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await encounter.save();
 
         // Migration
-        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -2477,7 +2556,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await encounter.save();
 
         // Migration
-        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -2571,7 +2650,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await department2.save();
 
         // Migration
-        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -2653,7 +2732,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.locationId = location3.id;
         await encounter.save();
 
-        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -2739,7 +2818,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await encounter.save();
 
         // Migration
-        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -2826,7 +2905,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         await clinician2.save();
 
         // Migration
-        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -2906,7 +2985,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounter.locationId = location3.id;
         await encounter.save();
 
-        await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+        await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
         expect(exitSpy).toBeCalledWith(0);
 
@@ -2973,7 +3052,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       );
 
       // Migration
-      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -3036,7 +3115,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       });
 
       // Migration
-      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -3121,10 +3200,10 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       });
 
       // Migration 1
-      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       // Migration 2
-      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -3196,7 +3275,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       );
 
       // Migration
-      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -3247,7 +3326,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       );
 
       // Migration
-      await migrateDataInBatches(SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
+      await migrateDataInBatches(NOTE_PAGE_SUB_COMMAND_NAME, SUB_COMMAND_OPTIONS);
 
       expect(exitSpy).toBeCalledWith(0);
 
@@ -3267,6 +3346,212 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         encounterType,
         changeType: null,
         actorId: null,
+      });
+    });
+  });
+
+  describe('with new note schema', () => {
+    beforeEach(async () => {
+      await clearTestData();
+    });
+
+    it('migrates Notes to EncounterHistory properly with single change', async () => {
+      const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+      const oldLocation = await createLocation('oldLocation');
+      const newLocation = await createLocation('newLocation');
+      const department = await createDepartment('department');
+      const clinician = await createUser('testUser');
+      const locationChangeNoteDate = getCurrentDateTimeString();
+      const encounter = await createEncounter(patient, {
+        departmentId: department.id,
+        locationId: oldLocation.id,
+        examinerId: clinician.id,
+        encounterType: 'admission',
+        startDate: getDateSubtractedFromNow(6),
+      });
+      await addLocationChangeNote(
+        models,
+        encounter.id,
+        oldLocation.id,
+        newLocation.id,
+        locationChangeNoteDate,
+        null,
+        true,
+      );
+      encounter.locationId = newLocation.id;
+      await encounter.save();
+
+      await migrateDataInBatches(NOTE_SUB_COMMAND_NAME, {
+        batchSize: 1,
+        delay: 0,
+        noteSchema: 'note',
+      });
+
+      expect(exitSpy).toBeCalledWith(0);
+
+      const encounterHistoryRecords = await models.EncounterHistory.findAll({
+        order: [['date', 'ASC']],
+      });
+
+      expect(encounterHistoryRecords[0]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: oldLocation.id,
+        examinerId: clinician.id,
+        encounterType: 'admission',
+        changeType: null,
+        actorId: null,
+        date: encounter.startDate,
+      });
+
+      expect(encounterHistoryRecords[1]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: department.id,
+        locationId: newLocation.id,
+        examinerId: clinician.id,
+        encounterType: 'admission',
+        changeType: EncounterChangeType.Location,
+        actorId: defaultUser.id,
+        date: locationChangeNoteDate,
+      });
+    });
+
+    it('migrates Notes to EncounterHistory properly with multiple changes', async () => {
+      const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+      const oldLocation = await createLocation('oldLocation');
+      const newLocation = await createLocation('newLocation');
+      const oldDepartment = await createDepartment('oldDepartment');
+      const newDepartment = await createDepartment('newDepartment');
+      const oldUser = await createUser('oldUser');
+      const newUser = await createUser('newUser');
+      const oldEncounterType = 'admission';
+      const newEncounterType = 'clinic';
+
+      const encounter = await createEncounter(patient, {
+        departmentId: oldDepartment.id,
+        locationId: oldLocation.id,
+        examinerId: oldUser.id,
+        encounterType: oldEncounterType,
+        startDate: getDateSubtractedFromNow(8),
+      });
+
+      // Change location
+      await addLocationChangeNote(
+        models,
+        encounter.id,
+        oldLocation.id,
+        newLocation.id,
+        getDateSubtractedFromNow(6),
+        null,
+        true, // new note schema
+      );
+      encounter.locationId = newLocation.id;
+      await encounter.save();
+
+      // Change department
+      await addDepartmentChangeNote(
+        models,
+        encounter.id,
+        oldDepartment.id,
+        newDepartment.id,
+        getDateSubtractedFromNow(5),
+        null,
+        true, // new note schema
+      );
+      encounter.departmentId = newDepartment.id;
+      await encounter.save();
+
+      // Change clinician
+      await updateClinician(
+        models,
+        encounter.id,
+        oldUser.id,
+        newUser.id,
+        getDateSubtractedFromNow(4),
+        null,
+        true, // new note schema
+      );
+      encounter.examinerId = newUser.id;
+      await encounter.save();
+
+      // Change encounter type
+      await onEncounterProgression(
+        models,
+        encounter.id,
+        oldEncounterType,
+        newEncounterType,
+        getDateSubtractedFromNow(3),
+        null,
+        true, // new note schema
+      );
+      encounter.encounterType = newEncounterType;
+      await encounter.save();
+
+      await migrateDataInBatches(NOTE_SUB_COMMAND_NAME, {
+        batchSize: 1,
+        delay: 0,
+        noteSchema: 'note',
+      });
+
+      expect(exitSpy).toBeCalledWith(0);
+
+      const encounterHistoryRecords = await models.EncounterHistory.findAll({
+        order: [['date', 'ASC']],
+      });
+
+      // Original encounter
+      expect(encounterHistoryRecords[0]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: oldDepartment.id,
+        locationId: oldLocation.id,
+        examinerId: oldUser.id,
+        encounterType: oldEncounterType,
+        changeType: null,
+        actorId: null,
+      });
+
+      // Location change history
+      expect(encounterHistoryRecords[1]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: oldDepartment.id,
+        locationId: newLocation.id,
+        examinerId: oldUser.id,
+        encounterType: oldEncounterType,
+        changeType: EncounterChangeType.Location,
+        actorId: defaultUser.id,
+      });
+
+      // Department change history
+      expect(encounterHistoryRecords[2]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: newDepartment.id,
+        locationId: newLocation.id,
+        examinerId: oldUser.id,
+        encounterType: oldEncounterType,
+        changeType: EncounterChangeType.Department,
+        actorId: defaultUser.id,
+      });
+
+      // Clinician change history
+      expect(encounterHistoryRecords[3]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: newDepartment.id,
+        locationId: newLocation.id,
+        examinerId: newUser.id,
+        encounterType: oldEncounterType,
+        changeType: EncounterChangeType.Examiner,
+        actorId: defaultUser.id,
+      });
+
+      // Encounter type change history
+      expect(encounterHistoryRecords[4]).toMatchObject({
+        encounterId: encounter.id,
+        departmentId: newDepartment.id,
+        locationId: newLocation.id,
+        examinerId: newUser.id,
+        encounterType: newEncounterType,
+        changeType: EncounterChangeType.EncounterType,
+        actorId: defaultUser.id,
       });
     });
   });

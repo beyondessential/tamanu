@@ -44,7 +44,9 @@ jobs:
 
       - name: Install and start postgres if needed
         if: matrix.postgres
-        run: .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }} ${{ matrix.package }}
+        run: |
+          source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
+          .github/scripts/setup-postgres-for-one-package.sh ${{ matrix.package }}
 
       - name: Run tests
         env:
@@ -107,8 +109,9 @@ jobs:
       - run: yarn build-shared
 
       - name: Install and start postgres ${{ matrix.postgres }}
-        run: .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
-          migrations
+        run: |
+          source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
+          .github/scripts/setup-postgres-for-one-package.sh migrations
 
       - run: scripts/apply_and_revert_server_migrations.sh ${{ matrix.server }}
 
@@ -135,6 +138,31 @@ jobs:
       - run: yarn test
         working-directory: packages/mobile
 
+  test-facility-offline:
+    name: Test the facility server with the central server being down
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+
+      - name: Install and start postgres
+        run: |
+          source .github/scripts/install-postgres-ubuntu.sh 14
+          .github/scripts/test-facility-offline.sh setup-postgre
+      - name: Build central and facility servers
+        run: .github/scripts/test-facility-offline.sh build
+      - name: Start a central server
+        run: .github/scripts/test-facility-offline.sh central-start
+      - name: Start a facility server
+        run: .github/scripts/test-facility-offline.sh facility-start
+      - name: Stop the servers and print logs
+        run: .github/scripts/test-facility-offline.sh stop-and-print
+      - name: Start a facility server again without a central one
+        run: .github/scripts/test-facility-offline.sh facility-start-again
+
   # Dummy job to have a stable name for PR requirements
   tests-pass:
     if: always() # always run even if dependencies fail
@@ -145,6 +173,7 @@ jobs:
       - lint
       - migrations
       - test-mobile
+      - test-facility-offline
     runs-on: ubuntu-latest
     steps:
       # fail if ANY dependency has failed or been skipped or cancelled

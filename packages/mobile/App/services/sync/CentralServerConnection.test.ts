@@ -82,7 +82,7 @@ describe('CentralServerConnection', () => {
       expect(getSpy).toBeCalledWith(expect.stringContaining(mockSessionId), {
         fromId: 'test-from-id',
         limit: 1,
-      });
+      }, { timeout: expect.any(Number) });
     });
   });
   describe('push', () => {

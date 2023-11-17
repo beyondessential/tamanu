@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { ModalLoader, ConfirmCancelRow, Form } from '../components';
+import { ModalLoader, FormSubmitCancelRow, Form } from '../components';
 import { SurveyScreen } from '../components/Surveys';
 import { combineQueries } from '../api/combineQueries';
 import { useVitalsSurveyQuery, usePatientAdditionalDataQuery } from '../api/queries';
@@ -53,9 +53,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
     );
   }
 
-  const handleSubmit = data => {
-    onSubmit({ survey: vitalsSurvey, ...data });
-  };
+  const handleSubmit = async data => onSubmit({ survey: vitalsSurvey, ...data });
 
   return (
     <Form
@@ -84,7 +82,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
           values={values}
           setFieldValue={setFieldValue}
           submitButton={
-            <ConfirmCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onClose} />
+            <FormSubmitCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onClose} />
           }
           encounterType={encounterType}
         />

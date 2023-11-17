@@ -2,8 +2,8 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { SERVER_TYPES } from '@tamanu/constants';
-import { log } from 'shared/services/logging';
-import { fetchWithTimeout } from 'shared/utils/fetchWithTimeout';
+import { log } from '@tamanu/shared/services/logging';
+import { fetchWithTimeout } from '@tamanu/shared/utils/fetchWithTimeout';
 
 import { makeTableResponse } from './render/table';
 import { getUrl, getBool, getMilliseconds } from './render/cell';

@@ -2,9 +2,9 @@ import {
   createDummyPatient,
   createDummyEncounter,
   createDummyEncounterMedication,
-} from 'shared/demoData/patients';
+} from '@tamanu/shared/demoData/patients';
 import { addDays, subDays } from 'date-fns';
-import { getCurrentDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { MedicationDiscontinuer } from '../../app/tasks/MedicationDiscontinuer';
 

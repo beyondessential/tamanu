@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { simplePost } from 'shared/utils/crudHelpers';
+import { simplePost } from '@tamanu/shared/utils/crudHelpers';
 
 export const certificateNotification = express.Router();
 
