@@ -36,7 +36,7 @@ export function fhirRoutes(ctx, { requireClientHeaders } = {}) {
     routes.use(requireClientHeadersMiddleware);
   }
 
-  routes.get(`/Patient/:id/summary/`, patientSummaryHandler());
+  routes.get(`/Patient/:id/([\$])summary`, patientSummaryHandler());
 
   const { models } = ctx.store;
   for (const Resource of resourcesThatCanDo(models, FHIR_INTERACTIONS.INSTANCE.READ)) {

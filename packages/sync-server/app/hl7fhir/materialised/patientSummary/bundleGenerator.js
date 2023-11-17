@@ -16,12 +16,19 @@ import {
 
 import { getBundleEntryFromResource, getPatientDisplayName } from './utils';
 
-export const generateIPSBundle = async (patientId, user, models) => {
+export const generateIPSBundle = async (fhirPatient, user, models) => {
+
   const dataDictionariesIps = config.hl7.dataDictionaries.ips;
   const integrationsIps = config.integrations.ips;
 
+  const fhirPatient = await models.FhirPatient.findByPk(fhirPatientId);
+  if (!fhirPatient) throw new NotFound(`No FHIR patient with id ${fhirPatientId}`);
+
+  const patientId = fhirPatient.dataValues.upstreamId;
+  if (!patientId) throw new NotFound(`No upstream patient for fhir patient with id ${fhirPatientId}`);
+
   const patient = await models.Patient.findByPk(patientId);
-  if (!patient) throw new NotFound(`no patient with id ${patientId}`);
+  if (!patient) throw new NotFound(`No public patient with id ${patientId}`);
 
   // We set this to an ID independent of the DB ecosystem
   // Alternatively, we could fetch the patient from the fhir schema in the DB
