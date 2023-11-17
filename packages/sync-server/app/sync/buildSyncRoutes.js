@@ -2,8 +2,8 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { Op } from 'sequelize';
-import { log } from 'shared/services/logging';
-import { completeSyncSession } from 'shared/sync/completeSyncSession';
+import { log } from '@tamanu/shared/services/logging';
+import { completeSyncSession } from '@tamanu/shared/sync/completeSyncSession';
 
 import { CentralSyncManager } from './CentralSyncManager';
 
@@ -17,8 +17,7 @@ export const buildSyncRoutes = ctx => {
     asyncHandler(async (req, res) => {
       const { SyncQueuedDevice, SyncSession } = req.models;
 
-      // check if our device has a stale session and kill it if so
-      // TODO: where does this go??
+      // first check if our device has any stale sessions...
       const staleSessions = await SyncSession.findAll({
         where: {
           completedAt: { [Op.is]: null },
@@ -27,6 +26,9 @@ export const buildSyncRoutes = ctx => {
           },
         },
       });
+
+      // ... and close them out if so
+      // (highly likely 0 or 1, but still loop as multiples are still theoretically possible)
       for (const session of staleSessions) {
         await completeSyncSession(
           req.store,
@@ -42,7 +44,7 @@ export const buildSyncRoutes = ctx => {
         });
       }
 
-      // update our position in the queue and check if we're at the front of it
+      // now update our position in the queue and check if we're at the front of it
       const queueRecord = await SyncQueuedDevice.checkSyncRequest({
         lastSyncedTick: 0,
         urgent: false,

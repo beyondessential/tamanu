@@ -2,7 +2,7 @@ import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { simpleGet, simplePut, simplePost } from 'shared/utils/crudHelpers';
+import { simpleGet, simplePut, simplePost } from '@tamanu/shared/utils/crudHelpers';
 
 export const location = express.Router();
 

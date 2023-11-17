@@ -51,7 +51,26 @@
     "username": "",
     "password": "",
     "verbose": false,
-    "migrateOnStartup": false
+    "migrateOnStartup": false,
+    "reportSchemas": {
+      "enabled": false,
+      "connections": {
+        "raw": {
+          "pool": {
+            "max": 5
+          },
+          "username": "",
+          "password": ""
+        },
+        "reporting": {
+          "pool": {
+            "max": 5
+          },
+          "username": "",
+          "password": ""
+        }
+      }
+    }
   },
   "senaite": {
     "enabled": false,

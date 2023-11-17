@@ -28,7 +28,7 @@ import { TextInput } from '../components/Field/TextField';
 import { FormGrid } from '../components/FormGrid';
 import { TableFormFields } from '../components/Table';
 
-import { ConfirmCancelBackRow, ConfirmCancelRow } from '../components/ButtonRow';
+import { FormConfirmCancelBackRow, FormSubmitCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
 import {
@@ -73,7 +73,7 @@ const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialV
         )
       : getCurrentDateTimeString(),
     discharge: {
-      note: dischargeNotes.map(n => n.content).join('\n'),
+      note: dischargeNotes.map(n => n.content).join('\n\n'),
     },
     medications: medicationInitialValues,
     // Used in creation of associated notes
@@ -223,7 +223,7 @@ const DischargeFormScreen = props => {
   return (
     <DefaultFormScreen
       customBottomRow={
-        <ConfirmCancelRow
+        <FormSubmitCancelRow
           onCancel={onCancel}
           onConfirm={async () => {
             const { isCanceled, ...formErrors } = await validateForm();
@@ -252,7 +252,7 @@ const DischargeSummaryScreen = ({ onStepBack, submitForm, onCancel }) => (
       <p>Are you sure you want to discharge the patient? This action is irreversible.</p>
     </ConfirmContent>
     <Divider />
-    <ConfirmCancelBackRow onBack={onStepBack} onConfirm={submitForm} onCancel={onCancel} />
+    <FormConfirmCancelBackRow onBack={onStepBack} onConfirm={submitForm} onCancel={onCancel} />
   </div>
 );
 
@@ -273,7 +273,7 @@ export const DischargeForm = ({
   const activeMedications = encounter.medications?.filter(medication => !medication.discontinued);
   const medicationInitialValues = getMedicationsInitialValues(activeMedications);
   const handleSubmit = useCallback(
-    ({ medications, ...data }) => {
+    async ({ medications, ...data }) => {
       // Filter out medications that weren't marked
       const filteredMedications = {};
       Object.keys(medications).forEach(id => {
@@ -281,7 +281,7 @@ export const DischargeForm = ({
         if (medication.isDischarge) filteredMedications[id] = medication;
       });
 
-      onSubmit({ ...data, medications: filteredMedications });
+      await onSubmit({ ...data, medications: filteredMedications });
     },
     [onSubmit],
   );
@@ -289,7 +289,7 @@ export const DischargeForm = ({
   useEffect(() => {
     (async () => {
       const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
-      setDischargeNotes(notes.filter(n => n.noteType === 'discharge'));
+      setDischargeNotes(notes.filter(n => n.noteType === 'discharge').reverse()); // reverse order of array to sort by oldest first
     })();
   }, [api, encounter.id]);
 

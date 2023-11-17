@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
-import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
+import { ForbiddenError, BadAuthenticationError } from '@tamanu/shared/errors';
 import { verifyToken, stripUser, findUserById } from './utils';
 
 export const userMiddleware = ({ secret }) =>

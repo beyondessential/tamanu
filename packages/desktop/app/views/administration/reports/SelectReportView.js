@@ -26,7 +26,7 @@ export const SelectReportView = () => {
     dispatch(push(`/admin/reports/${report.id}/versions/${id}/edit`));
   };
 
-  const { data: reportData = [], isLoading: isReportLoading, error: reportError } = useQuery(
+  const { data: reportList = [], isLoading: isReportLoading, error: reportError } = useQuery(
     ['reportList'],
     () => api.get('admin/reports'),
   );
@@ -43,7 +43,7 @@ export const SelectReportView = () => {
   return (
     <FlexContainer>
       <ReportTable
-        data={reportData}
+        data={reportList}
         selected={report?.id}
         onRowClick={setReport}
         loading={isReportLoading}

@@ -10,7 +10,8 @@ export const DateFormats = {
   DAY_MONTH: 'dd MMM',
   DDMMYY: 'dd/MM/yyyy',
   SHORT_MONTH: 'MMM',
-  DATE_AND_TIME: 'dd MMM yyyy pp',
+  DATE_AND_TIME_HHMMSS: 'dd MMM yyyy pp',
+  DATE_AND_TIME_HHMM: 'dd MMM yyyy p',
   TIME_HHMMSS: 'pp',
   TIME: 'p',
 };
@@ -191,7 +192,7 @@ export const EncounterTypeNames = {
   emergency: 'Emergency',
   observation: 'Observation',
   triage: 'Triage',
-  surveyResponse: 'Survey response',
+  surveyResponse: 'Form response',
   vaccination: 'Vaccination record',
 };
 

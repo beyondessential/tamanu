@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { simpleGet } from 'shared/utils/crudHelpers';
+import { simpleGet } from '@tamanu/shared/utils/crudHelpers';
 
 export const department = express.Router();
 
