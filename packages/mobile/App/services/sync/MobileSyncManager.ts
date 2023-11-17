@@ -119,7 +119,7 @@ export class MobileSyncManager {
    * Trigger syncing and send through the sync errors if there is any
    * @returns
    */
-  async triggerSync({ urgent }: SyncOptions): Promise<void> {
+  async triggerSync({ urgent }: SyncOptions = { urgent: false }): Promise<void> {
     if (this.isSyncing) {
       console.warn(
         'MobileSyncManager.triggerSync(): Tried to start syncing while sync in progress',
@@ -144,7 +144,7 @@ export class MobileSyncManager {
     }
   }
 
-  async runSync({ urgent = false }: SyncOptions): Promise<void> {
+  async runSync({ urgent }: SyncOptions = { urgent: false }): Promise<void> {
     if (this.isSyncing) {
       throw new Error('MobileSyncManager.runSync(): Tried to start syncing while sync in progress');
     }
