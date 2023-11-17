@@ -28,6 +28,10 @@ const STAGE_MAX_PROGRESS = {
   3: 100,
 };
 
+type SyncOptions = {
+  urgent: boolean;
+};
+
 export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS).length;
 
 export class MobileSyncManager {
@@ -115,7 +119,7 @@ export class MobileSyncManager {
    * Trigger syncing and send through the sync errors if there is any
    * @returns
    */
-  async triggerSync(): Promise<void> {
+  async triggerSync({ urgent }: SyncOptions = { urgent: false }): Promise<void> {
     if (this.isSyncing) {
       console.warn(
         'MobileSyncManager.triggerSync(): Tried to start syncing while sync in progress',
@@ -126,8 +130,8 @@ export class MobileSyncManager {
     const startTime = Date.now();
 
     try {
-      await this.runSync();
-      this.lastSuccessfulSyncTick = formatDate(new Date(), DateFormats.DATE_AND_TIME_HHMMSS);
+      await this.runSync({ urgent });
+      this.lastSuccessfulSyncTick = formatDate(new Date(), DateFormats.DATE_AND_TIME);
       this.setProgress(0, '');
     } catch (error) {
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ERROR, { error });
@@ -140,7 +144,7 @@ export class MobileSyncManager {
     }
   }
 
-  async runSync(): Promise<void> {
+  async runSync({ urgent }: SyncOptions = { urgent: false }): Promise<void> {
     if (this.isSyncing) {
       throw new Error('MobileSyncManager.runSync(): Tried to start syncing while sync in progress');
     }
@@ -160,7 +164,7 @@ export class MobileSyncManager {
       startedAtTick: newSyncClockTime,
       status,
     } = await this.centralServer.startSyncSession({
-      urgent: false,
+      urgent,
       lastSyncedTick: pullSince,
     });
 
