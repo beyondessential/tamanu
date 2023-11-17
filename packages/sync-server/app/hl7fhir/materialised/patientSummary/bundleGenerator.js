@@ -14,6 +14,7 @@ import {
   getHl7Patient,
 } from './helpers';
 
+import { getBundleEntryFromResource } from './utils';
 
 export const generateBundle = async (fhirPatientId, user, models) => {
   const dataDictionariesIps = config.hl7.dataDictionaries.ips;
