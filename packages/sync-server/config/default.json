@@ -152,6 +152,11 @@
       "schedule": "*/30 * * * * *",
       "limit": 10
     },
+    "IPSRequestProcessor": {
+      // every 30 seconds /!\
+      "schedule": "*/30 * * * * *",
+      "limit": 10
+    },
     "reportRequestProcessor": {
       // every 30 seconds /!\
       "schedule": "*/30 * * * * *",
@@ -978,7 +983,13 @@
       }
     }
   },
-  "s3": {},
+  "s3": {
+    "ips": {
+      "region": "ap-southeast-2",
+      "bucketName": "bes-tamanu-ips-public",
+      "bucketPath": "ips-demo"
+    }
+  },
   "scheduledReports": [],
   "disk": {
     "diskPath": "C:/",

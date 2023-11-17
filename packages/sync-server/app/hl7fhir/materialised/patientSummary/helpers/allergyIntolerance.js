@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { FHIR_RESOURCE_TYPES } from '@tamanu/constants';
 
-import { getEntryResourceSubject, getPatientDisplayName } from '../utils';
+import { getEntryResourceSubject } from '../utils';
 
 export const getAllergyIntolerances = async ({ patient, models, dataDictionariesIps }) => {
   const patientAllergies = await models.PatientAllergy.findAll({
@@ -41,9 +41,7 @@ export const getAllergyIntolerances = async ({ patient, models, dataDictionaries
         },
         text: {
           status: 'generated',
-          div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Allergy Intolerance details for ${getPatientDisplayName(
-            patient,
-          )} for ${allergyCodingDisplay}. Please review the data for more detail.</div>`,
+          div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Allergy Intolerance details for ${patient.displayName} for ${allergyCodingDisplay}. Please review the data for more detail.</div>`,
         },
       },
     ];
@@ -63,9 +61,7 @@ export const getAllergyIntolerances = async ({ patient, models, dataDictionaries
     },
     text: {
       status: 'generated',
-      div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Allergy Intolerance details for ${getPatientDisplayName(
-        patient,
-      )} for ${patientAllergy.allergy.name}. Please review the data for more detail.</div>`,
+      div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Allergy Intolerance details for ${patient.displayName} for ${patientAllergy.allergy.name}. Please review the data for more detail.</div>`,
     },
   }));
 };

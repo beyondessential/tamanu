@@ -290,3 +290,10 @@ export const FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY = Object.fromEntries(
     `${k.substring(0, 1).toUpperCase()}${k.substring(1).toLowerCase()}`,
   ]),
 );
+
+export const IPS_REQUEST_STATUSES = {
+  QUEUED: 'Queued',
+  PROCESSED: 'Processed',
+  ERROR: 'Error',
+  IGNORE: 'Ignore',
+};

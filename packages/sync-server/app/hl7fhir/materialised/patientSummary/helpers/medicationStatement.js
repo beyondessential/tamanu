@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { FHIR_RESOURCE_TYPES } from '@tamanu/constants';
 
-import { getEntryResourceSubject, getPatientDisplayName } from '../utils';
+import { getEntryResourceSubject } from '../utils';
 
 export const getMedicationStatements = async ({ patient, models, dataDictionariesIps }) => {
   const openEncounter = await models.Encounter.findOne({
@@ -43,9 +43,7 @@ export const getMedicationStatements = async ({ patient, models, dataDictionarie
         },
         text: {
           status: 'generated',
-          div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Medication Statement details for ${getPatientDisplayName(
-            patient,
-          )} for ${encounterMedicationDisplay}. Please review the data for more detail.</div>`,
+          div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Medication Statement details for ${patient.displayName} for ${encounterMedicationDisplay}. Please review the data for more detail.</div>`,
         },
       },
     ];
@@ -65,9 +63,7 @@ export const getMedicationStatements = async ({ patient, models, dataDictionarie
     },
     text: {
       status: 'generated',
-      div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Medication Statement details for ${getPatientDisplayName(
-        patient,
-      )} for ${encounterMedication.Medication.name}. Please review the data for more detail.</div>`,
+      div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Medication Statement details for ${patient.displayName} for ${encounterMedication.Medication.name}. Please review the data for more detail.</div>`,
     },
     effectivePeriod: {
       start: encounterMedication.date,
