@@ -1,6 +1,9 @@
 import { ReferenceData } from './ReferenceData';
 import { Patient } from './Patient';
 import { PatientAdditionalData } from './PatientAdditionalData';
+import { PatientFieldValue } from './PatientFieldValue';
+import { PatientFieldDefinition } from './PatientFieldDefinition';
+import { PatientFieldDefinitionCategory } from './PatientFieldDefinitionCategory';
 import { PatientIssue } from './PatientIssue';
 import { PatientSecondaryId } from './PatientSecondaryId';
 import { User } from './User';
@@ -41,6 +44,9 @@ export const MODELS_MAP = {
   ReferenceData,
   Patient,
   PatientAdditionalData,
+  PatientFieldDefinitionCategory,
+  PatientFieldDefinition,
+  PatientFieldValue,
   PatientIssue,
   PatientSecondaryId,
   User,
