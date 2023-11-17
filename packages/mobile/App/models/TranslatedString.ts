@@ -21,8 +21,6 @@ export class TranslatedString extends BaseModel {
   @BeforeInsert()
   async assignIdAsTranslatedStringId(): Promise<void> {
     // For translated_string, we use a composite primary key of stringId plus language,
-    // N.B. because ';' is used to join the two, we replace any actual occurrence of ';' with ':'
-    // to avoid clashes on the joined id
     this.id = `${this.stringId};${this.language}`;
   }
 
@@ -37,10 +35,10 @@ export class TranslatedString extends BaseModel {
   }
 
   static async getLanguageOptions() {
-    // TODO: Need to access db for languages
-    return [
-      { label: '🇬🇧 English', value: 'en' },
-      { label: '🇰🇭 Khmer', value: 'km' },
-    ];
+    const languageNameKeys = await this.getRepository()
+      .createQueryBuilder('translated_string')
+      .where(`translated_string.stringId = 'languageName'`)
+      .getMany();
+    return languageNameKeys.map(({ language, text }) => ({ label: text, value: language }));
   }
 }

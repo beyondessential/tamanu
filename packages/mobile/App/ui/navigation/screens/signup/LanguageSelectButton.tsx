@@ -1,28 +1,48 @@
-import React, { useState, ReactElement, useEffect } from 'react';
+import React, { useState, ReactElement, useEffect, useCallback } from 'react';
 
 import { theme } from '~/ui/styled/theme';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { StyledText, StyledView, StyledTouchableOpacity } from '~/ui/styled/common';
 import { readConfig } from '~/services/config';
+import { useBackend } from '~/ui/hooks';
+import { Routes } from '~/ui/helpers/routes';
 
-export const LanguageSelectButton = ({ navigate }): ReactElement => {
+export const LanguageSelectButton = ({ navigation }): ReactElement => {
   const [language, setLanguage] = useState(null);
+  const [languageLabels, setLanguageLabels] = useState({});
+
+  const {
+    models: { TranslatedString },
+  } = useBackend();
+
+  const getLanguageFromConfig = useCallback(async () => {
+    const language = await readConfig('language');
+    setLanguage(language);
+  }, [])
+
+  const onNavigateToLanguageSelect = useCallback(() => {
+    console.log('onNavigateToLanguageSelect...');
+    navigation.navigate(Routes.SignUpStack.LanguageSelect);
+  }, []);
+
+  useEffect(() => {
+    const focusListener = navigation.addListener('focus', () => getLanguageFromConfig());
+    console.log('focused')
+    return () => focusListener()
+  }, [navigation]); 
 
   useEffect(() => {
     (async () => {
-      const language = await readConfig('language');
-      setLanguage(language);
+      const labelRecords = await TranslatedString.getLanguageOptions();
+      const labelObject = Object.fromEntries(
+        labelRecords.map(({ label, value }) => [value, label]),
+      );
+      setLanguageLabels(labelObject);
     })();
-  }, [])
-
-  // TODO: Fetched from backend   
-  const languageNames = {
-    en: '🇬🇧 English',
-    es: '🇰🇭 Spanish',
-  };
+  }, []);
 
   return (
-    <StyledTouchableOpacity onPress={navigate}>
+    <StyledTouchableOpacity onPress={onNavigateToLanguageSelect}>
       <StyledView
         borderColor="white"
         borderBottomWidth={1}
@@ -30,8 +50,12 @@ export const LanguageSelectButton = ({ navigate }): ReactElement => {
         marginLeft={screenPercentageToDP('2.43', Orientation.Width)}
         marginBottom={screenPercentageToDP('5.86', Orientation.Height)}
       >
-        <StyledText fontSize={12} color={theme.colors.TEXT_SOFT}>Language</StyledText>
-        <StyledText color={theme.colors.WHITE}>{languageNames[language]}</StyledText>
+        <StyledText fontSize={12} color={theme.colors.TEXT_SOFT}>
+          Language
+        </StyledText>
+        <StyledText fontWeight="bold" color={theme.colors.WHITE}>
+          {languageLabels[language]}
+        </StyledText>
       </StyledView>
     </StyledTouchableOpacity>
   );

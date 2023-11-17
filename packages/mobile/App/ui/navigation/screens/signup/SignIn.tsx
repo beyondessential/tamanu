@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback, useState, useMemo } from 'react';
+import React, { FunctionComponent, useCallback, useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { KeyboardAvoidingView, StatusBar, Linking } from 'react-native';
 import {
@@ -35,11 +35,6 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   const onNavigateToForgotPassword = useCallback(() => {
     console.log('onNavigateToForgotPassword...');
     navigation.navigate(Routes.SignUpStack.ResetPassword);
-  }, []);
-
-  const onNavigateToLanguageSelect = useCallback(() => {
-    console.log('onNavigateToLanguageSelect...');
-    navigation.navigate(Routes.SignUpStack.LanguageSelect);
   }, []);
 
   const onChangeModalVisibility = useCallback((isVisible: boolean) => {
@@ -143,8 +138,8 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
               Forgot password?
             </StyledText>
           </StyledTouchableOpacity>
+          <LanguageSelectButton navigation={navigation} />
         </KeyboardAvoidingView>
-        <LanguageSelectButton navigate={onNavigateToLanguageSelect} />
       </StyledSafeAreaView>
     </FullView>
   );
