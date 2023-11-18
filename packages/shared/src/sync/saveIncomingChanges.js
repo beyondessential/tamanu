@@ -16,39 +16,50 @@ export const saveChangesForModel = async (model, changes, isCentralServer) => {
     isCentralServer ? model.sanitizeForCentralServer(d) : model.sanitizeForFacilityServer(d);
 
   // split changes into create, update, delete
-  const recordsForDelete = changes
-    .filter(c => c.isDeleted)
-    .map(({ data }) => {
-      // validateRecord(data, null); TODO add in validation
-      return sanitizeData(data);
-    });
-  const idsForUpsert = changes.filter(c => !c.isDeleted && c.data.id).map(c => c.data.id);
-  const existingRecords = await model.findByIds(idsForUpsert, false);
-  const idToExistingRecord = Object.fromEntries(
-    existingRecords.map(e => [e.id, e.get({ plain: true })]),
-  );
+  const incomingRecords = changes.filter(c => c.data.id).map(c => c.data);
+  const idsForIncomingRecords = incomingRecords.map(r => r.id);
+  const existingRecords = await model
+    .findByIds(idsForIncomingRecords, false)
+    .map(r => r.get({ plain: true }));
+  const idToExistingRecord = Object.fromEntries(existingRecords.map(e => [e.id, e]));
+  const idsForUpdate = new Set();
+  const idsForRestore = new Set();
+  const idsForDelete = new Set();
+
+  existingRecords.forEach(existing => {
+    // compares incoming and existing records by id
+    const incoming = incomingRecords.find(r => r.id === existing.id);
+    // don't do anything if incoming record is deleted and existing record is already deleted
+    if (existing.deletedAt && !incoming.deletedAt) {
+      idsForRestore.add(existing.id);
+    }
+    if (!existing.deletedAt && !incoming.deletedAt) {
+      idsForUpdate.add(existing.id);
+    }
+    if (!existing.deletedAt && incoming.deletedAt) {
+      idsForDelete.add(existing.id);
+    }
+  });
   const recordsForCreate = changes
-    .filter(c => !c.isDeleted && idToExistingRecord[c.data.id] === undefined)
+    .filter(c => idToExistingRecord[c.data.id] === undefined)
     .map(({ data }) => {
       // validateRecord(data, null); TODO add in validation
       return sanitizeData(data);
     });
   const recordsForUpdate = changes
-    .filter(
-      r =>
-        !r.isDeleted && !!idToExistingRecord[r.data.id] && !idToExistingRecord[r.data.id].deletedAt,
-    )
+    .filter(r => idsForUpdate.has(r.data.id))
     .map(({ data }) => {
       // validateRecord(data, null); TODO add in validation
       return sanitizeData(data);
     });
   const recordsForRestore = changes
-    .filter(
-      r =>
-        !r.isDeleted &&
-        !!idToExistingRecord[r.data.id] &&
-        !!idToExistingRecord[r.data.id].deletedAt,
-    )
+    .filter(r => idsForRestore.has(r.data.id))
+    .map(({ data }) => {
+      // validateRecord(data, null); TODO add in validation
+      return sanitizeData(data);
+    });
+  const recordsForDelete = changes
+    .filter(r => idsForDelete.has(r.data.id))
     .map(({ data }) => {
       // validateRecord(data, null); TODO add in validation
       return sanitizeData(data);

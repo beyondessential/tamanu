@@ -23,29 +23,40 @@ const saveChangesForModel = async (
   changes: SyncRecord[],
 ): Promise<void> => {
   // split changes into create, update, delete
-  const recordsForDelete = changes
-    .filter(c => c.isDeleted)
-    .map(({ data }) => buildFromSyncRecord(model, data));
-  const idsForUpsert = changes.filter(c => !c.isDeleted && c.data.id).map(c => c.data.id);
+  const recordsForUpsert = changes.filter(c => c.data).map(c => c.data);
   const idsForUpdate = new Set();
   const idsForRestore = new Set();
+  const idsForDelete = new Set();
 
-  for (const batchOfIds of chunk(idsForUpsert, SQLITE_MAX_PARAMETERS)) {
+  for (const incomingRecords of chunk(recordsForUpsert, SQLITE_MAX_PARAMETERS)) {
+    const batchOfIds = incomingRecords.map(r => r.id);
     const batchOfExisting = await model.findByIds(batchOfIds, {
       select: ['id', 'deletedAt'],
       withDeleted: true,
     });
-    batchOfExisting.forEach(e => {
-      if (e.deletedAt) {
-        idsForRestore.add(e.id);
-      } else {
-        idsForUpdate.add(e.id);
+    batchOfExisting.forEach(existing => {
+      // compares incoming and existing records by id
+      const incoming = incomingRecords.find(r => r.id === existing.id);
+      // don't do anything if incoming record is deleted and existing record is already deleted
+      if (existing.deletedAt && !incoming.deletedAt) {
+        idsForRestore.add(existing.id);
+      }
+      if (!existing.deletedAt && !incoming.deletedAt) {
+        idsForUpdate.add(existing.id);
+      }
+      if (!existing.deletedAt && incoming.deletedAt) {
+        idsForDelete.add(existing.id);
       }
     });
   }
 
   const recordsForCreate = changes
-    .filter(c => !c.isDeleted && !idsForUpdate.has(c.recordId) && !idsForRestore.has(c.recordId))
+    .filter(
+      c =>
+        !idsForUpdate.has(c.recordId) &&
+        !idsForRestore.has(c.recordId) &&
+        !idsForDelete.has(c.recordId),
+    ) // not existing in db
     .map(({ data }) => buildFromSyncRecord(model, data));
 
   const recordsForUpdate = changes
@@ -54,6 +65,10 @@ const saveChangesForModel = async (
 
   const recordsForRestore = changes
     .filter(c => idsForRestore.has(c.recordId))
+    .map(({ data }) => buildFromSyncRecord(model, data));
+
+  const recordsForDelete = changes
+    .filter(c => idsForDelete.has(c.recordId))
     .map(({ data }) => buildFromSyncRecord(model, data));
 
   // run each import process

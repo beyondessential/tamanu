@@ -16,7 +16,7 @@ const Model = getModel();
 const generateExistingRecord = (id, data = {}) => ({
   id,
   data: { id, ...data },
-  get: () => ({ id }),
+  get: () => ({ id, ...data }),
 });
 const mockExistingRecords = records => {
   findByIds.mockImplementation(() => records);
@@ -35,9 +35,25 @@ describe('saveChangesForModel', () => {
   describe('saveCreates', () => {
     it('should create new records correctly', async () => {
       // setup test data
-      const existingRecords = [generateExistingRecord('existing_record_id')];
+      const existingRecords = [];
       mockExistingRecords(existingRecords);
       const newRecord = { id: 'new_record_id', deletedAt: null };
+      const changes = [{ data: newRecord, isDeleted: !!newRecord.deletedAt }];
+      // act
+      await saveChangesForModel(Model, changes, true);
+      // assertions
+      expect(saveChangeModules.saveCreates).toBeCalledTimes(1);
+      expect(saveChangeModules.saveCreates).toBeCalledWith(Model, [newRecord]);
+      expect(saveChangeModules.saveUpdates).toBeCalledTimes(0);
+      expect(saveChangeModules.saveDeletes).toBeCalledTimes(0);
+      expect(saveChangeModules.saveRestores).toBeCalledTimes(0);
+    });
+
+    it('should create new records even if they are soft undeleted', async () => {
+      // setup test data
+      const existingRecords = [];
+      mockExistingRecords(existingRecords);
+      const newRecord = { id: 'new_record_id', deletedAt: new Date() };
       const changes = [{ data: newRecord, isDeleted: !!newRecord.deletedAt }];
       // act
       await saveChangesForModel(Model, changes, true);
@@ -73,6 +89,26 @@ describe('saveChangesForModel', () => {
       expect(saveChangeModules.saveDeletes).toBeCalledTimes(0);
       expect(saveChangeModules.saveRestores).toBeCalledTimes(0);
     });
+
+    it('should not update soft deleted records', async () => {
+      // setup test data
+      const existingRecords = [
+        generateExistingRecord('existing_record_id', {
+          deletedAt: new Date(),
+          status: 'historical',
+        }),
+      ];
+      mockExistingRecords(existingRecords);
+      const newRecord = { id: 'existing_record_id', deletedAt: new Date(), status: 'current' };
+      const changes = [{ data: newRecord, isDeleted: !!newRecord.deletedAt }];
+      // act
+      await saveChangesForModel(Model, changes, true);
+      // assertions
+      expect(saveChangeModules.saveCreates).toBeCalledTimes(0);
+      expect(saveChangeModules.saveUpdates).toBeCalledTimes(0);
+      expect(saveChangeModules.saveDeletes).toBeCalledTimes(0);
+      expect(saveChangeModules.saveRestores).toBeCalledTimes(0);
+    });
   });
 
   describe('saveDeletes', () => {
@@ -95,6 +131,31 @@ describe('saveChangesForModel', () => {
         true,
       );
       expect(saveChangeModules.saveRestores).toBeCalledTimes(0);
+    });
+  });
+
+  describe('saveRestore', () => {
+    it('should restore records correctly', async () => {
+      // setup test data
+      const existingRecords = [
+        generateExistingRecord('existing_record_id', { deletedAt: new Date() }),
+      ];
+      mockExistingRecords(existingRecords);
+      const newRecord = { id: 'existing_record_id', deletedAt: null };
+      const changes = [{ data: newRecord, isDeleted: !!newRecord.deletedAt }];
+      // act
+      await saveChangesForModel(Model, changes, true);
+      // assertions
+      expect(saveChangeModules.saveCreates).toBeCalledTimes(0);
+      expect(saveChangeModules.saveUpdates).toBeCalledTimes(0);
+      expect(saveChangeModules.saveDeletes).toBeCalledTimes(0);
+      expect(saveChangeModules.saveRestores).toBeCalledTimes(1);
+      expect(saveChangeModules.saveRestores).toBeCalledWith(
+        Model,
+        [newRecord],
+        expect.anything(),
+        true,
+      );
     });
   });
 });
