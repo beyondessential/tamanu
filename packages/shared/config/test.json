@@ -6,5 +6,10 @@
   },
   "log": {
     "consoleLevel": "none"
+  },
+  "sync": {
+    "persistedCacheBatchSize": 10000,
+    "persistUpdateWorkerPoolSize": 5,
+    "pauseBetweenPersistedCacheBatchesInMilliseconds": 50
   }
 }
