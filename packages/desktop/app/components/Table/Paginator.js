@@ -124,15 +124,7 @@ export const Paginator = React.memo(
       <PaginatorWrapper colSpan={colSpan}>
         <FooterContent>
           <PageRecordCount>
-            <TranslatedText
-              stringId="general.table.pageRecordCount"
-              fallback=":lowerRange-:upperRange of :count"
-              replacements={{
-                lowerRange,
-                upperRange,
-                count,
-              }}
-            />
+            {lowerRange}–{upperRange} of {count}
           </PageRecordCount>
           <StyledSelectField
             label="Rows per page"
