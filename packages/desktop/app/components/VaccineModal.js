@@ -32,13 +32,17 @@ export const VaccineModal = ({ open, onClose, patientId }) => {
         delete dataToSubmit.locationId;
       }
 
-      await api.post(`patient/${patientId}/administeredVaccine`, {
+      const body = {
         ...dataToSubmit,
         patientId,
         status: currentTabKey,
         recorderId: currentUser.id,
-        circumstanceIds: JSON.parse(dataToSubmit?.circumstanceIds ?? null),
-      });
+      };
+      if (dataToSubmit.circumstanceIds) {
+        body.circumstanceIds = JSON.parse(dataToSubmit.circumstanceIds);
+      }
+
+      await api.post(`patient/${patientId}/administeredVaccine`, body);
       dispatch(reloadPatient(patientId));
     },
     [api, dispatch, patientId, currentUser.id, currentTabKey, countrySuggester],
