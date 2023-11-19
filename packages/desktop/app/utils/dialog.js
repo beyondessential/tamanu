@@ -1,4 +1,6 @@
 export async function showFileDialog(filters, filename = '') {
+  // we require require() here as the import is dynamic
+  // eslint-disable-next-line global-require
   const { dialog } = require('@electron/remote');
   const result = await dialog.showSaveDialog({
     filters,

@@ -7,6 +7,8 @@ import { ElectronContext } from './Electron';
 import { printPage } from '../print';
 
 export const ElectronProvider = ({ children }) => {
+  // we require require() here as the import is dynamic
+  // eslint-disable-next-line global-require
   const { dialog } = require('@electron/remote');
 
   // just pass directly to electron
