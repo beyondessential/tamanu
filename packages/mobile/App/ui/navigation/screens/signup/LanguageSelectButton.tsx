@@ -37,7 +37,6 @@ export const LanguageSelectButton = ({ navigation }): ReactElement => {
 
   useEffect(() => {
     const focusListener = navigation.addListener('focus', () => getLanguageFromConfig());
-    console.log('focused');
     return () => focusListener();
   }, [navigation]);
 
