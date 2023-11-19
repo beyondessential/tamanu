@@ -18,19 +18,19 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
   const [isDebugMode, setIsDebugMode] = useState(false);
   const [language, setLanguage] = useState(null);
 
+  // Initial check for language from localStorage (config). If none, set a default of english
+  useEffect(() => {
+    (async () => {
+      const storedLanguage = await readConfig(LANGUAGE_STORAGE_KEY);
+      if (!storedLanguage) await writeConfig(LANGUAGE_STORAGE_KEY, DEFAULT_LANGUAGE);
+      setLanguage(storedLanguage || DEFAULT_LANGUAGE);
+    })()
+  }, [])
+
   const onChangeLanguage = async (languageCode: string) => {
     await writeConfig(LANGUAGE_STORAGE_KEY, languageCode);
     setLanguage(languageCode);
   }
-
-  useEffect(() => {
-    const checkForStoredLanguage = async () => {
-      const storedLanguage = await readConfig(LANGUAGE_STORAGE_KEY);
-      if (!storedLanguage) await writeConfig(LANGUAGE_STORAGE_KEY, DEFAULT_LANGUAGE); // If no language set, set a default of english
-      setLanguage(storedLanguage || DEFAULT_LANGUAGE);
-    }
-    checkForStoredLanguage();
-  }, [])
 
   if (__DEV__) {
     DevSettings.addMenuItem('Toggle translation highlighting', () => setIsDebugMode(!isDebugMode));
