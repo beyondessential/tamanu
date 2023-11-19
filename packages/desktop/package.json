@@ -105,10 +105,9 @@
   "jest": {
     "testURL": "http://localhost/",
     "moduleNameMapper": {
-      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/internals/mocks/fileMock.js",
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__tests__/fileMock.js",
       "\\.(css|less|sass|scss)$": "identity-obj-proxy",
-      "\\.\\./sync-server/config/default\\.json$": "<rootDir>/internals/mocks/test.json",
-      "^redux-persist/lib/storage": "<rootDir>/internals/mocks/fileMock.js"
+      "^redux-persist/lib/storage": "<rootDir>/__tests__/fileMock.js"
     },
     "moduleFileExtensions": [
       "js"
@@ -276,11 +275,6 @@
     "typeface-roboto": "^0.0.54",
     "xlsx": "^0.14.0",
     "yup": "^0.32.9"
-  },
-  "devEngines": {
-    "node": ">=7.x <11.0",
-    "npm": ">=4.x",
-    "yarn": ">=0.21.3"
   },
   "workspaces": {
     "nohoist": [
