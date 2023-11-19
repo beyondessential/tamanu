@@ -20,7 +20,6 @@ import { authSelector } from '/helpers/selectors';
 import { OutdatedVersionError } from '~/services/error';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { LanguageSelectButton } from './LanguageSelectButton';
-import { writeConfig, readConfig } from '~/services/config';
 interface ModalContent {
   message: string;
   buttonPrompt?: string;
@@ -50,14 +49,6 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   const onFollowPrompt = useCallback(() => {
     Linking.openURL(modalContent.buttonUrl);
   }, [modalContent.buttonUrl]);
-
-  useEffect(() => {
-    const checkForStoredLanguage = async () => {
-      const storedLanguage = await readConfig('language');
-      if (!storedLanguage) await writeConfig('language', 'en'); // If no language set, set a default of english
-    }
-    checkForStoredLanguage();
-  }, [])
 
   const { facilityId } = useFacility();
 

@@ -4,10 +4,10 @@ import styled from 'styled-components';
 import { theme } from '~/ui/styled/theme';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { StyledText, StyledView, StyledTouchableOpacity } from '~/ui/styled/common';
-import { readConfig, writeConfig } from '~/services/config';
 import { useBackend } from '~/ui/hooks';
 import { Routes } from '~/ui/helpers/routes';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 const ButtonContainer = styled(StyledView)`
   display: flex;
@@ -17,27 +17,19 @@ const ButtonContainer = styled(StyledView)`
 `;
 
 export const LanguageSelectButton = ({ navigation }): ReactElement => {
-  const [language, setLanguage] = useState(null);
+  const { language } = useTranslation();
+
   const [languageLabels, setLanguageLabels] = useState({});
 
   const {
     models: { TranslatedString },
   } = useBackend();
 
-  const getLanguageFromConfig = useCallback(async () => {
-    const language = await readConfig('language');
-    setLanguage(language);
-  }, []);
-
   const onNavigateToLanguageSelect = useCallback(() => {
     console.log('onNavigateToLanguageSelect...');
     navigation.navigate(Routes.SignUpStack.LanguageSelect);
   }, []);
 
-  useEffect(() => {
-    const focusListener = navigation.addListener('focus', () => getLanguageFromConfig());
-    return () => focusListener();
-  }, [navigation]);
 
   useEffect(() => {
     (async () => {

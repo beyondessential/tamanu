@@ -17,15 +17,17 @@ import { theme } from '/styled/theme';
 import { Routes } from '/helpers/routes';
 import { ModalInfo } from '/components/ModalInfo';
 import { Dropdown } from '~/ui/components/Dropdown';
-import { writeConfig, readConfig } from '~/services/config';
+import { writeConfig } from '~/services/config';
 import { useBackend } from '~/ui/hooks';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const [language, setLanguage] = useState(null);
+  const { language, setLanguage } = useTranslation();
+
   const [languageOptions, setLanguageOptions] = useState([]);
 
   const {
@@ -40,8 +42,6 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
         return;
       }
       setLanguageOptions(languageOptions);
-      const language = await readConfig('language');
-      setLanguage(language);
     })();
   }, []);
 
