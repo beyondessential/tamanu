@@ -17,9 +17,7 @@ import { theme } from '/styled/theme';
 import { Routes } from '/helpers/routes';
 import { ModalInfo } from '/components/ModalInfo';
 import { Dropdown } from '~/ui/components/Dropdown';
-import { writeConfig } from '~/services/config';
 import { useBackend } from '~/ui/hooks';
-import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => {
@@ -57,10 +55,6 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
     setErrorMessage(message);
     onChangeModalVisibility(true);
   }, []);
-
-  if (!language) {
-    return <LoadingScreen />;
-  }
 
   return (
     <FullView background={theme.colors.PRIMARY_MAIN}>
