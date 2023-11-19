@@ -1,6 +1,5 @@
-import { dialog } from '@electron/remote';
-
 export async function showFileDialog(filters, filename = '') {
+  const { dialog } = require('@electron/remote');
   const result = await dialog.showSaveDialog({
     filters,
     defaultPath: filename,

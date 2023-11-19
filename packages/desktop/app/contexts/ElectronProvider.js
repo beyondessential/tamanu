@@ -1,5 +1,4 @@
 import React from 'react';
-import { dialog } from '@electron/remote';
 import { shell } from 'electron';
 import { readFile, writeFile, stat } from 'fs/promises';
 
@@ -8,6 +7,8 @@ import { ElectronContext } from './Electron';
 import { printPage } from '../print';
 
 export const ElectronProvider = ({ children }) => {
+  const { dialog } = require('@electron/remote');
+
   // just pass directly to electron
   const showOpenDialog = (...args) => dialog.showOpenDialog(...args);
   const showSaveDialog = (...args) => dialog.showSaveDialog(...args);
