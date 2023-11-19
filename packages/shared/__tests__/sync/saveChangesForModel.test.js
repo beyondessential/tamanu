@@ -37,13 +37,16 @@ describe('saveChangesForModel', () => {
       // setup test data
       const existingRecords = [];
       mockExistingRecords(existingRecords);
-      const newRecord = { id: 'new_record_id', deletedAt: null };
-      const changes = [{ data: newRecord, isDeleted: !!newRecord.deletedAt }];
+      const newRecord = { id: 'new_record_id' };
+      const isDeleted = false;
+      const changes = [{ data: newRecord, isDeleted }];
       // act
       await saveChangesForModel(Model, changes, true);
       // assertions
       expect(saveChangeModules.saveCreates).toBeCalledTimes(1);
-      expect(saveChangeModules.saveCreates).toBeCalledWith(Model, [newRecord]);
+      expect(saveChangeModules.saveCreates).toBeCalledWith(Model, [
+        { ...newRecord, isDeleted }, // isDeleted flag for soft deleting record after creation
+      ]);
       expect(saveChangeModules.saveUpdates).toBeCalledTimes(0);
       expect(saveChangeModules.saveDeletes).toBeCalledTimes(0);
       expect(saveChangeModules.saveRestores).toBeCalledTimes(0);
@@ -53,13 +56,16 @@ describe('saveChangesForModel', () => {
       // setup test data
       const existingRecords = [];
       mockExistingRecords(existingRecords);
-      const newRecord = { id: 'new_record_id', deletedAt: new Date() };
-      const changes = [{ data: newRecord, isDeleted: !!newRecord.deletedAt }];
+      const newRecord = { id: 'new_record_id' }; // does not pass down deletedAt from central
+      const isDeleted = false;
+      const changes = [{ data: newRecord, isDeleted }];
       // act
       await saveChangesForModel(Model, changes, true);
       // assertions
       expect(saveChangeModules.saveCreates).toBeCalledTimes(1);
-      expect(saveChangeModules.saveCreates).toBeCalledWith(Model, [newRecord]);
+      expect(saveChangeModules.saveCreates).toBeCalledWith(Model, [
+        { ...newRecord, isDeleted }, // isDeleted flag for soft deleting record after creation
+      ]);
       expect(saveChangeModules.saveUpdates).toBeCalledTimes(0);
       expect(saveChangeModules.saveDeletes).toBeCalledTimes(0);
       expect(saveChangeModules.saveRestores).toBeCalledTimes(0);
@@ -73,8 +79,8 @@ describe('saveChangesForModel', () => {
         generateExistingRecord('existing_record_id', { status: 'historical' }),
       ];
       mockExistingRecords(existingRecords);
-      const newRecord = { id: 'existing_record_id', deletedAt: null, status: 'current' };
-      const changes = [{ data: newRecord, isDeleted: !!newRecord.deletedAt }];
+      const newRecord = { id: 'existing_record_id', status: 'current' };
+      const changes = [{ data: newRecord, isDeleted: false }];
       // act
       await saveChangesForModel(Model, changes, true);
       // assertions
@@ -99,8 +105,8 @@ describe('saveChangesForModel', () => {
         }),
       ];
       mockExistingRecords(existingRecords);
-      const newRecord = { id: 'existing_record_id', deletedAt: new Date(), status: 'current' };
-      const changes = [{ data: newRecord, isDeleted: !!newRecord.deletedAt }];
+      const newRecord = { id: 'existing_record_id', status: 'current' };
+      const changes = [{ data: newRecord, isDeleted: true }];
       // act
       await saveChangesForModel(Model, changes, true);
       // assertions
@@ -116,8 +122,8 @@ describe('saveChangesForModel', () => {
       // setup test data
       const existingRecords = [generateExistingRecord('existing_record_id')];
       mockExistingRecords(existingRecords);
-      const newRecord = { id: 'existing_record_id', deletedAt: new Date() };
-      const changes = [{ data: newRecord, isDeleted: !!newRecord.deletedAt }];
+      const newRecord = { id: 'existing_record_id' };
+      const changes = [{ data: newRecord, isDeleted: true }];
       // act
       await saveChangesForModel(Model, changes, true);
       // assertions
@@ -141,8 +147,8 @@ describe('saveChangesForModel', () => {
         generateExistingRecord('existing_record_id', { deletedAt: new Date() }),
       ];
       mockExistingRecords(existingRecords);
-      const newRecord = { id: 'existing_record_id', deletedAt: null };
-      const changes = [{ data: newRecord, isDeleted: !!newRecord.deletedAt }];
+      const newRecord = { id: 'existing_record_id' };
+      const changes = [{ data: newRecord, isDeleted: false }];
       // act
       await saveChangesForModel(Model, changes, true);
       // assertions

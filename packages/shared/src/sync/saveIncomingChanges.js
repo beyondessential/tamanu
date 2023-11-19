@@ -28,23 +28,23 @@ export const saveChangesForModel = async (model, changes, isCentralServer) => {
 
   existingRecords.forEach(existing => {
     // compares incoming and existing records by id
-    const incoming = incomingRecords.find(r => r.id === existing.id);
+    const incoming = changes.find(r => r.data.id === existing.id);
     // don't do anything if incoming record is deleted and existing record is already deleted
-    if (existing.deletedAt && !incoming.deletedAt) {
+    if (existing.deletedAt && !incoming.isDeleted) {
       idsForRestore.add(existing.id);
     }
-    if (!existing.deletedAt && !incoming.deletedAt) {
+    if (!existing.deletedAt && !incoming.isDeleted) {
       idsForUpdate.add(existing.id);
     }
-    if (!existing.deletedAt && incoming.deletedAt) {
+    if (!existing.deletedAt && incoming.isDeleted) {
       idsForDelete.add(existing.id);
     }
   });
   const recordsForCreate = changes
     .filter(c => idToExistingRecord[c.data.id] === undefined)
-    .map(({ data }) => {
+    .map(({ data, isDeleted }) => {
       // validateRecord(data, null); TODO add in validation
-      return sanitizeData(data);
+      return { ...sanitizeData(data), isDeleted };
     });
   const recordsForUpdate = changes
     .filter(r => idsForUpdate.has(r.data.id))

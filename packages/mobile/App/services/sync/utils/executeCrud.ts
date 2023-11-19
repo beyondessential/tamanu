@@ -13,10 +13,12 @@ export const executeInserts = async (
   // because it has a lab request attached
   const deduplicated = [];
   const idsAdded = new Set();
+  const softDeleted = rows.filter(row => row.isDeleted).map(({ isDeleted, ...row }) => row);
+
   for (const row of rows) {
-    const { id } = row;
+    const { id, isDeleted, ...data } = row;
     if (!idsAdded.has(id)) {
-      deduplicated.push(row);
+      deduplicated.push({ ...data, id });
       idsAdded.add(id);
     }
   }
@@ -39,6 +41,10 @@ export const executeInserts = async (
         }),
       );
     }
+  }
+
+  if (softDeleted.length > 0) {
+    await executeDeletes(model, softDeleted);
   }
 };
 

@@ -11,14 +11,19 @@ export const saveCreates = async (model, records) => {
   // because it has a lab request attached
   const deduplicated = [];
   const idsAdded = new Set();
+  const softDeleted = records.filter(row => row.isDeleted).map(({ isDeleted, ...row }) => row);
+
   for (const record of records) {
-    const { id } = record;
+    const { id, isDeleted, ...data } = record;
     if (!idsAdded.has(id)) {
-      deduplicated.push(record);
+      deduplicated.push({ ...data, id });
       idsAdded.add(id);
     }
   }
-  return model.bulkCreate(deduplicated);
+  await model.bulkCreate(deduplicated);
+  if (softDeleted.length > 0) {
+    await saveDeletes(model, softDeleted);
+  }
 };
 
 export const saveUpdates = async (model, incomingRecords, idToExistingRecord, isCentralServer) => {
@@ -38,7 +43,9 @@ export const saveUpdates = async (model, incomingRecords, idToExistingRecord, is
 // model.update cannot update deleted_at field, so we need to do destroy and restore
 export const saveDeletes = async (model, recordsForDelete, idToExistingRecord, isCentralServer) => {
   if (recordsForDelete.length === 0) return;
-  await saveUpdates(model, recordsForDelete, idToExistingRecord, isCentralServer);
+  if (idToExistingRecord) {
+    await saveUpdates(model, recordsForDelete, idToExistingRecord, isCentralServer);
+  }
   await model.destroy({ where: { id: { [Op.in]: recordsForDelete.map(r => r.id) } } });
 };
 

@@ -36,15 +36,15 @@ const saveChangesForModel = async (
     });
     batchOfExisting.forEach(existing => {
       // compares incoming and existing records by id
-      const incoming = incomingRecords.find(r => r.id === existing.id);
+      const incoming = changes.find(c => c.recordId === existing.id);
       // don't do anything if incoming record is deleted and existing record is already deleted
-      if (existing.deletedAt && !incoming.deletedAt) {
+      if (existing.deletedAt && !incoming.isDeleted) {
         idsForRestore.add(existing.id);
       }
-      if (!existing.deletedAt && !incoming.deletedAt) {
+      if (!existing.deletedAt && !incoming.isDeleted) {
         idsForUpdate.add(existing.id);
       }
-      if (!existing.deletedAt && incoming.deletedAt) {
+      if (!existing.deletedAt && incoming.isDeleted) {
         idsForDelete.add(existing.id);
       }
     });
@@ -57,7 +57,7 @@ const saveChangesForModel = async (
         !idsForRestore.has(c.recordId) &&
         !idsForDelete.has(c.recordId),
     ) // not existing in db
-    .map(({ data }) => buildFromSyncRecord(model, data));
+    .map(({ isDeleted, data }) => ({ ...buildFromSyncRecord(model, data), isDeleted }));
 
   const recordsForUpdate = changes
     .filter(c => idsForUpdate.has(c.recordId))
