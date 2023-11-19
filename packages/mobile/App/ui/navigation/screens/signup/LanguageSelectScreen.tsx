@@ -106,6 +106,7 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
               fixedHeight
               selectPlaceholderText="Select"
               labelColor="white"
+              clearable={false}
             />
           </StyledView>
           <StyledTouchableOpacity onPress={onNavigateToSignIn}>

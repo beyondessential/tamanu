@@ -138,8 +138,8 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
               Forgot password?
             </StyledText>
           </StyledTouchableOpacity>
-          <LanguageSelectButton navigation={navigation} />
         </KeyboardAvoidingView>
+        <LanguageSelectButton navigation={navigation} />
       </StyledSafeAreaView>
     </FullView>
   );

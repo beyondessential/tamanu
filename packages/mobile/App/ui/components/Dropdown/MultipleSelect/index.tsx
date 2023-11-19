@@ -593,6 +593,7 @@ export class MultiSelect extends Component {
       searchIcon,
       styleIndicator,
       disabled,
+      clearable,
     } = this.props;
     const { searchTerm, selector } = this.state;
     const selectedLabel = this._getSelectLabel();
@@ -715,7 +716,7 @@ export class MultiSelect extends Component {
                     >
                       {this._getSelectLabel()}
                     </Text>
-                    {single && selectedItems.length ? (
+                    {single && clearable && selectedItems.length ? (
                       <TouchableWithoutFeedback onPress={this._removeAllItems}>
                         <Icon
                           name={hideSubmitButton ? 'menu-right' : 'close'}

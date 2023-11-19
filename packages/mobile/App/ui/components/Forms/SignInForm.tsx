@@ -127,7 +127,7 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
             />
           </StyledView>
           <Button
-            marginTop={20}
+            marginTop={10}
             backgroundColor={theme.colors.SECONDARY_MAIN}
             onPress={handleSubmit}
             loadingAction={isSubmitting}

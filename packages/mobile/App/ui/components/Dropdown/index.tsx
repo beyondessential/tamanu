@@ -86,6 +86,7 @@ export const Dropdown = React.memo(
     error,
     disabled,
     required = false,
+    clearable = true,
   }: DropdownProps) => {
     const [selectedItems, setSelectedItems] = useState(() => {
       if (!value) {
@@ -169,6 +170,7 @@ export const Dropdown = React.memo(
           textInputProps={filterable ? {} : { editable: false, autoFocus: false }}
           searchIcon={filterable ? undefined : null}
           disabled={disabled}
+          clearable={clearable}
           {...getStyleProps(error, disabled)}
         />
         {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
