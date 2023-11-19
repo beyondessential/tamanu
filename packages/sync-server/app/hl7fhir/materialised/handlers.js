@@ -36,6 +36,7 @@ export function fhirRoutes(ctx, { requireClientHeaders } = {}) {
     routes.use(requireClientHeadersMiddleware);
   }
 
+  // eslint-disable-next-line no-useless-escape
   routes.get(`/Patient/:id/([\$])summary`, patientSummaryHandler());
 
   const { models } = ctx.store;

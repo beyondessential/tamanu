@@ -1,6 +1,5 @@
 import config from 'config';
 import path from 'path';
-import QRCode from 'qrcode';
 import * as AWS from '@aws-sdk/client-s3';
 
 import {
@@ -13,7 +12,8 @@ import { log } from '@tamanu/shared/services/logging';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { tmpdir } from '@tamanu/shared/utils';
 
-import { generateIPSBundle } from '../hl7fhir/materialised/patientSummary/bundleGenerator';
+import { generateIPSBundle } from '../../hl7fhir/materialised/patientSummary/bundleGenerator';
+import { QRCodeToFileAsync } from './helpers';
 
 export class IPSRequestProcessor extends ScheduledTask {
   constructor(context) {
@@ -38,7 +38,7 @@ export class IPSRequestProcessor extends ScheduledTask {
 
   async run() {
     const { models } = this.context.store;
-    const { IPSRequest, PatientCommunication, User } = models;
+    const { FhirPatient, IPSRequest, PatientCommunication, User } = models;
 
     const queuedNotifications = await IPSRequest.findAll({
       where: {
@@ -53,7 +53,14 @@ export class IPSRequestProcessor extends ScheduledTask {
       try {
         const { patientId, createdBy, email } = notification;
 
-        const user = await User.findByPk(createdBy);
+        const { fhirPatient, user } = await Promise.all([
+          FhirPatient.findOne({ where: { upstreamId: patientId } }),
+          User.findByPk(createdBy),
+        ]);
+
+        if (!fhirPatient) {
+          throw new Error(`No FHIR patient with patient id ${patientId}`);
+        }
 
         const { patient, bundle: ipsJSON } = await generateIPSBundle(patientId, user, models);
 
@@ -120,7 +127,7 @@ export class IPSRequestProcessor extends ScheduledTask {
         const folder = await tmpdir();
         const qrCodeFilePath = path.join(folder, qrCodeFileName);
 
-        QRCode.toFile(qrCodeFilePath, fullUrl);
+        await QRCodeToFileAsync(qrCodeFilePath, fullUrl);
 
         // SEND EMAIL
 
