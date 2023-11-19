@@ -26,7 +26,6 @@ export const LanguageSelectButton = ({ navigation }): ReactElement => {
 
   const getLanguageFromConfig = useCallback(async () => {
     const language = await readConfig('language');
-    if (!language) await writeConfig('language', 'en');
     setLanguage(language);
   }, []);
 
