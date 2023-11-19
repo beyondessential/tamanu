@@ -1,6 +1,7 @@
 import React, { ReactElement, useMemo, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { getUniqueId } from 'react-native-device-info';
+import styled from 'styled-components';
 
 import { RowView, StyledView, StyledText, FullView, CenterView } from '/styled/common';
 import { screenPercentageToDP, Orientation, setStatusBar } from '/helpers/screen';
@@ -18,6 +19,16 @@ import { useFacility } from '~/ui/contexts/FacilityContext';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { authUserSelector } from '/helpers/selectors';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+
+const StyledSeparator = styled(Separator)`
+  padding-left: ${screenPercentageToDP(4.86, Orientation.Width)}px;
+  padding-right: ${screenPercentageToDP(4.86, Orientation.Width)}px;
+`;
+
+const StyledFlatList = styled(FlatList)`
+  padding-left: ${screenPercentageToDP(4.86, Orientation.Width)}px;
+  padding-right: ${screenPercentageToDP(4.86, Orientation.Width)}px;
+`;
 
 const CameraInCircle = (
   <StyledView position="absolute" right="-20%" bottom={0} zIndex={2}>
@@ -64,7 +75,7 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
   const settings = useMemo(
     () => [
       {
-        title: 'Support centre',
+        title: 'Support Centre',
         Icon: LaunchIcon,
         onPress: (): Promise<void> => Linking.openURL(supportDeskUrl),
       },
@@ -106,7 +117,6 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
           </StyledText>
         </RowView>
         <Button
-          marginBottom={screenPercentageToDP(1.21, Orientation.Height)}
           marginTop={screenPercentageToDP(1.21, Orientation.Height)}
           width={screenPercentageToDP(29.19, Orientation.Width)}
           height={screenPercentageToDP(6.07, Orientation.Height)}
@@ -118,13 +128,13 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
       </CenterView>
       <StyledView background={theme.colors.WHITE} flex={1}>
         <StyledView>
-          <FlatList
+          <StyledFlatList
             showsVerticalScrollIndicator={false}
             data={settings}
             keyExtractor={(item): string => item.title}
             renderItem={({ item }): ReactElement => <MenuOptionButton {...item} />}
-            ItemSeparatorComponent={Separator}
-            ListFooterComponent={Separator}
+            ItemSeparatorComponent={StyledSeparator}
+            ListFooterComponent={StyledSeparator}
           />
         </StyledView>
         <Footer version={AppVersion} deviceId={getUniqueId()} />
