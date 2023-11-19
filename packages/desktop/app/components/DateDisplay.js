@@ -17,7 +17,7 @@ const SoftText = styled(Text)`
   color: ${Colors.midText};
 `;
 
-const locale = navigator?.language ?? 'default';
+const locale = globalThis.navigator?.language ?? 'default';
 
 const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
   if (!date) return fallback;
