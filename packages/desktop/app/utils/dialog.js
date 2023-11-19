@@ -1,4 +1,4 @@
-import { dialog } from 'electron';
+import { dialog } from '@electron/remote';
 
 export async function showFileDialog(filters, filename = '') {
   const result = await dialog.showSaveDialog({

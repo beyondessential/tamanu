@@ -1,5 +1,6 @@
 import React from 'react';
-import { dialog, shell } from 'electron';
+import { dialog } from '@electron/remote';
+import { shell } from 'electron';
 import { readFile, writeFile, stat } from 'fs/promises';
 
 import { ElectronContext } from './Electron';
