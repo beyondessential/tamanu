@@ -6,20 +6,27 @@ import { readConfig, writeConfig } from '~/services/config';
 interface TranslationContextData {
   debugMode: boolean;
   language: string;
-  setLanguage: (language: string) => void;
+  onChangeLanguage: (language: string) => void;
 }
 
 const TranslationContext = createContext<TranslationContextData>({} as TranslationContextData);
+
+const DEFAULT_LANGUAGE = 'en';
+const LANGUAGE_STORAGE_KEY = 'language';
 
 export const TranslationProvider = ({ children }: PropsWithChildren<object>): ReactElement => {
   const [isDebugMode, setIsDebugMode] = useState(false);
   const [language, setLanguage] = useState(null);
 
+  const onChangeLanguage = async (languageCode: string) => {
+    await writeConfig(LANGUAGE_STORAGE_KEY, languageCode);
+    setLanguage(languageCode);
+  }
+
   useEffect(() => {
     const checkForStoredLanguage = async () => {
-      const DEFAULT_LANGUAGE = 'en';
-      const storedLanguage = await readConfig('language');
-      if (!storedLanguage) await writeConfig('language', DEFAULT_LANGUAGE); // If no language set, set a default of english
+      const storedLanguage = await readConfig(LANGUAGE_STORAGE_KEY);
+      if (!storedLanguage) await writeConfig(LANGUAGE_STORAGE_KEY, DEFAULT_LANGUAGE); // If no language set, set a default of english
       setLanguage(storedLanguage || DEFAULT_LANGUAGE);
     }
     checkForStoredLanguage();
@@ -34,7 +41,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
       value={{
         debugMode: isDebugMode,
         language,
-        setLanguage,
+        onChangeLanguage,
       }}
     >
       {children}

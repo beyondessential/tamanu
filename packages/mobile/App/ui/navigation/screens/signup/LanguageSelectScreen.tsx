@@ -26,7 +26,7 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
   const [modalVisible, setModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const { language, setLanguage } = useTranslation();
+  const { language, onChangeLanguage } = useTranslation();
 
   const [languageOptions, setLanguageOptions] = useState([]);
 
@@ -44,11 +44,6 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
       setLanguageOptions(languageOptions);
     })();
   }, []);
-
-  const onChangeLanguage = async languageCode => {
-    await writeConfig('language', languageCode);
-    setLanguage(languageCode);
-  };
 
   const onNavigateToSignIn = useCallback(() => {
     navigation.navigate(Routes.SignUpStack.SignIn);
