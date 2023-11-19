@@ -53,7 +53,7 @@ export class IPSRequestProcessor extends ScheduledTask {
       try {
         const { patientId, createdBy, email } = notification;
 
-        const { fhirPatient, user } = await Promise.all([
+        const [ fhirPatient, user ] = await Promise.all([
           FhirPatient.findOne({ where: { upstreamId: patientId } }),
           User.findByPk(createdBy),
         ]);
