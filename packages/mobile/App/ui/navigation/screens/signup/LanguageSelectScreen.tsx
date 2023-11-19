@@ -34,12 +34,12 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
 
   useEffect(() => {
     (async () => {
-      const languageOptions = await TranslatedString.getLanguageOptions();
-      if (languageOptions.length === 0) {
+      const languageOptionsArray = await TranslatedString.getLanguageOptions();
+      if (languageOptionsArray.length === 0) {
         setModalError('Error loading language list');
         return;
       }
-      setLanguageOptions(languageOptions);
+      setLanguageOptions(languageOptionsArray);
     })();
   }, []);
 
@@ -70,7 +70,7 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
             width="100%"
             alignItems="center"
             marginTop={screenPercentageToDP(7.29, Orientation.Height)}
-            marginBottom={screenPercentageToDP(7.7, Orientation.Height)}
+            marginBottom={screenPercentageToDP(4, Orientation.Height)}
           >
             <StyledText
               marginTop={screenPercentageToDP('2.43', Orientation.Height)}
@@ -102,7 +102,6 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
             <StyledText
               width="100%"
               textAlign="center"
-              marginTop={screenPercentageToDP('2.43', Orientation.Height)}
               marginBottom={screenPercentageToDP('4.86', Orientation.Height)}
               fontSize={screenPercentageToDP('1.57', Orientation.Height)}
               color={theme.colors.SECONDARY_MAIN}

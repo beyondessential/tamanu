@@ -30,6 +30,7 @@ export interface DropdownProps extends BaseInputProps {
   // - single
   // - non-filterable
   disabled?: boolean;
+  clearable?: boolean;
 }
 
 const baseStyleDropdownMenuSubsection = {

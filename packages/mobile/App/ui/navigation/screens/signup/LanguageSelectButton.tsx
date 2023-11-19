@@ -56,13 +56,13 @@ export const LanguageSelectButton = ({ navigation }): ReactElement => {
   }
 
   return (
-    <StyledTouchableOpacity onPress={onNavigateToLanguageSelect}>
+    <StyledTouchableOpacity marginTop={screenPercentageToDP('3.43', Orientation.Height)} onPress={onNavigateToLanguageSelect}>
       <StyledView
         borderColor="white"
         borderBottomWidth={1}
+        position="absolute"
         width={screenPercentageToDP('30', Orientation.Width)}
         marginLeft={screenPercentageToDP('2.43', Orientation.Width)}
-        marginBottom={screenPercentageToDP('2.43', Orientation.Height)}
       >
         <StyledText fontSize={11} color={theme.colors.TEXT_SOFT}>
           Language
