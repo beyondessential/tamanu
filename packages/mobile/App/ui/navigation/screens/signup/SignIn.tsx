@@ -144,14 +144,13 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
               Forgot password?
             </StyledText>
           </StyledTouchableOpacity>
-          <RowView
-            justifyContent="flex-end"
-            marginRight={screenPercentageToDP('2.43', Orientation.Width)}
-          >
-            <StyledTouchableOpacity
-              onPress={(): Promise<void> => Linking.openURL(supportCentreUrl)}
-            >
-              <RowView alignItems='center'>
+        </KeyboardAvoidingView>
+        <RowView
+          justifyContent="flex-end"
+          marginRight={screenPercentageToDP('2.43', Orientation.Width)}
+        >
+          <StyledTouchableOpacity onPress={(): Promise<void> => Linking.openURL(supportCentreUrl)}>
+            <RowView alignItems="center">
               <StyledText
                 fontSize={screenPercentageToDP('1.28', Orientation.Height)}
                 color={theme.colors.WHITE}
@@ -164,10 +163,9 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
                 color={theme.colors.WHITE}
                 style={{ marginLeft: screenPercentageToDP('0.72', Orientation.Width) }}
               />
-              </RowView>
-            </StyledTouchableOpacity>
-          </RowView>
-        </KeyboardAvoidingView>
+            </RowView>
+          </StyledTouchableOpacity>
+        </RowView>
       </StyledSafeAreaView>
     </FullView>
   );
