@@ -27,15 +27,16 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
   } = useBackend();
 
   const initialiseLanguageState = async () => {
+    // Get language options from DB, only set options if there are any present
     const languageOptionArray = await TranslatedString.getLanguageOptions();
     if (languageOptionArray.length > 0) setLanguageOptions(languageOptionArray);
 
+   // Initial check for language from localStorage (config). If none, set a default of english
     const storedLanguage = await readConfig(LANGUAGE_STORAGE_KEY);
     if (!storedLanguage) await writeConfig(LANGUAGE_STORAGE_KEY, DEFAULT_LANGUAGE);
     setLanguage(storedLanguage || DEFAULT_LANGUAGE);
   };
 
-  // Initial check for language from localStorage (config). If none, set a default of english
   useEffect(() => {
     initialiseLanguageState();
   }, [])

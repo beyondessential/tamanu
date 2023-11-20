@@ -2,6 +2,7 @@ import React, {
   FunctionComponent,
   useCallback,
   useState,
+  useEffect,
 } from 'react';
 import { KeyboardAvoidingView, StatusBar } from 'react-native';
 import {
@@ -14,37 +15,24 @@ import {
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { Routes } from '/helpers/routes';
-import { ModalInfo } from '/components/ModalInfo';
+import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-
   const { language, languageOptions, onChangeLanguage } = useTranslation();
 
   const onNavigateToSignIn = useCallback(() => {
     navigation.navigate(Routes.SignUpStack.SignIn);
   }, []);
 
-  const onChangeModalVisibility = useCallback((isVisible: boolean) => {
-    setModalVisible(isVisible);
-  }, []);
-
-  const setModalError = useCallback((message: string) => {
-    setErrorMessage(message);
-    onChangeModalVisibility(true);
-  }, []);
+  if (!languageOptions) {
+    return <ErrorScreen error={{message: 'Problem loading language list'}} />
+  }
 
   return (
     <FullView background={theme.colors.PRIMARY_MAIN}>
       <StatusBar barStyle="light-content" />
-      <ModalInfo
-        onVisibilityChange={onChangeModalVisibility}
-        isVisible={modalVisible}
-        message={errorMessage}
-      />
       <StyledSafeAreaView>
         <KeyboardAvoidingView behavior="position">
           <StyledView
@@ -54,8 +42,8 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
             marginBottom={screenPercentageToDP(4, Orientation.Height)}
           >
             <StyledText
-              marginTop={screenPercentageToDP('2.43', Orientation.Height)}
-              fontSize={screenPercentageToDP('2.55', Orientation.Height)}
+              marginTop={screenPercentageToDP(2.43, Orientation.Height)}
+              fontSize={screenPercentageToDP(2.55, Orientation.Height)}
               color={theme.colors.WHITE}
               fontWeight="bold"
             >
@@ -83,8 +71,8 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
             <StyledText
               width="100%"
               textAlign="center"
-              marginBottom={screenPercentageToDP('4.86', Orientation.Height)}
-              fontSize={screenPercentageToDP('1.57', Orientation.Height)}
+              marginBottom={screenPercentageToDP(4.86, Orientation.Height)}
+              fontSize={screenPercentageToDP(1.57, Orientation.Height)}
               color={theme.colors.SECONDARY_MAIN}
             >
               Back
