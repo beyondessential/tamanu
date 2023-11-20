@@ -5,8 +5,6 @@ import { jsonFromBase64, jsonToBase64 } from '@tamanu/shared/utils/encodings';
 import { InvalidParameterError } from '@tamanu/shared/errors';
 import { toDateString } from '@tamanu/shared/utils/dateTime';
 
-import { endOfDay, endOfMonth, endOfYear, startOfDay, startOfMonth, startOfYear } from 'date-fns';
-
 export function toSearchId({ after, ...params }) {
   const result = { ...params };
   if (after) {
@@ -54,9 +52,13 @@ export function getQueryObject(columnName, value, operator, modifier, parameterT
   // Dates with eq modifier or no modifier should be looked up as a range
   if (parameterType === FHIR_SEARCH_PARAMETERS.DATE && ['eq', undefined].includes(modifier)) {
     // Create and return range
-    const [startOf, endOf] = getStartEndOfFns(value);
-    const startDate = startOf(parseHL7Date(value));
-    const endDate = endOf(parseHL7Date(value));
+    const timeUnit = getSmallestTimeUnit(value);
+    const startDate = parseHL7Date(value)
+      .startOf(timeUnit)
+      .toDate();
+    const endDate = parseHL7Date(value)
+      .endOf(timeUnit)
+      .toDate();
 
     if (['date_of_birth', 'date_of_death'].includes(columnName)) {
       return { [operator]: [toDateString(startDate), toDateString(endDate)] };
@@ -77,14 +79,14 @@ export function parseHL7Date(dateString) {
 
 // Returns the smallest time unit used on the date string format.
 // Only supports HL7 formats.
-export function getStartEndOfFns(dateString) {
+export function getSmallestTimeUnit(dateString) {
   switch (dateString.length) {
     case 4:
-      return [startOfYear, endOfYear];
+      return 'year';
     case 7:
-      return [startOfMonth, endOfMonth];
+      return 'month';
     case 10:
-      return [startOfDay, endOfDay];
+      return 'day';
     default:
       throw new InvalidParameterError(`Invalid date/time format: ${dateString}`);
   }
