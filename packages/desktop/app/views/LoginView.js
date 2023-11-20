@@ -61,7 +61,7 @@ const SupportDesktopLink = styled.a`
   align-items: center;
   justify-content: center;
 
-  :hover {
+  &:hover {
     font-weight: bold;
   }
 `;
