@@ -124,7 +124,7 @@ export const LimitedLinesCell = ({ value, maxWidth, maxLines = 2 }) => {
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  });
 
   return (
     <TableTooltip
