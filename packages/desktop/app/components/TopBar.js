@@ -157,9 +157,10 @@ export const EncounterTopBar = ({ title, subTitle, encounter, children }) => {
             <Label>
               <TranslatedText
                 stringId="encounter.topBar.clinician.label"
-                fallback="Supervising :clinician:"
+                fallback="Supervising :clinician"
                 replacements={{ clinician: clinicianText.toLowerCase() }}
               />
+              :
             </Label>
             <Value>{encounter.examiner?.displayName || 'Unknown'}</Value>
           </Cell>
