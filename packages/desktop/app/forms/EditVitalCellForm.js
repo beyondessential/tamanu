@@ -176,7 +176,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
           <OuterLabelFieldWrapper
             label={
               <TranslatedText
-                stringId="encounter.vitals.form.editCell.history.label"
+                stringId="encounter.vitals.form.history.label"
                 fallback="History"
               />
             }
