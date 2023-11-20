@@ -16,6 +16,7 @@ import { Colors } from '../constants';
 import { useApi } from '../api';
 import { useEncounter } from '../contexts/Encounter';
 import { DateDisplay } from '../components/DateDisplay';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const Text = styled(Typography)`
   font-size: 14px;
@@ -71,7 +72,15 @@ const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
       <LogText>
         {vitalLabel}: {newValue === '' ? 'Entry deleted' : newValue}
       </LogText>
-      {reasonForChange && <LogText>Reason for change to record: {reasonForChangeLabel}</LogText>}
+      {reasonForChange && (
+        <LogText>
+          <TranslatedText
+            stringId="encounter.vitals.form.editCell.reason.label"
+            fallback="Reason for change to record"
+          />
+          : {reasonForChangeLabel}
+        </LogText>
+      )}
       <LogTextSmall>
         {userDisplayName} <DateDisplay date={date} showTime shortYear />
       </LogTextSmall>
@@ -151,7 +160,12 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
           <Field
             required={mandatoryVitalEditReason}
             component={SelectField}
-            label="Reason for change to record"
+            label={
+              <TranslatedText
+                stringId="encounter.vitals.form.editCell.reason.label"
+                fallback="Reason for change to record"
+              />
+            }
             name="reasonForChange"
             options={vitalEditReasons}
             style={{ gridColumn: '1 / 4' }}
