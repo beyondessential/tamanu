@@ -2,7 +2,7 @@ import React from 'react';
 import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
-import { VACCINE_CATEGORIES } from '@tamanu/shared/constants';
+import { VACCINE_CATEGORIES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';

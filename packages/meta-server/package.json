@@ -1,15 +1,12 @@
 {
   "name": "meta-server",
-  "version": "1.31.0",
+  "version": "1.38.0",
   "private": true,
   "description": "Meta server for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN license",
-  "engines": {
-    "node": "^16.16.0"
-  },
   "scripts": {
     "start": "node ./dist/app.bundle.js",
     "start-dev": "rm -rf ./dist/ && webpack --config webpack.config.dev.mjs",
@@ -35,7 +32,6 @@
     "@tamanu/shared": "*",
     "abort-controller": "^3.0.0",
     "body-parser": "^1.19.0",
-    "cls-hooked": "^4.2.2",
     "compression": "^1.7.2",
     "config": "^3.3.6",
     "connect-flash": "^0.1.1",
@@ -55,8 +51,5 @@
     "sanitize-html": "^2.4.0",
     "sequelize": "^6.23.2",
     "winston": "^3.2.1"
-  },
-  "imports": {
-    "shared": "@tamanu/shared"
   }
 }

@@ -1,13 +1,13 @@
 import React from 'react';
-import { LAB_REQUEST_STATUSES } from '@tamanu/shared/constants/labs';
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
 import * as yup from 'yup';
 
 import {
-  ConfirmCancelRow,
+  FormSubmitCancelRow,
   DateTimeField,
   Field,
   FormGrid,
-  Modal,
+  FormModal,
   SuggesterSelectField,
   Form,
   SelectField,
@@ -36,7 +36,7 @@ export const LabRequestChangeStatusModal = React.memo(
     };
 
     return (
-      <Modal open={open} onClose={onClose} title="Change lab request status">
+      <FormModal open={open} onClose={onClose} title="Change lab request status">
         <Form
           onSubmit={updateLabStatus}
           initialValues={labRequest}
@@ -69,11 +69,15 @@ export const LabRequestChangeStatusModal = React.memo(
                     />
                   </>
                 )}
-              <ConfirmCancelRow confirmText="Confirm" onCancel={onClose} onConfirm={submitForm} />
+              <FormSubmitCancelRow
+                confirmText="Confirm"
+                onCancel={onClose}
+                onConfirm={submitForm}
+              />
             </FormGrid>
           )}
         />
-      </Modal>
+      </FormModal>
     );
   },
 );

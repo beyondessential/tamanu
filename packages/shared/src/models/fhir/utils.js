@@ -1,6 +1,6 @@
 import { isPlainObject } from 'lodash';
 
-import { VISIBILITY_STATUSES } from '../../constants';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 function mapAndCompactArray(input) {
   return input.map(v => objectAsFhir(v)).filter(v => v !== null && v !== undefined);

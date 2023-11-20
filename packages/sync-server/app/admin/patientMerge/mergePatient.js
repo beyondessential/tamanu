@@ -1,11 +1,10 @@
 import { Op } from 'sequelize';
-import { chunk } from 'lodash';
+import { chunk, omit, omitBy } from 'lodash';
 import config from 'config';
-import { VISIBILITY_STATUSES, PATIENT_MERGE_DELETION_ACTIONS } from 'shared/constants';
-import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
-import { InvalidParameterError } from 'shared/errors';
-import { log } from 'shared/services/logging';
-import { mergeRecord } from 'shared/sync/mergeRecord';
+import { VISIBILITY_STATUSES, PATIENT_MERGE_DELETION_ACTIONS } from '@tamanu/constants';
+import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
+import { InvalidParameterError } from '@tamanu/shared/errors';
+import { log } from '@tamanu/shared/services/logging';
 
 const BULK_CREATE_BATCH_SIZE = 100;
 
@@ -22,8 +21,6 @@ export const simpleUpdateModels = [
   'PatientSecondaryId',
   'PatientCarePlan',
   'PatientCommunication',
-  'PatientDeathData',
-  'PatientBirthData',
   'Appointment',
   'DocumentMetadata',
   'CertificateNotification',
@@ -37,10 +34,49 @@ export const simpleUpdateModels = [
 export const specificUpdateModels = [
   'Patient',
   'PatientAdditionalData',
-  'NotePage',
+  'PatientBirthData',
+  'PatientDeathData',
+  'Note',
   'PatientFacility',
   'PatientFieldValue',
 ];
+
+// These columns should be omitted as we never want
+// them to be preserved from the unwanted record.
+const omittedColumns = [
+  // common
+  'id',
+  'createdAt',
+  'updatedAt',
+  'deletedAt',
+  'updatedAtSyncTick',
+  'patientId',
+
+  // patient
+  'mergedIntoId',
+  'visibilityStatus',
+  'dateOfBirthLegacy',
+  'dateOfDeathLegacy',
+  'dateOfDeath',
+
+  // pad
+  'updatedAtByField',
+];
+
+function isNullOrEmptyString(value) {
+  return value === null || value === '';
+}
+
+// Keeps all non-empty values from keepRecord, otherwise grabs values from unwantedRecord
+function getMergedFieldsForUpdate(keepRecordValues = {}, unwantedRecordValues = {}) {
+  const keepRecordNonEmptyValues = omitBy(keepRecordValues, isNullOrEmptyString);
+  const unwantedRecordNonEmptyValues = omitBy(unwantedRecordValues, isNullOrEmptyString);
+
+  return {
+    ...omit(unwantedRecordNonEmptyValues, omittedColumns),
+    ...omit(keepRecordNonEmptyValues, omittedColumns),
+  };
+}
 
 const fieldReferencesPatient = field => field.references?.model === 'patients';
 const modelReferencesPatient = ([, model]) =>
@@ -101,16 +137,76 @@ export async function mergePatientAdditionalData(models, keepPatientId, unwanted
     where: { patientId: keepPatientId },
     raw: true,
   });
-  const mergedPAD = mergeRecord(existingKeepPAD || {}, {
-    ...existingUnwantedPAD,
+  const mergedPAD = {
+    ...getMergedFieldsForUpdate(existingKeepPAD, existingUnwantedPAD),
     patientId: keepPatientId,
-  });
+  };
   await models.PatientAdditionalData.destroy({
     where: { patientId: { [Op.in]: [keepPatientId, unwantedPatientId] } },
     force: true,
   });
-  delete mergedPAD.id; // id is a generated field, delete it before creating the new one
   return models.PatientAdditionalData.create(mergedPAD);
+}
+
+export async function mergePatientBirthData(models, keepPatientId, unwantedPatientId) {
+  const existingUnwantedPatientBirthData = await models.PatientBirthData.findOne({
+    where: { patientId: unwantedPatientId },
+    raw: true,
+  });
+  if (!existingUnwantedPatientBirthData) return null;
+  const existingKeepPatientBirthData = await models.PatientBirthData.findOne({
+    where: { patientId: keepPatientId },
+    raw: true,
+  });
+  const mergedPatientBirthData = {
+    ...getMergedFieldsForUpdate(existingKeepPatientBirthData, existingUnwantedPatientBirthData),
+    patientId: keepPatientId,
+  };
+
+  // hard delete the old patient birth data, we're going to create a new one
+  await models.PatientBirthData.destroy({
+    where: { patientId: { [Op.in]: [keepPatientId, unwantedPatientId] } },
+    force: true,
+  });
+  return models.PatientBirthData.create(mergedPatientBirthData);
+}
+
+export async function mergePatientDeathData(models, keepPatientId, unwantedPatientId) {
+  const existingUnwantedDeathDataRows = await models.PatientDeathData.findAll({
+    where: { patientId: unwantedPatientId },
+  });
+
+  if (!existingUnwantedDeathDataRows.length) {
+    return [];
+  }
+
+  const results = [];
+
+  for (const unwantedDeathData of existingUnwantedDeathDataRows) {
+    switch (unwantedDeathData.visibilityStatus) {
+      // If merged patient has CURRENT death data, switch the status to MERGED and append it to the keep patient
+      case VISIBILITY_STATUSES.CURRENT: {
+        await unwantedDeathData.update({
+          patientId: keepPatientId,
+          visibilityStatus: VISIBILITY_STATUSES.MERGED,
+        });
+        results.push(unwantedDeathData);
+        break;
+      }
+      // If merged patient has HISTORICAL death data, append it to the keep patient
+      case VISIBILITY_STATUSES.HISTORICAL:
+      case VISIBILITY_STATUSES.MERGED:
+      default: {
+        await unwantedDeathData.update({
+          patientId: keepPatientId,
+        });
+        results.push(unwantedDeathData);
+        break;
+      }
+    }
+  }
+
+  return results;
 }
 
 export async function mergePatientFieldValues(models, keepPatientId, unwantedPatientId) {
@@ -118,26 +214,43 @@ export async function mergePatientFieldValues(models, keepPatientId, unwantedPat
     where: { patientId: unwantedPatientId },
   });
   if (existingUnwantedFieldValues.length === 0) return [];
-  const existingUnwantedObject = existingUnwantedFieldValues.reduce((acc, record) => {
-    const { definitionId, value } = record;
-    return { ...acc, [definitionId]: value };
-  }, {});
 
   const existingKeepFieldValues = await models.PatientFieldValue.findAll({
     where: { patientId: keepPatientId },
   });
-  for (const keepRecord of existingKeepFieldValues) {
-    // Prefer the keep record value if defined, otherwise if the unwanted value is defined use that
-    await keepRecord.update({
-      value: keepRecord.value || existingUnwantedObject[keepRecord.definitionId],
-    });
+
+  const records = [];
+
+  // Iterate through all definitions to ensure we're not missing any
+  const patientFieldDefinitions = await models.PatientFieldDefinition.findAll();
+  for (const definition of patientFieldDefinitions) {
+    const keepRecord = existingKeepFieldValues.find(
+      ({ definitionId }) => definitionId === definition.id,
+    );
+    const unwantedRecord = existingUnwantedFieldValues.find(
+      ({ definitionId }) => definitionId === definition.id,
+    );
+
+    if (keepRecord && isNullOrEmptyString(keepRecord.value)) {
+      const updated = await keepRecord.update({
+        value: unwantedRecord.value,
+      });
+      records.push(updated);
+    } else if (!keepRecord && unwantedRecord?.value) {
+      const created = await models.PatientFieldValue.create({
+        value: unwantedRecord.value,
+        definitionId: definition.id,
+        patientId: keepPatientId,
+      });
+      records.push(created);
+    }
   }
 
   await models.PatientFieldValue.destroy({
     where: { patientId: unwantedPatientId },
     force: true,
   });
-  return existingKeepFieldValues;
+  return records;
 }
 
 export async function reconcilePatientFacilities(models, keepPatientId, unwantedPatientId) {
@@ -197,6 +310,11 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
 
     const updates = {};
 
+    // update missing fields
+    await keepPatient.update(
+      getMergedFieldsForUpdate(keepPatient.dataValues, unwantedPatient.dataValues),
+    );
+
     // update core patient record
     await unwantedPatient.update({
       mergedIntoId: keepPatientId,
@@ -214,7 +332,7 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
       throw new Error(`Unknown config option for patientMerge.deletionAction: ${action}`);
     }
 
-    updates.Patient = 1;
+    updates.Patient = 2;
 
     // update associated records
     for (const modelName of simpleUpdateModels) {
@@ -231,9 +349,28 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
 
     // Now reconcile patient additional data.
     // This is a special case as we want to just keep one, merged PAD record
-    const updated = await mergePatientAdditionalData(models, keepPatientId, unwantedPatientId);
-    if (updated) {
+    const updatedPAD = await mergePatientAdditionalData(models, keepPatientId, unwantedPatientId);
+    if (updatedPAD) {
       updates.PatientAdditionalData = 1;
+    }
+
+    // Only keep 1 PatientBirthData
+    const updatedPatientBirthData = await mergePatientBirthData(
+      models,
+      keepPatientId,
+      unwantedPatientId,
+    );
+    if (updatedPatientBirthData) {
+      updates.PatientBirthData = 1;
+    }
+
+    const updatedPatientDeathDataRows = await mergePatientDeathData(
+      models,
+      keepPatientId,
+      unwantedPatientId,
+    );
+    if (updatedPatientDeathDataRows.length > 0) {
+      updates.PatientDeathData = updatedPatientDeathDataRows.length;
     }
 
     const fieldValueUpdates = await mergePatientFieldValues(
@@ -248,14 +385,14 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
     // Merge notes - these don't have a patient_id due to their polymorphic FK setup
     // so need to be handled slightly differently.
     const notesMerged = await mergeRecordsForModel(
-      models.NotePage,
+      models.Note,
       keepPatientId,
       unwantedPatientId,
       'record_id',
       `AND record_type = '${NOTE_RECORD_TYPES.PATIENT}'`,
     );
     if (notesMerged > 0) {
-      updates.NotePage = notesMerged;
+      updates.Note = notesMerged;
     }
 
     // Finally reconcile patient_facilities records

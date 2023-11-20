@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { useApi } from 'desktop/app/api';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { SURVEY_TYPES } from '@tamanu/shared/constants';
+import { SURVEY_TYPES } from '@tamanu/constants';
 import { reloadPatient } from 'desktop/app/store/patient';
 import { getCurrentUser } from 'desktop/app/store/auth';
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';
@@ -17,6 +17,8 @@ import {
 } from 'desktop/app/views/programs/ProgramsPane';
 import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
 import { PatientListingView } from 'desktop/app/views';
+import { usePatientAdditionalDataQuery } from 'desktop/app/api/queries';
+import { ErrorMessage } from 'desktop/app/components/ErrorMessage';
 import { getAnswersFromData, getActionsFromData } from '../../utils';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useEncounter } from '../../contexts/Encounter';
@@ -99,21 +101,29 @@ const SurveyFlow = ({ patient, currentUser }) => {
       actions: getActionsFromData(data, survey),
     });
     if (params?.encounterId && encounter && !encounter.endDate) {
-      navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.PROGRAMS });
+      navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
     } else {
       navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
     }
   };
 
-  if (!programs) {
+  const { isLoading, data: patientAdditionalData, isError, error } = usePatientAdditionalDataQuery(
+    patient.id,
+  );
+
+  if (isLoading || !programs) {
     return <LoadingIndicator />;
+  }
+
+  if (isError) {
+    return <ErrorMessage title="Error" error={error} />;
   }
 
   if (!survey) {
     return (
       <ProgramsPane>
         <ProgramsPaneHeader>
-          <ProgramsPaneHeading variant="h6">Select survey</ProgramsPaneHeading>
+          <ProgramsPaneHeading variant="h6">Select form</ProgramsPaneHeading>
         </ProgramsPaneHeader>
         <FormGrid columns={1}>
           <SelectInput
@@ -127,7 +137,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
             onChange={setSelectedSurveyId}
             value={selectedSurveyId}
             surveys={surveys}
-            buttonText="Begin survey"
+            buttonText="Begin form"
           />
         </FormGrid>
       </ProgramsPane>
@@ -140,6 +150,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       survey={survey}
       onCancel={unsetSurvey}
       patient={patient}
+      patientAdditionalData={patientAdditionalData}
       currentUser={currentUser}
     />
   );

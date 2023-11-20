@@ -1,6 +1,6 @@
 import config from 'config';
 
-import { fake } from 'shared/test-helpers/fake';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { prepareVRSMocks } from './sharedHookHelpers';
 

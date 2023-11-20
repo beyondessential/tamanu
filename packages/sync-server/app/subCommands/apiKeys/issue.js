@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import config from 'config';
-import { JWT_TOKEN_TYPES } from 'shared/constants/auth';
+import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { DEFAULT_JWT_SECRET } from '../../auth';
 import { getToken } from '../../auth/utils';
 import { initDatabase, closeDatabase } from '../../database';

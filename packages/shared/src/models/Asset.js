@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 
 export class Asset extends Model {
@@ -44,5 +44,9 @@ export class Asset extends Model {
 
     // Anything else that Buffer natively supports
     return { ...restOfValues, data: Buffer.from(data) };
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 }

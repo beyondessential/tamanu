@@ -447,6 +447,16 @@ const endpoints = {
       ],
     };
   },
+  'patient/:id': () => {
+    return {
+      dateOfBirth: '1990-01-01',
+    };
+  },
+  'user/userPreferences': () => {
+    return {
+      selectedGraphedVitalsOnFilter: '',
+    };
+  },
 };
 
 storiesOf('Vitals', module)

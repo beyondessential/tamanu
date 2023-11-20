@@ -6,10 +6,6 @@ on:
     types:
       - closed
 
-concurrency:
-  # only one build or destroy at a time, per PR/branch, but don't cancel existing runs
-  group: cd-${{ github.pull_request.id || github.ref }}
-
 permissions:
   contents: read
   pull-requests: write
@@ -18,12 +14,14 @@ permissions:
 jobs:
   info:
     # only run for manual dispatch or for non-permanent branches
-    if: github.event_name == 'workflow_dispatch' || (!startsWith(github.ref, 'refs/heads/release') && github.ref != 'refs/heads/main')
+    if: github.event_name == 'workflow_dispatch' || (!startsWith(github.ref, 'refs/heads/release') && !startsWith(github.head_ref, 'release/') && github.ref != 'refs/heads/main' && github.ref_name != 'main')
     name: Branch info
     uses: ./.github/workflows/branch-info.yml
 
   down:
     needs: info
+    # check once again after normalisation just in case
+    if: github.event_name == 'workflow_dispatch' || (!startsWith(needs.info.outputs.branch, 'release-') && needs.info.outputs.branch != 'main')
     name: Bring down environment
     runs-on: ubuntu-latest
 
@@ -33,13 +31,14 @@ jobs:
         with:
           aws-region: ap-southeast-2
           role-to-assume: arn:aws:iam::143295493206:role/gha-deploy
-          role-session-name: GithubActionsTamanuDestroy
+          role-session-name: GHA@Tamanu=DeployDown
+          mask-aws-account-id: false
 
       - name: Checkout this PR
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout ops
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: beyondessential/ops
           ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
@@ -50,7 +49,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 20.x
           cache: npm
 
       - name: Prepare pulumi

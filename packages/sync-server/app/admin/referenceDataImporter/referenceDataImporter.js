@@ -1,8 +1,8 @@
 import { upperFirst } from 'lodash';
 import { readFile } from 'xlsx';
 
-import { log } from 'shared/services/logging';
-import { REFERENCE_TYPE_VALUES } from 'shared/constants';
+import { log } from '@tamanu/shared/services/logging';
+import { REFERENCE_TYPE_VALUES } from '@tamanu/constants';
 
 import { normaliseSheetName } from '../importerEndpoint';
 

@@ -1,4 +1,4 @@
-import { REPORT_STATUSES, REPORT_DATE_RANGE_LABELS } from '../../constants';
+import { REPORT_STATUSES, REPORT_DATE_RANGE_LABELS } from '@tamanu/constants';
 import { REPORT_DEFINITIONS } from '../reportDefinitions';
 import { canRunStaticReport } from './canRunStaticReport';
 

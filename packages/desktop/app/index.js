@@ -9,7 +9,6 @@ import { initStore, restoreSession, authFailure, versionIncompatible } from './s
 
 import './fonts.scss';
 import './react-toastify.scss';
-import './report-editor.scss';
 
 function initPersistor(api, store) {
   const persistor = persistStore(store, null, () => {

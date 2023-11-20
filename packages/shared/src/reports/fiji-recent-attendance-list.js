@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 import { startOfDay, endOfDay, parseISO } from 'date-fns';
-import { DIAGNOSIS_CERTAINTY } from '../constants';
+import { DIAGNOSIS_CERTAINTY } from '@tamanu/constants';
 import { toDateTimeString, ageInYears, format } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 

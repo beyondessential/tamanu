@@ -10,6 +10,7 @@ import { SurveyTypes } from '~/types';
 import { getCurrentDateTimeString } from '/helpers/date';
 import { SurveyForm } from '/components/Forms/SurveyForm';
 import { VitalsDataElements } from '/helpers/constants';
+import { useCurrentScreen } from '~/ui/hooks/useCurrentScreen';
 
 const validate = (values: object): object => {
   const errors: { form?: string } = {};
@@ -28,17 +29,28 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   const { models } = useBackend();
   const user = useSelector(authUserSelector);
   const [note, setNote] = useState('');
+  const { currentScreenIndex, setCurrentScreenIndex } = useCurrentScreen();
 
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
-  const [vitalsSurvey, error] = useBackendEffect(({ models: m }) => m.Survey.getVitalsSurvey());
+  const [vitalsSurvey, vitalsError, isVitalsLoading] = useBackendEffect(({ models: m }) =>
+    m.Survey.getVitalsSurvey(),
+  );
+  const [patientAdditionalData, padError, isPadLoading] = useBackendEffect(
+    ({ models: m }) =>
+      m.PatientAdditionalData.getRepository().findOne({
+        patient: selectedPatient.id,
+      }),
+    [selectedPatient.id],
+  );
 
+  const error = vitalsError || padError;
+  const isLoading = isVitalsLoading || isPadLoading;
   if (error) {
     return <ErrorScreen error={error} />;
   }
-
-  if (!vitalsSurvey) {
+  if (isLoading) {
     return <LoadingScreen />;
   }
 
@@ -52,7 +64,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
         surveyId: id,
         components,
         surveyType: SurveyTypes.Vitals,
-        encounterReason: `Survey response for ${name}`,
+        encounterReason: `Form response for ${name}`,
       },
       { ...values, [dateComponent.dataElement.code]: getCurrentDateTimeString() },
       setNote,
@@ -71,10 +83,13 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   return (
     <SurveyForm
       patient={selectedPatient}
+      patientAdditionalData={patientAdditionalData}
       note={note}
       components={visibleComponents}
       onSubmit={onSubmit}
       validate={validate}
+      setCurrentScreenIndex={setCurrentScreenIndex}
+      currentScreenIndex={currentScreenIndex}
     />
   );
 };

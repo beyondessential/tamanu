@@ -34,7 +34,7 @@ export const usePatientRoutes = () => {
         {
           path: `${PATIENT_PATHS.PATIENT}/programs/new`,
           component: ProgramsView,
-          title: 'New Survey',
+          title: 'New Form',
         },
         {
           path: `${PATIENT_PATHS.PATIENT}/referrals/new`,
@@ -55,7 +55,7 @@ export const usePatientRoutes = () => {
             {
               path: `${PATIENT_PATHS.ENCOUNTER}/programs/new`,
               component: ProgramsView,
-              title: 'New Survey',
+              title: 'New Form',
             },
             {
               path: `${PATIENT_PATHS.LAB_REQUEST}/:modal?`,
@@ -86,8 +86,6 @@ const RouteWithSubRoutes = ({ path, component, routes }) => (
 );
 
 const PatientPane = styled.div`
-  // contain size needs to be set for the tabs to work correctly
-  contain: size;
   overflow: auto;
 `;
 
@@ -96,9 +94,6 @@ const PatientPaneInner = styled.div`
   // We don't support mobile devices.
   // Set a minimum width to stop layouts breaking on small screens
   min-width: ${PATIENT_PANE_WIDTH};
-  display: flex;
-  flex-direction: column;
-  height: 100%;
 `;
 
 export const PatientRoutes = React.memo(() => {

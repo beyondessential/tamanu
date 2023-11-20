@@ -1,10 +1,11 @@
 import React, { ReactElement } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { ProgramListScreen } from '../screens/programs/ProgramListScreen';
 import { SurveyResponseDetailsScreen } from '../screens/programs/SurveyResponseDetailsScreen';
 import { Routes } from '/helpers/routes';
-import { NewProgramEntryTabs } from './NewProgramEntryTabs';
+import { ProgramTabs } from './ProgramTabs';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { SurveyListScreen } from '../screens/programs/SurveyListScreen';
+import { SurveyResponseScreen } from '../screens/programs/SurveyResponseScreen';
 
 const Stack = createStackNavigator();
 
@@ -12,12 +13,16 @@ export const ProgramStack = (): ReactElement => (
   <ErrorBoundary>
     <Stack.Navigator headerMode="none">
       <Stack.Screen
-        name={Routes.HomeStack.ProgramStack.ProgramListScreen}
-        component={ProgramListScreen}
+        name={Routes.HomeStack.ProgramStack.ProgramTabs.Index}
+        component={ProgramTabs}
       />
       <Stack.Screen
-        name={Routes.HomeStack.ProgramStack.ProgramTabs.Index}
-        component={NewProgramEntryTabs}
+        name={Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.Index}
+        component={SurveyListScreen}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.AddDetails}
+        component={SurveyResponseScreen}
       />
       <Stack.Screen
         name={Routes.HomeStack.ProgramStack.SurveyResponseDetailsScreen}

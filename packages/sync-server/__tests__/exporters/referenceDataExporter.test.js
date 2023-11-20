@@ -1,6 +1,6 @@
-import { REFERENCE_TYPES } from 'shared/constants';
-import { createDummyPatient } from 'shared/demoData/patients';
-import { parseDate } from 'shared/utils/dateTime';
+import { REFERENCE_TYPES } from '@tamanu/constants';
+import { createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { parseDate } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { exporter } from '../../app/admin/exporter';
 import { writeExcelFile } from '../../app/admin/exporter/excelUtils';
@@ -16,6 +16,7 @@ import {
   createTestType,
   createLabTestPanel,
   createLabTestCategory,
+  createPatientFieldDefinitions,
 } from './referenceDataUtils';
 
 jest.mock('../../app/admin/exporter/excelUtils', () => {
@@ -52,6 +53,7 @@ describe('Reference data exporter', () => {
       'LabTestPanel',
       'ReferenceData',
       'Patient',
+      'PatientFieldDefinition',
       'PatientFieldDefinitionCategory',
       'Location',
       'Department',
@@ -95,6 +97,33 @@ describe('Reference data exporter', () => {
             ['1234', 'test 1234'],
           ],
           name: 'Patient Field Def Category',
+        },
+      ],
+      '',
+    );
+  });
+
+  it('It should export Patient field definition with the right options', async () => {
+    await createPatientFieldDefCategory(models);
+    await createPatientFieldDefinitions(models);
+
+    await exporter(models, { 1: 'patientFieldDefinition' });
+    expect(writeExcelFile).toBeCalledWith(
+      [
+        {
+          data: [
+            ['id', 'name', 'fieldType', 'options', 'visibilityStatus', 'categoryId'],
+            [
+              'fieldDefinition-primaryPolicyNumber',
+              'Primary policy number',
+              'string',
+              null,
+              'current',
+              '123',
+            ],
+            ['fieldDefinition-size', 'Size', 'select', 's,m,l', 'current', '123'],
+          ],
+          name: 'Patient Field Definition',
         },
       ],
       '',
@@ -480,6 +509,44 @@ describe('Permission and Roles exporter', () => {
         },
         {
           data: [],
+          name: 'Role',
+        },
+      ],
+      '',
+    );
+  });
+
+  it('Should have a single row for each object id', async () => {
+    await createRole(models, { id: 'reception', name: 'Reception' });
+    await createPermission(models, {
+      verb: 'run',
+      noun: 'Report',
+      objectId: 'new-patients',
+      roleId: 'reception',
+    });
+    await createPermission(models, {
+      verb: 'run',
+      noun: 'Report',
+      objectId: 'new-encounters',
+      roleId: 'reception',
+    });
+
+    await exporter(models, { 1: 'permission', 2: 'role' });
+    expect(writeExcelFile).toBeCalledWith(
+      [
+        {
+          data: [
+            ['verb', 'noun', 'objectId', 'reception'],
+            ['run', 'Report', 'new-patients', 'y'],
+            ['run', 'Report', 'new-encounters', 'y'],
+          ],
+          name: 'Permission',
+        },
+        {
+          data: [
+            ['id', 'name'],
+            ['reception', 'Reception'],
+          ],
           name: 'Role',
         },
       ],

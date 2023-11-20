@@ -3,8 +3,8 @@ import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import compression from 'compression';
 
-import { log } from 'shared/services/logging';
-import { SERVER_TYPES } from 'shared/constants';
+import { log } from '@tamanu/shared/services/logging';
+import { SERVER_TYPES } from '@tamanu/constants';
 
 import { versionRouter } from './versions';
 import { serversRouter } from './servers';

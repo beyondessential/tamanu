@@ -35,6 +35,8 @@ if (isProduction) {
   sourceMapSupport.install();
 }
 
+require('@electron/remote/main').initialize();
+
 // if (isDebug) { temporarily allowing debug on prod
 electronDebug({ isEnabled: true });
 // }
@@ -78,6 +80,8 @@ app.on('ready', async () => {
     },
   });
 
+  require('@electron/remote/main').enable(mainWindow.webContents);
+
   // The most accurate method of getting locale in electron is getLocaleCountryCode
   // which unlike getLocale is determined by native os settings
   const osLocales = findCountryLocales(app.getLocaleCountryCode());
@@ -113,6 +117,12 @@ app.on('ready', async () => {
     } else {
       mainWindow.showInactive();
     }
+  });
+
+  // To open redirect link in default browser
+  mainWindow.webContents.on('new-window', function(e, url) {
+    e.preventDefault();
+    require('electron').shell.openExternal(url);
   });
 
   mainWindow.on('closed', () => {

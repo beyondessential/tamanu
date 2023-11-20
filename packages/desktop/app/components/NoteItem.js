@@ -6,6 +6,7 @@ import Divider from '@material-ui/core/Divider';
 import EditIcon from '@material-ui/icons/Edit';
 import Tooltip from '@material-ui/core/Tooltip';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import { NOTE_PERMISSION_TYPES } from '@tamanu/constants';
 
 import { DateDisplay } from './DateDisplay';
 import { TextInput } from './Field/TextField';
@@ -196,7 +197,7 @@ export const NoteItem = ({ index, noteItem, onEditNoteItem, lastNoteItemRef }) =
                   isEditting={isEditting}
                   onEditClick={() => setIsEditting(!isEditting)}
                   verb="write"
-                  noun="OtherPractitionerEncounterNote"
+                  noun={NOTE_PERMISSION_TYPES.OTHER_PRACTITIONER_ENCOUNTER_NOTE}
                 />
               </>
             }

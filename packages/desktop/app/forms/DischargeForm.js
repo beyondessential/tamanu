@@ -28,7 +28,7 @@ import { TextInput } from '../components/Field/TextField';
 import { FormGrid } from '../components/FormGrid';
 import { TableFormFields } from '../components/Table';
 
-import { ConfirmCancelBackRow, ConfirmCancelRow } from '../components/ButtonRow';
+import { FormConfirmCancelBackRow, FormSubmitCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
 import {
@@ -58,7 +58,7 @@ const ConfirmContent = styled.div`
 const MAX_REPEATS = 12;
 const REPEATS_OPTIONS = range(MAX_REPEATS + 1).map(value => ({ label: value, value }));
 
-const getDischargeInitialValues = (encounter, dischargeNotePages, medicationInitialValues) => {
+const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialValues) => {
   const today = new Date();
   const encounterStartDate = parseISO(encounter.startDate);
   return {
@@ -73,7 +73,7 @@ const getDischargeInitialValues = (encounter, dischargeNotePages, medicationInit
         )
       : getCurrentDateTimeString(),
     discharge: {
-      note: dischargeNotePages.map(np => np.noteItems?.[0]?.content).join('\n'),
+      note: dischargeNotes.map(n => n.content).join('\n\n'),
     },
     medications: medicationInitialValues,
     // Used in creation of associated notes
@@ -223,7 +223,7 @@ const DischargeFormScreen = props => {
   return (
     <DefaultFormScreen
       customBottomRow={
-        <ConfirmCancelRow
+        <FormSubmitCancelRow
           onCancel={onCancel}
           onConfirm={async () => {
             const { isCanceled, ...formErrors } = await validateForm();
@@ -252,7 +252,7 @@ const DischargeSummaryScreen = ({ onStepBack, submitForm, onCancel }) => (
       <p>Are you sure you want to discharge the patient? This action is irreversible.</p>
     </ConfirmContent>
     <Divider />
-    <ConfirmCancelBackRow onBack={onStepBack} onConfirm={submitForm} onCancel={onCancel} />
+    <FormConfirmCancelBackRow onBack={onStepBack} onConfirm={submitForm} onCancel={onCancel} />
   </div>
 );
 
@@ -264,7 +264,7 @@ export const DischargeForm = ({
 }) => {
   const { encounter } = useEncounter();
   const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
-  const [dischargeNotePages, setDischargeNotePages] = useState([]);
+  const [dischargeNotes, setDischargeNotes] = useState([]);
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
 
@@ -273,7 +273,7 @@ export const DischargeForm = ({
   const activeMedications = encounter.medications?.filter(medication => !medication.discontinued);
   const medicationInitialValues = getMedicationsInitialValues(activeMedications);
   const handleSubmit = useCallback(
-    ({ medications, ...data }) => {
+    async ({ medications, ...data }) => {
       // Filter out medications that weren't marked
       const filteredMedications = {};
       Object.keys(medications).forEach(id => {
@@ -281,15 +281,15 @@ export const DischargeForm = ({
         if (medication.isDischarge) filteredMedications[id] = medication;
       });
 
-      onSubmit({ ...data, medications: filteredMedications });
+      await onSubmit({ ...data, medications: filteredMedications });
     },
     [onSubmit],
   );
 
   useEffect(() => {
     (async () => {
-      const { data: notePages } = await api.get(`encounter/${encounter.id}/notePages`);
-      setDischargeNotePages(notePages.filter(n => n.noteType === 'discharge'));
+      const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
+      setDischargeNotes(notes.filter(n => n.noteType === 'discharge').reverse()); // reverse order of array to sort by oldest first
     })();
   }, [api, encounter.id]);
 
@@ -297,11 +297,7 @@ export const DischargeForm = ({
     <PaginatedForm
       onSubmit={handleSubmit}
       onCancel={onCancel}
-      initialValues={getDischargeInitialValues(
-        encounter,
-        dischargeNotePages,
-        medicationInitialValues,
-      )}
+      initialValues={getDischargeInitialValues(encounter, dischargeNotes, medicationInitialValues)}
       FormScreen={DischargeFormScreen}
       SummaryScreen={DischargeSummaryScreen}
       validationSchema={yup.object().shape({

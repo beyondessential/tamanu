@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { compareDesc } from 'date-fns';
-import { formatShort, formatTime } from '../DateDisplay';
+import { DateDisplay, formatTime } from '../DateDisplay';
 import { SelectInput } from './SelectField';
 import { useApi } from '../../api';
+
+const getDataLabel = (endTime, surveyName) => {
+  const shortDate = DateDisplay.stringFormat(endTime);
+  const time = DateDisplay.stringFormat(endTime, formatTime);
+  return `${shortDate} ${time} ${surveyName}`;
+};
 
 export const SurveyResponseSelectField = ({ field, patient, options: _, config, ...props }) => {
   const api = useApi();
@@ -16,7 +22,7 @@ export const SurveyResponseSelectField = ({ field, patient, options: _, config, 
           .sort((a, b) => compareDesc(new Date(a.endTime), new Date(b.endTime)))
           .map(({ id, endTime, surveyName }) => ({
             value: id,
-            label: `${formatShort(endTime)} ${formatTime(endTime)} ${surveyName}`,
+            label: getDataLabel(endTime, surveyName),
           })),
       );
     });

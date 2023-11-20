@@ -1,4 +1,4 @@
-import { VACCINE_STATUS, INJECTION_SITE_OPTIONS } from '../../../constants';
+import { VACCINE_STATUS, INJECTION_SITE_OPTIONS } from '@tamanu/constants';
 import {
   FhirCodeableConcept,
   FhirCoding,

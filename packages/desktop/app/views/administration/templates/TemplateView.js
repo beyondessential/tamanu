@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 
-import { VISIBILITY_STATUSES } from '@tamanu/shared/constants';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { TopBar, PageContainer, ContentPane } from '../../../components';
 import { Colors } from '../../../constants';

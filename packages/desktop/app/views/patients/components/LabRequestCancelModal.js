@@ -1,5 +1,5 @@
 import React from 'react';
-import { LAB_REQUEST_STATUSES, NOTE_TYPES } from '@tamanu/shared/constants';
+import { LAB_REQUEST_STATUSES, NOTE_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi } from '../../../api';
 import { useLocalisation } from '../../../contexts/Localisation';

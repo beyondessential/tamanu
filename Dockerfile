@@ -4,10 +4,10 @@
 
 ## Base images
 # The general concept is to build in build-base, then copy into a slimmer run-base
-FROM node:16-alpine AS base
+FROM node:20-alpine AS base
 WORKDIR /app
 ENV NODE_ENV=production
-COPY package.json license ./
+COPY package.json yarn.lock license ./
 
 FROM base AS build-base
 RUN apk add --no-cache \
@@ -19,7 +19,8 @@ RUN apk add --no-cache \
     jq \
     make \
     python3
-COPY yarn.lock .yarnrc common.* babel.config.js scripts/docker-build-server.sh ./
+COPY .yarnrc common.* babel.config.js ./
+COPY scripts/ scripts/
 
 FROM base AS run-base
 RUN apk add --no-cache bash curl jq
@@ -41,47 +42,30 @@ RUN git log -1 --pretty=%ct         | tee /meta/SOURCE_DATE_EPOCH
 RUN git log -1 --pretty=%cI         | tee /meta/SOURCE_DATE_ISO
 
 
-## Build the shared packages and get their dependencies
-FROM build-base as shared
-COPY packages/build-tooling/ packages/build-tooling/
-COPY packages/shared/ packages/shared/
-RUN ./docker-build-server.sh
-
-
 ## Build the target server
 FROM build-base as build-server
 ARG PACKAGE_PATH
 
-# copy the shared packages and their deps (+ build tooling)
-COPY --from=shared /app/packages/ packages/
+# copy all packages
+COPY packages/ packages/
 
-# copy sources only for the target server
-COPY packages/${PACKAGE_PATH}/ packages/${PACKAGE_PATH}/
-
-# do the build
-RUN ./docker-build-server.sh ${PACKAGE_PATH}
+# do the build, which will also reduce to just the target package
+RUN scripts/docker-build.sh ${PACKAGE_PATH}
 
 
 ## Special target for packaging the desktop app
 # layer efficiency or size doesn't matter as this is not distributed
-FROM electronuserland/builder:16-wine AS build-desktop
+#
+# Runs on Node 18 not Node 20 as there's no image for 20 yet
+# (and we're hoping that desktop will go away soon!)
+FROM electronuserland/builder:18-wine AS build-desktop
 RUN apt update && apt install -y jq
-WORKDIR /project
-COPY --from=build-base /app/ ./
-COPY --from=shared /app/packages/ packages/
-COPY packages/desktop/ packages/desktop/
-RUN yarn workspace desktop install --non-interactive --frozen-lockfile
-RUN yarn workspace desktop build
+COPY --from=build-base /app/ /app/
+WORKDIR /app
+COPY packages/ packages/
+RUN scripts/docker-build.sh desktop
 ENV NODE_ENV=production
-WORKDIR /project/packages/desktop
-RUN jq '.build.win.target = ["nsis"] | .build.nsis.perMachine = false | .build.directories.output = "release/appdata"' \
-    package.json > /package-appdata.json
-RUN jq '.build.win.target = ["msi"] | .build.msi.shortcutName = "Tamanu \(.version)"' \
-    package.json > /package-msi.json
-RUN jq '.build.productName = "Tamanu Fiji" | .build.appId = "org.beyondessential.TamanuFiji" | .build.directories.output = "release/aspen"' \
-    /package-msi.json > /package-aspen.json
-RUN jq '.build.mac.target = "tar.xz"' \
-    package.json > /package-mac.json
+WORKDIR /app/packages/desktop
 
 
 ## Normal final target for servers

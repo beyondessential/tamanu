@@ -3,9 +3,13 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
-import { BadAuthenticationError } from 'shared/errors';
-import { getPermissions } from 'shared/permissions/middleware';
-import { simpleGet, paginatedGetList, permissionCheckingRouter } from 'shared/utils/crudHelpers';
+import { BadAuthenticationError } from '@tamanu/shared/errors';
+import { getPermissions } from '@tamanu/shared/permissions/middleware';
+import {
+  simpleGet,
+  paginatedGetList,
+  permissionCheckingRouter,
+} from '@tamanu/shared/utils/crudHelpers';
 
 export const user = express.Router();
 
@@ -121,6 +125,46 @@ user.post(
     });
 
     res.send(createdRelation);
+  }),
+);
+
+user.get(
+  '/userPreferences',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { UserPreference },
+      user: currentUser,
+    } = req;
+
+    req.checkPermission('read', currentUser);
+
+    const userPreferences = await UserPreference.findOne({
+      where: { userId: currentUser.id },
+    });
+
+    // Return {} as default if no user preferences exist
+    res.send(userPreferences || {});
+  }),
+);
+
+user.post(
+  '/userPreferences',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { UserPreference },
+      user: currentUser,
+      body,
+    } = req;
+
+    req.checkPermission('write', currentUser);
+
+    const { selectedGraphedVitalsOnFilter } = body;
+    const [userPreferences] = await UserPreference.upsert({
+      selectedGraphedVitalsOnFilter,
+      userId: currentUser.id,
+    });
+
+    res.send(userPreferences);
   }),
 );
 

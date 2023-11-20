@@ -1,6 +1,6 @@
-import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
-import { SURVEY_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
-import { chance } from 'shared/test-helpers';
+import { createDummyPatient, createDummyEncounter } from '@tamanu/shared/demoData/patients';
+import { SURVEY_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { chance } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 
 let baseApp = null;

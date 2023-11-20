@@ -1,4 +1,4 @@
-import React, { useCallback, ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 import { FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FullView } from '/styled/common';
@@ -7,75 +7,79 @@ import { theme } from '/styled/theme';
 import { MenuOptionButton } from '/components/MenuOptionButton';
 import { Separator } from '/components/Separator';
 import { Routes } from '/helpers/routes';
-import { StackHeader } from '/components/StackHeader';
 import { withPatient } from '/containers/Patient';
-import { IPatient, SurveyTypes } from '~/types';
-import { joinNames } from '/helpers/user';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
-import { Survey } from '~/models/Survey';
-import { useAuth } from '~/ui/contexts/AuthContext';
+import { Program } from '~/models/Program';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { SurveyTypes } from '~/types';
+import { In } from 'typeorm/browser';
 
-interface ProgramListScreenProps {
-  selectedPatient: IPatient;
-}
-
-const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
+const Screen = (): ReactElement => {
   const navigation = useNavigation();
-  const { ability } = useAuth();
 
-  const [surveys, error] = useBackendEffect(({ models }) =>
-    models.Survey.find({
+  const [programs, programsError, programsIsLoading] = useBackendEffect(async ({ models }) => {
+    const surveys = await models.Survey.find({
       where: {
         surveyType: SurveyTypes.Programs,
+      },
+    });
+
+    return models.Program.find({
+      where: {
+        id: In(surveys.map(survey => survey.programId)),
       },
       order: {
         name: 'ASC',
       },
-    }),
-  );
+    });
+  });
 
-  const filteredSurveys = surveys?.filter(survey => survey.shouldShowInList(ability));
+  if (programsIsLoading) {
+    return <LoadingScreen />;
+  }
 
-  const goBack = useCallback(() => {
-    navigation.goBack();
-  }, []);
+  if (programsError) {
+    return <ErrorScreen error={programsError} />;
+  }
 
-  const onNavigateToSurvey = (survey: Survey): void => {
-    navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.Index, {
-      surveyId: survey.id,
-      surveyName: survey.name,
-      surveyType: SurveyTypes.Programs,
+  const onNavigateToSurveyList = (program: Program): void => {
+    navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.Index, {
+      programId: program.id,
+      programName: program.name,
     });
   };
 
   return (
     <FullView>
-      <StackHeader title="Programs" subtitle={joinNames(selectedPatient)} onGoBack={goBack} />
-      {error ? (
-        <ErrorScreen error={error} />
-      ) : (
-        <FlatList
-          style={{
-            flex: 1,
-            width: '100%',
-            height: '100%',
-            backgroundColor: theme.colors.BACKGROUND_GREY,
-            paddingTop: 5,
-          }}
-          showsVerticalScrollIndicator={false}
-          data={filteredSurveys}
-          keyExtractor={(item): string => item.id}
-          renderItem={({ item }): ReactElement => (
-            <MenuOptionButton
-              key={item.id}
-              title={item.name}
-              onPress={(): void => onNavigateToSurvey(item)}
-            />
-          )}
-          ItemSeparatorComponent={Separator}
-        />
-      )}
+      <FlatList
+        style={{
+          flex: 1,
+          width: '100%',
+          height: '100%',
+          backgroundColor: theme.colors.BACKGROUND_GREY,
+          paddingTop: 5,
+        }}
+        showsVerticalScrollIndicator={false}
+        data={programs}
+        keyExtractor={(item): string => item.id}
+        renderItem={({ item }): ReactElement => (
+          <MenuOptionButton
+            key={item.id}
+            title={item.name}
+            onPress={(): void => onNavigateToSurveyList(item)}
+            textProps={{
+              fontWeight: 400,
+              color: theme.colors.TEXT_SUPER_DARK,
+            }}
+            arrowForwardIconProps={{
+              size: 16,
+              fill: theme.colors.TEXT_DARK,
+            }}
+          />
+        )}
+        ItemSeparatorComponent={() => <Separator paddingLeft="5%" width="95%" />}
+      />
     </FullView>
   );
 };

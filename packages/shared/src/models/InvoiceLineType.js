@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 
 export class InvoiceLineType extends Model {
@@ -63,5 +63,9 @@ export class InvoiceLineType extends Model {
         as: 'labTestType',
       },
     ];
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 }

@@ -1,5 +1,5 @@
 import { ValidationError } from 'sequelize';
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 
 export class UserFacility extends Model {
@@ -40,5 +40,9 @@ export class UserFacility extends Model {
       throw new ValidationError(`Invalid facilityId: ${facilityId}`);
     }
     return super.create(values, options);
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 }

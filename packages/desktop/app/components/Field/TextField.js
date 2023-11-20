@@ -57,7 +57,8 @@ export const StyledTextField = styled(MuiTextField)`
   }
 
   // Focused state
-  .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline,
+  .MuiOutlinedInput-root.Mui-focused:hover .MuiOutlinedInput-notchedOutline {
     border: 1px solid ${props => props.theme.palette.primary.main};
   }
 
@@ -110,11 +111,11 @@ export const TallMultilineTextField = props => (
 
 export const ReadOnlyTextField = ({ field, ...props }) => (
   <TextInput
-    disabled
     name={field.name}
     value={field.value || ''}
     onChange={field.onChange}
     {...props}
+    disabled
   />
 );
 

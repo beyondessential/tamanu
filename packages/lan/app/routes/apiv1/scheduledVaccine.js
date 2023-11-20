@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { VISIBILITY_STATUSES } from 'shared/constants';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
 export const scheduledVaccine = express.Router();
 

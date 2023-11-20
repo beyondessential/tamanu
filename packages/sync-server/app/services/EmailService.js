@@ -3,8 +3,8 @@ import formData from 'form-data';
 import Mailgun from 'mailgun.js';
 import { createReadStream } from 'fs';
 import { basename } from 'path';
-import { COMMUNICATION_STATUSES } from 'shared/constants';
-import { log } from 'shared/services/logging';
+import { COMMUNICATION_STATUSES } from '@tamanu/constants';
+import { log } from '@tamanu/shared/services/logging';
 
 const mailgun = new Mailgun(formData);
 

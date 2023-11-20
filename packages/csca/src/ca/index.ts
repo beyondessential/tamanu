@@ -1,17 +1,20 @@
-import { promises as fs, createWriteStream } from 'fs';
-import { join, basename } from 'path';
+import { createWriteStream, promises as fs } from 'fs';
+import { basename, join } from 'path';
 
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import prompts from 'prompts';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Pkcs10CertificateRequest } from '@peculiar/x509';
 import archiver from 'archiver';
+import prompts from 'prompts';
 
-import Config, { ConfigFile, period } from './Config';
-import { keyPairFromPrivate, fsExists } from '../utils';
-import { EKU_HEALTH_CSCA } from './constants';
 import crypto from '../crypto';
-import State, { CertificateIndexEntry } from './State';
+import { fsExists, keyPairFromPrivate } from '../utils';
+import Certificate from './Certificate';
+import Config, { ConfigFile, period } from './Config';
+import Crl from './Crl';
 import Log from './Log';
+import State, { CertificateIndexEntry } from './State';
+import { ComputedExtension, ExtensionName } from './certificateExtensions';
+import { EKU_HEALTH_CSCA } from './constants';
 import {
   deriveSymmetricKey,
   makeKeyPair,
@@ -20,9 +23,6 @@ import {
   writePrivateKey,
   writePublicKey,
 } from './keys';
-import Certificate from './Certificate';
-import { ComputedExtension, ExtensionName } from './certificateExtensions';
-import Crl from './Crl';
 
 const MASTER_KEY_DERIVATION_ROUNDS = 10_000;
 const MASTER_KEY_DERIVATION_SALT = Buffer.from(
@@ -45,7 +45,8 @@ export default class CA {
       type: 'password',
       name: 'value',
       message: `Enter CSCA passphrase${confirm ? ' (min 30 characters)' : ''}`,
-      validate: (value: string) => (value.length < 30 ? 'Passphrase must be at least 30 characters long' : true),
+      validate: (value: string) =>
+        value.length < 30 ? 'Passphrase must be at least 30 characters long' : true,
     });
 
     if (confirm) {
@@ -209,8 +210,8 @@ export default class CA {
     await this.state(key).check();
     await this.log(key).check();
 
-    await this.root().then(cert => cert.check(key));
-    await this.crl().then(crl => crl.check());
+    await this.root().then((cert) => cert.check(key));
+    await this.crl().then((crl) => crl.check());
 
     // console.debug('check integrity: OK'); // re-enable when switching to configurable logging
   }
@@ -373,7 +374,7 @@ export default class CA {
     return JSON.stringify(config, null, pretty ? '\t' : undefined);
   }
 
-  public async validateAndImportConfig(newConfig: any): Promise<void> {
+  public async validateAndImportConfig(newConfig: object): Promise<void> {
     const key = await this.privateKey();
     const config = this.config(key);
 
@@ -387,11 +388,7 @@ export default class CA {
   public async archive(): Promise<string> {
     const dir = basename(this.path);
     const target = `${dir}_${
-      new Date()
-        .toISOString()
-        .replace(/:/g, '-')
-        .replace('T', '_')
-        .split('.')[0]
+      new Date().toISOString().replace(/:/g, '-').replace('T', '_').split('.')[0]
     }.zip`;
 
     return new Promise((resolve, reject) => {
@@ -402,7 +399,7 @@ export default class CA {
       });
 
       arc.on('error', reject);
-      arc.on('warning', err => {
+      arc.on('warning', (err) => {
         console.warn(err);
       });
 

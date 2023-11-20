@@ -1,0 +1,1 @@
+export { FhirPractitioner } from './FhirPractitioner';

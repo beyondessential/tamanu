@@ -19,10 +19,12 @@ const Header = styled.div`
 
 const LogoImage = styled.img`
   position: absolute;
-  top: -5px;
+  top: 0px;
   left: 0px;
   height: auto;
-  width: 90px;
+  width: auto;
+  max-height: 50px;
+  max-width: 135px;
 `;
 
 const HeaderText = styled.div`

@@ -2,7 +2,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
 import { logout, idleTimeout } from '../store';
 import { useApi } from '../api';
-
+import { useEncounterNotes } from './EncounterNotes';
+import { LOCAL_STORAGE_KEYS } from '../constants';
 // This is just a redux selector for now.
 // This should become its own proper context once the auth stuff
 // is refactored out of redux.
@@ -11,6 +12,15 @@ export const useAuth = () => {
   const dispatch = useDispatch();
   const api = useApi();
   const queries = useQueryClient();
+  const { resetNoteContext } = useEncounterNotes();
+
+  const cleanupSession = () => {
+    localStorage.removeItem(LOCAL_STORAGE_KEYS.TOKEN);
+    // removes items from cache but doesn't trigger a re-render
+    // because the login screen doesn't have any queries on it, this should be fine
+    queries.removeQueries();
+    resetNoteContext();
+  };
 
   return {
     ...useSelector(state => ({
@@ -22,11 +32,12 @@ export const useAuth = () => {
     })),
     onLogout: () => {
       dispatch(logout());
-      // removes items from cache but doesn't trigger a re-render
-      // because the login screen doesn't have any queries on it, this should be fine
-      queries.removeQueries();
+      cleanupSession();
     },
-    onTimeout: () => dispatch(idleTimeout()),
+    onTimeout: () => {
+      dispatch(idleTimeout());
+      cleanupSession();
+    },
     refreshToken: () => api.refreshToken(),
   };
 };

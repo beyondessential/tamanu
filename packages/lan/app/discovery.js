@@ -1,8 +1,8 @@
 import dgram from 'dgram';
 import config from 'config';
 
-import { log } from 'shared/services/logging';
-import { DISCOVERY_MAGIC_STRING, DISCOVERY_PORT } from 'shared/constants';
+import { log } from '@tamanu/shared/services/logging';
+import { DISCOVERY_MAGIC_STRING, DISCOVERY_PORT } from '@tamanu/constants';
 
 import { version } from './serverInfo';
 

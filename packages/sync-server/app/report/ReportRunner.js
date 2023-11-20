@@ -5,9 +5,9 @@ import { format as formatDate } from 'date-fns';
 import * as AWS from '@aws-sdk/client-s3';
 import mkdirp from 'mkdirp';
 
-import { COMMUNICATION_STATUSES } from 'shared/constants';
-import { getReportModule } from 'shared/reports';
-import { createNamedLogger } from 'shared/services/logging/createNamedLogger';
+import { COMMUNICATION_STATUSES } from '@tamanu/constants';
+import { getReportModule } from '@tamanu/shared/reports';
+import { createNamedLogger } from '@tamanu/shared/services/logging/createNamedLogger';
 
 import { removeFile, createZippedSpreadsheet, writeToSpreadsheet } from '../utils/files';
 import { getLocalisation } from '../localisation';
@@ -15,11 +15,21 @@ import { getLocalisation } from '../localisation';
 const REPORT_RUNNER_LOG_NAME = 'ReportRunner';
 
 export class ReportRunner {
-  constructor(reportId, parameters, recipients, store, emailService, userId, exportFormat) {
+  constructor(
+    reportId,
+    parameters,
+    recipients,
+    store,
+    reportSchemaStores,
+    emailService,
+    userId,
+    exportFormat,
+  ) {
     this.reportId = reportId;
     this.parameters = parameters;
     this.recipients = recipients;
     this.store = store;
+    this.reportSchemaStores = reportSchemaStores;
     this.emailService = emailService;
     this.userId = userId;
     this.log = createNamedLogger(REPORT_RUNNER_LOG_NAME, { reportId, userId });
@@ -85,8 +95,11 @@ export class ReportRunner {
     let metadata = [];
     try {
       this.log.info('Running report', { parameters: this.parameters });
+      reportData = await reportModule.dataGenerator(
+        { ...this.store, reportSchemaStores: this.reportSchemaStores },
+        this.parameters,
+      );
 
-      reportData = await reportModule.dataGenerator(this.store, this.parameters);
       metadata = await this.getMetadata();
 
       this.log.info('Running report finished', {

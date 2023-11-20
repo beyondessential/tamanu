@@ -1,8 +1,9 @@
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { getToken, centralServerLogin } from 'lan/app/middleware/auth';
 import { pick } from 'lodash';
 import { fake, chance, disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { addHours } from 'date-fns';
-import { createDummyEncounter } from 'shared/demoData/patients';
+import { createDummyEncounter } from '@tamanu/shared/demoData/patients';
 
 import { CentralServerConnection } from '../../app/sync/CentralServerConnection';
 import { createTestContext } from '../utilities';
@@ -26,6 +27,7 @@ describe('User', () => {
   const rawPassword = 'PASSWORD';
   const localisation = { foo: 'bar' };
   let authUser = null;
+  let deactivatedUser = null;
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -44,6 +46,13 @@ describe('User', () => {
       const { User, Role } = models;
       authRole = await Role.create(fake(Role));
       authUser = await User.create(fake(User, { password: rawPassword, role: authRole.id }));
+      deactivatedUser = await User.create(
+        fake(User, {
+          password: rawPassword,
+          role: authRole.id,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+        }),
+      );
     });
 
     it('should include role in the data returned by a successful login', async () => {
@@ -163,6 +172,67 @@ describe('User', () => {
       });
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('permissions');
+    });
+
+    describe('Rejected tokens', () => {
+      it('should get the user based on the current token', async () => {
+        const userAgent = await baseApp.asUser(authUser);
+        const result = await userAgent.get('/v1/user/me');
+        expect(result).toHaveSucceeded();
+        expect(result.body).toHaveProperty('id', authUser.id);
+      });
+
+      it('should fail to get the user with a null token', async () => {
+        const result = await baseApp.get('/v1/user/me');
+        expect(result).toHaveRequestError();
+      });
+
+      it('should fail to get the user with an expired token', async () => {
+        const expiredToken = await getToken(authUser, '-1s');
+        const result = await baseApp
+          .get('/v1/user/me')
+          .set('authorization', `Bearer ${expiredToken}`);
+        expect(result).toHaveRequestError();
+      });
+
+      it('should fail to get the user with an invalid token', async () => {
+        const result = await baseApp
+          .get('/v1/user/me')
+          .set('authorization', 'Bearer ABC_not_a_valid_token');
+        expect(result).toHaveRequestError();
+      });
+
+      it('should fail to get a deactivated user with a valid token', async () => {
+        const userAgent = await baseApp.asUser(deactivatedUser);
+        const result = await userAgent.get('/v1/user/me');
+        expect(result).toHaveRequestError();
+      });
+    });
+
+    describe('Rejected logins', () => {
+      it('should fail to obtain a token for a wrong password', async () => {
+        const result = await baseApp.post('/v1/login').send({
+          email: authUser.email,
+          password: 'PASSWARD',
+        });
+        expect(result).toHaveRequestError();
+      });
+
+      it('should fail to obtain a token for a wrong email', async () => {
+        const result = await baseApp.post('/v1/login').send({
+          email: 'test@toast.com',
+          password: rawPassword,
+        });
+        expect(result).toHaveRequestError();
+      });
+
+      it('should fail to obtain a token for a deactivated user', async () => {
+        const result = await baseApp.post('/v1/login').send({
+          email: deactivatedUser.email,
+          password: rawPassword,
+        });
+        expect(result).toHaveRequestError();
+      });
     });
   });
 
@@ -323,6 +393,74 @@ describe('User', () => {
       const resultIds = result.body.data.map(x => x.id);
       const sourceIds = patientsToView.map(x => x.id).reverse();
       expect(resultIds).toEqual(sourceIds);
+    });
+  });
+
+  describe('User preference', () => {
+    let user = null;
+    let app = null;
+    const defaultSelectedGraphedVitalsOnFilter = [
+      'data-element-1',
+      'data-element-2',
+      'data-element-3',
+    ].join(',');
+    const updateUserPreference = async userPreference => {
+      const result = await app.post('/v1/user/userPreferences').send(userPreference);
+      expect(result).toHaveSucceeded();
+      expect(result.body).toMatchObject({
+        id: user.id,
+        userId: user.id,
+        ...userPreference,
+      });
+      return result;
+    };
+
+    beforeAll(async () => {
+      user = await models.User.create(
+        createUser({
+          role: 'practitioner',
+        }),
+      );
+      app = await baseApp.asUser(user);
+
+      await updateUserPreference({
+        selectedGraphedVitalsOnFilter: defaultSelectedGraphedVitalsOnFilter,
+      });
+    });
+
+    it('should fetch current user existing user preference', async () => {
+      const result = await app.get('/v1/user/userPreferences');
+      expect(result).toHaveSucceeded();
+      expect(result.body).toMatchObject({
+        selectedGraphedVitalsOnFilter: defaultSelectedGraphedVitalsOnFilter,
+      });
+    });
+
+    it('should update current user preference and updatedAt for selected graphed vitals on filter', async () => {
+      const newSelectedGraphedVitalsOnFilter = ['data-element-1', 'data-element-2'].join(',');
+      const result1 = await app.get('/v1/user/userPreferences');
+      const result2 = await updateUserPreference({
+        selectedGraphedVitalsOnFilter: newSelectedGraphedVitalsOnFilter,
+      });
+      const result1Date = new Date(result1.body.updatedAt);
+      const result2Date = new Date(result2.body.updatedAt);
+      expect(result2Date.getTime()).toBeGreaterThan(result1Date.getTime());
+    });
+
+    it('should delete user preference if the user is deleted', async () => {
+      const { User, UserPreference } = models;
+      await User.destroy({
+        where: {
+          id: user.id,
+        },
+      });
+      const userPreference = await UserPreference.findOne({
+        where: {
+          userId: user.id,
+        },
+      });
+
+      expect(userPreference).toBe(null);
     });
   });
 });

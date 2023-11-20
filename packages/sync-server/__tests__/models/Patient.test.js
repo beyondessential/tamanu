@@ -1,9 +1,9 @@
 import { add, subDays, startOfDay } from 'date-fns';
 
-import { fake, fakeUser, fakeReferenceData } from 'shared/test-helpers/fake';
-import { fakeUUID } from 'shared/utils/generateId';
+import { fake, fakeUser, fakeReferenceData } from '@tamanu/shared/test-helpers/fake';
+import { fakeUUID } from '@tamanu/shared/utils/generateId';
 
-import { getCurrentDateString, toDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 async function prepopulate(models) {

@@ -1,8 +1,8 @@
 import { last } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
+import { FHIR_ISSUE_SEVERITY } from '@tamanu/constants';
 import { FhirError, Invalid } from './errors';
-import { FHIR_ISSUE_SEVERITY } from '../../constants/fhir';
 
 export class OperationOutcome extends Error {
   constructor(errors) {

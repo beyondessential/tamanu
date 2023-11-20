@@ -1,8 +1,8 @@
 import { parseISO } from 'date-fns';
 import config from 'config';
 
-import { fake } from 'shared/test-helpers/fake';
-import { toDateString } from 'shared/utils/dateTime';
+import { fake } from '@tamanu/shared/test-helpers/fake';
+import { toDateString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { fakeVRSPatient, prepareVRSMocks } from './sharedHookHelpers';
 

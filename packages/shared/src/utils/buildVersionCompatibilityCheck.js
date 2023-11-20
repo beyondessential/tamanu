@@ -1,7 +1,7 @@
 import compareVersions from 'semver-compare';
 import semverDiff from 'semver-diff';
 import config from 'config';
-import { VERSION_COMPATIBILITY_ERRORS } from '../constants';
+import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import { log } from '../services/logging';
 
 const respondWithError = (res, error) => {

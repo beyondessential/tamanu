@@ -8,8 +8,10 @@ import {
   OneToMany,
   RelationId,
 } from 'typeorm/browser';
+import { AfterInsert } from 'typeorm';
 import { startOfDay, addHours, subDays } from 'date-fns';
 import { getUniqueId } from 'react-native-device-info';
+
 import { BaseModel, IdRelation } from './BaseModel';
 import { IEncounter, EncounterType } from '~/types';
 import { Patient } from './Patient';
@@ -25,12 +27,13 @@ import { Department } from './Department';
 import { Location } from './Location';
 import { Referral } from './Referral';
 import { LabRequest } from './LabRequest';
+import { EncounterHistory } from './EncounterHistory';
 import { readConfig } from '~/services/config';
 import { ReferenceData, ReferenceDataRelation } from '~/models/ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { DateTimeStringColumn } from './DateColumns';
-import { NotePage } from './NotePage';
+import { Note } from './Note';
 
 const TIME_OFFSET = 3;
 
@@ -99,6 +102,12 @@ export class Encounter extends BaseModel implements IEncounter {
   labRequests: LabRequest[];
 
   @OneToMany(
+    () => EncounterHistory,
+    encounterHistory => encounterHistory.encounter,
+  )
+  encounterHistory: LabRequest[];
+
+  @OneToMany(
     () => Diagnosis,
     diagnosis => diagnosis.encounter,
     {
@@ -146,6 +155,11 @@ export class Encounter extends BaseModel implements IEncounter {
   @BeforeInsert()
   async markPatientForSync(): Promise<void> {
     await Patient.markForSync(this.patient);
+  }
+
+  @AfterInsert()
+  async snapshotEncounter(): Promise<void> {
+    await EncounterHistory.createSnapshot(this, { date: this.startDate });
   }
 
   static async getCurrentEncounterForPatient(patientId: string): Promise<Encounter | undefined> {
@@ -232,15 +246,14 @@ export class Encounter extends BaseModel implements IEncounter {
       order: { startDate: 'DESC' },
     });
 
-    const notes = await NotePage.find({
+    const notes = await Note.find({
       where: { recordId: In(encounters.map(({ id }) => id)) },
-      relations: ['noteItems'],
     });
 
     // Usually a patient won't have too many encounters, but if they do, this will be slow.
     return encounters.map(encounter => ({
       ...encounter,
-      notePages: notes.filter(note => note.recordId === encounter.id),
+      notes: notes.filter(note => note.recordId === encounter.id),
     }));
   }
 
@@ -272,20 +285,4 @@ export class Encounter extends BaseModel implements IEncounter {
 
     return query.getRawMany();
   }
-
-  static includedSyncRelations = [
-    'administeredVaccines',
-    'surveyResponses',
-    'surveyResponses.answers',
-    'diagnoses',
-    'medications',
-    'vitals',
-    'initiatedReferrals',
-    'completedReferrals',
-    'labRequests',
-    'labRequests.tests',
-    // Can't add these here as there's no ORM relation
-    // 'notePages',
-    // 'notePages.noteItems',
-  ];
 }
