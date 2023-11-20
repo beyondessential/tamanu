@@ -17,9 +17,9 @@ const ButtonContainer = styled(StyledView)`
 `;
 
 export const LanguageSelectButton = ({ navigation }): ReactElement => {
-  const { language } = useTranslation();
-
   const [languageLabels, setLanguageLabels] = useState({});
+
+  const { language } = useTranslation();
 
   const {
     models: { TranslatedString },
@@ -60,7 +60,6 @@ export const LanguageSelectButton = ({ navigation }): ReactElement => {
       <StyledView
         borderColor="white"
         borderBottomWidth={1}
-        position="absolute"
         width={screenPercentageToDP('30', Orientation.Width)}
         marginLeft={screenPercentageToDP('2.43', Orientation.Width)}
       >
