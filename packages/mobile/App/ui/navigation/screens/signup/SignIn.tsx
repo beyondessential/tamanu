@@ -9,7 +9,7 @@ import {
   StyledTouchableOpacity,
   StyledText,
 } from '/styled/common';
-import { CrossIcon, HomeBottomLogoIcon } from '/components/Icons';
+import { CrossIcon, HomeBottomLogoIcon, LaunchIcon } from '/components/Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { SignInForm } from '/components/Forms/SignInForm';
@@ -19,6 +19,8 @@ import { ModalInfo } from '/components/ModalInfo';
 import { authSelector } from '/helpers/selectors';
 import { OutdatedVersionError } from '~/services/error';
 import { useFacility } from '~/ui/contexts/FacilityContext';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { marginTop } from 'styled-system';
 
 interface ModalContent {
   message: string;
@@ -51,6 +53,9 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   }, [modalContent.buttonUrl]);
 
   const { facilityId } = useFacility();
+  const { getLocalisation } = useLocalisation();
+
+  const supportCentreUrl = getLocalisation('supportDeskUrl');
 
   return (
     <FullView background={theme.colors.PRIMARY_MAIN}>
@@ -139,6 +144,29 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
               Forgot password?
             </StyledText>
           </StyledTouchableOpacity>
+          <RowView
+            justifyContent="flex-end"
+            marginRight={screenPercentageToDP('2.43', Orientation.Width)}
+          >
+            <StyledTouchableOpacity
+              onPress={(): Promise<void> => Linking.openURL(supportCentreUrl)}
+            >
+              <RowView alignItems='center'>
+              <StyledText
+                fontSize={screenPercentageToDP('1.28', Orientation.Height)}
+                color={theme.colors.WHITE}
+                textDecorationLine="underline"
+              >
+                Support centre
+              </StyledText>
+              <LaunchIcon
+                size={screenPercentageToDP('1.57', Orientation.Height)}
+                color={theme.colors.WHITE}
+                style={{ marginLeft: screenPercentageToDP('0.72', Orientation.Width) }}
+              />
+              </RowView>
+            </StyledTouchableOpacity>
+          </RowView>
         </KeyboardAvoidingView>
       </StyledSafeAreaView>
     </FullView>
