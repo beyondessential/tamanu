@@ -4,6 +4,7 @@ import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 import { getFullLocationName } from '../../../utils/location';
 import { InfoCard, InfoCardItem, InfoCardHeader } from '../../../components/InfoCard';
 import { getDepartmentName } from '../../../utils/department';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const getReferralSource = ({ referralSource }) =>
   referralSource ? referralSource.name : 'Unknown';
@@ -20,26 +21,68 @@ export const EncounterInfoPane = React.memo(
       headerContent={
         encounter.plannedLocation && (
           <InfoCardHeader
-            label="Planned move"
+            label={
+              <TranslatedText
+                stringId="encounter.summary.plannedMove.label"
+                fallback="Planned move"
+              />
+            }
             value={getFullLocationName(encounter.plannedLocation)}
           />
         )
       }
     >
-      <InfoCardItem label="Department" value={getDepartmentName(encounter)} />
-      <InfoCardItem label="Patient type" value={patientBillingType} />
-      <InfoCardItem label="Location" value={getFullLocationName(encounter?.location)} />
+      <InfoCardItem
+        label={
+          <TranslatedText stringId="encounter.summary.department.label" fallback="Department" />
+        }
+        value={getDepartmentName(encounter)}
+      />
+      <InfoCardItem
+        label={
+          <TranslatedText stringId="encounter.summary.patientType.label" fallback="Patient type" />
+        }
+        value={patientBillingType}
+      />
+      <InfoCardItem
+        label={<TranslatedText stringId="encounter.summary.location.label" fallback="Location" />}
+        value={getFullLocationName(encounter?.location)}
+      />
       {!getLocalisation(`${referralSourcePath}.hidden`) && (
         <InfoCardItem
           label={getLocalisation(`${referralSourcePath}.shortLabel`)}
           value={getReferralSource(encounter)}
         />
       )}
-      <InfoCardItem label="Encounter type" value={getEncounterType(encounter)} />
+      <InfoCardItem
+        label={
+          <TranslatedText
+            stringId="encounter.summary.encounterType.label"
+            fallback="Encounter type"
+          />
+        }
+        value={getEncounterType(encounter)}
+      />
       {encounter.endDate && (
-        <InfoCardItem label="Discharge date" value={DateDisplay.stringFormat(encounter.endDate)} />
+        <InfoCardItem
+          label={
+            <TranslatedText
+              stringId="encounter.summary.dischargeDate.label"
+              fallback="Discharge date"
+            />
+          }
+          value={DateDisplay.stringFormat(encounter.endDate)}
+        />
       )}
-      <InfoCardItem label="Reason for encounter" value={encounter.reasonForEncounter} />
+      <InfoCardItem
+        label={
+          <TranslatedText
+            stringId="encounter.summary.reason.label"
+            fallback="Reason for encounter"
+          />
+        }
+        value={encounter.reasonForEncounter}
+      />
     </InfoCard>
   ),
 );

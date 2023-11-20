@@ -7,6 +7,7 @@ import { DiagnosisModal } from './DiagnosisModal';
 import { DiagnosisList } from './DiagnosisList';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const DiagnosisHeading = styled.div`
   margin-right: 1rem;
@@ -17,10 +18,22 @@ const DiagnosisHeading = styled.div`
 
 const DiagnosisLabel = React.memo(({ numberOfDiagnoses }) => {
   if (numberOfDiagnoses === 0) {
-    return <DiagnosisHeading>No diagnoses recorded.</DiagnosisHeading>;
+    return (
+      <DiagnosisHeading>
+        <TranslatedText
+          stringId="encounter.diagnoses.noDataMessage"
+          fallback="No diagnoses recorded"
+        />
+        .
+      </DiagnosisHeading>
+    );
   }
 
-  return <DiagnosisHeading>Diagnosis:</DiagnosisHeading>;
+  return (
+    <DiagnosisHeading>
+      <TranslatedText stringId="encounter.diagnoses.label" fallback="Diagnosis" />:
+    </DiagnosisHeading>
+  );
 });
 
 const DiagnosisGrid = styled.div`
@@ -71,7 +84,7 @@ export const DiagnosisView = React.memo(({ encounter, isTriage, readonly }) => {
           color="primary"
           disabled={readonly}
         >
-          Add diagnosis
+          <TranslatedText stringId="encounter.diagnoses.action.add" fallback="Add diagnosis" />
         </AddDiagnosisButton>
       </DiagnosisGrid>
     </>
