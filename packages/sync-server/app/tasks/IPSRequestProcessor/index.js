@@ -53,7 +53,7 @@ export class IPSRequestProcessor extends ScheduledTask {
       try {
         const { patientId, createdBy, email } = notification;
 
-        const [ fhirPatient, user ] = await Promise.all([
+        const [fhirPatient, user] = await Promise.all([
           FhirPatient.findOne({ where: { upstreamId: patientId } }),
           User.findByPk(createdBy),
         ]);
@@ -62,7 +62,7 @@ export class IPSRequestProcessor extends ScheduledTask {
           throw new Error(`No FHIR patient with patient id ${patientId}`);
         }
 
-        const { patient, bundle: ipsJSON } = await generateIPSBundle(patientId, user, models);
+        const { patient, bundle: ipsJSON } = await generateIPSBundle(fhirPatient.id, user, models);
 
         const sublog = log.child({
           id: notification.id,
