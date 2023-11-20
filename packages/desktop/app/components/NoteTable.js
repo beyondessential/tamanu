@@ -318,6 +318,7 @@ const NoteTable = ({
         hideHeader
         allowExport={false}
         columns={COLUMNS}
+        key={noteType}
         endpoint={`encounter/${encounterId}/notes`}
         fetchOptions={{ noteType }}
         elevated={false}
