@@ -48,7 +48,7 @@ export const getImmunizations = async ({ patient, models, dataDictionariesIps })
           div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Immunizations for ${patient.displayName} for ${immunizationCodingDisplay}. Please review the data for more detail.</div>`,
         },
         occurrenceString: 'unknown',
-        status: 'not-done'
+        status: 'not-done',
       },
     ];
   }
@@ -72,10 +72,10 @@ export const getImmunizations = async ({ patient, models, dataDictionariesIps })
     status: administeredVaccineStatusToHL7Status(administeredVaccine.status),
     ...(administeredVaccine.date
       ? {
-        occurrenceDateTime: formatFhirDate(administeredVaccine.date),
-      }
+          occurrenceDateTime: formatFhirDate(administeredVaccine.date),
+        }
       : {
-        occurrenceString: 'unknown',
-      }),
+          occurrenceString: 'unknown',
+        }),
   }));
 };
