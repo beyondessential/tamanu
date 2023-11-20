@@ -1,9 +1,4 @@
-import React, {
-  FunctionComponent,
-  useCallback,
-  useState,
-  useEffect,
-} from 'react';
+import React, { FunctionComponent, useCallback } from 'react';
 import { KeyboardAvoidingView, StatusBar } from 'react-native';
 import {
   StyledView,
@@ -27,7 +22,7 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
   }, []);
 
   if (!languageOptions) {
-    return <ErrorScreen error={{message: 'Problem loading language list'}} />
+    return <ErrorScreen error={{ message: 'Problem loading language list' }} />;
   }
 
   return (
