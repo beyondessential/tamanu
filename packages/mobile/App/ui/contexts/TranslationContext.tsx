@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, PropsWithChildren, ReactElement } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  PropsWithChildren,
+  ReactElement,
+  useEffect,
+} from 'react';
 import { DevSettings } from 'react-native';
 import { useBackend } from '../hooks';
 
@@ -23,6 +30,11 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
     const translations = await models.TranslatedString.getForLanguage(language);
     setTranslations(translations);
   };
+
+  useEffect(() => {
+    if (!__DEV__) return;
+    DevSettings.addMenuItem('Toggle translation highlighting', () => setIsDebugMode(!isDebugMode));
+  }, []);
 
   return (
     <TranslationContext.Provider
