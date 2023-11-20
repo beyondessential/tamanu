@@ -35,10 +35,10 @@ export class TranslatedString extends BaseModel {
   }
 
   static async getLanguageOptions() {
-    const languageNameKeys = await this.getRepository()
-      .createQueryBuilder('translated_string')
-      .where(`translated_string.stringId = 'languageName'`)
-      .getMany();
+    const languageNameKeys = await this.getRepository().find({
+      where: { stringId: 'languageName' },
+      select: ['language', 'text'],
+    });
     return languageNameKeys.map(({ language, text }) => ({ label: text, value: language }));
   }
 }
