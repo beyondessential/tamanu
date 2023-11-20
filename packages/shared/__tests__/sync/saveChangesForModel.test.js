@@ -57,7 +57,7 @@ describe('saveChangesForModel', () => {
       const existingRecords = [];
       mockExistingRecords(existingRecords);
       const newRecord = { id: 'new_record_id' }; // does not pass down deletedAt from central
-      const isDeleted = false;
+      const isDeleted = true;
       const changes = [{ data: newRecord, isDeleted }];
       // act
       await saveChangesForModel(Model, changes, true);
