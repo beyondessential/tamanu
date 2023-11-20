@@ -38,11 +38,7 @@ const palette = {
     unit: MUI_SPACING_UNIT,
   },
 };
-const typography = {
-  useNextVariants: true,
-  fontSize: 15,
-  fontFamily: `"Roboto", "Hanuman", "Helvetica", "Arial", sans-serif`,
-};
+const typography = { useNextVariants: true, fontSize: 15 };
 const shape = { borderRadius: 3 };
 const overrides = {
   MuiCard: {
