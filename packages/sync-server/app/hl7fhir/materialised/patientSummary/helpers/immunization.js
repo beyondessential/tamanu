@@ -49,6 +49,8 @@ export const getImmunizations = async ({ patient, models, dataDictionariesIps })
             patient,
           )} for ${immunizationCodingDisplay}. Please review the data for more detail.</div>`,
         },
+        occurrenceString: 'unknown',
+        status: 'not-done'
       },
     ];
   }
@@ -69,17 +71,16 @@ export const getImmunizations = async ({ patient, models, dataDictionariesIps })
       status: 'generated',
       div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Immunization details for ${getPatientDisplayName(
         patient,
-      )} for ${
-        administeredVaccine.scheduledVaccine.vaccine.name
-      }. Please review the data for more detail.</div>`,
+      )} for ${administeredVaccine.scheduledVaccine.vaccine.name
+        }. Please review the data for more detail.</div>`,
     },
     status: administeredVaccineStatusToHL7Status(administeredVaccine.status),
     ...(administeredVaccine.date
       ? {
-          occurrenceDateTime: formatFhirDate(administeredVaccine.date),
-        }
+        occurrenceDateTime: formatFhirDate(administeredVaccine.date),
+      }
       : {
-          occurrenceString: 'unknown',
-        }),
+        occurrenceString: 'unknown',
+      }),
   }));
 };
