@@ -10,7 +10,7 @@ const HL7_INJECTION_SITE_URL = 'http://terminology.hl7.org/CodeSystem/v3-ActSite
 const AIRV_TERMINOLOGY_URL =
   'https://www.healthterminologies.gov.au/integration/R4/fhir/ValueSet/australian-immunisation-register-vaccine-1';
 
-function administeredVaccineStatusToHL7Status(status) {
+export function administeredVaccineStatusToHL7Status(status) {
   switch (status) {
     case VACCINE_STATUS.GIVEN:
       return 'completed';
