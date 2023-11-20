@@ -127,7 +127,7 @@ export class IPSRequestProcessor extends ScheduledTask {
         const folder = await tmpdir();
         const qrCodeFilePath = path.join(folder, qrCodeFileName);
 
-        await QRCodeToFileAsync(qrCodeFilePath, fullUrl);
+        await QRCodeToFileAsync(qrCodeFilePath, fullUrl, { type: 'png' });
 
         // SEND EMAIL
 
