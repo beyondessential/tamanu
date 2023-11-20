@@ -17,7 +17,6 @@ import {
 import { getBundleEntryFromResource } from './utils';
 
 export const generateBundle = async (fhirPatientId, user, models) => {
-
   const dataDictionariesIps = config.hl7.dataDictionaries.ips;
   const integrationsIps = config.integrations.ips;
 
@@ -25,7 +24,8 @@ export const generateBundle = async (fhirPatientId, user, models) => {
   if (!fhirPatient) throw new NotFound(`No FHIR patient with id ${fhirPatientId}`);
 
   const patientId = fhirPatient.dataValues.upstreamId;
-  if (!patientId) throw new NotFound(`No upstream patient for fhir patient with id ${fhirPatientId}`);
+  if (!patientId)
+    throw new NotFound(`No upstream patient for fhir patient with id ${fhirPatientId}`);
 
   const patient = await models.Patient.findByPk(patientId);
   if (!patient) throw new NotFound(`No public patient with id ${patientId}`);
