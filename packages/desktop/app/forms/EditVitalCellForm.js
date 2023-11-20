@@ -29,7 +29,9 @@ const DeleteEntryButton = ({ disabled, onClick }) => (
   <Box display="flex" alignSelf="start" marginTop="18px">
     <IconButton color="primary" edge="start" disabled={disabled} onClick={onClick} disableRipple>
       <DeleteOutlineIcon fontSize="small" />
-      <Text>Delete entry</Text>
+      <Text>
+        <TranslatedText stringId="general.action.deleteEntry" fallback="Delete entry" />
+      </Text>
     </IconButton>
   </Box>
 );
@@ -171,7 +173,15 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
             style={{ gridColumn: '1 / 4' }}
           />
           <FormSeparatorLine />
-          <OuterLabelFieldWrapper label="History" style={{ gridColumn: '1 / -1' }}>
+          <OuterLabelFieldWrapper
+            label={
+              <TranslatedText
+                stringId="encounter.vitals.form.editCell.history.label"
+                fallback="History"
+              />
+            }
+            style={{ gridColumn: '1 / -1' }}
+          >
             <Box
               height="162px"
               overflow="auto"
@@ -190,7 +200,11 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
               ))}
             </Box>
           </OuterLabelFieldWrapper>
-          <FormSubmitCancelRow onCancel={handleClose} onConfirm={submitForm} confirmText="Save" />
+          <FormSubmitCancelRow
+            onCancel={handleClose}
+            onConfirm={submitForm}
+            confirmText={<TranslatedText stringId="general.action.save" fallback="Save" />}
+          />
         </FormGrid>
       )}
     />
