@@ -29,12 +29,13 @@ import { EncounterActions } from './components';
 import { useReferenceData } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
 import { VitalChartDataProvider } from '../../contexts/VitalChartData';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
 const TABS = [
   {
-    label: 'Vitals',
+    label: <TranslatedText stringId="encounter.tabs.vitals" fallback="Vitals" />,
     key: ENCOUNTER_TAB_NAMES.VITALS,
     render: props => (
       <VitalChartDataProvider>
@@ -43,43 +44,43 @@ const TABS = [
     ),
   },
   {
-    label: 'Notes',
+    label: <TranslatedText stringId="encounter.tabs.notes" fallback="Notes" />,
     key: ENCOUNTER_TAB_NAMES.NOTES,
     render: props => <NotesPane {...props} />,
   },
   {
-    label: 'Procedures',
+    label: <TranslatedText stringId="encounter.tabs.procedures" fallback="Procedures" />,
     key: ENCOUNTER_TAB_NAMES.PROCEDURES,
     render: props => <ProcedurePane {...props} />,
   },
   {
-    label: 'Labs',
+    label: <TranslatedText stringId="encounter.tabs.labs" fallback="Labs" />,
     key: ENCOUNTER_TAB_NAMES.LABS,
     render: props => <LabsPane {...props} />,
   },
   {
-    label: 'Imaging',
+    label: <TranslatedText stringId="encounter.tabs.imaging" fallback="Imaging" />,
     key: ENCOUNTER_TAB_NAMES.IMAGING,
     render: props => <ImagingPane {...props} />,
   },
   {
-    label: 'Medication',
+    label: <TranslatedText stringId="encounter.tabs.medication" fallback="Medication" />,
     key: ENCOUNTER_TAB_NAMES.MEDICATION,
     render: props => <EncounterMedicationPane {...props} />,
   },
   {
-    label: 'Forms',
+    label: <TranslatedText stringId="encounter.tabs.forms" fallback="Forms" />,
     key: ENCOUNTER_TAB_NAMES.FORMS,
     render: props => <EncounterProgramsPane {...props} />,
   },
   {
-    label: 'Documents',
-    key: 'documents',
+    label: <TranslatedText stringId="encounter.tabs.documents" fallback="Documents" />,
+    key: ENCOUNTER_TAB_NAMES.DOCUMENTS,
     render: props => <DocumentsPane {...props} />,
   },
   {
-    label: 'Invoicing',
-    key: 'invoicing',
+    label: <TranslatedText stringId="encounter.tabs.invoicing" fallback="Invoicing" />,
+    key: ENCOUNTER_TAB_NAMES.INVOICING,
     render: props => <InvoicingPane {...props} />,
     condition: getLocalisation => getLocalisation('features.enableInvoicing'),
   },
