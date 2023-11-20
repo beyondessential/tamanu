@@ -23,6 +23,7 @@ import { getNormalRangeByAge } from '../utils';
 import { useVitalsVisualisationConfigsQuery } from '../api/queries/useVitalsVisualisationConfigsQuery';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { combineQueries } from '../api';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const StyledTable = styled(Table)`
   overflow-x: auto;
@@ -184,7 +185,7 @@ export const VitalsTable = React.memo(() => {
   const columns = [
     {
       key: 'measure',
-      title: 'Measure',
+      title: <TranslatedText stringId="encounter.vitals.table.column.measure" fallback="Measure" />,
       sortable: false,
       accessor: ({ value, config, validationCriteria }) => (
         <RangeTooltipCell
