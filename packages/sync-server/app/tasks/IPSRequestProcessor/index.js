@@ -84,7 +84,7 @@ export class IPSRequestProcessor extends ScheduledTask {
           jsonBucketPath,
           viewerBucketPath,
           publicUrl: s3PublicUrl,
-        } = config.ips.s3;
+        } = config.s3.ips;
 
         if (!jsonBucketPath) {
           throw new Error(`jsonBucketPath must be set, e.g. 'au'`);
