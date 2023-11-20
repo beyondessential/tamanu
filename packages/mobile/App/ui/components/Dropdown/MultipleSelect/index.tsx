@@ -127,6 +127,7 @@ export class MultiSelect extends Component {
     noItemsText: PropTypes.string,
     selectedText: PropTypes.string,
     disabled: PropTypes.bool,
+    clearable: PropTypes.bool
   };
 
   static defaultProps = {
@@ -166,6 +167,7 @@ export class MultiSelect extends Component {
     noItemsText: 'No items to display.',
     selectedText: 'selected',
     disabled: false,
+    clearable: true,
   };
 
   constructor(props) {
@@ -716,7 +718,7 @@ export class MultiSelect extends Component {
                     >
                       {this._getSelectLabel()}
                     </Text>
-                    {single && clearable && selectedItems.length ? (
+                    {clearable && single && selectedItems.length ? (
                       <TouchableWithoutFeedback onPress={this._removeAllItems}>
                         <Icon
                           name={hideSubmitButton ? 'menu-right' : 'close'}
