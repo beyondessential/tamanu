@@ -30,7 +30,7 @@ export const getComposition = ({
       ],
     },
     subject: {
-      reference: `Patient/${patient.id}`,
+      reference: `urn:uuid:${patient.id}`,
     },
     date: formatFhirDate(now),
     author: [
@@ -90,7 +90,7 @@ export const getComposition = ({
           ],
         },
         entry: medicationStatements.map(statement => ({
-          reference: `MedicationStatement/${statement.id}`,
+          reference: `urn:uuid:${statement.id}`,
         })),
       },
       {
@@ -109,7 +109,7 @@ export const getComposition = ({
           ],
         },
         entry: allergyIntolerances.map(intolerance => ({
-          reference: `AllergyIntolerance/${intolerance.id}`,
+          reference: `urn:uuid:${intolerance.id}`,
         })),
       },
       {
@@ -128,7 +128,7 @@ export const getComposition = ({
           ],
         },
         entry: conditions.map(condition => ({
-          reference: `Condition/${condition.id}`,
+          reference: `urn:uuid:${condition.id}`,
         })),
       },
       {
@@ -147,7 +147,7 @@ export const getComposition = ({
           ],
         },
         entry: immunizations.map(immunization => ({
-          reference: `Immunization/${immunization.id}`,
+          reference: `urn:uuid:${immunization.id}`,
         })),
       },
     ],

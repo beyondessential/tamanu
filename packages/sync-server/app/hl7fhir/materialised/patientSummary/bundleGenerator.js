@@ -23,7 +23,7 @@ export const generateIPSBundle = async (fhirPatientId, user, models) => {
   const fhirPatient = await models.FhirPatient.findByPk(fhirPatientId);
   if (!fhirPatient) throw new NotFound(`No FHIR patient with id ${fhirPatientId}`);
 
-  const patientId = fhirPatient.dataValues.upstreamId;
+  const patientId = fhirPatient.upstreamId;
   if (!patientId)
     throw new NotFound(`No upstream patient for fhir patient with id ${fhirPatientId}`);
 
