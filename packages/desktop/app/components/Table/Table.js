@@ -267,6 +267,7 @@ const StatusRow = React.memo(({ colSpan, children, textColor }) => (
 class TableComponent extends React.Component {
   getStatusMessage() {
     const { isLoading, errorMessage, data, noDataMessage } = this.props;
+    // TODO: The loading seems to just stick around
     if (isLoading) return <TranslatedText stringId="general.table.loading" fallback="Loading..." />;
     if (errorMessage) return errorMessage;
     if (!data.length) return noDataMessage;
@@ -529,7 +530,7 @@ TableComponent.propTypes = {
 
 TableComponent.defaultProps = {
   errorMessage: '',
-  noDataMessage: 'No data found',
+  noDataMessage: <TranslatedText stringId="general.table.noDataMessage" fallback="No data found" />,
   count: 0,
   hideHeader: false,
   isLoading: false,
