@@ -156,7 +156,7 @@ export const EncounterTopBar = ({ title, subTitle, encounter, children }) => {
           <Cell>
             <Label>
               <TranslatedText
-                stringId="encounter.topBar.clinician"
+                stringId="encounter.topBar.clinician.label"
                 fallback="Supervising :clinician:"
                 replacements={{ clinician: clinicianText.toLowerCase() }}
               />
