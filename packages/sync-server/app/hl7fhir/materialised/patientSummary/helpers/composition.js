@@ -37,9 +37,13 @@ export const getComposition = ({
       {
         display: integrationsIps.author,
       },
-      ...(user.displayName && {
-        display: user.displayName,
-      }),
+      ...(user.displayName
+        ? [
+            {
+              display: user.displayName,
+            },
+          ]
+        : []),
     ],
     title: `International Patient Summary as of ${now.toGMTString()}`,
     confidentiality: 'N',
