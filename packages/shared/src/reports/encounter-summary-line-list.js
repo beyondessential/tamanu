@@ -321,7 +321,7 @@ with
         when 'admission' then  'Hospital admission'
         when 'clinic' then 'Clinic'
         when 'imaging' then 'Imaging'
-        when 'surveyResponse' then 'Survey response'
+        when 'surveyResponse' then 'Form response'
         else e.encounter_type
       end encounter_type,
       case "from"
