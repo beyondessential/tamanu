@@ -18,9 +18,9 @@ export const saveChangesForModel = async (model, changes, isCentralServer) => {
   // split changes into create, update, delete
   const incomingRecords = changes.filter(c => c.data.id).map(c => c.data);
   const idsForIncomingRecords = incomingRecords.map(r => r.id);
-  const existingRecords = await model
-    .findByIds(idsForIncomingRecords, false)
-    .map(r => r.get({ plain: true }));
+  const existingRecords = (await model.findByIds(idsForIncomingRecords, false)).map(r =>
+    r.get({ plain: true }),
+  );
   const idToExistingRecord = Object.fromEntries(existingRecords.map(e => [e.id, e]));
   const idsForUpdate = new Set();
   const idsForRestore = new Set();
