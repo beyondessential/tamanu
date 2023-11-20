@@ -18,7 +18,7 @@ import { getDirPath } from './getFilePath';
  * @param progressCallback
  * @returns
  */
-const saveChangesForModel = async (
+export const saveChangesForModel = async (
   model: typeof BaseModel,
   changes: SyncRecord[],
 ): Promise<void> => {
@@ -27,6 +27,7 @@ const saveChangesForModel = async (
   const idsForUpdate = new Set();
   const idsForRestore = new Set();
   const idsForDelete = new Set();
+  const idsToSkip = new Set();
 
   for (const incomingRecords of chunk(recordsForUpsert, SQLITE_MAX_PARAMETERS)) {
     const batchOfIds = incomingRecords.map(r => r.id);
@@ -47,6 +48,9 @@ const saveChangesForModel = async (
       if (!existing.deletedAt && incoming.isDeleted) {
         idsForDelete.add(existing.id);
       }
+      if (existing.deletedAt && incoming.isDeleted) {
+        idsToSkip.add(existing.id);
+      }
     });
   }
 
@@ -55,7 +59,8 @@ const saveChangesForModel = async (
       c =>
         !idsForUpdate.has(c.recordId) &&
         !idsForRestore.has(c.recordId) &&
-        !idsForDelete.has(c.recordId),
+        !idsForDelete.has(c.recordId) &&
+        !idsToSkip.has(c.recordId),
     ) // not existing in db
     .map(({ isDeleted, data }) => ({ ...buildFromSyncRecord(model, data), isDeleted }));
 
@@ -72,10 +77,18 @@ const saveChangesForModel = async (
     .map(({ data }) => buildFromSyncRecord(model, data));
 
   // run each import process
-  await executeInserts(model, recordsForCreate);
-  await executeUpdates(model, recordsForUpdate);
-  await executeDeletes(model, recordsForDelete);
-  await executeRestores(model, recordsForRestore);
+  if (recordsForCreate.length > 0) {
+    await executeInserts(model, recordsForCreate);
+  }
+  if (recordsForUpdate.length > 0) {
+    await executeUpdates(model, recordsForUpdate);
+  }
+  if (recordsForDelete.length > 0) {
+    await executeDeletes(model, recordsForDelete);
+  }
+  if (recordsForRestore.length > 0) {
+    await executeRestores(model, recordsForRestore);
+  }
 };
 
 /**
