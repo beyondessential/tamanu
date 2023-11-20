@@ -21,7 +21,7 @@ const makeRangeStringAccessor = sex => ({ labTestType }) => {
   const hasMax = max || max === 0;
   const hasMin = min || min === 0;
 
-  if (hasMin && hasMax) return `${min} - ${max}`;
+  if (hasMin && hasMax) return `${min} – ${max}`;
   if (hasMin) return `>${min}`;
   if (hasMax) return `<${max}`;
   return 'N/A';
