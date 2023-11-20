@@ -16,6 +16,7 @@ import { DropdownButton } from '../../../components/DropdownButton';
 import { MoveModal } from './MoveModal';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
 import { Colors } from '../../../constants';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const TypographyLink = styled(Typography)`
   color: ${Colors.primary};
@@ -94,61 +95,96 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
 
   const actions = [
     {
-      label: 'Move to active ED care',
+      label: (
+        <TranslatedText
+          stringId="encounter.action.admitToObservation"
+          fallback="Move to active ED care"
+        />
+      ),
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.OBSERVATION),
       condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.OBSERVATION),
     },
     {
-      label: 'Move to emergency short stay',
+      label: (
+        <TranslatedText
+          stringId="encounter.action.admitToEmergency"
+          fallback="Admit to short stay"
+        />
+      ),
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.EMERGENCY),
       condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.EMERGENCY),
     },
     {
-      label: 'Admit to hospital',
+      label: (
+        <TranslatedText stringId="encounter.action.admitToHospital" fallback="Admit to hospital" />
+      ),
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
       condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION),
     },
     {
-      label: 'Discharge without being seen',
+      label: (
+        <TranslatedText
+          stringId="encounter.action.dischargeWithoutBeingSeen"
+          fallback="Discharge without being seen"
+        />
+      ),
       onClick: onDischargeOpen,
       condition: () => encounter.encounterType === ENCOUNTER_TYPES.TRIAGE,
     },
     {
-      label: 'Finalise patient move',
+      label: (
+        <TranslatedText stringId="encounter.action.finaliseMove" fallback="Finalise patient move" />
+      ),
       condition: () => enablePatientMoveActions && encounter.plannedLocation,
       onClick: onFinaliseLocationChange,
     },
     {
-      label: 'Cancel patient move',
+      label: (
+        <TranslatedText stringId="encounter.action.cancelMove" fallback="Cancel patient move" />
+      ),
       condition: () => enablePatientMoveActions && encounter.plannedLocation,
       onClick: onCancelLocationChange,
     },
     {
-      label: 'Discharge',
+      label: <TranslatedText stringId="encounter.action.discharge" fallback="Discharge" />,
       onClick: onDischargeOpen,
       condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
     },
     {
       // Duplicate "Admit to hospital" as it should display below "Discharge".
-      label: 'Admit to hospital',
+      label: (
+        <TranslatedText stringId="encounter.action.admitToHospital" fallback="Admit to hospital" />
+      ),
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
       condition: () => encounter.encounterType === ENCOUNTER_TYPES.CLINIC,
     },
     {
-      label: 'Move patient',
+      label: <TranslatedText stringId="encounter.action.movePatient" fallback="Move patient" />,
       condition: () => enablePatientMoveActions && !encounter.plannedLocation,
       onClick: onPlanLocationChange,
     },
     {
-      label: 'Change department',
+      label: (
+        <TranslatedText stringId="encounter.action.changeDepartment" fallback="Change department" />
+      ),
       onClick: onChangeDepartment,
     },
     {
-      label: `Change ${clinicianText.toLowerCase()}`,
+      label: (
+        <TranslatedText
+          stringId="encounter.action.changeClinician"
+          fallback="Change :clinician"
+          replacements={{
+            clinician: clinicianText.toLowerCase(),
+          }}
+        />
+      ),
       onClick: onChangeClinician,
     },
     {
-      label: 'Change location',
+      label: (
+        <TranslatedText stringId="encounter.action.changeLocation" fallback="Change location" />
+      ),
       condition: () => !enablePatientMoveActions && !encounter.plannedLocation,
       onClick: onChangeLocation,
     },
