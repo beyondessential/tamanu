@@ -46,7 +46,7 @@ const COLUMNS = [
           return (
             <>
               <Button onClick={() => setSurveyLink(answer)} variant="contained" color="primary">
-                Show Survey
+                Show Form
               </Button>
               <SurveyResponseDetailsModal
                 surveyResponseId={surveyLink}
@@ -87,7 +87,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
 
   if (error) {
     return (
-      <Modal title="Survey response" open={!!surveyResponseId} onClose={onClose}>
+      <Modal title="Form response" open={!!surveyResponseId} onClose={onClose}>
         <h3>Error fetching response details</h3>
         <pre>{error.stack}</pre>
       </Modal>
@@ -96,7 +96,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
 
   if (isLoading || !surveyDetails) {
     return (
-      <Modal title="Survey response" open={!!surveyResponseId} onClose={onClose}>
+      <Modal title="Form response" open={!!surveyResponseId} onClose={onClose}>
         Loading...
       </Modal>
     );
@@ -120,7 +120,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
     .filter(r => r.answer !== undefined);
 
   return (
-    <Modal title="Survey response" open={!!surveyResponseId} onClose={onClose}>
+    <Modal title="Form response" open={!!surveyResponseId} onClose={onClose}>
       <Table data={answerRows} columns={COLUMNS} allowExport={false} />
     </Modal>
   );

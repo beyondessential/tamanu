@@ -1,7 +1,7 @@
 {
   "name": "desktop",
   "productName": "Tamanu",
-  "version": "1.37.0",
+  "version": "1.38.0",
   "description": "Tamanu Desktop application",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -36,12 +36,12 @@
     ]
   },
   "jest": {
+    "testRegex": "(\\.|/)(test|spec)\\.[jt]sx?$",
     "testURL": "http://localhost/",
     "moduleNameMapper": {
-      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/internals/mocks/fileMock.js",
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__tests__/fileMock.js",
       "\\.(css|less|sass|scss)$": "identity-obj-proxy",
-      "\\.\\./sync-server/config/default\\.json$": "<rootDir>/internals/mocks/test.json",
-      "^redux-persist/lib/storage": "<rootDir>/internals/mocks/fileMock.js"
+      "^redux-persist/lib/storage": "<rootDir>/__tests__/fileMock.js"
     },
     "moduleFileExtensions": [
       "js"
@@ -52,10 +52,23 @@
     ],
     "transform": {
       "^.+\\.js$": "babel-jest"
-    }
+    },
+    "testPathIgnorePatterns" : [
+      "<rootDir>/stories",
+      "<rootDir>/.storybook"
+    ],
+    "modulePathIgnorePatterns" : [
+      "<rootDir>/stories",
+      "<rootDir>/.storybook"
+    ],
+    "transformIgnorePatterns" : [
+      "<rootDir>/stories",
+      "<rootDir>/.storybook"
+    ]
   },
   "devDependencies": {
     "@beyondessential/eslint-config-js": "^1.1.0",
+    "@electron/rebuild": "^3.3.0",
     "@emotion/core": "^10.0.9",
     "@storybook/addon-controls": "^6.5.16",
     "@storybook/addon-actions": "^6.5.16",
@@ -136,7 +149,6 @@
     "connected-react-router": "^6.9.3",
     "date-fns": "^2.25.0",
     "deep-equal": "^1.0.1",
-    "devtron": "^1.4.0",
     "formik": "^2.2.9",
     "fs-jetpack": "^2.2.2",
     "history": "^4.7.2",
@@ -149,7 +161,7 @@
     "nano": "^6.4.4",
     "nanoid": "^3.1.29",
     "node-polyglot": "^2.3.0",
-    "pdfjs-dist": "3.3.122",
+    "pdfjs-dist": "^3.10.111",
     "prop-types": "^15.6.2",
     "qs": "^6.10.2",
     "react": "^18.2.0",
@@ -161,7 +173,7 @@
     "react-dom": "^18.2.0",
     "react-dropzone": "^4.2.10",
     "react-events": "^1.0.1",
-    "react-idle-timer": "^5.4.2",
+    "react-idle-timer": "=5.4.2",
     "react-mixin-manager": "^1.0.2",
     "react-redux": "8.0.2",
     "react-responsive-modal": "^2.1.0",
@@ -181,6 +193,6 @@
     "styled-components": "^5.3.3",
     "typeface-roboto": "^0.0.54",
     "xlsx": "^0.14.0",
-    "yup": "^0.27.0"
+    "yup": "^0.32.9"
   }
 }

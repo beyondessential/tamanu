@@ -1,3 +1,4 @@
+/* global globalThis */
 import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { parseDate } from '@tamanu/shared/utils/dateTime';
@@ -17,13 +18,11 @@ const SoftText = styled(Text)`
   color: ${Colors.midText};
 `;
 
-// TODO(web)
-// const getLocale = () => remote.getGlobal('osLocales') || remote.app.getLocale() || 'default';
-const getLocale = () => 'default';
+const locale = globalThis.navigator?.language ?? 'default';
 
 const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
   if (!date) return fallback;
-  return new Date(date).toLocaleString(getLocale(), formatOptions);
+  return new Date(date).toLocaleString(locale, formatOptions);
 };
 
 export const formatShortest = date =>
@@ -89,7 +88,7 @@ const DiagnosticInfo = ({ date: rawDate }) => {
       Raw date: {date.toString()} <br />
       Time zone: {timeZone} <br />
       Time zone offset: {timeZoneOffset} <br />
-      Locale: {getLocale()}
+      Locale: {locale}
     </div>
   );
 };
