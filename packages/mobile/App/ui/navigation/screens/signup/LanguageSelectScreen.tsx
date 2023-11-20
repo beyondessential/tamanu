@@ -1,7 +1,6 @@
 import React, {
   FunctionComponent,
   useCallback,
-  useEffect,
   useState,
 } from 'react';
 import { KeyboardAvoidingView, StatusBar } from 'react-native';
@@ -17,31 +16,13 @@ import { theme } from '/styled/theme';
 import { Routes } from '/helpers/routes';
 import { ModalInfo } from '/components/ModalInfo';
 import { Dropdown } from '~/ui/components/Dropdown';
-import { useBackend } from '~/ui/hooks';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const { language, onChangeLanguage } = useTranslation();
-
-  const [languageOptions, setLanguageOptions] = useState([]);
-
-  const {
-    models: { TranslatedString },
-  } = useBackend();
-
-  useEffect(() => {
-    (async () => {
-      const languageOptionsArray = await TranslatedString.getLanguageOptions();
-      if (languageOptionsArray.length === 0) {
-        setModalError('Error loading language list');
-        return;
-      }
-      setLanguageOptions(languageOptionsArray);
-    })();
-  }, []);
+  const { language, languageOptions, onChangeLanguage } = useTranslation();
 
   const onNavigateToSignIn = useCallback(() => {
     navigation.navigate(Routes.SignUpStack.SignIn);

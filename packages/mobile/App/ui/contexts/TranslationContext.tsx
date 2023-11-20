@@ -3,9 +3,12 @@ import { DevSettings } from 'react-native';
 
 import { readConfig, writeConfig } from '~/services/config';
 
+import { useBackend } from '../hooks';
+
 interface TranslationContextData {
   debugMode: boolean;
   language: string;
+  languageOptions: { label: string, value: string }[];
   onChangeLanguage: (language: string) => void;
 }
 
@@ -17,14 +20,24 @@ const LANGUAGE_STORAGE_KEY = 'language';
 export const TranslationProvider = ({ children }: PropsWithChildren<object>): ReactElement => {
   const [isDebugMode, setIsDebugMode] = useState(false);
   const [language, setLanguage] = useState(null);
+  const [languageOptions, setLanguageOptions] = useState(null);
+
+  const {
+    models: { TranslatedString },
+  } = useBackend();
+
+  const initialiseLanguageState = async () => {
+    const languageOptionArray = await TranslatedString.getLanguageOptions();
+    if (languageOptionArray.length > 0) setLanguageOptions(languageOptionArray);
+
+    const storedLanguage = await readConfig(LANGUAGE_STORAGE_KEY);
+    if (!storedLanguage) await writeConfig(LANGUAGE_STORAGE_KEY, DEFAULT_LANGUAGE);
+    setLanguage(storedLanguage || DEFAULT_LANGUAGE);
+  };
 
   // Initial check for language from localStorage (config). If none, set a default of english
   useEffect(() => {
-    (async () => {
-      const storedLanguage = await readConfig(LANGUAGE_STORAGE_KEY);
-      if (!storedLanguage) await writeConfig(LANGUAGE_STORAGE_KEY, DEFAULT_LANGUAGE);
-      setLanguage(storedLanguage || DEFAULT_LANGUAGE);
-    })()
+    initialiseLanguageState();
   }, [])
 
   const onChangeLanguage = async (languageCode: string) => {
@@ -41,6 +54,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
       value={{
         debugMode: isDebugMode,
         language,
+        languageOptions,
         onChangeLanguage,
       }}
     >

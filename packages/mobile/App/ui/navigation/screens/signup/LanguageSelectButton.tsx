@@ -1,13 +1,13 @@
-import React, { useState, ReactElement, useEffect, useCallback } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import styled from 'styled-components';
 
 import { theme } from '~/ui/styled/theme';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { StyledText, StyledView, StyledTouchableOpacity } from '~/ui/styled/common';
-import { useBackend } from '~/ui/hooks';
 import { Routes } from '~/ui/helpers/routes';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { NavigationProp } from '@react-navigation/native';
 
 const ButtonContainer = styled(StyledView)`
   display: flex;
@@ -16,38 +16,25 @@ const ButtonContainer = styled(StyledView)`
   padding: 3px 0;
 `;
 
-export const LanguageSelectButton = ({ navigation }): ReactElement => {
-  const [languageLabels, setLanguageLabels] = useState({});
+type LanguageSelectButtonProps = {
+  navigation: NavigationProp<any>;
+};
 
-  const { language } = useTranslation();
-
-  const {
-    models: { TranslatedString },
-  } = useBackend();
+export const LanguageSelectButton = ({ navigation }: LanguageSelectButtonProps): ReactElement => {
+  const { language, languageOptions } = useTranslation();
 
   const onNavigateToLanguageSelect = useCallback(() => {
-    console.log('onNavigateToLanguageSelect...');
     navigation.navigate(Routes.SignUpStack.LanguageSelect);
   }, []);
 
+  const getLabel = (language: string) =>
+    languageOptions.find(({ value }) => value === language)?.label;
 
-  useEffect(() => {
-    (async () => {
-      const labelRecords = await TranslatedString.getLanguageOptions();
-      const labelObject = Object.fromEntries(
-        labelRecords.map(({ label, value }) => [value, label]),
-      );
-      setLanguageLabels(labelObject);
-    })();
-  }, []);
-
-  const isLanguageOptionsEmpty = Object.keys(languageLabels).length === 0;
-
-  if (isLanguageOptionsEmpty) {
+  if (!languageOptions) {
     return (
       <StyledText
-        paddingTop={screenPercentageToDP('2.43', Orientation.Height)}
-        paddingLeft={screenPercentageToDP('2.43', Orientation.Width)}
+        paddingTop={screenPercentageToDP(2.43, Orientation.Height)}
+        paddingLeft={screenPercentageToDP(2.43, Orientation.Width)}
         color={theme.colors.WHITE}
       >
         Connect to server and sync to get available languages
@@ -56,19 +43,22 @@ export const LanguageSelectButton = ({ navigation }): ReactElement => {
   }
 
   return (
-    <StyledTouchableOpacity marginTop={screenPercentageToDP('3.43', Orientation.Height)} onPress={onNavigateToLanguageSelect}>
+    <StyledTouchableOpacity
+      marginTop={screenPercentageToDP(3.43, Orientation.Height)}
+      onPress={onNavigateToLanguageSelect}
+    >
       <StyledView
         borderColor="white"
         borderBottomWidth={1}
-        width={screenPercentageToDP('30', Orientation.Width)}
-        marginLeft={screenPercentageToDP('2.43', Orientation.Width)}
+        width={screenPercentageToDP(30, Orientation.Width)}
+        marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
       >
         <StyledText fontSize={11} color={theme.colors.TEXT_SOFT}>
           Language
         </StyledText>
 
         <ButtonContainer>
-          <StyledText color={theme.colors.WHITE}>{languageLabels[language]}</StyledText>
+          <StyledText color={theme.colors.WHITE}>{getLabel(language)}</StyledText>
           <Icon color={theme.colors.WHITE} name="chevron-down" size={20} />
         </ButtonContainer>
       </StyledView>
