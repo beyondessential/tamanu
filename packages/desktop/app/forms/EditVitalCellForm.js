@@ -77,7 +77,7 @@ const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
       {reasonForChange && (
         <LogText>
           <TranslatedText
-            stringId="encounter.vitals.form.editCell.reason.label"
+            stringId="encounter.vitals.form.editReason.label"
             fallback="Reason for change to record"
           />
           : {reasonForChangeLabel}
@@ -164,7 +164,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
             component={SelectField}
             label={
               <TranslatedText
-                stringId="encounter.vitals.form.editCell.reason.label"
+                stringId="encounter.vitals.form.editReason.label"
                 fallback="Reason for change to record"
               />
             }
