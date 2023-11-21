@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler';
 export const sync = express.Router();
 
 function resultToMessage({ enabled, queued, ran, timedOut }) {
-  if (timedOut) return 'Sync timed out (this is normal for large syncs)';
+  if (timedOut) return 'Sync is taking a while, continuing in the background...';
   if (!enabled) return "Sync was disabled and didn't run";
   if (ran) return 'Sync completed';
   if (queued) return 'Sync queued and will run later';
