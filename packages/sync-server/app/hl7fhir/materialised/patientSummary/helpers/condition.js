@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { FHIR_RESOURCE_TYPES } from '@tamanu/constants';
+import { formatFhirDate } from '@tamanu/shared/utils/fhir';
 
 import { getEntryResourceSubject, getPatientDisplayName } from '../utils';
 
@@ -72,7 +73,7 @@ export const getConditions = async ({ patient, models, dataDictionariesIps }) =>
       )} for ${patientCondition.condition.name}. Please review the data for more detail.</div>`,
     },
     onsetPeriod: {
-      end: patientCondition.resolutionDate,
+      end: formatFhirDate(patientCondition.resolutionDate),
     },
   }));
 };
