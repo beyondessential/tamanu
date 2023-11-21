@@ -21,7 +21,7 @@ import { getPatientDetailsValidation } from './patientDetailsValidationSchema';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
-import { getInitialValues } from '../../PatientAdditionalDataForm/helpers';
+import { getInitialAdditionalValues } from '../../PatientAdditionalDataForm/helpers';
 
 export type FormSection = {
   scrollToField: (fieldName: string) => () => void;
@@ -55,7 +55,10 @@ const getPatientInitialValues = (isEdit: boolean, patient, patientAdditionalData
     true,
     getBool,
   );
-  const initialPatientAdditionalDataValues = getInitialValues(patientAdditionalData, requiredPADFields);
+  const initialPatientAdditionalDataValues = getInitialAdditionalValues(
+    patientAdditionalData,
+    requiredPADFields,
+  );
 
   const initialPatientValues = {
     firstName,

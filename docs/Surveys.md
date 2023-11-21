@@ -46,7 +46,7 @@ if they do
 - `dryRun`, if true, will just `console.log` out the created records instead of
 sending them to the sync server
 - records will be sent to the sync server defined in `config.sync.host` (edit
-config/default.json to change or config/local.json to temporarily override)
+config/default.json5 to change or config/local.json5 to temporarily override)
 - note that this will **NOT** delete any records. removing a question from an
 xlsx will just stop it importing in future. to delete a record you'll need to 
 get its ID and send a DELETE request to the sync server manually

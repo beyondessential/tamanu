@@ -1,5 +1,7 @@
 import React, { ReactElement, useMemo, useCallback } from 'react';
 import { useSelector } from 'react-redux';
+import { getUniqueId } from 'react-native-device-info';
+
 import { RowView, StyledView, StyledText, FullView, CenterView } from '/styled/common';
 import { screenPercentageToDP, Orientation, setStatusBar } from '/helpers/screen';
 import { theme } from '/styled/theme';
@@ -35,18 +37,19 @@ const CameraInCircle = (
   </StyledView>
 );
 
-type TamanuAppVersionProps = {
+type FooterProps = {
   version: string;
+  deviceId: string;
 };
 
-const TamanuAppVersion = ({ version }: TamanuAppVersionProps): ReactElement => (
+const Footer = ({ version, deviceId }: FooterProps): ReactElement => (
   <StyledText
     marginTop={screenPercentageToDP(2.43, Orientation.Height)}
     marginLeft={screenPercentageToDP(4.86, Orientation.Width)}
     color={theme.colors.TEXT_MID}
     fontSize={screenPercentageToDP(1.45, Orientation.Height)}
   >
-    Tamanu Version {version}
+    Tamanu Version {version}{'\n'}Device ID mobile-{deviceId}
   </StyledText>
 );
 
@@ -143,7 +146,7 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
             ListFooterComponent={Separator}
           />
         </StyledView>
-        <TamanuAppVersion version={AppVersion} />
+        <Footer version={AppVersion} deviceId={getUniqueId()} />
       </StyledView>
     </FullView>
   );
