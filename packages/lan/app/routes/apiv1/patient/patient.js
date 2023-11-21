@@ -4,8 +4,12 @@ import config from 'config';
 import { QueryTypes, Op } from 'sequelize';
 import { snakeCase } from 'lodash';
 
-import { NotFoundError } from '@tamanu/shared/errors';
-import { PATIENT_REGISTRY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { NotFoundError, InvalidParameterError } from '@tamanu/shared/errors';
+import {
+  PATIENT_REGISTRY_TYPES,
+  VISIBILITY_STATUSES,
+  IPS_REQUEST_STATUSES,
+} from '@tamanu/constants';
 import { isGeneratedDisplayId } from '@tamanu/shared/utils/generateId';
 
 import { renameObjectKeys } from '@tamanu/shared/utils';
@@ -336,8 +340,8 @@ patientRoute.get(
             WHERE end_date IS NULL
           ) encounters
           ON (patients.id = encounters.patient_id AND encounters.row_num = 1)
-        LEFT JOIN users AS clinician 
-          ON clinician.id = encounters.examiner_id  
+        LEFT JOIN users AS clinician
+          ON clinician.id = encounters.examiner_id
         LEFT JOIN departments AS department
           ON (department.id = encounters.department_id)
         LEFT JOIN locations AS location
@@ -465,6 +469,29 @@ patientRoute.get(
         : await patient.getCovidLabTests();
 
     res.json({ data: labTests, count: labTests.length });
+  }),
+);
+
+patientRoute.post(
+  '/:id/ipsRequest',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Patient');
+
+    const { models, params } = req;
+    const { IPSRequest } = models;
+
+    if (!req.body.email) {
+      throw new InvalidParameterError('Missing email');
+    }
+
+    const ipsRequest = await IPSRequest.create({
+      createdBy: req.user?.id,
+      patientId: params.id,
+      email: req.body.email,
+      status: IPS_REQUEST_STATUSES.QUEUED,
+    });
+
+    res.send(dbRecordToResponse(ipsRequest));
   }),
 );
 

@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { FHIR_RESOURCE_TYPES } from '@tamanu/constants';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir';
 
-import { getEntryResourceSubject, getPatientDisplayName } from '../utils';
+import { getEntryResourceSubject } from '../utils';
 import { administeredVaccineStatusToHL7Status } from '../../../administeredVaccine';
 
 export const getImmunizations = async ({ patient, models, dataDictionariesIps }) => {
@@ -45,12 +45,10 @@ export const getImmunizations = async ({ patient, models, dataDictionariesIps })
         },
         text: {
           status: 'generated',
-          div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Immunizations for ${getPatientDisplayName(
-            patient,
-          )} for ${immunizationCodingDisplay}. Please review the data for more detail.</div>`,
+          div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Immunizations for ${patient.displayName} for ${immunizationCodingDisplay}. Please review the data for more detail.</div>`,
         },
         occurrenceString: 'unknown',
-        status: 'not-done'
+        status: 'not-done',
       },
     ];
   }
@@ -69,18 +67,15 @@ export const getImmunizations = async ({ patient, models, dataDictionariesIps })
     },
     text: {
       status: 'generated',
-      div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Immunization details for ${getPatientDisplayName(
-        patient,
-      )} for ${administeredVaccine.scheduledVaccine.vaccine.name
-        }. Please review the data for more detail.</div>`,
+      div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Immunization details for ${patient.displayName} for ${administeredVaccine.scheduledVaccine.vaccine.name}. Please review the data for more detail.</div>`,
     },
     status: administeredVaccineStatusToHL7Status(administeredVaccine.status),
     ...(administeredVaccine.date
       ? {
-        occurrenceDateTime: formatFhirDate(administeredVaccine.date),
-      }
+          occurrenceDateTime: formatFhirDate(administeredVaccine.date),
+        }
       : {
-        occurrenceString: 'unknown',
-      }),
+          occurrenceString: 'unknown',
+        }),
   }));
 };
