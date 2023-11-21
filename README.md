@@ -76,11 +76,11 @@ You'll need to install postgres and configure databases for lan and sync.
 <summary>Configuration overview</summary>
 
 The modules use `config`, which helps manage different configurations easily. Each module has a
-`config/` directory, with several files in it. The base configuration is in `config/default.json`,
+`config/` directory, with several files in it. The base configuration is in `config/default.json5`,
 and the values there will be used unless overridden by a more specific configuration (for eg
-`config/development.json`).
+`config/development.json5`).
 
-The local configuration (`config/local.json`) will always take highest precedence and should not
+The local configuration (`config/local.json5`) will always take highest precedence and should not
 be checked into version control. This file should contain the information for database configuration,
 local credentials, etc.
 
@@ -118,9 +118,9 @@ Install PostgreSQL from your package manager
 By default, the Central server will not run migrations automatically. To enable automatic migrations, set `db.syncOnStartup` to `true` within your local configuration (see the `Config` section above).
 
 #### Prerequisite
-1. Duplicate `sync-server/config/local.example` as new file `config/local.json`.
+1. Duplicate `sync-server/config/local.example` as new file `config/local.json5`.
 2. Create db using `tamanu-central` or any customised name, new db can be with or without owner.
-3. Store db name, root username, password or db owner credentials to `config/local.json` db config.
+3. Store db name, root username, password or db owner credentials to `config/local.json5` db config.
 
 #### Run
 
@@ -148,9 +148,9 @@ local development, this can just be another process on the same host.
 
 #### Prerequisite
 1. Start `sync-server`
-2. Duplicate `lan/config/local.example` as new file `config/local.json`.
+2. Duplicate `lan/config/local.example` as new file `config/local.json5`.
 3. Create db using `tamanu-facility` or any customised name, new db can be with or without owner.
-4. Store db name, root username, password or db owner credentials to `config/local.json` db config.
+4. Store db name, root username, password or db owner credentials to `config/local.json5` db config.
 
 #### Run
 
@@ -166,7 +166,7 @@ UI screens every time, and the live-reload turnaround is way faster than the des
 is in addition to the fact that any backend functionality should have tests against it anyway)
 
 The Facility server uses sequelize to manage database connections, and uses postgres exclusively.
-As soon as you have postgres available, set the appropriate connection variables in your `local.json`.
+As soon as you have postgres available, set the appropriate connection variables in your `local.json5`.
 </details>
 
 <details>
