@@ -1,15 +1,22 @@
-import React, { createContext, useContext, useState, PropsWithChildren, ReactElement, useEffect } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  PropsWithChildren,
+  ReactElement,
+  useEffect,
+} from 'react';
 import { DevSettings } from 'react-native';
-
-import { readConfig, writeConfig } from '~/services/config';
-
 import { useBackend } from '../hooks';
 
+import { readConfig, writeConfig } from '~/services/config';
 interface TranslationContextData {
   debugMode: boolean;
   language: string;
   languageOptions: { label: string, value: string }[];
   onChangeLanguage: (language: string) => void;
+  getTranslation: (key: string) => string;
+  fetchTranslations: () => void;
 }
 
 const TranslationContext = createContext<TranslationContextData>({} as TranslationContextData);
@@ -18,9 +25,11 @@ const DEFAULT_LANGUAGE = 'en';
 const LANGUAGE_STORAGE_KEY = 'language';
 
 export const TranslationProvider = ({ children }: PropsWithChildren<object>): ReactElement => {
+  const { models } = useBackend();
   const [isDebugMode, setIsDebugMode] = useState(false);
   const [language, setLanguage] = useState(null);
   const [languageOptions, setLanguageOptions] = useState(null);
+  const [translations, setTranslations] = useState({});
 
   const {
     models: { TranslatedString },
@@ -50,6 +59,16 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
     DevSettings.addMenuItem('Toggle translation highlighting', () => setIsDebugMode(!isDebugMode));
   }
 
+  const fetchTranslations = async (language: string = 'en') => {
+    const translations = await models.TranslatedString.getForLanguage(language);
+    setTranslations(translations);
+  };
+
+  useEffect(() => {
+    if (!__DEV__) return;
+    DevSettings.addMenuItem('Toggle translation highlighting', () => setIsDebugMode(!isDebugMode));
+  }, []);
+
   return (
     <TranslationContext.Provider
       value={{
@@ -57,6 +76,8 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
         language,
         languageOptions,
         onChangeLanguage,
+        getTranslation: key => translations[key],
+        fetchTranslations,
       }}
     >
       {children}
