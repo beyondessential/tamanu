@@ -42,12 +42,8 @@ export class TranslatedString extends BaseModel {
         language,
       },
     });
-    return translatedStrings.reduce(
-      (acc, translatedString) => ({
-        ...acc,
-        [translatedString.stringId]: translatedString.text,
-      }),
-      {},
+    return Object.fromEntries(
+      translatedStrings.map(translatedString => [translatedString.stringId, translatedString.text]),
     );
   }
 }
