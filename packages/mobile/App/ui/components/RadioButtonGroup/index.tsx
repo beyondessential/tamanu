@@ -1,7 +1,6 @@
 import React, { FC } from 'react';
-import { StyleSheet } from 'react-native';
 import styled from 'styled-components/native';
-import { RowView, StyledText, StyledView } from '/styled/common';
+import { RowView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { RadioOption, RadioButton } from '../RadioButton';
@@ -28,7 +27,7 @@ const getTitleColor = (value?: string, error?: boolean): string => {
 const Label = styled(StyledText)`
   color: ${theme.colors.TEXT_SUPER_DARK};
   font-size: ${screenPercentageToDP(2.1, Orientation.Height)};
-  font-weight: 600;
+  font-weight: 500;
   padding-left: ${screenPercentageToDP(1, Orientation.Width)};
   margin-bottom: ${screenPercentageToDP(0.5, Orientation.Width)};
 `;
@@ -47,19 +46,10 @@ export const RadioButtonGroup = ({
   return (
     <>
       {Boolean(label) && (
-        // <Label fontSize={14} fontWeight={500}>
-        //   {label}
-        //   {required && <RequiredIndicator />}
-        // </Label>
-        <StyledText
-          fontSize={14}
-          fontWeight={500}
-          marginBottom={2}
-          color={theme.colors.TEXT_SUPER_DARK}
-        >
+        <Label fontSize={14} fontWeight={500}>
           {label}
           {required && <RequiredIndicator />}
-        </StyledText>
+        </Label>
       )}
       <RowView>
         {options.map((option, index) => (
