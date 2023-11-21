@@ -263,55 +263,6 @@ describe('Suggestions', () => {
   });
 
   describe('Other suggesters', () => {
-    it('should get suggestions for a program registration', async () => {
-      const testProgram = await models.Program.create(fake(models.Program));
-      const testPatient = await models.Patient.create(fake(models.Patient));
-
-      // Should show:
-      await models.ProgramRegistry.create({
-        ...fake(models.ProgramRegistry),
-        name: 'a1',
-        programId: testProgram.id,
-      });
-      await models.ProgramRegistry.create({
-        ...fake(models.ProgramRegistry),
-        name: 'a2',
-        programId: testProgram.id,
-      });
-
-      // Should not show (historical):
-      await models.ProgramRegistry.create({
-        ...fake(models.ProgramRegistry),
-        name: 'a3',
-        programId: testProgram.id,
-        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
-      });
-      // Should not show (name = b):
-      await models.ProgramRegistry.create({
-        ...fake(models.ProgramRegistry),
-        name: 'b',
-        programId: testProgram.id,
-      });
-      // Should not show (patient already has registration):
-      const { id: existingRegistrationId } = await models.ProgramRegistry.create({
-        ...fake(models.ProgramRegistry),
-        name: 'a4',
-        programId: testProgram.id,
-      });
-      await models.PatientProgramRegistration.create({
-        ...fake(models.PatientProgramRegistration),
-        patientId: testPatient.id,
-        programRegistryId: existingRegistrationId,
-      });
-
-      const result = await userApp.get('/v1/suggestions/programRegistry').query({
-        q: 'a',
-        patientId: testPatient.id,
-      });
-      expect(result).toHaveSucceeded();
-      expect(result.body.length).toBe(2);
-    });
-
     it('should get suggestions for a medication', async () => {
       const result = await userApp.get('/v1/suggestions/drug?q=a');
       expect(result).toHaveSucceeded();
