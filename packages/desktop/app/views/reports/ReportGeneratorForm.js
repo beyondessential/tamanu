@@ -242,8 +242,8 @@ export const ReportGeneratorForm = () => {
                 setDataSource(e.target.value);
               }}
               options={[
-                { label: 'This facility', value: REPORT_DATA_SOURCES.THIS_FACILITY },
-                { label: 'All facilities', value: REPORT_DATA_SOURCES.ALL_FACILITIES },
+                { label: 'This server', value: REPORT_DATA_SOURCES.THIS_FACILITY },
+                { label: 'Central server', value: REPORT_DATA_SOURCES.ALL_FACILITIES },
               ]}
               component={RadioField}
               disabled={isDataSourceFieldDisabled}
