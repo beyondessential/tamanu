@@ -1,11 +1,12 @@
+//@ts-check
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { Divider } from '@material-ui/core';
-import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useQuery } from '@tanstack/react-query';
 import { useSelector } from 'react-redux';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
   Form,
   FieldWithTooltip,
