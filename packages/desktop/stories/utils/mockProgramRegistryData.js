@@ -252,7 +252,80 @@ export const programRegistry3 = {
   currentlyAtType: 'village',
 };
 
-export const programRegistries = [programRegistry1, programRegistry2, programRegistry3];
+export const programRegistries = {
+  data: [
+    {
+      id: '1e25e8d1-a2b4-4bfa-9670-9f6b689e8af7',
+      date: '2023-10-16 23:14:22',
+      registrationStatus: 'active',
+      updatedAtSyncTick: '68824',
+      createdAt: '2023-10-16T17:14:32.304Z',
+      updatedAt: '2023-10-16T17:14:32.304Z',
+      clinicianId: '90153d22-78e8-4ae9-8cfb-63c42946e833',
+      patientId: '19324abf-b485-4184-8537-0a7fe4be1d0b',
+      programRegistryId: 'programRegistry-HepatitisBProgramRegistry',
+      clinicalStatusId: 'prClinicalStatus-LowRisk',
+      facilityId: 'facility-ColonialWarMemorialDivisionalHospital',
+      clinicalStatus: {
+        id: 'prClinicalStatus-LowRisk',
+        code: 'LowRisk',
+        name: 'Low risk',
+        color: 'green',
+        visibilityStatus: 'current',
+        updatedAtSyncTick: '-999',
+        createdAt: '2023-09-26T06:53:03.872Z',
+        updatedAt: '2023-09-26T06:53:03.872Z',
+        programRegistryId: 'programRegistry-HepatitisBProgramRegistry',
+      },
+      programRegistry: {
+        id: 'programRegistry-HepatitisBProgramRegistry',
+        code: 'HepatitisBProgramRegistry',
+        name: 'Hepatitis B',
+        currentlyAtType: 'facility',
+        visibilityStatus: 'current',
+        updatedAtSyncTick: '-999',
+        createdAt: '2023-09-26T06:53:03.814Z',
+        updatedAt: '2023-09-26T06:53:03.814Z',
+        programId: 'program-samoancdscreening',
+      },
+    },
+    {
+      id: '0fde6fbb-26a1-4258-b2ca-204d584a985f',
+      date: '2023-10-29 21:33:09',
+      registrationStatus: 'active',
+      updatedAtSyncTick: '92156',
+      createdAt: '2023-10-29T15:33:19.959Z',
+      updatedAt: '2023-10-29T15:33:19.959Z',
+      clinicianId: '90153d22-78e8-4ae9-8cfb-63c42946e833',
+      patientId: '19324abf-b485-4184-8537-0a7fe4be1d0b',
+      programRegistryId: 'programRegistry-tbprogramregistry',
+      clinicalStatusId: 'prClinicalStatus-cured',
+      facilityId: 'facility-ColonialWarMemorialDivisionalHospital',
+      clinicalStatus: {
+        id: 'prClinicalStatus-cured',
+        code: 'cured',
+        name: 'Cured',
+        color: '19934E',
+        visibilityStatus: 'current',
+        updatedAtSyncTick: '-999',
+        createdAt: '2023-09-27T22:21:03.033Z',
+        updatedAt: '2023-09-27T22:21:03.033Z',
+        programRegistryId: 'programRegistry-tbprogramregistry',
+      },
+      programRegistry: {
+        id: 'programRegistry-tbprogramregistry',
+        code: 'tbprogramregistry',
+        name: 'TB Program Registry',
+        currentlyAtType: 'village',
+        visibilityStatus: 'current',
+        updatedAtSyncTick: '-999',
+        createdAt: '2023-09-27T22:21:02.971Z',
+        updatedAt: '2023-09-27T22:21:02.971Z',
+        programId: 'program-tbprogram',
+      },
+    },
+  ],
+};
 
 export const programRegistryConditions = [
   { id: '1', name: 'Diabetes' },
@@ -617,13 +690,13 @@ export const patientAdditionalData = {
 };
 
 export const patientProgramRegistration = {
-  id: 'patient_program_registry_id',
-  programRegistryId: 'program_registry_id',
+  id: '1e25e8d1-a2b4-4bfa-9670-9f6b689e8af7',
+  programRegistryId: 'programRegistry-HepatitisBProgramRegistry',
   programRegistry: {
-    id: 'program_registry_id',
+    id: 'programRegistry-HepatitisBProgramRegistry',
     name: 'Hepatitis B',
     program: {
-      id: 'program_id',
+      id: 'program-samoancdscreening',
       name: 'Hepatitis B',
     },
     currentlyAt: 'facility',
@@ -701,7 +774,7 @@ export const dummyApi = {
         return programRegistry3;
 
       case 'programRegistry/1/conditions':
-      case 'programRegistry/program_registry_id/conditions':
+      case 'programRegistry/programRegistry-HepatitisBProgramRegistry/conditions':
         return programRegistryConditions;
 
       case 'patient/patient_id/additionalData':
@@ -709,20 +782,23 @@ export const dummyApi = {
         return patientAdditionalData;
 
       // GET patientProgramRestration Status change Histories
-      case 'patient/patient_id/programRegistration/patient_program_registry_id/clinicalStatuses':
+      case 'patient/patient_id/programRegistration/1e25e8d1-a2b4-4bfa-9670-9f6b689e8af7/clinicalStatuses':
         return getSortedData(programRegistryStatusHistories, options);
 
-      case 'patient/patient_id/programResponses?programId=program_id':
+      case 'patient/patient_id/programRegistration':
+        return programRegistries;
+
+      case 'patient/patient_id/programResponses?programId=program-samoancdscreening':
       case '/patient/test-patient/programResponses':
         return getSortedData(programRegistryFormHistory, options);
 
-      case `patient/programRegistration/patient_program_registry_id/conditions`:
+      case `patient/programRegistration/1e25e8d1-a2b4-4bfa-9670-9f6b689e8af7/conditions`:
         return [
           ...programRegistryConditions,
           ...programRegistryConditions.map(x => ({ ...x, id: x.id + 1 })),
         ];
 
-      case 'program/program_id/surveys':
+      case 'program/program-samoancdscreening/surveys':
         return programRegistrysurveys;
 
       case 'suggestions/programRegistryClinicalStatus':
@@ -741,7 +817,7 @@ export const dummyApi = {
         return clinicalStatusList;
 
       case 'suggestions/programRegistry':
-        return programRegistries;
+        return programRegistries.data;
 
       case 'suggestions/survey':
         // this needs to be done in the backend
@@ -749,13 +825,13 @@ export const dummyApi = {
 
       // TEMP: below there are undefined parameters because this api sometimes depends
       // on browser query params, this is temporary for testing purpose
-      case 'patient/patient_id/programRegistration/patient_program_registry_id':
-      case 'patient/undefined/programRegistration/patient_program_registry_id':
+      case 'patient/patient_id/programRegistration/1e25e8d1-a2b4-4bfa-9670-9f6b689e8af7':
+      case 'patient/undefined/programRegistration/1e25e8d1-a2b4-4bfa-9670-9f6b689e8af7':
       case 'patient/test-patient/programRegistration/undefined':
       case 'patient/undefined/programRegistration/undefined':
         return patientProgramRegistration;
       case 'patient/undefined/programRegistration/undefined/survey/undefined':
-      case 'patient/patient_id/programRegistration/patient_program_registry_id/survey/survey_id':
+      case 'patient/patient_id/programRegistration/1e25e8d1-a2b4-4bfa-9670-9f6b689e8af7/survey/survey_id':
         return mockSurvey;
       case 'patientProgramRegistration':
         return {

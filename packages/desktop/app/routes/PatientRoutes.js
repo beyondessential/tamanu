@@ -80,13 +80,13 @@ export const usePatientRoutes = () => {
         {
           path: PATIENT_PATHS.PROGRAM_REGISTRY,
           component: PatientProgramRegistryView,
-          navigateTo: programRegistry => navigateToProgramRegistry(programRegistry.id),
+          navigateTo: () => navigateToProgramRegistry(),
           title: queryParams.get('title'),
           routes: [
             {
               path: PATIENT_PATHS.PROGRAM_REGISTRY_SURVEY,
               component: ProgramRegistrySurveyView,
-              // title: 'Discharge Summary',
+              title: 'Survey',
             },
           ],
         },
