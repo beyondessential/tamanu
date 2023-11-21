@@ -72,7 +72,7 @@ export const getHl7Patient = async ({ patient = {}, models }) => {
         ...(primaryContactNumber
           ? [
               {
-                rank: 0,
+                rank: 1,
                 value: primaryContactNumber,
               },
             ]
@@ -80,7 +80,7 @@ export const getHl7Patient = async ({ patient = {}, models }) => {
         ...(secondaryContactNumber
           ? [
               {
-                rank: 1,
+                rank: 2,
                 value: secondaryContactNumber,
               },
             ]
