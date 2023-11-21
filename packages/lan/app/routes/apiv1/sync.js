@@ -34,6 +34,6 @@ sync.post(
     const result = await Promise.race([completeSync(), timeoutAfter(10)]);
     const message = resultToMessage(result);
 
-    res.send({ message, result });
+    res.send({ message });
   }),
 );
