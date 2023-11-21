@@ -38,7 +38,7 @@ export const ProgramRegistrySidebarItem = ({
         >
           {programRegistries.map(x => {
             const secondaryPath = `${path}/${x.id}?name=${x.name}`;
-            return (
+            return !retracted ? (
               <SecondarySidebarItem
                 key={x.id}
                 path={secondaryPath}
@@ -48,6 +48,8 @@ export const ProgramRegistrySidebarItem = ({
                 disabled={false}
                 onClick={() => onPathChanged(secondaryPath)}
               />
+            ) : (
+              <></>
             );
           })}
         </PrimarySidebarItem>

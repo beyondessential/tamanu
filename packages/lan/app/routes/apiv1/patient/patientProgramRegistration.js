@@ -137,6 +137,34 @@ patientProgramRegistration.get(
   }),
 );
 
+patientProgramRegistration.get(
+  '/:patientId/programRegistration/:programRegistryId/condition',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { patientId, programRegistryId } = params;
+    const { PatientProgramRegistrationCondition } = models;
+
+    req.checkPermission('list', 'PatientProgramRegistrationCondition', {
+      patientId,
+      programRegistryId,
+    });
+
+    const history = await PatientProgramRegistrationCondition.findAll({
+      where: {
+        patientId,
+        programRegistryId,
+        deletionStatus: null,
+      },
+      include: PatientProgramRegistrationCondition.getFullReferenceAssociations(),
+      order: [['date', 'DESC']],
+    });
+
+    res.send({
+      count: history.length,
+      data: history,
+    });
+  }),
+);
 patientProgramRegistration.post(
   '/:patientId/programRegistration/:programRegistryId/condition',
   asyncHandler(async (req, res) => {
@@ -191,9 +219,7 @@ patientProgramRegistration.delete(
     req.checkPermission('delete', 'PatientProgramRegistrationCondition', { programRegistryId });
     const existingCondition = await models.PatientProgramRegistrationCondition.findOne({
       where: {
-        programRegistryId,
-        patientId,
-        programRegistryConditionId: conditionId,
+        id: conditionId,
       },
     });
     if (!existingCondition) throw new NotFoundError();

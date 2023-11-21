@@ -1,7 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useQueryClient } from '@tanstack/react-query';
 import { Modal, ConfirmCancelRow, DateDisplay, FormSeparatorLine } from '../../components';
-import { Colors } from '../../constants';
+import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
+import { useApi } from '../../api';
 
 const WarningDiv = styled.div`
   display: flex;
@@ -36,22 +38,31 @@ const Info = styled.div`
 
 const Label = styled.p`
   color: ${Colors.softText};
-  line-height: 10px;
 `;
 
 const Value = styled.p`
   color: ${Colors.darkestText};
-  line-height: 10px;
 `;
 
-export const RemoveProgramRegistryFormModal = ({
-  patientProgramRegistration,
-  onSubmit,
-  onCancel,
-  open,
-}) => {
+export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onClose, open }) => {
+  const api = useApi();
+  const queryClient = useQueryClient();
+
+  if (!patientProgramRegistration) return <></>;
+
+  const remove = async () => {
+    const { id, date, ...rest } = patientProgramRegistration;
+    await api.post(
+      `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
+      { ...rest, registrationStatus: PROGRAM_REGISTRATION_STATUSES.REMOVED },
+    );
+
+    queryClient.invalidateQueries([`infoPaneListItem-Program Registry`]);
+    onClose();
+  };
+
   return (
-    <Modal title="Remove patient" open={open} onClose={onCancel}>
+    <Modal title="Remove patient" open={open} onClose={onClose}>
       <div>
         <WarningDiv>
           <p>
@@ -69,7 +80,7 @@ export const RemoveProgramRegistryFormModal = ({
             </Info>
             <Info>
               <Label>Registered by</Label>
-              <Value>{patientProgramRegistration.clinician.displayName}</Value>
+              <Value>{patientProgramRegistration?.clinician?.displayName}</Value>
             </Info>
             <Info>
               <Label>Status</Label>
@@ -94,7 +105,7 @@ export const RemoveProgramRegistryFormModal = ({
           </InfoColumn>
         </InfoDiv>
         <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />
-        <ConfirmCancelRow onConfirm={onSubmit} onCancel={onCancel} />
+        <ConfirmCancelRow onConfirm={remove} onCancel={onClose} />
       </div>
     </Modal>
   );

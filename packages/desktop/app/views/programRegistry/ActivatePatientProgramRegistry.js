@@ -1,15 +1,8 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { useQuery } from '@tanstack/react-query';
-import {
-  Form,
-  Field,
-  DateField,
-  AutocompleteField,
-  MultiselectField,
-} from '../../components/Field';
+import { useQueryClient } from '@tanstack/react-query';
+import { Form, Field, DateField, AutocompleteField } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
 import { ConfirmCancelRow } from '../../components/ButtonRow';
 import { foreignKey, optionalForeignKey } from '../../utils/validation';
@@ -17,113 +10,93 @@ import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { Modal } from '../../components/Modal';
 import { useApi } from '../../api/useApi';
+import { PROGRAM_REGISTRATION_STATUSES } from '../../constants';
 
-export const ActivatePatientProgramRegistry = React.memo(
-  ({ onCancel, onSubmit, patientProgramRegistration, open }) => {
-    const api = useApi();
-    const { currentUser, facility } = useAuth();
-    const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
-      baseQueryParameters: { programRegistryId: patientProgramRegistration.programRegistryId },
-    });
-    const registeredBySuggester = useSuggester('practitioner');
-    const { data: conditions } = useQuery(
-      ['programRegistryConditions', patientProgramRegistration.id],
-      () => api.get(`programRegistry/${patientProgramRegistration.id}/conditions`),
+export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistration, open }) => {
+  const api = useApi();
+  const queryClient = useQueryClient();
+  const { currentUser, facility } = useAuth();
+  const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
+    baseQueryParameters: { programRegistryId: patientProgramRegistration.programRegistryId },
+  });
+  const registeredBySuggester = useSuggester('practitioner');
+  const registeringFacilitySuggester = useSuggester('facility');
+
+  const activate = async data => {
+    const { id, ...rest } = data;
+    await api.post(
+      `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
+      { ...rest, registrationStatus: PROGRAM_REGISTRATION_STATUSES.ACTIVE },
     );
-    const registeringFacilitySuggester = useSuggester('facility');
 
-    return (
-      <Modal
-        title={`Activate ${patientProgramRegistration.programRegistry.name} program registry`}
-        open={open}
-        onClose={onCancel}
-      >
-        <Form
-          onSubmit={data => {
-            onSubmit({
-              ...data,
-              patientId: patientProgramRegistration.patientId,
-              programRegistryId: patientProgramRegistration.id,
-              conditions: data.conditions ? data.conditions.split(',') : [],
-            });
-          }}
-          render={({ submitForm }) => {
-            const handleCancel = () => onCancel && onCancel();
-            return (
-              <div>
-                <FormGrid>
-                  <FormGrid style={{ gridColumn: 'span 2' }}>
-                    <Field
-                      name="date"
-                      label="Date of registration"
-                      saveDateAsString
-                      component={DateField}
-                      required
-                    />
-                    <Field
-                      name="clinicianId"
-                      label="Registered by"
-                      component={AutocompleteField}
-                      suggester={registeredBySuggester}
-                      required
-                    />
-                  </FormGrid>
-                  <FormGrid style={{ gridColumn: 'span 2' }}>
-                    <Field
-                      name="facilityId"
-                      label="Registering facility"
-                      component={AutocompleteField}
-                      suggester={registeringFacilitySuggester}
-                      required
-                    />
-                    <Field
-                      name="clinicalStatusId"
-                      label="Status"
-                      component={AutocompleteField}
-                      suggester={programRegistryStatusSuggester}
-                    />
-                  </FormGrid>
-                  <FormGrid style={{ gridColumn: 'span 2' }}>
-                    <Field
-                      tooltipText="Select a program registry to add conditions"
-                      name="conditions"
-                      label="Conditions"
-                      component={MultiselectField}
-                      options={conditions}
-                      disabled={!conditions}
-                    />
-                  </FormGrid>
-                  <ConfirmCancelRow
-                    onCancel={handleCancel}
-                    onConfirm={submitForm}
-                    confirmText="Confirm"
+    queryClient.invalidateQueries([`infoPaneListItem-Program Registry`]);
+    onClose();
+  };
+  return (
+    <Modal
+      title={`Activate ${patientProgramRegistration.programRegistry.name} program registry`}
+      open={open}
+      onClose={onClose}
+    >
+      <Form
+        onSubmit={activate}
+        render={({ submitForm }) => {
+          return (
+            <div>
+              <FormGrid>
+                <FormGrid style={{ gridColumn: 'span 2' }}>
+                  <Field
+                    name="date"
+                    label="Date of registration"
+                    saveDateAsString
+                    component={DateField}
+                    required
+                  />
+                  <Field
+                    name="clinicianId"
+                    label="Registered by"
+                    component={AutocompleteField}
+                    suggester={registeredBySuggester}
+                    required
                   />
                 </FormGrid>
-              </div>
-            );
-          }}
-          initialValues={{
-            date: getCurrentDateTimeString(),
-            facilityId: facility.id,
-            clinicianId: currentUser.id,
-            ...patientProgramRegistration,
-          }}
-          validationSchema={yup.object().shape({
-            clinicalStatusId: optionalForeignKey(),
-            date: yup.date().required('Date of registration must be selected'),
-            clinicianId: foreignKey().required('Registered by must be selected'),
-            facilityId: foreignKey().required('Registering facility must be selected'),
-            conditions: yup.array().of(yup.string()),
-          })}
-        />
-      </Modal>
-    );
-  },
-);
-
-ActivatePatientProgramRegistry.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  patientProgramRegistration: PropTypes.shape({ id: PropTypes.string }).isRequired,
-  open: PropTypes.bool.isRequired,
+                <FormGrid style={{ gridColumn: 'span 2' }}>
+                  <Field
+                    name="facilityId"
+                    label="Registering facility"
+                    component={AutocompleteField}
+                    suggester={registeringFacilitySuggester}
+                    required
+                  />
+                  <Field
+                    name="clinicalStatusId"
+                    label="Status"
+                    component={AutocompleteField}
+                    suggester={programRegistryStatusSuggester}
+                  />
+                </FormGrid>
+                <ConfirmCancelRow
+                  onSubmit={onClose}
+                  onConfirm={submitForm}
+                  confirmText="Activate"
+                />
+              </FormGrid>
+            </div>
+          );
+        }}
+        initialValues={{
+          date: getCurrentDateTimeString(),
+          facilityId: facility.id,
+          clinicianId: currentUser.id,
+          ...patientProgramRegistration,
+        }}
+        validationSchema={yup.object().shape({
+          clinicalStatusId: optionalForeignKey(),
+          date: yup.date().required('Date of registration must be selected'),
+          clinicianId: foreignKey().required('Registered by must be selected'),
+          facilityId: foreignKey().required('Registering facility must be selected'),
+        })}
+      />
+    </Modal>
+  );
 };

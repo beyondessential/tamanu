@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
+import { useQuery } from '@tanstack/react-query';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { useApi } from 'desktop/app/api';
 import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
@@ -35,20 +36,18 @@ const StyledFormGrid = styled(FormGrid)`
 export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistration }) => {
   const api = useApi();
   const { navigateToProgramRegistrySurvey } = usePatientNavigation();
-  const [surveys, setSurveys] = useState([]);
-  useEffect(() => {
-    (async () => {
-      const { data } = await api.get(
-        `program/${patientProgramRegistration.programRegistry.program.id}/surveys`,
-      );
-      setSurveys(
-        data
-          .filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS)
-          .map(x => ({ value: x.id, label: x.name })),
-      );
-    })();
-    // eslint-disable-next-line
-  }, []);
+
+  const { data: surveys } = useQuery(
+    ['programSurveys', patientProgramRegistration.programRegistry.programId],
+    () =>
+      api
+        .get(`program/${patientProgramRegistration.programRegistry.programId}/surveys`)
+        .then(response => {
+          return response.data
+            .filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS)
+            .map(x => ({ value: x.id, label: x.name }));
+        }),
+  );
 
   return (
     <DisplayContainer>

@@ -34,6 +34,7 @@ const StatusBadge = styled.div`
 export const ProgramRegistryTable = ({ searchParameters }) => {
   const params = useParams();
   const [openModal, setOpenModal] = useState();
+  const [refreshCount, setRefreshCount] = useState(0);
   const columns = useMemo(() => {
     return [
       {
@@ -85,8 +86,10 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       {
         key: 'conditions',
         title: 'Conditions',
-        accessor: ({ conditions = [] }) => {
-          const conditionsText = conditions.map(x => ` ${x.name}`).toString();
+        accessor: ({ conditions }) => {
+          const conditionsText = Array.isArray(conditions)
+            ? conditions.map(x => ` ${x}`).toString()
+            : '';
           return (
             <ConditionalTooltip title={conditionsText} visible={conditionsText.length > 30}>
               <ClippedConditionName>{conditionsText}</ClippedConditionName>
@@ -114,6 +117,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         accessor: row => {
           return (
             <MenuButton
+              onClick={() => {}}
               actions={{
                 'Change status': () => setOpenModal({ action: 'ChangeStatus', data: row }),
                 Remove: () => setOpenModal({ action: 'Remove', data: row }),
@@ -123,23 +127,29 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           );
         },
         sortable: false,
+        dontCallRowInput: true,
       },
     ];
   }, []);
 
   const dispatch = useDispatch();
   const selectRegistration = async registration => {
-    const { patientId } = registration;
-    if (patientId) {
-      await dispatch(reloadPatient(patientId));
+    const { patient, programRegistry } = registration;
+    if (patient.id) {
+      await dispatch(reloadPatient(patient.id));
     }
-    dispatch(push(`/patients/all/${patientId}/program-registry/${params.programRegistryId}`));
+    dispatch(
+      push(
+        `/patients/all/${patient.id}/program-registry/${params.programRegistryId}?title=${programRegistry.name}`,
+      ),
+    );
   };
 
   return (
     <>
       <SearchTable
         autoRefresh
+        refreshCount
         endpoint={`programRegistry/${params.programRegistryId}/registrations`}
         columns={columns}
         noDataMessage="No Program registry found"
@@ -153,30 +163,33 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           orderBy: 'displayId',
         }}
       />
-      {openModal && openModal.data && openModal.action === 'ChangeStatus' && (
-        <ChangeStatusFormModal
-          patientProgramRegistration={openModal.data}
-          onSubmit={() => {}}
-          onCancel={() => setOpenModal(undefined)}
-          open
-        />
-      )}
-      {openModal && openModal.data && openModal.action === 'Remove' && (
-        <DeleteProgramRegistryFormModal
-          programRegistry={openModal.data}
-          onSubmit={() => {}}
-          onCancel={() => setOpenModal(undefined)}
-          open
-        />
-      )}
-      {openModal && openModal.data && openModal.action === 'Delete' && (
-        <RemoveProgramRegistryFormModal
-          patientProgramRegistration={openModal.data}
-          onSubmit={() => {}}
-          onCancel={() => setOpenModal(undefined)}
-          open
-        />
-      )}
+
+      <ChangeStatusFormModal
+        patientProgramRegistration={openModal?.data}
+        onClose={() => {
+          setRefreshCount(refreshCount + 1);
+          setOpenModal(undefined);
+        }}
+        open={openModal && openModal?.data && openModal?.action === 'ChangeStatus'}
+      />
+
+      <RemoveProgramRegistryFormModal
+        patientProgramRegistration={openModal?.data}
+        onClose={() => {
+          setRefreshCount(refreshCount + 1);
+          setOpenModal(undefined);
+        }}
+        open={openModal && openModal?.data && openModal?.action === 'Remove'}
+      />
+
+      <DeleteProgramRegistryFormModal
+        patientProgramRegistration={openModal?.data}
+        onClose={() => {
+          setRefreshCount(refreshCount + 1);
+          setOpenModal(undefined);
+        }}
+        open={openModal && openModal?.data && openModal?.action === 'Delete'}
+      />
     </>
   );
 };

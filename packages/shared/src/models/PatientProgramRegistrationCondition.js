@@ -55,6 +55,10 @@ export class PatientProgramRegistrationCondition extends Model {
     });
   }
 
+  static getFullReferenceAssociations() {
+    return ['programRegistryCondition'];
+  }
+
   // syncs everywhere because for the pilot program,
   // the number of patients is guaranteed to be low.
   // https://github.com/beyondessential/tamanu/pull/4773#discussion_r1356087015

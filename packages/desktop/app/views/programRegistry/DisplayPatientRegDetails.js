@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useQueryClient } from '@tanstack/react-query';
 import { Avatar } from '@material-ui/core';
 import { STATUS_COLOR } from '@tamanu/constants';
 import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants/index';
@@ -12,7 +11,6 @@ import { ActivatePatientProgramRegistry } from './ActivatePatientProgramRegistry
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import { OutlinedButton } from '../../components';
-import { useApi } from '../../api';
 
 const DisplayContainer = styled.div`
   display: flex;
@@ -97,8 +95,6 @@ const ValueDisplay = ({ label, value }) => (
 );
 
 export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
-  const api = useApi();
-  const queryClient = useQueryClient();
   const [openChangeStatusFormModal, setOpenChangeStatusFormModal] = useState(false);
   const [openDeleteProgramRegistryFormModal, setOpenDeleteProgramRegistryFormModal] = useState(
     false,
@@ -112,17 +108,9 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
 
   const isRemoved =
     patientProgramRegistration.registrationStatus === PROGRAM_REGISTRATION_STATUSES.REMOVED;
+  const isDeleted =
+    patientProgramRegistration.registrationStatus === PROGRAM_REGISTRATION_STATUSES.DELETED;
 
-  const changeStatus = async changedStatus => {
-    const { id, ...rest } = patientProgramRegistration;
-    await api.post(
-      `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
-      { ...rest, ...changedStatus },
-    );
-
-    queryClient.invalidateQueries([`infoPaneListItem-Program Registry`]);
-    setOpenChangeStatusFormModal(false);
-  };
   return (
     <DisplayContainer>
       <LogoContainer>
@@ -131,7 +119,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
       <LabelContainer>
         <ValueDisplay
           label="Date of registration"
-          value={<DateDisplay date={patientProgramRegistration.date} />}
+          value={<DateDisplay date={patientProgramRegistration.createdAt} />}
         />
         <ValueDisplay
           label="Registered by"
@@ -142,11 +130,11 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
         <StatusContainer>
           <ValueDisplay
             label="Date removed"
-            value={<DateDisplay date={patientProgramRegistration.dateRemoved} />}
+            value={<DateDisplay date={patientProgramRegistration.date} />}
           />
           <ValueDisplay
             label="Removed by"
-            value={patientProgramRegistration.removedBy.displayName}
+            value={patientProgramRegistration.clinician.displayName}
           />
         </StatusContainer>
       )}
@@ -168,16 +156,15 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
         </OutlinedButton>
         <ChangeStatusFormModal
           patientProgramRegistration={patientProgramRegistration}
-          onSubmit={changeStatus}
-          onCancel={() => setOpenChangeStatusFormModal(false)}
           open={openChangeStatusFormModal}
+          onClose={() => setOpenChangeStatusFormModal(false)}
         />
       </ChangeStatusContainer>
       <MenuContainer>
         <div className="menu">
           <MenuButton
             actions={
-              isRemoved
+              isRemoved || isDeleted
                 ? {
                     Activate: () => setOpenActivateProgramRegistryFormModal(true),
                     Delete: () => setOpenDeleteProgramRegistryFormModal(true),
@@ -193,32 +180,17 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
       <ActivatePatientProgramRegistry
         open={openActivateProgramRegistryFormModal}
         patientProgramRegistration={patientProgramRegistration}
-        onSubmit={() => {
-          setOpenActivateProgramRegistryFormModal(false);
-        }}
-        onCancel={() => {
-          setOpenActivateProgramRegistryFormModal(false);
-        }}
+        onClose={() => setOpenActivateProgramRegistryFormModal(false)}
       />
       <RemoveProgramRegistryFormModal
         open={openRemoveProgramRegistryFormModal}
         patientProgramRegistration={patientProgramRegistration}
-        onSubmit={() => {
-          setOpenRemoveProgramRegistryFormModal(false);
-        }}
-        onCancel={() => {
-          setOpenRemoveProgramRegistryFormModal(false);
-        }}
+        onClose={() => setOpenRemoveProgramRegistryFormModal(false)}
       />
       <DeleteProgramRegistryFormModal
         open={openDeleteProgramRegistryFormModal}
-        programRegistry={patientProgramRegistration}
-        onSubmit={() => {
-          setOpenDeleteProgramRegistryFormModal(false);
-        }}
-        onCancel={() => {
-          setOpenDeleteProgramRegistryFormModal(false);
-        }}
+        patientProgramRegistration={patientProgramRegistration}
+        onClose={() => setOpenDeleteProgramRegistryFormModal(false)}
       />
     </DisplayContainer>
   );

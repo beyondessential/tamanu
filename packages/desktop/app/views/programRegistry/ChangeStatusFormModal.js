@@ -1,6 +1,7 @@
 import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Modal,
   ConfirmCancelRow,
@@ -10,7 +11,7 @@ import {
   AutocompleteField,
   Field,
 } from '../../components';
-import { useSuggester } from '../../api';
+import { useApi, useSuggester } from '../../api';
 import { foreignKey } from '../../utils/validation';
 
 const StyledFormGrid = styled(FormGrid)`
@@ -21,15 +22,30 @@ const StyledFormGrid = styled(FormGrid)`
   margin-top: 30px;
 `;
 
-export const ChangeStatusFormModal = ({ patientProgramRegistration, onSubmit, onCancel, open }) => {
+export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, open }) => {
+  const api = useApi();
+  const queryClient = useQueryClient();
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
     baseQueryParameters: { programRegistryId: patientProgramRegistration.programRegistryId },
   });
+
+  if (!patientProgramRegistration) return <></>;
+
+  const changeStatus = async changedStatus => {
+    const { id, date, ...rest } = patientProgramRegistration;
+    await api.post(
+      `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
+      { ...rest, ...changedStatus },
+    );
+
+    queryClient.invalidateQueries([`infoPaneListItem-Program Registry`]);
+    onClose();
+  };
   return (
     <>
-      <Modal title="Change Status" open={open} onClose={() => onCancel()}>
+      <Modal title="Change Status" open={open} onClose={onClose}>
         <Form
-          onSubmit={onSubmit}
+          onSubmit={changeStatus}
           render={({ submitForm }) => {
             return (
               <div>
@@ -42,7 +58,7 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onSubmit, on
                   />
                 </StyledFormGrid>
                 <FormSeparatorLine style={{ marginTop: '60px', marginBottom: '30px' }} />
-                <ConfirmCancelRow onConfirm={submitForm} onCancel={() => onCancel()} />
+                <ConfirmCancelRow onConfirm={submitForm} onCancel={onClose} />
               </div>
             );
           }}

@@ -32,7 +32,7 @@ const StatusBadge = styled.div`
 export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => {
   const { data, isLoading } = useProgramRegistryClinicalStatus(
     patientProgramRegistration.patientId,
-    patientProgramRegistration.id,
+    patientProgramRegistration.programRegistryId,
     {
       orderBy: 'date',
       order: 'asc',
