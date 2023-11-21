@@ -1,9 +1,19 @@
-import { Op, Sequelize } from 'sequelize';
-import moment from 'moment';
+import { Sequelize, Op } from 'sequelize';
 import { FHIR_SEARCH_PARAMETERS } from '@tamanu/constants';
 import { jsonFromBase64, jsonToBase64 } from '@tamanu/shared/utils/encodings';
 import { InvalidParameterError } from '@tamanu/shared/errors';
 import { toDateString } from '@tamanu/shared/utils/dateTime';
+import {
+  endOfDay,
+  endOfMonth,
+  endOfYear,
+  parseISO,
+  startOfDay,
+  startOfMonth,
+  startOfYear,
+  isMatch,
+} from 'date-fns';
+import { zonedTimeToUtc } from 'date-fns-tz';
 
 export function toSearchId({ after, ...params }) {
   const result = { ...params };
@@ -51,14 +61,7 @@ export function getQueryObject(columnName, value, operator, modifier, parameterT
 
   // Dates with eq modifier or no modifier should be looked up as a range
   if (parameterType === FHIR_SEARCH_PARAMETERS.DATE && ['eq', undefined].includes(modifier)) {
-    // Create and return range
-    const timeUnit = getSmallestTimeUnit(value);
-    const startDate = parseHL7Date(value)
-      .startOf(timeUnit)
-      .toDate();
-    const endDate = parseHL7Date(value)
-      .endOf(timeUnit)
-      .toDate();
+    const [startDate, endDate] = getHL7DateRange(value);
 
     if (['date_of_birth', 'date_of_death'].includes(columnName)) {
       return { [operator]: [toDateString(startDate), toDateString(endDate)] };
@@ -70,28 +73,35 @@ export function getQueryObject(columnName, value, operator, modifier, parameterT
   return { [operator]: value };
 }
 
-// The date string will be parsed in UTC and return a moment
-export function parseHL7Date(dateString) {
+function getHL7DateRange(dateString) {
+  if (!isValidHl7Date(dateString)) return null;
+  const [startOf, endOf] = getStartEndOfFns(dateString);
+  return [
+    zonedTimeToUtc(startOf(parseISO(dateString)), 'UTC'),
+    zonedTimeToUtc(endOf(parseISO(dateString)), 'UTC'),
+  ];
+}
+
+export function isValidHl7Date(dateString) {
   // Only these formats should be valid for a date in HL7 FHIR:
   // https://www.hl7.org/fhir/datatypes.html#date
-  return moment.utc(dateString, ['YYYY', 'YYYY-MM', 'YYYY-MM-DD'], true);
+  return ['yyyy', 'yyyy-MM', 'yyyy-MM-dd'].some(format => isMatch(dateString, format));
 }
 
 // Returns the smallest time unit used on the date string format.
 // Only supports HL7 formats.
-export function getSmallestTimeUnit(dateString) {
+export function getStartEndOfFns(dateString) {
   switch (dateString.length) {
     case 4:
-      return 'year';
+      return [startOfYear, endOfYear];
     case 7:
-      return 'month';
+      return [startOfMonth, endOfMonth];
     case 10:
-      return 'day';
+      return [startOfDay, endOfDay];
     default:
       throw new InvalidParameterError(`Invalid date/time format: ${dateString}`);
   }
 }
-
 /*
   References can have three different formats:
   - id
