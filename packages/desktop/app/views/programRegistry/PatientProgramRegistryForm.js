@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
+import { useQuery } from '@tanstack/react-query';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { useQuery } from '@tanstack/react-query';
 import {
   Form,
   FieldWithTooltip,
