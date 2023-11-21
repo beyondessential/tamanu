@@ -75,7 +75,11 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                 variant="contained"
                 style={{ height: '44px' }}
                 onClick={() => {
-                  navigateToProgramRegistrySurvey(patientProgramRegistration.id, values.surveyId);
+                  navigateToProgramRegistrySurvey(
+                    patientProgramRegistration.programRegistryId,
+                    values.surveyId,
+                    patientProgramRegistration.programRegistry.name,
+                  );
                 }}
                 disabled={
                   patientProgramRegistration.registrationStatus ===

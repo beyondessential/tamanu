@@ -78,7 +78,10 @@ const AddConditionButton = styled.button`
 
 export const ConditionSection = ({ patientProgramRegistration }) => {
   // const api = useApi();
-  const { data, isLoading } = usePatientProgramRegistryConditions(patientProgramRegistration.id);
+  const { data, isLoading } = usePatientProgramRegistryConditions(
+    patientProgramRegistration.patientId,
+    patientProgramRegistration.id,
+  );
   const [conditionToRemove, setConditionToRemove] = useState();
   const [openAddCondition, setOpenAddCondition] = useState(false);
 
@@ -101,18 +104,19 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
           </AddConditionButton>
         </ConditionalTooltip>
       </HeadingContainer>
-      {data.map(x => (
-        <ConditionContainer key={x.id}>
-          <ConditionalTooltip title={x.name} visible={x.name.length > 30}>
-            <ClippedConditionName>{x.name}</ClippedConditionName>
-          </ConditionalTooltip>
-          <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
-            <IconButton disabled style={{ padding: 0 }} onClick={() => setConditionToRemove(x)}>
-              <CloseIcon style={{ fontSize: '14px' }} />
-            </IconButton>
-          </ConditionalTooltip>
-        </ConditionContainer>
-      ))}
+      {data &&
+        data.map(x => (
+          <ConditionContainer key={x.id}>
+            <ConditionalTooltip title={x.name} visible={x.name.length > 30}>
+              <ClippedConditionName>{x.name}</ClippedConditionName>
+            </ConditionalTooltip>
+            <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
+              <IconButton disabled style={{ padding: 0 }} onClick={() => setConditionToRemove(x)}>
+                <CloseIcon style={{ fontSize: '14px' }} />
+              </IconButton>
+            </ConditionalTooltip>
+          </ConditionContainer>
+        ))}
       {openAddCondition && (
         <AddConditionFormModal
           onSubmit={() => setOpenAddCondition(false)}

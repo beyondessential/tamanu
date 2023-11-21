@@ -39,6 +39,21 @@ export class PatientProgramRegistration extends Model {
     );
   }
 
+  static getFullReferenceAssociations() {
+    return [
+      'programRegistry',
+      'clinicalStatus',
+      'clinician',
+      'registeringFacility',
+      'facility',
+      'village',
+    ];
+  }
+
+  static getListReferenceAssociations() {
+    return ['clinicalStatus', 'clinician'];
+  }
+
   static initRelations(models) {
     this.belongsTo(models.Patient, {
       foreignKey: { name: 'patientId', allowNull: false },
