@@ -4,7 +4,7 @@ export async function up(query) {
   await query.createTable('ips_requests', {
     id: {
       type: Sequelize.STRING,
-      defaultValue: Sequelize.UUIDV4,
+      defaultValue: Sequelize.fn('uuid_generate_v4'),
       allowNull: false,
       primaryKey: true,
     },

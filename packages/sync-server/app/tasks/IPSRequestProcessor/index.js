@@ -21,7 +21,6 @@ export class IPSRequestProcessor extends ScheduledTask {
     super(conf.schedule, log);
     this.config = conf;
     this.context = context;
-    // this.subtasks = [new LabRequestNotificationGenerator(context)];
   }
 
   getName() {
@@ -119,7 +118,7 @@ export class IPSRequestProcessor extends ScheduledTask {
 
         const baseUrl = `${s3PublicUrl}/${viewerBucketPath}`;
 
-        const fullUrl = `${baseUrl}?payload=${btoa(payload)}`;
+        const fullUrl = `${baseUrl}?payload=${btoa(JSON.stringify(payload))}`;
 
         // GENERATE QR
 

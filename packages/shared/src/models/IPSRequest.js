@@ -24,5 +24,9 @@ export class IPSRequest extends Model {
       foreignKey: 'patientId',
       as: 'patient',
     });
+    this.belongsTo(models.User, {
+      foreignKey: 'createdBy',
+      as: 'createdByUser',
+    });
   }
 }
