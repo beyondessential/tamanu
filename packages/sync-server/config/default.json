@@ -987,7 +987,9 @@
     "ips": {
       "region": "ap-southeast-2",
       "bucketName": "bes-tamanu-ips-public",
-      "bucketPath": "ips-demo"
+      "jsonBucketPath": "ips-demo",
+      "viewerBucketPath": "viewer",
+      "publicUrl": "https://public.tamanu.io"
     }
   },
   "scheduledReports": [],
