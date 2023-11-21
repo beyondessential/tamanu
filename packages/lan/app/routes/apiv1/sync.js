@@ -3,6 +3,14 @@ import asyncHandler from 'express-async-handler';
 
 export const sync = express.Router();
 
+function resultToMessage({ enabled, queued, ran, timedOut }) {
+  if (timedOut) return 'Sync timed out (this is normal for large syncs)';
+  if (!enabled) return "Sync was disabled and didn't run";
+  if (ran) return 'Sync completed';
+  if (queued) return 'Sync queued and will run later';
+  throw new Error('Unknown sync status');
+}
+
 sync.post(
   '/run',
   asyncHandler(async (req, res) => {
@@ -10,31 +18,22 @@ sync.post(
 
     req.flagPermissionChecked(); // no particular permission check for triggering a sync
 
-    if (syncManager.isSyncRunning()) {
-      res.send({ message: 'Sync already underway' });
-      return;
-    }
-
-    const completeSync = async () => {
-      await syncManager.triggerSync({
+    const completeSync = () =>
+      syncManager.triggerSync({
         urgent: true,
         type: 'userRequested',
         userId: user.id,
         userEmail: user.email,
       });
-      return 'Completed sync';
-    };
 
     const timeoutAfter = seconds =>
       new Promise(resolve => {
-        setTimeout(
-          () => resolve('Sync is taking a while, continuing in the background...'),
-          seconds * 1000,
-        );
+        setTimeout(() => resolve({ timedOut: true }), seconds * 1000);
       });
 
-    const message = await Promise.race([completeSync(), timeoutAfter(10)]);
+    const result = await Promise.race([completeSync(), timeoutAfter(10)]);
+    const message = resultToMessage(result);
 
-    res.send({ message });
+    res.send({ message, result });
   }),
 );

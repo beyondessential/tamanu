@@ -61,13 +61,13 @@ export class FacilitySyncManager {
   async triggerSync(reason) {
     if (!this.constructor.config.sync.enabled) {
       log.warn('FacilitySyncManager.triggerSync: sync is disabled');
-      return;
+      return { enabled: false };
     }
 
     // if there's an existing sync, just wait for that sync run
     if (this.syncPromise) {
-      await this.syncPromise;
-      return;
+      const result = await this.syncPromise;
+      return { enabled: true, ...result };
     }
 
     // set up a common sync promise to avoid double sync
@@ -76,7 +76,8 @@ export class FacilitySyncManager {
 
     // make sure sync promise gets cleared when finished, even if there's an error
     try {
-      await this.syncPromise;
+      const result = await this.syncPromise;
+      return { enabled: true, ...result };
     } finally {
       this.syncPromise = null;
       this.reason = null;
@@ -107,7 +108,7 @@ export class FacilitySyncManager {
     if (!sessionId) {
       // we're queued
       log.info('FacilitySyncManager.wasQueued', { status });
-      return;
+      return { queued: true, ran: false };
     }
 
     log.info('FacilitySyncManager.startSession');
@@ -134,6 +135,7 @@ export class FacilitySyncManager {
 
     // clear temp data stored for persist
     await dropSnapshotTable(this.sequelize, sessionId);
+    return { queued: false, ran: true };
   }
 
   async pushChanges(sessionId, newSyncClockTime) {
