@@ -11,7 +11,11 @@ import { PatientProgramRegistryDetails } from '../screens/patientProgramRegistry
 import { PatientProgramRegistryRegistrationStatus } from '../screens/patientProgramRegistry/PatientProgramRegistryRegistrationStatus';
 
 const Stack = createStackNavigator();
-const PatientProgramRegistryDetails_ = ({ navigation, selectedPatient, route }: BaseAppProps) => {
+const PatientProgramRegistryDetailsComponent = ({
+  navigation,
+  selectedPatient,
+  route,
+}: BaseAppProps) => {
   const { patientProgramRegistry } = route.params;
 
   return (
@@ -39,5 +43,5 @@ const PatientProgramRegistryDetails_ = ({ navigation, selectedPatient, route }: 
 };
 
 export const PatientProgramRegistryDetailsStack = compose(withPatient)(
-  PatientProgramRegistryDetails_,
+  PatientProgramRegistryDetailsComponent,
 );

@@ -11,7 +11,7 @@ export const StatusContainer = styled.View`
   align-items: baseline;
 `;
 
-export const PatientProgramRegistryRegistrationStatus = (props: { registrationStatus: string }) => {
+export const PatientProgramRegistryRegistrationStatus = ({ registrationStatus }) => {
   return (
     <StatusContainer>
       <StyledView
@@ -19,13 +19,13 @@ export const PatientProgramRegistryRegistrationStatus = (props: { registrationSt
         height={7}
         width={7}
         background={
-          props.registrationStatus === 'active' ? theme.colors.SAFE : theme.colors.DISABLED_GREY
+          registrationStatus === 'active' ? theme.colors.SAFE : theme.colors.DISABLED_GREY
         }
         marginTop={10}
         marginRight={15}
       />
       <StyledText fontSize={16} fontWeight={500} style={{ textTransform: 'capitalize' }}>
-        {props.registrationStatus}
+        {registrationStatus}
       </StyledText>
     </StatusContainer>
   );
