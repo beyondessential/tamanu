@@ -118,7 +118,7 @@ export class IPSRequestProcessor extends ScheduledTask {
 
         const baseUrl = `${s3PublicUrl}/${viewerBucketPath}`;
 
-        const fullUrl = `${baseUrl}?payload=${btoa(JSON.stringify(payload))}`;
+        const fullUrl = `${baseUrl}#shlink:/${btoa(JSON.stringify(payload))}`;
 
         // GENERATE QR
 
