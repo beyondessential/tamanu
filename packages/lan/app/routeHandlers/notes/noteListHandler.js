@@ -39,7 +39,8 @@ export const noteListHandler = recordType =>
       },
     ];
 
-    const idRows = await models.Note.sequelize.query(`
+    const idRows = await models.Note.sequelize.query(
+      `
       WITH
 
       -- first create a sub-table with only the notes for this record.
@@ -58,13 +59,16 @@ export const noteListHandler = recordType =>
         id
       FROM this_record_notes n
       ORDER BY edit_chain, date DESC
-    `, {
-      type: QueryTypes.SELECT,
-      replacements: {
-        recordType, recordId, 
-      }
-    });
-  
+    `,
+      {
+        type: QueryTypes.SELECT,
+        replacements: {
+          recordType,
+          recordId,
+        },
+      },
+    );
+
     // any other filtering should happen after the edits have been determined
     // (if we do it all in the same step, we risk including earlier versions of
     // a record that was excluded later, which we absolutely do not want)
@@ -104,7 +108,7 @@ export const noteListHandler = recordType =>
     const totalCount = await models.Note.count({
       where,
     });
-    
+
     res.send({ data: rows, count: totalCount });
   });
 
