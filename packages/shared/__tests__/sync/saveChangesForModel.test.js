@@ -51,7 +51,7 @@ describe('saveChangesForModel', () => {
       expect(newRecordInDb.text).toEqual(newRecord.text);
     });
 
-    it('should create new records even if they are soft undeleted', async () => {
+    it('should create new records even if they are soft deleted', async () => {
       // setup test data
       const newRecord = { id: 'new_record_id', text: 'new_record_name' }; // does not pass down deletedAt from central
       const isDeleted = true;
