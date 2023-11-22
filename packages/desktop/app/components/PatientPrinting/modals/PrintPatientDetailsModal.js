@@ -12,6 +12,7 @@ import { PatientStickerLabelPage } from './PatientStickerLabelPage';
 import { CovidTestCertificateModal } from './CovidTestCertificateModal';
 import { CovidClearanceCertificateModal } from './CovidClearanceCertificateModal';
 import { BirthNotificationCertificateModal } from './BirthNotificationCertificateModal';
+import { IPSQRCodeModal } from './IPSQRCodeModal';
 
 const PRINT_OPTIONS = {
   barcode: {
@@ -34,6 +35,10 @@ const PRINT_OPTIONS = {
   birthNotification: {
     label: 'Birth notification',
     component: BirthNotificationCertificateModal,
+  },
+  ipsQrCode: {
+    label: 'International Patient Summary',
+    component: IPSQRCodeModal,
   },
 };
 
