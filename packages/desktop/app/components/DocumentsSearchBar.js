@@ -3,10 +3,15 @@ import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 
-import { Form, Field, SearchField } from './Field';
+import { Form, Field, SearchField, DynamicSelectField } from './Field';
 import { FormGrid } from './FormGrid';
 import { LargeSubmitButton, LargeOutlinedSubmitButton } from './Button';
 import { Colors } from '../constants';
+
+const OPTIONS = [
+  { value: 'pdf', label: 'PDF' },
+  { value: 'jpeg', label: 'JPEG' },
+];
 
 const Container = styled.div`
   padding: 2rem;
@@ -29,10 +34,16 @@ const HeaderBar = styled.div`
   }
 `;
 
-const renderSearchBar = ({ submitForm, clearForm }) => (
+const renderSearchBar = ({ submitForm, clearForm, suggester }) => (
   <>
     <FormGrid columns={3}>
-      <Field name="type" label="Type" component={SearchField} />
+      <Field
+        name="type"
+        label="Type"
+        component={DynamicSelectField}
+        options={OPTIONS}
+        suggester={suggester}
+      />
       <Field name="documentOwner" label="Owner" component={SearchField} />
       <Field name="departmentName" label="Department" component={SearchField} />
     </FormGrid>
@@ -47,11 +58,16 @@ const renderSearchBar = ({ submitForm, clearForm }) => (
   </>
 );
 
-export const DocumentsSearchBar = ({ setSearchParameters }) => (
-  <Container>
-    <HeaderBar>
-      <Typography variant="h3">Documents search</Typography>
-    </HeaderBar>
-    <Form onSubmit={values => setSearchParameters(values)} render={renderSearchBar} />
-  </Container>
-);
+export const DocumentsSearchBar = ({ setSearchParameters }) => {
+  return (
+    <Container>
+      <HeaderBar>
+        <Typography variant="h3">Documents search</Typography>
+      </HeaderBar>
+      <Form
+        onSubmit={values => setSearchParameters(values)}
+        render={props => renderSearchBar({ ...props })}
+      />
+    </Container>
+  );
+};
