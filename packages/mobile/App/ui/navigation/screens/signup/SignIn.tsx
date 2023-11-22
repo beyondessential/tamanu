@@ -56,6 +56,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   const { getLocalisation } = useLocalisation();
 
   const supportCentreUrl = getLocalisation('supportDeskUrl');
+  const isSupportUrlLoaded = !!supportCentreUrl;
 
   return (
     <FullView background={theme.colors.PRIMARY_MAIN}>
@@ -149,22 +150,26 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
           justifyContent="flex-end"
           marginRight={screenPercentageToDP('2.43', Orientation.Width)}
         >
-          <StyledTouchableOpacity onPress={(): Promise<void> => Linking.openURL(supportCentreUrl)}>
-            <RowView alignItems="center">
-              <StyledText
-                fontSize={screenPercentageToDP('1.28', Orientation.Height)}
-                color={theme.colors.WHITE}
-                textDecorationLine="underline"
-              >
-                Support centre
-              </StyledText>
-              <LaunchIcon
-                size={screenPercentageToDP('1.57', Orientation.Height)}
-                color={theme.colors.WHITE}
-                style={{ marginLeft: screenPercentageToDP('0.72', Orientation.Width) }}
-              />
-            </RowView>
-          </StyledTouchableOpacity>
+          {isSupportUrlLoaded && (
+            <StyledTouchableOpacity
+              onPress={(): Promise<void> => Linking.openURL(supportCentreUrl)}
+            >
+              <RowView alignItems="center">
+                <StyledText
+                  fontSize={screenPercentageToDP('1.28', Orientation.Height)}
+                  color={theme.colors.WHITE}
+                  textDecorationLine="underline"
+                >
+                  Support centre
+                </StyledText>
+                <LaunchIcon
+                  size={screenPercentageToDP('1.57', Orientation.Height)}
+                  color={theme.colors.WHITE}
+                  style={{ marginLeft: screenPercentageToDP('0.72', Orientation.Width) }}
+                />
+              </RowView>
+            </StyledTouchableOpacity>
+          )}
         </RowView>
       </StyledSafeAreaView>
     </FullView>
