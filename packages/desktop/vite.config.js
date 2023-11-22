@@ -6,6 +6,5 @@ export default defineConfig({
   esbuild: {
     loader: 'jsx',
   },
-  plugins: [react({
-  })],
+  plugins: [react()],
 })

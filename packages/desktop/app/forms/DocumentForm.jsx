@@ -8,7 +8,6 @@ import { ForbiddenError } from '@tamanu/shared/errors';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { useApi } from '../api';
-import { useElectron } from '../contexts/Electron';
 import { Suggester } from '../utils/suggester';
 import { foreignKey } from '../utils/validation';
 import { Form, Field, TextField, AutocompleteField } from '../components/Field';
@@ -96,7 +95,6 @@ const DocumentFormContents = ({ submitForm, departmentSuggester, onCancel }) => 
 
 export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObject, endpoint }) => {
   const api = useApi();
-  const { getFileStatus } = useElectron();
   const [error, setError] = useState(false);
 
   const departmentSuggester = new Suggester(api, 'department', {
@@ -108,7 +106,8 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
       onStart();
 
       // Read and inject document creation date and type to metadata sent
-      const { birthtime } = await getFileStatus(file);
+      // const { birthtime } = await getFileStatus(file); // TODO(web)
+      const birthtime = new Date();
       const attachmentType = lookupMimeType(file);
 
       try {
@@ -131,7 +130,7 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
 
       onSubmit();
     },
-    [api, endpoint, getFileStatus, setError, onStart, onError, onSubmit],
+    [api, endpoint, setError, onStart, onError, onSubmit],
   );
 
   const renderForm = ({ submitForm }) => {
