@@ -7,8 +7,9 @@ import { Form, Field, SearchField, DynamicSelectField } from './Field';
 import { FormGrid } from './FormGrid';
 import { LargeSubmitButton, LargeOutlinedSubmitButton } from './Button';
 import { Colors } from '../constants';
+import { render } from 'react-dom';
 
-const OPTIONS = [
+const DOCUMENT_TYPE_OPTIONS = [
   { value: 'pdf', label: 'PDF' },
   { value: 'jpeg', label: 'JPEG' },
 ];
@@ -34,15 +35,14 @@ const HeaderBar = styled.div`
   }
 `;
 
-const renderSearchBar = ({ submitForm, clearForm, suggester }) => (
+const renderSearchBar = ({ submitForm, clearForm }) => (
   <>
     <FormGrid columns={3}>
       <Field
         name="type"
         label="Type"
         component={DynamicSelectField}
-        options={OPTIONS}
-        suggester={suggester}
+        options={DOCUMENT_TYPE_OPTIONS}
       />
       <Field name="documentOwner" label="Owner" component={SearchField} />
       <Field name="departmentName" label="Department" component={SearchField} />
@@ -64,10 +64,7 @@ export const DocumentsSearchBar = ({ setSearchParameters }) => {
       <HeaderBar>
         <Typography variant="h3">Documents search</Typography>
       </HeaderBar>
-      <Form
-        onSubmit={values => setSearchParameters(values)}
-        render={props => renderSearchBar({ ...props })}
-      />
+      <Form onSubmit={values => setSearchParameters(values)} render={renderSearchBar} />
     </Container>
   );
 };
