@@ -21,6 +21,7 @@ import {
   Form,
   RadioField,
   DateDisplay,
+  TextButton,
 } from '../../components';
 import { FormSubmitDropdownButton } from '../../components/DropdownButton';
 import { Colors } from '../../constants';
@@ -43,6 +44,20 @@ const DateRangeLabel = styled(Typography)`
 const EmailInputContainer = styled.div`
   margin-bottom: 30px;
   width: 60%;
+`;
+
+const AboutReportButton = styled(TextButton)`
+  text-decoration: underline;
+  font-size: 15px;
+  justify-content: start;
+  font-weight: normal;
+  color: ${Colors.darkText};
+  :hover {
+    font-weight: 500;
+    color: ${Colors.primary};
+    cursor: pointer;
+    text-decoration: underline;
+  }
 `;
 
 // adding an onValueChange hook to the report id field
@@ -248,6 +263,9 @@ export const ReportGeneratorForm = () => {
               component={RadioField}
               disabled={isDataSourceFieldDisabled}
             />
+          </FormGrid>
+          <FormGrid columns={2}>
+            <AboutReportButton>About report</AboutReportButton>
           </FormGrid>
           {parameters.length > 0 ? (
             <>
