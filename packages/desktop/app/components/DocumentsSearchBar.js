@@ -58,13 +58,11 @@ const renderSearchBar = ({ submitForm, clearForm }) => (
   </>
 );
 
-export const DocumentsSearchBar = ({ setSearchParameters }) => {
-  return (
-    <Container>
-      <HeaderBar>
-        <Typography variant="h3">Documents search</Typography>
-      </HeaderBar>
-      <Form onSubmit={values => setSearchParameters(values)} render={renderSearchBar} />
-    </Container>
-  );
-};
+export const DocumentsSearchBar = ({ setSearchParameters }) => (
+  <Container>
+    <HeaderBar>
+      <Typography variant="h3">Documents search</Typography>
+    </HeaderBar>
+    <Form onSubmit={values => setSearchParameters(values)} render={renderSearchBar} />
+  </Container>
+);
