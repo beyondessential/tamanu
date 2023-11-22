@@ -5,6 +5,7 @@ import React, {
   PropsWithChildren,
   ReactElement,
   useEffect,
+  useCallback,
 } from 'react';
 import { DevSettings } from 'react-native';
 import { useBackend } from '../hooks';
@@ -13,7 +14,7 @@ import { readConfig, writeConfig } from '~/services/config';
 interface TranslationContextData {
   debugMode: boolean;
   language: string;
-  languageOptions: { label: string, value: string }[];
+  languageOptions: { label: string; value: string }[];
   onChangeLanguage: (language: string) => void;
   getTranslation: (key: string) => string;
   fetchTranslations: () => void;
@@ -40,7 +41,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
     const languageOptionArray = await TranslatedString.getLanguageOptions();
     if (languageOptionArray.length > 0) setLanguageOptions(languageOptionArray);
 
-   // Initial check for language from localStorage (config). If none, set a default of english
+    // Initial check for language from localStorage (config). If none, set a default of english
     const storedLanguage = await readConfig(LANGUAGE_STORAGE_KEY);
     if (!storedLanguage) await writeConfig(LANGUAGE_STORAGE_KEY, DEFAULT_LANGUAGE);
     setLanguage(storedLanguage || DEFAULT_LANGUAGE);
@@ -48,20 +49,21 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
 
   useEffect(() => {
     initialiseLanguageState();
-  }, [])
+  }, []);
 
   const onChangeLanguage = async (languageCode: string) => {
     await writeConfig(LANGUAGE_STORAGE_KEY, languageCode);
     setLanguage(languageCode);
-  }
+  };
 
   if (__DEV__) {
     DevSettings.addMenuItem('Toggle translation highlighting', () => setIsDebugMode(!isDebugMode));
   }
 
-  const fetchTranslations = async (language: string = 'en') => {
-    const translations = await models.TranslatedString.getForLanguage(language);
-    setTranslations(translations);
+  const fetchTranslations = async () => {
+    // TODO: This is fetching translations from the previously set language, not the newly set language
+    const translationObject = await models.TranslatedString.getForLanguage(language);
+    setTranslations(translationObject);
   };
 
   useEffect(() => {
