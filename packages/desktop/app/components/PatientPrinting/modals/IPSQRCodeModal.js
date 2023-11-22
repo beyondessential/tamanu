@@ -1,30 +1,31 @@
 import React, { useState, useCallback } from 'react';
-import { useSelector } from 'react-redux';
+
 import { FormModal } from '../../FormModal';
 import { IPSQRCodeForm } from '../../../forms/IPSQRCodeForm';
-import { getCurrentUser } from '../../../store';
 import { useApi } from '../../../api';
+import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 
 export const IPSQRCodeModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
-  const currentUser = useSelector(getCurrentUser);
   const api = useApi();
+  const { navigateToPatient } = usePatientNavigation();
 
-  const createIPSNotification = useCallback(
-    data =>
-      api.post('ipsNotification', {
-        patientId: patient.id,
-        forwardAddress: data.email,
-        createdBy: currentUser.id,
-      }),
-    [api, patient.id, currentUser.id],
+  const createIPSRequest = useCallback(
+    async data => {
+      await api.post(`patient/${patient.id}/ipsRequest`, {
+        email: data.email,
+      });
+      setOpen(false);
+      navigateToPatient(patient.id);
+    },
+    [api, patient.id, navigateToPatient],
   );
 
   return (
-    <FormModal title="IPS QR Code" open={open} onClose={() => setOpen(false)}>
+    <FormModal title="International Patient Summary" open={open} onClose={() => setOpen(false)}>
       <IPSQRCodeForm
         patient={patient}
-        onSubmit={createIPSNotification}
+        onSubmit={createIPSRequest}
         onCancel={() => setOpen(false)}
       />
     </FormModal>

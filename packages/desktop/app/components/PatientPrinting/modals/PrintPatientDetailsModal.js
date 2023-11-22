@@ -37,7 +37,7 @@ const PRINT_OPTIONS = {
     component: BirthNotificationCertificateModal,
   },
   ipsQrCode: {
-    label: 'IPS QR Code',
+    label: 'International Patient Summary',
     component: IPSQRCodeModal,
   },
 };

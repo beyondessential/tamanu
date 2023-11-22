@@ -8,11 +8,27 @@ import { FormGrid } from '../components/FormGrid';
 import { DateDisplay } from '../components';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { PATIENT_TABS } from '../constants/patientPaths';
+import { Colors } from '../constants';
 
 const StyledPatientDetailsLink = styled.span`
   cursor: pointer;
   font-weight: bold;
   text-decoration: underline;
+`;
+
+const StyledDateOfBirthWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
+const StyledDateOfBirthContainer = styled.div`
+  padding: 10px 20px;
+  background-color: ${Colors.white};
+  border: 1px solid ${Colors.outline};
+`;
+
+const StyledDateOfBirthText = styled.span`
+  color: ${Colors.darkText};
 `;
 
 const IPSQRCodeFormComponent = ({ patient, onSubmit, onCancel }) => {
@@ -21,21 +37,25 @@ const IPSQRCodeFormComponent = ({ patient, onSubmit, onCancel }) => {
   return (
     <>
       <p>
-        You will be asked to enter the patients data of birth in order to log into the IPS portal.
-        Please ensure this is correct otherwise amend in the{' '}
+        You will be asked to enter the patient&apos;s data of birth in order to log into the IPS
+        portal. Please ensure this is correct otherwise amend in the{' '}
         <StyledPatientDetailsLink
           onClick={() => {
-            onCancel();
             navigateToPatient(patient.id, { tab: PATIENT_TABS.DETAILS });
+            onCancel();
           }}
         >
-          patients details
+          patient&apos;s details
         </StyledPatientDetailsLink>{' '}
         section.
       </p>
 
-      <span>Date of birth: </span>
-      <DateDisplay date={patient.dateOfBirth} />
+      <StyledDateOfBirthWrapper>
+        <StyledDateOfBirthContainer>
+          <StyledDateOfBirthText>Date of birth: </StyledDateOfBirthText>
+          <DateDisplay date={patient.dateOfBirth} fontWeight={500} />
+        </StyledDateOfBirthContainer>
+      </StyledDateOfBirthWrapper>
 
       <p>Enter the email address you would like the patient IPS QR code sent to.</p>
 
