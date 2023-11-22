@@ -175,10 +175,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
           <FormSeparatorLine />
           <OuterLabelFieldWrapper
             label={
-              <TranslatedText
-                stringId="encounter.vitals.form.history.label"
-                fallback="History"
-              />
+              <TranslatedText stringId="encounter.vitals.form.history.label" fallback="History" />
             }
             style={{ gridColumn: '1 / -1' }}
           >
