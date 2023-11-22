@@ -54,10 +54,6 @@ export function createApp({ sequelize, reportSchemaStores, models, syncManager, 
 
   app.use('/', routes);
 
-  // Serve the latest desktop in upgrade folder so that desktops with lower versions
-  // can perform auto upgrade when pointing to this endpoint
-  app.use('/upgrade', express.static(path.join(process.cwd(), 'upgrade')));
-
   // Dis-allow all other routes
   app.get('*', (req, res) => {
     res.status(404).end();
