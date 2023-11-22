@@ -7,7 +7,6 @@ import { Form, Field, SearchField, DynamicSelectField } from './Field';
 import { FormGrid } from './FormGrid';
 import { LargeSubmitButton, LargeOutlinedSubmitButton } from './Button';
 import { Colors } from '../constants';
-import { render } from 'react-dom';
 
 const DOCUMENT_TYPE_OPTIONS = [
   { value: 'pdf', label: 'PDF' },
