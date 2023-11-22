@@ -264,9 +264,11 @@ export const ReportGeneratorForm = () => {
               disabled={isDataSourceFieldDisabled}
             />
           </FormGrid>
-          <FormGrid columns={2}>
-            <AboutReportButton>About report</AboutReportButton>
-          </FormGrid>
+          {parameters.length > 0 ? (
+            <FormGrid columns={2}>
+              <AboutReportButton>{`About ${reportsById[selectedReportId].name}`}</AboutReportButton>
+            </FormGrid>
+          ) : null}
           {parameters.length > 0 ? (
             <>
               <Spacer />
