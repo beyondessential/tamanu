@@ -1,7 +1,4 @@
 {
-  "discovery": {
-    "protocol": "http"
-  },
   "sync": {
     "host": "http://localhost:3000",
     "email": "admin@tamanu.io",
