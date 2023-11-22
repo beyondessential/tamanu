@@ -1,8 +1,7 @@
-import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { persistStore } from 'redux-persist';
 
-import Root from './Root';
+import { renderRootInto } from './Root';
 import { API } from './api/singletons';
 import { registerYup } from './utils/errorMessages';
 import { initStore, restoreSession, authFailure, versionIncompatible } from './store';
@@ -53,7 +52,12 @@ function start() {
   const container = document.getElementById('root');
 
   const root = createRoot(container); // createRoot(container!) if you use TypeScript
-  root.render(<Root api={API} persistor={persistor} store={store} history={history} />);
+  renderRootInto(root, {
+    api: API,
+    persistor,
+    store,
+    history,
+  });
 }
 
 start();

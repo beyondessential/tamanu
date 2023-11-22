@@ -1,7 +1,5 @@
-import fs from 'fs';
-import { showFileDialog } from './dialog';
-
 export async function saveBlobAs(blob, { extensions, defaultFileName } = {}) {
+  return; // TODO(web)
   const path = await showFileDialog([{ extensions }], defaultFileName);
   if (!path) {
     // user cancelled

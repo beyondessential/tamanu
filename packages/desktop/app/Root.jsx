@@ -44,7 +44,7 @@ const queryClient = new QueryClient({
   },
 });
 
-export default function Root({ api, store, history }) {
+function Root({ api, store, history }) {
   return (
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
@@ -83,3 +83,7 @@ Root.propTypes = {
   store: PropTypes.instanceOf(Object).isRequired,
   history: PropTypes.instanceOf(Object).isRequired,
 };
+
+export function renderRootInto(root, props) {
+  root.render(<Root {...props} />);
+}

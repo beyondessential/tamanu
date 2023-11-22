@@ -2,7 +2,6 @@ import React, { useState, useCallback } from 'react';
 import { extension } from 'mime-types';
 
 import { useApi } from '../../../api';
-import { useElectron } from '../../../contexts/Electron';
 import { notify, notifySuccess, notifyError } from '../../../utils';
 
 import { DocumentPreviewModal } from '../../../components/DocumentPreview';
@@ -22,7 +21,7 @@ const MODAL_STATES = {
 
 export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const api = useApi();
-  const { showSaveDialog, openPath, writeFile } = useElectron();
+  // const { showSaveDialog, openPath, writeFile } = useElectron();
 
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
   const [searchParameters, setSearchParameters] = useState({});
@@ -38,7 +37,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const onDownload = useCallback(
     async document => {
       // Suggest a filename that matches the document name
-      const path = await showSaveDialog({ defaultPath: document.name });
+      const path = {canceled:true}; // await showSaveDialog({ defaultPath: document.name });
       if (path.canceled) return;
 
       try {
@@ -62,7 +61,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         notifyError(error.message);
       }
     },
-    [api, openPath, showSaveDialog, writeFile],
+    [api],
   );
 
   const onPrintPDF = useCallback(
