@@ -82,6 +82,8 @@ export const LoginView = () => {
   const [screen, setScreen] = useState('login');
 
   const supportUrl = getLocalisation('supportDeskUrl');
+  const isSupportUrlLoaded = !!supportUrl;
+  console.log(supportUrl);
 
   const submitLogin = async data => {
     const { host, email, password, rememberMe } = data;
@@ -140,10 +142,12 @@ export const LoginView = () => {
             onNavToResetPassword={() => setScreen('resetPassword')}
           />
         )}
-        <SupportDesktopLink href={supportUrl} target="_blank" rel="noreferrer">
-          Support centre
-          <Launch style={{ marginLeft: '3px', fontSize: '12px' }} />
-        </SupportDesktopLink>
+        {isSupportUrlLoaded && (
+          <SupportDesktopLink href={supportUrl} target="_blank" rel="noreferrer">
+            Support centre
+            <Launch style={{ marginLeft: '3px', fontSize: '12px' }} />
+          </SupportDesktopLink>
+        )}
       </LoginContainer>
     </Grid>
   );
