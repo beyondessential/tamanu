@@ -83,7 +83,6 @@ export const LoginView = () => {
 
   const supportUrl = getLocalisation('supportDeskUrl');
   const isSupportUrlLoaded = !!supportUrl;
-  console.log(supportUrl);
 
   const submitLogin = async data => {
     const { host, email, password, rememberMe } = data;
