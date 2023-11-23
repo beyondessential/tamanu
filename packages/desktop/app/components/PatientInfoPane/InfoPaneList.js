@@ -126,15 +126,6 @@ export const InfoPaneList = ({
   );
 
   const EditForm = CustomEditForm || InfoPaneAddEditForm;
-  // TODO: will be removed once api is integrated
-  // const _items = [
-  //   {
-  //     id: 'program_registry_id',
-  //     name: 'Seasonal fever',
-  //     status: 'Removed',
-  //     clinicalStatus: 'Needs review',
-  //   },
-  // ];
   return (
     <>
       {isIssuesPane && <PatientAlert alerts={warnings} />}

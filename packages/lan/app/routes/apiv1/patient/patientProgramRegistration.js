@@ -86,6 +86,57 @@ patientProgramRegistration.post(
   }),
 );
 
+patientProgramRegistration.get(
+  '/:patientId/programRegistration/:programRegistryId',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { patientId, programRegistryId } = params;
+    const { PatientProgramRegistration } = models;
+
+    req.checkPermission('read', 'PatientProgramRegistration', { patientId, programRegistryId });
+
+    const registration = await PatientProgramRegistration.findOne({
+      where: {
+        patientId,
+        programRegistryId,
+      },
+      include: PatientProgramRegistration.getFullReferenceAssociations(),
+      order: [['date', 'DESC']],
+    });
+
+    if (!registration) {
+      throw new NotFoundError();
+    }
+
+    res.send(registration);
+  }),
+);
+
+patientProgramRegistration.get(
+  '/:patientId/programRegistration/:programRegistryId/history$',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { patientId, programRegistryId } = params;
+    const { PatientProgramRegistration } = models;
+
+    req.checkPermission('list', 'PatientProgramRegistration', { patientId, programRegistryId });
+
+    const history = await PatientProgramRegistration.findAll({
+      where: {
+        patientId,
+        programRegistryId,
+      },
+      include: PatientProgramRegistration.getListReferenceAssociations(),
+      order: [['date', 'DESC']],
+    });
+
+    res.send({
+      count: history.length,
+      data: history,
+    });
+  }),
+);
+
 patientProgramRegistration.post(
   '/:patientId/programRegistration/:programRegistryId/condition',
   asyncHandler(async (req, res) => {

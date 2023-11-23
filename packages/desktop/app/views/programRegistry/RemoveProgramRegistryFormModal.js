@@ -85,7 +85,11 @@ export const RemoveProgramRegistryFormModal = ({
             </Info>
             <Info>
               <Label>Registering facility</Label>
-              <Value>{patientProgramRegistration.registeringFacility.name}</Value>
+              <Value>
+                {patientProgramRegistration.registeringFacility
+                  ? patientProgramRegistration.registeringFacility.name
+                  : patientProgramRegistration.facility.name}
+              </Value>
             </Info>
           </InfoColumn>
         </InfoDiv>

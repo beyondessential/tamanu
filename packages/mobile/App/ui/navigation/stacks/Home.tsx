@@ -20,6 +20,7 @@ import { Routes } from '/helpers/routes';
 import { RegisterPatientStack } from './RegisterPatientStack';
 import { PatientDetailsStack } from './PatientDetailsStack';
 import { useAuth } from '~/ui/contexts/AuthContext';
+import { PatientProgramRegistryDetailsStack } from './PatientProgramRegistryDetailsStack';
 import { PatientSummaryStack } from './PatientSummaryStack';
 import { PatientProgramRegistryFormStack } from './PatientProgramRegistryForm';
 
@@ -69,6 +70,10 @@ export const HomeStack = (): ReactElement => {
       <Stack.Screen
         name={Routes.HomeStack.PatientProgramRegistryFormStack.Index}
         component={PatientProgramRegistryFormStack}
+      />
+      <Stack.Screen
+        name={Routes.HomeStack.PatientProgramRegistryDetailsStack.Index}
+        component={PatientProgramRegistryDetailsStack}
       />
       <Stack.Screen
         name={Routes.HomeStack.SearchPatientStack.Index}

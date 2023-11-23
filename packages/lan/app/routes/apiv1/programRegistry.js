@@ -1,10 +1,11 @@
+//@ts-check
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes } from 'sequelize';
-
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { Sequelize, Op, QueryTypes } from 'sequelize';
+import { VISIBILITY_STATUSES, REGISTRATION_STATUSES } from '@tamanu/constants';
 import { deepRenameObjectKeys } from '@tamanu/shared/utils';
 import { simpleGet, simpleGetList } from '@tamanu/shared/utils/crudHelpers';
+
 import {
   makeFilter,
   makeSimpleTextFilterFactory,
@@ -14,10 +15,75 @@ import {
 export const programRegistry = express.Router();
 
 programRegistry.get('/:id', simpleGet('ProgramRegistry'));
+
 programRegistry.get(
   '/$',
-  simpleGetList('ProgramRegistry', '', {
-    additionalFilters: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+  asyncHandler(async (req, res) => {
+    const { models, query } = req;
+
+    req.checkPermission('list', 'ProgramRegistry');
+
+    if (query.excludePatientId) {
+      req.checkPermission('read', 'PatientProgramRegistration', {
+        patientId: query.excludePatientId,
+      });
+    }
+
+    const { ProgramRegistry } = models;
+
+    const patientIdExclusion = query.excludePatientId
+      ? {
+          id: {
+            [Op.notIn]: Sequelize.literal(
+              `(
+                SELECT DISTINCT(pr.id)
+                FROM program_registries pr
+                INNER JOIN patient_program_registrations ppr
+                ON ppr.program_registry_id = pr.id
+                WHERE
+                  ppr.patient_id = :excludePatientId
+                AND
+                  ppr.registration_status != :error
+              )`,
+            ),
+          },
+        }
+      : {};
+
+    const baseQueryOptions = {
+      where: {
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        ...patientIdExclusion,
+      },
+      replacements: {
+        error: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
+        excludePatientId: query.excludePatientId,
+      },
+    };
+
+    const count = await ProgramRegistry.count(baseQueryOptions);
+
+    const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page } = query;
+    const objects = await ProgramRegistry.findAll({
+      ...baseQueryOptions,
+      include: ProgramRegistry.getListReferenceAssociations(models),
+      order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined,
+      limit: rowsPerPage,
+      offset: page && rowsPerPage ? page * rowsPerPage : undefined,
+    });
+
+    const data = objects.map(x => x.forResponse());
+
+    res.send({ count, data });
+  }),
+);
+
+programRegistry.get(
+  '/:id/conditions',
+  simpleGetList('ProgramRegistryCondition', 'programRegistryId', {
+    additionalFilters: {
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+    },
   }),
 );
 
