@@ -30,7 +30,7 @@ export async function getToken(user, expiresIn = tokenDuration) {
   );
 }
 
-async function comparePassword(user, password) {
+export async function comparePassword(user, password) {
   try {
     const passwordHash = user && user.password;
 

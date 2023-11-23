@@ -1,5 +1,5 @@
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { getToken, centralServerLogin } from 'lan/app/middleware/auth';
+import { getToken, centralServerLogin, comparePassword } from 'lan/app/middleware/auth';
 import { pick } from 'lodash';
 import { fake, chance, disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { addHours } from 'date-fns';
@@ -82,99 +82,108 @@ describe('User', () => {
       });
     });
 
-    it('should obtain a valid login token', async () => {
-      const result = await baseApp.post('/v1/login').send({
-        email: authUser.email,
-        password: rawPassword,
+    describe('logins', () => {
+      it('should obtain a valid login token', async () => {
+        const result = await baseApp.post('/v1/login').send({
+          email: authUser.email,
+          password: rawPassword,
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body).toHaveProperty('token');
       });
-      expect(result).toHaveSucceeded();
-      expect(result.body).toHaveProperty('token');
-    });
 
-    test.todo('should refresh a token');
-    test.todo('should not refresh an expired token');
-
-    it('should get the user based on the current token', async () => {
-      const userAgent = await baseApp.asUser(authUser);
-      const result = await userAgent.get('/v1/user/me');
-      expect(result).toHaveSucceeded();
-      expect(result.body).toHaveProperty('id', authUser.id);
-    });
-
-    it('should fail to get the user with a null token', async () => {
-      const result = await baseApp.get('/v1/user/me');
-      expect(result).toHaveRequestError();
-    });
-
-    it('should fail to get the user with an expired token', async () => {
-      const expiredToken = await getToken(authUser, '-1s');
-      const result = await baseApp
-        .get('/v1/user/me')
-        .set('authorization', `Bearer ${expiredToken}`);
-      expect(result).toHaveRequestError();
-    });
-
-    it('should fail to get the user with an invalid token', async () => {
-      const result = await baseApp
-        .get('/v1/user/me')
-        .set('authorization', 'Bearer ABC_not_a_valid_token');
-      expect(result).toHaveRequestError();
-    });
-
-    it('should fail to obtain a token for a wrong password', async () => {
-      const result = await baseApp.post('/v1/login').send({
-        email: authUser.email,
-        password: 'PASSWARD',
+      it('should be case insensitive', async () => {
+        const result = await baseApp.post('/v1/login').send({
+          email: authUser.email.toUpperCase(),
+          password: rawPassword,
+        });
+        expect(result).toHaveSucceeded();
       });
-      expect(result).toHaveRequestError();
+
+      it('should fail to obtain a token for a wrong password', async () => {
+        const result = await baseApp.post('/v1/login').send({
+          email: authUser.email,
+          password: 'PASSWARD',
+        });
+        expect(result).toHaveRequestError();
+      });
+
+      it('should fail to obtain a token for a wrong email', async () => {
+        const result = await baseApp.post('/v1/login').send({
+          email: 'test@toast.com',
+          password: rawPassword,
+        });
+        expect(result).toHaveRequestError();
+      });
+
+      it('should return cached feature flags in the login request', async () => {
+        const result = await baseApp.post('/v1/login').send({
+          email: authUser.email,
+          password: rawPassword,
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body).toHaveProperty('localisation');
+        expect(result.body.localisation).toEqual(localisation);
+      });
+
+      it('should pass feature flags through from a central server login request', async () => {
+        centralServer.fetch.mockResolvedValueOnce({
+          user: pick(authUser, ['id', 'role', 'email', 'displayName']),
+          localisation,
+        });
+        const result = await centralServerLogin(models, authUser.email, rawPassword);
+        expect(result).toHaveProperty('localisation', localisation);
+        const cache = await models.UserLocalisationCache.findOne({
+          where: {
+            userId: authUser.id,
+          },
+          raw: true,
+        });
+        expect(cache).toMatchObject({
+          localisation: JSON.stringify(localisation),
+        });
+      });
+
+      it('should include permissions in the data returned by a successful login', async () => {
+        const result = await baseApp.post('/v1/login').send({
+          email: authUser.email,
+          password: rawPassword,
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body).toHaveProperty('permissions');
+      });
+
+      describe('Rejected logins', () => {
+        it('should fail to obtain a token for a wrong password', async () => {
+          const result = await baseApp.post('/v1/login').send({
+            email: authUser.email,
+            password: 'PASSWARD',
+          });
+          expect(result).toHaveRequestError();
+        });
+
+        it('should fail to obtain a token for a wrong email', async () => {
+          const result = await baseApp.post('/v1/login').send({
+            email: 'test@toast.com',
+            password: rawPassword,
+          });
+          expect(result).toHaveRequestError();
+        });
+
+        it('should fail to obtain a token for a deactivated user', async () => {
+          const result = await baseApp.post('/v1/login').send({
+            email: deactivatedUser.email,
+            password: rawPassword,
+          });
+          expect(result).toHaveRequestError();
+        });
+      });
     });
 
-    it('should fail to obtain a token for a wrong email', async () => {
-      const result = await baseApp.post('/v1/login').send({
-        email: 'test@toast.com',
-        password: rawPassword,
-      });
-      expect(result).toHaveRequestError();
-    });
+    describe('tokens', () => {
+      test.todo('should refresh a token');
+      test.todo('should not refresh an expired token');
 
-    it('should return cached feature flags in the login request', async () => {
-      const result = await baseApp.post('/v1/login').send({
-        email: authUser.email,
-        password: rawPassword,
-      });
-      expect(result).toHaveSucceeded();
-      expect(result.body).toHaveProperty('localisation');
-      expect(result.body.localisation).toEqual(localisation);
-    });
-
-    it('should pass feature flags through from a central server login request', async () => {
-      centralServer.fetch.mockResolvedValueOnce({
-        user: pick(authUser, ['id', 'role', 'email', 'displayName']),
-        localisation,
-      });
-      const result = await centralServerLogin(models, authUser.email, rawPassword);
-      expect(result).toHaveProperty('localisation', localisation);
-      const cache = await models.UserLocalisationCache.findOne({
-        where: {
-          userId: authUser.id,
-        },
-        raw: true,
-      });
-      expect(cache).toMatchObject({
-        localisation: JSON.stringify(localisation),
-      });
-    });
-
-    it('should include permissions in the data returned by a successful login', async () => {
-      const result = await baseApp.post('/v1/login').send({
-        email: authUser.email,
-        password: rawPassword,
-      });
-      expect(result).toHaveSucceeded();
-      expect(result.body).toHaveProperty('permissions');
-    });
-
-    describe('Rejected tokens', () => {
       it('should get the user based on the current token', async () => {
         const userAgent = await baseApp.asUser(authUser);
         const result = await userAgent.get('/v1/user/me');
@@ -202,36 +211,92 @@ describe('User', () => {
         expect(result).toHaveRequestError();
       });
 
-      it('should fail to get a deactivated user with a valid token', async () => {
-        const userAgent = await baseApp.asUser(deactivatedUser);
-        const result = await userAgent.get('/v1/user/me');
-        expect(result).toHaveRequestError();
+      describe('Rejected tokens', () => {
+        it('should get the user based on the current token', async () => {
+          const userAgent = await baseApp.asUser(authUser);
+          const result = await userAgent.get('/v1/user/me');
+          expect(result).toHaveSucceeded();
+          expect(result.body).toHaveProperty('id', authUser.id);
+        });
+
+        it('should fail to get the user with a null token', async () => {
+          const result = await baseApp.get('/v1/user/me');
+          expect(result).toHaveRequestError();
+        });
+
+        it('should fail to get the user with an expired token', async () => {
+          const expiredToken = await getToken(authUser, '-1s');
+          const result = await baseApp
+            .get('/v1/user/me')
+            .set('authorization', `Bearer ${expiredToken}`);
+          expect(result).toHaveRequestError();
+        });
+
+        it('should fail to get the user with an invalid token', async () => {
+          const result = await baseApp
+            .get('/v1/user/me')
+            .set('authorization', 'Bearer ABC_not_a_valid_token');
+          expect(result).toHaveRequestError();
+        });
+
+        it('should fail to get a deactivated user with a valid token', async () => {
+          const userAgent = await baseApp.asUser(deactivatedUser);
+          const result = await userAgent.get('/v1/user/me');
+          expect(result).toHaveRequestError();
+        });
       });
     });
 
-    describe('Rejected logins', () => {
-      it('should fail to obtain a token for a wrong password', async () => {
-        const result = await baseApp.post('/v1/login').send({
-          email: authUser.email,
-          password: 'PASSWARD',
+    describe('change password', () => {
+      let chPwUser;
+      let chPwApp;
+      beforeEach(async () => {
+        chPwUser = await models.User.create(
+          createUser({
+            password: rawPassword,
+          }),
+        );
+        chPwApp = await baseApp.asUser(chPwUser);
+      });
+      const doesPwMatch = async pw => {
+        const user = await models.User.scope('withPassword').findByPk(chPwUser.id);
+        return comparePassword(user, pw);
+      };
+
+      it('succeeds if the central succeeds', async () => {
+        centralServer.forwardRequest.mockResolvedValueOnce({ ok: 'ok' });
+        const newPassword = `${rawPassword}_central_success`;
+        const result = await chPwApp.post('/v1/changePassword').send({
+          email: chPwUser.email,
+          newPassword,
+          token: "this doesn't matter here",
         });
-        expect(result).toHaveRequestError();
+        expect(result).toHaveSucceeded();
+        expect(await doesPwMatch(newPassword)).toBe(true);
       });
 
-      it('should fail to obtain a token for a wrong email', async () => {
-        const result = await baseApp.post('/v1/login').send({
-          email: 'test@toast.com',
-          password: rawPassword,
+      it('fails if the central fails', async () => {
+        centralServer.forwardRequest.mockRejectedValueOnce(new Error('not a real error'));
+        const newPassword = `${rawPassword}_central_failure`;
+        const result = await chPwApp.post('/v1/changePassword').send({
+          email: chPwUser.email,
+          newPassword,
+          token: "this doesn't matter here",
         });
-        expect(result).toHaveRequestError();
+        expect(result).not.toHaveSucceeded();
+        expect(await doesPwMatch(newPassword)).toBe(false);
       });
 
-      it('should fail to obtain a token for a deactivated user', async () => {
-        const result = await baseApp.post('/v1/login').send({
-          email: deactivatedUser.email,
-          password: rawPassword,
+      it('looks up emails case insensitively', async () => {
+        centralServer.forwardRequest.mockResolvedValueOnce({ ok: 'ok' });
+        const newPassword = `${rawPassword}_case`;
+        const result = await chPwApp.post('/v1/changePassword').send({
+          email: chPwUser.email.toUpperCase(),
+          newPassword,
+          token: "this doesn't matter here",
         });
-        expect(result).toHaveRequestError();
+        expect(result).toHaveSucceeded();
+        expect(await doesPwMatch(newPassword)).toBe(true);
       });
     });
   });
