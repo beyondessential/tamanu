@@ -17,7 +17,6 @@ const getOrCreateConnection = async (configOverrides, key = 'main') => {
     ...config.db,
     ...configOverrides,
     testMode,
-    makeEveryModelParanoid: true,
   });
   return existingConnections[key];
 };

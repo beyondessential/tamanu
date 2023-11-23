@@ -161,7 +161,7 @@ export async function initDatabase(dbOptions) {
         underscored: true,
         primaryKey,
         sequelize,
-        paranoid: true,
+        paranoid: makeEveryModelParanoid,
         hackToSkipEncounterValidation,
       },
       models,
