@@ -1,6 +1,10 @@
 import React from 'react';
-import { ButtonRow, Modal, OutlinedButton } from '../../components';
+import styled from 'styled-components';
+import { Modal, ModalGenericButtonRow, OutlinedButton } from '../../components';
 
+const Spacer = styled.div`
+  padding-top: 15px;
+`;
 export const ReportAboutModal = ({
   title,
   open,
@@ -10,10 +14,11 @@ export const ReportAboutModal = ({
 }) => (
   <Modal title={title} open={open} onClose={onClose} cornerExitButton={false}>
     <p>{content}</p>
-    <ButtonRow>
+    <Spacer />
+    <ModalGenericButtonRow>
       <ConfirmButton variant="contained" onClick={onClose}>
         Close
       </ConfirmButton>
-    </ButtonRow>
+    </ModalGenericButtonRow>
   </Modal>
 );

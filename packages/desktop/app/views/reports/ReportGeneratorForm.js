@@ -275,7 +275,7 @@ export const ReportGeneratorForm = () => {
                 </AboutReportButton>
               </FormGrid>
               <ReportAboutModal
-                title={reportsById[selectedReportId].name}
+                title={`About ${reportsById[selectedReportId].name}`}
                 open={isReportModalOpen}
                 onClose={() => setIsReportModalOpen(false)}
                 content={reportsById[selectedReportId].notes}
