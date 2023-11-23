@@ -10,7 +10,6 @@ import { convertFromDbRecord } from '../convertDbRecord';
 import {
   getToken,
   stripUser,
-  findUser,
   getRandomBase64String,
   getRandomU32,
   isInternalClient,
@@ -78,7 +77,7 @@ export const login = ({ secret, refreshSecret }) =>
       throw new BadAuthenticationError('Missing deviceId');
     }
 
-    const user = await findUser(models, email);
+    const user = await models.User.getForAuthByEmail(email);
     if (!user && config.auth.reportNoUserError) {
       // an attacker can use this to get a list of user accounts
       // but hiding this error entirely can make debugging a hassle
