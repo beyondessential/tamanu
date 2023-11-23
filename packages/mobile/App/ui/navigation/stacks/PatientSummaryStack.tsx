@@ -1,6 +1,5 @@
 import React, { ReactElement, useCallback } from 'react';
 import { Routes } from '/helpers/routes';
-import { FullView } from '/styled/common';
 import { ErrorBoundary } from '/components/ErrorBoundary';
 import { StackHeader } from '~/ui/components/StackHeader';
 import { joinNames } from '~/ui/helpers/user';
@@ -26,19 +25,17 @@ const PatientSummary = ({
 
   return (
     <ErrorBoundary>
-      <FullView>
-        <StackHeader
-          title="Patient Summary"
-          subtitle={joinNames(selectedPatient)}
-          onGoBack={goBack}
+      <StackHeader
+        title="Patient Summary"
+        subtitle={joinNames(selectedPatient)}
+        onGoBack={goBack}
+      />
+      <Stack.Navigator headerMode="none">
+        <Stack.Screen
+          name={Routes.HomeStack.PatientSummaryStack.Index}
+          component={PatientProgramRegistrySummary}
         />
-        <Stack.Navigator headerMode="none">
-          <Stack.Screen
-            name={Routes.HomeStack.PatientSummaryStack.Index}
-            component={PatientProgramRegistrySummary}
-          />
-        </Stack.Navigator>
-      </FullView>
+      </Stack.Navigator>
     </ErrorBoundary>
   );
 };

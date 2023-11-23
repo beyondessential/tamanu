@@ -11,6 +11,7 @@ export const Routes = {
          Autocomplete: {
            Index: '',
            Modal: '',
+           MultiSelectModal: '',
          },
          SignUpStack: {
            Index: '',
@@ -115,6 +116,7 @@ export const Routes = {
            },
            PatientProgramRegistryFormStack: {
              Index: '',
+             PatientProgramRegistryForm: '',
            },
            PatientProgramRegistryDetailsStack: {
              Index: '',
