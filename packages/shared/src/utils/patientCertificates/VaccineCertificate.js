@@ -11,6 +11,7 @@ import {
   CertificateHeader,
   CertificateFooter,
   DocumentFooter,
+  DocumentHeader,
 } from './Layout';
 import { PatientDetailsSection } from './PatientDetailsSection';
 import { SigningSection } from './SigningSection';
@@ -73,6 +74,10 @@ export const VaccineCertificate = ({
   return (
     <Document>
       <Page size="A4" style={styles.page}>
+        <DocumentHeader
+          patientName={`${patient.firstName} ${patient.lastName}`}
+          patientId={patient.displayId}
+        />
         {watermarkSrc && <Watermark src={watermarkSrc} />}
         <CertificateHeader>
           <LetterheadSection
@@ -96,29 +101,7 @@ export const VaccineCertificate = ({
             columnStyle={{ padding: '10px 5px' }}
           />
         </Box>
-        <CertificateFooter>
-          <Box>
-            <Row>
-              <Col>
-                <P>
-                  <P bold>Printed by: </P>
-                  {printedBy}
-                </P>
-              </Col>
-              <Col>
-                <P>
-                  <P bold>Printing date: </P>
-                  {getDisplayDate(printedDate)}
-                </P>
-              </Col>
-            </Row>
-          </Box>
-          <SigningSection signingSrc={signingSrc} />
-          <Box>
-            {contactEmail ? <P>Email address: {contactEmail}</P> : null}
-            {contactNumber ? <P>Contact number: {contactNumber}</P> : null}
-          </Box>
-        </CertificateFooter>
+        <CertificateFooter />
         <DocumentFooter
           printedBy={printedBy}
           printDate={printedDate}

@@ -89,6 +89,7 @@ export const styles = StyleSheet.create({
     textAlign: 'left',
     fontSize: 8,
     fontWeight: 600,
+    marginTop: 31,
   },
   footerContent: {
     flexDirection: 'row',
@@ -105,10 +106,29 @@ export const styles = StyleSheet.create({
   },
   documentFooterLabelText: {
     fontSize: 8,
-    fontWeight: 600,
+    fontWeight: 400,
     fontFamily: 'Helvetica-Bold',
   },
   documentFooterValueText: {
+    fontSize: 8,
+    fontWeight: 400,
+    fontFamily: 'Helvetica',
+  },
+  documentHeader: {
+    position: 'absolute',
+    top: 25,
+    right: 50,
+  },
+  documentHeaderContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  documentHeaderLabelText: {
+    fontSize: 8,
+    fontWeight: 400,
+    fontFamily: 'Helvetica-Bold',
+  },
+  documentHeaderValueText: {
     fontSize: 8,
     fontWeight: 400,
     fontFamily: 'Helvetica',
@@ -175,3 +195,25 @@ export const DocumentFooter = ({ printDate, printFacility, printedBy }) => (
     </View>
   </View>
 );
+
+const DocumentHeaderContent = ({ patientName, patientId }) => (
+  <View style={styles.documentHeaderContent}>
+    <Text style={styles.documentHeaderLabelText}>Immunisation Certificate | </Text>
+    <Text style={styles.documentHeaderLabelText}>Patient name: </Text>
+    <Text style={styles.documentHeaderValueText}>{patientName} | </Text>
+    <Text style={styles.documentHeaderLabelText}>Patient ID: </Text>
+    <Text style={styles.documentHeaderValueText}>{patientId}</Text>
+  </View>
+);
+
+export const DocumentHeader = ({ patientName, patientId }) => {
+  return (
+    <View
+      style={styles.documentHeader}
+      fixed
+      render={({ pageNumber }) =>
+        pageNumber > 1 ? DocumentHeaderContent({ patientName, patientId }) : ''
+      }
+    />
+  );
+};
