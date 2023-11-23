@@ -11,6 +11,17 @@ import { getDisplayDate } from './getDisplayDate';
 
 const columns = [
   {
+    key: 'date',
+    title: 'Date given',
+    accessor: ({ date }, getLocalisation) =>
+      date ? getDisplayDate(date, undefined, getLocalisation) : 'Unknown',
+  },
+  {
+    key: 'schedule',
+    title: 'Schedule',
+    accessor: ({ scheduledVaccine }) => (scheduledVaccine || {}).schedule,
+  },
+  {
     key: 'vaccine',
     title: 'Vaccine',
     customStyles: { minWidth: 30 },
@@ -23,33 +34,11 @@ const columns = [
     accessor: ({ scheduledVaccine, vaccineBrand }) =>
       vaccineBrand || ((scheduledVaccine || {}).vaccine || {}).name,
   },
-  {
-    key: 'schedule',
-    title: 'Schedule',
-    accessor: ({ scheduledVaccine }) => (scheduledVaccine || {}).schedule,
-  },
+
   {
     key: 'countryName',
     title: 'Country',
     accessor: ({ countryName }) => countryName,
-  },
-  {
-    key: 'healthFacility',
-    title: 'Health facility',
-    customStyles: { minWidth: 30 },
-    accessor: ({ healthFacility }) => healthFacility,
-  },
-  {
-    key: 'date',
-    title: 'Date',
-    accessor: ({ date }, getLocalisation) =>
-      date ? getDisplayDate(date, undefined, getLocalisation) : 'Unknown',
-  },
-  {
-    key: 'batch',
-    title: 'Batch number',
-    customStyles: { minWidth: 30 },
-    accessor: ({ batch }) => batch,
   },
 ];
 
