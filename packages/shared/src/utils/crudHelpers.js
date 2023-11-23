@@ -104,11 +104,12 @@ export const simplePost = modelName =>
       if (object && object.deletedAt) {
         await object.restore();
         await object.update(req.body);
-      }
-      if (object && !object.deletedAt) {
+      } else if (object && !object.deletedAt) {
         throw new InvalidOperationError(
           `Cannot create object with id (${req.body.id}), it already exists`,
         );
+      } else {
+        object = await models[modelName].create(req.body);
       }
     } else {
       object = await models[modelName].create(req.body);
