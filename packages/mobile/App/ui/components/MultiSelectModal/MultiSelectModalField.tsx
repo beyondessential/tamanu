@@ -44,11 +44,11 @@ export const MultiSelectModalField = ({
   const appendLabel = (items: OptionType[]) => {
     return items.map(x => ` ${x.label}`).toString();
   };
-  const onPress = (selectedItem: OptionType[]): void => {
-    onChange(selectedItem);
-    setLabel(appendLabel(selectedItem));
-    console.log(selectedItem);
-    console.log(appendLabel(selectedItem));
+  const onPress = (selectedItems: OptionType[]): void => {
+    onChange(selectedItems);
+    setLabel(appendLabel(selectedItems));
+    console.log(selectedItems);
+    console.log(appendLabel(selectedItems));
   };
 
   const openModal = (): void =>
@@ -59,22 +59,20 @@ export const MultiSelectModalField = ({
       suggesterParams,
       value,
     });
+  const loadDefaultValues = async (values: string[]) => {
+    const _values: OptionType[] = [];
+    values.forEach(async x => {
+      const data = await suggester.fetchCurrentOption(x);
+      _values.push(data);
+    });
+    const _label = appendLabel(_values);
+    setLabel(_values.length > 0 ? _label : setLabel(placeholder));
+  };
 
   useEffect(() => {
-    if (!suggester) return;
-    (async (): Promise<void> => {
-      const _value: OptionType[] = [];
-      value.forEach(async x => {
-        const data = await suggester.fetchCurrentOption(x);
-        _value.push(data);
-      });
-      if (_value.length > 0) {
-        setLabel(appendLabel(_value));
-      } else {
-        setLabel(placeholder);
-      }
-    })();
-  }, [value]);
+    if (!suggester || !value) return;
+    loadDefaultValues(value);
+  }, []);
 
   return (
     <StyledView marginBottom={screenPercentageToDP('2.24', Orientation.Height)} width="100%">
@@ -93,8 +91,9 @@ export const MultiSelectModalField = ({
         marginTop={marginTop}
         backgroundColor={theme.colors.WHITE}
         textColor={label ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_SOFT}
-        buttonText={label || placeholder || 'Select'}
+        buttonText={label || 'Select'}
         minHeight={screenPercentageToDP(6.68, Orientation.Height)}
+        height={'auto'}
         justifyContent="flex-start"
         borderRadius={3}
         borderStyle="solid"
