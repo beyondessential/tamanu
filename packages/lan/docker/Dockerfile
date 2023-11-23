@@ -1,4 +1,4 @@
-FROM node:16-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 ARG NODE_NATIVE_BUILD_DEPS="make gcc g++ python"
@@ -14,8 +14,8 @@ RUN apk add --no-cache --virtual .build-deps $NODE_NATIVE_BUILD_DEPS && \
 COPY packages/shared/ node_modules/shared
 
 # copy config
-COPY packages/lan/config/default.json config/
-COPY packages/lan/docker/local.json config/
+COPY packages/lan/config/default.json5 config/
+COPY packages/lan/docker/local.json5 config/
 
 # copy bundle
 COPY packages/lan/dist/app.bundle.js dist/

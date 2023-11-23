@@ -3,7 +3,7 @@ cd \Tamanu
 $latest = Get-ChildItem -Attributes Directory | Sort-Object -Property BaseName -Descending | Select -First 1
 cd $latest
 
-$config = type .\config\local.json | ConvertFrom-JSON
+$config = type .\config\local.json5 | ConvertFrom-JSON
 
 # get to latest postgres
 cd '\Program Files\PostgreSQL'

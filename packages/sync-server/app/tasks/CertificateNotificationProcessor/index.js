@@ -47,7 +47,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
   }
 
   async run() {
-    const { models } = this.context.store;
+    const { models, sequelize } = this.context.store;
     const { CertificateNotification, CertifiableVaccine, PatientCommunication, Patient } = models;
     const vdsEnabled = config.integrations.vdsNc.enabled;
     const euDccEnabled = config.integrations.euDcc.enabled;
@@ -195,23 +195,27 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         }
 
         sublog.debug('Creating communication record');
-        // build the email notification
-        const comm = await PatientCommunication.create({
-          type: PATIENT_COMMUNICATION_TYPES.CERTIFICATE,
-          channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
-          subject: get(localisation, `templates.${template}.subject`),
-          content: get(localisation, `templates.${template}.body`),
-          status: COMMUNICATION_STATUSES.QUEUED,
-          patientId,
-          destination: notification.get('forwardAddress'),
-          attachment: pdf.filePath,
-        });
-        sublog.info('Done processing certificate notification', { emailId: comm.id });
-
+        // eslint-disable-next-line no-loop-func
+        const [comm] = await sequelize.transaction(() =>
+          // queue the email to be sent and mark this notification as processed
+          Promise.all([
+            PatientCommunication.create({
+              type: PATIENT_COMMUNICATION_TYPES.CERTIFICATE,
+              channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+              subject: get(localisation, `templates.${template}.subject`),
+              content: get(localisation, `templates.${template}.body`),
+              status: COMMUNICATION_STATUSES.QUEUED,
+              patientId,
+              destination: notification.get('forwardAddress'),
+              attachment: pdf.filePath,
+            }),
+            notification.update({
+              status: CERTIFICATE_NOTIFICATION_STATUSES.PROCESSED,
+            }),
+          ]),
+        );
         processed += 1;
-        await notification.update({
-          status: CERTIFICATE_NOTIFICATION_STATUSES.PROCESSED,
-        });
+        sublog.info('Done processing certificate notification', { emailId: comm.id });
       } catch (error) {
         log.error('Failed to process certificate notification', { id: notification.id, error });
         await notification.update({
