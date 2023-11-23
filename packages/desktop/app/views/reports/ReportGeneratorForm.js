@@ -29,6 +29,7 @@ import { saveExcelFile } from '../../utils/saveExcelFile';
 import { EmailField, parseEmails } from './EmailField';
 import { ParameterField } from './ParameterField';
 import { useLocalisation } from '../../contexts/Localisation';
+import { ReportAboutModal } from './ReportAboutModal';
 
 const Spacer = styled.div`
   padding-top: 30px;
@@ -115,7 +116,7 @@ export const ReportGeneratorForm = () => {
   const [availableReports, setAvailableReports] = useState([]);
   const [dataSource, setDataSource] = useState(REPORT_DATA_SOURCES.THIS_FACILITY);
   const [selectedReportId, setSelectedReportId] = useState(null);
-  // const [isReportModalOpen, setIsReportModalOpen] = useState(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   const reportsById = useMemo(() => keyBy(availableReports, 'id'), [availableReports]);
   const reportOptions = useMemo(
@@ -267,13 +268,19 @@ export const ReportGeneratorForm = () => {
             />
           </FormGrid>
           {reportsById[selectedReportId]?.notes ? (
-            <FormGrid columns={1}>
-              <AboutReportButton
-                onClick={() => {
-                  // reportsById[selectedReportId].note;
-                }}
-              >{`About ${reportsById[selectedReportId]?.name}`}</AboutReportButton>
-            </FormGrid>
+            <>
+              <FormGrid columns={1}>
+                <AboutReportButton onClick={() => setIsReportModalOpen(true)}>
+                  {`About ${reportsById[selectedReportId]?.name}`}
+                </AboutReportButton>
+              </FormGrid>
+              <ReportAboutModal
+                title={reportsById[selectedReportId].name}
+                open={isReportModalOpen}
+                onClose={() => setIsReportModalOpen(false)}
+                content={reportsById[selectedReportId].notes}
+              />
+            </>
           ) : null}
           {parameters.length > 0 ? (
             <>
