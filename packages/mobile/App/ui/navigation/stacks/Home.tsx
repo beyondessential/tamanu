@@ -20,9 +20,9 @@ import { Routes } from '/helpers/routes';
 import { RegisterPatientStack } from './RegisterPatientStack';
 import { PatientDetailsStack } from './PatientDetailsStack';
 import { useAuth } from '~/ui/contexts/AuthContext';
-import { PatientProgramRegistryFormStack } from './PatientProgramRegistryFormStack';
 import { PatientProgramRegistryDetailsStack } from './PatientProgramRegistryDetailsStack';
 import { PatientSummaryStack } from './PatientSummaryStack';
+import { PatientProgramRegistryFormStack } from './PatientProgramRegistryForm';
 
 const Stack = createStackNavigator();
 
