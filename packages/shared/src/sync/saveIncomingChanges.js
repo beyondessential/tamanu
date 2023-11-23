@@ -44,6 +44,7 @@ export const saveChangesForModel = async (model, changes, isCentralServer) => {
     .filter(c => idToExistingRecord[c.data.id] === undefined)
     .map(({ data, isDeleted }) => {
       // validateRecord(data, null); TODO add in validation
+      // pass in 'isDeleted' to be able to create new records even if they are soft deleted.
       return { ...sanitizeData(data), isDeleted };
     });
   const recordsForUpdate = changes

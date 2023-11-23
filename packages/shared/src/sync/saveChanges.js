@@ -1,5 +1,6 @@
 import { Op } from 'sequelize';
 import config from 'config';
+import { isEmpty } from 'lodash';
 import asyncPool from 'tiny-async-pool';
 import { mergeRecord } from './mergeRecord';
 
@@ -11,7 +12,9 @@ export const saveCreates = async (model, records) => {
   // because it has a lab request attached
   const deduplicated = [];
   const idsAdded = new Set();
-  const softDeleted = records.filter(row => row.isDeleted).map(({ isDeleted, ...row }) => row);
+  const idsForSoftDeleted = records
+    .filter(row => row.isDeleted)
+    .map(({ isDeleted, ...row }) => row.id);
 
   for (const record of records) {
     const { id, isDeleted, ...data } = record;
@@ -21,8 +24,9 @@ export const saveCreates = async (model, records) => {
     }
   }
   await model.bulkCreate(deduplicated);
-  if (softDeleted.length > 0) {
-    await saveDeletes(model, softDeleted);
+
+  if (idsForSoftDeleted.length > 0) {
+    await model.destroy({ where: { id: { [Op.in]: idsForSoftDeleted } } });
   }
 };
 
@@ -40,10 +44,10 @@ export const saveUpdates = async (model, incomingRecords, idToExistingRecord, is
   );
 };
 
-// model.update cannot update deleted_at field, so we need to do destroy and restore
+// model.update cannot update deleted_at field, so we need to do update (in case there are still any new changes even if it is being deleted) and destroy
 export const saveDeletes = async (model, recordsForDelete, idToExistingRecord, isCentralServer) => {
   if (recordsForDelete.length === 0) return;
-  if (idToExistingRecord) {
+  if (!isEmpty(idToExistingRecord)) {
     await saveUpdates(model, recordsForDelete, idToExistingRecord, isCentralServer);
   }
   await model.destroy({ where: { id: { [Op.in]: recordsForDelete.map(r => r.id) } } });
