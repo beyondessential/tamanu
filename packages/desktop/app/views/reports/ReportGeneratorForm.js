@@ -266,7 +266,7 @@ export const ReportGeneratorForm = () => {
               disabled={isDataSourceFieldDisabled}
             />
           </FormGrid>
-          {selectedReportId ? (
+          {reportsById[selectedReportId]?.notes ? (
             <FormGrid columns={1}>
               <AboutReportButton
                 onClick={() => {
