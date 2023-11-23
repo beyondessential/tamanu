@@ -175,6 +175,7 @@ user.post(
     const [userPreferences] = await UserPreference.upsert({
       selectedGraphedVitalsOnFilter,
       userId: currentUser.id,
+      deletedAt: null,
     });
 
     res.send(userPreferences);

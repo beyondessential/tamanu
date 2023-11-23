@@ -33,6 +33,8 @@ patientProfilePicture.get(
             encounters.patient_id = :patientId
             AND program_data_elements.code = :photoCode
             AND encounters.deleted_at is null
+          ORDER BY 
+            survey_responses.created_at DESC
         LIMIT 1
       `,
       {

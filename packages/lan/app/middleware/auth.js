@@ -70,10 +70,12 @@ export async function centralServerLogin(models, email, password, deviceId) {
       id,
       ...userDetails,
       password,
+      deletedAt: null,
     });
     await models.UserLocalisationCache.upsert({
       userId: id,
       localisation: JSON.stringify(localisation),
+      deletedAt: null,
     });
   });
 
@@ -118,8 +120,9 @@ async function centralServerLoginWithLocalFallback(models, email, password, devi
       throw new BadAuthenticationError('Incorrect username or password, please try again');
     }
 
-    // if it is forbidden, throw the error instead of proceeding to local login
-    if (e.centralServerResponse?.status === 403) {
+    // if it is forbidden error when login to central server,
+    // throw the error instead of proceeding to local login
+    if (e.centralServerResponse?.status === 403 && e.centralServerResponse?.body?.error) {
       throw e.centralServerResponse.body.error;
     }
 
