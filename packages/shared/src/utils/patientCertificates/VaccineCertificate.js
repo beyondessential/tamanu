@@ -80,7 +80,7 @@ export const VaccineCertificate = ({
           <LetterheadSection
             getLocalisation={getLocalisation}
             logoSrc={logoSrc}
-            certificateTitle="Vaccine Certificate"
+            certificateTitle="Immunisation Certificate"
           />
           <PatientDetailsSection
             patient={patient}
