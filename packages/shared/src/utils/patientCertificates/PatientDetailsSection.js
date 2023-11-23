@@ -1,5 +1,5 @@
 import React from 'react';
-import { Col, Row } from './Layout';
+import { Col, Divider, Row } from './Layout';
 import { P } from './Typography';
 import { getDOB, getSex } from '../patientAccessors';
 
@@ -21,23 +21,27 @@ export const PatientDetailsSection = ({ patient, getLocalisation, extraFields = 
     ({ key }) => !getLocalisation(`fields.${key}.hidden`),
   );
   return (
-    <Row>
-      <Col style={{ marginBottom: 5 }}>
-        <Row>
-          {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
-            const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
-            const label = getLocalisation(`fields.${key}.shortLabel`) || defaultLabel;
+    <>
+      <Divider />
+      <Row>
+        <Col style={{ marginBottom: 5 }}>
+          <Row>
+            {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
+              const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
+              const label = getLocalisation(`fields.${key}.shortLabel`) || defaultLabel;
 
-            return (
-              <Col style={{ width: '33%' }} key={key}>
-                <P mb={6}>
-                  <P bold>{label}:</P> {value}
-                </P>
-              </Col>
-            );
-          })}
-        </Row>
-      </Col>
-    </Row>
+              return (
+                <Col style={{ width: '33%' }} key={key}>
+                  <P mb={6}>
+                    <P bold>{label}:</P> {value}
+                  </P>
+                </Col>
+              );
+            })}
+          </Row>
+        </Col>
+      </Row>
+      <Divider />
+    </>
   );
 };

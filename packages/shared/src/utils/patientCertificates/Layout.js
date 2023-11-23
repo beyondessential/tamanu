@@ -76,6 +76,43 @@ export const styles = StyleSheet.create({
   certificateFooter: {
     margin: '0 18px',
   },
+  divider: {
+    borderTop: '0.5 solid #000000',
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  documentFooter: {
+    position: 'absolute',
+    bottom: 16,
+    left: 50,
+    right: 50,
+    textAlign: 'left',
+    fontSize: 8,
+    fontWeight: 600,
+  },
+  footerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  footerLeft: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  footerRight: {
+    flex: 1,
+    textAlign: 'right',
+  },
+  documentFooterLabelText: {
+    fontSize: 8,
+    fontWeight: 600,
+    fontFamily: 'Helvetica-Bold',
+  },
+  documentFooterValueText: {
+    fontSize: 8,
+    fontWeight: 400,
+    fontFamily: 'Helvetica',
+  },
 });
 
 export const Row = props => <View style={styles.row} {...props} />;
@@ -114,3 +151,27 @@ export const CertificateLogo = ({ logoSrc }) => (
 
 export const CertificateHeader = props => <View style={styles.certificateHeader} {...props} />;
 export const CertificateFooter = props => <View style={styles.certificateFooter} {...props} />;
+
+export const Divider = props => <View style={styles.divider} {...props} />;
+
+export const DocumentFooter = ({ printDate, printFacility, printedBy }) => (
+  <View style={styles.documentFooter} fixed>
+    <Divider />
+    <View style={styles.footerContent}>
+      <View style={styles.footerLeft}>
+        <Text style={styles.documentFooterLabelText}>Print date: </Text>
+        <Text style={styles.documentFooterValueText}>{printDate} | </Text>
+        <Text style={styles.documentFooterLabelText}>Printing facility: </Text>
+        <Text style={styles.documentFooterValueText}>{printFacility} | </Text>
+        <Text style={styles.documentFooterLabelText}>Printed by: </Text>
+        <Text style={styles.documentFooterValueText}>{printedBy}</Text>
+      </View>
+      <View style={styles.footerRight}>
+        <Text
+          style={styles.documentFooterValueText}
+          render={({ pageNumber, totalPages }) => `${pageNumber} of ${totalPages}`}
+        />
+      </View>
+    </View>
+  </View>
+);

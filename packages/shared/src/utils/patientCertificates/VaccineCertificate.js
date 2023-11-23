@@ -2,10 +2,19 @@ import React from 'react';
 import { Document, Page } from '@react-pdf/renderer';
 
 import { Table } from './Table';
-import { styles, Col, Box, Row, Watermark, CertificateHeader, CertificateFooter } from './Layout';
+import {
+  styles,
+  Col,
+  Box,
+  Row,
+  Watermark,
+  CertificateHeader,
+  CertificateFooter,
+  DocumentFooter,
+} from './Layout';
 import { PatientDetailsSection } from './PatientDetailsSection';
 import { SigningSection } from './SigningSection';
-import { P } from './Typography';
+import { H3, P } from './Typography';
 import { LetterheadSection } from './LetterheadSection';
 import { getDisplayDate } from './getDisplayDate';
 
@@ -78,7 +87,8 @@ export const VaccineCertificate = ({
             extraFields={extraPatientFields}
           />
         </CertificateHeader>
-        <Box mb={20}>
+        <Box mb={20} style={{ marginLeft: '18px', marginRight: '18px' }}>
+          <H3>Immunisation history</H3>
           <Table
             data={data}
             columns={columns}
@@ -109,6 +119,11 @@ export const VaccineCertificate = ({
             {contactNumber ? <P>Contact number: {contactNumber}</P> : null}
           </Box>
         </CertificateFooter>
+        <DocumentFooter
+          printedBy={printedBy}
+          printDate={printedDate}
+          printFacility={healthFacility}
+        />
       </Page>
     </Document>
   );
