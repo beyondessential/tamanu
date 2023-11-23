@@ -38,6 +38,7 @@ notes_info as (
       ) 
     ) aggregated_notes
   from notes
+  where deleted_at isnull
   group by record_id
 ),
 
@@ -66,6 +67,7 @@ lab_request_info as (
   left join lab_test_info lti -- include lab requests with no tests (hyperthetical)
   on lti.lab_request_id  = lr.id
   left join notes_info ni on ni.record_id = lr.id
+  where lr.deleted_at isnull
   group by encounter_id
 ),
 
@@ -85,6 +87,7 @@ procedure_info as (
   from "procedures" p
   left join reference_data proc ON proc.id = procedure_type_id
   left join locations loc on loc.id = location_id
+  where p.deleted_at isnull
   group by encounter_id 
 ),
 
@@ -101,6 +104,7 @@ medications_info as (
     ) "Medications"
   from encounter_medications em
   join reference_data medication on medication.id = em.medication_id
+  where em.deleted_at isnull
   group by encounter_id
 ),
 
@@ -118,6 +122,7 @@ diagnosis_info as (
   from encounter_diagnoses ed
   join reference_data diagnosis on diagnosis.id = ed.diagnosis_id
   where certainty not in ('disproven', 'error')
+  and ed.deleted_at isnull
   group by encounter_id
 ),
 
@@ -134,6 +139,7 @@ vaccine_info as (
   from administered_vaccines av
   join scheduled_vaccines sv on sv.id = av.scheduled_vaccine_id 
   join reference_data drug on drug.id = sv.vaccine_id 
+  where av.deleted_at isnull
   group by encounter_id
 ),
 
@@ -159,6 +165,7 @@ imaging_info as (
   from imaging_requests ir
   left join notes_info ni on ni.record_id = ir.id::varchar
   left join imaging_areas_by_request iabr on iabr.imaging_request_id = ir.id 
+  where ir.deleted_at isnull
   group by encounter_id
 ),
 
@@ -175,6 +182,7 @@ encounter_notes_info as (
     ) "Notes"
   from notes n
   where note_type != 'system'
+  and n.deleted_at isnull
   group by record_id
 ),
 
@@ -191,9 +199,11 @@ note_history as (
   		id,
   		regexp_matches(content, 'Changed (.*) from (.*) to (.*)') matched_vals
   	from notes
+    where deleted_at isnull
   ) matched_vals
   on matched_vals.id = n.id 
   where note_type = 'system'
+  and n.deleted_at isnull
   and n.content ~ 'Changed (.*) from (.*) to (.*)'
 ),
 
@@ -230,7 +240,8 @@ department_info as (
     order by date
     limit 1
   ) first_from
-  on e.id = first_from.enc_id
+  on e.id = first_from.enc_id  
+  where e.deleted_at isnull
   group by e.id, d.name, e.start_date, first_from
 ),
 
@@ -253,6 +264,7 @@ location_info as (
   left join location_groups lg on l.location_group_id = lg.id
   left join note_history nh
   on nh.encounter_id = e.id and nh.place = 'location'
+  where e.deleted_at isnull
   group by e.id, l.name, lg.name, e.start_date
 ),
 
@@ -260,7 +272,8 @@ triage_info as (
   select
     encounter_id,
     hours::text || CHR(58) || remaining_minutes::text "waitTimeFollowingTriage"
-  from triages t,
+  from triages t
+  where t.deleted_at isnull,
   lateral (
     select
       case when t.closed_time is null
@@ -270,6 +283,7 @@ triage_info as (
   ) total_minutes,
   lateral (select floor(total_minutes / 60) hours) hours,
   lateral (select floor(total_minutes - hours*60) remaining_minutes) remaining_minutes
+  
 ),
 
 discharge_disposition_info as (
@@ -287,6 +301,7 @@ discharge_disposition_info as (
         order by updated_at desc
         LIMIT 1)
   join reference_data disposition on disposition.id = d.disposition_id
+  where t.deleted_at isnull
 ),
 
 encounter_history_info as (
@@ -308,6 +323,7 @@ encounter_history_info as (
       ) order by date
     ) "Encounter history"
   from encounter_history
+  where deleted_at isnull
   group by encounter_id
 )
 

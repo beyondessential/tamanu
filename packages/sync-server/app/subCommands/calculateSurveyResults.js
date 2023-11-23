@@ -108,6 +108,7 @@ const calculateSurveyResultsInBatch = async (
       survey_responses.encounter_id AS "encounterId"
       FROM survey_responses
       WHERE survey_id = :surveyId
+      AND deleted_at is null
       ORDER BY survey_responses.id ASC
       LIMIT :batchSize
       OFFSET :offset
@@ -204,7 +205,8 @@ async function calculateSurveyResults() {
       `
         SELECT COUNT(*)
         FROM survey_responses
-        WHERE survey_id = :surveyId;
+        WHERE survey_id = :surveyId
+        AND deleted_at is null;
     `,
       {
         replacements: {

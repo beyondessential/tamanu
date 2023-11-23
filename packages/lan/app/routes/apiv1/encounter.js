@@ -276,10 +276,9 @@ encounterRelations.get(
             ON (survey_responses.encounter_id = encounters.id)
           LEFT JOIN surveys
             ON (survey_responses.survey_id = surveys.id)
-        WHERE
-          survey_responses.encounter_id = :encounterId
-        AND
-          surveys.survey_type = 'programs'
+        WHERE survey_responses.encounter_id = :encounterId
+        AND surveys.survey_type = 'programs'
+        AND encounters.deleted_at is null
       `,
       `
         SELECT
@@ -299,10 +298,9 @@ encounterRelations.get(
             ON (encounter_user.id = encounters.examiner_id)
           LEFT JOIN users survey_user
             ON (survey_user.id = survey_responses.user_id)
-        WHERE
-          survey_responses.encounter_id = :encounterId
-        AND
-          surveys.survey_type = 'programs'
+        WHERE survey_responses.encounter_id = :encounterId
+        AND surveys.survey_type = 'programs'
+        AND encounters.deleted_at is null
         ORDER BY ${sortKey} ${sortDirection}
       `,
       { encounterId },
@@ -328,18 +326,13 @@ encounterRelations.get(
     const countResult = await db.query(
       `
         SELECT COUNT(1) AS count
-        FROM
-          survey_response_answers
-        INNER JOIN
-          survey_responses response
-        ON
-          response.id = response_id
-        WHERE
-          data_element_id = :dateDataElement
-        AND
-          body IS NOT NULL
-        AND
-          response.encounter_id = :encounterId
+        FROM survey_response_answers
+        INNER JOIN survey_responses response
+        ON response.id = response_id
+        WHERE data_element_id = :dateDataElement
+        AND body IS NOT NULL
+        AND response.encounter_id = :encounterId
+        AND response.deleted_at IS NULL
       `,
       {
         replacements: {
@@ -364,20 +357,14 @@ encounterRelations.get(
       `
         WITH
         date AS (
-          SELECT
-            response_id, body
-          FROM
-            survey_response_answers
-          INNER JOIN
-            survey_responses response
-          ON
-            response.id = response_id
-          WHERE
-            data_element_id = :dateDataElement
-          AND
-            body IS NOT NULL
-          AND
-            response.encounter_id = :encounterId
+          SELECT response_id, body
+          FROM survey_response_answers
+          INNER JOIN survey_responses response
+          ON response.id = response_id
+          WHERE data_element_id = :dateDataElement
+          AND body IS NOT NULL
+          AND response.encounter_id = :encounterId
+          AND response.deleted_at IS NULL
           ORDER BY body ${order} LIMIT :limit OFFSET :offset
         ),
         history AS (
@@ -391,24 +378,16 @@ encounterRelations.get(
                 'userDisplayName', u.display_name
               )
             )) logs
-          FROM
-            survey_response_answers sra
-          INNER JOIN
-            survey_responses sr
-          ON
-            sr.id = sra.response_id
-          LEFT JOIN
-            vital_logs vl
-          ON
-            vl.answer_id = sra.id
-          LEFT JOIN
-            users u
-          ON
-            u.id = vl.recorded_by_id
-          WHERE
-            sr.encounter_id = :encounterId
-          GROUP BY
-            vl.answer_id
+          FROM survey_response_answers sra
+          INNER JOIN survey_responses sr
+          ON sr.id = sra.response_id
+          LEFT JOIN vital_logs vl
+          ON vl.answer_id = sra.id
+          LEFT JOIN users u
+          ON u.id = vl.recorded_by_id
+          WHERE sr.encounter_id = :encounterId
+          AND sr.deleted_at IS NULL
+          GROUP BY vl.answer_id
         )
 
         SELECT

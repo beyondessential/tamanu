@@ -72,7 +72,8 @@ locationGroup.get(
               FROM notes
               WHERE revised_by_id isnull 
                 AND record_type = 'Encounter' 
-                AND note_type = 'handover') n
+                AND note_type = 'handover'
+                AND deleted_at isnull) n
         WHERE n.row_num = 1
       ),
 
@@ -90,6 +91,7 @@ locationGroup.get(
                 INNER JOIN latest_root_handover_notes ON latest_root_handover_notes.id = notes.revised_by_id
               ) n
         WHERE n.row_num = 1
+        AND n.deleted_at isnull
 
         UNION
 
@@ -101,7 +103,9 @@ locationGroup.get(
           content,
           latest.date as created_date
         FROM latest_root_handover_notes latest
-        WHERE NOT EXISTS (SELECT id FROM notes WHERE revised_by_id = latest.id)
+        WHERE NOT EXISTS (SELECT id FROM notes 
+                          WHERE revised_by_id = latest.id 
+                          AND deleted_at isnull)
       )
     
       SELECT location_groups.name AS area,
