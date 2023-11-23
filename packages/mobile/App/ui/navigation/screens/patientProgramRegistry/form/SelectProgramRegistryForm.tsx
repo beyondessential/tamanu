@@ -8,7 +8,27 @@ import { FlatList } from 'react-native';
 import { Separator } from '~/ui/components/Separator';
 import { EmptyStackHeader } from '~/ui/components/StackHeader';
 
-export const PatientProgramRegistryForm1 = () => {
+const ProgramRegistryListItem = ({ item }) => {
+  const navigation = useNavigation();
+  return (
+    <StyledTouchableOpacity
+      onPress={() => {
+        navigation.navigate(
+          Routes.HomeStack.PatientProgramRegistryFormStack.PatientProgramRegistryForm,
+          { programRegistry: item },
+        );
+      }}
+    >
+      <StyledView marginRight={20} marginLeft={20} paddingTop={10} paddingBottom={10}>
+        <StyledText fontSize={14} fontWeight={400}>
+          {item.name}
+        </StyledText>
+      </StyledView>
+    </StyledTouchableOpacity>
+  );
+};
+
+export const SelectProgramRegistryForm = () => {
   const navigation = useNavigation();
   const [searchValue, setSearchValue] = useState('');
 
@@ -44,27 +64,10 @@ export const PatientProgramRegistryForm1 = () => {
             { id: 3, name: 'Hepatitis C' },
           ].filter(x => {
             if (!searchValue) return true;
-            return x.name.includes(searchValue);
+            return x.name.toLowerCase().includes(searchValue.toLowerCase());
           })}
           ItemSeparatorComponent={Separator}
-          renderItem={({ item }) => (
-            <StyledTouchableOpacity onPress={() => {}}>
-              <StyledView marginRight={20} marginLeft={20} paddingTop={10} paddingBottom={10}>
-                <StyledText
-                  fontSize={14}
-                  fontWeight={400}
-                  onPress={() => {
-                    navigation.navigate(
-                      Routes.HomeStack.PatientProgramRegistryFormStack.PatientProgramRegistryForm,
-                      { programRegistry: item },
-                    );
-                  }}
-                >
-                  {item.name}
-                </StyledText>
-              </StyledView>
-            </StyledTouchableOpacity>
-          )}
+          renderItem={({ item }) => <ProgramRegistryListItem item={item} />}
         />
       </StyledView>
     </FullView>

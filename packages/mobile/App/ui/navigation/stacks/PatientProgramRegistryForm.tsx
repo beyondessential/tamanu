@@ -1,14 +1,13 @@
 import React from 'react';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { Routes } from '~/ui/helpers/routes';
-import { PatientProgramRegistryForm1 } from '../screens/patientProgramRegistry/PatientProgramRegistryForm1';
-import { PatientProgramRegistryForm2 } from '../screens/patientProgramRegistry/PatientProgramRegistryForm2';
+import { SelectProgramRegistryForm } from '../screens/patientProgramRegistry/form/SelectProgramRegistryForm';
+import { PatientProgramRegistryDetailsForm } from '../screens/patientProgramRegistry/form/PatientProgramRegistryDetailsForm';
 import { NavigationProp } from '@react-navigation/native';
 import { compose } from 'redux';
 import { withPatient } from '~/ui/containers/Patient';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { createStackNavigator } from '@react-navigation/stack';
-// import { ConditionMultiselect } from '../screens/patientProgramRegistry/_ConditionMultiselect';
 
 export const Stack = createStackNavigator();
 
@@ -31,19 +30,14 @@ const PatientProgramRegistryForm = ({ selectedPatient }: PatientProgramRegistryP
       <Stack.Navigator headerMode="none">
         <Stack.Screen
           name={Routes.HomeStack.PatientProgramRegistryFormStack.Index}
-          component={PatientProgramRegistryForm1}
+          component={SelectProgramRegistryForm}
           initialParams={{ selectedPatient }}
         />
         <Stack.Screen
           name={Routes.HomeStack.PatientProgramRegistryFormStack.PatientProgramRegistryForm}
-          component={PatientProgramRegistryForm2}
+          component={PatientProgramRegistryDetailsForm}
           initialParams={{ selectedPatient }}
         />
-        {/* <Stack.Screen
-          name={Routes.HomeStack.PatientProgramRegistryFormStack.ConditionMultiselect}
-          component={ConditionMultiselect}
-          initialParams={{ selectedPatient }}
-        /> */}
       </Stack.Navigator>
     </ErrorBoundary>
   );

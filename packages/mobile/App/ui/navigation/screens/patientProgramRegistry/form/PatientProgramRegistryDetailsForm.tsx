@@ -16,11 +16,11 @@ import { theme } from '~/ui/styled/theme';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { Form } from '~/ui/components/Forms/Form';
 import { useAuth } from '~/ui/contexts/AuthContext';
-import { IPatientProgramRegistryForm } from '../../stacks/PatientProgramRegistryForm';
+import { IPatientProgramRegistryForm } from '../../../stacks/PatientProgramRegistryForm';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { MultiSelectModalField } from '~/ui/components/MultiSelectModal/MultiSelectModalField';
 
-export const PatientProgramRegistryForm2 = ({ route }: BaseAppProps) => {
+export const PatientProgramRegistryDetailsForm = ({ route }: BaseAppProps) => {
   const navigation = useNavigation();
   const { programRegistry, editedObject } = route.params;
   const { models } = useBackend();
