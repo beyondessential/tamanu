@@ -39,17 +39,17 @@ export const getHl7Patient = async ({ patient = {}, models }) => {
     name: [
       {
         use: 'official',
-        ...(patientTitle && { prefix: patientTitle }),
+        ...(patientTitle && { prefix: [ patientTitle ] }),
         family: patient.lastName,
         given: [patient.firstName, ...(patient.middleName ? [patient.middleName] : [])],
       },
       ...(patient.culturalName
         ? [
-            {
-              use: 'nickname',
-              text: patient.culturalName,
-            },
-          ]
+          {
+            use: 'nickname',
+            text: patient.culturalName,
+          },
+        ]
         : []),
     ],
     gender: patient.sex,
@@ -67,21 +67,21 @@ export const getHl7Patient = async ({ patient = {}, models }) => {
       telecom: [
         ...(primaryContactNumber
           ? [
-              {
-                system: 'phone',
-                rank: 1,
-                value: primaryContactNumber,
-              },
-            ]
+            {
+              system: 'phone',
+              rank: 1,
+              value: primaryContactNumber,
+            },
+          ]
           : []),
         ...(secondaryContactNumber
           ? [
-              {
-                system: 'phone',
-                rank: 2,
-                value: secondaryContactNumber,
-              },
-            ]
+            {
+              system: 'phone',
+              rank: 2,
+              value: secondaryContactNumber,
+            },
+          ]
           : []),
       ],
     }),
