@@ -70,7 +70,7 @@ export const createPatientFilters = filterParams => {
         ],
       }),
     ),
-    makeDeletedAtIsNullFilter('encounters'),
+   makeDeletedAtIsNullFilter('encounters'),
   ].filter(f => f);
 
   return filters;
