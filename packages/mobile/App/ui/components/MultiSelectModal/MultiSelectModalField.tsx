@@ -2,17 +2,19 @@ import React, { useEffect, useState, ReactElement } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StyledView, StyledText } from '/styled/common';
 import { screenPercentageToDP, Orientation } from '../../helpers/screen';
-import { Suggester, BaseModelSubclass } from '../../helpers/suggester';
+import { Suggester, BaseModelSubclass, OptionType } from '../../helpers/suggester';
 import { theme } from '../../styled/theme';
 import { Button } from '../Button';
 import { Routes } from '~/ui/helpers/routes';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
 
-interface AutocompleteModalFieldProps {
-  value?: string;
+interface MultiSelectModalFieldProps {
+  value?: string[];
+  suggesterParams?: { [key: string]: any };
+  modalTitle: string;
   placeholder?: string;
-  onChange: (newValue: string) => void;
+  onChange: (newValue: OptionType[]) => void;
   suggester: Suggester<BaseModelSubclass>;
   modalRoute: string;
   marginTop?: number;
@@ -22,42 +24,55 @@ interface AutocompleteModalFieldProps {
   disabled?: boolean;
 }
 
-export const AutocompleteModalField = ({
+export const MultiSelectModalField = ({
   label: fieldLabel,
   value,
+  suggesterParams,
+  modalTitle = 'Title',
   placeholder,
   onChange,
   suggester,
-  modalRoute = Routes.Autocomplete.Modal,
+  modalRoute = Routes.Autocomplete.MultiSelectModal,
   error,
   required,
   marginTop = 0,
   disabled = false,
-}: AutocompleteModalFieldProps): ReactElement => {
+}: MultiSelectModalFieldProps): ReactElement => {
   const navigation = useNavigation();
   const [label, setLabel] = useState(null);
-  const onPress = (selectedItem): void => {
-    onChange(selectedItem.value);
-    setLabel(selectedItem.label);
+
+  const appendLabel = (items: OptionType[]) => {
+    return items.map(x => ` ${x.label}`).toString();
+  };
+  const onPress = (selectedItems: OptionType[]): void => {
+    onChange(selectedItems);
+    setLabel(appendLabel(selectedItems));
+    console.log(selectedItems);
+    console.log(appendLabel(selectedItems));
   };
 
   const openModal = (): void =>
     navigation.navigate(modalRoute, {
       callback: onPress,
       suggester,
+      modalTitle,
+      suggesterParams,
+      value,
     });
+  const loadDefaultValues = async (values: string[]) => {
+    const _values: OptionType[] = [];
+    values.forEach(async x => {
+      const data = await suggester.fetchCurrentOption(x);
+      _values.push(data);
+    });
+    const _label = appendLabel(_values);
+    setLabel(_values.length > 0 ? _label : setLabel(placeholder));
+  };
 
   useEffect(() => {
-    if (!suggester) return;
-    (async (): Promise<void> => {
-      const data = await suggester.fetchCurrentOption(value);
-      if (data) {
-        setLabel(data.label);
-      } else {
-        setLabel(placeholder);
-      }
-    })();
-  }, [value]);
+    if (!suggester || !value) return;
+    loadDefaultValues(value);
+  }, []);
 
   return (
     <StyledView marginBottom={screenPercentageToDP('2.24', Orientation.Height)} width="100%">
@@ -76,8 +91,9 @@ export const AutocompleteModalField = ({
         marginTop={marginTop}
         backgroundColor={theme.colors.WHITE}
         textColor={label ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_SOFT}
-        buttonText={label || placeholder || 'Select'}
-        height={screenPercentageToDP(6.68, Orientation.Height)}
+        buttonText={label || 'Select'}
+        minHeight={screenPercentageToDP(6.68, Orientation.Height)}
+        height={'auto'}
         justifyContent="flex-start"
         borderRadius={3}
         borderStyle="solid"

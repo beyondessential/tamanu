@@ -695,6 +695,10 @@
         "status": {
           "shortLabel": "Status",
           "longLabel": "Status"
+        },
+        "conditions": {
+          "shortLabel": "Conditions",
+          "longLabel": "Conditions"
         }
       },
       "features": {

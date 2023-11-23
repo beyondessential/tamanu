@@ -57,6 +57,7 @@ const UNHIDEABLE_FIELDS = [
   'date',
   'registeredBy',
   'status',
+  'conditions',
 ];
 
 const HIDEABLE_FIELDS = [
