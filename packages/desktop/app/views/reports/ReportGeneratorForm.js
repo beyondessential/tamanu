@@ -52,6 +52,7 @@ const AboutReportButton = styled(TextButton)`
   justify-content: start;
   font-weight: normal;
   color: ${Colors.darkText};
+  width: fit-content;
   :hover {
     font-weight: 500;
     color: ${Colors.primary};
@@ -114,6 +115,7 @@ export const ReportGeneratorForm = () => {
   const [availableReports, setAvailableReports] = useState([]);
   const [dataSource, setDataSource] = useState(REPORT_DATA_SOURCES.THIS_FACILITY);
   const [selectedReportId, setSelectedReportId] = useState(null);
+  // const [isReportModalOpen, setIsReportModalOpen] = useState(null);
 
   const reportsById = useMemo(() => keyBy(availableReports, 'id'), [availableReports]);
   const reportOptions = useMemo(
@@ -264,9 +266,13 @@ export const ReportGeneratorForm = () => {
               disabled={isDataSourceFieldDisabled}
             />
           </FormGrid>
-          {parameters.length > 0 ? (
-            <FormGrid columns={2}>
-              <AboutReportButton>{`About ${reportsById[selectedReportId].name}`}</AboutReportButton>
+          {selectedReportId ? (
+            <FormGrid columns={1}>
+              <AboutReportButton
+                onClick={() => {
+                  // reportsById[selectedReportId].note;
+                }}
+              >{`About ${reportsById[selectedReportId]?.name}`}</AboutReportButton>
             </FormGrid>
           ) : null}
           {parameters.length > 0 ? (
