@@ -34,6 +34,8 @@ export const saveChangesForModel = async (
 
   for (const incomingRecords of chunk(recordsForUpsert, SQLITE_MAX_PARAMETERS)) {
     const batchOfIds = incomingRecords.map(r => r.id);
+    // add all records that already exist in the db to the list to be updated
+    // even if they are being deleted or restored, we should also run an update query to keep the data in sync
     const batchOfExisting = await model.findByIds(batchOfIds, {
       select: ['id', 'deletedAt'],
       withDeleted: true,

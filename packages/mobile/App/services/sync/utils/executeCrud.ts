@@ -43,6 +43,7 @@ export const executeInserts = async (
     }
   }
 
+  // To create soft deleted records, we need to first create them, then destroy them
   if (softDeleted.length > 0) {
     await executeDeletes(model, softDeleted);
   }

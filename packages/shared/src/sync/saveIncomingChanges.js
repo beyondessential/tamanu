@@ -18,6 +18,8 @@ export const saveChangesForModel = async (model, changes, isCentralServer) => {
   // split changes into create, update, delete
   const incomingRecords = changes.filter(c => c.data.id).map(c => c.data);
   const idsForIncomingRecords = incomingRecords.map(r => r.id);
+  // add all records that already exist in the db to the list to be updated
+  // even if they are being deleted or restored, we should also run an update query to keep the data in sync
   const existingRecords = (await model.findByIds(idsForIncomingRecords, false)).map(r =>
     r.get({ plain: true }),
   );

@@ -1,6 +1,5 @@
 import { Op } from 'sequelize';
 import config from 'config';
-import { isEmpty } from 'lodash';
 import asyncPool from 'tiny-async-pool';
 import { mergeRecord } from './mergeRecord';
 
@@ -25,6 +24,7 @@ export const saveCreates = async (model, records) => {
   }
   await model.bulkCreate(deduplicated);
 
+  // To create soft deleted records, we need to first create them, then destroy them
   if (idsForSoftDeleted.length > 0) {
     await model.destroy({ where: { id: { [Op.in]: idsForSoftDeleted } } });
   }
