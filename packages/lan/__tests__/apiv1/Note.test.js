@@ -9,7 +9,6 @@ import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 import { addMinutes } from 'date-fns';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { forEach } from 'lodash';
 
 const randomLabTests = (models, labTestCategoryId, amount) =>
   models.LabTestType.findAll({
