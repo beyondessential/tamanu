@@ -97,7 +97,6 @@ export const LoginForm = React.memo(
           rememberMe: !!rememberEmail,
         }}
         validationSchema={yup.object().shape({
-          host: yup.string().required(),
           email: yup
             .string()
             .email('Must enter a valid email')
