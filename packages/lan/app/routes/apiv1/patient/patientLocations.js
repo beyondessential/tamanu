@@ -104,7 +104,7 @@ patientLocations.get(
               encounter_type,
               end_date
             FROM encounters
-            AND deleted_at is null
+            WHERE deleted_at is null
           ) previous_encounters
           ON encounters.patient_id = previous_encounters.patient_id
           AND encounters.start_date::date - '30 days'::interval < previous_encounters.end_date::date
