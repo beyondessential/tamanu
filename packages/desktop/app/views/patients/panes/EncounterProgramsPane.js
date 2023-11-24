@@ -20,7 +20,7 @@ export const EncounterProgramsPane = React.memo(() => {
   return (
     <TabPane>
       <TableButtonRow variant="small">
-        <Button onClick={handleNewSurvey}>New survey</Button>
+        <Button onClick={handleNewSurvey}>New form</Button>
       </TableButtonRow>
       <DataFetchingProgramsTable endpoint={`encounter/${params.encounterId}/programResponses`} />
     </TabPane>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { remote, shell } from 'electron';
+import { shell } from 'electron';
 import { readFile, writeFile, stat } from 'fs/promises';
 
 import { ElectronContext } from './Electron';
@@ -7,9 +7,13 @@ import { ElectronContext } from './Electron';
 import { printPage } from '../print';
 
 export const ElectronProvider = ({ children }) => {
+  // we require require() here as the import is dynamic
+  // eslint-disable-next-line global-require
+  const { dialog } = require('@electron/remote');
+
   // just pass directly to electron
-  const showOpenDialog = (...args) => remote.dialog.showOpenDialog(...args);
-  const showSaveDialog = (...args) => remote.dialog.showSaveDialog(...args);
+  const showOpenDialog = (...args) => dialog.showOpenDialog(...args);
+  const showSaveDialog = (...args) => dialog.showSaveDialog(...args);
   const openPath = path => shell.openPath(path);
   const showItemInFolder = path => shell.showItemInFolder(path);
   const openUrl = url => shell.openExternal(url);

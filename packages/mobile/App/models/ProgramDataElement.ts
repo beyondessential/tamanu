@@ -1,8 +1,9 @@
-import { Entity, Column, OneToMany } from 'typeorm/browser';
+import { Entity, Column, OneToMany, OneToOne } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import { IProgramDataElement, DataElementType } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
+import { SurveyScreenComponent } from './SurveyScreenComponent';
 
 @Entity('program_data_element')
 export class ProgramDataElement extends BaseModel implements IProgramDataElement {
@@ -28,4 +29,10 @@ export class ProgramDataElement extends BaseModel implements IProgramDataElement
     answer => answer.dataElement,
   )
   answers: SurveyResponseAnswer[];
+
+  @OneToOne(
+    () => SurveyScreenComponent,
+    surveyScreenComponent => surveyScreenComponent.dataElement,
+  )
+  surveyScreenComponent: SurveyScreenComponent;
 }

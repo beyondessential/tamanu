@@ -6,10 +6,6 @@ on:
     types:
       - closed
 
-concurrency:
-  # only one build or destroy at a time, per PR/branch, but don't cancel existing runs
-  group: cd-${{ github.pull_request.id || github.ref }}
-
 permissions:
   contents: read
   pull-requests: write
@@ -53,7 +49,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 20.x
           cache: npm
 
       - name: Prepare pulumi

@@ -13,10 +13,12 @@ export const executeInserts = async (
   // because it has a lab request attached
   const deduplicated = [];
   const idsAdded = new Set();
+  const softDeleted = rows.filter(row => row.isDeleted).map(({ isDeleted, ...row }) => row);
+
   for (const row of rows) {
-    const { id } = row;
+    const { id, isDeleted, ...data } = row;
     if (!idsAdded.has(id)) {
-      deduplicated.push(row);
+      deduplicated.push({ ...data, id });
       idsAdded.add(id);
     }
   }
@@ -39,6 +41,10 @@ export const executeInserts = async (
         }),
       );
     }
+  }
+
+  if (softDeleted.length > 0) {
+    await executeDeletes(model, softDeleted);
   }
 };
 
@@ -65,17 +71,23 @@ export const executeUpdates = async (
   }
 };
 
-export const executeDeletes = async (model: typeof BaseModel, rowIds: string[]): Promise<void> => {
+export const executeDeletes = async (
+  model: typeof BaseModel,
+  recordsForDelete: DataToPersist[],
+): Promise<void> => {
+  const rowIds = recordsForDelete.map(({ id }) => id);
   for (const batchOfIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
     try {
-      await model.delete(batchOfIds);
+      const entities = await model.findByIds(batchOfIds);
+      await model.softRemove(entities);
     } catch (e) {
       // try records individually, some may succeed and we want to capture the
       // specific one with the error
       await Promise.all(
         batchOfIds.map(async id => {
           try {
-            await model.delete(id);
+            const entity = await model.findOne({ where: { id } });
+            await entity.softRemove();
           } catch (error) {
             throw new Error(`Delete failed with '${error.message}', recordId: ${id}`);
           }
@@ -83,4 +95,28 @@ export const executeDeletes = async (model: typeof BaseModel, rowIds: string[]):
       );
     }
   }
+
+  await executeUpdates(model, recordsForDelete);
+};
+
+export const executeRestores = async (
+  model: typeof BaseModel,
+  recordsForRestore: DataToPersist[],
+): Promise<void> => {
+  const rowIds = recordsForRestore.map(({ id }) => id);
+
+  for (const batchOfIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
+    await Promise.all(
+      batchOfIds.map(async id => {
+        try {
+          const entity = await model.findOne({ where: { id }, withDeleted: true });
+          await entity.recover();
+        } catch (error) {
+          throw new Error(`Restore failed with '${error.message}', recordId: ${id}`);
+        }
+      }),
+    );
+  }
+
+  await executeUpdates(model, recordsForRestore);
 };
