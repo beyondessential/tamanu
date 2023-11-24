@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { INVOICE_STATUS_TYPES } from '@tamanu/constants';
+import { INVOICE_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi } from '../api';
 import { getInvoiceTotal, calculateInvoiceTotal } from '../utils';
@@ -14,7 +14,7 @@ export const InvoiceDetailModal = ({ title, open, onClose, onUpdated, invoiceId 
     // LOCK IN the total when FINALISING an invoice
     const total = await getInvoiceTotal(api, invoiceId);
     await api.put(`invoices/${invoiceId}`, {
-      status: INVOICE_STATUS_TYPES.FINALISED,
+      status: INVOICE_STATUSES.FINALISED,
       total,
       date: getCurrentDateTimeString(),
     });
@@ -26,7 +26,7 @@ export const InvoiceDetailModal = ({ title, open, onClose, onUpdated, invoiceId 
     // LOCK IN the total when CANCELLING an invoice
     const total = await getInvoiceTotal(api, invoiceId);
     await api.put(`invoices/${invoiceId}`, {
-      status: INVOICE_STATUS_TYPES.CANCELLED,
+      status: INVOICE_STATUSES.CANCELLED,
       total,
     });
     onUpdated();
