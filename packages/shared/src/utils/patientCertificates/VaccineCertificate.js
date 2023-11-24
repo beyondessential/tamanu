@@ -4,9 +4,7 @@ import { Document, Page } from '@react-pdf/renderer';
 import { Table } from './Table';
 import {
   styles,
-  Col,
   Box,
-  Row,
   Watermark,
   CertificateHeader,
   CertificateFooter,
@@ -14,8 +12,7 @@ import {
   DocumentHeader,
 } from './Layout';
 import { PatientDetailsSection } from './PatientDetailsSection';
-import { SigningSection } from './SigningSection';
-import { H3, P } from './Typography';
+import { H3 } from './Typography';
 import { LetterheadSection } from './LetterheadSection';
 import { getDisplayDate } from './getDisplayDate';
 
@@ -58,14 +55,11 @@ export const VaccineCertificate = ({
   printedDate,
   vaccinations,
   certificateId,
-  signingSrc,
   watermarkSrc,
   logoSrc,
   getLocalisation,
   extraPatientFields,
 }) => {
-  const contactEmail = getLocalisation('templates.vaccineCertificate.emailAddress');
-  const contactNumber = getLocalisation('templates.vaccineCertificate.contactNumber');
   const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
   const countryName = getLocalisation('country.name');
 
@@ -73,7 +67,7 @@ export const VaccineCertificate = ({
 
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
+      <Page size="A4" style={{ ...styles.page, paddingBottom: 51 }}>
         <DocumentHeader
           patientName={`${patient.firstName} ${patient.lastName}`}
           patientId={patient.displayId}
@@ -92,7 +86,7 @@ export const VaccineCertificate = ({
             extraFields={extraPatientFields}
           />
         </CertificateHeader>
-        <Box mb={20} style={{ marginLeft: '18px', marginRight: '18px' }}>
+        <Box style={{ ...styles.box, marginLeft: '18px', marginRight: '18px' }}>
           <H3>Immunisation history</H3>
           <Table
             data={data}

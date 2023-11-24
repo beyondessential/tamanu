@@ -121,7 +121,6 @@ export const styles = StyleSheet.create({
   },
   documentHeaderContent: {
     flexDirection: 'row',
-    alignItems: 'center',
   },
   documentHeaderLabelText: {
     fontSize: 8,
@@ -212,7 +211,7 @@ export const DocumentHeader = ({ patientName, patientId }) => {
       style={styles.documentHeader}
       fixed
       render={({ pageNumber }) =>
-        pageNumber > 1 ? DocumentHeaderContent({ patientName, patientId }) : ''
+        pageNumber > 1 && DocumentHeaderContent({ patientName, patientId })
       }
     />
   );
