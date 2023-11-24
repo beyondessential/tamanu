@@ -16,6 +16,7 @@ import {
   ButtonRow,
   Field,
   Form,
+  MultilineTextField,
   MultiselectField,
   SelectField,
   TextField,
@@ -173,6 +174,9 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
             />
           </Grid>
         )}
+        <Grid item xs={12}>
+          <StyledField label="Notes" name="notes" component={MultilineTextField} />
+        </Grid>
       </Grid>
       <Accordion defaultExpanded>
         <AccordionSummary>
