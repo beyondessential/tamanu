@@ -7,4 +7,17 @@ export default defineConfig({
     loader: 'jsx',
   },
   plugins: [react()],
+  worker: {
+    format: 'es',
+  },
+  preview: {
+    https: true,
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        generatedCode: 'es2015',
+      },
+    },
+  },
 })
