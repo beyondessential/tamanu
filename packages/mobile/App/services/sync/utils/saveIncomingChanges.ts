@@ -27,7 +27,6 @@ export const saveChangesForModel = async (
   const idsForUpdate = new Set();
   const idsForRestore = new Set();
   const idsForDelete = new Set();
-  const idsToSkip = new Set();
 
   for (const incomingRecords of chunk(recordsForUpsert, SQLITE_MAX_PARAMETERS)) {
     const batchOfIds = incomingRecords.map(r => r.id);
@@ -38,30 +37,18 @@ export const saveChangesForModel = async (
     batchOfExisting.forEach(existing => {
       // compares incoming and existing records by id
       const incoming = changes.find(c => c.recordId === existing.id);
-      // don't do anything if incoming record is deleted and existing record is already deleted
+      idsForUpdate.add(existing.id);
       if (existing.deletedAt && !incoming.isDeleted) {
         idsForRestore.add(existing.id);
       }
-      if (!existing.deletedAt && !incoming.isDeleted) {
-        idsForUpdate.add(existing.id);
-      }
       if (!existing.deletedAt && incoming.isDeleted) {
         idsForDelete.add(existing.id);
-      }
-      if (existing.deletedAt && incoming.isDeleted) {
-        idsToSkip.add(existing.id);
       }
     });
   }
 
   const recordsForCreate = changes
-    .filter(
-      c =>
-        !idsForUpdate.has(c.recordId) &&
-        !idsForRestore.has(c.recordId) &&
-        !idsForDelete.has(c.recordId) &&
-        !idsToSkip.has(c.recordId),
-    ) // not existing in db
+    .filter(c => !idsForUpdate.has(c.recordId)) // not existing in db
     .map(({ isDeleted, data }) => ({ ...buildFromSyncRecord(model, data), isDeleted }));
 
   const recordsForUpdate = changes

@@ -28,13 +28,11 @@ export const saveChangesForModel = async (model, changes, isCentralServer) => {
 
   existingRecords.forEach(existing => {
     // compares incoming and existing records by id
-    const incoming = changes.find(r => r.data.id === existing.id);
+    idsForUpdate.add(existing.id);
+
     // don't do anything if incoming record is deleted and existing record is already deleted
     if (existing.deletedAt && !incoming.isDeleted) {
       idsForRestore.add(existing.id);
-    }
-    if (!existing.deletedAt && !incoming.isDeleted) {
-      idsForUpdate.add(existing.id);
     }
     if (!existing.deletedAt && incoming.isDeleted) {
       idsForDelete.add(existing.id);
@@ -77,11 +75,11 @@ export const saveChangesForModel = async (model, changes, isCentralServer) => {
   }
   log.debug(`saveIncomingChanges: Soft deleting ${recordsForDelete.length} old records`);
   if (recordsForDelete.length > 0) {
-    await saveDeletes(model, recordsForDelete, idToExistingRecord, isCentralServer);
+    await saveDeletes(model, recordsForDelete);
   }
   log.debug(`saveIncomingChanges: Restoring ${recordsForRestore.length} deleted records`);
   if (recordsForRestore.length > 0) {
-    await saveRestores(model, recordsForRestore, idToExistingRecord, isCentralServer);
+    await saveRestores(model, recordsForRestore);
   }
 };
 

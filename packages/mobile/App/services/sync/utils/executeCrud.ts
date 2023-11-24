@@ -95,8 +95,6 @@ export const executeDeletes = async (
       );
     }
   }
-
-  await executeUpdates(model, recordsForDelete);
 };
 
 export const executeRestores = async (
@@ -109,7 +107,10 @@ export const executeRestores = async (
     await Promise.all(
       batchOfIds.map(async id => {
         try {
-          const entity = await model.findOne({ where: { id }, withDeleted: true });
+          const entity = await model.findOne({
+            where: { id },
+            withDeleted: true,
+          });
           await entity.recover();
         } catch (error) {
           throw new Error(`Restore failed with '${error.message}', recordId: ${id}`);
@@ -117,6 +118,4 @@ export const executeRestores = async (
       }),
     );
   }
-
-  await executeUpdates(model, recordsForRestore);
 };
