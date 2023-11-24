@@ -24,6 +24,8 @@ export const saveChangesForModel = async (model, changes, isCentralServer) => {
     r.get({ plain: true }),
   );
   const idToExistingRecord = Object.fromEntries(existingRecords.map(e => [e.id, e]));
+  // follow the same pattern for incoming records
+  // https://github.com/beyondessential/tamanu/pull/4854#discussion_r1403828225
   const idToIncomingRecord = Object.fromEntries(
     changes.filter(c => c.data.id).map(e => [e.data.id, e]),
   );
