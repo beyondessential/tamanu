@@ -22,6 +22,10 @@ export const saveChangesForModel = async (
   model: typeof BaseModel,
   changes: SyncRecord[],
 ): Promise<void> => {
+  const idToIncomingRecord = Object.fromEntries(
+    changes.filter(c => c.data).map(e => [e.data.id, e]),
+  );
+
   // split changes into create, update, delete
   const recordsForUpsert = changes.filter(c => c.data).map(c => c.data);
   const idsForUpdate = new Set();
@@ -36,7 +40,7 @@ export const saveChangesForModel = async (
     });
     batchOfExisting.forEach(existing => {
       // compares incoming and existing records by id
-      const incoming = changes.find(c => c.recordId === existing.id);
+      const incoming = idToIncomingRecord[existing.id];
       idsForUpdate.add(existing.id);
       if (existing.deletedAt && !incoming.isDeleted) {
         idsForRestore.add(existing.id);

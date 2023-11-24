@@ -22,12 +22,16 @@ export const saveChangesForModel = async (model, changes, isCentralServer) => {
     r.get({ plain: true }),
   );
   const idToExistingRecord = Object.fromEntries(existingRecords.map(e => [e.id, e]));
+  const idToIncomingRecord = Object.fromEntries(
+    changes.filter(c => c.data.id).map(e => [e.data.id, e]),
+  );
   const idsForUpdate = new Set();
   const idsForRestore = new Set();
   const idsForDelete = new Set();
 
   existingRecords.forEach(existing => {
     // compares incoming and existing records by id
+    const incoming = idToIncomingRecord[existing.id];
     idsForUpdate.add(existing.id);
 
     // don't do anything if incoming record is deleted and existing record is already deleted
