@@ -18,4 +18,17 @@ export default defineConfig({
   server: {
     host: 'localhost',
   },
+  worker: {
+    format: 'es',
+  },
+  preview: {
+    https: true,
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        generatedCode: 'es2015',
+      },
+    },
+  },
 })
