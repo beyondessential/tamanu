@@ -175,7 +175,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
           </Grid>
         )}
         <Grid item xs={12}>
-          <StyledField label="Notes" name="notes" component={MultilineTextField} />
+          <StyledField label="Notes" name="notes" multiline />
         </Grid>
       </Grid>
       <Accordion defaultExpanded>

@@ -13,7 +13,9 @@ export const ReportAboutModal = ({
   ConfirmButton = OutlinedButton,
 }) => (
   <Modal title={title} open={open} onClose={onClose} cornerExitButton={false}>
-    <p>{content}</p>
+    {content.split('\n').map(line => (
+      <p>{line}</p>
+    ))}
     <Spacer />
     <ModalGenericButtonRow>
       <ConfirmButton variant="contained" onClick={onClose}>
