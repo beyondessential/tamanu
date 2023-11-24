@@ -66,7 +66,6 @@ export const ResetPasswordForm = React.memo(
           email: initialEmail,
         }}
         validationSchema={yup.object().shape({
-          host: yup.string().required(),
           email: yup
             .string()
             .email('Must enter a valid email')
