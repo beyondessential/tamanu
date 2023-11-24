@@ -6,11 +6,19 @@ export async function getAutocompleteDisplayAnswer(
   dataElementId: string,
   sourceId: string,
 ): Promise<string | null> {
-  const autocompleteComponent = await models.SurveyScreenComponent.findOne({
-    where: {
-      dataElement: dataElementId,
-    },
-  });
+  let autocompleteComponent = null;
+
+  try {
+    autocompleteComponent = await models.SurveyScreenComponent.findOne({
+      where: {
+        dataElement: dataElementId,
+      },
+      withDeleted: true,
+    });
+  } catch (e) {
+    console.log('Cannot find autocomplete component', e);
+  }
+
   const autocompleteConfig = autocompleteComponent?.getConfigObject();
 
   if (autocompleteConfig) {
