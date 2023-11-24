@@ -8,7 +8,7 @@ import { sleepAsync } from '@tamanu/shared/utils';
 import {
   getCurrentCountryTimeZoneDateTimeString,
   toCountryDateTimeString,
-} from '@tamanu/shared/utils/dateTime';
+} from '@tamanu/shared/utils/countryDateTime';
 import { InvalidConfigError } from '@tamanu/shared/errors';
 
 export class PlannedMoveTimeout extends ScheduledTask {

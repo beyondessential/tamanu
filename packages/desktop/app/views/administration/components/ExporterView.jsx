@@ -1,7 +1,7 @@
 import React, { memo, useCallback } from 'react';
 import { startCase } from 'lodash';
 import * as yup from 'yup';
-import { getCurrentCountryTimeZoneDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { useApi } from '../../../api';
 import { Form, Field } from '../../../components/Field';
@@ -36,7 +36,7 @@ export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelecta
         includedDataTypes,
       });
       saveBlobAs(blob, {
-        defaultFileName: `${title} export ${getCurrentCountryTimeZoneDateTimeString()
+        defaultFileName: `${title} export ${getCurrentDateTimeString()
           .replaceAll(':', '-')
           .replaceAll('/', '-')}.xlsx`,
       });
