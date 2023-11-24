@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker?worker&url';
 
 import styled from 'styled-components';
 import { useApi } from '../../api';
