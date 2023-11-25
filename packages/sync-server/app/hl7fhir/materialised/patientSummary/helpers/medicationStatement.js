@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { FHIR_RESOURCE_TYPES } from '@tamanu/constants';
 
 import { getEntryResourceSubject } from '../utils';
+import { formatFhirDate } from '@tamanu/shared/utils/fhir';
 
 export const getMedicationStatements = async ({ patient, models, dataDictionariesIps }) => {
   const openEncounter = await models.Encounter.findOne({
@@ -13,11 +14,11 @@ export const getMedicationStatements = async ({ patient, models, dataDictionarie
 
   const encounterMedications = openEncounter
     ? await models.EncounterMedication.findAll({
-        where: {
-          encounterId: openEncounter.id,
-        },
-        include: ['Medication'],
-      })
+      where: {
+        encounterId: openEncounter.id,
+      },
+      include: ['Medication'],
+    })
     : [];
 
   const medicationStatementsHeader = {
@@ -66,55 +67,55 @@ export const getMedicationStatements = async ({ patient, models, dataDictionarie
       div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Medication Statement details for ${patient.displayName} for ${encounterMedication.Medication.name}. Please review the data for more detail.</div>`,
     },
     effectivePeriod: {
-      start: encounterMedication.date,
+      start: formatFhirDate(encounterMedication.date),
     },
     dosage: [
       {
         timing: {
           repeat: {
-            when: 'MORN',
+            when: ['MORN'],
           },
         },
         doseAndRate: [
           {
-            value: encounterMedication.qtyMorning,
+            doseQuantity: { value: encounterMedication.qtyMorning },
           },
         ],
-        route: encounterMedication.route,
+        route: { text: encounterMedication.route },
       },
       {
         timing: {
           repeat: {
-            when: 'CD',
+            when: ['CD'],
           },
         },
         doseAndRate: [
           {
-            value: encounterMedication.qtyLunch,
-          },
-        ],
-      },
-      {
-        timing: {
-          repeat: {
-            when: 'EVE',
-          },
-        },
-        doseAndRate: [
-          {
-            value: encounterMedication.qtyEvening,
+            doseQuantity: { value: encounterMedication.qtyLunch },
           },
         ],
       },
       {
         timing: {
           repeat: {
-            when: 'NIGHT',
+            when: ['EVE'],
           },
         },
         doseAndRate: [
           {
-            value: encounterMedication.qtyNight,
+            doseQuantity: { value: encounterMedication.qtyEvening },
+          },
+        ],
+      },
+      {
+        timing: {
+          repeat: {
+            when: ['NIGHT'],
+          },
+        },
+        doseAndRate: [
+          {
+            doseQuantity: { value: encounterMedication.qtyNight },
           },
         ],
       },
