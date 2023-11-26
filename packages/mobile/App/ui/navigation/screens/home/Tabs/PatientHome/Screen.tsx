@@ -5,13 +5,11 @@ import {
   FullView,
   StyledView,
   StyledSafeAreaView,
-  RowView,
   StyledText,
   ColumnView,
   StyledTouchableOpacity,
 } from '/styled/common';
 import { UserAvatar } from '/components/UserAvatar';
-import { Button } from '/components/Button';
 import { BackButton, VisitTypeButtonList, PatientMenuButtons } from './CustomComponents';
 // Helpers
 import { theme } from '/styled/theme';
@@ -22,7 +20,7 @@ import { getAgeFromDate } from '/helpers/date';
 import { setDotsOnMaxLength } from '/helpers/text';
 import { SyncInactiveAlert } from '~/ui/components/SyncInactiveAlert';
 import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
-import { PatientSyncIcon } from '~/ui/components/Icons';
+import { PatientSyncIcon, ArrowLeftIcon } from '~/ui/components/Icons';
 
 interface ScreenProps {
   navigateToSearchPatients: () => void;
@@ -46,35 +44,14 @@ export const Screen = ({
         height={screenPercentageToDP(28.5, Orientation.Height)}
         background={theme.colors.PRIMARY_MAIN}
         width="100%"
+        flexDirection="row"
+        justifyContent="space-between"
       >
-        <RowView alignItems="center" justifyContent="space-between">
-          <BackButton onPress={navigateToSearchPatients} />
-          <StyledTouchableOpacity onPress={markPatientForSync}>
-            <ColumnView
-              marginRight={screenPercentageToDP(4.86, Orientation.Width)}
-              alignItems="center"
-            >
-              <PatientSyncIcon size={screenPercentageToDP(4.86, Orientation.Height)} fill="white" />
-              <StyledText
-                fontSize={10}
-                color="white"
-                marginTop={screenPercentageToDP(-0.6, Orientation.Height)}
-              >
-                Sync data
-              </StyledText>
-            </ColumnView>
-          </StyledTouchableOpacity>
-        </RowView>
-        <ColumnView
-          paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
-          alignItems="center"
-          justifyContent="center"
-          marginTop={screenPercentageToDP(-1, Orientation.Height)}
-        >
-          <StyledView
-            marginRight={screenPercentageToDP(3.64, Orientation.Width)}
-            alignItems="center"
-          >
+        <StyledView flex={1}>
+          <BackButton />
+        </StyledView>
+        <StyledView flexDirection="column" justifyContent="center">
+          <StyledView alignItems="center">
             <UserAvatar
               size={screenPercentageToDP(6.03, Orientation.Height)}
               sex={selectedPatient.sex}
@@ -118,7 +95,21 @@ export const Screen = ({
               Display ID: {selectedPatient.displayId}
             </StyledText>
           </StyledView>
-        </ColumnView>
+        </StyledView>
+        <StyledView flex={1}>
+          <StyledTouchableOpacity onPress={markPatientForSync}>
+            <ColumnView alignItems="center">
+              <PatientSyncIcon size={screenPercentageToDP(4.86, Orientation.Height)} fill="white" />
+              <StyledText
+                fontSize={10}
+                color="white"
+                marginTop={screenPercentageToDP(-0.6, Orientation.Height)}
+              >
+                Sync data
+              </StyledText>
+            </ColumnView>
+          </StyledTouchableOpacity>
+        </StyledView>
       </StyledView>
       <StyledView flex={1} background={theme.colors.BACKGROUND_GREY}>
         <PatientMenuButtons list={patientMenuButtons} />
