@@ -136,7 +136,7 @@ export class MobileSyncManager {
     } catch (error) {
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ERROR, { error });
     } finally {
-      // Set up sync finished values only when sync was started.
+      // Reset all the values to default only if sync actually started, otherwise they should still be default values
       if (this.isSyncing) {
         this.syncStage = null;
         this.isSyncing = false;
