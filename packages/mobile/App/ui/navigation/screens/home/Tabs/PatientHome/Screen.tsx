@@ -8,6 +8,7 @@ import {
   StyledText,
   ColumnView,
   StyledTouchableOpacity,
+  RowView,
 } from '/styled/common';
 import { UserAvatar } from '/components/UserAvatar';
 import { BackButton, VisitTypeButtonList, PatientMenuButtons } from './CustomComponents';
@@ -87,17 +88,31 @@ export const Screen = ({
             paddingBottom={screenPercentageToDP(1, Orientation.Height)}
             paddingRight={screenPercentageToDP(5.84, Orientation.Width)}
           >
-            <StyledText
-              color={theme.colors.WHITE}
-              textAlign="center"
-              fontSize={screenPercentageToDP(1.76, Orientation.Height)}
-            >
-              Display ID: {selectedPatient.displayId}
-            </StyledText>
+            <RowView>
+              <StyledText
+                color={theme.colors.WHITE}
+                textAlign="center"
+                fontSize={screenPercentageToDP(1.76, Orientation.Height)}
+              >
+                Display ID:
+              </StyledText>
+              <StyledText
+                color={theme.colors.WHITE}
+                textAlign="center"
+                fontSize={screenPercentageToDP(1.76, Orientation.Height)}
+                fontWeight={'bold'}
+              >
+                {' '}{selectedPatient.displayId}
+              </StyledText>
+            </RowView>
           </StyledView>
         </StyledView>
         <StyledView flex={1}>
-          <StyledTouchableOpacity onPress={markPatientForSync} marginLeft={'auto'} marginRight={screenPercentageToDP(4.62, Orientation.Width)}>
+          <StyledTouchableOpacity
+            onPress={markPatientForSync}
+            marginLeft={'auto'}
+            marginRight={screenPercentageToDP(4.62, Orientation.Width)}
+          >
             <ColumnView alignItems="center">
               <PatientSyncIcon size={screenPercentageToDP(4.86, Orientation.Height)} fill="white" />
               <StyledText
