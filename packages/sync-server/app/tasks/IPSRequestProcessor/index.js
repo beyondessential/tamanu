@@ -12,6 +12,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { tmpdir } from '@tamanu/shared/utils';
 
+import { getRandomBase64String } from '../../auth/utils';
 import { generateIPSBundle } from '../../hl7fhir/materialised/patientSummary/bundleGenerator';
 import { QRCodeToFileAsync } from './helpers';
 
@@ -89,7 +90,7 @@ export class IPSRequestProcessor extends ScheduledTask {
           throw new Error(`jsonBucketPath must be set, e.g. 'au'`);
         }
 
-        const filePath = `${jsonBucketPath}/IPS_${patient.id}_${now.getTime()}.json`;
+        const filePath = `${jsonBucketPath}/${await getRandomBase64String(32)}_manifest.json`;
 
         try {
           const client = new AWS.S3({ region });
