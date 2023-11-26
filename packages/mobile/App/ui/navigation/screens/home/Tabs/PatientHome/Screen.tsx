@@ -43,51 +43,79 @@ export const Screen = ({
     <StatusBar barStyle="light-content" />
     <StyledSafeAreaView flex={1}>
       <StyledView
-        height={screenPercentageToDP(27, Orientation.Height)}
+        height={screenPercentageToDP(28.5, Orientation.Height)}
         background={theme.colors.PRIMARY_MAIN}
         width="100%"
       >
         <RowView alignItems="center" justifyContent="space-between">
           <BackButton onPress={navigateToSearchPatients} />
           <StyledTouchableOpacity onPress={markPatientForSync}>
-            <StyledView
+            <ColumnView
               marginRight={screenPercentageToDP(4.86, Orientation.Width)}
-              flexDirection='column'
-              alignItems='center'
-              justifyContent='center'
+              alignItems="center"
             >
-              <PatientSyncIcon size={screenPercentageToDP(7.29, Orientation.Height)} fill="white" />
-              <StyledText color='white'>Sync data</StyledText>
-            </StyledView>
+              <PatientSyncIcon size={screenPercentageToDP(4.86, Orientation.Height)} fill="white" />
+              <StyledText
+                fontSize={10}
+                color="white"
+                marginTop={screenPercentageToDP(-0.6, Orientation.Height)}
+              >
+                Sync data
+              </StyledText>
+            </ColumnView>
           </StyledTouchableOpacity>
         </RowView>
         <ColumnView
-          marginTop={screenPercentageToDP(1, Orientation.Height)}
           paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}
           alignItems="center"
           justifyContent="center"
+          marginTop={screenPercentageToDP(-1, Orientation.Height)}
         >
-          <StyledView marginRight={screenPercentageToDP(3.64, Orientation.Width)}>
+          <StyledView
+            marginRight={screenPercentageToDP(3.64, Orientation.Width)}
+            alignItems="center"
+          >
             <UserAvatar
-              size={screenPercentageToDP(7.29, Orientation.Height)}
+              size={screenPercentageToDP(6.03, Orientation.Height)}
               sex={selectedPatient.sex}
               displayName={joinNames(selectedPatient)}
             />
           </StyledView>
-          <StyledView>
+          <StyledView
+            marginTop={screenPercentageToDP(1.6, Orientation.Height)}
+            marginBottom={screenPercentageToDP(1.6, Orientation.Height)}
+            alignItems="center"
+          >
             <StyledText
               fontWeight={500}
               color={theme.colors.WHITE}
-              fontSize={screenPercentageToDP(3.4, Orientation.Height)}
+              fontSize={screenPercentageToDP(3.01, Orientation.Height)}
             >
               {setDotsOnMaxLength(joinNames(selectedPatient), 20)}
             </StyledText>
             <StyledText
               color={theme.colors.WHITE}
-              fontSize={screenPercentageToDP(1.94, Orientation.Height)}
+              fontSize={screenPercentageToDP(1.76, Orientation.Height)}
             >
               {getGender(selectedPatient.sex)}, {getAgeFromDate(selectedPatient.dateOfBirth)} years
               old{' '}
+            </StyledText>
+          </StyledView>
+          <StyledView
+            borderColor={theme.colors.WHITE}
+            borderWidth={1}
+            borderRadius={5}
+            paddingLeft={screenPercentageToDP(5.84, Orientation.Width)}
+            paddingTop={screenPercentageToDP(1, Orientation.Height)}
+            paddingBottom={screenPercentageToDP(1, Orientation.Height)}
+            paddingRight={screenPercentageToDP(5.84, Orientation.Width)}
+          >
+            <StyledText
+              color={theme.colors.WHITE}
+              textAlign="center"
+              fontSize={screenPercentageToDP(1.76, Orientation.Height)}
+            >
+              Display ID: {selectedPatient.displayId}
             </StyledText>
           </StyledView>
         </ColumnView>
