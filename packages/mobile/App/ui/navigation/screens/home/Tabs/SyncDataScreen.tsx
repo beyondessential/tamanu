@@ -27,6 +27,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
   const [syncStarted, setSyncStarted] = useState(syncManager.isSyncing);
   const [hasError, setHasError] = useState(false);
   const [isSyncing, setIsSyncing] = useState(syncManager.isSyncing);
+  const [isQueuing, setIsQueuing] = useState(syncManager.isQueuing);
   const [syncStage, setSyncStage] = useState(syncManager.syncStage);
   const [progress, setProgress] = useState(syncManager.progress);
   const [progressMessage, setProgressMessage] = useState(syncManager.progressMessage);
@@ -56,7 +57,13 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
   useEffect(() => {
     const handler = (action: string): void => {
       switch (action) {
+        case SYNC_EVENT_ACTIONS.SYNC_IN_QUEUE:
+          setProgress(0);
+          setIsQueuing(true);
+          setIsSyncing(false);
+          break;
         case SYNC_EVENT_ACTIONS.SYNC_STARTED:
+          setIsQueuing(false);
           setSyncStarted(true);
           setIsSyncing(true);
           setProgress(0);
@@ -65,6 +72,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
           activateKeepAwake(); // don't let the device sleep while syncing
           break;
         case SYNC_EVENT_ACTIONS.SYNC_ENDED:
+          setIsQueuing(false);
           setIsSyncing(false);
           setProgress(0);
           setProgressMessage('');
@@ -81,6 +89,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
           setLastSyncPulledRecordsCount(syncManager.lastSyncPulledRecordsCount);
           break;
         case SYNC_EVENT_ACTIONS.SYNC_ERROR:
+          setIsQueuing(false);
           setHasError(true);
           break;
         default:
@@ -109,12 +118,23 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
   return (
     <CenterView background={theme.colors.MAIN_SUPER_DARK} flex={1}>
       <StyledView alignItems="center">
-        {isSyncing ? (
+        {/* Circular progress */}
+        {(isSyncing || isQueuing) && !hasError ? (
           <ActivityIndicator
             size="large"
             color={theme.colors.SECONDARY_MAIN}
             style={{ transform: [{ scaleX: 2 }, { scaleY: 2 }] }}
           />
+        ) : null}
+        {/* Queuing message */}
+        {isQueuing ? (
+          <StyledText
+            marginTop={screenPercentageToDP(5, Orientation.Height)}
+            fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+            color={theme.colors.WHITE}
+          >
+            {progressMessage}
+          </StyledText>
         ) : null}
         {syncFinishedSuccessfully ? (
           <GreenTickIcon size={screenPercentageToDP('8', Orientation.Height)} />
