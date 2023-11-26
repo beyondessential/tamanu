@@ -119,6 +119,11 @@ const StyledSearchField = styled(SearchField)`
   }
 `;
 
+const VerticalLine = styled.div`
+  border-left: 1px solid ${Colors.outline};
+  height: 100%;
+`;
+
 const useSelectable = formType => {
   const api = useApi();
   const endpoint = SELECTABLE_DATA_ENDPOINTS[formType];
@@ -251,6 +256,7 @@ export const TestSelectorInput = ({
               ))}
           </SelectorTable>
         </SelectorContainer>
+        <VerticalLine />
         <SelectorContainer>
           <Box display="flex" justifyContent="space-between">
             <SectionHeader>Selected {selectableName}s</SectionHeader>
