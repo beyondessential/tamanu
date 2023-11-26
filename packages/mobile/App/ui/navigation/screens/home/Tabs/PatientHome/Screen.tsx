@@ -20,7 +20,7 @@ import { getAgeFromDate } from '/helpers/date';
 import { setDotsOnMaxLength } from '/helpers/text';
 import { SyncInactiveAlert } from '~/ui/components/SyncInactiveAlert';
 import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
-import { PatientSyncIcon, ArrowLeftIcon } from '~/ui/components/Icons';
+import { PatientSyncIcon } from '~/ui/components/Icons';
 
 interface ScreenProps {
   navigateToSearchPatients: () => void;
