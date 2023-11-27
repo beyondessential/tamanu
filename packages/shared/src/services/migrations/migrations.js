@@ -75,7 +75,7 @@ export async function assertUpToDate(log, sequelize, options) {
   const pending = await migrations.pending();
   if (pending.length > 0) {
     throw new Error(
-      `There are ${pending.length} pending migrations. Either run them manually, set "db.migrateOnStartup" to true in your local.json config file, or start the server again with --skipMigrationCheck to ignore them`,
+      `There are ${pending.length} pending migrations. Either run them manually, set "db.migrateOnStartup" to true in your local.json5 config file, or start the server again with --skipMigrationCheck to ignore them`,
     );
   }
 }

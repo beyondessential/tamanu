@@ -29,10 +29,18 @@ remove_irrelevant_packages() {
   cp package.json{,.working}
   scripts/list-packages.mjs --no-shared --paths \
     | jq \
-      --slurpfile top package.json.working \
       --arg wanted "$1" \
-      '(. - ["packages/\($wanted)"]) as $x | $top[0] | .workspaces.packages -= $x' \
-    > package.json.new
+      '(. - ["packages/\($wanted)"])' \
+    > /tmp/unwanted.json
+
+  # erase from the package.json
+  jq \
+    --slurpfile unwanted /tmp/unwanted.json \
+    '.workspaces.packages -= $unwanted' \
+    package.json.working > package.json.new
+  # erase from the filesystem
+  rm -rf $(jq -r '.[]' /tmp/unwanted.json)
+
   mv package.json.new package.json
   rm package.json.working
 }

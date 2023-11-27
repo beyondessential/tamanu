@@ -7,6 +7,7 @@ import { IconButton } from '@material-ui/core';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
+import { LimitedLinesCell } from './FormattedTableCell';
 
 import { DeleteDocumentModal } from '../views/patients/components/DeleteDocumentModal';
 import { MenuButton } from './MenuButton';
@@ -69,17 +70,23 @@ export const DocumentsTable = React.memo(
 
     // Define columns inside component to pass callbacks to getActions
     const COLUMNS = [
-      { key: 'name', title: 'Name' },
+      { key: 'name', title: 'Name', CellComponent: LimitedLinesCell },
       { key: 'type', title: 'Type', accessor: getAttachmentType },
       { key: 'documentUploadedAt', title: 'Upload', accessor: getUploadedDate },
-      { key: 'documentOwner', title: 'Owner' },
+      { key: 'documentOwner', title: 'Owner', CellComponent: LimitedLinesCell },
       {
         key: 'department.name',
         title: 'Department',
         accessor: getDepartmentName,
+        CellComponent: LimitedLinesCell,
         sortable: false,
       },
-      { key: 'note', title: 'Comments', sortable: false },
+      {
+        key: 'note',
+        title: 'Comments',
+        sortable: false,
+        CellComponent: LimitedLinesCell,
+      },
       {
         key: 'actions',
         title: 'Actions',

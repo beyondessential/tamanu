@@ -108,8 +108,8 @@ export class CentralServerConnection {
       }
   }
 
-  async get(path: string, query: Record<string, string | number | boolean>) {
-    return this.fetch(path, query, { method: 'GET' });
+  async get(path: string, query: Record<string, string | number | boolean>, options?: FetchOptions) {
+    return this.fetch(path, query, { ...options, method: 'GET' });
   }
 
   async post(path: string, query: Record<string, string | number>, body, options?: FetchOptions) {
@@ -189,7 +189,11 @@ export class CentralServerConnection {
     if (fromId) {
       query.fromId = fromId;
     }
-    return this.get(`sync/${sessionId}/pull`, query);
+    return this.get(`sync/${sessionId}/pull`, query, {
+      // allow 5 minutes for the sync pull as it can take a while
+      // (the full 5 minutes would be pretty unusual! but just to be safe)
+      timeout: 5 * 60 * 1000, 
+    });
   }
 
   async push(sessionId: string, changes): Promise<void> {
