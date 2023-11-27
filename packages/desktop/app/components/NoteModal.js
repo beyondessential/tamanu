@@ -10,6 +10,7 @@ import { NoteForm } from '../forms/NoteForm';
 import { ConfirmModal } from './ConfirmModal';
 import { useAuth } from '../contexts/Auth';
 import { NOTE_FORM_MODES } from '../constants';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const getOnBehalfOfId = (noteFormMode, currentUserId, newData, note) => {
   // When editing non treatment plan notes, we just want to retain the previous onBehalfOfId;
@@ -24,7 +25,7 @@ const getOnBehalfOfId = (noteFormMode, currentUserId, newData, note) => {
 };
 
 export const NoteModal = ({
-  title = 'Note',
+  title = <TranslatedText stringId="notes.modal.title" fallback="Note" />,
   open,
   onClose,
   onSaved,

@@ -9,6 +9,7 @@ import { TabPane } from '../components';
 import { SelectInput } from '../../../components/Field';
 import { NOTE_FORM_MODES, noteTypes } from '../../../constants';
 import { useEncounterNotes } from '../../../contexts/EncounterNotes';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const StyledSelectInput = styled(SelectInput)`
   width: 200px;
@@ -27,17 +28,21 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
   return (
     <TabPane>
       <NoteModal
-        title="New note"
+        title=<TranslatedText stringId="notes.modal.new" fallback="New note" />
         open={modalOpen}
         encounterId={encounter.id}
         onClose={() => setModalOpen(false)}
         onSaved={noteModalOnSaved}
-        confirmText="Add note"
+        confirmText=<TranslatedText stringId="notes.action.add" fallback="Add note" />
         noteFormMode={NOTE_FORM_MODES.CREATE_NOTE}
       />
       <TableButtonRow variant="small" justifyContent="space-between">
         <StyledSelectInput
-          options={[{ value: null, label: 'All' }, ...noteTypes]}
+          options={[
+            { value: null, label: <TranslatedText stringId="note.types.all" fallback="All" /> },
+            ...noteTypes,
+          ]}
+          // options={[{ value: null, label: 'All' }, ...noteTypes]}
           onChange={e => setNoteType(e.target.value)}
           value={noteType}
           isClearable={false}
@@ -48,7 +53,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
           verb="create"
           noun="EncounterNote"
         >
-          New note
+          <TranslatedText stringId="notes.modal.new" fallback="New note" />
         </ButtonWithPermissionCheck>
       </TableButtonRow>
       <NoteTableWithPermission
