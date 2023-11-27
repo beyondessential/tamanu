@@ -210,6 +210,7 @@ patientDeath.post(
         withinDayOfBirth: body.deathWithin24HoursOfBirth
           ? body.deathWithin24HoursOfBirth === 'yes'
           : null,
+        deletedAt: null,
       });
 
       if (!isPartialWorkflow && body.otherContributingConditions) {

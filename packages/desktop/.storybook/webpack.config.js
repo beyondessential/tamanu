@@ -43,7 +43,7 @@ module.exports = async ({ config }) => {
 
   // Allow reading in of config json with comments
   config.module.rules.push({
-    test: /\.json$/i,
+    test: /\.json5?$/i,
     loader: 'json5-loader',
     options: {
       esModule: false,
@@ -59,6 +59,7 @@ module.exports = async ({ config }) => {
     sequelize: path.resolve(__dirname, './__mocks__/sequelize.js'),
     config: path.resolve(__dirname, './__mocks__/config.js'),
     electron: require.resolve('./__mocks__/electron.js'),
+    '@electron/remote': require.resolve('./__mocks__/electronRemote.js'),
     yargs: path.resolve(__dirname, './__mocks__/module.js'),
     child_process: path.resolve(__dirname, './__mocks__/module.js'),
   };
