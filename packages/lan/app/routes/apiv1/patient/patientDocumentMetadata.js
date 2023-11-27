@@ -7,6 +7,7 @@ import { NotFoundError } from '@tamanu/shared/errors';
 import { uploadAttachment } from '../../../utils/uploadAttachment';
 import { mapQueryFilters, getCaseInsensitiveFilter, getOrderClause } from '../../../database/utils';
 import { createPatientLetter } from '../../../routeHandlers/createPatientLetter';
+import { deleteDocumentMetadata } from '../../../routeHandlers/deleteDocumentMetadata';
 
 // Object used to map field names to database column names
 const SNAKE_CASE_COLUMN_NAMES = {
@@ -117,6 +118,11 @@ patientDocumentMetadataRoutes.post(
 
     res.send(documentMetadataObject);
   }),
+);
+
+patientDocumentMetadataRoutes.delete(
+  '/:id/documentMetadata/:documentMetadataId',
+  deleteDocumentMetadata,
 );
 
 patientDocumentMetadataRoutes.post(

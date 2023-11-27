@@ -26,6 +26,7 @@ import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
 
 import { getLabRequestList } from '../../routeHandlers/labs';
+import { deleteDocumentMetadata } from '../../routeHandlers/deleteDocumentMetadata';
 
 export const encounter = express.Router();
 
@@ -135,6 +136,8 @@ encounter.post(
     res.send(documentMetadataObject);
   }),
 );
+
+encounter.delete('/:id/documentMetadata/:documentMetadataId', deleteDocumentMetadata);
 
 encounter.post('/:id/createPatientLetter', createPatientLetter('Encounter', 'encounterId'));
 
