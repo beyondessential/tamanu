@@ -9,11 +9,6 @@ export const usePatientProgramRegistrySurveys = (
 ) => {
   const api = useApi();
   return useQuery(['PatientProgramRegistrySurveys', programRegistryId, surveyId], () =>
-    api.get(
-      `patient/${patientId}/programRegistration/${encodeURIComponent(
-        programRegistryId,
-      )}/survey/${surveyId}`,
-      fetchOptions,
-    ),
+    api.get(`survey/${surveyId}`, fetchOptions),
   );
 };

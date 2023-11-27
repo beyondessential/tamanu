@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Modal,
   ConfirmCancelRow,
@@ -21,26 +22,37 @@ const StyledFormGrid = styled(FormGrid)`
   margin-top: 30px;
 `;
 
-export const AddConditionFormModal = ({ onSubmit, onCancel, patientProgramRegistration, open }) => {
+export const AddConditionFormModal = ({ onClose, patientProgramRegistration, open }) => {
   const api = useApi();
+  const queryClient = useQueryClient();
   const [options, setOptions] = useState([]);
   useEffect(() => {
     (async () => {
       const response = await api.get(
         `programRegistry/${patientProgramRegistration.programRegistryId}/conditions`,
       );
-      setOptions(response.map(x => ({ label: x.name, value: x.id })));
+      setOptions(response.data.map(x => ({ label: x.name, value: x.id })));
     })();
   }, [patientProgramRegistration.programRegistryId, api]);
 
+  const submit = async data => {
+    await api.post(
+      `patient/${encodeURIComponent(
+        patientProgramRegistration.patientId,
+      )}/programRegistration/${encodeURIComponent(
+        patientProgramRegistration.programRegistryId,
+      )}/condition`,
+      data,
+    );
+    queryClient.invalidateQueries(['PatientProgramRegistryConditions']);
+    onClose();
+  };
   return (
-    <Modal title="Add condition" open={open} onClose={onCancel}>
+    <Modal title="Add condition" open={open} onClose={onClose}>
       <Form
-        onSubmit={data => {
-          onSubmit(data);
-        }}
+        onSubmit={submit}
         render={({ submitForm }) => {
-          const handleCancel = () => onCancel();
+          const handleCancel = () => onClose();
           return (
             <div>
               <StyledFormGrid columns={1}>
@@ -52,7 +64,7 @@ export const AddConditionFormModal = ({ onSubmit, onCancel, patientProgramRegist
                 />
               </StyledFormGrid>
               <FormSeparatorLine style={{ marginTop: '60px', marginBottom: '30px' }} />
-              <ConfirmCancelRow onConfirm={submitForm} onCancel={handleCancel} />
+              <ConfirmCancelRow onConfirm={submitForm} onClose={handleCancel} />
             </div>
           );
         }}

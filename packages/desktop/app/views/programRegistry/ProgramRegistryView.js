@@ -38,7 +38,7 @@ export const ProgramRegistryView = () => {
           searchParameters={searchParameters}
           setSearchParameters={setSearchParameters}
         />
-        <ProgramRegistryTable searchParameters={searchParams} />
+        <ProgramRegistryTable searchParameters={searchParameters} />
       </Container>
     </>
   );

@@ -490,5 +490,6 @@ export const NOTE_FORM_MODES = {
 export const PROGRAM_REGISTRATION_STATUSES = {
   REMOVED: 'removed',
   ACTIVE: 'active',
+  DELETED: 'deleted',
   ENTERED_IN_ERROR: 'entered-in-error',
 };
