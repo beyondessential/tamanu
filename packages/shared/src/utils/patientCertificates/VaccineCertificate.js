@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page } from '@react-pdf/renderer';
+import { Document, Page, View } from '@react-pdf/renderer';
 
 import { Table } from './Table';
 import {
@@ -65,9 +65,12 @@ export const VaccineCertificate = ({
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
 
+  const fixedHeader = () => <View debug fixed style={{ height: '26', width: '100%' }} />;
+
   return (
     <Document>
       <Page size="A4" style={{ ...styles.page, paddingBottom: 51 }}>
+        <View fixed render={({ pageNumber }) => pageNumber > 1 && fixedHeader()} debug />
         <DocumentHeader
           patientName={`${patient.firstName} ${patient.lastName}`}
           patientId={patient.displayId}
