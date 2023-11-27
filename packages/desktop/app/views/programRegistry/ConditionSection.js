@@ -76,7 +76,7 @@ const AddConditionButton = styled.button`
 `;
 
 export const ConditionSection = ({ patientProgramRegistration }) => {
-  const { data, isLoading } = usePatientProgramRegistryConditions(
+  const { data: conditionsResponse, isLoading } = usePatientProgramRegistryConditions(
     patientProgramRegistration.patientId,
     patientProgramRegistration.programRegistryId,
   );
@@ -97,8 +97,8 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
           </AddConditionButton>
         </ConditionalTooltip>
       </HeadingContainer>
-      {Array.isArray(data.data) &&
-        data.data.map(x => (
+      {Array.isArray(conditionsResponse?.data) &&
+        conditionsResponse?.data.map(x => (
           <ConditionContainer key={x.id}>
             <ConditionalTooltip
               title={x.programRegistryCondition?.name}
@@ -115,8 +115,7 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
         ))}
       {openAddCondition && (
         <AddConditionFormModal
-          onSubmit={() => setOpenAddCondition(false)}
-          onCancel={() => setOpenAddCondition(false)}
+          onClose={() => setOpenAddCondition(false)}
           patientProgramRegistration={patientProgramRegistration}
           open
         />

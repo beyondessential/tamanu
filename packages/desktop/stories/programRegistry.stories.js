@@ -130,8 +130,7 @@ storiesOf('Program Registry', module).add('Add Condition', () => (
   <ApiContext.Provider value={dummyApi}>
     <AddConditionFormModal
       patientProgramRegistration={patientProgramRegistration}
-      onSubmit={action('submit')}
-      onCancel={action('cancel')}
+      onClose={action('cancel')}
       open
     />
   </ApiContext.Provider>

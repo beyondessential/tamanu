@@ -22,7 +22,7 @@ const StyledFormGrid = styled(FormGrid)`
   margin-top: 30px;
 `;
 
-export const AddConditionFormModal = ({ onSubmit, onCancel, patientProgramRegistration, open }) => {
+export const AddConditionFormModal = ({ onClose, patientProgramRegistration, open }) => {
   const api = useApi();
   const queryClient = useQueryClient();
   const [options, setOptions] = useState([]);
@@ -35,23 +35,24 @@ export const AddConditionFormModal = ({ onSubmit, onCancel, patientProgramRegist
     })();
   }, [patientProgramRegistration.programRegistryId, api]);
 
+  const submit = async data => {
+    await api.post(
+      `patient/${encodeURIComponent(
+        patientProgramRegistration.patientId,
+      )}/programRegistration/${encodeURIComponent(
+        patientProgramRegistration.programRegistryId,
+      )}/condition`,
+      data,
+    );
+    queryClient.invalidateQueries(['PatientProgramRegistryConditions']);
+    onClose();
+  };
   return (
-    <Modal title="Add condition" open={open} onClose={onCancel}>
+    <Modal title="Add condition" open={open} onClose={onClose}>
       <Form
-        onSubmit={async data => {
-          await api.post(
-            `patient/${encodeURIComponent(
-              patientProgramRegistration.patientId,
-            )}/programRegistration/${encodeURIComponent(
-              patientProgramRegistration.programRegistryId,
-            )}/condition`,
-            data,
-          );
-          queryClient.invalidateQueries(['PatientProgramRegistryConditions']);
-          onSubmit();
-        }}
+        onSubmit={submit}
         render={({ submitForm }) => {
-          const handleCancel = () => onCancel();
+          const handleCancel = () => onClose();
           return (
             <div>
               <StyledFormGrid columns={1}>
@@ -63,7 +64,7 @@ export const AddConditionFormModal = ({ onSubmit, onCancel, patientProgramRegist
                 />
               </StyledFormGrid>
               <FormSeparatorLine style={{ marginTop: '60px', marginBottom: '30px' }} />
-              <ConfirmCancelRow onConfirm={submitForm} onCancel={handleCancel} />
+              <ConfirmCancelRow onConfirm={submitForm} onClose={handleCancel} />
             </div>
           );
         }}

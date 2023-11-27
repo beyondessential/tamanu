@@ -25,11 +25,11 @@ const StyledFormGrid = styled(FormGrid)`
 export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, open }) => {
   const api = useApi();
   const queryClient = useQueryClient();
+  if (!patientProgramRegistration) return <></>;
+
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
     baseQueryParameters: { programRegistryId: patientProgramRegistration.programRegistryId },
   });
-
-  if (!patientProgramRegistration) return <></>;
 
   const changeStatus = async changedStatus => {
     const { id, date, ...rest } = patientProgramRegistration;

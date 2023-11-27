@@ -63,50 +63,49 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
 
   return (
     <Modal title="Remove patient" open={open} onClose={onClose}>
-      <div>
-        <WarningDiv>
-          <p>
-            Please confirm you would like to remove the patient from the below program registry.
-            Once a patient is removed, you will not be able to update the status or complete program
-            forms.
-          </p>
-        </WarningDiv>
+      {/* <div> */}
+      <WarningDiv>
+        <p>
+          Please confirm you would like to remove the patient from the below program registry. Once
+          a patient is removed, you will not be able to update the status or complete program forms.
+        </p>
+      </WarningDiv>
 
-        <InfoDiv>
-          <InfoColumn>
-            <Info>
-              <Label>Program registry</Label>
-              <Value>{patientProgramRegistration.programRegistry.name}</Value>
-            </Info>
-            <Info>
-              <Label>Registered by</Label>
-              <Value>{patientProgramRegistration?.clinician?.displayName}</Value>
-            </Info>
-            <Info>
-              <Label>Status</Label>
-              <Value>{patientProgramRegistration.clinicalStatus.name}</Value>
-            </Info>
-          </InfoColumn>
-          <InfoColumn>
-            <Info>
-              <Label>Date of registration</Label>
-              <Value>
-                <DateDisplay date={patientProgramRegistration.date} />
-              </Value>
-            </Info>
-            <Info>
-              <Label>Registering facility</Label>
-              <Value>
-                {patientProgramRegistration.registeringFacility
-                  ? patientProgramRegistration.registeringFacility.name
-                  : patientProgramRegistration.facility.name}
-              </Value>
-            </Info>
-          </InfoColumn>
-        </InfoDiv>
-        <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />
-        <ConfirmCancelRow onConfirm={remove} onCancel={onClose} />
-      </div>
+      <InfoDiv>
+        <InfoColumn>
+          <Info>
+            <Label>Program registry</Label>
+            <Value>{patientProgramRegistration.programRegistry.name}</Value>
+          </Info>
+          <Info>
+            <Label>Registered by</Label>
+            <Value>{patientProgramRegistration?.clinician?.displayName}</Value>
+          </Info>
+          <Info>
+            <Label>Status</Label>
+            <Value>{patientProgramRegistration.clinicalStatus.name}</Value>
+          </Info>
+        </InfoColumn>
+        <InfoColumn>
+          <Info>
+            <Label>Date of registration</Label>
+            <Value>
+              <DateDisplay date={patientProgramRegistration.date} />
+            </Value>
+          </Info>
+          <Info>
+            <Label>Registering facility</Label>
+            <Value>
+              {patientProgramRegistration.registeringFacility
+                ? patientProgramRegistration.registeringFacility.name
+                : patientProgramRegistration.facility.name}
+            </Value>
+          </Info>
+        </InfoColumn>
+      </InfoDiv>
+      <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />
+      <ConfirmCancelRow onConfirm={remove} onCancel={onClose} />
+      {/* </div> */}
     </Modal>
   );
 };

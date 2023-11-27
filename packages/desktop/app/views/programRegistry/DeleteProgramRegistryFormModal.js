@@ -33,15 +33,15 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
 
   return (
     <Modal title="Delete record" open={open} onClose={onClose}>
-      <div>
-        <Text>
-          <p>
-            {`Are you sure you would like to delete the patient from the ${patientProgramRegistration?.programRegistry?.name} program registry? This will delete associated patient registry records. This action is irreversible.`}
-          </p>
-        </Text>
-        <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />
-        <ConfirmCancelRow onConfirm={deleteProgramRegistry} onCancel={onClose} />
-      </div>
+      {/* <div> */}
+      <Text>
+        <p>
+          {`Are you sure you would like to delete the patient from the ${patientProgramRegistration?.programRegistry?.name} program registry? This will delete associated patient registry records. This action is irreversible.`}
+        </p>
+      </Text>
+      <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />
+      <ConfirmCancelRow onConfirm={deleteProgramRegistry} onCancel={onClose} />
+      {/* </div> */}
     </Modal>
   );
 };
