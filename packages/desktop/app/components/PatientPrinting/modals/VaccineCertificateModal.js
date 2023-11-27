@@ -9,11 +9,15 @@ import { useApi } from '../../../api';
 import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { usePatientAdditionalDataQuery, useAdministeredVaccines } from '../../../api/queries';
+import {
+  usePatientAdditionalDataQuery,
+  useAdministeredVaccines,
+  useReferenceData,
+} from '../../../api/queries';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
 
-export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
+export const VaccineCertificateModal = ({ open, onClose, patient }) => {
   const api = useApi();
   const { getLocalisation } = useLocalisation();
   const { watermark, logo, footerImg, printedBy } = useCertificate({
@@ -42,7 +46,8 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
     [api, patient.id, printedBy],
   );
 
-  const patientData = { ...patient, additionalData };
+  const villageName = useReferenceData(patient.villageId).data?.name;
+  const patientData = { ...patient, villageName, additionalData };
 
   return (
     <Modal
@@ -69,4 +74,4 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
       </PDFViewer>
     </Modal>
   );
-});
+};

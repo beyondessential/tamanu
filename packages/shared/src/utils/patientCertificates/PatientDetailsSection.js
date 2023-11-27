@@ -13,7 +13,7 @@ const PATIENT_FIELDS = [
   },
   { key: 'sex', label: 'Sex', accessor: getSex },
   { key: 'displayId', label: 'NHN' },
-  { key: 'villageId', label: 'Village' },
+  { key: 'villageName', label: 'Village' },
 ];
 
 export const PatientDetailsSection = ({ patient, getLocalisation, extraFields = [] }) => {
