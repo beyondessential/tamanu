@@ -5,7 +5,7 @@
   "scripts": {
     "android": "npx react-native run-android",
     "build:android": "cd android && ./gradlew clean && ./gradlew assembleRelease && cd ..",
-    "start": "rnstl --silent && export NODE_OPTIONS=--openssl-legacy-provider && react-native start",
+    "start": "rnstl --silent && react-native start",
     "test": "jest",
     "test:coverage": "yarn test --coverage",
     "test:unit": "yarn test --watch -c jest-unit-config.js",
@@ -54,7 +54,7 @@
     "popup-ui": "^1.2.2",
     "prop-types": "^15.7.2",
     "react": "17.0.2",
-    "react-native": "0.67.2",
+    "react-native": "0.71.10",
     "react-native-autocomplete-input": "^5.0.2",
     "react-native-bcrypt": "^2.4.0",
     "react-native-bg-thread": "^1.2.0",
@@ -134,6 +134,7 @@
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "jest": "^26.6.3",
+    "jetifier": "^2.0.0",
     "lint-staged": "^9.5.0",
     "metro-react-native-babel-preset": "^0.66.2",
     "react-dom": "16.9.0",
@@ -144,7 +145,8 @@
     "sqlite3": "^5.1.6",
     "ts-jest": "^26.0.0",
     "typescript": "^3.9.2",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "yarn-audit-fix": "^10.0.7"
   },
   "detox": {
     "test-runner": "jest"
