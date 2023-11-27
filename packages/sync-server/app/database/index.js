@@ -34,7 +34,6 @@ export async function initDatabase({ testMode = false }) {
   // connect to database
   return getOrCreateConnection({
     testMode,
-    makeEveryModelParanoid: true,
     saltRounds: config.auth.saltRounds,
   });
 }
