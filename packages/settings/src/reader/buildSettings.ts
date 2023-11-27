@@ -4,18 +4,21 @@ import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { centralDefaults, facilityDefaults, globalDefaults } from '../defaults';
 import { Models, SettingsDBReader } from './readers/SettingsDBReader';
 import { SettingsJSONReader } from './readers/SettingsJSONReader';
+import { ConfigFileReader } from './readers/ConfigFileReader';
 
 function getReaders(models: Models, facilityId?: string) {
   return facilityId
     ? [
       new SettingsDBReader(models, SETTINGS_SCOPES.FACILITY, facilityId),
       new SettingsDBReader(models, SETTINGS_SCOPES.GLOBAL),
+      new ConfigFileReader(),
       new SettingsJSONReader(facilityDefaults),
       new SettingsJSONReader(globalDefaults),
     ]
     : [
       new SettingsDBReader(models, SETTINGS_SCOPES.CENTRAL),
       new SettingsDBReader(models, SETTINGS_SCOPES.GLOBAL),
+      new ConfigFileReader(),
       new SettingsJSONReader(centralDefaults),
       new SettingsJSONReader(globalDefaults),
     ];
