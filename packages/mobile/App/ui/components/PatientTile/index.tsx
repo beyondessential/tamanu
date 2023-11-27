@@ -1,14 +1,18 @@
 import React from 'react';
 import { RowView, StyledView, StyledText } from '/styled/common';
 import { UserAvatar } from '../UserAvatar';
-import { getAgeFromDate } from '/helpers/date';
+import { getDisplayAge } from '/helpers/date';
 import { theme } from '/styled/theme';
 import { getGender, joinNames } from '/helpers/user';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { IPatient } from '~/types';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 
 export const PatientTile = (patient: IPatient): JSX.Element => {
   const { firstName, lastName, sex } = patient;
+  const { getLocalisation } = useLocalisation();
+  const ageDisplayFormat = getLocalisation('ageDisplayFormat');
+
   return (
     <RowView
       paddingTop={screenPercentageToDP('2', Orientation.Height)}
@@ -39,19 +43,24 @@ export const PatientTile = (patient: IPatient): JSX.Element => {
           fontWeight={500}
           textAlign="left"
         >
-          {getSecondaryInfoString(patient)}
+          {getSecondaryInfoString(ageDisplayFormat, patient)}
         </StyledText>
       </StyledView>
     </RowView>
   );
 };
 
-const getSecondaryInfoString = ({ displayId, sex, dateOfBirth, village }: IPatient) => {
+const getSecondaryInfoString = (
+  ageDisplayFormat,
+  { displayId, sex, dateOfBirth, village }: IPatient,
+) => {
   const secondaryInfo = {
     displayId,
     gender: getGender(sex)[0],
-    age: dateOfBirth && `${getAgeFromDate(dateOfBirth)}yrs`,
-    village: village?.name
+    age: dateOfBirth && `${getDisplayAge(dateOfBirth, ageDisplayFormat)}`,
+    village: village?.name,
   };
-  return Object.values(secondaryInfo).filter(e => e).join(' • ');
-}
+  return Object.values(secondaryInfo)
+    .filter(e => e)
+    .join(' • ');
+};

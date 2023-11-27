@@ -1,11 +1,5 @@
 import React, { ReactElement, useCallback } from 'react';
-import {
-  FullView,
-  RowView,
-  StyledText,
-  StyledSafeAreaView,
-  StyledView,
-} from '/styled/common';
+import { FullView, RowView, StyledText, StyledSafeAreaView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { Button } from '/components/Button';
@@ -15,12 +9,10 @@ import { compose } from 'redux';
 import { withPatient } from '/containers/Patient';
 import { NewPatientScreenProps } from '/interfaces/screens/RegisterPatientStack/NewPatientScreenProps';
 import { joinNames } from '~/ui/helpers/user';
-import { getAgeFromDate } from '~/ui/helpers/date';
+import { getDisplayAge } from '~/ui/helpers/date';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 
-const Screen = ({
-  navigation,
-  selectedPatient,
-}: NewPatientScreenProps): ReactElement => {
+const Screen = ({ navigation, selectedPatient }: NewPatientScreenProps): ReactElement => {
   const onNavigateToHome = useCallback(() => {
     navigation.navigate(Routes.HomeStack.HomeTabs.Index);
   }, []);
@@ -40,6 +32,9 @@ const Screen = ({
     });
   }, []);
 
+  const { getLocalisation } = useLocalisation();
+  const ageDisplayFormat = getLocalisation('ageDisplayFormat');
+
   return (
     <FullView>
       <StyledSafeAreaView
@@ -53,20 +48,11 @@ const Screen = ({
             marginRight={10}
             backgroundColor="transparent"
           >
-            <CrossIcon
-              height={24}
-              width={24}
-            />
+            <CrossIcon height={24} width={24} />
           </Button>
         </RowView>
       </StyledSafeAreaView>
-      <StyledView
-        position="absolute"
-        top="18%"
-        width="100%"
-        alignItems="center"
-        zIndex={2}
-      >
+      <StyledView position="absolute" top="18%" width="100%" alignItems="center" zIndex={2}>
         <StyledText
           color={theme.colors.WHITE}
           fontSize={screenPercentageToDP(3.4, Orientation.Height)}
@@ -88,7 +74,8 @@ const Screen = ({
           {joinNames(selectedPatient)}
         </StyledText>
         <StyledText color={theme.colors.TEXT_MID} marginTop={10}>
-          {selectedPatient.gender} {getAgeFromDate(selectedPatient.dateOfBirth).toString()} years old{' '}
+          {selectedPatient.gender} {getDisplayAge(selectedPatient.dateOfBirth, ageDisplayFormat)}{' '}
+          old{' '}
         </StyledText>
         <StyledText
           fontSize={screenPercentageToDP(2.55, Orientation.Height)}
@@ -103,10 +90,7 @@ const Screen = ({
           justifyContent="flex-end"
           padding={screenPercentageToDP(2.43, Orientation.Height)}
         >
-          <RowView
-            width="100%"
-            height={screenPercentageToDP(6.07, Orientation.Height)}
-          >
+          <RowView width="100%" height={screenPercentageToDP(6.07, Orientation.Height)}>
             <Button
               onPress={onAddAnotherPatient}
               flex={1}
