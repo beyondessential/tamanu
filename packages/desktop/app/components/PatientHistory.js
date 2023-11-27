@@ -43,7 +43,6 @@ const RefreshButton = styled(OutlinedButton)`
 const MODAL_IDS = {
   DELETE: 'delete',
 };
-
 const MODALS = {
   [MODAL_IDS.DELETE]: DeleteEncounterModal,
 };
@@ -56,24 +55,23 @@ export const PatientHistory = ({ patient, onItemClick }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEncounterData, setSelectedEncounterData] = useState(null);
 
-  const ACTION_PERMISSION_CHECKS = {
-    [MODAL_IDS.DELETE]: () => {
-      return ability?.can('delete', 'Encounter');
-    },
-  };
-
   const handleChangeModalId = id => {
     setModalId(id);
     setModalOpen(true);
   };
 
   const allMenuActions = [
-    { id: MODAL_IDS.DELETE, label: 'Delete', action: () => handleChangeModalId(MODAL_IDS.DELETE) },
+    {
+      label: 'Delete',
+      action: () => handleChangeModalId(MODAL_IDS.DELETE),
+      permissionCheck: () => {
+        return ability?.can('delete', 'Encounter');
+      },
+    },
   ];
 
   const actions = allMenuActions
-    .filter(({ id }) => {
-      const permissionCheck = ACTION_PERMISSION_CHECKS[id];
+    .filter(({ permissionCheck }) => {
       return permissionCheck ? permissionCheck() : true;
     })
     .reduce((acc, { label, action }) => {
