@@ -5,7 +5,7 @@ import { SyncRecord } from '../types';
 import { sortInDependencyOrder } from './sortInDependencyOrder';
 import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/helpers';
 import { buildFromSyncRecord } from './buildFromSyncRecord';
-import { executeInserts, executeUpdates, executeDeletes } from './executeCrud';
+import { executeInserts, executeUpdates, executeDeletes, executeRestores } from './executeCrud';
 import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
 import { readFileInDocuments } from '../../../ui/helpers/file';
@@ -18,34 +18,77 @@ import { getDirPath } from './getFilePath';
  * @param progressCallback
  * @returns
  */
-const saveChangesForModel = async (
+export const saveChangesForModel = async (
   model: typeof BaseModel,
   changes: SyncRecord[],
 ): Promise<void> => {
   // split changes into create, update, delete
-  const idsForDelete = changes.filter(c => c.isDeleted).map(c => c.data.id);
-  const idsForUpsert = changes.filter(c => !c.isDeleted && c.data.id).map(c => c.data.id);
+  const recordsForUpsert = changes.filter(c => c.data).map(c => c.data);
   const idsForUpdate = new Set();
+  const idsForRestore = new Set();
+  const idsForDelete = new Set();
+  const idsToSkip = new Set();
 
-  for (const batchOfIds of chunk(idsForUpsert, SQLITE_MAX_PARAMETERS)) {
+  for (const incomingRecords of chunk(recordsForUpsert, SQLITE_MAX_PARAMETERS)) {
+    const batchOfIds = incomingRecords.map(r => r.id);
     const batchOfExisting = await model.findByIds(batchOfIds, {
-      select: ['id'],
+      select: ['id', 'deletedAt'],
+      withDeleted: true,
     });
-    batchOfExisting.map(e => idsForUpdate.add(e.id));
+    batchOfExisting.forEach(existing => {
+      // compares incoming and existing records by id
+      const incoming = changes.find(c => c.recordId === existing.id);
+      // don't do anything if incoming record is deleted and existing record is already deleted
+      if (existing.deletedAt && !incoming.isDeleted) {
+        idsForRestore.add(existing.id);
+      }
+      if (!existing.deletedAt && !incoming.isDeleted) {
+        idsForUpdate.add(existing.id);
+      }
+      if (!existing.deletedAt && incoming.isDeleted) {
+        idsForDelete.add(existing.id);
+      }
+      if (existing.deletedAt && incoming.isDeleted) {
+        idsToSkip.add(existing.id);
+      }
+    });
   }
 
   const recordsForCreate = changes
-    .filter(c => !c.isDeleted && !idsForUpdate.has(c.recordId))
-    .map(({ data }) => buildFromSyncRecord(model, data));
+    .filter(
+      c =>
+        !idsForUpdate.has(c.recordId) &&
+        !idsForRestore.has(c.recordId) &&
+        !idsForDelete.has(c.recordId) &&
+        !idsToSkip.has(c.recordId),
+    ) // not existing in db
+    .map(({ isDeleted, data }) => ({ ...buildFromSyncRecord(model, data), isDeleted }));
 
   const recordsForUpdate = changes
-    .filter(c => !c.isDeleted && idsForUpdate.has(c.recordId))
+    .filter(c => idsForUpdate.has(c.recordId))
+    .map(({ data }) => buildFromSyncRecord(model, data));
+
+  const recordsForRestore = changes
+    .filter(c => idsForRestore.has(c.recordId))
+    .map(({ data }) => buildFromSyncRecord(model, data));
+
+  const recordsForDelete = changes
+    .filter(c => idsForDelete.has(c.recordId))
     .map(({ data }) => buildFromSyncRecord(model, data));
 
   // run each import process
-  await executeInserts(model, recordsForCreate);
-  await executeUpdates(model, recordsForUpdate);
-  await executeDeletes(model, idsForDelete);
+  if (recordsForCreate.length > 0) {
+    await executeInserts(model, recordsForCreate);
+  }
+  if (recordsForUpdate.length > 0) {
+    await executeUpdates(model, recordsForUpdate);
+  }
+  if (recordsForDelete.length > 0) {
+    await executeDeletes(model, recordsForDelete);
+  }
+  if (recordsForRestore.length > 0) {
+    await executeRestores(model, recordsForRestore);
+  }
 };
 
 /**
