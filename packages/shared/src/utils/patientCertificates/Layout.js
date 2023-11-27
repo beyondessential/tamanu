@@ -81,56 +81,21 @@ export const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
   },
-  documentFooter: {
+  fixedHeader: {
+    position: 'absolute',
+    top: 25,
+    right: 50,
+  },
+  fixedFooter: {
     position: 'absolute',
     bottom: 16,
     left: 50,
     right: 50,
     textAlign: 'left',
-    fontSize: 8,
-    fontWeight: 600,
-    marginTop: 31,
   },
-  footerContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  footerLeft: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  footerRight: {
-    flex: 1,
-    textAlign: 'right',
-  },
-  documentFooterLabelText: {
-    fontSize: 8,
-    fontWeight: 400,
-    fontFamily: 'Helvetica-Bold',
-  },
-  documentFooterValueText: {
-    fontSize: 8,
-    fontWeight: 400,
-    fontFamily: 'Helvetica',
-  },
-  documentHeader: {
-    position: 'absolute',
-    top: 25,
-    right: 50,
-  },
-  documentHeaderContent: {
-    flexDirection: 'row',
-  },
-  documentHeaderLabelText: {
-    fontSize: 8,
-    fontWeight: 400,
-    fontFamily: 'Helvetica-Bold',
-  },
-  documentHeaderValueText: {
-    fontSize: 8,
-    fontWeight: 400,
-    fontFamily: 'Helvetica',
+  wrappingPadding: {
+    height: 26,
+    width: '100%',
   },
 });
 
@@ -173,46 +138,22 @@ export const CertificateFooter = props => <View style={styles.certificateFooter}
 
 export const Divider = props => <View style={styles.divider} {...props} />;
 
-export const DocumentFooter = ({ printDate, printFacility, printedBy }) => (
-  <View style={styles.documentFooter} fixed>
+export const FixedHeader = ({ children, props }) => (
+  <View fixed style={styles.fixedHeader} {...props}>
+    {children}
+  </View>
+);
+
+export const FixedFooter = ({ children, props }) => (
+  <View fixed style={styles.fixedFooter} {...props}>
     <Divider />
-    <View style={styles.footerContent}>
-      <View style={styles.footerLeft}>
-        <Text style={styles.documentFooterLabelText}>Print date: </Text>
-        <Text style={styles.documentFooterValueText}>{printDate} | </Text>
-        <Text style={styles.documentFooterLabelText}>Printing facility: </Text>
-        <Text style={styles.documentFooterValueText}>{printFacility} | </Text>
-        <Text style={styles.documentFooterLabelText}>Printed by: </Text>
-        <Text style={styles.documentFooterValueText}>{printedBy}</Text>
-      </View>
-      <View style={styles.footerRight}>
-        <Text
-          style={styles.documentFooterValueText}
-          render={({ pageNumber, totalPages }) => `${pageNumber} of ${totalPages}`}
-        />
-      </View>
-    </View>
+    {children}
   </View>
 );
 
-const DocumentHeaderContent = ({ patientName, patientId }) => (
-  <View style={styles.documentHeaderContent}>
-    <Text style={styles.documentHeaderLabelText}>Immunisation Certificate | </Text>
-    <Text style={styles.documentHeaderLabelText}>Patient name: </Text>
-    <Text style={styles.documentHeaderValueText}>{patientName} | </Text>
-    <Text style={styles.documentHeaderLabelText}>Patient ID: </Text>
-    <Text style={styles.documentHeaderValueText}>{patientId}</Text>
-  </View>
+export const WrappingPadding = ({ size }) => (
+  <View
+    fixed
+    style={{ ...styles.wrappingPadding, height: size || styles.wrappingPadding.height }}
+  />
 );
-
-export const DocumentHeader = ({ patientName, patientId }) => {
-  return (
-    <View
-      style={styles.documentHeader}
-      fixed
-      render={({ pageNumber }) =>
-        pageNumber > 1 && DocumentHeaderContent({ patientName, patientId })
-      }
-    />
-  );
-};

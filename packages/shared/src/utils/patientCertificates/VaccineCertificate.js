@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page, View } from '@react-pdf/renderer';
+import { Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 
 import { Table } from './Table';
 import {
@@ -8,8 +8,9 @@ import {
   Watermark,
   CertificateHeader,
   CertificateFooter,
-  DocumentFooter,
-  DocumentHeader,
+  WrappingPadding,
+  FixedFooter,
+  FixedHeader,
 } from './Layout';
 import { PatientDetailsSection } from './PatientDetailsSection';
 import { H3 } from './Typography';
@@ -49,6 +50,35 @@ const columns = [
   },
 ];
 
+const vaccineCertificateStyles = StyleSheet.create({
+  footerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  footerLeft: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  footerRight: {
+    flex: 1,
+    textAlign: 'right',
+  },
+  labelText: {
+    fontSize: 8,
+    fontWeight: 400,
+    fontFamily: 'Helvetica-Bold',
+  },
+  valueText: {
+    fontSize: 8,
+    fontWeight: 400,
+    fontFamily: 'Helvetica',
+  },
+  documentHeaderContent: {
+    flexDirection: 'row',
+  },
+});
+
 export const VaccineCertificate = ({
   patient,
   printedBy,
@@ -65,16 +95,44 @@ export const VaccineCertificate = ({
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
 
-  const fixedHeader = () => <View debug fixed style={{ height: '26', width: '100%' }} />;
+  const VaccineCertificateHeader = () => (
+    <View style={vaccineCertificateStyles.documentHeaderContent}>
+      <Text style={vaccineCertificateStyles.labelText}>Immunisation Certificate | </Text>
+      <Text style={vaccineCertificateStyles.labelText}>Patient name: </Text>
+      <Text style={vaccineCertificateStyles.valueText}>
+        {patient.firstName} {patient.lastName} |{' '}
+      </Text>
+      <Text style={vaccineCertificateStyles.labelText}>Patient ID: </Text>
+      <Text style={vaccineCertificateStyles.valueText}>{patient.displayId}</Text>
+    </View>
+  );
+
+  const VaccineCertificateFooter = () => (
+    <View style={vaccineCertificateStyles.footerContent}>
+      <View style={vaccineCertificateStyles.footerLeft}>
+        <Text style={vaccineCertificateStyles.labelText}>Print date: </Text>
+        <Text style={vaccineCertificateStyles.valueText}>{printedDate} | </Text>
+        <Text style={vaccineCertificateStyles.labelText}>Printing facility: </Text>
+        <Text style={vaccineCertificateStyles.valueText}>{healthFacility} | </Text>
+        <Text style={vaccineCertificateStyles.labelText}>Printed by: </Text>
+        <Text style={vaccineCertificateStyles.valueText}>{printedBy}</Text>
+      </View>
+      <View style={vaccineCertificateStyles.footerRight}>
+        <Text
+          style={vaccineCertificateStyles.valueText}
+          render={({ pageNumber, totalPages }) => `${pageNumber} of ${totalPages}`}
+        />
+      </View>
+    </View>
+  );
 
   return (
     <Document>
       <Page size="A4" style={{ ...styles.page, paddingBottom: 51 }}>
-        <View fixed render={({ pageNumber }) => pageNumber > 1 && fixedHeader()} debug />
-        <DocumentHeader
-          patientName={`${patient.firstName} ${patient.lastName}`}
-          patientId={patient.displayId}
-        />
+        <FixedHeader>
+          <View fixed render={({ pageNumber }) => pageNumber > 1 && <VaccineCertificateHeader />} />
+        </FixedHeader>
+        <View fixed render={({ pageNumber }) => pageNumber > 1 && <WrappingPadding />} />
         {watermarkSrc && <Watermark src={watermarkSrc} />}
         <CertificateHeader>
           <LetterheadSection
@@ -99,11 +157,9 @@ export const VaccineCertificate = ({
           />
         </Box>
         <CertificateFooter />
-        <DocumentFooter
-          printedBy={printedBy}
-          printDate={printedDate}
-          printFacility={healthFacility}
-        />
+        <FixedFooter>
+          <VaccineCertificateFooter />
+        </FixedFooter>
       </Page>
     </Document>
   );
