@@ -25,11 +25,14 @@ export const recordIsSoftDeletedCheckingRouter = tableName => {
   router.use(async (req, res, next) => {
     const { models, body, params } = req;
     const id = params.id || body.id;
-    const object = await models[tableName].findByPk(id, { paranoid: false });
-    if (object && object.deletedAt)
-      throw new InvalidOperationError(
-        `Invalid Operation Error: Cannot update a deleted ${tableName}, id: ${id}.`,
-      );
+    if (id) {
+      const object = await models[tableName].findByPk(id, { paranoid: false });
+      if (object && object.deletedAt) {
+        throw new InvalidOperationError(
+          `Invalid Operation Error: Cannot update a deleted ${tableName}, id: ${id}.`,
+        );
+      }
+    }
     next();
   });
 
