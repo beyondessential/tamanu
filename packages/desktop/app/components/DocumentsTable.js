@@ -11,6 +11,7 @@ import { LimitedLinesCell } from './FormattedTableCell';
 
 import { DeleteDocumentModal } from '../views/patients/components/DeleteDocumentModal';
 import { MenuButton } from './MenuButton';
+import { useAuth } from '../contexts/Auth';
 
 const ActionWrapper = styled.div`
   width: 0; // This is needed to move content to the right side of the table
@@ -58,6 +59,7 @@ export const DocumentsTable = React.memo(
     onDownload,
     openDocumentPreview,
   }) => {
+    const { ability } = useAuth();
     const [modalId, setModalId] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedDocument, setSelectedDocument] = useState(null);
@@ -67,13 +69,28 @@ export const DocumentsTable = React.memo(
       setModalOpen(true);
     };
 
-    const menuActions = {
-      Delete: () => {
-        handleChangeModalId(MODAL_IDS.DELETE);
+    const menuActions = [
+      {
+        label: 'Delete',
+        action: () => handleChangeModalId(MODAL_IDS.DELETE),
+        permissionCheck: () => {
+          return ability?.can('delete', 'DocumentMetadata');
+        },
       },
-    };
+    ];
 
     const ActiveModal = MODALS[modalId] || null;
+
+    const actions = menuActions
+      .filter(({ permissionCheck }) => {
+        return permissionCheck ? permissionCheck() : true;
+      })
+      .reduce((acc, { label, action }) => {
+        acc[label] = action;
+        return acc;
+      }, {});
+
+    const isAllActionsDeniedDueToPerm = Object.keys(actions).length === 0;
 
     // Define columns inside component to pass callbacks to getActions
     const COLUMNS = [
@@ -100,14 +117,17 @@ export const DocumentsTable = React.memo(
         dontCallRowInput: true,
         sortable: false,
         CellComponent: ({ data }) => {
-          return (
-            <ActionWrapper onMouseEnter={() => setSelectedDocument(data)}>
-              <StyledIconButton color="primary" onClick={() => onDownload(data)} key="download">
-                <GetAppIcon fontSize="small" />
-              </StyledIconButton>
-              <MenuButton actions={menuActions} />
-            </ActionWrapper>
-          );
+          if (!isAllActionsDeniedDueToPerm) {
+            return (
+              <ActionWrapper onMouseEnter={() => setSelectedDocument(data)}>
+                <StyledIconButton color="primary" onClick={() => onDownload(data)} key="download">
+                  <GetAppIcon fontSize="small" />
+                </StyledIconButton>
+                <MenuButton actions={actions} />
+              </ActionWrapper>
+            );
+          }
+          return <></>;
         },
       },
     ];
