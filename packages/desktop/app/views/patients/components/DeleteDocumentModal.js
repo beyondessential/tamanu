@@ -8,11 +8,11 @@ const SubText = styled.div`
   padding: 30px;
 `;
 
-export const DeleteDocumentModal = ({ open, onClose, documentToDelete }) => {
+export const DeleteDocumentModal = ({ open, onClose, documentToDelete, endpoint }) => {
   const api = useApi();
 
   const onSubmit = async () => {
-    // await api.delete(`encounter/${encounterToDelete.id}`);
+    await api.delete(`${endpoint}/${documentToDelete.id}`);
     onClose();
   };
 

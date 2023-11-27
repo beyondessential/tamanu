@@ -50,7 +50,14 @@ const getUploadedDate = ({ documentUploadedAt }) =>
 const getDepartmentName = ({ department }) => department?.name || '';
 
 export const DocumentsTable = React.memo(
-  ({ endpoint, searchParameters, refreshCount, onDownload, openDocumentPreview }) => {
+  ({
+    endpoint,
+    searchParameters,
+    refreshCount,
+    setRefreshCount,
+    onDownload,
+    openDocumentPreview,
+  }) => {
     const [modalId, setModalId] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedDocument, setSelectedDocument] = useState(null);
@@ -121,10 +128,10 @@ export const DocumentsTable = React.memo(
           <ActiveModal
             open={modalOpen}
             documentToDelete={selectedDocument}
+            endpoint={endpoint}
             onClose={() => {
               setModalOpen(false);
-              // queryClient.invalidateQueries(['patientCurrentEncounter', patient.id]);
-              // setRefreshCount(refreshCount + 1);
+              setRefreshCount(refreshCount + 1);
             }}
           />
         )}

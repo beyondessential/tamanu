@@ -118,6 +118,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
           endpoint={documentMetadataEndpoint}
           searchParameters={searchParameters}
           refreshCount={refreshCount}
+          setRefreshCount={setRefreshCount}
           onDownload={onDownload}
           openDocumentPreview={openDocumentPreview}
         />
