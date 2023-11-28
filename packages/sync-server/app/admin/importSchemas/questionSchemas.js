@@ -10,23 +10,6 @@ import { configString, validationString } from './jsonString';
 import { mathjsString } from './mathjsString';
 import { rangeObjectSchema, rangeArraySchema } from './rangeObject';
 
-const testIncompatibleCurrentlyAtType = async (fieldName, ctx) => {
-  const { models, programId } = ctx.options.context;
-  const programRegistry = await models.ProgramRegistry.findOne({
-    where: {
-      programId,
-      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-    },
-  });
-  if (!programRegistry) return true;
-
-  if (programRegistry?.currentlyAtType === CURRENTLY_AT_TYPES.VILLAGE)
-    return fieldName !== 'registrationCurrentlyAtFacility';
-  if (programRegistry?.currentlyAtType === CURRENTLY_AT_TYPES.FACILITY)
-    return fieldName !== 'registrationCurrentlyAtVillage';
-  return true;
-};
-
 const columnReferenceConfig = baseConfigShape.shape({
   column: yup.string().required(),
 });

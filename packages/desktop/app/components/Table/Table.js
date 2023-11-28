@@ -97,8 +97,8 @@ const StyledTableContainer = styled.div`
   overflow: auto;
   border-radius: 5px;
   background: white;
-  border: 1px solid ${Colors.outline};
   width: 100%;
+  border: 1px solid ${props => (props.$borderColor ? props.$borderColor : Colors.outline)};
   ${props => (props.$elevated ? PaperStyles : null)};
   ${props => (props.containerStyle ? props.containerStyle : null)}
 `;

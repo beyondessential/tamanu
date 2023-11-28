@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { DataFetchingTable } from '../../components/Table/DataFetchingTable';
@@ -6,6 +6,7 @@ import { DateDisplay } from '../../components/DateDisplay';
 import { MenuButton } from '../../components/MenuButton';
 
 export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }) => {
+  const [refreshCount, setRefreshCount] = useState(0);
   const columns = [
     {
       key: 'date',
@@ -52,10 +53,16 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
       required: false,
     },
   ];
+
+  useEffect(() => {
+    setRefreshCount(refreshCount + 1);
+  }, [patientProgramRegistration.programRegistry.programId]);
+
   return (
     <DataFetchingTable
       endpoint={`patient/${patientProgramRegistration.patientId}/programResponses`}
       columns={columns}
+      refreshCount={refreshCount}
       initialSort={{
         orderBy: 'date',
         order: 'asc',
@@ -66,10 +73,4 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
       elevated={false}
     />
   );
-};
-
-PatientProgramRegistryFormHistory.propTypes = {
-  patientProgramRegistration: PropTypes.shape({
-    id: PropTypes.string,
-  }).isRequired,
 };
