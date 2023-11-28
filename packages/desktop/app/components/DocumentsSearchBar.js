@@ -7,6 +7,7 @@ import { Form, Field, SearchField } from './Field';
 import { FormGrid } from './FormGrid';
 import { LargeSubmitButton, LargeOutlinedSubmitButton } from './Button';
 import { Colors } from '../constants';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const Container = styled.div`
   padding: 2rem;
@@ -38,10 +39,10 @@ const renderSearchBar = ({ submitForm, clearForm }) => (
     </FormGrid>
     <Box display="flex" alignItems="center" justifyContent="flex-end" mt={2}>
       <LargeOutlinedSubmitButton onClick={clearForm} style={{ marginRight: 12 }}>
-        Clear search
+        <TranslatedText stringId="general.action.clear" fallback="Clear" />
       </LargeOutlinedSubmitButton>
       <LargeSubmitButton onClick={submitForm} type="submit">
-        Search
+        <TranslatedText stringId="general.action.search" fallback="Search" />
       </LargeSubmitButton>
     </Box>
   </>
@@ -50,7 +51,9 @@ const renderSearchBar = ({ submitForm, clearForm }) => (
 export const DocumentsSearchBar = ({ setSearchParameters }) => (
   <Container>
     <HeaderBar>
-      <Typography variant="h3">Documents search</Typography>
+      <Typography variant="h3">
+        <TranslatedText stringId="patient.documents.searchTitle" fallback="Documents search" />
+      </Typography>
     </HeaderBar>
     <Form onSubmit={values => setSearchParameters(values)} render={renderSearchBar} />
   </Container>
