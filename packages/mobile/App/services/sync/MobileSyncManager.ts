@@ -175,7 +175,7 @@ export class MobileSyncManager {
       console.log(`MobileSyncManager.runSync(): Sync queue status: ${status}`);
       this.isSyncing = false;
       this.isQueuing = true;
-      this.progressMessage = 'Sync in progress...';
+      this.progressMessage = urgent ? 'Sync in progress...' : 'Sync in queue';
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_IN_QUEUE);
       return;
     }
