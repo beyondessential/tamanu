@@ -1,4 +1,4 @@
-import Sequelize, { Op } from 'sequelize';
+import Sequelize, { Op, QueryTypes } from 'sequelize';
 import asyncHandler from 'express-async-handler';
 import { NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 
@@ -6,7 +6,7 @@ import { checkNotePermission } from '../../utils/checkNotePermission';
 
 export const noteListHandler = recordType =>
   asyncHandler(async (req, res) => {
-    const { db, models, params, query } = req;
+    const { models, params, query } = req;
     const { order = 'ASC', orderBy, noteType, rowsPerPage, page } = query;
 
     const recordId = params.id;
@@ -39,39 +39,45 @@ export const noteListHandler = recordType =>
       },
     ];
 
-    // All notes, filtered by recordId, recordType & visibilityStatus are loaded excluding:
-    // 1- (1st notIn) Notes that have another more recent note with the same root (revisedById)
-    // 2- (2nd notIn) Root notes that have been revised by another note
-    const baseWhere = {
-      id: {
-        [Op.and]: [
-          {
-            [Op.notIn]: db.literal(`
-              (
-                SELECT id
-                FROM (
-                  SELECT id, revised_by_id, ROW_NUMBER() OVER (PARTITION BY revised_by_id ORDER BY date DESC, id DESC) AS row_num
-                  FROM notes
-                  WHERE revised_by_id IS NOT NULL
-                ) n
-                WHERE n.row_num != 1
-              )
-            `),
-          },
-          {
-            [Op.notIn]: db.literal(`
-              (
-                SELECT revised_by_id
-                FROM notes
-                WHERE revised_by_id IS NOT NULL
-              )
-            `),
-          },
-        ],
+    const idRows = await models.Note.sequelize.query(
+      `
+      WITH
+
+      -- first create a sub-table with only the notes for this record.
+      -- this will make the DISTINCT stuff way faster
+      this_record_notes AS (
+        SELECT 
+          *,
+          CASE WHEN revised_by_id IS NULL THEN id ELSE revised_by_id END edit_chain
+        FROM notes n
+        WHERE record_type = :recordType
+          AND record_id = :recordId
+      )
+
+      -- now filter out anything except the latest revision for each note
+      SELECT DISTINCT ON (edit_chain)
+        id
+      FROM this_record_notes n
+      ORDER BY edit_chain, date DESC
+    `,
+      {
+        type: QueryTypes.SELECT,
+        replacements: {
+          recordType,
+          recordId,
+        },
       },
-      recordType,
-      recordId,
+    );
+
+    // any other filtering should happen after the edits have been determined
+    // (if we do it all in the same step, we risk including earlier versions of
+    // a record that was excluded later, which we absolutely do not want)
+    const where = {
+      id: {
+        [Op.in]: idRows.map(x => x.id),
+      },
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      ...(noteType ? { noteType } : {}),
     };
 
     const queryOrder = orderBy
@@ -92,12 +98,6 @@ export const noteListHandler = recordType =>
           ],
         ];
 
-    const where = noteType
-      ? {
-          ...baseWhere,
-          noteType,
-        }
-      : baseWhere;
     const rows = await models.Note.findAll({
       include,
       where,
