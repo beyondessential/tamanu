@@ -10,6 +10,7 @@ import { Colors, NOTE_FORM_MODES, NOTE_TYPE_LABELS } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { NoteModal } from './NoteModal';
 import { withPermissionCheck } from './withPermissionCheck';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const StyledEditIcon = styled(EditIcon)`
   cursor: pointer;
@@ -312,9 +313,21 @@ const NoteTable = ({
         noDataBackgroundColor={Colors.background}
         noDataMessage={
           <NoDataMessage>
-            {`This patient has no notes ${
-              noteType ? 'of this type ' : ''
-            }to display. Click ‘New note’ to add a note.`}
+            {/* {`This patient has no notes ${ */}
+            {/*  noteType ? 'of this type ' : '' */}
+            {/* }to display. Click ‘New note’ to add a note.`} */}
+            {/* <TranslatedText stringId="note.table.no_data" fallback="This patient has no notes to display. Click ‘New note’ to add a note."/> */}
+            {noteType ? (
+              <TranslatedText
+                stringId="note.table.no_data_of_type"
+                fallback="This patient has no notes of this type to display. Click ‘New note’ to add a note."
+              />
+            ) : (
+              <TranslatedText
+                stringId="note.table.no_data"
+                fallback="This patient has no notes to display. Click ‘New note’ to add a note."
+              />
+            )}
           </NoDataMessage>
         }
       />
