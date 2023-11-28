@@ -22,9 +22,7 @@ survey.get(
       where: { surveyType: 'vitals' },
     });
     if (!surveyRecord) throw new NotFoundError();
-    const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyRecord.id, {
-      includeAllVitals: true,
-    });
+    const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyRecord.id);
     res.send({
       ...surveyRecord.forResponse(),
       components,
@@ -37,9 +35,7 @@ survey.get(
     const { models, params } = req;
 
     const surveyRecord = await findRouteObject(req, 'Survey');
-    const components = await models.SurveyScreenComponent.getComponentsForSurvey(params.id, {
-      includeAllVitals: true,
-    });
+    const components = await models.SurveyScreenComponent.getComponentsForSurvey(params.id);
     res.send({
       ...surveyRecord.forResponse(),
       components,

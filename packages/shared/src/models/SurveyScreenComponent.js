@@ -1,5 +1,5 @@
 import { Sequelize, Op } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { parseOrNull } from '../utils/parse-or-null';
 import { log } from '../services/logging';
 import { Model } from './Model';
@@ -27,12 +27,8 @@ export class SurveyScreenComponent extends Model {
     );
   }
 
-  static getListReferenceAssociations(includeAllVitals) {
-    return {
-      model: this.sequelize.models.ProgramDataElement,
-      as: 'dataElement',
-      paranoid: !includeAllVitals,
-    };
+  static getListReferenceAssociations() {
+    return ['dataElement'];
   }
 
   static initRelations(models) {
@@ -51,16 +47,22 @@ export class SurveyScreenComponent extends Model {
       surveyId: {
         [Op.in]: surveyIds,
       },
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     };
+
+    if (includeAllVitals) {
+      where.visibilityStatus = {
+        [Op.in]: [VISIBILITY_STATUSES.CURRENT, VISIBILITY_STATUSES.HISTORICAL],
+      };
+    }
 
     const components = await this.findAll({
       where,
-      include: this.getListReferenceAssociations(includeAllVitals),
+      include: this.getListReferenceAssociations(),
       order: [
         ['screen_index', 'ASC'],
         ['component_index', 'ASC'],
       ],
-      paranoid: !includeAllVitals,
     });
 
     return components.map(c => c.forResponse());

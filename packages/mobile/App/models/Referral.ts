@@ -4,6 +4,7 @@ import { GenericFormValues, ICreateSurveyResponse, IReferral } from '~/types';
 import { Encounter } from './Encounter';
 import { SurveyResponse } from './SurveyResponse';
 import { SYNC_DIRECTIONS } from './types';
+import { SurveyScreenComponent } from './SurveyScreenComponent';
 
 @Entity('referral')
 export class Referral extends BaseModel implements IReferral {
@@ -64,17 +65,16 @@ export class Referral extends BaseModel implements IReferral {
       .leftJoinAndSelect('surveyResponse.survey', 'survey')
       .leftJoinAndSelect('surveyResponse.answers', 'answers')
       .leftJoinAndSelect('answers.dataElement', 'dataElement')
-      .withDeleted() // Include both soft-deleted 'dataElement' and 'surveyScreenComponent':
       .leftJoinAndSelect(
-        'dataElement.surveyScreenComponent',
-        'surveyScreenComponent',
-        'surveyScreenComponent.dataElementId = dataElement.id and surveyScreenComponent.surveyId = survey.id',
+        SurveyScreenComponent,
+        'screenComponent',
+        'screenComponent.dataElementId = dataElement.id and screenComponent.surveyId = survey.id',
       )
       .where('initiatingEncounter.patientId = :patientId', { patientId })
       .orderBy({
         'surveyResponse.endTime': 'DESC',
-        'surveyScreenComponent.screenIndex': 'ASC',
-        'surveyScreenComponent.componentIndex': 'ASC',
+        'screenComponent.screenIndex': 'ASC',
+        'screenComponent.componentIndex': 'ASC',
       })
       .getMany();
   }

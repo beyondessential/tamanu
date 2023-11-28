@@ -191,9 +191,8 @@ export async function importRows(
     const existing = await loadExisting(Model, values);
     try {
       if (existing) {
-        await existing.update(values);
         if (values.deletedAt) {
-          if (!['Permission', 'SurveyScreenComponent'].includes(model)) {
+          if (model !== 'Permission') {
             throw new ValidationError(`Deleting ${model} via the importer is not supported`);
           }
           await existing.destroy();
@@ -203,6 +202,7 @@ export async function importRows(
             await existing.restore();
             updateStat(stats, statkey(model, sheetName), 'restored');
           }
+          await existing.update(values);
           updateStat(stats, statkey(model, sheetName), 'updated');
         }
       } else {

@@ -1,18 +1,10 @@
 {
   "db": {
-    "name": "tamanu-shared-test",
-    "migrateOnStartup": true,
     "sqlitePath": "/tmp/tamanu-shared-src-tests.db",
     "testMode": true,
     "verbose": false
   },
   "log": {
     "consoleLevel": "none"
-  },
-  "sync": {
-    "persistedCacheBatchSize": 10000,
-    "persistUpdateWorkerPoolSize": 5,
-    "pauseBetweenPersistedCacheBatchesInMilliseconds": 50
-  },
-  "countryTimeZone": "Australia/Melbourne"
+  }
 }

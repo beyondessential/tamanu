@@ -35,7 +35,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
   const [vitalsSurvey, vitalsError, isVitalsLoading] = useBackendEffect(({ models: m }) =>
-    m.Survey.getVitalsSurvey({ includeAllVitals: false }),
+    m.Survey.getVitalsSurvey(),
   );
   const [patientAdditionalData, padError, isPadLoading] = useBackendEffect(
     ({ models: m }) =>

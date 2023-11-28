@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Typography } from '@material-ui/core';
 import { usePaginatedForm } from '../Field';
 import { SurveyScreen } from './SurveyScreen';
@@ -51,24 +50,21 @@ export const SurveyScreenPaginator = ({
   setStatus,
 }) => {
   const { components } = survey;
-  const currentComponents = components.filter(
-    c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
-  );
-  const { onStepBack, onStepForward, screenIndex } = usePaginatedForm(currentComponents);
+  const { onStepBack, onStepForward, screenIndex } = usePaginatedForm(components);
 
-  const maxIndex = currentComponents
+  const maxIndex = components
     .map(x => x.screenIndex)
     .reduce((max, current) => Math.max(max, current), 0);
 
   if (screenIndex <= maxIndex) {
-    const screenComponents = currentComponents.filter(x => x.screenIndex === screenIndex);
+    const screenComponents = components.filter(x => x.screenIndex === screenIndex);
 
     return (
       <SurveyScreen
         values={values}
         setFieldValue={setFieldValue}
         patient={patient}
-        allComponents={currentComponents}
+        allComponents={components}
         screenComponents={screenComponents}
         onStepForward={onStepForward}
         onStepBack={screenIndex > 0 ? onStepBack : onCancel}

@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { Form } from 'desktop/app/components/Field';
 import { checkVisibility, getFormInitialValues, getValidationSchema } from 'desktop/app/utils';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { Colors } from '../../constants';
 import { SurveyScreenPaginator } from '../../components/Surveys';
@@ -27,11 +26,8 @@ export const SurveyView = ({
   currentUser,
 }) => {
   const { components } = survey;
-  const currentComponents = components.filter(
-    c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
-  );
   const initialValues = getFormInitialValues(
-    currentComponents,
+    components,
     patient,
     patientAdditionalData,
     currentUser,
@@ -54,9 +50,7 @@ export const SurveyView = ({
     // 1. get a list of visible fields
     const submitVisibleValues = event => {
       const visibleFields = new Set(
-        currentComponents
-          .filter(c => checkVisibility(c, values, currentComponents))
-          .map(x => x.dataElementId),
+        components.filter(c => checkVisibility(c, values, components)).map(x => x.dataElementId),
       );
 
       // 2. Filter the form values to only include visible fields

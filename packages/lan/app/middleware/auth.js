@@ -70,12 +70,10 @@ export async function centralServerLogin(models, email, password, deviceId) {
       id,
       ...userDetails,
       password,
-      deletedAt: null,
     });
     await models.UserLocalisationCache.upsert({
       userId: id,
       localisation: JSON.stringify(localisation),
-      deletedAt: null,
     });
   });
 

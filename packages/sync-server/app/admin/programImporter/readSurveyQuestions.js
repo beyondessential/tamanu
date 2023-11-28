@@ -1,5 +1,3 @@
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
-
 export function yesOrNo(value) {
   return !!(value && value.toLowerCase() === 'yes');
 }
@@ -30,16 +28,13 @@ function makeScreen(questions, componentData) {
       calculation = '',
       row,
       type,
-      visibilityStatus = VISIBILITY_STATUSES.CURRENT,
+      visibilityStatus,
       visualisationConfig = '',
       ...elementData
     } = component;
 
     const { surveyId, ...otherComponentData } = componentData;
     const dataElId = `pde-${elementData.code}`;
-
-    const deletedAt =
-      VISIBILITY_STATUSES.HISTORICAL === visibilityStatus.toLowerCase() ? Date.now() : null;
 
     return [
       {
@@ -73,7 +68,6 @@ function makeScreen(questions, componentData) {
           type,
           ...otherComponentData,
           visibilityStatus,
-          deletedAt,
         },
       },
     ];

@@ -131,7 +131,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       // figure out if its a vital survey response
       let vitalsSurvey;
       try {
-        vitalsSurvey = await Survey.getVitalsSurvey({ includeAllVitals: false });
+        vitalsSurvey = await Survey.getVitalsSurvey();
       } catch (e) {
         console.error(`Errored while trying to get vitals survey: ${e}`);
       }

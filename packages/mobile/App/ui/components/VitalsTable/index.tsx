@@ -18,7 +18,6 @@ import { SurveyScreenValidationCriteria } from '~/types';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { ValidationCriteriaNormalRange } from '../../../types/ISurvey';
 import { useSelector } from 'react-redux';
-import { VisibilityStatus } from '~/visibilityStatuses';
 
 interface VitalsTableProps {
   data: TableCells<PatientVitalsProps>;
@@ -75,9 +74,7 @@ export const VitalsTable = memo(
     const { selectedPatient } = useSelector(
       (state: ReduxStoreProps): PatientStateProps => state.patient,
     );
-    const [vitalsSurvey, error] = useBackendEffect(({ models }) =>
-      models.Survey.getVitalsSurvey({ includeAllVitals: true }),
-    );
+    const [vitalsSurvey, error] = useBackendEffect(({ models }) => models.Survey.getVitalsSurvey());
     const [showNeedsAttentionInfo, setShowNeedsAttentionInfo] = useState(false);
 
     if (!vitalsSurvey) {
@@ -88,24 +85,10 @@ export const VitalsTable = memo(
       return <ErrorScreen error={error} />;
     }
 
-    // Create object that checks if a question has historical answers
-    const hasHistoricalAnswer = Object.values(data).reduce((dict, entries) => {
-      const mapped = { ...dict };
-      entries.forEach(entry => {
-        const { dataElementId, body } = entry;
-        mapped[dataElementId] = mapped[dataElementId] || Boolean(body);
-      });
-      return mapped;
-    }, {});
-
     // Date is the column so remove it from rows
-    const components = vitalsSurvey.components
-      .filter(c => c.dataElementId !== VitalsDataElements.dateRecorded) // Show current components or ones that have historical data in them
-      .filter(
-        component =>
-          component.visibilityStatus === VisibilityStatus.Current ||
-          hasHistoricalAnswer[component.dataElementId],
-      );
+    const components = vitalsSurvey.components.filter(
+      c => c.dataElementId !== VitalsDataElements.dateRecorded,
+    );
 
     return (
       <StyledView height="100%" background={theme.colors.BACKGROUND_GREY}>

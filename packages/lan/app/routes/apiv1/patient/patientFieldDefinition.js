@@ -21,8 +21,6 @@ patientFieldDefinition.get(
         LEFT JOIN patient_field_definition_categories c
           ON d.category_id = c.id
         WHERE d.visibility_status NOT IN (:hiddenStatuses)
-        AND d.deleted_at IS NULL
-        AND c.deleted_at IS NULL
         ORDER BY category ASC, name ASC;
       `,
       {

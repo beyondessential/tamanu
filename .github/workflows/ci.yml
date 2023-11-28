@@ -28,7 +28,7 @@ jobs:
           - { package: sync-server, shard: 2/3, postgres: 14 }
           - { package: sync-server, shard: 3/3, postgres: 14 }
           - { package: meta-server }
-          - { package: "@tamanu/shared", postgres: 14 }
+          - { package: "@tamanu/shared" }
           - { package: "desktop" }
 
     name: Test ${{ matrix.package }} ${{ matrix.shard }}
