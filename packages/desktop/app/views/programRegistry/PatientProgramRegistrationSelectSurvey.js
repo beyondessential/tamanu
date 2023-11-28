@@ -5,12 +5,13 @@ import { useQuery } from '@tanstack/react-query';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { useApi } from 'desktop/app/api';
 import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
-import { Heading3 } from '../../components/Typography';
+import { Heading5 } from '../../components/Typography';
 import { Button } from '../../components/Button';
 import { Form, Field, SelectField } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
 import { foreignKey } from '../../utils/validation';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { ConditionalTooltip } from '../../components/Tooltip';
 
 const DisplayContainer = styled.div`
   display: flex;
@@ -33,6 +34,18 @@ const StyledFormGrid = styled(FormGrid)`
   align-items: flex-end;
 `;
 
+const StyledButton = styled(Button)`
+  height: 44px;
+  background-color: ${Colors.primary};
+  color: ${Colors.white};
+  :disabled {
+    background-color: ${Colors.primary};
+    color: ${Colors.white};
+    opacity: 0.4;
+    width: 100%;
+  }
+`;
+
 export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistration }) => {
   const api = useApi();
   const { navigateToProgramRegistrySurvey } = usePatientNavigation();
@@ -51,43 +64,44 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
 
   return (
     <DisplayContainer>
-      <Heading3>
+      <Heading5>
         Select a {patientProgramRegistration.programRegistry.name} form below to complete
-      </Heading3>
+      </Heading5>
       <Form
         style={{ width: '100%', marginTop: '5px' }}
-        render={({ values }) => {
+        onSubmit={values => {
+          navigateToProgramRegistrySurvey(
+            patientProgramRegistration.programRegistryId,
+            values.surveyId,
+            patientProgramRegistration.programRegistry.name,
+          );
+        }}
+        render={({ values, submitForm }) => {
+          const isRemoved =
+            patientProgramRegistration.registrationStatus === PROGRAM_REGISTRATION_STATUSES.REMOVED;
           return (
             <StyledFormGrid>
-              <Field
-                name="surveyId"
-                label="Select form"
-                component={SelectField}
-                options={surveys}
-                disabled={
-                  patientProgramRegistration.registrationStatus ===
-                  PROGRAM_REGISTRATION_STATUSES.REMOVED
-                }
-              />
+              <ConditionalTooltip visible={isRemoved} title="Patient must be active">
+                <Field
+                  name="surveyId"
+                  label="Select form"
+                  component={SelectField}
+                  placeholder="Select"
+                  options={surveys}
+                  disabled={isRemoved}
+                />
+              </ConditionalTooltip>
 
-              <Button
-                variant="contained"
-                style={{ height: '44px' }}
-                onClick={() => {
-                  navigateToProgramRegistrySurvey(
-                    patientProgramRegistration.programRegistryId,
-                    values.surveyId,
-                    patientProgramRegistration.programRegistry.name,
-                  );
-                }}
-                disabled={
-                  patientProgramRegistration.registrationStatus ===
-                    PROGRAM_REGISTRATION_STATUSES.REMOVED || !values.surveyId
-                }
-                isSubmitting={false}
-              >
-                Begin form
-              </Button>
+              <ConditionalTooltip visible={isRemoved} title="Patient must be active">
+                <StyledButton
+                  variant="contained"
+                  onClick={submitForm}
+                  disabled={isRemoved || !values.surveyId}
+                  isSubmitting={false}
+                >
+                  Begin form
+                </StyledButton>
+              </ConditionalTooltip>
             </StyledFormGrid>
           );
         }}

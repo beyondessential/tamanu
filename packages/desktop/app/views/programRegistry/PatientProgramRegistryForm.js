@@ -73,6 +73,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
                 <Field
                   name="programRegistryId"
                   label="Program registry"
+                  placeholder="Select"
                   required
                   component={AutocompleteField}
                   suggester={programRegistrySuggester}
@@ -96,6 +97,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
                 <Field
                   name="clinicianId"
                   label="Registered by"
+                  placeholder="Select"
                   required
                   component={AutocompleteField}
                   suggester={registeredBySuggester}
@@ -103,6 +105,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
                 <Field
                   name="registeringFacilityId"
                   label="Registering facility"
+                  placeholder="Select"
                   component={AutocompleteField}
                   suggester={registeringFacilitySuggester}
                 />
@@ -112,6 +115,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
                   tooltipText="Select a program registry to set the status"
                   name="clinicalStatusId"
                   label="Status"
+                  placeholder="Select"
                   component={AutocompleteField}
                   suggester={programRegistryStatusSuggester}
                   disabled={!program}
@@ -120,6 +124,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
                   tooltipText="Select a program registry to add conditions"
                   name="conditionIds"
                   label="Conditions"
+                  placeholder="Select"
                   component={MultiselectField}
                   options={conditions}
                   disabled={!conditions}

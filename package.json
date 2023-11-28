@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "1.37.0",
+  "version": "1.38.0",
   "description": "This repo contains all the packages for Tamanu",
   "main": "index.js",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -43,7 +43,7 @@
     "build-report": "yarn build-shared && yarn workspace sync-server build && yarn workspace sync-server start report"
   },
   "engines": {
-    "node": "^16.16.0"
+    "node": "^20.9.0 || ^18.15.0"
   },
   "packageManager": "yarn@1.22.19",
   "private": true,
@@ -83,7 +83,7 @@
   "dependencies": {
     "babel-eslint": "^10.0.1",
     "concurrently": "^5.2.0",
-    "config": "3.0.1",
+    "config": "^3.3.9",
     "pm2": "^4.5.0"
   }
 }

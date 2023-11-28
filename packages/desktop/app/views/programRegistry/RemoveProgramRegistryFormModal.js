@@ -32,15 +32,23 @@ const InfoColumn = styled.div`
   justify-content: flex-start;
 `;
 
+export const FormSeparatorVerticalLine = styled.hr`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-left: 1px solid ${Colors.outline};
+  margin: 22px;
+`;
+
 const Info = styled.div`
   margin: 10px 20px;
 `;
 
-const Label = styled.p`
+const Label = styled.div`
   color: ${Colors.softText};
 `;
 
-const Value = styled.p`
+const Value = styled.div`
   color: ${Colors.darkestText};
 `;
 
@@ -62,7 +70,7 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
   };
 
   return (
-    <Modal title="Remove patient" open={open} onClose={onClose}>
+    <Modal width={'md'} title="Remove patient" open={open} onClose={onClose}>
       {/* <div> */}
       <WarningDiv>
         <p>
@@ -75,17 +83,18 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
         <InfoColumn>
           <Info>
             <Label>Program registry</Label>
-            <Value>{patientProgramRegistration.programRegistry.name}</Value>
+            <Value>{patientProgramRegistration.programRegistry.name || '-'}</Value>
           </Info>
           <Info>
             <Label>Registered by</Label>
-            <Value>{patientProgramRegistration?.clinician?.displayName}</Value>
+            <Value>{patientProgramRegistration?.clinician?.displayName || '-'}</Value>
           </Info>
           <Info>
             <Label>Status</Label>
-            <Value>{patientProgramRegistration.clinicalStatus.name}</Value>
+            <Value>{patientProgramRegistration.clinicalStatus.name || '-'}</Value>
           </Info>
         </InfoColumn>
+        <FormSeparatorVerticalLine />
         <InfoColumn>
           <Info>
             <Label>Date of registration</Label>
@@ -96,9 +105,9 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
           <Info>
             <Label>Registering facility</Label>
             <Value>
-              {patientProgramRegistration.registeringFacility
+              {(patientProgramRegistration.registeringFacility
                 ? patientProgramRegistration.registeringFacility.name
-                : patientProgramRegistration.facility.name}
+                : patientProgramRegistration.facility.name) || '-'}
             </Value>
           </Info>
         </InfoColumn>

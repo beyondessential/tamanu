@@ -34,13 +34,20 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
     {
       sortable: false,
       accessor: () => (
-        <MenuButton
-          actions={{
-            Print: () => {},
-            Edit: () => {},
-            Delete: () => {},
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
           }}
-        />
+        >
+          <MenuButton
+            actions={{
+              Print: () => {},
+              Edit: () => {},
+              Delete: () => {},
+            }}
+          />
+        </div>
       ),
       required: false,
     },

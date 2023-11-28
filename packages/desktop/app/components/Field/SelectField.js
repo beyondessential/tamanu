@@ -19,7 +19,7 @@ const StyledFormControl = styled(FormControl)`
   // helper text
   .MuiFormHelperText-root {
     font-weight: 500;
-    font-size: 12px;
+    font-size: 11px;
     line-height: 15px;
     margin: 4px 2px 2px;
   }
@@ -116,7 +116,8 @@ export const SelectInput = ({
 
   const customStyles = {
     control: (provided, state) => {
-      const mainBorderColor = state.isFocused ? Colors.primary : Colors.outline;
+      // const mainBorderColor = state.isFocused ? Colors.primary : Colors.outline;
+      const mainBorderColor = Colors.outline;
       const borderColor = props.error ? Colors.alert : mainBorderColor;
       const fontSize = props.size === 'small' ? '11px' : '15px';
       return {

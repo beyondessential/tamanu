@@ -11,6 +11,7 @@ import { useAuth } from '../../contexts/Auth';
 import { Modal } from '../../components/Modal';
 import { useApi } from '../../api/useApi';
 import { PROGRAM_REGISTRATION_STATUSES } from '../../constants';
+import { FormSeparatorLine } from '../../components';
 
 export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistration, open }) => {
   const api = useApi();
@@ -36,6 +37,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
     <Modal
       title={`Activate ${patientProgramRegistration.programRegistry.name} program registry`}
       open={open}
+      width="md"
       onClose={onClose}
     >
       <Form
@@ -75,11 +77,8 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     suggester={programRegistryStatusSuggester}
                   />
                 </FormGrid>
-                <ConfirmCancelRow
-                  onSubmit={onClose}
-                  onConfirm={submitForm}
-                  confirmText="Activate"
-                />
+                <FormSeparatorLine />
+                <ConfirmCancelRow onCancel={onClose} onConfirm={submitForm} confirmText="Confirm" />
               </FormGrid>
             </div>
           );

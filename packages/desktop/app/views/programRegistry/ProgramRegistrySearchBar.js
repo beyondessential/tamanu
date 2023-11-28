@@ -68,12 +68,22 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
             suggester={facilitySuggester}
             size="small"
           />
-          <FacilityCheckbox>
-            <Field name="removed" label="Include removed patients" component={CheckField} />
-          </FacilityCheckbox>
-          <FacilityCheckbox>
-            <Field name="deceased" label="Include deceased patients" component={CheckField} />
-          </FacilityCheckbox>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              width: '100%',
+              justifyContent: 'flex-start',
+              gridColumn: '3 / span 3',
+            }}
+          >
+            <FacilityCheckbox>
+              <Field name="removed" label="Include removed patients" component={CheckField} />
+            </FacilityCheckbox>
+            <FacilityCheckbox>
+              <Field name="deceased" label="Include deceased patients" component={CheckField} />
+            </FacilityCheckbox>
+          </div>
         </>
       }
     >

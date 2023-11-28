@@ -100,7 +100,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       answers: getAnswersFromData(data, survey),
     });
     if (params?.encounterId && encounter && !encounter.endDate) {
-      navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.PROGRAMS });
+      navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
     } else {
       navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
     }
@@ -122,7 +122,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
     return (
       <ProgramsPane>
         <ProgramsPaneHeader>
-          <ProgramsPaneHeading variant="h6">Select survey</ProgramsPaneHeading>
+          <ProgramsPaneHeading variant="h6">Select form</ProgramsPaneHeading>
         </ProgramsPaneHeader>
         <FormGrid columns={1}>
           <SelectInput
@@ -136,7 +136,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
             onChange={setSelectedSurveyId}
             value={selectedSurveyId}
             surveys={surveys}
-            buttonText="Begin survey"
+            buttonText="Begin form"
           />
         </FormGrid>
       </ProgramsPane>

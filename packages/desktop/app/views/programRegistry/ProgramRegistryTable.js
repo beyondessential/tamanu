@@ -6,11 +6,12 @@ import { useParams } from 'react-router-dom';
 import { STATUS_COLOR } from '@tamanu/constants';
 import { reloadPatient } from '../../store';
 import { SearchTable, DateDisplay, MenuButton } from '../../components';
-import { ConditionalTooltip } from '../../components/Tooltip';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import { ChangeStatusFormModal } from './ChangeStatusFormModal';
 import { Colors } from '../../constants';
+import { LimitedLinesCell } from '../../components/FormattedTableCell';
+import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
 
 const ClippedConditionName = styled.span`
   overflow: hidden;
@@ -29,6 +30,7 @@ const StatusBadge = styled.div`
   height: 20px;
   color: ${props => props.color};
   background-color: ${props => props.backgroundColor};
+  width: fit-content;
 `;
 
 export const ProgramRegistryTable = ({ searchParameters }) => {
@@ -37,6 +39,12 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
   const [refreshCount, setRefreshCount] = useState(0);
   const columns = useMemo(() => {
     return [
+      {
+        accessor: data => (
+          <RegistrationStatusIndicator patientProgramRegistration={data} hideText={true} />
+        ),
+        sortable: false,
+      },
       {
         key: 'displayId',
         accessor: ({ patient }) => patient.displayId || 'Unknown',
@@ -90,12 +98,9 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           const conditionsText = Array.isArray(conditions)
             ? conditions.map(x => ` ${x}`).toString()
             : '';
-          return (
-            <ConditionalTooltip title={conditionsText} visible={conditionsText.length > 30}>
-              <ClippedConditionName>{conditionsText}</ClippedConditionName>
-            </ConditionalTooltip>
-          );
+          return conditionsText;
         },
+        CellComponent: LimitedLinesCell,
         maxWidth: 200,
       },
       {
@@ -149,7 +154,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
     <>
       <SearchTable
         autoRefresh
-        refreshCount
+        refreshCount={refreshCount}
         endpoint={`programRegistry/${params.programRegistryId}/registrations`}
         columns={columns}
         noDataMessage="No Program registry found"

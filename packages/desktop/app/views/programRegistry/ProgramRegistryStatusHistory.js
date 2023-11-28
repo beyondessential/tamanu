@@ -17,6 +17,7 @@ const Container = styled.div`
   justify-content: center;
   margin-right: 10px;
   border-radius: 5px;
+  border: 1px solid ${Colors.softOutline};
 `;
 
 const StatusBadge = styled.div`
@@ -81,7 +82,7 @@ export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => 
 
   return (
     <Container>
-      <Heading5>Program Status History</Heading5>
+      <Heading5>Program status history</Heading5>
       <br />
       <Table
         isBodyScrollable
