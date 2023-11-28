@@ -78,13 +78,22 @@ const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
     <div>{label}</div>
   );
 };
-export const WrittenByField = ({ label = 'Written by (or on behalf of)', required, disabled }) => {
+export const WrittenByField = ({
+  label = (
+    <TranslatedText
+      stringId="notes.modal.writtenBy.label"
+      fallback="Written by (or on behalf of)"
+    />
+  ),
+  required,
+  disabled,
+}) => {
   const practitionerSuggester = useSuggester('practitioner');
 
   return (
     <Field
       name="writtenById"
-      label={<TranslatedText stringId="notes.modal.writtenBy.label" fallback={label} />}
+      label={label}
       required={required}
       component={AutocompleteField}
       suggester={practitionerSuggester}
@@ -137,7 +146,7 @@ export const NoteInfoSection = ({
     <InfoCardItem
       numberOfColumns={numberOfColumns}
       fontSize={14}
-      label="Note type"
+      label=<TranslatedText stringId="notes.modal.noteType.label" fallback="Note type" />
       value={noteType}
       borderHeight={50}
     />

@@ -239,9 +239,16 @@ const NoteTable = ({
   const handleEditNote = useCallback(
     note => {
       setModalTitle(
-        note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Update treatment plan' : 'Edit note',
+        note.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
+          <TranslatedText
+            stringId="notes.modal.updateTreatmentPlan"
+            fallback="Update Treatment Plan"
+          />
+        ) : (
+          'Edit note'
+        ),
       );
-      setModalCancelText('Cancel');
+      setModalCancelText(<TranslatedText stringId="general.action.cancel" fallback="Cancel" />);
       setModalNoteFormMode(NOTE_FORM_MODES.EDIT_NOTE);
       setIsNoteModalOpen(true);
       setModalNote(note);
@@ -298,7 +305,13 @@ const NoteTable = ({
           title={modalTitle}
           cancelText={modalCancelText}
           noteFormMode={modalNoteFormMode}
-          confirmText={modalNoteFormMode === NOTE_FORM_MODES.VIEW_NOTE ? 'Close' : 'Save'}
+          confirmText={
+            modalNoteFormMode === NOTE_FORM_MODES.VIEW_NOTE ? (
+              <TranslatedText stringId="general.action.close" fallback="Close" />
+            ) : (
+              <TranslatedText stringId="general.action.save" fallback="Save" />
+            )
+          }
         />
       )}
       <DataFetchingTable
