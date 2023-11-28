@@ -8,6 +8,7 @@ import {
   WrittenByText,
 } from '../components/NoteCommonFields';
 import { NOTE_TYPE_LABELS } from '../constants';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const EditNoteForm = ({ note, onNoteContentChange, onSubmit, onCancel }) => {
   const noteAuthorName = note.revisedBy
@@ -26,17 +27,20 @@ export const EditNoteForm = ({ note, onNoteContentChange, onSubmit, onCancel }) 
         numberOfColumns={3}
         noteType={NOTE_TYPE_LABELS[note.noteType]}
         date={note.revisedBy ? note.revisedBy.date : note.date}
-        writtenByLabel="Written by (or on behalf of)"
+        writtenByLabel=<TranslatedText
+          stringId="notes.modal.writtenBy.label"
+          fallback="Written by (or on behalf of)"
+        />
         writtenBy={writtenBy}
-        dateLabel="Date & time"
+        dateLabel=<TranslatedText stringId="notes.modal.dateTime.label" fallback="Date & time" />
       />
       <br />
       <NoteContentField onChange={onNoteContentChange} />
       <StyledDivider />
       <FormSubmitCancelRow
         onConfirm={onSubmit}
-        confirmText="Save"
-        cancelText="Cancel"
+        confirmText=<TranslatedText stringId="general.actions.save" fallback="Save" />
+        cancelText=<TranslatedText stringId="general.actions.cancel" fallback="Cancel" />
         onCancel={onCancel}
       />
     </>

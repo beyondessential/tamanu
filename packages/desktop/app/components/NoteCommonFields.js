@@ -117,7 +117,10 @@ export const NoteDateTimeField = ({ required, disabled }) => {
   );
 };
 
-export const NoteContentField = ({ label = 'Edit note', onChange }) => (
+export const NoteContentField = ({
+  label = <TranslatedText stringId="notes.modal.edit" fallback="Edit note" />,
+  onChange,
+}) => (
   <Field
     name="content"
     label={label}

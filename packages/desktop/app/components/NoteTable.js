@@ -245,7 +245,7 @@ const NoteTable = ({
             fallback="Update Treatment Plan"
           />
         ) : (
-          'Edit note'
+          <TranslatedText stringId="notes.modal.edit" fallback="Edit note" />
         ),
       );
       setModalCancelText(<TranslatedText stringId="general.action.cancel" fallback="Cancel" />);
@@ -258,7 +258,7 @@ const NoteTable = ({
 
   const handleViewNoteChangeLog = useCallback(
     note => {
-      setModalTitle('Change log');
+      setModalTitle(<TranslatedText stringId="notes.modal.changeLog" fallback="Change Log" />);
       setModalNoteFormMode(NOTE_FORM_MODES.VIEW_NOTE);
       setIsNoteModalOpen(true);
       setModalNote(note);
