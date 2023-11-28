@@ -13,6 +13,9 @@ import { useApi, isErrorUnknownAllow404s } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { DeleteButton } from './Button';
 import { ConfirmModal } from './ConfirmModal';
+import { useAuth } from '../contexts/Auth';
+import { MenuButton } from './MenuButton';
+import { DeleteReferralModal } from '../views/patients/components/DeleteReferralModal';
 
 const ACTION_MODAL_STATES = {
   CLOSED: 'closed',
@@ -143,32 +146,80 @@ const getActions = ({ refreshTable, ...row }) => (
   <ActionDropdown refreshTable={refreshTable} row={row} />
 );
 
-const columns = [
-  { key: 'date', title: 'Referral date', accessor: getDate },
-  { key: 'referralType', title: 'Referral type', accessor: getReferralType },
-  { key: 'referredBy', title: 'Referral completed by', accessor: getReferralBy },
-  { key: 'status', title: 'Status', accessor: getStatus },
-  {
-    key: 'actions',
-    title: 'Actions',
-    accessor: getActions,
-    dontCallRowInput: true,
-  },
-];
+const MODAL_IDS = {
+  DELETE: 'delete',
+};
+
+const MODALS = {
+  [MODAL_IDS.DELETE]: DeleteReferralModal,
+};
 
 export const ReferralTable = React.memo(({ patientId }) => {
+  const { ability } = useAuth();
+  const [modalId, setModalId] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [refreshCount, setRefreshCount] = useState(0);
+  const [selectedReferral, setSelectedReferral] = useState(null);
   const [selectedReferralId, setSelectedReferralId] = useState(null);
   const onSelectReferral = useCallback(referral => {
     setSelectedReferralId(referral.surveyResponseId);
   }, []);
+
+  const endpoint = `patient/${patientId}/referrals`;
+  const columns = [
+    { key: 'date', title: 'Referral date', accessor: getDate },
+    { key: 'referralType', title: 'Referral type', accessor: getReferralType },
+    { key: 'referredBy', title: 'Referral completed by', accessor: getReferralBy },
+    { key: 'status', title: 'Status', accessor: getStatus },
+    {
+      key: 'actions',
+      title: 'Actions',
+      dontCallRowInput: true,
+      sortable: false,
+      CellComponent: ({ data }) => {
+        return (
+          <div onMouseEnter={() => setSelectedReferral(data)}>
+            <MenuButton actions={actions} />
+          </div>
+        );
+      },
+    },
+  ];
+
   const onCloseReferral = useCallback(() => setSelectedReferralId(null), []);
+
+  const handleChangeModalId = id => {
+    setModalId(id);
+    setModalOpen(true);
+  };
+
+  const menuActions = [
+    {
+      label: 'Delete',
+      action: () => handleChangeModalId(MODAL_IDS.DELETE),
+      permissionCheck: () => {
+        return ability?.can('delete', 'SurveyResponse');
+      },
+    },
+  ];
+
+  const actions = menuActions
+    .filter(({ permissionCheck }) => {
+      return permissionCheck ? permissionCheck() : true;
+    })
+    .reduce((acc, { label, action }) => {
+      acc[label] = action;
+      return acc;
+    }, {});
+
+  const ActiveModal = MODALS[modalId] || null;
 
   return (
     <>
       <SurveyResponseDetailsModal surveyResponseId={selectedReferralId} onClose={onCloseReferral} />
       <DataFetchingTable
         columns={columns}
-        endpoint={`patient/${patientId}/referrals`}
+        endpoint={endpoint}
         initialSort={{
           orderBy: 'date',
           order: 'asc',
@@ -176,7 +227,19 @@ export const ReferralTable = React.memo(({ patientId }) => {
         noDataMessage="No referrals found"
         onRowClick={onSelectReferral}
         allowExport={false}
+        refreshCount={refreshCount}
       />
+      {ActiveModal && (
+        <ActiveModal
+          open={modalOpen}
+          referralToDelete={selectedReferral}
+          endpoint={endpoint}
+          onClose={() => {
+            setModalOpen(false);
+            setRefreshCount(refreshCount + 1);
+          }}
+        />
+      )}
     </>
   );
 });
