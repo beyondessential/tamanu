@@ -35,6 +35,8 @@ type SyncOptions = {
 export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS).length;
 
 export class MobileSyncManager {
+  isQueuing = false;
+
   isSyncing = false;
 
   progress = 0;
@@ -131,16 +133,17 @@ export class MobileSyncManager {
 
     try {
       await this.runSync({ urgent });
-      this.lastSuccessfulSyncTick = formatDate(new Date(), DateFormats.DATE_AND_TIME);
-      this.setProgress(0, '');
     } catch (error) {
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ERROR, { error });
     } finally {
-      this.syncStage = null;
-      this.isSyncing = false;
-      this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STATE_CHANGED);
-      this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ENDED, `time=${Date.now() - startTime}ms`);
-      console.log(`Sync took ${Date.now() - startTime} ms`);
+      // Reset all the values to default only if sync actually started, otherwise they should still be default values
+      if (this.isSyncing) {
+        this.syncStage = null;
+        this.isSyncing = false;
+        this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STATE_CHANGED);
+        this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ENDED, `time=${Date.now() - startTime}ms`);
+        console.log(`Sync took ${Date.now() - startTime} ms`);
+      }
     }
   }
 
@@ -171,8 +174,14 @@ export class MobileSyncManager {
     if (!sessionId) {
       console.log(`MobileSyncManager.runSync(): Sync queue status: ${status}`);
       this.isSyncing = false;
+      this.isQueuing = true;
+      this.progressMessage = urgent ? 'Sync in progress...' : 'Sync in queue';
+      this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_IN_QUEUE);
       return;
     }
+
+    this.isSyncing = true;
+    this.isQueuing = false;
 
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
 
@@ -185,6 +194,9 @@ export class MobileSyncManager {
 
     // clear persisted cache from last session
     await clearPersistedSyncSessionRecords();
+
+    this.lastSuccessfulSyncTick = formatDate(new Date(), DateFormats.DATE_AND_TIME_HHMMSS);
+    this.setProgress(0, '');
   }
 
   /**
