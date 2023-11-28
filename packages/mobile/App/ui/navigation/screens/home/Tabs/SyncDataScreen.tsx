@@ -61,6 +61,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
           setProgress(0);
           setIsQueuing(true);
           setIsSyncing(false);
+          setHasError(false);
           break;
         case SYNC_EVENT_ACTIONS.SYNC_STARTED:
           setIsQueuing(false);
@@ -113,7 +114,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
     };
   }, []);
 
-  const syncFinishedSuccessfully = syncStarted && !isSyncing && !hasError;
+  const syncFinishedSuccessfully = syncStarted && !isSyncing && !isQueuing && !hasError;
 
   return (
     <CenterView background={theme.colors.MAIN_SUPER_DARK} flex={1}>
