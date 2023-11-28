@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { FHIR_RESOURCE_TYPES } from '@tamanu/constants';
 
-import { getEntryResourceSubject } from '../utils';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir';
+import { getEntryResourceSubject } from '../utils';
 
 export const getMedicationStatements = async ({ patient, models, dataDictionariesIps }) => {
   const openEncounter = await models.Encounter.findOne({
@@ -14,11 +14,11 @@ export const getMedicationStatements = async ({ patient, models, dataDictionarie
 
   const encounterMedications = openEncounter
     ? await models.EncounterMedication.findAll({
-      where: {
-        encounterId: openEncounter.id,
-      },
-      include: ['Medication'],
-    })
+        where: {
+          encounterId: openEncounter.id,
+        },
+        include: ['Medication'],
+      })
     : [];
 
   const medicationStatementsHeader = {

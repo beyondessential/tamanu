@@ -1,6 +1,7 @@
 import config from 'config';
 import path from 'path';
 import * as AWS from '@aws-sdk/client-s3';
+import { base64UrlEncode } from '@tamanu/shared/utils/encodings';
 
 import {
   COMMUNICATION_STATUSES,
@@ -90,7 +91,7 @@ export class IPSRequestProcessor extends ScheduledTask {
           throw new Error(`jsonBucketPath must be set, e.g. 'au'`);
         }
 
-        const filePath = `${jsonBucketPath}/${await getRandomBase64String(32)}_manifest.json`;
+        const filePath = `${jsonBucketPath}/${await getRandomBase64String(32, true)}_manifest.json`;
 
         try {
           const client = new AWS.S3({ region });
@@ -119,7 +120,7 @@ export class IPSRequestProcessor extends ScheduledTask {
 
         const baseUrl = `${s3PublicUrl}/${viewerBucketPath}`;
 
-        const fullUrl = `${baseUrl}#shlink:/${btoa(JSON.stringify(payload))}`;
+        const fullUrl = `${baseUrl}#shlink:/${base64UrlEncode(JSON.stringify(payload))}`;
 
         // GENERATE QR
 
