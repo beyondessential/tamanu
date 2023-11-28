@@ -67,8 +67,8 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
         orderBy: 'date',
         order: 'asc',
         surveyType: SURVEY_TYPES.PROGRAMS,
-        programId: patientProgramRegistration.programRegistry.programId,
       }}
+      fetchOptions={{ programId: patientProgramRegistration.programRegistry.programId }}
       noDataMessage="No Program registry responses found"
       elevated={false}
     />

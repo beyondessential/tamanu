@@ -35,9 +35,9 @@ export const RemoveConditionFormModal = ({
     onSubmit();
   };
   return (
-    <Modal title="Remove condition" open={open} onClose={onCancel}>
+    <Modal title="Remove related condition" open={open} onClose={onCancel}>
       <Text>
-        {`Are you sure you would like to remove the condition of ‘${conditionToRemove.programRegistryCondition.name}' from the patients program condition record?`}
+        {`Are you sure you would like to remove the related condition of ‘${conditionToRemove.programRegistryCondition.name}' from the patients program condition record?`}
       </Text>
       <FormSeparatorLine style={{ marginTop: '30px', marginBottom: '30px' }} />
       <ConfirmCancelRow onConfirm={removeCondition} onCancel={onCancel} />

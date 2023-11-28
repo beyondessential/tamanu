@@ -123,7 +123,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
                 <FieldWithTooltip
                   tooltipText="Select a program registry to add conditions"
                   name="conditionIds"
-                  label="Conditions"
+                  label="Related conditions"
                   placeholder="Select"
                   component={MultiselectField}
                   options={conditions}

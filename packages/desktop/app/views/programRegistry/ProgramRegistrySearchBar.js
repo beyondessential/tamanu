@@ -110,7 +110,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
         }
       />
       <LocalisedField
-        defaultLabel="Condition"
+        defaultLabel="Related condition"
         name="programRegistryCondition"
         component={AutocompleteField}
         suggester={programRegistryConditionSuggester}

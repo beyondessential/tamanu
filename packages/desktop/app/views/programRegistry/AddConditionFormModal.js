@@ -48,7 +48,7 @@ export const AddConditionFormModal = ({ onClose, patientProgramRegistration, ope
     onClose();
   };
   return (
-    <Modal title="Add condition" open={open} onClose={onClose}>
+    <Modal title="Add related condition" open={open} onClose={onClose}>
       <Form
         onSubmit={submit}
         render={({ submitForm }) => {
@@ -58,7 +58,7 @@ export const AddConditionFormModal = ({ onClose, patientProgramRegistration, ope
               <StyledFormGrid columns={1}>
                 <Field
                   name="programRegistryConditionId"
-                  label="Condition"
+                  label="Related condition"
                   component={AutocompleteField}
                   options={options}
                 />

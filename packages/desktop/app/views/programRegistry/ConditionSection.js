@@ -90,7 +90,7 @@ export const ConditionSection = ({ patientProgramRegistration }) => {
   return (
     <Container>
       <HeadingContainer>
-        <Heading5>Conditions</Heading5>
+        <Heading5>Related conditions</Heading5>
         <ConditionalTooltip title="Patient must be active" visible={isRemoved}>
           <AddConditionButton onClick={() => setOpenAddCondition(true)}>
             + Add condition
