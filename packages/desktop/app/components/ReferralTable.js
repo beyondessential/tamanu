@@ -5,10 +5,8 @@ import { REFERRAL_STATUSES } from '@tamanu/constants';
 import { REFERRAL_STATUS_LABELS } from '../constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-import { DropdownButton } from './DropdownButton';
 
 import { EncounterModal } from './EncounterModal';
-import { useEncounter } from '../contexts/Encounter';
 import { useApi, isErrorUnknownAllow404s } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { DeleteButton } from './Button';
@@ -16,84 +14,7 @@ import { ConfirmModal } from './ConfirmModal';
 import { useAuth } from '../contexts/Auth';
 import { MenuButton } from './MenuButton';
 import { DeleteReferralModal } from '../views/patients/components/DeleteReferralModal';
-
-const ACTION_MODAL_STATES = {
-  CLOSED: 'closed',
-  WARNING_OPEN: 'warning',
-  ENCOUNTER_OPEN: 'encounter',
-};
-
-const ActionDropdown = React.memo(({ row, refreshTable }) => {
-  const [modalStatus, setModalStatus] = useState(ACTION_MODAL_STATES.CLOSED);
-  const { loadEncounter } = useEncounter();
-  const patient = useSelector(state => state.patient);
-
-  const api = useApi();
-
-  // Modal callbacks
-  const onCloseModal = useCallback(() => setModalStatus(ACTION_MODAL_STATES.CLOSED), []);
-  const onCancelReferral = useCallback(async () => {
-    await api.put(`referral/${row.id}`, { status: REFERRAL_STATUSES.CANCELLED });
-    onCloseModal();
-    refreshTable();
-  }, [row, api, onCloseModal, refreshTable]);
-
-  // Actions callbacks
-  const onViewEncounter = useCallback(async () => {
-    loadEncounter(row.encounterId, true);
-  }, [row, loadEncounter]);
-  const onCompleteReferral = useCallback(async () => {
-    await api.put(`referral/${row.id}`, { status: REFERRAL_STATUSES.COMPLETED });
-    refreshTable();
-  }, [row, api, refreshTable]);
-
-  const actions = [
-    {
-      label: 'Admit',
-      condition: () => row.status === REFERRAL_STATUSES.PENDING,
-      onClick: () => setModalStatus(ACTION_MODAL_STATES.ENCOUNTER_OPEN),
-    },
-    // Worth keeping around to address in proper linear card
-    {
-      label: 'View',
-      condition: () => !!row.encounterId, // always false, field no longer exists.
-      onClick: onViewEncounter,
-    },
-    {
-      label: 'Complete',
-      condition: () => row.status === REFERRAL_STATUSES.PENDING,
-      onClick: onCompleteReferral,
-    },
-    {
-      label: 'Cancel',
-      condition: () => row.status === REFERRAL_STATUSES.PENDING,
-      onClick: () => setModalStatus(ACTION_MODAL_STATES.WARNING_OPEN),
-    },
-  ].filter(action => !action.condition || action.condition());
-
-  return (
-    <>
-      <DropdownButton actions={actions} variant="outlined" size="small" />
-      <EncounterModal
-        open={modalStatus === ACTION_MODAL_STATES.ENCOUNTER_OPEN}
-        onClose={onCloseModal}
-        patient={patient}
-        referral={row}
-      />
-      <ConfirmModal
-        open={modalStatus === ACTION_MODAL_STATES.WARNING_OPEN}
-        title="Cancel referral"
-        text="WARNING: This action is irreversible!"
-        subText="Are you sure you want to cancel this referral?"
-        cancelButtonText="No"
-        confirmButtonText="Yes"
-        ConfirmButton={DeleteButton}
-        onConfirm={onCancelReferral}
-        onCancel={onCloseModal}
-      />
-    </>
-  );
-});
+import { useEncounter } from '../contexts/Encounter';
 
 const fieldNames = ['Referring doctor', 'Referral completed by'];
 const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
@@ -142,30 +63,101 @@ const getDate = ({ surveyResponse: { submissionDate } }) => {
 const getReferralType = ({ surveyResponse: { survey } }) => survey.name;
 const getReferralBy = ({ surveyResponse }) => <ReferralBy surveyResponse={surveyResponse} />;
 const getStatus = ({ status }) => REFERRAL_STATUS_LABELS[status] || 'Unknown';
-const getActions = ({ refreshTable, ...row }) => (
-  <ActionDropdown refreshTable={refreshTable} row={row} />
-);
 
 const MODAL_IDS = {
+  ADMIT: 'admit',
+  COMPLETE: 'complete',
+  CANCEL: 'cancel',
   DELETE: 'delete',
 };
 
-const MODALS = {
-  [MODAL_IDS.DELETE]: DeleteReferralModal,
-};
-
 export const ReferralTable = React.memo(({ patientId }) => {
+  const api = useApi();
+  const patient = useSelector(state => state.patient);
   const { ability } = useAuth();
+  const { loadEncounter } = useEncounter();
   const [modalId, setModalId] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [refreshCount, setRefreshCount] = useState(0);
-  const [selectedReferral, setSelectedReferral] = useState(null);
+  const [selectedReferral, setSelectedReferral] = useState({});
   const [selectedReferralId, setSelectedReferralId] = useState(null);
   const onSelectReferral = useCallback(referral => {
     setSelectedReferralId(referral.surveyResponseId);
   }, []);
+  const refreshTable = () => setRefreshCount(refreshCount + 1);
 
   const endpoint = `patient/${patientId}/referrals`;
+
+  const onCancelReferral = async () => {
+    await api.put(`referral/${selectedReferral.id}`, { status: REFERRAL_STATUSES.CANCELLED });
+    setModalOpen(false);
+    refreshTable();
+  };
+  const onCompleteReferral = async () => {
+    await api.put(`referral/${selectedReferral.id}`, { status: REFERRAL_STATUSES.COMPLETED });
+    refreshTable();
+  };
+  const onViewEncounter = useCallback(async () => {
+    loadEncounter(selectedReferral.encounterId, true);
+  }, [selectedReferral, loadEncounter]);
+
+  const MODALS = {
+    [MODAL_IDS.ADMIT]: ({ referralToDelete, ...props }) => (
+      <EncounterModal {...props} patient={patient} referral={referralToDelete} />
+    ),
+    [MODAL_IDS.CANCEL]: props => (
+      <ConfirmModal
+        {...props}
+        title="Cancel referral"
+        text="WARNING: This action is irreversible!"
+        subText="Are you sure you want to cancel this referral?"
+        cancelButtonText="No"
+        confirmButtonText="Yes"
+        ConfirmButton={DeleteButton}
+        onConfirm={onCancelReferral}
+        onCancel={() => setModalOpen(false)}
+      />
+    ),
+    [MODAL_IDS.DELETE]: DeleteReferralModal,
+  };
+
+  const menuActions = [
+    {
+      label: 'Admit',
+      action: () => handleChangeModalId(MODAL_IDS.ADMIT),
+    },
+    {
+      label: 'Complete',
+      action: onCompleteReferral,
+    },
+    {
+      label: 'Cancel',
+      action: () => handleChangeModalId(MODAL_IDS.CANCEL),
+    },
+    {
+      label: 'Delete',
+      action: () => handleChangeModalId(MODAL_IDS.DELETE),
+      permissionCheck: () => {
+        return ability?.can('delete', 'Referral');
+      },
+    },
+    // Worth keeping around to address in proper linear card
+    {
+      label: 'View',
+      permissionCheck: () => false, // always false, field no longer exists.
+      action: onViewEncounter,
+    },
+  ];
+
+  const actions = menuActions
+    .filter(({ permissionCheck }) => {
+      return permissionCheck ? permissionCheck() : true;
+    })
+    .reduce((acc, { label, action }) => {
+      acc[label] = action;
+      return acc;
+    }, {});
+
   const columns = [
     { key: 'date', title: 'Referral date', accessor: getDate },
     { key: 'referralType', title: 'Referral type', accessor: getReferralType },
@@ -193,25 +185,6 @@ export const ReferralTable = React.memo(({ patientId }) => {
     setModalOpen(true);
   };
 
-  const menuActions = [
-    {
-      label: 'Delete',
-      action: () => handleChangeModalId(MODAL_IDS.DELETE),
-      permissionCheck: () => {
-        return ability?.can('delete', 'SurveyResponse');
-      },
-    },
-  ];
-
-  const actions = menuActions
-    .filter(({ permissionCheck }) => {
-      return permissionCheck ? permissionCheck() : true;
-    })
-    .reduce((acc, { label, action }) => {
-      acc[label] = action;
-      return acc;
-    }, {});
-
   const ActiveModal = MODALS[modalId] || null;
 
   return (
@@ -236,7 +209,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
           endpoint={endpoint}
           onClose={() => {
             setModalOpen(false);
-            setRefreshCount(refreshCount + 1);
+            refreshTable();
           }}
         />
       )}
