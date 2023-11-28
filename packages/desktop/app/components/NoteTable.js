@@ -313,18 +313,14 @@ const NoteTable = ({
         noDataBackgroundColor={Colors.background}
         noDataMessage={
           <NoDataMessage>
-            {/* {`This patient has no notes ${ */}
-            {/*  noteType ? 'of this type ' : '' */}
-            {/* }to display. Click ‘New note’ to add a note.`} */}
-            {/* <TranslatedText stringId="note.table.no_data" fallback="This patient has no notes to display. Click ‘New note’ to add a note."/> */}
             {noteType ? (
               <TranslatedText
-                stringId="note.table.no_data_of_type"
+                stringId="note.table.noDataOfType"
                 fallback="This patient has no notes of this type to display. Click ‘New note’ to add a note."
               />
             ) : (
               <TranslatedText
-                stringId="note.table.no_data"
+                stringId="note.table.noData"
                 fallback="This patient has no notes to display. Click ‘New note’ to add a note."
               />
             )}

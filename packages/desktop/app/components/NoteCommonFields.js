@@ -12,6 +12,7 @@ import { useSuggester } from '../api';
 import { DateDisplay } from './DateDisplay';
 import { noteTypes, Colors } from '../constants';
 import { FormGrid } from './FormGrid';
+import { TranslatedText } from './Translation/TranslatedText';
 
 export const StyledDivider = styled(Divider)`
   margin-top: 30px;
@@ -83,7 +84,7 @@ export const WrittenByField = ({ label = 'Written by (or on behalf of)', require
   return (
     <Field
       name="writtenById"
-      label={label}
+      label={<TranslatedText stringId="notes.modal.writtenBy.label" fallback={label} />}
       required={required}
       component={AutocompleteField}
       suggester={practitionerSuggester}
@@ -98,7 +99,7 @@ export const NoteDateTimeField = ({ required, disabled }) => {
   return (
     <Field
       name="date"
-      label="Date & time"
+      label={<TranslatedText stringId="notes.modal.dateTime.label" fallback="Date & time" />}
       component={DateTimeField}
       required={required}
       disabled={!getLocalisation('features.enableNoteBackdating') || disabled}
@@ -162,7 +163,7 @@ export const NoteInfoSection = ({
 export const NoteTypeField = ({ required, noteTypeCountByType }) => (
   <Field
     name="noteType"
-    label="Type"
+    label={<TranslatedText stringId="notes.modal.type.label" fallback="Type" />}
     required={required}
     component={SelectField}
     options={getSelectableNoteTypes(noteTypeCountByType)}

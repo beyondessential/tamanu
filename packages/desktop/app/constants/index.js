@@ -167,7 +167,7 @@ export const nonEmergencyDiagnosisCertaintyOptions = diagnosisCertaintyOptions.f
 export const noteTypes = [
   {
     value: NOTE_TYPES.TREATMENT_PLAN,
-    label: <TranslatedText stringId="note.types.treatment_plan" fallback="Treatment Plan" />,
+    label: <TranslatedText stringId="note.types.treatmentPlan" fallback="Treatment Plan" />,
   },
   {
     value: NOTE_TYPES.ADMISSION,
@@ -176,10 +176,7 @@ export const noteTypes = [
   {
     value: NOTE_TYPES.CLINICAL_MOBILE,
     label: (
-      <TranslatedText
-        stringId="note.types.clinical_note_mobile"
-        fallback="Clinical note (mobile)"
-      />
+      <TranslatedText stringId="note.types.clinicalNoteMobile" fallback="Clinical note (mobile)" />
     ),
     hideFromDropdown: true,
   },
@@ -189,13 +186,11 @@ export const noteTypes = [
   },
   {
     value: NOTE_TYPES.DISCHARGE,
-    label: (
-      <TranslatedText stringId="note.types.discharge_planning" fallback="Discharge planning" />
-    ),
+    label: <TranslatedText stringId="note.types.dischargePlanning" fallback="Discharge planning" />,
   },
   {
     value: NOTE_TYPES.HANDOVER,
-    label: <TranslatedText stringId="note.types.handover_note" fallback="Handover note" />,
+    label: <TranslatedText stringId="note.types.handoverNote" fallback="Handover note" />,
   },
   {
     value: NOTE_TYPES.MEDICAL,
@@ -219,7 +214,7 @@ export const noteTypes = [
   },
   {
     value: NOTE_TYPES.SOCIAL,
-    label: <TranslatedText stringId="note.types.social_wellfare" fallback="Social welfare" />,
+    label: <TranslatedText stringId="note.types.socialWellfare" fallback="Social welfare" />,
   },
   {
     value: NOTE_TYPES.SURGICAL,
