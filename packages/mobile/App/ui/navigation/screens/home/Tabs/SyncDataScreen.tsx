@@ -62,6 +62,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
           setIsQueuing(true);
           setIsSyncing(false);
           setHasError(false);
+          setProgressMessage(syncManager.progressMessage);
           break;
         case SYNC_EVENT_ACTIONS.SYNC_STARTED:
           setIsQueuing(false);
