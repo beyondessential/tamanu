@@ -4,6 +4,7 @@ import { NoteChangeLogs } from '../components/NoteChangeLogs';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { NoteInfoSection, StyledDivider, WrittenByText } from '../components/NoteCommonFields';
 import { NOTE_TYPE_LABELS } from '../constants';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const NoteChangelogForm = ({ note, onCancel }) => {
   const createdByAuthorName = note.revisedBy
@@ -26,14 +27,20 @@ export const NoteChangelogForm = ({ note, onCancel }) => {
         numberOfColumns={3}
         noteType={NOTE_TYPE_LABELS[note.noteType]}
         date={note.revisedBy?.date || note.date}
-        dateLabel="Date & time"
-        writtenByLabel="Written by (or on behalf of)"
+        dateLabel=<TranslatedText stringId="notes.modal.dateTime.label" fallback="Date & time" />
+        writtenByLabel=<TranslatedText
+          stringId="notes.modal.writtenBy.label"
+          fallback="Written by (or on behalf of)"
+        />
         writtenBy={writtenBy}
       />
       <br />
       <NoteChangeLogs note={note} />
       <StyledDivider />
-      <ConfirmCancelRow confirmText="Close" onConfirm={onCancel} />
+      <ConfirmCancelRow
+        confirmText=<TranslatedText stringId="general.actions.close" fallback="Close" />
+        onConfirm={onCancel}
+      />
     </>
   );
 };

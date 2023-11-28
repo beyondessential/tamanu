@@ -8,6 +8,7 @@ import { Colors } from '../constants';
 import { useApi } from '../api';
 import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
 import { NoteChangeLog } from './NoteChangeLog';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const StyledBox = styled(Box)`
   .MuiListItem-root {
@@ -34,7 +35,9 @@ export const NoteChangeLogs = ({ note = {} }) => {
   }
 
   return (
-    <OuterLabelFieldWrapper label="Change log">
+    <OuterLabelFieldWrapper
+      label={<TranslatedText stringId="notes.modal.changeLog" fallback="Change log" />}
+    >
       <StyledBox
         sx={{ width: '100%', maxHeight: 300, overflowY: 'auto', bgcolor: 'background.paper' }}
       >
