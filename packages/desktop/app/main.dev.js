@@ -35,9 +35,11 @@ if (isProduction) {
   sourceMapSupport.install();
 }
 
-// if (isDebug) { temporarily allowing debug on prod
-electronDebug({ isEnabled: true });
-// }
+require('@electron/remote/main').initialize();
+
+if (isDebug) {
+  electronDebug({ isEnabled: true });
+}
 
 /**
  * Add event listeners...
@@ -77,6 +79,8 @@ app.on('ready', async () => {
       enableRemoteModule: true,
     },
   });
+
+  require('@electron/remote/main').enable(mainWindow.webContents);
 
   // The most accurate method of getting locale in electron is getLocaleCountryCode
   // which unlike getLocale is determined by native os settings
@@ -141,12 +145,12 @@ app.on('second-instance', () => {
   }
 });
 
-// if (isDebug) {
-app.whenReady().then(() => {
-  installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS])
-    .then(name => console.log(`Added Extension:  ${name}`))
-    .catch(err => console.log('An error occurred: ', err));
-});
-// }
+if (isDebug) {
+  app.whenReady().then(() => {
+    installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS])
+      .then(name => console.log(`Added Extension:  ${name}`))
+      .catch(err => console.log('An error occurred: ', err));
+  });
+}
 
 registerPrintListener();

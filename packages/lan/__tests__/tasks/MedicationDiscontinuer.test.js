@@ -10,7 +10,7 @@ import { MedicationDiscontinuer } from '../../app/tasks/MedicationDiscontinuer';
 
 // Mock config to add custom serverFacilityId.
 // It can't be done through test.json file in config because
-// local.json will have priority and will overwrite it.
+// local.json5 will have priority and will overwrite it.
 // Plus, it's better to have a unique facilityId to test this
 // TODO: DB defined
 jest.mock(

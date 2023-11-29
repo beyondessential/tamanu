@@ -1,4 +1,5 @@
-import { writeFileSync } from 'fs';
+import path from 'path';
+import { promises as fs } from 'fs';
 import { InvalidParameterError, RemoteCallFailedError } from '@tamanu/shared/errors';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 
@@ -28,8 +29,8 @@ const mockReq = {
 jest.mock('@tamanu/shared/utils/getUploadedData');
 getUploadedData.mockImplementation(async req => {
   // Create a file that can be used with the FS module, return path
-  const fileName = 'test-file.jpeg';
-  writeFileSync(fileName, FILEDATA, { encoding: 'base64' });
+  const fileName = path.resolve(__dirname, 'test-file.jpeg');
+  await fs.writeFile(fileName, FILEDATA, { encoding: 'base64' });
   return {
     file: fileName,
     deleteFileAfterImport: true,

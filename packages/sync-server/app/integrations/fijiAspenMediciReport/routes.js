@@ -406,7 +406,6 @@ routes.get(
       encounters,
       offset = 0,
     } = req.query;
-
     const timezone = await req.settings.get('countryTimeZone');
 
     if (!timezone) {

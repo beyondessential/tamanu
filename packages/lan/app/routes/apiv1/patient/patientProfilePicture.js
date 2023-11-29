@@ -32,6 +32,8 @@ patientProfilePicture.get(
           WHERE
             encounters.patient_id = :patientId
             AND program_data_elements.code = :photoCode
+          ORDER BY 
+            survey_responses.created_at DESC
         LIMIT 1
       `,
       {
