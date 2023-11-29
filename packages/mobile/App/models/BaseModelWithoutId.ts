@@ -2,6 +2,7 @@ import {
   BaseEntity,
   UpdateDateColumn,
   CreateDateColumn,
+  DeleteDateColumn,
   Column,
   BeforeInsert,
   BeforeUpdate,
@@ -42,6 +43,9 @@ export abstract class BaseModelWithoutId extends BaseEntity {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 
   @Column({ nullable: false, default: -999 })
   updatedAtSyncTick: number;
@@ -105,7 +109,6 @@ export abstract class BaseModelWithoutId extends BaseEntity {
     const repo = this.getRepository<T>();
     return repo.create(sanitiseForImport<T>(repo, data)).save();
   }
-
 
   static syncDirection = null;
 
