@@ -202,11 +202,21 @@ const NoteContent = ({
           )}
       </NoteBodyContainer>
       <NoteFooterContainer>
-        {showNoteMetaPrefix && <NoteFooterTextElement>Last updated:</NoteFooterTextElement>}
+        {showNoteMetaPrefix && (
+          <NoteFooterTextElement>
+            <TranslatedText stringId="notes.item.lastUpdated" fallback="Last updated" />:
+          </NoteFooterTextElement>
+        )}
         {noteAuthorName ? <NoteFooterTextElement>{noteAuthorName}</NoteFooterTextElement> : null}
-        {noteOnBehalfOfName ? (
-          <NoteFooterTextElement>on behalf of {noteOnBehalfOfName}</NoteFooterTextElement>
-        ) : null}
+        {noteOnBehalfOfName && (
+          <NoteFooterTextElement>
+            <TranslatedText
+              stringId="notes.item.behalf"
+              fallback="on behalf of :noteOnBehalfOfName"
+              replacements={{ noteOnBehalfOfName }}
+            />
+          </NoteFooterTextElement>
+        )}
         <DateDisplay
           date={(note.noteType !== NOTE_TYPES.TREATMENT_PLAN && note.revisedBy?.date) || note.date}
           showTime
@@ -214,7 +224,9 @@ const NoteContent = ({
         {note.revisedById && (
           <EditedButtonContainer onClick={() => handleViewNoteChangeLog(note)}>
             <span>(</span>
-            <EditedButton>edited</EditedButton>
+            <EditedButton>
+              <TranslatedText stringId="notes.item.edited" fallback="edited" />
+            </EditedButton>
             <span>)</span>
           </EditedButtonContainer>
         )}
