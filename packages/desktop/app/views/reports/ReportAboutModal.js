@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Typography } from '@material-ui/core';
 import { Modal, ModalGenericButtonRow, OutlinedButton } from '../../components';
 
 const Spacer = styled.div`
@@ -14,7 +15,7 @@ export const ReportAboutModal = ({
 }) => (
   <Modal title={title} open={open} onClose={onClose} cornerExitButton={false}>
     {content.split('\n').map(line => (
-      <p>{line}</p>
+      <Typography>{line}</Typography>
     ))}
     <Spacer />
     <ModalGenericButtonRow>
