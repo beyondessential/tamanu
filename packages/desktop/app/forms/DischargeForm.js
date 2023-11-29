@@ -340,7 +340,7 @@ export const DischargeForm = ({
           name="discharge.dischargerId"
           label={
             <TranslatedText
-              stringId="discharge.form.discharger.label"
+              stringId="discharge.form.dischargerId.label"
               fallback="Discharging :clinician"
               replacements={{
                 clinician: (

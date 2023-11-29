@@ -28,7 +28,8 @@ import {
   DisplayValue,
   LocalisedDisplayValue,
 } from '../../components/PatientPrinting/printouts/reusable/CertificateLabels';
-import { useLocalisedText } from '../../components';
+import { LowerCase } from '../../components/Typography';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const Container = styled.div`
   background: ${Colors.white};
@@ -156,7 +157,6 @@ const MedicationsList = ({ medications, discontinued }) => {
 
 const SummaryPage = React.memo(({ encounter, discharge }) => {
   const { title, subTitle, logo } = useCertificate();
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' }).toLowerCase();
 
   const { getLocalisation } = useLocalisation();
   const dischargeDispositionVisible =
@@ -236,7 +236,26 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
         <Content>
           <DisplayValue name="Facility">{location?.facility?.name || 'N/A'} </DisplayValue>
           <DisplayValue name="Department">{getDepartmentName(encounter)} </DisplayValue>
-          <DisplayValue name={`Supervising ${clinicianText}`}>{examiner?.displayName}</DisplayValue>
+          <DisplayValue
+            name={
+              <TranslatedText
+                stringId="general.form.supervisingClinician.label"
+                fallback="Supervising :clinician"
+                replacements={{
+                  clinician: (
+                    <LowerCase>
+                      <TranslatedText
+                        stringId="general.localisedField.clinician.label.short"
+                        fallback="Clinician"
+                      />
+                    </LowerCase>
+                  ),
+                }}
+              />
+            }
+          >
+            {examiner?.displayName}
+          </DisplayValue>
           <DisplayValue name="Date of admission">
             {getDateDisplay(startDate, { showTime: false })}
           </DisplayValue>

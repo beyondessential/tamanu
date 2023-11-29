@@ -10,7 +10,6 @@ import { MultiStepForm, FormStep } from '../MultiStepForm';
 import { LabRequestFormScreen1 } from './LabRequestFormScreen1';
 import { LabRequestFormScreen2, screen2ValidationSchema } from './LabRequestFormScreen2';
 import { LabRequestFormScreen3 } from './LabRequestFormScreen3';
-import { useLocalisedText } from '../../components';
 
 export const LabRequestMultiStepForm = ({
   isSubmitting,
@@ -26,11 +25,10 @@ export const LabRequestMultiStepForm = ({
 }) => {
   const { currentUser } = useAuth();
   const [initialSamples, setInitialSamples] = useState([]);
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
   // For fields please see LabRequestFormScreen1.js
   const screen1ValidationSchema = yup.object().shape({
-    requestedById: foreignKey(`Requesting ${clinicianText.toLowerCase()} is required`),
+    requestedById: foreignKey('Required'),
     requestedDate: yup.date().required('Request date is required'),
     requestFormType: yup
       .string()
