@@ -6,6 +6,7 @@ import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { DateDisplay } from '../../DateDisplay';
 import { LocalisedCertificateLabel, CertificateLabel } from './reusable/CertificateLabels';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 const Grid = styled(Box)`
   display: grid;
@@ -124,11 +125,26 @@ export const DeathCertificate = React.memo(({ patientData, certificateData }) =>
         pageTitle="Cause of Death Certificate"
       />
       <Grid mb={2}>
-        <LocalisedLabel name="firstName">{firstName}</LocalisedLabel>
+        <LocalisedLabel
+          label={
+            <TranslatedText
+              stringId="general.localisedField.firstName.label"
+              fallback="First name"
+            />
+          }
+        >
+          {firstName}
+        </LocalisedLabel>
         <Label name="Date of death">
           <DateDisplay date={dateOfDeath} showDate={false} showExplicitDate />
         </Label>
-        <LocalisedLabel name="lastName">{lastName}</LocalisedLabel>
+        <LocalisedLabel
+          label={
+            <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
+          }
+        >
+          {lastName}
+        </LocalisedLabel>
         <Label name="Time of death">
           <DateDisplay date={dateOfDeath} showDate={false} showTime />
         </Label>
@@ -138,7 +154,11 @@ export const DeathCertificate = React.memo(({ patientData, certificateData }) =>
         <Label name="Date of printing">
           <DateDisplay date={dateOfPrinting} showDate={false} showExplicitDate />
         </Label>
-        <LocalisedLabel name="sex">{sex}</LocalisedLabel>
+        <LocalisedLabel
+          label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
+        >
+          {sex}
+        </LocalisedLabel>
         <Label name="Printed by">{printedBy}</Label>
         <Label name="Place of death">{facility?.name}</Label>
       </Grid>
