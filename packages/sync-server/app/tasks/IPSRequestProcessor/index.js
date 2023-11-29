@@ -18,6 +18,10 @@ import { getRandomBase64String } from '../../auth/utils';
 import { generateIPSBundle } from '../../hl7fhir/materialised/patientSummary/bundleGenerator';
 import { QRCodeToFileAsync } from './helpers';
 
+// SHL flag reference: https://docs.smarthealthit.org/smart-health-links/spec/#construct-a-shlink-payload
+const SHL_FLAG_LONGTERM = 'L';
+const SHL_FLAG_SINGLEFILE = 'U';
+
 export class IPSRequestProcessor extends ScheduledTask {
   constructor(context) {
     const conf = config.schedules.IPSRequestProcessor;
@@ -90,14 +94,17 @@ export class IPSRequestProcessor extends ScheduledTask {
           throw new Error(`jsonBucketPath must be set, e.g. 'au'`);
         }
 
-        const filePath = `${jsonBucketPath}/${await getRandomBase64String(32, true)}_manifest.txt`;
+        const filePath = `${jsonBucketPath}/${await getRandomBase64String(
+          32,
+          'base64url',
+        )}_manifest.txt`;
 
         // CREATE PAYLOAD
 
         const payload = {
           url: `${s3PublicUrl}/${filePath}`,
-          key: await getRandomBase64String(32),
-          flag: 'LU',
+          key: await getRandomBase64String(32, 'base64url'),
+          flag: `${SHL_FLAG_LONGTERM}${SHL_FLAG_SINGLEFILE}`,
           label: `${
             patient.displayName
           } International Patient Summary generated @ ${now.toLocaleString()}`,
@@ -124,6 +131,7 @@ export class IPSRequestProcessor extends ScheduledTask {
               Bucket: bucketName,
               Key: filePath,
               Body: encrypted,
+              ContentType: 'application/jose',
             }),
           );
         } catch (err) {
