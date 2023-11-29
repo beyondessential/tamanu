@@ -16,6 +16,7 @@ import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { ListTable } from './reusable/ListTable';
 import { CertificateLabel, LocalisedCertificateLabel } from './reusable/CertificateLabels';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 const RowContainer = styled.div`
   display: flex;
@@ -119,11 +120,38 @@ export const MultiplePrescriptionPrintout = React.memo(
             <Label name="Date">
               <DateDisplay date={getCurrentDateString()} />
             </Label>
-            <LocalisedLabel name="prescriber">{prescriber?.displayName}</LocalisedLabel>
+            <LocalisedLabel
+              label={
+                <TranslatedText
+                  stringId="general.localisedField.prescriber.label"
+                  fallback="Prescriber"
+                />
+              }
+            >
+              {prescriber?.displayName}
+            </LocalisedLabel>
           </StyledDiv>
           <StyledDiv $marginLeft="150">
-            <LocalisedLabel name="prescriberId">{prescriber?.displayId}</LocalisedLabel>
-            <LocalisedLabel name="facility">{facility.name}</LocalisedLabel>
+            <LocalisedLabel
+              label={
+                <TranslatedText
+                  stringId="general.localisedField.prescriberId.label"
+                  fallback="Prescriber ID"
+                />
+              }
+            >
+              {prescriber?.displayId}
+            </LocalisedLabel>
+            <LocalisedLabel
+              label={
+                <TranslatedText
+                  stringId="general.localisedField.facility.label"
+                  fallback="Facility"
+                />
+              }
+            >
+              {facility.name}
+            </LocalisedLabel>
           </StyledDiv>
         </RowContainer>
 
