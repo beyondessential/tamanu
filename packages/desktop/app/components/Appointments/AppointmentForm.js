@@ -56,7 +56,7 @@ export const AppointmentForm = props => {
         patientId: yup.string().required('Please select a patient'),
         type: yup.string().required('Please choose an appointment type'),
         startTime: yup.string().required('Please select a start time'),
-        clinicianId: yup.string().required(`Please select a ${clinicianText.toLowerCase()}`),
+        clinicianId: yup.string().required('Required'),
         locationGroupId: yup
           .string()
           .required('Please select an area')

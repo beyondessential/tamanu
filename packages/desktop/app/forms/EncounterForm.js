@@ -16,7 +16,6 @@ import {
   SuggesterSelectField,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
-  useLocalisedText,
 } from '../components';
 import { encounterOptions } from '../constants';
 import { useSuggester } from '../api';
@@ -29,7 +28,6 @@ export const EncounterForm = React.memo(
       baseQueryParameters: { filterByFacility: true },
     });
     const referralSourceSuggester = useSuggester('referralSource');
-    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
     const renderForm = ({ submitForm, values }) => {
       const buttonText = editedObject ? 'Update encounter' : 'Confirm';
@@ -60,7 +58,7 @@ export const EncounterForm = React.memo(
           />
           <Field
             name="examinerId"
-            label={clinicianText}
+            label={<TranslatedText stringId="general.localisedField.practitioner.label.short" />}
             required
             component={AutocompleteField}
             suggester={practitionerSuggester}

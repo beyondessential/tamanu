@@ -29,7 +29,8 @@ import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
-import { useLocalisedText } from '../components';
+import { LowerCase } from '../components/Typography';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type).label;
@@ -85,7 +86,6 @@ export const ImagingRequestForm = React.memo(
     editedObject,
     generateId = shortid.generate,
   }) => {
-    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
     const { getLocalisation } = useLocalisation();
     const imagingTypes = getLocalisation('imagingTypes') || {};
     const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
@@ -106,7 +106,7 @@ export const ImagingRequestForm = React.memo(
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          requestedById: foreignKey(`Requesting ${clinicianText.toLowerCase()} is required`),
+          requestedById: foreignKey('Required'),
           requestedDate: yup.date().required(),
         })}
         render={({ submitForm, values }) => {
@@ -122,13 +122,43 @@ export const ImagingRequestForm = React.memo(
                 saveDateAsString
               />
               <TextInput
-                label={`Supervising ${clinicianText.toLowerCase()}`}
+                label={
+                  <TranslatedText
+                    stringId="general.form.supervisingClinician.label"
+                    fallback="Supervising :clinician"
+                    replacements={{
+                      clinician: (
+                        <LowerCase>
+                          <TranslatedText
+                            stringId="general.localisedField.clinician.label.short"
+                            fallback="Clinician"
+                          />
+                        </LowerCase>
+                      ),
+                    }}
+                  />
+                }
                 disabled
                 value={examinerLabel}
               />
               <Field
                 name="requestedById"
-                label={`Requesting ${clinicianText.toLowerCase()}`}
+                label={
+                  <TranslatedText
+                    stringId="general.form.requestingClinician.label"
+                    fallback="Requesting :clinician"
+                    replacements={{
+                      clinician: (
+                        <LowerCase>
+                          <TranslatedText
+                            stringId="general.localisedField.clinician.label.short"
+                            fallback="Clinician"
+                          />
+                        </LowerCase>
+                      ),
+                    }}
+                  />
+                }
                 required
                 component={AutocompleteField}
                 suggester={practitionerSuggester}
