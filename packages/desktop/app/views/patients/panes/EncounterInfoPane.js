@@ -4,14 +4,13 @@ import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 import { getFullLocationName } from '../../../utils/location';
 import { InfoCard, InfoCardItem, InfoCardHeader } from '../../../components/InfoCard';
 import { getDepartmentName } from '../../../utils/department';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const getReferralSource = ({ referralSource }) =>
   referralSource ? referralSource.name : 'Unknown';
 
 export const getEncounterType = ({ encounterType }) =>
   encounterType ? ENCOUNTER_OPTIONS_BY_VALUE[encounterType]?.label : 'Unknown';
-
-const referralSourcePath = 'fields.referralSourceId';
 
 export const EncounterInfoPane = React.memo(
   ({ encounter, getLocalisation, patientBillingType }) => (
@@ -29,9 +28,14 @@ export const EncounterInfoPane = React.memo(
       <InfoCardItem label="Department" value={getDepartmentName(encounter)} />
       <InfoCardItem label="Patient type" value={patientBillingType} />
       <InfoCardItem label="Location" value={getFullLocationName(encounter?.location)} />
-      {!getLocalisation(`${referralSourcePath}.hidden`) && (
+      {!getLocalisation(`fields.referralSourceId.hidden`) && (
         <InfoCardItem
-          label={getLocalisation(`${referralSourcePath}.shortLabel`)}
+          label={
+            <TranslatedText
+              stringId="general.localisedField.referralSourceId.label"
+              fallback="Referral source"
+            />
+          }
           value={getReferralSource(encounter)}
         />
       )}

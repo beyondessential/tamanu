@@ -215,7 +215,14 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
           <DisplayValue name="Patient name">
             {patient.firstName} {patient.lastName}
           </DisplayValue>
-          <LocalisedDisplayValue path="fields.displayId.shortLabel">
+          <LocalisedDisplayValue
+            label={
+              <TranslatedText
+                stringId="general.localisedField.displayId.label.short"
+                fallback="NHN"
+              />
+            }
+          >
             {patient.displayId}
           </LocalisedDisplayValue>
           <DisplayValue name="DOB">

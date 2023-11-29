@@ -168,7 +168,7 @@ export const PatientIDCardPage = ({ patient, imageData }) => {
             <DetailsRow
               label={
                 <TranslatedText
-                  displayId="general.localisedField.lastName.label.short"
+                  displayId="general.localisedField.lastName.label"
                   fallback="Last name"
                 />
               }
@@ -177,7 +177,7 @@ export const PatientIDCardPage = ({ patient, imageData }) => {
             <DetailsRow
               label={
                 <TranslatedText
-                  displayId="general.localisedField.firstName.label.short"
+                  displayId="general.localisedField.firstName.label"
                   fallback="First name"
                 />
               }
@@ -186,16 +186,14 @@ export const PatientIDCardPage = ({ patient, imageData }) => {
             <DetailsRow
               label={
                 <TranslatedText
-                  displayId="general.localisedField.dateOfBirth.label.short"
+                  displayId="general.localisedField.dateOfBirth.label"
                   fallback="DOB"
                 />
               }
               value={DateDisplay.stringFormat(patient.dateOfBirth)}
             />
             <DetailsRow
-              label={
-                <TranslatedText displayId="general.localisedField.sex.label.short" fallback="Sex" />
-              }
+              label={<TranslatedText displayId="general.localisedField.sex.label" fallback="Sex" />}
               value={SEX_VALUE_INDEX[patient.sex].label}
             />
           </Details>
