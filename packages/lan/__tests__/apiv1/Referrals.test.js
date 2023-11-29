@@ -71,7 +71,6 @@ describe('Referrals', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    console.log({ ctx });
     baseApp = ctx.baseApp;
     models = ctx.models;
     defaultCodes = await ctx.settings.get('survey.defaultCodes');
