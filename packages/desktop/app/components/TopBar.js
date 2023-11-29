@@ -153,7 +153,7 @@ export const EncounterTopBar = ({ title, subTitle, encounter, children }) => (
                 clinician: (
                   <LowerCase>
                     <TranslatedText
-                      stringId="general.localisedField.clinician.shortLabel"
+                      stringId="general.localisedField.clinician.label.short"
                       fallback="Clinician"
                     />
                     :

@@ -18,7 +18,8 @@ import {
 } from '../../../constants';
 
 import { ImagingRequestData } from './reusable/ImagingRequestData';
-import { useLocalisedText } from '../../LocalisedText';
+import { LowerCase } from '../../Typography';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 // STYLES
 const CompactListTable = styled(ListTable)`
@@ -290,7 +291,6 @@ export const EncounterRecord = React.memo(
     pad,
     medications,
   }) => {
-    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' }).toLowerCase();
     const { firstName, lastName, dateOfBirth, sex, displayId } = patient;
     const { department, location, examiner, reasonForEncounter, startDate, endDate } = encounter;
     const { title, subTitle, logo } = certificateData;
@@ -328,10 +328,46 @@ export const EncounterRecord = React.memo(
         <RowContainer>
           <div>
             <LocalisedDisplayValue name="facility">{location.facility.name}</LocalisedDisplayValue>
-            <DisplayValue name={`Supervising ${clinicianText}`} size="10px">
+            <DisplayValue
+              name={
+                <TranslatedText
+                  stringId="general.form.supervisingClinician.label"
+                  fallback="Supervising :clinician"
+                  replacements={{
+                    clinician: (
+                      <LowerCase>
+                        <TranslatedText
+                          stringId="general.localisedField.clinician.label.short"
+                          fallback="Clinician"
+                        />
+                      </LowerCase>
+                    ),
+                  }}
+                />
+              }
+              size="10px"
+            >
               {examiner.displayName}
             </DisplayValue>
-            <DisplayValue name={`Discharging ${clinicianText}`} size="10px">
+            <DisplayValue
+              name={
+                <TranslatedText
+                  stringId="general.form.dischargingClinician.label"
+                  fallback="Discharging :clinician"
+                  replacements={{
+                    clinician: (
+                      <LowerCase>
+                        <TranslatedText
+                          stringId="general.localisedField.clinician.label.short"
+                          fallback="Clinician"
+                        />
+                      </LowerCase>
+                    ),
+                  }}
+                />
+              }
+              size="10px"
+            >
               {discharge?.discharger?.displayName}
             </DisplayValue>
             <DisplayValue name="Reason for encounter" size="10px">
