@@ -6,12 +6,7 @@ import ArrowBackIcon from '@material-ui/icons/KeyboardArrowLeft';
 import ArrowForwardIcon from '@material-ui/icons/KeyboardArrowRight';
 
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
-import {
-  PageContainer,
-  useLocalisedText,
-  TOP_BAR_HEIGHT,
-  TopBar as TopBarBase,
-} from '../../components';
+import { PageContainer, TOP_BAR_HEIGHT, TopBar as TopBarBase } from '../../components';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from '../../components/Appointments/DailySchedule';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
@@ -20,6 +15,7 @@ import { AutocompleteInput, MultiselectInput } from '../../components/Field';
 import { Suggester } from '../../utils/suggester';
 import { Colors, appointmentTypeOptions } from '../../constants';
 import { useApi, useSuggester } from '../../api';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const LeftContainer = styled.div`
   min-height: 100%;
@@ -87,7 +83,6 @@ const TodayButton = styled(Button)`
 export const AppointmentsCalendar = () => {
   const api = useApi();
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
   const [date, setDate] = useState(new Date());
   const [filterValue, setFilterValue] = useState('');
@@ -113,8 +108,12 @@ export const AppointmentsCalendar = () => {
       ),
     },
     clinician: {
-      // TODO translation: plural solution
-      label: `${clinicianText}s`,
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.clinician.label.plural"
+          fallback="Clinicians"
+        />
+      ),
       component: (
         <AutocompleteInput
           value={filterValue}

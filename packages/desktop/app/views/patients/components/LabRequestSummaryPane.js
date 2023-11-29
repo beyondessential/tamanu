@@ -13,11 +13,12 @@ import {
   useSelectableColumn,
   OutlinedButton,
   Heading3,
-  useLocalisedText,
+  LowerCase,
 } from '../../../components';
 import { LabRequestPrintLabelModal } from '../../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { useLabRequestNotes } from '../../../api/queries';
 import { InfoCard, InfoCardItem } from '../../../components/InfoCard';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const Container = styled.div`
   padding-top: 20px;
@@ -101,7 +102,6 @@ export const LabRequestSummaryPane = React.memo(
     const { selectedRows, selectableColumn } = useSelectableColumn(labRequests, {
       columnKey: 'selected',
     });
-    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
     const noRowSelected = useMemo(() => !selectedRows?.length, [selectedRows]);
     // All the lab requests were made in a batch and have the same details
     const { id, requestedDate, requestedBy, department, priority } = labRequests[0];
@@ -118,7 +118,22 @@ export const LabRequestSummaryPane = React.memo(
         <Card>
           <StyledInfoCard gridRowGap={10} elevated={false}>
             <InfoCardItem
-              label={`Requesting ${clinicianText.toLowerCase()}`}
+              label={
+                <TranslatedText
+                  stringId="general.form.requestingClinician.label"
+                  fallback="Requesting :clinician"
+                  replacements={{
+                    clinician: (
+                      <LowerCase>
+                        <TranslatedText
+                          stringId="general.localisedField.clinician.label.short"
+                          fallback="Clinician"
+                        />
+                      </LowerCase>
+                    ),
+                  }}
+                />
+              }
               value={requestedBy?.displayName}
             />
             <InfoCardItem
