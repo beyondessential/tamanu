@@ -1,7 +1,6 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
 import { Button, Typography } from '@material-ui/core';
-import { LocalisedText } from '../LocalisedText';
 import { DateDisplay } from '../DateDisplay';
 import { PatientInitialsIcon } from '../PatientInitialsIcon';
 import { Colors } from '../../constants';
@@ -71,11 +70,9 @@ const CoreInfoValue = styled(Typography)`
   text-transform: capitalize;
 `;
 
-const CoreInfoCell = ({ path, children, testId }) => (
+const CoreInfoCell = ({ label, children, testId }) => (
   <CoreInfoCellContainer data-test-id={testId}>
-    <CoreInfoLabel>
-      <LocalisedText path={path} />
-    </CoreInfoLabel>
+    <CoreInfoLabel>{label}</CoreInfoLabel>
     <CoreInfoValue>{children}</CoreInfoValue>
   </CoreInfoCellContainer>
 );
@@ -126,7 +123,10 @@ const HealthIdDisplay = ({ displayId }) => (
   <HealthIdContainer>
     <HealthId>
       <HealthIdText>
-        <LocalisedText path="fields.displayId.longLabel" />
+        <TranslatedText
+          stringId="general.localisedField.displayId.label"
+          fallback="National Health Number"
+        />
       </HealthIdText>
       <HealthIdText data-test-class="display-id-label">{displayId}</HealthIdText>
     </HealthId>
@@ -154,10 +154,18 @@ export const CoreInfoDisplay = memo(({ patient }) => {
         </NameContainer>
       </PatientButton>
       <CoreInfoSection>
-        <CoreInfoCell path="fields.sex.shortLabel" testId="core-info-patient-sex">
+        <CoreInfoCell
+          label={<TranslatedText stringId="general.loacalisedFields.sex.short" fallback="Sex" />}
+          testId="core-info-patient-sex"
+        >
           {patient.sex}
         </CoreInfoCell>
-        <CoreInfoCell path="fields.dateOfBirth.shortLabel" testId="core-info-patient-dob">
+        <CoreInfoCell
+          label={
+            <TranslatedText stringId="general.loacalisedFields.dateOfBirth.short" fallback="DOB" />
+          }
+          testId="core-info-patient-dob"
+        >
           <DateDisplay date={patient.dateOfBirth} />
           <AgeDisplay>{` (${getDisplayAge(patient.dateOfBirth, ageDisplayFormat)})`}</AgeDisplay>
         </CoreInfoCell>

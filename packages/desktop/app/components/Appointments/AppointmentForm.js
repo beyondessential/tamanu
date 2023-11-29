@@ -7,13 +7,12 @@ import { FormSubmitCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 import { useApi, usePatientSuggester, useSuggester } from '../../api';
 import { appointmentTypeOptions } from '../../constants';
-import { useLocalisedText } from '../LocalisedText';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 export const AppointmentForm = props => {
   const { onSuccess = () => {}, onCancel, appointment } = props;
   const api = useApi();
   const isUpdating = !!appointment;
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
   const clinicianSuggester = useSuggester('practitioner');
   const patientSuggester = usePatientSuggester();
   const locationGroupSuggester = useSuggester('facilityLocationGroup');
@@ -93,7 +92,12 @@ export const AppointmentForm = props => {
               />
               <Field label="End time" name="endTime" saveDateAsString component={DateTimeField} />
               <Field
-                label={clinicianText}
+                label={
+                  <TranslatedText
+                    stringId="general.localisedField.clinician.label.short"
+                    fallback="Clinician"
+                  />
+                }
                 name="clinicianId"
                 component={AutocompleteField}
                 suggester={clinicianSuggester}

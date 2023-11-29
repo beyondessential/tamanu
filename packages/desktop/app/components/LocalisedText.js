@@ -14,3 +14,5 @@ export const LocalisedText = ({ path }) => {
 
 // Better name for using LocalisedText as a hook
 export const useLocalisedText = props => LocalisedText(props);
+
+// TODO DELETE
