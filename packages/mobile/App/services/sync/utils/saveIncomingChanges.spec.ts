@@ -153,7 +153,7 @@ describe('saveChangesForModel', () => {
       await saveChangesForModel(Model, changes);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
-      expect(saveChangeModules.executeUpdates).toBeCalledTimes(0);
+      expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
       expect(saveChangeModules.executeDeletes).toBeCalledTimes(0);
       expect(saveChangeModules.executeRestores).toBeCalledTimes(0);
     });
@@ -181,7 +181,7 @@ describe('saveChangesForModel', () => {
       await saveChangesForModel(Model, changes);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
-      expect(saveChangeModules.executeUpdates).toBeCalledTimes(0);
+      expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
       expect(saveChangeModules.executeDeletes).toBeCalledTimes(1);
       expect(saveChangeModules.executeDeletes).toBeCalledWith(Model, [newRecord]);
       expect(saveChangeModules.executeRestores).toBeCalledTimes(0);
@@ -212,7 +212,7 @@ describe('saveChangesForModel', () => {
       await saveChangesForModel(Model, changes);
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
-      expect(saveChangeModules.executeUpdates).toBeCalledTimes(0);
+      expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
       expect(saveChangeModules.executeDeletes).toBeCalledTimes(0);
       expect(saveChangeModules.executeRestores).toBeCalledTimes(1);
       expect(saveChangeModules.executeRestores).toBeCalledWith(Model, [newRecord]);
