@@ -23,6 +23,7 @@ const InfoDiv = styled.div`
   width: 100%;
   border: 1px solid ${Colors.softOutline};
   border-radius: 5px;
+  padding: 22px 30px;
 `;
 
 const InfoColumn = styled.div`

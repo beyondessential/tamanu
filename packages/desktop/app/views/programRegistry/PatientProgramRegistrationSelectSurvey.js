@@ -11,7 +11,7 @@ import { Form, Field, SelectField } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
 import { foreignKey } from '../../utils/validation';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { ConditionalTooltip } from '../../components/Tooltip';
+import { ConditionalTooltip, ThemedTooltip } from '../../components/Tooltip';
 
 const DisplayContainer = styled.div`
   display: flex;
@@ -21,7 +21,10 @@ const DisplayContainer = styled.div`
   align-items: flex-start;
   border: 1px solid ${Colors.softOutline};
   font-size: 11px;
-  padding: 10px;
+  padding-left: 20px;
+  padding-top: 13px;
+  padding-right: 14px;
+  padding-bottom: 20px;
   background-color: ${Colors.white};
 `;
 
@@ -92,16 +95,20 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
                 />
               </ConditionalTooltip>
 
-              <ConditionalTooltip visible={isRemoved} title="Patient must be active">
-                <StyledButton
-                  variant="contained"
-                  onClick={submitForm}
-                  disabled={isRemoved || !values.surveyId}
-                  isSubmitting={false}
-                >
-                  Begin form
-                </StyledButton>
-              </ConditionalTooltip>
+              <ThemedTooltip
+                title={isRemoved ? 'Patient must be active' : 'Select form to proceed'}
+              >
+                <div>
+                  <StyledButton
+                    variant="contained"
+                    onClick={submitForm}
+                    disabled={isRemoved || !values.surveyId}
+                    isSubmitting={false}
+                  >
+                    Begin form
+                  </StyledButton>
+                </div>
+              </ThemedTooltip>
             </StyledFormGrid>
           );
         }}

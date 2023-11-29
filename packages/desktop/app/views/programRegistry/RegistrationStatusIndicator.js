@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { PROGRAM_REGISTRATION_STATUSES } from '../../constants';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
+import { ThemedTooltip } from '../../components/Tooltip';
 
 const StatusDiv = styled.div`
   display: flex;
@@ -26,13 +27,15 @@ const StatusInactiveDot = styled.div`
 
 export const RegistrationStatusIndicator = ({ patientProgramRegistration, hideText }) => {
   return (
-    <StatusDiv>
-      {patientProgramRegistration.registrationStatus === PROGRAM_REGISTRATION_STATUSES.ACTIVE ? (
-        <StatusActiveDot />
-      ) : (
-        <StatusInactiveDot />
-      )}
-      {!hideText && <b>{capitaliseFirstLetter(patientProgramRegistration.registrationStatus)}</b>}
-    </StatusDiv>
+    <ThemedTooltip title={capitaliseFirstLetter(patientProgramRegistration.registrationStatus)}>
+      <StatusDiv>
+        {patientProgramRegistration.registrationStatus === PROGRAM_REGISTRATION_STATUSES.ACTIVE ? (
+          <StatusActiveDot />
+        ) : (
+          <StatusInactiveDot />
+        )}
+        {!hideText && <b>{capitaliseFirstLetter(patientProgramRegistration.registrationStatus)}</b>}
+      </StatusDiv>
+    </ThemedTooltip>
   );
 };

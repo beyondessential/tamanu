@@ -15,6 +15,7 @@ import {
   RemoveProgramRegistryFormModal,
 } from './RemoveProgramRegistryFormModal';
 import { OutlinedButton } from '../../components';
+import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 
 const DisplayContainer = styled.div`
   display: flex;
@@ -134,12 +135,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
         )}
 
         <DividerVertical />
-        <StatusBadge
-          color={STATUS_COLOR[patientProgramRegistration.clinicalStatus.color].color}
-          backgroundColor={STATUS_COLOR[patientProgramRegistration.clinicalStatus.color].background}
-        >
-          {patientProgramRegistration.clinicalStatus.name}
-        </StatusBadge>
+        <ClinicalStatusDisplay clinicalStatus={patientProgramRegistration.clinicalStatus} />
       </div>
       <div
         style={{

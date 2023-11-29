@@ -16,7 +16,7 @@ import { foreignKey } from '../../utils/validation';
 
 const StyledFormGrid = styled(FormGrid)`
   grid-column: 1 / -1;
-  width: 70%;
+  width: 100%;
   display: block;
   margin: auto;
   margin-top: 30px;
@@ -64,7 +64,7 @@ export const AddConditionFormModal = ({ onClose, patientProgramRegistration, ope
                 />
               </StyledFormGrid>
               <FormSeparatorLine style={{ marginTop: '60px', marginBottom: '30px' }} />
-              <ConfirmCancelRow onConfirm={submitForm} onClose={handleCancel} />
+              <ConfirmCancelRow onConfirm={submitForm} onCancel={handleCancel} />
             </div>
           );
         }}

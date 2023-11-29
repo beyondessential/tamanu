@@ -18,7 +18,9 @@ const Container = styled.div`
   overflow-y: scroll;
   width: 28%;
   background-color: ${Colors.white};
-  padding: 15px;
+  padding-top: 13px;
+  padding-left: 20px;
+  padding-right: 20px;
   display: flex;
   flex-direction: column;
   align-items: start;

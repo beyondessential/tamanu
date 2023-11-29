@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { useParams } from 'react-router-dom';
-import { STATUS_COLOR } from '@tamanu/constants';
 import { reloadPatient } from '../../store';
 import { SearchTable, DateDisplay, MenuButton } from '../../components';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
@@ -12,6 +11,7 @@ import { ChangeStatusFormModal } from './ChangeStatusFormModal';
 import { Colors } from '../../constants';
 import { LimitedLinesCell } from '../../components/FormattedTableCell';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
+import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 
 const ClippedConditionName = styled.span`
   overflow: hidden;
@@ -107,14 +107,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         key: 'clinicalStatus',
         title: 'Status',
         accessor: row => {
-          return (
-            <StatusBadge
-              color={STATUS_COLOR[row.clinicalStatus.color].color}
-              backgroundColor={STATUS_COLOR[row.clinicalStatus.color].background}
-            >
-              {row.clinicalStatus.name}
-            </StatusBadge>
-          );
+          return <ClinicalStatusDisplay clinicalStatus={row.clinicalStatus} />;
         },
         maxWidth: 200,
       },
@@ -153,7 +146,6 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
   return (
     <>
       <SearchTable
-        autoRefresh
         refreshCount={refreshCount}
         endpoint={`programRegistry/${params.programRegistryId}/registrations`}
         columns={columns}

@@ -10,7 +10,6 @@ import {
   DateField,
   CheckField,
   SearchField,
-  SelectField,
 } from '../../components';
 import { useProgramRegistryQuery } from '../../api/queries/useProgramRegistryQuery';
 import { useProgramRegistryConditions } from '../../api/queries/useProgramRegistryConditions';
@@ -58,7 +57,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
           <LocalisedField
             name="sex"
             defaultLabel="Sex"
-            component={SelectField}
+            component={AutocompleteField}
             options={filteredSexOptions}
           />
           <LocalisedField
