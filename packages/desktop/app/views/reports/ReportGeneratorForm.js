@@ -54,6 +54,7 @@ const AboutReportButton = styled(TextButton)`
   font-weight: normal;
   color: ${Colors.darkText};
   width: fit-content;
+  text-transform: none;
   :hover {
     font-weight: 500;
     color: ${Colors.primary};
@@ -96,6 +97,8 @@ const useFileName = () => {
     return `tamanu-report-${date}-${dashedName}`;
   };
 };
+
+const getAboutReportString = reportName => `About ${reportName}`;
 
 const isJsonString = str => {
   try {
@@ -271,11 +274,11 @@ export const ReportGeneratorForm = () => {
             <>
               <FormGrid columns={1}>
                 <AboutReportButton onClick={() => setIsReportModalOpen(true)}>
-                  {`About ${reportsById[selectedReportId]?.name}`}
+                  {getAboutReportString(reportsById[selectedReportId].name)}
                 </AboutReportButton>
               </FormGrid>
               <ReportAboutModal
-                title={`About ${reportsById[selectedReportId].name}`}
+                title={getAboutReportString(reportsById[selectedReportId].name)}
                 open={isReportModalOpen}
                 onClose={() => setIsReportModalOpen(false)}
                 content={reportsById[selectedReportId].notes}
