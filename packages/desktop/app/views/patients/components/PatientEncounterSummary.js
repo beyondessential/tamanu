@@ -168,7 +168,6 @@ const PatientDeathSummary = React.memo(({ patient }) => {
 export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin }) => {
   const { getLocalisation } = useLocalisation();
   const { data: encounter, error, isLoading } = usePatientCurrentEncounter(patient.id);
-  const referralSourcePath = 'fields.referralSourceId';
 
   if (patient.dateOfDeath) {
     return <PatientDeathSummary patient={patient} />;
@@ -266,9 +265,15 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
           </ContentLabel>
           <ContentText>{getFullLocationName(location)}</ContentText>
         </ContentItem>
-        {!getLocalisation(`${referralSourcePath}.hidden`) && (
+        {!getLocalisation('referralSourceId.hidden') && (
           <ContentItem>
-            <ContentLabel>{getLocalisation(`${referralSourcePath}.shortLabel`)}:</ContentLabel>
+            <ContentLabel>
+              <TranslatedText
+                stringId="general.localisedField.referralSourceId.label"
+                fallback="Referral source"
+              />
+              :
+            </ContentLabel>
             <ContentText>{referralSource?.name || '-'}</ContentText>
           </ContentItem>
         )}

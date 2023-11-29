@@ -17,6 +17,7 @@ import {
 } from '../../components';
 import { Colors } from '../../constants';
 import { StatisticsCard, StatisticsCardContainer } from '../../components/StatisticsCard';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const CLINICAL_STATUSES = {
   CRITICAL: 'Critical',
@@ -49,18 +50,43 @@ const COLUMNS = [
     cellColor: getClinicalStatusCellColor,
     accessor: row => <PriorityText>{row.clinicalStatus}</PriorityText>,
   },
-  { key: 'displayId' },
-  { key: 'firstName', title: 'First name' },
-  { key: 'lastName', title: 'Last name' },
-  { key: 'villageName', title: 'Village' },
+  {
+    key: 'displayId',
+    title: (
+      <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
+    ),
+  },
+  {
+    key: 'firstName',
+    title: (
+      <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />
+    ),
+  },
+  {
+    key: 'lastName',
+    title: <TranslatedText stringId="general.localisedField.lastName.label" fallback="last name" />,
+  },
+  {
+    key: 'villageName',
+    title: (
+      <TranslatedText stringId="general.localisedField.villageName.label" fallback="Village" />
+    ),
+  },
   {
     key: 'sex',
+    title: <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />,
     accessor: row => {
       const sex = row.sex || '';
       return capitaliseFirstLetter(sex);
     },
   },
-  { key: 'dateOfBirth', accessor: row => <DateDisplay date={row.dateOfBirth} /> },
+  {
+    key: 'dateOfBirth',
+    title: (
+      <TranslatedText stringId="general.localisedField.dateOfBirth.label.short" fallback="DOB" />
+    ),
+    accessor: row => <DateDisplay date={row.dateOfBirth} />,
+  },
   {
     key: 'admissionStartDate',
     title: 'Admission start date',

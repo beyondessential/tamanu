@@ -9,6 +9,7 @@ import { LocationCell, LocationGroupCell } from './LocationCell';
 import { TriageWaitTimeCell } from './TriageWaitTimeCell';
 import { useLocalisation } from '../contexts/Localisation';
 import { reloadPatient } from '../store';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const ADMITTED_PRIORITY_COLOR = '#bdbdbd';
 
@@ -34,9 +35,20 @@ const useColumns = () => {
       isExportable: false,
     },
     { key: 'chiefComplaint', title: 'Chief complaint' },
-    { key: 'displayId' },
+    {
+      key: 'displayId',
+      title: (
+        <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
+      ),
+    },
     { key: 'patientName', title: 'Patient', accessor: row => `${row.firstName} ${row.lastName}` },
-    { key: 'dateOfBirth', accessor: row => <DateDisplay date={row.dateOfBirth} /> },
+    {
+      key: 'dateOfBirth',
+      title: (
+        <TranslatedText stringId="general.localisedField.dateOfBirth.label.short" fallback="DOB" />
+      ),
+      accessor: row => <DateDisplay date={row.dateOfBirth} />,
+    },
     {
       key: 'sex',
       accessor: row => <span style={{ textTransform: 'capitalize' }}>{row.sex || ''}</span>,
