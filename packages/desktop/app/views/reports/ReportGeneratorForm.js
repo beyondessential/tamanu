@@ -267,7 +267,7 @@ export const ReportGeneratorForm = () => {
               disabled={isDataSourceFieldDisabled}
             />
           </FormGrid>
-          {reportsById[selectedReportId]?.notes ? (
+          {reportsById[selectedReportId]?.notes && (
             <>
               <FormGrid columns={1}>
                 <AboutReportButton onClick={() => setIsReportModalOpen(true)}>
@@ -281,7 +281,7 @@ export const ReportGeneratorForm = () => {
                 content={reportsById[selectedReportId].notes}
               />
             </>
-          ) : null}
+          )}
           {parameters.length > 0 ? (
             <>
               <Spacer />
