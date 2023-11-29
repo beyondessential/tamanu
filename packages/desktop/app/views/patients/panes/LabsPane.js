@@ -4,6 +4,7 @@ import { EncounterLabRequestsTable } from '../EncounterLabRequestsTable';
 import { TableButtonRow, ButtonWithPermissionCheck } from '../../../components';
 import { PrintMultipleLabRequestsSelectionModal } from '../../../components/PatientPrinting';
 import { TabPane } from '../components';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 export const LabsPane = React.memo(({ encounter, readonly }) => {
   const [newRequestModalOpen, setNewRequestModalOpen] = useState(false);
@@ -31,7 +32,7 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
           color="primary"
           size="small"
         >
-          Print
+          <TranslatedText stringId="labs.action.print" fallback="Print" />
         </ButtonWithPermissionCheck>
         <ButtonWithPermissionCheck
           onClick={() => setNewRequestModalOpen(true)}
@@ -40,7 +41,7 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
           noun="LabRequest"
           size="small"
         >
-          New lab request
+          <TranslatedText stringId="labs.action.new" fallback="New lab request" />
         </ButtonWithPermissionCheck>
       </TableButtonRow>
       <EncounterLabRequestsTable encounterId={encounter.id} />
