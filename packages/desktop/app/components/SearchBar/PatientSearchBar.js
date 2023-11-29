@@ -2,7 +2,6 @@ import React from 'react';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { AutocompleteField, LocalisedField, SearchField } from '../Field';
 import { useSuggester } from '../../api';
-import { useLocalisedText } from '../LocalisedText';
 import { useAdvancedFields } from './useAdvancedFields';
 import { TranslatedText } from '../Translation/TranslatedText';
 
@@ -10,7 +9,6 @@ const ADVANCED_FIELDS = ['departmentId', 'clinicianId'];
 
 export const PatientSearchBar = React.memo(
   ({ onSearch, searchParameters, suggestByFacility = true }) => {
-    const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
     const locationGroupSuggester = useSuggester('locationGroup', {
       baseQueryParameters: suggestByFacility ? { filterByFacility: true } : {},
     });
@@ -54,7 +52,6 @@ export const PatientSearchBar = React.memo(
                   fallback="Clinician"
                 />
               }
-              defaultLabel={clinicianText}
               component={AutocompleteField}
               size="small"
               suggester={practitionerSuggester}
