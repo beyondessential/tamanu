@@ -195,12 +195,15 @@ const EncounterOverview = ({
       <TextInput
         label={
           <TranslatedText
-            stringId="encounter.modal.supervisingClinician.label"
+            stringId="general.form.supervisingClinician.label"
             fallback="Supervising :clinician"
             replacements={{
               clinician: (
                 <LowerCase>
-                  <TranslatedText stringId="general.clinician.shortLabel" fallback="Clinician" />
+                  <TranslatedText
+                    stringId="general.localisedField.clinician.shortLabel"
+                    fallback="Clinician"
+                  />
                 </LowerCase>
               ),
             }}
