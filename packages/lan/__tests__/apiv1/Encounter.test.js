@@ -1032,7 +1032,6 @@ describe('Encounter', () => {
     describe('vitals', () => {
       let vitalsEncounter = null;
       let vitalsPatient = null;
-      const surveyResponseId = 'vitals-survey-response';
 
       beforeAll(async () => {
         // The original patient may or may not have a current encounter
@@ -1077,77 +1076,68 @@ describe('Encounter', () => {
         });
       });
 
-      afterEach(async () => {
-        await models.SurveyResponseAnswer.destroy({
-          where: {
-            response_id: surveyResponseId,
-          },
+      describe('basic vital features', () => {
+        afterEach(async () => {
+          await models.SurveyResponseAnswer.truncate({});
+          await models.SurveyResponse.truncate({});
         });
-        await models.SurveyResponse.destroy({
-          where: {
-            id: surveyResponseId,
-          },
+        it('should record a new vitals reading', async () => {
+          const submissionDate = getCurrentDateTimeString();
+          const result = await app.post('/v1/surveyResponse').send({
+            surveyId: 'vitals-survey',
+            patientId: vitalsPatient.id,
+            startTime: submissionDate,
+            endTime: submissionDate,
+            answers: {
+              'pde-PatientVitalsDate': submissionDate,
+              'pde-PatientVitalsHeartRate': 1234,
+            },
+          });
+          expect(result).toHaveSucceeded();
+          const saved = await models.SurveyResponseAnswer.findOne({
+            where: { dataElementId: 'pde-PatientVitalsHeartRate', body: '1234' },
+          });
+          expect(saved).toHaveProperty('body', '1234');
         });
-      });
 
-      it('should record a new vitals reading', async () => {
-        const submissionDate = getCurrentDateTimeString();
-        const result = await app.post('/v1/surveyResponse').send({
-          id: surveyResponseId,
-          surveyId: 'vitals-survey',
-          patientId: vitalsPatient.id,
-          startTime: submissionDate,
-          endTime: submissionDate,
-          answers: {
+        it('should get vitals readings for an encounter', async () => {
+          const submissionDate = getCurrentDateTimeString();
+          const answers = {
             'pde-PatientVitalsDate': submissionDate,
-            'pde-PatientVitalsHeartRate': 1234,
-          },
-        });
-        expect(result).toHaveSucceeded();
-        const saved = await models.SurveyResponseAnswer.findOne({
-          where: { dataElementId: 'pde-PatientVitalsHeartRate', body: '1234' },
-        });
-        expect(saved).toHaveProperty('body', '1234');
-      });
-
-      it('should get vitals readings for an encounter', async () => {
-        const submissionDate = getCurrentDateTimeString();
-        const answers = {
-          'pde-PatientVitalsDate': submissionDate,
-          'pde-PatientVitalsHeartRate': 123,
-          'pde-PatientVitalsHeight': 456,
-          'pde-PatientVitalsWeight': 789,
-        };
-        await app.post('/v1/surveyResponse').send({
-          id: surveyResponseId,
-          surveyId: 'vitals-survey',
-          patientId: vitalsPatient.id,
-          startTime: submissionDate,
-          endTime: submissionDate,
-          answers,
-        });
-        const result = await app.get(`/v1/encounter/${vitalsEncounter.id}/vitals`);
-        expect(result).toHaveSucceeded();
-        const { body } = result;
-        expect(body).toHaveProperty('count');
-        expect(body.count).toBeGreaterThan(0);
-        expect(body).toHaveProperty('data');
-        expect(body.data).toEqual(
-          expect.arrayContaining(
-            Object.entries(answers).map(([key, value]) =>
-              expect.objectContaining({
-                dataElementId: key,
-                records: {
-                  [submissionDate]: expect.objectContaining({
-                    id: expect.any(String),
-                    body: value.toString(),
-                    logs: null,
-                  }),
-                },
-              }),
+            'pde-PatientVitalsHeartRate': 123,
+            'pde-PatientVitalsHeight': 456,
+            'pde-PatientVitalsWeight': 789,
+          };
+          await app.post('/v1/surveyResponse').send({
+            surveyId: 'vitals-survey',
+            patientId: vitalsPatient.id,
+            startTime: submissionDate,
+            endTime: submissionDate,
+            answers,
+          });
+          const result = await app.get(`/v1/encounter/${vitalsEncounter.id}/vitals`);
+          expect(result).toHaveSucceeded();
+          const { body } = result;
+          expect(body).toHaveProperty('count');
+          expect(body.count).toBeGreaterThan(0);
+          expect(body).toHaveProperty('data');
+          expect(body.data).toEqual(
+            expect.arrayContaining(
+              Object.entries(answers).map(([key, value]) =>
+                expect.objectContaining({
+                  dataElementId: key,
+                  records: {
+                    [submissionDate]: expect.objectContaining({
+                      id: expect.any(String),
+                      body: value.toString(),
+                      logs: null,
+                    }),
+                  },
+                }),
+              ),
             ),
-          ),
-        );
+          );
+        });
       });
 
       describe('vitals data by data element id', () => {
@@ -1441,6 +1431,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
+            date: encounter.startDate,
           });
         });
 
@@ -1477,6 +1468,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
+            date: encounter.startDate,
           });
 
           expect(encounterHistoryRecords[1]).toMatchObject({
@@ -1524,6 +1516,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
+            date: encounter.startDate,
           });
           expect(encounterHistoryRecords[1]).toMatchObject({
             date: submittedTime,
@@ -1571,6 +1564,7 @@ describe('Encounter', () => {
             examinerId: oldClinician.id,
             encounterType: encounter.encounterType,
             actorId: user.id,
+            date: encounter.startDate,
           });
           expect(encounterHistoryRecords[1]).toMatchObject({
             date: submittedTime,
@@ -1613,13 +1607,13 @@ describe('Encounter', () => {
 
           expect(encounterHistoryRecords).toHaveLength(2);
           expect(encounterHistoryRecords[0]).toMatchObject({
-            date: submittedTime,
             encounterId: encounter.id,
             departmentId: encounter.departmentId,
             locationId: encounter.locationId,
             examinerId: encounter.examinerId,
             encounterType: oldEncounterType,
             actorId: user.id,
+            date: encounter.startDate,
           });
           expect(encounterHistoryRecords[1]).toMatchObject({
             date: submittedTime,
@@ -1673,6 +1667,7 @@ describe('Encounter', () => {
             locationId: oldLocation.id,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
+            date: encounter.startDate,
           });
           expect(encounterHistoryRecords[1]).toMatchObject({
             date: locationChangeSubmittedTime,
@@ -1706,6 +1701,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
+            date: encounter.startDate,
           });
           expect(encounterHistoryRecords[1]).toMatchObject({
             date: locationChangeSubmittedTime,
@@ -1751,6 +1747,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
+            date: encounter.startDate,
           });
           expect(encounterHistoryRecords[1]).toMatchObject({
             date: locationChangeSubmittedTime,

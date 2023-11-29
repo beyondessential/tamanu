@@ -10,6 +10,7 @@ import { QueryTypes } from 'sequelize';
 import {
   mergePatientAdditionalData,
   mergePatientBirthData,
+  mergePatientDeathData,
   mergePatientFieldValues,
   reconcilePatientFacilities,
   simpleUpdateModels,
@@ -148,6 +149,24 @@ export class PatientMergeMaintainer extends ScheduledTask {
       );
       if (mergedPatientBirthData) {
         records.push(mergedPatientBirthData);
+      }
+    }
+    return records;
+  }
+
+  async specificUpdate_PatientDeathData() {
+    const { PatientDeathData } = this.models;
+    const patientDeathDataMerges = await this.findPendingMergePatients(PatientDeathData);
+
+    const records = [];
+    for (const { keepPatientId, mergedPatientId } of patientDeathDataMerges) {
+      const mergedPatientDeathData = await mergePatientDeathData(
+        this.models,
+        keepPatientId,
+        mergedPatientId,
+      );
+      if (mergedPatientDeathData) {
+        records.push(mergedPatientDeathData);
       }
     }
     return records;

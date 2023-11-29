@@ -97,8 +97,8 @@ const StyledTableContainer = styled.div`
   overflow: auto;
   border-radius: 5px;
   background: white;
-  border: 1px solid ${Colors.outline};
   width: 100%;
+  border: 1px solid ${props => (props.$borderColor ? props.$borderColor : Colors.outline)};
   ${props => (props.$elevated ? PaperStyles : null)};
   ${props => (props.containerStyle ? props.containerStyle : null)}
 `;
@@ -205,6 +205,7 @@ const StatusTableCell = styled(StyledTableCell)`
   &.MuiTableCell-body {
     padding: 60px;
     ${props => (props.$color ? `color: ${props.$color};` : '')}
+    border-bottom: none;
   }
 `;
 
@@ -476,6 +477,11 @@ class TableComponent extends React.Component {
         $elevated={elevated}
         isBodyScrollable
         containerStyle={containerStyle}
+        $borderColor={
+          noDataBackgroundColor !== Colors.white && !(data?.length || isLoading)
+            ? noDataBackgroundColor
+            : Colors.outline
+        }
       >
         {optionRow && <OptionRow>{optionRow}</OptionRow>}
         <StyledTable
@@ -493,7 +499,7 @@ class TableComponent extends React.Component {
           )}
           <StyledTableBody
             onScroll={lazyLoading ? this.handleScroll : undefined}
-            $lazyLoading={lazyLoading}
+            $lazyLoading={!this.getStatusMessage() && lazyLoading}
             ref={tableRef}
           >
             {this.renderBodyContent()}

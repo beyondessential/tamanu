@@ -28,7 +28,7 @@ jobs:
           - { package: sync-server, shard: 2/3, postgres: 14 }
           - { package: sync-server, shard: 3/3, postgres: 14 }
           - { package: meta-server }
-          - { package: "@tamanu/shared" }
+          - { package: "@tamanu/shared", postgres: 14 }
           - { package: "desktop" }
 
     name: Test ${{ matrix.package }} ${{ matrix.shard }}
@@ -37,14 +37,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 20.x
           cache: yarn
       - run: yarn
       - run: yarn build-shared
 
       - name: Install and start postgres if needed
         if: matrix.postgres
-        run: .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }} ${{ matrix.package }}
+        run: |
+          source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
+          .github/scripts/setup-postgres-for-one-package.sh ${{ matrix.package }}
 
       - name: Run tests
         env:
@@ -61,7 +63,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 20.x
           cache: yarn
       - run: yarn
       - run: yarn build
@@ -74,7 +76,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 20.x
           cache: yarn
       - run: yarn
       - run: yarn build-shared
@@ -82,6 +84,24 @@ jobs:
       - run: yarn lint-all
         env:
           CONTINUE_ON_ERROR: true
+
+  storybook:
+    # Workaround for define plugin conflict warning
+    env:
+      NODE_ENV: development
+    continue-on-error: true
+    name: Test storybook
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+          cache: yarn
+      - run: yarn
+      - run: yarn build-shared
+      - run: yarn workspace desktop run verify-storybook
 
   migrations:
     strategy:
@@ -94,6 +114,7 @@ jobs:
           - '12'
           - '14'
           - '15'
+          - '16'
 
     name: Test migrations server=${{ matrix.server }} pg=${{ matrix.postgres }}
     runs-on: ubuntu-latest
@@ -101,32 +122,27 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 20.x
           cache: yarn
       - run: yarn
       - run: yarn build-shared
 
       - name: Install and start postgres ${{ matrix.postgres }}
-        run: .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
-          migrations
+        run: |
+          source .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }}
+          .github/scripts/setup-postgres-for-one-package.sh migrations
 
       - run: scripts/apply_and_revert_server_migrations.sh ${{ matrix.server }}
 
   test-mobile:
-    strategy:
-      fail-fast: false
-      matrix:
-        node:
-          - '16.x'
-
-    name: Test mobile node=${{ matrix.node }}
+    name: Test mobile
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node }}
+      - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 12.x
           cache: yarn
 
       - run: yarn install --frozen-lockfile
@@ -134,6 +150,31 @@ jobs:
 
       - run: yarn test
         working-directory: packages/mobile
+
+  test-facility-offline:
+    name: Test the facility server with the central server being down
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+          cache: yarn
+
+      - name: Install and start postgres
+        run: |
+          source .github/scripts/install-postgres-ubuntu.sh 14
+          .github/scripts/test-facility-offline.sh setup-postgre
+      - name: Build central and facility servers
+        run: .github/scripts/test-facility-offline.sh build
+      - name: Start a central server
+        run: .github/scripts/test-facility-offline.sh central-start
+      - name: Start a facility server
+        run: .github/scripts/test-facility-offline.sh facility-start
+      - name: Stop the servers and print logs
+        run: .github/scripts/test-facility-offline.sh stop-and-print
+      - name: Start a facility server again without a central one
+        run: .github/scripts/test-facility-offline.sh facility-start-again
 
   # Dummy job to have a stable name for PR requirements
   tests-pass:
@@ -145,6 +186,7 @@ jobs:
       - lint
       - migrations
       - test-mobile
+      - test-facility-offline
     runs-on: ubuntu-latest
     steps:
       # fail if ANY dependency has failed or been skipped or cancelled

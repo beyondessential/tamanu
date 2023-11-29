@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 
-import { Modal } from './Modal';
+import { FormModal } from './FormModal';
 import { useSuggester } from '../api';
 import { DischargeForm } from '../forms/DischargeForm';
 import { useEncounter } from '../contexts/Encounter';
@@ -27,7 +27,7 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
   );
 
   return (
-    <Modal title="Discharge patient" open={open} onClose={onClose}>
+    <FormModal title="Discharge patient" open={open} onClose={onClose}>
       <DischargeForm
         onSubmit={handleDischarge}
         onCancel={onClose}
@@ -35,6 +35,6 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
         practitionerSuggester={practitionerSuggester}
         dispositionSuggester={dispositionSuggester}
       />
-    </Modal>
+    </FormModal>
   );
 });

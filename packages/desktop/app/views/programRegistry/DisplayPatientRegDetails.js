@@ -1,6 +1,6 @@
+//@ts-check
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useQueryClient } from '@tanstack/react-query';
 import { Avatar } from '@material-ui/core';
 import { STATUS_COLOR } from '@tamanu/constants';
 import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants/index';
@@ -10,16 +10,19 @@ import { MenuButton } from '../../components/MenuButton';
 import { ChangeStatusFormModal } from './ChangeStatusFormModal';
 import { ActivatePatientProgramRegistry } from './ActivatePatientProgramRegistry';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
-import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
+import {
+  FormSeparatorVerticalLine,
+  RemoveProgramRegistryFormModal,
+} from './RemoveProgramRegistryFormModal';
 import { OutlinedButton } from '../../components';
-import { useApi } from '../../api';
+import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 
 const DisplayContainer = styled.div`
   display: flex;
   height: 74px;
   width: 100%;
   flex-direction: row;
-  justify-content: start;
+  justify-content: space-between;
   align-items: center;
   border: 1px solid ${Colors.softOutline};
   font-size: 11px;
@@ -30,41 +33,14 @@ const LogoContainer = styled.div`
   width: 5%;
   display: flex;
   justify-content: center;
-`;
-
-const LabelValueContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  .label {
-    width: 60%;
-  }
-  .value {
-    width: 40%;
-  }
-`;
-const LabelContainer = styled.div`
-  width: 25%;
-  display: flex;
-  flex-direction: column;
-`;
-
-const StatusContainer = styled.div`
-  width: 25%;
-  display: flex;
-  flex-direction: column;
-  border-left: 1px solid ${Colors.softOutline};
-  padding-left: 10px;
-`;
-
-const ChangeStatusContainer = styled.div`
-  width: ${props => (props.extraWidth ? 35 + 25 : 35)}%;
-  display: flex;
   align-items: center;
-  flex-direction: row;
+  margin-right: 10px;
+`;
+
+const DividerVertical = styled.div`
   border-left: 1px solid ${Colors.softOutline};
-  padding-left: 10px;
-  justify-content: space-between;
+  height: 44px;
+  margin-right: 10px;
 `;
 
 const MenuContainer = styled.div`
@@ -72,11 +48,10 @@ const MenuContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: flex-end;
-  justify-content: flex-end;
+  justify-content: space-between;
+  margin-right: 10px;
   .menu {
     border-radius: 100px;
-    background-color: ${Colors.hoverGrey};
   }
 `;
 
@@ -90,15 +65,20 @@ const StatusBadge = styled.div`
   background-color: ${props => props.backgroundColor};
 `;
 
-const ValueDisplay = ({ label, value }) => (
-  <LabelValueContainer>
-    <div className="label">{label}: </div> <div className="value">{value}</div>
-  </LabelValueContainer>
-);
+const TextColumnsContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  margin-right: 10px;
+`;
+const TextColumns = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin-right: 5px;
+`;
 
 export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
-  const api = useApi();
-  const queryClient = useQueryClient();
   const [openChangeStatusFormModal, setOpenChangeStatusFormModal] = useState(false);
   const [openDeleteProgramRegistryFormModal, setOpenDeleteProgramRegistryFormModal] = useState(
     false,
@@ -112,52 +92,59 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
 
   const isRemoved =
     patientProgramRegistration.registrationStatus === PROGRAM_REGISTRATION_STATUSES.REMOVED;
+  const isDeleted =
+    patientProgramRegistration.registrationStatus === PROGRAM_REGISTRATION_STATUSES.DELETED;
 
-  const changeStatus = async changedStatus => {
-    const { id, ...rest } = patientProgramRegistration;
-    await api.post(
-      `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
-      { ...rest, ...changedStatus },
-    );
-
-    queryClient.invalidateQueries([`infoPaneListItem-Program Registry`]);
-    setOpenChangeStatusFormModal(false);
-  };
   return (
     <DisplayContainer>
-      <LogoContainer>
-        <Avatar src={programsIcon} style={{ height: '22px', width: '22px' }} />
-      </LogoContainer>
-      <LabelContainer>
-        <ValueDisplay
-          label="Date of registration"
-          value={<DateDisplay date={patientProgramRegistration.date} />}
-        />
-        <ValueDisplay
-          label="Registered by"
-          value={patientProgramRegistration.clinician.displayName}
-        />
-      </LabelContainer>
-      {isRemoved && (
-        <StatusContainer>
-          <ValueDisplay
-            label="Date removed"
-            value={<DateDisplay date={patientProgramRegistration.dateRemoved} />}
-          />
-          <ValueDisplay
-            label="Removed by"
-            value={patientProgramRegistration.removedBy.displayName}
-          />
-        </StatusContainer>
-      )}
-      <ChangeStatusContainer extraWidth={!isRemoved}>
-        <StatusBadge
-          color={STATUS_COLOR[patientProgramRegistration.clinicalStatus.color].color}
-          backgroundColor={STATUS_COLOR[patientProgramRegistration.clinicalStatus.color].background}
-        >
-          {patientProgramRegistration.clinicalStatus.name}
-        </StatusBadge>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+        }}
+      >
+        <LogoContainer>
+          <Avatar src={programsIcon} style={{ height: '22px', width: '22px', margin: '5px' }} />
+        </LogoContainer>
+        <TextColumnsContainer>
+          <TextColumns>
+            <div>Date of registration:</div>
+            <div>Registered by:</div>
+          </TextColumns>
+          <TextColumns style={{ fontWeight: 500 }}>
+            <DateDisplay date={patientProgramRegistration.createdAt} />
+            <div>{patientProgramRegistration.clinician.displayName}</div>
+          </TextColumns>
+        </TextColumnsContainer>
+        {isRemoved && (
+          <>
+            <DividerVertical />
+            <TextColumnsContainer>
+              <TextColumns>
+                <div>Date removed:</div>
+                <div>Removed by:</div>
+              </TextColumns>
+              <TextColumns style={{ fontWeight: 500 }}>
+                <DateDisplay date={patientProgramRegistration.date} />
+                <div>{patientProgramRegistration.clinician.displayName}</div>
+              </TextColumns>
+            </TextColumnsContainer>
+          </>
+        )}
 
+        <DividerVertical />
+        <ClinicalStatusDisplay clinicalStatus={patientProgramRegistration.clinicalStatus} />
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+        }}
+      >
         <OutlinedButton
           onClick={() => setOpenChangeStatusFormModal(true)}
           disabled={
@@ -168,57 +155,42 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
         </OutlinedButton>
         <ChangeStatusFormModal
           patientProgramRegistration={patientProgramRegistration}
-          onSubmit={changeStatus}
-          onCancel={() => setOpenChangeStatusFormModal(false)}
           open={openChangeStatusFormModal}
+          onClose={() => setOpenChangeStatusFormModal(false)}
         />
-      </ChangeStatusContainer>
-      <MenuContainer>
-        <div className="menu">
-          <MenuButton
-            actions={
-              isRemoved
-                ? {
-                    Activate: () => setOpenActivateProgramRegistryFormModal(true),
-                    Delete: () => setOpenDeleteProgramRegistryFormModal(true),
-                  }
-                : {
-                    Remove: () => setOpenRemoveProgramRegistryFormModal(true),
-                    Delete: () => setOpenDeleteProgramRegistryFormModal(true),
-                  }
-            }
-          />
-        </div>
-      </MenuContainer>
+
+        <MenuContainer>
+          <div className="menu">
+            <MenuButton
+              actions={
+                isRemoved || isDeleted
+                  ? {
+                      Activate: () => setOpenActivateProgramRegistryFormModal(true),
+                      Delete: () => setOpenDeleteProgramRegistryFormModal(true),
+                    }
+                  : {
+                      Remove: () => setOpenRemoveProgramRegistryFormModal(true),
+                      Delete: () => setOpenDeleteProgramRegistryFormModal(true),
+                    }
+              }
+            />
+          </div>
+        </MenuContainer>
+      </div>
       <ActivatePatientProgramRegistry
         open={openActivateProgramRegistryFormModal}
         patientProgramRegistration={patientProgramRegistration}
-        onSubmit={() => {
-          setOpenActivateProgramRegistryFormModal(false);
-        }}
-        onCancel={() => {
-          setOpenActivateProgramRegistryFormModal(false);
-        }}
+        onClose={() => setOpenActivateProgramRegistryFormModal(false)}
       />
       <RemoveProgramRegistryFormModal
         open={openRemoveProgramRegistryFormModal}
         patientProgramRegistration={patientProgramRegistration}
-        onSubmit={() => {
-          setOpenRemoveProgramRegistryFormModal(false);
-        }}
-        onCancel={() => {
-          setOpenRemoveProgramRegistryFormModal(false);
-        }}
+        onClose={() => setOpenRemoveProgramRegistryFormModal(false)}
       />
       <DeleteProgramRegistryFormModal
         open={openDeleteProgramRegistryFormModal}
-        programRegistry={patientProgramRegistration}
-        onSubmit={() => {
-          setOpenDeleteProgramRegistryFormModal(false);
-        }}
-        onCancel={() => {
-          setOpenDeleteProgramRegistryFormModal(false);
-        }}
+        patientProgramRegistration={patientProgramRegistration}
+        onClose={() => setOpenDeleteProgramRegistryFormModal(false)}
       />
     </DisplayContainer>
   );

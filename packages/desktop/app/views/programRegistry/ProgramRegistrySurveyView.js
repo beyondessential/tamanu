@@ -1,16 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';
 import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { usePatientProgramRegistrySurveys } from '../../api/queries/usePatientProgramRegistrySurveys';
 import { useAuth } from '../../contexts/Auth';
 import { usePatientAdditionalDataQuery, usePatientProgramRegistration } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ProgramRegistryProvider } from '../../contexts/ProgramRegistry';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { getAnswersFromData } from '../../utils';
+import { useApi } from '../../api';
 
 export const ProgramRegistrySurveyView = () => {
+  const api = useApi();
+  const [startTime] = useState(getCurrentDateTimeString());
   const queryParams = useUrlSearchParams();
+  const { navigateToProgramRegistry } = usePatientNavigation();
   const title = queryParams.get('title');
   const { currentUser } = useAuth();
   const { patientId, programRegistryId, surveyId } = useParams();
@@ -30,6 +37,18 @@ export const ProgramRegistrySurveyView = () => {
     surveyId,
   );
 
+  const submitSurveyResponse = async data => {
+    await api.post('surveyResponse', {
+      surveyId: survey.id,
+      startTime,
+      patientId: patient.id,
+      endTime: getCurrentDateTimeString(),
+      answers: getAnswersFromData(data, survey),
+    });
+
+    navigateToProgramRegistry();
+  };
+
   if (isLoading || additionalDataLoading || patientProgramRegistrationLoading)
     return <LoadingIndicator />;
   if (isError) return <p>{title || 'Unknown'}&apos; not found.</p>;
@@ -37,9 +56,11 @@ export const ProgramRegistrySurveyView = () => {
   return (
     <ProgramRegistryProvider value={{ programRegistryId: 'programRegistryId' }}>
       <SurveyView
-        onSubmit={() => {}}
+        onSubmit={submitSurveyResponse}
         survey={survey}
-        onCancel={() => {}}
+        onCancel={() => {
+          navigateToProgramRegistry();
+        }}
         patient={patient}
         patientAdditionalData={additionalData}
         patientProgramRegistration={patientProgramRegistration}

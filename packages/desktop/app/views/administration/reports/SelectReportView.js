@@ -1,12 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { REPORT_DB_SCHEMAS } from '@tamanu/constants/reports';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import { useApi } from '../../../api';
 import { ReportTable, VersionTable } from './ReportTables';
-import { useAuth } from '../../../contexts/Auth';
 
 const FlexContainer = styled.div`
   padding: 20px;
@@ -21,7 +19,6 @@ const VersionsTableContainer = styled.div`
 export const SelectReportView = () => {
   const api = useApi();
   const dispatch = useDispatch();
-  const { ability } = useAuth();
 
   const [report, setReport] = useState(null);
 
@@ -43,15 +40,10 @@ export const SelectReportView = () => {
     },
   );
 
-  const canEditRawReports = ability?.can('write', 'ReportDbSchema');
-  const filteredReportList = canEditRawReports
-    ? reportList
-    : reportList.filter(reportData => reportData.dbSchema !== REPORT_DB_SCHEMAS.RAW);
-
   return (
     <FlexContainer>
       <ReportTable
-        data={filteredReportList}
+        data={reportList}
         selected={report?.id}
         onRowClick={setReport}
         loading={isReportLoading}

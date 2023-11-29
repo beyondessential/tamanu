@@ -11,6 +11,7 @@ import { FormTooltip } from '../FormTooltip';
 import { ThemedTooltip } from '../Tooltip';
 import { TextField } from './TextField';
 import { FORM_STATUSES } from '../../constants';
+import styled from 'styled-components';
 
 export const Field = formikConnect(
   ({
@@ -64,6 +65,13 @@ export const Field = formikConnect(
  * @param muiTooltipProps - material ui tooltip props @see https://v4.mui.com/api/tooltip
  *
  */
+const StyledToolTip = styled(ThemedTooltip)`
+  .MuiTooltip-tooltip {
+    top: 30px !important;
+    font-weight: 400;
+    text-align: center;
+  }
+`;
 export const FieldWithTooltip = ({
   tooltipText,
   disabledTooltipText,
@@ -72,22 +80,16 @@ export const FieldWithTooltip = ({
 }) => (
   <MuiBox position="relative">
     {props.disabled ? (
-      <ThemedTooltip
-        title={disabledTooltipText || tooltipText}
-        arrow
-        placement="top"
-        customCss="top: 30px !important;"
-        {...props}
-      >
-        {/* Below div is needed to make ThemedTooltip work  */}
+      <StyledToolTip title={disabledTooltipText || tooltipText} arrow placement="top" {...props}>
+        {/* Below div is needed to make StyledToolTip work  */}
         <div>
           <Field {...props} />
         </div>
-      </ThemedTooltip>
+      </StyledToolTip>
     ) : (
       <>
         <Field {...props} />
-        <FormTooltip title={tooltipText} {...muiTooltipProps} />
+        {/* <FormTooltip title={tooltipText} {...muiTooltipProps} /> */}
       </>
     )}
   </MuiBox>

@@ -3,14 +3,15 @@ import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { useParams } from 'react-router-dom';
-import { STATUS_COLOR } from '@tamanu/constants';
 import { reloadPatient } from '../../store';
 import { SearchTable, DateDisplay, MenuButton } from '../../components';
-import { ConditionalTooltip } from '../../components/Tooltip';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import { ChangeStatusFormModal } from './ChangeStatusFormModal';
 import { Colors } from '../../constants';
+import { LimitedLinesCell } from '../../components/FormattedTableCell';
+import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
+import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 
 const ClippedConditionName = styled.span`
   overflow: hidden;
@@ -29,13 +30,21 @@ const StatusBadge = styled.div`
   height: 20px;
   color: ${props => props.color};
   background-color: ${props => props.backgroundColor};
+  width: fit-content;
 `;
 
 export const ProgramRegistryTable = ({ searchParameters }) => {
   const params = useParams();
   const [openModal, setOpenModal] = useState();
+  const [refreshCount, setRefreshCount] = useState(0);
   const columns = useMemo(() => {
     return [
+      {
+        accessor: data => (
+          <RegistrationStatusIndicator patientProgramRegistration={data} hideText={true} />
+        ),
+        sortable: false,
+      },
       {
         key: 'displayId',
         accessor: ({ patient }) => patient.displayId || 'Unknown',
@@ -84,29 +93,21 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       },
       {
         key: 'conditions',
-        title: 'Conditions',
-        accessor: ({ conditions = [] }) => {
-          const conditionsText = conditions.map(x => ` ${x.name}`).toString();
-          return (
-            <ConditionalTooltip title={conditionsText} visible={conditionsText.length > 30}>
-              <ClippedConditionName>{conditionsText}</ClippedConditionName>
-            </ConditionalTooltip>
-          );
+        title: 'Related conditions',
+        accessor: ({ conditions }) => {
+          const conditionsText = Array.isArray(conditions)
+            ? conditions.map(x => ` ${x}`).toString()
+            : '';
+          return conditionsText;
         },
+        CellComponent: LimitedLinesCell,
         maxWidth: 200,
       },
       {
         key: 'clinicalStatus',
         title: 'Status',
         accessor: row => {
-          return (
-            <StatusBadge
-              color={STATUS_COLOR[row.clinicalStatus.color].color}
-              backgroundColor={STATUS_COLOR[row.clinicalStatus.color].background}
-            >
-              {row.clinicalStatus.name}
-            </StatusBadge>
-          );
+          return <ClinicalStatusDisplay clinicalStatus={row.clinicalStatus} />;
         },
         maxWidth: 200,
       },
@@ -114,6 +115,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         accessor: row => {
           return (
             <MenuButton
+              onClick={() => {}}
               actions={{
                 'Change status': () => setOpenModal({ action: 'ChangeStatus', data: row }),
                 Remove: () => setOpenModal({ action: 'Remove', data: row }),
@@ -123,23 +125,28 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           );
         },
         sortable: false,
+        dontCallRowInput: true,
       },
     ];
   }, []);
 
   const dispatch = useDispatch();
   const selectRegistration = async registration => {
-    const { patientId } = registration;
-    if (patientId) {
-      await dispatch(reloadPatient(patientId));
+    const { patient, programRegistry } = registration;
+    if (patient.id) {
+      await dispatch(reloadPatient(patient.id));
     }
-    dispatch(push(`/patients/all/${patientId}/program-registry/${params.programRegistryId}`));
+    dispatch(
+      push(
+        `/patients/all/${patient.id}/program-registry/${params.programRegistryId}?title=${programRegistry.name}`,
+      ),
+    );
   };
 
   return (
     <>
       <SearchTable
-        autoRefresh
+        refreshCount={refreshCount}
         endpoint={`programRegistry/${params.programRegistryId}/registrations`}
         columns={columns}
         noDataMessage="No Program registry found"
@@ -153,30 +160,33 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           orderBy: 'displayId',
         }}
       />
-      {openModal && openModal.data && openModal.action === 'ChangeStatus' && (
-        <ChangeStatusFormModal
-          patientProgramRegistration={openModal.data}
-          onSubmit={() => {}}
-          onCancel={() => setOpenModal(undefined)}
-          open
-        />
-      )}
-      {openModal && openModal.data && openModal.action === 'Remove' && (
-        <DeleteProgramRegistryFormModal
-          programRegistry={openModal.data}
-          onSubmit={() => {}}
-          onCancel={() => setOpenModal(undefined)}
-          open
-        />
-      )}
-      {openModal && openModal.data && openModal.action === 'Delete' && (
-        <RemoveProgramRegistryFormModal
-          patientProgramRegistration={openModal.data}
-          onSubmit={() => {}}
-          onCancel={() => setOpenModal(undefined)}
-          open
-        />
-      )}
+
+      <ChangeStatusFormModal
+        patientProgramRegistration={openModal?.data}
+        onClose={() => {
+          setRefreshCount(refreshCount + 1);
+          setOpenModal(undefined);
+        }}
+        open={openModal && openModal?.data && openModal?.action === 'ChangeStatus'}
+      />
+
+      <RemoveProgramRegistryFormModal
+        patientProgramRegistration={openModal?.data}
+        onClose={() => {
+          setRefreshCount(refreshCount + 1);
+          setOpenModal(undefined);
+        }}
+        open={openModal && openModal?.data && openModal?.action === 'Remove'}
+      />
+
+      <DeleteProgramRegistryFormModal
+        patientProgramRegistration={openModal?.data}
+        onClose={() => {
+          setRefreshCount(refreshCount + 1);
+          setOpenModal(undefined);
+        }}
+        open={openModal && openModal?.data && openModal?.action === 'Delete'}
+      />
     </>
   );
 };

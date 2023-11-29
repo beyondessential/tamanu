@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { SURVEY_TYPES } from '@tamanu/constants';
 import { DataFetchingTable } from '../../components/Table/DataFetchingTable';
 import { DateDisplay } from '../../components/DateDisplay';
 import { MenuButton } from '../../components/MenuButton';
 
 export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }) => {
+  const [refreshCount, setRefreshCount] = useState(0);
   const columns = [
     {
       key: 'date',
@@ -15,51 +17,60 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
     {
       key: 'userId',
       title: 'Submitted By',
-      accessor: row => row.user.displayName,
+      accessor: row => row.submittedBy,
       sortable: false,
     },
     {
-      key: 'surveyId',
+      key: 'surveyName',
       title: 'Form',
-      accessor: row => row.survey.name,
+      accessor: row => row.surveyName,
       sortable: false,
     },
     {
       key: 'result',
       title: 'Result',
-      accessor: row => row.result || row.resultText,
+      accessor: row => row.resultText,
       sortable: false,
     },
     {
       sortable: false,
       accessor: () => (
-        <MenuButton
-          actions={{
-            Print: () => {},
-            Edit: () => {},
-            Delete: () => {},
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
           }}
-        />
+        >
+          <MenuButton
+            actions={{
+              Print: () => {},
+              Edit: () => {},
+              Delete: () => {},
+            }}
+          />
+        </div>
       ),
       required: false,
     },
   ];
+
+  useEffect(() => {
+    setRefreshCount(refreshCount + 1);
+  }, [patientProgramRegistration.programRegistry.programId]);
+
   return (
     <DataFetchingTable
-      endpoint={`patient/${patientProgramRegistration.patientId}/programResponses?programId=${patientProgramRegistration.programRegistry.programId}`}
+      endpoint={`patient/${patientProgramRegistration.patientId}/programResponses`}
       columns={columns}
+      refreshCount={refreshCount}
       initialSort={{
         orderBy: 'date',
         order: 'asc',
+        surveyType: SURVEY_TYPES.PROGRAMS,
       }}
+      fetchOptions={{ programId: patientProgramRegistration.programRegistry.programId }}
       noDataMessage="No Program registry responses found"
       elevated={false}
     />
   );
-};
-
-PatientProgramRegistryFormHistory.propTypes = {
-  patientProgramRegistration: PropTypes.shape({
-    id: PropTypes.string,
-  }).isRequired,
 };

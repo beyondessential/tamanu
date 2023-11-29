@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
+import { Colors } from '../../constants';
 import { DisplayPatientRegDetails } from './DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from './ProgramRegistryStatusHistory';
 import { usePatientProgramRegistration } from '../../api/queries/usePatientProgramRegistration';
@@ -9,8 +9,8 @@ import { PatientProgramRegistryFormHistory } from './PatientProgramRegistryFormH
 import { PatientProgramRegistrationSelectSurvey } from './PatientProgramRegistrationSelectSurvey';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionSection } from './ConditionSection';
-import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
+import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
@@ -42,27 +42,6 @@ const ProgramStatusAndConditionContainer = styled.div`
   width: 100%;
   position: relative;
 `;
-const StatusDiv = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: start;
-  align-items: center;
-`;
-const StatusActiveDot = styled.div`
-  background-color: green;
-  height: 10px;
-  width: 10px;
-  border-radius: 10px;
-  margin: 0px 5px;
-`;
-const StatusInactiveDot = styled.div`
-  background-color: lightGray;
-  height: 10px;
-  width: 10px;
-  border-radius: 10px;
-  margin: 0px 5px;
-`;
-
 export const PatientProgramRegistryView = () => {
   const queryParams = useUrlSearchParams();
   const title = queryParams.get('title');
@@ -76,14 +55,7 @@ export const PatientProgramRegistryView = () => {
     <>
       <ViewHeader>
         <h1>{data.programRegistry.name}</h1>
-        <StatusDiv>
-          {data.registrationStatus === PROGRAM_REGISTRATION_STATUSES.ACTIVE ? (
-            <StatusActiveDot />
-          ) : (
-            <StatusInactiveDot />
-          )}
-          <b>{capitaliseFirstLetter(data.registrationStatus)}</b>
-        </StatusDiv>
+        <RegistrationStatusIndicator patientProgramRegistration={data} />
       </ViewHeader>
       <Container>
         <Row>

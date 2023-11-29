@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import { Tooltip } from '@material-ui/core';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { ThemedTooltip } from '../../components/Tooltip';
+import { capitaliseFirstLetter } from '../../utils/capitalise';
 
 const Spacer = styled.div`
   display: flex;
@@ -50,13 +52,13 @@ export const ProgramRegistryListItem = ({ item, ListItem }) => {
     >
       <Spacer>
         <RowContents>
-          <Tooltip title={registrationStatus} arrow placement="top-end">
+          <ThemedTooltip title={capitaliseFirstLetter(registrationStatus)}>
             {registrationStatus === REGISTRATION_STATUSES.ACTIVE ? (
               <StatusActiveDot />
             ) : (
               <StatusInactiveDot />
             )}
-          </Tooltip>
+          </ThemedTooltip>
 
           <NameContainer>{programRegistry.name}</NameContainer>
         </RowContents>

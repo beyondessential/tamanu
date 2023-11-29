@@ -34,10 +34,12 @@ export const VitalBloodPressureChart = props => {
     const relatedDbpChartData = dbpChartData.find(
       ({ name: dbpRecordedDate }) => dbpRecordedDate === recordedDate,
     );
+    const parsedTop = parseFloat(value);
+    const parsedBottom = parseFloat(relatedDbpChartData?.value);
     return {
       name: recordedDate,
-      value,
-      inwardArrowVector: { top: value, bottom: relatedDbpChartData?.value },
+      value: parsedTop,
+      inwardArrowVector: { top: parsedTop, bottom: parsedBottom },
     };
   });
 

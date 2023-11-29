@@ -1,14 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Modal } from '../../Modal';
+import { FormModal } from '../../FormModal';
 import { PrintMultipleMedicationSelectionForm } from './PrintMultipleMedicationSelectionForm';
 
 export const PrintMultipleMedicationSelectionModal = ({ encounter, open, onClose }) => {
   return (
-    <Modal title="Print prescriptions" width="md" open={open} onClose={onClose}>
+    <FormModal title="Print prescriptions" width="md" open={open} onClose={onClose}>
       <PrintMultipleMedicationSelectionForm encounter={encounter} onClose={onClose} />
-    </Modal>
+    </FormModal>
   );
 };
 

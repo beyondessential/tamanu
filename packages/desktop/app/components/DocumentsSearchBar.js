@@ -3,10 +3,15 @@ import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 
-import { Form, Field, SearchField } from './Field';
+import { Form, Field, SearchField, DynamicSelectField } from './Field';
 import { FormGrid } from './FormGrid';
-import { LargeButton, LargeOutlineButton } from './Button';
+import { LargeSubmitButton, LargeOutlinedSubmitButton } from './Button';
 import { Colors } from '../constants';
+
+const DOCUMENT_TYPE_OPTIONS = [
+  { value: 'pdf', label: 'PDF' },
+  { value: 'jpeg', label: 'JPEG' },
+];
 
 const Container = styled.div`
   padding: 2rem;
@@ -32,17 +37,22 @@ const HeaderBar = styled.div`
 const renderSearchBar = ({ submitForm, clearForm }) => (
   <>
     <FormGrid columns={3}>
-      <Field name="type" label="Type" component={SearchField} />
+      <Field
+        name="type"
+        label="Type"
+        component={DynamicSelectField}
+        options={DOCUMENT_TYPE_OPTIONS}
+      />
       <Field name="documentOwner" label="Owner" component={SearchField} />
       <Field name="departmentName" label="Department" component={SearchField} />
     </FormGrid>
     <Box display="flex" alignItems="center" justifyContent="flex-end" mt={2}>
-      <LargeOutlineButton onClick={clearForm} style={{ marginRight: 12 }}>
+      <LargeOutlinedSubmitButton onClick={clearForm} style={{ marginRight: 12 }}>
         Clear search
-      </LargeOutlineButton>
-      <LargeButton onClick={submitForm} type="submit">
+      </LargeOutlinedSubmitButton>
+      <LargeSubmitButton onClick={submitForm} type="submit">
         Search
-      </LargeButton>
+      </LargeSubmitButton>
     </Box>
   </>
 );

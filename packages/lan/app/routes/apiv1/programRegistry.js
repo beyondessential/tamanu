@@ -1,4 +1,3 @@
-//@ts-check
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Sequelize, Op, QueryTypes } from 'sequelize';
@@ -203,6 +202,7 @@ programRegistry.get(
         patient.id AS "patient.id",
         --
         -- Details for the table
+        patient.id AS "patient_id",
         patient.display_id AS "patient.display_id",
         patient.first_name AS "patient.first_name",
         patient.last_name AS "patient.last_name",
@@ -217,6 +217,8 @@ programRegistry.get(
         status.name as "clinical_status.name",
         status.color as "clinical_status.color",
         program_registry.currently_at_type as "program_registry.currently_at_type",
+        program_registry.name as "program_registry.name",
+        program_registry.id as "program_registry_id",
         --
         -- Details for filtering/ordering
         patient.date_of_death as "patient.date_of_death",

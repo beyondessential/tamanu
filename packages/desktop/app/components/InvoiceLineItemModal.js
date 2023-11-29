@@ -4,10 +4,10 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
 import { foreignKey } from '../utils/validation';
-import { Modal } from './Modal';
+import { FormModal } from './FormModal';
 import { Form, Field, DateField, AutocompleteField, NumberField } from './Field';
 import { FormGrid } from './FormGrid';
-import { ConfirmCancelRow } from './ButtonRow';
+import { FormSubmitCancelRow } from './ButtonRow';
 
 export const InvoiceLineItemModal = ({
   title,
@@ -30,9 +30,9 @@ export const InvoiceLineItemModal = ({
       };
 
       if (invoiceLineItem) {
-        api.put(`invoices/${invoiceId}/lineItems/${invoiceLineItem.id}`, invoiceLineItemData);
+        await api.put(`invoices/${invoiceId}/lineItems/${invoiceLineItem.id}`, invoiceLineItemData);
       } else {
-        api.post(`invoices/${invoiceId}/lineItems`, invoiceLineItemData);
+        await api.post(`invoices/${invoiceId}/lineItems`, invoiceLineItemData);
       }
       onSaved();
     },
@@ -51,7 +51,7 @@ export const InvoiceLineItemModal = ({
       };
 
   return (
-    <Modal width="md" title={title} open={open} onClose={onClose}>
+    <FormModal width="md" title={title} open={open} onClose={onClose}>
       <Form
         onSubmit={createOrUpdateLineItem}
         render={({ submitForm }) => (
@@ -83,7 +83,11 @@ export const InvoiceLineItemModal = ({
               label="Discount/markup % (-/+)"
               component={NumberField}
             />
-            <ConfirmCancelRow confirmText={actionText} onConfirm={submitForm} onCancel={onClose} />
+            <FormSubmitCancelRow
+              confirmText={actionText}
+              onConfirm={submitForm}
+              onCancel={onClose}
+            />
           </FormGrid>
         )}
         initialValues={initialValues}
@@ -94,6 +98,6 @@ export const InvoiceLineItemModal = ({
           percentageChange: yup.number(),
         })}
       />
-    </Modal>
+    </FormModal>
   );
 };
