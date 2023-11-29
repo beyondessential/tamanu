@@ -8,7 +8,6 @@ import { screenPercentageToDP, Orientation, setStatusBar } from '/helpers/screen
 import { theme } from '/styled/theme';
 import { UserAvatar } from '/components/UserAvatar';
 import { Button } from '/components/Button';
-import { MenuOptionButton } from '/components/MenuOptionButton';
 import { Separator } from '/components/Separator';
 import { FlatList } from 'react-native-gesture-handler';
 import { CameraOutlineIcon, LaunchIcon } from '/components/Icons';
@@ -19,6 +18,7 @@ import { useFacility } from '~/ui/contexts/FacilityContext';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { authUserSelector } from '/helpers/selectors';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { TouchableHighlight } from 'react-native';
 
 const StyledSeparator = styled(Separator)`
   padding-left: ${screenPercentageToDP(4.86, Orientation.Width)}px;
@@ -49,6 +49,32 @@ const CameraInCircle = (
   </StyledView>
 );
 
+const MoreMenuButton = ({ Icon, title, onPress, textProps }): React.ReactElement => (
+  <TouchableHighlight underlayColor={theme.colors.DEFAULT_OFF} onPress={onPress}>
+    <RowView
+      width="100%"
+      height={screenPercentageToDP('9', Orientation.Height)}
+      paddingLeft={screenPercentageToDP('4.86', Orientation.Width)}
+      alignItems="center"
+    >
+      <StyledText
+        fontWeight={500}
+        color={theme.colors.TEXT_SUPER_DARK}
+        fontSize={screenPercentageToDP('2', Orientation.Height)}
+        {...textProps}
+      >
+        {title}
+        {Icon && ' '}
+      </StyledText>
+      {Icon && (
+        <StyledView>
+          <Icon size={screenPercentageToDP(2, Orientation.Height)} fill={theme.colors.TEXT_SOFT} />
+        </StyledView>
+      )}
+    </RowView>
+  </TouchableHighlight>
+);
+
 type FooterProps = {
   version: string;
   deviceId: string;
@@ -75,7 +101,7 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
   const settings = useMemo(
     () => [
       {
-        title: 'Support Centre',
+        title: 'Support centre',
         Icon: LaunchIcon,
         onPress: (): Promise<void> => Linking.openURL(supportDeskUrl),
       },
@@ -132,7 +158,7 @@ export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
             showsVerticalScrollIndicator={false}
             data={settings}
             keyExtractor={(item): string => item.title}
-            renderItem={({ item }): ReactElement => <MenuOptionButton {...item} />}
+            renderItem={({ item }): ReactElement => <MoreMenuButton {...item} />}
             ItemSeparatorComponent={StyledSeparator}
             ListFooterComponent={StyledSeparator}
           />
