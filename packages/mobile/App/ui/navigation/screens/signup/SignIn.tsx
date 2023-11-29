@@ -21,6 +21,8 @@ import { OutdatedVersionError } from '~/services/error';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { marginTop } from 'styled-system';
+import { SupportCentreButton } from './SupportCentreButton';
+import { Orient } from 'react-native-svg';
 
 interface ModalContent {
   message: string;
@@ -146,32 +148,18 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
             </StyledText>
           </StyledTouchableOpacity>
         </KeyboardAvoidingView>
-        <RowView
-          justifyContent="flex-end"
-          marginRight={screenPercentageToDP('2.43', Orientation.Width)}
-        >
-          {isSupportUrlLoaded && (
-            <StyledTouchableOpacity
-              onPress={(): Promise<void> => Linking.openURL(supportCentreUrl)}
-            >
-              <RowView alignItems="center">
-                <StyledText
-                  fontSize={screenPercentageToDP('1.28', Orientation.Height)}
-                  color={theme.colors.WHITE}
-                  textDecorationLine="underline"
-                >
-                  Support centre
-                </StyledText>
-                <LaunchIcon
-                  size={screenPercentageToDP('1.57', Orientation.Height)}
-                  color={theme.colors.WHITE}
-                  style={{ marginLeft: screenPercentageToDP('0.72', Orientation.Width) }}
-                />
-              </RowView>
-            </StyledTouchableOpacity>
-          )}
-        </RowView>
       </StyledSafeAreaView>
+      <StyledView
+          flexDirection="row"
+          justifyContent="flex-end"
+          position='absolute'
+          bottom={10}
+          right={10}
+          paddingLeft={screenPercentageToDP(2.43, Orientation.Width)}
+          paddingRight={screenPercentageToDP(2.43, Orientation.Width)}
+        >
+          {isSupportUrlLoaded && <SupportCentreButton supportCentreUrl={supportCentreUrl} />}
+        </StyledView>
     </FullView>
   );
 };
