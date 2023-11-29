@@ -90,7 +90,7 @@ export class IPSRequestProcessor extends ScheduledTask {
           throw new Error(`jsonBucketPath must be set, e.g. 'au'`);
         }
 
-        const filePath = `${jsonBucketPath}/${await getRandomBase64String(32, true)}_manifest.json`;
+        const filePath = `${jsonBucketPath}/${await getRandomBase64String(32, true)}_manifest.txt`;
 
         // CREATE PAYLOAD
 
@@ -105,21 +105,15 @@ export class IPSRequestProcessor extends ScheduledTask {
 
         // ENCRYPT IPS BUNDLE
 
-        console.log('payload')
-        console.log(payload)
-
-        const encrypted = await new jose
-          // eslint-disable-next-line new-cap
-          .CompactEncrypt(new TextEncoder().encode(JSON.stringify(ipsJSON)))
+        const encrypted = await new jose.CompactEncrypt(
+          new TextEncoder().encode(JSON.stringify(ipsJSON)),
+        )
           .setProtectedHeader({
             alg: 'dir',
             enc: 'A256GCM',
             cty: 'application/fhir+json',
           })
           .encrypt(jose.base64url.decode(payload.key));
-
-        console.log('encrypted')
-        console.log(encrypted)
 
         // SAVE BUNDLE TO S3
 
