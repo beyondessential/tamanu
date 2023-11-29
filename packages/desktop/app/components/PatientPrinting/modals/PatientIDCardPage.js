@@ -8,6 +8,7 @@ import { DateDisplay } from '../../DateDisplay';
 
 import { PatientBarcode } from '../printouts/reusable/PatientBarcode';
 import { PrintPortal } from '../PrintPortal';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 const cardDimensions = {
   width: 85.6,
@@ -91,16 +92,12 @@ const InfoRow = styled.div`
   flex-direction: row;
 `;
 
-const DetailsRow = ({ name, value }) => {
-  const { getLocalisation } = useLocalisation();
-  const label = getLocalisation(`fields.${name}.shortLabel`);
-  return (
-    <InfoRow>
-      <DetailsKey>{`${label}: `}</DetailsKey>
-      <DetailsValue>{value}</DetailsValue>
-    </InfoRow>
-  );
-};
+const DetailsRow = ({ label, value }) => (
+  <InfoRow>
+    <DetailsKey>{label}:</DetailsKey>
+    <DetailsValue>{value}</DetailsValue>
+  </InfoRow>
+);
 
 const PhotoLabel = ({ patient }) => (
   <div style={{ fontSize: '2.2mm', textAlign: 'center' }}>
@@ -159,11 +156,48 @@ export const PatientIDCardPage = ({ patient, imageData }) => {
             <PhotoLabel patient={patient} />
           </PhotoContainer>
           <Details>
-            <DetailsRow name="displayId" value={patient.displayId} />
-            <DetailsRow name="lastName" value={patient.lastName} />
-            <DetailsRow name="firstName" value={patient.firstName} />
-            <DetailsRow name="dateOfBirth" value={DateDisplay.stringFormat(patient.dateOfBirth)} />
-            <DetailsRow name="sex" value={SEX_VALUE_INDEX[patient.sex].label} />
+            <DetailsRow
+              label={
+                <TranslatedText
+                  displayId="general.localisedField.displayId.label.short"
+                  fallback="NHN"
+                />
+              }
+              value={patient.displayId}
+            />
+            <DetailsRow
+              label={
+                <TranslatedText
+                  displayId="general.localisedField.lastName.label.short"
+                  fallback="Last name"
+                />
+              }
+              value={patient.lastName}
+            />
+            <DetailsRow
+              label={
+                <TranslatedText
+                  displayId="general.localisedField.firstName.label.short"
+                  fallback="First name"
+                />
+              }
+              value={patient.firstName}
+            />
+            <DetailsRow
+              label={
+                <TranslatedText
+                  displayId="general.localisedField.dateOfBirth.label.short"
+                  fallback="DOB"
+                />
+              }
+              value={DateDisplay.stringFormat(patient.dateOfBirth)}
+            />
+            <DetailsRow
+              label={
+                <TranslatedText displayId="general.localisedField.sex.label.short" fallback="Sex" />
+              }
+              value={SEX_VALUE_INDEX[patient.sex].label}
+            />
           </Details>
         </MainSection>
         <BarcodeRow>
