@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
 import Collapse from '@material-ui/core/Collapse';
-import * as yup from 'yup';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import * as yup from 'yup';
 
 import { USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
 
-import { FormGrid } from '../components/FormGrid';
 import {
   Button,
   CheckField,
@@ -17,6 +16,7 @@ import {
   TextField,
 } from '../components';
 import { ServerDetectingField } from '../components/Field/ServerDetectingField';
+import { FormGrid } from '../components/FormGrid';
 
 const LoginButton = styled(FormSubmitButton)`
   font-size: 16px;
@@ -52,10 +52,13 @@ const LoginFormComponent = ({
   setFieldError,
 }) => {
   const [genericMessage, setGenericMessage] = useState(null);
+  const deactivatedUserMessage =
+    'User account deactivated. Please contact your system administrator if assistance is required.';
 
   useEffect(() => {
     if (errorMessage === USER_DEACTIVATED_ERROR_MESSAGE) {
       setFieldError('email', `*${errorMessage}`);
+      setGenericMessage(deactivatedUserMessage);
     } else {
       setGenericMessage(errorMessage);
     }
