@@ -11,11 +11,12 @@ import { BeginPatientMoveModal } from './BeginPatientMoveModal';
 import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
 import { CancelPatientMoveModal } from './CancelPatientMoveModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import { Button, useLocalisedText } from '../../../components';
+import { Button } from '../../../components';
 import { DropdownButton } from '../../../components/DropdownButton';
 import { MoveModal } from './MoveModal';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
 import { Colors } from '../../../constants';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const TypographyLink = styled(Typography)`
   color: ${Colors.primary};
@@ -53,7 +54,6 @@ const ENCOUNTER_MODALS = {
 const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType }) => {
   const { navigateToSummary } = usePatientNavigation();
   const { getLocalisation } = useLocalisation();
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
   const onChangeEncounterType = type => {
     setNewEncounterType(type);
@@ -144,7 +144,20 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
       onClick: onChangeDepartment,
     },
     {
-      label: `Change ${clinicianText.toLowerCase()}`,
+      label: (
+        <TranslatedText
+          stringId="encounter.action.changeClinician"
+          fallback="Change :clinician"
+          replacements={{
+            clinician: (
+              <TranslatedText
+                stringId="general.localisedField.clinician.label"
+                fallback="Clinician"
+              />
+            ),
+          }}
+        />
+      ),
       onClick: onChangeClinician,
     },
     {

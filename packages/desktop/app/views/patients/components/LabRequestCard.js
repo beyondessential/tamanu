@@ -2,8 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { labsIcon } from '../../../constants/images';
-import { DateDisplay, useLocalisedText } from '../../../components';
+import { DateDisplay, LowerCase } from '../../../components';
 import { Colors } from '../../../constants';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const Container = styled.div`
   display: flex;
@@ -47,29 +48,40 @@ const CardValue = styled(CardLabel)`
   color: ${props => props.theme.palette.text.secondary};
 `;
 
-export const LabRequestCard = ({ labRequest, actions }) => {
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
-
-  return (
-    <Container>
-      <Box display="flex" alignItems="center">
-        <LabIcon src={labsIcon} />
-        <CardItem>
-          <CardLabel>Lab test ID:</CardLabel>
-          <CardValue>{labRequest.displayId}</CardValue>
-          <CardLabel>Request date:</CardLabel>
-          <CardValue>
-            <DateDisplay date={labRequest.requestedDate} />
-          </CardValue>
-        </CardItem>
-        <BorderSection>
-          <CardLabel>{`Requesting ${clinicianText}:`}</CardLabel>
-          <CardValue>{labRequest.requestedBy?.displayName}</CardValue>
-          <CardLabel>Department:</CardLabel>
-          <CardValue>{labRequest.department?.name}</CardValue>
-        </BorderSection>
-      </Box>
-      {actions || null}
-    </Container>
-  );
-};
+export const LabRequestCard = ({ labRequest, actions }) => (
+  <Container>
+    <Box display="flex" alignItems="center">
+      <LabIcon src={labsIcon} />
+      <CardItem>
+        <CardLabel>Lab test ID:</CardLabel>
+        <CardValue>{labRequest.displayId}</CardValue>
+        <CardLabel>Request date:</CardLabel>
+        <CardValue>
+          <DateDisplay date={labRequest.requestedDate} />
+        </CardValue>
+      </CardItem>
+      <BorderSection>
+        <CardLabel>
+          <TranslatedText
+            stringId="general.form.requestingClinician.label"
+            fallback="Requesting :clinician"
+            replacements={{
+              clinician: (
+                <LowerCase>
+                  <TranslatedText
+                    stringId="general.localisedField.clinician.label.short"
+                    fallback="Clinician"
+                  />
+                </LowerCase>
+              ),
+            }}
+          />
+        </CardLabel>
+        <CardValue>{labRequest.requestedBy?.displayName}</CardValue>
+        <CardLabel>Department:</CardLabel>
+        <CardValue>{labRequest.department?.name}</CardValue>
+      </BorderSection>
+    </Box>
+    {actions || null}
+  </Container>
+);
