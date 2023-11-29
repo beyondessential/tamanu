@@ -59,38 +59,36 @@ export const DocumentsTable = React.memo(
       () => [
         {
           key: 'name',
-          title: <TranslatedText stringId="general.table.header.patientName" fallback="Name" />,
+          title: <TranslatedText stringId="general.form.patientName.label" fallback="Name" />,
         },
         {
           key: 'type',
-          title: <TranslatedText stringId="general.table.header.type" fallback="Type" />,
+          title: <TranslatedText stringId="general.form.type.label" fallback="Type" />,
           accessor: getAttachmentType,
         },
         {
           key: 'documentUploadedAt',
-          title: <TranslatedText stringId="general.table.header.uploadDate" fallback="Upload" />,
+          title: <TranslatedText stringId="general.form.uploadDate.label" fallback="Upload" />,
           accessor: getUploadedDate,
         },
         {
           key: 'documentOwner',
-          title: <TranslatedText stringId="general.table.header.owner" fallback="Owner" />,
+          title: <TranslatedText stringId="documents.form.owner.label" fallback="Owner" />,
         },
         {
           key: 'department.name',
-          title: (
-            <TranslatedText stringId="general.table.header.departmentName" fallback="Department" />
-          ),
+          title: <TranslatedText stringId="general.form.department.label" fallback="Department" />,
           accessor: getDepartmentName,
           sortable: false,
         },
         {
           key: 'note',
-          title: <TranslatedText stringId="general.table.header.comments" fallback="Comments" />,
+          title: <TranslatedText stringId="general.form.comments.label" fallback="Comments" />,
           sortable: false,
         },
         {
           key: 'actions',
-          title: <TranslatedText stringId="general.table.header.actions" fallback="Actions" />,
+          title: <TranslatedText stringId="general.form.actions.label" fallback="Actions" />,
           accessor: row => (
             <ActionButtons row={row} onDownload={onDownload} onClickView={openDocumentPreview} />
           ),
@@ -106,10 +104,7 @@ export const DocumentsTable = React.memo(
         endpoint={endpoint}
         columns={COLUMNS}
         noDataMessage={
-          <TranslatedText
-            stringId="patient.documents.table.noDataMessage"
-            fallback="No documents found"
-          />
+          <TranslatedText stringId="documents.form.noDataMessage" fallback="No documents found" />
         }
         fetchOptions={searchParameters}
         refreshCount={refreshCount}

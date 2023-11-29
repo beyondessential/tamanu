@@ -111,13 +111,10 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       <PaneWrapper>
         <TableButtonRow variant="small">
           <OutlinedButton onClick={() => setModalStatus(MODAL_STATES.PATIENT_LETTER_OPEN)}>
-            <TranslatedText
-              stringId="patient.documents.openPatientLetter"
-              fallback="Patient letter"
-            />
+            <TranslatedText stringId="documents.openPatientLetter" fallback="Patient letter" />
           </OutlinedButton>
           <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>
-            <TranslatedText stringId="patient.documents.addDocument" fallback="Add document" />
+            <TranslatedText stringId="documents.addDocument" fallback="Add document" />
           </Button>
         </TableButtonRow>
         <DocumentsTable
