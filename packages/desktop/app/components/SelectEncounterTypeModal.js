@@ -4,6 +4,7 @@ import Avatar from '@material-ui/core/Avatar';
 import { encounterOptions, Colors } from '../constants';
 import { Button } from './Button';
 import { Modal } from './Modal';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const SelectorGrid = styled.div`
   display: grid;
@@ -48,7 +49,11 @@ export const SelectEncounterTypeModal = React.memo(({ open, onClose, onSelectEnc
     ));
 
   return (
-    <Modal title="Admit or check-in" open={open} onClose={onClose}>
+    <Modal
+      title={<TranslatedText stringId="patient.modal.admit.title" fallback="Admit or check-in" />}
+      open={open}
+      onClose={onClose}
+    >
       <SelectorGrid>{items}</SelectorGrid>
     </Modal>
   );

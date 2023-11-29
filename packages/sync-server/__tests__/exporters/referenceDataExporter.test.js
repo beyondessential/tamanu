@@ -593,7 +593,7 @@ describe('Permission and Roles exporter', () => {
       roleId: 'reception',
     });
 
-    await exporter(models, { 1: 'permission', 2: 'role' });
+    await exporter(store, { 1: 'permission', 2: 'role' });
     expect(writeExcelFile).toBeCalledWith(
       [
         {
