@@ -1,5 +1,6 @@
 import config from 'config';
 import path from 'path';
+import * as jose from 'jose';
 import * as AWS from '@aws-sdk/client-s3';
 import { base64UrlEncode } from '@tamanu/shared/utils/encodings';
 
@@ -75,8 +76,6 @@ export class IPSRequestProcessor extends ScheduledTask {
 
         sublog.info('Processing IPS request');
 
-        // SAVE BUNDLE TO S3 HERE
-
         const now = new Date();
 
         const {
@@ -93,30 +92,49 @@ export class IPSRequestProcessor extends ScheduledTask {
 
         const filePath = `${jsonBucketPath}/${await getRandomBase64String(32, true)}_manifest.json`;
 
+        // CREATE PAYLOAD
+
+        const payload = {
+          url: `${s3PublicUrl}/${filePath}`,
+          key: await getRandomBase64String(32),
+          flag: 'LU',
+          label: `${
+            patient.displayName
+          } International Patient Summary generated @ ${now.toLocaleString()}`,
+        };
+
+        // ENCRYPT IPS BUNDLE
+
+        console.log('payload')
+        console.log(payload)
+
+        const encrypted = await new jose
+          // eslint-disable-next-line new-cap
+          .CompactEncrypt(new TextEncoder().encode(JSON.stringify(ipsJSON)))
+          .setProtectedHeader({
+            alg: 'dir',
+            enc: 'A256GCM',
+            cty: 'application/fhir+json',
+          })
+          .encrypt(jose.base64url.decode(payload.key));
+
+        console.log('encrypted')
+        console.log(encrypted)
+
+        // SAVE BUNDLE TO S3
+
         try {
           const client = new AWS.S3({ region });
           await client.send(
             new AWS.PutObjectCommand({
               Bucket: bucketName,
               Key: filePath,
-              Body: JSON.stringify(ipsJSON),
-              ContentType: 'application/json',
+              Body: encrypted,
             }),
           );
         } catch (err) {
           throw new Error(`There was an error uploading to S3, ${err}`);
         }
-
-        // CREATE PAYLOAD
-
-        const payload = {
-          url: `${s3PublicUrl}/${filePath}`,
-          key: null,
-          flag: 'LU',
-          label: `${
-            patient.displayName
-          } International Patient Summary generated @ ${now.toLocaleString()}`,
-        };
 
         const baseUrl = `${s3PublicUrl}/${viewerBucketPath}`;
 
