@@ -24,7 +24,7 @@ import { NestedVitalsModal } from '../components/NestedVitalsModal';
 import { useApi, useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
 import { getActionsFromData, getAnswersFromData } from '../utils';
-import { useLocalisedText } from '../components';
+import { LowerCase } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const InfoPopupLabel = React.memo(() => (
@@ -44,7 +44,6 @@ export const TriageForm = ({
 }) => {
   const api = useApi();
   const dispatch = useDispatch();
-  const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
   const { getLocalisation } = useLocalisation();
   const triageCategories = getLocalisation('triageCategories');
   const practitionerSuggester = useSuggester('practitioner');
@@ -123,7 +122,22 @@ export const TriageForm = ({
         </FormGrid>
         <Field
           name="practitionerId"
-          label={`Triage ${clinicianText.toLowerCase()}`}
+          label={
+            <TranslatedText
+              stringId="triage.form.practitionerId.label"
+              fallback="Triage :clinician"
+              replacements={{
+                clinician: (
+                  <LowerCase>
+                    <TranslatedText
+                      stringId="general.localisedField.clinician.label.short"
+                      fallback="Clinician"
+                    />
+                  </LowerCase>
+                ),
+              }}
+            />
+          }
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
@@ -185,7 +199,7 @@ export const TriageForm = ({
           .required()
           .max(new Date(), 'Triage time cannot be in the future'),
         chiefComplaintId: foreignKey('Chief complaint must be selected'),
-        practitionerId: foreignKey(`Triage ${clinicianText.toLowerCase()} must be selected`),
+        practitionerId: foreignKey('Required'),
         locationId: foreignKey('Location must be selected'),
         score: yup.string().required(),
       })}
