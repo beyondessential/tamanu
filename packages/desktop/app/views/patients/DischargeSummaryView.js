@@ -259,7 +259,22 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
           <DisplayValue name="Date of admission">
             {getDateDisplay(startDate, { showTime: false })}
           </DisplayValue>
-          <DisplayValue name={`Discharging ${clinicianText}`}>
+          <DisplayValue
+            name={
+              <TranslatedText
+                stringId="general.form.dischargingClinician.label"
+                fallback="Discharging :clinician"
+                replacements={{
+                  clinician: (
+                    <TranslatedText
+                      stringId="general.localisedField.clinician.label"
+                      fallback="Clinician"
+                    />
+                  ),
+                }}
+              />
+            }
+          >
             {discharge?.discharger?.displayName}
           </DisplayValue>
           <DisplayValue name="Date of discharge">

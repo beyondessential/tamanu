@@ -122,7 +122,7 @@ export const EncounterForm = React.memo(
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
-          examinerId: foreignKey(`${clinicianText} is required`),
+          examinerId: foreignKey('Required'),
           locationId: foreignKey('Location is required'),
           departmentId: foreignKey('Department is required'),
           startDate: yup.date().required(),
