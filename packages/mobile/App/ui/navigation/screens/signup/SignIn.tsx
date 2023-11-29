@@ -153,8 +153,8 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
           flexDirection="row"
           justifyContent="flex-end"
           position='absolute'
-          bottom={10}
-          right={10}
+          bottom={screenPercentageToDP(2.43, Orientation.Height)}
+          right={screenPercentageToDP(2.43, Orientation.Width)}
           paddingLeft={screenPercentageToDP(2.43, Orientation.Width)}
           paddingRight={screenPercentageToDP(2.43, Orientation.Width)}
         >
