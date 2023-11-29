@@ -15,7 +15,7 @@ const alterSchemaAndBackUpLegacyData = async (query, table, field) => {
   const COUNTRY_TIMEZONE = config?.countryTimeZone;
 
   if (!COUNTRY_TIMEZONE) {
-    throw Error('A countryTimeZone must be configured in local.json for this migration to run.');
+    throw Error('A countryTimeZone must be configured in local.json5 for this migration to run.');
   }
 
   // Copy data to legacy columns for backup

@@ -34,7 +34,7 @@ export const DataFetchingProgramsTable = ({ endpoint }) => {
         columns={columns}
         initialSort={{
           orderBy: 'endTime',
-          order: 'asc',
+          order: 'desc',
         }}
         noDataMessage="No program responses found"
         onRowClick={onSelectResponse}
