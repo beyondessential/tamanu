@@ -11,12 +11,16 @@ export class ReadSettings {
   }
 
   async get(key: string) {
+    const settings = this.getAll();
+    return lodashGet(settings, key);
+  }
+
+  async getAll() {
     let settings = settingsCache.get();
     if (!settings) {
       settings = await buildSettings(this.models, this.facilityId);
       settingsCache.set(settings);
     }
-
-    return lodashGet(settings, key);
+    return settings;
   }
 }
