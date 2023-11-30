@@ -201,7 +201,7 @@ const EncounterOverview = ({
               clinician: (
                 <LowerCase>
                   <TranslatedText
-                    stringId="general.localisedField.clinician.label.snhort"
+                    stringId="general.localisedField.clinician.label.short"
                     fallback="Clinician"
                   />
                 </LowerCase>
