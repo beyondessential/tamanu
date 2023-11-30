@@ -12,6 +12,7 @@ import { Button, OutlinedButton } from '../../../components/Button';
 import { ContentPane } from '../../../components/ContentPane';
 import { Colors } from '../../../constants';
 import { TabPane } from '../components';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -72,7 +73,12 @@ export const InvoicingPane = React.memo(({ encounter }) => {
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
-      setError('Unable to create invoice.');
+      setError(
+        <TranslatedText
+          stringId="invoicing.error.unableToCreate"
+          fallback="Unable to create invoice."
+        />,
+      );
     }
   }, [api, encounter.id]);
 
@@ -90,7 +96,9 @@ export const InvoicingPane = React.memo(({ encounter }) => {
   if (!invoice) {
     return (
       <EmptyPane>
-        <Button onClick={createInvoice}>Create invoice</Button>
+        <Button onClick={createInvoice}>
+          <TranslatedText stringId="invoicing.action.create" fallback="Create invoice" />
+        </Button>
       </EmptyPane>
     );
   }
@@ -98,10 +106,15 @@ export const InvoicingPane = React.memo(({ encounter }) => {
   return (
     <TabPane>
       <InvoiceTopBar>
-        <InvoiceHeading>Invoice number: {invoice.displayId}</InvoiceHeading>
+        <InvoiceHeading>
+          <TranslatedText stringId="invoicing.invoiceNumber" fallback="Invoice number:" />
+          {` ${invoice.displayId}`}
+        </InvoiceHeading>
         {isInvoiceEditable(invoice) ? (
           <ActionsPane>
-            <Button onClick={() => setInvoiceLineModalOpen(true)}>Add item</Button>
+            <Button onClick={() => setInvoiceLineModalOpen(true)}>
+              <TranslatedText stringId="invoicing.action.addItem" fallback="Add item" />
+            </Button>
             <InvoiceLineItemModal
               title="Add item"
               actionText="Add"
@@ -114,7 +127,10 @@ export const InvoicingPane = React.memo(({ encounter }) => {
               }}
             />
             <OutlinedButton onClick={() => setInvoicePriceChangeModalOpen(true)}>
-              Add price change
+              <TranslatedText
+                stringId="invoicing.action.addPriceChange"
+                fallback="Add price change"
+              />
             </OutlinedButton>
             <InvoicePriceChangeItemModal
               title="Add price change"
@@ -128,7 +144,10 @@ export const InvoicingPane = React.memo(({ encounter }) => {
               }}
             />
             <OutlinedButton onClick={() => setPotentialLineItemsModalOpen(true)}>
-              Populate invoice
+              <TranslatedText
+                stringId="invoicing.action.populateInvoice"
+                fallback="Populate invoice"
+              />
             </OutlinedButton>
             <PotentialInvoiceLineItemsModal
               open={potentialLineItemsModalOpen}
