@@ -61,6 +61,9 @@ export class CentralServerConnection {
       ...otherParams
     } = params;
 
+    const { backoff, timeout } = await this.settings.get('sync');
+    const requestFailureRate = await this.settings.get('debugging.requestFailureRate');
+    const backoffSettings = backoffParams || backoff;
     // if there's an ongoing connection attempt, wait until it's finished
     // if we don't have a token, connect
     // allows deliberately skipping connect (so connect doesn't call itself)
@@ -68,7 +71,7 @@ export class CentralServerConnection {
       try {
         if (!this.token) {
           // Deliberately use same backoff policy to avoid retrying in some places
-          await this.connect(backoffParams, otherParams.timeout);
+          await this.connect(backoffSettings, otherParams.timeout);
         } else {
           await this.connectionPromise;
         }
@@ -79,10 +82,6 @@ export class CentralServerConnection {
 
     const url = `${this.host}/${API_VERSION}/${endpoint}`;
     log.debug(`[sync] ${method} ${url}`);
-
-    const { backoff, timeout } = await this.settings.get('sync');
-    const requestFailureRate = await this.settings.get('debugging.requestFailureRate');
-    const backoffSettings = backoffParams || backoff;
 
     return callWithBackoff(async () => {
       if (requestFailureRate) {
@@ -171,7 +170,9 @@ export class CentralServerConnection {
     throw new Error(`Did not get a truthy response after ${maxAttempts} attempts for ${endpoint}`);
   }
 
-  async connect(backoff, timeout = this.timeout) {
+  async connect(backoff, timeoutParam) {
+    const { timeout } = await this.settings.get('sync');
+    const timeoutSetting = timeout || timeoutParam;
     // if there's an ongoing connect attempt, reuse it
     if (this.connectionPromise) {
       return this.connectionPromise;
@@ -194,7 +195,7 @@ export class CentralServerConnection {
         awaitConnection: false,
         retryAuth: false,
         backoff,
-        timeout,
+        timeout: timeoutSetting,
       });
 
       if (!body.token || !body.user) {
