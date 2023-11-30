@@ -188,7 +188,7 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
     <Container>
       <ContainerTitle onClick={() => setIsExpanded(!isExpanded)}>
         <SectionLabel>
-          <TranslatedText stringId="patientList.recentlyViewed.title" fallback="Recently Viewed" />
+          <TranslatedText stringId="patientList.recentlyViewed.title" fallback="Recently viewed" />
         </SectionLabel>
         {isExpanded ? <ExpandLess /> : <ExpandMore />}
       </ContainerTitle>

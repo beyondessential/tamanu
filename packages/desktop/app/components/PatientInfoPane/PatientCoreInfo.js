@@ -142,7 +142,7 @@ export const CoreInfoDisplay = memo(({ patient }) => {
     <>
       <PatientButton onClick={() => navigateToPatient(patient.id)}>
         <NameHeader>
-          <TranslatedText stringId="patient.detailsSidebar.title" fallback="Patient Details" />
+          <TranslatedText stringId="patient.detailsSidebar.title" fallback="Patient details" />
         </NameHeader>
         <NameContainer>
           <div>
