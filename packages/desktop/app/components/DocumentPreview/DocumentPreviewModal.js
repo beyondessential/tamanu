@@ -38,7 +38,15 @@ const Preview = ({ documentType, attachmentId, ...props }) => {
   if (documentType === SUPPORTED_DOCUMENT_TYPES.JPEG) {
     return <PhotoPreview attachmentId={attachmentId} />;
   }
-  return `Preview is not supported for document type ${documentType}`;
+  return (
+    <TranslatedText
+      stringId="documents.preview.unsupported"
+      fallback="Preview is not supported for document type :documentType"
+      replacements={{
+        documentType,
+      }}
+    />
+  );
 };
 
 export const DocumentPreviewModal = ({ open, onClose, onDownload, document, onPrintPDF }) => {
