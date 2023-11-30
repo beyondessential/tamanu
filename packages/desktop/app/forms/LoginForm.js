@@ -18,6 +18,9 @@ import {
 import { ServerDetectingField } from '../components/Field/ServerDetectingField';
 import { FormGrid } from '../components/FormGrid';
 
+const USER_DEACTIVATED_DISPLAY_MESSAGE =
+  'User account deactivated. Please contact your system administrator if assistance is required.';
+
 const LoginButton = styled(FormSubmitButton)`
   font-size: 16px;
   line-height: 18px;
@@ -52,13 +55,11 @@ const LoginFormComponent = ({
   setFieldError,
 }) => {
   const [genericMessage, setGenericMessage] = useState(null);
-  const deactivatedUserMessage =
-    'User account deactivated. Please contact your system administrator if assistance is required.';
 
   useEffect(() => {
     if (errorMessage === USER_DEACTIVATED_ERROR_MESSAGE) {
       setFieldError('email', `*${errorMessage}`);
-      setGenericMessage(deactivatedUserMessage);
+      setGenericMessage(USER_DEACTIVATED_DISPLAY_MESSAGE);
     } else {
       setGenericMessage(errorMessage);
     }
