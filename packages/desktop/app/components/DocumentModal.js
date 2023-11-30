@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import { FormModal } from './FormModal';
 import { DocumentForm } from '../forms/DocumentForm';
+import { TranslatedText } from './Translation/TranslatedText';
 
 export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable }) => {
   const [preventClose, setPreventClose] = useState(false);
@@ -41,7 +42,12 @@ export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable
   }, [preventClose]);
 
   return (
-    <FormModal width="md" title="Add document" open={open} onClose={handleClose}>
+    <FormModal
+      width="md"
+      title={<TranslatedText stringId="documents.addDocument.title" fallback="Add document" />}
+      open={open}
+      onClose={handleClose}
+    >
       <DocumentForm
         onSubmit={onSubmit}
         onStart={onStart}
