@@ -11,7 +11,7 @@ export const InvoicesSearchBar = React.memo(({ onSearch }) => (
       defaultLabel="Invoice number"
       label={
         <TranslatedText
-          stringId="general.localisedField.invoiceDisplayId"
+          stringId="general.localisedField.invoiceDisplayId.label"
           fallback="Invoice number"
         />
       }
@@ -19,7 +19,10 @@ export const InvoicesSearchBar = React.memo(({ onSearch }) => (
     <LocalisedField
       name="receiptNumber"
       label={
-        <TranslatedText stringId="general.localisedField.receiptNumber" fallback="Receipt number" />
+        <TranslatedText
+          stringId="general.localisedField.receiptNumber.label"
+          fallback="Receipt number"
+        />
       }
     />
     <LocalisedField

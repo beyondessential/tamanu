@@ -43,7 +43,7 @@ export const ImmunisationSearchBar = ({ onSearch }) => {
         defaultLabel="Vaccination Status"
         label={
           <TranslatedText
-            stringId="general.localisedField.vaccinationStatus"
+            stringId="general.localisedField.vaccinationStatus.label"
             fallback="Vaccination Status"
           />
         }
