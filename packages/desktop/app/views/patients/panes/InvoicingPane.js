@@ -133,8 +133,13 @@ export const InvoicingPane = React.memo(({ encounter }) => {
               />
             </OutlinedButton>
             <InvoicePriceChangeItemModal
-              title="Add price change"
-              actionText="Create"
+              title={
+                <TranslatedText
+                  stringId="invoicing.action.addPriceChange"
+                  fallback="Add price change"
+                />
+              }
+              actionText={<TranslatedText stringId="general.action.create" fallback="Create" />}
               open={invoicePriceChangeModalOpen}
               invoiceId={invoice.id}
               onClose={() => setInvoicePriceChangeModalOpen(false)}
