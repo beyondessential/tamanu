@@ -132,7 +132,7 @@ export const VaccineDateField = ({ label, required = true }) => (
 export const InjectionSiteField = () => (
   <Field
     name="injectionSite"
-    label={<TranslatedText stringId="vaccine.form.injectionSite.label" fallback="Injection Site" />}
+    label={<TranslatedText stringId="vaccine.form.injectionSite.label" fallback="Injection site" />}
     component={SelectField}
     options={VACCINE_FIELD_INJECTION_SITE_OPTIONS}
   />
