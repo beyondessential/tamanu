@@ -3,11 +3,12 @@ import PropTypes from 'prop-types';
 
 import { FormModal } from '../../FormModal';
 import { PrintMultipleLabRequestsSelectionForm } from './PrintMultipleLabRequestsSelectionForm';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 export const PrintMultipleLabRequestsSelectionModal = ({ encounter, open, onClose }) => {
   return (
     <FormModal
-      title="Print lab requests"
+      title={<TranslatedText stringId="labs.modal.print.title" fallback="Print lab requests" />}
       width="xl"
       open={open}
       onClose={onClose}

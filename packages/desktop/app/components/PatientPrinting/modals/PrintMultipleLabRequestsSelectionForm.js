@@ -12,6 +12,7 @@ import { Colors } from '../../../constants';
 import { MultipleLabRequestsPrintoutModal } from './MultipleLabRequestsPrintoutModal';
 import { FormDivider, PrintMultipleSelectionTable } from './PrintMultipleSelectionTable';
 import { getStatus } from '../../../utils/lab';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 const COLUMN_KEYS = {
   SELECTED: 'selected',
@@ -26,37 +27,52 @@ const COLUMN_KEYS = {
 const COLUMNS = [
   {
     key: COLUMN_KEYS.DISPLAY_ID,
-    title: 'Test ID',
+    title: <TranslatedText stringId="labs.modal.print.table.column.testId" fallback="Test ID" />,
     sortable: false,
   },
   {
     key: COLUMN_KEYS.DATE,
-    title: 'Request date',
+    title: (
+      <TranslatedText
+        stringId="labs.modal.print.table.column.requestDate"
+        fallback="Request date"
+      />
+    ),
     sortable: false,
     accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} />,
   },
   {
     key: COLUMN_KEYS.REQUESTED_BY,
-    title: 'Requested by',
+    title: (
+      <TranslatedText
+        stringId="labs.modal.print.table.column.requestedBy"
+        fallback="Requested by"
+      />
+    ),
     sortable: false,
     accessor: ({ requestedBy }) => requestedBy?.displayName || '',
   },
   {
     key: COLUMN_KEYS.PRIORITY,
-    title: 'Priority',
+    title: <TranslatedText stringId="labs.modal.print.table.column.priority" fallback="Priority" />,
     sortable: false,
     maxWidth: 70,
     accessor: ({ priority }) => priority?.name || '',
   },
   {
     key: COLUMN_KEYS.CATEGORY,
-    title: 'Test category',
+    title: (
+      <TranslatedText
+        stringId="labs.modal.print.table.column.testCategory"
+        fallback="Test category"
+      />
+    ),
     sortable: false,
     accessor: ({ category }) => category?.name || '',
   },
   {
     key: COLUMN_KEYS.STATUS,
-    title: 'Status',
+    title: <TranslatedText stringId="labs.modal.print.table.column.status" fallback="Status" />,
     sortable: false,
     accessor: getStatus,
   },
@@ -97,20 +113,26 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
         onClose={() => setOpenPrintoutModal(false)}
       />
       <PrintMultipleSelectionTable
-        label="Select the lab requests you would like to print"
+        label=<TranslatedText
+          stringId="labs.modal.print.select"
+          fallback="Select the lab requests you would like to print"
+        />
         headerColor={Colors.white}
         columns={[selectableColumn, ...COLUMNS]}
         data={labRequestsData || []}
         elevated={false}
         isLoading={isLoading}
         errorMessage={error?.message}
-        noDataMessage="No lab requests found"
+        noDataMessage=<TranslatedText
+          stringId="labs.modal.print.table.noData"
+          fallback="No lab requests found"
+        />
         allowExport={false}
       />
       <FormDivider />
       <ConfirmCancelRow
-        cancelText="Close"
-        confirmText="Print"
+        cancelText=<TranslatedText stringId="general.action.close" fallback="Close" />
+        confirmText=<TranslatedText stringId="general.action.print" fallback="Print" />
         onConfirm={handlePrintConfirm}
         onCancel={onClose}
       />
