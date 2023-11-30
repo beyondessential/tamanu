@@ -71,7 +71,7 @@ export const LabRequestMultiStepForm = ({
         />
       </FormStep>
       <FormStep
-        submitButtonText={<TranslatedText stringId="general.action.finalise" fallback="finalise" />}
+        submitButtonText={<TranslatedText stringId="general.action.finalise" fallback="Finalise" />}
       >
         <LabRequestFormScreen3
           practitionerSuggester={practitionerSuggester}

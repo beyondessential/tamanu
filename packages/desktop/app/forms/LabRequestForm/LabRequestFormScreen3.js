@@ -6,6 +6,7 @@ import {
   SampleDetailsField,
   SAMPLE_DETAILS_FIELD_PREFIX,
 } from '../../views/labRequest/SampleDetailsField';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const StyledBodyText = styled(BodyText)`
   margin-bottom: 28px;
@@ -42,10 +43,18 @@ export const LabRequestFormScreen3 = props => {
 
   return (
     <div style={{ gridColumn: '1 / -1' }}>
-      <Heading3 mb="12px">Sample details</Heading3>
+      <Heading3 mb="12px">
+        <TranslatedText
+          stringId="labs.modal.new.form.sampleDetails.heading"
+          fallback="Sample details"
+        />
+      </Heading3>
       <StyledBodyText mb="28px" color="textTertiary">
-        Please record details for the samples that have been collected. Otherwise leave blank and
-        click ‘Finalise’.
+        <TranslatedText
+          stringId="labs.modal.new.form.sampleDetails.instructions"
+          fallback="Please record details for the samples that have been collected. Otherwise leave blank and
+        click ‘Finalise’."
+        />
       </StyledBodyText>
       <Field
         name="sampleDetails"
