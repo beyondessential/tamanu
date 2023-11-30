@@ -3,6 +3,7 @@ import { CloudDownload, CloudOff } from '@material-ui/icons';
 import { DateDisplay } from '../../components';
 import { getPatientStatus } from '../../utils/getPatientStatus';
 import { SexDisplay } from '../../components/Translation/SexDisplay';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const DateCell = React.memo(({ value }) => <DateDisplay date={value} />);
 const SexCell = React.memo(({ value }) => <SexDisplay sex={value} />);
@@ -17,22 +18,31 @@ export const markedForSync = {
 
 export const displayId = {
   key: 'displayId',
+  title: <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />,
   minWidth: 80,
   accessor: row => row.displayId || `(${row.id})`,
 };
 
 export const firstName = {
   key: 'firstName',
+  title: <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />,
   minWidth: 100,
 };
 
 export const lastName = {
   key: 'lastName',
+  title: <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />,
   minWidth: 100,
 };
 
 export const culturalName = {
   key: 'culturalName',
+  title: (
+    <TranslatedText
+      stringId="general.localisedField.culturalName.label.short"
+      fallback="Cultural name"
+    />
+  ),
   minWidth: 100,
 };
 

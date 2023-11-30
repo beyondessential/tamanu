@@ -51,6 +51,7 @@ const useColumns = () => {
     },
     {
       key: 'sex',
+      title: <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />,
       accessor: row => <span style={{ textTransform: 'capitalize' }}>{row.sex || ''}</span>,
     },
     { key: 'locationGroupName', title: 'Area', accessor: LocationGroupCell },

@@ -25,6 +25,9 @@ export const AppointmentListingView = () => {
     },
     {
       key: 'displayId',
+      title: (
+        <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="DOB" />
+      ),
       accessor: row => row.patient.displayId,
     },
     {
@@ -34,10 +37,14 @@ export const AppointmentListingView = () => {
     },
     {
       key: 'sex',
+      title: <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />,
       accessor: row => <CapitalisedValue>{row.patient.sex}</CapitalisedValue>,
     },
     {
       key: 'dateOfBirth',
+      title: (
+        <TranslatedText stringId="general.localisedField.dateOfBirth.label.short" fallback="DOB" />
+      ),
       accessor: row => <DateDisplay date={row.patient.dateOfBirth} />,
     },
     {

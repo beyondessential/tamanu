@@ -14,6 +14,7 @@ import {
   getRequestId,
   getPublishedDate,
 } from '../utils/lab';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const LabRequestsTable = React.memo(
   ({ status = '', loadEncounter, loadLabRequest, searchParameters }) => {
@@ -23,6 +24,12 @@ export const LabRequestsTable = React.memo(
       return [
         {
           key: 'displayId',
+          title: (
+            <TranslatedText
+              stringId="general.localisedField.displayId.label.short"
+              fallback="NHN"
+            />
+          ),
           accessor: getPatientDisplayId,
         },
         {
