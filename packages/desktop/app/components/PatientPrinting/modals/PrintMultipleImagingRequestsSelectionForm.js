@@ -55,7 +55,7 @@ export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter
       <PrintMultipleSelectionTable
         label={
           <TranslatedText
-            stringId="imaging.print.select.label"
+            stringId="imaging.print.select"
             fallback="Select the imaging requests you would like to print"
           />
         }

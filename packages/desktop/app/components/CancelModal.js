@@ -39,7 +39,7 @@ export const CancelModal = React.memo(
                 component={SelectField}
                 label={
                   <TranslatedText
-                    stringId="general.cancel.reasonForCancel"
+                    stringId="general.form.cancelReason"
                     fallback="Reason for cancellation"
                   />
                 }

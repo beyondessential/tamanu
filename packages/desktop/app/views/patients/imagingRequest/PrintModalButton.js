@@ -49,7 +49,7 @@ export const PrintModalButton = props => {
         <PrintModalInternals {...props} />
       </Modal>
       <Button variant="outlined" onClick={openModal} style={{ marginLeft: '0.5rem' }}>
-        <TranslatedText stringId="imaging.request.action.print" fallback="Print request" />
+        <TranslatedText stringId="imaging.request.print.action" fallback="Print request" />
       </Button>
     </>
   );

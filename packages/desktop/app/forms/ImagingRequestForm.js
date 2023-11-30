@@ -70,7 +70,7 @@ const FormSubmitActionDropdown = React.memo(({ requestId, encounter, submitForm 
 
   const actions = [
     {
-      label: <TranslatedText stringId="general.form.action.finalise" fallback="Finalise" />,
+      label: <TranslatedText stringId="general.action.finalise" fallback="Finalise" />,
       onClick: finalise,
     },
     {
