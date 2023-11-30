@@ -4,6 +4,7 @@ import { Colors } from '../../../constants';
 import { Modal } from '../../Modal';
 
 import { MultipleImagingRequestsPrintout } from '../printouts/MultipleImagingRequestsPrintout';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 export const MultipleImagingRequestsPrintoutModal = ({
   open,
@@ -13,7 +14,12 @@ export const MultipleImagingRequestsPrintoutModal = ({
 }) => {
   return (
     <Modal
-      title="Print imaging requests"
+      title={
+        <TranslatedText
+          stringId="imaging.print.multipleRequests.title"
+          fallback="Print imaging requests"
+        />
+      }
       width="md"
       open={open}
       onClose={onClose}
