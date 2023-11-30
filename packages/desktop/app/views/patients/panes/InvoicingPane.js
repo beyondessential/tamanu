@@ -116,8 +116,8 @@ export const InvoicingPane = React.memo(({ encounter }) => {
               <TranslatedText stringId="invoicing.action.addItem" fallback="Add item" />
             </Button>
             <InvoiceLineItemModal
-              title="Add item"
-              actionText="Add"
+              title={<TranslatedText stringId="invoicing.action.addItem" fallback="Add item" />}
+              actionText={<TranslatedText stringId="general.action.add" fallback="Add" />}
               open={invoiceLineModalOpen}
               invoiceId={invoice.id}
               onClose={() => setInvoiceLineModalOpen(false)}
