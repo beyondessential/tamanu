@@ -90,7 +90,7 @@ export function isValidHl7Date(dateString) {
 
 // Returns the smallest time unit used on the date string format.
 // Only supports HL7 formats.
-export function getStartEndOfFns(dateString) {
+function getStartEndOfFns(dateString) {
   switch (dateString.length) {
     case 4:
       return [startOfYear, endOfYear];
