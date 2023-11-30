@@ -1,10 +1,11 @@
-import Collapse from '@material-ui/core/Collapse';
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import Collapse from '@material-ui/core/Collapse';
 import * as yup from 'yup';
+import styled from 'styled-components';
 
 import { USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
 
+import { FormGrid } from '../components/FormGrid';
 import {
   Button,
   CheckField,
@@ -16,7 +17,6 @@ import {
   TextField,
 } from '../components';
 import { ServerDetectingField } from '../components/Field/ServerDetectingField';
-import { FormGrid } from '../components/FormGrid';
 
 const USER_DEACTIVATED_DISPLAY_MESSAGE =
   'User account deactivated. Please contact your system administrator if assistance is required.';
