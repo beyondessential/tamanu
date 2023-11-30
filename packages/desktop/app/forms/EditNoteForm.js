@@ -28,19 +28,19 @@ export const EditNoteForm = ({ note, onNoteContentChange, onSubmit, onCancel }) 
         noteType={NOTE_TYPE_LABELS[note.noteType]}
         date={note.revisedBy ? note.revisedBy.date : note.date}
         writtenByLabel=<TranslatedText
-          stringId="notes.modal.writtenBy.label"
+          stringId="notes.form.writtenBy.label"
           fallback="Written by (or on behalf of)"
         />
         writtenBy={writtenBy}
-        dateLabel=<TranslatedText stringId="notes.modal.dateTime.label" fallback="Date & time" />
+        dateLabel=<TranslatedText stringId="notes.form.dateTime.label" fallback="Date & time" />
       />
       <br />
       <NoteContentField onChange={onNoteContentChange} />
       <StyledDivider />
       <FormSubmitCancelRow
         onConfirm={onSubmit}
-        confirmText=<TranslatedText stringId="general.actions.save" fallback="Save" />
-        cancelText=<TranslatedText stringId="general.actions.cancel" fallback="Cancel" />
+        confirmText=<TranslatedText stringId="general.action.save" fallback="Save" />
+        cancelText=<TranslatedText stringId="general.action.cancel" fallback="Cancel" />
         onCancel={onCancel}
       />
     </>

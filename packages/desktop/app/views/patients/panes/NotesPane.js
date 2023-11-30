@@ -28,7 +28,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
   return (
     <TabPane>
       <NoteModal
-        title=<TranslatedText stringId="notes.modal.new" fallback="New note" />
+        title=<TranslatedText stringId="notes.modal.create.title" fallback="New note" />
         open={modalOpen}
         encounterId={encounter.id}
         onClose={() => setModalOpen(false)}
@@ -42,7 +42,6 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
             { value: null, label: <TranslatedText stringId="note.types.all" fallback="All" /> },
             ...noteTypes,
           ]}
-          // options={[{ value: null, label: 'All' }, ...noteTypes]}
           onChange={e => setNoteType(e.target.value)}
           value={noteType}
           isClearable={false}

@@ -30,7 +30,7 @@ export const CreateNoteForm = ({
     <StyledDivider />
     <FormSubmitCancelRow
       onConfirm={onSubmit}
-      confirmText=<TranslatedText stringId="notes.modal.addNote" fallback="Add note" />
+      confirmText=<TranslatedText stringId="notes.action.addNote" fallback="Add note" />
       cancelText=<TranslatedText stringId="general.action.cancel" fallback="Cancel" />
       onCancel={onCancel}
     />

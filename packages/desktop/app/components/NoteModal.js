@@ -25,7 +25,7 @@ const getOnBehalfOfId = (noteFormMode, currentUserId, newData, note) => {
 };
 
 export const NoteModal = ({
-  title = <TranslatedText stringId="notes.modal.title" fallback="Note" />,
+  title = <TranslatedText stringId="notes.modal.default.title" fallback="Note" />,
   open,
   onClose,
   onSaved,

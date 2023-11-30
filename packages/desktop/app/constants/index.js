@@ -167,62 +167,72 @@ export const nonEmergencyDiagnosisCertaintyOptions = diagnosisCertaintyOptions.f
 export const noteTypes = [
   {
     value: NOTE_TYPES.TREATMENT_PLAN,
-    label: <TranslatedText stringId="note.types.treatmentPlan" fallback="Treatment Plan" />,
+    label: <TranslatedText stringId="note.property.type.treatmentPlan" fallback="Treatment Plan" />,
   },
   {
     value: NOTE_TYPES.ADMISSION,
-    label: <TranslatedText stringId="note.types.admission" fallback="Admission" />,
+    label: <TranslatedText stringId="note.property.type.admission" fallback="Admission" />,
   },
   {
     value: NOTE_TYPES.CLINICAL_MOBILE,
     label: (
-      <TranslatedText stringId="note.types.clinicalNoteMobile" fallback="Clinical note (mobile)" />
+      <TranslatedText
+        stringId="note.property.type.clinicalNoteMobile"
+        fallback="Clinical note (mobile)"
+      />
     ),
     hideFromDropdown: true,
   },
   {
     value: NOTE_TYPES.DIETARY,
-    label: <TranslatedText stringId="note.types.dietary" fallback="Dietary" />,
+    label: <TranslatedText stringId="note.property.type.dietary" fallback="Dietary" />,
   },
   {
     value: NOTE_TYPES.DISCHARGE,
-    label: <TranslatedText stringId="note.types.dischargePlanning" fallback="Discharge planning" />,
+    label: (
+      <TranslatedText
+        stringId="note.property.type.dischargePlanning"
+        fallback="Discharge planning"
+      />
+    ),
   },
   {
     value: NOTE_TYPES.HANDOVER,
-    label: <TranslatedText stringId="note.types.handoverNote" fallback="Handover note" />,
+    label: <TranslatedText stringId="note.property.type.handoverNote" fallback="Handover note" />,
   },
   {
     value: NOTE_TYPES.MEDICAL,
-    label: <TranslatedText stringId="note.types.medical" fallback="Medical" />,
+    label: <TranslatedText stringId="note.property.type.medical" fallback="Medical" />,
   },
   {
     value: NOTE_TYPES.NURSING,
-    label: <TranslatedText stringId="note.types.nursing" fallback="Nursing" />,
+    label: <TranslatedText stringId="note.property.type.nursing" fallback="Nursing" />,
   },
   {
     value: NOTE_TYPES.OTHER,
-    label: <TranslatedText stringId="note.types.other" fallback="Other" />,
+    label: <TranslatedText stringId="note.property.type.other" fallback="Other" />,
   },
   {
     value: NOTE_TYPES.PHARMACY,
-    label: <TranslatedText stringId="note.types.pharmacy" fallback="Pharmacy" />,
+    label: <TranslatedText stringId="note.property.type.pharmacy" fallback="Pharmacy" />,
   },
   {
     value: NOTE_TYPES.PHYSIOTHERAPY,
-    label: <TranslatedText stringId="note.types.physiotherapy" fallback="Physiotherapy" />,
+    label: <TranslatedText stringId="note.property.type.physiotherapy" fallback="Physiotherapy" />,
   },
   {
     value: NOTE_TYPES.SOCIAL,
-    label: <TranslatedText stringId="note.types.socialWellfare" fallback="Social welfare" />,
+    label: (
+      <TranslatedText stringId="note.property.type.socialWellfare" fallback="Social welfare" />
+    ),
   },
   {
     value: NOTE_TYPES.SURGICAL,
-    label: <TranslatedText stringId="note.types.surgical" fallback="Surgical" />,
+    label: <TranslatedText stringId="note.property.type.surgical" fallback="Surgical" />,
   },
   {
     value: NOTE_TYPES.SYSTEM,
-    label: <TranslatedText stringId="note.types.system" fallback="System" />,
+    label: <TranslatedText stringId="note.property.type.system" fallback="System" />,
     hideFromDropdown: true,
   },
 ];
