@@ -1,6 +1,10 @@
 import config from 'config';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { facilityTestSettings, centralTestSettings, globalTestSettings } from '@tamanu/settings';
+import {
+  facilityTestSettings,
+  centralTestSettings,
+  globalTestSettings,
+} from '@tamanu/settings/test';
 
 export async function seedSettings(models) {
   const { serverFacilityId } = config;

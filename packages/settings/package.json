@@ -5,7 +5,8 @@
   "description": "BES - Settings",
   "exports": {
     ".": "./dist/index.js",
-    "./*": "./dist/*/index.js"
+    "./*": "./dist/*/index.js",
+    "./test": "./dist/test/index.js"
   },
   "types": "./dist/index.d.ts",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
