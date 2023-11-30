@@ -5,6 +5,7 @@ import { FormModal } from './FormModal';
 import { FormSubmitCancelRow } from './ButtonRow';
 import { SelectField, Form, Field } from './Field';
 import { BodyText } from './Typography';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const ModalBody = styled.div`
   margin-top: 30px;
@@ -36,7 +37,12 @@ export const CancelModal = React.memo(
               <Field
                 required
                 component={SelectField}
-                label="Reason for cancellation"
+                label={
+                  <TranslatedText
+                    stringId="general.cancel.reasonForCancel"
+                    fallback="Reason for cancellation"
+                  />
+                }
                 name="reasonForCancellation"
                 options={options}
                 helperText={isReasonForDelete(values.reasonForCancellation) ? helperText : null}

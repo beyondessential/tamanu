@@ -6,6 +6,7 @@ import { CancelModal } from '../../../components/CancelModal';
 import { Button } from '../../../components/Button';
 import { useApi } from '../../../api';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 function getReasonForCancellationStatus(reasonForCancellation) {
   // these values are set in localisation
@@ -41,12 +42,27 @@ export const CancelModalButton = ({ imagingRequest, onCancel }) => {
   return (
     <>
       <Button variant="text" onClick={() => setIsOpen(true)}>
-        Cancel request
+        <TranslatedText stringId="imaging.request.action.cancelRequest" fallback="Cancel request" />
       </Button>
       <CancelModal
-        title="Cancel imaging request"
-        helperText="This reason will permanently delete the imaging request record"
-        bodyText="Please select reason for cancelling imaging request and click 'Confirm'"
+        title={
+          <TranslatedText
+            stringId="imaging.request.cancel.title"
+            fallback="Cancel imaging request"
+          />
+        }
+        helperText={
+          <TranslatedText
+            stringId="imaging.request.cancel.helper"
+            fallback="This reason will permanently delete the imaging request record"
+          />
+        }
+        bodyText={
+          <TranslatedText
+            stringId="imaging.request.cancel.reason"
+            fallback="Please select reason for cancelling imaging request and click 'Confirm'"
+          />
+        }
         options={cancellationReasonOptions}
         open={isOpen}
         onClose={() => setIsOpen(false)}
