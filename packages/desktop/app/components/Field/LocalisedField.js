@@ -25,7 +25,7 @@ export const useLocalisedSchema = () => {
         return yup.string().nullable();
       }
       if (required) {
-        return yup.string().required(`Required`);
+        return yup.string().required('Required');
       }
       return yup.string();
     },
