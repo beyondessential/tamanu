@@ -7,6 +7,7 @@ import { Suggester } from '../utils/suggester';
 import { FormModal } from './FormModal';
 import { ImagingRequestForm } from '../forms/ImagingRequestForm';
 import { ALPHABET_FOR_ID } from '../constants';
+import { TranslatedText } from './Translation/TranslatedText';
 
 // Todo: move the generating of display id to the model default to match LabRequests
 // generates 8 character id (while excluding 0, O, I, 1 and L)
@@ -19,7 +20,12 @@ export const ImagingRequestModal = ({ open, onClose, encounter }) => {
   const [requestId, setRequestId] = useState();
 
   return (
-    <FormModal width="md" title="New imaging request" open={open} onClose={onClose}>
+    <FormModal
+      width="md"
+      title={<TranslatedText stringId="imaging.form.title" fallback="New imaging request" />}
+      open={open}
+      onClose={onClose}
+    >
       <ImagingRequestForm
         onSubmit={async data => {
           const newRequest = await api.post(`imagingRequest`, {

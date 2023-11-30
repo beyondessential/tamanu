@@ -30,6 +30,7 @@ import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import { useLocalisedText } from '../components';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type).label;
@@ -68,8 +69,19 @@ const FormSubmitActionDropdown = React.memo(({ requestId, encounter, submitForm 
   };
 
   const actions = [
-    { label: 'Finalise', onClick: finalise },
-    { label: 'Finalise & print', onClick: finaliseAndPrint },
+    {
+      label: <TranslatedText stringId="general.form.action.finalise" fallback="Finalise" />,
+      onClick: finalise,
+    },
+    {
+      label: (
+        <TranslatedText
+          stringId="general.form.action.finaliseAndPrint"
+          fallback="Finalise & print"
+        />
+      ),
+      onClick: finaliseAndPrint,
+    },
   ];
 
   return <FormSubmitDropdownButton actions={actions} />;
@@ -113,10 +125,25 @@ export const ImagingRequestForm = React.memo(
           const imagingAreas = getAreasForImagingType(values.imagingType);
           return (
             <FormGrid>
-              <Field name="displayId" label="Imaging request code" disabled component={TextField} />
+              <Field
+                name="displayId"
+                label={
+                  <TranslatedText
+                    stringId="imaging.form.requestCode.label"
+                    fallback="Imaging request code"
+                  />
+                }
+                disabled
+                component={TextField}
+              />
               <Field
                 name="requestedDate"
-                label="Order date and time"
+                label={
+                  <TranslatedText
+                    stringId="imaging.form.orderDate.label"
+                    fallback="Order date and time"
+                  />
+                }
                 required
                 component={DateTimeField}
                 saveDateAsString
@@ -137,10 +164,21 @@ export const ImagingRequestForm = React.memo(
                 <ImagingPriorityField name="priority" />
               </div>
               <FormSeparatorLine />
-              <TextInput label="Encounter" disabled value={encounterLabel} />
+              <TextInput
+                label={
+                  <TranslatedText stringId="imaging.form.encounter.label" fallback="Encounter" />
+                }
+                disabled
+                value={encounterLabel}
+              />
               <Field
                 name="imagingType"
-                label="Imaging request type"
+                label={
+                  <TranslatedText
+                    stringId="imaging.form.requestType.label"
+                    fallback="Imaging request type"
+                  />
+                }
                 required
                 component={SelectField}
                 options={imagingTypeOptions}
@@ -152,13 +190,23 @@ export const ImagingRequestForm = React.memo(
                     value: area.id,
                   }))}
                   name="areas"
-                  label="Areas to be imaged"
+                  label={
+                    <TranslatedText
+                      stringId="imaging.form.imagingAreas.label"
+                      fallback="Areas to be imaged"
+                    />
+                  }
                   component={MultiselectField}
                 />
               ) : (
                 <Field
                   name="areaNote"
-                  label="Areas to be imaged"
+                  label={
+                    <TranslatedText
+                      stringId="imaging.form.imagingAreas.label"
+                      fallback="Areas to be imaged"
+                    />
+                  }
                   component={TextField}
                   multiline
                   style={{ gridColumn: '1 / -1' }}
@@ -167,14 +215,16 @@ export const ImagingRequestForm = React.memo(
               )}
               <Field
                 name="note"
-                label="Notes"
+                label={<TranslatedText stringId="general.form.notes.label" fallback="Notes" />}
                 component={TextField}
                 multiline
                 style={{ gridColumn: '1 / -1' }}
                 rows={3}
               />
               <ButtonRow>
-                <FormCancelButton onClick={onCancel}>Cancel</FormCancelButton>
+                <FormCancelButton onClick={onCancel}>
+                  <TranslatedText stringId="general.actions.cancel" fallback="Cancel" />
+                </FormCancelButton>
                 <FormSubmitActionDropdown
                   requestId={requestId}
                   encounter={encounter}
