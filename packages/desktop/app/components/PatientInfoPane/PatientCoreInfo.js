@@ -155,7 +155,7 @@ export const CoreInfoDisplay = memo(({ patient }) => {
       </PatientButton>
       <CoreInfoSection>
         <CoreInfoCell
-          label={<TranslatedText stringId="general.loacalisedField.sex.label" fallback="Sex" />}
+          label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
           testId="core-info-patient-sex"
         >
           {patient.sex}
@@ -163,7 +163,7 @@ export const CoreInfoDisplay = memo(({ patient }) => {
         <CoreInfoCell
           label={
             <TranslatedText
-              stringId="general.loacalisedField.dateOfBirth.label.short"
+              stringId="general.localisedField.dateOfBirth.label.short"
               fallback="DOB"
             />
           }
