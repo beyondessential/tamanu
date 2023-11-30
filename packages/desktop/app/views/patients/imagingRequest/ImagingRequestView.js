@@ -260,11 +260,11 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
             <h4>
               {imagingRequest.results.length > 0 ? (
                 <TranslatedText
-                  stringId="imaging.request.addAdditionalResult.title"
+                  stringId="imaging.request.addAdditionalResult"
                   fallback="Add additional result"
                 />
               ) : (
-                <TranslatedText stringId="imaging.request.addResult.title" fallback="Add result" />
+                <TranslatedText stringId="imaging.request.addResult" fallback="Add result" />
               )}
             </h4>
             <NewResultSection disabled={!canAddResult} />
