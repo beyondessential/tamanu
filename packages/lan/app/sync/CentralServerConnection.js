@@ -61,6 +61,8 @@ export class CentralServerConnection {
       ...otherParams
     } = params;
 
+    const { backoff, timeout } = await this.settings.get('sync');
+    const requestFailureRate = await this.settings.get('debugging.requestFailureRate');
     // if there's an ongoing connection attempt, wait until it's finished
     // if we don't have a token, connect
     // allows deliberately skipping connect (so connect doesn't call itself)
@@ -80,8 +82,6 @@ export class CentralServerConnection {
     const url = `${this.host}/${API_VERSION}/${endpoint}`;
     log.debug(`[sync] ${method} ${url}`);
 
-    const { backoff, timeout } = await this.settings.get('sync');
-    const requestFailureRate = await this.settings.get('debugging.requestFailureRate');
     const backoffSettings = backoffParams || backoff;
 
     return callWithBackoff(async () => {
