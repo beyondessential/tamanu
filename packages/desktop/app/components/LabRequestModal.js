@@ -8,6 +8,7 @@ import { FormModal } from './FormModal';
 import { LabRequestMultiStepForm } from '../forms/LabRequestForm/LabRequestMultiStepForm';
 import { LabRequestSummaryPane } from '../views/patients/components/LabRequestSummaryPane';
 import { useEncounter } from '../contexts/Encounter';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const StyledModal = styled(FormModal)`
   .MuiDialog-paper {
@@ -104,7 +105,15 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
 
   return (
     <StyledModal
-      title={`New lab request${requestFormType ? ` | ${SECTION_TITLES[requestFormType]}` : ''}`}
+      title={
+        <TranslatedText
+          stringId="labs.modal.new.title"
+          fallback="New lab request :modalSectionTitle"
+          replacements={{
+            modalSectionTitle: `${requestFormType ? ` | ${SECTION_TITLES[requestFormType]}` : ' '}`,
+          }}
+        />
+      }
       open={open}
       onClose={handleClose}
       minHeight={800}

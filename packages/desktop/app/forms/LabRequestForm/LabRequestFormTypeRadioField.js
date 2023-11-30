@@ -7,21 +7,49 @@ import { Field, OuterLabelFieldWrapper, RadioField } from '../../components';
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const OPTIONS = {
   INDIVIDUAL: {
-    label: 'Individual',
-    description: 'Select an individual or multiple individual tests',
+    label: (
+      <TranslatedText
+        stringId="labs.modal.new.form.screen1.formType.individual"
+        fallback="Individual"
+      />
+    ),
+    description: (
+      <TranslatedText
+        stringId="labs.modal.new.form.screen1.formType.individual.subText"
+        fallback="Select an individual or multiple individual tests"
+      />
+    ),
     value: LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
   },
   PANEL: {
-    label: 'Panel',
-    description: 'Select from a list of test panels',
+    label: (
+      <TranslatedText stringId="labs.modal.new.form.screen1.formType.panel" fallback="Panel" />
+    ),
+    description: (
+      <TranslatedText
+        stringId="labs.modal.new.form.screen1.formType.panel.subText"
+        fallback="Select from a list of test panels"
+      />
+    ),
     value: LAB_REQUEST_FORM_TYPES.PANEL,
   },
   SUPERSET: {
-    label: 'Superset',
-    description: 'Select from a list of supersets',
+    label: (
+      <TranslatedText
+        stringId="labs.modal.new.form.screen1.formType.superset"
+        fallback="Superset"
+      />
+    ),
+    description: (
+      <TranslatedText
+        stringId="labs.modal.new.form.screen1.formType.superset.subText"
+        fallback="Select from a list of supersets"
+      />
+    ),
     value: LAB_REQUEST_FORM_TYPES.SUPERSET,
   },
 };
@@ -84,7 +112,15 @@ export const LabRequestFormTypeRadioField = ({ value, setFieldValue }) => {
 
   return (
     <div style={{ gridColumn: '1 / -1' }}>
-      <OuterLabelFieldWrapper label="Select your request type" required>
+      <OuterLabelFieldWrapper
+        label={
+          <TranslatedText
+            stringId="labs.modal.new.form.screen1.formType.label"
+            fallback="Select your request type"
+          />
+        }
+        required
+      >
         {isLoading ? (
           <RadioItemSkeleton itemsLength={POSSIBLE_OPTIONS_LIST.length} />
         ) : (

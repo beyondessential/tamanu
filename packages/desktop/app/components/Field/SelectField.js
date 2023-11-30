@@ -11,6 +11,7 @@ import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -201,7 +202,7 @@ export const SelectInput = ({
           menuPosition="fixed"
           styles={customStyleObject || defaultStyles}
           menuShouldBlockScroll="true"
-          placeholder="Select"
+          placeholder=<TranslatedText stringId="general.action.select" fallback="Select" />
           isClearable={value !== '' && isClearable && !props.required && !disabled}
           isSearchable={false}
           tabIndex={inputProps.tabIndex}
