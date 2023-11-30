@@ -85,7 +85,7 @@ const VACCINE_FIELD_INJECTION_SITE_OPTIONS = [
   },
   {
     value: INJECTION_SITE_OPTIONS.OTHER,
-    label: <TranslatedText stringId="vaccine.property.injectionSite.Other" fallback="Other" />,
+    label: <TranslatedText stringId="vaccine.property.injectionSite.other" fallback="Other" />,
   },
 ];
 
