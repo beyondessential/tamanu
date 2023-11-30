@@ -207,7 +207,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
       value: notGivenReason?.name || '-',
     },
     circumstance: {
-      label: <TranslatedText stringId="vaccine.form.circumstance.label" fallback="Cirumstance" />,
+      label: <TranslatedText stringId="vaccine.form.circumstance.label" fallback="Circumstance" />,
       value:
         vaccineCircumstances?.length > 0
           ? vaccineCircumstances?.map(circumstance => circumstance?.name)?.join(', ')
