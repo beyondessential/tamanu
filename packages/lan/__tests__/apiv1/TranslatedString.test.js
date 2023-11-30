@@ -7,10 +7,14 @@ const chance = new Chance();
 const LANGUAGE_CODES = {
   ENGLISH: 'en',
   KHMER: 'km',
+  FRENCH: 'fr',
+  SPANISH: 'es',
 };
 
 const LANGUAGE_NAMES = {
   [LANGUAGE_CODES.ENGLISH]: '🇬🇧 English',
+  [LANGUAGE_CODES.FRENCH]: '🇫🇷 Français',
+  [LANGUAGE_CODES.SPANISH]: '🇪🇸 Español',
   [LANGUAGE_CODES.KHMER]: '🇰🇭 ភាសាខ្មែរ',
 };
 
@@ -70,16 +74,16 @@ describe('TranslatedString', () => {
   });
   describe('/translation/:languageCode GET', () => {
     it('Should receive a dictionary of all translated text for selected language keyed by stringId', async () => {
-      const englishTranslations = await seedTranslationsForLanguage(LANGUAGE_CODES.ENGLISH);
-      const khmerTranslations = await seedTranslationsForLanguage(LANGUAGE_CODES.KHMER);
+      const frenchTranslations = await seedTranslationsForLanguage(LANGUAGE_CODES.FRENCH);
+      const spanishTranslations = await seedTranslationsForLanguage(LANGUAGE_CODES.SPANISH);
 
-      const englishResult = await app.get('/v1/translation/en');
-      expect(englishResult).toHaveSucceeded();
-      expect(englishResult.body).toEqual(englishTranslations);
+      const frenchResult = await app.get(`/v1/translation/${LANGUAGE_CODES.FRENCH}`);
+      expect(frenchResult).toHaveSucceeded();
+      expect(frenchResult.body).toEqual(frenchTranslations);
 
-      const khmerResult = await app.get('/v1/translation/km');
-      expect(khmerResult).toHaveSucceeded();
-      expect(khmerResult.body).toEqual(khmerTranslations);
+      const spanishResult = await app.get(`/v1/translation/${LANGUAGE_CODES.SPANISH}`);
+      expect(spanishResult).toHaveSucceeded();
+      expect(spanishResult.body).toEqual(spanishTranslations);
     });
   });
   describe('/ POST', () => {
