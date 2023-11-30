@@ -4,6 +4,7 @@ import { Box } from '@material-ui/core';
 
 import { Colors, SEX_VALUE_INDEX } from '../constants';
 import { DateDisplay } from '.';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const Card = styled(Box)`
   background: white;
@@ -54,13 +55,28 @@ const CardItem = ({ label, value, ...props }) => (
 export const PatientDetailsCard = ({ patient }) => (
   <Card mb={4}>
     <Column>
-      <CardItem label="Patient ID" value={patient?.displayId} />
-      <CardItem label="First name" value={patient?.firstName} />
-      <CardItem label="Last name" value={patient?.lastName} />
+      <CardItem
+        label={<TranslatedText stringId="general.form.patientId.label" fallback="Patient ID" />}
+        value={patient?.displayId}
+      />
+      <CardItem
+        label={<TranslatedText stringId="general.form.firstName.label" fallback="First name" />}
+        value={patient?.firstName}
+      />
+      <CardItem
+        label={<TranslatedText stringId="general.form.lastName.label" fallback="Last name" />}
+        value={patient?.lastName}
+      />
     </Column>
     <Column>
-      <CardItem label="DOB" value={<DateDisplay date={patient?.dateOfBirth} />} />
-      <CardItem label="Sex" value={SEX_VALUE_INDEX[patient?.sex]?.label} />
+      <CardItem
+        label={<TranslatedText stringId="general.form.dateOfBirth.label" fallback="DOB" />}
+        value={<DateDisplay date={patient?.dateOfBirth} />}
+      />
+      <CardItem
+        label={<TranslatedText stringId="general.form.sex.label" fallback="Sex" />}
+        value={SEX_VALUE_INDEX[patient?.sex]?.label}
+      />
     </Column>
   </Card>
 );
