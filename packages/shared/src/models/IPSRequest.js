@@ -10,6 +10,7 @@ export class IPSRequest extends Model {
         createdBy: Sequelize.STRING,
         email: Sequelize.STRING,
         status: Sequelize.STRING,
+        error: Sequelize.TEXT,
       },
       {
         ...options,
