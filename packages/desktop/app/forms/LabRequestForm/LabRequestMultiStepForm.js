@@ -11,6 +11,7 @@ import { LabRequestFormScreen1 } from './LabRequestFormScreen1';
 import { LabRequestFormScreen2, screen2ValidationSchema } from './LabRequestFormScreen2';
 import { LabRequestFormScreen3 } from './LabRequestFormScreen3';
 import { useLocalisedText } from '../../components';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 export const LabRequestMultiStepForm = ({
   isSubmitting,
@@ -69,7 +70,9 @@ export const LabRequestMultiStepForm = ({
           }}
         />
       </FormStep>
-      <FormStep submitButtonText="Finalise">
+      <FormStep
+        submitButtonText={<TranslatedText stringId="general.action.finalise" fallback="finalise" />}
+      >
         <LabRequestFormScreen3
           practitionerSuggester={practitionerSuggester}
           specimenTypeSuggester={specimenTypeSuggester}

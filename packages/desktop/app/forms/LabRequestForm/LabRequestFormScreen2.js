@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { Field, TextField } from '../../components';
 import { TestSelectorField } from '../../views/labRequest/TestSelector';
 import { BodyText, Heading3 } from '../../components/Typography';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const StyledBodyText = styled(BodyText)`
   margin-bottom: 28px;
@@ -38,17 +39,41 @@ export const screen2ValidationSchema = yup.object().shape({
 
 export const FORM_TYPE_TO_FIELD_CONFIG = {
   [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: {
-    subheading: 'Select tests',
-    instructions:
-      'Please select the test or tests you would like to request below and add any relevant notes. \nYou can filter test by category using the field below.',
+    subheading: (
+      <TranslatedText stringId="labs.modal.new.form.test.select" fallback="Select tests" />
+    ),
+    instructions: (
+      <>
+        <TranslatedText
+          stringId="labs.modal.new.form.test.instructions1"
+          fallback="Please select the test or tests you would like to request below and add any relevant notes."
+        />
+        {'\n'}
+        <TranslatedText
+          stringId="labs.modal.new.form.test.instructions2"
+          fallback="You can filter test by category using the field below."
+        />
+      </>
+    ),
     selectableName: 'test',
     fieldName: 'labTestTypeIds',
   },
   [LAB_REQUEST_FORM_TYPES.PANEL]: {
-    subheading: 'Select panel',
-    instructions:
-      'Please select the panel or panels you would like to request below and add any relevant notes.',
-    label: 'Select the test panel or panels',
+    subheading: (
+      <TranslatedText stringId="labs.modal.new.form.panel.select" fallback="Select panel" />
+    ),
+    instructions: (
+      <TranslatedText
+        stringId="labs.modal.new.form.panel.instruction"
+        fallback="Please select the panel or panels you would like to request below and add any relevant notes."
+      />
+    ),
+    label: (
+      <TranslatedText
+        stringId="labs.modal.new.form.panel.label"
+        fallback="Select the test panel or panels"
+      />
+    ),
     selectableName: 'panel',
     searchFieldPlaceholder: 'Search panel or category',
     fieldName: 'panelIds',
@@ -97,7 +122,13 @@ export const LabRequestFormScreen2 = props => {
         />
       </div>
       <div style={{ gridColumn: '1 / -1' }}>
-        <Field name="notes" label="Notes" component={TextField} multiline rows={3} />
+        <Field
+          name="notes"
+          label=<TranslatedText stringId="labs.modal.new.form.notes" fallback="Notes" />
+          component={TextField}
+          multiline
+          rows={3}
+        />
       </div>
     </>
   );

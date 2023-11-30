@@ -11,6 +11,7 @@ import { SearchField, SuggesterSelectField } from '../../components/Field';
 import { TextButton } from '../../components/Button';
 import { BodyText } from '../../components/Typography';
 import { SelectableTestItem, TestItem } from './TestItem';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const SELECTABLE_DATA_ENDPOINTS = {
   [LAB_REQUEST_FORM_TYPES.PANEL]: 'labTestPanel',
@@ -157,7 +158,7 @@ export const TestSelectorInput = ({
   const {
     selectableName,
     label = labelConfig.subheading,
-    searchFieldPlaceholder = 'Search',
+    searchFieldPlaceholder = <TranslatedText stringId="general.action.search" fallback="Search" />,
   } = labelConfig;
   const [searchQuery, setSearchQuery] = useState({
     labTestCategoryId: '',
@@ -212,7 +213,12 @@ export const TestSelectorInput = ({
                   onChange: handleChangeSearchQuery,
                 }}
                 initialOptions={[{ label: 'All', value: '' }]}
-                label="Test category"
+                label={
+                  <TranslatedText
+                    stringId="labs.modal.new.form.testCategory"
+                    fallback="Test category"
+                  />
+                }
                 endpoint="labTestCategory"
                 name="labTestCategoryId"
               />

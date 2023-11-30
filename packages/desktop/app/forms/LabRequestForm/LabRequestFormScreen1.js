@@ -40,7 +40,7 @@ export const LabRequestFormScreen1 = ({
         name="requestedById"
         label={
           <TranslatedText
-            stringId="labs.modal.new.form.screen1.requestingClinician.label"
+            stringId="labs.modal.new.form.requestingClinician.label"
             fallback="Requesting :clinician"
             replacements={{ clinician: clinicianText.toLowerCase() }}
           />
@@ -52,7 +52,7 @@ export const LabRequestFormScreen1 = ({
       <Field
         name="requestedDate"
         label=<TranslatedText
-          stringId="labs.modal.new.form.screen1.requestDateTime.label"
+          stringId="labs.modal.new.form.requestDateTime.label"
           fallback="Request date & time"
         />
         required
@@ -62,7 +62,7 @@ export const LabRequestFormScreen1 = ({
       <Field
         name="departmentId"
         label=<TranslatedText
-          stringId="labs.modal.new.form.screen1.department.label"
+          stringId="labs.modal.new.form.department.label"
           fallback="Department"
         />
         component={AutocompleteField}
@@ -70,10 +70,7 @@ export const LabRequestFormScreen1 = ({
       />
       <Field
         name="labTestPriorityId"
-        label=<TranslatedText
-          stringId="labs.modal.new.form.screen1.priority.label"
-          fallback="Priority"
-        />
+        label=<TranslatedText stringId="labs.modal.new.form.priority.label" fallback="Priority" />
         component={SuggesterSelectField}
         endpoint="labTestPriority"
       />

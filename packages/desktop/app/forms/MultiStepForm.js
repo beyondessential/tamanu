@@ -72,7 +72,9 @@ export const MultiStepForm = ({ children, initialValues, onSubmit, onCancel, onC
             <FormSeparatorLine />
             <ButtonRow>
               {stepNumber > 0 && (
-                <StyledBackButton onClick={() => previous(props.values)}>Back</StyledBackButton>
+                <StyledBackButton onClick={() => previous(props.values)}>
+                  <TranslatedText stringId="general.action.back" fallback="Back" />
+                </StyledBackButton>
               )}
               <FormSubmitCancelRow
                 confirmText={
