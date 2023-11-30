@@ -241,7 +241,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
           <ContentLabel>
             <TranslatedText
               stringId="patient.encounterSummary.currentAdmission"
-              fallback="Current Admission"
+              fallback="Current admission"
             />
             :
           </ContentLabel>
@@ -250,12 +250,19 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
         <ContentItem>
           <ContentLabel>
             <TranslatedText
-              stringId="patient.encounterSummary.supervising"
-              fallback="Supervising"
+              stringId="general.form.supervisingClinician.label"
+              fallback="Supervising :clinician"
+              replacements={{
+                clinician: (
+                  <LowerCase>
+                    <TranslatedText
+                      stringId="general.localisedField.clinician.label.short"
+                      fallback="Clinician"
+                    />
+                  </LowerCase>
+                ),
+              }}
             />
-            <LowerCase>
-              <TranslatedText stringId="patient.encounterSummary.clinician" fallback="Clinician" />
-            </LowerCase>
           </ContentLabel>
           <ContentText>{examiner?.displayName || '-'}</ContentText>
         </ContentItem>

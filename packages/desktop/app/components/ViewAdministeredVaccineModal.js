@@ -11,6 +11,7 @@ import { TranslatedText } from './Translation/TranslatedText';
 
 import { DateDisplay } from './DateDisplay';
 import { Modal } from './Modal';
+import { LowerCase } from './Typography';
 
 const Container = styled.div`
   display: flex;
@@ -172,8 +173,18 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     supervisingClinician: {
       label: (
         <TranslatedText
-          stringId="vaccine.form.supervisingClinician.label"
-          fallback="Supervising clinician"
+          stringId="general.form.supervisingClinician.label"
+          fallback="Supervising :clinician"
+          replacements={{
+            clinician: (
+              <LowerCase>
+                <TranslatedText
+                  stringId="general.localisedField.clinician.label.short"
+                  fallback="Clinician"
+                />
+              </LowerCase>
+            ),
+          }}
         />
       ),
       value: givenBy || '-',
