@@ -25,7 +25,7 @@ export const SupportCentreButton = ({supportCentreUrl} : SupportCentreButtonProp
         </StyledText>
         <LaunchIcon
           size={screenPercentageToDP('1.57', Orientation.Height)}
-          color={theme.colors.WHITE}
+          fill={theme.colors.WHITE}
           style={{ marginLeft: screenPercentageToDP('0.72', Orientation.Width) }}
         />
       </RowView>
