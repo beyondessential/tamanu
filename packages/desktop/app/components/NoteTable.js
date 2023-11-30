@@ -183,13 +183,17 @@ const NoteContent = ({
                   {line}
                   {contentIsClipped && !contentIsExpanded && isVisible && hiddenHeight >= -1 && (
                     <ReadMoreSpan $bottom={hiddenHeight} onClick={handleReadMore}>
-                      ...read more
+                      ...
+                      <TranslatedText stringId="notes.table.item.readMore" fallback="read more" />
                     </ReadMoreSpan>
                   )}
                   {'\n'}
                 </span>
                 {contentIsExpanded && i === length - 1 && (
-                  <ShowLessSpan onClick={handleReadLess}> Show less</ShowLessSpan>
+                  <ShowLessSpan onClick={handleReadLess}>
+                    {' '}
+                    <TranslatedText stringId="notes.table.item.showLess" fallback="Show less" />
+                  </ShowLessSpan>
                 )}
               </>
             );
