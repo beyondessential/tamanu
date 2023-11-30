@@ -299,15 +299,7 @@ class TableComponent extends React.Component {
   };
 
   renderHeaders() {
-    const {
-      columns,
-      order,
-      orderBy,
-      onChangeOrderBy,
-      getLocalisation,
-      titleData,
-      headerOnChange,
-    } = this.props;
+    const { columns, order, orderBy, onChangeOrderBy, titleData, headerOnChange } = this.props;
     const getContent = ({ key, sortable, title, titleAccessor, tooltip, TitleCellComponent }) => {
       const onChange = headerOnChange ? event => headerOnChange(event, key) : null;
       const displayTitle = titleAccessor
@@ -325,10 +317,10 @@ class TableComponent extends React.Component {
           onClick={() => onChangeOrderBy(key)}
           IconComponent={orderBy === key ? ActiveSortIcon : InactiveSortIcon}
         >
-          {title || getLocalisation(`fields.${key}.shortLabel`) || key}
+          {title || key}
         </TableSortLabel>
       ) : (
-        <span>{displayTitle || getLocalisation(`fields.${key}.shortLabel`) || key}</span>
+        <span>{displayTitle || key}</span>
       );
 
       const headerElement = titleCellComponent || defaultHeaderElement;
@@ -577,7 +569,6 @@ export const Table = React.forwardRef(
         columns={columns}
         data={data}
         exportname={exportName}
-        getLocalisation={getLocalisation}
         tableRef={ref}
         {...props}
       />

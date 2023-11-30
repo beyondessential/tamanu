@@ -11,6 +11,9 @@ const SyncedCell = React.memo(({ value }) => (value === true ? <CloudDownload />
 
 export const markedForSync = {
   key: 'markedForSync',
+  title: (
+    <TranslatedText stringId="general.localisedField.markedForSync.label.short" fallback="Sync" />
+  ),
   minWidth: 26,
   CellComponent: SyncedCell,
   sortable: false,
@@ -48,6 +51,7 @@ export const culturalName = {
 
 export const sex = {
   key: 'sex',
+  title: <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />,
   minWidth: 80,
   CellComponent: SexCell,
   sortable: false,
@@ -55,18 +59,25 @@ export const sex = {
 
 export const dateOfBirth = {
   key: 'dateOfBirth',
+  title: (
+    <TranslatedText stringId="general.localisedField.dateOfBirth.label.short" fallback="DOB" />
+  ),
   minWidth: 100,
   CellComponent: DateCell,
 };
 
 export const dateOfDeath = {
   key: 'dateOfDeath',
+  title: (
+    <TranslatedText stringId="general.localisedField.dateOfDeath.label.short" fallback="Death" />
+  ),
   minWidth: 100,
   CellComponent: DateCell,
 };
 
 export const village = {
   key: 'villageName',
+  title: <TranslatedText stringId="general.localisedField.villageName.label" fallback="Village" />,
   minWidth: 100,
   accessor: row => row?.villageName || null,
 };
