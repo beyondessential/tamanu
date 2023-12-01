@@ -258,7 +258,7 @@ const NoteTable = ({
         note.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
           <TranslatedText
             stringId="note.modal.updateTreatmentPlan.title"
-            fallback="Update Treatment Plan"
+            fallback="Update treatment plan"
           />
         ) : (
           <TranslatedText stringId="note.modal.edit.title" fallback="Edit note" />
