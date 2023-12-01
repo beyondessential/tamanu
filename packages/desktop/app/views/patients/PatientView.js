@@ -38,31 +38,31 @@ const StyledDisplayTabs = styled(TabDisplay)`
 
 const TABS = [
   {
-    label: <TranslatedText stringId="patient.tabs.history" fallback="History" />,
+    label: <TranslatedText stringId="patienthistory" fallback="History" />,
     key: PATIENT_TABS.HISTORY,
     icon: 'fa fa-calendar-day',
     render: props => <HistoryPane {...props} />,
   },
   {
-    label: <TranslatedText stringId="patient.tabs.details" fallback="Details" />,
+    label: <TranslatedText stringId="patient.tab.details" fallback="Details" />,
     key: PATIENT_TABS.DETAILS,
     icon: 'fa fa-info-circle',
     render: props => <PatientDetailsPane {...props} />,
   },
   {
-    label: <TranslatedText stringId="patient.tabs.results" fallback="Results" />,
+    label: <TranslatedText stringId="patient.tab.results" fallback="Results" />,
     key: PATIENT_TABS.RESULTS,
     icon: 'fa fa-file-alt',
     render: props => <PatientResultsPane {...props} />,
   },
   {
-    label: <TranslatedText stringId="patient.tabs.referrals" fallback="Referrals" />,
+    label: <TranslatedText stringId="patient.tab.referrals" fallback="Referrals" />,
     key: PATIENT_TABS.REFERRALS,
     icon: 'fa fa-hospital',
     render: props => <ReferralPane {...props} />,
   },
   {
-    label: <TranslatedText stringId="patient.tabs.forms" fallback="Forms" />,
+    label: <TranslatedText stringId="patient.tab.forms" fallback="Forms" />,
     key: PATIENT_TABS.PROGRAMS,
     icon: 'fa fa-hospital',
     render: ({ patient, ...props }) => (
@@ -70,25 +70,25 @@ const TABS = [
     ),
   },
   {
-    label: <TranslatedText stringId="patient.tabs.documents" fallback="Documents" />,
+    label: <TranslatedText stringId="patient.tab.documents" fallback="Documents" />,
     key: PATIENT_TABS.DOCUMENTS,
     icon: 'fa fa-file-medical-alt',
     render: props => <DocumentsPane {...props} />,
   },
   {
-    label: <TranslatedText stringId="patient.tabs.vaccines" fallback="Vaccines" />,
+    label: <TranslatedText stringId="patient.tab.vaccines" fallback="Vaccines" />,
     key: PATIENT_TABS.VACCINES,
     icon: 'fa fa-syringe',
     render: props => <VaccinesPane {...props} />,
   },
   {
-    label: <TranslatedText stringId="patient.tabs.medication" fallback="Medication" />,
+    label: <TranslatedText stringId="patient.tab.medication" fallback="Medication" />,
     key: PATIENT_TABS.MEDICATION,
     icon: 'fa fa-medkit',
     render: props => <PatientMedicationPane {...props} />,
   },
   {
-    label: <TranslatedText stringId="patient.tabs.invoices" fallback="Invoices" />,
+    label: <TranslatedText stringId="patient.tab.invoices" fallback="Invoices" />,
     key: PATIENT_TABS.INVOICES,
     icon: 'fa fa-cash-register',
     render: props => <InvoicesPane {...props} />,
