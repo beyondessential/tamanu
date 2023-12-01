@@ -25,6 +25,11 @@ interface SignInFormModelValues {
   server: string;
 }
 
+const USER_DEACTIVATED_ERROR_MESSAGE = 'Account deactivated';
+
+const USER_DEACTIVATED_DISPLAY_MESSAGE =
+  'User account deactivated. Please contact your system administrator if assistance is required.';
+
 const REQUIRED_VALIDATION_MESSAGE = '*Required';
 
 const ServerInfo = __DEV__
@@ -39,12 +44,12 @@ const ServerInfo = __DEV__
     }
   : (): ReactElement => null; // hide info on production
 
-export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
+export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess, setErrorLabel }) => {
   const [existingHost, setExistingHost] = useState('');
   const passwordRef = useRef(null);
   const authCtx = useAuth();
   const signIn = useCallback(
-    async (values: SignInFormModelValues) => {
+    async (values: SignInFormModelValues, setFieldError) => {
       try {
         if (!existingHost && !values.server) {
           // TODO it would be better to properly respond to form validation and show the error
@@ -55,6 +60,13 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
 
         onSuccess();
       } catch (error) {
+        const { remoteError } = error;
+        if (remoteError?.message === USER_DEACTIVATED_ERROR_MESSAGE) {
+          setFieldError('email', `*${remoteError?.message}`);
+          setErrorLabel(USER_DEACTIVATED_DISPLAY_MESSAGE);
+        } else {
+          setErrorLabel('');
+        }
         onError(error);
       }
     },
@@ -85,7 +97,9 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
         password: Yup.string().required(REQUIRED_VALIDATION_MESSAGE),
         server: existingHost ? Yup.string() : Yup.string().required(REQUIRED_VALIDATION_MESSAGE),
       })}
-      onSubmit={signIn}
+      onSubmit={(values, { setFieldError }) => {
+        return signIn(values, setFieldError);
+      }}
     >
       {({ handleSubmit, isSubmitting }): ReactElement => (
         <StyledView

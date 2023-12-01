@@ -35,6 +35,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalContent, setModalContent] = useState<ModalContent>({ message: '' });
+  const [errorLabel, setErrorLabel] = useState('');
 
   const onNavigateToForgotPassword = useCallback(() => {
     console.log('onNavigateToForgotPassword...');
@@ -107,7 +108,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
               Log In
             </StyledText>
             <StyledText fontSize={14} color={theme.colors.WHITE}>
-              Enter your details below to log in
+              {errorLabel || 'Enter your details below to log in'}
             </StyledText>
           </StyledView>
           <SignInForm
@@ -122,6 +123,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
                 showErrorModal({ message: error.message });
               }
             }}
+            setErrorLabel={setErrorLabel}
             onSuccess={(): void => {
               if (!facilityId) {
                 navigation.navigate(Routes.SignUpStack.SelectFacility);
@@ -150,16 +152,16 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
         </KeyboardAvoidingView>
       </StyledSafeAreaView>
       <StyledView
-          flexDirection="row"
-          justifyContent="flex-end"
-          position='absolute'
-          bottom={screenPercentageToDP(2.43, Orientation.Height)}
-          right={screenPercentageToDP(2.43, Orientation.Width)}
-          paddingLeft={screenPercentageToDP(2.43, Orientation.Width)}
-          paddingRight={screenPercentageToDP(2.43, Orientation.Width)}
-        >
-          {isSupportUrlLoaded && <SupportCentreButton supportCentreUrl={supportCentreUrl} />}
-        </StyledView>
+        flexDirection="row"
+        justifyContent="flex-end"
+        position="absolute"
+        bottom={screenPercentageToDP(2.43, Orientation.Height)}
+        right={screenPercentageToDP(2.43, Orientation.Width)}
+        paddingLeft={screenPercentageToDP(2.43, Orientation.Width)}
+        paddingRight={screenPercentageToDP(2.43, Orientation.Width)}
+      >
+        {isSupportUrlLoaded && <SupportCentreButton supportCentreUrl={supportCentreUrl} />}
+      </StyledView>
     </FullView>
   );
 };
