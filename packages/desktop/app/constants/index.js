@@ -167,7 +167,7 @@ export const nonEmergencyDiagnosisCertaintyOptions = diagnosisCertaintyOptions.f
 export const noteTypes = [
   {
     value: NOTE_TYPES.TREATMENT_PLAN,
-    label: <TranslatedText stringId="note.property.type.treatmentPlan" fallback="Treatment Plan" />,
+    label: <TranslatedText stringId="note.property.type.treatmentPlan" fallback="Treatment plan" />,
   },
   {
     value: NOTE_TYPES.ADMISSION,
