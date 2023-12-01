@@ -124,6 +124,19 @@ const getIndividualNotePermissionCheck = (ability, currentUser, note) => {
   return ability?.can('write', NOTE_PERMISSION_TYPES.OTHER_PRACTITIONER_ENCOUNTER_NOTE);
 };
 
+const rowStyle = () =>
+  `.MuiTableCell-root{
+    border-bottom: 1px solid ${Colors.outline};
+
+    &:first-child {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+
+  padding-left: 20px;
+  padding-right: 20px;`;
+
 const NoteContent = ({
   note,
   hasEncounterNoteWritePermission,
@@ -355,6 +368,7 @@ const NoteTable = ({
             )}
           </NoDataMessage>
         }
+        rowStyle={rowStyle}
       />
     </>
   );
