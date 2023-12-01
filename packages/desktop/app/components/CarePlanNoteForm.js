@@ -58,7 +58,7 @@ export function CarePlanNoteForm({
               label={
                 <TranslatedText
                   stringId="carePlan.form.noteOnBehalfOf.label"
-                  fallback="On Behalf of"
+                  fallback="On behalf of"
                 />
               }
               component={AutocompleteField}
