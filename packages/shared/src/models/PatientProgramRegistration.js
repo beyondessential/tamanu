@@ -113,8 +113,8 @@ export class PatientProgramRegistration extends Model {
       patientId,
       programRegistryId,
       ...(existingRegistration ?? {}),
-      ...restOfUpdates,
       date: getCurrentDateTimeString(),
+      ...restOfUpdates,
     });
   }
 
