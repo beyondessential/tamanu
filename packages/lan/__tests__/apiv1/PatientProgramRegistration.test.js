@@ -398,7 +398,7 @@ describe('PatientProgramRegistration', () => {
         const programRegistryCondition = await models.ProgramRegistryCondition.create(
           fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry1.id }),
         );
-        await models.PatientProgramRegistrationCondition.create(
+        const createdCondition = await models.PatientProgramRegistrationCondition.create(
           fake(models.PatientProgramRegistrationCondition, {
             patientId: patient.id,
             programRegistryId: programRegistry1.id,
@@ -407,7 +407,7 @@ describe('PatientProgramRegistration', () => {
         );
         const result = await app
           .delete(
-            `/v1/patient/${patient.id}/programRegistration/${programRegistry1.id}/condition/${programRegistryCondition.id}`,
+            `/v1/patient/${patient.id}/programRegistration/${programRegistry1.id}/condition/${createdCondition.id}`,
           )
           .send({
             programRegistryConditionId: programRegistryCondition.id,
