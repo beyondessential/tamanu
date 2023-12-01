@@ -97,7 +97,7 @@ export const NoteModal = ({
         customContent={
           <p>
             <TranslatedText
-              stringId="note.modal.delete.subtext"
+              stringId="note.modal.delete.confirmText"
               fallback="Are you sure you want to remove any changes you have made?"
             />
           </p>
