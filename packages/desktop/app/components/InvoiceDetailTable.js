@@ -20,6 +20,7 @@ import { InvoicePriceChangeItemModal } from './InvoicePriceChangeItemModal';
 import { ConfirmModal } from './ConfirmModal';
 import { DropdownButton } from './DropdownButton';
 import { DateDisplay } from './DateDisplay';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const InvoiceLineDetail = styled.p`
   font-size: 15px;
@@ -40,11 +41,11 @@ const InvoiceLineActionDropdown = React.memo(({ row }) => {
 
   const actions = [
     {
-      label: 'Edit',
+      label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
       onClick: () => setInvoiceLineModalOpen(true),
     },
     {
-      label: 'Delete',
+      label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
       onClick: () => setDeleteInvoiceLineModalOpen(true),
     },
   ];
@@ -52,8 +53,8 @@ const InvoiceLineActionDropdown = React.memo(({ row }) => {
   return (
     <>
       <InvoiceLineItemModal
-        title="Edit item"
-        actionText="Save"
+        title={<TranslatedText stringId="invoice.modal.edit.title" fallback="Edit item" />}
+        actionText={<TranslatedText stringId="general.action.save" fallback="Save" />}
         open={invoiceLineModalOpen}
         invoiceId={row.invoiceId}
         invoiceLineItem={row}
@@ -64,10 +65,25 @@ const InvoiceLineActionDropdown = React.memo(({ row }) => {
         }}
       />
       <ConfirmModal
-        title="Delete invoice line item"
-        text="Are you sure you want to delete this invoice line item?"
-        subText="You will not be able to revert this action."
-        confirmButtonText="Delete"
+        title={
+          <TranslatedText
+            stringId="invoice.modal.delete.title"
+            fallback="Delete invoice line item"
+          />
+        }
+        text={
+          <TranslatedText
+            stringId="invoice.modal.delete.text"
+            fallback="Are you sure you want to delete this invoice line item?"
+          />
+        }
+        subText={
+          <TranslatedText
+            stringId="invoice.modal.delete.subText"
+            fallback="You will not be able to revert this action."
+          />
+        }
+        confirmButtonText={<TranslatedText stringId="general.action.delete" fallback="Delete" />}
         ConfirmButton={DeleteButton}
         open={deleteInvoiceLineModalOpen}
         onCancel={() => setDeleteInvoiceLineModalOpen(false)}
@@ -90,11 +106,11 @@ const InvoicePriceChangeActionDropdown = React.memo(({ row }) => {
 
   const actions = [
     {
-      label: 'Edit',
+      label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
       onClick: () => setInvoicePriceChangeModalOpen(true),
     },
     {
-      label: 'Delete',
+      label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
       onClick: () => setDeletePercentageChangeModalOpen(true),
     },
   ];
@@ -207,7 +223,7 @@ const getInvoiceInlinePrice = row => {
 };
 const INVOICE_LINE_ACTION_COLUMN = {
   key: 'actions',
-  title: 'Actions',
+  title: <TranslatedText stringId="general.table.column.actions" fallback="Actions" />,
   sortable: false,
   accessor: row => <InvoiceLineActionDropdown row={row} />,
   dontCallRowInput: true,
@@ -215,36 +231,51 @@ const INVOICE_LINE_ACTION_COLUMN = {
 const INVOICE_LINE_COLUMNS = [
   {
     key: 'dateGenerated',
-    title: 'Date',
+    title: <TranslatedText stringId="general.table.column.date" fallback="Date" />,
     sortable: false,
     accessor: ({ dateGenerated }) => <DateDisplay date={dateGenerated} />,
   },
-  { key: 'code', title: 'Code', sortable: false, accessor: getInvoiceLineCode },
+  {
+    key: 'code',
+    title: <TranslatedText stringId="invoice.table.column.code" fallback="Code" />,
+    sortable: false,
+    accessor: getInvoiceLineCode,
+  },
   {
     key: 'category',
-    title: 'Category/ Details',
+    title: <TranslatedText stringId="invoice.table.column.category" fallback="Category/ Details" />,
     sortable: false,
     accessor: getInvoiceLineCategory,
   },
-  { key: 'orderedBy', title: 'Ordered by', sortable: false, accessor: getDisplayName },
+  {
+    key: 'orderedBy',
+    title: <TranslatedText stringId="invoice.table.column.orderedBy" fallback="Ordered by" />,
+    sortable: false,
+    accessor: getDisplayName,
+  },
   {
     key: 'originalPrice',
-    title: 'Unit price',
+    title: <TranslatedText stringId="invoice.table.column.unitPrice" fallback="Unit price" />,
     sortable: false,
     accessor: row => `$${row.invoiceLineType.price}`,
   },
   {
     key: 'percentageChange',
-    title: '% (-/+)',
+    title: <TranslatedText stringId="invoice.table.column.percentChange" fallback="% (-/+)" />,
     sortable: false,
     accessor: getPercentageChange,
   },
-  { key: 'price', title: 'Total', sortable: false, accessor: getInvoiceInlinePrice },
+  {
+    key: 'price',
+    title: <TranslatedText stringId="invoice.table.column.totalPrice" fallback="Total" />,
+    sortable: false,
+    accessor: getInvoiceInlinePrice,
+  },
 ];
 
 const INVOICE_PRICE_CHANGE_ACTION_COLUMN = {
   key: 'actions',
-  title: 'Actions',
+  title: <TranslatedText stringId="general.table.column.actions" fallback="Actions" />,
   sortable: false,
   accessor: row => <InvoicePriceChangeActionDropdown row={row} />,
   dontCallRowInput: true,
@@ -252,22 +283,37 @@ const INVOICE_PRICE_CHANGE_ACTION_COLUMN = {
 const INVOICE_PRICE_CHANGE_COLUMNS = [
   {
     key: 'date',
-    title: 'Date',
+    title: <TranslatedText stringId="general.table.column.date" fallback="Date" />,
     sortable: false,
     accessor: ({ date }) => (date ? <DateDisplay date={date} /> : ''),
   },
-  { key: 'code', title: 'Code', sortable: false, accessor: getInvoicePriceChangeCode },
+  {
+    key: 'code',
+    title: <TranslatedText stringId="invoice.table.column.code" fallback="Code" />,
+    sortable: false,
+    accessor: getInvoicePriceChangeCode,
+  },
   {
     key: 'category',
-    title: 'Category/ Details',
+    title: <TranslatedText stringId="invoice.table.column.category" fallback="Category/ Details" />,
     sortable: false,
     accessor: getInvoicePriceChangeCategory,
   },
-  { key: 'orderedBy', title: 'Ordered by', sortable: false, accessor: getDisplayName },
-  { key: 'originalPrice', title: 'Unit price', sortable: false, accessor: () => '' },
+  {
+    key: 'orderedBy',
+    title: <TranslatedText stringId="invoice.table.column.orderedBy" fallback="Ordered by" />,
+    sortable: false,
+    accessor: getDisplayName,
+  },
+  {
+    key: 'originalPrice',
+    title: <TranslatedText stringId="invoice.table.column.unitPrice" fallback="Unit price" />,
+    sortable: false,
+    accessor: () => '',
+  },
   {
     key: 'percentageChange',
-    title: '% (-/+)',
+    title: <TranslatedText stringId="invoice.table.column.percentChange" fallback="% (-/+)" />,
     sortable: false,
     accessor: getPercentageChange,
   },
@@ -316,7 +362,7 @@ export const InvoiceDetailTable = React.memo(({ invoice }) => {
           ...INVOICE_PRICE_CHANGE_COLUMNS,
           {
             key: 'price',
-            title: 'Total',
+            title: <TranslatedText stringId="invoice.table.column.totalPrice" fallback="Total" />,
             sortable: false,
             accessor: ({ percentageChange }) => {
               const priceChange = (percentageChange || 0) * invoiceLinesTotal;
