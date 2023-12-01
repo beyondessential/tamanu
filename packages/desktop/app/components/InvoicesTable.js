@@ -15,6 +15,7 @@ import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { OutlinedButton } from './Button';
 import { InvoiceDetailModal } from './InvoiceDetailModal';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const StatusLabel = styled.div`
   background: ${p => p.color};
@@ -71,25 +72,62 @@ const getPaymentStatus = row => INVOICE_PAYMENT_STATUS_LABELS[row.paymentStatus]
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
 
 const COLUMNS = [
-  { key: 'date', title: 'Invoice date', accessor: getDate },
-  { key: 'displayId', title: 'Invoice number' },
-  { key: 'receiptNumber', title: 'Receipt number' },
+  {
+    key: 'date',
+    title: <TranslatedText stringId="invoices.table.column.invoiceDate" fallback="Invoice date" />,
+    accessor: getDate,
+  },
+  {
+    key: 'displayId',
+    title: (
+      <TranslatedText stringId="invoices.table.column.invoiceNumber" fallback="Invoice number" />
+    ),
+  },
+  {
+    key: 'receiptNumber',
+    title: (
+      <TranslatedText stringId="invoices.table.column.receiptNumber" fallback="Receipt number" />
+    ),
+  },
   {
     key: 'encounterType',
-    title: 'Admission type',
+    title: (
+      <TranslatedText stringId="invoices.table.column.admissionType" fallback="Admission type" />
+    ),
     accessor: row => ENCOUNTER_OPTIONS_BY_VALUE[row.encounter.encounterType].label,
   },
-  { key: 'total', title: 'Total', accessor: getInvoiceTotal, sortable: false },
-  { key: 'status', title: 'Status', accessor: getStatus },
-  { key: 'paymentStatus', title: 'Payment status', accessor: getPaymentStatus },
-  { key: 'view', title: 'Actions', accessor: getViewButton },
+  {
+    key: 'total',
+    title: <TranslatedText stringId="invoices.table.column.total" fallback="Total" />,
+    accessor: getInvoiceTotal,
+    sortable: false,
+  },
+  {
+    key: 'status',
+    title: <TranslatedText stringId="invoices.table.column.status" fallback="Status" />,
+    accessor: getStatus,
+  },
+  {
+    key: 'paymentStatus',
+    title: (
+      <TranslatedText stringId="invoices.table.column.paymentStatus" fallback="Payment status" />
+    ),
+    accessor: getPaymentStatus,
+  },
+  {
+    key: 'view',
+    title: <TranslatedText stringId="general.table.column.actions" fallback="Actions" />,
+    accessor: getViewButton,
+  },
 ];
 
 export const InvoicesTable = React.memo(({ patient, searchParameters }) => (
   <DataFetchingTable
     endpoint={`patient/${patient.id}/invoices`}
     columns={COLUMNS}
-    noDataMessage="No invoices found"
+    noDataMessage={
+      <TranslatedText stringId="invoices.table.noDataMessage" fallback="No invoices found" />
+    }
     fetchOptions={searchParameters}
     allowExport={false}
   />
