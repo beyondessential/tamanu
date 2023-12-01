@@ -28,18 +28,21 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
   return (
     <TabPane>
       <NoteModal
-        title=<TranslatedText stringId="notes.modal.create.title" fallback="New note" />
+        title=<TranslatedText stringId="note.modal.create.title" fallback="New note" />
         open={modalOpen}
         encounterId={encounter.id}
         onClose={() => setModalOpen(false)}
         onSaved={noteModalOnSaved}
-        confirmText=<TranslatedText stringId="notes.action.add" fallback="Add note" />
+        confirmText=<TranslatedText stringId="note.action.add" fallback="Add note" />
         noteFormMode={NOTE_FORM_MODES.CREATE_NOTE}
       />
       <TableButtonRow variant="small" justifyContent="space-between">
         <StyledSelectInput
           options={[
-            { value: null, label: <TranslatedText stringId="note.types.all" fallback="All" /> },
+            {
+              value: null,
+              label: <TranslatedText stringId="note.property.type.all" fallback="All" />,
+            },
             ...noteTypes,
           ]}
           onChange={e => setNoteType(e.target.value)}
@@ -52,7 +55,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
           verb="create"
           noun="EncounterNote"
         >
-          <TranslatedText stringId="notes.modal.new" fallback="New note" />
+          <TranslatedText stringId="note.modal.new" fallback="New note" />
         </ButtonWithPermissionCheck>
       </TableButtonRow>
       <NoteTableWithPermission

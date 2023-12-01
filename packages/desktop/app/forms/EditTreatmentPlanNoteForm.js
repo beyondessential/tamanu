@@ -33,12 +33,12 @@ export const EditTreatmentPlanNoteForm = ({ note, onNoteContentChange, onSubmit,
         numberOfColumns={3}
         noteType={NOTE_TYPE_LABELS[note.noteType]}
         writtenByLabel=<TranslatedText
-          stringId="treatmentPlan.notes.form.lastUpdatedBy.label"
+          stringId="treatmentPlan.note.form.lastUpdatedBy.label"
           fallback="Last updated by (or on behalf of)"
         />
         writtenBy={writtenBy}
         dateLabel=<TranslatedText
-          stringId="treatmentPlan.notes.form.lastUpdatedAt.label"
+          stringId="treatmentPlan.note.form.lastUpdatedAt.label"
           fallback="Last updated at date & time"
         />
         date={note.date}
@@ -46,7 +46,7 @@ export const EditTreatmentPlanNoteForm = ({ note, onNoteContentChange, onSubmit,
       <StyledFormGrid columns={2}>
         <WrittenByField
           label=<TranslatedText
-            stringId="treatmentPlan.notes.form.updatedBy.label"
+            stringId="treatmentPlan.note.form.updatedBy.label"
             fallback="Updated by (or on behalf of)"
           />
           required
@@ -56,7 +56,7 @@ export const EditTreatmentPlanNoteForm = ({ note, onNoteContentChange, onSubmit,
 
       <NoteContentField
         label=<TranslatedText
-          stringId="treatmentPlan.notes.form.updateTreatmentPlan.label"
+          stringId="treatmentPlan.note.form.updateTreatmentPlan.label"
           fallback="Update treatment plan"
         />
         onChange={onNoteContentChange}

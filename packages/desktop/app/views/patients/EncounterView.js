@@ -44,7 +44,7 @@ const TABS = [
     ),
   },
   {
-    label: <TranslatedText stringId="encounter.tabs.notes" fallback="Notes" />,
+    label: <TranslatedText stringId="encounter.tab.note" fallback="Notes" />,
     key: ENCOUNTER_TAB_NAMES.NOTES,
     render: props => <NotesPane {...props} />,
   },

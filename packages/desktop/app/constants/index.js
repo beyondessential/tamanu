@@ -222,9 +222,7 @@ export const noteTypes = [
   },
   {
     value: NOTE_TYPES.SOCIAL,
-    label: (
-      <TranslatedText stringId="note.property.type.socialWellfare" fallback="Social welfare" />
-    ),
+    label: <TranslatedText stringId="note.property.type.socialWelfare" fallback="Social welfare" />,
   },
   {
     value: NOTE_TYPES.SURGICAL,

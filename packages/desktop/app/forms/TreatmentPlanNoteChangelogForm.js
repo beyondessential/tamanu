@@ -24,11 +24,11 @@ export const TreatmentPlanNoteChangelogForm = ({ note, onCancel }) => {
         noteType={NOTE_TYPE_LABELS[note.noteType]}
         date={note.date}
         dateLabel=<TranslatedText
-          stringId="notes.form.lastUpdatedAt.label"
+          stringId="note.form.lastUpdatedAt.label"
           fallback="Last updated at date & time"
         />
         writtenByLabel=<TranslatedText
-          stringId="notes.form.lastUpdatedBy.label"
+          stringId="note.form.lastUpdatedBy.label"
           fallback="Last updated by (or on behalf of)"
         />
         writtenBy={writtenBy}
@@ -37,7 +37,7 @@ export const TreatmentPlanNoteChangelogForm = ({ note, onCancel }) => {
       <NoteChangeLogs note={note} />
       <StyledDivider />
       <ConfirmCancelRow
-        confirmText=<TranslatedText stringId="general.actions.close" fallback="Close" />
+        confirmText=<TranslatedText stringId="general.action.close" fallback="Close" />
         onConfirm={onCancel}
       />
     </>

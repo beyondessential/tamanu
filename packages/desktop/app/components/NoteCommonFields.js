@@ -80,7 +80,7 @@ const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
 };
 export const WrittenByField = ({
   label = (
-    <TranslatedText stringId="notes.form.writtenBy.label" fallback="Written by (or on behalf of)" />
+    <TranslatedText stringId="note.form.writtenBy.label" fallback="Written by (or on behalf of)" />
   ),
   required,
   disabled,
@@ -105,7 +105,7 @@ export const NoteDateTimeField = ({ required, disabled }) => {
   return (
     <Field
       name="date"
-      label={<TranslatedText stringId="notes.form.dateTime.label" fallback="Date & time" />}
+      label={<TranslatedText stringId="note.form.dateTime.label" fallback="Date & time" />}
       component={DateTimeField}
       required={required}
       disabled={!getLocalisation('features.enableNoteBackdating') || disabled}
@@ -115,7 +115,7 @@ export const NoteDateTimeField = ({ required, disabled }) => {
 };
 
 export const NoteContentField = ({
-  label = <TranslatedText stringId="notes.form.edit.label" fallback="Edit note" />,
+  label = <TranslatedText stringId="note.form.edit.label" fallback="Edit note" />,
   onChange,
 }) => (
   <Field
@@ -146,7 +146,7 @@ export const NoteInfoSection = ({
     <InfoCardItem
       numberOfColumns={numberOfColumns}
       fontSize={14}
-      label=<TranslatedText stringId="notes.modal.noteType.label" fallback="Note type" />
+      label=<TranslatedText stringId="note.form.noteType.label" fallback="Note type" />
       value={noteType}
       borderHeight={50}
     />
@@ -172,7 +172,7 @@ export const NoteInfoSection = ({
 export const NoteTypeField = ({ required, noteTypeCountByType }) => (
   <Field
     name="noteType"
-    label={<TranslatedText stringId="notes.form.type.label" fallback="Type" />}
+    label={<TranslatedText stringId="note.form.type.label" fallback="Type" />}
     required={required}
     component={SelectField}
     options={getSelectableNoteTypes(noteTypeCountByType)}

@@ -184,7 +184,7 @@ const NoteContent = ({
                   {contentIsClipped && !contentIsExpanded && isVisible && hiddenHeight >= -1 && (
                     <ReadMoreSpan $bottom={hiddenHeight} onClick={handleReadMore}>
                       ...
-                      <TranslatedText stringId="notes.table.item.readMore" fallback="read more" />
+                      <TranslatedText stringId="note.table.item.readMore" fallback="read more" />
                     </ReadMoreSpan>
                   )}
                   {'\n'}
@@ -192,7 +192,7 @@ const NoteContent = ({
                 {contentIsExpanded && i === length - 1 && (
                   <ShowLessSpan onClick={handleReadLess}>
                     {' '}
-                    <TranslatedText stringId="notes.table.item.showLess" fallback="Show less" />
+                    <TranslatedText stringId="note.table.item.showLess" fallback="Show less" />
                   </ShowLessSpan>
                 )}
               </>
@@ -208,14 +208,14 @@ const NoteContent = ({
       <NoteFooterContainer>
         {showNoteMetaPrefix && (
           <NoteFooterTextElement>
-            <TranslatedText stringId="notes.table.footer.lastUpdated" fallback="Last updated" />:
+            <TranslatedText stringId="note.table.footer.lastUpdated" fallback="Last updated" />:
           </NoteFooterTextElement>
         )}
         {noteAuthorName ? <NoteFooterTextElement>{noteAuthorName}</NoteFooterTextElement> : null}
         {noteOnBehalfOfName && (
           <NoteFooterTextElement>
             <TranslatedText
-              stringId="notes.table.footer.onBehalfOf"
+              stringId="note.table.footer.onBehalfOf"
               fallback="on behalf of :noteOnBehalfOfName"
               replacements={{ noteOnBehalfOfName }}
             />
@@ -229,7 +229,7 @@ const NoteContent = ({
           <EditedButtonContainer onClick={() => handleViewNoteChangeLog(note)}>
             <span>(</span>
             <EditedButton>
-              <TranslatedText stringId="notes.table.footer.edited" fallback="edited" />
+              <TranslatedText stringId="note.table.footer.edited" fallback="edited" />
             </EditedButton>
             <span>)</span>
           </EditedButtonContainer>
@@ -257,11 +257,11 @@ const NoteTable = ({
       setModalTitle(
         note.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
           <TranslatedText
-            stringId="notes.modal.updateTreatmentPlan.title"
+            stringId="note.modal.updateTreatmentPlan.title"
             fallback="Update Treatment Plan"
           />
         ) : (
-          <TranslatedText stringId="notes.modal.edit.title" fallback="Edit note" />
+          <TranslatedText stringId="note.modal.edit.title" fallback="Edit note" />
         ),
       );
       setModalCancelText(<TranslatedText stringId="general.action.cancel" fallback="Cancel" />);
@@ -274,9 +274,7 @@ const NoteTable = ({
 
   const handleViewNoteChangeLog = useCallback(
     note => {
-      setModalTitle(
-        <TranslatedText stringId="notes.modal.changeLog.title" fallback="Change Log" />,
-      );
+      setModalTitle(<TranslatedText stringId="note.modal.changeLog.title" fallback="Change Log" />);
       setModalNoteFormMode(NOTE_FORM_MODES.VIEW_NOTE);
       setIsNoteModalOpen(true);
       setModalNote(note);
