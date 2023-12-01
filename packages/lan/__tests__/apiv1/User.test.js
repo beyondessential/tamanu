@@ -175,7 +175,7 @@ describe('User', () => {
             email: deactivatedUser.email,
             password: rawPassword,
           });
-          expect(result).toHaveRequestError();
+          expect(result).toBeForbidden();
         });
       });
     });
