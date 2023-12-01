@@ -55,7 +55,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
           verb="create"
           noun="EncounterNote"
         >
-          <TranslatedText stringId="note.modal.new" fallback="New note" />
+          <TranslatedText stringId="note.action.new" fallback="New note" />
         </ButtonWithPermissionCheck>
       </TableButtonRow>
       <NoteTableWithPermission
