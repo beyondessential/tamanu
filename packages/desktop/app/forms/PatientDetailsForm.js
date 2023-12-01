@@ -70,7 +70,7 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
     <>
       <StyledHeading>
         <TranslatedText
-          stringId="patient.details.subheading.general"
+          stringId="patient.detail.subheading.general"
           fallback="General information"
         />
       </StyledHeading>
@@ -176,7 +176,7 @@ export const SecondaryDetailsGroup = ({ values = {}, patientRegistryType, isEdit
         <>
           <StyledHeading>
             <TranslatedText
-              stringId="patient.details.subheading.birthDetails"
+              stringId="patient.detail.subheading.birthDetails"
               fallback="Birth details"
             />
           </StyledHeading>
@@ -191,7 +191,7 @@ export const SecondaryDetailsGroup = ({ values = {}, patientRegistryType, isEdit
 
       <StyledHeading>
         <TranslatedText
-          stringId="patient.details.subheading.identificationInformation"
+          stringId="patient.detail.subheading.identificationInformation"
           fallback="Identification information"
         />
       </StyledHeading>
@@ -205,7 +205,7 @@ export const SecondaryDetailsGroup = ({ values = {}, patientRegistryType, isEdit
 
       <StyledHeading>
         <TranslatedText
-          stringId="patient.details.subheading.contactInformation"
+          stringId="patient.detail.subheading.contactInformation"
           fallback="Contact information"
         />
       </StyledHeading>
@@ -215,7 +215,7 @@ export const SecondaryDetailsGroup = ({ values = {}, patientRegistryType, isEdit
 
       <StyledHeading>
         <TranslatedText
-          stringId="patient.details.subheading.personalInformation"
+          stringId="patient.detail.subheading.personalInformation"
           fallback="Personal information"
         />
       </StyledHeading>
@@ -228,7 +228,7 @@ export const SecondaryDetailsGroup = ({ values = {}, patientRegistryType, isEdit
 
       <StyledHeading>
         <TranslatedText
-          stringId="patient.details.subheading.locationInformation"
+          stringId="patient.detail.subheading.locationInformation"
           fallback="Location information"
         />
       </StyledHeading>
