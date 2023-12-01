@@ -41,7 +41,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
     return [
       {
         accessor: data => (
-          <RegistrationStatusIndicator patientProgramRegistration={data} hideText={true} />
+          <RegistrationStatusIndicator patientProgramRegistration={data} hideText />
         ),
         sortable: false,
       },

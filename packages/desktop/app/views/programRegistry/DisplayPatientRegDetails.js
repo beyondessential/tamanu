@@ -1,4 +1,4 @@
-//@ts-check
+// @ts-check
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Avatar } from '@material-ui/core';
