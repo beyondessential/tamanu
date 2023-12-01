@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { useParams } from 'react-router-dom';
@@ -12,26 +11,6 @@ import { Colors } from '../../constants';
 import { LimitedLinesCell } from '../../components/FormattedTableCell';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
-
-const ClippedConditionName = styled.span`
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  word-wrap: break-word;
-  width: 95%;
-`;
-
-const StatusBadge = styled.div`
-  padding: 16px;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  height: 20px;
-  color: ${props => props.color};
-  background-color: ${props => props.backgroundColor};
-  width: fit-content;
-`;
 
 export const ProgramRegistryTable = ({ searchParameters }) => {
   const params = useParams();

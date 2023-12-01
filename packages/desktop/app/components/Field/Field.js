@@ -8,7 +8,6 @@ import {
 } from 'formik';
 import MuiBox from '@material-ui/core/Box';
 import styled from 'styled-components';
-import { FormTooltip } from '../FormTooltip';
 import { ThemedTooltip } from '../Tooltip';
 import { TextField } from './TextField';
 import { FORM_STATUSES } from '../../constants';
