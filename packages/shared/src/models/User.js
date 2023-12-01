@@ -7,7 +7,7 @@ import {
   VISIBILITY_STATUSES,
   USER_DEACTIVATED_ERROR_MESSAGE,
 } from '@tamanu/constants';
-import { ForbiddenError } from '@tamanu/shared/errors';
+import { BadAuthenticationError } from '@tamanu/shared/errors';
 
 import { Model } from './Model';
 
@@ -75,7 +75,7 @@ export class User extends Model {
     }
 
     if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
-      throw new ForbiddenError(USER_DEACTIVATED_ERROR_MESSAGE);
+      throw new BadAuthenticationError(USER_DEACTIVATED_ERROR_MESSAGE);
     }
 
     return user.get({ plain: true });
