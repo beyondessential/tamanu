@@ -64,6 +64,7 @@ const servers = [
   { name: 'RC (1.35)', type: 'dev', host: 'https://central.release-1-35.internal.tamanu.io' },
   { name: 'RC (1.36)', type: 'dev', host: 'https://central.release-1-36.internal.tamanu.io' },
   { name: 'RC (1.37)', type: 'dev', host: 'https://central.release-1-37.internal.tamanu.io' },
+  { name: 'RC (1.38)', type: 'dev', host: 'https://central.release-1-38.internal.tamanu.io' },
   { name: 'Stress Test', type: 'dev', host: 'https://central-stress-test.tamanu.io' },
 ];
 
