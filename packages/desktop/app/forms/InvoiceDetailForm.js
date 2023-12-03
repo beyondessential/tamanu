@@ -48,13 +48,15 @@ const InvoiceDetailExpandRow = styled.div`
 const PrintableInvoiceDetailModal = ({ open, onClose, invoice }) => (
   <Modal
     width="md"
-    title={<TranslatedText stringId="invoice.modal.print.title" fallback="Invoice detail:" />}
+    title={<TranslatedText stringId="invoice.modal.print.title" fallback="Invoice detail" />}
     open={open}
     onClose={onClose}
     printable
   >
     <h3>
-      <span>Invoice number: </span>
+      <span>
+        <TranslatedText stringId="invoice.modal.print.subHeading" fallback="Invoice number" />:{' '}
+      </span>
       <span>{invoice.displayId}</span>
     </h3>
     <InvoiceDetailTable
@@ -79,12 +81,13 @@ export const InvoiceDetailForm = ({
   return (
     <>
       <ConfirmModal
-        title={`${(
+        title={
           <TranslatedText
             stringId="invoice.modal.view.finalise.title"
-            fallback="Finalise invoice number"
+            fallback="Finalise invoice number: :invoiceNumber"
+            replacements={{ invoiceNumber: invoice.displayId }}
           />
-        )}: ${invoice.displayId}`}
+        }
         text={
           <TranslatedText
             stringId="invoice.modal.view.finalise.text"

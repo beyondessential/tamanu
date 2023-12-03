@@ -43,7 +43,13 @@ const InvoiceTotal = ({ row }) => {
 
 const ViewButton = React.memo(({ row }) => {
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
-  const title = `Invoice number: ${row.displayId}`;
+  const title = (
+    <TranslatedText
+      stringId="invoice.modal.view.title"
+      fallback="Invoice number: :invoiceNumber"
+      replacements={{ invoiceNumber: row.displayId }}
+    />
+  );
 
   return (
     <>

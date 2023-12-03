@@ -354,8 +354,16 @@ export const InvoiceDetailTable = React.memo(({ invoice }) => {
         allowExport={false}
         onDataFetched={updateLineItems}
       />
-      <InvoiceTotal>Sub-Total: ${invoiceLinesTotal}</InvoiceTotal>
-      <DiscountHeading>Discounts / Mark-ups</DiscountHeading>
+      <InvoiceTotal>
+        <TranslatedText stringId="invoice.modal.print.subTotal.text" fallback="Sub-Total" />: $
+        {invoiceLinesTotal}
+      </InvoiceTotal>
+      <DiscountHeading>
+        <TranslatedText
+          stringId="invoice.modal.print.discounts.text"
+          fallback="Discounts / Mark-ups"
+        />
+      </DiscountHeading>
       <DataFetchingTable
         endpoint={`invoices/${invoice.id}/priceChangeItems`}
         columns={[
@@ -378,7 +386,10 @@ export const InvoiceDetailTable = React.memo(({ invoice }) => {
         allowExport={false}
         onDataFetched={updatePriceChangeItems}
       />
-      <InvoiceTotal>Total: ${invoiceTotal}</InvoiceTotal>
+      <InvoiceTotal>
+        <TranslatedText stringId="invoice.modal.print.total.text" fallback="Total" />: $
+        {invoiceTotal}
+      </InvoiceTotal>
     </>
   );
 });
