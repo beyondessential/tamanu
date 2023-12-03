@@ -1,5 +1,4 @@
 export const facilityDefaults = {
-  allowMismatchedTimeZones: false,
   countryTimeZone: 'Australia/Melbourne',
   debugging: {
     requestFailureRate: 0,
