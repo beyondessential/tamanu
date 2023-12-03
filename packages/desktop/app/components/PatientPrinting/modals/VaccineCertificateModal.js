@@ -21,7 +21,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
   });
   const { data: additionalData } = usePatientAdditionalDataQuery(patient.id);
 
-  const { data: vaccineData } = useAdministeredVaccines(patient.id, {
+  const { data: vaccineData, isLoading } = useAdministeredVaccines(patient.id, {
     orderBy: 'date',
     order: 'ASC',
     invertNullDateOrdering: true,
@@ -44,7 +44,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
 
   const patientData = { ...patient, additionalData };
 
-  if (!vaccinations.length) return null;
+  if (isLoading) return null;
 
   return (
     <Modal
