@@ -146,6 +146,8 @@ export async function createTestContext({ enableReportInstances } = {}) {
   // ensure there's a corresponding local system fact for it too
   await models.LocalSystemFact.set('facilityId', facility.id);
 
+  context.syncManager = new FacilitySyncManager(context);
+
   const expressApp = createApp(context);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest(appServer);
@@ -196,7 +198,6 @@ export async function createTestContext({ enableReportInstances } = {}) {
 
   context.centralServer = centralServer;
   context.baseApp = baseApp;
-  context.syncManager = new FacilitySyncManager(context);
 
   return context;
 }
