@@ -4,7 +4,6 @@ import { Command } from 'commander';
 import { log } from '@tamanu/shared/services/logging';
 
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
-import { ReadSettings } from '@tamanu/settings';
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '../sync/initDeviceId';
 import { performDatabaseIntegrityChecks } from '../database';
