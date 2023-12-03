@@ -6,6 +6,7 @@ import { ContentPane } from '../../../components/ContentPane';
 import { DateDisplay } from '../../../components/DateDisplay';
 import { OuterLabelFieldWrapper } from '../../../components/Field/OuterLabelFieldWrapper';
 import { DataFetchingTable, Table } from '../../../components/Table';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const StyledDiv = styled.div`
   max-width: 20vw;
@@ -26,26 +27,44 @@ const getMedicationNameAndPrescription = ({ medication, prescription }) => (
 const DISCHARGED_MEDICATION_COLUMNS = [
   {
     key: 'Medication.name',
-    title: 'Item/Prescription',
+    title: (
+      <TranslatedText
+        stringId="patient.medication.table.column.medicationName"
+        fallback="Item/Prescription"
+      />
+    ),
     accessor: getMedicationNameAndPrescription,
     sortable: true,
   },
-  { key: 'quantity', title: 'Qty', sortable: false },
+  {
+    key: 'quantity',
+    title: <TranslatedText stringId="patient.medication.table.column.quantity" fallback="Qty" />,
+    sortable: false,
+  },
   {
     key: 'prescriber',
-    title: 'Clinician',
+    title: (
+      <TranslatedText stringId="patient.medication.table.column.prescriber" fallback="Clinician" />
+    ),
     accessor: data => data?.prescriber?.displayName ?? '',
     sortable: false,
   },
   {
     key: 'location.facility.name',
-    title: 'Facility',
+    title: (
+      <TranslatedText stringId="patient.medication.table.column.facility" fallback="Facility" />
+    ),
     accessor: data => data?.encounter?.location?.facility?.name ?? '',
     sortable: false,
   },
   {
     key: 'endDate',
-    title: 'Discharge date',
+    title: (
+      <TranslatedText
+        stringId="patient.medication.table.column.dischargeDate"
+        fallback="Discharge date"
+      />
+    ),
     accessor: data => <DateDisplay date={data?.encounter?.endDate ?? ''} />,
     sortable: true,
   },
@@ -54,13 +73,43 @@ const DISCHARGED_MEDICATION_COLUMNS = [
 // Presumably it will need different keys and accessors
 // and also date column title is different
 const DISPENSED_MEDICATION_COLUMNS = [
-  { key: 'a', title: 'Item/Prescription', sortable: true },
-  { key: 'b', title: 'Qty', sortable: false },
-  { key: 'c', title: 'Clinician', sortable: false },
-  { key: 'd', title: 'Facility', sortable: false },
+  {
+    key: 'a',
+    title: (
+      <TranslatedText
+        stringId="patient.medication.table.column.medicationName"
+        fallback="Item/Prescription"
+      />
+    ),
+    sortable: true,
+  },
+  {
+    key: 'b',
+    title: <TranslatedText stringId="patient.medication.table.column.quantity" fallback="Qty" />,
+    sortable: false,
+  },
+  {
+    key: 'c',
+    title: (
+      <TranslatedText stringId="patient.medication.table.column.prescriber" fallback="Clinician" />
+    ),
+    sortable: false,
+  },
+  {
+    key: 'd',
+    title: (
+      <TranslatedText stringId="patient.medication.table.column.facility" fallback="Facility" />
+    ),
+    sortable: false,
+  },
   {
     key: 'e',
-    title: 'Dispensed date',
+    title: (
+      <TranslatedText
+        stringId="patient.medication.table.column.dispenseDate"
+        fallback="Dispensed date"
+      />
+    ),
     sortable: true,
   },
 ];
@@ -68,21 +117,45 @@ const DISPENSED_MEDICATION_COLUMNS = [
 export const PatientMedicationPane = React.memo(({ patient }) => (
   <>
     <ContentPane>
-      <OuterLabelFieldWrapper label="Most recent discharge medications">
+      <OuterLabelFieldWrapper
+        label={
+          <TranslatedText
+            stringId="patient.medication.table.discharge.title"
+            fallback="Most recent discharge medications"
+          />
+        }
+      >
         <DataFetchingTable
           endpoint={`patient/${patient.id}/lastDischargedEncounter/medications`}
           columns={DISCHARGED_MEDICATION_COLUMNS}
-          noDataMessage="No discharge medications found"
+          noDataMessage={
+            <TranslatedText
+              stringId="patient.medication.table.discharge.noData"
+              fallback="No discharge medications found"
+            />
+          }
           initialSort={{ order: 'desc', orderBy: 'endDate' }}
         />
       </OuterLabelFieldWrapper>
     </ContentPane>
     <ContentPane>
-      <OuterLabelFieldWrapper label="Dispensed medications">
+      <OuterLabelFieldWrapper
+        label={
+          <TranslatedText
+            stringId="patient.medication.table.dispensed.title"
+            fallback="Dispensed medications"
+          />
+        }
+      >
         <Table
           columns={DISPENSED_MEDICATION_COLUMNS}
           data={[]}
-          noDataMessage="No dispensed medications found"
+          noDataMessage={
+            <TranslatedText
+              stringId="patient.medication.table.discharge.noData"
+              fallback="No dispensed medications found"
+            />
+          }
           // Next two props are used only to avoid a display error and an execution error
           page={0}
           onChangeOrderBy={() => {}}
