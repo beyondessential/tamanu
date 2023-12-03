@@ -85,7 +85,7 @@ const DocumentFormContents = ({ submitForm, departmentSuggester, onCancel }) => 
       <Field
         name="documentOwner"
         label={
-          <TranslatedText stringId="documents.form.documentOwner.label" fallback="Document owner" />
+          <TranslatedText stringId="document.form.documentOwner.label" fallback="Document owner" />
         }
         component={TextField}
       />

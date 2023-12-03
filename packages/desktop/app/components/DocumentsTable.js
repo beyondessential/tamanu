@@ -32,7 +32,7 @@ const StyledIconButton = styled(IconButton)`
 const ActionButtons = React.memo(({ row, onDownload, onClickView }) => (
   <ActionsContainer>
     <Action variant="outlined" size="small" onClick={() => onClickView(row)} key="view">
-      <TranslatedText stringId="general.actions.view" fallback="View" />
+      <TranslatedText stringId="general.action.view" fallback="View" />
     </Action>
     <StyledIconButton color="primary" onClick={() => onDownload(row)} key="download">
       <GetAppIcon fontSize="small" />
@@ -60,40 +60,42 @@ export const DocumentsTable = React.memo(
       () => [
         {
           key: 'name',
-          title: <TranslatedText stringId="general.form.patientName.label" fallback="Name" />,
+          title: <TranslatedText stringId="general.table.column.name" fallback="Name" />,
           CellComponent: LimitedLinesCell,
         },
         {
           key: 'type',
-          title: <TranslatedText stringId="general.form.type.label" fallback="Type" />,
+          title: <TranslatedText stringId="document.table.column.type" fallback="Type" />,
           accessor: getAttachmentType,
         },
         {
           key: 'documentUploadedAt',
-          title: <TranslatedText stringId="general.form.uploadDate.label" fallback="Upload" />,
+          title: <TranslatedText stringId="document.table.column.upload" fallback="Upload" />,
           accessor: getUploadedDate,
         },
         {
           key: 'documentOwner',
-          title: <TranslatedText stringId="documents.form.owner.label" fallback="Owner" />,
+          title: <TranslatedText stringId="document.table.column.owner" fallback="Owner" />,
           CellComponent: LimitedLinesCell,
         },
         {
           key: 'department.name',
-          title: <TranslatedText stringId="general.form.department.label" fallback="Department" />,
+          title: (
+            <TranslatedText stringId="document.table.column.department" fallback="Department" />
+          ),
           accessor: getDepartmentName,
           CellComponent: LimitedLinesCell,
           sortable: false,
         },
         {
           key: 'note',
-          title: <TranslatedText stringId="general.form.comments.label" fallback="Comments" />,
+          title: <TranslatedText stringId="document.table.column.comments" fallback="Comments" />,
           sortable: false,
           CellComponent: LimitedLinesCell,
         },
         {
           key: 'actions',
-          title: <TranslatedText stringId="general.form.actions.label" fallback="Actions" />,
+          title: <TranslatedText stringId="document.table.column.actions" fallback="Actions" />,
           accessor: row => (
             <ActionButtons row={row} onDownload={onDownload} onClickView={openDocumentPreview} />
           ),
@@ -109,7 +111,7 @@ export const DocumentsTable = React.memo(
         endpoint={endpoint}
         columns={COLUMNS}
         noDataMessage={
-          <TranslatedText stringId="documents.form.noDataMessage" fallback="No documents found" />
+          <TranslatedText stringId="documents.table.noData" fallback="No documents found" />
         }
         fetchOptions={searchParameters}
         refreshCount={refreshCount}

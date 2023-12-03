@@ -13,7 +13,7 @@ import { TranslatedText } from '../Translation/TranslatedText';
 
 const getTitle = ({ source, name }) =>
   source === DOCUMENT_SOURCES.PATIENT_LETTER ? (
-    <TranslatedText stringId="patient.patientLetter.title" fallback="Patient letter" />
+    <TranslatedText stringId="patient.modal.patientLetter.title" fallback="Patient letter" />
   ) : (
     name
   );
@@ -40,7 +40,7 @@ const Preview = ({ documentType, attachmentId, ...props }) => {
   }
   return (
     <TranslatedText
-      stringId="documents.preview.unsupported"
+      stringId="document.modal.preview.unsupported"
       fallback="Preview is not supported for document type :documentType"
       replacements={{
         documentType,
@@ -63,7 +63,7 @@ export const DocumentPreviewModal = ({ open, onClose, onDownload, document, onPr
           <Subtitle>
             {documentType === SUPPORTED_DOCUMENT_TYPES.PDF ? (
               <TranslatedText
-                stringId="documents.preview.pageCount"
+                stringId="document.modal.preview.pageCount"
                 fallback="Page :scrollPage of :pageCount"
                 replacements={{
                   scrollPage,

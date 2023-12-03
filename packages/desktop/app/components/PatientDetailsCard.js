@@ -56,25 +56,31 @@ export const PatientDetailsCard = ({ patient }) => (
   <Card mb={4}>
     <Column>
       <CardItem
-        label={<TranslatedText stringId="general.form.patientId.label" fallback="Patient ID" />}
+        label={
+          <TranslatedText stringId="patient.detail.card.patientId.label" fallback="Patient ID" />
+        }
         value={patient?.displayId}
       />
       <CardItem
-        label={<TranslatedText stringId="general.form.firstName.label" fallback="First name" />}
+        label={
+          <TranslatedText stringId="patient.detail.card.firstName.label" fallback="First name" />
+        }
         value={patient?.firstName}
       />
       <CardItem
-        label={<TranslatedText stringId="general.form.lastName.label" fallback="Last name" />}
+        label={
+          <TranslatedText stringId="patient.detail.card.lastName.label" fallback="Last name" />
+        }
         value={patient?.lastName}
       />
     </Column>
     <Column>
       <CardItem
-        label={<TranslatedText stringId="general.form.dateOfBirth.label" fallback="DOB" />}
+        label={<TranslatedText stringId="patient.detail.card.dateOfBirth.label" fallback="DOB" />}
         value={<DateDisplay date={patient?.dateOfBirth} />}
       />
       <CardItem
-        label={<TranslatedText stringId="general.form.sex.label" fallback="Sex" />}
+        label={<TranslatedText stringId="patient.detail.card.sex.label" fallback="Sex" />}
         value={SEX_VALUE_INDEX[patient?.sex]?.label}
       />
     </Column>

@@ -49,7 +49,7 @@ const renderSearchBar = ({ submitForm, clearForm }) => (
     </FormGrid>
     <Box display="flex" alignItems="center" justifyContent="flex-end" mt={2}>
       <LargeOutlinedSubmitButton onClick={clearForm} style={{ marginRight: 12 }}>
-        <TranslatedText stringId="general.form.clearSearch" fallback="Clear search" />
+        <TranslatedText stringId="general.action.clearSearch" fallback="Clear search" />
       </LargeOutlinedSubmitButton>
       <LargeSubmitButton onClick={submitForm} type="submit">
         <TranslatedText stringId="general.action.search" fallback="Search" />
@@ -62,7 +62,7 @@ export const DocumentsSearchBar = ({ setSearchParameters }) => (
   <Container>
     <HeaderBar>
       <Typography variant="h3">
-        <TranslatedText stringId="patient.documents.searchTitle" fallback="Documents search" />
+        <TranslatedText stringId="patient.document.search.title" fallback="Documents search" />
       </Typography>
     </HeaderBar>
     <Form onSubmit={values => setSearchParameters(values)} render={renderSearchBar} />

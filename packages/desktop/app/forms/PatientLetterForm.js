@@ -67,9 +67,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
       <FormGrid columns={2} nested>
         <Field
           name="clinicianId"
-          label={
-            <TranslatedText stringId="patientLetter.form.clinican.label" fallback="Clinician" />
-          }
+          label={<TranslatedText stringId="general.form.clinican.label" fallback="Clinician" />}
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
@@ -86,7 +84,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
         <Field
           name="templateId"
           label={
-            <TranslatedText stringId="patientLetter.form.template.label" fallback="Template" />
+            <TranslatedText stringId="patientLetter.form.templateId.label" fallback="Template" />
           }
           suggester={patientLetterTemplateSuggester}
           component={AutocompleteField}
@@ -95,10 +93,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
         <Field
           name="title"
           label={
-            <TranslatedText
-              stringId="patientLetter.form.letterTitle.label"
-              fallback="Letter title"
-            />
+            <TranslatedText stringId="patientLetter.form.title.label" fallback="Letter title" />
           }
           required
           component={TextField}
@@ -106,7 +101,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
         />
         <Field
           name="body"
-          label={<TranslatedText stringId="patientLetter.form.note.label" fallback="Note" />}
+          label={<TranslatedText stringId="general.form.note.label" fallback="Note" />}
           required
           component={TallMultilineTextField}
           disabled={templateLoading}
@@ -115,7 +110,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
       <ModalGenericButtonRow>
         <FinaliseAndPrintButton onClick={e => submitForm(e, { printRequested: true })}>
           <TranslatedText
-            stringId="patientLetter.form.finaliseAndPrint.label"
+            stringId="patientLetter.action.finaliseAndPrint"
             fallback="Finalise & Print"
           />
         </FinaliseAndPrintButton>
@@ -124,7 +119,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
           <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
         </OutlinedButton>
         <Button onClick={submitForm}>
-          <TranslatedText stringId="general.form.finalise.label" fallback="Finalise" />
+          <TranslatedText stringId="general.action.finalise" fallback="Finalise" />
         </Button>
       </ModalGenericButtonRow>
     </>
@@ -156,7 +151,7 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
       <ModalLoader
         loadingText={
           <TranslatedText
-            stringId="patientLetter.form.onCreateLoadingText"
+            stringId="patientLetter.modal.create.loadingText"
             fallback="Please wait while we create your patient letter"
           />
         }
