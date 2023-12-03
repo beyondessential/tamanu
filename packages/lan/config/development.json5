@@ -1,15 +1,12 @@
 {
-  "admin": {
-    "allowAdminRoutes": true
+  log: {
+    console: 'debug',
   },
-  "log": {
-    "console": "debug"
+  discovery: {
+    protocol: 'http',
   },
-  "discovery": {
-    "protocol": "http"
+  db: {
+    name: 'develop',
   },
-  "db": {
-    "name": "develop"
-  },
-  "countryTimeZone": "Pacific/Auckland"
+  countryTimeZone: 'Pacific/Auckland',
 }

@@ -1,116 +1,113 @@
 {
-  "admin": {
-    "allowAdminRoutes": false
+  discovery: {
+    enabled: true,
+    overrideAddress: '',
+    overridePort: null,
+    protocol: 'https',
   },
-  "discovery": {
-    "enabled": true,
-    "overrideAddress": "",
-    "overridePort": null,
-    "protocol": "https"
+  log: {
+    path: '',
+    consoleLevel: 'http',
+    color: true,
+    enableAuditLog: false,
   },
-  "log": {
-    "path": "",
-    "consoleLevel": "http",
-    "color": true,
-    "enableAuditLog": false
+  honeycomb: {
+    apiKey: '',
+    sampleRate: 1, // 5 = 1/5 = 20% of traces get sent to honeycomb
+    enabled: true,
+    level: 'info',
   },
-  "honeycomb": {
-    "apiKey": "",
-    "sampleRate": 1, // 5 = 1/5 = 20% of traces get sent to honeycomb
-    "enabled": true,
-    "level": "info"
-  },
-  "sync": {
-    "schedule": "*/1 * * * *",
-    "host": "https://central.main.internal.tamanu.io",
-    "email": "",
-    "password": "",
-    "timeout": 10000,
-    "persistedCacheBatchSize": 10000,
-    "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
-    "pauseBetweenCacheBatchInMilliseconds": 50,
-    "persistUpdateWorkerPoolSize": 5,
-    "assertIfPulledRecordsUpdatedAfterPushSnapshot": true,
-    "enabled": true,
-    "backoff": {
-      "multiplierMs": 300,
-      "maxAttempts": 15,
-      "maxWaitMs": 10000
+  sync: {
+    schedule: '*/1 * * * *',
+    host: 'https://central.main.internal.tamanu.io',
+    email: '',
+    password: '',
+    timeout: 10000,
+    persistedCacheBatchSize: 10000,
+    pauseBetweenPersistedCacheBatchesInMilliseconds: 50,
+    pauseBetweenCacheBatchInMilliseconds: 50,
+    persistUpdateWorkerPoolSize: 5,
+    assertIfPulledRecordsUpdatedAfterPushSnapshot: true,
+    enabled: true,
+    backoff: {
+      multiplierMs: 300,
+      maxAttempts: 15,
+      maxWaitMs: 10000,
     },
-    "dynamicLimiter": {
-      "initialLimit": 10, // start relatively low then grow upward
-      "minLimit": 1,
-      "maxLimit": 10000,
-      "optimalTimePerPageMs": 2000, // aim for 2 seconds per page
-      "maxLimitChangePerPage": 0.2 // max 20% increase/decrease from page to page
-    }
+    dynamicLimiter: {
+      initialLimit: 10, // start relatively low then grow upward
+      minLimit: 1,
+      maxLimit: 10000,
+      optimalTimePerPageMs: 2000, // aim for 2 seconds per page
+      maxLimitChangePerPage: 0.2, // max 20% increase/decrease from page to page
+    },
   },
-  "port": 4000,
-  "db": {
-    "name": "tamanu-lan",
-    "username": "",
-    "password": "",
-    "verbose": false,
-    "migrateOnStartup": false,
-    "reportSchemas": {
-      "enabled": false,
-      "connections": {
-        "raw": {
-          "pool": {
-            "max": 5
+  port: 4000,
+  db: {
+    name: 'tamanu-lan',
+    username: '',
+    password: '',
+    verbose: false,
+    migrateOnStartup: false,
+    reportSchemas: {
+      enabled: false,
+      connections: {
+        raw: {
+          pool: {
+            max: 5,
           },
-          "username": "",
-          "password": ""
+          username: '',
+          password: '',
         },
-        "reporting": {
-          "pool": {
-            "max": 5
+        reporting: {
+          pool: {
+            max: 5,
           },
-          "username": "",
-          "password": ""
-        }
-      }
-    }
+          username: '',
+          password: '',
+        },
+      },
+    },
   },
-  "senaite": {
-    "enabled": false,
-    "server": "https://192.168.33.100",
-    "username": "admin",
-    "password": "admin"
+  senaite: {
+    enabled: false,
+    server: 'https://192.168.33.100',
+    username: 'admin',
+    password: 'admin',
   },
-  "auth": {
-    "saltRounds": 12,
-    "tokenDuration": "1h",
-    "useHardcodedPermissions": true
+  auth: {
+    saltRounds: 12,
+    tokenDuration: '1h',
+    useHardcodedPermissions: true,
   },
-  "survey": {
-    "defaultCodes": {
-      "department": "GeneralClinic",
-      "location": "GeneralClinic"
-    }
+  survey: {
+    defaultCodes: {
+      department: 'GeneralClinic',
+      location: 'GeneralClinic',
+    },
   },
-  "serverFacilityId": "",
-  "debugging": {
-    "requestFailureRate": 0
+  serverFacilityId: '',
+  debugging: {
+    requestFailureRate: 0,
   },
-  "schedules": {
-    "medicationDiscontinuer": {
+  schedules: {
+    medicationDiscontinuer: {
       // every day at 12:01 AM
-      "schedule": "1 0 * * *"
-    }
+      schedule: '1 0 * * *',
+    },
   },
   // Note: this config should be duplicated on the sync server if the same behavior is
   // desired for "this facility" and "all facilities"
-  "reportConfig": {
-    "encounter-summary-line-list": {
-      "includedPatientFieldIds": []
-    }
+  reportConfig: {
+    'encounter-summary-line-list': {
+      includedPatientFieldIds: [],
+    },
   },
-  "questionCodeIds": {
-    "passport": "pde-FijCOVRDT005",
-    "nationalityId": "pde-PalauCOVSamp7"
+  questionCodeIds: {
+    passport: 'pde-FijCOVRDT005',
+    nationalityId: 'pde-PalauCOVSamp7',
   },
-  "proxy": {
+  proxy: {
     // Possible values: https://expressjs.com/en/guide/behind-proxies.html
     //
     // This should only be set to servers we trust! `loopback` is a safe default
@@ -119,10 +116,10 @@
     //
     // As of 29/08/2022 all our deployments are behind a local nginx proxy and so
     // this shouldn't need to be changed.
-    "trusted": ["loopback"]
+    trusted: ['loopback'],
   },
   // this should be an IANA tzdata timezone
   // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-  "countryTimeZone": "Australia/Melbourne",
-  "allowMismatchedTimeZones": false
+  countryTimeZone: 'Australia/Melbourne',
+  allowMismatchedTimeZones: false,
 }

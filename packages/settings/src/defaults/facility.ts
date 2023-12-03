@@ -1,7 +1,4 @@
 export const facilityDefaults = {
-  admin: {
-    allowAdminRoutes: false,
-  },
   allowMismatchedTimeZones: false,
   countryTimeZone: 'Australia/Melbourne',
   debugging: {
