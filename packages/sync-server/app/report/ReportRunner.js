@@ -88,7 +88,7 @@ export class ReportRunner {
     try {
       this.log.info('Running report', { parameters: this.parameters });
       reportData = await reportModule.dataGenerator(
-        { ...this.store, reportSchemaStores: this.reportSchemaStores },
+        { ...this.store, settings: this.settings, reportSchemaStores: this.reportSchemaStores },
         this.parameters,
       );
 

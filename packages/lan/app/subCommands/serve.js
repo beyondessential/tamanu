@@ -25,15 +25,13 @@ async function serve({ skipMigrationCheck }) {
   });
 
   const context = await new ApplicationContext().init();
+  const { settings } = context;
 
   if (config.db.migrateOnStartup) {
     await context.sequelize.migrate('up');
   } else {
     await context.sequelize.assertUpToDate({ skipMigrationCheck });
   }
-
-  const settings = new ReadSettings(context.models, config.serverFacilityId);
-  context.settings = settings;
 
   const syncConfig = await settings.get('sync');
   const countryTimeZone = await settings.get('countryTimeZone');
