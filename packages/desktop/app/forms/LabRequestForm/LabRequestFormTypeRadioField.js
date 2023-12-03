@@ -11,42 +11,30 @@ import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const OPTIONS = {
   INDIVIDUAL: {
-    label: (
-      <TranslatedText
-        stringId="labs.modal.new.form.screen1.formType.individual"
-        fallback="Individual"
-      />
-    ),
+    label: <TranslatedText stringId="lab.form.type.individual" fallback="Individual" />,
     description: (
       <TranslatedText
-        stringId="labs.modal.new.form.screen1.formType.individual.subText"
+        stringId="lab.form.type.individual.description"
         fallback="Select an individual or multiple individual tests"
       />
     ),
     value: LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
   },
   PANEL: {
-    label: (
-      <TranslatedText stringId="labs.modal.new.form.screen1.formType.panel" fallback="Panel" />
-    ),
+    label: <TranslatedText stringId="lab.form.type.panel" fallback="Panel" />,
     description: (
       <TranslatedText
-        stringId="labs.modal.new.form.screen1.formType.panel.subText"
+        stringId="lab.form.type.panel.description"
         fallback="Select from a list of test panels"
       />
     ),
     value: LAB_REQUEST_FORM_TYPES.PANEL,
   },
   SUPERSET: {
-    label: (
-      <TranslatedText
-        stringId="labs.modal.new.form.screen1.formType.superset"
-        fallback="Superset"
-      />
-    ),
+    label: <TranslatedText stringId="lab.form.type.superset" fallback="Superset" />,
     description: (
       <TranslatedText
-        stringId="labs.modal.new.form.screen1.formType.superset.subText"
+        stringId="lab.form.type.superset.description"
         fallback="Select from a list of supersets"
       />
     ),
@@ -115,7 +103,7 @@ export const LabRequestFormTypeRadioField = ({ value, setFieldValue }) => {
       <OuterLabelFieldWrapper
         label={
           <TranslatedText
-            stringId="labs.modal.new.form.screen1.formType.label"
+            stringId="labs.form.requestType.label"
             fallback="Select your request type"
           />
         }

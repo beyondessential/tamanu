@@ -215,7 +215,7 @@ export const TestSelectorInput = ({
                 initialOptions={[{ label: 'All', value: '' }]}
                 label={
                   <TranslatedText
-                    stringId="labs.modal.new.form.testCategory"
+                    stringId="labs.form.testCategory.label"
                     fallback="Test category"
                   />
                 }

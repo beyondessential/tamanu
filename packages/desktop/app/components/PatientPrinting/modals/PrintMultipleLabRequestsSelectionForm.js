@@ -27,34 +27,24 @@ const COLUMN_KEYS = {
 const COLUMNS = [
   {
     key: COLUMN_KEYS.DISPLAY_ID,
-    title: <TranslatedText stringId="labs.modal.print.table.column.testId" fallback="Test ID" />,
+    title: <TranslatedText stringId="lab.print.table.column.testId" fallback="Test ID" />,
     sortable: false,
   },
   {
     key: COLUMN_KEYS.DATE,
-    title: (
-      <TranslatedText
-        stringId="labs.modal.print.table.column.requestDate"
-        fallback="Request date"
-      />
-    ),
+    title: <TranslatedText stringId="lab.print.table.column.requestDate" fallback="Request date" />,
     sortable: false,
     accessor: ({ requestedDate }) => <DateDisplay date={requestedDate} />,
   },
   {
     key: COLUMN_KEYS.REQUESTED_BY,
-    title: (
-      <TranslatedText
-        stringId="labs.modal.print.table.column.requestedBy"
-        fallback="Requested by"
-      />
-    ),
+    title: <TranslatedText stringId="lab.print.table.column.requestedBy" fallback="Requested by" />,
     sortable: false,
     accessor: ({ requestedBy }) => requestedBy?.displayName || '',
   },
   {
     key: COLUMN_KEYS.PRIORITY,
-    title: <TranslatedText stringId="labs.modal.print.table.column.priority" fallback="Priority" />,
+    title: <TranslatedText stringId="lab.print.table.column.priority" fallback="Priority" />,
     sortable: false,
     maxWidth: 70,
     accessor: ({ priority }) => priority?.name || '',
@@ -62,17 +52,14 @@ const COLUMNS = [
   {
     key: COLUMN_KEYS.CATEGORY,
     title: (
-      <TranslatedText
-        stringId="labs.modal.print.table.column.testCategory"
-        fallback="Test category"
-      />
+      <TranslatedText stringId="lab.print.table.column.testCategory" fallback="Test category" />
     ),
     sortable: false,
     accessor: ({ category }) => category?.name || '',
   },
   {
     key: COLUMN_KEYS.STATUS,
-    title: <TranslatedText stringId="labs.modal.print.table.column.status" fallback="Status" />,
+    title: <TranslatedText stringId="lab.print.table.column.status" fallback="Status" />,
     sortable: false,
     accessor: getStatus,
   },
@@ -114,7 +101,7 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
       />
       <PrintMultipleSelectionTable
         label=<TranslatedText
-          stringId="labs.modal.print.select"
+          stringId="lab.modal.print.selectText"
           fallback="Select the lab requests you would like to print"
         />
         headerColor={Colors.white}
@@ -124,7 +111,7 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
         isLoading={isLoading}
         errorMessage={error?.message}
         noDataMessage=<TranslatedText
-          stringId="labs.modal.print.table.noData"
+          stringId="lab.print.table.noData"
           fallback="No lab requests found"
         />
         allowExport={false}

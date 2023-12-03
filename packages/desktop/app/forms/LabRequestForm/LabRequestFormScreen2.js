@@ -39,18 +39,16 @@ export const screen2ValidationSchema = yup.object().shape({
 
 export const FORM_TYPE_TO_FIELD_CONFIG = {
   [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: {
-    subheading: (
-      <TranslatedText stringId="labs.modal.new.form.test.select" fallback="Select tests" />
-    ),
+    subheading: <TranslatedText stringId="lab.form.test.select" fallback="Select tests" />,
     instructions: (
       <>
         <TranslatedText
-          stringId="labs.modal.new.form.test.instructions1"
+          stringId="lab.form.test.select.instruction"
           fallback="Please select the test or tests you would like to request below and add any relevant notes."
         />
         {'\n'}
         <TranslatedText
-          stringId="labs.modal.new.form.test.instructions2"
+          stringId="lab.form.test.filter.nstruction"
           fallback="You can filter test by category using the field below."
         />
       </>
@@ -59,18 +57,16 @@ export const FORM_TYPE_TO_FIELD_CONFIG = {
     fieldName: 'labTestTypeIds',
   },
   [LAB_REQUEST_FORM_TYPES.PANEL]: {
-    subheading: (
-      <TranslatedText stringId="labs.modal.new.form.panel.select" fallback="Select panel" />
-    ),
+    subheading: <TranslatedText stringId="lab.form.panel.select" fallback="Select panel" />,
     instructions: (
       <TranslatedText
-        stringId="labs.modal.new.form.panel.instruction"
+        stringId="lab.form.panel.select.instruction"
         fallback="Please select the panel or panels you would like to request below and add any relevant notes."
       />
     ),
     label: (
       <TranslatedText
-        stringId="labs.modal.new.form.panel.label"
+        stringId="lab.form.panel.select.label"
         fallback="Select the test panel or panels"
       />
     ),

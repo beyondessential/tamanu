@@ -25,13 +25,13 @@ export const LabRequestFormScreen1 = ({
       <div style={{ gridColumn: '1 / -1' }}>
         <Heading3 mb="12px">
           <TranslatedText
-            stringId="labs.modal.new.form.screen1.headingText"
+            stringId="lab.form.header.newLabRequest"
             fallback="Creating a new lab request"
           />
         </Heading3>
         <BodyText mb="28px" color="textTertiary">
           <TranslatedText
-            stringId="labs.modal.new.form.screen1.bodyText"
+            stringId="lab.form.instruction.newLabRequest"
             fallback="Please complete the details below and select the lab request type"
           />
         </BodyText>
@@ -40,7 +40,7 @@ export const LabRequestFormScreen1 = ({
         name="requestedById"
         label={
           <TranslatedText
-            stringId="labs.modal.new.form.requestingClinician.label"
+            stringId="lab.form.requestingClinician.label"
             fallback="Requesting :clinician"
             replacements={{ clinician: clinicianText.toLowerCase() }}
           />
@@ -52,7 +52,7 @@ export const LabRequestFormScreen1 = ({
       <Field
         name="requestedDate"
         label=<TranslatedText
-          stringId="labs.modal.new.form.requestDateTime.label"
+          stringId="lab.form.requestDateTime.label"
           fallback="Request date & time"
         />
         required
@@ -61,16 +61,13 @@ export const LabRequestFormScreen1 = ({
       />
       <Field
         name="departmentId"
-        label=<TranslatedText
-          stringId="labs.modal.new.form.department.label"
-          fallback="Department"
-        />
+        label=<TranslatedText stringId="lab.form.department.label" fallback="Department" />
         component={AutocompleteField}
         suggester={departmentSuggester}
       />
       <Field
         name="labTestPriorityId"
-        label=<TranslatedText stringId="labs.modal.new.form.priority.label" fallback="Priority" />
+        label=<TranslatedText stringId="lab.form.priority.label" fallback="Priority" />
         component={SuggesterSelectField}
         endpoint="labTestPriority"
       />

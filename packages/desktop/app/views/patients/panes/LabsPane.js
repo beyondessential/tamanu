@@ -32,7 +32,7 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
           color="primary"
           size="small"
         >
-          <TranslatedText stringId="labs.action.print" fallback="Print" />
+          <TranslatedText stringId="lab.action.print" fallback="Print" />
         </ButtonWithPermissionCheck>
         <ButtonWithPermissionCheck
           onClick={() => setNewRequestModalOpen(true)}
@@ -41,7 +41,7 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
           noun="LabRequest"
           size="small"
         >
-          <TranslatedText stringId="labs.action.new" fallback="New lab request" />
+          <TranslatedText stringId="lab.action.create" fallback="New lab request" />
         </ButtonWithPermissionCheck>
       </TableButtonRow>
       <EncounterLabRequestsTable encounterId={encounter.id} />

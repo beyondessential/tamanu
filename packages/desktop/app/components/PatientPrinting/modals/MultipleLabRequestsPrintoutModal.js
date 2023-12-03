@@ -37,7 +37,7 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
 
   return (
     <Modal
-      title={<TranslatedText stringId="labs.modal.printOut.title" fallback="Print lab requests" />}
+      title={<TranslatedText stringId="lab.modal.printOut.title" fallback="Print lab requests" />}
       width="md"
       open={open}
       onClose={onClose}

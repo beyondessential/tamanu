@@ -107,7 +107,7 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
     <StyledModal
       title={
         <TranslatedText
-          stringId="labs.modal.new.title"
+          stringId="lab.modal.create.title"
           fallback="New lab request :modalSectionTitle"
           replacements={{
             modalSectionTitle: `${requestFormType ? ` | ${SECTION_TITLES[requestFormType]}` : ' '}`,
