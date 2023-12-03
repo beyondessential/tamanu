@@ -44,6 +44,8 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
 
   const patientData = { ...patient, additionalData };
 
+  if (!vaccinations.length) return null;
+
   return (
     <Modal
       title="Vaccine Certificate"
