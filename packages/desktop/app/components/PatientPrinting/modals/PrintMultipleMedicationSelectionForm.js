@@ -12,6 +12,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { Colors } from '../../../constants';
 
 import { MultiplePrescriptionPrintoutModal } from './MultiplePrescriptionPrintoutModal';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 const REPEAT_OPTIONS = [0, 1, 2, 3, 4, 5].map(n => ({ label: n, value: n }));
 
@@ -130,19 +131,40 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
 
       <PrescriberWrapper>
         <AutocompleteInput
-          infoTooltip="The prescriber will appear on the printed prescription"
+          infoTooltip={
+            <TranslatedText
+              stringId="medication.modal.print.tooltip"
+              fallback="The prescriber will appear on the printed prescription"
+            />
+          }
           name="prescriberId"
-          label="Prescriber"
+          label={
+            <TranslatedText stringId="medication.modal.prescriber.label" fallback="Prescriber" />
+          }
           suggester={practitionerSuggester}
           onChange={event => setPrescriberId(event.target.value)}
           value={currentUser.id}
           required
           error={!prescriberSelected}
-          helperText={!prescriberSelected && 'Please select a prescriber'}
+          helperText={
+            !prescriberSelected && (
+              <TranslatedText
+                stringId="medication.modal.print.helperText"
+                fallback="Please select a prescriber"
+              />
+            )
+          }
         />
       </PrescriberWrapper>
 
-      <OuterLabelFieldWrapper label="Select the prescriptions you would like to print">
+      <OuterLabelFieldWrapper
+        label={
+          <TranslatedText
+            stringId="medication.modal.print.table.title"
+            fallback="Select the prescriptions you would like to print"
+          />
+        }
+      >
         <Table
           headerColor={Colors.white}
           columns={[selectableColumn, ...COLUMNS]}
@@ -150,14 +172,19 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
           elevated={false}
           isLoading={isLoading}
           errorMessage={error?.message}
-          noDataMessage="No medication requests found"
+          noDataMessage={
+            <TranslatedText
+              stringId="medication.modal.print.table.noData"
+              fallback="No medication requests found"
+            />
+          }
           allowExport={false}
           cellOnChange={cellOnChange}
         />
       </OuterLabelFieldWrapper>
       <ConfirmCancelRow
-        cancelText="Close"
-        confirmText="Print"
+        cancelText={<TranslatedText stringId="general.action.close" fallback="Close" />}
+        confirmText={<TranslatedText stringId="general.action.print" fallback="Print" />}
         onConfirm={handlePrintConfirm}
         onCancel={onClose}
       />

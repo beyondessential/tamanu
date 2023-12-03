@@ -9,22 +9,40 @@ import { reloadPatient } from '../store';
 import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';
 import { Colors } from '../constants';
 import { getFullLocationName } from '../utils/location';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const getMedicationName = ({ medication }) => medication.name;
 
 const MEDICATION_COLUMNS = [
-  { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} /> },
-  { key: 'medication.name', title: 'Drug', accessor: getMedicationName, sortable: false },
-  { key: 'prescription', title: 'Prescription' },
-  { key: 'route', title: 'Route' },
+  {
+    key: 'date',
+    title: <TranslatedText stringId="general.table.column.date" fallback="Date" />,
+    accessor: ({ date }) => <DateDisplay date={date} />,
+  },
+  {
+    key: 'medication.name',
+    title: <TranslatedText stringId="medication.table.column.drug" fallback="Drug" />,
+    accessor: getMedicationName,
+    sortable: false,
+  },
+  {
+    key: 'prescription',
+    title: (
+      <TranslatedText stringId="medication.table.column.prescription" fallback="Prescription" />
+    ),
+  },
+  {
+    key: 'route',
+    title: <TranslatedText stringId="medication.table.column.route" fallback="Route" />,
+  },
   {
     key: 'endDate',
-    title: 'End Date',
+    title: <TranslatedText stringId="medication.table.column.endDate" fallback="End date" />,
     accessor: data => (data?.endDate ? <DateDisplay date={data?.endDate} /> : ''),
   },
   {
     key: 'prescriber',
-    title: 'Prescriber',
+    title: <TranslatedText stringId="medication.table.column.prescriber" fallback="Prescriber" />,
     accessor: data => data?.prescriber?.displayName ?? '',
     sortable: false,
   },
@@ -33,19 +51,19 @@ const MEDICATION_COLUMNS = [
 const FULL_LISTING_COLUMNS = [
   {
     key: 'name',
-    title: 'Patient',
+    title: <TranslatedText stringId="general.table.column.patient" fallback="Patient" />,
     accessor: ({ encounter }) => `${encounter.patient.firstName} ${encounter.patient.lastName}`,
     sortable: false,
   },
   {
     key: 'department',
-    title: 'Department',
+    title: <TranslatedText stringId="general.table.column.department" fallback="Department" />,
     accessor: ({ encounter }) => encounter.department.name,
     sortable: false,
   },
   {
     key: 'location',
-    title: 'Location',
+    title: <TranslatedText stringId="general.table.column.location" fallback="Location" />,
     accessor: ({ encounter }) => getFullLocationName(encounter.location),
     sortable: false,
   },
@@ -115,7 +133,12 @@ export const DataFetchingMedicationTable = () => {
     <DataFetchingTable
       endpoint="medication"
       columns={FULL_LISTING_COLUMNS}
-      noDataMessage="No medication requests found"
+      noDataMessage={
+        <TranslatedText
+          stringId="medication.table.noData"
+          fallback="No medication requests found"
+        />
+      }
       initialSort={{ order: 'desc', orderBy: 'date' }}
       onRowClick={onMedicationSelect}
     />
