@@ -7,6 +7,7 @@ import { Modal } from '../../Modal';
 import { LabRequestPrintLabel } from '../printouts/LabRequestPrintLabel';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { getPatientNameAsString } from '../../PatientNameDisplay';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 const Container = styled.div`
   display: flex;
@@ -32,7 +33,13 @@ export const LabRequestPrintLabelModal = ({ open, onClose, labRequests }) => {
   const labelWidth = getLocalisation('printMeasures.labRequestPrintLabel.width');
 
   return (
-    <Modal title="Print label" width="md" open={open} onClose={onClose} printable>
+    <Modal
+      title={<TranslatedText stringId="lab.modal.printLabel.title" fallback="Print label" />}
+      width="md"
+      open={open}
+      onClose={onClose}
+      printable
+    >
       <Container>
         {labRequests.map(lab => (
           <Box mb={3}>

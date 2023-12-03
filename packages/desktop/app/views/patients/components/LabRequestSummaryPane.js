@@ -18,6 +18,7 @@ import {
 import { LabRequestPrintLabelModal } from '../../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { useLabRequestNotes } from '../../../api/queries';
 import { InfoCard, InfoCardItem } from '../../../components/InfoCard';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const Container = styled.div`
   padding-top: 20px;
@@ -62,31 +63,50 @@ const Actions = styled.div`
 const getColumns = type => [
   {
     key: 'displayId',
-    title: 'Test ID',
+    title: <TranslatedText stringId="lab.requestSummary.table.column.testId" fallback="Test ID" />,
     sortable: false,
   },
   ...(type === LAB_REQUEST_FORM_TYPES.PANEL
     ? [
         {
           key: 'panelId',
-          title: 'Panel',
+          title: (
+            <TranslatedText stringId="lab.requestSummary.table.column.panel" fallback="Panel" />
+          ),
           sortable: false,
-          accessor: ({ labTestPanelRequest }) => labTestPanelRequest?.labTestPanel?.name || 'N/A',
+          accessor: ({ labTestPanelRequest }) =>
+            labTestPanelRequest?.labTestPanel?.name || (
+              <TranslatedText stringId="general.fallback,notApplicable" fallback="N/A" />
+            ),
         },
       ]
     : []),
   {
     key: 'labTestCategory',
-    title: 'Category',
+    title: (
+      <TranslatedText stringId="lab.requestSummary.table.column.category" fallback="Category" />
+    ),
     sortable: false,
     accessor: ({ category }) => category?.name || '',
   },
   {
     key: 'sampleDate',
-    title: 'Sample date',
+    title: (
+      <TranslatedText
+        stringId="lab.requestSummary.table.column.sampleDate"
+        fallback="Sample date"
+      />
+    ),
     sortable: false,
     accessor: ({ sampleTime }) =>
-      sampleTime ? <DateDisplay showTime date={sampleTime} /> : 'Sample not collected',
+      sampleTime ? (
+        <DateDisplay showTime date={sampleTime} />
+      ) : (
+        <TranslatedText
+          stringId="lab.requestSummary.table.sampleDate.noData"
+          fallback="Sample not collected"
+        />
+      ),
   },
 ];
 
@@ -110,30 +130,52 @@ export const LabRequestSummaryPane = React.memo(
 
     return (
       <Container>
-        <Heading3 mb="12px">Request finalised</Heading3>
+        <Heading3 mb="12px">
+          <TranslatedText stringId="lab.form.requestSummary.heading" fallback="Request finalised" />
+        </Heading3>
         <BodyText mb="28px" color="textTertiary">
-          Your lab request has been finalised. Please select items from the list below to print
-          requests or sample labels.
+          <TranslatedText
+            stringId="lab.form.requestSummary.instruction"
+            fallback="Your lab request has been finalised. Please select items from the list below to print
+          requests or sample labels."
+          />
         </BodyText>
         <Card>
           <StyledInfoCard gridRowGap={10} elevated={false}>
             <InfoCardItem
-              label={`Requesting ${clinicianText.toLowerCase()}`}
+              label={
+                <TranslatedText
+                  stringId="lab.form.requestingClinician.label"
+                  fallback="Requesting :clinicianText"
+                  replacements={{ clinicianText: clinicianText.toLowerCase() }}
+                />
+              }
               value={requestedBy?.displayName}
             />
             <InfoCardItem
-              label="Request date & time"
+              label={
+                <TranslatedText
+                  stringId="lab.form.requestDateTime.label"
+                  fallback="Request date & time"
+                />
+              }
               value={<DateDisplay date={requestedDate} showTime />}
             />
-            <InfoCardItem label="Department" value={department?.name} />
-            <InfoCardItem label="Priority" value={priority ? priority.name : '-'} />
+            <InfoCardItem
+              label={<TranslatedText stringId="lab.form.department.label" fallback="Department" />}
+              value={department?.name}
+            />
+            <InfoCardItem
+              label={<TranslatedText stringId="lab.form.priority.label" fallback="Priority" />}
+              value={priority ? priority.name : '-'}
+            />
           </StyledInfoCard>
           <CardTable
             headerColor={Colors.white}
             columns={[selectableColumn, ...getColumns(requestFormType)]}
             data={labRequests}
             elevated={false}
-            noDataMessage="No lab requests found"
+            noDataMessage=<TranslatedText stringId="lab.requestSummary.table.noData" />
             allowExport={false}
           />
         </Card>
@@ -143,7 +185,7 @@ export const LabRequestSummaryPane = React.memo(
             onClick={() => setIsOpen(MODALS.LABEL_PRINT)}
             disabled={noRowSelected}
           >
-            Print label
+            <TranslatedText stringId="lab.action.printLabel" fallback="Print label" />
           </OutlinedButton>
           <LabRequestPrintLabelModal
             labRequests={selectedRows}
@@ -155,7 +197,7 @@ export const LabRequestSummaryPane = React.memo(
             size="small"
             onClick={() => setIsOpen(MODALS.PRINT)}
           >
-            Print request
+            <TranslatedText stringId="lab.action.printRequest" fallback="Print request" />
           </OutlinedButton>
           <MultipleLabRequestsPrintoutModal
             encounter={encounter}
@@ -169,7 +211,9 @@ export const LabRequestSummaryPane = React.memo(
         </Actions>
         <FormSeparatorLine />
         <Box display="flex" justifyContent="flex-end" pt={3}>
-          <Button onClick={onClose}>Close</Button>
+          <Button onClick={onClose}>
+            <TranslatedText stringId="general.action.close" fallback="Close" />
+          </Button>
         </Box>
       </Container>
     );
