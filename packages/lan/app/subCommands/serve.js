@@ -14,6 +14,7 @@ import { listenForServerQueries } from '../discovery';
 
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
+import { ReadSettings } from '@tamanu/settings';
 
 async function serve({ skipMigrationCheck }) {
   log.info(`Starting facility server version ${version}`, {
@@ -25,7 +26,9 @@ async function serve({ skipMigrationCheck }) {
   });
 
   const context = await new ApplicationContext().init();
-  const { settings } = context;
+
+  const settings = new ReadSettings(context.models, config.serverFacilityId);
+  context.settings = settings;
 
   if (config.db.migrateOnStartup) {
     await context.sequelize.migrate('up');

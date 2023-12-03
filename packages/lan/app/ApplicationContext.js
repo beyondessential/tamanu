@@ -7,8 +7,6 @@ export class ApplicationContext {
 
   models = null;
 
-  settings = null;
-
   reportSchemaStores = null;
 
   closeHooks = [];
@@ -17,7 +15,6 @@ export class ApplicationContext {
     const database = await initDatabase();
     this.sequelize = database.sequelize;
     this.models = database.models;
-    this.settings = new ReadSettings(this.models, config.serverFacilityId);
 
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();
