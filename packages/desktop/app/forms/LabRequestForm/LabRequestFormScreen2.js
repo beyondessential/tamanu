@@ -22,7 +22,13 @@ export const screen2ValidationSchema = yup.object().shape({
       then: yup
         .array()
         .of(yup.string())
-        .min(1, 'Please select at least one test type'),
+        .min(
+          1,
+          <TranslatedText
+            stringId="lab.form.test.testType.validation"
+            fallback="Please select at least one test type"
+          />,
+        ),
     }),
   panelIds: yup
     .array()
@@ -32,7 +38,13 @@ export const screen2ValidationSchema = yup.object().shape({
       then: yup
         .array()
         .of(yup.string())
-        .min(1, 'Please select at least one panel'),
+        .min(
+          1,
+          <TranslatedText
+            stringId="lab.form.panel.testType.validation"
+            fallback="Please select at least one panel"
+          />,
+        ),
     }),
   notes: yup.string(),
 });
@@ -48,7 +60,7 @@ export const FORM_TYPE_TO_FIELD_CONFIG = {
         />
         {'\n'}
         <TranslatedText
-          stringId="lab.form.test.filter.nstruction"
+          stringId="lab.form.test.filter.instruction"
           fallback="You can filter test by category using the field below."
         />
       </>
@@ -75,9 +87,20 @@ export const FORM_TYPE_TO_FIELD_CONFIG = {
     fieldName: 'panelIds',
   },
   [LAB_REQUEST_FORM_TYPES.SUPERSET]: {
-    subheading: 'Select superset',
-    instructions:
-      'Please select the superset you would like to request below and add any relevant notes. \nYou can also remove or add additional panels to your request.',
+    subheading: <TranslatedText stringId="lab.form.superset.select" fallback="Select superset" />,
+    instructions: (
+      <>
+        <TranslatedText
+          stringId="lab.form.superset.select.instruction"
+          fallback="Please select the superset you would like to request below and add any relevant notes."
+        />
+        ,{'\n'}
+        <TranslatedText
+          stringId="lab.form.superset.add.instruction"
+          fallback="You can also remove or add additional panels to your request."
+        />
+      </>
+    ),
     selectableName: 'panel',
   },
 };
@@ -120,7 +143,7 @@ export const LabRequestFormScreen2 = props => {
       <div style={{ gridColumn: '1 / -1' }}>
         <Field
           name="notes"
-          label=<TranslatedText stringId="labs.modal.new.form.notes" fallback="Notes" />
+          label=<TranslatedText stringId="lab.form.notes.label" fallback="Notes" />
           component={TextField}
           multiline
           rows={3}

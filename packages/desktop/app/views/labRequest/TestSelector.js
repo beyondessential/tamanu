@@ -158,7 +158,7 @@ export const TestSelectorInput = ({
   const {
     selectableName,
     label = labelConfig.subheading,
-    searchFieldPlaceholder = <TranslatedText stringId="general.action.search" fallback="Search" />,
+    searchFieldPlaceholder = 'Search',
   } = labelConfig;
   const [searchQuery, setSearchQuery] = useState({
     labTestCategoryId: '',
@@ -214,10 +214,7 @@ export const TestSelectorInput = ({
                 }}
                 initialOptions={[{ label: 'All', value: '' }]}
                 label={
-                  <TranslatedText
-                    stringId="labs.form.testCategory.label"
-                    fallback="Test category"
-                  />
+                  <TranslatedText stringId="lab.form.testCategory.label" fallback="Test category" />
                 }
                 endpoint="labTestCategory"
                 name="labTestCategoryId"
@@ -266,7 +263,11 @@ export const TestSelectorInput = ({
         <SelectorContainer>
           <Box display="flex" justifyContent="space-between">
             <SectionHeader>Selected {selectableName}s</SectionHeader>
-            {value.length > 0 && <ClearAllButton onClick={handleClear}>Clear all</ClearAllButton>}
+            {value.length > 0 && (
+              <ClearAllButton onClick={handleClear}>
+                <TranslatedText stringId="general.action.clearAll" fallback="Clear all" />
+              </ClearAllButton>
+            )}
           </Box>
           <FormSeparatorLine />
           <SelectorTable>

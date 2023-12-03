@@ -31,12 +31,30 @@ export const LabRequestMultiStepForm = ({
 
   // For fields please see LabRequestFormScreen1.js
   const screen1ValidationSchema = yup.object().shape({
-    requestedById: foreignKey(`Requesting ${clinicianText.toLowerCase()} is required`),
-    requestedDate: yup.date().required('Request date is required'),
+    requestedById: foreignKey(
+      <TranslatedText
+        stringId="lab.form.requestedById.validation"
+        fallback="Requesting :clinicianText is required"
+        replacements={{ clinicianText: clinicianText.toLowerCase() }}
+      />,
+    ),
+    requestedDate: yup
+      .date()
+      .required(
+        <TranslatedText
+          stringId="lab.form.requestedDate.validation"
+          fallback="Request date is required"
+        />,
+      ),
     requestFormType: yup
       .string()
       .oneOf(Object.values(LAB_REQUEST_FORM_TYPES))
-      .required('Request type must be selected'),
+      .required(
+        <TranslatedText
+          stringId="lab.form.requestFormType.validation"
+          fallback="Request type must be selected"
+        />,
+      ),
   });
   const combinedValidationSchema = screen1ValidationSchema.concat(screen2ValidationSchema);
 

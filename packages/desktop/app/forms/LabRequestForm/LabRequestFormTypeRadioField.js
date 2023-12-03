@@ -103,7 +103,7 @@ export const LabRequestFormTypeRadioField = ({ value, setFieldValue }) => {
       <OuterLabelFieldWrapper
         label={
           <TranslatedText
-            stringId="labs.form.requestType.label"
+            stringId="lab.form.requestType.label"
             fallback="Select your request type"
           />
         }
