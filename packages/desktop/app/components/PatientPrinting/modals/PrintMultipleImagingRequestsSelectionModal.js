@@ -8,7 +8,9 @@ import { TranslatedText } from '../../Translation/TranslatedText';
 export const PrintMultipleImagingRequestsSelectionModal = ({ encounter, open, onClose }) => {
   return (
     <FormModal
-      title={<TranslatedText stringId="imaging.print.title" fallback="Print imaging request/s" />}
+      title={
+        <TranslatedText stringId="imaging.modal.print.title" fallback="Print imaging request/s" />
+      }
       width="md"
       open={open}
       onClose={onClose}

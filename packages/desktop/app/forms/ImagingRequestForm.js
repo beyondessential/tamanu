@@ -75,10 +75,7 @@ const FormSubmitActionDropdown = React.memo(({ requestId, encounter, submitForm 
     },
     {
       label: (
-        <TranslatedText
-          stringId="general.form.action.finaliseAndPrint"
-          fallback="Finalise & print"
-        />
+        <TranslatedText stringId="general.action.finaliseAndPrint" fallback="Finalise & print" />
       ),
       onClick: finaliseAndPrint,
     },
@@ -223,7 +220,7 @@ export const ImagingRequestForm = React.memo(
               />
               <ButtonRow>
                 <FormCancelButton onClick={onCancel}>
-                  <TranslatedText stringId="general.actions.cancel" fallback="Cancel" />
+                  <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
                 </FormCancelButton>
                 <FormSubmitActionDropdown
                   requestId={requestId}

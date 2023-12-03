@@ -143,9 +143,7 @@ const NewResultSection = ({ disabled = false }) => {
   return (
     <FormGrid columns={2}>
       <Field
-        label={
-          <TranslatedText stringId="imaging.result.completedBy.label" fallback="Completed by" />
-        }
+        label={<TranslatedText stringId="imaging.form.completedBy.label" fallback="Completed by" />}
         name="newResult.completedById"
         placeholder="Search"
         component={AutocompleteField}
@@ -153,9 +151,7 @@ const NewResultSection = ({ disabled = false }) => {
         disabled={disabled}
       />
       <Field
-        label={
-          <TranslatedText stringId="imaging.result.completedDate.label" fallback="Completed" />
-        }
+        label={<TranslatedText stringId="imaging.form.completedDate.label" fallback="Completed" />}
         name="newResult.completedAt"
         saveDateAsString
         component={DateTimeField}
@@ -163,7 +159,7 @@ const NewResultSection = ({ disabled = false }) => {
       />
       <Field
         label={
-          <TranslatedText stringId="imaging.result.completedBy.label" fallback="Completed by" />
+          <TranslatedText stringId="imaging.form.description.label" fallback="Result description" />
         }
         name="newResult.description"
         placeholder="Result description..."
@@ -260,11 +256,11 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
             <h4>
               {imagingRequest.results.length > 0 ? (
                 <TranslatedText
-                  stringId="imaging.request.addAdditionalResult"
+                  stringId="imaging.action.addAdditionalResult"
                   fallback="Add additional result"
                 />
               ) : (
-                <TranslatedText stringId="imaging.request.addResult" fallback="Add result" />
+                <TranslatedText stringId="imaging.action.addResult" fallback="Add result" />
               )}
             </h4>
             <NewResultSection disabled={!canAddResult} />
