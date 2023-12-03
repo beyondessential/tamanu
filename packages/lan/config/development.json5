@@ -1,7 +1,4 @@
 {
-  "admin": {
-    "allowAdminRoutes": true
-  },
   "log": {
     "console": "debug"
   },

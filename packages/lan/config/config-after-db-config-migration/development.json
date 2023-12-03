@@ -1,7 +1,4 @@
 {
-  "admin": {
-    "allowAdminRoutes": true
-  },
   "db": {
     "name": "develop"
   },
