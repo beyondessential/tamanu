@@ -4,6 +4,7 @@ import { ProcedureModal } from '../../../components/ProcedureModal';
 import { ProcedureTable } from '../../../components/ProcedureTable';
 import { TableButtonRow, Button } from '../../../components';
 import { TabPane } from '../components';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 export const ProcedurePane = React.memo(({ encounter, readonly }) => {
   const [editedProcedure, setEditedProcedure] = useState(null);
@@ -22,7 +23,7 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
       />
       <TableButtonRow variant="small">
         <Button onClick={() => setEditedProcedure({})} disabled={readonly}>
-          New procedure
+          <TranslatedText stringId="procedure.action.newProcedure" fallback="New procedure" />
         </Button>
       </TableButtonRow>
       <ProcedureTable encounterId={encounter.id} onItemClick={item => setEditedProcedure(item)} />

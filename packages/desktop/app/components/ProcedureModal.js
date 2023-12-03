@@ -5,6 +5,7 @@ import { Suggester } from '../utils/suggester';
 
 import { FormModal } from './FormModal';
 import { ProcedureForm } from '../forms/ProcedureForm';
+import { TranslatedText } from './Translation/TranslatedText';
 
 export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure }) => {
   const api = useApi();
@@ -18,7 +19,19 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
   return (
     <FormModal
       width="md"
-      title={`${editedProcedure?.id ? 'Edit' : 'New'} procedure`}
+      title={
+        <TranslatedText
+          stringId="procedure.modal.title"
+          fallback=":action procedure"
+          replacements={{
+            action: editedProcedure?.id ? (
+              <TranslatedText stringId="general.action.edit" fallback="Edit" />
+            ) : (
+              <TranslatedText stringId="general.action.new" fallback="New" />
+            ),
+          }}
+        />
+      }
       open={!!editedProcedure}
       onClose={onClose}
     >
