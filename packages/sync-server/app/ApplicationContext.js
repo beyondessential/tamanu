@@ -20,7 +20,7 @@ export class ApplicationContext {
   async init({ testMode } = {}) {
     this.emailService = new EmailService();
     this.store = await initDatabase({ testMode });
-    this.settings = new ReadSettings(this.store.models);
+    this.settings = new ReadSettings(this.store.models, config.serverFacilityId);
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();
     }

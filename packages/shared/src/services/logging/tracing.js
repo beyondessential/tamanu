@@ -2,11 +2,10 @@ import { HoneycombSDK } from '@honeycombio/opentelemetry-node';
 import { trace } from '@opentelemetry/api';
 import { Resource } from '@opentelemetry/resources';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
-import config from 'config';
 import { ENV, serviceContext, serviceName } from './context';
 
-function setupTracing() {
-  const { apiKey, sampleRate = 1, enabled } = config?.honeycomb || {};
+export const setupTracing = async ({ settings }) => {
+  const { apiKey, sampleRate = 1, enabled } = await settings.get('honeycomb');
   if (!enabled || !apiKey) return null;
 
   const context = serviceContext();
@@ -39,9 +38,8 @@ function setupTracing() {
 
   sdk.start();
   return sdk;
-}
+};
 
-export const tracingSDK = setupTracing();
 export const getTracer = (name = 'tamanu') => trace.getTracer(name);
 export const spanWrapFn = async (name, fn, attributes = {}, tracer = 'tamanu') =>
   getTracer(tracer).startActiveSpan(name, async span => {
