@@ -51,7 +51,7 @@ export const screen2ValidationSchema = yup.object().shape({
 
 export const FORM_TYPE_TO_FIELD_CONFIG = {
   [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: {
-    subheading: <TranslatedText stringId="lab.form.test.select" fallback="Select tests" />,
+    subheading: <TranslatedText stringId="lab.form.test.select.heading" fallback="Select tests" />,
     instructions: (
       <>
         <TranslatedText
@@ -69,7 +69,7 @@ export const FORM_TYPE_TO_FIELD_CONFIG = {
     fieldName: 'labTestTypeIds',
   },
   [LAB_REQUEST_FORM_TYPES.PANEL]: {
-    subheading: <TranslatedText stringId="lab.form.panel.select" fallback="Select panel" />,
+    subheading: <TranslatedText stringId="lab.form.panel.select.heading" fallback="Select panel" />,
     instructions: (
       <TranslatedText
         stringId="lab.form.panel.select.instruction"
@@ -87,7 +87,9 @@ export const FORM_TYPE_TO_FIELD_CONFIG = {
     fieldName: 'panelIds',
   },
   [LAB_REQUEST_FORM_TYPES.SUPERSET]: {
-    subheading: <TranslatedText stringId="lab.form.superset.select" fallback="Select superset" />,
+    subheading: (
+      <TranslatedText stringId="lab.form.superset.select.heading" fallback="Select superset" />
+    ),
     instructions: (
       <>
         <TranslatedText

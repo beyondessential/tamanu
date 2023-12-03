@@ -24,14 +24,11 @@ export const LabRequestFormScreen1 = ({
     <>
       <div style={{ gridColumn: '1 / -1' }}>
         <Heading3 mb="12px">
-          <TranslatedText
-            stringId="lab.form.header.newLabRequest"
-            fallback="Creating a new lab request"
-          />
+          <TranslatedText stringId="lab.form.create.header" fallback="Creating a new lab request" />
         </Heading3>
         <BodyText mb="28px" color="textTertiary">
           <TranslatedText
-            stringId="lab.form.instruction.newLabRequest"
+            stringId="lab.form.create.instruction"
             fallback="Please complete the details below and select the lab request type"
           />
         </BodyText>

@@ -11,7 +11,7 @@ import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const OPTIONS = {
   INDIVIDUAL: {
-    label: <TranslatedText stringId="lab.form.type.individual" fallback="Individual" />,
+    label: <TranslatedText stringId="lab.form.type.individual.label" fallback="Individual" />,
     description: (
       <TranslatedText
         stringId="lab.form.type.individual.description"
@@ -21,7 +21,7 @@ const OPTIONS = {
     value: LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
   },
   PANEL: {
-    label: <TranslatedText stringId="lab.form.type.panel" fallback="Panel" />,
+    label: <TranslatedText stringId="lab.form.type.panel.label" fallback="Panel" />,
     description: (
       <TranslatedText
         stringId="lab.form.type.panel.description"
@@ -31,7 +31,7 @@ const OPTIONS = {
     value: LAB_REQUEST_FORM_TYPES.PANEL,
   },
   SUPERSET: {
-    label: <TranslatedText stringId="lab.form.type.superset" fallback="Superset" />,
+    label: <TranslatedText stringId="lab.form.type.superset.label" fallback="Superset" />,
     description: (
       <TranslatedText
         stringId="lab.form.type.superset.description"
