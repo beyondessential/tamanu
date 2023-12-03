@@ -131,9 +131,7 @@ export const InvoicesTable = React.memo(({ patient, searchParameters }) => (
   <DataFetchingTable
     endpoint={`patient/${patient.id}/invoices`}
     columns={COLUMNS}
-    noDataMessage={
-      <TranslatedText stringId="invoice.table.noDataMessage" fallback="No invoices found" />
-    }
+    noDataMessage={<TranslatedText stringId="invoice.table.noData" fallback="No invoices found" />}
     fetchOptions={searchParameters}
     allowExport={false}
   />

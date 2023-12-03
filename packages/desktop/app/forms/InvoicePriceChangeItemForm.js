@@ -40,7 +40,7 @@ export const InvoicePriceChangeItemForm = ({
             name="description"
             label={
               <TranslatedText
-                stringId="invoicing.priceChange.form.details.label"
+                stringId="invoicing.modal.priceChange.form.details.label"
                 fallback="Details"
               />
             }
@@ -51,7 +51,7 @@ export const InvoicePriceChangeItemForm = ({
             name="orderedById"
             label={
               <TranslatedText
-                stringId="invoicing.priceChange.form.orderedBy.label"
+                stringId="invoicing.modal.priceChange.form.orderedBy.label"
                 fallback="Ordered by"
               />
             }
@@ -63,7 +63,7 @@ export const InvoicePriceChangeItemForm = ({
             name="percentageChange"
             label={
               <TranslatedText
-                stringId="invoicing.priceChange.form.priceChange.label"
+                stringId="invoicing.modal.priceChange.form.priceChange.label"
                 fallback="Discount/markup % (-/+)"
               />
             }

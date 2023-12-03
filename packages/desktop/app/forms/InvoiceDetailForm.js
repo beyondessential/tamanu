@@ -96,7 +96,7 @@ export const InvoiceDetailForm = ({
         }
         subText={
           <TranslatedText
-            stringId="invoice.modal.view.finalise.subext"
+            stringId="invoice.modal.view.finalise.subText"
             fallback="You will not be able to edit the invoice once it is finalised."
           />
         }
@@ -129,7 +129,7 @@ export const InvoiceDetailForm = ({
         }
         confirmButtonColor="primary"
         confirmButtonText={
-          <TranslatedText stringId="invoice.modal.view.cancel.confirm" fallback="Cancel Invoice" />
+          <TranslatedText stringId="invoice.action.cancelInvoice" fallback="Cancel Invoice" />
         }
         open={cancelInvoiceModalOpen}
         onCancel={() => setCancelInvoiceModalOpen(false)}
@@ -241,10 +241,7 @@ export const InvoiceDetailForm = ({
             <PrintIcon />
           </span>
           <span>
-            <TranslatedText
-              stringId="invoice.modal.view.expanded.action.print"
-              fallback="Print Invoice"
-            />
+            <TranslatedText stringId="invoice.action.printInvoice" fallback="Print Invoice" />
           </span>
         </TextButton>
         {detailExpanded ? (

@@ -28,7 +28,7 @@ export const PotentialInvoiceLineItemsModal = ({ open, onClose, invoiceId, onSav
       width="md"
       title={
         <TranslatedText
-          stringId="invoicing.potentialInvoices.title"
+          stringId="invoicing.modal.potentialInvoices.title"
           fallback="Potential invoice line items"
         />
       }
@@ -40,7 +40,7 @@ export const PotentialInvoiceLineItemsModal = ({ open, onClose, invoiceId, onSav
         columns={COLUMNS}
         noDataMessage={
           <TranslatedText
-            stringId="invoicing.potentialInvoices.noDataMessage"
+            stringId="invoicing.modal.potentialInvoices.noData"
             fallback="No potential invoice line items found"
           />
         }
