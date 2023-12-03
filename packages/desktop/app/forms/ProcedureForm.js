@@ -148,7 +148,7 @@ export const ProcedureForm = React.memo(
                   name="anaestheticId"
                   label={
                     <TranslatedText
-                      stringId="procedure.modal.form.anaesthetistType.label"
+                      stringId="procedure.modal.form.anaestheticType.label"
                       fallback="Anaesthetic type"
                     />
                   }
