@@ -1,5 +1,3 @@
-import config from 'config';
-
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 
@@ -11,7 +9,8 @@ export class SyncTask extends ScheduledTask {
   }
 
   constructor(context) {
-    super(config.sync.schedule, log);
+    const { schedules } = context;
+    super(schedules.sync.schedule, log);
     this.context = context;
     this.runImmediately();
   }

@@ -10,12 +10,18 @@ import { getToken } from 'sync-server/app/auth/utils';
 import { createApp } from 'sync-server/app/createApp';
 import { closeDatabase, initDatabase, initReporting } from 'sync-server/app/database';
 import { initIntegrations } from 'sync-server/app/integrations';
+import { ReadSettings } from '@tamanu/settings';
+import { seedSettings } from '../../shared/src/demoData';
 
 class MockApplicationContext {
   closeHooks = [];
 
   async init() {
     this.store = await initDatabase({ testMode: true });
+    this.settings = new ReadSettings(this.store.models);
+    // Settings must be seeded before integrations are initialised
+    await seedSettings(this.store.models);
+
     if (config.db.reportSchemas?.enabled) {
       await createMockReportingSchemaAndRoles({ sequelize: this.store.sequelize });
       this.reportSchemaStores = await initReporting();

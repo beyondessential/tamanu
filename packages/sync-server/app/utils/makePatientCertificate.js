@@ -3,7 +3,6 @@ import ReactPDF from '@react-pdf/renderer';
 import path from 'path';
 import QRCode from 'qrcode';
 import { get } from 'lodash';
-import config from 'config';
 import { ASSET_NAMES, ASSET_FALLBACK_NAMES } from '@tamanu/constants';
 
 import {
@@ -13,8 +12,6 @@ import {
   CovidVaccineCertificate,
 } from '@tamanu/shared/utils';
 import { CovidLabCertificate, CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
-
-import { getLocalisation } from '../localisation';
 
 async function getCertificateAssets(models, footerAssetName) {
   const footerAsset = await models.Asset.findOne({ raw: true, where: { name: footerAssetName } });
@@ -60,15 +57,15 @@ async function getPatientVaccines(models, patient) {
 }
 
 export const makeCovidVaccineCertificate = async (
+  { models, settings },
   patient,
   printedBy,
   printedDate,
-  models,
   uvci,
   qrData = null,
 ) => {
-  const localisation = await getLocalisation();
-  const getLocalisationData = key => get(localisation, key);
+  const settingsData = await settings.get('');
+  const getSetting = key => get(settingsData, key);
 
   const fileName = `covid-vaccine-certificate-${patient.id}.pdf`;
   const { logo, signingImage, watermark } = await getCertificateAssets(
@@ -89,15 +86,20 @@ export const makeCovidVaccineCertificate = async (
       watermarkSrc={watermark}
       logoSrc={logo}
       vdsSrc={vds}
-      getLocalisation={getLocalisationData}
+      getSetting={getSetting}
     />,
     fileName,
   );
 };
 
-export const makeVaccineCertificate = async (patient, printedBy, printedDate, models) => {
-  const localisation = await getLocalisation();
-  const getLocalisationData = key => get(localisation, key);
+export const makeVaccineCertificate = async (
+  { models, settings },
+  patient,
+  printedBy,
+  printedDate,
+) => {
+  const settingsData = await settings.get('');
+  const getSetting = key => get(settingsData, key);
 
   const fileName = `vaccine-certificate-${patient.id}.pdf`;
   const { logo, signingImage, watermark } = await getCertificateAssets(
@@ -115,21 +117,21 @@ export const makeVaccineCertificate = async (patient, printedBy, printedDate, mo
       signingSrc={signingImage}
       watermarkSrc={watermark}
       logoSrc={logo}
-      getLocalisation={getLocalisationData}
+      getSetting={getSetting}
     />,
     fileName,
   );
 };
 
 export const makeCovidCertificate = async (
+  { models, settings },
   certType,
   patient,
   printedBy,
-  models,
   vdsData = null,
 ) => {
-  const localisation = await getLocalisation();
-  const getLocalisationData = key => get(localisation, key);
+  const settingsData = await settings.get('');
+  const getSetting = key => get(settingsData, key);
 
   const fileName = `covid-${certType}-certificate-${patient.id}.pdf`;
   const footerAssetName =
@@ -145,13 +147,13 @@ export const makeCovidCertificate = async (
   const passportFromSurveyResponse = await getPatientSurveyResponseAnswer(
     models,
     patient.id,
-    config?.questionCodeIds?.passport,
+    await settings.get('questionCodeIds.passport'),
   );
 
   const nationalityId = await getPatientSurveyResponseAnswer(
     models,
     patient.id,
-    config?.questionCodeIds?.nationalityId,
+    await settings.get('questionCodeIds.nationalityId'),
   );
 
   const nationalityRecord = await models.ReferenceData.findByPk(nationalityId);
@@ -182,7 +184,7 @@ export const makeCovidCertificate = async (
       logoSrc={logo}
       printedBy={printedBy}
       vdsSrc={vds}
-      getLocalisation={getLocalisationData}
+      getSetting={getSetting}
       certType={certType}
     />,
     fileName,

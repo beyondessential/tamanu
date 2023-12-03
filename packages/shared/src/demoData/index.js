@@ -12,6 +12,7 @@ export * from './labTestTypes';
 export * from './locations';
 export * from './patients';
 export * from './procedureTypes';
+export * from './settings';
 export * from './users';
 export * from './villages';
 export * from './utilities';

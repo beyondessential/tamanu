@@ -1,5 +1,4 @@
 import express from 'express';
-import config from 'config';
 
 import { log } from '@tamanu/shared/services/logging';
 
@@ -31,15 +30,18 @@ export const publicIntegrationRoutes = express.Router();
 
 export const initIntegrations = async ctx => {
   for (const [key, integration] of Object.entries(integrations)) {
-    if (config.integrations[key].enabled) {
+    if (await ctx.settings.get(`integrations.${key}.enabled`)) {
       log.info(`initIntegrations: ${key}: initialising`);
       const { routes, publicRoutes, initAppContext } = integration;
       if (initAppContext) {
         await initAppContext(ctx);
       }
       if (routes) {
+        const requireClientHeaders = await ctx.settings.get(
+          `integrations.${key}.requireClientHeaders`,
+        );
         const isRouter = Object.getPrototypeOf(routes) === express.Router;
-        const actualRoutes = isRouter ? routes : routes(ctx);
+        const actualRoutes = isRouter ? routes : routes(ctx, requireClientHeaders);
         integrationRoutes.use(`/${key}`, actualRoutes);
       }
       if (publicRoutes) {
@@ -51,20 +53,21 @@ export const initIntegrations = async ctx => {
   }
 };
 
-export function checkIntegrationsConfig() {
-  checkEuDccConfig();
-  checkSignerConfig();
-  checkVdsNcConfig();
-  checkFhirConfig();
+export async function checkIntegrationsConfig(settings) {
+  const integrationSettings = await settings.get('integrations');
+  await checkEuDccConfig(settings);
+  await checkSignerConfig(settings);
+  await checkVdsNcConfig(settings);
+  await checkFhirConfig(settings);
 
   if (
-    (config.integrations.euDcc.enabled || config.integrations.vdsNc.enabled) &&
-    !config.integrations.signer.enabled
+    (integrationSettings?.euDcc?.enabled || integrationSettings?.vdsNc?.enabled) &&
+    !integrationSettings?.signer?.enabled
   ) {
     throw new Error('euDcc and vdsNc integrations require the signer integration to be enabled');
   }
 
-  if (config.integrations.euDcc.enabled && config.integrations.vdsNc.enabled) {
+  if (integrationSettings?.euDcc?.enabled && integrationSettings?.vdsNc?.enabled) {
     throw new Error('Cannot enable both euDcc and vdsNc integrations at the same time');
   }
 }
