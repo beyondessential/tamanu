@@ -490,10 +490,11 @@ const formatJsonValue = value => {
 const formatRow = row =>
   Object.entries(row).reduce((acc, [k, v]) => ({ ...acc, [k]: formatJsonValue(v) }), {});
 
-export const dataGenerator = async ({ sequelize }, parameters = {}) => {
+export const dataGenerator = async ({ sequelize, settings }, parameters = {}) => {
   // Note this could be reading from facility config OR central server config
-  const includedPatientFieldIds =
-    config?.reportConfig?.['encounter-summary-line-list']?.includedPatientFieldIds;
+  const includedPatientFieldIds = await settings.get(
+    'reportConfig.encounter-summary-line-list.includedPatientFieldIds',
+  );
 
   const results = await getData(sequelize, parameters, includedPatientFieldIds);
   const formattedResults = results.map(formatRow);

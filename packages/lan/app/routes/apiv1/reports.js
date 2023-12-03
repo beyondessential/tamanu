@@ -54,6 +54,7 @@ reports.post(
           models,
           reportSchemaStores,
           sequelize: db,
+          settings,
         },
         parameters,
       );
