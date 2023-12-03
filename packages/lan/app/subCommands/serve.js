@@ -1,6 +1,6 @@
 import config from 'config';
 import { Command } from 'commander';
-]
+
 import { setupTracing, log } from '@tamanu/shared/services/logging';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 import { ReadSettings } from '@tamanu/settings';
