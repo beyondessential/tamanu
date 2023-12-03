@@ -43,6 +43,7 @@ export const executeInserts = async (
     }
   }
 
+  // To create soft deleted records, we need to first create them, then destroy them
   if (softDeleted.length > 0) {
     await executeDeletes(model, softDeleted);
   }
@@ -95,8 +96,6 @@ export const executeDeletes = async (
       );
     }
   }
-
-  await executeUpdates(model, recordsForDelete);
 };
 
 export const executeRestores = async (
@@ -109,7 +108,10 @@ export const executeRestores = async (
     await Promise.all(
       batchOfIds.map(async id => {
         try {
-          const entity = await model.findOne({ where: { id }, withDeleted: true });
+          const entity = await model.findOne({
+            where: { id },
+            withDeleted: true,
+          });
           await entity.recover();
         } catch (error) {
           throw new Error(`Restore failed with '${error.message}', recordId: ${id}`);
@@ -117,6 +119,4 @@ export const executeRestores = async (
       }),
     );
   }
-
-  await executeUpdates(model, recordsForRestore);
 };

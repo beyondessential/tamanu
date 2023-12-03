@@ -1,12 +1,20 @@
 {
-  log: {
-    console: 'debug',
-  },
-  discovery: {
-    protocol: 'http',
+  serverFacilityId: 'tamanuFijiGenerate-facility-0',
+  auth: {
+    useHardcodedPermissions: false,
+    secret: 'insecure',
   },
   db: {
-    name: 'develop',
+    migrateOnStartup: true,
+    name: 'tamanu-lan',
   },
-  countryTimeZone: 'Pacific/Auckland',
+  sync: {
+    host: 'http://localhost:3000',
+    email: 'admin@tamanu.io',
+    password: 'admin',
+    enabled: true,
+  },
+  log: {
+    consoleLevel: 'http',
+  },
 }

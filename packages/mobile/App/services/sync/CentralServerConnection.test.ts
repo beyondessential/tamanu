@@ -65,7 +65,10 @@ describe('CentralServerConnection', () => {
       const getSpy = jest
         .spyOn(centralServerConnection, 'get')
         .mockResolvedValue({ startedAtTick: 1 });
-      const startSyncSessionRes = await centralServerConnection.startSyncSession();
+      const startSyncSessionRes = await centralServerConnection.startSyncSession({
+        urgent: false,
+        lastSyncedTick: -1,
+      });
       expect(postSpy).toBeCalled();
       expect(pollUntilTrueSpy).toBeCalledWith(expect.stringContaining(mockSessionId));
       expect(getSpy).toBeCalledWith(expect.stringContaining(mockSessionId), {});
