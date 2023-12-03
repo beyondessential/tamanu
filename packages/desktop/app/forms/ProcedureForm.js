@@ -19,6 +19,7 @@ import { FormSubmitCancelRow } from '../components/ButtonRow';
 
 import { foreignKey, optionalForeignKey } from '../utils/validation';
 import { useLocalisedText } from '../components';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const suggesterType = PropTypes.shape({
   fetchSuggestions: PropTypes.func,
@@ -42,9 +43,11 @@ export const ProcedureForm = React.memo(
         render={({ submitForm, values }) => {
           const handleCancel = () => onCancel && onCancel();
           const getButtonText = isCompleted => {
-            if (isCompleted) return 'Finalise';
-            if (editedObject?.id) return 'Update';
-            return 'Submit';
+            if (isCompleted)
+              return <TranslatedText stringId="general.action.finalise" fallback="Finalise" />;
+            if (editedObject?.id)
+              return <TranslatedText stringId="general.action.update" fallback="Update" />;
+            return <TranslatedText stringId="general.action.submit" fallback="Submit" />;
           };
 
           const isCompleted = !!values.completed;
@@ -55,7 +58,12 @@ export const ProcedureForm = React.memo(
                 <div style={{ gridColumn: 'span 2' }}>
                   <Field
                     name="procedureTypeId"
-                    label="Procedure"
+                    label={
+                      <TranslatedText
+                        stringId="procedure.modal.form.procedure.label"
+                        fallback="Procedure"
+                      />
+                    }
                     required
                     component={AutocompleteField}
                     suggester={procedureSuggester}
@@ -71,14 +79,29 @@ export const ProcedureForm = React.memo(
                   />
                   <Field
                     name="date"
-                    label="Procedure date"
+                    label={
+                      <TranslatedText
+                        stringId="procedure.modal.form.date.label"
+                        fallback="Procedure date"
+                      />
+                    }
                     saveDateAsString
                     required
                     component={DateField}
                   />
                   <Field
-                    locationGroupLabel="Procedure area"
-                    label="Procedure location"
+                    locationGroupLabel={
+                      <TranslatedText
+                        stringId="procedure.modal.form.area.label"
+                        fallback="Procedure area"
+                      />
+                    }
+                    label={
+                      <TranslatedText
+                        stringId="procedure.modal.form.location.label"
+                        fallback="Procedure location"
+                      />
+                    }
                     name="locationId"
                     enableLocationStatus={false}
                     required
@@ -88,22 +111,47 @@ export const ProcedureForm = React.memo(
                 <FormGrid style={{ gridColumn: 'span 2' }}>
                   <Field
                     name="startTime"
-                    label="Time started"
+                    label={
+                      <TranslatedText
+                        stringId="procedure.modal.form.startTime.label"
+                        fallback="Time started"
+                      />
+                    }
                     component={TimeField}
                     saveDateAsString
                   />
-                  <Field name="endTime" label="Time ended" component={TimeField} saveDateAsString />
+                  <Field
+                    name="endTime"
+                    label={
+                      <TranslatedText
+                        stringId="procedure.modal.form.endTime.label"
+                        fallback="Time ended"
+                      />
+                    }
+                    component={TimeField}
+                    saveDateAsString
+                  />
                 </FormGrid>
 
                 <Field
                   name="anaesthetistId"
-                  label="Anaesthetist"
+                  label={
+                    <TranslatedText
+                      stringId="procedure.modal.form.aneasthetist.label"
+                      fallback="Anaesthetist"
+                    />
+                  }
                   component={AutocompleteField}
                   suggester={practitionerSuggester}
                 />
                 <Field
                   name="anaestheticId"
-                  label="Anaesthetic type"
+                  label={
+                    <TranslatedText
+                      stringId="procedure.modal.form.anaesthetistType.label"
+                      fallback="Anaesthetic type"
+                    />
+                  }
                   component={AutocompleteField}
                   suggester={anaestheticSuggester}
                   rows={4}
@@ -111,23 +159,47 @@ export const ProcedureForm = React.memo(
                 />
                 <Field
                   name="assistantId"
-                  label="Assistant"
+                  label={
+                    <TranslatedText
+                      stringId="procedure.modal.form.assistant.label"
+                      fallback="Assistant"
+                    />
+                  }
                   component={AutocompleteField}
                   suggester={practitionerSuggester}
                 />
                 <Field
                   name="note"
-                  label="Notes or additional instructions"
+                  label={
+                    <TranslatedText
+                      stringId="procedure.modal.form.notes.label"
+                      fallback="Notes or additional instructions"
+                    />
+                  }
                   component={TextField}
                   multiline
                   rows={4}
                   style={{ gridColumn: 'span 2' }}
                 />
-                <Field name="completed" label="Completed" component={CheckField} />
+                <Field
+                  name="completed"
+                  label={
+                    <TranslatedText
+                      stringId="procedure.modal.form.completed.label"
+                      fallback="Completed"
+                    />
+                  }
+                  component={CheckField}
+                />
                 <Collapse in={isCompleted} style={{ gridColumn: 'span 2' }}>
                   <Field
                     name="completedNote"
-                    label="Notes on completed procedure"
+                    label={
+                      <TranslatedText
+                        stringId="procedure.modal.form.completedNotes.label"
+                        fallback="Notes on completed procedure"
+                      />
+                    }
                     component={TextField}
                     multiline
                     rows={4}
