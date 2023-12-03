@@ -2,8 +2,13 @@
   "auth": {
     "reportNoUserError": true
   },
+  "db": {
+    "name": "tamanu-sync-generate",
+    "migrateOnStartup": true,
+    "verbose": false
+  },
   "log": {
-    "consoleLevel": "debug"
+    "consoleLevel": "info"
   },
   "localisation": {
     "data": {
@@ -12,6 +17,9 @@
         "name": "Utopia",
         "alpha-2": "UT",
         "alpha-3": "UTO"
+      },
+      "features": {
+        "enablePatientDeaths": true
       }
     }
   },
@@ -22,6 +30,12 @@
     "signer": {
       "enabled": true,
       "keySecret": "dTk8mJ0t+xszGxohhMq1Y7UEE9h1Pzvb+1r+YHVf+Y4="
+    },
+    "fhir": {
+      "enabled": true, // the HTTP routes
+      "worker": {
+        "enabled": true
+      }
     }
   },
   "countryTimeZone": "Pacific/Auckland"
