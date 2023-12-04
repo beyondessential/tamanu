@@ -29,7 +29,12 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const InfoPopupLabel = React.memo(() => (
   <span>
-    <span>Triage score </span>
+    <span>
+      <TranslatedText
+        stringId="patient.modal.triage.form.score.infoPopup"
+        fallback="Triage score"
+      />
+    </span>
     {/* Todo: convert triage flow chart to a configurable asset */}
     {/* <ImageInfoModal src={triageFlowchart} /> */}
   </span>
@@ -137,12 +142,22 @@ export const TriageForm = ({
         </FormGrid>
         <Field
           name="practitionerId"
-          label={`Triage ${clinicianText.toLowerCase()}`}
+          label={
+            <TranslatedText
+              stringId="patient.modal.triage.form.practitioner.label"
+              fallback="Triage :practitioner"
+              replacements={{ practitioner: clinicianText.toLowerCase() }}
+            />
+          }
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <ModalFormActionRow confirmText="Submit" onConfirm={submitForm} onCancel={onCancel} />
+        <ModalFormActionRow
+          confirmText={<TranslatedText stringId="general.action.submit" fallback="submit" />}
+          onConfirm={submitForm}
+          onCancel={onCancel}
+        />
       </FormGrid>
     );
   };
