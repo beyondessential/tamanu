@@ -25,7 +25,7 @@ attachment.get(
       return;
     }
 
-    const centralServer = new CentralServerConnection({ deviceId });
+    const centralServer = new CentralServerConnection({ deviceId }, await req.setings.get('sync'));
     const response = await centralServer.fetch(`attachment/${id}?base64=${base64}`, {
       method: 'GET',
     });

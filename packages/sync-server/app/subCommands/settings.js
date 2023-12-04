@@ -74,7 +74,7 @@ export async function setSetting(key, value, { facility } = {}) {
       : 'no current value\n';
 
   const newValue = JSON.parse(value);
-  await Setting.set(key, newValue, facility);
+  await Setting.set(key, newValue, null, facility);
   return `${preValue}\nnew value set`;
 }
 
@@ -92,7 +92,7 @@ export async function loadSettings(key, filepath, { facility, preview } = {}) {
     return JSON.stringify(value, null, 2);
   }
 
-  await Setting.set(key, value, facility);
+  await Setting.set(key, value, null, facility);
 
   const currentValue = await Setting.get(key, facility);
   return JSON.stringify(currentValue, null, 2);

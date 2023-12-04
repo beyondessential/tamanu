@@ -1,5 +1,3 @@
-import config from 'config';
-
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import {
   getPatientSurveyResponseAnswer,
@@ -17,14 +15,15 @@ export class CovidClearanceCertificatePublisher extends ScheduledTask {
   }
 
   constructor(context) {
-    const { schedule } = config.schedules.covidClearanceCertificatePublisher;
-    super(schedule, log);
+    const { schedules } = context;
+    super(schedules.covidClearanceCertificatePublisher.schedule, log);
     this.models = context.store.models;
+    this.settings = context.settings;
   }
 
   async run() {
     const { LabRequest, LabTest, CertificateNotification, Encounter } = this.models;
-    const questionId = config.questionCodeIds?.email;
+    const questionId = await this.settings.get('questionCodeIds.email');
 
     const labRequestsWhere = {
       ...(await getCovidClearanceCertificateFilter(this.models)),

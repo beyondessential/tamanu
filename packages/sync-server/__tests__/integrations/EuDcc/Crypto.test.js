@@ -1,32 +1,38 @@
 /* eslint-disable no-unused-expressions */
 
 import { HCERTPack, HCERTVerify } from 'sync-server/app/integrations/EuDcc';
-import { createTestContext } from 'sync-server/__tests__/utilities';
 import {
   loadCertificateIntoSigner,
   newKeypairAndCsr,
   TestCSCA,
 } from 'sync-server/app/integrations/Signer';
 import { expect } from 'chai';
-import { getLocalisation } from 'sync-server/app/localisation';
+import { createTestContext } from '../../utilities';
 
 describe('EU DCC: HCERT Formatting', () => {
   let ctx;
+  let settings;
+  let models;
   beforeAll(async () => {
     ctx = await createTestContext();
+    settings = ctx.settings;
+    models = ctx.store.models;
     const testCSCA = await TestCSCA.generate();
 
-    const { publicKey, privateKey, request } = await newKeypairAndCsr();
+    const countryCode = await settings.get('country.alpha-3');
+
+    const { publicKey, privateKey, request } = await newKeypairAndCsr({ settings });
 
     const { Signer } = ctx.store.models;
     const signer = await Signer.create({
       publicKey: Buffer.from(publicKey),
       privateKey: Buffer.from(privateKey),
       request,
-      countryCode: (await getLocalisation()).country['alpha-3'],
+      countryCode,
     });
     const signerCert = await testCSCA.signCSR(request);
-    const signedCert = await loadCertificateIntoSigner(signerCert);
+
+    const signedCert = await loadCertificateIntoSigner(signerCert, {}, { settings });
     await signer.update(signedCert);
     expect(signer?.isActive()).to.be.true;
   });
@@ -40,9 +46,8 @@ describe('EU DCC: HCERT Formatting', () => {
         integer: 12345,
       },
     };
-    const { models } = ctx.store;
-    const packedData = await HCERTPack(testMessageData, { models });
-    const verifiedData = await HCERTVerify(packedData, { models });
+    const packedData = await HCERTPack(testMessageData, { models, settings });
+    const verifiedData = await HCERTVerify(packedData, { models, settings });
 
     // Packed data matches format HC1:[base45 character set]
     expect(packedData).to.match(/^HC1:[0-9A-Z $%*+-./:]*/);

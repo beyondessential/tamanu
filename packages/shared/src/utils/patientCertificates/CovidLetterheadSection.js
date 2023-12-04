@@ -2,9 +2,9 @@ import React from 'react';
 import { Box, Logo } from './Layout';
 import { H1, H2 } from './Typography';
 
-export const CovidLetterheadSection = ({ getLocalisation, logoSrc }) => {
-  const title = getLocalisation('templates.letterhead.title');
-  const subTitle = getLocalisation('templates.letterhead.subTitle');
+export const CovidLetterheadSection = ({ getSetting, logoSrc }) => {
+  const title = getSetting('localisation.templates.letterhead.title');
+  const subTitle = getSetting('localisation.templates.letterhead.subTitle');
   return (
     <>
       {logoSrc && <Logo logoSrc={logoSrc} />}
