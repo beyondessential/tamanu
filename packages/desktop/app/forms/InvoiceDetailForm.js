@@ -180,7 +180,7 @@ export const InvoiceDetailForm = ({
               name="admissionType"
               label={
                 <TranslatedText
-                  stringId="invoice.modal.view.form.total.label"
+                  stringId="invoice.modal.view.form.admissionType.label"
                   fallback="Admission type"
                 />
               }
@@ -191,7 +191,7 @@ export const InvoiceDetailForm = ({
               name="receiptNumber"
               label={
                 <TranslatedText
-                  stringId="invoice.modal.view.form.total.label"
+                  stringId="invoice.modal.view.form.receiptNumber.label"
                   fallback="Receipt number"
                 />
               }

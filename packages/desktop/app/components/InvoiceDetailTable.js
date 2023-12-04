@@ -307,13 +307,13 @@ const INVOICE_PRICE_CHANGE_COLUMNS = [
   },
   {
     key: 'originalPrice',
-    title: <TranslatedText stringId="invoice.table.column.unitPrice" fallback="Unit price" />,
+    title: <TranslatedText stringId="invoice.table.column.originalPrice" fallback="Unit price" />,
     sortable: false,
     accessor: () => '',
   },
   {
     key: 'percentageChange',
-    title: <TranslatedText stringId="invoice.table.column.percentChange" fallback="% (-/+)" />,
+    title: <TranslatedText stringId="invoice.table.column.percentageChange" fallback="% (-/+)" />,
     sortable: false,
     accessor: getPercentageChange,
   },
@@ -350,17 +350,19 @@ export const InvoiceDetailTable = React.memo(({ invoice }) => {
           ...INVOICE_LINE_COLUMNS,
           ...(isInvoiceEditable(invoice) ? [INVOICE_LINE_ACTION_COLUMN] : []),
         ]}
-        noDataMessage="No invoice line items found"
+        noDataMessage={
+          <TranslatedText stringId="invoice.table.noData" fallback="No invoice line items found" />
+        }
         allowExport={false}
         onDataFetched={updateLineItems}
       />
       <InvoiceTotal>
-        <TranslatedText stringId="invoice.modal.print.subTotal.text" fallback="Sub-Total" />: $
+        <TranslatedText stringId="invoice.table.footer.subTotal.label" fallback="Sub-Total" />: $
         {invoiceLinesTotal}
       </InvoiceTotal>
       <DiscountHeading>
         <TranslatedText
-          stringId="invoice.modal.print.discounts.text"
+          stringId="invoice.table.discounts.heading"
           fallback="Discounts / Mark-ups"
         />
       </DiscountHeading>
@@ -370,7 +372,7 @@ export const InvoiceDetailTable = React.memo(({ invoice }) => {
           ...INVOICE_PRICE_CHANGE_COLUMNS,
           {
             key: 'price',
-            title: <TranslatedText stringId="invoice.table.column.totalPrice" fallback="Total" />,
+            title: <TranslatedText stringId="invoice.table.column.price" fallback="Total" />,
             sortable: false,
             accessor: ({ percentageChange }) => {
               const priceChange = (percentageChange || 0) * invoiceLinesTotal;
@@ -382,12 +384,17 @@ export const InvoiceDetailTable = React.memo(({ invoice }) => {
           },
           ...(isInvoiceEditable(invoice) ? [INVOICE_PRICE_CHANGE_ACTION_COLUMN] : []),
         ]}
-        noDataMessage="No additional price change found"
+        noDataMessage={
+          <TranslatedText
+            stringId="invoice.table.discounts.noData"
+            fallback="No additional price change found"
+          />
+        }
         allowExport={false}
         onDataFetched={updatePriceChangeItems}
       />
       <InvoiceTotal>
-        <TranslatedText stringId="invoice.modal.print.total.text" fallback="Total" />: $
+        <TranslatedText stringId="invoice.table.footer.total.label" fallback="Total" />: $
         {invoiceTotal}
       </InvoiceTotal>
     </>

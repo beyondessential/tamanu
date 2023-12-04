@@ -75,7 +75,7 @@ export const InvoicingPane = React.memo(({ encounter }) => {
       console.error(e);
       setError(
         <TranslatedText
-          stringId="invoicing.error.unableToCreate"
+          stringId="invoice.error.unableToCreate"
           fallback="Unable to create invoice."
         />,
       );
@@ -97,7 +97,7 @@ export const InvoicingPane = React.memo(({ encounter }) => {
     return (
       <EmptyPane>
         <Button onClick={createInvoice}>
-          <TranslatedText stringId="invoicing.action.create" fallback="Create invoice" />
+          <TranslatedText stringId="invoice.action.create" fallback="Create invoice" />
         </Button>
       </EmptyPane>
     );
@@ -107,16 +107,16 @@ export const InvoicingPane = React.memo(({ encounter }) => {
     <TabPane>
       <InvoiceTopBar>
         <InvoiceHeading>
-          <TranslatedText stringId="invoicing.invoiceNumber" fallback="Invoice number:" />
+          <TranslatedText stringId="invoice.invoiceNumber" fallback="Invoice number:" />
           {` ${invoice.displayId}`}
         </InvoiceHeading>
         {isInvoiceEditable(invoice) ? (
           <ActionsPane>
             <Button onClick={() => setInvoiceLineModalOpen(true)}>
-              <TranslatedText stringId="invoicing.action.addItem" fallback="Add item" />
+              <TranslatedText stringId="invoice.action.addItem" fallback="Add item" />
             </Button>
             <InvoiceLineItemModal
-              title={<TranslatedText stringId="invoicing.action.addItem" fallback="Add item" />}
+              title={<TranslatedText stringId="invoice.action.addItem" fallback="Add item" />}
               actionText={<TranslatedText stringId="general.action.add" fallback="Add" />}
               open={invoiceLineModalOpen}
               invoiceId={invoice.id}
@@ -128,14 +128,14 @@ export const InvoicingPane = React.memo(({ encounter }) => {
             />
             <OutlinedButton onClick={() => setInvoicePriceChangeModalOpen(true)}>
               <TranslatedText
-                stringId="invoicing.action.addPriceChange"
+                stringId="invoice.action.addPriceChange"
                 fallback="Add price change"
               />
             </OutlinedButton>
             <InvoicePriceChangeItemModal
               title={
                 <TranslatedText
-                  stringId="invoicing.action.addPriceChange"
+                  stringId="invoice.action.addPriceChange"
                   fallback="Add price change"
                 />
               }
@@ -150,7 +150,7 @@ export const InvoicingPane = React.memo(({ encounter }) => {
             />
             <OutlinedButton onClick={() => setPotentialLineItemsModalOpen(true)}>
               <TranslatedText
-                stringId="invoicing.action.populateInvoice"
+                stringId="invoice.action.populateInvoice"
                 fallback="Populate invoice"
               />
             </OutlinedButton>

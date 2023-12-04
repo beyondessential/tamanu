@@ -80,43 +80,52 @@ const getStatus = ({ status }) => <StatusDisplay status={status} />;
 const COLUMNS = [
   {
     key: 'date',
-    title: <TranslatedText stringId="invoice.table.column.invoiceDate" fallback="Invoice date" />,
+    title: <TranslatedText stringId="patient.invoice.table.column.date" fallback="Invoice date" />,
     accessor: getDate,
   },
   {
     key: 'displayId',
     title: (
-      <TranslatedText stringId="invoice.table.column.invoiceNumber" fallback="Invoice number" />
+      <TranslatedText stringId="patient.invoice.table.column.displayId" fallback="Invoice number" />
     ),
   },
   {
     key: 'receiptNumber',
     title: (
-      <TranslatedText stringId="invoice.table.column.receiptNumber" fallback="Receipt number" />
+      <TranslatedText
+        stringId="patient.invoice.table.column.receiptNumber"
+        fallback="Receipt number"
+      />
     ),
   },
   {
     key: 'encounterType',
     title: (
-      <TranslatedText stringId="invoice.table.column.admissionType" fallback="Admission type" />
+      <TranslatedText
+        stringId="patient.invoice.table.column.encounterType"
+        fallback="Admission type"
+      />
     ),
     accessor: row => ENCOUNTER_OPTIONS_BY_VALUE[row.encounter.encounterType].label,
   },
   {
     key: 'total',
-    title: <TranslatedText stringId="invoice.table.column.total" fallback="Total" />,
+    title: <TranslatedText stringId="patient.invoice.table.column.total" fallback="Total" />,
     accessor: getInvoiceTotal,
     sortable: false,
   },
   {
     key: 'status',
-    title: <TranslatedText stringId="invoice.table.column.status" fallback="Status" />,
+    title: <TranslatedText stringId="patient.invoice.table.column.status" fallback="Status" />,
     accessor: getStatus,
   },
   {
     key: 'paymentStatus',
     title: (
-      <TranslatedText stringId="invoice.table.column.paymentStatus" fallback="Payment status" />
+      <TranslatedText
+        stringId="patient.invoice.table.column.paymentStatus"
+        fallback="Payment status"
+      />
     ),
     accessor: getPaymentStatus,
   },
@@ -131,7 +140,9 @@ export const InvoicesTable = React.memo(({ patient, searchParameters }) => (
   <DataFetchingTable
     endpoint={`patient/${patient.id}/invoices`}
     columns={COLUMNS}
-    noDataMessage={<TranslatedText stringId="invoice.table.noData" fallback="No invoices found" />}
+    noDataMessage={
+      <TranslatedText stringId="patient.invoice.table.noData" fallback="No invoices found" />
+    }
     fetchOptions={searchParameters}
     allowExport={false}
   />

@@ -6,7 +6,7 @@ import { TranslatedText } from '../Translation/TranslatedText';
 
 export const InvoicesSearchBar = React.memo(({ onSearch }) => (
   <CustomisableSearchBar
-    title={<TranslatedText stringId="invoice.table.search.title" fallback="Search invoices" />}
+    title={<TranslatedText stringId="invoice.search.title" fallback="Search invoices" />}
     onSearch={onSearch}
   >
     <LocalisedField name="invoiceDisplayId" defaultLabel="Invoice number" />

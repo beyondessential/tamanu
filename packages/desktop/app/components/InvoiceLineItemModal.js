@@ -68,7 +68,7 @@ export const InvoiceLineItemModal = ({
               name="invoiceLineTypeId"
               label={
                 <TranslatedText
-                  stringId="invoicing.modal.addItem.form.details.label"
+                  stringId="invoice.modal.addInvoice.form.details.label"
                   fallback="Details"
                 />
               }
@@ -80,7 +80,7 @@ export const InvoiceLineItemModal = ({
               name="orderedById"
               label={
                 <TranslatedText
-                  stringId="invoicing.modal.addItem.form.orderedBy.label"
+                  stringId="invoice.modal.addInvoice.form.orderedBy.label"
                   fallback="Ordered by"
                 />
               }
@@ -92,7 +92,7 @@ export const InvoiceLineItemModal = ({
               name="price"
               label={
                 <TranslatedText
-                  stringId="invoicing.modal.addItem.form.price.label"
+                  stringId="invoice.modal.addInvoice.form.price.label"
                   fallback="Price ($)"
                 />
               }
@@ -104,7 +104,7 @@ export const InvoiceLineItemModal = ({
               name="percentageChange"
               label={
                 <TranslatedText
-                  stringId="invoicing.modal.addItem.form.priceChange.label"
+                  stringId="invoice.modal.addInvoice.form.percentageChange.label"
                   fallback="Discount/markup % (-/+)"
                 />
               }
