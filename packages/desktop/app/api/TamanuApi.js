@@ -37,10 +37,6 @@ const getVersionIncompatibleMessage = (error, response) => {
 const fetchOrThrowIfUnavailable = async (url, config) => {
   try {
     const response = await fetch(url, config);
-    if (response.status >= 502) {
-      throw new Error('Failed to fetch');
-    }
-
     return response;
   } catch (e) {
     // eslint-disable-next-line no-console
@@ -242,6 +238,8 @@ export class TamanuApi {
     }
 
     const { error } = await getResponseJsonSafely(response);
+
+    // TODO: handle server gone errors (502 through 504)
 
     // handle forbidden error and trigger catch all modal
     if (response.status === 403 && error) {
