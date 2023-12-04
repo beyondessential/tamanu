@@ -137,7 +137,7 @@ export const ProcedureForm = React.memo(
                   name="anaesthetistId"
                   label={
                     <TranslatedText
-                      stringId="procedure.form.aneasthetistId.label"
+                      stringId="procedure.form.aneasthetist.label"
                       fallback="Anaesthetist"
                     />
                   }
@@ -148,7 +148,7 @@ export const ProcedureForm = React.memo(
                   name="anaestheticId"
                   label={
                     <TranslatedText
-                      stringId="procedure.form.anaestheticId.label"
+                      stringId="procedure.form.anaesthetic.label"
                       fallback="Anaesthetic type"
                     />
                   }
@@ -161,7 +161,7 @@ export const ProcedureForm = React.memo(
                   name="assistantId"
                   label={
                     <TranslatedText
-                      stringId="procedure.form.assistantId.label"
+                      stringId="procedure.form.assistant.label"
                       fallback="Assistant"
                     />
                   }
