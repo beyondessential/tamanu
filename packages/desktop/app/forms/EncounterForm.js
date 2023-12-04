@@ -20,6 +20,7 @@ import {
 } from '../components';
 import { encounterOptions } from '../constants';
 import { useSuggester } from '../api';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const EncounterForm = React.memo(
   ({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {
@@ -37,14 +38,24 @@ export const EncounterForm = React.memo(
         <FormGrid>
           <Field
             name="encounterType"
-            label="Encounter type"
+            label={
+              <TranslatedText
+                stringId="patient.modal.admit.form.encounterType.label"
+                fallback="Encounter type"
+              />
+            }
             disabled
             component={SelectField}
             options={encounterOptions}
           />
           <Field
             name="startDate"
-            label="Check-in date"
+            label={
+              <TranslatedText
+                stringId="patient.modal.admit.form.startDate.label"
+                fallback="Check-in date"
+              />
+            }
             required
             min="1970-01-01T00:00"
             component={DateTimeField}
@@ -52,7 +63,9 @@ export const EncounterForm = React.memo(
           />
           <Field
             name="departmentId"
-            label="Department"
+            label={
+              <TranslatedText stringId="general.form.department.label" fallback="Department" />
+            }
             required
             component={AutocompleteField}
             suggester={departmentSuggester}
@@ -85,7 +98,12 @@ export const EncounterForm = React.memo(
           />
           <Field
             name="reasonForEncounter"
-            label="Reason for encounter"
+            label={
+              <TranslatedText
+                stringId="modal.admit.form.reason.label"
+                fallback="Reason for encounter"
+              />
+            }
             component={TextField}
             multiline
             rows={2}
