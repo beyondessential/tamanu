@@ -76,7 +76,9 @@ export const PatientDetailsCard = ({ patient }) => (
     </Column>
     <Column>
       <CardItem
-        label={<TranslatedText stringId="patient.detail.card.dateOfBirth.label.short" fallback="DOB" />}
+        label={
+          <TranslatedText stringId="patient.detail.card.dateOfBirth.label.short" fallback="DOB" />
+        }
         value={<DateDisplay date={patient?.dateOfBirth} />}
       />
       <CardItem
