@@ -36,12 +36,16 @@ const getVersionIncompatibleMessage = (error, response) => {
 const fetchOrThrowIfUnavailable = async (url, config) => {
   try {
     const response = await fetch(url, config);
+    if (response.status >= 502) {
+      throw new Error('Failed to fetch');
+    }
+
     return response;
   } catch (e) {
     // eslint-disable-next-line no-console
     console.log(e.message);
     // apply more helpful message if the server is not available
-    if (e.message === 'Failed to fetch' || e.status >= 502) {
+    if (e.message === 'Failed to fetch') {
       throw new Error(
         'The Facility Server is unavailable. Please contact your system administrator.',
       );
