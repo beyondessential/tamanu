@@ -25,6 +25,7 @@ import { useApi, useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
 import { getActionsFromData, getAnswersFromData } from '../utils';
 import { useLocalisedText } from '../components';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const InfoPopupLabel = React.memo(() => (
   <span>
@@ -54,7 +55,12 @@ export const TriageForm = ({
       <FormGrid>
         <Field
           name="arrivalTime"
-          label="Arrival date & time"
+          label={
+            <TranslatedText
+              stringId="patient.modal.triage.form.arrivalTime.label"
+              fallback="Arrival date & time"
+            />
+          }
           component={DateTimeField}
           max={format(endOfDay(new Date()), `yyyy-MM-dd'T'HH:mm`)} // Weird time picker behaviour with date.now(), so using end of day. It will be also validated on submit.
           helperText="If different from triage time"
@@ -62,7 +68,12 @@ export const TriageForm = ({
         />
         <Field
           name="triageTime"
-          label="Triage date & time"
+          label={
+            <TranslatedText
+              stringId="patient.modal.triage.form.triageTime.label"
+              fallback="Triage date & time"
+            />
+          }
           required
           max={format(endOfDay(new Date()), `yyyy-MM-dd'T'HH:mm`)} // Weird time picker behaviour with date.now(), so using end of day. It will be also validated on submit.
           component={DateTimeField}
@@ -94,14 +105,24 @@ export const TriageForm = ({
         <FormGrid columns={1} style={{ gridColumn: '1 / -1' }}>
           <Field
             name="chiefComplaintId"
-            label="Chief complaint"
+            label={
+              <TranslatedText
+                stringId="patient.modal.triage.form.chiefComplaint.label"
+                fallback="Chief complaint"
+              />
+            }
             component={AutocompleteField}
             suggester={triageReasonSuggester}
             required
           />
           <Field
             name="secondaryComplaintId"
-            label="Secondary complaint"
+            label={
+              <TranslatedText
+                stringId="patient.modal.triage.form.secondaryComplaint.label"
+                fallback="Secondary complaint"
+              />
+            }
             component={AutocompleteField}
             suggester={triageReasonSuggester}
           />
