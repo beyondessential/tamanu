@@ -11,11 +11,12 @@ import { Colors } from '../../constants';
 import { LimitedLinesCell } from '../../components/FormattedTableCell';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
+import { useRefreshCount } from '../../hooks/useRefreshCount';
 
 export const ProgramRegistryTable = ({ searchParameters }) => {
   const params = useParams();
   const [openModal, setOpenModal] = useState();
-  const [refreshCount, setRefreshCount] = useState(0);
+  const [refreshCount, updateRefreshCount] = useRefreshCount();
   const columns = useMemo(() => {
     return [
       {
@@ -144,7 +145,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         <ChangeStatusFormModal
           patientProgramRegistration={openModal?.data}
           onClose={() => {
-            setRefreshCount(refreshCount + 1);
+            updateRefreshCount();
             setOpenModal(undefined);
           }}
           open
@@ -155,7 +156,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         <RemoveProgramRegistryFormModal
           patientProgramRegistration={openModal?.data}
           onClose={() => {
-            setRefreshCount(refreshCount + 1);
+            updateRefreshCount();
             setOpenModal(undefined);
           }}
           open
@@ -166,7 +167,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         <DeleteProgramRegistryFormModal
           patientProgramRegistration={openModal?.data}
           onClose={() => {
-            setRefreshCount(refreshCount + 1);
+            updateRefreshCount();
             setOpenModal(undefined);
           }}
           open

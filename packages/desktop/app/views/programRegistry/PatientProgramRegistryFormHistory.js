@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { DataFetchingTable } from '../../components/Table/DataFetchingTable';
 import { DateDisplay } from '../../components/DateDisplay';
 import { MenuButton } from '../../components/MenuButton';
+import { useRefreshCount } from '../../hooks/useRefreshCount';
 
 export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }) => {
-  const [refreshCount, setRefreshCount] = useState(0);
+  const [refreshCount, updateRefreshCount] = useRefreshCount();
   const columns = [
     {
       key: 'date',
@@ -54,8 +55,8 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
   ];
 
   useEffect(() => {
-    setRefreshCount(refreshCount + 1);
-  }, [patientProgramRegistration.programRegistry.programId, refreshCount]);
+    updateRefreshCount();
+  }, [patientProgramRegistration.programRegistry.programId, updateRefreshCount]);
 
   return (
     <DataFetchingTable
@@ -69,7 +70,6 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
       }}
       fetchOptions={{ programId: patientProgramRegistration.programRegistry.programId }}
       noDataMessage="No Program registry responses found"
-      elevated={false}
     />
   );
 };
