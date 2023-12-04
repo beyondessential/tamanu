@@ -61,7 +61,7 @@ const DISCHARGED_MEDICATION_COLUMNS = [
     key: 'endDate',
     title: (
       <TranslatedText
-        stringId="patient.medication.table.column.dischargeDate"
+        stringId="patient.medication.table.column.endDate"
         fallback="Discharge date"
       />
     ),
@@ -120,7 +120,7 @@ export const PatientMedicationPane = React.memo(({ patient }) => (
       <OuterLabelFieldWrapper
         label={
           <TranslatedText
-            stringId="patient.medication.table.discharge.title"
+            stringId="patient.medication.discharge.table.title"
             fallback="Most recent discharge medications"
           />
         }
@@ -130,7 +130,7 @@ export const PatientMedicationPane = React.memo(({ patient }) => (
           columns={DISCHARGED_MEDICATION_COLUMNS}
           noDataMessage={
             <TranslatedText
-              stringId="patient.medication.table.discharge.noData"
+              stringId="patient.medication.discharge.table.noData"
               fallback="No discharge medications found"
             />
           }
@@ -142,7 +142,7 @@ export const PatientMedicationPane = React.memo(({ patient }) => (
       <OuterLabelFieldWrapper
         label={
           <TranslatedText
-            stringId="patient.medication.table.dispensed.title"
+            stringId="patient.medication.dispensed.table.title"
             fallback="Dispensed medications"
           />
         }
@@ -152,7 +152,7 @@ export const PatientMedicationPane = React.memo(({ patient }) => (
           data={[]}
           noDataMessage={
             <TranslatedText
-              stringId="patient.medication.table.discharge.noData"
+              stringId="patient.medication.dispensed.table.noData"
               fallback="No dispensed medications found"
             />
           }

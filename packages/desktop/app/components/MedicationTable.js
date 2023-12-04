@@ -21,7 +21,7 @@ const MEDICATION_COLUMNS = [
   },
   {
     key: 'medication.name',
-    title: <TranslatedText stringId="medication.table.column.drug" fallback="Drug" />,
+    title: <TranslatedText stringId="medication.table.column.name" fallback="Drug" />,
     accessor: getMedicationName,
     sortable: false,
   },

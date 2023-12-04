@@ -72,7 +72,7 @@ const DiscontinuedLabel = ({ medication }) => {
   return (
     <Box color="error.main" ml={2}>
       <strong>
-        <TranslatedText stringId="medication.modal.discontinued.title" fallback="Discontinued" />
+        <TranslatedText stringId="medication.form.discontinued.title" fallback="Discontinued" />
       </strong>
       <br />
       <TranslatedText
@@ -182,7 +182,7 @@ export const MedicationForm = React.memo(
                 name="route"
                 label={
                   <TranslatedText
-                    stringId="medication.form.admissionRoute.label"
+                    stringId="medication.form.route.label"
                     fallback="Route of admission"
                   />
                 }
@@ -240,7 +240,7 @@ export const MedicationForm = React.memo(
                   name="qtyMorning"
                   label={
                     <TranslatedText
-                      stringId="medication.form.morningQuantity.label"
+                      stringId="medication.form.quantityMorning.label"
                       fallback="morning"
                     />
                   }
@@ -251,7 +251,7 @@ export const MedicationForm = React.memo(
                   name="qtyLunch"
                   label={
                     <TranslatedText
-                      stringId="medication.form.lunchQuantity.label"
+                      stringId="medication.form.quantityLunch.label"
                       fallback="Lunch"
                     />
                   }
@@ -262,7 +262,7 @@ export const MedicationForm = React.memo(
                   name="qtyEvening"
                   label={
                     <TranslatedText
-                      stringId="medication.form.eveningQuantity.label"
+                      stringId="medication.form.quantityEvening.label"
                       fallback="Evening"
                     />
                   }
@@ -273,7 +273,7 @@ export const MedicationForm = React.memo(
                   name="qtyNight"
                   label={
                     <TranslatedText
-                      stringId="medication.form.nightQuantity.label"
+                      stringId="medication.form.quantityNight.label"
                       fallback="Night"
                     />
                   }
