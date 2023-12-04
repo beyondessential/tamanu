@@ -50,16 +50,6 @@ const MenuContainer = styled.div`
   }
 `;
 
-const StatusBadge = styled.div`
-  padding: 11px 6px;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  height: 20px;
-  color: ${props => props.color};
-  background-color: ${props => props.backgroundColor};
-`;
-
 const TextColumnsContainer = styled.div`
   display: flex;
   flex-direction: row;

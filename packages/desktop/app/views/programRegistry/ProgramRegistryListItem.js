@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Tooltip } from '@material-ui/core';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { ThemedTooltip } from '../../components/Tooltip';

@@ -72,7 +72,7 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
   };
 
   return (
-    <Modal width={'md'} title="Remove patient" open={open} onClose={onClose}>
+    <Modal width="md" title="Remove patient" open={open} onClose={onClose}>
       {/* <div> */}
       <WarningDiv>
         <p>

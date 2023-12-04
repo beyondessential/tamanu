@@ -2,12 +2,14 @@ import { fake } from 'shared/test-helpers/fake';
 import { REGISTRATION_STATUSES, DELETION_STATUSES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
-jest.setTimeout(1000000);
 describe('PatientProgramRegistration', () => {
   let ctx = null;
   let app = null;
   let baseApp = null;
   let models = null;
+
+  const TEST_DATE_EARLY = '2023-09-04 08:00:00';
+  const TEST_DATE_LATE = '2023-09-04 09:00:00';
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -56,7 +58,7 @@ describe('PatientProgramRegistration', () => {
           clinicalStatusId: programRegistryClinicalStatus.id,
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           patientId: patient.id,
-          date: '2023-09-04 08:00:00',
+          date: TEST_DATE_EARLY,
         }),
       );
 
@@ -67,7 +69,7 @@ describe('PatientProgramRegistration', () => {
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           clinicianId: clinician.id,
           patientId: patient.id,
-          date: '2023-09-04 08:00:00',
+          date: TEST_DATE_EARLY,
         }),
       );
 
@@ -93,7 +95,7 @@ describe('PatientProgramRegistration', () => {
           programRegistryId: programRegistry4.id,
           registrationStatus: REGISTRATION_STATUSES.INACTIVE,
           patientId: patient.id,
-          date: '2023-09-04 08:00:00',
+          date: TEST_DATE_EARLY,
         }),
       );
       await models.PatientProgramRegistration.create(
@@ -101,7 +103,7 @@ describe('PatientProgramRegistration', () => {
           programRegistryId: programRegistry4.id,
           registrationStatus: REGISTRATION_STATUSES.INACTIVE,
           patientId: patient.id,
-          date: '2023-09-04 09:00:00',
+          date: TEST_DATE_LATE,
         }),
       );
 
@@ -112,7 +114,7 @@ describe('PatientProgramRegistration', () => {
         {
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           clinicianId: clinician.id,
-          date: '2023-09-04 08:00:00',
+          date: TEST_DATE_EARLY,
           patientId: patient.id,
           programRegistryId: programRegistry1.id,
           programRegistry: {
@@ -128,7 +130,7 @@ describe('PatientProgramRegistration', () => {
         },
         {
           registrationStatus: REGISTRATION_STATUSES.INACTIVE,
-          date: '2023-09-04 09:00:00',
+          date: TEST_DATE_LATE,
           programRegistryId: programRegistry4.id,
         },
       ]);
@@ -398,7 +400,7 @@ describe('PatientProgramRegistration', () => {
         const programRegistryCondition = await models.ProgramRegistryCondition.create(
           fake(models.ProgramRegistryCondition, { programRegistryId: programRegistry1.id }),
         );
-        await models.PatientProgramRegistrationCondition.create(
+        const createdCondition = await models.PatientProgramRegistrationCondition.create(
           fake(models.PatientProgramRegistrationCondition, {
             patientId: patient.id,
             programRegistryId: programRegistry1.id,
@@ -407,7 +409,7 @@ describe('PatientProgramRegistration', () => {
         );
         const result = await app
           .delete(
-            `/v1/patient/${patient.id}/programRegistration/${programRegistry1.id}/condition/${programRegistryCondition.id}`,
+            `/v1/patient/${patient.id}/programRegistration/${programRegistry1.id}/condition/${createdCondition.id}`,
           )
           .send({
             programRegistryConditionId: programRegistryCondition.id,
