@@ -16,6 +16,7 @@ import {
 } from '../components/Field';
 import { useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const DiagnosisForm = React.memo(
   ({ isTriage = false, onCancel, onSave, diagnosis, excludeDiagnoses }) => {
@@ -44,7 +45,12 @@ export const DiagnosisForm = React.memo(
           ...diagnosis,
         }}
         validationSchema={yup.object().shape({
-          diagnosisId: foreignKey('Diagnosis must be selected'),
+          diagnosisId: foreignKey(
+            <TranslatedText
+              stringId="diagnosis.form.diagnosis.validation"
+              fallback="Diagnosis must be selected"
+            />,
+          ),
           certainty: yup
             .string()
             .oneOf(certaintyOptions.map(x => x.value))
@@ -65,17 +71,27 @@ export const DiagnosisForm = React.memo(
             <Field
               style={{ gridColumn: '1 / -1' }}
               name="isPrimary"
-              label="Is primary"
+              label={
+                <TranslatedText stringId="diagnosis.form.isPrimary.label" fallback="Is primary" />
+              }
               component={CheckField}
             />
             <Field
               name="certainty"
-              label="Certainty"
+              label={
+                <TranslatedText stringId="diagnosis.form.certainty.label" fallback="Certainty" />
+              }
               component={SelectField}
               options={certaintyOptions}
               required
             />
-            <Field name="date" label="Date" component={DateField} required saveDateAsString />
+            <Field
+              name="date"
+              label={<TranslatedText stringId="diagnosis.form.date.label" fallback="Date" />}
+              component={DateField}
+              required
+              saveDateAsString
+            />
             <FormSubmitCancelRow onConfirm={submitForm} onCancel={onCancel} />
           </FormGrid>
         )}
