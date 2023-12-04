@@ -71,7 +71,9 @@ export const FORM_TYPE_TO_FIELD_CONFIG = {
     fieldName: 'labTestTypeIds',
   },
   [LAB_REQUEST_FORM_TYPES.PANEL]: {
-    subheading: <TranslatedText stringId="lab.form.panel.select.heading" fallback="Select panel" />,
+    subheading: (
+      <TranslatedText stringId="lab.form.testSelect.panel.subheading" fallback="Select panel" />
+    ),
     instructions: (
       <TranslatedText
         stringId="lab.form.testSelect.panel.instruction"
