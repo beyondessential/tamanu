@@ -29,6 +29,7 @@ import { EncounterActions } from './components';
 import { useReferenceData } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
 import { VitalChartDataProvider } from '../../contexts/VitalChartData';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -88,17 +89,34 @@ const TABS = [
 function getHeaderText({ encounterType }) {
   switch (encounterType) {
     case ENCOUNTER_TYPES.TRIAGE:
-      return 'Triage';
+      return <TranslatedText stringId="patient.encounter.type.triage" fallback="Triage" />;
     case ENCOUNTER_TYPES.OBSERVATION:
-      return 'Active ED patient';
+      return (
+        <TranslatedText stringId="patient.encounter.type.edPatient" fallback="Active ED patient" />
+      );
     case ENCOUNTER_TYPES.EMERGENCY:
-      return 'Emergency Short Stay';
+      return (
+        <TranslatedText
+          stringId="patient.encounter.type.emergencyShortStay"
+          fallback="Emergency Short Stay"
+        />
+      );
     case ENCOUNTER_TYPES.ADMISSION:
-      return 'Hospital Admission';
+      return (
+        <TranslatedText
+          stringId="patient.encounter.type.hospitalAdmission"
+          fallback="Hospital Admission"
+        />
+      );
     case ENCOUNTER_TYPES.CLINIC:
     case ENCOUNTER_TYPES.IMAGING:
     default:
-      return 'Patient Encounter';
+      return (
+        <TranslatedText
+          stringId="patient.encounter.type.patientEncounter"
+          fallback="Patient Encounter"
+        />
+      );
   }
 }
 

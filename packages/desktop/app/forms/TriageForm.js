@@ -154,7 +154,7 @@ export const TriageForm = ({
           suggester={practitionerSuggester}
         />
         <ModalFormActionRow
-          confirmText={<TranslatedText stringId="general.action.submit" fallback="submit" />}
+          confirmText={<TranslatedText stringId="general.action.submit" fallback="Submit" />}
           onConfirm={submitForm}
           onCancel={onCancel}
         />

@@ -5,6 +5,7 @@ import { Typography, Toolbar } from '@material-ui/core';
 import { DateDisplay } from './DateDisplay';
 import { Colors } from '../constants';
 import { useLocalisedText } from './LocalisedText';
+import { TranslatedText } from './Translation/TranslatedText';
 
 // Default height of the top bar
 export const TOP_BAR_HEIGHT = 97;
@@ -141,13 +142,25 @@ export const EncounterTopBar = ({ title, subTitle, encounter, children }) => {
       <Container>
         <div>
           <Cell>
-            <Label>Arrival Date:</Label>
+            <Label>
+              <TranslatedText
+                stringId="patient.encounter.details.topbar.arrivalDate.label"
+                fallback="Arrival Date"
+              />
+            </Label>
             <Value>
               <DateDisplay date={encounter.startDate} />
             </Value>
           </Cell>
           <Cell>
-            <Label>{`Supervising ${clinicianText.toLowerCase()}:`}</Label>
+            <Label>
+              <TranslatedText
+                stringId="patient.encounter.details.topbar.practitioner.label"
+                fallback="Supervising :practitioner"
+                replacements={{ practitioner: clinicianText.toLowerCase() }}
+              />
+              :
+            </Label>
             <Value>{encounter.examiner?.displayName || 'Unknown'}</Value>
           </Cell>
         </div>
