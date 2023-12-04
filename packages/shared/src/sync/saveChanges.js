@@ -22,6 +22,7 @@ export const saveCreates = async (model, records) => {
   }
   await model.bulkCreate(deduplicated);
 
+  // To create soft deleted records, we need to first create them, then destroy them
   if (idsForSoftDeleted.length > 0) {
     await model.destroy({ where: { id: { [Op.in]: idsForSoftDeleted } } });
   }
@@ -43,7 +44,7 @@ export const saveUpdates = async (
     : // on the facility server, trust the resolved central server version
       incomingRecords;
   await asyncPool(persistUpdateWorkerPoolSize, recordsToSave, async r =>
-    model.update(r, { where: { id: r.id } }),
+    model.update(r, { where: { id: r.id }, paranoid: false }),
   );
 };
 

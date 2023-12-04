@@ -20,23 +20,29 @@ const saveChangesForModel = async (
   // split changes into create, update, delete
   const incomingRecords = changes.filter(c => c.data.id).map(c => c.data);
   const idsForIncomingRecords = incomingRecords.map(r => r.id);
+  // add all records that already exist in the db to the list to be updated
+  // even if they are being deleted or restored, we should also run an update query to keep the data in sync
   const existingRecords = (await model.findByIds(idsForIncomingRecords, false)).map(r =>
     r.get({ plain: true }),
   );
   const idToExistingRecord = Object.fromEntries(existingRecords.map(e => [e.id, e]));
+  // follow the same pattern for incoming records
+  // https://github.com/beyondessential/tamanu/pull/4854#discussion_r1403828225
+  const idToIncomingRecord = Object.fromEntries(
+    changes.filter(c => c.data.id).map(e => [e.data.id, e]),
+  );
   const idsForUpdate = new Set();
   const idsForRestore = new Set();
   const idsForDelete = new Set();
 
   existingRecords.forEach(existing => {
     // compares incoming and existing records by id
-    const incoming = changes.find(r => r.data.id === existing.id);
+    const incoming = idToIncomingRecord[existing.id];
+    idsForUpdate.add(existing.id);
+
     // don't do anything if incoming record is deleted and existing record is already deleted
     if (existing.deletedAt && !incoming.isDeleted) {
       idsForRestore.add(existing.id);
-    }
-    if (!existing.deletedAt && !incoming.isDeleted) {
-      idsForUpdate.add(existing.id);
     }
     if (!existing.deletedAt && incoming.isDeleted) {
       idsForDelete.add(existing.id);

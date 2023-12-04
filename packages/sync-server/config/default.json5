@@ -52,6 +52,7 @@
     "level": "info"
   },
   "sync": {
+    "maxConcurrentSessions": 1,
     "persistedCacheBatchSize": 20000,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "adjustDataBatchSize": 20000,
@@ -202,6 +203,10 @@
       "enabled": true,
       "schedule": "* * * * *",
       "staleSessionSeconds": 3600
+    },
+    "processSyncQueue": {
+      "enabled": true,
+      "schedule": "* * * * *"
     }
   },
   "integrations": {

@@ -217,14 +217,21 @@ export class CentralServerConnection {
     }
   }
 
-  async startSyncSession() {
-    const { sessionId } = await this.fetch('sync', {
+  async startSyncSession({ urgent, lastSyncedTick }) {
+    const { sessionId, status } = await this.fetch('sync', {
       method: 'POST',
       body: {
         facilityId: config.serverFacilityId,
         deviceId: this.deviceId,
+        urgent,
+        lastSyncedTick,
       },
     });
+
+    if (!sessionId) {
+      // we're waiting in a queue
+      return { status };
+    }
 
     // then, poll the sync/:sessionId/ready endpoint until we get a valid response
     // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked
