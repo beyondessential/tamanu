@@ -51,34 +51,36 @@ export const screen2ValidationSchema = yup.object().shape({
 
 export const FORM_TYPE_TO_FIELD_CONFIG = {
   [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: {
-    subheading: <TranslatedText stringId="lab.form.test.select.heading" fallback="Select tests" />,
+    subheading: (
+      <TranslatedText stringId="lab.form.testSelect.individual.heading" fallback="Select tests" />
+    ),
     instructions: (
       <>
         <TranslatedText
-          stringId="lab.form.test.select.instruction"
+          stringId="lab.form.testSelect.individual.instructionLine1"
           fallback="Please select the test or tests you would like to request below and add any relevant notes."
         />
         {'\n'}
         <TranslatedText
-          stringId="lab.form.test.filter.instruction"
+          stringId="lab.form.testSelect.individual.instructionLine2"
           fallback="You can filter test by category using the field below."
         />
       </>
     ),
-    selectableName: 'test',
+    selectableName: 'test', // TODO: Translate selectableName (requires refactoring in TestSelector.js)
     fieldName: 'labTestTypeIds',
   },
   [LAB_REQUEST_FORM_TYPES.PANEL]: {
     subheading: <TranslatedText stringId="lab.form.panel.select.heading" fallback="Select panel" />,
     instructions: (
       <TranslatedText
-        stringId="lab.form.panel.select.instruction"
+        stringId="lab.form.testSelect.panel.instruction"
         fallback="Please select the panel or panels you would like to request below and add any relevant notes."
       />
     ),
     label: (
       <TranslatedText
-        stringId="lab.form.panel.select.label"
+        stringId="lab.form.testSelect.panel.label"
         fallback="Select the test panel or panels"
       />
     ),
@@ -88,17 +90,17 @@ export const FORM_TYPE_TO_FIELD_CONFIG = {
   },
   [LAB_REQUEST_FORM_TYPES.SUPERSET]: {
     subheading: (
-      <TranslatedText stringId="lab.form.superset.select.heading" fallback="Select superset" />
+      <TranslatedText stringId="lab.form.testSelect.superSet.heading" fallback="Select superset" />
     ),
     instructions: (
       <>
         <TranslatedText
-          stringId="lab.form.superset.select.instruction"
+          stringId="lab.form.testSelect.superset.instructionLine1"
           fallback="Please select the superset you would like to request below and add any relevant notes."
         />
         ,{'\n'}
         <TranslatedText
-          stringId="lab.form.superset.add.instruction"
+          stringId="lab.form.testSelect.superset.instructionLine2"
           fallback="You can also remove or add additional panels to your request."
         />
       </>
@@ -145,7 +147,7 @@ export const LabRequestFormScreen2 = props => {
       <div style={{ gridColumn: '1 / -1' }}>
         <Field
           name="notes"
-          label=<TranslatedText stringId="lab.form.notes.label" fallback="Notes" />
+          label=<TranslatedText stringId="general.form.notes.label" fallback="Notes" />
           component={TextField}
           multiline
           rows={3}

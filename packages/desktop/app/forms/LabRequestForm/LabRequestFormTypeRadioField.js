@@ -11,30 +11,34 @@ import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const OPTIONS = {
   INDIVIDUAL: {
-    label: <TranslatedText stringId="lab.form.type.individual.label" fallback="Individual" />,
+    label: (
+      <TranslatedText stringId="lab.form.formType.option.individual.label" fallback="Individual" />
+    ),
     description: (
       <TranslatedText
-        stringId="lab.form.type.individual.description"
+        stringId="lab.form.formType.option.individual.description"
         fallback="Select an individual or multiple individual tests"
       />
     ),
     value: LAB_REQUEST_FORM_TYPES.INDIVIDUAL,
   },
   PANEL: {
-    label: <TranslatedText stringId="lab.form.type.panel.label" fallback="Panel" />,
+    label: <TranslatedText stringId="lab.form.formType.option.panel.label" fallback="Panel" />,
     description: (
       <TranslatedText
-        stringId="lab.form.type.panel.description"
+        stringId="lab.form.formType.option.panel.description"
         fallback="Select from a list of test panels"
       />
     ),
     value: LAB_REQUEST_FORM_TYPES.PANEL,
   },
   SUPERSET: {
-    label: <TranslatedText stringId="lab.form.type.superset.label" fallback="Superset" />,
+    label: (
+      <TranslatedText stringId="lab.form.formType.option.superset.label" fallback="Superset" />
+    ),
     description: (
       <TranslatedText
-        stringId="lab.form.type.superset.description"
+        stringId="lab.form.formType.option.superset.description"
         fallback="Select from a list of supersets"
       />
     ),
@@ -102,10 +106,7 @@ export const LabRequestFormTypeRadioField = ({ value, setFieldValue }) => {
     <div style={{ gridColumn: '1 / -1' }}>
       <OuterLabelFieldWrapper
         label={
-          <TranslatedText
-            stringId="lab.form.requestType.label"
-            fallback="Select your request type"
-          />
+          <TranslatedText stringId="lab.form.formType.label" fallback="Select your request type" />
         }
         required
       >

@@ -202,7 +202,7 @@ export const SelectInput = ({
           menuPosition="fixed"
           styles={customStyleObject || defaultStyles}
           menuShouldBlockScroll="true"
-          placeholder=<TranslatedText stringId="general.action.select" fallback="Select" />
+          placeholder="Select"
           isClearable={value !== '' && isClearable && !props.required && !disabled}
           isSearchable={false}
           tabIndex={inputProps.tabIndex}

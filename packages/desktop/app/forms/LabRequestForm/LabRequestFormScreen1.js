@@ -58,7 +58,7 @@ export const LabRequestFormScreen1 = ({
       />
       <Field
         name="departmentId"
-        label=<TranslatedText stringId="lab.form.department.label" fallback="Department" />
+        label=<TranslatedText stringId="general.form.department.label" fallback="Department" />
         component={AutocompleteField}
         suggester={departmentSuggester}
       />

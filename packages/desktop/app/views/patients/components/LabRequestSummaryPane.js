@@ -84,7 +84,7 @@ const getColumns = type => [
   {
     key: 'labTestCategory',
     title: (
-      <TranslatedText stringId="lab.requestSummary.table.column.category" fallback="Category" />
+      <TranslatedText stringId="lab.requestSummary.table.column.testCategory" fallback="Category" />
     ),
     sortable: false,
     accessor: ({ category }) => category?.name || '',
@@ -103,7 +103,7 @@ const getColumns = type => [
         <DateDisplay showTime date={sampleTime} />
       ) : (
         <TranslatedText
-          stringId="lab.requestSummary.table.sampleDate.noData"
+          stringId="lab.requestSummary.table.column.sampleDate.notCollected"
           fallback="Sample not collected"
         />
       ),
@@ -155,14 +155,16 @@ export const LabRequestSummaryPane = React.memo(
             <InfoCardItem
               label={
                 <TranslatedText
-                  stringId="lab.form.requestDateTime.label"
+                  stringId="general.form.requestDateTime.label"
                   fallback="Request date & time"
                 />
               }
               value={<DateDisplay date={requestedDate} showTime />}
             />
             <InfoCardItem
-              label={<TranslatedText stringId="lab.form.department.label" fallback="Department" />}
+              label={
+                <TranslatedText stringId="general.form.department.label" fallback="Department" />
+              }
               value={department?.name}
             />
             <InfoCardItem
