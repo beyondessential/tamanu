@@ -52,7 +52,10 @@ export const MultiplePrescriptionPrintoutModal = ({
   return (
     <Modal
       title={
-        <TranslatedText stringId="medication.modal.print.title" fallback="Print prescriptions" />
+        <TranslatedText
+          stringId="medication.modal.printMultiple.title"
+          fallback="Print prescriptions"
+        />
       }
       width="md"
       open={open}

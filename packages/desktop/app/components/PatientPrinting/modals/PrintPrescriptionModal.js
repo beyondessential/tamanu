@@ -67,7 +67,7 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
   return (
     <>
       <Modal
-        title={<TranslatedText stringId="medication.print.title" fallback="Prescription" />}
+        title={<TranslatedText stringId="medication.modal.print.title" fallback="Prescription" />}
         open={open}
         onClose={onClose}
         width="md"

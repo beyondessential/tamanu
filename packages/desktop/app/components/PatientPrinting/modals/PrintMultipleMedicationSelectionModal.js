@@ -9,7 +9,10 @@ export const PrintMultipleMedicationSelectionModal = ({ encounter, open, onClose
   return (
     <FormModal
       title={
-        <TranslatedText stringId="medication.modal.print.title" fallback="Print prescriptions" />
+        <TranslatedText
+          stringId="medication.modal.printMultiple.title"
+          fallback="Print prescriptions"
+        />
       }
       width="md"
       open={open}

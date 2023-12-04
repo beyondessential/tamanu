@@ -76,19 +76,19 @@ const DiscontinuedLabel = ({ medication }) => {
       </strong>
       <br />
       <TranslatedText
-        stringId="medication.modal.discontinued.discontinuedAt"
+        stringId="medication.form.discontinued.discontinuedAt"
         fallback="Discontinued at: :date"
         replacements={{ date: <DateDisplay date={discontinuedDate} /> }}
       />
       <br />
       <TranslatedText
-        stringId="medication.modal.discontinued.discontinuedBy"
+        stringId="medication.form.discontinued.discontinuedBy"
         fallback="by: :clinician"
         replacements={{ clinician: discontinuingClinician?.displayName }}
       />
       <br />
       <TranslatedText
-        stringId="medication.modal.discontinued.reason"
+        stringId="medication.form.discontinued.reason"
         fallback="Reason: :reason"
         replacements={{ reason: discontinuingReason }}
       />

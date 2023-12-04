@@ -35,7 +35,7 @@ const COLUMNS = [
     key: COLUMN_KEYS.MEDICATION,
     title: (
       <TranslatedText
-        stringId="medication.modal.print.table.column.medication"
+        stringId="medication.modal.printMultiple.table.column.medication"
         fallback="Medication"
       />
     ),
@@ -46,7 +46,10 @@ const COLUMNS = [
   {
     key: COLUMN_KEYS.QUANTITY,
     title: (
-      <TranslatedText stringId="medication.modal.print.table.column.quantity" fallback="Quantity" />
+      <TranslatedText
+        stringId="medication.modal.printMultiple.table.column.quantity"
+        fallback="Quantity"
+      />
     ),
     sortable: false,
     maxWidth: 70,
@@ -66,7 +69,10 @@ const COLUMNS = [
   {
     key: COLUMN_KEYS.REPEATS,
     title: (
-      <TranslatedText stringId="medication.modal.print.table.column.repeats" fallback="Repeats" />
+      <TranslatedText
+        stringId="medication.modal.printMultiple.table.column.repeats"
+        fallback="Repeats"
+      />
     ),
     sortable: false,
     accessor: ({ repeats, onChange }) => (
@@ -142,13 +148,16 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
         <AutocompleteInput
           infoTooltip={
             <TranslatedText
-              stringId="medication.modal.print.prescriber.tooltip"
+              stringId="medication.modal.printMultiple.prescriber.tooltip"
               fallback="The prescriber will appear on the printed prescription"
             />
           }
           name="prescriberId"
           label={
-            <TranslatedText stringId="medication.modal.prescriber.label" fallback="Prescriber" />
+            <TranslatedText
+              stringId="medication.modal.printMultiple.prescriber.label"
+              fallback="Prescriber"
+            />
           }
           suggester={practitionerSuggester}
           onChange={event => setPrescriberId(event.target.value)}
@@ -158,7 +167,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
           helperText={
             !prescriberSelected && (
               <TranslatedText
-                stringId="medication.modal.print.prescriber.helperText"
+                stringId="medication.modal.printMultiple.prescriber.helperText"
                 fallback="Please select a prescriber"
               />
             )
@@ -169,7 +178,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
       <OuterLabelFieldWrapper
         label={
           <TranslatedText
-            stringId="medication.modal.print.table.title"
+            stringId="medication.modal.printMultiple.table.title"
             fallback="Select the prescriptions you would like to print"
           />
         }
@@ -183,7 +192,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
           errorMessage={error?.message}
           noDataMessage={
             <TranslatedText
-              stringId="medication.modal.print.table.noData"
+              stringId="medication.modal.printMultiple.table.noData"
               fallback="No medication requests found"
             />
           }
