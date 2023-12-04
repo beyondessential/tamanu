@@ -87,15 +87,11 @@ const saveChangesForModel = async (
   }
   log.debug(`saveIncomingChanges: Soft deleting ${recordsForDelete.length} old records`);
   if (recordsForDelete.length > 0) {
-    await saveDeletes(model, recordsForDelete, idToExistingRecord, isCentralServer, {
-      persistUpdateWorkerPoolSize,
-    });
+    await saveDeletes(model, recordsForDelete);
   }
   log.debug(`saveIncomingChanges: Restoring ${recordsForRestore.length} deleted records`);
   if (recordsForRestore.length > 0) {
-    await saveRestores(model, recordsForRestore, idToExistingRecord, isCentralServer, {
-      persistUpdateWorkerPoolSize,
-    });
+    await saveRestores(model, recordsForRestore);
   }
 };
 

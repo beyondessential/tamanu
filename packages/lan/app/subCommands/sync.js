@@ -1,9 +1,9 @@
 import { ReadSettings } from '@tamanu/settings';
 import { Command } from 'commander';
+import config from 'config';
 
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import { log } from '@tamanu/shared/services/logging';
-import config from 'config';
 import { initDeviceId } from '../sync/initDeviceId';
 import { FacilitySyncManager, CentralServerConnection } from '../sync';
 import { ApplicationContext } from '../ApplicationContext';
