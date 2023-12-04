@@ -3,6 +3,7 @@
 import { Command } from 'commander';
 import { canonicalize } from 'json-canonicalize';
 import { buildSettingsRecords } from '@tamanu/shared/models/Setting';
+import { SETTINGS_SCOPES } from '@tamanu/settings';
 
 import { initDatabase } from '../database';
 import { loadSettingFile } from '../utils/loadSettingFile';
@@ -12,7 +13,7 @@ export async function listSettings(filter = '', { facility } = {}) {
     models: { Setting },
   } = await initDatabase({ testMode: false });
 
-  const globalTree = await Setting.get(filter);
+  const globalTree = await Setting.get(filter, SETTINGS_SCOPES.GLOBAL);
   const globalSettings = buildSettingsRecords(filter, globalTree, null);
 
   if (!facility) {
@@ -26,7 +27,7 @@ export async function listSettings(filter = '', { facility } = {}) {
       .join('\n');
   }
 
-  const facilityTree = await Setting.get(filter, facility);
+  const facilityTree = await Setting.get(filter, SETTINGS_SCOPES.FACILITY, facility);
   if (!facilityTree || Object.keys(facilityTree).length === 0) {
     return 'No settings found';
   }
@@ -49,12 +50,12 @@ export async function listSettings(filter = '', { facility } = {}) {
     .join('\n');
 }
 
-export async function getSetting(key, { facility } = {}) {
+export async function getSetting(key, { facility, scope } = {}) {
   const {
     models: { Setting },
   } = await initDatabase({ testMode: false });
 
-  const setting = await Setting.get(key, facility);
+  const setting = await Setting.get(key, scope, facility);
   if (setting === undefined) {
     return '(no setting found)';
   }
@@ -62,7 +63,7 @@ export async function getSetting(key, { facility } = {}) {
   return `value:\n${canonicalize(setting)}`;
 }
 
-export async function setSetting(key, value, { facility } = {}) {
+export async function setSetting(key, value, { facility, scope } = {}) {
   const {
     models: { Setting },
   } = await initDatabase({ testMode: false });
@@ -74,11 +75,11 @@ export async function setSetting(key, value, { facility } = {}) {
       : 'no current value\n';
 
   const newValue = JSON.parse(value);
-  await Setting.set(key, newValue, facility);
+  await Setting.set(key, newValue, scope, facility);
   return `${preValue}\nnew value set`;
 }
 
-export async function loadSettings(key, filepath, { facility, preview } = {}) {
+export async function loadSettings(key, filepath, { facility, preview, scope } = {}) {
   const {
     models: { Setting },
   } = await initDatabase({ testMode: false });
@@ -94,7 +95,7 @@ export async function loadSettings(key, filepath, { facility, preview } = {}) {
 
   await Setting.set(key, value, facility);
 
-  const currentValue = await Setting.get(key, facility);
+  const currentValue = await Setting.get(key, scope, facility);
   return JSON.stringify(currentValue, null, 2);
 }
 
@@ -113,6 +114,7 @@ export const settingsCommand = new Command('settings')
     new Command('get')
       .description('get a setting')
       .argument('<key>', 'key to retrieve')
+      .argument('scope', 'scope to retrieve setting for')
       .option('--facility <facility>', 'ID of facility to scope to')
       .action(async (...args) =>
         console.log(`-------------------------\n${await getSetting(...args)}`),
@@ -123,6 +125,7 @@ export const settingsCommand = new Command('settings')
       .description('set a setting')
       .argument('<key>', 'key to create/update')
       .argument('<value>', 'value in JSON')
+      .option('--scope <scope>', 'scope to set setting for')
       .option('--facility <facility>', 'ID of facility to scope to')
       .action(async (...args) =>
         console.log(`-------------------------\n${await setSetting(...args)}`),
@@ -133,6 +136,7 @@ export const settingsCommand = new Command('settings')
       .description('load settings from a file')
       .argument('<key>', 'key to load to')
       .argument('<file>', 'JSON, TOML, or KDL file to load settings from')
+      .option('--scope <scope>', 'scope to load settings for')
       .option('--facility <facility>', 'ID of facility to scope to')
       .option('--preview', 'Print the settings that would be loaded in JSON')
       .action(async (...args) =>
