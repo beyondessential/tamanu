@@ -22,13 +22,12 @@ const getResponseJsonSafely = async response => {
 
 const getVersionIncompatibleMessage = (error, response) => {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
-    const minAppVersion = response.headers.get('X-Min-Client-Version');
-    return `Please upgrade to Tamanu Desktop v${minAppVersion} or higher. Try closing and reopening, or contact your system administrator.`;
+    return 'Tamanu is out of date, reload this tab to get the new version! If that does not work, contact your system administrator.';
   }
 
   if (error.message === VERSION_COMPATIBILITY_ERRORS.HIGH) {
-    const maxAppVersion = response.headers.get('X-Max-Client-Version');
-    return `The Tamanu LAN Server only supports up to v${maxAppVersion}, and needs to be upgraded. Please contact your system administrator.`;
+    const maxAppVersion = response.headers.get('X-Max-Client-Version').split('.', 3).slice(0, 2).join('.');
+    return `The Tamanu Facility Server only supports up to v${maxAppVersion}, and needs to be upgraded. Please contact your system administrator.`;
   }
 
   return null;
@@ -42,9 +41,9 @@ const fetchOrThrowIfUnavailable = async (url, config) => {
     // eslint-disable-next-line no-console
     console.log(e.message);
     // apply more helpful message if the server is not available
-    if (e.message === 'Failed to fetch') {
+    if (e.message === 'Failed to fetch' || e.status >= 502) {
       throw new Error(
-        'The LAN Server is unavailable. Please check with your system administrator that the address is set correctly, and that it is running',
+        'The Facility Server is unavailable. Please contact your system administrator.',
       );
     }
     throw e; // some other unhandled error
