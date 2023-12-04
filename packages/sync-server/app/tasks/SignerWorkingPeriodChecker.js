@@ -1,11 +1,14 @@
+import config from 'config';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { Op, Sequelize } from 'sequelize';
 
 export class SignerWorkingPeriodChecker extends ScheduledTask {
-  constructor({ store, schedules }) {
-    super(schedules.signerWorkingPeriodChecker.schedule, log);
-    this.models = store.models;
+  constructor(context) {
+    const conf = config.schedules.signerWorkingPeriodChecker;
+    super(conf.schedule, log);
+    this.config = conf;
+    this.context = context;
   }
 
   getName() {
@@ -13,7 +16,7 @@ export class SignerWorkingPeriodChecker extends ScheduledTask {
   }
 
   async run() {
-    const { Signer } = this.models;
+    const { Signer } = this.context.store.models;
     const expired = await Signer.findAll({
       where: {
         workingPeriodEnd: { [Op.lt]: Sequelize.NOW },

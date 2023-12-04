@@ -1,14 +1,16 @@
+import config from 'config';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { Op } from 'sequelize';
 import { newKeypairAndCsr } from '../integrations/Signer';
+import { getLocalisation } from '../localisation';
 
 export class SignerRenewalChecker extends ScheduledTask {
   constructor(context) {
-    const { schedules, settings, store } = context;
-    super(schedules.signerRenewalChecker.schedule, log);
-    this.settings = settings;
-    this.models = store.models;
+    const conf = config.schedules.signerRenewalChecker;
+    super(conf.schedule, log);
+    this.config = conf;
+    this.context = context;
     this.runImmediately();
   }
 
@@ -17,7 +19,7 @@ export class SignerRenewalChecker extends ScheduledTask {
   }
 
   async run() {
-    const { Signer } = this.models;
+    const { Signer } = this.context.store.models;
 
     const pending = await Signer.findAll({
       where: {
@@ -68,15 +70,12 @@ export class SignerRenewalChecker extends ScheduledTask {
       }
 
       log.info('Generating new signer CSR');
-      const country = await this.settings.get('country');
-      const { publicKey, privateKey, request } = await newKeypairAndCsr({
-        settings: this.settings,
-      });
+      const { publicKey, privateKey, request } = await newKeypairAndCsr();
       const newSigner = await Signer.create({
         publicKey: Buffer.from(publicKey),
         privateKey: Buffer.from(privateKey),
         request,
-        countryCode: country['alpha-3'],
+        countryCode: (await getLocalisation()).country['alpha-3'],
       });
       log.info(`Created new signer (CSR): ${newSigner.id}`);
     }

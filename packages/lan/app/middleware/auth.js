@@ -44,12 +44,9 @@ async function comparePassword(user, password) {
   }
 }
 
-export async function centralServerLogin(ctx, email, password) {
-  const { models, deviceId, settings } = ctx;
-  const syncConfig = await settings.get('sync');
-
+export async function centralServerLogin(models, email, password, deviceId) {
   // try logging in to sync server
-  const centralServer = new CentralServerConnection(ctx, syncConfig);
+  const centralServer = new CentralServerConnection({ deviceId });
   const response = await centralServer.fetch('login', {
     awaitConnection: false,
     retryAuth: false,

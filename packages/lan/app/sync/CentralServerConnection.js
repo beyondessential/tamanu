@@ -44,10 +44,11 @@ export class CentralServerConnection {
   // test mocks don't always apply properly - this ensures the mock will be used
   fetchImplementation = fetch;
 
-  constructor(ctx, { host = '' }) {
-    this.host = host.trim().replace(/\/*$/, '');
-    this.deviceId = ctx?.deviceId;
-    this.settings = ctx?.settings;
+  constructor({ deviceId }) {
+    this.host = config.sync.host.trim().replace(/\/*$/, '');
+    this.timeout = config.sync.timeout;
+    this.batchSize = config.sync.channelBatchSize;
+    this.deviceId = deviceId;
   }
 
   async fetch(endpoint, params = {}) {
@@ -57,13 +58,10 @@ export class CentralServerConnection {
       method = 'GET',
       retryAuth = true,
       awaitConnection = true,
-      backoff: backoffParams,
+      backoff,
       ...otherParams
     } = params;
 
-    const { backoff, timeout } = await this.settings.get('sync');
-    const requestFailureRate = await this.settings.get('debugging.requestFailureRate');
-    const backoffSettings = backoffParams || backoff;
     // if there's an ongoing connection attempt, wait until it's finished
     // if we don't have a token, connect
     // allows deliberately skipping connect (so connect doesn't call itself)
@@ -71,7 +69,7 @@ export class CentralServerConnection {
       try {
         if (!this.token) {
           // Deliberately use same backoff policy to avoid retrying in some places
-          await this.connect(backoffSettings, otherParams.timeout);
+          await this.connect(backoff, otherParams.timeout);
         } else {
           await this.connectionPromise;
         }
@@ -84,8 +82,8 @@ export class CentralServerConnection {
     log.debug(`[sync] ${method} ${url}`);
 
     return callWithBackoff(async () => {
-      if (requestFailureRate) {
-        if (Math.random() < requestFailureRate) {
+      if (config.debugging.requestFailureRate) {
+        if (Math.random() < config.debugging.requestFailureRate) {
           // intended to cause some % of requests to fail, to simulate a flaky connection
           throw new Error('Chaos: made your request fail');
         }
@@ -104,7 +102,7 @@ export class CentralServerConnection {
               ...headers,
             },
             body: body && JSON.stringify(body),
-            timeout,
+            timeout: this.timeout,
             ...otherParams,
           },
           this.fetchImplementation,
@@ -154,7 +152,7 @@ export class CentralServerConnection {
         }
         throw e;
       }
-    }, backoffSettings);
+    }, backoff);
   }
 
   async pollUntilTrue(endpoint) {
@@ -170,9 +168,7 @@ export class CentralServerConnection {
     throw new Error(`Did not get a truthy response after ${maxAttempts} attempts for ${endpoint}`);
   }
 
-  async connect(backoff, timeoutParam) {
-    const { timeout } = await this.settings.get('sync');
-    const timeoutSetting = timeout || timeoutParam;
+  async connect(backoff, timeout = this.timeout) {
     // if there's an ongoing connect attempt, reuse it
     if (this.connectionPromise) {
       return this.connectionPromise;
@@ -195,7 +191,7 @@ export class CentralServerConnection {
         awaitConnection: false,
         retryAuth: false,
         backoff,
-        timeout: timeoutSetting,
+        timeout,
       });
 
       if (!body.token || !body.user) {

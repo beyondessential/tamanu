@@ -42,8 +42,8 @@ const columns = [
   {
     key: 'date',
     title: 'Date',
-    accessor: ({ date }, getSetting) =>
-      date ? getDisplayDate(date, undefined, getSetting('countryTimeZone')) : 'Unknown',
+    accessor: ({ date }, getLocalisation) =>
+      date ? getDisplayDate(date, undefined, getLocalisation) : 'Unknown',
   },
   {
     key: 'batch',
@@ -62,13 +62,13 @@ export const VaccineCertificate = ({
   signingSrc,
   watermarkSrc,
   logoSrc,
-  getSetting,
+  getLocalisation,
   extraPatientFields,
 }) => {
-  const contactEmail = getSetting('localisation.templates.vaccineCertificate.emailAddress');
-  const contactNumber = getSetting('localisation.templates.vaccineCertificate.contactNumber');
-  const healthFacility = getSetting('localisation.templates.vaccineCertificate.healthFacility');
-  const countryName = getSetting('country.name');
+  const contactEmail = getLocalisation('templates.vaccineCertificate.emailAddress');
+  const contactNumber = getLocalisation('templates.vaccineCertificate.contactNumber');
+  const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
+  const countryName = getLocalisation('country.name');
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
 
@@ -78,13 +78,13 @@ export const VaccineCertificate = ({
         {watermarkSrc && <Watermark src={watermarkSrc} />}
         <CertificateHeader>
           <LetterheadSection
-            getSetting={getSetting}
+            getLocalisation={getLocalisation}
             logoSrc={logoSrc}
             certificateTitle="Vaccine Certificate"
           />
           <PatientDetailsSection
             patient={patient}
-            getSetting={getSetting}
+            getLocalisation={getLocalisation}
             certificateId={certificateId}
             extraFields={extraPatientFields}
           />
@@ -93,7 +93,7 @@ export const VaccineCertificate = ({
           <Table
             data={data}
             columns={columns}
-            getSetting={getSetting}
+            getLocalisation={getLocalisation}
             columnStyle={{ padding: '10px 5px' }}
           />
         </Box>

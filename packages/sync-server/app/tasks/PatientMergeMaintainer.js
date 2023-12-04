@@ -1,4 +1,7 @@
 /* eslint camelcase: ["error", { allow: ["^specificUpdate_"] }] */
+
+import config from 'config';
+
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
@@ -20,10 +23,13 @@ export class PatientMergeMaintainer extends ScheduledTask {
   }
 
   constructor(context, overrideConfig = null) {
-    const { schedules, store } = context;
-    const schedule = overrideConfig?.schedule || schedules.patientMergeMaintainer.schedule;
-    super(schedule, log);
-    this.models = store.models;
+    const conf = {
+      ...config.schedules.patientMergeMaintainer,
+      ...overrideConfig,
+    };
+    super(conf.schedule, log);
+    this.config = conf;
+    this.models = context.store.models;
   }
 
   checkModelsMissingSpecificUpdateCoverage() {

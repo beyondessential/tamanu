@@ -111,7 +111,6 @@ describe('EU DCC: Vaccination', () => {
     // Act
     const msg = await createEuDccVaccinationData(vax.id, {
       models: ctx.store.models,
-      settings: ctx.settings,
     });
 
     // Assert

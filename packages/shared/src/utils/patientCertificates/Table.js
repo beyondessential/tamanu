@@ -37,13 +37,13 @@ const TD = ({ customStyles, ...props }) => (
   <Text wrap={false} {...props} style={[tableStyles.td, customStyles]} />
 );
 
-export const Table = ({ data, columns, getSetting, columnStyle }) => {
+export const Table = ({ data, columns, getLocalisation, columnStyle }) => {
   const leftColumnStyle = {
     ...columnStyle,
     borderLeft: basicBorder,
   };
   const visibleColumns = columns.filter(
-    ({ key }) => getSetting(`localisation.fields.${key}.hidden`) !== true,
+    ({ key }) => getLocalisation(`fields.${key}.hidden`) !== true,
   );
   return (
     <View style={tableStyles.table}>
@@ -65,7 +65,7 @@ export const Table = ({ data, columns, getSetting, columnStyle }) => {
               key={key}
               customStyles={[customStyles, columnIndex === 0 ? leftColumnStyle : columnStyle]}
             >
-              {accessor ? accessor(row, getSetting) : row[key]}
+              {accessor ? accessor(row, getLocalisation) : row[key]}
             </TD>
           ))}
         </TR>

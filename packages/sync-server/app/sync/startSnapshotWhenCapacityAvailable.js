@@ -21,7 +21,6 @@ const startSnapshotIfCapacityAvailable = async (sequelize, sessionId) => {
     {
       replacements: {
         sessionId,
-        // TODO: use db config fetcher?
         numberConcurrentPullSnapshots: config.sync.numberConcurrentPullSnapshots,
       },
       type: sequelize.QueryTypes.UPDATE,

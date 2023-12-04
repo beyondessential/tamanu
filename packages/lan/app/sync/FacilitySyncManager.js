@@ -1,4 +1,3 @@
-// TODO: use db fetcher config
 import _config from 'config';
 import { log } from '@tamanu/shared/services/logging';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
@@ -60,8 +59,7 @@ export class FacilitySyncManager {
   }
 
   async triggerSync(reason) {
-    const syncEnabled = await this.centralServer.settings.get('sync.enabled');
-    if (!syncEnabled) {
+    if (!this.constructor.config.sync.enabled) {
       log.warn('FacilitySyncManager.triggerSync: sync is disabled');
       return { enabled: false };
     }
@@ -193,9 +191,7 @@ export class FacilitySyncManager {
       pullSince,
     );
 
-    if (
-      await this.centralServer.settings.get('sync.assertIfPulledRecordsUpdatedAfterPushSnapshot')
-    ) {
+    if (this.constructor.config.sync.assertIfPulledRecordsUpdatedAfterPushSnapshot) {
       await assertIfPulledRecordsUpdatedAfterPushSnapshot(
         Object.values(getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL)),
         sessionId,

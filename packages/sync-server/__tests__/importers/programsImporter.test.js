@@ -36,7 +36,6 @@ describe('Programs import', () => {
       importer: programImporter,
       file: `./__tests__/importers/programs-${file}.xlsx`,
       models: ctx.store.models,
-      settings: ctx.settings,
       ...opts,
     });
   }

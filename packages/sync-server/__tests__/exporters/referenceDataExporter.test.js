@@ -38,9 +38,7 @@ describe('Reference data exporter', () => {
     models = ctx.store.models;
   });
 
-  afterAll(async () => {
-    await ctx.close();
-  });
+  afterAll(() => ctx.close());
 
   afterEach(async () => {
     jest.clearAllMocks();
@@ -59,8 +57,6 @@ describe('Reference data exporter', () => {
       'PatientFieldDefinitionCategory',
       'Location',
       'Department',
-      'Permission',
-      'Role',
     ];
     for (const model of modelsToDestroy) {
       await ctx.store.models[model].destroy({ where: {}, force: true });
@@ -483,8 +479,27 @@ describe('Reference data exporter', () => {
     await createPatientFieldDefCategory(models);
     await expect(exporter(models, { 1: 'wrongDataType' })).rejects.toThrow();
   });
+});
 
-  it('Permission - Should export a file with no data if there is no permission and roles', async () => {
+describe('Permission and Roles exporter', () => {
+  let ctx;
+  let models;
+
+  beforeAll(async () => {
+    ctx = await createTestContext();
+    models = ctx.store.models;
+  });
+
+  afterAll(() => ctx.close());
+
+  afterEach(async () => {
+    const { Permission, Role } = ctx.store.models;
+    jest.clearAllMocks();
+    await Permission.destroy({ where: {}, force: true });
+    await Role.destroy({ where: {}, force: true });
+  });
+
+  it('Should export a file with no data if there is no permission and roles', async () => {
     await exporter(models, { 1: 'permission', 2: 'role' });
     expect(writeExcelFile).toBeCalledWith(
       [
@@ -576,7 +591,7 @@ describe('Reference data exporter', () => {
     );
   });
 
-  it('Permission - Should export permissions with two aditional columns for admin/reception Role', async () => {
+  it('Should export permissions with two aditional columns for admin/reception Role', async () => {
     await createRole(models, { id: 'admin', name: 'Admin' });
     await createRole(models, { id: 'reception', name: 'Reception' });
     await createPermission(models, { verb: 'list', noun: 'User', roleId: 'reception' });

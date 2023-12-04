@@ -68,18 +68,14 @@ async function report(options) {
 
     const emailService = new EmailService();
     const reportRunner = new ReportRunner(
-      {
-        store,
-        emailService,
-        reportSchemaStores,
-      },
-      {
-        reportId,
-        userId,
-        parameters: reportParameters,
-        recipients: reportRecipients,
-        exportFormat: format,
-      },
+      reportId,
+      reportParameters,
+      reportRecipients,
+      store,
+      reportSchemaStores,
+      emailService,
+      userId,
+      format,
     );
     log.info(
       `Running report "${reportId}" with parameters "${parameters}", recipients "${recipients}" and userId ${userId}`,

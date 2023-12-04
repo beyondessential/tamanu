@@ -5,6 +5,10 @@ function getSystemTimeZone() {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
 
+function getConfigTimeZone(config) {
+  return config.countryTimeZone;
+}
+
 async function getDatabaseTimeZone(sequelize) {
   const rows = await sequelize.query(
     "SELECT setting FROM pg_settings WHERE name ILIKE 'timezone'",
@@ -29,10 +33,10 @@ async function getRemoteTimeZone(remote) {
   return null;
 }
 
-export async function performTimeZoneChecks({ countryTimeZone, sequelize, remote }) {
+export async function performTimeZoneChecks({ config, sequelize, remote }) {
   const zones = {
     system: getSystemTimeZone(),
-    config: countryTimeZone,
+    config: getConfigTimeZone(config),
     database: await getDatabaseTimeZone(sequelize),
   };
 

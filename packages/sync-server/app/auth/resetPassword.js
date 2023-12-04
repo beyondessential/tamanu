@@ -1,6 +1,5 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-
 import config from 'config';
 import * as yup from 'yup';
 import { addMinutes } from 'date-fns';

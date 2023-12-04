@@ -1,3 +1,4 @@
+import config from 'config';
 import { upperFirst } from 'lodash';
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
@@ -63,8 +64,8 @@ export class SurveyResponseAnswer extends Model {
     `;
   }
 
-  static getDefaultId = async (resource, defaultCodes) => {
-    const code = defaultCodes[resource];
+  static getDefaultId = async resource => {
+    const code = config.survey.defaultCodes[resource];
     const modelName = upperFirst(resource);
     const model = this.sequelize.models[modelName];
     if (!model) {

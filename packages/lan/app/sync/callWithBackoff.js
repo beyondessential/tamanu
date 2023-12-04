@@ -1,3 +1,5 @@
+import config from 'config';
+
 import { log } from '@tamanu/shared/services/logging';
 import { sleepAsync } from '@tamanu/shared/utils';
 import {
@@ -17,7 +19,14 @@ const isIrrecoverable = e => {
   );
 };
 
-export const callWithBackoff = async (fn, { maxAttempts, maxWaitMs, multiplierMs } = {}) => {
+export const callWithBackoff = async (
+  fn,
+  {
+    maxAttempts = config.sync.backoff.maxAttempts,
+    maxWaitMs = config.sync.backoff.maxWaitMs,
+    multiplierMs = config.sync.backoff.multiplierMs,
+  } = {},
+) => {
   if (!Number.isFinite(maxAttempts) || maxAttempts < 1) {
     throw new Error(
       `callWithBackoff: maxAttempts must be a finite integer, instead got ${maxAttempts}`,

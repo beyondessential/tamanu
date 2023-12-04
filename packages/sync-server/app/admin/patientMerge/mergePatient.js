@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 import { chunk, omit, omitBy } from 'lodash';
-// import config from 'config';
+import config from 'config';
 import { VISIBILITY_STATUSES, PATIENT_MERGE_DELETION_ACTIONS } from '@tamanu/constants';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 import { InvalidParameterError } from '@tamanu/shared/errors';
@@ -285,9 +285,8 @@ export async function reconcilePatientFacilities(models, keepPatientId, unwanted
   return newPatientFacilities;
 }
 
-export async function mergePatient({ models, settings }, keepPatientId, unwantedPatientId) {
+export async function mergePatient(models, keepPatientId, unwantedPatientId) {
   const { sequelize } = models.Patient;
-  const deleteAction = await settings.get('patientMerge.deletionAction');
 
   if (keepPatientId === unwantedPatientId) {
     throw new InvalidParameterError('Cannot merge a patient record into itself.');
@@ -322,14 +321,15 @@ export async function mergePatient({ models, settings }, keepPatientId, unwanted
       visibilityStatus: VISIBILITY_STATUSES.MERGED,
     });
 
-    if (deleteAction === PATIENT_MERGE_DELETION_ACTIONS.RENAME) {
+    const action = config.patientMerge?.deletionAction;
+    if (action === PATIENT_MERGE_DELETION_ACTIONS.RENAME) {
       await unwantedPatient.update({ firstName: 'Deleted', lastName: 'Patient' });
-    } else if (deleteAction === PATIENT_MERGE_DELETION_ACTIONS.DESTROY) {
+    } else if (action === PATIENT_MERGE_DELETION_ACTIONS.DESTROY) {
       await unwantedPatient.destroy(); // this will just set deletedAt
-    } else if (deleteAction === PATIENT_MERGE_DELETION_ACTIONS.NONE) {
+    } else if (action === PATIENT_MERGE_DELETION_ACTIONS.NONE) {
       // do nothing
     } else {
-      throw new Error(`Unknown config option for patientMerge.deletionAction: ${deleteAction}`);
+      throw new Error(`Unknown config option for patientMerge.deletionAction: ${action}`);
     }
 
     updates.Patient = 2;

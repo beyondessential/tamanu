@@ -1,3 +1,4 @@
+import config from 'config';
 import * as yup from 'yup';
 
 const SCHEMA = yup
@@ -8,7 +9,7 @@ const SCHEMA = yup
   })
   .noUnknown();
 
-export async function checkEuDccConfig(settings) {
-  const { euDcc } = await settings.get('integrations');
+export function checkEuDccConfig() {
+  const { euDcc } = config.integrations;
   if (euDcc.enabled) SCHEMA.validateSync(euDcc);
 }

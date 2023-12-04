@@ -17,13 +17,13 @@ import { getNoteWithType } from '@tamanu/shared/utils/notes';
 import { mapQueryFilters } from '../../database/utils';
 import { getImagingProvider } from '../../integrations/imaging';
 
-async function renderResults(context, imagingRequest) {
+async function renderResults(models, imagingRequest) {
   const results = imagingRequest.results
     ?.filter(result => !result.deletedAt)
     .map(result => result.get({ plain: true }));
   if (!results || results.length === 0) return results;
 
-  const imagingProvider = await getImagingProvider(context);
+  const imagingProvider = await getImagingProvider(models);
   if (imagingProvider) {
     const urls = await Promise.all(
       imagingRequest.results.map(async result => {
@@ -102,12 +102,10 @@ imagingRequest.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
-      models,
-      settings,
+      models: { ImagingRequest, ImagingResult, User, ReferenceData },
       params: { id },
     } = req;
     req.checkPermission('read', 'ImagingRequest');
-    const { ImagingRequest, ImagingResult, User, ReferenceData } = models;
     const imagingRequestObject = await ImagingRequest.findByPk(id, {
       include: [
         {
@@ -138,7 +136,7 @@ imagingRequest.get(
     res.send({
       ...imagingRequestObject.get({ plain: true }),
       ...(await imagingRequestObject.extractNotes()),
-      results: await renderResults({ models, settings }, imagingRequestObject),
+      results: await renderResults(req.models, imagingRequestObject),
     });
   }),
 );
@@ -222,12 +220,10 @@ imagingRequest.put(
       }
     }
 
-    const { models, settings } = req;
-
     res.send({
       ...imagingRequestObject.get({ plain: true }),
       ...notes,
-      results: await renderResults({ models, settings }, imagingRequestObject),
+      results: await renderResults(req.models, imagingRequestObject),
     });
   }),
 );
