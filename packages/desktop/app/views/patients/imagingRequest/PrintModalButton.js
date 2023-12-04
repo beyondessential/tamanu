@@ -39,9 +39,7 @@ export const PrintModalButton = props => {
   return (
     <>
       <Modal
-        title={
-          <TranslatedText stringId="imaging.modal.print.title" fallback="Imaging Request" />
-        }
+        title={<TranslatedText stringId="imaging.modal.print.title" fallback="Imaging Request" />}
         open={isModalOpen}
         onClose={closeModal}
         width="md"

@@ -95,7 +95,9 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
       />
       {allowLocationChange && (
         <Field
-          label={<TranslatedText stringId="imaging.form.facilityArea.label" fallback="Facility area" />}
+          label={
+            <TranslatedText stringId="imaging.form.facilityArea.label" fallback="Facility area" />
+          }
           name="locationGroupId"
           component={AutocompleteField}
           suggester={locationGroupSuggester}
@@ -109,12 +111,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
             ? imagingRequest.areas.map(area => area.name).join(', ')
             : imagingRequest.areaNote
         }
-        label={
-          <TranslatedText
-            stringId="imaging.form.areas.label"
-            fallback="Areas to be imaged"
-          />
-        }
+        label={<TranslatedText stringId="imaging.form.areas.label" fallback="Areas to be imaged" />}
         style={{ gridColumn: '1 / -1', minHeight: '60px' }}
         disabled
       />

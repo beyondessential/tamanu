@@ -9,7 +9,10 @@ export const PrintMultipleImagingRequestsSelectionModal = ({ encounter, open, on
   return (
     <FormModal
       title={
-        <TranslatedText stringId="imaging.modal.printMultiple.title" fallback="Print imaging request/s" />
+        <TranslatedText
+          stringId="imaging.modal.printMultiple.title"
+          fallback="Print imaging request/s"
+        />
       }
       width="md"
       open={open}
