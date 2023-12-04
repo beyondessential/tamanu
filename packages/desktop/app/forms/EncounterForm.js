@@ -32,7 +32,11 @@ export const EncounterForm = React.memo(
     const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
     const renderForm = ({ submitForm, values }) => {
-      const buttonText = editedObject ? 'Update encounter' : 'Confirm';
+      const buttonText = editedObject ? (
+        <TranslatedText stringId="patient.modal.admit.action.update" fallback="Update encounter" />
+      ) : (
+        <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+      );
 
       return (
         <FormGrid>
