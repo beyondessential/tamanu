@@ -137,7 +137,7 @@ export const ImagingRequestForm = React.memo(
                 name="requestedDate"
                 label={
                   <TranslatedText
-                    stringId="imaging.form.orderDate.label"
+                    stringId="imaging.form.requestedDate.label"
                     fallback="Order date and time"
                   />
                 }
@@ -172,7 +172,7 @@ export const ImagingRequestForm = React.memo(
                 name="imagingType"
                 label={
                   <TranslatedText
-                    stringId="imaging.form.requestType.label"
+                    stringId="imaging.form.imagingType.label"
                     fallback="Imaging request type"
                   />
                 }
@@ -189,7 +189,7 @@ export const ImagingRequestForm = React.memo(
                   name="areas"
                   label={
                     <TranslatedText
-                      stringId="imaging.form.imagingAreas.label"
+                      stringId="imaging.form.areas.label"
                       fallback="Areas to be imaged"
                     />
                   }
@@ -200,7 +200,7 @@ export const ImagingRequestForm = React.memo(
                   name="areaNote"
                   label={
                     <TranslatedText
-                      stringId="imaging.form.imagingAreas.label"
+                      stringId="imaging.form.imagingNote.label"
                       fallback="Areas to be imaged"
                     />
                   }

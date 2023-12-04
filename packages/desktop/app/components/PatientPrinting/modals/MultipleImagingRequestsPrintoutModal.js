@@ -16,7 +16,7 @@ export const MultipleImagingRequestsPrintoutModal = ({
     <Modal
       title={
         <TranslatedText
-          stringId="imaging.modal.printMultipleRequests.title"
+          stringId="imaging.modal.printMultiple.title"
           fallback="Print imaging requests"
         />
       }

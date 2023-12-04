@@ -55,7 +55,7 @@ export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter
       <PrintMultipleSelectionTable
         label={
           <TranslatedText
-            stringId="imaging.modal.print.select.text"
+            stringId="imaging.modal.printMultiple.selectText"
             fallback="Select the imaging requests you would like to print"
           />
         }
@@ -67,7 +67,7 @@ export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter
         errorMessage={error?.message}
         noDataMessage={
           <TranslatedText
-            stringId="imaging.modal.print.noData"
+            stringId="imaging.modal.printMultiple.table.noData"
             fallback="No imaging requests found"
           />
         }

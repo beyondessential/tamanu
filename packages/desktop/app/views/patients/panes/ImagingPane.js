@@ -33,7 +33,7 @@ export const ImagingPane = React.memo(({ encounter, readonly }) => {
           <TranslatedText stringId="general.action.print" fallback="Print" />
         </Button>
         <Button onClick={() => setNewRequestModalOpen(true)} disabled={readonly}>
-          <TranslatedText stringId="imaging.action.newRequest" fallback="New imaging request" />
+          <TranslatedText stringId="imaging.action.create" fallback="New imaging request" />
         </Button>
       </TableButtonRow>
       <ImagingRequestsTable encounterId={encounter.id} />

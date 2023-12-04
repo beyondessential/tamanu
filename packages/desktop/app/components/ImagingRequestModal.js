@@ -22,7 +22,7 @@ export const ImagingRequestModal = ({ open, onClose, encounter }) => {
   return (
     <FormModal
       width="md"
-      title={<TranslatedText stringId="imaging.form.title" fallback="New imaging request" />}
+      title={<TranslatedText stringId="imaging.modal.create.title" fallback="New imaging request" />}
       open={open}
       onClose={onClose}
     >

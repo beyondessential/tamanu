@@ -66,7 +66,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
       />
       <TextInput
         value={imagingTypes[imagingRequest.imagingType]?.label || 'Unknown'}
-        label={<TranslatedText stringId="imaging.form.requestType.label" fallback="Request type" />}
+        label={<TranslatedText stringId="imaging.form.imagingType.label" fallback="Request type" />}
         disabled
       />
       <TextInput
@@ -87,7 +87,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
         value={imagingRequest.requestedDate}
         label={
           <TranslatedText
-            stringId="imaging.form.requestDate.label"
+            stringId="imaging.form.requestedDate.label"
             fallback="Request date and time"
           />
         }
@@ -95,7 +95,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
       />
       {allowLocationChange && (
         <Field
-          label={<TranslatedText stringId="imaging.form.facility.label" fallback="Facility area" />}
+          label={<TranslatedText stringId="imaging.form.facilityArea.label" fallback="Facility area" />}
           name="locationGroupId"
           component={AutocompleteField}
           suggester={locationGroupSuggester}
@@ -111,7 +111,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
         }
         label={
           <TranslatedText
-            stringId="imaging.form.imagingAreas.label"
+            stringId="imaging.form.areas.label"
             fallback="Areas to be imaged"
           />
         }
@@ -303,7 +303,7 @@ export const ImagingRequestView = () => {
   return (
     <>
       <SimpleTopBar
-        title={<TranslatedText stringId="imaging.request.title" fallback="Imaging request" />}
+        title={<TranslatedText stringId="imaging.topbar.title" fallback="Imaging request" />}
       >
         {isCancellable && (
           <CancelModalButton imagingRequest={imagingRequest} onCancel={onNavigateBackToImaging} />
