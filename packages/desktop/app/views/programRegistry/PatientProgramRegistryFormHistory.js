@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { DataFetchingTable } from '../../components/Table/DataFetchingTable';
 import { DateDisplay } from '../../components/DateDisplay';
@@ -56,7 +55,7 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
 
   useEffect(() => {
     setRefreshCount(refreshCount + 1);
-  }, [patientProgramRegistration.programRegistry.programId]);
+  }, [patientProgramRegistration.programRegistry.programId, refreshCount]);
 
   return (
     <DataFetchingTable

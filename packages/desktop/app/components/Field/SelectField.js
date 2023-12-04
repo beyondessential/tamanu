@@ -115,8 +115,7 @@ export const SelectInput = ({
   );
 
   const customStyles = {
-    control: (provided, state) => {
-      // const mainBorderColor = state.isFocused ? Colors.primary : Colors.outline;
+    control: provided => {
       const mainBorderColor = Colors.outline;
       const borderColor = props.error ? Colors.alert : mainBorderColor;
       const fontSize = props.size === 'small' ? '11px' : '15px';
