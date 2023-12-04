@@ -70,7 +70,7 @@ export const DocumentsTable = React.memo(
         },
         {
           key: 'documentUploadedAt',
-          title: <TranslatedText stringId="document.table.column.upload" fallback="Upload" />,
+          title: <TranslatedText stringId="document.table.column.uploadedDate" fallback="Upload" />,
           accessor: getUploadedDate,
         },
         {

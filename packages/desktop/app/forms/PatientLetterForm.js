@@ -84,7 +84,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
         <Field
           name="templateId"
           label={
-            <TranslatedText stringId="patientLetter.form.templateId.label" fallback="Template" />
+            <TranslatedText stringId="patientLetter.form.template.label" fallback="Template" />
           }
           suggester={patientLetterTemplateSuggester}
           component={AutocompleteField}

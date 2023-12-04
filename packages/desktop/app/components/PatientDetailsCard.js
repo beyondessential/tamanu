@@ -63,24 +63,24 @@ export const PatientDetailsCard = ({ patient }) => (
       />
       <CardItem
         label={
-          <TranslatedText stringId="patient.detail.card.firstName.label" fallback="First name" />
+          <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />
         }
         value={patient?.firstName}
       />
       <CardItem
         label={
-          <TranslatedText stringId="patient.detail.card.lastName.label" fallback="Last name" />
+          <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
         }
         value={patient?.lastName}
       />
     </Column>
     <Column>
       <CardItem
-        label={<TranslatedText stringId="patient.detail.card.dateOfBirth.label" fallback="DOB" />}
+        label={<TranslatedText stringId="patient.detail.card.dateOfBirth.label.short" fallback="DOB" />}
         value={<DateDisplay date={patient?.dateOfBirth} />}
       />
       <CardItem
-        label={<TranslatedText stringId="patient.detail.card.sex.label" fallback="Sex" />}
+        label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
         value={SEX_VALUE_INDEX[patient?.sex]?.label}
       />
     </Column>
