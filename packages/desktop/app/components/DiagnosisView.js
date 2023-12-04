@@ -27,7 +27,7 @@ const DiagnosisLabel = React.memo(({ numberOfDiagnoses }) => {
 
   return (
     <DiagnosisHeading>
-      <TranslatedText stringId="diagnosis.label" fallback="Diagnosis" />:
+      <TranslatedText stringId="diagnosis.heading" fallback="Diagnosis" />:
     </DiagnosisHeading>
   );
 });
