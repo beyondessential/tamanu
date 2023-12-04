@@ -53,7 +53,7 @@ const InvoiceLineActionDropdown = React.memo(({ row }) => {
   return (
     <>
       <InvoiceLineItemModal
-        title={<TranslatedText stringId="invoice.modal.edit.title" fallback="Edit item" />}
+        title={<TranslatedText stringId="invoice.line.modal.edit.title" fallback="Edit item" />}
         actionText={<TranslatedText stringId="general.action.save" fallback="Save" />}
         open={invoiceLineModalOpen}
         invoiceId={row.invoiceId}
@@ -67,19 +67,19 @@ const InvoiceLineActionDropdown = React.memo(({ row }) => {
       <ConfirmModal
         title={
           <TranslatedText
-            stringId="invoice.modal.delete.title"
+            stringId="invoice.line.modal.delete.title"
             fallback="Delete invoice line item"
           />
         }
         text={
           <TranslatedText
-            stringId="invoice.modal.delete.text"
+            stringId="invoice.line.modal.delete.text"
             fallback="Are you sure you want to delete this invoice line item?"
           />
         }
         subText={
           <TranslatedText
-            stringId="invoice.modal.delete.subText"
+            stringId="invoice.line.modal.delete.subText"
             fallback="You will not be able to revert this action."
           />
         }
@@ -351,7 +351,10 @@ export const InvoiceDetailTable = React.memo(({ invoice }) => {
           ...(isInvoiceEditable(invoice) ? [INVOICE_LINE_ACTION_COLUMN] : []),
         ]}
         noDataMessage={
-          <TranslatedText stringId="invoice.table.noData" fallback="No invoice line items found" />
+          <TranslatedText
+            stringId="invoice.line.table.noData"
+            fallback="No invoice line items found"
+          />
         }
         allowExport={false}
         onDataFetched={updateLineItems}
@@ -386,7 +389,7 @@ export const InvoiceDetailTable = React.memo(({ invoice }) => {
         ]}
         noDataMessage={
           <TranslatedText
-            stringId="invoice.table.discounts.noData"
+            stringId="invoice.discounts.table.noData"
             fallback="No additional price change found"
           />
         }

@@ -107,8 +107,8 @@ export const InvoicingPane = React.memo(({ encounter }) => {
     <TabPane>
       <InvoiceTopBar>
         <InvoiceHeading>
-          <TranslatedText stringId="invoice.invoiceNumber" fallback="Invoice number:" />
-          {` ${invoice.displayId}`}
+          <TranslatedText stringId="invoice.invoiceNumber" fallback="Invoice number" />
+          {`: ${invoice.displayId}`}
         </InvoiceHeading>
         {isInvoiceEditable(invoice) ? (
           <ActionsPane>
