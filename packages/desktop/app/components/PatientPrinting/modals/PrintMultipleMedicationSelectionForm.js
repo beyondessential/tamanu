@@ -27,20 +27,27 @@ const COLUMN_KEYS = {
 const COLUMNS = [
   {
     key: COLUMN_KEYS.DATE,
-    title: 'Date',
+    title: <TranslatedText stringId="general.table.column.date" fallback="Date" />,
     sortable: false,
     accessor: ({ date }) => <DateDisplay date={date} />,
   },
   {
     key: COLUMN_KEYS.MEDICATION,
-    title: 'Medication',
+    title: (
+      <TranslatedText
+        stringId="medication.modal.print.table.column.medication"
+        fallback="Medication"
+      />
+    ),
     sortable: false,
     maxWidth: 300,
     accessor: ({ medication }) => medication.name,
   },
   {
     key: COLUMN_KEYS.QUANTITY,
-    title: 'Quantity',
+    title: (
+      <TranslatedText stringId="medication.modal.print.table.column.quantity" fallback="Quantity" />
+    ),
     sortable: false,
     maxWidth: 70,
     accessor: ({ quantity, onChange }) => (
@@ -58,7 +65,9 @@ const COLUMNS = [
   },
   {
     key: COLUMN_KEYS.REPEATS,
-    title: 'Repeats',
+    title: (
+      <TranslatedText stringId="medication.modal.print.table.column.repeats" fallback="Repeats" />
+    ),
     sortable: false,
     accessor: ({ repeats, onChange }) => (
       <SelectInput options={REPEAT_OPTIONS} value={repeats} onChange={onChange} required />
