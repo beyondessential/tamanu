@@ -40,8 +40,8 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
 
       toast.info('Starting manual sync...');
       try {
-        await api.post(`sync/run`);
-        toast.success('Manual sync complete');
+        const { message } = await api.post(`sync/run`);
+        toast.success(`Manual sync: ${message}`);
       } catch (error) {
         toast.error(<Error errorMessage={error.message} />);
       } finally {
