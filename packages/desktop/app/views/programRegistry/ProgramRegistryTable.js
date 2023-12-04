@@ -140,32 +140,38 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         }}
       />
 
-      <ChangeStatusFormModal
-        patientProgramRegistration={openModal?.data}
-        onClose={() => {
-          setRefreshCount(refreshCount + 1);
-          setOpenModal(undefined);
-        }}
-        open={openModal && openModal?.data && openModal?.action === 'ChangeStatus'}
-      />
+      {openModal && openModal?.data && openModal?.action === 'ChangeStatus' && (
+        <ChangeStatusFormModal
+          patientProgramRegistration={openModal?.data}
+          onClose={() => {
+            setRefreshCount(refreshCount + 1);
+            setOpenModal(undefined);
+          }}
+          open
+        />
+      )}
 
-      <RemoveProgramRegistryFormModal
-        patientProgramRegistration={openModal?.data}
-        onClose={() => {
-          setRefreshCount(refreshCount + 1);
-          setOpenModal(undefined);
-        }}
-        open={openModal && openModal?.data && openModal?.action === 'Remove'}
-      />
+      {openModal && openModal?.data && openModal?.action === 'Remove' && (
+        <RemoveProgramRegistryFormModal
+          patientProgramRegistration={openModal?.data}
+          onClose={() => {
+            setRefreshCount(refreshCount + 1);
+            setOpenModal(undefined);
+          }}
+          open
+        />
+      )}
 
-      <DeleteProgramRegistryFormModal
-        patientProgramRegistration={openModal?.data}
-        onClose={() => {
-          setRefreshCount(refreshCount + 1);
-          setOpenModal(undefined);
-        }}
-        open={openModal && openModal?.data && openModal?.action === 'Delete'}
-      />
+      {openModal && openModal?.data && openModal?.action === 'Delete' && (
+        <DeleteProgramRegistryFormModal
+          patientProgramRegistration={openModal?.data}
+          onClose={() => {
+            setRefreshCount(refreshCount + 1);
+            setOpenModal(undefined);
+          }}
+          open
+        />
+      )}
     </>
   );
 };
