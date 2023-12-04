@@ -62,7 +62,13 @@ export const DiagnosisForm = React.memo(
             <div style={{ gridColumn: '1 / -1' }}>
               <Field
                 name="diagnosisId"
-                label={getLocalisation(`fields.diagnosis.longLabel`)}
+                label={
+                  <TranslatedText
+                    stringId="diagnosis.form.diagnosis.label"
+                    fallback=":diagnosisLabel"
+                    replacements={{ diagnosisLabel: getLocalisation(`fields.diagnosis.longLabel`) }}
+                  />
+                }
                 component={AutocompleteField}
                 suggester={icd10Suggester}
                 required
