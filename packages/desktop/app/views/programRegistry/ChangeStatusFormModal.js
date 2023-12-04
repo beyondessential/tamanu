@@ -13,6 +13,7 @@ import {
 } from '../../components';
 import { useApi, useSuggester } from '../../api';
 import { foreignKey } from '../../utils/validation';
+import { PROGRAM_REGISTRY } from '../../components/PatientInfoPane/paneTitles';
 
 const StyledFormGrid = styled(FormGrid)`
   grid-column: 1 / -1;
@@ -38,7 +39,7 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
       { ...rest, ...changedStatus },
     );
 
-    queryClient.invalidateQueries([`infoPaneListItem-Program Registry`]);
+    queryClient.invalidateQueries([`infoPaneListItem-${PROGRAM_REGISTRY}`]);
     onClose();
   };
   return (

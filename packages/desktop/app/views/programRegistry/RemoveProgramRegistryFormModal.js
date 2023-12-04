@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Modal, ConfirmCancelRow, DateDisplay, FormSeparatorLine } from '../../components';
 import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
 import { useApi } from '../../api';
+import { PROGRAM_REGISTRY } from '../../components/PatientInfoPane/paneTitles';
 
 const WarningDiv = styled.div`
   display: flex;
@@ -66,7 +67,7 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
       { ...rest, registrationStatus: PROGRAM_REGISTRATION_STATUSES.REMOVED },
     );
 
-    queryClient.invalidateQueries([`infoPaneListItem-Program Registry`]);
+    queryClient.invalidateQueries([`infoPaneListItem-${PROGRAM_REGISTRY}`]);
     onClose();
   };
 

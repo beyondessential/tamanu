@@ -110,28 +110,6 @@ export const executeRestores = async (
     await Promise.all(
       batchOfIds.map(async id => {
         try {
-          const entity = await model.findOne({ where: { id }, withDeleted: true });
-          await entity.recover();
-        } catch (error) {
-          throw new Error(`Restore failed with '${error.message}', recordId: ${id}`);
-        }
-      }),
-    );
-  }
-
-  await executeUpdates(model, recordsForRestore);
-};
-
-export const executeRestores = async (
-  model: typeof BaseModel,
-  recordsForRestore: DataToPersist[],
-): Promise<void> => {
-  const rowIds = recordsForRestore.map(({ id }) => id);
-
-  for (const batchOfIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
-    await Promise.all(
-      batchOfIds.map(async id => {
-        try {
           const entity = await model.findOne({
             where: { id },
             withDeleted: true,

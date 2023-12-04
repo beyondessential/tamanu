@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
 import { Modal, ConfirmCancelRow, FormSeparatorLine } from '../../components';
 import { useApi } from '../../api';
+import { PROGRAM_REGISTRY } from '../../components/PatientInfoPane/paneTitles';
 
 const Text = styled.div`
   display: flex;
@@ -27,7 +28,7 @@ export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onC
       { ...rest, registrationStatus: 'deleted' },
     );
 
-    queryClient.invalidateQueries([`infoPaneListItem-Program Registry`]);
+    queryClient.invalidateQueries([`infoPaneListItem-${PROGRAM_REGISTRY}`]);
     onClose();
   };
 

@@ -115,7 +115,6 @@ export const InfoPaneList = ({
   const addForm = (
     <Wrapper>
       <InfoPaneAddEditForm
-        patient={patient}
         Form={Form}
         endpoint={endpoint}
         onClose={handleCloseForm}
@@ -163,7 +162,6 @@ export const InfoPaneList = ({
                   </Collapse>
                   <Collapse in={editKey === id}>
                     <EditForm
-                      patient={patient}
                       Form={Form}
                       endpoint={endpoint}
                       item={item}
@@ -194,7 +192,6 @@ export const InfoPaneList = ({
                   onClose={handleCloseForm}
                 >
                   <EditForm
-                    patient={patient}
                     Form={Form}
                     endpoint={endpoint}
                     item={item}

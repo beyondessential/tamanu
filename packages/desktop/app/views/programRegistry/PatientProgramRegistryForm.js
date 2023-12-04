@@ -18,10 +18,12 @@ import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api/useApi';
+import { useSelector } from 'react-redux';
 
-export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient }) => {
+export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const api = useApi();
   const { currentUser, facility } = useAuth();
+  const patient = useSelector(state => state.patient);
   const [selectedProgramRegistryId, setSelectedProgramRegistryId] = useState();
 
   const { data: program } = useQuery(['programRegistry', selectedProgramRegistryId], () =>

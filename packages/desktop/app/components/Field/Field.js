@@ -7,11 +7,10 @@ import {
   useFormikContext,
 } from 'formik';
 import MuiBox from '@material-ui/core/Box';
-import { FormTooltip } from '../FormTooltip';
+import styled from 'styled-components';
 import { ThemedTooltip } from '../Tooltip';
 import { TextField } from './TextField';
 import { FORM_STATUSES } from '../../constants';
-import styled from 'styled-components';
 
 export const Field = formikConnect(
   ({
@@ -87,10 +86,7 @@ export const FieldWithTooltip = ({
         </div>
       </StyledToolTip>
     ) : (
-      <>
-        <Field {...props} />
-        {/* <FormTooltip title={tooltipText} {...muiTooltipProps} /> */}
-      </>
+      <Field {...props} />
     )}
   </MuiBox>
 );
