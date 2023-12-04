@@ -45,12 +45,7 @@ export const DiagnosisForm = React.memo(
           ...diagnosis,
         }}
         validationSchema={yup.object().shape({
-          diagnosisId: foreignKey(
-            <TranslatedText
-              stringId="diagnosis.form.diagnosis.validation"
-              fallback="Diagnosis must be selected"
-            />,
-          ),
+          diagnosisId: foreignKey('Diagnosis must be selected'),
           certainty: yup
             .string()
             .oneOf(certaintyOptions.map(x => x.value))
