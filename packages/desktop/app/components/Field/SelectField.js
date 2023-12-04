@@ -11,7 +11,6 @@ import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
-import { TranslatedText } from '../Translation/TranslatedText';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
