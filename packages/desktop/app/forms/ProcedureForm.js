@@ -60,7 +60,7 @@ export const ProcedureForm = React.memo(
                     name="procedureTypeId"
                     label={
                       <TranslatedText
-                        stringId="procedure.modal.form.procedureType.label"
+                        stringId="procedure.form.procedureType.label"
                         fallback="Procedure"
                       />
                     }
@@ -81,7 +81,7 @@ export const ProcedureForm = React.memo(
                     name="date"
                     label={
                       <TranslatedText
-                        stringId="procedure.modal.form.date.label"
+                        stringId="procedure.form.date.label"
                         fallback="Procedure date"
                       />
                     }
@@ -92,13 +92,13 @@ export const ProcedureForm = React.memo(
                   <Field
                     locationGroupLabel={
                       <TranslatedText
-                        stringId="procedure.modal.form.area.label"
+                        stringId="procedure.form.area.label"
                         fallback="Procedure area"
                       />
                     }
                     label={
                       <TranslatedText
-                        stringId="procedure.modal.form.location.label"
+                        stringId="procedure.form.location.label"
                         fallback="Procedure location"
                       />
                     }
@@ -113,7 +113,7 @@ export const ProcedureForm = React.memo(
                     name="startTime"
                     label={
                       <TranslatedText
-                        stringId="procedure.modal.form.startTime.label"
+                        stringId="procedure.form.startTime.label"
                         fallback="Time started"
                       />
                     }
@@ -124,7 +124,7 @@ export const ProcedureForm = React.memo(
                     name="endTime"
                     label={
                       <TranslatedText
-                        stringId="procedure.modal.form.endTime.label"
+                        stringId="procedure.form.endTime.label"
                         fallback="Time ended"
                       />
                     }
@@ -137,7 +137,7 @@ export const ProcedureForm = React.memo(
                   name="anaesthetistId"
                   label={
                     <TranslatedText
-                      stringId="procedure.modal.form.aneasthetistId.label"
+                      stringId="procedure.form.aneasthetistId.label"
                       fallback="Anaesthetist"
                     />
                   }
@@ -148,7 +148,7 @@ export const ProcedureForm = React.memo(
                   name="anaestheticId"
                   label={
                     <TranslatedText
-                      stringId="procedure.modal.form.anaestheticId.label"
+                      stringId="procedure.form.anaestheticId.label"
                       fallback="Anaesthetic type"
                     />
                   }
@@ -161,7 +161,7 @@ export const ProcedureForm = React.memo(
                   name="assistantId"
                   label={
                     <TranslatedText
-                      stringId="procedure.modal.form.assistantId.label"
+                      stringId="procedure.form.assistantId.label"
                       fallback="Assistant"
                     />
                   }
@@ -172,7 +172,7 @@ export const ProcedureForm = React.memo(
                   name="note"
                   label={
                     <TranslatedText
-                      stringId="procedure.modal.form.note.label"
+                      stringId="procedure.form.note.label"
                       fallback="Notes or additional instructions"
                     />
                   }
@@ -185,7 +185,7 @@ export const ProcedureForm = React.memo(
                   name="completed"
                   label={
                     <TranslatedText
-                      stringId="procedure.modal.form.completed.label"
+                      stringId="procedure.form.completed.label"
                       fallback="Completed"
                     />
                   }
@@ -196,7 +196,7 @@ export const ProcedureForm = React.memo(
                     name="completedNote"
                     label={
                       <TranslatedText
-                        stringId="procedure.modal.form.completedNote.label"
+                        stringId="procedure.form.completedNote.label"
                         fallback="Notes on completed procedure"
                       />
                     }

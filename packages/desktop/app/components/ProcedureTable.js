@@ -20,7 +20,7 @@ const COLUMNS = [
   },
   {
     key: 'ProcedureType.name',
-    title: <TranslatedText stringId="procedure.table.column.procedure" fallback="Procedure" />,
+    title: <TranslatedText stringId="procedure.table.column.name" fallback="Procedure" />,
     accessor: getProcedureLabel,
   },
 ];
