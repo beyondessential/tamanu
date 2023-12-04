@@ -142,7 +142,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
         <AutocompleteInput
           infoTooltip={
             <TranslatedText
-              stringId="medication.modal.print.tooltip"
+              stringId="medication.modal.print.prescriber.tooltip"
               fallback="The prescriber will appear on the printed prescription"
             />
           }
@@ -158,7 +158,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
           helperText={
             !prescriberSelected && (
               <TranslatedText
-                stringId="medication.modal.print.helperText"
+                stringId="medication.modal.print.prescriber.helperText"
                 fallback="Please select a prescriber"
               />
             )
