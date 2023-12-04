@@ -1,5 +1,5 @@
 import * as yup from 'yup';
-// import config from 'config';
+import config from 'config';
 import { parseOrNull } from '@tamanu/shared/utils/parse-or-null';
 import { isNumberOrFloat } from '../../utils/numbers';
 import { statkey, updateStat } from '../stats';
@@ -62,15 +62,15 @@ function validateVitalVisualisationConfig(visualisationConfigString, validationC
   }
 }
 
-export async function validateProgramDataElementRecords(
+export function validateProgramDataElementRecords(
   records,
   { context, sheetName, stats: previousStats = {} },
 ) {
-  const { errors, settings } = context;
-  if (!(await settings.get('validateQuestionConfigs.enabled'))) {
+  if (!config.validateQuestionConfigs.enabled) {
     return previousStats;
   }
 
+  const { errors } = context;
   const stats = { ...previousStats };
 
   const programDataElementRecords = records.filter(({ model }) => model === 'ProgramDataElement');

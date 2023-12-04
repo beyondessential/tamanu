@@ -11,7 +11,6 @@ import { log } from '@tamanu/shared/services/logging';
 const SENAITE_ERROR_STATUS = 'manual';
 
 const TARGET_STATES = ['verified', 'published', 'invalid', SENAITE_ERROR_STATUS];
-
 const BASE_URL = config.senaite.server;
 
 function formatForSenaite(datetime) {

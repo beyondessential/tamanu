@@ -1,3 +1,4 @@
+import config from 'config';
 import fs from 'fs';
 import path from 'path';
 import { format as formatDate } from 'date-fns';
@@ -9,35 +10,42 @@ import { getReportModule } from '@tamanu/shared/reports';
 import { createNamedLogger } from '@tamanu/shared/services/logging/createNamedLogger';
 
 import { removeFile, createZippedSpreadsheet, writeToSpreadsheet } from '../utils/files';
+import { getLocalisation } from '../localisation';
 
 const REPORT_RUNNER_LOG_NAME = 'ReportRunner';
 
 export class ReportRunner {
-  constructor(context, runParameters) {
-    const { store, settings, emailService, reportSchemaStores } = context;
-    const { reportId, userId, parameters, recipients, exportFormat } = runParameters;
-    this.log = createNamedLogger(REPORT_RUNNER_LOG_NAME, { reportId, userId });
-    this.settings = settings;
-    this.store = store;
-    this.emailService = emailService;
+  constructor(
+    reportId,
+    parameters,
+    recipients,
+    store,
+    reportSchemaStores,
+    emailService,
+    userId,
+    exportFormat,
+  ) {
     this.reportId = reportId;
     this.parameters = parameters;
     this.recipients = recipients;
+    this.store = store;
     this.reportSchemaStores = reportSchemaStores;
-    this.exportFormat = exportFormat;
-
+    this.emailService = emailService;
     this.userId = userId;
+    this.log = createNamedLogger(REPORT_RUNNER_LOG_NAME, { reportId, userId });
+    // Export format is only used for emailed recipients. Local reports have the export format
+    // defined in the recipients object and reports sent to s3 are always csv.
+    this.exportFormat = exportFormat;
   }
 
   async validate(reportModule, reportDataGenerator) {
-    const sender = await this.settings.get('mailgun.from');
+    const localisation = await getLocalisation();
 
-    if (this.recipients.email && !sender) {
+    if (this.recipients.email && !config.mailgun.from) {
       throw new Error('ReportRunner - Email config missing');
     }
 
-    const disabledReports = await this.settings.get('disabledReports');
-
+    const { disabledReports } = localisation;
     if (disabledReports.includes(this.reportId)) {
       throw new Error(`ReportRunner - Report "${this.reportId}" is disabled`);
     }
@@ -169,7 +177,7 @@ export class ReportRunner {
    * @returns {Promise<string>}
    */
   async getReportName() {
-    const countryName = await this.settings.get('country.name');
+    const { country } = await getLocalisation();
 
     let reportName = this.reportId;
 
@@ -184,7 +192,7 @@ export class ReportRunner {
 
     const date = formatDate(new Date(), 'ddMMyyyy');
 
-    const dashedName = `${reportName}-${countryName}`
+    const dashedName = `${reportName}-${country.name}`
       .trim()
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
@@ -200,7 +208,7 @@ export class ReportRunner {
    */
   async sendReportToEmail(reportData) {
     const reportName = await this.getReportName();
-    const sender = await this.settings.get('mailgun.from');
+
     let zipFile;
     try {
       zipFile = await createZippedSpreadsheet(reportName, reportData, this.exportFormat);
@@ -212,7 +220,7 @@ export class ReportRunner {
       });
 
       const result = await this.emailService.sendEmail({
-        from: sender,
+        from: config.mailgun.from,
         to: recipients,
         subject: 'Report delivery',
         text: `Report requested: ${reportName}`,
@@ -236,12 +244,11 @@ export class ReportRunner {
   }
 
   async sendErrorToEmail(e) {
-    const sender = await this.settings.get('mailgun.from');
     try {
       const user = await this.getRequestedByUser();
       const reportName = await this.getReportName();
       this.emailService.sendEmail({
-        from: sender,
+        from: config.mailgun.from,
         to: user.email,
         subject: 'Failed to generate report',
         message: `Report requested: ${reportName} failed to generate with error: ${e.message}`,
@@ -259,9 +266,9 @@ export class ReportRunner {
    * @returns {Promise<void>}
    */
   async sendReportToS3(reportData) {
-    const bucket = await this.settings.get('reportUploadS3Bucket');
+    const { region, bucketName, bucketPath } = config.s3;
 
-    if (!bucket.path) {
+    if (!bucketPath) {
       throw new Error(`bucketPath must be set, e.g. 'au'`);
     }
 
@@ -271,13 +278,10 @@ export class ReportRunner {
       const reportName = await this.getReportName();
       zipFile = await createZippedSpreadsheet(reportName, reportData, bookType);
 
-      const { region, name } = bucket;
       const filename = path.basename(zipFile);
-      const key = `${bucket.path}/${filename}`;
 
       this.log.info('Uploading report to S3', {
-        name,
-        key,
+        path: `${bucketName}/${bucketPath}/${filename}`,
         region,
       });
 
@@ -287,8 +291,8 @@ export class ReportRunner {
 
       await client.send(
         new AWS.PutObjectCommand({
-          Bucket: name,
-          Key: key,
+          Bucket: bucketName,
+          Key: `${bucketPath}/${filename}`,
           Body: fileStream,
         }),
       );

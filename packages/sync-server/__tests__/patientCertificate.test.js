@@ -6,10 +6,10 @@ import {
 import { randomLabRequest } from '@tamanu/shared/demoData/labRequests';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
-import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import { makeVaccineCertificate, makeCovidCertificate } from '../app/utils/makePatientCertificate';
 
 import { createTestContext } from './utilities';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 async function prepopulate(models) {
   const lab = await models.ReferenceData.create({
@@ -84,7 +84,6 @@ async function prepopulate(models) {
 describe('Certificate', () => {
   let ctx;
   let models;
-  let settings;
   let createLabTests;
   let createVaccines;
   let patient;
@@ -92,7 +91,7 @@ describe('Certificate', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
-    settings = ctx.settings;
+
     const {
       method,
       user,
@@ -177,12 +176,9 @@ describe('Certificate', () => {
     await createLabTests();
     const patientRecord = await models.Patient.findByPk(patient.id);
     const printedBy = 'Initial Admin';
-    const result = await makeCovidCertificate(
-      { settings, models },
-      'test',
-      patientRecord,
-      printedBy[{ foo: 'bar' }],
-    );
+    const result = await makeCovidCertificate('test', patientRecord, printedBy, models, [
+      { foo: 'bar' },
+    ]);
     expect(result.status).toEqual('success');
   });
 
@@ -192,10 +188,10 @@ describe('Certificate', () => {
     const printedBy = 'Initial Admin';
     const printedAt = new Date();
     const result = await makeVaccineCertificate(
-      { settings, models },
       patientRecord,
       printedBy,
       printedAt,
+      models,
       'TEST UVCI',
       [{ foo: 'bar' }],
     );

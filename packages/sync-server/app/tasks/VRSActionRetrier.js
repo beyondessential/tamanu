@@ -1,3 +1,5 @@
+import config from 'config';
+
 import { log } from '@tamanu/shared/services/logging';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 
@@ -6,12 +8,12 @@ export class VRSActionRetrier extends ScheduledTask {
     return 'VRSActionRetrier';
   }
 
-  constructor({ schedules, integrations }) {
-    super(schedules.vrsActionRetrier.schedule, log);
-    this.vrsIntegration = integrations.fijiVrs;
+  constructor(context) {
+    super(config.integrations.fijiVrs.retrySchedule, log);
+    this.context = context;
   }
 
   async run() {
-    await this.vrsIntegration.actionHandler.retryPendingActions();
+    await this.context.integrations.fijiVrs.actionHandler.retryPendingActions();
   }
 }

@@ -1,7 +1,6 @@
 import { log } from '@tamanu/shared/services/logging';
 import { readFile } from 'xlsx';
 
-import config from 'config';
 import { importRows } from '../importRows';
 
 import { readMetadata } from './readMetadata';
@@ -9,26 +8,20 @@ import { importSurvey } from './importSurvey';
 
 export const PERMISSIONS = ['Program', 'Survey'];
 
-export async function programImporter({ errors, models, stats, file, whitelist = [], settings }) {
+export async function programImporter({ errors, models, stats, file, whitelist = [] }) {
   const createContext = sheetName => ({
     errors,
     log: log.child({
       file,
       sheetName,
     }),
-    settings,
     models,
   });
 
   log.info('Importing surveys from file', { file });
 
   const workbook = readFile(file);
-
-  const { canonicalHostName } = config;
-  const { programRecord, surveyMetadata } = await readMetadata(
-    workbook.Sheets.Metadata,
-    canonicalHostName,
-  );
+  const { programRecord, surveyMetadata } = await readMetadata(workbook.Sheets.Metadata);
 
   // actually import the program to the database
   stats.push(

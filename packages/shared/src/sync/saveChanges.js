@@ -1,6 +1,9 @@
 import { Op } from 'sequelize';
+import config from 'config';
 import asyncPool from 'tiny-async-pool';
 import { mergeRecord } from './mergeRecord';
+
+const { persistUpdateWorkerPoolSize } = config.sync;
 
 export const saveCreates = async (model, records) => {
   // can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
@@ -27,13 +30,7 @@ export const saveCreates = async (model, records) => {
   }
 };
 
-export const saveUpdates = async (
-  model,
-  incomingRecords,
-  idToExistingRecord,
-  isCentralServer,
-  { persistUpdateWorkerPoolSize },
-) => {
+export const saveUpdates = async (model, incomingRecords, idToExistingRecord, isCentralServer) => {
   const recordsToSave = isCentralServer
     ? // on the central server, merge the records coming in from different clients
       incomingRecords.map(incoming => {

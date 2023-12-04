@@ -44,8 +44,8 @@ describe('fhir sub commands', () => {
       .mockImplementation(() => 'do not close database at the end of the fhir subcommand');
   });
 
-  afterAll(async () => {
-    await ctx.close();
+  afterAll(() => {
+    ctx.close();
     jest.clearAllMocks();
   });
 

@@ -1,3 +1,5 @@
+import config from 'config';
+
 import { Op } from 'sequelize';
 import {
   ICAO_DOCUMENT_TYPES,
@@ -10,10 +12,11 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { getPatientSurveyResponseAnswer } from '@tamanu/shared/utils';
 
 export class LabRequestNotificationGenerator extends ScheduledTask {
-  constructor({ settings, store }) {
+  constructor(context) {
+    const conf = config.schedules.certificateNotificationProcessor;
     super(null, log);
-    this.settings = settings;
-    this.models = store.models;
+    this.config = conf;
+    this.context = context;
   }
 
   getName() {
@@ -21,7 +24,7 @@ export class LabRequestNotificationGenerator extends ScheduledTask {
   }
 
   async countQueue() {
-    const { CertificateNotification, LabRequest } = this.models;
+    const { CertificateNotification, LabRequest } = this.context.store.models;
     return LabRequest.count({
       where: {
         status: LAB_REQUEST_STATUSES.PUBLISHED,
@@ -43,9 +46,10 @@ export class LabRequestNotificationGenerator extends ScheduledTask {
   }
 
   async run() {
-    const { CertificateNotification, Encounter, LabRequest } = this.models;
-    const categories = await this.settings.get('notifications.certificates.labTestCategoryIds');
-    const questionId = await this.settings.get('questionCodeIds.email');
+    const { models } = this.context.store;
+    const { CertificateNotification, Encounter, LabRequest } = models;
+    const categories = config.notifications.certificates.labTestCategoryIds;
+    const questionId = config.questionCodeIds?.email;
 
     // Find all published requests that don't have associated certificate notifications
     const newlyPublished = await LabRequest.findAll({
@@ -70,7 +74,7 @@ export class LabRequestNotificationGenerator extends ScheduledTask {
     // Create a certificate notification for each
     for (const labRequest of newlyPublished) {
       const emailAddress = await getPatientSurveyResponseAnswer(
-        this.models,
+        models,
         labRequest.encounter.patientId,
         questionId,
       );

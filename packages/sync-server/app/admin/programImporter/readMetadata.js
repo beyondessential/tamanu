@@ -1,14 +1,18 @@
 import { log } from '@tamanu/shared/services/logging';
+import config from 'config';
 import { utils } from 'xlsx';
 
 import { ImporterMetadataError, ValidationError } from '../errors';
 
 import { idify } from './idify';
 
-function checkHomeServer(homeServer, host) {
+function checkHomeServer(homeServer) {
   log.debug('Check where we are importing');
 
   if (!homeServer) return true;
+
+  // detect if we're importing to home server
+  const { canonicalHostName: host } = config;
 
   // ignore slashes when comparing servers - easiest way to account for trailing slashes that may or may not be present
   const importingToHome = homeServer.replace('/', '') === host.replace('/', '');
@@ -24,7 +28,7 @@ function checkHomeServer(homeServer, host) {
   return importingToHome;
 }
 
-export function readMetadata(metadataSheet, canonicalHostName) {
+export function readMetadata(metadataSheet) {
   // The Metadata sheet follows this structure:
   // first few rows: program metadata (key in column A, value in column B)
   // then: survey metadata header row (with name & code in columns A/B, then other keys)
@@ -69,7 +73,7 @@ export function readMetadata(metadataSheet, canonicalHostName) {
     throw new ImporterMetadataError('A program must have a name');
   }
 
-  const importingToHome = checkHomeServer(metadata.homeServer, canonicalHostName);
+  const importingToHome = checkHomeServer(metadata.homeServer);
 
   // Use a country prefix if we're importing to a server other than the home server.
   // eg a program will import as "(Samoa) NCD Screening" on the dev server, but

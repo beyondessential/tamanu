@@ -37,12 +37,10 @@ routes.post(
   asyncHandler(async (req, res) => {
     // req.checkPermission('write', 'Signer');
     checkAdmin(req.user);
-    const { body, store, settings } = req;
-    const { Signer } = store.models;
+    const { Signer } = req.store.models;
+    const { body } = req;
 
-    const signerData = await loadCertificateIntoSigner(body.certificate, body.workingPeriod, {
-      settings,
-    });
+    const signerData = await loadCertificateIntoSigner(body.certificate, body.workingPeriod);
     const pending = await Signer.findPending();
 
     if (!pending) {

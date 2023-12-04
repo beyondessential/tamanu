@@ -33,7 +33,6 @@ export function normaliseSheetName(name) {
 export async function importerTransaction({
   importer,
   models,
-  settings,
   file,
   dryRun = false,
   includedDataTypes = [],
@@ -62,7 +61,7 @@ export async function importerTransaction({
         });
 
         try {
-          await importer({ errors, models, settings, stats, file, includedDataTypes });
+          await importer({ errors, models, stats, file, includedDataTypes });
         } catch (err) {
           errors.push(err);
         }
@@ -101,7 +100,7 @@ export async function importerTransaction({
 export function createDataImporterEndpoint(importer) {
   return asyncHandler(async (req, res) => {
     const start = Date.now();
-    const { store, settings } = req;
+    const { store } = req;
 
     // read uploaded data
     const {
@@ -115,7 +114,6 @@ export function createDataImporterEndpoint(importer) {
       importer,
       file,
       models: store.models,
-      settings,
       dryRun,
       includedDataTypes,
     });

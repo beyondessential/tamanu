@@ -1,3 +1,4 @@
+import config from 'config';
 import { Op } from 'sequelize';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
@@ -11,9 +12,9 @@ export class DeceasedPatientDischarger extends ScheduledTask {
   }
 
   constructor(context) {
-    const { settings, schedules } = context;
-    super(schedules.deceasedPatientDischarger.schedule, log);
-    this.settings = settings;
+    const conf = config.schedules.deceasedPatientDischarger;
+    super(conf.schedule, log);
+    this.config = conf;
     this.models = context.store.models;
   }
 
@@ -36,9 +37,8 @@ export class DeceasedPatientDischarger extends ScheduledTask {
     const toProcess = await Encounter.count(query);
     if (toProcess === 0) return;
 
-    const { batchSize, batchSleepAsyncDurationInMilliseconds } = await this.settings.get(
-      'schedules.deceasedPatientDischarger',
-    );
+    const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
+
     // Make sure these exist, else they will prevent the script from working
     if (!batchSize || !batchSleepAsyncDurationInMilliseconds) {
       throw new InvalidConfigError(

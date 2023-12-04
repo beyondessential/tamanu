@@ -1,6 +1,5 @@
 import config from 'config';
 
-// TODO: db-config
 export const IDENTIFIER_NAMESPACE = config.hl7.dataDictionaries.patientDisplayId;
 
 export function decodeIdentifier(identifier) {

@@ -1,15 +1,19 @@
+import config from 'config';
 import { format } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
+import { get } from 'lodash';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 
+import { getLocalisation } from '../localisation';
+
 export class SignerRenewalSender extends ScheduledTask {
-  constructor({ store, settings, schedules, emailService }) {
-    super(schedules.signerRenewalSender.schedule, log);
-    this.emailService = emailService;
-    this.settings = settings;
-    this.models = store.models;
+  constructor(context) {
+    const conf = config.schedules.signerRenewalSender;
+    super(conf.schedule, log);
+    this.config = conf;
+    this.context = context;
   }
 
   getName() {
@@ -17,7 +21,8 @@ export class SignerRenewalSender extends ScheduledTask {
   }
 
   async run() {
-    const { Signer } = this.models;
+    const { emailService } = this.context;
+    const { Signer } = this.context.store.models;
 
     const pending = await Signer.findAll({
       where: {
@@ -40,18 +45,18 @@ export class SignerRenewalSender extends ScheduledTask {
       );
     }
 
-    const sender = await this.settings.get('mailgun.from');
-    const recipient = await this.settings.get('integrations.signer.sendSignerRequestTo');
-    const { subject, body } = await this.settings.get('localisation.templates.signerRenewalEmail');
+    const localisation = await getLocalisation();
 
-    log.info(`Emailing ${pending.length} CSR(s) to ${recipient}`);
+    log.info(
+      `Emailing ${pending.length} CSR(s) to ${config.integrations.signer.sendSignerRequestTo}`,
+    );
     for (const signer of pending) {
       try {
-        await this.emailService.sendEmail({
-          to: recipient,
-          from: sender,
-          subject,
-          text: body,
+        await emailService.sendEmail({
+          to: config.integrations.signer.sendSignerRequestTo,
+          from: config.mailgun.from,
+          subject: get(localisation, 'signerRenewalEmail.subject'),
+          text: get(localisation, 'signerRenewalEmail.body'),
           attachment: {
             filename: `Tamanu_${format(signer.createdAt, 'yyyy-MM-dd')}.csr`,
             data: Buffer.from(signer.request),

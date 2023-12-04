@@ -70,10 +70,10 @@ const CertificateTitle = {
   clearance: 'Covid-19 Clearance Certificate',
 };
 
-const getCertificateRemark = (patient, getSetting) => ({
+const getCertificateRemark = (patient, getLocalisation) => ({
   test: '',
   clearance: replaceInTemplate(
-    getSetting('localisation.templates.covidTestCertificate.clearanceCertRemark') ?? '',
+    getLocalisation('templates.covidTestCertificate.clearanceCertRemark') ?? '',
     patient,
   ),
 });
@@ -85,22 +85,26 @@ export const CovidLabCertificate = ({
   watermarkSrc,
   vdsSrc,
   logoSrc,
+  getLocalisation,
   printedBy,
   certType,
-  getSetting,
 }) => (
   <Document>
     <Page size="A4" style={styles.page}>
       {watermarkSrc && <Watermark src={watermarkSrc} />}
-      <CovidLetterheadSection getSetting={getSetting} logoSrc={logoSrc} />
+      <CovidLetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
       <Box mb={0}>
         <H3>{CertificateTitle[certType] || ''}</H3>
-        <CovidPatientDetailsSection patient={patient} vdsSrc={vdsSrc} getSetting={getSetting} />
+        <CovidPatientDetailsSection
+          patient={patient}
+          vdsSrc={vdsSrc}
+          getLocalisation={getLocalisation}
+        />
       </Box>
       <Box mb={30}>
-        <Table data={labs} columns={columns} getSetting={getSetting} />
+        <Table data={labs} columns={columns} getLocalisation={getLocalisation} />
       </Box>
-      <P>{getCertificateRemark(patient, getSetting)[certType] || ''}</P>
+      <P>{getCertificateRemark(patient, getLocalisation)[certType] || ''}</P>
       <Box />
       <Box>
         <Row>
@@ -108,9 +112,7 @@ export const CovidLabCertificate = ({
             <P>Printed by: {printedBy}</P>
           </Col>
           <Col>
-            <P>
-              Printing date: {getDisplayDate(undefined, undefined, getSetting('countryTimeZone'))}
-            </P>
+            <P>Printing date: {getDisplayDate(undefined, undefined, getLocalisation)}</P>
           </Col>
         </Row>
       </Box>

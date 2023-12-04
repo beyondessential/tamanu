@@ -31,7 +31,7 @@ const detailsSectionStyle = {
   marginBottom: 10,
 };
 
-const DetailsSection = ({ getSetting, data }) => {
+const DetailsSection = ({ getLocalisation, data }) => {
   return (
     <View style={{ marginTop: 10 }}>
       <H3 style={{ marginBottom: 5 }}>Details</H3>
@@ -39,8 +39,8 @@ const DetailsSection = ({ getSetting, data }) => {
         <Col style={{ marginBottom: 5 }}>
           <Row>
             {DETAIL_FIELDS.map(({ key, label: defaultLabel, accessor }) => {
-              const value = (accessor ? accessor(data, getSetting) : data[key]) || '';
-              const label = getSetting(`localisation.fields.${key}.shortLabel`) || defaultLabel;
+              const value = (accessor ? accessor(data, getLocalisation) : data[key]) || '';
+              const label = getLocalisation(`fields.${key}.shortLabel`) || defaultLabel;
 
               return (
                 <Col style={{ width: '50%' }} key={key}>
@@ -57,7 +57,7 @@ const DetailsSection = ({ getSetting, data }) => {
   );
 };
 
-export const PatientLetter = ({ getSetting, data, logoSrc, letterheadConfig }) => {
+export const PatientLetter = ({ getLocalisation, data, logoSrc, letterheadConfig }) => {
   const { title: certificateTitle, body, patient = {}, clinician, documentCreatedAt } = data;
 
   return (
@@ -65,14 +65,14 @@ export const PatientLetter = ({ getSetting, data, logoSrc, letterheadConfig }) =
       <Page size="A4" style={styles.page}>
         <CertificateHeader>
           <LetterheadSection
-            getSetting={getSetting}
+            getLocalisation={getLocalisation}
             logoSrc={logoSrc}
             certificateTitle={certificateTitle ?? ''}
             letterheadConfig={letterheadConfig}
           />
           <DetailsSection
             data={{ ...patient, clinicianName: clinician.displayName, documentCreatedAt }}
-            getSetting={getSetting}
+            getLocalisation={getLocalisation}
           />
         </CertificateHeader>
         <View style={{ margin: '18px' }}>

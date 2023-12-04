@@ -10,13 +10,11 @@ referral.put('/:id', simplePut('Referral'));
 referral.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, body, db, settings } = req;
+    const { models, body, db } = req;
 
     req.checkPermission('create', 'Referral');
 
-    const defaultCodes = await settings.get('survey.defaultCodes');
-
-    const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type, defaultCodes);
+    const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type);
     const updatedBody = {
       locationId: body.locationId || (await getDefaultId('location')),
       departmentId: body.departmentId || (await getDefaultId('department')),

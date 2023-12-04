@@ -6,8 +6,9 @@ import { DISCOVERY_MAGIC_STRING, DISCOVERY_PORT } from '@tamanu/constants';
 
 import { version } from './serverInfo';
 
-export function listenForServerQueries({ enabled, overrideAddress, overridePort, protocol }) {
+export function listenForServerQueries() {
   const serverPort = config.port;
+  const { enabled, overrideAddress, overridePort, protocol } = config.discovery;
   if (!enabled) {
     return;
   }

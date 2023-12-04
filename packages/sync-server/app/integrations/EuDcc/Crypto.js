@@ -10,6 +10,7 @@ import { Certificate } from 'pkijs';
 import { depem } from '@tamanu/shared/utils';
 import { add, getUnixTime } from 'date-fns';
 import { fakeABtoRealAB } from '../Signer';
+import { getLocalisation } from '../../localisation';
 
 const deflate = promisify(deflateCallback);
 const inflate = promisify(inflateCallback);
@@ -52,14 +53,14 @@ function extractKeyD(keyData) {
  *
  *  @returns The HCERT encoded data
  */
-export async function HCERTPack(messageData, { models, settings }) {
+export async function HCERTPack(messageData, { models }) {
   log.info('HCERT Packing message data');
   const signer = await models.Signer.findActive();
   if (!signer) {
     throw new Error('Cannot pack HCERT, no active signer');
   }
 
-  const iss = await settings.get('country.alpha-2');
+  const iss = (await getLocalisation()).country['alpha-2'];
   const iat = new Date();
   const exp = add(iat, { days: 365 });
 
@@ -104,7 +105,7 @@ export async function HCERTPack(messageData, { models, settings }) {
  *
  * @returns The decoded HCERT data
  */
-export async function HCERTVerify(packedData, { models, settings }) {
+export async function HCERTVerify(packedData, { models }) {
   log.info('Verifying HCERT message');
   const signer = await models.Signer.findActive();
 
@@ -134,7 +135,7 @@ export async function HCERTVerify(packedData, { models, settings }) {
 
   const payload = cbor.decode(verifiedData);
 
-  if (payload.get(CWT_CLAIM_KEYS.iss) !== (await settings.get('country.alpha-2'))) {
+  if (payload.get(CWT_CLAIM_KEYS.iss) !== (await getLocalisation()).country['alpha-2']) {
     throw new Error('HCERT message issued to wrong country');
   }
 

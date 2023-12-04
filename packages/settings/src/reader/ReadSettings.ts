@@ -17,9 +17,6 @@ export class ReadSettings {
       settingsCache.set(settings);
     }
 
-    if (!key) {
-      return settings;
-    }
     return lodashGet(settings, key);
   }
 }
