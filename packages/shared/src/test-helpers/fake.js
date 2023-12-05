@@ -363,6 +363,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     // It will be fixed properly as part of EPI-160
     id: undefined,
     noteType: chance.pickone(NOTE_TYPE_VALUES),
+    revisedById: undefined,
   }),
   Location: () => ({
     maxOccupancy: 1,
