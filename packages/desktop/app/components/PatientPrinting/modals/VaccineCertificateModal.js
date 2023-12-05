@@ -17,7 +17,7 @@ import {
 
 import { PDFViewer, printPDF } from '../PDFViewer';
 
-export const VaccineCertificateModal = ({ open, onClose, patient }) => {
+export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
   const { getLocalisation } = useLocalisation();
   const { watermark, logo, footerImg, printedBy } = useCertificate({
@@ -25,7 +25,7 @@ export const VaccineCertificateModal = ({ open, onClose, patient }) => {
   });
   const { data: additionalData } = usePatientAdditionalDataQuery(patient.id);
 
-  const { data: vaccineData } = useAdministeredVaccines(patient.id, {
+  const { data: vaccineData, isFetching } = useAdministeredVaccines(patient.id, {
     orderBy: 'date',
     order: 'ASC',
     invertNullDateOrdering: true,
@@ -48,6 +48,8 @@ export const VaccineCertificateModal = ({ open, onClose, patient }) => {
 
   const villageName = useReferenceData(patient.villageId).data?.name;
   const patientData = { ...patient, villageName, additionalData };
+
+  if (isFetching) return null;
 
   return (
     <Modal
@@ -74,4 +76,4 @@ export const VaccineCertificateModal = ({ open, onClose, patient }) => {
       </PDFViewer>
     </Modal>
   );
-};
+});
