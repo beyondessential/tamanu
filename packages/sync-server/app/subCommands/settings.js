@@ -114,7 +114,7 @@ export const settingsCommand = new Command('settings')
     new Command('get')
       .description('get a setting')
       .argument('<key>', 'key to retrieve')
-      .argument('--scope <scope>', 'scope to retrieve setting for')
+      .option('--scope <scope>', 'scope to retrieve setting for')
       .option('--facility <facility>', 'ID of facility to scope to')
       .action(async (...args) =>
         console.log(`-------------------------\n${await getSetting(...args)}`),
