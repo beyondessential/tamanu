@@ -39,7 +39,6 @@ describe('settings', () => {
           },
         },
       },
-      null,
       SETTINGS_SCOPES.GLOBAL,
     );
 
@@ -49,8 +48,8 @@ describe('settings', () => {
         leaf: 'weed',
         root: 'root',
       },
-      facility,
       SETTINGS_SCOPES.FACILITY,
+      facility,
     );
   });
 
