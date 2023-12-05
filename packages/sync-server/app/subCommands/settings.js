@@ -56,7 +56,6 @@ export async function getSetting(key, { facility, scope } = {}) {
   } = await initDatabase({ testMode: false });
 
   const setting = await Setting.get(key, facility, scope);
-  console.log('got setting', key, setting, scope);
   if (setting === undefined) {
     return '(no setting found)';
   }
@@ -115,7 +114,7 @@ export const settingsCommand = new Command('settings')
     new Command('get')
       .description('get a setting')
       .argument('<key>', 'key to retrieve')
-      .argument('scope', 'scope to retrieve setting for')
+      .argument('--scope <scope>', 'scope to retrieve setting for')
       .option('--facility <facility>', 'ID of facility to scope to')
       .action(async (...args) =>
         console.log(`-------------------------\n${await getSetting(...args)}`),
