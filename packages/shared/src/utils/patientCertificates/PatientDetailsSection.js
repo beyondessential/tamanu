@@ -1,5 +1,5 @@
 import React from 'react';
-import { Col, Divider, Row } from './Layout';
+import { Col, LightDivider, Row } from './Layout';
 import { P } from './Typography';
 import { getDOB, getSex } from '../patientAccessors';
 
@@ -22,7 +22,7 @@ export const PatientDetailsSection = ({ patient, getLocalisation, extraFields = 
   );
   return (
     <>
-      <Divider />
+      <LightDivider />
       <Row>
         <Col style={{ marginBottom: 5 }}>
           <Row>
@@ -41,7 +41,7 @@ export const PatientDetailsSection = ({ patient, getLocalisation, extraFields = 
           </Row>
         </Col>
       </Row>
-      <Divider />
+      <LightDivider />
     </>
   );
 };
