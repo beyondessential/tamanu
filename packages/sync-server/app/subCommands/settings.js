@@ -3,7 +3,7 @@
 import { Command } from 'commander';
 import { canonicalize } from 'json-canonicalize';
 import { buildSettingsRecords } from '@tamanu/shared/models/Setting';
-import { SETTINGS_SCOPES } from '@tamanu/settings';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 import { initDatabase } from '../database';
 import { loadSettingFile } from '../utils/loadSettingFile';
@@ -68,7 +68,7 @@ export async function setSetting(key, value, { facility, scope } = {}) {
     models: { Setting },
   } = await initDatabase({ testMode: false });
 
-  const setting = await Setting.get(key, facility);
+  const setting = await Setting.get(key, scope, facility);
   const preValue =
     setting && JSON.stringify(setting) !== '{}'
       ? `current value:\n${canonicalize(setting)}\n`
@@ -93,7 +93,7 @@ export async function loadSettings(key, filepath, { facility, preview, scope } =
     return JSON.stringify(value, null, 2);
   }
 
-  await Setting.set(key, value, facility);
+  await Setting.set(key, value, scope, facility);
 
   const currentValue = await Setting.get(key, scope, facility);
   return JSON.stringify(currentValue, null, 2);
