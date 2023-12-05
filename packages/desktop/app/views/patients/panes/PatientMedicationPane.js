@@ -29,7 +29,7 @@ const DISCHARGED_MEDICATION_COLUMNS = [
     key: 'Medication.name',
     title: (
       <TranslatedText
-        stringId="patient.medication.table.column.medicationName"
+        stringId="patient.medication.table.column.itemOrPrescription"
         fallback="Item/Prescription"
       />
     ),
@@ -44,16 +44,14 @@ const DISCHARGED_MEDICATION_COLUMNS = [
   {
     key: 'prescriber',
     title: (
-      <TranslatedText stringId="patient.medication.table.column.prescriber" fallback="Clinician" />
+      <TranslatedText stringId="general.localisedField.clinician.label" fallback="Clinician" />
     ),
     accessor: data => data?.prescriber?.displayName ?? '',
     sortable: false,
   },
   {
     key: 'location.facility.name',
-    title: (
-      <TranslatedText stringId="patient.medication.table.column.facility" fallback="Facility" />
-    ),
+    title: <TranslatedText stringId="general.localisedField.facility.label" fallback="Facility" />,
     accessor: data => data?.encounter?.location?.facility?.name ?? '',
     sortable: false,
   },
@@ -77,7 +75,7 @@ const DISPENSED_MEDICATION_COLUMNS = [
     key: 'a',
     title: (
       <TranslatedText
-        stringId="patient.medication.table.column.medicationName"
+        stringId="patient.medication.table.column.itemOrPrescription"
         fallback="Item/Prescription"
       />
     ),
@@ -91,22 +89,20 @@ const DISPENSED_MEDICATION_COLUMNS = [
   {
     key: 'c',
     title: (
-      <TranslatedText stringId="patient.medication.table.column.prescriber" fallback="Clinician" />
+      <TranslatedText stringId="general.localisedField.clinician.label" fallback="Clinician" />
     ),
     sortable: false,
   },
   {
     key: 'd',
-    title: (
-      <TranslatedText stringId="patient.medication.table.column.facility" fallback="Facility" />
-    ),
+    title: <TranslatedText stringId="general.localisedField.facility.label" fallback="Facility" />,
     sortable: false,
   },
   {
     key: 'e',
     title: (
       <TranslatedText
-        stringId="patient.medication.table.column.dispenseDate"
+        stringId="patient.medication.table.column.dispensedDate"
         fallback="Dispensed date"
       />
     ),
