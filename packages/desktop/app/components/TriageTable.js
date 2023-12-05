@@ -9,6 +9,7 @@ import { LocationCell, LocationGroupCell } from './LocationCell';
 import { TriageWaitTimeCell } from './TriageWaitTimeCell';
 import { useLocalisation } from '../contexts/Localisation';
 import { reloadPatient } from '../store';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const ADMITTED_PRIORITY_COLOR = '#bdbdbd';
 
@@ -19,7 +20,12 @@ const useColumns = () => {
   return [
     {
       key: 'arrivalTime',
-      title: 'Wait time',
+      title: (
+        <TranslatedText
+          stringId="patientList.emergency.table.column.waitTime"
+          fallback="Wait time"
+        />
+      ),
       // Cell color cannot be set on the component due to the way table cells are configured so the
       // cell color must be calculated and set in the table config separately
       cellColor: ({ score, encounterType }) => {
@@ -33,16 +39,38 @@ const useColumns = () => {
       accessor: TriageWaitTimeCell,
       isExportable: false,
     },
-    { key: 'chiefComplaint', title: 'Chief complaint' },
+    {
+      key: 'chiefComplaint',
+      title: (
+        <TranslatedText
+          stringId="patientList.emergency.table.column.chiefComplaint"
+          fallback="Chief complaint"
+        />
+      ),
+    },
     { key: 'displayId' },
-    { key: 'patientName', title: 'Patient', accessor: row => `${row.firstName} ${row.lastName}` },
+    {
+      key: 'patientName',
+      title: (
+        <TranslatedText stringId="patientList.emergency.table.column.patient" fallback="Patient" />
+      ),
+      accessor: row => `${row.firstName} ${row.lastName}`,
+    },
     { key: 'dateOfBirth', accessor: row => <DateDisplay date={row.dateOfBirth} /> },
     {
       key: 'sex',
       accessor: row => <span style={{ textTransform: 'capitalize' }}>{row.sex || ''}</span>,
     },
-    { key: 'locationGroupName', title: 'Area', accessor: LocationGroupCell },
-    { key: 'locationName', title: 'Location', accessor: LocationCell },
+    {
+      key: 'locationGroupName',
+      title: <TranslatedText stringId="general.table.column.area" fallback="Area" />,
+      accessor: LocationGroupCell,
+    },
+    {
+      key: 'locationName',
+      title: <TranslatedText stringId="general.table.column.location" fallback="Location" />,
+      accessor: LocationCell,
+    },
   ];
 };
 

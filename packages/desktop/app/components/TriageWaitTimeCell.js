@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { format } from 'date-fns';
 import Tooltip from '@material-ui/core/Tooltip';
 import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
@@ -53,18 +54,35 @@ export const TriageWaitTimeCell = React.memo(
         return (
           <TriageCell arrivalTime={assumedArrivalTime}>
             <div>{getDuration(assumedArrivalTime)}</div>
-            <div>{`Triage at ${format(new Date(triageTime), 'h:mma')}`}</div>
+            <div>
+              <TranslatedText
+                stringId="patientList.emergency.table.waitTime.cell.triageTime"
+                fallback="Triage at :triageDate"
+                replacements={{ triageDate: format(new Date(triageTime), 'h:mma') }}
+              />
+            </div>
           </TriageCell>
         );
       case ENCOUNTER_TYPES.OBSERVATION:
       case ENCOUNTER_TYPES.EMERGENCY:
         return (
           <TriageCell arrivalTime={assumedArrivalTime}>
-            {`Seen at ${format(new Date(closedTime), 'h:mma')}`}
+            <TranslatedText
+              stringId="patientList.emergency.table.waitTime.cell.closedTime"
+              fallback="Seen at :triageDate"
+              replacements={{ triageDate: format(new Date(closedTime), 'h:mma') }}
+            />
           </TriageCell>
         );
       default:
-        return <PlainCell>Admitted</PlainCell>;
+        return (
+          <PlainCell>
+            <TranslatedText
+              stringId="patientList.emergency.table.waitTime.cell.admitted"
+              fallback="Admitted"
+            />
+          </PlainCell>
+        );
     }
   },
 );
