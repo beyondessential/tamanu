@@ -14,7 +14,7 @@ export async function listSettings(filter = '', { facility } = {}) {
   } = await initDatabase({ testMode: false });
 
   const globalTree = await Setting.get(filter, null, SETTINGS_SCOPES.GLOBAL);
-  const globalSettings = buildSettingsRecords(filter, globalTree, null);
+  const globalSettings = buildSettingsRecords(filter, globalTree, null, SETTINGS_SCOPES.GLOBAL);
 
   if (!facility) {
     if (!globalTree || Object.keys(globalTree).length === 0) {
@@ -27,12 +27,17 @@ export async function listSettings(filter = '', { facility } = {}) {
       .join('\n');
   }
 
-  const facilityTree = await Setting.get(filter, SETTINGS_SCOPES.FACILITY, facility);
+  const facilityTree = await Setting.get(filter, facility, SETTINGS_SCOPES.FACILITY);
   if (!facilityTree || Object.keys(facilityTree).length === 0) {
     return 'No settings found';
   }
 
-  const facilitySettings = buildSettingsRecords(filter, facilityTree, facility);
+  const facilitySettings = buildSettingsRecords(
+    filter,
+    facilityTree,
+    facility,
+    SETTINGS_SCOPES.FACILITY,
+  );
 
   const globalKeys = new Set(globalSettings.map(({ key }) => key));
 
