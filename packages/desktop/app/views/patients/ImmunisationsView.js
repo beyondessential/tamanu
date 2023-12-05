@@ -9,6 +9,7 @@ import {
 } from '../../components';
 import { displayId, firstName, lastName, culturalName, village, sex, dateOfBirth } from './columns';
 import { PatientImmunisationsModal } from './components';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const COLUMNS = [displayId, firstName, lastName, culturalName, village, sex, dateOfBirth];
 
@@ -30,9 +31,18 @@ export const ImmunisationsView = () => {
         patient={patient}
         onClose={() => setModalOpen(false)}
       />
-      <TopBar title="Immunisation register" />
+      <TopBar
+        title={
+          <TranslatedText stringId="immunisation.register.title" fallback="Immunisation register" />
+        }
+      />
       <ContentPane>
-        <SearchTableTitle>Patient immunisation search</SearchTableTitle>
+        <SearchTableTitle>
+          <TranslatedText
+            stringId="immunisation.register.search.title"
+            fallback="Patient immunisation search"
+          />
+        </SearchTableTitle>
         <PatientSearchBar onSearch={setSearchParameters} suggestByFacility={false} />
         <SearchTable
           endpoint="patient"
