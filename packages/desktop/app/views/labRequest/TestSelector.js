@@ -212,7 +212,12 @@ export const TestSelectorInput = ({
                   value: searchQuery.labTestCategoryId,
                   onChange: handleChangeSearchQuery,
                 }}
-                initialOptions={[{ label: 'All', value: '' }]}
+                initialOptions={[
+                  {
+                    label: <TranslatedText stringId="general.select.all" fallback="All" />,
+                    value: '',
+                  },
+                ]}
                 label={
                   <TranslatedText
                     stringId="lab.form.testSelect.testCategory.label"
