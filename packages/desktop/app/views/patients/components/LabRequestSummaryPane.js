@@ -76,7 +76,7 @@ const getColumns = type => [
           sortable: false,
           accessor: ({ labTestPanelRequest }) =>
             labTestPanelRequest?.labTestPanel?.name || (
-              <TranslatedText stringId="general.fallback,notApplicable" fallback="N/A" />
+              <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />
             ),
         },
       ]

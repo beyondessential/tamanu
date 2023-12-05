@@ -214,7 +214,10 @@ export const TestSelectorInput = ({
                 }}
                 initialOptions={[{ label: 'All', value: '' }]}
                 label={
-                  <TranslatedText stringId="lab.form.testSelect.label" fallback="Test category" />
+                  <TranslatedText
+                    stringId="lab.form.testSelect.testCategory.label"
+                    fallback="Test category"
+                  />
                 }
                 endpoint="labTestCategory"
                 name="labTestCategoryId"

@@ -25,7 +25,7 @@ export const screen2ValidationSchema = yup.object().shape({
         .min(
           1,
           <TranslatedText
-            stringId="lab.form.test.testType.validation"
+            stringId="lab.form.testSelect.individual.testTypes.validation"
             fallback="Please select at least one test type"
           />,
         ),
@@ -41,7 +41,7 @@ export const screen2ValidationSchema = yup.object().shape({
         .min(
           1,
           <TranslatedText
-            stringId="lab.form.panel.testType.validation"
+            stringId="lab.form.testSelect.panel.testTypes.validation"
             fallback="Please select at least one panel"
           />,
         ),
@@ -52,7 +52,10 @@ export const screen2ValidationSchema = yup.object().shape({
 export const FORM_TYPE_TO_FIELD_CONFIG = {
   [LAB_REQUEST_FORM_TYPES.INDIVIDUAL]: {
     subheading: (
-      <TranslatedText stringId="lab.form.testSelect.individual.heading" fallback="Select tests" />
+      <TranslatedText
+        stringId="lab.form.testSelect.individual.subheading"
+        fallback="Select tests"
+      />
     ),
     instructions: (
       <>
@@ -67,7 +70,9 @@ export const FORM_TYPE_TO_FIELD_CONFIG = {
         />
       </>
     ),
-    selectableName: 'test', // TODO: Translate selectableName (requires refactoring in TestSelector.js)
+    selectableName: (
+      <TranslatedText stringId="lab.form.testSelect.individual.selectableName" fallback="test" />
+    ), // TODO: Translate selectableName (requires refactoring in TestSelector.js)
     fieldName: 'labTestTypeIds',
   },
   [LAB_REQUEST_FORM_TYPES.PANEL]: {
@@ -92,7 +97,10 @@ export const FORM_TYPE_TO_FIELD_CONFIG = {
   },
   [LAB_REQUEST_FORM_TYPES.SUPERSET]: {
     subheading: (
-      <TranslatedText stringId="lab.form.testSelect.superSet.heading" fallback="Select superset" />
+      <TranslatedText
+        stringId="lab.form.testSelect.superSet.subheading"
+        fallback="Select superset"
+      />
     ),
     instructions: (
       <>
