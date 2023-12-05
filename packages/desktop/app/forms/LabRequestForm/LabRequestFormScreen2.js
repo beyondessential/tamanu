@@ -70,9 +70,7 @@ export const FORM_TYPE_TO_FIELD_CONFIG = {
         />
       </>
     ),
-    selectableName: (
-      <TranslatedText stringId="lab.form.testSelect.individual.selectableName" fallback="test" />
-    ), // TODO: Translate selectableName (requires refactoring in TestSelector.js)
+    selectableName: 'test', // TODO: Translate selectableName (requires refactoring in TestSelector.js)
     fieldName: 'labTestTypeIds',
   },
   [LAB_REQUEST_FORM_TYPES.PANEL]: {
