@@ -9,98 +9,16 @@
   "author": "Beyond Essential Systems Pty. Ltd. <tamanu@bes.au>",
   "license": "SEE LICENSE IN license",
   "scripts": {
-    "build": "concurrently \"npm run build-main\" \"npm run build-renderer\"",
-    "build-main": "cross-env NODE_ENV=production CONFIG=webpack.config.main.prod node babel-register-pack",
-    "build-renderer": "cross-env NODE_ENV=production CONFIG=webpack.config.renderer.prod node babel-register-pack",
-    "dev": "cross-env START_HOT=1 npm run start-renderer-dev",
-    "electron-rebuild": "electron-rebuild --parallel --force --types prod,dev,optional --module-dir app",
-    "lint": "eslint app",
-    "package": "npm run build && electron-builder --publish never",
-    "package-only": "electron-builder --publish never",
-    "package-all": "npm run build && electron-builder -mwl --publish never",
-    "package-linux": "npm run build && electron-builder --linux --publish never",
-    "package-win": "npm run build && electron-builder --win --x64 --publish never",
-    "package-and-publish-win": "npm run build && electron-builder --win --x64 --publish always",
-    "prestart": "npm run build",
-    "start": "cross-env NODE_ENV=production electron ./app/",
-    "start-dev": "npm run dev",
-    "start-main-dev": "cross-env HOT=1 NODE_ENV=development electron -r ./babel-register ./app/main.dev",
-    "start-renderer-dev": "cross-env NODE_ENV=development node --trace-warnings -r ./babel-register ./node_modules/webpack-dev-server/bin/webpack-dev-server --config webpack.config.renderer.dev.js",
+    "lint": "eslint src",
+    "lint-fix": "eslint src --fix",
+    "build": "vite build",
+    "start-dev": "vite",
     "test": "yarn verify-storybook && yarn unit-test",
     "unit-test": "NODE_ENV=test jest",
     "unit-test-watch": "yarn unit-test --watch",
-    "reinstall": "rm -rf ../../**/node_modules && yarn",
     "storybook": "start-storybook -p 6006",
     "verify-storybook": "NODE_ENV=development start-storybook --ci --smoke-test",
     "build-storybook": "build-storybook"
-  },
-  "browserslist": "electron 1.6",
-  "lint-staged": {
-    "*.(js|jsx)": [
-      "cross-env NODE_ENV=development eslint --cache --format=node_modules/eslint-formatter-pretty",
-      "prettier --ignore-path .eslintignore --single-quote --write",
-      "git add"
-    ],
-    "*.(json|css|scss|md)|.(prettierrc|eslintrc)": [
-      "prettier --ignore-path .eslintignore --write",
-      "git add"
-    ]
-  },
-  "build": {
-    "productName": "Tamanu",
-    "appId": "org.beyondessential.Tamanu",
-    "files": [
-      "dist/",
-      "node_modules/",
-      "app.html",
-      "dist/main.prod.js",
-      "dist/main.prod.js.map",
-      "package.json"
-    ],
-    "publish": {
-      "provider": "s3",
-      "bucket": "tamanu-builds",
-      "region": "ap-southeast-2",
-      "path": "will be set by build_desktop.sh"
-    },
-    "dmg": {
-      "contents": [
-        {
-          "x": 130,
-          "y": 220
-        },
-        {
-          "x": 410,
-          "y": 220,
-          "type": "link",
-          "path": "/Applications"
-        }
-      ]
-    },
-    "win": {
-      "target": [
-        "nsis"
-      ]
-    },
-    "nsis": {
-      "perMachine": true,
-      "runAfterFinish": true
-    },
-    "msi": {
-      "perMachine": true,
-      "runAfterFinish": false,
-      "createDesktopShortcut": "always"
-    },
-    "linux": {
-      "target": [
-        "AppImage"
-      ],
-      "category": "Development"
-    },
-    "directories": {
-      "buildResources": "resources",
-      "output": "release"
-    }
   },
   "jest": {
     "testRegex": "(\\.|/)(test|spec)\\.[jt]sx?$",
