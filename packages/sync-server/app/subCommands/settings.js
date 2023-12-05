@@ -13,7 +13,7 @@ export async function listSettings(filter = '', { facility } = {}) {
     models: { Setting },
   } = await initDatabase({ testMode: false });
 
-  const globalTree = await Setting.get(filter, SETTINGS_SCOPES.GLOBAL);
+  const globalTree = await Setting.get(filter, null, SETTINGS_SCOPES.GLOBAL);
   const globalSettings = buildSettingsRecords(filter, globalTree, null);
 
   if (!facility) {
@@ -55,7 +55,8 @@ export async function getSetting(key, { facility, scope } = {}) {
     models: { Setting },
   } = await initDatabase({ testMode: false });
 
-  const setting = await Setting.get(key, scope, facility);
+  const setting = await Setting.get(key, facility, scope);
+  console.log('got setting', key, setting, scope);
   if (setting === undefined) {
     return '(no setting found)';
   }
@@ -68,14 +69,14 @@ export async function setSetting(key, value, { facility, scope } = {}) {
     models: { Setting },
   } = await initDatabase({ testMode: false });
 
-  const setting = await Setting.get(key, scope, facility);
+  const setting = await Setting.get(key, facility, scope);
   const preValue =
     setting && JSON.stringify(setting) !== '{}'
       ? `current value:\n${canonicalize(setting)}\n`
       : 'no current value\n';
 
   const newValue = JSON.parse(value);
-  await Setting.set(key, newValue, scope, facility);
+  await Setting.set(key, newValue, facility, scope);
   return `${preValue}\nnew value set`;
 }
 
@@ -93,9 +94,9 @@ export async function loadSettings(key, filepath, { facility, preview, scope } =
     return JSON.stringify(value, null, 2);
   }
 
-  await Setting.set(key, value, scope, facility);
+  await Setting.set(key, value, facility, scope);
 
-  const currentValue = await Setting.get(key, scope, facility);
+  const currentValue = await Setting.get(key, facility, scope);
   return JSON.stringify(currentValue, null, 2);
 }
 

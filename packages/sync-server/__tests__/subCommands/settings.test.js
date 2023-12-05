@@ -39,6 +39,7 @@ describe('settings', () => {
           },
         },
       },
+      null,
       SETTINGS_SCOPES.GLOBAL,
     );
 
@@ -48,8 +49,8 @@ describe('settings', () => {
         leaf: 'weed',
         root: 'root',
       },
-      SETTINGS_SCOPES.FACILITY,
       facility,
+      SETTINGS_SCOPES.FACILITY,
     );
   });
 
@@ -124,7 +125,7 @@ describe('settings', () => {
       await expect(
         setSetting('test.enabled', 'true', { scope: SETTINGS_SCOPES.GLOBAL }),
       ).resolves.toMatchSnapshot();
-      await expect(Setting.get('test.enabled', SETTINGS_SCOPES.GLOBAL)).resolves.toBe(true);
+      await expect(Setting.get('test.enabled', null, SETTINGS_SCOPES.GLOBAL)).resolves.toBe(true);
     });
 
     it('overwrites a scalar', async () => {
@@ -132,7 +133,7 @@ describe('settings', () => {
       await expect(
         setSetting('test.value', '"test2"', { scope: SETTINGS_SCOPES.GLOBAL }),
       ).resolves.toMatchSnapshot();
-      await expect(Setting.get('test.value', SETTINGS_SCOPES.GLOBAL)).resolves.toBe('test2');
+      await expect(Setting.get('test.value', null, SETTINGS_SCOPES.GLOBAL)).resolves.toBe('test2');
     });
 
     it('sets a new array', async () => {
@@ -140,7 +141,7 @@ describe('settings', () => {
       await expect(
         setSetting('test.list', '["groceries", "antiques"]', { scope: SETTINGS_SCOPES.GLOBAL }),
       ).resolves.toMatchSnapshot();
-      await expect(Setting.get('test.list', SETTINGS_SCOPES.GLOBAL)).resolves.toStrictEqual([
+      await expect(Setting.get('test.list', null, SETTINGS_SCOPES.GLOBAL)).resolves.toStrictEqual([
         'groceries',
         'antiques',
       ]);
@@ -151,9 +152,9 @@ describe('settings', () => {
       await expect(
         setSetting('test.tree.flower', '["tulips"]', { scope: SETTINGS_SCOPES.GLOBAL }),
       ).resolves.toMatchSnapshot();
-      await expect(Setting.get('test.tree.flower', SETTINGS_SCOPES.GLOBAL)).resolves.toStrictEqual([
-        'tulips',
-      ]);
+      await expect(
+        Setting.get('test.tree.flower', null, SETTINGS_SCOPES.GLOBAL),
+      ).resolves.toStrictEqual(['tulips']);
     });
 
     it('sets a new object', async () => {
@@ -161,7 +162,7 @@ describe('settings', () => {
       await expect(
         setSetting('test.dict', '{"broken": "eggs"}', { scope: SETTINGS_SCOPES.GLOBAL }),
       ).resolves.toMatchSnapshot();
-      await expect(Setting.get('test.dict', SETTINGS_SCOPES.GLOBAL)).resolves.toStrictEqual({
+      await expect(Setting.get('test.dict', null, SETTINGS_SCOPES.GLOBAL)).resolves.toStrictEqual({
         broken: 'eggs',
       });
     });
@@ -171,10 +172,12 @@ describe('settings', () => {
       await expect(
         setSetting('test.tree.branch', '{ "leaf": "bug" }', { scope: SETTINGS_SCOPES.GLOBAL }),
       ).resolves.toMatchSnapshot();
-      await expect(Setting.get('test.tree.branch', SETTINGS_SCOPES.GLOBAL)).resolves.toStrictEqual({
+      await expect(
+        Setting.get('test.tree.branch', null, SETTINGS_SCOPES.GLOBAL),
+      ).resolves.toStrictEqual({
         leaf: 'bug',
       });
-      await expect(Setting.get('test.tree', SETTINGS_SCOPES.GLOBAL)).resolves.toStrictEqual({
+      await expect(Setting.get('test.tree', null, SETTINGS_SCOPES.GLOBAL)).resolves.toStrictEqual({
         flower: ['flower', 'girl'],
         branch: {
           leaf: 'bug',
@@ -189,7 +192,7 @@ describe('settings', () => {
       await expect(
         setSetting('test.enabled', 'true', { facility, scope: SETTINGS_SCOPES.FACILITY }),
       ).resolves.toMatchSnapshot();
-      await expect(Setting.get('test.enabled', SETTINGS_SCOPES.FACILITY, facility)).resolves.toBe(
+      await expect(Setting.get('test.enabled', facility, SETTINGS_SCOPES.FACILITY)).resolves.toBe(
         true,
       );
     });
@@ -199,8 +202,8 @@ describe('settings', () => {
       await expect(
         setSetting('test.value', '"test2"', { facility, scope: SETTINGS_SCOPES.FACILITY }),
       ).resolves.toMatchSnapshot();
-      await expect(Setting.get('test.value', SETTINGS_SCOPES.GLOBAL)).resolves.toBe('test');
-      await expect(Setting.get('test.value', SETTINGS_SCOPES.FACILITY, facility)).resolves.toBe(
+      await expect(Setting.get('test.value', null, SETTINGS_SCOPES.GLOBAL)).resolves.toBe('test');
+      await expect(Setting.get('test.value', facility, SETTINGS_SCOPES.FACILITY)).resolves.toBe(
         'test2',
       );
     });
@@ -214,7 +217,7 @@ describe('settings', () => {
         }),
       ).resolves.toMatchSnapshot();
       await expect(
-        Setting.get('test.list', SETTINGS_SCOPES.FACILITY, facility),
+        Setting.get('test.list', facility, SETTINGS_SCOPES.FACILITY),
       ).resolves.toStrictEqual(['groceries', 'antiques']);
     });
 
@@ -223,12 +226,11 @@ describe('settings', () => {
       await expect(
         setSetting('test.tree.flower', '["tulips"]', { facility, scope: SETTINGS_SCOPES.FACILITY }),
       ).resolves.toMatchSnapshot();
-      await expect(Setting.get('test.tree.flower', SETTINGS_SCOPES.GLOBAL)).resolves.toStrictEqual([
-        'flower',
-        'girl',
-      ]);
       await expect(
-        Setting.get('test.tree.flower', SETTINGS_SCOPES.FACILITY, facility),
+        Setting.get('test.tree.flower', null, SETTINGS_SCOPES.GLOBAL),
+      ).resolves.toStrictEqual(['flower', 'girl']);
+      await expect(
+        Setting.get('test.tree.flower', facility, SETTINGS_SCOPES.FACILITY),
       ).resolves.toStrictEqual(['tulips']);
     });
 
@@ -241,7 +243,7 @@ describe('settings', () => {
         }),
       ).resolves.toMatchSnapshot();
       await expect(
-        Setting.get('test.dict', SETTINGS_SCOPES.FACILITY, facility),
+        Setting.get('test.dict', facility, SETTINGS_SCOPES.FACILITY),
       ).resolves.toStrictEqual({ broken: 'eggs' });
     });
 
@@ -255,23 +257,25 @@ describe('settings', () => {
       ).resolves.toMatchSnapshot();
 
       await expect(
-        Setting.get('test.tree.branch', SETTINGS_SCOPES.FACILITY, facility),
+        Setting.get('test.tree.branch', facility, SETTINGS_SCOPES.FACILITY),
       ).resolves.toStrictEqual({
         leaf: 'bug',
       });
-      await expect(Setting.get('test.tree.branch', SETTINGS_SCOPES.GLOBAL)).resolves.toStrictEqual({
+      await expect(
+        Setting.get('test.tree.branch', null, SETTINGS_SCOPES.GLOBAL),
+      ).resolves.toStrictEqual({
         leaf: 'leaf',
       });
 
       await expect(
-        Setting.get('test.tree', SETTINGS_SCOPES.FACILITY, facility),
+        Setting.get('test.tree', facility, SETTINGS_SCOPES.FACILITY),
       ).resolves.toStrictEqual({
         flower: ['flower', 'girl'],
         branch: {
           leaf: 'bug',
         },
       });
-      await expect(Setting.get('test.tree'), SETTINGS_SCOPES.GLOBAL).resolves.toStrictEqual({
+      await expect(Setting.get('test.tree', null, SETTINGS_SCOPES.GLOBAL)).resolves.toStrictEqual({
         flower: ['flower', 'girl'],
         branch: {
           leaf: 'leaf',
@@ -299,11 +303,11 @@ describe('settings', () => {
           loadSettings('test.json', file, { scope: SETTINGS_SCOPES.GLOBAL }),
         ).resolves.toMatchSnapshot();
 
-        await expect(
-          Setting.get('test.json', { scope: SETTINGS_SCOPES.GLOBAL }),
-        ).resolves.toStrictEqual({
-          really: { nice: 'eyes' },
-        });
+        await expect(Setting.get('test.json', null, SETTINGS_SCOPES.GLOBAL)).resolves.toStrictEqual(
+          {
+            really: { nice: 'eyes' },
+          },
+        );
       });
 
       it('to a facility', async () => {
@@ -315,11 +319,11 @@ describe('settings', () => {
           loadSettings('test.json', file, { facility, scope: SETTINGS_SCOPES.FACILITY }),
         ).resolves.toMatchSnapshot();
 
-        await expect(Setting.get('test.json', { scope: SETTINGS_SCOPES.GLOBAL })).resolves.toBe(
+        await expect(Setting.get('test.json', null, SETTINGS_SCOPES.GLOBAL)).resolves.toBe(
           undefined,
         );
         await expect(
-          Setting.get('test.json', SETTINGS_SCOPES.FACILITY, facility),
+          Setting.get('test.json', facility, SETTINGS_SCOPES.FACILITY),
         ).resolves.toStrictEqual({
           really: { blue: 'eyes' },
         });
@@ -334,7 +338,9 @@ describe('settings', () => {
           loadSettings('test.json', file, { preview: true, scope: SETTINGS_SCOPES.GLOBAL }),
         ).resolves.toMatchSnapshot();
 
-        await expect(Setting.get('test.json', SETTINGS_SCOPES.GLOBAL)).resolves.toBe(undefined);
+        await expect(Setting.get('test.json', null, SETTINGS_SCOPES.GLOBAL)).resolves.toBe(
+          undefined,
+        );
       });
     });
 
@@ -357,7 +363,7 @@ describe('settings', () => {
           loadSettings('test.kdl', file, { scope: SETTINGS_SCOPES.GLOBAL }),
         ).resolves.toMatchSnapshot();
 
-        await expect(Setting.get('test.kdl', SETTINGS_SCOPES.GLOBAL)).resolves.toStrictEqual({
+        await expect(Setting.get('test.kdl', null, SETTINGS_SCOPES.GLOBAL)).resolves.toStrictEqual({
           character: 'Marten Reed',
           firstAppearance: 1,
           human: true,
@@ -382,9 +388,11 @@ describe('settings', () => {
           loadSettings('test.kdl', file, { facility, scope: SETTINGS_SCOPES.FACILITY }),
         ).resolves.toMatchSnapshot();
 
-        await expect(Setting.get('test.kdl', SETTINGS_SCOPES.GLOBAL)).resolves.toBe(undefined);
+        await expect(Setting.get('test.kdl', null, SETTINGS_SCOPES.GLOBAL)).resolves.toBe(
+          undefined,
+        );
         await expect(
-          Setting.get('test.kdl', SETTINGS_SCOPES.FACILITY, facility),
+          Setting.get('test.kdl', facility, SETTINGS_SCOPES.FACILITY),
         ).resolves.toStrictEqual({
           character: 'Pintsize',
           firstAppearance: 1,
@@ -410,7 +418,9 @@ describe('settings', () => {
           loadSettings('test.kdl', file, { preview: true, scope: SETTINGS_SCOPES.GLOBAL }),
         ).resolves.toMatchSnapshot();
 
-        await expect(Setting.get('test.kdl', SETTINGS_SCOPES.GLOBAL)).resolves.toBe(undefined);
+        await expect(Setting.get('test.kdl', null, SETTINGS_SCOPES.GLOBAL)).resolves.toBe(
+          undefined,
+        );
       });
     });
   });
