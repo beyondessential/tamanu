@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { PROGRAM_REGISTRATION_STATUSES } from '../../constants';
+import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { ThemedTooltip } from '../../components/Tooltip';
 
@@ -11,28 +11,28 @@ const StatusDiv = styled.div`
   align-items: center;
 `;
 const StatusActiveDot = styled.div`
-  background-color: green;
-  height: 10px;
-  width: 10px;
+  background-color: ${Colors.safe};
+  height: 7px;
+  width: 7px;
   border-radius: 10px;
   margin: 0px 5px;
 `;
 const StatusInactiveDot = styled.div`
-  background-color: lightGray;
-  height: 10px;
-  width: 10px;
+  background-color: ${Colors.softText};
+  height: 7px;
+  width: 7px;
   border-radius: 10px;
   margin: 0px 5px;
 `;
 
-export const RegistrationStatusIndicator = ({ patientProgramRegistration, hideText }) => {
+export const RegistrationStatusIndicator = ({ patientProgramRegistration, hideText, style }) => {
   return (
     <ThemedTooltip title={capitaliseFirstLetter(patientProgramRegistration.registrationStatus)}>
       <StatusDiv>
         {patientProgramRegistration.registrationStatus === PROGRAM_REGISTRATION_STATUSES.ACTIVE ? (
-          <StatusActiveDot />
+          <StatusActiveDot style={style} />
         ) : (
-          <StatusInactiveDot />
+          <StatusInactiveDot style={style} />
         )}
         {!hideText && <b>{capitaliseFirstLetter(patientProgramRegistration.registrationStatus)}</b>}
       </StatusDiv>

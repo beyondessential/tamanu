@@ -50,6 +50,7 @@ export const AddConditionFormModal = ({ onClose, patientProgramRegistration, ope
   return (
     <Modal title="Add related condition" open={open} onClose={onClose}>
       <Form
+        showInlineErrorsOnly
         onSubmit={submit}
         render={({ submitForm }) => {
           const handleCancel = () => onClose();

@@ -19,6 +19,7 @@ import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api/useApi';
 import { useSelector } from 'react-redux';
+import { Divider } from '@material-ui/core';
 
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const api = useApi();
@@ -49,6 +50,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
 
   return (
     <Form
+      showInlineErrorsOnly
       onSubmit={data => {
         onSubmit({
           ...data,
@@ -108,6 +110,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   name="registeringFacilityId"
                   label="Registering facility"
                   placeholder="Select"
+                  required
                   component={AutocompleteField}
                   suggester={registeringFacilitySuggester}
                 />
@@ -132,7 +135,12 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   disabled={!conditions}
                 />
               </FormGrid>
-
+              <Divider
+                style={{
+                  gridColumn: '1 / -1',
+                  marginTop: '10px',
+                }}
+              />
               <ConfirmCancelRow
                 onCancel={handleCancel}
                 onConfirm={submitForm}
@@ -149,12 +157,11 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
         ...editedObject,
       }}
       validationSchema={yup.object().shape({
-        programRegistryId: foreignKey('Program Registry must be selected'),
-        clinicalStatusId: optionalForeignKey(),
+        programRegistryId: foreignKey('Program registry must be selected'),
+        clinicalStatusId: optionalForeignKey().nullable(),
         date: yup.date(),
-        registeringFacilityId: optionalForeignKey(),
         clinicianId: foreignKey('Registered by must be selected'),
-        // conditionIds: yup.array().of(yup.string()),
+        registeringFacilityId: foreignKey('Registering facility must be selected'),
       })}
     />
   );

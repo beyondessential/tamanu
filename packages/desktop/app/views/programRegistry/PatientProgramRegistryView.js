@@ -55,7 +55,10 @@ export const PatientProgramRegistryView = () => {
     <Fragment key={data.id}>
       <ViewHeader>
         <h1>{data.programRegistry.name}</h1>
-        <RegistrationStatusIndicator patientProgramRegistration={data} />
+        <RegistrationStatusIndicator
+          style={{ height: '10px', width: '10px' }}
+          patientProgramRegistration={data}
+        />
       </ViewHeader>
       <Container>
         <Row>

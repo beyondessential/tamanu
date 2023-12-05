@@ -85,7 +85,7 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
         <InfoColumn>
           <Info>
             <Label>Program registry</Label>
-            <Value>{patientProgramRegistration.programRegistry.name || '-'}</Value>
+            <Value>{patientProgramRegistration.programRegistry?.name || '-'}</Value>
           </Info>
           <Info>
             <Label>Registered by</Label>
@@ -93,7 +93,7 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
           </Info>
           <Info>
             <Label>Status</Label>
-            <Value>{patientProgramRegistration.clinicalStatus.name || '-'}</Value>
+            <Value>{patientProgramRegistration.clinicalStatus?.name || '-'}</Value>
           </Info>
         </InfoColumn>
         <FormSeparatorVerticalLine />
@@ -108,8 +108,8 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
             <Label>Registering facility</Label>
             <Value>
               {(patientProgramRegistration.registeringFacility
-                ? patientProgramRegistration.registeringFacility.name
-                : patientProgramRegistration.facility.name) || '-'}
+                ? patientProgramRegistration.registeringFacility?.name
+                : patientProgramRegistration.facility?.name) || '-'}
             </Value>
           </Info>
         </InfoColumn>

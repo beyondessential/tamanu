@@ -42,6 +42,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
       onClose={onClose}
     >
       <Form
+        showInlineErrorsOnly
         onSubmit={activate}
         render={({ submitForm }) => {
           return (
