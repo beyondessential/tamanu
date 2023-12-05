@@ -93,7 +93,7 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
           Reminder Contacts
         </Button>
       </StyledHeading>
-      {<ReminderContactModal openModal={openModal} setOpenModal={setOpenModal} values={values} />}
+      <ReminderContactModal openModal={openModal} setOpenModal={setOpenModal} values={values} />
 
       <FormGrid>
         <LocalisedField name="firstName" component={TextField} required />

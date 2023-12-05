@@ -75,11 +75,9 @@ export const ConfirmCancelRow = React.memo(
 export const CancelButtonRow = React.memo(
   ({ onCancel, cancelText = 'Cancel', cancelColor = 'primary', ...props }) => (
     <ButtonRow {...props}>
-      {
-        <Button color={cancelColor} onClick={onCancel}>
-          {cancelText}
-        </Button>
-      }
+      <Button color={cancelColor} onClick={onCancel}>
+        {cancelText}
+      </Button>
     </ButtonRow>
   ),
 );

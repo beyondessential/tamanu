@@ -27,8 +27,9 @@ const StyledButton = styled.div`
 export const NoContactInfo = ({ name }) => {
   return (
     <StyledText>
-      There are no contacts registered to receive reminders for <span>{name}</span>. Please select
-      'Add contact' to register a contact.
+      {`There are no contacts registered to receive reminders for `}
+      <span>{name}</span>
+      {`. Please select 'Add contact' to register a contact.`}
     </StyledText>
   );
 };
@@ -58,7 +59,7 @@ export const ContactDetails = ({ name, setContactsCount, setIsLoading }) => {
           columns={columns}
           noDataMessage="No historical records for this patient."
           //   endpoint={`patient/19324abf-b485-4184-8537-0a7fe4be1d0b/encounters`}
-          disablePagination={true}
+          disablePagination
           // onRowClick={row => onItemClick(row.id)}
           // initialSort={{ orderBy: 'startDate', order: 'desc' }}
           // refreshCount={refreshCount}
