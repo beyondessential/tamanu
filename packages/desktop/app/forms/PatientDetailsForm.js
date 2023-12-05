@@ -1,11 +1,11 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { isEmpty, groupBy } from 'lodash';
 import { useQuery } from '@tanstack/react-query';
-
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
+import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 
 import { useSexValues } from '../hooks';
 import { Colors, sexOptions } from '../constants';
@@ -34,8 +34,16 @@ import {
   PersonalInformationFields,
   LocationInformationFields,
 } from '../components/ConfiguredMandatoryPatientFields';
+import { Button } from '../components/Button';
+import ReminderContactModal from '../components/ReminderContactModal';
 
 const StyledHeading = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+`;
+
+const StyledHeadingText = styled.div`
   font-weight: 500;
   font-size: 16px;
   color: ${Colors.darkText};
@@ -55,6 +63,7 @@ const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
 `;
 
 export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
+  const [openModal, setOpenModal] = useState(false);
   const villageSuggester = useSuggester('village');
   const { getLocalisation } = useLocalisation();
   let filteredSexOptions = sexOptions;
@@ -65,9 +74,27 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
   const isRequiredPatientData = fieldName =>
     getLocalisation(`fields.${fieldName}.requiredPatientData`);
 
+  const onClickModal = useCallback(() => {
+    setOpenModal(true);
+  }, []);
+
   return (
     <>
-      <StyledHeading>General information</StyledHeading>
+      <StyledHeading>
+        <StyledHeadingText>General information</StyledHeadingText>
+        <Button
+          variant="outlined"
+          color="primary"
+          size="small"
+          style={{ padding: '11px 10px' }}
+          onClick={onClickModal}
+        >
+          <NotificationsNoneIcon />
+          Reminder Contacts
+        </Button>
+      </StyledHeading>
+      {<ReminderContactModal openModal={openModal} setOpenModal={setOpenModal} values={values} />}
+
       <FormGrid>
         <LocalisedField name="firstName" component={TextField} required />
         <LocalisedField
