@@ -11,30 +11,15 @@
   "type": "module",
   "scripts": {
     "lint": "eslint src",
-    "lint-stats": "eslint src --format ../scripts/eslint-stats.js",
     "lint-fix": "eslint src --fix",
-    "prestart": "npm run build",
-    "start-dev": "npm run dev",
-    "start-main-dev": "cross-env HOT=1 NODE_ENV=development electron -r ./babel-register ./app/main.dev",
-    "start-renderer-dev": "cross-env NODE_ENV=development node --trace-warnings -r ./babel-register ./node_modules/webpack-dev-server/bin/webpack-dev-server --config webpack.config.renderer.dev.js",
+    "build": "vite build",
+    "start-dev": "vite",
     "test": "yarn verify-storybook && yarn unit-test",
     "unit-test": "NODE_ENV=test jest",
     "unit-test-watch": "yarn unit-test --watch",
-    "reinstall": "rm -rf ../../**/node_modules && yarn",
     "storybook": "start-storybook -p 6006",
     "verify-storybook": "NODE_ENV=development start-storybook --ci --smoke-test",
     "build-storybook": "build-storybook"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "*.(json|css|scss|md)|.(prettierrc|eslintrc)": [
-      "prettier --ignore-path .eslintignore --write",
-      "git add"
-    ]
   },
   "jest": {
     "testRegex": "(\\.|/)(test|spec)\\.[jt]sx?$",
