@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { LOCATION_AVAILABILITY_TAG_CONFIG } from '@tamanu/constants';
 import { Tag } from '../../components';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const BiggerTag = styled(Tag)`
   padding-top: 8px;
@@ -37,53 +38,89 @@ const occupancyAccessor = showIfSinglePatient(
 export const columns = [
   {
     key: 'area',
-    title: 'Area',
+    title: (
+      <TranslatedText stringId="facilityAdmin.bedManagement.table.column.area" fallback="Area" />
+    ),
     minWidth: 100,
     accessor: ({ area }) => area || '-',
   },
   {
     key: 'location',
-    title: 'Location',
+    title: (
+      <TranslatedText
+        stringId="facilityAdmin.bedManagement.table.column.location"
+        fallback="Location"
+      />
+    ),
     minWidth: 100,
   },
   {
     key: 'alos',
-    title: 'ALOS',
+    title: (
+      <TranslatedText stringId="facilityAdmin.bedManagement.table.column.alos" fallback="ALOS" />
+    ),
     minWidth: 30,
     accessor: ({ alos }) => `${Math.round((alos || 0) * 10) / 10} days`,
     sortable: false,
-    tooltip: 'Average length of stay, last 30 days',
+    tooltip: (
+      <TranslatedText
+        stringId="facilityAdmin.bedManagement.table.column.alos.tooltip"
+        fallback="Average length of stay, last 30 days"
+      />
+    ),
   },
   {
     key: 'occupancy',
-    title: 'Occupancy',
+    title: (
+      <TranslatedText
+        stringId="facilityAdmin.bedManagement.table.column.occupancy"
+        fallback="Occupancy"
+      />
+    ),
     minWidth: 30,
     accessor: occupancyAccessor,
     sortable: false,
-    tooltip: 'Bed occupancy, last 30 days',
+    tooltip: (
+      <TranslatedText
+        stringId="facilityAdmin.bedManagement.table.column.occupancy.tooltip"
+        fallback="Bed occupancy, last 30 days"
+      />
+    ),
   },
   {
     key: 'numberOfOccupants',
-    title: 'No. occupants',
+    title: (
+      <TranslatedText
+        stringId="facilityAdmin.bedManagement.table.column.numberOfOccupants"
+        fallback="No. occupants"
+      />
+    ),
     minWidth: 30,
     sortable: false,
-    tooltip: 'Current number of occupants',
+    tooltip: (
+      <TranslatedText
+        stringId="facilityAdmin.bedManagement.table.column.numberOfOccupants.tooltip"
+        fallback="Current number of occupants"
+      />
+    ),
   },
   {
     key: 'patientFirstName',
-    title: 'First Name',
+    title: (
+      <TranslatedText stringId="general.table.column.patientFirstName" fallback="First Name" />
+    ),
     minWidth: 100,
     accessor: patientFirstNameAccessor,
   },
   {
     key: 'patientLastName',
-    title: 'Last Name',
+    title: <TranslatedText stringId="general.table.column.patientLastName" fallback="Last name" />,
     minWidth: 100,
     accessor: patientLastNameAccessor,
   },
   {
     key: 'status',
-    title: 'Status',
+    title: <TranslatedText stringId="general.table.column.status" fallback="Status" />,
     minWidth: 100,
     CellComponent: StatusCell,
   },
