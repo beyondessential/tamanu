@@ -36,9 +36,7 @@ describe('saveChangesForModel', () => {
       const isDeleted = false;
       const changes = [{ data: newRecord, isDeleted }];
       // act
-      await saveChangesForModel(models.SurveyScreenComponent, changes, true, {
-        persistUpdateWorkerPoolSize: 5,
-      });
+      await saveChangesForModel(models.SurveyScreenComponent, changes, true);
       // assertions
       expect(saveChangeModules.saveCreates).toBeCalledTimes(1);
       expect(saveChangeModules.saveCreates).toBeCalledWith(models.SurveyScreenComponent, [
@@ -59,9 +57,7 @@ describe('saveChangesForModel', () => {
       const isDeleted = true;
       const changes = [{ data: newRecord, isDeleted }];
       // act
-      await saveChangesForModel(models.SurveyScreenComponent, changes, true, {
-        persistUpdateWorkerPoolSize: 5,
-      });
+      await saveChangesForModel(models.SurveyScreenComponent, changes, true);
       // assertions
       expect(saveChangeModules.saveCreates).toBeCalledTimes(1);
       expect(saveChangeModules.saveCreates).toBeCalledWith(models.SurveyScreenComponent, [
@@ -87,9 +83,7 @@ describe('saveChangesForModel', () => {
       const newRecord = { id: existingRecord.id, text: 'current' };
       const changes = [{ data: newRecord, isDeleted: false }];
       // act
-      await saveChangesForModel(models.SurveyScreenComponent, changes, true, {
-        persistUpdateWorkerPoolSize: 5,
-      });
+      await saveChangesForModel(models.SurveyScreenComponent, changes, true);
       // assertions
       expect(saveChangeModules.saveCreates).toBeCalledTimes(0);
       expect(saveChangeModules.saveUpdates).toBeCalledTimes(1);
@@ -116,9 +110,7 @@ describe('saveChangesForModel', () => {
       const newRecord = { id: existingRecord.id, text: 'current' };
       const changes = [{ data: newRecord, isDeleted: true }];
       // act
-      await saveChangesForModel(models.SurveyScreenComponent, changes, true, {
-        persistUpdateWorkerPoolSize: 5,
-      });
+      await saveChangesForModel(models.SurveyScreenComponent, changes, true);
       // assertions
       expect(saveChangeModules.saveCreates).toBeCalledTimes(0);
       expect(saveChangeModules.saveUpdates).toBeCalledTimes(1);
@@ -142,9 +134,7 @@ describe('saveChangesForModel', () => {
       const newRecord = { id: existingRecord.id, text: 'current' };
       const changes = [{ data: newRecord, isDeleted: true }];
       // act
-      await saveChangesForModel(models.SurveyScreenComponent, changes, true, {
-        persistUpdateWorkerPoolSize: 5,
-      });
+      await saveChangesForModel(models.SurveyScreenComponent, changes, true);
       // assertions
       expect(saveChangeModules.saveCreates).toBeCalledTimes(0);
       expect(saveChangeModules.saveUpdates).toBeCalledTimes(1);
@@ -172,9 +162,7 @@ describe('saveChangesForModel', () => {
       const newRecord = { id: existingRecord.id, text: 'current' };
       const changes = [{ data: newRecord, isDeleted: false }];
       // act
-      await saveChangesForModel(models.SurveyScreenComponent, changes, true, {
-        persistUpdateWorkerPoolSize: 5,
-      });
+      await saveChangesForModel(models.SurveyScreenComponent, changes, true);
       // assertions
       expect(saveChangeModules.saveCreates).toBeCalledTimes(0);
       expect(saveChangeModules.saveUpdates).toBeCalledTimes(1);

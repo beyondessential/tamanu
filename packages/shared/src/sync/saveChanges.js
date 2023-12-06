@@ -1,7 +1,9 @@
+import config from 'config';
 import { Op } from 'sequelize';
-import { isEmpty } from 'lodash';
 import asyncPool from 'tiny-async-pool';
 import { mergeRecord } from './mergeRecord';
+
+const { persistUpdateWorkerPoolSize } = config;
 
 export const saveCreates = async (model, records) => {
   // can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
@@ -28,13 +30,7 @@ export const saveCreates = async (model, records) => {
   }
 };
 
-export const saveUpdates = async (
-  model,
-  incomingRecords,
-  idToExistingRecord,
-  isCentralServer,
-  { persistUpdateWorkerPoolSize },
-) => {
+export const saveUpdates = async (model, incomingRecords, idToExistingRecord, isCentralServer) => {
   const recordsToSave = isCentralServer
     ? // on the central server, merge the records coming in from different clients
       incomingRecords.map(incoming => {
@@ -49,32 +45,13 @@ export const saveUpdates = async (
 };
 
 // model.update cannot update deleted_at field, so we need to do update (in case there are still any new changes even if it is being deleted) and destroy
-export const saveDeletes = async (
-  model,
-  recordsForDelete,
-  idToExistingRecord,
-  isCentralServer,
-  { persistUpdateWorkerPoolSize },
-) => {
+export const saveDeletes = async (model, recordsForDelete) => {
   if (recordsForDelete.length === 0) return;
-  if (!isEmpty(idToExistingRecord)) {
-    await saveUpdates(model, recordsForDelete, idToExistingRecord, isCentralServer, {
-      persistUpdateWorkerPoolSize,
-    });
-  }
+
   await model.destroy({ where: { id: { [Op.in]: recordsForDelete.map(r => r.id) } } });
 };
 
-export const saveRestores = async (
-  model,
-  recordsForRestore,
-  idToExistingRecord,
-  isCentralServer,
-  { persistUpdateWorkerPoolSize },
-) => {
+export const saveRestores = async (model, recordsForRestore) => {
   if (recordsForRestore.length === 0) return;
   await model.restore({ where: { id: { [Op.in]: recordsForRestore.map(r => r.id) } } });
-  await saveUpdates(model, recordsForRestore, idToExistingRecord, isCentralServer, {
-    persistUpdateWorkerPoolSize,
-  });
 };
