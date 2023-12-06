@@ -57,13 +57,7 @@ export const DiagnosisForm = React.memo(
             <div style={{ gridColumn: '1 / -1' }}>
               <Field
                 name="diagnosisId"
-                label={
-                  <TranslatedText
-                    stringId="diagnosis.form.diagnosis.label"
-                    fallback=":diagnosisLabel"
-                    replacements={{ diagnosisLabel: getLocalisation(`fields.diagnosis.longLabel`) }}
-                  />
-                }
+                label={getLocalisation(`fields.diagnosis.longLabel`)}
                 component={AutocompleteField}
                 suggester={icd10Suggester}
                 required
@@ -88,7 +82,7 @@ export const DiagnosisForm = React.memo(
             />
             <Field
               name="date"
-              label={<TranslatedText stringId="diagnosis.form.date.label" fallback="Date" />}
+              label={<TranslatedText stringId="general.form.date.label" fallback="Date" />}
               component={DateField}
               required
               saveDateAsString
