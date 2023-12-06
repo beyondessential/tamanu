@@ -1,3 +1,4 @@
+import config from 'config';
 import { chunk } from 'lodash';
 import { log } from '@tamanu/shared/services/logging';
 import { insertSnapshotRecords, SYNC_SESSION_DIRECTION } from '@tamanu/shared/sync';
@@ -5,20 +6,17 @@ import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { calculatePageLimit } from './calculatePageLimit';
 
+const { persistedCacheBatchSize, pauseBetweenCacheBatchInMilliseconds } = config.sync;
+
 export const pullIncomingChanges = async (centralServer, sequelize, sessionId, since) => {
   // initiating pull also returns the sync tick (or point on the sync timeline) that the
   // central server considers this session will be up to after pulling all changes
   log.info('FacilitySyncManager.pull.waitingForCentral');
   const { totalToPull, pullUntil } = await centralServer.initiatePull(sessionId, since);
-  const {
-    persistedCacheBatchSize,
-    pauseBetweenCacheBatchInMilliseconds,
-    dynamicLimiter,
-  } = await centralServer.settings.get('sync');
 
   log.info('FacilitySyncManager.pulling', { since, totalToPull });
   let fromId;
-  let limit = calculatePageLimit(dynamicLimiter);
+  let limit = calculatePageLimit();
   let totalPulled = 0;
 
   // pull changes a page at a time
@@ -60,7 +58,7 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
       await sleepAsync(pauseBetweenCacheBatchInMilliseconds);
     }
 
-    limit = calculatePageLimit(dynamicLimiter, limit, pullTime);
+    limit = calculatePageLimit(limit, pullTime);
   }
 
   return { totalPulled: totalToPull, pullUntil };

@@ -74,6 +74,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
   const [openPrintoutModal, setOpenPrintoutModal] = useState(false);
   const [medicationData, setMedicationData] = useState([]);
   const [prescriberId, setPrescriberId] = useState(null);
+  const prescriberSelected = Boolean(prescriberId);
   const api = useApi();
   const practitionerSuggester = useSuggester('practitioner');
   const { data, error, isLoading } = useQuery(['encounterMedication', encounter.id], () =>
@@ -112,10 +113,10 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
   );
 
   const handlePrintConfirm = useCallback(() => {
-    if (selectedRows.length > 0) {
+    if (selectedRows.length > 0 && prescriberSelected) {
       setOpenPrintoutModal(true);
     }
-  }, [selectedRows]);
+  }, [prescriberSelected, selectedRows]);
 
   return (
     <>
@@ -135,6 +136,9 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
           suggester={practitionerSuggester}
           onChange={event => setPrescriberId(event.target.value)}
           value={currentUser.id}
+          required
+          error={!prescriberSelected}
+          helperText={!prescriberSelected && 'Please select a prescriber'}
         />
       </PrescriberWrapper>
 

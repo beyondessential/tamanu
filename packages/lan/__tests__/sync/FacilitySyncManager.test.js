@@ -1,45 +1,33 @@
 /* eslint-disable global-require */
 import { inspect } from 'util';
-import config from 'config';
+
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
-import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { FacilitySyncManager } from '../../app/sync/FacilitySyncManager';
 import { createTestContext } from '../utilities';
 
 describe('FacilitySyncManager', () => {
   let ctx;
   let models;
-  let settings;
   const TEST_SESSION_ID = 'sync123';
 
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.models;
-    settings = ctx.settings;
   });
 
   afterAll(() => ctx.close());
 
   describe('triggerSync', () => {
-    afterEach(async () => {
+    afterEach(() => {
       FacilitySyncManager.restoreConfig();
-      await models.Setting.destroy({
-        where: {},
-      });
     });
 
     it('does nothing if sync is disabled', async () => {
-      await models.Setting.set(
-        'sync.enabled',
-        false,
-        SETTINGS_SCOPES.FACILITY,
-        config.serverFacilityId,
-      );
-
+      FacilitySyncManager.overrideConfig({ sync: { enabled: false } });
       const syncManager = new FacilitySyncManager({
         models: {},
         sequelize: {},
-        centralServer: { settings },
+        centralServer: {},
       });
 
       await syncManager.triggerSync();
@@ -48,17 +36,11 @@ describe('FacilitySyncManager', () => {
     });
 
     it('awaits the existing sync if one is ongoing', async () => {
-      await models.Setting.set(
-        'sync.enabled',
-        true,
-        SETTINGS_SCOPES.FACILITY,
-        config.serverFacilityId,
-      );
-
+      FacilitySyncManager.overrideConfig({ sync: { enabled: true } });
       const syncManager = new FacilitySyncManager({
         models: {},
         sequelize: {},
-        centralServer: { settings },
+        centralServer: {},
       });
 
       const resolveWhenNonEmpty = [];
@@ -92,7 +74,6 @@ describe('FacilitySyncManager', () => {
         centralServer: {
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
           endSyncSession: jest.fn(),
-          settings,
         },
       });
 
@@ -133,7 +114,6 @@ describe('FacilitySyncManager', () => {
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
           endSyncSession: jest.fn(),
           push: jest.fn(),
-          settings,
         },
       });
 
@@ -169,7 +149,6 @@ describe('FacilitySyncManager', () => {
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
           endSyncSession: jest.fn(),
           push: jest.fn(),
-          settings,
         },
       });
 
@@ -218,7 +197,6 @@ describe('FacilitySyncManager', () => {
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
           endSyncSession: jest.fn(),
           push: jest.fn(),
-          settings,
         },
       });
 
@@ -258,7 +236,6 @@ describe('FacilitySyncManager', () => {
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
           endSyncSession: jest.fn(),
           push: jest.fn(),
-          settings,
         },
       });
 

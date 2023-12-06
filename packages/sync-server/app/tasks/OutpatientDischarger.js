@@ -1,3 +1,5 @@
+import config from 'config';
+
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import {
@@ -13,18 +15,16 @@ export class OutpatientDischarger extends ScheduledTask {
   }
 
   constructor(context, overrideConfig = null) {
-    const { schedules, settings } = context;
-    const { schedule, suppressInitialRun } = {
-      ...schedules.outpatientDischarger,
+    const conf = {
+      ...config.schedules.outpatientDischarger,
       ...overrideConfig,
     };
-    super(schedule, log);
-    this.settings = settings;
-    this.overrides = overrideConfig;
+    super(conf.schedule, log);
+    this.config = conf;
     this.models = context.store.models;
 
     // run once on startup (in case the server was down when it was scheduled)
-    if (!suppressInitialRun) {
+    if (!conf.suppressInitialRun) {
       this.runImmediately();
     }
   }
@@ -36,10 +36,10 @@ export class OutpatientDischarger extends ScheduledTask {
   }
 
   async run() {
-    const { batchSize, batchSleepAsyncDurationInMilliseconds } = {
-      ...(await this.settings.get('schedules.outpatientDischarger')),
-      ...this.overrides,
-    };
+    const {
+      batchSize,
+      batchSleepAsyncDurationInMilliseconds,
+    } = config.schedules.outpatientDischarger;
 
     await dischargeOutpatientEncounters(
       this.models,

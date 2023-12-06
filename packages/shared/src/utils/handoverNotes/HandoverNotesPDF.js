@@ -8,7 +8,7 @@ export const HandoverNotesPDF = ({
   handoverNotes = [],
   locationGroupName,
   logoSrc,
-  getSetting,
+  getLocalisation,
   letterheadConfig,
 }) => (
   <Document>
@@ -30,7 +30,7 @@ export const HandoverNotesPDF = ({
               arrivalDate={arrivalDate}
               notes={notes}
               isEdited={isEdited}
-              getSetting={getSetting}
+              getLocalisation={getLocalisation}
             />
           ),
         )}

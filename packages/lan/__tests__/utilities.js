@@ -9,12 +9,10 @@ import {
   seedLocations,
   seedLocationGroups,
   seedLabTests,
-  seedSettings,
   createMockReportingSchemaAndRoles,
 } from '@tamanu/shared/demoData';
-
 import { chance, fake, showError } from '@tamanu/shared/test-helpers';
-import { ReadSettings } from '@tamanu/settings';
+
 import { createApp } from 'lan/app/createApp';
 import { initReporting } from 'lan/app/database';
 import { getToken } from 'lan/app/middleware/auth';
@@ -133,7 +131,6 @@ export async function createTestContext({ enableReportInstances } = {}) {
   await seedDepartments(models);
   await seedLocations(models);
   await seedLocationGroups(models);
-  await seedSettings(models);
 
   // Create the facility for the current config if it doesn't exist
   const [facility] = await models.Facility.findOrCreate({
@@ -148,6 +145,8 @@ export async function createTestContext({ enableReportInstances } = {}) {
 
   // ensure there's a corresponding local system fact for it too
   await models.LocalSystemFact.set('facilityId', facility.id);
+
+  context.syncManager = new FacilitySyncManager(context);
 
   const expressApp = createApp(context);
   const appServer = http.createServer(expressApp);
@@ -191,18 +190,14 @@ export async function createTestContext({ enableReportInstances } = {}) {
 
   jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
 
-  const settings = new ReadSettings(models, config.serverFacilityId);
-  const syncConfig = await settings.get('sync');
-  const centralServer = new CentralServerConnection({ deviceId: 'test', settings }, syncConfig);
+  const centralServer = new CentralServerConnection({ deviceId: 'test' });
 
   context.onClose(async () => {
     await new Promise(resolve => appServer.close(resolve));
   });
 
-  context.settings = settings;
   context.centralServer = centralServer;
   context.baseApp = baseApp;
-  context.syncManager = new FacilitySyncManager(context);
 
   return context;
 }

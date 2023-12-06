@@ -35,7 +35,6 @@ export function patientHandler() {
 
 export function diagnosticReportHandler() {
   return asyncHandler(async (req, res) => {
-    const hl7Settings = await req.settings.get('hl7');
     const payload = await getHL7Payload({
       req,
       querySchema: schema.diagnosticReport.query,
@@ -74,7 +73,7 @@ export function diagnosticReportHandler() {
           includedResources.push(labTestToHL7Device(labTest));
         }
         return {
-          mainResource: labTestToHL7DiagnosticReport(labTest, hl7Settings),
+          mainResource: labTestToHL7DiagnosticReport(labTest),
           includedResources: includedResources.map(resource => ({ resource })),
         };
       },
@@ -104,7 +103,6 @@ export function immunizationHandler() {
 
 function findSingleResource(modelName, include, toHL7Fn, where = {}, extraOptions = {}) {
   return asyncHandler(async (req, res) => {
-    const hl7Settings = await req.settings.get('hl7');
     const { models } = req.store;
     const { id } = req.params;
     const record = await models[modelName].findOne({
@@ -117,7 +115,7 @@ function findSingleResource(modelName, include, toHL7Fn, where = {}, extraOption
       throw new NotFoundError(`Unable to find resource ${id}`);
     }
 
-    const resource = await toHL7Fn(record, req, hl7Settings);
+    const resource = await toHL7Fn(record, req);
     res.send(resource);
   });
 }

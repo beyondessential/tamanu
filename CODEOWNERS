@@ -28,5 +28,5 @@
 # that they're across any changes that might need to be made to any particular
 # server.
 # 
-/packages/sync-server/config/default.json   @beyondessential/tamanu-deployment-team
-/packages/lan/config/default.json           @beyondessential/tamanu-deployment-team
+/packages/sync-server/config/default.json5  @beyondessential/tamanu-deployment-team
+/packages/lan/config/default.json5          @beyondessential/tamanu-deployment-team

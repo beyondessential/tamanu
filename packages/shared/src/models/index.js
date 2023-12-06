@@ -99,5 +99,6 @@ export * from './LegacyNoteItem';
 export * from './Note';
 
 export * from './SyncSession';
+export * from './SyncQueuedDevice';
 
 export * from './fhir';

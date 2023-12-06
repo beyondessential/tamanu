@@ -36,7 +36,6 @@ describe('Programs import', () => {
       importer: programImporter,
       file: `./__tests__/importers/programs-${file}.xlsx`,
       models: ctx.store.models,
-      settings: ctx.settings,
       ...opts,
     });
   }
@@ -109,7 +108,7 @@ describe('Programs import', () => {
       expect(errors).toBeEmpty();
       expect(stats).toMatchObject({
         ProgramDataElement: { updated: 3 },
-        SurveyScreenComponent: { updated: 3 },
+        SurveyScreenComponent: { updated: 1, deleted: 2 },
       });
     }
 
@@ -311,7 +310,7 @@ describe('Programs import', () => {
         expect(errors).toBeEmpty();
         expect(stats).toMatchObject({
           ProgramDataElement: { updated: 16 }, // deleter should NOT delete underlying PDEs
-          SurveyScreenComponent: { updated: 16 }, // won't check value is new, all we care about is that it's not deleted
+          SurveyScreenComponent: { updated: 15, deleted: 1 },
         });
       }
 

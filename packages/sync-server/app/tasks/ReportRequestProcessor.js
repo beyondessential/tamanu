@@ -8,25 +8,28 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 
 import { ReportRunner } from '../report/ReportRunner';
+import { getLocalisation } from '../localisation';
+
+// time out and kill the report process if it takes more than 2 hours to run
+const REPORT_TIME_OUT_DURATION_MILLISECONDS = config.reportProcess.timeOutDurationSeconds * 1000;
 
 export class ReportRequestProcessor extends ScheduledTask {
   getName() {
     return 'ReportRequestProcessor';
   }
 
-  constructor({ schedules, settings, store, emailService, reportsSchemasStore }) {
-    super(schedules.reportRequestProcessor.schedule, log);
-    this.settings = settings;
-    this.store = store;
-    this.emailService = emailService;
-    this.reportsSchemasStore = reportsSchemasStore;
+  constructor(context) {
+    // run at 30 seconds interval, process 10 report requests each time
+    const conf = config.schedules.reportRequestProcessor;
+    super(conf.schedule, log);
+    this.config = conf;
+    this.context = context;
   }
 
   spawnReportProcess = async request => {
     const [node, scriptPath] = process.argv;
     const { processOptions } = config.reportProcess;
     const parameters = processOptions || process.execArgv;
-    const { timeoutDurationSeconds, childProcessEnv } = await this.settings.get('reportProcess');
 
     log.info(
       `Spawning child process for report request "${
@@ -36,7 +39,7 @@ export class ReportRequestProcessor extends ScheduledTask {
 
     // For some reasons, when running a child process under pm2, pm2_env was not set and caused a problem.
     // So this is a work around
-    const childEnv = childProcessEnv || {
+    const childProcessEnv = config.reportProcess.childProcessEnv || {
       ...process.env,
       pm2_env: JSON.stringify(process.env),
     };
@@ -59,9 +62,8 @@ export class ReportRequestProcessor extends ScheduledTask {
         request.exportFormat,
       ],
       {
-        // time out and kill the report process if it takes more than 2 hours to run
-        timeout: timeoutDurationSeconds * 1000,
-        env: childEnv,
+        timeout: REPORT_TIME_OUT_DURATION_MILLISECONDS,
+        env: childProcessEnv,
       },
     );
 
@@ -112,28 +114,27 @@ export class ReportRequestProcessor extends ScheduledTask {
   };
 
   async runReportInTheSameProcess(request) {
-    const reportId = request.getReportId();
-    log.info(`Running report request "${request.id}" for report "${reportId}" in main process.`);
+    log.info(
+      `Running report request "${
+        request.id
+      }" for report "${request.getReportId()}" in main process.`,
+    );
     const reportRunner = new ReportRunner(
-      {
-        store: this.store,
-        emailService: this.emailService,
-        reportSchemaStores: this.reportSchemaStores,
-      },
-      {
-        reportId,
-        userId: request.requestedByUserId,
-        parameters: request.getParameters(),
-        recipients: request.getRecipients(),
-        exportFormat: request.exportFormat,
-      },
+      request.getReportId(),
+      request.getParameters(),
+      request.getRecipients(),
+      this.context.store,
+      this.context.reportSchemaStores,
+      this.context.emailService,
+      request.requestedByUserId,
+      request.exportFormat,
     );
 
     await reportRunner.run();
   }
 
   async countQueue() {
-    return this.store.models.ReportRequest.count({
+    return this.context.store.models.ReportRequest.count({
       where: {
         status: REPORT_REQUEST_STATUSES.RECEIVED,
       },
@@ -141,13 +142,13 @@ export class ReportRequestProcessor extends ScheduledTask {
   }
 
   async runReports() {
-    const limit = await this.settings.get('reportRequestProcessorLimit');
-    const requests = await this.store.models.ReportRequest.findAll({
+    const localisation = await getLocalisation();
+    const requests = await this.context.store.models.ReportRequest.findAll({
       where: {
         status: REPORT_REQUEST_STATUSES.RECEIVED,
       },
       order: [['createdAt', 'ASC']], // process in order received
-      limit,
+      limit: this.config.limit,
     });
 
     for (const request of requests) {
@@ -162,7 +163,7 @@ export class ReportRequestProcessor extends ScheduledTask {
         return;
       }
 
-      const disabledReports = this.settings.get('disabledReports');
+      const { disabledReports } = localisation;
       if (disabledReports.includes(reportId)) {
         log.error(`Report "${reportId}" is disabled`);
         await request.update({
@@ -172,7 +173,7 @@ export class ReportRequestProcessor extends ScheduledTask {
         return;
       }
 
-      const reportModule = await getReportModule(reportId, this.store.models);
+      const reportModule = await getReportModule(reportId, this.context.store.models);
       const reportDataGenerator = reportModule?.dataGenerator;
       if (!reportModule || !reportDataGenerator) {
         log.error(
@@ -211,12 +212,11 @@ export class ReportRequestProcessor extends ScheduledTask {
   }
 
   async validateTimeoutReports() {
-    const timeoutDurationSeconds = await this.settings.get('reportProcess.timeOutDurationSeconds');
     try {
-      const requests = await this.store.models.ReportRequest.findAll({
+      const requests = await this.context.store.models.ReportRequest.findAll({
         where: sequelize.literal(
           `status = '${REPORT_REQUEST_STATUSES.PROCESSING}' AND 
-          EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - process_started_time) > ${timeoutDurationSeconds}`,
+          EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - process_started_time) > ${config.reportProcess.timeOutDurationSeconds}`,
         ), // find processing report requests that have been running more than the timeout limit
         order: [['createdAt', 'ASC']], // process in order received
         limit: 10,

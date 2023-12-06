@@ -2,9 +2,8 @@ import { camelCase, lowerCase, lowerFirst, startCase, upperFirst } from 'lodash'
 import { Op } from 'sequelize';
 import { permissionCache } from '@tamanu/shared/permissions/cache';
 import { ValidationError as YupValidationError } from 'yup';
-// import config from 'config';
+import config from 'config';
 
-import { ReadSettings } from '@tamanu/settings';
 import { ForeignkeyResolutionError, UpsertionError, ValidationError } from './errors';
 import { statkey, updateStat } from './stats';
 import * as schemas from './importSchemas';
@@ -46,7 +45,7 @@ export async function importRows(
   { rows, sheetName, stats: previousStats = {}, foreignKeySchemata = {} },
 ) {
   const stats = { ...previousStats };
-  const settings = new ReadSettings(models);
+
   log.debug('Importing rows to database', { count: rows.length });
   if (rows.length === 0) {
     log.debug('Nothing to do, skipping');
@@ -151,9 +150,7 @@ export async function importRows(
         const { type } = values;
         const specificSchemaName = `SSC${type}`;
         const specificSchemaExists = !!schemas[specificSchemaName];
-        const validateQuestionEnabled = await settings.get('validateQuestionConfigs.enabled');
-
-        if (validateQuestionEnabled && specificSchemaExists) {
+        if (config.validateQuestionConfigs.enabled && specificSchemaExists) {
           schemaName = specificSchemaName;
         } else {
           schemaName = 'SurveyScreenComponent';
@@ -171,12 +168,7 @@ export async function importRows(
       validRows.push({
         model,
         sheetRow,
-        values: await schema.validate(values, {
-          abortEarly: false,
-          context: {
-            settings,
-          },
-        }),
+        values: await schema.validate(values, { abortEarly: false }),
       });
     } catch (err) {
       updateStat(stats, statkey(model, sheetName), 'errored');
@@ -199,8 +191,9 @@ export async function importRows(
     const existing = await loadExisting(Model, values);
     try {
       if (existing) {
+        await existing.update(values);
         if (values.deletedAt) {
-          if (model !== 'Permission') {
+          if (!['Permission', 'SurveyScreenComponent'].includes(model)) {
             throw new ValidationError(`Deleting ${model} via the importer is not supported`);
           }
           await existing.destroy();
@@ -210,7 +203,6 @@ export async function importRows(
             await existing.restore();
             updateStat(stats, statkey(model, sheetName), 'restored');
           }
-          await existing.update(values);
           updateStat(stats, statkey(model, sheetName), 'updated');
         }
       } else {

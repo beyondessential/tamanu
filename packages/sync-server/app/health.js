@@ -1,5 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import config from 'config';
+import { isObject } from 'lodash';
 
 import { log } from '@tamanu/shared/services/logging';
 import { createMigrationInterface } from '@tamanu/shared/services/migrations';
@@ -16,6 +18,26 @@ function uptime() {
   const uptimeS = Math.floor(uptimeMs / 1000);
   const uptimeM = uptimeS / 60;
   return `${Math.floor(uptimeM)}m${(uptimeS % 60).toFixed(0)}s`;
+}
+
+// quick utility to recurse through an object
+// (to use with sanitising the config object)
+function recurse(object, cb, prefix = '') {
+  return Object.entries(object).reduce((state, [k, v]) => {
+    if (isObject(v)) {
+      return { ...state, [k]: recurse(v, cb, `${prefix}${k}.`) };
+    }
+    return { ...state, [k]: cb(`${prefix}${k}`, v) };
+  }, {});
+}
+
+function sanitise(object) {
+  const re = /secret|key|password/i;
+  return recurse(object, (k, v) => {
+    if (!v) return v;
+    if (!k.match(re)) return v;
+    return '********';
+  });
 }
 
 async function getMigrations(sequelize) {
@@ -51,8 +73,6 @@ healthRoutes.get(
       return;
     }
 
-    const config = await req.settings.get();
-
     res.send({
       version,
       uptime: uptime(),
@@ -62,7 +82,7 @@ healthRoutes.get(
         options: req.store.sequelize.options,
         ...(await getMigrations(req.store.sequelize)),
       },
-      config,
+      config: sanitise(config),
     });
   }),
 );
@@ -70,9 +90,7 @@ healthRoutes.get(
 healthRoutes.get(
   '/canUploadAttachment',
   asyncHandler(async (req, res) => {
-    const { settings } = req;
-    const diskSettings = await settings.get('disk');
-    const canUpload = await canUploadAttachment(diskSettings);
+    const canUpload = await canUploadAttachment();
     res.send({ canUploadAttachment: canUpload });
   }),
 );

@@ -1,3 +1,4 @@
+import config from 'config';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
@@ -9,23 +10,18 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
   }
 
   constructor(context, overrideConfig = null) {
-    const { schedules, settings, store } = context;
-    const schedule = overrideConfig.schedule || schedules.automaticLabTestResultPublisher.schedule;
+    const { schedule, results } =
+      overrideConfig || config.schedules.automaticLabTestResultPublisher;
     super(schedule, log);
-    this.overrides = overrideConfig;
-    this.settings = settings;
-    this.models = store.models;
+    this.results = results;
+    this.limit = config.limit;
+    this.models = context.store.models;
     this.lastRunCount = 0;
   }
 
   async run() {
-    const { results, limit } = {
-      ...(await this.settings.get('schedules.automaticLabTestResultPublisher')),
-      ...this.overrides,
-    };
-
     // get relevant ids from config
-    const labTestIds = Object.keys(results);
+    const labTestIds = Object.keys(this.results);
 
     // get all pending lab tests with a relevant id
     const tests = await this.models.LabTest.findAll({
@@ -35,7 +31,7 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
         '$labRequest.status$': LAB_REQUEST_STATUSES.RECEPTION_PENDING,
       },
       include: ['labTestType', 'labRequest'],
-      limit,
+      limit: this.limit,
     });
 
     this.lastRunCount = tests.length;
@@ -52,7 +48,7 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
         // transaction just exists on any model, nothing specific to LabTest happening on this line
         await this.models.LabTest.sequelize.transaction(async () => {
           // get the appropriate result info for this test
-          const resultData = results[labTestType.id];
+          const resultData = this.results[labTestType.id];
 
           // update test with result + method ID
           await test.update({

@@ -1,4 +1,3 @@
-// TODO: use db fetcher config
 import _config from 'config';
 import { log } from '@tamanu/shared/services/logging';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
@@ -47,7 +46,7 @@ export class FacilitySyncManager {
 
   syncPromise = null;
 
-  reason = '';
+  reason = null;
 
   constructor({ models, sequelize, centralServer }) {
     this.models = models;
@@ -60,16 +59,15 @@ export class FacilitySyncManager {
   }
 
   async triggerSync(reason) {
-    const syncEnabled = await this.centralServer.settings.get('sync.enabled');
-    if (!syncEnabled) {
+    if (!this.constructor.config.sync.enabled) {
       log.warn('FacilitySyncManager.triggerSync: sync is disabled');
-      return;
+      return { enabled: false };
     }
 
     // if there's an existing sync, just wait for that sync run
     if (this.syncPromise) {
-      await this.syncPromise;
-      return;
+      const result = await this.syncPromise;
+      return { enabled: true, ...result };
     }
 
     // set up a common sync promise to avoid double sync
@@ -78,10 +76,11 @@ export class FacilitySyncManager {
 
     // make sure sync promise gets cleared when finished, even if there's an error
     try {
-      await this.syncPromise;
+      const result = await this.syncPromise;
+      return { enabled: true, ...result };
     } finally {
       this.syncPromise = null;
-      this.reason = '';
+      this.reason = null;
     }
   }
 
@@ -92,18 +91,32 @@ export class FacilitySyncManager {
       );
     }
 
-    log.info('FacilitySyncManager.startSession', { reason: this.reason });
+    log.info('FacilitySyncManager.attemptStart', { reason: this.reason });
+
+    const pullSince = (await this.models.LocalSystemFact.get(LAST_SUCCESSFUL_SYNC_PULL_KEY)) || -1;
+
+    // the first step of sync is to start a session and retrieve the session id
+    const {
+      status,
+      sessionId,
+      startedAtTick: newSyncClockTime,
+    } = await this.centralServer.startSyncSession({
+      urgent: this.reason?.urgent,
+      lastSyncedTick: pullSince,
+    });
+
+    if (!sessionId) {
+      // we're queued
+      log.info('FacilitySyncManager.wasQueued', { status });
+      return { queued: true, ran: false };
+    }
+
+    log.info('FacilitySyncManager.startSession');
 
     // clear previous temp data, in case last session errored out or server was restarted
     await dropAllSnapshotTables(this.sequelize);
 
     const startTime = new Date();
-
-    // the first step of sync is to start a session and retrieve the session id
-    const {
-      sessionId,
-      startedAtTick: newSyncClockTime,
-    } = await this.centralServer.startSyncSession();
 
     log.info('FacilitySyncManager.receivedSessionInfo', {
       sessionId,
@@ -122,6 +135,7 @@ export class FacilitySyncManager {
 
     // clear temp data stored for persist
     await dropSnapshotTable(this.sequelize, sessionId);
+    return { queued: false, ran: true };
   }
 
   async pushChanges(sessionId, newSyncClockTime) {
@@ -177,9 +191,7 @@ export class FacilitySyncManager {
       pullSince,
     );
 
-    if (
-      await this.centralServer.settings.get('sync.assertIfPulledRecordsUpdatedAfterPushSnapshot')
-    ) {
+    if (this.constructor.config.sync.assertIfPulledRecordsUpdatedAfterPushSnapshot) {
       await assertIfPulledRecordsUpdatedAfterPushSnapshot(
         Object.values(getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL)),
         sessionId,

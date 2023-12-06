@@ -1,3 +1,6 @@
+import config from 'config';
+import { get } from 'lodash';
+
 import {
   COMMUNICATION_STATUSES,
   PATIENT_COMMUNICATION_CHANNELS,
@@ -16,6 +19,7 @@ import {
   makeCovidVaccineCertificate,
   makeCovidCertificate,
 } from '../../utils/makePatientCertificate';
+import { getLocalisation } from '../../localisation';
 import { createVdsNcVaccinationData, VdsNcDocument } from '../../integrations/VdsNc';
 import { createEuDccVaccinationData, HCERTPack } from '../../integrations/EuDcc';
 
@@ -23,10 +27,10 @@ import { LabRequestNotificationGenerator } from './LabRequestNotificationGenerat
 
 export class CertificateNotificationProcessor extends ScheduledTask {
   constructor(context) {
-    const { schedules, settings, store } = context;
-    super(schedules.certificateNotificationProcessor.schedule, log);
-    this.settings = settings;
-    this.models = store.models;
+    const conf = config.schedules.certificateNotificationProcessor;
+    super(conf.schedule, log);
+    this.config = conf;
+    this.context = context;
     this.subtasks = [new LabRequestNotificationGenerator(context)];
   }
 
@@ -35,7 +39,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
   }
 
   async countQueue() {
-    return this.models.CertificateNotification.count({
+    return this.context.store.models.CertificateNotification.count({
       where: {
         status: CERTIFICATE_NOTIFICATION_STATUSES.QUEUED,
       },
@@ -43,18 +47,11 @@ export class CertificateNotificationProcessor extends ScheduledTask {
   }
 
   async run() {
-    const {
-      AdministeredVaccine,
-      CertificateNotification,
-      CertifiableVaccine,
-      PatientCommunication,
-      Patient,
-    } = this.models;
-
-    const limit = await this.settings.get('schedules.certificateNotificationProcessor.limit');
-    const integrations = await this.settings.get('integrations');
-    const vdsEnabled = integrations.vdsNc.enabled;
-    const euDccEnabled = integrations.euDcc.enabled;
+    const { models, sequelize } = this.context.store;
+    const { CertificateNotification, CertifiableVaccine, PatientCommunication, Patient } = models;
+    const vdsEnabled = config.integrations.vdsNc.enabled;
+    const euDccEnabled = config.integrations.euDcc.enabled;
+    const localisation = await getLocalisation();
 
     const certifiableVaccineIds = await CertifiableVaccine.allVaccineIds(euDccEnabled);
 
@@ -63,7 +60,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         status: CERTIFICATE_NOTIFICATION_STATUSES.QUEUED,
       },
       order: [['createdAt', 'ASC']], // process in order received
-      limit,
+      limit: this.config.limit,
     });
 
     let processed = 0;
@@ -77,7 +74,8 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         const printedBy = notification.get('createdBy');
         const printedDate = notification.get('printedDate');
 
-        const countryCode = await this.settings.get('country.alpha-2');
+        const { country } = await getLocalisation();
+        const countryCode = country['alpha-2'];
 
         const sublog = log.child({
           id: notification.id,
@@ -95,7 +93,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         switch (type) {
           case ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON: {
             template = 'covidVaccineCertificateEmail';
-            const latestCertifiableVax = await AdministeredVaccine.lastVaccinationForPatient(
+            const latestCertifiableVax = await models.AdministeredVaccine.lastVaccinationForPatient(
               patient.id,
               certifiableVaccineIds,
             );
@@ -113,11 +111,10 @@ export class CertificateNotificationProcessor extends ScheduledTask {
                 });
 
                 const povData = await createEuDccVaccinationData(latestCertifiableVax.id, {
-                  models: this.models,
-                  settings: this.settings,
+                  models,
                 });
 
-                qrData = await HCERTPack(povData, { models: this.models, settings: this.settings });
+                qrData = await HCERTPack(povData, { models });
               } else if (vdsEnabled) {
                 sublog.debug('Generating VDS data for proof of vaccination', {
                   vax: latestCertifiableVax.id,
@@ -125,12 +122,9 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
                 uvci = await generateUVCI(latestCertifiableVax.id, { format: 'icao', countryCode });
 
-                const povData = await createVdsNcVaccinationData(patient.id, {
-                  models: this.models,
-                  settings: this.settings,
-                });
+                const povData = await createVdsNcVaccinationData(patient.id, { models });
                 const vdsDoc = new VdsNcDocument(type, povData, uvci);
-                vdsDoc.models = this.models;
+                vdsDoc.models = models;
                 await vdsDoc.sign();
 
                 qrData = await vdsDoc.intoVDS();
@@ -143,10 +137,10 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
             sublog.info('Generating vax certificate PDF', { uvci });
             pdf = await makeCovidVaccineCertificate(
-              { models: this.models, settings: this.settings },
               patient,
               printedBy,
               printedDate,
+              models,
               uvci,
               qrData,
             );
@@ -169,10 +163,10 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
             sublog.info('Generating test certificate PDF');
             pdf = await makeCovidCertificate(
-              { models: this.models, settings: this.settings },
               CertificateTypes.test,
               patient,
               printedBy,
+              models,
               qrData,
             );
             break;
@@ -183,47 +177,45 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
             sublog.info('Generating clearance certificate PDF');
             pdf = await makeCovidCertificate(
-              { models: this.models, settings: this.settings },
               CertificateTypes.clearance,
               patient,
               printedBy,
+              models,
               qrData,
             );
             break;
 
           case VACCINATION_CERTIFICATE:
             template = 'vaccineCertificateEmail';
-            pdf = await makeVaccineCertificate(
-              { models: this.models, settings: this.settings },
-              patient,
-              printedBy,
-              printedDate,
-            );
+            pdf = await makeVaccineCertificate(patient, printedBy, printedDate, models);
             break;
 
           default:
             throw new Error(`Unknown certificate type ${type}`);
         }
-        const { subject, body } = await this.settings.get(`localisation.templates.${template}`);
 
         sublog.debug('Creating communication record');
-        // build the email notification
-        const comm = await PatientCommunication.create({
-          type: PATIENT_COMMUNICATION_TYPES.CERTIFICATE,
-          channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
-          subject,
-          content: body,
-          status: COMMUNICATION_STATUSES.QUEUED,
-          patientId,
-          destination: notification.get('forwardAddress'),
-          attachment: pdf.filePath,
-        });
-        sublog.info('Done processing certificate notification', { emailId: comm.id });
-
+        // eslint-disable-next-line no-loop-func
+        const [comm] = await sequelize.transaction(() =>
+          // queue the email to be sent and mark this notification as processed
+          Promise.all([
+            PatientCommunication.create({
+              type: PATIENT_COMMUNICATION_TYPES.CERTIFICATE,
+              channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+              subject: get(localisation, `templates.${template}.subject`),
+              content: get(localisation, `templates.${template}.body`),
+              status: COMMUNICATION_STATUSES.QUEUED,
+              patientId,
+              destination: notification.get('forwardAddress'),
+              attachment: pdf.filePath,
+            }),
+            notification.update({
+              status: CERTIFICATE_NOTIFICATION_STATUSES.PROCESSED,
+            }),
+          ]),
+        );
         processed += 1;
-        await notification.update({
-          status: CERTIFICATE_NOTIFICATION_STATUSES.PROCESSED,
-        });
+        sublog.info('Done processing certificate notification', { emailId: comm.id });
       } catch (error) {
         log.error('Failed to process certificate notification', { id: notification.id, error });
         await notification.update({

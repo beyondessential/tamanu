@@ -1,3 +1,5 @@
+import { createTestContext } from '../utilities';
+
 describe('Scheduling', () => {
   test.todo('should schedule a new appointment');
   test.todo('should cancel an appointment');

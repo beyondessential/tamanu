@@ -12,11 +12,10 @@ const maskEmail = email => email.replace(/[^@]*/g, maskMiddle);
 
 export class PatientEmailCommunicationProcessor extends ScheduledTask {
   constructor(context) {
-    const { schedules, settings, store, emailService } = context;
-    super(schedules.patientEmailCommunicationProcessor.schedule, log);
-    this.models = store.models;
-    this.settings = settings;
-    this.emailService = emailService;
+    const conf = config.schedules.patientEmailCommunicationProcessor;
+    super(conf.schedule, log);
+    this.config = conf;
+    this.context = context;
   }
 
   getName() {
@@ -24,7 +23,7 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
   }
 
   async countQueue() {
-    const { PatientCommunication } = this.models;
+    const { PatientCommunication } = this.context.store.models;
     return PatientCommunication.count({
       where: {
         status: COMMUNICATION_STATUSES.QUEUED,
@@ -34,11 +33,7 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
   }
 
   async run() {
-    const { Patient, PatientCommunication } = this.models;
-
-    const limit = await this.context.settings.get(
-      'schedules.patientEmailCommunicationProcessor.limit',
-    );
+    const { Patient, PatientCommunication } = this.context.store.models;
 
     const emailsToBeSent = await PatientCommunication.findAll({
       where: {
@@ -52,7 +47,7 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
         },
       ],
       order: [['createdAt', 'ASC']], // process in order received
-      limit,
+      limit: this.config.limit,
     });
 
     const sendEmails = emailsToBeSent.map(async email => {
@@ -69,7 +64,7 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
       });
 
       try {
-        const result = await this.emailService.sendEmail({
+        const result = await this.context.emailService.sendEmail({
           to: toAddress,
           from: config.mailgun.from,
           subject: emailPlain.subject,

@@ -1,3 +1,4 @@
+import config from 'config';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { convertISO9075toRFC3339 } from '@tamanu/shared/utils/dateTime';
 
@@ -66,13 +67,12 @@ function labTestMethodToHL7Reference(labTestMethod) {
   };
 }
 
-function labTestMethodToHL7Extension(labTestMethod, { dataDictionaries }) {
-  const { testMethod } = dataDictionaries;
+function labTestMethodToHL7Extension(labTestMethod) {
   if (!labTestMethod) {
     return [];
   }
 
-  const groupNamespace = `${testMethod}/covid-test-methods`;
+  const groupNamespace = `${config.hl7.dataDictionaries.testMethod}/covid-test-methods`;
   const testsNamespace = `${groupNamespace}/rdt`;
 
   return [
@@ -91,8 +91,7 @@ function labTestMethodToHL7Extension(labTestMethod, { dataDictionaries }) {
   ];
 }
 
-export function labTestToHL7DiagnosticReport(labTest, hl7Settings) {
-  const { labRequestDisplayId } = hl7Settings.dataDictionaries;
+export function labTestToHL7DiagnosticReport(labTest) {
   const { labTestType, labTestMethod, labRequest } = labTest;
   const { encounter, laboratory } = labRequest;
   const { patient, examiner } = encounter;
@@ -103,7 +102,7 @@ export function labTestToHL7DiagnosticReport(labTest, hl7Settings) {
     identifier: [
       {
         use: 'official',
-        system: labRequestDisplayId,
+        system: config.hl7.dataDictionaries.labRequestDisplayId,
         value: labRequest.displayId,
       },
     ],
@@ -129,7 +128,7 @@ export function labTestToHL7DiagnosticReport(labTest, hl7Settings) {
       }
       return [{ reference: `Observation/${labTest.id}` }];
     })(),
-    extension: labTestMethodToHL7Extension(labTestMethod, hl7Settings),
+    extension: labTestMethodToHL7Extension(labTestMethod),
   };
 }
 

@@ -1,3 +1,4 @@
+import config from 'config';
 import { getPatientSurveyResponseAnswer } from './getPatientSurveyResponseAnswer';
 
 /**
@@ -10,7 +11,7 @@ import { getPatientSurveyResponseAnswer } from './getPatientSurveyResponseAnswer
  * such that they write their answers to patient record fields (@see WAITM-104).
  * However in the meantime these endpoint handlers allow easy and consistent access to the data.
  */
-export async function getPatientAdditionalData({ models, settings }, patientId, fieldName) {
+export async function getPatientAdditionalData(models, patientId, fieldName) {
   const { PatientAdditionalData } = models;
 
   const patientAdditionalData = await PatientAdditionalData.findOne({
@@ -24,6 +25,6 @@ export async function getPatientAdditionalData({ models, settings }, patientId, 
     return value;
   }
 
-  const questionId = await settings?.questionCodeIds?.[fieldName];
+  const questionId = config?.questionCodeIds[fieldName];
   return getPatientSurveyResponseAnswer(models, patientId, questionId);
 }

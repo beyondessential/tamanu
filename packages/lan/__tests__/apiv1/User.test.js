@@ -152,7 +152,7 @@ describe('User', () => {
         user: pick(authUser, ['id', 'role', 'email', 'displayName']),
         localisation,
       });
-      const result = await centralServerLogin(ctx, authUser.email, rawPassword);
+      const result = await centralServerLogin(models, authUser.email, rawPassword);
       expect(result).toHaveProperty('localisation', localisation);
       const cache = await models.UserLocalisationCache.findOne({
         where: {
@@ -445,22 +445,6 @@ describe('User', () => {
       const result1Date = new Date(result1.body.updatedAt);
       const result2Date = new Date(result2.body.updatedAt);
       expect(result2Date.getTime()).toBeGreaterThan(result1Date.getTime());
-    });
-
-    it('should delete user preference if the user is deleted', async () => {
-      const { User, UserPreference } = models;
-      await User.destroy({
-        where: {
-          id: user.id,
-        },
-      });
-      const userPreference = await UserPreference.findOne({
-        where: {
-          userId: user.id,
-        },
-      });
-
-      expect(userPreference).toBe(null);
     });
   });
 });

@@ -1,3 +1,5 @@
+import config from 'config';
+
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
@@ -46,10 +48,12 @@ const transformLabRequest = async (models, labRequest, testTypeWhitelist) => {
 labResultWidgetRoutes.get(
   '/:displayId',
   asyncHandler(async (req, res) => {
-    const { params, settings } = req;
+    const { params } = req;
     const { displayId } = params;
     const { models } = req.store;
-    const { testTypeWhitelist, categoryWhitelist } = await settings.get('labResultWidget');
+    // TODO: don't load localisation from config like this
+    // either use the getLocalisation helper and put values under the data key, or put them somewhere else in the config
+    const { testTypeWhitelist, categoryWhitelist } = config.localisation.labResultWidget;
     const labRequests = await models.LabRequest.findAll({
       where: {
         display_id: displayId,

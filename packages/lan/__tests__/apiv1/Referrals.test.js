@@ -1,3 +1,4 @@
+import config from 'config';
 import { createDummyPatient, createDummyEncounter } from '@tamanu/shared/demoData';
 import { findOneOrCreate, chance } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
@@ -66,15 +67,12 @@ describe('Referrals', () => {
   let encounter = null;
   let testProgram = null;
   let testSurvey = null;
-  let defaultCodes = null;
   const answers = {};
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    console.log({ ctx });
     baseApp = ctx.baseApp;
     models = ctx.models;
-    defaultCodes = await ctx.settings.get('survey.defaultCodes');
     app = await baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
     encounter = await models.Encounter.create({
@@ -123,9 +121,8 @@ describe('Referrals', () => {
   });
 
   it('should use the default department if one is not provided', async () => {
-    const department = await findOneOrCreate(ctx.models, ctx.models.Department, {
-      code: defaultCodes.department,
-    });
+    const { department: departmentCode } = config.survey.defaultCodes;
+    const department = await findOneOrCreate(ctx.models, ctx.models.Department, { code: departmentCode });
 
     const { locationId } = encounter;
     const result = await app.post('/v1/referral').send({
@@ -145,9 +142,8 @@ describe('Referrals', () => {
   });
 
   it('should use the default location if one is not provided', async () => {
-    const location = await findOneOrCreate(ctx.models, ctx.models.Location, {
-      code: defaultCodes.location,
-    });
+    const { location: locationCode } = config.survey.defaultCodes;
+    const location = await findOneOrCreate(ctx.models, ctx.models.Location, { code: locationCode });
 
     const { departmentId } = encounter;
     const result = await app.post('/v1/referral').send({

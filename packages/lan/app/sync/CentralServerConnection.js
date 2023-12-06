@@ -44,10 +44,11 @@ export class CentralServerConnection {
   // test mocks don't always apply properly - this ensures the mock will be used
   fetchImplementation = fetch;
 
-  constructor(ctx, { host = '' }) {
-    this.host = host.trim().replace(/\/*$/, '');
-    this.deviceId = ctx?.deviceId;
-    this.settings = ctx?.settings;
+  constructor({ deviceId }) {
+    this.host = config.sync.host.trim().replace(/\/*$/, '');
+    this.timeout = config.sync.timeout;
+    this.batchSize = config.sync.channelBatchSize;
+    this.deviceId = deviceId;
   }
 
   async fetch(endpoint, params = {}) {
@@ -57,7 +58,7 @@ export class CentralServerConnection {
       method = 'GET',
       retryAuth = true,
       awaitConnection = true,
-      backoff: backoffParams,
+      backoff,
       ...otherParams
     } = params;
 
@@ -80,13 +81,9 @@ export class CentralServerConnection {
     const url = `${this.host}/${API_VERSION}/${endpoint}`;
     log.debug(`[sync] ${method} ${url}`);
 
-    const { backoff, timeout } = await this.settings.get('sync');
-    const requestFailureRate = await this.settings.get('debugging.requestFailureRate');
-    const backoffSettings = backoffParams || backoff;
-
     return callWithBackoff(async () => {
-      if (requestFailureRate) {
-        if (Math.random() < requestFailureRate) {
+      if (config.debugging.requestFailureRate) {
+        if (Math.random() < config.debugging.requestFailureRate) {
           // intended to cause some % of requests to fail, to simulate a flaky connection
           throw new Error('Chaos: made your request fail');
         }
@@ -105,7 +102,7 @@ export class CentralServerConnection {
               ...headers,
             },
             body: body && JSON.stringify(body),
-            timeout,
+            timeout: this.timeout,
             ...otherParams,
           },
           this.fetchImplementation,
@@ -155,7 +152,7 @@ export class CentralServerConnection {
         }
         throw e;
       }
-    }, backoffSettings);
+    }, backoff);
   }
 
   async pollUntilTrue(endpoint) {
@@ -216,14 +213,21 @@ export class CentralServerConnection {
     }
   }
 
-  async startSyncSession() {
-    const { sessionId } = await this.fetch('sync', {
+  async startSyncSession({ urgent, lastSyncedTick }) {
+    const { sessionId, status } = await this.fetch('sync', {
       method: 'POST',
       body: {
         facilityId: config.serverFacilityId,
         deviceId: this.deviceId,
+        urgent,
+        lastSyncedTick,
       },
     });
+
+    if (!sessionId) {
+      // we're waiting in a queue
+      return { status };
+    }
 
     // then, poll the sync/:sessionId/ready endpoint until we get a valid response
     // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked

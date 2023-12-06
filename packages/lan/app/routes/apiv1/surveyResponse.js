@@ -89,16 +89,14 @@ surveyResponse.get(
 surveyResponse.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, body, db, settings } = req;
+    const { models, body, db } = req;
 
     // Responses for the vitals survey will check against 'Vitals' create permissions
     // All others witll check against 'SurveyResponse' create permissions
     const noun = await models.Survey.getResponsePermissionCheck(body.surveyId);
     req.checkPermission('create', noun);
 
-    const defaultCodes = await settings.get('survey.defaultCodes');
-
-    const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type, defaultCodes);
+    const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type);
     const updatedBody = {
       locationId: body.locationId || (await getDefaultId('location')),
       departmentId: body.departmentId || (await getDefaultId('department')),

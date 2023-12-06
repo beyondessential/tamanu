@@ -32,6 +32,8 @@ patientProfilePicture.get(
           WHERE
             encounters.patient_id = :patientId
             AND program_data_elements.code = :photoCode
+          ORDER BY 
+            survey_responses.created_at DESC
         LIMIT 1
       `,
       {
@@ -52,7 +54,7 @@ patientProfilePicture.get(
     const attachmentId = result[0].body;
 
     // load the attachment from the central server
-    const centralServer = new CentralServerConnection({ deviceId }, await req.settings.get('sync'));
+    const centralServer = new CentralServerConnection({ deviceId });
     const response = await centralServer.fetch(`attachment/${attachmentId}?base64=true`, {
       method: 'GET',
     });
