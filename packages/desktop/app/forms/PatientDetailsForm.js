@@ -36,6 +36,7 @@ import {
 } from '../components/ConfiguredMandatoryPatientFields';
 import { Button } from '../components/Button';
 import ReminderContactModal from '../components/ReminderContactModal';
+import { useAuth } from '../contexts/Auth';
 
 const StyledHeading = styled.div`
   display: flex;
@@ -67,6 +68,9 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
   const villageSuggester = useSuggester('village');
   const { getLocalisation } = useLocalisation();
   let filteredSexOptions = sexOptions;
+  const { ability } = useAuth();
+  const showReminderContacts = ability.can('read', 'Patient');
+
   if (getLocalisation('features.hideOtherSex') === true) {
     filteredSexOptions = filteredSexOptions.filter(s => s.value !== 'other');
   }
@@ -82,16 +86,18 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
     <>
       <StyledHeading>
         <StyledHeadingText>General information</StyledHeadingText>
-        <Button
-          variant="outlined"
-          color="primary"
-          size="small"
-          style={{ padding: '11px 10px' }}
-          onClick={onClickModal}
-        >
-          <NotificationsNoneIcon />
-          Reminder Contacts
-        </Button>
+        {showReminderContacts && (
+          <Button
+            variant="outlined"
+            color="primary"
+            size="small"
+            style={{ padding: '11px 10px' }}
+            onClick={onClickModal}
+          >
+            <NotificationsNoneIcon />
+            Reminder Contacts
+          </Button>
+        )}
       </StyledHeading>
       <ReminderContactModal openModal={openModal} setOpenModal={setOpenModal} values={values} />
 
