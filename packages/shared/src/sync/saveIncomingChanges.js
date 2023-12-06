@@ -8,7 +8,7 @@ import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
 import { SYNC_SESSION_DIRECTION } from './constants';
 import { saveCreates, saveDeletes, saveRestores, saveUpdates } from './saveChanges';
 
-const saveChangesForModel = async (
+export const saveChangesForModel = async (
   model,
   changes,
   isCentralServer,

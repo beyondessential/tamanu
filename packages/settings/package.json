@@ -31,11 +31,11 @@
     "@types/node": "^18.14.6",
     "@typescript-eslint/eslint-plugin": "^5.54.0",
     "@typescript-eslint/parser": "^5.54.0",
+    "@tamanu/constants": "*",
     "eslint": "^8.35.0",
     "jest": "^29.4.3"
   },
   "dependencies": {
-    "@tamanu/constants": "*",
     "@types/lodash": "^4.14.197",
     "lodash": "^4.17.21"
   }

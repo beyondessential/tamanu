@@ -33,7 +33,7 @@ export const globalDefaults = {
     tableAutoRefresh: {
       enabled: false,
       // In Seconds
-      interval: 300
+      interval: 300,
     },
   },
   imagingTypes: {
