@@ -19,6 +19,7 @@ import {
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { usePatientSearch, PatientSearchKeys } from '../../contexts/PatientSearch';
 import { columns } from './bedManagementColumns';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const DashboardContainer = styled.div`
   display: flex;
@@ -138,9 +139,24 @@ const DetailedDashboardItem = ({ api }) => {
           />
         </div>
         <DetailedDashboardItemSection>
-          <DetailedDashboardItemText>No. of locations available</DetailedDashboardItemText>
-          <DetailedDashboardItemText>No. of locations reserved</DetailedDashboardItemText>
-          <DetailedDashboardItemText>No. of locations occupied</DetailedDashboardItemText>
+          <DetailedDashboardItemText>
+            <TranslatedText
+              stringId="facilityAdmin.bedManagement.dashboard.detailedItem.locationsAvailable.description"
+              fallback="No. of locations available"
+            />
+          </DetailedDashboardItemText>
+          <DetailedDashboardItemText>
+            <TranslatedText
+              stringId="facilityAdmin.bedManagement.dashboard.detailedItem.locationsReserved.description"
+              fallback="No. of locations reserved"
+            />
+          </DetailedDashboardItemText>
+          <DetailedDashboardItemText>
+            <TranslatedText
+              stringId="facilityAdmin.bedManagement.dashboard.detailedItem.locationsOccupied.description"
+              fallback="No. of locations occupied"
+            />
+          </DetailedDashboardItemText>
         </DetailedDashboardItemSection>
       </DetailedDashboardItemTextContainer>
     </DetailedDashboardItemContainer>
@@ -210,38 +226,68 @@ export const BedManagement = () => {
 
   return (
     <PageContainer>
-      <TopBar title="Bed management" subTitle={facility.name} />
+      <TopBar
+        title={
+          <TranslatedText stringId="facilityAdmin.bedManagement.title" fallback="Bed management" />
+        }
+        subTitle={facility.name}
+      />
       <ContentPane>
         <DashboardContainer>
           <DashboardItemListContainer>
             <DashboardItem
               title={totalCurrentPatientsCount || 0}
               loading={totalCurrentPatientsCountLoading}
-              description={`Total current\npatients`}
+              description={
+                <TranslatedText
+                  stringId="facilityAdmin.bedManagement.dashboard.item.currentPatients.description"
+                  fallback="Total current\npatients"
+                />
+              }
             />
             <DashboardItem
               color={Colors.green}
               title={currentInpatientsCount || 0}
               loading={currentInpatientsCountLoading}
-              description={`Current inpatient\nadmissions`}
+              description={
+                <TranslatedText
+                  stringId="facilityAdmin.bedManagement.dashboard.item.currentInpatients.description"
+                  fallback="Current inpatient\nadmissions"
+                />
+              }
             />
             <DashboardItem
               color={Colors.purple}
               title={`${Math.round((alos || 0) * 10) / 10} days`}
               loading={alosLoading}
-              description={`Average length of\nstay (last 30 days)`}
+              description={
+                <TranslatedText
+                  stringId="facilityAdmin.bedManagement.dashboard.item.averageStayDuration.description"
+                  fallback="Average length of\nstay (last 30 days)"
+                />
+              }
             />
             <DashboardItem
               color={Colors.pink}
               title={`${Math.round((currentOccupancy || 0) * 10) / 10}%`}
               loading={currentOccupancyLoading}
-              description={`Current\noccupancy`}
+              description={
+                <TranslatedText
+                  stringId="facilityAdmin.bedManagement.dashboard.item.currentOccupancy.description"
+                  fallback="Current\noccupancy"
+                />
+              }
             />
             <DashboardItem
               color={Colors.metallicYellow}
               title={readmissionsCount || 0}
               loading={readmissionsCountLoading}
-              description={`Readmission in\nlast 30 days`}
+              description={
+                <TranslatedText
+                  stringId="facilityAdmin.bedManagement.dashboard.item.readmission.description"
+                  fallback="Readmission in\nlast 30 days"
+                />
+              }
             />
           </DashboardItemListContainer>
           <DetailedDashboardItem api={api} />
@@ -254,7 +300,12 @@ export const BedManagement = () => {
         />
         <SearchTable
           columns={columns}
-          noDataMessage="No locations found"
+          noDataMessage={
+            <TranslatedText
+              stringId="facilityAdmin.bedManagement.table.noData"
+              fallback="No locations found"
+            />
+          }
           onRowClick={handleViewPatient}
           rowStyle={rowStyle}
           fetchOptions={searchParameters}
