@@ -33,7 +33,7 @@ export const TranslatedText = ({ stringId, fallback, replacements }) => {
   const [isDebugMode, setIsDebugMode] = useState(false);
   // "setTranslation" is used in future functionality
   // eslint-disable-next-line no-unused-vars
-  const [translation, setTranslation] = useState(fallback);
+  const [translation, setTranslation] = useState(fallback?.split('\\n').join('\n'));
   const [displayElements, setDisplayElements] = useState(fallback);
 
   useEffect(() => {
