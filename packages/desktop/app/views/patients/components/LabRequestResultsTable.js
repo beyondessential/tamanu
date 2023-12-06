@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { DataFetchingTable } from '../../../components';
 
 import { getCompletedDate, getMethod } from '../../../utils/lab';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   table tbody tr:last-child td {
@@ -28,27 +29,51 @@ const makeRangeStringAccessor = sex => ({ labTestType }) => {
 };
 
 const columns = sex => [
-  { title: 'Test type', key: 'labTestType.name', accessor: row => row.labTestType.name },
   {
-    title: 'Result',
+    title: <TranslatedText stringId="labRequest.table.column.testType" fallback="Test type" />,
+    key: 'labTestType.name',
+    accessor: row => row.labTestType.name,
+  },
+  {
+    title: <TranslatedText stringId="labRequest.table.column.result" fallback="Result" />,
     key: 'result',
     accessor: ({ result }) => result ?? '',
   },
   {
-    title: 'Units',
+    title: <TranslatedText stringId="labRequest.table.column.unit" fallback="Units" />,
     key: 'labTestType.unit',
     accessor: ({ labTestType }) => labTestType?.unit || 'N/A',
   },
   {
-    title: 'Reference',
+    title: <TranslatedText stringId="labRequest.table.column.reference" fallback="Reference" />,
     key: 'reference',
     accessor: makeRangeStringAccessor(sex),
     sortable: false,
   },
-  { title: 'Method', key: 'labTestMethod', accessor: getMethod, sortable: false },
-  { title: 'Lab officer', key: 'laboratoryOfficer' },
-  { title: 'Verification', key: 'verification' },
-  { title: 'Completed', key: 'completedDate', accessor: getCompletedDate, sortable: false },
+  {
+    title: <TranslatedText stringId="labRequest.table.column.method" fallback="Method" />,
+    key: 'labTestMethod',
+    accessor: getMethod,
+    sortable: false,
+  },
+  {
+    title: (
+      <TranslatedText stringId="labRequest.table.column.laboratoryOffier" fallback="Lab officer" />
+    ),
+    key: 'laboratoryOfficer',
+  },
+  {
+    title: (
+      <TranslatedText stringId="labRequest.table.column.verification" fallback="Verification" />
+    ),
+    key: 'verification',
+  },
+  {
+    title: <TranslatedText stringId="labRequest.table.column.completedDate" fallback="Completed" />,
+    key: 'completedDate',
+    accessor: getCompletedDate,
+    sortable: false,
+  },
 ];
 
 export const LabRequestResultsTable = React.memo(({ labRequest, patient, refreshCount }) => {
