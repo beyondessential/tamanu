@@ -1,3 +1,3 @@
-const { SWC } = require('../../common.jest.config');
+const { BASE } = require('../../common.jest.config');
 
-module.exports = SWC;
+module.exports = BASE;

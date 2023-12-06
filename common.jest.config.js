@@ -11,24 +11,10 @@ const BASE = {
   workerIdleMemoryLimit: '512MB',
 
   showSeed: true, // helps to reproduce order-dependence bugs
-
-  moduleNameMapper: {
-    '^shared(/.+)?$': '@tamanu/shared$1',
-  },
-};
-
-const BABEL = {
-  ...BASE,
-  transform: {
-    '^.+\\.js$': '<rootDir>/jest.babel.js',
-  },
-};
-
-const SWC = {
-  ...BASE,
+  
   transform: {
     '^.+\\.js$': ['@swc/jest'],
   },
 };
 
-module.exports = { BABEL, SWC };
+module.exports = { BASE };

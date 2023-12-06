@@ -9,7 +9,7 @@
 | [sync-server](packages/sync-server) | [sync-server runbook](https://beyond-essential.slab.com/posts/tamanu-sync-server-runbook-et0trny5) | The central server, which facility server and mobile client instances communicate with to synchronise data |
 | [lan](packages/lan) | [lan runbook](https://beyond-essential.slab.com/posts/todo-tamanu-lan-runbook-ezljl0qk) | The facility server, which the app communicates with |
 | [meta-server](packages/meta-server) | [meta-server runbook](https://beyond-essential.slab.com/posts/todo-tamanu-meta-server-runbook-0zbgw7m7) | The metadata server, which serves information about app versions and known sync-server installations |
-| [desktop](packages/desktop) | [desktop runbook](https://beyond-essential.slab.com/posts/todo-tamanu-desktop-runbook-i2bmy57c) | The main Electron app |
+| [desktop](packages/desktop) | [desktop runbook](https://beyond-essential.slab.com/posts/todo-tamanu-desktop-runbook-i2bmy57c) | The webapp |
 | [mobile](packages/mobile) | [mobile runbook](https://beyond-essential.slab.com/posts/todo-tamanu-mobile-runbook-8vj8qceu) | The mobile app  |
 | [@tamanu/shared](packages/shared) | N/A | Shared code monolith among Tamanu components |
 | [@tamanu/build-tooling](packages/build-tooling) | N/A | Shared build tooling code |
@@ -18,7 +18,7 @@
 The latest version for each Tamanu service (Servers, Desktop Client & Mobile Client) can be retrieved with a HTTP GET request via their respective public API routes:
 
 - Facility server: https://meta.tamanu.io/version/lan
-- Desktop client: https://meta.tamanu.io/version/desktop
+- Webapp client: https://meta.tamanu.io/version/desktop
 - Mobile client: https://meta.tamanu.io/version/mobile
 
 ## Install
