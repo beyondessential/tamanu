@@ -291,8 +291,18 @@ const DischargeFormScreen = props => {
 const DischargeSummaryScreen = ({ onStepBack, submitForm, onCancel }) => (
   <div className="ConfirmContent">
     <ConfirmContent>
-      <h3>Confirm patient discharge</h3>
-      <p>Are you sure you want to discharge the patient? This action is irreversible.</p>
+      <h3>
+        <TranslatedText
+          stringId="discharge.modal.confirm.heading"
+          fallback="Confirm patient discharge"
+        />
+      </h3>
+      <p>
+        <TranslatedText
+          stringId="discharge.modal.confirm.subText"
+          fallback="Are you sure you want to discharge the patient? This action is irreversible."
+        />
+      </p>
     </ConfirmContent>
     <Divider />
     <FormConfirmCancelBackRow onBack={onStepBack} onConfirm={submitForm} onCancel={onCancel} />
@@ -368,7 +378,7 @@ export const DischargeForm = ({
           label={
             <TranslatedText
               stringId="discharge.form.dischargeDate.label"
-              fallback="Discharge Date"
+              fallback="Discharge date"
             />
           }
           component={DateTimeField}
