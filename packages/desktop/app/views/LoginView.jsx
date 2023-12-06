@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Paper from '@material-ui/core/Paper';
 import { push } from 'connected-react-router';
+import { Launch } from '@material-ui/icons';
 
 import { TamanuLogo } from '../components';
-import { LOCAL_STORAGE_KEYS } from '../constants';
+import { LOCAL_STORAGE_KEYS, Colors } from '../constants';
 import { splashImages } from '../constants/images';
 
 import { LoginForm } from '../forms/LoginForm';
@@ -22,6 +23,8 @@ import { useApi } from '../api';
 
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
 
+import { useLocalisation } from '../contexts/Localisation';
+
 const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
 
 const Grid = styled.div`
@@ -35,12 +38,32 @@ const Grid = styled.div`
 `;
 
 const LoginContainer = styled(Paper)`
+  position: relative;
   padding: 30px 60px 70px 60px;
   width: 480px;
 `;
 
 const LogoContainer = styled.div`
   text-align: center;
+`;
+
+const SupportDesktopLink = styled.a`
+  position: absolute;
+  bottom: 17px;
+  right: 28px;
+  margin-top: 4px;
+  font-weight: 400;
+  font-size: 9px;
+  line-height: 15px;
+  text-decoration: underline;
+  color: ${Colors.darkestText};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    font-weight: bold;
+  }
 `;
 
 export const LoginView = () => {
@@ -52,10 +75,14 @@ export const LoginView = () => {
   const resetPasswordEmail = useSelector(state => state.auth.resetPassword.lastEmailUsed);
   const changePasswordError = useSelector(state => state.auth.changePassword.error);
   const changePasswordSuccess = useSelector(state => state.auth.changePassword.success);
+  const { getLocalisation } = useLocalisation();
 
   const rememberEmail = localStorage.getItem(REMEMBER_EMAIL);
 
   const [screen, setScreen] = useState('login');
+
+  const supportUrl = getLocalisation('supportDeskUrl');
+  const isSupportUrlLoaded = !!supportUrl;
 
   const submitLogin = async data => {
     const { email, password, rememberMe } = data;
@@ -113,6 +140,12 @@ export const LoginView = () => {
             onNavToLogin={() => setScreen('login')}
             onNavToResetPassword={() => setScreen('resetPassword')}
           />
+        )}
+        {isSupportUrlLoaded && (
+          <SupportDesktopLink href={supportUrl} target="_blank" rel="noreferrer">
+            Support centre
+            <Launch style={{ marginLeft: '3px', fontSize: '12px' }} />
+          </SupportDesktopLink>
         )}
       </LoginContainer>
     </Grid>
