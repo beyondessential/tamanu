@@ -31,6 +31,7 @@ describe('Worker Jobs', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
+    await models.Setting.set('fhir.worker.heartbeat', 400);
   });
 
   afterAll(() => ctx.close());

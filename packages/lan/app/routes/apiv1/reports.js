@@ -28,8 +28,8 @@ reports.post(
       body: { parameters = {} },
       user,
       params,
+      settings,
       db,
-      getLocalisation,
       models,
       reportSchemaStores,
     } = req;
@@ -38,9 +38,7 @@ reports.post(
       userId: user.id,
       reportId,
     });
-    const localisation = await getLocalisation();
-
-    assertReportEnabled(localisation, reportId);
+    await assertReportEnabled(settings, reportId);
 
     const reportModule = await reportUtils.getReportModule(reportId, models);
 

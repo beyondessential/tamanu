@@ -40,8 +40,8 @@
   },
   "integrations": {
     "fijiVrs": {
-      "password": "",
-      "username": ""
+      "password": null,
+      "username": null
     },
     "omnilab": {
       "secret": null

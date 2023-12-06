@@ -12,7 +12,7 @@ changePassword.post(
 
     const { models, deviceId } = req;
 
-    const centralServer = new CentralServerConnection({ deviceId });
+    const centralServer = new CentralServerConnection({ deviceId }, await req.settings.get('sync'));
     const response = await centralServer.forwardRequest(req, 'changePassword');
 
     // If sync server successful, update password on lan server too

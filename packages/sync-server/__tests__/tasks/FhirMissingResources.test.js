@@ -14,6 +14,11 @@ describe('FhirMissingResources task', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
+    ctx.schedules = {
+      fhirMissingResources: {
+        schedule: '',
+      },
+    };
     const { FhirEncounter, FhirPractitioner } = ctx.store.models;
 
     fhirMissingResourcesWorker = new FhirMissingResources(ctx);
@@ -30,9 +35,7 @@ describe('FhirMissingResources task', () => {
     await ImagingRequest.destroy({ where: {} });
   });
 
-  afterAll(() => {
-    ctx.close();
-  });
+  afterAll(() => ctx.close());
 
   it('should create one FHIR fromUpstream job if a FHIR resource is missing', async () => {
     const { FhirServiceRequest, FhirJob } = ctx.store.models;

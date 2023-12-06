@@ -32,6 +32,5 @@
     "eslint": "^8.35.0",
     "jest": "^29.4.3"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }
