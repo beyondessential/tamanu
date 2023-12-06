@@ -1,10 +1,12 @@
+import { readFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import { parse } from 'semver';
 import { buildVersionCompatibilityCheck } from '@tamanu/shared/utils';
 import { InvalidClientHeadersError } from '@tamanu/shared/errors';
 
-// only works via webpack, not direct nodejs
-import pkgjson from '../../package.json';
-
+const pkgpath = join(dirname(fileURLToPath(import.meta.url)), '../../package.json');
+const pkgjson = JSON.parse(readFileSync(pkgpath, 'utf8'));
 const { major, minor } = parse(pkgjson.version);
 
 // In general, all versions in the current minor version should be compatible with each other.

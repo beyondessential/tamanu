@@ -61,8 +61,6 @@
       "packages/constants"
     ],
     "nohoist": [
-      "**/webpack",
-      "**/webpack/**",
       "**/fbjs-scripts",
       "**/fbjs-scripts/**",
       "**/config",
@@ -81,7 +79,6 @@
     "yarn": "^1.22.18"
   },
   "dependencies": {
-    "babel-eslint": "^10.0.1",
     "concurrently": "^5.2.0",
     "config": "^3.3.9",
     "pm2": "^4.5.0"
