@@ -1,37 +1,20 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Tooltip } from '@material-ui/core';
-import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { ThemedTooltip } from '../../components/Tooltip';
-import { capitaliseFirstLetter } from '../../utils/capitalise';
+import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
 
 const Spacer = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   width: 100%;
+  align-items: flex-start;
 `;
 const RowContents = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: start;
-  width: 60%;
-  align-items: center;
-`;
-const StatusActiveDot = styled.div`
-  background-color: green;
-  height: 7px;
-  width: 7px;
-  border-radius: 7px;
-  margin: 0px 5px;
-`;
-const StatusInactiveDot = styled.div`
-  background-color: lightGray;
-  height: 7px;
-  width: 7px;
-  border-radius: 7px;
-  margin: 0px 5px;
+  align-items: baseline;
 `;
 const NameContainer = styled.span`
   font-size: 14px;
@@ -42,27 +25,20 @@ const NameContainer = styled.span`
 `;
 
 export const ProgramRegistryListItem = ({ item, ListItem }) => {
-  const { programRegistry, registrationStatus, clinicalStatus } = item;
+  const { programRegistry, clinicalStatus } = item;
   const { navigateToProgramRegistry } = usePatientNavigation();
   return (
     <ListItem
       onClick={() => {
-        navigateToProgramRegistry(programRegistry.id, programRegistry.name);
+        navigateToProgramRegistry(programRegistry.id, programRegistry?.name);
       }}
     >
       <Spacer>
-        <RowContents>
-          <ThemedTooltip title={capitaliseFirstLetter(registrationStatus)}>
-            {registrationStatus === REGISTRATION_STATUSES.ACTIVE ? (
-              <StatusActiveDot />
-            ) : (
-              <StatusInactiveDot />
-            )}
-          </ThemedTooltip>
-
-          <NameContainer>{programRegistry.name}</NameContainer>
+        <RowContents style={{ width: '60%' }}>
+          <RegistrationStatusIndicator patientProgramRegistration={item} hideText />
+          <NameContainer style={{ width: '90%' }}>{programRegistry?.name}</NameContainer>
         </RowContents>
-        <NameContainer>{clinicalStatus.name}</NameContainer>
+        <NameContainer style={{ width: '38%' }}>{clinicalStatus?.name}</NameContainer>
       </Spacer>
     </ListItem>
   );

@@ -18,10 +18,13 @@ import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api/useApi';
+import { useSelector } from 'react-redux';
+import { Divider } from '@material-ui/core';
 
-export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, patient }) => {
+export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const api = useApi();
   const { currentUser, facility } = useAuth();
+  const patient = useSelector(state => state.patient);
   const [selectedProgramRegistryId, setSelectedProgramRegistryId] = useState();
 
   const { data: program } = useQuery(['programRegistry', selectedProgramRegistryId], () =>
@@ -47,6 +50,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
 
   return (
     <Form
+      showInlineErrorsOnly
       onSubmit={data => {
         onSubmit({
           ...data,
@@ -106,6 +110,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
                   name="registeringFacilityId"
                   label="Registering facility"
                   placeholder="Select"
+                  required
                   component={AutocompleteField}
                   suggester={registeringFacilitySuggester}
                 />
@@ -130,7 +135,12 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
                   disabled={!conditions}
                 />
               </FormGrid>
-
+              <Divider
+                style={{
+                  gridColumn: '1 / -1',
+                  marginTop: '10px',
+                }}
+              />
               <ConfirmCancelRow
                 onCancel={handleCancel}
                 onConfirm={submitForm}
@@ -147,12 +157,11 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject, p
         ...editedObject,
       }}
       validationSchema={yup.object().shape({
-        programRegistryId: foreignKey('Program Registry must be selected'),
-        clinicalStatusId: optionalForeignKey(),
+        programRegistryId: foreignKey('Program registry must be selected'),
+        clinicalStatusId: optionalForeignKey().nullable(),
         date: yup.date(),
-        registeringFacilityId: optionalForeignKey(),
         clinicianId: foreignKey('Registered by must be selected'),
-        // conditionIds: yup.array().of(yup.string()),
+        registeringFacilityId: foreignKey('Registering facility must be selected'),
       })}
     />
   );

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { Colors } from '../../constants';
@@ -52,10 +52,13 @@ export const PatientProgramRegistryView = () => {
   if (isError) return <p>Program registry &apos;{title || 'Unknown'}&apos; not found.</p>;
 
   return (
-    <>
+    <Fragment key={data.id}>
       <ViewHeader>
         <h1>{data.programRegistry.name}</h1>
-        <RegistrationStatusIndicator patientProgramRegistration={data} />
+        <RegistrationStatusIndicator
+          style={{ height: '10px', width: '10px' }}
+          patientProgramRegistration={data}
+        />
       </ViewHeader>
       <Container>
         <Row>
@@ -73,6 +76,6 @@ export const PatientProgramRegistryView = () => {
           <PatientProgramRegistryFormHistory patientProgramRegistration={data} />
         </Row>
       </Container>
-    </>
+    </Fragment>
   );
 };

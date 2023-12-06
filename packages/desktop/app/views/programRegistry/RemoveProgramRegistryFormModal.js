@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Modal, ConfirmCancelRow, DateDisplay, FormSeparatorLine } from '../../components';
 import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants';
 import { useApi } from '../../api';
+import { PROGRAM_REGISTRY } from '../../components/PatientInfoPane/paneTitles';
 
 const WarningDiv = styled.div`
   display: flex;
@@ -66,12 +67,12 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
       { ...rest, registrationStatus: PROGRAM_REGISTRATION_STATUSES.REMOVED },
     );
 
-    queryClient.invalidateQueries([`infoPaneListItem-Program Registry`]);
+    queryClient.invalidateQueries([`infoPaneListItem-${PROGRAM_REGISTRY}`]);
     onClose();
   };
 
   return (
-    <Modal width={'md'} title="Remove patient" open={open} onClose={onClose}>
+    <Modal width="md" title="Remove patient" open={open} onClose={onClose}>
       {/* <div> */}
       <WarningDiv>
         <p>
@@ -84,7 +85,7 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
         <InfoColumn>
           <Info>
             <Label>Program registry</Label>
-            <Value>{patientProgramRegistration.programRegistry.name || '-'}</Value>
+            <Value>{patientProgramRegistration.programRegistry?.name || '-'}</Value>
           </Info>
           <Info>
             <Label>Registered by</Label>
@@ -92,7 +93,7 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
           </Info>
           <Info>
             <Label>Status</Label>
-            <Value>{patientProgramRegistration.clinicalStatus.name || '-'}</Value>
+            <Value>{patientProgramRegistration.clinicalStatus?.name || '-'}</Value>
           </Info>
         </InfoColumn>
         <FormSeparatorVerticalLine />
@@ -107,8 +108,8 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
             <Label>Registering facility</Label>
             <Value>
               {(patientProgramRegistration.registeringFacility
-                ? patientProgramRegistration.registeringFacility.name
-                : patientProgramRegistration.facility.name) || '-'}
+                ? patientProgramRegistration.registeringFacility?.name
+                : patientProgramRegistration.facility?.name) || '-'}
             </Value>
           </Info>
         </InfoColumn>

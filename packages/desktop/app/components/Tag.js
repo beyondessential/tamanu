@@ -6,7 +6,7 @@ const DEFAULTS = {
 };
 
 const BaseTag = styled.div`
-  position: ${({ $position }) => ($position ? $position : 'relative')};
+  position: ${({ $position }) => $position || 'relative'};
   display: inline-block;
   background: ${({ $background, $color }) => {
     if ($background) {

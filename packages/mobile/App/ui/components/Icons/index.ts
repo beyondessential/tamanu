@@ -40,6 +40,7 @@ export * from './User';
 export * from './CheckboxMark';
 export * from './FilterIcon';
 export * from './Kebab';
+export * from './Launch';
 
 //Visit Types
 export * from './FirstAidKit';

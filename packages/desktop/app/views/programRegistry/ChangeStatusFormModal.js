@@ -13,6 +13,7 @@ import {
 } from '../../components';
 import { useApi, useSuggester } from '../../api';
 import { foreignKey } from '../../utils/validation';
+import { PROGRAM_REGISTRY } from '../../components/PatientInfoPane/paneTitles';
 
 const StyledFormGrid = styled(FormGrid)`
   grid-column: 1 / -1;
@@ -25,11 +26,12 @@ const StyledFormGrid = styled(FormGrid)`
 export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, open }) => {
   const api = useApi();
   const queryClient = useQueryClient();
-  if (!patientProgramRegistration) return <></>;
 
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
     baseQueryParameters: { programRegistryId: patientProgramRegistration.programRegistryId },
   });
+
+  if (!patientProgramRegistration) return <></>;
 
   const changeStatus = async changedStatus => {
     const { id, date, ...rest } = patientProgramRegistration;
@@ -38,13 +40,15 @@ export const ChangeStatusFormModal = ({ patientProgramRegistration, onClose, ope
       { ...rest, ...changedStatus },
     );
 
-    queryClient.invalidateQueries([`infoPaneListItem-Program Registry`]);
+    queryClient.invalidateQueries([`infoPaneListItem-${PROGRAM_REGISTRY}`]);
     onClose();
   };
+
   return (
     <>
       <Modal title="Change Status" open={open} onClose={onClose}>
         <Form
+          showInlineErrorsOnly
           onSubmit={changeStatus}
           render={({ submitForm }) => {
             return (

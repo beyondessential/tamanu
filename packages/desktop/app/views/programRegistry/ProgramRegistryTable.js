@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { useParams } from 'react-router-dom';
@@ -12,36 +11,17 @@ import { Colors } from '../../constants';
 import { LimitedLinesCell } from '../../components/FormattedTableCell';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
-
-const ClippedConditionName = styled.span`
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  word-wrap: break-word;
-  width: 95%;
-`;
-
-const StatusBadge = styled.div`
-  padding: 16px;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  height: 20px;
-  color: ${props => props.color};
-  background-color: ${props => props.backgroundColor};
-  width: fit-content;
-`;
+import { useRefreshCount } from '../../hooks/useRefreshCount';
 
 export const ProgramRegistryTable = ({ searchParameters }) => {
   const params = useParams();
   const [openModal, setOpenModal] = useState();
-  const [refreshCount, setRefreshCount] = useState(0);
+  const [refreshCount, updateRefreshCount] = useRefreshCount();
   const columns = useMemo(() => {
     return [
       {
         accessor: data => (
-          <RegistrationStatusIndicator patientProgramRegistration={data} hideText={true} />
+          <RegistrationStatusIndicator patientProgramRegistration={data} hideText />
         ),
         sortable: false,
       },
@@ -161,32 +141,38 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         }}
       />
 
-      <ChangeStatusFormModal
-        patientProgramRegistration={openModal?.data}
-        onClose={() => {
-          setRefreshCount(refreshCount + 1);
-          setOpenModal(undefined);
-        }}
-        open={openModal && openModal?.data && openModal?.action === 'ChangeStatus'}
-      />
+      {openModal && openModal?.data && openModal?.action === 'ChangeStatus' && (
+        <ChangeStatusFormModal
+          patientProgramRegistration={openModal?.data}
+          onClose={() => {
+            updateRefreshCount();
+            setOpenModal(undefined);
+          }}
+          open
+        />
+      )}
 
-      <RemoveProgramRegistryFormModal
-        patientProgramRegistration={openModal?.data}
-        onClose={() => {
-          setRefreshCount(refreshCount + 1);
-          setOpenModal(undefined);
-        }}
-        open={openModal && openModal?.data && openModal?.action === 'Remove'}
-      />
+      {openModal && openModal?.data && openModal?.action === 'Remove' && (
+        <RemoveProgramRegistryFormModal
+          patientProgramRegistration={openModal?.data}
+          onClose={() => {
+            updateRefreshCount();
+            setOpenModal(undefined);
+          }}
+          open
+        />
+      )}
 
-      <DeleteProgramRegistryFormModal
-        patientProgramRegistration={openModal?.data}
-        onClose={() => {
-          setRefreshCount(refreshCount + 1);
-          setOpenModal(undefined);
-        }}
-        open={openModal && openModal?.data && openModal?.action === 'Delete'}
-      />
+      {openModal && openModal?.data && openModal?.action === 'Delete' && (
+        <DeleteProgramRegistryFormModal
+          patientProgramRegistration={openModal?.data}
+          onClose={() => {
+            updateRefreshCount();
+            setOpenModal(undefined);
+          }}
+          open
+        />
+      )}
     </>
   );
 };

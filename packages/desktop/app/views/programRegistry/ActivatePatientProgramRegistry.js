@@ -14,6 +14,7 @@ import { Modal } from '../../components/Modal';
 import { useApi } from '../../api/useApi';
 import { PROGRAM_REGISTRATION_STATUSES } from '../../constants';
 import { FormSeparatorLine } from '../../components';
+import { PROGRAM_REGISTRY } from '../../components/PatientInfoPane/paneTitles';
 
 export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistration, open }) => {
   const api = useApi();
@@ -32,7 +33,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
       { ...rest, registrationStatus: PROGRAM_REGISTRATION_STATUSES.ACTIVE },
     );
 
-    queryClient.invalidateQueries([`infoPaneListItem-Program Registry`]);
+    queryClient.invalidateQueries([`infoPaneListItem-${PROGRAM_REGISTRY}`]);
     onClose();
   };
   return (
@@ -43,6 +44,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
       onClose={onClose}
     >
       <Form
+        showInlineErrorsOnly
         onSubmit={activate}
         render={({ submitForm }) => {
           return (

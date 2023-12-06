@@ -1,8 +1,6 @@
-//@ts-check
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Avatar } from '@material-ui/core';
-import { STATUS_COLOR } from '@tamanu/constants';
 import { Colors, PROGRAM_REGISTRATION_STATUSES } from '../../constants/index';
 import { DateDisplay } from '../../components/DateDisplay';
 import { programsIcon } from '../../constants/images';
@@ -10,10 +8,7 @@ import { MenuButton } from '../../components/MenuButton';
 import { ChangeStatusFormModal } from './ChangeStatusFormModal';
 import { ActivatePatientProgramRegistry } from './ActivatePatientProgramRegistry';
 import { DeleteProgramRegistryFormModal } from './DeleteProgramRegistryFormModal';
-import {
-  FormSeparatorVerticalLine,
-  RemoveProgramRegistryFormModal,
-} from './RemoveProgramRegistryFormModal';
+import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import { OutlinedButton } from '../../components';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 
@@ -53,16 +48,6 @@ const MenuContainer = styled.div`
   .menu {
     border-radius: 100px;
   }
-`;
-
-const StatusBadge = styled.div`
-  padding: 11px 6px;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  height: 20px;
-  color: ${props => props.color};
-  background-color: ${props => props.backgroundColor};
 `;
 
 const TextColumnsContainer = styled.div`

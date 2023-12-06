@@ -71,6 +71,7 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
         Select a {patientProgramRegistration.programRegistry.name} form below to complete
       </Heading5>
       <Form
+        showInlineErrorsOnly
         style={{ width: '100%', marginTop: '5px' }}
         onSubmit={values => {
           navigateToProgramRegistrySurvey(

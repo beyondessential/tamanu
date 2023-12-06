@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { useCallback, useState } from 'react';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { DataFetchingTable } from '../../components/Table/DataFetchingTable';
 import { DateDisplay } from '../../components/DateDisplay';
 import { MenuButton } from '../../components/MenuButton';
+import { SurveyResponseDetailsModal } from '../../components/SurveyResponseDetailsModal';
 
 export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }) => {
-  const [refreshCount, setRefreshCount] = useState(0);
+  const [selectedResponseId, setSelectedResponseId] = useState(null);
   const columns = [
     {
       key: 'date',
@@ -32,45 +32,50 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
       accessor: row => row.resultText,
       sortable: false,
     },
-    {
-      sortable: false,
-      accessor: () => (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <MenuButton
-            actions={{
-              Print: () => {},
-              Edit: () => {},
-              Delete: () => {},
-            }}
-          />
-        </div>
-      ),
-      required: false,
-    },
+    // {
+    //   sortable: false,
+    //   dontCallRowInput: true,
+    //   accessor: () => (
+    //     <div
+    //       style={{
+    //         display: 'flex',
+    //         justifyContent: 'flex-end',
+    //       }}
+    //     >
+    //       <MenuButton
+    //         actions={{
+    //           Print: () => {},
+    //           Edit: () => {},
+    //           Delete: () => {},
+    //         }}
+    //       />
+    //     </div>
+    //   ),
+    //   required: false,
+    // },
   ];
 
-  useEffect(() => {
-    setRefreshCount(refreshCount + 1);
-  }, [patientProgramRegistration.programRegistry.programId]);
+  const onSelectResponse = useCallback(surveyResponse => {
+    setSelectedResponseId(surveyResponse.id);
+  }, []);
+
+  const cancelResponse = useCallback(() => setSelectedResponseId(null), []);
 
   return (
-    <DataFetchingTable
-      endpoint={`patient/${patientProgramRegistration.patientId}/programResponses`}
-      columns={columns}
-      refreshCount={refreshCount}
-      initialSort={{
-        orderBy: 'date',
-        order: 'asc',
-        surveyType: SURVEY_TYPES.PROGRAMS,
-      }}
-      fetchOptions={{ programId: patientProgramRegistration.programRegistry.programId }}
-      noDataMessage="No Program registry responses found"
-      elevated={false}
-    />
+    <>
+      <SurveyResponseDetailsModal surveyResponseId={selectedResponseId} onClose={cancelResponse} />
+      <DataFetchingTable
+        endpoint={`patient/${patientProgramRegistration.patientId}/programResponses`}
+        columns={columns}
+        initialSort={{
+          orderBy: 'date',
+          order: 'asc',
+          surveyType: SURVEY_TYPES.PROGRAMS,
+        }}
+        fetchOptions={{ programId: patientProgramRegistration.programRegistry.programId }}
+        onRowClick={onSelectResponse}
+        noDataMessage="No Program registry responses found"
+      />
+    </>
   );
 };
