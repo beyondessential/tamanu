@@ -135,7 +135,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
     {
       label: (
         <TranslatedText
-          stringId="patient.encounter.action.dischargeWithoutSeen"
+          stringId="patient.encounter.action.dischargeWithoutBeingSeen"
           fallback="Discharge without being seen"
         />
       ),
@@ -195,13 +195,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
       onClick: onChangeDepartment,
     },
     {
-      label: (
-        <TranslatedText
-          stringId="patient.encounter.action.changePractitioner"
-          fallback="Change :practitioner"
-          replacements={{ practitioner: clinicianText.toLowerCase() }}
-        />
-      ),
+      label: `Change ${clinicianText.toLowerCase()}`,
       onClick: onChangeClinician,
     },
     {

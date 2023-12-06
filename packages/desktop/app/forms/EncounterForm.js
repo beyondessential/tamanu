@@ -33,7 +33,10 @@ export const EncounterForm = React.memo(
 
     const renderForm = ({ submitForm, values }) => {
       const buttonText = editedObject ? (
-        <TranslatedText stringId="patient.modal.admit.action.update" fallback="Update encounter" />
+        <TranslatedText
+          stringId="patient.modal.checkIn.action.update"
+          fallback="Update encounter"
+        />
       ) : (
         <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
       );
@@ -44,7 +47,7 @@ export const EncounterForm = React.memo(
             name="encounterType"
             label={
               <TranslatedText
-                stringId="patient.modal.admit.form.encounterType.label"
+                stringId="patient.modal.checkIn.form.encounterType.label"
                 fallback="Encounter type"
               />
             }
@@ -56,7 +59,7 @@ export const EncounterForm = React.memo(
             name="startDate"
             label={
               <TranslatedText
-                stringId="patient.modal.admit.form.startDate.label"
+                stringId="patient.modal.checkIn.form.checkInDate.label"
                 fallback="Check-in date"
               />
             }
@@ -104,7 +107,7 @@ export const EncounterForm = React.memo(
             name="reasonForEncounter"
             label={
               <TranslatedText
-                stringId="modal.admit.form.reason.label"
+                stringId="modal.checkIn.form.reasonForEncounter.label"
                 fallback="Reason for encounter"
               />
             }

@@ -31,7 +31,7 @@ const InfoPopupLabel = React.memo(() => (
   <span>
     <span>
       <TranslatedText
-        stringId="patient.modal.triage.form.score.infoPopup"
+        stringId="patient.modal.triage.form.triageScore.label"
         fallback="Triage score"
       />
     </span>
@@ -142,13 +142,7 @@ export const TriageForm = ({
         </FormGrid>
         <Field
           name="practitionerId"
-          label={
-            <TranslatedText
-              stringId="patient.modal.triage.form.practitioner.label"
-              fallback="Triage :practitioner"
-              replacements={{ practitioner: clinicianText.toLowerCase() }}
-            />
-          }
+          label={`Triage ${clinicianText.toLowerCase()}`}
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}

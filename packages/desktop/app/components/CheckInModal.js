@@ -14,12 +14,12 @@ function getEncounterTypeLabel(encounterType) {
     case ENCOUNTER_TYPES.ADMISSION:
       return (
         <TranslatedText
-          stringId="patient.encounter.type.admission.label"
+          stringId="encounter.property.type.admission"
           fallback="Hospital admission"
         />
       );
     case ENCOUNTER_TYPES.CLINIC:
-      return <TranslatedText stringId="patient.encounter.type.clinic.label" fallback="Clinic" />;
+      return <TranslatedText stringId="encounter.property.type.clinic" fallback="Clinic" />;
     default:
       return '';
   }
@@ -59,7 +59,7 @@ export const CheckInModal = React.memo(
         // using replacements avoids [Object object] in the title
         title={
           <TranslatedText
-            stringId="patient.modal.admit.title"
+            stringId="patient.modal.checkIn.title"
             fallback="Admit or check-in | :encounterType"
             replacements={{ encounterType: getEncounterTypeLabel(props?.encounterType) }}
           />
