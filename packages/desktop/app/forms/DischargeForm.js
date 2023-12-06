@@ -359,7 +359,11 @@ export const DischargeForm = ({
           .object()
           .shape({
             dischargerId: foreignKey(
-              `Discharging ${clinicianText.toLowerCase()} is a required field'`,
+              <TranslatedText
+                stringId="discharge.form.dischargingClinician.validation"
+                fallback="Discharging :clinicianText is a required field"
+                replacements={{ clinicianText: clinicianText.toLowerCase() }}
+              />,
             ),
           })
           .shape({
