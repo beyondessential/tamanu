@@ -241,7 +241,7 @@ export const BedManagement = () => {
               description={
                 <TranslatedText
                   stringId="facilityAdmin.bedManagement.dashboard.item.currentPatients.description"
-                  fallback="Total current\npatients"
+                  fallback="Total current \n patients"
                 />
               }
             />
@@ -252,7 +252,7 @@ export const BedManagement = () => {
               description={
                 <TranslatedText
                   stringId="facilityAdmin.bedManagement.dashboard.item.currentInpatients.description"
-                  fallback="Current inpatient\nadmissions"
+                  fallback="Current inpatient \n admissions"
                 />
               }
             />
@@ -263,7 +263,7 @@ export const BedManagement = () => {
               description={
                 <TranslatedText
                   stringId="facilityAdmin.bedManagement.dashboard.item.averageStayDuration.description"
-                  fallback="Average length of\nstay (last 30 days)"
+                  fallback="Average length of \n stay (last 30 days)"
                 />
               }
             />
@@ -274,7 +274,7 @@ export const BedManagement = () => {
               description={
                 <TranslatedText
                   stringId="facilityAdmin.bedManagement.dashboard.item.currentOccupancy.description"
-                  fallback="Current\noccupancy"
+                  fallback="Current \n occupancy"
                 />
               }
             />
@@ -285,7 +285,7 @@ export const BedManagement = () => {
               description={
                 <TranslatedText
                   stringId="facilityAdmin.bedManagement.dashboard.item.readmission.description"
-                  fallback="Readmission in\nlast 30 days"
+                  fallback="Readmission in \n last 30 days"
                 />
               }
             />
