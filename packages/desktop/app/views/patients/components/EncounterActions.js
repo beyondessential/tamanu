@@ -81,7 +81,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
         </Button>
         <br />
         <TypographyLink onClick={onViewEncounterRecord}>
-          <TranslatedText stringId="encounter.action.encounterRecord" fallback="Encounter Record" />
+          <TranslatedText stringId="encounter.action.encounterRecord" fallback="Encounter record" />
         </TypographyLink>
       </div>
     );
