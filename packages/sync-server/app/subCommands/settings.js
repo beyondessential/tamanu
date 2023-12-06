@@ -2,58 +2,9 @@
 
 import { Command } from 'commander';
 import { canonicalize } from 'json-canonicalize';
-import { buildSettingsRecords } from '@tamanu/shared/models/Setting';
-import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 import { initDatabase } from '../database';
 import { loadSettingFile } from '../utils/loadSettingFile';
-
-export async function listSettings(filter = '', { facility } = {}) {
-  const {
-    models: { Setting },
-  } = await initDatabase({ testMode: false });
-
-  const globalTree = await Setting.get(filter, null, SETTINGS_SCOPES.GLOBAL);
-  const globalSettings = buildSettingsRecords(filter, globalTree, null, SETTINGS_SCOPES.GLOBAL);
-
-  if (!facility) {
-    if (!globalTree || Object.keys(globalTree).length === 0) {
-      return 'No settings found';
-    }
-
-    return globalSettings
-      .map(({ key }) => key)
-      .sort()
-      .join('\n');
-  }
-
-  const facilityTree = await Setting.get(filter, facility, SETTINGS_SCOPES.FACILITY);
-  if (!facilityTree || Object.keys(facilityTree).length === 0) {
-    return 'No settings found';
-  }
-
-  const facilitySettings = buildSettingsRecords(
-    filter,
-    facilityTree,
-    facility,
-    SETTINGS_SCOPES.FACILITY,
-  );
-
-  const globalKeys = new Set(globalSettings.map(({ key }) => key));
-
-  return [...globalSettings, ...facilitySettings]
-    .map(({ facilityId, key }) => {
-      if (facilityId) {
-        if (globalKeys.has(key)) return null;
-        return `${key} (facility only)`;
-      }
-
-      return key;
-    })
-    .filter(Boolean)
-    .sort()
-    .join('\n');
-}
 
 export async function getSetting(key, { facility, scope } = {}) {
   const {
@@ -106,15 +57,6 @@ export async function loadSettings(key, filepath, { facility, preview, scope } =
 
 export const settingsCommand = new Command('settings')
   .description('Manage settings')
-  .addCommand(
-    new Command('list')
-      .description('list all setting keys')
-      .argument('[filter]', 'only output keys matching this')
-      .option('--facility <facility>', 'ID of facility to scope to')
-      .action(async (...args) =>
-        console.log(`-------------------------\n${await listSettings(...args)}`),
-      ),
-  )
   .addCommand(
     new Command('get')
       .description('get a setting')
