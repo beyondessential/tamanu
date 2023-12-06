@@ -36,7 +36,9 @@ describe('saveChangesForModel', () => {
       const isDeleted = false;
       const changes = [{ data: newRecord, isDeleted }];
       // act
-      await saveChangesForModel(models.SurveyScreenComponent, changes, true);
+      await saveChangesForModel(models.SurveyScreenComponent, changes, true, {
+        persistUpdateWorkerPoolSize: 5,
+      });
       // assertions
       expect(saveChangeModules.saveCreates).toBeCalledTimes(1);
       expect(saveChangeModules.saveCreates).toBeCalledWith(models.SurveyScreenComponent, [
