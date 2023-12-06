@@ -48,7 +48,9 @@ const useColumns = () => {
         />
       ),
     },
-    { key: 'displayId' },
+    {
+      key: 'displayId',
+    },
     {
       key: 'patientName',
       title: (
@@ -56,7 +58,10 @@ const useColumns = () => {
       ),
       accessor: row => `${row.firstName} ${row.lastName}`,
     },
-    { key: 'dateOfBirth', accessor: row => <DateDisplay date={row.dateOfBirth} /> },
+    {
+      key: 'dateOfBirth',
+      accessor: row => <DateDisplay date={row.dateOfBirth} />,
+    },
     {
       key: 'sex',
       accessor: row => <span style={{ textTransform: 'capitalize' }}>{row.sex || ''}</span>,
@@ -90,7 +95,9 @@ export const TriageTable = React.memo(() => {
     <DataFetchingTable
       endpoint="triage"
       columns={columns}
-      noDataMessage="No patients found"
+      noDataMessage={
+        <TranslatedText stringId="patientListing.table.noData" fallback="No patients found" />
+      }
       onRowClick={viewEncounter}
     />
   );
