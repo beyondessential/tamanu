@@ -8,6 +8,7 @@ import { AutocompleteField, LocalisedField, SelectField } from '../Field';
 import { HandoverNotesModal } from '../BedManagement/HandoverNotesModal';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { ThemedTooltip } from '../Tooltip';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const HandoverNotesButton = styled(Button)`
   font-weight: 500;
@@ -47,7 +48,7 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
   return (
     <>
       <CustomisableSearchBar
-        title="Search Locations"
+        title={<TranslatedText stringId="bedManagement.search.title" fallback="Search Locations" />}
         onSearch={onSearch}
         initialValues={searchParameters}
       >
@@ -59,11 +60,26 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
           onClick={handleHandoverNotesButtonClick}
         >
           {handoverNotesButtonDisabled ? (
-            <ThemedTooltip title="Select an 'Area' to create handover notes">
-              <span>Handover notes</span>
+            <ThemedTooltip
+              title={
+                <TranslatedText
+                  stringId="bedManagement.search.handoverNotes.tooltip"
+                  fallback="Select an 'Area' to create handover notes"
+                />
+              }
+            >
+              <span>
+                <TranslatedText
+                  stringId="bedManagement.search.handoverNotes.text"
+                  fallback="Handover notes"
+                />
+              </span>
             </ThemedTooltip>
           ) : (
-            'Handover notes'
+            <TranslatedText
+              stringId="bedManagement.search.handoverNotes.text"
+              fallback="Handover notes"
+            />
           )}
         </HandoverNotesButton>
 
