@@ -22,6 +22,7 @@ import { LoadingIndicator } from '../../LoadingIndicator';
 import { Colors } from '../../../constants';
 import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { ModalActionRow } from '../../ModalActionRow';
+import { TranslatedText } from '../../Translation/TranslatedText';
 
 // These below functions are used to extract the history of changes made to the encounter that are stored in notes.
 // obviously a better solution needs to be to properly implemented for storing and accessing this data, but this is an ok workaround for now.
@@ -140,7 +141,12 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   ]);
 
   const modalProps = {
-    title: 'Encounter Record',
+    title: (
+      <TranslatedText
+        stringId="encounter.modal.encounterRecord.title"
+        fallback="Encounter Record"
+      />
+    ),
     color: Colors.white,
     open,
     onClose,

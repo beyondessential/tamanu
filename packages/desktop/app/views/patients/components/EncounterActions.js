@@ -74,10 +74,15 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
     return (
       <div>
         <Button variant="outlined" color="primary" onClick={onViewSummary}>
-          View discharge summary
+          <TranslatedText
+            stringId="encounter.action.viewDischargeSummary"
+            fallback="View discharge summary"
+          />
         </Button>
         <br />
-        <TypographyLink onClick={onViewEncounterRecord}>Encounter record</TypographyLink>
+        <TypographyLink onClick={onViewEncounterRecord}>
+          <TranslatedText stringId="encounter.action.encounterRecord" fallback="Encounter Record" />
+        </TypographyLink>
       </div>
     );
   }
