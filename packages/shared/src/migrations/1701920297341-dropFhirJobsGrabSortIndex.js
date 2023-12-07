@@ -1,5 +1,5 @@
 export async function up(query) {
-  await query.sequelize.query(`DROP INDEX fhir."job_grab_sort_idx"`);
+  await query.sequelize.query(`DROP INDEX IF EXISTS fhir."job_grab_sort_idx"`);
 }
 
 export async function down(query) {
