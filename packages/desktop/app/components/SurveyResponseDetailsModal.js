@@ -8,6 +8,7 @@ import { SurveyResultBadge } from './SurveyResultBadge';
 import { ViewPhotoLink } from './ViewPhotoLink';
 import { useApi } from '../api';
 import { Button } from './Button';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const convertBinaryToYesNo = value => {
   switch (value) {
@@ -23,10 +24,14 @@ const convertBinaryToYesNo = value => {
 };
 
 const COLUMNS = [
-  { key: 'text', title: 'Indicator', accessor: ({ name }) => name },
+  {
+    key: 'text',
+    title: <TranslatedText stringId="formResponse.table.column.indicator" fallback="Indicator" />,
+    accessor: ({ name }) => name,
+  },
   {
     key: 'value',
-    title: 'Value',
+    title: <TranslatedText stringId="formResponse.table.column.value" fallback="Value" />,
     accessor: ({ answer, type }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const [surveyLink, setSurveyLink] = useState(null);
@@ -88,8 +93,17 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
 
   if (error) {
     return (
-      <Modal title="Form response" open={!!surveyResponseId} onClose={onClose}>
-        <h3>Error fetching response details</h3>
+      <Modal
+        title={<TranslatedText stringId="formResponse.modal.title" fallback="Form response" />}
+        open={!!surveyResponseId}
+        onClose={onClose}
+      >
+        <h3>
+          <TranslatedText
+            stringId="formResponse.modal.errorMessage"
+            fallback="Error fetching response details"
+          />
+        </h3>
         <pre>{error.stack}</pre>
       </Modal>
     );
@@ -97,8 +111,12 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
 
   if (isLoading || !surveyDetails) {
     return (
-      <Modal title="Form response" open={!!surveyResponseId} onClose={onClose}>
-        Loading...
+      <Modal
+        title={<TranslatedText stringId="formResponse.modal.title" fallback="Form response" />}
+        open={!!surveyResponseId}
+        onClose={onClose}
+      >
+        <TranslatedText stringId="general.table.loading" fallback="Loading..." />
       </Modal>
     );
   }
@@ -121,7 +139,11 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
     .filter(r => r.answer !== undefined);
 
   return (
-    <Modal title="Form response" open={!!surveyResponseId} onClose={onClose}>
+    <Modal
+      title={<TranslatedText stringId="formResponse.modal.title" fallback="Form response" />}
+      open={!!surveyResponseId}
+      onClose={onClose}
+    >
       <Table data={answerRows} columns={COLUMNS} allowExport={false} />
     </Modal>
   );
