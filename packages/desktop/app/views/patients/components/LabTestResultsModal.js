@@ -69,13 +69,13 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
   return [
     {
       key: 'labTestType',
-      title: <TranslatedText stringId="labRequest.table.column.testType" fallback="Test type" />,
+      title: <TranslatedText stringId="lab.table.column.testType" fallback="Test type" />,
       width: '120px',
       accessor: row => row.labTestType.name,
     },
     {
       key: LAB_TEST_PROPERTIES.RESULT,
-      title: <TranslatedText stringId="labRequest.table.column.result" fallback="Result" />,
+      title: <TranslatedText stringId="lab.table.column.result" fallback="Result" />,
       accessor: (row, i) => {
         const { resultType, options } = row.labTestType;
         return (
@@ -93,13 +93,13 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
     },
     {
       key: 'unit',
-      title: <TranslatedText stringId="labRequest.table.column.unit" fallback="Units" />,
+      title: <TranslatedText stringId="lab.table.column.unit" fallback="Units" />,
       width: '80px',
       accessor: row => <BodyText color="textTertiary">{row.labTestType.unit || 'N/A'}</BodyText>,
     },
     {
       key: LAB_TEST_PROPERTIES.LAB_TEST_METHOD_ID,
-      title: <TranslatedText stringId="labRequest.table.column.method" fallback="Method" />,
+      title: <TranslatedText stringId="lab.table.column.method" fallback="Method" />,
       accessor: (row, i) => (
         <AccessorField
           id={row.id}
@@ -112,9 +112,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
     },
     {
       key: LAB_TEST_PROPERTIES.VERIFICATION,
-      title: (
-        <TranslatedText stringId="labRequest.table.column.verification" fallback="Verification" />
-      ),
+      title: <TranslatedText stringId="lab.table.column.verification" fallback="Verification" />,
       accessor: (row, i) => (
         <AccessorField
           id={row.id}
@@ -126,9 +124,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
     },
     {
       key: LAB_TEST_PROPERTIES.COMPLETED_DATE,
-      title: (
-        <TranslatedText stringId="labRequest.table.column.completedDate" fallback="Completed" />
-      ),
+      title: <TranslatedText stringId="lab.table.column.completedDate" fallback="Completed" />,
       width: '260px',
       accessor: (row, i) => (
         <AccessorField
@@ -215,13 +211,13 @@ const ResultsForm = ({
         <div>
           <Heading4 marginBottom="10px">
             <TranslatedText
-              stringId="labRequest.modal.testResults.heading"
+              stringId="lab.modal.testResults.heading"
               fallback="Enter test results"
             />
           </Heading4>
           <SmallBodyText color="textTertiary">
             <TranslatedText
-              stringId="labRequest.modal.testResults.subHeading"
+              stringId="lab.modal.testResults.subHeading"
               fallback="Please record test results and other test result details."
             />
           </SmallBodyText>
@@ -281,7 +277,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
       width="lg"
       title={
         <TranslatedText
-          stringId="labRequest.modal.testResults.title"
+          stringId="lab.modal.testResults.title"
           fallback="Enter results | Test ID :testId"
           replacements={{ testId: displayId }}
         />
