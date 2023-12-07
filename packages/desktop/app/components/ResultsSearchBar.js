@@ -47,14 +47,14 @@ export const ResultsSearchBar = React.memo(
     return (
       <Container>
         <Heading3 mb={2}>
-          <TranslatedText stringId="patient.results.search.title" fallback="Lab results" />
+          <TranslatedText stringId="patient.lab.results.search.title" fallback="Lab results" />
         </Heading3>
         <Fields>
           <StyledAutoCompleteInput
             name="category"
             label={
               <TranslatedText
-                stringId="patient.results.search.category.label"
+                stringId="patient.lab.results.search.testCategory.label"
                 fallback="Test category"
               />
             }
@@ -69,7 +69,10 @@ export const ResultsSearchBar = React.memo(
           <StyledAutoCompleteInput
             name="panel"
             label={
-              <TranslatedText stringId="patient.results.search.panel.label" fallback="Test panel" />
+              <TranslatedText
+                stringId="patient.lab.labrresults.search.panel.label"
+                fallback="Test panel"
+              />
             }
             disabled={disabled}
             value={searchParameters.panelId}

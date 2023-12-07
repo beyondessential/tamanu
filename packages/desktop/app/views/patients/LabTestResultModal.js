@@ -54,7 +54,7 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
       title={
         <ModalHeader>
           <TranslatedText
-            stringId="patient.results.modal.testResult.title"
+            stringId="lab.modal.testResult.title"
             fallback=":testName | Test ID :testId"
             replacements={{
               testName: labTest?.labTestType?.name,
@@ -71,17 +71,14 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
         <div>
           <ValueDisplay
             title={
-              <TranslatedText
-                stringId="patient.results.modal.testResult.value.result"
-                fallback="Result"
-              />
+              <TranslatedText stringId="lab.modal.testResult.value.result" fallback="Result" />
             }
             value={labTest?.result}
           />
           <ValueDisplay
             title={
               <TranslatedText
-                stringId="patient.results.modal.testResult.value.laboratoryOfficer"
+                stringId="lab.modal.testResult.value.laboratoryOfficer"
                 fallback="Laboratory Officer"
               />
             }
@@ -90,7 +87,7 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
           <ValueDisplay
             title={
               <TranslatedText
-                stringId="patient.results.modal.testResult.value.verification"
+                stringId="lab.modal.testResult.value.verification"
                 fallback="Verification"
               />
             }
@@ -102,7 +99,7 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
           <ValueDisplay
             title={
               <TranslatedText
-                stringId="patient.results.modal.testResult.value.completed"
+                stringId="labs.modal.testResult.value.completed"
                 fallback="Completed"
               />
             }
@@ -111,7 +108,7 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
           <ValueDisplay
             title={
               <TranslatedText
-                stringId="patient.results.modal.testResult.value.testMethod"
+                stringId="lab.modal.testResult.value.testMethod"
                 fallback="Test Method"
               />
             }

@@ -30,46 +30,51 @@ const makeRangeStringAccessor = sex => ({ labTestType }) => {
 
 const columns = sex => [
   {
-    title: <TranslatedText stringId="labRequest.table.column.testType" fallback="Test type" />,
+    title: <TranslatedText stringId="lab.results.table.column.testType" fallback="Test type" />,
     key: 'labTestType.name',
     accessor: row => row.labTestType.name,
   },
   {
-    title: <TranslatedText stringId="labRequest.table.column.result" fallback="Result" />,
+    title: <TranslatedText stringId="lab.results.table.column.result" fallback="Result" />,
     key: 'result',
     accessor: ({ result }) => result ?? '',
   },
   {
-    title: <TranslatedText stringId="labRequest.table.column.unit" fallback="Units" />,
+    title: <TranslatedText stringId="lab.results.table.column.unit" fallback="Units" />,
     key: 'labTestType.unit',
     accessor: ({ labTestType }) => labTestType?.unit || 'N/A',
   },
   {
-    title: <TranslatedText stringId="labRequest.table.column.reference" fallback="Reference" />,
+    title: <TranslatedText stringId="lab.results.table.column.reference" fallback="Reference" />,
     key: 'reference',
     accessor: makeRangeStringAccessor(sex),
     sortable: false,
   },
   {
-    title: <TranslatedText stringId="labRequest.table.column.method" fallback="Method" />,
+    title: <TranslatedText stringId="lab.results.table.column.method" fallback="Method" />,
     key: 'labTestMethod',
     accessor: getMethod,
     sortable: false,
   },
   {
     title: (
-      <TranslatedText stringId="labRequest.table.column.laboratoryOffier" fallback="Lab officer" />
+      <TranslatedText
+        stringId="lab.results.table.column.laboratoryOfficer"
+        fallback="Lab officer"
+      />
     ),
     key: 'laboratoryOfficer',
   },
   {
     title: (
-      <TranslatedText stringId="labRequest.table.column.verification" fallback="Verification" />
+      <TranslatedText stringId="lab.results.table.column.verification" fallback="Verification" />
     ),
     key: 'verification',
   },
   {
-    title: <TranslatedText stringId="labRequest.table.column.completedDate" fallback="Completed" />,
+    title: (
+      <TranslatedText stringId="lab.results.table.column.completedDate" fallback="Completed" />
+    ),
     key: 'completedDate',
     accessor: getCompletedDate,
     sortable: false,

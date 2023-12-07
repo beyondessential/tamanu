@@ -144,7 +144,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
                 </Box>
               ) : (
                 <ShowAddNoteFormButton $underline onClick={() => setActive(true)}>
-                  <TranslatedText stringId="labRequest.action.addNote" fallback="Add note" />
+                  <TranslatedText stringId="general.action.addNote" fallback="Add note" />
                 </ShowAddNoteFormButton>
               );
             }}

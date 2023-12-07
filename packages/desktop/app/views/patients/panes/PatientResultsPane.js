@@ -39,7 +39,7 @@ const NoResultsMessage = () => (
   <MessageContainer>
     <MessageInner>
       <TranslatedText
-        stringId="patient.results.noData"
+        stringId="patient.lab.testResults.table.noData"
         fallback="This patient has no lab results to display. Once lab results are available they will be
       displayed here."
       />
@@ -51,7 +51,7 @@ const WrongPermissionMessage = () => (
   <MessageContainer>
     <WrongPermissionInner>
       <TranslatedText
-        stringId="patient.results.noPermission"
+        stringId="patient.lab.testResults.noPermission"
         fallback="You do not have permission to view lab results"
       />
     </WrongPermissionInner>
