@@ -38,20 +38,13 @@ const occupancyAccessor = showIfSinglePatient(
 export const columns = [
   {
     key: 'area',
-    title: (
-      <TranslatedText stringId="facilityAdmin.bedManagement.table.column.area" fallback="Area" />
-    ),
+    title: <TranslatedText stringId="general.table.column.area" fallback="Area" />,
     minWidth: 100,
     accessor: ({ area }) => area || '-',
   },
   {
     key: 'location',
-    title: (
-      <TranslatedText
-        stringId="facilityAdmin.bedManagement.table.column.location"
-        fallback="Location"
-      />
-    ),
+    title: <TranslatedText stringId="general.table.column.location" fallback="Location" />,
     minWidth: 100,
   },
   {

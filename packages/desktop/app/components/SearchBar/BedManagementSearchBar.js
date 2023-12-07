@@ -70,14 +70,14 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
             >
               <span>
                 <TranslatedText
-                  stringId="bedManagement.search.handoverNotes.text"
+                  stringId="bedManagement.search.handoverNotes.button.label"
                   fallback="Handover notes"
                 />
               </span>
             </ThemedTooltip>
           ) : (
             <TranslatedText
-              stringId="bedManagement.search.handoverNotes.text"
+              stringId="bedManagement.search.handoverNotes.button.label"
               fallback="Handover notes"
             />
           )}

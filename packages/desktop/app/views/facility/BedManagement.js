@@ -141,19 +141,19 @@ const DetailedDashboardItem = ({ api }) => {
         <DetailedDashboardItemSection>
           <DetailedDashboardItemText>
             <TranslatedText
-              stringId="facilityAdmin.bedManagement.dashboard.detailedItem.locationsAvailable.description"
+              stringId="bedManagement.dashboard.detailedItem.locationsAvailable.label"
               fallback="No. of locations available"
             />
           </DetailedDashboardItemText>
           <DetailedDashboardItemText>
             <TranslatedText
-              stringId="facilityAdmin.bedManagement.dashboard.detailedItem.locationsReserved.description"
+              stringId="bedManagement.dashboard.detailedItem.locationsReserved.label"
               fallback="No. of locations reserved"
             />
           </DetailedDashboardItemText>
           <DetailedDashboardItemText>
             <TranslatedText
-              stringId="facilityAdmin.bedManagement.dashboard.detailedItem.locationsOccupied.description"
+              stringId="bedManagement.dashboard.detailedItem.locationsOccupied.label"
               fallback="No. of locations occupied"
             />
           </DetailedDashboardItemText>
@@ -227,9 +227,7 @@ export const BedManagement = () => {
   return (
     <PageContainer>
       <TopBar
-        title={
-          <TranslatedText stringId="facilityAdmin.bedManagement.title" fallback="Bed management" />
-        }
+        title={<TranslatedText stringId="bedManagement.title" fallback="Bed management" />}
         subTitle={facility.name}
       />
       <ContentPane>
@@ -240,7 +238,7 @@ export const BedManagement = () => {
               loading={totalCurrentPatientsCountLoading}
               description={
                 <TranslatedText
-                  stringId="facilityAdmin.bedManagement.dashboard.item.currentPatients.description"
+                  stringId="bedManagement.dashboard.item.currentPatients.label"
                   fallback="Total current\npatients"
                 />
               }
@@ -251,7 +249,7 @@ export const BedManagement = () => {
               loading={currentInpatientsCountLoading}
               description={
                 <TranslatedText
-                  stringId="facilityAdmin.bedManagement.dashboard.item.currentInpatients.description"
+                  stringId="bedManagement.dashboard.item.currentInpatients.label"
                   fallback="Current inpatient\nadmissions"
                 />
               }
@@ -262,7 +260,7 @@ export const BedManagement = () => {
               loading={alosLoading}
               description={
                 <TranslatedText
-                  stringId="facilityAdmin.bedManagement.dashboard.item.averageStayDuration.description"
+                  stringId="bedManagement.dashboard.item.averageStayDuration.label"
                   fallback="Average length of\nstay (last 30 days)"
                 />
               }
@@ -273,7 +271,7 @@ export const BedManagement = () => {
               loading={currentOccupancyLoading}
               description={
                 <TranslatedText
-                  stringId="facilityAdmin.bedManagement.dashboard.item.currentOccupancy.description"
+                  stringId="bedManagement.dashboard.item.currentOccupancy.label"
                   fallback="Current\noccupancy"
                 />
               }
@@ -284,7 +282,7 @@ export const BedManagement = () => {
               loading={readmissionsCountLoading}
               description={
                 <TranslatedText
-                  stringId="facilityAdmin.bedManagement.dashboard.item.readmission.description"
+                  stringId="bedManagement.dashboard.item.readmission.label"
                   fallback="Readmission in\nlast 30 days"
                 />
               }
@@ -301,10 +299,7 @@ export const BedManagement = () => {
         <SearchTable
           columns={columns}
           noDataMessage={
-            <TranslatedText
-              stringId="facilityAdmin.bedManagement.table.noData"
-              fallback="No locations found"
-            />
+            <TranslatedText stringId="bedManagement.table.noData" fallback="No locations found" />
           }
           onRowClick={handleViewPatient}
           rowStyle={rowStyle}
