@@ -392,7 +392,7 @@ export const DischargeSummaryView = React.memo(() => {
           startIcon={<PrintIcon />}
         >
           <TranslatedText
-            stringId="dischargeSummary.action.printSummary"
+            stringId="discharge.action.printSummary"
             fallback="Print summary"
           />
         </Button>
