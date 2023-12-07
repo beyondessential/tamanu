@@ -391,10 +391,7 @@ export const DischargeSummaryView = React.memo(() => {
           onClick={() => printPage()}
           startIcon={<PrintIcon />}
         >
-          <TranslatedText
-            stringId="discharge.action.printSummary"
-            fallback="Print summary"
-          />
+          <TranslatedText stringId="discharge.action.printSummary" fallback="Print summary" />
         </Button>
       </NavContainer>
       <SummaryPage encounter={encounter} discharge={discharge} />
