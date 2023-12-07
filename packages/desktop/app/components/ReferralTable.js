@@ -80,7 +80,7 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
       />
       <ConfirmModal
         open={modalStatus === ACTION_MODAL_STATES.WARNING_OPEN}
-        title={<TranslatedText stringId="referral.modal.cancel.title" fallback="Cancel referral" />]
+        title={<TranslatedText stringId="referral.modal.cancel.title" fallback="Cancel referral" />}
         text={
           <TranslatedText
             stringId="referral.modal.cancel.warningText1"
