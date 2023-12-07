@@ -87,13 +87,13 @@ const PatientInfo = ({ patient }) => {
         <tbody>
           <tr>
             <PatientInfoLabel>
-              <TranslatedText stringId="general.form.sex.label" fallback="Sex" />
+              <TranslatedText stringId="general.sex.label" fallback="Sex" />
             </PatientInfoLabel>
             <PatientInfoValue>{sex}</PatientInfoValue>
           </tr>
           <tr>
             <PatientInfoLabel>
-              <TranslatedText stringId="general.form.dateOfBirth.label" fallback="Date of Birth" />
+              <TranslatedText stringId="general.dateOfBirth.label" fallback="Date of Birth" />
             </PatientInfoLabel>
             <PatientInfoValue>
               <DateDisplay date={dateOfBirth} />
@@ -102,10 +102,7 @@ const PatientInfo = ({ patient }) => {
           {additionalData && additionalData.primaryContactNumber && (
             <tr>
               <PatientInfoLabel>
-                <TranslatedText
-                  stringId="general.form.contactNumber.label"
-                  fallback="Contact Number"
-                />
+                <TranslatedText stringId="general.contactNumber.label" fallback="Contact Number" />
               </PatientInfoLabel>
               <PatientInfoValue>{additionalData.primaryContactNumber}</PatientInfoValue>
             </tr>
@@ -113,7 +110,7 @@ const PatientInfo = ({ patient }) => {
           {village && (
             <tr>
               <PatientInfoLabel>
-                <TranslatedText stringId="general.form.village.label" fallback="Village" />
+                <TranslatedText stringId="general.village.label" fallback="Village" />
               </PatientInfoLabel>
               <PatientInfoValue>{village.name}</PatientInfoValue>
             </tr>
@@ -283,11 +280,11 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
       <FirstRow>
         <div>
           <Heading>
-            <TranslatedText stringId="general.heading.type" fallback="Type" />
+            <TranslatedText stringId="general.type.label" fallback="Type" />
           </Heading>
           {type}
           <Heading>
-            <TranslatedText stringId="general.heading.time" fallback="Time" />
+            <TranslatedText stringId="general.time.label" fallback="Time" />
           </Heading>
           <div>
             <AppointmentTime {...appointment} />
@@ -296,7 +293,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
         <Select
           placeholder={
             <TranslatedText
-              stringId="scheduling.appointmentDetail.select.status.placeholder"
+              stringId="scheduling.appointmentDetail.select.status.label"
               fallback="Select Status"
             />
           }
@@ -352,7 +349,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
       <PatientInfo patient={patient} />
       <Section>
         <Heading>
-          <TranslatedText stringId="general.heading.area" fallback="Area" />
+          <TranslatedText stringId="general.area.label" fallback="Area" />
         </Heading>
         {locationGroup.name}
       </Section>
