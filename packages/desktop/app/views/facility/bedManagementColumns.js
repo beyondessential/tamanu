@@ -49,33 +49,26 @@ export const columns = [
   },
   {
     key: 'alos',
-    title: (
-      <TranslatedText stringId="facilityAdmin.bedManagement.table.column.alos" fallback="ALOS" />
-    ),
+    title: <TranslatedText stringId="bedManagement.table.column.alos" fallback="ALOS" />,
     minWidth: 30,
     accessor: ({ alos }) => `${Math.round((alos || 0) * 10) / 10} days`,
     sortable: false,
     tooltip: (
       <TranslatedText
-        stringId="facilityAdmin.bedManagement.table.column.alos.tooltip"
+        stringId="bedManagement.table.column.alos.tooltip"
         fallback="Average length of stay, last 30 days"
       />
     ),
   },
   {
     key: 'occupancy',
-    title: (
-      <TranslatedText
-        stringId="facilityAdmin.bedManagement.table.column.occupancy"
-        fallback="Occupancy"
-      />
-    ),
+    title: <TranslatedText stringId="bedManagement.table.column.occupancy" fallback="Occupancy" />,
     minWidth: 30,
     accessor: occupancyAccessor,
     sortable: false,
     tooltip: (
       <TranslatedText
-        stringId="facilityAdmin.bedManagement.table.column.occupancy.tooltip"
+        stringId="bedManagement.table.column.occupancy.tooltip"
         fallback="Bed occupancy, last 30 days"
       />
     ),
@@ -84,7 +77,7 @@ export const columns = [
     key: 'numberOfOccupants',
     title: (
       <TranslatedText
-        stringId="facilityAdmin.bedManagement.table.column.numberOfOccupants"
+        stringId="bedManagement.table.column.numberOfOccupants"
         fallback="No. occupants"
       />
     ),
@@ -92,7 +85,7 @@ export const columns = [
     sortable: false,
     tooltip: (
       <TranslatedText
-        stringId="facilityAdmin.bedManagement.table.column.numberOfOccupants.tooltip"
+        stringId="bedManagement.table.column.numberOfOccupants.tooltip"
         fallback="Current number of occupants"
       />
     ),
