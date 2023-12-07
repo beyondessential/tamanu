@@ -7,6 +7,7 @@ import { Button } from './Button';
 import { DataFetchingTable } from './Table';
 import { BaseModal } from './BaseModal';
 import { ModalCancelRow } from './ModalActionRow';
+import { Box } from '@material-ui/core';
 
 const StyledText = styled.p`
   margin-bottom: 33px;
@@ -16,11 +17,8 @@ const StyledText = styled.p`
   }
 `;
 
-const StyledTable = styled.div`
-  margin-bottom: 28px;
-`;
-
-const StyledButton = styled.div`
+const StyledButton = styled(Button)`
+  padding: 11px 10px !important;
   margin-bottom: 27px;
 `;
 
@@ -34,7 +32,10 @@ export const NoContactInfo = ({ name }) => {
   );
 };
 
-export const ContactDetails = ({ name, setContactsCount, setIsLoading }) => {
+export const ContactDetails = ({ name }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [contactsCount, setContactsCount] = useState(0);
+
   // Table Constants
   const columns = [
     { key: 'ContactName', title: 'Contact', sortable: false },
@@ -49,12 +50,16 @@ export const ContactDetails = ({ name, setContactsCount, setIsLoading }) => {
     setContactsCount(count);
   };
 
+  if (!isLoading && contactsCount === 0) {
+    return <NoContactInfo name={name} />;
+  }
+
   return (
     <>
       <StyledText>
         The below contact list is registered to receive reminders for <span>{name}</span>.
       </StyledText>
-      <StyledTable>
+      <Box marginBottom="28px">
         <DataFetchingTable
           columns={columns}
           noDataMessage="No historical records for this patient."
@@ -66,44 +71,26 @@ export const ContactDetails = ({ name, setContactsCount, setIsLoading }) => {
           allowExport={false}
           onDataFetched={onDataFetched}
         />
-      </StyledTable>
+      </Box>
     </>
   );
 };
 
-const ReminderContactModal = ({ openModal, setOpenModal, values = {} }) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [contactsCount, setContactsCount] = useState(0);
-
-  const onCancel = () => {
-    setOpenModal(false);
-  };
-
+const ReminderContactModal = ({ openModal, handleClose, patient = {} }) => {
   return (
     <BaseModal width="md" title="Reminder contacts" open={openModal} cornerExitButton={false}>
-      {contactsCount > 0 || isLoading ? (
-        <ContactDetails
-          name={`${values?.firstName} ${values?.lastName}`}
-          setContactsCount={setContactsCount}
-          setIsLoading={setIsLoading}
-        />
-      ) : (
-        <NoContactInfo name={`${values?.firstName} ${values?.lastName}`} />
-      )}
+      <ContactDetails name={`${patient?.firstName} ${patient?.lastName}`} />
 
-      <StyledButton>
-        <Button
-          variant="outlined"
-          color="primary"
-          size="small"
-          style={{ padding: '11px 15px' }}
-          //   onClick={onClickModal}
-        >
-          <AddIcon />
-          Add Contacts
-        </Button>
+      <StyledButton
+        variant="outlined"
+        color="primary"
+        size="small"
+        // onClick={onClickModal}
+      >
+        <AddIcon />
+        Add Contacts
       </StyledButton>
-      <ModalCancelRow cancelText="Close" cancelColor="primary" onCancel={onCancel} />
+      <ModalCancelRow confirmText="Close" confirmColor="primary" onConfirm={handleClose} />
     </BaseModal>
   );
 };

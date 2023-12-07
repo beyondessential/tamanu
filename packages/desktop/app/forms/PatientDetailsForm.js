@@ -63,13 +63,17 @@ const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
   margin-top: 70px;
 `;
 
+const StyledButton = styled(Button)`
+  padding: 11px 10px !important;
+`;
+
 export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
   const [openModal, setOpenModal] = useState(false);
   const villageSuggester = useSuggester('village');
   const { getLocalisation } = useLocalisation();
   let filteredSexOptions = sexOptions;
   const { ability } = useAuth();
-  const showReminderContacts = ability.can('read', 'Patient');
+  const canReadReminderContacts = ability.can('read', 'Patient');
 
   if (getLocalisation('features.hideOtherSex') === true) {
     filteredSexOptions = filteredSexOptions.filter(s => s.value !== 'other');
@@ -78,28 +82,35 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
   const isRequiredPatientData = fieldName =>
     getLocalisation(`fields.${fieldName}.requiredPatientData`);
 
-  const onClickModal = useCallback(() => {
+  const handleOpenRemindersModal = useCallback(() => {
     setOpenModal(true);
+  }, []);
+
+  const handleCloseRemindersModal = useCallback(() => {
+    setOpenModal(false);
   }, []);
 
   return (
     <>
       <StyledHeading>
         <StyledHeadingText>General information</StyledHeadingText>
-        {showReminderContacts && (
-          <Button
+        {canReadReminderContacts && (
+          <StyledButton
             variant="outlined"
             color="primary"
             size="small"
-            style={{ padding: '11px 10px' }}
-            onClick={onClickModal}
+            onClick={handleOpenRemindersModal}
           >
             <NotificationsNoneIcon />
             Reminder Contacts
-          </Button>
+          </StyledButton>
         )}
       </StyledHeading>
-      <ReminderContactModal openModal={openModal} setOpenModal={setOpenModal} values={values} />
+      <ReminderContactModal
+        openModal={openModal}
+        handleClose={handleCloseRemindersModal}
+        values={values}
+      />
 
       <FormGrid>
         <LocalisedField name="firstName" component={TextField} required />
