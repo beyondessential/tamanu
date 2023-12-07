@@ -11,7 +11,7 @@ export class ReadSettings {
   }
 
   async get(key: string) {
-    const settings = this.getAll();
+    const settings = await this.getAll();
     return lodashGet(settings, key);
   }
 

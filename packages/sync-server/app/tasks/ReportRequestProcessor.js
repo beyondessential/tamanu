@@ -162,7 +162,7 @@ export class ReportRequestProcessor extends ScheduledTask {
         return;
       }
 
-      const disabledReports = this.settings.get('disabledReports');
+      const disabledReports = await this.settings.get('disabledReports');
       if (disabledReports.includes(reportId)) {
         log.error(`Report "${reportId}" is disabled`);
         await request.update({
