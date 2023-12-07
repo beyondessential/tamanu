@@ -26,7 +26,18 @@ const ColourCell = styled(PlainCell)`
 `;
 
 const TriageCell = ({ arrivalTime, children }) => (
-  <Tooltip title={`Arrival time: ${arrivalTime}`} arrow placement="top">
+  // `Arrival time: ${arrivalTime}`
+  <Tooltip
+    title={
+      <TranslatedText
+        stringId="patientList.triage.table.waitTime.arrivalTime.toolTip"
+        fallback="Arrival time: :arrivalTime"
+        replacements={{ arrivalTime }}
+      />
+    }
+    arrow
+    placement="top"
+  >
     <ColourCell>{children}</ColourCell>
   </Tooltip>
 );
