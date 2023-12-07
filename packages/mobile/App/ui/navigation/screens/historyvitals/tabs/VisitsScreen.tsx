@@ -8,11 +8,11 @@ import { useBackendEffect } from '~/ui/hooks';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { withPatient } from '~/ui/containers/Patient';
-import { IDiagnosis } from '~/types';
+import { IDiagnosis, INote } from '~/types';
 
 const DEFAULT_FIELD_VAL = 'N/A';
 
-const displayNotes = (notes): string =>
+const displayNotes = (notes: INote[]): string =>
   notes
     .filter(note => note.noteType === NOTE_TYPES.CLINICAL_MOBILE)
     .map(note => note.content)
