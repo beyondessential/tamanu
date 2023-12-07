@@ -183,7 +183,7 @@ const medicationColumns = [
     key: 'drug/prescription',
     title: (
       <TranslatedText
-        stringId="discharge.table.column.drugPrescription"
+        stringId="discharge.table.column.drugOrPrescription"
         fallback="Drug / Prescription"
       />
     ),
@@ -299,7 +299,7 @@ const DischargeSummaryScreen = ({ onStepBack, submitForm, onCancel }) => (
       </h3>
       <p>
         <TranslatedText
-          stringId="discharge.modal.confirm.subText"
+          stringId="discharge.modal.confirm.warningText"
           fallback="Are you sure you want to discharge the patient? This action is irreversible."
         />
       </p>

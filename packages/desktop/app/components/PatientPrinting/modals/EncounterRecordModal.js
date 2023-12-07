@@ -143,7 +143,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const modalProps = {
     title: (
       <TranslatedText
-        stringId="encounter.modal.encounterRecord.title"
+        stringId="patient.modal.print.encounterRecord.title"
         fallback="Encounter Record"
       />
     ),
