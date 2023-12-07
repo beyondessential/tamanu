@@ -54,7 +54,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
       onSubmit={data => {
         onSubmit({
           ...data,
-          conditionIds: data.conditionIds ? data.conditionIds.split(',') : [],
+          conditionIds: data.conditionIds ? JSON.parse(data.conditionIds) : [],
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           patientId: patient.id,
         });
