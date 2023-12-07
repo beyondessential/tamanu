@@ -72,7 +72,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
 
         return (
           <div>
-            <FormGrid>
+            <FormGrid style={{ paddingLeft: '32px', paddingRight: '32px' }}>
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
                   name="programRegistryId"
@@ -135,18 +135,20 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   disabled={!conditions}
                 />
               </FormGrid>
-              <Divider
-                style={{
-                  gridColumn: '1 / -1',
-                  marginTop: '10px',
-                }}
-              />
-              <ConfirmCancelRow
-                onCancel={handleCancel}
-                onConfirm={submitForm}
-                confirmText={buttonText}
-              />
             </FormGrid>
+            <Divider
+              style={{
+                gridColumn: '1 / -1',
+                marginTop: '30px',
+                marginBottom: '30px',
+              }}
+            />
+            <ConfirmCancelRow
+              style={{ paddingLeft: '32px', paddingRight: '32px' }}
+              onCancel={handleCancel}
+              onConfirm={submitForm}
+              confirmText={buttonText}
+            />
           </div>
         );
       }}
