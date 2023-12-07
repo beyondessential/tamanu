@@ -26,12 +26,17 @@ const convertBinaryToYesNo = value => {
 const COLUMNS = [
   {
     key: 'text',
-    title: <TranslatedText stringId="formResponse.table.column.indicator" fallback="Indicator" />,
+    title: (
+      <TranslatedText
+        stringId="surveyResponse.details.table.column.indicator"
+        fallback="Indicator"
+      />
+    ),
     accessor: ({ name }) => name,
   },
   {
     key: 'value',
-    title: <TranslatedText stringId="formResponse.table.column.value" fallback="Value" />,
+    title: <TranslatedText stringId="surveyResponse.details.table.column.value" fallback="Value" />,
     accessor: ({ answer, type }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const [surveyLink, setSurveyLink] = useState(null);
@@ -94,13 +99,13 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
   if (error) {
     return (
       <Modal
-        title={<TranslatedText stringId="formResponse.modal.title" fallback="Form response" />}
+        title={<TranslatedText stringId="surveyResponse.modal.title" fallback="Form response" />}
         open={!!surveyResponseId}
         onClose={onClose}
       >
         <h3>
           <TranslatedText
-            stringId="formResponse.modal.errorMessage"
+            stringId="surveyResponse.modal.error.fetchErrorMessage"
             fallback="Error fetching response details"
           />
         </h3>

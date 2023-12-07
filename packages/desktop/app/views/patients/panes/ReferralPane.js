@@ -17,7 +17,7 @@ export const ReferralPane = React.memo(({ patient }) => {
     <ContentPane>
       <TableButtonRow variant="small">
         <Button onClick={handleNewReferral}>
-          <TranslatedText stringId="referral.action.create" fallback="New referral" />
+          <TranslatedText stringId="patient.referral.action.create" fallback="New referral" />
         </Button>
       </TableButtonRow>
       <ReferralTable patientId={patient.id} />

@@ -47,7 +47,7 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
 
   const actions = [
     {
-      label: <TranslatedText stringId="referral.action.admit" fallback="Admit" />,
+      label: <TranslatedText stringId="patient.referral.action.admit" fallback="Admit" />,
       condition: () => row.status === REFERRAL_STATUSES.PENDING,
       onClick: () => setModalStatus(ACTION_MODAL_STATES.ENCOUNTER_OPEN),
     },
@@ -58,7 +58,7 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
       onClick: onViewEncounter,
     },
     {
-      label: <TranslatedText stringId="referral.action.complete" fallback="Complete" />,
+      label: <TranslatedText stringId="patient.referral.action.complete" fallback="Complete" />,
       condition: () => row.status === REFERRAL_STATUSES.PENDING,
       onClick: onCompleteReferral,
     },
