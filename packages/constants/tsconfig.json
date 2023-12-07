@@ -5,6 +5,6 @@
   ],
   "compilerOptions": {
     "baseUrl": "./src",
-    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
   }
 }
