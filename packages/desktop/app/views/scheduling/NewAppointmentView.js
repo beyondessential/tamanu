@@ -4,6 +4,7 @@ import { PageContainer, ContentPane, TopBar } from '../../components';
 import { Notification } from '../../components/Notification';
 import { Button } from '../../components/Button';
 import { AppointmentForm } from '../../components/Appointments/AppointmentForm';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const ButtonRow = styled.div`
   display: flex;
@@ -12,10 +13,20 @@ const ButtonRow = styled.div`
 
 const SubmissionSuccess = ({ onReset }) => (
   <>
-    <Notification message="Appointment created successfully." />
+    <Notification
+      message={
+        <TranslatedText
+          stringId="scheduling.newAppointment.successMessage"
+          fallback="Appointment created successfully."
+        />
+      }
+    />
     <ButtonRow>
       <Button variant="contained" color="primary" onClick={onReset}>
-        Add another appointment
+        <TranslatedText
+          stringId="scheduling.newAppointment.action.addAnotherAppointment"
+          fallback="Add another appointment"
+        />
       </Button>
     </ButtonRow>
   </>
@@ -25,7 +36,11 @@ export const NewAppointmentView = () => {
   const [success, setSuccess] = useState(false);
   return (
     <PageContainer>
-      <TopBar title="New appointment" />
+      <TopBar
+        title={
+          <TranslatedText stringId="scheduling.newAppointment.title" fallback="New appointment" />
+        }
+      />
       <ContentPane>
         {success ? (
           <SubmissionSuccess onReset={() => setSuccess(false)} />
