@@ -1,10 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-import { BodyText, Modal, OutlinedButton } from '../../components';
+import { Modal, OutlinedButton } from '../../components';
 import { Colors } from '../../constants';
 
 const TextContainer = styled.div`
   padding: 15px;
+  white-space: pre-wrap;
 `;
 
 const StyledButtonRow = styled.div`
@@ -31,8 +32,6 @@ export const ReportAboutModal = ({ title, open, onClose, content }) => (
     fixedBottomRow
     bottomRowContent={<CloseButtonRow onClose={onClose} />}
   >
-    <TextContainer>
-      {content.split('\n').map(line => (line === '' ? <br /> : <BodyText>{line}</BodyText>))}
-    </TextContainer>
+    <TextContainer>{content}</TextContainer>
   </Modal>
 );
