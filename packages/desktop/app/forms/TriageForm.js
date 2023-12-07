@@ -75,7 +75,7 @@ export const TriageForm = ({
           name="triageTime"
           label={
             <TranslatedText
-              stringId="patient.modal.triage.form.triageTime.label"
+              stringId="patient.modal.triage.form.triageDateTime.label"
               fallback="Triage date & time"
             />
           }
