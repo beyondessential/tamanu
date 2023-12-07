@@ -107,7 +107,7 @@ const fieldNames = ['Referring doctor', 'Referral completed by'];
 const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
   const api = useApi();
   const [name, setName] = useState(
-    <TranslatedText stringId="general.fallback.notApplicatble" fallback="N/A" />,
+    <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" />,
   );
 
   useEffect(() => {

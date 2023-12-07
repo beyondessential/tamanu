@@ -99,13 +99,15 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
   if (error) {
     return (
       <Modal
-        title={<TranslatedText stringId="surveyResponse.modal.title" fallback="Form response" />}
+        title={
+          <TranslatedText stringId="surveyResponse.modal.details.title" fallback="Form response" />
+        }
         open={!!surveyResponseId}
         onClose={onClose}
       >
         <h3>
           <TranslatedText
-            stringId="surveyResponse.modal.error.fetchErrorMessage"
+            stringId="surveyResponse.modal.details.error.fetchErrorMessage"
             fallback="Error fetching response details"
           />
         </h3>
@@ -117,7 +119,9 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
   if (isLoading || !surveyDetails) {
     return (
       <Modal
-        title={<TranslatedText stringId="formResponse.modal.title" fallback="Form response" />}
+        title={
+          <TranslatedText stringId="surveyResponse.modal.details.title" fallback="Form response" />
+        }
         open={!!surveyResponseId}
         onClose={onClose}
       >
@@ -145,7 +149,9 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
 
   return (
     <Modal
-      title={<TranslatedText stringId="formResponse.modal.title" fallback="Form response" />}
+      title={
+        <TranslatedText stringId="surveyResponse.modal.details.title" fallback="Form response" />
+      }
       open={!!surveyResponseId}
       onClose={onClose}
     >
