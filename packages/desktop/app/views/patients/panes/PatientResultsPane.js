@@ -9,6 +9,7 @@ import { Colors } from '../../../constants';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { usePatientSearchParameters } from '../../../contexts/PatientViewSearchParameters';
 import { useAuth } from '../../../contexts/Auth';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const MessageContainer = styled.div`
   padding: 30px;
@@ -37,15 +38,23 @@ const WrongPermissionInner = styled(MessageInner)`
 const NoResultsMessage = () => (
   <MessageContainer>
     <MessageInner>
-      This patient has no lab results to display. Once lab results are available they will be
-      displayed here.
+      <TranslatedText
+        stringId="patient.results.noData"
+        fallback="This patient has no lab results to display. Once lab results are available they will be
+      displayed here."
+      />
     </MessageInner>
   </MessageContainer>
 );
 
 const WrongPermissionMessage = () => (
   <MessageContainer>
-    <WrongPermissionInner>You do not have permission to view lab results</WrongPermissionInner>
+    <WrongPermissionInner>
+      <TranslatedText
+        stringId="patient.results.noPermission"
+        fallback="You do not have permission to view lab results"
+      />
+    </WrongPermissionInner>
   </MessageContainer>
 );
 

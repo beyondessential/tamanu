@@ -7,6 +7,7 @@ import { DateDisplay } from '../../components/DateDisplay';
 import { Modal } from '../../components/Modal';
 import { ModalActionRow } from '../../components/ModalActionRow';
 import { BodyText } from '../../components/Typography';
+import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const ModalBody = styled.div`
   display: grid;
@@ -52,7 +53,14 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
     <Modal
       title={
         <ModalHeader>
-          {labTest?.labTestType?.name} | Test ID {labTest?.labRequest?.displayId}
+          <TranslatedText
+            stringId="patient.results.modal.testResult.title"
+            fallback=":testName | Test ID :testId"
+            replacements={{
+              testName: labTest?.labTestType?.name,
+              testId: labTest?.labRequest?.displayId,
+            }}
+          />
         </ModalHeader>
       }
       open={open}
@@ -61,20 +69,60 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
     >
       <ModalBody>
         <div>
-          <ValueDisplay title="Result" value={labTest?.result} />
-          <ValueDisplay title="Laboratory Officer" value={labTest?.laboratoryOfficer} />
-          <ValueDisplay title="Verification" value={labTest?.verification} />
+          <ValueDisplay
+            title={
+              <TranslatedText
+                stringId="patient.results.modal.testResult.value.result"
+                fallback="Result"
+              />
+            }
+            value={labTest?.result}
+          />
+          <ValueDisplay
+            title={
+              <TranslatedText
+                stringId="patient.results.modal.testResult.value.laboratoryOfficer"
+                fallback="Laboratory Officer"
+              />
+            }
+            value={labTest?.laboratoryOfficer}
+          />
+          <ValueDisplay
+            title={
+              <TranslatedText
+                stringId="patient.results.modal.testResult.value.verification"
+                fallback="Verification"
+              />
+            }
+            value={labTest?.verification}
+          />
         </div>
         <VerticalDivider />
         <div>
           <ValueDisplay
-            title="Completed"
+            title={
+              <TranslatedText
+                stringId="patient.results.modal.testResult.value.completed"
+                fallback="Completed"
+              />
+            }
             value={DateDisplay.stringFormat(labTest?.completedDate)}
           />
-          <ValueDisplay title="Test Method" value={labTest?.labTestMethod?.name} />
+          <ValueDisplay
+            title={
+              <TranslatedText
+                stringId="patient.results.modal.testResult.value.testMethod"
+                fallback="Test Method"
+              />
+            }
+            value={labTest?.labTestMethod?.name}
+          />
         </div>
       </ModalBody>
-      <ModalActionRow confirmText="Close" onConfirm={onClose} />
+      <ModalActionRow
+        confirmText={<TranslatedText stringId="general.action.close" fallback="Close" />}
+        onConfirm={onClose}
+      />
     </Modal>
   );
 });

@@ -4,6 +4,7 @@ import { useSuggester } from '../api';
 import { AutocompleteInput } from './Field';
 import { Colors } from '../constants';
 import { Heading3 } from './Typography';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const Container = styled.div`
   padding: 24px 30px 30px;
@@ -45,11 +46,18 @@ export const ResultsSearchBar = React.memo(
     });
     return (
       <Container>
-        <Heading3 mb={2}>Lab results</Heading3>
+        <Heading3 mb={2}>
+          <TranslatedText stringId="patient.results.search.title" fallback="Lab results" />
+        </Heading3>
         <Fields>
           <StyledAutoCompleteInput
             name="category"
-            label="Test category"
+            label={
+              <TranslatedText
+                stringId="patient.results.search.category.label"
+                fallback="Test category"
+              />
+            }
             disabled={disabled}
             suggester={categorySuggester}
             value={searchParameters.categoryId}
@@ -60,7 +68,9 @@ export const ResultsSearchBar = React.memo(
           />
           <StyledAutoCompleteInput
             name="panel"
-            label="Test panel"
+            label={
+              <TranslatedText stringId="patient.results.search.panel.label" fallback="Test panel" />
+            }
             disabled={disabled}
             value={searchParameters.panelId}
             suggester={panelSuggester}
