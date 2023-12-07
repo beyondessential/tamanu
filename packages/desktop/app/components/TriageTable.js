@@ -21,10 +21,7 @@ const useColumns = () => {
     {
       key: 'arrivalTime',
       title: (
-        <TranslatedText
-          stringId="patientList.emergency.table.column.waitTime"
-          fallback="Wait time"
-        />
+        <TranslatedText stringId="patientList.triage.table.column.waitTime" fallback="Wait time" />
       ),
       // Cell color cannot be set on the component due to the way table cells are configured so the
       // cell color must be calculated and set in the table config separately
@@ -43,7 +40,7 @@ const useColumns = () => {
       key: 'chiefComplaint',
       title: (
         <TranslatedText
-          stringId="patientList.emergency.table.column.chiefComplaint"
+          stringId="patientList.triage.table.column.chiefComplaint"
           fallback="Chief complaint"
         />
       ),
@@ -54,7 +51,7 @@ const useColumns = () => {
     {
       key: 'patientName',
       title: (
-        <TranslatedText stringId="patientList.emergency.table.column.patient" fallback="Patient" />
+        <TranslatedText stringId="patientList.triage.table.column.patient" fallback="Patient" />
       ),
       accessor: row => `${row.firstName} ${row.lastName}`,
     },
@@ -96,7 +93,7 @@ export const TriageTable = React.memo(() => {
       endpoint="triage"
       columns={columns}
       noDataMessage={
-        <TranslatedText stringId="patientListing.table.noData" fallback="No patients found" />
+        <TranslatedText stringId="patientList.table.noData" fallback="No patients found" />
       }
       onRowClick={viewEncounter}
     />

@@ -79,7 +79,7 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
     <SearchTable
       columns={columns}
       noDataMessage={
-        <TranslatedText stringId="patientListing.table.noData" fallback="No patients found" />
+        <TranslatedText stringId="patientList.table.noData" fallback="No patients found" />
       }
       onRowClick={handleViewPatient}
       rowStyle={({ dateOfDeath }) => {

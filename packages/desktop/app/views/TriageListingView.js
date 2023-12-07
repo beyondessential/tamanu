@@ -14,7 +14,7 @@ const Section = styled.div`
 export const TriageListingView = () => (
   <PageContainer>
     <TopBar
-      title=<TranslatedText stringId="patientList.emergency.title" fallback="Emergency patients" />
+      title=<TranslatedText stringId="patientList.triage.title" fallback="Emergency patients" />
     />
     <Section>
       <ContentPane>

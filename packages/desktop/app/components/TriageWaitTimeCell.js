@@ -67,7 +67,7 @@ export const TriageWaitTimeCell = React.memo(
             <div>{getDuration(assumedArrivalTime)}</div>
             <div>
               <TranslatedText
-                stringId="patientList.emergency.table.waitTime.cell.triageTime"
+                stringId="patientList.triage.table.waitTime.cell.triageTime"
                 fallback="Triage at :triageDate"
                 replacements={{ triageDate: format(new Date(triageTime), 'h:mma') }}
               />
@@ -79,7 +79,7 @@ export const TriageWaitTimeCell = React.memo(
         return (
           <TriageCell arrivalTime={assumedArrivalTime}>
             <TranslatedText
-              stringId="patientList.emergency.table.waitTime.cell.closedTime"
+              stringId="patientList.triage.table.waitTime.cell.closedTime"
               fallback="Seen at :triageDate"
               replacements={{ triageDate: format(new Date(closedTime), 'h:mma') }}
             />
@@ -89,7 +89,7 @@ export const TriageWaitTimeCell = React.memo(
         return (
           <PlainCell>
             <TranslatedText
-              stringId="patientList.emergency.table.waitTime.cell.admitted"
+              stringId="patientList.triage.table.waitTime.cell.admitted"
               fallback="Admitted"
             />
           </PlainCell>
