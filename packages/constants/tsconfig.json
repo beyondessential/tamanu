@@ -1,10 +1,10 @@
 {
   "extends": ["../../common.tsconfig.json"],
   "include": [
-    "src/**/*.ts",
+    "src/**/*.ts"
   ],
   "compilerOptions": {
     "baseUrl": "./src",
-    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo"
   }
 }

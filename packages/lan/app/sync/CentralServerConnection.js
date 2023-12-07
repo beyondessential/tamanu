@@ -44,8 +44,8 @@ export class CentralServerConnection {
   // test mocks don't always apply properly - this ensures the mock will be used
   fetchImplementation = fetch;
 
-  constructor(ctx, { host = '' }) {
-    this.host = host.trim().replace(/\/*$/, '');
+  constructor(ctx) {
+    this.host = config.sync.host.trim().replace(/\/*$/, '');
     this.deviceId = ctx?.deviceId;
     this.settings = ctx?.settings;
   }
