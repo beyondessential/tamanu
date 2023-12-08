@@ -34,9 +34,10 @@ const Grid = styled.div`
   height: 100vh;
   justify-content: flex-start;
   align-items: center;
-  background-image: url(${splashImages[1]});
+  background-image: url(${splashImages[3]});
   background-repeat: no-repeat;
-  background-size: cover;
+  background-size: 50%;
+  background-position: center right;
 `;
 
 const LoginContainer = styled(Paper)`
