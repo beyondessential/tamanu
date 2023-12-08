@@ -22,6 +22,13 @@ const StyledButton = styled(Button)`
   margin-bottom: 27px;
 `;
 
+const columns = [
+  { key: 'contactName', title: 'Contact', sortable: false },
+  { key: 'relationshipType', title: 'Relationship', sortable: false },
+  { key: 'contactMethod', title: 'Contact method', sortable: false },
+  { key: '', title: '', sortable: false },
+];
+
 export const NoContactInfo = ({ name }) => {
   return (
     <StyledText>
@@ -33,24 +40,14 @@ export const NoContactInfo = ({ name }) => {
 };
 
 export const ContactDetails = ({ name }) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [contactsCount, setContactsCount] = useState(0);
-
-  // Table Constants
-  const columns = [
-    { key: 'ContactName', title: 'Contact', sortable: false },
-    { key: 'RelationshipType', title: 'Relationship', sortable: false },
-    { key: 'ContactMethod', title: 'Contact method', sortable: false },
-    { key: '', title: '', sortable: false },
-  ];
+  const [contactsCount, setContactsCount] = useState(null);
 
   // Helper Methods
   const onDataFetched = ({ count }) => {
-    setIsLoading(false);
     setContactsCount(count);
   };
 
-  if (!isLoading && contactsCount === 0) {
+  if (contactsCount === 0) {
     return <NoContactInfo name={name} />;
   }
 
@@ -62,8 +59,8 @@ export const ContactDetails = ({ name }) => {
       <Box marginBottom="28px">
         <DataFetchingTable
           columns={columns}
-          noDataMessage="No historical records for this patient."
-          //   endpoint={`patient/19324abf-b485-4184-8537-0a7fe4be1d0b/encounters`}
+          noDataMessage="No contacts registered for this patient."
+          // endpoint={`patient/19324abf-b485-4184-8537-0a7fe4be1d0b/encounters`}
           disablePagination
           // onRowClick={row => onItemClick(row.id)}
           // initialSort={{ orderBy: 'startDate', order: 'desc' }}
@@ -76,9 +73,14 @@ export const ContactDetails = ({ name }) => {
   );
 };
 
-const ReminderContactModal = ({ openModal, handleClose, patient = {} }) => {
+export const ReminderContactModal = ({ openReminderModal, handleClose, patient = {} }) => {
   return (
-    <BaseModal width="md" title="Reminder contacts" open={openModal} cornerExitButton={false}>
+    <BaseModal
+      width="md"
+      title="Reminder contacts"
+      open={openReminderModal}
+      cornerExitButton={false}
+    >
       <ContactDetails name={`${patient?.firstName} ${patient?.lastName}`} />
 
       <StyledButton
@@ -94,5 +96,3 @@ const ReminderContactModal = ({ openModal, handleClose, patient = {} }) => {
     </BaseModal>
   );
 };
-
-export default ReminderContactModal;

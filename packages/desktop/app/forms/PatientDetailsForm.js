@@ -35,8 +35,8 @@ import {
   LocationInformationFields,
 } from '../components/ConfiguredMandatoryPatientFields';
 import { Button } from '../components/Button';
-import ReminderContactModal from '../components/ReminderContactModal';
 import { useAuth } from '../contexts/Auth';
+import { ReminderContactModal } from '../components/ReminderContactModal';
 
 const StyledHeading = styled.div`
   display: flex;
@@ -68,7 +68,7 @@ const StyledButton = styled(Button)`
 `;
 
 export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
-  const [openModal, setOpenModal] = useState(false);
+  const [openReminderModal, setOpenReminderModal] = useState(false);
   const villageSuggester = useSuggester('village');
   const { getLocalisation } = useLocalisation();
   let filteredSexOptions = sexOptions;
@@ -83,11 +83,11 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
     getLocalisation(`fields.${fieldName}.requiredPatientData`);
 
   const handleOpenRemindersModal = useCallback(() => {
-    setOpenModal(true);
+    setOpenReminderModal(true);
   }, []);
 
   const handleCloseRemindersModal = useCallback(() => {
-    setOpenModal(false);
+    setOpenReminderModal(false);
   }, []);
 
   return (
@@ -107,9 +107,9 @@ export const PrimaryDetailsGroup = ({ values = {}, patientRegistryType }) => {
         )}
       </StyledHeading>
       <ReminderContactModal
-        openModal={openModal}
+        openReminderModal={openReminderModal}
         handleClose={handleCloseRemindersModal}
-        values={values}
+        patient={values}
       />
 
       <FormGrid>
