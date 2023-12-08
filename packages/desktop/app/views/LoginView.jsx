@@ -5,7 +5,7 @@ import Paper from '@material-ui/core/Paper';
 import { push } from 'connected-react-router';
 import { Launch } from '@material-ui/icons';
 
-import { TamanuLogo } from '../components';
+import { BodyText, TamanuLogo } from '../components';
 import { LOCAL_STORAGE_KEYS, Colors } from '../constants';
 import { splashImages } from '../constants/images';
 
@@ -24,13 +24,15 @@ import { useApi } from '../api';
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
 
 import { useLocalisation } from '../contexts/Localisation';
+import { Typography } from '@material-ui/core';
+import { theme } from '../theme';
 
 const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
 
 const Grid = styled.div`
   display: grid;
   height: 100vh;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   background-image: url(${splashImages[1]});
   background-repeat: no-repeat;
@@ -39,8 +41,10 @@ const Grid = styled.div`
 
 const LoginContainer = styled(Paper)`
   position: relative;
-  padding: 30px 60px 70px 60px;
-  width: 480px;
+  padding: 30px 170px 70px;
+  width: 50vw;
+  height: inherit;
+  border-radius: 0;
 `;
 
 const LogoContainer = styled.div`
@@ -64,6 +68,21 @@ const SupportDesktopLink = styled.a`
   &:hover {
     font-weight: bold;
   }
+`;
+
+const LoginTextContainer = styled.div`
+  //color: red;
+  max-width: 372px;
+`;
+
+const LoginHeading = styled(Typography)`
+  color: ${Colors.darkestText};
+  font-weight: 500;
+  font-size: 38px;
+`;
+
+const LoginSubtext = styled(BodyText)`
+  color: ${Colors.midText};
 `;
 
 export const LoginView = () => {
@@ -108,9 +127,11 @@ export const LoginView = () => {
     <Grid>
       <LoginContainer>
         <SyncHealthNotificationComponent />
-        <LogoContainer>
-          <TamanuLogo size="150px" />
-        </LogoContainer>
+        {/*<LogoContainer>*/}
+        {/*  <TamanuLogo size="150px" />*/}
+        {/*</LogoContainer>*/}
+        <LoginHeading>Log in</LoginHeading>
+        <LoginSubtext>Enter your details below to log in</LoginSubtext>
         {screen === 'login' && (
           <LoginForm
             onSubmit={submitLogin}
