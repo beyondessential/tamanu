@@ -6,7 +6,7 @@ import { push } from 'connected-react-router';
 import { Launch } from '@material-ui/icons';
 
 import { Colors, LOCAL_STORAGE_KEYS } from '../constants';
-import { BodyText, TamanuLogo } from '../components';
+import { BodyText, TamanuLogo, TamanuLogoBlue } from '../components';
 import { splashImages } from '../constants/images';
 
 import { LoginForm } from '../forms/LoginForm';
@@ -42,14 +42,21 @@ const Grid = styled.div`
 
 const LoginContainer = styled(Paper)`
   position: relative;
-  padding: 30px 170px 70px;
+  padding: 30px 60px 70px 60px;
   width: 50vw;
   height: inherit;
   border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const LogoContainer = styled.div`
   text-align: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding: 30px;
 `;
 
 const SupportDesktopLink = styled.a`
@@ -71,9 +78,9 @@ const SupportDesktopLink = styled.a`
   }
 `;
 
-const LoginTextContainer = styled.div`
-  //color: red;
+const LoginFormContainer = styled.div`
   max-width: 372px;
+  width: 100%;
 `;
 
 const LoginHeading = styled(Typography)`
@@ -128,41 +135,43 @@ export const LoginView = () => {
     <Grid>
       <LoginContainer>
         <SyncHealthNotificationComponent />
-        {/*<LogoContainer>*/}
-        {/*  <TamanuLogo size="150px" />*/}
-        {/*</LogoContainer>*/}
-        <LoginHeading>Log in</LoginHeading>
-        <LoginSubtext>Enter your details below to log in</LoginSubtext>
-        {screen === 'login' && (
-          <LoginForm
-            onSubmit={submitLogin}
-            errorMessage={loginError}
-            rememberEmail={rememberEmail}
-            onNavToResetPassword={() => setScreen('resetPassword')}
-          />
-        )}
-        {screen === 'resetPassword' && (
-          <ResetPasswordForm
-            onSubmit={({ email }) => dispatch(requestPasswordReset(email))}
-            onRestartFlow={() => dispatch(restartPasswordResetFlow())}
-            errorMessage={requestPasswordResetError}
-            success={requestPasswordResetSuccess}
-            initialEmail={rememberEmail}
-            resetPasswordEmail={resetPasswordEmail}
-            onNavToChangePassword={() => setScreen('changePassword')}
-            onNavToLogin={() => setScreen('login')}
-          />
-        )}
-        {screen === 'changePassword' && (
-          <ChangePasswordForm
-            onSubmit={data => dispatch(changePassword(data))}
-            errorMessage={changePasswordError}
-            success={changePasswordSuccess}
-            email={resetPasswordEmail}
-            onNavToLogin={() => setScreen('login')}
-            onNavToResetPassword={() => setScreen('resetPassword')}
-          />
-        )}
+        <LogoContainer>
+          <TamanuLogoBlue size="150px" />
+        </LogoContainer>
+        <LoginFormContainer>
+          <LoginHeading>Log in</LoginHeading>
+          <LoginSubtext>Enter your details below to log in</LoginSubtext>
+          {screen === 'login' && (
+            <LoginForm
+              onSubmit={submitLogin}
+              errorMessage={loginError}
+              rememberEmail={rememberEmail}
+              onNavToResetPassword={() => setScreen('resetPassword')}
+            />
+          )}
+          {screen === 'resetPassword' && (
+            <ResetPasswordForm
+              onSubmit={({ email }) => dispatch(requestPasswordReset(email))}
+              onRestartFlow={() => dispatch(restartPasswordResetFlow())}
+              errorMessage={requestPasswordResetError}
+              success={requestPasswordResetSuccess}
+              initialEmail={rememberEmail}
+              resetPasswordEmail={resetPasswordEmail}
+              onNavToChangePassword={() => setScreen('changePassword')}
+              onNavToLogin={() => setScreen('login')}
+            />
+          )}
+          {screen === 'changePassword' && (
+            <ChangePasswordForm
+              onSubmit={data => dispatch(changePassword(data))}
+              errorMessage={changePasswordError}
+              success={changePasswordSuccess}
+              email={resetPasswordEmail}
+              onNavToLogin={() => setScreen('login')}
+              onNavToResetPassword={() => setScreen('resetPassword')}
+            />
+          )}
+        </LoginFormContainer>
         {isSupportUrlLoaded && (
           <SupportDesktopLink href={supportUrl} target="_blank" rel="noreferrer">
             Support centre
