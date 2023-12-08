@@ -21,6 +21,17 @@ const initialiseFetchState = () => ({
   fetchOptions: {},
 });
 
+// a hook to return `true` only if state has stayed true for $delay ms 
+const useDelayedToggle = (state, delay = 1000) => {
+  const [delayFinished, setDelayFinished] = useState(false);
+  useEffect(() => {
+    setDelayFinished(false);
+    const timeout = setTimeout(() => setDelayFinished(true), delay);
+    return () => clearTimeout(timeout);
+  }, [state, delay, setDelayFinished])
+  return state && delayFinished;
+};
+
 export const DataFetchingTable = memo(
   ({
     fetchOptions,
@@ -118,17 +129,11 @@ export const DataFetchingTable = memo(
       },
       [fetchOptions, page, sorting],
     );
-
-    const loadingIndicatorDelay = () =>
-      setTimeout(() => {
-        setIsLoading(true);
-      }, 1000);
-
     const clearLoadingIndicators = () => {
       setIsLoading(false);
       setIsLoadingMoreData(false);
     };
-
+    const showLoadingIndicator = useDelayedToggle(isLoading);
     const fetchOptionsString = JSON.stringify(fetchOptions);
 
     const updateTableWithData = useCallback(
@@ -211,8 +216,11 @@ export const DataFetchingTable = memo(
 
     useEffect(() => {
       const shouldLoadMoreData = fetchState.data?.length > 0 && lazyLoading;
-      if (shouldLoadMoreData) setIsLoadingMoreData(true);
-      const loadingDelay = !shouldLoadMoreData && loadingIndicatorDelay();
+      if (shouldLoadMoreData) {
+        setIsLoadingMoreData(true);
+      } else {
+        setIsLoading(true);
+      }
 
       (async () => {
         try {
@@ -221,12 +229,10 @@ export const DataFetchingTable = memo(
           }
 
           const { data, count } = await fetchData();
-          if (loadingDelay) clearTimeout(loadingDelay); // Clear the loading indicator timeout if data fetched before 1 second passes (stops flash from short loading time)
 
           const transformedData = transformData(data, count); // Transform the data before updating the table rows
           updateTableWithData(transformedData, count); // Set the data for table rows and update the previous fetch state
         } catch (error) {
-          clearTimeout(loadingDelay);
           clearLoadingIndicators();
           // eslint-disable-next-line no-console
           console.error(error);
@@ -287,7 +293,7 @@ export const DataFetchingTable = memo(
           <TableRefreshButton lastUpdatedTime={lastUpdatedAt} refreshTable={manualRefresh} />
         )}
         <Table
-          isLoading={isLoading}
+          isLoading={showLoadingIndicator}
           isLoadingMore={isLoadingMoreData}
           data={data}
           errorMessage={errorMessage}
