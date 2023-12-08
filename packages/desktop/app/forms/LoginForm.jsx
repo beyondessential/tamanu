@@ -54,6 +54,12 @@ const StyledCheckboxField = styled(Field)`
   }
 `;
 
+const ButtonContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  row-gap: 5px;
+`;
+
 const LoginFormComponent = ({ errorMessage, onNavToResetPassword, setFieldError }) => {
   const [genericMessage, setGenericMessage] = useState(null);
 
@@ -92,10 +98,12 @@ const LoginFormComponent = ({ errorMessage, onNavToResetPassword, setFieldError 
           <StyledCheckboxField name="rememberMe" label="Remember me" component={CheckField} />
         </RememberMeRow>
       </div>
-      <LoginButton text="Log in" />
-      <ForgotPasswordButton onClick={onNavToResetPassword} color="default" variant="text">
-        Forgot password?
-      </ForgotPasswordButton>
+      <ButtonContainer>
+        <LoginButton text="Log in" />
+        <ForgotPasswordButton onClick={onNavToResetPassword} color="default" variant="text">
+          Forgot password?
+        </ForgotPasswordButton>
+      </ButtonContainer>
     </FormGrid>
   );
 };

@@ -25,8 +25,6 @@ import { SyncHealthNotificationComponent } from '../components/SyncHealthNotific
 
 import { useLocalisation } from '../contexts/Localisation';
 import { Typography } from '@material-ui/core';
-import { theme } from '../theme';
-
 const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
 
 const Grid = styled.div`
@@ -54,15 +52,14 @@ const LoginContainer = styled(Paper)`
 const LogoContainer = styled.div`
   text-align: center;
   position: fixed;
-  top: 0;
-  left: 0;
-  padding: 30px;
+  top: 25px;
+  left: 25px;
 `;
 
 const SupportDesktopLink = styled.a`
   position: absolute;
-  bottom: 17px;
-  right: 28px;
+  bottom: 25px;
+  left: 25px;
   margin-top: 4px;
   font-weight: 400;
   font-size: 9px;
@@ -81,6 +78,7 @@ const SupportDesktopLink = styled.a`
 const LoginFormContainer = styled.div`
   max-width: 372px;
   width: 100%;
+  padding-top: 40px;
 `;
 
 const LoginHeading = styled(Typography)`
@@ -91,6 +89,14 @@ const LoginHeading = styled(Typography)`
 
 const LoginSubtext = styled(BodyText)`
   color: ${Colors.midText};
+`;
+
+const DesktopVersionText = styled(Typography)`
+  font-size: 9px;
+  color: ${Colors.midText};
+  position: absolute;
+  bottom: 15px;
+  right: 20px;
 `;
 
 export const LoginView = () => {
@@ -178,6 +184,7 @@ export const LoginView = () => {
             <Launch style={{ marginLeft: '3px', fontSize: '12px' }} />
           </SupportDesktopLink>
         )}
+        <DesktopVersionText>Version 1.39.0</DesktopVersionText>
       </LoginContainer>
     </Grid>
   );
