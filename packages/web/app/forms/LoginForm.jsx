@@ -5,14 +5,7 @@ import styled from 'styled-components';
 import { USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
 
 import { FormGrid } from '../components/FormGrid';
-import {
-  Button,
-  CheckField,
-  Field,
-  Form,
-  FormSubmitButton,
-  TextField,
-} from '../components';
+import { Button, CheckField, Field, Form, FormSubmitButton, TextField } from '../components';
 
 const LoginButton = styled(FormSubmitButton)`
   font-size: 16px;
@@ -32,11 +25,11 @@ const ErrorMessage = styled.div`
   text-align: center;
 `;
 
-const LoginFormComponent = ({
-  errorMessage,
-  onNavToResetPassword,
-  setFieldError,
-}) => {
+const StyledField = styled(Field)`
+  padding-top: 15px;
+`;
+
+const LoginFormComponent = ({ errorMessage, onNavToResetPassword, setFieldError }) => {
   const [genericMessage, setGenericMessage] = useState(null);
 
   useEffect(() => {
@@ -53,8 +46,14 @@ const LoginFormComponent = ({
   return (
     <FormGrid columns={1}>
       {!!genericMessage && <ErrorMessage>{genericMessage}</ErrorMessage>}
-      <Field name="email" type="email" label="Email" required component={TextField} />
-      <Field name="password" label="Password" type="password" required component={TextField} />
+      <StyledField name="email" type="email" label="Email" required component={TextField} />
+      <StyledField
+        name="password"
+        label="Password"
+        type="password"
+        required
+        component={TextField}
+      />
       <RememberMeRow>
         <Field name="rememberMe" label="Remember me" component={CheckField} />
       </RememberMeRow>
