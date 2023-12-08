@@ -66,8 +66,8 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess, setErro
           setErrorLabel(USER_DEACTIVATED_DISPLAY_MESSAGE);
         } else {
           setErrorLabel('');
+          onError(error);
         }
-        onError(error);
       }
     },
     [existingHost],
