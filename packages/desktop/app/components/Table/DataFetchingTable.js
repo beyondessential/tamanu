@@ -274,24 +274,27 @@ export const DataFetchingTable = memo(
     const { data, count, lastUpdatedAt } = fetchState;
     const { order, orderBy } = sorting;
 
-    const notificationMessage = `${newRowCount} new record${
-      newRowCount > 1 ? 's' : ''
-    } available to view`;
+    const notification = !isNotificationMuted && showNotification && (
+      <TableNotification
+        message={`${newRowCount} new record${
+          newRowCount > 1 ? 's' : ''
+        } available to view`}
+        refreshTable={manualRefresh}
+        clearNotification={() => {
+          setShowNotification(false);
+          setIsNotificationMuted(true);
+        }}
+      />
+    );
+
+    const refreshButton = enableAutoRefresh && (
+      <TableRefreshButton lastUpdatedTime={lastUpdatedAt} refreshTable={manualRefresh} />
+    );
+
     return (
       <>
-        {!isNotificationMuted && showNotification && (
-          <TableNotification
-            message={notificationMessage}
-            refreshTable={manualRefresh}
-            clearNotification={() => {
-              setShowNotification(false);
-              setIsNotificationMuted(true);
-            }}
-          />
-        )}
-        {enableAutoRefresh && (
-          <TableRefreshButton lastUpdatedTime={lastUpdatedAt} refreshTable={manualRefresh} />
-        )}
+        {notification}
+        {refreshButton}
         <Table
           isLoading={showLoadingIndicator}
           isLoadingMore={isLoadingMoreData}
