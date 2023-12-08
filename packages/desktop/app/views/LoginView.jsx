@@ -136,7 +136,7 @@ export const LoginView = () => {
       <LoginContainer>
         <SyncHealthNotificationComponent />
         <LogoContainer>
-          <TamanuLogoBlue size="150px" />
+          <TamanuLogoBlue size="140px" />
         </LogoContainer>
         <LoginFormContainer>
           <LoginHeading>Log in</LoginHeading>

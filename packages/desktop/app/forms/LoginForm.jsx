@@ -8,10 +8,16 @@ import { FormGrid } from '../components/FormGrid';
 import { Button, CheckField, Field, Form, FormSubmitButton, TextField } from '../components';
 
 const LoginButton = styled(FormSubmitButton)`
-  font-size: 16px;
+  font-size: 14px;
   line-height: 18px;
   padding-top: 16px;
   padding-bottom: 16px;
+`;
+
+const ForgotPasswordButton = styled(Button)`
+  font-size: 11px;
+  color: black;
+  font-weight: 400;
 `;
 
 const RememberMeRow = styled.div`
@@ -86,10 +92,10 @@ const LoginFormComponent = ({ errorMessage, onNavToResetPassword, setFieldError 
           <StyledCheckboxField name="rememberMe" label="Remember me" component={CheckField} />
         </RememberMeRow>
       </div>
-      <LoginButton text="Login to your account" />
-      <Button onClick={onNavToResetPassword} color="default" variant="text">
-        Forgot your password?
-      </Button>
+      <LoginButton text="Log in" />
+      <ForgotPasswordButton onClick={onNavToResetPassword} color="default" variant="text">
+        Forgot password?
+      </ForgotPasswordButton>
     </FormGrid>
   );
 };
