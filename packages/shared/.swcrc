@@ -2,14 +2,14 @@
   "$schema": "https://json.schemastore.org/swcrc",
   "exclude": "node_modules/",
   "module": {
-    "type": "es6"
+    "type": "commonjs"
   },
   "jsc": {
     "parser": {
       "syntax": "ecmascript",
       "jsx": true
     },
-    "target": "esnext",
+    "target": "es2020",
     "keepClassNames": true
   }
 }

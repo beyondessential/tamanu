@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker?worker&url';
+// import pdfjsWorker from 'pdfjs-dist/build/pdf.worker?worker&url';
 
 import styled from 'styled-components';
 import { useApi } from '../../api';
 import { PDFPage } from './PDFPage';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+pdfjsLib.GlobalWorkerOptions.workerSrc = null;
 
 // Prevent the modal header scrolling away by making the preview scrollable
 const PDFDocument = styled.div`
@@ -33,7 +33,6 @@ export default function PDFPreview({
   scrollPage,
   setScrollPage,
 }) {
-
   const api = useApi();
   const [pages, setPages] = useState([]);
 

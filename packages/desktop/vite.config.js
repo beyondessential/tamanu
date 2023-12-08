@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
+import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -94,6 +95,13 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: path => path.replace(/^\/api/, '/v1/'),
       },
+    },
+  },
+  resolve: {
+    preserveSymlinks: true, // use the yarn workspace symlinks
+    alias: {
+      '@tamanu/constants/*': path.resolve(__dirname, '../constants/src/index.ts'),
+      '@tamanu/shared/utils': path.resolve(__dirname, '../shared/src/utils'),
     },
   },
 });

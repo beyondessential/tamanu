@@ -7,9 +7,8 @@
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN ../../license",
-  "type": "module",
-  "main": "index.js",
-  "bin": "dist/index.js",
+  "main": "NODE_ENV='development' index.js",
+  "bin": "dist/app.bundle.js",
   "scripts": {
     "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true app",
     "start": "node dist",
@@ -24,8 +23,8 @@
   },
   "devDependencies": {
     "@beyondessential/eslint-config-js": "^1.1.0",
-    "@tamanu/build-tooling": "*",
     "@swc/jest": "0.2.26",
+    "@tamanu/build-tooling": "*",
     "chai": "^4.1.2",
     "eslint": "^5.15.2",
     "eslint-plugin-import": "^2.22.1",
@@ -39,6 +38,7 @@
   },
   "dependencies": {
     "@opentelemetry/api": "^1.4.0",
+    "@opentelemetry/api-metrics": "^0.33.0",
     "@tamanu/shared": "*",
     "abort-controller": "^3.0.0",
     "basic-auth": "^2.0.1",
