@@ -17,7 +17,8 @@ const LoginButton = styled(FormSubmitButton)`
 const RememberMeRow = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-self: flex-end;
+  justify-content: flex-end;
   font-size: 16px;
 `;
 
@@ -27,6 +28,11 @@ const ErrorMessage = styled.div`
 
 const StyledField = styled(Field)`
   padding-top: 15px;
+`;
+
+const StyledCheckboxField = styled(Field)`
+  //margin-right: 0;
+  .MuiFormControlLabel-root;
 `;
 
 const LoginFormComponent = ({ errorMessage, onNavToResetPassword, setFieldError }) => {
@@ -55,7 +61,12 @@ const LoginFormComponent = ({ errorMessage, onNavToResetPassword, setFieldError 
         component={TextField}
       />
       <RememberMeRow>
-        <Field name="rememberMe" label="Remember me" component={CheckField} />
+        <StyledCheckboxField
+          name="rememberMe"
+          label="Remember me"
+          style={{ marginRight: '0', fontSize: '11px' }}
+          component={CheckField}
+        />
       </RememberMeRow>
       <LoginButton text="Login to your account" />
       <Button onClick={onNavToResetPassword} color="default" variant="text">
