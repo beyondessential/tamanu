@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker?worker&url';
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker';
 
 import styled from 'styled-components';
 import { useApi } from '../../api';
@@ -33,7 +33,6 @@ export default function PDFPreview({
   scrollPage,
   setScrollPage,
 }) {
-
   const api = useApi();
   const [pages, setPages] = useState([]);
 
