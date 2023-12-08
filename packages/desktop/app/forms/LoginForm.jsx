@@ -20,6 +20,7 @@ const RememberMeRow = styled.div`
   justify-self: flex-end;
   justify-content: flex-end;
   font-size: 16px;
+  padding-top: 5px;
 `;
 
 const ErrorMessage = styled.div`
@@ -27,12 +28,24 @@ const ErrorMessage = styled.div`
 `;
 
 const StyledField = styled(Field)`
-  padding-top: 15px;
+  .label-field {
+    padding-top: 15px;
+  }
 `;
 
 const StyledCheckboxField = styled(Field)`
-  //margin-right: 0;
-  .MuiFormControlLabel-root;
+  .MuiFormControlLabel-root {
+    margin-right: 0;
+
+    .MuiTypography-root {
+      font-size: 11px;
+      color: black;
+    }
+
+    .MuiButtonBase-root {
+      padding: 0 5px;
+    }
+  }
 `;
 
 const LoginFormComponent = ({ errorMessage, onNavToResetPassword, setFieldError }) => {
@@ -52,22 +65,27 @@ const LoginFormComponent = ({ errorMessage, onNavToResetPassword, setFieldError 
   return (
     <FormGrid columns={1}>
       {!!genericMessage && <ErrorMessage>{genericMessage}</ErrorMessage>}
-      <StyledField name="email" type="email" label="Email" required component={TextField} />
       <StyledField
-        name="password"
-        label="Password"
-        type="password"
+        name="email"
+        type="email"
+        label="Email"
         required
         component={TextField}
+        placeholder="Enter your email address"
       />
-      <RememberMeRow>
-        <StyledCheckboxField
-          name="rememberMe"
-          label="Remember me"
-          style={{ marginRight: '0', fontSize: '11px' }}
-          component={CheckField}
+      <div>
+        <StyledField
+          name="password"
+          label="Password"
+          type="password"
+          required
+          component={TextField}
+          placeholder="Enter your password"
         />
-      </RememberMeRow>
+        <RememberMeRow>
+          <StyledCheckboxField name="rememberMe" label="Remember me" component={CheckField} />
+        </RememberMeRow>
+      </div>
       <LoginButton text="Login to your account" />
       <Button onClick={onNavToResetPassword} color="default" variant="text">
         Forgot your password?
