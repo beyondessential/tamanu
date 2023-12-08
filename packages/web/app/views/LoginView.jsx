@@ -24,7 +24,7 @@ import { useApi } from '../api';
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
 
 import { useLocalisation } from '../contexts/Localisation';
-import { Typography } from '@material-ui/core';
+import { IconButton, Typography } from '@material-ui/core';
 const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
 
 const Grid = styled.div`
@@ -55,6 +55,9 @@ const LogoContainer = styled.div`
   position: fixed;
   top: 25px;
   left: 25px;
+  :hover {
+    cursor: pointer;
+  }
 `;
 
 const SupportDesktopLink = styled.a`
@@ -142,7 +145,11 @@ export const LoginView = () => {
     <Grid>
       <LoginContainer>
         <SyncHealthNotificationComponent />
-        <LogoContainer>
+        <LogoContainer
+          onClick={() => {
+            window.location.reload();
+          }}
+        >
           <TamanuLogoBlue size="140px" />
         </LogoContainer>
         <LoginFormContainer>
