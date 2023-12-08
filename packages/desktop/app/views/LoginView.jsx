@@ -34,7 +34,7 @@ const Grid = styled.div`
   align-items: center;
   background-image: url(${splashImages[3]});
   background-repeat: no-repeat;
-  background-size: 50%;
+  background-size: auto auto;
   background-position: center right;
 `;
 
@@ -42,6 +42,7 @@ const LoginContainer = styled(Paper)`
   position: relative;
   padding: 30px 60px 70px 60px;
   width: 50vw;
+  min-width: 550px;
   height: inherit;
   border-radius: 0;
   display: flex;
@@ -145,15 +146,17 @@ export const LoginView = () => {
           <TamanuLogoBlue size="140px" />
         </LogoContainer>
         <LoginFormContainer>
-          <LoginHeading>Log in</LoginHeading>
-          <LoginSubtext>Enter your details below to log in</LoginSubtext>
           {screen === 'login' && (
-            <LoginForm
-              onSubmit={submitLogin}
-              errorMessage={loginError}
-              rememberEmail={rememberEmail}
-              onNavToResetPassword={() => setScreen('resetPassword')}
-            />
+            <>
+              <LoginHeading>Log in</LoginHeading>
+              <LoginSubtext>Enter your details below to log in</LoginSubtext>
+              <LoginForm
+                onSubmit={submitLogin}
+                errorMessage={loginError}
+                rememberEmail={rememberEmail}
+                onNavToResetPassword={() => setScreen('resetPassword')}
+              />
+            </>
           )}
           {screen === 'resetPassword' && (
             <ResetPasswordForm
