@@ -1,12 +1,12 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
 import { Button, Typography } from '@material-ui/core';
+import { getDisplayAge } from '@tamanu/shared/utils/date';
 import { LocalisedText } from '../LocalisedText';
 import { DateDisplay } from '../DateDisplay';
 import { PatientInitialsIcon } from '../PatientInitialsIcon';
 import { Colors } from '../../constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { getDisplayAge } from '../../utils/dateTime';
 import { useLocalisation } from '../../contexts/Localisation';
 
 const PatientButton = styled(Button)`

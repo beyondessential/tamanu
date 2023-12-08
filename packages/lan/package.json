@@ -7,7 +7,6 @@
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN ../../license",
-  "type": "module",
   "main": "index.js",
   "bin": "dist/index.js",
   "scripts": {

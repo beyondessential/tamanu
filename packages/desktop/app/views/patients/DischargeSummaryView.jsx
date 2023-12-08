@@ -15,7 +15,7 @@ import { useEncounter } from '../../contexts/Encounter';
 import { Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
 import { getDepartmentName } from '../../utils/department';
-import { getDisplayAge } from '../../utils/dateTime';
+import { getDisplayAge } from '@tamanu/shared/utils/date';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { useLocalisation } from '../../contexts/Localisation';
 import {

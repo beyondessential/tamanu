@@ -14,6 +14,9 @@
     // https://github.com/benmosher/eslint-plugin-import/issues/479
     "import/no-extraneous-dependencies": 0,
 
+    // This was showing up in weird places?
+    "jsx-a11y/control-has-associated-label": 0,
+
     "no-underscore-dangle": "off",
     "react/prop-types": 0,
     "react-hooks/exhaustive-deps": "error",

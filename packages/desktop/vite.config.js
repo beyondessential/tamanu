@@ -6,6 +6,12 @@ export default defineConfig({
   esbuild: {
     loader: 'jsx',
   },
+  optimizeDeps: {
+    include: ['@tamanu/shared', '@tamanu/constants'],
+  },
+  resolve: {
+    preserveSymlinks: true,
+  },
   plugins: [react()],
   worker: {
     format: 'es',
@@ -14,7 +20,11 @@ export default defineConfig({
     https: true,
   },
   build: {
+    commonjsOptions: {
+      include: [/@tamanu\/.*/, /node_modules\/.*/],
+    },
     rollupOptions: {
+      preserveSymlinks: true,
       output: {
         generatedCode: 'es2015',
         manualChunks(id) {
