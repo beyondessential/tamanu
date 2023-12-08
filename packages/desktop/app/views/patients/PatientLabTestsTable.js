@@ -133,7 +133,7 @@ export const PatientLabTestsTable = React.memo(
               key: 'testCategory.id',
               title: (
                 <TranslatedText
-                  stringId="patient.results.table.column.testCategory"
+                  stringId="patient.lab.results.table.column.testCategory"
                   fallback="Test category"
                 />
               ),
@@ -145,7 +145,7 @@ export const PatientLabTestsTable = React.memo(
       {
         key: 'testType',
         title: (
-          <TranslatedText stringId="patient.results.table.column.testType" fallback="Test type" />
+          <TranslatedText stringId="patient.lab.results.table.column.testType" fallback="Test type" />
         ),
         accessor: row => (
           <CategoryCell>
@@ -160,7 +160,7 @@ export const PatientLabTestsTable = React.memo(
         key: 'normalRange',
         title: (
           <TranslatedText
-            stringId="patient.results.table.column.normalRange"
+            stringId="patient.lab.results.table.column.normalRange"
             fallback="Normal range"
           />
         ),
@@ -214,7 +214,7 @@ export const PatientLabTestsTable = React.memo(
           isLoading={isLoading}
           noDataMessage={
             <TranslatedText
-              stringId="patient.results.table.noData"
+              stringId="patient.lab.results.table.noData"
               fallback="This patient has no lab results to display. Once lab results are available they will be displayed here."
             />
           }

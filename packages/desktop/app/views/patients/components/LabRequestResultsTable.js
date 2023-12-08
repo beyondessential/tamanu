@@ -51,7 +51,7 @@ const columns = sex => [
     sortable: false,
   },
   {
-    title: <TranslatedText stringId="lab.results.table.column.method" fallback="Method" />,
+    title: <TranslatedText stringId="lab.results.table.column.labTestMethod" fallback="Method" />,
     key: 'labTestMethod',
     accessor: getMethod,
     sortable: false,

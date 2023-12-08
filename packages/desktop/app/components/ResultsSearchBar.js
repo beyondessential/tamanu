@@ -70,7 +70,7 @@ export const ResultsSearchBar = React.memo(
             name="panel"
             label={
               <TranslatedText
-                stringId="patient.lab.labrresults.search.panel.label"
+                stringId="patient.lab.results.search.panel.label"
                 fallback="Test panel"
               />
             }
