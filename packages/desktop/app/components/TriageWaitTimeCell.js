@@ -26,7 +26,6 @@ const ColourCell = styled(PlainCell)`
 `;
 
 const TriageCell = ({ arrivalTime, children }) => (
-  // `Arrival time: ${arrivalTime}`
   <Tooltip
     title={
       <TranslatedText
