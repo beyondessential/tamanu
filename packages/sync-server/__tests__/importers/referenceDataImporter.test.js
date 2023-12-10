@@ -399,36 +399,34 @@ describe('Permissions import', () => {
   it('should revoke (and reinstate) a permission', async () => {
     const { Permission } = ctx.store.models;
 
-    const checkIfPermissionExists = async () => {
-      const permissions = await getPermissionsForRoles(ctx.store.models, 'reception');
-      expect(permissions).toEqual(expect.arrayContaining([{ noun: 'RevokeTest', verb: 'read' }]));
-      expect(permissions.length).toBe(1);
-    };
-
-    const checkIfPermissionRevoked = async () => {
-      const afterImport = await Permission.findOne({
-        where: { noun: 'RevokeTest' },
-        paranoid: false,
-      });
-      expect(afterImport).toBeTruthy();
-      const permissions = await getPermissionsForRoles(ctx.store.models, 'reception');
-      expect(permissions).toEqual(
-        expect.not.arrayContaining([{ noun: 'RevokeTest', verb: 'read' }]),
-      );
-      expect(permissions.length).toBe(0);
-    };
-
     const beforeImport = await Permission.findOne({ where: { noun: 'RevokeTest' } });
     expect(beforeImport).toBeFalsy();
 
     await doImport({ file: 'revoke-a' });
-    await checkIfPermissionExists();
+    const initialPermissions = await getPermissionsForRoles(ctx.store.models, 'reception');
+    expect(initialPermissions).toEqual(
+      expect.arrayContaining([{ noun: 'RevokeTest', verb: 'read' }]),
+    );
+    expect(initialPermissions.length).toBe(1);
 
     await doImport({ file: 'revoke-b' });
-    await checkIfPermissionRevoked();
+    const afterImport = await Permission.findOne({
+      where: { noun: 'RevokeTest' },
+      paranoid: false,
+    });
+    expect(afterImport).toBeTruthy();
+    const revokedPermissions = await getPermissionsForRoles(ctx.store.models, 'reception');
+    expect(revokedPermissions).toEqual(
+      expect.not.arrayContaining([{ noun: 'RevokeTest', verb: 'read' }]),
+    );
+    expect(revokedPermissions.length).toBe(0);
 
     await doImport({ file: 'revoke-a' });
-    await checkIfPermissionExists();
+    const reinstatedPermissions = await getPermissionsForRoles(ctx.store.models, 'reception');
+    expect(reinstatedPermissions).toEqual(
+      expect.arrayContaining([{ noun: 'RevokeTest', verb: 'read' }]),
+    );
+    expect(reinstatedPermissions.length).toBe(1);
   });
 
   it('should not import rows specified in pages other than "Permissions"', async () => {
