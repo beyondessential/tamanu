@@ -147,9 +147,9 @@ export function permissionLoader(item) {
     .map(([role, yCell]) => {
       const id = `${role}-${verb}-${noun}-${objectId || 'any'}`.toLowerCase();
 
-      // set deletedAt if the cell is marked N
-      const deletionStatus = yCell === 'n' ? DELETION_STATUSES.REVOKED : null;
-      const deletedAt = yCell === 'n' ? new Date() : null;
+      const isDeleted = yCell === 'n';
+      const deletionStatus = isDeleted ? DELETION_STATUSES.REVOKED : null;
+      const deletedAt = isDeleted ? new Date() : null;
 
       return {
         model: 'Permission',
