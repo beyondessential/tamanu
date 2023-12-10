@@ -28,17 +28,23 @@ import { IconButton, Typography } from '@material-ui/core';
 const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
 
 const Grid = styled.div`
-  display: grid;
+  display: flex;
   height: 100vh;
   justify-content: flex-start;
   align-items: center;
+`;
+
+const LoginSplashImage = styled.div`
+  max-width: 50vw;
+  width: 50vw;
+  height: inherit;
   background-image: url(${splashImages[3]});
   background-repeat: no-repeat;
-  background-size: auto auto;
+  background-size: cover;
   background-position: center right;
 `;
 
-const LoginContainer = styled(Paper)`
+const LoginContainer = styled.div`
   position: relative;
   padding: 30px 60px 70px 60px;
   width: 50vw;
@@ -48,6 +54,7 @@ const LoginContainer = styled(Paper)`
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: ${Colors.white};
 `;
 
 const LogoContainer = styled.div`
@@ -196,6 +203,7 @@ export const LoginView = () => {
         )}
         <DesktopVersionText>Version 1.39.0</DesktopVersionText>
       </LoginContainer>
+      <LoginSplashImage />
     </Grid>
   );
 };
