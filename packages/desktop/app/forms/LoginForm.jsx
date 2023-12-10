@@ -5,7 +5,16 @@ import styled from 'styled-components';
 import { USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
 
 import { FormGrid } from '../components/FormGrid';
-import { Button, CheckField, Field, Form, FormSubmitButton, TextField } from '../components';
+import {
+  Button,
+  CheckField,
+  Field,
+  Form,
+  FormSubmitButton,
+  TextButton,
+  TextField,
+} from '../components';
+import { Colors } from '../constants';
 
 const LoginButton = styled(FormSubmitButton)`
   font-size: 14px;
@@ -14,10 +23,16 @@ const LoginButton = styled(FormSubmitButton)`
   padding-bottom: 16px;
 `;
 
-const ForgotPasswordButton = styled(Button)`
+const ForgotPasswordButton = styled(TextButton)`
   font-size: 11px;
   color: black;
   font-weight: 400;
+
+  :hover {
+    color: ${Colors.primary};
+    font-weight: 500;
+    text-decoration: underline;
+  }
 `;
 
 const RememberMeRow = styled.div`
@@ -52,12 +67,6 @@ const StyledCheckboxField = styled(Field)`
       padding: 0 5px;
     }
   }
-`;
-
-const ButtonContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  row-gap: 5px;
 `;
 
 const LoginFormComponent = ({ errorMessage, onNavToResetPassword, setFieldError }) => {
@@ -98,12 +107,10 @@ const LoginFormComponent = ({ errorMessage, onNavToResetPassword, setFieldError 
           <StyledCheckboxField name="rememberMe" label="Remember me" component={CheckField} />
         </RememberMeRow>
       </div>
-      <ButtonContainer>
-        <LoginButton text="Log in" />
-        <ForgotPasswordButton onClick={onNavToResetPassword} color="default" variant="text">
-          Forgot password?
-        </ForgotPasswordButton>
-      </ButtonContainer>
+      <LoginButton text="Log in" />
+      <ForgotPasswordButton onClick={onNavToResetPassword} color="default" variant="text">
+        Forgot password?
+      </ForgotPasswordButton>
     </FormGrid>
   );
 };
