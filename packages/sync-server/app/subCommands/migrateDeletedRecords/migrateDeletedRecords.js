@@ -33,7 +33,8 @@ const fromPermission = async () => {
   const response = await store.sequelize.query(
     `UPDATE "permissions" 
       SET "deletion_status" = :revoked
-      WHERE "deleted_at" IS NOT NULL`,
+      WHERE "deleted_at" IS NOT NULL
+        AND deletion_status IS NULL`,
     {
       replacements: {
         revoked: DELETION_STATUSES.REVOKED,
