@@ -21,6 +21,7 @@ const LoginButton = styled(FormSubmitButton)`
   line-height: 18px;
   padding-top: 16px;
   padding-bottom: 16px;
+  margin-top: 15px;
 `;
 
 const ForgotPasswordButton = styled(TextButton)`
