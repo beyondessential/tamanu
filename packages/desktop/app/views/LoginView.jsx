@@ -27,7 +27,7 @@ import { useLocalisation } from '../contexts/Localisation';
 import { IconButton, Typography } from '@material-ui/core';
 const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
 
-const Grid = styled.div`
+const Container = styled.div`
   display: flex;
   height: 100vh;
   justify-content: flex-start;
@@ -149,7 +149,7 @@ export const LoginView = () => {
   };
 
   return (
-    <Grid>
+    <Container>
       <LoginContainer>
         <SyncHealthNotificationComponent />
         <LogoContainer
@@ -204,6 +204,6 @@ export const LoginView = () => {
         <DesktopVersionText>Version 1.39.0</DesktopVersionText>
       </LoginContainer>
       <LoginSplashImage />
-    </Grid>
+    </Container>
   );
 };
