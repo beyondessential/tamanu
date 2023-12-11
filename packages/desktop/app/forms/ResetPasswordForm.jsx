@@ -3,15 +3,7 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { FormGrid } from '../components/FormGrid';
-import {
-  Button,
-  Field,
-  Form,
-  TextField,
-  StyledPrimarySubmitButton,
-  FormSubmitButton,
-  BodyText,
-} from '../components';
+import { Button, Field, Form, TextField, FormSubmitButton, BodyText } from '../components';
 import { Colors } from '../constants';
 
 const ResetPasswordButton = styled(FormSubmitButton)`
@@ -39,16 +31,7 @@ const FormSubtext = styled(BodyText)`
 `;
 
 export const ResetPasswordForm = React.memo(
-  ({
-    onSubmit,
-    errorMessage,
-    success,
-    initialEmail,
-    resetPasswordEmail,
-    onRestartFlow,
-    onNavToChangePassword,
-    onNavToLogin,
-  }) => {
+  ({ onSubmit, errorMessage, success, initialEmail, onNavToLogin }) => {
     const renderForm = () => (
       <FormGrid columns={1}>
         <div>
