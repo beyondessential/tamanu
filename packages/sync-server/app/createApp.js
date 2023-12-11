@@ -42,8 +42,6 @@ export function createApp(ctx) {
     next();
   });
 
-  app.use(versionCompatibility);
-
   app.use((req, res, next) => {
     req.models = store.models; // cross-compatibility with lan for shared middleware
     req.store = store;
@@ -67,6 +65,8 @@ export function createApp(ctx) {
   app.use('/v1', authModule);
   app.use('/v1', constructPermission);
   app.use('/v1', buildRoutes(ctx));
+
+  app.use(versionCompatibility);
 
   // Serve the latest desktop in upgrade folder so that desktops with lower versions
   // can perform auto upgrade when pointing to this endpoint
