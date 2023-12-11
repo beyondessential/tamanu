@@ -13,6 +13,7 @@ import {
   StyledPrimarySubmitButton,
 } from '../components';
 import { Colors } from '../constants';
+import ApprovedIcon from '../assets/images/approved.svg';
 
 const SuccessMessage = styled.p`
   margin-top: 0;
@@ -34,12 +35,7 @@ const ChangePasswordButton = styled(FormSubmitButton)`
   font-size: 14px;
   line-height: 18px;
   padding: 13px 0;
-  margin-top: 15px;
-`;
-
-const StyledField = styled(Field)`
-  .label-field {
-    padding-top: 10px;
+  margin: 13px 0;
 `;
 
 const BackToLoginButton = styled(Button)`
@@ -47,33 +43,73 @@ const BackToLoginButton = styled(Button)`
   margin-top: 5px;
 `;
 
+const IconContainer = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
+const ActionButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+`;
+
+const FieldContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+`;
+
 export const ChangePasswordForm = React.memo(
   ({ onSubmit, errorMessage, success, email, onNavToLogin, onNavToResetPassword }) => {
     const renderForm = ({ setFieldValue }) => (
+      // <FormGrid columns={1}>
+      //   <div>
+      //     <FormHeading>Reset password</FormHeading>
+      //     <FormSubtext>Please enter the reset code you have received in your email</FormSubtext>
+      //     {/* <FormSubtext>{errorMessage}</FormSubtext> */}
+      //   </div>
+      //   <FieldContainer>
+      //     <Field
+      //       name="token"
+      //       type="text"
+      //       label="Reset Code"
+      //       required
+      //       component={TextField}
+      //       placeholder="Reset code"
+      //     />
+      //     <Field
+      //       name="newPassword"
+      //       type="password"
+      //       label="Enter a new password"
+      //       required
+      //       component={TextField}
+      //       placeholder="New password"
+      //     />
+      //   </FieldContainer>
+      //   <ActionButtonContainer>
+      //     <ChangePasswordButton type="submit">Change Password</ChangePasswordButton>
+      //     <ChangePasswordButton onClick={onNavToLogin} variant="outlined">
+      //       Back to login
+      //     </ChangePasswordButton>
+      //   </ActionButtonContainer>
+      // </FormGrid>
+
       <FormGrid columns={1}>
+        <IconContainer>
+          <img src={ApprovedIcon} alt="Circle check" />
+        </IconContainer>
         <div>
-          <FormHeading>Reset password</FormHeading>
-          <FormSubtext>Please enter the reset code you have received in your email</FormSubtext>
-          <FormSubtext>{errorMessage}</FormSubtext>
+          <FormHeading>Password successfully reset</FormHeading>
+          <FormSubtext>Your password has been successfully reset.</FormSubtext>
         </div>
-        <StyledField
-          name="token"
-          type="text"
-          label="Reset Code"
-          required
-          component={TextField}
-          placeholder="Reset code"
-        />
-        <StyledField
-          name="newPassword"
-          type="password"
-          label="Enter a new password"
-          required
-          component={TextField}
-          placeholder="New password"
-        />
-        <ChangePasswordButton type="submit">Change Password</ChangePasswordButton>
-        <BackToLoginButton onClick={onNavToResetPassword} variant="outlined">
+        <BackToLoginButton
+          style={{ marginTop: '30px' }}
+          fullWidth
+          variant="contained"
+          color="primary"
+          onClick={onNavToLogin}
+        >
           Back to login
         </BackToLoginButton>
       </FormGrid>
@@ -82,11 +118,16 @@ export const ChangePasswordForm = React.memo(
     if (success) {
       return (
         <FormGrid columns={1}>
-          <h3>Reset Password</h3>
-          <SuccessMessage>Your password has been updated</SuccessMessage>
-          <Button fullWidth variant="contained" color="primary" onClick={onNavToLogin}>
-            Login
-          </Button>
+          <IconContainer>
+            <img src={ApprovedIcon} alt="Circle check" />
+          </IconContainer>
+          <div>
+            <FormHeading>Password successfully reset</FormHeading>
+            <FormSubtext>Your password has been successfully reset.</FormSubtext>
+          </div>
+          <BackToLoginButton fullWidth variant="contained" color="primary" onClick={onNavToLogin}>
+            Back to login
+          </BackToLoginButton>
         </FormGrid>
       );
     }
