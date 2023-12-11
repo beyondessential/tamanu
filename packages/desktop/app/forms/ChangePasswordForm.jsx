@@ -63,55 +63,36 @@ const FieldContainer = styled.div`
 export const ChangePasswordForm = React.memo(
   ({ onSubmit, errorMessage, success, email, onNavToLogin, onNavToResetPassword }) => {
     const renderForm = ({ setFieldValue }) => (
-      // <FormGrid columns={1}>
-      //   <div>
-      //     <FormHeading>Reset password</FormHeading>
-      //     <FormSubtext>Please enter the reset code you have received in your email</FormSubtext>
-      //     {/* <FormSubtext>{errorMessage}</FormSubtext> */}
-      //   </div>
-      //   <FieldContainer>
-      //     <Field
-      //       name="token"
-      //       type="text"
-      //       label="Reset Code"
-      //       required
-      //       component={TextField}
-      //       placeholder="Reset code"
-      //     />
-      //     <Field
-      //       name="newPassword"
-      //       type="password"
-      //       label="Enter a new password"
-      //       required
-      //       component={TextField}
-      //       placeholder="New password"
-      //     />
-      //   </FieldContainer>
-      //   <ActionButtonContainer>
-      //     <ChangePasswordButton type="submit">Change Password</ChangePasswordButton>
-      //     <ChangePasswordButton onClick={onNavToLogin} variant="outlined">
-      //       Back to login
-      //     </ChangePasswordButton>
-      //   </ActionButtonContainer>
-      // </FormGrid>
-
       <FormGrid columns={1}>
-        <IconContainer>
-          <img src={ApprovedIcon} alt="Circle check" />
-        </IconContainer>
         <div>
-          <FormHeading>Password successfully reset</FormHeading>
-          <FormSubtext>Your password has been successfully reset.</FormSubtext>
+          <FormHeading>Reset password</FormHeading>
+          <FormSubtext>Please enter the reset code you have received in your email</FormSubtext>
+          <FormSubtext>{errorMessage}</FormSubtext>
         </div>
-        <BackToLoginButton
-          style={{ marginTop: '30px' }}
-          fullWidth
-          variant="contained"
-          color="primary"
-          onClick={onNavToLogin}
-        >
-          Back to login
-        </BackToLoginButton>
+        <FieldContainer>
+          <Field
+            name="token"
+            type="text"
+            label="Reset Code"
+            required
+            component={TextField}
+            placeholder="Reset code"
+          />
+          <Field
+            name="newPassword"
+            type="password"
+            label="Enter a new password"
+            required
+            component={TextField}
+            placeholder="New password"
+          />
+        </FieldContainer>
+        <ActionButtonContainer>
+          <ChangePasswordButton type="submit">Change Password</ChangePasswordButton>
+          <ChangePasswordButton onClick={onNavToLogin} variant="outlined">
+            Back to login
+          </ChangePasswordButton>
+        </ActionButtonContainer>
       </FormGrid>
     );
 
@@ -125,7 +106,13 @@ export const ChangePasswordForm = React.memo(
             <FormHeading>Password successfully reset</FormHeading>
             <FormSubtext>Your password has been successfully reset.</FormSubtext>
           </div>
-          <BackToLoginButton fullWidth variant="contained" color="primary" onClick={onNavToLogin}>
+          <BackToLoginButton
+            style={{ marginTop: '30px' }}
+            fullWidth
+            variant="contained"
+            color="primary"
+            onClick={onNavToLogin}
+          >
             Back to login
           </BackToLoginButton>
         </FormGrid>
