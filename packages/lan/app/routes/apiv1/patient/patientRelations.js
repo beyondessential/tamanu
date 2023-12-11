@@ -278,8 +278,8 @@ patientRelations.get(
           LEFT JOIN programs
             ON (programs.id = surveys.program_id)
         WHERE encounters.patient_id = :patientId
-        AND encounters.deleted_at is null
-        AND surveys.survey_type = :surveyType
+          AND encounters.deleted_at is null
+          AND surveys.survey_type = :surveyType
           ${surveyId ? 'AND surveys.id = :surveyId' : ''}
         ORDER BY ${sortKey} ${sortDirection}
       `,
