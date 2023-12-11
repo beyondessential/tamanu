@@ -26,6 +26,7 @@ import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
 
 import { getLabRequestList } from '../../routeHandlers/labs';
+import { deleteProgramForm } from '../../routeHandlers/deleteProgramForm';
 
 export const encounter = recordIsSoftDeletedCheckingRouter('Encounter');
 
@@ -302,6 +303,8 @@ encounterRelations.get(
           surveys.survey_type = 'programs'
         AND
           encounters.deleted_at is null
+        AND
+          survey_responses.deleted_at IS NULL
       `,
       `
         SELECT
@@ -339,6 +342,8 @@ encounterRelations.get(
     });
   }),
 );
+
+encounterRelations.delete('/:id/programResponses/:programResponseId', deleteProgramForm);
 
 encounterRelations.get(
   '/:id/vitals',
