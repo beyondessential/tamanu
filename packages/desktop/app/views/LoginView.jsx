@@ -87,7 +87,7 @@ const SupportDesktopLink = styled.a`
 `;
 
 const LoginFormContainer = styled.div`
-  max-width: 372px;
+  max-width: 400px;
   width: 100%;
   padding-top: 40px;
 `;
@@ -96,10 +96,12 @@ const LoginHeading = styled(Typography)`
   color: ${Colors.darkestText};
   font-weight: 500;
   font-size: 38px;
+  line-height: 32px;
 `;
 
 const LoginSubtext = styled(BodyText)`
   color: ${Colors.midText};
+  padding-top: 10px;
 `;
 
 const DesktopVersionText = styled(Typography)`
@@ -173,16 +175,18 @@ export const LoginView = () => {
             </>
           )}
           {screen === 'resetPassword' && (
-            <ResetPasswordForm
-              onSubmit={({ email }) => dispatch(requestPasswordReset(email))}
-              onRestartFlow={() => dispatch(restartPasswordResetFlow())}
-              errorMessage={requestPasswordResetError}
-              success={requestPasswordResetSuccess}
-              initialEmail={rememberEmail}
-              resetPasswordEmail={resetPasswordEmail}
-              onNavToChangePassword={() => setScreen('changePassword')}
-              onNavToLogin={() => setScreen('login')}
-            />
+            <>
+              <ResetPasswordForm
+                onSubmit={({ email }) => dispatch(requestPasswordReset(email))}
+                onRestartFlow={() => dispatch(restartPasswordResetFlow())}
+                errorMessage={requestPasswordResetError}
+                success={requestPasswordResetSuccess}
+                initialEmail={rememberEmail}
+                resetPasswordEmail={resetPasswordEmail}
+                onNavToChangePassword={() => setScreen('changePassword')}
+                onNavToLogin={() => setScreen('login')}
+              />
+            </>
           )}
           {screen === 'changePassword' && (
             <ChangePasswordForm
