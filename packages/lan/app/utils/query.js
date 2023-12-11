@@ -40,7 +40,7 @@ export const escapePatternWildcard = value => {
   return value.replace(/[_%\\]/g, '\\$1');
 };
 
-export const getWhereClausesAndReplacementsFromFilters = (allFilters, params) => {
+export const getWhereClausesAndReplacementsFromFilters = (allFilters, params = {}) => {
   const filters = allFilters.filter(f => f);
   const whereClauses = filters.map(f => f.sql).join(' AND ');
   const filterReplacements = filters
