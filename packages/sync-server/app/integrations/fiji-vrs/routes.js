@@ -28,7 +28,7 @@ export const routes = (_context, requireClientHeaders) => {
       await ctx.integrations.fijiVrs.actionHandler.applyAction(body);
       res.send({ response: true });
     }),
-  )
+  );
 
   router.use(vrsErrorHandler);
   return router;

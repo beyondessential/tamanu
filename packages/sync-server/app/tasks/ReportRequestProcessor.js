@@ -153,7 +153,8 @@ export class ReportRequestProcessor extends ScheduledTask {
     for (const request of requests) {
       const reportId = request.getReportId();
 
-      if (!config.mailgun.from) { // TODO: get this from settings
+      if (!config.mailgun.from) {
+        // TODO: get this from settings
         log.error(`ReportRequestProcessorError - Email config missing`);
         await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
