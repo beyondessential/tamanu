@@ -53,6 +53,7 @@ export const ResetPasswordForm = React.memo(
           <FormSubtext>
             Enter your email address below and we will send you a reset code.
           </FormSubtext>
+          <ErrorText>{errorMessage}</ErrorText>
         </div>
         <Field
           name="email"
