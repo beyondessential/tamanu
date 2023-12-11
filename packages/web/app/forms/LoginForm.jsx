@@ -19,8 +19,8 @@ import { Colors } from '../constants';
 const LoginButton = styled(FormSubmitButton)`
   font-size: 14px;
   line-height: 18px;
-  padding-top: 16px;
-  padding-bottom: 16px;
+  padding-top: 13px;
+  padding-bottom: 13px;
   margin-top: 15px;
 `;
 
