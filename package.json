@@ -9,6 +9,7 @@
   "license": "SEE LICENSE IN license",
   "scripts": {
     "clean": "rimraf packages/*/dist packages/*/*.tsbuildinfo",
+    "clean:deps": "rimraf node_modules packages/*/node_modules",
     "create-package": "node scripts/create-package.mjs",
     "create-migration": "node scripts/create-server-migration.mjs",
     "build": "node scripts/build-all.mjs",
