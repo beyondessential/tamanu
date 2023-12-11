@@ -230,7 +230,7 @@ department_info as (
     order by date
     limit 1
   ) first_from
-  on e.id = first_from.enc_id  
+  on e.id = first_from.enc_id
   group by e.id, d.name, e.start_date, first_from
 ),
 
