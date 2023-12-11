@@ -7,6 +7,7 @@
   "bin": {
     "chokidar": "./node_modules/.bin/chokidar",
     "concurrently": "./node_modules/.bin/concurrently",
+    "dual-pkg": "./dual-pkg.mjs",
     "move-dts": "./move-dts.mjs",
     "pkg": "./node_modules/.bin/pkg",
     "swc": "./node_modules/.bin/swc",

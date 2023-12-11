@@ -2,6 +2,8 @@
   "name": "@tamanu/shared",
   "version": "1.39.0",
   "description": "Common code across Tamanu packages",
+  "main": "dist/cjs/index.js",
+  "module": "dist/mjs/index.js",
   "exports": {
     ".": "./dist/index.js",
     "./demoData/*": "./dist/demoData/*.js",
@@ -27,8 +29,10 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN ../../license",
   "scripts": {
-    "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true src",
-    "build-watch": "yarn run build --watch",
+    "build": "yarn run build:src && yarn run build:cjs && dual-pkg dist/mjs dist/cjs",
+    "build:src": "swc --delete-dir-on-start --out-dir dist/mjs --copy-files --source-maps true src",
+    "build:cjs": "yarn run build:src --out-dir dist/cjs --config module.type=commonjs",
+    "build-watch": "yarn run build && concurrently \"yarn run build:src --delete-dir-on-start=false --watch\" \"yarn run build:cjs --delete-dir-on-start=false --watch\"",
     "test": "NODE_ENV=test jest",
     "lint": "eslint src"
   },
