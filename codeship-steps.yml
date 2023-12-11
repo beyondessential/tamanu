@@ -1,6 +1,7 @@
-- name: dummy
+- name: codeship does
   type: serial
+  tag: nothing-nowhere
   steps:
-  - name: dummy
-    type: run
-    command: exit 0
+    - name: nothing
+      service: dummy
+      command: /bin/true
