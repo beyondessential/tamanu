@@ -67,18 +67,33 @@ export class Encounter extends Model {
           async beforeDestroy(encounter) {
             // Sequelize is going to work on cascade for paranoid table in the future.
             // There is an open issue for this: https://github.com/sequelize/sequelize/issues/2586
-            const vitals = await encounter.getVitals();
-            const notes = await encounter.getNotes();
-            const procedures = await encounter.getProcedures();
-            const labRequests = await encounter.getLabRequests();
-            const imagingRequests = await encounter.getImagingRequests();
-            const medications = await encounter.getMedications();
-            const surveyResponses = await encounter.getSurveyResponses();
-            const documents = await encounter.getDocuments();
-            const invoices = await encounter.getInvoice();
-            const initiatedReferrals = await encounter.getInitiatedReferrals();
-            const completedReferrals = await encounter.getCompletedReferrals();
-            const encounterHistories = await encounter.getEncounterHistories();
+            const [
+              vitals,
+              notes,
+              procedures,
+              labRequests,
+              imagingRequests,
+              medications,
+              surveyResponses,
+              documents,
+              invoices,
+              initiatedReferrals,
+              completedReferrals,
+              encounterHistories,
+            ] = await Promise.all([
+              encounter.getVitals(),
+              encounter.getNotes(),
+              encounter.getProcedures(),
+              encounter.getLabRequests(),
+              encounter.getImagingRequests(),
+              encounter.getMedications(),
+              encounter.getSurveyResponses(),
+              encounter.getDocuments(),
+              encounter.getInvoice(),
+              encounter.getInitiatedReferrals(),
+              encounter.getCompletedReferrals(),
+              encounter.getEncounterHistories(),
+            ]);
 
             await Promise.all(
               [
