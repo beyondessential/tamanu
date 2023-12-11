@@ -1,7 +1,4 @@
 {
-  "admin": {
-    "allowAdminRoutes": false
-  },
   "discovery": {
     "enabled": true,
     "overrideAddress": "",
