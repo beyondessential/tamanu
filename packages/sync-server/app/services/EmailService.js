@@ -8,7 +8,7 @@ import { log } from '@tamanu/shared/services/logging';
 
 const mailgun = new Mailgun(formData);
 
-const { apiKey, domain } = config.mailgun;
+const { apiKey, domain } = config.mailgun; // TODO: get this from settings
 
 async function getReadStreamSafe(path) {
   return new Promise((resolve, reject) => {

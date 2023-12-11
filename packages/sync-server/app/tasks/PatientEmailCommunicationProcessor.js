@@ -71,7 +71,7 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
       try {
         const result = await this.emailService.sendEmail({
           to: toAddress,
-          from: config.mailgun.from,
+          from: config.mailgun.from, // TODO: get this from settings
           subject: emailPlain.subject,
           text: emailPlain.content,
           attachment: emailPlain.attachment,
