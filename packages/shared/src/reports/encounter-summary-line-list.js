@@ -1,8 +1,11 @@
-import config from 'config';
+// import config from 'config';
 import { endOfDay, startOfDay, parseISO } from 'date-fns';
+import { ReadSettings } from '@tamanu/settings';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
+
+const settings = new ReadSettings();
 
 const BASE_FIELDS = [
   'Patient ID',
@@ -491,9 +494,10 @@ const formatRow = row =>
   Object.entries(row).reduce((acc, [k, v]) => ({ ...acc, [k]: formatJsonValue(v) }), {});
 
 export const dataGenerator = async ({ sequelize }, parameters = {}) => {
+  const reportSettings = await settings.get('reportConfig');
   // Note this could be reading from facility config OR central server config
   const includedPatientFieldIds =
-    config?.reportConfig?.['encounter-summary-line-list']?.includedPatientFieldIds;
+    reportSettings?.['encounter-summary-line-list']?.includedPatientFieldIds;
 
   const results = await getData(sequelize, parameters, includedPatientFieldIds);
   const formattedResults = results.map(formatRow);
