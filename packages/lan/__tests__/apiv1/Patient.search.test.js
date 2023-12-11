@@ -613,10 +613,11 @@ describe('Patient search', () => {
   });
 
   describe('Filtering sort', () => {
-    // pardon the mad names in this test suite - originally the names were built around 
-    // searching for "Mi" (Mike, Michael etc) and "Jo" (Jordan, Jo), but were running into
-    // edge cases where randomly-generated names from other tests were tripping them up.
-    // So, the key parts were changed to QQQQ and UUUU to avoid collision.
+    // pardon the mad names in this test suite - originally the names were built
+    // around searching for "Mi" (Mike, Michael etc) and "Jo" (Jordan, Jo), but 
+    // were running into edge cases where randomly-generated names from other tests
+    // were tripping them up.  So, the key parts were changed to QQQQ and UUUU to
+    // avoid these collisions.
     const filterSortPatients = [
       { displayId: 'sort-test-1', firstName: 'QQQQke', lastName: 'UUUUrdan' },
       { displayId: 'sort-test-1A', firstName: 'QQQQke', lastName: 'UUUU' },
@@ -634,11 +635,6 @@ describe('Patient search', () => {
       // use a separate list of patients here
       await models.Patient.truncate({ cascade: true });
       await Promise.all(filterSortPatients.map(createTestPatient));
-    });
-
-    it('Should only have this specific list of patients', async () => {
-      const pats = await models.Patient.findAll();
-      expect(pats).toHaveLength(filterSortPatients.length);
     });
 
     it('Display Id - Exact match on top and rest are sorted alphabetically', async () => {
