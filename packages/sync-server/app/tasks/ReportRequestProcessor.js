@@ -141,7 +141,7 @@ export class ReportRequestProcessor extends ScheduledTask {
   }
 
   async runReports() {
-    const limit = await this.settings.get('reportRequestProcessorLimit');
+    const limit = await this.settings.get('reportRequestProcessor.limit');
     const requests = await this.store.models.ReportRequest.findAll({
       where: {
         status: REPORT_REQUEST_STATUSES.RECEIVED,
