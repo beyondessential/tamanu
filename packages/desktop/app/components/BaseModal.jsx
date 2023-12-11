@@ -98,6 +98,8 @@ export const BaseModal = memo(
     overrideContentPadding = false,
     cornerExitButton = true,
     isClosable = true,
+    fixedBottomRow = false,
+    bottomRowContent,
     ...props
   }) => {
     const handlePrint = () => {
@@ -159,6 +161,7 @@ export const BaseModal = memo(
           <ModalContent $overrideContentPadding={overrideContentPadding}>{children}</ModalContent>
           <DialogActions>{actions}</DialogActions>
         </ModalContainer>
+        {fixedBottomRow && bottomRowContent}
       </Dialog>
     );
   },
