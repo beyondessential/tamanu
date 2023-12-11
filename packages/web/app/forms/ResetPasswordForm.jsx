@@ -31,14 +31,22 @@ const FormSubtext = styled(BodyText)`
 `;
 
 export const ResetPasswordForm = React.memo(
-  ({ onSubmit, errorMessage, success, initialEmail, onNavToLogin }) => {
+  ({
+    onSubmit,
+    errorMessage,
+    success,
+    initialEmail,
+    onRestartFlow,
+    onNavToChangePassword,
+    onNavToLogin,
+  }) => {
     const renderForm = () => (
       <FormGrid columns={1}>
         <div>
           <FormHeading>Forgot password</FormHeading>
           <FormSubtext>Enter your email below to reset your password</FormSubtext>
+          <FormSubtext>{errorMessage}</FormSubtext>
         </div>
-        <div>{errorMessage}</div>
         <Field
           name="email"
           type="email"
@@ -66,6 +74,10 @@ export const ResetPasswordForm = React.memo(
           <BackToLoginButton onClick={onNavToLogin} variant="outlined">
             Back to login
           </BackToLoginButton>
+          <Button fullWidth variant="contained" color="primary" onClick={onNavToChangePassword}>
+            Continue to change password
+          </Button>
+          <Button onClick={onRestartFlow}> Resend password reset email</Button>
         </FormGrid>
       );
     }
