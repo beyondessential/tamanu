@@ -15,4 +15,7 @@ export default defineConfig({
         .then(({ version }) => version),
     ),
   },
+  server: {
+    host: 'localhost',
+  },
 })
