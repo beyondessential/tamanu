@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import Paper from '@material-ui/core/Paper';
 import { push } from 'connected-react-router';
 import { Launch } from '@material-ui/icons';
 
-import { BodyText, TamanuLogo, TamanuLogoBlue } from '../components';
+import { BodyText, TamanuLogoBlue } from '../components';
 import { LOCAL_STORAGE_KEYS, Colors } from '../constants';
 import { splashImages } from '../constants/images';
 
@@ -24,7 +23,7 @@ import { useApi } from '../api';
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
 
 import { useLocalisation } from '../contexts/Localisation';
-import { IconButton, Typography } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
 
 const Container = styled.div`
@@ -130,6 +129,8 @@ export const LoginView = () => {
   const supportUrl = getLocalisation('supportDeskUrl');
   const isSupportUrlLoaded = !!supportUrl;
 
+  console.log(requestPasswordResetSuccess);
+
   const submitLogin = async data => {
     const { email, password, rememberMe } = data;
 
@@ -184,7 +185,10 @@ export const LoginView = () => {
                 initialEmail={rememberEmail}
                 resetPasswordEmail={resetPasswordEmail}
                 onNavToChangePassword={() => setScreen('changePassword')}
-                onNavToLogin={() => setScreen('login')}
+                onNavToLogin={() => {
+                  setScreen('login');
+                  dispatch(restartPasswordResetFlow());
+                }}
               />
             </>
           )}
