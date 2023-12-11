@@ -1,3 +1,6 @@
 - name: dummy
-  type: run
-  command: exit 0
+  type: serial
+  steps:
+  - name: dummy
+    type: run
+    command: exit 0
