@@ -53,6 +53,7 @@ export function createApp(ctx) {
   });
 
   app.use(buildSettingsReader);
+
   app.use(versionCompatibility);
 
   // TODO: serve index page
