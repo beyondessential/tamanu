@@ -27,6 +27,7 @@ import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
 
 import { getLabRequestList } from '../../routeHandlers/labs';
 import { deleteDocumentMetadata } from '../../routeHandlers/deleteDocumentMetadata';
+import { deleteProgramForm } from '../../routeHandlers/deleteProgramForm';
 
 export const encounter = express.Router();
 
@@ -283,6 +284,8 @@ encounterRelations.get(
           survey_responses.encounter_id = :encounterId
         AND
           surveys.survey_type = 'programs'
+        AND
+          survey_responses.deleted_at IS NULL
       `,
       `
         SELECT
@@ -318,6 +321,8 @@ encounterRelations.get(
     });
   }),
 );
+
+encounterRelations.delete('/:id/programResponses/:programResponseId', deleteProgramForm);
 
 encounterRelations.get(
   '/:id/vitals',
