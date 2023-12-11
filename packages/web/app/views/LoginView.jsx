@@ -46,9 +46,9 @@ const LoginSplashImage = styled.div`
 
 const LoginContainer = styled.div`
   position: relative;
-  padding: 30px 60px 70px 60px;
+  padding: 30px 0 70px 0;
   width: 50vw;
-  min-width: 550px;
+  min-width: 500px;
   height: inherit;
   border-radius: 0;
   display: flex;
