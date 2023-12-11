@@ -379,14 +379,11 @@ encounterRelations.get(
               )
             )) logs
           FROM survey_response_answers sra
-          INNER JOIN survey_responses sr
-          ON sr.id = sra.response_id
-          LEFT JOIN vital_logs vl
-          ON vl.answer_id = sra.id
-          LEFT JOIN users u
-          ON u.id = vl.recorded_by_id
+          	INNER JOIN survey_responses sr ON sr.id = sra.response_id
+          	LEFT JOIN vital_logs vl ON vl.answer_id = sra.id
+          	LEFT JOIN users u ON u.id = vl.recorded_by_id
           WHERE sr.encounter_id = :encounterId
-          AND sr.deleted_at IS NULL
+          	AND sr.deleted_at IS NULL
           GROUP BY vl.answer_id
         )
 
