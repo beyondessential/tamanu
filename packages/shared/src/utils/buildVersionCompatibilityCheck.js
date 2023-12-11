@@ -8,7 +8,7 @@ const respondWithError = (res, error) => {
 };
 
 async function getUpdateInformation(req) {
-  const updateUrls = await req.setting.get('updateUrls');
+  const updateUrls = await req.settings.get('updateUrls');
   if (!updateUrls) return {};
 
   const clientType = req.header('X-Tamanu-Client') || '';
