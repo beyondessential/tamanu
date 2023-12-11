@@ -171,7 +171,10 @@ export const LoginView = () => {
                 onSubmit={submitLogin}
                 errorMessage={loginError}
                 rememberEmail={rememberEmail}
-                onNavToResetPassword={() => setScreen('resetPassword')}
+                onNavToResetPassword={() => {
+                  setScreen('resetPassword');
+                  dispatch(restartPasswordResetFlow());
+                }}
               />
             </>
           )}
@@ -185,10 +188,7 @@ export const LoginView = () => {
                 initialEmail={rememberEmail}
                 resetPasswordEmail={resetPasswordEmail}
                 onNavToChangePassword={() => setScreen('changePassword')}
-                onNavToLogin={() => {
-                  setScreen('login');
-                  dispatch(restartPasswordResetFlow());
-                }}
+                onNavToLogin={() => setScreen('login')}
               />
             </>
           )}
@@ -200,7 +200,6 @@ export const LoginView = () => {
               email={resetPasswordEmail}
               onNavToLogin={() => {
                 setScreen('login');
-                dispatch(restartPasswordResetFlow());
               }}
               onNavToResetPassword={() => setScreen('resetPassword')}
             />

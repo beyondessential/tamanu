@@ -7,6 +7,7 @@ import { USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
 import { FormGrid } from '../components/FormGrid';
 import { CheckField, Field, Form, FormSubmitButton, TextButton, TextField } from '../components';
 import { Colors } from '../constants';
+import { restartPasswordResetFlow } from '../store';
 
 const LoginButton = styled(FormSubmitButton)`
   font-size: 14px;

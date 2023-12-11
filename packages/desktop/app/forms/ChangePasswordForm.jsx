@@ -60,6 +60,12 @@ const FieldContainer = styled.div`
   gap: 30px;
 `;
 
+const ErrorText = styled(BodyText)`
+  color: ${Colors.midText};
+  padding: 10px 0;
+  ${props => (props.$isError ? '' : `display: none;`)}
+`;
+
 export const ChangePasswordForm = React.memo(
   ({ onSubmit, errorMessage, success, email, onNavToLogin, onNavToResetPassword }) => {
     const renderForm = ({ setFieldValue }) => (
@@ -67,7 +73,7 @@ export const ChangePasswordForm = React.memo(
         <div>
           <FormHeading>Reset password</FormHeading>
           <FormSubtext>Please enter the reset code you have received in your email</FormSubtext>
-          <FormSubtext>{errorMessage}</FormSubtext>
+          <ErrorText>{errorMessage}</ErrorText>
         </div>
         <FieldContainer>
           <Field
@@ -89,9 +95,9 @@ export const ChangePasswordForm = React.memo(
         </FieldContainer>
         <ActionButtonContainer>
           <ChangePasswordButton type="submit">Change Password</ChangePasswordButton>
-          <ChangePasswordButton onClick={onNavToLogin} variant="outlined">
+          <BackToLoginButton onClick={onNavToLogin} variant="outlined">
             Back to login
-          </ChangePasswordButton>
+          </BackToLoginButton>
         </ActionButtonContainer>
       </FormGrid>
     );
