@@ -7,8 +7,7 @@
   "repository": "git@github.com:beyondessential/tamanu.git",
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN license",
-  "type": "module",
-  "main": "index.js",
+  "main": "dist/index.js",
   "bin": "dist/index.js",
   "scripts": {
     "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true app",
