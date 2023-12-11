@@ -5,15 +5,7 @@ import styled from 'styled-components';
 import { USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
 
 import { FormGrid } from '../components/FormGrid';
-import {
-  Button,
-  CheckField,
-  Field,
-  Form,
-  FormSubmitButton,
-  TextButton,
-  TextField,
-} from '../components';
+import { CheckField, Field, Form, FormSubmitButton, TextButton, TextField } from '../components';
 import { Colors } from '../constants';
 
 const LoginButton = styled(FormSubmitButton)`
