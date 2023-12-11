@@ -129,8 +129,6 @@ export const LoginView = () => {
   const supportUrl = getLocalisation('supportDeskUrl');
   const isSupportUrlLoaded = !!supportUrl;
 
-  console.log(requestPasswordResetSuccess);
-
   const submitLogin = async data => {
     const { email, password, rememberMe } = data;
 
@@ -149,6 +147,7 @@ export const LoginView = () => {
     // The await is necessary to prevent redux-form unlocking submission
     // redux-thunk definitely returns a promise, and this works
     await dispatch(login(email, password));
+    dispatch(restartPasswordResetFlow());
   };
 
   return (
@@ -158,6 +157,7 @@ export const LoginView = () => {
         <LogoContainer
           onClick={() => {
             window.location.reload();
+            dispatch(restartPasswordResetFlow());
           }}
         >
           <TamanuLogoBlue size="140px" />
@@ -198,7 +198,10 @@ export const LoginView = () => {
               errorMessage={changePasswordError}
               success={changePasswordSuccess}
               email={resetPasswordEmail}
-              onNavToLogin={() => setScreen('login')}
+              onNavToLogin={() => {
+                setScreen('login');
+                dispatch(restartPasswordResetFlow());
+              }}
               onNavToResetPassword={() => setScreen('resetPassword')}
             />
           )}
