@@ -33,7 +33,7 @@ export const ProgramRegistryView = () => {
   const { data: programRegistries, isLoading, isSuccess } = useListOfProgramRegistryQuery();
 
   if (isLoading) return <LoadingIndicator />;
-  else if (
+  if (
     isSuccess &&
     programRegistries?.data &&
     programRegistries.data.length > 0 &&
