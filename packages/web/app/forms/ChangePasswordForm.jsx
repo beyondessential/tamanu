@@ -110,7 +110,9 @@ export const ChangePasswordForm = React.memo(
           </IconContainer>
           <div>
             <FormHeading>Password successfully reset</FormHeading>
-            <FormSubtext>Your password has been successfully reset.</FormSubtext>
+            <FormSubtext style={{ marginTop: '10px' }}>
+              Your password has been successfully reset.
+            </FormSubtext>
           </div>
           <BackToLoginButton
             style={{ marginTop: '30px' }}
