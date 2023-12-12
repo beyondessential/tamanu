@@ -89,9 +89,9 @@ locationGroup.get(
                 ROW_NUMBER() OVER (PARTITION BY revised_by_id ORDER BY notes.date DESC) AS row_num
               FROM notes
                 INNER JOIN latest_root_handover_notes ON latest_root_handover_notes.id = notes.revised_by_id
+              WHERE notes.deleted_at IS NULL
               ) n
         WHERE n.row_num = 1
-        AND n.deleted_at IS NULL
 
         UNION
 
