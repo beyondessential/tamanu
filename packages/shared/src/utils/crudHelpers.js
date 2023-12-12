@@ -101,20 +101,16 @@ export const simplePost = modelName =>
     let object;
     req.checkPermission('create', modelName);
 
-    if (req.body?.id) {
-      object = await models[modelName].findByPk(req.body.id, {
-        paranoid: false,
-      });
-      if (object && object.deletedAt) {
-        await object.restore();
-        await object.update(req.body);
-      } else if (object && !object.deletedAt) {
-        throw new InvalidOperationError(
-          `Cannot create object with id (${req.body.id}), it already exists`,
-        );
-      } else {
-        object = await models[modelName].create(req.body);
-      }
+    object = await models[modelName].findByPk(req.body.id, {
+      paranoid: false,
+    });
+    if (object && object.deletedAt) {
+      await object.restore();
+      await object.update(req.body);
+    } else if (object && !object.deletedAt) {
+      throw new InvalidOperationError(
+        `Cannot create object with id (${req.body.id}), it already exists`,
+      );
     } else {
       object = await models[modelName].create(req.body);
     }
