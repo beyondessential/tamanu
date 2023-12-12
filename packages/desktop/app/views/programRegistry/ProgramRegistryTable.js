@@ -96,11 +96,15 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           return (
             <MenuButton
               onClick={() => {}}
-              actions={{
-                'Change status': () => setOpenModal({ action: 'ChangeStatus', data: row }),
-                Remove: () => setOpenModal({ action: 'Remove', data: row }),
-                Delete: () => setOpenModal({ action: 'Delete', data: row }),
-              }}
+              actions={
+                row.registrationStatus === 'removed'
+                  ? { Delete: () => setOpenModal({ action: 'Delete', data: row }) }
+                  : {
+                      'Change status': () => setOpenModal({ action: 'ChangeStatus', data: row }),
+                      Remove: () => setOpenModal({ action: 'Remove', data: row }),
+                      Delete: () => setOpenModal({ action: 'Delete', data: row }),
+                    }
+              }
             />
           );
         },
