@@ -31,6 +31,10 @@ export class PatientProgramRegistration extends Model {
           type: Sequelize.TEXT,
           defaultValue: REGISTRATION_STATUSES.ACTIVE,
         },
+        removedDate: dateTimeType('removedDate', {
+          allowNull: true,
+          defaultValue: null,
+        }),
       },
       {
         ...options,
@@ -47,6 +51,7 @@ export class PatientProgramRegistration extends Model {
       'registeringFacility',
       'facility',
       'village',
+      'removedByClinician',
     ];
   }
 
@@ -73,6 +78,11 @@ export class PatientProgramRegistration extends Model {
     this.belongsTo(models.User, {
       foreignKey: 'clinicianId',
       as: 'clinician',
+    });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'removedByClinicianId',
+      as: 'removedByClinician',
     });
 
     this.belongsTo(models.Facility, {
@@ -117,6 +127,12 @@ export class PatientProgramRegistration extends Model {
       // but if a date was provided in the function params, we should go with that.
       date: getCurrentDateTimeString(),
       ...restOfUpdates,
+      ...(values.registrationStatus !== 'removed'
+        ? {
+            removedByClinicianId: null,
+            removedDate: null,
+          }
+        : { removedDate: getCurrentDateTimeString() }),
     });
   }
 
