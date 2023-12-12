@@ -117,6 +117,11 @@ export const REFERENCE_TYPES = {
 
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
 
+export const DELETION_STATUSES = {
+  REVOKED: 'revoked',
+  RECORDED_IN_ERROR: 'recorded-in-error',
+};
+
 export const VISIBILITY_STATUSES = {
   CURRENT: 'current',
   HISTORICAL: 'historical',

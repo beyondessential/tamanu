@@ -1,7 +1,6 @@
-import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes } from 'sequelize';
-import { NotFoundError, InvalidParameterError } from '@tamanu/shared/errors';
+import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/shared/errors';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import {
   LAB_REQUEST_STATUSES,
@@ -20,6 +19,7 @@ import {
   permissionCheckingRouter,
   runPaginatedQuery,
   paginatedGetList,
+  recordIsSoftDeletedCheckingRouter,
 } from '@tamanu/shared/utils/crudHelpers';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
@@ -28,7 +28,7 @@ import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
 import { getLabRequestList } from '../../routeHandlers/labs';
 import { deleteProgramForm } from '../../routeHandlers/deleteProgramForm';
 
-export const encounter = express.Router();
+export const encounter = recordIsSoftDeletedCheckingRouter('Encounter');
 
 encounter.get('/:id', simpleGet('Encounter'));
 encounter.post(
@@ -81,7 +81,9 @@ encounter.put(
       }
 
       if (referralId) {
-        const referral = await models.Referral.findByPk(referralId);
+        const referral = await models.Referral.findByPk(referralId, { paranoid: false });
+        if (referral && referral.deletedAt)
+          throw new InvalidOperationError('Cannot update a deleted referral.');
         await referral.update({ encounterId: id });
       }
       await encounterObject.update({ ...req.body, systemNote }, user);
@@ -138,6 +140,22 @@ encounter.post(
 );
 
 encounter.post('/:id/createPatientLetter', createPatientLetter('Encounter', 'encounterId'));
+
+encounter.delete(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    req.checkPermission('delete', 'Encounter');
+
+    const model = models.Encounter;
+    const object = await model.findByPk(params.id);
+    if (object) {
+      await object.destroy();
+    }
+
+    res.send({ message: 'Encounter deleted successfully' });
+  }),
+);
 
 const encounterRelations = permissionCheckingRouter('read', 'Encounter');
 encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));
@@ -245,7 +263,9 @@ encounterRelations.get(
 encounterRelations.get(
   '/:id/invoice',
   simpleGetHasOne('Invoice', 'encounterId', {
-    additionalFilters: { status: { [Op.ne]: INVOICE_STATUSES.CANCELLED } },
+    additionalFilters: {
+      status: { [Op.ne]: INVOICE_STATUSES.CANCELLED },
+    },
   }),
 );
 
@@ -282,6 +302,8 @@ encounterRelations.get(
         AND
           surveys.survey_type = 'programs'
         AND
+          encounters.deleted_at is null
+        AND
           survey_responses.deleted_at IS NULL
         AND
           encounters.deleted_at IS NULL
@@ -304,9 +326,12 @@ encounterRelations.get(
             ON (encounter_user.id = encounters.examiner_id)
           LEFT JOIN users survey_user
             ON (survey_user.id = survey_responses.user_id)
-        WHERE survey_responses.encounter_id = :encounterId
-        AND surveys.survey_type = 'programs'
-        AND encounters.deleted_at is null
+        WHERE
+          survey_responses.encounter_id = :encounterId
+        AND
+          surveys.survey_type = 'programs'
+        AND
+          encounters.deleted_at is null
         ORDER BY ${sortKey} ${sortDirection}
       `,
       { encounterId },

@@ -149,8 +149,10 @@ locationGroup.get(
           GROUP BY encounter_id
           ) AS diagnosis ON encounters.id = diagnosis.encounter_id
 		    LEFT JOIN latest_handover_notes ON encounters.id = latest_handover_notes.record_id
-        WHERE location_groups.id = :id and locations.max_occupancy = 1
+        WHERE location_groups.id = :id 
+        AND locations.max_occupancy = 1
         AND locations.facility_id = :facilityId
+        AND encounters.deleted_at is null
         GROUP BY location_groups.name,
           locations.name,
           patients.display_id,

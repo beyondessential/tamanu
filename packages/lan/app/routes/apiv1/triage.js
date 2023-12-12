@@ -119,6 +119,7 @@ triage.get(
           AND encounters.end_date IS NULL
           AND location.facility_id = :facility
           AND encounters.encounter_type IN (:triageEncounterTypes)
+          AND encounters.deleted_at is null
         ORDER BY encounter_type IN (:seenEncounterTypes) ASC, ${sortKey} ${sortDirection} NULLS LAST, Coalesce(arrival_time,triage_time) ASC 
       `,
       {

@@ -10,6 +10,11 @@ import {
   paginatedGetList,
   permissionCheckingRouter,
 } from '@tamanu/shared/utils/crudHelpers';
+import {
+  getWhereClausesAndReplacementsFromFilters,
+  makeDeletedAtIsNullFilter,
+  makeFilter,
+} from '../../utils/query';
 
 export const user = express.Router();
 
@@ -56,11 +61,22 @@ user.get(
     req.checkPermission('read', currentUser);
     req.checkPermission('list', 'Patient');
 
-    let andClauses = '';
+    const filters = [
+      makeFilter(query.encounterType, 'encounters.encounter_type = :encounterType', () => ({
+        encounterType: query.encounterType,
+      })),
+      makeDeletedAtIsNullFilter('encounters'),
+      makeFilter(true, `user_recently_viewed_patients.user_id = :userId`, () => ({
+        userId: currentUser.id,
+      })),
+    ];
 
-    if (query.encounterType) {
-      andClauses = 'AND encounters.encounter_type = :encounterType';
-    }
+    const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
+      filters,
+      {
+        deletionStatus: null,
+      },
+    );
 
     const recentlyViewedPatients = await req.db.query(
       `
@@ -81,10 +97,10 @@ user.get(
             SELECT *, ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY start_date DESC, id DESC) AS row_num
             FROM encounters
             WHERE end_date IS NULL
+            AND deleted_at IS NULL
             ) encounters
             ON (patients.id = encounters.patient_id AND encounters.row_num = 1)
-        WHERE user_recently_viewed_patients.user_id = :userId
-        ${andClauses}
+        ${whereClauses && `WHERE ${whereClauses}`}
         ORDER BY last_accessed_on DESC
         LIMIT 12
       `,
@@ -92,10 +108,7 @@ user.get(
         model: Patient,
         type: QueryTypes.SELECT,
         mapToModel: true,
-        replacements: {
-          userId: currentUser.id,
-          encounterType: query.encounterType,
-        },
+        replacements: filterReplacements,
       },
     );
 

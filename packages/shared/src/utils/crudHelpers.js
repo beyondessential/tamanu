@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 
 import { QueryTypes } from 'sequelize';
 
-import { NotFoundError } from '../errors';
+import { InvalidOperationError, NotFoundError } from '../errors';
 import { renameObjectKeys } from './renameObjectKeys';
 
 // utility function for creating a subroute that all checks the same
@@ -19,8 +19,30 @@ export const permissionCheckingRouter = (action, subject) => {
   return router;
 };
 
-export const findRouteObject = async (req, modelName) => {
+export const recordIsSoftDeletedCheckingRouter = tableName => {
+  const router = express.Router();
+
+  router.use(async (req, res, next) => {
+    const { models, body, params } = req;
+    const id = params.id || body.id;
+    if (!id) {
+      next();
+      return;
+    }
+    const object = await models[tableName].findByPk(id, { paranoid: false });
+    if (object && object.deletedAt) {
+      throw new InvalidOperationError(
+        `Invalid Operation Error: Cannot update a deleted ${tableName}, id: ${id}.`,
+      );
+    }
+  });
+
+  return router;
+};
+
+export const findRouteObject = async (req, modelName, options = {}) => {
   const { models, params } = req;
+  const { additionalFilters = {} } = options;
   const model = models[modelName];
   // check the user can read this model type before searching for it
   // (otherwise, they can see if they get a "not permitted" or a
@@ -28,6 +50,7 @@ export const findRouteObject = async (req, modelName) => {
   req.checkPermission('read', modelName);
   const object = await model.findByPk(params.id, {
     include: model.getFullReferenceAssociations(),
+    where: { ...additionalFilters },
   });
   if (!object) throw new NotFoundError();
   req.checkPermission('read', object);
@@ -61,6 +84,12 @@ export const simplePut = modelName =>
     req.checkPermission('read', modelName);
     const object = await models[modelName].findByPk(params.id);
     if (!object) throw new NotFoundError();
+    if (object.deletedAt)
+      throw new InvalidOperationError(
+        `Cannot update deleted object with id (${params.id}), you need to restore it first`,
+      );
+    if (req.body.hasOwnProperty('deletedAt'))
+      throw new InvalidOperationError('Cannot update deletedAt field');
     req.checkPermission('write', object);
     await object.update(req.body);
     res.send(object);
@@ -69,8 +98,23 @@ export const simplePut = modelName =>
 export const simplePost = modelName =>
   asyncHandler(async (req, res) => {
     const { models } = req;
+    let object;
     req.checkPermission('create', modelName);
-    const object = await models[modelName].create(req.body);
+
+    object = await models[modelName].findByPk(req.body.id, {
+      paranoid: false,
+    });
+    if (object && object.deletedAt) {
+      await object.restore();
+      await object.update(req.body);
+    } else if (object && !object.deletedAt) {
+      throw new InvalidOperationError(
+        `Cannot create object with id (${req.body.id}), it already exists`,
+      );
+    } else {
+      object = await models[modelName].create(req.body);
+    }
+
     res.send(object);
   });
 
@@ -168,6 +212,7 @@ export const paginatedGetList = (modelName, foreignKey = '', options = {}) => {
     });
   });
 };
+
 export async function runPaginatedQuery(db, model, countQuery, selectQuery, params, pagination) {
   const countResult = await db.query(countQuery, {
     replacements: params,
