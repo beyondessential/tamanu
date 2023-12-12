@@ -77,6 +77,9 @@ export class Encounter extends BaseModel implements IEncounter {
   @Column({ nullable: true })
   deviceId?: string;
 
+  @Column({ nullable: true })
+  deletionStatus?: string;
+
   @ManyToOne(() => Department)
   department: Department;
 
@@ -175,6 +178,7 @@ export class Encounter extends BaseModel implements IEncounter {
       .andWhere("startDate >= datetime(:date, 'unixepoch')", {
         date: formatDateForQuery(date),
       })
+      .andWhere('deletionStatus IS NULL')
       .getOne();
   }
 
@@ -241,7 +245,7 @@ export class Encounter extends BaseModel implements IEncounter {
     const repo = this.getRepository();
 
     const encounters = await repo.find({
-      where: { patient: { id: patientId } },
+      where: { patient: { id: patientId }, deletionStatus: null },
       relations: ['location', 'location.facility'],
       order: { startDate: 'DESC' },
     });
@@ -279,6 +283,7 @@ export class Encounter extends BaseModel implements IEncounter {
       .where("encounter.startDate >= datetime(:date, 'unixepoch')", {
         date: formatDateForQuery(date),
       })
+      .andWhere('encounter.deletionStatus IS NULL')
       .groupBy('date(encounter.startDate)')
       .having('encounter.deviceId = :deviceId', { deviceId: getUniqueId() })
       .orderBy('encounterDate', 'ASC');

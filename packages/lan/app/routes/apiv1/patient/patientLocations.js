@@ -104,6 +104,7 @@ patientLocations.get(
               encounter_type,
               end_date
             FROM encounters
+            WHERE deleted_at is null
           ) previous_encounters
           ON encounters.patient_id = previous_encounters.patient_id
           AND encounters.start_date::date - '30 days'::interval < previous_encounters.end_date::date
@@ -115,6 +116,7 @@ patientLocations.get(
           AND previous_encounters.encounter_type = 'admission'
           AND previous_encounter_id IS NOT NULL
           AND locations.facility_id = $facilityId
+          AND encounters.deleted_at is null
           GROUP BY encounters.patient_id
           ORDER BY encounters.patient_id
           ) readmitted_patients

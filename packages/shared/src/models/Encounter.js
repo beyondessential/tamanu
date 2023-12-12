@@ -63,6 +63,60 @@ export class Encounter extends Model {
         ...options,
         validate,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        hooks: {
+          async beforeDestroy(encounter) {
+            // Sequelize is going to work on cascade for paranoid table in the future.
+            // There is an open issue for this: https://github.com/sequelize/sequelize/issues/2586
+            const [
+              vitals,
+              notes,
+              procedures,
+              labRequests,
+              imagingRequests,
+              medications,
+              surveyResponses,
+              documents,
+              invoices,
+              initiatedReferrals,
+              completedReferrals,
+              encounterHistories,
+            ] = await Promise.all([
+              encounter.getVitals(),
+              encounter.getNotes(),
+              encounter.getProcedures(),
+              encounter.getLabRequests(),
+              encounter.getImagingRequests(),
+              encounter.getMedications(),
+              encounter.getSurveyResponses(),
+              encounter.getDocuments(),
+              encounter.getInvoice(),
+              encounter.getInitiatedReferrals(),
+              encounter.getCompletedReferrals(),
+              encounter.getEncounterHistories(),
+            ]);
+
+            await Promise.all(
+              [
+                vitals,
+                notes,
+                procedures,
+                labRequests,
+                imagingRequests,
+                medications,
+                surveyResponses,
+                documents,
+                invoices,
+                initiatedReferrals,
+                completedReferrals,
+                encounterHistories,
+              ].map(async records => {
+                if (records && Array.isArray(records)) {
+                  await Promise.all(records.map(record => record.destroy()));
+                }
+              }),
+            );
+          },
+        },
       },
     );
     onSaveMarkPatientForSync(this);
@@ -167,6 +221,7 @@ export class Encounter extends Model {
     this.hasMany(models.Vitals, {
       foreignKey: 'encounterId',
       as: 'vitals',
+      onDelete: 'CASCADE',
     });
 
     this.hasMany(models.Triage, {
@@ -182,6 +237,11 @@ export class Encounter extends Model {
     this.hasMany(models.DocumentMetadata, {
       foreignKey: 'encounterId',
       as: 'documents',
+    });
+
+    this.hasMany(models.EncounterHistory, {
+      foreignKey: 'encounterId',
+      as: 'encounterHistories',
     });
 
     this.belongsTo(models.ReferenceData, {

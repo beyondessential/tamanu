@@ -2,7 +2,7 @@ import { sub } from 'date-fns';
 import { toDateString } from '@tamanu/shared/utils/dateTime';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 
-import { makeFilter } from './query';
+import { makeDeletedAtIsNullFilter, makeFilter } from './query';
 
 export const createPatientFilters = filterParams => {
   const filters = [
@@ -70,7 +70,7 @@ export const createPatientFilters = filterParams => {
         ],
       }),
     ),
-    makeFilter(true, `encounters.deleted_at is null`),
+    makeDeletedAtIsNullFilter('encounters'),
   ].filter(f => f);
 
   return filters;
