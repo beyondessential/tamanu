@@ -475,7 +475,9 @@ patientRoute.get(
 patientRoute.post(
   '/:id/ipsRequest',
   asyncHandler(async (req, res) => {
+
     req.checkPermission('read', 'Patient');
+    req.checkPermission('create', 'IPSRequest');
 
     const { models, params } = req;
     const { IPSRequest } = models;
