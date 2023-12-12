@@ -17,7 +17,7 @@ export class PatientProgramRegistrationCondition extends Model {
           type: Sequelize.TEXT,
           defaultValue: null,
         },
-        deletionDate: dateTimeType('date', {
+        deletionDate: dateTimeType('deletionDate', {
           defaultValue: null,
         }),
       },
