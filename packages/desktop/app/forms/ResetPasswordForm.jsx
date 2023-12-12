@@ -3,18 +3,26 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { FormGrid } from '../components/FormGrid';
-import { Button, Field, Form, TextField, FormSubmitButton, BodyText } from '../components';
+import {
+  Button,
+  Field,
+  Form,
+  TextField,
+  FormSubmitButton,
+  BodyText,
+  TextButton,
+} from '../components';
 import { Colors } from '../constants';
 
 const ResetPasswordButton = styled(FormSubmitButton)`
   font-size: 14px;
   line-height: 18px;
-  padding: 13px 0;
+  padding: 14px 0;
   margin-top: 30px;
 `;
 
 const BackToLoginButton = styled(Button)`
-  padding: 13px 0;
+  padding: 14px 0;
   margin-top: 5px;
 `;
 
@@ -34,6 +42,19 @@ const ErrorText = styled(BodyText)`
   color: ${Colors.midText};
   padding: 10px 0;
   ${props => (props.$isError ? '' : `display: none;`)}
+`;
+
+const ResendCodeButton = styled(TextButton)`
+  font-size: 11px;
+  color: ${Colors.darkestText};
+  font-weight: 400;
+  text-transform: none;
+
+  :hover {
+    color: ${Colors.primary};
+    font-weight: 500;
+    text-decoration: underline;
+  }
 `;
 
 export const ResetPasswordForm = React.memo(
@@ -74,18 +95,24 @@ export const ResetPasswordForm = React.memo(
       return (
         <FormGrid columns={1}>
           <div>
-            <FormHeading>Forgot password email sent.</FormHeading>
+            <FormHeading>Reset code sent.</FormHeading>
             <FormSubtext>
-              Please check your email for further information on how to reset your password
+              We have emailed you a reset code. Please enter the code below to continue to reset
+              your password
             </FormSubtext>
           </div>
+          <ResetPasswordButton
+            fullWidth
+            variant="contained"
+            color="primary"
+            onClick={onNavToChangePassword}
+          >
+            Continue
+          </ResetPasswordButton>
           <BackToLoginButton onClick={onNavToLogin} variant="outlined">
             Back to login
           </BackToLoginButton>
-          <Button fullWidth variant="contained" color="primary" onClick={onNavToChangePassword}>
-            Continue to change password
-          </Button>
-          <Button onClick={onRestartFlow}> Resend password reset email</Button>
+          <ResendCodeButton onClick={onRestartFlow}>Resend reset code</ResendCodeButton>
         </FormGrid>
       );
     }

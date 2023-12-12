@@ -34,12 +34,12 @@ const FormSubtext = styled(BodyText)`
 const ChangePasswordButton = styled(FormSubmitButton)`
   font-size: 14px;
   line-height: 18px;
-  padding: 13px 0;
+  padding: 14px 0;
   margin: 13px 0;
 `;
 
 const BackToLoginButton = styled(Button)`
-  padding: 13px 0;
+  padding: 14px 0;
   margin-top: 5px;
 `;
 

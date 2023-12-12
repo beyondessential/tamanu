@@ -12,8 +12,7 @@ import { restartPasswordResetFlow } from '../store';
 const LoginButton = styled(FormSubmitButton)`
   font-size: 14px;
   line-height: 18px;
-  padding-top: 13px;
-  padding-bottom: 13px;
+  padding: 14px 0;
   margin-top: 15px;
 `;
 
