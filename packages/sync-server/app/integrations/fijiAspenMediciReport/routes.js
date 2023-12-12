@@ -272,8 +272,7 @@ triage_info as (
   select
     encounter_id,
     hours::text || CHR(58) || remaining_minutes::text "waitTimeFollowingTriage"
-  from triages t
-  where t.deleted_at isnull,
+  from triages t,
   lateral (
     select
       case when t.closed_time is null
@@ -283,7 +282,7 @@ triage_info as (
   ) total_minutes,
   lateral (select floor(total_minutes / 60) hours) hours,
   lateral (select floor(total_minutes - hours*60) remaining_minutes) remaining_minutes
-  
+  where t.deleted_at isnull
 ),
 
 discharge_disposition_info as (
@@ -301,7 +300,7 @@ discharge_disposition_info as (
         order by updated_at desc
         LIMIT 1)
   join reference_data disposition on disposition.id = d.disposition_id
-  where t.deleted_at isnull
+  where e.deleted_at isnull
 ),
 
 encounter_history_info as (
