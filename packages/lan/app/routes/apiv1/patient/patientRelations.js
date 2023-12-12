@@ -13,6 +13,7 @@ import {
 import { patientSecondaryIdRoutes } from './patientSecondaryId';
 import { patientDeath } from './patientDeath';
 import { patientProfilePicture } from './patientProfilePicture';
+import { deleteProgramForm } from '../../../routeHandlers/deleteProgramForm';
 
 export const patientRelations = permissionCheckingRouter('read', 'Patient');
 
@@ -255,6 +256,7 @@ patientRelations.get(
         WHERE
           encounters.patient_id = :patientId
           AND surveys.survey_type = :surveyType
+          AND survey_responses.deleted_at IS NULL
           ${surveyId ? 'AND surveys.id = :surveyId' : ''}
       `,
       `
@@ -280,6 +282,7 @@ patientRelations.get(
         WHERE encounters.patient_id = :patientId
           AND encounters.deleted_at is null
           AND surveys.survey_type = :surveyType
+          AND survey_responses.deleted_at IS NULL
           ${surveyId ? 'AND surveys.id = :surveyId' : ''}
         ORDER BY ${sortKey} ${sortDirection}
       `,
@@ -385,6 +388,8 @@ patientRelations.get(
     });
   }),
 );
+
+patientRelations.delete('/:id/programResponses/:programResponseId', deleteProgramForm);
 
 patientRelations.use(patientProfilePicture);
 patientRelations.use(patientDeath);

@@ -26,6 +26,7 @@ import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
 
 import { getLabRequestList } from '../../routeHandlers/labs';
+import { deleteProgramForm } from '../../routeHandlers/deleteProgramForm';
 
 export const encounter = express.Router();
 
@@ -276,9 +277,14 @@ encounterRelations.get(
             ON (survey_responses.encounter_id = encounters.id)
           LEFT JOIN surveys
             ON (survey_responses.survey_id = surveys.id)
-        WHERE survey_responses.encounter_id = :encounterId
-        AND surveys.survey_type = 'programs'
-        AND encounters.deleted_at is null
+        WHERE
+          survey_responses.encounter_id = :encounterId
+        AND
+          surveys.survey_type = 'programs'
+        AND
+          survey_responses.deleted_at IS NULL
+        AND
+          encounters.deleted_at IS NULL
       `,
       `
         SELECT
@@ -313,6 +319,8 @@ encounterRelations.get(
     });
   }),
 );
+
+encounterRelations.delete('/:id/programResponses/:programResponseId', deleteProgramForm);
 
 encounterRelations.get(
   '/:id/vitals',
