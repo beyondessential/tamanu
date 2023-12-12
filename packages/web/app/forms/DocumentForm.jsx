@@ -103,12 +103,15 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
 
   const handleSubmit = useCallback(
     async ({ file, ...data }) => {
+      console.log(file);
+      console.log(data);
       onStart();
-
+return;
       // Read and inject document creation date and type to metadata sent
       // const { birthtime } = await getFileStatus(file); // TODO(web)
       const birthtime = new Date();
-      const attachmentType = lookupMimeType(file);
+      const attachmentType = file.type;
+      console.log(attachmentType);
 
       try {
         await api.postWithFileUpload(endpoint, file, {

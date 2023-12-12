@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import styled from 'styled-components';
 import MuiTextField from '@material-ui/core/TextField';
 import PublishIcon from '@material-ui/icons/Publish';
@@ -26,48 +26,63 @@ export const FILTER_EXCEL = { name: 'Microsoft Excel files (.xlsx)', extensions:
 export const FILTER_IMAGES = { name: 'Images (.png, .svg)', extensions: ['png', 'svg'] };
 
 export const FileChooserInput = ({ value = '', label, name, filters, onChange, ...props }) => {
+  const inputRef = useRef(null);
+
+  // const browseForFile = useCallback(async () => {
+  //   /*
+  //   const { filePaths, canceled } = await showOpenDialog(null, {
+  //     filters,
+  //   });
+  //   if (canceled) return;
+
+  //   // showOpenDialog gives an array of files, but for this component we only want one,
+  //   // so just take the first element.
+  //   // (if support for multiple files is needed in future it should be in a separate component)
+  //   const [result] = filePaths;
+  //   if (!result) return;
+
+  //   onChange({ target: { name, value: result } });
+  //   */ // TODO(web)
+  // }, [showOpenDialog, filters, name, onChange]);
   const browseForFile = useCallback(async () => {
-    /*
-    const { filePaths, canceled } = await showOpenDialog(null, {
-      filters,
-    });
-    if (canceled) return;
+    inputRef.current.click();
+  }, [inputRef]);
 
-    // showOpenDialog gives an array of files, but for this component we only want one,
-    // so just take the first element.
-    // (if support for multiple files is needed in future it should be in a separate component)
-    const [result] = filePaths;
-    if (!result) return;
+  const selectFile = event => {
+    const file = event.target.files[0];
+    if (!file) return;
 
-    onChange({ target: { name, value: result } });
-    */ // TODO(web)
-  }, [filters, name, onChange]);
+    onChange({ target: { name, value: file } });
+  };
 
   return (
-    <OuterLabelFieldWrapper label={label} {...props}>
-      <FieldButtonRow className={value ? 'has-value' : ''}>
-        {value ? (
-          <>
-            <MuiTextField readOnly value={value} variant="outlined" />
-            <Button onClick={browseForFile} variant="outlined">
-              <PublishIcon />
-              <span style={{ marginLeft: '0.5rem' }}>Change selection</span>
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button onClick={browseForFile} variant="outlined" color="primary">
-              Choose file
-            </Button>
-            <HintText>
-              Max 10 MB
-              <br />
-              Supported file types: {filters.map(filter => filter.name).join(', ')}
-            </HintText>
-          </>
-        )}
-      </FieldButtonRow>
-    </OuterLabelFieldWrapper>
+    <>
+      <input type="file" ref={inputRef} onChange={selectFile} style={{ display: 'none' }} />
+      <OuterLabelFieldWrapper label={label} {...props}>
+        <FieldButtonRow className={value ? 'has-value' : ''}>
+          {value ? (
+            <>
+              <MuiTextField readOnly value={value} variant="outlined" />
+              <Button onClick={browseForFile} variant="outlined">
+                <PublishIcon />
+                <span style={{ marginLeft: '0.5rem' }}>Change selection</span>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button onClick={browseForFile} variant="outlined" color="primary">
+                Choose file
+              </Button>
+              <HintText>
+                Max 10 MB
+                <br />
+                Supported file types: {filters.map(filter => filter.name).join(', ')}
+              </HintText>
+            </>
+          )}
+        </FieldButtonRow>
+      </OuterLabelFieldWrapper>
+    </>
   );
 };
 
