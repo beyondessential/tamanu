@@ -88,6 +88,7 @@ export const InfoPaneList = ({
   CustomEditForm,
   getEditFormName = () => '???',
   ListItemComponent,
+  overrideContentPadding,
 }) => {
   const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
   const { adding, editKey } = addEditState;
@@ -109,7 +110,14 @@ export const InfoPaneList = ({
     behavior === 'collapse' ? (
       <Collapse in={adding} {...props} />
     ) : (
-      <FormModal width="md" title={itemTitle} open={adding} onClose={handleCloseForm} {...props} />
+      <FormModal
+        width="md"
+        title={itemTitle}
+        open={adding}
+        onClose={handleCloseForm}
+        {...props}
+        overrideContentPadding={overrideContentPadding}
+      />
     );
 
   const addForm = (
@@ -190,6 +198,7 @@ export const InfoPaneList = ({
                   title={getEditFormName(item)}
                   open={editKey === id}
                   onClose={handleCloseForm}
+                  overrideContentPadding={overrideContentPadding}
                 >
                   <EditForm
                     Form={Form}
