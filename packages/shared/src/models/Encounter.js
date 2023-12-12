@@ -224,9 +224,8 @@ export class Encounter extends Model {
           SELECT e.id, max(lr.updated_at_sync_tick) as lr_updated_at_sync_tick
           FROM encounters e
           INNER JOIN lab_requests lr ON lr.encounter_id = e.id
-          WHERE e.updated_at_sync_tick > :since
-          OR lr.updated_at_sync_tick > :since
-          AND lab_requests.deleted_at IS NULL
+          WHERE (e.updated_at_sync_tick > :since OR lr.updated_at_sync_tick > :since)
+          AND lr.deleted_at IS NULL
           AND e.deleted_at IS NULL
           ${
             patientIds.length > 0
