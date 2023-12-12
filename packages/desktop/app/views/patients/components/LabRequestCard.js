@@ -57,7 +57,11 @@ export const LabRequestCard = ({ labRequest, actions }) => {
         <LabIcon src={labsIcon} />
         <CardItem>
           <CardLabel>
-            <TranslatedText stringId="lab.details.card.item.labTestId.label" fallback="Lab test ID" />:
+            <TranslatedText
+              stringId="lab.details.card.item.labTestId.label"
+              fallback="Lab test ID"
+            />
+            :
           </CardLabel>
           <CardValue>{labRequest.displayId}</CardValue>
           <CardLabel>

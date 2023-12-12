@@ -145,7 +145,10 @@ export const PatientLabTestsTable = React.memo(
       {
         key: 'testType',
         title: (
-          <TranslatedText stringId="patient.lab.results.table.column.testType" fallback="Test type" />
+          <TranslatedText
+            stringId="patient.lab.results.table.column.testType"
+            fallback="Test type"
+          />
         ),
         accessor: row => (
           <CategoryCell>

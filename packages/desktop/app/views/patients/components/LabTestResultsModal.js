@@ -112,7 +112,9 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
     },
     {
       key: LAB_TEST_PROPERTIES.VERIFICATION,
-      title: <TranslatedText stringId="lab.results.table.column.verification" fallback="Verification" />,
+      title: (
+        <TranslatedText stringId="lab.results.table.column.verification" fallback="Verification" />
+      ),
       accessor: (row, i) => (
         <AccessorField
           id={row.id}
@@ -124,7 +126,9 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
     },
     {
       key: LAB_TEST_PROPERTIES.COMPLETED_DATE,
-      title: <TranslatedText stringId="lab.results.table.column.completedDate" fallback="Completed" />,
+      title: (
+        <TranslatedText stringId="lab.results.table.column.completedDate" fallback="Completed" />
+      ),
       width: '260px',
       accessor: (row, i) => (
         <AccessorField
@@ -211,13 +215,13 @@ const ResultsForm = ({
         <div>
           <Heading4 marginBottom="10px">
             <TranslatedText
-              stringId="lab.modal.testResults.heading"
+              stringId="patient.lab.modal.enterResults.heading"
               fallback="Enter test results"
             />
           </Heading4>
           <SmallBodyText color="textTertiary">
             <TranslatedText
-              stringId="lab.modal.testResults.subHeading"
+              stringId="patient.lab.modal.enterResults.subHeading"
               fallback="Please record test results and other test result details."
             />
           </SmallBodyText>
@@ -277,7 +281,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
       width="lg"
       title={
         <TranslatedText
-          stringId="lab.modal.testResults.title"
+          stringId="patient.lab.modal.enterResults.title"
           fallback="Enter results | Test ID :testId"
           replacements={{ testId: displayId }}
         />
