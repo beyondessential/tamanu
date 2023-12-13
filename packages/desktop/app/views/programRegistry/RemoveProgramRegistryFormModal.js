@@ -63,7 +63,7 @@ export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onC
   if (!patientProgramRegistration) return <></>;
 
   const remove = async () => {
-    const { id, date, ...rest } = patientProgramRegistration;
+    const { id, ...rest } = patientProgramRegistration;
     await api.post(
       `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
       {

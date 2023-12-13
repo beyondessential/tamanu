@@ -35,6 +35,10 @@ export class PatientProgramRegistration extends Model {
           allowNull: true,
           defaultValue: null,
         }),
+        clinicalStatusUpdatedAt: dateTimeType('clinicalStatusUpdatedAt', {
+          allowNull: true,
+          defaultValue: null,
+        }),
       },
       {
         ...options,
@@ -119,6 +123,34 @@ export class PatientProgramRegistration extends Model {
       raw: true,
     });
 
+    // console.log('***********************************');
+    // console.log(
+    //   'existingRegistration.clinicalStatusId ',
+    //   existingRegistration?.clinicalStatusId,
+    //   ' restOfUpdates.clinicalStatusId ',
+    //   restOfUpdates?.clinicalStatusId,
+    // );
+    // console.log(existingRegistration.clinicalStatusId !== restOfUpdates.clinicalStatusId);
+    // console.log({
+    //   patientId,
+    //   programRegistryId,
+    //   ...(existingRegistration ?? {}),
+    //   date: getCurrentDateTimeString(),
+    //   ...restOfUpdates,
+    //   ...(existingRegistration &&
+    //   existingRegistration.clinicalStatusId !== restOfUpdates.clinicalStatusId
+    //     ? {
+    //         clinicalStatusUpdatedAt: getCurrentDateTimeString(),
+    //       }
+    //     : {}),
+    //   ...(restOfUpdates.registrationStatus !== 'removed'
+    //     ? {
+    //         removedByClinicianId: null,
+    //         removedDate: null,
+    //       }
+    //     : { removedDate: getCurrentDateTimeString() }),
+    // });
+    // console.log('***********************************');
     return super.create({
       patientId,
       programRegistryId,
@@ -127,7 +159,13 @@ export class PatientProgramRegistration extends Model {
       // but if a date was provided in the function params, we should go with that.
       date: getCurrentDateTimeString(),
       ...restOfUpdates,
-      ...(values.registrationStatus !== 'removed'
+      ...(existingRegistration &&
+      existingRegistration.clinicalStatusId !== restOfUpdates.clinicalStatusId
+        ? {
+            clinicalStatusUpdatedAt: getCurrentDateTimeString(),
+          }
+        : {}),
+      ...(restOfUpdates.registrationStatus !== 'removed'
         ? {
             removedByClinicianId: null,
             removedDate: null,

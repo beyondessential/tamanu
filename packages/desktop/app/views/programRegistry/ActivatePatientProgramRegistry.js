@@ -25,7 +25,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
   const registeringFacilitySuggester = useSuggester('facility');
 
   const activate = async data => {
-    const { id, ...rest } = data;
+    const { id, date, ...rest } = data;
     await api.post(
       `patient/${encodeURIComponent(patientProgramRegistration.patientId)}/programRegistration`,
       { ...rest, registrationStatus: PROGRAM_REGISTRATION_STATUSES.ACTIVE },
