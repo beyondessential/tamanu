@@ -1,12 +1,11 @@
 import React from 'react';
 import { DateDisplay } from '../../../components';
+import { InfoCard, InfoCardHeader, InfoCardItem } from '../../../components/InfoCard';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
-import { getFullLocationName } from '../../../utils/location';
-import { InfoCard, InfoCardItem, InfoCardHeader } from '../../../components/InfoCard';
 import { getDepartmentName } from '../../../utils/department';
+import { getFullLocationName } from '../../../utils/location';
 
-const getReferralSource = ({ referralSource }) =>
-  referralSource ? referralSource.name : 'Unknown';
+const getReferralSource = ({ referralSource }) => referralSource ? referralSource.name : 'Unknown';
 
 export const getEncounterType = ({ encounterType }) =>
   encounterType ? ENCOUNTER_OPTIONS_BY_VALUE[encounterType]?.label : 'Unknown';
@@ -17,14 +16,12 @@ export const EncounterInfoPane = React.memo(
   ({ encounter, getLocalisation, patientBillingType }) => (
     <InfoCard
       inlineValues
-      headerContent={
-        encounter.plannedLocation && (
-          <InfoCardHeader
-            label="Planned move"
-            value={getFullLocationName(encounter.plannedLocation)}
-          />
-        )
-      }
+      headerContent={encounter.plannedLocation && (
+        <InfoCardHeader
+          label="Planned move"
+          value={getFullLocationName(encounter.plannedLocation)}
+        />
+      )}
     >
       <InfoCardItem label="Department" value={getDepartmentName(encounter)} />
       <InfoCardItem label="Patient type" value={patientBillingType} />

@@ -1,13 +1,13 @@
-import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
+import { VitalsDataElements } from '/helpers/constants';
 import { PureAbility } from '@casl/ability';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
+import { In } from 'typeorm/browser';
+import { Database } from '~/infra/db';
+import { ISurvey, ISurveyScreenComponent, IVitalsSurvey, SurveyTypes } from '~/types';
+import { VisibilityStatus } from '~/visibilityStatuses';
 import { BaseModel } from './BaseModel';
 import { Program } from './Program';
-import { Database } from '~/infra/db';
-import { VitalsDataElements } from '/helpers/constants';
-import { ISurvey, ISurveyScreenComponent, IVitalsSurvey, SurveyTypes } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
-import { VisibilityStatus } from '~/visibilityStatuses';
-import { In } from 'typeorm/browser';
 
 @Entity('survey')
 export class Survey extends BaseModel implements ISurvey {

@@ -3,7 +3,7 @@ import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 
 type LocalisedTextProps = {
   path: string;
-}
+};
 
 export const LocalisedText = ({ path }: LocalisedTextProps): ReactElement => {
   const { getString } = useLocalisation();

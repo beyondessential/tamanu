@@ -1,8 +1,8 @@
 import React from 'react';
-import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { AutocompleteField, LocalisedField, SearchField } from '../Field';
 import { useSuggester } from '../../api';
+import { AutocompleteField, LocalisedField, SearchField } from '../Field';
 import { useLocalisedText } from '../LocalisedText';
+import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useAdvancedFields } from './useAdvancedFields';
 
 const ADVANCED_FIELDS = ['departmentId', 'clinicianId'];

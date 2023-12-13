@@ -2,11 +2,11 @@ import React, { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 
-import { FormModal } from './FormModal';
 import { useSuggester } from '../api';
-import { DischargeForm } from '../forms/DischargeForm';
 import { useEncounter } from '../contexts/Encounter';
+import { DischargeForm } from '../forms/DischargeForm';
 import { reloadPatient } from '../store/patient';
+import { FormModal } from './FormModal';
 
 export const DischargeModal = React.memo(({ open, onClose }) => {
   const dispatch = useDispatch();

@@ -1,10 +1,10 @@
 import {
-  createDummyPatient,
   createDummyEncounter,
+  createDummyPatient,
   randomReferenceId,
 } from '@tamanu/shared/demoData/patients';
-import { startOfDay, subDays, subYears } from 'date-fns';
 import { toDateString } from '@tamanu/shared/utils/dateTime';
+import { startOfDay, subDays, subYears } from 'date-fns';
 import { createTestContext } from '../utilities';
 
 // helper function to check we've found the intended samples

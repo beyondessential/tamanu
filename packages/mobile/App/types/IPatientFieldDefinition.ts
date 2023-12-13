@@ -1,5 +1,5 @@
-import { IPatientFieldDefinitionCategory } from './IPatientFieldDefinitionCategory';
 import { ID } from './ID';
+import { IPatientFieldDefinitionCategory } from './IPatientFieldDefinitionCategory';
 
 export interface IPatientFieldDefinition {
   id: ID;

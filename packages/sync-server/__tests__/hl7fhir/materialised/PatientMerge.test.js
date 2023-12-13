@@ -55,7 +55,7 @@ describe(`Materialised FHIR - Patient Merge`, () => {
       const [a, b, c, d] = (
         await Promise.all(
           [primaryA, mergedB, mergedC, mergedD].map(({ id }) =>
-            FhirPatient.materialiseFromUpstream(id),
+            FhirPatient.materialiseFromUpstream(id)
           ),
         )
       ).map(row => row.id);

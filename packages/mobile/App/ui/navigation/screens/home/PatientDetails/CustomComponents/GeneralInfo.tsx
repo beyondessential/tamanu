@@ -1,17 +1,17 @@
 import React, { ReactElement } from 'react';
 
-import { formatStringDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
-import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
-import { PatientSection } from './PatientSection';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
-import { getGender } from '~/ui/helpers/user';
+import { formatStringDate } from '/helpers/date';
 import { IPatient } from '~/types';
+import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { allAdditionalDataFields } from '~/ui/helpers/additionalData';
 import { getFieldData } from '~/ui/helpers/patient';
+import { getGender } from '~/ui/helpers/user';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 import { ErrorScreen } from '../../../../../components/ErrorScreen';
-import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { PatientSection } from './PatientSection';
 
 interface GeneralInfoProps {
   onEdit: () => void;
@@ -45,11 +45,9 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
 
   return (
     <PatientSection title="General Information" onEdit={isEditable ? onEdit : undefined}>
-      {loading ? (
-        <LoadingScreen />
-      ) : (
-        <FieldRowDisplay fields={[...fields, ...patientAdditionalDataFields]} />
-      )}
+      {loading ?
+        <LoadingScreen /> :
+        <FieldRowDisplay fields={[...fields, ...patientAdditionalDataFields]} />}
     </PatientSection>
   );
 };

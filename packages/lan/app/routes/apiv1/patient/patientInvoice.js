@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 
-import { mapQueryFilters, getCaseInsensitiveFilter } from '../../../database/utils';
+import { getCaseInsensitiveFilter, mapQueryFilters } from '../../../database/utils';
 
 export const patientInvoiceRoutes = express.Router();
 
@@ -55,17 +55,15 @@ patientInvoiceRoutes.get(
           model: models.Encounter,
           as: 'encounter',
           where: { patientId },
-          order:
-            orderBy && encounterOrderByKeys.includes(orderBy)
-              ? [[orderBy, order.toUpperCase()]]
-              : undefined,
+          order: orderBy && encounterOrderByKeys.includes(orderBy)
+            ? [[orderBy, order.toUpperCase()]]
+            : undefined,
         },
       ],
       where: invoiceFilters,
-      order:
-        orderBy && invoiceOrderByKeys.includes(orderBy)
-          ? [[orderBy, order.toUpperCase()]]
-          : undefined,
+      order: orderBy && invoiceOrderByKeys.includes(orderBy)
+        ? [[orderBy, order.toUpperCase()]]
+        : undefined,
       limit: rowsPerPage,
       offset: page * rowsPerPage,
     });

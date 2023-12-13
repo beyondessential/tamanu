@@ -1,7 +1,7 @@
-import { Sequelize, Op } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { parseOrNull } from '../utils/parse-or-null';
+import { Op, Sequelize } from 'sequelize';
 import { log } from '../services/logging';
+import { parseOrNull } from '../utils/parse-or-null';
 import { Model } from './Model';
 
 export class SurveyScreenComponent extends Model {

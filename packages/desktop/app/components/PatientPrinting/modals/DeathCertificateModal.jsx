@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { DeathCertificate } from '../printouts/DeathCertificate';
-import { Modal } from '../../Modal';
-import { Button } from '../../Button';
 import { useCertificate } from '../../../utils/useCertificate';
+import { Button } from '../../Button';
+import { Modal } from '../../Modal';
+import { DeathCertificate } from '../printouts/DeathCertificate';
 
 export const DeathCertificateModal = ({ patient, deathData }) => {
   const [isOpen, setIsOpen] = useState();

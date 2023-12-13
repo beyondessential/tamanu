@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import { Box, Typography } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
 import { omit } from 'lodash';
-import { Typography, Box } from '@material-ui/core';
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import { getInvisibleQuestions, getVisibleQuestions } from '../../utils';
 import { Button, OutlinedButton } from '../Button';
-import { Form } from './Form';
 import { ButtonRow } from '../ButtonRow';
-import { getVisibleQuestions, getInvisibleQuestions } from '../../utils';
+import { Form } from './Form';
 import { FormStepper } from './FormStepper';
 
 const COMPLETE_MESSAGE = `
@@ -155,7 +155,7 @@ export const PaginatedForm = ({
       render={({ submitForm, validateForm, values, setValues, setStatus }) => {
         if (screenIndex <= maxIndex) {
           const screenReactElement = formScreenReactElements.find((screen, i) =>
-            i === screenIndex ? screen : null,
+            i === screenIndex ? screen : null
           );
 
           return (

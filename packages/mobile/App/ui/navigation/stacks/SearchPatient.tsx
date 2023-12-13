@@ -1,14 +1,14 @@
-import React, { ReactElement, useState } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Formik } from 'formik';
+import React, { ReactElement, useState } from 'react';
 // Helpers
-import { Routes } from '/helpers/routes';
 import { noSwipeGestureOnNavigator } from '/helpers/navigators';
+import { Routes } from '/helpers/routes';
 // Navigator
 import { SearchPatientTabs } from './SearchPatientTabs';
 // Screens
-import { PatientFilterScreen } from '../screens/PatientSearch';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { PatientFilterScreen } from '../screens/PatientSearch';
 
 const Stack = createStackNavigator();
 

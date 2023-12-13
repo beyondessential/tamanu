@@ -1,11 +1,11 @@
+import { CenterView, StyledSafeAreaView } from '/styled/common';
+import { storiesOf } from '@storybook/react-native';
 import React from 'react';
 import { ScrollView } from 'react-native';
-import { storiesOf } from '@storybook/react-native';
-import { CenterView, StyledSafeAreaView } from '/styled/common';
 import { SafeAreaProvider } from 'react-native-safe-area-view';
+import { IPatient } from '~/types';
 import { VaccinesTable } from '.';
 import { vaccineHistoryList } from './fixture';
-import { IPatient } from '~/types';
 
 storiesOf('VaccineTable', module)
   .addDecorator((Story: Function) => (

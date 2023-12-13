@@ -1,9 +1,9 @@
-import { keyBy, groupBy, uniqWith, isEqual } from 'lodash';
+import { endOfDay, parseISO, startOfDay } from 'date-fns';
+import { groupBy, isEqual, keyBy, uniqWith } from 'lodash';
 import { Op } from 'sequelize';
-import { endOfDay, startOfDay, parseISO } from 'date-fns';
+import { ageInYears, differenceInMilliseconds, format, toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 import { transformAnswers } from './utilities/transformAnswers';
-import { format, ageInYears, differenceInMilliseconds, toDateTimeString } from '../utils/dateTime';
 
 const parametersToSurveyResponseSqlWhere = (parameters, surveyIds) => {
   const newParameters = { ...parameters };
@@ -87,7 +87,7 @@ const getLatestAnswerPerGroup = groupedTransformAnswers => {
   const results = {};
   for (const [key, groupedAnswers] of Object.entries(groupedTransformAnswers)) {
     const sortedLatestToOldestAnswers = groupedAnswers.sort((a1, a2) =>
-      differenceInMilliseconds(a2.responseEndTime, a1.responseEndTime),
+      differenceInMilliseconds(a2.responseEndTime, a1.responseEndTime)
     );
     results[key] = sortedLatestToOldestAnswers[0]?.body;
   }
@@ -95,8 +95,9 @@ const getLatestAnswerPerGroup = groupedTransformAnswers => {
 };
 
 const getLatestAnswerPerPatient = answers => {
-  const groupedAnswers = groupBy(answers, a =>
-    getPerPatientAnswerKey(a.patientId, a.dataElementId),
+  const groupedAnswers = groupBy(
+    answers,
+    a => getPerPatientAnswerKey(a.patientId, a.dataElementId),
   );
   return getLatestAnswerPerGroup(groupedAnswers);
 };
@@ -145,9 +146,11 @@ const getPatientIdsByResponseDates = transformedAnswers => {
   //    ]
   // }
   const patientIdsHavingAnswersByResponseDates = {};
-  for (const [patientId, patientIdAndResponseDateObjects] of Object.entries(
-    groupedPatientIdAndResponseDate,
-  )) {
+  for (
+    const [patientId, patientIdAndResponseDateObjects] of Object.entries(
+      groupedPatientIdAndResponseDate,
+    )
+  ) {
     patientIdsHavingAnswersByResponseDates[patientId] = patientIdAndResponseDateObjects.map(
       ({ responseDate }) => responseDate,
     );
@@ -169,10 +172,10 @@ export const dataGenerator = async (
   });
   const transformedAnswers = await transformAnswers(models, answers, components);
   const answersForPerPatient = transformedAnswers.filter(a =>
-    Object.values(surveyDataElementIdsLatestPerPatient).includes(a.dataElementId),
+    Object.values(surveyDataElementIdsLatestPerPatient).includes(a.dataElementId)
   );
   const answersForPerPatientPerDate = transformedAnswers.filter(a =>
-    Object.values(surveyDataElementIdsLatestPerPatientPerDate).includes(a.dataElementId),
+    Object.values(surveyDataElementIdsLatestPerPatientPerDate).includes(a.dataElementId)
   );
   const latestAnswersPerPatient = getLatestAnswerPerPatient(answersForPerPatient);
   const latestAnswersPerPatientPerDate = getLatestAnswerPerPatientPerDate(
@@ -184,9 +187,11 @@ export const dataGenerator = async (
 
   const reportData = [];
 
-  for (const [patientId, surveyResponseDates] of Object.entries(
-    patientIdsByResponseDates,
-  ).sort(([p1], [p2]) => p1.localeCompare(p2))) {
+  for (
+    const [patientId, surveyResponseDates] of Object.entries(
+      patientIdsByResponseDates,
+    ).sort(([p1], [p2]) => p1.localeCompare(p2))
+  ) {
     const patient = patientById[patientId];
     for (const surveyResponseDate of surveyResponseDates) {
       if (!patient) {
@@ -204,19 +209,17 @@ export const dataGenerator = async (
 
       // Get the answers for data elements that we need to show latest PER PATIENT
       Object.entries(surveyDataElementIdsLatestPerPatient).forEach(([key, dataElementId]) => {
-        recordData[key] =
-          latestAnswersPerPatient[
-            getPerPatientAnswerKey(patientId, dataElementId, surveyResponseDate)
-          ];
+        recordData[key] = latestAnswersPerPatient[
+          getPerPatientAnswerKey(patientId, dataElementId, surveyResponseDate)
+        ];
       });
 
       // Get the answers for data elements that we need to show latest PER PATIENT PER DATE
       Object.entries(surveyDataElementIdsLatestPerPatientPerDate).forEach(
         ([key, dataElementId]) => {
-          recordData[key] =
-            latestAnswersPerPatientPerDate[
-              getPerPatientPerDateAnswerKey(patientId, dataElementId, surveyResponseDate)
-            ];
+          recordData[key] = latestAnswersPerPatientPerDate[
+            getPerPatientPerDateAnswerKey(patientId, dataElementId, surveyResponseDate)
+          ];
         },
       );
 

@@ -1,10 +1,10 @@
-import { Entity, Column, ManyToMany, JoinTable } from 'typeorm/browser';
+import { Column, Entity, JoinTable, ManyToMany } from 'typeorm/browser';
 
 import { ILabTestPanel } from '~/types';
-import { BaseModel } from './BaseModel';
-import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';
+import { BaseModel } from './BaseModel';
 import { LabTestType } from './LabTestType';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('lab_test_panel')
 export class LabTestPanel extends BaseModel implements ILabTestPanel {

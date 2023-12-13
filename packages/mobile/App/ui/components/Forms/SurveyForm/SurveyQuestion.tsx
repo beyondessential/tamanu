@@ -1,9 +1,9 @@
+import { StyledText, StyledView } from '/styled/common';
 import React, { ReactElement } from 'react';
-import { StyledView, StyledText } from '/styled/common';
 import { IPatient, ISurveyScreenComponent } from '~/types';
-import { Field } from '../FormField';
-import { FieldTypes } from '~/ui/helpers/fields';
 import { FieldByType } from '~/ui/helpers/fieldComponents';
+import { FieldTypes } from '~/ui/helpers/fields';
+import { Field } from '../FormField';
 
 interface SurveyQuestionProps {
   component: ISurveyScreenComponent;

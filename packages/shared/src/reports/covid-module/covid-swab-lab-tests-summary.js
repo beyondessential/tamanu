@@ -1,9 +1,9 @@
-import { Sequelize, Op } from 'sequelize';
-import { groupBy } from 'lodash';
-import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
+import { groupBy } from 'lodash';
+import { Op, Sequelize } from 'sequelize';
+import { format, toDateTimeString } from '../../utils/dateTime';
 import { generateReportFromQueryData } from '../utilities';
-import { toDateTimeString, format } from '../../utils/dateTime';
 
 const parametersToSqlWhere = parameters => {
   const defaultWhereClause = {
@@ -140,8 +140,8 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
     const negativeRecordCount = negativeRecord ? Number(negativeRecord.count) : 0;
     const inconclusiveRecordCount = inconclusiveRecord ? Number(inconclusiveRecord.count) : 0;
     const noResultRecordCount = noResultRecord ? Number(noResultRecord.count) : 0;
-    const totalRecordCount =
-      positiveRecordCount + negativeRecordCount + inconclusiveRecordCount + noResultRecordCount;
+    const totalRecordCount = positiveRecordCount + negativeRecordCount + inconclusiveRecordCount +
+      noResultRecordCount;
 
     return {
       testDate,

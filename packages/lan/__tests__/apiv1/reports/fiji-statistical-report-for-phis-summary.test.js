@@ -8,10 +8,10 @@ import {
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { createTestContext } from '../../utilities';
 import {
-  setupProgramAndSurvey,
-  createCVDFormSurveyResponse,
   createBreastCancerFormSurveyResponse,
+  createCVDFormSurveyResponse,
   createSNAPFormSurveyResponse,
+  setupProgramAndSurvey,
 } from './fiji-ncd-primary-screening/utils';
 
 const ETHNICITY_IDS = {
@@ -137,8 +137,7 @@ describe('Fiji statistical report for phis summary', () => {
      * 2020-05-02: Had a CVD screening - SNAP councilling
      *
      * 2020-05-03: Diagnosed with hypertension
-     *
-     * */
+     */
 
     // 2019-05-02: Had a non-CVD survey response submitted
     await createBreastCancerFormSurveyResponse(app, expectedPatient1, '2019-05-02 00:00:00');
@@ -210,8 +209,7 @@ describe('Fiji statistical report for phis summary', () => {
      *
      * 2020-05-02: Diagnosed with diabetes and hypertension
      * 2020-05-02: Had a CVD screening - SNAP councilling
-     *
-     * */
+     */
 
     // 2020-05-02: Diagnosed with diabetes and hypertension
     const diagnosisEncounter2 = await models.Encounter.create(
@@ -254,8 +252,7 @@ describe('Fiji statistical report for phis summary', () => {
      * 2020-05-02: Had a CVD screening - yes SNAP councilling
      *
      * 2020-05-03: Diagnosed with hypertension
-     *
-     * */
+     */
 
     // 2020-05-02: Diagnosed with hypertension
     const diagnosisEncounter3 = await models.Encounter.create(
@@ -317,7 +314,6 @@ describe('Fiji statistical report for phis summary', () => {
      * Patient 4:
      *
      * 2020-05-02: Diagnosed with diabetes (but it's disproven)
-     *
      */
     const diagnosisEncounter6 = await models.Encounter.create(
       await createDummyEncounter(models, {
@@ -388,24 +384,33 @@ describe('Fiji statistical report for phis summary', () => {
           'Number of new diabetes cases for individuals above 30 by Itaukei': 0,
           'Number of new hypertension cases for individuals under 30 by Itaukei': 0,
           'Number of new hypertension cases for individuals above 30 by Itaukei': 0,
-          'Number of new dual diabetes and hypertension cases for individuals under 30 by Itaukei': 0,
-          'Number of new dual diabetes and hypertension cases for individuals above 30 by Itaukei': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by Itaukei':
+            0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by Itaukei':
+            0,
           'Number of CVD screenings by Fijian of Indian descent': 0,
-          'Number of individuals that have received SNAP counselling by Fijian of Indian descent': 0,
+          'Number of individuals that have received SNAP counselling by Fijian of Indian descent':
+            0,
           'Number of new diabetes cases for individuals under 30 by Fijian of Indian descent': 0,
           'Number of new diabetes cases for individuals above 30 by Fijian of Indian descent': 0,
-          'Number of new hypertension cases for individuals under 30 by Fijian of Indian descent': 0,
-          'Number of new hypertension cases for individuals above 30 by Fijian of Indian descent': 0,
-          'Number of new dual diabetes and hypertension cases for individuals under 30 by Fijian of Indian descent': 0,
-          'Number of new dual diabetes and hypertension cases for individuals above 30 by Fijian of Indian descent': 0,
+          'Number of new hypertension cases for individuals under 30 by Fijian of Indian descent':
+            0,
+          'Number of new hypertension cases for individuals above 30 by Fijian of Indian descent':
+            0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by Fijian of Indian descent':
+            0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by Fijian of Indian descent':
+            0,
           'Number of CVD screenings by ethnicity Other': 0,
           'Number of individuals that have received SNAP counselling by ethnicity Other': 0,
           'Number of new diabetes cases for individuals under 30 by ethnicity Other': 0,
           'Number of new diabetes cases for individuals above 30 by ethnicity Other': 0,
           'Number of new hypertension cases for individuals under 30 by ethnicity Other': 0,
           'Number of new hypertension cases for individuals above 30 by ethnicity Other': 0,
-          'Number of new dual diabetes and hypertension cases for individuals under 30 by ethnicity Other': 0,
-          'Number of new dual diabetes and hypertension cases for individuals above 30 by ethnicity Other': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by ethnicity Other':
+            0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by ethnicity Other':
+            0,
         },
         {
           /** *****2020-05-02******** */
@@ -424,24 +429,33 @@ describe('Fiji statistical report for phis summary', () => {
           'Number of new diabetes cases for individuals above 30 by Itaukei': 0,
           'Number of new hypertension cases for individuals under 30 by Itaukei': 0,
           'Number of new hypertension cases for individuals above 30 by Itaukei': 0,
-          'Number of new dual diabetes and hypertension cases for individuals under 30 by Itaukei': 1,
-          'Number of new dual diabetes and hypertension cases for individuals above 30 by Itaukei': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by Itaukei':
+            1,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by Itaukei':
+            0,
           'Number of CVD screenings by Fijian of Indian descent': 0,
-          'Number of individuals that have received SNAP counselling by Fijian of Indian descent': 0,
+          'Number of individuals that have received SNAP counselling by Fijian of Indian descent':
+            0,
           'Number of new diabetes cases for individuals under 30 by Fijian of Indian descent': 0,
           'Number of new diabetes cases for individuals above 30 by Fijian of Indian descent': 0,
-          'Number of new hypertension cases for individuals under 30 by Fijian of Indian descent': 0,
-          'Number of new hypertension cases for individuals above 30 by Fijian of Indian descent': 0,
-          'Number of new dual diabetes and hypertension cases for individuals under 30 by Fijian of Indian descent': 0,
-          'Number of new dual diabetes and hypertension cases for individuals above 30 by Fijian of Indian descent': 0,
+          'Number of new hypertension cases for individuals under 30 by Fijian of Indian descent':
+            0,
+          'Number of new hypertension cases for individuals above 30 by Fijian of Indian descent':
+            0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by Fijian of Indian descent':
+            0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by Fijian of Indian descent':
+            0,
           'Number of CVD screenings by ethnicity Other': 1,
           'Number of individuals that have received SNAP counselling by ethnicity Other': 1,
           'Number of new diabetes cases for individuals under 30 by ethnicity Other': 0,
           'Number of new diabetes cases for individuals above 30 by ethnicity Other': 0,
           'Number of new hypertension cases for individuals under 30 by ethnicity Other': 0,
           'Number of new hypertension cases for individuals above 30 by ethnicity Other': 0,
-          'Number of new dual diabetes and hypertension cases for individuals under 30 by ethnicity Other': 1,
-          'Number of new dual diabetes and hypertension cases for individuals above 30 by ethnicity Other': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by ethnicity Other':
+            1,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by ethnicity Other':
+            0,
         },
         {
           /** *****2020-05-03******** */
@@ -460,24 +474,33 @@ describe('Fiji statistical report for phis summary', () => {
           'Number of new diabetes cases for individuals above 30 by Itaukei': 0,
           'Number of new hypertension cases for individuals under 30 by Itaukei': 1,
           'Number of new hypertension cases for individuals above 30 by Itaukei': 0,
-          'Number of new dual diabetes and hypertension cases for individuals under 30 by Itaukei': 0,
-          'Number of new dual diabetes and hypertension cases for individuals above 30 by Itaukei': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by Itaukei':
+            0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by Itaukei':
+            0,
           'Number of CVD screenings by Fijian of Indian descent': 0,
-          'Number of individuals that have received SNAP counselling by Fijian of Indian descent': 0,
+          'Number of individuals that have received SNAP counselling by Fijian of Indian descent':
+            0,
           'Number of new diabetes cases for individuals under 30 by Fijian of Indian descent': 0,
           'Number of new diabetes cases for individuals above 30 by Fijian of Indian descent': 0,
-          'Number of new hypertension cases for individuals under 30 by Fijian of Indian descent': 0,
-          'Number of new hypertension cases for individuals above 30 by Fijian of Indian descent': 0,
-          'Number of new dual diabetes and hypertension cases for individuals under 30 by Fijian of Indian descent': 0,
-          'Number of new dual diabetes and hypertension cases for individuals above 30 by Fijian of Indian descent': 0,
+          'Number of new hypertension cases for individuals under 30 by Fijian of Indian descent':
+            0,
+          'Number of new hypertension cases for individuals above 30 by Fijian of Indian descent':
+            0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by Fijian of Indian descent':
+            0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by Fijian of Indian descent':
+            0,
           'Number of CVD screenings by ethnicity Other': 0,
           'Number of individuals that have received SNAP counselling by ethnicity Other': 0,
           'Number of new diabetes cases for individuals under 30 by ethnicity Other': 0,
           'Number of new diabetes cases for individuals above 30 by ethnicity Other': 0,
           'Number of new hypertension cases for individuals under 30 by ethnicity Other': 0,
           'Number of new hypertension cases for individuals above 30 by ethnicity Other': 0,
-          'Number of new dual diabetes and hypertension cases for individuals under 30 by ethnicity Other': 0,
-          'Number of new dual diabetes and hypertension cases for individuals above 30 by ethnicity Other': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by ethnicity Other':
+            0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by ethnicity Other':
+            0,
         },
       ]);
     });
@@ -520,24 +543,33 @@ describe('Fiji statistical report for phis summary', () => {
           'Number of new diabetes cases for individuals above 30 by Itaukei': 0,
           'Number of new hypertension cases for individuals under 30 by Itaukei': 0,
           'Number of new hypertension cases for individuals above 30 by Itaukei': 0,
-          'Number of new dual diabetes and hypertension cases for individuals under 30 by Itaukei': 1,
-          'Number of new dual diabetes and hypertension cases for individuals above 30 by Itaukei': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by Itaukei':
+            1,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by Itaukei':
+            0,
           'Number of CVD screenings by Fijian of Indian descent': 0,
-          'Number of individuals that have received SNAP counselling by Fijian of Indian descent': 0,
+          'Number of individuals that have received SNAP counselling by Fijian of Indian descent':
+            0,
           'Number of new diabetes cases for individuals under 30 by Fijian of Indian descent': 0,
           'Number of new diabetes cases for individuals above 30 by Fijian of Indian descent': 0,
-          'Number of new hypertension cases for individuals under 30 by Fijian of Indian descent': 0,
-          'Number of new hypertension cases for individuals above 30 by Fijian of Indian descent': 0,
-          'Number of new dual diabetes and hypertension cases for individuals under 30 by Fijian of Indian descent': 0,
-          'Number of new dual diabetes and hypertension cases for individuals above 30 by Fijian of Indian descent': 0,
+          'Number of new hypertension cases for individuals under 30 by Fijian of Indian descent':
+            0,
+          'Number of new hypertension cases for individuals above 30 by Fijian of Indian descent':
+            0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by Fijian of Indian descent':
+            0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by Fijian of Indian descent':
+            0,
           'Number of CVD screenings by ethnicity Other': 0,
           'Number of individuals that have received SNAP counselling by ethnicity Other': 0,
           'Number of new diabetes cases for individuals under 30 by ethnicity Other': 0,
           'Number of new diabetes cases for individuals above 30 by ethnicity Other': 0,
           'Number of new hypertension cases for individuals under 30 by ethnicity Other': 0,
           'Number of new hypertension cases for individuals above 30 by ethnicity Other': 0,
-          'Number of new dual diabetes and hypertension cases for individuals under 30 by ethnicity Other': 0,
-          'Number of new dual diabetes and hypertension cases for individuals above 30 by ethnicity Other': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by ethnicity Other':
+            0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by ethnicity Other':
+            0,
         },
         {
           /** *****2020-05-03******** */
@@ -556,24 +588,33 @@ describe('Fiji statistical report for phis summary', () => {
           'Number of new diabetes cases for individuals above 30 by Itaukei': 0,
           'Number of new hypertension cases for individuals under 30 by Itaukei': 1,
           'Number of new hypertension cases for individuals above 30 by Itaukei': 0,
-          'Number of new dual diabetes and hypertension cases for individuals under 30 by Itaukei': 0,
-          'Number of new dual diabetes and hypertension cases for individuals above 30 by Itaukei': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by Itaukei':
+            0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by Itaukei':
+            0,
           'Number of CVD screenings by Fijian of Indian descent': 0,
-          'Number of individuals that have received SNAP counselling by Fijian of Indian descent': 0,
+          'Number of individuals that have received SNAP counselling by Fijian of Indian descent':
+            0,
           'Number of new diabetes cases for individuals under 30 by Fijian of Indian descent': 0,
           'Number of new diabetes cases for individuals above 30 by Fijian of Indian descent': 0,
-          'Number of new hypertension cases for individuals under 30 by Fijian of Indian descent': 0,
-          'Number of new hypertension cases for individuals above 30 by Fijian of Indian descent': 0,
-          'Number of new dual diabetes and hypertension cases for individuals under 30 by Fijian of Indian descent': 0,
-          'Number of new dual diabetes and hypertension cases for individuals above 30 by Fijian of Indian descent': 0,
+          'Number of new hypertension cases for individuals under 30 by Fijian of Indian descent':
+            0,
+          'Number of new hypertension cases for individuals above 30 by Fijian of Indian descent':
+            0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by Fijian of Indian descent':
+            0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by Fijian of Indian descent':
+            0,
           'Number of CVD screenings by ethnicity Other': 0,
           'Number of individuals that have received SNAP counselling by ethnicity Other': 0,
           'Number of new diabetes cases for individuals under 30 by ethnicity Other': 0,
           'Number of new diabetes cases for individuals above 30 by ethnicity Other': 0,
           'Number of new hypertension cases for individuals under 30 by ethnicity Other': 0,
           'Number of new hypertension cases for individuals above 30 by ethnicity Other': 0,
-          'Number of new dual diabetes and hypertension cases for individuals under 30 by ethnicity Other': 0,
-          'Number of new dual diabetes and hypertension cases for individuals above 30 by ethnicity Other': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by ethnicity Other':
+            0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by ethnicity Other':
+            0,
         },
       ]);
     });

@@ -1,11 +1,11 @@
-import React, { ReactElement, useCallback } from 'react';
-import { formatISO9075 } from 'date-fns';
-import { compose } from 'redux';
 import { NavigationProp } from '@react-navigation/native';
-import { useBackend } from '~/ui/hooks';
+import { formatISO9075 } from 'date-fns';
+import React, { ReactElement, useCallback } from 'react';
+import { compose } from 'redux';
 import { IPatient, IPatientIssue, PatientIssueType } from '~/types';
 import { withPatient } from '~/ui/containers/Patient';
 import { Routes } from '~/ui/helpers/routes';
+import { useBackend } from '~/ui/hooks';
 
 import { Screen } from './Screen';
 

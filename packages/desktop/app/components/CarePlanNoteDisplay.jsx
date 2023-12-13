@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Colors } from '../constants';
-import { MenuButton } from './MenuButton';
 import { useApi } from '../api';
+import { Colors } from '../constants';
 import { DateDisplay } from './DateDisplay';
+import { MenuButton } from './MenuButton';
 
 const NoteContainer = styled.div`
   border: 1px solid ${Colors.outline};
@@ -61,12 +61,14 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
       <NoteHeaderContainer>
         <VerticalCenter>
           <NoteAuthorName>{note.author.displayName}</NoteAuthorName>
-          {note.onBehalfOf && note.onBehalfOf.displayName ? (
-            <NoteOnBehalfOf>
-              &nbsp;&nbsp;|&nbsp;&nbsp;
-              {`On behalf of ${note.onBehalfOf.displayName}`}
-            </NoteOnBehalfOf>
-          ) : null}
+          {note.onBehalfOf && note.onBehalfOf.displayName ?
+            (
+              <NoteOnBehalfOf>
+                &nbsp;&nbsp;|&nbsp;&nbsp;
+                {`On behalf of ${note.onBehalfOf.displayName}`}
+              </NoteOnBehalfOf>
+            ) :
+            null}
           {isMainCarePlan ? <MainCarePlanIndicator>Main care plan</MainCarePlanIndicator> : null}
         </VerticalCenter>
         <VerticalCenter>

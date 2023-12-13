@@ -1,15 +1,15 @@
-import React, { useState, useCallback } from 'react';
-import PropTypes from 'prop-types';
-import { useQuery } from '@tanstack/react-query';
 import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants/statuses';
+import { useQuery } from '@tanstack/react-query';
+import PropTypes from 'prop-types';
+import React, { useCallback, useState } from 'react';
 
-import { useSelectableColumn } from '../../Table';
-import { ConfirmCancelRow } from '../../ButtonRow';
 import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
+import { ConfirmCancelRow } from '../../ButtonRow';
+import { useSelectableColumn } from '../../Table';
 
-import { MultipleImagingRequestsPrintoutModal } from './MultipleImagingRequestsPrintoutModal';
 import { COLUMN_KEYS, FORM_COLUMNS } from './multipleImagingRequestsColumns';
+import { MultipleImagingRequestsPrintoutModal } from './MultipleImagingRequestsPrintoutModal';
 import { FormDivider, PrintMultipleSelectionTable } from './PrintMultipleSelectionTable';
 
 export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter, onClose }) => {

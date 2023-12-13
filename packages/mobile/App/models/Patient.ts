@@ -1,18 +1,18 @@
-import { Entity, Column, OneToMany, Index } from 'typeorm/browser';
-import { getUniqueId } from 'react-native-device-info';
 import { addHours, parseISO, startOfDay, subYears } from 'date-fns';
 import { groupBy } from 'lodash';
+import { getUniqueId } from 'react-native-device-info';
+import { Column, Entity, Index, OneToMany } from 'typeorm/browser';
+import { formatDateForQuery } from '~/infra/db/helpers';
 import { readConfig } from '~/services/config';
+import { IPatient, IPatientAdditionalData } from '~/types';
+import { VitalsDataElements } from '~/ui/helpers/constants';
 import { BaseModel, IdRelation } from './BaseModel';
 import { Encounter } from './Encounter';
-import { PatientIssue } from './PatientIssue';
-import { PatientSecondaryId } from './PatientSecondaryId';
-import { IPatient, IPatientAdditionalData } from '~/types';
-import { formatDateForQuery } from '~/infra/db/helpers';
-import { VitalsDataElements } from '~/ui/helpers/constants';
 import { PatientAdditionalData } from './PatientAdditionalData';
 import { PatientFacility } from './PatientFacility';
-import { ReferenceData, NullableReferenceDataRelation } from './ReferenceData';
+import { PatientIssue } from './PatientIssue';
+import { PatientSecondaryId } from './PatientSecondaryId';
+import { NullableReferenceDataRelation, ReferenceData } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 
 import { DateStringColumn } from './DateColumns';
@@ -119,11 +119,12 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        subQuery => subQuery
-          .select('surveyResponse.id', 'id')
-          .addSelect('surveyResponse.encounterId', 'encounterId')
-          .from('survey_response', 'surveyResponse')
-          .where('surveyResponse.surveyId = :surveyId', { surveyId }),
+        subQuery =>
+          subQuery
+            .select('surveyResponse.id', 'id')
+            .addSelect('surveyResponse.encounterId', 'encounterId')
+            .from('survey_response', 'surveyResponse')
+            .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
       )
@@ -137,20 +138,23 @@ export class Patient extends BaseModel implements IPatient {
     const ageRangeQuery = repo
       .createQueryBuilder('patient')
       .select(
-        `case when dateOfBirth >= datetime(${formatDateForQuery(
-          thirtyYearsAgo,
-        )}, 'unixepoch') then 'lessThanThirty' else 'moreThanThirty' end`,
+        `case when dateOfBirth >= datetime(${
+          formatDateForQuery(
+            thirtyYearsAgo,
+          )
+        }, 'unixepoch') then 'lessThanThirty' else 'moreThanThirty' end`,
         'ageGroup',
       )
       .addSelect('count(distinct encounter.patientId)', 'totalVisitors')
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        subQuery => subQuery
-          .select('surveyResponse.id', 'id')
-          .addSelect('surveyResponse.encounterId', 'encounterId')
-          .from('survey_response', 'surveyResponse')
-          .where('surveyResponse.surveyId = :surveyId', { surveyId }),
+        subQuery =>
+          subQuery
+            .select('surveyResponse.id', 'id')
+            .addSelect('surveyResponse.encounterId', 'encounterId')
+            .from('survey_response', 'surveyResponse')
+            .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
       )
@@ -167,11 +171,12 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        subQuery => subQuery
-          .select('surveyResponse.id', 'id')
-          .addSelect('surveyResponse.encounterId', 'encounterId')
-          .from('survey_response', 'surveyResponse')
-          .where('surveyResponse.surveyId = :surveyId', { surveyId }),
+        subQuery =>
+          subQuery
+            .select('surveyResponse.id', 'id')
+            .addSelect('surveyResponse.encounterId', 'encounterId')
+            .from('survey_response', 'surveyResponse')
+            .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
       )

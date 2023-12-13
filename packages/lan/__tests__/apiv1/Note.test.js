@@ -1,14 +1,14 @@
+import { NOTE_RECORD_TYPES, NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import {
-  createDummyPatient,
   createDummyEncounter,
+  createDummyPatient,
   randomReferenceId,
 } from '@tamanu/shared/demoData/patients';
-import { NOTE_RECORD_TYPES, NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { chance } from '@tamanu/shared/test-helpers';
 import { fake } from '@tamanu/shared/test-helpers/fake';
-import { createTestContext } from '../utilities';
-import { addMinutes } from 'date-fns';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { addMinutes } from 'date-fns';
+import { createTestContext } from '../utilities';
 
 const randomLabTests = (models, labTestCategoryId, amount) =>
   models.LabTestType.findAll({
@@ -190,7 +190,6 @@ describe('Note', () => {
   });
 
   describe('Revisions', () => {
-
     let encounter = null;
     let noteGroups = [];
     let noteGroupCount = 0;
@@ -199,11 +198,13 @@ describe('Note', () => {
     // yourself for a big chunk of utility functions to get that all together!
 
     const postEncounterNote = async props => {
-      const response = await app.post(`/v1/encounter/${encounter.id}/notes`).send(fake(models.Note, props));
+      const response = await app.post(`/v1/encounter/${encounter.id}/notes`).send(
+        fake(models.Note, props),
+      );
       expect(response).toHaveSucceeded();
       return response.body;
     };
-    
+
     const postRevision = async (base, update) => {
       return postEncounterNote({
         ...base,
@@ -232,24 +233,28 @@ describe('Note', () => {
       const edits = [];
 
       for (let i = 0; i < count; ++i) {
-        edits.push(await postRevision(base, {
-          content: [base.content, 'EDIT', i, (i === count - 1) && 'LATEST'].filter(Boolean).join(' '),
-        }));
+        edits.push(
+          await postRevision(base, {
+            content: [base.content, 'EDIT', i, (i === count - 1) && 'LATEST'].filter(Boolean).join(
+              ' ',
+            ),
+          }),
+        );
       }
       return [base, ...edits];
-    }
+    };
 
     beforeAll(async () => {
       encounter = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
         patientId: patient.id,
       });
-    
+
       // Create a bunch of notes, with a few edits each.
       // These notes will be used in sort/filter later in this describe block.
-      // Ideally each test would create its own notes but each test kind of needs 
-      // a bunch of other unrelated notes to filter out, and so in the interest 
-      // of speed let's just create all the records in one hit rather than 
+      // Ideally each test would create its own notes but each test kind of needs
+      // a bunch of other unrelated notes to filter out, and so in the interest
+      // of speed let's just create all the records in one hit rather than
       // once for every test.
       const data = [
         // some random notes
@@ -264,8 +269,8 @@ describe('Note', () => {
         { noteType: NOTE_TYPES.TREATMENT_PLAN, content: 'TREATMENT' },
 
         // for testing making notes historical
-        { content: 'TO BE HISTORICAL' }, 
-        
+        { content: 'TO BE HISTORICAL' },
+
         // and a few other random notes after so that the test targets
         // aren't all at the start or end
         ...(new Array(11).fill(0)),
@@ -273,7 +278,10 @@ describe('Note', () => {
       noteGroups = [];
       for (let i = 0; i < data.length; ++i) {
         const content = `Test note ${i}`;
-        const group = await postEncounterNoteWithRevisions(chance.integer({ min: 1, max: 6 }), { content, ...data[i] });
+        const group = await postEncounterNoteWithRevisions(chance.integer({ min: 1, max: 6 }), {
+          content,
+          ...data[i],
+        });
         noteGroups.push(group);
       }
       noteGroupCount = noteGroups.length;
@@ -287,7 +295,9 @@ describe('Note', () => {
     });
 
     it('should list the latest revision of each note', async () => {
-      const response = await app.get(`/v1/encounter/${encounter.id}/notes?rowsPerPage=${noteGroupCount}`);
+      const response = await app.get(
+        `/v1/encounter/${encounter.id}/notes?rowsPerPage=${noteGroupCount}`,
+      );
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('count', noteGroups.length);
       response.body.data.forEach(n => {
@@ -306,14 +316,16 @@ describe('Note', () => {
       expect(secondPage.body.data).toHaveLength(5);
 
       const returnedRecords = [...firstPage.body.data, ...secondPage.body.data];
-      const firstNonTreatment = returnedRecords.findIndex(x => x.noteType !== NOTE_TYPES.TREATMENT_PLAN);
-      
+      const firstNonTreatment = returnedRecords.findIndex(x =>
+        x.noteType !== NOTE_TYPES.TREATMENT_PLAN
+      );
+
       // treatment plans should be first, in descending date order
-      const treatmentNotes = returnedRecords.slice(0, firstNonTreatment)
+      const treatmentNotes = returnedRecords.slice(0, firstNonTreatment);
       const treatmentDates = treatmentNotes.map(x => x.revisedBy?.date || x.date);
 
       // then other notes, same
-      const otherNotes = returnedRecords.slice(firstNonTreatment)
+      const otherNotes = returnedRecords.slice(firstNonTreatment);
       const otherDates = otherNotes.map(x => x.revisedBy?.date || x.date);
 
       expect(treatmentDates).toEqual([...treatmentDates].sort().reverse());
@@ -321,7 +333,9 @@ describe('Note', () => {
     });
 
     it('should filter notes correctly when they have revisions', async () => {
-      const results = await app.get(`/v1/encounter/${encounter.id}/notes?noteType=${NOTE_TYPES.MEDICAL}&rowsPerPage=10`);
+      const results = await app.get(
+        `/v1/encounter/${encounter.id}/notes?noteType=${NOTE_TYPES.MEDICAL}&rowsPerPage=10`,
+      );
       expect(results).toHaveSucceeded();
       results.body.data.forEach(note => {
         expect(note).toHaveProperty('noteType', NOTE_TYPES.MEDICAL);
@@ -331,12 +345,17 @@ describe('Note', () => {
 
     // currently (2023-11-22) notes are not sortable even though the API supports it, omitting this test for now
     it.todo('should sort notes correctly when they have revisions');
-    
-    it('should exclude a historical note even if its earlier revisions are not historical', async () => {
-      const [historicalNote] = noteGroups.find(([base]) => base.content === "TO BE HISTORICAL");
-      await postRevision(historicalNote, { content: 'HISTORICAL', visibilityStatus: VISIBILITY_STATUSES.HISTORICAL });
 
-      const response = await app.get(`/v1/encounter/${encounter.id}/notes?rowsPerPage=${noteGroupCount}`);
+    it('should exclude a historical note even if its earlier revisions are not historical', async () => {
+      const [historicalNote] = noteGroups.find(([base]) => base.content === 'TO BE HISTORICAL');
+      await postRevision(historicalNote, {
+        content: 'HISTORICAL',
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      });
+
+      const response = await app.get(
+        `/v1/encounter/${encounter.id}/notes?rowsPerPage=${noteGroupCount}`,
+      );
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('count', noteGroups.length - 1);
       response.body.data.forEach(n => {

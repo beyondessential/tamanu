@@ -1,8 +1,8 @@
-import React from 'react';
-import styled from 'styled-components';
 import { Grid, Paper, Typography } from '@material-ui/core';
 import { grey } from '@material-ui/core/colors';
 import { PropTypes } from 'prop-types';
+import React from 'react';
+import styled from 'styled-components';
 import { MUI_SPACING_UNIT as spacing } from '../constants';
 
 // workaround for https://github.com/styled-components/styled-components/issues/1198

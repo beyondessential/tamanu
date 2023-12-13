@@ -1,12 +1,12 @@
-import { fake } from '@tamanu/shared/test-helpers';
 import { log } from '@tamanu/shared/services/logging';
+import { fake } from '@tamanu/shared/test-helpers';
 
-import { createTestContext } from '../utilities';
+import { allFromUpstream } from '../../app/tasks/fhir/refresh/allFromUpstream';
 import {
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithImagingRequest,
 } from '../fake/fhir';
-import { allFromUpstream } from '../../app/tasks/fhir/refresh/allFromUpstream';
+import { createTestContext } from '../utilities';
 
 describe('FHIR refresh handler', () => {
   let ctx;

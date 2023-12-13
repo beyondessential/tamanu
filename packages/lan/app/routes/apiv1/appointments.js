@@ -1,8 +1,8 @@
+import { simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
+import { startOfDay } from 'date-fns';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { startOfDay } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
-import { simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { escapePatternWildcard } from '../../utils/query';
 
 export const appointments = express.Router();

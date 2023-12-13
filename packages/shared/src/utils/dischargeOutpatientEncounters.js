@@ -1,8 +1,8 @@
 import { endOfDay, parseISO } from 'date-fns';
 import { Op } from 'sequelize';
 
-import { getCurrentDateString } from './dateTime';
 import { log } from '../services/logging';
+import { getCurrentDateString } from './dateTime';
 import { sleepAsync } from './sleepAsync';
 
 export const getDischargeOutPatientEncountersWhereClause = () => {

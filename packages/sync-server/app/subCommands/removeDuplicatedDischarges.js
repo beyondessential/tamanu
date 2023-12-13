@@ -20,5 +20,4 @@ export const removeDuplicatedDischargesCommand = new Command('removeDuplicatedDi
     '-s, --sleepAsyncDuration <number>',
     'Sleep duration between batches in milliseconds (default 50ms)',
   )
-
   .action(removeDuplicatedDischarges);

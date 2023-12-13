@@ -1,15 +1,15 @@
-import { Connection, createConnection, getConnectionManager, ConnectionOptions } from 'typeorm';
 import { DevSettings } from 'react-native';
+import { Connection, ConnectionOptions, createConnection, getConnectionManager } from 'typeorm';
+import { migrationList } from '~/migrations';
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';
-import { migrationList } from '~/migrations';
 
 const LOG_LEVELS = __DEV__
   ? [
-      'error' as const,
-      // 'query' as const,
-      'schema' as const,
-    ]
+    'error' as const,
+    // 'query' as const,
+    'schema' as const,
+  ]
   : [];
 
 const CONNECTION_CONFIG = {
@@ -108,7 +108,7 @@ class DatabaseHelper {
 
       // TODO: this is a hack to fix an issue where models can't retrieve the correct connection in
       // our tests because we're using a mix of typeorm and typeorm/browser
-      MODELS_ARRAY.forEach(m => m.useConnection(<any>this.client));
+      MODELS_ARRAY.forEach(m => m.useConnection(<any> this.client));
     } catch (error) {
       if (error.name === 'AlreadyHasActiveConnectionError') {
         const existentConn = getConnectionManager().get('default');

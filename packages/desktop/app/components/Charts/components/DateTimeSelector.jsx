@@ -1,7 +1,7 @@
-import React, { useEffect, useCallback, useState } from 'react';
-import styled from 'styled-components';
-import { debounce } from 'lodash';
 import { addDays, format, parseISO, startOfDay } from 'date-fns';
+import { debounce } from 'lodash';
+import React, { useCallback, useEffect, useState } from 'react';
+import styled from 'styled-components';
 
 import { DateInput as DateInputComponent, SelectInput as SelectInputComponent } from '../../Field';
 import { Y_AXIS_WIDTH } from '../constants';

@@ -1,5 +1,5 @@
-import { splitIds } from './utilities';
 import { ICD10_DIAGNOSES } from './icd10';
+import { splitIds } from './utilities';
 
 export const TRIAGE_DIAGNOSES = splitIds(`
  Cardiorespiratory arrest

@@ -1,15 +1,15 @@
-import React from 'react';
 import { Document, Page } from '@react-pdf/renderer';
+import React from 'react';
 
-import { generateUVCI } from '../uvci';
-import { Table } from './Table';
-import { styles, Col, Box, Row, Watermark } from './Layout';
-import { CovidPatientDetailsSection } from './CovidPatientDetailsSection';
-import { SigningSection } from './SigningSection';
-import { H3, P } from './Typography';
-import { CovidLetterheadSection } from './CovidLetterheadSection';
-import { getDisplayDate } from './getDisplayDate';
 import { compareDateStrings } from '../dateTime';
+import { generateUVCI } from '../uvci';
+import { CovidLetterheadSection } from './CovidLetterheadSection';
+import { CovidPatientDetailsSection } from './CovidPatientDetailsSection';
+import { getDisplayDate } from './getDisplayDate';
+import { Box, Col, Row, styles, Watermark } from './Layout';
+import { SigningSection } from './SigningSection';
+import { Table } from './Table';
+import { H3, P } from './Typography';
 
 const columns = [
   {

@@ -1,26 +1,26 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { push } from 'connected-react-router';
-import { useDispatch } from 'react-redux';
-import styled from 'styled-components';
-import { format } from 'date-fns';
-import Select from 'react-select';
-import CloseIcon from '@material-ui/icons/Close';
 import { IconButton } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
 import { Alert } from '@material-ui/lab';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { useQuery } from '@tanstack/react-query';
-import { PatientNameDisplay } from '../PatientNameDisplay';
-import { TextDisplayIdLabel } from '../DisplayIdLabel';
-import { DateDisplay } from '../DateDisplay';
-import { Colors, appointmentStatusOptions } from '../../constants';
+import { push } from 'connected-react-router';
+import { format } from 'date-fns';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import Select from 'react-select';
+import styled from 'styled-components';
 import { useApi } from '../../api';
+import { usePatientCurrentEncounter } from '../../api/queries';
+import { appointmentStatusOptions, Colors } from '../../constants';
 import { reloadPatient } from '../../store/patient';
-import { AppointmentModal } from './AppointmentModal';
 import { Button, DeleteButton } from '../Button';
+import { DateDisplay } from '../DateDisplay';
+import { TextDisplayIdLabel } from '../DisplayIdLabel';
 import { EncounterModal } from '../EncounterModal';
 import { LocalisedText } from '../LocalisedText';
-import { usePatientCurrentEncounter } from '../../api/queries';
 import { Modal } from '../Modal';
+import { PatientNameDisplay } from '../PatientNameDisplay';
+import { AppointmentModal } from './AppointmentModal';
 
 const Heading = styled.div`
   font-weight: 700;
@@ -315,10 +315,10 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
         !currentEncounterLoading &&
         !additionalDataLoading &&
         !createdEncounter && (
-          <Button variant="text" color="primary" onClick={onOpenEncounterModal}>
-            <u>Admit or check-in</u>
-          </Button>
-        )}
+        <Button variant="text" color="primary" onClick={onOpenEncounterModal}>
+          <u>Admit or check-in</u>
+        </Button>
+      )}
       {showErrorAlert && (
         <Alert
           severity="error"

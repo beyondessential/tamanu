@@ -1,16 +1,16 @@
-import React, { useState, useCallback } from 'react';
 import { extension } from 'mime-types';
+import React, { useCallback, useState } from 'react';
 
 import { useApi } from '../../../api';
-import { notify, notifySuccess, notifyError } from '../../../utils';
+import { notify, notifyError, notifySuccess } from '../../../utils';
 
-import { DocumentPreviewModal } from '../../../components/DocumentPreview';
-import { DocumentsTable } from '../../../components/DocumentsTable';
+import { Button, ContentPane, OutlinedButton, TableButtonRow } from '../../../components';
 import { DocumentModal } from '../../../components/DocumentModal';
-import { PatientLetterModal } from '../../../components/PatientLetterModal';
+import { DocumentPreviewModal } from '../../../components/DocumentPreview';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
+import { DocumentsTable } from '../../../components/DocumentsTable';
+import { PatientLetterModal } from '../../../components/PatientLetterModal';
 import { TabPane } from '../components';
-import { OutlinedButton, Button, ContentPane, TableButtonRow } from '../../../components';
 
 const MODAL_STATES = {
   DOCUMENT_OPEN: 'document',
@@ -37,7 +37,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const onDownload = useCallback(
     async document => {
       // Suggest a filename that matches the document name
-      const path = {canceled:true}; // await showSaveDialog({ defaultPath: document.name });
+      const path = { canceled: true }; // await showSaveDialog({ defaultPath: document.name });
       if (path.canceled) return;
 
       try {

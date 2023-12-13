@@ -1,25 +1,25 @@
+import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import config from 'config';
-import { QueryTypes, Op } from 'sequelize';
 import { snakeCase } from 'lodash';
+import { Op, QueryTypes } from 'sequelize';
 
-import { NotFoundError } from '@tamanu/shared/errors';
 import { PATIENT_REGISTRY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { NotFoundError } from '@tamanu/shared/errors';
 import { isGeneratedDisplayId } from '@tamanu/shared/utils/generateId';
 
 import { renameObjectKeys } from '@tamanu/shared/utils';
+import { getOrderClause } from '../../../database/utils';
+import { activeCovid19PatientsHandler } from '../../../routeHandlers';
 import { createPatientFilters } from '../../../utils/patientFilters';
-import { patientVaccineRoutes } from './patientVaccine';
+import { PATIENT_SORT_KEYS } from './constants';
+import { patientBirthData } from './patientBirthData';
 import { patientDocumentMetadataRoutes } from './patientDocumentMetadata';
 import { patientInvoiceRoutes } from './patientInvoice';
-import { patientRelations } from './patientRelations';
-import { patientBirthData } from './patientBirthData';
 import { patientLocations } from './patientLocations';
-import { activeCovid19PatientsHandler } from '../../../routeHandlers';
-import { getOrderClause } from '../../../database/utils';
-import { requestBodyToRecord, dbRecordToResponse, pickPatientBirthData } from './utils';
-import { PATIENT_SORT_KEYS } from './constants';
+import { patientRelations } from './patientRelations';
+import { patientVaccineRoutes } from './patientVaccine';
+import { dbRecordToResponse, pickPatientBirthData, requestBodyToRecord } from './utils';
 
 const patientRoute = express.Router();
 
@@ -422,8 +422,10 @@ patientRoute.get(
         ${select}
         ${from}
 
-        ORDER BY  ${filterSort &&
-          `${filterSort},`} ${sortKey} ${sortDirection}, ${secondarySearchTerm} NULLS LAST
+        ORDER BY  ${
+        filterSort &&
+        `${filterSort},`
+      } ${sortKey} ${sortDirection}, ${secondarySearchTerm} NULLS LAST
         LIMIT :limit
         OFFSET :offset
       `,
@@ -459,10 +461,9 @@ patientRoute.get(
     const { certType } = query;
 
     const patient = await Patient.findByPk(params.id);
-    const labTests =
-      certType === 'clearance'
-        ? await patient.getCovidClearanceLabTests()
-        : await patient.getCovidLabTests();
+    const labTests = certType === 'clearance'
+      ? await patient.getCovidClearanceLabTests()
+      : await patient.getCovidLabTests();
 
     res.json({ data: labTests, count: labTests.length });
   }),

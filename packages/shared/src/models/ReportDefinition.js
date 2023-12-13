@@ -1,5 +1,5 @@
+import { REPORT_DB_SCHEMAS, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, REPORT_DB_SCHEMAS } from '@tamanu/constants';
 import { Model } from './Model';
 
 export class ReportDefinition extends Model {

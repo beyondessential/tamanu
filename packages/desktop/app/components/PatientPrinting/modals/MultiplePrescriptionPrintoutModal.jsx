@@ -1,12 +1,12 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
+import PropTypes from 'prop-types';
+import React from 'react';
 
-import { Modal } from '../../Modal';
-import { LoadingIndicator } from '../../LoadingIndicator';
-import { useCertificate } from '../../../utils/useCertificate';
 import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
+import { useCertificate } from '../../../utils/useCertificate';
+import { LoadingIndicator } from '../../LoadingIndicator';
+import { Modal } from '../../Modal';
 
 import { MultiplePrescriptionPrintout } from '../printouts/MultiplePrescriptionPrintout';
 
@@ -57,16 +57,16 @@ export const MultiplePrescriptionPrintoutModal = ({
       color={Colors.white}
       printable
     >
-      {patientLoading || additionalDataLoading || villageLoading || prescriberLoading ? (
-        <LoadingIndicator />
-      ) : (
-        <MultiplePrescriptionPrintout
-          certificateData={certificateData}
-          patientData={{ ...patient, additionalData, village }}
-          prescriber={prescriber}
-          prescriptions={prescriptions}
-        />
-      )}
+      {patientLoading || additionalDataLoading || villageLoading || prescriberLoading ?
+        <LoadingIndicator /> :
+        (
+          <MultiplePrescriptionPrintout
+            certificateData={certificateData}
+            patientData={{ ...patient, additionalData, village }}
+            prescriber={prescriber}
+            prescriptions={prescriptions}
+          />
+        )}
     </Modal>
   );
 };

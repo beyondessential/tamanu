@@ -1,11 +1,11 @@
-import React from 'react';
 import { Document, Page, View } from '@react-pdf/renderer';
+import React from 'react';
 
-import { styles, Col, Row, Signature, CertificateHeader } from '../patientCertificates/Layout';
-import { H3, P } from '../patientCertificates/Typography';
-import { LetterheadSection } from '../patientCertificates/LetterheadSection';
-import { getSex, getName, getDOB } from '../patientAccessors';
 import { format as formatDate } from '../dateTime';
+import { getDOB, getName, getSex } from '../patientAccessors';
+import { CertificateHeader, Col, Row, Signature, styles } from '../patientCertificates/Layout';
+import { LetterheadSection } from '../patientCertificates/LetterheadSection';
+import { H3, P } from '../patientCertificates/Typography';
 
 export const getCreatedAtDate = ({ documentCreatedAt }) =>
   documentCreatedAt ? formatDate(documentCreatedAt, 'dd/MM/yyyy') : 'Unknown';

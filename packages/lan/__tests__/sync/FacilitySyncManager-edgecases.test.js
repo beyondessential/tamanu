@@ -1,14 +1,14 @@
 /* eslint-disable global-require */
 import config from 'config';
 
-import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
-import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import {
   CURRENT_SYNC_TIME_KEY,
   LAST_SUCCESSFUL_SYNC_PULL_KEY,
   LAST_SUCCESSFUL_SYNC_PUSH_KEY,
 } from '@tamanu/shared/sync/constants';
+import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { createTestContext } from '../utilities';
 

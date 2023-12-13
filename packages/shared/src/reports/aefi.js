@@ -105,7 +105,8 @@ export async function dataGenerator({ models }, parameters = {}) {
           patientFirstName: survey?.encounter?.patient?.firstName,
           patientLastName: survey?.encounter?.patient?.lastName,
           patientDisplayId: survey?.encounter?.patient?.displayId,
-          vaccineLabel: `${vaccine?.scheduledVaccine?.label}, ${vaccine?.scheduledVaccine?.schedule}`,
+          vaccineLabel:
+            `${vaccine?.scheduledVaccine?.label}, ${vaccine?.scheduledVaccine?.schedule}`,
           vaccineBatchNumber: vaccine?.batch,
         },
       );

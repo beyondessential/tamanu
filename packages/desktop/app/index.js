@@ -1,10 +1,10 @@
 import { createRoot } from 'react-dom/client';
 import { persistStore } from 'redux-persist';
 
-import { renderRootInto } from './Root';
 import { API } from './api/singletons';
+import { renderRootInto } from './Root';
+import { authFailure, initStore, restoreSession, versionIncompatible } from './store';
 import { registerYup } from './utils/errorMessages';
-import { initStore, restoreSession, authFailure, versionIncompatible } from './store';
 
 import './fonts.scss';
 import './react-toastify.scss';

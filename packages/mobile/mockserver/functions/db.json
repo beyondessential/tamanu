@@ -1,10 +1,10 @@
 {
-    "users": [                
-        {
-            "email": "a@a.com",
-            "password": "123456"
-        }
-    ],
+  "users": [
+    {
+      "email": "a@a.com",
+      "password": "123456"
+    }
+  ],
   "programs": [
     {
       "id": 1,

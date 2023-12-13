@@ -1,30 +1,30 @@
+import { FORM_STATUSES } from '/helpers/constants';
+import { useFormikContext } from 'formik';
 import React, {
+  MutableRefObject,
   ReactElement,
   useCallback,
-  useState,
-  useRef,
-  MutableRefObject,
   useEffect,
+  useRef,
+  useState,
 } from 'react';
-import { useFormikContext } from 'formik';
+import { BackHandler } from 'react-native';
 import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { GenericFormValues } from '~/models/Forms';
+import { useBackendEffect } from '~/ui/hooks';
 import { IPatient, ISurveyScreenComponent } from '../../../../types';
 import { checkMandatory, checkVisibilityCriteria } from '../../../helpers/fields';
 import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
-import { SurveyQuestion } from './SurveyQuestion';
-import { FormScreenView } from '../FormScreenView';
-import { SubmitButton } from '../SubmitButton';
-import { SectionHeader } from '../../SectionHeader';
-import { Button } from '../../Button';
-import { ErrorBoundary } from '../../ErrorBoundary';
 import { FullView, RowView, StyledText, StyledView } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
-import { FORM_STATUSES } from '/helpers/constants';
-import { GenericFormValues } from '~/models/Forms';
-import { BackHandler } from 'react-native';
-import { useBackendEffect } from '~/ui/hooks';
-import { LoadingScreen } from '../../LoadingScreen';
+import { Button } from '../../Button';
+import { ErrorBoundary } from '../../ErrorBoundary';
 import { ErrorScreen } from '../../ErrorScreen';
+import { LoadingScreen } from '../../LoadingScreen';
+import { SectionHeader } from '../../SectionHeader';
+import { FormScreenView } from '../FormScreenView';
+import { SubmitButton } from '../SubmitButton';
+import { SurveyQuestion } from './SurveyQuestion';
 
 interface UseScrollToFirstError {
   setQuestionPosition: (yPosition: string) => void;
@@ -111,7 +111,7 @@ export const FormFields = ({
 
     // Only include components that are on this page
     const pageErrors = Object.keys(formErrors).filter(x =>
-      screenComponents.map(c => c.dataElement.code).includes(x),
+      screenComponents.map(c => c.dataElement.code).includes(x)
     );
 
     if (pageErrors.length === 0) {
@@ -122,7 +122,7 @@ export const FormFields = ({
       setStatus(FORM_STATUSES.SUBMIT_SCREEN_ATTEMPTED);
 
       const firstErroredQuestion = components.find(({ dataElement }) =>
-        pageErrors.includes(dataElement.code),
+        pageErrors.includes(dataElement.code)
       );
       scrollToQuestion(scrollViewRef, firstErroredQuestion.dataElement.code);
     }
@@ -197,11 +197,16 @@ export const FormFields = ({
                   </StyledText>
                 )}
               </StyledView>
-              {component.detail ? (
-                <StyledText marginTop={4} fontSize={screenPercentageToDP(2.2, Orientation.Height)}>
-                  {component.detail}
-                </StyledText>
-              ) : null}
+              {component.detail ?
+                (
+                  <StyledText
+                    marginTop={4}
+                    fontSize={screenPercentageToDP(2.2, Orientation.Height)}
+                  >
+                    {component.detail}
+                  </StyledText>
+                ) :
+                null}
               <ErrorBoundary errorComponent={SurveyQuestionErrorView}>
                 <SurveyQuestion
                   key={component.id}
@@ -230,11 +235,9 @@ export const FormFields = ({
               onPress={onCancel}
             />
           )}
-          {currentScreenIndex !== maxIndex ? (
-            <Button margin={5} buttonText="Next" onPress={onNavigateNext} />
-          ) : (
-            <SubmitButton margin={5} onSubmit={onSubmit} />
-          )}
+          {currentScreenIndex !== maxIndex ?
+            <Button margin={5} buttonText="Next" onPress={onNavigateNext} /> :
+            <SubmitButton margin={5} onSubmit={onSubmit} />}
         </RowView>
         {currentScreenIndex === maxIndex && (
           <StyledView margin={10}>

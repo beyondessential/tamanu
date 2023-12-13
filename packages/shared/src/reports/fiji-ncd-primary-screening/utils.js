@@ -1,24 +1,24 @@
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
 import { groupBy, keyBy } from 'lodash';
 import { Op } from 'sequelize';
-import { format, differenceInMilliseconds, toDateTimeString } from '../../utils/dateTime';
+import { differenceInMilliseconds, format, toDateTimeString } from '../../utils/dateTime';
 import { transformAnswers } from '../utilities';
 
 import {
-  CVD_SURVEY_IDS,
-  BREAST_CANCER_SURVEY_IDS,
-  CERVICAL_CANCER_SURVEY_IDS,
-  CVD_SURVEY_GROUP_KEY,
-  BREAST_CANCER_SURVEY_GROUP_KEY,
-  CERVICAL_CANCER_SURVEY_GROUP_KEY,
-  CVD_PRIMARY_SCREENING_FORM_DATA_ELEMENT_IDS,
-  BREAST_CANCER_PRIMARY_SCREENING_FORM_DATA_ELEMENT_IDS,
-  CERVICAL_CANCER_PRIMARY_SCREENING_FORM_DATA_ELEMENT_IDS,
-  CVD_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS,
-  BREAST_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS,
-  CERVICAL_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS,
   ALL_SURVEY_IDS,
   BREAST_CANCER_FORM_SURVEY_ID,
+  BREAST_CANCER_PRIMARY_SCREENING_FORM_DATA_ELEMENT_IDS,
+  BREAST_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS,
+  BREAST_CANCER_SURVEY_GROUP_KEY,
+  BREAST_CANCER_SURVEY_IDS,
+  CERVICAL_CANCER_PRIMARY_SCREENING_FORM_DATA_ELEMENT_IDS,
+  CERVICAL_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS,
+  CERVICAL_CANCER_SURVEY_GROUP_KEY,
+  CERVICAL_CANCER_SURVEY_IDS,
+  CVD_PRIMARY_SCREENING_FORM_DATA_ELEMENT_IDS,
+  CVD_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS,
+  CVD_SURVEY_GROUP_KEY,
+  CVD_SURVEY_IDS,
   getSurveyResultDataElement,
 } from './constants';
 
@@ -167,7 +167,7 @@ export const removeDuplicatedReferralsPerDate = referrals => {
   const results = [];
   for (const groupedAnswers of Object.values(referralByPatientAndDate)) {
     const sortedLatestToOldestReferrals = groupedAnswers.sort((r1, r2) =>
-      differenceInMilliseconds(r2.initiatingEncounter.startDate, r1.initiatingEncounter.startDate),
+      differenceInMilliseconds(r2.initiatingEncounter.startDate, r1.initiatingEncounter.startDate)
     );
     results.push(sortedLatestToOldestReferrals[0]);
   }
@@ -184,7 +184,7 @@ export const removeDuplicatedAnswersPerDate = answers => {
   const results = [];
   for (const groupedAnswers of Object.values(answersPerElement)) {
     const sortedLatestToOldestAnswers = groupedAnswers.sort((a1, a2) =>
-      differenceInMilliseconds(a2.responseEndTime, a1.responseEndTime),
+      differenceInMilliseconds(a2.responseEndTime, a1.responseEndTime)
     );
     results.push(sortedLatestToOldestAnswers[0]);
   }

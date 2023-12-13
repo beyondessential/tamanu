@@ -1,6 +1,6 @@
+import { formatISO9075, isDate } from 'date-fns';
 import { inRange, isNil } from 'lodash';
-import { isDate, formatISO9075 } from 'date-fns';
-import { ISurveyScreenComponent, DataElementType } from '~/types/ISurvey';
+import { DataElementType, ISurveyScreenComponent } from '~/types/ISurvey';
 
 export const FieldTypes = {
   TEXT: 'FreeText',

@@ -1,10 +1,10 @@
-import React, { useState, ReactElement } from 'react';
 import { StyledText, StyledView } from '/styled/common';
+import React, { ReactElement, useState } from 'react';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 
-import { theme } from '~/ui/styled/theme';
-import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { TextField } from '~/ui/components/TextField/TextField';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { theme } from '~/ui/styled/theme';
 
 const FacilityItem = ({ label, selected, onPress }): ReactElement => (
   <TouchableOpacity onPress={onPress}>
@@ -36,11 +36,11 @@ export const FacilitySelectField = ({ options, onChange, value }): ReactElement 
   const [currentFilter, setCurrentFilter] = useState('');
 
   const items = options
-    .filter((o) => {
+    .filter(o => {
       const lowercase = (o.label || '').toLowerCase();
       return lowercase.includes((currentFilter || '').toLowerCase());
     })
-    .map((o) => (
+    .map(o => (
       <FacilityItem
         key={o.value}
         label={o.label}

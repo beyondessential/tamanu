@@ -1,11 +1,11 @@
-import { Column, Like, RelationId, Brackets } from 'typeorm';
-import { Entity, ManyToOne } from 'typeorm/browser';
 import { get as getAtPath, set as setAtPath } from 'lodash';
+import { Brackets, Column, Like, RelationId } from 'typeorm';
+import { Entity, ManyToOne } from 'typeorm/browser';
 
+import { IFacility } from '../types';
 import { BaseModel } from './BaseModel';
 import { Facility } from './Facility';
 import { SYNC_DIRECTIONS } from './types';
-import { IFacility } from '../types';
 
 @Entity('setting')
 export class Setting extends BaseModel {

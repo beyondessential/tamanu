@@ -1,31 +1,31 @@
-import React from 'react';
-import * as yup from 'yup';
-import styled from 'styled-components';
 import MuiBox from '@material-ui/core/Box';
-import { MANNER_OF_DEATHS, MANNER_OF_DEATH_OPTIONS } from '@tamanu/constants';
+import { MANNER_OF_DEATH_OPTIONS, MANNER_OF_DEATHS } from '@tamanu/constants';
 import { ageInMonths, ageInYears, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import React from 'react';
+import styled from 'styled-components';
+import * as yup from 'yup';
 import {
   ArrayField,
+  AutocompleteField,
+  CheckField,
+  DateField,
+  DateTimeField,
   Field,
   FieldWithTooltip,
-  AutocompleteField,
-  DateTimeField,
-  DateField,
-  RadioField,
-  TextField,
-  CheckField,
-  NumberField,
-  SelectField,
-  TimeWithUnitField,
-  PaginatedForm,
   FormGrid,
   FormSeparatorLine,
+  NumberField,
+  PaginatedForm,
+  RadioField,
+  SelectField,
+  TextField,
+  TimeWithUnitField,
   useLocalisedText,
 } from '../components';
+import { binaryOptions, binaryUnknownOptions } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { DeathFormScreen } from './DeathFormScreen';
 import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';
-import { binaryOptions, binaryUnknownOptions } from '../constants';
 
 const StyledFormGrid = styled(FormGrid)`
   min-height: 200px;
@@ -219,23 +219,25 @@ export const DeathForm = React.memo(
             visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
           />
         </StyledFormGrid>
-        {canBePregnant ? (
-          <StyledFormGrid columns={1}>
-            <Field
-              name="pregnant"
-              label="Was the woman pregnant?"
-              component={RadioField}
-              options={binaryUnknownOptions}
-            />
-            <Field
-              name="pregnancyContribute"
-              label="Did the pregnancy contribute to the death?"
-              component={RadioField}
-              options={binaryUnknownOptions}
-              visibilityCriteria={{ pregnant: 'yes' }}
-            />
-          </StyledFormGrid>
-        ) : null}
+        {canBePregnant ?
+          (
+            <StyledFormGrid columns={1}>
+              <Field
+                name="pregnant"
+                label="Was the woman pregnant?"
+                component={RadioField}
+                options={binaryUnknownOptions}
+              />
+              <Field
+                name="pregnancyContribute"
+                label="Did the pregnancy contribute to the death?"
+                component={RadioField}
+                options={binaryUnknownOptions}
+                visibilityCriteria={{ pregnant: 'yes' }}
+              />
+            </StyledFormGrid>
+          ) :
+          null}
         <StyledFormGrid columns={1}>
           <Field
             name="mannerOfDeath"
@@ -265,46 +267,48 @@ export const DeathForm = React.memo(
             visibilityCriteria={{ mannerOfDeathLocation: 'Other' }}
           />
         </StyledFormGrid>
-        {isInfant ? (
-          <StyledFormGrid columns={1}>
-            <Field
-              name="fetalOrInfant"
-              label="Was the death fetal or infant?"
-              component={RadioField}
-              options={binaryOptions}
-            />
-            <Field
-              name="stillborn"
-              label="Was it a stillbirth?"
-              component={RadioField}
-              options={binaryUnknownOptions}
-            />
-            <Field name="birthWeight" label="Birth Weight (grams):" component={NumberField} />
-            <Field
-              name="numberOfCompletedPregnancyWeeks"
-              label="Number of completed weeks of pregnancy:"
-              component={NumberField}
-            />
-            <Field name="ageOfMother" label="Age of mother" component={NumberField} />
-            <Field
-              name="motherExistingCondition"
-              label="Any condition in mother affecting the fetus or newborn?"
-              component={AutocompleteField}
-              suggester={icd10Suggester}
-            />
-            <Field
-              name="deathWithin24HoursOfBirth"
-              label="Was the death within 24 hours of birth?"
-              component={RadioField}
-              options={binaryOptions}
-            />
-            <Field
-              name="numberOfHoursSurvivedSinceBirth"
-              label="If yes, number of hours survived"
-              component={NumberField}
-            />
-          </StyledFormGrid>
-        ) : null}
+        {isInfant ?
+          (
+            <StyledFormGrid columns={1}>
+              <Field
+                name="fetalOrInfant"
+                label="Was the death fetal or infant?"
+                component={RadioField}
+                options={binaryOptions}
+              />
+              <Field
+                name="stillborn"
+                label="Was it a stillbirth?"
+                component={RadioField}
+                options={binaryUnknownOptions}
+              />
+              <Field name="birthWeight" label="Birth Weight (grams):" component={NumberField} />
+              <Field
+                name="numberOfCompletedPregnancyWeeks"
+                label="Number of completed weeks of pregnancy:"
+                component={NumberField}
+              />
+              <Field name="ageOfMother" label="Age of mother" component={NumberField} />
+              <Field
+                name="motherExistingCondition"
+                label="Any condition in mother affecting the fetus or newborn?"
+                component={AutocompleteField}
+                suggester={icd10Suggester}
+              />
+              <Field
+                name="deathWithin24HoursOfBirth"
+                label="Was the death within 24 hours of birth?"
+                component={RadioField}
+                options={binaryOptions}
+              />
+              <Field
+                name="numberOfHoursSurvivedSinceBirth"
+                label="If yes, number of hours survived"
+                component={NumberField}
+              />
+            </StyledFormGrid>
+          ) :
+          null}
       </PaginatedForm>
     );
   },

@@ -1,27 +1,27 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { useFormikContext } from 'formik';
-import { Link } from 'react-router-dom';
-import { red } from '@material-ui/core/colors';
 import {
-  IconButton,
   Button as MuiButton,
   ButtonBase as MuiButtonBase,
   CircularProgress,
+  IconButton,
 } from '@material-ui/core';
+import { red } from '@material-ui/core/colors';
 import {
   AddBoxOutlined,
-  IndeterminateCheckBox,
   ChevronLeft,
-  Refresh,
+  IndeterminateCheckBox,
   Lock,
+  Refresh,
 } from '@material-ui/icons';
+import { useFormikContext } from 'formik';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
 
 import { Colors } from '../constants';
+import { useFormButtonSubmitting } from '../hooks/useFormButtonSubmitting';
 import { withPermissionCheck } from './withPermissionCheck';
 import { withPermissionTooltip } from './withPermissionTooltip';
-import { useFormButtonSubmitting } from '../hooks/useFormButtonSubmitting';
 
 export const ButtonBase = ({ functionallyDisabled, ...props }) => {
   const locationsProps = getLocationProps(props);
@@ -75,11 +75,11 @@ const BaseButton = ({
   const locationsProps = getLocationProps(props);
   const displayLock = !isSubmitting && !hasPermission;
   const buttonComponent = functionallyDisabled
-    ? // Workaround to display a disabled button with non-disabled styling. MaterialUI doesn't
-      // see the disabled prop so it won't add its own styling, but the underlying button element
-      // is still disabled.
-      // eslint-disable-next-line react/button-has-type
-      buttonProps => <button type={type} {...buttonProps} disabled />
+    // Workaround to display a disabled button with non-disabled styling. MaterialUI doesn't
+    // see the disabled prop so it won't add its own styling, but the underlying button element
+    // is still disabled.
+    // eslint-disable-next-line react/button-has-type
+    ? buttonProps => <button type={type} {...buttonProps} disabled />
     : undefined;
   return (
     <StyledButton

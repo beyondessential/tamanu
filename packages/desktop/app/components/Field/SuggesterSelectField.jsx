@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import { unionBy } from 'lodash';
+import PropTypes from 'prop-types';
+import React, { useEffect, useState } from 'react';
 import { useApi } from '../../api';
-import { SelectInput } from './SelectField';
 import { MultiselectInput } from './MultiselectField';
+import { SelectInput } from './SelectField';
 
 export const SuggesterSelectField = React.memo(
   ({ field, endpoint, filterByFacility, isMulti = false, initialOptions = [], ...props }) => {
@@ -37,7 +37,7 @@ export const SuggesterSelectField = React.memo(
                     },
                   ],
                   'value',
-                ),
+                )
               );
             });
         }
@@ -59,7 +59,7 @@ export const SuggesterSelectField = React.memo(
                 label: name,
               })),
               'value',
-            ),
+            )
           );
         });
     }, [api, setOptions, endpoint, filterByFacility]);
@@ -71,11 +71,9 @@ export const SuggesterSelectField = React.memo(
       options,
     };
 
-    return isMulti ? (
-      <MultiselectInput {...baseProps} {...props} />
-    ) : (
-      <SelectInput {...baseProps} {...props} />
-    );
+    return isMulti ?
+      <MultiselectInput {...baseProps} {...props} /> :
+      <SelectInput {...baseProps} {...props} />;
   },
 );
 

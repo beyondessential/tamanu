@@ -1,6 +1,6 @@
 import { SpanStatusCode } from '@opentelemetry/api';
-import shortid from 'shortid';
 import { scheduleJob } from 'node-schedule';
+import shortid from 'shortid';
 import { getTracer, spanWrapFn } from '../services/logging';
 
 export class ScheduledTask {

@@ -1,21 +1,15 @@
-import React, { ReactElement, useCallback } from 'react';
-import {
-  FullView,
-  RowView,
-  StyledText,
-  StyledSafeAreaView,
-  StyledView,
-} from '/styled/common';
-import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { Button } from '/components/Button';
 import { CrossIcon } from '/components/Icons';
-import { Routes } from '/helpers/routes';
-import { compose } from 'redux';
 import { withPatient } from '/containers/Patient';
+import { Routes } from '/helpers/routes';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { NewPatientScreenProps } from '/interfaces/screens/RegisterPatientStack/NewPatientScreenProps';
-import { joinNames } from '~/ui/helpers/user';
+import { FullView, RowView, StyledSafeAreaView, StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
+import React, { ReactElement, useCallback } from 'react';
+import { compose } from 'redux';
 import { getAgeFromDate } from '~/ui/helpers/date';
+import { joinNames } from '~/ui/helpers/user';
 
 const Screen = ({
   navigation,
@@ -88,7 +82,8 @@ const Screen = ({
           {joinNames(selectedPatient)}
         </StyledText>
         <StyledText color={theme.colors.TEXT_MID} marginTop={10}>
-          {selectedPatient.gender} {getAgeFromDate(selectedPatient.dateOfBirth).toString()} years old{' '}
+          {selectedPatient.gender} {getAgeFromDate(selectedPatient.dateOfBirth).toString()}{' '}
+          years old{' '}
         </StyledText>
         <StyledText
           fontSize={screenPercentageToDP(2.55, Orientation.Height)}

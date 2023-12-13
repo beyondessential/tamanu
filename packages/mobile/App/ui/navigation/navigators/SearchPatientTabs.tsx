@@ -1,36 +1,31 @@
-import React, { useCallback } from 'react';
-import { StyleProp, ViewStyle } from 'react-native';
+import { MaterialTopTabView } from '@react-navigation/material-top-tabs';
 import {
-  useNavigationBuilder,
   createNavigatorFactory,
+  DefaultNavigatorOptions,
   TabRouter,
   TabRouterOptions,
-  DefaultNavigatorOptions,
+  useNavigationBuilder,
 } from '@react-navigation/native';
-import { MaterialTopTabView } from '@react-navigation/material-top-tabs';
+import React, { useCallback } from 'react';
+import { StyleProp, ViewStyle } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 /*eslint-disable import/no-unresolved */
 import {
-  MaterialTopTabNavigationConfig,
   MaterialTopTabBarOptions,
+  MaterialTopTabNavigationConfig,
 } from '@react-navigation/material-top-tabs/lib/typescript/src/types';
 /*eslint-enable import/no-unresolved */
-import { compose } from 'redux';
-import {
-  StyledSafeAreaView,
-  RowView,
-  StyledView,
-  FullView,
-} from '/styled/common';
+import { Field } from '/components/Forms/FormField';
 import { ArrowLeftIcon } from '/components/Icons';
 import { SearchInput } from '/components/SearchInput';
-import { Field } from '/components/Forms/FormField';
+import { FullView, RowView, StyledSafeAreaView, StyledView } from '/styled/common';
+import { compose } from 'redux';
 // Helpers
-import { Routes } from '/helpers/routes';
-import { theme } from '/styled/theme';
 import { withPatient } from '/containers/Patient';
+import { Routes } from '/helpers/routes';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { WithPatientStoreProps } from '/store/ducks/patient';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { theme } from '/styled/theme';
 
 type TabNavigationConfig = {
   tabBarStyle: StyleProp<ViewStyle>;
@@ -41,12 +36,13 @@ type TabNavigationOptions = {
   title?: string;
 };
 
-type Props = DefaultNavigatorOptions<TabNavigationOptions> &
-  MaterialTopTabBarOptions &
-  MaterialTopTabNavigationConfig &
-  TabNavigationConfig &
-  TabRouterOptions &
-  WithPatientStoreProps;
+type Props =
+  & DefaultNavigatorOptions<TabNavigationOptions>
+  & MaterialTopTabBarOptions
+  & MaterialTopTabNavigationConfig
+  & TabNavigationConfig
+  & TabRouterOptions
+  & WithPatientStoreProps;
 
 function BottomTabNavigator({
   initialRouteName,

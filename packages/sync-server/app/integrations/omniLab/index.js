@@ -1,5 +1,5 @@
-import { Router } from 'express';
 import config from 'config';
+import { Router } from 'express';
 import { userMiddleware } from '../../auth/userMiddleware';
 
 export const publicRoutes = Router();

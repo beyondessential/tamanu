@@ -1,9 +1,9 @@
+import SearchIcon from '@material-ui/icons/Search';
 import React, { memo, useCallback } from 'react';
 import styled from 'styled-components';
-import SearchIcon from '@material-ui/icons/Search';
-import { FormSubmitButton } from './Button';
-import { Form, Field, TextField } from './Field';
 import { Colors } from '../constants';
+import { FormSubmitButton } from './Button';
+import { Field, Form, TextField } from './Field';
 
 const Container = styled.div`
   border: 1px solid ${Colors.outline};

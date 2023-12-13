@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import React, { useState } from 'react';
 
-import { Modal } from './Modal';
-import { DateDisplay } from './DateDisplay';
-import { Table } from './Table';
-import { SurveyResultBadge } from './SurveyResultBadge';
-import { ViewPhotoLink } from './ViewPhotoLink';
 import { useApi } from '../api';
 import { Button } from './Button';
+import { DateDisplay } from './DateDisplay';
+import { Modal } from './Modal';
+import { SurveyResultBadge } from './SurveyResultBadge';
+import { Table } from './Table';
+import { ViewPhotoLink } from './ViewPhotoLink';
 
 const convertBinaryToYesNo = value => {
   switch (value) {

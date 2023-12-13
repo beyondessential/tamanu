@@ -3,9 +3,7 @@ import { Box, Row, Signature, SigningImage } from './Layout';
 
 export const SigningSection = ({ signingSrc }) => (
   <Row>
-    {signingSrc ? (
-      <SigningImage src={signingSrc} />
-    ) : (
+    {signingSrc ? <SigningImage src={signingSrc} /> : (
       <Box mb={0}>
         <Box>
           <Signature text="Authorised by" />

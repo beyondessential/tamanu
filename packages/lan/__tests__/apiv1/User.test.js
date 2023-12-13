@@ -1,9 +1,9 @@
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { getToken, centralServerLogin } from 'lan/app/middleware/auth';
-import { pick } from 'lodash';
-import { fake, chance, disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
-import { addHours } from 'date-fns';
 import { createDummyEncounter } from '@tamanu/shared/demoData/patients';
+import { chance, disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
+import { addHours } from 'date-fns';
+import { centralServerLogin, getToken } from 'lan/app/middleware/auth';
+import { pick } from 'lodash';
 
 import { CentralServerConnection } from '../../app/sync/CentralServerConnection';
 import { createTestContext } from '../utilities';

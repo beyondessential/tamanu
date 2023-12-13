@@ -1,25 +1,25 @@
 import React from 'react';
 import {
   CartesianGrid,
-  ReferenceArea,
-  ReferenceLine,
-  XAxis,
-  YAxis,
-  Tooltip,
+  Customized,
   Line,
   LineChart as LineChartComponent,
-  Customized,
+  ReferenceArea,
+  ReferenceLine,
   ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from 'recharts';
-import { DISPLAY_VALUE_KEY, getMeasureData } from './helpers/getMeasureData';
-import { CustomisedXAxisTick, CustomisedYAxisTick } from './components/CustomisedTick';
 import { Colors } from '../../constants';
-import { ReferenceBands } from './components/ReferenceBands';
 import { CustomDot } from './components/CustomDot';
-import { NoDataStateScreen } from './components/NoDataStateScreen';
-import { Y_AXIS_WIDTH } from './constants';
-import { InwardArrowVectorDot } from './components/InwardArrowVectorDot';
+import { CustomisedXAxisTick, CustomisedYAxisTick } from './components/CustomisedTick';
 import { CustomTooltip } from './components/CustomTooltip';
+import { InwardArrowVectorDot } from './components/InwardArrowVectorDot';
+import { NoDataStateScreen } from './components/NoDataStateScreen';
+import { ReferenceBands } from './components/ReferenceBands';
+import { Y_AXIS_WIDTH } from './constants';
+import { DISPLAY_VALUE_KEY, getMeasureData } from './helpers/getMeasureData';
 
 export const LineChart = props => {
   const {

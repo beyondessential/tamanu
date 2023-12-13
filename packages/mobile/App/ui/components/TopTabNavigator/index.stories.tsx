@@ -1,7 +1,7 @@
-import React from 'react';
-import { storiesOf } from '@storybook/react-native';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
+import { storiesOf } from '@storybook/react-native';
+import React from 'react';
 import { App, VaccineTabBaseStory } from './fixtures';
 
 storiesOf('Top Tab', module)

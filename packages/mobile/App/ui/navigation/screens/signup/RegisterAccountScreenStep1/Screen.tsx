@@ -1,20 +1,20 @@
+import { RegisterAccountFormStep01 } from '/components/Forms/RegisterAccountForms/RegisterAccountFormStep01';
+import { CrossIcon } from '/components/Icons';
+import { StepMarker } from '/components/StepMarker';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import {
+  CenterView,
+  FullView,
+  RowView,
+  StyledSafeAreaView,
+  StyledText,
+  StyledTouchableOpacity,
+} from '/styled/common';
+import { theme } from '/styled/theme';
 import React, { FunctionComponent as FC } from 'react';
 import { KeyboardAvoidingView } from 'react-native';
 import Animated from 'react-native-reanimated';
-import {
-  FullView,
-  StyledSafeAreaView,
-  StyledTouchableOpacity,
-  CenterView,
-  StyledText,
-  RowView,
-} from '/styled/common';
-import { theme } from '/styled/theme';
-import { CrossIcon } from '/components/Icons';
-import { RegisterAccountFormStep01 } from '/components/Forms/RegisterAccountForms/RegisterAccountFormStep01';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { RegisterAccountFormStep1FormValues } from '../../../../contexts/RegisterAccountContext';
-import { StepMarker } from '/components/StepMarker';
 import { UserIconContainer } from '../common';
 
 interface ScreenProps {

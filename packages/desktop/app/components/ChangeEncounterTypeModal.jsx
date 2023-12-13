@@ -1,9 +1,9 @@
-import React, { useCallback } from 'react';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { usePatientNavigation } from '../utils/usePatientNavigation';
+import React, { useCallback } from 'react';
 import { useEncounter } from '../contexts/Encounter';
-import { FormModal } from './FormModal';
 import { ChangeEncounterTypeForm } from '../forms/ChangeEncounterTypeForm';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
+import { FormModal } from './FormModal';
 
 export const ChangeEncounterTypeModal = React.memo(({ open, encounter, onClose, newType }) => {
   const { writeAndViewEncounter } = useEncounter();

@@ -1,13 +1,13 @@
-import React from 'react';
-import { useDispatch } from 'react-redux';
 import { Typography } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
+import React from 'react';
+import { useDispatch } from 'react-redux';
 import { useApi } from '../../../api';
-import { useAuth } from '../../../contexts/Auth';
 import { ContentPane } from '../../../components';
+import { useAuth } from '../../../contexts/Auth';
 import { PatientDetailsForm } from '../../../forms/PatientDetailsForm';
 import { reloadPatient } from '../../../store/patient';
-import { notifyError, invalidatePatientDataQueries } from '../../../utils';
+import { invalidatePatientDataQueries, notifyError } from '../../../utils';
 
 // Momentary component to just display a message, will need design and
 // refactor later.

@@ -1,9 +1,9 @@
-import { readFileSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { parse } from 'semver';
-import { buildVersionCompatibilityCheck } from '@tamanu/shared/utils';
 import { InvalidClientHeadersError } from '@tamanu/shared/errors';
+import { buildVersionCompatibilityCheck } from '@tamanu/shared/utils';
+import { readFileSync } from 'fs';
+import { dirname, join } from 'path';
+import { parse } from 'semver';
+import { fileURLToPath } from 'url';
 
 const pkgpath = join(dirname(fileURLToPath(import.meta.url)), '../../package.json');
 const pkgjson = JSON.parse(readFileSync(pkgpath, 'utf8'));

@@ -1,9 +1,9 @@
-import { Sequelize } from 'sequelize';
 import { LAB_TEST_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
-import { Model } from './Model';
-import { dateType, dateTimeType } from './dateTimeTypes';
+import { Sequelize } from 'sequelize';
 import { getCurrentDateString } from '../utils/dateTime';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import { dateTimeType, dateType } from './dateTimeTypes';
+import { Model } from './Model';
 
 const LAB_TEST_STATUS_VALUES = Object.values(LAB_TEST_STATUSES);
 

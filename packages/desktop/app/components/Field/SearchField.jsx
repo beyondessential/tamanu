@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import { IconButton, InputAdornment } from '@material-ui/core';
 import Search from '@material-ui/icons/Search';
-import { InputAdornment, IconButton } from '@material-ui/core';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { Colors } from '../../constants';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { TextField } from './TextField';
-import { Colors } from '../../constants';
 
 const Icon = styled(InputAdornment)`
   .MuiSvgIcon-root {

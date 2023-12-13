@@ -1,19 +1,19 @@
-import { createTestContext } from './utilities';
+import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { fake } from '@tamanu/shared/test-helpers';
 import { AuditLogItem } from '../app/middleware/auditLog';
-import { createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { createTestContext } from './utilities';
 
 describe('Audit log', () => {
   let ctx = null;
   let app = null;
   let baseApp = null;
   let models = null;
-  
+
   // log entries aren't persisted (yet), so use this array to track audit log entries
   // as they get resolved.
   const recentEntries = [];
   // this flushes the recent entries array as well, so that tests can use it without additional boilerplate
-  const getRecentEntries = () => { 
+  const getRecentEntries = () => {
     const c = [...recentEntries];
     recentEntries.length = 0; // erase the array
     return c;
@@ -23,7 +23,7 @@ describe('Audit log', () => {
     jest.spyOn(AuditLogItem.prototype, 'resolve').mockImplementation(function() {
       recentEntries.push(this);
     });
-    
+
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
@@ -41,7 +41,7 @@ describe('Audit log', () => {
 
     const [log] = getRecentEntries();
     expect(log).toHaveProperty('userId');
-    expect(log.permissionChecks[0]).toMatchObject({ 
+    expect(log.permissionChecks[0]).toMatchObject({
       noun: 'PatientAllergy',
       verb: 'create',
       objectId: undefined,
@@ -54,7 +54,7 @@ describe('Audit log', () => {
 
     const [log] = getRecentEntries();
     expect(log).toHaveProperty('userId');
-    expect(log.permissionChecks[0]).toMatchObject({ 
+    expect(log.permissionChecks[0]).toMatchObject({
       noun: 'PatientAllergy',
       verb: 'create',
       objectId: undefined,
@@ -76,7 +76,7 @@ describe('Audit log', () => {
     expect(log.permissionChecks[0]).toMatchObject({
       verb: 'read',
       noun: 'Patient',
-      objectId: undefined,  // intentional; happens before looking up a particular patient
+      objectId: undefined, // intentional; happens before looking up a particular patient
     });
     expect(log.permissionChecks[1]).toMatchObject({
       verb: 'write',
@@ -86,7 +86,7 @@ describe('Audit log', () => {
   });
 
   it('should discard an audit log when appropriate', async () => {
-    // we don't care about the result of this, we just need any endpoint that doesn't 
+    // we don't care about the result of this, we just need any endpoint that doesn't
     // perform any permission checks - login is one of these
     await app.post('/v1/login').send({});
 

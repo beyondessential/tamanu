@@ -1,5 +1,5 @@
-import { Sequelize, ValidationError } from 'sequelize';
 import { REFERENCE_TYPE_VALUES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { Sequelize, ValidationError } from 'sequelize';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 

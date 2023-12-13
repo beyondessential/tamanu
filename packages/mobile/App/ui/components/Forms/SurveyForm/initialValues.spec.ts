@@ -1,10 +1,10 @@
-import { getFormInitialValues } from '~/ui/components/Forms/SurveyForm/helpers';
-import { FieldTypes } from '/helpers/fields';
-import { makeDummySurvey, mockDummyPatient, mockDummyUser } from '/root/tests/helpers/mock';
-import { fake } from '/root/tests/helpers/fake';
 import * as dateHelpers from '/helpers/date';
+import { FieldTypes } from '/helpers/fields';
+import { fake } from '/root/tests/helpers/fake';
+import { makeDummySurvey, mockDummyPatient, mockDummyUser } from '/root/tests/helpers/mock';
 import { Database } from '~/infra/db';
 import { IPatientAdditionalData } from '~/types';
+import { getFormInitialValues } from '~/ui/components/Forms/SurveyForm/helpers';
 
 describe('getFormInitialValues()', () => {
   const mockUser = mockDummyUser();

@@ -1,7 +1,7 @@
-import React, { useState, useCallback } from 'react';
-import { RowView } from '/styled/common';
-import { VisitTypeButton } from './index';
 import { HeaderIcons, VisitTypes } from '/helpers/constants';
+import { RowView } from '/styled/common';
+import React, { useCallback, useState } from 'react';
+import { VisitTypeButton } from './index';
 
 export function VisitButtonList(): JSX.Element {
   const [selectedType, selectType] = useState<string>('');

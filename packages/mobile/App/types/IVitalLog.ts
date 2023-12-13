@@ -1,6 +1,6 @@
 import { ID } from './ID';
-import { IUser } from './IUser';
 import { ISurveyResponseAnswer } from './ISurveyResponse';
+import { IUser } from './IUser';
 
 export interface IVitalLog {
   id: ID;

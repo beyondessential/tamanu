@@ -1,5 +1,5 @@
-import { addMinutes } from 'date-fns';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { addMinutes } from 'date-fns';
 import { chance } from '../../../chance';
 
 export const insertSurveyResponse = async (
@@ -71,11 +71,13 @@ const generateAnswers = ({ villages, facilitiesDepartmentsAndLocations }) => {
   if (publicOrPrivate === 'Public') {
     publicHealthFacility = facility.id; // TODO: actual survey uses ReferenceData
   } else {
-    privateHealthFacility = `${chance.city()} ${chance.pickone([
-      'Hospital',
-      'Clinic',
-      'Medical Center',
-    ])}`;
+    privateHealthFacility = `${chance.city()} ${
+      chance.pickone([
+        'Hospital',
+        'Clinic',
+        'Medical Center',
+      ])
+    }`;
   }
   const address = `${chance.address()} ${chance.city()}`;
 

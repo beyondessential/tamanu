@@ -1,7 +1,7 @@
-import React from 'react';
-import { storiesOf } from '@storybook/react-native';
-import { ThemeProvider } from 'styled-components';
 import { CenterView, themeSystem } from '/styled/common';
+import { storiesOf } from '@storybook/react-native';
+import React from 'react';
+import { ThemeProvider } from 'styled-components';
 import { BaseStory } from './fixture';
 
 storiesOf('PatientSectionList', module)

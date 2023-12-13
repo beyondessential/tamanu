@@ -1,8 +1,8 @@
-import React from 'react';
-import { capitalize } from 'lodash';
 import { LAB_TEST_RESULT_TYPES } from '@tamanu/constants';
+import { capitalize } from 'lodash';
+import React from 'react';
 import styled from 'styled-components';
-import { NumberField, SelectField, TextField, Field } from '../../../components/Field';
+import { Field, NumberField, SelectField, TextField } from '../../../components/Field';
 import { Colors } from '../../../constants';
 
 const StyledField = styled(Field)`

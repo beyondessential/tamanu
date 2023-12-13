@@ -1,9 +1,9 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 import styled from 'styled-components';
 
-import { DateDisplay } from '../../../DateDisplay';
 import { capitaliseFirstLetter } from '../../../../utils/capitalise';
+import { DateDisplay } from '../../../DateDisplay';
 
 import { LocalisedCertificateLabel } from './CertificateLabels';
 import { PatientBarcode } from './PatientBarcode';

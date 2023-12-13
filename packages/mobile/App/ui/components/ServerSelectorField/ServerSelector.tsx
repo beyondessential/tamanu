@@ -1,11 +1,11 @@
-import React, { ReactElement, useState, useEffect } from 'react';
 import { useNetInfo } from '@react-native-community/netinfo';
+import React, { ReactElement, useEffect, useState } from 'react';
 
-import { SelectOption, Dropdown } from '../Dropdown';
+import * as overrides from '/root/serverOverrides.json';
+import { Orientation, screenPercentageToDP } from '../../helpers/screen';
 import { StyledText, StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
-import { Orientation, screenPercentageToDP } from '../../helpers/screen';
-import * as overrides from '/root/serverOverrides.json';
+import { Dropdown, SelectOption } from '../Dropdown';
 
 type Server = {
   name: string;

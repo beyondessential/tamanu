@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { theme } from '../../../theme';
 import { DateDisplay } from '../../../components/DateDisplay';
 import { SEX_VALUE_INDEX } from '../../../constants';
+import { theme } from '../../../theme';
 
 const Label = styled.span`
   color: ${theme.palette.text.tertiary};

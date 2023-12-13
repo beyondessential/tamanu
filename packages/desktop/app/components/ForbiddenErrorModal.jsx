@@ -1,13 +1,14 @@
 import React, { useCallback } from 'react';
-import styled from 'styled-components';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
+import styled from 'styled-components';
 
 import { getErrorMessage, removeForbiddenError } from '../store/specialModals';
 import { Modal } from './Modal';
 import { ModalActionRow } from './ModalActionRow';
 
-export const FORBIDDEN_ERROR_MESSAGE = `You don't have permission to perform this action. Please contact your system administrator if you believe you should have permission.`;
+export const FORBIDDEN_ERROR_MESSAGE =
+  `You don't have permission to perform this action. Please contact your system administrator if you believe you should have permission.`;
 
 const StyledTypography = styled.p`
   margin: 60px 20px;

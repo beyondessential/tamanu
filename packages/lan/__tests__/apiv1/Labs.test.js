@@ -1,12 +1,12 @@
 import { LAB_REQUEST_STATUSES, LAB_TEST_TYPE_VISIBILITY_STATUSES } from '@tamanu/constants';
-import config from 'config';
 import {
-  createDummyPatient,
   createDummyEncounter,
+  createDummyPatient,
   randomLabRequest,
 } from '@tamanu/shared/demoData';
-import { fake, chance } from '@tamanu/shared/test-helpers';
 import { createLabTestTypes } from '@tamanu/shared/demoData/labRequests';
+import { chance, fake } from '@tamanu/shared/test-helpers';
+import config from 'config';
 import { createTestContext } from '../utilities';
 
 describe('Labs', () => {
@@ -498,7 +498,7 @@ async function createTestTypesForPanel(models, labTestPanel) {
       models.LabTestPanelLabTestTypes.create({
         labTestPanelId: labTestPanel.id,
         labTestTypeId: ltt.id,
-      }),
+      })
     ),
   );
   return labTestTypes;

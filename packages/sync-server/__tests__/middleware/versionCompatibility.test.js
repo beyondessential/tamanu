@@ -1,8 +1,8 @@
-import path from 'path';
-import { promises as fs } from 'fs';
 import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
-import { createTestContext } from '../utilities';
+import { promises as fs } from 'fs';
+import path from 'path';
 import { SUPPORTED_CLIENT_VERSIONS } from '../../app/middleware/versionCompatibility';
+import { createTestContext } from '../utilities';
 
 const MIN_MOBILE_VERSION = SUPPORTED_CLIENT_VERSIONS['Tamanu Mobile'].min;
 const MIN_LAN_VERSION = SUPPORTED_CLIENT_VERSIONS['Tamanu LAN Server'].min;

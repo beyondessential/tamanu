@@ -1,10 +1,10 @@
 import { Command } from 'commander';
 
-import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import { log } from '@tamanu/shared/services/logging';
-import { initDeviceId } from '../sync/initDeviceId';
-import { FacilitySyncManager, CentralServerConnection } from '../sync';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import { ApplicationContext } from '../ApplicationContext';
+import { CentralServerConnection, FacilitySyncManager } from '../sync';
+import { initDeviceId } from '../sync/initDeviceId';
 
 async function sync({ delay: delaySecondsStr }) {
   const delaySeconds = parseInt(delaySecondsStr, 10);

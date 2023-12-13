@@ -1,5 +1,5 @@
-import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 import { snakeCase } from 'lodash';
+import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 import { getTable } from './utils/queryRunner';
 
 const METADATA_FIELDS = [
@@ -28,8 +28,9 @@ export class addFieldUpdateTicksToPAD1668987530000 implements MigrationInterface
       SELECT value FROM local_system_fact WHERE key = '${CURRENT_SYNC_TIME}'
     `);
 
-    const syncTick =
-      localSystemFactValue !== undefined ? parseInt(localSystemFactValue.value, 10) : 1;
+    const syncTick = localSystemFactValue !== undefined
+      ? parseInt(localSystemFactValue.value, 10)
+      : 1;
 
     if (typeof syncTick !== 'number') {
       throw new Error('Sync tick is not numeric');
@@ -45,9 +46,11 @@ export class addFieldUpdateTicksToPAD1668987530000 implements MigrationInterface
     const updateColumnConcat = includedColumnNames
       .map(
         (c, index) =>
-          `CASE WHEN ${c} IS NULL THEN '' ELSE '${index === 0 ? '' : ', '}"${snakeCase(
-            c,
-          )}": ${syncTick}' END\n`,
+          `CASE WHEN ${c} IS NULL THEN '' ELSE '${index === 0 ? '' : ', '}"${
+            snakeCase(
+              c,
+            )
+          }": ${syncTick}' END\n`,
       )
       .join(' || ');
 

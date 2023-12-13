@@ -1,11 +1,11 @@
-import { Sequelize } from 'sequelize';
 import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from '../errors';
-import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
-import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { generateDisplayId } from '../utils/generateDisplayId';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import { dateTimeType } from './dateTimeTypes';
+import { Model } from './Model';
 
 export class LabRequest extends Model {
   static init({ primaryKey, ...options }) {
@@ -90,7 +90,7 @@ export class LabRequest extends Model {
             labTestTypeId: t,
             labRequestId: newLabRequest.id,
             date: labTest?.date,
-          }),
+          })
         ),
       );
 

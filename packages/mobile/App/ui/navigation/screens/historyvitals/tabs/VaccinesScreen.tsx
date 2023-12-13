@@ -1,13 +1,13 @@
+import { FullView, StyledSafeAreaView } from '/styled/common';
+import { theme } from '/styled/theme';
+import { groupBy } from 'lodash';
 import React, { ReactElement } from 'react';
 import { compose } from 'redux';
-import { groupBy } from 'lodash';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { PatientVaccineHistoryAccordion } from '~/ui/components/PatientVaccineHistoryAccordion';
 import { withPatient } from '~/ui/containers/Patient';
 import { useBackendEffect } from '~/ui/hooks';
-import { FullView, StyledSafeAreaView } from '/styled/common';
-import { theme } from '/styled/theme';
-import { LoadingScreen } from '~/ui/components/LoadingScreen';
 
 export const VaccineScreenComponent = ({ selectedPatient }): ReactElement => {
   const [administeredVaccines, error] = useBackendEffect(
@@ -20,7 +20,7 @@ export const VaccineScreenComponent = ({ selectedPatient }): ReactElement => {
 
   const dataGroupedByVaccine = Object.entries(
     groupBy(administeredVaccines, value => {
-      if (typeof value.scheduledVaccine === "string") {
+      if (typeof value.scheduledVaccine === 'string') {
         return value.scheduledVaccine;
       }
       return value.scheduledVaccine.vaccine.name;

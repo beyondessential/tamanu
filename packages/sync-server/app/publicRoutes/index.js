@@ -1,9 +1,9 @@
-import express from 'express';
-import config from 'config';
 import { log } from '@tamanu/shared/services/logging';
+import config from 'config';
+import express from 'express';
 
-import { labResultWidgetRoutes } from './labResultWidget';
 import { publicIntegrationRoutes } from '../integrations';
+import { labResultWidgetRoutes } from './labResultWidget';
 
 export const publicRoutes = express.Router();
 

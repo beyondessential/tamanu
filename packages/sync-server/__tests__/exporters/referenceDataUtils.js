@@ -1,7 +1,10 @@
-import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
-import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
-import { createAdministeredVaccine, createScheduledVaccine } from '@tamanu/shared/demoData/vaccines';
 import { VACCINE_CATEGORIES } from '@tamanu/constants';
+import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
+import {
+  createAdministeredVaccine,
+  createScheduledVaccine,
+} from '@tamanu/shared/demoData/vaccines';
 
 export async function createDiagnosis(models) {
   await models.ReferenceData.create({

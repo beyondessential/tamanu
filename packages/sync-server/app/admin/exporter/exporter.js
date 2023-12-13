@@ -1,5 +1,5 @@
-import { promises as asyncFs } from 'fs';
 import config from 'config';
+import { promises as asyncFs } from 'fs';
 import { writeExcelFile } from './excelUtils';
 import { createModelExporter } from './modelExporters/createModelExporter';
 
@@ -20,7 +20,7 @@ async function buildSheetDataForDataType(models, dataType) {
         headers.map(header => {
           const value = row[header];
           return modelExporter.formatedCell(header, value);
-        }),
+        })
       ),
     ],
   };

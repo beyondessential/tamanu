@@ -1,9 +1,9 @@
 import config from 'config';
 
-import { fake } from '@tamanu/shared/test-helpers/fake';
+import { NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
-import { NOTE_TYPES, NOTE_RECORD_TYPES } from '@tamanu/constants';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers/factory';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { getDateTimeSubtractedFromNow } from '@tamanu/shared/utils/dateTime';
 
 import { createTestContext } from '../utilities';

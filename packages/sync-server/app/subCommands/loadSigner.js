@@ -1,12 +1,12 @@
-import { promises as fs } from 'fs';
-import { format } from 'date-fns';
 import { Command } from 'commander';
+import { format } from 'date-fns';
+import { promises as fs } from 'fs';
 
-import { log } from '@tamanu/shared/services/logging';
 import { Signer } from '@tamanu/shared/models';
+import { log } from '@tamanu/shared/services/logging';
 
-import { loadCertificateIntoSigner } from '../integrations/Signer';
 import { initDatabase } from '../database';
+import { loadCertificateIntoSigner } from '../integrations/Signer';
 
 async function loadSigner({ signerCertificate }) {
   await initDatabase({ testMode: false });

@@ -1,23 +1,23 @@
-import React, { useCallback, ReactElement } from 'react';
-import {
-  FullView,
-  StyledView,
-  StyledTouchableOpacity,
-  RowView,
-  StyledText,
-  StyledSafeAreaView,
-  CenterView,
-} from '/styled/common';
-import { ArrowLeftIcon } from '/components/Icons';
-import { theme } from '/styled/theme';
-import { SectionHeader } from '/components/SectionHeader';
-import { Formik } from 'formik';
-import { TextField } from '/components/TextField/TextField';
+import { Button } from '/components/Button';
 import { Checkbox } from '/components/Checkbox';
 import { Field } from '/components/Forms/FormField';
-import { Button } from '/components/Button';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { ArrowLeftIcon } from '/components/Icons';
+import { SectionHeader } from '/components/SectionHeader';
+import { TextField } from '/components/TextField/TextField';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { ExportDataScreenProps } from '/interfaces/Screens/HomeStack/ExportDataScreenProps';
+import {
+  CenterView,
+  FullView,
+  RowView,
+  StyledSafeAreaView,
+  StyledText,
+  StyledTouchableOpacity,
+  StyledView,
+} from '/styled/common';
+import { theme } from '/styled/theme';
+import { Formik } from 'formik';
+import React, { ReactElement, useCallback } from 'react';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 
 const formInitialValues = {

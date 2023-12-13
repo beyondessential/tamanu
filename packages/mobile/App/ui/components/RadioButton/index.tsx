@@ -1,9 +1,9 @@
-import React, { useCallback } from 'react';
-import { TouchableWithoutFeedback } from 'react-native';
-import { theme } from '/styled/theme';
-import { StyledView, RowView, StyledText } from '/styled/common';
 import { ColorHelper } from '/helpers/colors';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { RowView, StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
+import React, { useCallback } from 'react';
+import { TouchableWithoutFeedback } from 'react-native';
 
 export interface FormField {
   value: string;

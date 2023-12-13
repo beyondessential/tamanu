@@ -1,11 +1,11 @@
-import React, { useCallback } from 'react';
-import { TouchableHighlight } from 'react-native';
-import { StyledView, StyledText, RowView } from '/styled/common';
-import { theme } from '/styled/theme';
+import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { BaseInputProps } from '/interfaces/BaseInputProps';
+import { RowView, StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
+import React, { useCallback } from 'react';
+import { TouchableHighlight } from 'react-native';
 import { CheckboxMarkIcon } from '../Icons';
-import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
 
 interface CheckboxProps extends BaseInputProps {

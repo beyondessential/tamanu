@@ -1,18 +1,8 @@
 import React, { ReactElement } from 'react';
-import {
-  TouchableWithoutFeedback,
-  TouchableOpacity,
-  StyleSheet,
-  Modal,
-} from 'react-native';
-import {
-  FullView,
-  StyledView,
-  StyledScrollView,
-  StyledText,
-} from '../../styled/common';
+import { Modal, StyleSheet, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import { Orientation, screenPercentageToDP } from '../../helpers/screen';
+import { FullView, StyledScrollView, StyledText, StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
-import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 import { SelectOption } from './';
 
 interface AndroidPickerProps {
@@ -31,7 +21,7 @@ export const AndroidPicker = ({
   label,
 }: AndroidPickerProps): ReactElement => {
   const onChangeItem = React.useCallback(
-    (item) => {
+    item => {
       onChange(item);
       closeModal();
     },

@@ -1,22 +1,22 @@
-import React, { ReactElement, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
-import { compose } from 'redux';
+import { formatDate } from '/helpers/date';
 import { Routes } from '/helpers/routes';
-import { Svg, Circle } from 'react-native-svg';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 import { parseISO } from 'date-fns';
+import React, { ReactElement, useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
+import { Circle, Svg } from 'react-native-svg';
+import { compose } from 'redux';
+import { getSyncTick, LAST_SUCCESSFUL_PUSH } from '~/services/sync';
+import { ILabRequest } from '~/types';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { withPatient } from '~/ui/containers/Patient';
-import { useBackendEffect } from '~/ui/hooks';
-import { ILabRequest } from '~/types';
-import { navigateAfterTimeout } from '~/ui/helpers/navigators';
-import { StyledView, StyledText } from '/styled/common';
-import { theme } from '/styled/theme';
-import { formatDate } from '/helpers/date';
 import { DateFormats } from '~/ui/helpers/constants';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { getSyncTick, LAST_SUCCESSFUL_PUSH } from '~/services/sync';
+import { navigateAfterTimeout } from '~/ui/helpers/navigators';
+import { useBackendEffect } from '~/ui/hooks';
 
 const SyncStatusIndicator = ({ synced }): JSX.Element => (
   <StyledView flexDirection="row">

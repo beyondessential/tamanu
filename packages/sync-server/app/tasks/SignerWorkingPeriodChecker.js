@@ -1,6 +1,6 @@
-import config from 'config';
-import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
+import { ScheduledTask } from '@tamanu/shared/tasks';
+import config from 'config';
 import { Op, Sequelize } from 'sequelize';
 
 export class SignerWorkingPeriodChecker extends ScheduledTask {

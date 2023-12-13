@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 
-import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
+import { storiesOf } from '@storybook/react';
 import { MockedApi } from './utils/mockedApi';
 
-import { 
-  PatientMergeView,
-  PatientMergeSearch,
-  KeepPatientDecisionForm,
-  PatientSummary,
+import {
   ConfirmationModal,
-  MergeResultModal,
+  KeepPatientDecisionForm,
   MergeErrorModal,
+  MergeResultModal,
+  PatientMergeSearch,
+  PatientMergeView,
+  PatientSummary,
 } from '../app/views/administration/patientMerge';
 
 const baseDetails = {
@@ -31,7 +31,7 @@ const secondPatient = {
   ...baseDetails,
   id: '000002',
   displayId: 'TEMP002',
-}
+};
 
 const fakeGetPatient = displayId => ({
   ...baseDetails,
@@ -43,10 +43,10 @@ const endpoints = {
   'admin/lookup/patient/:id': (data, id) => {
     return fakeGetPatient(id);
   },
-  'admin/mergePatient': (data) => {
+  'admin/mergePatient': data => {
     action('call admin/mergePatient')(data);
     return {
-      updates: { 
+      updates: {
         Patient: 1,
         PatientEncounter: (1 + Math.random() * 3).toFixed(0),
         PatientAllergy: (1 + Math.random() * 3).toFixed(0),
@@ -54,21 +54,29 @@ const endpoints = {
         PatientIssue: (1 + Math.random() * 3).toFixed(0),
       },
     };
-  }
+  },
 };
 
 storiesOf('Admin/PatientMerge', module)
-  .addDecorator(Story => <MockedApi endpoints={endpoints}><Story /></MockedApi>)
+  .addDecorator(Story => (
+    <MockedApi endpoints={endpoints}>
+      <Story />
+    </MockedApi>
+  ))
   .add('Patient search', () => (
-    <PatientMergeSearch 
+    <PatientMergeSearch
       onBeginMerge={action('beginMerge')}
     />
   ))
   .add('Patient search with error', () => (
-    <MockedApi endpoints={{ 
-      'admin/lookup/patient/:id': () => { throw new Error('Not found') }
-    }} >
-      <PatientMergeSearch 
+    <MockedApi
+      endpoints={{
+        'admin/lookup/patient/:id': () => {
+          throw new Error('Not found');
+        },
+      }}
+    >
+      <PatientMergeSearch
         onBeginMerge={action('beginMerge')}
       />
     </MockedApi>
@@ -109,14 +117,14 @@ storiesOf('Admin/PatientMerge', module)
           PatientEncounter: 3,
           PatientAdditionalData: 1,
           PatientIssue: 3,
-        }
+        },
       }}
       onClose={action('close')}
     />
   ))
   .add('Error modal', () => (
     <MergeErrorModal
-      error={new Error("A test error occurred.")}
+      error={new Error('A test error occurred.')}
       onClose={action('close')}
     />
   ))

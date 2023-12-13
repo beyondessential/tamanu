@@ -1,7 +1,7 @@
+import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
 import { Op } from 'sequelize';
-import { subDays, endOfDay, startOfDay, parseISO } from 'date-fns';
-import { generateReportFromQueryData } from './utilities';
 import { format, toDateTimeString } from '../utils/dateTime';
+import { generateReportFromQueryData } from './utilities';
 
 export const reportColumnTemplate = [
   {

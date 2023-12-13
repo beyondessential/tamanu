@@ -1,4 +1,11 @@
-import { MigrationInterface, QueryRunner, Table, TableColumn, TableIndex, TableForeignKey } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableColumn,
+  TableForeignKey,
+  TableIndex,
+} from 'typeorm';
 
 const ISO9075_DATE_FORMAT = 'YYYY-MM-DD';
 const ISO9075_DATE_FORMAT_LENGTH = ISO9075_DATE_FORMAT.length;

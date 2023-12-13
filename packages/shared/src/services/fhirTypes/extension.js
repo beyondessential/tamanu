@@ -1,8 +1,8 @@
-import * as yup from 'yup';
 import { v4 as uuidv4 } from 'uuid';
+import * as yup from 'yup';
 
-import { FhirCodeableConcept } from './codeableConcept';
 import { FhirBaseType } from './baseType';
+import { FhirCodeableConcept } from './codeableConcept';
 
 export class FhirExtension extends FhirBaseType {
   static SCHEMA() {

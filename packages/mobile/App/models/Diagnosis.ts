@@ -1,9 +1,9 @@
-import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
+import { Certainty, IDiagnosis } from '~/types';
 import { BaseModel } from './BaseModel';
-import { IDiagnosis, Certainty } from '~/types';
+import { DateTimeStringColumn } from './DateColumns';
 import { Encounter } from './Encounter';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
-import { DateTimeStringColumn } from './DateColumns';
 import { SYNC_DIRECTIONS } from './types';
 
 @Entity('diagnosis')

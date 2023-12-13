@@ -1,9 +1,9 @@
-import React from 'react';
-import { storiesOf } from '@storybook/react-native';
-import { ThemeProvider } from 'styled-components';
 import { CenterView, StyledView, themeSystem } from '/styled/common';
-import { SectionHeader } from './index';
+import { storiesOf } from '@storybook/react-native';
+import React from 'react';
+import { ThemeProvider } from 'styled-components';
 import { BaseTextFieldStory } from '../TextField/fixtures';
+import { SectionHeader } from './index';
 
 storiesOf('SectionHeader', module)
   .addDecorator((story: Function) => (

@@ -4,9 +4,12 @@ import { createTestContext } from '../utilities';
 // doesn't really matter which name it is as long is it's consistent
 const [NAME, OTHER_NAME] = Object.values(ASSET_NAMES);
 
-const B64_PNG_1X1_CLEAR = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=';
-const B64_PNG_1X1_BLACK = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAANQTFRFAAAAp3o92gAAAApJREFUeJxjYAAAAAIAAUivpHEAAAAASUVORK5CYII=';
-const B64_PNG_1X1_WHITE = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAANQTFRF////p8QbyAAAAApJREFUeJxjYAAAAAIAAUivpHEAAAAASUVORK5CYII=';
+const B64_PNG_1X1_CLEAR =
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=';
+const B64_PNG_1X1_BLACK =
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAANQTFRFAAAAp3o92gAAAApJREFUeJxjYAAAAAIAAUivpHEAAAAASUVORK5CYII=';
+const B64_PNG_1X1_WHITE =
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAANQTFRF////p8QbyAAAAApJREFUeJxjYAAAAAIAAUivpHEAAAAASUVORK5CYII=';
 
 describe('Asset upload', () => {
   let ctx;
@@ -42,7 +45,7 @@ describe('Asset upload', () => {
     expect(response).toHaveSucceeded();
     expect(response.body).toHaveProperty('action', 'created');
 
-    const asset = await models.Asset.findOne({ where: { name: NAME }});
+    const asset = await models.Asset.findOne({ where: { name: NAME } });
     expect(asset).toBeTruthy();
     expect(asset).toMatchObject({ name: NAME, type: 'image/png' });
     expect(response.body).toHaveProperty('id', asset.id);
@@ -68,7 +71,7 @@ describe('Asset upload', () => {
     expect(response2).toHaveSucceeded();
     expect(response2.body).toHaveProperty('action', 'updated');
 
-    const asset = await models.Asset.findOne({ where: { name: OTHER_NAME }});
+    const asset = await models.Asset.findOne({ where: { name: OTHER_NAME } });
     expect(response2.body).toHaveProperty('id', asset.id);
     const rawData = Buffer.from(B64_PNG_1X1_BLACK, 'base64');
     expect(rawData).toEqual(asset.data);
@@ -90,7 +93,7 @@ describe('Asset upload', () => {
     });
     expect(response).toHaveSucceeded();
 
-    const asset = await models.Asset.findOne({ where: { name: NAME }});
+    const asset = await models.Asset.findOne({ where: { name: NAME } });
     expect(asset).toBeTruthy();
     expect(asset).toMatchObject({ name: NAME, type: 'image/svg' });
     expect(response.body).toHaveProperty('id', asset.id);

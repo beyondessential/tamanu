@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { OutlinedButton } from './Button';
-import { DataFetchingTable } from './Table';
-import { DateDisplay } from './DateDisplay';
-import { MarkPatientForSync } from './MarkPatientForSync';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
-import { LocationGroupCell } from './LocationCell';
+import { OutlinedButton } from './Button';
+import { DateDisplay } from './DateDisplay';
 import { LimitedLinesCell } from './FormattedTableCell';
+import { LocationGroupCell } from './LocationCell';
+import { MarkPatientForSync } from './MarkPatientForSync';
+import { DataFetchingTable } from './Table';
 
 const DateWrapper = styled.div`
   min-width: 90px;

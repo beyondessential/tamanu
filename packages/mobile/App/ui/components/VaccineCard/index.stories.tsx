@@ -1,19 +1,10 @@
-import React from 'react';
-import { storiesOf } from '@storybook/react-native';
-import { ThemeProvider } from 'styled-components/native';
-import {
-  FullView,
-  CenterView,
-  themeSystem,
-  StyledSafeAreaView,
-} from '/styled/common';
+import { CenterView, FullView, StyledSafeAreaView, themeSystem } from '/styled/common';
 import { theme } from '/styled/theme';
+import { storiesOf } from '@storybook/react-native';
+import React from 'react';
+import { ThemeProvider } from 'styled-components/native';
 import { VaccineCard } from '.';
-import {
-  givenOnTimeProps,
-  givenNotOnScheduleProps,
-  notGivenProps,
-} from './fixture';
+import { givenNotOnScheduleProps, givenOnTimeProps, notGivenProps } from './fixture';
 
 const mockEditDetails = (): void => console.log('Navigate to edit details...');
 const mockOnCloseModal = (): void => console.log('closing modal...');

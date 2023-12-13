@@ -1,12 +1,12 @@
 import { formatRFC7231 } from 'date-fns';
 
-import { fake, chance } from '@tamanu/shared/test-helpers';
+import { chance, fake } from '@tamanu/shared/test-helpers';
 import { convertISO9075toRFC3339 } from '@tamanu/shared/utils/dateTime';
-import { fakeUUID } from '@tamanu/shared/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
+import { fakeUUID } from '@tamanu/shared/utils/generateId';
 
-import { createTestContext } from '../../utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
+import { createTestContext } from '../../utilities';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
@@ -89,11 +89,11 @@ async function createLabTestHierarchy(models, patient, { isRDT = false } = {}) {
       isRDT
         ? ['AgRDT Negative, no further testing needed', 'AgRDT Positive']
         : [
-            'COVID-19 Nasopharyngeal Swab',
-            'COVID-19 Nasal Swab',
-            'COVID-19 Oropharyngeal Swab',
-            'COVID-19 Endotracheal aspirate',
-          ],
+          'COVID-19 Nasopharyngeal Swab',
+          'COVID-19 Nasal Swab',
+          'COVID-19 Oropharyngeal Swab',
+          'COVID-19 Endotracheal aspirate',
+        ],
     ),
   });
   const labTestMethod = await ReferenceData.create({
@@ -281,7 +281,8 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
       const mat = await FhirDiagnosticReport.materialiseFromUpstream(labTest.id);
 
       const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/DiagnosticReport?subject%3Aidentifier=${id}`;
+      const path =
+        `/v1/integration/${INTEGRATION_ROUTE}/DiagnosticReport?subject%3Aidentifier=${id}`;
       const response = await app.get(path);
 
       expect(response).toHaveSucceeded();
@@ -395,7 +396,8 @@ describe(`Materialised FHIR - DiagnosticReport`, () => {
       const { labTest } = await createLabTestHierarchy(ctx.store.models, patient);
       await FhirDiagnosticReport.materialiseFromUpstream(labTest.id);
 
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/DiagnosticReport?_sort=id&_page=z&_count=x`;
+      const path =
+        `/v1/integration/${INTEGRATION_ROUTE}/DiagnosticReport?_sort=id&_page=z&_count=x`;
       const response = await app.get(path);
 
       expect(response).toHaveRequestError(500);

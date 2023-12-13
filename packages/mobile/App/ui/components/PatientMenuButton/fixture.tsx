@@ -1,15 +1,15 @@
+import { RowView, StyledView, themeSystem } from '/styled/common';
 import React from 'react';
 import { ThemeProvider } from 'styled-components';
-import { RowView, StyledView, themeSystem } from '/styled/common';
-import { PatientMenuButton } from './index';
 import {
-  DiagnosisAndTreatmentIcon,
-  VitalsIcon,
-  PregnancyIcon,
-  FamilyPlanningIcon,
-  VaccineIcon,
   DeceasedIcon,
+  DiagnosisAndTreatmentIcon,
+  FamilyPlanningIcon,
+  PregnancyIcon,
+  VaccineIcon,
+  VitalsIcon,
 } from '../Icons';
+import { PatientMenuButton } from './index';
 
 export const BaseStory = (): JSX.Element => (
   <ThemeProvider theme={themeSystem}>

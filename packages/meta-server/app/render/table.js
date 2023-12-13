@@ -9,7 +9,7 @@ const makeTable = (definition, data) => {
         .map(
           ({ key, getter = () => sanitise(row[key] || '') }) => `<td>${getter(row[key], row)}</td>`,
         )
-        .join('\n'),
+        .join('\n')
     )
     .map(row => `<tr>${row}</tr>`)
     .join('\n');

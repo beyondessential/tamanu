@@ -1,6 +1,7 @@
 export * from './aefiSurvey';
 export * from './allergies';
 export * from './carePlan';
+export * from './createMockReportingSchemaAndRoles';
 export * from './departments';
 export * from './diagnoses';
 export * from './dispositions';
@@ -13,6 +14,5 @@ export * from './locations';
 export * from './patients';
 export * from './procedureTypes';
 export * from './users';
-export * from './villages';
 export * from './utilities';
-export * from './createMockReportingSchemaAndRoles';
+export * from './villages';

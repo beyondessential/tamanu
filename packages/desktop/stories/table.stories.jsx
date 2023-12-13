@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
+import { storiesOf } from '@storybook/react';
 import Chance from 'chance';
 
-import { Table } from '../app/components/Table/Table';
 import { CheckInput } from '../app/components/Field';
+import { Table } from '../app/components/Table/Table';
 
 function TableStateWrapper({ columns, data }) {
   const [order, setOrder] = React.useState('asc');
@@ -68,16 +68,19 @@ const dummyData = new Array(7).fill(0).map(fakeFruit);
 storiesOf('Table', module)
   .add('Plain', () => <Table columns={dummyColumns} data={dummyData} />)
   .add('With pagination', () => <TableStateWrapper columns={dummyColumns} data={dummyData} />)
-  .add('In error state', () => (
-    <Table columns={dummyColumns} errorMessage="Something has gone wrong with all this fruit!" />
-  ))
+  .add(
+    'In error state',
+    () => (
+      <Table columns={dummyColumns} errorMessage="Something has gone wrong with all this fruit!" />
+    ),
+  )
   .add('In loading state', () => <Table columns={dummyColumns} isLoading />)
   .add('With no data', () => <Table columns={dummyColumns} data={[]} />)
   .add('With option row', () => (
-    <Table 
+    <Table
       columns={dummyColumns}
       data={dummyData}
-      optionRow={<CheckInput label={<small>Include citrus fruits</small>} />} 
+      optionRow={<CheckInput label={<small>Include citrus fruits</small>} />}
     />
   ))
   .add('With sorting', () => <TableStateWrapper columns={sortableColumns} data={dummyData} />);

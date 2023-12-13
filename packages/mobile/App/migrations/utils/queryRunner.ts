@@ -18,8 +18,9 @@ export async function getTable(
     tableColumn.name = dbColumn.name;
     tableColumn.type = dbColumn.type.toLowerCase();
     tableColumn.default = dbColumn.dflt_value !== null
-      && dbColumn.dflt_value !== undefined
-      ? dbColumn.dflt_value : undefined;
+        && dbColumn.dflt_value !== undefined
+      ? dbColumn.dflt_value :
+      undefined;
     tableColumn.isNullable = dbColumn.notnull === 0;
     // primary keys are numbered starting with 1, columns that aren't primary keys are marked with 0
     tableColumn.isPrimary = dbColumn.pk > 0;
@@ -42,4 +43,4 @@ export async function getTable(
   });
 
   return tableObject;
-};
+}

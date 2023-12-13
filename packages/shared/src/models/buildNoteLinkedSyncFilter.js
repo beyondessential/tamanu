@@ -1,6 +1,6 @@
+import { NOTE_RECORD_TYPE_VALUES, NOTE_RECORD_TYPES } from '@tamanu/constants';
 import { snake } from 'case';
 import { Utils } from 'sequelize';
-import { NOTE_RECORD_TYPES, NOTE_RECORD_TYPE_VALUES } from '@tamanu/constants';
 
 const recordTypesWithPatientViaEncounter = ['Triage', 'LabRequest', 'ImagingRequest'];
 
@@ -16,12 +16,16 @@ export function buildNoteLinkedSyncFilter(patientIds, sessionConfig) {
 
   let joins = NOTE_RECORD_TYPE_VALUES.filter(r => r !== NOTE_RECORD_TYPES.PATIENT).map(
     r =>
-      `LEFT JOIN ${recordTypesToTables[r]} ON notes.record_id = ${recordTypesToTables[r]}.id AND notes.record_type = '${r}'`,
+      `LEFT JOIN ${recordTypesToTables[r]} ON notes.record_id = ${
+        recordTypesToTables[r]
+      }.id AND notes.record_type = '${r}'`,
   );
   joins = joins.concat(
     recordTypesWithPatientViaEncounter.map(
       r =>
-        `LEFT JOIN encounters AS ${recordTypesToTables[r]}_encounters ON ${recordTypesToTables[r]}.encounter_id = ${recordTypesToTables[r]}_encounters.id`,
+        `LEFT JOIN encounters AS ${recordTypesToTables[r]}_encounters ON ${
+          recordTypesToTables[r]
+        }.encounter_id = ${recordTypesToTables[r]}_encounters.id`,
     ),
   );
 
@@ -31,7 +35,9 @@ export function buildNoteLinkedSyncFilter(patientIds, sessionConfig) {
     `,
     ...NOTE_RECORD_TYPE_VALUES.filter(r => recordTypesWithPatientViaEncounter.includes(r)).map(
       r =>
-        `( ${recordTypesToTables[r]}_encounters.patient_id IN (:patientIds) AND notes.record_type = '${r}' )`,
+        `( ${
+          recordTypesToTables[r]
+        }_encounters.patient_id IN (:patientIds) AND notes.record_type = '${r}' )`,
     ),
     ...NOTE_RECORD_TYPE_VALUES.filter(
       r => !recordTypesWithPatientViaEncounter.includes(r) && r !== 'Patient',

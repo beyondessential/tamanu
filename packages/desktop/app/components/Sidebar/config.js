@@ -1,3 +1,4 @@
+import { Colors } from '../../constants';
 import {
   labsIcon,
   medicationIcon,
@@ -7,7 +8,6 @@ import {
   scheduleIcon,
   vaccineIcon,
 } from '../../constants/images';
-import { Colors } from '../../constants';
 
 export const FACILITY_MENU_ITEMS = [
   {

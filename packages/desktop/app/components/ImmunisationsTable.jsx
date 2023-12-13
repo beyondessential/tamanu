@@ -2,13 +2,13 @@ import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 import { VACCINE_STATUS } from '@tamanu/constants/vaccines';
+import { Colors } from '../constants';
 import { OutlinedButton } from './Button';
+import { DateDisplay } from './DateDisplay';
+import { CheckInput } from './Field';
 import { MenuButton } from './MenuButton';
 import { DataFetchingTable } from './Table';
-import { DateDisplay } from './DateDisplay';
 import { StatusTag } from './Tag';
-import { CheckInput } from './Field';
-import { Colors } from '../constants';
 
 const getSchedule = record => record.scheduledVaccine?.schedule || 'N/A';
 const getVaccineName = record => record.vaccineName || record.scheduledVaccine?.label || 'Unknown';
@@ -92,14 +92,14 @@ export const ImmunisationsTable = React.memo(
         { key: 'displayLocation', title: 'Facility/Country', accessor: getFacility },
         ...(!viewOnly
           ? [
-              {
-                key: 'action',
-                title: 'Action',
-                accessor: getActionButtons({ onItemClick, onItemEditClick, onItemDeleteClick }),
-                sortable: false,
-                isExportable: false,
-              },
-            ]
+            {
+              key: 'action',
+              title: 'Action',
+              accessor: getActionButtons({ onItemClick, onItemEditClick, onItemDeleteClick }),
+              sortable: false,
+              isExportable: false,
+            },
+          ]
           : []),
       ],
       [onItemClick, onItemEditClick, onItemDeleteClick, viewOnly],

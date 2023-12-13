@@ -1,6 +1,6 @@
+import { Chance } from 'chance';
 import React from 'react';
 import styled from 'styled-components';
-import { Chance } from 'chance';
 import { Button } from '../../../components';
 import { useLocalisation } from '../../../contexts/Localisation';
 

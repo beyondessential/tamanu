@@ -1,6 +1,6 @@
-import { getResultValue, FieldTypes } from '~/ui/helpers/fields';
-import { runCalculations } from '~/ui/helpers/calculations';
 import { makeDummySurvey } from '/root/tests/helpers/mock';
+import { runCalculations } from '~/ui/helpers/calculations';
+import { FieldTypes, getResultValue } from '~/ui/helpers/fields';
 
 describe('Survey calculations', () => {
   describe('CalculatedField', () => {

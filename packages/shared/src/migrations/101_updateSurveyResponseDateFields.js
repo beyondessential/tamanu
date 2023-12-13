@@ -1,5 +1,5 @@
-import { QueryTypes, DataTypes } from 'sequelize';
 import config from 'config';
+import { DataTypes, QueryTypes } from 'sequelize';
 
 const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';
 const MIGRATIONS = [

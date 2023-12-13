@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
 import { ClickAwayListener, Popover } from '@material-ui/core';
 import FilterListIcon from '@material-ui/icons/FilterList';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { GreyOutlinedButton as BaseGreyOutlinedButton } from './Button';
-import { ExpandedMultiSelectField } from './Field/ExpandedMultiSelectField';
 import { useUserPreferencesMutation } from '../api/mutations/useUserPreferencesMutation';
 import { useVitalsVisualisationConfigsQuery } from '../api/queries/useVitalsVisualisationConfigsQuery';
 import { useVitalChartData } from '../contexts/VitalChartData';
+import { GreyOutlinedButton as BaseGreyOutlinedButton } from './Button';
+import { ExpandedMultiSelectField } from './Field/ExpandedMultiSelectField';
 
 const GreyOutlinedButton = styled(BaseGreyOutlinedButton)`
   width: 105px;
@@ -79,7 +79,7 @@ export const VitalMultiChartFilter = () => {
   const handleChange = newValues => {
     const newSelectedChartKeys = newValues.target.value;
     const sortedSelectedChartKeys = allGraphedChartKeys.filter(key =>
-      newSelectedChartKeys.includes(key),
+      newSelectedChartKeys.includes(key)
     );
 
     setChartKeys(sortedSelectedChartKeys);

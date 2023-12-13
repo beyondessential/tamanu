@@ -3,26 +3,26 @@
  * Copyright (c) 2018-2022 Beyond Essential Systems Pty Ltd
  */
 
-import React, { useCallback } from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import {
   Table as MaterialTable,
   TableBody,
   TableCell,
-  TableHead,
-  TableSortLabel,
-  TableRow,
   TableFooter,
+  TableHead,
+  TableRow,
+  TableSortLabel,
 } from '@material-ui/core';
 import { ExpandMore } from '@material-ui/icons';
-import { PaperStyles } from '../Paper';
-import { LoadingIndicator } from '../LoadingIndicator';
-import { DownloadDataButton } from './DownloadDataButton';
-import { useLocalisation } from '../../contexts/Localisation';
+import PropTypes from 'prop-types';
+import React, { useCallback } from 'react';
+import styled from 'styled-components';
 import { Colors } from '../../constants';
-import { ThemedTooltip } from '../Tooltip';
+import { useLocalisation } from '../../contexts/Localisation';
 import { ErrorBoundary } from '../ErrorBoundary';
+import { LoadingIndicator } from '../LoadingIndicator';
+import { PaperStyles } from '../Paper';
+import { ThemedTooltip } from '../Tooltip';
+import { DownloadDataButton } from './DownloadDataButton';
 import { Paginator } from './Paginator';
 
 const preventInputCallback = e => {
@@ -68,27 +68,27 @@ const OptionRow = styled.div`
 
 const StyledTableRow = styled(TableRow)`
   ${p =>
-    p.onClick
-      ? `
+  p.onClick
+    ? `
       cursor: pointer;
       &:hover {
         background: ${Colors.veryLightBlue};
       }
     `
-      : ''}
+    : ''}
 
   ${p => (p.$rowStyle ? p.$rowStyle : '')}
 
   ${p =>
-    p.$lazyLoading
-      ? `
+  p.$lazyLoading
+    ? `
       &.MuiTableRow-root {
         display: table;
         table-layout: fixed;
         width: 100%;
       }
     `
-      : ''}
+    : ''}
 
 
 `;
@@ -104,13 +104,13 @@ const StyledTableContainer = styled.div`
 const StyledTableBody = styled(TableBody)`
   &.MuiTableBody-root {
     ${props =>
-      props.$lazyLoading
-        ? `
+  props.$lazyLoading
+    ? `
         overflow: auto;
         height: 62vh;
         display: block;
       `
-        : ''};
+    : ''};
   }
 `;
 
@@ -151,13 +151,13 @@ const StyledTable = styled(MaterialTable)`
 
 const StyledTableHead = styled(TableHead)`
   ${props =>
-    props.$lazyLoading
-      ? `
+  props.$lazyLoading
+    ? `
       display: table;
       table-layout: fixed;
       width: 100%;
     `
-      : ''}
+    : ''}
   background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
   white-space: nowrap;
   .MuiTableCell-head {
@@ -219,11 +219,9 @@ const Row = React.memo(
             data-test-class={`table-column-${key}`}
           >
             <ErrorBoundary ErrorComponent={CellError}>
-              {CellComponent ? (
-                <CellComponent value={displayValue} data={data} />
-              ) : (
-                <DisplayValue maxWidth={maxWidth} displayValue={displayValue} />
-              )}
+              {CellComponent ?
+                <CellComponent value={displayValue} data={data} /> :
+                <DisplayValue maxWidth={maxWidth} displayValue={displayValue} />}
             </ErrorBoundary>
           </StyledTableCell>
         );
@@ -247,13 +245,13 @@ const ErrorSpan = styled.span`
 
 const DisplayValue = React.memo(({ maxWidth, displayValue }) => {
   const title = typeof displayValue === 'string' ? displayValue : null;
-  return maxWidth ? (
-    <StyledTableCellContent title={title} maxWidth={maxWidth}>
-      {displayValue}
-    </StyledTableCellContent>
-  ) : (
-    displayValue
-  );
+  return maxWidth ?
+    (
+      <StyledTableCellContent title={title} maxWidth={maxWidth}>
+        {displayValue}
+      </StyledTableCellContent>
+    ) :
+    displayValue;
 });
 
 const StatusRow = React.memo(({ colSpan, children, textColor }) => (
@@ -281,8 +279,7 @@ class TableComponent extends React.Component {
   handleScroll = event => {
     const { count, lazyLoading, isLoadingMore, onChangePage, page, rowsPerPage } = this.props;
     if (!lazyLoading || isLoadingMore || !onChangePage) return;
-    const bottom =
-      event.target.scrollHeight -
+    const bottom = event.target.scrollHeight -
         Math.ceil(event.target.scrollTop) -
         LAZY_LOADING_BOTTOM_SENSITIVITY <=
       event.target.clientHeight;
@@ -313,30 +310,28 @@ class TableComponent extends React.Component {
         ? React.createElement(titleAccessor, { onChange, ...titleData, title })
         : title;
 
-      const titleCellComponent = TitleCellComponent ? (
-        <TitleCellComponent value={displayTitle} />
-      ) : null;
+      const titleCellComponent = TitleCellComponent ?
+        <TitleCellComponent value={displayTitle} /> :
+        null;
 
-      const defaultHeaderElement = sortable ? (
-        <TableSortLabel
-          active
-          direction={orderBy === key ? order : 'desc'}
-          onClick={() => onChangeOrderBy(key)}
-          IconComponent={orderBy === key ? ActiveSortIcon : InactiveSortIcon}
-        >
-          {title || getLocalisation(`fields.${key}.shortLabel`) || key}
-        </TableSortLabel>
-      ) : (
-        <span>{displayTitle || getLocalisation(`fields.${key}.shortLabel`) || key}</span>
-      );
+      const defaultHeaderElement = sortable ?
+        (
+          <TableSortLabel
+            active
+            direction={orderBy === key ? order : 'desc'}
+            onClick={() => onChangeOrderBy(key)}
+            IconComponent={orderBy === key ? ActiveSortIcon : InactiveSortIcon}
+          >
+            {title || getLocalisation(`fields.${key}.shortLabel`) || key}
+          </TableSortLabel>
+        ) :
+        <span>{displayTitle || getLocalisation(`fields.${key}.shortLabel`) || key}</span>;
 
       const headerElement = titleCellComponent || defaultHeaderElement;
 
-      return tooltip ? (
-        <ThemedTooltip title={tooltip}>{headerElement}</ThemedTooltip>
-      ) : (
-        headerElement
-      );
+      return tooltip ?
+        <ThemedTooltip title={tooltip}>{headerElement}</ThemedTooltip> :
+        headerElement;
     };
 
     return columns.map(
@@ -434,11 +429,13 @@ class TableComponent extends React.Component {
     return (
       <StyledTableFooter>
         <StyledTableRow $lazyLoading={lazyLoading}>
-          {allowExport ? (
-            <TableCell colSpan={page !== null ? 2 : columns.length}>
-              <DownloadDataButton exportName={exportName} columns={columns} data={data} />
-            </TableCell>
-          ) : null}
+          {allowExport ?
+            (
+              <TableCell colSpan={page !== null ? 2 : columns.length}>
+                <DownloadDataButton exportName={exportName} columns={columns} data={data} />
+              </TableCell>
+            ) :
+            null}
           {page !== null && !lazyLoading && this.renderPaginator()}
         </StyledTableRow>
       </StyledTableFooter>
@@ -464,11 +461,9 @@ class TableComponent extends React.Component {
       <StyledTableContainer
         className={className}
         $elevated={elevated}
-        $borderColor={
-          noDataBackgroundColor !== Colors.white && !(data?.length || isLoading)
-            ? noDataBackgroundColor
-            : Colors.outline
-        }
+        $borderColor={noDataBackgroundColor !== Colors.white && !(data?.length || isLoading)
+          ? noDataBackgroundColor
+          : Colors.outline}
       >
         {optionRow && <OptionRow>{optionRow}</OptionRow>}
         <StyledTable

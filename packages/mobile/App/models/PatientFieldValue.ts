@@ -1,16 +1,10 @@
-import {
-  BeforeInsert,
-  Entity,
-  Column,
-  ManyToOne,
-  RelationId,
-} from 'typeorm/browser';
+import { BeforeInsert, Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
 
 import { IPatientFieldValue } from '~/types';
+import { BaseModel } from './BaseModel';
 import { Patient } from './Patient';
 import { PatientFieldDefinition } from './PatientFieldDefinition';
 import { SYNC_DIRECTIONS } from './types';
-import { BaseModel } from './BaseModel';
 
 @Entity('patient_field_value')
 export class PatientFieldValue extends BaseModel implements IPatientFieldValue {

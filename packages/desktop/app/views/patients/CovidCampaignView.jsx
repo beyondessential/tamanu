@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { API } from '../../api/singletons';
 import { useApi } from '../../api';
+import { API } from '../../api/singletons';
 import {
-  TopBar,
-  PageContainer,
+  ContentPane,
   DataFetchingTable,
   ImmunisationSearchBar,
-  ContentPane,
+  PageContainer,
+  TopBar,
 } from '../../components';
 import { displayId, firstName, lastName, village } from './columns';
 import { PatientImmunisationsModal } from './components';

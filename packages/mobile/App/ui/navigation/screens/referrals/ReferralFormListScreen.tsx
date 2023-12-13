@@ -1,15 +1,15 @@
-import React, { ReactElement } from 'react';
-import { FlatList } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { FullView } from '/styled/common';
-import { theme } from '/styled/theme';
 import { MenuOptionButton } from '/components/MenuOptionButton';
 import { Separator } from '/components/Separator';
 import { Routes } from '/helpers/routes';
+import { FullView } from '/styled/common';
+import { theme } from '/styled/theme';
+import { useNavigation } from '@react-navigation/native';
+import React, { ReactElement } from 'react';
+import { FlatList } from 'react-native';
 import { SurveyTypes } from '~/types';
-import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { useAuth } from '~/ui/contexts/AuthContext';
+import { useBackendEffect } from '~/ui/hooks';
 
 export const ReferralFormListScreen = (): ReactElement => {
   const navigation = useNavigation();
@@ -23,7 +23,7 @@ export const ReferralFormListScreen = (): ReactElement => {
       order: {
         name: 'ASC',
       },
-    }),
+    })
   );
 
   const filteredSurveys = surveys?.filter(survey => survey.shouldShowInList(ability));
@@ -38,9 +38,7 @@ export const ReferralFormListScreen = (): ReactElement => {
 
   return (
     <FullView>
-      {error ? (
-        <ErrorScreen error={error} />
-      ) : (
+      {error ? <ErrorScreen error={error} /> : (
         <FlatList
           style={{
             flex: 1,
@@ -53,7 +51,10 @@ export const ReferralFormListScreen = (): ReactElement => {
           data={filteredSurveys}
           keyExtractor={(item): string => item.id}
           renderItem={({ item }): ReactElement => (
-            <MenuOptionButton title={item.name} onPress={(): void => onNavigateToSurvey(item)} />
+            <MenuOptionButton
+              title={item.name}
+              onPress={(): void => onNavigateToSurvey(item)}
+            />
           )}
           ItemSeparatorComponent={Separator}
         />

@@ -1,29 +1,29 @@
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { TabDisplay } from '../../components/TabDisplay';
+import { useApi } from '../../api';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientAlert } from '../../components/PatientAlert';
-import { useLocalisation } from '../../contexts/Localisation';
-import { useApi } from '../../api';
-import {
-  HistoryPane,
-  VaccinesPane,
-  PatientMedicationPane,
-  DocumentsPane,
-  PatientProgramsPane,
-  ReferralPane,
-  InvoicesPane,
-  PatientDetailsPane,
-  PatientResultsPane,
-} from './panes';
+import { NAVIGATION_CONTAINER_HEIGHT } from '../../components/PatientNavigation';
+import { TabDisplay } from '../../components/TabDisplay';
 import { Colors } from '../../constants';
 import { PATIENT_TABS } from '../../constants/patientPaths';
-import { NAVIGATION_CONTAINER_HEIGHT } from '../../components/PatientNavigation';
-import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
+import { useLocalisation } from '../../contexts/Localisation';
 import { PatientSearchParametersProvider } from '../../contexts/PatientViewSearchParameters';
 import { invalidatePatientDataQueries } from '../../utils';
+import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
+import {
+  DocumentsPane,
+  HistoryPane,
+  InvoicesPane,
+  PatientDetailsPane,
+  PatientMedicationPane,
+  PatientProgramsPane,
+  PatientResultsPane,
+  ReferralPane,
+  VaccinesPane,
+} from './panes';
 
 const StyledDisplayTabs = styled(TabDisplay)`
   overflow: initial;

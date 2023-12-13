@@ -1,20 +1,20 @@
-import React from 'react';
 import { useQuery } from '@tanstack/react-query';
+import React from 'react';
 
 import { NOTE_TYPES } from '@tamanu/constants';
 
-import { LoadingIndicator } from '../../LoadingIndicator';
-import { useCertificate } from '../../../utils/useCertificate';
 import { useApi } from '../../../api';
+import { useCertificate } from '../../../utils/useCertificate';
+import { LoadingIndicator } from '../../LoadingIndicator';
 import { PRINTOUT_COLUMNS } from '../modals/multipleImagingRequestsColumns';
 
-import { Divider } from './reusable/Divider';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
-import { PrintLetterhead } from './reusable/PrintLetterhead';
-import { PatientDetailPrintout } from './reusable/PatientDetailPrintout';
+import { DateFacilitySection } from './reusable/DateFacilitySection';
+import { Divider } from './reusable/Divider';
 import { ListTable } from './reusable/ListTable';
 import { NotesSection } from './reusable/NotesSection';
-import { DateFacilitySection } from './reusable/DateFacilitySection';
+import { PatientDetailPrintout } from './reusable/PatientDetailPrintout';
+import { PrintLetterhead } from './reusable/PrintLetterhead';
 
 export const MultipleImagingRequestsPrintout = ({ encounter, imagingRequests }) => {
   const { title, subTitle, logo } = useCertificate();
@@ -35,8 +35,8 @@ export const MultipleImagingRequestsPrintout = ({ encounter, imagingRequests }) 
       enabled: isVillageEnabled,
     },
   );
-  const isLoading =
-    isPatientLoading || isAdditionalDataLoading || (isVillageEnabled && isVillageLoading);
+  const isLoading = isPatientLoading || isAdditionalDataLoading ||
+    (isVillageEnabled && isVillageLoading);
   if (isLoading) {
     return <LoadingIndicator />;
   }

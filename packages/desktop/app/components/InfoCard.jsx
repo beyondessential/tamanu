@@ -30,8 +30,10 @@ const CardCell = styled.div`
     content: '';
     position: absolute;
     left: -20px;
-    top: -${({ $numberOfColumns, $borderHeight = 0 }) => GRID_ROW_GAP / $numberOfColumns - $borderHeight}px;
-    bottom: -${({ $numberOfColumns, $borderHeight = 0 }) => GRID_ROW_GAP / $numberOfColumns - $borderHeight}px;
+    top: -${({ $numberOfColumns, $borderHeight = 0 }) =>
+  GRID_ROW_GAP / $numberOfColumns - $borderHeight}px;
+    bottom: -${({ $numberOfColumns, $borderHeight = 0 }) =>
+  GRID_ROW_GAP / $numberOfColumns - $borderHeight}px;
     border-left: 1px solid ${Colors.softOutline};
     ${props => (props.$borderHeight ? `height: ${props.$borderHeight}px` : '')};
   }

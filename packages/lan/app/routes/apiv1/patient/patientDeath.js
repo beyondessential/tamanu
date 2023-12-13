@@ -1,11 +1,11 @@
-import express from 'express';
-import asyncHandler from 'express-async-handler';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { InvalidOperationError, NotFoundError } from '@tamanu/shared/errors';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import express from 'express';
+import asyncHandler from 'express-async-handler';
 import {
-  PATIENT_DEATH_PARTIAL_SCHEMA,
   PATIENT_DEATH_FULL_SCHEMA,
+  PATIENT_DEATH_PARTIAL_SCHEMA,
 } from './patientDeathValidationSchema';
 
 export const patientDeath = express.Router();
@@ -87,62 +87,59 @@ patientDeath.get(
       causes: {
         primary: deathData.primaryCauseCondition
           ? exportCause({
-              condition: deathData.primaryCauseCondition,
-              timeAfterOnset: deathData.primaryCauseTimeAfterOnset,
-            })
+            condition: deathData.primaryCauseCondition,
+            timeAfterOnset: deathData.primaryCauseTimeAfterOnset,
+          })
           : null,
         antecedent1: deathData.antecedentCause1Condition
           ? exportCause({
-              condition: deathData.antecedentCause1Condition,
-              timeAfterOnset: deathData.antecedentCause1TimeAfterOnset,
-            })
+            condition: deathData.antecedentCause1Condition,
+            timeAfterOnset: deathData.antecedentCause1TimeAfterOnset,
+          })
           : null,
         antecedent2: deathData.antecedentCause2Condition
           ? exportCause({
-              condition: deathData.antecedentCause2Condition,
-              timeAfterOnset: deathData.antecedentCause2TimeAfterOnset,
-            })
+            condition: deathData.antecedentCause2Condition,
+            timeAfterOnset: deathData.antecedentCause2TimeAfterOnset,
+          })
           : null,
         contributing: deathData.contributingCauses.map(exportCause),
-        external:
-          deathData.externalCauseDate ||
-          deathData.externalCauseLocation ||
-          deathData.externalCauseNotes
-            ? {
-                date: deathData.externalCauseDate,
-                location: deathData.externalCauseLocation,
-                notes: deathData.externalCauseNotes,
-              }
-            : null,
+        external: deathData.externalCauseDate ||
+            deathData.externalCauseLocation ||
+            deathData.externalCauseNotes
+          ? {
+            date: deathData.externalCauseDate,
+            location: deathData.externalCauseLocation,
+            notes: deathData.externalCauseNotes,
+          }
+          : null,
       },
 
-      recentSurgery:
-        deathData.recentSurgery === 'yes'
-          ? {
-              date: deathData.lastSurgeryDate,
-              reasonId: deathData.lastSurgeryReasonId,
-            }
-          : deathData.recentSurgery,
+      recentSurgery: deathData.recentSurgery === 'yes'
+        ? {
+          date: deathData.lastSurgeryDate,
+          reasonId: deathData.lastSurgeryReasonId,
+        }
+        : deathData.recentSurgery,
 
-      pregnancy:
-        deathData.wasPregnant === 'yes'
-          ? {
-              contributed: deathData.pregnancyContributed,
-            }
-          : deathData.wasPregnant,
+      pregnancy: deathData.wasPregnant === 'yes'
+        ? {
+          contributed: deathData.pregnancyContributed,
+        }
+        : deathData.wasPregnant,
 
       fetalOrInfant: deathData.fetalOrInfant
         ? {
-            birthWeight: deathData.birthWeight,
-            carrier: {
-              age: deathData.carrierAge,
-              existingConditionId: deathData.carrierExistingConditionId,
-              weeksPregnant: deathData.carrierPregnancyWeeks,
-            },
-            hoursSurvivedSinceBirth: deathData.hoursSurvivedSinceBirth,
-            stillborn: deathData.stillborn,
-            withinDayOfBirth: deathData.withinDayOfBirth,
-          }
+          birthWeight: deathData.birthWeight,
+          carrier: {
+            age: deathData.carrierAge,
+            existingConditionId: deathData.carrierExistingConditionId,
+            weeksPregnant: deathData.carrierPregnancyWeeks,
+          },
+          hoursSurvivedSinceBirth: deathData.hoursSurvivedSinceBirth,
+          stillborn: deathData.stillborn,
+          withinDayOfBirth: deathData.withinDayOfBirth,
+        }
         : false,
     });
   }),
@@ -268,8 +265,9 @@ patientDeath.post(
       order: [['createdAt', 'DESC']],
     });
     if (!deathData) throw new NotFoundError('Death data not found');
-    if (deathData.isFinal)
+    if (deathData.isFinal) {
       throw new InvalidOperationError('Death data is final and cannot be reverted.');
+    }
 
     await transactionOnPostgres(db, async () => {
       await DeathRevertLog.create({

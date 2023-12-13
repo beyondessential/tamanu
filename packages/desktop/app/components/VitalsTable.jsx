@@ -1,28 +1,28 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import { Box, CircularProgress, IconButton as IconButtonComponent } from '@material-ui/core';
 import { PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
-import { Box, CircularProgress, IconButton as IconButtonComponent } from '@material-ui/core';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Table } from './Table';
-import { useEncounter } from '../contexts/Encounter';
-import { Colors } from '../constants';
-import {
-  RangeValidatedCell,
-  DateHeadCell,
-  RangeTooltipCell,
-  LimitedLinesCell,
-} from './FormattedTableCell';
+import styled from 'styled-components';
+import { combineQueries } from '../api';
+import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { useVitals } from '../api/queries/useVitals';
+import { useVitalsVisualisationConfigsQuery } from '../api/queries/useVitalsVisualisationConfigsQuery';
+import { Colors } from '../constants';
+import { useEncounter } from '../contexts/Encounter';
+import { useLocalisation } from '../contexts/Localisation';
+import { useVitalChartData } from '../contexts/VitalChartData';
+import { getNormalRangeByAge } from '../utils';
 import { DateDisplay, formatShortest, formatTimeWithSeconds } from './DateDisplay';
 import { EditVitalCellModal } from './EditVitalCellModal';
+import {
+  DateHeadCell,
+  LimitedLinesCell,
+  RangeTooltipCell,
+  RangeValidatedCell,
+} from './FormattedTableCell';
 import { VitalVectorIcon } from './Icons/VitalVectorIcon';
-import { useVitalChartData } from '../contexts/VitalChartData';
-import { useLocalisation } from '../contexts/Localisation';
-import { getNormalRangeByAge } from '../utils';
-import { useVitalsVisualisationConfigsQuery } from '../api/queries/useVitalsVisualisationConfigsQuery';
-import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
-import { combineQueries } from '../api';
+import { Table } from './Table';
 
 const StyledTable = styled(Table)`
   overflow-x: auto;
@@ -88,10 +88,9 @@ const MeasureCell = React.memo(({ value, data }) => {
   //
   // Currently DBP and SBP data are both shown on the same chart (VitalBloodPressureChart), it should use SBP's visualisation_config and validation_criteria to render the chart
 
-  const chartKey =
-    visualisationConfig?.key === VITALS_DATA_ELEMENT_IDS.dbp
-      ? VITALS_DATA_ELEMENT_IDS.sbp
-      : visualisationConfig?.key;
+  const chartKey = visualisationConfig?.key === VITALS_DATA_ELEMENT_IDS.dbp
+    ? VITALS_DATA_ELEMENT_IDS.sbp
+    : visualisationConfig?.key;
 
   return (
     <>
@@ -150,18 +149,18 @@ const TitleCell = React.memo(({ value }) => {
         {isSuccess &&
           vitalsVisualisationConfigs &&
           vitalsVisualisationConfigs.allGraphedChartKeys.length > 0 && (
-            <IconButton
-              size="small"
-              onClick={() => {
-                setChartKeys(chartKeys);
-                setIsInMultiChartsView(true);
-                setModalTitle('Vitals');
-                setVitalChartModalOpen(true);
-              }}
-            >
-              <VitalVectorIcon />
-            </IconButton>
-          )}
+          <IconButton
+            size="small"
+            onClick={() => {
+              setChartKeys(chartKeys);
+              setIsInMultiChartsView(true);
+              setModalTitle('Vitals');
+              setVitalChartModalOpen(true);
+            }}
+          >
+            <VitalVectorIcon />
+          </IconButton>
+        )}
         {isLoading && <CircularProgress size={14} />}
       </Box>
     </>
@@ -177,7 +176,7 @@ export const VitalsTable = React.memo(() => {
   const { getLocalisation } = useLocalisation();
   const isVitalEditEnabled = getLocalisation('features.enableVitalEdit');
   const showFooterLegend = data.some(entry =>
-    recordedDates.some(date => entry[date].historyLogs.length > 1),
+    recordedDates.some(date => entry[date].historyLogs.length > 1)
   );
 
   // create a column for each reading

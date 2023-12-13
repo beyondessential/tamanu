@@ -1,13 +1,13 @@
-import React, { memo, useMemo } from 'react';
-import { StyleSheet } from 'react-native';
-import { BarChart, YAxis, XAxis } from 'react-native-svg-charts';
 import { DateFormats } from '/helpers/constants';
-import { StyledView, RowView, StyledText } from '/styled/common';
 import { formatDate } from '/helpers/date';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { RowView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { getYear } from 'date-fns';
+import React, { memo, useMemo } from 'react';
+import { StyleSheet } from 'react-native';
+import { BarChart, XAxis, YAxis } from 'react-native-svg-charts';
 import { BarChartData } from '../../interfaces/BarChartProps';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 const styles = StyleSheet.create({
   barChartStyles: {
@@ -41,9 +41,11 @@ export const YearlyChart = memo(
   ({ data }: BarChartProps): JSX.Element => {
     const totalVisits = useMemo(() => data.reduce<number>((acc, cur) => acc + cur.value, 0), []);
 
-    const yearRange = `${getYear(data[0].date)} - ${getYear(
-      data[data.length - 1].date,
-    )}`;
+    const yearRange = `${getYear(data[0].date)} - ${
+      getYear(
+        data[data.length - 1].date,
+      )
+    }`;
 
     return (
       <StyledView>
@@ -101,9 +103,8 @@ export const YearlyChart = memo(
             </StyledView>
             <XAxis
               style={styles.xAxis}
-              formatLabel={
-                (_, index: number): string => formatDate(data[index].date, DateFormats.SHORT_MONTH)
-              }
+              formatLabel={(_, index: number): string =>
+                formatDate(data[index].date, DateFormats.SHORT_MONTH)}
               data={data}
               contentInset={styles.xAxisContent}
               svg={axesSvg}

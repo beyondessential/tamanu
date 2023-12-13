@@ -3,8 +3,8 @@ export * from './Encounter';
 export * from './ImagingStudy';
 export * from './Immunization';
 export * from './Patient';
-export * from './ServiceRequest';
 export * from './Practitioner';
+export * from './ServiceRequest';
 
 export * from './Job';
 export * from './JobWorker';

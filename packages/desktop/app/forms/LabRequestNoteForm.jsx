@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
-import styled, { css } from 'styled-components';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import NotesIcon from '@material-ui/icons/Notes';
 import { Box } from '@material-ui/core';
+import NotesIcon from '@material-ui/icons/Notes';
 import { NOTE_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import React, { useState } from 'react';
+import styled, { css } from 'styled-components';
 
 import { useApi } from '../api';
 import {
-  Form,
-  Field,
-  TextField,
-  DateDisplay,
   Button,
-  FormSubmitButton,
+  DateDisplay,
+  Field,
+  Form,
   FormCancelButton,
+  FormSubmitButton,
+  TextField,
 } from '../components';
 
 const Container = styled.div`
@@ -65,7 +65,7 @@ const buttonStyle = css`
   min-width: auto;
   background: none;
   color: ${props =>
-    props.$underline ? props.theme.palette.primary.main : props.theme.palette.text.tertiary};
+  props.$underline ? props.theme.palette.primary.main : props.theme.palette.text.tertiary};
   text-decoration: ${props => (props.$underline ? 'underline' : 'none')};
 
   &.MuiButton-root:hover {
@@ -92,8 +92,9 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
   const queryClient = useQueryClient();
   const [active, setActive] = useState(false);
 
-  const { data: notes, isSuccess } = useQuery(['labRequest', labRequestId, 'notes'], () =>
-    api.get(`labRequest/${labRequestId}/notes`),
+  const { data: notes, isSuccess } = useQuery(
+    ['labRequest', labRequestId, 'notes'],
+    () => api.get(`labRequest/${labRequestId}/notes`),
   );
 
   const { mutateAsync: saveNote } = useMutation(
@@ -135,17 +136,21 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
             }}
             render={({ values }) => {
               const formSubmitIsDisabled = !values.content?.trim();
-              return active ? (
-                <Box display="flex" alignItems="center">
-                  <NotesInput label="" name="content" component={TextField} autoFocus />
-                  <CancelAddNoteButton onClick={() => setActive(false)}>Cancel</CancelAddNoteButton>
-                  <SubmitNoteButton $underline disabled={formSubmitIsDisabled} text="Save" />
-                </Box>
-              ) : (
-                <ShowAddNoteFormButton $underline onClick={() => setActive(true)}>
-                  Add note
-                </ShowAddNoteFormButton>
-              );
+              return active ?
+                (
+                  <Box display="flex" alignItems="center">
+                    <NotesInput label="" name="content" component={TextField} autoFocus />
+                    <CancelAddNoteButton onClick={() => setActive(false)}>
+                      Cancel
+                    </CancelAddNoteButton>
+                    <SubmitNoteButton $underline disabled={formSubmitIsDisabled} text="Save" />
+                  </Box>
+                ) :
+                (
+                  <ShowAddNoteFormButton $underline onClick={() => setActive(true)}>
+                    Add note
+                  </ShowAddNoteFormButton>
+                );
             }}
           />
         )}

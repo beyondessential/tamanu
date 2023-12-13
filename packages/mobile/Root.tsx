@@ -1,8 +1,8 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useCallback, useEffect, useState } from 'react';
 import { DevSettings } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import Storybook from './storybook';
 import { App } from './App';
+import Storybook from './storybook';
 
 const setPersistedStorybookActive = async (storybookActive): Promise<void> => {
   AsyncStorage.setItem('storybookActive', storybookActive ? 'true' : 'false');

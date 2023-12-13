@@ -1,13 +1,13 @@
+import { Button } from '@material-ui/core';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { Button } from '@material-ui/core';
 import { useSuggester } from '../../api';
-import { Colors, locationAvailabilityOptions } from '../../constants';
 import { HandoverNotesIcon } from '../../assets/icons/HandoverNotesIcon';
-import { AutocompleteField, LocalisedField, SelectField } from '../Field';
+import { Colors, locationAvailabilityOptions } from '../../constants';
 import { HandoverNotesModal } from '../BedManagement/HandoverNotesModal';
-import { CustomisableSearchBar } from './CustomisableSearchBar';
+import { AutocompleteField, LocalisedField, SelectField } from '../Field';
 import { ThemedTooltip } from '../Tooltip';
+import { CustomisableSearchBar } from './CustomisableSearchBar';
 
 const HandoverNotesButton = styled(Button)`
   font-weight: 500;
@@ -58,13 +58,15 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
           }
           onClick={handleHandoverNotesButtonClick}
         >
-          {handoverNotesButtonDisabled ? (
-            <ThemedTooltip title="Select an 'Area' to create handover notes">
-              <span>Handover notes</span>
-            </ThemedTooltip>
-          ) : (
-            'Handover notes'
-          )}
+          {handoverNotesButtonDisabled ?
+            (
+              <ThemedTooltip title="Select an 'Area' to create handover notes">
+                <span>Handover notes</span>
+              </ThemedTooltip>
+            ) :
+            (
+              'Handover notes'
+            )}
         </HandoverNotesButton>
 
         <EmptyGridItem />

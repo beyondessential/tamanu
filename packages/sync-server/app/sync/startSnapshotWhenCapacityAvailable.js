@@ -1,5 +1,5 @@
-import config from 'config';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
+import config from 'config';
 
 const startSnapshotIfCapacityAvailable = async (sequelize, sessionId) => {
   // work out how many sessions are currently in the snapshot phase

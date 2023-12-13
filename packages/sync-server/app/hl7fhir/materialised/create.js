@@ -1,8 +1,8 @@
 import asyncHandler from 'express-async-handler';
 import * as yup from 'yup';
 
-import { OperationOutcome } from '@tamanu/shared/utils/fhir';
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
+import { OperationOutcome } from '@tamanu/shared/utils/fhir';
 
 async function mapErr(promise, fn) {
   try {

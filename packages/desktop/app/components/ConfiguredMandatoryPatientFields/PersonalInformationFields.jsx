@@ -2,7 +2,7 @@ import React from 'react';
 
 import { PATIENT_REGISTRY_TYPES } from '@tamanu/constants';
 
-import { AutocompleteField, SelectField, SuggesterSelectField, TextField } from '..';
+import { usePatientSuggester, useSuggester } from '../../api';
 import {
   bloodOptions,
   educationalAttainmentOptions,
@@ -10,7 +10,7 @@ import {
   socialMediaOptions,
   titleOptions,
 } from '../../constants';
-import { useSuggester, usePatientSuggester } from '../../api';
+import { AutocompleteField, SelectField, SuggesterSelectField, TextField } from '..';
 import { ConfiguredMandatoryPatientFields } from './ConfiguredMandatoryPatientFields';
 
 export const PersonalInformationFields = ({ patientRegistryType, showMandatory }) => {

@@ -1,16 +1,16 @@
-import config from 'config';
-import { upperFirst } from 'lodash';
-import { utcToZonedTime } from 'date-fns-tz';
 import {
-  REFERENCE_TYPES,
-  NOTE_RECORD_TYPES,
-  NOTE_TYPES,
+  DIAGNOSIS_CERTAINTY,
   ENCOUNTER_TYPES,
   IMAGING_TYPES,
-  DIAGNOSIS_CERTAINTY,
+  NOTE_RECORD_TYPES,
+  NOTE_TYPES,
+  REFERENCE_TYPES,
 } from '@tamanu/constants';
-import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { fake } from '@tamanu/shared/test-helpers/fake';
+import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import config from 'config';
+import { utcToZonedTime } from 'date-fns-tz';
+import { upperFirst } from 'lodash';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 
 const COUNTRY_TIMEZONE = config?.countryTimeZone;
@@ -334,9 +334,11 @@ describe('fijiAspenMediciReport', () => {
     ])(
       'Date filtering: Should return %p result(s) between %p and %s',
       async (expectedResults, start, end) => {
-        const query = `period.start=${encodeURIComponent(start)}&period.end=${encodeURIComponent(
-          end,
-        )}`;
+        const query = `period.start=${encodeURIComponent(start)}&period.end=${
+          encodeURIComponent(
+            end,
+          )
+        }`;
         const response = await app
           .get(`/v1/integration/fijiAspenMediciReport?${query}`)
           .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
@@ -347,9 +349,11 @@ describe('fijiAspenMediciReport', () => {
     );
 
     it('should filter by encounter id - 0 results', async () => {
-      const query = `period.start=2022-05-09&period.end=2022-10-09&encounters=${encodeURIComponent([
-        'nonexistant-id',
-      ])}`;
+      const query = `period.start=2022-05-09&period.end=2022-10-09&encounters=${
+        encodeURIComponent([
+          'nonexistant-id',
+        ])
+      }`;
       const response = await app
         .get(`/v1/integration/fijiAspenMediciReport?${query}`)
         .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
@@ -359,10 +363,12 @@ describe('fijiAspenMediciReport', () => {
     });
 
     it('should filter by encounter id - 1 result', async () => {
-      const query = `period.start=2022-05-09&period.end=2022-10-09&encounters=${encodeURIComponent([
-        fakedata.encounterId,
-        'nonexistant-id',
-      ])}`;
+      const query = `period.start=2022-05-09&period.end=2022-10-09&encounters=${
+        encodeURIComponent([
+          fakedata.encounterId,
+          'nonexistant-id',
+        ])
+      }`;
       const response = await app
         .get(`/v1/integration/fijiAspenMediciReport?${query}`)
         .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });

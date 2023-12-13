@@ -1,15 +1,15 @@
-import RNFS from 'react-native-fs';
 import { chunk } from 'lodash';
+import RNFS from 'react-native-fs';
 
-import { SyncRecord } from '../types';
-import { sortInDependencyOrder } from './sortInDependencyOrder';
 import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/helpers';
-import { buildFromSyncRecord } from './buildFromSyncRecord';
-import { executeInserts, executeUpdates, executeDeletes, executeRestores } from './executeCrud';
-import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
+import { MODELS_MAP } from '../../../models/modelsMap';
 import { readFileInDocuments } from '../../../ui/helpers/file';
+import { SyncRecord } from '../types';
+import { buildFromSyncRecord } from './buildFromSyncRecord';
+import { executeDeletes, executeInserts, executeRestores, executeUpdates } from './executeCrud';
 import { getDirPath } from './getFilePath';
+import { sortInDependencyOrder } from './sortInDependencyOrder';
 
 /**
  * Save changes for a single model in batch because SQLite only support limited number of parameters

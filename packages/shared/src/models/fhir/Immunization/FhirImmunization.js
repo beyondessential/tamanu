@@ -1,10 +1,10 @@
-import { Sequelize, DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import { FhirResource } from '../Resource';
 import { getQueryOptions } from './getQueryOptions';
-import { getValues } from './getValues';
 import { fromAdministeredVaccines } from './getQueryToFindUpstreamIds';
+import { getValues } from './getValues';
 import { searchParameters } from './searchParameters';
 
 export class FhirImmunization extends FhirResource {

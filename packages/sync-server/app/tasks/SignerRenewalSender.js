@@ -1,10 +1,10 @@
 import config from 'config';
 import { format } from 'date-fns';
-import { Op, Sequelize } from 'sequelize';
 import { get } from 'lodash';
+import { Op, Sequelize } from 'sequelize';
 
-import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
+import { ScheduledTask } from '@tamanu/shared/tasks';
 
 import { getLocalisation } from '../localisation';
 
@@ -39,9 +39,11 @@ export class SignerRenewalSender extends ScheduledTask {
 
     if (pending.length > 1) {
       log.warn(
-        `There is more than one pending signer CSR, sending all of them, but this may be a bug: ${pending
-          .map(s => s.id)
-          .join(', ')}`,
+        `There is more than one pending signer CSR, sending all of them, but this may be a bug: ${
+          pending
+            .map(s => s.id)
+            .join(', ')
+        }`,
       );
     }
 

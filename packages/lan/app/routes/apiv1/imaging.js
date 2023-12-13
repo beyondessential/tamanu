@@ -1,19 +1,19 @@
-import express from 'express';
-import config from 'config';
-import asyncHandler from 'express-async-handler';
-import { startOfDay, endOfDay, parseISO } from 'date-fns';
-import { Op, literal } from 'sequelize';
 import {
-  NOTE_TYPES,
   AREA_TYPE_TO_IMAGING_TYPE,
   IMAGING_AREA_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
+  NOTE_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/shared/errors';
 import { permissionCheckingRouter } from '@tamanu/shared/utils/crudHelpers';
-import { toDateTimeString, toDateString } from '@tamanu/shared/utils/dateTime';
+import { toDateString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { getNoteWithType } from '@tamanu/shared/utils/notes';
+import config from 'config';
+import { endOfDay, parseISO, startOfDay } from 'date-fns';
+import express from 'express';
+import asyncHandler from 'express-async-handler';
+import { literal, Op } from 'sequelize';
 import { mapQueryFilters } from '../../database/utils';
 import { getImagingProvider } from '../../integrations/imaging';
 
@@ -290,8 +290,8 @@ globalImagingRequests.get(
     const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0, ...filterParams } = query;
 
     const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
-    const nullPosition =
-      orderBy === 'completedAt' && (orderDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST');
+    const nullPosition = orderBy === 'completedAt' &&
+      (orderDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST');
 
     const patientFilters = mapQueryFilters(filterParams, [
       { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },
@@ -354,10 +354,9 @@ globalImagingRequests.get(
     };
 
     const locationWhere = {
-      where:
-        filterParams?.allFacilities && JSON.parse(filterParams.allFacilities)
-          ? {}
-          : { facilityId: { [Op.eq]: config.serverFacilityId } },
+      where: filterParams?.allFacilities && JSON.parse(filterParams.allFacilities)
+        ? {}
+        : { facilityId: { [Op.eq]: config.serverFacilityId } },
     };
 
     const location = {

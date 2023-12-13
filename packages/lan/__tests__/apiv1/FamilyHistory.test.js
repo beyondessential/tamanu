@@ -5,7 +5,6 @@ import {
 } from '@tamanu/shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
-
 describe('Family history', () => {
   let patient = null;
   let app = null;

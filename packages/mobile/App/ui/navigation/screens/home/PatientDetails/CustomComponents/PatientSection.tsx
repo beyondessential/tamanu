@@ -1,9 +1,9 @@
-import React, { PropsWithChildren, ReactElement, useState } from 'react';
-import { StyledView, RowView } from '/styled/common';
 import { SectionHeader } from '/components/SectionHeader';
-import { EditButton } from './EditButton';
+import { RowView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
+import React, { PropsWithChildren, ReactElement, useState } from 'react';
 import { ArrowButton } from './ArrowButton';
+import { EditButton } from './EditButton';
 
 interface PatientDetailSectionProps {
   title: string;
@@ -24,20 +24,24 @@ export const PatientSection = ({
     setIsOpen(prevValue => !prevValue);
   };
 
-  const overlappedButton = onEdit ? (
-    <StyledView alignItems="flex-end">
-      <StyledView position="absolute" paddingTop={10} paddingRight={20}>
-        <EditButton sectionTitle={title} onPress={onEdit} />
+  const overlappedButton = onEdit ?
+    (
+      <StyledView alignItems="flex-end">
+        <StyledView position="absolute" paddingTop={10} paddingRight={20}>
+          <EditButton sectionTitle={title} onPress={onEdit} />
+        </StyledView>
       </StyledView>
-    </StyledView>
-  ) : null;
+    ) :
+    null;
 
-  const content = isOpen ? (
-    <>
-      {overlappedButton}
-      {children}
-    </>
-  ) : null;
+  const content = isOpen ?
+    (
+      <>
+        {overlappedButton}
+        {children}
+      </>
+    ) :
+    null;
 
   return (
     <StyledView>

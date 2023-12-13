@@ -1,14 +1,14 @@
 import { upperFirst } from 'lodash';
 import { readFile } from 'xlsx';
 
-import { log } from '@tamanu/shared/services/logging';
 import { REFERENCE_TYPE_VALUES } from '@tamanu/constants';
+import { log } from '@tamanu/shared/services/logging';
 
 import { normaliseSheetName } from '../importerEndpoint';
 
-import { referenceDataLoaderFactory, loaderFactory } from './loaders';
-import { importSheet } from './sheet';
 import DEPENDENCIES from './dependencies';
+import { loaderFactory, referenceDataLoaderFactory } from './loaders';
+import { importSheet } from './sheet';
 
 export const PERMISSIONS = ['Permission', 'Role', 'User', 'ReferenceData'];
 

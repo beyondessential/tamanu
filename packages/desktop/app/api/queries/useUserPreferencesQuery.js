@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { useApi } from '../useApi';
 import { useAuth } from '../../contexts/Auth';
+import { useApi } from '../useApi';
 
 export const useUserPreferencesQuery = () => {
   const api = useApi();

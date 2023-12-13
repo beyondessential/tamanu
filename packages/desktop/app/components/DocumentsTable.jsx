@@ -1,14 +1,14 @@
+import { extension } from 'mime-types';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import { extension } from 'mime-types';
 
-import GetAppIcon from '@material-ui/icons/GetApp';
 import { IconButton } from '@material-ui/core';
+import GetAppIcon from '@material-ui/icons/GetApp';
 
-import { DataFetchingTable } from './Table';
-import { DateDisplay } from './DateDisplay';
 import { Button } from './Button';
+import { DateDisplay } from './DateDisplay';
 import { LimitedLinesCell } from './FormattedTableCell';
+import { DataFetchingTable } from './Table';
 
 const ActionsContainer = styled.div`
   display: flex;

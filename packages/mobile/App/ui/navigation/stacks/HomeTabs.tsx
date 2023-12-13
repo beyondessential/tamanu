@@ -1,38 +1,29 @@
-import React, { FC, ReactElement } from 'react';
-import { compose } from 'redux';
-import {
-  createBottomTabNavigator,
-  BottomTabNavigationOptions,
-  BottomTabBarProps,
-} from '@react-navigation/bottom-tabs';
+import { BarChartIcon, HomeBottomLogoIcon, MoreMenuIcon, SyncDataIcon } from '/components/Icons';
+import { withPatient } from '/containers/Patient';
+import { Routes } from '/helpers/routes';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { BaseAppProps } from '/interfaces/BaseAppProps';
+import { MoreScreen, ReportScreen, SyncDataScreen } from '/navigation/screens/home/Tabs';
+import { HomeScreen } from '/navigation/screens/home/Tabs/HomeScreen';
 import { PatientHome } from '/navigation/screens/home/Tabs/PatientHome';
 import {
   RowView,
-  StyledView,
   StyledSafeAreaView,
   StyledText,
   StyledTouchableOpacity,
+  StyledView,
 } from '/styled/common';
 import { theme } from '/styled/theme';
-import { HomeScreen } from '/navigation/screens/home/Tabs/HomeScreen';
-import { withPatient } from '/containers/Patient';
+import {
+  BottomTabBarProps,
+  BottomTabNavigationOptions,
+  createBottomTabNavigator,
+} from '@react-navigation/bottom-tabs';
+import React, { FC, ReactElement } from 'react';
 import { SvgProps } from 'react-native-svg';
-import { BaseAppProps } from '/interfaces/BaseAppProps';
-import { Routes } from '/helpers/routes';
-import {
-  HomeBottomLogoIcon,
-  BarChartIcon,
-  SyncDataIcon,
-  MoreMenuIcon,
-} from '/components/Icons';
-import {
-  ReportScreen,
-  SyncDataScreen,
-  MoreScreen,
-} from '/navigation/screens/home/Tabs';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { IconWithSizeProps } from '../../interfaces/WithSizeProps';
+import { compose } from 'redux';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { IconWithSizeProps } from '../../interfaces/WithSizeProps';
 
 const Tabs = createBottomTabNavigator();
 
@@ -52,7 +43,8 @@ export function TabIcon({ Icon, color }: TabIconProps): JSX.Element {
   );
 }
 
-const TabScreenIcon = (Icon: FC<SvgProps>) => (props: {
+const TabScreenIcon = (Icon: FC<SvgProps>) =>
+(props: {
   focused: boolean;
   color: string;
 }): ReactElement => <TabIcon Icon={Icon} {...props} />;
@@ -129,7 +121,7 @@ function MyTabBar({
                 onPress={onPress}
                 onLongPress={onLongPress}
                 accessibilityRole="button"
-                accessibilityState={isFocused ? {selected: true} : {}}
+                accessibilityState={isFocused ? { selected: true } : {}}
                 accessibilityLabel={options.tabBarAccessibilityLabel}
                 testID={options.tabBarTestID}
                 alignItems="center"
@@ -145,9 +137,7 @@ function MyTabBar({
                     size: screenPercentageToDP(3.03, Orientation.Height),
                   })}
                 <StyledText
-                  color={
-                    isFocused ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE
-                  }
+                  color={isFocused ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE}
                   marginTop={3}
                   fontSize={tabLabelFontSize}
                 >

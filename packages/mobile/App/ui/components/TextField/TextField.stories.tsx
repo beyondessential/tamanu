@@ -1,7 +1,7 @@
-import React from 'react';
-import { storiesOf } from '@storybook/react-native';
-import { KeyboardAwareView } from '../KeyboardAwareView';
 import { CenterView } from '/styled/common';
+import { storiesOf } from '@storybook/react-native';
+import React from 'react';
+import { KeyboardAwareView } from '../KeyboardAwareView';
 import { BaseTextFieldStory } from './fixtures';
 
 const stories = storiesOf('TextField', module);

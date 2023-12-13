@@ -34,6 +34,6 @@ export const findSyncSnapshotRecords = async (
   );
 
   return records.map(r =>
-    Object.fromEntries(Object.entries(r).map(([key, value]) => [camel(key), value])),
+    Object.fromEntries(Object.entries(r).map(([key, value]) => [camel(key), value]))
   );
 };

@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
 import { useField } from 'formik';
+import { useMemo } from 'react';
 
 export const useFilterFields = () => {
   const sex = useField('sex');

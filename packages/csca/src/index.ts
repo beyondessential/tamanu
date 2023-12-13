@@ -12,7 +12,7 @@ program
   .addCommand(reconfig)
   .addCommand(revoke)
   .parseAsync(process.argv)
-  .catch((e) => {
+  .catch(e => {
     console.error(e.stack);
     process.exit(1);
   });

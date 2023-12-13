@@ -1,22 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { groupBy } from 'lodash';
+import React, { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { useApi } from '../../api';
-import { reloadPatient } from '../../store/patient';
-import { capitaliseFirstLetter } from '../../utils/capitalise';
 import {
-  TopBar,
-  CovidPatientsSearchBar,
-  PageContainer,
-  DateDisplay,
   ContentPane,
+  CovidPatientsSearchBar,
+  DateDisplay,
+  PageContainer,
   SearchTable,
   SearchTableTitle,
+  TopBar,
 } from '../../components';
-import { Colors } from '../../constants';
 import { StatisticsCard, StatisticsCardContainer } from '../../components/StatisticsCard';
+import { Colors } from '../../constants';
+import { reloadPatient } from '../../store/patient';
+import { capitaliseFirstLetter } from '../../utils/capitalise';
 
 const CLINICAL_STATUSES = {
   CRITICAL: 'Critical',

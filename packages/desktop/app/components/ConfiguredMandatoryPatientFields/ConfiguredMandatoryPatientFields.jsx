@@ -27,11 +27,11 @@ export const ConfiguredMandatoryPatientFields = ({ fields, showMandatory = true 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fields]);
 
-  return fieldsToShow.length ? (
-    <>
-      {fieldsToShow.map(field => (
-        <LocalisedField {...field} />
-      ))}
-    </>
-  ) : null;
+  return fieldsToShow.length ?
+    (
+      <>
+        {fieldsToShow.map(field => <LocalisedField {...field} />)}
+      </>
+    ) :
+    null;
 };

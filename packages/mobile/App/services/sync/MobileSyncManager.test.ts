@@ -1,10 +1,10 @@
-import { MobileSyncManager } from './MobileSyncManager';
 import { CentralServerConnection } from './CentralServerConnection';
+import { MobileSyncManager } from './MobileSyncManager';
 import {
-  getSyncTick,
   getModelsForDirection,
-  snapshotOutgoingChanges,
+  getSyncTick,
   pushOutgoingChanges,
+  snapshotOutgoingChanges,
 } from './utils';
 
 jest.mock('./utils', () => ({
@@ -118,7 +118,7 @@ describe('MobileSyncManager', () => {
         .spyOn(centralServerConnection, 'startSyncSession')
         .mockReturnValueOnce(
           new Promise(resolve =>
-            resolve({ sessionId: mockSessionId, startedAtTick: mockSyncTick }),
+            resolve({ sessionId: mockSessionId, startedAtTick: mockSyncTick })
           ),
         );
       jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
@@ -136,7 +136,7 @@ describe('MobileSyncManager', () => {
         .spyOn(centralServerConnection, 'startSyncSession')
         .mockReturnValueOnce(
           new Promise(resolve =>
-            resolve({ sessionId: mockSessionId, startedAtTick: mockSyncTick }),
+            resolve({ sessionId: mockSessionId, startedAtTick: mockSyncTick })
           ),
         );
       jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());

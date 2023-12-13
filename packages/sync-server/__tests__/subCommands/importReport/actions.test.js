@@ -1,30 +1,30 @@
-import Table from 'cli-table3';
 import { log } from '@tamanu/shared/services/logging';
 import { spyOnModule } from '@tamanu/shared/test-helpers/spyOn';
+import Table from 'cli-table3';
 import { initDatabase } from '../../../app/database';
 import {
+  ACTIVE_TEXT,
   createVersion,
+  DEFAULT_USER_EMAIL,
+  formatUpdatedAt,
   getVersionError,
   listVersions,
-  DEFAULT_USER_EMAIL,
-  ACTIVE_TEXT,
   OVERWRITING_TEXT,
-  formatUpdatedAt,
 } from '../../../app/subCommands/importReport/actions';
 
 spyOnModule(jest, '../../../app/subCommands/importReport/actions');
 
 const baseVersionData = {
-  query: "test-query", 
+  query: 'test-query',
   queryOptions: {
-    parameters: [ 
+    parameters: [
       {
-        parameterField: "TestField", 
-        name: "test" 
-      }
+        parameterField: 'TestField',
+        name: 'test',
+      },
     ],
-    defaultDateRange: "allTime"
-  }
+    defaultDateRange: 'allTime',
+  },
 };
 
 jest.mock('@tamanu/shared/services/logging', () => ({
@@ -42,8 +42,7 @@ jest.mock('cli-table3', () =>
   jest.fn().mockImplementation(() => ({
     push: mockPush,
     toString: mockToString,
-  })),
-);
+  })));
 
 const mockDefinition = { id: 'test-definition-id', name: 'test-definition-name' };
 
@@ -77,13 +76,11 @@ jest.mock('../../../app/database', () => ({
 }));
 
 describe('importReport actions', () => {
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   describe('listVersions', () => {
-
     it('calls push on table for each version', async () => {
       const mockVersionsWithActive = [
         { versionNumber: 3, status: 'published', updatedAt: mockUpdatedAt },
@@ -99,7 +96,6 @@ describe('importReport actions', () => {
   });
 
   describe('createVersion', () => {
-
     let mockStore;
 
     beforeEach(async () => {

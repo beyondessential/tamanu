@@ -1,8 +1,8 @@
+import { VISIBILITY_STATUSES, VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
 import { useQuery } from '@tanstack/react-query';
-import { VITALS_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { useApi, isErrorUnknownAllow404s } from '../index';
-import { useVitalsSurveyQuery } from './useVitalsSurveyQuery';
 import { getConfigObject } from '../../utils';
+import { isErrorUnknownAllow404s, useApi } from '../index';
+import { useVitalsSurveyQuery } from './useVitalsSurveyQuery';
 
 export const useVitals = encounterId => {
   const api = useApi();
@@ -11,8 +11,7 @@ export const useVitals = encounterId => {
       `encounter/${encounterId}/vitals`,
       { rowsPerPage: 50 },
       { isErrorUnknown: isErrorUnknownAllow404s },
-    ),
-  );
+    ));
 
   const surveyQuery = useVitalsSurveyQuery();
   const error = vitalsQuery.error || surveyQuery.error;

@@ -1,7 +1,7 @@
-import React from 'react';
-import { isArray, toString, each } from 'lodash';
-import { toast } from 'react-toastify';
 import deepEqual from 'deep-equal';
+import { each, isArray, toString } from 'lodash';
+import React from 'react';
+import { toast } from 'react-toastify';
 import shortid from 'shortid';
 
 export const concatSelf = (array, ...items) => {
@@ -18,9 +18,7 @@ export const prepareToastMessage = msg => {
   const messages = isArray(msg) ? msg : [msg];
   return (
     <>
-      {messages.map(text => (
-        <div key={`err-msg-${text}`}>{toString(text)}</div>
-      ))}
+      {messages.map(text => <div key={`err-msg-${text}`}>{toString(text)}</div>)}
     </>
   );
 };

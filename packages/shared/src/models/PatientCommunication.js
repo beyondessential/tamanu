@@ -1,4 +1,3 @@
-import { Sequelize } from 'sequelize';
 import {
   COMMUNICATION_STATUSES,
   COMMUNICATION_STATUSES_VALUES,
@@ -6,6 +5,7 @@ import {
   PATIENT_COMMUNICATION_TYPES_VALUES,
   SYNC_DIRECTIONS,
 } from '@tamanu/constants';
+import { Sequelize } from 'sequelize';
 
 import { Model } from './Model';
 

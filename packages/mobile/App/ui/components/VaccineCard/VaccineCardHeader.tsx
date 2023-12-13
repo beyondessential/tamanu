@@ -1,9 +1,9 @@
-import React from 'react';
-import { theme } from '/styled/theme';
-import * as Icons from '../Icons';
-import { StyledView, RowView, StyledTouchableOpacity, StyledText } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { RowView, StyledText, StyledTouchableOpacity, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
+import React from 'react';
 import { VaccineStatus } from '~/ui/helpers/patient';
+import * as Icons from '../Icons';
 
 export interface CardHeaderProps {
   name: string;
@@ -34,23 +34,25 @@ export const VaccineCardHeader = ({
       >
         <Icons.CrossIcon size={screenPercentageToDP(2.18, Orientation.Height)} />
       </StyledTouchableOpacity>
-      {status === VaccineStatus.NOT_GIVEN ? (
-        <StyledTouchableOpacity
-          onPress={onEditDetails}
-          paddingTop={screenPercentageToDP(2.43, Orientation.Height)}
-          paddingLeft={screenPercentageToDP(2.43, Orientation.Height)}
-          paddingRight={screenPercentageToDP(2.43, Orientation.Height)}
-          paddingBottom={screenPercentageToDP(2.43, Orientation.Height)}
-        >
-          <StyledText
-            textDecorationLine="underline"
-            color={theme.colors.WHITE}
-            fontSize={screenPercentageToDP('1.59', Orientation.Height)}
+      {status === VaccineStatus.NOT_GIVEN ?
+        (
+          <StyledTouchableOpacity
+            onPress={onEditDetails}
+            paddingTop={screenPercentageToDP(2.43, Orientation.Height)}
+            paddingLeft={screenPercentageToDP(2.43, Orientation.Height)}
+            paddingRight={screenPercentageToDP(2.43, Orientation.Height)}
+            paddingBottom={screenPercentageToDP(2.43, Orientation.Height)}
           >
-            Edit Details
-          </StyledText>
-        </StyledTouchableOpacity>
-      ) : null}
+            <StyledText
+              textDecorationLine="underline"
+              color={theme.colors.WHITE}
+              fontSize={screenPercentageToDP('1.59', Orientation.Height)}
+            >
+              Edit Details
+            </StyledText>
+          </StyledTouchableOpacity>
+        ) :
+        null}
     </RowView>
     <RowView
       paddingLeft={screenPercentageToDP(2.43, Orientation.Height)}

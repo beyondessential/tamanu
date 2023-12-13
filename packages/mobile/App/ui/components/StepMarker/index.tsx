@@ -1,7 +1,7 @@
-import React, { FC } from 'react';
-import { StyledView, RowView } from '/styled/common';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { RowView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import React, { FC } from 'react';
 
 interface Circle {
   currentStep?: boolean;
@@ -35,9 +35,7 @@ export const StepMarker: FC<StepMarkerProps> = React.memo(
         width={screenPercentageToDP(8.59, Orientation.Width)}
         marginTop={screenPercentageToDP(1.21, Orientation.Height)}
       >
-        {circles.map(value => (
-          <Circle key={value} currentStep={value === step} />
-        ))}
+        {circles.map(value => <Circle key={value} currentStep={value === step} />)}
       </RowView>
     );
   },

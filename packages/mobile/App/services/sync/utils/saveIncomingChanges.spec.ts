@@ -1,5 +1,5 @@
-import { saveChangesForModel } from './saveIncomingChanges';
 import * as saveChangeModules from './executeCrud';
+import { saveChangesForModel } from './saveIncomingChanges';
 
 jest.mock('./executeCrud');
 jest.mock('./buildFromSyncRecord', () => {

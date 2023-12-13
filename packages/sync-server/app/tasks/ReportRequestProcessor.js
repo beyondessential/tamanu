@@ -1,14 +1,14 @@
+import { spawn } from 'child_process';
 import config from 'config';
 import sequelize from 'sequelize';
-import { spawn } from 'child_process';
 
 import { REPORT_REQUEST_STATUSES } from '@tamanu/constants';
 import { getReportModule } from '@tamanu/shared/reports';
-import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
+import { ScheduledTask } from '@tamanu/shared/tasks';
 
-import { ReportRunner } from '../report/ReportRunner';
 import { getLocalisation } from '../localisation';
+import { ReportRunner } from '../report/ReportRunner';
 
 // time out and kill the report process if it takes more than 2 hours to run
 const REPORT_TIME_OUT_DURATION_MILLISECONDS = config.reportProcess.timeOutDurationSeconds * 1000;
@@ -32,9 +32,7 @@ export class ReportRequestProcessor extends ScheduledTask {
     const parameters = processOptions || process.execArgv;
 
     log.info(
-      `Spawning child process for report request "${
-        request.id
-      }" for report "${request.getReportId()}" with command [${node}, ${parameters.toString()}, ${scriptPath}].`,
+      `Spawning child process for report request "${request.id}" for report "${request.getReportId()}" with command [${node}, ${parameters.toString()}, ${scriptPath}].`,
     );
 
     // For some reasons, when running a child process under pm2, pm2_env was not set and caused a problem.
@@ -78,9 +76,7 @@ export class ReportRequestProcessor extends ScheduledTask {
       childProcess.on('exit', code => {
         if (code === 0) {
           log.info(
-            `Child process running report request "${
-              request.id
-            }" for report "${request.getReportId()}" has finished.`,
+            `Child process running report request "${request.id}" for report "${request.getReportId()}" has finished.`,
           );
           resolve();
           return;
@@ -88,9 +84,7 @@ export class ReportRequestProcessor extends ScheduledTask {
         reject(
           new Error(
             errorMessage ||
-              `Failed to generate report for report request "${
-                request.id
-              }" for report "${request.getReportId()}"`,
+              `Failed to generate report for report request "${request.id}" for report "${request.getReportId()}"`,
           ),
         );
       });
@@ -115,9 +109,7 @@ export class ReportRequestProcessor extends ScheduledTask {
 
   async runReportInTheSameProcess(request) {
     log.info(
-      `Running report request "${
-        request.id
-      }" for report "${request.getReportId()}" in main process.`,
+      `Running report request "${request.id}" for report "${request.getReportId()}" in main process.`,
     );
     const reportRunner = new ReportRunner(
       request.getReportId(),

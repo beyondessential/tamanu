@@ -1,12 +1,12 @@
-import { Sequelize } from 'sequelize';
 import { PROGRAM_DATA_ELEMENT_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from '../errors';
-import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { runCalculations } from '../utils/calculations';
-import { getStringValue, getResultValue } from '../utils/fields';
-import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
+import { getResultValue, getStringValue } from '../utils/fields';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import { dateTimeType } from './dateTimeTypes';
+import { Model } from './Model';
 
 async function createPatientIssues(models, questions, patientId) {
   const issueQuestions = questions.filter(

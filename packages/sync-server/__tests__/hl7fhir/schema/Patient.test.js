@@ -1,4 +1,3 @@
-import { fake, withErrorShown } from '@tamanu/shared/test-helpers';
 import {
   FhirAddress,
   FhirCodeableConcept,
@@ -7,6 +6,7 @@ import {
   FhirIdentifier,
   FhirPeriod,
 } from '@tamanu/shared/services/fhirTypes';
+import { fake, withErrorShown } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../../utilities';
 
 describe('Patient', () => {

@@ -1,13 +1,13 @@
-import villages from './villages';
+import administeredVaccines from './administeredVaccines';
 import examiners from './examiners';
 import facilitiesDepartmentsAndLocations from './facilitiesDepartmentsAndLocations';
-import scheduledVaccines from './scheduledVaccines';
-import programSurveyAndQuestions from './programSurveyAndQuestions';
 import labTestCategories from './labTestCategories';
 import patient from './patient';
 import patientAdditionalData from './patientAdditionalData';
-import administeredVaccines from './administeredVaccines';
+import programSurveyAndQuestions from './programSurveyAndQuestions';
+import scheduledVaccines from './scheduledVaccines';
 import testsAndSurveys from './testsAndSurveys';
+import villages from './villages';
 
 export const STEPS = {
   // SETUP steps may be specified as dependencies of other steps, not run directly

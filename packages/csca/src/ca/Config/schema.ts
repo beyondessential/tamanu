@@ -1,5 +1,5 @@
-import { ConfigFile } from './types';
 import * as yup from 'yup';
+import { ConfigFile } from './types';
 
 const SCHEMA = yup.object({
   name: yup.string().required().min(1).matches(/^[a-zA-Z0-9_-]+$/),
@@ -68,8 +68,7 @@ const SCHEMA = yup.object({
             value: yup.lazy((value: 'computed' | object[]) =>
               (typeof value === 'string' && value === 'computed'
                 ? yup.string().matches(/^computed$/)
-                : yup.array()
-              ).required(),
+                : yup.array()).required()
             ),
           })
           .required(),

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
+import { useApi } from '../../../api';
 import { ConfirmationModal } from './ConfirmationModal';
 import { KeepPatientDecisionForm } from './KeepPatientDecisionForm';
-import { PatientMergeSearch } from './PatientMergeSearch';
-import { MergeResultModal } from './MergeResultModal';
 import { MergeErrorModal } from './MergeErrorModal';
-import { useApi } from '../../../api';
+import { MergeResultModal } from './MergeResultModal';
+import { PatientMergeSearch } from './PatientMergeSearch';
 
 export const PatientMergeView = ({ fetchPatient }) => {
   const [regenKey, setRegenKey] = useState(Math.random());

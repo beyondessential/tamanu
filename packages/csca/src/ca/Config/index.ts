@@ -4,8 +4,8 @@ import AuthenticatedFile from '../AuthenticatedFile';
 import { validate } from './schema';
 import { ConfigFile, Country, Issuance, S3Bucket } from './types';
 
-export * from './types';
 export { validate } from './schema';
+export * from './types';
 
 export default class Config extends AuthenticatedFile {
   constructor(caPath: string, key: CryptoKey, createFile = false) {

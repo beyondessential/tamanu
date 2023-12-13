@@ -1,22 +1,22 @@
-import React, { useCallback, useState } from 'react';
-import styled from 'styled-components';
-import { useDispatch, useSelector } from 'react-redux';
+import { Box, Button, Divider, IconButton, List, Typography } from '@material-ui/core';
+import { Launch, NavigateBefore, NavigateNext } from '@material-ui/icons';
 import { push } from 'connected-react-router';
-import { List, Divider, Box, Typography, Button, IconButton } from '@material-ui/core';
-import { NavigateBefore, NavigateNext, Launch } from '@material-ui/icons';
+import React, { useCallback, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import styled from 'styled-components';
 
-import { TamanuLogoWhite, TamanuLogoWhiteNoText } from '../TamanuLogo';
+import { useApi } from '../../api';
 import { Colors } from '../../constants';
-import { Translated } from '../Translated';
-import { HiddenSyncAvatar } from '../HiddenSyncAvatar';
-import { TopLevelSidebarItem } from './TopLevelSidebarItem';
-import { PrimarySidebarItem } from './PrimarySidebarItem';
-import { SecondarySidebarItem } from './SecondarySidebarItem';
+import { useAuth } from '../../contexts/Auth';
+import { useLocalisation } from '../../contexts/Localisation';
 import { getCurrentRoute } from '../../store/router';
 import { checkAbility } from '../../utils/ability';
-import { useAuth } from '../../contexts/Auth';
-import { useApi } from '../../api';
-import { useLocalisation } from '../../contexts/Localisation';
+import { HiddenSyncAvatar } from '../HiddenSyncAvatar';
+import { TamanuLogoWhite, TamanuLogoWhiteNoText } from '../TamanuLogo';
+import { Translated } from '../Translated';
+import { PrimarySidebarItem } from './PrimarySidebarItem';
+import { SecondarySidebarItem } from './SecondarySidebarItem';
+import { TopLevelSidebarItem } from './TopLevelSidebarItem';
 
 const Container = styled.div`
   display: flex;
@@ -213,66 +213,70 @@ export const Sidebar = React.memo(({ items }) => {
   return (
     <Container $retracted={isRetracted}>
       <HeaderContainer $retracted={isRetracted}>
-        {isRetracted ? (
-          <>
-            <RetractedLogo height="31px" />
-            <ExtendButton onClick={handleExtendButtonClick} color="secondary" size="medium">
-              <NavigateNext />
-            </ExtendButton>
-          </>
-        ) : (
-          <>
-            <ExtendedLogo height="31px" />
-            <RetractButton onClick={handleRetractButtonClick} color="secondary" size="medium">
-              <NavigateBefore />
-            </RetractButton>
-          </>
-        )}
+        {isRetracted ?
+          (
+            <>
+              <RetractedLogo height="31px" />
+              <ExtendButton onClick={handleExtendButtonClick} color="secondary" size="medium">
+                <NavigateNext />
+              </ExtendButton>
+            </>
+          ) :
+          (
+            <>
+              <ExtendedLogo height="31px" />
+              <RetractButton onClick={handleRetractButtonClick} color="secondary" size="medium">
+                <NavigateBefore />
+              </RetractButton>
+            </>
+          )}
       </HeaderContainer>
       <List component="nav">
         {items.map(item =>
-          item.children ? (
-            <PrimarySidebarItem
-              retracted={isRetracted}
-              icon={item.icon}
-              label={item.label}
-              divider={item.divider}
-              key={item.key}
-              highlighted={isHighlighted(
-                currentPath,
-                item.path,
-                selectedParentItem === item.key,
-                isRetracted,
-              )}
-              selected={selectedParentItem === item.key}
-              onClick={() => clickedParentItem(item)}
-            >
-              {!isRetracted &&
-                item.children.map(child => (
-                  <SecondarySidebarItem
-                    key={child.path}
-                    path={child.path}
-                    isCurrent={currentPath.includes(child.path)}
-                    color={child.color}
-                    label={child.label}
-                    disabled={!permissionCheck(child, item)}
-                    onClick={() => onPathChanged(child.path)}
-                  />
-                ))}
-            </PrimarySidebarItem>
-          ) : (
-            <TopLevelSidebarItem
-              retracted={isRetracted}
-              icon={item.icon}
-              path={item.path}
-              label={item.label}
-              divider={item.divider}
-              key={item.key}
-              isCurrent={currentPath.includes(item.path)}
-              disabled={!permissionCheck(item)}
-              onClick={isRetracted ? extendSidebar : () => onPathChanged(item.path)}
-            />
-          ),
+          item.children ?
+            (
+              <PrimarySidebarItem
+                retracted={isRetracted}
+                icon={item.icon}
+                label={item.label}
+                divider={item.divider}
+                key={item.key}
+                highlighted={isHighlighted(
+                  currentPath,
+                  item.path,
+                  selectedParentItem === item.key,
+                  isRetracted,
+                )}
+                selected={selectedParentItem === item.key}
+                onClick={() => clickedParentItem(item)}
+              >
+                {!isRetracted &&
+                  item.children.map(child => (
+                    <SecondarySidebarItem
+                      key={child.path}
+                      path={child.path}
+                      isCurrent={currentPath.includes(child.path)}
+                      color={child.color}
+                      label={child.label}
+                      disabled={!permissionCheck(child, item)}
+                      onClick={() => onPathChanged(child.path)}
+                    />
+                  ))}
+              </PrimarySidebarItem>
+            ) :
+            (
+              <TopLevelSidebarItem
+                retracted={isRetracted}
+                icon={item.icon}
+                path={item.path}
+                label={item.label}
+                divider={item.divider}
+                key={item.key}
+                isCurrent={currentPath.includes(item.path)}
+                disabled={!permissionCheck(item)}
+                onClick={isRetracted ? extendSidebar : () => onPathChanged(item.path)}
+              />
+            )
         )}
       </List>
       <Footer $retracted={isRetracted}>

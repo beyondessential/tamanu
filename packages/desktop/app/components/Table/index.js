@@ -4,8 +4,8 @@
  */
 
 export { DataFetchingTable } from './DataFetchingTable';
-export { Table } from './Table';
-export { TableFormFields } from './TableFormFields';
-export * from './TableButtonRow';
-export * from './useSelectableColumn';
 export * from './SearchTable';
+export { Table } from './Table';
+export * from './TableButtonRow';
+export { TableFormFields } from './TableFormFields';
+export * from './useSelectableColumn';

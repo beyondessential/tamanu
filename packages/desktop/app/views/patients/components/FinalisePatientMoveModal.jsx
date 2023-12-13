@@ -1,11 +1,11 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import SingleBedIcon from '@material-ui/icons/SingleBed';
+import PropTypes from 'prop-types';
+import React from 'react';
+import styled from 'styled-components';
+import { usePatientMove } from '../../../api/mutations';
 import { BodyText, Modal } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
-import { usePatientMove } from '../../../api/mutations';
 import { Colors } from '../../../constants';
 import { getFullLocationName } from '../../../utils/location';
 

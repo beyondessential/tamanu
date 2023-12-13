@@ -1,5 +1,5 @@
-import { Sequelize } from 'sequelize';
 import { FHIR_SEARCH_PARAMETERS, FHIR_SEARCH_TOKEN_TYPES } from '@tamanu/constants';
+import { Sequelize } from 'sequelize';
 
 import { findField } from './common';
 import { getJsonbQueryFn } from './jsonb';

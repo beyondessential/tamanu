@@ -1,6 +1,6 @@
 import config from 'config';
-import { fakeUUID } from '../../src/utils/generateId';
 import { initDatabase as sharedInitDatabase } from '../../src/services/database';
+import { fakeUUID } from '../../src/utils/generateId';
 
 let existingConnections = {};
 

@@ -1,10 +1,10 @@
-import React, { ReactElement } from 'react';
 import { useNavigation } from '@react-navigation/core';
+import React, { ReactElement } from 'react';
 
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
-import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
-import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 import { ReferenceDataType } from '~/types';
+import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
+import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { Suggester } from '~/ui/helpers/suggester';
 import { useBackend } from '~/ui/hooks';
 

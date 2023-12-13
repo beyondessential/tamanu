@@ -1,5 +1,5 @@
-import { Command } from 'commander';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
 import { initDatabase } from '../../database';

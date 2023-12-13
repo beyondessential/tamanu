@@ -1,15 +1,15 @@
-import React from 'react';
-import { action } from '@storybook/addon-actions';
 import Box from '@material-ui/core/Box';
+import { action } from '@storybook/addon-actions';
+import React from 'react';
 import {
   AllPatientsSearchBar,
-  PatientSearchBar,
-  ImmunisationSearchBar,
-  ImagingRequestsSearchBar,
-  InvoicesSearchBar,
   AppointmentsSearchBar,
-  LabRequestsSearchBar,
   CovidPatientsSearchBar,
+  ImagingRequestsSearchBar,
+  ImmunisationSearchBar,
+  InvoicesSearchBar,
+  LabRequestsSearchBar,
+  PatientSearchBar,
 } from '../app/components';
 
 export default {
@@ -28,7 +28,10 @@ const AllPatientsTemplate = args => <AllPatientsSearchBar onSearch={action('sear
 export const AllPatients = AllPatientsTemplate.bind({});
 
 const AppointmentsTemplate = args => (
-  <AppointmentsSearchBar onSearch={action('search')} {...args} />
+  <AppointmentsSearchBar
+    onSearch={action('search')}
+    {...args}
+  />
 );
 export const Appointments = AppointmentsTemplate.bind({});
 
@@ -43,7 +46,10 @@ const ImagingRequestsTemplate = args => (
 export const ImagingRequests = ImagingRequestsTemplate.bind({});
 
 const ImmunisationTemplate = args => (
-  <ImmunisationSearchBar onSearch={action('search')} {...args} />
+  <ImmunisationSearchBar
+    onSearch={action('search')}
+    {...args}
+  />
 );
 export const Immunisation = ImmunisationTemplate.bind({});
 

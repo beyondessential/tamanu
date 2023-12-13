@@ -1,11 +1,11 @@
-import React from 'react';
-import { RowView, StyledView, StyledText } from '/styled/common';
-import { UserAvatar } from '../UserAvatar';
 import { getAgeFromDate } from '/helpers/date';
-import { theme } from '/styled/theme';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { getGender, joinNames } from '/helpers/user';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { RowView, StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
+import React from 'react';
 import { IPatient } from '~/types';
+import { UserAvatar } from '../UserAvatar';
 
 export const PatientTile = (patient: IPatient): JSX.Element => {
   const { firstName, lastName, sex } = patient;
@@ -51,7 +51,7 @@ const getSecondaryInfoString = ({ displayId, sex, dateOfBirth, village }: IPatie
     displayId,
     gender: getGender(sex)[0],
     age: dateOfBirth && `${getAgeFromDate(dateOfBirth)}yrs`,
-    village: village?.name
+    village: village?.name,
   };
   return Object.values(secondaryInfo).filter(e => e).join(' • ');
-}
+};

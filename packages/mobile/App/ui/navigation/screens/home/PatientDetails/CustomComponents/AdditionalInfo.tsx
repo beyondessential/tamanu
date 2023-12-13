@@ -1,13 +1,13 @@
 import React, { ReactElement } from 'react';
 
-import { FieldRowDisplay } from '../../../../../components/FieldRowDisplay';
-import { ErrorScreen } from '../../../../../components/ErrorScreen';
-import { LoadingScreen } from '../../../../../components/LoadingScreen';
-import { PatientSection } from './PatientSection';
-import { useLocalisation } from '../../../../../contexts/LocalisationContext';
-import { IPatient, IPatientAdditionalData } from '../../../../../../types';
-import { additionalDataSections } from '../../../../../helpers/additionalData';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
+import { IPatient, IPatientAdditionalData } from '../../../../../../types';
+import { ErrorScreen } from '../../../../../components/ErrorScreen';
+import { FieldRowDisplay } from '../../../../../components/FieldRowDisplay';
+import { LoadingScreen } from '../../../../../components/LoadingScreen';
+import { useLocalisation } from '../../../../../contexts/LocalisationContext';
+import { additionalDataSections } from '../../../../../helpers/additionalData';
+import { PatientSection } from './PatientSection';
 
 interface AdditionalInfoProps {
   onEdit: (additionalInfo: IPatientAdditionalData, sectionTitle: string) => void;
@@ -31,7 +31,7 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
     customPatientFieldValues,
     patientAdditionalData,
     loading,
-    error
+    error,
   } = usePatientAdditionalData(patient.id);
   // Display general error
   if (error) {
@@ -54,7 +54,9 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
   const customSections = customPatientSections.map(([categoryId, fields]) => {
     const title = fields[0].category.name;
     const onEditCallback = (): void => onEdit(null, title, true, fields, customPatientFieldValues);
-    const mappedFields = fields.map(field => ([field.name, customPatientFieldValues[field.id]?.[0]?.value]));
+    const mappedFields = fields.map(
+      field => [field.name, customPatientFieldValues[field.id]?.[0]?.value],
+    );
     return { title, fields: mappedFields, onEditCallback, isCustomFields: true };
   });
 
@@ -72,7 +74,9 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
           onEdit={isEditable ? onEditCallback : undefined}
           isClosable
         >
-          {loading ? <LoadingScreen /> : <FieldRowDisplay fields={fields} isCustomFields={isCustomFields} />}
+          {loading
+            ? <LoadingScreen />
+            : <FieldRowDisplay fields={fields} isCustomFields={isCustomFields} />}
         </PatientSection>
       ))}
     </>

@@ -38,8 +38,9 @@ function makeScreen(questions, componentData) {
     const { surveyId, ...otherComponentData } = componentData;
     const dataElId = `pde-${elementData.code}`;
 
-    const deletedAt =
-      VISIBILITY_STATUSES.HISTORICAL === visibilityStatus.toLowerCase() ? Date.now() : null;
+    const deletedAt = VISIBILITY_STATUSES.HISTORICAL === visibilityStatus.toLowerCase()
+      ? Date.now()
+      : null;
 
     return [
       {
@@ -118,6 +119,6 @@ export function readSurveyQuestions(data, survey) {
       surveyId: survey.id,
       sheet: survey.name,
       screenIndex: i,
-    }),
+    })
   );
 }

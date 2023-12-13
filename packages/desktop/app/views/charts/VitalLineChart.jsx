@@ -1,8 +1,8 @@
 import React from 'react';
-import { LineChart } from '../../components/Charts/LineChart';
-import { getVitalChartProps } from '../../components/Charts/helpers/getVitalChartProps';
-import { useEncounter } from '../../contexts/Encounter';
 import { useVitalQuery } from '../../api/queries/useVitalQuery';
+import { getVitalChartProps } from '../../components/Charts/helpers/getVitalChartProps';
+import { LineChart } from '../../components/Charts/LineChart';
+import { useEncounter } from '../../contexts/Encounter';
 
 // Fetching and preparing data for vital chart
 export const VitalLineChart = props => {

@@ -1,30 +1,30 @@
 import { trace } from '@opentelemetry/api';
-import { Op, Transaction } from 'sequelize';
 import _config from 'config';
+import { Op, Transaction } from 'sequelize';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
 import { log } from '@tamanu/shared/services/logging';
 import {
-  createSnapshotTable,
-  insertSnapshotRecords,
-  updateSnapshotRecords,
+  adjustDataPostSyncPush,
   completeSyncSession,
   countSyncSnapshotRecords,
+  createSnapshotTable,
   findSyncSnapshotRecords,
   getModelsForDirection,
+  getSyncTicksOfPendingEdits,
+  insertSnapshotRecords,
   removeEchoedChanges,
   saveIncomingChanges,
-  adjustDataPostSyncPush,
-  waitForPendingEditsUsingSyncTick,
-  getSyncTicksOfPendingEdits,
   SYNC_SESSION_DIRECTION,
+  updateSnapshotRecords,
+  waitForPendingEditsUsingSyncTick,
 } from '@tamanu/shared/sync';
+import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 
+import { filterModelsFromName } from './filterModelsFromName';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
-import { filterModelsFromName } from './filterModelsFromName';
 import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityAvailable';
 
 const errorMessageFromSession = session =>

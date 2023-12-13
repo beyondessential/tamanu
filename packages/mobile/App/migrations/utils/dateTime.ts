@@ -58,5 +58,7 @@ async function createDateTimeStringDownMigration(
   await queryRunner.dropColumn(tableName, columnName);
 
   // 2. Move legacy data back to main column
-  await queryRunner.query(`ALTER TABLE ${tableName} RENAME COLUMN ${columnName}_legacy TO ${columnName}`);
+  await queryRunner.query(
+    `ALTER TABLE ${tableName} RENAME COLUMN ${columnName}_legacy TO ${columnName}`,
+  );
 }

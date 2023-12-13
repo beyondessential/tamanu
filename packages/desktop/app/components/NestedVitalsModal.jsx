@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Modal } from './Modal';
-import { OutlinedButton } from './Button';
 import { VitalsForm } from '../forms';
+import { OutlinedButton } from './Button';
+import { Modal } from './Modal';
 
 export const NestedVitalsModal = React.memo(({ field, patient, encounterType }) => {
   const [isOpen, setModalOpen] = useState(false);

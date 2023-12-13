@@ -75,7 +75,7 @@ export const AnimalForm = (
 
 ### Options
 
-There are several components that involve selecting things from a list. Autocompletes, select 
+There are several components that involve selecting things from a list. Autocompletes, select
 fields, radio buttons, etc. For consistency, these all adhere to this standard:
 
 ```javascript
@@ -92,7 +92,7 @@ this fundamental structure lets us maintain the most flexibility.
 ## Input and Field components
 
 Each control provides two exports, `___Field` and `___Input`. Both variants come fully
-styled. 
+styled.
 
 They accept a common set of props:
 
@@ -104,24 +104,24 @@ The design goal of this submodule is that any component should handle displaying
 props correctly, so that one input component can be swapped out for another one without
 having to make any other edits.
 
-They don't provide any layout functionality -- this should be handled by the 
+They don't provide any layout functionality -- this should be handled by the
 containing component. Most are just thin wrappers around their Material-UI
 counterparts.
 
 ### ComponentInput (eg DateInput, TextInput)
 
-This is the plain version of the field. It comes with all the appropriate 
+This is the plain version of the field. It comes with all the appropriate
 formatting, but is not bound to any data source. It can be used unbound or can
 be given `value` and `onChange` props directly.
 
 ```javascript
-<TextField 
+<TextField
   value={state.firstName}
-  onChange={(e) => this.setState({ firstName: e.target.value }) }
-/>
+  onChange={e => this.setState({ firstName: e.target.value })}
+/>;
 ```
 
-This can be used in situations where Formik is inappropriate (for example, in 
+This can be used in situations where Formik is inappropriate (for example, in
 a nested field, or when there's only one control).
 
 Note that the `onChange` method expects an event object, not a raw value. This is
@@ -148,7 +148,7 @@ export const MyCustomField = ({ name, value, onChange }) => (
 
 ### ComponentField (eg DateField, TextField)
 
-This is the dynamic version of the field, written to be hooked up to Formik. This is 
+This is the dynamic version of the field, written to be hooked up to Formik. This is
 the component that will be used the most often, as most input controls throughout
 the app are part of a larger form.
 
@@ -158,16 +158,20 @@ other differences.
 ```javascript
 // definition
 export const TextField = ({ field, ...props }) => (
-  <TextInput name={field.name} value={field.value || ''} onChange={field.onChange} {...props} />
+  <TextInput
+    name={field.name}
+    value={field.value || ''}
+    onChange={field.onChange}
+    {...props}
+  />
 );
 
 // usage
 <Field
   name="firstName"
-  component={ TextField }
-/>
+  component={TextField}
+/>;
 ```
 
 When placed within a Formik form, this will automatically bind everything to
 the form object.
-

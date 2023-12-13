@@ -1,8 +1,8 @@
 /* global WeakRef */
 // https://github.com/eslint/eslint/issues/13602
 
-import { Utils } from 'sequelize';
 import { formatISO9075 } from 'date-fns';
+import { Utils } from 'sequelize';
 import { Composite } from './sequelizeType';
 
 let QUERY_GENERATOR;

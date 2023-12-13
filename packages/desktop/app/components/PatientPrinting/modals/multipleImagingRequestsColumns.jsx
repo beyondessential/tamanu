@@ -1,10 +1,10 @@
-import React from 'react';
 import { startCase } from 'lodash';
+import React from 'react';
 
-import { MultilineDatetimeDisplay } from '../../DateDisplay';
-import { getImagingRequestType } from '../../../utils/getImagingRequestType';
-import { getAreaNote } from '../../../utils/areaNote';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { getAreaNote } from '../../../utils/areaNote';
+import { getImagingRequestType } from '../../../utils/getImagingRequestType';
+import { MultilineDatetimeDisplay } from '../../DateDisplay';
 
 export const COLUMN_KEYS = {
   ID: 'displayId',

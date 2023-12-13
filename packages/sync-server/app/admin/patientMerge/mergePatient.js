@@ -1,10 +1,10 @@
-import { Op } from 'sequelize';
-import { chunk, omit, omitBy } from 'lodash';
-import config from 'config';
-import { VISIBILITY_STATUSES, PATIENT_MERGE_DELETION_ACTIONS } from '@tamanu/constants';
+import { PATIENT_MERGE_DELETION_ACTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 import { InvalidParameterError } from '@tamanu/shared/errors';
 import { log } from '@tamanu/shared/services/logging';
+import config from 'config';
+import { chunk, omit, omitBy } from 'lodash';
+import { Op } from 'sequelize';
 
 const BULK_CREATE_BATCH_SIZE = 100;
 

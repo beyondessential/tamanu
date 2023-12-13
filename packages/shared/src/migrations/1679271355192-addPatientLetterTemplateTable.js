@@ -1,5 +1,5 @@
-import Sequelize from 'sequelize';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import Sequelize from 'sequelize';
 
 export async function up(query) {
   await query.createTable('patient_letter_templates', {

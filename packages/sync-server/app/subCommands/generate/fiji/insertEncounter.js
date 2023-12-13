@@ -1,5 +1,5 @@
-import { fake } from '@tamanu/shared/test-helpers';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { fake } from '@tamanu/shared/test-helpers';
 
 import { chance } from '../chance';
 

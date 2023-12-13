@@ -2,10 +2,10 @@
 
 The remote server should have at least 2 api endpoints.
 
-- Sync (pull all changes)  
+- Sync (pull all changes)
 - Sync (push all changes)
 
-A good example for [remote sync API] (https://nozbe.github.io/WatermelonDB/Advanced/Sync.html): 
+A good example for [remote sync API] (https://nozbe.github.io/WatermelonDB/Advanced/Sync.html):
 
 it could return an object with all models and it's respective changes:
 

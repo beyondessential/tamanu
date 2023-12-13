@@ -1,21 +1,21 @@
-import React, { useCallback, ReactElement } from 'react';
-import { FlatList } from 'react-native';
-import { RouteProp, useNavigation } from '@react-navigation/native';
-import { FullView, StyledText, StyledView } from '/styled/common';
-import { compose } from 'redux';
-import { theme } from '/styled/theme';
 import { MenuOptionButton } from '/components/MenuOptionButton';
 import { Separator } from '/components/Separator';
-import { Routes } from '/helpers/routes';
 import { StackHeader } from '/components/StackHeader';
 import { withPatient } from '/containers/Patient';
-import { IPatient, SurveyTypes } from '~/types';
+import { Routes } from '/helpers/routes';
 import { joinNames } from '/helpers/user';
-import { useBackendEffect } from '~/ui/hooks';
-import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { FullView, StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
+import { RouteProp, useNavigation } from '@react-navigation/native';
+import React, { ReactElement, useCallback } from 'react';
+import { FlatList } from 'react-native';
+import { compose } from 'redux';
 import { Survey } from '~/models/Survey';
+import { IPatient, SurveyTypes } from '~/types';
+import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { useBackendEffect } from '~/ui/hooks';
 
 type SurveyListScreenParams = {
   SurveyListScreen: {
@@ -46,7 +46,7 @@ const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement
       order: {
         name: 'ASC',
       },
-    }),
+    })
   );
 
   const filteredSurveys = surveys?.filter(survey => survey.shouldShowInList(ability));
@@ -66,9 +66,7 @@ const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement
   return (
     <FullView>
       <StackHeader title={joinNames(selectedPatient)} onGoBack={goBack} />
-      {error ? (
-        <ErrorScreen error={error} />
-      ) : (
+      {error ? <ErrorScreen error={error} /> : (
         <FullView>
           <StyledView
             paddingLeft={screenPercentageToDP('4.86', Orientation.Width)}

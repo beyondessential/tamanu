@@ -1,12 +1,12 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import Select, { components } from 'react-select';
-import styled from 'styled-components';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
+import PropTypes from 'prop-types';
+import React, { useCallback, useEffect, useState } from 'react';
+import Select, { components } from 'react-select';
+import styled from 'styled-components';
+import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
-import { Colors } from '../../constants';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;

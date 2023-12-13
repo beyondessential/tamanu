@@ -3,7 +3,7 @@
 import { promises as fs } from 'fs';
 
 import { AsnConvert } from '@peculiar/asn1-schema';
-import { PrivateKeyUsagePeriod, id_ce_privateKeyUsagePeriod } from '@peculiar/asn1-x509';
+import { id_ce_privateKeyUsagePeriod, PrivateKeyUsagePeriod } from '@peculiar/asn1-x509';
 import {
   JsonAttributeAndValue,
   JsonName,
@@ -12,12 +12,12 @@ import {
   X509CertificateGenerator,
 } from '@peculiar/x509';
 
-import CA from '.';
 import crypto from '../crypto';
 import { keyPairFromPrivate } from '../utils';
+import CA from '.';
+import { Extension, forgeExtensions } from './certificateExtensions';
 import { Period, Subject } from './Config';
 import { CertificateIndexEntry } from './State';
-import { Extension, forgeExtensions } from './certificateExtensions';
 
 export interface CertificateCreateParams {
   subject: Subject;
@@ -28,7 +28,7 @@ export interface CertificateCreateParams {
 }
 
 function getSubjectName(dn: JsonName, key: string): string | undefined {
-  return dn.find((item) => !!item[key])?.[key]?.[0];
+  return dn.find(item => !!item[key])?.[key]?.[0];
 }
 
 function requireSubjectName(dn: JsonName, key: string): string {
@@ -150,7 +150,7 @@ export default class Certificate {
   }
 
   private pkup(): PrivateKeyUsagePeriod | undefined {
-    const ext = this.cert.extensions.find((ext) => ext.type === id_ce_privateKeyUsagePeriod);
+    const ext = this.cert.extensions.find(ext => ext.type === id_ce_privateKeyUsagePeriod);
     if (!ext) return undefined;
 
     return AsnConvert.parse(ext.value, PrivateKeyUsagePeriod);

@@ -1,12 +1,12 @@
-import { Sequelize, DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 
-import { Model } from './Model';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
-import { getCurrentDateTimeString } from '../utils/dateTime';
+import { Model } from './Model';
 
 export class ImagingResult extends Model {
   static init(options) {

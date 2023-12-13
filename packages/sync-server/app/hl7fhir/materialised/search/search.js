@@ -1,12 +1,12 @@
-import asyncHandler from 'express-async-handler';
-import { ValidationError } from 'yup';
 import { FHIR_BUNDLE_TYPES } from '@tamanu/constants';
 import {
   Invalid,
+  normaliseParameters,
   OperationOutcome,
   Unsupported,
-  normaliseParameters,
 } from '@tamanu/shared/utils/fhir';
+import asyncHandler from 'express-async-handler';
+import { ValidationError } from 'yup';
 
 import { Bundle } from '../bundle';
 import { pushToQuery } from './common';
@@ -47,7 +47,7 @@ export function searchHandler(FhirResource) {
 
 async function parseRequest(req, parameters) {
   const pairs = Object.entries(req.query).flatMap(([name, values]) =>
-    Array.isArray(values) ? values.map(v => [name, v]) : [[name, values]],
+    Array.isArray(values) ? values.map(v => [name, v]) : [[name, values]]
   );
 
   const errors = [];

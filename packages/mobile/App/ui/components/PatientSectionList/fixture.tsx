@@ -1,12 +1,13 @@
-import React from 'react';
 import { groupEntriesByLetter } from '/helpers/list';
 import { StyledView } from '/styled/common';
-import { PatientSectionList } from './index';
+import React from 'react';
 import { IPatient } from '~/types';
+import { PatientSectionList } from './index';
 
 import { generatePatient } from '~/dummyData/patients';
 
-export const genPatientSectionList = (): IPatient[] => new Array(80).fill(1).map(() => generatePatient());
+export const genPatientSectionList = (): IPatient[] =>
+  new Array(80).fill(1).map(() => generatePatient());
 
 export const data: IPatient[] = genPatientSectionList();
 

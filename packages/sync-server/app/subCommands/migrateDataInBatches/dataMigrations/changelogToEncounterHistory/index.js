@@ -1,2 +1,2 @@
-export * from './ChangelogNotesToEncounterHistory';
 export * from './ChangelogNotePagesToEncounterHistory';
+export * from './ChangelogNotesToEncounterHistory';

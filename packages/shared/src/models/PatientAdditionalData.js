@@ -1,7 +1,7 @@
-import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
+import { DataTypes } from 'sequelize';
 import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
+import { Model } from './Model';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class PatientAdditionalData extends Model {

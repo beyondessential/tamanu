@@ -1,9 +1,9 @@
 import config from 'config';
-import * as yup from 'yup';
 import { defaultsDeep } from 'lodash';
+import * as yup from 'yup';
 
-import { log } from '@tamanu/shared/services/logging';
 import { IMAGING_TYPES } from '@tamanu/constants';
+import { log } from '@tamanu/shared/services/logging';
 
 const fieldSchema = yup
   .object({
@@ -496,9 +496,12 @@ const rootLocalisationSchema = yup
               test(range, ctx) {
                 if (!range.min && !range.max) {
                   return ctx.createError({
-                    message: `range in ageDisplayFormat must include either min or max, or both, got ${JSON.stringify(
-                      range,
-                    )}`,
+                    message:
+                      `range in ageDisplayFormat must include either min or max, or both, got ${
+                        JSON.stringify(
+                          range,
+                        )
+                      }`,
                   });
                 }
 

@@ -1,7 +1,7 @@
-import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
-import { VisitTypeButton } from './index';
 import { HeaderIcons, VisitTypes } from '/helpers/constants';
+import { fireEvent, render } from '@testing-library/react-native';
+import React from 'react';
+import { VisitTypeButton } from './index';
 
 describe('<VisitTypeButton />', () => {
   const onPressMock = jest.fn();
@@ -12,9 +12,9 @@ describe('<VisitTypeButton />', () => {
         type={VisitTypes.CLINIC}
         selected
         onPress={(): void => onPressMock()}
-        title=''
-        subtitle=''
-      />
+        title=""
+        subtitle=""
+      />,
     );
     expect(getByText(VisitTypes.CLINIC)).not.toBeNull();
   });
@@ -25,9 +25,9 @@ describe('<VisitTypeButton />', () => {
         type={VisitTypes.CLINIC}
         selected
         onPress={(): void => onPressMock()}
-        title=''
-        subtitle=''
-      />
+        title=""
+        subtitle=""
+      />,
     );
     const textType = getByText(VisitTypes.CLINIC);
     fireEvent.press(textType);

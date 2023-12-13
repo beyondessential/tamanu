@@ -1,7 +1,7 @@
 // TODO: This file is deprecated as it is for LegacyNotePage and LegacyNoteItem.
+import { NOTE_RECORD_TYPE_VALUES, NOTE_RECORD_TYPES } from '@tamanu/constants';
 import { snake } from 'case';
 import { Utils } from 'sequelize';
-import { NOTE_RECORD_TYPES, NOTE_RECORD_TYPE_VALUES } from '@tamanu/constants';
 
 const recordTypesWithPatientViaEncounter = ['Triage', 'LabRequest', 'ImagingRequest'];
 
@@ -17,12 +17,16 @@ function buildNoteLinkedSyncFilter(patientIds, sessionConfig, isNotePage) {
 
   let joins = NOTE_RECORD_TYPE_VALUES.filter(r => r !== NOTE_RECORD_TYPES.PATIENT).map(
     r =>
-      `LEFT JOIN ${recordTypesToTables[r]} ON note_pages.record_id = ${recordTypesToTables[r]}.id AND note_pages.record_type = '${r}'`,
+      `LEFT JOIN ${recordTypesToTables[r]} ON note_pages.record_id = ${
+        recordTypesToTables[r]
+      }.id AND note_pages.record_type = '${r}'`,
   );
   joins = joins.concat(
     recordTypesWithPatientViaEncounter.map(
       r =>
-        `LEFT JOIN encounters AS ${recordTypesToTables[r]}_encounters ON ${recordTypesToTables[r]}.encounter_id = ${recordTypesToTables[r]}_encounters.id`,
+        `LEFT JOIN encounters AS ${recordTypesToTables[r]}_encounters ON ${
+          recordTypesToTables[r]
+        }.encounter_id = ${recordTypesToTables[r]}_encounters.id`,
     ),
   );
 
@@ -32,13 +36,17 @@ function buildNoteLinkedSyncFilter(patientIds, sessionConfig, isNotePage) {
     `,
     ...NOTE_RECORD_TYPE_VALUES.filter(r => recordTypesWithPatientViaEncounter.includes(r)).map(
       r =>
-        `( ${recordTypesToTables[r]}_encounters.patient_id IN (:patientIds) AND note_pages.record_type = '${r}' )`,
+        `( ${
+          recordTypesToTables[r]
+        }_encounters.patient_id IN (:patientIds) AND note_pages.record_type = '${r}' )`,
     ),
     ...NOTE_RECORD_TYPE_VALUES.filter(
       r => !recordTypesWithPatientViaEncounter.includes(r) && r !== 'Patient',
     ).map(
       r =>
-        `( ${recordTypesToTables[r]}.patient_id IN (:patientIds) AND note_pages.record_type = '${r}' )`,
+        `( ${
+          recordTypesToTables[r]
+        }.patient_id IN (:patientIds) AND note_pages.record_type = '${r}' )`,
     ),
   ];
 

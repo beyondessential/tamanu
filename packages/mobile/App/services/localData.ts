@@ -14,7 +14,7 @@ export class LocalDataService {
   constructor(auth: AuthService) {
     this.auth = auth;
     this._readDataFromConfig();
-    this.auth.emitter.on('remoteSignIn', (payload) => {
+    this.auth.emitter.on('remoteSignIn', payload => {
       this.data = this.extractDataFromPayload(payload);
       // write to config first to make sure it is stringifiable
       this._writeDataToConfig();
@@ -23,7 +23,9 @@ export class LocalDataService {
   }
 
   extractDataFromPayload(_payload: any): any {
-    throw new Error('Child of LocalDataService needs to implement its own extractDataFromPayload method');
+    throw new Error(
+      'Child of LocalDataService needs to implement its own extractDataFromPayload method',
+    );
   }
 
   onDataLoaded(): void {

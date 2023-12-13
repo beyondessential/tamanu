@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
-import { Modal } from './Modal';
 import { Button } from './Button';
 import { ButtonRow } from './ButtonRow';
+import { Modal } from './Modal';
 
 export const Dialog = memo(
   ({

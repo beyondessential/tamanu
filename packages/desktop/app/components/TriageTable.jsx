@@ -1,14 +1,14 @@
+import { push } from 'connected-react-router';
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { push } from 'connected-react-router';
 import { useEncounter } from '../contexts/Encounter';
-import { DataFetchingTable } from './Table';
-import { DateDisplay } from './DateDisplay';
-import { LocationCell, LocationGroupCell } from './LocationCell';
-import { TriageWaitTimeCell } from './TriageWaitTimeCell';
 import { useLocalisation } from '../contexts/Localisation';
 import { reloadPatient } from '../store';
+import { DateDisplay } from './DateDisplay';
+import { LocationCell, LocationGroupCell } from './LocationCell';
+import { DataFetchingTable } from './Table';
+import { TriageWaitTimeCell } from './TriageWaitTimeCell';
 
 const ADMITTED_PRIORITY_COLOR = '#bdbdbd';
 

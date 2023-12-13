@@ -3,8 +3,8 @@ import styled, { keyframes } from 'styled-components';
 
 import { DateDisplay } from '../DateDisplay';
 
-import { RefreshIcon } from '../Icons/RefreshIcon';
 import { Colors } from '../../constants';
+import { RefreshIcon } from '../Icons/RefreshIcon';
 import { ThemedTooltip } from '../Tooltip';
 
 const spin = keyframes`
@@ -64,7 +64,7 @@ export const TableRefreshButton = ({ refreshTable, lastUpdatedTime }) => {
   return (
     <LastUpdatedBadge>
       <span>
-        <span>Last updated: </span>
+        <span>Last updated:</span>
         <DateDisplay date={lastUpdatedTime} showTime />
       </span>
       <ThemedTooltip title="Refresh">

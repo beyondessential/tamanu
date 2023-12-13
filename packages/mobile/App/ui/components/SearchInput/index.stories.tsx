@@ -1,8 +1,8 @@
-import React from 'react';
-import { storiesOf } from '@storybook/react-native';
-import { KeyboardAwareView } from '../KeyboardAwareView';
 import { CenterView } from '/styled/common';
 import { theme } from '/styled/theme';
+import { storiesOf } from '@storybook/react-native';
+import React from 'react';
+import { KeyboardAwareView } from '../KeyboardAwareView';
 import { BaseStory } from './fixture';
 
 storiesOf('SearchInput', module)

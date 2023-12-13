@@ -1,12 +1,12 @@
-import { snake } from 'case';
-import {
-  getSnapshotTableName,
-  SYNC_SESSION_DIRECTION,
-  COLUMNS_EXCLUDED_FROM_SYNC,
-} from '@tamanu/shared/sync';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging/log';
+import {
+  COLUMNS_EXCLUDED_FROM_SYNC,
+  getSnapshotTableName,
+  SYNC_SESSION_DIRECTION,
+} from '@tamanu/shared/sync';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
+import { snake } from 'case';
 
 const snapshotChangesForModel = async (
   model,
@@ -67,15 +67,17 @@ const snapshotChangesForModel = async (
           ${table}.updated_at_sync_tick,
           ${useUpdatedAtByFieldSum ? 'updated_at_by_field_summary.sum ,' : 'NULL,'}
           json_build_object(
-            ${Object.keys(attributes)
-              .filter(a => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))
-              .map(a => `'${a}', ${table}.${snake(a)}`)}
+            ${
+        Object.keys(attributes)
+          .filter(a => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))
+          .map(a => `'${a}', ${table}.${snake(a)}`)
+      }
           )
         FROM
           ${table}
           ${
-            useUpdatedAtByFieldSum
-              ? `
+        useUpdatedAtByFieldSum
+          ? `
         LEFT JOIN (
           SELECT
             ${table}.id, sum(value::text::bigint) sum
@@ -86,8 +88,8 @@ const snapshotChangesForModel = async (
         ) updated_at_by_field_summary
         ON
           ${table}.id = updated_at_by_field_summary.id`
-              : ''
-          }
+          : ''
+      }
         ${filter || `WHERE ${table}.updated_at_sync_tick > :since`}
         ${fromId ? `AND ${table}.id > :fromId` : ''}
         ORDER BY ${table}.id

@@ -1,14 +1,14 @@
-import React, { memo, useCallback } from 'react';
-import { startCase } from 'lodash';
-import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { startCase } from 'lodash';
+import React, { memo, useCallback } from 'react';
+import * as yup from 'yup';
 
 import { useApi } from '../../../api';
-import { Form, Field } from '../../../components/Field';
+import { FormSubmitButton } from '../../../components/Button';
+import { ButtonRow } from '../../../components/ButtonRow';
+import { Field, Form } from '../../../components/Field';
 import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
 import { FormGrid } from '../../../components/FormGrid';
-import { ButtonRow } from '../../../components/ButtonRow';
-import { FormSubmitButton } from '../../../components/Button';
 import { saveBlobAs } from '../../../utils/saveBlobAs';
 
 const ExportForm = ({ dataTypes, dataTypesSelectable }) => (
@@ -36,9 +36,11 @@ export const ExporterView = memo(({ title, endpoint, dataTypes, dataTypesSelecta
         includedDataTypes,
       });
       saveBlobAs(blob, {
-        defaultFileName: `${title} export ${getCurrentDateTimeString()
-          .replaceAll(':', '-')
-          .replaceAll('/', '-')}.xlsx`,
+        defaultFileName: `${title} export ${
+          getCurrentDateTimeString()
+            .replaceAll(':', '-')
+            .replaceAll('/', '-')
+        }.xlsx`,
       });
     },
     [api, title, endpoint],

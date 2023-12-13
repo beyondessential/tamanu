@@ -28,12 +28,11 @@ const DiagnosisItem = React.memo(({ diagnosis, onRemove }) => {
 });
 
 const DiagnosisList = ({ diagnoses, onRemove }) => {
-  const listContents =
-    diagnoses.length > 0 ? (
+  const listContents = diagnoses.length > 0 ?
+    (
       diagnoses.map(d => <DiagnosisItem key={d.id} onRemove={onRemove} diagnosis={d} />)
-    ) : (
-      <li>No diagnoses selected</li>
-    );
+    ) :
+    <li>No diagnoses selected</li>;
   return <ul>{listContents}</ul>;
 };
 

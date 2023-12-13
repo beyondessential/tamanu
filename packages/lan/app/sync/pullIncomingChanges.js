@@ -1,8 +1,8 @@
-import config from 'config';
-import { chunk } from 'lodash';
 import { log } from '@tamanu/shared/services/logging';
 import { insertSnapshotRecords, SYNC_SESSION_DIRECTION } from '@tamanu/shared/sync';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
+import config from 'config';
+import { chunk } from 'lodash';
 
 import { calculatePageLimit } from './calculatePageLimit';
 

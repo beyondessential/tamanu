@@ -1,7 +1,7 @@
 import { SemanticAttributes as OpenTelSemantics } from '@opentelemetry/semantic-conventions';
 import config from 'config';
-import shortid from 'shortid';
 import os from 'os';
+import shortid from 'shortid';
 
 export const ENV = process.env.NODE_ENV ?? 'development';
 export const PROCESS_ID = shortid.generate();
@@ -25,8 +25,8 @@ const SemanticAttributes = {
 export function serviceContext() {
   const { serverType = 'unknown', version = '0.0.0' } = global?.serverInfo || {};
   const deploymentHost = config?.canonicalHostName || config?.sync?.host;
-  const deployment =
-    deploymentHost && new URL(deploymentHost).hostname.replace(/[^a-z0-9]+/gi, '-');
+  const deployment = deploymentHost &&
+    new URL(deploymentHost).hostname.replace(/[^a-z0-9]+/gi, '-');
   const facilityId = config?.serverFacilityId?.replace(/([^a-z0-9]+|^(ref\/)?facility[-/])/gi, '');
 
   const context = {

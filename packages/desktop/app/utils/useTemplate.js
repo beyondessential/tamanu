@@ -7,7 +7,8 @@ export const useTemplate = key => {
   const api = useApi();
   const { facility } = useAuth();
 
-  return useQuery(['template', key, facility.id], () =>
-    api.get(`template/${key}?facilityId=${facility.id}`),
+  return useQuery(
+    ['template', key, facility.id],
+    () => api.get(`template/${key}?facilityId=${facility.id}`),
   );
 };

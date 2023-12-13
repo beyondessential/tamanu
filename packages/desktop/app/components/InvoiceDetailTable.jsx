@@ -1,25 +1,25 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import {
-  INVOICE_LINE_TYPES,
   INVOICE_LINE_TYPE_LABELS,
-  INVOICE_PRICE_CHANGE_TYPES,
+  INVOICE_LINE_TYPES,
   INVOICE_PRICE_CHANGE_TYPE_LABELS,
+  INVOICE_PRICE_CHANGE_TYPES,
 } from '@tamanu/constants';
 
 import { useApi } from '../api';
-import { useEncounter } from '../contexts/Encounter';
 import { Colors } from '../constants';
-import { isInvoiceEditable, calculateInvoiceTotal, calculateInvoiceLinesTotal } from '../utils';
+import { useEncounter } from '../contexts/Encounter';
+import { calculateInvoiceLinesTotal, calculateInvoiceTotal, isInvoiceEditable } from '../utils';
 
-import { DataFetchingTable } from './Table';
 import { DeleteButton } from './Button';
+import { ConfirmModal } from './ConfirmModal';
+import { DateDisplay } from './DateDisplay';
+import { DropdownButton } from './DropdownButton';
 import { InvoiceLineItemModal } from './InvoiceLineItemModal';
 import { InvoicePriceChangeItemModal } from './InvoicePriceChangeItemModal';
-import { ConfirmModal } from './ConfirmModal';
-import { DropdownButton } from './DropdownButton';
-import { DateDisplay } from './DateDisplay';
+import { DataFetchingTable } from './Table';
 
 const InvoiceLineDetail = styled.p`
   font-size: 15px;
@@ -134,8 +134,9 @@ const InvoicePriceChangeActionDropdown = React.memo(({ row }) => {
 
 const getDisplayName = ({ orderedBy }) => orderedBy?.displayName ?? '';
 const getPercentageChange = ({ percentageChange }) => {
-  const percentageChangeNumber =
-    percentageChange !== undefined ? parseFloat(percentageChange) * 100 : null;
+  const percentageChangeNumber = percentageChange !== undefined
+    ? parseFloat(percentageChange) * 100
+    : null;
 
   if (percentageChangeNumber === null) {
     return '';

@@ -1,6 +1,6 @@
+import { Box } from '@material-ui/core';
 import React from 'react';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
 
 import { Colors, SEX_VALUE_INDEX } from '../constants';
 import { DateDisplay } from '.';

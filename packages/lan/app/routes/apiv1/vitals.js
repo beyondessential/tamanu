@@ -1,5 +1,5 @@
+import { simpleGet, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import express from 'express';
-import { simpleGet, simplePut, simplePost } from '@tamanu/shared/utils/crudHelpers';
 
 export const vitals = express.Router();
 

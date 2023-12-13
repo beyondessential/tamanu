@@ -1,9 +1,9 @@
 import { ID } from './ID';
+import { IDepartment } from './IDepartment';
 import { IDiagnosis } from './IDiagnosis';
+import { ILocation } from './ILocation';
 import { IPatient } from './IPatient';
 import { IUser } from './IUser';
-import { IDepartment } from './IDepartment';
-import { ILocation } from './ILocation';
 
 export enum EncounterType {
   Admission = 'admission',

@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useSuggester } from '../api';
-import { AutocompleteInput } from './Field';
 import { Colors } from '../constants';
+import { AutocompleteInput } from './Field';
 import { Heading3 } from './Typography';
 
 const Container = styled.div`

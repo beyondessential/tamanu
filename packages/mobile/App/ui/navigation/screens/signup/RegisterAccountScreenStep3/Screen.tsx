@@ -1,21 +1,21 @@
 import React, { FunctionComponent } from 'react';
 import { KeyboardAvoidingView } from 'react-native';
 import Animated, { Value } from 'react-native-reanimated';
-//Components
-import {
-  FullView,
-  StyledSafeAreaView,
-  StyledTouchableOpacity,
-  CenterView,
-  StyledText,
-  RowView,
-} from '/styled/common';
-import { CrossIcon } from '/components/Icons';
+// Components
 import { RegisterAccountFormStep03 } from '/components/Forms/RegisterAccountForms/RegisterAccountFormStep03';
+import { CrossIcon } from '/components/Icons';
 import { StepMarker } from '/components/StepMarker';
+import {
+  CenterView,
+  FullView,
+  RowView,
+  StyledSafeAreaView,
+  StyledText,
+  StyledTouchableOpacity,
+} from '/styled/common';
 // Theme
 import { theme } from '/styled/theme';
-//Helpers
+// Helpers
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 // protocols
 import { RegisterAccountFormStep3FormValues } from '../../../../contexts/RegisterAccountContext';

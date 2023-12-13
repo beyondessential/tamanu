@@ -1,5 +1,5 @@
-import React from 'react';
 import Chance from 'chance';
+import React from 'react';
 import { LabRequestPrintLabel } from '../app/components/PatientPrinting/printouts/LabRequestPrintLabel';
 
 export default {

@@ -1,19 +1,19 @@
-import React, { ReactElement, useCallback, useContext, useEffect, useState } from 'react';
-import { ActivityIndicator } from 'react-native';
 import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
 import { formatDistance } from 'date-fns';
-import { CenterView, StyledText, StyledView } from '../../../../styled/common';
-import { theme } from '../../../../styled/theme';
-import { Orientation, screenPercentageToDP, setStatusBar } from '../../../../helpers/screen';
-import { BackendContext } from '../../../../contexts/BackendContext';
+import React, { ReactElement, useCallback, useContext, useEffect, useState } from 'react';
+import { ActivityIndicator } from 'react-native';
 import {
   MobileSyncManager,
-  SYNC_STAGES_TOTAL,
   SYNC_EVENT_ACTIONS,
+  SYNC_STAGES_TOTAL,
 } from '../../../../../services/sync';
 import { Button } from '../../../../components/Button';
+import { ErrorIcon, GreenTickIcon } from '../../../../components/Icons';
 import { SyncErrorDisplay } from '../../../../components/SyncErrorDisplay';
-import { GreenTickIcon, ErrorIcon } from '../../../../components/Icons';
+import { BackendContext } from '../../../../contexts/BackendContext';
+import { Orientation, screenPercentageToDP, setStatusBar } from '../../../../helpers/screen';
+import { CenterView, StyledText, StyledView } from '../../../../styled/common';
+import { theme } from '../../../../styled/theme';
 
 export const SyncDataScreen = ({ navigation }): ReactElement => {
   const backend = useContext(BackendContext);
@@ -121,50 +121,58 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
     <CenterView background={theme.colors.MAIN_SUPER_DARK} flex={1}>
       <StyledView alignItems="center">
         {/* Circular progress */}
-        {(isSyncing || isQueuing) && !hasError ? (
-          <ActivityIndicator
-            size="large"
-            color={theme.colors.SECONDARY_MAIN}
-            style={{ transform: [{ scaleX: 2 }, { scaleY: 2 }] }}
-          />
-        ) : null}
+        {(isSyncing || isQueuing) && !hasError ?
+          (
+            <ActivityIndicator
+              size="large"
+              color={theme.colors.SECONDARY_MAIN}
+              style={{ transform: [{ scaleX: 2 }, { scaleY: 2 }] }}
+            />
+          ) :
+          null}
         {/* Queuing message */}
-        {isQueuing ? (
-          <StyledText
-            marginTop={screenPercentageToDP(5, Orientation.Height)}
-            fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-            color={theme.colors.WHITE}
-          >
-            {progressMessage}
-          </StyledText>
-        ) : null}
-        {syncFinishedSuccessfully ? (
-          <GreenTickIcon size={screenPercentageToDP('8', Orientation.Height)} />
-        ) : null}
+        {isQueuing ?
+          (
+            <StyledText
+              marginTop={screenPercentageToDP(5, Orientation.Height)}
+              fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+              color={theme.colors.WHITE}
+            >
+              {progressMessage}
+            </StyledText>
+          ) :
+          null}
+        {syncFinishedSuccessfully ?
+          <GreenTickIcon size={screenPercentageToDP('8', Orientation.Height)} /> :
+          null}
         {hasError ? <ErrorIcon size={screenPercentageToDP('8', Orientation.Height)} /> : null}
-        {hasError ? (
-          <StyledText
-            marginTop={25}
-            fontWeight={500}
-            color="#F76853"
-            fontSize={screenPercentageToDP(2.55, Orientation.Height)}
-            textAlign="center"
-          >
-            Sync failed
-          </StyledText>
-        ) : null}
-        {isSyncing || syncFinishedSuccessfully ? (
-          <StyledText
-            marginTop={25}
-            fontWeight={500}
-            color={theme.colors.SECONDARY_MAIN}
-            fontSize={screenPercentageToDP(2.55, Orientation.Height)}
-            textAlign="center"
-          >
-            {isSyncing ? `${progress} %` : null}
-            {syncFinishedSuccessfully ? '100 %' : null}
-          </StyledText>
-        ) : null}
+        {hasError ?
+          (
+            <StyledText
+              marginTop={25}
+              fontWeight={500}
+              color="#F76853"
+              fontSize={screenPercentageToDP(2.55, Orientation.Height)}
+              textAlign="center"
+            >
+              Sync failed
+            </StyledText>
+          ) :
+          null}
+        {isSyncing || syncFinishedSuccessfully ?
+          (
+            <StyledText
+              marginTop={25}
+              fontWeight={500}
+              color={theme.colors.SECONDARY_MAIN}
+              fontSize={screenPercentageToDP(2.55, Orientation.Height)}
+              textAlign="center"
+            >
+              {isSyncing ? `${progress} %` : null}
+              {syncFinishedSuccessfully ? '100 %' : null}
+            </StyledText>
+          ) :
+          null}
         {isSyncing ? null : (
           <Button
             onPress={manualSync}
@@ -176,57 +184,65 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
             marginTop={20}
           />
         )}
-        {isSyncing && syncStage ? (
-          <StyledText
-            marginTop={screenPercentageToDP(8, Orientation.Height)}
-            fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-            fontWeight={500}
-            color={theme.colors.WHITE}
-          >
-            {`${syncStage} of ${SYNC_STAGES_TOTAL} syncing`}
-          </StyledText>
-        ) : null}
-        {isSyncing ? (
-          <StyledText
-            marginTop={screenPercentageToDP(0.5, Orientation.Height)}
-            fontSize={screenPercentageToDP(1.7, Orientation.Height)}
-            color={theme.colors.WHITE}
-          >
-            {progressMessage}
-          </StyledText>
-        ) : null}
-        {!isSyncing && formattedLastSuccessfulSyncTick ? (
-          <>
+        {isSyncing && syncStage ?
+          (
             <StyledText
-              marginTop={screenPercentageToDP(1.72, Orientation.Height)}
+              marginTop={screenPercentageToDP(8, Orientation.Height)}
               fontSize={screenPercentageToDP(1.7, Orientation.Height)}
               fontWeight={500}
               color={theme.colors.WHITE}
             >
-              Last successful sync
+              {`${syncStage} of ${SYNC_STAGES_TOTAL} syncing`}
             </StyledText>
+          ) :
+          null}
+        {isSyncing ?
+          (
             <StyledText
+              marginTop={screenPercentageToDP(0.5, Orientation.Height)}
               fontSize={screenPercentageToDP(1.7, Orientation.Height)}
               color={theme.colors.WHITE}
             >
-              {formattedLastSuccessfulSyncTick}
+              {progressMessage}
             </StyledText>
-            {!isSyncing &&
-            lastSyncPulledRecordsCount !== null &&
-            lastSyncPushedRecordsCount !== null ? (
+          ) :
+          null}
+        {!isSyncing && formattedLastSuccessfulSyncTick ?
+          (
+            <>
+              <StyledText
+                marginTop={screenPercentageToDP(1.72, Orientation.Height)}
+                fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                fontWeight={500}
+                color={theme.colors.WHITE}
+              >
+                Last successful sync
+              </StyledText>
               <StyledText
                 fontSize={screenPercentageToDP(1.7, Orientation.Height)}
                 color={theme.colors.WHITE}
               >
-                {`pulled ${lastSyncPulledRecordsCount} change${
-                  lastSyncPulledRecordsCount === 1 ? '' : 's'
-                }, pushed ${lastSyncPushedRecordsCount} change${
-                  lastSyncPushedRecordsCount === 1 ? '' : 's'
-                }`}
+                {formattedLastSuccessfulSyncTick}
               </StyledText>
-            ) : null}
-          </>
-        ) : null}
+              {!isSyncing &&
+                  lastSyncPulledRecordsCount !== null &&
+                  lastSyncPushedRecordsCount !== null ?
+                (
+                  <StyledText
+                    fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                    color={theme.colors.WHITE}
+                  >
+                    {`pulled ${lastSyncPulledRecordsCount} change${
+                      lastSyncPulledRecordsCount === 1 ? '' : 's'
+                    }, pushed ${lastSyncPushedRecordsCount} change${
+                      lastSyncPushedRecordsCount === 1 ? '' : 's'
+                    }`}
+                  </StyledText>
+                ) :
+                null}
+            </>
+          ) :
+          null}
         <SyncErrorDisplay />
       </StyledView>
     </CenterView>

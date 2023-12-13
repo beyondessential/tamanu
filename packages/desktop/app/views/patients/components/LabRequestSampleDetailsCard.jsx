@@ -1,6 +1,6 @@
 import React from 'react';
-import { InfoCard, InfoCardItem } from '../../../components/InfoCard';
 import { DateDisplay } from '../../../components';
+import { InfoCard, InfoCardItem } from '../../../components/InfoCard';
 
 export const LabRequestSampleDetailsCard = ({ labRequest }) => (
   <InfoCard>

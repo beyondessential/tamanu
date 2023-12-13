@@ -1,16 +1,16 @@
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import config from 'config';
-import express from 'express';
 import cors from 'cors';
+import express from 'express';
 import path from 'path';
 
-import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
-import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { SERVER_TYPES } from '@tamanu/constants';
+import { constructPermission } from '@tamanu/shared/permissions/middleware';
+import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
 
-import { buildRoutes } from './buildRoutes';
 import { authModule } from './auth';
+import { buildRoutes } from './buildRoutes';
 import { publicRoutes } from './publicRoutes';
 
 import { defaultErrorHandler } from './middleware/errorHandler';

@@ -5,16 +5,16 @@ import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { createDataImporterEndpoint } from './importerEndpoint';
 
+import { exporter } from './exporter';
 import { programImporter } from './programImporter';
 import { referenceDataImporter } from './referenceDataImporter';
-import { exporter } from './exporter';
 
-import { mergePatientHandler } from './patientMerge';
-import { syncLastCompleted } from './sync';
-import { fhirJobStats } from './fhirJobStats';
-import { reportsRouter } from './reports/reportRoutes';
-import { patientLetterTemplateRoutes } from './patientLetterTemplate';
 import { assetRoutes } from './asset';
+import { fhirJobStats } from './fhirJobStats';
+import { patientLetterTemplateRoutes } from './patientLetterTemplate';
+import { mergePatientHandler } from './patientMerge';
+import { reportsRouter } from './reports/reportRoutes';
+import { syncLastCompleted } from './sync';
 
 export const adminRoutes = express.Router();
 

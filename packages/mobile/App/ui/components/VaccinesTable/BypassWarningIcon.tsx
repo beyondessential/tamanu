@@ -1,6 +1,13 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, GestureResponderEvent } from 'react-native';
 import { theme } from '/styled/theme';
+import React from 'react';
+import {
+  GestureResponderEvent,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 const styles = StyleSheet.create({
   View: {
@@ -19,7 +26,7 @@ const styles = StyleSheet.create({
 });
 
 interface BypassWarningIconProps {
-  onBypassWarning: (event: GestureResponderEvent) => void
+  onBypassWarning: (event: GestureResponderEvent) => void;
 }
 
 export const BypassWarningIcon = ({ onBypassWarning }: BypassWarningIconProps): JSX.Element => (

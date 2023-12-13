@@ -1,9 +1,9 @@
 import { Column, Entity, OneToMany } from 'typeorm/browser';
 import { IFacility } from '../types';
+import { VisibilityStatus } from '../visibilityStatuses';
 import { BaseModel } from './BaseModel';
 import { Department } from './Department';
 import { Location } from './Location';
-import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
 
 @Entity('facility')

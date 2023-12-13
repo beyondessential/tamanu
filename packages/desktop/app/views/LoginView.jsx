@@ -1,25 +1,25 @@
+import Paper from '@material-ui/core/Paper';
+import { Launch } from '@material-ui/icons';
+import { push } from 'connected-react-router';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import Paper from '@material-ui/core/Paper';
-import { push } from 'connected-react-router';
-import { Launch } from '@material-ui/icons';
 
 import { TamanuLogo } from '../components';
-import { LOCAL_STORAGE_KEYS, Colors } from '../constants';
+import { Colors, LOCAL_STORAGE_KEYS } from '../constants';
 import { splashImages } from '../constants/images';
 
+import { useApi } from '../api';
+import { ChangePasswordForm } from '../forms/ChangePasswordForm';
 import { LoginForm } from '../forms/LoginForm';
 import { ResetPasswordForm } from '../forms/ResetPasswordForm';
-import { ChangePasswordForm } from '../forms/ChangePasswordForm';
 import {
   changePassword,
+  clearPatient,
   login,
   requestPasswordReset,
   restartPasswordResetFlow,
-  clearPatient,
 } from '../store';
-import { useApi } from '../api';
 
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
 

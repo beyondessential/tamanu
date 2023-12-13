@@ -1,38 +1,38 @@
+import { action } from '@storybook/addon-actions';
+import { storiesOf } from '@storybook/react';
 import React from 'react';
 import shortid from 'shortid';
-import { storiesOf } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
 
+import { VACCINE_RECORDING_TYPES } from '@tamanu/constants';
 import {
-  createDummyVisit,
   createDummyPatient,
+  createDummyVisit,
+  DEPARTMENTS,
   DIAGNOSES,
   DISPOSITIONS,
   DRUGS,
   FACILITIES,
   LOCATIONS,
   USERS,
-  DEPARTMENTS,
 } from '@tamanu/shared/demoData';
-import { VACCINE_RECORDING_TYPES } from '@tamanu/constants';
-import { MockedApi } from '../utils/mockedApi';
-import { mockLabRequestFormEndpoints } from '../utils/mockLabData';
-import { EncounterForm } from '../../app/forms/EncounterForm';
-import { TriageForm } from '../../app/forms/TriageForm';
-import { ProcedureForm } from '../../app/forms/ProcedureForm';
+import { Modal } from '../../app/components/Modal';
 import { AllergyForm } from '../../app/forms/AllergyForm';
-import { VaccineForm } from '../../app/forms/VaccineForm';
-import { OngoingConditionForm } from '../../app/forms/OngoingConditionForm';
+import { DeathForm } from '../../app/forms/DeathForm';
 import { DischargeForm } from '../../app/forms/DischargeForm';
-import { NewPatientForm } from '../../app/forms/NewPatientForm';
-import { PatientDetailsForm } from '../../app/forms/PatientDetailsForm';
+import { EncounterForm } from '../../app/forms/EncounterForm';
+import { FamilyHistoryForm } from '../../app/forms/FamilyHistoryForm';
 import { LabRequestMultiStepForm } from '../../app/forms/LabRequestForm/LabRequestMultiStepForm';
 import { MedicationForm } from '../../app/forms/MedicationForm';
-import { DeathForm } from '../../app/forms/DeathForm';
-import { FamilyHistoryForm } from '../../app/forms/FamilyHistoryForm';
+import { NewPatientForm } from '../../app/forms/NewPatientForm';
+import { OngoingConditionForm } from '../../app/forms/OngoingConditionForm';
+import { PatientDetailsForm } from '../../app/forms/PatientDetailsForm';
+import { ProcedureForm } from '../../app/forms/ProcedureForm';
+import { TriageForm } from '../../app/forms/TriageForm';
+import { VaccineForm } from '../../app/forms/VaccineForm';
 import { LabRequestSummaryPane } from '../../app/views/patients/components/LabRequestSummaryPane';
 import { createDummySuggester, mapToSuggestions } from '../utils';
-import { Modal } from '../../app/components/Modal';
+import { MockedApi } from '../utils/mockedApi';
+import { mockLabRequestFormEndpoints } from '../utils/mockLabData';
 
 import '@fortawesome/fontawesome-free/css/all.css';
 import { fakeLabRequest } from '../../.storybook/__mocks__/defaultEndpoints';
@@ -95,9 +95,10 @@ storiesOf('Forms', module).add('VaccineForm', () => (
   </Modal>
 ));
 
-storiesOf('Forms/LoginForm', module).add('broken', () => (
-  <div>Login view unstorybookable until ServerDetectingField can be separated out</div>
-));
+storiesOf('Forms/LoginForm', module).add(
+  'broken',
+  () => <div>Login view unstorybookable until ServerDetectingField can be separated out</div>,
+);
 /*
   .add('default', () => <LoginView login={action('login')} />)
   .add('expired', () => (

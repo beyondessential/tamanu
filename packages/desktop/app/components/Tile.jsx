@@ -1,9 +1,9 @@
+import { Typography } from '@material-ui/core';
+import Tooltip from '@material-ui/core/Tooltip';
+import LabelIcon from '@material-ui/icons/Label';
+import { PropTypes } from 'prop-types';
 import React from 'react';
 import styled from 'styled-components';
-import { PropTypes } from 'prop-types';
-import Tooltip from '@material-ui/core/Tooltip';
-import { Typography } from '@material-ui/core';
-import LabelIcon from '@material-ui/icons/Label';
 import { MenuButton } from './MenuButton';
 import { TableCellTag } from './Tag';
 

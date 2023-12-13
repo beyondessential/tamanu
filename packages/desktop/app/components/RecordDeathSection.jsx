@@ -1,14 +1,14 @@
+import { Divider, Typography } from '@material-ui/core';
+import { useQueryClient } from '@tanstack/react-query';
 import React, { memo, useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { Typography, Divider } from '@material-ui/core';
-import { Colors } from '../constants';
 import { useApi } from '../api';
-import { ConfirmModal } from './ConfirmModal';
-import { usePatientNavigation } from '../utils/usePatientNavigation';
+import { Colors } from '../constants';
 import { reloadPatient } from '../store/patient';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { MODAL_PADDING_LEFT_AND_RIGHT, MODAL_PADDING_TOP_AND_BOTTOM } from './BaseModal';
+import { ConfirmModal } from './ConfirmModal';
 
 const TypographyLink = styled(Typography)`
   color: ${Colors.primary};

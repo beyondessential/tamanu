@@ -3,20 +3,20 @@
 
 import React, { Component } from 'react';
 import {
-  Text,
-  View,
-  ScrollView,
-  TextInput,
-  TouchableWithoutFeedback,
-  TouchableOpacity,
   FlatList,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
   UIManager,
+  View,
 } from 'react-native';
 // import {ViewPropTypes, TextPropTypes} from 'deprecated-react-native-prop-types';
-import PropTypes from 'prop-types';
-import reject from 'lodash/reject';
 import find from 'lodash/find';
 import get from 'lodash/get';
+import reject from 'lodash/reject';
+import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles, { colorPack } from './styles';
 
@@ -420,16 +420,18 @@ export class MultiSelect extends Component {
             >
               {item[displayKey]}
             </Text>
-            {this._itemSelected(item) ? (
-              <Icon
-                name="check"
-                style={{
-                  fontSize: 20,
-                  marginRight: -5,
-                  color: selectedItemIconColor,
-                }}
-              />
-            ) : null}
+            {this._itemSelected(item) ?
+              (
+                <Icon
+                  name="check"
+                  style={{
+                    fontSize: 20,
+                    marginRight: -5,
+                    color: selectedItemIconColor,
+                  }}
+                />
+              ) :
+              null}
           </View>
         </View>
       </TouchableOpacity>
@@ -602,152 +604,162 @@ export class MultiSelect extends Component {
           {
             flexDirection: 'column',
           } &&
-            styleMainWrapper &&
-            styleMainWrapper,
+          styleMainWrapper &&
+          styleMainWrapper,
         ]}
       >
-        {selector && !disabled ? (
-          <View
-            style={[
-              // height should be dynamic when there is search text
-              styles.selectorView(fixedHeight && !searchTerm.length),
-              styleSelectorContainer && styleSelectorContainer,
-            ]}
-          >
-            <View style={[styles.inputGroup, styleInputGroup && styleInputGroup]}>
-              {searchIcon}
-              <TextInput
-                autoFocus
-                onChangeText={this._onChangeInput}
-                onSubmitEditing={this._addItem}
-                placeholder={selectedLabel || searchInputPlaceholderText}
-                placeholderTextColor={selectedLabel ? textColor : colorPack.placeholderTextColor}
-                underlineColorAndroid="transparent"
-                style={[searchInputStyle, { flex: 1 }]}
-                value={searchTerm}
-                {...textInputProps}
-              />
-              {hideSubmitButton && (
-                <TouchableOpacity onPress={this._submitSelection}>
-                  <Icon
-                    name="chevron-down"
-                    style={[
-                      styles.indicator,
-                      { paddingLeft: 15, paddingRight: 15 },
-                      styleIndicator && styleIndicator,
-                    ]}
-                  />
-                </TouchableOpacity>
-              )}
-              {!hideDropdown && (
-                <Icon
-                  name="chevron-down"
-                  size={20}
-                  onPress={this._clearSelectorCallback}
-                  color={colorPack.placeholderTextColor}
-                  style={[{ marginRight: 10 }, styles.indicator, styleIndicator && styleIndicator]}
-                />
-              )}
-            </View>
+        {selector && !disabled ?
+          (
             <View
-              style={{
-                flexDirection: 'column',
-                backgroundColor: '#fafafa',
-              }}
+              style={[
+                // height should be dynamic when there is search text
+                styles.selectorView(fixedHeight && !searchTerm.length),
+                styleSelectorContainer && styleSelectorContainer,
+              ]}
             >
-              <View style={styleItemsContainer && styleItemsContainer}>{this._renderItems()}</View>
-              {!single && !hideSubmitButton && (
-                <TouchableOpacity
-                  onPress={() => this._submitSelection()}
-                  style={[styles.button, { backgroundColor: submitButtonColor }]}
-                >
-                  <Text style={[styles.buttonText, fontFamily ? { fontFamily } : {}]}>
-                    {submitButtonText}
-                  </Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
-        ) : (
-          <View>
-            <View style={[styles.dropdownView, styleDropdownMenu && styleDropdownMenu]}>
-              <View
-                style={[
-                  styles.subSection,
-                  { paddingTop: 10, paddingBottom: 10 },
-                  styleDropdownMenuSubsection && styleDropdownMenuSubsection,
-                ]}
-              >
-                <TouchableWithoutFeedback onPress={this._toggleSelector}>
-                  <View
-                    style={{
-                      flex: 1,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Text
-                      style={
-                        !selectedItems || selectedItems.length === 0
-                          ? [
-                              {
-                                flex: 1,
-                                fontSize: fontSize || 16,
-                                color: textColor || colorPack.placeholderTextColor,
-                              },
-                              styleTextDropdown && styleTextDropdown,
-                              altFontFamily
-                                ? { fontFamily: altFontFamily }
-                                : fontFamily
-                                ? { fontFamily }
-                                : {},
-                            ]
-                          : [
-                              {
-                                flex: 1,
-                                fontSize: fontSize || 16,
-                                color: textColor || colorPack.placeholderTextColor,
-                              },
-                              styleTextDropdownSelected && styleTextDropdownSelected,
-                            ]
-                      }
-                      numberOfLines={1}
-                    >
-                      {this._getSelectLabel()}
-                    </Text>
-                    {single && selectedItems.length ? (
-                      <TouchableWithoutFeedback onPress={this._removeAllItems}>
-                        <Icon
-                          name={hideSubmitButton ? 'menu-right' : 'close'}
-                          style={[styles.removeIndicator, styleIndicator && styleIndicator]}
-                        />
-                      </TouchableWithoutFeedback>
-                    ) : null}
-
+              <View style={[styles.inputGroup, styleInputGroup && styleInputGroup]}>
+                {searchIcon}
+                <TextInput
+                  autoFocus
+                  onChangeText={this._onChangeInput}
+                  onSubmitEditing={this._addItem}
+                  placeholder={selectedLabel || searchInputPlaceholderText}
+                  placeholderTextColor={selectedLabel ? textColor : colorPack.placeholderTextColor}
+                  underlineColorAndroid="transparent"
+                  style={[searchInputStyle, { flex: 1 }]}
+                  value={searchTerm}
+                  {...textInputProps}
+                />
+                {hideSubmitButton && (
+                  <TouchableOpacity onPress={this._submitSelection}>
                     <Icon
                       name="chevron-down"
                       style={[
-                        { marginRight: -7 },
                         styles.indicator,
+                        { paddingLeft: 15, paddingRight: 15 },
                         styleIndicator && styleIndicator,
                       ]}
                     />
-                  </View>
-                </TouchableWithoutFeedback>
+                  </TouchableOpacity>
+                )}
+                {!hideDropdown && (
+                  <Icon
+                    name="chevron-down"
+                    size={20}
+                    onPress={this._clearSelectorCallback}
+                    color={colorPack.placeholderTextColor}
+                    style={[
+                      { marginRight: 10 },
+                      styles.indicator,
+                      styleIndicator && styleIndicator,
+                    ]}
+                  />
+                )}
               </View>
-            </View>
-            {!single && !hideTags && selectedItems.length ? (
               <View
                 style={{
-                  flexDirection: 'row',
-                  flexWrap: 'wrap',
+                  flexDirection: 'column',
+                  backgroundColor: '#fafafa',
                 }}
               >
-                {this._displaySelectedItems()}
+                <View style={styleItemsContainer && styleItemsContainer}>
+                  {this._renderItems()}
+                </View>
+                {!single && !hideSubmitButton && (
+                  <TouchableOpacity
+                    onPress={() => this._submitSelection()}
+                    style={[styles.button, { backgroundColor: submitButtonColor }]}
+                  >
+                    <Text style={[styles.buttonText, fontFamily ? { fontFamily } : {}]}>
+                      {submitButtonText}
+                    </Text>
+                  </TouchableOpacity>
+                )}
               </View>
-            ) : null}
-          </View>
-        )}
+            </View>
+          ) :
+          (
+            <View>
+              <View style={[styles.dropdownView, styleDropdownMenu && styleDropdownMenu]}>
+                <View
+                  style={[
+                    styles.subSection,
+                    { paddingTop: 10, paddingBottom: 10 },
+                    styleDropdownMenuSubsection && styleDropdownMenuSubsection,
+                  ]}
+                >
+                  <TouchableWithoutFeedback onPress={this._toggleSelector}>
+                    <View
+                      style={{
+                        flex: 1,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Text
+                        style={!selectedItems || selectedItems.length === 0
+                          ? [
+                            {
+                              flex: 1,
+                              fontSize: fontSize || 16,
+                              color: textColor || colorPack.placeholderTextColor,
+                            },
+                            styleTextDropdown && styleTextDropdown,
+                            altFontFamily
+                              ? { fontFamily: altFontFamily }
+                              : fontFamily
+                              ? { fontFamily }
+                              : {},
+                          ]
+                          : [
+                            {
+                              flex: 1,
+                              fontSize: fontSize || 16,
+                              color: textColor || colorPack.placeholderTextColor,
+                            },
+                            styleTextDropdownSelected && styleTextDropdownSelected,
+                          ]}
+                        numberOfLines={1}
+                      >
+                        {this._getSelectLabel()}
+                      </Text>
+                      {single && selectedItems.length ?
+                        (
+                          <TouchableWithoutFeedback onPress={this._removeAllItems}>
+                            <Icon
+                              name={hideSubmitButton ? 'menu-right' : 'close'}
+                              style={[styles.removeIndicator, styleIndicator && styleIndicator]}
+                            />
+                          </TouchableWithoutFeedback>
+                        ) :
+                        null}
+
+                      <Icon
+                        name="chevron-down"
+                        style={[
+                          { marginRight: -7 },
+                          styles.indicator,
+                          styleIndicator && styleIndicator,
+                        ]}
+                      />
+                    </View>
+                  </TouchableWithoutFeedback>
+                </View>
+              </View>
+              {!single && !hideTags && selectedItems.length ?
+                (
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    {this._displaySelectedItems()}
+                  </View>
+                ) :
+                null}
+            </View>
+          )}
       </View>
     );
   }

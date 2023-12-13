@@ -1,6 +1,6 @@
-import { sub } from 'date-fns';
-import { toDateString } from '@tamanu/shared/utils/dateTime';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { toDateString } from '@tamanu/shared/utils/dateTime';
+import { sub } from 'date-fns';
 
 import { makeFilter } from './query';
 
@@ -10,8 +10,8 @@ export const createPatientFilters = filterParams => {
       filterParams.displayId,
       `(UPPER(patients.display_id) LIKE UPPER(:displayId)${
         filterParams.matchSecondaryIds === 'true'
-          ? // need to cast the array to text and back to be able to uppercase it
-            ' OR UPPER(:secondaryDisplayId) = ANY(UPPER(secondary_ids::text)::text[])'
+          // need to cast the array to text and back to be able to uppercase it
+          ? ' OR UPPER(:secondaryDisplayId) = ANY(UPPER(secondary_ids::text)::text[])'
           : ''
       })`,
       ({ displayId }) => ({

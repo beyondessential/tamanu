@@ -1,12 +1,12 @@
+import { Box, Typography } from '@material-ui/core';
 import React from 'react';
 import styled from 'styled-components';
-import { Box, Typography } from '@material-ui/core';
 
-import { Button } from './Button';
-import { DiagnosisModal } from './DiagnosisModal';
-import { DiagnosisList } from './DiagnosisList';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
+import { Button } from './Button';
+import { DiagnosisList } from './DiagnosisList';
+import { DiagnosisModal } from './DiagnosisModal';
 
 const DiagnosisHeading = styled.div`
   margin-right: 1rem;
@@ -40,19 +40,21 @@ export const DiagnosisView = React.memo(({ encounter, isTriage, readonly }) => {
 
   const validDiagnoses = diagnoses.filter(d => !['error', 'disproven'].includes(d.certainty));
 
-  const DiagnosesDisplay = canListDiagnoses ? (
-    <>
-      <DiagnosisLabel numberOfDiagnoses={validDiagnoses.length} />
-      <DiagnosisList diagnoses={validDiagnoses} onEditDiagnosis={!readonly && editDiagnosis} />
-    </>
-  ) : (
-    <>
-      <div />
-      <Box display="flex" alignItems="center">
-        <Typography variant="body2">You do not have permission to list diagnoses.</Typography>
-      </Box>
-    </>
-  );
+  const DiagnosesDisplay = canListDiagnoses ?
+    (
+      <>
+        <DiagnosisLabel numberOfDiagnoses={validDiagnoses.length} />
+        <DiagnosisList diagnoses={validDiagnoses} onEditDiagnosis={!readonly && editDiagnosis} />
+      </>
+    ) :
+    (
+      <>
+        <div />
+        <Box display="flex" alignItems="center">
+          <Typography variant="body2">You do not have permission to list diagnoses.</Typography>
+        </Box>
+      </>
+    );
 
   return (
     <>

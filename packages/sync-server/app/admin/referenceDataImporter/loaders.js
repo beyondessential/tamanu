@@ -1,6 +1,6 @@
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { endOfDay, startOfDay } from 'date-fns';
 import { getJsDateFromExcel } from 'excel-date-to-js';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
 
 export const loaderFactory = model => ({ note, ...values }) => [{ model, values }];
 
@@ -122,8 +122,9 @@ export function patientDataLoader(item, models, foreignKeySchemata) {
       predefinedPatientFields.includes(definitionId) ||
       foreignKeySchemata.Patient.find(schema => schema.field === definitionId) ||
       !otherFields[definitionId]
-    )
+    ) {
       continue;
+    }
     rows.push({
       model: 'PatientFieldValue',
       values: {

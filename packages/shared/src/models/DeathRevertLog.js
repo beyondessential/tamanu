@@ -1,10 +1,10 @@
-import { Sequelize, DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 
-import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
+import { Model } from './Model';
 
 export class DeathRevertLog extends Model {
   static init(options) {

@@ -1,11 +1,11 @@
-import React, { FC } from 'react';
-import { RowField } from './RowField';
-import { VaccineDataProps } from '.';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { theme } from '/styled/theme';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { StyledView } from '/styled/common';
-import { formatStringDate } from '../../helpers/date';
+import { theme } from '/styled/theme';
+import React, { FC } from 'react';
 import { DateFormats } from '../../helpers/constants';
+import { formatStringDate } from '../../helpers/date';
+import { VaccineDataProps } from '.';
+import { RowField } from './RowField';
 
 export const NotGivenFields: FC<VaccineDataProps> = ({ administeredVaccine }) => (
   <StyledView
@@ -14,11 +14,9 @@ export const NotGivenFields: FC<VaccineDataProps> = ({ administeredVaccine }) =>
   >
     <RowField
       label="Date recorded"
-      value={
-        administeredVaccine.date
-          ? formatStringDate(administeredVaccine.date, DateFormats.DDMMYY)
-          : null
-      }
+      value={administeredVaccine.date
+        ? formatStringDate(administeredVaccine.date, DateFormats.DDMMYY)
+        : null}
     />
     <RowField label="Schedule" value={administeredVaccine.scheduledVaccine?.schedule} />
     <RowField label="Reason" value={administeredVaccine.notGivenReason?.name} />

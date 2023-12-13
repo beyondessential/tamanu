@@ -3,8 +3,8 @@ import { readFile } from 'xlsx';
 
 import { importRows } from '../importRows';
 
-import { readMetadata } from './readMetadata';
 import { importSurvey } from './importSurvey';
+import { readMetadata } from './readMetadata';
 
 export const PERMISSIONS = ['Program', 'Survey'];
 

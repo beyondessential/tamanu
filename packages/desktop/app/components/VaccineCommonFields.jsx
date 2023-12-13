@@ -1,29 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
 import { CheckCircleRounded } from '@material-ui/icons';
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
 
 import {
   INJECTION_SITE_OPTIONS,
-  VACCINE_CATEGORY_OPTIONS,
   VACCINE_CATEGORIES,
+  VACCINE_CATEGORY_OPTIONS,
 } from '@tamanu/constants';
 
-import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
+import { useSuggester } from '../api';
+import { Colors } from '../constants';
+import { useAuth } from '../contexts/Auth';
+import { FormSubmitCancelRow } from './ButtonRow';
 import {
-  Field,
-  TextField,
   AutocompleteField,
+  CheckField,
   DateField,
+  Field,
+  LocalisedLocationField,
   RadioField,
   SelectField,
-  CheckField,
-  LocalisedLocationField,
+  TextField,
 } from './Field';
-import { FormSubmitCancelRow } from './ButtonRow';
-import { useSuggester } from '../api';
-import { useAuth } from '../contexts/Auth';
-import { Colors } from '../constants';
+import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
 
 export const FullWidthCol = styled.div`
   grid-column: 1/-1;
@@ -171,13 +171,12 @@ export const ConsentGivenByField = () => (
 export const AdministeredVaccineScheduleField = ({ schedules }) => {
   const [scheduleOptions, setScheduledOptions] = useState([]);
   useEffect(() => {
-    const options =
-      schedules?.map(s => ({
-        value: s.scheduledVaccineId,
-        label: s.schedule,
-        icon: s.administered ? <CheckCircleRounded style={{ color: Colors.safe }} /> : null,
-        disabled: s.administered,
-      })) || [];
+    const options = schedules?.map(s => ({
+      value: s.scheduledVaccineId,
+      label: s.schedule,
+      icon: s.administered ? <CheckCircleRounded style={{ color: Colors.safe }} /> : null,
+      disabled: s.administered,
+    })) || [];
     setScheduledOptions(options);
   }, [schedules]);
 

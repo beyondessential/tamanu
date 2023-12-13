@@ -1,7 +1,6 @@
 const LATEST_ENCOUNTER_FLAG = 'latest_encounter';
 
-export const getChangelogToEncounterHistoryQuery = allEncounterNotesSystemSubQuery =>
-  `
+export const getChangelogToEncounterHistoryQuery = allEncounterNotesSystemSubQuery => `
       with
 
       -- For batching by encounters

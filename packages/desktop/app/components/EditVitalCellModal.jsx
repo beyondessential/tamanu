@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
-import { FormModal } from './FormModal';
-import { formatShortest, formatTime } from './DateDisplay';
 import { EditVitalCellForm } from '../forms/EditVitalCellForm';
+import { formatShortest, formatTime } from './DateDisplay';
+import { FormModal } from './FormModal';
 
 export const EditVitalCellModal = ({ open, dataPoint, onClose }) => {
   const vitalLabel = dataPoint?.component.dataElement.name;

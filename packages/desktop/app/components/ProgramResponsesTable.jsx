@@ -1,9 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 
-import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-import { SurveyResultBadge } from './SurveyResultBadge';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
+import { SurveyResultBadge } from './SurveyResultBadge';
+import { DataFetchingTable } from './Table';
 
 const getDate = ({ endTime }) => <DateDisplay date={endTime} />;
 const getSubmittedBy = ({ submittedBy }) => submittedBy;

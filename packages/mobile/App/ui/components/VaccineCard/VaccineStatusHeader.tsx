@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 
-import { RowView, StyledText } from '/styled/common';
 import { VaccineStatusCells } from '/helpers/constants';
+import { RowView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { VaccineStatus } from '~/ui/helpers/patient';
 import { StyledView } from '../../styled/common';

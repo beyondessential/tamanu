@@ -119,7 +119,7 @@
               "id": 11,
               "type": "radio",
               "label": "Glucose Tolerance Test",
-               "required": true,
+              "required": true,
               "options": [
                 {
                   "label": "YES",
@@ -130,7 +130,7 @@
                   "value": "no"
                 }
               ]
-            },           
+            },
             {
               "id": 13,
               "type": "text",

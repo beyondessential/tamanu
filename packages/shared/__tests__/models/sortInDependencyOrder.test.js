@@ -48,7 +48,7 @@ function treeToPairs(tree, dependent = 0) {
       return [[dependent, i].sort((a, b) => b - a)];
     }
 
-    return treeToPairs(element, (dependent += 1));
+    return treeToPairs(element, dependent += 1);
   });
 }
 
@@ -168,13 +168,13 @@ describe('sortInDependencyOrder', () => {
      \ /
      / \
     2 -> 4
-    
+
     this is a bit weird, but conceptually it's both of these trees merged:
-    
+
         3          3
     1 ->|      2 ->|
         4          4
-    
+
     so there's two roots, and two common dependencies
     */
     const models = pairsToModels([

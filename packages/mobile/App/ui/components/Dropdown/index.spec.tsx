@@ -1,7 +1,7 @@
+import { fireEvent, render } from '@testing-library/react-native';
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
-import { BaseStory, dropdownItems } from './fixture';
 import { SelectOption } from '.';
+import { BaseStory, dropdownItems } from './fixture';
 
 describe.skip('<Dropdown />', () => {
   const { getByText, getByTestId } = render(<BaseStory />);

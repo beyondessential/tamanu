@@ -1,8 +1,8 @@
-import React from 'react';
-import { StyledView, StyledText, StyledImage } from '/styled/common';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { Genders, getUserInitials } from '/helpers/user';
+import { StyledImage, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { getUserInitials, Genders } from '/helpers/user';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import React from 'react';
 
 export interface UserAvatarProps {
   image?: string;
@@ -37,17 +37,17 @@ export const UserAvatar = ({
       justifyContent="center"
       alignItems="center"
     >
-      {!image ? (
-        <StyledText
-          fontSize={screenPercentageToDP('2.7', Orientation.Height)}
-          fontWeight={500}
-          color={theme.colors.WHITE}
-        >
-          {userInitials}
-        </StyledText>
-      ) : (
-        <StyledImage source={{ uri: image }} width={size} height={size} />
-      )}
+      {!image ?
+        (
+          <StyledText
+            fontSize={screenPercentageToDP('2.7', Orientation.Height)}
+            fontWeight={500}
+            color={theme.colors.WHITE}
+          >
+            {userInitials}
+          </StyledText>
+        ) :
+        <StyledImage source={{ uri: image }} width={size} height={size} />}
       {Icon && Icon}
     </StyledView>
   );

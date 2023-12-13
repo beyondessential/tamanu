@@ -1,9 +1,9 @@
-import Sequelize from 'sequelize';
-import { sign as signCallback, verify as verifyCallback } from 'jsonwebtoken';
 import { randomBytes, randomInt } from 'crypto';
+import { sign as signCallback, verify as verifyCallback } from 'jsonwebtoken';
+import Sequelize from 'sequelize';
 import { promisify } from 'util';
 
-import { VISIBILITY_STATUSES, USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
+import { USER_DEACTIVATED_ERROR_MESSAGE, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { ForbiddenError } from '@tamanu/shared/errors';
 
 const sign = promisify(signCallback);

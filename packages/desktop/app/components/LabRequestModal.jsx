@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { useQueries } from '@tanstack/react-query';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { useQueries } from '@tanstack/react-query';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useApi, useSuggester, combineQueries } from '../api';
-import { FormModal } from './FormModal';
+import { combineQueries, useApi, useSuggester } from '../api';
+import { useEncounter } from '../contexts/Encounter';
 import { LabRequestMultiStepForm } from '../forms/LabRequestForm/LabRequestMultiStepForm';
 import { LabRequestSummaryPane } from '../views/patients/components/LabRequestSummaryPane';
-import { useEncounter } from '../contexts/Encounter';
+import { FormModal } from './FormModal';
 
 const StyledModal = styled(FormModal)`
   .MuiDialog-paper {

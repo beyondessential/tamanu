@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useEncounter } from '../../../contexts/Encounter';
+import { Button, TableButtonRow } from '../../../components';
 import { ProcedureModal } from '../../../components/ProcedureModal';
 import { ProcedureTable } from '../../../components/ProcedureTable';
-import { TableButtonRow, Button } from '../../../components';
+import { useEncounter } from '../../../contexts/Encounter';
 import { TabPane } from '../components';
 
 export const ProcedurePane = React.memo(({ encounter, readonly }) => {

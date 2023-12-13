@@ -1,11 +1,11 @@
-import React, { ReactElement } from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
-import { SurveyResponseDetailsScreen } from '../screens/programs/SurveyResponseDetailsScreen';
 import { Routes } from '/helpers/routes';
-import { ProgramTabs } from './ProgramTabs';
+import { createStackNavigator } from '@react-navigation/stack';
+import React, { ReactElement } from 'react';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { SurveyListScreen } from '../screens/programs/SurveyListScreen';
+import { SurveyResponseDetailsScreen } from '../screens/programs/SurveyResponseDetailsScreen';
 import { SurveyResponseScreen } from '../screens/programs/SurveyResponseScreen';
+import { ProgramTabs } from './ProgramTabs';
 
 const Stack = createStackNavigator();
 

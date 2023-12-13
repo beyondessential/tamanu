@@ -1,14 +1,12 @@
-import React from 'react';
-import { storiesOf } from '@storybook/react-native';
+import { HeaderIcons, VisitTypes } from '/helpers/constants';
 import { CenterView } from '/styled/common';
-import { VisitTypeButton } from './index';
-import { VisitTypes, HeaderIcons } from '/helpers/constants';
+import { storiesOf } from '@storybook/react-native';
+import React from 'react';
 import { VisitButtonList } from './fixture';
+import { VisitTypeButton } from './index';
 
 storiesOf('VisitTypeButton', module)
-  .addDecorator((story: Function) => (
-    <CenterView flex={1}>{story()}</CenterView>
-  ))
+  .addDecorator((story: Function) => <CenterView flex={1}>{story()}</CenterView>)
   .add('with icon selected', () => (
     <VisitTypeButton
       Icon={HeaderIcons[VisitTypes.CLINIC]}

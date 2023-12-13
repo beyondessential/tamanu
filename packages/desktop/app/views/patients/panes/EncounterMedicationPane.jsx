@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useEncounter } from '../../../contexts/Encounter';
-import { MedicationModal } from '../../../components/MedicationModal';
-import { PrintMultipleMedicationSelectionModal } from '../../../components/PatientPrinting';
-import { EncounterMedicationTable } from '../../../components/MedicationTable';
 import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
+import { MedicationModal } from '../../../components/MedicationModal';
+import { EncounterMedicationTable } from '../../../components/MedicationTable';
+import { PrintMultipleMedicationSelectionModal } from '../../../components/PatientPrinting';
+import { useEncounter } from '../../../contexts/Encounter';
 import { TabPane } from '../components';
 
 export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {

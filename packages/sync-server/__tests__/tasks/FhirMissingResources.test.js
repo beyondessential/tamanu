@@ -1,11 +1,11 @@
 import { fake } from '@tamanu/shared/test-helpers';
 import { Op } from 'sequelize';
-import { createTestContext } from '../utilities';
+import { FhirMissingResources } from '../../app/tasks/FhirMissingResources';
 import {
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithImagingRequest,
 } from '../fake/fhir';
-import { FhirMissingResources } from '../../app/tasks/FhirMissingResources';
+import { createTestContext } from '../utilities';
 
 describe('FhirMissingResources task', () => {
   let ctx;

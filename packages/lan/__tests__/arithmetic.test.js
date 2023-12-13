@@ -129,9 +129,9 @@ describe('Arithmetic', () => {
     });
 
     it('should fail if a substitution is not numeric', () => {
-      expect(() => runArithmetic('check + 1', { check: "check" })).toThrow();
-      expect(() => runArithmetic('check + 1', { check: "+" })).toThrow();
-      expect(() => runArithmetic('check + 1', { check: "" })).toThrow();
+      expect(() => runArithmetic('check + 1', { check: 'check' })).toThrow();
+      expect(() => runArithmetic('check + 1', { check: '+' })).toThrow();
+      expect(() => runArithmetic('check + 1', { check: '' })).toThrow();
     });
   });
 });

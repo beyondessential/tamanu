@@ -3,8 +3,6 @@
     "lineWidth": 100,
     "arrowFunction.useParentheses": "preferNone",
     "jsx.quoteStyle": "preferDouble",
-    "module.sortImportDeclarations": "maintain",
-    "importDeclaration.sortNamedImports": "maintain",
     "operatorPosition": "maintain",
     "quoteStyle": "preferSingle"
   },

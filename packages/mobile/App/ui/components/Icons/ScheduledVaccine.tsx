@@ -1,7 +1,7 @@
-import React, { memo } from 'react';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import React, { memo } from 'react';
 
 export const ScheduledVaccine = memo(
   ({

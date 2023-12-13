@@ -1,14 +1,14 @@
 import React from 'react';
 
 import { PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
-import { AutocompleteField, SelectField, TextField, TimeField } from '..';
+import { useSuggester } from '../../api';
 import {
   ATTENDANT_OF_BIRTH_OPTIONS,
   BIRTH_DELIVERY_TYPE_OPTIONS,
   BIRTH_TYPE_OPTIONS,
   PLACE_OF_BIRTH_OPTIONS,
 } from '../../constants';
-import { useSuggester } from '../../api';
+import { AutocompleteField, SelectField, TextField, TimeField } from '..';
 import { ConfiguredMandatoryPatientFields } from './ConfiguredMandatoryPatientFields';
 
 export const BirthDetailsFields = ({ registeredBirthPlace, showMandatory }) => {

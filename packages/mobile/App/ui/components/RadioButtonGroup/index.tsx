@@ -1,11 +1,11 @@
+import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { RowView, StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 import React, { FC } from 'react';
 import { StyleSheet } from 'react-native';
 import styled from 'styled-components/native';
-import { RowView, StyledText, StyledView } from '/styled/common';
-import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { RadioOption, RadioButton } from '../RadioButton';
-import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
+import { RadioButton, RadioOption } from '../RadioButton';
 import { RequiredIndicator } from '../RequiredIndicator';
 
 export interface RadioButtonGroupProps {

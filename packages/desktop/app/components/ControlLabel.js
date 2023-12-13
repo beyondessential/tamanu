@@ -1,5 +1,5 @@
-import styled from 'styled-components';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import styled from 'styled-components';
 import { Colors } from '../constants';
 
 export const ControlLabel = styled(FormControlLabel)`

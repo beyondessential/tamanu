@@ -1,7 +1,7 @@
-import React from 'react';
-import { render } from '@testing-library/react-native';
-import { UserAvatar, UserAvatarProps } from './index';
 import { getUserInitials } from '/helpers/user';
+import { render } from '@testing-library/react-native';
+import React from 'react';
+import { UserAvatar, UserAvatarProps } from './index';
 
 describe('<UserAvatar/>', () => {
   const makeUserAvatar = (image?: string): UserAvatarProps => ({

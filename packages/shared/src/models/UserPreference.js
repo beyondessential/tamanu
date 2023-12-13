@@ -1,5 +1,5 @@
-import { Sequelize, DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { DataTypes, Sequelize } from 'sequelize';
 
 import { Model } from './Model';
 

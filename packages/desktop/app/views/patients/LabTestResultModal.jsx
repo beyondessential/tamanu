@@ -2,11 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import { useLabTest } from '../../api/queries/useLabTest';
 
-import { Colors } from '../../constants';
 import { DateDisplay } from '../../components/DateDisplay';
 import { Modal } from '../../components/Modal';
 import { ModalActionRow } from '../../components/ModalActionRow';
 import { BodyText } from '../../components/Typography';
+import { Colors } from '../../constants';
 
 const ModalBody = styled.div`
   display: grid;

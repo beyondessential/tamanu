@@ -1,5 +1,5 @@
-import { DataTypes } from 'sequelize';
 import config from 'config';
+import { DataTypes } from 'sequelize';
 
 const TABLES = {
   patients: {

@@ -101,12 +101,15 @@ describe('date', () => {
     ];
 
     testCases.forEach(testCase => {
-      it(`should display age '${testCase.expectedDisplayAge}' from date of birth '${
-        testCase.dateOfBirth
-      }' at '${format(now, 'yyyy-MM-dd')}'`, () => {
-        const displayAge = getDisplayAge(testCase.dateOfBirth, ageDisplayFormat);
-        expect(displayAge).toEqual(testCase.expectedDisplayAge);
-      });
+      it(
+        `should display age '${testCase.expectedDisplayAge}' from date of birth '${testCase.dateOfBirth}' at '${
+          format(now, 'yyyy-MM-dd')
+        }'`,
+        () => {
+          const displayAge = getDisplayAge(testCase.dateOfBirth, ageDisplayFormat);
+          expect(displayAge).toEqual(testCase.expectedDisplayAge);
+        },
+      );
     });
   });
 });

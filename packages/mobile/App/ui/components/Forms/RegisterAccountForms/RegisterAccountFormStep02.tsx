@@ -1,16 +1,16 @@
-import React, { ReactNode } from 'react';
-import { Formik, FormikHandlers } from 'formik';
-import * as Yup from 'yup';
-import { TextField } from '../../TextField/TextField';
-import { Field } from '../FormField';
-import { StyledView, StyledText, FullView, RowView } from '/styled/common';
+import { userRolesOptions } from '/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { FullView, RowView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
+import { Formik, FormikHandlers } from 'formik';
+import React, { ReactNode } from 'react';
+import * as Yup from 'yup';
+import { RegisterAccountFormStep2FormValues } from '../../../contexts/RegisterAccountContext';
 import { Button } from '../../Button';
 import { Dropdown } from '../../Dropdown';
 import { dropdownItems } from '../../Dropdown/fixture';
-import { RegisterAccountFormStep2FormValues } from '../../../contexts/RegisterAccountContext';
-import { userRolesOptions } from '/helpers/constants';
+import { TextField } from '../../TextField/TextField';
+import { Field } from '../FormField';
 
 interface RegisterAccountFormStep02Props {
   onSubmit: (values: RegisterAccountFormStep2FormValues) => void;

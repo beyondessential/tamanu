@@ -1,6 +1,6 @@
-import React from 'react';
 import Polyglot from 'node-polyglot';
 import PropTypes from 'prop-types';
+import React from 'react';
 
 // Import strings at build time
 // for multiple locale support we will need to either update the build system or
@@ -13,8 +13,8 @@ const polyglot = new Polyglot();
 polyglot.extend(en);
 
 // Debug feature - hover over a Translated string to see its id
-const SHOW_TRANSLATE_ID =
-  process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+const SHOW_TRANSLATE_ID = process.env.NODE_ENV === 'development' ||
+  process.env.DEBUG_PROD === 'true';
 
 export class Translated extends React.PureComponent {
   // Function to fetch a translated string. Implemented as a static method to

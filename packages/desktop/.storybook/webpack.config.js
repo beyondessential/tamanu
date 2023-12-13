@@ -1,7 +1,6 @@
 /*
  * Tamanu
  * Copyright (c) 2017 - 2022 Beyond Essential Systems Pty Ltd
- *
  */
 const path = require('path');
 const webpack = require('webpack');
@@ -39,7 +38,7 @@ module.exports = async ({ config }) => {
     new webpack.ProvidePlugin({
       Buffer: 'buffer',
     }),
-  )
+  );
 
   // Allow reading in of config json with comments
   config.module.rules.push({
@@ -50,7 +49,6 @@ module.exports = async ({ config }) => {
     },
     type: 'javascript/auto',
   });
-
 
   // Resolve some modules that are problematic in browser to mocks
   config.resolve.alias = {

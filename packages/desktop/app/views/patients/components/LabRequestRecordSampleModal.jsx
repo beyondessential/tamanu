@@ -1,19 +1,19 @@
-import React from 'react';
-import * as yup from 'yup';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import React from 'react';
 import styled from 'styled-components';
+import * as yup from 'yup';
+import { useSuggester } from '../../../api';
 import {
+  AutocompleteField,
+  DateTimeField,
+  Field,
+  Form,
   FormGrid,
   FormModal,
   SuggesterSelectField,
-  Form,
-  Field,
-  DateTimeField,
-  AutocompleteField,
 } from '../../../components';
-import { Colors } from '../../../constants';
-import { useSuggester } from '../../../api';
 import { ModalFormActionRow } from '../../../components/ModalActionRow';
+import { Colors } from '../../../constants';
 
 const validationSchema = yup.object().shape({
   sampleTime: yup.date().required(),

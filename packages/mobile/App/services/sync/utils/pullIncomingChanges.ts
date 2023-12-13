@@ -1,8 +1,8 @@
-import { saveFileInDocuments, makeDirectoryInDocuments } from '/helpers/file';
-import { CentralServerConnection } from '../CentralServerConnection';
-import { calculatePageLimit } from './calculatePageLimit';
-import { SYNC_SESSION_DIRECTION } from '../constants';
+import { makeDirectoryInDocuments, saveFileInDocuments } from '/helpers/file';
 import { groupBy } from 'lodash';
+import { CentralServerConnection } from '../CentralServerConnection';
+import { SYNC_SESSION_DIRECTION } from '../constants';
+import { calculatePageLimit } from './calculatePageLimit';
 import { getFilePath } from './getFilePath';
 
 const persistBatch = async (

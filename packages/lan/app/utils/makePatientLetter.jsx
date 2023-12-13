@@ -1,9 +1,9 @@
-import React from 'react';
 import ReactPDF from '@react-pdf/renderer';
-import path from 'path';
+import { PatientLetter, tmpdir } from '@tamanu/shared/utils';
 import { get } from 'lodash';
+import path from 'path';
+import React from 'react';
 import { v4 as uuid } from 'uuid';
-import { tmpdir, PatientLetter } from '@tamanu/shared/utils';
 
 export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
   const { getLocalisation, models } = req;

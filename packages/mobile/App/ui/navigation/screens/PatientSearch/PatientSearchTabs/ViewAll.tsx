@@ -1,25 +1,25 @@
-import React, { ReactElement, useCallback, FC, useMemo } from 'react';
 import { format } from 'date-fns';
-import { Like, FindOperator } from 'typeorm';
-import { useField, FieldInputProps, FieldMetaProps, FieldHelperProps } from 'formik';
+import { FieldHelperProps, FieldInputProps, FieldMetaProps, useField } from 'formik';
+import React, { FC, ReactElement, useCallback, useMemo } from 'react';
 import { compose } from 'redux';
+import { FindOperator, Like } from 'typeorm';
 // Containers
 import { withPatient } from '/containers/Patient';
 // Components
-import { FullView, StyledView } from '/styled/common';
-import { PatientSectionList } from '/components/PatientSectionList';
 import { LoadingScreen } from '/components/LoadingScreen';
+import { PatientSectionList } from '/components/PatientSectionList';
+import { FullView, StyledView } from '/styled/common';
 // Helpers
 import { Routes } from '/helpers/routes';
 import { useBackendEffect } from '~/ui/hooks';
-//Props
-import { ViewAllScreenProps } from '/interfaces/screens/PatientSearchStack';
+// Props
 import { Button } from '/components/Button';
-import { theme } from '/styled/theme';
 import { FilterIcon } from '/components/Icons/FilterIcon';
-import { useFilterFields } from './PatientFilterScreen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { ViewAllScreenProps } from '/interfaces/screens/PatientSearchStack';
+import { theme } from '/styled/theme';
 import { IPatient } from '~/types';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { useFilterFields } from './PatientFilterScreen';
 
 interface ActiveFilters {
   count: number;

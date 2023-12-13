@@ -1,10 +1,10 @@
-import React, { useCallback } from 'react';
-import * as yup from 'yup';
-import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
-import { useParams } from 'react-router-dom';
 import { pick } from 'lodash';
+import React, { useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import * as yup from 'yup';
 
 import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
@@ -12,25 +12,25 @@ import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
 
-import { useLocalisation } from '../../../contexts/Localisation';
 import { useApi, useSuggester } from '../../../api';
+import { useLocalisation } from '../../../contexts/Localisation';
 
-import { Button, FormSubmitButton } from '../../../components/Button';
-import { ContentPane } from '../../../components/ContentPane';
-import { LoadingIndicator } from '../../../components/LoadingIndicator';
-import { ButtonRow } from '../../../components/ButtonRow';
-import { FormGrid } from '../../../components/FormGrid';
-import {
-  TextInput,
-  SelectField,
-  Field,
-  AutocompleteField,
-  DateTimeInput,
-  DateTimeField,
-  TextField,
-  Form,
-} from '../../../components/Field';
 import { SimpleTopBar } from '../../../components';
+import { Button, FormSubmitButton } from '../../../components/Button';
+import { ButtonRow } from '../../../components/ButtonRow';
+import { ContentPane } from '../../../components/ContentPane';
+import {
+  AutocompleteField,
+  DateTimeField,
+  DateTimeInput,
+  Field,
+  Form,
+  SelectField,
+  TextField,
+  TextInput,
+} from '../../../components/Field';
+import { FormGrid } from '../../../components/FormGrid';
+import { LoadingIndicator } from '../../../components/LoadingIndicator';
 
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
@@ -154,7 +154,9 @@ const ImagingResultRow = ({ result }) => {
   const { externalUrl, completedAt, completedBy, description } = result;
 
   // const { openUrl } = useElectron(); // TODO(web)
-  function openUrl(url) { window.open(url, '_blank'); }
+  function openUrl(url) {
+    window.open(url, '_blank');
+  }
   const onOpenUrl = useCallback(() => openUrl(externalUrl), [openUrl, externalUrl]);
 
   return (
@@ -189,9 +191,7 @@ const ImagingResultsSection = ({ results }) => {
   return (
     <>
       <h3>Results</h3>
-      {results.map(result => (
-        <ImagingResultRow key={result.id} result={result} />
-      ))}
+      {results.map(result => <ImagingResultRow key={result.id} result={result} />)}
     </>
   );
 };

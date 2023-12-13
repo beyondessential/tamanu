@@ -1,6 +1,6 @@
-import Umzug from 'umzug';
 import { readdirSync } from 'fs';
 import path from 'path';
+import Umzug from 'umzug';
 import { runPostMigration } from './runPostMigration';
 
 // before this, we just cut our losses and accept irreversible migrations

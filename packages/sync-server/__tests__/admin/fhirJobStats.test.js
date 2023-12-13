@@ -21,7 +21,7 @@ describe('FHIR job stats', () => {
     } = ctx.store;
     await Promise.all(
       ['topic1', 'topic2', 'topic2', 'topic2', 'topic3', 'topic3'].map(t =>
-        FhirJob.submit(t, { payload: 'value' }),
+        FhirJob.submit(t, { payload: 'value' })
       ),
     );
 

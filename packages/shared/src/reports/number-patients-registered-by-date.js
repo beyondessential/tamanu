@@ -1,5 +1,5 @@
-import { Sequelize, Op } from 'sequelize';
 import { groupBy } from 'lodash';
+import { Op, Sequelize } from 'sequelize';
 import { generateReportFromQueryData } from './utilities';
 
 const parametersToSqlWhere = parameters => {

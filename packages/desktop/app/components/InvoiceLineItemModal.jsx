@@ -1,13 +1,13 @@
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import React, { useCallback } from 'react';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
 import { foreignKey } from '../utils/validation';
-import { FormModal } from './FormModal';
-import { Form, Field, DateField, AutocompleteField, NumberField } from './Field';
-import { FormGrid } from './FormGrid';
 import { FormSubmitCancelRow } from './ButtonRow';
+import { AutocompleteField, DateField, Field, Form, NumberField } from './Field';
+import { FormGrid } from './FormGrid';
+import { FormModal } from './FormModal';
 
 export const InvoiceLineItemModal = ({
   title,
@@ -41,14 +41,13 @@ export const InvoiceLineItemModal = ({
 
   const initialValues = invoiceLineItem
     ? {
-        ...invoiceLineItem,
-        price: invoiceLineItem.invoiceLineType.price,
-        percentageChange:
-          invoiceLineItem.percentageChange && invoiceLineItem.percentageChange * 100,
-      }
+      ...invoiceLineItem,
+      price: invoiceLineItem.invoiceLineType.price,
+      percentageChange: invoiceLineItem.percentageChange && invoiceLineItem.percentageChange * 100,
+    }
     : {
-        dateGenerated: getCurrentDateTimeString(),
-      };
+      dateGenerated: getCurrentDateTimeString(),
+    };
 
   return (
     <FormModal width="md" title={title} open={open} onClose={onClose}>

@@ -1,17 +1,17 @@
+import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
 import {
-  isValid,
-  formatISO9075,
+  differenceInMilliseconds as dateFnsDifferenceInMilliseconds,
   differenceInMonths,
   differenceInWeeks,
   differenceInYears,
   format as dateFnsFormat,
-  differenceInMilliseconds as dateFnsDifferenceInMilliseconds,
-  parseISO,
+  formatISO9075,
   isMatch,
-  sub,
+  isValid,
+  parseISO,
   startOfDay,
+  sub,
 } from 'date-fns';
-import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
 
 export const ISO9075_DATE_FORMAT = 'yyyy-MM-dd';
 export const ISO9075_DATETIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
@@ -21,7 +21,6 @@ export const isISOString = dateString =>
   isMatch(dateString, ISO9075_DATETIME_FORMAT) || isMatch(dateString, ISO9075_DATE_FORMAT);
 
 /**
- *
  * @param date - usually we are working with a ISO9075 date_time_string or date_string but could
  * also be a ISO8061 date string or a date object so we need to gracefully handle all of them.
  * If you know you are working with an ISO9075 date_time_string or date_string, just use parseIso

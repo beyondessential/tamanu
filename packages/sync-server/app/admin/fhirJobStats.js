@@ -5,12 +5,11 @@ export const fhirJobStats = asyncHandler(async (req, res) => {
   const { store, query } = req;
   const { order: orderUnsafe, orderBy: orderByUnsafe } = query;
   const order = orderUnsafe === 'desc' ? 'desc' : 'asc';
-  const orderBy =
-    {
-      topic: 'topic',
-      status: 'status',
-      count: 'COUNT(*)',
-    }[orderByUnsafe] || 'topic';
+  const orderBy = {
+    topic: 'topic',
+    status: 'status',
+    count: 'COUNT(*)',
+  }[orderByUnsafe] || 'topic';
   const stats = await store.sequelize.query(
     `SELECT topic, status, count(*)
      FROM fhir.jobs

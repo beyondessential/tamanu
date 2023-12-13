@@ -1,8 +1,8 @@
 /**
  * Create custom datetime Sequelize types and link to Postgres types.
  */
-import util from 'util';
 import { DataTypes, Utils } from 'sequelize';
+import util from 'util';
 
 // Necessary as DataTypes.ABSTRACT is wrapped with classToInvokable()
 const ABSTRACT = DataTypes.ABSTRACT.prototype.constructor;

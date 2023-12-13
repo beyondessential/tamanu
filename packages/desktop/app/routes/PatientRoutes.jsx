@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { Switch, Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { PatientInfoPane } from '../components/PatientInfoPane';
 import { getPatientNameAsString } from '../components/PatientNameDisplay';
@@ -79,9 +79,7 @@ const isPathUnchanged = (prevProps, nextProps) => prevProps.match.path === nextP
 const RouteWithSubRoutes = ({ path, component, routes }) => (
   <>
     <Route exact path={path} component={component} />
-    {routes?.map(subRoute => (
-      <RouteWithSubRoutes key={`route-${subRoute.path}`} {...subRoute} />
-    ))}
+    {routes?.map(subRoute => <RouteWithSubRoutes key={`route-${subRoute.path}`} {...subRoute} />)}
   </>
 );
 
@@ -101,8 +99,10 @@ export const PatientRoutes = React.memo(() => {
   return (
     <TwoColumnDisplay>
       <PatientInfoPane />
-      {/* Using contain:size along with overflow: auto here allows sticky navigation section
-      to have correct scrollable behavior in relation to the patient info pane and switch components */}
+      {
+        /* Using contain:size along with overflow: auto here allows sticky navigation section
+      to have correct scrollable behavior in relation to the patient info pane and switch components */
+      }
       <PatientPane>
         <PatientPaneInner>
           <PatientNavigation patientRoutes={patientRoutes} />

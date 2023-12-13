@@ -1,24 +1,24 @@
+import { Box, Typography } from '@material-ui/core';
+import Divider from '@material-ui/core/Divider';
+import PropTypes from 'prop-types';
 import React from 'react';
 import styled from 'styled-components';
-import PropTypes from 'prop-types';
-import Divider from '@material-ui/core/Divider';
-import { Typography, Box } from '@material-ui/core';
 
 import { ageInYears, getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
-import { DateDisplay } from '../../DateDisplay';
 import {
-  Colors,
+  ATTENDANT_OF_BIRTH_OPTIONS,
   BIRTH_DELIVERY_TYPE_OPTIONS,
   BIRTH_TYPE_OPTIONS,
-  PLACE_OF_BIRTH_OPTIONS,
-  ATTENDANT_OF_BIRTH_OPTIONS,
-  sexOptions,
+  Colors,
   maritalStatusOptions,
+  PLACE_OF_BIRTH_OPTIONS,
+  sexOptions,
 } from '../../../constants';
+import { DateDisplay } from '../../DateDisplay';
 
-import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
+import { PrintLetterhead } from './reusable/PrintLetterhead';
 
 const TopSection = styled.div`
   margin-top: 10px;
@@ -120,8 +120,10 @@ const DoubleRowEvenSpread = styled(Row)`
   grid-template-columns: ${125 / 480}fr ${119 / 480}fr ${101 / 480}fr ${135 / 480}fr;
 `;
 const TripleRow = styled(Row)`
-  grid-template-columns: ${125 / 480}fr ${47 / 480}fr ${72 / 480}fr ${71 / 480}fr ${101 / 480}fr ${64 /
-      480}fr;
+  grid-template-columns: ${125 / 480}fr ${47 / 480}fr ${72 / 480}fr ${71 / 480}fr ${101 / 480}fr ${
+  64 /
+  480
+}fr;
 `;
 
 const getLabelFromValue = (mapping, v) =>
@@ -204,11 +206,11 @@ const BirthSection = ({ data }) => {
         <ValueCell>{data?.dateOfBirth ? <DateDisplay date={data?.dateOfBirth} /> : ''}</ValueCell>
         <KeyCell>Birth time</KeyCell>
         <ValueCell>
-          {data?.birthData?.timeOfBirth ? (
-            <DateDisplay showDate={false} showTime date={data?.birthData?.timeOfBirth} />
-          ) : (
-            ''
-          )}
+          {data?.birthData?.timeOfBirth ?
+            <DateDisplay showDate={false} showTime date={data?.birthData?.timeOfBirth} /> :
+            (
+              ''
+            )}
         </ValueCell>
       </TripleRow>
       <SingleRow>
@@ -231,12 +233,14 @@ const BirthSection = ({ data }) => {
         <KeyCell>Name of attendant</KeyCell>
         <ValueCell>{data?.birthData?.nameOfAttendantAtBirth}</ValueCell>
       </DoubleRowEvenSpread>
-      {shouldDisplayDeath ? (
-        <SingleRow>
-          <KeyCell>Cause of foetal death</KeyCell>
-          <ValueCell>{data?.deathData?.causes?.primary?.condition?.name}</ValueCell>
-        </SingleRow>
-      ) : null}
+      {shouldDisplayDeath ?
+        (
+          <SingleRow>
+            <KeyCell>Cause of foetal death</KeyCell>
+            <ValueCell>{data?.deathData?.causes?.primary?.condition?.name}</ValueCell>
+          </SingleRow>
+        ) :
+        null}
     </Table>
   );
 };

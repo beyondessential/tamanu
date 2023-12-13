@@ -1,8 +1,8 @@
-import { Entity, Column, Like } from 'typeorm/browser';
 import { ManyToOne } from 'typeorm';
-import { BaseModel } from './BaseModel';
+import { Column, Entity, Like } from 'typeorm/browser';
 import { IReferenceData, ReferenceDataType } from '~/types';
 import { VisibilityStatus } from '../visibilityStatuses';
+import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 
 @Entity('reference_data')

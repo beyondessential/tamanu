@@ -1,5 +1,5 @@
-import React from 'react';
 import { GENERAL_IMPORTABLE_DATA_TYPES } from '@tamanu/constants/importable';
+import React from 'react';
 import { ImportExportView } from './components/ImportExportView';
 
 export const ReferenceDataAdminView = () => (

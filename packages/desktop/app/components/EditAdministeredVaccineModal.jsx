@@ -1,11 +1,11 @@
+import { VACCINE_RECORDING_TYPES, VACCINE_STATUS } from '@tamanu/constants';
 import React, { useCallback } from 'react';
-import { VACCINE_STATUS, VACCINE_RECORDING_TYPES } from '@tamanu/constants';
 import { useDispatch } from 'react-redux';
-import { FormModal } from './FormModal';
 import { useApi, useSuggester } from '../api';
-import { reloadPatient } from '../store/patient';
-import { ViewAdministeredVaccineContent } from './ViewAdministeredVaccineModal';
 import { VaccineForm } from '../forms/VaccineForm';
+import { reloadPatient } from '../store/patient';
+import { FormModal } from './FormModal';
+import { ViewAdministeredVaccineContent } from './ViewAdministeredVaccineModal';
 
 export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccineRecord }) => {
   const api = useApi();
@@ -48,9 +48,9 @@ export const EditAdministeredVaccineModal = ({ open, onClose, patientId, vaccine
         patientId={patientId}
         editMode
         currentVaccineRecordValues={vaccineRecord}
-        vaccineRecordingType={
-          notGiven ? VACCINE_RECORDING_TYPES.NOT_GIVEN : VACCINE_RECORDING_TYPES.GIVEN
-        }
+        vaccineRecordingType={notGiven
+          ? VACCINE_RECORDING_TYPES.NOT_GIVEN
+          : VACCINE_RECORDING_TYPES.GIVEN}
       />
     </FormModal>
   );

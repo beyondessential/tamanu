@@ -1,14 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { ContentPane } from '../../../components';
-import { PatientLabTestsTable } from '../PatientLabTestsTable';
-import { ResultsSearchBar } from '../../../components/ResultsSearchBar';
 import { usePatientLabTestResults } from '../../../api/queries/usePatientLabTestResults';
-import { Colors } from '../../../constants';
+import { ContentPane } from '../../../components';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
-import { usePatientSearchParameters } from '../../../contexts/PatientViewSearchParameters';
+import { ResultsSearchBar } from '../../../components/ResultsSearchBar';
+import { Colors } from '../../../constants';
 import { useAuth } from '../../../contexts/Auth';
+import { usePatientSearchParameters } from '../../../contexts/PatientViewSearchParameters';
+import { PatientLabTestsTable } from '../PatientLabTestsTable';
 
 const MessageContainer = styled.div`
   padding: 30px;
@@ -75,9 +75,7 @@ export const PatientResultsPane = React.memo(({ patient }) => {
         patientId={patient?.id}
       />
       <ContentPane>
-        {!canViewLabRequestResults ? (
-          <WrongPermissionMessage />
-        ) : (
+        {!canViewLabRequestResults ? <WrongPermissionMessage /> : (
           <>
             {noResults && <NoResultsMessage />}
             {isInitialLoad && <LoadingIndicator height={400} />}

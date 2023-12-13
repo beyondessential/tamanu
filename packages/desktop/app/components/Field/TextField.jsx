@@ -1,9 +1,9 @@
-import React from 'react';
 import MuiTextField from '@material-ui/core/TextField';
 import PropTypes from 'prop-types';
+import React from 'react';
 import styled, { css } from 'styled-components';
-import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
+import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 
 const JoinedFieldStyles = css`
   position: relative;
@@ -28,8 +28,7 @@ export const StyledTextField = styled(MuiTextField)`
 
   // The actual input field
   .MuiInputBase-input {
-    ${props =>
-      props.style?.color ? `color: ${props.style.color}` : `color: ${Colors.darkestText}`};
+    ${props => props.style?.color ? `color: ${props.style.color}` : `color: ${Colors.darkestText}`};
     padding: 13px 12px 13px 15px;
     line-height: 18px;
     ${props => (props.style?.minHeight ? `min-height: ${props.style.minHeight}` : '')};

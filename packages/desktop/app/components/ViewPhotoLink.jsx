@@ -1,9 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { useApi } from '../api';
 import { getImageSourceFromData } from '../utils';
-import { Modal } from './Modal';
 import { TextButton } from './Button';
+import { Modal } from './Modal';
 
 const Image = styled.img`
   display: block;
@@ -44,11 +44,9 @@ export const ViewPhotoLink = ({ imageId }) => {
         View Image
       </TextButton>
       <Modal title="Image" open={showModal} onClose={() => setShowModal(false)}>
-        {imageData && !errorMessage ? (
-          <Image src={getImageSourceFromData(imageData)} />
-        ) : (
-          <p>{errorMessage}</p>
-        )}
+        {imageData && !errorMessage ?
+          <Image src={getImageSourceFromData(imageData)} /> :
+          <p>{errorMessage}</p>}
       </Modal>
     </>
   );

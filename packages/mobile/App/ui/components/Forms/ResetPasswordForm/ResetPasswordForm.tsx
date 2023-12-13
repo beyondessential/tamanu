@@ -1,8 +1,8 @@
+import { ResetPasswordFormProps } from '/interfaces/forms/ResetPasswordFormProps';
 import React, { FunctionComponent, ReactElement } from 'react';
 import { Form } from '../Form';
-import { ResetPasswordFields } from './ResetPasswordFields';
-import { ResetPasswordFormProps } from '/interfaces/forms/ResetPasswordFormProps';
 import { resetPasswordInitialValues, resetPasswordValidationSchema } from './helpers';
+import { ResetPasswordFields } from './ResetPasswordFields';
 
 export const ResetPasswordForm: FunctionComponent<ResetPasswordFormProps> = ({
   onSubmitForm,

@@ -55,7 +55,7 @@ export async function down(query) {
   await query.sequelize.query(
     Object.entries(BTREE_INDEXES)
       .flatMap(([tableName, fields]) =>
-        fields.map(field => `DROP INDEX IF EXISTS fhir.${tableName}_${field}_idx;`),
+        fields.map(field => `DROP INDEX IF EXISTS fhir.${tableName}_${field}_idx;`)
       )
       .join(' '),
   );
@@ -66,7 +66,7 @@ export async function down(query) {
         fields.map(
           field =>
             `DROP INDEX IF EXISTS fhir.${tableName}_${field}_gin; DROP INDEX IF EXISTS fhir.${tableName}_${field}_ginp;`,
-        ),
+        )
       )
       .join(' '),
   );

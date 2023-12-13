@@ -1,7 +1,7 @@
 import React from 'react';
+import { useApi } from '../api';
 import { useEncounter } from '../contexts/Encounter';
 import { DiagnosisForm } from '../forms/DiagnosisForm';
-import { useApi } from '../api';
 import { FormModal } from './FormModal';
 
 export const DiagnosisModal = React.memo(({ diagnosis, onClose, encounterId, ...props }) => {

@@ -1,13 +1,13 @@
-import React, { useState, useCallback } from 'react';
-import styled from 'styled-components';
 import { Collapse, Divider, IconButton, ListItem, Typography } from '@material-ui/core';
-import { useDispatch } from 'react-redux';
+import { ExpandLess, ExpandMore, NavigateBefore, NavigateNext } from '@material-ui/icons';
 import { useQuery } from '@tanstack/react-query';
-import { ExpandMore, ExpandLess, NavigateBefore, NavigateNext } from '@material-ui/icons';
-import { usePatientNavigation } from '../utils/usePatientNavigation';
-import { reloadPatient } from '../store/patient';
+import React, { useCallback, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import styled from 'styled-components';
 import { useApi } from '../api';
 import { Colors } from '../constants';
+import { reloadPatient } from '../store/patient';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { DateDisplay } from './DateDisplay';
 import { ThemedTooltip } from './Tooltip';
 
@@ -187,27 +187,31 @@ export const RecentlyViewedPatientsList = ({ encounterType }) => {
       </ContainerTitle>
       <Collapse in={isExpanded} timeout="auto" unmountOnExit>
         <CardListContainer>
-          {pageIndex > 0 ? (
-            <LeftArrowButton onClick={() => changePage(-1)}>
-              <NavigateBefore />
-            </LeftArrowButton>
-          ) : (
-            <MarginDiv />
-          )}
+          {pageIndex > 0 ?
+            (
+              <LeftArrowButton onClick={() => changePage(-1)}>
+                <NavigateBefore />
+              </LeftArrowButton>
+            ) :
+            <MarginDiv />}
           <CardList>
             {recentlyViewedPatients
               .slice(pageIndex * PATIENTS_PER_PAGE, (pageIndex + 1) * PATIENTS_PER_PAGE)
               .map(patient => (
-                <Card key={patient.id} patient={patient} handleClick={cardOnClick} />
+                <Card
+                  key={patient.id}
+                  patient={patient}
+                  handleClick={cardOnClick}
+                />
               ))}
           </CardList>
-          {pageIndex < pageCount - 1 ? (
-            <RightArrowButton onClick={() => changePage(1)}>
-              <NavigateNext />
-            </RightArrowButton>
-          ) : (
-            <MarginDiv />
-          )}
+          {pageIndex < pageCount - 1 ?
+            (
+              <RightArrowButton onClick={() => changePage(1)}>
+                <NavigateNext />
+              </RightArrowButton>
+            ) :
+            <MarginDiv />}
         </CardListContainer>
       </Collapse>
       {!isExpanded && <ComponentDivider />}

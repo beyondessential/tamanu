@@ -1,23 +1,23 @@
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 import React, {
   FunctionComponent,
   ReactElement,
-  useRef,
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import * as Yup from 'yup';
-import { StyledView, StyledText } from '/styled/common';
-import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { useAuth } from '~/ui/contexts/AuthContext';
 import { readConfig } from '~/services/config';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { useFacility } from '~/ui/contexts/FacilityContext';
-import { Form } from './Form';
-import { Field } from './FormField';
-import { TextField } from '../TextField/TextField';
 import { Button } from '../Button';
 import { ServerSelector } from '../ServerSelectorField/ServerSelector';
+import { TextField } from '../TextField/TextField';
+import { Form } from './Form';
+import { Field } from './FormField';
 
 interface SignInFormModelValues {
   email: string;
@@ -29,14 +29,14 @@ const REQUIRED_VALIDATION_MESSAGE = '*Required';
 
 const ServerInfo = __DEV__
   ? ({ host }): ReactElement => {
-      const { facilityName } = useFacility();
-      return (
-        <StyledView marginBottom={10}>
-          <StyledText color={theme.colors.WHITE}>Server: {host}</StyledText>
-          <StyledText color={theme.colors.WHITE}>Facility: {facilityName}</StyledText>
-        </StyledView>
-      );
-    }
+    const { facilityName } = useFacility();
+    return (
+      <StyledView marginBottom={10}>
+        <StyledText color={theme.colors.WHITE}>Server: {host}</StyledText>
+        <StyledText color={theme.colors.WHITE}>Facility: {facilityName}</StyledText>
+      </StyledView>
+    );
+  }
   : (): ReactElement => null; // hide info on production
 
 export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
@@ -94,11 +94,9 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
           marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
         >
           <StyledView justifyContent="space-around">
-            {existingHost ? (
-              <ServerInfo host={existingHost} />
-            ) : (
-              <Field name="server" component={ServerSelector} label="Country" />
-            )}
+            {existingHost ?
+              <ServerInfo host={existingHost} /> :
+              <Field name="server" component={ServerSelector} label="Country" />}
             <Field
               name="email"
               keyboardType="email-address"

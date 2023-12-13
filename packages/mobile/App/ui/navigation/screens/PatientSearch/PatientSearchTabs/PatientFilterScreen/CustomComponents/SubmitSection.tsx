@@ -1,8 +1,8 @@
-import React, { ReactElement } from 'react';
-import { CenterView } from '/styled/common';
-import { theme } from '/styled/theme';
 import { Button } from '/components/Button';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { CenterView } from '/styled/common';
+import { theme } from '/styled/theme';
+import React, { ReactElement } from 'react';
 
 const SubmitSection = ({
   onSubmit,

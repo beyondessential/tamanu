@@ -1,3 +1,6 @@
+import { addHours, startOfDay, subDays } from 'date-fns';
+import { getUniqueId } from 'react-native-device-info';
+import { AfterInsert } from 'typeorm';
 import {
   BeforeInsert,
   Column,
@@ -8,32 +11,29 @@ import {
   OneToMany,
   RelationId,
 } from 'typeorm/browser';
-import { AfterInsert } from 'typeorm';
-import { startOfDay, addHours, subDays } from 'date-fns';
-import { getUniqueId } from 'react-native-device-info';
 
-import { BaseModel, IdRelation } from './BaseModel';
-import { IEncounter, EncounterType } from '~/types';
-import { Patient } from './Patient';
-import { Diagnosis } from './Diagnosis';
-import { Medication } from './Medication';
-import { User } from './User';
-import { AdministeredVaccine } from './AdministeredVaccine';
-import { SurveyResponse } from './SurveyResponse';
-import { Vitals } from './Vitals';
 import { formatDateForQuery } from '~/infra/db/helpers';
-import { SummaryInfo } from '~/ui/navigation/screens/home/Tabs/PatientHome/ReportScreen/SummaryBoard';
-import { Department } from './Department';
-import { Location } from './Location';
-import { Referral } from './Referral';
-import { LabRequest } from './LabRequest';
-import { EncounterHistory } from './EncounterHistory';
-import { readConfig } from '~/services/config';
 import { ReferenceData, ReferenceDataRelation } from '~/models/ReferenceData';
-import { SYNC_DIRECTIONS } from './types';
+import { readConfig } from '~/services/config';
+import { EncounterType, IEncounter } from '~/types';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { SummaryInfo } from '~/ui/navigation/screens/home/Tabs/PatientHome/ReportScreen/SummaryBoard';
+import { AdministeredVaccine } from './AdministeredVaccine';
+import { BaseModel, IdRelation } from './BaseModel';
 import { DateTimeStringColumn } from './DateColumns';
+import { Department } from './Department';
+import { Diagnosis } from './Diagnosis';
+import { EncounterHistory } from './EncounterHistory';
+import { LabRequest } from './LabRequest';
+import { Location } from './Location';
+import { Medication } from './Medication';
 import { Note } from './Note';
+import { Patient } from './Patient';
+import { Referral } from './Referral';
+import { SurveyResponse } from './SurveyResponse';
+import { SYNC_DIRECTIONS } from './types';
+import { User } from './User';
+import { Vitals } from './Vitals';
 
 const TIME_OFFSET = 3;
 

@@ -8,7 +8,7 @@
 POST /v1/login
 ```
 
-Expects a JSON-formatted body containing `email` and `password` fields. 
+Expects a JSON-formatted body containing `email` and `password` fields.
 
 Will respond with a payload containing an authentication token to be attached to future requests, as well as up-to-date information about the freshly logged-in user's settings.
 

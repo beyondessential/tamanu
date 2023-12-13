@@ -1,6 +1,6 @@
 import { createDummyEncounter } from '@tamanu/shared/demoData/patients';
-import { subMinutes } from 'date-fns';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { subMinutes } from 'date-fns';
 import { createTestContext } from '../../../utilities';
 import {
   createCovidTestForPatient,

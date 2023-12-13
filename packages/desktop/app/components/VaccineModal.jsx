@@ -1,14 +1,14 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { VACCINE_RECORDING_TYPES } from '@tamanu/constants';
 
-import { FormModal } from './FormModal';
-import { VaccineForm } from '../forms/VaccineForm';
-import { SegmentTabDisplay } from './SegmentTabDisplay';
 import { useApi, useSuggester } from '../api';
-import { reloadPatient } from '../store/patient';
+import { VaccineForm } from '../forms/VaccineForm';
 import { getCurrentUser } from '../store/auth';
+import { reloadPatient } from '../store/patient';
+import { FormModal } from './FormModal';
+import { SegmentTabDisplay } from './SegmentTabDisplay';
 
 export const VaccineModal = ({ open, onClose, patientId }) => {
   const [currentTabKey, setCurrentTabKey] = useState(VACCINE_RECORDING_TYPES.GIVEN);

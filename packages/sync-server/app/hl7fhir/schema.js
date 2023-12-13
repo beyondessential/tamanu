@@ -1,8 +1,8 @@
-import * as yup from 'yup';
 import { isArray } from 'lodash';
+import * as yup from 'yup';
 
-import { isValidIdentifier, getSortParameterName } from './utils';
 import { hl7PatientFields, sortableHL7PatientFields } from './hl7PatientFields';
+import { getSortParameterName, isValidIdentifier } from './utils';
 
 const MAX_RECORDS = 20;
 

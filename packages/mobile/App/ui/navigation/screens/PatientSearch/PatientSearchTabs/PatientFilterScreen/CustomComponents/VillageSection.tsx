@@ -1,16 +1,16 @@
-import React, { ReactElement } from 'react';
 import { useNavigation } from '@react-navigation/core';
+import React, { ReactElement } from 'react';
 
-//Components
-import { Section } from './Section';
-import { StyledView } from '~/ui/styled/common';
-import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
+// Components
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
+import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
+import { StyledView } from '~/ui/styled/common';
+import { Section } from './Section';
 // Helpers
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
-import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
-import { Routes } from '~/ui/helpers/routes';
 import { ReferenceDataType } from '~/types';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { Routes } from '~/ui/helpers/routes';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { Suggester } from '~/ui/helpers/suggester';
 import { useBackend } from '~/ui/hooks';
 

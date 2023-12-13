@@ -1,7 +1,7 @@
 import config from 'config';
-import { EmailService } from './services/EmailService';
 import { closeDatabase, initDatabase, initReporting } from './database';
 import { initIntegrations } from './integrations';
+import { EmailService } from './services/EmailService';
 
 export class ApplicationContext {
   store = null;

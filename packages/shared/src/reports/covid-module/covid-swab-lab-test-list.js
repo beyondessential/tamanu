@@ -1,16 +1,16 @@
+import { LAB_REQUEST_STATUS_CONFIG, LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import {
-  isWithinInterval,
-  isBefore,
-  isAfter,
-  startOfDay,
   endOfDay,
+  isAfter,
+  isBefore,
   isSameDay,
+  isWithinInterval,
   parseISO,
+  startOfDay,
   subDays,
 } from 'date-fns';
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
-import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
 import { differenceInMilliseconds, format } from '../../utils/dateTime';
 import { generateReportFromQueryData } from '../utilities';
 import { transformAnswers } from '../utilities/transformAnswers';
@@ -168,13 +168,13 @@ const getFijiCovidAnswers = async (models, parameters, { surveyId, dateFormat })
             // patient is only necessary if a village is specified
             ...(parameters.village
               ? {
-                  include: [
-                    {
-                      model: models.Patient,
-                      as: 'patient',
-                    },
-                  ],
-                }
+                include: [
+                  {
+                    model: models.Patient,
+                    as: 'patient',
+                  },
+                ],
+              }
               : {}),
           },
         ],
@@ -212,14 +212,14 @@ const getLatestPatientAnswerInDateRange = (
   }
 
   const sortedLatestToOldestAnswers = patientTransformedAnswers.sort((a1, a2) =>
-    differenceInMilliseconds(parseISO(a2.responseEndTime), parseISO(a1.responseEndTime)),
+    differenceInMilliseconds(parseISO(a2.responseEndTime), parseISO(a1.responseEndTime))
   );
 
   const latestAnswer = sortedLatestToOldestAnswers.find(a =>
     isWithinInterval(parseISO(a.responseEndTime), {
       start: currentlabTestDate,
       end: nextLabTestDate,
-    }),
+    })
   );
 
   return latestAnswer?.body;
@@ -259,10 +259,9 @@ const getLabTestRecords = async (
 
       const labTest = patientLabTests[i];
       const currentLabTestDate = startOfDay(parseISO(labTest.date));
-      const dateToFilterBy =
-        dateFilterBy === 'labRequest.sampleTime'
-          ? startOfDay(parseISO(labTest.labRequest.sampleTime))
-          : currentLabTestDate;
+      const dateToFilterBy = dateFilterBy === 'labRequest.sampleTime'
+        ? startOfDay(parseISO(labTest.labRequest.sampleTime))
+        : currentLabTestDate;
 
       // Get all lab tests regardless and filter fromDate and toDate in memory
       // to ensure that we have the date range from current lab test to the next lab test correctly.

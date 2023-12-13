@@ -47,8 +47,8 @@ const getBloodPressureDescription = (description, key) => {
 const getDefaultMeasureData = (rawData, visualisationConfig) => {
   const { yAxis } = visualisationConfig;
   return rawData.map(d => {
-    const isInsideNormalRange =
-      d.value >= yAxis.normalRange.min && d.value <= yAxis.normalRange.max;
+    const isInsideNormalRange = d.value >= yAxis.normalRange.min &&
+      d.value <= yAxis.normalRange.max;
     const isOutsideGraphRange = d.value < yAxis.graphRange.min || d.value > yAxis.graphRange.max;
 
     const dotColor = getDotColor({
@@ -83,10 +83,10 @@ const getInwardArrowMeasureData = (rawData, visualisationConfig, secondaryConfig
   return defaultMeasureData.map(baseData => {
     const secondaryData = { value: baseData.inwardArrowVector.bottom };
 
-    const isInsideNormalRange =
-      secondaryData.value >= yAxis.normalRange.min && secondaryData.value <= yAxis.normalRange.max;
-    const isOutsideGraphRange =
-      secondaryData.value < yAxis.graphRange.min || secondaryData.value > yAxis.graphRange.max;
+    const isInsideNormalRange = secondaryData.value >= yAxis.normalRange.min &&
+      secondaryData.value <= yAxis.normalRange.max;
+    const isOutsideGraphRange = secondaryData.value < yAxis.graphRange.min ||
+      secondaryData.value > yAxis.graphRange.max;
 
     const secondaryValueDotColor = getDotColor({
       isInsideNormalRange,
@@ -101,8 +101,9 @@ const getInwardArrowMeasureData = (rawData, visualisationConfig, secondaryConfig
     });
 
     // Preserve the first one if its an alert, otherwise the secondary
-    const finalDotColor =
-      baseData.dotColor === Colors.alert ? Colors.alert : secondaryValueDotColor;
+    const finalDotColor = baseData.dotColor === Colors.alert
+      ? Colors.alert
+      : secondaryValueDotColor;
 
     return {
       ...baseData,

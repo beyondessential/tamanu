@@ -1,9 +1,9 @@
 import bcrypt from 'bcrypt';
 
-import { fake, chance } from '@tamanu/shared/test-helpers';
+import { chance, fake } from '@tamanu/shared/test-helpers';
 
-import { createTestContext } from '../utilities';
 import { changePassword } from '../../app/subCommands/user';
+import { createTestContext } from '../utilities';
 
 // mock 'read' and provide implementation
 jest.mock('read');

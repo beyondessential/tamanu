@@ -1,8 +1,8 @@
-import config from 'config';
 import { FHIR_INTERACTIONS, JOB_TOPICS } from '@tamanu/constants';
-import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
+import { ScheduledTask } from '@tamanu/shared/tasks';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
+import config from 'config';
 import { prepareQuery } from '../utils/prepareQuery';
 
 export class FhirMissingResources extends ScheduledTask {

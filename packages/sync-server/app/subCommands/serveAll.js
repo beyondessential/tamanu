@@ -1,5 +1,5 @@
-import config from 'config';
 import { Command } from 'commander';
+import config from 'config';
 
 import { log } from '@tamanu/shared/services/logging';
 

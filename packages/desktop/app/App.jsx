@@ -2,13 +2,13 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import 'typeface-roboto';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
+import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
 import { Colors } from './constants';
 import { checkIsLoggedIn } from './store/auth';
 import { getCurrentRoute } from './store/router';
 import { LoginView } from './views';
-import { ErrorBoundary } from './components/ErrorBoundary';
-import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
-import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
 
 const AppContainer = styled.div`
   display: flex;

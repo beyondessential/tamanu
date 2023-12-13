@@ -1,16 +1,16 @@
-import config from 'config';
-import fs from 'fs';
-import path from 'path';
-import { format as formatDate } from 'date-fns';
 import * as AWS from '@aws-sdk/client-s3';
+import config from 'config';
+import { format as formatDate } from 'date-fns';
+import fs from 'fs';
 import mkdirp from 'mkdirp';
+import path from 'path';
 
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { getReportModule } from '@tamanu/shared/reports';
 import { createNamedLogger } from '@tamanu/shared/services/logging/createNamedLogger';
 
-import { removeFile, createZippedSpreadsheet, writeToSpreadsheet } from '../utils/files';
 import { getLocalisation } from '../localisation';
+import { createZippedSpreadsheet, removeFile, writeToSpreadsheet } from '../utils/files';
 
 const REPORT_RUNNER_LOG_NAME = 'ReportRunner';
 
@@ -58,7 +58,6 @@ export class ReportRunner {
   }
 
   /**
-   *
    * @returns {Promise<string>}
    */
   async getRequestedByUser() {
@@ -66,7 +65,6 @@ export class ReportRunner {
   }
 
   /**
-   *
    * @returns {Promise<string[][]>}
    */
   async getMetadata() {
@@ -173,7 +171,6 @@ export class ReportRunner {
   }
 
   /**
-   *
    * @returns {Promise<string>}
    */
   async getReportName() {

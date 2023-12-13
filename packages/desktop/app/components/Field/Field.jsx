@@ -1,15 +1,15 @@
-import React from 'react';
+import MuiBox from '@material-ui/core/Box';
 import {
-  Field as FormikField,
-  useField,
   connect as formikConnect,
+  Field as FormikField,
   getIn,
+  useField,
   useFormikContext,
 } from 'formik';
-import MuiBox from '@material-ui/core/Box';
+import React from 'react';
+import { FORM_STATUSES } from '../../constants';
 import { FormTooltip } from '../FormTooltip';
 import { TextField } from './TextField';
-import { FORM_STATUSES } from '../../constants';
 
 export const Field = formikConnect(
   ({
@@ -37,9 +37,9 @@ export const Field = formikConnect(
 
     const combinedOnChange = onChange
       ? (...args) => {
-          onChange(...args);
-          return baseOnChange(...args);
-        }
+        onChange(...args);
+        return baseOnChange(...args);
+      }
       : baseOnChange;
 
     return (
@@ -60,7 +60,6 @@ export const Field = formikConnect(
  *
  * @param tooltipText - the text for the tooltip to show
  * @param muiTooltipProps - material ui tooltip props @see https://v4.mui.com/api/tooltip
- *
  */
 export const FieldWithTooltip = ({ tooltipText, muiTooltipProps, ...props }) => (
   <MuiBox position="relative">

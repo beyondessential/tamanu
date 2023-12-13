@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
 import { compareDesc } from 'date-fns';
+import React, { useEffect, useState } from 'react';
+import { useApi } from '../../api';
 import { DateDisplay, formatTime } from '../DateDisplay';
 import { SelectInput } from './SelectField';
-import { useApi } from '../../api';
 
 const getDataLabel = (endTime, surveyName) => {
   const shortDate = DateDisplay.stringFormat(endTime);

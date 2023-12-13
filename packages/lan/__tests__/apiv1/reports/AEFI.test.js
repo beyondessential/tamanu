@@ -1,16 +1,19 @@
 import {
+  createDummyAefiProgramDataElements,
+  createDummyAefiSurveyAnswers,
+  createDummyAefiSurveyScreenComponent,
+} from '@tamanu/shared/demoData';
+import {
   createDummyEncounter,
   createDummyPatient,
   randomReferenceId,
 } from '@tamanu/shared/demoData/patients';
 import {
-  createDummyAefiSurveyAnswers,
-  createDummyAefiProgramDataElements,
-  createDummyAefiSurveyScreenComponent,
-} from '@tamanu/shared/demoData';
-import { createAdministeredVaccine, createScheduledVaccine } from '@tamanu/shared/demoData/vaccines';
-import { createTestContext } from '../../utilities';
+  createAdministeredVaccine,
+  createScheduledVaccine,
+} from '@tamanu/shared/demoData/vaccines';
 import { parseISO } from 'date-fns';
+import { createTestContext } from '../../utilities';
 
 describe('AEFI report', () => {
   let baseApp = null;

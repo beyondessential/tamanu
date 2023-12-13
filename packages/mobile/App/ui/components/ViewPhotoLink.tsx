@@ -1,14 +1,14 @@
-import React, { useCallback, useState } from 'react';
-import { Dimensions, View, Alert, TouchableOpacity } from 'react-native';
-import { useNetInfo } from '@react-native-community/netinfo';
-import CameraRoll from '@react-native-community/cameraroll';
-import Modal from 'react-native-modal';
-import FlashMessage, { showMessage } from 'react-native-flash-message';
-import { useBackend } from '~/ui/hooks';
-import { theme } from '/styled/theme';
-import { StyledView, StyledText, StyledImage } from '/styled/common';
+import { deleteFileInDocuments, saveFileInDocuments } from '/helpers/file';
 import { imageToBase64URI } from '/helpers/image';
-import { saveFileInDocuments, deleteFileInDocuments } from '/helpers/file';
+import { StyledImage, StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
+import CameraRoll from '@react-native-community/cameraroll';
+import { useNetInfo } from '@react-native-community/netinfo';
+import React, { useCallback, useState } from 'react';
+import { Alert, Dimensions, TouchableOpacity, View } from 'react-native';
+import FlashMessage, { showMessage } from 'react-native-flash-message';
+import Modal from 'react-native-modal';
+import { useBackend } from '~/ui/hooks';
 import { BaseInputProps } from '../interfaces/BaseInputProps';
 
 export interface ViewPhotoLinkProps extends BaseInputProps {
@@ -130,9 +130,7 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
             />
           </TouchableOpacity>
         )}
-        {errorMessage && (
-          <Message color={theme.colors.ALERT} message={errorMessage} />
-        )}
+        {errorMessage && <Message color={theme.colors.ALERT} message={errorMessage} />}
         {loading && (
           <Message
             color={theme.colors.BRIGHT_BLUE}

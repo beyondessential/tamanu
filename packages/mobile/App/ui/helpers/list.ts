@@ -1,5 +1,5 @@
-import { IPatient } from '~/types';
 import { PatientSectionListItem } from '/interfaces/PatientSectionList';
+import { IPatient } from '~/types';
 
 function getGroupingLetter(patient: IPatient): string {
   if (!patient.lastName) return '';

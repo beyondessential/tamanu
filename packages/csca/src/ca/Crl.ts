@@ -5,17 +5,17 @@ import { promises as fs } from 'fs';
 import { AsnConvert, OctetString } from '@peculiar/asn1-schema';
 import {
   AuthorityKeyIdentifier,
-  CRLNumber,
   CertificateList,
+  CRLNumber,
   Extension,
   GeneralName,
+  id_ce_authorityKeyIdentifier,
+  id_ce_cRLNumber,
   Name,
   RevokedCertificate,
   TBSCertList,
   Time,
   Version,
-  id_ce_authorityKeyIdentifier,
-  id_ce_cRLNumber,
 } from '@peculiar/asn1-x509';
 import {
   AuthorityKeyIdentifierExtension,
@@ -66,13 +66,13 @@ export default class Crl {
 
     const revokedCertificates = revokedCerts.length
       ? revokedCerts.map(
-          (cert) =>
-            new RevokedCertificate({
-              // rome-ignore lint/style/noNonNullAssertion: always exists here
-              revocationDate: new Time(cert.revocationDate!),
-              userCertificate: cert.serial,
-            }),
-        )
+        cert =>
+          new RevokedCertificate({
+            // rome-ignore lint/style/noNonNullAssertion: always exists here
+            revocationDate: new Time(cert.revocationDate!),
+            userCertificate: cert.serial,
+          }),
+      )
       : undefined;
 
     // Doc 9303-12 defines the CRL profile in §7.1.4:
@@ -94,7 +94,7 @@ export default class Crl {
     //     so it's not at all the same API >:(
 
     const keyIdentifier = asAki(
-      ca.x509.extensions.find((ext) => ext.type === id_ce_authorityKeyIdentifier),
+      ca.x509.extensions.find(ext => ext.type === id_ce_authorityKeyIdentifier),
     )?.keyId;
     if (!keyIdentifier) throw new Error('CSCA missing AuthorityKeyIdentifier extension');
 
@@ -187,7 +187,7 @@ export default class Crl {
 
   public async serial(): Promise<Buffer> {
     const crl = await this.read();
-    const numext = crl.crlExtensions?.find((ext) => ext.extnID === id_ce_cRLNumber);
+    const numext = crl.crlExtensions?.find(ext => ext.extnID === id_ce_cRLNumber);
     if (!numext) throw new Error('CRL missing CRLNumber extension');
     const num = AsnConvert.parse(numext.extnValue, CRLNumber);
     return numberToBuffer(num.value);

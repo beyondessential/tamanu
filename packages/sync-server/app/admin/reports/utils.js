@@ -1,6 +1,6 @@
-import { QueryTypes } from 'sequelize';
 import { getReportQueryReplacements } from '@tamanu/shared/utils/reports/getReportQueryReplacements';
 import fs from 'fs';
+import { QueryTypes } from 'sequelize';
 
 export const sanitizeFilename = (reportName, versionNumber, format) => {
   const sanitizedName = reportName

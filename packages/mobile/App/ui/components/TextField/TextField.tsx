@@ -1,13 +1,13 @@
-import React, { useCallback, useState, useRef, useMemo } from 'react';
-import { KeyboardType, StyleSheet, ReturnKeyTypeOptions, TextInput } from 'react-native';
-import { InputContainer, StyledTextInput } from './styles';
-import { TextFieldLabel } from './TextFieldLabel';
-import { StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { BaseInputProps } from '../../interfaces/BaseInputProps';
-import { TextFieldErrorMessage } from './TextFieldErrorMessage';
+import { StyledView } from '/styled/common';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { KeyboardType, ReturnKeyTypeOptions, StyleSheet, TextInput } from 'react-native';
 import { theme } from '~/ui/styled/theme';
+import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { RequiredIndicator } from '../RequiredIndicator';
+import { InputContainer, StyledTextInput } from './styles';
+import { TextFieldErrorMessage } from './TextFieldErrorMessage';
+import { TextFieldLabel } from './TextFieldLabel';
 
 export interface RefObject<T> {
   readonly current: T | null;
@@ -97,11 +97,9 @@ export const TextField = React.memo(
     return (
       <StyledView
         height={styledViewHeight}
-        marginBottom={
-          error
-            ? screenPercentageToDP(3, Orientation.Height)
-            : screenPercentageToDP('2.24', Orientation.Height)
-        }
+        marginBottom={error
+          ? screenPercentageToDP(3, Orientation.Height)
+          : screenPercentageToDP('2.24', Orientation.Height)}
         width="100%"
       >
         <InputContainer>

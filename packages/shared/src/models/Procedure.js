@@ -1,8 +1,8 @@
-import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
+import { Sequelize } from 'sequelize';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
+import { Model } from './Model';
 
 export class Procedure extends Model {
   static init({ primaryKey, ...options }) {

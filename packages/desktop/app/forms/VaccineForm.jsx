@@ -1,23 +1,23 @@
-import React, { useMemo, useEffect, useState } from 'react';
 import { PropTypes } from 'prop-types';
+import React, { useEffect, useMemo, useState } from 'react';
 import * as yup from 'yup';
 
-import { VACCINE_RECORDING_TYPES, VACCINE_CATEGORIES, SETTING_KEYS } from '@tamanu/constants';
+import { SETTING_KEYS, VACCINE_CATEGORIES, VACCINE_RECORDING_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-import { REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
-import { Form } from '../components/Field';
-import { ErrorMessage } from '../components/ErrorMessage';
-import { LoadingIndicator } from '../components/LoadingIndicator';
-import {
-  VaccineGivenForm,
-  VACCINE_GIVEN_INITIAL_VALUES,
-  VACCINE_GIVEN_VALIDATION_SCHEMA,
-} from './VaccineGivenForm';
-import { VaccineNotGivenForm } from './VaccineNotGivenForm';
 import { usePatientCurrentEncounter } from '../api/queries';
 import { useVaccinationSettings } from '../api/queries/useVaccinationSettings';
+import { ErrorMessage } from '../components/ErrorMessage';
+import { Form } from '../components/Field';
+import { LoadingIndicator } from '../components/LoadingIndicator';
+import { REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
 import { useAuth } from '../contexts/Auth';
+import {
+  VACCINE_GIVEN_INITIAL_VALUES,
+  VACCINE_GIVEN_VALIDATION_SCHEMA,
+  VaccineGivenForm,
+} from './VaccineGivenForm';
+import { VaccineNotGivenForm } from './VaccineNotGivenForm';
 
 const validateGivenElsewhereRequiredField = (status, givenElsewhere) =>
   (status === VACCINE_RECORDING_TYPES.GIVEN && !givenElsewhere) ||
@@ -135,32 +135,30 @@ export const VaccineForm = ({
     <Form
       onSubmit={async data => onSubmit({ ...data, category })}
       showInlineErrorsOnly
-      initialValues={
-        !editMode
-          ? {
-              status: vaccineRecordingType,
-              category,
-              date: getCurrentDateTimeString(),
-              locationGroupId: !currentEncounter
-                ? vaccinationDefaults.data?.locationGroupId
-                : currentEncounter.location?.locationGroup?.id,
-              locationId: !currentEncounter
-                ? vaccinationDefaults.data?.locationId
-                : currentEncounter.location?.id,
-              departmentId: !currentEncounter
-                ? vaccinationDefaults.data?.departmentId
-                : currentEncounter.department?.id,
-              ...(vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN
-                ? VACCINE_GIVEN_INITIAL_VALUES
-                : {}),
-            }
-          : {
-              ...currentVaccineRecordValues,
-              ...(currentVaccineRecordValues.circumstanceIds
-                ? { circumstanceIds: JSON.stringify(currentVaccineRecordValues.circumstanceIds) }
-                : {}),
-            }
-      }
+      initialValues={!editMode
+        ? {
+          status: vaccineRecordingType,
+          category,
+          date: getCurrentDateTimeString(),
+          locationGroupId: !currentEncounter
+            ? vaccinationDefaults.data?.locationGroupId
+            : currentEncounter.location?.locationGroup?.id,
+          locationId: !currentEncounter
+            ? vaccinationDefaults.data?.locationId
+            : currentEncounter.location?.id,
+          departmentId: !currentEncounter
+            ? vaccinationDefaults.data?.departmentId
+            : currentEncounter.department?.id,
+          ...(vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN
+            ? VACCINE_GIVEN_INITIAL_VALUES
+            : {}),
+        }
+        : {
+          ...currentVaccineRecordValues,
+          ...(currentVaccineRecordValues.circumstanceIds
+            ? { circumstanceIds: JSON.stringify(currentVaccineRecordValues.circumstanceIds) }
+            : {}),
+        }}
       validationSchema={baseSchemeValidation.shape({
         ...(vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN &&
           VACCINE_GIVEN_VALIDATION_SCHEMA),
@@ -210,19 +208,19 @@ const VaccineFormComponent = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vaccineRecordingType]);
 
-  return vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN ? (
-    <VaccineGivenForm
-      {...props}
-      resetForm={resetForm}
-      setErrors={setErrors}
-      submitForm={submitForm}
-      values={values}
-      patientId={patientId}
-      setValues={setValues}
-    />
-  ) : (
-    <VaccineNotGivenForm {...props} resetForm={resetForm} submitForm={submitForm} />
-  );
+  return vaccineRecordingType === VACCINE_RECORDING_TYPES.GIVEN ?
+    (
+      <VaccineGivenForm
+        {...props}
+        resetForm={resetForm}
+        setErrors={setErrors}
+        submitForm={submitForm}
+        values={values}
+        patientId={patientId}
+        setValues={setValues}
+      />
+    ) :
+    <VaccineNotGivenForm {...props} resetForm={resetForm} submitForm={submitForm} />;
 };
 
 VaccineForm.propTypes = {

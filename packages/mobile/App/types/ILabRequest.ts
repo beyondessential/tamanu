@@ -1,10 +1,10 @@
 import { createDropdownOptionsFromObject } from '~/ui/helpers/fields';
 import { ID } from './ID';
+import { IDepartment } from './IDepartment';
 import { IEncounter } from './IEncounter';
 import { ILabTest } from './ILabTest';
 import { IReferenceData } from './IReferenceData';
 import { IUser } from './IUser';
-import { IDepartment } from './IDepartment';
 
 export enum LabRequestStatus {
   RECEPTION_PENDING = 'reception_pending',

@@ -1,20 +1,20 @@
-import React from 'react';
-import styled, { css } from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
-import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, PATIENT_STATUS } from '../../../constants';
+import React from 'react';
+import styled, { css } from 'styled-components';
+import { useApi } from '../../../api';
+import { usePatientCurrentEncounter } from '../../../api/queries';
 import {
-  DateDisplay,
   Button,
   ButtonWithPermissionCheck,
+  DateDisplay,
   useLocalisedText,
 } from '../../../components';
 import { DeathCertificateModal } from '../../../components/PatientPrinting';
-import { useApi } from '../../../api';
-import { getFullLocationName } from '../../../utils/location';
-import { getPatientStatus } from '../../../utils/getPatientStatus';
+import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, PATIENT_STATUS } from '../../../constants';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { usePatientCurrentEncounter } from '../../../api/queries';
+import { getPatientStatus } from '../../../utils/getPatientStatus';
+import { getFullLocationName } from '../../../utils/location';
 
 const PATIENT_STATUS_COLORS = {
   [PATIENT_STATUS.INPATIENT]: Colors.safe, // Green
@@ -116,8 +116,9 @@ const PatientDeathSummary = React.memo(({ patient }) => {
   const api = useApi();
   const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });
 
-  const { data: deathData, error, isLoading } = useQuery(['patientDeathSummary', patient.id], () =>
-    api.get(`patient/${patient.id}/death`, {}, { showUnknownErrorToast: false }),
+  const { data: deathData, error, isLoading } = useQuery(
+    ['patientDeathSummary', patient.id],
+    () => api.get(`patient/${patient.id}/death`, {}, { showUnknownErrorToast: false }),
   );
 
   if (isLoading) {

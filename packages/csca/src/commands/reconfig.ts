@@ -12,8 +12,8 @@ async function run(folder: string, config?: string): Promise<void> {
   const ca = new CA(folder);
   await ca.openReadOnly();
 
-  const configFile =
-    config || join(await fs.mkdtemp(join(tmpdir(), 'csca-reconfig-')), 'config.json');
+  const configFile = config ||
+    join(await fs.mkdtemp(join(tmpdir(), 'csca-reconfig-')), 'config.json');
 
   if (!config) {
     // Write existing config to tempfile

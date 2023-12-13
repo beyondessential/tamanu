@@ -1,5 +1,5 @@
-import { createDummyPatient, createDummyEncounter } from '@tamanu/shared/demoData/patients';
-import { SURVEY_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, SURVEY_TYPES } from '@tamanu/constants';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { chance } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 
@@ -79,9 +79,9 @@ async function submitMultipleSurveyResponses(survey, overrides, amount = 7) {
         models.SurveyResponse.createWithAnswers({
           ...createDummySurveyResponse(survey),
           ...overrides,
-        }),
+        })
       ),
-    ),
+    )
   );
 }
 

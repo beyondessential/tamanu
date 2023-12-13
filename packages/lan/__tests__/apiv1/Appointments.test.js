@@ -1,7 +1,7 @@
+import { APPOINTMENT_STATUSES, APPOINTMENT_TYPES } from '@tamanu/constants';
 import { createDummyPatient } from '@tamanu/shared/demoData/patients';
-import { add } from 'date-fns';
-import { APPOINTMENT_TYPES, APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { randomRecordId } from '@tamanu/shared/demoData/utilities';
+import { add } from 'date-fns';
 import { createTestContext } from '../utilities';
 
 describe('Appointments', () => {

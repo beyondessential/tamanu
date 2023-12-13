@@ -1,10 +1,10 @@
-import React, { useState, ReactElement } from 'react';
-import { StyledView, StyledText } from '/styled/common';
+import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { createTopTabNavigator } from './index';
+import { NavigationContainer } from '@react-navigation/native';
+import React, { ReactElement, useState } from 'react';
 import * as Icons from '../Icons';
+import { createTopTabNavigator } from './index';
 import { VaccineTabNavigator } from './VaccineTabNavigator';
-import {NavigationContainer} from "@react-navigation/native";
 
 export const routes = [
   {
@@ -100,10 +100,10 @@ const Tabs = createTopTabNavigator();
 export const App = (): ReactElement => (
   <NavigationContainer>
     <Tabs.Navigator>
-    <Tabs.Screen name="1" component={FirstRoute} />
-    <Tabs.Screen name="2" component={SecondRoute} />
-    <Tabs.Screen name="3" component={ThirdRoute} />
-  </Tabs.Navigator>
+      <Tabs.Screen name="1" component={FirstRoute} />
+      <Tabs.Screen name="2" component={SecondRoute} />
+      <Tabs.Screen name="3" component={ThirdRoute} />
+    </Tabs.Navigator>
   </NavigationContainer>
 );
 

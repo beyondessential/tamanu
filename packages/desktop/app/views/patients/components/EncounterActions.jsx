@@ -1,21 +1,21 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { useLocalisation } from '../../../contexts/Localisation';
-import { DischargeModal } from '../../../components/DischargeModal';
-import { ChangeEncounterTypeModal } from '../../../components/ChangeEncounterTypeModal';
-import { ChangeDepartmentModal } from '../../../components/ChangeDepartmentModal';
-import { ChangeClinicianModal } from '../../../components/ChangeClinicianModal';
-import { BeginPatientMoveModal } from './BeginPatientMoveModal';
-import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
-import { CancelPatientMoveModal } from './CancelPatientMoveModal';
-import { usePatientNavigation } from '../../../utils/usePatientNavigation';
+import React, { useState } from 'react';
+import styled from 'styled-components';
 import { Button, useLocalisedText } from '../../../components';
+import { ChangeClinicianModal } from '../../../components/ChangeClinicianModal';
+import { ChangeDepartmentModal } from '../../../components/ChangeDepartmentModal';
+import { ChangeEncounterTypeModal } from '../../../components/ChangeEncounterTypeModal';
+import { DischargeModal } from '../../../components/DischargeModal';
 import { DropdownButton } from '../../../components/DropdownButton';
-import { MoveModal } from './MoveModal';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
 import { Colors } from '../../../constants';
+import { useLocalisation } from '../../../contexts/Localisation';
+import { usePatientNavigation } from '../../../utils/usePatientNavigation';
+import { BeginPatientMoveModal } from './BeginPatientMoveModal';
+import { CancelPatientMoveModal } from './CancelPatientMoveModal';
+import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
+import { MoveModal } from './MoveModal';
 
 const TypographyLink = styled(Typography)`
   color: ${Colors.primary};

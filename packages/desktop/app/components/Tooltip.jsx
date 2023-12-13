@@ -1,6 +1,6 @@
+import { Tooltip } from '@material-ui/core';
 import React from 'react';
 import styled from 'styled-components';
-import { Tooltip } from '@material-ui/core';
 import { Colors } from '../constants';
 
 export const ThemedTooltip = styled(props => (

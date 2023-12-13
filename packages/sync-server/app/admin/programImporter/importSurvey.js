@@ -1,5 +1,5 @@
-import { utils } from 'xlsx';
 import { SURVEY_TYPES } from '@tamanu/constants';
+import { utils } from 'xlsx';
 
 import { ImporterMetadataError } from '../errors';
 import { importRows } from '../importRows';

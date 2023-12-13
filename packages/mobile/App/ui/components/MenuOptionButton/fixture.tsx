@@ -1,18 +1,18 @@
+import { StyledView, themeSystem } from '/styled/common';
+import { theme } from '/styled/theme';
 import React, { ReactElement } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 import { ThemeProvider } from 'styled-components';
-import { StyledView, themeSystem } from '/styled/common';
-import { theme } from '/styled/theme';
+import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
 import {
+  FeedbackIcon,
   HistoryIcon,
   PatientDetailsIcon,
-  SettingsIcon,
-  FeedbackIcon,
   QuestionIcon,
   RingIcon,
+  SettingsIcon,
 } from '../Icons';
 import { MenuOptionButton } from './index';
-import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
 
 export const MoreMenuOptions = [
   {
@@ -102,7 +102,8 @@ export const BaseStory = ({ data }: BaseStoryProps): ReactElement => (
       showsVerticalScrollIndicator={false}
       style={styles.flatList}
       data={data}
-      keyExtractor={(item): string => item.title}
+      keyExtractor={(item): string =>
+        item.title}
       renderItem={({ item }): any => <MenuOptionButton {...item} />}
       ItemSeparatorComponent={Separator}
     />

@@ -1,12 +1,12 @@
+import { permissionCache } from '@tamanu/shared/permissions/cache';
+import config from 'config';
 import { camelCase, lowerCase, lowerFirst, startCase, upperFirst } from 'lodash';
 import { Op } from 'sequelize';
-import { permissionCache } from '@tamanu/shared/permissions/cache';
 import { ValidationError as YupValidationError } from 'yup';
-import config from 'config';
 
 import { ForeignkeyResolutionError, UpsertionError, ValidationError } from './errors';
-import { statkey, updateStat } from './stats';
 import * as schemas from './importSchemas';
+import { statkey, updateStat } from './stats';
 
 function findFieldName(values, fkField) {
   const fkFieldLower = fkField.toLowerCase();
@@ -54,10 +54,12 @@ export async function importRows(
 
   log.debug('Building reverse lookup table');
   const lookup = new Map();
-  for (const {
-    model,
-    values: { id, type = null, name = null },
-  } of rows) {
+  for (
+    const {
+      model,
+      values: { id, type = null, name = null },
+    } of rows
+  ) {
     if (!id) continue;
     const kind = model === 'ReferenceData' ? type : model;
     lookup.set(`kind.${kind}-id.${id}`, null);
@@ -87,23 +89,21 @@ export async function importRows(
             delete values[fkFieldName];
             values[fkNameLowerId] = idByLocalName;
           } else {
-            const hasRemoteId =
-              (fkSchema.model === 'ReferenceData'
-                ? await models.ReferenceData.count({
-                    where: { type: fkSchema.types, id: fkFieldValue },
-                  })
-                : await models[fkSchema.model].count({ where: { id: fkFieldValue } })) > 0;
+            const hasRemoteId = (fkSchema.model === 'ReferenceData'
+              ? await models.ReferenceData.count({
+                where: { type: fkSchema.types, id: fkFieldValue },
+              })
+              : await models[fkSchema.model].count({ where: { id: fkFieldValue } })) > 0;
 
             const idByRemoteName = (fkSchema.model === 'ReferenceData'
               ? await models.ReferenceData.findOne({
-                  where: { type: fkSchema.types, name: { [Op.iLike]: fkFieldValue } },
-                })
+                where: { type: fkSchema.types, name: { [Op.iLike]: fkFieldValue } },
+              })
               : await models[fkSchema.model].findOne({
-                  where: {
-                    name: { [Op.iLike]: fkFieldValue },
-                  },
-                })
-            )?.id;
+                where: {
+                  name: { [Op.iLike]: fkFieldValue },
+                },
+              }))?.id;
 
             if (hasRemoteId) {
               delete values[fkFieldName];

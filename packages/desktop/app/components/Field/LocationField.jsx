@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
+import { LOCATION_AVAILABILITY_STATUS, LOCATION_AVAILABILITY_TAG_CONFIG } from '@tamanu/constants';
 import { useQuery } from '@tanstack/react-query';
-import { LOCATION_AVAILABILITY_TAG_CONFIG, LOCATION_AVAILABILITY_STATUS } from '@tamanu/constants';
-import { AutocompleteInput } from './AutocompleteField';
+import PropTypes from 'prop-types';
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
 import { useApi, useSuggester } from '../../api';
-import { Suggester } from '../../utils/suggester';
-import { useLocalisation } from '../../contexts/Localisation';
-import { BodyText } from '../Typography';
 import { useAuth } from '../../contexts/Auth';
+import { useLocalisation } from '../../contexts/Localisation';
+import { Suggester } from '../../utils/suggester';
+import { BodyText } from '../Typography';
+import { AutocompleteInput } from './AutocompleteField';
 
 const locationSuggester = (api, groupValue, enableLocationStatus) => {
   return new Suggester(api, 'location', {
@@ -60,8 +60,8 @@ export const LocationInput = React.memo(
 
     // when the location is selected, set the group value automatically if it's not set yet
     useEffect(() => {
-      const isNotSameGroup =
-        location?.locationGroup?.id && groupId && location.locationGroup.id !== groupId;
+      const isNotSameGroup = location?.locationGroup?.id && groupId &&
+        location.locationGroup.id !== groupId;
       if (isNotSameGroup) {
         // clear the location if the location group is changed
         setLocationId('');
@@ -90,8 +90,9 @@ export const LocationInput = React.memo(
     // 1. In edit mode (form already is initialised with pre-filled values); and
     // 2. The existing location has a different facility than the current facility
     // Disable just the location field if location group has not been chosen or pre-filled
-    const existingLocationHasSameFacility =
-      value && location?.facilityId ? facility.id === location.facilityId : true;
+    const existingLocationHasSameFacility = value && location?.facilityId
+      ? facility.id === location.facilityId
+      : true;
     const locationSelectIsDisabled = !groupId || !existingLocationHasSameFacility;
     const locationGroupSelectIsDisabled = !existingLocationHasSameFacility;
 
@@ -156,8 +157,8 @@ export const LocalisedLocationField = React.memo(
     const { getLocalisation } = useLocalisation();
 
     const locationGroupIdPath = 'fields.locationGroupId';
-    const locationGroupLabel =
-      getLocalisation(`${locationGroupIdPath}.longLabel`) || defaultGroupLabel;
+    const locationGroupLabel = getLocalisation(`${locationGroupIdPath}.longLabel`) ||
+      defaultGroupLabel;
 
     const locationIdPath = 'fields.locationId';
     const locationLabel = getLocalisation(`${locationIdPath}.longLabel`) || defaultLabel;

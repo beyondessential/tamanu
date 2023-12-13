@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useEncounter } from '../../contexts/Encounter';
 import {
   checkMandatory,
   getComponentForQuestionType,
@@ -7,7 +8,6 @@ import {
   mapOptionsToValues,
 } from '../../utils';
 import { Field } from '../Field';
-import { useEncounter } from '../../contexts/Encounter';
 
 const Text = styled.div`
   margin-bottom: 10px;

@@ -1,4 +1,8 @@
-import { createDummyPatient, randomReferenceId, randomUser } from '@tamanu/shared/demoData/patients';
+import {
+  createDummyPatient,
+  randomReferenceId,
+  randomUser,
+} from '@tamanu/shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
 describe('Ongoing conditions', () => {

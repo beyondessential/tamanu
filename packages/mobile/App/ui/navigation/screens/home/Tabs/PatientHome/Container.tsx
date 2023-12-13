@@ -1,9 +1,9 @@
-import React, { ReactElement, useMemo, useCallback, useState, useEffect } from 'react';
-import { compose } from 'redux';
-import { useFocusEffect } from '@react-navigation/core';
 import { setStatusBar } from '/helpers/screen';
-import { Popup } from 'popup-ui';
 import { IPatientIssue, PatientIssueType } from '/types/IPatientIssue';
+import { useFocusEffect } from '@react-navigation/core';
+import { Popup } from 'popup-ui';
+import React, { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { compose } from 'redux';
 // Components
 import * as Icons from '/components/Icons';
 import { PatientHomeScreenProps } from '/interfaces/screens/HomeStack';
@@ -13,8 +13,8 @@ import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
 // Containers
 import { withPatient } from '/containers/Patient';
-import { useBackend } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { useBackend } from '~/ui/hooks';
 import { Patient } from '../../../../../../models/Patient';
 
 interface IPopup {
@@ -45,13 +45,13 @@ const formatNoteToPopup = (note: string): IPopup => {
   const [firstPart, secondPart] = note.split(/:(.+)/);
   return secondPart
     ? {
-        title: firstPart,
-        textBody: secondPart,
-      }
+      title: firstPart,
+      textBody: secondPart,
+    }
     : {
-        title: '',
-        textBody: firstPart,
-      };
+      title: '',
+      textBody: firstPart,
+    };
 };
 
 const showPatientWarningPopups = (issues: IPatientIssue[]): void =>

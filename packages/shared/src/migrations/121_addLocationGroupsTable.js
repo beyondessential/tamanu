@@ -1,5 +1,5 @@
-import Sequelize from 'sequelize';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import Sequelize from 'sequelize';
 
 const syncColumns = {
   marked_for_push: {

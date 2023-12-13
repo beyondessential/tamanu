@@ -1,13 +1,13 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 import * as yup from 'yup';
 
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-import { Form, Field, AutocompleteField } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
-import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { useLocalisedText } from '../components';
+import { FormSubmitCancelRow } from '../components/ButtonRow';
+import { AutocompleteField, Field, Form } from '../components/Field';
+import { FormGrid } from '../components/FormGrid';
 
 export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) => {
   const clinicianText = useLocalisedText({ path: 'fields.clinician.shortLabel' });

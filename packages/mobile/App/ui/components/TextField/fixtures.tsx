@@ -1,11 +1,8 @@
 /* eslint-disable react/no-unused-prop-types */
 import React, { useState } from 'react';
-import {
-  TextInputMaskOptionProp,
-  TextInputMaskTypeProp,
-} from 'react-native-masked-text';
-import { TextField } from './TextField';
+import { TextInputMaskOptionProp, TextInputMaskTypeProp } from 'react-native-masked-text';
 import { MaskedTextField } from './MaskedTextField';
+import { TextField } from './TextField';
 interface BaseStoryProps {
   label?: string;
   error?: string;

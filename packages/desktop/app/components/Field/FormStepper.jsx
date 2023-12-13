@@ -1,6 +1,6 @@
+import { Step, StepButton, Stepper } from '@material-ui/core';
 import React from 'react';
 import styled from 'styled-components';
-import { Step, StepButton, Stepper } from '@material-ui/core';
 
 const StyledStepper = styled(Stepper)`
   margin: -18px -32px 30px;
@@ -40,7 +40,7 @@ const StyledStepButton = styled(StepButton)`
     left: 0;
     right: 0;
     background: ${props =>
-      props.$isActive ? props.theme.palette.primary.main : props.theme.palette.text.secondary};
+  props.$isActive ? props.theme.palette.primary.main : props.theme.palette.text.secondary};
     height: 6px;
   }
 `;

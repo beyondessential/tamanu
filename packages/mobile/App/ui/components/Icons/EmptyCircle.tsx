@@ -1,7 +1,7 @@
-import React, { memo } from 'react';
 import { StyledView } from '/styled/common';
+import React, { memo } from 'react';
+import { Orientation, screenPercentageToDP } from '../../helpers/screen';
 import { theme } from '../../styled/theme';
-import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 
 const size = screenPercentageToDP(3.03, Orientation.Height);
 

@@ -1,8 +1,8 @@
-import React, { ReactElement } from 'react';
-import { StyleSheet } from 'react-native';
-import { StyledView, StyledSafeAreaView } from '/styled/common';
+import { StyledSafeAreaView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { useFormikContext } from 'formik';
+import React, { ReactElement } from 'react';
+import { StyleSheet } from 'react-native';
 import { Button } from '../../../Button';
 
 export const SubmitSection = ({

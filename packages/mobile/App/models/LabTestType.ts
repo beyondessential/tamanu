@@ -1,11 +1,11 @@
-import { Entity, Column, RelationId, ManyToMany } from 'typeorm/browser';
+import { Column, Entity, ManyToMany, RelationId } from 'typeorm/browser';
 
 import { ILabTestType, LabTestResultType } from '~/types';
-import { BaseModel } from './BaseModel';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { VisibilityStatus } from '../visibilityStatuses';
-import { SYNC_DIRECTIONS } from './types';
+import { BaseModel } from './BaseModel';
 import { LabTestPanel } from './LabTestPanel';
+import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('labTestType')
 export class LabTestType extends BaseModel implements ILabTestType {

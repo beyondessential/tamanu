@@ -1,8 +1,8 @@
 // Copied from Tupaia
 
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import parser from 'js-sql-parser';
+import PropTypes from 'prop-types';
+import React, { useState } from 'react';
 import BaseAceEditor from 'react-ace';
 import styled from 'styled-components';
 

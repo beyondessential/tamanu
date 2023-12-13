@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
+import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
 import { LabRequestModal } from '../../../components/LabRequestModal';
-import { EncounterLabRequestsTable } from '../EncounterLabRequestsTable';
-import { TableButtonRow, ButtonWithPermissionCheck } from '../../../components';
 import { PrintMultipleLabRequestsSelectionModal } from '../../../components/PatientPrinting';
 import { TabPane } from '../components';
+import { EncounterLabRequestsTable } from '../EncounterLabRequestsTable';
 
 export const LabsPane = React.memo(({ encounter, readonly }) => {
   const [newRequestModalOpen, setNewRequestModalOpen] = useState(false);

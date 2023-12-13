@@ -1,10 +1,10 @@
-import { Entity, Column, ManyToOne, RelationId, BeforeInsert, BeforeUpdate } from 'typeorm/browser';
-import { BaseModel } from './BaseModel';
-import { Patient } from './Patient';
+import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
 import { IPatientIssue, PatientIssueType } from '~/types';
-import { SYNC_DIRECTIONS } from './types';
+import { BaseModel } from './BaseModel';
 import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
 import { DateTimeStringColumn } from './DateColumns';
+import { Patient } from './Patient';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('patient_issue')
 export class PatientIssue extends BaseModel implements IPatientIssue {

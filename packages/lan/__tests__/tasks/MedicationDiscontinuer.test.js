@@ -1,12 +1,12 @@
 import {
-  createDummyPatient,
   createDummyEncounter,
   createDummyEncounterMedication,
+  createDummyPatient,
 } from '@tamanu/shared/demoData/patients';
-import { addDays, subDays } from 'date-fns';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { createTestContext } from '../utilities';
+import { addDays, subDays } from 'date-fns';
 import { MedicationDiscontinuer } from '../../app/tasks/MedicationDiscontinuer';
+import { createTestContext } from '../utilities';
 
 // Mock config to add custom serverFacilityId.
 // It can't be done through test.json file in config because

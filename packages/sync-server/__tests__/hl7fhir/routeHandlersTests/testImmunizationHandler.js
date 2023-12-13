@@ -112,7 +112,8 @@ export function testImmunizationHandler(integrationName, requestHeaders = {}) {
     describe('success', () => {
       it("returns no error but no results when patient reference doesn't match", async () => {
         const id = '123456789';
-        const path = `/v1/integration/${integrationName}/Immunization?_sort=-issued&_page=0&_count=2&patient=${id}`;
+        const path =
+          `/v1/integration/${integrationName}/Immunization?_sort=-issued&_page=0&_count=2&patient=${id}`;
         const response = await app.get(path).set(requestHeaders);
         expect(response).toHaveSucceeded();
         expect(response.body).toEqual({
@@ -135,7 +136,8 @@ export function testImmunizationHandler(integrationName, requestHeaders = {}) {
       });
 
       it("returns no error but no results when vaccine code doesn't match", async () => {
-        const path = `/v1/integration/${integrationName}/Immunization?_sort=-issued&_page=0&_count=2&vaccine-code=${NON_SUPPORTED_VACCINE_ID}`;
+        const path =
+          `/v1/integration/${integrationName}/Immunization?_sort=-issued&_page=0&_count=2&vaccine-code=${NON_SUPPORTED_VACCINE_ID}`;
         const response = await app.get(path).set(requestHeaders);
         expect(response).toHaveSucceeded();
         expect(response.body).toEqual({
@@ -169,7 +171,8 @@ export function testImmunizationHandler(integrationName, requestHeaders = {}) {
 
     describe('failure', () => {
       it('returns a 422 error when passed the wrong query params', async () => {
-        const path = `/v1/integration/${integrationName}/Immunization?_sort=id&_page=z&_count=x&status=initial`;
+        const path =
+          `/v1/integration/${integrationName}/Immunization?_sort=id&_page=z&_count=x&status=initial`;
         const response = await app.get(path).set(requestHeaders);
         expect(response).toHaveRequestError(422);
         expect(response.body).toMatchObject({

@@ -1,15 +1,15 @@
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import {
-  createDummyPatient,
   createDummyEncounter,
-  randomReferenceId,
   createDummyEncounterDiagnosis,
-  randomReferenceData,
+  createDummyPatient,
   randomRecordId,
+  randomReferenceData,
+  randomReferenceId,
   randomReferenceIds,
 } from '@tamanu/shared/demoData';
-import { subDays } from 'date-fns';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { subDays } from 'date-fns';
 import { createTestContext } from '../../utilities';
 
 describe('Recent Diagnoses report', () => {

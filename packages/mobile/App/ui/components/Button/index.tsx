@@ -1,14 +1,10 @@
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { RowView, StyledTouchableOpacity, StyledViewProps } from '/styled/common';
+import { theme } from '/styled/theme';
 import React, { FunctionComponentElement, ReactNode } from 'react';
 import { ActivityIndicator } from 'react-native';
 import styled from 'styled-components/native';
 import * as styledSystem from 'styled-system';
-import { theme } from '/styled/theme';
-import {
-  StyledTouchableOpacity,
-  RowView,
-  StyledViewProps,
-} from '/styled/common';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 type StrNumType = number | string;
 
@@ -38,25 +34,25 @@ export interface StyledButtonProps extends ButtonContainer {
 const ButtonContainer = styled(RowView)<ButtonContainer>`
   ${styledSystem.flexbox};
   height: ${(props): any => (props.height
-    ? props.height
-    : screenPercentageToDP(6.07, Orientation.Height))};
+  ? props.height
+  : screenPercentageToDP(6.07, Orientation.Height))};
   width: ${(props): any => (props.width ? props.width : '100%')};
   border-width: ${(props): any => (props.outline ? '1px' : props.borderWidth)};
   border-color: ${(props): string => props.borderColor || 'transparent'};
   border-radius: ${(props): any => {
-    if (props.borderRadius) {
-      return props.borderRadius;
-    } else if (props.bordered) {
-      return '50px;';
-    }
-    return '5px';
-  }};
+  if (props.borderRadius) {
+    return props.borderRadius;
+  } else if (props.bordered) {
+    return '50px;';
+  }
+  return '5px';
+}};
   background: ${(props): string => {
-    if (props.disabled) return theme.colors.DISABLED_GREY;
-    if (props.outline) return 'transparent';
-    if (props.backgroundColor) return props.backgroundColor;
-    return theme.colors.MAIN_SUPER_DARK;
-  }};
+  if (props.disabled) return theme.colors.DISABLED_GREY;
+  if (props.outline) return 'transparent';
+  if (props.backgroundColor) return props.backgroundColor;
+  return theme.colors.MAIN_SUPER_DARK;
+}};
 `;
 
 interface ButtonTextProps {
@@ -70,14 +66,14 @@ interface ButtonTextProps {
 
 const StyledButtonText = styled.Text<ButtonTextProps>`
   font-size: ${(props): StrNumType => (props.fontSize
-    ? props.fontSize
-    : screenPercentageToDP(1.94, Orientation.Height))};
+  ? props.fontSize
+  : screenPercentageToDP(1.94, Orientation.Height))};
   font-weight: ${(props): StrNumType => (props.fontWeight ? props.fontWeight : 'bold')};
   color: ${(props): string => {
-    if (props.textColor) return props.textColor;
-    if (props.outline) return props.borderColor || theme.colors.MAIN_SUPER_DARK;
-    return theme.colors.WHITE;
-  }};
+  if (props.textColor) return props.textColor;
+  if (props.outline) return props.borderColor || theme.colors.MAIN_SUPER_DARK;
+  return theme.colors.WHITE;
+}};
 `;
 
 export const Button = ({
@@ -125,9 +121,7 @@ export const Button = ({
       padding={padding}
       disabled={disabled}
     >
-      {loadingAction && (
-        <ActivityIndicator size="large" color={theme.colors.WHITE} />
-      )}
+      {loadingAction && <ActivityIndicator size="large" color={theme.colors.WHITE} />}
       {!loadingAction && children}
       {!loadingAction && (
         <StyledButtonText

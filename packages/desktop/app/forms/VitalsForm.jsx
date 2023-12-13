@@ -1,17 +1,17 @@
-import React, { useMemo } from 'react';
-import PropTypes from 'prop-types';
-import { VITALS_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES, VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { ModalLoader, FormSubmitCancelRow, Form } from '../components';
-import { SurveyScreen } from '../components/Surveys';
+import PropTypes from 'prop-types';
+import React, { useMemo } from 'react';
 import { combineQueries } from '../api/combineQueries';
-import { useVitalsSurveyQuery, usePatientAdditionalDataQuery } from '../api/queries';
-import { getFormInitialValues, getValidationSchema } from '../utils';
+import { usePatientAdditionalDataQuery, useVitalsSurveyQuery } from '../api/queries';
+import { Form, FormSubmitCancelRow, ModalLoader } from '../components';
+import { ErrorMessage } from '../components/ErrorMessage';
 import { ForbiddenErrorModalContents } from '../components/ForbiddenErrorModal';
 import { Modal } from '../components/Modal';
-import { ErrorMessage } from '../components/ErrorMessage';
+import { SurveyScreen } from '../components/Surveys';
 import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
+import { getFormInitialValues, getValidationSchema } from '../utils';
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterType }) => {
   const {

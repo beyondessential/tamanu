@@ -1,9 +1,9 @@
-import React from 'react';
 import { useFormikContext } from 'formik';
+import React from 'react';
 
 import { useLocalisation } from '../../contexts/Localisation';
-import { TextField } from './TextField';
 import { LocalisedField } from './LocalisedField';
+import { TextField } from './TextField';
 
 export const DisplayIdField = ({ name = 'displayId', required }) => {
   const { initialValues } = useFormikContext();

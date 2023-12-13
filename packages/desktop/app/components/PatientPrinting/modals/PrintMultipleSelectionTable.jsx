@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Table } from '../../Table';
 import { Colors } from '../../../constants';
 import { OuterLabelFieldWrapper } from '../../Field';
+import { Table } from '../../Table';
 
 const StyledSelectionTable = styled(Table)`
   border: none;

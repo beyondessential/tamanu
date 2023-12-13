@@ -1,10 +1,10 @@
 import { buildAbilityForTests } from '@tamanu/shared/permissions/buildAbility';
+import { permissionCache } from '@tamanu/shared/permissions/cache';
 import {
+  getAbilityForUser,
   getPermissionsForRoles,
   queryPermissionsForRoles,
-  getAbilityForUser,
 } from '@tamanu/shared/permissions/rolesToPermissions';
-import { permissionCache } from '@tamanu/shared/permissions/cache';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 
@@ -23,7 +23,7 @@ describe('Permissions', () => {
         ctx.store.models.Permission.create({
           roleId: role.id,
           ...p,
-        }),
+        })
       ),
     );
   };

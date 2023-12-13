@@ -1,21 +1,21 @@
-import * as yup from 'yup';
 import {
   ENCOUNTER_TYPES,
   INJECTION_SITE_OPTIONS,
+  LAB_TEST_RESULT_TYPES,
+  LAB_TEST_TYPE_VISIBILITY_STATUSES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   VACCINE_STATUS,
-  LAB_TEST_RESULT_TYPES,
   VISIBILITY_STATUSES,
-  LAB_TEST_TYPE_VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import config from 'config';
+import * as yup from 'yup';
 import {
+  configString,
   jsonString,
   validationString,
-  configString,
   visualisationConfigString,
 } from './jsonString';
-import { rangeObjectSchema, rangeArraySchema } from './rangeObject';
+import { rangeArraySchema, rangeObjectSchema } from './rangeObject';
 
 const visibilityStatus = yup
   .string()
@@ -182,8 +182,8 @@ export const baseValidationShape = yup
       return typeof value === 'boolean'
         ? yup.boolean()
         : yup.object().shape({
-            encounterType: yup.mixed(),
-          });
+          encounterType: yup.mixed(),
+        });
     }),
   })
   .noUnknown();

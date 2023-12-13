@@ -1,5 +1,5 @@
-import Sequelize, { DataTypes, QueryTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import Sequelize, { DataTypes, QueryTypes } from 'sequelize';
 import { Model } from '../Model';
 
 export class FhirJobWorker extends Model {

@@ -1,19 +1,19 @@
 /* eslint-disable no-unused-expressions */
 
-import { createTestContext } from 'sync-server/__tests__/utilities';
+import { ICAO_DOCUMENT_TYPES } from '@tamanu/constants';
 import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
-import { VdsNcDocument } from 'sync-server/app/integrations/VdsNc';
+import { base64UrlDecode } from '@tamanu/shared/utils/encodings';
+import { generateICAOFormatUVCI } from '@tamanu/shared/utils/uvci/icao';
+import { expect } from 'chai';
+import crypto from 'crypto';
+import { canonicalize } from 'json-canonicalize';
+import { createTestContext } from 'sync-server/__tests__/utilities';
 import {
   loadCertificateIntoSigner,
   newKeypairAndCsr,
   TestCSCA,
 } from 'sync-server/app/integrations/Signer';
-import { ICAO_DOCUMENT_TYPES } from '@tamanu/constants';
-import { generateICAOFormatUVCI } from '@tamanu/shared/utils/uvci/icao';
-import crypto from 'crypto';
-import { expect } from 'chai';
-import { canonicalize } from 'json-canonicalize';
-import { base64UrlDecode } from '@tamanu/shared/utils/encodings';
+import { VdsNcDocument } from 'sync-server/app/integrations/VdsNc';
 import { getLocalisation } from 'sync-server/app/localisation';
 
 describe('VDS-NC: Document cryptography', () => {

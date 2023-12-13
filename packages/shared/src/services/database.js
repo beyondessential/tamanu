@@ -1,16 +1,16 @@
 import { AsyncLocalStorage } from 'async_hooks';
-import { Sequelize } from 'sequelize';
 import pg from 'pg';
+import { Sequelize } from 'sequelize';
 import util from 'util';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from './logging';
 import { serviceContext, serviceName } from './logging/context';
 
-import { migrate, assertUpToDate, NON_SYNCING_TABLES } from './migrations';
 import * as models from '../models';
-import { createDateTypes } from './createDateTypes';
 import { setupQuote } from '../utils/pgComposite';
+import { createDateTypes } from './createDateTypes';
+import { assertUpToDate, migrate, NON_SYNCING_TABLES } from './migrations';
 
 createDateTypes();
 
@@ -84,10 +84,10 @@ async function connectToDatabase(dbOptions) {
 
   const logging = verbose
     ? (query, obj) =>
-        log.debug('databaseQuery', {
-          query: util.inspect(query),
-          binding: util.inspect(obj.bind || [], { breakLength: Infinity }),
-        })
+      log.debug('databaseQuery', {
+        query: util.inspect(query),
+        binding: util.inspect(obj.bind || [], { breakLength: Infinity }),
+      })
     : null;
 
   const options = {

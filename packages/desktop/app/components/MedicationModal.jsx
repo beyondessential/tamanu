@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 
 import { useApi } from '../api';
-import { Suggester } from '../utils/suggester';
-import { FormModal } from './FormModal';
 import { MedicationForm } from '../forms/MedicationForm';
 import { getCurrentDateString } from '../utils/dateTime';
+import { Suggester } from '../utils/suggester';
+import { FormModal } from './FormModal';
 
 export const MedicationModal = ({ open, onClose, onSaved, encounterId, medication, readOnly }) => {
   const api = useApi();

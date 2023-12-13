@@ -1,39 +1,39 @@
+import { useQuery } from '@tanstack/react-query';
+import { groupBy, isEmpty } from 'lodash';
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
-import { isEmpty, groupBy } from 'lodash';
-import { useQuery } from '@tanstack/react-query';
 
-import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
-import { useSexValues } from '../hooks';
-import { Colors, sexOptions } from '../constants';
-import { useLocalisation } from '../contexts/Localisation';
 import { useApi, useSuggester } from '../api';
-import { getPatientDetailsValidation } from '../validations';
 import {
   AutocompleteField,
-  FormSubmitButton,
   ButtonRow,
   DateField,
   Field,
   Form,
   FormGrid,
+  FormSubmitButton,
   LocalisedField,
   NumberField,
   RadioField,
   SelectField,
   TextField,
 } from '../components';
-import { LoadingIndicator } from '../components/LoadingIndicator';
 import {
   BirthDetailsFields,
-  IdentificationInformationFields,
   ContactInformationFields,
-  PersonalInformationFields,
+  IdentificationInformationFields,
   LocationInformationFields,
+  PersonalInformationFields,
 } from '../components/ConfiguredMandatoryPatientFields';
+import { LoadingIndicator } from '../components/LoadingIndicator';
+import { Colors, sexOptions } from '../constants';
+import { useLocalisation } from '../contexts/Localisation';
+import { useSexValues } from '../hooks';
+import { getPatientDetailsValidation } from '../validations';
 
 const StyledHeading = styled.div`
   font-weight: 500;

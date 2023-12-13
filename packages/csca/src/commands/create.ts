@@ -1,18 +1,18 @@
+import { Command } from 'commander';
+import prompts from 'prompts';
+import COUNTRIES from 'world-countries';
+import type { Country } from 'world-countries';
 import CA from '../ca';
 import { ConfigFile, period } from '../ca/Config';
 import { CRL_URL_BASE, CSCA_PKUP, CSCA_VALIDITY } from '../ca/constants';
 import {
-  Profile,
   addLeaps,
+  Profile,
   signerDefaultValidityDays,
   signerExtensions,
   signerWorkingDays,
 } from '../ca/profile';
 import { confirm, enumFromStringValue, enumValues } from '../utils';
-import { Command } from 'commander';
-import prompts from 'prompts';
-import COUNTRIES from 'world-countries';
-import type { Country } from 'world-countries';
 
 const DEFAULT_SERIAL = 'CC000001';
 
@@ -35,7 +35,7 @@ function countryScore(country: Country, name: string): number {
 }
 
 function lookupCountries(name: string): Country[] {
-  const matching = COUNTRIES.filter((c) => countryScore(c, name) > 0);
+  const matching = COUNTRIES.filter(c => countryScore(c, name) > 0);
   matching.sort((a, b) => countryScore(b, name) - countryScore(a, name));
   return matching;
 }
@@ -114,7 +114,7 @@ async function run(
         type: 'select',
         name: 'value',
         message: `Multiple countries found for ${countryName}, please select one`,
-        choices: countries.map((c) => ({
+        choices: countries.map(c => ({
           title: c.name.common,
           description: c.name.official,
           value: c,
@@ -128,10 +128,11 @@ async function run(
   const alpha3 = options.alpha3 || country?.cca3;
   const alpha2 = options.alpha2 || country?.cca2;
 
-  if (!alpha2 || !alpha3)
+  if (!alpha2 || !alpha3) {
     throw new Error(
       'Country not found or country info incomplete, provide alpha-2 and -3 codes manually',
     );
+  }
   if (!/^[A-Z]{2}$/.test(alpha2)) throw new Error('Invalid alpha-2 code');
   if (!/^[A-Z]{3}$/.test(alpha3)) throw new Error('Invalid alpha-3 code');
 

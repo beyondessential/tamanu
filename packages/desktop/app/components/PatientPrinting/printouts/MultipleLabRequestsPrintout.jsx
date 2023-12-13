@@ -1,16 +1,16 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 
 import { DateDisplay } from '../../DateDisplay';
 
-import { PrintLetterhead } from './reusable/PrintLetterhead';
-import { CertificateWrapper } from './reusable/CertificateWrapper';
-import { ListTable } from './reusable/ListTable';
-import { PatientDetailPrintout } from './reusable/PatientDetailPrintout';
-import { NotesSection } from './reusable/NotesSection';
-import { Divider } from './reusable/Divider';
-import { DateFacilitySection } from './reusable/DateFacilitySection';
 import { useLocalisedText } from '../../LocalisedText';
+import { CertificateWrapper } from './reusable/CertificateWrapper';
+import { DateFacilitySection } from './reusable/DateFacilitySection';
+import { Divider } from './reusable/Divider';
+import { ListTable } from './reusable/ListTable';
+import { NotesSection } from './reusable/NotesSection';
+import { PatientDetailPrintout } from './reusable/PatientDetailPrintout';
+import { PrintLetterhead } from './reusable/PrintLetterhead';
 
 export const MultipleLabRequestsPrintout = React.memo(
   ({ patient, labRequests, encounter, village, additionalData, certificateData }) => {

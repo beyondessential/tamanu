@@ -1,3 +1,3 @@
 export type GenericFormValues = {
-    [key: string]: any;
-  }
+  [key: string]: any;
+};

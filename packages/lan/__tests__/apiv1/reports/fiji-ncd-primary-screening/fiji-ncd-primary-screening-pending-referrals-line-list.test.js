@@ -1,12 +1,12 @@
-import { createDummyPatient, randomReferenceDataObjects } from '@tamanu/shared/demoData/patients';
 import { REFERENCE_TYPES } from '@tamanu/constants';
+import { createDummyPatient, randomReferenceDataObjects } from '@tamanu/shared/demoData/patients';
 import { createTestContext } from '../../../utilities';
 import {
-  setupProgramAndSurvey,
-  createCVDFormSurveyResponse,
-  createCVDReferral,
   createBreastCancerFormSurveyResponse,
   createBreastCancerReferral,
+  createCVDFormSurveyResponse,
+  createCVDReferral,
+  setupProgramAndSurvey,
 } from './utils';
 
 const PROPERTY_LIST = [
@@ -185,15 +185,18 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
         referralCreated: 'Breast Cancer Primary Screening Referral',
         dateOfReferral: `pde-FijBCRef04-on-2021-03-13T02:00:00.133Z-${expectedPatient2.firstName}`,
         // referringHealthFacility: `pde-FijBCRef06-on-2021-03-13T02:00:00.133Z-${expectedPatient2.firstName}`,
-        expectedAttendanceDate: `pde-FijBCRef07-on-2021-03-13T02:00:00.133Z-${expectedPatient2.firstName}`,
+        expectedAttendanceDate:
+          `pde-FijBCRef07-on-2021-03-13T02:00:00.133Z-${expectedPatient2.firstName}`,
         nameOfCso: `pde-FijBS10-on-2021-03-13T01:00:00.133Z-${expectedPatient2.firstName}`,
         referringCso: `pde-FijBCRef2a-on-2021-03-13T02:00:00.133Z-${expectedPatient2.firstName}`,
         cvdRiskLevel: null,
         breastCancerRiskLevel: 'High risk',
-        reasonForReferral: `pde-FijBCRef10-on-2021-03-13T02:00:00.133Z-${expectedPatient2.firstName}`,
+        reasonForReferral:
+          `pde-FijBCRef10-on-2021-03-13T02:00:00.133Z-${expectedPatient2.firstName}`,
         dateOfScreening: `pde-FijBS02-on-2021-03-13T01:00:00.133Z-${expectedPatient2.firstName}`,
         screeningLocation: `pde-FijBS04-on-2021-03-13T01:00:00.133Z-${expectedPatient2.firstName}`,
-        screeningHealthFacility: `pde-FijBS07-on-2021-03-13T01:00:00.133Z-${expectedPatient2.firstName}`,
+        screeningHealthFacility:
+          `pde-FijBS07-on-2021-03-13T01:00:00.133Z-${expectedPatient2.firstName}`,
       };
       for (const entry of Object.entries(expectedDetails1)) {
         const [key, expectedValue] = entry;
@@ -220,15 +223,18 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
         referralCreated: 'Breast Cancer Primary Screening Referral',
         dateOfReferral: `pde-FijBCRef04-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
         // referringHealthFacility: `pde-FijBCRef06-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
-        expectedAttendanceDate: `pde-FijBCRef07-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
+        expectedAttendanceDate:
+          `pde-FijBCRef07-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
         nameOfCso: `pde-FijBS10-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
         referringCso: `pde-FijBCRef2a-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
         cvdRiskLevel: null,
         breastCancerRiskLevel: 'Not high risk',
-        reasonForReferral: `pde-FijBCRef10-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
+        reasonForReferral:
+          `pde-FijBCRef10-on-2021-03-12T04:00:00.133Z-${expectedPatient1.firstName}`,
         dateOfScreening: `pde-FijBS02-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
         screeningLocation: `pde-FijBS04-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
-        screeningHealthFacility: `pde-FijBS07-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
+        screeningHealthFacility:
+          `pde-FijBS07-on-2021-03-12T03:00:00.133Z-${expectedPatient1.firstName}`,
       };
       for (const entry of Object.entries(expectedDetails2)) {
         const [key, expectedValue] = entry;
@@ -255,15 +261,19 @@ describe('Fiji NCD Primary Screening Pending Referrals line list', () => {
         referralCreated: 'CVD Primary Screening Referral',
         dateOfReferral: `pde-FijCVDRef4-on-2021-03-12T02:00:00.133Z-${expectedPatient1.firstName}`,
         // referringHealthFacility: `pde-FijCVDRef6-on-2021-03-12T02:00:00.133Z-${expectedPatient1.firstName}`,
-        expectedAttendanceDate: `pde-FijCVDRef7-on-2021-03-12T02:00:00.133Z-${expectedPatient1.firstName}`,
+        expectedAttendanceDate:
+          `pde-FijCVDRef7-on-2021-03-12T02:00:00.133Z-${expectedPatient1.firstName}`,
         nameOfCso: `pde-FijCVD010-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
         referringCso: `pde-FijCVDRef2a-on-2021-03-12T02:00:00.133Z-${expectedPatient1.firstName}`,
         cvdRiskLevel: '3% GREEN',
         breastCancerRiskLevel: null,
-        reasonForReferral: `pde-FijCVDRef11-on-2021-03-12T02:00:00.133Z-${expectedPatient1.firstName}`,
+        reasonForReferral:
+          `pde-FijCVDRef11-on-2021-03-12T02:00:00.133Z-${expectedPatient1.firstName}`,
         dateOfScreening: `pde-FijCVD002-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
-        screeningLocation: `pde-FijCVD004-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
-        screeningHealthFacility: `pde-FijCVD007-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
+        screeningLocation:
+          `pde-FijCVD004-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
+        screeningHealthFacility:
+          `pde-FijCVD007-on-2021-03-12T01:00:00.133Z-${expectedPatient1.firstName}`,
       };
       for (const entry of Object.entries(expectedDetails3)) {
         const [key, expectedValue] = entry;

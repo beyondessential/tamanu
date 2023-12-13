@@ -1,21 +1,21 @@
-import React, { useState, useCallback } from 'react';
-import styled from 'styled-components';
 import { Box, IconButton, Typography } from '@material-ui/core';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
-import { useQueryClient } from '@tanstack/react-query';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { useQueryClient } from '@tanstack/react-query';
+import React, { useCallback, useState } from 'react';
+import styled from 'styled-components';
+import { useApi } from '../api';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { SelectField, Form, Field, OuterLabelFieldWrapper } from '../components/Field';
-import { useLocalisation } from '../contexts/Localisation';
+import { DateDisplay } from '../components/DateDisplay';
+import { Field, Form, OuterLabelFieldWrapper, SelectField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { SurveyQuestion } from '../components/Surveys';
-import { getValidationSchema } from '../utils';
 import { Colors } from '../constants';
-import { useApi } from '../api';
 import { useEncounter } from '../contexts/Encounter';
-import { DateDisplay } from '../components/DateDisplay';
+import { useLocalisation } from '../contexts/Localisation';
+import { getValidationSchema } from '../utils';
 
 const Text = styled(Typography)`
   font-size: 14px;

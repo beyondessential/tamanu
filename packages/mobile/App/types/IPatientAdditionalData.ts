@@ -16,8 +16,8 @@ export interface IPatientAdditionalData {
   birthCertificate?: string;
   drivingLicense?: string;
   passport?: string;
-  emergencyContactName?: string,
-  emergencyContactNumber?: string,
+  emergencyContactName?: string;
+  emergencyContactNumber?: string;
   nationality?: IReferenceData;
   country?: IReferenceData;
   division?: IReferenceData;

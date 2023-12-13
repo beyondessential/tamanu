@@ -1,11 +1,11 @@
 import { Database } from '../infra/db';
-import { MobileSyncManager, CentralServerConnection } from './sync';
-import { readConfig } from './config';
+import { MODELS_MAP } from '../models/modelsMap';
 import { AuthService } from './auth';
+import { readConfig } from './config';
 import { AuthenticationError } from './error';
 import { LocalisationService } from './localisation';
 import { PermissionsService } from './permissions';
-import { MODELS_MAP } from '../models/modelsMap';
+import { CentralServerConnection, MobileSyncManager } from './sync';
 
 const SYNC_PERIOD_MINUTES = 5;
 

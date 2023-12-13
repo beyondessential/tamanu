@@ -1,10 +1,10 @@
-import { trace, propagation, context } from '@opentelemetry/api';
-import asyncHandler from 'express-async-handler';
+import { context, propagation, trace } from '@opentelemetry/api';
 import config from 'config';
+import asyncHandler from 'express-async-handler';
 
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
-import { ForbiddenError, BadAuthenticationError } from '@tamanu/shared/errors';
-import { verifyToken, stripUser, findUserById } from './utils';
+import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
+import { findUserById, stripUser, verifyToken } from './utils';
 
 export const userMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
@@ -47,9 +47,9 @@ export const userMiddleware = ({ secret }) =>
 
     const spanAttributes = req.user
       ? {
-          'app.user.id': req.user.id,
-          'app.user.role': req.user.role,
-        }
+        'app.user.id': req.user.id,
+        'app.user.role': req.user.role,
+      }
       : {};
 
     // eslint-disable-next-line no-unused-expressions

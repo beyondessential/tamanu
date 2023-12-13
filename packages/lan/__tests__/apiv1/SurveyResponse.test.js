@@ -184,7 +184,8 @@ describe('SurveyResponse', () => {
       expect(result).not.toHaveSucceeded();
       expect(result.body).toMatchObject({
         error: {
-          message: `Selected answer ReferenceData[${facility.id}] not found (check that the surveyquestion's source isn't ReferenceData for a Location, Facility, or Department)`,
+          message:
+            `Selected answer ReferenceData[${facility.id}] not found (check that the surveyquestion's source isn't ReferenceData for a Location, Facility, or Department)`,
         },
       });
     });

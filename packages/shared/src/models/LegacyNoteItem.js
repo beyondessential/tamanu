@@ -1,10 +1,10 @@
-import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { DataTypes } from 'sequelize';
 
-import { Model } from './Model';
-import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { buildNoteItemLinkedSyncFilter } from './buildLegacyNoteLinkedSyncFilter';
+import { dateTimeType } from './dateTimeTypes';
+import { Model } from './Model';
 
 export class LegacyNoteItem extends Model {
   static init({ primaryKey, ...options }) {

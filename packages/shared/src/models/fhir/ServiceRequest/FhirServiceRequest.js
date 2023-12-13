@@ -4,8 +4,8 @@ import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import { FhirResource } from '../Resource';
 
 import { getQueryOptions } from './getQueryOptions';
-import { getValues } from './getValues';
 import { fromImagingRequests, fromLabRequests } from './getQueryToFindUpstreamIds';
+import { getValues } from './getValues';
 import { searchParameters } from './searchParameters';
 
 export class FhirServiceRequest extends FhirResource {

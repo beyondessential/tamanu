@@ -18,7 +18,7 @@ export class addDefaultLastSuccessfulSyncPull1669160460000 implements MigrationI
     // if the device already has synced data and is being upgraded
     // AND lastSuccessfulSyncPull does not exist
     if (patientCount && !localSystemFactRow?.id) {
-      //uuid generation
+      // uuid generation
       // https://stackoverflow.com/questions/66625085/sqlite-generate-guid-uuid-on-select-into-statement
       await queryRunner.query(`
         INSERT INTO local_system_fact (id, key, value)

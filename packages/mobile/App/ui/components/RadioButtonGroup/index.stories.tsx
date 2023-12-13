@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { storiesOf } from '@storybook/react-native';
 import { CenterView } from '/styled/common';
+import { storiesOf } from '@storybook/react-native';
+import React, { useState } from 'react';
 import { RadioButtonGroup } from './index';
 
 function RadioButtonGroupStory({

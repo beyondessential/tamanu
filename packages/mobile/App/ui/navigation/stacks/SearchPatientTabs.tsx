@@ -1,13 +1,10 @@
-import React, { ReactElement } from 'react';
 import { MaterialTopTabBarOptions } from '@react-navigation/material-top-tabs';
+import React, { ReactElement } from 'react';
 // Components
-import {
-  RecentViewedScreen,
-  ViewAllScreen,
-} from '../screens/PatientSearch/PatientSearchTabs';
+import { RecentViewedScreen, ViewAllScreen } from '../screens/PatientSearch/PatientSearchTabs';
 // Helpers
-import { theme } from '/styled/theme';
 import { Routes } from '/helpers/routes';
+import { theme } from '/styled/theme';
 // Navigator
 import { createSearchPatientNavigator } from '../navigators/SearchPatientTabs';
 

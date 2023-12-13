@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Modal } from './Modal';
 import { OutlinedButton } from './Button';
 import { ButtonRow } from './ButtonRow';
+import { Modal } from './Modal';
 
 const Content = styled.div`
   text-align: center;

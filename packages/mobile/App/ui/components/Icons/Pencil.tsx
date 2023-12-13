@@ -1,5 +1,5 @@
-import React, { memo, FunctionComponent } from 'react';
-import { SvgXml, SvgProps } from 'react-native-svg';
+import React, { FunctionComponent, memo } from 'react';
+import { SvgProps, SvgXml } from 'react-native-svg';
 
 export const PencilIcon: FunctionComponent<SvgProps> = memo(props => {
   const xml = `

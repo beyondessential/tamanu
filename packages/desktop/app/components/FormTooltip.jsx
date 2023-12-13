@@ -1,7 +1,7 @@
+import MuiTooltip from '@material-ui/core/Tooltip';
+import InfoIcon from '@material-ui/icons/Info';
 import React from 'react';
 import styled from 'styled-components';
-import InfoIcon from '@material-ui/icons/Info';
-import MuiTooltip from '@material-ui/core/Tooltip';
 import { Colors } from '../constants';
 
 const StyledInfoIcon = styled(InfoIcon)`

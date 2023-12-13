@@ -1,12 +1,12 @@
-import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
 
-import { User } from './User';
-import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import { IVitalLog } from '~/types';
 import { BaseModel } from './BaseModel';
-import { SYNC_DIRECTIONS } from './types';
 import { ISO9075_DATE_SQLITE_DEFAULT } from './columnDefaults';
 import { DateStringColumn } from './DateColumns';
+import { SurveyResponseAnswer } from './SurveyResponseAnswer';
+import { SYNC_DIRECTIONS } from './types';
+import { User } from './User';
 
 @Entity('vital_log')
 export class VitalLog extends BaseModel implements IVitalLog {

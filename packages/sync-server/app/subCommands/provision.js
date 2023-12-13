@@ -1,19 +1,19 @@
-import { resolve } from 'path';
 import { Command } from 'commander';
+import { resolve } from 'path';
 
 import {
-  SYSTEM_USER_UUID,
   GENERAL_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
+  SYSTEM_USER_UUID,
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 
+import { programImporter } from '../admin/programImporter/programImporter';
+import { referenceDataImporter } from '../admin/referenceDataImporter';
+import { getRandomBase64String } from '../auth/utils';
 import { initDatabase } from '../database';
 import { checkIntegrationsConfig } from '../integrations';
 import { loadSettingFile } from '../utils/loadSettingFile';
-import { referenceDataImporter } from '../admin/referenceDataImporter';
-import { getRandomBase64String } from '../auth/utils';
-import { programImporter } from '../admin/programImporter/programImporter';
 
 export async function provision({ file: provisioningFile, skipIfNotNeeded }) {
   const store = await initDatabase({ testMode: false });

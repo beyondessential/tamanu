@@ -1,6 +1,6 @@
-import React from 'react';
-import { render } from '@testing-library/react-native';
 import { groupEntriesByLetter } from '/helpers/list';
+import { render } from '@testing-library/react-native';
+import React from 'react';
 import { BaseStory, data } from './fixture';
 
 describe.skip('<PatientSectionList', () => {

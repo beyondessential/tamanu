@@ -1,7 +1,7 @@
 import React from 'react';
 import {
-  TooltipContent as DefaultTooltipContent,
   InwardArrowVectorTooltipContent,
+  TooltipContent as DefaultTooltipContent,
 } from './TooltipContent';
 
 export const CustomTooltip = ({ payload, useInwardArrowVector }) => {

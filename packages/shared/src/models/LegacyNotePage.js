@@ -1,17 +1,17 @@
-import { DataTypes } from 'sequelize';
 import {
   NOTE_RECORD_TYPE_VALUES,
   NOTE_TYPE_VALUES,
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
+import { DataTypes } from 'sequelize';
 import { log } from '../services/logging';
 
-import { Model } from './Model';
-import { LegacyNoteItem } from './LegacyNoteItem';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 import { buildNotePageLinkedSyncFilter } from './buildLegacyNoteLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
-import { getCurrentDateTimeString } from '../utils/dateTime';
+import { LegacyNoteItem } from './LegacyNoteItem';
+import { Model } from './Model';
 
 export class LegacyNotePage extends Model {
   static init({ primaryKey, ...options }) {

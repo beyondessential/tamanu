@@ -1,9 +1,9 @@
 import { Op, Transaction } from 'sequelize';
 
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging/log';
 import { COLUMNS_EXCLUDED_FROM_SYNC, SYNC_SESSION_DIRECTION } from '@tamanu/shared/sync';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
 const sanitizeRecord = record =>
   Object.fromEntries(

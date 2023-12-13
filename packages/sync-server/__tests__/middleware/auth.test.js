@@ -1,11 +1,11 @@
-import { v4 as uuid } from 'uuid';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import config from 'config';
+import jwt from 'jsonwebtoken';
+import { v4 as uuid } from 'uuid';
 
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
-import { fake, disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
+import { disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
 import { createTestContext, withDate } from '../utilities';
 
 const TEST_EMAIL = 'test@beyondessential.com.au';
@@ -215,11 +215,13 @@ describe('Auth', () => {
       const { token, refreshToken } = loginResponse.body;
 
       // Make sure that Date used in signing new token is different from global mock date
-      const refreshResponse = await withDate(new Date(Date.now() + 10000), () =>
-        baseApp.post('/v1/refresh').send({
-          refreshToken,
-          deviceId: TEST_DEVICE_ID,
-        }),
+      const refreshResponse = await withDate(
+        new Date(Date.now() + 10000),
+        () =>
+          baseApp.post('/v1/refresh').send({
+            refreshToken,
+            deviceId: TEST_DEVICE_ID,
+          }),
       );
 
       expect(refreshResponse).toHaveSucceeded();
@@ -253,11 +255,13 @@ describe('Auth', () => {
       const { refreshToken, user } = loginResponse.body;
 
       // Make sure that Date used in signing new token is different from global mock date
-      const refreshResponse = await withDate(new Date(Date.now() + 10000), () =>
-        baseApp.post('/v1/refresh').send({
-          refreshToken,
-          deviceId: TEST_DEVICE_ID,
-        }),
+      const refreshResponse = await withDate(
+        new Date(Date.now() + 10000),
+        () =>
+          baseApp.post('/v1/refresh').send({
+            refreshToken,
+            deviceId: TEST_DEVICE_ID,
+          }),
       );
 
       expect(refreshResponse).toHaveSucceeded();

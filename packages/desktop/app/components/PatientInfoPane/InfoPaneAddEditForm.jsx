@@ -1,14 +1,14 @@
-import React, { memo, useCallback, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import React, { memo, useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
 import {
-  CONDITIONS_TITLE,
   ALLERGIES_TITLE,
+  CARE_PLANS_TITLE,
+  CONDITIONS_TITLE,
   FAMILY_HISTORY_TITLE,
   ISSUES_TITLE,
-  CARE_PLANS_TITLE,
 } from './paneTitles';
 
 const FormContainer = styled.div`

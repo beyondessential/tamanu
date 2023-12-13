@@ -1,6 +1,6 @@
+import { NON_ANSWERABLE_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
 import { keyBy } from 'lodash';
-import { NON_ANSWERABLE_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { toDateTimeString } from '../utils/dateTime';
 import {
   generateReportFromQueryData,
@@ -143,8 +143,8 @@ export const transformSingleResponse = async (
         newAnswers[key] = body;
       } else {
         const dataElementId = key;
-        const type =
-          dataElementIdToComponent[dataElementId]?.dataElement?.dataValues?.type || 'unknown';
+        const type = dataElementIdToComponent[dataElementId]?.dataElement?.dataValues?.type ||
+          'unknown';
         const componentConfig = autocompleteComponentMap.get(dataElementId);
         newAnswers[key] = await getAnswerBody(models, componentConfig, type, body, {
           dateFormat: 'yyyy-MM-dd',

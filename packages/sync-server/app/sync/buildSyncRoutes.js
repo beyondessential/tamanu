@@ -1,9 +1,9 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { Op } from 'sequelize';
 import { log } from '@tamanu/shared/services/logging';
 import { completeSyncSession } from '@tamanu/shared/sync/completeSyncSession';
+import { Op } from 'sequelize';
 
 import { CentralSyncManager } from './CentralSyncManager';
 

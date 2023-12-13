@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
 
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
 
-import { FormModal } from './FormModal';
+import { NOTE_FORM_MODES } from '../constants';
+import { useAuth } from '../contexts/Auth';
 import { NoteForm } from '../forms/NoteForm';
 import { ConfirmModal } from './ConfirmModal';
-import { useAuth } from '../contexts/Auth';
-import { NOTE_FORM_MODES } from '../constants';
+import { FormModal } from './FormModal';
 
 const getOnBehalfOfId = (noteFormMode, currentUserId, newData, note) => {
   // When editing non treatment plan notes, we just want to retain the previous onBehalfOfId;
@@ -63,15 +63,15 @@ export const NoteModal = ({
         onBehalfOfId: getOnBehalfOfId(noteFormMode, currentUser.id, data, note),
         ...(note
           ? {
-              recordType: note.recordType,
-              recordId: note.recordId,
-              noteType: note.noteType,
-              revisedById: note.revisedById || note.id,
-            }
+            recordType: note.recordType,
+            recordId: note.recordId,
+            noteType: note.noteType,
+            revisedById: note.revisedById || note.id,
+          }
           : {
-              recordId: encounterId,
-              recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-            }),
+            recordId: encounterId,
+            recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+          }),
       };
 
       await api.post('notes', newNote);

@@ -1,7 +1,7 @@
-import React from 'react';
-import { storiesOf } from '@storybook/react-native';
-import { ThemeProvider } from 'styled-components';
 import { CenterView, themeSystem } from '/styled/common';
+import { storiesOf } from '@storybook/react-native';
+import React from 'react';
+import { ThemeProvider } from 'styled-components';
 import { KeyboardAwareView } from '../KeyboardAwareView';
 import { BaseDateTextFieldStory } from './fixtures';
 
@@ -14,14 +14,17 @@ stories.addDecorator((getStory: Function) => (
     </KeyboardAwareView>
   </ThemeProvider>
 ));
-stories.add('Active DatePicker', () => (
-  <BaseDateTextFieldStory mode="date" label="First Year of Registration" />
-));
+stories.add(
+  'Active DatePicker',
+  () => <BaseDateTextFieldStory mode="date" label="First Year of Registration" />,
+);
 
-stories.add('Active TimePicker', () => (
-  <BaseDateTextFieldStory mode="time" label="Hour of Registration" />
-));
+stories.add(
+  'Active TimePicker',
+  () => <BaseDateTextFieldStory mode="time" label="Hour of Registration" />,
+);
 
-stories.add('With Error', () => (
-  <BaseDateTextFieldStory mode="date" label="Date" error=" with error " />
-));
+stories.add(
+  'With Error',
+  () => <BaseDateTextFieldStory mode="date" label="Date" error=" with error " />,
+);

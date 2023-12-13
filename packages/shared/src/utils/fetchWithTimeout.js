@@ -1,5 +1,5 @@
-import fetch from 'node-fetch';
 import AbortController from 'abort-controller';
+import fetch from 'node-fetch';
 
 export const fetchWithTimeout = async (url, { timeout, ...params } = {}, fetchImpl = fetch) => {
   let controller;

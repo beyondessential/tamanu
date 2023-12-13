@@ -1,12 +1,12 @@
+import { DOCUMENT_SIZE_LIMIT, DOCUMENT_SOURCES } from '@tamanu/constants';
+import { NotFoundError } from '@tamanu/shared/errors';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
-import { DOCUMENT_SIZE_LIMIT, DOCUMENT_SOURCES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { NotFoundError } from '@tamanu/shared/errors';
-import { uploadAttachment } from '../../../utils/uploadAttachment';
-import { mapQueryFilters, getCaseInsensitiveFilter, getOrderClause } from '../../../database/utils';
+import { getCaseInsensitiveFilter, getOrderClause, mapQueryFilters } from '../../../database/utils';
 import { createPatientLetter } from '../../../routeHandlers/createPatientLetter';
+import { uploadAttachment } from '../../../utils/uploadAttachment';
 
 // Object used to map field names to database column names
 const SNAKE_CASE_COLUMN_NAMES = {

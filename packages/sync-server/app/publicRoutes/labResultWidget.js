@@ -1,8 +1,8 @@
 import config from 'config';
 
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 
 export const labResultWidgetRoutes = express.Router();
 
@@ -33,7 +33,7 @@ const transformLabRequest = async (models, labRequest, testTypeWhitelist) => {
   });
 
   const returnableLabTests = labTests.filter(({ labTestTypeId }) =>
-    testTypeWhitelist.includes(labTestTypeId),
+    testTypeWhitelist.includes(labTestTypeId)
   );
 
   return {
@@ -61,12 +61,12 @@ labResultWidgetRoutes.get(
     });
 
     const returnableLabRequests = labRequests.filter(({ labTestCategoryId }) =>
-      categoryWhitelist.includes(labTestCategoryId),
+      categoryWhitelist.includes(labTestCategoryId)
     );
 
     const labRequestsToReport = await Promise.all(
       returnableLabRequests.map(labRequest =>
-        transformLabRequest(models, labRequest, testTypeWhitelist),
+        transformLabRequest(models, labRequest, testTypeWhitelist)
       ),
     );
 

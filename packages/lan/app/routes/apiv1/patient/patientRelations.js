@@ -1,18 +1,18 @@
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Sequelize } from 'sequelize';
 
-import { getPatientAdditionalData } from '@tamanu/shared/utils';
 import { HIDDEN_VISIBILITY_STATUSES } from '@tamanu/constants/importable';
+import { getPatientAdditionalData } from '@tamanu/shared/utils';
 
-import { renameObjectKeys } from '@tamanu/shared/utils/renameObjectKeys';
 import {
-  simpleGetList,
   permissionCheckingRouter,
   runPaginatedQuery,
+  simpleGetList,
 } from '@tamanu/shared/utils/crudHelpers';
-import { patientSecondaryIdRoutes } from './patientSecondaryId';
+import { renameObjectKeys } from '@tamanu/shared/utils/renameObjectKeys';
 import { patientDeath } from './patientDeath';
 import { patientProfilePicture } from './patientProfilePicture';
+import { patientSecondaryIdRoutes } from './patientSecondaryId';
 
 export const patientRelations = permissionCheckingRouter('read', 'Patient');
 
@@ -354,16 +354,16 @@ patientRelations.get(
   AND lab_requests.sample_time IS NOT NULL
   ${categoryId ? 'AND lab_requests.lab_test_category_id = :categoryId' : ''}
   ${
-    panelId
-      ? `AND lab_test_type_id IN (
+        panelId
+          ? `AND lab_test_type_id IN (
          SELECT lab_test_type_id
          FROM
            lab_test_panel_lab_test_types
          WHERE
            lab_test_panel_id = :panelId
        )`
-      : ''
-  }
+          : ''
+      }
   GROUP BY
     test_category, test_type
   ORDER BY

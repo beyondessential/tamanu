@@ -1,7 +1,7 @@
-import React, { ReactElement, FC } from 'react';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { RowView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import React, { FC, ReactElement } from 'react';
 
 type ModalFieldProps = {
   label: string;

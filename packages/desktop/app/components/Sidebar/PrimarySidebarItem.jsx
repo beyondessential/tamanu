@@ -1,7 +1,7 @@
+import { Collapse, Divider, List, ListItem, ListItemText } from '@material-ui/core';
+import { ExpandMore } from '@material-ui/icons';
 import React from 'react';
 import styled from 'styled-components';
-import { ExpandMore } from '@material-ui/icons';
-import { Collapse, List, ListItem, ListItemText, Divider } from '@material-ui/core';
 import { administrationIcon } from '../../constants/images';
 import { ThemedTooltip } from '../Tooltip';
 
@@ -22,7 +22,7 @@ const PrimaryListItem = styled(ListItem)`
 
   &.Mui-selected {
     background: ${props =>
-      props.$highlighted && props.$retracted ? 'rgba(255, 255, 255, 0.15)' : 'none'};
+  props.$highlighted && props.$retracted ? 'rgba(255, 255, 255, 0.15)' : 'none'};
     transition: ${props => props.theme.transitions.create('background')};
 
     .MuiSvgIcon-root {
@@ -77,7 +77,6 @@ const StyledTooltip = styled(ThemedTooltip)`
 `;
 
 /**
- *
  * selected: the list item has been clicked by the user and is open
  * highlighted: the list item should be highlighted
  */

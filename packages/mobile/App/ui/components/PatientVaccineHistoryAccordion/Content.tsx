@@ -1,8 +1,8 @@
-import React, { ReactElement } from 'react';
 import { formatStringDate } from '/helpers/date';
-import { StyleSheet, Text, View } from 'react-native';
-import { StyledView, RowView, ColumnView } from '/styled/common';
+import { ColumnView, RowView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
+import React, { ReactElement } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
@@ -61,13 +61,11 @@ export const Content = (
   <StyledView>
     <ColumnView
       width="100%"
-      background={
-        theme.colors.BACKGROUND_GREY
-      }
+      background={theme.colors.BACKGROUND_GREY}
       paddingLeft={20}
       paddingRight={20}
     >
-      {section.data.map((d) => <VaccinationDetailsList key={d.id} {...d} />)}
+      {section.data.map(d => <VaccinationDetailsList key={d.id} {...d} />)}
     </ColumnView>
   </StyledView>
 );

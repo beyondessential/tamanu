@@ -2,8 +2,8 @@
 
 This is the Tamanu App Repository.
 
-| Package | Runbook | Description |
-| ------- | ------- | ----------- |
+| Package                                                     | Runbook                                                                                       | Description    |
+| ----------------------------------------------------------- | --------------------------------------------------------------------------------------------- | -------------- |
 | [mobile](https://github.com/beyondessential/tamanu-mobile/) | [mobile runbook](https://beyond-essential.slab.com/posts/todo-tamanu-mobile-runbook-8vj8qceu) | The mobile app |
 
 The rest of the Tamanu system is in [a separate monorepo](https://github.com/beyondessential/tamanu).
@@ -67,6 +67,7 @@ yarn start
 Storybook is our default component library which helps us checking the behavior and styles of components in an isolated environment.
 
 To run storybook:
+
 1. Have your emulator running
 1. Have your app running (metro bundler)
 1. Open the dev menu and press `Toggle Storybook`
@@ -125,6 +126,7 @@ To bump the version, edit it in `package.json`, and remember to increment the pa
 App Center will build an apk and app bundle on every commit to dev and master. It is also connected directly to Google Play, making distribution easy _if_ you are releasing to all countries at once.
 
 To release a version to the Google Play store using App Center:
+
 - Open https://appcenter.ms/orgs/Beyond-Essential/apps/Tamanu-Mobile/build/branches/master
 - Click the latest build (top of the list)
 - Drop down "Distribute" and select "Store"
@@ -135,9 +137,11 @@ It will take around 5 - 10 minutes to process, and then will enter Google Play's
 In future, we may need to roll out to a country at a time - this needs to be done directly through Google Play.
 
 ### App Center builds
+
 App Center is all set up to build and sign both .aab app bundles (for the store, see above), and .apk files (for internal testing/non-store distribution).
 
 To make a release build of a branch:
+
 - Go to the [branches page in App Center](https://appcenter.ms/orgs/Beyond-Essential/apps/Tamanu-Mobile/build/branches)
 - Navigate to your branch
 - Hit the arrow beside configure then "clone from existing configuration" and choose dev
@@ -161,44 +165,47 @@ In the previous path you will be the "tamanuapp.app" we can:
 6. share app with the team!
 
 #### File configurations
+
 App configuration files
 
-| React Native  |   |
-|---|---|
-| .metro.config.js | RN file bundler |
-| app.json | App name and display name |
+| React Native     |                           |
+| ---------------- | ------------------------- |
+| .metro.config.js | RN file bundler           |
+| app.json         | App name and display name |
 
-| Jest  |   |
-|---|---|
-| jest-unit-config.js | Configuration for unit tests. Unit tests has a .spec extension |
+| Jest                       |                                                                              |
+| -------------------------- | ---------------------------------------------------------------------------- |
+| jest-unit-config.js        | Configuration for unit tests. Unit tests has a .spec extension               |
 | jest-integration-config.js | Configuration for integration tests. Integration tests has a .test extension |
 
 Typescript:
 
-|   |   |
-|---|---|
+|               |                                                                       |
+| ------------- | --------------------------------------------------------------------- |
 | tsconfig.json | typescript configuration and path aliases for smaller module imports. |
 
 Git related configurations:
 
-|   |   |
-|---|---|
-| .huskyrc | pre commit and push configuration scripts |
-| .lintstagedrc |  scripts to run in stagged files when commit |
+|               |                                             |
+| ------------- | ------------------------------------------- |
+| .huskyrc      | pre commit and push configuration scripts   |
+| .lintstagedrc | scripts to run in stagged files when commit |
 
 #### Folders
+
 App folder structure:
 
-|   |   |
-|---|---|
-| App  | user interface components, navigation and ddd folders |
-| storybook  | Storybook folder with configuration files. |
-| e2e  |  End to end testing with detox  |
-| mockserver | firebase functions to mock remote server   |
-| android | Gradle configuration, debug signing key  |
-| _mocks_ | fixed mocks for jest test runner  |
+|            |                                                       |
+| ---------- | ----------------------------------------------------- |
+| App        | user interface components, navigation and ddd folders |
+| storybook  | Storybook folder with configuration files.            |
+| e2e        | End to end testing with detox                         |
+| mockserver | firebase functions to mock remote server              |
+| android    | Gradle configuration, debug signing key               |
+| _mocks_    | fixed mocks for jest test runner                      |
 
 #### Migrations
+
 The sqlite instance on mobile is kept up to date using TypeORM migration files, these are stored in `App/migrations`
 
 Run the following command to generate a new template migration and automatically add it to the `App/migrations/index.ts` file:

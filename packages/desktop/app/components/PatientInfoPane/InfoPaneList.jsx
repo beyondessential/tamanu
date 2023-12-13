@@ -1,16 +1,16 @@
-import React, { memo, useState, useCallback } from 'react';
-import styled from 'styled-components';
-import { useQuery } from '@tanstack/react-query';
+import { Button, Collapse, Typography } from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
-import { Collapse, Button, Typography } from '@material-ui/core';
-import { kebabCase } from 'lodash';
 import { PATIENT_ISSUE_TYPES } from '@tamanu/constants';
+import { useQuery } from '@tanstack/react-query';
+import { kebabCase } from 'lodash';
+import React, { memo, useCallback, useState } from 'react';
+import styled from 'styled-components';
+import { useApi } from '../../api';
 import { Colors } from '../../constants';
 import { FormModal } from '../FormModal';
 import { PatientAlert } from '../PatientAlert';
 import { InfoPaneAddEditForm } from './InfoPaneAddEditForm';
 import { ISSUES_TITLE } from './paneTitles';
-import { useApi } from '../../api';
 
 const TitleContainer = styled.div`
   color: ${Colors.primary};
@@ -92,8 +92,9 @@ export const InfoPaneList = memo(
     const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
     const { adding, editKey } = addEditState;
     const api = useApi();
-    const { data, error } = useQuery([`infoPaneListItem-${title}`, patient.id], () =>
-      api.get(getEndpoint),
+    const { data, error } = useQuery(
+      [`infoPaneListItem-${title}`, patient.id],
+      () => api.get(getEndpoint),
     );
     const isIssuesPane = title === ISSUES_TITLE;
     const { items, warnings } = getItems(isIssuesPane, data);
@@ -109,9 +110,7 @@ export const InfoPaneList = memo(
     );
 
     const Wrapper = props =>
-      behavior === 'collapse' ? (
-        <Collapse in={adding} {...props} />
-      ) : (
+      behavior === 'collapse' ? <Collapse in={adding} {...props} /> : (
         <FormModal
           width="md"
           title={itemTitle}

@@ -1,41 +1,41 @@
+import { Box } from '@material-ui/core';
+import { AssignmentLate, Business, Timelapse } from '@material-ui/icons';
+import { LAB_REQUEST_STATUS_CONFIG, LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
-import { Timelapse, Business, AssignmentLate } from '@material-ui/icons';
-import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_CONFIG } from '@tamanu/constants';
-import { useAuth } from '../../contexts/Auth';
 import BeakerIcon from '../../assets/images/beaker.svg';
 import TestCategoryIcon from '../../assets/images/testCategory.svg';
-import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { useLabRequest } from '../../contexts/LabRequest';
 import {
+  Button,
+  DateDisplay,
   Heading2,
+  MenuButton,
+  MODAL_TRANSITION_DURATION,
+  OutlinedButton,
   Tile,
   TileContainer,
-  MenuButton,
-  DateDisplay,
-  OutlinedButton,
   TileTag,
-  MODAL_TRANSITION_DURATION,
-  Button,
 } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { LabRequestChangeLabModal } from './components/LabRequestChangeLabModal';
-import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
-import { LabRequestChangeStatusModal } from './components/LabRequestChangeStatusModal';
-import { LabRequestPrintModal } from './components/LabRequestPrintModal';
-import { LabRequestCancelModal } from './components/LabRequestCancelModal';
-import { LabRequestResultsTable } from './components/LabRequestResultsTable';
-import { LabRequestLogModal } from './components/LabRequestLogModal';
-import { LabRequestCard } from './components/LabRequestCard';
-import { LabRequestChangePriorityModal } from './components/LabRequestChangePriorityModal';
-import { LabRequestRecordSampleModal } from './components/LabRequestRecordSampleModal';
-import { LabTestResultsModal } from './components/LabTestResultsModal';
-import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
-import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
 import { Colors } from '../../constants';
+import { useAuth } from '../../contexts/Auth';
+import { useLabRequest } from '../../contexts/LabRequest';
+import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
+import { LabRequestCancelModal } from './components/LabRequestCancelModal';
+import { LabRequestCard } from './components/LabRequestCard';
+import { LabRequestChangeLabModal } from './components/LabRequestChangeLabModal';
+import { LabRequestChangePriorityModal } from './components/LabRequestChangePriorityModal';
+import { LabRequestChangeStatusModal } from './components/LabRequestChangeStatusModal';
+import { LabRequestLogModal } from './components/LabRequestLogModal';
+import { LabRequestPrintModal } from './components/LabRequestPrintModal';
+import { LabRequestRecordSampleModal } from './components/LabRequestRecordSampleModal';
+import { LabRequestResultsTable } from './components/LabRequestResultsTable';
+import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
+import { LabTestResultsModal } from './components/LabTestResultsModal';
 
 const Container = styled.div`
   display: flex;
@@ -164,13 +164,12 @@ export const LabRequestView = () => {
   const displayStatus = areLabRequestsReadOnly ? LAB_REQUEST_STATUSES.CANCELLED : labRequest.status;
 
   const ActiveModal = MODALS[modalId] || null;
-  const actions =
-    labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
-      ? { 'Record sample': () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE) }
-      : {
-          Edit: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
-          'View Details': () => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS),
-        };
+  const actions = labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
+    ? { 'Record sample': () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE) }
+    : {
+      Edit: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+      'View Details': () => handleChangeModalId(MODAL_IDS.SAMPLE_DETAILS),
+    };
 
   return (
     <Container>
@@ -211,10 +210,10 @@ export const LabRequestView = () => {
             actions={{
               ...(!areLabRequestsReadOnly &&
                 canWriteLabRequestStatus && {
-                  'Change status': () => {
-                    handleChangeModalId(MODAL_IDS.CHANGE_STATUS);
-                  },
-                }),
+                'Change status': () => {
+                  handleChangeModalId(MODAL_IDS.CHANGE_STATUS);
+                },
+              }),
               'View status log': () => {
                 handleChangeModalId(MODAL_IDS.VIEW_STATUS_LOG);
               },
@@ -262,7 +261,10 @@ export const LabRequestView = () => {
       <BottomContainer>
         {!isPublished && !areLabTestsReadOnly && (
           <Box display="flex" justifyContent="flex-end" marginBottom="20px">
-            <Button onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)}>
+            <Button
+              onClick={() =>
+                handleChangeModalId(MODAL_IDS.ENTER_RESULTS)}
+            >
               Enter results
             </Button>
           </Box>

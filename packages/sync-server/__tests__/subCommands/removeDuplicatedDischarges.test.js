@@ -2,11 +2,11 @@ import { sub } from 'date-fns';
 
 import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { fake } from '@tamanu/shared/test-helpers/fake';
-import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { sleepAsync } from '@tamanu/shared/utils';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-import { createTestContext } from '../utilities';
 import { removeDuplicatedDischarges } from '../../app/subCommands';
+import { createTestContext } from '../utilities';
 
 describe('removeDuplicatedDischarges', () => {
   let ctx;

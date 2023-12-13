@@ -1,9 +1,9 @@
+import { Box } from '@material-ui/core';
 import React from 'react';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
-import { labsIcon } from '../../../constants/images';
 import { DateDisplay, useLocalisedText } from '../../../components';
 import { Colors } from '../../../constants';
+import { labsIcon } from '../../../constants/images';
 
 const Container = styled.div`
   display: flex;

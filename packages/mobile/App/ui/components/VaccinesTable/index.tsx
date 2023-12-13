@@ -1,19 +1,19 @@
-import React, {useRef} from 'react';
 import { useIsFocused } from '@react-navigation/native';
 import { uniqBy } from 'lodash';
-import { useBackendEffect } from '~/ui/hooks';
-import { Table } from '../Table';
-import { VaccineRowHeader } from './VaccineRowHeader';
-import { VaccinesTableTitle } from './VaccinesTableTitle';
-import { vaccineTableHeader } from './VaccineTableHeader';
-import { ErrorScreen } from '../ErrorScreen';
-import { LoadingScreen } from '../LoadingScreen';
-import { VaccineStatus } from '~/ui/helpers/patient';
-import { VaccineTableCell, VaccineTableCellData } from './VaccinesTableCell';
-import { IScheduledVaccine } from '~/types';
+import React, { useRef } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
+import { IScheduledVaccine } from '~/types';
+import { VaccineStatus } from '~/ui/helpers/patient';
+import { useBackendEffect } from '~/ui/hooks';
 import { StyledView } from '~/ui/styled/common';
 import { VisibilityStatus } from '~/visibilityStatuses';
+import { ErrorScreen } from '../ErrorScreen';
+import { LoadingScreen } from '../LoadingScreen';
+import { Table } from '../Table';
+import { VaccineRowHeader } from './VaccineRowHeader';
+import { VaccineTableCell, VaccineTableCellData } from './VaccinesTableCell';
+import { VaccinesTableTitle } from './VaccinesTableTitle';
+import { vaccineTableHeader } from './VaccineTableHeader';
 interface VaccinesTableProps {
   selectedPatient: any;
   categoryName: string;
@@ -31,7 +31,7 @@ export const VaccinesTable = ({
   // to the scrollview in the generic table. That gets the horizontal scroll coordinate
   // of the table and feeds this back up to position the header appropriately.
   const handleScroll = (event: any) => {
-    scrollViewRef.current.scrollTo({x: event.nativeEvent.contentOffset.x, animated: false})
+    scrollViewRef.current.scrollTo({ x: event.nativeEvent.contentOffset.x, animated: false });
   };
 
   const isFocused = useIsFocused();
@@ -54,40 +54,40 @@ export const VaccinesTable = ({
   if (!scheduledVaccines || !patientAdministeredVaccines) return <LoadingScreen />;
 
   const cells: { [schedule: string]: VaccineTableCellData[] } = {};
-  const nonHistoricalOrAdministeredScheduledVaccines = scheduledVaccines.filter(scheduledVaccine => {
-    const administeredVaccine = patientAdministeredVaccines.find(v => {
-      if (typeof v.scheduledVaccine === 'string') {
-        throw new Error('VaccinesTable: administeredVaccine did not embed scheduledVaccine');
+  const nonHistoricalOrAdministeredScheduledVaccines = scheduledVaccines.filter(
+    scheduledVaccine => {
+      const administeredVaccine = patientAdministeredVaccines.find(v => {
+        if (typeof v.scheduledVaccine === 'string') {
+          throw new Error('VaccinesTable: administeredVaccine did not embed scheduledVaccine');
+        }
+        return v.scheduledVaccine.id === scheduledVaccine.id;
+      });
+
+      const shouldDisplayVaccine = scheduledVaccine.visibilityStatus === VisibilityStatus.Current ||
+        administeredVaccine;
+
+      if (shouldDisplayVaccine) {
+        const vaccineStatus = administeredVaccine
+          ? administeredVaccine.status
+          : VaccineStatus.SCHEDULED;
+
+        cells[scheduledVaccine.schedule] = [
+          ...(cells[scheduledVaccine.schedule] || []),
+          {
+            scheduledVaccine: scheduledVaccine as IScheduledVaccine,
+            // TODO: why doesn't ScheduledVaccine fulfill IScheduledVaccine?
+            vaccineStatus,
+            administeredVaccine,
+            patientAdministeredVaccines,
+            patient: selectedPatient,
+            label: scheduledVaccine.label,
+          },
+        ];
       }
-      return v.scheduledVaccine.id === scheduledVaccine.id;
-    });
 
-    const shouldDisplayVaccine = scheduledVaccine.visibilityStatus === VisibilityStatus.Current || administeredVaccine;
-
-    if (shouldDisplayVaccine) {
-
-      const vaccineStatus = administeredVaccine
-        ? administeredVaccine.status
-        : VaccineStatus.SCHEDULED;
-
-      cells[scheduledVaccine.schedule] = [
-        ...(cells[scheduledVaccine.schedule] || []),
-        {
-          scheduledVaccine: scheduledVaccine as IScheduledVaccine,
-          // TODO: why doesn't ScheduledVaccine fulfill IScheduledVaccine?
-          vaccineStatus,
-          administeredVaccine,
-          patientAdministeredVaccines,
-          patient: selectedPatient,
-          label: scheduledVaccine.label,
-        },
-      ];
-
-    }
-
-    return shouldDisplayVaccine;
-
-  });
+      return shouldDisplayVaccine;
+    },
+  );
 
   const uniqueByVaccine = uniqBy(nonHistoricalOrAdministeredScheduledVaccines, 'label');
   const rows = uniqueByVaccine.map(scheduledVaccine => ({

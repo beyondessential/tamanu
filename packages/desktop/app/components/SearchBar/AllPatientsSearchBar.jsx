@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
-import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import Box from '@material-ui/core/Box';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { CustomisableSearchBar } from './CustomisableSearchBar';
+import { useSuggester } from '../../api';
+import { useSexOptions } from '../../hooks';
 import {
+  AutocompleteField,
+  DOBFields,
   Field,
   LocalisedField,
-  DOBFields,
   SearchField,
-  AutocompleteField,
   SelectField,
 } from '../Field';
-import { useSuggester } from '../../api';
 import { DateField } from '../Field/DateField';
-import { useSexOptions } from '../../hooks';
+import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { SearchBarCheckField } from './SearchBarCheckField';
 
 const TwoColumnsField = styled(Box)`

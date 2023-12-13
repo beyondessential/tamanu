@@ -1,18 +1,18 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import { REFERRAL_STATUSES } from '@tamanu/constants';
 import { REFERRAL_STATUS_LABELS } from '../constants';
-import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { DropdownButton } from './DropdownButton';
+import { DataFetchingTable } from './Table';
 
-import { EncounterModal } from './EncounterModal';
+import { isErrorUnknownAllow404s, useApi } from '../api';
 import { useEncounter } from '../contexts/Encounter';
-import { useApi, isErrorUnknownAllow404s } from '../api';
-import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { DeleteButton } from './Button';
 import { ConfirmModal } from './ConfirmModal';
+import { EncounterModal } from './EncounterModal';
+import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 
 const ACTION_MODAL_STATES = {
   CLOSED: 'closed',
@@ -100,7 +100,7 @@ const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
   useEffect(() => {
     (async () => {
       const referralByComponent = survey.components.find(({ dataElement }) =>
-        fieldNames.includes(dataElement.name),
+        fieldNames.includes(dataElement.name)
       );
       if (!referralByComponent) {
         return;

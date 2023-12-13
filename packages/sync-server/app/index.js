@@ -3,12 +3,12 @@
 // eslint-disable-next-line import/order
 import { version } from './serverInfo';
 
-import { program } from 'commander';
 import { log } from '@tamanu/shared/services/logging';
+import { program } from 'commander';
 
-import * as cmd from './subCommands';
-import { setupEnv } from './env';
 import { closeDatabase } from './database';
+import { setupEnv } from './env';
+import * as cmd from './subCommands';
 
 // allow commands to be hidden if e.g. they're deprecated
 const hiddenCommands = [

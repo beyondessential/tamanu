@@ -1,25 +1,25 @@
-import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
-import { theme } from '~/ui/styled/theme';
-import { Popup } from 'popup-ui';
-import { useNavigation } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';
+import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { Popup } from 'popup-ui';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { theme } from '~/ui/styled/theme';
 
 interface ErrorComponentProps {
-  error: string,
-  resetRoute?: string,
+  error: string;
+  resetRoute?: string;
 }
 
-type ErrorComponentType = React.FC<ErrorComponentProps> | React.ComponentType<ErrorComponentProps>; 
+type ErrorComponentType = React.FC<ErrorComponentProps> | React.ComponentType<ErrorComponentProps>;
 
 interface ErrorBoundaryProps {
-  resetRoute?: string,
-  errorComponent?: ErrorComponentType,
+  resetRoute?: string;
+  errorComponent?: ErrorComponentType;
 }
 
 interface ErrorBoundaryState {
-  error: Error | null,
+  error: Error | null;
 }
 
 const FullScreenErrorModal = ({ resetRoute = Routes.HomeStack.Index }) => {
@@ -29,7 +29,8 @@ const FullScreenErrorModal = ({ resetRoute = Routes.HomeStack.Index }) => {
     type: 'Danger',
     title: 'Something went wrong',
     button: true,
-    textBody: `Sorry, it looks like an error has occurred. If this continues to happen, please let your IT admin know.`,
+    textBody:
+      `Sorry, it looks like an error has occurred. If this continues to happen, please let your IT admin know.`,
     buttonText: 'Ok',
     callback: () => {
       navigation.replace(resetRoute);
@@ -37,8 +38,8 @@ const FullScreenErrorModal = ({ resetRoute = Routes.HomeStack.Index }) => {
     },
   });
 
-  return <View style={{backgroundColor: theme.colors.BACKGROUND_GREY}} />;
-}
+  return <View style={{ backgroundColor: theme.colors.BACKGROUND_GREY }} />;
+};
 
 export class ErrorBoundary extends React.PureComponent<ErrorBoundaryProps, ErrorBoundaryState> {
   state = { error: null };

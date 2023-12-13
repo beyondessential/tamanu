@@ -1,12 +1,13 @@
-import React from 'react';
 import { useQuery } from '@tanstack/react-query';
+import React from 'react';
 import { useApi } from '../../../api';
 import { SelectField } from '../../../components';
 
 export const ReportSelectField = ({ error, helperText, includeNameChangeEvent, ...props }) => {
   const api = useApi();
-  const { data: reportData = [], error: fetchError } = useQuery(['reportList'], () =>
-    api.get('admin/reports'),
+  const { data: reportData = [], error: fetchError } = useQuery(
+    ['reportList'],
+    () => api.get('admin/reports'),
   );
   const options = reportData.map(({ id, name }) => ({
     label: name,

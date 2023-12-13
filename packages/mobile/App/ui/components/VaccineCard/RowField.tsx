@@ -1,9 +1,9 @@
 import React, { FC } from 'react';
 import { StyleSheet } from 'react-native';
 
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 type RowFieldProps = {
   label: string;

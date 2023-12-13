@@ -1,7 +1,7 @@
-import path from 'path';
-import { promises as fs } from 'fs';
 import { InvalidParameterError, RemoteCallFailedError } from '@tamanu/shared/errors';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
+import { promises as fs } from 'fs';
+import path from 'path';
 
 import { CentralServerConnection } from '../app/sync/CentralServerConnection';
 // Get the unmocked function to be able to test it

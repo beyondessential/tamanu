@@ -14,7 +14,8 @@ module.exports = {
         // N.B. because ';' is used to join the two, we replace any actual occurrence of ';' with ':'
         // to avoid clashes on the joined id
         id: {
-          type: `TEXT GENERATED ALWAYS AS (REPLACE("patient_id", ';', ':') || ';' || REPLACE("facility_id", ';', ':')) STORED`,
+          type:
+            `TEXT GENERATED ALWAYS AS (REPLACE("patient_id", ';', ':') || ';' || REPLACE("facility_id", ';', ':')) STORED`,
         },
         created_at: {
           type: Sequelize.DATE,

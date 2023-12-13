@@ -1,10 +1,10 @@
-import React from 'react';
+import { CenterView, StyledSafeAreaView } from '/styled/common';
 import { storiesOf } from '@storybook/react-native';
+import React from 'react';
 import { ScrollView } from 'react-native';
-import { StyledSafeAreaView, CenterView } from '/styled/common';
 import { SafeAreaProvider } from 'react-native-safe-area-view';
-import { VitalsTable } from './index';
 import { patientHistoryList } from './fixtures';
+import { VitalsTable } from './index';
 
 storiesOf('Vitals Table', module)
   .addDecorator((Story: Function) => (

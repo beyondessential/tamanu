@@ -3,10 +3,10 @@ import React, { useEffect, useState } from 'react';
 import { StyledView } from '/styled/common';
 import { useFormikContext } from 'formik';
 import { useBackend } from '~/ui/hooks';
-import { Field } from '../FormField';
-import { getAutocompleteDisplayAnswer } from '../../../helpers/getAutocompleteDisplayAnswer';
 import { FieldTypes } from '../../../helpers/fields';
+import { getAutocompleteDisplayAnswer } from '../../../helpers/getAutocompleteDisplayAnswer';
 import { TextField } from '../../TextField/TextField';
+import { Field } from '../FormField';
 
 export const SurveyAnswerField = ({
   patient,

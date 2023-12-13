@@ -1,5 +1,5 @@
-import { Command } from 'commander';
 import { createMigrateCommand } from '@tamanu/shared/services/migrations';
+import { Command } from 'commander';
 import { initDatabase } from '../database';
 
 async function migrate(direction) {

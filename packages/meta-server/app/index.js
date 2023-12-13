@@ -1,5 +1,5 @@
-import { version } from './serverInfo';
 import config from 'config';
+import { version } from './serverInfo';
 
 import { log } from '@tamanu/shared/services/logging';
 

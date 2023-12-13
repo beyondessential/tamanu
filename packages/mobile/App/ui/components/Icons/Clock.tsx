@@ -1,6 +1,6 @@
+import { IconWithSizeProps } from '/interfaces/WithSizeProps';
 import React, { memo } from 'react';
 import { SvgXml } from 'react-native-svg';
-import {IconWithSizeProps} from "/interfaces/WithSizeProps";
 
 export const ClockIcon = memo(({ size, fill, ...props }: IconWithSizeProps) => {
   const xml = `

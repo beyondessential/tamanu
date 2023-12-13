@@ -2,11 +2,11 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { SEX_VALUE_INDEX } from '../../../constants';
-import { DateDisplay } from '../../DateDisplay';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { DateDisplay } from '../../DateDisplay';
 
-import { PrintPortal } from '../PrintPortal';
 import { PatientBarcode } from '../printouts/reusable/PatientBarcode';
+import { PrintPortal } from '../PrintPortal';
 
 const Sticker = styled.div`
   font-family: monospace;

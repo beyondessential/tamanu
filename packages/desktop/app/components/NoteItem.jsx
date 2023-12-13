@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import Divider from '@material-ui/core/Divider';
-import EditIcon from '@material-ui/icons/Edit';
 import Tooltip from '@material-ui/core/Tooltip';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import EditIcon from '@material-ui/icons/Edit';
 import { NOTE_PERMISSION_TYPES } from '@tamanu/constants';
+import React, { useState } from 'react';
+import styled from 'styled-components';
 
-import { DateDisplay } from './DateDisplay';
-import { TextInput } from './Field/TextField';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
+import { DateDisplay } from './DateDisplay';
+import { TextInput } from './Field/TextField';
 import { withPermissionCheck } from './withPermissionCheck';
 
 const EditTextWrapper = styled.div`
@@ -105,10 +105,10 @@ const ItemTooltip = ({ childNoteItems = [] }) => {
   return childNoteItems.map(noteItem => (
     <div key={noteItem.id}>
       <StyledNoteItemLogMetadata>
-        {noteItem.author?.displayName ? <span>{noteItem.author.displayName} </span> : null}
-        {noteItem.onBehalfOf?.displayName ? (
-          <span>on behalf of {noteItem.onBehalfOf.displayName} </span>
-        ) : null}
+        {noteItem.author?.displayName ? <span>{noteItem.author.displayName}</span> : null}
+        {noteItem.onBehalfOf?.displayName ?
+          <span>on behalf of {noteItem.onBehalfOf.displayName}</span> :
+          null}
         <DateDisplay date={noteItem.date} showTime />
       </StyledNoteItemLogMetadata>
 
@@ -118,7 +118,7 @@ const ItemTooltip = ({ childNoteItems = [] }) => {
   ));
 };
 
-const NoteItemMain = ({ noteItem }) => <span>{noteItem.content} </span>;
+const NoteItemMain = ({ noteItem }) => <span>{noteItem.content}</span>;
 
 const NoteItemSecondary = ({ noteItem, isEditting, onEditClick, hasPermission }) => {
   const [isTooltipOpen, setTooltipOpen] = useState(false);
@@ -131,12 +131,12 @@ const NoteItemSecondary = ({ noteItem, isEditting, onEditClick, hasPermission })
       )}
       <br />
       <>
-        <span>{noteItem.author?.displayName || ''} </span>
-        {noteItem.onBehalfOf ? <span>on behalf of {noteItem.onBehalfOf.displayName} </span> : null}
+        <span>{noteItem.author?.displayName || ''}</span>
+        {noteItem.onBehalfOf ? <span>on behalf of {noteItem.onBehalfOf.displayName}</span> : null}
         <DateDisplay date={noteItem.date} showTime />
         {noteItem?.noteItems?.length > 0 && (
           <>
-            <span> (edited) </span>
+            <span>(edited)</span>
             <StyledTooltip
               open={isTooltipOpen}
               onClickAway={() => setTooltipOpen(false)}
@@ -167,42 +167,44 @@ export const NoteItem = ({ index, noteItem, onEditNoteItem, lastNoteItemRef }) =
     <>
       {index !== 0 && <Divider />}
       <ListItem ref={lastNoteItemRef}>
-        {isEditting ? (
-          <EditTextWrapper>
-            <TextInput
-              style={{ width: '100%' }}
-              fullWidth
-              value={content}
-              multiline
-              onChange={event => setContent(event.target.value)}
+        {isEditting ?
+          (
+            <EditTextWrapper>
+              <TextInput
+                style={{ width: '100%' }}
+                fullWidth
+                value={content}
+                multiline
+                onChange={event => setContent(event.target.value)}
+              />
+              <StyledSaveText onClick={handleDone}>Save</StyledSaveText>
+              <StyledCancelText
+                onClick={() => {
+                  // resetting note item content
+                  setContent(noteItem.content);
+                  setIsEditting(!isEditting);
+                }}
+              >
+                Cancel
+              </StyledCancelText>
+            </EditTextWrapper>
+          ) :
+          (
+            <StyledListItemText
+              primary={
+                <>
+                  <NoteItemMain noteItem={noteItem} />
+                  <NoteItemSecondaryWithPermission
+                    noteItem={noteItem}
+                    isEditting={isEditting}
+                    onEditClick={() => setIsEditting(!isEditting)}
+                    verb="write"
+                    noun={NOTE_PERMISSION_TYPES.OTHER_PRACTITIONER_ENCOUNTER_NOTE}
+                  />
+                </>
+              }
             />
-            <StyledSaveText onClick={handleDone}>Save</StyledSaveText>
-            <StyledCancelText
-              onClick={() => {
-                // resetting note item content
-                setContent(noteItem.content);
-                setIsEditting(!isEditting);
-              }}
-            >
-              Cancel
-            </StyledCancelText>
-          </EditTextWrapper>
-        ) : (
-          <StyledListItemText
-            primary={
-              <>
-                <NoteItemMain noteItem={noteItem} />
-                <NoteItemSecondaryWithPermission
-                  noteItem={noteItem}
-                  isEditting={isEditting}
-                  onEditClick={() => setIsEditting(!isEditting)}
-                  verb="write"
-                  noun={NOTE_PERMISSION_TYPES.OTHER_PRACTITIONER_ENCOUNTER_NOTE}
-                />
-              </>
-            }
-          />
-        )}
+          )}
       </ListItem>
     </>
   );

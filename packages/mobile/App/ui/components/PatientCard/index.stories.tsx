@@ -1,8 +1,8 @@
-import React from 'react';
-import { action } from '@storybook/addon-actions';
-import { storiesOf } from '@storybook/react-native';
 import { CenterView } from '/styled/common';
 import { theme } from '/styled/theme';
+import { action } from '@storybook/addon-actions';
+import { storiesOf } from '@storybook/react-native';
+import React from 'react';
 import { PatientCard } from './index';
 
 storiesOf('PatientCard', module)

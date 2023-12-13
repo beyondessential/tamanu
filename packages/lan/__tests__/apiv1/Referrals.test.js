@@ -1,6 +1,6 @@
+import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData';
+import { chance, findOneOrCreate } from '@tamanu/shared/test-helpers';
 import config from 'config';
-import { createDummyPatient, createDummyEncounter } from '@tamanu/shared/demoData';
-import { findOneOrCreate, chance } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 
 let baseApp = null;
@@ -122,7 +122,9 @@ describe('Referrals', () => {
 
   it('should use the default department if one is not provided', async () => {
     const { department: departmentCode } = config.survey.defaultCodes;
-    const department = await findOneOrCreate(ctx.models, ctx.models.Department, { code: departmentCode });
+    const department = await findOneOrCreate(ctx.models, ctx.models.Department, {
+      code: departmentCode,
+    });
 
     const { locationId } = encounter;
     const result = await app.post('/v1/referral').send({

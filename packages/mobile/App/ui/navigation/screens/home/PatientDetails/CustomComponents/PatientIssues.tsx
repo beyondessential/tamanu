@@ -1,12 +1,12 @@
-import React, { ReactElement, useCallback, useState } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
 import { RowView, StyledText, StyledView } from '/styled/common';
-import { Dot } from './Dot';
 import { theme } from '/styled/theme';
-import { PatientSection } from './PatientSection';
-import { useBackend } from '~/ui/hooks';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { ReactElement, useCallback, useState } from 'react';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { useBackend } from '~/ui/hooks';
+import { Dot } from './Dot';
+import { PatientSection } from './PatientSection';
 
 interface PatientIssuesProps {
   onEdit: () => void;

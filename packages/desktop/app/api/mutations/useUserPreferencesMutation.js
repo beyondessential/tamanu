@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useApi } from '../useApi';
 import { useAuth } from '../../contexts/Auth';
+import { useApi } from '../useApi';
 
 export const useUserPreferencesMutation = () => {
   const api = useApi();

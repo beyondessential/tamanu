@@ -7,6 +7,6 @@ export const generateReportFromQueryData = (queryData, columnTemplate) => [
       } catch (e) {
         return undefined;
       }
-    }),
+    })
   ),
 ];

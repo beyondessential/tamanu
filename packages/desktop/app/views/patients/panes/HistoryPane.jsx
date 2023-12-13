@@ -1,11 +1,11 @@
 import React, { useCallback, useState } from 'react';
-import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { useEncounter } from '../../../contexts/Encounter';
+import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 
 import { ContentPane } from '../../../components';
-import { PatientEncounterSummary } from '../components/PatientEncounterSummary';
-import { PatientHistory } from '../../../components/PatientHistory';
 import { EncounterModal } from '../../../components/EncounterModal';
+import { PatientHistory } from '../../../components/PatientHistory';
+import { PatientEncounterSummary } from '../components/PatientEncounterSummary';
 
 export const HistoryPane = React.memo(({ patient, additionalData, disabled }) => {
   const [isModalOpen, setModalOpen] = useState(false);

@@ -1,12 +1,12 @@
-import React from 'react';
-import styled from 'styled-components';
 import { storiesOf } from '@storybook/react';
 import { addHours, format } from 'date-fns';
+import React from 'react';
+import styled from 'styled-components';
+import { VitalChartsModal } from '../app/components/VitalChartsModal';
 import { VitalsTable } from '../app/components/VitalsTable';
-import { MockedApi } from './utils/mockedApi';
 import { EncounterContext } from '../app/contexts/Encounter';
 import { VitalChartDataProvider } from '../app/contexts/VitalChartData';
-import { VitalChartsModal } from '../app/components/VitalChartsModal';
+import { MockedApi } from './utils/mockedApi';
 
 const Container = styled.div`
   max-width: 1300px;
@@ -259,7 +259,8 @@ const endpoints = {
             createdAt: '2023-01-05T04:28:02.095Z',
             updatedAt: '2023-01-26T21:52:01.778Z',
             defaultOptions: null,
-            visualisationConfig: `{"yAxis":{"graphRange":{"min":30,"max":240},"normalRange":{"min":90,"max":200},"interval":10}}`,
+            visualisationConfig:
+              `{"yAxis":{"graphRange":{"min":30,"max":240},"normalRange":{"min":90,"max":200},"interval":10}}`,
           },
           options: null,
         },
@@ -289,7 +290,8 @@ const endpoints = {
             createdAt: '2023-01-05T04:28:02.095Z',
             updatedAt: '2023-01-26T21:52:01.779Z',
             defaultOptions: null,
-            visualisationConfig: `{"yAxis":{"graphRange":{"min":30,"max":240},"normalRange":{"min":90,"max":200},"interval":10}}`,
+            visualisationConfig:
+              `{"yAxis":{"graphRange":{"min":30,"max":240},"normalRange":{"min":90,"max":200},"interval":10}}`,
           },
           options: null,
         },
@@ -406,7 +408,8 @@ const endpoints = {
             createdAt: '2023-01-05T04:28:02.095Z',
             updatedAt: '2023-03-02T21:52:14.274Z',
             defaultOptions: null,
-            visualisationConfig: `{"yAxis":{"graphRange":{"min":80,"max":100},"normalRange":{"min":85,"max":100},"interval":5}}`,
+            visualisationConfig:
+              `{"yAxis":{"graphRange":{"min":80,"max":100},"normalRange":{"min":85,"max":100},"interval":5}}`,
           },
           options: null,
         },

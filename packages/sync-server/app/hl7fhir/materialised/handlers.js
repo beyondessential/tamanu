@@ -8,9 +8,9 @@ import { log } from '@tamanu/shared/services/logging';
 
 import { requireClientHeaders as requireClientHeadersMiddleware } from '../../middleware/requireClientHeaders';
 
+import { createHandler } from './create';
 import { readHandler } from './read';
 import { searchHandler } from './search';
-import { createHandler } from './create';
 
 export function fhirRoutes(ctx, { requireClientHeaders } = {}) {
   const routes = Router();

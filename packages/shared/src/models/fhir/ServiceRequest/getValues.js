@@ -9,7 +9,6 @@ import {
   NOTE_TYPES,
 } from '@tamanu/constants';
 
-import { getNotesWithType } from '../../../utils/notes';
 import {
   FhirAnnotation,
   FhirCodeableConcept,
@@ -18,6 +17,7 @@ import {
   FhirReference,
 } from '../../../services/fhirTypes';
 import { Exception, formatFhirDate } from '../../../utils/fhir';
+import { getNotesWithType } from '../../../utils/notes';
 
 export async function getValues(upstream, models) {
   const { ImagingRequest, LabRequest } = models;
@@ -72,17 +72,17 @@ async function getValuesFromImagingRequest(upstream, models) {
     orderDetail: upstream.areas.flatMap(({ id }) =>
       areaExtCodes.has(id)
         ? [
-            new FhirCodeableConcept({
-              text: areaExtCodes.get(id)?.description,
-              coding: [
-                new FhirCoding({
-                  code: areaExtCodes.get(id)?.code,
-                  system: config.hl7.dataDictionaries.areaExternalCode,
-                }),
-              ],
-            }),
-          ]
-        : [],
+          new FhirCodeableConcept({
+            text: areaExtCodes.get(id)?.description,
+            coding: [
+              new FhirCoding({
+                code: areaExtCodes.get(id)?.code,
+                system: config.hl7.dataDictionaries.areaExternalCode,
+              }),
+            ],
+          }),
+        ]
+        : []
     ),
     subject: new FhirReference({
       type: 'upstream://patient',
@@ -177,8 +177,7 @@ function validatePriority(priority) {
 }
 
 function locationCode(upstream) {
-  const facility =
-    upstream.locationGroup?.facility ?? // most accurate
+  const facility = upstream.locationGroup?.facility ?? // most accurate
     upstream.location?.facility ?? // legacy data
     upstream.encounter?.location?.facility; // fallback to encounter
   if (!facility) return [];

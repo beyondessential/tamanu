@@ -1,11 +1,11 @@
+import { Button } from '@material-ui/core';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Button } from '@material-ui/core';
+import { BodyText, DateDisplay, formatTimeWithSeconds } from '../../components';
+import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
 import { Table } from '../../components/Table';
-import { RangeValidatedCell, DateHeadCell } from '../../components/FormattedTableCell';
 import { Colors } from '../../constants';
 import { LabTestResultModal } from './LabTestResultModal';
-import { BodyText, DateDisplay, formatTimeWithSeconds } from '../../components';
 
 const COLUMN_WIDTHS = [150, 120, 120];
 
@@ -28,9 +28,9 @@ const StyledTable = styled(Table)`
     }
 
     ${props =>
-      COLUMN_WIDTHS.slice(0, props.$stickyColumns)
-        .map(
-          (width, index) => `
+  COLUMN_WIDTHS.slice(0, props.$stickyColumns)
+    .map(
+      (width, index) => `
       thead tr th:nth-child(${index + 1}),
       tbody tr td:nth-child(${index + 1}) {
         width: ${width}px;
@@ -39,8 +39,8 @@ const StyledTable = styled(Table)`
         left: ${COLUMN_WIDTHS.slice(0, index).reduce((acc, n) => acc + n, 0)}px;
       }
     `,
-        )
-        .join('\n')}
+    )
+    .join('\n')}
 
     tfoot {
       inset-inline-end: 0;
@@ -128,13 +128,13 @@ export const PatientLabTestsTable = React.memo(
       // Only include category column if not filtering by category
       ...(!searchParameters.categoryId
         ? [
-            {
-              key: 'testCategory.id',
-              title: 'Test category',
-              accessor: row => <CategoryCell>{row.testCategory}</CategoryCell>,
-              sortable: false,
-            },
-          ]
+          {
+            key: 'testCategory.id',
+            title: 'Test category',
+            accessor: row => <CategoryCell>{row.testCategory}</CategoryCell>,
+            sortable: false,
+          },
+        ]
         : []),
       {
         key: 'testType',

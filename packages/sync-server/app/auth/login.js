@@ -1,19 +1,19 @@
-import asyncHandler from 'express-async-handler';
-import config from 'config';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
-import { getLocalisation } from '../localisation';
+import bcrypt from 'bcrypt';
+import config from 'config';
+import asyncHandler from 'express-async-handler';
+import jwt from 'jsonwebtoken';
 import { convertFromDbRecord } from '../convertDbRecord';
+import { getLocalisation } from '../localisation';
 import {
-  getToken,
-  stripUser,
   findUser,
   getRandomBase64String,
   getRandomU32,
+  getToken,
   isInternalClient,
+  stripUser,
 } from './utils';
 
 const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {

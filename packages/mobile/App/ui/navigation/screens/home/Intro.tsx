@@ -1,21 +1,16 @@
-import React, { useCallback, useMemo, ReactElement } from 'react';
+import React, { ReactElement, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
-//Components
-import {
-  StyledSafeAreaView,
-  StyledText,
-  StyledView,
-  CenterView,
-} from '../../../styled/common';
-import { theme } from '../../../styled/theme';
+// Components
+import { Button } from '../../../components/Button';
 import { AppIntro1Icon, AppIntro2Icon, AppIntro3Icon } from '../../../components/Icons';
 import { StepMarker } from '../../../components/StepMarker';
-import { Button } from '../../../components/Button';
-//helpers
-import { authUserSelector } from '../../../helpers/selectors';
-import { screenPercentageToDP, Orientation } from '../../../helpers/screen';
+import { CenterView, StyledSafeAreaView, StyledText, StyledView } from '../../../styled/common';
+import { theme } from '../../../styled/theme';
+// helpers
 import { disableAndroidBackButton } from '../../../helpers/android';
+import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
+import { authUserSelector } from '../../../helpers/selectors';
 // Props
 import { IntroScreenProps } from '../../../interfaces/Screens/HomeStack/IntroProps';
 

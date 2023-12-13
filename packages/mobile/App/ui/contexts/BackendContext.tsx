@@ -1,9 +1,9 @@
-import React, { useState, useEffect, ReactElement } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import RnBgTask from 'react-native-bg-thread';
 import { BackendManager } from '../../services/BackendManager';
 
-import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorScreen } from '../components/ErrorScreen';
+import { LoadingScreen } from '../components/LoadingScreen';
 
 export const BackendContext = React.createContext<BackendManager>(undefined);
 

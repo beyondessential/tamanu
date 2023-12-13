@@ -1,12 +1,12 @@
 import {
-  toSearchId,
-  getBaseUrl,
-  hl7SortToTamanu,
   addPaginationToWhere,
-  decodeIdentifier,
-  getHL7Link,
-  parseQuery,
   createBundledResource,
+  decodeIdentifier,
+  getBaseUrl,
+  getHL7Link,
+  hl7SortToTamanu,
+  parseQuery,
+  toSearchId,
 } from './utils';
 
 // TODO (TAN-943): fix auth to throw an error if X-Tamanu-Client and X-Tamanu-Version aren't set

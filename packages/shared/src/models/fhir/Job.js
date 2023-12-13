@@ -3,9 +3,9 @@ import ms from 'ms';
 import Sequelize, { DataTypes, QueryTypes } from 'sequelize';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from '../Model';
 import { log } from '../../services/logging';
 import { sleepAsync } from '../../utils/sleepAsync';
+import { Model } from '../Model';
 
 export class FhirJob extends Model {
   static init({ primaryKey, ...options }) {

@@ -1,7 +1,7 @@
 import React from 'react';
-import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { AutocompleteField, Field, LocalisedField, DOBFields, SearchField } from '../Field';
 import { useSuggester } from '../../api';
+import { AutocompleteField, DOBFields, Field, LocalisedField, SearchField } from '../Field';
+import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { SearchBarCheckField } from './SearchBarCheckField';
 
 export const CovidPatientsSearchBar = React.memo(({ onSearch }) => {

@@ -1,9 +1,9 @@
+import { action } from '@storybook/addon-actions';
+import { storiesOf } from '@storybook/react';
 import React from 'react';
 import styled from 'styled-components';
-import { storiesOf } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
-import { FACILITY_MENU_ITEMS } from '../app/components/Sidebar/config';
 import { Sidebar } from '../app/components/Sidebar';
+import { FACILITY_MENU_ITEMS } from '../app/components/Sidebar/config';
 
 const Container = styled.div`
   display: grid;

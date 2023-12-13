@@ -1,9 +1,9 @@
-import { createHashHistory } from 'history';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
+import { createHashHistory } from 'history';
 import { applyMiddleware, compose, createStore } from 'redux';
-import thunk from 'redux-thunk';
-import storage from 'redux-persist/lib/storage';
 import { persistCombineReducers } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
+import thunk from 'redux-thunk';
 
 import { authReducer } from './auth';
 import { imagingRequestReducer } from './imagingRequest';

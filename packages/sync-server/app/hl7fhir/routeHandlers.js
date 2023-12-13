@@ -1,19 +1,19 @@
-import asyncHandler from 'express-async-handler';
 import { NotFoundError } from '@tamanu/shared/errors';
+import asyncHandler from 'express-async-handler';
 
+import {
+  administeredVaccineToHL7Immunization,
+  getAdministeredVaccineInclude,
+} from './administeredVaccine';
 import { getHL7Payload } from './getHL7Payload';
-import { patientToHL7Patient, patientToHL7PatientList, getPatientWhereClause } from './patient';
 import {
   hl7StatusToLabRequestStatus,
   labTestToHL7Device,
   labTestToHL7DiagnosticReport,
   labTestToHL7Observation,
 } from './labTest';
+import { getPatientWhereClause, patientToHL7Patient, patientToHL7PatientList } from './patient';
 import * as schema from './schema';
-import {
-  administeredVaccineToHL7Immunization,
-  getAdministeredVaccineInclude,
-} from './administeredVaccine';
 
 export function patientHandler() {
   return asyncHandler(async (req, res) => {

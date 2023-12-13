@@ -1,19 +1,19 @@
-import { sub, startOfDay } from 'date-fns';
+import { startOfDay, sub } from 'date-fns';
 import { Op } from 'sequelize';
 
-import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
-import { fake } from '@tamanu/shared/test-helpers/fake';
 import {
+  EncounterChangeType,
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
   VISIBILITY_STATUSES,
-  EncounterChangeType,
 } from '@tamanu/constants';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { sleepAsync } from '@tamanu/shared/utils';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-import { createTestContext } from '../utilities';
 import { migrateDataInBatches } from '../../app/subCommands/migrateDataInBatches/migrateDataInBatches';
+import { createTestContext } from '../utilities';
 
 const DEFAULT_USER_ID = 'DEFAULT_USER_ID';
 
@@ -65,9 +65,11 @@ const addLocationChangeNote = async (
   const args = [
     models,
     recordId,
-    `Changed location from ${Location.formatFullLocationName(
-      oldLocation,
-    )} to ${Location.formatFullLocationName(newLocation)}`,
+    `Changed location from ${
+      Location.formatFullLocationName(
+        oldLocation,
+      )
+    } to ${Location.formatFullLocationName(newLocation)}`,
     submittedTime,
     user,
   ];

@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { groupBy } from 'lodash';
+import { useCallback, useState } from 'react';
 
 import { useBackend } from '.';
 
@@ -24,7 +24,7 @@ export const usePatientAdditionalData = patientId => {
                 where: { patient: { id: patientId } },
               }),
               models.PatientFieldDefinition.findVisible({
-                relations: [ 'category' ],
+                relations: ['category'],
                 order: {
                   // Nested ordering only works with typeorm version > 0.3.0
                   // category: { name: 'DESC' },
@@ -46,8 +46,8 @@ export const usePatientAdditionalData = patientId => {
                 groupBy(
                   fieldDefinitions.sort((a, b) => a.category?.name > b.category?.name),
                   'categoryId',
-                )
-              )
+                ),
+              ),
             );
             setCustomPatientFieldValues(groupBy(fieldValues, 'definitionId'));
             setPatientAdditionalData(result);
@@ -72,6 +72,6 @@ export const usePatientAdditionalData = patientId => {
     customPatientFieldValues,
     patientAdditionalData,
     loading,
-    error
+    error,
   };
 };

@@ -1,23 +1,24 @@
-import React, { useMemo, useCallback, ReactElement } from 'react';
-import FlashMessage, { showMessage } from 'react-native-flash-message';
-import * as Yup from 'yup';
-import { Formik } from 'formik';
-import { compose } from 'redux';
-import { useSelector } from 'react-redux';
-import { FullView, StyledSafeAreaView } from '/styled/common';
+import { getCombinedDateString } from '/helpers/date';
 import { Routes } from '/helpers/routes';
-import { theme } from '/styled/theme';
-import { customAlphabet } from 'nanoid/non-secure';
-import { useBackend } from '~/ui/hooks';
-import { withPatient } from '~/ui/containers/Patient';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { FullView, StyledSafeAreaView } from '/styled/common';
+import { theme } from '/styled/theme';
+import { Formik } from 'formik';
+import { customAlphabet } from 'nanoid/non-secure';
+import React, { ReactElement, useCallback, useMemo } from 'react';
+import FlashMessage, { showMessage } from 'react-native-flash-message';
+import { useSelector } from 'react-redux';
+import { compose } from 'redux';
+import * as Yup from 'yup';
 import { IPatient } from '~/types';
-import { authUserSelector } from '~/ui/helpers/selectors';
 import { ID } from '~/types/ID';
 import { LabRequestForm } from '~/ui/components/Forms/LabRequestForm';
-import { getCombinedDateString } from '/helpers/date';
+import { withPatient } from '~/ui/containers/Patient';
+import { authUserSelector } from '~/ui/helpers/selectors';
+import { useBackend } from '~/ui/hooks';
 
-const ALPHABET_FOR_ID = 'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';
+const ALPHABET_FOR_ID = 'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/
+  '23456789';
 
 interface LabRequestFormData {
   displayId: ID;

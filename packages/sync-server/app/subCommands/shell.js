@@ -1,13 +1,13 @@
-import repl from 'repl';
 import { homedir } from 'os';
 import { join } from 'path';
+import repl from 'repl';
 
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
 
-import { ApplicationContext } from '../ApplicationContext';
 import pkg from '../../package.json';
+import { ApplicationContext } from '../ApplicationContext';
 
 export const shell = async ({ skipMigrationCheck }) => {
   log.info(`Starting shell in Central Server ${pkg.version}!`);
@@ -21,7 +21,7 @@ export const shell = async ({ skipMigrationCheck }) => {
     repl.start().setupHistory(join(homedir(), '.tamanu_repl_history'), (err, srv) => {
       if (err) reject(err);
       else resolve(srv);
-    }),
+    })
   );
 
   Object.assign(replServer.context, {

@@ -1,5 +1,5 @@
+import { chance, fake } from '@tamanu/shared/test-helpers';
 import { convertISO9075toRFC3339 } from '@tamanu/shared/utils/dateTime';
-import { fake, chance } from '@tamanu/shared/test-helpers';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
 
@@ -72,11 +72,11 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
           isRDT
             ? ['AgRDT Negative, no further testing needed', 'AgRDT Positive']
             : [
-                'COVID-19 Nasopharyngeal Swab',
-                'COVID-19 Nasal Swab',
-                'COVID-19 Oropharyngeal Swab',
-                'COVID-19 Endotracheal aspirate',
-              ],
+              'COVID-19 Nasopharyngeal Swab',
+              'COVID-19 Nasal Swab',
+              'COVID-19 Oropharyngeal Swab',
+              'COVID-19 Endotracheal aspirate',
+            ],
         ),
       });
       const labTestMethod = await ReferenceData.create({
@@ -120,7 +120,8 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
         } = await createLabTestHierarchy(patient);
 
         const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
-        const path = `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
+        const path =
+          `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
 
         // act
         const response = await app.get(path).set(requestHeaders);
@@ -266,7 +267,8 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
         await createLabTestHierarchy(someOtherPatient);
 
         const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
-        const path = `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
+        const path =
+          `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
         // act
         const response1 = await app.get(path).set(requestHeaders);
@@ -313,7 +315,8 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
       it("returns no error but no results when subject:identifier doesn't match a patient", async () => {
         // arrange
         const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|not-an-existing-id`);
-        const path = `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
+        const path =
+          `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
         // act
         const response = await app.get(path).set(requestHeaders);
@@ -349,7 +352,8 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
         await labRequest.save();
 
         const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
-        const path = `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
+        const path =
+          `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
 
         // act
         const response = await app.get(path).set(requestHeaders);
@@ -390,7 +394,8 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
         const { labTest, labTestMethod } = await createLabTestHierarchy(patient, { isRDT: true });
 
         const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
-        const path = `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
+        const path =
+          `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
 
         // act
         const response = await app.get(path).set(requestHeaders);
@@ -446,7 +451,8 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
         await labRequest2.save();
 
         const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
-        const path = `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
+        const path =
+          `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
         // act
         const response = await app.get(path).set(requestHeaders);
@@ -471,7 +477,8 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
         await createLabTestHierarchy(patient);
 
         const id = encodeURIComponent(`https://wrong.com/this-is-wrong|${patient.displayId}`);
-        const path = `/v1/integration/${integrationName}/DiagnosticReport?_sort=deceased&_page=-1&_count=101&status=invalid-status&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Asomething-invalid`;
+        const path =
+          `/v1/integration/${integrationName}/DiagnosticReport?_sort=deceased&_page=-1&_count=101&status=invalid-status&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Asomething-invalid`;
 
         // act
         const response = await app.get(path).set(requestHeaders);

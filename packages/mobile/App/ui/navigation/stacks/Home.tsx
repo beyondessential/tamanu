@@ -2,24 +2,24 @@ import React, { ReactElement } from 'react';
 // Navigators
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 // Components
-import { WelcomeIntroTabs } from './WelcomeIntro';
 import { HomeTabsStack } from './HomeTabs';
+import { WelcomeIntroTabs } from './WelcomeIntro';
 // Stacks
+import { ExportDataScreen } from '../screens/home/ExportDataScreen';
+import { DiagnosisAndTreatmentTabs } from './DiagnosisAndTreatmentTabs';
+import { HistoryVitalsStack } from './HistoryVitalsStack';
+import { LabRequestStack } from './LabRequestStack';
+import { ProgramStack } from './ProgramStack';
+import { ReferralStack } from './ReferralStack';
 import { SearchPatientStack } from './SearchPatient';
 import { VaccineStack } from './VaccineStack';
-import { ProgramStack } from './ProgramStack';
 import { VitalsStack } from './VitalsStack';
-import { DiagnosisAndTreatmentTabs } from './DiagnosisAndTreatmentTabs';
-import { ReferralStack } from './ReferralStack';
-import { HistoryVitalsStack } from './HistoryVitalsStack';
-import { ExportDataScreen } from '../screens/home/ExportDataScreen';
-import { LabRequestStack } from './LabRequestStack';
 // Helpers
 import { noSwipeGestureOnNavigator } from '/helpers/navigators';
 import { Routes } from '/helpers/routes';
-import { RegisterPatientStack } from './RegisterPatientStack';
-import { PatientDetailsStack } from './PatientDetailsStack';
 import { useAuth } from '~/ui/contexts/AuthContext';
+import { PatientDetailsStack } from './PatientDetailsStack';
+import { RegisterPatientStack } from './RegisterPatientStack';
 
 const Stack = createStackNavigator();
 
@@ -30,11 +30,9 @@ export const HomeStack = (): ReactElement => {
     <Stack.Navigator
       headerMode="none"
       screenOptions={noSwipeGestureOnNavigator}
-      initialRouteName={
-        authCtx.checkFirstSession()
-          ? Routes.HomeStack.WelcomeIntroStack
-          : Routes.HomeStack.HomeTabs.Index
-      }
+      initialRouteName={authCtx.checkFirstSession()
+        ? Routes.HomeStack.WelcomeIntroStack
+        : Routes.HomeStack.HomeTabs.Index}
     >
       <Stack.Screen
         name={Routes.HomeStack.WelcomeIntroStack}

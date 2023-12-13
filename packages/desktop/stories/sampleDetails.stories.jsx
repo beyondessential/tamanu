@@ -1,11 +1,11 @@
-import React from 'react';
-import Chance from 'chance';
-import { USERS } from '@tamanu/shared/demoData/users';
-import { SPECIMEN_TYPES } from '@tamanu/shared/demoData/specimenTypes';
 import { LAB_SAMPLE_SITES } from '@tamanu/shared/demoData/labSampleSites';
+import { SPECIMEN_TYPES } from '@tamanu/shared/demoData/specimenTypes';
+import { USERS } from '@tamanu/shared/demoData/users';
+import Chance from 'chance';
+import React from 'react';
+import { Form } from '../app/components';
 import { SampleDetailsField } from '../app/views/labRequest/SampleDetailsField';
 import { createDummySuggester, mapToSuggestions } from './utils';
-import { Form } from '../app/components';
 
 export default {
   title: 'SampleDetailsField',

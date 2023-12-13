@@ -1,21 +1,21 @@
-import React, { ReactElement, useCallback, FC, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { Route } from 'react-native-tab-view';
-import { SvgProps } from 'react-native-svg';
-import { compose } from 'redux';
-import { useSelector } from 'react-redux';
 import { formatISO9075, parseISO } from 'date-fns';
+import React, { FC, ReactElement, useCallback, useState } from 'react';
+import { SvgProps } from 'react-native-svg';
+import { Route } from 'react-native-tab-view';
+import { useSelector } from 'react-redux';
+import { compose } from 'redux';
 
-import { withPatient } from '~/ui/containers/Patient';
-import { StyledSafeAreaView } from '/styled/common';
 import { VaccineForm, VaccineFormValues } from '/components/Forms/VaccineForms';
 import { VaccineDataProps } from '/components/VaccineCard';
-import { useBackend } from '~/ui/hooks';
-import { IPatient, EncounterType } from '~/types';
-import { authUserSelector } from '~/ui/helpers/selectors';
+import { StyledSafeAreaView } from '/styled/common';
+import { EncounterType, IPatient } from '~/types';
+import { withPatient } from '~/ui/containers/Patient';
+import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { VaccineStatus } from '~/ui/helpers/patient';
 import { Routes } from '~/ui/helpers/routes';
-import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { authUserSelector } from '~/ui/helpers/selectors';
+import { useBackend } from '~/ui/hooks';
 import { VaccineCategory } from '../../../../helpers/patient';
 
 type NewVaccineTabProps = {
@@ -28,14 +28,12 @@ type NewVaccineTabProps = {
 };
 
 const getVaccinationDescription = (vaccineData, scheduledVaccine): string => {
-  const prefixMessage =
-    vaccineData.status === VaccineStatus.GIVEN
-      ? 'Vaccination recorded for'
-      : 'Vaccination recorded as not given for';
-  const vaccineDetails =
-    scheduledVaccine.category === VaccineCategory.OTHER
-      ? [vaccineData.vaccineName]
-      : [scheduledVaccine?.vaccine?.name, scheduledVaccine?.schedule];
+  const prefixMessage = vaccineData.status === VaccineStatus.GIVEN
+    ? 'Vaccination recorded for'
+    : 'Vaccination recorded as not given for';
+  const vaccineDetails = scheduledVaccine.category === VaccineCategory.OTHER
+    ? [vaccineData.vaccineName]
+    : [scheduledVaccine?.vaccine?.name, scheduledVaccine?.schedule];
   return [prefixMessage, ...vaccineDetails].filter(Boolean).join(' ');
 };
 

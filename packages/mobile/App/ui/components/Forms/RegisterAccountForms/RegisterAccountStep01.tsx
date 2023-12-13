@@ -1,14 +1,14 @@
-import React, { FunctionComponent, ReactNode } from 'react';
-import { Formik, FormikHandlers } from 'formik';
-import * as Yup from 'yup';
 import { NavigationProp } from '@react-navigation/native';
+import { Formik, FormikHandlers } from 'formik';
+import React, { FunctionComponent, ReactNode } from 'react';
+import * as Yup from 'yup';
 // Components
-import { TextField } from '../../TextField/TextField';
-import { Field } from '../FormField';
-import { StyledView, StyledText, FullView, RowView } from '/styled/common';
-import { MaskedTextField } from '../../TextField/MaskedTextField';
+import { FullView, RowView, StyledText, StyledView } from '/styled/common';
 import { Button } from '../../Button';
 import { RadioButtonGroup } from '../../RadioButtonGroup';
+import { MaskedTextField } from '../../TextField/MaskedTextField';
+import { TextField } from '../../TextField/TextField';
+import { Field } from '../FormField';
 // Theme
 import { theme } from '/styled/theme';
 // Helpers

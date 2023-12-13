@@ -1,12 +1,12 @@
+import { DateFormats, EncounterTypeNames, HeaderIcons } from '/helpers/constants';
+import { formatStringDate } from '/helpers/date';
+import { ColumnView, RowView, StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 import React, { FunctionComponent } from 'react';
 import { SvgProps } from 'react-native-svg';
-import { StyledView, RowView, StyledText, ColumnView } from '/styled/common';
-import { theme } from '/styled/theme';
-import { formatStringDate } from '/helpers/date';
-import { DateFormats, HeaderIcons, EncounterTypeNames } from '/helpers/constants';
+import { EncounterType, IEncounter, ILocation, IUser } from '~/types';
 import * as Icons from '../Icons';
 import { Separator } from '../Separator';
-import { EncounterType, IEncounter, ILocation, IUser } from '~/types';
 
 interface IconProps {
   IconComponent: FunctionComponent<SvgProps>;
@@ -44,7 +44,7 @@ const HeaderDate = ({ startDate, date, isActive }: HeaderDateProps): JSX.Element
     fontSize={14}
     color={isActive ? theme.colors.WHITE : theme.colors.TEXT_DARK}
   >
-    {formatStringDate((startDate || date), DateFormats.DAY_MONTH_YEAR_SHORT)}
+    {formatStringDate(startDate || date, DateFormats.DAY_MONTH_YEAR_SHORT)}
   </StyledText>
 );
 
@@ -100,13 +100,11 @@ const Header = (
   section: IEncounter,
   index: number,
   isActive: boolean,
-  ): JSX.Element => (
+): JSX.Element => (
   <StyledView>
     <RowView
       width="100%"
-      background={
-        isActive ? theme.colors.MAIN_SUPER_DARK : theme.colors.BACKGROUND_GREY
-      }
+      background={isActive ? theme.colors.MAIN_SUPER_DARK : theme.colors.BACKGROUND_GREY}
       height={60}
       alignItems="center"
       paddingLeft={20}

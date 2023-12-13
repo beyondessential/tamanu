@@ -1,15 +1,15 @@
-import React, { useMemo, useState } from 'react';
-import styled from 'styled-components';
-import { Box, FormHelperText, capitalize } from '@material-ui/core';
+import { Box, capitalize, FormHelperText } from '@material-ui/core';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { useQuery } from '@tanstack/react-query';
-import { subStrSearch } from '../../utils/subStringSearch';
-import { Colors } from '../../constants';
+import React, { useMemo, useState } from 'react';
+import styled from 'styled-components';
 import { useApi } from '../../api';
-import { FormSeparatorLine } from '../../components/FormSeparatorLine';
-import { SearchField, SuggesterSelectField } from '../../components/Field';
 import { TextButton } from '../../components/Button';
+import { SearchField, SuggesterSelectField } from '../../components/Field';
+import { FormSeparatorLine } from '../../components/FormSeparatorLine';
 import { BodyText } from '../../components/Typography';
+import { Colors } from '../../constants';
+import { subStrSearch } from '../../utils/subStringSearch';
 import { SelectableTestItem, TestItem } from './TestItem';
 
 const SELECTABLE_DATA_ENDPOINTS = {
@@ -240,20 +240,20 @@ export const TestSelectorInput = ({
           <SelectorTable>
             {showLoadingText && <BodyText>Loading {selectableName}s</BodyText>}
             {!showLoadingText &&
-              (queriedData.length > 0 ? (
-                queriedData.map(selectable => (
-                  <SelectableTestItem
-                    key={`${selectable.id}-checkbox`}
-                    label={selectable.name}
-                    name={selectable.id}
-                    category={selectable.category?.name}
-                    checked={isSelected(selectable)}
-                    onChange={handleSelect}
-                  />
-                ))
-              ) : (
-                <BodyText>No {selectableName}s found.</BodyText>
-              ))}
+              (queriedData.length > 0 ?
+                (
+                  queriedData.map(selectable => (
+                    <SelectableTestItem
+                      key={`${selectable.id}-checkbox`}
+                      label={selectable.name}
+                      name={selectable.id}
+                      category={selectable.category?.name}
+                      checked={isSelected(selectable)}
+                      onChange={handleSelect}
+                    />
+                  ))
+                ) :
+                <BodyText>No {selectableName}s found.</BodyText>)}
           </SelectorTable>
         </SelectorContainer>
         <VerticalLine />

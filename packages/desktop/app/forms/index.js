@@ -4,7 +4,7 @@ export { NewLocationForm } from './NewLocationForm';
 export { NewPatientForm } from './NewPatientForm';
 export { NewUserForm } from './NewUserForm';
 export { OngoingConditionForm } from './OngoingConditionForm';
+export { PatientCarePlanForm } from './PatientCarePlanForm';
 export { PatientIssueForm } from './PatientIssueForm';
 export { VaccineGivenForm } from './VaccineGivenForm';
-export { PatientCarePlanForm } from './PatientCarePlanForm';
 export { VitalsForm } from './VitalsForm';

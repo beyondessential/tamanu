@@ -1,7 +1,7 @@
+import { bloodOptions } from '/helpers/additionalData';
+import { GenderOptions } from '/helpers/constants';
 import { Chance } from 'chance';
 import { sample } from 'lodash';
-import { GenderOptions } from '/helpers/constants';
-import { bloodOptions } from '/helpers/additionalData';
 import { IPatient } from '~/types';
 
 const defaultGenerator = new Chance();
@@ -10,7 +10,7 @@ const nameOptionsForGender = (gender: string): {} | { gender: 'male' | 'female' 
   // the library we're using doesn't have a list of names for other genders
   if (gender === 'male' || gender === 'female') {
     return { gender };
-  };
+  }
   return {};
 };
 

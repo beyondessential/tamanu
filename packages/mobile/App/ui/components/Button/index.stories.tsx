@@ -1,10 +1,10 @@
-import React from 'react';
-import { storiesOf } from '@storybook/react-native';
-import { action } from '@storybook/addon-actions';
-import { theme } from '/styled/theme';
 import { CenterView, StyledView } from '/styled/common';
-import { Button } from './index';
+import { theme } from '/styled/theme';
+import { action } from '@storybook/addon-actions';
+import { storiesOf } from '@storybook/react-native';
+import React from 'react';
 import * as Icons from '../Icons';
+import { Button } from './index';
 
 storiesOf('Button', module)
   .addDecorator((getStory: any) => <CenterView>{getStory()}</CenterView>)

@@ -1,7 +1,7 @@
-import { Op, Sequelize } from 'sequelize';
 import { FHIR_INTERACTIONS } from '@tamanu/constants/fhir';
 import { sortInDependencyOrder } from '@tamanu/shared/models/sortInDependencyOrder';
 import { FAKE_UUID_PATTERN } from '@tamanu/shared/utils/generateId';
+import { Op, Sequelize } from 'sequelize';
 
 export function deleteAllTestIds({ models }) {
   const sortedModels = sortInDependencyOrder(models).reverse();
@@ -14,7 +14,7 @@ export function deleteAllTestIds({ models }) {
       where: Sequelize.where(Sequelize.cast(Sequelize.col('id'), 'text'), {
         [Op.like]: FAKE_UUID_PATTERN,
       }),
-    }),
+    })
   );
   return Promise.all(deleteTasks);
 }

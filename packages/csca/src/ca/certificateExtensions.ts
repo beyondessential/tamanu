@@ -7,14 +7,14 @@ import {
   DistributionPoint,
   DistributionPointName,
   GeneralName,
-  IssueAlternativeName,
-  Name,
-  PrivateKeyUsagePeriod,
-  RelativeDistinguishedName,
   id_ce_cRLDistributionPoints,
   id_ce_issuerAltName,
   id_ce_privateKeyUsagePeriod,
   id_ce_subjectAltName,
+  IssueAlternativeName,
+  Name,
+  PrivateKeyUsagePeriod,
+  RelativeDistinguishedName,
 } from '@peculiar/asn1-x509';
 import {
   AuthorityKeyIdentifierExtension,
@@ -201,8 +201,9 @@ enum AltVariant {
 // thus both these extensions are required.
 function altName({ critical, value }: Extension, alt: AltVariant): X509Extension {
   if (value === ComputedExtension) throw new Error('SubjectKeyIdentifier cannot be computed');
-  if (value.length !== 1 && typeof value[0] !== 'object')
+  if (value.length !== 1 && typeof value[0] !== 'object') {
     throw new Error('Invalid altName value: expected an array of a single object');
+  }
 
   const values: object = value[0] as object;
 
@@ -307,8 +308,9 @@ function pkup({ critical, value }: Extension, params: CertificateCreateParams): 
 // thus this extension is required.
 function ku({ critical, value }: Extension): X509Extension {
   if (value === ComputedExtension) throw new Error('KeyUsage cannot be computed');
-  if (value.some((s) => typeof s !== 'string'))
+  if (value.some(s => typeof s !== 'string')) {
     throw new Error('Invalid keyUsage value: expected an array of strings');
+  }
 
   let keyUsage = 0;
   for (const usage of value) {
@@ -376,8 +378,9 @@ function ku({ critical, value }: Extension): X509Extension {
 // to be able to issue ANY kind of document.
 function eku({ critical, value }: Extension): X509Extension {
   if (value === ComputedExtension) throw new Error('ExtendedKeyUsage cannot be computed');
-  if (value.some((s) => typeof s !== 'string'))
+  if (value.some(s => typeof s !== 'string')) {
     throw new Error('Invalid eku value: expected an array of strings');
+  }
 
   return new ExtendedKeyUsageExtension(value as string[], critical);
 }
@@ -414,13 +417,13 @@ function urlToDispPoint(url: string): DistributionPoint {
 // thus this extension is required.
 function crl({ critical, value }: Extension, issuer?: Certificate): X509Extension | undefined {
   if (value === ComputedExtension) {
-    const icdp = issuer?.x509.extensions.find((e) => e.type === id_ce_cRLDistributionPoints);
+    const icdp = issuer?.x509.extensions.find(e => e.type === id_ce_cRLDistributionPoints);
     if (!icdp) return undefined;
 
     return new X509Extension(id_ce_cRLDistributionPoints, critical, icdp.value);
   }
 
-  if (value.some((s) => typeof s !== 'string')) {
+  if (value.some(s => typeof s !== 'string')) {
     throw new Error('Invalid crl value: expected an array of strings');
   }
 
@@ -454,8 +457,9 @@ function crl({ critical, value }: Extension, issuer?: Certificate): X509Extensio
 // is not used.
 function docType({ critical, value }: Extension): X509Extension {
   if (value === ComputedExtension) throw new Error('ExtendedKeyUsage cannot be computed');
-  if (value.some((s) => typeof s !== 'string'))
+  if (value.some(s => typeof s !== 'string')) {
     throw new Error('Invalid eku value: expected an array of strings');
+  }
 
   const dtv = new DocumentTypeList();
   for (const val of value) {

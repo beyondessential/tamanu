@@ -1,12 +1,12 @@
-import styled from 'styled-components/native';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { StyledView, StyledViewProps } from '/styled/common';
+import { theme } from '/styled/theme';
 import {
-  TextInputMaskProps,
   TextInputMaskOptionProp,
+  TextInputMaskProps,
   TextInputMaskTypeProp,
 } from 'react-native-masked-text';
-import { theme } from '/styled/theme';
-import { StyledView, StyledViewProps } from '/styled/common';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import styled from 'styled-components/native';
 import { TextFieldProps } from './TextField';
 
 export interface StyledTextInputProps {
@@ -24,23 +24,23 @@ export const InputContainer = styled(StyledView)`
 
 export const StyledTextInput = styled.TextInput<StyledViewProps>`
   background-color: ${(props: StyledTextInputProps): string => {
-    if (props.disabled) return theme.colors.BACKGROUND_GREY;
-    return theme.colors.WHITE;
-  }};
+  if (props.disabled) return theme.colors.BACKGROUND_GREY;
+  return theme.colors.WHITE;
+}};
   border: 1px solid
     ${(props: StyledTextInputProps): string => {
-      if (props.error) return theme.colors.ALERT;
-      if (props.focused) return theme.colors.PRIMARY_MAIN;
-      return theme.colors.DEFAULT_OFF;
-    }};
+  if (props.error) return theme.colors.ALERT;
+  if (props.focused) return theme.colors.PRIMARY_MAIN;
+  return theme.colors.DEFAULT_OFF;
+}};
   border-radius: 5px;
   font-size: ${screenPercentageToDP(2.18, Orientation.Height)};
   line-height: ${screenPercentageToDP(2.58, Orientation.Height)};
   font-weight: 400;
   justify-content: flex-start;
   color: ${(props: StyledTextInputProps): string => {
-    return props.hasValue ? theme.colors.TEXT_DARK : theme.colors.TEXT_SOFT;
-  }};
+  return props.hasValue ? theme.colors.TEXT_DARK : theme.colors.TEXT_SOFT;
+}};
   padding-left: ${screenPercentageToDP(3.5, Orientation.Width)};
 `;
 

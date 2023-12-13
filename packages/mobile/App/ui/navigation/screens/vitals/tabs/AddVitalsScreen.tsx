@@ -1,7 +1,7 @@
-import React, { ReactElement } from 'react';
 import { VitalsForm } from '/components/Forms/VitalsForm';
 import { Routes } from '/helpers/routes';
 import { NavigationProp } from '@react-navigation/native';
+import React, { ReactElement } from 'react';
 
 interface ScreenProps {
   navigation: NavigationProp<any>;

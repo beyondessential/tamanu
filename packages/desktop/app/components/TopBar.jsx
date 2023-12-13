@@ -1,9 +1,9 @@
-import React from 'react';
+import { Toolbar, Typography } from '@material-ui/core';
 import PropTypes from 'prop-types';
+import React from 'react';
 import styled from 'styled-components';
-import { Typography, Toolbar } from '@material-ui/core';
-import { DateDisplay } from './DateDisplay';
 import { Colors } from '../constants';
+import { DateDisplay } from './DateDisplay';
 import { useLocalisedText } from './LocalisedText';
 
 // Default height of the top bar
@@ -55,14 +55,16 @@ const Bar = styled(Toolbar)`
 export const TopBar = React.memo(({ title, subTitle, children, className }) => (
   <AppBar className={className}>
     <Bar>
-      {subTitle ? (
-        <div>
-          <SmallTopBarHeading variant="h2">{title}</SmallTopBarHeading>
-          <TopBarSubHeading variant="h4">{subTitle}</TopBarSubHeading>
-        </div>
-      ) : (
-        title && <TopBarHeading variant="h1">{title}</TopBarHeading>
-      )}
+      {subTitle ?
+        (
+          <div>
+            <SmallTopBarHeading variant="h2">{title}</SmallTopBarHeading>
+            <TopBarSubHeading variant="h4">{subTitle}</TopBarSubHeading>
+          </div>
+        ) :
+        (
+          title && <TopBarHeading variant="h1">{title}</TopBarHeading>
+        )}
       {children}
     </Bar>
   </AppBar>

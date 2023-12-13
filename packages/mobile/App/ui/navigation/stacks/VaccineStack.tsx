@@ -1,26 +1,22 @@
-import React, { ReactElement, useCallback } from 'react';
-import { compose } from 'redux';
-import {
-  TransitionPresets,
-  createStackNavigator,
-  StackHeaderProps,
-} from '@react-navigation/stack';
-import { VaccineTableTabs } from './VaccineTableTabs';
-import { NewVaccineTabs } from './NewVaccineTabs';
-import {
-  StyledText,
-  CenterView,
-  StyledTouchableOpacity,
-  RowView,
-  StyledSafeAreaView,
-} from '/styled/common';
-import { theme } from '/styled/theme';
 import { ArrowLeftIcon } from '/components/Icons';
 import { Routes } from '/helpers/routes';
-import { VaccineModalScreen } from '../screens/vaccine/VaccineModalScreen';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { withPatient } from '~/ui/containers/Patient';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import {
+  CenterView,
+  RowView,
+  StyledSafeAreaView,
+  StyledText,
+  StyledTouchableOpacity,
+} from '/styled/common';
+import { theme } from '/styled/theme';
+import { createStackNavigator, StackHeaderProps, TransitionPresets } from '@react-navigation/stack';
+import React, { ReactElement, useCallback } from 'react';
+import { compose } from 'redux';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { withPatient } from '~/ui/containers/Patient';
+import { VaccineModalScreen } from '../screens/vaccine/VaccineModalScreen';
+import { NewVaccineTabs } from './NewVaccineTabs';
+import { VaccineTableTabs } from './VaccineTableTabs';
 
 const Stack = createStackNavigator();
 
@@ -41,7 +37,7 @@ const HeaderTitleComponent = ({ selectedPatient }): ReactElement => (
   </CenterView>
 );
 
-const HeaderTitle = compose(withPatient)(HeaderTitleComponent)
+const HeaderTitle = compose(withPatient)(HeaderTitleComponent);
 
 const Header = ({ navigation }: StackHeaderProps): ReactElement => {
   const goBack = useCallback(() => {

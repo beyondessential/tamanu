@@ -1,11 +1,11 @@
-import { Sequelize } from 'sequelize';
 import {
+  REPORT_EXPORT_FORMATS,
   REPORT_REQUEST_STATUS_VALUES,
   SYNC_DIRECTIONS,
-  REPORT_EXPORT_FORMATS,
 } from '@tamanu/constants';
-import { log } from '../services/logging';
+import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from '../errors';
+import { log } from '../services/logging';
 import { Model } from './Model';
 
 export class ReportRequest extends Model {

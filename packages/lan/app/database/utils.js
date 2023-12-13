@@ -1,4 +1,4 @@
-import { Sequelize, Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 
 /*
 Returns an array with the correct structure to support regular
@@ -13,7 +13,7 @@ export const getOrderClause = (order, orderBy) => {
   return [[...nestedAttributes, order.toUpperCase()]];
 };
 
-/* 
+/*
 Maps query params to expected Sequelize query format.
 
 searchParams: Object
@@ -55,8 +55,8 @@ export const mapQueryFilters = (params, options) => {
 };
 
 /*
-  Returns a function that creates a case insensitive filter by calling the 
-  'UPPER' function from SQL in both the column and the value to match against 
+  Returns a function that creates a case insensitive filter by calling the
+  'UPPER' function from SQL in both the column and the value to match against
   using a custom operator. It binds a fields object that maps the model's
   fieldnames to the actual database column names.
 */
@@ -72,7 +72,7 @@ export const getCaseInsensitiveFilter = fields => {
 };
 
 /*
-  Returns a function that creates an equal comparison filter that maps 
+  Returns a function that creates an equal comparison filter that maps
   a text value to a boolean value. Useful for displaying dropdowns
   on form fields instead of checkboxes. It binds a string expected
   to be transformed to true, other strings will default to false.

@@ -1,13 +1,13 @@
-import express from 'express';
 import bodyParser from 'body-parser';
-import morgan from 'morgan';
 import compression from 'compression';
+import express from 'express';
+import morgan from 'morgan';
 
-import { log } from '@tamanu/shared/services/logging';
 import { SERVER_TYPES } from '@tamanu/constants';
+import { log } from '@tamanu/shared/services/logging';
 
-import { versionRouter } from './versions';
 import { serversRouter } from './servers';
+import { versionRouter } from './versions';
 
 import { version } from '../package.json';
 

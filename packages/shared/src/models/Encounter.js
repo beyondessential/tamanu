@@ -1,19 +1,19 @@
-import { Sequelize } from 'sequelize';
 import { endOfDay, isBefore, parseISO, startOfToday } from 'date-fns';
+import { Sequelize } from 'sequelize';
 
 import {
-  ENCOUNTER_TYPES,
   ENCOUNTER_TYPE_VALUES,
+  ENCOUNTER_TYPES,
+  EncounterChangeType,
   NOTE_TYPES,
   SYNC_DIRECTIONS,
-  EncounterChangeType,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { dateTimeType } from './dateTimeTypes';
 
+import { dischargeOutpatientEncounters } from '../utils/dischargeOutpatientEncounters';
 import { Model } from './Model';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
-import { dischargeOutpatientEncounters } from '../utils/dischargeOutpatientEncounters';
 
 export class Encounter extends Model {
   static init({ primaryKey, hackToSkipEncounterValidation, ...options }) {
@@ -227,10 +227,10 @@ export class Encounter extends Model {
           WHERE e.updated_at_sync_tick > :since
           OR lr.updated_at_sync_tick > :since
           ${
-            patientIds.length > 0
-              ? 'AND e.patient_id NOT IN (:patientIds) -- no need to sync if it would be synced anyway'
-              : ''
-          }
+        patientIds.length > 0
+          ? 'AND e.patient_id NOT IN (:patientIds) -- no need to sync if it would be synced anyway'
+          : ''
+      }
           GROUP BY e.id
         ) AS encounters_with_labs ON encounters_with_labs.id = encounters.id
       `);
@@ -264,10 +264,10 @@ export class Encounter extends Model {
               av.updated_at_sync_tick > :since
             )
           ${
-            patientIds.length > 0
-              ? 'AND e.patient_id NOT IN (:patientIds) -- no need to sync if it would be synced anyway'
-              : ''
-          }
+        patientIds.length > 0
+          ? 'AND e.patient_id NOT IN (:patientIds) -- no need to sync if it would be synced anyway'
+          : ''
+      }
           GROUP BY e.id
         ) AS encounters_with_scheduled_vaccines
         ON encounters_with_scheduled_vaccines.id = encounters.id
@@ -341,9 +341,11 @@ export class Encounter extends Model {
     }
 
     await this.addSystemNote(
-      `${contentPrefix} from ${Location.formatFullLocationName(
-        oldLocation,
-      )} to ${Location.formatFullLocationName(newLocation)}`,
+      `${contentPrefix} from ${
+        Location.formatFullLocationName(
+          oldLocation,
+        )
+      } to ${Location.formatFullLocationName(newLocation)}`,
       submittedTime,
       user,
     );
@@ -441,8 +443,8 @@ export class Encounter extends Model {
         throw new InvalidOperationError("An encounter's patient cannot be changed");
       }
 
-      const isEncounterTypeChanged =
-        data.encounterType && data.encounterType !== this.encounterType;
+      const isEncounterTypeChanged = data.encounterType &&
+        data.encounterType !== this.encounterType;
       if (isEncounterTypeChanged) {
         changeType = EncounterChangeType.EncounterType;
         await this.onEncounterProgression(data.encounterType, data.submittedTime, user);

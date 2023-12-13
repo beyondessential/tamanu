@@ -2,8 +2,8 @@ import { groupBy } from 'lodash';
 import {
   generateReportFromQueryData,
   getAnswers,
-  transformAnswers,
   takeMostRecentAnswers,
+  transformAnswers,
 } from './utilities';
 import {
   queryCovidVaccineListData,

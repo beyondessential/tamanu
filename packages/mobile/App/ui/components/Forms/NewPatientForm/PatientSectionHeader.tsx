@@ -1,6 +1,6 @@
-import React, { ReactElement } from 'react';
 import { RowView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
+import React, { ReactElement } from 'react';
 import { SectionHeader } from '~/ui/components/SectionHeader';
 
 export const PatientSectionHeader = ({ name }): ReactElement => {

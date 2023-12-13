@@ -1,7 +1,7 @@
 import React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
-import { EditReportView } from '../views/administration/reports/EditReportView';
 import { ReportsAdminView } from '../views';
+import { EditReportView } from '../views/administration/reports/EditReportView';
 
 export const ReportAdminRoutes = React.memo(({ match }) => (
   <Switch>

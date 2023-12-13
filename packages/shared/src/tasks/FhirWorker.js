@@ -198,8 +198,9 @@ export class FhirWorker {
           throw new FhirWorkerError(topic, 'no handler for topic');
         }
 
-        const job = await spanWrapFn('FhirJob.grab', () =>
-          this.models.FhirJob.grab(this.worker.id, topic),
+        const job = await spanWrapFn(
+          'FhirJob.grab',
+          () => this.models.FhirJob.grab(this.worker.id, topic),
         );
         if (!job) {
           this.log.warn('FhirWorker: no job to grab', {
@@ -235,16 +236,14 @@ export class FhirWorker {
                 log: this.log.child({ topic, jobId: job.id }),
                 models: this.models,
                 sequelize: this.sequelize,
-              }),
-            );
+              }));
           } catch (workErr) {
             try {
               await spanWrapFn('FhirJob.fail', () =>
                 job.fail(
                   this.worker.id,
                   workErr.stack ?? workErr.message ?? workErr?.toString() ?? 'Unknown error',
-                ),
-              );
+                ));
             } catch (err) {
               throw new FhirWorkerError(topic, 'job completed but failed to mark as errored', err);
             }

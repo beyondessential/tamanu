@@ -106,15 +106,18 @@ const FIELDS = {
   },
   referredItaukei: {
     title: 'Total referred by Itaukei',
-    selectSql: `referral_sr.id is not null and additional_data.ethnicity_id = '${ETHNICITY_IDS.ITAUKEI}'`,
+    selectSql:
+      `referral_sr.id is not null and additional_data.ethnicity_id = '${ETHNICITY_IDS.ITAUKEI}'`,
   },
   referredIndian: {
     title: 'Total referred by Fijian of Indian descent',
-    selectSql: `referral_sr.id is not null and additional_data.ethnicity_id = '${ETHNICITY_IDS.INDIAN}'`,
+    selectSql:
+      `referral_sr.id is not null and additional_data.ethnicity_id = '${ETHNICITY_IDS.INDIAN}'`,
   },
   referredOther: {
     title: 'Total referred by other ethnicity',
-    selectSql: `referral_sr.id is not null and additional_data.ethnicity_id = '${ETHNICITY_IDS.OTHERS}'`,
+    selectSql:
+      `referral_sr.id is not null and additional_data.ethnicity_id = '${ETHNICITY_IDS.OTHERS}'`,
   },
 };
 
@@ -159,10 +162,12 @@ const buildCase = (name, condition) => `count(case when ${condition} then 1 end)
 
 const getSelectClause = () => `
     to_char(sr.end_time::timestamp, 'yyyy-mm-dd') as date,
-    ${Object.entries(FIELDS)
-      .filter(([_key, { selectSql }]) => selectSql) // eslint-disable-line no-unused-vars
-      .map(([key, { selectSql }]) => buildCase(key, selectSql))
-      .join(',\n')}
+    ${
+  Object.entries(FIELDS)
+    .filter(([_key, { selectSql }]) => selectSql) // eslint-disable-line no-unused-vars
+    .map(([key, { selectSql }]) => buildCase(key, selectSql))
+    .join(',\n')
+}
   `;
 
 const getJoinClauses = () => {

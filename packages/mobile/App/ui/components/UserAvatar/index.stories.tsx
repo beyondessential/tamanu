@@ -1,10 +1,10 @@
-import React from 'react';
-import { storiesOf } from '@storybook/react-native';
-import { UserAvatar, UserAvatarProps } from './index';
-import { CameraOutlineIcon, GivenOnTimeIcon } from '../Icons';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { CenterView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { storiesOf } from '@storybook/react-native';
+import React from 'react';
+import { CameraOutlineIcon, GivenOnTimeIcon } from '../Icons';
+import { UserAvatar, UserAvatarProps } from './index';
 
 const makeUser = (image?: string, Icon?: any): UserAvatarProps => ({
   size: 25,
@@ -59,9 +59,5 @@ storiesOf('UserAvatar', module)
   .addDecorator((getStory: Function) => <CenterView>{getStory()}</CenterView>)
   .add('Wihouth url Image', () => <UserAvatar {...withoutImageProps} />)
   .add('With image', () => <UserAvatar {...withImageProps} />)
-  .add('With image and icon (More Menu)', () => (
-    <UserAvatar {...withImageAndIconProps} />
-  ))
-  .add('With image and icon (New Patient added)', () => (
-    <UserAvatar {...newPatientAddedProps} />
-  ));
+  .add('With image and icon (More Menu)', () => <UserAvatar {...withImageAndIconProps} />)
+  .add('With image and icon (New Patient added)', () => <UserAvatar {...newPatientAddedProps} />);

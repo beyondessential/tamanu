@@ -1,15 +1,15 @@
-import { Op } from 'sequelize';
-import { subDays, startOfDay, endOfDay, parseISO } from 'date-fns';
+import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
 import upperFirst from 'lodash/upperFirst';
+import { Op } from 'sequelize';
 
 import {
-  ENCOUNTER_TYPES,
   DIAGNOSIS_CERTAINTY,
+  ENCOUNTER_TYPES,
   NOTE_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { Location } from '../models/Location';
-import { ageInYears, toDateTimeString, format } from '../utils/dateTime';
+import { ageInYears, format, toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const reportColumnTemplate = [
@@ -153,8 +153,7 @@ const formatHistory = (history, placeType) => {
 const filterResults = async (models, results, parameters) => {
   const { locationGroup, department } = parameters;
 
-  const locations =
-    locationGroup &&
+  const locations = locationGroup &&
     (await models.Location.findAll({
       where: {
         locationGroupId: locationGroup,
@@ -163,10 +162,10 @@ const filterResults = async (models, results, parameters) => {
 
   const { name: locationGroupName } = locationGroup
     ? await models.LocationGroup.findOne({
-        where: {
-          id: locationGroup,
-        },
-      })
+      where: {
+        id: locationGroup,
+      },
+    })
     : {};
 
   const locationNames = locations?.map(({ name }) => name);
@@ -175,17 +174,17 @@ const filterResults = async (models, results, parameters) => {
 
   const locationFilteredResults = locationGroup
     ? results.filter(result =>
-        result.locationHistory.some(({ to }) => {
-          const { group, location } = Location.parseFullLocationName(to);
-          return group ? group === locationGroupName : locationNames.includes(location);
-        }),
-      )
+      result.locationHistory.some(({ to }) => {
+        const { group, location } = Location.parseFullLocationName(to);
+        return group ? group === locationGroupName : locationNames.includes(location);
+      })
+    )
     : results;
 
   const departmentFilteredResults = requiredDepartment
     ? locationFilteredResults.filter(result =>
-        result.departmentHistory.map(({ to }) => to).includes(requiredDepartment),
-      )
+      result.departmentHistory.map(({ to }) => to).includes(requiredDepartment)
+    )
     : locationFilteredResults;
 
   return departmentFilteredResults;

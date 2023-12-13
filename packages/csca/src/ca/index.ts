@@ -9,12 +9,10 @@ import prompts from 'prompts';
 import crypto from '../crypto';
 import { fsExists, keyPairFromPrivate } from '../utils';
 import Certificate from './Certificate';
-import Config, { ConfigFile, period } from './Config';
-import Crl from './Crl';
-import Log from './Log';
-import State, { CertificateIndexEntry } from './State';
 import { ComputedExtension, ExtensionName } from './certificateExtensions';
+import Config, { ConfigFile, period } from './Config';
 import { EKU_HEALTH_CSCA } from './constants';
+import Crl from './Crl';
 import {
   deriveSymmetricKey,
   makeKeyPair,
@@ -23,6 +21,8 @@ import {
   writePrivateKey,
   writePublicKey,
 } from './keys';
+import Log from './Log';
+import State, { CertificateIndexEntry } from './State';
 
 const MASTER_KEY_DERIVATION_ROUNDS = 10_000;
 const MASTER_KEY_DERIVATION_SALT = Buffer.from(
@@ -210,8 +210,8 @@ export default class CA {
     await this.state(key).check();
     await this.log(key).check();
 
-    await this.root().then((cert) => cert.check(key));
-    await this.crl().then((crl) => crl.check());
+    await this.root().then(cert => cert.check(key));
+    await this.crl().then(crl => crl.check());
 
     // console.debug('check integrity: OK'); // re-enable when switching to configurable logging
   }
@@ -399,7 +399,7 @@ export default class CA {
       });
 
       arc.on('error', reject);
-      arc.on('warning', (err) => {
+      arc.on('warning', err => {
         console.warn(err);
       });
 

@@ -1,11 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Colors } from '../../../constants';
+import { useEncounterData } from '../../../api/queries';
 import { Button } from '../../../components/Button';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Modal } from '../../../components/Modal';
-import { useEncounterData } from '../../../api/queries';
 import { MultipleImagingRequestsPrintout } from '../../../components/PatientPrinting';
+import { Colors } from '../../../constants';
 
 const PrintModalInternals = ({ imagingRequest }) => {
   const encounterQuery = useEncounterData(imagingRequest.encounterId);

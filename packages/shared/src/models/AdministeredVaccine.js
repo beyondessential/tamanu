@@ -1,10 +1,10 @@
-import { Sequelize, Op } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { Op, Sequelize } from 'sequelize';
 import { InvalidOperationError } from '../errors';
-import { Model } from './Model';
-import { Encounter } from './Encounter';
-import { ScheduledVaccine } from './ScheduledVaccine';
 import { dateTimeType } from './dateTimeTypes';
+import { Encounter } from './Encounter';
+import { Model } from './Model';
+import { ScheduledVaccine } from './ScheduledVaccine';
 
 export class AdministeredVaccine extends Model {
   static init({ primaryKey, ...options }) {

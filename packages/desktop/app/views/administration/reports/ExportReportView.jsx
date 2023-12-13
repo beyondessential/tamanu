@@ -1,12 +1,12 @@
-import React from 'react';
-import * as yup from 'yup';
-import styled from 'styled-components';
-import { toast } from 'react-toastify';
 import { REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
-import { Field, Form, FormGrid, OutlinedButton, RadioField } from '../../../components';
+import React from 'react';
+import { toast } from 'react-toastify';
+import styled from 'styled-components';
+import * as yup from 'yup';
 import { useApi } from '../../../api';
-import { ReportSelectField, VersionSelectField } from './ReportsSelectFields';
+import { Field, Form, FormGrid, OutlinedButton, RadioField } from '../../../components';
 import { Colors } from '../../../constants';
+import { ReportSelectField, VersionSelectField } from './ReportsSelectFields';
 
 const StyledButton = styled(OutlinedButton)`
   margin-top: 30px;

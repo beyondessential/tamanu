@@ -1,4 +1,4 @@
-import { STRING, INTEGER, QueryTypes } from 'sequelize';
+import { INTEGER, QueryTypes, STRING } from 'sequelize';
 
 const MAIN_CAUSES = ['primary_cause', 'antecedent_cause1', 'antecedent_cause2'];
 
@@ -67,7 +67,8 @@ export async function down(query) {
 
     // https://stackoverflow.com/a/21327318
     // can't rely on postgres extensions being present ;_;
-    const uuidgen = `SELECT uuid_in(overlay(overlay(md5(random()::text || ':' || random()::text) placing '4' from 13) placing to_hex(floor(random()*(11-8+1) + 8)::int)::text from 17)::cstring)`;
+    const uuidgen =
+      `SELECT uuid_in(overlay(overlay(md5(random()::text || ':' || random()::text) placing '4' from 13) placing to_hex(floor(random()*(11-8+1) + 8)::int)::text from 17)::cstring)`;
 
     // only postgres supports using this syntax
     await query.sequelize.query(`

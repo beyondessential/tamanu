@@ -1,6 +1,6 @@
+import { StyledText, StyledView } from '/styled/common';
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { StyledText, StyledView } from '/styled/common';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 import { MobileSyncManager, SYNC_EVENT_ACTIONS } from '../../services/sync';
 
@@ -53,9 +53,8 @@ export const SyncErrorDisplay = (): ReactElement => {
     >
       <StyledView margin={8}>
         <StyledText color="#FFFFFF">{stringifyError(error)}</StyledText>
-        {error.remoteError && (
-          <RemoteErrorText>{stringifyError(error.remoteError)}</RemoteErrorText>
-        )}
+        {error.remoteError && <RemoteErrorText>{stringifyError(error.remoteError)}
+        </RemoteErrorText>}
       </StyledView>
     </StyledView>
   );

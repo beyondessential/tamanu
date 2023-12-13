@@ -1,7 +1,7 @@
+import { storiesOf } from '@storybook/react';
 import React from 'react';
 import styled from 'styled-components';
-import { storiesOf } from '@storybook/react';
-import { LargeBodyText, BodyText, SmallBodyText } from '../app/components';
+import { BodyText, LargeBodyText, SmallBodyText } from '../app/components';
 
 const Container = styled.div`
   width: 500px;

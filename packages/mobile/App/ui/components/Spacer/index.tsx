@@ -1,5 +1,5 @@
-import React, { ReactElement } from 'react';
 import { StyledView, StyledViewProps } from '/styled/common';
+import React, { ReactElement } from 'react';
 
 interface SpacerProps extends StyledViewProps {
   height?: string | number;

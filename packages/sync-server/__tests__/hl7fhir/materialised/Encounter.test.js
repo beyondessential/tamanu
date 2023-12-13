@@ -2,11 +2,11 @@
 
 import { addDays, getYear } from 'date-fns';
 
-import { fake, chance } from '@tamanu/shared/test-helpers';
-import { fakeUUID } from '@tamanu/shared/utils/generateId';
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants';
-import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
+import { chance, fake } from '@tamanu/shared/test-helpers';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
+import { fakeUUID } from '@tamanu/shared/utils/generateId';
 
 import { createTestContext } from '../../utilities';
 
@@ -331,9 +331,11 @@ describe(`Materialised FHIR - Encounter`, () => {
         const [newEncounter, newMat] = await makeEncounter({ encounterType: 'emergency' });
         newMat.update({ lastUpdated: addDays(new Date(), 5) });
         const response = await app.get(
-          `/v1/integration/${INTEGRATION_ROUTE}/Encounter?_lastUpdated=gt${encodeURIComponent(
-            formatFhirDate(addDays(new Date(), 4)),
-          )}`,
+          `/v1/integration/${INTEGRATION_ROUTE}/Encounter?_lastUpdated=gt${
+            encodeURIComponent(
+              formatFhirDate(addDays(new Date(), 4)),
+            )
+          }`,
         );
 
         expect(response.body.total).toBe(1);

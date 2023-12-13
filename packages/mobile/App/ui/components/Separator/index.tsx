@@ -1,6 +1,6 @@
-import React, { ReactElement } from 'react';
 import { StyledView, StyledViewProps } from '/styled/common';
 import { theme } from '/styled/theme';
+import React, { ReactElement } from 'react';
 
 interface SeparatorProps extends StyledViewProps {
   width?: string | number;

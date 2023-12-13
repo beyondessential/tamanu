@@ -2,7 +2,7 @@ import { execFileSync } from 'child_process';
 import { doWithAllPackages } from './_do-with-all-packages.mjs';
 
 const args = process.argv.slice(2);
-const target = args.filter((arg) => !arg.startsWith('--'))[0];
+const target = args.filter(arg => !arg.startsWith('--'))[0];
 if (target) {
   console.log(`Building shared+target: ${target}`);
 }

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import { Modal } from '../../Modal';
+import { useApi } from '../../../api';
 import { useCertificate } from '../../../utils/useCertificate';
 import { LoadingIndicator } from '../../LoadingIndicator';
-import { useApi } from '../../../api';
+import { Modal } from '../../Modal';
 
 import { PrescriptionPrintout } from '../printouts/PrescriptionPrintout';
 
@@ -66,16 +66,16 @@ export const PrintPrescriptionModal = ({ medication, open, onClose }) => {
   return (
     <>
       <Modal title="Prescription" open={open} onClose={onClose} width="md" printable>
-        {encounterLoading || patientLoading || additionalDataLoading || villageLoading ? (
-          <LoadingIndicator />
-        ) : (
-          <PrescriptionPrintout
-            patientData={{ ...patient, additionalData, village }}
-            prescriptionData={medication}
-            encounterData={encounter}
-            certificateData={certificateData}
-          />
-        )}
+        {encounterLoading || patientLoading || additionalDataLoading || villageLoading ?
+          <LoadingIndicator /> :
+          (
+            <PrescriptionPrintout
+              patientData={{ ...patient, additionalData, village }}
+              prescriptionData={medication}
+              encounterData={encounter}
+              certificateData={certificateData}
+            />
+          )}
       </Modal>
     </>
   );

@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
-import { TextField } from '../../../TextField/TextField';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { TextField } from '../../../TextField/TextField';
 
 export const NameSection = (): ReactElement => {
   const { getBool } = useLocalisation();

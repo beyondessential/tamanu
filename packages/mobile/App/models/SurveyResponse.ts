@@ -1,22 +1,22 @@
-import { Entity, Column, ManyToOne, OneToMany, RelationId } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm/browser';
 
-import { ISurveyResponse, EncounterType, ICreateSurveyResponse } from '~/types';
+import { EncounterType, ICreateSurveyResponse, ISurveyResponse } from '~/types';
 
-import { getStringValue, getResultValue, isCalculated, FieldTypes } from '~/ui/helpers/fields';
+import { FieldTypes, getResultValue, getStringValue, isCalculated } from '~/ui/helpers/fields';
 
 import { runCalculations } from '~/ui/helpers/calculations';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
 import { BaseModel } from './BaseModel';
-import { Survey } from './Survey';
+import { DateTimeStringColumn } from './DateColumns';
 import { Encounter } from './Encounter';
-import { SurveyResponseAnswer } from './SurveyResponseAnswer';
-import { Referral } from './Referral';
 import { Patient } from './Patient';
 import { PatientAdditionalData } from './PatientAdditionalData';
-import { VitalLog } from './VitalLog';
+import { Referral } from './Referral';
+import { Survey } from './Survey';
+import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import { SYNC_DIRECTIONS } from './types';
-import { DateTimeStringColumn } from './DateColumns';
+import { VitalLog } from './VitalLog';
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {

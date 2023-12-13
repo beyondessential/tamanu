@@ -1,8 +1,8 @@
+import { MenuItem, Select } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import { Pagination, PaginationItem } from '@material-ui/lab';
 import React, { useRef } from 'react';
 import styled from 'styled-components';
-import { Pagination, PaginationItem } from '@material-ui/lab';
-import { Select, MenuItem } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
 import { Colors } from '../../constants';
 import { ChevronIcon } from '../Icons/ChevronIcon';
 
@@ -168,13 +168,13 @@ export const Paginator = React.memo(
 
               // The standard range for showing page numbers except for the first and last page which
               // we override above is the current page +/- 1
-              const standardRange =
-                selectedPageNumber >= pageNumber - 1 && selectedPageNumber <= pageNumber + 1;
+              const standardRange = selectedPageNumber >= pageNumber - 1 &&
+                selectedPageNumber <= pageNumber + 1;
               // When we are on the first page, we want to show the first 3 pages and the last page however and when
               // we are on the last page we want to show the last 3 pages and the first page.
               const startRange = selectedPageNumber === 1 && pageNumber <= 3;
-              const endRange =
-                selectedPageNumber === numberOfPages && pageNumber >= numberOfPages - 2;
+              const endRange = selectedPageNumber === numberOfPages &&
+                pageNumber >= numberOfPages - 2;
 
               const isInRange = standardRange || startRange || endRange;
 

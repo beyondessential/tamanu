@@ -1,26 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import * as yup from 'yup';
 import { Box } from '@material-ui/core';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { foreignKey } from '../utils/validation';
-import { PrintPrescriptionModal } from '../components/PatientPrinting';
-import { FormSubmitDropdownButton } from '../components/DropdownButton';
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
+import * as yup from 'yup';
 import {
-  FormGrid,
+  AutocompleteField,
   Button,
   ButtonRow,
-  Form,
+  DateDisplay,
+  DateField,
   Field,
+  Form,
+  FormCancelButton,
+  FormGrid,
+  FormSubmitButton,
+  NumberField,
   SelectField,
   TextField,
-  AutocompleteField,
-  NumberField,
-  DateField,
-  DateDisplay,
-  FormSubmitButton,
-  FormCancelButton,
 } from '../components';
+import { FormSubmitDropdownButton } from '../components/DropdownButton';
+import { PrintPrescriptionModal } from '../components/PatientPrinting';
+import { foreignKey } from '../utils/validation';
 
 const drugRouteOptions = [
   { label: 'Dermal', value: 'dermal' },
@@ -41,22 +41,22 @@ const drugRouteOptions = [
 const validationSchema = readOnly =>
   !readOnly
     ? yup.object().shape({
-        medicationId: foreignKey('Medication must be selected'),
-        prescriberId: foreignKey('Prescriber must be selected'),
-        prescription: yup.string().required('Instructions are required'),
-        route: yup
-          .string()
-          .oneOf(drugRouteOptions.map(x => x.value))
-          .required(),
-        date: yup.date().required(),
-        endDate: yup.date(),
-        note: yup.string(),
-        quantity: yup.number().integer(),
-      })
+      medicationId: foreignKey('Medication must be selected'),
+      prescriberId: foreignKey('Prescriber must be selected'),
+      prescription: yup.string().required('Instructions are required'),
+      route: yup
+        .string()
+        .oneOf(drugRouteOptions.map(x => x.value))
+        .required(),
+      date: yup.date().required(),
+      endDate: yup.date(),
+      note: yup.string(),
+      quantity: yup.number().integer(),
+    })
     : yup.object().shape({
-        discontinuingReason: yup.string(),
-        discontinuingClinicianId: foreignKey('Clinician must be selected'),
-      });
+      discontinuingReason: yup.string(),
+      discontinuingClinicianId: foreignKey('Clinician must be selected'),
+    });
 
 const DiscontinuePrintButtonRow = styled.div`
   display: grid;
@@ -267,36 +267,38 @@ export const MedicationForm = React.memo(
               {shouldShowSubmitButton && (
                 <ButtonRow>
                   <FormCancelButton onClick={onCancel}>Cancel</FormCancelButton>
-                  {shouldDiscontinue ? (
-                    <FormSubmitButton
-                      color="primary"
-                      onClick={data => {
-                        setAwaitingPrint(false);
-                        submitForm(data);
-                      }}
-                    >
-                      Finalise
-                    </FormSubmitButton>
-                  ) : (
-                    <FormSubmitDropdownButton
-                      actions={[
-                        {
-                          label: 'Finalise',
-                          onClick: data => {
-                            setAwaitingPrint(false);
-                            submitForm(data);
+                  {shouldDiscontinue ?
+                    (
+                      <FormSubmitButton
+                        color="primary"
+                        onClick={data => {
+                          setAwaitingPrint(false);
+                          submitForm(data);
+                        }}
+                      >
+                        Finalise
+                      </FormSubmitButton>
+                    ) :
+                    (
+                      <FormSubmitDropdownButton
+                        actions={[
+                          {
+                            label: 'Finalise',
+                            onClick: data => {
+                              setAwaitingPrint(false);
+                              submitForm(data);
+                            },
                           },
-                        },
-                        {
-                          label: 'Finalise & print',
-                          onClick: data => {
-                            setAwaitingPrint(true);
-                            submitForm(data, true);
+                          {
+                            label: 'Finalise & print',
+                            onClick: data => {
+                              setAwaitingPrint(true);
+                              submitForm(data, true);
+                            },
                           },
-                        },
-                      ]}
-                    />
-                  )}
+                        ]}
+                      />
+                    )}
                 </ButtonRow>
               )}
             </FormGrid>

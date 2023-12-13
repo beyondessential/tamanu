@@ -1,6 +1,6 @@
 import { Chance } from 'chance';
-import { IReferenceData, ReferenceDataType } from '~/types';
 import { SyncRecord } from '~/services/sync/source';
+import { IReferenceData, ReferenceDataType } from '~/types';
 
 // for dummy data generation
 import { generatePatient } from '~/dummyData/patients';
@@ -34,7 +34,9 @@ const makeRefRecords = (referenceDataType: ReferenceDataType, values: string): I
     lastModified: generator.date({ year: 1971, month: 1, day: 0 }),
   }));
 
-const VILLAGES = makeRefRecords(ReferenceDataType.Village, `
+const VILLAGES = makeRefRecords(
+  ReferenceDataType.Village,
+  `
   Ba
   Lami
   Levuka
@@ -46,7 +48,8 @@ const VILLAGES = makeRefRecords(ReferenceDataType.Village, `
   Navua
   Korovou
   Nasinu
-`);
+`,
+);
 
 const DIAGNOSES = makeRefRecords(ReferenceDataType.ICD10, ICD10_DIAGNOSES);
 

@@ -1,8 +1,8 @@
-import React, { useCallback, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import React, { useCallback, useEffect, useState } from 'react';
 
-import { FormModal } from './FormModal';
 import { DocumentForm } from '../forms/DocumentForm';
+import { FormModal } from './FormModal';
 
 export const DocumentModal = React.memo(({ open, onClose, endpoint, refreshTable }) => {
   const [preventClose, setPreventClose] = useState(false);

@@ -1,10 +1,10 @@
-import React, { ReactElement } from 'react';
-import { PatientParentsDataProps } from '/interfaces/PatientDetails';
-import { StyledView, RowView } from '/styled/common';
-import { Separator } from '/components/Separator';
-import { InformationBox } from './InformationBox';
 import { ArrowForwardIcon } from '/components/Icons';
+import { Separator } from '/components/Separator';
+import { PatientParentsDataProps } from '/interfaces/PatientDetails';
+import { RowView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
+import React, { ReactElement } from 'react';
+import { InformationBox } from './InformationBox';
 import { PatientSection } from './PatientSection';
 
 interface FamilyInformationProps extends PatientParentsDataProps {

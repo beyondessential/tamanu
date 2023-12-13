@@ -1,18 +1,18 @@
 import { FieldTypes, PatientFieldDefinitionTypes } from './fields';
 
-import { TextField, LimitedTextField } from '~/ui/components/TextField/TextField';
-import { RadioButtonGroup } from '~/ui/components/RadioButtonGroup';
+import { Checkbox } from '~/ui/components/Checkbox';
 import { DateField } from '~/ui/components/DateField/DateField';
 import { Dropdown, MultiSelectDropdown } from '~/ui/components/Dropdown';
-import { Checkbox } from '~/ui/components/Checkbox';
 import { NumberField } from '~/ui/components/NumberField';
+import { RadioButtonGroup } from '~/ui/components/RadioButtonGroup';
 import { ReadOnlyField } from '~/ui/components/ReadOnlyField';
+import { LimitedTextField, TextField } from '~/ui/components/TextField/TextField';
 import { UploadPhoto } from '~/ui/components/UploadPhoto';
 
 import { SurveyQuestionAutocomplete } from '../components/AutocompleteModal/SurveyQuestionAutocomplete';
+import { SurveyAnswerField } from '../components/Forms/SurveyForm/SurveyAnswerField';
 import { SurveyLink } from '../components/Forms/SurveyForm/SurveyLink';
 import { SurveyResult } from '../components/Forms/SurveyForm/SurveyResult';
-import { SurveyAnswerField } from '../components/Forms/SurveyForm/SurveyAnswerField';
 
 export const FieldByType = {
   [FieldTypes.TEXT]: LimitedTextField,

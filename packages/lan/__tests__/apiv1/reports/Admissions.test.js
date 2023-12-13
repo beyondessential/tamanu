@@ -1,14 +1,14 @@
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import {
-  createDummyPatient,
   createDummyEncounter,
   createDummyEncounterDiagnosis,
+  createDummyPatient,
   randomRecord,
   randomReferenceData,
 } from '@tamanu/shared/demoData';
-import { subDays } from 'date-fns';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers';
 import { format } from '@tamanu/shared/utils/dateTime';
+import { subDays } from 'date-fns';
 import { Op } from 'sequelize';
 import { createTestContext } from '../../utilities';
 

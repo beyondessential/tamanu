@@ -1,14 +1,14 @@
+import { Box, Typography } from '@material-ui/core';
 import React from 'react';
 import styled from 'styled-components';
-import { Typography, Box } from '@material-ui/core';
 
 import { DateDisplay } from '../../DateDisplay';
 
-import { NoteContentSection } from './reusable/SimplePrintout';
-import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { GridTable } from './reusable/GridTable';
 import { PatientDetailPrintout } from './reusable/PatientDetailPrintout';
+import { PrintLetterhead } from './reusable/PrintLetterhead';
+import { NoteContentSection } from './reusable/SimplePrintout';
 
 const Text = styled(Typography)`
   font-size: 14px;

@@ -1,11 +1,11 @@
-import { action } from '@storybook/addon-actions';
-import React from 'react';
-import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { Box } from '@material-ui/core';
+import { action } from '@storybook/addon-actions';
+import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
+import React from 'react';
+import { FORM_TYPE_TO_FIELD_CONFIG } from '../app/forms/LabRequestForm/LabRequestFormScreen2';
 import { TestSelectorInput } from '../app/views/labRequest/TestSelector';
 import { MockedApi } from './utils/mockedApi';
 import { mockTestSelectorEndpoints } from './utils/mockLabData';
-import { FORM_TYPE_TO_FIELD_CONFIG } from '../app/forms/LabRequestForm/LabRequestFormScreen2';
 
 export default {
   argTypes: {

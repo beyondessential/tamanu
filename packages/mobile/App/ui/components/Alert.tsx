@@ -41,7 +41,7 @@ export const Alert = ({
   severity = AlertSeverity.Info,
   children,
   open,
-  onClose
+  onClose,
 }: SyncInactiveBannerProps): JSX.Element => {
   const { background, color } = SEVERITY_TO_COLORS[severity];
 

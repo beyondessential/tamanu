@@ -1,24 +1,24 @@
-import React from 'react';
 import { PropTypes } from 'prop-types';
+import React from 'react';
 
 import { VACCINE_CATEGORIES } from '@tamanu/constants';
 
+import { Field, SuggesterSelectField } from '../components/Field';
 import { TwoTwoGrid } from '../components/TwoTwoGrid';
 import {
-  CategoryField,
-  VaccineLabelField,
   AdministeredVaccineScheduleField,
-  VaccineDateField,
-  LocationField,
+  CategoryField,
+  ConfirmCancelRowField,
   DepartmentField,
+  DiseaseField,
   GivenByField,
+  LocationField,
   RecordedByField,
   StyledDivider,
-  ConfirmCancelRowField,
+  VaccineDateField,
+  VaccineLabelField,
   VaccineNameField,
-  DiseaseField,
 } from '../components/VaccineCommonFields';
-import { Field, SuggesterSelectField } from '../components/Field';
 
 export const VaccineNotGivenForm = ({
   vaccineLabel,
@@ -41,28 +41,30 @@ export const VaccineNotGivenForm = ({
         resetForm={resetForm}
       />
     )}
-    {category === VACCINE_CATEGORIES.OTHER ? (
-      <>
-        {!editMode && <VaccineNameField />}
-
-        <DiseaseField />
-      </>
-    ) : (
-      !editMode && (
+    {category === VACCINE_CATEGORIES.OTHER ?
+      (
         <>
-          <VaccineLabelField
-            vaccineLabel={vaccineLabel}
-            vaccineOptions={vaccineOptions}
-            setVaccineLabel={setVaccineLabel}
-          />
-          <br />
-        </>
-      )
-    )}
+          {!editMode && <VaccineNameField />}
 
-    {!editMode && schedules?.length ? (
-      <AdministeredVaccineScheduleField schedules={schedules} />
-    ) : null}
+          <DiseaseField />
+        </>
+      ) :
+      (
+        !editMode && (
+          <>
+            <VaccineLabelField
+              vaccineLabel={vaccineLabel}
+              vaccineOptions={vaccineOptions}
+              setVaccineLabel={setVaccineLabel}
+            />
+            <br />
+          </>
+        )
+      )}
+
+    {!editMode && schedules?.length ?
+      <AdministeredVaccineScheduleField schedules={schedules} /> :
+      null}
 
     <Field
       name="notGivenReasonId"

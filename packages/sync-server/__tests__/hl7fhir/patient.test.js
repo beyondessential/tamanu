@@ -1,12 +1,15 @@
+import { FHIR_PATIENT_LINK_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  createDummyPatient,
+  createDummyPatientAdditionalData,
+} from '@tamanu/shared/demoData/patients';
 import { Op } from 'sequelize';
-import { VISIBILITY_STATUSES, FHIR_PATIENT_LINK_TYPES } from '@tamanu/constants';
-import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
 import {
+  getPatientWhereClause,
   patientToHL7Patient,
   patientToHL7PatientList,
-  getPatientWhereClause,
 } from '../../app/hl7fhir/patient';
 
 import { validate } from './hl7utilities';
@@ -111,7 +114,7 @@ describe('HL7 Patient', () => {
        * b <- merged into - c then
        * b <- merged into - d then
        * a <- merged into - b
-       * */
+       */
       beforeAll(async () => {
         const primaryPatientAData = await createDummyPatient(models);
         primaryPatientA = await models.Patient.create({

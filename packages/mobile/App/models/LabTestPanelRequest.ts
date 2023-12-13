@@ -2,9 +2,9 @@ import { Entity, ManyToOne, RelationId } from 'typeorm/browser';
 
 import { ILabTestPanelRequest } from '~/types';
 import { BaseModel } from './BaseModel';
-import { SYNC_DIRECTIONS } from './types';
 import { Encounter } from './Encounter';
 import { LabTestPanel } from './LabTestPanel';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('lab_test_panel_request')
 export class LabTestPanelRequest extends BaseModel implements ILabTestPanelRequest {

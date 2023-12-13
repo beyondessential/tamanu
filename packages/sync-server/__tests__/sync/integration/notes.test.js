@@ -1,16 +1,16 @@
-import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
-import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
-import { createDummyEncounter } from '@tamanu/shared/demoData/patients';
-import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 import {
   IMAGING_TYPES,
   LAB_REQUEST_STATUSES,
-  NOTE_TYPES,
   NOTE_RECORD_TYPES,
+  NOTE_TYPES,
 } from '@tamanu/constants';
+import { createDummyEncounter } from '@tamanu/shared/demoData/patients';
+import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
+import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
-import { createTestContext } from '../../utilities';
 import { CentralSyncManager } from '../../../app/sync/CentralSyncManager';
+import { createTestContext } from '../../utilities';
 
 const waitForSession = async (centralSyncManager, sessionId) => {
   let ready = false;
@@ -41,7 +41,7 @@ describe('CentralSyncManager', () => {
         models.Encounter.create({
           ...(await createDummyEncounter(models)),
           patientId,
-        }),
+        })
       ),
     );
   };

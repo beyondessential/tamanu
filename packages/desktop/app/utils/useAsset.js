@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { ASSET_FALLBACK_NAMES } from '@tamanu/constants';
+import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { useApi } from '../api';
 
 const queryResponseToAssetData = response => Buffer.from(response.data).toString('base64');

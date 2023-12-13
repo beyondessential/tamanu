@@ -1,21 +1,21 @@
+import { useNetInfo } from '@react-native-community/netinfo';
 import React, { useEffect, useState } from 'react';
 import Modal from 'react-native-modal';
 import { useSelector } from 'react-redux';
 import * as Yup from 'yup';
-import { useNetInfo } from '@react-native-community/netinfo';
+import { CentralConnectionStatus } from '~/types';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { authUserSelector } from '~/ui/helpers/selectors';
 import { StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
+import { useBackend } from '../hooks';
 import { Alert, AlertSeverity } from './Alert';
-import { CrossIcon } from './Icons';
-import { authUserSelector } from '~/ui/helpers/selectors';
+import { Button } from './Button';
 import { Form } from './Forms/Form';
 import { Field } from './Forms/FormField';
+import { CrossIcon } from './Icons';
 import { TextField } from './TextField/TextField';
-import { Button } from './Button';
-import { useAuth } from '~/ui/contexts/AuthContext';
-import { CentralConnectionStatus } from '~/types';
-import { useBackend } from '../hooks';
 
 interface AuthenticationModelProps {
   open: boolean;

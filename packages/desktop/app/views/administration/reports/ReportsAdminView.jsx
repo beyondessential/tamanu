@@ -3,9 +3,9 @@ import styled from 'styled-components';
 import { TopBar } from '../../../components';
 import { TabDisplay } from '../../../components/TabDisplay';
 import { Colors } from '../../../constants';
+import { CreateReportView } from './CreateReportView';
 import { ExportReportView } from './ExportReportView';
 import { ImportReportView } from './ImportReportView';
-import { CreateReportView } from './CreateReportView';
 import { SelectReportView } from './SelectReportView';
 
 const OuterContainer = styled.div`

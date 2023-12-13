@@ -1,11 +1,11 @@
-import React, { ReactElement, useCallback } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import { theme } from '/styled/theme';
-import { formatStringDate } from '/helpers/date';
-import { StyledView, StyledText, FullView } from '/styled/common';
-import { SurveyResultBadge } from '/components/SurveyResultBadge';
 import { ArrowForwardIcon } from '/components/Icons';
+import { SurveyResultBadge } from '/components/SurveyResultBadge';
+import { formatStringDate } from '/helpers/date';
+import { FullView, StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
+import { useNavigation } from '@react-navigation/native';
+import React, { ReactElement, useCallback } from 'react';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import { DateFormats } from '~/ui/helpers/constants';
 
 const SensitiveResponseLabel = (): ReactElement => (

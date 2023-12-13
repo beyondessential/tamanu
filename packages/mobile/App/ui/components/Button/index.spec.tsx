@@ -1,6 +1,6 @@
+import { fireEvent, render } from '@testing-library/react-native';
 import React from 'react';
 import { Text } from 'react-native';
-import { render, fireEvent } from '@testing-library/react-native';
 import { Button } from './index';
 
 describe('<Button />', () => {
@@ -12,7 +12,7 @@ describe('<Button />', () => {
     const { getByText } = render(
       <Button {...props}>
         <Text>123456</Text>
-      </Button>
+      </Button>,
     );
     expect(getByText('123456')).not.toBe(null);
   });
@@ -21,7 +21,7 @@ describe('<Button />', () => {
     const { getByText } = render(
       <Button {...props}>
         <Text>123456</Text>
-      </Button>
+      </Button>,
     );
     fireEvent.press(getByText('123456'));
     expect(props.onPress).toHaveBeenCalled();

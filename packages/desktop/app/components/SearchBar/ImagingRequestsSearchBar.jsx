@@ -1,20 +1,20 @@
+import { IMAGING_REQUEST_STATUS_TYPES, IMAGING_TABLE_VERSIONS } from '@tamanu/constants';
 import React from 'react';
 import styled from 'styled-components';
-import { IMAGING_TABLE_VERSIONS, IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
+import { useSuggester } from '../../api';
 import { IMAGING_REQUEST_STATUS_OPTIONS } from '../../constants';
+import { useImagingRequests } from '../../contexts/ImagingRequests';
+import { useLocalisation } from '../../contexts/Localisation';
 import {
-  DateField,
-  LocalisedField,
-  SelectField,
   AutocompleteField,
-  Field,
   CheckField,
+  DateField,
+  Field,
+  LocalisedField,
   SearchField,
+  SelectField,
 } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { useLocalisation } from '../../contexts/Localisation';
-import { useSuggester } from '../../api';
-import { useImagingRequests } from '../../contexts/ImagingRequests';
 import { useAdvancedFields } from './useAdvancedFields';
 
 const FacilityCheckbox = styled.div`

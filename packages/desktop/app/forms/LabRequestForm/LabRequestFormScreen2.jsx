@@ -1,11 +1,11 @@
-import React, { useMemo } from 'react';
-import * as yup from 'yup';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { uniqBy } from 'lodash';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
+import * as yup from 'yup';
 import { Field, TextField } from '../../components';
-import { TestSelectorField } from '../../views/labRequest/TestSelector';
 import { BodyText, Heading3 } from '../../components/Typography';
+import { TestSelectorField } from '../../views/labRequest/TestSelector';
 
 const StyledBodyText = styled(BodyText)`
   margin-bottom: 28px;

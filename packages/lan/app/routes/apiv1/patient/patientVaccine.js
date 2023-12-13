@@ -1,13 +1,13 @@
+import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import Sequelize, { QueryTypes, Op } from 'sequelize';
-import config from 'config';
+import Sequelize, { Op, QueryTypes } from 'sequelize';
 
 import {
   ENCOUNTER_TYPES,
+  SETTING_KEYS,
   VACCINE_CATEGORIES,
   VACCINE_STATUS,
-  SETTING_KEYS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/shared/errors';
@@ -97,7 +97,7 @@ patientVaccineRoutes.get(
 
     // Exclude vaccines that already have all the schedules administered for the patient
     const availableVaccines = Object.values(vaccines).filter(v =>
-      v.schedules.some(s => !s.administered),
+      v.schedules.some(s => !s.administered)
     );
     res.send(availableVaccines);
   }),
@@ -137,14 +137,12 @@ async function getVaccinationDescription(models, vaccineData) {
     include: 'vaccine',
   });
 
-  const prefixMessage =
-    vaccineData.status === VACCINE_STATUS.GIVEN
-      ? 'Vaccination recorded for'
-      : 'Vaccination recorded as not given for';
-  const vaccineDetails =
-    vaccineData.category === VACCINE_CATEGORIES.OTHER
-      ? [vaccineData.vaccineName]
-      : [scheduledVaccine.vaccine?.name, scheduledVaccine.schedule];
+  const prefixMessage = vaccineData.status === VACCINE_STATUS.GIVEN
+    ? 'Vaccination recorded for'
+    : 'Vaccination recorded as not given for';
+  const vaccineDetails = vaccineData.category === VACCINE_CATEGORIES.OTHER
+    ? [vaccineData.vaccineName]
+    : [scheduledVaccine.vaccine?.name, scheduledVaccine.schedule];
   return [prefixMessage, ...vaccineDetails].filter(Boolean).join(' ');
 }
 
@@ -185,13 +183,12 @@ patientVaccineRoutes.post(
     let { departmentId, locationId } = vaccineData;
 
     if (!departmentId || !locationId) {
-      const vaccinationDefaults =
-        (await models.Setting.get(
-          vaccineData.givenElsewhere
-            ? SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS
-            : SETTING_KEYS.VACCINATION_DEFAULTS,
-          config.serverFacilityId,
-        )) || {};
+      const vaccinationDefaults = (await models.Setting.get(
+        vaccineData.givenElsewhere
+          ? SETTING_KEYS.VACCINATION_GIVEN_ELSEWHERE_DEFAULTS
+          : SETTING_KEYS.VACCINATION_DEFAULTS,
+        config.serverFacilityId,
+      )) || {};
       departmentId = departmentId || vaccinationDefaults.departmentId;
       locationId = locationId || vaccinationDefaults.locationId;
     }
@@ -266,8 +263,8 @@ patientVaccineRoutes.get(
 
     const where = JSON.parse(req.query.includeNotGiven || false)
       ? {
-          status: [VACCINE_STATUS.GIVEN, VACCINE_STATUS.NOT_GIVEN],
-        }
+        status: [VACCINE_STATUS.GIVEN, VACCINE_STATUS.NOT_GIVEN],
+      }
       : {};
 
     const patient = await req.models.Patient.findByPk(req.params.id);
@@ -341,8 +338,9 @@ patientVaccineRoutes.get(
     if (
       !Array.isArray(administeredVaccine.circumstanceIds) ||
       administeredVaccine.circumstanceIds.length === 0
-    )
+    ) {
       res.send({ count: 0, data: [] });
+    }
     const results = await models.ReferenceData.findAll({
       where: {
         id: administeredVaccine.circumstanceIds,

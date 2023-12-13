@@ -1,7 +1,7 @@
-import { QueryTypes } from 'sequelize';
+import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers';
 import config from 'config';
-import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
+import { QueryTypes } from 'sequelize';
 import { createTestContext } from '../utilities';
 
 // Tests are against mocked reporting schema and roles defined in

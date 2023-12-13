@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { NoteChangeLogs } from '../components/NoteChangeLogs';
 import { ConfirmCancelRow } from '../components/ButtonRow';
+import { NoteChangeLogs } from '../components/NoteChangeLogs';
 import { NoteInfoSection, StyledDivider, WrittenByText } from '../components/NoteCommonFields';
 import { NOTE_TYPE_LABELS } from '../constants';
 

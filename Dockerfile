@@ -25,9 +25,8 @@ COPY scripts/docker-entrypoint.sh /entrypoint
 ENTRYPOINT ["/entrypoint"]
 CMD ["serve"]
 
-
 ## Get some build metadata information
-FROM build-base as metadata
+FROM build-base AS metadata
 COPY .git/ .git/
 RUN mkdir /meta
 RUN git rev-parse --abbrev-ref HEAD | tee /meta/SOURCE_BRANCH
@@ -37,9 +36,8 @@ RUN git log -1 --pretty=%cs         | tee /meta/SOURCE_DATE
 RUN git log -1 --pretty=%ct         | tee /meta/SOURCE_DATE_EPOCH
 RUN git log -1 --pretty=%cI         | tee /meta/SOURCE_DATE_ISO
 
-
 ## Build the target server
-FROM build-base as build-server
+FROM build-base AS build-server
 ARG PACKAGE_PATH
 
 # copy all packages
@@ -48,9 +46,8 @@ COPY packages/ packages/
 # do the build, which will also reduce to just the target package
 RUN scripts/docker-build.sh ${PACKAGE_PATH}
 
-
 ## Normal final target for servers
-FROM run-base as server
+FROM run-base AS server
 # restart from a fresh base without the build tools
 ARG PACKAGE_PATH
 # FROM resets the ARGs, so we need to redeclare it

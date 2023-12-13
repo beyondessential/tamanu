@@ -1,17 +1,17 @@
-import { pascal } from 'case';
-import express from 'express';
-import asyncHandler from 'express-async-handler';
-import { Sequelize, Op, literal } from 'sequelize';
-import config from 'config';
-import { NotFoundError } from '@tamanu/shared/errors';
 import {
-  SURVEY_TYPES,
+  INVOICE_LINE_TYPES,
   REFERENCE_TYPE_VALUES,
   REFERENCE_TYPES,
-  INVOICE_LINE_TYPES,
-  VISIBILITY_STATUSES,
   SUGGESTER_ENDPOINTS,
+  SURVEY_TYPES,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
+import { NotFoundError } from '@tamanu/shared/errors';
+import { pascal } from 'case';
+import config from 'config';
+import express from 'express';
+import asyncHandler from 'express-async-handler';
+import { literal, Op, Sequelize } from 'sequelize';
 
 export const suggestions = express.Router();
 
@@ -201,8 +201,10 @@ createSuggester(
 createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
 
 // Location groups filtered by facility. Used in the survey form autocomplete
-createNameSuggester('facilityLocationGroup', 'LocationGroup', (search, query) =>
-  filterByFacilityWhereBuilder(search, { ...query, filterByFacility: true }),
+createNameSuggester(
+  'facilityLocationGroup',
+  'LocationGroup',
+  (search, query) => filterByFacilityWhereBuilder(search, { ...query, filterByFacility: true }),
 );
 
 createSuggester(

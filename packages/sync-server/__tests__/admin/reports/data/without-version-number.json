@@ -1,20 +1,20 @@
 {
-    "query": "select * from patients limit 0",
-    "queryOptions": {
-        "defaultDateRange": "allTime",
-        "dataSources": [
-            "thisFacility"
-        ],
-        "parameters": [
-            {
-                "parameterField": "ParameterSuggesterSelectField",
-                "label": "Area",
-                "name": "locationGroup",
-                "suggesterEndpoint": "locationGroup"
-            }
-        ]
-    },
-    "dbSchema": "raw",
-    "status": "published",
-    "notes": "Report doing absolutely nothing"
+  "query": "select * from patients limit 0",
+  "queryOptions": {
+    "defaultDateRange": "allTime",
+    "dataSources": [
+      "thisFacility"
+    ],
+    "parameters": [
+      {
+        "parameterField": "ParameterSuggesterSelectField",
+        "label": "Area",
+        "name": "locationGroup",
+        "suggesterEndpoint": "locationGroup"
+      }
+    ]
+  },
+  "dbSchema": "raw",
+  "status": "published",
+  "notes": "Report doing absolutely nothing"
 }

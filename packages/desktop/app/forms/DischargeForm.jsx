@@ -1,41 +1,41 @@
-import React, { useCallback, useState, useEffect } from 'react';
-import * as yup from 'yup';
-import styled from 'styled-components';
-import { range } from 'lodash';
-import { isFuture, parseISO, set } from 'date-fns';
-import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { Divider as BaseDivider } from '@material-ui/core';
-import { Colors, FORM_STATUSES } from '../constants';
+import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { isFuture, parseISO, set } from 'date-fns';
+import { range } from 'lodash';
+import React, { useCallback, useEffect, useState } from 'react';
+import styled from 'styled-components';
+import * as yup from 'yup';
 import { useApi } from '../api';
+import { Colors, FORM_STATUSES } from '../constants';
 import { foreignKey } from '../utils/validation';
 
 import {
-  Field,
   AutocompleteField,
-  TextField,
-  CheckField,
-  StyledTextField,
-  LocalisedField,
-  useLocalisedSchema,
   CheckControl,
-  SelectField,
-  PaginatedForm,
+  CheckField,
   DefaultFormScreen,
+  Field,
+  LocalisedField,
+  PaginatedForm,
+  SelectField,
+  StyledTextField,
+  TextField,
+  useLocalisedSchema,
 } from '../components/Field';
-import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { DateTimeField, DateTimeInput } from '../components/Field/DateField';
+import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { TextInput } from '../components/Field/TextField';
 import { FormGrid } from '../components/FormGrid';
 import { TableFormFields } from '../components/Table';
 
-import { FormConfirmCancelBackRow, FormSubmitCancelRow } from '../components/ButtonRow';
-import { DiagnosisList } from '../components/DiagnosisList';
-import { useEncounter } from '../contexts/Encounter';
 import {
   MODAL_PADDING_LEFT_AND_RIGHT,
   MODAL_PADDING_TOP_AND_BOTTOM,
   useLocalisedText,
 } from '../components';
+import { FormConfirmCancelBackRow, FormSubmitCancelRow } from '../components/ButtonRow';
+import { DiagnosisList } from '../components/DiagnosisList';
+import { useEncounter } from '../contexts/Encounter';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -63,14 +63,14 @@ const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialV
   const encounterStartDate = parseISO(encounter.startDate);
   return {
     endDate: isFuture(encounterStartDate)
-      ? // In the case of a future start_date we cannot default to current datetime as it falls outside of the min date.
-        toDateTimeString(
-          set(encounterStartDate, {
-            hours: today.getHours(),
-            minutes: today.getMinutes(),
-            seconds: today.getSeconds(),
-          }),
-        )
+      // In the case of a future start_date we cannot default to current datetime as it falls outside of the min date.
+      ? toDateTimeString(
+        set(encounterStartDate, {
+          hours: today.getHours(),
+          minutes: today.getMinutes(),
+          seconds: today.getSeconds(),
+        }),
+      )
       : getCurrentDateTimeString(),
     discharge: {
       note: dischargeNotes.map(n => n.content).join('\n\n'),

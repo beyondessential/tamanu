@@ -1,15 +1,15 @@
-import fetch from 'node-fetch';
 import config from 'config';
+import fetch from 'node-fetch';
 
+import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import {
   BadAuthenticationError,
   FacilityAndSyncVersionIncompatibleError,
-  RemoteTimeoutError,
   RemoteCallFailedError,
+  RemoteTimeoutError,
 } from '@tamanu/shared/errors';
-import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
-import { getResponseJsonSafely } from '@tamanu/shared/utils';
 import { log } from '@tamanu/shared/services/logging';
+import { getResponseJsonSafely } from '@tamanu/shared/utils';
 import { fetchWithTimeout } from '@tamanu/shared/utils/fetchWithTimeout';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 

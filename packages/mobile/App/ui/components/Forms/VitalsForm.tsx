@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { ErrorScreen } from '/components/ErrorScreen';
+import { SurveyForm } from '/components/Forms/SurveyForm';
+import { LoadingScreen } from '/components/LoadingScreen';
+import { VitalsDataElements } from '/helpers/constants';
+import { getCurrentDateTimeString } from '/helpers/date';
+import { authUserSelector } from '/helpers/selectors';
 import { ReduxStoreProps } from '/interfaces/ReduxStoreProps';
 import { PatientStateProps } from '/store/ducks/patient';
-import { useBackend, useBackendEffect } from '~/ui/hooks';
-import { ErrorScreen } from '/components/ErrorScreen';
-import { LoadingScreen } from '/components/LoadingScreen';
-import { authUserSelector } from '/helpers/selectors';
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { SurveyTypes } from '~/types';
-import { getCurrentDateTimeString } from '/helpers/date';
-import { SurveyForm } from '/components/Forms/SurveyForm';
-import { VitalsDataElements } from '/helpers/constants';
+import { useBackend, useBackendEffect } from '~/ui/hooks';
 import { useCurrentScreen } from '~/ui/hooks/useCurrentScreen';
 
 const validate = (values: object): object => {
@@ -35,7 +35,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
   const [vitalsSurvey, vitalsError, isVitalsLoading] = useBackendEffect(({ models: m }) =>
-    m.Survey.getVitalsSurvey({ includeAllVitals: false }),
+    m.Survey.getVitalsSurvey({ includeAllVitals: false })
   );
   const [patientAdditionalData, padError, isPadLoading] = useBackendEffect(
     ({ models: m }) =>

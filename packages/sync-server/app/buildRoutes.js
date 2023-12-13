@@ -1,11 +1,11 @@
 import express from 'express';
 
-import { buildSyncRoutes } from './sync';
+import { adminRoutes } from './admin';
 import { attachmentRoutes } from './attachment';
 import { facilityRoutes } from './facility';
 import { healthRoutes } from './health';
 import { integrationRoutes } from './integrations';
-import { adminRoutes } from './admin';
+import { buildSyncRoutes } from './sync';
 
 export const buildRoutes = ctx => {
   const routes = express.Router();

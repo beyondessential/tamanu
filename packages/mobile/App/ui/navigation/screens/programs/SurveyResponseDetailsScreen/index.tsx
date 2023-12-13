@@ -1,17 +1,17 @@
-import React, { useCallback, ReactElement } from 'react';
-import { ScrollView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
+import React, { ReactElement, useCallback } from 'react';
+import { ScrollView } from 'react-native-gesture-handler';
 
-import { StyledView, StyledText, FullView } from '../../../../styled/common';
+import { FullView, StyledText, StyledView } from '../../../../styled/common';
 import { theme } from '../../../../styled/theme';
 
+import { LoadingScreen } from '../../../../components/LoadingScreen';
 import { StackHeader } from '../../../../components/StackHeader';
-import { formatStringDate } from '../../../../helpers/date';
-import { AutocompleteSourceToColumnMap, DateFormats } from '../../../../helpers/constants';
-import { FieldTypes } from '../../../../helpers/fields';
 import { SurveyResultBadge } from '../../../../components/SurveyResultBadge';
 import { ViewPhotoLink } from '../../../../components/ViewPhotoLink';
-import { LoadingScreen } from '../../../../components/LoadingScreen';
+import { AutocompleteSourceToColumnMap, DateFormats } from '../../../../helpers/constants';
+import { formatStringDate } from '../../../../helpers/date';
+import { FieldTypes } from '../../../../helpers/fields';
 import { useBackendEffect } from '../../../../hooks';
 
 const AutocompleteAnswer = ({ question, answer }): ReactElement => {

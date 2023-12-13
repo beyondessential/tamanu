@@ -1,8 +1,8 @@
-import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
+import React, { useCallback } from 'react';
 
-import { FormModal } from './FormModal';
 import { PatientLetterForm } from '../forms/PatientLetterForm';
+import { FormModal } from './FormModal';
 
 export const PatientLetterModal = React.memo(
   ({ open, onClose, endpoint, refreshTable, patient, openDocumentPreview }) => {

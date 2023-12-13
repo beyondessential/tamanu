@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
-import styled from 'styled-components';
 import { storiesOf } from '@storybook/react';
 import Chance from 'chance';
+import React, { useEffect } from 'react';
+import styled from 'styled-components';
 
 import { ApiContext } from '../app/api';
-import { DataFetchingTable } from '../app/components/Table';
-import { CheckInput } from '../app/components/Field';
 import { DateDisplay } from '../app/components';
+import { CheckInput } from '../app/components/Field';
+import { DataFetchingTable } from '../app/components/Table';
 
 const chance = new Chance();
 

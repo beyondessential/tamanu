@@ -1,22 +1,22 @@
 import { REFERENCE_TYPES } from '@tamanu/constants';
 import { createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { parseDate } from '@tamanu/shared/utils/dateTime';
-import { createTestContext } from '../utilities';
 import { exporter } from '../../app/admin/exporter';
 import { writeExcelFile } from '../../app/admin/exporter/excelUtils';
+import { createTestContext } from '../utilities';
 import {
   createAdministeredVaccineData,
   createAllergy,
+  createDataForEncounter,
   createDiagnosis,
+  createLabTestCategory,
+  createLabTestPanel,
   createPatientFieldDefCategory,
+  createPatientFieldDefinitions,
   createPermission,
   createRole,
-  createVaccine,
-  createDataForEncounter,
   createTestType,
-  createLabTestPanel,
-  createLabTestCategory,
-  createPatientFieldDefinitions,
+  createVaccine,
 } from './referenceDataUtils';
 
 jest.mock('../../app/admin/exporter/excelUtils', () => {

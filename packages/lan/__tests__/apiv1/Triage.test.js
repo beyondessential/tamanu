@@ -1,14 +1,14 @@
-import config from 'config';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import {
-  createDummyPatient,
   createDummyEncounter,
+  createDummyPatient,
   createDummyTriage,
   randomRecordId,
   randomReferenceId,
 } from '@tamanu/shared/demoData';
 import { fake } from '@tamanu/shared/test-helpers';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import config from 'config';
 import { createTestContext } from '../utilities';
 
 describe('Triage', () => {
@@ -190,7 +190,6 @@ describe('Triage', () => {
     expect(progressResponse2).toHaveSucceeded();
     const updatedTriage2 = await models.Triage.findByPk(createdTriage.id);
     expect(updatedTriage2.closedTime).toEqual(DATE_1);
-    
   });
 
   it('should set the encounter reason to the text of the chief complaints', async () => {

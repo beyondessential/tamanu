@@ -1,11 +1,11 @@
-import { MoreThan } from 'typeorm';
 import { pick } from 'lodash';
+import { MoreThan } from 'typeorm';
 
-import { BaseModel } from '../../../models/BaseModel';
-import { SyncRecord, SyncRecordData } from '../types';
-import { MODELS_MAP } from '../../../models/modelsMap';
-import { extractIncludedColumns } from './extractIncludedColumns';
 import { Database } from '~/infra/db';
+import { BaseModel } from '../../../models/BaseModel';
+import { MODELS_MAP } from '../../../models/modelsMap';
+import { SyncRecord, SyncRecordData } from '../types';
+import { extractIncludedColumns } from './extractIncludedColumns';
 
 const buildToSyncRecord = (model: typeof BaseModel, record: object): SyncRecord => {
   const includedColumns = extractIncludedColumns(model);

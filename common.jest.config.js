@@ -11,7 +11,7 @@ const BASE = {
   workerIdleMemoryLimit: '512MB',
 
   showSeed: true, // helps to reproduce order-dependence bugs
-  
+
   transform: {
     '^.+\\.js$': ['@swc/jest'],
   },

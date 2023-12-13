@@ -1,19 +1,19 @@
 import React, { ReactElement } from 'react';
 import { StatusBar } from 'react-native';
 // Components
-import { FullView, StyledView, StyledSafeAreaView, RowView, StyledText } from '/styled/common';
-import { UserAvatar } from '/components/UserAvatar';
 import { Button } from '/components/Button';
-import { BackButton, VisitTypeButtonList, PatientMenuButtons } from './CustomComponents';
+import { UserAvatar } from '/components/UserAvatar';
+import { FullView, RowView, StyledSafeAreaView, StyledText, StyledView } from '/styled/common';
+import { BackButton, PatientMenuButtons, VisitTypeButtonList } from './CustomComponents';
 // Helpers
-import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { IPatient } from '~/types';
-import { joinNames, getGender } from '/helpers/user';
 import { getAgeFromDate } from '/helpers/date';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { setDotsOnMaxLength } from '/helpers/text';
-import { SyncInactiveAlert } from '~/ui/components/SyncInactiveAlert';
+import { getGender, joinNames } from '/helpers/user';
+import { theme } from '/styled/theme';
+import { IPatient } from '~/types';
 import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
+import { SyncInactiveAlert } from '~/ui/components/SyncInactiveAlert';
 
 interface ScreenProps {
   navigateToSearchPatients: () => void;
@@ -64,8 +64,8 @@ export const Screen = ({
               color={theme.colors.WHITE}
               fontSize={screenPercentageToDP(1.94, Orientation.Height)}
             >
-              {getGender(selectedPatient.sex)}, {getAgeFromDate(selectedPatient.dateOfBirth)} years
-              old{' '}
+              {getGender(selectedPatient.sex)}, {getAgeFromDate(selectedPatient.dateOfBirth)}{' '}
+              years old{' '}
             </StyledText>
             <Button
               marginTop={screenPercentageToDP(1.21, Orientation.Height)}

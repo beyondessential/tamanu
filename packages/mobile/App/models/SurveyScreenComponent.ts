@@ -1,11 +1,11 @@
-import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 
-import { Survey } from './Survey';
-import { ProgramDataElement } from './ProgramDataElement';
 import { ISurveyScreenComponent, SurveyScreenValidationCriteria } from '~/types';
-import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';
+import { ProgramDataElement } from './ProgramDataElement';
+import { Survey } from './Survey';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('survey_screen_component')
 export class SurveyScreenComponent extends BaseModel implements ISurveyScreenComponent {

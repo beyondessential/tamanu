@@ -1,3 +1,8 @@
+import { PatientCard } from '/components/PatientCard';
+import { Routes } from '/helpers/routes';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { RowView, StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 import { useNavigation } from '@react-navigation/native';
 import React, { ReactElement } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -5,20 +10,8 @@ import { compose } from 'redux';
 import { Patient } from '~/models/Patient';
 import { withPatient } from '~/ui/containers/Patient';
 import { useRecentlyViewedPatients } from '~/ui/hooks/localConfig';
-import { PatientCard } from '/components/PatientCard';
-import { Routes } from '/helpers/routes';
-import {
-  Orientation,
-  screenPercentageToDP,
-} from '/helpers/screen';
-import {
-  RowView,
-  StyledText,
-  StyledView,
-} from '/styled/common';
-import { theme } from '/styled/theme';
 
-const PatientCardContainer = compose<React.FC<{displayedPatient: Patient}>>(
+const PatientCardContainer = compose<React.FC<{ displayedPatient: Patient }>>(
   withPatient,
 )(({ displayedPatient, setSelectedPatient }: any): ReactElement => {
   const navigation = useNavigation();
@@ -38,19 +31,19 @@ const PatientCardContainer = compose<React.FC<{displayedPatient: Patient}>>(
   );
 });
 
-const NoPatientsCard = (): ReactElement => (
-  <StyledText>No recent patients</StyledText>
-);
+const NoPatientsCard = (): ReactElement => <StyledText>No recent patients</StyledText>;
 
 export const RecentlyViewedPatientTiles = (): ReactElement | null => {
   const [recentlyViewedPatients] = useRecentlyViewedPatients();
 
-  if (!recentlyViewedPatients) return (
-    <StyledView
-      flex={1}
-      background={theme.colors.BACKGROUND_GREY}
-    />
-  );
+  if (!recentlyViewedPatients) {
+    return (
+      <StyledView
+        flex={1}
+        background={theme.colors.BACKGROUND_GREY}
+      />
+    );
+  }
 
   const recentPatients = recentlyViewedPatients.length > 0
     ? recentlyViewedPatients.map(

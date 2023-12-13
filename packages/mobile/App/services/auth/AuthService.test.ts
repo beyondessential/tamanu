@@ -1,6 +1,6 @@
+import { MODELS_MAP } from '~/models/modelsMap';
 import { CentralServerConnection } from '../sync';
 import { AuthService } from './AuthService';
-import { MODELS_MAP } from '~/models/modelsMap';
 
 jest.mock('../sync/CentralServerConnection', () => ({
   CentralServerConnection: jest.fn().mockImplementation(() => ({

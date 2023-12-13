@@ -1,9 +1,9 @@
-import React from 'react';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import React from 'react';
 
+import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { Form } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { FormSubmitCancelRow } from '../components/ButtonRow';
 
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 
@@ -21,9 +21,9 @@ export const ChangeEncounterTypeForm = ({ onSubmit, onCancel, encounter, initial
         return (
           <FormGrid columns={1}>
             <div>
-              <span>Changing encounter from </span>
+              <span>Changing encounter from</span>
               <b>{currentType}</b>
-              <span> to </span>
+              <span>to</span>
               <b>{newType}</b>
             </div>
             <FormSubmitCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onCancel} />

@@ -1,11 +1,11 @@
-import React, { RefObject, useMemo, useRef } from 'react';
-import { ScrollView, StyleSheet, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
-import { IPatient } from '~/types';
-import { PatientTile } from '../PatientTile';
 import { groupEntriesByLetter } from '/helpers/list';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
+import React, { RefObject, useMemo, useRef } from 'react';
+import { ScrollView, StyleSheet, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import { IPatient } from '~/types';
+import { PatientTile } from '../PatientTile';
 
 interface PatientSectionListProps {
   onPressItem: (patient: IPatient) => void;

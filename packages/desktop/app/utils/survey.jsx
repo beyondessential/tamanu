@@ -1,24 +1,24 @@
 // Much of this file is duplicated in `packages/mobile/App/ui/components/Forms/SurveyForm/helpers.ts`
+import { ACTION_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
+import { ageInMonths, ageInWeeks, ageInYears } from '@tamanu/shared/utils/dateTime';
+import { intervalToDuration, parseISO } from 'date-fns';
 import React from 'react';
 import * as yup from 'yup';
-import { intervalToDuration, parseISO } from 'date-fns';
-import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
-import { ageInYears, ageInMonths, ageInWeeks } from '@tamanu/shared/utils/dateTime';
-import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
 import {
+  DateField,
+  DateTimeField,
   LimitedTextField,
   MultilineTextField,
-  SelectField,
   MultiselectField,
-  DateField,
   NullableBooleanField,
-  SurveyQuestionAutocompleteField,
-  SurveyResponseSelectField,
   NumberField,
   ReadOnlyTextField,
+  SelectField,
+  SurveyQuestionAutocompleteField,
+  SurveyResponseSelectField,
   UnsupportedPhotoField,
-  DateTimeField,
 } from 'desktop/app/components/Field';
 import { joinNames } from './user';
 import { notifyError } from './utils';
@@ -231,7 +231,7 @@ export const getAnswersFromData = (data, survey) =>
   Object.entries(data).reduce((acc, [key, val]) => {
     if (
       survey.components.find(({ dataElement }) => dataElement.id === key)?.dataElement?.type !==
-      'PatientIssue'
+        'PatientIssue'
     ) {
       acc[key] = val;
     }
@@ -359,9 +359,9 @@ export const checkMandatory = (mandatory, values) => {
     return checkJSONCriteria(JSON.stringify(mandatory), [], values);
   } catch (error) {
     notifyError(
-      `Failed to use mandatory in validationCriteria: ${JSON.stringify(mandatory)}, error: ${
-        error.message
-      }`,
+      `Failed to use mandatory in validationCriteria: ${
+        JSON.stringify(mandatory)
+      }, error: ${error.message}`,
     );
     return false;
   }

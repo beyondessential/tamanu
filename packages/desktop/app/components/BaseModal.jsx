@@ -1,12 +1,12 @@
 import React, { memo } from 'react';
 
-import styled from 'styled-components';
-import MuiDialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogActions from '@material-ui/core/DialogActions';
-import PrintIcon from '@material-ui/icons/Print';
-import CloseIcon from '@material-ui/icons/Close';
 import { Box, CircularProgress, IconButton, Typography } from '@material-ui/core';
+import MuiDialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import CloseIcon from '@material-ui/icons/Close';
+import PrintIcon from '@material-ui/icons/Print';
+import styled from 'styled-components';
 import { Colors } from '../constants';
 import { Button } from './Button';
 

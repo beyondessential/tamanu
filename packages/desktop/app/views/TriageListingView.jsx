@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { TopBar, PageContainer, ContentPane } from '../components';
-import { TriageTable } from '../components/TriageTable';
+import { ContentPane, PageContainer, TopBar } from '../components';
 import { TriageDashboard } from '../components/TriageDashboard';
+import { TriageTable } from '../components/TriageTable';
 import { Colors } from '../constants';
 
 const Section = styled.div`

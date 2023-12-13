@@ -2,7 +2,8 @@ import React, { memo } from 'react';
 import { SvgXml } from 'react-native-svg';
 
 export const NullValueCellIcon = memo(props => {
-  const xml = `<svg width="87" height="82" viewBox="0 0 87 82" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  const xml =
+    `<svg width="87" height="82" viewBox="0 0 87 82" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <rect x="1" y="1" width="85" height="80" fill="url(#pattern0)" stroke="#DEDEDE"/>
 <defs>
 <pattern id="pattern0" patternContentUnits="objectBoundingBox" width="1.88235" height="2">

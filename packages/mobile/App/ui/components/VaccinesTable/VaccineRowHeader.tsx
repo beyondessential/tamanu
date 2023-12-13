@@ -1,6 +1,6 @@
-import React from 'react';
-import { StyledView, StyledText } from '/styled/common';
+import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
+import React from 'react';
 
 interface VaccineRowHeaderProps {
   title: string;

@@ -1,5 +1,5 @@
-import * as yup from 'yup';
 import { parseISO } from 'date-fns';
+import * as yup from 'yup';
 
 export const OPERATIONS = {
   INSERT: 'INSERT',

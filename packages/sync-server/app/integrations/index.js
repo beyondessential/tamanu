@@ -1,20 +1,20 @@
-import express from 'express';
 import config from 'config';
+import express from 'express';
 
 import { log } from '@tamanu/shared/services/logging';
 
-import * as fijiVrs from './fiji-vrs';
+import * as fhir from './fhir';
 import * as fijiVps from './fiji-vps';
-import * as signer from './Signer';
+import * as fijiVrs from './fiji-vrs';
 import * as fijiAspenMediciReport from './fijiAspenMediciReport';
 import * as mSupply from './mSupply';
-import * as fhir from './fhir';
 import * as omniLab from './omniLab';
+import * as signer from './Signer';
 
 import { checkEuDccConfig } from './EuDcc';
+import { checkFhirConfig } from './fhir/config';
 import { checkSignerConfig } from './Signer';
 import { checkVdsNcConfig } from './VdsNc';
-import { checkFhirConfig } from './fhir/config';
 
 const integrations = {
   fijiVrs,

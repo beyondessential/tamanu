@@ -1,6 +1,6 @@
-import React from 'react';
-import { storiesOf } from '@storybook/react';
 import Box from '@material-ui/core/Box';
+import { storiesOf } from '@storybook/react';
+import React from 'react';
 import { DateDisplay } from '../app/components/DateDisplay';
 
 const testDate = new Date();
@@ -13,19 +13,19 @@ storiesOf('DateDisplay', module)
   .add('Examples', () => (
     <Box p={5}>
       <Box mb={5}>
-        <span>Date: </span>
+        <span>Date:</span>
         <DateDisplay date={testDate} />
       </Box>
       <Box mb={5}>
-        <span>Date & Time: </span>
+        <span>Date & Time:</span>
         <DateDisplay date={testDate} showTime />
       </Box>
       <Box mb={5}>
-        <span>Explicit Date: </span>
+        <span>Explicit Date:</span>
         <DateDisplay date={testDate} showDate={false} showExplicitDate />
       </Box>
       <Box mb={5}>
-        <span>String Format: </span>
+        <span>String Format:</span>
         <span>{DateDisplay.stringFormat(testDate)}</span>
       </Box>
     </Box>

@@ -1,16 +1,16 @@
-import React, { useCallback } from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import Select, { components } from 'react-select';
+import { IconButton } from '@material-ui/core';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
-import { IconButton } from '@material-ui/core';
-import { ClearIcon } from '../Icons/ClearIcon';
-import { ChevronIcon } from '../Icons/ChevronIcon';
+import PropTypes from 'prop-types';
+import React, { useCallback } from 'react';
+import Select, { components } from 'react-select';
+import styled from 'styled-components';
 import { Colors } from '../../constants';
+import { ChevronIcon } from '../Icons/ChevronIcon';
+import { ClearIcon } from '../Icons/ClearIcon';
+import { FormFieldTag } from '../Tag';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
-import { FormFieldTag } from '../Tag';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;

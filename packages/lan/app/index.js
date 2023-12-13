@@ -3,15 +3,15 @@
 // eslint-disable-next-line import/order
 import { version } from './serverInfo';
 
-import { program } from 'commander';
 import { log } from '@tamanu/shared/services/logging';
+import { program } from 'commander';
 
 import {
-  serveCommand,
-  syncCommand,
+  migrateAppointmentsToLocationGroupsCommand,
   migrateCommand,
   reportCommand,
-  migrateAppointmentsToLocationGroupsCommand,
+  serveCommand,
+  syncCommand,
 } from './subCommands';
 
 async function run() {

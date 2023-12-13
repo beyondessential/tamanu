@@ -1,5 +1,5 @@
-import * as sequelize from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import * as sequelize from 'sequelize';
 
 const { Op, Utils, Sequelize } = sequelize;
 

@@ -1,9 +1,9 @@
 import React from 'react';
-import * as Yup from 'yup';
 import { useSelector } from 'react-redux';
+import * as Yup from 'yup';
 
 import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { Form, Field, TextField } from '../components/Field';
+import { Field, Form, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 
 export const EmailAddressConfirmationForm = React.memo(({ onCancel, onSubmit }) => {

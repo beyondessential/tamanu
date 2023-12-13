@@ -1,11 +1,11 @@
-import React, { PropsWithChildren, FunctionComponent, useMemo, FC } from 'react';
 import { StyledView } from '/styled/common';
-import { VaccineCardHeader } from './VaccineCardHeader';
+import React, { FC, FunctionComponent, PropsWithChildren, useMemo } from 'react';
 import { IAdministeredVaccine } from '~/types';
-import { NotGivenFields } from './NotGivenFields';
-import GivenOnTimeFields from './GivenOnTimeFields';
-import { VaccineStatusHeader } from './VaccineStatusHeader';
 import { VaccineStatus } from '~/ui/helpers/patient';
+import GivenOnTimeFields from './GivenOnTimeFields';
+import { NotGivenFields } from './NotGivenFields';
+import { VaccineCardHeader } from './VaccineCardHeader';
+import { VaccineStatusHeader } from './VaccineStatusHeader';
 
 export type VaccineDataProps = {
   administeredVaccine: IAdministeredVaccine;

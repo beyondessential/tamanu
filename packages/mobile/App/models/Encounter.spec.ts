@@ -1,5 +1,11 @@
+import {
+  createWithRelations,
+  fake,
+  fakeEncounter,
+  fakePatient,
+  fakeUser,
+} from '/root/tests/helpers/fake';
 import { Database } from '~/infra/db';
-import { fakePatient, fakeEncounter, fakeUser, fake, createWithRelations } from '/root/tests/helpers/fake';
 
 beforeAll(async () => {
   await Database.connect();

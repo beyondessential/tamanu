@@ -1,5 +1,5 @@
-import { inRange } from 'lodash';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { inRange } from 'lodash';
 
 export function checkJSONCriteria(criteria, allComponents, values) {
   // nothing set - show by default

@@ -1,31 +1,31 @@
+import Button from '@material-ui/core/Button';
+import Collapse from '@material-ui/core/Collapse';
+import { useQuery } from '@tanstack/react-query';
 import React, { memo, useState } from 'react';
 import styled from 'styled-components';
-import Collapse from '@material-ui/core/Collapse';
-import Button from '@material-ui/core/Button';
-import { useQuery } from '@tanstack/react-query';
 
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
 
 import { useLocalisation } from '../contexts/Localisation';
 
-import { Form, Field } from '../components/Field';
-import { IdField } from '../components/Field/IdField';
-import { ModalFormActionRow } from '../components/ModalActionRow';
+import { useApi } from '../api';
 import { RadioField } from '../components';
+import { Field, Form } from '../components/Field';
+import { IdField } from '../components/Field/IdField';
 import { IdBanner } from '../components/IdBanner';
+import { LoadingIndicator } from '../components/LoadingIndicator';
+import { ModalFormActionRow } from '../components/ModalActionRow';
 import { Colors, PATIENT_REGISTRY_OPTIONS } from '../constants';
+import { useSexValues } from '../hooks';
 import { getPatientDetailsValidation } from '../validations';
 import {
+  PatientFieldsGroup,
   PrimaryDetailsGroup,
   SecondaryDetailsGroup,
-  PatientFieldsGroup,
 } from './PatientDetailsForm';
-import { useSexValues } from '../hooks';
-import { useApi } from '../api';
-import { LoadingIndicator } from '../components/LoadingIndicator';
 
-import plusCircle from '../assets/images/plus_circle.svg';
 import minusCircle from '../assets/images/minus_circle.svg';
+import plusCircle from '../assets/images/plus_circle.svg';
 import { RandomPatientButton } from '../views/patients/components/RandomPatientButton';
 
 const StyledImageButton = styled(Button)`
@@ -78,8 +78,9 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
     PATIENT_REGISTRY_TYPES.NEW_PATIENT,
   );
   const api = useApi();
-  const { data: fieldDefinitions, error, isLoading } = useQuery(['patientFieldDefinition'], () =>
-    api.get(`patientFieldDefinition`),
+  const { data: fieldDefinitions, error, isLoading } = useQuery(
+    ['patientFieldDefinition'],
+    () => api.get(`patientFieldDefinition`),
   );
   const sexValues = useSexValues();
 
@@ -122,26 +123,26 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
         <PrimaryDetailsGroup values={values} patientRegistryType={patientRegistryType} />
         <AdditionalInformationRow>
           <div>
-            {isExpanded ? (
-              <StyledImageButton onClick={() => setExpanded(false)}>
-                <img alt="Minus button" src={minusCircle} />
-              </StyledImageButton>
-            ) : (
-              <StyledImageButton onClick={() => setExpanded(true)}>
-                <img alt="Plus button" src={plusCircle} />
-              </StyledImageButton>
-            )}
+            {isExpanded ?
+              (
+                <StyledImageButton onClick={() => setExpanded(false)}>
+                  <img alt="Minus button" src={minusCircle} />
+                </StyledImageButton>
+              ) :
+              (
+                <StyledImageButton onClick={() => setExpanded(true)}>
+                  <img alt="Plus button" src={plusCircle} />
+                </StyledImageButton>
+              )}
             Add additional information
-            <span> (religion, occupation, blood type...)</span>
+            <span>(religion, occupation, blood type...)</span>
           </div>
         </AdditionalInformationRow>
         <Collapse in={isExpanded} style={{ gridColumn: 'span 2' }}>
           <SecondaryDetailsGroup patientRegistryType={patientRegistryType} values={values} />
-          {isLoading ? (
-            <LoadingIndicator />
-          ) : (
-            <PatientFieldsGroup fieldDefinitions={fieldDefinitions?.data} />
-          )}
+          {isLoading ?
+            <LoadingIndicator /> :
+            <PatientFieldsGroup fieldDefinitions={fieldDefinitions?.data} />}
         </Collapse>
         <ModalFormActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onCancel} />
       </>

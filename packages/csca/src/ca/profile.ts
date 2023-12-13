@@ -1,5 +1,5 @@
-import { Country } from './Config';
 import { ComputedExtension, Extension, ExtensionName } from './certificateExtensions';
+import { Country } from './Config';
 import { EKU_DCC_RECOVERY, EKU_DCC_TEST, EKU_DCC_VACCINATION, EKU_VDS_NC } from './constants';
 
 export enum Profile {

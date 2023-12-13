@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
 
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
-import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
-import { GenderOptions, Gender } from '~/ui/helpers/constants';
-import { RadioButtonGroup } from '~/ui/components/RadioButtonGroup';
 import { DateField } from '~/ui/components/DateField/DateField';
+import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
+import { RadioButtonGroup } from '~/ui/components/RadioButtonGroup';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { Gender, GenderOptions } from '~/ui/helpers/constants';
 import { TextField } from '../../../TextField/TextField';
 
 export const KeyInformationSection = (): ReactElement => {

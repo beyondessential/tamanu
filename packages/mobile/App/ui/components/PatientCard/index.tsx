@@ -1,14 +1,14 @@
-import React from 'react';
-import { TouchableWithoutFeedback } from 'react-native';
-import { RowView, ColumnView, StyledView, StyledText } from '/styled/common';
 import { DateFormats } from '/helpers/constants';
 import { formatDate, getAgeFromDate } from '/helpers/date';
-import { UserAvatar } from '../UserAvatar';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import * as styles from './styles';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { ColumnView, RowView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { getGender, joinNames } from '../../helpers/user';
+import React from 'react';
+import { TouchableWithoutFeedback } from 'react-native';
 import { IPatient } from '~/types';
+import { getGender, joinNames } from '../../helpers/user';
+import { UserAvatar } from '../UserAvatar';
+import * as styles from './styles';
 
 export interface PatientCardProps {
   patient: IPatient;

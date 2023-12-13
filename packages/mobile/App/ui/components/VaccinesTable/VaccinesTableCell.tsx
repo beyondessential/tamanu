@@ -1,14 +1,9 @@
-import React, { useCallback } from 'react';
-import { Popup } from 'popup-ui';
-import {
-  StyledView,
-  StyledTouchableOpacity,
-  StyledImage,
-  CenterView,
-} from '/styled/common';
-import { theme } from '/styled/theme';
 import { VaccineStatusCells } from '/helpers/constants';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { CenterView, StyledImage, StyledTouchableOpacity, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
+import { Popup } from 'popup-ui';
+import React, { useCallback } from 'react';
 import { IAdministeredVaccine, IPatient, IScheduledVaccine } from '~/types';
 import { getVaccineStatus, VaccineStatus } from '~/ui/helpers/patient';
 import { BypassWarningIcon } from './BypassWarningIcon';
@@ -28,7 +23,8 @@ interface VaccineTableCellProps {
 }
 
 const CellContent = ({
-  cellStatus, status,
+  cellStatus,
+  status,
 }: { status?: string; cellStatus?: string }): JSX.Element => {
   const cellData = VaccineStatusCells[cellStatus] || VaccineStatusCells[status];
   const Icon = cellData.Icon;
@@ -48,8 +44,8 @@ const CellContent = ({
           <CenterView flex={1}>
             <Icon size={screenPercentageToDP(4.13, Orientation.Height)} />
           </CenterView>
-        ) : <StyledImage source={require('../../assets/NullValueCell.png')} />
-      }
+        ) :
+        <StyledImage source={require('../../assets/NullValueCell.png')} />}
     </StyledView>
   );
 };

@@ -1,9 +1,9 @@
-import React from 'react';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
-import { LineChart } from '../../components/Charts/LineChart';
-import { useEncounter } from '../../contexts/Encounter';
+import React from 'react';
 import { useVitalQuery } from '../../api/queries/useVitalQuery';
 import { getVitalChartProps } from '../../components/Charts/helpers/getVitalChartProps';
+import { LineChart } from '../../components/Charts/LineChart';
+import { useEncounter } from '../../contexts/Encounter';
 import { useVitalChartData } from '../../contexts/VitalChartData';
 
 // Fetching and preparing blood pressure data for vital chart

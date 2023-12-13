@@ -1,5 +1,5 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 import styled from 'styled-components';
 
 import { Colors } from '../constants';
@@ -29,7 +29,7 @@ const Category = styled.div`
 
 const DiagnosisName = styled.span`
   background: ${props =>
-    props.isPrimary ? `${hexToRgba(Colors.primary, 0.1)}` : `${hexToRgba(Colors.alert, 0.1)}`};
+  props.isPrimary ? `${hexToRgba(Colors.primary, 0.1)}` : `${hexToRgba(Colors.alert, 0.1)}`};
   color: ${props => (props.isPrimary ? Colors.primary : Colors.alert)};
   font-weight: 500;
   padding: 10px;

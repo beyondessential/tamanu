@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 
+import { buildSettingsRecords } from '@tamanu/shared/models/Setting';
 import { Command } from 'commander';
 import { canonicalize } from 'json-canonicalize';
-import { buildSettingsRecords } from '@tamanu/shared/models/Setting';
 
 import { initDatabase } from '../database';
 import { loadSettingFile } from '../utils/loadSettingFile';
@@ -68,10 +68,9 @@ export async function setSetting(key, value, { facility } = {}) {
   } = await initDatabase({ testMode: false });
 
   const setting = await Setting.get(key, facility);
-  const preValue =
-    setting && JSON.stringify(setting) !== '{}'
-      ? `current value:\n${canonicalize(setting)}\n`
-      : 'no current value\n';
+  const preValue = setting && JSON.stringify(setting) !== '{}'
+    ? `current value:\n${canonicalize(setting)}\n`
+    : 'no current value\n';
 
   const newValue = JSON.parse(value);
   await Setting.set(key, newValue, facility);
@@ -106,7 +105,7 @@ export const settingsCommand = new Command('settings')
       .argument('[filter]', 'only output keys matching this')
       .option('--facility <facility>', 'ID of facility to scope to')
       .action(async (...args) =>
-        console.log(`-------------------------\n${await listSettings(...args)}`),
+        console.log(`-------------------------\n${await listSettings(...args)}`)
       ),
   )
   .addCommand(
@@ -115,7 +114,7 @@ export const settingsCommand = new Command('settings')
       .argument('<key>', 'key to retrieve')
       .option('--facility <facility>', 'ID of facility to scope to')
       .action(async (...args) =>
-        console.log(`-------------------------\n${await getSetting(...args)}`),
+        console.log(`-------------------------\n${await getSetting(...args)}`)
       ),
   )
   .addCommand(
@@ -125,7 +124,7 @@ export const settingsCommand = new Command('settings')
       .argument('<value>', 'value in JSON')
       .option('--facility <facility>', 'ID of facility to scope to')
       .action(async (...args) =>
-        console.log(`-------------------------\n${await setSetting(...args)}`),
+        console.log(`-------------------------\n${await setSetting(...args)}`)
       ),
   )
   .addCommand(
@@ -136,6 +135,6 @@ export const settingsCommand = new Command('settings')
       .option('--facility <facility>', 'ID of facility to scope to')
       .option('--preview', 'Print the settings that would be loaded in JSON')
       .action(async (...args) =>
-        console.log(`-------------------------\n${await loadSettings(...args)}`),
+        console.log(`-------------------------\n${await loadSettings(...args)}`)
       ),
   );

@@ -9,7 +9,8 @@ export async function up(query) {
   );
   await query.removeColumn('patient_field_values', 'id');
   await query.addColumn('patient_field_values', 'id', {
-    type: `TEXT GENERATED ALWAYS AS (REPLACE("patient_id", ';', ':') || ';' || REPLACE("definition_id", ';', ':')) STORED`,
+    type:
+      `TEXT GENERATED ALWAYS AS (REPLACE("patient_id", ';', ':') || ';' || REPLACE("definition_id", ';', ':')) STORED`,
   });
 }
 

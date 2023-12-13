@@ -1,6 +1,5 @@
 import { createTestContext } from '../utilities';
 
-
 describe('Patient merge', () => {
   let ctx;
   let models;
@@ -37,10 +36,11 @@ describe('Patient merge', () => {
       name: 'Sick note (2)',
     });
 
-    const result = await adminApp.put(`/v1/admin/patientLetterTemplate/${patientLetterTemplate.id}`).send({
-      name: 'Sick note (2)',
-      body: 'Now we have some text',
-    });
+    const result = await adminApp.put(`/v1/admin/patientLetterTemplate/${patientLetterTemplate.id}`)
+      .send({
+        name: 'Sick note (2)',
+        body: 'Now we have some text',
+      });
 
     expect(result).toHaveSucceeded();
 
@@ -59,7 +59,9 @@ describe('Patient merge', () => {
       name: 'Sick note (3)',
     });
 
-    const response = await adminApp.put(`/v1/admin/patientLetterTemplate/${patientLetterTemplate.id}`).send({
+    const response = await adminApp.put(
+      `/v1/admin/patientLetterTemplate/${patientLetterTemplate.id}`,
+    ).send({
       name: 'Sick note - name should conflict',
       body: 'Now we have some text',
     });

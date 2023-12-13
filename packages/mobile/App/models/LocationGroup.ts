@@ -1,10 +1,10 @@
 import { Column, OneToMany, RelationId } from 'typeorm';
 import { Entity, ManyToOne } from 'typeorm/browser';
 import { IFacility, ILocationGroup } from '../types';
+import { VisibilityStatus } from '../visibilityStatuses';
 import { BaseModel } from './BaseModel';
 import { Facility } from './Facility';
 import { Location } from './Location';
-import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
 
 @Entity('locationGroup')

@@ -46,7 +46,13 @@ export async function createLabTests(models) {
   }
 }
 
-export async function createCovidTestForPatient(models, patient, testDate, testOverrides, requestOverrides = {}) {
+export async function createCovidTestForPatient(
+  models,
+  patient,
+  testDate,
+  testOverrides,
+  requestOverrides = {},
+) {
   if (!testDate) {
     testDate = formatISO(new Date(), { representation: 'date' });
   }

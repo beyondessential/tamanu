@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { HandoverNotesPDF } from '@tamanu/shared/utils/handoverNotes';
 import { getDisplayDate } from '@tamanu/shared/utils/patientCertificates/getDisplayDate';
-import { Modal } from '../Modal';
+import { useQuery } from '@tanstack/react-query';
+import React, { useEffect } from 'react';
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useCertificate } from '../../utils/useCertificate';
+import { Modal } from '../Modal';
 import { PDFViewer, printPDF } from '../PatientPrinting/PDFViewer';
 
 export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {

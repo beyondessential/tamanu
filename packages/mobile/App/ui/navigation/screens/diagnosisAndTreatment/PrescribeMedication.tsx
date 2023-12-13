@@ -1,27 +1,27 @@
-import React, { ReactElement, useCallback } from 'react';
-import { compose } from 'redux';
-import { useSelector } from 'react-redux';
 import { Formik } from 'formik';
+import React, { ReactElement, useCallback } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
+import { useSelector } from 'react-redux';
+import { compose } from 'redux';
 
+import { Button } from '/components/Button';
 import { Field } from '/components/Forms/FormField';
 import { SectionHeader } from '/components/SectionHeader';
-import { FullView, StyledView } from '/styled/common';
 import { TextField } from '/components/TextField/TextField';
-import { Button } from '/components/Button';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { FullView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { useBackend } from '~/ui/hooks';
-import { withPatient } from '~/ui/containers/Patient';
-import { Routes } from '~/ui/helpers/routes';
-import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
-import { ReferenceDataType } from '~/types';
-import { Suggester } from '~/ui/helpers/suggester';
 import { ReferenceData } from '~/models/ReferenceData';
+import { ReferenceDataType } from '~/types';
+import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 import { NumberField } from '~/ui/components/NumberField';
-import { authUserSelector } from '~/ui/helpers/selectors';
+import { withPatient } from '~/ui/containers/Patient';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { Routes } from '~/ui/helpers/routes';
+import { authUserSelector } from '~/ui/helpers/selectors';
+import { Suggester } from '~/ui/helpers/suggester';
+import { useBackend } from '~/ui/hooks';
 
 const styles = StyleSheet.create({
   KeyboardAvoidingViewStyles: { flex: 1 },

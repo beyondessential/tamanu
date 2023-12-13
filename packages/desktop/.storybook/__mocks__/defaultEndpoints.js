@@ -23,7 +23,7 @@ function fakeLabTestLaboratory() {
 
 function fakeLabTestMethod() {
   const id = chance.guid();
-  const name =`${chance.name_prefix()} ${chance.animal()} method`;
+  const name = `${chance.name_prefix()} ${chance.animal()} method`;
   return { id, name };
 }
 

@@ -3,8 +3,8 @@ import React from 'react';
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
 
-import { FormModal } from './FormModal';
 import { ProcedureForm } from '../forms/ProcedureForm';
+import { FormModal } from './FormModal';
 
 export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure }) => {
   const api = useApi();

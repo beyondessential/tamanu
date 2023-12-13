@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { AppointmentModal } from './AppointmentModal';
 import { Button } from '..';
+import { AppointmentModal } from './AppointmentModal';
 
 export const NewAppointmentButton = ({ onSuccess }) => {
   const [openModal, setOpenModal] = useState(false);

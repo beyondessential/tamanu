@@ -1,9 +1,9 @@
-import { useSelector, useDispatch } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
-import { logout, idleTimeout } from '../store';
+import { useDispatch, useSelector } from 'react-redux';
 import { useApi } from '../api';
-import { useEncounterNotes } from './EncounterNotes';
 import { LOCAL_STORAGE_KEYS } from '../constants';
+import { idleTimeout, logout } from '../store';
+import { useEncounterNotes } from './EncounterNotes';
 // This is just a redux selector for now.
 // This should become its own proper context once the auth stuff
 // is refactored out of redux.

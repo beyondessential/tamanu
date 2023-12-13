@@ -1,17 +1,17 @@
-import React, { ReactElement } from 'react';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
+import React, { ReactElement } from 'react';
 // helpers
 import { Routes } from '/helpers/routes';
 // Screens
+import { IndexStackProps } from '~/ui/interfaces/Screens/SignUpStack';
 import { IntroScreen } from '../screens/signup/Intro';
 import { RegisterAccountStep1Container } from '../screens/signup/RegisterAccountScreenStep1';
 import { RegisterAccountStep2Container } from '../screens/signup/RegisterAccountScreenStep2';
 import { RegisterAccountStep3Container } from '../screens/signup/RegisterAccountScreenStep3';
 import { SignIn } from '../screens/signup/SignIn';
-import { IndexStackProps } from '~/ui/interfaces/Screens/SignUpStack';
 
-import { ResetPassword } from '../screens/signup/ResetPassword';
 import { ChangePassword } from '../screens/signup/ChangePassword';
+import { ResetPassword } from '../screens/signup/ResetPassword';
 
 // Contexts
 import { RegisterAccountProvider } from '../../contexts/RegisterAccountContext';

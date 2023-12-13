@@ -1,7 +1,7 @@
+import { APPOINTMENT_STATUSES } from '@tamanu/constants';
+import { groupBy } from 'lodash';
 import React from 'react';
 import styled from 'styled-components';
-import { groupBy } from 'lodash';
-import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { Colors } from '../../constants';
 import { Appointment } from './Appointment';
 
@@ -77,9 +77,7 @@ export const DailySchedule = ({
     });
   return (
     <Container>
-      {columns.map(props => (
-        <Column onAppointmentUpdated={onAppointmentUpdated} {...props} />
-      ))}
+      {columns.map(props => <Column onAppointmentUpdated={onAppointmentUpdated} {...props} />)}
     </Container>
   );
 };

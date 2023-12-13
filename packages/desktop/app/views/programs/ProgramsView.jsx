@@ -1,29 +1,29 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { useParams } from 'react-router-dom';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { SURVEY_TYPES } from '@tamanu/constants';
-import { reloadPatient } from 'desktop/app/store/patient';
-import { getCurrentUser } from 'desktop/app/store/auth';
-import { SurveyView } from 'desktop/app/views/programs/SurveyView';
-import { SurveySelector } from 'desktop/app/views/programs/SurveySelector';
-import { FormGrid } from 'desktop/app/components/FormGrid';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { usePatientAdditionalDataQuery } from 'desktop/app/api/queries';
+import { ErrorMessage } from 'desktop/app/components/ErrorMessage';
 import { SelectInput } from 'desktop/app/components/Field/SelectField';
+import { FormGrid } from 'desktop/app/components/FormGrid';
+import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
+import { getCurrentUser } from 'desktop/app/store/auth';
+import { reloadPatient } from 'desktop/app/store/patient';
+import { PatientListingView } from 'desktop/app/views';
 import {
   ProgramsPane,
   ProgramsPaneHeader,
   ProgramsPaneHeading,
 } from 'desktop/app/views/programs/ProgramsPane';
-import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
-import { PatientListingView } from 'desktop/app/views';
-import { usePatientAdditionalDataQuery } from 'desktop/app/api/queries';
-import { ErrorMessage } from 'desktop/app/components/ErrorMessage';
-import { getAnswersFromData, getActionsFromData } from '../../utils';
-import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { useEncounter } from '../../contexts/Encounter';
-import { PATIENT_TABS } from '../../constants/patientPaths';
-import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
+import { SurveySelector } from 'desktop/app/views/programs/SurveySelector';
+import { SurveyView } from 'desktop/app/views/programs/SurveyView';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
 import { useApi } from '../../api';
+import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
+import { PATIENT_TABS } from '../../constants/patientPaths';
+import { useEncounter } from '../../contexts/Encounter';
+import { getActionsFromData, getAnswersFromData } from '../../utils';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
 
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();

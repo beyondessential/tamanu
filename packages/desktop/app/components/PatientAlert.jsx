@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ButtonRow } from './ButtonRow';
 import { Button } from './Button';
+import { ButtonRow } from './ButtonRow';
 import { Modal } from './Modal';
 
 export const PatientAlert = React.memo(({ alerts = [] }) => {
@@ -12,9 +12,7 @@ export const PatientAlert = React.memo(({ alerts = [] }) => {
   return (
     <Modal title="Patient warnings" open={alertVisible} onClose={close}>
       <ul>
-        {alerts.map(a => (
-          <li key={a.id}>{a.note}</li>
-        ))}
+        {alerts.map(a => <li key={a.id}>{a.note}</li>)}
       </ul>
       <ButtonRow>
         <Button variant="contained" color="primary" onClick={close}>

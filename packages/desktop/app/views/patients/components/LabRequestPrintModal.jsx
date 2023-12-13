@@ -1,10 +1,10 @@
-import React from 'react';
 import { useQuery } from '@tanstack/react-query';
+import React from 'react';
 import { useApi } from '../../../api';
 import {
   useEncounterData,
-  usePatientAdditionalDataQuery,
   useLabRequestNotes,
+  usePatientAdditionalDataQuery,
 } from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
 
@@ -40,8 +40,7 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
     { enabled: isVillageEnabled },
   );
 
-  const isLoading =
-    isEncounterLoading ||
+  const isLoading = isEncounterLoading ||
     areTestsLoading ||
     areNotesLoading ||
     isAdditionalDataLoading ||
@@ -56,9 +55,7 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
       color={Colors.white}
       printable
     >
-      {isLoading ? (
-        <LoadingIndicator />
-      ) : (
+      {isLoading ? <LoadingIndicator /> : (
         <MultipleLabRequestsPrintout
           labRequests={[{ ...labRequest, tests: testsData.data, notes: notes?.data || [] }]}
           patient={patient}

@@ -1,7 +1,7 @@
 import { HoneycombSDK } from '@honeycombio/opentelemetry-node';
 import { trace } from '@opentelemetry/api';
-import { Resource } from '@opentelemetry/resources';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
+import { Resource } from '@opentelemetry/resources';
 import config from 'config';
 import { ENV, serviceContext, serviceName } from './context';
 

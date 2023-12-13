@@ -5,8 +5,8 @@ import { set } from 'lodash';
 
 import { buildErrorHandler } from '../../middleware/errorHandler';
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
-import { VRSRemote } from './VRSRemote';
 import { VRSActionHandler } from './VRSActionHandler';
+import { VRSRemote } from './VRSRemote';
 
 const vrsErrorHandler = buildErrorHandler(error => ({
   response: false,

@@ -1,5 +1,5 @@
 export * from './ApiContext';
-export * from './suggesters';
-export * from './useApi';
 export * from './combineQueries';
-export { isErrorUnknownDefault, isErrorUnknownAllow404s } from './TamanuApi';
+export * from './suggesters';
+export { isErrorUnknownAllow404s, isErrorUnknownDefault } from './TamanuApi';
+export * from './useApi';

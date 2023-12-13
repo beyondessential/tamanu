@@ -1,11 +1,11 @@
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Form } from '../../components/Field';
+import { SurveyScreenPaginator } from '../../components/Surveys';
+import { Colors } from '../../constants';
 import { checkVisibility, getFormInitialValues, getValidationSchema } from '../../utils';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
-import { Colors } from '../../constants';
-import { SurveyScreenPaginator } from '../../components/Surveys';
 
 export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
   background: ${props => props.theme.palette.primary.main};

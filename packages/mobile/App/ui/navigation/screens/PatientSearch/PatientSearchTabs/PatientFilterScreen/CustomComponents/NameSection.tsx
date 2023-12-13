@@ -1,12 +1,12 @@
 import React, { ReactElement } from 'react';
 
-//Components
-import { Section } from './Section';
-import { StyledView } from '~/ui/styled/common';
+// Components
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { TextField } from '~/ui/components/TextField/TextField';
+import { StyledView } from '~/ui/styled/common';
+import { Section } from './Section';
 // Helpers
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 export const NameSection = (): ReactElement => (
   <Section title="Name">

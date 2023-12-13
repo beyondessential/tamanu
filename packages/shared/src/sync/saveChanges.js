@@ -1,5 +1,5 @@
-import { Op } from 'sequelize';
 import config from 'config';
+import { Op } from 'sequelize';
 import asyncPool from 'tiny-async-pool';
 import { mergeRecord } from './mergeRecord';
 
@@ -32,15 +32,17 @@ export const saveCreates = async (model, records) => {
 
 export const saveUpdates = async (model, incomingRecords, idToExistingRecord, isCentralServer) => {
   const recordsToSave = isCentralServer
-    ? // on the central server, merge the records coming in from different clients
-      incomingRecords.map(incoming => {
-        const existing = idToExistingRecord[incoming.id];
-        return mergeRecord(existing, incoming);
-      })
-    : // on the facility server, trust the resolved central server version
-      incomingRecords;
-  await asyncPool(persistUpdateWorkerPoolSize, recordsToSave, async r =>
-    model.update(r, { where: { id: r.id }, paranoid: false }),
+    // on the central server, merge the records coming in from different clients
+    ? incomingRecords.map(incoming => {
+      const existing = idToExistingRecord[incoming.id];
+      return mergeRecord(existing, incoming);
+    })
+    // on the facility server, trust the resolved central server version
+    : incomingRecords;
+  await asyncPool(
+    persistUpdateWorkerPoolSize,
+    recordsToSave,
+    async r => model.update(r, { where: { id: r.id }, paranoid: false }),
   );
 };
 

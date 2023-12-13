@@ -1,7 +1,7 @@
+import { IconWithSizeProps } from '/interfaces/WithSizeProps';
+import { StyledView } from '/styled/common';
 import React, { memo, ReactElement } from 'react';
 import { SvgXml } from 'react-native-svg';
-import { StyledView } from '/styled/common';
-import { IconWithSizeProps } from '/interfaces/WithSizeProps';
 
 export const NotGivenIcon = memo(
   ({ size, fill = 'white', background }: IconWithSizeProps): ReactElement => {

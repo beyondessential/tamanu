@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import * as yup from 'yup';
-import styled from 'styled-components';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import * as yup from 'yup';
 import { useApi, useSuggester } from '../api';
 import { Colors } from '../constants';
 import { FormSubmitCancelRow } from './ButtonRow';
-import { Form, Field, TextField, DateTimeField, AutocompleteField } from './Field';
+import { AutocompleteField, DateTimeField, Field, Form, TextField } from './Field';
 import { FormGrid } from './FormGrid';
 
 const SubmitError = styled.div`

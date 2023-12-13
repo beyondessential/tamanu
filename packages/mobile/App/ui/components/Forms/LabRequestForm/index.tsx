@@ -1,16 +1,16 @@
-import React, { ReactElement, useState, useCallback } from 'react';
-import { FormValidationMessage } from '/components/Forms/FormValidationMessage';
 import { Field } from '/components/Forms/FormField';
 import { FormScreenView } from '/components/Forms/FormScreenView';
-import { ReadOnlyBanner } from '~/ui/components/ReadOnlyBanner';
-import { MultiCheckbox } from '~/ui/components/MultiCheckbox';
-import { DateField } from '~/ui/components/DateField/DateField';
-import { AutocompleteModalField } from '../../AutocompleteModal/AutocompleteModalField';
-import { SubmitButton } from '../SubmitButton';
-import { OptionType, Suggester } from '~/ui/helpers/suggester';
+import { FormValidationMessage } from '/components/Forms/FormValidationMessage';
+import React, { ReactElement, useCallback, useState } from 'react';
 import { ReferenceDataType } from '~/types';
+import { DateField } from '~/ui/components/DateField/DateField';
+import { MultiCheckbox } from '~/ui/components/MultiCheckbox';
+import { ReadOnlyBanner } from '~/ui/components/ReadOnlyBanner';
+import { OptionType, Suggester } from '~/ui/helpers/suggester';
 import { useBackend } from '~/ui/hooks';
 import { VisibilityStatus } from '~/visibilityStatuses';
+import { AutocompleteModalField } from '../../AutocompleteModal/AutocompleteModalField';
+import { SubmitButton } from '../SubmitButton';
 
 export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactElement => {
   const [labTestTypes, setLabTestTypes] = useState([]);

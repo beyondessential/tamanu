@@ -1,16 +1,16 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { ContentPane, TableButtonRow, Button } from '../../../components';
-import { ViewAdministeredVaccineModal } from '../../../components/ViewAdministeredVaccineModal';
-import { EditAdministeredVaccineModal } from '../../../components/EditAdministeredVaccineModal';
+import { useAdministeredVaccines } from '../../../api/queries/useAdministeredVaccines';
+import { Button, ContentPane, TableButtonRow } from '../../../components';
 import { DeleteAdministeredVaccineModal } from '../../../components/DeleteAdministeredVaccineModal';
-import { VaccineModal } from '../../../components/VaccineModal';
+import { EditAdministeredVaccineModal } from '../../../components/EditAdministeredVaccineModal';
+import { ImmunisationsTable } from '../../../components/ImmunisationsTable';
 import {
   CovidVaccineCertificateModal,
   VaccineCertificateModal,
 } from '../../../components/PatientPrinting';
-import { ImmunisationsTable } from '../../../components/ImmunisationsTable';
-import { useAdministeredVaccines } from '../../../api/queries/useAdministeredVaccines';
+import { VaccineModal } from '../../../components/VaccineModal';
+import { ViewAdministeredVaccineModal } from '../../../components/ViewAdministeredVaccineModal';
 
 const CovidCertificateButton = styled(Button)`
   margin-left: 0;

@@ -1,16 +1,16 @@
-import React, { memo, useState, useCallback, useMemo } from 'react';
 import { startCase, sum } from 'lodash';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
 import { useApi } from '../../../api';
-import { Form, Field } from '../../../components/Field';
-import { FileChooserField, FILTER_EXCEL } from '../../../components/Field/FileChooserField';
-import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
-import { FormGrid } from '../../../components/FormGrid';
+import { LargeOutlinedSubmitButton, LargeSubmitButton } from '../../../components/Button';
 import { ButtonRow } from '../../../components/ButtonRow';
+import { Field, Form } from '../../../components/Field';
+import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
+import { FileChooserField, FILTER_EXCEL } from '../../../components/Field/FileChooserField';
+import { FormGrid } from '../../../components/FormGrid';
 import { Table } from '../../../components/Table';
-import { LargeSubmitButton, LargeOutlinedSubmitButton } from '../../../components/Button';
 
 const ColorText = styled.span`
   color: ${props => props.color};
@@ -183,10 +183,10 @@ export const ImporterView = memo(({ endpoint, dataTypes, dataTypesSelectable, se
         validationSchema={yup.object().shape({
           includedDataTypes: dataTypesSelectable
             ? yup
-                .array()
-                .of(yup.string())
-                .required()
-                .min(1)
+              .array()
+              .of(yup.string())
+              .required()
+              .min(1)
             : undefined,
           file: yup.string().required(),
         })}

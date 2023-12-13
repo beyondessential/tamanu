@@ -6,10 +6,10 @@ import { Field } from '../Forms/FormField';
 import { TextField } from '../TextField/TextField';
 
 interface CurrentUserFieldProps {
-  name: string,
-  label: string,
-  labelFontSize: string,
-  valueKey?: string,
+  name: string;
+  label: string;
+  labelFontSize: string;
+  valueKey?: string;
 }
 
 export const CurrentUserField = ({

@@ -1,21 +1,21 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
 import PrintIcon from '@material-ui/icons/Print';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { Colors, INVOICE_PAYMENT_STATUS_OPTIONS, ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
-import { foreignKey } from '../utils/validation';
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import * as yup from 'yup';
+import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, INVOICE_PAYMENT_STATUS_OPTIONS } from '../constants';
 import { isInvoiceEditable } from '../utils';
+import { foreignKey } from '../utils/validation';
 
-import { Form, Field, RadioField, DateField, TextField, NumberField } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
+import { MinusIconButton, PlusIconButton } from '../components';
 import { Button, FormCancelButton, FormSubmitButton, TextButton } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
 import { ConfirmModal } from '../components/ConfirmModal';
-import { Modal } from '../components/Modal';
+import { DateField, Field, Form, NumberField, RadioField, TextField } from '../components/Field';
+import { FormGrid } from '../components/FormGrid';
 import { InvoiceDetailTable } from '../components/InvoiceDetailTable';
-import { PlusIconButton, MinusIconButton } from '../components';
+import { Modal } from '../components/Modal';
 
 const InvoiceDetailExpandRow = styled.div`
   margin-top: 20px;
@@ -47,7 +47,7 @@ const InvoiceDetailExpandRow = styled.div`
 const PrintableInvoiceDetailModal = ({ open, onClose, invoice }) => (
   <Modal width="md" title="Invoice detail" open={open} onClose={onClose} printable>
     <h3>
-      <span>Invoice number: </span>
+      <span>Invoice number:</span>
       <span>{invoice.displayId}</span>
     </h3>
     <InvoiceDetailTable
@@ -119,18 +119,20 @@ export const InvoiceDetailForm = ({
             <Field name="admissionType" label="Admission type" disabled component={TextField} />
             <Field name="receiptNumber" label="Receipt number" component={TextField} />
             <ButtonRow>
-              {isInvoiceEditable(invoice) ? (
-                <>
-                  <FormCancelButton onClick={onCancel}>Cancel</FormCancelButton>
-                  <Button
-                    variant="outlined"
-                    onClick={() => setFinaliseInvoiceModalOpen(true)}
-                    color="primary"
-                  >
-                    Finalise
-                  </Button>
-                </>
-              ) : null}
+              {isInvoiceEditable(invoice) ?
+                (
+                  <>
+                    <FormCancelButton onClick={onCancel}>Cancel</FormCancelButton>
+                    <Button
+                      variant="outlined"
+                      onClick={() => setFinaliseInvoiceModalOpen(true)}
+                      color="primary"
+                    >
+                      Finalise
+                    </Button>
+                  </>
+                ) :
+                null}
               <FormSubmitButton variant="contained" onClick={submitForm} color="primary">
                 Save
               </FormSubmitButton>
@@ -154,13 +156,11 @@ export const InvoiceDetailForm = ({
           <span>
             <PrintIcon />
           </span>
-          <span> Print Invoice</span>
+          <span>Print Invoice</span>
         </TextButton>
-        {detailExpanded ? (
-          <MinusIconButton onClick={() => setDetailExpanded(false)} />
-        ) : (
-          <PlusIconButton onClick={() => setDetailExpanded(true)} />
-        )}
+        {detailExpanded ?
+          <MinusIconButton onClick={() => setDetailExpanded(false)} /> :
+          <PlusIconButton onClick={() => setDetailExpanded(true)} />}
       </InvoiceDetailExpandRow>
       <Collapse in={detailExpanded}>
         <InvoiceDetailTable

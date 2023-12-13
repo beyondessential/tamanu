@@ -1,14 +1,14 @@
-import React from 'react';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import React from 'react';
+import { usePatientMove } from '../../../api/mutations';
 import {
-  FormModal,
-  FormGrid,
-  FormSubmitCancelRow,
-  Form,
   Field,
+  Form,
+  FormGrid,
+  FormModal,
+  FormSubmitCancelRow,
   LocalisedLocationField,
 } from '../../../components';
-import { usePatientMove } from '../../../api/mutations';
 
 export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   const { mutate: submit } = usePatientMove(encounter.id, onClose);

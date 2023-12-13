@@ -1,5 +1,5 @@
-import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 

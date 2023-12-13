@@ -55,7 +55,7 @@ export class OperationOutcome extends Error {
     });
   }
 
-  static fromYupError(validationError /*: ValidationError */, pathPrefix = undefined) {
+  static fromYupError(validationError, /*: ValidationError */ pathPrefix = undefined) {
     const errors = [];
     if (validationError.inner.length > 0) {
       for (const error of validationError.inner) {

@@ -1,10 +1,10 @@
 import React, { ReactElement } from 'react';
 
-import { createStackNavigator } from '@react-navigation/stack';
 import { Routes } from '/helpers/routes';
-import { PatientPersonalInfoScreen } from '../screens/registerPatient/PatientPersonalInfoScreen';
-import { NewPatientScreen } from '../screens/registerPatient/NewPatientScreen';
+import { createStackNavigator } from '@react-navigation/stack';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { NewPatientScreen } from '../screens/registerPatient/NewPatientScreen';
+import { PatientPersonalInfoScreen } from '../screens/registerPatient/PatientPersonalInfoScreen';
 
 const Stack = createStackNavigator();
 

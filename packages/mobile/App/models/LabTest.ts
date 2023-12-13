@@ -1,13 +1,13 @@
-import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
 
 import { ILabTest, LabTestStatus } from '~/types';
 import { BaseModel } from './BaseModel';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
-import { LabRequest } from './LabRequest';
-import { LabTestType } from './LabTestType';
-import { SYNC_DIRECTIONS } from './types';
 import { ISO9075_DATE_SQLITE_DEFAULT } from './columnDefaults';
 import { DateStringColumn } from './DateColumns';
+import { LabRequest } from './LabRequest';
+import { LabTestType } from './LabTestType';
+import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('labTest')
 export class LabTest extends BaseModel implements ILabTest {

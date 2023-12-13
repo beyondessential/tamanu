@@ -3,12 +3,12 @@ import { Op, Sequelize } from 'sequelize';
 import * as yup from 'yup';
 
 import {
+  FHIR_DATETIME_PRECISION,
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_PREFIXES,
   FHIR_SEARCH_TOKEN_TYPES,
-  FHIR_DATETIME_PRECISION,
 } from '@tamanu/constants';
-import { Invalid, Unsupported, RESULT_PARAMETER_NAMES } from '@tamanu/shared/utils/fhir';
+import { Invalid, RESULT_PARAMETER_NAMES, Unsupported } from '@tamanu/shared/utils/fhir';
 
 import { findField } from './common';
 import { getJsonbPath, getJsonbQueryFn } from './jsonb';
@@ -57,10 +57,9 @@ export function singleMatch(path, paramQuery, paramDef, Model) {
         return Sequelize.where(Sequelize.col(entirePath[0]), op, val);
       }
 
-      const escaped =
-        paramDef.type === FHIR_SEARCH_PARAMETERS.NUMBER
-          ? val.toString()
-          : Model.sequelize.escape(val);
+      const escaped = paramDef.type === FHIR_SEARCH_PARAMETERS.NUMBER
+        ? val.toString()
+        : Model.sequelize.escape(val);
 
       // the JSONB queries below are quite complex, and postgres' query planner
       // can't figure out how to optimise them. so we help it out by adding a
@@ -78,9 +77,11 @@ export function singleMatch(path, paramQuery, paramDef, Model) {
         // instead of being able to use sequelize's utilities.
         // path: ['a', 'b', '[]', 'c', '[]', 'd']
         // sql: value operator ANY(SELECT jsonb_path_query(a, '$.b[*].c[*].d') #>> '{}');
-        const selector = `ANY(SELECT jsonb_path_query(${entirePath[0]}, '${getJsonbPath(
-          entirePath,
-        )}') #>> '{}')`;
+        const selector = `ANY(SELECT jsonb_path_query(${entirePath[0]}, '${
+          getJsonbPath(
+            entirePath,
+          )
+        }') #>> '{}')`;
 
         return Sequelize.literal(`${escaped} ${inverseOp} ${selector} AND ${optimisingCondition}`);
       }

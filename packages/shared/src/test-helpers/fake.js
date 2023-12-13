@@ -1,34 +1,34 @@
-import { snakeCase } from 'lodash';
 import Chance from 'chance';
+import { formatISO9075 } from 'date-fns';
+import { snakeCase } from 'lodash';
 import { DataTypes } from 'sequelize';
 import { inspect } from 'util';
-import { formatISO9075 } from 'date-fns';
 
 import {
   DIAGNOSIS_CERTAINTY_VALUES,
   ENCOUNTER_TYPE_VALUES,
   IMAGING_REQUEST_STATUS_TYPES,
+  LAB_REQUEST_STATUSES,
   NOTE_TYPE_VALUES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
   VISIBILITY_STATUSES,
-  LAB_REQUEST_STATUSES,
 } from '@tamanu/constants';
-import { toDateTimeString, toDateString } from '../utils/dateTime';
-import { fakeUUID } from '../utils/generateId';
 import {
   FhirAddress,
   FhirAnnotation,
   FhirCodeableConcept,
   FhirContactPoint,
+  FhirExtension,
   FhirHumanName,
   FhirIdentifier,
-  FhirPatientLink,
-  FhirReference,
-  FhirExtension,
   FhirImmunizationPerformer,
   FhirImmunizationProtocolApplied,
+  FhirPatientLink,
+  FhirReference,
 } from '../services/fhirTypes';
+import { toDateString, toDateTimeString } from '../utils/dateTime';
+import { fakeUUID } from '../utils/generateId';
 
 // this file is most commonly used within tests, but also outside them
 // jest wom't always be defined, in which case we can use a random seed
@@ -528,9 +528,11 @@ export const fake = (model, passedOverrides = {}) => {
 
     // if you hit this error, you probably need to add a new field handler or a model-specific override
     throw new Error(
-      `Could not fake field ${model.name}.${name} of type ${type} / ${type.type} / ${inspect(
-        type,
-      )}`,
+      `Could not fake field ${model.name}.${name} of type ${type} / ${type.type} / ${
+        inspect(
+          type,
+        )
+      }`,
     );
   }
 

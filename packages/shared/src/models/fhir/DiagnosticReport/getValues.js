@@ -111,10 +111,10 @@ function patientReference(patient) {
 function performer(laboratory, examiner) {
   return [
     laboratory &&
-      new FhirReference({
-        reference: `Organization/${laboratory.id}`,
-        display: laboratory.name,
-      }),
+    new FhirReference({
+      reference: `Organization/${laboratory.id}`,
+      display: laboratory.name,
+    }),
     new FhirReference({
       reference: `Practitioner/${examiner.id}`,
       display: examiner.displayName,

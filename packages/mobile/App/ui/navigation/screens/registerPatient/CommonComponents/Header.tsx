@@ -1,13 +1,8 @@
-import React, { ReactElement } from 'react';
-import { theme } from '/styled/theme';
-import {
-  StyledTouchableOpacity,
-  StyledSafeAreaView,
-  RowView,
-  StyledText,
-} from '/styled/common';
 import { ArrowLeftIcon } from '/components/Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { RowView, StyledSafeAreaView, StyledText, StyledTouchableOpacity } from '/styled/common';
+import { theme } from '/styled/theme';
+import React, { ReactElement } from 'react';
 
 type HeaderProps = {
   onGoBack: () => void;

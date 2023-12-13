@@ -1,4 +1,3 @@
-
 module.exports = {
   transformer: {
     getTransformOptions: async () => ({
@@ -10,7 +9,7 @@ module.exports = {
         inlineRequires: false,
       },
     }),
-    minifierPath: "metro-minify-terser",
+    minifierPath: 'metro-minify-terser',
     minifierConfig: {
       keep_classnames: true,
       keep_fnames: true,

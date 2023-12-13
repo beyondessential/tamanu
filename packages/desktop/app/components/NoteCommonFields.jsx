@@ -1,16 +1,16 @@
-import React from 'react';
-import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
 import { NOTE_TYPES } from '@tamanu/constants';
+import React from 'react';
+import styled from 'styled-components';
 
-import { InfoCard, InfoCardItem } from './InfoCard';
-import { Field, AutocompleteField, TextField, DateTimeField, SelectField } from './Field';
 import { useLocalisation } from '../contexts/Localisation';
+import { AutocompleteField, DateTimeField, Field, SelectField, TextField } from './Field';
+import { InfoCard, InfoCardItem } from './InfoCard';
 
 import { useSuggester } from '../api';
+import { Colors, noteTypes } from '../constants';
 import { DateDisplay } from './DateDisplay';
-import { noteTypes, Colors } from '../constants';
 import { FormGrid } from './FormGrid';
 
 export const StyledDivider = styled(Divider)`
@@ -57,25 +57,24 @@ const getSelectableNoteTypes = noteTypeCountByType =>
     .filter(x => !x.hideFromDropdown)
     .map(x => ({
       ...x,
-      isDisabled:
-        noteTypeCountByType &&
+      isDisabled: noteTypeCountByType &&
         x.value === NOTE_TYPES.TREATMENT_PLAN &&
         !!noteTypeCountByType[x.value],
     }));
 
 const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
-  return value === NOTE_TYPES.TREATMENT_PLAN && noteTypeCountByType[NOTE_TYPES.TREATMENT_PLAN] ? (
-    <StyledTooltip
-      arrow
-      placement="top"
-      followCursor
-      title="This note type already exists for this encounter"
-    >
-      <div>{label}</div>
-    </StyledTooltip>
-  ) : (
-    <div>{label}</div>
-  );
+  return value === NOTE_TYPES.TREATMENT_PLAN && noteTypeCountByType[NOTE_TYPES.TREATMENT_PLAN] ?
+    (
+      <StyledTooltip
+        arrow
+        placement="top"
+        followCursor
+        title="This note type already exists for this encounter"
+      >
+        <div>{label}</div>
+      </StyledTooltip>
+    ) :
+    <div>{label}</div>;
 };
 export const WrittenByField = ({ label = 'Written by (or on behalf of)', required, disabled }) => {
   const practitionerSuggester = useSuggester('practitioner');
@@ -172,7 +171,7 @@ export const NoteTypeField = ({ required, noteTypeCountByType }) => (
 
 export const WrittenByText = ({ noteAuthorName, noteOnBehalfOfName }) => (
   <>
-    <span>{noteAuthorName || ''} </span>
-    {noteOnBehalfOfName ? <span>on behalf of {noteOnBehalfOfName} </span> : null}
+    <span>{noteAuthorName || ''}</span>
+    {noteOnBehalfOfName ? <span>on behalf of {noteOnBehalfOfName}</span> : null}
   </>
 );

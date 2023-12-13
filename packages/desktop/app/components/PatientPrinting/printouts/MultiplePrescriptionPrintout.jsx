@@ -1,21 +1,21 @@
-import React from 'react';
-import styled from 'styled-components';
-import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import Divider from '@material-ui/core/Divider';
+import PropTypes from 'prop-types';
+import React from 'react';
+import styled from 'styled-components';
 
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
-import { DateDisplay } from '../../DateDisplay';
-import { useAuth } from '../../../contexts/Auth';
 import { Colors, DRUG_ROUTE_VALUE_TO_LABEL } from '../../../constants';
+import { useAuth } from '../../../contexts/Auth';
+import { DateDisplay } from '../../DateDisplay';
 
-import { PatientDetailPrintout } from './reusable/PatientDetailPrintout';
-import { NoteContentSection } from './reusable/SimplePrintout';
-import { PrintLetterhead } from './reusable/PrintLetterhead';
+import { CertificateLabel, LocalisedCertificateLabel } from './reusable/CertificateLabels';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
 import { ListTable } from './reusable/ListTable';
-import { CertificateLabel, LocalisedCertificateLabel } from './reusable/CertificateLabels';
+import { PatientDetailPrintout } from './reusable/PatientDetailPrintout';
+import { PrintLetterhead } from './reusable/PrintLetterhead';
+import { NoteContentSection } from './reusable/SimplePrintout';
 
 const RowContainer = styled.div`
   display: flex;

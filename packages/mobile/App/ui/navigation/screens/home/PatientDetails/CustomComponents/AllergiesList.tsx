@@ -1,8 +1,8 @@
-import React, { ReactElement } from 'react';
 import { AllergiesProps } from '/interfaces/PatientDetails';
 import { RowView, StyledText, StyledView } from '/styled/common';
-import { Dot } from './Dot';
 import { theme } from '/styled/theme';
+import React, { ReactElement } from 'react';
+import { Dot } from './Dot';
 import { PatientSection } from './PatientSection';
 
 interface Allergies extends AllergiesProps {

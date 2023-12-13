@@ -1,8 +1,8 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
 
-import { ClearIcon } from '../Icons/ClearIcon';
 import { Colors } from '../../constants';
+import { ClearIcon } from '../Icons/ClearIcon';
 
 const Notification = styled.div`
   background-color: ${Colors.primary}10;

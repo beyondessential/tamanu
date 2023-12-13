@@ -1,8 +1,8 @@
 import config from 'config';
 
-import { fakeUUID } from '@tamanu/shared/utils/generateId';
 import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
 import { initDatabase as sharedInitDatabase } from '@tamanu/shared/services/database';
+import { fakeUUID } from '@tamanu/shared/utils/generateId';
 
 import { log } from '@tamanu/shared/services/logging';
 

@@ -201,8 +201,9 @@
 ## v1.15.0
 
 ### Manual steps required after upgrade ⚙
+
 - Add an entry for `questionCodeIds.passport` and `questionCodeIds.nationalityId` in the config to look up survey
-responses for patients in covid lab test certificates
+  responses for patients in covid lab test certificates
 - Delete any override to config's `log.consoleLevel` (it has a new default)
 - If the console output is full of `\e[He[2J` garbage output, set `log.color` to `false` and let the devs know (it's unexpected but possible)
 - The `localisation.data.country` section is now required to be filled in.
@@ -238,8 +239,9 @@ responses for patients in covid lab test certificates
 ## v1.14.1
 
 ### Manual steps required after upgrade ⚙
+
 - Add an entry for `questionCodeIds.passport` and `questionCodeIds.nationalityId` in the config to look up survey
-responses for patients in covid lab test certificates
+  responses for patients in covid lab test certificates
 - Add entry for certificate notifications such as `notifications.certificates.labTestCategoryIds: ["labTestCategory-COVID", "labTestCategory-COVIDRAT"]`
 
 ### Features ⭐
@@ -465,15 +467,15 @@ responses for patients in covid lab test certificates
     - specifically:
 
 ```
-  "hl7": {
-    "assigners": {
-      "patientDisplayId": "VRS"
-    },
-    "dataDictionaries": {
-      "patientDisplayId": "http://data-dictionary.tamanu-fiji.org/application-reference-number.html",
-      "labRequestDisplayId": "http://data-dictionary.tamanu-fiji.org/labrequest-reference-number.html"
-    },
+"hl7": {
+  "assigners": {
+    "patientDisplayId": "VRS"
   },
+  "dataDictionaries": {
+    "patientDisplayId": "http://data-dictionary.tamanu-fiji.org/application-reference-number.html",
+    "labRequestDisplayId": "http://data-dictionary.tamanu-fiji.org/labrequest-reference-number.html"
+  },
+},
 ```
 
 - Everywhere:

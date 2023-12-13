@@ -2,7 +2,8 @@ import { useEffect } from 'react';
 import { Keyboard, KeyboardEventName, Platform } from 'react-native';
 
 export const keyboardListener = (
-  event: KeyboardEventName, callback: () => void,
+  event: KeyboardEventName,
+  callback: () => void,
 ): void => {
   useEffect(() => {
     const keyboardEventListener = Keyboard.addListener(event, callback);

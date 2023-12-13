@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { VitalsTable } from '../../../components/VitalsTable';
-import { TableButtonRow, Button, FormModal } from '../../../components';
-import { TabPane } from '../components';
+import { useQueryClient } from '@tanstack/react-query';
+import React, { useState } from 'react';
 import { useApi } from '../../../api';
+import { Button, FormModal, TableButtonRow } from '../../../components';
+import { VitalChartsModal } from '../../../components/VitalChartsModal';
+import { VitalsTable } from '../../../components/VitalsTable';
+import { VitalChartDataProvider } from '../../../contexts/VitalChartData';
 import { VitalsForm } from '../../../forms';
 import { getActionsFromData, getAnswersFromData } from '../../../utils';
-import { VitalChartDataProvider } from '../../../contexts/VitalChartData';
-import { VitalChartsModal } from '../../../components/VitalChartsModal';
+import { TabPane } from '../components';
 
 export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
   const queryClient = useQueryClient();

@@ -1,18 +1,18 @@
-import { Sequelize } from 'sequelize';
 import {
-  SYNC_DIRECTIONS,
   IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TYPES_VALUES,
   NOTE_TYPES,
+  SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { getNoteWithType } from '../utils/notes';
+import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from '../errors';
+import { getNoteWithType } from '../utils/notes';
 
-import { Model } from './Model';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
-import { getCurrentDateTimeString } from '../utils/dateTime';
+import { Model } from './Model';
 
 const ALL_IMAGING_REQUEST_STATUS_TYPES = Object.values(IMAGING_REQUEST_STATUS_TYPES);
 
@@ -77,8 +77,7 @@ export class ImagingRequest extends Model {
   }
 
   async extractNotes() {
-    const notes =
-      this.notes ||
+    const notes = this.notes ||
       (await this.getNotes({
         where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
       }));

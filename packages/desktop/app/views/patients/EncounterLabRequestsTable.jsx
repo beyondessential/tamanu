@@ -1,17 +1,17 @@
+import { push } from 'connected-react-router';
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { push } from 'connected-react-router';
 import { DataFetchingTable } from '../../components';
-import { reloadPatient } from '../../store/patient';
 import { useLabRequest } from '../../contexts/LabRequest';
+import { reloadPatient } from '../../store/patient';
 import {
-  getRequestedBy,
-  getStatus,
-  getRequestType,
-  getPriority,
   getDateWithTimeTooltip,
+  getPriority,
+  getRequestedBy,
   getRequestId,
+  getRequestType,
+  getStatus,
 } from '../../utils/lab';
 
 const columns = [

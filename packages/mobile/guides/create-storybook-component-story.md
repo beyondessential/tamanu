@@ -19,6 +19,6 @@ storiesOf('Place here the name of the component - Name of the component must be 
   .add('List 2', () => <AccordionList dataArray={data2} />);
 ```
 
-- The storiesOf first argument should be unique considering all other stories to avoid errors. 
+- The storiesOf first argument should be unique considering all other stories to avoid errors.
 - addDecorator is beign used here to centralize all stories of this file
--  add should render the component to be tested in the story. There can be as many "add"  
+- add should render the component to be tested in the story. There can be as many "add"

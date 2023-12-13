@@ -1,11 +1,11 @@
-import React from 'react';
 import { Loop } from '@material-ui/icons';
-import styled from 'styled-components';
+import React from 'react';
 import { useDispatch } from 'react-redux';
+import styled from 'styled-components';
 
-import { Button } from './Button';
 import { Colors } from '../constants';
 import { syncPatient } from '../store/patient';
+import { Button } from './Button';
 
 const MarkPatientForSyncButton = styled(Button)`
   background: ${Colors.white};

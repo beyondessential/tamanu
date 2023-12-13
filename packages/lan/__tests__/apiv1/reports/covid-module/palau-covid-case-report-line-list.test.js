@@ -1,6 +1,6 @@
 import { createDummyEncounter } from '@tamanu/shared/demoData/patients';
-import { createTestContext } from '../../../utilities';
 import { MATCH_ANY } from '../../../toMatchTabularReport';
+import { createTestContext } from '../../../utilities';
 import { createPatient } from './covid-swab-lab-test-report-utils';
 
 const REPORT_URL = '/v1/reports/palau-covid-case-report-line-list';

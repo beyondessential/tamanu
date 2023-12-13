@@ -1,12 +1,12 @@
-import React from 'react';
-import styled from 'styled-components';
-import PropTypes from 'prop-types';
-import { useSelector } from 'react-redux';
 import { Box } from '@material-ui/core';
-import { Modal } from '../../Modal';
-import { LabRequestPrintLabel } from '../printouts/LabRequestPrintLabel';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { useSelector } from 'react-redux';
+import styled from 'styled-components';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { Modal } from '../../Modal';
 import { getPatientNameAsString } from '../../PatientNameDisplay';
+import { LabRequestPrintLabel } from '../printouts/LabRequestPrintLabel';
 
 const Container = styled.div`
   display: flex;

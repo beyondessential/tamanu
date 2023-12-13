@@ -1,11 +1,8 @@
-import {
-  heightPercentageToDP,
-  widthPercentageToDP,
-} from 'react-native-responsive-screen';
-import { Dimensions, StatusBar, Platform } from 'react-native';
 import { VerticalPosition } from '/interfaces/VerticalPosition';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
+import { Dimensions, Platform, StatusBar } from 'react-native';
+import { heightPercentageToDP, widthPercentageToDP } from 'react-native-responsive-screen';
 
 export const dropdownSize = {
   itemHeight: 44,
@@ -18,7 +15,7 @@ export const dropdownSize = {
 export enum SCREEN_ORIENTATION {
   PORTRAIT = 'portrait',
   LANDSCAPE = 'landscape',
-};
+}
 
 export enum Orientation {
   Width = 'width',
@@ -48,9 +45,10 @@ export const scrollTo = (
 };
 
 export const calculateVerticalPositions = (
-  fieldList: string[], inputOffset = 65,
+  fieldList: string[],
+  inputOffset = 65,
 ): VerticalPosition =>
-  fieldList.reduce<{ pos: VerticalPosition, off: number }>(
+  fieldList.reduce<{ pos: VerticalPosition; off: number }>(
     (acc, cur, index) => {
       acc.pos[cur] = {
         x: 0,
@@ -59,15 +57,15 @@ export const calculateVerticalPositions = (
       acc.off += inputOffset;
       return acc;
     },
-    { pos: {}, off: 0 }
+    { pos: {}, off: 0 },
   ).pos;
 
 export const calculateDropdownPosition = (
-  placeholderPosition: number, 
-  dataLength: number
+  placeholderPosition: number,
+  dataLength: number,
 ): number => {
   const dropdownHeight = dataLength * dropdownSize.itemHeight + dropdownSize.padding
-    > dropdownSize.dropdownMaxHeight
+      > dropdownSize.dropdownMaxHeight
     ? dropdownSize.dropdownMaxHeight
     : dataLength * dropdownSize.itemHeight + dropdownSize.padding;
 
@@ -82,10 +80,13 @@ export const calculateDropdownPosition = (
   return initialPosition;
 };
 
-export const setStatusBar = (barStyle: 'light-content' | 'dark-content', backgroundColor: string): void => useFocusEffect(
-  useCallback(() => {
-    if (Platform.OS === 'android') StatusBar.setBackgroundColor(backgroundColor);
-    StatusBar.setBarStyle(barStyle);
-  }, []),
-);
-
+export const setStatusBar = (
+  barStyle: 'light-content' | 'dark-content',
+  backgroundColor: string,
+): void =>
+  useFocusEffect(
+    useCallback(() => {
+      if (Platform.OS === 'android') StatusBar.setBackgroundColor(backgroundColor);
+      StatusBar.setBarStyle(barStyle);
+    }, []),
+  );

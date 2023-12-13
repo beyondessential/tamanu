@@ -1,5 +1,5 @@
-export { testImmunizationHandler } from './testImmunizationHandler';
 export { testDiagnosticReportHandler } from './testDiagnosticReportHandler';
+export { testImmunizationHandler } from './testImmunizationHandler';
 export { testPatientHandler } from './testPatientHandler';
 export { testSingleResourceHandler } from './testSingleResourceHandler';
 

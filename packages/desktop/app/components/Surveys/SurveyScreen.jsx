@@ -1,12 +1,12 @@
-import React, { useEffect, useRef } from 'react';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { checkVisibility } from '../../utils';
-import { FormGrid } from '../FormGrid';
-import { Button, OutlinedButton } from '../Button';
-import { SurveyQuestion } from './SurveyQuestion';
-import { ButtonRow } from '../ButtonRow';
 import { FORM_STATUSES } from '../../constants';
+import { checkVisibility } from '../../utils';
+import { Button, OutlinedButton } from '../Button';
+import { ButtonRow } from '../ButtonRow';
+import { FormGrid } from '../FormGrid';
+import { SurveyQuestion } from './SurveyQuestion';
 
 const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
@@ -83,7 +83,7 @@ export const SurveyScreen = ({
       screenComponents
         .filter(c => checkVisibility(c, values, allComponents))
         .map(c => c.dataElementId)
-        .includes(x),
+        .includes(x)
     );
 
     if (pageErrors.length === 0) {
@@ -96,7 +96,7 @@ export const SurveyScreen = ({
       setStatus({ ...status, submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
 
       const firstErroredQuestion = screenComponents.find(({ dataElementId }) =>
-        pageErrors.includes(dataElementId),
+        pageErrors.includes(dataElementId)
       );
       scrollToQuestion(firstErroredQuestion.dataElementId);
     }

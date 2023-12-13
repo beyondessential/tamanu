@@ -1,6 +1,6 @@
-import { Sequelize, Op } from 'sequelize';
-import { isPlainObject, get as getAtPath, set as setAtPath } from 'lodash';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { get as getAtPath, isPlainObject, set as setAtPath } from 'lodash';
+import { Op, Sequelize } from 'sequelize';
 import { Model } from './Model';
 
 /**
@@ -82,13 +82,13 @@ export class Setting extends Model {
       where: {
         ...(key
           ? {
-              key: {
-                [Op.or]: {
-                  [Op.eq]: key,
-                  [Op.like]: `${key}.%`,
-                },
+            key: {
+              [Op.or]: {
+                [Op.eq]: key,
+                [Op.like]: `${key}.%`,
               },
-            }
+            },
+          }
           : {}),
         facilityId: {
           [Op.or]: {
@@ -167,7 +167,7 @@ export class Setting extends Model {
 export function buildSettingsRecords(keyPrefix, value, facilityId) {
   if (isPlainObject(value)) {
     return Object.entries(value).flatMap(([k, v]) =>
-      buildSettingsRecords([keyPrefix, k].filter(Boolean).join('.'), v, facilityId),
+      buildSettingsRecords([keyPrefix, k].filter(Boolean).join('.'), v, facilityId)
     );
   }
   return [{ key: keyPrefix, value, facilityId }];

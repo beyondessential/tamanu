@@ -11,7 +11,7 @@ function setupValidator() {
     allErrors: true,
   })
 
-  // ajv needs draft-06 imported specifically 
+  // ajv needs draft-06 imported specifically
   const draft6MetaSchema = require("ajv/dist/refs/json-schema-draft-06.json")
   ajv.addMetaSchema(draft6MetaSchema)
 
@@ -37,8 +37,7 @@ function setupValidator() {
       writeFileSync(path, json);
     }
     return { errors: [], result: true };
-  }
+  };
 }
 
 export const validate = setupValidator();
-

@@ -1,24 +1,24 @@
-import React from 'react';
-import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { startCase } from 'lodash';
+import React from 'react';
+import styled from 'styled-components';
 
 import { NOTE_TYPES } from '@tamanu/constants';
 
-import { PrintLetterhead } from './reusable/PrintLetterhead';
-import { DateDisplay } from '../../DateDisplay';
-import { capitaliseFirstLetter } from '../../../utils/capitalise';
-import { CertificateWrapper } from './reusable/CertificateWrapper';
-import { ListTable } from './reusable/ListTable';
-import { DisplayValue, LocalisedDisplayValue } from './reusable/CertificateLabels';
 import {
   DRUG_ROUTE_VALUE_TO_LABEL,
   ENCOUNTER_OPTIONS_BY_VALUE,
   NOTE_TYPE_LABELS,
 } from '../../../constants';
+import { capitaliseFirstLetter } from '../../../utils/capitalise';
+import { DateDisplay } from '../../DateDisplay';
+import { DisplayValue, LocalisedDisplayValue } from './reusable/CertificateLabels';
+import { CertificateWrapper } from './reusable/CertificateWrapper';
+import { ListTable } from './reusable/ListTable';
+import { PrintLetterhead } from './reusable/PrintLetterhead';
 
-import { ImagingRequestData } from './reusable/ImagingRequestData';
 import { useLocalisedText } from '../../LocalisedText';
+import { ImagingRequestData } from './reusable/ImagingRequestData';
 
 // STYLES
 const CompactListTable = styled(ListTable)`
@@ -351,80 +351,96 @@ export const EncounterRecord = React.memo(
           </div>
         </RowContainer>
 
-        {encounterTypeHistory.length > 0 ? (
-          <>
-            <TableHeading>Encounter Types</TableHeading>
-            <CompactListTable data={encounterTypeHistory} columns={COLUMNS.encounterTypes} />
-          </>
-        ) : null}
+        {encounterTypeHistory.length > 0 ?
+          (
+            <>
+              <TableHeading>Encounter Types</TableHeading>
+              <CompactListTable data={encounterTypeHistory} columns={COLUMNS.encounterTypes} />
+            </>
+          ) :
+          null}
 
-        {locationHistory.length > 0 ? (
-          <>
-            <TableHeading>Locations</TableHeading>
-            <CompactListTable data={locationHistory} columns={COLUMNS.locations} />
-          </>
-        ) : null}
+        {locationHistory.length > 0 ?
+          (
+            <>
+              <TableHeading>Locations</TableHeading>
+              <CompactListTable data={locationHistory} columns={COLUMNS.locations} />
+            </>
+          ) :
+          null}
 
-        {diagnoses.length > 0 ? (
-          <>
-            <TableHeading>Diagnoses</TableHeading>
-            <CompactListTable data={diagnoses} columns={COLUMNS.diagnoses} />
-          </>
-        ) : null}
+        {diagnoses.length > 0 ?
+          (
+            <>
+              <TableHeading>Diagnoses</TableHeading>
+              <CompactListTable data={diagnoses} columns={COLUMNS.diagnoses} />
+            </>
+          ) :
+          null}
 
-        {procedures.length > 0 ? (
-          <>
-            <TableHeading>Procedures</TableHeading>
-            <CompactListTable data={procedures} columns={COLUMNS.procedures} />
-          </>
-        ) : null}
+        {procedures.length > 0 ?
+          (
+            <>
+              <TableHeading>Procedures</TableHeading>
+              <CompactListTable data={procedures} columns={COLUMNS.procedures} />
+            </>
+          ) :
+          null}
 
-        {labRequests.length > 0 ? (
-          <>
-            <TableHeading>Lab Requests</TableHeading>
-            <CompactListTable data={labRequests} columns={COLUMNS.labRequests} />
-          </>
-        ) : null}
+        {labRequests.length > 0 ?
+          (
+            <>
+              <TableHeading>Lab Requests</TableHeading>
+              <CompactListTable data={labRequests} columns={COLUMNS.labRequests} />
+            </>
+          ) :
+          null}
 
-        {imagingRequests.length > 0 ? (
-          <>
-            <TableHeading>Imaging Requests</TableHeading>
-            <CompactListTable data={imagingRequests} columns={COLUMNS.imagingRequests} />
-          </>
-        ) : null}
+        {imagingRequests.length > 0 ?
+          (
+            <>
+              <TableHeading>Imaging Requests</TableHeading>
+              <CompactListTable data={imagingRequests} columns={COLUMNS.imagingRequests} />
+            </>
+          ) :
+          null}
 
-        {medications.length > 0 ? (
-          <>
-            <TableHeading>Medications</TableHeading>
-            <CompactListTable data={medications} columns={COLUMNS.medications} />
-          </>
-        ) : null}
+        {medications.length > 0 ?
+          (
+            <>
+              <TableHeading>Medications</TableHeading>
+              <CompactListTable data={medications} columns={COLUMNS.medications} />
+            </>
+          ) :
+          null}
 
-        {notes.length > 0 ? (
-          <>
-            <TableHeading>Notes</TableHeading>
-            <Table>
-              {notes.map(note => (
-                <Row>
-                  <RowContent>
-                    <BoldText>{NOTE_TYPE_LABELS[note.noteType]}</BoldText>
-                    <ChildNote>{note.content}</ChildNote>
-                    <NoteMeta>
-                      <span>
-                        {note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}
-                      </span>
-                      <span>{note.author?.displayName || ''} </span>
-                      {note.onBehalfOf ? (
-                        <span>on behalf of {note.onBehalfOf.displayName} </span>
-                      ) : null}
-                      <DateDisplay date={note.date} showTime />
-                    </NoteMeta>
-                  </RowContent>
-                </Row>
-              ))}
-            </Table>
-          </>
-        ) : null}
+        {notes.length > 0 ?
+          (
+            <>
+              <TableHeading>Notes</TableHeading>
+              <Table>
+                {notes.map(note => (
+                  <Row>
+                    <RowContent>
+                      <BoldText>{NOTE_TYPE_LABELS[note.noteType]}</BoldText>
+                      <ChildNote>{note.content}</ChildNote>
+                      <NoteMeta>
+                        <span>
+                          {note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}
+                        </span>
+                        <span>{note.author?.displayName || ''}</span>
+                        {note.onBehalfOf ?
+                          <span>on behalf of {note.onBehalfOf.displayName}</span> :
+                          null}
+                        <DateDisplay date={note.date} showTime />
+                      </NoteMeta>
+                    </RowContent>
+                  </Row>
+                ))}
+              </Table>
+            </>
+          ) :
+          null}
       </ShiftedCertificateWrapper>
     );
   },

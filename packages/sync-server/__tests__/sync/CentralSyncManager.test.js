@@ -1,18 +1,18 @@
-import { sub, endOfDay, parseISO } from 'date-fns';
+import { endOfDay, parseISO, sub } from 'date-fns';
 import { v4 as uuid } from 'uuid';
 
-import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
-import { SYNC_SESSION_DIRECTION } from '@tamanu/shared/sync';
-import { fake, fakeUser, fakeSurvey, fakeReferenceData } from '@tamanu/shared/test-helpers/fake';
-import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { randomLabRequest } from '@tamanu/shared/demoData';
-import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
-import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
+import { SYNC_SESSION_DIRECTION } from '@tamanu/shared/sync';
+import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
+import { fake, fakeReferenceData, fakeSurvey, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
-import { createTestContext } from '../utilities';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
+import { createTestContext } from '../utilities';
 
 const doImport = (options, models) => {
   const { file, ...opts } = options;
@@ -716,13 +716,14 @@ describe('CentralSyncManager', () => {
           fullSyncedPatientLabRequest = await models.LabRequest.create(
             fullSyncedPatientLabRequestData,
           );
-          const fullSyncedPatientLabRequestTestsData = fullSyncedPatientLabRequestData.labTestTypeIds.map(
-            labTestTypeId => ({
-              ...fake(models.LabTest),
-              labRequestId: fullSyncedPatientLabRequest.id,
-              labTestTypeId,
-            }),
-          );
+          const fullSyncedPatientLabRequestTestsData = fullSyncedPatientLabRequestData
+            .labTestTypeIds.map(
+              labTestTypeId => ({
+                ...fake(models.LabTest),
+                labRequestId: fullSyncedPatientLabRequest.id,
+                labTestTypeId,
+              }),
+            );
           fullSyncedPatientLabRequestTests = await Promise.all(
             fullSyncedPatientLabRequestTestsData.map(lt => models.LabTest.create(lt)),
           );

@@ -1,13 +1,13 @@
-import config from 'config';
 import { Command } from 'commander';
+import config from 'config';
 
 import { log } from '@tamanu/shared/services/logging';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 
-import { provision } from './provision';
-import { createApp } from '../createApp';
 import { ApplicationContext } from '../ApplicationContext';
+import { createApp } from '../createApp';
 import { version } from '../serverInfo';
+import { provision } from './provision';
 
 const { port } = config;
 
@@ -35,8 +35,8 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
   });
 
   const minConnectionPoolSnapshotHeadroom = 4;
-  const connectionPoolSnapshotHeadroom =
-    config.db?.pool?.max - config?.sync?.numberConcurrentPullSnapshots;
+  const connectionPoolSnapshotHeadroom = config.db?.pool?.max -
+    config?.sync?.numberConcurrentPullSnapshots;
   if (connectionPoolSnapshotHeadroom < minConnectionPoolSnapshotHeadroom) {
     log.warn(
       `WARNING: config.db.pool.max is dangerously close to config.sync.numberConcurrentPullSnapshots (within ${minConnectionPoolSnapshotHeadroom} connections)`,

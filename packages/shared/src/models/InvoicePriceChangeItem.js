@@ -1,8 +1,8 @@
-import { Sequelize } from 'sequelize';
 import { INVOICE_PRICE_CHANGE_ITEM_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { Sequelize } from 'sequelize';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
-import { Model } from './Model';
 import { dateType } from './dateTimeTypes';
+import { Model } from './Model';
 
 export class InvoicePriceChangeItem extends Model {
   static init({ primaryKey, ...options }) {

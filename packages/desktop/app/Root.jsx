@@ -1,23 +1,23 @@
-import React from 'react';
-import { Provider } from 'react-redux';
+import { CssBaseline } from '@material-ui/core';
+import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ConnectedRouter } from 'connected-react-router';
 import PropTypes from 'prop-types';
-import { CssBaseline } from '@material-ui/core';
-import { ThemeProvider } from 'styled-components';
-import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
+import React from 'react';
+import { Provider } from 'react-redux';
 import { Slide, ToastContainer } from 'react-toastify';
+import { ThemeProvider } from 'styled-components';
 import { ApiContext } from './api';
-import { RoutingApp } from './RoutingApp';
-import { theme } from './theme';
 import { EncounterProvider } from './contexts/Encounter';
+import { EncounterNotesProvider } from './contexts/EncounterNotes';
+import { ImagingRequestsProvider } from './contexts/ImagingRequests';
 import { LabRequestProvider } from './contexts/LabRequest';
 import { LocalisationProvider } from './contexts/Localisation';
-import { ReferralProvider } from './contexts/Referral';
-import { ImagingRequestsProvider } from './contexts/ImagingRequests';
 import { PatientSearchProvider } from './contexts/PatientSearch';
-import { EncounterNotesProvider } from './contexts/EncounterNotes';
+import { ReferralProvider } from './contexts/Referral';
+import { RoutingApp } from './RoutingApp';
+import { theme } from './theme';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>

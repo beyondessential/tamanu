@@ -1,6 +1,6 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 import styled from 'styled-components';
-import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { usePatientMove } from '../../../api/mutations';
 import {

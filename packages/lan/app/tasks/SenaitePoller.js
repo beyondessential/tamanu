@@ -1,8 +1,8 @@
-import { get, post, jar } from 'request';
+import { log } from '@tamanu/shared/services/logging';
+import { ScheduledTask } from '@tamanu/shared/tasks';
 import config from 'config';
 import { format } from 'date-fns';
-import { ScheduledTask } from '@tamanu/shared/tasks';
-import { log } from '@tamanu/shared/services/logging';
+import { get, jar, post } from 'request';
 
 // if there's an error creating a lab request in senaite
 // set it to "manual" status (indicating 'you'll need to do this manually')
@@ -35,7 +35,7 @@ export class SenaitePoller extends ScheduledTask {
     await this.login();
   }
 
-  //----------------------------------------------------------
+  // ----------------------------------------------------------
   // Web interface
   //
   async getAllItems(endpoint) {
@@ -93,7 +93,7 @@ export class SenaitePoller extends ScheduledTask {
     return this.loginTask;
   }
 
-  //----------------------------------------------------------
+  // ----------------------------------------------------------
   // Creating lab requests on Senaite
   //
   async getAnalysisServiceUUIDs() {
@@ -195,7 +195,7 @@ export class SenaitePoller extends ScheduledTask {
     });
   }
 
-  //----------------------------------------------------------
+  // ----------------------------------------------------------
   // Polling senaite for test results
   //
   async fetchLabRequestInfo(senaiteId) {
@@ -209,7 +209,7 @@ export class SenaitePoller extends ScheduledTask {
 
     // fetch individual lab results
     const analysisTasks = labRequest.Analyses.map(r => `${r.uid}?workflow=y`).map(url =>
-      this.apiRequest(url),
+      this.apiRequest(url)
     );
 
     // get the relevant bits that we want

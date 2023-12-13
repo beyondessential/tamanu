@@ -1,18 +1,18 @@
-import config from 'config';
 import { Command } from 'commander';
+import config from 'config';
 
 import { log } from '@tamanu/shared/services/logging';
 
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 import { checkConfig } from '../checkConfig';
-import { initDeviceId } from '../sync/initDeviceId';
-import { performDatabaseIntegrityChecks } from '../database';
-import { FacilitySyncManager, CentralServerConnection } from '../sync';
 import { createApp } from '../createApp';
+import { performDatabaseIntegrityChecks } from '../database';
+import { CentralServerConnection, FacilitySyncManager } from '../sync';
+import { initDeviceId } from '../sync/initDeviceId';
 import { startScheduledTasks } from '../tasks';
 
-import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
+import { version } from '../serverInfo';
 
 async function serve({ skipMigrationCheck }) {
   log.info(`Starting facility server version ${version}`, {

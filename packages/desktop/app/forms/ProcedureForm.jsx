@@ -1,24 +1,24 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
+import PropTypes from 'prop-types';
+import React from 'react';
+import * as yup from 'yup';
 
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { FormSubmitCancelRow } from '../components/ButtonRow';
 import {
-  Form,
-  Field,
-  DateField,
-  TimeField,
-  CheckField,
   AutocompleteField,
-  TextField,
+  CheckField,
+  DateField,
+  Field,
+  Form,
   LocationField,
+  TextField,
+  TimeField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { FormSubmitCancelRow } from '../components/ButtonRow';
 
-import { foreignKey, optionalForeignKey } from '../utils/validation';
 import { useLocalisedText } from '../components';
+import { foreignKey, optionalForeignKey } from '../utils/validation';
 
 const suggesterType = PropTypes.shape({
   fetchSuggestions: PropTypes.func,

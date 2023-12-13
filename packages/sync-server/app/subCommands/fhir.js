@@ -18,12 +18,11 @@ async function showStatus() {
 
   for (const Resource of materialisableResources) {
     const count = await Resource.count();
-    const latest =
-      (
-        await Resource.findOne({
-          order: [['lastUpdated', 'DESC']],
-        })
-      )?.lastUpdated?.toISOString() || 'never';
+    const latest = (
+      await Resource.findOne({
+        order: [['lastUpdated', 'DESC']],
+      })
+    )?.lastUpdated?.toISOString() || 'never';
 
     let upstreamCount = 0;
     let upstreamLatest = '';
@@ -39,10 +38,10 @@ async function showStatus() {
     }
 
     log.info(
-      `${
-        Resource.name
-      }: ${count}/${upstreamCount} records/upstream, last updated ${latest}/${upstreamLatest ||
-        'never'}`,
+      `${Resource.name}: ${count}/${upstreamCount} records/upstream, last updated ${latest}/${
+        upstreamLatest ||
+        'never'
+      }`,
     );
   }
 

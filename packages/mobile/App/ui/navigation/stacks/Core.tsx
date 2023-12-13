@@ -1,15 +1,15 @@
 import React, { FunctionComponent } from 'react';
 // Helpers
-import { Routes } from '/helpers/routes';
 import { noSwipeGestureOnNavigator } from '/helpers/navigators';
-//Stacks
+import { Routes } from '/helpers/routes';
+// Stacks
 import { createStackNavigator } from '@react-navigation/stack';
-import { SignUpStack } from './SignUp';
-import { HomeStack } from './Home';
-import { useFacility } from '~/ui/contexts/FacilityContext';
-import { useAuth } from '~/ui/contexts/AuthContext';
 import { AutocompleteModalScreen } from '~/ui/components/AutocompleteModal';
+import { useAuth } from '~/ui/contexts/AuthContext';
+import { useFacility } from '~/ui/contexts/FacilityContext';
 import { SelectFacilityScreen } from '~/ui/navigation/screens/signup/SelectFacilityScreen';
+import { HomeStack } from './Home';
+import { SignUpStack } from './SignUp';
 
 const Stack = createStackNavigator();
 

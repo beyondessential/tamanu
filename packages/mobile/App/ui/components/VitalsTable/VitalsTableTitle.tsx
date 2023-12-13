@@ -1,9 +1,9 @@
-import React from 'react';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import React from 'react';
 
-export const VitalsTableTitle = () : JSX.Element => (
+export const VitalsTableTitle = (): JSX.Element => (
   <StyledView
     background={theme.colors.WHITE}
     width={screenPercentageToDP(31.63, Orientation.Width)}

@@ -1,8 +1,8 @@
-import React from 'react';
 import { storiesOf } from '@storybook/react';
+import React from 'react';
 import styled from 'styled-components';
-import { DropdownButton } from '../../app/components/DropdownButton';
 import { Button, ButtonRow } from '../../app/components';
+import { DropdownButton } from '../../app/components/DropdownButton';
 
 const actions = [
   { label: 'button', onClick: () => {} },
@@ -38,9 +38,10 @@ storiesOf('Buttons/DropdownButton', module)
       </Container>
     </div>
   ))
-  .add('Only one action', () => (
-    <DropdownButton actions={[{ label: 'Plier', onClick: () => {} }]} />
-  ))
+  .add(
+    'Only one action',
+    () => <DropdownButton actions={[{ label: 'Plier', onClick: () => {} }]} />,
+  )
   .add('No actions', () => <DropdownButton actions={[]} />)
   .add('In button row', () => (
     <ButtonRow>

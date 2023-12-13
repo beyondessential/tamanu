@@ -1,3 +1,3 @@
 export * from './generateReportFromQueryData';
-export * from './transformAnswers';
 export * from './getAnswers';
+export * from './transformAnswers';

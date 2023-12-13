@@ -1,10 +1,4 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-} from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { DevSettings } from 'react-native';
 import { readConfig, writeConfig } from '~/services/config';
 import { useBackend } from '../hooks';
@@ -17,7 +11,7 @@ interface FacilityContextData {
 
 const FacilityContext = createContext({
   facilityId: null,
-  facilityName: "Unmounted context",
+  facilityName: 'Unmounted context',
   assignFacility: (id: string, name: string) => Promise.resolve(null),
 });
 
@@ -44,7 +38,7 @@ export const FacilityProvider = ({ children }) => {
           setFacilityName(id);
           return;
         }
-        setFacilityName(facility.name); 
+        setFacilityName(facility.name);
       }
     })();
   }, [setFacilityId]);
@@ -63,12 +57,14 @@ export const FacilityProvider = ({ children }) => {
   }
 
   return (
-    <FacilityContext.Provider value={{
-      facilityId,
-      facilityName,
-      assignFacility
-    }}>
+    <FacilityContext.Provider
+      value={{
+        facilityId,
+        facilityName,
+        assignFacility,
+      }}
+    >
       {children}
     </FacilityContext.Provider>
   );
-}
+};

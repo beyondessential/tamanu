@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 
 import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
 
-import { CancelModal } from '../../../components/CancelModal';
-import { Button } from '../../../components/Button';
 import { useApi } from '../../../api';
+import { Button } from '../../../components/Button';
+import { CancelModal } from '../../../components/CancelModal';
 import { useLocalisation } from '../../../contexts/Localisation';
 
 function getReasonForCancellationStatus(reasonForCancellation) {

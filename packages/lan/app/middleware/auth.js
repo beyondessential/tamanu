@@ -1,14 +1,14 @@
-import { trace, propagation, context } from '@opentelemetry/api';
-import { sign as signCallback, verify as verifyCallback } from 'jsonwebtoken';
+import { context, propagation, trace } from '@opentelemetry/api';
 import { compare } from 'bcrypt';
 import config from 'config';
-import { v4 as uuid } from 'uuid';
+import { sign as signCallback, verify as verifyCallback } from 'jsonwebtoken';
 import { promisify } from 'util';
+import { v4 as uuid } from 'uuid';
 
-import { VISIBILITY_STATUSES, USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
+import { USER_DEACTIVATED_ERROR_MESSAGE, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
-import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
+import { log } from '@tamanu/shared/services/logging';
 
 import { CentralServerConnection } from '../sync';
 
@@ -216,9 +216,9 @@ export const authMiddleware = async (req, res, next) => {
 
     const spanAttributes = req.user
       ? {
-          'enduser.id': req.user.id,
-          'enduser.role': req.user.role,
-        }
+        'enduser.id': req.user.id,
+        'enduser.role': req.user.role,
+      }
       : {};
 
     // eslint-disable-next-line no-unused-expressions

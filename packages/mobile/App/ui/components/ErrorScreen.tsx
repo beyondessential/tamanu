@@ -1,6 +1,6 @@
+import { theme } from '/styled/theme';
 import React, { memo } from 'react';
 import { FullView, StyledText } from '~/ui/styled/common';
-import { theme } from '/styled/theme';
 
 interface Props {
   error: {

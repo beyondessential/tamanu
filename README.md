@@ -2,16 +2,16 @@
 
 > This is a [monorepo](https://github.com/babel/babel/blob/master/doc/design/monorepo.md)
 
-| Package | Runbook | Description |
-| ------- | ------- | ----------- |
-| [sync-server](packages/sync-server) | [sync-server runbook](https://beyond-essential.slab.com/posts/tamanu-sync-server-runbook-et0trny5) | The central server, which facility server and mobile client instances communicate with to synchronise data |
-| [lan](packages/lan) | [lan runbook](https://beyond-essential.slab.com/posts/todo-tamanu-lan-runbook-ezljl0qk) | The facility server, which the app communicates with |
-| [meta-server](packages/meta-server) | [meta-server runbook](https://beyond-essential.slab.com/posts/todo-tamanu-meta-server-runbook-0zbgw7m7) | The metadata server, which serves information about app versions and known sync-server installations |
-| [desktop](packages/desktop) | [desktop runbook](https://beyond-essential.slab.com/posts/todo-tamanu-desktop-runbook-i2bmy57c) | The webapp |
-| [mobile](packages/mobile) | [mobile runbook](https://beyond-essential.slab.com/posts/todo-tamanu-mobile-runbook-8vj8qceu) | The mobile app  |
-| [@tamanu/shared](packages/shared) | N/A | Shared code monolith among Tamanu components |
-| [@tamanu/build-tooling](packages/build-tooling) | N/A | Shared build tooling code |
-| [csca](packages/csca) | [csca runbook](https://beyond-essential.slab.com/posts/csca-runbook-be1td5ml), [signer runbook](https://beyond-essential.slab.com/posts/signer-runbook-hcws6er3) | A tool to create and manage a CSCA / ICAO eMRTD PKI |
+| Package                                         | Runbook                                                                                                                                                          | Description                                                                                                |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| [sync-server](packages/sync-server)             | [sync-server runbook](https://beyond-essential.slab.com/posts/tamanu-sync-server-runbook-et0trny5)                                                               | The central server, which facility server and mobile client instances communicate with to synchronise data |
+| [lan](packages/lan)                             | [lan runbook](https://beyond-essential.slab.com/posts/todo-tamanu-lan-runbook-ezljl0qk)                                                                          | The facility server, which the app communicates with                                                       |
+| [meta-server](packages/meta-server)             | [meta-server runbook](https://beyond-essential.slab.com/posts/todo-tamanu-meta-server-runbook-0zbgw7m7)                                                          | The metadata server, which serves information about app versions and known sync-server installations       |
+| [desktop](packages/desktop)                     | [desktop runbook](https://beyond-essential.slab.com/posts/todo-tamanu-desktop-runbook-i2bmy57c)                                                                  | The webapp                                                                                                 |
+| [mobile](packages/mobile)                       | [mobile runbook](https://beyond-essential.slab.com/posts/todo-tamanu-mobile-runbook-8vj8qceu)                                                                    | The mobile app                                                                                             |
+| [@tamanu/shared](packages/shared)               | N/A                                                                                                                                                              | Shared code monolith among Tamanu components                                                               |
+| [@tamanu/build-tooling](packages/build-tooling) | N/A                                                                                                                                                              | Shared build tooling code                                                                                  |
+| [csca](packages/csca)                           | [csca runbook](https://beyond-essential.slab.com/posts/csca-runbook-be1td5ml), [signer runbook](https://beyond-essential.slab.com/posts/signer-runbook-hcws6er3) | A tool to create and manage a CSCA / ICAO eMRTD PKI                                                        |
 
 The latest version for each Tamanu service (Servers, Desktop Client & Mobile Client) can be retrieved with a HTTP GET request via their respective public API routes:
 
@@ -83,6 +83,7 @@ be checked into version control. This file should contain the information for da
 local credentials, etc.
 
 The [`config` docs](https://github.com/lorenwest/node-config/wiki/Configuration-Files) have more info on how that works.
+
 </details>
 
 ## Run
@@ -95,6 +96,7 @@ The [`config` docs](https://github.com/lorenwest/node-config/wiki/Configuration-
 ##### OSX
 
 Run:
+
 ```bash
 brew install postgres
 brew services start postgres
@@ -116,6 +118,7 @@ Install PostgreSQL from your package manager
 By default, the Central server will not run migrations automatically. To enable automatic migrations, set `db.syncOnStartup` to `true` within your local configuration (see the `Config` section above).
 
 #### Prerequisite
+
 1. Duplicate `sync-server/config/local.example` as new file `config/local.json5`.
 2. Create db using `tamanu-central` or any customised name, new db can be with or without owner.
 3. Store db name, root username, password or db owner credentials to `config/local.json5` db config.
@@ -129,8 +132,9 @@ yarn sync-start-dev
 ```
 
 #### Pull data from remote
+
 1. Ask help for pulling data from tamanu dev
-2. Import data to local by running: 
+2. Import data to local by running:
 
 ```
 psql -U [DB_USERNAME] -d tamanu-central < [Path to tamanu-central-dev.sql]
@@ -145,6 +149,7 @@ The Tamanu desktop app needs a Facility server running to operate correctly. For
 local development, this can just be another process on the same host.
 
 #### Prerequisite
+
 1. Start `sync-server`
 2. Duplicate `lan/config/local.example` as new file `config/local.json5`.
 3. Create db using `tamanu-facility` or any customised name, new db can be with or without owner.
@@ -165,6 +170,7 @@ is in addition to the fact that any backend functionality should have tests agai
 
 The Facility server uses sequelize to manage database connections, and uses postgres exclusively.
 As soon as you have postgres available, set the appropriate connection variables in your `local.json5`.
+
 </details>
 
 <details>
@@ -178,4 +184,5 @@ $ yarn desktop-start-dev
 
 Note that we also use storybook to develop components in isolation, which you can run from within
 the desktop directory using `yarn storybook`.
+
 </details>

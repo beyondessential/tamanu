@@ -1,7 +1,7 @@
 export { FhirAddress } from './address';
 export { FhirAnnotation } from './annotation';
-export { FhirCoding } from './coding';
 export { FhirCodeableConcept } from './codeableConcept';
+export { FhirCoding } from './coding';
 export { FhirContactPoint } from './contactPoint';
 export { FhirEncounterLocation } from './encounterLocation';
 export { FhirExtension } from './extension';

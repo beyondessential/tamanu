@@ -1,7 +1,7 @@
-import React, { useCallback } from 'react';
-import { StyledView } from '/styled/common';
-import { BaseInputProps } from '/interfaces/BaseInputProps';
 import { OvalCheckbox } from '/components/Checkbox/OvalCheckbox';
+import { BaseInputProps } from '/interfaces/BaseInputProps';
+import { StyledView } from '/styled/common';
+import React, { useCallback } from 'react';
 import { StyleSheet } from 'react-native';
 
 interface CheckboxProps extends BaseInputProps {

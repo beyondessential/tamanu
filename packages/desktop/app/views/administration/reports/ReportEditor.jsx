@@ -1,16 +1,17 @@
-import React from 'react';
-import styled from 'styled-components';
-import { useQuery } from '@tanstack/react-query';
-import { capitalize } from 'lodash';
-import * as yup from 'yup';
 import { Accordion, AccordionDetails, AccordionSummary, Grid } from '@material-ui/core';
 import {
-  REPORT_DEFAULT_DATE_RANGES_VALUES,
-  REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
-  REPORT_STATUSES_VALUES,
+  REPORT_DATA_SOURCES,
   REPORT_DB_SCHEMAS,
+  REPORT_DEFAULT_DATE_RANGES_VALUES,
+  REPORT_STATUSES_VALUES,
 } from '@tamanu/constants/reports';
+import { useQuery } from '@tanstack/react-query';
+import { capitalize } from 'lodash';
+import React from 'react';
+import styled from 'styled-components';
+import * as yup from 'yup';
+import { useApi } from '../../../api';
 import {
   Button,
   ButtonRow,
@@ -20,13 +21,12 @@ import {
   SelectField,
   TextField,
 } from '../../../components';
-import { ParameterList, ParameterItem, SQLQueryEditor } from './components/editing';
+import { useAuth } from '../../../contexts/Auth';
 import {
   FIELD_TYPES_WITH_PREDEFINED_OPTIONS,
   FIELD_TYPES_WITH_SUGGESTERS,
 } from '../../reports/ParameterField';
-import { useAuth } from '../../../contexts/Auth';
-import { useApi } from '../../../api';
+import { ParameterItem, ParameterList, SQLQueryEditor } from './components/editing';
 
 const StyledField = styled(Field)`
   flex-grow: 1;
@@ -91,8 +91,10 @@ const schema = yup.object().shape({
         is: parameterField => FIELD_TYPES_WITH_PREDEFINED_OPTIONS.includes(parameterField),
         then: yup
           .array()
-          .test('test-options', 'Each option must contain a label and value', val =>
-            val.every(o => o.label && o.value),
+          .test(
+            'test-options',
+            'Each option must contain a label and value',
+            val => val.every(o => o.label && o.value),
           ),
         otherwise: yup.array(),
       }),
@@ -122,13 +124,14 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit }) =>
 
   const canWriteRawReportUser = Boolean(ability?.can('write', 'ReportDbSchema'));
 
-  const { data: schemaOptions = [] } = useQuery(['dbSchemaOptions'], () =>
-    api.get(`admin/reports/dbSchemaOptions`),
+  const { data: schemaOptions = [] } = useQuery(
+    ['dbSchemaOptions'],
+    () => api.get(`admin/reports/dbSchemaOptions`),
   );
 
   // Show data source field if user is writing a raw report OR if reporting schema is disabled.
-  const showDataSourceField =
-    values.dbSchema === REPORT_DB_SCHEMAS.RAW || schemaOptions.length === 0;
+  const showDataSourceField = values.dbSchema === REPORT_DB_SCHEMAS.RAW ||
+    schemaOptions.length === 0;
 
   return (
     <>

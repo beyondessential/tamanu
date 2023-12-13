@@ -1,9 +1,9 @@
-import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
-import { BaseModel } from './BaseModel';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
 import { IMedication } from '~/types';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
-import { Encounter } from './Encounter';
+import { BaseModel } from './BaseModel';
 import { DateTimeStringColumn } from './DateColumns';
+import { Encounter } from './Encounter';
+import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 
 @Entity('medication')

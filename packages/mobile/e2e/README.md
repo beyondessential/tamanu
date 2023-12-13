@@ -4,8 +4,7 @@
 
 The idea here is to validate feature like it would be in production following possible steps and routines an user would have to do.
 
-Repetitive workflows should be separated in a method to reduce the amount of code in test blocks. 
-
+Repetitive workflows should be separated in a method to reduce the amount of code in test blocks.
 
 Example of workflows to be tested end-to-end:
 

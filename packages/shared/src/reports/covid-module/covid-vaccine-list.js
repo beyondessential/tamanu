@@ -1,8 +1,8 @@
 /* eslint-disable no-param-reassign */
 
-import { Op } from 'sequelize';
 import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
-import { toDateTimeString, format } from '../../utils/dateTime';
+import { Op } from 'sequelize';
+import { format, toDateTimeString } from '../../utils/dateTime';
 import { generateReportFromQueryData } from '../utilities';
 
 const DATE_FORMAT = 'yyyy/MM/dd';

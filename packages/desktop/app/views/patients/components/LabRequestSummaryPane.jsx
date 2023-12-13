@@ -1,23 +1,23 @@
-import React, { useState, useMemo } from 'react';
-import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
-import { Colors } from '../../../constants';
-import { MultipleLabRequestsPrintoutModal } from '../../../components/PatientPrinting/modals/MultipleLabRequestsPrintoutModal';
-import {
-  Button,
-  BodyText,
-  FormSeparatorLine,
-  DateDisplay,
-  Table,
-  useSelectableColumn,
-  OutlinedButton,
-  Heading3,
-  useLocalisedText,
-} from '../../../components';
-import { LabRequestPrintLabelModal } from '../../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
+import React, { useMemo, useState } from 'react';
+import styled from 'styled-components';
 import { useLabRequestNotes } from '../../../api/queries';
+import {
+  BodyText,
+  Button,
+  DateDisplay,
+  FormSeparatorLine,
+  Heading3,
+  OutlinedButton,
+  Table,
+  useLocalisedText,
+  useSelectableColumn,
+} from '../../../components';
 import { InfoCard, InfoCardItem } from '../../../components/InfoCard';
+import { LabRequestPrintLabelModal } from '../../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
+import { MultipleLabRequestsPrintoutModal } from '../../../components/PatientPrinting/modals/MultipleLabRequestsPrintoutModal';
+import { Colors } from '../../../constants';
 
 const Container = styled.div`
   padding-top: 20px;
@@ -67,13 +67,13 @@ const getColumns = type => [
   },
   ...(type === LAB_REQUEST_FORM_TYPES.PANEL
     ? [
-        {
-          key: 'panelId',
-          title: 'Panel',
-          sortable: false,
-          accessor: ({ labTestPanelRequest }) => labTestPanelRequest?.labTestPanel?.name || 'N/A',
-        },
-      ]
+      {
+        key: 'panelId',
+        title: 'Panel',
+        sortable: false,
+        accessor: ({ labTestPanelRequest }) => labTestPanelRequest?.labTestPanel?.name || 'N/A',
+      },
+    ]
     : []),
   {
     key: 'labTestCategory',

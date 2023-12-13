@@ -1,13 +1,13 @@
 /* eslint-disable no-unused-expressions */
 
-import { HCERTPack, HCERTVerify } from 'sync-server/app/integrations/EuDcc';
+import { expect } from 'chai';
 import { createTestContext } from 'sync-server/__tests__/utilities';
+import { HCERTPack, HCERTVerify } from 'sync-server/app/integrations/EuDcc';
 import {
   loadCertificateIntoSigner,
   newKeypairAndCsr,
   TestCSCA,
 } from 'sync-server/app/integrations/Signer';
-import { expect } from 'chai';
 import { getLocalisation } from 'sync-server/app/localisation';
 
 describe('EU DCC: HCERT Formatting', () => {

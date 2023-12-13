@@ -1,14 +1,14 @@
-import React, { ReactElement } from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
-import { ReferralScreen } from './ReferralScreen';
-import { SurveyResponseDetailsScreen } from '../screens/programs/SurveyResponseDetailsScreen';
 import { Routes } from '/helpers/routes';
-import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
-import { SurveyResponseScreen } from '../screens/programs/SurveyResponseScreen';
+import { createStackNavigator } from '@react-navigation/stack';
+import React, { ReactElement } from 'react';
+import { useSelector } from 'react-redux';
 import { SurveyTypes } from '~/types';
+import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
 import { PatientStateProps } from '~/ui/store/ducks/patient';
-import { useSelector } from 'react-redux';
+import { SurveyResponseDetailsScreen } from '../screens/programs/SurveyResponseDetailsScreen';
+import { SurveyResponseScreen } from '../screens/programs/SurveyResponseScreen';
+import { ReferralScreen } from './ReferralScreen';
 
 const Stack = createStackNavigator();
 

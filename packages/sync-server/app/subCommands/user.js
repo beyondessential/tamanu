@@ -1,6 +1,6 @@
 import { Command } from 'commander';
-import { promisify } from 'util';
 import readSync from 'read';
+import { promisify } from 'util';
 
 import { initDatabase } from '../database';
 

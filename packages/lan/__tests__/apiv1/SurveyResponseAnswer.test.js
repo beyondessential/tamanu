@@ -1,11 +1,11 @@
-import Chance from 'chance';
-import { fake } from '@tamanu/shared/test-helpers/fake';
 import {
-  SURVEY_TYPES,
   PROGRAM_DATA_ELEMENT_TYPES,
+  SURVEY_TYPES,
   VITALS_DATA_ELEMENT_IDS,
 } from '@tamanu/constants/surveys';
+import { fake } from '@tamanu/shared/test-helpers/fake';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import Chance from 'chance';
 import { createTestContext } from '../utilities';
 
 const chance = new Chance();
@@ -140,7 +140,7 @@ describe('SurveyResponseAnswer', () => {
           },
         };
         const response = await SurveyResponse.sequelize.transaction(() =>
-          SurveyResponse.createWithAnswers(data),
+          SurveyResponse.createWithAnswers(data)
         );
 
         return response;
@@ -260,7 +260,7 @@ describe('SurveyResponseAnswer', () => {
           },
         };
         const response = await SurveyResponse.sequelize.transaction(() =>
-          SurveyResponse.createWithAnswers(data),
+          SurveyResponse.createWithAnswers(data)
         );
         const answers = await response.getAnswers();
         const singleAnswer = answers.find(answer => answer.dataElementId === pde.id);

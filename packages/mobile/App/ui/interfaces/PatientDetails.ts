@@ -34,8 +34,8 @@ export interface PatientGeneralInformationDataProps {
 }
 
 export type PatientDetails =
-  PatientGeneralInformationDataProps &
-  ReminderWarnings &
-  OnGoingConditionsDataProps &
-  FamilyHistoryDataProps &
-  AllergiesProps;
+  & PatientGeneralInformationDataProps
+  & ReminderWarnings
+  & OnGoingConditionsDataProps
+  & FamilyHistoryDataProps
+  & AllergiesProps;

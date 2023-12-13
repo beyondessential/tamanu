@@ -1,12 +1,12 @@
-import { expect, beforeAll, describe, it } from '@jest/globals';
+import { beforeAll, describe, expect, it } from '@jest/globals';
 
-import { fakeReferenceData, withErrorShown } from '@tamanu/shared/test-helpers';
-import { SYNC_SESSION_DIRECTION, getModelsForDirection } from '@tamanu/shared/sync';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { getModelsForDirection, SYNC_SESSION_DIRECTION } from '@tamanu/shared/sync';
+import { fakeReferenceData, withErrorShown } from '@tamanu/shared/test-helpers';
 import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
-import { createTestContext } from '../utilities';
 import { snapshotOutgoingChanges } from '../../app/sync/snapshotOutgoingChanges';
+import { createTestContext } from '../utilities';
 
 describe('snapshotOutgoingChanges', () => {
   let ctx;

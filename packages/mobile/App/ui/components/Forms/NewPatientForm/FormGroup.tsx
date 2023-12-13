@@ -1,7 +1,7 @@
-import React, { ReactElement, useMemo, ReactNode } from 'react';
-import { StyledView } from '/styled/common';
-import { SectionHeader } from '../../SectionHeader';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { StyledView } from '/styled/common';
+import React, { ReactElement, ReactNode, useMemo } from 'react';
+import { SectionHeader } from '../../SectionHeader';
 
 type FormGroupProps = {
   sectionName: string;

@@ -1,8 +1,8 @@
+import config from 'config';
+import { addMinutes } from 'date-fns';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import config from 'config';
 import * as yup from 'yup';
-import { addMinutes } from 'date-fns';
 
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';

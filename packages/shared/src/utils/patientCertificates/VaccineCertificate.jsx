@@ -1,13 +1,13 @@
-import React from 'react';
 import { Document, Page } from '@react-pdf/renderer';
+import React from 'react';
 
-import { Table } from './Table';
-import { styles, Col, Box, Row, Watermark, CertificateHeader, CertificateFooter } from './Layout';
+import { getDisplayDate } from './getDisplayDate';
+import { Box, CertificateFooter, CertificateHeader, Col, Row, styles, Watermark } from './Layout';
+import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsSection } from './PatientDetailsSection';
 import { SigningSection } from './SigningSection';
+import { Table } from './Table';
 import { P } from './Typography';
-import { LetterheadSection } from './LetterheadSection';
-import { getDisplayDate } from './getDisplayDate';
 
 const columns = [
   {
@@ -102,13 +102,13 @@ export const VaccineCertificate = ({
             <Row>
               <Col>
                 <P>
-                  <P bold>Printed by: </P>
+                  <P bold>Printed by:</P>
                   {printedBy}
                 </P>
               </Col>
               <Col>
                 <P>
-                  <P bold>Printing date: </P>
+                  <P bold>Printing date:</P>
                   {getDisplayDate(printedDate)}
                 </P>
               </Col>

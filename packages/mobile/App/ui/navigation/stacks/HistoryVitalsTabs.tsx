@@ -1,8 +1,8 @@
-import React, { ReactElement } from 'react';
-import { Routes } from '/helpers/routes';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
-import { VisitsScreen } from '../screens/historyvitals/tabs/VisitsScreen';
+import { Routes } from '/helpers/routes';
+import React, { ReactElement } from 'react';
 import { VaccinesScreen } from '../screens/historyvitals/tabs/VaccinesScreen';
+import { VisitsScreen } from '../screens/historyvitals/tabs/VisitsScreen';
 
 const Tabs = createTopTabNavigator();
 

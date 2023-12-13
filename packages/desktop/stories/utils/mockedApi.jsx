@@ -1,5 +1,5 @@
+import { parse, tokensToRegExp } from 'path-to-regexp';
 import React from 'react';
-import { tokensToRegExp, parse } from 'path-to-regexp';
 import { ApiContext } from '../../app/api';
 
 const wait = duration => new Promise(resolve => setTimeout(resolve, duration));

@@ -1,7 +1,7 @@
+import { DateTimeString } from './DateString';
 import { ID } from './ID';
 import { ILegacyNotePage } from './ILegacyNotePage';
 import { IUser } from './IUser';
-import { DateTimeString } from './DateString';
 
 export interface ILegacyNoteItem {
   id: ID;
@@ -10,7 +10,7 @@ export interface ILegacyNoteItem {
 
   revisedById?: string;
 
-  notePage: ILegacyNotePage
+  notePage: ILegacyNotePage;
   notePageId: ID;
 
   author?: IUser;

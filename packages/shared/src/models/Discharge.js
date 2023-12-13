@@ -1,8 +1,8 @@
-import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from '../errors';
-import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import { Model } from './Model';
 
 export class Discharge extends Model {
   static init({ primaryKey, ...options }) {

@@ -1,5 +1,5 @@
-import { AutocompleteSourceToColumnMap } from '~/ui/helpers/constants';
 import { MODELS_MAP } from '~/models/modelsMap';
+import { AutocompleteSourceToColumnMap } from '~/ui/helpers/constants';
 
 export async function getAutocompleteDisplayAnswer(
   models: typeof MODELS_MAP,

@@ -1,10 +1,10 @@
-import { ID } from './ID';
-import { IScheduledVaccine } from './IScheduledVaccine';
-import { IEncounter } from './IEncounter';
-import { IUser } from './IUser';
-import { ILocation } from './ILocation';
-import { IDepartment } from './IDepartment';
 import { VaccineStatus } from '~/ui/helpers/patient';
+import { ID } from './ID';
+import { IDepartment } from './IDepartment';
+import { IEncounter } from './IEncounter';
+import { ILocation } from './ILocation';
+import { IScheduledVaccine } from './IScheduledVaccine';
+import { IUser } from './IUser';
 
 export interface IAdministeredVaccine {
   id: ID;
@@ -34,4 +34,6 @@ export enum InjectionSiteType {
   Other = 'Other',
 }
 
-export const INJECTION_SITE_OPTIONS = Object.keys(InjectionSiteType).map(k => InjectionSiteType[k as string] as InjectionSiteType);
+export const INJECTION_SITE_OPTIONS = Object.keys(InjectionSiteType).map(k =>
+  InjectionSiteType[k as string] as InjectionSiteType
+);

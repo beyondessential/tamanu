@@ -1,12 +1,12 @@
+import Box from '@material-ui/core/Box';
+import Typography from '@material-ui/core/Typography';
 import React from 'react';
 import styled from 'styled-components';
-import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
 
-import { Form, Field, SearchField, DynamicSelectField } from './Field';
-import { FormGrid } from './FormGrid';
-import { LargeSubmitButton, LargeOutlinedSubmitButton } from './Button';
 import { Colors } from '../constants';
+import { LargeOutlinedSubmitButton, LargeSubmitButton } from './Button';
+import { DynamicSelectField, Field, Form, SearchField } from './Field';
+import { FormGrid } from './FormGrid';
 
 const DOCUMENT_TYPE_OPTIONS = [
   { value: 'pdf', label: 'PDF' },

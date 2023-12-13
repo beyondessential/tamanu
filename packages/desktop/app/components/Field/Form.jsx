@@ -1,15 +1,15 @@
-import React, { useEffect } from 'react';
-import { Formik, useFormikContext } from 'formik';
-import PropTypes from 'prop-types';
-import { ValidationError } from 'yup';
 import { Typography } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
+import { Formik, useFormikContext } from 'formik';
+import PropTypes from 'prop-types';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
+import { ValidationError } from 'yup';
 
-import { flattenObject } from '../../utils';
-import { Dialog } from '../Dialog';
 import { FORM_STATUSES, FORM_TYPES } from '../../constants';
 import { useFormSubmission } from '../../contexts/FormSubmission';
+import { flattenObject } from '../../utils';
+import { Dialog } from '../Dialog';
 
 const ErrorMessage = ({ error }) => `${JSON.stringify(error)}`;
 
@@ -40,13 +40,13 @@ const ScrollToError = () => {
 
 const StyledForm = styled.form`
   ${props =>
-    !props.$clickable
-      ? `
+  !props.$clickable
+    ? `
       .MuiFormControl-root {
         pointer-events: none;
       }
     `
-      : ''}
+    : ''}
 `;
 
 const FormSubmissionFlag = () => {
@@ -73,8 +73,7 @@ export class Form extends React.PureComponent {
     super(props);
 
     const { onSubmit, formType = FORM_TYPES.DATA_FORM } = props;
-    const hasNonAsyncSubmitHandler =
-      process.env.NODE_ENV === 'development' &&
+    const hasNonAsyncSubmitHandler = process.env.NODE_ENV === 'development' &&
       formType === FORM_TYPES.DATA_FORM &&
       onSubmit.constructor.name !== 'AsyncFunction';
 
@@ -117,7 +116,8 @@ export class Form extends React.PureComponent {
     setStatus,
     status,
     ...rest
-  }) => async (event, submissionParameters, componentsToValidate) => {
+  }) =>
+  async (event, submissionParameters, componentsToValidate) => {
     event.preventDefault();
     event.persist();
 
@@ -141,8 +141,8 @@ export class Form extends React.PureComponent {
 
     const validFormErrors = componentsToValidate
       ? Object.keys(formErrors || {}).filter(problematicComponent =>
-          componentsToValidate.has(problematicComponent),
-        )
+        componentsToValidate.has(problematicComponent)
+      )
       : formErrors;
 
     if (Object.keys(validFormErrors).length > 0) {

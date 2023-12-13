@@ -1,24 +1,25 @@
-import React, { ReactElement, useCallback } from 'react';
-import { compose } from 'redux';
-import { FullView, StyledSafeAreaView, StyledView } from '/styled/common';
-import { PatientHistoryAccordion } from '~/ui/components/PatientHistoryAccordion';
-import { theme } from '/styled/theme';
 import { Button } from '/components/Button';
 import { FilterIcon } from '/components/Icons';
-import { NOTE_TYPES } from '~/ui/helpers/constants';
-import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
-import { useBackendEffect } from '~/ui/hooks';
-import { LoadingScreen } from '~/ui/components/LoadingScreen';
-import { ErrorScreen } from '~/ui/components/ErrorScreen';
-import { withPatient } from '~/ui/containers/Patient';
+import { FullView, StyledSafeAreaView, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
+import React, { ReactElement, useCallback } from 'react';
+import { compose } from 'redux';
 import { IDiagnosis } from '~/types';
+import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { PatientHistoryAccordion } from '~/ui/components/PatientHistoryAccordion';
+import { withPatient } from '~/ui/containers/Patient';
+import { NOTE_TYPES } from '~/ui/helpers/constants';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { useBackendEffect } from '~/ui/hooks';
 
 const DEFAULT_FIELD_VAL = 'N/A';
 
-const displayNotes = (notes): string => notes
-  .filter(note => note.noteType === NOTE_TYPES.CLINICAL_MOBILE)
-  .map(note => note.content)
-  .join('\n\n')
+const displayNotes = (notes): string =>
+  notes
+    .filter(note => note.noteType === NOTE_TYPES.CLINICAL_MOBILE)
+    .map(note => note.content)
+    .join('\n\n')
   || DEFAULT_FIELD_VAL;
 
 const visitsHistoryRows = {
@@ -28,7 +29,8 @@ const visitsHistoryRows = {
   },
   diagnoses: {
     name: 'Diagnosis',
-    accessor: (diagnoses: IDiagnosis[]): string => diagnoses.map((d) => `${d.diagnosis?.name} (${d.certainty})`).join('\n\n')
+    accessor: (diagnoses: IDiagnosis[]): string =>
+      diagnoses.map(d => `${d.diagnosis?.name} (${d.certainty})`).join('\n\n')
       || DEFAULT_FIELD_VAL,
   },
   notes: {
@@ -48,11 +50,9 @@ const DumbVisitsScreen = ({ selectedPatient }): ReactElement => {
   return (
     <StyledSafeAreaView flex={1}>
       <FullView background={theme.colors.BACKGROUND_GREY}>
-        {data ? (
-          <PatientHistoryAccordion dataArray={data} rows={visitsHistoryRows} />
-        ) : (
-          <LoadingScreen />
-        )}
+        {data ?
+          <PatientHistoryAccordion dataArray={data} rows={visitsHistoryRows} /> :
+          <LoadingScreen />}
       </FullView>
     </StyledSafeAreaView>
   );

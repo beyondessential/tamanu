@@ -1,19 +1,19 @@
-import React, { FunctionComponent, useCallback, useState, ReactElement, useEffect } from 'react';
-import * as Yup from 'yup';
-import { KeyboardAvoidingView, StatusBar } from 'react-native';
-import {
-  StyledView,
-  StyledSafeAreaView,
-  FullView,
-  StyledTouchableOpacity,
-  StyledText,
-} from '/styled/common';
 import { HomeBottomLogoIcon } from '/components/Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import {
+  FullView,
+  StyledSafeAreaView,
+  StyledText,
+  StyledTouchableOpacity,
+  StyledView,
+} from '/styled/common';
 import { theme } from '/styled/theme';
+import React, { FunctionComponent, ReactElement, useCallback, useEffect, useState } from 'react';
+import { KeyboardAvoidingView, StatusBar } from 'react-native';
+import * as Yup from 'yup';
 
-import { Routes } from '/helpers/routes';
 import { Button } from '/components/Button';
+import { Routes } from '/helpers/routes';
 import { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
 import { useAuth } from '~/ui/contexts/AuthContext';
 

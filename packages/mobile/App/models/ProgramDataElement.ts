@@ -1,9 +1,9 @@
-import { Entity, Column, OneToMany, OneToOne } from 'typeorm/browser';
+import { Column, Entity, OneToMany, OneToOne } from 'typeorm/browser';
+import { DataElementType, IProgramDataElement } from '~/types';
 import { BaseModel } from './BaseModel';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
-import { IProgramDataElement, DataElementType } from '~/types';
-import { SYNC_DIRECTIONS } from './types';
 import { SurveyScreenComponent } from './SurveyScreenComponent';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('program_data_element')
 export class ProgramDataElement extends BaseModel implements IProgramDataElement {

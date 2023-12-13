@@ -1,31 +1,31 @@
+import { useQuery } from '@tanstack/react-query';
 import React, { memo, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { OutlinedButton } from '../Button';
-import { InfoPaneList } from './InfoPaneList';
-import { CoreInfoDisplay } from './PatientCoreInfo';
-import { PrintPatientDetailsModal } from '../PatientPrinting';
+import { isErrorUnknownAllow404s, useApi } from '../../api';
+import { Colors } from '../../constants';
+import { useLocalisation } from '../../contexts/Localisation';
 import {
   AllergyForm,
-  OngoingConditionForm,
   FamilyHistoryForm,
+  OngoingConditionForm,
   PatientCarePlanForm,
   PatientIssueForm,
 } from '../../forms';
+import { OutlinedButton } from '../Button';
 import { DeathModal } from '../DeathModal';
-import { Colors } from '../../constants';
-import { PatientCarePlanDetails } from './PatientCarePlanNotes';
-import { useLocalisation } from '../../contexts/Localisation';
+import { PrintPatientDetailsModal } from '../PatientPrinting';
+import { RecordDeathSection } from '../RecordDeathSection';
+import { InfoPaneList } from './InfoPaneList';
 import {
-  CONDITIONS_TITLE,
   ALLERGIES_TITLE,
+  CARE_PLANS_TITLE,
+  CONDITIONS_TITLE,
   FAMILY_HISTORY_TITLE,
   ISSUES_TITLE,
-  CARE_PLANS_TITLE,
 } from './paneTitles';
-import { useApi, isErrorUnknownAllow404s } from '../../api';
-import { RecordDeathSection } from '../RecordDeathSection';
+import { PatientCarePlanDetails } from './PatientCarePlanNotes';
+import { CoreInfoDisplay } from './PatientCoreInfo';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
@@ -147,8 +147,9 @@ export const PatientInfoPane = () => {
   const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
   const api = useApi();
-  const { data: deathData, isLoading } = useQuery(['patientDeathSummary', patient.id], () =>
-    api.get(`patient/${patient.id}/death`, {}, { isErrorUnknown: isErrorUnknownAllow404s }),
+  const { data: deathData, isLoading } = useQuery(
+    ['patientDeathSummary', patient.id],
+    () => api.get(`patient/${patient.id}/death`, {}, { isErrorUnknown: isErrorUnknownAllow404s }),
   );
 
   const readonly = !!patient.death;

@@ -1,9 +1,9 @@
-import { Sequelize, DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import { FhirResource } from '../Resource';
-import { fromLabTests } from './getQueryToFindUpstreamIds';
 import { getQueryOptions } from './getQueryOptions';
+import { fromLabTests } from './getQueryToFindUpstreamIds';
 import { getValues } from './getValues';
 
 export class FhirDiagnosticReport extends FhirResource {

@@ -1,6 +1,6 @@
-import { Sequelize } from 'sequelize';
 import { FHIR_INTERACTIONS, JOB_TOPICS } from '@tamanu/constants';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
+import { Sequelize } from 'sequelize';
 import { prepareQuery } from '../../../utils/prepareQuery';
 
 export async function allFromUpstream({ payload }, { log, sequelize, models }) {
@@ -22,7 +22,7 @@ export async function allFromUpstream({ payload }, { log, sequelize, models }) {
         upstreamTable.schema?.toLowerCase() === schema &&
         upstreamTable.tableName?.toLowerCase() === tableName
       );
-    }),
+    })
   );
   if (resources.length === 0) {
     log.warn('No materialisable FHIR resource found for table', {

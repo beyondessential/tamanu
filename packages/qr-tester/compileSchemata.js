@@ -26,8 +26,8 @@ const moduleCode = standaloneCode(ajv, {
 })
   .replace(`"use strict";`, `"use strict";\nimport fastDeepEqual from '/js/fastDeepEqual.js';`)
   .replace(`require("ajv/dist/runtime/equal").default`, 'fastDeepEqual');
-//^ This is a workaround for ajv including a dependency in CommonJS syntax, which would require
-//^ a build step to be able to use it in a browser. Instead we ad-hoc rewrite it and have the
-//^ dependency vendored into the repo. Very much a hack, may break. FIXME
+// ^ This is a workaround for ajv including a dependency in CommonJS syntax, which would require
+// ^ a build step to be able to use it in a browser. Instead we ad-hoc rewrite it and have the
+// ^ dependency vendored into the repo. Very much a hack, may break. FIXME
 
 fs.writeFileSync(path.join(__dirname, 'www/vendor/validateVdsNc.js'), moduleCode);

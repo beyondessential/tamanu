@@ -1,7 +1,7 @@
+import { RowView, StyledView } from '/styled/common';
 import React from 'react';
-import { StyledView, RowView } from '/styled/common';
-import { ScrollView } from 'react-native-gesture-handler';
 import { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export type TableHeader = {
   key: string;
@@ -62,7 +62,7 @@ export const Table = ({
                 row.cell(
                   cells[column].find(c => c[row.rowKey] === row.rowTitle),
                   i,
-                ),
+                )
               )}
           </StyledView>
         ))}

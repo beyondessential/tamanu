@@ -1,8 +1,8 @@
 import { Command } from 'commander';
 import { promises as fs } from 'fs';
 import { initDatabase } from '../../database';
-import * as importUtils from './utils';
 import * as importActions from './actions';
+import * as importUtils from './utils';
 
 async function importReport(options) {
   const { name, ...versionData } = JSON.parse(await fs.readFile(options.file));

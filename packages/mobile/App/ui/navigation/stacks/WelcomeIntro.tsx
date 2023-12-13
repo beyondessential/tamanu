@@ -1,12 +1,9 @@
+import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 import React, { ReactElement } from 'react';
-import {
-  createStackNavigator,
-  TransitionPresets,
-} from '@react-navigation/stack';
 // Screens
-import { Intro } from '../screens/home/Intro';
 import { Routes } from '/helpers/routes';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { Intro } from '../screens/home/Intro';
 
 const Stack = createStackNavigator();
 

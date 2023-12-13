@@ -1,13 +1,13 @@
-import React, { ReactElement } from 'react';
-import { Root } from 'popup-ui';
 import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
-import { PersistGate } from 'redux-persist/integration/react';
+import { Root } from 'popup-ui';
+import React, { ReactElement } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
-import { store, persistor } from '../../store/index';
+import { PersistGate } from 'redux-persist/integration/react';
 import { AuthProvider } from '../../contexts/AuthContext';
 import { FacilityProvider } from '../../contexts/FacilityContext';
 import { LocalisationProvider } from '../../contexts/LocalisationContext';
+import { persistor, store } from '../../store/index';
 import { Core } from './Core';
 import { DetectIdleLayer } from './DetectIdleLayer';
 

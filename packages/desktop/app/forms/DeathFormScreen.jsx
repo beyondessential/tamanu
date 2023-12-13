@@ -1,7 +1,7 @@
+import { Box } from '@material-ui/core';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
 import { Button, OutlinedButton } from '../components';
 import { getVisibleQuestions } from '../utils';
 import { SummaryScreenOne } from './DeathFormSummaryScreens';

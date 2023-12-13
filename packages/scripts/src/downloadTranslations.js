@@ -35,7 +35,7 @@ function getWorksheets() {
       if (err) return reject(err);
 
       resolve(info.worksheets);
-    }),
+    })
   );
 }
 
@@ -45,7 +45,7 @@ function getRows(sheet) {
       if (err) return reject(err);
 
       resolve(rows);
-    }),
+    })
   );
 }
 

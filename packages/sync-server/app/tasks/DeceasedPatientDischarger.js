@@ -1,10 +1,10 @@
 import config from 'config';
 import { Op } from 'sequelize';
 
-import { ScheduledTask } from '@tamanu/shared/tasks';
-import { log } from '@tamanu/shared/services/logging';
-import { sleepAsync } from '@tamanu/shared/utils';
 import { InvalidConfigError } from '@tamanu/shared/errors';
+import { log } from '@tamanu/shared/services/logging';
+import { ScheduledTask } from '@tamanu/shared/tasks';
+import { sleepAsync } from '@tamanu/shared/utils';
 
 export class DeceasedPatientDischarger extends ScheduledTask {
   getName() {

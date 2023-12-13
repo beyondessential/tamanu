@@ -1,5 +1,5 @@
-import { useLocalisation } from '../contexts/Localisation';
 import { sexOptions } from '../constants';
+import { useLocalisation } from '../contexts/Localisation';
 
 export const useSexValues = () => {
   const { getLocalisation } = useLocalisation();
@@ -14,10 +14,9 @@ export const useSexValues = () => {
 
 export const useSexOptions = (includeAll = false) => {
   const { getLocalisation } = useLocalisation();
-  const options =
-    getLocalisation('features.hideOtherSex') === true
-      ? sexOptions.filter(s => s.value !== 'other')
-      : sexOptions;
+  const options = getLocalisation('features.hideOtherSex') === true
+    ? sexOptions.filter(s => s.value !== 'other')
+    : sexOptions;
 
   return [...(includeAll ? [{ value: '', label: 'All' }] : []), ...options];
 };

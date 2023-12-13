@@ -1,34 +1,34 @@
-import React from 'react';
 import { PropTypes } from 'prop-types';
+import React from 'react';
 import * as yup from 'yup';
 
 import { VACCINE_CATEGORIES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
-import { REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
+import { CheckField, Field, SuggesterSelectField } from '../components/Field';
 import { TwoTwoGrid } from '../components/TwoTwoGrid';
 import {
-  CategoryField,
-  VaccineLabelField,
-  BatchField,
   AdministeredVaccineScheduleField,
-  VaccineDateField,
-  InjectionSiteField,
-  LocationField,
-  DepartmentField,
-  GivenByField,
-  GivenByCountryField,
-  RecordedByField,
+  BatchField,
+  CategoryField,
+  ConfirmCancelRowField,
   ConsentField,
   ConsentGivenByField,
-  StyledDivider,
-  FullWidthCol,
-  ConfirmCancelRowField,
-  VaccineNameField,
-  VaccineBrandField,
+  DepartmentField,
   DiseaseField,
+  FullWidthCol,
+  GivenByCountryField,
+  GivenByField,
+  InjectionSiteField,
+  LocationField,
+  RecordedByField,
+  StyledDivider,
+  VaccineBrandField,
+  VaccineDateField,
+  VaccineLabelField,
+  VaccineNameField,
 } from '../components/VaccineCommonFields';
-import { Field, CheckField, SuggesterSelectField } from '../components/Field';
+import { REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
 
 export const VACCINE_GIVEN_INITIAL_VALUES = {
   givenElsewhere: false,
@@ -111,42 +111,46 @@ export const VaccineGivenForm = ({
           <StyledDivider />
         </>
       )}
-      {category === VACCINE_CATEGORIES.OTHER ? (
-        <>
-          {!editMode && <VaccineNameField />}
-          <BatchField />
-          <VaccineBrandField />
-          <DiseaseField />
-        </>
-      ) : (
-        <>
-          {!editMode && (
-            <VaccineLabelField
-              vaccineLabel={vaccineLabel}
-              vaccineOptions={vaccineOptions}
-              setVaccineLabel={setVaccineLabel}
-            />
-          )}
-          <BatchField />
-        </>
-      )}
+      {category === VACCINE_CATEGORIES.OTHER ?
+        (
+          <>
+            {!editMode && <VaccineNameField />}
+            <BatchField />
+            <VaccineBrandField />
+            <DiseaseField />
+          </>
+        ) :
+        (
+          <>
+            {!editMode && (
+              <VaccineLabelField
+                vaccineLabel={vaccineLabel}
+                vaccineOptions={vaccineOptions}
+                setVaccineLabel={setVaccineLabel}
+              />
+            )}
+            <BatchField />
+          </>
+        )}
 
-      {!editMode && schedules?.length ? (
-        <AdministeredVaccineScheduleField schedules={schedules} />
-      ) : null}
+      {!editMode && schedules?.length ?
+        <AdministeredVaccineScheduleField schedules={schedules} /> :
+        null}
 
       <VaccineDateField label="Date given" required={!values.givenElsewhere} />
 
       <InjectionSiteField />
 
-      {!values.givenElsewhere ? (
-        <>
-          <StyledDivider />
+      {!values.givenElsewhere ?
+        (
+          <>
+            <StyledDivider />
 
-          <LocationField />
-          <DepartmentField />
-        </>
-      ) : null}
+            <LocationField />
+            <DepartmentField />
+          </>
+        ) :
+        null}
 
       <StyledDivider />
 
@@ -159,11 +163,9 @@ export const VaccineGivenForm = ({
       <StyledDivider />
 
       <ConsentField
-        label={
-          values.givenElsewhere
-            ? 'Do you have consent to record in Tamanu?'
-            : 'Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?'
-        }
+        label={values.givenElsewhere
+          ? 'Do you have consent to record in Tamanu?'
+          : 'Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?'}
       />
 
       <ConsentGivenByField />

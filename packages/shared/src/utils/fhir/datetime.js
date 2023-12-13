@@ -1,15 +1,15 @@
 import {
-  isValid,
-  parse,
-  getDate,
-  getHours,
-  getMonth,
-  getYear,
-  getMinutes,
-  getSeconds,
   format,
   formatISO9075,
   formatRFC3339,
+  getDate,
+  getHours,
+  getMinutes,
+  getMonth,
+  getSeconds,
+  getYear,
+  isValid,
+  parse,
 } from 'date-fns';
 import { getTimezoneOffset, zonedTimeToUtc } from 'date-fns-tz';
 import { pick } from 'lodash';
@@ -41,9 +41,11 @@ function normalizeTz(tz, date) {
   const minutes = Math.floor((Math.abs(offset) % 3600) / 60);
   const seconds = Math.floor(Math.abs(offset) % 60);
 
-  let offsetSuffix = `${sign}${hours.toString().padStart(2, '0')}:${minutes
-    .toString()
-    .padStart(2, '0')}`;
+  let offsetSuffix = `${sign}${hours.toString().padStart(2, '0')}:${
+    minutes
+      .toString()
+      .padStart(2, '0')
+  }`;
   if (seconds !== 0) {
     offsetSuffix += `:${seconds.toString().padStart(2, '0')}`;
   }

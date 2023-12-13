@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import { Box } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
+import Tooltip from '@material-ui/core/Tooltip';
+import CancelIcon from '@material-ui/icons/Cancel';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
-import CancelIcon from '@material-ui/icons/Cancel';
-import Tooltip from '@material-ui/core/Tooltip';
-import { Box } from '@material-ui/core';
+import React, { useState } from 'react';
+import styled from 'styled-components';
 import { Colors } from '../../constants';
+import { DateDisplay } from '../DateDisplay';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { AppointmentDetail } from './AppointmentDetail';
-import { DateDisplay } from '../DateDisplay';
 
 const StyledTooltip = withStyles(() => ({
   tooltip: {

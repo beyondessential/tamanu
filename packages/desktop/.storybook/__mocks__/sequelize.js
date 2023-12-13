@@ -1,5 +1,5 @@
 export const DataTypes = {
   ABSTRACT: {
-    prototype: {}
-  }
-}
+    prototype: {},
+  },
+};

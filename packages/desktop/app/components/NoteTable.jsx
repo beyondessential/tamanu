@@ -1,14 +1,14 @@
-import React, { useCallback, useMemo, useState, useRef } from 'react';
-import styled from 'styled-components';
 import EditIcon from '@material-ui/icons/Edit';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import styled from 'styled-components';
 
-import { NOTE_TYPES, NOTE_PERMISSION_TYPES } from '@tamanu/constants';
+import { NOTE_PERMISSION_TYPES, NOTE_TYPES } from '@tamanu/constants';
 
-import { DataFetchingTable } from './Table';
-import { DateDisplay } from './DateDisplay';
 import { Colors, NOTE_FORM_MODES, NOTE_TYPE_LABELS } from '../constants';
 import { useAuth } from '../contexts/Auth';
+import { DateDisplay } from './DateDisplay';
 import { NoteModal } from './NoteModal';
+import { DataFetchingTable } from './Table';
 import { withPermissionCheck } from './withPermissionCheck';
 
 const StyledEditIcon = styled(EditIcon)`
@@ -31,14 +31,14 @@ const NoteContentContainer = styled.div`
   display: -webkit-box;
   white-space: pre-line;
   ${props =>
-    !props.$expanded
-      ? `
+  !props.$expanded
+    ? `
     text-overflow: clip;
     -webkit-line-clamp: 20;
             line-clamp: 20;
     -webkit-box-orient: vertical;
   `
-      : ''}
+    : ''}
 `;
 
 const EllipsisHideShowSpan = styled.span`
@@ -153,14 +153,12 @@ const NoteContent = ({
   const handleReadLess = useCallback(() => setContentIsExpanded(false), []);
 
   const showNoteMetaPrefix = note.noteType === NOTE_TYPES.TREATMENT_PLAN && note.revisedById;
-  const noteAuthorName =
-    note.noteType === NOTE_TYPES.TREATMENT_PLAN || !note.revisedBy
-      ? note.author?.displayName
-      : note.revisedBy?.author?.displayName;
-  const noteOnBehalfOfName =
-    note.noteType === NOTE_TYPES.TREATMENT_PLAN || !note.revisedBy
-      ? note.onBehalfOf?.displayName
-      : note.revisedBy?.onBehalfOf?.displayName;
+  const noteAuthorName = note.noteType === NOTE_TYPES.TREATMENT_PLAN || !note.revisedBy
+    ? note.author?.displayName
+    : note.revisedBy?.author?.displayName;
+  const noteOnBehalfOfName = note.noteType === NOTE_TYPES.TREATMENT_PLAN || !note.revisedBy
+    ? note.onBehalfOf?.displayName
+    : note.revisedBy?.onBehalfOf?.displayName;
 
   return (
     <NoteRowContainer>
@@ -181,8 +179,8 @@ const NoteContent = ({
             const elementRef = contentLineClipping?.current?.[i];
             const contentOffsetHeight = noteContentContainerRef.current?.offsetHeight;
             const isVisible = contentOffsetHeight > elementRef?.offsetTop;
-            const hiddenHeight =
-              elementRef?.offsetTop + elementRef?.offsetHeight - contentOffsetHeight;
+            const hiddenHeight = elementRef?.offsetTop + elementRef?.offsetHeight -
+              contentOffsetHeight;
             return (
               <>
                 <span
@@ -201,7 +199,7 @@ const NoteContent = ({
                   {'\n'}
                 </span>
                 {contentIsExpanded && i === length - 1 && (
-                  <ShowLessSpan onClick={handleReadLess}> Show less</ShowLessSpan>
+                  <ShowLessSpan onClick={handleReadLess}>Show less</ShowLessSpan>
                 )}
               </>
             );
@@ -210,15 +208,15 @@ const NoteContent = ({
         {hasIndividualNotePermission &&
           hasEncounterNoteWritePermission &&
           note.noteType !== NOTE_TYPES.SYSTEM && (
-            <StyledEditIcon onClick={() => handleEditNote(note)} />
-          )}
+          <StyledEditIcon onClick={() => handleEditNote(note)} />
+        )}
       </NoteBodyContainer>
       <NoteFooterContainer>
         {showNoteMetaPrefix && <NoteFooterTextElement>Last updated:</NoteFooterTextElement>}
         {noteAuthorName ? <NoteFooterTextElement>{noteAuthorName}</NoteFooterTextElement> : null}
-        {noteOnBehalfOfName ? (
-          <NoteFooterTextElement>on behalf of {noteOnBehalfOfName}</NoteFooterTextElement>
-        ) : null}
+        {noteOnBehalfOfName ?
+          <NoteFooterTextElement>on behalf of {noteOnBehalfOfName}</NoteFooterTextElement> :
+          null}
         <DateDisplay
           date={(note.noteType !== NOTE_TYPES.TREATMENT_PLAN && note.revisedBy?.date) || note.date}
           showTime

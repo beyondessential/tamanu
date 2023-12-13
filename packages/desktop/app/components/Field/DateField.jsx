@@ -1,18 +1,18 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import styled from 'styled-components';
+import { Box } from '@material-ui/core';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
-import { Box } from '@material-ui/core';
-import { addDays, isAfter, isBefore, parse } from 'date-fns';
 import {
+  format as formatDate,
   toDateString,
   toDateTimeString,
-  format as formatDate,
 } from '@tamanu/shared/utils/dateTime';
+import { addDays, isAfter, isBefore, parse } from 'date-fns';
 import PropTypes from 'prop-types';
-import { TextInput } from './TextField';
+import React, { useCallback, useEffect, useState } from 'react';
+import styled from 'styled-components';
 import { Colors } from '../../constants';
 import { DefaultIconButton } from '../Button';
+import { TextInput } from './TextField';
 
 // This component is pretty tricky! It has to keep track of two layers of state:
 //

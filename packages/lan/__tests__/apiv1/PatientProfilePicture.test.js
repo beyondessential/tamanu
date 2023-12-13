@@ -1,4 +1,4 @@
-import { createDummyPatient, createDummyEncounter } from '@tamanu/shared/demoData/patients';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
 async function uploadDummyProfilePicture(models, patientId) {
@@ -37,7 +37,7 @@ async function uploadDummyProfilePicture(models, patientId) {
       answers: {
         [dataElement.id]: '12345',
       },
-    }),
+    })
   );
 
   return dataElement;

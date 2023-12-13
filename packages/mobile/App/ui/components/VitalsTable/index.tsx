@@ -1,24 +1,24 @@
+import { ErrorScreen } from '/components/ErrorScreen';
+import { LoadingScreen } from '/components/LoadingScreen';
+import { VitalsDataElements } from '/helpers/constants';
+import { differenceInMonths, differenceInWeeks, differenceInYears, parseISO } from 'date-fns';
 import React, { memo, useState } from 'react';
-import { differenceInYears, differenceInMonths, differenceInWeeks, parseISO } from 'date-fns';
+import { useSelector } from 'react-redux';
+import { SurveyScreenValidationCriteria } from '~/types';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { useBackendEffect } from '~/ui/hooks';
+import { StyledScrollView, StyledText, StyledView } from '~/ui/styled/common';
+import { theme } from '~/ui/styled/theme';
+import { VisibilityStatus } from '~/visibilityStatuses';
+import { ValidationCriteriaNormalRange } from '../../../types/ISurvey';
 import { PatientVitalsProps } from '../../interfaces/PatientVitalsProps';
 import { ReduxStoreProps } from '../../interfaces/ReduxStoreProps';
 import { PatientStateProps } from '../../store/ducks/patient';
 import { Table, TableCells } from '../Table';
-import { vitalsTableHeader } from './VitalsTableHeader';
-import { VitalsTableTitle } from './VitalsTableTitle';
-import { LoadingScreen } from '/components/LoadingScreen';
-import { useBackendEffect } from '~/ui/hooks';
-import { ErrorScreen } from '/components/ErrorScreen';
-import { VitalsDataElements } from '/helpers/constants';
-import { StyledText, StyledView, StyledScrollView } from '~/ui/styled/common';
-import { theme } from '~/ui/styled/theme';
-import { VitalsTableRowHeader } from './VitalsTableRowHeader';
 import { VitalsTableCell } from './VitalsTableCell';
-import { SurveyScreenValidationCriteria } from '~/types';
-import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
-import { ValidationCriteriaNormalRange } from '../../../types/ISurvey';
-import { useSelector } from 'react-redux';
-import { VisibilityStatus } from '~/visibilityStatuses';
+import { vitalsTableHeader } from './VitalsTableHeader';
+import { VitalsTableRowHeader } from './VitalsTableRowHeader';
+import { VitalsTableTitle } from './VitalsTableTitle';
 
 interface VitalsTableProps {
   data: TableCells<PatientVitalsProps>;
@@ -76,7 +76,7 @@ export const VitalsTable = memo(
       (state: ReduxStoreProps): PatientStateProps => state.patient,
     );
     const [vitalsSurvey, error] = useBackendEffect(({ models }) =>
-      models.Survey.getVitalsSurvey({ includeAllVitals: true }),
+      models.Survey.getVitalsSurvey({ includeAllVitals: true })
     );
     const [showNeedsAttentionInfo, setShowNeedsAttentionInfo] = useState(false);
 
@@ -115,8 +115,10 @@ export const VitalsTable = memo(
           background={theme.colors.WHITE}
         >
           <StyledScrollView>
-            {/* Lines extending to end page underneath vitals entry so
-        table doesn't cut off if only one or two vital rows */}
+            {
+              /* Lines extending to end page underneath vitals entry so
+        table doesn't cut off if only one or two vital rows */
+            }
             {Array.from({ length: components.length + 1 })
               .fill(0)
               .map((_, i) => (

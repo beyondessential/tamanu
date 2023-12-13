@@ -1,14 +1,14 @@
-import { SURVEY_TYPES, VISIBILITY_STATUSES, LOCATION_AVAILABILITY_STATUS } from '@tamanu/constants';
+import { LOCATION_AVAILABILITY_STATUS, SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import {
-  splitIds,
   buildDiagnosis,
-  createDummyPatient,
   createDummyEncounter,
+  createDummyPatient,
   randomRecords,
+  splitIds,
 } from '@tamanu/shared/demoData';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers';
-import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
+import { createTestContext } from '../utilities';
 
 describe('Suggestions', () => {
   let userApp = null;

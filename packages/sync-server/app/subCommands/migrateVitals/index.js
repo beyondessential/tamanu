@@ -1,9 +1,9 @@
-import { Command } from 'commander';
-import { Sequelize } from 'sequelize';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
-import { v4 as generateId } from 'uuid';
+import { Command } from 'commander';
 import config from 'config';
+import { Sequelize } from 'sequelize';
+import { v4 as generateId } from 'uuid';
 import { initDatabase } from '../../database';
 
 const BATCH_COUNT = 100;
@@ -93,7 +93,7 @@ export async function migrateVitals() {
               dataElementId: COLUMNS_TO_DATA_ELEMENT_ID[key],
               responseId: idMap.get(vital.dataValues.id),
               body: conversionFunctions[key] ? conversionFunctions[key](value) : value,
-            })),
+            }))
         );
         await models.SurveyResponseAnswer.bulkCreate(answerData.flat());
 

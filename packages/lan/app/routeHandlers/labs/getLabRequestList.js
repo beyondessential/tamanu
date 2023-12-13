@@ -1,5 +1,5 @@
-import asyncHandler from 'express-async-handler';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
+import asyncHandler from 'express-async-handler';
 
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 
@@ -46,7 +46,7 @@ export const getLabRequestList = (foreignKey = '', options = {}) =>
      * which does not exist.
      *
      * More details: https://github.com/sequelize/sequelize-typescript/issues/740
-     *  */
+     */
 
     if (!includeNotes) {
       res.send({ count, data: labRequests });

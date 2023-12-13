@@ -1,12 +1,12 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
+import PropTypes from 'prop-types';
+import React from 'react';
 
-import { Modal } from '../../Modal';
-import { LoadingIndicator } from '../../LoadingIndicator';
-import { useCertificate } from '../../../utils/useCertificate';
 import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
+import { useCertificate } from '../../../utils/useCertificate';
+import { LoadingIndicator } from '../../LoadingIndicator';
+import { Modal } from '../../Modal';
 
 import { MultipleLabRequestsPrintout } from '../printouts/MultipleLabRequestsPrintout';
 
@@ -43,18 +43,18 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
       color={Colors.white}
       printable
     >
-      {patientLoading || additionalDataLoading || villageLoading ? (
-        <LoadingIndicator />
-      ) : (
-        <MultipleLabRequestsPrintout
-          certificateData={certificateData}
-          patient={patient}
-          additionalData={additionalData}
-          village={village}
-          encounter={encounter}
-          labRequests={labRequests}
-        />
-      )}
+      {patientLoading || additionalDataLoading || villageLoading ?
+        <LoadingIndicator /> :
+        (
+          <MultipleLabRequestsPrintout
+            certificateData={certificateData}
+            patient={patient}
+            additionalData={additionalData}
+            village={village}
+            encounter={encounter}
+            labRequests={labRequests}
+          />
+        )}
     </Modal>
   );
 };

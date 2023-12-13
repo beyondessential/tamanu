@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { PageContainer, ContentPane, TopBar } from '../../components';
-import { Notification } from '../../components/Notification';
-import { Button } from '../../components/Button';
+import { ContentPane, PageContainer, TopBar } from '../../components';
 import { AppointmentForm } from '../../components/Appointments/AppointmentForm';
+import { Button } from '../../components/Button';
+import { Notification } from '../../components/Notification';
 
 const ButtonRow = styled.div`
   display: flex;
@@ -27,9 +27,7 @@ export const NewAppointmentView = () => {
     <PageContainer>
       <TopBar title="New appointment" />
       <ContentPane>
-        {success ? (
-          <SubmissionSuccess onReset={() => setSuccess(false)} />
-        ) : (
+        {success ? <SubmissionSuccess onReset={() => setSuccess(false)} /> : (
           <AppointmentForm
             onSuccess={() => {
               setSuccess(true);

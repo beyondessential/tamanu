@@ -1,15 +1,15 @@
-import { DataTypes } from 'sequelize';
 import {
   NOTE_RECORD_TYPE_VALUES,
   NOTE_TYPE_VALUES,
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
+import { DataTypes } from 'sequelize';
 
-import { Model } from './Model';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 import { buildNoteLinkedSyncFilter } from './buildNoteLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
-import { getCurrentDateTimeString } from '../utils/dateTime';
+import { Model } from './Model';
 
 export class Note extends Model {
   static init({ primaryKey, ...options }) {

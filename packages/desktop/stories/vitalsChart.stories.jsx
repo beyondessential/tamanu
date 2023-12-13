@@ -1,10 +1,10 @@
-import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { addHours, addDays, format } from 'date-fns';
-import { Modal } from '../app/components/Modal';
-import { LineChart } from '../app/components/Charts/LineChart';
-import { EncounterContext } from '../app/contexts/Encounter';
+import { addDays, addHours, format } from 'date-fns';
+import React from 'react';
 import { getVitalChartProps } from '../app/components/Charts/helpers/getVitalChartProps';
+import { LineChart } from '../app/components/Charts/LineChart';
+import { Modal } from '../app/components/Modal';
+import { EncounterContext } from '../app/contexts/Encounter';
 
 const getDate = amount => format(addHours(new Date(), amount), 'yyyy-MM-dd HH:mm:ss');
 const data = [

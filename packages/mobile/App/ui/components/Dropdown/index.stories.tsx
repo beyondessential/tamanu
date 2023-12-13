@@ -1,10 +1,10 @@
-import React from 'react';
-import { storiesOf } from '@storybook/react-native';
-import { ThemeProvider } from 'styled-components';
 import { CenterView, themeSystem } from '/styled/common';
 import { theme } from '/styled/theme';
-import { BaseStory } from './fixture';
+import { storiesOf } from '@storybook/react-native';
+import React from 'react';
+import { ThemeProvider } from 'styled-components';
 import { KeyboardAwareView } from '../KeyboardAwareView';
+import { BaseStory } from './fixture';
 
 storiesOf('Dropdown', module)
   .addDecorator((story: Function) => (

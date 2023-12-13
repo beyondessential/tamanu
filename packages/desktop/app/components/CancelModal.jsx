@@ -1,9 +1,9 @@
 import React from 'react';
-import * as yup from 'yup';
 import styled from 'styled-components';
-import { FormModal } from './FormModal';
+import * as yup from 'yup';
 import { FormSubmitCancelRow } from './ButtonRow';
-import { SelectField, Form, Field } from './Field';
+import { Field, Form, SelectField } from './Field';
+import { FormModal } from './FormModal';
 import { BodyText } from './Typography';
 
 const ModalBody = styled.div`

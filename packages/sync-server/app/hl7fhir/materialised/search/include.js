@@ -8,9 +8,11 @@ export function resolveIncludes(models, query, parameters, FhirResource) {
   const referenceParameters = invertReferenceParameters(parameters);
   const materialisedResources = resourcesThatCanDo(models, FHIR_INTERACTIONS.INTERNAL.MATERIALISE);
 
-  for (const { modifier, resource, parameter, targetType } of flattenIncludes(
-    query.get('_include'),
-  )) {
+  for (
+    const { modifier, resource, parameter, targetType } of flattenIncludes(
+      query.get('_include'),
+    )
+  ) {
     if (modifier) {
       throw new Unsupported(`_include modifiers are not yet supported`);
     }

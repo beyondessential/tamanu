@@ -1,6 +1,4 @@
 /* eslint-disable */
-const config = require('./jest.config')
+const config = require('./jest.config');
 
-config.testRegex = '(/App/.*\\.test)\\.(ts|tsx|js)$',
-
-module.exports = config
+config.testRegex = '(/App/.*\\.test)\\.(ts|tsx|js)$', module.exports = config;

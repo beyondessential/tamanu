@@ -1,7 +1,7 @@
-import React, { useCallback } from 'react';
-import styled from 'styled-components';
 import MuiTextField from '@material-ui/core/TextField';
 import PublishIcon from '@material-ui/icons/Publish';
+import React, { useCallback } from 'react';
+import styled from 'styled-components';
 import { Button } from '../Button';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 
@@ -40,32 +40,35 @@ export const FileChooserInput = ({ value = '', label, name, filters, onChange, .
     if (!result) return;
 
     onChange({ target: { name, value: result } });
-    */ // TODO(web)
+    */
+    // TODO(web)
   }, [showOpenDialog, filters, name, onChange]);
 
   return (
     <OuterLabelFieldWrapper label={label} {...props}>
       <FieldButtonRow className={value ? 'has-value' : ''}>
-        {value ? (
-          <>
-            <MuiTextField readOnly value={value} variant="outlined" />
-            <Button onClick={browseForFile} variant="outlined">
-              <PublishIcon />
-              <span style={{ marginLeft: '0.5rem' }}>Change selection</span>
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button onClick={browseForFile} variant="outlined" color="primary">
-              Choose file
-            </Button>
-            <HintText>
-              Max 10 MB
-              <br />
-              Supported file types: {filters.map(filter => filter.name).join(', ')}
-            </HintText>
-          </>
-        )}
+        {value ?
+          (
+            <>
+              <MuiTextField readOnly value={value} variant="outlined" />
+              <Button onClick={browseForFile} variant="outlined">
+                <PublishIcon />
+                <span style={{ marginLeft: '0.5rem' }}>Change selection</span>
+              </Button>
+            </>
+          ) :
+          (
+            <>
+              <Button onClick={browseForFile} variant="outlined" color="primary">
+                Choose file
+              </Button>
+              <HintText>
+                Max 10 MB
+                <br />
+                Supported file types: {filters.map(filter => filter.name).join(', ')}
+              </HintText>
+            </>
+          )}
       </FieldButtonRow>
     </OuterLabelFieldWrapper>
   );

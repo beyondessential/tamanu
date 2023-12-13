@@ -10,7 +10,7 @@ export const MANNER_OF_DEATHS = [
 ];
 
 export const MANNER_OF_DEATH_OPTIONS = Object.values(MANNER_OF_DEATHS).map(
-  (type) => ({
+  type => ({
     label: type,
     value: type,
   }),

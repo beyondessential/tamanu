@@ -1,15 +1,15 @@
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
+import { randomDate, randomLabRequest } from '@tamanu/shared/demoData';
 import {
   createDummyEncounter,
   createDummyPatient,
-  randomReferenceId,
   randomReferenceData,
+  randomReferenceId,
 } from '@tamanu/shared/demoData/patients';
-import { randomLabRequest, randomDate } from '@tamanu/shared/demoData';
-import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
-import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
-import { Chance } from 'chance';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { Chance } from 'chance';
 import { createTestContext } from '../utilities';
 
 const chance = new Chance();
@@ -57,15 +57,13 @@ describe('Patient relations', () => {
       endTime,
     });
 
-    const dataElement =
-      withReferral &&
+    const dataElement = withReferral &&
       (await models.ProgramDataElement.create({
         ...fake(models.ProgramDataElement),
         type: 'SubmissionDate',
       }));
 
-    const surveyResponseAnswer =
-      withReferral &&
+    const surveyResponseAnswer = withReferral &&
       (await models.SurveyResponseAnswer.create({
         ...fake(models.SurveyResponseAnswer),
         dataElementId: dataElement.id,
@@ -73,8 +71,7 @@ describe('Patient relations', () => {
         body: submissionDate,
       }));
 
-    const referral =
-      withReferral &&
+    const referral = withReferral &&
       (await models.Referral.create({
         initiatingEncounterId: encounter.id,
         surveyResponseId: surveyResponse.id,
@@ -640,7 +637,7 @@ describe('Patient relations', () => {
       expect(response.body.count).toEqual(labTestTypes.length);
       response.body.data.forEach(testResults => {
         Object.values(testResults.results).forEach(res =>
-          expect(publishedLabTests).toContain(res.id),
+          expect(publishedLabTests).toContain(res.id)
         );
       });
     });
@@ -653,7 +650,7 @@ describe('Patient relations', () => {
       expect(response.body.count).toEqual(labTestTypes.length);
       response.body.data.forEach(testResults => {
         Object.values(testResults.results).forEach(res =>
-          expect(unpublishedLabTests).toContain(res.id),
+          expect(unpublishedLabTests).toContain(res.id)
         );
       });
     });

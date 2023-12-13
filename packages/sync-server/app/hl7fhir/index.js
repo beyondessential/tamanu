@@ -1,14 +1,14 @@
 import { Router } from 'express';
 
+import { fhirRoutes as matRoutes } from './materialised';
 import {
-  patientHandler,
   diagnosticReportHandler,
   immunizationHandler,
-  singlePatientHandler,
+  patientHandler,
   singleDiagnosticReportHandler,
   singleImmunizationHandler,
+  singlePatientHandler,
 } from './routeHandlers';
-import { fhirRoutes as matRoutes } from './materialised';
 
 import { requireClientHeaders as requireClientHeadersMiddleware } from '../middleware/requireClientHeaders';
 

@@ -1,5 +1,5 @@
-import { parseISO } from 'date-fns';
 import config from 'config';
+import { parseISO } from 'date-fns';
 
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { toDateString } from '@tamanu/shared/utils/dateTime';

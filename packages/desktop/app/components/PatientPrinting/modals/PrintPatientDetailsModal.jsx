@@ -1,17 +1,17 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
-import { Modal } from '../../Modal';
-import { Button } from '../../Button';
+import { isErrorUnknownAllow404s, useApi } from '../../../api';
 import { Colors } from '../../../constants';
-import { useApi, isErrorUnknownAllow404s } from '../../../api';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { Button } from '../../Button';
+import { Modal } from '../../Modal';
 
+import { BirthNotificationCertificateModal } from './BirthNotificationCertificateModal';
+import { CovidClearanceCertificateModal } from './CovidClearanceCertificateModal';
+import { CovidTestCertificateModal } from './CovidTestCertificateModal';
 import { PatientIDCardPage } from './PatientIDCardPage';
 import { PatientStickerLabelPage } from './PatientStickerLabelPage';
-import { CovidTestCertificateModal } from './CovidTestCertificateModal';
-import { CovidClearanceCertificateModal } from './CovidClearanceCertificateModal';
-import { BirthNotificationCertificateModal } from './BirthNotificationCertificateModal';
 
 const PRINT_OPTIONS = {
   barcode: {

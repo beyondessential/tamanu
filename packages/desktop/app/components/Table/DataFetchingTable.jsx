@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useEffect, useRef, memo } from 'react';
-import { isEqual } from 'lodash';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { isEqual } from 'lodash';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
@@ -52,8 +52,8 @@ export const DataFetchingTable = memo(
     const api = useApi();
 
     const { getLocalisation } = useLocalisation();
-    const autoRefreshConfig =
-      overrideLocalisationForStorybook || getLocalisation('features.tableAutoRefresh');
+    const autoRefreshConfig = overrideLocalisationForStorybook ||
+      getLocalisation('features.tableAutoRefresh');
     const enableAutoRefresh = autoRefreshConfig && autoRefreshConfig.enabled && autoRefresh;
 
     // This callback will be passed to table cell accessors so they can force a table refresh
@@ -179,8 +179,8 @@ export const DataFetchingTable = memo(
         if (hasSearchChanged) return true; // if search changed reset highlighting
 
         const isLeavingPageOne = fetchState.page === 0 && page > 0;
-        const isChangingFromInitialSort =
-          isEqual(fetchState.sorting, initialSort) && hasSortingChanged;
+        const isChangingFromInitialSort = isEqual(fetchState.sorting, initialSort) &&
+          hasSortingChanged;
 
         if (isLeavingPageOne && isInitialSort) return true; // if leaving page one when green rows visible, reset highlighting
         if (page === 0 && isChangingFromInitialSort) return true; // if changing sort on page one when green rows visible, reset highlighting

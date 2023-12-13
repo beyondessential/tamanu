@@ -1,5 +1,5 @@
-import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { DataTypes } from 'sequelize';
 import { Model } from './Model';
 
 export class PatientFacility extends Model {
@@ -9,7 +9,8 @@ export class PatientFacility extends Model {
         id: {
           // patient facility records use a generated primary key that enforces one per patient,
           // even across a distributed sync system
-          type: `TEXT GENERATED ALWAYS AS (REPLACE("patient_id", ';', ':') || ';' || REPLACE("facility_id", ';', ':')) STORED`,
+          type:
+            `TEXT GENERATED ALWAYS AS (REPLACE("patient_id", ';', ':') || ';' || REPLACE("facility_id", ';', ':')) STORED`,
           set() {
             // any sets of the convenience generated "id" field can be ignored
           },

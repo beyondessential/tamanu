@@ -1,22 +1,22 @@
+import { Button } from '/components/Button';
+import { ResetPasswordForm } from '/components/Forms/ResetPasswordForm/ResetPasswordForm';
+import { ModalInfo } from '/components/ModalInfo';
+import { Routes } from '/helpers/routes';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { ResetPasswordProps } from '/interfaces/Screens/SignUp/ResetPasswordProps';
+import {
+  ColumnView,
+  FullView,
+  StyledSafeAreaView,
+  StyledText,
+  StyledTouchableOpacity,
+  StyledView,
+} from '/styled/common';
+import { theme } from '/styled/theme';
 import React, { FunctionComponent, ReactElement, useCallback, useState } from 'react';
 import { KeyboardAvoidingView, StatusBar } from 'react-native';
-import {
-  StyledView,
-  StyledSafeAreaView,
-  FullView,
-  ColumnView,
-  StyledTouchableOpacity,
-  StyledText,
-} from '/styled/common';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { theme } from '/styled/theme';
-import { ResetPasswordForm } from '/components/Forms/ResetPasswordForm/ResetPasswordForm';
-import { ResetPasswordProps } from '/interfaces/Screens/SignUp/ResetPasswordProps';
-import { Routes } from '/helpers/routes';
-import { ModalInfo } from '/components/ModalInfo';
-import { ResetPasswordFormModel } from '~/ui/interfaces/forms/ResetPasswordFormProps';
 import { useAuth } from '~/ui/contexts/AuthContext';
-import { Button } from '/components/Button';
+import { ResetPasswordFormModel } from '~/ui/interfaces/forms/ResetPasswordFormProps';
 
 export const ResetPassword: FunctionComponent<any> = ({ navigation }: ResetPasswordProps) => {
   const authCtx = useAuth();

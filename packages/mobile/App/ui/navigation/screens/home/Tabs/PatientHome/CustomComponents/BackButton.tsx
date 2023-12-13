@@ -1,8 +1,8 @@
-import React, { FC, ReactElement } from 'react';
 import { ArrowLeftIcon } from '/components/Icons';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { StyledTouchableOpacity, StyledView } from '/styled/common';
+import React, { FC, ReactElement } from 'react';
 import { ButtonProps } from './fixture';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 export const BackButton: FC<ButtonProps> = ({
   onPress,

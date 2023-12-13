@@ -1,9 +1,9 @@
-import { useSelector } from 'react-redux';
 import { ASSET_NAMES } from '@tamanu/constants';
+import { useSelector } from 'react-redux';
 import { useLocalisation } from '../contexts/Localisation';
+import { getCurrentUser } from '../store';
 import { useAsset } from './useAsset';
 import { useTemplate } from './useTemplate';
-import { getCurrentUser } from '../store';
 
 export const useCertificate = ({ footerAssetName } = {}) => {
   const { getLocalisation } = useLocalisation();

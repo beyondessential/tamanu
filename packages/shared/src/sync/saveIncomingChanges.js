@@ -4,9 +4,9 @@ import { sleepAsync } from '@tamanu/shared/utils/sleepAsync';
 
 import { sortInDependencyOrder } from '../models/sortInDependencyOrder';
 import { log } from '../services/logging/log';
-import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
-import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
 import { SYNC_SESSION_DIRECTION } from './constants';
+import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
+import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
 import { saveCreates, saveDeletes, saveRestores, saveUpdates } from './saveChanges';
 
 const { persistedCacheBatchSize, pauseBetweenPersistedCacheBatchesInMilliseconds } = config.sync;
@@ -21,7 +21,7 @@ export const saveChangesForModel = async (model, changes, isCentralServer) => {
   // add all records that already exist in the db to the list to be updated
   // even if they are being deleted or restored, we should also run an update query to keep the data in sync
   const existingRecords = (await model.findByIds(idsForIncomingRecords, false)).map(r =>
-    r.get({ plain: true }),
+    r.get({ plain: true })
   );
   const idToExistingRecord = Object.fromEntries(existingRecords.map(e => [e.id, e]));
   // follow the same pattern for incoming records

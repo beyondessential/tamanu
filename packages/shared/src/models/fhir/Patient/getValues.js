@@ -2,7 +2,6 @@ import config from 'config';
 import { identity } from 'lodash';
 
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants';
-import { activeFromVisibility } from '../utils';
 import {
   FhirAddress,
   FhirContactPoint,
@@ -11,8 +10,9 @@ import {
   FhirPatientLink,
   FhirReference,
 } from '../../../services/fhirTypes';
-import { nzEthnicity } from '../extensions';
 import { formatFhirDate } from '../../../utils/fhir';
+import { nzEthnicity } from '../extensions';
+import { activeFromVisibility } from '../utils';
 
 export async function getValues(upstream, models) {
   const { Patient } = models;

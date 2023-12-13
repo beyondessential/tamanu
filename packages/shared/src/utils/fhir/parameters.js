@@ -1,11 +1,11 @@
-import * as yup from 'yup';
 import config from 'config';
+import * as yup from 'yup';
 
 import {
-  FHIR_SEARCH_PARAMETERS,
-  FHIR_SEARCH_TOKEN_TYPES,
   FHIR_DATETIME_PRECISION,
   FHIR_MAX_RESOURCES_PER_PAGE,
+  FHIR_SEARCH_PARAMETERS,
+  FHIR_SEARCH_TOKEN_TYPES,
 } from '@tamanu/constants';
 
 import { DEFAULT_SCHEMA_FOR_TYPE, INCLUDE_SCHEMA } from './schemata';
@@ -26,10 +26,9 @@ export function normaliseParameter([key, param], overrides = {}) {
   const norm = {
     path: [[key]],
     sortable: true,
-    parameterSchema:
-      typeof param.parameterSchema === 'function'
-        ? param.parameterSchema(defaultSchema || yup)
-        : defaultSchema,
+    parameterSchema: typeof param.parameterSchema === 'function'
+      ? param.parameterSchema(defaultSchema || yup)
+      : defaultSchema,
     ...param,
     ...overrides,
   };
@@ -147,7 +146,7 @@ export function normaliseParameters(FhirResource) {
     normaliseParameter(param, {
       path: [],
       sortable: false,
-    }),
+    })
   );
 
   const parameters = new Map([...resourceParameters, ...resultParameters]);

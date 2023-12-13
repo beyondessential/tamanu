@@ -1,2 +1,2 @@
-export { DataMigration } from './DataMigration';
 export { CursorDataMigration } from './CursorDataMigration';
+export { DataMigration } from './DataMigration';

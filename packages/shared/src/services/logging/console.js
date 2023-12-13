@@ -1,5 +1,5 @@
-import winston from 'winston'; // actual log output
 import config from 'config';
+import winston from 'winston'; // actual log output
 
 import { COLORS } from './color';
 

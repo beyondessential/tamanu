@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import React, { useState } from 'react';
 
-import { Modal } from '../../Modal';
-import { useAuth } from '../../../contexts/Auth';
-import { useApi, isErrorUnknownAllow404s } from '../../../api';
-import { LoadingIndicator } from '../../LoadingIndicator';
-import { useCertificate } from '../../../utils/useCertificate';
+import { isErrorUnknownAllow404s, useApi } from '../../../api';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
+import { useAuth } from '../../../contexts/Auth';
+import { useCertificate } from '../../../utils/useCertificate';
+import { LoadingIndicator } from '../../LoadingIndicator';
+import { Modal } from '../../Modal';
 
 import { BirthNotificationCertificate } from '../printouts/BirthNotificationCertificate';
 
@@ -78,8 +78,7 @@ const useParent = (api, enabled, parentId) => {
       mother: grandMother,
       father: grandFather,
     },
-    isLoading:
-      parentDataIsLoading ||
+    isLoading: parentDataIsLoading ||
       additionalDataLoading ||
       grandMotherLoading ||
       grandFatherLoading ||
@@ -108,16 +107,19 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
     additionalData?.fatherId,
   );
 
-  const { data: birthData, isLoading: birthDataLoading } = useQuery(['birthData', patient.id], () =>
-    api.get(`patient/${encodeURIComponent(patient.id)}/birthData`),
+  const { data: birthData, isLoading: birthDataLoading } = useQuery(
+    ['birthData', patient.id],
+    () => api.get(`patient/${encodeURIComponent(patient.id)}/birthData`),
   );
 
-  const { data: deathData, isLoading: deathDataLoading } = useQuery(['deathData', patient.id], () =>
-    api.get(
-      `patient/${encodeURIComponent(patient.id)}/death`,
-      {},
-      { isErrorUnknown: isErrorUnknownAllow404s },
-    ),
+  const { data: deathData, isLoading: deathDataLoading } = useQuery(
+    ['deathData', patient.id],
+    () =>
+      api.get(
+        `patient/${encodeURIComponent(patient.id)}/death`,
+        {},
+        { isErrorUnknown: isErrorUnknownAllow404s },
+      ),
   );
 
   const { data: ethnicity, isLoading: ethnicityLoading } = useQuery(
@@ -129,8 +131,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
     { enabled: !additionalDataLoading },
   );
 
-  const loading =
-    motherDataLoading ||
+  const loading = motherDataLoading ||
     fatherDataLoading ||
     birthDataLoading ||
     ethnicityLoading ||
@@ -138,9 +139,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
 
   return (
     <Modal open={open} onClose={() => setOpen(false)} width="md" printable keepMounted>
-      {loading ? (
-        <LoadingIndicator />
-      ) : (
+      {loading ? <LoadingIndicator /> : (
         <BirthNotificationCertificate
           motherData={motherData}
           fatherData={fatherData}

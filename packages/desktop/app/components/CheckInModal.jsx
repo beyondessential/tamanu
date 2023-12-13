@@ -1,12 +1,12 @@
-import React, { useCallback } from 'react';
 import { ENCOUNTER_TYPES, REFERRAL_STATUSES } from '@tamanu/constants';
+import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useApi } from '../api';
 
-import { FormModal } from './FormModal';
-import { reloadPatient } from '../store/patient';
-import { EncounterForm } from '../forms/EncounterForm';
 import { useEncounter } from '../contexts/Encounter';
+import { EncounterForm } from '../forms/EncounterForm';
+import { reloadPatient } from '../store/patient';
+import { FormModal } from './FormModal';
 
 export const CheckInModal = React.memo(
   ({ open, onClose, onSubmitEncounter, patientId, referral, patientBillingTypeId, ...props }) => {

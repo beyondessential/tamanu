@@ -1,5 +1,5 @@
-import React from 'react';
 import { StyleSheet, View } from '@react-pdf/renderer';
+import React from 'react';
 
 const dividerStyles = StyleSheet.create({
   borderTop: '1 solid #000000',

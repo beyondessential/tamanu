@@ -1,14 +1,14 @@
-import React, { ReactNode } from 'react';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { FullView, RowView, StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 import { Formik, FormikHandlers } from 'formik';
+import React, { ReactNode } from 'react';
 import * as Yup from 'yup';
+import { RegisterAccountFormStep3FormValues } from '../../../contexts/RegisterAccountContext';
+import { Button } from '../../Button';
+import { Checkbox } from '../../Checkbox';
 import { TextField } from '../../TextField/TextField';
 import { Field } from '../FormField';
-import { StyledView, StyledText, FullView, RowView } from '/styled/common';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { theme } from '/styled/theme';
-import { Button } from '../../Button';
-import { RegisterAccountFormStep3FormValues } from '../../../contexts/RegisterAccountContext';
-import { Checkbox } from '../../Checkbox';
 
 interface RegisterAccountFormStep03Props {
   onSubmit: (values: RegisterAccountFormStep3FormValues) => void;

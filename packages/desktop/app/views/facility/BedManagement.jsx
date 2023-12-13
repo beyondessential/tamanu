@@ -1,23 +1,23 @@
-import React from 'react';
-import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
-import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
+import React from 'react';
+import { useDispatch } from 'react-redux';
+import styled from 'styled-components';
 
-import { Colors } from '../../constants';
-import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
-import { reloadPatient } from '../../store/patient';
 import {
-  TopBar,
-  PageContainer,
   BedManagementSearchBar,
   ContentPane,
+  PageContainer,
   SearchTable,
+  TopBar,
 } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { usePatientSearch, PatientSearchKeys } from '../../contexts/PatientSearch';
+import { Colors } from '../../constants';
+import { useAuth } from '../../contexts/Auth';
+import { PatientSearchKeys, usePatientSearch } from '../../contexts/PatientSearch';
+import { reloadPatient } from '../../store/patient';
 import { columns } from './bedManagementColumns';
 
 const DashboardContainer = styled.div`
@@ -97,11 +97,9 @@ const DetailedLoadingIndicator = () => (
 const DashboardItem = ({ color, title, loading, description }) => {
   return (
     <DashboardItemContainer color={color}>
-      {loading ? (
-        <LoadingIndicator backgroundColor="transparent" height="3em" width="2em" size="2em" />
-      ) : (
-        <DashboardItemTitle color={color}>{title}</DashboardItemTitle>
-      )}
+      {loading ?
+        <LoadingIndicator backgroundColor="transparent" height="3em" width="2em" size="2em" /> :
+        <DashboardItemTitle color={color}>{title}</DashboardItemTitle>}
       <DashboardItemDescription>{description}</DashboardItemDescription>
     </DashboardItemContainer>
   );
@@ -164,8 +162,7 @@ export const BedManagement = () => {
       countOnly: true,
       currentPatient: true,
       facilityId: facility.id,
-    }),
-  );
+    }));
 
   const {
     data: { count: currentInpatientsCount } = {},
@@ -176,16 +173,16 @@ export const BedManagement = () => {
       currentPatient: true,
       inpatient: true,
       facilityId: facility.id,
-    }),
-  );
+    }));
 
   const { data: { data: currentOccupancy } = {}, isLoading: currentOccupancyLoading } = useQuery(
     ['currentOccupancy'],
     () => api.get('patient/locations/occupancy'),
   );
 
-  const { data: { data: alos } = {}, isLoading: alosLoading } = useQuery(['alos'], () =>
-    api.get('patient/locations/alos'),
+  const { data: { data: alos } = {}, isLoading: alosLoading } = useQuery(
+    ['alos'],
+    () => api.get('patient/locations/alos'),
   );
 
   const { data: { data: readmissionsCount } = {}, isLoading: readmissionsCountLoading } = useQuery(

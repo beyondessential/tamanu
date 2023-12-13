@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { NoteContentSection } from './SimplePrintout';
 import { BodyText } from '../../../Typography';
+import { NoteContentSection } from './SimplePrintout';
 
 export const StyledNotesSectionWrapper = styled.div`
   margin-top: 30px;

@@ -1,15 +1,15 @@
 import React, { useCallback } from 'react';
 
-import { ICAO_DOCUMENT_TYPES, ASSET_NAMES } from '@tamanu/constants';
-import { CovidVaccineCertificate } from '@tamanu/shared/utils/patientCertificates';
+import { ASSET_NAMES, ICAO_DOCUMENT_TYPES } from '@tamanu/constants';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
+import { CovidVaccineCertificate } from '@tamanu/shared/utils/patientCertificates';
 
-import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
-import { EmailButton } from '../../Email/EmailButton';
-import { useCertificate } from '../../../utils/useCertificate';
+import { useAdministeredVaccines, usePatientAdditionalDataQuery } from '../../../api/queries';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { usePatientAdditionalDataQuery, useAdministeredVaccines } from '../../../api/queries';
+import { useCertificate } from '../../../utils/useCertificate';
+import { EmailButton } from '../../Email/EmailButton';
+import { Modal } from '../../Modal';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
 

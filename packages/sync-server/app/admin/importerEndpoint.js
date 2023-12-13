@@ -5,11 +5,11 @@ import { singularize } from 'inflection';
 import { camelCase, lowerCase } from 'lodash';
 import { Sequelize } from 'sequelize';
 
-import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { log } from '@tamanu/shared/services/logging/log';
 import { CURRENT_SYNC_TIME_KEY } from '@tamanu/shared/sync/constants';
+import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 
-import { DryRun, DataImportError } from './errors';
+import { DataImportError, DryRun } from './errors';
 import { coalesceStats } from './stats';
 
 export function normaliseSheetName(name) {
@@ -124,12 +124,11 @@ export function createDataImporterEndpoint(importer) {
       await fs.unlink(file).catch(ignore => {});
     }
 
-    result.errors =
-      result.errors?.map(err =>
-        (err instanceof Error || typeof err === 'string') && !(err instanceof DataImportError)
-          ? new DataImportError('(general)', -3, err)
-          : err,
-      ) ?? [];
+    result.errors = result.errors?.map(err =>
+      (err instanceof Error || typeof err === 'string') && !(err instanceof DataImportError)
+        ? new DataImportError('(general)', -3, err)
+        : err
+    ) ?? [];
 
     res.send({
       ...result,

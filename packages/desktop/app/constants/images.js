@@ -15,8 +15,8 @@ export { default as radiologyIcon } from '../assets/images/radiology.svg';
 export { default as scheduleIcon } from '../assets/images/schedule.svg';
 export { default as vaccineIcon } from '../assets/images/vaccine.svg';
 
-export { default as reportLine } from '../assets/images/report_line.png';
 export { default as reportBar } from '../assets/images/report_bar.png';
+export { default as reportLine } from '../assets/images/report_line.png';
 export { default as reportPie } from '../assets/images/report_pie.png';
-export { default as reportTable } from '../assets/images/report_table.png';
 export { default as reportRaw } from '../assets/images/report_raw.png';
+export { default as reportTable } from '../assets/images/report_table.png';

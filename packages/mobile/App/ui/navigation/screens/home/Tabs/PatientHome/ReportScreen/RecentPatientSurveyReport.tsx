@@ -1,11 +1,20 @@
+import { DateFormats } from '/helpers/constants';
 import { differenceInYears, format, parseISO } from 'date-fns';
 import React, { FC } from 'react';
-import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { useBackendEffect } from '~/ui/hooks';
-import { StyledView, RowView, StyledText } from '~/ui/styled/common';
+import { RowView, StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
-import { Table, Row, ColumnCategory, Cell, BorderRow, HeaderRow, DataCell, DataText } from './RecentPatientSurveyReportStyled';
-import { DateFormats } from '/helpers/constants';
+import {
+  BorderRow,
+  Cell,
+  ColumnCategory,
+  DataCell,
+  DataText,
+  HeaderRow,
+  Row,
+  Table,
+} from './RecentPatientSurveyReportStyled';
 
 interface IOwnProps {
   selectedSurveyId: string;
@@ -79,8 +88,7 @@ export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) =
             <DataCell type="strong">Number attended</DataCell>
             <DataCell type="strong">Number screened</DataCell>
           </BorderRow>
-          {
-            genderData
+          {genderData
             && (
               <BorderRow>
                 <ColumnCategory>
@@ -88,7 +96,8 @@ export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) =
                     fontSize={screenPercentageToDP(1.7, Orientation.Height)}
                     color={theme.colors.TEXT_DARK}
                     fontWeight={700}
-                  >Gender
+                  >
+                    Gender
                   </StyledText>
                 </ColumnCategory>
                 <Cell>
@@ -104,10 +113,8 @@ export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) =
                   </Row>
                 </Cell>
               </BorderRow>
-            )
-          }
-          {
-            ageData
+            )}
+          {ageData
             && (
               <BorderRow>
                 <ColumnCategory>
@@ -126,10 +133,8 @@ export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) =
                   </Row>
                 </Cell>
               </BorderRow>
-            )
-          }
-          {
-            visitorsData
+            )}
+          {visitorsData
             && (
               <Row>
                 <ColumnCategory>
@@ -143,8 +148,7 @@ export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) =
                   </Row>
                 </Cell>
               </Row>
-            )
-          }
+            )}
         </Table>
       </StyledView>
       <StyledView
@@ -157,7 +161,8 @@ export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) =
           type="strong"
           textAlign="center"
           paddingBottom={20}
-        >Patient List
+        >
+          Patient List
         </DataText>
         <Table>
           <HeaderRow>
@@ -166,17 +171,17 @@ export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) =
             <DataCell type="strong">Age</DataCell>
             <DataCell type="strong">Referred to</DataCell>
           </HeaderRow>
-          { referralsData
-              && referralsData.map(patient => (
-                <Row key={patient.id}>
-                  <DataCell>{`${patient.firstName} ${patient.lastName}`}</DataCell>
-                  <DataCell>{patient.sex}</DataCell>
-                  <DataCell>
-                    {differenceInYears(new Date(), parseISO(patient.dateOfBirth))}
-                  </DataCell>
-                  <DataCell>{patient.referredTo}</DataCell>
-                </Row>
-              ))}
+          {referralsData
+            && referralsData.map(patient => (
+              <Row key={patient.id}>
+                <DataCell>{`${patient.firstName} ${patient.lastName}`}</DataCell>
+                <DataCell>{patient.sex}</DataCell>
+                <DataCell>
+                  {differenceInYears(new Date(), parseISO(patient.dateOfBirth))}
+                </DataCell>
+                <DataCell>{patient.referredTo}</DataCell>
+              </Row>
+            ))}
         </Table>
       </StyledView>
     </StyledView>

@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
+import PropTypes from 'prop-types';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import { Table, useSelectableColumn } from '../../Table';
-import { TextInput, SelectInput, AutocompleteInput, OuterLabelFieldWrapper } from '../../Field';
+import { useApi, useSuggester } from '../../../api';
+import { Colors } from '../../../constants';
+import { useAuth } from '../../../contexts/Auth';
 import { ConfirmCancelRow } from '../../ButtonRow';
 import { DateDisplay } from '../../DateDisplay';
-import { useApi, useSuggester } from '../../../api';
-import { useAuth } from '../../../contexts/Auth';
-import { Colors } from '../../../constants';
+import { AutocompleteInput, OuterLabelFieldWrapper, SelectInput, TextInput } from '../../Field';
+import { Table, useSelectableColumn } from '../../Table';
 
 import { MultiplePrescriptionPrintoutModal } from './MultiplePrescriptionPrintoutModal';
 
@@ -77,8 +77,9 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
   const prescriberSelected = Boolean(prescriberId);
   const api = useApi();
   const practitionerSuggester = useSuggester('practitioner');
-  const { data, error, isLoading } = useQuery(['encounterMedication', encounter.id], () =>
-    api.get(`encounter/${encounter.id}/medications`),
+  const { data, error, isLoading } = useQuery(
+    ['encounterMedication', encounter.id],
+    () => api.get(`encounter/${encounter.id}/medications`),
   );
   const { currentUser } = useAuth();
 

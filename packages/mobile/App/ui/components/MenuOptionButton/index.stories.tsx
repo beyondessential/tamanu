@@ -1,12 +1,7 @@
-import React from 'react';
-import { storiesOf } from '@storybook/react-native';
 import { CenterView } from '/styled/common';
-import {
-  BaseStory,
-  MoreMenuOptions,
-  PatientDetails,
-  ProgramOptions,
-} from './fixture';
+import { storiesOf } from '@storybook/react-native';
+import React from 'react';
+import { BaseStory, MoreMenuOptions, PatientDetails, ProgramOptions } from './fixture';
 
 storiesOf('MenuOptionButton', module)
   .addDecorator((story: Function) => <CenterView>{story()}</CenterView>)

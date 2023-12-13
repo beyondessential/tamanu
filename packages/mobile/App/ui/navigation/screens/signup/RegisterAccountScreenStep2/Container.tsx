@@ -1,7 +1,7 @@
-import React, { FC, useState, useMemo, useCallback, useContext } from 'react';
-import { Value } from 'react-native-reanimated';
+import React, { FC, useCallback, useContext, useMemo, useState } from 'react';
 import { Keyboard, Platform } from 'react-native';
-//Protocols
+import { Value } from 'react-native-reanimated';
+// Protocols
 import { RegisterAccountScreenProps } from '../../../../interfaces/screens/SignUpStack/RegisterAccountStep1Props';
 // contexts
 import {
@@ -9,15 +9,12 @@ import {
   RegisterAccountFormStep2FormValues,
   RegisterAccountFormStep2Props,
 } from '../../../../contexts/RegisterAccountContext';
-//helpers
-import {
-  onKeyboardOpenListener,
-  onKeyboardCloseListener,
-} from '/helpers/keyboard';
+// helpers
 import { animateState } from '/helpers/animation';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { onKeyboardCloseListener, onKeyboardOpenListener } from '/helpers/keyboard';
 import { Routes } from '/helpers/routes';
-//Screen
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+// Screen
 import { Screen } from './Screen';
 
 export const RegisterAccountStep2Container: FC<any> = ({
@@ -40,8 +37,7 @@ export const RegisterAccountStep2Container: FC<any> = ({
       role: registerFormState.role,
       homeFacility: registerFormState.homeFacility,
       profession: registerFormState.profession,
-      professionalRegistrationNumber:
-        registerFormState.professionalRegistrationNumber,
+      professionalRegistrationNumber: registerFormState.professionalRegistrationNumber,
       firstYearOfRegistration: registerFormState.firstYearOfRegistration,
     }),
     [],

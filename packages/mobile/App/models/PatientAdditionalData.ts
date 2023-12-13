@@ -1,22 +1,22 @@
+import { isEmpty, isEqual, snakeCase } from 'lodash';
 import {
-  Entity,
-  Column,
-  RelationId,
-  ManyToOne,
-  PrimaryColumn,
+  AfterLoad,
   BeforeInsert,
   BeforeUpdate,
-  AfterLoad,
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryColumn,
+  RelationId,
 } from 'typeorm/browser';
-import { snakeCase, isEqual, isEmpty } from 'lodash';
-import { BaseModel, IdRelation } from './BaseModel';
-import { IPatientAdditionalData } from '~/types';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
-import { Patient } from './Patient';
-import { SYNC_DIRECTIONS } from './types';
-import { CURRENT_SYNC_TIME, getSyncTick } from '~/services/sync';
 import { Database } from '~/infra/db';
+import { CURRENT_SYNC_TIME, getSyncTick } from '~/services/sync';
 import { extractIncludedColumns } from '~/services/sync/utils/extractIncludedColumns';
+import { IPatientAdditionalData } from '~/types';
+import { BaseModel, IdRelation } from './BaseModel';
+import { Patient } from './Patient';
+import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { SYNC_DIRECTIONS } from './types';
 
 const METADATA_FIELDS = [
   'createdAt',
@@ -25,6 +25,7 @@ const METADATA_FIELDS = [
   'updatedAtSyncTick',
   'updatedAtByField',
 ];
+
 @Entity('patient_additional_data')
 export class PatientAdditionalData extends BaseModel implements IPatientAdditionalData {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;

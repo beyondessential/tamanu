@@ -1,35 +1,35 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { LocationCell, LocationGroupCell } from '../../components/LocationCell';
-import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { reloadPatient } from '../../store/patient';
 import {
-  TopBar,
-  PageContainer,
   AllPatientsSearchBar,
-  PatientSearchBar,
   ContentPane,
+  PageContainer,
+  PatientSearchBar,
   SearchTable,
   SearchTableTitle,
+  TopBar,
 } from '../../components';
-import { RecentlyViewedPatientsList } from '../../components/RecentlyViewedPatientsList';
 import { ButtonWithPermissionCheck } from '../../components/Button';
-import { NewPatientModal } from './components';
+import { LocationCell, LocationGroupCell } from '../../components/LocationCell';
+import { RecentlyViewedPatientsList } from '../../components/RecentlyViewedPatientsList';
+import { useAuth } from '../../contexts/Auth';
+import { PatientSearchKeys, usePatientSearch } from '../../contexts/PatientSearch';
+import { reloadPatient } from '../../store/patient';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import {
-  markedForSync,
+  clinician,
+  culturalName,
+  dateOfBirth,
+  department,
   displayId,
   firstName,
   lastName,
-  culturalName,
-  village,
+  markedForSync,
   sex,
-  dateOfBirth,
   status,
-  department,
-  clinician,
+  village,
 } from './columns';
-import { useAuth } from '../../contexts/Auth';
-import { usePatientSearch, PatientSearchKeys } from '../../contexts/PatientSearch';
+import { NewPatientModal } from './components';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 

@@ -1,6 +1,6 @@
-import { Entity, Column, ManyToOne, RelationId, getConnection } from 'typeorm/browser';
-import { BaseModel } from './BaseModel';
+import { Column, Entity, getConnection, ManyToOne, RelationId } from 'typeorm/browser';
 import { GenericFormValues, ICreateSurveyResponse, IReferral } from '~/types';
+import { BaseModel } from './BaseModel';
 import { Encounter } from './Encounter';
 import { SurveyResponse } from './SurveyResponse';
 import { SYNC_DIRECTIONS } from './types';

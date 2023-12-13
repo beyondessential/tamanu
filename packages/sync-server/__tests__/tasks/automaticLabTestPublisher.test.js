@@ -1,8 +1,8 @@
+import { ENCOUNTER_TYPES, LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { createDummyPatient } from '@tamanu/shared/demoData/patients';
-import { LAB_REQUEST_STATUSES, ENCOUNTER_TYPES } from '@tamanu/constants';
-import { fake, chance, fakeUser } from '@tamanu/shared/test-helpers';
-import { createTestContext } from '../utilities';
+import { chance, fake, fakeUser } from '@tamanu/shared/test-helpers';
 import { AutomaticLabTestResultPublisher } from '../../app/tasks/AutomaticLabTestResultPublisher';
+import { createTestContext } from '../utilities';
 
 const testConfig = {
   enabled: true,

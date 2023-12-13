@@ -1,8 +1,8 @@
-import React, { useState, useContext } from 'react';
 import { addDays, format } from 'date-fns';
+import React, { useContext, useState } from 'react';
 
-import { DATE_TIME_FORMAT } from '../components/Charts/components/DateTimeSelector';
 import { useVitalsVisualisationConfigsQuery } from '../api/queries/useVitalsVisualisationConfigsQuery';
+import { DATE_TIME_FORMAT } from '../components/Charts/components/DateTimeSelector';
 
 export const VitalChartDataContext = React.createContext({
   visualisationConfigs: [],

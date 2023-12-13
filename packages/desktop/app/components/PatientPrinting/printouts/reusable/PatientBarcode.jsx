@@ -1,6 +1,6 @@
 import React from 'react';
-import styled from 'styled-components';
 import Barcode from 'react-barcode';
+import styled from 'styled-components';
 
 const BarcodeFrame = styled.div`
   width: ${p => p.width};

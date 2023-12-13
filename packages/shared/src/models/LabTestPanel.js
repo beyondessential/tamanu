@@ -1,5 +1,5 @@
-import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 
 export class LabTestPanel extends Model {

@@ -1,15 +1,23 @@
-import React, { ReactElement, useMemo, useEffect, useCallback, useState, Dispatch, SetStateAction } from 'react';
-import { useSelector } from 'react-redux';
-import { getFormInitialValues, getFormSchema } from './helpers';
-import { ISurveyScreenComponent, IPatientAdditionalData } from '~/types';
-import { Form } from '../Form';
-import { FormFields } from './FormFields';
 import { checkVisibilityCriteria } from '/helpers/fields';
-import { runCalculations } from '~/ui/helpers/calculations';
 import { authUserSelector } from '/helpers/selectors';
+import React, {
+  Dispatch,
+  ReactElement,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { useSelector } from 'react-redux';
+import { IPatientAdditionalData, ISurveyScreenComponent } from '~/types';
+import { runCalculations } from '~/ui/helpers/calculations';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '../../ErrorScreen';
 import { LoadingScreen } from '../../LoadingScreen';
+import { Form } from '../Form';
+import { FormFields } from './FormFields';
+import { getFormInitialValues, getFormSchema } from './helpers';
 
 export type SurveyFormProps = {
   onSubmit: (values: any) => Promise<void>;

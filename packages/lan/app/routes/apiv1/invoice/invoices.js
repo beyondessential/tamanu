@@ -1,9 +1,9 @@
+import { INVOICE_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
+import { InvalidParameterError, NotFoundError } from '@tamanu/shared/errors';
+import { simplePut } from '@tamanu/shared/utils/crudHelpers';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { customAlphabet } from 'nanoid';
-import { NotFoundError, InvalidParameterError } from '@tamanu/shared/errors';
-import { INVOICE_STATUSES, INVOICE_PAYMENT_STATUSES } from '@tamanu/constants';
-import { simplePut } from '@tamanu/shared/utils/crudHelpers';
 
 import { invoiceLineItemsRoute } from './invoiceLineItems';
 import { invoicePriceChangeItemsRoute } from './invoicePriceChangeItems';
@@ -29,8 +29,8 @@ invoiceRoute.post(
 
     const { patientId, id, patientBillingTypeId: encounterPatientBillingTypeId } = encounter;
 
-    const displayId =
-      customAlphabet('0123456789', 8)() + customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 2)();
+    const displayId = customAlphabet('0123456789', 8)() +
+      customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 2)();
     // Create a corresponding invoice with the encounter when admitting patient
     const invoice = await models.Invoice.create({
       encounterId: id,

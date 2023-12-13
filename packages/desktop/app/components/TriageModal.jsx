@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useLocalisation } from '../contexts/Localisation';
-import { FormModal } from './FormModal';
 import { Colors } from '../constants';
+import { useLocalisation } from '../contexts/Localisation';
 import { TriageForm } from '../forms/TriageForm';
 import { DateDisplay } from './DateDisplay';
+import { FormModal } from './FormModal';
 
 const Header = styled.div`
   font-weight: 500;

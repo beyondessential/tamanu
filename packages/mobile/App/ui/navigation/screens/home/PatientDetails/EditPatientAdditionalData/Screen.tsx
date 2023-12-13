@@ -1,10 +1,10 @@
-import React, { useCallback, ReactElement } from 'react';
-import { StatusBar } from 'react-native';
-import { FullView } from '/styled/common';
-import { StackHeader } from '~/ui/components/StackHeader';
 import { PatientAdditionalDataForm } from '/components/Forms/PatientAdditionalDataForm';
+import { FullView } from '/styled/common';
 import { theme } from '/styled/theme';
+import React, { ReactElement, useCallback } from 'react';
+import { StatusBar } from 'react-native';
 import { PatientSectionHeader } from '~/ui/components/Forms/NewPatientForm/PatientSectionHeader';
+import { StackHeader } from '~/ui/components/StackHeader';
 
 export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactElement => {
   const {

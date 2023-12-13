@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { toast } from 'react-toastify';
 import { Avatar, CircularProgress } from '@material-ui/core';
+import React, { useState } from 'react';
+import { toast } from 'react-toastify';
+import styled from 'styled-components';
 import { useApi } from '../api';
 
 const StyledAvatar = styled(Avatar)`

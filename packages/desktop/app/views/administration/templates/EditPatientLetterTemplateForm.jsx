@@ -1,15 +1,15 @@
 import React, { memo } from 'react';
-import * as yup from 'yup';
 import styled from 'styled-components';
+import * as yup from 'yup';
 
-import { Form, Field, TextField, TallMultilineTextField } from '../../../components/Field';
-import { FormGrid, SmallGridSpacer } from '../../../components/FormGrid';
 import {
   Button,
   ModalGenericButtonRow,
-  RedOutlinedButton,
   OutlinedButton,
+  RedOutlinedButton,
 } from '../../../components';
+import { Field, Form, TallMultilineTextField, TextField } from '../../../components/Field';
+import { FormGrid, SmallGridSpacer } from '../../../components/FormGrid';
 
 const DeleteButton = styled(RedOutlinedButton)`
   margin-left: 0px !important;
@@ -48,11 +48,9 @@ export const EditPatientLetterTemplateForm = memo(
         <FormGrid columns={1} nested style={{ marginBottom: '42px' }}>
           <Field name="body" label="Contents" component={TallMultilineTextField} />
         </FormGrid>
-        {dirty ? (
-          <EditedActions onDelete={onDelete} onSave={submitForm} onClose={onClose} />
-        ) : (
-          <UneditedActions onDelete={onDelete} onClose={onClose} />
-        )}
+        {dirty ?
+          <EditedActions onDelete={onDelete} onSave={submitForm} onClose={onClose} /> :
+          <UneditedActions onDelete={onDelete} onClose={onClose} />}
       </>
     );
 

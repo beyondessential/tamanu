@@ -1,24 +1,24 @@
-import React, { ReactElement } from 'react';
-import { useNavigation } from '@react-navigation/native';
 import { StyledView } from '/styled/common';
-import { TextField } from '../../TextField/TextField';
-import { Dropdown } from '~/ui/components/Dropdown';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
-import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
-import { Field } from '~/ui/components/Forms/FormField';
+import { useNavigation } from '@react-navigation/native';
+import React, { ReactElement } from 'react';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
+import { Dropdown } from '~/ui/components/Dropdown';
+import { Field } from '~/ui/components/Forms/FormField';
+import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { PatientFieldDefinitionComponents } from '~/ui/helpers/fieldComponents';
 import { useBackend } from '~/ui/hooks';
+import { TextField } from '../../TextField/TextField';
 
+import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
 import {
+  getSuggester,
   plainFields,
-  selectFields,
-  selectFieldsOptions,
   relationIdFields,
   relationIdFieldsProperties,
-  getSuggester,
+  selectFields,
+  selectFieldsOptions,
 } from './helpers';
-import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
 
 const PlainField = ({ fieldName, required }): ReactElement => (
   // Outter styled view to momentarily add distance between fields
@@ -73,20 +73,21 @@ function getComponentForField(fieldName: string): React.FC<{ fieldName: string }
 }
 
 const getCustomFieldComponent = ({ id, name, options, fieldType }) => {
-  return <Field
-    name={id}
-    label={name}
-    component={PatientFieldDefinitionComponents[fieldType]}
-    options={options?.split(',')?.map(option => ({ label: option, value: option }))}
-  />;
-}
+  return (
+    <Field
+      name={id}
+      label={name}
+      component={PatientFieldDefinitionComponents[fieldType]}
+      options={options?.split(',')?.map(option => ({ label: option, value: option }))}
+    />
+  );
+};
 
 export const PatientAdditionalDataFields = ({
   fields,
   isCustomFields,
   showMandatory = true,
 }): ReactElement => {
-
   const { getBool } = useLocalisation();
 
   if (isCustomFields) return fields.map(getCustomFieldComponent);

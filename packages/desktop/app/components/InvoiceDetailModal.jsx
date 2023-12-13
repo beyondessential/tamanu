@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useApi } from '../api';
-import { getInvoiceTotal, calculateInvoiceTotal } from '../utils';
-import { FormModal } from './FormModal';
 import { InvoiceDetailForm } from '../forms/InvoiceDetailForm';
+import { calculateInvoiceTotal, getInvoiceTotal } from '../utils';
+import { FormModal } from './FormModal';
 
 export const InvoiceDetailModal = ({ title, open, onClose, onUpdated, invoiceId }) => {
   const [invoice, setInvoice] = useState({});

@@ -1,17 +1,17 @@
-import React, { useState, useCallback } from 'react';
-import PropTypes from 'prop-types';
-import { useQuery } from '@tanstack/react-query';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
+import { useQuery } from '@tanstack/react-query';
+import PropTypes from 'prop-types';
+import React, { useCallback, useState } from 'react';
 
-import { useSelectableColumn } from '../../Table';
-import { ConfirmCancelRow } from '../../ButtonRow';
-import { DateDisplay } from '../../DateDisplay';
 import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
+import { ConfirmCancelRow } from '../../ButtonRow';
+import { DateDisplay } from '../../DateDisplay';
+import { useSelectableColumn } from '../../Table';
 
+import { getStatus } from '../../../utils/lab';
 import { MultipleLabRequestsPrintoutModal } from './MultipleLabRequestsPrintoutModal';
 import { FormDivider, PrintMultipleSelectionTable } from './PrintMultipleSelectionTable';
-import { getStatus } from '../../../utils/lab';
 
 const COLUMN_KEYS = {
   SELECTED: 'selected',

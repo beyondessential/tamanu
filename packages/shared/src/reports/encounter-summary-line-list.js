@@ -1,6 +1,6 @@
-import config from 'config';
-import { endOfDay, startOfDay, parseISO } from 'date-fns';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import config from 'config';
+import { endOfDay, parseISO, startOfDay } from 'date-fns';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
@@ -58,10 +58,10 @@ const getReportColumnTemplate = async (sequelize, includedPatientFieldIds) => {
   return fields.map(field =>
     typeof field === 'string'
       ? {
-          title: field,
-          accessor: data => data[field],
-        }
-      : field,
+        title: field,
+        accessor: data => data[field],
+      }
+      : field
   );
 };
 
@@ -437,12 +437,14 @@ left join discharges discharge on discharge.encounter_id = e.id
 left join reference_data discharge_disposition on discharge_disposition.id = discharge.disposition_id
 left join triages t on t.encounter_id = e.id
 left join reference_data arrival_mode on arrival_mode.id = t.arrival_mode_id
-${includedPatientFieldIds
-  .map(
-    fieldId =>
-      `left join additional_field_info "afi_${fieldId}" on "afi_${fieldId}".patient_id = p.id and "afi_${fieldId}".field_id = '${fieldId}'`,
-  )
-  .join('\n')}
+${
+  includedPatientFieldIds
+    .map(
+      fieldId =>
+        `left join additional_field_info "afi_${fieldId}" on "afi_${fieldId}".patient_id = p.id and "afi_${fieldId}".field_id = '${fieldId}'`,
+    )
+    .join('\n')
+}
 where e.end_date is not null
 and coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
 and case when :department_id is not null then di2.place_id_list::jsonb ? :department_id else true end 
@@ -492,8 +494,8 @@ const formatRow = row =>
 
 export const dataGenerator = async ({ sequelize }, parameters = {}) => {
   // Note this could be reading from facility config OR central server config
-  const includedPatientFieldIds =
-    config?.reportConfig?.['encounter-summary-line-list']?.includedPatientFieldIds;
+  const includedPatientFieldIds = config?.reportConfig?.['encounter-summary-line-list']
+    ?.includedPatientFieldIds;
 
   const results = await getData(sequelize, parameters, includedPatientFieldIds);
   const formattedResults = results.map(formatRow);

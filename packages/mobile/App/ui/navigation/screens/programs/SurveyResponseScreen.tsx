@@ -1,25 +1,25 @@
-import React, { useCallback, ReactElement, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { Routes } from '/helpers/routes';
+import { SurveyResponseScreenProps } from '/interfaces/Screens/ProgramsStack/SurveyResponseScreen';
+import { useNavigation } from '@react-navigation/native';
+import React, { ReactElement, useCallback, useState } from 'react';
 import { Dimensions, Text } from 'react-native';
 import Modal from 'react-native-modal';
-import { useNavigation } from '@react-navigation/native';
-import { CenterView, FullView, RowView } from '~/ui/styled/common';
-import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { useSelector } from 'react-redux';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
-import { SurveyResponseScreenProps } from '/interfaces/Screens/ProgramsStack/SurveyResponseScreen';
-import { Routes } from '/helpers/routes';
 import { SurveyForm } from '~/ui/components/Forms/SurveyForm';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { CenterView, FullView, RowView } from '~/ui/styled/common';
 
-import { useBackend, useBackendEffect } from '~/ui/hooks';
-import { SurveyTypes, GenericFormValues } from '~/types';
+import { GenericFormValues, SurveyTypes } from '~/types';
+import { Button } from '~/ui/components/Button';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
-import { authUserSelector } from '~/ui/helpers/selectors';
-import { joinNames } from '~/ui/helpers/user';
 import { StackHeader } from '~/ui/components/StackHeader';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
-import { theme } from '~/ui/styled/theme';
-import { Button } from '~/ui/components/Button';
+import { authUserSelector } from '~/ui/helpers/selectors';
+import { joinNames } from '~/ui/helpers/user';
+import { useBackend, useBackendEffect } from '~/ui/hooks';
 import { useCurrentScreen } from '~/ui/hooks/useCurrentScreen';
+import { theme } from '~/ui/styled/theme';
 
 const buttonSharedStyles = {
   width: screenPercentageToDP('25', Orientation.Width),
@@ -39,7 +39,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   const [showModal, setShowModal] = useState(false);
 
   const [survey, surveyError, isSurveyLoading] = useBackendEffect(({ models }) =>
-    models.Survey.getRepository().findOne(surveyId),
+    models.Survey.getRepository().findOne(surveyId)
   );
 
   const [components, componentsError, areComponentsLoading] = useBackendEffect(
@@ -117,8 +117,8 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   const error = surveyError || componentsError || padError;
   // due to how useBackendEffect works we need to stay in the loading state for queries which depend
   // on other data, like the query for components
-  const isLoading =
-    !survey || !components || isSurveyLoading || areComponentsLoading || isPadLoading;
+  const isLoading = !survey || !components || isSurveyLoading || areComponentsLoading ||
+    isPadLoading;
   if (error) {
     return <ErrorScreen error={error} />;
   }

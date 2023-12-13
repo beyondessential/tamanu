@@ -1,24 +1,24 @@
-import React, { useState, useCallback } from 'react';
-import * as yup from 'yup';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
+import * as yup from 'yup';
 
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 import { useApi, useSuggester } from '../api';
-import { useAuth } from '../contexts/Auth';
+import { Button, OutlinedButton } from '../components';
+import { ModalLoader } from '../components/BaseModal';
 import {
-  Form,
-  Field,
-  TextField,
-  MultilineTextField,
-  DateField,
   AutocompleteField,
+  DateField,
+  Field,
+  Form,
+  MultilineTextField,
+  TextField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { ModalLoader } from '../components/BaseModal';
-import { OutlinedButton, Button } from '../components';
-import { PatientDetailsCard } from '../components/PatientDetailsCard';
 import { ModalGenericButtonRow } from '../components/ModalActionRow';
+import { PatientDetailsCard } from '../components/PatientDetailsCard';
+import { useAuth } from '../contexts/Auth';
 
 const TallMultilineTextField = props => (
   <MultilineTextField style={{ minHeight: '156px' }} {...props} />
@@ -129,14 +129,14 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
   );
 
   const renderForm = props =>
-    props.isSubmitting ? (
-      <ModalLoader loadingText="Please wait while we create your patient letter" />
-    ) : (
-      <>
-        <PatientDetailsCard patient={patient} />
-        <PatientLetterFormContents onCancel={onCancel} {...props} />
-      </>
-    );
+    props.isSubmitting ?
+      <ModalLoader loadingText="Please wait while we create your patient letter" /> :
+      (
+        <>
+          <PatientDetailsCard patient={patient} />
+          <PatientLetterFormContents onCancel={onCancel} {...props} />
+        </>
+      );
 
   return (
     <Form

@@ -1,18 +1,18 @@
 import React, { FunctionComponent, useCallback } from 'react';
+import { Button } from '../../../components/Button';
+import { LogoV1Icon } from '../../../components/Icons';
 import {
+  CenterView,
   FullView,
   RowView,
-  CenterView,
-  StyledText,
   StyledSafeAreaView,
+  StyledText,
   StyledView,
 } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
-import { LogoV1Icon } from '../../../components/Icons';
-import { Button } from '../../../components/Button';
-//helpers
-import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
+// helpers
 import { Routes } from '../../../helpers/routes';
+import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 // Screen
 import { IntroScreenProps } from '../../../interfaces/Screens/SignUpStack/Intro';
 
@@ -78,7 +78,8 @@ export const IntroScreen: FunctionComponent<any> = ({ navigation, route }: Intro
             fontWeight={500}
             fontSize={`${screenPercentageToDP(1.94, Orientation.Height)}px`}
           />
-          {/* UNIMPLEMENTED <Button
+          {
+            /* UNIMPLEMENTED <Button
             id="intro-new-account-button"
             backgroundColor={theme.colors.SECONDARY_MAIN}
             onPress={onNavigateToNewAccount}
@@ -93,7 +94,8 @@ export const IntroScreen: FunctionComponent<any> = ({ navigation, route }: Intro
             >
               New Account
             </StyledText>
-          </Button> */}
+          </Button> */
+          }
         </RowView>
         <CenterView marginTop="30px">
           <Button

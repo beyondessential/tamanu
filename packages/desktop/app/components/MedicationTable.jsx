@@ -1,14 +1,14 @@
-import React, { useCallback, useState } from 'react';
 import { push } from 'connected-react-router';
+import React, { useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { DataFetchingTable } from './Table';
-import { DateDisplay } from './DateDisplay';
-import { useEncounter } from '../contexts/Encounter';
-import { MedicationModal } from './MedicationModal';
-import { reloadPatient } from '../store';
-import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';
 import { Colors } from '../constants';
+import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';
+import { useEncounter } from '../contexts/Encounter';
+import { reloadPatient } from '../store';
 import { getFullLocationName } from '../utils/location';
+import { DateDisplay } from './DateDisplay';
+import { MedicationModal } from './MedicationModal';
+import { DataFetchingTable } from './Table';
 
 const getMedicationName = ({ medication }) => medication.name;
 

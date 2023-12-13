@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 
-import { Op } from 'sequelize';
 import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
+import { Op } from 'sequelize';
 import { ageInYears, toDateTimeString } from '../../utils/dateTime';
 
 function parametersToSqlWhere(parameters) {

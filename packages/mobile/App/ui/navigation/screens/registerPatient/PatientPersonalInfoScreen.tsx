@@ -1,12 +1,12 @@
-import React, { useCallback, ReactElement } from 'react';
-import { StatusBar } from 'react-native';
-import { FullView } from '/styled/common';
-import { Header } from './CommonComponents/Header';
 import { PatientPersonalInfoForm } from '/components/Forms/NewPatientForm/PatientPersonalInfoForm';
-import { theme } from '/styled/theme';
 import { Routes } from '/helpers/routes';
-import { PatientPersonalInfoScreenProps } from '../../../interfaces/screens/RegisterPatientStack/PatientPersonalInfoScreen';
+import { FullView } from '/styled/common';
+import { theme } from '/styled/theme';
+import React, { ReactElement, useCallback } from 'react';
+import { StatusBar } from 'react-native';
 import { PatientSectionHeader } from '~/ui/components/Forms/NewPatientForm/PatientSectionHeader';
+import { PatientPersonalInfoScreenProps } from '../../../interfaces/screens/RegisterPatientStack/PatientPersonalInfoScreen';
+import { Header } from './CommonComponents/Header';
 
 export const PatientPersonalInfoScreen = ({
   navigation,

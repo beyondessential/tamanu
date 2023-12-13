@@ -1,14 +1,14 @@
-import { Entity, Column, ManyToOne, BeforeUpdate, BeforeInsert, RelationId } from 'typeorm/browser';
-import { BaseModel, IdRelation } from './BaseModel';
+import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
 import { IAdministeredVaccine, InjectionSiteType } from '~/types';
-import { SYNC_DIRECTIONS } from './types';
+import { VaccineStatus } from '~/ui/helpers/patient';
+import { BaseModel, IdRelation } from './BaseModel';
+import { Department } from './Department';
 import { Encounter } from './Encounter';
 import { Location } from './Location';
-import { Department } from './Department';
+import { NullableReferenceDataRelation, ReferenceData } from './ReferenceData';
 import { ScheduledVaccine } from './ScheduledVaccine';
+import { SYNC_DIRECTIONS } from './types';
 import { User } from './User';
-import { VaccineStatus } from '~/ui/helpers/patient';
-import { ReferenceData, NullableReferenceDataRelation } from './ReferenceData';
 
 @Entity('administered_vaccine')
 export class AdministeredVaccine extends BaseModel implements IAdministeredVaccine {

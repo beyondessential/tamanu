@@ -1,9 +1,9 @@
+import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import styled from 'styled-components';
-import { useQuery } from '@tanstack/react-query';
-import { getStatus } from '../../../utils/lab';
-import { DateDisplay, Table, Modal, ModalLoader } from '../../../components';
 import { useApi } from '../../../api';
+import { DateDisplay, Modal, ModalLoader, Table } from '../../../components';
+import { getStatus } from '../../../utils/lab';
 
 const COLUMNS = [
   {
@@ -35,17 +35,16 @@ const StyledTable = styled(Table)`
 
 export const LabRequestLogModal = ({ open, onClose, labRequest }) => {
   const api = useApi();
-  const { isLoading, data } = useQuery(['labRequestLog', labRequest.id], () =>
-    api.get(`labRequestLog/labRequest/${labRequest.id}`),
+  const { isLoading, data } = useQuery(
+    ['labRequestLog', labRequest.id],
+    () => api.get(`labRequestLog/labRequest/${labRequest.id}`),
   );
 
   return (
     <Modal open={open} onClose={onClose} title="Status Log" width="md">
-      {isLoading ? (
-        <ModalLoader />
-      ) : (
-        <StyledTable columns={COLUMNS} data={data?.data} allowExport={false} elevated={false} />
-      )}
+      {isLoading ?
+        <ModalLoader /> :
+        <StyledTable columns={COLUMNS} data={data?.data} allowExport={false} elevated={false} />}
     </Modal>
   );
 };

@@ -1,20 +1,20 @@
-import React, { useState, useRef } from 'react';
-import styled from 'styled-components';
-import PropTypes from 'prop-types';
-import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import {
   Button as MuiButton,
   ButtonGroup,
   ClickAwayListener,
-  Paper,
   MenuItem,
-  Popper as MuiPopper,
   MenuList as MuiMenuList,
+  Paper,
+  Popper as MuiPopper,
 } from '@material-ui/core';
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import LockIcon from '@material-ui/icons/Lock';
+import PropTypes from 'prop-types';
+import React, { useRef, useState } from 'react';
+import styled from 'styled-components';
 
 import { Colors } from '../constants';
-import { FormSubmitButton, Button } from './Button';
+import { Button, FormSubmitButton } from './Button';
 import { withPermissionCheck } from './withPermissionCheck';
 import { withPermissionTooltip } from './withPermissionTooltip';
 

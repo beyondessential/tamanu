@@ -1,11 +1,11 @@
-import React, { ReactElement, useCallback, useState, useEffect } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
-import { Button } from 'react-native-paper';
 import { NavigationProp } from '@react-navigation/native';
+import React, { ReactElement, useCallback, useEffect, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import Autocomplete from 'react-native-autocomplete-input';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { theme } from '../../styled/theme';
+import { Button } from 'react-native-paper';
 import { BaseModelSubclass, Suggester } from '../../helpers/suggester';
+import { theme } from '../../styled/theme';
 
 const styles = StyleSheet.create({
   container: {

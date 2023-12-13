@@ -1,6 +1,6 @@
-import { fake, fakeReferenceData } from '@tamanu/shared/test-helpers';
+import { IMAGING_REQUEST_STATUS_TYPES, LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { randomLabRequest } from '@tamanu/shared/demoData';
-import { LAB_REQUEST_STATUSES, IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
+import { fake, fakeReferenceData } from '@tamanu/shared/test-helpers';
 
 export const fakeResourcesOfFhirServiceRequest = async models => {
   const {

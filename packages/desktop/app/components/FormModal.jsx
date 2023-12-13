@@ -1,5 +1,5 @@
-import React, { memo, useState, useEffect } from 'react';
 import { Alert, AlertTitle } from '@material-ui/lab';
+import React, { memo, useEffect, useState } from 'react';
 
 import { FormSubmissionProvider, useFormSubmission } from '../contexts/FormSubmission';
 import { BaseModal } from './BaseModal';
@@ -16,7 +16,10 @@ const FormModalComponent = memo(({ children, ...props }) => {
   return (
     <BaseModal {...props} isClosable={isClosable}>
       {showNotUsingFormWarning && (
-        <Alert severity="warning" onClose={() => setShowNotUsingFormWarning(false)}>
+        <Alert
+          severity="warning"
+          onClose={() => setShowNotUsingFormWarning(false)}
+        >
           <AlertTitle>
             DEV Warning: This Form Modal does not contain a Form. Please use generic Modal instead
           </AlertTitle>

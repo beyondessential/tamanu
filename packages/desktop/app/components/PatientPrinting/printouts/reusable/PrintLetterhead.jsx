@@ -1,6 +1,6 @@
+import { Typography } from '@material-ui/core';
 import React from 'react';
 import styled from 'styled-components';
-import { Typography } from '@material-ui/core';
 
 const Header = styled.div`
   position: relative;

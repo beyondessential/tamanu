@@ -1,7 +1,7 @@
-import React, { useState, useCallback, useEffect, ReactElement } from 'react';
 import { debounce } from '/helpers/input';
 import { StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
+import React, { ReactElement, useCallback, useEffect, useState } from 'react';
 import { SearchInput } from './index';
 
 export function BaseStory(): ReactElement {

@@ -1,24 +1,24 @@
-import { keyBy, groupBy, uniqWith, isEqual, upperFirst } from 'lodash';
 import { parseISO } from 'date-fns';
+import { groupBy, isEqual, keyBy, uniqWith, upperFirst } from 'lodash';
 import { Op } from 'sequelize';
+import { ageInYears, format } from '../../utils/dateTime';
 import { generateReportFromQueryData, getAnswers } from '../utilities';
 import {
-  transformAndRemoveDuplicatedAnswersPerDate,
-  getPatientById,
-  removeDuplicatedReferralsPerDate,
-  getSurveyGroupKey,
-  getFormDataElements,
-  getReferralDataElements,
-  getPerPatientPerSurveyPerDatePerElementKey,
   getCachedAnswer,
+  getFormDataElements,
+  getPatientById,
+  getPerPatientPerSurveyPerDatePerElementKey,
+  getReferralDataElements,
+  getSurveyGroupKey,
   parametersToAnswerSqlWhere,
+  removeDuplicatedReferralsPerDate,
+  transformAndRemoveDuplicatedAnswersPerDate,
 } from './utils';
-import { ageInYears, format } from '../../utils/dateTime';
 
 import {
   ALL_SURVEY_IDS,
-  FORM_SURVEY_IDS,
   FORM_NAME_BY_SURVEY_GROUP_KEY,
+  FORM_SURVEY_IDS,
   PRIMARY_SCREENING_REPORT_COLUMN_TEMPLATE,
 } from './constants';
 
@@ -129,10 +129,9 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
         );
       });
 
-      const referral =
-        referralByPatientSurveyAndDate[
-          getPerPatientPerSurveyPerDateKey(patientId, surveyGroupKey, responseDate)
-        ];
+      const referral = referralByPatientSurveyAndDate[
+        getPerPatientPerSurveyPerDateKey(patientId, surveyGroupKey, responseDate)
+      ];
 
       recordData.referralCreated = referral ? 'Yes' : 'No';
 

@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { AutocompleteField, TextField } from '..';
 import { useSuggester } from '../../api';
+import { AutocompleteField, TextField } from '..';
 import { ConfiguredMandatoryPatientFields } from './ConfiguredMandatoryPatientFields';
 
 export const LocationInformationFields = ({ showMandatory }) => {

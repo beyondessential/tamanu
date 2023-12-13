@@ -1,15 +1,15 @@
 import 'jest-expect-message';
-import supertest from 'supertest';
 import config from 'config';
 import http from 'http';
+import supertest from 'supertest';
 
 import {
+  createMockReportingSchemaAndRoles,
   seedDepartments,
   seedFacilities,
-  seedLocations,
-  seedLocationGroups,
   seedLabTests,
-  createMockReportingSchemaAndRoles,
+  seedLocationGroups,
+  seedLocations,
 } from '@tamanu/shared/demoData';
 import { chance, fake, showError } from '@tamanu/shared/test-helpers';
 
@@ -17,13 +17,13 @@ import { createApp } from 'lan/app/createApp';
 import { initReporting } from 'lan/app/database';
 import { getToken } from 'lan/app/middleware/auth';
 
-import { toMatchTabularReport } from './toMatchTabularReport';
 import { allSeeds } from './seed';
 import { deleteAllTestIds } from './setupUtilities';
+import { toMatchTabularReport } from './toMatchTabularReport';
 
-import { FacilitySyncManager } from '../app/sync/FacilitySyncManager';
-import { CentralServerConnection } from '../app/sync/CentralServerConnection';
 import { ApplicationContext } from '../app/ApplicationContext';
+import { CentralServerConnection } from '../app/sync/CentralServerConnection';
+import { FacilitySyncManager } from '../app/sync/FacilitySyncManager';
 
 jest.mock('../app/sync/CentralServerConnection');
 jest.mock('../app/utils/uploadAttachment');

@@ -23,8 +23,8 @@ export const launchImagePicker = (): Promise<ImagePickerResponse | null> =>
       {
         title: 'Select Photo',
         // work around for image-picker bug when taking photo:
-        //https://github.com/react-native-image-picker/react-native-image-picker/issues/655
-        rotation: 360
+        // https://github.com/react-native-image-picker/react-native-image-picker/issues/655
+        rotation: 360,
       },
       imagePickerResponse => {
         if (imagePickerResponse.error) {
@@ -35,20 +35,20 @@ export const launchImagePicker = (): Promise<ImagePickerResponse | null> =>
         } else {
           resolve(imagePickerResponse);
         }
-      }
+      },
     );
   });
 
 export const getImageFromPhotoLibrary = async () => {
-  let image : ImagePickerResponse = null;
+  let image: ImagePickerResponse = null;
 
   try {
     const photoLibraryPermissionAndroid = await check(
-      PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE
+      PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE,
     );
     if (photoLibraryPermissionAndroid !== 'granted') {
       const photoLibraryPermissionRequest = await request(
-        PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE
+        PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE,
       );
       if (photoLibraryPermissionRequest === 'granted') {
         image = await launchImagePicker();
@@ -66,8 +66,7 @@ export const getImageFromPhotoLibrary = async () => {
   return image;
 };
 
-export const imageToBase64URI = (image: string): string =>
-  `data:image/jpeg;base64, ${image}`;
+export const imageToBase64URI = (image: string): string => `data:image/jpeg;base64, ${image}`;
 
 export const resizeImage = (path: string, options: ResizeOptions) => {
   const {
@@ -79,7 +78,7 @@ export const resizeImage = (path: string, options: ResizeOptions) => {
     outputPath,
     keepMeta,
     mode,
-    onlyScaleDown = true
+    onlyScaleDown = true,
   } = options;
 
   return ImageResizer.createResizedImage(
@@ -91,6 +90,6 @@ export const resizeImage = (path: string, options: ResizeOptions) => {
     rotation,
     outputPath,
     keepMeta,
-    { mode, onlyScaleDown }
+    { mode, onlyScaleDown },
   );
 };

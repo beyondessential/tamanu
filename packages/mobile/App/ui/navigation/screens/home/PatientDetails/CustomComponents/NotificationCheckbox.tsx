@@ -1,7 +1,7 @@
-import React, { ReactElement } from 'react';
+import { Checkbox } from '/components/Checkbox';
 import { Separator } from '/components/Separator';
 import { StyledView } from '/styled/common';
-import { Checkbox } from '/components/Checkbox';
+import React, { ReactElement } from 'react';
 
 interface NotificationCheckboxProps {
   onChange: (value: boolean) => void;

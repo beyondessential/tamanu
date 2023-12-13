@@ -1,10 +1,10 @@
-import React from 'react';
 import { LAB_REQUEST_STATUSES, NOTE_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import React from 'react';
 import { useApi } from '../../../api';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { CancelModal } from '../../../components/CancelModal';
 import { useAuth } from '../../../contexts/Auth';
+import { useLocalisation } from '../../../contexts/Localisation';
 
 export const LabRequestCancelModal = React.memo(({ open, onClose, updateLabReq, labRequest }) => {
   const api = useApi();

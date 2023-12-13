@@ -1,25 +1,25 @@
+import { NavigationProp } from '@react-navigation/native';
 import React, { FC, useMemo } from 'react';
 import { ScrollView } from 'react-native';
 import { useSelector } from 'react-redux';
 import * as Yup from 'yup';
-import { NavigationProp } from '@react-navigation/native';
 
-import { authUserSelector } from '~/ui/helpers/selectors';
-import { RowView } from '/styled/common';
-import { VaccineFormNotGiven } from './VaccineFormNotGiven';
-import { VaccineFormGiven } from './VaccineFormGiven';
-import { SubmitButton } from '../SubmitButton';
-import { theme } from '/styled/theme';
-import { VaccineStatus } from '~/ui/helpers/patient';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { InjectionSiteType } from '~/types';
-import { Form } from '../Form';
 import { Button } from '/components/Button';
-import { LoadingScreen } from '/components/LoadingScreen';
 import { ErrorScreen } from '/components/ErrorScreen';
+import { LoadingScreen } from '/components/LoadingScreen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { RowView } from '/styled/common';
+import { theme } from '/styled/theme';
+import { InjectionSiteType } from '~/types';
+import { VaccineStatus } from '~/ui/helpers/patient';
+import { authUserSelector } from '~/ui/helpers/selectors';
+import { Form } from '../Form';
+import { SubmitButton } from '../SubmitButton';
+import { VaccineFormGiven } from './VaccineFormGiven';
+import { VaccineFormNotGiven } from './VaccineFormNotGiven';
 
-import { useBackendEffect } from '~/ui/hooks';
 import { readConfig } from '~/services/config';
+import { useBackendEffect } from '~/ui/hooks';
 import { SETTING_KEYS } from '../../../../constants';
 
 const getFormType = (status: VaccineStatus): { Form: FC<any> } => {
@@ -122,12 +122,11 @@ export const VaccineForm = ({
     departmentId,
   });
 
-  const consentSchema =
-    status === VaccineStatus.GIVEN
-      ? Yup.boolean()
-          .oneOf([true], REQUIRED_INLINE_ERROR_MESSAGE)
-          .required(REQUIRED_INLINE_ERROR_MESSAGE)
-      : undefined;
+  const consentSchema = status === VaccineStatus.GIVEN
+    ? Yup.boolean()
+      .oneOf([true], REQUIRED_INLINE_ERROR_MESSAGE)
+      .required(REQUIRED_INLINE_ERROR_MESSAGE)
+    : undefined;
   return (
     <Form
       onSubmit={onSubmit}

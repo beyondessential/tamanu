@@ -1,20 +1,20 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import * as yup from 'yup';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import Collapse from '@material-ui/core/Collapse';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import PropTypes from 'prop-types';
+import React from 'react';
+import * as yup from 'yup';
+import { useLocalisedText } from '../components';
+import { FormSubmitCancelRow } from '../components/ButtonRow';
 import {
-  Form,
-  Field,
-  DateField,
   AutocompleteField,
-  TextField,
   CheckField,
+  DateField,
+  Field,
+  Form,
+  TextField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { foreignKey } from '../utils/validation';
-import { useLocalisedText } from '../components';
 
 export const OngoingConditionForm = ({
   onSubmit,

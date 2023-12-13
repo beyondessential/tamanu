@@ -1,11 +1,11 @@
+import { NavigationProp, RouteProp } from '@react-navigation/native';
 import React, { ReactElement, useCallback } from 'react';
-import { RouteProp, NavigationProp } from '@react-navigation/native';
 
-import { IPatient } from '~/types';
-import { FullView } from '/styled/common';
-import { Routes } from '/helpers/routes';
 import { VaccineCard, VaccineDataProps } from '/components/VaccineCard';
+import { Routes } from '/helpers/routes';
+import { FullView } from '/styled/common';
 import { theme } from '/styled/theme';
+import { IPatient } from '~/types';
 
 type VaccineModalParams = {
   VaccineModal: {

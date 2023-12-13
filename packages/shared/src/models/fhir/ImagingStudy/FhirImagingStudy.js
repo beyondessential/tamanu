@@ -10,8 +10,8 @@ import {
 import { FhirResource } from '../Resource';
 
 import { FhirAnnotation, FhirIdentifier, FhirReference } from '../../../services/fhirTypes';
-import { Deleted, Invalid } from '../../../utils/fhir';
 import { getCurrentDateTimeString, toDateTimeString } from '../../../utils/dateTime';
+import { Deleted, Invalid } from '../../../utils/fhir';
 
 export class FhirImagingStudy extends FhirResource {
   static init(options, models) {

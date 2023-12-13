@@ -1,13 +1,13 @@
-import React, { ReactElement, useCallback } from 'react';
-import { compose } from 'redux';
-import { NavigationProp } from '@react-navigation/native';
-import { Routes } from '/helpers/routes';
 import { StackHeader } from '/components/StackHeader';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
-import { AddVitalsScreen, ViewHistoryScreen } from '../screens/vitals/tabs';
-import { withPatient } from '~/ui/containers/Patient';
+import { Routes } from '/helpers/routes';
+import { NavigationProp } from '@react-navigation/native';
+import React, { ReactElement, useCallback } from 'react';
+import { compose } from 'redux';
 import { IPatient } from '~/types';
+import { withPatient } from '~/ui/containers/Patient';
 import { joinNames } from '~/ui/helpers/user';
+import { AddVitalsScreen, ViewHistoryScreen } from '../screens/vitals/tabs';
 
 const Tabs = createTopTabNavigator();
 

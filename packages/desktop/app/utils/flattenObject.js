@@ -14,7 +14,7 @@ i.e.
   c: { d: 5 },
 }
 
-Will become: 
+Will become:
 
 {
   a: 1,

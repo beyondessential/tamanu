@@ -1,7 +1,7 @@
-import { EncounterType } from '~/types';
 import * as Icons from '/components/Icons';
-import { theme } from '/styled/theme';
 import { VaccineStatus } from '/helpers/patient';
+import { theme } from '/styled/theme';
+import { EncounterType } from '~/types';
 import { ColorHelper } from './colors';
 
 export const DateFormats = {
@@ -25,7 +25,7 @@ export const VisitTypes = {
 };
 
 export const HeaderIcons = {
-  //TODO: find correct icons for each EncounterType
+  // TODO: find correct icons for each EncounterType
   [EncounterType.Clinic]: Icons.ClipboardIcon,
   [EncounterType.Emergency]: Icons.FirstAidKitIcon,
   [EncounterType.Admission]: Icons.StethoscopeIcon,

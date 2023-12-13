@@ -1,7 +1,7 @@
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
 import { gte as semverGte, lte as semverLte } from 'semver';
-import { MIN_CLIENT_VERSION, MAX_CLIENT_VERSION } from '../app/middleware/versionCompatibility';
+import { MAX_CLIENT_VERSION, MIN_CLIENT_VERSION } from '../app/middleware/versionCompatibility';
 
 describe('Other packages', () => {
   let versions;

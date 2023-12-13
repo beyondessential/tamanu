@@ -3,8 +3,8 @@ import http from 'http';
 import supertest from 'supertest';
 
 import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES } from '@tamanu/constants';
-import { fake } from '@tamanu/shared/test-helpers';
 import { createMockReportingSchemaAndRoles } from '@tamanu/shared/demoData';
+import { fake } from '@tamanu/shared/test-helpers';
 import { DEFAULT_JWT_SECRET } from 'sync-server/app/auth';
 import { getToken } from 'sync-server/app/auth/utils';
 import { createApp } from 'sync-server/app/createApp';
@@ -25,7 +25,7 @@ class MockApplicationContext {
         Promise.resolve({
           status: COMMUNICATION_STATUSES.SENT,
           result: { '//': 'mailgun result not mocked' },
-        }),
+        })
       ),
     };
     await initIntegrations(this);

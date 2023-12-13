@@ -1,6 +1,6 @@
+import Avatar from '@material-ui/core/Avatar';
 import React, { memo } from 'react';
 import styled from 'styled-components';
-import Avatar from '@material-ui/core/Avatar';
 import { Colors } from '../constants';
 
 const StyledAvatar = styled(Avatar)`

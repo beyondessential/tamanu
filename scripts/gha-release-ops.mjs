@@ -68,7 +68,7 @@ export async function createDraftRelease({ readFileSync }, github, context, cwd,
     name: `v${version}`,
     draft: true,
     prerelease: false,
-    make_latest: "false", // yes this has to be a string https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#create-a-release
+    make_latest: 'false', // yes this has to be a string https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#create-a-release
     body: template.replace(/%VERSION%/g, version),
   });
 }
@@ -108,18 +108,20 @@ async function getPublishedReleases(github, context, cursor = null) {
   // isDraft filtering there just in case they start adding them to GraphQL
   return releases.nodes.length
     ? {
-        cursor: releases.pageInfo.hasNextPage && releases.pageInfo.endCursor,
-        releases: releases.nodes.filter(release => !release.isDraft),
-      }
+      cursor: releases.pageInfo.hasNextPage && releases.pageInfo.endCursor,
+      releases: releases.nodes.filter(release => !release.isDraft),
+    }
     : null;
 }
 
 async function findDraftRelease(github, context, testForMatch) {
   // Less efficient than above GraphQL (30 per page), but includes drafts
-  for await (const response of github.paginate.iterator(github.rest.issues.listReleases, {
-    owner: context.repo.owner,
-    repo: context.repo.repo,
-  })) {
+  for await (
+    const response of github.paginate.iterator(github.rest.issues.listReleases, {
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+    })
+  ) {
     for (const release of response.data) {
       if (!release.draft) continue;
       console.log(`::debug:: Draft release ${JSON.stringify(release)}`);
@@ -168,7 +170,7 @@ export async function publishRelease(github, context, version) {
   }
 
   console.log('Fetching latest published release...');
-  let markLatest = "true"; // string, see https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#update-a-release
+  let markLatest = 'true'; // string, see https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#update-a-release
   const latestPublished = await findPublishedRelease(github, context, () => true);
   if (!latestPublished) {
     console.log('No published releases found');
@@ -185,7 +187,7 @@ export async function publishRelease(github, context, version) {
     ) {
       console.log('Not marking release as latest as there is a higher published version');
       console.log(`::notice title=Hotfix::Release ${version} not marked latest`);
-      markLatest = "false";
+      markLatest = 'false';
     }
   }
 

@@ -1,12 +1,13 @@
-import React from 'react';
-import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import { ButtonRow, ConfirmCancelRow, Button } from '../../app/components';
+import { storiesOf } from '@storybook/react';
+import React from 'react';
+import { Button, ButtonRow, ConfirmCancelRow } from '../../app/components';
 
 storiesOf('Buttons/ButtonRow', module)
-  .add('ConfirmCancel', () => (
-    <ConfirmCancelRow onConfirm={action('confirm')} onCancel={action('confirm')} />
-  ))
+  .add(
+    'ConfirmCancel',
+    () => <ConfirmCancelRow onConfirm={action('confirm')} onCancel={action('confirm')} />,
+  )
   .add('With custom text', () => (
     <ConfirmCancelRow
       onConfirm={action('confirm')}

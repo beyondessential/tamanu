@@ -1,18 +1,20 @@
-import { ValidationError, ForeignkeyResolutionError } from '../../app/admin/errors';
+import { ForeignkeyResolutionError, ValidationError } from '../../app/admin/errors';
 
 function toContainError(errors, { ofType, inSheet, atRow, withMessage }) {
   const suffix = `on ${inSheet} at row ${atRow}`;
   const matchingErrors = errors.filter(err => {
-      if (!err instanceof ofType) return false;
-      if (!err.message.endsWith(suffix)) return false;
-      if (!err.message.includes(withMessage)) return false;
-      return true;
+    if ((!err) instanceof ofType) return false;
+    if (!err.message.endsWith(suffix)) return false;
+    if (!err.message.includes(withMessage)) return false;
+    return true;
   });
   const pass = matchingErrors.length > 0;
-  const not_ = pass ? "not " : "";
+  const not_ = pass ? 'not ' : '';
   return {
     message: () =>
-      `Expected ${not_}to have a ${ofType.name} error containing "${withMessage}" ${suffix}; found ${errors.map(e => `${e.constructor.name}: ${e.message}`)}.`,
+      `Expected ${not_}to have a ${ofType.name} error containing "${withMessage}" ${suffix}; found ${
+        errors.map(e => `${e.constructor.name}: ${e.message}`)
+      }.`,
     pass,
   };
 }

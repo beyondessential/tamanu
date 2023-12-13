@@ -1,6 +1,6 @@
 import { parseISO } from 'date-fns';
-import { keyBy, groupBy } from 'lodash';
-import { format, differenceInMilliseconds, isISOString } from '../../utils/dateTime';
+import { groupBy, keyBy } from 'lodash';
+import { differenceInMilliseconds, format, isISOString } from '../../utils/dateTime';
 
 const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
   User: 'displayName',
@@ -92,8 +92,8 @@ export const transformAnswers = async (
     const patientId = answer.surveyResponse?.encounter?.patientId;
     const responseEndTime = answer.surveyResponse?.endTime;
     const { dataElementId } = answer;
-    const type =
-      dataElementIdToComponent[dataElementId]?.dataElement?.dataValues?.type || 'unknown';
+    const type = dataElementIdToComponent[dataElementId]?.dataElement?.dataValues?.type ||
+      'unknown';
     const componentConfig = autocompleteComponentMap.get(dataElementId);
 
     const body = await getAnswerBody(models, componentConfig, type, answer.body, transformConfig);
@@ -120,7 +120,7 @@ export const takeMostRecentAnswers = answers => {
   const results = [];
   for (const groupedAnswers of Object.values(answersPerElement)) {
     const sortedLatestToOldestAnswers = groupedAnswers.sort((a1, a2) =>
-      differenceInMilliseconds(parseISO(a2.responseEndTime), parseISO(a1.responseEndTime)),
+      differenceInMilliseconds(parseISO(a2.responseEndTime), parseISO(a1.responseEndTime))
     );
     results.push(sortedLatestToOldestAnswers[0]);
   }

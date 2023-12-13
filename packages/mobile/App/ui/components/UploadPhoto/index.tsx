@@ -1,13 +1,13 @@
-import React, { useState, useCallback } from 'react';
+import { deleteFileInDocuments } from '/helpers/file';
+import { getImageFromPhotoLibrary, imageToBase64URI, resizeImage } from '/helpers/image';
+import { StyledImage, StyledView } from '/styled/common';
+import { Popup } from 'popup-ui';
+import React, { useCallback, useState } from 'react';
 import { Dimensions, Text } from 'react-native';
 import RNFS from 'react-native-fs';
-import { Popup } from 'popup-ui';
-import { useBackend } from '~/ui/hooks';
-import { StyledView, StyledImage } from '/styled/common';
-import { getImageFromPhotoLibrary, resizeImage, imageToBase64URI } from '/helpers/image';
-import { deleteFileInDocuments } from '/helpers/file';
-import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { Button } from '~/ui/components/Button';
+import { useBackend } from '~/ui/hooks';
+import { BaseInputProps } from '../../interfaces/BaseInputProps';
 
 const IMAGE_RESIZE_OPTIONS = {
   maxWidth: 1920,
@@ -139,7 +139,8 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
       Popup.show({
         type: 'Warning',
         title: 'Not enough storage space to upload file',
-        textBody: 'The server has limited storage space remaining. To protect performance, you are currently unable to upload images. Please speak to your system administrator to increase your central server hard drive space.',
+        textBody:
+          'The server has limited storage space remaining. To protect performance, you are currently unable to upload images. Please speak to your system administrator to increase your central server hard drive space.',
         callback: (): void => Popup.hide(),
       });
       return;

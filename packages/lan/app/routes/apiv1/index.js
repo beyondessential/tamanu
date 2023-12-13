@@ -1,7 +1,7 @@
 import express from 'express';
 
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
-import { loginHandler, refreshHandler, authMiddleware } from '../../middleware/auth';
+import { authMiddleware, loginHandler, refreshHandler } from '../../middleware/auth';
 
 import { allergy } from './allergy';
 import { appointments } from './appointments';
@@ -14,15 +14,15 @@ import { diagnosis } from './diagnosis';
 import { encounter } from './encounter';
 import { familyHistory } from './familyHistory';
 import { imagingRequest } from './imaging';
-import { invoices, invoiceLineTypes } from './invoice';
-import { labRequest, labTest, labTestType, labTestPanel } from './labs';
+import { invoiceLineTypes, invoices } from './invoice';
 import { labRequestLog } from './labRequestLog';
+import { labRequest, labTest, labTestPanel, labTestType } from './labs';
 import { location } from './location';
 import { locationGroup } from './locationGroup';
 import { medication } from './medication';
 import { notes } from './note';
 import { ongoingCondition } from './ongoingCondition';
-import { patient, patientCarePlan, patientIssue, patientFieldDefinition } from './patient';
+import { patient, patientCarePlan, patientFieldDefinition, patientIssue } from './patient';
 import { patientFacility } from './patientFacility';
 import { patientLetterTemplate } from './patientLetterTemplate';
 import { procedure } from './procedure';
@@ -39,11 +39,11 @@ import { surveyResponse } from './surveyResponse';
 import { surveyResponseAnswer } from './surveyResponseAnswer';
 import { sync } from './sync';
 import { syncHealth } from './syncHealth';
+import { template } from './template';
 import { triage } from './triage';
 import { user } from './user';
-import { vitals } from './vitals';
-import { template } from './template';
 import { vaccinationSettings } from './vaccinationSettings';
+import { vitals } from './vitals';
 
 export const apiv1 = express.Router();
 const patientDataRoutes = express.Router();

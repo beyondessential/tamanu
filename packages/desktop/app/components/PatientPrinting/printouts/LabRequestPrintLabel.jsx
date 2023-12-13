@@ -1,7 +1,7 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
+import React from 'react';
 import Barcode from 'react-barcode';
+import styled from 'styled-components';
 import { DateDisplay } from '../../DateDisplay';
 
 const Container = styled.div`

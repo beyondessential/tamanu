@@ -2,8 +2,8 @@ import React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 
 import { AppointmentListingView } from '../views/scheduling/AppointmentListingView';
-import { NewAppointmentView } from '../views/scheduling/NewAppointmentView';
 import { AppointmentsCalendar } from '../views/scheduling/AppointmentsCalendar';
+import { NewAppointmentView } from '../views/scheduling/NewAppointmentView';
 
 export const AppointmentRoutes = React.memo(({ match }) => (
   <Switch>

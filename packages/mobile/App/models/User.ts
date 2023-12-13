@@ -1,18 +1,18 @@
-import { Entity, Column, Index, OneToMany } from 'typeorm/browser';
-import { BaseModel } from './BaseModel';
-import { Referral } from './Referral';
+import { Column, Entity, Index, OneToMany } from 'typeorm/browser';
 import { IUser } from '~/types';
-import { AdministeredVaccine } from './AdministeredVaccine';
-import { Note } from './Note';
-import { LabRequest } from './LabRequest';
-import { VitalLog } from './VitalLog';
-import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '../visibilityStatuses';
+import { AdministeredVaccine } from './AdministeredVaccine';
+import { BaseModel } from './BaseModel';
+import { LabRequest } from './LabRequest';
+import { Note } from './Note';
+import { Referral } from './Referral';
+import { SYNC_DIRECTIONS } from './types';
+import { VitalLog } from './VitalLog';
 
 @Entity('user')
 export class User extends BaseModel implements IUser {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
-  
+
   @Column()
   displayId: string;
 
@@ -31,16 +31,16 @@ export class User extends BaseModel implements IUser {
   @Column()
   role: string;
 
-  @OneToMany(() => Referral, (referral) => referral.practitioner)
+  @OneToMany(() => Referral, referral => referral.practitioner)
   referrals: Referral[];
 
-  @OneToMany(() => LabRequest, (labRequest) => labRequest.requestedBy)
+  @OneToMany(() => LabRequest, labRequest => labRequest.requestedBy)
   labRequests: LabRequest[];
 
-  @OneToMany(() => LabRequest, (labRequest) => labRequest.collectedBy)
+  @OneToMany(() => LabRequest, labRequest => labRequest.collectedBy)
   collectedLabRequests: LabRequest[];
 
-  @OneToMany(() => AdministeredVaccine, (administeredVaccine) => administeredVaccine.recorder)
+  @OneToMany(() => AdministeredVaccine, administeredVaccine => administeredVaccine.recorder)
   recordedVaccines: AdministeredVaccine[];
 
   @OneToMany(() => Note, note => note.author)

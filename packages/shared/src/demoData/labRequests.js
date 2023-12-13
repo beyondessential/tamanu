@@ -1,5 +1,5 @@
-import { randomReferenceId } from './patients';
 import { fake } from '../test-helpers/fake';
+import { randomReferenceId } from './patients';
 
 export const randomLabRequest = async (models, overrides) => {
   const categoryId = overrides?.categoryId || (await randomReferenceId(models, 'labTestCategory'));

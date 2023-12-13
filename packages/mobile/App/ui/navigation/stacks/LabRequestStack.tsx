@@ -1,8 +1,8 @@
-import React, { ReactElement } from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
 import { Routes } from '/helpers/routes';
-import { LabRequestTabs } from './LabRequestTabs';
+import { createStackNavigator } from '@react-navigation/stack';
+import React, { ReactElement } from 'react';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { LabRequestTabs } from './LabRequestTabs';
 
 const Stack = createStackNavigator();
 

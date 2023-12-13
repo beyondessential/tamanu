@@ -1,11 +1,11 @@
+import { storiesOf } from '@storybook/react';
 import React from 'react';
 import styled from 'styled-components';
-import { storiesOf } from '@storybook/react';
-import { Colors } from '../app/constants';
 import {
   InwardArrowVectorTooltipContent,
   TooltipContent,
 } from '../app/components/Charts/components/TooltipContent';
+import { Colors } from '../app/constants';
 
 const FlexColumn = styled.div`
   flex-direction: column;

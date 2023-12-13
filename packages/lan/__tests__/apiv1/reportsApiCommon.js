@@ -1,5 +1,5 @@
-import { fake, disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
-import { REPORT_STATUSES, REPORT_DEFAULT_DATE_RANGES } from '@tamanu/constants';
+import { REPORT_DEFAULT_DATE_RANGES, REPORT_STATUSES } from '@tamanu/constants';
+import { disableHardcodedPermissionsForSuite, fake } from '@tamanu/shared/test-helpers';
 
 export function testReportPermissions(getCtx, makeRequest) {
   let ctx;
@@ -110,7 +110,7 @@ export async function setupReportPermissionsTest(baseApp, models) {
           defaultDateRange: REPORT_DEFAULT_DATE_RANGES.ALL_TIME,
         }),
         userId: owner.id,
-      }),
+      })
     ),
   );
   const permittedReports = reports.slice(0, 2);

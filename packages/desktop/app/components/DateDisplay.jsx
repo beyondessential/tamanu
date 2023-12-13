@@ -1,8 +1,8 @@
 /* global globalThis */
-import React, { useState } from 'react';
-import { format } from 'date-fns';
+import { Box, Typography } from '@material-ui/core';
 import { parseDate } from '@tamanu/shared/utils/dateTime';
-import { Typography, Box } from '@material-ui/core';
+import { format } from 'date-fns';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { ThemedTooltip } from './Tooltip';
 

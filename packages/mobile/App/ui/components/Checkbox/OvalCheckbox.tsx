@@ -1,11 +1,11 @@
-import React from 'react';
-import { Pressable, StyleSheet } from 'react-native';
-import { StyledView, StyledText, RowView, StyledViewProps } from '/styled/common';
-import { theme } from '/styled/theme';
+import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { BaseInputProps } from '/interfaces/BaseInputProps';
+import { RowView, StyledText, StyledView, StyledViewProps } from '/styled/common';
+import { theme } from '/styled/theme';
+import React from 'react';
+import { Pressable, StyleSheet } from 'react-native';
 import { CheckboxMarkIcon } from '../Icons';
-import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
 
 interface OvalCheckboxProps extends BaseInputProps {
@@ -79,13 +79,13 @@ export const OvalCheckbox = ({
       style={styles.container}
     >
       <RowView style={styles.row}>
-        {value ? (
-          <StyledView style={styles.checked}>
-            <CheckboxMarkIcon style={styles.icon} width={14} heigh={14} />
-          </StyledView>
-        ) : (
-          <StyledView style={styles.unchecked} />
-        )}
+        {value ?
+          (
+            <StyledView style={styles.checked}>
+              <CheckboxMarkIcon style={styles.icon} width={14} heigh={14} />
+            </StyledView>
+          ) :
+          <StyledView style={styles.unchecked} />}
         {text && (
           <StyledText style={styles.text}>
             {text}

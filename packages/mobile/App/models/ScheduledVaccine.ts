@@ -1,9 +1,9 @@
-import { Entity, Column, OneToMany, RelationId } from 'typeorm/browser';
-import { BaseModel } from './BaseModel';
-import { AdministeredVaccine } from './AdministeredVaccine';
+import { Column, Entity, OneToMany, RelationId } from 'typeorm/browser';
 import { IScheduledVaccine } from '~/types';
-import { ReferenceDataRelation, ReferenceData } from './ReferenceData';
 import { VisibilityStatus } from '../visibilityStatuses';
+import { AdministeredVaccine } from './AdministeredVaccine';
+import { BaseModel } from './BaseModel';
+import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 
 @Entity('scheduled_vaccine')
@@ -29,7 +29,7 @@ export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
   category?: string;
 
   @ReferenceDataRelation()
-  vaccine: ReferenceData
+  vaccine: ReferenceData;
   @RelationId(({ vaccine }) => vaccine)
   vaccineId: string;
 

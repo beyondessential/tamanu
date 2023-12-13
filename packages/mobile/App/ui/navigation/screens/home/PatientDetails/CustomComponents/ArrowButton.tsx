@@ -1,9 +1,9 @@
-import React, { ReactElement } from 'react';
-import { StyledTouchableOpacity } from '/styled/common';
-import { kebabCase } from 'lodash';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { ArrowDownIcon, ArrowUpIcon } from '/components/Icons';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { StyledTouchableOpacity } from '/styled/common';
 import { theme } from '/styled/theme';
+import { kebabCase } from 'lodash';
+import React, { ReactElement } from 'react';
 
 interface ArrowButtonProps {
   isOpen: boolean;
@@ -27,4 +27,4 @@ export const ArrowButton = ({ isOpen, sectionTitle, onPress }: ArrowButtonProps)
       />
     </StyledTouchableOpacity>
   );
-}
+};

@@ -1,19 +1,19 @@
-import React, { ReactElement } from 'react';
-import { FlatList } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { FullView } from '/styled/common';
-import { compose } from 'redux';
-import { theme } from '/styled/theme';
 import { MenuOptionButton } from '/components/MenuOptionButton';
 import { Separator } from '/components/Separator';
-import { Routes } from '/helpers/routes';
 import { withPatient } from '/containers/Patient';
-import { useBackendEffect } from '~/ui/hooks';
-import { ErrorScreen } from '~/ui/components/ErrorScreen';
-import { Program } from '~/models/Program';
-import { LoadingScreen } from '~/ui/components/LoadingScreen';
-import { SurveyTypes } from '~/types';
+import { Routes } from '/helpers/routes';
+import { FullView } from '/styled/common';
+import { theme } from '/styled/theme';
+import { useNavigation } from '@react-navigation/native';
+import React, { ReactElement } from 'react';
+import { FlatList } from 'react-native';
+import { compose } from 'redux';
 import { In } from 'typeorm/browser';
+import { Program } from '~/models/Program';
+import { SurveyTypes } from '~/types';
+import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { useBackendEffect } from '~/ui/hooks';
 
 const Screen = (): ReactElement => {
   const navigation = useNavigation();

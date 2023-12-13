@@ -1,12 +1,12 @@
+import { IconButton } from '@material-ui/core';
+import Box from '@material-ui/core/Box';
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
-import Box from '@material-ui/core/Box';
-import { IconButton } from '@material-ui/core';
 import doubleDown from '../../assets/images/double_down.svg';
 import doubleUp from '../../assets/images/double_up.svg';
+import { Colors, FORM_TYPES } from '../../constants';
 import { Button, TextButton } from '../Button';
 import { Form } from '../Field';
-import { Colors, FORM_TYPES } from '../../constants';
 
 const Container = styled.div`
   border: 1px solid ${Colors.outline};

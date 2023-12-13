@@ -1,7 +1,7 @@
-import config from 'config';
-import { createDummyPatient, createDummyEncounter } from '@tamanu/shared/demoData/patients';
 import { LOCATION_AVAILABILITY_STATUS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/shared/demoData/patients';
 import { fake } from '@tamanu/shared/test-helpers/fake';
+import config from 'config';
 import { createTestContext } from '../utilities';
 
 const generateFakeLocation = (LocationModel, additionalParams) => ({
@@ -293,7 +293,7 @@ describe('PatientLocations', () => {
     const { Location } = models;
     const createdLocations = await Location.bulkCreate(
       Object.values(VISIBILITY_STATUSES).map(visibilityStatus =>
-        fake(Location, { visibilityStatus, facilityId: config.serverFacilityId }),
+        fake(Location, { visibilityStatus, facilityId: config.serverFacilityId })
       ),
     );
     const locationIds = createdLocations.map(l => l.id);

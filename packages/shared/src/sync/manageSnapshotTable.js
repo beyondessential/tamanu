@@ -28,10 +28,12 @@ export const createSnapshotTable = async (sequelize, sessionId) => {
     ) WITH (
       autovacuum_enabled = off
     );
-    CREATE INDEX ${tableName
+    CREATE INDEX ${
+    tableName
       .replaceAll('.', '_')
       .replaceAll('"', '')
-      .replaceAll('-', '')}_direction_index ON ${tableName}(direction);
+      .replaceAll('-', '')
+  }_direction_index ON ${tableName}(direction);
   `);
 };
 

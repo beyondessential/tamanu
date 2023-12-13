@@ -18,7 +18,8 @@ export async function createReferralNotification(referral, models) {
 
   // build the email notification
   const notificationSubject = 'Medical referral made for you';
-  const notificationContent = `You have been referred to another health facility for further examination or treatment.
+  const notificationContent =
+    `You have been referred to another health facility for further examination or treatment.
 Referred by: ${referredBy.displayName}
 Referred to: ${referredToDepartment.name} at ${referredToFacility.name}
 Please attend this health facility as soon as possible.

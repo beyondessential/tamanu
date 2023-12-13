@@ -1,11 +1,11 @@
-import React, { ReactElement, useState, useEffect } from 'react';
-import { StyledView, StyledText } from '/styled/common';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { Field } from '../FormField';
+import React, { ReactElement, useEffect, useState } from 'react';
 import { Button } from '../../Button';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { TextField } from '../../TextField/TextField';
 import { ServerSelector } from '../../ServerSelectorField/ServerSelector';
+import { TextField } from '../../TextField/TextField';
+import { Field } from '../FormField';
 
 type ResetPasswordFieldsProps = {
   handleSubmit: (value: any) => void;
@@ -21,9 +21,7 @@ export const ResetPasswordFields = ({
     marginRight={screenPercentageToDP(2.43, Orientation.Width)}
     marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
   >
-    <StyledView
-      justifyContent="space-around"
-    >
+    <StyledView justifyContent="space-around">
       <StyledText
         fontSize={13}
         marginBottom={5}

@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
-import styled from 'styled-components';
 import { useSelector } from 'react-redux';
+import styled from 'styled-components';
 
 import { ContentPane } from './ContentPane';
 

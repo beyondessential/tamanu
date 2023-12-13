@@ -1,14 +1,8 @@
 import React from 'react';
-import * as yup from 'yup';
 import styled from 'styled-components';
+import * as yup from 'yup';
+import { Button, Field, Form, StyledPrimarySubmitButton, TextField } from '../components';
 import { FormGrid } from '../components/FormGrid';
-import {
-  Button,
-  Field,
-  Form,
-  TextField,
-  StyledPrimarySubmitButton,
-} from '../components';
 
 const SuccessMessage = styled.p`
   margin-top: 0;
@@ -43,9 +37,7 @@ export const ResetPasswordForm = React.memo(
         <FormGrid columns={1}>
           <h3>Reset Password</h3>
           <SuccessMessage>
-            An email with instructions has been sent to
-            {' '}
-            <strong>{resetPasswordEmail}</strong>
+            An email with instructions has been sent to <strong>{resetPasswordEmail}</strong>
             . If you do not receive this email within a few minutes please try again.
           </SuccessMessage>
           <Button fullWidth variant="contained" color="primary" onClick={onNavToChangePassword}>

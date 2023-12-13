@@ -1,7 +1,7 @@
 import { snakeCase } from 'lodash';
 import { DataTypes, ValidationError } from 'sequelize';
-import { compositeToSql } from './stringifier';
 import { Composite } from './sequelizeType';
+import { compositeToSql } from './stringifier';
 
 const ABSTRACT = DataTypes.ABSTRACT.prototype.constructor;
 export class COMPOSITE extends ABSTRACT {

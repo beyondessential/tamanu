@@ -1,11 +1,11 @@
 import {
   add as addDuration,
-  formatDuration,
+  differenceInDays,
+  differenceInMonths,
   differenceInWeeks,
   differenceInYears,
+  formatDuration,
   intervalToDuration,
-  differenceInMonths,
-  differenceInDays,
   startOfDay,
 } from 'date-fns';
 import { isISOString, parseDate } from './dateTime';
@@ -67,7 +67,7 @@ function ageIsWithinRange(birthDate, range) {
  * @param {string} dateOfBirth
  * @param {object} ageDisplayFormat
  * @returns {string} age
- * */
+ */
 export function getDisplayAge(dateOfBirth, ageDisplayFormat) {
   if (!ageDisplayFormat || !isISOString(dateOfBirth)) {
     return '';

@@ -1,13 +1,13 @@
-import React, { useEffect } from 'react';
-import styled from 'styled-components';
-import PropTypes from 'prop-types';
-import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormHelperText from '@material-ui/core/FormHelperText';
-import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import PropTypes from 'prop-types';
+import React, { useEffect } from 'react';
+import styled from 'styled-components';
 import { Colors } from '../../constants';
+import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 
 const DEFAULT_LABEL_THEME = {
   color: { default: Colors.outline, selected: Colors.primary },
@@ -39,7 +39,7 @@ const ControlLabel = styled(FormControlLabel)`
   ${props => (props.$color ? `border-color: ${props.$color}` : '')};
   justify-content: center;
   background: ${props =>
-    props.selected ? props.theme.background.selected : props.theme.background.default};
+  props.selected ? props.theme.background.selected : props.theme.background.default};
 
   &:last-child {
     margin-right: 0;
@@ -144,33 +144,29 @@ export const RadioInput = ({
                     selected={value === option.value}
                     {...(option.icon
                       ? {
-                          icon: option.icon,
-                        }
+                        icon: option.icon,
+                      }
                       : {})}
                     disabled={option.disabled}
                   />
                 }
-                label={
-                  option.description ? (
-                    <LabelWithDescription label={option.label} description={option.description} />
-                  ) : (
+                label={option.description ?
+                  <LabelWithDescription label={option.label} description={option.description} /> :
+                  (
                     option.label
-                  )
-                }
+                  )}
                 value={option.value}
                 $fullWidth={fullWidth}
                 selected={value === option.value}
                 style={option.style}
-                theme={
-                  option.color
-                    ? {
-                        color: { default: Colors.midText, selected: option.color },
-                        background: { default: Colors.white, selected: `${option.color}11` },
-                        border: { default: option.color, selected: option.color },
-                        text: { default: Colors.darkText, selected: Colors.darkestText },
-                      }
-                    : DEFAULT_LABEL_THEME
-                }
+                theme={option.color
+                  ? {
+                    color: { default: Colors.midText, selected: option.color },
+                    background: { default: Colors.white, selected: `${option.color}11` },
+                    border: { default: option.color, selected: option.color },
+                    text: { default: Colors.darkText, selected: Colors.darkestText },
+                  }
+                  : DEFAULT_LABEL_THEME}
               />
             </>
           ))}

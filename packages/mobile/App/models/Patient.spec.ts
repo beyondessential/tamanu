@@ -1,8 +1,8 @@
 import { mocked } from 'ts-jest/utils';
 
-import { IPatient } from '~/types';
 import { Database } from '~/infra/db';
 import { readConfig } from '~/services/config';
+import { IPatient } from '~/types';
 jest.mock('~/services/config');
 const mockedReadConfig = mocked(readConfig);
 jest.setTimeout(60000); // can be slow to create/delete records

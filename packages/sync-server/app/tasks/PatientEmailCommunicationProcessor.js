@@ -1,7 +1,7 @@
-import config from 'config';
-import { PATIENT_COMMUNICATION_CHANNELS, COMMUNICATION_STATUSES } from '@tamanu/constants';
-import { ScheduledTask } from '@tamanu/shared/tasks';
+import { COMMUNICATION_STATUSES, PATIENT_COMMUNICATION_CHANNELS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
+import { ScheduledTask } from '@tamanu/shared/tasks';
+import config from 'config';
 import { removeFile } from '../utils/files';
 
 // turns 'hello there' into 'h*********e'

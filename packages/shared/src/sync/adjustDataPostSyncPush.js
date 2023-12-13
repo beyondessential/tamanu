@@ -1,8 +1,8 @@
 import config from 'config';
 
+import { SYNC_SESSION_DIRECTION } from './constants';
 import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
 import { getSyncSnapshotRecordIds } from './getSyncSnapshotRecordIds';
-import { SYNC_SESSION_DIRECTION } from './constants';
 
 export const adjustDataPostSyncPush = async (sequelize, persistedModels, sessionId) => {
   for (const model of Object.values(persistedModels)) {

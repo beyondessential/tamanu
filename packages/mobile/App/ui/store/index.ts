@@ -1,5 +1,5 @@
-import { createStore, compose } from 'redux';
-import { persistStore, persistReducer } from 'redux-persist';
+import { compose, createStore } from 'redux';
+import { persistReducer, persistStore } from 'redux-persist';
 import createSensitiveStorage from 'redux-persist-sensitive-storage';
 import Reactotron from '../reactotron';
 import rootReducer from './ducks';

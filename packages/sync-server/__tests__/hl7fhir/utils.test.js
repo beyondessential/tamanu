@@ -1,11 +1,11 @@
-import { format } from 'date-fns';
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
-import { InvalidParameterError, Exception } from '@tamanu/shared/errors';
+import { Exception, InvalidParameterError } from '@tamanu/shared/errors';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
+import { format } from 'date-fns';
 import { createTestContext } from '../utilities';
 
-import { hl7SortToTamanu } from '../../app/hl7fhir/utils';
 import { sortableHL7PatientFields } from '../../app/hl7fhir/hl7PatientFields';
+import { hl7SortToTamanu } from '../../app/hl7fhir/utils';
 
 describe('HL7FHIR module utils', () => {
   let models;

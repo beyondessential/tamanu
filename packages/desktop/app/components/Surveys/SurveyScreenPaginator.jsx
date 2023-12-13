@@ -1,11 +1,11 @@
+import { Typography } from '@material-ui/core';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import React from 'react';
 import styled from 'styled-components';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { Typography } from '@material-ui/core';
-import { usePaginatedForm } from '../Field';
-import { SurveyScreen } from './SurveyScreen';
 import { FormSubmitButton, OutlinedButton } from '../Button';
 import { ButtonRow } from '../ButtonRow';
+import { usePaginatedForm } from '../Field';
+import { SurveyScreen } from './SurveyScreen';
 
 const COMPLETE_MESSAGE = `
   Press "Complete" to submit your response,

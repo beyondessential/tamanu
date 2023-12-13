@@ -1,7 +1,7 @@
 import fs from 'fs';
+import JSZip from 'jszip';
 import path from 'path';
 import XLSX from 'xlsx';
-import JSZip from 'jszip';
 
 import { tmpdir } from '@tamanu/shared/utils';
 

@@ -65,8 +65,8 @@ surveyResponse.get(
           );
         }
 
-        const columnToDisplay =
-          MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE[componentConfig.source] || DEFAULT_DISPLAY_COLUMN;
+        const columnToDisplay = MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE[componentConfig.source] ||
+          DEFAULT_DISPLAY_COLUMN;
         const answerDisplayValue = result[columnToDisplay];
 
         const transformedAnswer = {

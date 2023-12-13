@@ -9,15 +9,15 @@ const BaseTag = styled.div`
   position: relative;
   display: inline-block;
   background: ${({ $background, $color }) => {
-    if ($background) {
-      return $background;
-    }
-    if ($color) {
-      // If no background-color prop was provided then use a semi-transparent version of the color
-      return `${$color}1A`;
-    }
-    return DEFAULTS.background;
-  }};
+  if ($background) {
+    return $background;
+  }
+  if ($color) {
+    // If no background-color prop was provided then use a semi-transparent version of the color
+    return `${$color}1A`;
+  }
+  return DEFAULTS.background;
+}};
   color: ${p => (p.$color ? p.$color : DEFAULTS.color)};
   font-weight: 400;
   ${p => p.noWrap && 'white-space: nowrap;'}

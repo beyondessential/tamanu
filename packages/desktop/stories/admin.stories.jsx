@@ -1,12 +1,12 @@
 import React from 'react';
 
-import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
+import { storiesOf } from '@storybook/react';
 
-import { ImportErrorsTable } from '../app/views/administration/components/ImportErrorsTable';
-import { ImportStatsDisplay } from '../app/views/administration/components/ImportStatsDisplay';
-import { ImportExportView } from '../app/views/administration/components/ImportExportView';
 import { AssetUploaderView } from '../app/views/administration/AssetUploaderView';
+import { ImportErrorsTable } from '../app/views/administration/components/ImportErrorsTable';
+import { ImportExportView } from '../app/views/administration/components/ImportExportView';
+import { ImportStatsDisplay } from '../app/views/administration/components/ImportStatsDisplay';
 
 const sampleResponse = {
   sentData: false,
@@ -84,9 +84,10 @@ storiesOf('Admin/ImportExportView', module).add('Whole view', () => (
   />
 ));
 
-storiesOf('Admin/ImportStats', module).add('Default', () => (
-  <ImportStatsDisplay stats={sampleResponse.stats} />
-));
+storiesOf('Admin/ImportStats', module).add(
+  'Default',
+  () => <ImportStatsDisplay stats={sampleResponse.stats} />,
+);
 
 storiesOf('Admin/ErrorTable', module)
   .add('Default', () => <ImportErrorsTable errors={sampleResponse.errors} />)

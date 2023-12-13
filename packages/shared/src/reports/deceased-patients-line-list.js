@@ -1,5 +1,5 @@
-import { subDays } from 'date-fns';
 import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
+import { subDays } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
 
 // Creates a string with the time unit that it was added
@@ -61,10 +61,10 @@ const FIELDS = [
 const reportColumnTemplate = FIELDS.map(field =>
   typeof field === 'string'
     ? {
-        title: field,
-        accessor: data => data[field],
-      }
-    : field,
+      title: field,
+      accessor: data => data[field],
+    }
+    : field
 );
 
 const query = `

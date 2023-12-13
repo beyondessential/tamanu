@@ -1,6 +1,6 @@
-import * as yup from 'yup';
-import config from 'config';
 import { parseOrNull } from '@tamanu/shared/utils/parse-or-null';
+import config from 'config';
+import * as yup from 'yup';
 import { isNumberOrFloat } from '../../utils/numbers';
 import { statkey, updateStat } from '../stats';
 
@@ -17,9 +17,11 @@ const checkIfWithinGraphRange = (normalRange, graphRange) => {
 const validateNormalRangeAsObject = (normalRange, graphRange) => {
   if (!checkIfWithinGraphRange(normalRange, graphRange)) {
     throw new Error(
-      `normalRange must be within graphRange, got normalRange: ${JSON.stringify(
-        normalRange,
-      )}, graphRange: ${JSON.stringify(graphRange)}}`,
+      `normalRange must be within graphRange, got normalRange: ${
+        JSON.stringify(
+          normalRange,
+        )
+      }, graphRange: ${JSON.stringify(graphRange)}}`,
     );
   }
 
@@ -80,8 +82,8 @@ export function validateProgramDataElementRecords(
     const { values } = programDataElementRecord;
     const { visualisationConfig = '', code: dataElementCode } = values;
 
-    const surveyScreenComponentRecord =
-      records.find(r => r.values.dataElementId === values.id) || {};
+    const surveyScreenComponentRecord = records.find(r => r.values.dataElementId === values.id) ||
+      {};
     const { validationCriteria = '' } = surveyScreenComponentRecord.values;
 
     try {

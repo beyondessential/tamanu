@@ -1,17 +1,17 @@
-import { fake } from '@tamanu/shared/test-helpers';
 import {
+  FHIR_REQUEST_STATUS,
   IMAGING_REQUEST_STATUS_TYPES,
   LAB_REQUEST_STATUSES,
-  FHIR_REQUEST_STATUS,
 } from '@tamanu/constants';
-import { createTestContext } from '../utilities';
-import { fhir } from '../../app/subCommands/fhir';
+import { fake } from '@tamanu/shared/test-helpers';
 import { ApplicationContext } from '../../app/ApplicationContext';
+import { fhir } from '../../app/subCommands/fhir';
 import {
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithImagingRequest,
   fakeResourcesOfFhirServiceRequestWithLabRequest,
 } from '../fake/fhir';
+import { createTestContext } from '../utilities';
 
 describe('fhir sub commands', () => {
   let ctx;

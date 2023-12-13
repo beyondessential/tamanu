@@ -9,7 +9,6 @@ const mockDefinition = {
 };
 
 describe('importReport utils', () => {
-  
   describe('getOrCreateDefinition', () => {
     it('calls the findOrCreate function for ReportDefinition', async () => {
       const mockStore = {
@@ -30,7 +29,6 @@ describe('importReport utils', () => {
   });
 
   describe('getLatestVersion', () => {
-
     it('returns the latest version if no status is provided', async () => {
       const expected = { versionNumber: 3, status: REPORT_STATUSES.DRAFT };
       const mockVersions = [

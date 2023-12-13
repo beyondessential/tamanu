@@ -37,9 +37,11 @@ function getVaccineStatusForWeeksFromBirthDue(weeksUntilDue): VaccineStatusMessa
   if (weeksUntilDue < -4) {
     return {
       status: VaccineStatus.MISSED,
-      warningMessage: `Patient has missed this vaccine by ${Math.abs(
-        weeksUntilDue,
-      )} weeks, please refer to the catchup schedule.`,
+      warningMessage: `Patient has missed this vaccine by ${
+        Math.abs(
+          weeksUntilDue,
+        )
+      } weeks, please refer to the catchup schedule.`,
     };
   }
   if (weeksUntilDue < 0) {
@@ -77,7 +79,8 @@ function getVaccineStatusForWeeksFromLastVaccinationDue(
   if (weeksUntilGapPeriodPassed > 0) {
     return {
       status: VaccineStatus.SCHEDULED,
-      warningMessage: `This patient is not due to receive this vaccine for ${weeksUntilGapPeriodPassed} weeks.`,
+      warningMessage:
+        `This patient is not due to receive this vaccine for ${weeksUntilGapPeriodPassed} weeks.`,
     };
   }
 
@@ -90,8 +93,7 @@ export function getVaccineStatus(
   administeredVaccines,
 ): VaccineStatusMessage {
   const { weeksFromBirthDue, weeksFromLastVaccinationDue, index, vaccine: drug } = scheduledVaccine;
-  const previouslyAdministeredVaccine =
-    administeredVaccines &&
+  const previouslyAdministeredVaccine = administeredVaccines &&
     administeredVaccines.find(vaccine => {
       const previousVaccine = vaccine.scheduledVaccine.index === index - 1;
       const matchingDrug = vaccine.scheduledVaccine.vaccine.id === drug.id;
@@ -101,8 +103,8 @@ export function getVaccineStatus(
   const weeksUntilDue = weeksFromBirthDue - getWeeksFromDate(patient.dateOfBirth);
   // returns NaN if previouslyAdministeredVaccine is null, 0 if weeksFromLastVaccinationDue is null,
   // or the amount of weeks until the amount of weeks required between vaccines has passed.
-  const weeksUntilGapPeriodPassed =
-    weeksFromLastVaccinationDue - getWeeksFromDate(previouslyAdministeredVaccine?.date);
+  const weeksUntilGapPeriodPassed = weeksFromLastVaccinationDue -
+    getWeeksFromDate(previouslyAdministeredVaccine?.date);
 
   if (weeksFromBirthDue) return getVaccineStatusForWeeksFromBirthDue(weeksUntilDue);
   if (weeksFromLastVaccinationDue) {

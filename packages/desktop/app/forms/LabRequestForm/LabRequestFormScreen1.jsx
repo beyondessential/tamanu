@@ -1,5 +1,4 @@
 import React from 'react';
-import { Heading3, BodyText } from '../../components/Typography';
 import {
   AutocompleteField,
   DateTimeField,
@@ -8,6 +7,7 @@ import {
   SuggesterSelectField,
   useLocalisedText,
 } from '../../components';
+import { BodyText, Heading3 } from '../../components/Typography';
 import { LabRequestFormTypeRadioField } from './LabRequestFormTypeRadioField';
 
 // If update any fields please update screen1ValidationSchema in LabRequestMultiStepForm.js

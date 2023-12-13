@@ -1,6 +1,6 @@
+import { IconWithSizeProps } from '/interfaces/WithSizeProps';
 import React, { memo } from 'react';
 import { SvgXml } from 'react-native-svg';
-import { IconWithSizeProps } from '/interfaces/WithSizeProps';
 
 export const CalendarIcon = memo(({ size, fill = '#DEDEDE', ...props }: IconWithSizeProps) => {
   const xml = `

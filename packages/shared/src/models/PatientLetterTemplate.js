@@ -1,8 +1,8 @@
-import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { Model } from './Model';
-import { dateType } from './dateTimeTypes';
+import { Sequelize } from 'sequelize';
 import { getCurrentDateString } from '../utils/dateTime';
+import { dateType } from './dateTimeTypes';
+import { Model } from './Model';
 
 export class PatientLetterTemplate extends Model {
   static init({ primaryKey, ...options }) {

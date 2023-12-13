@@ -2,21 +2,21 @@
 
 import { addDays, formatRFC7231 } from 'date-fns';
 
-import { fake } from '@tamanu/shared/test-helpers';
 import {
   FHIR_DATETIME_PRECISION,
   IMAGING_REQUEST_STATUS_TYPES,
   NOTE_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { fakeUUID } from '@tamanu/shared/utils/generateId';
+import { fake } from '@tamanu/shared/test-helpers';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
+import { fakeUUID } from '@tamanu/shared/utils/generateId';
 
-import { createTestContext } from '../../utilities';
 import {
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithLabRequest,
 } from '../../fake/fhir';
+import { createTestContext } from '../../utilities';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
@@ -692,10 +692,12 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('filters by lastUpdated=gt with a date', async () => {
       const response = await app.get(
-        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated=gt${formatFhirDate(
-          addDays(new Date(), 7),
-          FHIR_DATETIME_PRECISION.DAYS,
-        )}`,
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated=gt${
+          formatFhirDate(
+            addDays(new Date(), 7),
+            FHIR_DATETIME_PRECISION.DAYS,
+          )
+        }`,
       );
 
       expect(response.body.total).toBe(1);
@@ -705,9 +707,11 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
     it('filters by lastUpdated=gt with a datetime', async () => {
       const response = await app.get(
-        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated=gt${encodeURIComponent(
-          formatFhirDate(addDays(new Date(), 7)),
-        )}`,
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated=gt${
+          encodeURIComponent(
+            formatFhirDate(addDays(new Date(), 7)),
+          )
+        }`,
       );
 
       expect(response.body.total).toBe(1);

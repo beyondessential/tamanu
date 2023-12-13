@@ -1,7 +1,7 @@
-import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
+import { DataTypes } from 'sequelize';
 import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
+import { Model } from './Model';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class PatientFieldValue extends Model {
@@ -11,7 +11,8 @@ export class PatientFieldValue extends Model {
         id: {
           // patient field value records use a generated primary key that enforces one per patient,
           // even across a distributed sync system
-          type: `TEXT GENERATED ALWAYS AS (REPLACE("patient_id", ';', ':') || ';' || REPLACE("definition_id", ';', ':')) STORED`,
+          type:
+            `TEXT GENERATED ALWAYS AS (REPLACE("patient_id", ';', ':') || ';' || REPLACE("definition_id", ';', ':')) STORED`,
           set() {
             // any sets of the convenience generated "id" field can be ignored
           },

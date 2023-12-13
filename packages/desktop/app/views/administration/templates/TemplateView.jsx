@@ -1,17 +1,17 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
-import { TopBar, PageContainer, ContentPane } from '../../../components';
-import { Colors } from '../../../constants';
-import { NewTemplateForm } from './NewTemplateForm';
 import { useApi } from '../../../api';
+import { ContentPane, PageContainer, TopBar } from '../../../components';
+import { Colors } from '../../../constants';
 import { useAuth } from '../../../contexts/Auth';
+import { NewTemplateForm } from './NewTemplateForm';
 
 import { TEMPLATE_ENDPOINT } from '../constants';
-import { TemplateList } from './TemplateList';
 import { EditTemplateModal } from './EditTemplateModal';
+import { TemplateList } from './TemplateList';
 
 const ContentContainer = styled.div`
   padding: 32px 30px;

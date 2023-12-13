@@ -3,6 +3,7 @@
 This is a standalone tool expressly created for the thorough validation of VDS QR code data. These have complex and layered requirements, including data and cryptographic validation, all of which is tedious and error-prone to check by hand.
 
 The tool checks:
+
 - data at a coarse level (is this valid JSON?)
 - data at a shape level (is this valid according to the VDS-NC JSON Schema?)
 - cryptographic integrity (is the signature included in the code valid for the data against the included certificate?)

@@ -1,20 +1,20 @@
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import React from 'react';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { foreignKey } from '../utils/validation';
 import { diagnosisCertaintyOptions } from '../constants';
+import { foreignKey } from '../utils/validation';
 
-import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { FormGrid } from '../components/FormGrid';
-import {
-  Form,
-  Field,
-  SelectField,
-  CheckField,
-  AutocompleteField,
-  DateField,
-} from '../components/Field';
 import { useSuggester } from '../api';
+import { FormSubmitCancelRow } from '../components/ButtonRow';
+import {
+  AutocompleteField,
+  CheckField,
+  DateField,
+  Field,
+  Form,
+  SelectField,
+} from '../components/Field';
+import { FormGrid } from '../components/FormGrid';
 import { useLocalisation } from '../contexts/Localisation';
 
 export const DiagnosisForm = React.memo(

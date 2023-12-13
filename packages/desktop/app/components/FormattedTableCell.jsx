@@ -1,5 +1,5 @@
 import { isNumber } from 'lodash';
-import React, { useRef, useState, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import styled from 'styled-components';
 import { Colors } from '../constants';
@@ -98,9 +98,9 @@ const LimitedLinesCellWrapper = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   ${({ maxLines }) =>
-    maxLines <= 1
-      ? ''
-      : `
+  maxLines <= 1
+    ? ''
+    : `
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: ${maxLines};
@@ -143,15 +143,15 @@ export const LimitedLinesCell = ({ value, maxWidth, maxLines = 2 }) => {
 export const RangeTooltipCell = React.memo(({ value, config, validationCriteria }) => {
   const { unit = '' } = config || {};
   const { normalRange } = validationCriteria || {};
-  const tooltip =
-    normalRange && `Normal range ${normalRange.min}${unit} – ${normalRange.max}${unit}`;
-  return tooltip ? (
-    <TableTooltip title={tooltip}>
-      <CellWrapper>{value}</CellWrapper>
-    </TableTooltip>
-  ) : (
-    <CellWrapper>{value}</CellWrapper>
-  );
+  const tooltip = normalRange &&
+    `Normal range ${normalRange.min}${unit} – ${normalRange.max}${unit}`;
+  return tooltip ?
+    (
+      <TableTooltip title={tooltip}>
+        <CellWrapper>{value}</CellWrapper>
+      </TableTooltip>
+    ) :
+    <CellWrapper>{value}</CellWrapper>;
 });
 
 const DefaultWrapper = ({ value }) => <>{value}</>;

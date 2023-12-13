@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import QRCode from 'qrcode';
+import { PDFViewer } from '@react-pdf/renderer';
 import { storiesOf } from '@storybook/react';
 import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/shared/demoData';
 import { CovidLabCertificate, VaccineCertificate } from '@tamanu/shared/utils/patientCertificates';
-import { PDFViewer } from '@react-pdf/renderer';
+import QRCode from 'qrcode';
+import React, { useEffect, useState } from 'react';
 
-import { PatientLetter } from '@tamanu/shared/utils/patientLetters/PatientLetter';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import { PatientLetter } from '@tamanu/shared/utils/patientLetters/PatientLetter';
+import { Modal } from '../app/components';
 import { DeathCertificate } from '../app/components/PatientPrinting/printouts/DeathCertificate';
 import SigningImage from './assets/signing-image.png';
-import Watermark from './assets/watermark.png';
 import Logo from './assets/tamanu-logo.png';
-import { Modal } from '../app/components';
+import Watermark from './assets/watermark.png';
 
 const dummyPatient = createDummyPatient();
 const dummyAdditionalData = createDummyPatientAdditionalData();
@@ -130,17 +130,17 @@ storiesOf('Certificates', module).add('DeathCertificate', () => {
 storiesOf('Certificates', module).add('CovidLabCertificate', () => (
   // TODO(web)
   // <PDFViewer width={800} height={1000} showToolbar={false}>
-    <CovidLabCertificate
-      patient={patient}
-      createdBy="Initial Admin"
-      labs={labs}
-      watermarkSrc={Watermark}
-      signingSrc={SigningImage}
-      logoSrc={Logo}
-      vdsSrc={vds}
-      getLocalisation={getLocalisation}
-      printedBy="Initial Admin"
-    />
+  <CovidLabCertificate
+    patient={patient}
+    createdBy="Initial Admin"
+    labs={labs}
+    watermarkSrc={Watermark}
+    signingSrc={SigningImage}
+    logoSrc={Logo}
+    vdsSrc={vds}
+    getLocalisation={getLocalisation}
+    printedBy="Initial Admin"
+  />
   // </PDFViewer>
 ));
 

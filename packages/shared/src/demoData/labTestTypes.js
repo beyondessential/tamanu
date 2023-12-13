@@ -124,7 +124,7 @@ const createCategory = async (models, { tests, name }) => {
       LabTestType.create({
         ...generateTestObject(t),
         labTestCategoryId: id,
-      }),
+      })
     ),
   );
 };

@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import styled from 'styled-components/native';
-import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { StyledText } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 
@@ -40,15 +40,18 @@ export const Cell = styled.View`
   align-items: center;
 `;
 
-export const DataText = styled(StyledText)<{type?: 'strong' | 'regular'}>`
-  font-size: ${(p): number => screenPercentageToDP((p.type === 'strong' ? 1.8 : 1.7), Orientation.Height)};
+export const DataText = styled(StyledText)<{ type?: 'strong' | 'regular' }>`
+  font-size: ${(p): number =>
+  screenPercentageToDP(p.type === 'strong' ? 1.8 : 1.7, Orientation.Height)};
   font-weight: ${(p): number => (p.type === 'strong' ? 700 : 500)};
-  color: ${(p): string => (p.type === 'strong' ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_DARK)};
+  color: ${(
+  p,
+): string => (p.type === 'strong' ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_DARK)};
 `;
 
 type DataCellProps = {
   type?: 'strong' | 'regular';
-}
+};
 
 export const DataCell: FC<DataCellProps> = ({ children, type = 'regular' }) => (
   <Cell>

@@ -1,14 +1,14 @@
-import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
-import { BaseModel } from './BaseModel';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
 import {
   AVPUType,
-  IVitals,
   DetectedPresenceType,
+  IVitals,
   UrineNitritesType,
   UrineProteinType,
 } from '../types/IVitals';
-import { Encounter } from './Encounter';
+import { BaseModel } from './BaseModel';
 import { DateTimeStringColumn } from './DateColumns';
+import { Encounter } from './Encounter';
 import { SYNC_DIRECTIONS } from './types';
 
 @Entity('vitals')

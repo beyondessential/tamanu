@@ -1,10 +1,10 @@
-import config from 'config';
-import formData from 'form-data';
-import Mailgun from 'mailgun.js';
-import { createReadStream } from 'fs';
-import { basename } from 'path';
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
+import config from 'config';
+import formData from 'form-data';
+import { createReadStream } from 'fs';
+import Mailgun from 'mailgun.js';
+import { basename } from 'path';
 
 const mailgun = new Mailgun(formData);
 
@@ -29,8 +29,9 @@ async function getReadStreamSafe(path) {
 
 export class EmailService {
   constructor() {
-    this.mailgunService =
-      apiKey && domain ? mailgun.client({ username: 'api', key: apiKey }) : null;
+    this.mailgunService = apiKey && domain
+      ? mailgun.client({ username: 'api', key: apiKey })
+      : null;
   }
 
   async sendEmail({ attachment: untypedAttachment, ...email }) {

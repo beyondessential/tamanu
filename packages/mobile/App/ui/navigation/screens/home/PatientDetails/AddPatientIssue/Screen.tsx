@@ -1,16 +1,16 @@
+import { Formik } from 'formik';
 import React, { ReactElement } from 'react';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
-import * as Yup from 'yup';
-import { Formik } from 'formik';
 import { ScrollView } from 'react-native-gesture-handler';
+import * as Yup from 'yup';
 
-import { Field } from '~/ui/components/Forms/FormField';
-import { TextField } from '~/ui/components/TextField/TextField';
-import { Button } from '~/ui/components/Button';
 import { IPatient } from '~/types';
-import { StackHeader } from '~/ui/components/StackHeader'
-import { FullView } from '~/ui/styled/common';
+import { Button } from '~/ui/components/Button';
+import { Field } from '~/ui/components/Forms/FormField';
+import { StackHeader } from '~/ui/components/StackHeader';
+import { TextField } from '~/ui/components/TextField/TextField';
 import { joinNames } from '~/ui/helpers/user';
+import { FullView } from '~/ui/styled/common';
 
 export type AddPatientIssueScreenProps = {
   onNavigateBack: () => void;

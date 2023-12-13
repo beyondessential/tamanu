@@ -1,11 +1,11 @@
-import React from 'react';
-import styled from 'styled-components';
+import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import Divider from '@material-ui/core/Divider';
+import React from 'react';
+import styled from 'styled-components';
 
-import { DateDisplay } from './DateDisplay';
 import { Colors } from '../constants';
+import { DateDisplay } from './DateDisplay';
 
 const StyledDivider = styled(Divider)`
   margin-top: 10px;
@@ -27,13 +27,13 @@ const StyledNoteChangeLogInfoWrapper = styled.div`
   margin-top: 5px;
 `;
 
-const NoteChangeLogMain = ({ note }) => <span>{note.content} </span>;
+const NoteChangeLogMain = ({ note }) => <span>{note.content}</span>;
 
 const NoteChangeLogInfo = ({ note }) => (
   <StyledNoteChangeLogInfoWrapper>
     <>
-      <span>{note.author?.displayName || ''} </span>
-      {note.onBehalfOf ? <span>on behalf of {note.onBehalfOf.displayName} </span> : null}
+      <span>{note.author?.displayName || ''}</span>
+      {note.onBehalfOf ? <span>on behalf of {note.onBehalfOf.displayName}</span> : null}
       <DateDisplay date={note.date} showTime />
     </>
   </StyledNoteChangeLogInfoWrapper>

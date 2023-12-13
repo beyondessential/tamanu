@@ -4,4 +4,4 @@ import reconfig from './reconfig';
 import revoke from './revoke';
 import sign from './sign';
 
-export { create, sign, crlUpload, reconfig, revoke };
+export { create, crlUpload, reconfig, revoke, sign };

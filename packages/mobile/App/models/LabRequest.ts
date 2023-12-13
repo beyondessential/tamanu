@@ -1,15 +1,15 @@
-import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
 import { OneToMany } from 'typeorm';
-import { BaseModel } from './BaseModel';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
 import { IDataRequiredToCreateLabRequest, ILabRequest, LabRequestStatus } from '~/types';
-import { SYNC_DIRECTIONS } from './types';
-import { Encounter } from './Encounter';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
-import { LabTest } from './LabTest';
-import { User } from './User';
+import { BaseModel } from './BaseModel';
 import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
 import { DateTimeStringColumn } from './DateColumns';
 import { Department } from './Department';
+import { Encounter } from './Encounter';
+import { LabTest } from './LabTest';
+import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { SYNC_DIRECTIONS } from './types';
+import { User } from './User';
 
 const HIDDEN_STATUSES = ['deleted', 'entered-in-error', 'cancelled'];
 
@@ -126,10 +126,12 @@ export class LabRequest extends BaseModel implements ILabRequest {
 
     // then create tests
     await Promise.all(
-      labTestTypeIds.map(labTestTypeId => LabTest.createAndSaveOne({
-        labTestType: labTestTypeId,
-        labRequest: labRequest.id,
-      })),
+      labTestTypeIds.map(labTestTypeId =>
+        LabTest.createAndSaveOne({
+          labTestType: labTestTypeId,
+          labRequest: labRequest.id,
+        })
+      ),
     );
 
     return labRequest;

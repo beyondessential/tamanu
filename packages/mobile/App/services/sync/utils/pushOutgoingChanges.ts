@@ -1,5 +1,5 @@
-import { SyncRecord } from '../types';
 import { MODELS_MAP } from '../../../models/modelsMap';
+import { SyncRecord } from '../types';
 
 import { CentralServerConnection } from '../CentralServerConnection';
 import { calculatePageLimit } from './calculatePageLimit';

@@ -1,5 +1,5 @@
-import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { Sequelize } from 'sequelize';
 import { parseOrNull } from '../utils/parse-or-null';
 import { Model } from './Model';
 

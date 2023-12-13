@@ -1,9 +1,15 @@
 import { IMAGING_AREA_TYPES } from '@tamanu/constants';
-import { ICD10_DIAGNOSES, TRIAGE_DIAGNOSES, DRUGS, CARE_PLANS, splitIds } from '@tamanu/shared/demoData';
 import {
-  X_RAY_IMAGING_AREAS,
+  CARE_PLANS,
+  DRUGS,
+  ICD10_DIAGNOSES,
+  splitIds,
+  TRIAGE_DIAGNOSES,
+} from '@tamanu/shared/demoData';
+import {
   CT_SCAN_IMAGING_AREAS,
   ULTRASOUND_IMAGING_AREAS,
+  X_RAY_IMAGING_AREAS,
 } from '@tamanu/shared/demoData/imagingAreas';
 
 export const testDiagnoses = ICD10_DIAGNOSES.slice(0, 50);

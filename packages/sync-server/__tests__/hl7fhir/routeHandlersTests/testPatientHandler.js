@@ -3,8 +3,8 @@ import { format } from 'date-fns';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
-import { createTestContext } from '../../utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
+import { createTestContext } from '../../utilities';
 
 export function testPatientHandler(integrationName, requestHeaders = {}) {
   describe(`${integrationName} integration - Patient`, () => {
@@ -29,7 +29,8 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         });
         await patient.reload(); // saving PatientAdditionalData updates the patient too
         const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
-        const path = `/v1/integration/${integrationName}/Patient?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
+        const path =
+          `/v1/integration/${integrationName}/Patient?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
         // act
         const response = await app.get(path).set(requestHeaders);
@@ -111,7 +112,8 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
       it("returns no error but no results when subject:identifier doesn't match a patient", async () => {
         // arrange
         const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|abc123-not-real`);
-        const path = `/v1/integration/${integrationName}/Patient?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
+        const path =
+          `/v1/integration/${integrationName}/Patient?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
         // act
         const response = await app.get(path).set(requestHeaders);
@@ -751,10 +753,12 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           Patient.create(fake(Patient, { firstName: 'Alice' })),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?given:contains=${firstName.slice(
-          1,
-          3,
-        )}`;
+        const path = `/v1/integration/${integrationName}/Patient?given:contains=${
+          firstName.slice(
+            1,
+            3,
+          )
+        }`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -773,7 +777,8 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         ]);
 
         const slicedName = firstName.slice(1, 3);
-        const path = `/v1/integration/${integrationName}/Patient?given:contains=${slicedName}&family=${lastName}&birthdate=${dateOfBirth}`;
+        const path =
+          `/v1/integration/${integrationName}/Patient?given:contains=${slicedName}&family=${lastName}&birthdate=${dateOfBirth}`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -791,7 +796,8 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           patientId: patient.id,
         });
         const id = encodeURIComponent(`not-the-right-identifier|${patient.displayId}`);
-        const path = `/v1/integration/${integrationName}/Patient?_sort=id&_page=z&_count=x&subject%3Aidentifier=${id}`;
+        const path =
+          `/v1/integration/${integrationName}/Patient?_sort=id&_page=z&_count=x&subject%3Aidentifier=${id}`;
 
         // act
         const response = await app.get(path).set(requestHeaders);

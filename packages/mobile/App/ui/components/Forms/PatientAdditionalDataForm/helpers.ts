@@ -1,14 +1,14 @@
 import * as Yup from 'yup';
-import { Suggester } from '~/ui/helpers/suggester';
-import { ReferenceData } from '~/models/ReferenceData';
 import { MODELS_MAP } from '~/models/modelsMap';
+import { ReferenceData } from '~/models/ReferenceData';
 import {
   bloodOptions,
   educationalAttainmentOptions,
   maritalStatusOptions,
   socialMediaOptions,
-  titleOptions
+  titleOptions,
 } from '~/ui/helpers/additionalData';
+import { Suggester } from '~/ui/helpers/suggester';
 
 // All PatientAdditionalData plain fields sorted alphabetically
 export const plainFields = [
@@ -167,7 +167,7 @@ export const getInitialCustomValues = (data, fields): {} => {
     values[fieldName] = data[fieldName]?.[0]?.value;
   });
   return values;
-}
+};
 
 // Strip off unwanted fields from additional data and only keep specified ones
 export const getInitialAdditionalValues = (data, fields): {} => {

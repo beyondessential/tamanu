@@ -1,6 +1,6 @@
-import Transport from 'winston-transport';
-import Libhoney from 'libhoney';
 import config from 'config';
+import Libhoney from 'libhoney';
+import Transport from 'winston-transport';
 import { serviceContext, serviceName } from './context';
 
 const context = serviceContext();

@@ -1,7 +1,7 @@
-import React, { ReactElement } from 'react';
-import { StyledView, CenterView } from '/styled/common';
-import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { CenterView, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
+import React, { ReactElement } from 'react';
 import { SyncDataIcon } from '../Icons';
 
 interface CircularProgressProps {

@@ -1,28 +1,28 @@
-import React, { FunctionComponent, useCallback, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { KeyboardAvoidingView, StatusBar, Linking } from 'react-native';
+import { SignInForm } from '/components/Forms/SignInForm';
+import { CrossIcon, HomeBottomLogoIcon, LaunchIcon } from '/components/Icons';
+import { ModalInfo } from '/components/ModalInfo';
+import { Routes } from '/helpers/routes';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { authSelector } from '/helpers/selectors';
+import { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
 import {
-  StyledView,
-  StyledSafeAreaView,
   FullView,
   RowView,
-  StyledTouchableOpacity,
+  StyledSafeAreaView,
   StyledText,
+  StyledTouchableOpacity,
+  StyledView,
 } from '/styled/common';
-import { CrossIcon, HomeBottomLogoIcon, LaunchIcon } from '/components/Icons';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
-import { SignInForm } from '/components/Forms/SignInForm';
-import { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
-import { Routes } from '/helpers/routes';
-import { ModalInfo } from '/components/ModalInfo';
-import { authSelector } from '/helpers/selectors';
+import React, { FunctionComponent, useCallback, useState } from 'react';
+import { KeyboardAvoidingView, Linking, StatusBar } from 'react-native';
+import { Orient } from 'react-native-svg';
+import { useSelector } from 'react-redux';
+import { marginTop } from 'styled-system';
 import { OutdatedVersionError } from '~/services/error';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
-import { marginTop } from 'styled-system';
 import { SupportCentreButton } from './SupportCentreButton';
-import { Orient } from 'react-native-svg';
 
 interface ModalContent {
   message: string;
@@ -150,16 +150,16 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
         </KeyboardAvoidingView>
       </StyledSafeAreaView>
       <StyledView
-          flexDirection="row"
-          justifyContent="flex-end"
-          position='absolute'
-          bottom={screenPercentageToDP(2.43, Orientation.Height)}
-          right={screenPercentageToDP(2.43, Orientation.Width)}
-          paddingLeft={screenPercentageToDP(2.43, Orientation.Width)}
-          paddingRight={screenPercentageToDP(2.43, Orientation.Width)}
-        >
-          {isSupportUrlLoaded && <SupportCentreButton supportCentreUrl={supportCentreUrl} />}
-        </StyledView>
+        flexDirection="row"
+        justifyContent="flex-end"
+        position="absolute"
+        bottom={screenPercentageToDP(2.43, Orientation.Height)}
+        right={screenPercentageToDP(2.43, Orientation.Width)}
+        paddingLeft={screenPercentageToDP(2.43, Orientation.Width)}
+        paddingRight={screenPercentageToDP(2.43, Orientation.Width)}
+      >
+        {isSupportUrlLoaded && <SupportCentreButton supportCentreUrl={supportCentreUrl} />}
+      </StyledView>
     </FullView>
   );
 };

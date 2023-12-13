@@ -1,12 +1,12 @@
 /* eslint-disable no-param-reassign, camelcase, no-unused-vars */
 
 import {
-  format,
   differenceInMilliseconds,
-  startOfDay,
   endOfDay,
-  subDays,
+  format,
   parseISO,
+  startOfDay,
+  subDays,
 } from 'date-fns';
 import { groupBy } from 'lodash';
 import { toDateTimeString } from '../utils/dateTime';
@@ -268,7 +268,6 @@ const makeDemographicsKey = (ethnicity, under30) =>
  * )
  *
  * Then, the results for all entries in those arrays are summed
- *
  */
 const transformResultsForDate = (thisDate, resultsForDate) => {
   const groupableResults = resultsForDate.map(
@@ -343,7 +342,7 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
     .map(([date, resultsForDate]) => transformResultsForDate(date, resultsForDate))
     // Sort oldest to most recent
     .sort(({ date: date1 }, { date: date2 }) =>
-      differenceInMilliseconds(new Date(date1), new Date(date2)),
+      differenceInMilliseconds(new Date(date1), new Date(date2))
     )
     .map(({ date, ...otherFields }) => ({
       date: format(parseISO(date), 'dd-MM-yyyy'),

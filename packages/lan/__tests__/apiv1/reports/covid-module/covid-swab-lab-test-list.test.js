@@ -1,11 +1,11 @@
-import moment from 'moment';
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { randomLabRequest } from '@tamanu/shared/demoData';
 import {
   createDummyEncounter,
   createDummyPatient,
   randomReferenceIds,
 } from '@tamanu/shared/demoData/patients';
-import { randomLabRequest } from '@tamanu/shared/demoData';
-import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import moment from 'moment';
 import { createTestContext } from '../../../utilities';
 
 const PROGRAM_ID = 'program-fijicovid19';

@@ -1,24 +1,24 @@
 import React from 'react';
-import { Switch, Route, Redirect } from 'react-router';
 import { useSelector } from 'react-redux';
+import { Redirect, Route, Switch } from 'react-router';
 
 import { SERVER_TYPES } from '@tamanu/constants';
 
 import { App } from './App';
-import {
-  ImagingRoutes,
-  MedicationRoutes,
-  LabsRoutes,
-  BillingRoutes,
-  AdministrationRoutes,
-  ProgramsRoutes,
-  ImmunisationRoutes,
-  AppointmentRoutes,
-  PatientsRoutes,
-  FacilityAdminRoutes,
-} from './routes';
-import { Sidebar, FACILITY_MENU_ITEMS, SYNC_MENU_ITEMS } from './components/Sidebar';
+import { FACILITY_MENU_ITEMS, Sidebar, SYNC_MENU_ITEMS } from './components/Sidebar';
 import { UserActivityMonitor } from './components/UserActivityMonitor';
+import {
+  AdministrationRoutes,
+  AppointmentRoutes,
+  BillingRoutes,
+  FacilityAdminRoutes,
+  ImagingRoutes,
+  ImmunisationRoutes,
+  LabsRoutes,
+  MedicationRoutes,
+  PatientsRoutes,
+  ProgramsRoutes,
+} from './routes';
 
 export const RoutingApp = () => {
   const isSyncServer = useSelector(state => state.auth?.server?.type === SERVER_TYPES.SYNC);
@@ -39,10 +39,12 @@ export const RoutingFacilityApp = React.memo(() => (
       <Route path="/programs" component={ProgramsRoutes} />
       <Route path="/immunisations" component={ImmunisationRoutes} />
       <Route path="/facility-admin" component={FacilityAdminRoutes} />
-      {/*
-       * TODO fix this hack. For some reason, having an empty object within this switch fixes a bug
-       * where none of the app contents would render in a production build.
-       */}
+      {
+        /*
+         * TODO fix this hack. For some reason, having an empty object within this switch fixes a bug
+         * where none of the app contents would render in a production build.
+         */
+      }
     </Switch>
   </App>
 ));
@@ -52,10 +54,12 @@ export const RoutingAdminApp = React.memo(() => (
     <Switch>
       <Redirect exact path="/" to="/admin" />
       <Route path="/admin" component={AdministrationRoutes} />
-      {/*
-       * TODO fix this hack. For some reason, having an empty object within this switch fixes a bug
-       * where none of the app contents would render in a production build.
-       */}
+      {
+        /*
+         * TODO fix this hack. For some reason, having an empty object within this switch fixes a bug
+         * where none of the app contents would render in a production build.
+         */
+      }
     </Switch>
   </App>
 ));

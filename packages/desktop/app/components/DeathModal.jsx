@@ -1,11 +1,11 @@
+import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useQueryClient } from '@tanstack/react-query';
-import { reloadPatient } from '../store/patient';
-import { FormModal } from './FormModal';
-import { DeathForm } from '../forms/DeathForm';
 import { useApi, useSuggester } from '../api';
+import { DeathForm } from '../forms/DeathForm';
+import { reloadPatient } from '../store/patient';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
+import { FormModal } from './FormModal';
 
 export const DeathModal = React.memo(({ open, onClose, deathData }) => {
   const api = useApi();

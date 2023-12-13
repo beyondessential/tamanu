@@ -1,32 +1,32 @@
+import { Crypto } from '@peculiar/webcrypto';
+import { ICAO_DOCUMENT_TYPES, X502_OIDS } from '@tamanu/constants';
+import { depem, pem } from '@tamanu/shared/utils';
+import {
+  BitString,
+  fromBER,
+  Integer,
+  OctetString,
+  PrintableString,
+  Sequence,
+  Set as Asn1Set,
+  Utf8String,
+} from 'asn1js';
 import config from 'config';
 import nodeCrypto from 'crypto';
 import { add } from 'date-fns';
-import { Crypto } from '@peculiar/webcrypto';
 import {
-  fromBER,
-  Integer,
-  PrintableString,
-  Utf8String,
-  BitString,
-  OctetString,
-  Sequence,
-  Set as Asn1Set,
-} from 'asn1js';
-import {
-  Time,
-  setEngine,
-  CryptoEngine,
+  AttributeTypeAndValue,
+  AuthorityKeyIdentifier,
+  BasicConstraints,
   Certificate,
   CertificationRequest,
-  AttributeTypeAndValue,
-  BasicConstraints,
+  CryptoEngine,
   Extension,
   Extensions,
   ExtKeyUsage,
-  AuthorityKeyIdentifier,
+  setEngine,
+  Time,
 } from 'pkijs';
-import { ICAO_DOCUMENT_TYPES, X502_OIDS } from '@tamanu/constants';
-import { depem, pem } from '@tamanu/shared/utils';
 import { getLocalisation } from '../../localisation';
 
 const webcrypto = new Crypto();

@@ -1,15 +1,15 @@
 import React, {
   createContext,
-  useContext,
-  useState,
-  useEffect,
-  useMemo,
   PropsWithChildren,
   ReactElement,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
 } from 'react';
 
-import { BackendContext } from '~/ui/contexts/BackendContext';
 import { LocalisationService } from '~/services/localisation';
+import { BackendContext } from '~/ui/contexts/BackendContext';
 
 interface LocalisationContextData {
   getLocalisation: (path: string) => any;
@@ -20,7 +20,7 @@ interface LocalisationContextData {
 const LocalisationContext = createContext<LocalisationContextData>({} as LocalisationContextData);
 
 const makeHelpers = (localisation: LocalisationService): LocalisationContextData => ({
-  getLocalisation: (path) => localisation.getLocalisation(path),
+  getLocalisation: path => localisation.getLocalisation(path),
   getString: (path, defaultString) => localisation.getString(path, defaultString),
   getBool: (path, defaultBool) => localisation.getBool(path, defaultBool),
 });

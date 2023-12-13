@@ -1,6 +1,6 @@
 import { fake } from '@tamanu/shared/test-helpers/fake';
-import { createTestContext } from '../../utilities';
 import { genToken } from '../../../app/subCommands/apiKeys/issue';
+import { createTestContext } from '../../utilities';
 
 describe('omniLab auth', () => {
   let ctx;

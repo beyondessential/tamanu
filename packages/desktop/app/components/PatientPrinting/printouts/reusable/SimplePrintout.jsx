@@ -1,11 +1,11 @@
+import { Box, Typography } from '@material-ui/core';
 import React from 'react';
 import styled from 'styled-components';
-import { Typography, Box } from '@material-ui/core';
 
-import { PrintLetterhead } from './PrintLetterhead';
 import { CertificateWrapper } from './CertificateWrapper';
 import { GridTable } from './GridTable';
 import { PatientDetailPrintout } from './PatientDetailPrintout';
+import { PrintLetterhead } from './PrintLetterhead';
 
 const Text = styled(Typography)`
   ${props => (props.$boldTitle ? 'font-weight: 500;' : '')}

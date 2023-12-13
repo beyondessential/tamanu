@@ -1,10 +1,10 @@
-import * as yup from 'yup';
 import { Chance } from 'chance';
 import { random } from 'lodash';
+import * as yup from 'yup';
 
+import { FhirBaseType } from './baseType';
 import { FhirCodeableConcept } from './codeableConcept';
 import { FhirReference } from './reference';
-import { FhirBaseType } from './baseType';
 
 export class FhirImmunizationProtocolApplied extends FhirBaseType {
   static SCHEMA() {

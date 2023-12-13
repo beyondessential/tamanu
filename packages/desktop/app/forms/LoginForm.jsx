@@ -1,18 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import * as yup from 'yup';
 import styled from 'styled-components';
+import * as yup from 'yup';
 
 import { USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
 
+import { Button, CheckField, Field, Form, FormSubmitButton, TextField } from '../components';
 import { FormGrid } from '../components/FormGrid';
-import {
-  Button,
-  CheckField,
-  Field,
-  Form,
-  FormSubmitButton,
-  TextField,
-} from '../components';
 
 const LoginButton = styled(FormSubmitButton)`
   font-size: 16px;

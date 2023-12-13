@@ -2,7 +2,7 @@ import config from 'config';
 import { buildAbility, buildAbilityForUser } from './buildAbility';
 import { permissionCache } from './cache';
 
-//---------------------------------------------------------
+// ---------------------------------------------------------
 // "Hardcoded" permissions version -- safe to delete once all deployments
 // have been migrated to database version.
 import * as roles from '../roles'; // eslint-disable-line import/order
@@ -14,7 +14,7 @@ function getHardcodedPermissions(roleIds) {
   }
   return permissions;
 }
-//---------------------------------------------------------
+// ---------------------------------------------------------
 
 const commaSplit = s =>
   s

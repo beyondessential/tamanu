@@ -1,6 +1,6 @@
-import React from 'react';
 import { Document, Page } from '@react-pdf/renderer';
-import { styles, Box } from '../patientCertificates/Layout';
+import React from 'react';
+import { Box, styles } from '../patientCertificates/Layout';
 import { HandoverHeaderSection } from './HandoverHeaderSection';
 import { HandoverPatient } from './HandoverPatient';
 

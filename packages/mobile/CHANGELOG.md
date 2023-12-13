@@ -86,7 +86,7 @@
 ### Bug fixes 🐛
 
 - Fix issue where migration would not run if the local database contained
-clinical information associated with encounters (ie any encounter data).
+  clinical information associated with encounters (ie any encounter data).
 
 ### Infrastructure and maintenance 🛠
 
@@ -117,7 +117,7 @@ clinical information associated with encounters (ie any encounter data).
 
 ## v1.8.x
 
-_This version number was skipped as the relevant updates were all on the 
+_This version number was skipped as the relevant updates were all on the
 servers. Mobile version jumps directly to v1.9.x._
 
 ## v1.7.21

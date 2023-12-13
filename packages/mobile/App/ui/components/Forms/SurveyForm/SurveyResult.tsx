@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
 import { useFormikContext } from 'formik';
+import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { Subheading, Text } from 'react-native-paper';
-import { useBackend } from '~/ui/hooks';
-import { Field } from '../FormField';
-import { SurveyResultBadge } from '../../SurveyResultBadge';
 import { SurveyResponse } from '~/models/SurveyResponse';
+import { useBackend } from '~/ui/hooks';
+import { SurveyResultBadge } from '../../SurveyResultBadge';
+import { Field } from '../FormField';
 
 export const SurveyResult = ({ patient, config, name }) => {
   const [surveyResponse, setSurveyResponse] = useState<SurveyResponse | undefined>();
@@ -21,12 +21,13 @@ export const SurveyResult = ({ patient, config, name }) => {
     })();
   }, [patient, config.source]);
 
-  if (!surveyResponse)
+  if (!surveyResponse) {
     return (
       <Text accessibilityComponentType={undefined} accessibilityTraits={undefined}>
         Survey (id: {config.source}) not submitted for patient.
       </Text>
     );
+  }
   const SurveyBadgeField = () => (
     <View>
       <Subheading>CVD Risk</Subheading>

@@ -1,6 +1,6 @@
+import { ListItem, ListItemText } from '@material-ui/core';
 import React from 'react';
 import styled from 'styled-components';
-import { ListItem, ListItemText } from '@material-ui/core';
 
 const SecondaryListItem = styled(ListItem)`
   margin-bottom: 2px;

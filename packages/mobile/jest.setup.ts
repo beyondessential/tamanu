@@ -5,8 +5,8 @@ import './__mocks__/react-native__Libraries__Utilities__DevSettings';
 import './__mocks__/react-native-device-infoMock';
 
 import 'reflect-metadata';
-import { YellowBox } from 'react-native';
 import mockAsyncStorage from '@react-native-async-storage/async-storage/jest/async-storage-mock';
+import { YellowBox } from 'react-native';
 
 jest.useFakeTimers();
 

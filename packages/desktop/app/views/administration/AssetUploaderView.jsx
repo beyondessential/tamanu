@@ -1,14 +1,14 @@
-import React, { memo, useState, useCallback } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import * as yup from 'yup';
 
 import { ASSET_NAMES } from '@tamanu/constants/importable';
 import { useApi } from '../../api';
-import { Form, Field, SelectField } from '../../components/Field';
-import { FileChooserField, FILTER_IMAGES } from '../../components/Field/FileChooserField';
-import { ContentPane } from '../../components/ContentPane';
-import { FormGrid } from '../../components/FormGrid';
-import { ButtonRow } from '../../components/ButtonRow';
 import { LargeSubmitButton } from '../../components/Button';
+import { ButtonRow } from '../../components/ButtonRow';
+import { ContentPane } from '../../components/ContentPane';
+import { Field, Form, SelectField } from '../../components/Field';
+import { FileChooserField, FILTER_IMAGES } from '../../components/Field/FileChooserField';
+import { FormGrid } from '../../components/FormGrid';
 import { AdminViewContainer } from './components/AdminViewContainer';
 
 const ResultDisplay = ({ result }) => {
@@ -39,7 +39,7 @@ export const AssetUploaderView = memo(() => {
       setResult(null);
 
       try {
-        const contents = new Blob; // await readFile(filename); // TODO(web)
+        const contents = new Blob(); // await readFile(filename); // TODO(web)
         const data = contents.toString('base64');
 
         const response = await api.put(`admin/asset/${name}`, {

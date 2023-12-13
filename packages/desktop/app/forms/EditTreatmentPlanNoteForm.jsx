@@ -1,14 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
+import { FormGrid } from '../components/FormGrid';
 import {
   NoteContentField,
   NoteDateTimeField,
   NoteInfoSection,
-  WrittenByField,
   StyledDivider,
+  WrittenByField,
   WrittenByText,
 } from '../components/NoteCommonFields';
 import { NOTE_TYPE_LABELS } from '../constants';

@@ -1,9 +1,9 @@
+import { Box, Typography } from '@material-ui/core';
+import { storiesOf } from '@storybook/react';
 import React from 'react';
 import styled from 'styled-components';
-import { storiesOf } from '@storybook/react';
-import { Typography, Box } from '@material-ui/core';
-import { Form, Field, LocationField } from '../../app/components';
 import { fakeLocations } from '../../.storybook/__mocks__/defaultEndpoints';
+import { Field, Form, LocationField } from '../../app/components';
 
 /**
  * TODO: Semi-broken from changes to suggester logic

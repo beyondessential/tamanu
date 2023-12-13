@@ -1,6 +1,6 @@
+import { log } from '@tamanu/shared/services/logging';
 import { formatInTimeZone } from 'date-fns-tz';
 import { transliterate as tr } from 'transliteration';
-import { log } from '@tamanu/shared/services/logging';
 
 import { getLocalisation } from '../../localisation';
 
@@ -106,8 +106,8 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
 
   const pidDoc = passport
     ? {
-        i: passport,
-      }
+      i: passport,
+    }
     : {};
 
   // Group by vaccine brand/label
@@ -260,9 +260,9 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
 
   const pidDoc = passport
     ? {
-        dt: 'P',
-        dn: passport,
-      }
+      dt: 'P',
+      dn: passport,
+    }
     : {};
 
   return {

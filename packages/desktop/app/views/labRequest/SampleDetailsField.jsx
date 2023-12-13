@@ -1,9 +1,9 @@
 import { Typography } from '@material-ui/core';
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import styled from 'styled-components';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import styled from 'styled-components';
 import { Heading4 } from '../../components';
-import { DateTimeField, Field, AutocompleteField } from '../../components/Field';
+import { AutocompleteField, DateTimeField, Field } from '../../components/Field';
 import { Colors } from '../../constants';
 
 const Container = styled.div`
@@ -187,9 +187,8 @@ export const SampleDetailsField = ({
 
   return (
     <Container hasPanels={hasPanels}>
-      {headers.map(columnName => (
-        <HeaderCell key={`header-${columnName}`}>{columnName}</HeaderCell>
-      ))}
+      {headers.map(columnName => <HeaderCell key={`header-${columnName}`}>{columnName}
+      </HeaderCell>)}
       {initialSamples.map(request => {
         return renderSampleDetails(request);
       })}

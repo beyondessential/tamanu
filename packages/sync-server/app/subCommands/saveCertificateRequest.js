@@ -1,6 +1,6 @@
+import { log } from '@tamanu/shared/services/logging';
 import { Command } from 'commander';
 import { promises as fs } from 'fs';
-import { log } from '@tamanu/shared/services/logging';
 
 import { Signer } from '@tamanu/shared/models';
 

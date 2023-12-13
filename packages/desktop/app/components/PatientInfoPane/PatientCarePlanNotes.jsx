@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
 import { isBefore } from 'date-fns';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useApi } from '../../api';
 import { CarePlanNoteDisplay } from '../CarePlanNoteDisplay';
@@ -19,26 +19,28 @@ const EditableNoteFormContainer = styled.div`
 
 function EditableNoteDisplay({ onSuccessfulSubmit, onNoteDeleted, ...rest }) {
   const [isEditing, setIsEditing] = useState(false);
-  return isEditing ? (
-    <EditableNoteFormContainer>
-      <CarePlanNoteForm
-        onSuccessfulSubmit={() => {
-          setIsEditing(false);
-          onSuccessfulSubmit();
-        }}
-        onCancel={() => {
-          setIsEditing(false);
-        }}
+  return isEditing ?
+    (
+      <EditableNoteFormContainer>
+        <CarePlanNoteForm
+          onSuccessfulSubmit={() => {
+            setIsEditing(false);
+            onSuccessfulSubmit();
+          }}
+          onCancel={() => {
+            setIsEditing(false);
+          }}
+          {...rest}
+        />
+      </EditableNoteFormContainer>
+    ) :
+    (
+      <CarePlanNoteDisplay
+        onEditClicked={() => setIsEditing(true)}
+        onNoteDeleted={onNoteDeleted}
         {...rest}
       />
-    </EditableNoteFormContainer>
-  ) : (
-    <CarePlanNoteDisplay
-      onEditClicked={() => setIsEditing(true)}
-      onNoteDeleted={onNoteDeleted}
-      {...rest}
-    />
-  );
+    );
 }
 
 export const PatientCarePlanDetails = React.memo(({ item }) => {
@@ -78,20 +80,21 @@ export const PatientCarePlanDetails = React.memo(({ item }) => {
           setResetForm(resetForm + 1);
         }}
       />
-      {firstNote ? (
-        <NotesSection>
-          <EditableNoteDisplay
-            note={firstNote}
-            isMainCarePlan
-            onReloadNotes={() => {
-              setReloadNotes(reloadNotes + 1);
-            }}
-            onSuccessfulSubmit={() => {
-              setResetForm(resetForm + 1);
-            }}
-          />
-          {subsequentNotes.length
-            ? subsequentNotes.map(note => (
+      {firstNote ?
+        (
+          <NotesSection>
+            <EditableNoteDisplay
+              note={firstNote}
+              isMainCarePlan
+              onReloadNotes={() => {
+                setReloadNotes(reloadNotes + 1);
+              }}
+              onSuccessfulSubmit={() => {
+                setResetForm(resetForm + 1);
+              }}
+            />
+            {subsequentNotes.length
+              ? subsequentNotes.map(note => (
                 <EditableNoteDisplay
                   key={note.id}
                   note={note}
@@ -106,9 +109,10 @@ export const PatientCarePlanDetails = React.memo(({ item }) => {
                   }}
                 />
               ))
-            : null}
-        </NotesSection>
-      ) : null}
+              : null}
+          </NotesSection>
+        ) :
+        null}
     </Container>
   );
 });

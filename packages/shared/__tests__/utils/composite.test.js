@@ -30,11 +30,20 @@ describe('Composite parser', () => {
   });
 
   it('should parse four-field quoted records', () => {
-    expect(parse('("hello","brave new","world","!")')).toEqual(['hello', 'brave new', 'world', '!']);
+    expect(parse('("hello","brave new","world","!")')).toEqual([
+      'hello',
+      'brave new',
+      'world',
+      '!',
+    ]);
   });
 
   it('should parse several multi quoted and unquoted records', () => {
-    expect(parse('("hello" "world","foo" bar,qux "baz")')).toEqual(['hello world', 'foo bar', 'qux baz']);
+    expect(parse('("hello" "world","foo" bar,qux "baz")')).toEqual([
+      'hello world',
+      'foo bar',
+      'qux baz',
+    ]);
   });
 
   it('should parse quoted with backslash-escape double quote', () => {
@@ -82,11 +91,11 @@ describe('Composite parser', () => {
   });
 
   it('should parse escaped comma', () => {
-    expect(parse('(hello\\, world)')).toEqual(["hello, world"]);
+    expect(parse('(hello\\, world)')).toEqual(['hello, world']);
   });
 
   it('should parse escaped parens', () => {
-    expect(parse('(hello \\(bonjour\\) world)')).toEqual(["hello (bonjour) world"]);
+    expect(parse('(hello \\(bonjour\\) world)')).toEqual(['hello (bonjour) world']);
   });
 
   it('should parse empty string field', () => {

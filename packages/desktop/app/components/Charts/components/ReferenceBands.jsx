@@ -10,8 +10,7 @@ const calculateBandsStartPointAndHeight = ({
 }) => {
   return rangesToHighlight.map(([start, end]) => {
     const yFromStartOrEnd = start > end ? start : end;
-    const y =
-      startPointY +
+    const y = startPointY +
       (Math.abs(yAxisConfigs.graphRange.max - yFromStartOrEnd) / yAxisConfigs.interval) *
         heightPerInterval;
     const height = (Math.abs(start - end) / yAxisConfigs.interval) * heightPerInterval;

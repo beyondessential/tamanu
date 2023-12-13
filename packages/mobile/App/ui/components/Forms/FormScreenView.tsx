@@ -1,24 +1,24 @@
+import { runTiming } from '/helpers/animation';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { CenterView, FullView, StyledSafeAreaView } from '/styled/common';
+import { theme } from '/styled/theme';
 import React, {
-  Ref,
   PropsWithChildren,
   ReactElement,
+  Ref,
   useCallback,
-  useState,
   useEffect,
+  useState,
 } from 'react';
 import {
   KeyboardAvoidingView,
-  StyleSheet,
-  NativeSyntheticEvent,
-  NativeScrollEvent,
   LayoutChangeEvent,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  StyleSheet,
 } from 'react-native';
-import { FullView, StyledSafeAreaView, CenterView } from '/styled/common';
-import Animated, { Clock, interpolate } from 'react-native-reanimated';
 import { ScrollView } from 'react-native-gesture-handler';
-import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { runTiming } from '/helpers/animation';
+import Animated, { Clock, interpolate } from 'react-native-reanimated';
 import { ArrowDownIcon } from '../Icons';
 
 const styles = StyleSheet.create({

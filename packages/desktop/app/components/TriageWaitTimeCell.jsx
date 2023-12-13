@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { format } from 'date-fns';
 import Tooltip from '@material-ui/core/Tooltip';
 import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
+import { format } from 'date-fns';
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
 
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;

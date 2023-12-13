@@ -1,11 +1,11 @@
+import { Box, Typography } from '@material-ui/core';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import React from 'react';
 import styled from 'styled-components';
-import { Typography, Box } from '@material-ui/core';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
-import { PrintLetterhead } from './reusable/PrintLetterhead';
 import { DateDisplay } from '../../DateDisplay';
-import { LocalisedCertificateLabel, CertificateLabel } from './reusable/CertificateLabels';
+import { CertificateLabel, LocalisedCertificateLabel } from './reusable/CertificateLabels';
 import { CertificateWrapper } from './reusable/CertificateWrapper';
+import { PrintLetterhead } from './reusable/PrintLetterhead';
 
 const Grid = styled(Box)`
   display: grid;
@@ -195,9 +195,7 @@ export const DeathCertificate = React.memo(({ patientData, certificateData }) =>
         disease, injury, or complication that caused death.
       </Footnote>
       <Box my={4}>
-        {deathCertFooterImg ? (
-          <DataImage data={deathCertFooterImg} />
-        ) : (
+        {deathCertFooterImg ? <DataImage data={deathCertFooterImg} /> : (
           <>
             <FormLine>
               <StrongText>Authorised by (print name):</StrongText>
@@ -207,7 +205,7 @@ export const DeathCertificate = React.memo(({ patientData, certificateData }) =>
                 <StrongText>Signed:</StrongText>
               </FormLine>
               <FormLine>
-                <StrongText>Date: </StrongText>
+                <StrongText>Date:</StrongText>
               </FormLine>
             </Grid>
           </>

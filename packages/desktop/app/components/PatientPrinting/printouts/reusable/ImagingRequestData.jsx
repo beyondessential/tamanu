@@ -15,11 +15,11 @@ export const ImagingRequestData = ({ imagingRequestId, dataType }) => {
   if (dataType === 'completedDate') {
     return (
       <p style={{ margin: '0' }}>
-        {imagingRequest?.results[0]?.completedAt ? (
-          <DateDisplay date={imagingRequest?.results[0]?.completedAt} />
-        ) : (
-          '--/--/----'
-        )}
+        {imagingRequest?.results[0]?.completedAt ?
+          <DateDisplay date={imagingRequest?.results[0]?.completedAt} /> :
+          (
+            '--/--/----'
+          )}
       </p>
     );
   }

@@ -11,5 +11,5 @@ export interface IFacility {
   cityTown?: string;
   division?: string;
   type?: string;
-  visibilityStatus: VisibilityStatus.Current,
+  visibilityStatus: VisibilityStatus.Current;
 }

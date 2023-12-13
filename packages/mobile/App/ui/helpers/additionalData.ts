@@ -54,7 +54,7 @@ const additionalDataFields = {
     'primaryContactNumber',
     'secondaryContactNumber',
     'emergencyContactName',
-    'emergencyContactNumber'
+    'emergencyContactNumber',
   ],
   personal: [
     'title',
@@ -68,7 +68,7 @@ const additionalDataFields = {
     'educationalLevel',
     'occupationId',
     'socialMedia',
-    'patientBillingTypeId'
+    'patientBillingTypeId',
   ],
   other: [
     'streetVillage',
@@ -78,7 +78,7 @@ const additionalDataFields = {
     'countryId',
     'settlementId',
     'medicalAreaId',
-    'nursingZoneId'
+    'nursingZoneId',
   ],
 };
 

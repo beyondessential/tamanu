@@ -1,21 +1,21 @@
-import React, { ReactElement, ReactNode } from 'react';
-import { useSelector } from 'react-redux';
 import { useIsFocused } from '@react-navigation/native';
+import React, { ReactElement, ReactNode } from 'react';
 import { List } from 'react-native-paper';
+import { useSelector } from 'react-redux';
 
-import { FieldTypes } from '../../../helpers/fields';
-import { formatStringDate } from '../../../helpers/date';
-import { Routes } from '../../../helpers/routes';
-import { DateFormats } from '../../../helpers/constants';
 import { ISurveyResponse } from '../../../../types';
-import { useBackendEffect } from '../../../hooks';
 import { ErrorScreen } from '../../../components/ErrorScreen';
-import { StyledScrollView, StyledText } from '../../../styled/common';
 import { SurveyResponseLink } from '../../../components/SurveyResponseLink';
+import { DateFormats } from '../../../helpers/constants';
+import { formatStringDate } from '../../../helpers/date';
+import { FieldTypes } from '../../../helpers/fields';
+import { getAutocompleteDisplayAnswer } from '../../../helpers/getAutocompleteDisplayAnswer';
+import { Routes } from '../../../helpers/routes';
+import { useBackendEffect } from '../../../hooks';
 import { ReduxStoreProps } from '../../../interfaces/ReduxStoreProps';
 import { PatientStateProps } from '../../../store/ducks/patient';
+import { StyledScrollView, StyledText } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
-import { getAutocompleteDisplayAnswer } from '../../../helpers/getAutocompleteDisplayAnswer';
 
 export const ReferralHistoryScreen = (): ReactElement => {
   const { selectedPatient } = useSelector(
@@ -78,7 +78,11 @@ export const ReferralHistoryScreen = (): ReactElement => {
                       [body],
                     );
                     if (dataElement.type === FieldTypes.MULTI_SELECT) {
-                      return <StyledText color={theme.colors.TEXT_DARK}>{JSON.parse(body).join(', ')}</StyledText>;
+                      return (
+                        <StyledText color={theme.colors.TEXT_DARK}>
+                          {JSON.parse(body).join(', ')}
+                        </StyledText>
+                      );
                     }
                     if (dataElement.type !== FieldTypes.SURVEY_LINK) {
                       return <StyledText color={theme.colors.TEXT_DARK}>{body}</StyledText>;
@@ -89,9 +93,8 @@ export const ReferralHistoryScreen = (): ReactElement => {
                     return (
                       <SurveyResponseLink
                         surveyResponse={programResponse}
-                        detailsRouteName={
-                          Routes.HomeStack.ReferralStack.ViewHistory.SurveyResponseDetailsScreen
-                        }
+                        detailsRouteName={Routes.HomeStack.ReferralStack.ViewHistory
+                          .SurveyResponseDetailsScreen}
                       />
                     );
                   }}

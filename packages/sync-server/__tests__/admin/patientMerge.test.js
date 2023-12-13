@@ -1,13 +1,13 @@
 import { Op } from 'sequelize';
 
-import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
-import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { InvalidParameterError } from '@tamanu/shared/errors';
+import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
+import { InvalidParameterError } from '@tamanu/shared/errors';
+import { fake, fakeUser } from '@tamanu/shared/test-helpers/fake';
 import {
-  mergePatient,
   getTablesWithNoMergeCoverage,
+  mergePatient,
 } from '../../app/admin/patientMerge/mergePatient';
 import { PatientMergeMaintainer } from '../../app/tasks/PatientMergeMaintainer';
 import { createTestContext } from '../utilities';

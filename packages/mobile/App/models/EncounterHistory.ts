@@ -1,13 +1,13 @@
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm/browser';
-import { BaseModel } from './BaseModel';
 import { EncounterType } from '~/types';
-import { Encounter } from './Encounter';
-import { User } from './User';
+import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { BaseModel } from './BaseModel';
+import { DateTimeStringColumn } from './DateColumns';
 import { Department } from './Department';
+import { Encounter } from './Encounter';
 import { Location } from './Location';
 import { SYNC_DIRECTIONS } from './types';
-import { DateTimeStringColumn } from './DateColumns';
-import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { User } from './User';
 
 export enum EncounterChangeType {
   EncounterType = 'encounter_type',

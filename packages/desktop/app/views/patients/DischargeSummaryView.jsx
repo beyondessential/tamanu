@@ -1,33 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import { Redirect } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import styled from 'styled-components';
-import PrintIcon from '@material-ui/icons/Print';
 import Box from '@material-ui/core/Box';
+import PrintIcon from '@material-ui/icons/Print';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { Redirect } from 'react-router-dom';
+import styled from 'styled-components';
 
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants';
 
-import { PrintPortal, PrintLetterhead } from '../../components/PatientPrinting';
-import { useApi, isErrorUnknownAllow404s } from '../../api';
-import { Button } from '../../components/Button';
-import { DateDisplay, getDateDisplay } from '../../components/DateDisplay';
-import { useEncounter } from '../../contexts/Encounter';
-import { Colors } from '../../constants';
-import { useCertificate } from '../../utils/useCertificate';
-import { getDepartmentName } from '../../utils/department';
-import { getDisplayAge } from '../../utils/dateTime';
-import { capitaliseFirstLetter } from '../../utils/capitalise';
-import { useLocalisation } from '../../contexts/Localisation';
+import { isErrorUnknownAllow404s, useApi } from '../../api';
 import {
   usePatientAdditionalDataQuery,
   usePatientConditions,
   useReferenceData,
 } from '../../api/queries';
+import { useLocalisedText } from '../../components';
+import { Button } from '../../components/Button';
+import { DateDisplay, getDateDisplay } from '../../components/DateDisplay';
+import { PrintLetterhead, PrintPortal } from '../../components/PatientPrinting';
 import {
   DisplayValue,
   LocalisedDisplayValue,
 } from '../../components/PatientPrinting/printouts/reusable/CertificateLabels';
-import { useLocalisedText } from '../../components';
+import { Colors } from '../../constants';
+import { useEncounter } from '../../contexts/Encounter';
+import { useLocalisation } from '../../contexts/Localisation';
+import { capitaliseFirstLetter } from '../../utils/capitalise';
+import { getDisplayAge } from '../../utils/dateTime';
+import { getDepartmentName } from '../../utils/department';
+import { useCertificate } from '../../utils/useCertificate';
 
 const Container = styled.div`
   background: ${Colors.white};
@@ -218,14 +218,16 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
             {patient.displayId}
           </LocalisedDisplayValue>
           <DisplayValue name="DOB">
-            {`${DateDisplay.stringFormat(patient.dateOfBirth)} (${getDisplayAge(
-              patient.dateOfBirth,
-              ageDisplayFormat,
-            )})`}
+            {`${DateDisplay.stringFormat(patient.dateOfBirth)} (${
+              getDisplayAge(
+                patient.dateOfBirth,
+                ageDisplayFormat,
+              )
+            })`}
           </DisplayValue>
-          <DisplayValue name="Address">{`${address}`} </DisplayValue>
-          <DisplayValue name="Sex">{`${capitaliseFirstLetter(patient.sex)}`} </DisplayValue>
-          <DisplayValue name="Village">{`${village?.name || 'N/A'}`} </DisplayValue>
+          <DisplayValue name="Address">{`${address}`}</DisplayValue>
+          <DisplayValue name="Sex">{`${capitaliseFirstLetter(patient.sex)}`}</DisplayValue>
+          <DisplayValue name="Village">{`${village?.name || 'N/A'}`}</DisplayValue>
         </Content>
       </Section>
 
@@ -233,8 +235,8 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
         <Header>Encounter details</Header>
         <HorizontalLine />
         <Content>
-          <DisplayValue name="Facility">{location?.facility?.name || 'N/A'} </DisplayValue>
-          <DisplayValue name="Department">{getDepartmentName(encounter)} </DisplayValue>
+          <DisplayValue name="Facility">{location?.facility?.name || 'N/A'}</DisplayValue>
+          <DisplayValue name="Department">{getDepartmentName(encounter)}</DisplayValue>
           <DisplayValue name={`Supervising ${clinicianText}`}>{examiner?.displayName}</DisplayValue>
           <DisplayValue name="Date of admission">
             {getDateDisplay(startDate, { showTime: false })}
@@ -260,9 +262,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
             </GridItem>
             <GridItem>
               <ListColumn>
-                {patientConditions.map(condition => (
-                  <li>{condition}</li>
-                ))}
+                {patientConditions.map(condition => <li>{condition}</li>)}
               </ListColumn>
             </GridItem>
           </Grid>

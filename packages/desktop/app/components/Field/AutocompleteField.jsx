@@ -1,16 +1,16 @@
-import React, { Component } from 'react';
-import styled, { css } from 'styled-components';
-import PropTypes from 'prop-types';
-import Autosuggest from 'react-autosuggest';
+import { IconButton, InputAdornment, MenuItem, Paper, Popper, Typography } from '@material-ui/core';
 import { debounce } from 'lodash';
-import { MenuItem, Popper, Paper, Typography, InputAdornment, IconButton } from '@material-ui/core';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import Autosuggest from 'react-autosuggest';
+import styled, { css } from 'styled-components';
 
+import { Colors } from '../../constants';
 import { ChevronIcon } from '../Icons/ChevronIcon';
 import { ClearIcon } from '../Icons/ClearIcon';
-import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
-import { Colors } from '../../constants';
-import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
+import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
+import { StyledTextField } from './TextField';
 
 const SuggestionsContainer = styled(Popper)`
   z-index: 9999;
@@ -202,10 +202,9 @@ export class AutocompleteInput extends Component {
     if (!autofill) {
       return false;
     }
-    const suggestions =
-      overrides.suggestions || suggester
-        ? await suggester.fetchSuggestions('')
-        : options.filter(x => x.label.toLowerCase().includes(''));
+    const suggestions = overrides.suggestions || suggester
+      ? await suggester.fetchSuggestions('')
+      : options.filter(x => x.label.toLowerCase().includes(''));
     if (suggestions.length !== 1) {
       return false;
     }

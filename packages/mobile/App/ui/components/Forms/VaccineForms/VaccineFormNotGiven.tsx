@@ -1,15 +1,15 @@
-import React from 'react';
 import { StyledView } from '/styled/common';
+import React from 'react';
 
+import { VaccineFormProps } from './types';
 import {
   DateGivenField,
   DepartmentField,
   GivenByField,
-  VaccineLocationField,
-  RecordedByField,
   NotGivenReasonField,
+  RecordedByField,
+  VaccineLocationField,
 } from './VaccineCommonFields';
-import { VaccineFormProps } from './types';
 
 export const VaccineFormNotGiven = ({ navigation }: VaccineFormProps): JSX.Element => (
   <StyledView paddingTop={10}>

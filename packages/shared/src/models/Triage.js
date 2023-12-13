@@ -1,12 +1,12 @@
 import config from 'config';
-import { Sequelize, Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 
 import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 
-import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
+import { Model } from './Model';
 
 export class Triage extends Model {
   static init({ primaryKey, ...options }) {

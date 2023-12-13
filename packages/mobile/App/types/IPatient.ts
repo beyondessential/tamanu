@@ -13,8 +13,8 @@ export interface IPatient {
   dateOfBirth?: string;
   email?: string;
   culturalName?: string;
-  village?: IReferenceData,
-  villageId?: string,
+  village?: IReferenceData;
+  villageId?: string;
   additionalData?: IPatientAdditionalData;
   secondaryIds?: IPatientSecondaryId[];
 }

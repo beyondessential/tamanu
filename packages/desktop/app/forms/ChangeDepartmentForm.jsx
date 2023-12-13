@@ -1,11 +1,11 @@
-import React from 'react';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import React from 'react';
 
 import * as yup from 'yup';
 
-import { Form, Field, AutocompleteField } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
+import { AutocompleteField, Field, Form } from '../components/Field';
+import { FormGrid } from '../components/FormGrid';
 import { useEncounter } from '../contexts/Encounter';
 
 export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }) => {

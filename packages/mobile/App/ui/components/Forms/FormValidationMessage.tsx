@@ -1,7 +1,7 @@
-import React, { ReactElement } from 'react';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import React, { ReactElement } from 'react';
 
 type FormValidationMessageProps = {
   message: string;

@@ -1,8 +1,8 @@
 import React, { ReactElement } from 'react';
 // Components
-import { Section } from './Section';
-import { Field } from '/components/Forms/FormField';
 import { DateField } from '/components/DateField/DateField';
+import { Field } from '/components/Forms/FormField';
+import { Section } from './Section';
 
 export const DateSection = (): ReactElement => (
   <Section localisationPath="fields.dateOfBirth">

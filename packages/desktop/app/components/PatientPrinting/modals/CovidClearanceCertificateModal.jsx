@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
-import { CovidLabCertificate, CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
-import { COVID_19_CLEARANCE_CERTIFICATE, ASSET_NAMES } from '@tamanu/constants';
+import { ASSET_NAMES, COVID_19_CLEARANCE_CERTIFICATE } from '@tamanu/constants';
+import { CertificateTypes, CovidLabCertificate } from '@tamanu/shared/utils/patientCertificates';
 
-import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
-import { useLocalisation } from '../../../contexts/Localisation';
-import { EmailButton } from '../../Email/EmailButton';
-import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
+import { useLocalisation } from '../../../contexts/Localisation';
+import { useCertificate } from '../../../utils/useCertificate';
+import { EmailButton } from '../../Email/EmailButton';
+import { Modal } from '../../Modal';
 
 import { PDFViewer, printPDF } from '../PDFViewer';
 

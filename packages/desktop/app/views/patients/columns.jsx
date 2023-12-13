@@ -1,5 +1,5 @@
-import React from 'react';
 import { CloudDownload, CloudOff } from '@material-ui/icons';
+import React from 'react';
 import { DateDisplay } from '../../components';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { getPatientStatus } from '../../utils/getPatientStatus';

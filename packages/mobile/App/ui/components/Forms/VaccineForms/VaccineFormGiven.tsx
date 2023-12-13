@@ -1,20 +1,20 @@
+import { useFormikContext } from 'formik';
 import React from 'react';
 import { View } from 'react-native';
-import { useFormikContext } from 'formik';
 
 import { StyledView } from '/styled/common';
+import { VaccineFormProps } from './types';
 import {
+  BatchField,
+  ConsentField,
+  ConsentGivenByField,
   DateGivenField,
   DepartmentField,
   GivenByField,
-  VaccineLocationField,
-  RecordedByField,
-  ConsentField,
-  ConsentGivenByField,
-  BatchField,
   InjectionSiteField,
+  RecordedByField,
+  VaccineLocationField,
 } from './VaccineCommonFields';
-import { VaccineFormProps } from './types';
 
 export const VaccineFormGiven = ({ navigation }: VaccineFormProps): JSX.Element => {
   const { values } = useFormikContext();
@@ -27,12 +27,14 @@ export const VaccineFormGiven = ({ navigation }: VaccineFormProps): JSX.Element 
 
       <InjectionSiteField />
 
-      {!values.givenElsewhere ? (
-        <View>
-          <VaccineLocationField navigation={navigation} />
-          <DepartmentField navigation={navigation} />
-        </View>
-      ) : null}
+      {!values.givenElsewhere ?
+        (
+          <View>
+            <VaccineLocationField navigation={navigation} />
+            <DepartmentField navigation={navigation} />
+          </View>
+        ) :
+        null}
 
       <GivenByField />
 

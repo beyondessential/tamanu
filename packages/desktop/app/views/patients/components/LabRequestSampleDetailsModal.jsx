@@ -1,5 +1,5 @@
-import React from 'react';
 import { Box } from '@material-ui/core';
+import React from 'react';
 import { Button, Modal } from '../../../components';
 import { LabRequestSampleDetailsCard } from './LabRequestSampleDetailsCard';
 

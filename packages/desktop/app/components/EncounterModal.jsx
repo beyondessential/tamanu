@@ -1,9 +1,9 @@
-import React, { useCallback, useState } from 'react';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import React, { useCallback, useState } from 'react';
 
 import { CheckInModal } from './CheckInModal';
-import { TriageModal } from './TriageModal';
 import { SelectEncounterTypeModal } from './SelectEncounterTypeModal';
+import { TriageModal } from './TriageModal';
 
 // Initial state should always be SELECT_OPEN
 const MODAL_STATES = {

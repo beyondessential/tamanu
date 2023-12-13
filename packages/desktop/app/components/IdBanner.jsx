@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { LocalisedText } from './LocalisedText';
 import { Colors } from '../constants';
+import { LocalisedText } from './LocalisedText';
 
 const IdFieldContainer = styled.div`
   background: ${Colors.primary};

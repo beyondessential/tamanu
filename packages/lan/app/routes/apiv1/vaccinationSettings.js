@@ -1,6 +1,6 @@
+import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import config from 'config';
 
 export const vaccinationSettings = express.Router();
 

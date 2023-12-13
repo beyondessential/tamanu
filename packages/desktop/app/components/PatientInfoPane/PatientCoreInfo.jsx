@@ -1,13 +1,13 @@
+import { Button, Typography } from '@material-ui/core';
 import React, { memo } from 'react';
 import styled from 'styled-components';
-import { Button, Typography } from '@material-ui/core';
-import { LocalisedText } from '../LocalisedText';
-import { DateDisplay } from '../DateDisplay';
-import { PatientInitialsIcon } from '../PatientInitialsIcon';
 import { Colors } from '../../constants';
-import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { getDisplayAge } from '../../utils/dateTime';
 import { useLocalisation } from '../../contexts/Localisation';
+import { getDisplayAge } from '../../utils/dateTime';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { DateDisplay } from '../DateDisplay';
+import { LocalisedText } from '../LocalisedText';
+import { PatientInitialsIcon } from '../PatientInitialsIcon';
 
 const PatientButton = styled(Button)`
   display: block;
@@ -85,7 +85,7 @@ const DeceasedText = styled.div`
 
 const DeceasedIndicator = ({ death }) => (
   <DeceasedText>
-    <span>Deceased, </span>
+    <span>Deceased,</span>
     <DateDisplay date={death.date} />
   </DeceasedText>
 );

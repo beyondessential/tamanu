@@ -1,5 +1,5 @@
+import { LAB_TEST_RESULT_TYPES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, LAB_TEST_RESULT_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { InvalidOperationError } from '../errors';
 import { Model } from './Model';
 

@@ -1,9 +1,9 @@
-import React, { useCallback, ReactElement } from 'react';
-import { StyledView, StyledText, StyledSafeAreaView } from '/styled/common';
+import { StyledSafeAreaView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
+import React, { ReactElement, useCallback } from 'react';
 
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { Button } from '../Button';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
 
 type ModalInfoProps = {
   isVisible: boolean;
@@ -29,30 +29,32 @@ export const ModalInfo = ({
 
   if (!isVisible) return null;
 
-  const action = (buttonPrompt && onFollowPrompt) ? (
-    <>
-      <Button
-        backgroundColor="green"
-        onPress={onFollowPrompt}
-        textColor={theme.colors.WHITE}
-        buttonText={buttonPrompt}
-        marginTop={5}
-      />
+  const action = (buttonPrompt && onFollowPrompt) ?
+    (
+      <>
+        <Button
+          backgroundColor="green"
+          onPress={onFollowPrompt}
+          textColor={theme.colors.WHITE}
+          buttonText={buttonPrompt}
+          marginTop={5}
+        />
+        <Button
+          backgroundColor="transparent"
+          onPress={dismissModal}
+          textColor={theme.colors.TEXT_DARK}
+          buttonText="Dismiss"
+        />
+      </>
+    ) :
+    (
       <Button
         backgroundColor="transparent"
         onPress={dismissModal}
         textColor={theme.colors.TEXT_DARK}
-        buttonText="Dismiss"
+        buttonText="OK"
       />
-    </>
-  ) : (
-    <Button
-      backgroundColor="transparent"
-      onPress={dismissModal}
-      textColor={theme.colors.TEXT_DARK}
-      buttonText="OK"
-    />
-  );
+    );
 
   return (
     <StyledSafeAreaView

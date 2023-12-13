@@ -1,16 +1,16 @@
-import React, { memo } from 'react';
-import * as yup from 'yup';
-import styled from 'styled-components';
 import { Link } from '@material-ui/core';
+import React, { memo } from 'react';
+import styled from 'styled-components';
+import * as yup from 'yup';
 
 import { TEMPLATE_TYPES } from '@tamanu/constants';
 
 import {
-  Form,
   Field,
-  TextField,
-  TallMultilineTextField,
+  Form,
   SelectField,
+  TallMultilineTextField,
+  TextField,
 } from '../../../components/Field';
 import { FormGrid, SmallGridSpacer } from '../../../components/FormGrid';
 import { TEMPLATE_TYPE_OPTIONS } from '../../../constants';

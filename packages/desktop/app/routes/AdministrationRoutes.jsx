@@ -1,8 +1,6 @@
 import React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 
-import { ReportAdminRoutes } from './ReportAdminRoutes';
-import { FhirAdminRoutes } from './FhirAdminRoutes';
 import {
   AssetUploaderView,
   PatientMergeView,
@@ -12,6 +10,8 @@ import {
   SyncView,
   TemplateView,
 } from '../views';
+import { FhirAdminRoutes } from './FhirAdminRoutes';
+import { ReportAdminRoutes } from './ReportAdminRoutes';
 
 export const AdministrationRoutes = React.memo(({ match }) => (
   <Switch>

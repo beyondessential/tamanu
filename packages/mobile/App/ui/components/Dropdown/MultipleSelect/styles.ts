@@ -71,7 +71,7 @@ export default {
     color: colorPack.light,
     fontSize: 14,
   },
-  selectorView: (fixedHeight) => {
+  selectorView: fixedHeight => {
     const style = {
       flexDirection: 'column',
       marginBottom: 10,

@@ -1,6 +1,6 @@
-import { generateDefaultFormatUVCI } from './tamanu';
 import { generateEUDCCFormatUVCI } from './eudcc';
 import { generateICAOFormatUVCI } from './icao';
+import { generateDefaultFormatUVCI } from './tamanu';
 
 export function generateUVCI(vaccinationId, { format, countryCode }) {
   switch (format) {

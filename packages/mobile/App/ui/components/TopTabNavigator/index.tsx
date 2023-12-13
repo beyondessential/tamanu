@@ -1,15 +1,15 @@
-import * as React from 'react';
-import { StyleProp, ViewStyle } from 'react-native';
+import { theme } from '/styled/theme';
+import { MaterialTopTabView } from '@react-navigation/material-top-tabs';
 import {
-  useNavigationBuilder,
+  createNavigatorFactory,
   DefaultNavigatorOptions,
+  TabNavigationState,
   TabRouter,
   TabRouterOptions,
-  createNavigatorFactory,
-  TabNavigationState,
+  useNavigationBuilder,
 } from '@react-navigation/native';
-import { MaterialTopTabView } from '@react-navigation/material-top-tabs';
-import { theme } from '/styled/theme';
+import * as React from 'react';
+import { StyleProp, ViewStyle } from 'react-native';
 
 type TabNavigationConfig = {
   tabBarStyle: StyleProp<ViewStyle>;

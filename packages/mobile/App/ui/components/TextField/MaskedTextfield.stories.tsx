@@ -1,5 +1,5 @@
-import React from 'react';
 import { storiesOf } from '@storybook/react-native';
+import React from 'react';
 
 import { CenterView } from '/styled/common';
 import { KeyboardAwareView } from '../KeyboardAwareView';

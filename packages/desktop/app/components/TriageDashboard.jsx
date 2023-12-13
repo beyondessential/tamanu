@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import AccessTime from '@material-ui/icons/AccessTime';
 import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
 import { useApi } from '../api';
-import { StatisticsCard, StatisticsCardContainer } from './StatisticsCard';
 import { Colors } from '../constants';
 import { useLocalisation } from '../contexts/Localisation';
+import { StatisticsCard, StatisticsCardContainer } from './StatisticsCard';
 
 const getAverageWaitTime = categoryData => {
   if (categoryData.length === 0) {
@@ -86,7 +86,7 @@ const CardFooter = ({ averageWaitTime, color }) => {
     <>
       <Row>
         <AccessTime htmlColor={color} />
-        <FooterLabel>Avg. wait time: </FooterLabel>
+        <FooterLabel>Avg. wait time:</FooterLabel>
         <FooterTime>{averageHrs}</FooterTime>
       </Row>
       <FooterTime>{averageMins}</FooterTime>

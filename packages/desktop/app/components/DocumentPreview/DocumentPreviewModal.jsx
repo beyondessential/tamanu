@@ -1,14 +1,14 @@
+import { Typography } from '@material-ui/core';
+import GetAppIcon from '@material-ui/icons/GetApp';
+import { DOCUMENT_SOURCES } from '@tamanu/constants';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import GetAppIcon from '@material-ui/icons/GetApp';
-import { Typography } from '@material-ui/core';
-import { DOCUMENT_SOURCES } from '@tamanu/constants';
 
+import { SUPPORTED_DOCUMENT_TYPES } from '../../constants';
+import { Button } from '../Button';
+import { Modal } from '../Modal';
 import PDFPreview from './PDFPreview';
 import PhotoPreview from './PhotoPreview';
-import { Button } from '../Button';
-import { SUPPORTED_DOCUMENT_TYPES } from '../../constants';
-import { Modal } from '../Modal';
 
 const getTitle = ({ source, name }) =>
   source === DOCUMENT_SOURCES.PATIENT_LETTER ? 'Patient letter' : name;

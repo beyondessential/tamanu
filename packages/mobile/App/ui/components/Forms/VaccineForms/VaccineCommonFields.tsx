@@ -1,19 +1,19 @@
-import React from 'react';
 import { NavigationProp } from '@react-navigation/native';
+import React from 'react';
 
-import { DateField } from '../../DateField/DateField';
-import { TextField } from '../../TextField/TextField';
-import { Checkbox } from '../../Checkbox';
-import { CurrentUserField } from '../../CurrentUserField/CurrentUserField';
-import { Field } from '../FormField';
-import { LocationField } from '../../LocationField';
 import { INJECTION_SITE_OPTIONS, ReferenceDataType } from '~/types';
-import { AutocompleteModalField } from '../../AutocompleteModal/AutocompleteModalField';
-import { Dropdown, SuggesterDropdown } from '../../Dropdown';
+import { useFacility } from '~/ui/contexts/FacilityContext';
 import { Routes } from '~/ui/helpers/routes';
 import { Suggester } from '~/ui/helpers/suggester';
-import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useBackend } from '~/ui/hooks';
+import { AutocompleteModalField } from '../../AutocompleteModal/AutocompleteModalField';
+import { Checkbox } from '../../Checkbox';
+import { CurrentUserField } from '../../CurrentUserField/CurrentUserField';
+import { DateField } from '../../DateField/DateField';
+import { Dropdown, SuggesterDropdown } from '../../Dropdown';
+import { LocationField } from '../../LocationField';
+import { TextField } from '../../TextField/TextField';
+import { Field } from '../FormField';
 
 const InjectionSiteDropdown = ({ value, label, onChange, selectPlaceholderText }): JSX.Element => (
   <Dropdown

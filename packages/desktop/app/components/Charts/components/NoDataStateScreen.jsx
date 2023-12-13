@@ -39,9 +39,7 @@ export const NoDataStateScreen = props => {
         stroke={Colors.outline}
         strokeWidth="1"
       />
-      {isLoading ? (
-        <text {...textProps}>{loadingMessage}</text>
-      ) : (
+      {isLoading ? <text {...textProps}>{loadingMessage}</text> : (
         <>
           <text {...textProps}>{lineOne}</text>
           <text {...textProps} dy={lineHeight}>

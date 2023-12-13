@@ -2,8 +2,8 @@ import config from 'config';
 import { startOfDay } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
 
-import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
+import { ScheduledTask } from '@tamanu/shared/tasks';
 import { toDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 export class MedicationDiscontinuer extends ScheduledTask {

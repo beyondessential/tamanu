@@ -1,10 +1,10 @@
-import React, { useCallback, ReactElement } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { StatusBar } from 'react-native';
-import { FullView } from '/styled/common';
-import { StackHeader } from '~/ui/components/StackHeader';
 import { PatientPersonalInfoForm } from '/components/Forms/NewPatientForm/PatientPersonalInfoForm';
+import { FullView } from '/styled/common';
 import { theme } from '/styled/theme';
+import { useNavigation } from '@react-navigation/native';
+import React, { ReactElement, useCallback } from 'react';
+import { StatusBar } from 'react-native';
+import { StackHeader } from '~/ui/components/StackHeader';
 
 export const EditPatientScreen = ({ route }): ReactElement => {
   const navigation = useNavigation();

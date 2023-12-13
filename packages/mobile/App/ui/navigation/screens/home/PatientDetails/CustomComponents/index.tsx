@@ -1,3 +1,4 @@
+export * from './AdditionalInfo';
 export * from './Dot';
 export * from './EditButton';
 export * from './FamilyHistory';
@@ -8,4 +9,3 @@ export * from './InformationBox';
 export * from './NotificationCheckbox';
 export * from './OngoingConditions';
 export * from './PatientIssues';
-export * from './AdditionalInfo';

@@ -1,9 +1,9 @@
-//! CountryDateTime functions are server only
-//! Servers require a specific reference to timeZone since most of our servers are in UTC
+// ! CountryDateTime functions are server only
+// ! Servers require a specific reference to timeZone since most of our servers are in UTC
 
+import config from 'config';
 import { formatISO9075, parseISO } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
-import config from 'config';
 import { ISO8061_WITH_TIMEZONE, ISO9075_DATE_FORMAT, ISO9075_DATETIME_FORMAT } from './dateTime';
 
 export function toCountryDateTimeString(date) {

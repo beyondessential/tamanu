@@ -1,17 +1,17 @@
+import { Box } from '@material-ui/core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { push } from 'connected-react-router';
 import React from 'react';
+import { useDispatch } from 'react-redux';
+import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
-import { useParams } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import { useApi } from '../../../api';
 import { OutlinedButton } from '../../../components';
+import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';
 import { VersionInfo } from './components/VersionInfo';
 import { ReportEditor } from './ReportEditor';
-import { LoadingIndicator } from '../../../components/LoadingIndicator';
 
 const Container = styled.div`
   padding: 20px;
@@ -86,22 +86,24 @@ export const EditReportView = () => {
   return (
     <Container>
       <StyledButton onClick={handleBack}>Back</StyledButton>
-      {isLoading ? (
-        <Box mt={2}>
-          <LoadingIndicator height="400px" />
-        </Box>
-      ) : (
-        <>
-          <Box mt={2} mb={2}>
-            <VersionInfo version={version} />
+      {isLoading ?
+        (
+          <Box mt={2}>
+            <LoadingIndicator height="400px" />
           </Box>
-          <ReportEditor
-            isEdit
-            onSubmit={handleSave}
-            initialValues={getInitialValues(version, version.reportDefinition)}
-          />
-        </>
-      )}
+        ) :
+        (
+          <>
+            <Box mt={2} mb={2}>
+              <VersionInfo version={version} />
+            </Box>
+            <ReportEditor
+              isEdit
+              onSubmit={handleSave}
+              initialValues={getInitialValues(version, version.reportDefinition)}
+            />
+          </>
+        )}
     </Container>
   );
 };

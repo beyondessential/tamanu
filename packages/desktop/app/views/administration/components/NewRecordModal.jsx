@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 
-import { FormModal } from '../../../components/FormModal';
 import { useApi } from '../../../api';
+import { FormModal } from '../../../components/FormModal';
 
 export const NewRecordModal = ({ endpoint, title, open, Form, onCancel }) => {
   const api = useApi();

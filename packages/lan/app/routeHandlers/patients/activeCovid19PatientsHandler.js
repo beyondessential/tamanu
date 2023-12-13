@@ -1,8 +1,8 @@
-import { QueryTypes } from 'sequelize';
-import { arrayToDbString, renameObjectKeys } from '@tamanu/shared/utils';
 import { DIAGNOSIS_CERTAINTY, ENCOUNTER_TYPES } from '@tamanu/constants';
-import { makeFilter } from '../../utils/query';
+import { arrayToDbString, renameObjectKeys } from '@tamanu/shared/utils';
+import { QueryTypes } from 'sequelize';
 import { createPatientFilters } from '../../utils/patientFilters';
+import { makeFilter } from '../../utils/query';
 
 const sortKeys = {
   displayId: 'patients.display_id',

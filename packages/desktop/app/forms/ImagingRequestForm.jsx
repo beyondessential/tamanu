@@ -1,35 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import * as yup from 'yup';
-import shortid from 'shortid';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import PropTypes from 'prop-types';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { foreignKey } from '../utils/validation';
+import shortid from 'shortid';
+import * as yup from 'yup';
 import { encounterOptions } from '../constants';
-import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { useEncounter } from '../contexts/Encounter';
-import { reloadImagingRequest } from '../store';
 import { useLocalisation } from '../contexts/Localisation';
+import { reloadImagingRequest } from '../store';
 import { useImagingRequestAreas } from '../utils/useImagingRequestAreas';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
+import { foreignKey } from '../utils/validation';
 
-import {
-  Form,
-  Field,
-  AutocompleteField,
-  TextField,
-  ImagingPriorityField,
-  TextInput,
-  DateTimeField,
-  MultiselectField,
-  SelectField,
-} from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
+import { useLocalisedText } from '../components';
 import { FormCancelButton } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
-import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
-import { useLocalisedText } from '../components';
+import {
+  AutocompleteField,
+  DateTimeField,
+  Field,
+  Form,
+  ImagingPriorityField,
+  MultiselectField,
+  SelectField,
+  TextField,
+  TextInput,
+} from '../components/Field';
+import { FormGrid } from '../components/FormGrid';
+import { FormSeparatorLine } from '../components/FormSeparatorLine';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type).label;
@@ -145,26 +145,28 @@ export const ImagingRequestForm = React.memo(
                 component={SelectField}
                 options={imagingTypeOptions}
               />
-              {imagingAreas.length ? (
-                <Field
-                  options={imagingAreas.map(area => ({
-                    label: area.name,
-                    value: area.id,
-                  }))}
-                  name="areas"
-                  label="Areas to be imaged"
-                  component={MultiselectField}
-                />
-              ) : (
-                <Field
-                  name="areaNote"
-                  label="Areas to be imaged"
-                  component={TextField}
-                  multiline
-                  style={{ gridColumn: '1 / -1' }}
-                  rows={3}
-                />
-              )}
+              {imagingAreas.length ?
+                (
+                  <Field
+                    options={imagingAreas.map(area => ({
+                      label: area.name,
+                      value: area.id,
+                    }))}
+                    name="areas"
+                    label="Areas to be imaged"
+                    component={MultiselectField}
+                  />
+                ) :
+                (
+                  <Field
+                    name="areaNote"
+                    label="Areas to be imaged"
+                    component={TextField}
+                    multiline
+                    style={{ gridColumn: '1 / -1' }}
+                    rows={3}
+                  />
+                )}
               <Field
                 name="note"
                 label="Notes"

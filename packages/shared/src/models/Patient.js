@@ -1,8 +1,8 @@
-import { Sequelize, Op } from 'sequelize';
-import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES, VACCINE_STATUS } from '@tamanu/constants';
+import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS, VACCINE_STATUS } from '@tamanu/constants';
+import { Op, Sequelize } from 'sequelize';
 import { getCovidClearanceCertificateFilter, getLabTestsFromLabRequests } from '../utils';
+import { dateTimeType, dateType } from './dateTimeTypes';
 import { Model } from './Model';
-import { dateType, dateTimeType } from './dateTimeTypes';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class Patient extends Model {

@@ -1,6 +1,6 @@
+import { ForbiddenError } from '@tamanu/shared/errors';
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { ForbiddenError } from '@tamanu/shared/errors';
 import { setForbiddenError } from '../store';
 
 // This will catch all unhandled promise rejections.

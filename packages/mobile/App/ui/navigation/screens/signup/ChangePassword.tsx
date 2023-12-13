@@ -1,22 +1,22 @@
+import { Button } from '/components/Button';
+import { ChangePasswordForm } from '/components/Forms/ChangePasswordForm/ChangePasswordForm';
+import { ModalInfo } from '/components/ModalInfo';
+import { Routes } from '/helpers/routes';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { ChangePasswordProps } from '/interfaces/Screens/SignUp/ChangePasswordProps';
+import {
+  ColumnView,
+  FullView,
+  StyledSafeAreaView,
+  StyledText,
+  StyledTouchableOpacity,
+  StyledView,
+} from '/styled/common';
+import { theme } from '/styled/theme';
 import React, { FunctionComponent, ReactElement, useCallback, useState } from 'react';
 import { KeyboardAvoidingView, StatusBar } from 'react-native';
-import {
-  StyledView,
-  StyledSafeAreaView,
-  FullView,
-  ColumnView,
-  StyledTouchableOpacity,
-  StyledText,
-} from '/styled/common';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { theme } from '/styled/theme';
-import { ChangePasswordForm } from '/components/Forms/ChangePasswordForm/ChangePasswordForm';
-import { Routes } from '/helpers/routes';
-import { ModalInfo } from '/components/ModalInfo';
-import { ChangePasswordFormModel } from '~/ui/interfaces/forms/ChangePasswordFormProps';
 import { useAuth } from '~/ui/contexts/AuthContext';
-import { Button } from '/components/Button';
-import { ChangePasswordProps } from '/interfaces/Screens/SignUp/ChangePasswordProps';
+import { ChangePasswordFormModel } from '~/ui/interfaces/forms/ChangePasswordFormProps';
 
 export const ChangePassword: FunctionComponent<any> = ({ navigation }: ChangePasswordProps) => {
   const authCtx = useAuth();

@@ -1,11 +1,11 @@
-import React from 'react';
-import { storiesOf } from '@storybook/react-native';
-import { ThemeProvider } from 'styled-components/native';
-import { themeSystem, CenterView } from '/styled/common';
+import { CenterView, themeSystem } from '/styled/common';
 import { theme } from '/styled/theme';
+import { storiesOf } from '@storybook/react-native';
+import React from 'react';
+import { ThemeProvider } from 'styled-components/native';
+import { visitData, yearlyData } from './fixture';
 import { VisitChart } from './VisitChart';
 import { YearlyChart } from './YearlyChart';
-import { visitData, yearlyData } from './fixture';
 
 storiesOf('Chart', module)
   .addDecorator((story: Function) => (

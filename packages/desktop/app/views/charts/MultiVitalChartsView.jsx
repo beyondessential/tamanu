@@ -1,9 +1,9 @@
+import { Box, Divider as DividerBase } from '@material-ui/core';
 import React from 'react';
 import styled from 'styled-components';
-import { Box, Divider as DividerBase } from '@material-ui/core';
 
-import { useVitalChartData } from '../../contexts/VitalChartData';
 import { CHART_MARGIN, Y_AXIS_WIDTH } from '../../components/Charts/constants';
+import { useVitalChartData } from '../../contexts/VitalChartData';
 import { getVitalChartComponent } from './getVitalChartComponent';
 
 const Divider = styled(DividerBase)`

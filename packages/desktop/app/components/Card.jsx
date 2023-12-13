@@ -1,6 +1,6 @@
+import { PropTypes } from 'prop-types';
 import React from 'react';
 import styled from 'styled-components';
-import { PropTypes } from 'prop-types';
 
 const CardCell = styled.div`
   font-size: 14px;

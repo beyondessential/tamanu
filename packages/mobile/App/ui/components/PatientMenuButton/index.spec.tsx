@@ -1,7 +1,7 @@
+import { fireEvent, render } from '@testing-library/react-native';
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
-import { PatientMenuButton } from './index';
 import { DeceasedIcon } from '../Icons';
+import { PatientMenuButton } from './index';
 
 describe('<PatientMenuButton />', () => {
   const props = {

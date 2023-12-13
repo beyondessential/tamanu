@@ -1,8 +1,8 @@
-import React, { FC, ReactElement } from 'react';
 import { Button } from '/components/Button';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { SearchIcon } from '/components/Icons';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { StyledText } from '/styled/common';
+import React, { FC, ReactElement } from 'react';
 import { ButtonProps } from './fixture';
 
 export const SearchButton: FC<ButtonProps> = ({

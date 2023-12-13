@@ -60,7 +60,7 @@ export const idleTimeout = () => ({
   error: 'You have been logged out due to inactivity',
 });
 
-export const requestPasswordReset = (email) => async (dispatch, getState, { api }) => {
+export const requestPasswordReset = email => async (dispatch, getState, { api }) => {
   dispatch({ type: REQUEST_PASSWORD_RESET_START });
 
   try {
@@ -75,7 +75,7 @@ export const restartPasswordResetFlow = () => async dispatch => {
   dispatch({ type: PASSWORD_RESET_RESTART });
 };
 
-export const changePassword = (data) => async (dispatch, getState, { api }) => {
+export const changePassword = data => async (dispatch, getState, { api }) => {
   dispatch({ type: CHANGE_PASSWORD_START });
 
   try {

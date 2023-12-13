@@ -10,7 +10,7 @@
 
 ### Features ⭐
 
-### Tweaks ⚖️ 
+### Tweaks ⚖️
 
 ### Bug fixes 🐛
 

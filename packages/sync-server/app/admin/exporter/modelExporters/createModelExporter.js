@@ -1,10 +1,10 @@
 import { REFERENCE_TYPE_VALUES } from '@tamanu/constants';
 import { AdministeredVaccineExporter } from './AdministeredVaccineExporter';
 import { DefaultDataExporter } from './DefaultDataExporter';
-import { PatientExporter } from './PatientExporter';
 import { LabTestPanelExporter } from './LabTestPanelExporter';
-import { PermissionExporter } from './PermissionExporter';
+import { PatientExporter } from './PatientExporter';
 import { PatientFieldDefinitionExporter } from './PatientFieldDefinitionExporter';
+import { PermissionExporter } from './PermissionExporter';
 import { ReferenceDataExporter } from './ReferenceDataExporter';
 
 const CustomExportersByDataType = {

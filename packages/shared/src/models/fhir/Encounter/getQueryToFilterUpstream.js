@@ -1,5 +1,5 @@
-import { Op } from 'sequelize';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { Op } from 'sequelize';
 
 export function filterFromEncounters(models, table) {
   const { Encounter } = models;

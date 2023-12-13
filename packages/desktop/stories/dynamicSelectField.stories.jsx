@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { DynamicSelectField } from '../app/components';
 import { useSuggester } from '../app/api';
+import { DynamicSelectField } from '../app/components';
 
 const FRUITS = [
   { value: 'apples', label: 'Apples' },

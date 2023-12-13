@@ -1,15 +1,15 @@
 import config from 'config';
 
-import { Op } from 'sequelize';
 import {
+  CERTIFICATE_NOTIFICATION_STATUSES,
+  COVID_19_CLEARANCE_CERTIFICATE,
   ICAO_DOCUMENT_TYPES,
   LAB_REQUEST_STATUSES,
-  COVID_19_CLEARANCE_CERTIFICATE,
-  CERTIFICATE_NOTIFICATION_STATUSES,
 } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { getPatientSurveyResponseAnswer } from '@tamanu/shared/utils';
+import { Op } from 'sequelize';
 
 export class LabRequestNotificationGenerator extends ScheduledTask {
   constructor(context) {

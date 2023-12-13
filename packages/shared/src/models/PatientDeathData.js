@@ -1,9 +1,9 @@
-import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from '../errors';
+import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { dateType } from './dateTimeTypes';
 import { Model } from './Model';
-import { buildPatientSyncFilterViaPatientId } from './buildPatientSyncFilterViaPatientId';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class PatientDeathData extends Model {
@@ -55,12 +55,14 @@ export class PatientDeathData extends Model {
           },
           yesNoUnknownFields() {
             if (this.deletedAt) return;
-            for (const field of [
-              'recentSurgery',
-              'wasPregnant',
-              'pregnancyContributed',
-              'stillborn',
-            ]) {
+            for (
+              const field of [
+                'recentSurgery',
+                'wasPregnant',
+                'pregnancyContributed',
+                'stillborn',
+              ]
+            ) {
               if (this[field] && !['yes', 'no', 'unknown'].includes(this[field])) {
                 throw new InvalidOperationError(`${field} must be 'yes', 'no', 'unknown', or null`);
               }

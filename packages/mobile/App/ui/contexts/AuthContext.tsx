@@ -1,26 +1,26 @@
+import { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
+import { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
+import { PureAbility } from '@casl/ability';
+import NetInfo from '@react-native-community/netinfo';
+import { NavigationContainerRef } from '@react-navigation/native';
 import React, {
   createContext,
   PropsWithChildren,
   ReactElement,
+  RefObject,
   useContext,
   useEffect,
   useState,
-  RefObject,
 } from 'react';
-import { NavigationContainerRef } from '@react-navigation/native';
-import NetInfo from '@react-native-community/netinfo';
 import { compose } from 'redux';
-import { PureAbility } from '@casl/ability';
-import { readConfig } from '~/services/config';
-import { withAuth } from '~/ui/containers/Auth';
-import { WithAuthStoreProps } from '~/ui/store/ducks/auth';
-import { Routes } from '~/ui/helpers/routes';
-import { BackendContext } from '~/ui/contexts/BackendContext';
-import { IUser, ReconnectWithPasswordParameters, SyncConnectionParameters } from '~/types';
-import { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
-import { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
-import { buildAbility } from '~/ui/helpers/ability';
 import { User } from '~/models/User';
+import { readConfig } from '~/services/config';
+import { IUser, ReconnectWithPasswordParameters, SyncConnectionParameters } from '~/types';
+import { withAuth } from '~/ui/containers/Auth';
+import { BackendContext } from '~/ui/contexts/BackendContext';
+import { buildAbility } from '~/ui/helpers/ability';
+import { Routes } from '~/ui/helpers/routes';
+import { WithAuthStoreProps } from '~/ui/store/ducks/auth';
 
 type AuthProviderProps = WithAuthStoreProps & {
   navRef: RefObject<NavigationContainerRef>;
@@ -161,7 +161,6 @@ const Provider = ({
 
   // start a session if there's a stored token
   useEffect(() => {
-
     if (props.token && props.user) {
       backend.auth.startSession(props.token, props.refreshToken);
     } else {
@@ -183,7 +182,7 @@ const Provider = ({
       if (preventSignOutOnFailure) {
         // reset flag to prevent sign out being
         // skipped on subsequent failed authentications
-        setPreventSignOutOnFailure(true)
+        setPreventSignOutOnFailure(true);
       } else {
         signOut();
       }

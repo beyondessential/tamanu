@@ -1,9 +1,9 @@
+import { DOCUMENT_SOURCES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, DOCUMENT_SOURCES } from '@tamanu/constants';
-import { Model } from './Model';
-import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { buildEncounterLinkedSyncFilterJoins } from './buildEncounterLinkedSyncFilter';
+import { dateTimeType } from './dateTimeTypes';
+import { Model } from './Model';
 import { onSaveMarkPatientForSync } from './onSaveMarkPatientForSync';
 
 export class DocumentMetadata extends Model {

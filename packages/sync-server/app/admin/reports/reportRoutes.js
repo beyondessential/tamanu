@@ -1,19 +1,19 @@
-import express from 'express';
-import config from 'config';
-import { promises as fs } from 'fs';
-import asyncHandler from 'express-async-handler';
-import { QueryTypes, Sequelize } from 'sequelize';
-import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
-import { NotFoundError, InvalidOperationError } from '@tamanu/shared/errors';
-import { capitalize } from 'lodash';
 import {
-  REPORT_VERSION_EXPORT_FORMATS,
-  REPORT_STATUSES,
   REPORT_DB_SCHEMAS,
+  REPORT_STATUSES,
+  REPORT_VERSION_EXPORT_FORMATS,
 } from '@tamanu/constants';
-import { readJSON, sanitizeFilename, verifyQuery } from './utils';
-import { createReportDefinitionVersion } from './createReportDefinitionVersion';
+import { InvalidOperationError, NotFoundError } from '@tamanu/shared/errors';
+import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
+import config from 'config';
+import express from 'express';
+import asyncHandler from 'express-async-handler';
+import { promises as fs } from 'fs';
+import { capitalize } from 'lodash';
+import { QueryTypes, Sequelize } from 'sequelize';
 import { DryRun } from '../errors';
+import { createReportDefinitionVersion } from './createReportDefinitionVersion';
+import { readJSON, sanitizeFilename, verifyQuery } from './utils';
 
 export const reportsRouter = express.Router();
 
@@ -35,10 +35,10 @@ reportsRouter.get(
     FROM report_definitions rd
         LEFT JOIN report_definition_versions rdv ON rd.id = rdv.report_definition_id
     ${
-      isReportingSchemaEnabled && !canEditSchema
-        ? `WHERE rd.db_schema = '${REPORT_DB_SCHEMAS.REPORTING}'`
-        : ''
-    }
+        isReportingSchemaEnabled && !canEditSchema
+          ? `WHERE rd.db_schema = '${REPORT_DB_SCHEMAS.REPORTING}'`
+          : ''
+      }
     GROUP BY rd.id
     HAVING max(rdv.version_number) > 0
     ORDER BY rd.name
@@ -191,8 +191,9 @@ reportsRouter.post(
 
     const versionData = await readJSON(file);
 
-    if (versionData.versionNumber)
+    if (versionData.versionNumber) {
       throw new InvalidOperationError('Cannot import a report with a version number');
+    }
 
     if (reportSchemas.enabled && !canEditSchema && versionData.dbSchema === REPORT_DB_SCHEMAS.RAW) {
       throw new InvalidOperationError(

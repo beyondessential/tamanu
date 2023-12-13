@@ -1,11 +1,11 @@
-import React from 'react';
 import { Typography } from '@material-ui/core';
+import React from 'react';
 import styled from 'styled-components';
 import { LocalisedText } from '../../../LocalisedText';
 
 export const CertificateLabel = ({ name, children, className }) => (
   <Typography className={className}>
-    <strong>{name}: </strong>
+    <strong>{name}:</strong>
     {children}
   </Typography>
 );

@@ -1,13 +1,13 @@
 import { formatRFC7231 } from 'date-fns';
 
+import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
 import { fake } from '@tamanu/shared/test-helpers/fake';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
-import { fakeUUID } from '@tamanu/shared/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
-import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
+import { fakeUUID } from '@tamanu/shared/utils/generateId';
 
-import { createTestContext } from '../../utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
+import { createTestContext } from '../../utilities';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
@@ -121,7 +121,8 @@ describe(`Materialised FHIR - Patient`, () => {
       const mat = await FhirPatient.materialiseFromUpstream(patient.id);
 
       const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=-issued&_page=0&_count=2&status=final&identifier=${id}`;
+      const path =
+        `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=-issued&_page=0&_count=2&status=final&identifier=${id}`;
 
       // act
       const response = await app.get(path);
@@ -400,7 +401,7 @@ describe(`Materialised FHIR - Patient`, () => {
         ]);
         await Promise.all(
           [patientOne, patientTwo, patientThree].map(({ id }) =>
-            FhirPatient.materialiseFromUpstream(id),
+            FhirPatient.materialiseFromUpstream(id)
           ),
         );
 
@@ -443,7 +444,7 @@ describe(`Materialised FHIR - Patient`, () => {
         ]);
         await Promise.all(
           [patientOne, patientTwo, patientThree].map(({ id }) =>
-            FhirPatient.materialiseFromUpstream(id),
+            FhirPatient.materialiseFromUpstream(id)
           ),
         );
 
@@ -483,7 +484,7 @@ describe(`Materialised FHIR - Patient`, () => {
         ]);
         await Promise.all(
           [patientOne, patientTwo, patientThree].map(({ id }) =>
-            FhirPatient.materialiseFromUpstream(id),
+            FhirPatient.materialiseFromUpstream(id)
           ),
         );
 
@@ -523,7 +524,7 @@ describe(`Materialised FHIR - Patient`, () => {
         ]);
         await Promise.all(
           [patientOne, patientTwo, patientThree].map(({ id }) =>
-            FhirPatient.materialiseFromUpstream(id),
+            FhirPatient.materialiseFromUpstream(id)
           ),
         );
 
@@ -572,7 +573,7 @@ describe(`Materialised FHIR - Patient`, () => {
         ]);
         await Promise.all(
           [patientOne, patientTwo, patientThree].map(({ id }) =>
-            FhirPatient.materialiseFromUpstream(id),
+            FhirPatient.materialiseFromUpstream(id)
           ),
         );
 
@@ -622,7 +623,7 @@ describe(`Materialised FHIR - Patient`, () => {
         ]);
         await Promise.all(
           [patientOne, patientTwo, patientThree].map(({ id }) =>
-            FhirPatient.materialiseFromUpstream(id),
+            FhirPatient.materialiseFromUpstream(id)
           ),
         );
 
@@ -688,7 +689,7 @@ describe(`Materialised FHIR - Patient`, () => {
         ]);
         await Promise.all(
           [patientOne, patientTwo, patientThree, patientFour, patientFive].map(({ id }) =>
-            FhirPatient.materialiseFromUpstream(id),
+            FhirPatient.materialiseFromUpstream(id)
           ),
         );
 
@@ -914,7 +915,7 @@ describe(`Materialised FHIR - Patient`, () => {
       ]);
       await Promise.all(
         [patientOne, patientTwo, patientThree].map(({ id }) =>
-          FhirPatient.materialiseFromUpstream(id),
+          FhirPatient.materialiseFromUpstream(id)
         ),
       );
 
@@ -950,7 +951,7 @@ describe(`Materialised FHIR - Patient`, () => {
       ]);
       await Promise.all(
         [patientOne, patientTwo, patientThree].map(({ id }) =>
-          FhirPatient.materialiseFromUpstream(id),
+          FhirPatient.materialiseFromUpstream(id)
         ),
       );
 
@@ -992,7 +993,7 @@ describe(`Materialised FHIR - Patient`, () => {
       ]);
       await Promise.all(
         [patientOne, patientTwo, patientThree].map(({ id }) =>
-          FhirPatient.materialiseFromUpstream(id),
+          FhirPatient.materialiseFromUpstream(id)
         ),
       );
 

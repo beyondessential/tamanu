@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { useApi } from '../api';
-import { FormModal } from './FormModal';
 import { InvoicePriceChangeItemForm } from '../forms/InvoicePriceChangeItemForm';
+import { FormModal } from './FormModal';
 
 const PRICE_CHANGE_ITEM_INITIAL_VALUES = {
   percentageChange: 0,

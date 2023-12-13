@@ -5,10 +5,12 @@
  * @returns {string} PEM document
  */
 export function pem(data, banner) {
-  return `-----BEGIN ${banner}-----\n${data
-    .toString('base64')
-    .match(/.{1,64}/g)
-    .join('\n')}\n-----END ${banner}-----`;
+  return `-----BEGIN ${banner}-----\n${
+    data
+      .toString('base64')
+      .match(/.{1,64}/g)
+      .join('\n')
+  }\n-----END ${banner}-----`;
 }
 
 /**

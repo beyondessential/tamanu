@@ -1,6 +1,6 @@
+import mkdirp from 'mkdirp';
 import os from 'os';
 import path from 'path';
-import mkdirp from 'mkdirp';
 
 export async function tmpdir() {
   const dir = path.resolve(os.tmpdir());

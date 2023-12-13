@@ -1,8 +1,8 @@
-import React from 'react';
 import { PDFViewer } from '@react-pdf/renderer';
-import { HandoverNotesPDF } from '@tamanu/shared/utils/handoverNotes';
-import styled from 'styled-components';
 import { createDummyPatient } from '@tamanu/shared/demoData';
+import { HandoverNotesPDF } from '@tamanu/shared/utils/handoverNotes';
+import React from 'react';
+import styled from 'styled-components';
 import { LabRequestNoteForm } from '../app/forms/LabRequestNoteForm';
 import Logo from './assets/tamanu-logo.png';
 import { MockedApi } from './utils/mockedApi';
@@ -35,7 +35,8 @@ const handoverNotes = [
     patient: createDummyPatient(),
     diagnosis: 'Diabetes (Confirmed), Pneumonia (For investigation)',
     location: 'Bed 1',
-    notes: `Notes: This is a full width note from Tamanu with line breaks This is a full width note from Tamanu with line breaksThis is a full width note from Tamanu with line breaks
+    notes:
+      `Notes: This is a full width note from Tamanu with line breaks This is a full width note from Tamanu with line breaksThis is a full width note from Tamanu with line breaks
   This is a full width note from Tamanu with line breaks This is a full width note from Tamanu with line breaks`,
     createdAt: new Date(),
   },
@@ -43,7 +44,8 @@ const handoverNotes = [
     patient: createDummyPatient(),
     diagnosis: 'Diabetes (Confirmed), Pneumonia (For investigation)',
     location: 'Bed 1',
-    notes: `This is a full width note from Tamanu with line breaks This is a full width note from Tamanu with line breaks`,
+    notes:
+      `This is a full width note from Tamanu with line breaks This is a full width note from Tamanu with line breaks`,
     createdAt: new Date(),
   },
   {

@@ -1,12 +1,14 @@
 export const MATCH_ANY = '**MATCH_ANY**';
 
 const buildBuildErrorMessage = expectContextThis => errorList => () =>
-  `${expectContextThis.utils.matcherHint(
-    'toMatchTabularReport',
-    undefined,
-    undefined,
-    {},
-  )}\n${errorList.join('\n')}`;
+  `${
+    expectContextThis.utils.matcherHint(
+      'toMatchTabularReport',
+      undefined,
+      undefined,
+      {},
+    )
+  }\n${errorList.join('\n')}`;
 
 const testEmptyReport = (buildErrorMessage, receivedData) => {
   return {
@@ -26,8 +28,8 @@ const testReportLength = (receivedData, expectedData) =>
   receivedData.length === expectedData.length
     ? []
     : [
-        `Incorrect number of rows: Received: ${receivedData.length}, Expected: ${expectedData.length}`,
-      ];
+      `Incorrect number of rows: Received: ${receivedData.length}, Expected: ${expectedData.length}`,
+    ];
 
 const testReportContentLine = (expectContextThis, getProperty, expectedRow, receivedRow, index) => {
   const errors = [];
@@ -35,9 +37,11 @@ const testReportContentLine = (expectContextThis, getProperty, expectedRow, rece
     const receivedValue = getProperty(receivedRow, key);
     if (receivedValue !== expectedValue && expectedValue !== MATCH_ANY) {
       errors.push(
-        `Row: ${index}, Key: ${key},  Expected: ${expectContextThis.utils.printExpected(
-          expectedValue,
-        )}, Received: ${expectContextThis.utils.printReceived(receivedValue)}`,
+        `Row: ${index}, Key: ${key},  Expected: ${
+          expectContextThis.utils.printExpected(
+            expectedValue,
+          )
+        }, Received: ${expectContextThis.utils.printReceived(receivedValue)}`,
       );
     }
   });
@@ -55,7 +59,6 @@ const testReportContentLine = (expectContextThis, getProperty, expectedRow, rece
  *    ],
  *    // { partialMatching : true } If you want to pass a subset of columns to check
  *  );
- *
  */
 export const toMatchTabularReport = (
   expectContextThis,

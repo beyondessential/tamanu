@@ -6,9 +6,9 @@ If your PR is red because of this test, you likely need to either:
      (probably only applicable if your model has multiple UpstreamModels defined)
 */
 
-import util from 'util';
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
+import util from 'util';
 import { createTestContext } from '../../utilities';
 
 expect.extend({
@@ -27,7 +27,8 @@ expect.extend({
       };
     }
     const result = await Resource.queryToFindUpstreamIdsFromTable(upstreamTable, table, id);
-    const printedCall = `${Resource.name}.queryToFindUpstreamIdsFromTable('${upstreamTable}', '${table}', '${id}')`;
+    const printedCall =
+      `${Resource.name}.queryToFindUpstreamIdsFromTable('${upstreamTable}', '${table}', '${id}')`;
     return {
       pass: Boolean(result),
       message: () => `${printedCall} returned ${util.inspect(result)}`,

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
 import EmailIcon from '@material-ui/icons/Email';
+import React, { useState } from 'react';
 import { EmailAddressConfirmationForm } from '../../forms/EmailAddressConfirmationForm';
 import { Button } from '..';
 import { FormModal } from '../FormModal';

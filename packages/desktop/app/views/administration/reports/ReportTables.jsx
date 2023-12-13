@@ -1,11 +1,11 @@
+import { REPORT_STATUSES } from '@tamanu/constants';
+import { isNil } from 'lodash';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { isNil } from 'lodash';
-import { REPORT_STATUSES } from '@tamanu/constants';
 import { DateDisplay, formatTime } from '../../../components';
 import { Table } from '../../../components/Table';
-import { Colors } from '../../../constants';
 import { StatusTag } from '../../../components/Tag';
+import { Colors } from '../../../constants';
 
 const STATUS_CONFIG = {
   [REPORT_STATUSES.DRAFT]: {

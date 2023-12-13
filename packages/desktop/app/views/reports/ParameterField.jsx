@@ -1,26 +1,26 @@
-import React from 'react';
-import styled from 'styled-components';
 import {
   SUGGESTER_ENDPOINTS,
   SUGGESTER_ENDPOINTS_SUPPORTING_ALL,
 } from '@tamanu/constants/suggesters';
+import React from 'react';
+import styled from 'styled-components';
+import { useSuggester } from '../../api';
 import {
   AutocompleteField,
   Field,
-  SelectField,
   MultiselectField,
+  SelectField,
   SuggesterSelectField,
 } from '../../components';
-import { VillageField } from './VillageField';
-import { LabTestLaboratoryField } from './LabTestLaboratoryField';
-import { PractitionerField } from './PractitionerField';
 import { DiagnosisField } from './DiagnosisField';
-import { LabTestTypeField } from './LabTestTypeField';
-import { LabTestCategoryField } from './LabTestCategoryField';
-import { VaccineCategoryField } from './VaccineCategoryField';
 import { ImagingTypeField } from './ImagingTypeField';
+import { LabTestCategoryField } from './LabTestCategoryField';
+import { LabTestLaboratoryField } from './LabTestLaboratoryField';
+import { LabTestTypeField } from './LabTestTypeField';
+import { PractitionerField } from './PractitionerField';
+import { VaccineCategoryField } from './VaccineCategoryField';
 import { VaccineField } from './VaccineField';
-import { useSuggester } from '../../api';
+import { VillageField } from './VillageField';
 
 export const FIELD_TYPES_TO_SUGGESTER_OPTIONS = {
   ParameterSuggesterSelectField: SUGGESTER_ENDPOINTS_SUPPORTING_ALL,

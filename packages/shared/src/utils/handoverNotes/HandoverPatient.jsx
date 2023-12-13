@@ -1,9 +1,9 @@
 import React from 'react';
+import { getDOB, getName, getSex } from '../patientAccessors';
 import { getDisplayDate } from '../patientCertificates/getDisplayDate';
-import { Divider } from './Divider';
 import { Col, Row } from '../patientCertificates/Layout';
 import { P } from '../patientCertificates/Typography';
-import { getName, getSex, getDOB } from '../patientAccessors';
+import { Divider } from './Divider';
 
 const PATIENT_FIELDS = [
   { key: 'name', label: 'Patient Name', accessor: getName, percentageWidth: 40 },

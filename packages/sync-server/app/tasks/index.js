@@ -1,22 +1,22 @@
-import config from 'config';
 import { log } from '@tamanu/shared/services/logging';
+import config from 'config';
 
+import { AutomaticLabTestResultPublisher } from './AutomaticLabTestResultPublisher';
+import { CertificateNotificationProcessor } from './CertificateNotificationProcessor';
+import { CovidClearanceCertificatePublisher } from './CovidClearanceCertificatePublisher';
+import { DeceasedPatientDischarger } from './DeceasedPatientDischarger';
+import { FhirMissingResources } from './FhirMissingResources';
+import { OutpatientDischarger } from './OutpatientDischarger';
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { PatientMergeMaintainer } from './PatientMergeMaintainer';
-import { OutpatientDischarger } from './OutpatientDischarger';
-import { DeceasedPatientDischarger } from './DeceasedPatientDischarger';
+import { PlannedMoveTimeout } from './PlannedMoveTimeout';
 import { ReportRequestProcessor } from './ReportRequestProcessor';
 import { ReportRequestScheduler } from './ReportRequestScheduler';
-import { VRSActionRetrier } from './VRSActionRetrier';
-import { SignerWorkingPeriodChecker } from './SignerWorkingPeriodChecker';
 import { SignerRenewalChecker } from './SignerRenewalChecker';
 import { SignerRenewalSender } from './SignerRenewalSender';
-import { CertificateNotificationProcessor } from './CertificateNotificationProcessor';
-import { AutomaticLabTestResultPublisher } from './AutomaticLabTestResultPublisher';
-import { CovidClearanceCertificatePublisher } from './CovidClearanceCertificatePublisher';
-import { PlannedMoveTimeout } from './PlannedMoveTimeout';
+import { SignerWorkingPeriodChecker } from './SignerWorkingPeriodChecker';
 import { StaleSyncSessionCleaner } from './StaleSyncSessionCleaner';
-import { FhirMissingResources } from './FhirMissingResources';
+import { VRSActionRetrier } from './VRSActionRetrier';
 
 export { startFhirWorkerTasks } from './fhir';
 

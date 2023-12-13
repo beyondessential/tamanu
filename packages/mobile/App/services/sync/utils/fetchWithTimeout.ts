@@ -1,4 +1,4 @@
-import { FetchOptions } from "..";
+import { FetchOptions } from '..';
 
 const MAX_FETCH_WAIT_TIME = 45 * 1000; // 45 seconds in milliseconds
 

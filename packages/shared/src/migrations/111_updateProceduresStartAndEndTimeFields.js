@@ -1,5 +1,5 @@
-import { QueryTypes, DataTypes } from 'sequelize';
 import config from 'config';
+import { DataTypes, QueryTypes } from 'sequelize';
 
 const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';
 const MIGRATIONS = [
@@ -72,8 +72,10 @@ export async function down(query) {
   for (const migration of MIGRATIONS) {
     await query.sequelize.query(`
       ALTER TABLE ${migration.TABLE}
-      ALTER COLUMN ${migration.FIELD} TYPE ${migration.LEGACY_TYPE?.postgres ||
-      'timestamp with time zone'} USING ${migration.FIELD}_legacy;
+      ALTER COLUMN ${migration.FIELD} TYPE ${
+      migration.LEGACY_TYPE?.postgres ||
+      'timestamp with time zone'
+    } USING ${migration.FIELD}_legacy;
     `);
     await query.removeColumn(migration.TABLE, `${migration.FIELD}_legacy`);
   }

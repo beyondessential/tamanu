@@ -1,19 +1,11 @@
-import React, { ReactElement, useCallback } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
-import { theme } from '/styled/theme';
 import { ProfileIcon } from '/components/Icons';
-import {
-  Orientation,
-  screenPercentageToDP,
-} from '/helpers/screen';
-import {
-  RowView,
-  StyledText,
-  StyledTouchableOpacity,
-  StyledView,
-} from '/styled/common';
 import { Routes } from '/helpers/routes';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { RowView, StyledText, StyledTouchableOpacity, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
+import { useNavigation } from '@react-navigation/native';
+import React, { ReactElement, useCallback } from 'react';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 
 const RegisterPatientButton = (): ReactElement => {
   const navigation = useNavigation();

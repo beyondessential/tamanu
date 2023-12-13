@@ -1,19 +1,19 @@
-import React, { ReactElement, useCallback, useRef } from 'react';
-import { theme } from '/styled/theme';
-import { StyledView } from '/styled/common';
-import { Form } from '../Form';
 import { FormScreenView } from '/components/Forms/FormScreenView';
-import { PatientAdditionalDataFields } from './PatientAdditionalDataFields';
-import {
-  patientAdditionalDataValidationSchema,
-  getInitialAdditionalValues,
-  getInitialCustomValues,
-} from './helpers';
+import { StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
+import React, { ReactElement, useCallback, useRef } from 'react';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { PatientFieldValue } from '~/models/PatientFieldValue';
-import { Routes } from '~/ui/helpers/routes';
 import { additionalDataSections } from '~/ui/helpers/additionalData';
+import { Routes } from '~/ui/helpers/routes';
 import { Button } from '../../Button';
+import { Form } from '../Form';
+import {
+  getInitialAdditionalValues,
+  getInitialCustomValues,
+  patientAdditionalDataValidationSchema,
+} from './helpers';
+import { PatientAdditionalDataFields } from './PatientAdditionalDataFields';
 
 export const PatientAdditionalDataForm = ({
   patientId,
@@ -37,7 +37,7 @@ export const PatientAdditionalDataForm = ({
               definitionId,
               values[definitionId],
             )
-          )
+          ),
         );
       } else {
         await PatientAdditionalData.updateForPatient(patientId, values);
@@ -50,7 +50,14 @@ export const PatientAdditionalDataForm = ({
 
   // Get the actual additional data section object
   const section = isCustomFields ?
-    { fields: customSectionFields.map(({ id, name, fieldType, options }) => ({ id, name, fieldType, options })) } :
+    {
+      fields: customSectionFields.map(({ id, name, fieldType, options }) => ({
+        id,
+        name,
+        fieldType,
+        options,
+      })),
+    } :
     additionalDataSections.find(({ title }) => title === sectionTitle);
   const { fields } = section;
 
@@ -58,8 +65,7 @@ export const PatientAdditionalDataForm = ({
     <Form
       initialValues={isCustomFields ?
         getInitialCustomValues(customPatientFieldValues, fields) :
-        getInitialAdditionalValues(additionalData, fields)
-      }
+        getInitialAdditionalValues(additionalData, fields)}
       validationSchema={patientAdditionalDataValidationSchema}
       onSubmit={onCreateOrEditAdditionalData}
     >

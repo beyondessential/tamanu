@@ -1,7 +1,7 @@
-import React, { ReactElement } from 'react';
-import { RowView, StyledView, StyledText, CenterView } from '/styled/common';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { CenterView, RowView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import React, { ReactElement } from 'react';
 import { LocalisedText } from '~/ui/components/LocalisedText';
 
 export const HealthIdentificationRow = ({

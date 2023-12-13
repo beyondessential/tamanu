@@ -1,12 +1,12 @@
 import { Column, OneToMany, RelationId } from 'typeorm';
 import { Entity, ManyToOne } from 'typeorm/browser';
 import { ILocation } from '../types';
+import { VisibilityStatus } from '../visibilityStatuses';
+import { AdministeredVaccine } from './AdministeredVaccine';
 import { BaseModel } from './BaseModel';
 import { Encounter } from './Encounter';
 import { Facility } from './Facility';
 import { LocationGroup } from './LocationGroup';
-import { AdministeredVaccine } from './AdministeredVaccine';
-import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
 
 @Entity('location')

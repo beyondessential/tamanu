@@ -1,7 +1,7 @@
 import config from 'config';
 
-import { initDatabase as sharedInitDatabase } from '@tamanu/shared/services/database';
 import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
+import { initDatabase as sharedInitDatabase } from '@tamanu/shared/services/database';
 import { log } from '@tamanu/shared/services/logging';
 import { addHooks } from './hooks';
 

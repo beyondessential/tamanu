@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { FieldArray } from 'formik';
 import { IconButton } from '@material-ui/core';
 import { AddCircleOutline, RemoveCircleOutline } from '@material-ui/icons';
+import { FieldArray } from 'formik';
+import React, { useState } from 'react';
 import { generate } from 'shortid';
+import styled from 'styled-components';
 import { Button } from '../Button';
 
 const AddButton = styled(Button)`
@@ -37,8 +37,9 @@ export const ArrayField = ({
     : form.values[field.name];
   // If there are initial values, generate the same number of fields in the ui,
   // otherwise just display one field
-  const initialState =
-    data?.length > 0 ? data.map(() => ({ id: generate() })) : [{ id: generate() }];
+  const initialState = data?.length > 0
+    ? data.map(() => ({ id: generate() }))
+    : [{ id: generate() }];
 
   const [fields, setFields] = useState(initialState);
 

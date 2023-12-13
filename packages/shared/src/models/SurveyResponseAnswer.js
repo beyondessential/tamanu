@@ -1,11 +1,11 @@
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import config from 'config';
 import { upperFirst } from 'lodash';
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
 import { InvalidOperationError } from '../errors';
 import { runCalculations } from '../utils/calculations';
 import { getStringValue } from '../utils/fields';
+import { Model } from './Model';
 
 export class SurveyResponseAnswer extends Model {
   static init({ primaryKey, ...options }) {

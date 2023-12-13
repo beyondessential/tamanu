@@ -1,27 +1,27 @@
-import React, { ReactElement, useCallback } from 'react';
+import { FullView } from '/styled/common';
 import { useNavigation } from '@react-navigation/native';
-import { compose } from 'redux';
+import { formatISO9075, parseISO } from 'date-fns';
 import { Formik } from 'formik';
+import React, { ReactElement, useCallback } from 'react';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { FullView } from '/styled/common';
-import { formatISO9075, parseISO } from 'date-fns';
-import { NameSection } from './NameSection';
-import { KeyInformationSection } from './KeyInformationSection';
-import { LocationDetailsSection } from './LocationDetailsSection';
-import { SubmitSection } from './SubmitSection';
-import { generateId, getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
+import { compose } from 'redux';
 import { Patient } from '~/models/Patient';
+import { PatientAdditionalData } from '~/models/PatientAdditionalData';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { withPatient } from '~/ui/containers/Patient';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
-import { Routes } from '~/ui/helpers/routes';
-import { PatientAdditionalDataFields } from '../../PatientAdditionalDataForm/PatientAdditionalDataFields';
 import { allAdditionalDataFields } from '~/ui/helpers/additionalData';
-import { getPatientDetailsValidation } from './patientDetailsValidationSchema';
-import { PatientAdditionalData } from '~/models/PatientAdditionalData';
+import { generateId, getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
+import { Routes } from '~/ui/helpers/routes';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
-import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { getInitialAdditionalValues } from '../../PatientAdditionalDataForm/helpers';
+import { PatientAdditionalDataFields } from '../../PatientAdditionalDataForm/PatientAdditionalDataFields';
+import { KeyInformationSection } from './KeyInformationSection';
+import { LocationDetailsSection } from './LocationDetailsSection';
+import { NameSection } from './NameSection';
+import { getPatientDetailsValidation } from './patientDetailsValidationSchema';
+import { SubmitSection } from './SubmitSection';
 
 export type FormSection = {
   scrollToField: (fieldName: string) => () => void;
@@ -136,9 +136,7 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
 
   const { getBool, getString } = useLocalisation();
 
-  return loading ? (
-    <LoadingScreen />
-  ) : (
+  return loading ? <LoadingScreen /> : (
     <FullView padding={10}>
       <Formik
         onSubmit={isEdit ? onEditPatient : onCreateNewPatient}

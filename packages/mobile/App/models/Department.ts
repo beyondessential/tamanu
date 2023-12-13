@@ -1,10 +1,10 @@
-import { Column, RelationId, OneToMany } from 'typeorm';
+import { Column, OneToMany, RelationId } from 'typeorm';
 import { Entity, ManyToOne } from 'typeorm/browser';
 import { IDepartment } from '../types';
+import { VisibilityStatus } from '../visibilityStatuses';
+import { AdministeredVaccine } from './AdministeredVaccine';
 import { BaseModel } from './BaseModel';
 import { Facility } from './Facility';
-import { AdministeredVaccine } from './AdministeredVaccine';
-import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
 
 @Entity('department')

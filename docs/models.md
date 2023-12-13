@@ -1,8 +1,11 @@
 # Models
 
 Models implementations can be found in: `packages/shared/src/models`
+
 > [!WARNING]
+>
 > # OUTDATED
+>
 > Please see https://beyond-essential.slab.com/posts/tamanu-db-schema-documentation-7lexbq64 if you have access to BES's internal documentation
 
 ### AdministeredVaccine
@@ -15,7 +18,7 @@ Metadata for an attached document (for eg an image or a pdf). Actual attachment 
 
 ### Discharge
 
-Details of a discharge from a hospital admission. Most encounter types are closed by simply setting an endDate, this model is simply to attach additional discharge information. 
+Details of a discharge from a hospital admission. Most encounter types are closed by simply setting an endDate, this model is simply to attach additional discharge information.
 
 ### Encounter
 
@@ -66,7 +69,7 @@ Holds most of a patient's non-encounter data (for eg contact information, social
 
 ### PatientAllergy
 
-A allergy recorded for a patient (for eg peanuts or penicillin). 
+A allergy recorded for a patient (for eg peanuts or penicillin).
 
 ### PatientCarePlan
 

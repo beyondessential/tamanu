@@ -1,14 +1,14 @@
-import { Entity, Column, AfterLoad } from 'typeorm/browser';
-import { SYNC_DIRECTIONS } from './types';
-import { BaseModel } from './BaseModel';
+import { AfterLoad, Column, Entity } from 'typeorm/browser';
 import { readFileInDocuments } from '../ui/helpers/file';
+import { BaseModel } from './BaseModel';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('attachment')
 export class Attachment extends BaseModel {
   static syncDirection = SYNC_DIRECTIONS.PUSH_TO_CENTRAL;
 
   @Column({ nullable: true })
-  size?: number; //size in bytes
+  size?: number; // size in bytes
 
   @Column({ type: 'varchar' })
   type: string;

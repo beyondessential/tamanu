@@ -1,6 +1,6 @@
+import Tooltip from '@material-ui/core/Tooltip';
 import React from 'react';
 import styled from 'styled-components';
-import Tooltip from '@material-ui/core/Tooltip';
 
 import { Colors } from '../../constants';
 

@@ -1,13 +1,13 @@
-import React, { useState, useCallback, useRef, useEffect, ReactElement } from 'react';
+import React, { ReactElement, useCallback, useEffect, useRef, useState } from 'react';
 
-import { StyledView, StyledText } from '/styled/common';
+import { StyledText, StyledView } from '/styled/common';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { useBackend } from '~/ui/hooks';
+import { theme } from '~/ui/styled/theme';
+import { BaseInputProps } from '../../interfaces/BaseInputProps';
+import { TextFieldErrorMessage } from '../TextField/TextFieldErrorMessage';
 import { MultiSelect } from './MultipleSelect';
 import { MultiSelectProps } from './MultipleSelect/types';
-import { BaseInputProps } from '../../interfaces/BaseInputProps';
-import { theme } from '~/ui/styled/theme';
-import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
-import { TextFieldErrorMessage } from '../TextField/TextFieldErrorMessage';
-import { useBackend } from '~/ui/hooks';
 
 const MIN_COUNT_FILTERABLE_BY_DEFAULT = 8;
 
@@ -113,7 +113,7 @@ export const Dropdown = React.memo(
             color={labelColor || theme.colors.TEXT_SUPER_DARK}
           >
             {label}
-            {required && <StyledText color={theme.colors.ALERT}> *</StyledText>}
+            {required && <StyledText color={theme.colors.ALERT}>*</StyledText>}
           </StyledText>
         )}
         <MultiSelect

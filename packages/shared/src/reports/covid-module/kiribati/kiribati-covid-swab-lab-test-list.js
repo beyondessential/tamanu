@@ -1,5 +1,5 @@
-import { baseDataGenerator } from '../covid-swab-lab-test-list';
 import { format } from '../../../utils/dateTime';
+import { baseDataGenerator } from '../covid-swab-lab-test-list';
 
 const SURVEY_ID = 'program-kiribaticovid19-kiribaticovidtestregistration';
 

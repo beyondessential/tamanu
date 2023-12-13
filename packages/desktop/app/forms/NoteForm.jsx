@@ -1,18 +1,18 @@
-import React, { useCallback } from 'react';
-import PropTypes from 'prop-types';
-import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import PropTypes from 'prop-types';
+import React, { useCallback } from 'react';
+import * as yup from 'yup';
 
 import { NOTE_TYPES } from '@tamanu/constants';
+import { Form } from '../components/Field';
+import { NOTE_FORM_MODES } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { foreignKey } from '../utils/validation';
-import { Form } from '../components/Field';
-import { EditTreatmentPlanNoteForm } from './EditTreatmentPlanNoteForm';
-import { EditNoteForm } from './EditNoteForm';
-import { NoteChangelogForm } from './NoteChangelogForm';
 import { CreateNoteForm } from './CreateNoteForm';
+import { EditNoteForm } from './EditNoteForm';
+import { EditTreatmentPlanNoteForm } from './EditTreatmentPlanNoteForm';
+import { NoteChangelogForm } from './NoteChangelogForm';
 import { TreatmentPlanNoteChangelogForm } from './TreatmentPlanNoteChangelogForm';
-import { NOTE_FORM_MODES } from '../constants';
 
 export const NoteForm = ({
   onCancel,
@@ -36,11 +36,9 @@ export const NoteForm = ({
         onSubmit: submitForm,
         onCancel,
       };
-      return note.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
-        <EditTreatmentPlanNoteForm {...props} />
-      ) : (
-        <EditNoteForm {...props} />
-      );
+      return note.noteType === NOTE_TYPES.TREATMENT_PLAN ?
+        <EditTreatmentPlanNoteForm {...props} /> :
+        <EditNoteForm {...props} />;
     }
 
     if (noteFormMode === NOTE_FORM_MODES.VIEW_NOTE) {
@@ -48,11 +46,9 @@ export const NoteForm = ({
         note,
         onCancel,
       };
-      return note.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
-        <TreatmentPlanNoteChangelogForm {...props} />
-      ) : (
-        <NoteChangelogForm {...props} />
-      );
+      return note.noteType === NOTE_TYPES.TREATMENT_PLAN ?
+        <TreatmentPlanNoteChangelogForm {...props} /> :
+        <NoteChangelogForm {...props} />;
     }
 
     return (
@@ -87,7 +83,7 @@ export const NoteForm = ({
         writtenById: foreignKey(
           `${
             noteFormMode === NOTE_FORM_MODES.EDIT_NOTE &&
-            note?.noteType === NOTE_TYPES.TREATMENT_PLAN
+              note?.noteType === NOTE_TYPES.TREATMENT_PLAN
               ? 'Updated'
               : 'Created'
           } by (or on behalf of) is required`,

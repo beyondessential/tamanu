@@ -1,5 +1,5 @@
-import styled from 'styled-components';
 import { Box } from '@material-ui/core';
+import styled from 'styled-components';
 import { Colors } from '../constants';
 
 const Typography = styled(Box)`

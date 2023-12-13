@@ -1,20 +1,20 @@
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import React from 'react';
 import styled from 'styled-components';
-import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { useSuggester } from '../../api';
 import { LAB_REQUEST_STATUS_OPTIONS } from '../../constants';
+import { LabRequestSearchParamKeys, useLabRequest } from '../../contexts/LabRequest';
 import {
-  DateField,
-  SelectField,
-  LocalisedField,
-  Field,
-  SuggesterSelectField,
-  SearchField,
   AutocompleteField,
   CheckField,
+  DateField,
+  Field,
+  LocalisedField,
+  SearchField,
+  SelectField,
+  SuggesterSelectField,
 } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { useLabRequest, LabRequestSearchParamKeys } from '../../contexts/LabRequest';
-import { useSuggester } from '../../api';
 import { useAdvancedFields } from './useAdvancedFields';
 
 const BASE_ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'allFacilities'];
@@ -68,26 +68,33 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
             suggester={departmentSuggester}
             size="small"
           />
-          {publishedStatus ? (
-            <Field name="publishedDate" label="Completed" saveDateAsString component={DateField} />
-          ) : (
-            <>
-              <LocalisedField
-                name="laboratory"
-                defaultLabel="Laboratory"
-                component={SuggesterSelectField}
-                endpoint="labTestLaboratory"
-                size="small"
+          {publishedStatus ?
+            (
+              <Field
+                name="publishedDate"
+                label="Completed"
+                saveDateAsString
+                component={DateField}
               />
-              <LocalisedField
-                name="priority"
-                defaultLabel="Priority"
-                component={SuggesterSelectField}
-                endpoint="labTestPriority"
-                size="small"
-              />
-            </>
-          )}
+            ) :
+            (
+              <>
+                <LocalisedField
+                  name="laboratory"
+                  defaultLabel="Laboratory"
+                  component={SuggesterSelectField}
+                  endpoint="labTestLaboratory"
+                  size="small"
+                />
+                <LocalisedField
+                  name="priority"
+                  defaultLabel="Priority"
+                  component={SuggesterSelectField}
+                  endpoint="labTestPriority"
+                  size="small"
+                />
+              </>
+            )}
           <FacilityCheckbox>
             <Field name="allFacilities" label="Include all facilities" component={CheckField} />
           </FacilityCheckbox>
@@ -126,25 +133,27 @@ export const LabRequestsSearchBar = ({ status = '' }) => {
           saveDateAsString
           component={DateField}
         />
-        {publishedStatus ? (
-          <LocalisedField
-            name="laboratory"
-            defaultLabel="Laboratory"
-            component={SuggesterSelectField}
-            endpoint="labTestLaboratory"
-            size="small"
-          />
-        ) : (
-          <LocalisedField
-            name="status"
-            defaultLabel="Status"
-            component={SelectField}
-            options={LAB_REQUEST_STATUS_OPTIONS.filter(
-              option => option.value !== LAB_REQUEST_STATUSES.PUBLISHED,
-            )}
-            size="small"
-          />
-        )}
+        {publishedStatus ?
+          (
+            <LocalisedField
+              name="laboratory"
+              defaultLabel="Laboratory"
+              component={SuggesterSelectField}
+              endpoint="labTestLaboratory"
+              size="small"
+            />
+          ) :
+          (
+            <LocalisedField
+              name="status"
+              defaultLabel="Status"
+              component={SelectField}
+              options={LAB_REQUEST_STATUS_OPTIONS.filter(
+                option => option.value !== LAB_REQUEST_STATUSES.PUBLISHED,
+              )}
+              size="small"
+            />
+          )}
       </>
     </CustomisableSearchBar>
   );

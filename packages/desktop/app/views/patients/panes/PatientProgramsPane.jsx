@@ -1,8 +1,8 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
-import { ContentPane, TableButtonRow, Button } from '../../../components';
+import React from 'react';
+import { useDispatch } from 'react-redux';
+import { useParams } from 'react-router-dom';
+import { Button, ContentPane, TableButtonRow } from '../../../components';
 import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesTable';
 
 export const PatientProgramsPane = React.memo(({ endpoint }) => {

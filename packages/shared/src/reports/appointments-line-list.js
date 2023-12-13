@@ -1,5 +1,5 @@
-import { addDays, endOfDay, startOfDay, parseISO } from 'date-fns';
-import { toDateTimeString, format } from '../utils/dateTime';
+import { addDays, endOfDay, parseISO, startOfDay } from 'date-fns';
+import { format, toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -24,10 +24,10 @@ const FIELDS = [
 const reportColumnTemplate = FIELDS.map(field =>
   typeof field === 'string'
     ? {
-        title: field,
-        accessor: data => data[field],
-      }
-    : field,
+      title: field,
+      accessor: data => data[field],
+    }
+    : field
 );
 
 const query = `

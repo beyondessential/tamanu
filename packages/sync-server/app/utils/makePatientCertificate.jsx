@@ -1,18 +1,18 @@
-import React from 'react';
 import ReactPDF from '@react-pdf/renderer';
+import { ASSET_FALLBACK_NAMES, ASSET_NAMES } from '@tamanu/constants';
+import config from 'config';
+import { get } from 'lodash';
 import path from 'path';
 import QRCode from 'qrcode';
-import { get } from 'lodash';
-import config from 'config';
-import { ASSET_NAMES, ASSET_FALLBACK_NAMES } from '@tamanu/constants';
+import React from 'react';
 
 import {
+  CovidVaccineCertificate,
+  getPatientSurveyResponseAnswer,
   tmpdir,
   VaccineCertificate,
-  getPatientSurveyResponseAnswer,
-  CovidVaccineCertificate,
 } from '@tamanu/shared/utils';
-import { CovidLabCertificate, CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
+import { CertificateTypes, CovidLabCertificate } from '@tamanu/shared/utils/patientCertificates';
 
 import { getLocalisation } from '../localisation';
 
@@ -132,10 +132,9 @@ export const makeCovidCertificate = async (
   const getLocalisationData = key => get(localisation, key);
 
   const fileName = `covid-${certType}-certificate-${patient.id}.pdf`;
-  const footerAssetName =
-    certType === CertificateTypes.test
-      ? ASSET_NAMES.COVID_TEST_CERTIFICATE_FOOTER
-      : ASSET_NAMES.COVID_CLEARANCE_CERTIFICATE_FOOTER;
+  const footerAssetName = certType === CertificateTypes.test
+    ? ASSET_NAMES.COVID_TEST_CERTIFICATE_FOOTER
+    : ASSET_NAMES.COVID_CLEARANCE_CERTIFICATE_FOOTER;
   const { logo, signingImage, watermark } = await getCertificateAssets(models, footerAssetName);
   const vds = vdsData ? await QRCode.toDataURL(vdsData) : null;
   const additionalData = await models.PatientAdditionalData.findOne({
@@ -168,10 +167,9 @@ export const makeCovidCertificate = async (
     },
   };
 
-  const labs =
-    certType === CertificateTypes.test
-      ? await patient.getCovidLabTests()
-      : await patient.getCovidClearanceLabTests();
+  const labs = certType === CertificateTypes.test
+    ? await patient.getCovidLabTests()
+    : await patient.getCovidClearanceLabTests();
 
   return renderPdf(
     <CovidLabCertificate

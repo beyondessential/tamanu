@@ -1,12 +1,15 @@
-import moment from 'moment';
 import {
   createDummyEncounter,
   createDummyPatient,
   randomReferenceId,
 } from '@tamanu/shared/demoData/patients';
-import { createAdministeredVaccine, createScheduledVaccine } from '@tamanu/shared/demoData/vaccines';
-import { createTestContext } from '../../utilities';
+import {
+  createAdministeredVaccine,
+  createScheduledVaccine,
+} from '@tamanu/shared/demoData/vaccines';
 import { parseISO } from 'date-fns';
+import moment from 'moment';
+import { createTestContext } from '../../utilities';
 
 describe('Vaccine list report', () => {
   let baseApp = null;

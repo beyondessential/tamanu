@@ -1,19 +1,19 @@
-import React, { ReactElement, useState, useCallback, FC, useEffect } from 'react';
-import { StyledText, FullView, RowView, StyledSafeAreaView, StyledView } from '/styled/common';
 import { Button } from '/components/Button';
-import { LogoV2Icon } from '/components/Icons';
 import { VisitChart } from '/components/Chart/VisitChart';
-import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation, setStatusBar } from '/helpers/screen';
+import { LogoV2Icon } from '/components/Icons';
 import { Routes } from '/helpers/routes';
+import { Orientation, screenPercentageToDP, setStatusBar } from '/helpers/screen';
 import { ReportScreenProps } from '/interfaces/Screens/HomeStack/ReportScreenProps';
-import { addHours, format, startOfToday, subDays } from 'date-fns';
+import { FullView, RowView, StyledSafeAreaView, StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 import { useIsFocused } from '@react-navigation/core';
+import { addHours, format, startOfToday, subDays } from 'date-fns';
+import React, { FC, ReactElement, useCallback, useEffect, useState } from 'react';
 import { useBackendEffect } from '~/ui/hooks';
-import { SummaryBoard } from './SummaryBoard';
 import { BarChartData } from '~/ui/interfaces/BarChartProps';
-import { RecentPatientSurveyReport } from './RecentPatientSurveyReport';
 import { Dropdown } from './components/Dropdown';
+import { RecentPatientSurveyReport } from './RecentPatientSurveyReport';
+import { SummaryBoard } from './SummaryBoard';
 
 import { SurveyTypes } from '~/types';
 
@@ -74,20 +74,22 @@ const ReportChart: FC<ReportChartProps> = ({
   visitData,
   todayData,
   selectedSurveyId,
-}) => (isReportWeekly ? (
-  <>
-    <StyledView marginBottom={screenPercentageToDP(7.53, Orientation.Height)}>
-      <VisitChart visitData={visitData} />
+}) => (isReportWeekly ?
+  (
+    <>
+      <StyledView marginBottom={screenPercentageToDP(7.53, Orientation.Height)}>
+        <VisitChart visitData={visitData} />
+      </StyledView>
+      <StyledView flex={1}>
+        <SummaryBoard todayData={todayData} />
+      </StyledView>
+    </>
+  ) :
+  (
+    <StyledView marginBottom={screenPercentageToDP(2.43, Orientation.Height)}>
+      <RecentPatientSurveyReport selectedSurveyId={selectedSurveyId} />
     </StyledView>
-    <StyledView flex={1}>
-      <SummaryBoard todayData={todayData} />
-    </StyledView>
-  </>
-) : (
-  <StyledView marginBottom={screenPercentageToDP(2.43, Orientation.Height)}>
-    <RecentPatientSurveyReport selectedSurveyId={selectedSurveyId} />
-  </StyledView>
-));
+  ));
 
 export const ReportScreen = ({ navigation }: ReportScreenProps): ReactElement => {
   const [selectedSurveyId, setSelectedSurveyId] = useState('');
@@ -99,11 +101,13 @@ export const ReportScreen = ({ navigation }: ReportScreenProps): ReactElement =>
     [selectedSurveyId, isFocused],
   );
 
-  const [surveys] = useBackendEffect(({ models }) => models.Survey.find({
-    where: {
-      surveyType: SurveyTypes.Programs,
-    },
-  }));
+  const [surveys] = useBackendEffect(({ models }) =>
+    models.Survey.find({
+      where: {
+        surveyType: SurveyTypes.Programs,
+      },
+    })
+  );
 
   useEffect(() => {
     // automatically select the first survey as soon as surveys are loaded
@@ -112,17 +116,17 @@ export const ReportScreen = ({ navigation }: ReportScreenProps): ReactElement =>
     }
   }, [surveys, selectedSurveyId]);
 
-  const reportList = surveys?.map((s) => ({ label: s.name, value: s.id }));
+  const reportList = surveys?.map(s => ({ label: s.name, value: s.id }));
 
   const today = addHours(startOfToday(), 3);
   const todayString = format(today, 'yyyy-MM-dd');
-  const todayData = data?.find((item) => item.encounterDate === todayString);
+  const todayData = data?.find(item => item.encounterDate === todayString);
 
   const visitData = new Array(28).fill('').reduce(
     (accum, _, index) => {
       const currentDate = format(subDays(today, 28 - index - 1), 'yyyy-MM-dd');
       const receivedValueForDay = data?.find(
-        (item) => item.encounterDate === currentDate,
+        item => item.encounterDate === currentDate,
       )?.totalEncounters || 0;
 
       return {
@@ -202,14 +206,16 @@ export const ReportScreen = ({ navigation }: ReportScreenProps): ReactElement =>
         </StyledView>
       </StyledSafeAreaView>
       <ReportTypeButtons onPress={onChangeReportType} isReportWeekly={isReportWeekly} />
-      {selectedSurveyId ? (
-        <ReportChart
-          isReportWeekly={isReportWeekly}
-          visitData={visitData}
-          todayData={todayData}
-          selectedSurveyId={selectedSurveyId}
-        />
-      ) : null}
+      {selectedSurveyId ?
+        (
+          <ReportChart
+            isReportWeekly={isReportWeekly}
+            visitData={visitData}
+            todayData={todayData}
+            selectedSurveyId={selectedSurveyId}
+          />
+        ) :
+        null}
     </FullView>
   );
 };

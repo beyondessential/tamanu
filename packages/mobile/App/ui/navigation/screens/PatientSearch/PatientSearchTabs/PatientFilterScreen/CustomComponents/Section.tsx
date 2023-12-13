@@ -1,10 +1,10 @@
-import React, { ReactElement, PropsWithChildren } from 'react';
+import React, { PropsWithChildren, ReactElement } from 'react';
 
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
-import { StyledView } from '~/ui/styled/common';
 import { SectionHeader } from '~/ui/components/SectionHeader';
-import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
 import { Separator } from '~/ui/components/Separator';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { StyledView } from '~/ui/styled/common';
 
 interface Section {
   // either specify a title...

@@ -1,23 +1,23 @@
+import { NavigationProp } from '@react-navigation/native';
 import React, { ReactElement, useEffect } from 'react';
 import { Platform } from 'react-native';
+import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
 import { compose } from 'redux';
-import { NavigationProp } from '@react-navigation/native';
-import { TouchableOpacity, FlatList } from 'react-native-gesture-handler';
 // Containers
 import { withPatient } from '/containers/Patient';
 // Components
-import { PatientTile } from '/components/PatientTile';
-import { LoadingScreen } from '/components/LoadingScreen';
 import { ErrorScreen } from '/components/ErrorScreen';
+import { LoadingScreen } from '/components/LoadingScreen';
+import { PatientTile } from '/components/PatientTile';
 // props
 import { RecentViewedScreenProps } from '/interfaces/screens/PatientSearchStack';
 // Helpers
 import { Routes } from '/helpers/routes';
-import { StyledView, FullView } from '/styled/common';
 import { joinNames } from '/helpers/user';
+import { FullView, StyledView } from '/styled/common';
 import { getAgeFromDate } from '~/ui/helpers/date';
-import { useRecentlyViewedPatients } from '~/ui/hooks/localConfig';
 import { navigateAfterTimeout } from '~/ui/helpers/navigators';
+import { useRecentlyViewedPatients } from '~/ui/hooks/localConfig';
 
 interface PatientListProps {
   list: any[];

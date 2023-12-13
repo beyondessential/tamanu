@@ -1,16 +1,16 @@
+import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
+import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 import * as yup from 'yup';
-import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
-import PropTypes from 'prop-types';
-import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useAuth } from '../../contexts/Auth';
 import { foreignKey } from '../../utils/validation';
 
-import { MultiStepForm, FormStep } from '../MultiStepForm';
+import { useLocalisedText } from '../../components';
+import { FormStep, MultiStepForm } from '../MultiStepForm';
 import { LabRequestFormScreen1 } from './LabRequestFormScreen1';
 import { LabRequestFormScreen2, screen2ValidationSchema } from './LabRequestFormScreen2';
 import { LabRequestFormScreen3 } from './LabRequestFormScreen3';
-import { useLocalisedText } from '../../components';
 
 export const LabRequestMultiStepForm = ({
   isSubmitting,

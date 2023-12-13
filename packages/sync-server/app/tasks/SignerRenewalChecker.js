@@ -1,6 +1,6 @@
-import config from 'config';
-import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
+import { ScheduledTask } from '@tamanu/shared/tasks';
+import config from 'config';
 import { Op } from 'sequelize';
 import { newKeypairAndCsr } from '../integrations/Signer';
 import { getLocalisation } from '../localisation';
@@ -30,9 +30,11 @@ export class SignerRenewalChecker extends ScheduledTask {
 
     if (pending.length > 0) {
       log.info(
-        `There is at least one pending signer CSR: ${pending
-          .map(s => s.id)
-          .join(', ')}, skipping renewal`,
+        `There is at least one pending signer CSR: ${
+          pending
+            .map(s => s.id)
+            .join(', ')
+        }, skipping renewal`,
       );
       return;
     }

@@ -1,10 +1,10 @@
-import React from 'react';
-import { parseISO } from 'date-fns';
-import { StyledView, StyledText } from '/styled/common';
-import { theme } from '/styled/theme';
-import { formatDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
+import { formatDate } from '/helpers/date';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
+import { parseISO } from 'date-fns';
+import React from 'react';
 import styled from 'styled-components';
 import { TableHeader } from '../Table';
 
@@ -20,9 +20,8 @@ const VitalsHeaderWrapper = styled(StyledView)`
 
 export const vitalsTableHeader: TableHeader = {
   key: 'date',
-  accessor: (date) => (
-    <VitalsHeaderWrapper
-    >
+  accessor: date => (
+    <VitalsHeaderWrapper>
       <StyledText
         fontSize={screenPercentageToDP(1.45, Orientation.Height)}
         fontWeight={500}

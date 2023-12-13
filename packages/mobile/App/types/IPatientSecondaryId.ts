@@ -5,8 +5,8 @@ export interface IPatientSecondaryId {
   id: string;
   value: string;
   visibilityStatus: string;
-  type?: IReferenceData,
-  typeId?: string,
+  type?: IReferenceData;
+  typeId?: string;
   patient?: Partial<IPatient>;
   patientId: string;
 }

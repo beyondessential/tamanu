@@ -3,8 +3,8 @@ import { addDays, addHours } from 'date-fns';
 import { parseDate } from '@tamanu/shared/utils/dateTime';
 import { chance } from '../../../chance';
 import { insertEncounter } from '../../insertEncounter';
-import { insertSurveyResponse } from './insertSurveyResponse';
 import { insertCovidTest } from './insertCovidTest';
+import { insertSurveyResponse } from './insertSurveyResponse';
 
 export default {
   setup: [

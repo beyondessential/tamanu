@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
-import { useLocalisation } from '../../../contexts/Localisation';
 import { SEX_VALUE_INDEX } from '../../../constants';
+import { useLocalisation } from '../../../contexts/Localisation';
 import { DateDisplay } from '../../DateDisplay';
 
 import { PatientBarcode } from '../printouts/reusable/PatientBarcode';

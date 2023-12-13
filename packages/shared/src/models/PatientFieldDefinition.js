@@ -1,15 +1,17 @@
-import { Sequelize } from 'sequelize';
 import {
   PATIENT_FIELD_DEFINITION_TYPE_VALUES,
-  VISIBILITY_STATUSES,
-  VISIBILITY_STATUS_VALUES,
   SYNC_DIRECTIONS,
+  VISIBILITY_STATUS_VALUES,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
+import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 
-const FIELD_TYPE_ERR_MSG = `fieldType must be one of ${JSON.stringify(
-  PATIENT_FIELD_DEFINITION_TYPE_VALUES,
-)}`;
+const FIELD_TYPE_ERR_MSG = `fieldType must be one of ${
+  JSON.stringify(
+    PATIENT_FIELD_DEFINITION_TYPE_VALUES,
+  )
+}`;
 const VISIBILITY_STATUS_ERR_MSG = `state must be one of ${JSON.stringify(VISIBILITY_STATUSES)}`;
 
 export class PatientFieldDefinition extends Model {

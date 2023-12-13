@@ -1,12 +1,12 @@
-import React, { useEffect, useState, ReactElement } from 'react';
+import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
+import { StyledText, StyledView } from '/styled/common';
 import { useNavigation } from '@react-navigation/native';
-import { StyledView, StyledText } from '/styled/common';
-import { screenPercentageToDP, Orientation } from '../../helpers/screen';
-import { Suggester, BaseModelSubclass } from '../../helpers/suggester';
+import React, { ReactElement, useEffect, useState } from 'react';
+import { Routes } from '~/ui/helpers/routes';
+import { Orientation, screenPercentageToDP } from '../../helpers/screen';
+import { BaseModelSubclass, Suggester } from '../../helpers/suggester';
 import { theme } from '../../styled/theme';
 import { Button } from '../Button';
-import { Routes } from '~/ui/helpers/routes';
-import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
 
 interface AutocompleteModalFieldProps {
@@ -41,10 +41,11 @@ export const AutocompleteModalField = ({
     setLabel(selectedItem.label);
   };
 
-  const openModal = (): void => navigation.navigate(modalRoute, {
-    callback: onPress,
-    suggester,
-  });
+  const openModal = (): void =>
+    navigation.navigate(modalRoute, {
+      callback: onPress,
+      suggester,
+    });
 
   useEffect(() => {
     if (!suggester) return;

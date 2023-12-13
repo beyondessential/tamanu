@@ -1,8 +1,8 @@
 import React from 'react';
 
 import * as yup from 'yup';
-import { Field } from './Field';
 import { useLocalisation } from '../../contexts/Localisation';
+import { Field } from './Field';
 
 export const LocalisedField = ({
   name,
@@ -13,10 +13,9 @@ export const LocalisedField = ({
 }) => {
   const { getLocalisation } = useLocalisation();
   const hidden = getLocalisation(`${path}.hidden`);
-  const label =
-    (useShortLabel
-      ? getLocalisation(`${path}.shortLabel`)
-      : getLocalisation(`${path}.longLabel`)) ||
+  const label = (useShortLabel
+    ? getLocalisation(`${path}.shortLabel`)
+    : getLocalisation(`${path}.longLabel`)) ||
     defaultLabel ||
     path;
   const required = getLocalisation(`${path}.required`) || false;

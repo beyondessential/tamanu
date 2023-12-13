@@ -1,11 +1,11 @@
-import * as yup from 'yup';
 import { isEqual } from 'lodash';
+import * as yup from 'yup';
 
 import {
   BIRTH_DELIVERY_TYPES,
   BIRTH_TYPES,
-  PLACE_OF_BIRTH_TYPES,
   PATIENT_REGISTRY_TYPES,
+  PLACE_OF_BIRTH_TYPES,
 } from '@tamanu/constants';
 
 const requiredWhenConfiguredMandatory = (getLocalisation, name, baseType) => {
@@ -227,7 +227,7 @@ export const getPatientDetailsValidation = (patientRegistryType, sexValues, getL
   const validatedProperties = Object.keys(patientDetailsValidationSchema.describe().fields);
   const localisedFields = getLocalisation('fields');
   const localisedPatientFields = Object.keys(localisedFields).filter(fieldName =>
-    localisedFields[fieldName].hasOwnProperty('requiredPatientData'),
+    localisedFields[fieldName].hasOwnProperty('requiredPatientData')
   );
 
   // Validate if any localised patient fields are missing schema validation,

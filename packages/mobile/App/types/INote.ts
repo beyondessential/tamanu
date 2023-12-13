@@ -1,6 +1,6 @@
+import { DateString } from './DateString';
 import { ID } from './ID';
 import { IUser } from './IUser';
-import { DateString } from './DateString';
 
 export enum NoteRecordType {
   ENCOUNTER = 'Encounter',
