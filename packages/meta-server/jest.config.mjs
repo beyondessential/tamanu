@@ -1,2 +1,3 @@
-import { BASE } from '../../common.jest.config.mjs';
-export default BASE;
+import { config } from '../../common.jest.config.mjs';
+
+export default config(import.meta);

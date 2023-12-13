@@ -1,6 +1,5 @@
-import { BASE } from '../../common.jest.config.mjs';
+import { config } from '../../common.jest.config.mjs';
 
-export default {
-  ...BASE,
+export default config(import.meta, {
   setupFilesAfterEnv: ['<rootDir>/__tests__/configureEnvironment.js'],
-};
+});

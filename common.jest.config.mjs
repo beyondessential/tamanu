@@ -1,18 +1,35 @@
+import { readFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
 export const isCI = !!process.env.CI;
 
-export const BASE = {
-  setupFiles: ['<rootDir>/__tests__/setup.js'],
-  testRegex: '(\\.|/)(test|spec)\\.[jt]sx?$',
-  collectCoverageFrom: ['src/**/*.[jt]sx?'],
+export function config(importMeta, overrides = {}) {
+  const swcpath = join(dirname(fileURLToPath(importMeta.url)), '.swcrc');
+  const swcjson = JSON.parse(readFileSync(swcpath, 'utf8'));
 
-  maxWorkers: isCI ? '100%' : '50%',
+  return {
+    setupFiles: ['<rootDir>/__tests__/setup.js'],
+    testRegex: '(\\.|/)(test|spec)\\.[jt]sx?$',
+    collectCoverageFrom: ['src/**/*.[jt]sx?'],
 
-  // workaround for memory leaks
-  workerIdleMemoryLimit: '512MB',
+    maxWorkers: isCI ? '100%' : '50%',
 
-  showSeed: true, // helps to reproduce order-dependence bugs
+    // workaround for memory leaks
+    workerIdleMemoryLimit: '512MB',
 
-  transform: {
-    '^.+\\.js$': ['@swc/jest'],
-  },
-};
+    showSeed: true, // helps to reproduce order-dependence bugs
+
+    transform: {
+      '^.+\\.js$': ['@swc/jest', {
+        ...swcjson,
+        module: {
+          ...swcjson.module,
+          type: 'commonjs',
+        },
+      }],
+    },
+
+    ...overrides,
+  };
+}
