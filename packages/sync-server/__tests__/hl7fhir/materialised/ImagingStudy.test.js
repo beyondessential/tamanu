@@ -45,7 +45,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
     const [extCode1, extCode2, pat] = await Promise.all([
       ImagingAreaExternalCode.create(fake(ImagingAreaExternalCode, { areaId: area1.id })),
       ImagingAreaExternalCode.create(fake(ImagingAreaExternalCode, { areaId: area2.id })),
-      FhirPatient.materialiseFromUpstream(patient.id),
+      FhirPatient.materialiseFromUpstream(patient.id, ctx.settings),
     ]);
 
     resources = {
@@ -108,7 +108,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         );
         await ir.setAreas([resources.area1.id, resources.area2.id]);
         await ir.reload();
-        const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id, ctx.settings);
         await FhirServiceRequest.resolveUpstreams();
 
         // act
@@ -157,7 +157,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         );
         await ir.setAreas([resources.area1.id, resources.area2.id]);
         await ir.reload();
-        await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        await FhirServiceRequest.materialiseFromUpstream(ir.id, ctx.settings);
         await FhirServiceRequest.resolveUpstreams();
 
         // act
@@ -213,7 +213,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         );
         await ir.setAreas([resources.area1.id, resources.area2.id]);
         await ir.reload();
-        await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        await FhirServiceRequest.materialiseFromUpstream(ir.id, ctx.settings);
         await FhirServiceRequest.resolveUpstreams();
 
         // act
@@ -312,7 +312,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         );
         await ir.setAreas([resources.area1.id, resources.area2.id]);
         await ir.reload();
-        const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id, ctx.settings);
         await FhirServiceRequest.resolveUpstreams();
 
         const ires = await ImagingResult.create(
@@ -388,7 +388,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         );
         await ir.setAreas([resources.area1.id, resources.area2.id]);
         await ir.reload();
-        const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+        const mat = await FhirServiceRequest.materialiseFromUpstream(ir.id, ctx.settings);
         await FhirServiceRequest.resolveUpstreams();
 
         // act

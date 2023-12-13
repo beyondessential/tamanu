@@ -2,7 +2,7 @@ import { fake, fakeReferenceData } from '@tamanu/shared/test-helpers';
 import { randomLabRequest } from '@tamanu/shared/demoData';
 import { LAB_REQUEST_STATUSES, IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
 
-export const fakeResourcesOfFhirServiceRequest = async models => {
+export const fakeResourcesOfFhirServiceRequest = async (models, settings) => {
   const {
     Department,
     Encounter,
@@ -27,7 +27,7 @@ export const fakeResourcesOfFhirServiceRequest = async models => {
   const [extCode1, extCode2, fhirPatient, locationGroup] = await Promise.all([
     ImagingAreaExternalCode.create(fake(ImagingAreaExternalCode, { areaId: area1.id })),
     ImagingAreaExternalCode.create(fake(ImagingAreaExternalCode, { areaId: area2.id })),
-    FhirPatient.materialiseFromUpstream(patient.id),
+    FhirPatient.materialiseFromUpstream(patient.id, settings),
     LocationGroup.create(fake(LocationGroup, { facilityId: facility.id })),
   ]);
 

@@ -15,6 +15,8 @@ export class FhirWorker {
 
   config = theConfig.integrations.fhir.worker;
 
+  settings = null;
+
   processing = new Set();
 
   // if false, immediately reprocess the queue after a job is completed
@@ -22,9 +24,10 @@ export class FhirWorker {
   // in "testMode" it's disabled.
   testMode = false;
 
-  constructor(context, log) {
+  constructor(context, log, settings) {
     this.models = context.models;
     this.sequelize = context.sequelize;
+    this.settings = settings;
     this.log = log;
   }
 
@@ -235,6 +238,7 @@ export class FhirWorker {
                 log: this.log.child({ topic, jobId: job.id }),
                 models: this.models,
                 sequelize: this.sequelize,
+                settings: this.settings,
               }),
             );
           } catch (workErr) {

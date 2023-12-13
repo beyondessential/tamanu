@@ -37,7 +37,7 @@ describe(`Materialised FHIR - Patient`, () => {
         patientId: patient.id,
       });
       await patient.reload(); // saving PatientAdditionalData updates the patient too
-      const mat = await FhirPatient.materialiseFromUpstream(patient.id);
+      const mat = await FhirPatient.materialiseFromUpstream(patient.id, ctx.settings);
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient/${mat.id}`;
 
@@ -118,7 +118,7 @@ describe(`Materialised FHIR - Patient`, () => {
         patientId: patient.id,
       });
       await patient.reload(); // saving PatientAdditionalData updates the patient too
-      const mat = await FhirPatient.materialiseFromUpstream(patient.id);
+      const mat = await FhirPatient.materialiseFromUpstream(patient.id, ctx.settings);
 
       const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=-issued&_page=0&_count=2&status=final&identifier=${id}`;
@@ -215,7 +215,9 @@ describe(`Materialised FHIR - Patient`, () => {
         Patient.create(fake(Patient)),
         Patient.create(fake(Patient)),
       ]);
-      await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
+      await Promise.all(
+        patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id, ctx.settings)),
+      );
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient`;
 
       // act
@@ -244,7 +246,9 @@ describe(`Materialised FHIR - Patient`, () => {
         Patient.create(fake(Patient, { dateOfBirth: '1985-03-20' })),
         Patient.create(fake(Patient, { dateOfBirth: '1985-03-21' })),
       ]);
-      await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
+      await Promise.all(
+        patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id, ctx.settings)),
+      );
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=birthdate`;
       const response = await app.get(path);
@@ -266,7 +270,9 @@ describe(`Materialised FHIR - Patient`, () => {
         Patient.create(fake(Patient, { dateOfBirth: '1985-03-20' })),
         Patient.create(fake(Patient, { dateOfBirth: '1985-03-21' })),
       ]);
-      await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
+      await Promise.all(
+        patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id, ctx.settings)),
+      );
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=-birthdate`;
       const response = await app.get(path);
@@ -295,7 +301,9 @@ describe(`Materialised FHIR - Patient`, () => {
           Patient.create(fake(Patient, { firstName: 'Ernst', middleName: 'Bob' })),
           Patient.create(fake(Patient, { firstName: 'Charlie', middleName: 'Fritz' })),
         ]);
-        await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
+        await Promise.all(
+          patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id, ctx.settings)),
+        );
 
         const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=given`;
         const response = await app.get(path);
@@ -317,7 +325,9 @@ describe(`Materialised FHIR - Patient`, () => {
           Patient.create(fake(Patient, { firstName: 'Ernst', middleName: 'Bob' })),
           Patient.create(fake(Patient, { firstName: 'Charlie', middleName: 'Fritz' })),
         ]);
-        await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
+        await Promise.all(
+          patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id, ctx.settings)),
+        );
 
         const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=-given`;
         const response = await app.get(path);
@@ -339,7 +349,9 @@ describe(`Materialised FHIR - Patient`, () => {
           Patient.create(fake(Patient, { lastName: 'Brown' })),
           Patient.create(fake(Patient, { lastName: 'Carter' })),
         ]);
-        await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
+        await Promise.all(
+          patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id, ctx.settings)),
+        );
 
         const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=family`;
         const response = await app.get(path);
@@ -361,7 +373,9 @@ describe(`Materialised FHIR - Patient`, () => {
           Patient.create(fake(Patient, { lastName: 'Brown' })),
           Patient.create(fake(Patient, { lastName: 'Carter' })),
         ]);
-        await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
+        await Promise.all(
+          patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id, ctx.settings)),
+        );
 
         const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?_sort=-family`;
         const response = await app.get(path);
@@ -400,7 +414,7 @@ describe(`Materialised FHIR - Patient`, () => {
         ]);
         await Promise.all(
           [patientOne, patientTwo, patientThree].map(({ id }) =>
-            FhirPatient.materialiseFromUpstream(id),
+            FhirPatient.materialiseFromUpstream(id, ctx.settings),
           ),
         );
 
@@ -443,7 +457,7 @@ describe(`Materialised FHIR - Patient`, () => {
         ]);
         await Promise.all(
           [patientOne, patientTwo, patientThree].map(({ id }) =>
-            FhirPatient.materialiseFromUpstream(id),
+            FhirPatient.materialiseFromUpstream(id, ctx.settings),
           ),
         );
 
@@ -483,7 +497,7 @@ describe(`Materialised FHIR - Patient`, () => {
         ]);
         await Promise.all(
           [patientOne, patientTwo, patientThree].map(({ id }) =>
-            FhirPatient.materialiseFromUpstream(id),
+            FhirPatient.materialiseFromUpstream(id, ctx.settings),
           ),
         );
 
@@ -523,7 +537,7 @@ describe(`Materialised FHIR - Patient`, () => {
         ]);
         await Promise.all(
           [patientOne, patientTwo, patientThree].map(({ id }) =>
-            FhirPatient.materialiseFromUpstream(id),
+            FhirPatient.materialiseFromUpstream(id, ctx.settings),
           ),
         );
 
@@ -572,7 +586,7 @@ describe(`Materialised FHIR - Patient`, () => {
         ]);
         await Promise.all(
           [patientOne, patientTwo, patientThree].map(({ id }) =>
-            FhirPatient.materialiseFromUpstream(id),
+            FhirPatient.materialiseFromUpstream(id, ctx.settings),
           ),
         );
 
@@ -622,7 +636,7 @@ describe(`Materialised FHIR - Patient`, () => {
         ]);
         await Promise.all(
           [patientOne, patientTwo, patientThree].map(({ id }) =>
-            FhirPatient.materialiseFromUpstream(id),
+            FhirPatient.materialiseFromUpstream(id, ctx.settings),
           ),
         );
 
@@ -688,7 +702,7 @@ describe(`Materialised FHIR - Patient`, () => {
         ]);
         await Promise.all(
           [patientOne, patientTwo, patientThree, patientFour, patientFive].map(({ id }) =>
-            FhirPatient.materialiseFromUpstream(id),
+            FhirPatient.materialiseFromUpstream(id, ctx.settings),
           ),
         );
 
@@ -727,7 +741,9 @@ describe(`Materialised FHIR - Patient`, () => {
         Patient.create(fake(Patient)),
       ]);
       await Promise.all(
-        [patientOne, patientTwo].map(({ id }) => FhirPatient.materialiseFromUpstream(id)),
+        [patientOne, patientTwo].map(({ id }) =>
+          FhirPatient.materialiseFromUpstream(id, ctx.settings),
+        ),
       );
 
       const identifier = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patientOne.displayId}`);
@@ -747,7 +763,9 @@ describe(`Materialised FHIR - Patient`, () => {
         Patient.create(fake(Patient, { firstName })),
         Patient.create(fake(Patient, { firstName: 'Bob' })),
       ]);
-      await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
+      await Promise.all(
+        patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id, ctx.settings)),
+      );
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?given=${firstName}`;
       const response = await app.get(path);
@@ -760,7 +778,7 @@ describe(`Materialised FHIR - Patient`, () => {
     it('filters patients by firstName (case-insensitive)', async () => {
       const { FhirPatient, Patient } = ctx.store.models;
       const patient = await Patient.create(fake(Patient, { firstName: 'Bob' }));
-      await FhirPatient.materialiseFromUpstream(patient.id);
+      await FhirPatient.materialiseFromUpstream(patient.id, ctx.settings);
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?given=bob`;
       const response = await app.get(path);
@@ -773,7 +791,7 @@ describe(`Materialised FHIR - Patient`, () => {
     it('filters patients by firstName (starts with)', async () => {
       const { FhirPatient, Patient } = ctx.store.models;
       const patient = await Patient.create(fake(Patient, { firstName: 'Bob' }));
-      await FhirPatient.materialiseFromUpstream(patient.id);
+      await FhirPatient.materialiseFromUpstream(patient.id, ctx.settings);
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?given:starts-with=bo`;
       const response = await app.get(path);
@@ -786,7 +804,7 @@ describe(`Materialised FHIR - Patient`, () => {
     it('filters patients by firstName (ends with)', async () => {
       const { FhirPatient, Patient } = ctx.store.models;
       const patient = await Patient.create(fake(Patient, { firstName: 'Bob' }));
-      await FhirPatient.materialiseFromUpstream(patient.id);
+      await FhirPatient.materialiseFromUpstream(patient.id, ctx.settings);
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?given:ends-with=ob`;
       const response = await app.get(path);
@@ -799,7 +817,7 @@ describe(`Materialised FHIR - Patient`, () => {
     it('filters patients by firstName (contains)', async () => {
       const { FhirPatient, Patient } = ctx.store.models;
       const patient = await Patient.create(fake(Patient, { firstName: 'Bob' }));
-      await FhirPatient.materialiseFromUpstream(patient.id);
+      await FhirPatient.materialiseFromUpstream(patient.id, ctx.settings);
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?given:contains=o`;
       const response = await app.get(path);
@@ -817,7 +835,9 @@ describe(`Materialised FHIR - Patient`, () => {
         Patient.create(fake(Patient, { lastName })),
         Patient.create(fake(Patient, { lastName: 'Gray' })),
       ]);
-      await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
+      await Promise.all(
+        patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id, ctx.settings)),
+      );
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?family=${lastName}`;
       const response = await app.get(path);
@@ -835,7 +855,9 @@ describe(`Materialised FHIR - Patient`, () => {
         Patient.create(fake(Patient, { sex })),
         Patient.create(fake(Patient, { sex: 'female' })),
       ]);
-      await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
+      await Promise.all(
+        patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id, ctx.settings)),
+      );
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?gender=${sex}`;
       const response = await app.get(path);
@@ -853,7 +875,9 @@ describe(`Materialised FHIR - Patient`, () => {
         Patient.create(fake(Patient, { dateOfBirth })),
         Patient.create(fake(Patient, { dateOfBirth: '1985-10-20' })),
       ]);
-      await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
+      await Promise.all(
+        patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id, ctx.settings)),
+      );
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?birthdate=${dateOfBirth}`;
       const response = await app.get(path);
@@ -870,7 +894,9 @@ describe(`Materialised FHIR - Patient`, () => {
         Patient.create(fake(Patient)),
         Patient.create(fake(Patient, { dateOfDeath: getCurrentDateString() })),
       ]);
-      await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
+      await Promise.all(
+        patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id, ctx.settings)),
+      );
 
       // Query deceased=true
       const pathTrue = `/v1/integration/${INTEGRATION_ROUTE}/Patient?deceased=true`;
@@ -914,7 +940,7 @@ describe(`Materialised FHIR - Patient`, () => {
       ]);
       await Promise.all(
         [patientOne, patientTwo, patientThree].map(({ id }) =>
-          FhirPatient.materialiseFromUpstream(id),
+          FhirPatient.materialiseFromUpstream(id, ctx.settings),
         ),
       );
 
@@ -950,7 +976,7 @@ describe(`Materialised FHIR - Patient`, () => {
       ]);
       await Promise.all(
         [patientOne, patientTwo, patientThree].map(({ id }) =>
-          FhirPatient.materialiseFromUpstream(id),
+          FhirPatient.materialiseFromUpstream(id, ctx.settings),
         ),
       );
 
@@ -992,7 +1018,7 @@ describe(`Materialised FHIR - Patient`, () => {
       ]);
       await Promise.all(
         [patientOne, patientTwo, patientThree].map(({ id }) =>
-          FhirPatient.materialiseFromUpstream(id),
+          FhirPatient.materialiseFromUpstream(id, ctx.settings),
         ),
       );
 
@@ -1021,7 +1047,9 @@ describe(`Materialised FHIR - Patient`, () => {
         Patient.create(fake(Patient, { visibilityStatus: 'merged' })),
         Patient.create(fake(Patient, { visibilityStatus: 'whatever' })),
       ]);
-      await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
+      await Promise.all(
+        patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id, ctx.settings)),
+      );
 
       const path = `/v1/integration/${INTEGRATION_ROUTE}/Patient?active=true`;
       const response = await app.get(path);
