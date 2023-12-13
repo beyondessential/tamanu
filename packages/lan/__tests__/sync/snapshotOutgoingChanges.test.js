@@ -154,6 +154,7 @@ describe('snapshotOutgoingChanges', () => {
       const fakeModelThatWaitsUntilWeSaySo = {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         async findAll() {
+          // eslint-disable-next-line no-constant-condition
           while (true) {
             if (resolveWhenNonEmpty.length > 0) {
               return [];
@@ -232,6 +233,7 @@ describe('snapshotOutgoingChanges', () => {
       const fakeModelThatWaitsUntilWeSaySo = {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         async findAll() {
+          // eslint-disable-next-line no-constant-condition
           while (true) {
             if (resolveWhenNonEmpty.length > 0) {
               return [];

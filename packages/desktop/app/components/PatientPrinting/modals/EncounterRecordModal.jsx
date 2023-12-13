@@ -46,7 +46,7 @@ const extractUpdateHistoryFromNoteData = (notes, encounterData, matcher) => {
           groups: { to },
         } = content.match(matcher);
         return { to, date };
-      }),
+      }) ?? {},
     ];
     return history;
   }

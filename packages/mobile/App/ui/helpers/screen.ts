@@ -18,7 +18,7 @@ export const dropdownSize = {
 export enum SCREEN_ORIENTATION {
   PORTRAIT = 'portrait',
   LANDSCAPE = 'landscape',
-};
+}
 
 export enum Orientation {
   Width = 'width',
@@ -63,7 +63,7 @@ export const calculateVerticalPositions = (
   ).pos;
 
 export const calculateDropdownPosition = (
-  placeholderPosition: number, 
+  placeholderPosition: number,
   dataLength: number
 ): number => {
   const dropdownHeight = dataLength * dropdownSize.itemHeight + dropdownSize.padding

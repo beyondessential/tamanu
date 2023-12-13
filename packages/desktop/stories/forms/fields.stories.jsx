@@ -66,7 +66,7 @@ class StoryControlWrapper extends React.PureComponent {
       <Container>
         <Component {...props} value={value} onChange={this.onChange} />
         {clearButton && (
-          <Button onClick={() => this.setState({ value: '' })}> Clear Field (value = "") </Button>
+          <Button onClick={() => this.setState({ value: '' })}> Clear Field (value = &ldquo;&rdquo;) </Button>
         )}
       </Container>
     );
