@@ -18,9 +18,7 @@ export default [
     },
     languageOptions: {
       parser: typescriptParser,
-    },
-    // Disable rules that are incompatible with or better handled by TypeScript
-    rules: typescriptPlugin.configs['eslint-recommended'].overrides[0].rules,
+    }
   },
   {
     files: [`packages/**/*.${JS_EXTS}`, `scripts/**/*.${JS_EXTS}`, '**/*.config.js'],
@@ -75,6 +73,16 @@ export default [
       'react/prop-types': 'off',
       'react/display-name': 'off',
     },
+  },
+  {
+    files: [`**/*.${TS_EXTS}`],
+    rules: {
+      // Disable rules that are incompatible with or better handled by TypeScript
+      ...typescriptPlugin.configs['eslint-recommended'].overrides[0].rules,
+
+      // for ts multiple dispatch
+      'no-dupe-class-members': 'off',
+    }
   },
   {
     files: [
