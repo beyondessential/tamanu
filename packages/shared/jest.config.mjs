@@ -1,6 +1,6 @@
-const { BASE } = require('../../common.jest.config');
+import { BASE } from '../../common.jest.config.mjs';
 
-module.exports = {
+export default {
   ...BASE,
   setupFilesAfterEnv: ['<rootDir>/__tests__/configureEnvironment.js'],
 };
