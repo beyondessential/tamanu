@@ -70,10 +70,11 @@ const StyledCheckboxField = styled(Field)`
   }
 `;
 
+const INCORRECT_CREDENTIALS_ERROR_MESSAGE =
+  'Facility server error response: Incorrect username or password, please try again';
+
 const LoginFormComponent = ({ errorMessage, onNavToResetPassword, setFieldError }) => {
   const [genericMessage, setGenericMessage] = useState(null);
-  const INCORRECT_CREDENTIALS_ERROR_MESSAGE =
-    'Facility server error response: Incorrect username or password, please try again';
 
   useEffect(() => {
     if (errorMessage === USER_DEACTIVATED_ERROR_MESSAGE) {
