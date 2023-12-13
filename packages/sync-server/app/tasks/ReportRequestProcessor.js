@@ -24,10 +24,10 @@ export class ReportRequestProcessor extends ScheduledTask {
 
   spawnReportProcess = async request => {
     const [node, scriptPath] = process.argv;
-    const parameters = processOptions || process.execArgv;
     const { timeoutDurationSeconds, childProcessEnv, processOptions } = await this.settings.get(
       'reportProcess',
     );
+    const parameters = processOptions || process.execArgv;
 
     log.info(
       `Spawning child process for report request "${
