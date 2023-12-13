@@ -12,7 +12,6 @@ import { useAuth } from '../../contexts/Auth';
 import { Modal } from '../../components/Modal';
 import { useApi } from '../../api/useApi';
 import { PROGRAM_REGISTRATION_STATUSES } from '../../constants';
-import { FormSeparatorLine } from '../../components';
 import { PROGRAM_REGISTRY } from '../../components/PatientInfoPane/paneTitles';
 
 export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistration, open }) => {
