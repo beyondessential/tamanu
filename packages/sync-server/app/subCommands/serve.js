@@ -9,6 +9,7 @@ import { provision } from './provision';
 import { createApp } from '../createApp';
 import { ApplicationContext } from '../ApplicationContext';
 import { version } from '../serverInfo';
+import { setupTracing } from '@tamanu/shared/services/logging/tracing';
 
 const { port } = config;
 
@@ -24,9 +25,9 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
   });
 
   const context = await new ApplicationContext().init();
-  const { store, models } = context;
+  const { store, settings } = context;
 
-  const settings = new ReadSettings(models, config.serverFacilityId);
+  await setupTracing(context);
 
   await store.sequelize.assertUpToDate({ skipMigrationCheck });
 
