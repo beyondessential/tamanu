@@ -165,8 +165,6 @@ export const LoginView = () => {
         <LoginFormContainer>
           {screen === 'login' && (
             <>
-              <LoginHeading>Log in</LoginHeading>
-              <LoginSubtext>Enter your details below to log in</LoginSubtext>
               <LoginForm
                 onSubmit={submitLogin}
                 errorMessage={loginError}

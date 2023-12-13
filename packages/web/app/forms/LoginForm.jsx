@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import { USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
 
+import { Typography } from '@material-ui/core';
 import { FormGrid } from '../components/FormGrid';
 import {
   BodyText,
@@ -19,6 +20,18 @@ import { Colors } from '../constants';
 const FormSubtext = styled(BodyText)`
   color: ${Colors.midText};
   padding: 10px 0;
+`;
+
+const LoginHeading = styled(Typography)`
+  color: ${Colors.darkestText};
+  font-weight: 500;
+  font-size: 38px;
+  line-height: 32px;
+`;
+
+const LoginSubtext = styled(BodyText)`
+  color: ${Colors.midText};
+  padding-top: 10px;
 `;
 
 const LoginButton = styled(FormSubmitButton)`
@@ -70,7 +83,12 @@ const StyledCheckboxField = styled(Field)`
   }
 `;
 
-const LoginFormComponent = ({ errorMessage, onNavToResetPassword, setFieldError }) => {
+const LoginFormComponent = ({
+  errorMessage,
+  onNavToResetPassword,
+  setFieldError,
+  rememberEmail,
+}) => {
   const [genericMessage, setGenericMessage] = useState(null);
 
   useEffect(() => {
@@ -86,6 +104,10 @@ const LoginFormComponent = ({ errorMessage, onNavToResetPassword, setFieldError 
 
   return (
     <FormGrid columns={1}>
+      <div>
+        <LoginHeading>{rememberEmail ? 'Welcome back' : 'Log in'}</LoginHeading>
+        <LoginSubtext>Enter your details below to log in</LoginSubtext>
+      </div>
       {!!genericMessage && <FormSubtext>{genericMessage}</FormSubtext>}
       <StyledField
         name="email"
@@ -134,6 +156,7 @@ export const LoginForm = React.memo(
         setFieldValue={setFieldValue}
         onNavToResetPassword={onNavToResetPassword}
         setFieldError={setFieldError}
+        rememberEmail={rememberEmail}
       />
     );
 
