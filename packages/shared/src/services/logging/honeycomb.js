@@ -5,7 +5,7 @@ import { serviceContext, serviceName } from './context';
 import { log } from './log';
 import { setupTracing } from './tracing';
 
-const { apiKey } = config.honeyComb;
+const { apiKey } = config.honeycomb;
 
 class HoneycombTransport extends Transport {
   constructor(opts) {
@@ -13,6 +13,7 @@ class HoneycombTransport extends Transport {
     this.honeyApi = opts.honeyApi;
     this.context = opts.context;
   }
+
   log(info, callback) {
     const event = this.honeyApi.newEvent();
     event.add(this.context);

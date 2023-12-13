@@ -1,5 +1,4 @@
 import { FhirCodeableConcept, FhirCoding, FhirExtension } from '../../services/fhirTypes';
-import { withConfig } from '../../utils/withConfig';
 
 function getEthnicity(ethnicityId) {
   switch (ethnicityId) {
@@ -15,9 +14,13 @@ function getEthnicity(ethnicityId) {
   }
 }
 
-export const nzEthnicity = withConfig((patient, config) => {
-  if (!config.localisation.data.features.fhirNewZealandEthnicity) return [];
+export const nzEthnicity = async (patient, settings) => {
+  const fhirNewZealandEthnicity = await settings.get('features.fhirNewZealandEthnicity');
+  if (!fhirNewZealandEthnicity) {
+    return [];
+  }
   const { code, display } = getEthnicity(patient?.additionalData?.ethnicityId);
+  const ethnicityIdDict = await settings.get('hl7.dataDictionaries.ethnicityId');
 
   return [
     new FhirExtension({
@@ -25,7 +28,7 @@ export const nzEthnicity = withConfig((patient, config) => {
       valueCodeableConcept: new FhirCodeableConcept({
         coding: [
           new FhirCoding({
-            system: config.hl7.dataDictionaries.ethnicityId,
+            system: ethnicityIdDict,
             code,
             display,
           }),
@@ -33,4 +36,4 @@ export const nzEthnicity = withConfig((patient, config) => {
       }),
     }),
   ];
-});
+};
