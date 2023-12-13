@@ -13,20 +13,20 @@ import {
 } from '@tamanu/shared/demoData';
 import { chance, fake, showError } from '@tamanu/shared/test-helpers';
 
-import { createApp } from 'lan/app/createApp';
-import { initReporting } from 'lan/app/database';
-import { getToken } from 'lan/app/middleware/auth';
+import { createApp } from '../dist/createApp';
+import { initReporting } from '../dist/database';
+import { getToken } from '../dist/middleware/auth';
 
 import { toMatchTabularReport } from './toMatchTabularReport';
 import { allSeeds } from './seed';
 import { deleteAllTestIds } from './setupUtilities';
 
-import { FacilitySyncManager } from '../app/sync/FacilitySyncManager';
-import { CentralServerConnection } from '../app/sync/CentralServerConnection';
-import { ApplicationContext } from '../app/ApplicationContext';
+import { FacilitySyncManager } from '../dist/sync/FacilitySyncManager';
+import { CentralServerConnection } from '../dist/sync/CentralServerConnection';
+import { ApplicationContext } from '../dist/ApplicationContext';
 
-jest.mock('../app/sync/CentralServerConnection');
-jest.mock('../app/utils/uploadAttachment');
+jest.mock('../dist/sync/CentralServerConnection');
+jest.mock('../dist/utils/uploadAttachment');
 
 const formatError = response => `
 

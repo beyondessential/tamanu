@@ -5,11 +5,11 @@ import supertest from 'supertest';
 import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES } from '@tamanu/constants';
 import { fake } from '@tamanu/shared/test-helpers';
 import { createMockReportingSchemaAndRoles } from '@tamanu/shared/demoData';
-import { DEFAULT_JWT_SECRET } from 'sync-server/app/auth';
-import { getToken } from 'sync-server/app/auth/utils';
-import { createApp } from 'sync-server/app/createApp';
-import { closeDatabase, initDatabase, initReporting } from 'sync-server/app/database';
-import { initIntegrations } from 'sync-server/app/integrations';
+import { DEFAULT_JWT_SECRET } from '../dist/auth';
+import { getToken } from '../dist/auth/utils';
+import { createApp } from '../dist/createApp';
+import { closeDatabase, initDatabase, initReporting } from '../dist/database';
+import { initIntegrations } from '../dist/integrations';
 
 class MockApplicationContext {
   closeHooks = [];
