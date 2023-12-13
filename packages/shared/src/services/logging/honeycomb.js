@@ -1,8 +1,11 @@
+import config from 'config';
 import Transport from 'winston-transport';
 import Libhoney from 'libhoney';
 import { serviceContext, serviceName } from './context';
 import { log } from './log';
 import { setupTracing } from './tracing';
+
+const { apiKey } = config.honeyComb;
 
 class HoneycombTransport extends Transport {
   constructor(opts) {
@@ -20,7 +23,7 @@ class HoneycombTransport extends Transport {
 }
 
 export const initHoneyComb = async ({ settings }) => {
-  const { apiKey, enabled, level = 'info' } = await settings.get('honeycomb');
+  const { enabled, level = 'info' } = await settings.get('honeycomb');
 
   const context = serviceContext();
 
