@@ -36,7 +36,7 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
           logoSrc={logo}
           handoverNotes={handoverNotes}
           locationGroupName={locationGroup.name}
-          getSetting={getLocalisation}
+          getLocalisation={getLocalisation}
           letterheadConfig={letterheadConfig}
         />
       </PDFViewer>

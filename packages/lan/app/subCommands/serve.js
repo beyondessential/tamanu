@@ -16,11 +16,9 @@ import { listenForServerQueries } from '../discovery';
 import { version } from '../serverInfo';
 import { ApplicationContext } from '../ApplicationContext';
 
-const { countryTimeZone, serverFacilityId } = config;
-
 async function serve({ skipMigrationCheck }) {
   log.info(`Starting facility server version ${version}`, {
-    serverFacilityId,
+    serverFacilityId: config.serverFacilityId,
   });
 
   log.info(`Process info`, {
@@ -35,10 +33,11 @@ async function serve({ skipMigrationCheck }) {
     await context.sequelize.assertUpToDate({ skipMigrationCheck });
   }
 
-  const settings = new ReadSettings(context.models, serverFacilityId);
+  const settings = new ReadSettings(context.models, config.serverFacilityId);
   context.settings = settings;
 
   const syncConfig = await settings.get('sync');
+  const countryTimeZone = await settings.get('countryTimeZone');
   const discoverySettings = await settings.get('discovery');
 
   await initDeviceId(context);
