@@ -1,15 +1,13 @@
 import config from 'config';
 import { Command } from 'commander';
 
-import { ReadSettings } from '@tamanu/settings';
-import { log } from '@tamanu/shared/services/logging';
+import { log, initHoneyComb } from '@tamanu/shared/services/logging';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 
 import { provision } from './provision';
 import { createApp } from '../createApp';
 import { ApplicationContext } from '../ApplicationContext';
 import { version } from '../serverInfo';
-import { setupTracing } from '@tamanu/shared/services/logging/tracing';
 
 const { port } = config;
 
@@ -27,7 +25,7 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
   const context = await new ApplicationContext().init();
   const { store, settings } = context;
 
-  await setupTracing(context);
+  await initHoneyComb(context);
 
   await store.sequelize.assertUpToDate({ skipMigrationCheck });
 

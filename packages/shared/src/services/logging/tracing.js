@@ -4,7 +4,7 @@ import { Resource } from '@opentelemetry/resources';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { ENV, serviceContext, serviceName } from './context';
 
-export async function setupTracing(settings) {
+export async function setupTracing({ settings }) {
   const { apiKey, sampleRate = 1, enabled } = await settings.get('honeycomb');
   if (!enabled || !apiKey) return null;
 

@@ -1,29 +1,42 @@
 import Transport from 'winston-transport';
 import Libhoney from 'libhoney';
-import config from 'config';
 import { serviceContext, serviceName } from './context';
-
-const context = serviceContext();
-
-const { apiKey, enabled, level = 'info' } = config?.honeycomb || {};
-
-const dataset = serviceName(context);
-const honeyApi = new Libhoney({
-  writeKey: apiKey,
-  dataset,
-  disabled: !(apiKey && enabled && dataset),
-});
+import { log } from './log';
+import { setupTracing } from './tracing';
 
 class HoneycombTransport extends Transport {
+  constructor(opts) {
+    super(opts);
+    this.honeyApi = opts.honeyApi;
+    this.context = opts.context;
+  }
   log(info, callback) {
-    const event = honeyApi.newEvent();
-    event.add(context);
+    const event = this.honeyApi.newEvent();
+    event.add(this.context);
     event.add(info);
     event.send();
     callback();
   }
 }
 
-export const honeycombTransport = new HoneycombTransport({
-  level,
-});
+export const initHoneyComb = async ({ settings }) => {
+  const { apiKey, enabled, level = 'info' } = await settings.get('honeycomb');
+
+  const context = serviceContext();
+
+  const dataset = serviceName(context);
+  const honeyApi = new Libhoney({
+    writeKey: apiKey,
+    dataset,
+    disabled: !(apiKey && enabled && dataset),
+  });
+
+  const honeycombTransport = new HoneycombTransport({
+    level,
+    context,
+    honeyApi,
+  });
+  log.add(honeycombTransport);
+
+  await setupTracing({ settings });
+};

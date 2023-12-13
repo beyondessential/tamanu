@@ -1,8 +1,7 @@
 import config from 'config';
 import { Command } from 'commander';
 
-import { log } from '@tamanu/shared/services/logging';
-import { setupTracing } from '@tamanu/shared/services/logging/tracing';
+import { log, initHoneyComb } from '@tamanu/shared/services/logging';
 
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 import { ReadSettings } from '@tamanu/settings';
@@ -41,7 +40,8 @@ async function serve({ skipMigrationCheck }) {
   const countryTimeZone = await settings.get('countryTimeZone');
   const discoverySettings = await settings.get('discovery');
 
-  await setupTracing(context);
+  await initHoneyComb(context);
+
   await initDeviceId(context);
   await checkConfig(config, context);
   await performDatabaseIntegrityChecks(context);
