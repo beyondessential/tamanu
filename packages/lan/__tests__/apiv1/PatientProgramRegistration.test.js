@@ -402,6 +402,7 @@ describe('PatientProgramRegistration', () => {
         );
         const createdCondition = await models.PatientProgramRegistrationCondition.create(
           fake(models.PatientProgramRegistrationCondition, {
+            date: '2023-09-01 08:00:00',
             patientId: patient.id,
             programRegistryId: programRegistry1.id,
             programRegistryConditionId: programRegistryCondition.id,
@@ -427,7 +428,8 @@ describe('PatientProgramRegistration', () => {
           programRegistryId: programRegistry1.id,
           patientId: patient.id,
           programRegistryConditionId: programRegistryCondition.id,
-          date: '2023-09-02 08:00:00',
+          date: '2023-09-01 08:00:00',
+          deletionDate: '2023-09-02 08:00:00',
           deletionStatus: DELETION_STATUSES.DELETED,
         });
       });
