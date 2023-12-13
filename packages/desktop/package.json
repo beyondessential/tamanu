@@ -12,9 +12,8 @@
   "scripts": {
     "build": "vite build",
     "start-dev": "vite",
-    "test": "yarn verify-storybook && yarn unit-test",
-    "unit-test": "NODE_ENV=test jest",
-    "unit-test-watch": "yarn unit-test --watch",
+    "test": "NODE_ENV=test jest",
+    "test-watch": "yarn unit-test --watch",
     "storybook": "start-storybook -p 6006",
     "verify-storybook": "NODE_ENV=development start-storybook --ci --smoke-test",
     "build-storybook": "build-storybook"
