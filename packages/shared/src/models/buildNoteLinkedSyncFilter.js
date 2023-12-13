@@ -55,5 +55,6 @@ export function buildNoteLinkedSyncFilter(patientIds, sessionConfig) {
       ${whereOrs.join('\nOR ')}
     )
     AND notes.updated_at_sync_tick > :since
+    AND notes.deleted_at isnull
   `;
 }

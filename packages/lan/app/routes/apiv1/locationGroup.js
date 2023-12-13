@@ -70,9 +70,10 @@ locationGroup.get(
         FROM (SELECT id, record_id, date, content,
                 ROW_NUMBER() OVER (PARTITION BY record_id ORDER BY date DESC) AS row_num
               FROM notes
-              WHERE revised_by_id isnull 
+              WHERE revised_by_id IS NULL 
                 AND record_type = 'Encounter' 
-                AND note_type = 'handover') n
+                AND note_type = 'handover'
+                AND deleted_at IS NULL) n
         WHERE n.row_num = 1
       ),
 
@@ -84,11 +85,18 @@ locationGroup.get(
           n.revised_by_id,
           n.content,
           n.date as created_date
-        FROM (SELECT notes.id, notes.record_id, notes.revised_by_id, notes.content, latest_root_handover_notes.date,
-                ROW_NUMBER() OVER (PARTITION BY revised_by_id ORDER BY notes.date DESC) AS row_num
-              FROM notes
-                INNER JOIN latest_root_handover_notes ON latest_root_handover_notes.id = notes.revised_by_id
-              ) n
+        FROM (
+          SELECT
+            notes.id,
+            notes.record_id,
+            notes.revised_by_id,
+            notes.content,
+            latest_root_handover_notes.date,
+            ROW_NUMBER() OVER (PARTITION BY revised_by_id ORDER BY notes.date DESC) AS row_num
+          FROM notes
+            INNER JOIN latest_root_handover_notes ON latest_root_handover_notes.id = notes.revised_by_id
+          WHERE notes.deleted_at IS NULL
+        ) n
         WHERE n.row_num = 1
 
         UNION
@@ -101,7 +109,9 @@ locationGroup.get(
           content,
           latest.date as created_date
         FROM latest_root_handover_notes latest
-        WHERE NOT EXISTS (SELECT id FROM notes WHERE revised_by_id = latest.id)
+        WHERE NOT EXISTS (SELECT id FROM notes 
+                          WHERE revised_by_id = latest.id 
+                          AND deleted_at IS NULL)
       )
     
       SELECT location_groups.name AS area,

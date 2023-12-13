@@ -305,6 +305,8 @@ encounterRelations.get(
           encounters.deleted_at is null
         AND
           survey_responses.deleted_at IS NULL
+        AND
+          encounters.deleted_at IS NULL
       `,
       `
         SELECT
@@ -357,18 +359,13 @@ encounterRelations.get(
     const countResult = await db.query(
       `
         SELECT COUNT(1) AS count
-        FROM
-          survey_response_answers
-        INNER JOIN
-          survey_responses response
-        ON
-          response.id = response_id
-        WHERE
-          data_element_id = :dateDataElement
-        AND
-          body IS NOT NULL
-        AND
-          response.encounter_id = :encounterId
+        FROM survey_response_answers
+        INNER JOIN survey_responses response
+        ON response.id = response_id
+        WHERE data_element_id = :dateDataElement
+        AND body IS NOT NULL
+        AND response.encounter_id = :encounterId
+        AND response.deleted_at IS NULL
       `,
       {
         replacements: {
@@ -393,20 +390,14 @@ encounterRelations.get(
       `
         WITH
         date AS (
-          SELECT
-            response_id, body
-          FROM
-            survey_response_answers
-          INNER JOIN
-            survey_responses response
-          ON
-            response.id = response_id
-          WHERE
-            data_element_id = :dateDataElement
-          AND
-            body IS NOT NULL
-          AND
-            response.encounter_id = :encounterId
+          SELECT response_id, body
+          FROM survey_response_answers
+          INNER JOIN survey_responses response
+          ON response.id = response_id
+          WHERE data_element_id = :dateDataElement
+          AND body IS NOT NULL
+          AND response.encounter_id = :encounterId
+          AND response.deleted_at IS NULL
           ORDER BY body ${order} LIMIT :limit OFFSET :offset
         ),
         history AS (
@@ -420,24 +411,13 @@ encounterRelations.get(
                 'userDisplayName', u.display_name
               )
             )) logs
-          FROM
-            survey_response_answers sra
-          INNER JOIN
-            survey_responses sr
-          ON
-            sr.id = sra.response_id
-          LEFT JOIN
-            vital_logs vl
-          ON
-            vl.answer_id = sra.id
-          LEFT JOIN
-            users u
-          ON
-            u.id = vl.recorded_by_id
-          WHERE
-            sr.encounter_id = :encounterId
-          GROUP BY
-            vl.answer_id
+          FROM survey_response_answers sra
+          	INNER JOIN survey_responses sr ON sr.id = sra.response_id
+          	LEFT JOIN vital_logs vl ON vl.answer_id = sra.id
+          	LEFT JOIN users u ON u.id = vl.recorded_by_id
+          WHERE sr.encounter_id = :encounterId
+          	AND sr.deleted_at IS NULL
+          GROUP BY vl.answer_id
         )
 
         SELECT

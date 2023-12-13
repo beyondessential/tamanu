@@ -284,8 +284,8 @@ patientRelations.get(
             ON (survey_user.id = survey_responses.user_id)
           LEFT JOIN programs
             ON (programs.id = surveys.program_id)
-        WHERE
-          encounters.patient_id = :patientId
+        WHERE encounters.patient_id = :patientId
+          AND encounters.deleted_at is null
           AND surveys.survey_type = :surveyType
           AND survey_responses.deleted_at IS NULL
           ${surveyId ? 'AND surveys.id = :surveyId' : ''}
@@ -360,6 +360,7 @@ patientRelations.get(
     )
   AND lab_requests.status = :status
   AND lab_requests.sample_time IS NOT NULL
+  AND lab_requests.deleted_at IS NULL
   ${categoryId ? 'AND lab_requests.lab_test_category_id = :categoryId' : ''}
   ${
     panelId

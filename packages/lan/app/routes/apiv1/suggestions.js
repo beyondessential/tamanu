@@ -279,6 +279,7 @@ createSuggester('patientLabTestCategories', 'ReferenceData', (search, query) => 
           WHERE lab_requests.status = '${status}'
             AND encounters.patient_id = '${query.patientId}'
             AND encounters.deleted_at is null
+            AND lab_requests.deleted_at is null
         )`,
       ),
     },
@@ -312,6 +313,7 @@ createSuggester('patientLabTestPanelTypes', 'LabTestPanel', (search, query) => {
           WHERE lab_requests.status = '${status}'
             AND encounters.patient_id = '${query.patientId}'
             AND encounters.deleted_at is null
+            AND lab_requests.deleted_at is null
         )`,
       ),
     },

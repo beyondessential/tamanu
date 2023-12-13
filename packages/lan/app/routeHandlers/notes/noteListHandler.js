@@ -51,6 +51,7 @@ export const noteListHandler = recordType =>
               SELECT id, revised_by_id, ROW_NUMBER() OVER (PARTITION BY revised_by_id ORDER BY date DESC, id DESC) AS row_num
               FROM notes
               WHERE revised_by_id IS NOT NULL
+              AND deleted_at IS NULL
             ) n
             WHERE n.row_num != 1
             AND id = "Note"."id"
@@ -62,6 +63,7 @@ export const noteListHandler = recordType =>
             FROM notes
             WHERE revised_by_id IS NOT NULL
             AND revised_by_id = "Note"."id"
+            AND deleted_at IS NULL
           )
         `),
       ],
