@@ -598,13 +598,10 @@ export class MultiSelect extends Component {
     const selectedLabel = this._getSelectLabel();
     return (
       <View
-        style={[
-          {
-            flexDirection: 'column',
-          } &&
-            styleMainWrapper &&
-            styleMainWrapper,
-        ]}
+        style={{
+          flexDirection: 'column',
+          ...styleMainWrapper,
+        }}
       >
         {selector && !disabled ? (
           <View
