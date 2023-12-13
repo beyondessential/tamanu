@@ -1,6 +1,6 @@
-const isCI = !!process.env.CI;
+export const isCI = !!process.env.CI;
 
-const BASE = {
+export const BASE = {
   setupFiles: ['<rootDir>/__tests__/setup.js'],
   testRegex: '(\\.|/)(test|spec)\\.[jt]sx?$',
   collectCoverageFrom: ['src/**/*.[jt]sx?'],
@@ -11,10 +11,8 @@ const BASE = {
   workerIdleMemoryLimit: '512MB',
 
   showSeed: true, // helps to reproduce order-dependence bugs
-  
+
   transform: {
     '^.+\\.js$': ['@swc/jest'],
   },
 };
-
-module.exports = { BASE };
