@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useRef } from 'react';
 import styled from 'styled-components';
 import MuiTextField from '@material-ui/core/TextField';
 import PublishIcon from '@material-ui/icons/Publish';
@@ -28,7 +28,6 @@ export const FILTER_IMAGES = { name: 'Images (.png, .svg)', extensions: ['png', 
 export const FileChooserInput = ({ value = '', label, name, filters, onChange, ...props }) => {
   // Convert the given filters into string format for the accept attribute of file input
   const acceptString = filters.map(filter => `.${filter.extensions.join(', .')}`).join(', ');
-  console.log(acceptString);
 
   const inputRef = useRef(null);
 
@@ -37,7 +36,6 @@ export const FileChooserInput = ({ value = '', label, name, filters, onChange, .
   };
 
   const selectFile = event => {
-    console.log(filters);
     const file = event.target.files[0];
     if (!file) return;
 
