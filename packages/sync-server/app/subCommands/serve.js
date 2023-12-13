@@ -10,7 +10,7 @@ import { createApp } from '../createApp';
 import { ApplicationContext } from '../ApplicationContext';
 import { version } from '../serverInfo';
 
-const { port } = config;
+const { port, countryTimeZone } = config;
 
 export const serve = async ({ skipMigrationCheck, provisioning }) => {
   if (provisioning) {
@@ -32,7 +32,6 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
 
   const app = createApp(context);
 
-  const countryTimeZone = await settings.get('countryTimeZone');
   const numberConcurrentPullSnapshots = await settings.get('sync.numberConcurrentPullSnapshots');
 
   await performTimeZoneChecks({
