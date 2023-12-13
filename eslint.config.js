@@ -104,19 +104,19 @@ export default [
   },
   {
     // react-native globals
-    files: [`packages/mobile/**/*.${JS_EXTS}`],
+    files: [`packages/mobile/**/*.${TS_EXTS}`],
     languageOptions: {
       globals: {
-        JSX: 'readonly',
         __DEV__: 'readonly',
         Element: 'readonly',
+        FlatListProps: 'readonly',
+        JSX: 'readonly',
+        NodeJS: 'readonly',
         React: 'readonly',
         StyleProp: 'readonly',
-        ViewStyle: 'readonly',
         TextInputProps: 'readonly',
         TextStyle: 'readonly',
-        FlatListProps: 'readonly',
-        AnimatedCircularProgress: 'readonly',
+        ViewStyle: 'readonly',
       },
     },
   },
@@ -124,8 +124,8 @@ export default [
     files: [`packages/desktop/**/*.${EXTS}`],
     languageOptions: {
       globals: {
-        '__VERSION__': 'readonly',
-      }
+        __VERSION__: 'readonly',
+      },
     },
   },
   {
@@ -134,7 +134,7 @@ export default [
       globals: {
         ...globals.browser,
         CryptoKeyPair: 'readonly',
-      }
+      },
     },
   },
   {
@@ -147,7 +147,7 @@ export default [
       globals: {
         ...globals.node,
         CryptoKeyPair: 'readonly',
-      }
+      },
     },
   },
   {
@@ -181,6 +181,9 @@ export default [
       '**/build/**/*',
       '**/vendor/**/*',
       '**/*.d.ts',
+
+      // templates
+      '**/.migrationTemplate.ts',
 
       // local config
       '**/config/local.*',
