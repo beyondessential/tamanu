@@ -26,29 +26,18 @@ export const FILTER_EXCEL = { name: 'Microsoft Excel files (.xlsx)', extensions:
 export const FILTER_IMAGES = { name: 'Images (.png, .svg)', extensions: ['png', 'svg'] };
 
 export const FileChooserInput = ({ value = '', label, name, filters, onChange, ...props }) => {
+  // Convert the given filters into string format for the accept attribute of file input
+  const acceptString = filters.map(filter => `.${filter.extensions.join(', .')}`).join(', ');
+  console.log(acceptString);
+
   const inputRef = useRef(null);
 
-  // const browseForFile = useCallback(async () => {
-  //   /*
-  //   const { filePaths, canceled } = await showOpenDialog(null, {
-  //     filters,
-  //   });
-  //   if (canceled) return;
-
-  //   // showOpenDialog gives an array of files, but for this component we only want one,
-  //   // so just take the first element.
-  //   // (if support for multiple files is needed in future it should be in a separate component)
-  //   const [result] = filePaths;
-  //   if (!result) return;
-
-  //   onChange({ target: { name, value: result } });
-  //   */ // TODO(web)
-  // }, [showOpenDialog, filters, name, onChange]);
-  const browseForFile = useCallback(async () => {
+  const showFileDialog = () => {
     inputRef.current.click();
-  }, [inputRef]);
+  };
 
   const selectFile = event => {
+    console.log(filters);
     const file = event.target.files[0];
     if (!file) return;
 
@@ -57,20 +46,26 @@ export const FileChooserInput = ({ value = '', label, name, filters, onChange, .
 
   return (
     <>
-      <input type="file" ref={inputRef} onChange={selectFile} style={{ display: 'none' }} />
+      <input
+        type="file"
+        ref={inputRef}
+        onChange={selectFile}
+        accept={acceptString}
+        style={{ display: 'none' }}
+      />
       <OuterLabelFieldWrapper label={label} {...props}>
         <FieldButtonRow className={value ? 'has-value' : ''}>
           {value ? (
             <>
-              <MuiTextField readOnly value={value} variant="outlined" />
-              <Button onClick={browseForFile} variant="outlined">
+              <MuiTextField readOnly value={value.name} variant="outlined" />
+              <Button onClick={showFileDialog} variant="outlined">
                 <PublishIcon />
                 <span style={{ marginLeft: '0.5rem' }}>Change selection</span>
               </Button>
             </>
           ) : (
             <>
-              <Button onClick={browseForFile} variant="outlined" color="primary">
+              <Button onClick={showFileDialog} variant="outlined" color="primary">
                 Choose file
               </Button>
               <HintText>
