@@ -79,11 +79,7 @@ jobs:
           node-version: 20.x
           cache: yarn
       - run: yarn
-      - run: yarn build-shared
-
       - run: yarn lint-all
-        env:
-          CONTINUE_ON_ERROR: true
 
   storybook:
     # Workaround for define plugin conflict warning
