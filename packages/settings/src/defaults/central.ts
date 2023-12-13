@@ -1,8 +1,5 @@
 export const centralDefaults = {
   allowMismatchedTimeZones: false,
-  cors: {
-    allowedOrigin: '',
-  },
   countryTimeZone: 'Australia/Melbourne',
   disk: {
     diskPath: 'C:/',
