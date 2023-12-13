@@ -72,10 +72,15 @@ const StyledCheckboxField = styled(Field)`
 
 const LoginFormComponent = ({ errorMessage, onNavToResetPassword, setFieldError }) => {
   const [genericMessage, setGenericMessage] = useState(null);
+  const INCORRECT_CREDENTIALS_ERROR_MESSAGE =
+    'Facility server error response: Incorrect username or password, please try again';
 
   useEffect(() => {
     if (errorMessage === USER_DEACTIVATED_ERROR_MESSAGE) {
       setFieldError('email', `*${errorMessage}`);
+    } else if (errorMessage === INCORRECT_CREDENTIALS_ERROR_MESSAGE) {
+      setFieldError('email', 'Incorrect credentials');
+      setFieldError('password', 'Incorrect credentials');
     } else {
       setGenericMessage(errorMessage);
     }
@@ -83,6 +88,11 @@ const LoginFormComponent = ({ errorMessage, onNavToResetPassword, setFieldError 
     // only run this logic when error message is updated
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errorMessage]);
+
+  const removeValidation = () => {
+    setFieldError('email', '');
+    setFieldError('password', '');
+  };
 
   return (
     <FormGrid columns={1}>
@@ -94,6 +104,7 @@ const LoginFormComponent = ({ errorMessage, onNavToResetPassword, setFieldError 
         required
         component={TextField}
         placeholder="Enter your email address"
+        onChange={() => removeValidation()}
       />
       <div>
         <StyledField
@@ -103,6 +114,7 @@ const LoginFormComponent = ({ errorMessage, onNavToResetPassword, setFieldError 
           required
           component={TextField}
           placeholder="Enter your password"
+          onChange={() => removeValidation()}
         />
         <RememberMeRow>
           <StyledCheckboxField name="rememberMe" label="Remember me" component={CheckField} />
