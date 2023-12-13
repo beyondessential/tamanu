@@ -4,6 +4,12 @@ export const globalTestSettings = {
     'alpha-2': 'UT',
     'alpha-3': 'UTO',
   },
+  fhir: {
+    worker: {
+      heartbeat: 400,
+      assumeDroppedAfter: '10 minutes',
+    },
+  },
   imagingTypes: {
     xRay: { label: 'X-Ray' },
     ctScan: { label: 'CT Scan' },

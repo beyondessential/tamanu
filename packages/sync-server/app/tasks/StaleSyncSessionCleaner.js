@@ -22,14 +22,17 @@ export class StaleSyncSessionCleaner extends ScheduledTask {
   }
 
   async countQueue() {
+    const staleSessionSeconds = await this.settings.get(
+      'schedules.staleSyncSessionCleaner.staleSessionSeconds',
+    );
     const { SyncSession } = this.store.models;
     return SyncSession.count({
-      where: this.getWhere(),
+      where: this.getWhere(staleSessionSeconds),
     });
   }
 
   async run() {
-    const staleSessionSeconds = await this.setting.get(
+    const staleSessionSeconds = await this.settings.get(
       'schedules.staleSyncSessionCleaner.staleSessionSeconds',
     );
     const { SyncSession } = this.store.models;
