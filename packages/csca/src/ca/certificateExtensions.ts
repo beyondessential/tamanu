@@ -1,4 +1,4 @@
-/* eslint-disable camelcase, @typescript-eslint/camelcase, no-bitwise */
+/* eslint-disable camelcase, no-bitwise */
 
 import { AsnConvert } from '@peculiar/asn1-schema';
 import {
