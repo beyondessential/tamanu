@@ -35,7 +35,10 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
     () =>
       selectedProgramRegistryId
         ? api
-            .get(`programRegistry/${selectedProgramRegistryId}/conditions`)
+            .get(`programRegistry/${selectedProgramRegistryId}/conditions`, {
+              orderBy: 'name',
+              order: 'ASC',
+            })
             .then(response => response.data.map(x => ({ label: x.name, value: x.id })))
         : undefined,
   );
@@ -117,7 +120,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
               </FormGrid>
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <FieldWithTooltip
-                  tooltipText="Select a program registry to set the status"
+                  disabledTooltipText="Select a program registry to set the status"
                   name="clinicalStatusId"
                   label="Status"
                   placeholder="Select"
@@ -126,13 +129,17 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   disabled={!program}
                 />
                 <FieldWithTooltip
-                  tooltipText="Select a program registry to add conditions"
+                  disabledTooltipText={
+                    !conditions
+                      ? 'Select a program registry to add related conditions'
+                      : 'No conditions have been configured for this program registry'
+                  }
                   name="conditionIds"
                   label="Related conditions"
                   placeholder="Select"
                   component={MultiselectField}
                   options={conditions}
-                  disabled={!conditions}
+                  disabled={!conditions || conditions.length === 0}
                 />
               </FormGrid>
             </FormGrid>

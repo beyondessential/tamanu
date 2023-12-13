@@ -2,6 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useQueryClient } from '@tanstack/react-query';
+import { Divider } from '@material-ui/core';
 import { Form, Field, DateField, AutocompleteField } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
 import { ConfirmCancelRow } from '../../components/ButtonRow';
@@ -40,6 +41,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
       open={open}
       width="md"
       onClose={onClose}
+      overrideContentPadding
     >
       <Form
         showInlineErrorsOnly
@@ -47,7 +49,7 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
         render={({ submitForm }) => {
           return (
             <div>
-              <FormGrid>
+              <FormGrid style={{ paddingLeft: '32px', paddingRight: '32px' }}>
                 <FormGrid style={{ gridColumn: 'span 2' }}>
                   <Field
                     name="date"
@@ -79,9 +81,20 @@ export const ActivatePatientProgramRegistry = ({ onClose, patientProgramRegistra
                     suggester={programRegistryStatusSuggester}
                   />
                 </FormGrid>
-                <FormSeparatorLine />
-                <ConfirmCancelRow onCancel={onClose} onConfirm={submitForm} confirmText="Confirm" />
               </FormGrid>
+              <Divider
+                style={{
+                  gridColumn: '1 / -1',
+                  marginTop: '30px',
+                  marginBottom: '30px',
+                }}
+              />
+              <ConfirmCancelRow
+                style={{ paddingLeft: '32px', paddingRight: '32px' }}
+                onCancel={onClose}
+                onConfirm={submitForm}
+                confirmText="Confirm"
+              />
             </div>
           );
         }}
