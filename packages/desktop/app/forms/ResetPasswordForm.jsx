@@ -42,7 +42,6 @@ export const ResetPasswordForm = React.memo(
       return (
         <FormGrid columns={1}>
           <h3>Reset Password</h3>
-          {/* prettier-ignore */}
           <SuccessMessage>
             An email with instructions has been sent to
             {' '}
