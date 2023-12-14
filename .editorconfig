@@ -11,5 +11,8 @@ insert_final_newline = true
 [*.sh]
 indent_size = 4
 
+[scripts/*.sh]
+indent_size = 2
+
 [*.md]
 trim_trailing_whitespace = false
