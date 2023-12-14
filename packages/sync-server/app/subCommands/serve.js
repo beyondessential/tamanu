@@ -1,8 +1,7 @@
 import config from 'config';
 import { Command } from 'commander';
 
-import { ReadSettings } from '@tamanu/settings';
-import { log } from '@tamanu/shared/services/logging';
+import { log, initHoneyComb } from '@tamanu/shared/services/logging';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 
 import { provision } from './provision';
@@ -24,9 +23,9 @@ export const serve = async ({ skipMigrationCheck, provisioning }) => {
   });
 
   const context = await new ApplicationContext().init();
-  const { store, models } = context;
+  const { store, settings } = context;
 
-  const settings = new ReadSettings(models, config.serverFacilityId);
+  await initHoneyComb(context);
 
   await store.sequelize.assertUpToDate({ skipMigrationCheck });
 

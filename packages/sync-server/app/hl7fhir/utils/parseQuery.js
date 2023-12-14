@@ -1,6 +1,6 @@
 import { fromSearchId } from './search';
 
-export function parseQuery(unsafeQuery, querySchema) {
+export function parseQuery(unsafeQuery, querySchema, settings) {
   const { searchId, ...rest } = unsafeQuery;
   let values = rest;
   if (searchId) {
@@ -19,5 +19,11 @@ export function parseQuery(unsafeQuery, querySchema) {
     - We can't validate schema strictly because we want defaults for
     required fields and possibly type coercion.
     */
-  return querySchema.validate(values, { stripUnknown: false, abortEarly: false });
+  return querySchema.validate(values, {
+    stripUnknown: false,
+    abortEarly: false,
+    context: {
+      settings,
+    },
+  });
 }

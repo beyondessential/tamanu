@@ -13,6 +13,8 @@ export class FhirWorker {
 
   worker = null;
 
+  settings = null;
+
   processing = new Set();
 
   concurrency = null;
@@ -239,6 +241,7 @@ export class FhirWorker {
                 log: this.log.child({ topic, jobId: job.id }),
                 models: this.models,
                 sequelize: this.sequelize,
+                settings: this.settings,
               }),
             );
           } catch (workErr) {

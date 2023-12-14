@@ -190,7 +190,7 @@ describe('Patient', () => {
       });
 
       // Act
-      const fhirPatient = await FhirPatient.materialiseFromUpstream(patient.id);
+      const fhirPatient = await FhirPatient.materialiseFromUpstream(patient.id, ctx.settings);
       await fhirPatient.reload();
 
       // Assert
