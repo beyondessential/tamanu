@@ -1,9 +1,9 @@
 import React, { useCallback } from 'react';
 
-import { Button } from 'desktop/app/components/Button';
-import { ButtonRow } from 'desktop/app/components/ButtonRow';
+import { Button } from '../../components/Button';
+import { ButtonRow } from '../../components/ButtonRow';
 
-import { SelectInput } from 'desktop/app/components/Field/SelectField';
+import { SelectInput } from '../../components/Field/SelectField';
 
 import styled from 'styled-components';
 

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import { Form } from 'desktop/app/components/Field';
-import { checkVisibility, getFormInitialValues, getValidationSchema } from 'desktop/app/utils';
+import { Form } from '../../components/Field';
+import { checkVisibility, getFormInitialValues, getValidationSchema } from '../../utils';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { Colors } from '../../constants';
