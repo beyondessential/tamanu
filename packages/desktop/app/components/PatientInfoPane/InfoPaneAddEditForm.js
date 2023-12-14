@@ -2,7 +2,6 @@ import React, { memo, useCallback, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
 import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
 import {
