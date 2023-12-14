@@ -5,9 +5,21 @@ import styled from 'styled-components';
 import { USER_DEACTIVATED_ERROR_MESSAGE } from '@tamanu/constants';
 
 import { FormGrid } from '../components/FormGrid';
-import { CheckField, Field, Form, FormSubmitButton, TextButton, TextField } from '../components';
+import {
+  BodyText,
+  CheckField,
+  Field,
+  Form,
+  FormSubmitButton,
+  TextButton,
+  TextField,
+} from '../components';
 import { Colors } from '../constants';
-import { restartPasswordResetFlow } from '../store';
+
+const FormSubtext = styled(BodyText)`
+  color: ${Colors.midText};
+  padding: 10px 0;
+`;
 
 const LoginButton = styled(FormSubmitButton)`
   font-size: 14px;
@@ -35,10 +47,6 @@ const RememberMeRow = styled.div`
   justify-content: flex-end;
   font-size: 16px;
   padding-top: 5px;
-`;
-
-const ErrorMessage = styled.div`
-  text-align: center;
 `;
 
 const StyledField = styled(Field)`
@@ -78,7 +86,7 @@ const LoginFormComponent = ({ errorMessage, onNavToResetPassword, setFieldError 
 
   return (
     <FormGrid columns={1}>
-      {!!genericMessage && <ErrorMessage>{genericMessage}</ErrorMessage>}
+      {!!genericMessage && <FormSubtext>{genericMessage}</FormSubtext>}
       <StyledField
         name="email"
         type="email"
