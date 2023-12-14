@@ -51,7 +51,7 @@ export function normaliseParameter([key, param], overrides = {}) {
   return [key, norm];
 }
 
-export const getResultsParameterSchema = (countMax, countDefault) => {
+export const getResultsParameterSchema = ({ default: countDefault, max: countMax }) => {
   return {
     total: {
       type: FHIR_SEARCH_PARAMETERS.SPECIAL,
@@ -148,11 +148,9 @@ export async function normaliseParameters(FhirResource, settings) {
   // eslint-disable-next-line no-unused-vars
   const sortableParameters = resourceParameters.filter(([_, v]) => v.sortable);
 
-  const { default: countDefault, max: countMax } = await getCountParameters(settings);
-
   const resultParameters = Object.entries({
     ...sortParameter(sortableParameters),
-    ...getResultsParameterSchema(countMax, countDefault),
+    ...getResultsParameterSchema(await getCountParameters(settings)),
   }).map(param =>
     normaliseParameter(param, {
       path: [],
