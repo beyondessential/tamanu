@@ -91,18 +91,6 @@ const LoginFormContainer = styled.div`
   padding-top: 40px;
 `;
 
-const LoginHeading = styled(Typography)`
-  color: ${Colors.darkestText};
-  font-weight: 500;
-  font-size: 38px;
-  line-height: 32px;
-`;
-
-const LoginSubtext = styled(BodyText)`
-  color: ${Colors.midText};
-  padding-top: 10px;
-`;
-
 const DesktopVersionText = styled(Typography)`
   font-size: 9px;
   color: ${Colors.midText};
