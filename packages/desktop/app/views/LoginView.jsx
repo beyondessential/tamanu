@@ -211,7 +211,7 @@ export const LoginView = () => {
             <Launch style={{ marginLeft: '3px', fontSize: '12px' }} />
           </SupportDesktopLink>
         )}
-        <DesktopVersionText>Version 1.39.0</DesktopVersionText>
+        <DesktopVersionText>Version 2.0</DesktopVersionText>
       </LoginContainer>
       <LoginSplashImage />
     </Container>
