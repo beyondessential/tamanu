@@ -70,7 +70,7 @@ const prepareReplacementsForInsert = (settings, serverFacilityId, scope) => {
     const exists = has(settings, oldKey);
     if (exists) {
       const value = get(settings, oldKey);
-      if (value && newKey) set(settings, newKey, value);
+      if (newKey) set(settings, newKey, value);
       unset(settings, oldKey);
     }
   });
