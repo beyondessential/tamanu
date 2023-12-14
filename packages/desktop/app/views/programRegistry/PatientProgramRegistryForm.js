@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
+import { Divider } from '@material-ui/core';
+import { useSelector } from 'react-redux';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { useQuery } from '@tanstack/react-query';
@@ -54,7 +56,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
       onSubmit={data => {
         onSubmit({
           ...data,
-          conditionIds: data.conditionIds ? data.conditionIds.split(',') : [],
+          conditionIds: data.conditionIds ? JSON.parse(data.conditionIds) : [],
           registrationStatus: REGISTRATION_STATUSES.ACTIVE,
           patientId: patient.id,
         });
@@ -72,7 +74,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
 
         return (
           <div>
-            <FormGrid>
+            <FormGrid style={{ paddingLeft: '32px', paddingRight: '32px' }}>
               <FormGrid style={{ gridColumn: 'span 2' }}>
                 <Field
                   name="programRegistryId"
@@ -135,18 +137,20 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   disabled={!conditions}
                 />
               </FormGrid>
-              <Divider
-                style={{
-                  gridColumn: '1 / -1',
-                  marginTop: '10px',
-                }}
-              />
-              <ConfirmCancelRow
-                onCancel={handleCancel}
-                onConfirm={submitForm}
-                confirmText={buttonText}
-              />
             </FormGrid>
+            <Divider
+              style={{
+                gridColumn: '1 / -1',
+                marginTop: '30px',
+                marginBottom: '30px',
+              }}
+            />
+            <ConfirmCancelRow
+              style={{ paddingLeft: '32px', paddingRight: '32px' }}
+              onCancel={handleCancel}
+              onConfirm={submitForm}
+              confirmText={buttonText}
+            />
           </div>
         );
       }}

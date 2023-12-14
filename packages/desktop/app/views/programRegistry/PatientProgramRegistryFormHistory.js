@@ -3,6 +3,7 @@ import { SURVEY_TYPES } from '@tamanu/constants';
 import { DataFetchingTable } from '../../components/Table/DataFetchingTable';
 import { DateDisplay } from '../../components/DateDisplay';
 import { SurveyResponseDetailsModal } from '../../components/SurveyResponseDetailsModal';
+// import { MenuButton } from '../../components/MenuButton';
 
 export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }) => {
   const [selectedResponseId, setSelectedResponseId] = useState(null);

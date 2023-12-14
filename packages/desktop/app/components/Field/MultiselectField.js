@@ -24,6 +24,7 @@ const StyledFormControl = styled(FormControl)`
 const StyledSelect = styled(props => <Select classNamePrefix="react-select" {...props} />)`
   .react-select__control {
     padding-right: 8px;
+    min-height: 44px;
     ${props => (props.$borderColor ? `border: 1px solid ${props.$borderColor};` : '')}
     &:hover {
       border: 1px solid ${Colors.primary};
@@ -66,6 +67,7 @@ const StyledSelect = styled(props => <Select classNamePrefix="react-select" {...
     background-color: transparent;
     border-radius: 50px;
     border: 1px solid ${Colors.primary};
+    max-width: 150px;
   }
   .react-select__multi-value-label {
     color: ${Colors.darkestText};
