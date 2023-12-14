@@ -32,7 +32,7 @@ async function getValuesFromEncounter(upstream, settings) {
     class: await classification(upstream, settings),
     actualPeriod: period(upstream),
     subject: subjectRef(upstream),
-    location: locationRef(upstream, settings),
+    location: await locationRef(upstream, settings),
   };
 }
 
