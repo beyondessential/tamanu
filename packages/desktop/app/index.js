@@ -8,7 +8,6 @@ import { initStore, restoreSession, authFailure, versionIncompatible } from './s
 
 import './fonts.scss';
 import './react-toastify.scss';
-import { parse } from 'date-fns';
 
 function initPersistor(api, store) {
   const persistor = persistStore(store, null, () => {
@@ -53,18 +52,13 @@ function start() {
   const container = document.getElementById('root');
 
   window.onload = () => {
-    const openedTabs = window.localStorage.getItem('openedTabs');
-    if (!openedTabs) {
-      window.localStorage.setItem('openedTabs', 1);
-    } else {
-      window.localStorage.setItem('openedTabs', parseInt(openedTabs) + 1);
-    }
-  };
-
-  window.onunload = () => {
-    const openedTabs = window.localStorage.getItem('openedTabs');
-    if (openedTabs && openedTabs > 0) {
-      window.localStorage.setItem('openedTabs', parseInt(openedTabs) - 1);
+    const isOpened = window.localStorage.getItem('isOpened');
+    if (!isOpened) {
+      window.localStorage.setItem('isOpened', 1);
+      window.localStorage.setItem('renderTab', 1);
+      window.onunload = () => {
+        window.localStorage.removeItem('isOpened');
+      };
     }
   };
 

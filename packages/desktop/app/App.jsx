@@ -25,9 +25,9 @@ const AppContentsContainer = styled.div`
 export function App({ sidebar, children }) {
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const currentRoute = useSelector(getCurrentRoute);
-  const isFirstTab = window.localStorage.getItem('openedTabs') === '1';
+  const doRender = window.localStorage.getItem('renderTab') === '1';
 
-  if (!isFirstTab) {
+  if (!doRender) {
     return (
       <p>
         Tamanu is currently designed to only work with one tab open. Please close any other tabs and
@@ -35,6 +35,8 @@ export function App({ sidebar, children }) {
       </p>
     );
   }
+
+  window.localStorage.removeItem('renderTab');
 
   if (!isUserLoggedIn) {
     return <LoginView />;
