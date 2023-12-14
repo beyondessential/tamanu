@@ -27,6 +27,7 @@ export function createApp(ctx) {
 
   // Init our app
   const app = express();
+  app.use(buildSettingsReader);
   app.use(loadshedder());
   app.use(compression());
   app.use(bodyParser.json({ limit: '50mb' }));
@@ -51,8 +52,6 @@ export function createApp(ctx) {
     req.ctx = ctx;
     next();
   });
-
-  app.use(buildSettingsReader);
 
   app.use(versionCompatibility);
 
