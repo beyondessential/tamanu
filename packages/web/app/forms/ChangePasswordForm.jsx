@@ -48,6 +48,10 @@ const FieldContainer = styled.div`
   gap: 30px;
 `;
 
+const SuccessSubtext = styled(FormSubtext)`
+  margin: 10px 0 30px 0;
+`;
+
 export const ChangePasswordForm = React.memo(
   ({ onSubmit, errorMessage, success, email, onNavToLogin, onNavToResetPassword }) => {
     const renderForm = ({ setFieldValue }) => (
@@ -92,17 +96,9 @@ export const ChangePasswordForm = React.memo(
           </IconContainer>
           <div>
             <FormHeading>Password successfully reset</FormHeading>
-            <FormSubtext style={{ marginTop: '10px' }}>
-              Your password has been successfully reset.
-            </FormSubtext>
+            <SuccessSubtext>Your password has been successfully reset.</SuccessSubtext>
           </div>
-          <BackToLoginButton
-            style={{ marginTop: '30px' }}
-            fullWidth
-            variant="contained"
-            color="primary"
-            onClick={onNavToLogin}
-          >
+          <BackToLoginButton fullWidth variant="contained" color="primary" onClick={onNavToLogin}>
             Back to login
           </BackToLoginButton>
         </FormGrid>
