@@ -15,7 +15,7 @@ import { buildSearchQuery } from './query';
 
 export function searchHandler(FhirResource) {
   return asyncHandler(async (req, res) => {
-    const parameters = normaliseParameters(FhirResource);
+    const parameters = await normaliseParameters(FhirResource, req.settings);
     const query = await parseRequest(req, parameters);
 
     let includes = null;
