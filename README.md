@@ -2,8 +2,6 @@
 
 > This is a [monorepo](https://github.com/babel/babel/blob/master/doc/design/monorepo.md)
 
-[ ![Codeship Status for beyondessential/tamanu](https://app.codeship.com/projects/9355b080-d34d-0136-45ef-2e8db6e7ba42/status?branch=codeship)](https://app.codeship.com/projects/316346)
-
 | Package | Runbook | Description |
 | ------- | ------- | ----------- |
 | [sync-server](packages/sync-server) | [sync-server runbook](https://beyond-essential.slab.com/posts/tamanu-sync-server-runbook-et0trny5) | The central server, which facility server and mobile client instances communicate with to synchronise data |
