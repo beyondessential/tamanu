@@ -202,7 +202,6 @@ function transformPatientProgramRegistrationData(patientProgramRegistration, con
     clinician,
     registeringFacility,
     village,
-    facility,
   } = patientProgramRegistration;
   switch (column) {
     case 'registrationClinicalStatus':

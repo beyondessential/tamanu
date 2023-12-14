@@ -132,7 +132,8 @@ export class PatientProgramRegistration extends Model {
       date: getCurrentDateTimeString(),
       ...restOfUpdates,
       ...(existingRegistration &&
-      existingRegistration.clinicalStatusId !== restOfUpdates.clinicalStatusId
+      (!existingRegistration ||
+        existingRegistration.clinicalStatusId !== restOfUpdates.clinicalStatusId)
         ? {
             clinicalStatusUpdatedAt: getCurrentDateTimeString(),
           }
