@@ -15,7 +15,7 @@ RUN apk add --no-cache \
     jq \
     make \
     python3
-COPY .yarnrc common.* babel.config.js ./
+COPY .yarnrc common.* ./
 COPY scripts/ scripts/
 
 FROM base AS run-base

@@ -1,6 +1,6 @@
-const { SWC } = require('../../common.jest.config');
+const { BASE } = require('../../common.jest.config');
 
 module.exports = {
-  ...SWC,
+  ...BASE,
   setupFilesAfterEnv: ['<rootDir>/__tests__/configureEnvironment.js'],
 };

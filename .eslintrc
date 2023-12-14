@@ -1,6 +1,5 @@
 {
   "extends": ["@beyondessential/eslint-config-js", "plugin:prettier/recommended"],
-  "parser": "babel-eslint",
   "env": {
     "browser": true,
     "node": true
@@ -32,14 +31,5 @@
       },
       "plugins": ["jest"]
     }
-  ],
-  "settings": {
-    "import/resolver": {
-      "alias": {
-        "map": [
-          ["shared", "@tamanu/shared"]
-        ]
-      }
-    }
-  }
+  ]
 }

@@ -1,9 +1,9 @@
-import { version } from './app/serverInfo';
+import { version } from './serverInfo';
 import config from 'config';
 
 import { log } from '@tamanu/shared/services/logging';
 
-import { createApp } from './app/createApp';
+import { createApp } from './createApp';
 
 const port = config.port;
 
