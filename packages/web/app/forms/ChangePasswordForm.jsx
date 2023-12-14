@@ -63,7 +63,7 @@ export const ChangePasswordForm = React.memo(
         <div>
           <FormHeading>Reset password</FormHeading>
           <FormSubtext>
-            We have emailed you a reset coe. Please enter the code and your new password below to
+            We have emailed you a reset code. Please enter the code and your new password below to
             reset your password.
           </FormSubtext>
           <ErrorText $isError={!!errorMessage}>{errorMessage}</ErrorText>
