@@ -1,5 +1,5 @@
 import { SpanStatusCode } from '@opentelemetry/api';
-import theConfig from 'config';
+
 import { formatRFC3339 } from 'date-fns';
 import ms from 'ms';
 import { hostname } from 'os';
@@ -13,9 +13,9 @@ export class FhirWorker {
 
   worker = null;
 
-  config = theConfig.integrations.fhir.worker;
-
   processing = new Set();
+
+  concurrency = null;
 
   // if false, immediately reprocess the queue after a job is completed
   // to work through the backlog promptly; this makes testing harder, so
@@ -31,12 +31,14 @@ export class FhirWorker {
 
   async start() {
     const { FhirJobWorker } = this.models;
-    const enabled = await this.settings.get('fhir.worker.enabled');
+    const enabled = await this.settings.get('integrations.fhir.worker.enabled');
 
     if (!enabled) {
       this.log.info('FhirWorker: disabled');
       return;
     }
+
+    this.concurrency = await this.settings.get('integrations.fhir.worker.concurrency');
 
     const heartbeatInterval = await this.settings.get('fhir.worker.heartbeat');
     this.log.debug('FhirWorker: got raw heartbeat interval', { heartbeatInterval });
@@ -49,6 +51,7 @@ export class FhirWorker {
       hostname: hostname(),
       ...(global.serverInfo ?? {}),
     });
+
     this.log.info('FhirWorker: registered', { workerId: this.worker?.id });
 
     this.log.debug('FhirWorker: scheduling heartbeat', { intervalMs: heartbeat });
@@ -103,7 +106,7 @@ export class FhirWorker {
    * @returns {number} Amount of jobs to grab.
    */
   totalCapacity() {
-    return Math.max(0, this.config.concurrency - this.processing.size);
+    return Math.max(0, this.concurrency - this.processing.size);
   }
 
   /**

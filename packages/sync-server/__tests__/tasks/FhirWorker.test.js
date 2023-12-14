@@ -156,7 +156,6 @@ describe('Worker Jobs', () => {
         logger = jest.fn();
         worker = new FhirWorker(ctx.store, makeLogger(logger), ctx.settings);
         worker.testMode = true;
-        worker.config.concurrency = 1;
         await worker.start();
         await worker.setHandler('test1', workerTest);
         await worker.setHandler('test2', workerTest);
@@ -272,9 +271,8 @@ describe('Worker Jobs', () => {
 
     it(
       'keeps track of capacity',
-      withErrorShown(() => {
-        worker.config.concurrency = 5;
-
+      withErrorShown(async () => {
+        worker.concurrency = 5;
         expect(worker.processing.size).toBe(0);
         expect(worker.totalCapacity()).toBe(5);
         expect(worker.topicCapacity()).toBe(2);
@@ -301,7 +299,7 @@ describe('Worker Jobs', () => {
       'several jobs can be grabbed simultaneously',
       withErrorShown(async () => {
         const { FhirJob: Job } = models;
-        worker.config.concurrency = 10;
+        worker.concurrency = 10;
         await worker.setHandler('test3', workerTest);
         const id1 = await Job.submit('test3');
         const id2 = await Job.submit('test3');

@@ -29,6 +29,10 @@ export const centralTestSettings = {
     },
     fhir: {
       enabled: true,
+      worker: {
+        enabled: true,
+        concurrency: 1,
+      },
     },
     omniLab: {
       enabled: true,
