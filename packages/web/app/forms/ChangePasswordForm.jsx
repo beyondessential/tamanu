@@ -45,11 +45,15 @@ const ActionButtonContainer = styled.div`
 const FieldContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 25px;
 `;
 
 const SuccessSubtext = styled(FormSubtext)`
   margin: 10px 0 30px 0;
+`;
+
+const HorizontalDivider = styled.div`
+  border-bottom: 1px solid #dedede;
 `;
 
 export const ChangePasswordForm = React.memo(
@@ -58,8 +62,11 @@ export const ChangePasswordForm = React.memo(
       <FormGrid columns={1}>
         <div>
           <FormHeading>Reset password</FormHeading>
-          <FormSubtext>Please enter the reset code you have received in your email</FormSubtext>
-          {!!errorMessage && <FormSubtext>{errorMessage}</FormSubtext>}
+          <FormSubtext>
+            We have emailed you a reset coe. Please enter the code and your new password below to
+            reset your password.
+          </FormSubtext>
+          <ErrorText $isError={!!errorMessage}>{errorMessage}</ErrorText>
         </div>
         <FieldContainer>
           <Field
@@ -70,13 +77,22 @@ export const ChangePasswordForm = React.memo(
             component={TextField}
             placeholder="Reset code"
           />
+          <HorizontalDivider />
           <Field
             name="newPassword"
             type="password"
-            label="Enter a new password"
+            label="New password"
             required
             component={TextField}
             placeholder="New password"
+          />
+          <Field
+            name="confirmNewPassword"
+            type="password"
+            label="Confirm new password"
+            required
+            component={TextField}
+            placeholder="Confirm new password"
           />
         </FieldContainer>
         <ActionButtonContainer>
