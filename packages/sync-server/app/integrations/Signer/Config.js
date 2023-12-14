@@ -1,4 +1,3 @@
-import config from 'config';
 import * as yup from 'yup';
 
 const CN_SCHEMA_VDS_NC = yup
