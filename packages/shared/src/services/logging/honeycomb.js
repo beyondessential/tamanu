@@ -5,8 +5,6 @@ import { serviceContext, serviceName } from './context';
 import { log } from './log';
 import { setupTracing } from './tracing';
 
-const { apiKey } = config.honeycomb;
-
 class HoneycombTransport extends Transport {
   constructor(opts) {
     super(opts);
@@ -25,6 +23,7 @@ class HoneycombTransport extends Transport {
 
 export const initHoneyComb = async ({ settings }) => {
   const { enabled, level = 'info' } = await settings.get('honeycomb');
+  const { apiKey } = config.honeycomb;
 
   const context = serviceContext();
 
