@@ -22,22 +22,23 @@ export class FhirWorker {
   // in "testMode" it's disabled.
   testMode = false;
 
-  constructor(context, log) {
+  constructor(context, log, settings) {
     this.models = context.models;
     this.sequelize = context.sequelize;
+    this.settings = settings;
     this.log = log;
   }
 
   async start() {
-    const { FhirJobWorker, Setting } = this.models;
-    const { enabled } = this.config;
+    const { FhirJobWorker } = this.models;
+    const enabled = await this.settings.get('fhir.worker.enabled');
 
     if (!enabled) {
       this.log.info('FhirWorker: disabled');
       return;
     }
 
-    const heartbeatInterval = await Setting.get('fhir.worker.heartbeat');
+    const heartbeatInterval = await this.settings.get('fhir.worker.heartbeat');
     this.log.debug('FhirWorker: got raw heartbeat interval', { heartbeatInterval });
     const heartbeat = Math.round(ms(heartbeatInterval) * (1 + Math.random() * 0.2 - 0.1)); // +/- 10%
     this.log.debug('FhirWorker: added some jitter to the heartbeat', { heartbeat });

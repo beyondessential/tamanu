@@ -103,7 +103,7 @@ describe('Worker Jobs', () => {
 
     beforeEach(async () => {
       logger = jest.fn();
-      worker = new FhirWorker(ctx.store, makeLogger(logger));
+      worker = new FhirWorker(ctx.store, makeLogger(logger), ctx.settings);
       worker.testMode = true;
       await worker.start();
       await worker.setHandler('test', workerTest);
@@ -154,7 +154,7 @@ describe('Worker Jobs', () => {
         await models.FhirJob.truncate();
 
         logger = jest.fn();
-        worker = new FhirWorker(ctx.store, makeLogger(logger));
+        worker = new FhirWorker(ctx.store, makeLogger(logger), ctx.settings);
         worker.testMode = true;
         worker.config.concurrency = 1;
         await worker.start();
