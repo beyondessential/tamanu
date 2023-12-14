@@ -85,7 +85,7 @@ export const LoginView = () => {
   const isSupportUrlLoaded = !!supportUrl;
 
   const submitLogin = async data => {
-    const { host, email, password, rememberMe } = data;
+    const { email, password, rememberMe } = data;
 
     // If a different user logs in, reset patient state and navigate to index
     if (email !== api.user?.email) {
@@ -101,7 +101,7 @@ export const LoginView = () => {
 
     // The await is necessary to prevent redux-form unlocking submission
     // redux-thunk definitely returns a promise, and this works
-    await dispatch(login(host, email, password));
+    await dispatch(login(email, password));
   };
 
   return (
@@ -121,7 +121,7 @@ export const LoginView = () => {
         )}
         {screen === 'resetPassword' && (
           <ResetPasswordForm
-            onSubmit={({ host, email }) => dispatch(requestPasswordReset(host, email))}
+            onSubmit={({ email }) => dispatch(requestPasswordReset(email))}
             onRestartFlow={() => dispatch(restartPasswordResetFlow())}
             errorMessage={requestPasswordResetError}
             success={requestPasswordResetSuccess}

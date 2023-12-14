@@ -23,12 +23,11 @@ export const restoreSession = () => async (dispatch, getState, { api }) => {
   }
 };
 
-export const login = (host, email, password) => async (dispatch, getState, { api }) => {
+export const login = (email, password) => async (dispatch, getState, { api }) => {
   dispatch({ type: LOGIN_START });
 
   try {
     const { user, token, localisation, server, ability, role } = await api.login(
-      host,
       email,
       password,
     );
@@ -61,11 +60,11 @@ export const idleTimeout = () => ({
   error: 'You have been logged out due to inactivity',
 });
 
-export const requestPasswordReset = (host, email) => async (dispatch, getState, { api }) => {
+export const requestPasswordReset = (email) => async (dispatch, getState, { api }) => {
   dispatch({ type: REQUEST_PASSWORD_RESET_START });
 
   try {
-    await api.requestPasswordReset(host, email);
+    await api.requestPasswordReset(email);
     dispatch({ type: REQUEST_PASSWORD_RESET_SUCCESS, email });
   } catch (error) {
     dispatch({ type: REQUEST_PASSWORD_RESET_FAILURE, error: error.message });
@@ -76,11 +75,11 @@ export const restartPasswordResetFlow = () => async dispatch => {
   dispatch({ type: PASSWORD_RESET_RESTART });
 };
 
-export const changePassword = ({ host, ...data }) => async (dispatch, getState, { api }) => {
+export const changePassword = (data) => async (dispatch, getState, { api }) => {
   dispatch({ type: CHANGE_PASSWORD_START });
 
   try {
-    await api.changePassword(host, data);
+    await api.changePassword(data);
     dispatch({ type: CHANGE_PASSWORD_SUCCESS });
   } catch (error) {
     dispatch({ type: CHANGE_PASSWORD_FAILURE, error: error.message });

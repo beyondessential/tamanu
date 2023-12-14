@@ -9,7 +9,9 @@
   "type": "module",
   "scripts": {
     "clean": "rimraf packages/*/dist packages/*/*.tsbuildinfo",
+    "clean:deps": "rimraf node_modules packages/*/node_modules",
     "create-package": "node scripts/create-package.mjs",
+    "create-migration": "node scripts/create-server-migration.mjs",
     "build": "node scripts/build-all.mjs",
     "build-shared": "yarn run build --shared-only",
     "test": "yarn run build-shared && node scripts/test-all.mjs",
@@ -26,7 +28,6 @@
     "lan-test-watch": "yarn run watch-shared-and lan test-watch",
     "lan-migrate": "yarn run build-shared && TAMANU_ARGS=\"migrate up\" yarn run lan-start-dev",
     "lan-migrate-down": "yarn run build-shared && TAMANU_ARGS=\"migrate down\" yarn run lan-start-dev",
-    "server-migrate-create": "node scripts/create_server_migration.mjs",
     "shared-test": "yarn run build-shared && yarn workspace @tamanu/shared run test",
     "sync-test": "yarn run build-shared && yarn workspace sync-server run test",
     "sync-shell": "yarn run build-shared && yarn workspace sync-server run shell",
@@ -42,7 +43,7 @@
     "build-report": "yarn build-shared && yarn workspace sync-server build && yarn workspace sync-server start report"
   },
   "engines": {
-    "node": "^20.9.0 || ^18.15.0"
+    "node": "^20.9.0"
   },
   "packageManager": "yarn@1.22.19",
   "private": true,
