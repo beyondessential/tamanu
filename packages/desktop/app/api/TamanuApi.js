@@ -23,7 +23,7 @@ const getResponseJsonSafely = async response => {
 
 const getVersionIncompatibleMessage = (error, response) => {
   if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
-    return 'Tamanu is out of date, reload this tab to get the new version! If that does not work, contact your system administrator.';
+    return 'Tamanu is out of date, reload to get the new version! If that does not work, contact your system administrator.';
   }
 
   if (error.message === VERSION_COMPATIBILITY_ERRORS.HIGH) {
