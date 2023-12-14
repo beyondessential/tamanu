@@ -1,33 +1,14 @@
 import React, { useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import Collapse from '@material-ui/core/Collapse';
 import { FormGrid } from '../components/FormGrid';
 import {
   Button,
   Field,
   Form,
-  MinusIconButton,
-  PlusIconButton,
   TextField,
   StyledPrimarySubmitButton,
 } from '../components';
-import { ServerDetectingField, getSavedServer } from '../components/Field/ServerDetectingField';
-
-const AdvancedRow = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: space-between;
-  font-size: 16px;
-`;
-
-const AdvancedButtonSpan = styled.span`
-  .MuiButtonBase-root {
-    padding: 0px 0px 0px 9px;
-    font-size: 20px;
-  }
-`;
 
 const SuccessMessage = styled.p`
   margin-top: 0;
@@ -35,8 +16,6 @@ const SuccessMessage = styled.p`
 
 export const ChangePasswordForm = React.memo(
   ({ onSubmit, errorMessage, success, email, onNavToLogin, onNavToResetPassword }) => {
-    const needsServer = !getSavedServer();
-    const [isAdvancedExpanded, setAdvancedExpanded] = useState(needsServer);
 
     const renderForm = ({ setFieldValue }) => (
       <FormGrid columns={1}>
@@ -51,28 +30,6 @@ export const ChangePasswordForm = React.memo(
           required
           component={TextField}
         />
-        <AdvancedRow>
-          <AdvancedButtonSpan>
-            Advanced
-            {isAdvancedExpanded ? (
-              <MinusIconButton
-                onClick={() => setAdvancedExpanded(false)}
-                styles={{ padding: '0px' }}
-              />
-            ) : (
-              <PlusIconButton onClick={() => setAdvancedExpanded(true)} />
-            )}
-          </AdvancedButtonSpan>
-        </AdvancedRow>
-        <Collapse in={isAdvancedExpanded}>
-          <Field
-            name="host"
-            label="LAN server address"
-            required
-            component={ServerDetectingField}
-            setFieldValue={setFieldValue}
-          />
-        </Collapse>
         <StyledPrimarySubmitButton type="submit">Change Password</StyledPrimarySubmitButton>
         <Button onClick={onNavToResetPassword} color="default" variant="text">
           Back

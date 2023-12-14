@@ -9,10 +9,11 @@ export async function saveExcelFile(
 ) {
   let path;
   if (promptForFilePath) {
-    path = await showFileDialog(
-      [{ name: `Excel spreadsheet (${bookType})`, extensions: [bookType] }],
-      defaultFileName,
-    );
+    // TODO(web)
+    // path = await showFileDialog(
+    //   [{ name: `Excel spreadsheet (${bookType})`, extensions: [bookType] }],
+    //   defaultFileName,
+    // );
     if (!path) {
       // user cancelled
       return '';

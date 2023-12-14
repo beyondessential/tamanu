@@ -308,7 +308,6 @@ export const REPORT_TYPES = {
 };
 
 export const LOCAL_STORAGE_KEYS = {
-  HOST: 'host',
   TOKEN: 'apiToken',
   LOCALISATION: 'localisation',
   SERVER: 'server',
