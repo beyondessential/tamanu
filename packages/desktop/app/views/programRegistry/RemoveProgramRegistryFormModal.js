@@ -48,11 +48,12 @@ const Info = styled.div`
 `;
 
 const Label = styled.div`
-  color: ${Colors.softText};
+  color: ${Colors.midText};
 `;
 
 const Value = styled.div`
   color: ${Colors.darkestText};
+  font-weight: 500;
 `;
 
 export const RemoveProgramRegistryFormModal = ({ patientProgramRegistration, onClose, open }) => {
