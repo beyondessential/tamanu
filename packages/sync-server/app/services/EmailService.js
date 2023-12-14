@@ -8,7 +8,7 @@ import { log } from '@tamanu/shared/services/logging';
 
 const mailgun = new Mailgun(formData);
 
-const { apiKey, domain } = config.mailgun; // TODO: get this from settings
+const { apiKey } = config.mailgun;
 
 async function getReadStreamSafe(path) {
   return new Promise((resolve, reject) => {
@@ -28,9 +28,14 @@ async function getReadStreamSafe(path) {
 }
 
 export class EmailService {
-  constructor() {
+  constructor(settings) {
+    this.settings = settings
+  }
+
+  async init() {
+    const mailgunDomain = await this.settings.get('mailgun.domain');
     this.mailgunService =
-      apiKey && domain ? mailgun.client({ username: 'api', key: apiKey }) : null;
+      apiKey && mailgunDomain ? mailgun.client({ username: 'api', key: apiKey }) : null;
   }
 
   async sendEmail({ attachment: untypedAttachment, ...email }) {
