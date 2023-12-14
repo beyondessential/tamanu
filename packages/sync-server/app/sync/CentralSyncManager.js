@@ -50,10 +50,13 @@ export class CentralSyncManager {
 
   store;
 
+  settings;
+
   purgeInterval;
 
   constructor(ctx) {
     this.store = ctx.store;
+    this.settings = ctx.settings;
     ctx.onClose(this.close);
   }
 
@@ -450,7 +453,11 @@ export class CentralSyncManager {
       // tick tock global clock so that if records are modified by adjustDataPostSyncPush(),
       // they will be picked up for pulling in the same session (specifically won't be removed by removeEchoedChanges())
       await this.tickTockGlobalClock();
-      await adjustDataPostSyncPush(sequelize, modelsToInclude, sessionId);
+      await adjustDataPostSyncPush(
+        { sequelize, settings: this.settings },
+        modelsToInclude,
+        sessionId,
+      );
 
       // mark persisted so that client polling "completePush" can stop
       await models.SyncSession.update(

@@ -51,7 +51,7 @@ export function normaliseParameter([key, param], overrides = {}) {
   return [key, norm];
 }
 
-export const getResultsParameterSchema = ({ default: countDefault, max: countMax }) => {
+export const getResultsParameterSchema = ({ default: countDefault, max: countMax } = {}) => {
   return {
     total: {
       type: FHIR_SEARCH_PARAMETERS.SPECIAL,
