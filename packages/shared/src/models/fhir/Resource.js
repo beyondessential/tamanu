@@ -127,11 +127,11 @@ export class FhirResource extends Model {
   }
 
   // call updateMat, don't save, output bool
-  async isUpToDate() {
+  async isUpToDate(settings) {
     const resource = await this.constructor.findByPk(this.id);
     if (!resource) return false;
 
-    await resource.updateMaterialisation();
+    await resource.updateMaterialisation(settings);
     return !resource.changed();
   }
 

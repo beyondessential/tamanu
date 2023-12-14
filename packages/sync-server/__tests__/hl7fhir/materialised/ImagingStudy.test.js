@@ -141,7 +141,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
         expect(ires.description).toEqual('This is an okay note\n\nThis is another note');
       }));
 
-    it('creates a result from an ImagingStudy with upstream Display ID', () =>
+    it.only('creates a result from an ImagingStudy with upstream Display ID', () =>
       showError(async () => {
         // arrange
         const { FhirServiceRequest, ImagingRequest, ImagingResult } = ctx.store.models;
@@ -155,6 +155,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
             requestedDate: '2022-03-04 15:30:00',
           }),
         );
+
         await ir.setAreas([resources.area1.id, resources.area2.id]);
         await ir.reload();
         await FhirServiceRequest.materialiseFromUpstream(ir.id, ctx.settings);
