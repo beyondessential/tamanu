@@ -8,6 +8,7 @@ import { initStore, restoreSession, authFailure, versionIncompatible } from './s
 
 import './fonts.scss';
 import './react-toastify.scss';
+import { parse } from 'date-fns';
 
 function initPersistor(api, store) {
   const persistor = persistStore(store, null, () => {
@@ -50,6 +51,22 @@ function start() {
   const persistor = initPersistor(API, store);
 
   const container = document.getElementById('root');
+
+  window.onload = () => {
+    const openedTabs = window.localStorage.getItem('openedTabs');
+    if (!openedTabs) {
+      window.localStorage.setItem('openedTabs', 1);
+    } else {
+      window.localStorage.setItem('openedTabs', parseInt(openedTabs) + 1);
+    }
+  };
+
+  window.onunload = () => {
+    const openedTabs = window.localStorage.getItem('openedTabs');
+    if (openedTabs && openedTabs > 0) {
+      window.localStorage.setItem('openedTabs', parseInt(openedTabs) - 1);
+    }
+  };
 
   const root = createRoot(container); // createRoot(container!) if you use TypeScript
   renderRootInto(root, {
