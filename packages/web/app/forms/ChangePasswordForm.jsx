@@ -3,21 +3,9 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { FormGrid } from '../components/FormGrid';
-import {
-  BodyText,
-  Button,
-  Field,
-  Form,
-  FormSubmitButton,
-  TextField,
-  StyledPrimarySubmitButton,
-} from '../components';
+import { BodyText, Button, Field, Form, FormSubmitButton, TextField } from '../components';
 import { Colors } from '../constants';
 import ApprovedIcon from '../assets/images/approved.svg';
-
-const SuccessMessage = styled.p`
-  margin-top: 0;
-`;
 
 const FormHeading = styled(Typography)`
   color: ${Colors.darkestText};
@@ -60,12 +48,6 @@ const FieldContainer = styled.div`
   gap: 30px;
 `;
 
-const ErrorText = styled(BodyText)`
-  color: ${Colors.midText};
-  padding: 10px 0;
-  ${props => (props.$isError ? '' : `display: none;`)}
-`;
-
 export const ChangePasswordForm = React.memo(
   ({ onSubmit, errorMessage, success, email, onNavToLogin, onNavToResetPassword }) => {
     const renderForm = ({ setFieldValue }) => (
@@ -73,7 +55,7 @@ export const ChangePasswordForm = React.memo(
         <div>
           <FormHeading>Reset password</FormHeading>
           <FormSubtext>Please enter the reset code you have received in your email</FormSubtext>
-          <ErrorText $isError={!!errorMessage}>{errorMessage}</ErrorText>
+          {!!errorMessage && <FormSubtext>{errorMessage}</FormSubtext>}
         </div>
         <FieldContainer>
           <Field

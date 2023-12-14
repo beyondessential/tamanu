@@ -38,12 +38,6 @@ const FormSubtext = styled(BodyText)`
   padding: 10px 0;
 `;
 
-const ErrorText = styled(BodyText)`
-  color: ${Colors.midText};
-  padding: 10px 0;
-  ${props => (props.$isError ? '' : `display: none;`)}
-`;
-
 const ResendCodeButton = styled(TextButton)`
   font-size: 11px;
   color: ${Colors.darkestText};
@@ -74,7 +68,7 @@ export const ResetPasswordForm = React.memo(
           <FormSubtext>
             Enter your email address below and we will send you a reset code.
           </FormSubtext>
-          <ErrorText $isError={!!errorMessage}>{errorMessage}</ErrorText>
+          {!!errorMessage && <FormSubtext>{errorMessage}</FormSubtext>}
         </div>
         <Field
           name="email"
