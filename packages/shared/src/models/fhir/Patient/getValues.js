@@ -1,4 +1,3 @@
-import config from 'config';
 import { identity } from 'lodash';
 
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants';
@@ -14,21 +13,21 @@ import {
 import { nzEthnicity } from '../extensions';
 import { formatFhirDate } from '../../../utils/fhir';
 
-export async function getValues(upstream, models) {
+export async function getValues(upstream, models, settings) {
   const { Patient } = models;
 
-  if (upstream instanceof Patient) return getValuesFromPatient(upstream);
+  if (upstream instanceof Patient) return getValuesFromPatient(upstream, settings);
   throw new Error(`Invalid upstream type for patient ${upstream.constructor.name}`);
 }
 
-async function getValuesFromPatient(upstream) {
+async function getValuesFromPatient(upstream, settings) {
   const [first] = upstream.additionalData || [];
   // eslint-disable-next-line no-param-reassign
   upstream.additionalData = first;
 
   return {
-    extension: extension(upstream),
-    identifier: identifiers(upstream),
+    extension: await extension(upstream, settings),
+    identifier: await identifiers(upstream, settings),
     active: activeFromVisibility(upstream),
     name: names(upstream),
     telecom: telecoms(upstream),
@@ -45,32 +44,35 @@ function compactBy(array, access = identity) {
   return array.filter(access);
 }
 
-function extension(patient) {
-  return [...nzEthnicity(patient)];
+async function extension(patient, settings) {
+  const nzEthnicityExtention = await nzEthnicity(patient, settings);
+  return [...nzEthnicityExtention];
 }
 
-function identifiers(patient) {
+async function identifiers(patient, settings) {
+  const assigners = await settings.get('hl7.assigners');
+  const patientDisplayIdDict = await settings.get('hl7.dataDictionaries.patientDisplayId');
   return compactBy(
     [
       {
         use: 'usual',
         value: patient.displayId,
         assigner: new FhirReference({
-          display: config.hl7.assigners.patientDisplayId,
+          display: assigners.patientDisplayId,
         }),
-        system: config.hl7.dataDictionaries.patientDisplayId,
+        system: patientDisplayIdDict,
       },
       {
         use: 'secondary',
         assigner: new FhirReference({
-          display: config.hl7.assigners.patientPassport,
+          display: assigners.patientPassport,
         }),
         value: patient.additionalData?.passportNumber,
       },
       {
         use: 'secondary',
         assigner: new FhirReference({
-          display: config.hl7.assigners.patientDrivingLicense,
+          display: assigners.patientDrivingLicense,
         }),
         value: patient.additionalData?.drivingLicense,
       },

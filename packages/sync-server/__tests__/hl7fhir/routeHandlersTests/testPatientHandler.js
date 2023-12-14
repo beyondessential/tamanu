@@ -4,15 +4,16 @@ import { fake } from '@tamanu/shared/test-helpers/fake';
 import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 
 import { createTestContext } from '../../utilities';
-import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
 
 export function testPatientHandler(integrationName, requestHeaders = {}) {
   describe(`${integrationName} integration - Patient`, () => {
     let ctx;
     let app;
+    let identifierNamespace;
     beforeAll(async () => {
       ctx = await createTestContext(requestHeaders['X-Tamanu-Client']);
       app = await ctx.baseApp.asRole('practitioner');
+      identifierNamespace = await ctx.settings.get('hl7.dataDictionaries.patientDisplayId');
     });
     afterAll(() => ctx.close());
 
@@ -28,7 +29,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           patientId: patient.id,
         });
         await patient.reload(); // saving PatientAdditionalData updates the patient too
-        const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
+        const id = encodeURIComponent(`${identifierNamespace}|${patient.displayId}`);
         const path = `/v1/integration/${integrationName}/Patient?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
         // act
@@ -110,7 +111,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
 
       it("returns no error but no results when subject:identifier doesn't match a patient", async () => {
         // arrange
-        const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|abc123-not-real`);
+        const id = encodeURIComponent(`${identifierNamespace}|abc123-not-real`);
         const path = `/v1/integration/${integrationName}/Patient?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
         // act
@@ -535,7 +536,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           Patient.create(fake(Patient)),
         ]);
 
-        const identifier = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patientOne.displayId}`);
+        const identifier = encodeURIComponent(`${identifierNamespace}|${patientOne.displayId}`);
         const path = `/v1/integration/${integrationName}/Patient?identifier=${identifier}`;
         const response = await app.get(path).set(requestHeaders);
 

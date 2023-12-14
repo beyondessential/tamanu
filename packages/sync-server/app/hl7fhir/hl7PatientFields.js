@@ -22,7 +22,11 @@ export const hl7PatientFields = {
       .test(
         'is-correct-format-and-namespace',
         'identifier must be in the format "<namespace>|<id>"',
-        isValidIdentifier,
+        async (val, { options }) => {
+          const { settings } = options.context;
+          const identifierNamespace = await settings.get('hl7.dataDictionaries.patientDisplayId');
+          return isValidIdentifier(val, identifierNamespace);
+        },
       ),
     getValue: value => {
       const [, identifier] = decodeIdentifier(value);

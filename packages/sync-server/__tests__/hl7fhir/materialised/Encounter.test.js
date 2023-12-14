@@ -48,7 +48,7 @@ describe(`Materialised FHIR - Encounter`, () => {
       Location.create(
         fake(Location, { facilityId: facility.id, locationGroupId: locationGroup.id }),
       ),
-      FhirPatient.materialiseFromUpstream(patient.id),
+      FhirPatient.materialiseFromUpstream(patient.id, ctx.settings),
     ]);
 
     const department = await Department.create(
@@ -90,7 +90,7 @@ describe(`Materialised FHIR - Encounter`, () => {
     });
     creationDate = addDays(creationDate, 1);
 
-    const mat = await FhirEncounter.materialiseFromUpstream(encounter.id);
+    const mat = await FhirEncounter.materialiseFromUpstream(encounter.id, ctx.settings);
     await FhirEncounter.resolveUpstreams();
 
     return [encounter, mat];

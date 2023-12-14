@@ -1,15 +1,16 @@
 import { convertISO9075toRFC3339 } from '@tamanu/shared/utils/dateTime';
 import { fake, chance } from '@tamanu/shared/test-helpers';
 import { createTestContext } from 'sync-server/__tests__/utilities';
-import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
 
 export function testDiagnosticReportHandler(integrationName, requestHeaders = {}) {
   describe(`${integrationName} integration - DiagnosticReport`, () => {
     let ctx;
     let app;
+    let identifierNamespace;
     beforeAll(async () => {
       ctx = await createTestContext(requestHeaders['X-Tamanu-Client']);
       app = await ctx.baseApp.asRole('practitioner');
+      identifierNamespace = await ctx.settings.get('hl7.dataDictionaries.patientDisplayId');
     });
     afterAll(() => ctx.close());
 
@@ -119,7 +120,7 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
           laboratory,
         } = await createLabTestHierarchy(patient);
 
-        const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
+        const id = encodeURIComponent(`${identifierNamespace}|${patient.displayId}`);
         const path = `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
 
         // act
@@ -265,7 +266,7 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
         await createLabTestHierarchy(someOtherPatient);
         await createLabTestHierarchy(someOtherPatient);
 
-        const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
+        const id = encodeURIComponent(`${identifierNamespace}|${patient.displayId}`);
         const path = `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
         // act
@@ -312,7 +313,7 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
 
       it("returns no error but no results when subject:identifier doesn't match a patient", async () => {
         // arrange
-        const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|not-an-existing-id`);
+        const id = encodeURIComponent(`${identifierNamespace}|not-an-existing-id`);
         const path = `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
         // act
@@ -348,7 +349,7 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
         labRequest.labTestLaboratoryId = null; // remove the id
         await labRequest.save();
 
-        const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
+        const id = encodeURIComponent(`${identifierNamespace}|${patient.displayId}`);
         const path = `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
 
         // act
@@ -389,7 +390,7 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
         const patient = await Patient.create(fake(Patient));
         const { labTest, labTestMethod } = await createLabTestHierarchy(patient, { isRDT: true });
 
-        const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
+        const id = encodeURIComponent(`${identifierNamespace}|${patient.displayId}`);
         const path = `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
 
         // act
@@ -445,7 +446,7 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
         labRequest2.status = 'results_pending'; // set the status to something else
         await labRequest2.save();
 
-        const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
+        const id = encodeURIComponent(`${identifierNamespace}|${patient.displayId}`);
         const path = `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
         // act

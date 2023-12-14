@@ -17,7 +17,7 @@ describe(`Materialised FHIR - Practitioner`, () => {
   async function makePractitioner(overrides = {}) {
     const { User, FhirPractitioner } = ctx.store.models;
     const user = await User.create(fake(User, overrides));
-    const mat = await FhirPractitioner.materialiseFromUpstream(user.id);
+    const mat = await FhirPractitioner.materialiseFromUpstream(user.id, ctx.settings);
     return [user, mat];
   }
 
