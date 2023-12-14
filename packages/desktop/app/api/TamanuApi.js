@@ -8,7 +8,7 @@ import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { getDeviceId, notifyError } from '../utils';
 
-const { HOST, TOKEN, LOCALISATION, SERVER, PERMISSIONS, ROLE } = LOCAL_STORAGE_KEYS;
+const { TOKEN, LOCALISATION, SERVER, PERMISSIONS, ROLE } = LOCAL_STORAGE_KEYS;
 
 const getResponseJsonSafely = async response => {
   try {
@@ -108,19 +108,13 @@ export class TamanuApi {
     this.user = null;
     this.deviceId = getDeviceId();
 
-    const host = window.localStorage.getItem(HOST);
-    if (host) {
-      this.setHost(host);
-    }
-  }
-
-  setHost(host) {
-    const canonicalHost = host.endsWith('/') ? host.slice(0, -1) : host;
-    this.host = canonicalHost;
-    this.prefix = `${canonicalHost}/v1`;
-
-    // save host in local storage
-    window.localStorage.setItem(HOST, canonicalHost);
+    const host = new URL(location);
+    host.pathname = '';
+    host.search = '';
+    host.hash = '';
+    this.host = host.toString();
+    host.pathname = '/api';
+    this.prefix = host.toString();
   }
 
   setAuthFailureHandler(handler) {
@@ -144,8 +138,7 @@ export class TamanuApi {
     return { user, token, localisation, server, ability, role };
   }
 
-  async login(host, email, password) {
-    this.setHost(host);
+  async login(email, password) {
     const response = await this.post(
       'login',
       {
@@ -182,13 +175,11 @@ export class TamanuApi {
     return { user, token, localisation, server, ability, role };
   }
 
-  async requestPasswordReset(host, email) {
-    this.setHost(host);
+  async requestPasswordReset(email) {
     return this.post('resetPassword', { email });
   }
 
-  async changePassword(host, data) {
-    this.setHost(host);
+  async changePassword(data) {
     return this.post('changePassword', data);
   }
 
@@ -208,9 +199,6 @@ export class TamanuApi {
   }
 
   async fetch(endpoint, query, config) {
-    if (!this.host) {
-      throw new Error("TamanuApi can't be used until the host is set");
-    }
     const {
       headers,
       returnResponse = false,
