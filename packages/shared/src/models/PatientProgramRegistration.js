@@ -31,6 +31,10 @@ export class PatientProgramRegistration extends Model {
           type: Sequelize.TEXT,
           defaultValue: REGISTRATION_STATUSES.ACTIVE,
         },
+        registrationDate: dateTimeType('registrationDate', {
+          allowNull: false,
+          defaultValue: getCurrentDateTimeString,
+        }),
         removedDate: dateTimeType('removedDate', {
           allowNull: true,
           defaultValue: null,
@@ -129,7 +133,7 @@ export class PatientProgramRegistration extends Model {
       ...(existingRegistration ?? {}),
       // today's date should absolutely override the date of the previous registration record,
       // but if a date was provided in the function params, we should go with that.
-      date: getCurrentDateTimeString(),
+      registrationDate: getCurrentDateTimeString(),
       ...restOfUpdates,
       ...(existingRegistration &&
       existingRegistration.clinicalStatusId !== restOfUpdates.clinicalStatusId
@@ -143,6 +147,7 @@ export class PatientProgramRegistration extends Model {
             removedDate: null,
           }
         : { removedDate: getCurrentDateTimeString() }),
+      date: getCurrentDateTimeString(),
     });
   }
 

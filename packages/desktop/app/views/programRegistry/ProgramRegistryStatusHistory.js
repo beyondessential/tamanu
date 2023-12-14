@@ -26,13 +26,13 @@ export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => 
     patientProgramRegistration.patientId,
     patientProgramRegistration.programRegistryId,
     {
-      orderBy: 'clinicalStatusUpdatedAt',
+      orderBy: 'date',
       order: 'desc',
     },
   );
 
   const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting({
-    initialSortKey: 'clinicalStatusUpdatedAt',
+    initialSortKey: 'date',
     initialSortDirection: 'desc',
   });
 
@@ -56,7 +56,7 @@ export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => 
         accessor: row => row.clinician.displayName,
       },
       {
-        key: 'clinicalStatusUpdatedAt',
+        key: 'date',
         title: 'Date recorded',
         sortable: true,
         accessor: row => <DateDisplay date={row.clinicalStatusUpdatedAt} />,
@@ -64,7 +64,7 @@ export const ProgramRegistryStatusHistory = ({ patientProgramRegistration }) => 
       ...(removedOnce
         ? [
             {
-              key: 'date',
+              key: 'registrationDate',
               title: 'Date of registration',
               sortable: false,
               accessor: row => <DateDisplay date={row.date} />,

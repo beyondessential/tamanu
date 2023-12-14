@@ -101,7 +101,7 @@ patientProgramRegistration.get(
         programRegistryId,
       },
       include: PatientProgramRegistration.getFullReferenceAssociations(),
-      order: [['updatedAt', 'DESC']],
+      order: [['date', 'DESC']],
     });
 
     if (!registration) {
@@ -127,7 +127,7 @@ patientProgramRegistration.get(
         programRegistryId,
       },
       include: PatientProgramRegistration.getListReferenceAssociations(),
-      order: [['clinicalStatusUpdatedAt', 'DESC']],
+      order: [['date', 'DESC']],
     });
 
     res.send({
