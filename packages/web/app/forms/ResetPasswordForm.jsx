@@ -86,29 +86,7 @@ export const ResetPasswordForm = React.memo(
     );
 
     if (success) {
-      return (
-        <FormGrid columns={1}>
-          <div>
-            <FormHeading>Reset code sent.</FormHeading>
-            <FormSubtext>
-              We have emailed you a reset code. Please enter the code below to continue to reset
-              your password
-            </FormSubtext>
-          </div>
-          <ResetPasswordButton
-            fullWidth
-            variant="contained"
-            color="primary"
-            onClick={onNavToChangePassword}
-          >
-            Continue
-          </ResetPasswordButton>
-          <BackToLoginButton onClick={onNavToLogin} variant="outlined">
-            Back to login
-          </BackToLoginButton>
-          <ResendCodeButton onClick={onRestartFlow}>Resend reset code</ResendCodeButton>
-        </FormGrid>
-      );
+      onNavToChangePassword();
     }
 
     return (
