@@ -51,6 +51,17 @@ function start() {
 
   const container = document.getElementById('root');
 
+  window.onload = () => {
+    const isOpened = window.localStorage.getItem('isOpened');
+    if (!isOpened) {
+      window.localStorage.setItem('isOpened', 1);
+      window.localStorage.setItem('renderTab', 1);
+      window.onunload = () => {
+        window.localStorage.removeItem('isOpened');
+      };
+    }
+  };
+
   const root = createRoot(container); // createRoot(container!) if you use TypeScript
   renderRootInto(root, {
     api: API,
