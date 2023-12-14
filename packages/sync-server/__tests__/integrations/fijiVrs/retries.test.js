@@ -1,14 +1,13 @@
-import config from 'config';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { VRSActionRetrier } from 'sync-server/app/tasks/VRSActionRetrier';
 import { prepareVRSMocks } from './sharedHookHelpers';
 
-const { host } = config.integrations.fijiVrs;
-
 describe('VRS integration - VRSActionRetrier', () => {
   let ctx;
+  let host;
   beforeAll(async () => {
     ctx = await createTestContext();
+    host = await ctx.settings.get('integrations.fijiVrs.host');
     ctx.schedules = {
       vrsActionRetrier: {
         schedule: '',
