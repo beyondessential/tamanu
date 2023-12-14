@@ -1,7 +1,3 @@
-### This is the production-grade Linux container. You may be looking for:
-### - the CodeShip containers, at Dockerfile.codeship and Dockerfile.deploy
-### - the development containers, at packages/*/docker/Dockerfile
-
 ## Base images
 # The general concept is to build in build-base, then copy into a slimmer run-base
 FROM node:20-alpine AS base
