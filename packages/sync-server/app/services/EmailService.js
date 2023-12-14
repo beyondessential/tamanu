@@ -29,7 +29,7 @@ async function getReadStreamSafe(path) {
 
 export class EmailService {
   constructor(settings) {
-    this.settings = settings
+    this.settings = settings;
   }
 
   async init() {
@@ -39,6 +39,7 @@ export class EmailService {
   }
 
   async sendEmail({ attachment: untypedAttachment, ...email }) {
+    const mailgunDomain = await this.settings.get('mailgun.domain');
     // no mailgun service, unable to send email
     if (!this.mailgunService) {
       return { status: COMMUNICATION_STATUSES.ERROR, error: 'Email service not found' };
@@ -82,7 +83,7 @@ export class EmailService {
     }
 
     try {
-      const emailResult = await this.mailgunService.messages.create(domain, {
+      const emailResult = await this.mailgunService.messages.create(mailgunDomain, {
         ...email,
         attachment,
       });
