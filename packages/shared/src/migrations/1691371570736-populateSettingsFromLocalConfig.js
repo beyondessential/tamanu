@@ -67,9 +67,10 @@ const SCOPED_KEY_TRANSFORM_MAPS = {
 const prepareReplacementsForInsert = (settings, serverFacilityId, scope) => {
   // Transform settings that need to be moved or deleted
   Object.entries(SCOPED_KEY_TRANSFORM_MAPS[scope]).forEach(([oldKey, newKey]) => {
-    const value = has(settings, oldKey) && get(settings, oldKey);
-    if (value) {
-      if (newKey) set(settings, newKey, value);
+    const exists = has(settings, oldKey);
+    if (exists) {
+      const value = get(settings, oldKey);
+      if (value && newKey) set(settings, newKey, value);
       unset(settings, oldKey);
     }
   });
