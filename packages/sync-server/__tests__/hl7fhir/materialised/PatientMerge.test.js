@@ -256,7 +256,7 @@ describe(`Materialised FHIR - Patient Merge`, () => {
           visibilityStatus: VISIBILITY_STATUSES.CURRENT,
         }),
       );
-      const { id: a } = await FhirPatient.materialiseFromUpstream(primaryA.i, ctx.settings);
+      const { id: a } = await FhirPatient.materialiseFromUpstream(primaryA.id, ctx.settings);
 
       const mergedB = await Patient.create(
         fake(Patient, {
