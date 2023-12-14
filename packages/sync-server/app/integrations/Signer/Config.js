@@ -26,10 +26,14 @@ const SCHEMA = yup
         'keySecret must be at least 32 bytes of data',
         value => Buffer.from(value, 'base64').length >= 32,
       ),
-    // TODO: use db config fetcher
-    commonName: config.integrations.vdsNc.enabled
-      ? CN_SCHEMA_VDS_NC.required()
-      : CN_SCHEMA_EU_DCC.required(),
+    commonName: yup
+      .string()
+      .whenSetting('integrations.vdsNc.enabled', {
+        is: true,
+        then: CN_SCHEMA_VDS_NC.required(),
+        otherwise: CN_SCHEMA_EU_DCC.required(),
+      })
+      .required(),
 
     provider: yup.string(),
 
@@ -42,5 +46,10 @@ const SCHEMA = yup
 
 export async function checkSignerConfig(settings) {
   const { signer } = await settings.get('integrations');
-  if (signer.enabled) SCHEMA.validateSync(signer);
+  if (signer.enabled)
+    await SCHEMA.validate(signer, {
+      context: {
+        settings,
+      },
+    });
 }
