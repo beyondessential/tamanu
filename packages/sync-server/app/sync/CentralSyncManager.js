@@ -317,6 +317,7 @@ export class CentralSyncManager {
             sessionId,
             facilityId,
             sessionConfig,
+            this.settings,
           );
 
           // any tables for full resync from (used when mobile needs to wipe and resync tables as
@@ -330,6 +331,7 @@ export class CentralSyncManager {
               sessionId,
               facilityId,
               sessionConfig,
+              this.settings,
             );
           }
 

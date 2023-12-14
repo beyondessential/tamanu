@@ -49,6 +49,7 @@ describe('snapshotOutgoingChanges', () => {
         sessionId,
         '',
         simplestSessionConfig,
+        ctx.settings,
       );
       expect(result).toEqual(0);
     }),
@@ -74,6 +75,7 @@ describe('snapshotOutgoingChanges', () => {
         syncSession.id,
         '',
         simplestSessionConfig,
+        ctx.settings,
       );
       expect(result).toEqual(1);
 
@@ -111,6 +113,7 @@ describe('snapshotOutgoingChanges', () => {
         syncSession.id,
         '',
         simplestSessionConfig,
+        ctx.settings,
       );
       expect(result).toEqual(1);
     }),
@@ -139,6 +142,7 @@ describe('snapshotOutgoingChanges', () => {
         syncSession.id,
         '',
         simplestSessionConfig,
+        ctx.settings,
       );
       expect(result).toEqual(2);
     }),
@@ -205,6 +209,7 @@ describe('snapshotOutgoingChanges', () => {
             syncSession.id,
             '',
             simplestSessionConfig,
+            ctx.settings,
           );
         },
       );
@@ -285,6 +290,7 @@ describe('snapshotOutgoingChanges', () => {
             syncSession.id,
             '',
             simplestSessionConfig,
+            ctx.settings,
           );
         },
       );
@@ -420,6 +426,7 @@ describe('snapshotOutgoingChanges', () => {
         syncSession.id,
         fakeUUID(),
         { ...simplestSessionConfig, syncAllLabRequests: true },
+        ctx.settings,
       );
 
       const outgoingSnapshotRecords = await findSyncSnapshotRecords(
@@ -459,6 +466,7 @@ describe('snapshotOutgoingChanges', () => {
         syncSession.id,
         fakeUUID(),
         { ...simplestSessionConfig, syncAllLabRequests: true },
+        ctx.settings,
       );
 
       const outgoingSnapshotRecords = await findSyncSnapshotRecords(
@@ -490,6 +498,7 @@ describe('snapshotOutgoingChanges', () => {
         syncSession.id,
         fakeUUID(),
         { ...simplestSessionConfig, syncAllLabRequests: false },
+        ctx.settings,
       );
 
       const outgoingSnapshotRecords = await findSyncSnapshotRecords(
@@ -603,6 +612,7 @@ describe('snapshotOutgoingChanges', () => {
           ...simplestSessionConfig,
           syncAllEncountersForTheseVaccines: [scheduledVaccine1.vaccineId],
         },
+        ctx.settings,
       );
 
       const outgoingSnapshotRecords = await findSyncSnapshotRecords(
@@ -636,6 +646,7 @@ describe('snapshotOutgoingChanges', () => {
           ...simplestSessionConfig,
           syncAllEncountersForTheseVaccines: [scheduledVaccine2.vaccineId],
         },
+        ctx.settings,
       );
 
       const outgoingSnapshotRecords = await findSyncSnapshotRecords(
