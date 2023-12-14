@@ -1,4 +1,3 @@
-import config from 'config';
 import { addSeconds, parseISO } from 'date-fns';
 
 import {
@@ -19,21 +18,21 @@ import {
 } from '../../../services/fhirTypes';
 import { formatFhirDate } from '../../../utils/fhir';
 
-export async function getValues(upstream, models) {
+export async function getValues(upstream, models, settings) {
   const { Encounter } = models;
 
-  if (upstream instanceof Encounter) return getValuesFromEncounter(upstream);
+  if (upstream instanceof Encounter) return getValuesFromEncounter(upstream, settings);
   throw new Error(`Invalid upstream type for encounter ${upstream.constructor.name}`);
 }
 
-async function getValuesFromEncounter(upstream) {
+async function getValuesFromEncounter(upstream, settings) {
   return {
     lastUpdated: new Date(),
     status: status(upstream),
-    class: classification(upstream),
+    class: await classification(upstream, settings),
     actualPeriod: period(upstream),
     subject: subjectRef(upstream),
-    location: locationRef(upstream),
+    location: locationRef(upstream, settings),
   };
 }
 
@@ -45,15 +44,17 @@ function status(encounter) {
   return FHIR_ENCOUNTER_STATUS.IN_PROGRESS;
 }
 
-function classification(encounter) {
+async function classification(encounter, settings) {
   const code = classificationCode(encounter);
   if (!code) return [];
+
+  const encounterClassDict = await settings.get('hl7.dataDictionaries.encounterClass');
 
   return [
     new FhirCodeableConcept({
       coding: [
         new FhirCoding({
-          system: config.hl7.dataDictionaries.encounterClass,
+          system: encounterClassDict,
           code,
           display: FHIR_ENCOUNTER_CLASS_DISPLAY[code] ?? null,
         }),
@@ -111,7 +112,8 @@ function subjectRef(encounter) {
 
 const { BED, WARD } = FHIR_LOCATION_PHYSICAL_TYPE_CODE;
 
-function locationRef(encounter) {
+async function locationRef(encounter, settings) {
+  const locationPhysicalTypeDict = await settings.get('hl7.dataDictionaries.locationPhysicalType');
   return [
     new FhirEncounterLocation({
       location: new FhirReference({
@@ -122,7 +124,7 @@ function locationRef(encounter) {
       physicalType: new FhirCodeableConcept({
         coding: [
           {
-            system: config.hl7.dataDictionaries.locationPhysicalType,
+            system: locationPhysicalTypeDict,
             code: WARD,
             display: FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY[WARD],
           },
@@ -138,7 +140,7 @@ function locationRef(encounter) {
       physicalType: new FhirCodeableConcept({
         coding: [
           {
-            system: config.hl7.dataDictionaries.locationPhysicalType,
+            system: locationPhysicalTypeDict,
             code: BED,
             display: FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY[BED],
           },
