@@ -1,9 +1,9 @@
 import { last } from 'lodash';
 
+import { getCountParameters } from '@tamanu/shared/utils/fhir';
 import { pushToQuery } from './common';
 import { generateWhereClause } from './where';
 import { generateOrderClause } from './order';
-import { getCountParameters } from '../../../../../shared/src/utils/fhir';
 
 /**
  * @param {*} query The request query Map (normalised)
