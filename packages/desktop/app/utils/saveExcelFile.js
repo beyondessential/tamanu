@@ -1,5 +1,4 @@
 import XLSX from 'xlsx';
-import { showFileDialog } from './dialog';
 
 const stringifyIfNonDateObject = val =>
   typeof val === 'object' && !(val instanceof Date) && val !== null ? JSON.stringify(val) : val;
@@ -10,10 +9,11 @@ export async function saveExcelFile(
 ) {
   let path;
   if (promptForFilePath) {
-    path = await showFileDialog(
-      [{ name: `Excel spreadsheet (${bookType})`, extensions: [bookType] }],
-      defaultFileName,
-    );
+    // TODO(web)
+    // path = await showFileDialog(
+    //   [{ name: `Excel spreadsheet (${bookType})`, extensions: [bookType] }],
+    //   defaultFileName,
+    // );
     if (!path) {
       // user cancelled
       return '';
